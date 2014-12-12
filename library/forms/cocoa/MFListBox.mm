@@ -32,7 +32,7 @@
 
 @implementation DraggingTableView
 
-- (id)initWithFrame: (NSRect)frame owner: (mforms::ListBox*)theOwner
+- (instancetype)initWithFrame: (NSRect)frame owner: (mforms::ListBox*)theOwner
 {
   self = [super initWithFrame: frame];
   if (self != nil)
@@ -53,7 +53,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 @implementation MFListBoxImpl
 
-- (id)initWithObject:(::mforms::ListBox*)aListBox
+- (instancetype)initWithObject:(::mforms::ListBox*)aListBox
 {
   self= [super initWithFrame:NSMakeRect(0, 0, 40, 40)];
   if (self)
@@ -124,7 +124,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
 {
-  return [mContents objectAtIndex: rowIndex];
+  return mContents[rowIndex];
 }
 
 
@@ -252,7 +252,7 @@ static std::string listbox_get_text(::mforms::ListBox *self)
     if ( listbox )
     {
       if ([listbox->mTable selectedRow] >= 0)
-        return [[listbox->mContents objectAtIndex: [listbox->mTable selectedRow]] UTF8String];
+        return [listbox->mContents[[listbox->mTable selectedRow]] UTF8String];
     }
   }
   return "";

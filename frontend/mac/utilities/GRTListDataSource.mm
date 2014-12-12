@@ -46,7 +46,7 @@ static std::map<std::string, GRTNodeId*> node_cache;
 }
 
 
-- (id)init
+- (instancetype)init
 {
   if ((self= [super init]) != nil)
   {
@@ -56,7 +56,7 @@ static std::map<std::string, GRTNodeId*> node_cache;
 }
 
 
-- (id)initWithNodeId:(const bec::NodeId&)nodeId
+- (instancetype)initWithNodeId:(const bec::NodeId&)nodeId
 {
   if ((self= [super init]) != nil)
   {
@@ -101,7 +101,7 @@ static std::map<std::string, GRTNodeId*> node_cache;
 
 @implementation GRTListDataSource
 
-- (id)initWithListModel:(bec::ListModel*)model
+- (instancetype)initWithListModel:(bec::ListModel*)model
 {
   if ((self = [super init]) != nil)
   {
@@ -130,7 +130,7 @@ static std::map<std::string, GRTNodeId*> node_cache;
     std::string value;
     _list->get_field(rowIndex, [[aTableColumn identifier] integerValue], value);
   
-    return [NSString stringWithUTF8String:value.c_str()];
+    return @(value.c_str());
   }
   return nil;
 }

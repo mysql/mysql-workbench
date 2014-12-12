@@ -54,7 +54,7 @@
   // to determine the minimum size.
   if ([[self subviews] count] == 0)
     return NSMakeSize(0, 0);
-  return [[[self subviews] objectAtIndex: 0] minimumSize];
+  return [[self subviews][0] minimumSize];
 }
 
 @end
@@ -69,7 +69,7 @@
 
 @implementation DraggingTabView
 
-- (id)initWithFrame: (NSRect)frame owner: (mforms::TabView *)aTabView
+- (instancetype)initWithFrame: (NSRect)frame owner: (mforms::TabView *)aTabView
 {
   self = [super initWithFrame: frame];
   if (self != nil)
@@ -90,7 +90,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 @implementation MFTabViewImpl
 
-- (id)initWithObject:(::mforms::TabView*)aTabView tabType:(mforms::TabViewType)tabType
+- (instancetype)initWithObject:(::mforms::TabView*)aTabView tabType:(mforms::TabViewType)tabType
 {
   self = [super initWithFrame:NSMakeRect(10, 10, 100, 100)];
   if (self)

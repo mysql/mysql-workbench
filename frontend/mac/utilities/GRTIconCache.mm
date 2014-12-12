@@ -30,7 +30,7 @@ static GRTIconCache *instance = NULL;
   return instance;
 }
 
-- (id)init
+- (instancetype)init
 {
   if ((self= [super init]) != nil)
   {
@@ -68,7 +68,7 @@ static GRTIconCache *instance = NULL;
 {
   std::string path= bec::IconManager::get_instance()->get_icon_path([fname UTF8String]);
 
-  return [[[NSImage alloc] initWithContentsOfFile:[NSString stringWithUTF8String:path.c_str()]] autorelease];
+  return [[[NSImage alloc] initWithContentsOfFile:@(path.c_str())] autorelease];
 }
 
 
@@ -91,7 +91,7 @@ static GRTIconCache *instance = NULL;
   if (path.empty())
     return nil;
 
-  NSImage *image = [[[NSImage alloc] initWithContentsOfFile:[NSString stringWithUTF8String:path.c_str()]] autorelease];
+  NSImage *image = [[[NSImage alloc] initWithContentsOfFile:@(path.c_str())] autorelease];
   return image;
 }
 

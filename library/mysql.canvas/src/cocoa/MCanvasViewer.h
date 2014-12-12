@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -58,16 +58,15 @@
 //- (void)setupOpenGL;
 - (void)setupQuartz;
 
-- (mdc::CanvasView*)canvas;
+@property (readonly) mdc::CanvasView *canvas;
 
 - (void)setCursor:(NSCursor*)cursor;
 
-- (id)delegate;
-- (void)setDelegate:(id)delegate;
+@property (assign) id delegate;
 
 - (void)scrollToPoint:(NSPoint)offset;
-- (NSRect)documentRect;
-- (NSRect)documentVisibleRect;
+@property (readonly) NSRect documentRect;
+@property (readonly) NSRect documentVisibleRect;
 
 @end
 

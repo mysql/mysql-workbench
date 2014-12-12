@@ -19,7 +19,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-typedef enum 
+typedef NS_ENUM(NSInteger, MTabSwitcherStyle) 
 {
   MSectionTabSwitcher,
   MPaletteTabSwitcher, // Similar to SectionTabSwitcher, but with slight changes (darker and centered)
@@ -28,7 +28,7 @@ typedef enum
   MEditorBottomTabSwitcher,
   MEditorBottomTabSwitcherPinnable,
   MMainTabSwitcher
-} MTabSwitcherStyle;
+};
 
 
 
@@ -91,11 +91,10 @@ typedef enum
 - (void)setTabView:(NSTabView*)tabView;
 - (void)setAllowTabReordering:(BOOL)flag;
 
-- (NSTabViewItem*)clickedItem;
+@property (readonly, strong) NSTabViewItem *clickedItem;
 - (void)closeTabViewItem: (NSTabViewItem*)item;
 
-- (void)setDelegate:(id)delegate;
-- (id)delegate;
+@property (assign) id delegate;
 
 - (void)tile;
 

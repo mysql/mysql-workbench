@@ -25,11 +25,11 @@
 @class WBOverviewListController;
 @class WBOverviewPanel;
 
-typedef enum {
+typedef NS_ENUM(NSInteger, ListMode) {
   ListModeLargeIcon,
   ListModeSmallIcon,
   ListModeDetails
-} ListMode;
+} ;
 
 @interface WBOverviewGroupContainer : WBSchemaTabView <NSTabViewDelegate>
 {
@@ -42,8 +42,8 @@ typedef enum {
   BOOL _resizing;
 }
 
-- (id)initWithOverview:(WBOverviewPanel*)owner
-                nodeId:(const bec::NodeId&)node;
+- (instancetype)initWithOverview:(WBOverviewPanel*)owner
+                nodeId:(const bec::NodeId&)node NS_DESIGNATED_INITIALIZER;
 - (void)refreshChildren;
 
 - (void)buildChildren;
@@ -68,12 +68,12 @@ typedef enum {
   NSTabViewItem *_tabItem;
 }
 
-- (id)initWithOverview:(WBOverviewPanel*)owner
+- (instancetype)initWithOverview:(WBOverviewPanel*)owner
                 nodeId:(const bec::NodeId&)node
-               tabItem:(NSTabViewItem*)tabItem;
+               tabItem:(NSTabViewItem*)tabItem NS_DESIGNATED_INITIALIZER;
 
 - (void)updateNodeId:(const bec::NodeId&)node;
-- (bec::NodeId&)nodeId;
+@property (readonly) bec::NodeId & nodeId;
 
 - (void)refreshChildren;
 - (void)refreshInfo;
@@ -105,8 +105,8 @@ typedef enum {
   NSMenu *_contextMenu; // this is created in teh collectionView nib
 }
 
-- (id)initWithOverview:(WBOverviewPanel*)owner
-                nodeId:(const bec::NodeId&)node;
+- (instancetype)initWithOverview:(WBOverviewPanel*)owner
+                nodeId:(const bec::NodeId&)node NS_DESIGNATED_INITIALIZER;
 
 - (void)updateNodeId:(const bec::NodeId&)node;
 
@@ -128,8 +128,8 @@ typedef enum {
   NSString *_subTitle;
 }
 
-- (id)initWithOverview:(WBOverviewPanel*)owner
-                nodeId:(const bec::NodeId&)node;
+- (instancetype)initWithOverview:(WBOverviewPanel*)owner
+                nodeId:(const bec::NodeId&)node NS_DESIGNATED_INITIALIZER;
 
 
 - (void)setTitle:(NSString*)title;

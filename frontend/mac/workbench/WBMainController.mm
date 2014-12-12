@@ -74,17 +74,17 @@ static std::string showFileDialog(const std::string &type, const std::string &ti
     {
       std::string ext= iter->substr(iter->find('|')+1);
       ext= bec::replace_string(ext, "*.", "");
-      [fileTypes addObject:[NSString stringWithUTF8String:ext.c_str()]];
+      [fileTypes addObject:@(ext.c_str())];
     }
     else
-      [fileTypes addObject:[NSString stringWithUTF8String:iter->c_str()]];
+      [fileTypes addObject:@(iter->c_str())];
   }  
   
   if (type == "open")
   {
     NSOpenPanel *panel= [NSOpenPanel openPanel];
 
-    [panel setTitle: [NSString stringWithUTF8String:title.c_str()]];
+    [panel setTitle: @(title.c_str())];
     [panel setAllowedFileTypes: fileTypes];
     
     if ([panel runModal] == NSFileHandlingPanelOKButton)
@@ -94,7 +94,7 @@ static std::string showFileDialog(const std::string &type, const std::string &ti
   {
     NSSavePanel *panel= [NSSavePanel savePanel];
     
-    [panel setTitle:[NSString stringWithUTF8String:title.c_str()]];
+    [panel setTitle:@(title.c_str())];
     
     [panel setAllowedFileTypes:fileTypes];
 
@@ -177,7 +177,7 @@ static NativeHandle windowOpenPlugin(bec::GRTManager *grtm,
     // determine the path for the plugin bundle by stripping Contents/Framework/dylibname 
     bundlePath= [[[[NSString stringWithCPPString:path] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent];
     
-    NSLog(@"opening plugin bundle %@ ([%s initWithModule:GRTManager:arguments:...])", bundlePath, class_name.c_str());
+    NSLog(@"opening plugin bundle %@ ([%s initWithModule:grtManager:arguments:...])", bundlePath, class_name.c_str());
     
     pluginBundle= [NSBundle bundleWithPath: bundlePath];
     if (!pluginBundle)
@@ -194,7 +194,7 @@ static NativeHandle windowOpenPlugin(bec::GRTManager *grtm,
     else
       NSLog(@"plugin bundle is supposed to be already loaded");
         */
-    Class pclass= [pluginBundle classNamed:[NSString stringWithUTF8String:class_name.c_str()]];
+    Class pclass= [pluginBundle classNamed:@(class_name.c_str())];
     if (!pclass)
     {
       NSLog(@"plugin class %s was not found in bundle %@", class_name.c_str(), bundlePath);
@@ -251,7 +251,7 @@ static NativeHandle windowOpenPlugin(bec::GRTManager *grtm,
     }
     
     // Instantiate and initialize the plugin.
-    id plugin= [[pclass alloc] initWithModule:ownerModule GRTManager:grtm arguments:args];
+    id plugin = [[pclass alloc] initWithModule: ownerModule grtManager: grtm arguments: args];
       
     //NSLog(@"CREATED PLUGIN %@ %@ %@", plugin, [plugin identifier], [plugin title]);
     
@@ -492,7 +492,7 @@ static bool validate_paste(wb::WBContextUI *wbui)
     BOOL isEditable = [(id)[[NSApp keyWindow] firstResponder] isEditable];
     
     // 2) The pasteboard contains text.
-    NSArray* supportedTypes = [NSArray arrayWithObjects: NSStringPboardType, nil];
+    NSArray* supportedTypes = @[NSStringPboardType];
     NSString *bestType = [[NSPasteboard generalPasteboard] availableTypeFromArray: supportedTypes];
 
     return isEditable && (bestType != nil);
@@ -887,7 +887,7 @@ static NSString *applicationSupportFolder()
   NSArray *res= NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
 
   if ([res count] > 0)
-    return [res objectAtIndex: 0];
+    return res[0];
   return @"/tmp/";
 }
 
@@ -1027,7 +1027,7 @@ static void init_mforms()
 }
 #endif
 
-- (id)init
+- (instancetype)init
 {
   self= [super init];
   if (self)
@@ -1157,7 +1157,7 @@ static void init_mforms()
 {
   static NSArray *modes= nil;
   if (!modes) 
-    modes= [[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSModalPanelRunLoopMode, nil] retain];
+    modes= [@[NSDefaultRunLoopMode, NSModalPanelRunLoopMode] retain];
   
   // if we call flush_idle_tasks() directly here, we could get blocked by a plugin with a
   // modal loop. In that case, the timer would not get fired again until the modal loop

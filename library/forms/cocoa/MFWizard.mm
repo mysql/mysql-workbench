@@ -38,7 +38,7 @@
 
 @implementation MFWizardImpl
 
-- (id)initWithObject:(::mforms::Wizard*)aWizard
+- (instancetype)initWithObject:(::mforms::Wizard*)aWizard
 {
   self= [super init];
   if (self)

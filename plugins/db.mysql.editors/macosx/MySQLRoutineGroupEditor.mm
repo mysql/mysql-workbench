@@ -35,9 +35,11 @@ static void call_refresh(DbMysqlRoutineGroupEditor *self)
   [self performSelectorOnMainThread:@selector(refresh) withObject:nil waitUntilDone:YES];
 }
 
-- (id)initWithModule:(grt::Module*)module GRTManager:(bec::GRTManager*)grtm arguments:(const grt::BaseListRef&)args
+- (instancetype)initWithModule: (grt::Module*)module
+                    grtManager: (bec::GRTManager *)grtm
+                     arguments: (const grt::BaseListRef &)args
 {
-  self= [super initWithNibName: @"MySQLRoutineGroupEditor" bundle: [NSBundle bundleForClass:[self class]]];
+  self = [super initWithNibName: @"MySQLRoutineGroupEditor" bundle: [NSBundle bundleForClass:[self class]]];
   if (self != nil)
   {
     _grtm = grtm;
@@ -229,7 +231,7 @@ static void call_refresh(DbMysqlRoutineGroupEditor *self)
 
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
 {
-  return [mRoutineArray objectAtIndex: rowIndex];
+  return mRoutineArray[rowIndex];
 }
 
 //--------------------------------------------------------------------------------------------------

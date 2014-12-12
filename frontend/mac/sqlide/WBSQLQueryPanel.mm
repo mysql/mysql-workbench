@@ -373,7 +373,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
     [peditor setCompactMode: NO];
   }
 
-  [mEditors setObject: editor forKey: identifier];
+  mEditors[identifier] = editor;
   NSTabViewItem *item = [[[NSTabViewItem alloc] initWithIdentifier: identifier] autorelease];
   [item setView: [editor topView]];
   [item setLabel: [editor title]];
@@ -427,7 +427,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
         break;
       }
       case 3:
-        [[NSPasteboard generalPasteboard] declareTypes: [NSArray arrayWithObject:NSStringPboardType] owner:nil];
+        [[NSPasteboard generalPasteboard] declareTypes: @[NSStringPboardType] owner:nil];
         [[NSPasteboard generalPasteboard] setString: [NSString stringWithCPPString: sql] forType: NSStringPboardType];
         break;
     }
@@ -466,7 +466,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
   {
     NSRange range;
     range = NSMakeRange([[mTextOutput string] length], 0);
-    [mTextOutput replaceCharactersInRange: range withString: [NSString stringWithUTF8String: mTextOutputBuffer.c_str()]];
+    [mTextOutput replaceCharactersInRange: range withString: @(mTextOutputBuffer.c_str())];
   
     range = NSMakeRange([[mTextOutput string] length], 0);
     [mTextOutput scrollRangeToVisible: range];
@@ -724,7 +724,7 @@ willCloseTabViewItem:(NSTabViewItem*)tabViewItem
       return mDockingPoint->close_view(appView);
     else
     {
-      id editor = [mEditors objectForKey: [tabViewItem identifier]];
+      id editor = mEditors[[tabViewItem identifier]];
       if ([editor respondsToSelector: @selector(willClose)])
         if (![editor willClose])
           return NO;
@@ -747,7 +747,7 @@ willCloseTabViewItem:(NSTabViewItem*)tabViewItem
 {
   if (tabView == mUpperTabView)
   {
-    id tab = [mEditors objectForKey: [tabViewItem identifier]];
+    id tab = mEditors[[tabViewItem identifier]];
     if ([tab respondsToSelector: @selector(tabIcon)])
       return [tab tabIcon];
     else
@@ -824,7 +824,7 @@ willCloseTabViewItem:(NSTabViewItem*)tabViewItem
 
 #pragma mark Create + destroy
 
-- (id)initWithBE:(const SqlEditorForm::Ref&)be
+- (instancetype)initWithBE:(const SqlEditorForm::Ref&)be
 {
   self= [super init];
   if (self)
@@ -952,8 +952,8 @@ willCloseTabViewItem:(NSTabViewItem*)tabViewItem
 {
   mSidebarAtRight = flag;
 
-  id view1 = [[mView subviews] objectAtIndex: 0];
-  id view2 = [[mView subviews] objectAtIndex: 1];
+  id view1 = [mView subviews][0];
+  id view2 = [mView subviews][1];
   
   if (mSidebarAtRight)
   {
@@ -1023,7 +1023,7 @@ willCloseTabViewItem:(NSTabViewItem*)tabViewItem
   }
   else if (command == "wb.back_query_tab")
   {
-    if ([mUpperTabView selectedTabViewItem] == [[mUpperTabView tabViewItems] objectAtIndex: 0])
+    if ([mUpperTabView selectedTabViewItem] == [mUpperTabView tabViewItems][0])
       [mUpperTabView selectLastTabViewItem: nil];
     else
       [mUpperTabView selectPreviousTabViewItem:nil];

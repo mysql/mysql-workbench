@@ -292,7 +292,7 @@
   CGFloat totalWidth = TAB_ITEM_SPACING;
   for (WBTabItem* item in mTabItems) {
     //    [item updateAppearance];
-    [leftEdges addObject: [NSNumber numberWithFloat: totalWidth]];
+    [leftEdges addObject: @((float)totalWidth)];
     totalWidth += [item frame].size.width + (mTabSize == WBTabSizeLarge ? TAB_ITEM_SPACING : TAB_ITEM_SMALL_SPACING);
   }
   
@@ -319,9 +319,9 @@
   {
     int i, c = [leftEdges count];
     for (i = 0; i < c; i++) {
-      float tabLeftX = [[leftEdges objectAtIndex: i] floatValue];
+      float tabLeftX = [leftEdges[i] floatValue];
       tabLeftX += mTabScrollOffset;
-      [offsetLeftEdges addObject: [NSNumber numberWithFloat: tabLeftX]];
+      [offsetLeftEdges addObject: @(tabLeftX)];
     }
   }
   
@@ -334,17 +334,17 @@
       offsetLeftEdges = [NSMutableArray array];
       int i, c = [leftEdges count];
       for (i = 0; i < c; i++) {
-        float tabLeftX = [[leftEdges objectAtIndex: i] floatValue];
+        float tabLeftX = [leftEdges[i] floatValue];
         tabLeftX += mTabScrollOffset;
-        [offsetLeftEdges addObject: [NSNumber numberWithFloat: tabLeftX]];
+        [offsetLeftEdges addObject: @(tabLeftX)];
       }
     }
   }
   
   // Adjust the scroll offset if the selected tab is not fully visible.
   if ( (mLastSelectedTabIndex != NSNotFound) && (mLastSelectedTabIndex < (NSInteger)[mTabItems count]) ) {
-    WBTabItem* item = [mTabItems objectAtIndex: mLastSelectedTabIndex];
-    float tabLeftX = [[offsetLeftEdges objectAtIndex: mLastSelectedTabIndex] floatValue];
+    WBTabItem* item = mTabItems[mLastSelectedTabIndex];
+    float tabLeftX = [offsetLeftEdges[mLastSelectedTabIndex] floatValue];
     float tabRightX = tabLeftX + [item frame].size.width;
     if (tabLeftX < leftEdge) {
       mTabScrollOffset -= (tabLeftX - leftEdge);
@@ -359,9 +359,9 @@
   {
     int i, c = [leftEdges count];
     for (i = 0; i < c; i++) {
-      float tabLeftX = [[leftEdges objectAtIndex: i] floatValue];
+      float tabLeftX = [leftEdges[i] floatValue];
       tabLeftX += mTabScrollOffset;
-      [offsetLeftEdges addObject: [NSNumber numberWithFloat: tabLeftX]];
+      [offsetLeftEdges addObject: @(tabLeftX)];
     }
   }
   
@@ -380,10 +380,10 @@
   // Position the actual tab layers.
   int i, c = [mTabItems count];
   for (i = 0; i < c; i++) {
-    WBTabItem* item = [mTabItems objectAtIndex: i];
+    WBTabItem* item = mTabItems[i];
     CGRect itemFrame = [item frame];
     if (item != tabItemToDisregard) {
-      CGRect r = CGRectMake([[offsetLeftEdges objectAtIndex: i] floatValue], tabBottom, itemFrame.size.width, itemFrame.size.height);
+      CGRect r = CGRectMake([offsetLeftEdges[i] floatValue], tabBottom, itemFrame.size.width, itemFrame.size.height);
       [item setFrame: r];
     }
   }
@@ -450,7 +450,7 @@
           newTab = [mTabItems lastObject];
         }
         else {
-          newTab = [mTabItems objectAtIndex: index];
+          newTab = mTabItems[index];
         }
         
         [self selectTabViewItemWithIdentifier: [newTab identifier]];
@@ -624,7 +624,7 @@
 - (void) selectFirstTabViewItem: (id) sender;
 {
   if ( (mTabView != nil) && ([mTabItems count] > 0) ) {
-    id identifier = [[mTabItems objectAtIndex: 0] identifier];
+    id identifier = [mTabItems[0] identifier];
     [self selectTabViewItemWithIdentifier: identifier];
   }
   else {
@@ -683,7 +683,7 @@
   NSInteger index = [self indexOfTabViewItem: item];
   index ++;
   if (index < (NSInteger)[mTabItems count]) {
-    id identifier = [[mTabItems objectAtIndex: index] identifier];
+    id identifier = [mTabItems[index] identifier];
     [self selectTabViewItemWithIdentifier: identifier];
   }
 }
@@ -695,7 +695,7 @@
   NSInteger index = [self indexOfTabViewItem: item];
   index --;
   if (index >= 0) {
-    id identifier = [[mTabItems objectAtIndex: index] identifier];
+    id identifier = [mTabItems[index] identifier];
     [self selectTabViewItemWithIdentifier: identifier];
   }
 }
@@ -801,7 +801,7 @@
     NSInteger ix = [mTabItems indexOfObject: sender];
     int i, c = [mTabItems count];
     for (i = 0; i < c; i++) {
-      WBTabItem* peer = [mTabItems objectAtIndex: i];
+      WBTabItem* peer = mTabItems[i];
       if (! [tabsToDisregard containsObject: peer]) {
         CGRect peerFrame = [peer frame];
         CGFloat peerMid = CGRectGetMinX(peerFrame) + (peerFrame.size.width / 2);
@@ -937,7 +937,7 @@
   
   selectedIndex = MAX(selectedIndex, 0);
   selectedIndex = MIN(selectedIndex, (int)[mTabItems count] - 1);
-  id selectedTabIdentifier = [[mTabItems objectAtIndex: selectedIndex] identifier];
+  id selectedTabIdentifier = [mTabItems[selectedIndex] identifier];
   [[NSAnimationContext currentContext] setDuration: 0.0];
   [self selectTabViewItemWithIdentifier: selectedTabIdentifier];
 }
@@ -1230,7 +1230,7 @@
   NSString* path = [b pathForResource: @"TabMenuIcon"
                                ofType: @"png"];
   mTabMenuIconImage = [[NSImage alloc] initWithContentsOfFile: path];
-  CGImageRef img = [[[mTabMenuIconImage representations] objectAtIndex: 0] CGImage];
+  CGImageRef img = [[mTabMenuIconImage representations][0] CGImage];
   CGRect r = CGRectZero;
   r.size = NSSizeToCGSize([mTabMenuIconImage size]);
   r.size.height = [mTabRowView frame].size.height;
@@ -1263,7 +1263,7 @@
   NSString* path = [b pathForResource: @"TabDragIcon"
                                ofType: @"png"];
   mDraggerIconImage = [[NSImage alloc] initWithContentsOfFile: path];
-  CGImageRef img = [[[mDraggerIconImage representations] objectAtIndex: 0] CGImage];
+  CGImageRef img = [[mDraggerIconImage representations][0] CGImage];
   CGRect r = CGRectZero;
   r.size = NSSizeToCGSize([mDraggerIconImage size]);
   r.size.height = [mTabRowView frame].size.height;
@@ -1296,7 +1296,7 @@
   NSString* path = [b pathForResource: @"LeftArrowIcon"
                                ofType: @"png"];
   mLeftArrowIconImage = [[NSImage alloc] initWithContentsOfFile: path];
-  CGImageRef img = [[[mLeftArrowIconImage representations] objectAtIndex: 0] CGImage];
+  CGImageRef img = [[mLeftArrowIconImage representations][0] CGImage];
   CGRect r = CGRectZero;
   r.size = NSSizeToCGSize([mLeftArrowIconImage size]);
   r.size.height = [mTabRowView frame].size.height;
@@ -1330,7 +1330,7 @@
   NSString* path = [b pathForResource: @"RightArrowIcon"
                                ofType: @"png"];
   mRightArrowIconImage = [[NSImage alloc] initWithContentsOfFile: path];
-  CGImageRef img = [[[mRightArrowIconImage representations] objectAtIndex: 0] CGImage];
+  CGImageRef img = [[mRightArrowIconImage representations][0] CGImage];
   CGRect r = CGRectZero;
   r.size = NSSizeToCGSize([mRightArrowIconImage size]);
   r.size.height = [mTabRowView frame].size.height;
@@ -1494,7 +1494,7 @@
     
     // Select the tab that was selected in IB.
     if ( (selectedTabIdentifier == nil) && ([mTabItems count] > 0) ) {
-      selectedTabIdentifier = [[mTabItems objectAtIndex: 0] identifier];
+      selectedTabIdentifier = [mTabItems[0] identifier];
     }
     [self selectTabViewItemWithIdentifier: selectedTabIdentifier];
     

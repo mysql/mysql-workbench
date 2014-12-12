@@ -61,7 +61,7 @@ static NSColor* colorFromHexString(const char* hexcolor)
   return [NSColor colorWithDeviceRed:r / 255.0 green:g / 255.0 blue:b / 255.0 alpha: 1.0];
 }
 
-- (id)initWithColorName: (NSString*)color
+- (instancetype)initWithColorName: (NSString*)color
 {
   self = [super init];
   if (self)
@@ -90,17 +90,24 @@ static NSColor* colorFromHexString(const char* hexcolor)
   ToolBarItem *mOwner;
   BOOL mHorizontal;
 }
-- (id)initWithItemObject:(ToolBarItem*)item;
-- (ToolBarItemType)itemType;
+
+- (instancetype)initWithItemObject:(ToolBarItem*)item NS_DESIGNATED_INITIALIZER;
+
+@property (readonly) mforms::ToolBarItemType itemType;
+@property (readonly) mforms::ToolBarItem *toolBarItem;
+
 - (void)setHorizontal:(BOOL)flag;
-- (ToolBarItem*)toolBarItem;
+
 @end
 
 
 @implementation MFToolBarSeparatorImpl
 
-- (id)initWithItemObject:(ToolBarItem*)item
+- (instancetype)initWithItemObject: (ToolBarItem*)item
 {
+  if (item == nil)
+    return nil;
+
   self = [super initWithFrame: NSMakeRect(0, 0, 1, layout_info[0].height)];
   if (self)
   {
@@ -108,6 +115,16 @@ static NSColor* colorFromHexString(const char* hexcolor)
     mOwner->set_data(self);
   }
   return self;
+}
+
+- (instancetype)initWithFrame: (NSRect)frame
+{
+  return [self initWithItemObject: nil];
+}
+
+- (instancetype)initWithCoder: (NSCoder *)coder
+{
+  return [self initWithItemObject: nil];
 }
 
 - (ToolBarItem*)toolBarItem
@@ -179,15 +196,18 @@ static NSColor* colorFromHexString(const char* hexcolor)
   ToolBarItem *mOwner;
   BOOL mToolPicker;
 }
-- (id)initWithItemObject:(ToolBarItem*)item;
-- (ToolBarItem*)toolBarItem;
+- (instancetype)initWithItemObject:(ToolBarItem*)item NS_DESIGNATED_INITIALIZER;
+@property (readonly) mforms::ToolBarItem *toolBarItem;
 @end
 
 
 @implementation MFToolBarActionItemImpl
 
-- (id)initWithItemObject:(ToolBarItem*)item
+- (instancetype)initWithItemObject: (ToolBarItem*)item
 {
+  if (item == nil)
+    return nil;
+
   self = [super initWithFrame: NSMakeRect(0, 0, layout_info[0].item_width, layout_info[0].item_width)];
   if (self)
   {
@@ -218,6 +238,16 @@ static NSColor* colorFromHexString(const char* hexcolor)
     [self setAction: @selector(perform:)];
   }
   return self;
+}
+
+-(instancetype)initWithFrame: (NSRect)frame
+{
+  return [self initWithItemObject: nil];
+}
+
+-(instancetype)initWithCoder: (NSCoder *)coder
+{
+  return [self initWithItemObject: nil];
 }
 
 - (ToolBarItem*)toolBarItem
@@ -285,20 +315,23 @@ static NSColor* colorFromHexString(const char* hexcolor)
 
 //--------------------------------------------------------------------------------------------------
 
-
 @interface MFToolBarLabelItemImpl : NSTextField
 {
   MFToolBarImpl *mToolbar;
   ToolBarItem *mOwner;
 }
-- (id)initWithItemObject:(ToolBarItem*)item;
+- (instancetype)initWithItemObject:(ToolBarItem*)item NS_DESIGNATED_INITIALIZER;
 - (void)setToolbar:(MFToolBarImpl*)toolbar;
-- (ToolBarItem*)toolBarItem;
+@property (readonly) mforms::ToolBarItem *toolBarItem;
 @end
 
 @implementation MFToolBarLabelItemImpl
-- (id)initWithItemObject:(ToolBarItem*)item
+
+- (instancetype)initWithItemObject: (ToolBarItem*)item
 {
+  if (item == nil)
+    return nil;
+
   self = [super initWithFrame: NSMakeRect(0, 0, 200, layout_info[0].item_width)];
   if (self)
   {
@@ -318,6 +351,15 @@ static NSColor* colorFromHexString(const char* hexcolor)
   return self;
 }
 
+-(instancetype)initWithFrame: (NSRect)frame
+{
+  return [self initWithItemObject: nil];
+}
+
+-(instancetype)initWithCoder: (NSCoder *)coder
+{
+  return [self initWithItemObject: nil];
+}
 
 - (void)setToolbar:(MFToolBarImpl *)toolbar
 {
@@ -359,13 +401,17 @@ static NSColor* colorFromHexString(const char* hexcolor)
 {
   ToolBarItem *mOwner;
 }
-- (id)initWithItemObject:(ToolBarItem*)item;
-- (ToolBarItem*)toolBarItem;
+- (instancetype)initWithItemObject:(ToolBarItem*)item NS_DESIGNATED_INITIALIZER;
+@property (readonly) mforms::ToolBarItem *toolBarItem;
 @end
 
 @implementation MFToolBarImageItemImpl
-- (id)initWithItemObject:(ToolBarItem*)item
+
+- (instancetype)initWithItemObject: (ToolBarItem*)item
 {
+  if (item == nil)
+    return nil;
+
   self = [super initWithFrame: NSMakeRect(0, 0, layout_info[0].item_width, layout_info[0].item_width)];
   if (self)
   {
@@ -375,6 +421,16 @@ static NSColor* colorFromHexString(const char* hexcolor)
     [self setImageScaling: NSImageScaleNone];
   }
   return self;
+}
+
+-(instancetype)initWithFrame: (NSRect)frame
+{
+  return [self initWithItemObject: nil];
+}
+
+-(instancetype)initWithCoder: (NSCoder *)coder
+{
+  return [self initWithItemObject: nil];
 }
 
 - (ToolBarItem*)toolBarItem
@@ -396,13 +452,17 @@ static NSColor* colorFromHexString(const char* hexcolor)
 {
   ToolBarItem *mOwner;
 }
-- (id)initWithItemObject:(ToolBarItem*)item;
-- (ToolBarItem*)toolBarItem;
+- (instancetype)initWithItemObject:(ToolBarItem*)item NS_DESIGNATED_INITIALIZER;
+@property (readonly) mforms::ToolBarItem *toolBarItem;
 @end
 
 @implementation MFToolBarSearchItemImpl
-- (id)initWithItemObject:(ToolBarItem*)item
+
+- (instancetype)initWithItemObject: (ToolBarItem*)item
 {
+  if (item == nil)
+    return nil;
+
   self = [super initWithFrame: NSMakeRect(0, 0, 200, layout_info[0].item_width)];
   if (self)
   {
@@ -414,6 +474,16 @@ static NSColor* colorFromHexString(const char* hexcolor)
     [self setAction: @selector(perform:)];
   }
   return self;
+}
+
+-(instancetype)initWithFrame: (NSRect)frame
+{
+  return [self initWithItemObject: nil];
+}
+
+-(instancetype)initWithCoder: (NSCoder *)coder
+{
+  return [self initWithItemObject: nil];
 }
 
 - (ToolBarItem*)toolBarItem
@@ -433,12 +503,12 @@ static NSColor* colorFromHexString(const char* hexcolor)
 {
   ToolBarItem *mOwner;
 }
-- (id)initWithItemObject:(ToolBarItem*)item;
-- (ToolBarItem*)toolBarItem;
+- (instancetype)initWithItemObject:(ToolBarItem*)item NS_DESIGNATED_INITIALIZER;
+@property (readonly) mforms::ToolBarItem *toolBarItem;
 @end
 
 @implementation MFToolBarSelectorItemImpl
-- (id)initWithItemObject:(ToolBarItem*)item
+- (instancetype)initWithItemObject:(ToolBarItem*)item
 {
   self = [super initWithFrame: NSMakeRect(0, 0, 150, layout_info[0].item_width)];
   if (self)
@@ -499,7 +569,7 @@ static NSColor* colorFromHexString(const char* hexcolor)
 
 @implementation MFToolBarImpl
 
-- (id)initWithObject:(ToolBar*)owner type:(ToolBarType)type
+- (instancetype)initWithObject:(ToolBar*)owner type:(ToolBarType)type
 {
   switch (type) 
   {
@@ -602,7 +672,7 @@ static NSColor* colorFromHexString(const char* hexcolor)
   if (index >= (int)[[self subviews] count])
     [self addSubview: view];
   else
-    [self addSubview: view positioned: NSWindowBelow relativeTo: [[self subviews] objectAtIndex: index]];
+    [self addSubview: view positioned: NSWindowBelow relativeTo: [self subviews][index]];
   if (wasEmpty)
   {
     // main toolbar starts with a reduced height if it's empty. so when something is added, it has to

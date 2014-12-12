@@ -26,7 +26,7 @@ using namespace mforms;
 
 @implementation InternalTextView
   
-- (id) initWithFrame: (NSRect)frame
+- (instancetype) initWithFrame: (NSRect)frame
              backend: (mforms::TextBox*)backend
 {
   self = [super initWithFrame: frame];
@@ -86,7 +86,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 @implementation MFTextBoxImpl
 
-- (id)initWithObject:(::mforms::TextBox*)aTextBox
+- (instancetype)initWithObject:(::mforms::TextBox*)aTextBox
            scrollers:(mforms::ScrollBars)scrolls
 {
   NSSize size = [self minimumSize];

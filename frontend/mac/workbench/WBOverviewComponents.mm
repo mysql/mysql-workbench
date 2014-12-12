@@ -33,11 +33,14 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
 @implementation WBOverviewGroup
 
-- (id)initWithOverview:(WBOverviewPanel*)owner
-                nodeId:(const bec::NodeId&)node
-               tabItem:(NSTabViewItem*)tabItem
+- (instancetype)initWithOverview: (WBOverviewPanel *)owner
+                          nodeId: (const bec::NodeId &)node
+                         tabItem: (NSTabViewItem *)tabItem
 {
-  self= [super initWithFrame:NSMakeRect(0, 0, 100, 100)];
+  if (owner == nil)
+    return nil;
+
+  self = [super initWithFrame:NSMakeRect(0, 0, 100, 100)];
   if (self != nil)
   {
     _owner= owner;
@@ -54,6 +57,15 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   return self;
 }
 
+- (instancetype)initWithFrame: (NSRect)frame
+{
+  return [self initWithOverview: nil nodeId: bec::NodeId() tabItem: nil];
+}
+
+- (instancetype)initWithCoder: (NSCoder *)coder
+{
+  return [self initWithOverview: nil nodeId: bec::NodeId() tabItem: nil];
+}
 
 - (void)dealloc
 {
@@ -101,7 +113,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
     std::string title;
     _be->get_field(child, wb::OverviewBE::Label, title);
-    [section setTitle:[NSString stringWithUTF8String:title.c_str()]];
+    [section setTitle:@(title.c_str())];
 
     [_owner registerContainer:section forItem:[NSString stringWithCPPString: child.repr().c_str()]];
 
@@ -179,10 +191,13 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
 @implementation WBOverviewGroupContainer
 
-- (id)initWithOverview:(WBOverviewPanel*)owner
-                nodeId:(const bec::NodeId&)node
+- (instancetype)initWithOverview: (WBOverviewPanel *)owner
+                          nodeId: (const bec::NodeId &)node
 {
-  self= [super initWithFrame:NSMakeRect(0, 0, 100, 100)];
+  if (owner == nil)
+    return nil;
+
+  self = [super initWithFrame:NSMakeRect(0, 0, 100, 100)];
   if (self != nil)
   {
     [self setTabViewType:NSTopTabsBezelBorder];
@@ -190,13 +205,23 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     [self doCustomize];
     [self setDelegate:self];
    
-    _owner= owner;
+    _owner = owner;
     _be= [owner backend];
     _nodeId= new bec::NodeId(node);
     
     _extraHeight= NSHeight([self frame]) - [self contentSize].height;
   }
   return self;
+}
+
+- (instancetype)initWithFrame: (NSRect)frame
+{
+  return [self initWithOverview: nil nodeId: bec::NodeId()];
+}
+
+- (instancetype)initWithCoder: (NSCoder *)coder
+{
+  return [self initWithOverview: nil nodeId: bec::NodeId()];
 }
 
 - (void)dealloc
@@ -220,7 +245,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
                                                               nodeId:child
                                                              tabItem:item] autorelease];
 
-  [item setLabel:[NSString stringWithUTF8String:label.c_str()]];
+  [item setLabel:@(label.c_str())];
   [item setView:group];
   [group setAutoresizingMask:NSViewWidthSizable|NSViewMaxYMargin];
   
@@ -498,9 +523,12 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 @implementation WBOverviewItemContainer
 
 
-- (id)initWithOverview:(WBOverviewPanel*)owner
-                nodeId:(const bec::NodeId&)node
+- (instancetype)initWithOverview: (WBOverviewPanel *)owner
+                          nodeId: (const bec::NodeId &)node
 {
+  if (owner == nil)
+    return nil;
+
   self = [super initWithFrame:NSMakeRect(0, 0, 100, 20)];
   if (self != nil)
   {
@@ -522,7 +550,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     }
     
     _nibObjects= [[NSMutableArray array] retain];
-    NSDictionary *nameTable= [NSDictionary dictionaryWithObject:_nibObjects forKey:NSNibTopLevelObjects];
+    NSDictionary *nameTable= @{NSNibTopLevelObjects: _nibObjects};
 
     [NSBundle loadNibFile:[[NSBundle mainBundle] pathForResource:@"IconCollectionView"
                                                           ofType:@"nib"]
@@ -572,6 +600,15 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   return self;
 }
 
+- (instancetype)initWithFrame: (NSRect)frame
+{
+  return [self initWithOverview: nil nodeId: bec::NodeId()];
+}
+
+- (instancetype)initWithCoder: (NSCoder *)coder
+{
+  return [self initWithOverview: nil nodeId: bec::NodeId()];
+}
 
 - (void)dealloc
 {
@@ -791,7 +828,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
 @implementation WBOverviewSection
 
-- (id)initWithOverview:(WBOverviewPanel*)owner
+- (instancetype)initWithOverview:(WBOverviewPanel*)owner
                 nodeId:(const bec::NodeId&)node
 {
   self = [super initWithOverview:owner nodeId:node];
@@ -873,18 +910,14 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   
   NSRect frame= [self frame];
   
-  NSDictionary *attribs= [NSDictionary dictionaryWithObjectsAndKeys:
-                          [NSFont boldSystemFontOfSize:11], NSFontAttributeName,
-                          nil];
+  NSDictionary *attribs= @{NSFontAttributeName: [NSFont boldSystemFontOfSize:11]};
   [_title drawAtPoint:NSMakePoint(10, NSHeight(frame) - 12)
        withAttributes:attribs];
   NSSize size= [_title sizeWithAttributes: attribs];
 
   [_subTitle drawAtPoint:NSMakePoint(10 + size.width + 12, NSHeight(frame) - 12)
-       withAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
-                       [NSFont systemFontOfSize: 9], NSFontAttributeName,
-                       [NSColor grayColor], NSForegroundColorAttributeName,
-                       nil]];
+       withAttributes:@{NSFontAttributeName: [NSFont systemFontOfSize: 9],
+                       NSForegroundColorAttributeName: [NSColor grayColor]}];
   
   [bar drawAtPoint:NSMakePoint(8, NSHeight(frame) - 17)
           fromRect:NSMakeRect(0, 0, [bar size].width, [bar size].height)

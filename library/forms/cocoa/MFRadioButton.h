@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,15 +16,15 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
+
 #import <Cocoa/Cocoa.h>
 
 #import "MFButton.h"
 #include "mforms/radiobutton.h"
 
-@interface MFRadioButtonImpl : MFButtonImpl {
-}
+@interface MFRadioButtonImpl : MFButtonImpl
 
-- (id)initWithObject:(::mforms::RadioButton*)aRadioButton;
+- (instancetype)initWithObject: (mforms::RadioButton*)aRadioButton NS_DESIGNATED_INITIALIZER;
 - (void)performCallback:(id)sender;
 
 @end

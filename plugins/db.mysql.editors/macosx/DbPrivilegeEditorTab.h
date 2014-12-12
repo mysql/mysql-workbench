@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -43,11 +43,11 @@
   IBOutlet GRTTreeDataSource *allRolesDS;
 }
 
-- (id)initWithObjectEditor:(bec::DBObjectEditorBE*)be;
+- (instancetype)initWithObjectEditor:(bec::DBObjectEditorBE*)be NS_DESIGNATED_INITIALIZER;
 
 - (IBAction)addRole:(id)sender;
 - (IBAction)deleteRole:(id)sender;
 
-- (NSView*)view;
+@property (readonly, strong) NSView *view;
 
 @end

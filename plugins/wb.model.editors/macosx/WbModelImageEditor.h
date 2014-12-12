@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,6 +42,8 @@
 - (IBAction)setSize:(id)sender;
 - (IBAction)toggleAspectRatio:(id)sender;
 
-- (id)initWithModule:(grt::Module*)module GRTManager:(bec::GRTManager*)grtm arguments:(const grt::BaseListRef&)args;
+- (id)initWithModule: (grt::Module*)module
+          grtManager: (bec::GRTManager *)grtm
+           arguments: (const grt::BaseListRef &)args;
 
 @end

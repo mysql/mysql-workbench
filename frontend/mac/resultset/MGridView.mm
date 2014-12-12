@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -219,7 +219,7 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
     case 76: // Enter
       if (mSelectedRowIndex >= 0 && mSelectedColumnIndex > 0 &&
         [[self delegate] tableView: self
-             shouldEditTableColumn: [[self tableColumns] objectAtIndex: mSelectedColumnIndex]
+             shouldEditTableColumn: [self tableColumns][mSelectedColumnIndex]
                                row: mSelectedRowIndex])
       {
         // Start edit.
@@ -322,12 +322,12 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
     case 51: // Backspace
       if (mSelectedRowIndex >= 0 && mSelectedColumnIndex > 0 &&
           [[self delegate] tableView: self
-               shouldEditTableColumn: [[self tableColumns] objectAtIndex: mSelectedColumnIndex]
+               shouldEditTableColumn: [self tableColumns][mSelectedColumnIndex]
                                  row: mSelectedRowIndex])
       {
         [[self dataSource] tableView: self
                       setObjectValue: nil
-                      forTableColumn: [[self tableColumns] objectAtIndex: mSelectedColumnIndex]
+                      forTableColumn: [self tableColumns][mSelectedColumnIndex]
                                  row: mSelectedRowIndex];
       }
       break;
@@ -381,7 +381,7 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
   // Let the ancestor do its job first (e.g. write the value back if needed).
   [super textDidEndEditing: notification];
 
-  int textMovement = [[[notification userInfo] objectForKey: @"NSTextMovement"] intValue];
+  int textMovement = [[notification userInfo][@"NSTextMovement"] intValue];
   if (textMovement == NSTabTextMovement)
   {
     [[self window] makeFirstResponder: self];
@@ -395,7 +395,7 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
     }
     if (mSelectedRowIndex >= 0 && mSelectedColumnIndex >= 0 &&
         [[self delegate] tableView: self
-             shouldEditTableColumn: [[self tableColumns] objectAtIndex: mSelectedColumnIndex]
+             shouldEditTableColumn: [self tableColumns][mSelectedColumnIndex]
                                row: mSelectedRowIndex])
     {
       [self editColumn: mSelectedColumnIndex row: mSelectedRowIndex withEvent: [NSApp currentEvent] select: YES];
@@ -414,7 +414,7 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
     }
     if (mSelectedRowIndex >= 0 && mSelectedColumnIndex >= 0 &&
         [[self delegate] tableView: self
-             shouldEditTableColumn: [[self tableColumns] objectAtIndex: mSelectedColumnIndex]
+             shouldEditTableColumn: [self tableColumns][mSelectedColumnIndex]
                                row: mSelectedRowIndex])
     {
       [self editColumn: mSelectedColumnIndex row: mSelectedRowIndex withEvent: [NSApp currentEvent] select: YES];

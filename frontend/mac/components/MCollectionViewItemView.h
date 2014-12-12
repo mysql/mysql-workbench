@@ -31,16 +31,13 @@
   IBOutlet id delegate;
 }
 
-- (void) setOwner: (NSCollectionViewItem*) owner;
-- (NSCollectionViewItem*) owner;
+@property (copy) NSCollectionViewItem *owner;
 
-- (NSCollectionView*) activeCollectionView;
+@property (readonly, strong) NSCollectionView *activeCollectionView;
 
-- (void) setSelected: (BOOL) flag;
-- (BOOL) selected;
+@property  BOOL selected;
 
-- (id) delegate;
-- (void) setDelegate: (id) delegate;
+@property (assign) id delegate;
 
 // Inline editing.
 - (void) beginInlineEditing;

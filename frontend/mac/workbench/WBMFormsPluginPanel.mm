@@ -31,7 +31,7 @@
 }
 
 
-- (id)initWithAppView:(mforms::AppView*)view
+- (instancetype)initWithAppView:(mforms::AppView*)view
 {
   self = [super init];
   if (self)
@@ -105,7 +105,7 @@
   if (_owner->identifier().empty())
     return  [NSString stringWithFormat: @"mformsview%p", _owner];
   else
-    return  [NSString stringWithUTF8String: _owner->identifier().c_str()];
+    return  @(_owner->identifier().c_str());
 }
 
 

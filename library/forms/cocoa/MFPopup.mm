@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,7 +36,7 @@
 
 @implementation PopupContentView
 
-- (id)initWithOwner: (mforms::Popup*)popup
+- (instancetype)initWithOwner: (mforms::Popup*)popup
 {
   self = [self initWithFrame: NSMakeRect(0, 0, 10, 10)];
   if (self)
@@ -94,7 +94,7 @@
 
 @synthesize popupStyle = mStyle;
 
-- (id)initWithObject: (mforms::Popup*)popup style: (mforms::PopupStyle)aStyle
+- (instancetype)initWithObject: (mforms::Popup*)popup style: (mforms::PopupStyle)aStyle
 {
   NSUInteger mask = NSBorderlessWindowMask;
   if (aStyle == mforms::PopupBezel)
@@ -171,7 +171,7 @@
       [[NSAnimationContext currentContext] setDuration: 0.25];
       [[self animator] setAlphaValue: 0];
       [self performSelector: @selector(orderPopupOut) withObject: nil afterDelay: 0.5
-                    inModes: [NSArray arrayWithObjects: NSModalPanelRunLoopMode, NSDefaultRunLoopMode, nil]];
+                    inModes: @[NSModalPanelRunLoopMode, NSDefaultRunLoopMode]];
       break;
 
     default:
@@ -406,7 +406,7 @@
 {
   [super resignKeyWindow];
   [self performSelector: @selector(hidePopup) withObject: nil afterDelay: 0
-                inModes: [NSArray arrayWithObjects: NSModalPanelRunLoopMode, NSDefaultRunLoopMode, nil]];
+                inModes: @[NSModalPanelRunLoopMode, NSDefaultRunLoopMode]];
 }
 
 //--------------------------------------------------------------------------------------------------

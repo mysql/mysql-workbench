@@ -29,7 +29,7 @@
   NSMutableArray* stack = nil;
   
   // Look for stack trace info in the userInfo dictionary.
-  NSString* stackString = [[self userInfo] objectForKey: NSStackTraceKey];
+  NSString* stackString = [self userInfo][NSStackTraceKey];
   if (stackString != nil) {
     NSArray* stackStrings = [stackString componentsSeparatedByString: @"  "]; // Function addresses are separated by double spaces, not single.
     stack = [NSMutableArray array];
@@ -52,7 +52,7 @@
   if (stack != nil) {
     // Set up the arguments for the atos tool.
     NSMutableArray* args = [NSMutableArray arrayWithCapacity: 20];
-    NSString* pid = [[NSNumber numberWithInt: [[NSProcessInfo processInfo] processIdentifier]] stringValue];
+    NSString* pid = [@([[NSProcessInfo processInfo] processIdentifier]) stringValue];
     [args addObject: @"-p"];
     [args addObject: pid];
     [args addObjectsFromArray: stack];

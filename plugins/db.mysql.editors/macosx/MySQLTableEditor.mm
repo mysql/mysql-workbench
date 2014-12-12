@@ -281,7 +281,7 @@ static void call_partial_refresh(int what, DbMysqlTableEditor* theEditor)
   [mPartitionTable reloadData];
   
   std::string prtn_type = mBackEnd->get_partition_type();
-  NSString* partitionType = [NSString stringWithUTF8String: prtn_type.c_str()];
+  NSString* partitionType = @(prtn_type.c_str());
   BOOL enabled = ( [partitionType length] > 0 );
   [mPartitionEnabledCheckbox setState: (enabled ? NSOnState : NSOffState)];
   [mPartitionEnabledCheckbox setEnabled: YES];
@@ -309,7 +309,7 @@ static void call_partial_refresh(int what, DbMysqlTableEditor* theEditor)
     [mPartitionPopup selectItemWithTitle: partitionType];
     
     std::string s = mBackEnd->get_partition_expression();
-    NSString* partExpr = [NSString stringWithUTF8String: s.c_str()];
+    NSString* partExpr = @(s.c_str());
     [mPartitionParametersTextField setStringValue: partExpr];
 
     int c = mBackEnd->get_partition_count();
@@ -323,14 +323,14 @@ static void call_partial_refresh(int what, DbMysqlTableEditor* theEditor)
   {
     // Set up subpartitioning controls.
     std::string s = mBackEnd->get_subpartition_type();
-    NSString* partType = [NSString stringWithUTF8String: s.c_str()];
+    NSString* partType = @(s.c_str());
     if ([partType length] == 0) {
       partType = @"Disabled";
     }
     [mSubpartitionPopup selectItemWithTitle: partType];
     
     s = mBackEnd->get_subpartition_expression();
-    NSString* partExpr = [NSString stringWithUTF8String: s.c_str()];
+    NSString* partExpr = @(s.c_str());
     [mSubPartitionParametersTextField setStringValue: partExpr];
     
     int c = mBackEnd->get_subpartition_count();
@@ -352,60 +352,60 @@ static void call_partial_refresh(int what, DbMysqlTableEditor* theEditor)
 {
   // General options
   
-  NSString* option = [NSString stringWithUTF8String: mBackEnd->get_table_option_by_name("PACK_KEYS").c_str()];
+  NSString* option = @(mBackEnd->get_table_option_by_name("PACK_KEYS").c_str());
   if ([option length] == 0)
     option = @"Default";
   [mOptionsPackKeys selectItemWithTitle: option];
   
-  option = [NSString stringWithUTF8String: mBackEnd->get_table_option_by_name("PASSWORD").c_str()];
+  option = @(mBackEnd->get_table_option_by_name("PASSWORD").c_str());
   [mOptionsTablePassword setStringValue: option];
   
-  option = [NSString stringWithUTF8String: mBackEnd->get_table_option_by_name("AUTO_INCREMENT").c_str()];
+  option = @(mBackEnd->get_table_option_by_name("AUTO_INCREMENT").c_str());
   [mOptionsAutoIncrement setStringValue: option];
 
-  option = [NSString stringWithUTF8String: mBackEnd->get_table_option_by_name("DELAY_KEY_WRITE").c_str()];
+  option = @(mBackEnd->get_table_option_by_name("DELAY_KEY_WRITE").c_str());
   [mOptionsDelayKeyUpdates setState: ([option isEqualToString: @"1"] ? NSOnState : NSOffState)];
   
   // Row options
   
-  option = [NSString stringWithUTF8String: mBackEnd->get_table_option_by_name("ROW_FORMAT").c_str()];
+  option = @(mBackEnd->get_table_option_by_name("ROW_FORMAT").c_str());
   if ([option length] == 0)
     option = @"Default";
   [mOptionsRowFormat selectItemWithTitle: [option capitalizedString]];
 
-  option = [NSString stringWithUTF8String: mBackEnd->get_table_option_by_name("KEY_BLOCK_SIZE").c_str()];
+  option = @(mBackEnd->get_table_option_by_name("KEY_BLOCK_SIZE").c_str());
   if ([option length] == 0)
     option = @"Default";
   else
     option = [NSString stringWithFormat: @"%@ KB", option];
   [mOptionsBlockSize selectItemWithTitle: option];
 
-  option = [NSString stringWithUTF8String: mBackEnd->get_table_option_by_name("AVG_ROW_LENGTH").c_str()];
+  option = @(mBackEnd->get_table_option_by_name("AVG_ROW_LENGTH").c_str());
   [mOptionsAvgRowLength setStringValue: option];
   
-  option = [NSString stringWithUTF8String: mBackEnd->get_table_option_by_name("MIN_ROWS").c_str()];
+  option = @(mBackEnd->get_table_option_by_name("MIN_ROWS").c_str());
   [mOptionsMinRows setStringValue: option];
   
-  option = [NSString stringWithUTF8String: mBackEnd->get_table_option_by_name("MAX_ROWS").c_str()];
+  option = @(mBackEnd->get_table_option_by_name("MAX_ROWS").c_str());
   [mOptionsMaxRows setStringValue: option];
   
-  option = [NSString stringWithUTF8String: mBackEnd->get_table_option_by_name("CHECKSUM").c_str()];
+  option = @(mBackEnd->get_table_option_by_name("CHECKSUM").c_str());
   [mOptionsUseChecksum setState: ([option isEqualToString: @"1"] ? NSOnState : NSOffState)];
   
   // Storage options
   
-  option = [NSString stringWithUTF8String: mBackEnd->get_table_option_by_name("DATA DIRECTORY").c_str()];
+  option = @(mBackEnd->get_table_option_by_name("DATA DIRECTORY").c_str());
   [mOptionsDataDirectory setStringValue: option];
   
-  option = [NSString stringWithUTF8String: mBackEnd->get_table_option_by_name("INDEX DIRECTORY").c_str()];
+  option = @(mBackEnd->get_table_option_by_name("INDEX DIRECTORY").c_str());
   [mOptionsIndexDirectory setStringValue: option];
   
   // Merge table options
   
-  option = [NSString stringWithUTF8String: mBackEnd->get_table_option_by_name("UNION").c_str()];
+  option = @(mBackEnd->get_table_option_by_name("UNION").c_str());
   [mOptionsUnionTables setStringValue: option];
   
-  option = [NSString stringWithUTF8String: mBackEnd->get_table_option_by_name("INSERT_METHOD").c_str()];
+  option = @(mBackEnd->get_table_option_by_name("INSERT_METHOD").c_str());
   if ([option length] == 0)
     option = @"Don't Use";
   [mOptionsMergeMethod selectItemWithTitle: [option capitalizedString]];
@@ -1000,11 +1000,10 @@ writeRowsWithIndexes: (NSIndexSet*) rowIndices
   
   NSUInteger rowIndex = [rowIndices firstIndex];
   NSMutableDictionary* dict = [NSMutableDictionary dictionary];
-  [dict setObject: [NSNumber numberWithInt: rowIndex]
-           forKey: @"rowIndex"];
+  dict[@"rowIndex"] = @((int)rowIndex);
   
   if (aTableView == mColumnsTable) {
-    [pboard declareTypes: [NSArray arrayWithObject: @"com.sun.mysql.workbench.column"]
+    [pboard declareTypes: @[@"com.sun.mysql.workbench.column"]
                    owner: self];
     [pboard setPropertyList: dict
                     forType: @"com.sun.mysql.workbench.column"];
@@ -1037,7 +1036,7 @@ writeRowsWithIndexes: (NSIndexSet*) rowIndices
   
   NSAssert( (dict != nil), @"Drag flavour was not found.");
   
-  NSInteger originatingRow = [[dict objectForKey: @"rowIndex"] intValue];
+  NSInteger originatingRow = [dict[@"rowIndex"] intValue];
   if ( ((proposedRow < originatingRow) || (proposedRow > originatingRow + 1))
       && (proposedRow < [self numberOfRowsInTableView: aTableView]) ) {
     [aTableView setDropRow: proposedRow
@@ -1064,7 +1063,7 @@ writeRowsWithIndexes: (NSIndexSet*) rowIndices
     NSDictionary* dict = [pb propertyListForType: @"com.sun.mysql.workbench.column"];
     NSAssert( (dict != nil), @"Drag flavour was not found.");
 
-    originatingRow = [[dict objectForKey: @"rowIndex"] intValue];
+    originatingRow = [dict[@"rowIndex"] intValue];
     
     if (dropRow > originatingRow)
       dropRow --;    
@@ -1100,7 +1099,7 @@ writeRowsWithIndexes: (NSIndexSet*) rowIndices
 - (id) comboBoxCell: (NSComboBoxCell*) aComboBoxCell
 objectValueForItemAtIndex: (NSInteger) index
 {
-  return [mColumnTypes objectAtIndex: index];
+  return mColumnTypes[index];
 }
 
 
@@ -1211,7 +1210,7 @@ objectValueForItemAtIndex: (NSInteger) index
     std::string bsize;
     [[sender window] makeFirstResponder: sender];
     if ([sender indexOfSelectedItem] > 0)
-      bsize = [[[popItemTitle componentsSeparatedByString: @" "] objectAtIndex: 0] UTF8String];
+      bsize = [[popItemTitle componentsSeparatedByString: @" "][0] UTF8String];
     mBackEnd->set_table_option_by_name("KEY_BLOCK_SIZE", bsize);
   }
   else if (sender == mOptionsMergeMethod) {
@@ -1342,7 +1341,7 @@ objectValueForItemAtIndex: (NSInteger) index
   // For text fields in a table view this is always the table view itself, not any of the text fields.
   if (sender == mColumnsTable)
   {
-    NSText *text = [[aNotification userInfo] objectForKey: @"NSFieldEditor"];
+    NSText *text = [aNotification userInfo][@"NSFieldEditor"];
 
     // We can use a generic call here because the order of the columns defined in the table view is the same
     // as that of the column type enum. If that ever changes we need to take care here too.
@@ -1520,11 +1519,11 @@ objectValueForItemAtIndex: (NSInteger) index
 
 #pragma mark - Creation + Destruction
 
-- (id) initWithModule: (grt::Module*) module
-           GRTManager: (bec::GRTManager*) grtm
-            arguments: (const grt::BaseListRef&) args;
+- (instancetype) initWithModule: (grt::Module *) module
+                     grtManager: (bec::GRTManager *) grtm
+                      arguments: (const grt::BaseListRef &) args;
 {
-  self = [super initWithNibName:@"MySQLTableEditor" bundle: [NSBundle bundleForClass: [self class]]];
+  self = [super initWithNibName: @"MySQLTableEditor" bundle: [NSBundle bundleForClass: [self class]]];
   if (self != nil) {
     _grtm = grtm;
     
@@ -1738,7 +1737,7 @@ objectValueForItemAtIndex: (NSInteger) index
   [mEditorsTabView addTabViewItem: item];
   [mEditorOptions setBackgroundColor: [NSColor whiteColor]];
   
-  [mColumnsTable registerForDraggedTypes: [NSArray arrayWithObject: @"com.sun.mysql.workbench.column"]];
+  [mColumnsTable registerForDraggedTypes: @[@"com.sun.mysql.workbench.column"]];
     
   mDidAwakeFromNib = YES;
 }

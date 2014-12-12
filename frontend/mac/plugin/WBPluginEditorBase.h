@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -49,11 +49,13 @@ namespace mforms
   IBOutlet NSButton *mRevertButton;
 }
 
-- (bec::GRTManager*)grtManager; 
+@property (readonly) BOOL enableLiveChangeButtons;
+@property  NSSize minimumSize;
+@property (readonly) bec::BaseEditor *editorBE;
+@property (readonly) bec::GRTManager *grtManager;
+@property (readonly, strong) id identifier;
+@property (readonly, copy) NSImage *titleIcon;
 
-- (id)identifier;
-- (NSString*)title;
-- (NSImage*)titleIcon;
 - (void)updateTitle:(NSString*)title;
 
 - (void)reinitWithArguments:(const grt::BaseListRef&)args;
@@ -62,13 +64,6 @@ namespace mforms
 - (void)refresh;
 
 - (void)setCompactMode:(BOOL)flag;
-- (BOOL)enableLiveChangeButtons;
-
-- (void)setMinimumSize:(NSSize)size;
-- (NSSize)minimumSize;
-
-- (bec::BaseEditor*)editorBE;
-
 - (BOOL)matchesIdentifierForClosingEditor:(NSString*)identifier;
 
 - (void)pluginDidShow:(id)sender;

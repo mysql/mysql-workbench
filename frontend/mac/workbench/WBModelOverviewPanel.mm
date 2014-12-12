@@ -31,13 +31,13 @@
 
 @implementation WBModelOverviewPanel
 
-- (id)initWithWBContextUI:(wb::WBContextUI*)wbui
+- (instancetype)initWithWBContextUI:(wb::WBContextUI*)wbui
 {
   self = [super init];
   if (self)
   {
     _wbui= wbui;
-    
+
     [NSBundle loadNibNamed: @"WBModelOverview" owner: self];
     [(id)editorTabView createDragger];
 

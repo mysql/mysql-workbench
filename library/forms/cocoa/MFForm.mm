@@ -22,7 +22,7 @@
 
 @implementation MFFormImpl
 
-- (id)initWithObject:(::mforms::Form*)form
+- (instancetype)initWithObject:(::mforms::Form*)form
                owner:(::mforms::Form*)ownerWindow
 {
   self= [super initWithContentRect:NSMakeRect(100, 100, 1,1)

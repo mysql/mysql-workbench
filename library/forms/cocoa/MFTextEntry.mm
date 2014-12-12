@@ -22,7 +22,7 @@
 
 @implementation LimitedTextFieldFormatter
 
-- init
+- (instancetype) init
 {
   self = [super init];
   maxLength = INT_MAX;
@@ -106,7 +106,7 @@
 
 @implementation MFTextEntryImpl
 
-- (id)initWithObject:(mforms::TextEntry*)aEntry type: (mforms::TextEntryType)type
+- (instancetype)initWithObject:(mforms::TextEntry*)aEntry type: (mforms::TextEntryType)type
 {
   self = [super initWithFrame: NSMakeRect(0, 0, 30, 0)];
   if (self)

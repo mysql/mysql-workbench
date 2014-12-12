@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,8 +26,8 @@
   mforms::ToolBar *mOwner;
 }
 
-- (NSColor*)backgroundColor;
-- (mforms::ToolBarType)type;
+@property (readonly, copy) NSColor *backgroundColor;
+@property (readonly) mforms::ToolBarType type;
 
 @end
 

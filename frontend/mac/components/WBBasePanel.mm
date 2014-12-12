@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,8 +30,8 @@
 
 - (void)resizeSubviewsWithOldSize:(NSSize)size
 {
-  NSView *toolBar = [[self subviews] objectAtIndex: 0];
-  NSView *content = [[self subviews] objectAtIndex: 1];
+  NSView *toolBar = [self subviews][0];
+  NSView *content = [self subviews][1];
   if (toolBar && content)
   {
     NSRect r = [self frame];
@@ -115,7 +115,7 @@
 {
   bec::UIForm *form = [self formBE];
   if (form)
-    return [NSString stringWithUTF8String: form->get_title().c_str()];
+    return @(form->get_title().c_str());
   return @"";
 }
 

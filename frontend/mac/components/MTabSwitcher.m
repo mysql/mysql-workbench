@@ -53,76 +53,70 @@ static NSImage *PinnedImage = nil;
   UnpinnedImage = [[NSImage alloc] initWithContentsOfFile:
                                [bundle pathForImageResource: @"qe_sql-editor-resultset-tb-pin"]];
 
-  MainTabImages = [[NSDictionary dictionaryWithObjectsAndKeys:
-                    [[[NSImage alloc] initWithContentsOfFile:
-                      [bundle pathForImageResource: @"maintab_background"]] autorelease], @"bg",
-                    [[[NSImage alloc] initWithContentsOfFile:
-                      [bundle pathForImageResource: @"maintab_left"]] autorelease], @"left",
-                    [[[NSImage alloc] initWithContentsOfFile:
-                      [bundle pathForImageResource: @"maintab_center"]] autorelease], @"middle",
-                    [[[NSImage alloc] initWithContentsOfFile:
-                      [bundle pathForImageResource: @"maintab_right"]] autorelease], @"right",
-                    [[[NSImage alloc] initWithContentsOfFile:
-                      [bundle pathForImageResource: @"maintab_home"]] autorelease], @"home",
-                    [[[NSImage alloc] initWithContentsOfFile:
-                      [bundle pathForImageResource: @"maintab_home_home"]] autorelease], @"home_home",
-                    [[[NSImage alloc] initWithContentsOfFile:
-                      [bundle pathForImageResource: @"maintab_home_background"]] autorelease], @"home_bg",
+  MainTabImages = [@{@"bg": [[[NSImage alloc] initWithContentsOfFile:
+                      [bundle pathForImageResource: @"maintab_background"]] autorelease],
+                    @"left": [[[NSImage alloc] initWithContentsOfFile:
+                      [bundle pathForImageResource: @"maintab_left"]] autorelease],
+                    @"middle": [[[NSImage alloc] initWithContentsOfFile:
+                      [bundle pathForImageResource: @"maintab_center"]] autorelease],
+                    @"right": [[[NSImage alloc] initWithContentsOfFile:
+                      [bundle pathForImageResource: @"maintab_right"]] autorelease],
+                    @"home": [[[NSImage alloc] initWithContentsOfFile:
+                      [bundle pathForImageResource: @"maintab_home"]] autorelease],
+                    @"home_home": [[[NSImage alloc] initWithContentsOfFile:
+                      [bundle pathForImageResource: @"maintab_home_home"]] autorelease],
+                    @"home_bg": [[[NSImage alloc] initWithContentsOfFile:
+                      [bundle pathForImageResource: @"maintab_home_background"]] autorelease],
 
-                    [[[NSImage alloc] initWithContentsOfFile:
-                     [bundle pathForImageResource: @"wb_tab-close_high"]] autorelease], @"close_high",
-                    [[[NSImage alloc] initWithContentsOfFile:
-                     [bundle pathForImageResource: @"wb_tab-close_down"]] autorelease], @"close_down",
-                    [[[NSImage alloc] initWithContentsOfFile:
-                     [bundle pathForImageResource: @"wb_tab-close"]] autorelease], @"close",
-                      nil] retain];
-  MainTabInactiveImages = [[NSDictionary dictionaryWithObjectsAndKeys:
-                    [[[NSImage alloc] initWithContentsOfFile:
-                     [bundle pathForImageResource: @"maintab_background_inactive"]] autorelease], @"bg",
-                    [[[NSImage alloc] initWithContentsOfFile:
-                     [bundle pathForImageResource: @"maintab_left_inactive"]] autorelease], @"left",
-                    [[[NSImage alloc] initWithContentsOfFile:
-                     [bundle pathForImageResource: @"maintab_center_inactive"]] autorelease], @"middle",
-                    [[[NSImage alloc] initWithContentsOfFile:
-                     [bundle pathForImageResource: @"maintab_right_inactive"]] autorelease], @"right",
-                    [[[NSImage alloc] initWithContentsOfFile:
-                     [bundle pathForImageResource: @"maintab_home_inactive"]] autorelease], @"home",
-                    [[[NSImage alloc] initWithContentsOfFile:
-                     [bundle pathForImageResource: @"maintab_home_home"]] autorelease], @"home_home",
-                    [[[NSImage alloc] initWithContentsOfFile:
-                     [bundle pathForImageResource: @"maintab_home_background"]] autorelease], @"home_bg",
+                    @"close_high": [[[NSImage alloc] initWithContentsOfFile:
+                     [bundle pathForImageResource: @"wb_tab-close_high"]] autorelease],
+                    @"close_down": [[[NSImage alloc] initWithContentsOfFile:
+                     [bundle pathForImageResource: @"wb_tab-close_down"]] autorelease],
+                    @"close": [[[NSImage alloc] initWithContentsOfFile:
+                     [bundle pathForImageResource: @"wb_tab-close"]] autorelease]} retain];
+  MainTabInactiveImages = [@{@"bg": [[[NSImage alloc] initWithContentsOfFile:
+                     [bundle pathForImageResource: @"maintab_background_inactive"]] autorelease],
+                    @"left": [[[NSImage alloc] initWithContentsOfFile:
+                     [bundle pathForImageResource: @"maintab_left_inactive"]] autorelease],
+                    @"middle": [[[NSImage alloc] initWithContentsOfFile:
+                     [bundle pathForImageResource: @"maintab_center_inactive"]] autorelease],
+                    @"right": [[[NSImage alloc] initWithContentsOfFile:
+                     [bundle pathForImageResource: @"maintab_right_inactive"]] autorelease],
+                    @"home": [[[NSImage alloc] initWithContentsOfFile:
+                     [bundle pathForImageResource: @"maintab_home_inactive"]] autorelease],
+                    @"home_home": [[[NSImage alloc] initWithContentsOfFile:
+                     [bundle pathForImageResource: @"maintab_home_home"]] autorelease],
+                    @"home_bg": [[[NSImage alloc] initWithContentsOfFile:
+                     [bundle pathForImageResource: @"maintab_home_background"]] autorelease],
                     
-                    [MainTabImages objectForKey: @"close_high"], @"close_high",
-                    [MainTabImages objectForKey: @"close_high"], @"close_high",
-                    [MainTabImages objectForKey: @"close"], @"close",
-                    nil] retain];
+                    @"close_high": MainTabImages[@"close_high"],
+                    @"close_high": MainTabImages[@"close_high"],
+                    @"close": MainTabImages[@"close"]} retain];
 
-  EditorTabImages = [[NSDictionary dictionaryWithObjectsAndKeys:
-                      [[[NSImage alloc] initWithContentsOfFile:
-                        [bundle pathForImageResource: @"tab_background"]] autorelease], @"bg",
-                      [[[NSImage alloc] initWithContentsOfFile:
-                        [bundle pathForImageResource: @"tab_left"]] autorelease], @"left",
-                      [[[NSImage alloc] initWithContentsOfFile:
-                        [bundle pathForImageResource: @"tab_middle"]] autorelease], @"middle",
-                      [[[NSImage alloc] initWithContentsOfFile:
-                        [bundle pathForImageResource: @"tab_right"]] autorelease], @"right",
-                      [[[NSImage alloc] initWithContentsOfFile:
-                       [bundle pathForImageResource: @"tab_left_white"]] autorelease], @"left_white",
-                      [[[NSImage alloc] initWithContentsOfFile:
-                       [bundle pathForImageResource: @"tab_middle_white"]] autorelease], @"middle_white",
-                      [[[NSImage alloc] initWithContentsOfFile:
-                       [bundle pathForImageResource: @"tab_right_white"]] autorelease], @"right_white",
-                      [[[NSImage alloc] initWithContentsOfFile:
-                        [bundle pathForImageResource: @"wb_tab-close_high"]] autorelease], @"close_high",
-                      [[[NSImage alloc] initWithContentsOfFile:
-                       [bundle pathForImageResource: @"wb_tab-close_down"]] autorelease], @"close_down",
-                      [[[NSImage alloc] initWithContentsOfFile:
-                        [bundle pathForImageResource: @"wb_tab-close"]] autorelease], @"close",
-                      nil] retain];
+  EditorTabImages = [@{@"bg": [[[NSImage alloc] initWithContentsOfFile:
+                        [bundle pathForImageResource: @"tab_background"]] autorelease],
+                      @"left": [[[NSImage alloc] initWithContentsOfFile:
+                        [bundle pathForImageResource: @"tab_left"]] autorelease],
+                      @"middle": [[[NSImage alloc] initWithContentsOfFile:
+                        [bundle pathForImageResource: @"tab_middle"]] autorelease],
+                      @"right": [[[NSImage alloc] initWithContentsOfFile:
+                        [bundle pathForImageResource: @"tab_right"]] autorelease],
+                      @"left_white": [[[NSImage alloc] initWithContentsOfFile:
+                       [bundle pathForImageResource: @"tab_left_white"]] autorelease],
+                      @"middle_white": [[[NSImage alloc] initWithContentsOfFile:
+                       [bundle pathForImageResource: @"tab_middle_white"]] autorelease],
+                      @"right_white": [[[NSImage alloc] initWithContentsOfFile:
+                       [bundle pathForImageResource: @"tab_right_white"]] autorelease],
+                      @"close_high": [[[NSImage alloc] initWithContentsOfFile:
+                        [bundle pathForImageResource: @"wb_tab-close_high"]] autorelease],
+                      @"close_down": [[[NSImage alloc] initWithContentsOfFile:
+                       [bundle pathForImageResource: @"wb_tab-close_down"]] autorelease],
+                      @"close": [[[NSImage alloc] initWithContentsOfFile:
+                        [bundle pathForImageResource: @"wb_tab-close"]] autorelease]} retain];
 }
 
 
-- (id)initWithFrame:(NSRect)frameRect
+- (instancetype)initWithFrame:(NSRect)frameRect
 {
   self = [super initWithFrame: frameRect];
   if (self)
@@ -239,7 +233,7 @@ static NSImage *PinnedImage = nil;
       case MMainTabSwitcher:
         size.height = 23;
         if (![item label])
-          size.width = [[MainTabImages objectForKey: @"home"] size].width;
+          size.width = [MainTabImages[@"home"] size].width;
         else
           size.width = MAX(ceil([[item label] sizeWithAttributes: mLabelAttributes].width) + MAIN_TAB_PADDING, mMinTabWidth);
         break;
@@ -341,9 +335,9 @@ static NSImage *PinnedImage = nil;
                           style, NSParagraphStyleAttributeName,
                           nil];
       mLabelShadowAttributes = [mLabelAttributes mutableCopy];
-      [mLabelShadowAttributes setObject: [NSColor colorWithDeviceWhite: 245/255.0 alpha: 1.0] forKey: NSForegroundColorAttributeName];
+      mLabelShadowAttributes[NSForegroundColorAttributeName] = [NSColor colorWithDeviceWhite: 245/255.0 alpha: 1.0];
       mLabelDisabledAttributes = [mLabelAttributes mutableCopy];
-      [mLabelDisabledAttributes setObject: [NSColor colorWithDeviceWhite: 108/255.0 alpha: 1.0] forKey: NSForegroundColorAttributeName];
+      mLabelDisabledAttributes[NSForegroundColorAttributeName] = [NSColor colorWithDeviceWhite: 108/255.0 alpha: 1.0];
       mMinTabWidth = 105;
       mDefaultMinTabWidth = mMinTabWidth;
       break;
@@ -506,7 +500,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
 
   if (![item label])
   {
-    NSImage *icon = [images objectForKey: [item tabState] == NSBackgroundTab ? @"home" : @"home_home"];
+    NSImage *icon = images[[item tabState] == NSBackgroundTab ? @"home" : @"home_home"];
     [icon drawInRect: NSMakeRect(x, 0, [icon size].width, [icon size].height)
             fromRect: NSMakeRect(0, 0, [icon size].width, [icon size].height)
            operation: NSCompositeSourceOver fraction: 1.0];
@@ -518,18 +512,18 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
       float selectedItemMinX = x + 0.5;
       float selectedItemMaxX = x + width + 0.5;
 
-      draw_tab_images([images objectForKey: @"left"],
-                      [images objectForKey: @"middle"],
-                      [images objectForKey: @"right"],
+      draw_tab_images(images[@"left"],
+                      images[@"middle"],
+                      images[@"right"],
                       selectedItemMinX, selectedItemMaxX);
     }
 
-    float textoffs = [[images objectForKey: @"left"] size].width + 2;
+    float textoffs = [images[@"left"] size].width + 2;
 
     if ([item tabState] == NSSelectedTab)
-      [mLabelShadowAttributes setObject: [NSColor colorWithDeviceWhite: 245/255.0 alpha: 1.0] forKey: NSForegroundColorAttributeName];
+      mLabelShadowAttributes[NSForegroundColorAttributeName] = [NSColor colorWithDeviceWhite: 245/255.0 alpha: 1.0];
     else
-      [mLabelShadowAttributes setObject: [NSColor colorWithDeviceWhite: 200/255.0 alpha: 1.0] forKey: NSForegroundColorAttributeName];
+      mLabelShadowAttributes[NSForegroundColorAttributeName] = [NSColor colorWithDeviceWhite: 200/255.0 alpha: 1.0];
     
     if (![[self window] isMainWindow])
       [[item label] drawInRect: NSMakeRect(x + textoffs + 0.5, 0.5, width, height-6) withAttributes: mLabelShadowAttributes];
@@ -541,19 +535,18 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
       if (mCloseHighlighted && mHoverItem == item)
       {
         if (mClosePressed)
-          image = [images objectForKey: @"close_down"];
+          image = images[@"close_down"];
         else
-          image = [images objectForKey: @"close_high"];
+          image = images[@"close_high"];
       }
       else
-        image = [images objectForKey: @"close"];
-      closeRect = NSMakeRect(x + width - [image size].width - [[images objectForKey: @"right"] size].width - 4,
+        image = images[@"close"];
+      closeRect = NSMakeRect(x + width - [image size].width - [images[@"right"] size].width - 4,
                              floor((height - [image size].height) / 2),
                              [image size].width, [image size].height);
       [image drawInRect: closeRect fromRect: NSMakeRect(0, 0, [image size].width, [image size].height)
               operation: NSCompositeSourceOver fraction: 1.0];
-      [mCloseButtonRects setObject: [NSValue valueWithRect: NSInsetRect(closeRect, -4, -4)]
-                            forKey: [item identifier]];
+      mCloseButtonRects[[item identifier]] = [NSValue valueWithRect: NSInsetRect(closeRect, -4, -4)];
     }
   }
   return width;
@@ -570,30 +563,24 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
 
   if ([item tabState] != NSBackgroundTab && [mTabView numberOfTabViewItems] > 1)
   {
-    [[[[NSGradient alloc] initWithColors: [NSArray arrayWithObjects: 
-                                           [NSColor colorWithDeviceWhite: 225/255.0 alpha:1.0],
+    [[[[NSGradient alloc] initWithColors: @[[NSColor colorWithDeviceWhite: 225/255.0 alpha:1.0],
                                            [NSColor colorWithDeviceWhite: 221/255.0 alpha:1.0],
                                            [NSColor colorWithDeviceWhite: 226/255.0 alpha:1.0],
-                                           [NSColor colorWithDeviceWhite: 247/255.0 alpha:1.0],
-                                           nil]] autorelease]
+                                           [NSColor colorWithDeviceWhite: 247/255.0 alpha:1.0]]] autorelease]
      drawInBezierPath: [NSBezierPath bezierPathWithRect: tabRect]
      angle: 270];
     
     // side bounds
-    NSGradient *grad = [[NSGradient alloc] initWithColors: [NSArray arrayWithObjects:
-                                                             [NSColor colorWithDeviceWhite: 203/255.0 alpha: 1.0],
+    NSGradient *grad = [[NSGradient alloc] initWithColors: @[[NSColor colorWithDeviceWhite: 203/255.0 alpha: 1.0],
                                                              [NSColor colorWithDeviceWhite: 138/255.0 alpha: 1.0],
-                                                             [NSColor colorWithDeviceWhite: 226/255.0 alpha: 1.0],
-                                                             nil]];
+                                                             [NSColor colorWithDeviceWhite: 226/255.0 alpha: 1.0]]];
     [grad drawInRect: NSMakeRect(NSMaxX(tabRect), NSMinY(tabRect)+1, 1, NSHeight(tabRect)-2) angle: 270];
     [grad drawInRect: NSMakeRect(NSMinX(tabRect), NSMinY(tabRect)+1, 1, NSHeight(tabRect)-2) angle: 270];
     [grad release];
     
-    grad = [[NSGradient alloc] initWithColors: [NSArray arrayWithObjects:
-                                                [NSColor colorWithDeviceWhite: 224/255.0 alpha: 1.0],
+    grad = [[NSGradient alloc] initWithColors: @[[NSColor colorWithDeviceWhite: 224/255.0 alpha: 1.0],
                                                 [NSColor colorWithDeviceWhite: 200/255.0 alpha: 1.0],
-                                                [NSColor colorWithDeviceWhite: 246/255.0 alpha: 1.0],
-                                                nil]];
+                                                [NSColor colorWithDeviceWhite: 246/255.0 alpha: 1.0]]];
     [grad drawInRect: NSMakeRect(NSMaxX(tabRect)-1, NSMinY(tabRect)+1, 1, NSHeight(tabRect)-2) angle: 270];
     [grad drawInRect: NSMakeRect(NSMinX(tabRect)+1, NSMinY(tabRect)+1, 1, NSHeight(tabRect)-2) angle: 270];
     [grad release];    
@@ -687,30 +674,30 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
       white = true;
   }
   if ([item tabState] == NSSelectedTab)
-    draw_tab_images([EditorTabImages objectForKey: white ? @"left_white" : @"left"],
-                    [EditorTabImages objectForKey: white ? @"middle_white" : @"middle"],
-                    [EditorTabImages objectForKey: white ? @"right_white" : @"right"],
+    draw_tab_images(EditorTabImages[white ? @"left_white" : @"left"],
+                    EditorTabImages[white ? @"middle_white" : @"middle"],
+                    EditorTabImages[white ? @"right_white" : @"right"],
                     NSMinX(tabRect), NSMaxX(tabRect));
 
   if (mHoverItem == item && mCloseHighlighted)
   {
     if (mClosePressed)
-      closePart = [MainTabImages objectForKey: @"close_down"];
+      closePart = MainTabImages[@"close_down"];
     else
-      closePart = [MainTabImages objectForKey: @"close_high"];
+      closePart = MainTabImages[@"close_high"];
   }
   else
-    closePart = [MainTabImages objectForKey: @"close"];
+    closePart = MainTabImages[@"close"];
 
   r.size = [closePart size];
-  r.origin.x = NSMaxX(tabRect) - NSWidth(r) - [[EditorTabImages objectForKey: @"right"] size].width - 4;
+  r.origin.x = NSMaxX(tabRect) - NSWidth(r) - [EditorTabImages[@"right"] size].width - 4;
   r.origin.y = floor((NSHeight(tabRect) - NSHeight(r)) / 2 - 2);
   if (item != mBusyTab)
     [closePart drawAtPoint: r.origin
                   fromRect: NSZeroRect
                  operation: NSCompositeSourceOver
                   fraction: 1.0];
-  [mCloseButtonRects setObject: [NSValue valueWithRect: NSInsetRect(r, -4, -4)] forKey: [item identifier]];
+  mCloseButtonRects[[item identifier]] = [NSValue valueWithRect: NSInsetRect(r, -4, -4)];
   
   [icon drawAtPoint: NSMakePoint(NSMinX(tabRect) + 5, NSMinY(tabRect) + floor((NSHeight(tabRect) - 4 - [icon size].height)/2))
            fromRect: NSZeroRect 
@@ -816,7 +803,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
     if (mHoverItem == item)
       [image drawInRect: closeRect fromRect: NSMakeRect(0, 0, [image size].width, [image size].height)
               operation: NSCompositeSourceOver fraction: 1.0];
-    [mCloseButtonRects setObject: [NSValue valueWithRect: NSInsetRect(closeRect, -4, -4)] forKey: [item identifier]];
+    mCloseButtonRects[[item identifier]] = [NSValue valueWithRect: NSInsetRect(closeRect, -4, -4)];
   }
   
   return NSWidth(tabRect);
@@ -898,7 +885,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
     case MEditorTabSwitcher:
     {
       { // draw background
-        NSImage *image = [EditorTabImages objectForKey: @"bg"];
+        NSImage *image = EditorTabImages[@"bg"];
         NSRect r = rect;
         r.size = [image size];
         for (r.origin.x = 0.0; r.origin.x < NSWidth(rect); r.origin.x += [image size].width)
@@ -914,7 +901,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
       NSArray *items = [mTabView tabViewItems];
       int i = mFirstVisibleTabIndex;
       mExternderButtonRect = NSZeroRect;
-      NSTabViewItem *current = items.count > 0 ? [items objectAtIndex: i] : nil;
+      NSTabViewItem *current = items.count > 0 ? items[i] : nil;
       while (current != nil)
       {
         if (![current.view isHidden])
@@ -942,7 +929,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
             activeTab = current;
           }
         }
-        current = ++i < (int)[items count] ? [items objectAtIndex: i] : nil;
+        current = ++i < (int)[items count] ? items[i] : nil;
       }
 
       mLastVisibleTabIndex = --i;
@@ -1015,14 +1002,14 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
       tabArea.size.width -= 2 * padding - mReservedSpace;
 
       if (![[mTabView selectedTabViewItem] label])
-        tile_image([[self window] isMainWindow] ? [MainTabImages objectForKey: @"home_bg"] : [MainTabInactiveImages objectForKey: @"home_bg"], 0, NSMinX(rect), NSMaxX(rect));
+        tile_image([[self window] isMainWindow] ? MainTabImages[@"home_bg"] : MainTabInactiveImages[@"home_bg"], 0, NSMinX(rect), NSMaxX(rect));
       else
-        tile_image([[self window] isMainWindow] ? [MainTabImages objectForKey: @"bg"] : [MainTabInactiveImages objectForKey: @"bg"], 0, NSMinX(rect), NSMaxX(rect));
+        tile_image([[self window] isMainWindow] ? MainTabImages[@"bg"] : MainTabInactiveImages[@"bg"], 0, NSMinX(rect), NSMaxX(rect));
 
       NSArray *items = [mTabView tabViewItems];
       int i = mFirstVisibleTabIndex;
       mExternderButtonRect = NSZeroRect;
-      NSTabViewItem *current = items.count > 0 ? [items objectAtIndex: i] : nil;
+      NSTabViewItem *current = items.count > 0 ? items[i] : nil;
       while (current != nil)
       {
         float w;
@@ -1051,7 +1038,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
         if ([current tabState] == NSSelectedTab)          
           selectedTabRect.size.width = w;
 
-        current = ++i < (int)items.count ? [items objectAtIndex: i] : nil;
+        current = ++i < (int)items.count ? items[i] : nil;
       }
       
       mLastVisibleTabIndex = --i;
@@ -1123,7 +1110,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
       skip--;
       continue;
     }
-    [mToolTipTags addObject: [NSNumber numberWithInteger: [self addToolTipRect: [self _tabItemRect: item] owner: self userData: item]]];
+    [mToolTipTags addObject: @([self addToolTipRect: [self _tabItemRect: item] owner: self userData: item])];
   }
 
   [self setNeedsDisplay: YES];
@@ -1188,7 +1175,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
   mClickedItem = item;
   if (item)
   {
-    NSRect closeRect = [[mCloseButtonRects objectForKey: [item identifier]] rectValue];
+    NSRect closeRect = [mCloseButtonRects[[item identifier]] rectValue];
     NSRect tabRect = [self _tabItemRect: item];
     NSRect pinRect = tabRect;
 
@@ -1252,7 +1239,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
   if (!mInside)
     mHoverItem = nil;
 
-  if (mClosePressed && mHoverItem && NSPointInRect(position, [[mCloseButtonRects objectForKey: [mHoverItem identifier]] rectValue]))
+  if (mClosePressed && mHoverItem && NSPointInRect(position, [mCloseButtonRects[[mHoverItem identifier]] rectValue]))
   {
     NSTabViewItem *item = mHoverItem;
     [self setNeedsDisplay: YES];
@@ -1412,7 +1399,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
     {
       //item = nil;
     }
-    else if (NSPointInRect(pos, [[mCloseButtonRects objectForKey: [item identifier]] rectValue]))
+    else if (NSPointInRect(pos, [mCloseButtonRects[[item identifier]] rectValue]))
       mCloseHighlighted = YES;
     mHoverItem = item;
     [self setNeedsDisplay: YES];
