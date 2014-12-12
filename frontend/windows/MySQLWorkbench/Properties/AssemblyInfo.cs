@@ -11,7 +11,7 @@ using MySQL.GUI.Workbench;
 [assembly: AssemblyConfiguration("development")]
 [assembly: AssemblyCompany("Oracle Corporation")]
 [assembly: AssemblyProduct("MySQL Workbench")]
-[assembly: AssemblyCopyright("Copyright © 2006, 2014, Oracle and/or its affiliates")]
+[assembly: AssemblyCopyright("Copyright © 2006, 2015, Oracle and/or its affiliates")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -30,5 +30,5 @@ using MySQL.GUI.Workbench;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("6.2.4.0")]
-[assembly: AssemblyFileVersion("6.2.4.0")]
+[assembly: AssemblyVersion("6.2.5.0")]
+[assembly: AssemblyFileVersion("6.2.5.0")]
