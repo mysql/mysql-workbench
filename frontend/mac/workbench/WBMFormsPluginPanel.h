@@ -32,21 +32,20 @@ namespace mforms {
 
 + (WBMFormsPluginPanel*)panelOfAppView:(mforms::AppView*)view;
 
-- (id)initWithAppView:(mforms::AppView*)view;
+- (instancetype)initWithAppView:(mforms::AppView*)view NS_DESIGNATED_INITIALIZER;
 
 - (void)setDefaultMenuBar:(mforms::MenuBar*)menu;
 
-- (NSView*)topView;
-- (NSString*)title;
-- (NSString*)identifier;
-- (NSImage*)tabIcon;
-- (mforms::AppView*)appView;
-- (bec::UIForm*)formBE;
-- (NSSize)minimumSize;
+@property (readonly, strong) NSView *topView;
+@property (copy) NSString *title;
+@property (readonly, copy) NSString *identifier;
+@property (readonly, copy) NSImage *tabIcon;
+@property (readonly) mforms::AppView *appView;
+@property (readonly) bec::UIForm *formBE;
+@property (readonly) NSSize minimumSize;
 
-- (void)setTitle:(NSString*)title;
 
-- (BOOL)willClose;
+@property (readonly) BOOL willClose;
 - (void)didOpen;
 
 @end

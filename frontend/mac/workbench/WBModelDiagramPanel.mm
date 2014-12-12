@@ -32,21 +32,21 @@
 #include "wb_context_model.h"
 
 static int zoom_levels[]= {
-200,
-150,
-100,
-95,
-90,
-85,
-80,
-75,
-70,
-60,
-50,
-40,
-30,
-20,
-10
+  200,
+  150,
+  100,
+  95,
+  90,
+  85,
+  80,
+  75,
+  70,
+  60,
+  50,
+  40,
+  30,
+  20,
+  10
 };
 
 
@@ -58,7 +58,7 @@ static void *backend_destroyed(void *ptr)
   return 0;
 }
 
-- (id)initWithId: (NSString *)oid formBE: (wb::ModelDiagramForm *)be
+- (instancetype)initWithId: (NSString *)oid formBE: (wb::ModelDiagramForm *)be
 {
   self = [super init];
   if (self != nil)
@@ -84,7 +84,7 @@ static void *backend_destroyed(void *ptr)
 
     // setup navigator
     for (int i= 0; i < (int)(sizeof(zoom_levels)/sizeof(int)); i++)
-      [zoomCombo addItemWithObjectValue:[NSNumber numberWithFloat:zoom_levels[i]]];
+      [zoomCombo addItemWithObjectValue:@((float)zoom_levels[i])];
     [navigatorViewer setupQuartz];
     [navigatorViewer setPostsFrameChangedNotifications:YES];
     
@@ -100,7 +100,7 @@ static void *backend_destroyed(void *ptr)
     
     [_viewer canvas]->set_user_data(self);
     
-    [_viewer registerForDraggedTypes: @[[NSString stringWithUTF8String: WB_DBOBJECT_DRAG_TYPE]]];
+    [_viewer registerForDraggedTypes: @[@WB_DBOBJECT_DRAG_TYPE]];
 
     [self setRightSidebar: be->get_wb()->get_wb_options().get_int("Sidebar:RightAligned", 0)];
 
@@ -206,7 +206,7 @@ static void *backend_destroyed(void *ptr)
 
 - (NSString*)title
 {
-  return [NSString stringWithUTF8String:_formBE->get_title().c_str()];
+  return @(_formBE->get_title().c_str());
 }
 
 
@@ -254,7 +254,7 @@ static NSPoint loadCursorHotspot(const std::string &path)
   {
     NSImage *image= [[GRTIconCache sharedIconCache] imageForFileName:[NSString stringWithFormat:@"%s.png", cursorName.c_str()]];
     
-    NSString *path= [[NSBundle mainBundle] pathForResource:[NSString stringWithUTF8String:cursorName.c_str()]
+    NSString *path= [[NSBundle mainBundle] pathForResource:@(cursorName.c_str())
                                                     ofType:@"png" inDirectory:@""];
     
     if (path)
@@ -503,8 +503,8 @@ static NSPoint loadCursorHotspot(const std::string &path)
 {
   mSidebarAtRight = flag;
   
-  id view1 = [[topView subviews] objectAtIndex: 0];
-  id view2 = [[topView subviews] objectAtIndex: 1];
+  id view1 = [topView subviews][0];
+  id view2 = [topView subviews][1];
   
   if (mSidebarAtRight)
   {

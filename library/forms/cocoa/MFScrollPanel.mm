@@ -57,7 +57,7 @@
 
 @implementation MFScrollPanelImpl
 
-- (id)initWithObject:(::mforms::ScrollPanel*)aScrollPanel 
+- (instancetype)initWithObject:(::mforms::ScrollPanel*)aScrollPanel 
             bordered: (bool) bordered
      drawsBackground: (bool) drawBG
 {

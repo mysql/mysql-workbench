@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,18 +26,18 @@
   NSView *decoratorView;
 }
 
-- (NSView*)topView;
-- (NSString*)title;
-- (NSString*)identifier;
-- (NSImage*)tabIcon;
-- (bec::UIForm*)formBE;
-- (NSSize)minimumSize;
+@property (readonly, strong) NSView *topView;
+@property (readonly, copy) NSString *title;
+@property (readonly, copy) NSString *identifier;
+@property (readonly, copy) NSImage *tabIcon;
+@property (readonly) bec::UIForm *formBE;
+@property (readonly) NSSize minimumSize;
 
-- (NSMenu*)menuBar;
+@property (readonly, copy) NSMenu *menuBar;
 
-- (NSView*)decoratedTopView;
+@property (readonly, strong) NSView *decoratedTopView;
 
-- (BOOL)willClose;
+@property (readonly) BOOL willClose;
 - (void)didOpen;
 
 - (void)didActivate;

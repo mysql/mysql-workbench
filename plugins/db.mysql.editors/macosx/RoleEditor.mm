@@ -118,7 +118,7 @@
     ssize_t enabled;
     mList->get_field(rowIndex, bec::RolePrivilegeListBE::Enabled, enabled);
     
-    return [NSNumber numberWithInt: enabled];
+    return @((int)enabled);
   }
   return nil;
 }
@@ -159,7 +159,9 @@ static void call_refresh(DbMysqlRoleEditor *self)
 }
 
 
-- (id)initWithModule:(grt::Module*)module GRTManager:(bec::GRTManager*)grtm arguments:(const grt::BaseListRef&)args
+- (instancetype)initWithModule: (grt::Module *)module
+                    grtManager: (bec::GRTManager *)grtm
+                     arguments: (const grt::BaseListRef &)args
 {
   self= [super initWithNibName: @"RoleEditor" bundle: [NSBundle bundleForClass:[self class]]];
   if (self != nil)
@@ -170,10 +172,10 @@ static void call_refresh(DbMysqlRoleEditor *self)
 
     [self setMinimumSize: [tabView frame].size];
 
-    [roleOutline registerForDraggedTypes:[NSArray arrayWithObject: [NSString stringWithCPPString: WB_CONTROL_DRAG_TYPE]]];
+    [roleOutline registerForDraggedTypes:@[[NSString stringWithCPPString: WB_CONTROL_DRAG_TYPE]]];
     
     // setup the object list for accepting drops
-    [objectTable registerForDraggedTypes:[NSArray arrayWithObject: [NSString stringWithCPPString: WB_DBOBJECT_DRAG_TYPE]]];
+    [objectTable registerForDraggedTypes:@[[NSString stringWithCPPString: WB_DBOBJECT_DRAG_TYPE]]];
     
     [self reinitWithArguments: args];
   }

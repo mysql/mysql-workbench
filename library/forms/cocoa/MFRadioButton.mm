@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,9 +28,9 @@
 @implementation MFRadioButtonImpl
 
 
-- (id)initWithObject:(::mforms::RadioButton*)aRadioButton
+- (instancetype)initWithObject:(::mforms::RadioButton*)aRadioButton
 {
-  self= [super initWithObject:aRadioButton buttonType: ::mforms::PushButton];
+  self = [super initWithObject: aRadioButton buttonType: mforms::PushButton];
   if (self)
   {
     [self setButtonType: NSRadioButton];
@@ -46,6 +46,13 @@
   return self;
 }
 
+- (instancetype)initWithObject: (mforms::Button *)button buttonType: (mforms::ButtonType)type
+{
+  mforms::RadioButton *radio = dynamic_cast<mforms::RadioButton *>(button);
+  if (radio == NULL)
+    return nil;
+  return [self initWithObject: radio];
+}
 
 - (void)performCallback:(id)sender
 {

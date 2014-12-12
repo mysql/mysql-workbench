@@ -84,7 +84,7 @@ namespace mforms
 
 - (void)addEditor:(WBBasePanel*)editor;
 
-- (id)initWithBE:(const SqlEditorForm::Ref&)be;
+- (instancetype)initWithBE:(const SqlEditorForm::Ref&)be NS_DESIGNATED_INITIALIZER;
 - (void)setRightSidebar:(BOOL)flag;
 - (void)flushOutputBuffer;
 

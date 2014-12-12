@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,21 +37,20 @@
   BOOL _noHeaders;
 }
 
-- (id)initWithOverviewBE:(wb::OverviewBE*)overview;
-- (void)setupWithOverviewBE:(wb::OverviewBE*)overview;
+- (void)setupWithOverviewBE: (wb::OverviewBE*)overview;
 - (void)setNoBackground;
 - (void)setNoHeader;
 - (void)rebuildAll;
 - (void)refreshNode:(const bec::NodeId&)node;
 - (void)refreshNodeChildren:(const bec::NodeId&)node;
 
-- (BOOL)willClose;
+@property (readonly) BOOL willClose;
 
-- (NSView*)topView;
-- (NSString*)title;
-- (NSString*)identifier;
-- (bec::UIForm*)formBE;
-- (wb::OverviewBE*)backend;
+@property (readonly, strong) NSView *topView;
+@property (readonly, copy) NSString *title;
+@property (readonly, copy) NSString *identifier;
+@property (readonly) bec::UIForm *formBE;
+@property (readonly) wb::OverviewBE *backend;
 
 - (id)itemContainerForNode:(const bec::NodeId&)node;
 

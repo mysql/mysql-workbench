@@ -708,7 +708,7 @@ NSView *nsviewForView(mforms::View *view)
 
 - (void)writeNativeData: (void *)data typeAsChar: (const char *)type
 {
-  NSString *format = [NSString stringWithUTF8String: type];
+  NSString *format = @(type);
   [self writeNativeData: data typeAsString: format];
 }
 
@@ -725,7 +725,7 @@ NSView *nsviewForView(mforms::View *view)
 
 - (void *)nativeDataForTypeAsChar: (const char *)type
 {
-  NSString *format = [NSString stringWithUTF8String: type];
+  NSString *format = @(type);
   return [self nativeDataForTypeAsString: format];
 }
 
@@ -939,7 +939,7 @@ static void view_set_font(::mforms::View *self, const std::string &fontDescripti
       if (italic)
         traitMask |= NSItalicFontMask;
       NSFontManager* fontManager = [NSFontManager sharedFontManager];
-      NSFont* font = [fontManager fontWithFamily: [NSString stringWithUTF8String: name.c_str()]
+      NSFont* font = [fontManager fontWithFamily: @(name.c_str())
                                           traits: traitMask
                                           weight: 0
                                             size: size];
@@ -981,7 +981,7 @@ static void view_set_front_color(::mforms::View *self, const std::string &color)
 {
   // Foreground color means text color, so that is supported only by text storage and text layer controls.
   if ([self->get_data() respondsToSelector: @selector(setTextColor:)])
-    [self->get_data() setTextColor: [NSColor colorFromHexString: [NSString stringWithUTF8String: color.c_str()]]];
+    [self->get_data() setTextColor: [NSColor colorFromHexString: @(color.c_str())]];
 }
 
 static std::string view_get_front_color(::mforms::View *self)
@@ -998,7 +998,7 @@ static void view_set_back_color(::mforms::View *self, const std::string &color)
 {
   if ([self->get_data() respondsToSelector: @selector(setBackgroundColor:)])
   {
-    [self->get_data() setBackgroundColor: [NSColor colorFromHexString: [NSString stringWithUTF8String: color.c_str()]]];
+    [self->get_data() setBackgroundColor: [NSColor colorFromHexString: @(color.c_str())]];
     if ([self->get_data() respondsToSelector: @selector(setDrawsBackground:)])
       [self->get_data() setDrawsBackground: !color.empty()];
   }
@@ -1060,7 +1060,7 @@ static void register_drop_formats(mforms::View *self, mforms::DropDelegate *targ
       if (formats[i] == mforms::DragFormatFileName)
         [list addObject: NSFilenamesPboardType];
       else
-        [list addObject: [NSString stringWithUTF8String: formats[i].c_str()]];
+        [list addObject: @(formats[i].c_str())];
   }
   NSView *view = self->get_data();
 
@@ -1071,7 +1071,7 @@ static void register_drop_formats(mforms::View *self, mforms::DropDelegate *targ
 static mforms::DragOperation view_drag_text(mforms::View *self, mforms::DragDetails details, const std::string &text)
 {
   NSView *view = self->get_data();
-  return [view startDragWithText: [NSString stringWithUTF8String: text.c_str()]
+  return [view startDragWithText: @(text.c_str())
                         details: details];
 }
 
@@ -1081,7 +1081,7 @@ static mforms::DragOperation view_drag_data(mforms::View *self, mforms::DragDeta
   NSView *view = self->get_data();
   return [view startDragWithData: data
                          details: details
-                          format: [NSString stringWithUTF8String: format.c_str()]];
+                          format: @(format.c_str())];
 }
 
 static mforms::DropPosition view_get_drop_position(mforms::View *self)

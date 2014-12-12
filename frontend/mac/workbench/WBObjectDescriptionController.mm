@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -74,7 +74,7 @@
     if (!items.empty())
     {
       for (std::vector<std::string>::const_iterator iter= items.begin(); iter != items.end(); ++iter)
-        [popup addItemWithTitle:[NSString stringWithUTF8String:iter->c_str()]];
+        [popup addItemWithTitle:@(iter->c_str())];
       [popup selectItemAtIndex: 0];
       
       // lock on multi selection
@@ -88,7 +88,7 @@
         [text setEditable: YES];
         [forceEditButton setHidden:YES];
       }
-      [text setString: [NSString stringWithUTF8String:description.c_str()]];
+      [text setString: @(description.c_str())];
     }
     else
     {

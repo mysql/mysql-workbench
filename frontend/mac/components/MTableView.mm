@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,7 @@
 #import "MTableView.h"
 
 @interface NSObject ()
-- (bec::ListModel*)listModelForTableView:(NSTableView*)table;
+- (bec::ListModel*)listModelForTableView:(NSTableView*)table NS_RETURNS_INNER_POINTER;
 @end
 
 

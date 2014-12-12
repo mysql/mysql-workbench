@@ -24,7 +24,7 @@
 
 @implementation MFFileChooserImpl
 
-- (id)initWithObject: (mforms::FileChooser*) chooser type: (mforms::FileChooserType) type showHidden: (BOOL) showHidden
+- (instancetype)initWithObject: (mforms::FileChooser*) chooser type: (mforms::FileChooserType) type showHidden: (BOOL) showHidden
 {
   self= [super init];
   if (self)
@@ -83,8 +83,8 @@
   NSPopUpButton *pop = [[[NSPopUpButton alloc] initWithFrame: NSMakeRect(0, 0, 250, 20)] autorelease];
   for (int c = [values count], i = 0; i < c; i+= 2)
   {
-    [pop addItemWithTitle: [values objectAtIndex: i]];
-    [[pop lastItem] setRepresentedObject: [values objectAtIndex: i+1]];
+    [pop addItemWithTitle: values[i]];
+    [[pop lastItem] setRepresentedObject: values[i+1]];
   }
   [pop sizeToFit];
   
@@ -126,7 +126,7 @@
 
 - (NSString *)panel:(id)sender userEnteredFilename:(NSString *)filename confirmed:(BOOL)okFlag
 {
-  NSPopUpButton *fileTypeMenu = [mOptionControls objectForKey: @"format"];
+  NSPopUpButton *fileTypeMenu = mOptionControls[@"format"];
   if (fileTypeMenu)
   {
     NSString *extension = [[fileTypeMenu selectedItem] representedObject];
@@ -233,7 +233,7 @@ static void filechooser_set_path(mforms::FileChooser *self, const std::string &p
       [chooser->mPanel setDirectoryURL: [NSURL fileURLWithPath: directory isDirectory: YES]];
     chooser->mDefaultFileName = [[fpath lastPathComponent] retain];
     
-    NSPopUpButton *popup = [chooser->mOptionControls objectForKey: @"format"];
+    NSPopUpButton *popup = chooser->mOptionControls[@"format"];
     if (popup)
     {
       NSInteger i = [popup indexOfItemWithRepresentedObject: extension];
@@ -261,9 +261,9 @@ static void filechooser_set_extensions(mforms::FileChooser *self, const std::str
     {
       [fileTypes addObject: wrap_nsstring(iter->first)];
       if (iter->second.size() > 2 || iter->second.substr(0, 2) == "*.")
-        [array addObject: [NSString stringWithUTF8String: iter->second.substr(2).c_str()]];
+        [array addObject: @(iter->second.substr(2).c_str())];
       else if (iter->second[0] == '*')
-        [array addObject: [NSString stringWithUTF8String: iter->second.substr(1).c_str()]];
+        [array addObject: @(iter->second.substr(1).c_str())];
       [fileTypes addObject: [array lastObject]];
     }
 
@@ -287,7 +287,7 @@ static void filechooser_add_selector_option(mforms::FileChooser *self, const std
     }
     id popupButton = [chooser addSelectorOption: optlist label: wrap_nsstring(label)];
     if (popupButton)
-      [chooser->mOptionControls setObject: popupButton forKey: wrap_nsstring(name)];
+      chooser->mOptionControls[wrap_nsstring(name)] = popupButton;
   }
 }
 
@@ -298,8 +298,8 @@ static std::string filechooser_get_selector_option_value(mforms::FileChooser *se
   if (chooser)
   {
     if (name == "format")
-      return [[[chooser->mOptionControls objectForKey: wrap_nsstring(name)] titleOfSelectedItem] UTF8String] ?: "";
-    return [[[[chooser->mOptionControls objectForKey: wrap_nsstring(name)] selectedItem] representedObject] UTF8String] ?: "";
+      return [[chooser->mOptionControls[wrap_nsstring(name)] titleOfSelectedItem] UTF8String] ?: "";
+    return [[[chooser->mOptionControls[wrap_nsstring(name)] selectedItem] representedObject] UTF8String] ?: "";
   }
   return "";
 }

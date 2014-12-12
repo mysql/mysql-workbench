@@ -34,7 +34,9 @@ static void call_refresh(DbMysqlRoutineEditor *self)
 }
 
 
-- (id)initWithModule:(grt::Module*)module GRTManager:(bec::GRTManager*)grtm arguments:(const grt::BaseListRef&)args
+- (instancetype)initWithModule: (grt::Module*)module
+                    grtManager: (bec::GRTManager *)grtm
+                     arguments: (const grt::BaseListRef &)args
 {
   self= [super initWithNibName: @"MySQLRoutineEditor"  bundle: [NSBundle bundleForClass:[self class]]];
   if (self != nil)

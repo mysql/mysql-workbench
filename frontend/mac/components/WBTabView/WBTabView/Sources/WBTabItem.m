@@ -1,20 +1,27 @@
-//
-//  WBTabItem.m
-//
-//  Created by Jacob on 2008-11-26.
-//  Copyright 2008 Sun Microsystems, Inc. All rights reserved.
-//
-
-
+/*
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
 
 #import "WBTabItem.h"
 #import "CGColorUtilities.h"
 
-
 #define TAB_ITEM_WIDTH (150)
 #define TAB_ITEM_SMALL_WIDTH (70)
-
-
 
 @implementation WBTabMenuLayer
 
@@ -99,7 +106,7 @@
 
 - (void) setEnabled: (BOOL) yn;
 {
-  CALayer* iconLayer = [[self sublayers] objectAtIndex: 0];
+  CALayer* iconLayer = [self sublayers][0];
   [iconLayer setOpacity: (yn ? 1 : 0.4)];
   [self setShadowOpacity: (yn ? 0.5 : 0)];
 }
@@ -240,7 +247,7 @@
     mCloseButtonImage = [[NSImage alloc] initWithContentsOfFile: path];
     
     //		NSImage* buttonImage = [NSImage imageNamed: @"TabClose_Pressed"];
-    CGImageRef img = [[[mCloseButtonImage representations] objectAtIndex: 0] CGImage];
+    CGImageRef img = [[mCloseButtonImage representations][0] CGImage];
     [mCloseButton setContents: (id)img];
   }
   else if (state == NSOffState) {
@@ -251,7 +258,7 @@
     mCloseButtonImage = [[NSImage alloc] initWithContentsOfFile: path];
     
     //		NSImage* buttonImage = [NSImage imageNamed: @"TabClose_Unpressed"];
-    CGImageRef img = [[[mCloseButtonImage representations] objectAtIndex: 0] CGImage];
+    CGImageRef img = [[mCloseButtonImage representations][0] CGImage];
     [mCloseButton setContents: (id)img];
   }
 }
@@ -287,7 +294,7 @@
     if (!mIcon)
     {
       //			NSImage* iconImage = [NSImage imageNamed: @"TabDocument"];
-      CGImageRef img = [[[mDocumentIconImage representations] objectAtIndex: 0] CGImage];
+      CGImageRef img = [[mDocumentIconImage representations][0] CGImage];
       mIcon = [CALayer layer];
       CGRect rect= mIcon.frame;
       [mIcon setContents: (id)img];
@@ -301,7 +308,7 @@
     }
     else
     {
-      CGImageRef img = [[[mDocumentIconImage representations] objectAtIndex: 0] CGImage];
+      CGImageRef img = [[mDocumentIconImage representations][0] CGImage];
       CGRect rect= mIcon.frame;
       [mIcon setContents: (id)img];
       rect.size= NSSizeToCGSize([image size]);
@@ -429,7 +436,7 @@
 
 
 
-- (id) initWithIdentifier: (id) identifier
+- (instancetype) initWithIdentifier: (id) identifier
                     label: (NSString*) label
                 direction: (WBTabDirection) tabDirection
                 placement: (WBTabPlacement) tabPlacement
@@ -475,7 +482,7 @@
       mCloseButtonImage = [[NSImage alloc] initWithContentsOfFile: path];
       
       //			NSImage* buttonImage = [NSImage imageNamed: @"TabClose_Unpressed"];
-      CGImageRef img = [[[mCloseButtonImage representations] objectAtIndex: 0] CGImage];
+      CGImageRef img = [[mCloseButtonImage representations][0] CGImage];
       mCloseButton = [CALayer layer];
       CGRect r = CGRectZero;
       r.size = NSSizeToCGSize([mCloseButtonImage size]);
@@ -498,7 +505,7 @@
       mDocumentIconImage = [[NSImage alloc] initWithContentsOfFile: path];
       
       //			NSImage* iconImage = [NSImage imageNamed: @"TabDocument"];
-      CGImageRef img = [[[mDocumentIconImage representations] objectAtIndex: 0] CGImage];
+      CGImageRef img = [[mDocumentIconImage representations][0] CGImage];
       mIcon = [CALayer layer];
       CGRect r = CGRectZero;
       r.size = NSSizeToCGSize([mDocumentIconImage size]);

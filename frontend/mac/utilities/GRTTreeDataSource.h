@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,8 +37,7 @@
   id _dragDelegate;
 }
 
-- (id)initWithTreeModel:(bec::TreeModel*)model;
-- (void)setTreeModel:(bec::TreeModel*)model;
+- (instancetype)initWithTreeModel:(bec::TreeModel*)model;
 - (void)setHidesRootNode:(BOOL)flag;
 
 - (NSMutableSet*)storeExpansionStateOfOutlineView:(NSOutlineView*)outlineView
@@ -47,7 +46,7 @@
                                  fromState:(NSMutableSet*)state
                         usingValueOfColumn:(id)column;
 
-- (bec::TreeModel*)treeModel;
+@property  bec::TreeModel *treeModel;
 - (void)refreshModel;
 
 - (bec::NodeId)nodeIdForItem:(id)item;

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 
 @implementation WBSplitViewUnbrokenizerDelegate
 
-- (id)init
+- (instancetype)init
 {
   self= [super init];
   if (self)
@@ -83,13 +83,13 @@ constrainMaxCoordinate: (CGFloat) proposedMax
 
 - (NSView*)topViewOfSplitView: (NSSplitView*)view 
 {
-  return [[view subviews] objectAtIndex: 0];
+  return [view subviews][0];
 }
 
 
 - (NSView*)bottomViewOfSplitView: (NSSplitView*)view 
 {
-  return [[view subviews] objectAtIndex: 1];
+  return [view subviews][1];
 }
 
 

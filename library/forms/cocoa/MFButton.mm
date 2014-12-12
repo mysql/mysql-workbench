@@ -22,10 +22,10 @@
 
 @implementation MFButtonImpl
 
-- (id)initWithObject:(::mforms::Button*)aButton
-          buttonType:(::mforms::ButtonType)type
+- (instancetype)initWithObject: (mforms::Button*)aButton
+                    buttonType: (mforms::ButtonType)type
 {
-  self= [super initWithFrame:NSMakeRect(10, 10, 30, 30)];
+  self= [super initWithFrame: NSMakeRect(10, 10, 30, 30)];
   if (self)
   {
     mOwner = aButton;
@@ -56,10 +56,30 @@
         [self setBezelStyle: NSRoundRectBezelStyle];
         break;
     }
-    [self setTarget:self];
-    [self setAction:@selector(performCallback:)];
+    [self setTarget: self];
+    [self setAction: @selector(performCallback:)];
   }
   return self;
+}
+
+-(instancetype)initWithFrame: (NSRect)frame
+{
+  self = [super initWithFrame: frame];
+  if (self != nil)
+  {
+    mOwner = nil;
+  }
+  return nil;
+}
+
+-(instancetype)initWithCoder: (NSCoder *)coder
+{
+  self = [super initWithCoder: coder];
+  if (self != nil)
+  {
+    mOwner = nil;
+  }
+  return nil;
 }
 
 - (NSString*)description

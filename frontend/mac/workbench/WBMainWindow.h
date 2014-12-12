@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -75,11 +75,10 @@ class MacNotificationObserver;
 }
 
 - (void)load;
-- (void)setOwner:(WBMainController*)owner;
 - (void)setWBContext:(wb::WBContextUI*)wbui;
-- (wb::WBContextUI*)context;
+@property (readonly) wb::WBContextUI *context;
 - (void)setupReady;
-- (BOOL)closeAllPanels;
+@property (readonly) BOOL closeAllPanels;
 - (NSTabViewItem*)addTopPanel:(WBBasePanel*)panel;
 - (NSTabViewItem*)addTopPanelAndSwitch:(WBBasePanel*)panel;
 - (void)addBottomPanel:(WBBasePanel*)panel;
@@ -89,9 +88,9 @@ class MacNotificationObserver;
 - (void)setTitle:(NSString*)title
         forPanel:(WBBasePanel*)panel;
 
-- (WBMainController*)owner;
+@property (strong) WBMainController *owner;
 
-- (WBBasePanel*)selectedTopPanel;
+@property (readonly, strong) WBBasePanel *selectedTopPanel;
 
 - (IBAction)handleMenuAction:(id)sender;
 - (IBAction)showMySQLOverview:(id)sender;
@@ -116,7 +115,7 @@ class MacNotificationObserver;
 - (void)setStatusText:(NSString*)text;
 
 - (mdc::CanvasView*)createView:(const char*)oid
-                          name:(const char*)name;
+                          name:(const char*)name NS_RETURNS_INNER_POINTER;
 - (void)destroyView:(mdc::CanvasView*)view;
 
 - (BOOL)closePanel:(WBBasePanel*)panel;
@@ -125,8 +124,8 @@ class MacNotificationObserver;
 - (void)closeBottomPanelWithIdentifier:(id)identifier;
 - (void)closeEditorsMatching: (NSString*)identifier;
 
-- (WBBasePanel*)activePanel;
-- (WBBasePanel*)selectedMainPanel;
+@property (readonly, strong) WBBasePanel *activePanel;
+@property (readonly, strong) WBBasePanel *selectedMainPanel;
 
 - (void)forwardCommandToPanels: (const std::string) command;
 

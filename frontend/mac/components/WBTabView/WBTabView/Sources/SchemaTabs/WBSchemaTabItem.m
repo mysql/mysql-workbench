@@ -1,30 +1,26 @@
-
-/*!
- Copyright 2009 Sun Microsystems, Inc.
- 
- @author
- jak
- 
- @class
- WBSchemaTabItem
- 
- @abstract
- Implements custom tabs. Big tabs at the top of the view, pointing upwards.
- 
- @ingroup
- Custom Tab Views
+/*
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
  */
-
-
 
 #import "WBSchemaTabItem.h"
 #import "CGColorUtilities.h"
 
-
-
 @implementation WBSchemaTabItem
-
-
 
 - (void) updateAppearance;
 {
@@ -53,8 +49,7 @@
   [super setLabel: label];
 	
 	NSFont* font = [NSFont boldSystemFontOfSize: 11.5];
-	NSDictionary* attributes = [NSDictionary dictionaryWithObject: font
-																												 forKey: NSFontAttributeName];
+	NSDictionary* attributes = @{NSFontAttributeName: font};
 	CGRect r = [mTitleLayer frame];
 	r.size.width = ceil([mLabel sizeWithAttributes:attributes].width);
 	[mTitleLayer setFrame: r];
@@ -67,16 +62,14 @@
 	CGFloat preferredWidth = 0;
 	
 	NSFont* font = [NSFont boldSystemFontOfSize: 11.5];
-	NSDictionary* attributes = [NSDictionary dictionaryWithObject: font
-														   forKey: NSFontAttributeName];
+	NSDictionary* attributes = @{NSFontAttributeName: font};
 	CGFloat iconWidth = [mIcon frame].size.width + 9;
 	
 	CGFloat labelWidth = ceil([mLabel sizeWithAttributes:attributes].width);
 	CGFloat preferredWidth1 = iconWidth + 5 + labelWidth + 9;
 
 	font = [NSFont boldSystemFontOfSize: 9];
-	attributes = [NSDictionary dictionaryWithObject: font
-											 forKey: NSFontAttributeName];
+	attributes = @{NSFontAttributeName: font};
 	labelWidth = ceil([@"MySQL Schema" sizeWithAttributes:attributes].width);
 	CGFloat preferredWidth2 = iconWidth + 5 + labelWidth + 9;
 	
@@ -145,7 +138,7 @@
                                    ofType: @"png"];
 			mIconImage = [[NSImage alloc] initWithContentsOfFile: path];
       
-			CGImageRef img = [[[mIconImage representations] objectAtIndex: 0] CGImage];
+			CGImageRef img = [[mIconImage representations][0] CGImage];
 			mIcon = [CALayer layer];
 			CGRect r = CGRectZero;
 			r.size = NSSizeToCGSize([mIconImage size]);
@@ -201,7 +194,7 @@
 			mSideLineImage = [[NSImage alloc] initWithContentsOfFile: path];
       
 //			NSImage* iconImage = [NSImage imageNamed: @"SchemaTabSideLine"];
-			CGImageRef img = [[[mSideLineImage representations] objectAtIndex: 0] CGImage];
+			CGImageRef img = [[mSideLineImage representations][0] CGImage];
 			CGRect r = CGRectMake(0, horizon, 1, frame.size.height / 2);
 			mSideLeft = [CALayer layer];
 			[mSideLeft setFrame: r];
@@ -223,7 +216,7 @@
       NSString* path = [b pathForResource: @"SchemaTabGradientBackground"
                                    ofType: @"png"];
 			mAlphaGradientImage = [[NSImage alloc] initWithContentsOfFile: path];
-			CGImageRef img = [[[mAlphaGradientImage representations] objectAtIndex: 0] CGImage];
+			CGImageRef img = [[mAlphaGradientImage representations][0] CGImage];
       mBackgroundGradient = [CALayer layer];
       [mBackgroundGradient setContents: (id)img];
 			CGRect r = CGRectMake(0, horizon, frame.size.width, frame.size.height / 2);

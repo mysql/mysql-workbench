@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,9 +33,14 @@ static void call_refresh(DbMysqlUserEditor *self)
 }
 
 
-- (id)initWithModule:(grt::Module*)module GRTManager:(bec::GRTManager*)grtm arguments:(const grt::BaseListRef&)args
+- (instancetype)initWithModule: (grt::Module*)module
+                    grtManager: (bec::GRTManager *)grtm
+                     arguments: (const grt::BaseListRef &)args
 {
-  self= [super initWithNibName: @"UserEditor" bundle: [NSBundle bundleForClass:[self class]]];
+  if (grtm == nil)
+    return nil;
+  
+  self = [super initWithNibName: @"UserEditor" bundle: [NSBundle bundleForClass:[self class]]];
   if (self != nil)
   {
     _grtm = grtm;
@@ -157,7 +162,7 @@ static void call_refresh(DbMysqlUserEditor *self)
   NSInteger selectedRow= [assignedRoleTable selectedRow];
   if (selectedRow >= 0 && selectedRow < (int)[mAssignedRoles count])
   {
-    mBackEnd->remove_role([[mAssignedRoles objectAtIndex: selectedRow] UTF8String]);
+    mBackEnd->remove_role([mAssignedRoles[selectedRow] UTF8String]);
     
     [self refresh];
   }
@@ -197,7 +202,7 @@ static void call_refresh(DbMysqlUserEditor *self)
 
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
 {
-  return [mAssignedRoles objectAtIndex: rowIndex];
+  return mAssignedRoles[rowIndex];
 }
 
 - (bec::BaseEditor*)editorBE

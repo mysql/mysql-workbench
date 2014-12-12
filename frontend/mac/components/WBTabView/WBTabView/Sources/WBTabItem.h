@@ -1,32 +1,43 @@
-
-/*!
- Copyright 2009 Sun Microsystems, Inc.
+/*
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
  */
-
-
 
 #import "ResponderLayer.h"
 
-
-typedef enum {
+typedef NS_ENUM(NSInteger, WBTabDirection) {
   WBTabDirectionUndefined = 0,
   WBTabDirectionUp = 1,
   WBTabDirectionDown = 2
-} WBTabDirection;
+} ;
 
 
-typedef enum {
+typedef NS_ENUM(NSInteger, WBTabPlacement) {
   WBTabPlacementUndefined = 0,
   WBTabPlacementTop = 1,
   WBTabPlacementBottom = 2
-} WBTabPlacement;
+} ;
 
 
-typedef enum {
+typedef NS_ENUM(NSInteger, WBTabSize) {
   WBTabSizeUndefined = 0,
   WBTabSizeSmall = 1,
   WBTabSizeLarge = 2
-} WBTabSize;
+} ;
 
 
 
@@ -119,13 +130,13 @@ typedef enum {
 - (void) setEnabled: (BOOL) enabled;
 - (void) setLabel: (NSString*) newLabel;
 - (void) setIconImage: (NSImage*) image;
-- (id) identifier;
+@property (readonly, strong) id identifier;
 - (void) setColorActiveSelected: (CGColorRef) colorActiveSelected
          colorActiveNotSelected: (CGColorRef) colorActiveNotSelected
          colorNotActiveSelected: (CGColorRef) colorNotActiveSelected
       colorNotActiveNotSelected: (CGColorRef) colorNotActiveNotSelected;
 
-- (id) initWithIdentifier: (id) identifier
+- (instancetype) initWithIdentifier: (id) identifier
                     label: (NSString*) label
                 direction: (WBTabDirection) tabDirection
                 placement: (WBTabPlacement) tabPlacement
@@ -142,7 +153,7 @@ typedef enum {
                             canClose: (BOOL) canClose;
 
 
-- (CGFloat) preferredWidth;
+@property (readonly) CGFloat preferredWidth;
 
 @end
 

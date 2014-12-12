@@ -148,7 +148,7 @@ static BOOL modalHUDRunning = NO;
 
 //--------------------------------------------------------------------------------------------------
 
-- (id) init
+- (instancetype) init
 {
   if ((self= [super init]) != nil)
   {

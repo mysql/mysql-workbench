@@ -26,7 +26,7 @@
 
 @implementation MFCanvasImpl
 
-- (id)initWithObject:(::mforms::Canvas*)canvas
+- (instancetype)initWithObject:(::mforms::Canvas*)canvas
 {
   self= [super initWithFrame:NSMakeRect(10,10,10,20)];
   if (self)

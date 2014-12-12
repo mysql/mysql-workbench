@@ -4,7 +4,7 @@
  *
  * Created by Mike Lischke.
  *
- * Copyright 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  * Copyright 2009, 2011 Sun Microsystems, Inc. All rights reserved.
  * This file is dual licensed under LGPL v2.1 and the Scintilla license (http://www.scintilla.org/License.txt).
  */
@@ -62,7 +62,7 @@ extern NSString *const SCIUpdateUINotification;
 @property (assign) int marginWidth;
 @property (assign) ScintillaView *owner;
 
-- (id)initWithScrollView:(NSScrollView *)aScrollView;
+- (instancetype)initWithScrollView:(NSScrollView *)aScrollView;
 
 @end
 
@@ -87,8 +87,8 @@ extern NSString *const SCIUpdateUINotification;
 - (void) removeMarkedText;
 - (void) setCursor: (int) cursor;
 
-- (BOOL) canUndo;
-- (BOOL) canRedo;
+@property (readonly) BOOL canUndo;
+@property (readonly) BOOL canRedo;
 
 @end
 
@@ -133,18 +133,18 @@ extern NSString *const SCIUpdateUINotification;
 // Scroller handling
 - (void) setMarginWidth: (int) width;
 - (void) scrollerAction: (id) sender;
-- (SCIContentView*) content;
+@property (readonly, strong) SCIContentView *content;
 - (void) updateMarginCursors;
 
 // NSTextView compatibility layer.
-- (NSString*) string;
-- (void) setString: (NSString*) aString;
-- (void) insertText: (NSString*) aString;
-- (void) setEditable: (BOOL) editable;
-- (BOOL) isEditable;
-- (NSRange) selectedRange;
+@property (copy) NSString *string;
 
-- (NSString*) selectedString;
+- (void) insertText: (NSString*) aString;
+
+@property (getter=isEditable) BOOL editable;
+@property (readonly) NSRange selectedRange;
+
+@property (readonly, copy) NSString *selectedString;
 
 - (void) deleteRange: (NSRange) range;
 
@@ -172,7 +172,7 @@ extern NSString *const SCIUpdateUINotification;
 - (void) setColorProperty: (int) property parameter: (long) parameter fromHTML: (NSString*) fromHTML;
 - (NSColor*) getColorProperty: (int) property parameter: (long) parameter;
 - (void) setReferenceProperty: (int) property parameter: (long) parameter value: (const void*) value;
-- (const void*) getReferenceProperty: (int) property parameter: (long) parameter;
+- (const void*) getReferenceProperty: (int) property parameter: (long) parameter NS_RETURNS_INNER_POINTER;
 - (void) setStringProperty: (int) property parameter: (long) parameter value: (NSString*) value;
 - (NSString*) getStringProperty: (int) property parameter: (long) parameter;
 - (void) setLexerProperty: (NSString*) name value: (NSString*) value;

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,7 +29,7 @@
 
 //--------------------------------------------------------------------------------------------------
 
-- (id)initWithFrame:(NSRect)frameRect
+- (instancetype)initWithFrame:(NSRect)frameRect
 {
   self = [super initWithFrame: frameRect];
   //  if (self != nil)
@@ -116,7 +116,7 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
       [self performSelector: @selector(subviewMinimumSizeChanged)
                  withObject: nil
                  afterDelay: 0
-                    inModes: [NSArray arrayWithObjects: NSModalPanelRunLoopMode, NSDefaultRunLoopMode, nil]];
+                    inModes: @[NSModalPanelRunLoopMode, NSDefaultRunLoopMode]];
       [[self window] recalculateKeyViewLoop];
       return YES;
     }

@@ -59,10 +59,10 @@
   NSInteger mTabScrollOffset;
 }
 
-- (CGFloat) tabAreaHeight;
+@property (readonly) CGFloat tabAreaHeight;
 //- (void) setAllowsTabReordering: (BOOL) yn;
-- (NSSize) contentSize;
-- (CALayer*) shadowLayer;
+@property (readonly) NSSize contentSize;
+@property (readonly, strong) CALayer *shadowLayer;
 - (void) doCustomize;
 - (void) updateLabelForTabViewItem: (id) identifier;
 

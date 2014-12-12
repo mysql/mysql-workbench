@@ -24,7 +24,7 @@
 #import "WBColorCell.h"
 
 @interface NSString (WBExtensions)
-- (NSString*) stringBySplittingCamelCase;
+@property (readonly, copy) NSString *stringBySplittingCamelCase;
 @end
 
 @implementation NSString (WBExtensions)
@@ -64,7 +64,7 @@
     
     std::string t;
     mValueInspector->get_field(node, ::bec::ValueInspectorBE::EditMethod, t);
-    NSString* theType = [NSString stringWithUTF8String: t.c_str()];
+    NSString* theType = @(t.c_str());
     if ([theType isEqualToString: @"bool"]) {
       propertyType = PROPERTY_TYPE_BOOL;
     }
@@ -105,14 +105,14 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
     std::string s;
     if ([[aTableColumn identifier] isEqualToString: @"name"]) {
       mValueInspector->get_field(node, ::bec::ValueInspectorBE::Name, s);
-      NSString* name = [NSString stringWithUTF8String: s.c_str()];
+      NSString* name = @(s.c_str());
       name = [name stringBySplittingCamelCase];
       name = [name stringByAppendingString: @":"];
       retVal = [name capitalizedString];
     }
     else {
       mValueInspector->get_field(node, ::bec::ValueInspectorBE::Value, s);
-      retVal = [NSString stringWithUTF8String: s.c_str()];
+      retVal = @(s.c_str());
     }
   }
   
@@ -202,7 +202,7 @@ shouldEditTableColumn: (NSTableColumn*) aTableColumn
   node.append(rowIndex);
   std::string s;
   mValueInspector->get_field(node, ::bec::ValueInspectorBE::Value, s);
-  NSString* hex = [NSString stringWithUTF8String: s.c_str()];
+  NSString* hex = @(s.c_str());
   if ([hex length] > 1) {
     hex = [hex substringFromIndex: 1];
   }

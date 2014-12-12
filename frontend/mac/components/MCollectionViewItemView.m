@@ -263,7 +263,7 @@
     
     if (!control && !shift && !command && [theEvent clickCount] == 1)
       [self performSelector: @selector(beginInlineEditing) withObject: nil afterDelay: 0.5
-                    inModes: [NSArray arrayWithObjects: NSModalPanelRunLoopMode, NSDefaultRunLoopMode, nil]];
+                    inModes: @[NSModalPanelRunLoopMode, NSDefaultRunLoopMode]];
   }
 }
 

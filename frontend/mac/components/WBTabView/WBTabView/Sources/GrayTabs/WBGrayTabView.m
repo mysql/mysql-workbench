@@ -1,27 +1,25 @@
-
-/*!
- Copyright 2009 Sun Microsystems, Inc.
- 
- @author
- jak
- 
- @class
- WBGrayTabView
- 
- @abstract
- Implements the custom tabs. Tabs at the top of the tab view, pointing upwards.
- 
- @ingroup
- Custom Tab Views
+/*
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
  */
-
-
 
 #import "WBGrayTabView.h"
 #import "WBGrayTabItem.h"
 #import "CGColorUtilities.h"
-
-
 
 @implementation WBGrayTabView
 
@@ -96,7 +94,7 @@
   NSString* path = [b pathForResource: @"tab_header_background2"
                                ofType: @"png"];
   mPlaqueImage = [[NSImage alloc] initWithContentsOfFile: path];
-  NSImageRep* rep = [[mPlaqueImage representations] objectAtIndex: 0];
+  NSImageRep* rep = [mPlaqueImage representations][0];
   CGImageRef img = [(id)rep CGImage];
   [plaqueLayer setContents: (id)img];
   
