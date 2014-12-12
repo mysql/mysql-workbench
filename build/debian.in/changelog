@@ -1,8 +1,8 @@
-mysql-workbench-@edition@ (6.2.4-1@distrov@) @distro@; urgency=low
+mysql-workbench-@edition@ (6.2.5-1@distrov@) @distro@; urgency=low
 
   * New release
 
- -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Wed, 03 Sep 2014 11:10:44 -0700
+ -- Mike Lischke <mike.lischke@oracle.com>  Mon, 15 Dec 2014 11:10:44 -0700
 
 mysql-workbench-@edition@ (6.2.2-1@distrov@) @distro@; urgency=low
 
