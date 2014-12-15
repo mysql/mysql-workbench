@@ -548,7 +548,6 @@ void *AutoCompleteCache::_refresh_cache_thread(void *data)
     log_error("SQLException executing refresh_cache_thread: Error Code: %d\n, %s\n", exc.getErrorCode(), exc.what());
   }
 
-  g_thread_exit(0);
   return NULL;
 }
 
@@ -1383,8 +1382,11 @@ void AutoCompleteCache::create_worker_thread()
   if (!_cache_working.try_wait()) // If there is already working thread, just do nothing and exit.
     return;
 
+  //we need to wait for previous thread to finish before we create new thread
   if (_refresh_thread != NULL)
   {
+    //this may lead to undefined behavior if g_thread_join would be called from different threads that will wait for one single thread,
+    //but for now we need to wait for it, because we can deadlock when closing sqlide
     g_thread_join(_refresh_thread);
     _refresh_thread = NULL;
   }
