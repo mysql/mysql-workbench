@@ -149,9 +149,11 @@ SqlEditorTreeController::SqlEditorTreeController(SqlEditorForm *owner)
   _base_schema_tree.sql_editor_text_insert_signal.connect(boost::bind(&SqlEditorTreeController::insert_text_to_active_editor, this, _1));
   _filtered_schema_tree.sql_editor_text_insert_signal.connect(boost::bind(&SqlEditorTreeController::insert_text_to_active_editor, this, _1));
 
+  live_schemata_refresh_task->desc("Live Schema Refresh Task");
   live_schemata_refresh_task->send_task_res_msg(false);
   live_schemata_refresh_task->msg_cb(boost::bind(&SqlEditorForm::add_log_message, _owner, _1, _2, _3, ""));
 
+  live_schema_fetch_task->desc("Live Schema Fetch Task");
   live_schema_fetch_task->send_task_res_msg(false);
   live_schema_fetch_task->msg_cb(boost::bind(&SqlEditorForm::add_log_message, _owner, _1, _2, _3, ""));
 }
