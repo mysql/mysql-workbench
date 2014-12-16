@@ -39,7 +39,7 @@ RecordsetView * RecordsetView::create(Recordset::Ref model)
 
 RecordsetView::RecordsetView(Recordset::Ref model)
 :
-_grid(NULL), _single_row_height(-1)
+_grid(NULL), _close_btn(NULL), _single_row_height(-1)
 {
   this->model(model);
 }

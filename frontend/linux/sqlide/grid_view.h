@@ -67,6 +67,7 @@ class GridView : public Gtk::TreeView
 
     void on_cell_edited(const Glib::ustring &path_string, const Glib::ustring &new_text);
     void on_cell_editing_started(Gtk::CellEditable* e, const Glib::ustring &path, Gtk::TreeViewColumn* column);
+    void on_text_insert(unsigned int position, const char* incoming_text, unsigned int character_num);
     void on_cell_editing_done();
 
     void set_ellipsize(const int column, const bool on) {_view_model->set_ellipsize(column, on);}
