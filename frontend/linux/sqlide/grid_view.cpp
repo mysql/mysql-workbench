@@ -22,6 +22,8 @@
 #include <boost/foreach.hpp>
 #include "base/wb_iterators.h"
 #include "mforms/menu.h"
+#include "mforms/utilities.h"
+#include "base/string_utilities.h"
 
 //------------------------------------------------------------------------------
 GridView * GridView::create(bec::GridModel::Ref model, bool fixed_height_mode, bool allow_cell_selection)
@@ -209,7 +211,7 @@ void GridView::delete_selected_rows()
   std::vector<int> rows = get_selected_rows();
   std::sort(rows.begin(), rows.end());
   for (ssize_t i = rows.size()-1; i >= 0; --i)
-    _model->delete_node(rows[i]);
+    _model->delete_node((bec::NodeId)rows[i]);
   sync_row_count();
 }
 
@@ -423,9 +425,21 @@ void GridView::on_cell_editing_started(Gtk::CellEditable* e, const Glib::ustring
   Gtk::Widget* w = dynamic_cast<Gtk::Widget*>(e);
   if (w)
   {
+    Gtk::Entry* entry = dynamic_cast<Gtk::Entry*>(w);
+    if (entry)
+    {
+      Glib::RefPtr<Gtk::EntryBuffer> ebuff = entry->get_buffer();
+      ebuff->signal_inserted_text().connect(sigc::mem_fun(this, &GridView::on_text_insert));
+    }
     w->signal_hide().connect(sigc::mem_fun(this, &GridView::on_cell_editing_done));
     w->signal_focus_out_event().connect(sigc::bind(sigc::mem_fun(this, &GridView::on_focus_out), column->get_first_cell_renderer(), dynamic_cast<Gtk::Entry*>(e)), false);
   }
+}
+
+void GridView::on_text_insert(unsigned int position, const char* incoming_text, unsigned int character_num)
+{
+  if ((unsigned int)strlen(incoming_text) != character_num)
+    mforms::Utilities::show_warning(_("Text overload"), _("Pasted data exceed maximum data that this control can hold. Please use value editor instead."), "Ok", "", "");
 }
 
 void GridView::on_cell_editing_done()
