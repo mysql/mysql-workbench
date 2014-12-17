@@ -86,17 +86,17 @@ if paramiko and server_version_str2tuple(paramiko.__version__) >= (1, 7, 4):
             m.add_byte(chr(MSG_CHANNEL_OPEN))
             m.add_string(kind)
             m.add_int(chanid)
-            window_size = None
-            max_packet_size = None
+            local_window_size = None
+            local_max_packet_size = None
             if (server_version_str2tuple(paramiko.__version__) <= (1, 15, 1)):
-                window_size = self.window_size
-                max_packet_size = self.max_packet_size
+                local_window_size = self.window_size
+                local_max_packet_size = self.max_packet_size
             else:
-                window_size = self._sanitize_window_size(window_size)
-                max_packet_size = self._sanitize_packet_size(max_packet_size)
+                local_window_size = self._sanitize_window_size(window_size)
+                local_max_packet_size = self._sanitize_packet_size(max_packet_size)
 
-            m.add_int(window_size)
-            m.add_int(max_packet_size)
+            m.add_int(local_window_size)
+            m.add_int(local_max_packet_size)
             if (kind == 'forwarded-tcpip') or (kind == 'direct-tcpip'):
                 m.add_string(dest_addr[0])
                 m.add_int(dest_addr[1])
@@ -110,7 +110,7 @@ if paramiko and server_version_str2tuple(paramiko.__version__) >= (1, 7, 4):
             self.channel_events[chanid] = event = threading.Event()
             self.channels_seen[chanid] = True
             chan._set_transport(self)
-            chan._set_window(window_size, max_packet_size)
+            chan._set_window(local_window_size, local_max_packet_size)
         finally:
             self.lock.release()
         self._send_user_message(m)
