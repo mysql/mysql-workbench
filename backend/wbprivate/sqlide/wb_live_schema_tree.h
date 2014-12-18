@@ -159,7 +159,7 @@ namespace wb
       ObjectType _type;
     public:
       ColumnData(ObjectType type = TableColumn) : 
-          LSTData(), is_pk(false), is_fk(false), is_id(false) { _type = type; }
+          LSTData(), is_pk(false), is_fk(false), is_id(false), is_idx(false) { _type = type; }
       // NOTE than name will contain the column name duplicating this info as it
       //      is already on the TreeNode. Duplicating it is better than having
       //      full HTML for all the columns on all the tables in the db.
@@ -423,7 +423,7 @@ namespace wb
     GPatternSpec* _object_pattern;
     LSTData *notify_on_reload_data;
 
-    static const char* _schema_tokens[15];
+    static const char* _schema_tokens[16];
     
     std::map<ObjectType, std::string> _icon_paths;
     
