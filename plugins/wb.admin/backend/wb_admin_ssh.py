@@ -142,7 +142,10 @@ if paramiko and server_version_str2tuple(paramiko.__version__) >= (1, 7, 4):
     paramiko.Transport.open_channel = wba_open_channel
 else:
     print "Warning! Can't use connect with timeout in paramiko", paramiko and paramiko.__version__
-    log_warning('Cannot use connect with timeout in paramiko version %s\n' % paramiko.__version__)
+    if paramiko:
+        log_warning('Cannot use connect with timeout in paramiko version %s\n' % paramiko.__version__)
+    else:
+        log_warning('Paramiko unavailable.\n')
 
 #===============================================================================
 class ConnectionError(Exception):
