@@ -358,17 +358,17 @@ void TunnelManager::set_keepalive(int port, int keepalive)
 
 boost::shared_ptr<sql::TunnelConnection> TunnelManager::create_tunnel(db_mgmt_ConnectionRef connectionProperties)
 {
-  if (!_tunnel)
-  {
-    log_info("Starting tunnel\n");
-    start();
-  }
-
   boost::shared_ptr<sql::TunnelConnection> tunnel;
   grt::DictRef parameter_values= connectionProperties->parameterValues();
 
   if (connectionProperties->driver()->name() == "MysqlNativeSSH")
   {
+    if (!_tunnel)
+    {
+      log_info("Starting tunnel\n");
+      start();
+    }
+
     std::string server = parameter_values.get_string("sshHost");
     std::string username = parameter_values.get_string("sshUserName");
     std::string password = parameter_values.get_string("sshPassword");

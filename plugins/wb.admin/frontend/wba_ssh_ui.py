@@ -19,7 +19,11 @@ from mforms import App, Utilities, newBox, newPanel, newButton, newLabel, newTab
 import mforms
 import wb_admin_ssh
 import errno
-from paramiko import SFTPError
+try:
+    from paramiko import SFTPError
+except:
+    paramiko = None
+
 from wb_common import OperationCancelledError, InvalidPasswordError, dprint_ex, parentdir, joinpath
 
 #===============================================================================
@@ -51,20 +55,31 @@ class RemoteFileSelector(object):
         self.chdir(fname, False)
 
     def try_cd(self, fname):
-      success = False
-      target_is_file = False
+        success = False
+        target_is_file = False
+        
+        if paramiko:
+            try:
+                success = self.cd(fname)
+            except SFTPError, e:
+                print e
+                if len(e.args) > 0 and e[0] == errno.ENOTDIR:
+                    success = False
+                    target_is_file = True
+                else:
+                    raise
+        else:
+            try:
+                success = self.cd(fname)
+            except Exception, e:
+                print e
+                if len(e.args) > 0 and e[0] == errno.ENOTDIR:
+                    success = False
+                    target_is_file = True
+                else:
+                    raise
 
-      try:
-          success = self.cd(fname)
-      except SFTPError, e:
-          print e
-          if len(e.args) > 0 and e[0] == errno.ENOTDIR:
-              success = False
-              target_is_file = True
-          else:
-              raise
-
-      return (success, target_is_file)
+        return (success, target_is_file)
 
     def chdir(self, fname, is_full_path):
         success = False
