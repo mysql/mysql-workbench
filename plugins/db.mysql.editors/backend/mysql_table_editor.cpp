@@ -863,7 +863,7 @@ public:
   //------------------------------------------------------------------------------------------------
 
   db_mysql_TriggerRef add_trigger(const std::string &timing, const std::string &event, bool select,
-    const std::string &sql = "")
+    std::string sql = "")
   {
     _editor->freeze_refresh_on_object_change();
     AutoUndoEdit undo(_editor);
@@ -892,11 +892,15 @@ public:
 
       trigger->event(event);
       trigger->timing(timing);
+      sql = base::strfmt("CREATE DEFINER = CURRENT_USER TRIGGER `%s`.`%s` %s %s ON `%s` FOR EACH ROW\nBEGIN\n\nEND\n",
+        _editor->get_schema_name().c_str(), trigger->name().c_str(), timing.c_str(),
+        event.c_str(), _editor->get_name().c_str());
+
+      trigger->sqlDefinition(sql);
     }
     else
-    {
       _editor->_parser_services->parseTrigger(_editor->_parser_context, trigger, sql);
-    }
+
     triggers.insert(trigger);
 
     undo.end(base::strfmt("Add trigger to %s.%s", _editor->get_schema_name().c_str(), _editor->get_name().c_str()));
@@ -978,19 +982,7 @@ public:
       _selected_trigger = trigger;
 
       if (trigger.is_valid())
-      {
-        std::string sql;
-        if (trigger->sqlDefinition().empty())
-        {
-          sql = base::strfmt("CREATE DEFINER = CURRENT_USER TRIGGER `%s`.`%s` %s %s ON `%s` FOR EACH ROW\n    ",
-            _editor->get_schema_name().c_str(), trigger->name().c_str(), trigger->timing().c_str(),
-            trigger->event().c_str(), _editor->get_name().c_str());
-        }
-        else
-          sql = trigger->sqlDefinition();
-
-        _editor->get_sql_editor()->sql(sql.c_str());
-      }
+        _editor->get_sql_editor()->sql(trigger->sqlDefinition().c_str());
     }
 
     _editor_host->show(trigger.is_valid());
