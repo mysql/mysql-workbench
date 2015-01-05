@@ -1709,10 +1709,10 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                         # description, object_count, pipe_factory, extra_args, objects
                         args = []
                         if not dump_triggers:
-                            args.append['--skip-triggers']
+                            args.append('--skip-triggers')
                             
                         if skip_table_structure:
-                            args.append['--no-create-info']
+                            args.append('--no-create-info')
 
                         if skip_data:
                             task = self.TableDumpNoData(schema,table, args, lambda schema=schema,table=table:self.dump_to_folder(schema, table))
