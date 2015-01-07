@@ -1536,6 +1536,10 @@ drop_user:
 	DROP_SYMBOL^ USER_SYMBOL user_list
 ;
 
+parse_grant: // For external use only. Don't reference this in the normal grammar.
+	grant EOF
+;
+
 grant:
 	GRANT_SYMBOL^ grant_privileges privilege_target
 		TO_SYMBOL user_specification (COMMA_SYMBOL user_specification)*

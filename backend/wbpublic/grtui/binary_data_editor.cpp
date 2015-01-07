@@ -576,6 +576,7 @@ void BinaryDataEditor::add_viewer(BinaryDataViewer *viewer, const std::string &t
 void BinaryDataEditor::save()
 {
   signal_saved();
+  close();
 }
 
 void BinaryDataEditor::import_value()

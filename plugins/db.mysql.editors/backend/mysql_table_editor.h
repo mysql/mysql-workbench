@@ -122,6 +122,7 @@ public:
   MySQLTableEditorBE(::bec::GRTManager *grtm, db_mysql_TableRef table);
   virtual ~MySQLTableEditorBE();
 
+  virtual void refresh_live_object();
   virtual void commit_changes();
 
   virtual MySQLTableColumnsListBE *get_columns() { return &_columns; }

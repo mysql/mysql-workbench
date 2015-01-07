@@ -258,7 +258,13 @@ std::vector<std::string> AutoCompleteCache::get_matching_objects(const std::stri
   if (!_shutdown)
   {
     // Ensures shutdown is not done while processing
-    base::RecMutexLock sd_lock(_shutdown_mutex);
+    base::RecMutexTryLock sd_lock(_shutdown_mutex);
+    if (!sd_lock.locked())
+    {
+      log_debug3("Can't obtain lock on shutdown_mutex for get_matching_objects call.\n");
+      return std::vector<std::string>();
+    }
+
     base::RecMutexLock lock(_sqconn_mutex);
     sqlite::query q(*_sqconn, "SELECT name FROM " + cache + " WHERE name LIKE ? ESCAPE '\\'");
     q.bind(1, base::escape_sql_string(prefix, true) + "%");
@@ -289,7 +295,13 @@ std::vector<std::string> AutoCompleteCache::get_matching_objects(const std::stri
   if (!_shutdown)
   {
     // Ensures shutdown is not done while processing
-    base::RecMutexLock sd_lock(_shutdown_mutex);
+    base::RecMutexTryLock sd_lock(_shutdown_mutex);
+    if (!sd_lock.locked())
+    {
+      log_debug3("Can't obtain lock on shutdown_mutex for get_matching_objects call.\n");
+      return std::vector<std::string>();
+    }
+
     base::RecMutexLock lock(_sqconn_mutex);
     sqlite::query q(*_sqconn, "SELECT name FROM " + cache + " WHERE schema_id LIKE ? ESCAPE '\\' "
       "AND name LIKE ? ESCAPE '\\'");
@@ -322,7 +334,13 @@ std::vector<std::string> AutoCompleteCache::get_matching_objects(const std::stri
   if (!_shutdown)
   {
     // Ensures shutdown is not done while processing
-    base::RecMutexLock sd_lock(_shutdown_mutex);
+    base::RecMutexTryLock sd_lock(_shutdown_mutex);
+    if (!sd_lock.locked())
+    {
+      log_debug3("Can't obtain lock on shutdown_mutex for get_matching_objects call.\n");
+      return std::vector<std::string>();
+    }
+
     base::RecMutexLock lock(_sqconn_mutex);
     sqlite::query q(*_sqconn, "SELECT name FROM " + cache + " WHERE schema_id LIKE ? ESCAPE '\\' "
       "AND table_id LIKE ? ESCAPE '\\' AND name LIKE ? ESCAPE '\\'");
@@ -369,7 +387,13 @@ bool AutoCompleteCache::refresh_schema_cache_if_needed(const std::string &schema
   if (!_shutdown)
   {
     // Ensures shutdown is not done while processing
-    base::RecMutexLock sd_lock(_shutdown_mutex);
+    base::RecMutexTryLock sd_lock(_shutdown_mutex);
+    if (!sd_lock.locked())
+    {
+      log_debug3("Can't obtain lock on shutdown_mutex for refresh_schema_cache_if_needed call.\n");
+      return false;
+    }
+
     base::RecMutexLock lock(_sqconn_mutex);
     sqlite::query q(*_sqconn, "SELECT last_refresh FROM schemas WHERE name LIKE ? ESCAPE '\\' ");
     q.bind(1, schema.empty() ? "%" : base::escape_sql_string(schema, true));
@@ -383,6 +407,7 @@ bool AutoCompleteCache::refresh_schema_cache_if_needed(const std::string &schema
         return false;
       }
     }
+
   }
 
   // Add tasks to load various schema objects. They will then update the last_refresh value.
@@ -501,7 +526,6 @@ void AutoCompleteCache::refresh_cache_thread()
   }
 
   // Signal the main thread that the worker thread is (about to be) gone.
-  _refresh_thread = NULL;
   _cache_working.post();
 
   if (_feedback && !_shutdown)
@@ -523,6 +547,7 @@ void *AutoCompleteCache::_refresh_cache_thread(void *data)
   {
     log_error("SQLException executing refresh_cache_thread: Error Code: %d\n, %s\n", exc.getErrorCode(), exc.what());
   }
+
   return NULL;
 }
 
@@ -1042,7 +1067,12 @@ void AutoCompleteCache::update_schemas(const std::vector<std::string> &schemas)
     if (!_shutdown)
     {
       // Ensures shutdown is not done while processing
-      base::RecMutexLock sd_lock(_shutdown_mutex);
+      base::RecMutexTryLock sd_lock(_shutdown_mutex);
+      if (!sd_lock.locked())
+      {
+        log_debug3("Can't obtain lock on shutdown_mutex for update_schemas call.\n");
+        return;
+      }
       base::RecMutexLock lock(_sqconn_mutex);
  
       std::map<std::string, int> old_schema_update_times;
@@ -1134,7 +1164,12 @@ void AutoCompleteCache::update_object_names(const std::string &cache, const std:
   {
     if (!_shutdown)
     {
-      base::RecMutexLock sd_lock(_shutdown_mutex);
+      base::RecMutexTryLock sd_lock(_shutdown_mutex);
+      if (!sd_lock.locked())
+      {
+        log_debug3("Can't obtain lock on shutdown_mutex for update_object_names call.\n");
+        return;
+      }
       base::RecMutexLock lock(_sqconn_mutex);
       sqlide::Sqlite_transaction_guarder trans(_sqconn, false);
       {
@@ -1172,7 +1207,12 @@ void AutoCompleteCache::update_object_names(const std::string &cache, const std:
     if (!_shutdown)
     {
       // Ensures shutdown is not done while processing
-      base::RecMutexLock sd_lock(_shutdown_mutex);
+      base::RecMutexTryLock sd_lock(_shutdown_mutex);
+      if (sd_lock.locked())
+      {
+        log_debug3("Can't obtain lock on shutdown_mutex for update_object_names call.\n");
+         return;
+      }
       base::RecMutexLock lock(_sqconn_mutex);
 
       sqlide::Sqlite_transaction_guarder trans(_sqconn, false); // Will be committed when we go out of the scope.
@@ -1206,11 +1246,17 @@ void AutoCompleteCache::update_object_names(const std::string &cache, const std:
 
   if (!_shutdown)
   {
-    // Ensures shutdown is not done while processing
-    base::RecMutexLock sd_lock(_shutdown_mutex);
-    base::RecMutexLock lock(_sqconn_mutex);
     try
     {
+      // Ensures shutdown is not done while processing
+      base::RecMutexTryLock sd_lock(_shutdown_mutex);
+      if (!sd_lock.locked())
+      {
+        log_debug3("Can't obtain lock on shutdown_mutex for update_object_names call.\n");
+        return;
+      }
+      base::RecMutexLock lock(_sqconn_mutex);
+
       sqlide::Sqlite_transaction_guarder trans(_sqconn, false);
 
       // Clear records for this schema/table.
@@ -1247,7 +1293,13 @@ void AutoCompleteCache::add_pending_refresh(RefreshTask::RefreshType type, const
 {
   if (!_shutdown)
   {
-    base::RecMutexLock sd_lock(_shutdown_mutex);
+
+    base::RecMutexTryLock sd_lock(_shutdown_mutex);
+    if (!sd_lock.locked())
+    {
+      log_debug3("Can't obtain lock on shutdown_mutex for add_pending_refresh call.\n");
+      return;
+    }
     base::RecMutexLock lock(_pending_mutex);
 
     // Add the new task only if there isn't already one of the same type and for the same objects.
@@ -1300,8 +1352,14 @@ bool AutoCompleteCache::get_pending_refresh(RefreshTask &task)
 
   if (!_shutdown)
   {
+
     // Ensures shutdown is not done while processing
-    base::RecMutexLock sd_lock(_shutdown_mutex);
+    base::RecMutexTryLock sd_lock(_shutdown_mutex);
+    if (!sd_lock.locked())
+    {
+      log_debug3("Can't obtain lock on shutdown_mutex for get_pending_refresh call.\n");
+      return false;
+    }
     base::RecMutexLock lock(_pending_mutex);
 
     if (!_pending_tasks.empty())
@@ -1310,6 +1368,7 @@ bool AutoCompleteCache::get_pending_refresh(RefreshTask &task)
       task = _pending_tasks.front();
       _pending_tasks.pop_front();
     }
+
   }
 
   return ret_val;
@@ -1323,7 +1382,14 @@ void AutoCompleteCache::create_worker_thread()
   if (!_cache_working.try_wait()) // If there is already working thread, just do nothing and exit.
     return;
 
-  _refresh_thread = NULL;
+  //we need to wait for previous thread to finish before we create new thread
+  if (_refresh_thread != NULL)
+  {
+    //this may lead to undefined behavior if g_thread_join would be called from different threads that will wait for one single thread,
+    //but for now we need to wait for it, because we can deadlock when closing sqlide
+    g_thread_join(_refresh_thread);
+    _refresh_thread = NULL;
+  }
   if (!_shutdown)
   {
     log_debug3("creating worker thread\n");
