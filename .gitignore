@@ -181,3 +181,8 @@ build/zip/distribution/
 *.wixpdb
 MySQL.tokens
 config.cnf
+wb-build/
+testing/tut/data/
+testing/tut/build/
+*.kdev4
+
