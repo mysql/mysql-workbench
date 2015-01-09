@@ -200,7 +200,7 @@ static void set_app_option(const std::string &option, grt::ValueRef value, WBCon
 
 WBOptions::WBOptions()
   : force_sw_rendering(false), force_opengl_rendering(false), verbose(false), quit_when_done(false),
-  testing(false), init_python(true)
+  testing(false), init_python(true), full_init(true)
 {
   log_debug("Creating WBOptions\n");
 }
@@ -1103,6 +1103,10 @@ static bool output_to_stdout(const grt::Message &msg, void *sender)
 void WBContext::init_finish_(WBOptions *options)
 {
   // initialize plugins that have a initializer (start with builtins and then go through user plugins)
+  // Initialization to be done ONLY when WB is first started.
+  // This point is also reached when i.e. a document was opened by double clicking and a WB instance was already open
+  // full_init is used to identify the initialization mode.
+  if (options->full_init)
   {
     const std::vector<grt::Module*> &modules(_manager->get_grt()->get_modules());
     grt::BaseListRef args(_manager->get_grt());
