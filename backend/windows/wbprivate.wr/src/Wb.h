@@ -122,7 +122,7 @@ private:
   wb::WBOptions* inner; 
 
 public:
-  WbOptions(String^ baseDir, String^ userDir);
+  WbOptions(String^ baseDir, String^ userDir, bool full_init);
 
   wb::WBOptions* get_unmanaged_object() { return inner; };
   bool parse_args(array<String^>^ args, String^ app_path);
