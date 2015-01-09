@@ -194,6 +194,7 @@ namespace wb {
     bool quit_when_done;
     bool testing;     // True if we are currently running unit tests.
     bool init_python; // True by default. Can be switched off for testing.
+    bool full_init; // True by default. Should be switched off when the options are created for an already running instance of WB.
 
     WBOptions();
     bool parse_args(char **argv, int argc, int *retval = NULL);
