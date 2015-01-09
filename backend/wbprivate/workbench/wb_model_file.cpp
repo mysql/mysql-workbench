@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -507,9 +507,10 @@ std::list<std::string> ModelFile::unpack_zip(const std::string &zipfile, const s
     throw grt::os_error(strfmt(_("Cannot create temporary directory for open document: %s"), destdir.c_str()), errno);
 
   int err;
-#ifdef _WIN32
+#ifdef ZIP_DISABLE_DEPRECATED
   // Would be good if we could test for zip_fdopen, but there's no way in the preprocessor.
   // And there's no version macro either for libzip.
+  // Define ZIP_DISABLE_DEPRECATED to use the newer APIs.
   int fd = base_open(zipfile, O_RDONLY, S_IREAD); // Error checking is done already before.
   zip *z = zip_fdopen(fd, 0, &err);
 #else
@@ -540,7 +541,7 @@ std::list<std::string> ModelFile::unpack_zip(const std::string &zipfile, const s
     throw std::runtime_error(strfmt(_("Cannot open document file: %s"), msg.c_str()));
   }
 
-#ifdef zip_int64_t
+#ifdef ZIP_DISABLE_DEPRECATED
   zip_int64_t count = zip_get_num_entries(z, 0);
 #else
   int count = zip_get_num_files(z);
@@ -700,7 +701,6 @@ static void zip_dir_contents(zip *z, const std::string &destdir, const std::stri
 
 void ModelFile::pack_zip(const std::string &zipfile, const std::string &destdir, const std::string &comment)
 {
-  int err= 0;
   std::string curdir;
 
   {
@@ -717,7 +717,18 @@ void ModelFile::pack_zip(const std::string &zipfile, const std::string &destdir,
 
   // zip_open will open an existing file even if ZIP_CREATE is specified, so
   // we have to 1st delete the file...
-  zip *z= zip_open(zipfile.c_str(), ZIP_CREATE, &err);
+  int err = 0;
+  /* XXX: doesn't work yet as zip_close creates a temporary file without considering the name encoding
+   *      and opening with zip_fdopen doesn't set the file name member of the zip struct
+   *      which then crashes when an attempt is made to derived a temp name from that.
+#ifdef ZIP_DISABLE_DEPRECATED
+  int fd = base_open(zipfile, O_CREAT, S_IWRITE);
+  zip *z = zip_fdopen(fd, 0, &err);
+#else
+  zip *z = zip_open(zipfile.c_str(), 0, &err); // Older versions of libzip.
+#endif
+#*/
+  zip *z = zip_open(zipfile.c_str(), ZIP_CREATE, &err);
   if (!z)
   {
     if (err == ZIP_ER_MEMORY)
