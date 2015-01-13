@@ -55,10 +55,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_OSS|x64'">
     <OutputPath>..\..\..\bin\x64\Release_OSS\</OutputPath>
     <DefineConstants>WIN64</DefineConstants>
+    <Optimize>true</Optimize>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_OSS|x86'">
     <OutputPath>..\..\..\bin\x86\Release_OSS\</OutputPath>
     <PlatformTarget>x86</PlatformTarget>
+    <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

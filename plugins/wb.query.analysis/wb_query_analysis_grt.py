@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -273,7 +273,7 @@ class QueryPlanTab(mforms.Box):
         self._raw_explain.set_value(json_text)
         #self._raw_explain.enable_folding(True)
         self._raw_explain.set_language(mforms.LanguagePython)
-        self._raw_explain.set_features(mforms.FeatureReadOnly, 1)
+        self._raw_explain.set_features(mforms.FeatureReadOnly, True)
         self.add(self._raw_explain, True, True)
         self._raw_explain.show(False)
 
