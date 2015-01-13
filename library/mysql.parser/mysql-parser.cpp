@@ -1259,7 +1259,7 @@ void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQL
     d->_ast = d->_parser->create_event(d->_parser).tree;
     break;
   case PuGrant:
-    d->_ast = d->_parser->grant(d->_parser).tree;
+    d->_ast = d->_parser->parse_grant(d->_parser).tree;
     break;
   case PuDataType:
     d->_ast = d->_parser->data_type_definition(d->_parser).tree;

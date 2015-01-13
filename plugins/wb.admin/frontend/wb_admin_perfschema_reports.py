@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -361,23 +361,26 @@ class PSHelperViewTab(mforms.Box):
 
     def _header_menu_will_show(self, parent):
         column = self._tree.get_clicked_header_column()
-        
-        self._hmenu.remove_all()
 
-        item = self._hmenu.add_item_with_title("Set Display Unit", lambda: None, "change_unit")
-        unit = self._column_units[column]
-        if unit in time_units:
-            for label in time_units:
-                i = item.add_item_with_title(label, lambda self=self, column=column, label=label: self._change_unit(column, label), label)
-                if unit == label:
-                    i.set_checked(True)
-        elif unit in byte_units:
-            for label in byte_units:
-                i = item.add_item_with_title(label, lambda self=self, column=column, label=label: self._change_unit(column, label), label)
-                if unit == label:
-                    i.set_checked(True)
-        else:
-            item.set_enabled(False)
+        # This reset should onle be done when the Context Menu will be initially shown.
+        # On submenus should be skipped or they will be shown on the top left corner of the UI
+        if parent is None:
+            self._hmenu.remove_all()
+
+            item = self._hmenu.add_item_with_title("Set Display Unit", lambda: None, "change_unit")
+            unit = self._column_units[column]
+            if unit in time_units:
+                for label in time_units:
+                    i = item.add_item_with_title(label, lambda self=self, column=column, label=label: self._change_unit(column, label), label)
+                    if unit == label:
+                        i.set_checked(True)
+            elif unit in byte_units:
+                for label in byte_units:
+                    i = item.add_item_with_title(label, lambda self=self, column=column, label=label: self._change_unit(column, label), label)
+                    if unit == label:
+                        i.set_checked(True)
+            else:
+                item.set_enabled(False)
 
 
     def _tree_column_resized(self, column):

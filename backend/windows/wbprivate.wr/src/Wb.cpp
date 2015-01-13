@@ -45,7 +45,7 @@ using namespace MySQL::Workbench;
 
 //--------------------------------------------------------------------------------------------------
 
-WbOptions::WbOptions(String^ baseDir, String^ userDir)
+WbOptions::WbOptions(String^ baseDir, String^ userDir, bool full_init)
 {
   inner = new wb::WBOptions();
   inner->basedir = NativeToCppStringRaw(baseDir);
@@ -54,6 +54,7 @@ WbOptions::WbOptions(String^ baseDir, String^ userDir)
   inner->struct_search_path = "";
   inner->library_search_path = inner->basedir;
   inner->user_data_dir = NativeToCppStringRaw(userDir);
+  inner->full_init = full_init;
 }
 
 //--------------------------------------------------------------------------------------------------

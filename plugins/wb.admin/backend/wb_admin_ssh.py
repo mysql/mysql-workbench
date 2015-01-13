@@ -73,21 +73,30 @@ if paramiko and server_version_str2tuple(paramiko.__version__) >= (1, 7, 4):
     import threading
     OPEN_CHANNEL_TIMEOUT = 15
 
-    def wba_open_channel(self, kind, dest_addr=None, src_addr=None, timeout = None):
+    def wba_open_channel(self, kind, dest_addr=None, src_addr=None, timeout = None, window_size=None, max_packet_size=None):
         chan = None
         if not self.active:
             # don't bother trying to allocate a channel
             return None
         self.lock.acquire()
         try:
+            
             chanid = self._next_channel()
             m = Message()
             m.add_byte(chr(MSG_CHANNEL_OPEN))
             m.add_string(kind)
             m.add_int(chanid)
-            if (server_version_str2tuple(paramiko.__version__) <= (1, 14, 99)):
-                m.add_int(self.window_size)
-                m.add_int(self.max_packet_size)
+            local_window_size = None
+            local_max_packet_size = None
+            if (server_version_str2tuple(paramiko.__version__) <= (1, 15, 1)):
+                local_window_size = self.window_size
+                local_max_packet_size = self.max_packet_size
+            else:
+                local_window_size = self._sanitize_window_size(window_size)
+                local_max_packet_size = self._sanitize_packet_size(max_packet_size)
+
+            m.add_int(local_window_size)
+            m.add_int(local_max_packet_size)
             if (kind == 'forwarded-tcpip') or (kind == 'direct-tcpip'):
                 m.add_string(dest_addr[0])
                 m.add_int(dest_addr[1])
@@ -101,8 +110,7 @@ if paramiko and server_version_str2tuple(paramiko.__version__) >= (1, 7, 4):
             self.channel_events[chanid] = event = threading.Event()
             self.channels_seen[chanid] = True
             chan._set_transport(self)
-            if (server_version_str2tuple(paramiko.__version__) <= (1, 14, 99)):
-                chan._set_window(self.window_size, self.max_packet_size)
+            chan._set_window(local_window_size, local_max_packet_size)
         finally:
             self.lock.release()
         self._send_user_message(m)
@@ -135,7 +143,10 @@ if paramiko and server_version_str2tuple(paramiko.__version__) >= (1, 7, 4):
     paramiko.Transport.open_channel = wba_open_channel
 else:
     print "Warning! Can't use connect with timeout in paramiko", paramiko and paramiko.__version__
-    log_warning('Cannot use connect with timeout in paramiko version %s\n' % paramiko.__version__)
+    if paramiko:
+        log_warning('Cannot use connect with timeout in paramiko version %s\n' % paramiko.__version__)
+    else:
+        log_warning('Paramiko unavailable.\n')
 
 #===============================================================================
 class ConnectionError(Exception):
@@ -677,7 +688,8 @@ class WbAdminSSH(object):
                 spawn_process = False
                 if 'nohup' in cmd:
                     spawn_process = True
-
+                
+                chan = None
                 chan, stdin, stdout, stderr = self._prepare_channel(transport)
                 wait_output = CmdOutput.WAIT_ALWAYS
                 if options and options.has_key(CmdOptions.CMD_WAIT_OUTPUT):
