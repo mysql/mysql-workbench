@@ -1893,7 +1893,10 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
     {
       if (index >= (int)connections->size())
       {
-        done = true;
+        // If the last item is reached and it is being painted OK then we
+        // are done
+        if (!draw_partial)
+          done = true;
         break;
       }
       else
@@ -1903,7 +1906,10 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
           num_pages++;
           page_start = false;
         }
-        bool dont_paint = current_page != visible_page && !(draw_partial && bounds.bottom() > height);
+
+        // We will just not paint anything that is not on the current page.
+        bool dont_paint = current_page != visible_page;
+
         if (current_page > visible_page)
           items_after_last_visible++;
 
@@ -1912,9 +1918,9 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
           base::Rect total_bounds = bounds;
           int tiles_occupied = tiles_per_row - column;
           filler_tiles += tiles_occupied;
-          column += (tiles_occupied-1);
+          column += (tiles_occupied - 1);
 
-          total_bounds.size.width = CONNECTIONS_TILE_WIDTH * tiles_occupied + CONNECTIONS_SPACING * (tiles_occupied-1);
+          total_bounds.size.width = CONNECTIONS_TILE_WIDTH * tiles_occupied + CONNECTIONS_SPACING * (tiles_occupied - 1);
           if (!dont_paint)
             (*connections)[index]->bounds = total_bounds;
         }
@@ -1938,18 +1944,18 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
                 cairo_set_source_rgb(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0);
               cairo_text_extents(cr, current_section.c_str(), &extents);
               cairo_move_to(cr, CONNECTIONS_LEFT_PADDING,
-                            bounds.pos.y - (extents.height + extents.y_bearing) - 4);
+                bounds.pos.y - (extents.height + extents.y_bearing) - 4);
               cairo_show_text(cr, current_section.c_str());
             }
           }
 
           // if the name of the next section is different, then we add some filler space after this tile
-          if (!current_section.empty() && (size_t)index < (*connections).size()-1 &&
-              (*connections)[index+1]->section_name() != current_section)
+          if (!current_section.empty() && (size_t)index < (*connections).size() - 1 &&
+            (*connections)[index + 1]->section_name() != current_section)
           {
             int tiles_occupied = tiles_per_row - column;
             filler_tiles += tiles_occupied;
-            column += (tiles_occupied-1);
+            column += (tiles_occupied - 1);
           }
 
           if (!dont_paint)
@@ -1989,7 +1995,7 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
             {
               double x = bounds.left() - 4.5;
               if (_drop_position == mforms::DropPositionRight)
-              x = bounds.right() + 4.5;
+                x = bounds.right() + 4.5;
               cairo_move_to(cr, x, bounds.top());
               cairo_line_to(cr, x, bounds.bottom());
               cairo_set_line_width(cr, 3);
@@ -2005,25 +2011,43 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
 
     row++;
     bounds.pos.y += CONNECTIONS_TILE_HEIGHT + CONNECTIONS_SPACING;
-    if (bounds.bottom() >= height) // next tile is on screen, but doesn't totally fit
+
+
+    // next tile row is on screen, but doesn't totally fit
+    if (bounds.bottom() >= height && bounds.top() <= height)
     {
-      if (visible_page == current_page)
-      {
-        draw_partial = true;
-        _next_page_start = index;
-      }
-      else
-        draw_partial = false;
-      current_page++;
+      // We light flag to indicate the next row is partially drawn
+      // And backup the indext of the first item of this row which will be
+      // the first item on the nexp page.
+      draw_partial = true;
+      _next_page_start = index;
     }
-    if (bounds.top() >= height || (bounds.bottom() >= height && visible_page == current_page))
+
+    // Next row is totally out of the available space
+    if (bounds.top() > height)
     {
+      // It is expected to usually come from a page where last row was
+      // partially painted, if so, re reset the flag.
+      // On this case _next_page_start contains the index of the first partially painted tile
+      // which will be the first item on the next page
+      if (draw_partial)
+        draw_partial = false;
+      else
+        // This case there was not row painted partially, so next page start item
+        // is the current index.
+        _next_page_start = index;
+        
+
+      // We reinit these vars so the calculation of the next page is done correctly
       bounds.pos.y = CONNECTIONS_TOP_PADDING;
       page_start = true;
+      current_page++;
+
+      // Restores index with the _next_page_start so the calculation or subsequent pages
+      // is done properly
+      index = _next_page_start;
     }
   }
-  if (!draw_partial && page_start)
-    num_pages++;
 
   // See if we need to draw the paging indicator.
   if (num_pages > 1)
