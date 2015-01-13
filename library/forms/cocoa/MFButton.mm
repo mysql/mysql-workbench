@@ -25,7 +25,10 @@
 - (instancetype)initWithObject: (mforms::Button*)aButton
                     buttonType: (mforms::ButtonType)type
 {
-  self= [super initWithFrame: NSMakeRect(10, 10, 30, 30)];
+  if (aButton == nil)
+    return nil;
+
+  self = [super initWithFrame: NSMakeRect(10, 10, 30, 30)];
   if (self)
   {
     mOwner = aButton;
@@ -64,22 +67,12 @@
 
 -(instancetype)initWithFrame: (NSRect)frame
 {
-  self = [super initWithFrame: frame];
-  if (self != nil)
-  {
-    mOwner = nil;
-  }
-  return nil;
+  return [self initWithObject: nil buttonType: mforms::PushButton];
 }
 
 -(instancetype)initWithCoder: (NSCoder *)coder
 {
-  self = [super initWithCoder: coder];
-  if (self != nil)
-  {
-    mOwner = nil;
-  }
-  return nil;
+  return [self initWithObject: nil buttonType: mforms::PushButton];
 }
 
 - (NSString*)description

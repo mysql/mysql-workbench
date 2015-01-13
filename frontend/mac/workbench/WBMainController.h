@@ -37,7 +37,7 @@ namespace wb
 typedef WBBasePanel *(*FormPanelFactory)(WBMainWindow *mainwin, boost::shared_ptr<bec::UIForm> form);
 
 
-@interface WBMainController : NSObject <NSApplicationDelegate>
+@interface WBMainController : NSObject <NSApplicationDelegate, NSFileManagerDelegate>
 {
   wb::WBContextUI *_wbui;
   wb::WBContext *_wb;

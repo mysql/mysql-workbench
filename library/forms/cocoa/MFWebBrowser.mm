@@ -26,7 +26,10 @@
 
 - (instancetype)initWithObject: (mforms::WebBrowser*) aBrowser
 {
-  self= [super initWithFrame: NSMakeRect(10, 10, 10, 10)];
+  if (aBrowser == nil)
+    return nil;
+
+  self = [super initWithFrame: NSMakeRect(10, 10, 10, 10)];
   if (self)
   {
     mOwner = aBrowser;
@@ -45,22 +48,12 @@
 
 -(instancetype)initWithFrame: (NSRect)frame
 {
-  self = [super initWithFrame: frame];
-  if (self != nil)
-  {
-    mOwner = nil;
-  }
-  return nil;
+  return [self initWithObject: nil];
 }
 
 -(instancetype)initWithCoder: (NSCoder *)coder
 {
-  self = [super initWithCoder: coder];
-  if (self != nil)
-  {
-    mOwner = nil;
-  }
-  return nil;
+  return [self initWithObject: nil];
 }
 
 //--------------------------------------------------------------------------------------------------
