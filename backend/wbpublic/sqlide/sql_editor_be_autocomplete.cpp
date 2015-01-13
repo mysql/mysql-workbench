@@ -806,7 +806,7 @@ private:
     size_t i = 0;
     while (true)
     {
-      // Set to true if the current node allows multiple occurences and was matched at least once.
+      // Set to true if the current node allows multiple occurrences and was matched at least once.
       bool matched_loop = false;
 
       // Skip any optional nodes if they don't match the current input.
@@ -824,7 +824,7 @@ private:
           {
             collect_from_alternative(sequence, i + 1);
 
-            // If we just started collection in might be we are in a special rule.
+            // If we just started collecting it might be we are in a special rule.
             // Check the end of the stack and if so push the rule name to the candidates.
             // Duplicates will be handled automatically.
             if (rules_holder.special_rules.find(walk_stack.back()) != rules_holder.special_rules.end())
@@ -977,25 +977,25 @@ void MySQLEditor::setup_auto_completion()
   static std::vector<std::pair<int, std::string> > ac_images;
   if (ac_images.empty())
     ac_images +=
-      std::make_pair(AC_KEYWORD_IMAGE, "auto-completion-keyword.png"),
-      std::make_pair(AC_SCHEMA_IMAGE, "auto-completion-schema.png"),
-      std::make_pair(AC_TABLE_IMAGE, "auto-completion-table.png"),
-      std::make_pair(AC_ROUTINE_IMAGE, "auto-completion-routine.png"),
-      std::make_pair(AC_FUNCTION_IMAGE, "auto-completion-function.png"),
-      std::make_pair(AC_VIEW_IMAGE, "auto-completion-view.png"),
-      std::make_pair(AC_COLUMN_IMAGE, "auto-completion-column.png"),
-      //std::make_pair(AC_OPERATOR_IMAGE, "auto-completion-operator.png"),
-      std::make_pair(AC_ENGINE_IMAGE, "auto-completion-engine.png"),
-      std::make_pair(AC_TRIGGER_IMAGE, "auto-completion-trigger.png"),
-      std::make_pair(AC_LOGFILE_GROUP_IMAGE, "auto-completion-logfile-group.png"),
-      std::make_pair(AC_USER_VAR_IMAGE, "auto-completion-engine-user-var.png"),
-      std::make_pair(AC_SYSTEM_VAR_IMAGE, "auto-completion-engine-system-var.png"),
-      std::make_pair(AC_TABLESPACE_IMAGE, "auto-completion-engine-tablespace.png"),
-      std::make_pair(AC_EVENT_IMAGE, "auto-completion-engine-event.png"),
-      std::make_pair(AC_INDEX_IMAGE, "auto-completion-engine-index.png"),
-      std::make_pair(AC_USER_IMAGE, "auto-completion-engine-user.png"),
-      std::make_pair(AC_CHARSET_IMAGE, "auto-completion-engine-charset.png"),
-      std::make_pair(AC_COLLATION_IMAGE, "auto-completion-engine-collation.png");
+      std::make_pair(AC_KEYWORD_IMAGE, "ac_keyword.png"),
+      std::make_pair(AC_SCHEMA_IMAGE, "ac_schema.png"),
+      std::make_pair(AC_TABLE_IMAGE, "ac_table.png"),
+      std::make_pair(AC_ROUTINE_IMAGE, "ac_routine.png"),
+      std::make_pair(AC_FUNCTION_IMAGE, "ac_function.png"),
+      std::make_pair(AC_VIEW_IMAGE, "ac_view.png"),
+      std::make_pair(AC_COLUMN_IMAGE, "ac_column.png"),
+      std::make_pair(AC_OPERATOR_IMAGE, "ac_operator.png"),
+      std::make_pair(AC_ENGINE_IMAGE, "ac_engine.png"),
+      std::make_pair(AC_TRIGGER_IMAGE, "ac_trigger.png"),
+      std::make_pair(AC_LOGFILE_GROUP_IMAGE, "ac_logfilegroup.png"),
+      std::make_pair(AC_USER_VAR_IMAGE, "ac_uservar.png"),
+      std::make_pair(AC_SYSTEM_VAR_IMAGE, "ac_sysvar.png"),
+      std::make_pair(AC_TABLESPACE_IMAGE, "ac_tablespace.png"),
+      std::make_pair(AC_EVENT_IMAGE, "ac_event.png"),
+      std::make_pair(AC_INDEX_IMAGE, "ac_index.png"),
+      std::make_pair(AC_USER_IMAGE, "ac_user.png"),
+      std::make_pair(AC_CHARSET_IMAGE, "ac_charset.png"),
+      std::make_pair(AC_COLLATION_IMAGE, "ac_collation.png");
 
   _code_editor->auto_completion_register_images(ac_images);
   _code_editor->auto_completion_stops("\t,.*;) "); // Will close ac even if we are in an identifier.
