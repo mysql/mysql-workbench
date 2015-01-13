@@ -24,6 +24,7 @@
 
 #include "sqlide/sql_editor_be.h"
 #include "testgrt.h"
+#include "wb_helpers.h"
 
 
 BEGIN_TEST_DATA_CLASS(sql_editor)
@@ -49,7 +50,7 @@ TEST_FUNCTION(1)
 	for (int n= 0, count= rdbms_list.count(); n < count; ++n)
 	{
 		db_mgmt_RdbmsRef rdbms= rdbms_list[n];
-		MySQLEditor::Ref sql_editor = MySQLEditor::create(rdbms);
+		MySQLEditor::Ref sql_editor = MySQLEditor::create(rdbms->get_grt(), parser::ParserContext::Ref(), parser::ParserContext::Ref());
 		ensure(("failed to get sql editor for " + rdbms->name().repr() + " RDBMS").c_str(), (NULL != sql_editor.get()));
 	}
 }

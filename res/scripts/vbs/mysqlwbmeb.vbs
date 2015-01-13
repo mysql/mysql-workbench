@@ -317,7 +317,7 @@ class MEBHelperVersion
     private current
     
     private sub Class_Initialize()
-        current = "7"
+        current = "8"
     end sub
 
     public function execute()
@@ -764,9 +764,18 @@ class MEBUpdateScheduling
             case "1" 'Daily
                 command = command & "DAILY /ST " & hour & ":" & minute
             case "2" 'Weekly
-                command = command & "WEEKLY /D " & week_day & "/ST " & hour & ":" & minute
+                weekdays = array("SUN", "MON","TUE","WED","THU","FRI","SAT")
+                wd_string = ""
+                wd_numbers = split(week_day, ",")
+
+                for each day_number in wd_numbers
+                    day_index = Int(day_number)
+                    wd_string = wd_string & weekdays(day_index) & ","
+                next
+                wd_string= left(wd_string, len(wd_string) - 1)
+                command = command & "WEEKLY /D " & wd_string & " /ST " & hour & ":" & minute
             case "3" 'Monthly
-                command = command & "MONTHLY /D " & month_day & "/ST " & hour & ":" & minute
+                command = command & "MONTHLY /D " & month_day & " /ST " & hour & ":" & minute
         end select
         
         get_schedule_command = command & " /RU SYSTEM /TR """ & create_backup_command_call(backup_type) & """ /F"

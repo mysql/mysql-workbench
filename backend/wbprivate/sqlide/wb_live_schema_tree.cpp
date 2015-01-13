@@ -78,9 +78,9 @@ const int LiveSchemaTree::TABLE_INDEXES_NODE_INDEX = 1;
 const int LiveSchemaTree::TABLE_FOREIGN_KEYS_NODE_INDEX = 2;
 const int LiveSchemaTree::TABLE_TRIGGERS_NODE_INDEX = 3;
 
-const char* LiveSchemaTree::_schema_tokens[15] = {"",                                                           // Empty item to use 0 as not found
+const char* LiveSchemaTree::_schema_tokens[16] = {"",                                                           // Empty item to use 0 as not found
                                                   "CASCADE", "SET NULL", "SET DEFAULT", "RESTRICT", "NO ACTION", // The update/delete rules on foreign keys
-                                                  "BTREE", "FULLTEXT", "HASH", "RTREE",                          // The index types
+                                                  "BTREE", "FULLTEXT", "HASH", "RTREE", "SPATIAL",                // The index types
                                                   "INSERT", "UPDATE", "DELETE",                                  // Trigger events
                                                   "BEFORE", "AFTER"};                                            // Trigger timing
 

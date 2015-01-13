@@ -845,15 +845,26 @@
                     <File Id="file61736" Name="snippet_php.png"/>
                     <File Id="file61737" Name="snippet_py.png"/>
                     <File Id="file61738" Name="snippet_css.png"/>
-                    <File Id="file61739" Name="auto-completion-column.png"/>
-                    <File Id="file61740" Name="auto-completion-function.png"/>
-                    <File Id="file61741" Name="auto-completion-keyword.png"/>
-                    <File Id="file61742" Name="auto-completion-routine.png"/>
-                    <File Id="file61743" Name="auto-completion-schema.png"/>
-                    <File Id="file61744" Name="auto-completion-table.png"/>
-                    <File Id="file61745" Name="auto-completion-view.png"/>
-                    <File Id="file61745a" Name="auto-completion-engine.png"/>
-                    <File Id="file61746" Name="auto-completion-operator.png"/>
+                    <File Id="ac_charset.png" Name="ac_charset.png"/>
+                    <File Id="ac_collation.png" Name=".png"/>
+                    <File Id="ac_column.png" Name="ac_collation.png"/>
+                    <File Id="ac_engine.png" Name="ac_engine.png"/>
+                    <File Id="ac_event.png" Name="ac_event.png"/>
+                    <File Id="ac_function.png" Name="ac_function.png"/>
+                    <File Id="ac_index.png" Name="ac_index.png"/>
+                    <File Id="ac_keyword.png" Name="ac_keyword.png"/>
+                    <File Id="ac_logfilegroup.png" Name="ac_logfilegroup.png"/>
+                    <File Id="ac_operator.png" Name="ac_operator.png"/>
+                    <File Id="ac_routine.png" Name="ac_routine.png"/>
+                    <File Id="ac_schema.png" Name="ac_schema.png"/>
+                    <File Id="ac_sysvar.png" Name="ac_sysvar.png"/>
+                    <File Id="ac_table.png" Name="ac_table.png"/>
+                    <File Id="ac_tablespace.png" Name="ac_tablespace.png"/>
+                    <File Id="ac_trigger.png" Name="ac_trigger.png"/>
+                    <File Id="ac_user.png" Name="ac_user.png"/>
+                    <File Id="ac_uservar.png" Name="ac_uservar.png"/>
+                    <File Id"="ac_view.png" Name="ac_view.png"/>
+					
                     <File Id="file61751" Name="qe_sql-editor-tb-icon_word-wrap-off.png"/>
                     <File Id="file61752" Name="qe_sql-editor-tb-icon_word-wrap-on.png"/>
                     <File Id="file61753" Name="wb-sidebar-collapse.png"/>

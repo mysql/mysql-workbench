@@ -86,7 +86,7 @@ namespace MySQL.GUI.Workbench
 
       System.Reflection.Assembly asm = System.Reflection.Assembly.GetEntryAssembly();
       string baseDir = System.IO.Path.GetDirectoryName(asm.Location);
-      WbOptions wbOptions = new WbOptions(baseDir, userDir);
+      WbOptions wbOptions = new WbOptions(baseDir, userDir, true);
 
       if (!wbOptions.parse_args(Args, asm.Location))
       {
@@ -458,7 +458,7 @@ namespace MySQL.GUI.Workbench
         mainForm.Activate(x);
 
         // Parse command line and extract the model file name if there is one.
-        WbOptions options = new WbOptions("", "");
+        WbOptions options = new WbOptions("", "", false);
         System.Reflection.Assembly asm = System.Reflection.Assembly.GetEntryAssembly();
         options.parse_args(args.CommandLineArgs, asm.Location);
         wbContext.finished_loading(options);

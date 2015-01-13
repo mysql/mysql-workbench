@@ -522,6 +522,14 @@ Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "wb.docs", "plugins\wb.docs\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wb.fabric.interface.grt", "modules\wb.fabric.interface\wb.fabric.interface.grt.vcxproj", "{CBA5FE90-8795-4457-BBE1-DD2A9E4ECD37}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wb.query.analysis", "wb.query.analysis", "{6BAF2855-19B4-4E6E-9990-5AE72B47E209}"
+	ProjectSection(SolutionItems) = preProject
+		plugins\wb.query.analysis\explain_renderer.py = plugins\wb.query.analysis\explain_renderer.py
+		plugins\wb.query.analysis\optimizer_trace_renderer.py = plugins\wb.query.analysis\optimizer_trace_renderer.py
+		plugins\wb.query.analysis\performance_charting.py = plugins\wb.query.analysis\performance_charting.py
+		plugins\wb.query.analysis\wb_query_analysis_grt.py = plugins\wb.query.analysis\wb_query_analysis_grt.py
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -1266,5 +1274,6 @@ Global
 		{660457DE-F401-470F-BBB5-C0C1DBE07974} = {72E9A6AB-79B2-461F-B45A-924CC08E9007}
 		{AD723C13-739F-42EB-AEAF-EEC7C0BCC44E} = {337E1D75-979C-4108-8632-E8B413F2B188}
 		{CBA5FE90-8795-4457-BBE1-DD2A9E4ECD37} = {72E9A6AB-79B2-461F-B45A-924CC08E9007}
+		{6BAF2855-19B4-4E6E-9990-5AE72B47E209} = {337E1D75-979C-4108-8632-E8B413F2B188}
 	EndGlobalSection
 EndGlobal

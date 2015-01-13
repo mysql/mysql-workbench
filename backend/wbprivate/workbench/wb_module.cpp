@@ -153,6 +153,51 @@ std::string WorkbenchImpl::getSystemInfo(bool indent)
       g_free(stdo);
     }
   }
+
+  //try to find out if we're running in fips mode
+  {
+
+    bool fips_crypto = false;
+    {
+      std::ifstream fips_check;
+      fips_check.open("/proc/sys/crypto/fips_enabled");
+      if (fips_check.good())
+      {
+        char val;
+        fips_check >> val;
+        fips_crypto = val == '1' ? true : false;
+      }
+    }
+    bool fips_kernel = false;
+    {
+      std::ifstream fips_check;
+      fips_check.open("/proc/cmdline");
+      if (fips_check.good())
+      {
+        std::string line;
+        fips_check >> line;
+        std::size_t found = line.find("fips=");
+        if (found != std::string::npos)
+        {
+          if (found + 5 <= line.size() && line.substr(found + 5, 1) == "1")
+            fips_kernel = 1;
+        }
+      }
+    }
+    result += strfmt("%sFips mode enabled: %s\n", tab, (fips_kernel || fips_crypto) ? "yes" : "no");
+
+    // get env variables
+    {
+      int rc;
+      char *stdo;
+      if (g_spawn_command_line_sync("/usr/bin/env", &stdo, NULL, &rc, NULL) && stdo)
+      {
+        log_debug3("Environment variables:\n %s\n", stdo);
+        g_free(stdo);
+      }
+    }
+
+  }
 #endif
 
   return result;
