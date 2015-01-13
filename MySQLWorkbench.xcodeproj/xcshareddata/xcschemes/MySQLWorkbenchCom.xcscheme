@@ -23,24 +23,6 @@
             </ActionContent>
          </ExecutionAction>
       </PreActions>
-      <PostActions>
-         <ExecutionAction
-            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
-            <ActionContent
-               title = "Run Script"
-               scriptText = "echo &quot;Copying commercial plugins&quot;&#10;cp -r $(SRCROOT)/plugins/wb.admin/internal/wba_audit $BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/plugins&#10;cp -r $(SRCROOT)/plugins/wb.admin/internal/wba_meb$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/plugins&#10;">
-               <EnvironmentBuildable>
-                  <BuildableReference
-                     BuildableIdentifier = "primary"
-                     BlueprintIdentifier = "8D1107260486CEB800E47090"
-                     BuildableName = "MySQLWorkbench.app"
-                     BlueprintName = "MySQLWorkbench"
-                     ReferencedContainer = "container:MySQLWorkbench.xcodeproj">
-                  </BuildableReference>
-               </EnvironmentBuildable>
-            </ActionContent>
-         </ExecutionAction>
-      </PostActions>
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"
@@ -109,6 +91,20 @@
                BlueprintIdentifier = "8D1107260486CEB800E47090"
                BuildableName = "MySQLWorkbench.app"
                BlueprintName = "MySQLWorkbench"
+               ReferencedContainer = "container:MySQLWorkbench.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "27D8079D1A3F262D00EDCA8F"
+               BuildableName = "commercial.extensions"
+               BlueprintName = "commercial.extensions"
                ReferencedContainer = "container:MySQLWorkbench.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>

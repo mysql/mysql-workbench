@@ -6,6 +6,24 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		27D8079D1A3F262D00EDCA8F /* commercial.extensions */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 27D8079E1A3F262E00EDCA8F /* Build configuration list for PBXAggregateTarget "commercial.extensions" */;
+			buildPhases = (
+				27D807AD1A3F30B000EDCA8F /* CopyFiles */,
+			);
+			dependencies = (
+				27D807A51A3F27AC00EDCA8F /* PBXTargetDependency */,
+				27D807A71A3F27AC00EDCA8F /* PBXTargetDependency */,
+				27D807A91A3F27AC00EDCA8F /* PBXTargetDependency */,
+				27D807AB1A3F27AC00EDCA8F /* PBXTargetDependency */,
+			);
+			name = commercial.extensions;
+			productName = "Commercial Extensions";
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		152AB8A111B958370051E2FC /* wb_starter_grt_shell_52.png in Resources */ = {isa = PBXBuildFile; fileRef = 152AB89D11B958370051E2FC /* wb_starter_grt_shell_52.png */; };
 		152AB8A311B958370051E2FC /* wb_starter_mysql_forums_52.png in Resources */ = {isa = PBXBuildFile; fileRef = 152AB89F11B958370051E2FC /* wb_starter_mysql_forums_52.png */; };
@@ -56,6 +74,7 @@
 		2720C53B16EA1B2900E57A8D /* libpcre.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2720C53716EA18B500E57A8D /* libpcre.1.dylib */; };
 		2720C53E16EA1B9200E57A8D /* libpcrecpp.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2720C53D16EA1B9200E57A8D /* libpcrecpp.0.dylib */; };
 		2720C54016EA371200E57A8D /* libpcrecpp.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2720C53D16EA1B9200E57A8D /* libpcrecpp.0.dylib */; };
+		2722B7F31A3B6FA100D7FBCE /* libpcre.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2720C53716EA18B500E57A8D /* libpcre.1.dylib */; };
 		27257468191BBD6A00094162 /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
 		27276AFF19406D050019FB0E /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		272A290111905DBE00CA2A13 /* wb_starter_mysql_bug_reporter_52.png in Resources */ = {isa = PBXBuildFile; fileRef = 272A28EE11905DBE00CA2A13 /* wb_starter_mysql_bug_reporter_52.png */; };
@@ -401,6 +420,8 @@
 		27D6590E107625FE0030F627 /* section_unexpanded.png in Resources */ = {isa = PBXBuildFile; fileRef = 27D6590B107625FE0030F627 /* section_unexpanded.png */; };
 		27D6594B1076538E0030F627 /* sectionbox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27D6594A1076538E0030F627 /* sectionbox.cpp */; };
 		27D6594D1076539D0030F627 /* sectionbox.h in Headers */ = {isa = PBXBuildFile; fileRef = 27D6594C1076539D0030F627 /* sectionbox.h */; };
+		27D807AE1A3F30B800EDCA8F /* wba_audit in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2BFC2E9916D3C6A500C73F61 /* wba_audit */; };
+		27D807AF1A3F30BA00EDCA8F /* wba_meb in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2B45FD701652F87D008D1853 /* wba_meb */; };
 		27DC56B6130ED5DE00E0200F /* inserts_export_form.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27DC56B4130ED5DE00E0200F /* inserts_export_form.cpp */; };
 		27DC56B7130ED5DE00E0200F /* inserts_export_form.h in Headers */ = {isa = PBXBuildFile; fileRef = 27DC56B5130ED5DE00E0200F /* inserts_export_form.h */; };
 		27DD36B014EBD8F300931578 /* libmforms.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B96161B0F2759A400F0B599 /* libmforms.dylib */; };
@@ -2735,6 +2756,34 @@
 			remoteGlobalIDString = 2B7510D70E8799D00003120A;
 			remoteInfo = wbpublic.be;
 		};
+		27D807A41A3F27AC00EDCA8F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2B5286190F1C1E08005FBF7C;
+			remoteInfo = wb.validation.grt;
+		};
+		27D807A61A3F27AC00EDCA8F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2B5286220F1C1E10005FBF7C;
+			remoteInfo = wb.mysql.validation.grt;
+		};
+		27D807A81A3F27AC00EDCA8F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2B3D5D420F43DC98009238A7;
+			remoteInfo = wb.model.reporting.wbp;
+		};
+		27D807AA1A3F27AC00EDCA8F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2BF049491741ACB900A7EA35;
+			remoteInfo = wb.model.advfind.wbp;
+		};
 		27E0E18515516CB50073FD6F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
@@ -3598,6 +3647,17 @@
 				278A085819BC84B20084C2F4 /* wb_utils_grt.py in Copy Files (python plugins) */,
 			);
 			name = "Copy Files (python plugins)";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		27D807AD1A3F30B000EDCA8F /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = MySQLWorkbench.app/Contents/Resources/Plugins;
+			dstSubfolderSpec = 7;
+			files = (
+				27D807AE1A3F30B800EDCA8F /* wba_audit in CopyFiles */,
+				27D807AF1A3F30BA00EDCA8F /* wba_meb in CopyFiles */,
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		2B17B03B0F4D99510087ED42 /* CopyFiles */ = {
@@ -6857,6 +6917,7 @@
 				2BF049571741ACB900A7EA35 /* libmforms.dylib in Frameworks */,
 				2BF049581741ACB900A7EA35 /* libwbpublic.be.dylib in Frameworks */,
 				2BF049591741ACB900A7EA35 /* libgrt.dylib in Frameworks */,
+				2722B7F31A3B6FA100D7FBCE /* libpcre.1.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -12558,6 +12619,11 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 0610;
 				ORGANIZATIONNAME = "Oracle and/or its affiliates";
+				TargetAttributes = {
+					27D8079D1A3F262D00EDCA8F = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
+				};
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "MySQLWorkbench" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -12606,8 +12672,8 @@
 				2B52845B0F1A8838005FBF7C /* db.mysql.editors */,
 				2BB588F20F44D57B00089423 /* db.mysql.diff.reporting.wbp */,
 				2B3D5D420F43DC98009238A7 /* wb.model.reporting.wbp */,
-				2BF049491741ACB900A7EA35 /* wb.model.advfind.wbp */,
 				2B17AFC50F4D94020087ED42 /* wb.model.editors.wbp */,
+				2BF049491741ACB900A7EA35 /* wb.model.advfind.wbp */,
 				2B17AFD90F4D94590087ED42 /* wb.model.editors */,
 				2BF7E0AA13310215002EBA46 /* wb.model.snippets.wbp */,
 				2BB37A8711094B3400DA4577 /* wb.printing.wbp */,
@@ -12615,6 +12681,7 @@
 				16E4CDC20F28A56E00C1E118 /* Application Unit Tests */,
 				2B240383101BC6CC00079580 /* unit-tests */,
 				ED08AD931A14440E001DBE04 /* wb.fabric.interface.grt */,
+				27D8079D1A3F262D00EDCA8F /* commercial.extensions */,
 			);
 		};
 /* End PBXProject section */
@@ -14837,6 +14904,26 @@
 			target = 2B7510D70E8799D00003120A /* wbpublic.be */;
 			targetProxy = 27C6962516C13E96005A3B53 /* PBXContainerItemProxy */;
 		};
+		27D807A51A3F27AC00EDCA8F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2B5286190F1C1E08005FBF7C /* wb.validation.grt */;
+			targetProxy = 27D807A41A3F27AC00EDCA8F /* PBXContainerItemProxy */;
+		};
+		27D807A71A3F27AC00EDCA8F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2B5286220F1C1E10005FBF7C /* wb.mysql.validation.grt */;
+			targetProxy = 27D807A61A3F27AC00EDCA8F /* PBXContainerItemProxy */;
+		};
+		27D807A91A3F27AC00EDCA8F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2B3D5D420F43DC98009238A7 /* wb.model.reporting.wbp */;
+			targetProxy = 27D807A81A3F27AC00EDCA8F /* PBXContainerItemProxy */;
+		};
+		27D807AB1A3F27AC00EDCA8F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2BF049491741ACB900A7EA35 /* wb.model.advfind.wbp */;
+			targetProxy = 27D807AA1A3F27AC00EDCA8F /* PBXContainerItemProxy */;
+		};
 		27E0E18615516CB50073FD6F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 27467EBC154A96CB00021708 /* mysql.parser */;
@@ -15653,6 +15740,20 @@
 			};
 			name = Release;
 		};
+		27D8079F1A3F262E00EDCA8F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		27D807A01A3F262E00EDCA8F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		2B17AFC70F4D94050087ED42 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -15934,10 +16035,6 @@
 					/opt/local/include,
 				);
 				INSTALL_PATH = /usr/local/bin;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"/Data/Work/MySQL/mysql-mac-res/lib",
-				);
 				PRODUCT_NAME = wbcopytables;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
@@ -15960,10 +16057,6 @@
 					/opt/local/include,
 				);
 				INSTALL_PATH = /usr/local/bin;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"/Data/Work/MySQL/mysql-mac-res/lib",
-				);
 				PRODUCT_NAME = wbcopytables;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
@@ -16201,10 +16294,6 @@
 					"$(SRCROOT)/library/grt/src",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"/Data/Work/MySQL/mysql-mac-res/lib",
-				);
 				PRODUCT_NAME = wb.model.grt;
 				SKIP_INSTALL = YES;
 			};
@@ -16239,10 +16328,6 @@
 					"$(SRCROOT)/library/grt/src",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"/Data/Work/MySQL/mysql-mac-res/lib",
-				);
 				PRODUCT_NAME = wb.model.grt;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -16907,10 +16992,6 @@
 					"$(SRCROOT)/library/mysql.canvas/src/cocoa",
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"/Data/Work/MySQL/mysql-mac-res/lib",
-				);
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -16952,10 +17033,6 @@
 					"$(SRCROOT)/library/mysql.canvas/src/cocoa",
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"/Data/Work/MySQL/mysql-mac-res/lib",
-				);
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -17432,11 +17509,11 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"../mysql-mac-res/mysql/include",
+					library/sql.parser/include,
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = sql.parser;
 				SKIP_INSTALL = YES;
-				USER_HEADER_SEARCH_PATHS = "\"$(SRCROOT)\"/library/sql.parser/include";
 			};
 			name = Debug;
 		};
@@ -17455,11 +17532,11 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"../mysql-mac-res/mysql/include",
+					library/sql.parser/include,
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = sql.parser;
 				SKIP_INSTALL = YES;
-				USER_HEADER_SEARCH_PATHS = "\"$(SRCROOT)\"/library/sql.parser/include";
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -17539,10 +17616,6 @@
 					"$(SRCROOT)/library/grt/src",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"/Data/Work/MySQL/mysql-mac-res/lib",
-				);
 				PRODUCT_NAME = db.mysql.grt;
 				SKIP_INSTALL = YES;
 			};
@@ -17568,10 +17641,6 @@
 					"$(SRCROOT)/library/grt/src",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"/Data/Work/MySQL/mysql-mac-res/lib",
-				);
 				PRODUCT_NAME = db.mysql.grt;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -18033,6 +18102,15 @@
 			buildConfigurations = (
 				27CE5F9E1917993C005574D4 /* Debug */,
 				27CE5F9F1917993C005574D4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		27D8079E1A3F262E00EDCA8F /* Build configuration list for PBXAggregateTarget "commercial.extensions" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				27D8079F1A3F262E00EDCA8F /* Debug */,
+				27D807A01A3F262E00EDCA8F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

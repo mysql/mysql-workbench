@@ -117,6 +117,7 @@ tokens {
 	
 	// Subparts of more complex statements.
 	ALTER_TABLE_ITEM_TOKEN;
+	CREATE_ITEM_TOKEN;
 	COLUMN_ASSIGNMENT_LIST_TOKEN;
 	LOGFILE_GROUP_OPTIONS_TOKEN;
 	CHANGE_MASTER_OPTIONS_TOKEN;
@@ -734,7 +735,11 @@ create_table_tail:
 ;
 
 create_field_list:
-	create_field_list_item (COMMA_SYMBOL create_field_list_item)*
+	create_item (COMMA_SYMBOL create_item)*
+;
+
+create_item:
+	create_field_list_item -> ^(CREATE_ITEM_TOKEN create_field_list_item)
 ;
 
 create_field_list_item:
@@ -1918,7 +1923,7 @@ explainable_statement:
 // precedence is implemented there (by custom tree writing). We do it the classical way here.
 
 expression:
-	logical_or_expression
+	logical_or_expression -> ^(EXPRESSION_TOKEN logical_or_expression)
 ;
 
 logical_or_expression:
@@ -2798,7 +2803,7 @@ create_table_option: // In the order as they appear in the server grammar.
 	| (CHECKSUM_SYMBOL | TABLE_CHECKSUM_SYMBOL) EQUAL_OPERATOR? INTEGER // Actually only 0 and 1. Same is true for the other INTEGER refs in this rule.
 	| DELAY_KEY_WRITE_SYMBOL EQUAL_OPERATOR? INTEGER
 	| ROW_FORMAT_SYMBOL EQUAL_OPERATOR? (DEFAULT_SYMBOL | DYNAMIC_SYMBOL | FIXED_SYMBOL | COMPRESSED_SYMBOL | REDUNDANT_SYMBOL | COMPACT_SYMBOL)
-	| UNION_SYMBOL EQUAL_OPERATOR? OPEN_PAR_SYMBOL qualified_identifier_list CLOSE_PAR_SYMBOL
+	| UNION_SYMBOL^ EQUAL_OPERATOR? OPEN_PAR_SYMBOL qualified_identifier_list CLOSE_PAR_SYMBOL
 	| DEFAULT_SYMBOL?
 		(
 			COLLATE_SYMBOL EQUAL_OPERATOR? collation_name_or_default

@@ -357,6 +357,10 @@ NSString *sql9 = @"CREATE definer = `root`@`localhost` trigger `upd_film` AFTER 
   "    WHERE film_id=old.film_id;\n"
   "  END IF;\n"
   "END";
+NSString *sql10 = @"CREATE TABLE total (\n"
+  "  a INT NOT NULL AUTO_INCREMENT,\n"
+  "  message CHAR(20), INDEX(a))\n"
+  "  ENGINE=MERGE UNION=(t1,t2) INSERT_METHOD=LAST;\n";
 
 @implementation mysql_parserAppDelegate
 
@@ -367,7 +371,7 @@ NSString *sql9 = @"CREATE definer = `root`@`localhost` trigger `upd_film` AFTER 
   // Make the SQL edit control scroll horizontally too.
   [[text textContainer] setContainerSize: NSMakeSize(FLT_MAX, FLT_MAX)];
   [[text textContainer] setWidthTracksTextView: NO];
-  [text setString: sql9];
+  [text setString: sql10];
 }
 
 - (NSString*)dumpTree: (pANTLR3_BASE_TREE)tree state: (pANTLR3_RECOGNIZER_SHARED_STATE)state indentation: (NSString*)indentation
