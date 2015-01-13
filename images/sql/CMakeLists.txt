@@ -1,14 +1,24 @@
 
-set(IMAGE_FILES 
-    auto-completion-column.png
-    auto-completion-engine.png
-    auto-completion-function.png
-    auto-completion-keyword.png
-    auto-completion-operator.png
-    auto-completion-routine.png
-    auto-completion-schema.png
-    auto-completion-table.png
-    auto-completion-view.png
+set(IMAGE_FILES
+    ac_charset.png
+    ac_collation.png
+    ac_column.png
+    ac_engine.png
+    ac_event.png
+    ac_function.png
+    ac_index.png
+    ac_keyword.png
+    ac_logfilegroup.png
+    ac_operator.png
+    ac_routine.png
+    ac_schema.png
+    ac_sysvar.png
+    ac_table.png
+    ac_tablespace.png
+    ac_trigger.png
+    ac_user.png
+    ac_uservar.png
+    ac_view.png
     object_inspector.png
     object_inspector_mac.png
     output_type-executionplan.png
