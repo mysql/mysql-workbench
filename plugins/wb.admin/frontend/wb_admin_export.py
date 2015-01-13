@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -700,13 +700,13 @@ class WbAdminSchemaListTab(mforms.Box):
 
     def schema_list_edit(self, node, col, data):
         if col == 0:
-            node.set_bool(0, int(data))
+            node.set_bool(0, int(data) != 0)
             schema = node.get_string(1)
             self.table_list_model.set_schema_selected(schema, int(data))
             self.schema_selected()
 
     def table_list_edit(self, node, col, data):
-        node.set_bool(col, int(data))
+        node.set_bool(col, int(data) != 0)
         self.update_table_selection()
         if int(data):
             # select the schema if its not
@@ -1458,7 +1458,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
             r = self.schema_list.add_node()
             r.set_icon_path(1, "db.Schema.16x16.png")
             r.set_string(1, schema)
-            r.set_bool(0, 0)
+            r.set_bool(0, False)
         self.schema_list.thaw_refresh()
         self.refresh_button.set_enabled(True)
         self.select_summary_label.set_text("")
@@ -2349,15 +2349,15 @@ class WbAdminExport(mforms.Box):
 #        if dic.has_key("wb.admin.export:selectedFile"):
 #            self.export_tab.file_te.set_value(dic["wb.admin.export:selectedFile"])
         if dic.has_key("wb.admin.export:singleTransaction"):
-            self.export_tab.single_transaction_check.set_active(dic["wb.admin.export:singleTransaction"])
+            self.export_tab.single_transaction_check.set_active(dic["wb.admin.export:singleTransaction"] != 0)
         if dic.has_key("wb.admin.export:dumpRoutines"):
-            self.export_tab.dump_routines_check.set_active(dic["wb.admin.export:dumpRoutines"])
+            self.export_tab.dump_routines_check.set_active(dic["wb.admin.export:dumpRoutines"] != 0)
         if dic.has_key("wb.admin.export:dumpEvents"):
-            self.export_tab.dump_events_check.set_active(dic["wb.admin.export:dumpEvents"])
+            self.export_tab.dump_events_check.set_active(dic["wb.admin.export:dumpEvents"] != 0)
         if dic.has_key("wb.admin.export:dumpTriggers"):
-            self.export_tab.dump_triggers_check.set_active(dic["wb.admin.export:dumpTriggers"])
+            self.export_tab.dump_triggers_check.set_active(dic["wb.admin.export:dumpTriggers"] != 0)
         if dic.has_key("wb.admin.export:skipData"):
-            self.export_tab.dump_type_selector.set_selected(dic["wb.admin.export:skipData"])
+            self.export_tab.dump_type_selector.set_selected(dic["wb.admin.export:skipData"] != 0)
         values = {}
         for key in self.get_export_options({}).keys():
             if dic.has_key("wb.admin.export.option:"+key):
