@@ -846,8 +846,8 @@
                     <File Id="file61737" Name="snippet_py.png"/>
                     <File Id="file61738" Name="snippet_css.png"/>
                     <File Id="ac_charset.png" Name="ac_charset.png"/>
-                    <File Id="ac_collation.png" Name=".png"/>
-                    <File Id="ac_column.png" Name="ac_collation.png"/>
+                    <File Id="ac_collation.png" Name="ac_collation.png"/>
+                    <File Id="ac_column.png" Name="ac_column.png"/>
                     <File Id="ac_engine.png" Name="ac_engine.png"/>
                     <File Id="ac_event.png" Name="ac_event.png"/>
                     <File Id="ac_function.png" Name="ac_function.png"/>
@@ -863,7 +863,7 @@
                     <File Id="ac_trigger.png" Name="ac_trigger.png"/>
                     <File Id="ac_user.png" Name="ac_user.png"/>
                     <File Id="ac_uservar.png" Name="ac_uservar.png"/>
-                    <File Id"="ac_view.png" Name="ac_view.png"/>
+                    <File Id="ac_view.png" Name="ac_view.png"/>
 					
                     <File Id="file61751" Name="qe_sql-editor-tb-icon_word-wrap-off.png"/>
                     <File Id="file61752" Name="qe_sql-editor-tb-icon_word-wrap-on.png"/>
