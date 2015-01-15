@@ -1304,9 +1304,9 @@ std::string MySQLRecognizer::dump_tree(pANTLR3_BASE_TREE tree, const std::string
       token_name = state->tokenNames[token_type];
 
 #ifdef  ANTLR3_USE_64BIT
-    result = base::strfmt("%s(line: %i, offset: %i, length: %lli, index: %lli, %s[%i])    %s\n",
-                          indentation.c_str(), line, char_pos, token->stop - token->start + 1, token->index, token_name,
-                          token_type, utf8);
+    result = base::strfmt("%s(line: %i, offset: %i, length: %" PRId64 ", index: %" PRId64 ", %s[%i])    %s\n",
+                               indentation.c_str(), line, char_pos, token->stop - token->start + 1, token->index, token_name,
+                               token_type, utf8);
 #else
     result = base::strfmt("%s(line: %i, offset: %i, length: %i, index: %i, %s[%i])    %s\n",
                           indentation.c_str(), line, char_pos, token->stop - token->start + 1, token->index, token_name,

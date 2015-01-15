@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2006 MySQL AB
+/* Copyright (C) 2000-2015 MySQL AB
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #include <hash_map>
 using stdext::hash_multimap;
 #else
-#include <unordered_map>
+#include <tr1/unordered_map>
 #endif
 
 #define MYSQL_LEX 1
@@ -116,7 +116,7 @@ static inline SYMBOL *get_hash_symbol(const char *s, unsigned int len, bool func
 #if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
   typedef hash_multimap<size_t, SYMBOL *> Hash_ind;
 #else
-  typedef std::unordered_multimap<size_t, SYMBOL *> Hash_ind;
+  typedef std::tr1::unordered_multimap<size_t, SYMBOL *> Hash_ind;
 #endif
   typedef std::pair<Hash_ind::const_iterator, Hash_ind::const_iterator> Hash_ind_range;
   static Hash_ind sym_hash_ind;
