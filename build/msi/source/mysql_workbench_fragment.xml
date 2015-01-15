@@ -1720,6 +1720,7 @@
                   <File Id="file650015" Name="migration_schema_selection.py"/>
                   <File Id="file650016" Name="datatype_mapping_editor.py"/>
                   <File Id="file650017" Name="migration_schema_mappings.py"/>
+                  <File Id="file650018" Name="migration_bulk_copy_data.py"/>
 
                   <File Id="file66000" Name="db_mssql_grt.py"/>
                   <File Id="file66001" Name="db_mssql_migration_grt.py"/>
