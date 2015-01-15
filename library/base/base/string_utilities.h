@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,6 +29,10 @@
 #endif
 
 #include "common.h"
+
+#if not defined(_WIN32) && not defined(__APPLE)
+  #include <glib.h>
+#endif
 
 #ifndef HAVE_PREDEFINED_HEADERS
   #include <string>

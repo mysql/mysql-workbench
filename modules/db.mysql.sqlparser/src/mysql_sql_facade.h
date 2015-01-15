@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +30,14 @@
 
 #include "mysql-parser.h"
 
-#include <unordered_set>
+#ifdef _WIN32
+  #include <unordered_set>
+#else
+  #include <tr1/unordered_set>
+  namespace std {
+    using tr1::unordered_set;
+  };
+#endif
 
 #define MysqlSqlFacade_VERSION "2.0"
  
