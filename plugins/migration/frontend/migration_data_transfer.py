@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -23,6 +23,7 @@ from workbench.ui import WizardPage, WizardProgressPage
 from DataMigrator import DataMigrator
 from migration_source_selection import request_password
 from workbench.utils import Version
+from migration_bulk_copy_data import DataCopyFactory
 
 class SetupMainView(WizardPage):
     def _browse_files(self, option, title):
@@ -33,7 +34,7 @@ class SetupMainView(WizardPage):
             getattr(self, option+"_entry").set_value(form.get_path())
             setattr(self, option+"_check_duplicate", False)
 
-    def _add_script_checkbox_option(self, box, name, caption, path_caption, browser_caption):
+    def _add_script_checkbox_option(self, box, name, caption, path_caption, browser_caption, label_caption):
         check = mforms.newCheckBox()
         check.set_text(caption)
         box.add(check, False, True)
@@ -51,7 +52,7 @@ class SetupMainView(WizardPage):
         button.add_clicked_callback(lambda option=name, title=browser_caption: self._browse_files(option, title))
         file_box.add(button, False, True)
         vbox.add(file_box, False, True)
-        label = mforms.newLabel("You should edit this file to add the source and target server passwords before running it.")
+        label = mforms.newLabel(label_caption)
         label.set_style(mforms.SmallHelpTextStyle)
         vbox.add(label, False, True)
         vbox.set_enabled(False)
@@ -89,10 +90,11 @@ class SetupMainView(WizardPage):
         box.add(mforms.newLabel(""), False, True)
 
         if sys.platform == "win32":
-            self._add_script_checkbox_option(box, "copy_script", "Create a batch file to copy the data at another time", "Batch File:", "Save As")
+            self._add_script_checkbox_option(box, "copy_script", "Create a batch file to copy the data at another time", "Batch File:", "Save As", "You should edit this file to add the source and target server passwords before running it.")
         else:
-            self._add_script_checkbox_option(box, "copy_script", "Create a shell script to copy the data from outside Workbench", "Shell Script File:", "Save As")
+            self._add_script_checkbox_option(box, "copy_script", "Create a shell script to copy the data from outside Workbench", "Shell Script File:", "Save As", "You should edit this file to add the source and target server passwords before running it.")
 
+        self._add_script_checkbox_option(box, "bulk_copy_script", "Create a shell script to bulk copy the data from outside Workbench", "Shell Bulk Data Copy Script File:", "Save As", "You should edit this file to add the source and target server passwords. Then copy it to source server and execute it. Further follow the instructions.")
 
         panel = mforms.newPanel(mforms.TitledBoxPanel)
         panel.set_title("Options")
@@ -176,6 +178,12 @@ All tables are copied by default.""")
             if self.main.plan.state.dataBulkTransferParams.has_key("GenerateCopyScript"):
                 del self.main.plan.state.dataBulkTransferParams["GenerateCopyScript"]
 
+        if self.bulk_copy_script_checkbox.get_active():
+            self.main.plan.state.dataBulkTransferParams["GenerateBulkCopyScript"] = self.bulk_copy_script_entry.get_string_value()
+        else:
+            if self.main.plan.state.dataBulkTransferParams.has_key("GenerateBulkCopyScript"):
+                del self.main.plan.state.dataBulkTransferParams["GenerateBulkCopyScript"]
+
         self.main.plan.state.dataBulkTransferParams["LiveDataCopy"] = 1 if self._copy_db.get_active() else 0
         self.main.plan.state.dataBulkTransferParams["DebugTableCopy"] = 1 if self._debug_copy.get_active() else 0
         self.main.plan.state.dataBulkTransferParams["TruncateTargetTables"] = 1 if self._truncate_db.get_active() else 0
@@ -209,7 +217,7 @@ All tables are copied by default.""")
 
         self.main.plan.state.dataBulkTransferParams["tableList"] = tables_to_copy
 
-        if self._copy_db.get_active() or self.copy_script_checkbox.get_active():
+        if self._copy_db.get_active() or self.copy_script_checkbox.get_active() or self.bulk_copy_script_checkbox.get_active():
             return WizardPage.go_next(self)
         else:
             self.main.go_next_page(2)
@@ -243,6 +251,13 @@ All tables are copied by default.""")
                 filename = mforms.Utilities.get_special_folder(mforms.Desktop)+"/copy_migrated_tables.sh"
             self.copy_script_entry.set_value(filename)
             self.copy_script_check_duplicate = True
+
+            if sys.platform == "win32":
+                bulk_copy_filename = mforms.Utilities.get_special_folder(mforms.Desktop)+"\\bulk_copy_tables.cmd"
+            else:
+                bulk_copy_filename = mforms.Utilities.get_special_folder(mforms.Desktop)+"/bulk_copy_tables.sh"
+            self.bulk_copy_script_entry.set_value(bulk_copy_filename)
+            self.bulk_copy_script_check_duplicate = True
 
 
         WizardPage.page_activated(self, advancing)
@@ -344,6 +359,7 @@ class TransferMainView(WizardProgressPage):
 
         self.add_task(self._prepare_copy, "Prepare information for data copy")
         self._copy_script_task = self.add_task(self._create_copy_script, "Create shell script for data copy")
+        self._bulk_copy_script_task = self.add_task(self._create_bulk_copy_script, "Create shell script for bulk data copy")
         self._migrate_task1 = self.add_threaded_task(self._count_rows, "Determine number of rows to copy")
         self._migrate_task2 = self.add_threaded_task(self._migrate_data, "Copy data to target RDBMS")
         self._tables_to_exclude = list()
@@ -352,7 +368,9 @@ class TransferMainView(WizardProgressPage):
         if advancing:
             options = self.main.plan.state.dataBulkTransferParams
             copy_script = options.get("GenerateCopyScript", None)
+            bulk_copy_script = options.get("GenerateBulkCopyScript", None)
             self._copy_script_task.set_enabled(copy_script != None)
+            self._bulk_copy_script_task.set_enabled(bulk_copy_script != None)
             if options.get("LiveDataCopy", False) or options.get("GenerateDumpScript", False):
                 self._migrate_task1.set_enabled(True)
                 self._migrate_task2.set_enabled(True)
@@ -581,6 +599,25 @@ fi
         f.write("\n\n")
         f.close()
         self.send_info("Table copy script written to %s" % path)
+
+
+
+    def _create_bulk_copy_script(self):
+        script_path = self.main.plan.state.dataBulkTransferParams["GenerateBulkCopyScript"]
+        conn_args = self._transferer.helper_connections_arglist()
+
+        source_os, target_os = self._get_source_and_target_os()
+
+        script = DataCopyFactory(source_os, target_os, conn_args['source_rdbms'])
+        script.generate(self._working_set.values(), conn_args, script_path)
+
+
+
+    def _get_source_and_target_os(self):
+        # XXX: source_os and target_os should be obtained from the source and target server
+        source_os = 'win32' if self._transferer._src_conn_object.driver.owner.name.lower() == 'mssql' else 'linux'
+        target_os = sys.platform #'linux'
+        return (source_os, target_os)
 
 
 

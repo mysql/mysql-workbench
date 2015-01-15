@@ -161,6 +161,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "frontend", "frontend", "{FD
 		plugins\migration\frontend\migration_summary.py = plugins\migration\frontend\migration_summary.py
 		plugins\migration\frontend\migration_toolbars.py = plugins\migration\frontend\migration_toolbars.py
 		plugins\migration\frontend\migration_ui_style.py = plugins\migration\frontend\migration_ui_style.py
+		plugins\migration\frontend\migration_bulk_copy_data.py = plugins\migration\frontend\migration_bulk_copy_data.py
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backend", "backend", "{F2B13373-DE98-41BB-A7AF-C8806F0992B4}"

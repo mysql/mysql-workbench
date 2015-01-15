@@ -360,6 +360,16 @@ class DataMigrator(object):
         return args
 
 
+    def helper_connections_arglist(self):
+        conn_args = { 'source_user': self._src_conn_object.parameterValues.get("userName", 'root'),
+                      'source_instance': 'SQLEXPRESS',
+                      'target_port': self._tgt_conn_object.parameterValues.get("port", 3306),
+                      'target_user': self._tgt_conn_object.parameterValues.get("userName", 'root'),
+                      'source_rdbms':self._src_conn_object.driver.owner.name.lower()}
+
+        return conn_args
+
+
     def process_until_done(self):
         total_row_count = 0
         for table in self._working_set.values():
