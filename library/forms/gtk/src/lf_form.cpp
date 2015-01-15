@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -274,8 +274,17 @@ FormImpl::FormImpl(::mforms::Form *form, ::mforms::Form *owner, mforms::FormFlag
 
   _window->signal_focus_in_event().connect(sigc::bind< ::mforms::Form *>(sigc::mem_fun(this, &FormImpl::on_focus_event), form));
   _window->signal_focus_out_event().connect(sigc::bind< ::mforms::Form *>(sigc::mem_fun(this, &FormImpl::on_focus_event), form));
+  _window->signal_delete_event().connect(sigc::mem_fun(this, &FormImpl::can_close_widget), false);
 }
 
+bool FormImpl::can_close_widget(GdkEventAny* event)
+{
+  mforms::Form* form = dynamic_cast<mforms::Form*>(owner);
+    if (form && form->can_close_slot)
+      return !form->can_close_slot();
+
+  return false;
+}
 
 bool FormImpl::on_focus_event(GdkEventFocus* ev, ::mforms::Form *form)
 {

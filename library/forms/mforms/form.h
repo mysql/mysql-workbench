@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -157,6 +157,15 @@ namespace mforms {
     void set_release_on_close(bool flag);
 
 #ifndef SWIG
+
+    /** Function called when window is about to close.
+        return false to prevent window closing.
+
+     In Python use on_close()
+     */
+    boost::function<bool ()> can_close_slot;
+    void set_on_close(const boost::function<bool ()> &slot) { can_close_slot= slot; }
+
     /** Signal sent when the user clicks the close button in the window.
      
      In Python use add_closed_callback()
