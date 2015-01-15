@@ -40,6 +40,7 @@ import sqlide_catalogman_ext
 import sqlide_tableman_ext
 import sqlide_schematree_ext
 import sqlide_import_spatial
+import sqlide_power_import_export
 
 # define this Python module as a GRT module
 ModuleInfo = DefineModule(name= "SQLIDEUtils", author= "Oracle Corp.", version="1.1")
@@ -57,6 +58,7 @@ def initialize0():
     nc.add_observer(sqlide_catalogman_ext.handleLiveTreeContextMenu, name = "GRNLiveDBObjectMenuWillShow")
     nc.add_observer(sqlide_tableman_ext.handleLiveTreeContextMenu, name = "GRNLiveDBObjectMenuWillShow")
     nc.add_observer(sqlide_import_spatial.handleContextMenu, name = "GRNLiveDBObjectMenuWillShow")
+    nc.add_observer(sqlide_power_import_export.handleContextMenu, name = "GRNLiveDBObjectMenuWillShow")
 
 
 

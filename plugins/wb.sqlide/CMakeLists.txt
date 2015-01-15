@@ -6,6 +6,7 @@ set(PY_FILES
     sqlide_resultset_ext.py
     sqlide_schematree_ext.py
     sqlide_import_spatial.py
+    sqlide_power_import_export.py
     text_output.py
     run_script.py
 )

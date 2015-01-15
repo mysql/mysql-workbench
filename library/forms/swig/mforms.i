@@ -1091,6 +1091,7 @@ SWIG_ADD_SIGNAL_VOID_CALLBACK(changed_callback, self->signal_changed());
 }
 
 %extend mforms::Form {
+SWIG_ADD_SET_BOOL_CALLBACK(set_on_close, self->set_on_close);
 SWIG_ADD_SIGNAL_VOID_CALLBACK(closed_callback, self->signal_closed());
 SWIG_ADD_SIGNAL_VOID_CALLBACK(activated_callback, self->signal_activated());
 SWIG_ADD_SIGNAL_VOID_CALLBACK(deactivated_callback, self->signal_deactivated());
