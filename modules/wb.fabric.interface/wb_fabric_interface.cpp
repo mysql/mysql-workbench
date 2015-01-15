@@ -17,7 +17,6 @@
 * 02110-1301  USA
 */
 
-#include "stdafx.h"
 #include "wb_fabric_interface.h"
 #include "base/string_utilities.h"
 
