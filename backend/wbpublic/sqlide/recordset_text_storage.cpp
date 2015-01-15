@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -203,7 +203,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
       if (!pre_tpl)
         g_warning("Failed to open template file: `%s`", pre_tpl_path.c_str()); 
       else
-        pre_tpl->ReloadIfChanged();
+        pre_tpl->ReloadAllIfChanged();
     }      
     if (g_file_test((name+".post.tpl").c_str(), G_FILE_TEST_EXISTS))
     {
@@ -212,7 +212,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
       if (!post_tpl)
         g_warning("Failed to open template file: `%s`", post_tpl_path.c_str());
       else
-        post_tpl->ReloadIfChanged();
+        post_tpl->ReloadAllIfChanged();
     }
   }    
   
@@ -221,7 +221,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
       throw std::runtime_error(strfmt("Failed to open output file: `%s`", _file_path.c_str()));
   }
 
-  tpl->ReloadIfChanged();
+  tpl->ReloadAllIfChanged();
 
   std::auto_ptr<TemplateDictionary> dict(new TemplateDictionary("/"));
   BOOST_FOREACH (const Parameters::value_type &param, _parameters)
