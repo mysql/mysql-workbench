@@ -30,7 +30,7 @@
 
 #include "common.h"
 
-#if not defined(_WIN32) && not defined(__APPLE)
+#if !defined(_WIN32) && !defined(__APPLE)
   #include <glib.h>
 #endif
 
