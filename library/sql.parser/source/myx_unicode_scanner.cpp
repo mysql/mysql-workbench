@@ -16,9 +16,11 @@
 
 /* A lexical scanner on a temporary buffer with a yacc interface */
 
-#if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
+#ifdef _WIN32
 #include <hash_map>
 using stdext::hash_multimap;
+#elif defined(__APPLE__)
+#include <unordered_map>
 #else
 #include <tr1/unordered_map>
 #endif
@@ -115,6 +117,8 @@ static inline SYMBOL *get_hash_symbol(const char *s, unsigned int len, bool func
 {
 #if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
   typedef hash_multimap<size_t, SYMBOL *> Hash_ind;
+#elif defined(__APPLE__)
+  typedef std::unordered_multimap<size_t, SYMBOL *> Hash_ind;
 #else
   typedef std::tr1::unordered_multimap<size_t, SYMBOL *> Hash_ind;
 #endif

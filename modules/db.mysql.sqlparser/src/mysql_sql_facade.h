@@ -30,7 +30,7 @@
 
 #include "mysql-parser.h"
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__APPLE__)
   #include <unordered_set>
 #else
   #include <tr1/unordered_set>
