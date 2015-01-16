@@ -9,7 +9,7 @@ if test "$ver" == ""; then
         exit 1
 fi
 templatedmg=~/guibuild/mysqlworkbench-$edition-template.dmg
-finaldmg=mysql-workbench-$edition-$ver-osx-i686
+finaldmg=mysql-workbench-$edition-$ver-osx-x86_64
 
 if [ ! -d $srcdir ]; then
     srcdir="build/Release"
