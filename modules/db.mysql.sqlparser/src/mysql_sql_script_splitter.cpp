@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,7 +17,9 @@
  * 02110-1301  USA
  */
 
-#include <stdafx.h>
+#include <glib.h>
+#include <boost/signals2.hpp>
+
 #include "mysql_sql_script_splitter.h"
 #ifdef _WIN32
 #include "mysql_sql_parser_public_interface.h"
