@@ -18,6 +18,7 @@
  */
 
 
+#include <stdafx.h>
 #include "mysql_sql_inserts_loader.h"
 #include "mysql_sql_parser_utils.h"
 #include <boost/foreach.hpp>

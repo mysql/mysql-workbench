@@ -18,6 +18,7 @@
  */
 
 
+#include <stdafx.h>
 #include "mysql_sql_normalizer.h"
 #include "mysql_sql_parser_utils.h"
 

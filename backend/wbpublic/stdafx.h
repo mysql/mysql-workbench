@@ -19,6 +19,8 @@
 
 #pragma once
 
+#ifdef _WIN32
+
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <winsock2.h>
@@ -47,7 +49,7 @@
 
 #include <glib.h>
 
-#include <pcre.h>
+//#include <pcre.h>
 
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
@@ -88,3 +90,5 @@
 #include "grts/structs.workbench.h"
 
 #include "grts/structs.wrapper.h"
+
+#endif // _WIN32

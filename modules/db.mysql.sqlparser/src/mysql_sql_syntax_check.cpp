@@ -17,6 +17,7 @@
  * 02110-1301  USA
  */
 
+#include <stdafx.h>
 #include "mysql_sql_syntax_check.h"
 #include "mysql_sql_parser_fe.h"
 #include "grtdb/charset_utils.h"

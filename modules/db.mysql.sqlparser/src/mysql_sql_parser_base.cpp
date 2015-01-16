@@ -18,6 +18,7 @@
  */
 
 
+#include <stdafx.h>
 #include <boost/lambda/bind.hpp>
 
 #include "mysql_sql_parser_base.h"

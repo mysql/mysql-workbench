@@ -17,6 +17,7 @@
  * 02110-1301  USA
  */
 
+#include <stdafx.h>
 #include <glib.h>
 #include "grtdb/charset_utils.h"
 #include "base/string_utilities.h"

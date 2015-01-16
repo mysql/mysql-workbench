@@ -18,6 +18,7 @@
  */
 
 
+#include <stdafx.h>
 #include "mysql_sql_schema_rename.h"
 #include "grtsqlparser/module_utils.h"
 #include "mysql_sql_parser_fe.h"

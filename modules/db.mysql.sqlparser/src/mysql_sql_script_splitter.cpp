@@ -17,6 +17,7 @@
  * 02110-1301  USA
  */
 
+#include <stdafx.h>
 #include "mysql_sql_script_splitter.h"
 #ifdef _WIN32
 #include "mysql_sql_parser_public_interface.h"
