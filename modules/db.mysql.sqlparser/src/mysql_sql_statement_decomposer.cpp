@@ -17,6 +17,7 @@
  * 02110-1301  USA
  */
 
+#include <stdafx.h>
 #include "mysql_sql_statement_decomposer.h"
 #include "mysql_sql_parser_utils.h"
 #include "mysql_sql_parser_fe.h"

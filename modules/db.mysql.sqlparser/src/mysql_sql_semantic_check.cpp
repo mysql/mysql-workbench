@@ -17,6 +17,7 @@
  * 02110-1301  USA
  */
 
+#include <stdafx.h>
 #include "mysql_sql_semantic_check.h"
 #include "mysql_sql_parser_fe.h"
 #include "base/string_utilities.h"

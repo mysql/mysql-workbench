@@ -17,6 +17,7 @@
  * 02110-1301  USA
  */
 
+#include <stdafx.h>
 #include "mysql_sql_facade.h"
 
 using namespace bec;
