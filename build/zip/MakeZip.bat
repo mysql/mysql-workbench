@@ -32,9 +32,12 @@ rem Set other variables
 set DIST_DIR=.\distribution
 set UTIL_PATH=..\..\..\mysql-win-res\bin
 set PYTHON_EXE_PATH=..\..\..\..\mysql-win-res\bin\python\python.exe
+set PYTHONPATH=..\..\..\..\mysql-win-res\lib\Python
 set OUTPUT_FILENAME=mysql-workbench-%SETUP_TYPE%-%VERSION_DETAIL%-%FILENAME_ARCH%-noinstall.zip
 set OUTPUT_DIRNAME="MySQL Workbench %VERSION_DETAIL%%SETUP_TYPE_UC% (%FILENAME_ARCH%)"
 set TMP_DIR=.\temp
+
+set path=%path%;%PYTHON_EXE_PATH%
 
 if not exist %BIN_DIR% goto ERROR1
 if not exist %DIST_DIR% mkdir %DIST_DIR%
@@ -83,7 +86,10 @@ echo Build zip file...
 pushd %TMP_DIR%
 rem precompile Python sources
 %PYTHON_EXE_PATH% -mcompileall %OUTPUT_DIRNAME%
+if %ERRORLEVEL% == 1 goto ERROR5
+  
 ..\%UTIL_PATH%\zip -q -9 -r %OUTPUT_FILENAME% %OUTPUT_DIRNAME%
+if %ERRORLEVEL% == 1 goto ERROR6
 popd
 echo .
 
@@ -119,6 +125,14 @@ EXIT /B 1
 
 :ERROR4
 echo Error: Building the setup-files failed. Error messages should have been provided above.
+EXIT /B 1
+
+:ERROR5
+echo Error: Compiling python code.
+EXIT /B 1
+
+:ERROR6
+echo Error: Failed to zip.
 EXIT /B 1
 
 :printUsage
