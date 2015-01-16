@@ -1208,10 +1208,10 @@ void AutoCompleteCache::update_object_names(const std::string &cache, const std:
     {
       // Ensures shutdown is not done while processing
       base::RecMutexTryLock sd_lock(_shutdown_mutex);
-      if (sd_lock.locked())
+      if (!sd_lock.locked())
       {
         log_debug3("Can't obtain lock on shutdown_mutex for update_object_names call.\n");
-         return;
+        return;
       }
       base::RecMutexLock lock(_sqconn_mutex);
 
