@@ -121,8 +121,8 @@ void test_suites(
   }
 
   const char* suite_name= single_suite;
-  suite_name= g_dir_read_name(root);
-  while (suite_name)
+
+  while ((suite_name= g_dir_read_name(root)))
   {
     if (run_single_test)
       suite_name= single_suite;
