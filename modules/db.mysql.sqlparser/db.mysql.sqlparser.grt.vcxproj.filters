@@ -26,7 +26,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h" />
     <ClInclude Include="src\mysql_invalid_sql_parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -116,7 +115,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="src\db.mysql.sqlparser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
