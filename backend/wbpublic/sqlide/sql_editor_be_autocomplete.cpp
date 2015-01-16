@@ -1517,12 +1517,12 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
     else if (rules_holder.special_rules.find(*i) != rules_holder.special_rules.end())
     {
       // Any of the special rules.
-      if (_editor_config != NULL)
+      if (_editor_config != NULL && _auto_completion_cache != NULL)
       {
         std::map<std::string, std::string> keyword_map = _editor_config->get_keywords();
         if (*i == "udf_call")
         {
-          log_debug3("Adding udfs/runtime function names to code completion list\n");
+          log_debug3("Adding runtime function names to code completion list\n");
 
           std::vector<std::string> functions = base::split_by_set(keyword_map["Functions"], " \t\n");
           for (std::vector<std::string>::const_iterator function = functions.begin(); function != functions.end(); ++function)
