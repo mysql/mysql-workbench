@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -365,7 +365,7 @@ the schema creation or return to the Manual Editing page to correct them there a
         if object and hasattr(object, "temp_sql"):
             self._code.set_text(object.temp_sql)
             self._code.set_enabled(not object.commentedOut)
-            self._comment_check.set_active(object.commentedOut)
+            self._comment_check.set_active(object.commentedOut != 0)
             self._advbox.set_enabled(True)
             self._apply_btn.set_enabled(False)
             self._revert_btn.set_enabled(False)
@@ -396,7 +396,7 @@ the schema creation or return to the Manual Editing page to correct them there a
         object = self._selected_object()
         if object:
             self._code.set_text(object.temp_sql)
-            self._comment_check.set_active(object.commentedOut)
+            self._comment_check.set_active(object.commentedOut != 0)
         self._apply_btn.set_enabled(False)
         self._revert_btn.set_enabled(False)
   

@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -344,12 +344,12 @@ class MainView(WizardPage):
                 grt.log_info("Migration", "User changed target column flags of '%s' to '%s'\n"%(object.name, value))
                 self._regenerateSQL()
             elif column == self.COL_TARGET_AI:
-                node.set_bool(column, int(value))
+                node.set_bool(column, int(value) != 0)
                 object.autoIncrement = int(value)
                 grt.log_info("Migration", "User changed target column autoIncrement of '%s' to '%s'\n"%(object.name, value))
                 self._regenerateSQL()
             elif column == self.COL_TARGET_NOTNULL:
-                node.set_bool(column, int(value))
+                node.set_bool(column, int(value) != 0)
                 object.isNotNull = int(value)
                 grt.log_info("Migration", "User changed target column isNotNull of '%s' to '%s'\n"%(object.name, value))
                 self._regenerateSQL()
@@ -719,7 +719,7 @@ class MainView(WizardPage):
                     node.set_string(self.COL_SOURCE_COLUMN, scolumn.name)
                     node.set_string(self.COL_SOURCE_TYPE, scolumn.formattedRawType)
                     node.set_string(self.COL_SOURCE_FLAGS, " ".join(scolumn.flags))
-                    node.set_bool(self.COL_SOURCE_NOTNULL, scolumn.isNotNull)            
+                    node.set_bool(self.COL_SOURCE_NOTNULL, scolumn.isNotNull != 0)
                     node.set_string(self.COL_SOURCE_DEFAULT, scolumn.defaultValue)
                     node.set_string(self.COL_SOURCE_COLLATION, scolumn.collationName)
 
@@ -738,8 +738,8 @@ class MainView(WizardPage):
                         node.set_string(self.COL_TARGET_COLUMN, tcolumn.name)
                         node.set_string(self.COL_TARGET_TYPE, tcolumn.formattedRawType)
                         node.set_string(self.COL_TARGET_FLAGS, " ".join(tcolumn.flags))
-                        node.set_bool(self.COL_TARGET_AI, tcolumn.autoIncrement)
-                        node.set_bool(self.COL_TARGET_NOTNULL, tcolumn.isNotNull)
+                        node.set_bool(self.COL_TARGET_AI, tcolumn.autoIncrement != 0)
+                        node.set_bool(self.COL_TARGET_NOTNULL, tcolumn.isNotNull != 0)
                         node.set_string(self.COL_TARGET_DEFAULT, tcolumn.defaultValue)
                         node.set_string(self.COL_TARGET_COLLATION, tcolumn.collationName)
                         self._set_log_entry_for(node, scolumn, tcolumn, self.COL_MESSAGE)
