@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -719,6 +719,7 @@ void collect_schema_name_offsets(ParserContext::Ref context, std::list<size_t> &
   while (walker.next()) {
     switch (walker.token_type())
     {
+      case SCHEMA_NAME_TOKEN:
       case SCHEMA_REF_TOKEN:
         if (base::same_string(walker.token_text(), schema_name, case_sensitive))
         {
@@ -729,6 +730,7 @@ void collect_schema_name_offsets(ParserContext::Ref context, std::list<size_t> &
         }
         break;
 
+      case TABLE_NAME_TOKEN:
       case TABLE_REF_TOKEN:
       {
         walker.next();
@@ -769,9 +771,13 @@ void collect_schema_name_offsets(ParserContext::Ref context, std::list<size_t> &
 
       // All those can have schema.id or only id.
       case VIEW_REF_TOKEN:
+      case VIEW_NAME_TOKEN:
       case TRIGGER_REF_TOKEN:
+      case TRIGGER_NAME_TOKEN:
       case PROCEDURE_REF_TOKEN:
+      case PROCEDURE_NAME_TOKEN:
       case FUNCTION_REF_TOKEN:
+      case FUNCTION_NAME_TOKEN:
         walker.next();
         if (walker.look_ahead(false) == DOT_SYMBOL)
         {
@@ -827,8 +833,6 @@ void rename_in_list(grt::ListRef<db_DatabaseDdlObject> list, const ParserContext
     size_t error_count = context->recognizer()->error_info().size();
     if (error_count == 0)
     {
-      MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
-
       std::list<size_t> offsets;
       collect_schema_name_offsets(context, offsets, old_name);
       if (!offsets.empty())
