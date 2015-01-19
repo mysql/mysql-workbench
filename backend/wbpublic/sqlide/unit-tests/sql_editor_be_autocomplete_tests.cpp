@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -144,16 +144,24 @@ TEST_FUNCTION(5)
 
   // We don't set up the sakila schema. This is needed in so many places, it should simply exist.
   std::vector<std::string> list = _cache->get_matching_schema_names("sakila");
+  if (list.empty())
+  {
+    // Sakila not yet fetched. Give it a moment and try again.
+    g_usleep(1000000);
+    list = _cache->get_matching_schema_names("sakila");
+  }
+  ensure("Could not get the schema list from the cache", !list.empty());
 
-  // The loops are not necessary, but there can be spurious condition signals,
-  // as the glib docs say.
-  while (!_cache->is_schema_list_fetch_done())
-    g_usleep(500000);
-
-  _cache->get_matching_table_names("sakila"); // Cache all tables and columns.
-
-  while (!_cache->is_schema_table_columns_fetch_done("sakila", "store"))
-    g_usleep(500000);
+  bool found = false;
+  for (std::vector<std::string>::const_iterator i = list.begin(); i != list.end(); ++i)
+  {
+    if (*i == "sakila")
+    {
+      found = true;
+      break;
+    }
+  }
+  ensure("Sakila could not be found", found); 
 }
 
 /**
