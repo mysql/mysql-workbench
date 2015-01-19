@@ -107,6 +107,11 @@ void Test_object_base<mysql_sql_parser>::test_import_sql(int test_no, const char
   // Unserialize the result so we can compare that with the generated catalog.
   db_CatalogRef test_catalog = db_mysql_CatalogRef::cast_from(ValueRef(grt->unserialize(test_catalog_state_filename)));
 
+  // Before comparing set the simple data types list to that of the rdbms. Its not part of the
+  // parsing process we test here. The test data additionally doesn't contain full lists,
+  // so we would get a test failure on that.
+  grt::replace_contents(test_catalog->simpleDatatypes(), rdbms->simpleDatatypes());
+
   grt_ensure_equals(test_message.c_str(), res_catalog, test_catalog);
 
   // Same steps as above but using the ANTLR parser.
