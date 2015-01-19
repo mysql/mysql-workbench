@@ -801,8 +801,8 @@ TEST_FUNCTION(1)
   {
     wb::LiveSchemaTree::TriggerData source, target;
     source.details = "This is a sample to test copy";
-    source.event_manipulation = 10;
-    source.timing = 14;
+    source.event_manipulation = 11;
+    source.timing = 15;
 
     ensure_equals("TF001CHK005: Unexpected object name", target.get_object_name(), "Trigger");
     ensure_equals("TF001CHK005: Unexpected object type", target.get_type(), LiveSchemaTree::Trigger);
@@ -813,8 +813,8 @@ TEST_FUNCTION(1)
 
     target.copy(&source);
     ensure_equals("TF001CHK005: Unexpected copied details", target.details, "This is a sample to test copy");
-    ensure_equals("TF001CHK005: Unexpected copied event manipulation", target.event_manipulation, 10);
-    ensure_equals("TF001CHK005: Unexpected copied timing", target.timing, 14);
+    ensure_equals("TF001CHK005: Unexpected copied event manipulation", target.event_manipulation, 11);
+    ensure_equals("TF001CHK005: Unexpected copied timing", target.timing, 15);
 
     // Cleans details to test dynamic generation
     target.details = "";
@@ -2353,11 +2353,12 @@ TEST_FUNCTION(17)
   ensure_equals("TF017CHK001: Invalid identifier returned for 'FULLTEXT'", wb::LiveSchemaTree::internalize_token("FULLTEXT"), 7);
   ensure_equals("TF017CHK001: Invalid identifier returned for 'HASH'", wb::LiveSchemaTree::internalize_token("HASH"), 8);
   ensure_equals("TF017CHK001: Invalid identifier returned for 'RTREE'", wb::LiveSchemaTree::internalize_token("RTREE"), 9);
-  ensure_equals("TF017CHK001: Invalid identifier returned for 'INSERT'", wb::LiveSchemaTree::internalize_token("INSERT"), 10);
-  ensure_equals("TF017CHK001: Invalid identifier returned for 'UPDATE'", wb::LiveSchemaTree::internalize_token("UPDATE"), 11);
-  ensure_equals("TF017CHK001: Invalid identifier returned for 'DELETE'", wb::LiveSchemaTree::internalize_token("DELETE"), 12);
-  ensure_equals("TF017CHK001: Invalid identifier returned for 'BEFORE'", wb::LiveSchemaTree::internalize_token("BEFORE"), 13);
-  ensure_equals("TF017CHK001: Invalid identifier returned for 'AFTER'", wb::LiveSchemaTree::internalize_token("AFTER"), 14);
+  ensure_equals("TF017CHK001: Invalid identifier returned for 'RTREE'", wb::LiveSchemaTree::internalize_token("SPATIAL"), 10);
+  ensure_equals("TF017CHK001: Invalid identifier returned for 'INSERT'", wb::LiveSchemaTree::internalize_token("INSERT"), 11);
+  ensure_equals("TF017CHK001: Invalid identifier returned for 'UPDATE'", wb::LiveSchemaTree::internalize_token("UPDATE"), 12);
+  ensure_equals("TF017CHK001: Invalid identifier returned for 'DELETE'", wb::LiveSchemaTree::internalize_token("DELETE"), 13);
+  ensure_equals("TF017CHK001: Invalid identifier returned for 'BEFORE'", wb::LiveSchemaTree::internalize_token("BEFORE"), 14);
+  ensure_equals("TF017CHK001: Invalid identifier returned for 'AFTER'", wb::LiveSchemaTree::internalize_token("AFTER"), 15);
 }
 
 // Test wb::LiveSchemaTree::externalize_token
@@ -2374,11 +2375,12 @@ TEST_FUNCTION(18)
   ensure("TF018CHK001: Invalid token returned for 'FULLTEXT'", wb::LiveSchemaTree::externalize_token(7) == "FULLTEXT");
   ensure("TF018CHK001: Invalid token returned for 'HASH'", wb::LiveSchemaTree::externalize_token(8) == "HASH");
   ensure("TF018CHK001: Invalid token returned for 'RTREE'", wb::LiveSchemaTree::externalize_token(9) == "RTREE");
-  ensure("TF018CHK001: Invalid token returned for 'INSERT'", wb::LiveSchemaTree::externalize_token(10) == "INSERT");
-  ensure("TF018CHK001: Invalid token returned for 'UPDATE'", wb::LiveSchemaTree::externalize_token(11) == "UPDATE");
-  ensure("TF018CHK001: Invalid token returned for 'DELETE'", wb::LiveSchemaTree::externalize_token(12) == "DELETE");
-  ensure("TF018CHK001: Invalid token returned for 'BEFORE'", wb::LiveSchemaTree::externalize_token(13) == "BEFORE");
-  ensure("TF018CHK001: Invalid token returned for 'AFTER'", wb::LiveSchemaTree::externalize_token(14) == "AFTER");
+  ensure("TF018CHK001: Invalid token returned for 'RTREE'", wb::LiveSchemaTree::externalize_token(10) == "SPATIAL");
+  ensure("TF018CHK001: Invalid token returned for 'INSERT'", wb::LiveSchemaTree::externalize_token(11) == "INSERT");
+  ensure("TF018CHK001: Invalid token returned for 'UPDATE'", wb::LiveSchemaTree::externalize_token(12) == "UPDATE");
+  ensure("TF018CHK001: Invalid token returned for 'DELETE'", wb::LiveSchemaTree::externalize_token(13) == "DELETE");
+  ensure("TF018CHK001: Invalid token returned for 'BEFORE'", wb::LiveSchemaTree::externalize_token(14) == "BEFORE");
+  ensure("TF018CHK001: Invalid token returned for 'AFTER'", wb::LiveSchemaTree::externalize_token(15) == "AFTER");
 }
 
 // Test update_live_object_state
