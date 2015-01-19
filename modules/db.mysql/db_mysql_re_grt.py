@@ -181,6 +181,23 @@ def getFunctionNames(connection, catalog_name, schema_name):
     return names
 
 
+@ModuleInfo.export(grt.STRING, grt.classes.db_mgmt_Connection)
+def getOS(connection):
+    conn = get_connection(connection)
+    if conn:
+        result = conn.executeQuery("SELECT @@version_compile_os")
+        if result and result.nextRow():
+            compile_os = result.stringByIndex(1)
+            if 'linux' in compile_os:
+                return 'linux'
+            elif 'Win' in compile_os:
+                return 'windows'
+            else:
+                return 'darwin'
+
+    return None
+
+
 #########  Reverse Engineering functions #########
 
 

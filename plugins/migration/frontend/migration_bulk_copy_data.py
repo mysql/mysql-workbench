@@ -15,19 +15,15 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
+import os
 
-def unquoteIdentifier(identifier):
-    if not '.' in identifier:
-        return identifier[1:-1]
-    else:
-        return identifier[identifier.index('.') + 1:-1]
 
 class ImportScript:
     @staticmethod
     def create(target_os):
-        if target_os == 'win32':
+        if target_os == 'windows':
             return ImportScriptWindows()
-        elif target_os.startswith('linux'):
+        elif target_os == 'linux':
             return ImportScriptLinux()
         elif target_os == 'darwin':
             return ImportScriptDarwin()
@@ -44,7 +40,8 @@ class ImportScript:
 
 class ImportScriptWindows(ImportScript):
     def get_import_cmd(self, connection_args, table, path_to_file):
-        return 'MYSQL_PWD=%%arg_target_password mysqlimport.exe -h127.0.0.1 -P%s -u%s --delete --fields-terminated-by=, %s %s' % (connection_args['target_port'], connection_args['target_user'], table['target_schema'], path_to_file)
+        return 'MYSQL_PWD=%%arg_target_password mysqlimport.exe -h127.0.0.1 -P%s -u%s --delete --fields-terminated-by=, %s %s' % \
+               (connection_args['target_port'], connection_args['target_user'], table['target_schema'], path_to_file)
 
     def get_script_ext(self): 
         return 'cmd'
@@ -59,7 +56,8 @@ class ImportScriptWindows(ImportScript):
 
 class ImportScriptLinux(ImportScript):
     def get_import_cmd(self, connection_args, table, path_to_file):
-        return 'MYSQL_PWD=$arg_target_password mysqlimport -h127.0.0.1 -P%s -u%s --delete --fields-terminated-by=, %s %s' % (connection_args['target_port'], connection_args['target_user'], table['target_schema'], path_to_file)
+        return 'MYSQL_PWD=$arg_target_password mysqlimport -h127.0.0.1 -P%s -u%s --delete --fields-terminated-by=, %s `pwd`/%s' % \
+               (connection_args['target_port'], connection_args['target_user'], table['target_schema'], path_to_file)
 
     def get_script_ext(self): 
         return 'sh'
@@ -74,7 +72,8 @@ class ImportScriptLinux(ImportScript):
 
 class ImportScriptDarwin(ImportScript):
     def get_import_cmd(self, connection_args, table, path_to_file):
-        return 'MYSQL_PWD=$arg_target_password mysqlimport -h127.0.0.1 -P%s -u%s --delete --fields-terminated-by=, %s %s' % (connection_args['target_port'], connection_args['target_user'], table['target_schema'], path_to_file)
+        return 'MYSQL_PWD=$arg_target_password mysqlimport -h127.0.0.1 -P%s -u%s --delete --fields-terminated-by=, %s `pwd`/%s' % \
+               (connection_args['target_port'], connection_args['target_user'], table['target_schema'], path_to_file)
 
     def get_script_ext(self): 
         return 'sh'
@@ -114,7 +113,7 @@ class SourceRDBMSMssql(SourceRDBMS):
 
 class SourceRDBMSMysql(SourceRDBMS):
     def get_copy_table_cmd(self, table, connection_args):
-        if self.source_os == 'win32':
+        if self.source_os == 'windows':
             return 'MYSQL_PWD=%%arg_source_password mysqldump.exe -h127.0.0.1 -P5615 -u%(source_user)s -t  -T. %(source_schema)s %(source_table)s --fields-terminated-by=\',\'\n' % dict(table.items() + connection_args.items())
         else:
             return 'MYSQL_PWD=$arg_source_password mysqldump -h127.0.0.1 -P5615 -u%(source_user)s -t  -T. %(source_schema)s %(source_table)s --fields-terminated-by=\',\'\n' % dict(table.items() + connection_args.items())
@@ -130,9 +129,9 @@ class SourceRDBMSPostgresql(SourceRDBMS):
 class DataCopyScript:
     @staticmethod
     def create(source_os):
-        if source_os == 'win32':
+        if source_os == 'windows':
             return DataCopyScriptWindows()
-        elif source_os.startswith('linux'):
+        elif source_os == 'linux':
             return DataCopyScriptLinux()
         elif source_os == 'darwin':
             return DataCopyScriptDarwin()
@@ -147,7 +146,7 @@ class DataCopyScriptWindows(DataCopyScript):
     def generate(self, tables, connection_args, script_path, source_rdbms, import_script):
         progress = 0 
         total_progress = (3 + len(tables))
-        source_schema = unquoteIdentifier(tables[0]['source_schema'])
+        source_schema = tables[0]['source_schema']
         dir_name = 'dump_%s' % source_schema
         log_file = '%s.log' % dir_name
     
@@ -176,12 +175,14 @@ IF [%arg_source_password%] == [] (
         dump_files = []
         for table in tables:
             f.write(source_rdbms.get_copy_table_cmd(table, connection_args))
-            file_name = '%s.%s' % (unquoteIdentifier(table['source_table']), import_script.get_script_ext())
+            file_name = '%s.%s' % (table['source_table'], import_script.get_script_ext())
             f.write('echo %s > %s\r\n' % (import_script.get_import_cmd(connection_args, table, '%s.csv' % (table['source_table'])), file_name))
             dump_files.append(file_name)
             progress = progress + 1
-            f.write('echo [%d %%%%] Dumped table %s\r\n' % (progress * 100 / total_progress, unquoteIdentifier(table['source_table'])))
-    
+            f.write('echo [%d %%%%] Dumped table %s\r\n' % (progress * 100 / total_progress, table['source_table']))
+
+        if isinstance(source_rdbms, SourceRDBMSMysql):
+            f.write('rm *.sql\r\n')
         import_file_lines = import_script.generate_import_script(dump_files)
         import_file_name = 'import_%s.%s' % (source_schema, import_script.get_script_ext())
     
@@ -216,11 +217,12 @@ class DataCopyScriptLinux(DataCopyScript):
     def generate(self, tables, connection_args, script_path, source_rdbms, import_script):
         progress = 0 
         total_progress = (3 + len(tables))
-        source_schema = unquoteIdentifier(tables[0]['source_schema'])
+        source_schema = tables[0]['source_schema']
         dir_name = 'dump_%s' % source_schema
         log_file = '%s.log' % dir_name
     
         f = open(script_path, 'w+')
+        os.chmod(script_path, 0700)
         f.write('#!/bin/bash\n\n')
         
         f.write("arg_source_password=\n")
@@ -242,13 +244,15 @@ fi
         dump_files = []
         for table in tables:
             f.write(source_rdbms.get_copy_table_cmd(table, connection_args))
-            file_name = '%s.%s' % (unquoteIdentifier(table['source_table']), import_script.get_script_ext())
-            f.write('mv %s.txt %s.csv\n' % (unquoteIdentifier(table['source_table']), unquoteIdentifier(table['source_table'])))
+            file_name = '%s.%s' % (table['source_table'], import_script.get_script_ext())
+            f.write('mv %s.txt %s.csv\n' % (table['source_table'], table['source_table']))
             f.write('echo %s > %s\n' % (import_script.get_import_cmd(connection_args, table, '%s.csv' % (table['source_table'])), file_name))
             dump_files.append(file_name)
             progress = progress + 1
-            f.write('echo [%d %%] Dumped table %s\n' % (progress * 100 / total_progress, unquoteIdentifier(table['source_table'])))
-    
+            f.write('echo [%d %%] Dumped table %s\n' % (progress * 100 / total_progress, table['source_table']))
+
+        if isinstance(source_rdbms, SourceRDBMSMysql):
+            f.write('rm *.sql\n')
         import_file_lines = import_script.generate_import_script(dump_files)
         import_file_name = 'import_%s.%s' % (source_schema, import_script.get_script_ext())
         f.write('touch %s\n' % import_file_name)
@@ -273,11 +277,12 @@ class DataCopyScriptDarwin(DataCopyScript):
     def generate(self, tables, connection_args, script_path, source_rdbms, import_script):
         progress = 0 
         total_progress = (3 + len(tables))
-        source_schema = unquoteIdentifier(tables[0]['source_schema'])
+        source_schema = tables[0]['source_schema']
         dir_name = 'dump_%s' % source_schema
         log_file = '%s.log' % dir_name
-    
         f = open(script_path, 'w+')
+        os.chmod(script_path, 0700)
+
         f.write('#!/bin/bash\n\n')
         
         f.write("arg_source_password=\n")
@@ -299,13 +304,15 @@ fi
         dump_files = []
         for table in tables:
             f.write(source_rdbms.get_copy_table_cmd(table, connection_args))
-            file_name = '%s.%s' % (unquoteIdentifier(table['source_table']), import_script.get_script_ext())
-            f.write('mv %s.txt %s.csv\n' % (unquoteIdentifier(table['source_table']), unquoteIdentifier(table['source_table'])))
+            file_name = '%s.%s' % (table['source_table'], import_script.get_script_ext())
+            f.write('mv %s.txt %s.csv\n' % (table['source_table'], table['source_table']))
             f.write('echo %s > %s\n' % (import_script.get_import_cmd(connection_args, table, '%s.csv' % (table['source_table'])), file_name))
             dump_files.append(file_name)
             progress = progress + 1
-            f.write('echo [%d %%] Dumped table %s\n' % (progress * 100 / total_progress, unquoteIdentifier(table['source_table'])))
-    
+            f.write('echo [%d %%] Dumped table %s\n' % (progress * 100 / total_progress, table['source_table']))
+
+        if isinstance(source_rdbms, SourceRDBMSMysql):
+            f.write('rm *.sql\n')
         import_file_lines = import_script.generate_import_script(dump_files)
         import_file_name = 'import_%s.%s' % (source_schema, import_script.get_script_ext())
         f.write('touch %s\n' % import_file_name)
@@ -332,6 +339,20 @@ class DataCopyFactory:
         self.datacopy_script = DataCopyScript.create(source_os)
         self.import_script = ImportScript.create(target_os)
 
+    def _unquoteIdentifier(self, identifier):
+        if not '.' in identifier:
+            return identifier[1:-1]
+        else:
+            return identifier[identifier.index('.') + 1:-1]
+
+    def unquoteIdentifiers(self, tables):
+        for table in tables:
+            table['source_schema'] = self._unquoteIdentifier(table['source_schema'])
+            table['target_schema'] = self._unquoteIdentifier(table['target_schema'])
+            table['source_table'] = self._unquoteIdentifier(table['source_table'])
+            table['target_table'] = self._unquoteIdentifier(table['target_table'])
+
     def generate(self, tables, connection_args, script_path):
+        self.unquoteIdentifiers(tables)
         self.datacopy_script.generate(tables, connection_args, script_path, self.source_rdbms, self.import_script)
 

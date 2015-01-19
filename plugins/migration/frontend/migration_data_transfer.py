@@ -252,10 +252,10 @@ All tables are copied by default.""")
             self.copy_script_entry.set_value(filename)
             self.copy_script_check_duplicate = True
 
-            if sys.platform == "win32":
-                bulk_copy_filename = mforms.Utilities.get_special_folder(mforms.Desktop)+"\\bulk_copy_tables.cmd"
+            if self.main.plan.migrationSource.get_os() == "windows":
+                bulk_copy_filename = os.path.join(mforms.Utilities.get_special_folder(mforms.Desktop), 'bulk_copy_tables.cmd')
             else:
-                bulk_copy_filename = mforms.Utilities.get_special_folder(mforms.Desktop)+"/bulk_copy_tables.sh"
+                bulk_copy_filename = os.path.join(mforms.Utilities.get_special_folder(mforms.Desktop), 'bulk_copy_tables.sh')
             self.bulk_copy_script_entry.set_value(bulk_copy_filename)
             self.bulk_copy_script_check_duplicate = True
 
@@ -606,18 +606,11 @@ fi
         script_path = self.main.plan.state.dataBulkTransferParams["GenerateBulkCopyScript"]
         conn_args = self._transferer.helper_connections_arglist()
 
-        source_os, target_os = self._get_source_and_target_os()
+        source_os = self.main.plan.migrationSource.get_os() 
+        target_os = self.main.plan.migrationTarget.get_os()
 
         script = DataCopyFactory(source_os, target_os, conn_args['source_rdbms'])
         script.generate(self._working_set.values(), conn_args, script_path)
-
-
-
-    def _get_source_and_target_os(self):
-        # XXX: source_os and target_os should be obtained from the source and target server
-        source_os = 'win32' if self._transferer._src_conn_object.driver.owner.name.lower() == 'mssql' else 'linux'
-        target_os = sys.platform #'linux'
-        return (source_os, target_os)
 
 
 
