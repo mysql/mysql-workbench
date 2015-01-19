@@ -96,6 +96,13 @@ class MigrationTarget(object):
     def module_db(self):
         return grt.modules.DbMySQL
 
+    def get_os(self):
+        if self.checkConnection():
+            os_name = self.module_fe().getOS(self.connection)
+            self.disconnect()
+            return os_name
+
+        return None
 
 class MigrationSource(object):
     def __init__(self, state, connection):
@@ -362,6 +369,9 @@ class MigrationSource(object):
     def cleanup(self):
         if hasattr(self._rev_eng_module, "cleanup"):
             self._rev_eng_module.cleanup()
+
+    def get_os(self):
+        return self.module_re().getOS(self.connection)
 
 
 

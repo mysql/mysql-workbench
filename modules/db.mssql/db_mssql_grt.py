@@ -1168,3 +1168,8 @@ def cleanup():
     global _connections
     _connections = {}
     return 0
+
+@ModuleInfo.export(grt.STRING, grt.classes.db_mgmt_Connection)
+def getOS(connection):
+    return 'windows'
+
