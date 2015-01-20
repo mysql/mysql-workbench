@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -119,6 +119,12 @@ private:
     }
   };
 
+  enum RetrievalType {
+    RetrieveWithNoQualifier,
+    RetrieveWithSchemaQualifier,
+    RetrieveWithFullQualifier
+  };
+
   void init_db();
 
   static void *_refresh_cache_thread(void *);
@@ -146,14 +152,11 @@ private:
                            const std::string &table,
                            const std::vector<std::string> &objects);
 
-  std::vector<std::string> get_matching_objects(const std::string &cache, const std::string &prefix);
-  std::vector<std::string> get_matching_objects(const std::string &cache,
-                                                const std::string &schema,
-                                                const std::string &prefix);
   std::vector<std::string> get_matching_objects(const std::string &cache,
                                                 const std::string &schema,
                                                 const std::string &table,
-                                                const std::string &prefix);
+                                                const std::string &prefix,
+                                                RetrievalType type);
   void touch_schema_record(const std::string &schema);
   bool is_fetch_done(const std::string &cache, const std::string &schema);
 
@@ -168,10 +171,7 @@ private:
   GThread *_refresh_thread;
   base::Semaphore _cache_working;
 
-  base::RecMutex _shutdown_mutex;
-
-  base::RecMutex _pending_mutex;
-
+  base::RecMutex _pending_mutex; // Protects the pending tasks.
   std::list<RefreshTask> _pending_tasks;
 
   std::string _connection_id;

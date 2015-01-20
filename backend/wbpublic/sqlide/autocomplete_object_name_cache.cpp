@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,20 +34,16 @@ using namespace bec;
 
 DEFAULT_LOG_DOMAIN("AutoCCache");
 
-// What can trigger a hard refresh (fetch data from server) of the cache:
-// - first time a soft refresh is requested in the session (indirectly from the get_matching_* methods)
-// - explicit hard refresh from frontend (ie, refresh schema tree)
-//
-// Editor   -->   AutoCompletionEngine   --(object names)-->   AutoCompleteCache  --> server
-//                                                                                --> cache  <-- LiveSchemaTree 
-//
+// The cache automatically loads objects once on startup (for the main objects like schema names)
+//  and when queried (for the others). After that no fetch is performed anymore until an explicit
+//  refresh is requested by the application (via any of the refresh_* functions).
 
 //--------------------------------------------------------------------------------------------------
 
 AutoCompleteCache::AutoCompleteCache(const std::string &connection_id,
   boost::function<base::RecMutexLock (sql::Dbc_connection_handler::Ref &)> get_connection,
   const std::string &cache_dir, boost::function<void (bool)> feedback)
-  : _refresh_thread(0), _cache_working(1), _connection_id(connection_id),
+  : _refresh_thread(NULL), _cache_working(1), _connection_id(connection_id),
     _get_connection(get_connection), _shutdown(false)
 {
   _feedback = feedback;
@@ -100,6 +96,11 @@ AutoCompleteCache::AutoCompleteCache(const std::string &connection_id,
     init_db();
   }
 
+  // Top level objects (aka. schemas).
+  // They are retrieved automatically only once to limit traffic to the server.
+  // The user can manually trigger a refresh when needed.
+  add_pending_refresh(RefreshTask::RefreshSchemas);
+
   // Objects that don't change while a server is running.
   add_pending_refresh(RefreshTask::RefreshVariables);
   add_pending_refresh(RefreshTask::RefreshEngines);
@@ -109,11 +110,12 @@ AutoCompleteCache::AutoCompleteCache(const std::string &connection_id,
 
 void AutoCompleteCache::shutdown()
 {
-  base::RecMutexLock sd_lock(_shutdown_mutex);
-  _shutdown = true;
-
   {
-    base::RecMutexLock lock(_pending_mutex);
+    // Temporarily lock both mutexes so we wait for any ongoing work.
+    base::RecMutexLock connection_lock(_sqconn_mutex);
+    base::RecMutexLock pending_lock(_pending_mutex);
+    _shutdown = true;
+
     _pending_tasks.clear();
     _feedback = NULL;
   }
@@ -140,12 +142,7 @@ AutoCompleteCache::~AutoCompleteCache()
 
 std::vector<std::string> AutoCompleteCache::get_matching_schema_names(const std::string &prefix)
 {
-  // Schedule a refresh of the schema's objects.
-  // Updated info won't go into the current results, however.
-  // Same for the other refresh calls in the get_matching_* functions.
-  add_pending_refresh(RefreshTask::RefreshSchemas);
-
-  return get_matching_objects("schemas", prefix);
+  return get_matching_objects("schemas", "", "",  prefix, RetrieveWithNoQualifier);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,7 +151,7 @@ std::vector<std::string> AutoCompleteCache::get_matching_table_names(const std::
 {
   refresh_schema_cache_if_needed(schema);
 
-  return get_matching_objects("tables", schema, prefix);
+  return get_matching_objects("tables", schema, "", prefix, RetrieveWithSchemaQualifier);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,7 +160,7 @@ std::vector<std::string> AutoCompleteCache::get_matching_view_names(const std::s
 {
   refresh_schema_cache_if_needed(schema);
 
-  return get_matching_objects("views", schema, prefix);
+  return get_matching_objects("views", schema, "", prefix, RetrieveWithSchemaQualifier);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -173,7 +170,7 @@ std::vector<std::string> AutoCompleteCache::get_matching_column_names(const std:
 {
   refresh_schema_cache_if_needed(schema);
   
-  return get_matching_objects("columns", schema, table, prefix);
+  return get_matching_objects("columns", schema, table, prefix, RetrieveWithFullQualifier);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -183,7 +180,7 @@ std::vector<std::string> AutoCompleteCache::get_matching_procedure_names(const s
 {
   refresh_schema_cache_if_needed(schema);
   
-  return get_matching_objects("procedures", schema, prefix);
+  return get_matching_objects("procedures", schema, "", prefix, RetrieveWithSchemaQualifier);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -193,7 +190,7 @@ std::vector<std::string> AutoCompleteCache::get_matching_function_names(const st
 {
   refresh_schema_cache_if_needed(schema);
 
-  return get_matching_objects("functions", schema, prefix);
+  return get_matching_objects("functions", schema, "", prefix, RetrieveWithSchemaQualifier);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -203,14 +200,14 @@ std::vector<std::string> AutoCompleteCache::get_matching_trigger_names(const std
 {
   refresh_schema_cache_if_needed(schema);
 
-  return get_matching_objects("triggers", schema, table, prefix);
+  return get_matching_objects("triggers", schema, table, prefix, RetrieveWithSchemaQualifier);
 }
 
 //--------------------------------------------------------------------------------------------------
 
 std::vector<std::string> AutoCompleteCache::get_matching_udf_names(const std::string &prefix)
 {
-  return get_matching_objects("udfs", prefix);
+  return get_matching_objects("udfs", "", "", prefix, RetrieveWithNoQualifier);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -218,7 +215,7 @@ std::vector<std::string> AutoCompleteCache::get_matching_udf_names(const std::st
 std::vector<std::string> AutoCompleteCache::get_matching_variables(const std::string &prefix)
 {
   // System variables names are cached at startup as their existence/names will never change.
-  return get_matching_objects("variables", prefix);
+  return get_matching_objects("variables", "", "", prefix, RetrieveWithNoQualifier);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -226,7 +223,7 @@ std::vector<std::string> AutoCompleteCache::get_matching_variables(const std::st
 std::vector<std::string> AutoCompleteCache::get_matching_engines(const std::string &prefix)
 {
   // Engines are cached at startup as they will never change (as long as we are connected).
-  return get_matching_objects("engines", prefix);
+  return get_matching_objects("engines", "", "", prefix, RetrieveWithNoQualifier);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -235,7 +232,7 @@ std::vector<std::string> AutoCompleteCache::get_matching_logfile_groups(const st
 {
   add_pending_refresh(RefreshTask::RefreshLogfileGroups);
 
-  return get_matching_objects("logfile_groups", prefix);
+  return get_matching_objects("logfile_groups", "", "", prefix, RetrieveWithNoQualifier);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -244,123 +241,65 @@ std::vector<std::string> AutoCompleteCache::get_matching_tablespaces(const std::
 {
   add_pending_refresh(RefreshTask::RefreshTableSpaces);
 
-  return get_matching_objects("tablespaces", prefix);
+  return get_matching_objects("tablespaces", "", "", prefix, RetrieveWithNoQualifier);
 }
 
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Object retrieval for caches without the need of a schema or table qualifier.
+ * Core object retrieval function.
  */
 std::vector<std::string> AutoCompleteCache::get_matching_objects(const std::string &cache,
-  const std::string &prefix)
+  const std::string &schema, const std::string &table, const std::string &prefix, RetrievalType type)
 {
-  if (!_shutdown)
+  base::RecMutexLock lock(_sqconn_mutex);
+  if (_shutdown)
+    return std::vector<std::string>();
+
+  std::vector<std::string> items;
+  std::string sql;
+  switch (type)
   {
-    // Ensures shutdown is not done while processing
-    base::RecMutexTryLock sd_lock(_shutdown_mutex);
-    if (!sd_lock.locked())
-    {
-      log_debug3("Can't obtain lock on shutdown_mutex for get_matching_objects call.\n");
-      return std::vector<std::string>();
-    }
-
-    base::RecMutexLock lock(_sqconn_mutex);
-    sqlite::query q(*_sqconn, "SELECT name FROM " + cache + " WHERE name LIKE ? ESCAPE '\\'");
-    q.bind(1, base::escape_sql_string(prefix, true) + "%");
-    if (q.emit())
-    {
-      std::vector<std::string> items;
-      boost::shared_ptr<sqlite::result> matches(q.get_result());
-      do
-      {
-        items.push_back(matches->get_string(0));
-      } while (matches->next_row());
-
-      return items;
-    }
+  case RetrieveWithNoQualifier:
+    sql = "SELECT name FROM " + cache + " WHERE name LIKE ? ESCAPE '\\'";
+    break;
+  case RetrieveWithSchemaQualifier:
+    sql = "SELECT name FROM " + cache + " WHERE schema_id LIKE ? ESCAPE '\\' "
+      "AND name LIKE ? ESCAPE '\\'";
+    break;
+  default: // RetrieveWithFullQualifier
+    sql = "SELECT name FROM " + cache + " WHERE schema_id LIKE ? ESCAPE '\\' "
+      "AND table_id LIKE ? ESCAPE '\\' AND name LIKE ? ESCAPE '\\'";
+    break;
   }
 
-  return std::vector<std::string>();
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Object retrieval for caches with the need of a schema qualifier.
- */
-std::vector<std::string> AutoCompleteCache::get_matching_objects(const std::string &cache,
-  const std::string &schema, const std::string &prefix)
-{
-  if (!_shutdown)
+  sqlite::query q = sqlite::query(*_sqconn, sql);
+  switch (type)
   {
-    // Ensures shutdown is not done while processing
-    base::RecMutexTryLock sd_lock(_shutdown_mutex);
-    if (!sd_lock.locked())
-    {
-      log_debug3("Can't obtain lock on shutdown_mutex for get_matching_objects call.\n");
-      return std::vector<std::string>();
-    }
-
-    base::RecMutexLock lock(_sqconn_mutex);
-    sqlite::query q(*_sqconn, "SELECT name FROM " + cache + " WHERE schema_id LIKE ? ESCAPE '\\' "
-      "AND name LIKE ? ESCAPE '\\'");
+  case RetrieveWithNoQualifier:
+    q.bind(1, base::escape_sql_string(prefix, true) + "%");
+    break;
+  case RetrieveWithSchemaQualifier:
     q.bind(1, schema.empty() ? "%" : base::escape_sql_string(schema, true));
     q.bind(2, base::escape_sql_string(prefix, true) + "%");
-    if (q.emit())
-    {
-      std::vector<std::string> items;
-      boost::shared_ptr<sqlite::result> matches(q.get_result());
-      do
-      {
-        items.push_back(matches->get_string(0));
-      } while (matches->next_row());
-
-      return items;
-    }
-  }
-
-  return std::vector<std::string>();
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Object retrieval for caches with the need of a schema and table qualifier.
- */
-std::vector<std::string> AutoCompleteCache::get_matching_objects(const std::string &cache,
-  const std::string &schema, const std::string &table, const std::string &prefix)
-{
-  if (!_shutdown)
-  {
-    // Ensures shutdown is not done while processing
-    base::RecMutexTryLock sd_lock(_shutdown_mutex);
-    if (!sd_lock.locked())
-    {
-      log_debug3("Can't obtain lock on shutdown_mutex for get_matching_objects call.\n");
-      return std::vector<std::string>();
-    }
-
-    base::RecMutexLock lock(_sqconn_mutex);
-    sqlite::query q(*_sqconn, "SELECT name FROM " + cache + " WHERE schema_id LIKE ? ESCAPE '\\' "
-      "AND table_id LIKE ? ESCAPE '\\' AND name LIKE ? ESCAPE '\\'");
+    break;
+  default: // RetrieveWithFullQualifier
     q.bind(1, schema.empty() ? "%" : base::escape_sql_string(schema, true));
     q.bind(2, table.empty() ? "%" : base::escape_sql_string(table, true));
     q.bind(3, base::escape_sql_string(prefix, true) + "%");
-    if (q.emit())
-    {
-      std::vector<std::string> items;
-      boost::shared_ptr<sqlite::result> matches(q.get_result());
-      do
-      {
-        items.push_back(matches->get_string(0));
-      } while (matches->next_row());
-
-      return items;
-    }
+    break;
   }
 
-  return std::vector<std::string>();
+  if (q.emit())
+  {
+    boost::shared_ptr<sqlite::result> matches(q.get_result());
+    do
+    {
+      items.push_back(matches->get_string(0));
+    } while (matches->next_row());
+  }
+
+  return items;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -384,30 +323,21 @@ bool AutoCompleteCache::refresh_schema_cache_if_needed(const std::string &schema
   if (schema.empty())
     return false;
 
-  if (!_shutdown)
+  base::RecMutexLock lock(_sqconn_mutex);
+  if (_shutdown)
+    return false;
+
+  sqlite::query q(*_sqconn, "SELECT last_refresh FROM schemas WHERE name LIKE ? ESCAPE '\\' ");
+  q.bind(1, schema.empty() ? "%" : base::escape_sql_string(schema, true));
+  if (q.emit())
   {
-    // Ensures shutdown is not done while processing
-    base::RecMutexTryLock sd_lock(_shutdown_mutex);
-    if (!sd_lock.locked())
+    boost::shared_ptr<sqlite::result> matches(q.get_result());
+    // If a value is set for last_refresh then schema info is already loaded in cache.
+    if (matches->get_int(0) != 0)
     {
-      log_debug3("Can't obtain lock on shutdown_mutex for refresh_schema_cache_if_needed call.\n");
+      log_debug3("schema %s is already cached\n", schema.c_str());
       return false;
     }
-
-    base::RecMutexLock lock(_sqconn_mutex);
-    sqlite::query q(*_sqconn, "SELECT last_refresh FROM schemas WHERE name LIKE ? ESCAPE '\\' ");
-    q.bind(1, schema.empty() ? "%" : base::escape_sql_string(schema, true));
-    if (q.emit())
-    {
-      boost::shared_ptr<sqlite::result> matches(q.get_result());
-      // If a value is set for last_refresh then schema info is already loaded in cache.
-      if (matches->get_int(0) != 0)
-      {
-        log_debug3("schema %s is already cached\n", schema.c_str());
-        return false;
-      }
-    }
-
   }
 
   // Add tasks to load various schema objects. They will then update the last_refresh value.
@@ -464,7 +394,6 @@ void AutoCompleteCache::refresh_cache_thread()
       if (!get_pending_refresh(task)) // If there's nothing more to do end the thread.
         break;
 
-      // Ensures shutdown is not done while processings
       if (_shutdown)
         break;
 
@@ -1064,58 +993,50 @@ void AutoCompleteCache::update_schemas(const std::vector<std::string> &schemas)
 {
   try
   {
-    if (!_shutdown)
+    base::RecMutexLock lock(_sqconn_mutex);
+    if (_shutdown)
+      return;
+
+    std::map<std::string, int> old_schema_update_times;
     {
-      // Ensures shutdown is not done while processing
-      base::RecMutexTryLock sd_lock(_shutdown_mutex);
-      if (!sd_lock.locked())
+      sqlite::query q(*_sqconn, "select name, last_refresh from schemas");
+      if (q.emit())
       {
-        log_debug3("Can't obtain lock on shutdown_mutex for update_schemas call.\n");
-        return;
-      }
-      base::RecMutexLock lock(_sqconn_mutex);
- 
-      std::map<std::string, int> old_schema_update_times;
-      {
-        sqlite::query q(*_sqconn, "select name, last_refresh from schemas");
-        if (q.emit())
+        boost::shared_ptr<sqlite::result> matches(q.get_result());
+        do
         {
-          boost::shared_ptr<sqlite::result> matches(q.get_result());
-          do
-          {
-            std::string name = matches->get_string(0);
-            if (!name.empty()) // Entry with empty name means a fetch is underway.
-              old_schema_update_times[name] = matches->get_int(1);
-          }
-          while (matches->next_row());
+          std::string name = matches->get_string(0);
+          if (!name.empty()) // Entry with empty name means a fetch is underway.
+            old_schema_update_times[name] = matches->get_int(1);
         }
+        while (matches->next_row());
       }
+    }
 
-      sqlide::Sqlite_transaction_guarder trans(_sqconn, false);
-      {
-        sqlite::execute del(*_sqconn, "delete from schemas");
-        del.emit();
-      }
+    sqlide::Sqlite_transaction_guarder trans(_sqconn, false);
+    {
+      sqlite::execute del(*_sqconn, "delete from schemas");
+      del.emit();
+    }
 
-      // If there are no schemas, create a dummy item signaling the update already happened.
-      if (schemas.empty())
+    // If there are no schemas, create a dummy item signaling the update already happened.
+    if (schemas.empty())
+    {
+      sqlite::execute insert(*_sqconn, "insert into schemas (name) values ('')");
+      insert.emit();
+    }
+    else
+    {
+      sqlite::execute insert(*_sqconn, "insert into schemas (name, last_refresh) values (?, ?)");
+      for (std::vector<std::string>::const_iterator t = schemas.begin(); t != schemas.end(); ++t)
       {
-        sqlite::execute insert(*_sqconn, "insert into schemas (name) values ('')");
+        insert.bind(1, *t);
+        if (old_schema_update_times.find(*t) == old_schema_update_times.end())
+          insert.bind(2, 0);
+        else
+          insert.bind(2, old_schema_update_times[*t]);
         insert.emit();
-      }
-      else
-      {
-        sqlite::execute insert(*_sqconn, "insert into schemas (name, last_refresh) values (?, ?)");
-        for (std::vector<std::string>::const_iterator t = schemas.begin(); t != schemas.end(); ++t)
-        {
-          insert.bind(1, *t);
-          if (old_schema_update_times.find(*t) == old_schema_update_times.end())
-            insert.bind(2, 0);
-          else
-            insert.bind(2, old_schema_update_times[*t]);
-          insert.emit();
-          insert.clear();
-        }
+        insert.clear();
       }
     }
   }
@@ -1162,28 +1083,22 @@ void AutoCompleteCache::update_object_names(const std::string &cache, const std:
 {
   try
   {
-    if (!_shutdown)
-    {
-      base::RecMutexTryLock sd_lock(_shutdown_mutex);
-      if (!sd_lock.locked())
-      {
-        log_debug3("Can't obtain lock on shutdown_mutex for update_object_names call.\n");
-        return;
-      }
-      base::RecMutexLock lock(_sqconn_mutex);
-      sqlide::Sqlite_transaction_guarder trans(_sqconn, false);
-      {
-        sqlite::execute del(*_sqconn, "delete from " + cache);
-        del.emit();
-      }
+    base::RecMutexLock lock(_sqconn_mutex);
+    if (_shutdown)
+      return;
 
-      sqlite::execute insert(*_sqconn, "insert into " + cache + " (name) values (?)");
-      for (std::vector<std::string>::const_iterator i = objects.begin(); i != objects.end(); ++i)
-      {
-        insert.bind(1, *i);
-        insert.emit();
-        insert.clear();
-      }
+    sqlide::Sqlite_transaction_guarder trans(_sqconn, false);
+    {
+      sqlite::execute del(*_sqconn, "delete from " + cache);
+      del.emit();
+    }
+
+    sqlite::execute insert(*_sqconn, "insert into " + cache + " (name) values (?)");
+    for (std::vector<std::string>::const_iterator i = objects.begin(); i != objects.end(); ++i)
+    {
+      insert.bind(1, *i);
+      insert.emit();
+      insert.clear();
     }
   }
   catch (std::exception &exc)
@@ -1204,31 +1119,23 @@ void AutoCompleteCache::update_object_names(const std::string &cache, const std:
 {
   try
   {
-    if (!_shutdown)
+    base::RecMutexLock lock(_sqconn_mutex);
+    if (_shutdown)
+      return;
+
+    sqlide::Sqlite_transaction_guarder trans(_sqconn, false); // Will be committed when we go out of the scope.
+
+    sqlite::execute del(*_sqconn, "delete from " + cache + " where schema_id = ?");
+    del.bind(1, schema);
+    del.emit();
+
+    sqlite::query insert(*_sqconn, "insert into " + cache + " (schema_id, name) values (?, ?)");
+    insert.bind(1, schema);
+    for (std::list<std::string>::const_iterator i = objects.begin(); i != objects.end(); ++i)
     {
-      // Ensures shutdown is not done while processing
-      base::RecMutexTryLock sd_lock(_shutdown_mutex);
-      if (!sd_lock.locked())
-      {
-        log_debug3("Can't obtain lock on shutdown_mutex for update_object_names call.\n");
-        return;
-      }
-      base::RecMutexLock lock(_sqconn_mutex);
-
-      sqlide::Sqlite_transaction_guarder trans(_sqconn, false); // Will be committed when we go out of the scope.
-
-      sqlite::execute del(*_sqconn, "delete from " + cache + " where schema_id = ?");
-      del.bind(1, schema);
-      del.emit();
-
-      sqlite::query insert(*_sqconn, "insert into " + cache + " (schema_id, name) values (?, ?)");
-      insert.bind(1, schema);
-      for (std::list<std::string>::const_iterator i = objects.begin(); i != objects.end(); ++i)
-      {
-        insert.bind(2, *i);
-        insert.emit();
-        insert.clear();
-      }
+      insert.bind(2, *i);
+      insert.emit();
+      insert.clear();
     }
   }
   catch (std::exception &exc)
@@ -1243,47 +1150,37 @@ void AutoCompleteCache::update_object_names(const std::string &cache, const std:
 void AutoCompleteCache::update_object_names(const std::string &cache, const std::string &schema,
   const std::string &table, const std::vector<std::string> &objects)
 {
-
-  if (!_shutdown)
+  try
   {
-    try
+    base::RecMutexLock lock(_sqconn_mutex);
+    if (_shutdown)
+      return;
+
+    sqlide::Sqlite_transaction_guarder trans(_sqconn, false);
+
+    // Clear records for this schema/table.
     {
-      // Ensures shutdown is not done while processing
-      base::RecMutexTryLock sd_lock(_shutdown_mutex);
-      if (!sd_lock.locked())
-      {
-        log_debug3("Can't obtain lock on shutdown_mutex for update_object_names call.\n");
-        return;
-      }
-      base::RecMutexLock lock(_sqconn_mutex);
-
-      sqlide::Sqlite_transaction_guarder trans(_sqconn, false);
-
-      // Clear records for this schema/table.
-      {
-        sqlite::execute del(*_sqconn, "delete from " + cache + " where schema_id = ? and table_id = ?");
-        del.bind(1, schema);
-        del.bind(2, table);
-        del.emit();
-      }
-
-      sqlite::query insert(*_sqconn, "insert into " + cache + " (schema_id, table_id, name) values (?, ?, ?)");
-      insert.bind(1, schema);
-      insert.bind(2, table);
-      for (std::vector<std::string>::const_iterator i = objects.begin(); i != objects.end(); ++i)
-      {
-        insert.bind(3, *i);
-        insert.emit();
-        insert.clear();
-      }
+      sqlite::execute del(*_sqconn, "delete from " + cache + " where schema_id = ? and table_id = ?");
+      del.bind(1, schema);
+      del.bind(2, table);
+      del.emit();
     }
-    catch (std::exception &exc)
+
+    sqlite::query insert(*_sqconn, "insert into " + cache + " (schema_id, table_id, name) values (?, ?, ?)");
+    insert.bind(1, schema);
+    insert.bind(2, table);
+    for (std::vector<std::string>::const_iterator i = objects.begin(); i != objects.end(); ++i)
     {
-      log_error("Exception caught while updating %s name cache for %s.%s: %s\n", cache.c_str(),
-                schema.c_str(), table.c_str(), exc.what());
+      insert.bind(3, *i);
+      insert.emit();
+      insert.clear();
     }
   }
-
+  catch (std::exception &exc)
+  {
+    log_error("Exception caught while updating %s name cache for %s.%s: %s\n", cache.c_str(),
+              schema.c_str(), table.c_str(), exc.what());
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1291,53 +1188,45 @@ void AutoCompleteCache::update_object_names(const std::string &cache, const std:
 void AutoCompleteCache::add_pending_refresh(RefreshTask::RefreshType type, const std::string &schema,
   const std::string &table)
 {
-  if (!_shutdown)
+  base::RecMutexLock lock(_pending_mutex);
+  if (_shutdown)
+    return;
+
+  // Add the new task only if there isn't already one of the same type and for the same objects.
+  bool found = false;
+  for (std::list<RefreshTask>::const_iterator i = _pending_tasks.begin(); !found && i != _pending_tasks.end(); ++i)
   {
+    if (i->type != type)
+      continue;
 
-    base::RecMutexTryLock sd_lock(_shutdown_mutex);
-    if (!sd_lock.locked())
-    {
-      log_debug3("Can't obtain lock on shutdown_mutex for add_pending_refresh call.\n");
-      return;
-    }
-    base::RecMutexLock lock(_pending_mutex);
+    switch (type) {
+      case RefreshTask::RefreshSchemas:
+      case RefreshTask::RefreshVariables:
+      case RefreshTask::RefreshEngines:
+      case RefreshTask::RefreshUDFs:
+        found = true;
+        break;
 
-    // Add the new task only if there isn't already one of the same type and for the same objects.
-    bool found = false;
-    for (std::list<RefreshTask>::const_iterator i = _pending_tasks.begin(); !found && i != _pending_tasks.end(); ++i)
-    {
-      if (i->type != type)
-        continue;
+      case RefreshTask::RefreshTables:
+      case RefreshTask::RefreshViews:
+      case RefreshTask::RefreshProcedures:
+      case RefreshTask::RefreshFunctions:
+        found = i->schema_name == schema;
+        break;
 
-      switch (type) {
-        case RefreshTask::RefreshSchemas:
-        case RefreshTask::RefreshVariables:
-        case RefreshTask::RefreshEngines:
-        case RefreshTask::RefreshUDFs:
-          found = true;
-          break;
-
-        case RefreshTask::RefreshTables:
-        case RefreshTask::RefreshViews:
-        case RefreshTask::RefreshProcedures:
-        case RefreshTask::RefreshFunctions:
-          found = i->schema_name == schema;
-          break;
-
-        case RefreshTask::RefreshTriggers:
-        case RefreshTask::RefreshColumns:
-        case RefreshTask::RefreshLogfileGroups:
-        case RefreshTask::RefreshTableSpaces:
-          found = (i->schema_name == schema) && (i->table_name == table);
-          break;
-      }
-      if (found)
+      case RefreshTask::RefreshTriggers:
+      case RefreshTask::RefreshColumns:
+      case RefreshTask::RefreshLogfileGroups:
+      case RefreshTask::RefreshTableSpaces:
+        found = (i->schema_name == schema) && (i->table_name == table);
         break;
     }
-
-    if (!found)
-      _pending_tasks.push_back(RefreshTask(type, schema, table));
+    if (found)
+      break;
   }
+
+  if (!found)
+    _pending_tasks.push_back(RefreshTask(type, schema, table));
 
   // Create the worker thread if there's work to do. Does nothing if there's already a thread.
   if (_pending_tasks.size() > 0)
@@ -1348,30 +1237,20 @@ void AutoCompleteCache::add_pending_refresh(RefreshTask::RefreshType type, const
 
 bool AutoCompleteCache::get_pending_refresh(RefreshTask &task)
 {
-  bool ret_val = false;
+  bool result = false;
 
-  if (!_shutdown)
+  base::RecMutexLock lock(_pending_mutex);
+  if (_shutdown)
+    return result;
+
+  if (!_pending_tasks.empty())
   {
-
-    // Ensures shutdown is not done while processing
-    base::RecMutexTryLock sd_lock(_shutdown_mutex);
-    if (!sd_lock.locked())
-    {
-      log_debug3("Can't obtain lock on shutdown_mutex for get_pending_refresh call.\n");
-      return false;
-    }
-    base::RecMutexLock lock(_pending_mutex);
-
-    if (!_pending_tasks.empty())
-    {
-      ret_val = true;
-      task = _pending_tasks.front();
-      _pending_tasks.pop_front();
-    }
-
+    result = true;
+    task = _pending_tasks.front();
+    _pending_tasks.pop_front();
   }
 
-  return ret_val;
+  return result;
 }
 
 //--------------------------------------------------------------------------------------------------
