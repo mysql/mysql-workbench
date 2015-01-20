@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1716,7 +1716,7 @@ boost::shared_ptr<ConnectionEntry> ConnectionsSection::entry_from_index(ssize_t 
 
 //------------------------------------------------------------------------------------------------
 
-base::Rect ConnectionsSection::bounds_for_entry(int index)
+base::Rect ConnectionsSection::bounds_for_entry(ssize_t index)
 {
   base::Rect result(CONNECTIONS_LEFT_PADDING, CONNECTIONS_TOP_PADDING, CONNECTIONS_TILE_WIDTH, CONNECTIONS_TILE_HEIGHT);
   int tiles_per_row = (get_width() - CONNECTIONS_LEFT_PADDING - CONNECTIONS_RIGHT_PADDING) / (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
@@ -1724,7 +1724,7 @@ base::Rect ConnectionsSection::bounds_for_entry(int index)
   index -= _page_start;
 
   int column = index % tiles_per_row;
-  int row = index / tiles_per_row;
+  ssize_t row = index / tiles_per_row;
   result.pos.x += column * (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
   result.pos.y += row * (CONNECTIONS_TILE_HEIGHT + CONNECTIONS_SPACING);
 
@@ -1879,7 +1879,7 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
   int current_page = 0;
   int num_pages = 0;
   bool draw_partial = false;
-  int index = 0;
+  ssize_t index = 0;
   int items_after_last_visible = 0;
   bool page_start = true;
 
@@ -2513,7 +2513,7 @@ void ConnectionsSection::handle_command(const std::string &command)
         // We only want to delete all connections in the active group. This is the same as
         // removing the group entirely, since the group is formed by connections in it.
         _entry_for_menu = _active_folder;
-        handle_folder_command("delete_connection_group", dynamic_cast<FabricFolderEntry*>(_active_folder.get()));
+        handle_folder_command("delete_connection_group", dynamic_cast<FabricFolderEntry*>(_active_folder.get()) != NULL);
         return;
       }
       else
@@ -2613,7 +2613,7 @@ void ConnectionsSection::cancel_operation()
 int ConnectionsSection::get_acc_child_count()
 {
   // At least 2 is returned because of the add and manage icons.
-  int ret_val = 2;
+  size_t ret_val = 2;
 
 
   if (_filtered)
@@ -2632,7 +2632,7 @@ int ConnectionsSection::get_acc_child_count()
   if (_page_up_button.bounds.width())
     ret_val += 2;
 
-  return ret_val;
+  return (int)ret_val;
 }
 
 mforms::Accessible* ConnectionsSection::get_acc_child(int index)

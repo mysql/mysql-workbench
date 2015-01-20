@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -144,7 +144,7 @@ namespace wb
     ssize_t calculate_index_from_point(int x, int y);
     boost::shared_ptr<ConnectionEntry> entry_from_point(int x, int y, bool &in_details_area);
     boost::shared_ptr<ConnectionEntry> entry_from_index(ssize_t index);
-    base::Rect bounds_for_entry(int index);
+    base::Rect bounds_for_entry(ssize_t index);
     db_mgmt_ConnectionRef connection_from_index(ssize_t index);
 
     void draw_paging_part(cairo_t *cr, int current_page, int pages, bool high_contrast);

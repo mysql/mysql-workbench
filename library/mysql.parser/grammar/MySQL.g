@@ -226,9 +226,6 @@ extern "C" {
   // check as our lexer is case insensitive.
   ANTLR3_UINT32 check_null(pANTLR3_STRING text);
   
-  // Checks if the given text is a keyword that is allowed as identifier too (includes sp label keywords).
-  ANTLR3_BOOLEAN is_keyword(pANTLR3_STRING text);
-
 #ifdef __cplusplus
 };
 #endif

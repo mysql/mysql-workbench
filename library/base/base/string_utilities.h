@@ -101,15 +101,15 @@ namespace base
                                                       float &size, bool &bold, bool &italic);
 
   // Searching, splitting etc.
-  BASELIBRARY_PUBLIC_FUNC std::string left(const std::string& s, unsigned int len);
-  BASELIBRARY_PUBLIC_FUNC std::string right(const std::string& s, unsigned int len);
+  BASELIBRARY_PUBLIC_FUNC std::string left(const std::string& s, size_t len);
+  BASELIBRARY_PUBLIC_FUNC std::string right(const std::string& s, size_t len);
   BASELIBRARY_PUBLIC_FUNC bool starts_with(const std::string& s, const std::string& part);
   BASELIBRARY_PUBLIC_FUNC bool ends_with(const std::string& s, const std::string& part);
   BASELIBRARY_PUBLIC_FUNC void replace(std::string& value, const std::string& search, const std::string& replacement);
   /**
    * @brief Split the a string into a vector, using @a sep as a separator
    * 
-   * This function splits all the words of a string and stores them into a vector. To differenciate 
+   * This function splits all the words of a string and stores them into a vector. To differentiate 
    * each, it uses the @a sep parameter as a separator
    * 
    * @param s The string to split
