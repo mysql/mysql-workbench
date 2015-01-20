@@ -1,7 +1,7 @@
 grammar MySQL;
 
 /*
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -291,15 +291,6 @@ extern "C" {
 }
 
 @parser::members {
-  // Skips over any open parenthesis to see what comes next after them. If that is a SELECT then we are in a subquery.
-  static ANTLR3_BOOLEAN is_subquery(pMySQLParser ctx)
-  {
-    int input = LA(1);
-    int k = 2;
-    while (input == OPEN_PAR_SYMBOL)
-      input = LA(k++);
-    return input == SELECT_SYMBOL ? ANTLR3_TRUE : ANTLR3_FALSE;
-  }
 }
 
 @parser::apifuncs
@@ -1975,7 +1966,7 @@ predicate:
 
 // One of the 2 rules were 2 sub rules with unlimited nesting come together (and we need backtracking)
 predicate_in:
-	{is_subquery(ctx)}? => subquery
+	{LA(1) == OPEN_PAR_SYMBOL && LA(2) == SELECT_SYMBOL}? => subquery
 	| expression_list_with_parentheses
 ;
 
@@ -2061,7 +2052,7 @@ primary:
 // This part is tricky, because all alternatives can have an unlimited nesting within parentheses.
 // Best results by using a custom semantic predicate.
 expression_with_nested_parentheses:
-	{is_subquery(ctx)}? => subquery
+	{LA(1) == OPEN_PAR_SYMBOL && LA(2) == SELECT_SYMBOL}? => subquery
 	| expression_list_with_parentheses
 	| ROW_SYMBOL OPEN_PAR_SYMBOL expression (COMMA_SYMBOL expression)+ CLOSE_PAR_SYMBOL
 ;

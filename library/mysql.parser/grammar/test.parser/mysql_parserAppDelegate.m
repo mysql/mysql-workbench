@@ -3,7 +3,7 @@
 //  mysql.parser
 //
 //  Created by Mike on 03.04.12.
-//  Copyright 2012 Oracle Corporation. All rights reserved.
+//  Copyright 2012, 2015 Oracle Corporation. All rights reserved.
 //
 
 // These are redefined by the parser.
@@ -419,8 +419,10 @@ NSString *sql10 = @"CREATE TABLE total (\n"
   pANTLR3_COMMON_TOKEN token = tree->getToken(tree);
   if (token != NULL) {
     ANTLR3_UINT32 token_type = token->getType(token);
-    pANTLR3_UINT8 token_name = state->tokenNames[token_type];
-    if (token_name == (pANTLR3_UINT8)ANTLR3_TOKEN_EOF)
+    pANTLR3_UINT8 token_name;
+    if (token_type != ANTLR3_TOKEN_EOF)
+      token_name = state->tokenNames[token_type];
+    if (token_type == ANTLR3_TOKEN_EOF || token_name == (pANTLR3_UINT8)ANTLR3_TOKEN_EOF)
       token_name = (pANTLR3_UINT8)"ANTLR3_TOKEN_EOF";
 
     result = [NSString stringWithFormat: @"(%s) ", token_name];
@@ -1565,7 +1567,7 @@ bool parse_and_compare(const std::string query, pANTLR3_BASE_TREE tree, unsigned
       tokens = @"(no tree)";
     }
     tokenListString = [tokenListString stringByAppendingString:
-                       [NSString stringWithFormat: @"{\"%@\",\nlist_of %@\n},\n", query, tokens]
+                       [NSString stringWithFormat: @"list_of %@,\n", tokens]
                        ];
 
     // Must manually clean up.
