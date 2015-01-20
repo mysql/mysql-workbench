@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -73,12 +73,18 @@ TEST_FUNCTION(2)
   _conn->ref = dm->getConnection(connectionProperties);
 }
 
-
 TEST_FUNCTION(3)
 {
   base::remove("testconn.cache");
   _cache = new AutoCompleteCache("testconn", boost::bind(&Test_object_base<autocompletion_cache_test>::get_connection, this, _1),
     ".", NULL);
+
+  // Right after creation the schema list is empty. Retrieval has just been set up.
+  std::vector<std::string> list = _cache->get_matching_schema_names("sakila");
+  ensure("Schema list is not empty", list.empty());
+
+  // Give the cache a moment to finish the retrival.
+  g_usleep(1000000);
 }
 
 static void ensure_list_equals(const char *what, const std::vector<std::string> &list, const char **comp)
@@ -110,18 +116,7 @@ static void ensure_list_equals(const char *what, const std::vector<std::string> 
 
 TEST_FUNCTION(10)
 {
-  std::vector<std::string> list = _cache->get_matching_schema_names("sakila");
-  // 1st time fetch the list is empty because the data is not cached and the worker will start
-  // fetching
-  ensure("uncached schema list (empty)", list.empty());
-
-  _cache->refresh_schema_list();
-
-  // Wait until the schema list arrived.
-  while (!_cache->is_schema_list_fetch_done())
-    g_usleep(500000);
-
-  list = _cache->get_matching_schema_names("");
+  std::vector<std::string> list = _cache->get_matching_schema_names("");
   int found = 0;
   // this time the schema list should contain sakila and mysql
   for (std::vector<std::string>::const_iterator i = list.begin(); i != list.end(); ++i)
@@ -139,7 +134,7 @@ TEST_FUNCTION(10)
     if (*i == "sakila" || *i == "mysql")
       found++;
   }
-  ensure_equals("known schema name matches (sakila*)", found, 1);
+  ensure_equals("known schema name matches (sakila)", found, 1);
 }
 
 TEST_FUNCTION(12)
@@ -155,8 +150,10 @@ TEST_FUNCTION(12)
   };
 
   _cache->refresh_schema_cache_if_needed("sakila");
-  while (!_cache->is_schema_tables_fetch_done("sakila"))
-    g_usleep(500000);
+
+  // Wait for the refresh to settle. The functions to check if a fetch is done
+  // are really unreliable and should be revised.
+  g_usleep(1000000);
 
   std::vector<std::string> list = _cache->get_matching_table_names("sakila", "ac");
   std::vector<std::string> list2 = _cache->get_matching_view_names("sakila", "ac");
@@ -177,10 +174,6 @@ TEST_FUNCTION(14)
     NULL
   };
 
-  while (!_cache->is_schema_functions_fetch_done("sakila"))
-    g_usleep(500000);
-
-  // get the list now
   std::vector<std::string> list = _cache->get_matching_function_names("sakila", "inv");
   ensure_list_equals("functions sakila.inv*", list, sakila_inv);
 }
@@ -193,10 +186,6 @@ TEST_FUNCTION(16)
     NULL
   };
 
-  while (!_cache->is_schema_procedure_fetch_done("sakila"))
-    g_usleep(500000);
-
-  // get the list now
   std::vector<std::string> list = _cache->get_matching_procedure_names("sakila", "fi");
   ensure_list_equals("procedures sakila.fi*", list, sakila_fi);
 }
@@ -210,15 +199,11 @@ TEST_FUNCTION(18)
     NULL
   };
 
-  while (!_cache->is_schema_table_columns_fetch_done("sakila", "actor"))
-    g_usleep(500000);
-
-  // get the list now
   std::vector<std::string> list = _cache->get_matching_column_names("sakila", "actor", "a");
   ensure_list_equals("columns sakila.actor.a*", list, sakila_a);
 }
 
-/// Everything again reusing cache
+// Everything again reusing cache
 TEST_FUNCTION(19)
 {
   _cache->shutdown();
@@ -234,7 +219,8 @@ TEST_FUNCTION(20)
 
   list = _cache->get_matching_schema_names("");
   int found = 0;
-  // this time the schema list should contain sakila and mysql
+  
+  // This time the schema list should contain sakila and mysql.
   for (std::vector<std::string>::const_iterator i = list.begin(); i != list.end(); ++i)
   {
     if (*i == "sakila" || *i == "mysql")
@@ -283,9 +269,8 @@ TEST_FUNCTION(24)
     "inventory_in_stock",
     NULL
   };
-  std::vector<std::string> list;
-  // get the list now
-  list = _cache->get_matching_function_names("sakila", "inv");
+
+  std::vector<std::string> list = _cache->get_matching_function_names("sakila", "inv");
   ensure_list_equals("functions sakila.inv*", list, sakila_inv);
 }
 
@@ -296,25 +281,20 @@ TEST_FUNCTION(26)
     "film_not_in_stock",
     NULL
   };
-  std::vector<std::string> list;
 
-  // get the list now
-  list = _cache->get_matching_procedure_names("sakila", "fi");
+  std::vector<std::string> list = _cache->get_matching_procedure_names("sakila", "fi");
   ensure_list_equals("procedures sakila.fi*", list, sakila_fi);
 }
 
 
 TEST_FUNCTION(28)
 {
-  // Just like test 18. See if we still get the same result after all the objects have been loaded.
   static const char *sakila_a[] = {
     "actor_id",
     NULL
   };
-  std::vector<std::string> list;
 
-  // get the list now
-  list = _cache->get_matching_column_names("sakila", "actor", "a");
+  std::vector<std::string> list = _cache->get_matching_column_names("sakila", "actor", "a");
   ensure_list_equals("columns sakila.actor.a*", list, sakila_a);
 }
 
