@@ -627,24 +627,24 @@ TEST_FUNCTION(5)
   pchild_data = dynamic_cast<wb::LiveSchemaTree::TriggerData*>(child_node->get_data());
 
   ensure_equals("TF005CHK004 : Unexpected trigger name", child_node->get_string(0), "ins_film");
-  ensure_equals("TF005CHK004 : Unexpected trigger event", pchild_data->event_manipulation, 10); //10 is INSERT
-  ensure_equals("TF005CHK004 : Unexpected trigger timing", pchild_data->timing, 14);// 14 is AFTER
+  ensure_equals("TF005CHK004 : Unexpected trigger event", pchild_data->event_manipulation, 11); //11 is INSERT
+  ensure_equals("TF005CHK004 : Unexpected trigger timing", pchild_data->timing, 15);// 15 is AFTER
 
 
   child_node = collection_node->get_child(1);
   pchild_data = dynamic_cast<wb::LiveSchemaTree::TriggerData*>(child_node->get_data());
 
   ensure_equals("TF005CHK005 : Unexpected trigger name", child_node->get_string(0), "upd_film");
-  ensure_equals("TF005CHK005 : Unexpected trigger event", pchild_data->event_manipulation, 11); //11 is UPDATE
-  ensure_equals("TF005CHK005 : Unexpected trigger timing", pchild_data->timing, 14);// 14 is AFTER
+  ensure_equals("TF005CHK005 : Unexpected trigger event", pchild_data->event_manipulation, 12); //12 is UPDATE
+  ensure_equals("TF005CHK005 : Unexpected trigger timing", pchild_data->timing, 15);// 15 is AFTER
 
 
   child_node = collection_node->get_child(2);
   pchild_data = dynamic_cast<wb::LiveSchemaTree::TriggerData*>(child_node->get_data());
 
   ensure_equals("TF005CHK006 : Unexpected trigger name", child_node->get_string(0), "del_film");
-  ensure_equals("TF005CHK006 : Unexpected trigger event", pchild_data->event_manipulation, 12); //12 is DELETE
-  ensure_equals("TF005CHK006 : Unexpected trigger timing", pchild_data->timing, 14); // 14 is AFTER
+  ensure_equals("TF005CHK006 : Unexpected trigger event", pchild_data->event_manipulation, 13); //13 is DELETE
+  ensure_equals("TF005CHK006 : Unexpected trigger timing", pchild_data->timing, 15); // 15 is AFTER
 }
 
 // Testing for SqlEditorForm::fetch_foreign_key_data.
