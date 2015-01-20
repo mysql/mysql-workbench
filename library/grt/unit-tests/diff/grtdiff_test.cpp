@@ -83,8 +83,8 @@ TEST_FUNCTION(2)
   const char *single_test= "s04_order_end_beg.xml";
 
   std::string rootpath= "data/diff";
-
-  test_suites(grt, rootpath.c_str(), run_single_test, single_suite, single_test);
+  grt::default_omf omf;
+  test_suites(grt, rootpath.c_str(), run_single_test, single_suite, single_test, &omf);
 }
 
 TEST_FUNCTION(3)
@@ -94,8 +94,8 @@ TEST_FUNCTION(3)
   const char *single_test= "";
 
   std::string rootpath= "data/diff-omf";
-
-  test_suites(grt, rootpath.c_str(), run_single_test, single_suite, single_test);
+  grt::default_omf omf;
+  test_suites(grt, rootpath.c_str(), run_single_test, single_suite, single_test, &omf);
 }
 
 END_TESTS
