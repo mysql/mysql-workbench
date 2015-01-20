@@ -273,7 +273,7 @@ std::vector<std::string> AutoCompleteCache::get_matching_objects(const std::stri
     break;
   }
 
-  sqlite::query q = sqlite::query(*_sqconn, sql);
+  sqlite::query q(*_sqconn, sql);
   switch (type)
   {
   case RetrieveWithNoQualifier:
