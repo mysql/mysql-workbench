@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -560,15 +560,15 @@ std::vector<float> SqlEditorResult::get_autofit_column_widths(Recordset *rs)
   std::vector<float> widths(rs->get_column_count());
   std::string font = _owner->owner()->grt_manager()->get_app_option_string("workbench.general.Resultset:Font");
 
-  for (int c = rs->get_column_count(), j = 0; j < c; j++)
+  for (size_t c = rs->get_column_count(), j = 0; j < c; j++)
   {
     widths[j] = (float)mforms::Utilities::get_text_width(rs->get_column_caption(j), font);
   }
 
   // look in 1st 10 rows for the max width of the columns
-  for (int i = 0; i < 10; i++)
+  for (size_t i = 0; i < 10; i++)
   {
-    for (int c = rs->get_column_count(), j = 0; j < c; j++)
+    for (size_t c = rs->get_column_count(), j = 0; j < c; j++)
     {
       std::string value;
       rs->get_field(i, j, value);
@@ -608,7 +608,7 @@ void SqlEditorResult::restore_grid_column_widths()
         if (autofit_widths.empty())
           autofit_widths = get_autofit_column_widths(rs);
 
-        float width = autofit_widths[i] + 10;
+        int width = int(autofit_widths[i] + 10);
         if (width < 40)
           width = 40;
         else if (width > 250)
