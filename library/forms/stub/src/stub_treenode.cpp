@@ -186,7 +186,7 @@ void TreeNodeWrapper::move_child(mforms::TreeNodeRef node, int new_index)
   if (i == _children.end())
     return;
 
-  size_t old_index = i - _children.begin();
+  int old_index = int(i - _children.begin());
   if (old_index == new_index)
     return;
 
