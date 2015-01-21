@@ -1024,13 +1024,13 @@ std::string left(const std::string& s, size_t len)
  */
 std::string right(const std::string& s, size_t len)
 {
-  // If len is zero, then an empty string is returned.
+  if (len > s.size())
+    len = s.size();
   if (len < 1)
     return "";
   
   return s.substr(std::max(s.length() - len, (size_t)0));
 }
-
 
 //--------------------------------------------------------------------------------------------------
 
