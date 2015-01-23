@@ -1,4 +1,7 @@
 %module cairo
+
+#pragma SWIG nowarn=312
+
 %{
 #include <cairo/cairo.h>
 #include <cairo/cairo-pdf.h>

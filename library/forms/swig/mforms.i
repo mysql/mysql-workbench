@@ -1,4 +1,7 @@
 %module mforms
+
+#pragma SWIG nowarn=401,402,509
+
 %{
 #include <boost/signals2/signal.hpp>
 #include <base/drawing.h>
