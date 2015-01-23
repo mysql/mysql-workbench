@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +26,8 @@
 
 #include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 
+//--------------------------------------------------------------------------------------------------
+
 // The throw clause gives a warning in VS (as it is not support, except to indicate this is not a nothrow function).
 PyObject *fromgrt(PyObject *object) //throw (std::runtime_error, std::invalid_argument, std::logic_error)
 {
@@ -49,6 +51,7 @@ PyObject *fromgrt(PyObject *object) //throw (std::runtime_error, std::invalid_ar
   throw std::invalid_argument("Invalid argument to fromgrt(), not a mforms_ObjectReference instance");
 }
 
+//--------------------------------------------------------------------------------------------------
 
 PyObject *togrt(mforms::Object *object, const std::string &mforms_type_name) //throw (std::runtime_error, std::invalid_argument)
 {
@@ -67,8 +70,7 @@ PyObject *togrt(mforms::Object *object, const std::string &mforms_type_name) //t
     Py_RETURN_NONE;
 }
 
-
-
+//--------------------------------------------------------------------------------------------------
 
 struct signal_connection_wrapper {
 #ifndef SWIG
@@ -90,3 +92,4 @@ struct signal_connection_wrapper {
   }
 };
 
+//--------------------------------------------------------------------------------------------------

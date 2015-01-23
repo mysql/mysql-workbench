@@ -136,6 +136,7 @@
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)\..\mysql-win-res\include;$(SolutionDir)\..\mysql-win-res\include\python;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4244</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -154,6 +155,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\..\mysql-win-res\include;$(SolutionDir)\..\mysql-win-res\include\python;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BrowseInformation>false</BrowseInformation>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4244</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -175,6 +177,7 @@
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)\..\mysql-win-res\include;$(SolutionDir)\..\mysql-win-res\include\python;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4244</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -195,6 +198,7 @@
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)\..\mysql-win-res\include;$(SolutionDir)\..\mysql-win-res\include\python;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4244</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -215,6 +219,7 @@
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)\..\mysql-win-res\include;$(SolutionDir)\..\mysql-win-res\include\python;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4244</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -235,6 +240,7 @@
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)\..\mysql-win-res\include;$(SolutionDir)\..\mysql-win-res\include\python;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4244</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -268,12 +274,12 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)\..\mysql-win-res\bin\swig -I$(SolutionDir)\..\mysql-win-res\SwigLib -I$(SolutionDir)\..\mysql-win-res\SwigLib\python  -I$(SolutionDir)\..\mysql-win-res\include -I../../base -fvirtual -fcompact -c++ -python -DCAIRO_HAS_PNG_FUNCTIONS=1 cairo.i </Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Regenerating SWIG cairo wrapper...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Regenerating SWIG cairo wrapper...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(InputName)_wrap.cxx</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(InputName)_wrap.cxx</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cairo_wrap.cxx</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cairo_wrap.cxx</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(InputName)_wrap.cxx</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(InputName)_wrap.cxx</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">$(InputName)_wrap.cxx</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">$(InputName)_wrap.cxx</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">cairo_wrap.cxx</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">cairo_wrap.cxx</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)\..\mysql-win-res\bin\swig -I$(SolutionDir)\..\mysql-win-res\SwigLib -I$(SolutionDir)\..\mysql-win-res\SwigLib\python  -I$(SolutionDir)\..\mysql-win-res\include -I../../base -fvirtual -fcompact -c++ -python -DCAIRO_HAS_PNG_FUNCTIONS=1 cairo.i </Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)\..\mysql-win-res\bin\swig -I$(SolutionDir)\..\mysql-win-res\SwigLib -I$(SolutionDir)\..\mysql-win-res\SwigLib\python  -I$(SolutionDir)\..\mysql-win-res\include -I../../base -fvirtual -fcompact -c++ -python -DCAIRO_HAS_PNG_FUNCTIONS=1 cairo.i </Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">$(SolutionDir)\..\mysql-win-res\bin\swig -I$(SolutionDir)\..\mysql-win-res\SwigLib -I$(SolutionDir)\..\mysql-win-res\SwigLib\python  -I$(SolutionDir)\..\mysql-win-res\include -I../../base -fvirtual -fcompact -c++ -python -DCAIRO_HAS_PNG_FUNCTIONS=1 cairo.i </Command>
