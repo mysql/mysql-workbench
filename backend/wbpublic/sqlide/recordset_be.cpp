@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -185,7 +185,7 @@ bool Recordset::reset(Recordset_data_storage::Ptr data_storage_ptr, bool rethrow
   }
 
   data_edited();
-  refresh_ui();
+  //refresh_ui(); This is the wrong place for a GUI refresh. Reset is called from many places, including the c-tor.
 
   return res;
 }
@@ -269,6 +269,8 @@ void Recordset::rollback()
 {
   if (!reset(false))
     task->send_msg(grt::ErrorMsg, _("Rollback failed"), _("Rollback recordset changes"));
+  else
+    refresh_ui();
 }
 
 
