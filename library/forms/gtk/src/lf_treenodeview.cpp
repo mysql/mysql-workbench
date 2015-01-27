@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -75,862 +75,1005 @@ static int calc_row_for_node(Gtk::TreeView *tree, const Gtk::TreeIter &iter)
   return row;
 }
 
-class TreeNodeViewImpl;
-
-
-class RootTreeNodeImpl : public ::mforms::TreeNode
+CustomTreeStore::CustomTreeStore(const Gtk::TreeModelColumnRecord& columns) : TreeStore(columns)
 {
-protected:
-  TreeNodeViewImpl *_treeview;
-  int _refcount;
-  
-  inline TreeNodeRef ref_from_iter(const Gtk::TreeIter &iter) const;
-  inline TreeNodeRef ref_from_path(const Gtk::TreePath &path) const;
-
-  virtual bool is_root() const
-  {
-    return true;
-  }
-
-  virtual bool is_valid() const
-  {
-    return _treeview != 0;
-  }
-
-  virtual bool equals(const TreeNode &other)
-  {
-    const RootTreeNodeImpl *impl = dynamic_cast<const RootTreeNodeImpl*>(&other);
-    if (impl)
-      return impl == this;
-    return false;
-  }
-
-  virtual int level() const
-  {
-    return 0;
-  }
-
-public:
-  RootTreeNodeImpl(TreeNodeViewImpl *tree)
-  : _treeview(tree), _refcount(0) // refcount must start at 0
-  {
-  }
-
-  virtual void invalidate()
-  {
-    _treeview = 0;
-  }
-
-  virtual void release()
-  {
-    _refcount--;
-    if (_refcount == 0)
-      delete this;
-  }
-
-  virtual void retain()
-  {
-    _refcount++;
-  }
-
-  virtual int count() const
-  {
-    if (is_valid())
-    {
-      Glib::RefPtr<Gtk::TreeStore> store(_treeview->tree_store());
-      return store->children().size();
-    }
-    return 0;
-  }
-  
-  virtual bool can_expand() {
-    return count() > 0;
-  }
-
-  virtual Gtk::TreeIter create_child(int index)
-  {
-    Glib::RefPtr<Gtk::TreeStore> store(_treeview->tree_store());
-    Gtk::TreeIter new_iter;
-    
-    if (index < 0 || index >= (int)store->children().size())
-      new_iter = store->append();
-    else
-    {
-      Gtk::TreePath path;
-      path.push_back(index);
-      new_iter = store->insert(store->get_iter(path));
-    }
-      
-    return new_iter;
-  }
-
-  virtual Gtk::TreeIter create_child(int index, Gtk::TreeIter *other_parent)
-  {
-    Glib::RefPtr<Gtk::TreeStore> store(_treeview->tree_store());
-    Gtk::TreeIter new_iter;
-    
-    if (index < 0)
-      new_iter = other_parent ? store->append((*other_parent)->children()) : store->append();
-    else
-    {
-      Gtk::TreePath path;
-
-      if (other_parent)
-        path = store->get_path(*other_parent);
-      
-      path.push_back(index);
-        
-      new_iter = store->insert(store->get_iter(path));
-    }
-      
-    return new_iter;
-  }
-
-  virtual TreeNodeRef insert_child(int index)
-  {
-    if (is_valid())
-    {
-      Gtk::TreeIter new_iter = create_child(index);
-      return ref_from_iter(new_iter);
-    }
-    return TreeNodeRef();
-  }
-
-  virtual std::vector<mforms::TreeNodeRef> add_node_collection(const TreeNodeCollectionSkeleton &nodes, int position = -1)
-  {
-    std::vector<Gtk::TreeIter> added_iters;
-    std::vector<mforms::TreeNodeRef> added_nodes;
-    
-    // Allocates enough room for the returned TreeNodeRefs
-    added_nodes.reserve(nodes.captions.size());
-    
-    // If the nodes have children, also allocates enough room
-    // For the created iters
-    bool sub_items = !nodes.children.empty();
-    if (sub_items)
-      added_iters.reserve(nodes.captions.size());
-    
-    Glib::RefPtr<Gtk::TreeStore> store(_treeview->tree_store());
-    Gtk::TreeIter new_iter;
-    
-    std::vector<std::string>::const_iterator it, end = nodes.captions.end();
-    
-    // Gets the icon to be used on all the nodes...
-    Glib::RefPtr<Gdk::Pixbuf> pixbuf;
-    if (!nodes.icon.empty())
-      pixbuf = UtilitiesImpl::get_cached_icon(nodes.icon);
-      
-    int index_for_string = _treeview->index_for_column(0);
-    int index_for_icon   = index_for_string - 1;
-    
-    store->freeze_notify();
-    
-    for (it = nodes.captions.begin(); it != end; ++it)
-    {
-      if (!new_iter)
-        new_iter = create_child(position);
-      else
-        new_iter = store->insert_after(new_iter);
-      
-      // Masks the iterator as a row
-      Gtk::TreeRow row = *new_iter;
-    
-      // Sets the string
-      std::string nvalue(*it);
-      
-  //    base::replace(nvalue, "&", "&amp;");
-   //   base::replace(nvalue, "<", "&lt;");
-    //  base::replace(nvalue, ">", "&gt;");
-      
-      row.set_value(index_for_string, nvalue);
-
-      // Sets the icon...
-      row.set_value(index_for_icon, pixbuf);
-      
-      added_nodes.push_back(ref_from_iter(new_iter));
-
-      // If there are sub items the iter needs to be stored so
-      // it gets the childs added
-      if (sub_items)
-        added_iters.push_back(new_iter);
-
-    }
-    
-    // If there are sub items adds them into each of the
-    // added iters at this level
-    if (sub_items)
-      add_children_from_skeletons(added_iters, nodes.children);
-
-    store->thaw_notify();
-
-    return added_nodes;
-  }
-  
-  virtual void add_children_from_skeletons(const std::vector<Gtk::TreeIter>& parents, const std::vector<TreeNodeSkeleton>& children)
-  {
-    std::vector<Gtk::TreeIter> last_item;
-    Glib::RefPtr<Gtk::TreeStore> store(_treeview->tree_store());
-    Gtk::TreeIter new_iter;
-    Gtk::TreeRow row;
-    
-    // Takes each received child and inserts it to all the received parents
-    std::vector<TreeNodeSkeleton>::const_iterator it, end = children.end();
-    for(it = children.begin(); it != end; it++)
-    {
-      // added iters is the child nodes being added, if the structure indicates they
-      // will also have childs, then it is needed to store them to call the function
-      // recursively, we reserve the needed space for performance reasons
-      std::vector<Gtk::TreeIter> added_iters;
-      bool sub_items = !(*it).children.empty();
-      if(sub_items)
-        added_iters.reserve(parents.size());
-      
-      // Gets the icon to be used on this child...
-      Glib::RefPtr<Gdk::Pixbuf> pixbuf(UtilitiesImpl::get_cached_icon((*it).icon));
-
-      // Formats the string to be used in this child...
-      std::string nvalue((*it).caption);
-    //  base::replace(nvalue, "&", "&amp;");
-    //  base::replace(nvalue, "<", "&lt;");
-    //  base::replace(nvalue, ">", "&gt;");
-
-      // Gets the indexes where the information will be stored
-      int index_for_string = _treeview->index_for_column(0);
-      int index_for_icon   = index_for_string - 1;
-      Gtk::TreeModelColumn<std::string>& tag_column = _treeview->_columns.tag_column();
-        
-      // Now inserts the child on all the received parents
-      for(size_t index=0; index < parents.size(); index++)
-      {
-        if (last_item.size() > index)
-        {
-          new_iter = store->insert_after(last_item[index]);
-          last_item[index] = new_iter;
-        }
-        else
-        {
-          Gtk::TreeIter parent = parents[index];
-          new_iter = create_child(-1, &parent);
-          last_item.push_back(new_iter);
-        }
-          
-        // Sets the new item data
-        row = *new_iter;
-        row.set_value(index_for_string, nvalue);
-        row.set_value(index_for_icon, pixbuf);
-        row[tag_column] = (*it).tag;
-
-        // If this child also has childs, stores the new child to be
-        // a futur parent
-        if(sub_items)
-          added_iters.push_back(new_iter);
-      }
-      
-      // If childs will be assigned then it is done by calling the 
-      // function again
-      if(sub_items)
-        add_children_from_skeletons(added_iters, (*it).children);
-    }
-  }  
-  
-  virtual void remove_from_parent()
-  {
-    throw std::logic_error("Cannot delete root node");
-  }
-
-  virtual TreeNodeRef get_child(int index) const
-  {
-    if (is_valid())
-    {
-      Glib::RefPtr<Gtk::TreeStore> store(_treeview->tree_store());
-      return ref_from_iter(store->children()[index]);
-    }
-    return TreeNodeRef();
-  }
-
-  virtual TreeNodeRef get_parent() const
-  {
-    return TreeNodeRef();
-  }
-
-
-  virtual void expand()
-  {
-  }
-
-  virtual void collapse()
-  {
-    g_warning("Can't collapse root node");
-  }
-
-  virtual bool is_expanded()
-  {
-    return true;
-  }
-
-  virtual void set_attributes(int column, const mforms::TreeNodeTextAttributes &attrs)
-  {
-    // noop
-  }
-
-  virtual void set_icon_path(int column, const std::string &icon)
-  { // noop
-  }
-
-  virtual void set_string(int column, const std::string &value)
-  { // noop
-  }
-
-  virtual void set_int(int column, int value)
-  { // noop
-  }
-
-  virtual void set_long(int column, boost::int64_t value)
-  { // noop
-  }
-
-  virtual void set_bool(int column, bool value)
-  { // noop
-  }
-
-  virtual void set_float(int column, double value)
-  { // noop
-  }
-
-  virtual std::string get_string(int column) const
-  {
-    return "";
-  }
-
-  virtual int get_int(int column) const
-  {
-    return 0;
-  }
-
-  virtual boost::int64_t get_long(int column) const
-  {
-    return 0;
-  }
-
-  virtual bool get_bool(int column) const
-  {
-    return false;
-  }
-
-  virtual double get_float(int column) const
-  {
-    return 0.0;
-  }
-    
-  virtual void set_tag(const std::string &tag)
-  { // noop
-  }
-
-  virtual std::string get_tag() const
-  {
-    return "";
-  }
-
-  virtual void set_data(TreeNodeData *data)
-  { // noop
-  }
-
-  virtual TreeNodeData *get_data() const
-  {
-    return NULL;
-  }
-
-  virtual TreeNodeRef previous_sibling() const
-  {
-    return TreeNodeRef();
-  }
-
-  virtual TreeNodeRef next_sibling() const
-  {
-    return TreeNodeRef();
-  }
-
-  virtual int get_child_index(TreeNodeRef child) const
-  {
-    return -1;
-  }
+  // noop
 };
 
-
-class TreeNodeImpl : public RootTreeNodeImpl
+Glib::RefPtr<CustomTreeStore> CustomTreeStore::create(const Gtk::TreeModelColumnRecord& columns)
 {
-  // If _rowref becomes invalidated (eg because Model was deleted),
-  // we just ignore all operations on the node
-  Gtk::TreeRowReference _rowref;
-  bool _is_expanding;
+  return Glib::RefPtr<CustomTreeStore>( new CustomTreeStore(columns) );
+}
 
-public:
-  inline Glib::RefPtr<Gtk::TreeStore> model()
-  {
-    // _rowref.get_model() causes crashes in OEL6 because of a refcounting bug in 
-    // TreeRowReference that was only fixed in gtkmm 2.20
-    return _treeview->tree_store(); // Glib::RefPtr<Gtk::TreeStore>::cast_dynamic(_rowref.get_model());
-  }
-
-  inline Gtk::TreeIter iter()
-  {
-    return model()->get_iter(_rowref.get_path());
-  }
-
-  inline Gtk::TreeIter iter() const
-  {
-    TreeNodeImpl* non_const_this = const_cast<TreeNodeImpl*>(this);
-    
-    return non_const_this->iter();
-  }
-
-  inline Gtk::TreePath path()
-  {
-    return _rowref.get_path();
-  }
-
-  virtual bool is_root() const
-  {
-    return false;
-  }
-
-public:
-  TreeNodeImpl(TreeNodeViewImpl *tree, Glib::RefPtr<Gtk::TreeStore> model, const Gtk::TreePath &path)
-  : RootTreeNodeImpl(tree), _rowref(model, path), _is_expanding(false)
-  {
-  }
-
-  TreeNodeImpl(TreeNodeViewImpl *tree, const Gtk::TreeRowReference &ref)
-  : RootTreeNodeImpl(tree), _rowref(ref), _is_expanding(false)
-  {
-  }
-
-  virtual bool equals(const TreeNode &other)
-  {
-    const TreeNodeImpl *impl = dynamic_cast<const TreeNodeImpl*>(&other);
-    if (impl)
-      return impl->_rowref == _rowref;
-    return false;
-  }
-
-  virtual bool is_valid() const
-  {
-    return _treeview && _rowref.is_valid();
-  }
-
-  virtual void invalidate()
-  {
-    if (_treeview)
+void CustomTreeStore::copy_iter( Gtk::TreeModel::iterator& from, Gtk::TreeModel::iterator& to)
+{
+    for( int i = 0 ; i < get_n_columns() ; ++i )
     {
-      std::map<std::string, Gtk::TreeRowReference>::iterator it = _treeview->_tagmap.find(get_tag());
-      if (it != _treeview->_tagmap.end())
+        Glib::ValueBase val ;
+        get_value_impl( from, i, val ) ;
+        set_value_impl( to, i, val ) ;
+    }
+}
+
+bool RootTreeNodeImpl::is_root() const
+{
+  return true;
+}
+
+bool RootTreeNodeImpl::is_valid() const
+{
+  return _treeview != 0;
+}
+
+bool RootTreeNodeImpl::equals(const TreeNode &other)
+{
+  const RootTreeNodeImpl *impl = dynamic_cast<const RootTreeNodeImpl*>(&other);
+  if (impl)
+    return impl == this;
+  return false;
+}
+
+int RootTreeNodeImpl::level() const
+{
+  return 0;
+}
+
+
+RootTreeNodeImpl::RootTreeNodeImpl(TreeNodeViewImpl *tree)
+  : _treeview(tree), _refcount(0) // refcount must start at 0
+{
+}
+
+void RootTreeNodeImpl::invalidate()
+{
+  _treeview = 0;
+}
+
+void RootTreeNodeImpl::release()
+{
+  _refcount--;
+  if (_refcount == 0)
+    delete this;
+}
+
+void RootTreeNodeImpl::retain()
+{
+  _refcount++;
+}
+
+int RootTreeNodeImpl::count() const
+{
+  if (is_valid())
+  {
+    Glib::RefPtr<Gtk::TreeStore> store(_treeview->tree_store());
+    return store->children().size();
+  }
+  return 0;
+}
+
+bool RootTreeNodeImpl::can_expand() {
+  return count() > 0;
+}
+
+Gtk::TreeIter RootTreeNodeImpl::create_child(int index)
+{
+  Glib::RefPtr<Gtk::TreeStore> store(_treeview->tree_store());
+  Gtk::TreeIter new_iter;
+
+  if (index < 0 || index >= (int)store->children().size())
+    new_iter = store->append();
+  else
+  {
+    Gtk::TreePath path;
+    path.push_back(index);
+    new_iter = store->insert(store->get_iter(path));
+  }
+
+  return new_iter;
+}
+
+Gtk::TreeIter RootTreeNodeImpl::create_child(int index, Gtk::TreeIter *other_parent)
+{
+  Glib::RefPtr<Gtk::TreeStore> store(_treeview->tree_store());
+  Gtk::TreeIter new_iter;
+
+  if (index < 0)
+    new_iter = other_parent ? store->append((*other_parent)->children()) : store->append();
+  else
+  {
+    Gtk::TreePath path;
+
+    if (other_parent)
+      path = store->get_path(*other_parent);
+
+    path.push_back(index);
+
+    new_iter = store->insert(store->get_iter(path));
+  }
+
+  return new_iter;
+}
+
+TreeNodeRef RootTreeNodeImpl::insert_child(int index)
+{
+  if (is_valid())
+  {
+    Gtk::TreeIter new_iter = create_child(index);
+    return ref_from_iter(new_iter);
+  }
+  return TreeNodeRef();
+}
+
+std::vector<mforms::TreeNodeRef> RootTreeNodeImpl::add_node_collection(const TreeNodeCollectionSkeleton &nodes, int position)
+{
+  std::vector<Gtk::TreeIter> added_iters;
+  std::vector<mforms::TreeNodeRef> added_nodes;
+
+  // Allocates enough room for the returned TreeNodeRefs
+  added_nodes.reserve(nodes.captions.size());
+
+  // If the nodes have children, also allocates enough room
+  // For the created iters
+  bool sub_items = !nodes.children.empty();
+  if (sub_items)
+    added_iters.reserve(nodes.captions.size());
+
+  Glib::RefPtr<Gtk::TreeStore> store(_treeview->tree_store());
+  Gtk::TreeIter new_iter;
+
+  std::vector<std::string>::const_iterator it, end = nodes.captions.end();
+
+  // Gets the icon to be used on all the nodes...
+  Glib::RefPtr<Gdk::Pixbuf> pixbuf;
+  if (!nodes.icon.empty())
+    pixbuf = UtilitiesImpl::get_cached_icon(nodes.icon);
+
+  int index_for_string = _treeview->index_for_column(0);
+  int index_for_icon   = index_for_string - 1;
+
+  store->freeze_notify();
+
+  for (it = nodes.captions.begin(); it != end; ++it)
+  {
+    if (!new_iter)
+      new_iter = create_child(position);
+    else
+      new_iter = store->insert_after(new_iter);
+
+    // Masks the iterator as a row
+    Gtk::TreeRow row = *new_iter;
+
+    // Sets the string
+    std::string nvalue(*it);
+
+//    base::replace(nvalue, "&", "&amp;");
+ //   base::replace(nvalue, "<", "&lt;");
+  //  base::replace(nvalue, ">", "&gt;");
+
+    row.set_value(index_for_string, nvalue);
+
+    // Sets the icon...
+    row.set_value(index_for_icon, pixbuf);
+
+    added_nodes.push_back(ref_from_iter(new_iter));
+
+    // If there are sub items the iter needs to be stored so
+    // it gets the childs added
+    if (sub_items)
+      added_iters.push_back(new_iter);
+
+  }
+
+  // If there are sub items adds them into each of the
+  // added iters at this level
+  if (sub_items)
+    add_children_from_skeletons(added_iters, nodes.children);
+
+  store->thaw_notify();
+
+  return added_nodes;
+}
+
+void RootTreeNodeImpl::add_children_from_skeletons(const std::vector<Gtk::TreeIter>& parents, const std::vector<TreeNodeSkeleton>& children)
+{
+  std::vector<Gtk::TreeIter> last_item;
+  Glib::RefPtr<Gtk::TreeStore> store(_treeview->tree_store());
+  Gtk::TreeIter new_iter;
+  Gtk::TreeRow row;
+
+  // Takes each received child and inserts it to all the received parents
+  std::vector<TreeNodeSkeleton>::const_iterator it, end = children.end();
+  for(it = children.begin(); it != end; it++)
+  {
+    // added iters is the child nodes being added, if the structure indicates they
+    // will also have childs, then it is needed to store them to call the function
+    // recursively, we reserve the needed space for performance reasons
+    std::vector<Gtk::TreeIter> added_iters;
+    bool sub_items = !(*it).children.empty();
+    if(sub_items)
+      added_iters.reserve(parents.size());
+
+    // Gets the icon to be used on this child...
+    Glib::RefPtr<Gdk::Pixbuf> pixbuf(UtilitiesImpl::get_cached_icon((*it).icon));
+
+    // Formats the string to be used in this child...
+    std::string nvalue((*it).caption);
+  //  base::replace(nvalue, "&", "&amp;");
+  //  base::replace(nvalue, "<", "&lt;");
+  //  base::replace(nvalue, ">", "&gt;");
+
+    // Gets the indexes where the information will be stored
+    int index_for_string = _treeview->index_for_column(0);
+    int index_for_icon   = index_for_string - 1;
+    Gtk::TreeModelColumn<std::string>& tag_column = _treeview->_columns.tag_column();
+
+    // Now inserts the child on all the received parents
+    for(size_t index=0; index < parents.size(); index++)
+    {
+      if (last_item.size() > index)
+      {
+        new_iter = store->insert_after(last_item[index]);
+        last_item[index] = new_iter;
+      }
+      else
+      {
+        Gtk::TreeIter parent = parents[index];
+        new_iter = create_child(-1, &parent);
+        last_item.push_back(new_iter);
+      }
+
+      // Sets the new item data
+      row = *new_iter;
+      row.set_value(index_for_string, nvalue);
+      row.set_value(index_for_icon, pixbuf);
+      row[tag_column] = (*it).tag;
+
+      // If this child also has childs, stores the new child to be
+      // a futur parent
+      if(sub_items)
+        added_iters.push_back(new_iter);
+    }
+
+    // If childs will be assigned then it is done by calling the
+    // function again
+    if(sub_items)
+      add_children_from_skeletons(added_iters, (*it).children);
+  }
+}
+
+void RootTreeNodeImpl::remove_from_parent()
+{
+  throw std::logic_error("Cannot delete root node");
+}
+
+TreeNodeRef RootTreeNodeImpl::get_child(int index) const
+{
+  if (is_valid())
+  {
+    Glib::RefPtr<Gtk::TreeStore> store(_treeview->tree_store());
+    return ref_from_iter(store->children()[index]);
+  }
+  return TreeNodeRef();
+}
+
+TreeNodeRef RootTreeNodeImpl::get_parent() const
+{
+  return TreeNodeRef();
+}
+
+
+void RootTreeNodeImpl::expand()
+{
+}
+
+void RootTreeNodeImpl::collapse()
+{
+  g_warning("Can't collapse root node");
+}
+
+bool RootTreeNodeImpl::is_expanded()
+{
+  return true;
+}
+
+void RootTreeNodeImpl::set_attributes(int column, const mforms::TreeNodeTextAttributes &attrs)
+{
+  // noop
+}
+
+void RootTreeNodeImpl::set_icon_path(int column, const std::string &icon)
+{ // noop
+}
+
+void RootTreeNodeImpl::set_string(int column, const std::string &value)
+{ // noop
+}
+
+void RootTreeNodeImpl::set_int(int column, int value)
+{ // noop
+}
+
+void RootTreeNodeImpl::set_long(int column, boost::int64_t value)
+{ // noop
+}
+
+void RootTreeNodeImpl::set_bool(int column, bool value)
+{ // noop
+}
+
+void RootTreeNodeImpl::set_float(int column, double value)
+{ // noop
+}
+
+std::string RootTreeNodeImpl::get_string(int column) const
+{
+  return "";
+}
+
+int RootTreeNodeImpl::get_int(int column) const
+{
+  return 0;
+}
+
+boost::int64_t RootTreeNodeImpl::get_long(int column) const
+{
+  return 0;
+}
+
+bool RootTreeNodeImpl::get_bool(int column) const
+{
+  return false;
+}
+
+double RootTreeNodeImpl::get_float(int column) const
+{
+  return 0.0;
+}
+
+void RootTreeNodeImpl::set_tag(const std::string &tag)
+{ // noop
+}
+
+std::string RootTreeNodeImpl::get_tag() const
+{
+  return "";
+}
+
+void RootTreeNodeImpl::set_data(TreeNodeData *data)
+{ // noop
+}
+
+TreeNodeData* RootTreeNodeImpl::get_data() const
+{
+  return NULL;
+}
+
+TreeNodeRef RootTreeNodeImpl::previous_sibling() const
+{
+  return TreeNodeRef();
+}
+
+TreeNodeRef RootTreeNodeImpl::next_sibling() const
+{
+  return TreeNodeRef();
+}
+
+int RootTreeNodeImpl::get_child_index(TreeNodeRef child) const
+{
+  TreeNodeImpl *node = dynamic_cast<TreeNodeImpl*>(child.ptr());
+  if (node)
+    return (int)node->path().front();
+  return -1;
+}
+
+void RootTreeNodeImpl::replace_node(TreeNodeRef node)
+{
+  // noop
+}
+
+void RootTreeNodeImpl::move_node_after(TreeNodeRef node)
+{
+  // noop
+}
+
+void RootTreeNodeImpl::move_node_before(TreeNodeRef node)
+{
+  // noop
+}
+
+
+
+Glib::RefPtr<Gtk::TreeStore> TreeNodeImpl::model()
+{
+  // _rowref.get_model() causes crashes in OEL6 because of a refcounting bug in
+  // TreeRowReference that was only fixed in gtkmm 2.20
+  return _treeview->tree_store(); // Glib::RefPtr<Gtk::TreeStore>::cast_dynamic(_rowref.get_model());
+}
+
+Gtk::TreeIter TreeNodeImpl::iter()
+{
+  return model()->get_iter(_rowref.get_path());
+}
+
+inline Gtk::TreeIter TreeNodeImpl::iter() const
+{
+  TreeNodeImpl* non_const_this = const_cast<TreeNodeImpl*>(this);
+
+  return non_const_this->iter();
+}
+
+inline Gtk::TreePath TreeNodeImpl::path()
+{
+  return _rowref.get_path();
+}
+
+bool TreeNodeImpl::is_root() const
+{
+  return false;
+}
+
+
+TreeNodeImpl::TreeNodeImpl(TreeNodeViewImpl *tree, Glib::RefPtr<Gtk::TreeStore> model, const Gtk::TreePath &path)
+: RootTreeNodeImpl(tree), _rowref(model, path), _is_expanding(false)
+{
+}
+
+TreeNodeImpl::TreeNodeImpl(TreeNodeViewImpl *tree, const Gtk::TreeRowReference &ref)
+: RootTreeNodeImpl(tree), _rowref(ref), _is_expanding(false)
+{
+}
+
+bool TreeNodeImpl::equals(const TreeNode &other)
+{
+  const TreeNodeImpl *impl = dynamic_cast<const TreeNodeImpl*>(&other);
+  if (impl)
+    return impl->_rowref == _rowref;
+  return false;
+}
+
+bool TreeNodeImpl::is_valid() const
+{
+  return _treeview && _rowref.is_valid();
+}
+
+void TreeNodeImpl::invalidate()
+{
+  if (_treeview)
+  {
+    std::map<std::string, Gtk::TreeRowReference>::iterator it = _treeview->_tagmap.find(get_tag());
+    if (it != _treeview->_tagmap.end())
+      _treeview->_tagmap.erase(it);
+  }
+
+  _treeview = 0;
+  _rowref = Gtk::TreeRowReference();
+}
+
+int TreeNodeImpl::count() const
+{
+  if (is_valid())
+  {
+    //Glib::RefPtr<Gtk::TreeStore> store(model());
+    Gtk::TreeRow row = *iter();
+    return row.children().size();
+  }
+  return 0;
+}
+
+Gtk::TreeIter TreeNodeImpl::create_child(int index)
+{
+  Glib::RefPtr<Gtk::TreeStore> store(model());
+  Gtk::TreeIter new_iter;
+
+  if (index < 0)
+    new_iter = store->append(iter()->children());
+  else
+  {
+    Gtk::TreePath path;
+    Gtk::TreeIter child_iter;
+    path = _rowref.get_path();
+    path.push_back(index);
+    child_iter = store->get_iter(path);
+    if (!child_iter)
+      new_iter = store->append(iter()->children());
+    else
+      new_iter = store->insert(child_iter);
+  }
+  return new_iter;
+}
+
+void TreeNodeImpl::remove_from_parent()
+{
+  if (is_valid())
+  {
+    if (_treeview->_tagmap_enabled)
+    {
+      std::map<std::string, Gtk::TreeRowReference>::iterator it;
+      if ((it = _treeview->_tagmap.find(get_tag())) != _treeview->_tagmap.end())
         _treeview->_tagmap.erase(it);
     }
 
-    _treeview = 0;
-    _rowref = Gtk::TreeRowReference();
-  }
-
-  virtual int count() const
-  {
-    if (is_valid())
-    {
-      //Glib::RefPtr<Gtk::TreeStore> store(model());
-      Gtk::TreeRow row = *iter();
-      return row.children().size();
-    }
-    return 0;
-  }
-
-  virtual Gtk::TreeIter create_child(int index)
-  {
     Glib::RefPtr<Gtk::TreeStore> store(model());
-    Gtk::TreeIter new_iter;
-
-    if (index < 0)
-      new_iter = store->append(iter()->children());
-    else
-    {
-      Gtk::TreePath path;
-         Gtk::TreeIter child_iter;
-         path = _rowref.get_path();
-         path.push_back(index);
-         child_iter = store->get_iter(path);
-         if (!child_iter)
-           new_iter = store->append(iter()->children());
-         else
-           new_iter = store->insert(child_iter);
-    }
-    return new_iter;
+    store->erase(iter());
+    invalidate();
   }
-  
-  virtual void remove_from_parent()
-  {
-    if (is_valid())
-    {
-      if (_treeview->_tagmap_enabled)
-      {
-        std::map<std::string, Gtk::TreeRowReference>::iterator it;
-        if ((it = _treeview->_tagmap.find(get_tag())) != _treeview->_tagmap.end())
-          _treeview->_tagmap.erase(it);
-      }
+}
 
-      Glib::RefPtr<Gtk::TreeStore> store(model());
-      store->erase(iter());
-
-      invalidate();
-    }
-  }
-
-  virtual TreeNodeRef get_child(int index) const
-  {
-    if (is_valid())
-    {
-      Gtk::TreeRow row = *iter();
-      return ref_from_iter(row->children()[index]);
-    }
-    return TreeNodeRef();
-  }
-
-  virtual TreeNodeRef get_parent() const
-  {
-    if (is_valid())
-    {
-      Gtk::TreePath path = _rowref.get_path();
-      if (path.empty() || !path.up() || path.empty())
-        return _treeview->_root_node;
-      return ref_from_path(path);
-    }
-    return TreeNodeRef();
-  }
-
-  virtual void expand()
-  {
-    if (is_valid() && !is_expanded())
-    {
-
-      if (!_treeview->tree_view()->expand_row(_rowref.get_path(), false)) //if somehow we got null, then we need to call expand_toggle ourselves
-      {                                                                   //cause it will not emmit the test-will-expand signal that should trigger
-        TreeNodeView *view = _treeview->get_owner();                      //expand_toggle call
-        if (view)
-          view->expand_toggle(mforms::TreeNodeRef(this), true);
-      }
-    }
-  }
-
-  virtual bool can_expand()
-  {
-    if(is_valid())
-    {
-      Gtk::TreeRow row = *iter();
-      return row->children().size() > 0;
-    }
-    return false;
-  }
-
-  virtual void collapse()
-  {
-    if (is_valid())
-      _treeview->tree_view()->collapse_row(_rowref.get_path());
-  }
-
-  virtual bool is_expanded()
-  {
-    if (is_valid())
-      return _treeview->tree_view()->row_expanded(_rowref.get_path());
-    return false;
-  }
-
-  virtual void set_attributes(int column, const TreeNodeTextAttributes &attrs)
-  {
-    if (is_valid() && !is_root())
-    {
-      Gtk::TreeRow row = *iter();
-      Pango::AttrList attrlist;
-
-      if (attrs.bold)
-      {
-        Pango::Attribute a = Pango::Attribute::create_attr_weight(Pango::WEIGHT_BOLD);
-        attrlist.insert(a);
-      }
-      if (attrs.italic)
-      {
-        Pango::Attribute a = Pango::Attribute::create_attr_style(Pango::STYLE_ITALIC);
-        attrlist.insert(a);
-      }
-      if (attrs.color.is_valid())
-      {
-        Pango::Attribute a = Pango::Attribute::create_attr_foreground((guint16)(attrs.color.red * 0xffff),
-                                                                (guint16)(attrs.color.green * 0xffff),
-                                                                (guint16)(attrs.color.blue * 0xffff));
-        attrlist.insert(a);
-      }
-      int i = _treeview->index_for_column_attr(column); 
-      if (i < 0)
-        g_warning("TreeNode::set_attributes() called on a column with no attributes supported");
-      else
-        row.set_value(i, attrlist);
-    } 
-  }
-
-  virtual void set_icon_path(int column, const std::string &icon)
+TreeNodeRef TreeNodeImpl::get_child(int index) const
+{
+  if (is_valid())
   {
     Gtk::TreeRow row = *iter();
-    if (!icon.empty())
-    {
-      Glib::RefPtr<Gdk::Pixbuf> pixbuf = UtilitiesImpl::get_cached_icon(icon);
-      if (pixbuf)
-        row.set_value(_treeview->index_for_column(column)-1, pixbuf);
+    return ref_from_iter(row->children()[index]);
+  }
+  return TreeNodeRef();
+}
+
+TreeNodeRef TreeNodeImpl::get_parent() const
+{
+  if (is_valid())
+  {
+    Gtk::TreePath path = _rowref.get_path();
+    if (path.empty() || !path.up() || path.empty())
+      return _treeview->_root_node;
+    return ref_from_path(path);
+  }
+  return TreeNodeRef();
+}
+
+void TreeNodeImpl::expand()
+{
+  if (is_valid() && !is_expanded())
+  {
+
+    if (!_treeview->tree_view()->expand_row(_rowref.get_path(), false)) //if somehow we got null, then we need to call expand_toggle ourselves
+    {                                                                   //cause it will not emmit the test-will-expand signal that should trigger
+      TreeNodeView *view = _treeview->get_owner();                      //expand_toggle call
+      if (view)
+        view->expand_toggle(mforms::TreeNodeRef(this), true);
     }
+  }
+}
+
+bool TreeNodeImpl::can_expand()
+{
+  if(is_valid())
+  {
+    Gtk::TreeRow row = *iter();
+    return row->children().size() > 0;
+  }
+  return false;
+}
+
+void TreeNodeImpl::collapse()
+{
+  if (is_valid())
+    _treeview->tree_view()->collapse_row(_rowref.get_path());
+}
+
+bool TreeNodeImpl::is_expanded()
+{
+  if (is_valid())
+    return _treeview->tree_view()->row_expanded(_rowref.get_path());
+  return false;
+}
+
+void TreeNodeImpl::set_attributes(int column, const TreeNodeTextAttributes &attrs)
+{
+  if (is_valid() && !is_root())
+  {
+    Gtk::TreeRow row = *iter();
+    Pango::AttrList attrlist;
+
+    if (attrs.bold)
+    {
+      Pango::Attribute a = Pango::Attribute::create_attr_weight(Pango::WEIGHT_BOLD);
+      attrlist.insert(a);
+    }
+    if (attrs.italic)
+    {
+      Pango::Attribute a = Pango::Attribute::create_attr_style(Pango::STYLE_ITALIC);
+      attrlist.insert(a);
+    }
+    if (attrs.color.is_valid())
+    {
+      Pango::Attribute a = Pango::Attribute::create_attr_foreground((guint16)(attrs.color.red * 0xffff),
+                                                              (guint16)(attrs.color.green * 0xffff),
+                                                              (guint16)(attrs.color.blue * 0xffff));
+      attrlist.insert(a);
+    }
+    int i = _treeview->index_for_column_attr(column);
+    if (i < 0)
+      g_warning("TreeNode::set_attributes() called on a column with no attributes supported");
     else
-      row.set_value(_treeview->index_for_column(column)-1, Glib::RefPtr<Gdk::Pixbuf>());
+      row.set_value(i, attrlist);
   }
+}
 
-  virtual void set_string(int column, const std::string &value)
+void TreeNodeImpl::set_icon_path(int column, const std::string &icon)
+{
+  Gtk::TreeRow row = *iter();
+  if (!icon.empty())
   {
-    if (is_valid() && !is_root())
-    {
-      Gtk::TreeRow row = *iter();
-      int i = _treeview->index_for_column(column);
-      switch (_treeview->_tree_store->get_column_type(i))
-      {
-      case G_TYPE_BOOLEAN:
-        row.set_value(i, value != "0" ? true : false);
-        break;
-      case G_TYPE_INT:
-        row.set_value(i, base::atoi<int>(value, 0));
-        break;
-      case G_TYPE_INT64:
-        row.set_value(i, base::atoi<long long>(value, 0LL));
-        break;
-      default:
-        {
-         // std::string nvalue(value);
-         // base::replace(nvalue, "&", "&amp;");
-         // base::replace(nvalue, "<", "&lt;");
-         // base::replace(nvalue, ">", "&gt;");
-          row.set_value(i, value);
-          break;
-        }
-      }
-    }
+    Glib::RefPtr<Gdk::Pixbuf> pixbuf = UtilitiesImpl::get_cached_icon(icon);
+    if (pixbuf)
+      row.set_value(_treeview->index_for_column(column)-1, pixbuf);
   }
+  else
+    row.set_value(_treeview->index_for_column(column)-1, Glib::RefPtr<Gdk::Pixbuf>());
+}
 
-  virtual void set_int(int column, int value)
+void TreeNodeImpl::set_string(int column, const std::string &value)
+{
+  if (is_valid() && !is_root())
   {
-    if (is_valid() && !is_root())
+    Gtk::TreeRow row = *iter();
+    int i = _treeview->index_for_column(column);
+    switch (_treeview->_tree_store->get_column_type(i))
     {
-      Gtk::TreeRow row = *iter();
-      int i = _treeview->index_for_column(column);
-      switch (_treeview->_tree_store->get_column_type(i))
+    case G_TYPE_BOOLEAN:
+      row.set_value(i, value != "0" ? true : false);
+      break;
+    case G_TYPE_INT:
+      row.set_value(i, base::atoi<int>(value, 0));
+      break;
+    case G_TYPE_INT64:
+      row.set_value(i, base::atoi<long long>(value, 0LL));
+      break;
+    default:
       {
-      case G_TYPE_BOOLEAN:
-        row.set_value(i, value != 0);
-        break;
-      default:
+       // std::string nvalue(value);
+       // base::replace(nvalue, "&", "&amp;");
+       // base::replace(nvalue, "<", "&lt;");
+       // base::replace(nvalue, ">", "&gt;");
         row.set_value(i, value);
         break;
       }
     }
   }
+}
 
-  virtual void set_long(int column, boost::int64_t value)
+void TreeNodeImpl::set_int(int column, int value)
+{
+  if (is_valid() && !is_root())
   {
-    if (is_valid() && !is_root())
+    Gtk::TreeRow row = *iter();
+    int i = _treeview->index_for_column(column);
+    switch (_treeview->_tree_store->get_column_type(i))
     {
-      Gtk::TreeRow row = *iter();
-      row.set_value(_treeview->index_for_column(column), base::strfmt("%" PRId64, value));
+    case G_TYPE_BOOLEAN:
+      row.set_value(i, value != 0);
+      break;
+    default:
+      row.set_value(i, value);
+      break;
     }
   }
+}
 
-  virtual void set_bool(int column, bool value)
+void TreeNodeImpl::set_long(int column, boost::int64_t value)
+{
+  if (is_valid() && !is_root())
   {
-    if (is_valid() && !is_root())
-    {
-			set_int(column, value);
-    }
+    Gtk::TreeRow row = *iter();
+    row.set_value(_treeview->index_for_column(column), base::strfmt("%" PRId64, value));
   }
+}
 
-  virtual void set_float(int column, double value)
+void TreeNodeImpl::set_bool(int column, bool value)
+{
+  if (is_valid() && !is_root())
   {
-    if (is_valid() && !is_root())
-    {
-      Gtk::TreeRow row = *iter();
-      row.set_value(_treeview->index_for_column(column), value);
-    }
+    set_int(column, value);
   }
+}
 
-  virtual std::string get_string(int column) const
+void TreeNodeImpl::set_float(int column, double value)
+{
+  if (is_valid() && !is_root())
   {
-    if (is_valid() && !is_root())
-    {
-      Gtk::TreeRow row = *iter();
-      std::string value;
-      row.get_value(_treeview->index_for_column(column), value);
-      return value;
-    }
-    return "";
+    Gtk::TreeRow row = *iter();
+    row.set_value(_treeview->index_for_column(column), value);
   }
+}
 
-  virtual int get_int(int column) const
+std::string TreeNodeImpl::get_string(int column) const
+{
+  if (is_valid() && !is_root())
   {
-    if (is_valid() && !is_root())
+    Gtk::TreeRow row = *iter();
+    std::string value;
+    row.get_value(_treeview->index_for_column(column), value);
+    return value;
+  }
+  return "";
+}
+
+int TreeNodeImpl::get_int(int column) const
+{
+  if (is_valid() && !is_root())
+  {
+    Gtk::TreeRow row = *iter();
+    int i = _treeview->index_for_column(column);
+    int value;
+    bool bvalue;
+    switch (_treeview->_tree_store->get_column_type(i))
     {
-      Gtk::TreeRow row = *iter();
-      int i = _treeview->index_for_column(column);
-      int value;
-      bool bvalue;
-      switch (_treeview->_tree_store->get_column_type(i))
-      {
-      case G_TYPE_BOOLEAN:
-        row.get_value(i, bvalue);
-        value = bvalue ? 1 : 0;
-        break;
-      default:
-        row.get_value(i, value);
-        break;
-      }
-      return value;
+    case G_TYPE_BOOLEAN:
+      row.get_value(i, bvalue);
+      value = bvalue ? 1 : 0;
+      break;
+    default:
+      row.get_value(i, value);
+      break;
     }
+    return value;
+  }
+  return 0;
+}
+
+boost::int64_t TreeNodeImpl::get_long(int column) const
+{
+  if (is_valid() && !is_root())
+  {
+    Gtk::TreeRow row = *iter();
+    std::string value;
+    row.get_value(_treeview->index_for_column(column), value);
+    return strtoll(value.c_str(), NULL, 0);
+  }
+  return 0;
+}
+
+bool TreeNodeImpl::get_bool(int column) const
+{
+  if (is_valid() && !is_root())
+  {
+    Gtk::TreeRow row = *iter();
+    bool value;
+    row.get_value(_treeview->index_for_column(column), value);
+    return value;
+  }
+  return false;
+}
+
+double TreeNodeImpl::get_float(int column) const
+{
+  if (is_valid() && !is_root())
+  {
+    Gtk::TreeRow row = *iter();
+    double value;
+    row.get_value(_treeview->index_for_column(column), value);
+    return value;
+  }
+  return 0.0;
+}
+
+void TreeNodeImpl::set_tag(const std::string &tag)
+{
+  if (is_valid() && !is_root())
+  {
+    Gtk::TreeRow row = *iter();
+    std::string old_tag = row[_treeview->_columns.tag_column()];
+
+    if (!old_tag.empty())
+    {
+      std::map<std::string, Gtk::TreeRowReference>::iterator it = _treeview->_tagmap.find(old_tag);
+      if (it != _treeview->_tagmap.end())
+        _treeview->_tagmap.erase(it);
+    }
+
+    row[_treeview->_columns.tag_column()] = tag;
+
+    if (tag.empty())
+    {
+      std::map<std::string, Gtk::TreeRowReference>::iterator it = _treeview->_tagmap.find(tag);
+      if (it != _treeview->_tagmap.end())
+        _treeview->_tagmap.erase(it);
+    }
+    else
+      _treeview->_tagmap[tag] = _rowref;
+  }
+}
+
+std::string TreeNodeImpl::get_tag() const
+{
+  if (is_valid() && !is_root())
+  {
+    Gtk::TreeRow row = *iter();
+    std::string tag = row[_treeview->_columns.tag_column()];
+    return tag;
+  }
+  return "";
+}
+
+void TreeNodeImpl::set_data(TreeNodeData *data)
+{
+  if (is_valid() && !is_root())
+  {
+    Gtk::TreeRow row = *iter();
+    row[_treeview->_columns.data_column()] = TreeNodeDataRef(data);
+  }
+}
+
+TreeNodeData* TreeNodeImpl::get_data() const
+{
+  if (is_valid() && !is_root())
+  {
+    Gtk::TreeRow row = *iter();
+    TreeNodeDataRef data = row[_treeview->_columns.data_column()];
+    return data._data;
+  }
+  return NULL;
+}
+
+int TreeNodeImpl::level() const
+{
+  if (is_root())
     return 0;
+  return _treeview->tree_store()->iter_depth(*iter()) + 1;
+}
+
+TreeNodeRef TreeNodeImpl::next_sibling() const
+{
+  if (is_root())
+    return TreeNodeRef();
+
+  Gtk::TreePath path = _rowref.get_path();
+  path.next();
+  Gtk::TreeIter iter = _treeview->tree_store()->get_iter(path);
+  if (iter)
+    return ref_from_path(path);
+  return TreeNodeRef();
+}
+
+TreeNodeRef TreeNodeImpl::previous_sibling() const
+{
+  if (is_root())
+    return TreeNodeRef();
+
+  Gtk::TreePath path = _rowref.get_path();
+  if (!path.prev())
+    return TreeNodeRef();
+
+  return ref_from_path(path);
+}
+
+int TreeNodeImpl::get_child_index(TreeNodeRef child) const
+{
+  TreeNodeImpl *node = dynamic_cast<TreeNodeImpl*>(child.ptr());
+  if (node)
+  {
+    if (_rowref.get_path().is_ancestor(node->path()))
+    {
+      int lvl = level();
+      if (lvl <= (int)node->path().size())
+        return node->path()[lvl];
+    }
   }
+  return -1;
+}
 
-  virtual boost::int64_t get_long(int column) const
-  {
-    if (is_valid() && !is_root())
-    {
-      Gtk::TreeRow row = *iter();
-      std::string value;
-      row.get_value(_treeview->index_for_column(column), value);
-      return strtoll(value.c_str(), NULL, 0);
-    }
-    return 0;
-  } 
 
-  virtual bool get_bool(int column) const
-  {
-    if (is_valid() && !is_root())
-    {
-      Gtk::TreeRow row = *iter();
-      bool value;
-      row.get_value(_treeview->index_for_column(column), value);
-      return value;
-    }
-    return false;
- }
 
-  virtual double get_float(int column) const
+void TreeNodeImpl::move_node_before(TreeNodeRef node)
+{
+  TreeNodeImpl *location = dynamic_cast<TreeNodeImpl*>(node.ptr());
+  if (location)
   {
-    if (is_valid() && !is_root())
+    Glib::RefPtr<CustomTreeStore> store = Glib::RefPtr<CustomTreeStore>::cast_dynamic(_treeview->tree_store());
+
+    Gtk::TreeIter to = store->get_iter(location->path());
+    to = store->insert(to);
+
+    TreeNodeRef ref = ref_from_iter(to);
+    TreeNodeImpl *new_loc= dynamic_cast<TreeNodeImpl*>(ref.ptr());
+    if (new_loc)
     {
-      Gtk::TreeRow row = *iter();
-      double value;
-      row.get_value(_treeview->index_for_column(column), value);
-      return value;
+      new_loc->duplicate_node(this);
+      this->remove_from_parent();
+      _rowref = Gtk::TreeRowReference(new_loc->model(), new_loc->model()->get_path(new_loc->iter()));
     }
-    return 0.0;
   }
-    
-  virtual void set_tag(const std::string &tag)
-  {
-    if (is_valid() && !is_root())
-    {
-      Gtk::TreeRow row = *iter();
-      std::string old_tag = row[_treeview->_columns.tag_column()];
+}
 
+void TreeNodeImpl::move_node_after(TreeNodeRef node)
+{
+  TreeNodeImpl *location = dynamic_cast<TreeNodeImpl*>(node.ptr());
+  if (location)
+  {
+    Glib::RefPtr<CustomTreeStore> store = Glib::RefPtr<CustomTreeStore>::cast_dynamic(_treeview->tree_store());
+
+    Gtk::TreeIter to = store->get_iter(location->path());
+    to = store->insert_after(to);
+
+    TreeNodeRef ref = ref_from_iter(to);
+    TreeNodeImpl *new_loc= dynamic_cast<TreeNodeImpl*>(ref.ptr());
+    if (new_loc)
+    {
+      new_loc->duplicate_node(this);
+      this->remove_from_parent();
+      _rowref = Gtk::TreeRowReference(new_loc->model(), new_loc->model()->get_path(new_loc->iter()));
+    }
+  }
+}
+
+void TreeNodeImpl::replace_node(TreeNodeRef node)
+{
+  TreeNodeImpl *location = dynamic_cast<TreeNodeImpl*>(node.ptr());
+  if (location)
+  {
+    Glib::RefPtr<CustomTreeStore> store = Glib::RefPtr<CustomTreeStore>::cast_dynamic(_treeview->tree_store());
+    Gtk::TreeIter new_row = location->duplicate_node(this);
+    this->remove_from_parent();
+    if (new_row)
+      _rowref = Gtk::TreeRowReference(_treeview->tree_store(), _treeview->tree_store()->get_path(new_row));
+
+  }
+}
+
+static void copy_row(Gtk::TreeIter iter, Gtk::TreeIter newiter, Glib::RefPtr<CustomTreeStore> store, const bool &tagmap_enabled,const
+      Gtk::TreeModelColumn<std::string> &tag_col, std::map<std::string, Gtk::TreeRowReference> &tag_map)
+{
+  Gtk::TreeIter previter;
+  while(iter)
+  {
+    if (previter && newiter.equal(previter))
+      newiter = store->insert_after(newiter);
+
+    store->copy_iter(iter, newiter);
+    //we need to move the data if we're using tagmap
+    if (tagmap_enabled)
+    {
+      Gtk::TreeRow from_row = *iter;
+      std::string old_tag = from_row[tag_col];
       if (!old_tag.empty())
       {
-        std::map<std::string, Gtk::TreeRowReference>::iterator it = _treeview->_tagmap.find(old_tag);
-        if (it != _treeview->_tagmap.end())
-          _treeview->_tagmap.erase(it);
+        tag_map[old_tag] = Gtk::TreeRowReference(store, store->get_path(newiter));
+        from_row[tag_col] = "";
       }
+    }
 
-      row[_treeview->_columns.tag_column()] = tag;
+    previter = newiter;
 
-      if (tag.empty())
+    if (!iter->children().empty())
+      copy_row(iter->children().begin(), store->append(newiter->children()), store, tagmap_enabled, tag_col, tag_map);
+
+    iter++;
+  }
+}
+
+Gtk::TreeIter TreeNodeImpl::duplicate_node(TreeNodeRef oldnode)
+{
+  TreeNodeImpl *oldnodeimpl = dynamic_cast<TreeNodeImpl*>(oldnode.ptr());
+  if (oldnodeimpl)
+  {
+    Glib::RefPtr<CustomTreeStore> store = Glib::RefPtr<CustomTreeStore>::cast_dynamic(_treeview->tree_store());
+    Gtk::TreeIter from = store->get_iter(oldnodeimpl->path());
+    Gtk::TreeIter to = store->get_iter(_rowref.get_path());
+    store->copy_iter(from, to);
+
+    //we need to move the data if we're using tagmap
+    if (_treeview->_tagmap_enabled)
+    {
+      Gtk::TreeRow from_row = *from;
+      std::string old_tag = from_row[_treeview->_columns.tag_column()];
+      if (!old_tag.empty())
       {
-        std::map<std::string, Gtk::TreeRowReference>::iterator it = _treeview->_tagmap.find(tag);
-        if (it != _treeview->_tagmap.end())
-          _treeview->_tagmap.erase(it);
+        from_row[_treeview->_columns.tag_column()] = "";
+        _treeview->_tagmap[old_tag] = Gtk::TreeRowReference(store, store->get_path(to));
+        from_row[_treeview->_columns.tag_column()] = "";
       }
-      else
-        _treeview->_tagmap[tag] = _rowref;
     }
+
+    if (!from->children().empty())
+      copy_row(from->children().begin(), store->append(to->children()), store, _treeview->_tagmap_enabled, _treeview->_columns.tag_column(), _treeview->_tagmap);
+
+    return to;
   }
 
-  virtual std::string get_tag() const
-  {
-    if (is_valid() && !is_root())
-    {
-      Gtk::TreeRow row = *iter();
-      std::string tag = row[_treeview->_columns.tag_column()];
-      return tag;
-    }
-    return "";
-  }
+  return Gtk::TreeIter();
 
-  virtual void set_data(TreeNodeData *data)
-  {
-    if (is_valid() && !is_root())
-    {
-      Gtk::TreeRow row = *iter();
-      row[_treeview->_columns.data_column()] = TreeNodeDataRef(data);
-    }
-  }
-
-  virtual TreeNodeData *get_data() const
-  {
-    if (is_valid() && !is_root())
-    {
-      Gtk::TreeRow row = *iter();
-      TreeNodeDataRef data = row[_treeview->_columns.data_column()];
-      return data._data;
-    }
-    return NULL;
-  }
-
-  virtual int level() const
-  {
-    if (is_root())
-      return 0;
-    return _treeview->tree_store()->iter_depth(*iter()) + 1;
-  }
-
-  virtual TreeNodeRef next_sibling() const
-  {
-    if (is_root())
-      return TreeNodeRef();
-
-    Gtk::TreePath path = _rowref.get_path();
-    path.next();
-    Gtk::TreeIter iter = _treeview->tree_store()->get_iter(path);
-    if (iter)
-      return ref_from_path(path);
-    return TreeNodeRef();
-  }
-
-  virtual TreeNodeRef previous_sibling() const
-  {
-    if (is_root())
-      return TreeNodeRef();
-
-    Gtk::TreePath path = _rowref.get_path();
-    if (!path.prev())
-      return TreeNodeRef();
-
-    return ref_from_path(path);
-  }
-
-  virtual int get_child_index(TreeNodeRef child) const
-  {
-    dynamic_cast<TreeNodeImpl*>(child.ptr());
-    TreeNodeImpl *node = dynamic_cast<TreeNodeImpl*>(child.ptr());
-    if (node)
-      return ((std::vector<int>)node->path().get_indices())[0];
-    return -1;
-  }
-};
-
+}
 
 inline TreeNodeRef RootTreeNodeImpl::ref_from_iter(const Gtk::TreeIter &iter) const
 {
@@ -988,7 +1131,6 @@ int TreeNodeViewImpl::ColumnRecord::add_string(Gtk::TreeView *tree, const std::s
     icon = add_model_column<Glib::RefPtr<Gdk::Pixbuf> >();
     column->pack_start(*cell, false);
     column->add_attribute(cell->property_pixbuf(), *icon);
-    //columns.push_back(icon);
   }
 
 
@@ -1018,7 +1160,6 @@ int TreeNodeViewImpl::ColumnRecord::add_string(Gtk::TreeView *tree, const std::s
 
   idx= tree->append_column(*column);
   tree->get_column(idx-1)->set_resizable(true);
-
   return idx-1;
 }
 
@@ -1042,7 +1183,6 @@ int TreeNodeViewImpl::ColumnRecord::add_integer(Gtk::TreeView *tree, const std::
 
   if (editable)
     tree->get_column(idx)->get_first_cell_renderer()->signal_editing_started().connect(sigc::mem_fun(this, &ColumnRecord::on_cell_editing_started));
-
   return idx-1;
 }
 
@@ -1766,7 +1906,7 @@ int TreeNodeViewImpl::add_column(TreeColumnType type, const std::string &name, i
     }
     break;
   }
-  
+
   Gtk::TreeViewColumn *tvc = _tree.get_column(column);
   {
     Gtk::Label *label = Gtk::manage(new Gtk::Label(name));
@@ -1787,7 +1927,7 @@ void TreeNodeViewImpl::end_columns()
   _columns.add_tag_column();
   _columns.add_data_column();
 
-  _tree_store= Gtk::TreeStore::create(_columns);
+  _tree_store = CustomTreeStore::create(_columns);
   _tree.set_model(_tree_store);
 
   _root_node = TreeNodeRef(new RootTreeNodeImpl(this));
@@ -1796,8 +1936,6 @@ void TreeNodeViewImpl::end_columns()
   if (_tree.get_headers_clickable())
     set_allow_sorting(true);
 }
-
-
 
 bool TreeNodeViewImpl::create(TreeNodeView *self, mforms::TreeOptions opt)
 {

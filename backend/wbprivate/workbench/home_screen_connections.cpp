@@ -1584,7 +1584,12 @@ void ConnectionsSection::on_search_text_changed()
 
 void ConnectionsSection::on_search_text_action(mforms::TextEntryAction action)
 {
-  if (action == mforms::EntryActivate)
+  if (action == mforms::EntryEscape)
+  {
+    _search_text.set_value("");
+    on_search_text_changed();
+  }
+  else if (action == mforms::EntryActivate)
   {
     if (_active_folder)
     {
