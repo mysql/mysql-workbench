@@ -386,7 +386,12 @@ class json_module(base_module):
         self._allow_remote = False
         
     def get_query(self):
-            return """SELECT %s FROM %s""" % (",".join([value['name'] for value in self._columns]), self._table_w_prefix)                
+        limit = ""
+        if self._limit:
+            limit = "LIMIT %d" % int(self._limit)
+            if self._offset:
+                limit = "LIMIT %d,%d" % (int(self._offset), int(self._limit))
+        return """SELECT %s FROM %s %s""" % (",".join([value['name'] for value in self._columns]), self._table_w_prefix, limit)                
     
     def start_export(self):
         if self._user_query:
