@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,7 +25,6 @@
 
 namespace mforms {
 namespace gtk {
-
 
 struct TreeNodeDataRef
 {
@@ -63,6 +62,210 @@ struct TreeNodeDataRef
     }
     return *this;
   }
+};
+
+class CustomTreeStore : public Gtk::TreeStore {
+public:
+  CustomTreeStore(const Gtk::TreeModelColumnRecord& columns);
+
+  static Glib::RefPtr<CustomTreeStore> create(const Gtk::TreeModelColumnRecord& columns);
+
+  void copy_iter( Gtk::TreeModel::iterator& from, Gtk::TreeModel::iterator& to);
+};
+
+class TreeNodeViewImpl;
+
+class RootTreeNodeImpl : public ::mforms::TreeNode
+{
+protected:
+  TreeNodeViewImpl *_treeview;
+  int _refcount;
+
+  inline TreeNodeRef ref_from_iter(const Gtk::TreeIter &iter) const;
+  inline TreeNodeRef ref_from_path(const Gtk::TreePath &path) const;
+
+  virtual bool is_root() const;
+
+  virtual bool is_valid() const;
+
+  virtual bool equals(const TreeNode &other);
+
+  virtual int level() const;
+
+public:
+  RootTreeNodeImpl(TreeNodeViewImpl *tree);
+
+  virtual void invalidate();
+
+  virtual void release();
+
+  virtual void retain();
+
+  virtual int count() const;
+
+  virtual bool can_expand();
+
+  virtual Gtk::TreeIter create_child(int index);
+
+  virtual Gtk::TreeIter create_child(int index, Gtk::TreeIter *other_parent);
+
+  virtual TreeNodeRef insert_child(int index);
+
+  virtual std::vector<mforms::TreeNodeRef> add_node_collection(const TreeNodeCollectionSkeleton &nodes, int position = -1);
+
+  virtual void add_children_from_skeletons(const std::vector<Gtk::TreeIter>& parents, const std::vector<TreeNodeSkeleton>& children);
+
+  virtual void remove_from_parent();
+
+  virtual TreeNodeRef get_child(int index) const;
+
+  virtual TreeNodeRef get_parent() const;
+
+
+  virtual void expand();
+
+  virtual void collapse();
+
+  virtual bool is_expanded();
+
+  virtual void set_attributes(int column, const mforms::TreeNodeTextAttributes &attrs);
+
+  virtual void set_icon_path(int column, const std::string &icon);
+
+  virtual void set_string(int column, const std::string &value);
+
+  virtual void set_int(int column, int value);
+
+  virtual void set_long(int column, boost::int64_t value);
+
+  virtual void set_bool(int column, bool value);
+
+  virtual void set_float(int column, double value);
+
+  virtual std::string get_string(int column) const;
+
+  virtual int get_int(int column) const;
+
+  virtual boost::int64_t get_long(int column) const;
+
+  virtual bool get_bool(int column) const;
+
+  virtual double get_float(int column) const;
+
+  virtual void set_tag(const std::string &tag);
+
+  virtual std::string get_tag() const;
+
+  virtual void set_data(TreeNodeData *data);
+
+  virtual TreeNodeData *get_data() const;
+
+  virtual TreeNodeRef previous_sibling() const;
+
+  virtual TreeNodeRef next_sibling() const;
+
+  virtual int get_child_index(TreeNodeRef child) const;
+
+  virtual void replace_node(TreeNodeRef node);
+
+  virtual void move_node_after(TreeNodeRef node);
+
+  virtual void move_node_before(TreeNodeRef node);
+};
+
+
+class TreeNodeImpl : public RootTreeNodeImpl
+{
+  // If _rowref becomes invalidated (eg because Model was deleted),
+  // we just ignore all operations on the node
+  Gtk::TreeRowReference _rowref;
+  bool _is_expanding;
+public:
+  inline Glib::RefPtr<Gtk::TreeStore> model();
+  inline Gtk::TreeIter iter();
+
+  inline Gtk::TreeIter iter() const;
+
+  inline Gtk::TreePath path();
+
+  virtual bool is_root() const;
+
+  virtual Gtk::TreeIter duplicate_node(TreeNodeRef oldnode);
+
+public:
+  TreeNodeImpl(TreeNodeViewImpl *tree, Glib::RefPtr<Gtk::TreeStore> model, const Gtk::TreePath &path);
+
+  TreeNodeImpl(TreeNodeViewImpl *tree, const Gtk::TreeRowReference &ref);
+
+  virtual bool equals(const TreeNode &other);
+
+  virtual bool is_valid() const;
+
+  virtual void invalidate();
+
+  virtual int count() const;
+
+  virtual Gtk::TreeIter create_child(int index);
+
+  virtual void remove_from_parent();
+
+  virtual TreeNodeRef get_child(int index) const;
+
+  virtual TreeNodeRef get_parent() const;
+
+  virtual void expand();
+
+  virtual bool can_expand();
+
+  virtual void collapse();
+
+  virtual bool is_expanded();
+
+  virtual void set_attributes(int column, const TreeNodeTextAttributes &attrs);
+
+  virtual void set_icon_path(int column, const std::string &icon);
+
+  virtual void set_string(int column, const std::string &value);
+
+  virtual void set_int(int column, int value);
+
+  virtual void set_long(int column, boost::int64_t value);
+
+  virtual void set_bool(int column, bool value);
+
+  virtual void set_float(int column, double value);
+
+  virtual std::string get_string(int column) const;
+
+  virtual int get_int(int column) const;
+
+  virtual boost::int64_t get_long(int column) const;
+
+  virtual bool get_bool(int column) const;
+
+  virtual double get_float(int column) const;
+
+  virtual void set_tag(const std::string &tag);
+
+  virtual std::string get_tag() const;
+
+  virtual void set_data(TreeNodeData *data);
+
+  virtual TreeNodeData *get_data() const;
+
+  virtual int level() const;
+
+  virtual TreeNodeRef next_sibling() const;
+
+  virtual TreeNodeRef previous_sibling() const;
+
+  virtual int get_child_index(TreeNodeRef child) const;
+
+  virtual void replace_node(TreeNodeRef node);
+
+  virtual void move_node_after(TreeNodeRef node);
+
+  virtual void move_node_before(TreeNodeRef node);
 };
 
 

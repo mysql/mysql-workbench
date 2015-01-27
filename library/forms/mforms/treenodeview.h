@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -191,6 +191,13 @@ namespace mforms {
     virtual TreeNodeRef find_child_with_tag(const std::string &tag); // this will search the subnodes sequentially
     virtual TreeNodeRef previous_sibling() const = 0;
     virtual TreeNodeRef next_sibling() const = 0;
+
+    //new node location will be to @param node
+    virtual void replace_node(TreeNodeRef node) = 0;
+
+    virtual void move_node_after(TreeNodeRef node) = 0;
+
+    virtual void move_node_before(TreeNodeRef node) = 0;
 
     // This is a very special function and I'm not sure it should be here.
     // It creates nodes out of the collection's captions and adds the same child nodes to each of those nodes
