@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2005, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -408,6 +408,8 @@ std::string get_local_os_name()
   *dot_position = 0;
   int version = base::atoi<int>(info.release, 0);
   switch (version) {
+    case 14:
+      return "OS X 10.10.x Yosemite";
     case 13:
       return "OS X 10.9.x Mavericks";
     case 12:
