@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2005, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -408,6 +408,8 @@ std::string get_local_os_name()
   *dot_position = 0;
   int version = base::atoi<int>(info.release, 0);
   switch (version) {
+    case 14:
+      return "OS X 10.10.x Yosemite";
     case 13:
       return "OS X 10.9.x Mavericks";
     case 12:
@@ -415,9 +417,9 @@ std::string get_local_os_name()
     case 11:
       return "OS X 10.7.x Lion";
     case 10:
-      return "OS X 10.6.x Snow Leopard";
+      return "OS X 10.6.x Snow Leopard"; // For completeness. Not that WB would actually run on this or lower :-)
     case 9:
-      return "OS X 10.5.x Leopard"; // For completeness. Not that WB would actually run on this or lower :-)
+      return "OS X 10.5.x Leopard";
     case 8:
       return "OS X 10.4.x Tiger";
     case 7:
