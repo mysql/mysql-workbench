@@ -153,6 +153,7 @@
                 <File Id="file1116" Name="wbadminhelper.exe"/>
                 <File Id="file1118" Name="mysqlwbmeb.py"/>
                 <File Id="file1119" Name="mysqlwbmeb.vbs"/>
+                <File Id="file1120" Name="wb.fabric.interface.grt.dll"/>
               </Component>
 
               <Component DiskId="1" Guid="47641656-8430-4722-B558-DAE76CA7C0CA" Id="MySQLWorkbench.exe" Location="either">
@@ -1686,7 +1687,8 @@
                   <File Id="file614024" Name="wb_common.py"/>
                   <File Id="file614025" Name="wb_server_management.py"/>
                   <File Id="file614026" Name="wb_server_control.py"/>
-                  <File Id="file614028" Name="sqlide_grt.py"/>
+                  <File Id="file614027" Name="sqlide_grt.py"/>
+                  <File Id="file614028" Name="sqlide_power_import_export.py"/>
                   <File Id="file614029" Name="text_grt.py"/>
                   <File Id="file614030" Name="wba_monitor_be.py"/>
                   <File Id="file614031" Name="wba_ssh_ui.py"/>
