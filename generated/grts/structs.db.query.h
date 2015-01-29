@@ -141,7 +141,8 @@ class  db_query_ResultsetColumn : public GrtObject
 public:
   db_query_ResultsetColumn(grt::GRT *grt, grt::MetaClass *meta=0)
   : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-     _columnType("")
+     _columnType(""),
+     _label("")
 
   {
   }
@@ -168,9 +169,30 @@ obj.columnType = value
     member_changed("columnType", ovalue, value);
   }
 
+  /** Getter for attribute label
+   
+    alias of the column name if used
+   \par In Python:
+value = obj.label
+   */
+  grt::StringRef label() const { return _label; }
+  /** Setter for attribute label
+   
+    alias of the column name if used
+    \par In Python:
+obj.label = value
+   */
+  virtual void label(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_label);
+   _label= value;
+    member_changed("label", ovalue, value);
+  }
+
 protected:
 
   grt::StringRef _columnType;
+  grt::StringRef _label;
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
@@ -188,6 +210,11 @@ public:
       void (db_query_ResultsetColumn::*setter)(const grt::StringRef &)= &db_query_ResultsetColumn::columnType;
       grt::StringRef (db_query_ResultsetColumn::*getter)() const= &db_query_ResultsetColumn::columnType;
       meta->bind_member("columnType", new grt::MetaClass::Property<db_query_ResultsetColumn,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_query_ResultsetColumn::*setter)(const grt::StringRef &)= &db_query_ResultsetColumn::label;
+      grt::StringRef (db_query_ResultsetColumn::*getter)() const= &db_query_ResultsetColumn::label;
+      meta->bind_member("label", new grt::MetaClass::Property<db_query_ResultsetColumn,grt::StringRef >(getter,setter));
     }
   }
 };

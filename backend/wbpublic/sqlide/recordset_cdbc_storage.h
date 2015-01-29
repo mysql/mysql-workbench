@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,7 +34,8 @@ public:
     std::string catalog;
     std::string schema;
     std::string table;
-    std::string field;
+    std::string label;
+    std::string name;
     std::string type;
     std::string charset;
     int display_size;

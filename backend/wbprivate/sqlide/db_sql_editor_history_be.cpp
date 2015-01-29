@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -149,7 +149,7 @@ void DbSqlEditorHistory::EntriesModel::reset()
   add_column("Date", std::string());
   
   boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
-  Recordset_data_storage::create_data_swap_tables(data_swap_db.get(), _column_names, _column_types);
+  Recordset_data_storage::create_data_swap_tables(data_swap_db.get(), _column_labels, _column_types);
 
   refresh_ui();  
 }
@@ -376,7 +376,7 @@ void DbSqlEditorHistory::DetailsModel::reset()
   add_column("SQL", std::string());
 
   boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
-  Recordset_data_storage::create_data_swap_tables(data_swap_db.get(), _column_names, _column_types);
+  Recordset_data_storage::create_data_swap_tables(data_swap_db.get(), _column_labels, _column_types);
 
   refresh_ui();
 }

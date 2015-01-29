@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -88,6 +88,7 @@ public:
   };
 
   typedef std::vector<std::string> Column_names;
+  typedef std::vector<std::string> Column_labels;
   typedef std::vector<sqlite::variant_t> Column_types;
   typedef Data::const_iterator Cell_const;
   typedef std::vector<int> Column_flags;
@@ -130,12 +131,13 @@ public:
 protected:
   virtual bool get_cell(Cell &cell, const bec::NodeId &node, ColumnId column, bool allow_new_row);
   virtual Cell cell(RowId row, ColumnId column);
-  void add_column(const std::string &name, const sqlite::variant_t &type);
+  void add_column(const std::string &label, const sqlite::variant_t &type, const std::string &name = "");
 protected:
   Data _data;
   RowId _row_count;
   ColumnId _column_count;
   Column_names _column_names;
+  Column_labels _column_labels;
   Column_types _column_types;
   Column_types _real_column_types; //! as a temp workaround for quick-fix of #38600: Insert statement calling function is incorrectly parsed
   Column_flags _column_flags; // various flags, such as whether value should be quoted and whether it's NOT NULL (ie numbers vs strings. special values like functions need extra handling)

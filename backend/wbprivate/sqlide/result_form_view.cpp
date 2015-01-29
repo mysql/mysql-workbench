@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -402,36 +402,36 @@ ResultFormView::FieldView *ResultFormView::FieldView::create(const Recordset_cdb
   {
     if (field.display_size > 40)
     {
-      TextFieldView *text = new TextFieldView(format_label(field.field), editable, callback);
+      TextFieldView *text = new TextFieldView(format_label(field.label), editable, callback);
       if (field.display_size > 1000)
         text->value()->set_size(-1, 200);
       return text;
     }
     else
-      return new StringFieldView(format_label(field.field), field.display_size, editable, callback);
+      return new StringFieldView(format_label(field.label), field.display_size, editable, callback);
   }
   else if (field.type == "TEXT")
   {
-    return new TextFieldView(format_label(field.field), editable, callback);
+    return new TextFieldView(format_label(field.label), editable, callback);
   }
   else if (field.type == "BLOB")
   {
-    return new BlobFieldView(format_label(field.field), field.type, editable, callback, view_blob_callback);
+    return new BlobFieldView(format_label(field.label), field.type, editable, callback, view_blob_callback);
   }
   else if (field.type == "GEOMETRY")
   {
-    return new GeomFieldView(format_label(field.field), field.type, editable, callback, view_blob_callback);
+    return new GeomFieldView(format_label(field.label), field.type, editable, callback, view_blob_callback);
   }
   else if (field.type == "ENUM" && !full_type.empty())
   {
-    return new SelectorFieldView(format_label(field.field), parse_enum_definition(full_type), editable, callback);
+    return new SelectorFieldView(format_label(field.label), parse_enum_definition(full_type), editable, callback);
   }
   else if (field.type == "SET" && !full_type.empty())
   {
-    return new SetFieldView(format_label(field.field), parse_enum_definition(full_type), editable, callback);
+    return new SetFieldView(format_label(field.label), parse_enum_definition(full_type), editable, callback);
   }
   else
-    return new StringFieldView(format_label(field.field), field.display_size, editable, callback);
+    return new StringFieldView(format_label(field.label), field.display_size, editable, callback);
   return NULL;
 }
 
@@ -722,7 +722,7 @@ void ResultFormView::init_for_resultset(Recordset::Ptr rset_ptr, SqlEditorForm *
 
       if ((iter->type == "ENUM" || iter->type == "SET") && !iter->table.empty())
       {
-        full_type = get_full_column_type(editor, iter->schema, iter->table, iter->field);
+        full_type = get_full_column_type(editor, iter->schema, iter->table, iter->label);
       }
 
       FieldView *fview = FieldView::create(*iter, full_type, _editable,

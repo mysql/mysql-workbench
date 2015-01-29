@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -87,10 +87,12 @@ protected:
 
 protected:
   static Recordset::Column_names & get_column_names(Recordset *recordset) { return recordset->_column_names; }
+  static Recordset::Column_labels & get_column_labels(Recordset *recordset) { return recordset->_column_labels; }
   static Recordset::Column_types & get_column_types(Recordset *recordset) { return recordset->_column_types; }
   static Recordset::Column_types & get_real_column_types(Recordset *recordset) { return recordset->_real_column_types; }
   static Recordset::Column_flags & get_column_flags(Recordset *recordset) { return recordset->_column_flags; }
   static const Recordset::Column_names & get_column_names(const Recordset *recordset) { return recordset->_column_names; }
+  static const Recordset::Column_labels & get_column_labels(const Recordset *recordset) { return recordset->_column_labels; }
   static const Recordset::Column_types & get_column_types(const Recordset *recordset) { return recordset->_column_types; }
   static const Recordset::Column_types & get_real_column_types(const Recordset *recordset) { return recordset->_real_column_types; }
   static const Recordset::Column_flags & get_column_flags(const Recordset *recordset) { return recordset->_column_flags; }

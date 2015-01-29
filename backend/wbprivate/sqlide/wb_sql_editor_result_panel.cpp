@@ -165,7 +165,7 @@ void SqlEditorResult::copy_all_column_names()
   if (rset)
   {
     std::string text;
-    for (Recordset::Column_names::const_iterator col = rset->column_names()->begin(); col != rset->column_names()->end(); ++col)
+    for (Recordset::Column_names::const_iterator col = rset->column_labels()->begin(); col != rset->column_labels()->end(); ++col)
       text.append(", ").append(*col);
     if (!text.empty())
       text = text.substr(2);
@@ -315,7 +315,7 @@ std::vector<SpatialDataView::SpatialDataSource> SqlEditorResult::get_spatial_col
       SpatialDataView::SpatialDataSource field;
       field.source = get_title();
       field.resultset = _rset;
-      field.column = iter->field;
+      field.column = iter->label;
       field.type = iter->type;
       field.column_index = i;
       spatial_columns.push_back(field);
@@ -545,7 +545,7 @@ void SqlEditorResult::reset_column_widths()
     {
       std::string column_storage_id;
 
-      column_storage_id = field_info[i].field + "::" + field_info[i].schema + "::" + field_info[i].table;
+      column_storage_id = field_info[i].label + "::" + field_info[i].schema + "::" + field_info[i].table;
 
       cache->delete_column_width(column_storage_id);
     }
@@ -593,7 +593,7 @@ void SqlEditorResult::restore_grid_column_widths()
     {
       std::string column_storage_id;
 
-      column_storage_id = field_info[i].field + "::" + field_info[i].schema + "::" + field_info[i].table;
+      column_storage_id = field_info[i].label + "::" + field_info[i].schema + "::" + field_info[i].table;
       _column_width_storage_ids.push_back(column_storage_id);
 
       // check if we have a remembered column width
@@ -840,7 +840,7 @@ void SqlEditorResult::create_column_info_panel()
       {
         mforms::TreeNodeRef node = tree->add_node();
         node->set_int(0, ++i);
-        node->set_string(1, iter->field);
+        node->set_string(1, iter->label);
         node->set_string(2, iter->schema);
         node->set_string(3, iter->table);
         node->set_string(4, iter->type);
