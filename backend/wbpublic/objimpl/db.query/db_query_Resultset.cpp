@@ -292,9 +292,10 @@ public:
 
         case sql::DataType::YEAR:
           type= "numeric";
+          break;
         case sql::DataType::GEOMETRY:
           type= "string";
-
+          break;
         case sql::DataType::ENUM:
         case sql::DataType::SET:
           type= "string";
