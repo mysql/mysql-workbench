@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -612,21 +612,31 @@ void DbConnectPanel::save_connection_as(const std::string &name)
 
 bool DbConnectPanel::test_connection()
 {
-  std::string message = "Connection parameters are correct";
+  std::string message = "Information related to this connection:\n\n";
+
   bool failed = false;
   try
   {
     sql::DriverManager *dbc_drv_man= sql::DriverManager::getDriverManager();
     db_mgmt_ConnectionRef connectionProperties = get_be()->get_connection();
     std::string ssl_cipher;
-    
+
+    message.append("Host: " + connectionProperties->parameterValues().get_string("hostName") + "\n");
+    message.append("Port: " + grt::IntegerRef(connectionProperties->parameterValues().get_int("port")).repr() + "\n");
+    message.append("User: " + connectionProperties->parameterValues().get_string("userName") + "\n");
+
     if ( connectionProperties->driver()->name() == "MySQLFabric")
     {
       grt::GRT *grt = connectionProperties->get_grt();
       grt::BaseListRef args(grt);
       args->insert_unchecked(connectionProperties);
       grt::ValueRef result= grt->call_module_function("WBFabric", "testConnection", args);
-      message = grt::StringRef::extract_from(result);
+      std::string error = grt::StringRef::extract_from(result);
+      if (!error.empty())
+      {
+        failed = true;
+        message = error;
+      }
     }
     else
     {
@@ -663,9 +673,9 @@ bool DbConnectPanel::test_connection()
             ssl_cipher = result->getString(2);
 
           if (ssl_cipher.empty())
-            message.append("\n\nSSL not enabled");
+            message.append("SSL: not enabled\n");
           else
-            message.append("\n\nSSL enabled with "+ssl_cipher);
+            message.append("SSL: enabled with " + ssl_cipher + "\n");
         }
 
       }
@@ -694,8 +704,8 @@ bool DbConnectPanel::test_connection()
     }
     else
     {
-      title = base::strfmt("Connected to %s", bec::get_description_for_connection(get_be()->get_connection()).c_str());
-      mforms::Utilities::show_message(title, message, "OK");
+      message.append("\nA successful MySQL connection was made with\nthe parameters defined for this connection.");
+      mforms::Utilities::show_message("Successfully made the MySQL connection", message, "OK");
       ret_val = true;
     }
   }
