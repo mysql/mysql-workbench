@@ -227,7 +227,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
   BOOST_FOREACH (const Parameters::value_type &param, _parameters)
     dict->SetValue(param.first, param.second);
 
-  const Recordset::Column_names *column_names= recordset->column_names();
+  const Recordset::Column_labels *column_labels = recordset->column_labels();
   const Recordset::Column_types &column_types= get_column_types(recordset);
   const Recordset::Column_types &real_column_types= get_real_column_types(recordset);
   const Recordset::Column_flags &column_flags= get_column_flags(recordset);
@@ -256,7 +256,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
   for (ColumnId col= 0; col < visible_col_count; ++col)
   {
     TemplateDictionary* col_dict = dict->AddSectionDictionary("COLUMN");
-    col_dict->SetValueWithoutCopy("COLUMN_NAME", (*column_names)[col]);
+    col_dict->SetValueWithoutCopy("COLUMN_NAME", (*column_labels)[col]);
 
     // Gets the column real data type and maps it to a classification: Numeric or String
     // Right now the data types are needed for the excel format,  if in the future this
@@ -340,7 +340,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
               if (!include_column_types.empty())
                 field_dict->SetValueWithoutCopy("FIELD_TYPE", out_column_types[col]);
 
-              field_dict->SetValueWithoutCopy("FIELD_NAME", (*column_names)[col]);
+              field_dict->SetValueWithoutCopy("FIELD_NAME", (*column_labels)[col]);
 
               std::string field_value;
               sqlide::VarToStr var_to_str;
@@ -411,7 +411,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
               ColumnId partition_column= col - col_begin;
               v = data_rs->get_variant((int)partition_column);
               TemplateDictionary* field_dict = row_dict->AddSectionDictionary("FIELD");
-              field_dict->SetValueWithoutCopy("FIELD_NAME", (*column_names)[col]);
+              field_dict->SetValueWithoutCopy("FIELD_NAME", (*column_labels)[col]);
               std::string field_value;
               sqlide::VarToStr var_to_str;
               

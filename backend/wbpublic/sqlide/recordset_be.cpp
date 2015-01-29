@@ -148,7 +148,7 @@ bool Recordset::reset(Recordset_data_storage::Ptr data_storage_ptr, bool rethrow
       data_storage->do_unserialize(this, data_swap_db.get());
       rebuild_data_index(data_swap_db.get(), false, false);
 
-      _column_count= _column_names.size();
+      _column_count= _column_labels.size();
       _aux_column_count= data_storage->aux_column_count();
 
       // add aux `id` column required by 2-level caching
@@ -156,6 +156,7 @@ bool Recordset::reset(Recordset_data_storage::Ptr data_storage_ptr, bool rethrow
       ++_column_count;
       _rowid_column= _column_count - 1;
       _column_names.push_back("id");
+      _column_labels.push_back("id");
       _column_types.push_back(int());
       _real_column_types.push_back(int());
       _column_flags.push_back(0);
@@ -1705,7 +1706,7 @@ void Recordset::open_field_data_editor(RowId row, ColumnId column, const std::st
       boost::apply_visitor(data_editor_selector2, _real_column_types[column], *value);
     if (!data_editor)
       return;
-    data_editor->set_title(base::strfmt("Edit Data for %s (%s)", _column_names[column].c_str(), logical_type.c_str()));
+    data_editor->set_title(base::strfmt("Edit Data for %s (%s) [%s]", _column_labels[column].c_str(), _column_names[column].c_str(), logical_type.c_str()));
     data_editor->set_release_on_close(true);
     data_editor->signal_saved.connect(boost::bind(&Recordset::set_field_value,this, row, column, data_editor));
     data_editor->show(true);

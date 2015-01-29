@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -115,6 +115,7 @@ void VarGridModel::reset()
     reinit(_data);
   }
   reinit(_column_names);
+  reinit(_column_labels);
   reinit(_column_types);
   reinit(_real_column_types);
   reinit(_column_flags);
@@ -209,7 +210,7 @@ VarGridModel::ColumnType VarGridModel::get_real_column_type(ColumnId column)
 
 std::string VarGridModel::get_column_caption(ColumnId column)
 {
-  return _column_names.at(column);
+  return _column_labels.at(column);
 }
 
 
@@ -464,9 +465,14 @@ bool VarGridModel::set_field(const NodeId &node, ColumnId column, ssize_t value)
 
 //--------------------------------------------------------------------------------------------------
 
-void VarGridModel::add_column(const std::string &name, const sqlite::variant_t &type)
+void VarGridModel::add_column(const std::string &label, const sqlite::variant_t &type, const std::string &name)
 {
-  _column_names.push_back(name);
+  if (name.empty())
+    _column_names.push_back(label);
+  else
+    _column_names.push_back(name);
+
+  _column_labels.push_back(label);
   _column_types.push_back(type);
   _real_column_types.push_back(type);
   ++_column_count;
