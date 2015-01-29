@@ -407,12 +407,14 @@ void GridView::on_cell_editing_started(Gtk::CellEditable* e, const Glib::ustring
   Gtk::Widget* w = dynamic_cast<Gtk::Widget*>(e);
   if (w)
   {
+#if ((GTKMM_MAJOR_VERSION == 2 && GTKMM_MINOR_VERSION == 19 &&GTKMM_MICRO_VERSION > 2 ) || (GTKMM_MAJOR_VERSION == 2 && GTKMM_MINOR_VERSION > 19) || GTKMM_MAJOR_VERSION > 2)
     Gtk::Entry* entry = dynamic_cast<Gtk::Entry*>(w);
     if (entry)
     {
       Glib::RefPtr<Gtk::EntryBuffer> ebuff = entry->get_buffer();
       ebuff->signal_inserted_text().connect(sigc::mem_fun(this, &GridView::on_text_insert));
     }
+#endif
     w->signal_hide().connect(sigc::mem_fun(this, &GridView::on_cell_editing_done));
     w->signal_focus_out_event().connect(sigc::bind(sigc::mem_fun(this, &GridView::on_focus_out), column->get_first_cell_renderer(), dynamic_cast<Gtk::Entry*>(e)), false);
   }
