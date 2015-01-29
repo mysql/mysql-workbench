@@ -1686,6 +1686,7 @@ void WBContext::set_default_options(grt::DictRef options)
   set_default(options, "DbSqlEditor:ProgressStatusUpdateInterval", 500); // in ms
   set_default(options, "DbSqlEditor:KeepAliveInterval", 600); // in seconds
   set_default(options, "DbSqlEditor:ReadTimeOut", 600); // in seconds
+  set_default(options, "DbSqlEditor:ConnectionTimeOut", 60); // in seconds
   set_default(options, "DbSqlEditor:MaxQuerySizeToHistory", 65536);
   set_default(options, "DbSqlEditor:ContinueOnError", 0); // continue running sql script bypassing failed statements
   set_default(options, "DbSqlEditor:AutocommitMode", 1); // when enabled, each statement will be committed immediately
@@ -1708,6 +1709,9 @@ void WBContext::set_default_options(grt::DictRef options)
 
   // DB SQL editor (MySQL)
   //set_default(options, "DbSqlEditor:MySQL:TreatBinaryAsText", 0);
+
+  // Fabric
+  set_default(options, "Fabric:ConnectionTimeOut", 60); // in seconds
 
   // Recordset
   set_default(options, "Recordset:FloatingPointVisibleScale", 3);

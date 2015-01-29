@@ -47,6 +47,11 @@ int WbFabricInterfaceImpl::openConnection(const db_mgmt_ConnectionRef &conn, con
   // Sets the options needed to connect to the fabric server.
   int proto = MYSQL_PROTOCOL_TCP;
   mysql_options(&mysql, MYSQL_OPT_PROTOCOL, &proto);
+
+  // Sets the connection timeout
+  grt::DictRef wb_options = grt::DictRef::cast_from(get_grt()->get("/wb/options/options"));
+  int connect_timeout = wb_options.get_int("Fabric:ConnectionTimeOut", 60);
+  mysql_options(&mysql, MYSQL_OPT_CONNECT_TIMEOUT, &connect_timeout);
   
   
   if (!mysql_real_connect(&mysql, host.c_str(), user.c_str(), password.c_str(), NULL, port, socket.c_str(),

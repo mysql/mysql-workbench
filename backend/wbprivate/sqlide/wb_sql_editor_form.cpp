@@ -1008,6 +1008,11 @@ void SqlEditorForm::create_connection(sql::Dbc_connection_handler::Ref &dbc_conn
   int read_timeout = _grtm->get_app_option_int("DbSqlEditor:ReadTimeOut");
   if (read_timeout > 0)
     temp_connection->parameterValues().set("OPT_READ_TIMEOUT", grt::IntegerRef(read_timeout));
+
+  int connect_timeout = _grtm->get_app_option_int("DbSqlEditor:ConnectionTimeOut");
+  if (connect_timeout  > 0)
+    temp_connection->parameterValues().set("OPT_CONNECT_TIMEOUT", grt::IntegerRef(connect_timeout));
+
   temp_connection->parameterValues().set("CLIENT_INTERACTIVE", grt::IntegerRef(1));
 
   try
