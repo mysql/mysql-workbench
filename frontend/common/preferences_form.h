@@ -107,7 +107,6 @@ private:
   mforms::View *create_appearance_page();
 
   mforms::View *create_fonts_and_colors_page();
-  mforms::View *create_advanced_settings_page();
 
   mforms::View *create_others_page();
 
