@@ -623,21 +623,26 @@ void TreeNodeWrapper::remove_children()
 void TreeNodeWrapper::move_node(mforms::TreeNodeRef node, bool before)
 {
   // Nodes must belong to the same tree.
-  TreeNodeWrapper *wrapper = (TreeNodeWrapper *)&node;
+  TreeNodeWrapper *wrapper = (TreeNodeWrapper *)node.ptr();
   if (treeWrapper != wrapper->treeWrapper)
     return;
 
-  // Remove this node from current parent node.
   TreeViewNode ^thisNode = (TreeViewNode ^)(Node ^)nativeNode;
-  thisNode->Parent->Nodes->Remove(nativeNode);
+  std::string tag = thisNode->MyTag;
 
-  // Add this node to the parent of the given node.
+  // Remove this node from parent and *after* that determine the target index, as this might
+  // change when this and the other node have a common parent.
+  remove_from_parent();
   int targetIndex = wrapper->nativeNode->Index;
   if (!before)
     ++targetIndex;
+
+
   wrapper->nativeNode->Parent->Nodes->Insert(targetIndex, nativeNode);
 
-  nativeNode->Nodes->Insert(index, wrapper->nativeNode);
+  // Update also the *Adv node as this has been recreated by the code above.
+  nativeNodeAdv = wrapper->nativeNodeAdv->Parent->Children[targetIndex];
+  treeWrapper->process_mapping(nativeNodeAdv, tag);
 }
 
 //--------------------------------------------------------------------------------------------------

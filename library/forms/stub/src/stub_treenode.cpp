@@ -284,6 +284,10 @@ void TreeNodeWrapper::remove_children()
     mforms::TreeNode::remove_children();
 }
 
+void TreeNodeWrapper::move_node(mforms::TreeNodeRef node, bool before)
+{
+}
+
 void TreeNodeWrapper::expand()
 {
   _expanded = true;
