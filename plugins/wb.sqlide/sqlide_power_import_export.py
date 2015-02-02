@@ -1007,8 +1007,7 @@ class PowerImport(mforms.Form):
         self.ds_show_count = 0
         self.df_show_count = 0
 
-        #disabled for now, need OSX and Win32 implementation
-        #self.set_on_close(self.on_close)
+        self.set_on_close(self.on_close)
      
     def on_close(self):
         if self.import_thread:
