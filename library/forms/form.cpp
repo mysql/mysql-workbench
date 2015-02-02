@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -195,6 +195,15 @@ void Form::deactivated()
 bool Form::is_active()
 {
   return _active;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool Form::can_close()
+{
+  if (_can_close_slot)
+    return _can_close_slot();
+  return true;
 }
 
 //--------------------------------------------------------------------------------------------------
