@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -102,7 +102,6 @@ private:
 
 public:
   const Column_names * column_names() const { return &_column_names; }
-  const Column_labels * column_labels() const { return &_column_labels; }
   virtual size_t get_column_count() const { return (int)(_column_count-_aux_column_count); }
   size_t aux_column_count() const { return _aux_column_count; }  
 protected:

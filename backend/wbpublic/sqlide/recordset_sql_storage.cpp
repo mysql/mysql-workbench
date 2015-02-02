@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,11 +37,10 @@ using namespace base;
 //------------------------------------------------------------------------------
 
 PrimaryKeyPredicate::PrimaryKeyPredicate(const Recordset::Column_types *column_types, const Recordset::Column_names *column_names,
-    const Recordset::Column_labels *column_labels, const std::vector<ColumnId> *pkey_columns, sqlide::QuoteVar *qv)
+  const std::vector<ColumnId> *pkey_columns, sqlide::QuoteVar *qv)
 :
 _column_types(column_types),
 _column_names(column_names),
-_column_labels(column_labels),
 _pkey_columns(pkey_columns),
 _qv(qv)
 {
@@ -59,7 +58,7 @@ std::string PrimaryKeyPredicate::operator()(std::vector<boost::shared_ptr<sqlite
     boost::shared_ptr<sqlite::result> &data_row_rs= data_row_results[partition];
     
     v = data_row_rs->get_variant((int)partition_column);
-    predicate+= "`" + (*_column_labels)[col] + "`=" + boost::apply_visitor(*_qv, (*_column_types)[col], v) + " and";
+    predicate+= "`" + (*_column_names)[col] + "`=" + boost::apply_visitor(*_qv, (*_column_types)[col], v) + " and";
   }
   if (!predicate.empty())
     predicate.resize(predicate.size()-4);
@@ -322,7 +321,6 @@ void Recordset_sql_storage::omit_schema_qualifier(bool flag)
 void Recordset_sql_storage::get_pkey_predicate_for_data_cache_rowid(Recordset *recordset, sqlite::connection *data_swap_db, RowId rowid, std::string &pkey_predicate)
 {
   Recordset::Column_names &column_names= get_column_names(recordset);
-  Recordset::Column_names &column_labels= get_column_labels(recordset);
   Recordset::Column_types &column_types= get_column_types(recordset);
 
   std::list<boost::shared_ptr<sqlite::query> > data_row_queries(recordset->data_swap_db_partition_count());
@@ -338,7 +336,7 @@ void Recordset_sql_storage::get_pkey_predicate_for_data_cache_rowid(Recordset *r
   init_variant_quoter(qv);
   // turn blob values into hex strings when building a primary key, since we can't bind those
   //  qv.blob_to_string= boost::bind(sqlide::QuoteVar::blob_to_hex_string, _1, _2);
-  PrimaryKeyPredicate pkey_pred(&column_types, &column_names, &column_labels, &_pkey_columns, &qv);
+  PrimaryKeyPredicate pkey_pred(&column_types, &column_names, &_pkey_columns, &qv);
   pkey_predicate= pkey_pred(data_row_results);
 }
 
@@ -354,7 +352,6 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
   }
 
   const Recordset::Column_names &column_names= get_column_names(recordset);
-  const Recordset::Column_labels &column_labels = get_column_labels(recordset);
   const Recordset::Column_types &column_types= get_column_types(recordset);
   const Recordset::Column_types &real_column_types= get_real_column_types(recordset);
   const Recordset::Column_flags &column_flags = get_column_flags(recordset);
@@ -382,7 +379,7 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
 
   if (is_update_script)
   {
-    PrimaryKeyPredicate pkey_pred(&real_column_types, &column_names, &column_labels, &_pkey_columns, &pk_qv);
+    PrimaryKeyPredicate pkey_pred(&real_column_types, &column_names, &_pkey_columns, &pk_qv);
 
     std::list<boost::shared_ptr<sqlite::query> > data_row_queries(partition_count);
     Recordset::prepare_partition_queries(data_swap_db, "select * from `data%s` where id=?", data_row_queries);

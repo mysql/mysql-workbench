@@ -245,7 +245,6 @@
       <gstruct attr:desc="a database resultset column" name="db.query.ResultsetColumn" parent="GrtObject">      
           <members>        
               <member name="columnType" type="string" attr:desc="the type of the column, string, int, real, blob, date, time, datetime, geo"/> 
-              <member name="label" type="string" attr:desc="alias of the column name if used"/> 
           </members>      
       </gstruct> 
 

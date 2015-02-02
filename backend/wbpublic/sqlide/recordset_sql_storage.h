@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -165,13 +165,12 @@ class PrimaryKeyPredicate
 {
   const Recordset::Column_types *_column_types;
   const Recordset::Column_names *_column_names;
-  const Recordset::Column_labels *_column_labels;
   const std::vector<ColumnId> *_pkey_columns;
   sqlide::QuoteVar *_qv;
 
 public:
   PrimaryKeyPredicate(const Recordset::Column_types *column_types, const Recordset::Column_names *column_names,
-      const Recordset::Column_labels *column_labels, const std::vector<ColumnId> *pkey_columns, sqlide::QuoteVar *qv);
+    const std::vector<ColumnId> *pkey_columns, sqlide::QuoteVar *qv);
   std::string operator()(std::vector<boost::shared_ptr<sqlite::result> > &data_row_results);
 };
 
