@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -309,8 +309,7 @@ public:
       db_query_ResultsetColumnRef column(aself->get_grt());
 
       column->owner(aself);
-      column->name(std::string(meta->getColumnName(i)));
-      column->label(std::string(meta->getColumnLabel(i)));
+      column->name(std::string(meta->getColumnLabel(i)));
       column->columnType(type);
 
       self->columns().insert(column);

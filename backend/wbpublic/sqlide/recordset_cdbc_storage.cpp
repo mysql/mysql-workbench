@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -273,7 +273,6 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
   std::string sql_query= decorated_sql_query();
 
   Recordset::Column_names &column_names= get_column_names(recordset);
-  Recordset::Column_names &column_labels= get_column_labels(recordset);
   Recordset::Column_types &column_types= get_column_types(recordset);
   Recordset::Column_types &real_column_types= get_real_column_types(recordset);
   Recordset::Column_flags &column_flags= get_column_flags(recordset);
@@ -404,8 +403,7 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
       info.catalog = rs_meta->getCatalogName(i+1);
       info.schema = rs_meta->getSchemaName(i+1);
       info.table = rs_meta->getTableName(i+1);
-      info.label = rs_meta->getColumnLabel(i+1);
-      info.name = rs_meta->getColumnName(i+1);
+      info.field = rs_meta->getColumnLabel(i+1);
       info.type = rs_meta->getColumnTypeName(i+1);
 #if defined(__APPLE__) || defined(_WIN32) || defined(MYSQLCPPCONN_VERSION_1_1_4)
       info.charset = rs_meta->getColumnCharset(i+1);
@@ -438,22 +436,17 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
   }
 
   // column names
-  column_labels.reserve(editable_col_count);
   column_names.reserve(editable_col_count);
   // some column names might be defined in derived class. don't redefine names for those columns.
-  for (unsigned int n = (unsigned int)column_labels.size(); (unsigned int)editable_col_count > n; ++n)
-  {
-    column_labels.push_back(rs_meta->getColumnLabel(n+1));
-    column_names.push_back(rs_meta->getColumnName(n+1));
-  }
-
+  for (unsigned int n = (unsigned int)column_names.size(); (unsigned int)editable_col_count > n; ++n)
+    column_names.push_back(rs_meta->getColumnLabel(n+1));
 
   // determine pkey or unique identifier columns
   ColumnId rowid_col_count= 0;
   if (!_table_name.empty()) // we need PK info only for editable statements and table_name member is filled only for those
   {
     // some day, I_S will be fast enough and we can switch to the non-alt version of the method for that server and above
-    rowid_col_count = determine_pkey_columns_alt(column_labels, column_types, real_column_types);
+    rowid_col_count = determine_pkey_columns_alt(column_names, column_types, real_column_types);
   }
 
   // columns values of that must be null to signify that actual value to be fetched on-demand (e.g. when open blob editor)
@@ -468,12 +461,12 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
   {
     sqlide::Sqlite_transaction_guarder transaction_guarder(data_swap_db, false);
 
-    create_data_swap_tables(data_swap_db, column_labels, column_types);
+    create_data_swap_tables(data_swap_db, column_names, column_types);
 
     FetchVar fetch_var(rs.get());
     Var_vector row_values(editable_col_count + rowid_col_count);
 
-    std::list<boost::shared_ptr<sqlite::command> > insert_commands= prepare_data_swap_record_add_statement(data_swap_db, column_labels);
+    std::list<boost::shared_ptr<sqlite::command> > insert_commands= prepare_data_swap_record_add_statement(data_swap_db, column_names);
     // XXX this will fetch all records before displaying them, which will result in a huge unnecessary lag in the UI
     while (rs->next())
     {
