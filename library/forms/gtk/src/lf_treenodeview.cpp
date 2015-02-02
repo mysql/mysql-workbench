@@ -466,17 +466,7 @@ int RootTreeNodeImpl::get_child_index(TreeNodeRef child) const
   return -1;
 }
 
-void RootTreeNodeImpl::replace_node(TreeNodeRef node)
-{
-  // noop
-}
-
-void RootTreeNodeImpl::move_node_after(TreeNodeRef node)
-{
-  // noop
-}
-
-void RootTreeNodeImpl::move_node_before(TreeNodeRef node)
+void RootTreeNodeImpl::move_node(TreeNodeRef node, bool before)
 {
   // noop
 }
@@ -953,9 +943,7 @@ int TreeNodeImpl::get_child_index(TreeNodeRef child) const
   return -1;
 }
 
-
-
-void TreeNodeImpl::move_node_before(TreeNodeRef node)
+void TreeNodeImpl::move_node(TreeNodeRef node, bool before)
 {
   TreeNodeImpl *location = dynamic_cast<TreeNodeImpl*>(node.ptr());
   if (location)
@@ -963,7 +951,10 @@ void TreeNodeImpl::move_node_before(TreeNodeRef node)
     Glib::RefPtr<CustomTreeStore> store = Glib::RefPtr<CustomTreeStore>::cast_dynamic(_treeview->tree_store());
 
     Gtk::TreeIter to = store->get_iter(location->path());
-    to = store->insert(to);
+    if (before)
+      to = store->insert(to);
+    else
+      to = store->insert_after(to);
 
     TreeNodeRef ref = ref_from_iter(to);
     TreeNodeImpl *new_loc= dynamic_cast<TreeNodeImpl*>(ref.ptr());
@@ -973,41 +964,6 @@ void TreeNodeImpl::move_node_before(TreeNodeRef node)
       this->remove_from_parent();
       _rowref = Gtk::TreeRowReference(new_loc->model(), new_loc->model()->get_path(new_loc->iter()));
     }
-  }
-}
-
-void TreeNodeImpl::move_node_after(TreeNodeRef node)
-{
-  TreeNodeImpl *location = dynamic_cast<TreeNodeImpl*>(node.ptr());
-  if (location)
-  {
-    Glib::RefPtr<CustomTreeStore> store = Glib::RefPtr<CustomTreeStore>::cast_dynamic(_treeview->tree_store());
-
-    Gtk::TreeIter to = store->get_iter(location->path());
-    to = store->insert_after(to);
-
-    TreeNodeRef ref = ref_from_iter(to);
-    TreeNodeImpl *new_loc= dynamic_cast<TreeNodeImpl*>(ref.ptr());
-    if (new_loc)
-    {
-      new_loc->duplicate_node(this);
-      this->remove_from_parent();
-      _rowref = Gtk::TreeRowReference(new_loc->model(), new_loc->model()->get_path(new_loc->iter()));
-    }
-  }
-}
-
-void TreeNodeImpl::replace_node(TreeNodeRef node)
-{
-  TreeNodeImpl *location = dynamic_cast<TreeNodeImpl*>(node.ptr());
-  if (location)
-  {
-    Glib::RefPtr<CustomTreeStore> store = Glib::RefPtr<CustomTreeStore>::cast_dynamic(_treeview->tree_store());
-    Gtk::TreeIter new_row = location->duplicate_node(this);
-    this->remove_from_parent();
-    if (new_row)
-      _rowref = Gtk::TreeRowReference(_treeview->tree_store(), _treeview->tree_store()->get_path(new_row));
-
   }
 }
 
