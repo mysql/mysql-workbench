@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -616,6 +616,28 @@ void TreeNodeWrapper::remove_children()
       treeWrapper->process_mapping(nullptr, node->MyTag);
   }
   nativeNode->Nodes->Clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TreeNodeWrapper::move_node(mforms::TreeNodeRef node, bool before)
+{
+  // Nodes must belong to the same tree.
+  TreeNodeWrapper *wrapper = (TreeNodeWrapper *)&node;
+  if (treeWrapper != wrapper->treeWrapper)
+    return;
+
+  // Remove this node from current parent node.
+  TreeViewNode ^thisNode = (TreeViewNode ^)(Node ^)nativeNode;
+  thisNode->Parent->Nodes->Remove(nativeNode);
+
+  // Add this node to the parent of the given node.
+  int targetIndex = wrapper->nativeNode->Index;
+  if (!before)
+    ++targetIndex;
+  wrapper->nativeNode->Parent->Nodes->Insert(targetIndex, nativeNode);
+
+  nativeNode->Nodes->Insert(index, wrapper->nativeNode);
 }
 
 //--------------------------------------------------------------------------------------------------
