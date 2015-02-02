@@ -461,7 +461,7 @@ void CatalogTreeView::add_update_node_caption(grt::ValueRef val)
       }
       if (new_idx > -1 && next_node.is_valid())
       {
-        node->move_node_after(next_node);
+        node->move_node(next_node, false);
         moved = true;
       }
     }
@@ -486,7 +486,7 @@ void CatalogTreeView::add_update_node_caption(grt::ValueRef val)
       }
       if (new_idx > -1 && prev_node.is_valid())
       {
-        node->move_node_before(prev_node);
+        node->move_node(prev_node, true);
         moved = true;
       }
     }

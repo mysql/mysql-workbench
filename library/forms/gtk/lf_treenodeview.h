@@ -166,11 +166,7 @@ public:
 
   virtual int get_child_index(TreeNodeRef child) const;
 
-  virtual void replace_node(TreeNodeRef node);
-
-  virtual void move_node_after(TreeNodeRef node);
-
-  virtual void move_node_before(TreeNodeRef node);
+  virtual void move_node(TreeNodeRef node, bool before);
 };
 
 
@@ -261,11 +257,7 @@ public:
 
   virtual int get_child_index(TreeNodeRef child) const;
 
-  virtual void replace_node(TreeNodeRef node);
-
-  virtual void move_node_after(TreeNodeRef node);
-
-  virtual void move_node_before(TreeNodeRef node);
+  virtual void move_node(TreeNodeRef node, bool before);
 };
 
 
