@@ -682,8 +682,7 @@ class PowerExport(mforms.Form):
             self.set_size(600, -1)
         self.center()
     
-        #disabled for now, need OSX and Win32 implementation
-        #self.set_on_close(self.on_close)
+        self.set_on_close(self.on_close)
         
         self.tab_opt_map = {}
         self.export_thread = None
