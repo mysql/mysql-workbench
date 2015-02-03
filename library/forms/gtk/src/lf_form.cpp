@@ -274,14 +274,14 @@ FormImpl::FormImpl(::mforms::Form *form, ::mforms::Form *owner, mforms::FormFlag
 
   _window->signal_focus_in_event().connect(sigc::bind< ::mforms::Form *>(sigc::mem_fun(this, &FormImpl::on_focus_event), form));
   _window->signal_focus_out_event().connect(sigc::bind< ::mforms::Form *>(sigc::mem_fun(this, &FormImpl::on_focus_event), form));
-  _window->signal_delete_event().connect(sigc::mem_fun(this, &FormImpl::can_close_widget), false);
+  _window->signal_delete_event().connect(sigc::mem_fun(this, &FormImpl::can_delete_widget), false);
 }
 
-bool FormImpl::can_close_widget(GdkEventAny* event)
+bool FormImpl::can_delete_widget(GdkEventAny* event)
 {
   mforms::Form* form = dynamic_cast<mforms::Form*>(owner);
-    if (form && form->can_close_slot)
-      return !form->can_close_slot();
+  if (form)
+    return !form->can_close();
 
   return false;
 }
