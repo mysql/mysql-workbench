@@ -22,10 +22,11 @@ import mforms
 import grt
 import threading
 
-import os
-import csv
+import sys, os, csv, platform
+
 from mforms import newTreeNodeView
 from mforms import FileChooser
+import datetime
 import operator
 
 
@@ -33,13 +34,13 @@ from workbench.log import log_debug3, log_debug2, log_debug, log_error, log_info
 
 def showPowerImport(editor, selection):
     importer = PowerImport(editor, mforms.Form.main_form(), selection)
-    importer.set_title("Power Import")
+    importer.set_title("Table Data Import")
     importer.run()
 
 def showPowerExport(editor, selection):
     exporter = PowerExport(editor, mforms.Form.main_form())
     exporter.set_source(selection)
-    exporter.set_title("Power Export")
+    exporter.set_title("Table Data Export")
     exporter.run()
 
 def handleContextMenu(name, sender, args):
@@ -60,50 +61,52 @@ def handleContextMenu(name, sender, args):
         else:
             return
 
-    menu.add_separator()
-
     if user_selection['table']:
-        item = mforms.newMenuItem("Power Export Data")
+        item = mforms.newMenuItem("Table Data Export")
         item.add_clicked_callback(lambda sender=sender : showPowerExport(sender, user_selection))
         menu.insert_item(3, item)
 
-    item = mforms.newMenuItem("Power Import Data")
+    item = mforms.newMenuItem("Table Data Import")
     item.add_clicked_callback(lambda sender=sender : showPowerImport(sender, user_selection))
     menu.insert_item(4, item)
     
-
-class WorkerThread(threading.Thread):
+    menu.insert_item(5, mforms.newMenuItem("", mforms.SeparatorMenuItem))
+    
+class WorkerThread:
     def __init__(self, module):
         self.is_running = False
-        self.finished = False
         self.stop = threading.Event()
-        super(WorkerThread, self).__init__()
+        self.thread = threading.Thread()
+        self.thread.run = self._run
 
-        self.finished_callback = None
         self.exception = None
         self.module = module
-        
+        self.finished_callback = None
 
-    def call_finished_callback(self, success):
-        log_debug("WorkerThread finished %s\n" % "successfully" if success else "with error")
-        
+    def call_finished_callback(self):
         if self.finished_callback:
-            self.finished_callback(success)
-        
-    def run(self):
+            self.finished_callback(True if not self.exception else False)
+
+        return False
+
+    def start(self):
+		if not self.is_running:
+			self.exception = None
+			self._timeout_handle = mforms.Utilities.add_timeout(0.5, lambda: self.call_finished_callback())
+ 			self.thread.start()
+
+    def _run(self):
         if self.is_running:
             return
         self.is_running = True
         
         try:
             self.module.start(self.stop)
-            self.call_finished_callback(True)
         except Exception, e:
             import traceback
             log_error("WorkerThread caught exception: %s" % traceback.format_exc())
             self.exception = e
-            self.call_finished_callback(False)
-            
+
         self.is_running = False
 
 class base_module:
@@ -128,6 +131,12 @@ class base_module:
         self._max_rows = 0
         self._thread_event = None
         self._user_query = None
+        self._decimal_separator = ','
+        self._date_format = '%Y-%m-%d %H:%M:%S'
+        self._encoding = 'utf-8' #default encoding
+        
+    def set_encoding(self, encoding):
+        self._encoding = encoding
         
     def get_current_row(self):    
         return self._current_row
@@ -171,6 +180,12 @@ class base_module:
     def set_local(self, local):
         if self._allow_remote:
             self._local = local
+            
+    def set_decimal_separator(self, separator):
+        self._decimal_separator = separator
+    
+    def set_date_format(self, format):
+        self._date_format = format
     
     def read_user_query_columns(self, result):
         self._columns = []
@@ -199,12 +214,38 @@ class base_module:
         else:
             self.start_export()
 
+class Utf8Reader:
+    def __init__(self, f, enc):
+        import codecs
+        self.reader = codecs.getreader(enc)(f)
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        return self.reader.next().encode("utf-8")
+
+class UniReader:
+    def __init__(self, f, dialect=csv.excel, encoding="utf-8", **args):
+        f = Utf8Reader(f, encoding)
+        self.csvreader = csv.reader(f, dialect=dialect, **args)
+
+    def next(self):
+        row = self.csvreader.next()
+        return [unicode(s, "utf-8") for s in row]
+
+    def __iter__(self):
+        return self
+
 class csv_module(base_module):
     def __init__(self, editor, is_import):
+        self.dialect = None
+        self.has_header = False
+
         base_module.__init__(self, editor, is_import)
         self.name = "csv"
         self.title = self.name
-        self.options = {'filedseparator': {'description':'Field Separator', 'type':'select', 'opts':{'\\t':'\t',';':';', ':':':'}, 'value':';', 'entry': None}, 
+        self.options = {'filedseparator': {'description':'Field Separator', 'type':'select', 'opts':{'TAB':'\t',';':';', ':':':'}, 'value':';', 'entry': None}, 
                 'lineseparator': {'description':'Line Separator', 'type':'select','opts':{"CR":'\r', "CR LF":'\r\n', "LF":'\n'}, 'value':'\n', 'entry': None}, 
                 'encolsestring': {'description':'Enclose Strings in', 'type':'text', 'value':'"', 'entry': None}};
         
@@ -244,11 +285,12 @@ class csv_module(base_module):
                     self.read_user_query_columns(rset)
                     
                 self._max_rows = rset.rowCount
+
                 with open(self._filepath, 'wb') as csvfile:
                     output = csv.writer(csvfile, delimiter = self.options['filedseparator']['value'], 
                                         lineterminator = self.options['lineseparator']['value'], 
                                         quotechar = self.options['encolsestring']['value'], quoting = csv.QUOTE_NONNUMERIC)
-                    output.writerow([value['name'] for value in self._columns])
+                    output.writerow([value['name'].encode('utf-8') for value in self._columns])
                     ok = rset.goToFirstRow()
                     while ok:
                         if self._thread_event and self._thread_event.is_set():
@@ -294,14 +336,12 @@ class csv_module(base_module):
             dest_col_order = list(set([i['dest_col'] for i in self._mapping if i['active']]))
             query = """PREPARE stmt FROM 'INSERT INTO %s (%s) VALUES(%s)'""" % (self._table_w_prefix, ",".join(dest_col_order), ",".join(["?" for i in dest_col_order]))
             col_order = dict([(i['dest_col'], i['col_no']) for i in self._mapping if i['active']])
-
+            col_type = dict([(i['name'], i['type']) for i in self._mapping if i['active']])
+            
             self._editor.executeManagementCommand(query, 1)
             try:
-                csvsample = csvfile.readline()
-                dialect = csv.Sniffer().sniff(csvsample)
-                has_header = csv.Sniffer().has_header(csvsample)
-                csvfile.seek(0)
-                reader = csv.reader(csvfile, dialect)
+                is_header = self.has_header 
+                reader = UniReader(csvfile, self.dialect, encoding=self._encoding)
 
                 for row in reader:
                     if self._thread_event and self._thread_event.is_set():
@@ -309,13 +349,20 @@ class csv_module(base_module):
                         break
                     
                     self._current_row = reader.line_num
-                    if has_header:
-                        has_header = False
+                    if is_header:
+                        is_header = False
                         continue
                     
-                    
+                    rowskip = False
                     for i, col in enumerate(col_order):
-                        self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, row[col_order[col]]), 0)
+                        val = row[col_order[col]]
+                        if col_type[col] == 'double':
+                            val = row[col_order[col]].replace(self._decimal_separator, ',')
+                        elif col_type[col] == 'datetime':
+                            val = datetime.datetime.strptime(row[col_order[col]], self._date_format).strftime("%Y-%m-%d %H:%M:%S")
+
+                        self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val), 0)
+                            
                     try:
                         self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 0)
                     except Exception, e:
@@ -329,30 +376,48 @@ class csv_module(base_module):
 
     def analyze_file(self):
         with open(self._filepath, 'rb') as csvfile:
-            csvsample = csvfile.readline()
-            dialect = csv.Sniffer().sniff(csvsample)
-            has_header = csv.Sniffer().has_header(csvsample)
-            csvfile.seek(0)
-            reader = csv.reader(csvfile, dialect)
-            self._columns = []
-            for i, row in enumerate(reader): #we will read only first and second line
-                if i == 1:
-                    if has_header:
-                        for j, col_value in enumerate(row):
-                            self._columns[j]['value'] = col_value
-                        break
-                    else:
-                        break 
-                for col_value in row:
-                    col = {'name': None, 'type': None, 'is_string': None, 'is_number': None, 'is_date_or_time': None, 'is_bin': None, 'value': None}
-                    col['name'] = col_value 
-                    col['type'] = "varchar"
-                    col['is_number'] = False
-                    col['is_float'] = False 
-                    col['is_string'] = True
-                    col['is_bin'] = False  
-                    col['value'] = col_value
-                    self._columns.append(col)
+            if self.dialect is None:
+                csvsample = []
+                for i in range(0,2): #read two lines as a sample
+                    csvsample.append(csvfile.readline())
+                
+                csvsample = "".join(csvsample)
+                self.dialect = csv.Sniffer().sniff(csvsample)
+                self.has_header = csv.Sniffer().has_header(csvsample)
+                csvfile.seek(0)
+            else:
+                self.dialect.delimiter = self.options['filedseparator']['value']
+                self.dialect.lineterminator = self.options['lineseparator']['value']
+                self.dialect.quotechar = self.options['encolsestring']['value']
+                
+            try:
+                reader = UniReader(csvfile, self.dialect, encoding=self._encoding)
+                self._columns = []
+                for i, row in enumerate(reader): #we will read only first and second line
+                    if i == 1:
+                        if self.has_header:
+                            for j, col_value in enumerate(row):
+                                self._columns[j]['value'] = col_value
+                            break
+                        else:
+                            break 
+    
+                    for col_value in row:
+                        col = {'name': None, 'type': None, 'is_string': None, 'is_number': None, 'is_date_or_time': None, 'is_bin': None, 'value': None}
+                        col['name'] = col_value 
+                        col['type'] = "varchar"
+                        col['is_number'] = False
+                        col['is_float'] = False 
+                        col['is_string'] = True
+                        col['is_bin'] = False  
+                        col['value'] = col_value
+                        self._columns.append(col)
+            except (UnicodeError, UnicodeDecodeError), e:
+                import traceback
+                log_error("Error analyzing file, probably encoding issue: %s\n Traceback is: %s" % (e, traceback.format_exc()))
+                self._last_analyze = False
+                return False
+                
         self._last_analyze = True
         return True
         
@@ -365,7 +430,12 @@ class json_module(base_module):
         self._allow_remote = False
         
     def get_query(self):
-            return """SELECT %s FROM %s""" % (",".join([value['name'] for value in self._columns]), self._table_w_prefix)                
+        limit = ""
+        if self._limit:
+            limit = "LIMIT %d" % int(self._limit)
+            if self._offset:
+                limit = "LIMIT %d,%d" % (int(self._offset), int(self._limit))
+        return """SELECT %s FROM %s %s""" % (",".join([value['name'] for value in self._columns]), self._table_w_prefix, limit)                
     
     def start_export(self):
         if self._user_query:
@@ -377,7 +447,7 @@ class json_module(base_module):
         if rset:
             if self._user_query: #We need to get columns info
                 self.read_user_query_columns(rset)
-
+                
             with open(self._filepath, 'wb') as jsonfile:
                 jsonfile.write('[')
                 ok = rset.goToFirstRow()
@@ -416,13 +486,14 @@ class json_module(base_module):
         if self._new_table:
             if not self.prepare_new_table():
                 return
-
+        
         with open(self._filepath, 'rb') as jsonfile:
             import json
-            data = json.load(jsonfile)
+            data = json.loads(jsonfile)
             dest_col_order = list(set([i['dest_col'] for i in self._mapping if i['active']]))
             query = """PREPARE stmt FROM 'INSERT INTO %s (%s) VALUES(%s)'""" % (self._table_w_prefix, ",".join(dest_col_order), ",".join(["?" for i in dest_col_order]))
             col_order = dict([(i['dest_col'], i['name']) for i in self._mapping if i['active']])
+            col_type = dict([(i['name'], i['type']) for i in self._mapping if i['active']])
             self._editor.executeManagementCommand(query, 1)
             try:
                 self._max_rows = len(data)
@@ -433,7 +504,13 @@ class json_module(base_module):
 
                     self._current_row = self._current_row + 1
                     for i, col in enumerate(col_order):
-                        self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, row[col_order[col]]), 1)
+                        val = row[col_order[col]]
+                        if col_type[col] == 'double':
+                            val = row[col_order[col]].replace(self._decimal_separator, ',')
+                        elif col_type[col] == 'datetime':
+                            val = datetime.datetime.strptime(row[col_order[col]], self._date_format).strftime("%Y-%m-%d %H:%M:%S")
+                            
+                        self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val), 1)
                     try:
                         self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 1)
                     except Exception, e:
@@ -522,11 +599,12 @@ class SimpleTabExport(mforms.Box):
         colbox.set_spacing(8)
         colbox.add(mforms.newLabel("Select columns you'd like to export"), False, True)
         
-        self.column_list = newTreeNodeView(mforms.TreeFlatList|mforms.TreeNoHeader)
-        self.column_list.add_column(mforms.CheckColumnType, "", 40, True)
-        self.column_list.add_column(mforms.StringColumnType, "Column name", 50, False)
+        self.column_list = newTreeNodeView(mforms.TreeFlatList)
+        self.column_list.add_column(mforms.CheckColumnType, "Export", 50, True)
+        self.column_list.add_column(mforms.StringColumnType, "Column name", self.owner.get_width() - 50, False)
         self.column_list.end_columns()
-        self.column_list.set_size(150, -1)
+        self.column_list.set_allow_sorting(True)
+        self.column_list.set_size(200, -1)
         colbox.add(self.column_list, True, True)
         
         limit_box = mforms.newBox(True)
@@ -534,6 +612,7 @@ class SimpleTabExport(mforms.Box):
         limit_box.add(mforms.newLabel("Limit: "), False, False)
         self.limit_entry = mforms.newTextEntry()
         self.limit_entry.set_size(50, -1)
+        self.limit_entry.add_changed_callback(lambda entry=self.limit_entry: self.entry_changed(entry))
         limit_box.add(self.limit_entry, False, False)
         
         offset_box = mforms.newBox(True)
@@ -541,21 +620,43 @@ class SimpleTabExport(mforms.Box):
         offset_box.add(mforms.newLabel("Offset: "), False, False)
         self.offset_entry = mforms.newTextEntry()
         self.offset_entry.set_size(50, -1)
+        self.offset_entry.add_changed_callback(lambda entry=self.offset_entry: self.entry_changed(entry))
+
         offset_box.add(self.offset_entry, False, False)
+        
+        
+        sellall_cb = mforms.newCheckBox()
+        sellall_cb.set_text("Select / Deselect all entries")
+        sellall_cb.set_active(True)
+        sellall_cb.add_clicked_callback(lambda cb = sellall_cb: self.sell_all(cb))
         
         limit_offset = mforms.newBox(True)
         limit_offset.set_spacing(8)
+        limit_offset.add(sellall_cb, False, True)
         limit_offset.add_end(limit_box, False, True)
         limit_offset.add_end(offset_box, False, True)
 
         colbox.add(limit_offset, False, True)
         self.content.add(colbox, True, True)
+    
+    def sell_all(self, checkbox):
+        for i in range(self.column_list.count()):
+            self.column_list.node_at_row(i).set_bool(0, checkbox.get_active())
+        
+    
+    def entry_changed(self, control):
+        txt = str(control.get_string_value())
+        if len(txt) and not txt.isdigit():
+            mforms.Utilities.show_warning("Table Data Export", "Offset and Limit field can contain only numbers", "OK", "", "")
+            control.set_value("".join([s for s in list(txt) if s.isdigit()])) 
  
     def set_columns(self, cols):
         self.columns = cols
         for col in self.columns:
             node = self.column_list.add_node()
+            node.set_bool(0, True)
             node.set_string(1, col['name'])     
+        self.column_list.relayout()
        
     
 class AdvancedTabExport(mforms.Box):
@@ -615,8 +716,14 @@ class PowerExport(mforms.Form):
         self.advancedTab = AdvancedTabExport(self.editor, self)
         self.tab_view.add_page(self.advancedTab, self.advancedTab.caption)
         
+        self.tab_view.set_size(-1, 200)
+        self.tab_view.relayout()
+        
         self.set_content(self.content)
-        self.set_size(600, -1)
+        if sys.platform.lower() == "darwin":
+            self.set_size(600, 200)
+        else:
+            self.set_size(600, -1)
         self.center()
     
         self.set_on_close(self.on_close)
@@ -625,13 +732,15 @@ class PowerExport(mforms.Form):
         self.export_thread = None
         self.export_timeout = None
         
+        self.suspend_layout()
         self.create_ui()
+        self.resume_layout()
      
     def on_close(self):
         if self.export_thread:
-            if mforms.Utilities.show_message("PowerExport", "Export thread is in progress, if you continue, results can be undefined. Do you wish to stop export and close this window?", "Stop Export", "Cancel", "") == mforms.ResultOk:
+            if mforms.Utilities.show_message("Table Data Export", "Export thread is in progress, if you continue, results can be undefined. Do you wish to stop export and close this window?", "Stop Export", "Cancel", "") == mforms.ResultOk:
                 if not self.stop_export():
-                    mforms.Utilities.show_error("PowerExport", "Can't stop export thread", "Ok", "", "")
+                    mforms.Utilities.show_error("Table Data Export", "Can't stop export thread", "Ok", "", "")
                     return False
                 
                 return True
@@ -646,9 +755,15 @@ class PowerExport(mforms.Form):
         lbl_format_box = mforms.newBox(True)
         lbl_format_box.set_spacing(8)
         lbl_format_box.add(mforms.newLabel("Please select the output format:"), False, True)
-        self.btn_show_advanced_options = mforms.newButton()
+        self.btn_show_advanced_options = mforms.newButton(mforms.ToolButton)
         self.btn_show_advanced_options.set_icon(mforms.App.get().get_resource_path("admin_option_file.png"))
-        self.btn_show_advanced_options.add_clicked_callback(lambda: self.optpanel.show(False) if self.optpanel.is_shown() else self.optpanel.show() )
+        def show_hide_opt_panel(show):
+            self.optpanel.show(show)
+            self.optpanel.relayout()
+            self.content.relayout()
+        
+        self.btn_show_advanced_options.add_clicked_callback(lambda: show_hide_opt_panel(False) if self.optpanel.is_shown() else show_hide_opt_panel(True) )
+
         lbl_format_box.add_end(self.btn_show_advanced_options, False, True)
         optbox.add(lbl_format_box, False, True)
          
@@ -658,7 +773,14 @@ class PowerExport(mforms.Form):
                  
         self.optpanel = mforms.newPanel(mforms.TitledBoxPanel)
         self.optpanel.set_title("Options:")
+        
+        if sys.platform.lower() == "win32":
+            self.optpanel.set_size(-1, 100)
+        elif sys.platform.lower() == "darwin":
+            self.optpanel.set_size(-1, 150)
+        
         self.optpanel.show(False)
+
          
         tmpbox = mforms.newBox(False)
         tmpbox.set_spacing(8)
@@ -676,6 +798,8 @@ class PowerExport(mforms.Form):
         self.content.add(bottom_box, False, True)
          
         self.add_options()
+        self.optpanel.relayout()
+        self.optpanel.flush_events()
          
         fileselector_box = mforms.newBox(True)
         fileselector_box.set_spacing(8)
@@ -760,7 +884,7 @@ class PowerExport(mforms.Form):
         
     def setup_module(self, mod):
         mod.set_table(self.table['schema'], self.table['table'])
-        mod.set_filepath(self.destinationfile_entry.get_string_value())
+        mod.set_filepath(str(self.destinationfile_entry.get_string_value()))
         mod.set_local(self.export_local.get_active())
         if self.tab_view.get_active_tab() == 1:
             mod.set_columns([])
@@ -779,17 +903,23 @@ class PowerExport(mforms.Form):
                         if col['name'] == node.get_string(1):
                             cols.append(col)
             if len(cols) == 0:
-                mforms.Utilities.show_message("PowerExport", "You need to specify at least one column", "Ok", "","")
+                mforms.Utilities.show_message("Table Data Export", "You need to specify at least one column", "Ok", "","")
                 return False
             mod.set_columns(cols)
         return True
     
     def export_finished(self, success):
-        if self.export_timeout:
-            mforms.Utilities.cancel_timeout(self.export_timeout)
-            self.export_timeout = None
+        self.export_timeout = None
         self.progress_bar.show(False)
         self.start_btn.set_enabled(True)
+        
+        if success:
+            mforms.Utilities.show_message("Table Data Export", "Export finished succesfully", "Ok", "","")
+            self.close()
+        else:
+            mforms.Utilities.show_message("Table Data Export", "Export didn't finish succesfully, error was: %s" % self.export_thread.exception, "Ok", "","")
+            
+        
         self.export_thread = None
 
     def update_progress(self):
@@ -802,6 +932,11 @@ class PowerExport(mforms.Form):
         
 
     def start_export(self):
+        filepath = str(self.destinationfile_entry.get_string_value())
+        if len(filepath) < 3:
+            mforms.Utilities.show_error("Table Data Export", "You must specify a destination file.", "Ok", "","")
+            return
+
         if self.export_thread is None:
             mod = self.get_active_module()
             if self.setup_module(mod):
@@ -810,8 +945,8 @@ class PowerExport(mforms.Form):
                 self.progress_bar.set_value(0)
                 self.export_thread = WorkerThread(mod)
                 self.export_thread.finished_callback = self.export_finished
-                self.export_timeout = mforms.Utilities.add_timeout(0.5, self.update_progress) 
                 self.export_thread.start()
+                self.export_timeout = mforms.Utilities.add_timeout(1, self.update_progress)
             
     def stop_export(self):
         ret = True
@@ -861,17 +996,18 @@ class PowerExport(mforms.Form):
                         opt_val = mforms.newTextEntry()
                         opt_val.set_size(35, -1)
                         opt_val.set_value(opts['value'])
-                        opt_val.add_changed_callback(lambda field = opt_val, output = opts: operator.setitem(output, 'value', field.get_string_value()))
+                        opt_val.add_changed_callback(lambda field = opt_val, output = opts: operator.setitem(output, 'value', str(field.get_string_value())))
                         label_box.add_end(opt_val, False, False)
                     if opts['type'] == 'select':
                         opt_val = mforms.newSelector()
                         opt_val.set_size(75, -1)
                         opt_val.add_items([v for v in opts['opts']])
                         opt_val.set_selected(opts['opts'].values().index(opts['value']))
-                        opt_val.add_changed_callback(lambda field = opt_val.get_string_value(), output = opts: operator.setitem(output, 'value', output['opts'][field]))
+                        opt_val.add_changed_callback(lambda selector = opt_val, output = opts: operator.setitem(output, 'value', output['opts'][str(selector.get_string_value())]))
                         label_box.add_end(opt_val, False, False)
                     box.add(label_box, False, False)
-            self.tab_opt_map[format.name] = {'index': self.formatopttabview.add_page(box, format.name), 'format':format, 'radio': fradio} 
+            
+            self.tab_opt_map[format.name] = {'index': self.formatopttabview.add_page(box, format.name), 'format':format, 'radio': fradio}        
         
     def add_optsbox(self, name):
         obox = mforms.newBox(False)
@@ -889,6 +1025,13 @@ class PowerImport(mforms.Form):
         
         self.table = {}
         self.formats = []
+        self.encoding_list = {'cp1250 (windows-1250)':'cp1250', 
+                              'latin2 (iso8859-2)':'iso8859_2', 
+                              'latin1 (iso8859-1)':'latin_1', 
+                              'utf-8':'utf-8', 
+                              'utf-16':'utf-16'}
+        
+
         self.formats.append(create_module("csv", editor, True))
         self.formats.append(create_module("json", editor, True))
         
@@ -896,7 +1039,10 @@ class PowerImport(mforms.Form):
         self.content.set_spacing(16)
 
         self.set_content(self.content)
-        self.set_size(600, -1)
+        if sys.platform.lower() == "darwin":
+            self.set_size(600, 100)
+        else:
+            self.set_size(600, -1)
         self.center()
         
         self.destination_table = selection
@@ -908,14 +1054,19 @@ class PowerImport(mforms.Form):
         self.import_timeout = None
         
         self.create_ui()
+        
+        self.ds_show_count = 0
+        self.df_show_count = 0
+        
+        
 
         self.set_on_close(self.on_close)
      
     def on_close(self):
         if self.import_thread:
-            if mforms.Utilities.show_message("PowerImport", "Import thread is in progress, if you continue, results can be undefined. Do you wish to stop import and close this window?", "Stop Import", "Cancel", "") == mforms.ResultOk:
+            if mforms.Utilities.show_message("Table Data Import", "Import thread is in progress, if you continue, results can be undefined. Do you wish to stop import and close this window?", "Stop Import", "Cancel", "") == mforms.ResultOk:
                 if not self.stop_import():
-                    mforms.Utilities.show_error("PowerImport", "Can't stop import thread", "Ok", "", "")
+                    mforms.Utilities.show_error("Table Data Import", "Can't stop import thread", "Ok", "", "")
                     return False
                 
                 return True
@@ -932,21 +1083,39 @@ class PowerImport(mforms.Form):
         filechooser.set_extensions("|".join(extensions), self.formats[0].get_file_extension()[1])
 
         if filechooser.run_modal():
-            self.sourcefile_entry.set_value(filechooser.get_path())
-            fileName, fileExt = os.path.splitext(os.path.basename(self.sourcefile_entry.get_string_value()))
+            file_path = filechooser.get_path()
+            fileName, fileExt = os.path.splitext(os.path.basename(file_path))
+            self.sourcefile_entry.set_value(file_path)
+            
+            if fileExt[1:] == "json":
+                if os.path.getsize(file_path) > 104857600:
+                    if mforms.Utilities.show_warning("Table Data Import", "This file appears to be a json filetype, and the size is over 100MB. We suggest to get the data in csv format, do you wish to continue?", "Continue", "Cancel", "") != mforms.ResultOk:
+                        self.sourcefile_entry.set_value("")
+                        return;
+
             self.set_active_module(fileExt[1:])
             self.new_table_box.show(True)
             self.opts_preview_box.show(True)
             if self.new_table_radio.get_active() and len(self.new_table_name.get_string_value()) == 0:
                 self.new_table_name.set_value(fileName)
             
+    def call_analyze(self, mod):
+        mod.set_encoding(self.get_encoding_type())
+        if not mod.analyze_file():
+            mforms.Utilities.show_warning("Table Data Import", "Can't analyze file, please try to change encoding type, or input format.", "Ok", "", "")
+            return False
+        return True 
     
     def radio_option_changed(self, name):
+        if name == "csv":
+            self.encoding_box.show(True)
+        else:
+            self.encoding_box.show(False)
         if len(self.sourcefile_entry.get_string_value()):
             mod = self.get_active_module()
             mod.set_filepath(self.sourcefile_entry.get_string_value())
             
-            self.create_preview_table(not mod.analyze_file())
+            self.create_preview_table(not self.call_analyze(mod))
     
     def load_dest_columns(self):
         try:
@@ -962,6 +1131,13 @@ class PowerImport(mforms.Form):
                 self.dest_cols.append(rset.stringFieldValueByName("Field"))
                 ok = rset.nextRow()
     
+    def encoding_changed(self):
+        mod = self.get_active_module()
+        self.create_preview_table(not self.call_analyze(mod))
+
+    def get_encoding_type(self):
+        return self.encoding_list[self.encoding.get_string_value()]
+
     def create_ui(self):
         contentbox = mforms.newBox(False)
         contentbox.set_spacing(16)
@@ -969,10 +1145,9 @@ class PowerImport(mforms.Form):
         self.content.add(contentbox, True, True)
         
         box = mforms.newBox(False)
-        l = mforms.newLabel("Power Import allows you to easily import csv, json datafiles.\n You can also create destination table on the fly.")
+        l = mforms.newLabel("Table Data Import allows you to easily import csv, json datafiles.\n You can also create destination table on the fly.")
         box.add(l, False, False)
         contentbox.add(box, False, True)
-        
         
         box = mforms.newBox(False)
         l = mforms.newLabel("Select data file you'd like to import.")
@@ -1014,6 +1189,27 @@ class PowerImport(mforms.Form):
         self.new_table_box.add(self.new_table_name, True, True)
         box.add(self.new_table_box, False, True)
         contentbox.add(box, False, True)
+        
+        # We show encoding box only for csv as json can be only utf-8, utf-16 according to rfc
+        self.encoding_box = mforms.newBox(True)
+        self.encoding_box.set_spacing(16)
+        self.encoding_box.add(mforms.newLabel("Encoding: "), False, True)
+        
+        
+        self.encoding = mforms.newSelector()
+        self.encoding.set_size(250, -1)
+        self.encoding_box.add(self.encoding, False, True)
+        
+        for i,e in enumerate(self.encoding_list):
+            self.encoding.add_item(e)
+            if self.encoding_list[e] == 'utf-8':
+                self.encoding.set_selected(i)
+
+        self.encoding.add_changed_callback(self.encoding_changed)
+        self.encoding_box.show(False)
+
+        contentbox.add(self.encoding_box, False, True)
+        
         self.new_table_box.show(False)
         
         self.opts_preview_box = mforms.newBox(False)
@@ -1027,10 +1223,15 @@ class PowerImport(mforms.Form):
         lbl_format_box = mforms.newBox(True)
         lbl_format_box.set_spacing(8)
         lbl_format_box.add(mforms.newLabel("Please select the input format:"), False, True)
-        self.btn_show_advanced_options = mforms.newButton()
+        self.btn_show_advanced_options = mforms.newButton(mforms.ToolButton)
         self.btn_show_advanced_options.set_icon(mforms.App.get().get_resource_path("admin_option_file.png"))
         
-        self.btn_show_advanced_options.add_clicked_callback(lambda: self.optpanel.show(False) if self.optpanel.is_shown() else self.optpanel.show() )
+        def show_hide_opt_panel(show):
+            self.optpanel.show(show)
+            self.optpanel.relayout()
+            self.content.relayout()
+        
+        self.btn_show_advanced_options.add_clicked_callback(lambda: show_hide_opt_panel(False) if self.optpanel.is_shown() else show_hide_opt_panel(True) )
         lbl_format_box.add_end(self.btn_show_advanced_options, False, True)
         optbox.add(lbl_format_box, False, True)
          
@@ -1041,6 +1242,10 @@ class PowerImport(mforms.Form):
         self.optpanel = mforms.newPanel(mforms.TitledBoxPanel)
         self.optpanel.set_title("Options:")
         self.optpanel.show(False)
+        if sys.platform.lower() == "win32":
+            self.optpanel.set_size(-1, 100)
+        elif sys.platform.lower() == "darwin":
+            self.optpanel.set_size(-1, 150)
          
         tmpbox = mforms.newBox(False)
         tmpbox.set_spacing(8)
@@ -1048,6 +1253,7 @@ class PowerImport(mforms.Form):
          
         optbox.add(self.optpanel, True, True)
         self.formatopttabview = mforms.newTabView(mforms.TabViewTabless)
+        self.formatopttabview.set_size(-1, 100)
         tmpbox.add(self.formatopttabview, True, True)
         self.optpanel.add(tmpbox)    
        
@@ -1057,6 +1263,7 @@ class PowerImport(mforms.Form):
         
 
         self.table_preview_box = mforms.newBox(False)
+        self.table_preview_box.set_spacing(16)
         self.preview_table = None
         self.opts_preview_box.add(self.table_preview_box, True, True)
         
@@ -1076,10 +1283,49 @@ class PowerImport(mforms.Form):
 
         start_box.add(self.progress_box, False, True)
         
+        
+        
+        extra_opts = mforms.newBox(False)
+        extra_opts.set_spacing(16)
+        
+        self.ds_box = mforms.newBox(True)
+        self.ds_box.set_spacing(8)
+        extra_opts.add(self.ds_box, False, True)
+        
+        self.df_box = mforms.newBox(True)
+        self.df_box.set_spacing(8)
+        extra_opts.add_end(self.df_box, False, True)
+        
+        self.ds_box.add(mforms.newLabel("Decimal Separator:"), False, True)
+        self.ds_entry = mforms.newTextEntry()
+        self.ds_entry.set_value('.')
+        self.ds_entry.set_size(30, -1)
+        self.ds_box.add(self.ds_entry, False, True)
+        self.ds_box.show(False)
+        
+        self.df_box.add(self.make_label_with_tooltip("Date format: ", "Tooltip"), False, True)
+        self.df_entry = mforms.newTextEntry()
+        self.df_entry.set_value("%Y-%m-%d %H:%M:%S")
+        self.df_entry.set_size(200, -1)
+        self.df_box.add(self.df_entry, False, True)
+        self.df_box.show(False)
+        
+        
         bottom_box = mforms.newBox(False)
+        bottom_box.set_spacing(16)
+        bottom_box.add(extra_opts, False, True)
         bottom_box.add(start_box, False, True)
         self.opts_preview_box.add(bottom_box, False, True)
 
+    def make_label_with_tooltip(self, lbl, tooltip):
+        box = mforms.newBox(True)
+        box.add(mforms.newLabel(lbl), False, True)
+        l = mforms.newImageBox()
+        l.set_image(mforms.App.get().get_resource_path("mini_notice.png"))
+        l.set_tooltip(tooltip)
+        box.add(l, False, True)
+        return box
+        
 
     def start_btn_click(self):
         self.start_import()
@@ -1091,14 +1337,22 @@ class PowerImport(mforms.Form):
             mod.set_table(None, self.new_table_name.get_string_value())
         else: 
             mod.set_table(self.destination_table['schema'], self.destination_table['table'])
+            
+        mod.set_decimal_separator(str(self.ds_entry.get_string_value()))
+        mod.set_date_format(str(self.df_entry.get_string_value()))
         mod.set_mapping(self.column_mapping)
     
     def import_finished(self, success):
-        if self.import_timeout:
-            mforms.Utilities.cancel_timeout(self.import_timeout)
-            self.import_timeout = None 
+        self.import_timeout = None
         self.progress_box.show(False)
         self.start_btn.set_enabled(True)
+        
+        if success:
+            mforms.Utilities.show_message("Table Data Import", "Import finished succesfully", "Ok", "","")
+            self.close()
+        else:
+            mforms.Utilities.show_message("Table Data Import", "Import didn't finish succesfully, error was: %s" % self.import_thread.exception, "Ok", "","")
+             
         self.import_thread = None
     
     def update_progress(self):
@@ -1130,13 +1384,12 @@ class PowerImport(mforms.Form):
         if self.import_thread is None:
             self.start_btn.set_enabled(False)
             self.progress_box.show(True)
-            
             mod = self.get_active_module()
             self.setup_module(mod)
             self.import_thread = WorkerThread(mod)
             self.import_thread.finished_callback = self.import_finished
-            self.import_timeout = mforms.Utilities.add_timeout(0.5, self.update_progress) 
             self.import_thread.start()
+            self.import_timeout = mforms.Utilities.add_timeout(1, self.update_progress)
         
     def destination_table_radio_click(self):
         if self.new_table_radio.get_active():
@@ -1145,6 +1398,29 @@ class PowerImport(mforms.Form):
                 self.new_table_name.set_value(fileName)
                 
         self.create_preview_table()
+        
+    def show_df_box(self, show = True):
+        if show:
+            self.df_show_count = self.df_show_count + 1
+            if self.df_show_count == 1:
+                self.df_box.show(True)
+        else:
+            if self.df_show_count > 0:
+                self.df_show_count = self.df_show_count - 1
+                if self.df_show_count == 0:
+                    self.df_box.show(False)
+    
+    def show_ds_box(self, show = True):
+        if show:
+            self.ds_show_count = self.ds_show_count + 1
+            if self.ds_show_count == 1:
+                self.ds_box.show(True)
+        else:
+            if self.ds_show_count > 0:
+                self.ds_show_count = self.ds_show_count - 1
+                if self.ds_show_count == 0:
+                    self.ds_box.show(False)
+        
         
     def create_preview_table(self, clean_up = False):
         
@@ -1160,8 +1436,20 @@ class PowerImport(mforms.Form):
             def sel_changed(sel, output):
                 selection = sel.get_string_value()
                 for v in type_items:
-                    if selection in v.values():
-                        output['type'] = "".join(v.keys())
+                    if selection in type_items[v]:
+                        if output['type'] == 'double' and type_items[v] != 'double':
+                            self.show_ds_box(False)
+                        
+                        if output['type'] == 'datetime' and type_items[v] != 'datetime':
+                            self.show_df_box(False)
+                            
+                        if type_items[v] == 'double':
+                            self.show_ds_box(True)
+                        if type_items[v] == 'datetime':
+                            self.show_df_box(True)
+                            
+                        output['type'] = type_items[v]
+                        
                         break  
                 
             sel = mforms.newSelector()
@@ -1178,6 +1466,10 @@ class PowerImport(mforms.Form):
         
         if self.preview_table is not None:
             self.table_preview_box.remove(self.preview_table)
+            self.table_preview_box.set_spacing(16)
+            if self.treeview_preview is not None:
+                self.table_preview_box.remove(self.treeview_preview)
+                self.treeview_preview = None
             self.preview_table = None
             self.dest_column_table_col = []
             self.field_type_table_col = []
@@ -1198,7 +1490,7 @@ class PowerImport(mforms.Form):
         self.preview_table = mforms.newTable()
         self.table_preview_box.add(self.preview_table, False, True)
         mod = self.get_active_module()
-        self.preview_table.set_column_count(4)
+        self.preview_table.set_column_count(5)
         self.preview_table.set_row_count(len(mod._columns) + 1)
         self.preview_table.set_row_spacing(8)
         self.preview_table.set_column_spacing(8)
@@ -1223,11 +1515,24 @@ class PowerImport(mforms.Form):
             else:
                 self.preview_table.add(create_select_type(row), 3, 4, i+1, i+2, mforms.HFillFlag)
             self.column_mapping.append(row)
-        
+            
+        self.treeview_preview = newTreeNodeView(mforms.TreeFlatList)
+        for i, col in enumerate(mod._columns):
+            self.treeview_preview.add_column(mforms.StringColumnType, str(col['name']), 75, True)
+        self.treeview_preview.end_columns()
+        node = self.treeview_preview.add_node()
+        col_values = [col['value'] for col in mod._columns]
+        for i, col in enumerate(mod._columns):
+            node.set_string(i, col['value'])
+
+        self.treeview_preview.set_allow_sorting(True)
+        self.treeview_preview.set_size(200, 100)
+        self.table_preview_box.add(self.treeview_preview, False, True)
         
     def add_optsbox(self, name):
         obox = mforms.newBox(False)
         obox.set_spacing(8)
+        obox.show()
         return obox;
     
     def get_active_module(self):
@@ -1254,8 +1559,20 @@ class PowerImport(mforms.Form):
         if self.radio_option_changed:
             self.radio_option_changed(name)
 
+    def call_preview_table(self):
+        self.create_preview_table(not self.call_analyze(self.get_active_module()))
+        return False
+    
     def add_options(self):
         first = True
+        def set_text_entry(field, output):
+            operator.setitem(output, 'value', str(field.get_string_value()))
+            mforms.Utilities.add_timeout(0.1, self.call_preview_table)
+
+        def set_selector_entry(selector, output):
+            operator.setitem(output, 'value', output['opts'][str(selector.get_string_value())])
+            mforms.Utilities.add_timeout(0.1, self.call_preview_table)
+        
         for format in self.formats:
             fradio = mforms.newRadioButton(1)
             fradio.set_text(format.title)
@@ -1280,14 +1597,14 @@ class PowerImport(mforms.Form):
                         opt_val = mforms.newTextEntry()
                         opt_val.set_size(35, -1)
                         opt_val.set_value(opts['value'])
-                        opt_val.add_changed_callback(lambda field = opt_val, output = opts: operator.setitem(output, 'value', field.get_string_value()))
+                        opt_val.add_changed_callback(lambda field = opt_val, output = opts: set_text_entry(field, output))
                         label_box.add_end(opt_val, False, False)
                     if opts['type'] == 'select':
                         opt_val = mforms.newSelector()
                         opt_val.set_size(75, -1)
                         opt_val.add_items([v for v in opts['opts']])
                         opt_val.set_selected(opts['opts'].values().index(opts['value']))
-                        opt_val.add_changed_callback(lambda field = opt_val.get_string_value(), output = opts: operator.setitem(output, 'value', output['opts'][field]))
+                        opt_val.add_changed_callback(lambda selector = opt_val, output = opts: set_selector_entry(selector, output))
                         label_box.add_end(opt_val, False, False)
                     box.add(label_box, False, False)
             self.tab_opt_map[format.name] = {'index': self.formatopttabview.add_page(box, format.name), 'format':format, 'radio': fradio}
