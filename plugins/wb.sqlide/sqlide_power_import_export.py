@@ -133,6 +133,10 @@ class base_module:
         self._user_query = None
         self._decimal_separator = ','
         self._date_format = '%Y-%m-%d %H:%M:%S'
+        self._encoding = 'utf-8' #default encoding
+        
+    def set_encoding(self, encoding):
+        self._encoding = encoding
         
     def get_current_row(self):    
         return self._current_row
@@ -210,12 +214,38 @@ class base_module:
         else:
             self.start_export()
 
+class Utf8Reader:
+    def __init__(self, f, enc):
+        import codecs
+        self.reader = codecs.getreader(enc)(f)
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        return self.reader.next().encode("utf-8")
+
+class UniReader:
+    def __init__(self, f, dialect=csv.excel, encoding="utf-8", **args):
+        f = Utf8Reader(f, encoding)
+        self.csvreader = csv.reader(f, dialect=dialect, **args)
+
+    def next(self):
+        row = self.csvreader.next()
+        return [unicode(s, "utf-8") for s in row]
+
+    def __iter__(self):
+        return self
+
 class csv_module(base_module):
     def __init__(self, editor, is_import):
+        self.dialect = None
+        self.has_header = False
+
         base_module.__init__(self, editor, is_import)
         self.name = "csv"
         self.title = self.name
-        self.options = {'filedseparator': {'description':'Field Separator', 'type':'select', 'opts':{'\\t':'\t',';':';', ':':':'}, 'value':';', 'entry': None}, 
+        self.options = {'filedseparator': {'description':'Field Separator', 'type':'select', 'opts':{'TAB':'\t',';':';', ':':':'}, 'value':';', 'entry': None}, 
                 'lineseparator': {'description':'Line Separator', 'type':'select','opts':{"CR":'\r', "CR LF":'\r\n', "LF":'\n'}, 'value':'\n', 'entry': None}, 
                 'encolsestring': {'description':'Enclose Strings in', 'type':'text', 'value':'"', 'entry': None}};
         
@@ -255,11 +285,12 @@ class csv_module(base_module):
                     self.read_user_query_columns(rset)
                     
                 self._max_rows = rset.rowCount
+
                 with open(self._filepath, 'wb') as csvfile:
                     output = csv.writer(csvfile, delimiter = self.options['filedseparator']['value'], 
                                         lineterminator = self.options['lineseparator']['value'], 
                                         quotechar = self.options['encolsestring']['value'], quoting = csv.QUOTE_NONNUMERIC)
-                    output.writerow([value['name'] for value in self._columns])
+                    output.writerow([value['name'].encode('utf-8') for value in self._columns])
                     ok = rset.goToFirstRow()
                     while ok:
                         if self._thread_event and self._thread_event.is_set():
@@ -307,15 +338,10 @@ class csv_module(base_module):
             col_order = dict([(i['dest_col'], i['col_no']) for i in self._mapping if i['active']])
             col_type = dict([(i['name'], i['type']) for i in self._mapping if i['active']])
             
-            print col_type
-            print col_order
             self._editor.executeManagementCommand(query, 1)
             try:
-                csvsample = csvfile.readline()
-                dialect = csv.Sniffer().sniff(csvsample)
-                has_header = csv.Sniffer().has_header(csvsample)
-                csvfile.seek(0)
-                reader = csv.reader(csvfile, dialect)
+                is_header = self.has_header 
+                reader = UniReader(csvfile, self.dialect, encoding=self._encoding)
 
                 for row in reader:
                     if self._thread_event and self._thread_event.is_set():
@@ -323,8 +349,8 @@ class csv_module(base_module):
                         break
                     
                     self._current_row = reader.line_num
-                    if has_header:
-                        has_header = False
+                    if is_header:
+                        is_header = False
                         continue
                     
                     rowskip = False
@@ -350,30 +376,48 @@ class csv_module(base_module):
 
     def analyze_file(self):
         with open(self._filepath, 'rb') as csvfile:
-            csvsample = csvfile.readline()
-            dialect = csv.Sniffer().sniff(csvsample)
-            has_header = csv.Sniffer().has_header(csvsample)
-            csvfile.seek(0)
-            reader = csv.reader(csvfile, dialect)
-            self._columns = []
-            for i, row in enumerate(reader): #we will read only first and second line
-                if i == 1:
-                    if has_header:
-                        for j, col_value in enumerate(row):
-                            self._columns[j]['value'] = col_value
-                        break
-                    else:
-                        break 
-                for col_value in row:
-                    col = {'name': None, 'type': None, 'is_string': None, 'is_number': None, 'is_date_or_time': None, 'is_bin': None, 'value': None}
-                    col['name'] = col_value 
-                    col['type'] = "varchar"
-                    col['is_number'] = False
-                    col['is_float'] = False 
-                    col['is_string'] = True
-                    col['is_bin'] = False  
-                    col['value'] = col_value
-                    self._columns.append(col)
+            if self.dialect is None:
+                csvsample = []
+                for i in range(0,2): #read two lines as a sample
+                    csvsample.append(csvfile.readline())
+                
+                csvsample = "".join(csvsample)
+                self.dialect = csv.Sniffer().sniff(csvsample)
+                self.has_header = csv.Sniffer().has_header(csvsample)
+                csvfile.seek(0)
+            else:
+                self.dialect.delimiter = self.options['filedseparator']['value']
+                self.dialect.lineterminator = self.options['lineseparator']['value']
+                self.dialect.quotechar = self.options['encolsestring']['value']
+                
+            try:
+                reader = UniReader(csvfile, self.dialect, encoding=self._encoding)
+                self._columns = []
+                for i, row in enumerate(reader): #we will read only first and second line
+                    if i == 1:
+                        if self.has_header:
+                            for j, col_value in enumerate(row):
+                                self._columns[j]['value'] = col_value
+                            break
+                        else:
+                            break 
+    
+                    for col_value in row:
+                        col = {'name': None, 'type': None, 'is_string': None, 'is_number': None, 'is_date_or_time': None, 'is_bin': None, 'value': None}
+                        col['name'] = col_value 
+                        col['type'] = "varchar"
+                        col['is_number'] = False
+                        col['is_float'] = False 
+                        col['is_string'] = True
+                        col['is_bin'] = False  
+                        col['value'] = col_value
+                        self._columns.append(col)
+            except (UnicodeError, UnicodeDecodeError), e:
+                import traceback
+                log_error("Error analyzing file, probably encoding issue: %s\n Traceback is: %s" % (e, traceback.format_exc()))
+                self._last_analyze = False
+                return False
+                
         self._last_analyze = True
         return True
         
@@ -403,7 +447,7 @@ class json_module(base_module):
         if rset:
             if self._user_query: #We need to get columns info
                 self.read_user_query_columns(rset)
-
+                
             with open(self._filepath, 'wb') as jsonfile:
                 jsonfile.write('[')
                 ok = rset.goToFirstRow()
@@ -442,10 +486,10 @@ class json_module(base_module):
         if self._new_table:
             if not self.prepare_new_table():
                 return
-
+        
         with open(self._filepath, 'rb') as jsonfile:
             import json
-            data = json.load(jsonfile)
+            data = json.loads(jsonfile)
             dest_col_order = list(set([i['dest_col'] for i in self._mapping if i['active']]))
             query = """PREPARE stmt FROM 'INSERT INTO %s (%s) VALUES(%s)'""" % (self._table_w_prefix, ",".join(dest_col_order), ",".join(["?" for i in dest_col_order]))
             col_order = dict([(i['dest_col'], i['name']) for i in self._mapping if i['active']])
@@ -872,6 +916,7 @@ class PowerExport(mforms.Form):
         
         if success:
             mforms.Utilities.show_message("Table Data Export", "Export finished succesfully", "Ok", "","")
+            self.close()
         else:
             mforms.Utilities.show_message("Table Data Export", "Export didn't finish succesfully, error was: %s" % self.export_thread.exception, "Ok", "","")
             
@@ -981,6 +1026,13 @@ class PowerImport(mforms.Form):
         
         self.table = {}
         self.formats = []
+        self.encoding_list = {'cp1250 (windows-1250)':'cp1250', 
+                              'latin2 (iso8859-2)':'iso8859_2', 
+                              'latin1 (iso8859-1)':'latin_1', 
+                              'utf-8':'utf-8', 
+                              'utf-16':'utf-16'}
+        
+
         self.formats.append(create_module("csv", editor, True))
         self.formats.append(create_module("json", editor, True))
         
@@ -1006,6 +1058,8 @@ class PowerImport(mforms.Form):
         
         self.ds_show_count = 0
         self.df_show_count = 0
+        
+        
 
         #disabled for now, need OSX and Win32 implementation
         #self.set_on_close(self.on_close)
@@ -1047,13 +1101,23 @@ class PowerImport(mforms.Form):
             if self.new_table_radio.get_active() and len(self.new_table_name.get_string_value()) == 0:
                 self.new_table_name.set_value(fileName)
             
+    def call_analyze(self, mod):
+        mod.set_encoding(self.get_encoding_type())
+        if not mod.analyze_file():
+            mforms.Utilities.show_warning("Table Data Import", "Can't analyze file, please try to change encoding type, or input format.", "Ok", "", "")
+            return False
+        return True 
     
     def radio_option_changed(self, name):
+        if name == "csv":
+            self.encoding_box.show(True)
+        else:
+            self.encoding_box.show(False)
         if len(self.sourcefile_entry.get_string_value()):
             mod = self.get_active_module()
             mod.set_filepath(self.sourcefile_entry.get_string_value())
             
-            self.create_preview_table(not mod.analyze_file())
+            self.create_preview_table(not self.call_analyze(mod))
     
     def load_dest_columns(self):
         try:
@@ -1069,6 +1133,13 @@ class PowerImport(mforms.Form):
                 self.dest_cols.append(rset.stringFieldValueByName("Field"))
                 ok = rset.nextRow()
     
+    def encoding_changed(self):
+        mod = self.get_active_module()
+        self.create_preview_table(not self.call_analyze(mod))
+
+    def get_encoding_type(self):
+        return self.encoding_list[self.encoding.get_string_value()]
+
     def create_ui(self):
         contentbox = mforms.newBox(False)
         contentbox.set_spacing(16)
@@ -1079,7 +1150,6 @@ class PowerImport(mforms.Form):
         l = mforms.newLabel("Table Data Import allows you to easily import csv, json datafiles.\n You can also create destination table on the fly.")
         box.add(l, False, False)
         contentbox.add(box, False, True)
-        
         
         box = mforms.newBox(False)
         l = mforms.newLabel("Select data file you'd like to import.")
@@ -1121,6 +1191,27 @@ class PowerImport(mforms.Form):
         self.new_table_box.add(self.new_table_name, True, True)
         box.add(self.new_table_box, False, True)
         contentbox.add(box, False, True)
+        
+        # We show encoding box only for csv as json can be only utf-8, utf-16 according to rfc
+        self.encoding_box = mforms.newBox(True)
+        self.encoding_box.set_spacing(16)
+        self.encoding_box.add(mforms.newLabel("Encoding: "), False, True)
+        
+        
+        self.encoding = mforms.newSelector()
+        self.encoding.set_size(250, -1)
+        self.encoding_box.add(self.encoding, False, True)
+        
+        for i,e in enumerate(self.encoding_list):
+            self.encoding.add_item(e)
+            if self.encoding_list[e] == 'utf-8':
+                self.encoding.set_selected(i)
+
+        self.encoding.add_changed_callback(self.encoding_changed)
+        self.encoding_box.show(False)
+
+        contentbox.add(self.encoding_box, False, True)
+        
         self.new_table_box.show(False)
         
         self.opts_preview_box = mforms.newBox(False)
@@ -1174,6 +1265,7 @@ class PowerImport(mforms.Form):
         
 
         self.table_preview_box = mforms.newBox(False)
+        self.table_preview_box.set_spacing(16)
         self.preview_table = None
         self.opts_preview_box.add(self.table_preview_box, True, True)
         
@@ -1259,6 +1351,7 @@ class PowerImport(mforms.Form):
         
         if success:
             mforms.Utilities.show_message("Table Data Import", "Import finished succesfully", "Ok", "","")
+            self.close()
         else:
             mforms.Utilities.show_message("Table Data Import", "Import didn't finish succesfully, error was: %s" % self.import_thread.exception, "Ok", "","")
              
@@ -1376,6 +1469,9 @@ class PowerImport(mforms.Form):
         if self.preview_table is not None:
             self.table_preview_box.remove(self.preview_table)
             self.table_preview_box.set_spacing(16)
+            if self.treeview_preview is not None:
+                self.table_preview_box.remove(self.treeview_preview)
+                self.treeview_preview = None
             self.preview_table = None
             self.dest_column_table_col = []
             self.field_type_table_col = []
@@ -1421,6 +1517,19 @@ class PowerImport(mforms.Form):
             else:
                 self.preview_table.add(create_select_type(row), 3, 4, i+1, i+2, mforms.HFillFlag)
             self.column_mapping.append(row)
+            
+        self.treeview_preview = newTreeNodeView(mforms.TreeFlatList)
+        for i, col in enumerate(mod._columns):
+            self.treeview_preview.add_column(mforms.StringColumnType, str(col['name']), 75, True)
+        self.treeview_preview.end_columns()
+        node = self.treeview_preview.add_node()
+        col_values = [col['value'] for col in mod._columns]
+        for i, col in enumerate(mod._columns):
+            node.set_string(i, col['value'])
+
+        self.treeview_preview.set_allow_sorting(True)
+        self.treeview_preview.set_size(200, 100)
+        self.table_preview_box.add(self.treeview_preview, False, True)
         
     def add_optsbox(self, name):
         obox = mforms.newBox(False)
@@ -1452,8 +1561,20 @@ class PowerImport(mforms.Form):
         if self.radio_option_changed:
             self.radio_option_changed(name)
 
+    def call_preview_table(self):
+        self.create_preview_table(not self.call_analyze(self.get_active_module()))
+        return False
+    
     def add_options(self):
         first = True
+        def set_text_entry(field, output):
+            operator.setitem(output, 'value', str(field.get_string_value()))
+            mforms.Utilities.add_timeout(0.1, self.call_preview_table)
+
+        def set_selector_entry(selector, output):
+            operator.setitem(output, 'value', output['opts'][str(selector.get_string_value())])
+            mforms.Utilities.add_timeout(0.1, self.call_preview_table)
+        
         for format in self.formats:
             fradio = mforms.newRadioButton(1)
             fradio.set_text(format.title)
@@ -1478,14 +1599,14 @@ class PowerImport(mforms.Form):
                         opt_val = mforms.newTextEntry()
                         opt_val.set_size(35, -1)
                         opt_val.set_value(opts['value'])
-                        opt_val.add_changed_callback(lambda field = opt_val, output = opts: operator.setitem(output, 'value', str(field.get_string_value())))
+                        opt_val.add_changed_callback(lambda field = opt_val, output = opts: set_text_entry(field, output))
                         label_box.add_end(opt_val, False, False)
                     if opts['type'] == 'select':
                         opt_val = mforms.newSelector()
                         opt_val.set_size(75, -1)
                         opt_val.add_items([v for v in opts['opts']])
                         opt_val.set_selected(opts['opts'].values().index(opts['value']))
-                        opt_val.add_changed_callback(lambda selector = opt_val, output = opts: operator.setitem(output, 'value', output['opts'][str(selector.get_string_value())]))
+                        opt_val.add_changed_callback(lambda selector = opt_val, output = opts: set_selector_entry(selector, output))
                         label_box.add_end(opt_val, False, False)
                     box.add(label_box, False, False)
             self.tab_opt_map[format.name] = {'index': self.formatopttabview.add_page(box, format.name), 'format':format, 'radio': fradio}
