@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -133,13 +133,18 @@ public:
     __super::OnFormClosing(args);
 
     mforms::Form *backend = FormWrapper::GetBackend<mforms::Form>(this);
-    if (wrapper->hide_on_close())
-    {
+    if (!backend->can_close())
       args->Cancel = true;
-      Hide();
-    }
+    else
+    {
+      if (wrapper->hide_on_close())
+      {
+        args->Cancel = true;
+        Hide();
+      }
 
-    backend->was_closed();
+      backend->was_closed();
+    }
 
     // Do nothing if hiding is not requested. In this case Windows will dispose of the form implicitly.
   }
