@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -847,6 +847,16 @@ class SetupFiltering(mforms.Box):
     def target_version(self):
         return self.owner.target_version
 
+    def make_description_box(self, text, tooltip):
+        box = mforms.newBox(True)
+        box.set_spacing(12)
+        box.add(mforms.newLabel(text), False, False)
+        l = mforms.newImageBox()
+        l.set_image(mforms.App.get().get_resource_path("mini_notice.png"))
+        l.set_tooltip(tooltip)
+        box.add(l, False, False)
+        return box
+
     def create_ui(self):
         l = mforms.newLabel("Filter Users and Objects to be Monitored")
         l.set_style(mforms.BoldStyle)
@@ -859,13 +869,6 @@ class SetupFiltering(mforms.Box):
         users_box.set_spacing(12)
         users_box.set_padding(12)
 
-
-        description = mforms.newLabel('Performance Schema allows defining filters to determine the connections for which data will be collected.\n'
-                                      'New connections having a user@host matching an entry below will be enabled for monitoring.\n\n'
-                                      'Use % to indicate either any user or any host.')
-
-        users_box.add(description, False, False)
-
         self.users = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeAltRowColors)
         self.users.add_column(mforms.StringColumnType, "User", 150, False)
         self.users.add_column(mforms.StringColumnType, "Host", 150, False)
@@ -875,6 +878,11 @@ class SetupFiltering(mforms.Box):
 
         user_buttons = mforms.newBox(True)
         user_buttons.set_spacing(12)
+        
+        description = ('Performance Schema allows defining filters to determine the connections for which data will be collected.\n'
+                       'New connections having a user@host matching an entry below will be enabled for monitoring.')
+        tooltip = 'Use % to indicate either any user or any host.'
+        user_buttons.add(self.make_description_box(description, tooltip), False, False)
 
         self.user_del_button = mforms.newButton()
         self.user_del_button.set_text('Remove')
@@ -900,15 +908,7 @@ class SetupFiltering(mforms.Box):
         db_box = mforms.newBox(False)
         db_box.set_spacing(12)
         db_box.set_padding(12)
-
-        description = mforms.newLabel('Performance Schema allows defining filters to determine the objects for which data will be collected.\n'
-                                      'Any schema/object matching a combination defined below will be enabled for monitoring.\n\n'
-                                      'Use % to indicate either any schema or any object.\n\n'
-                                      'The enabled column indicates whether events for the matching objects are instrumented.\n'
-                                      'The timed column indicates whether information about the events duration is recorded.')
-
-        db_box.add(description, False, False)
-
+        
         self.objects = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeAltRowColors)
         self.objects.add_column(mforms.StringColumnType, "Type", 100, False)
         self.objects.add_column(mforms.StringColumnType, "Schema", 200, False)
@@ -922,6 +922,16 @@ class SetupFiltering(mforms.Box):
 
         db_buttons = mforms.newBox(True)
         db_buttons.set_spacing(12)
+        
+        description = ('Performance Schema allows defining filters to determine the objects for which data will be collected.\n' 
+                       'Any schema/object matching a combination defined above will be enabled for monitoring.')
+        
+        tooltip = ('Use % to indicate either any schema or any object.\n\n'
+                   'The enabled column indicates whether events for the matching objects are instrumented.\n'
+                   'The timed column indicates whether information about the events duration is recorded.')
+        
+        
+        db_buttons.add(self.make_description_box(description, tooltip), False, False)
 
         self.db_del_button = mforms.newButton()
         self.db_del_button.set_text('Remove')
