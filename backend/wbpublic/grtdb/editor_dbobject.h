@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -49,7 +49,7 @@ namespace bec {
     virtual bool is_sql_commented();
     virtual void set_sql_commented(bool flag);
 
-    bool has_editor();
+    virtual bool has_editor();
     virtual MySQLEditor::Ref get_sql_editor();
     virtual void reset_editor_undo_stack();
 
