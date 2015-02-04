@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -2148,7 +2148,9 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
   obj_editor->thaw_refresh_on_object_change();
 
   // enable refresh of sql editor contents
-  MySQLEditor::Ref active_sql_editor= obj_editor->get_sql_editor();
+  MySQLEditor::Ref active_sql_editor = NULL;
+  if (obj_editor->has_editor())
+    active_sql_editor = obj_editor->get_sql_editor();
   if (active_sql_editor)
   {
     active_sql_editor->set_refresh_enabled(true);
