@@ -198,6 +198,9 @@ static struct
     ignored_tokens.insert("ESCAPE_OPERATOR");
     ignored_tokens.insert("CONCAT_PIPES_SYMBOL");
     ignored_tokens.insert("AT_TEXT_SUFFIX");
+    ignored_tokens.insert("SINGLE_QUOTED_TEXT");
+    ignored_tokens.insert("DOUBLE_QUOTED_TEXT");
+    ignored_tokens.insert("NCHAR_TEXT");
 
     // Load token map first. Assume the grammar file has the .g extension.
     std::string token_file_name = name.substr(0, name.size() - 2) + ".tokens";
