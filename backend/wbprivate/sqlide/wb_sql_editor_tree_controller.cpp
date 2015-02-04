@@ -2156,8 +2156,8 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
 
   obj_editor->thaw_refresh_on_object_change();
 
-  // enable refresh of sql editor contents
-  MySQLEditor::Ref active_sql_editor = NULL;
+  // Enable refresh of sql editor contents.
+  MySQLEditor::Ref active_sql_editor;
   if (obj_editor->has_editor())
     active_sql_editor = obj_editor->get_sql_editor();
   if (active_sql_editor)
