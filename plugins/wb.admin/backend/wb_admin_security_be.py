@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -559,7 +559,7 @@ class AdminUserDbPrivs(object):
                 (priv_name, description) = PrivilegeInfo.get(priv, (None,None))
                 if not priv_name:
                     continue
-                if not deleted and priv in entry.privileges:
+                if (not deleted and priv in entry.privileges) or not entry.privileges:
                     granted_privs.append(priv_name)
                 else:
                     revoked_privs.append(priv_name)
@@ -568,7 +568,7 @@ class AdminUserDbPrivs(object):
                 try:
                     self._owner.ctrl_be.exec_sql(GRANT_SCHEMA_PRIVILEGES_QUERY % fields)
                 except QueryError, e:
-                    if e.error == 1045:
+                    if e.error in [1045, 1044]:
                         raise Exception('Error assigning privileges for %(user)s@%(host)s in schema %(db)s' % fields,
                                         'You must have the GRANT OPTION privilege, and you must have the privileges that you are granting')
                     raise e
@@ -578,7 +578,7 @@ class AdminUserDbPrivs(object):
                 try:
                     self._owner.ctrl_be.exec_sql(REVOKE_SCHEMA_PRIVILEGES_QUERY % fields)
                 except QueryError, e:
-                    if e.error == 1044:
+                    if e.error in [1045, 1044]:
                         raise Exception('Error revoking privileges for %(user)s@%(host)s in schema %(db)s' % fields,
                                         'You must have the GRANT OPTION privilege, and you must have the privileges that you are revoking')
                     raise e
