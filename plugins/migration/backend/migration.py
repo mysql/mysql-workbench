@@ -104,6 +104,8 @@ class MigrationTarget(object):
 
         return None
 
+
+
 class MigrationSource(object):
     def __init__(self, state, connection):
         self.state = state
@@ -256,9 +258,13 @@ class MigrationSource(object):
             accumulated_progress = 0.1
             step_progress_share = 1.0 / (len(catalog_names) + 1e-10)
             for catalog in catalog_names:
+                if not catalog:
+                    continue
                 grt.send_progress(accumulated_progress, 'Fetching schema names from %s...' % catalog)
                 schema_names = self.getSchemaNames(catalog)
                 for schema in schema_names:
+                    if not schema:
+                        continue
                     self.state.sourceSchemataNames.append("%s.%s" % (self._db_module.quoteIdentifier(catalog), self._db_module.quoteIdentifier(schema)))
                 accumulated_progress += 0.9 * step_progress_share
         elif self.rdbms.doesSupportCatalogs == 0:  # The rdbms doesn't support catalogs
@@ -372,6 +378,9 @@ class MigrationSource(object):
 
     def get_os(self):
         return self.module_re().getOS(self.connection)
+
+    def get_source_instance(self):
+        return self.module_re().getSourceInstance(self.connection)
 
 
 

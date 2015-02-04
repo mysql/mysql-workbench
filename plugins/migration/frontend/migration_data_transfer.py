@@ -606,6 +606,9 @@ fi
         script_path = self.main.plan.state.dataBulkTransferParams["GenerateBulkCopyScript"]
         conn_args = self._transferer.helper_connections_arglist()
 
+        if conn_args['source_rdbms'] == 'mssql':
+            conn_args['source_instance'] = self.main.plan.migrationSource.get_source_instance()
+
         source_os = self.main.plan.migrationSource.get_os() 
         target_os = self.main.plan.migrationTarget.get_os()
 
