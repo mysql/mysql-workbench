@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -572,28 +572,25 @@ void DiffSQLGeneratorBE::generate_alter(grt::ListRef<db_mysql_Column> columns, c
   Column_rename_map column_rename_map;
 
   // build a map of column renames
+  // process CHANGE COLUMN (handles content change only)
   for(grt::ChangeSet::const_iterator e= columns_cs->end(), it= columns_cs->begin(); it != e; it++)
   {
-    // process CHANGE COLUMN (handles content change only)
-    for(grt::ChangeSet::const_iterator e= columns_cs->end(), it= columns_cs->begin(); it != e; it++)
-    {
-      const boost::shared_ptr<grt::DiffChange> column_change= *it;
+    const boost::shared_ptr<grt::DiffChange> column_change= *it;
 
-      if(column_change->get_change_type() == grt::ListItemModified)
-      {
-        const grt::ListItemModifiedChange *modified_change= static_cast<const grt::ListItemModifiedChange *>(column_change.get());
-        db_mysql_ColumnRef column= db_mysql_ColumnRef::cast_from(grt::ValueRef(modified_change->get_old_value()));
-        if(strcmp(column->name().c_str(), column->oldName().c_str()))
-          column_rename_map[std::string(column->oldName().c_str())]= std::string(column->name().c_str());
-      }
-      else if(column_change->get_change_type() == grt::ListItemOrderChanged)
-      {
-        const grt::ListItemOrderChange *order_change= static_cast<const grt::ListItemOrderChange *>(column_change.get());
-        db_mysql_ColumnRef org_col= db_mysql_ColumnRef::cast_from(grt::ValueRef(order_change->get_old_value()));
-        db_mysql_ColumnRef mod_col= db_mysql_ColumnRef::cast_from(grt::ValueRef(order_change->get_new_value()));
-        if(strcmp(org_col->name().c_str(), mod_col->oldName().c_str()))
-          column_rename_map[std::string(org_col->oldName().c_str())]= std::string(org_col->name().c_str());
-      }
+    if(column_change->get_change_type() == grt::ListItemModified)
+    {
+      const grt::ListItemModifiedChange *modified_change= static_cast<const grt::ListItemModifiedChange *>(column_change.get());
+      db_mysql_ColumnRef column= db_mysql_ColumnRef::cast_from(grt::ValueRef(modified_change->get_old_value()));
+      if(strcmp(column->name().c_str(), column->oldName().c_str())!=0)
+        column_rename_map[std::string(column->oldName().c_str())]= std::string(column->name().c_str());
+    }
+    else if(column_change->get_change_type() == grt::ListItemOrderChanged)
+    {
+      const grt::ListItemOrderChange *order_change= static_cast<const grt::ListItemOrderChange *>(column_change.get());
+      db_mysql_ColumnRef org_col= db_mysql_ColumnRef::cast_from(grt::ValueRef(order_change->get_old_value()));
+      db_mysql_ColumnRef mod_col= db_mysql_ColumnRef::cast_from(grt::ValueRef(order_change->get_new_value()));
+      if(strcmp(org_col->name().c_str(), mod_col->oldName().c_str())!=0)
+        column_rename_map[std::string(org_col->oldName().c_str())]= std::string(org_col->name().c_str());
     }
   }
 
