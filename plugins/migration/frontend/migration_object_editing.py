@@ -345,12 +345,12 @@ class MainView(WizardPage):
                 self._regenerateSQL()
             elif column == self.COL_TARGET_AI:
                 node.set_bool(column, int(value) != 0)
-                object.autoIncrement = int(value)
+                object.autoIncrement = (int(value) != 0)
                 grt.log_info("Migration", "User changed target column autoIncrement of '%s' to '%s'\n"%(object.name, value))
                 self._regenerateSQL()
             elif column == self.COL_TARGET_NOTNULL:
                 node.set_bool(column, int(value) != 0)
-                object.isNotNull = int(value)
+                object.isNotNull = (int(value) != 0)
                 grt.log_info("Migration", "User changed target column isNotNull of '%s' to '%s'\n"%(object.name, value))
                 self._regenerateSQL()
             elif column == self.COL_TARGET_DEFAULT:
