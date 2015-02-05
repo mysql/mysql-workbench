@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -112,7 +112,7 @@ void SynchronizeDifferencesPage::update_original_columns(std::list<db_ColumnRef>
         orig_schema = schema_map[schema.id()];
       else
       {
-        orig_schema = grt::find_named_object_in_list(_dst->schemata(), schema->name());
+        orig_schema = grt::find_named_object_in_list(_src->schemata(), schema->name());
         if (orig_schema.is_valid())
           schema_map[schema.id()] = orig_schema;
       }
@@ -145,8 +145,8 @@ void SynchronizeDifferencesPage::edit_column_mapping()
   {
     bec::NodeId n(node->get_tag());
 
-    left = db_TableRef::cast_from(_be->get_db_object(n));
-    right = db_TableRef::cast_from(_be->get_model_object(n));
+    right = db_TableRef::cast_from(_be->get_db_object(n));
+    left = db_TableRef::cast_from(_be->get_model_object(n));
 
 
 #if 0
