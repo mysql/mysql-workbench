@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -602,6 +602,7 @@ WbPluginDbExport::WbPluginDbExport(grt::Module *module)
   add_page(mforms::manage(_progress_page));
 
   set_title(_("Forward Engineer to Database"));
+  set_size(-1, 700);
 }
 
 
