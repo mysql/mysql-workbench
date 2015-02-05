@@ -105,7 +105,7 @@ class VariablesGrouper(mforms.Box):
       g = node.get_string(1)
       for sel in self.values.get_selection():
           var = [x for x in sel.get_string(1).strip().split(",") if x]
-          node.set_bool(0, int(value))
+          node.set_bool(0, int(value) != 0)
           if int(value):
               sel.set_string(1, ",".join(sorted(var+[g])))
           else:
