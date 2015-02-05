@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -811,9 +811,10 @@ bool UtilitiesImpl::move_to_trash(const std::string &path)
 //------------------------------------------------------------------------------
 void UtilitiesImpl::reveal_file(const std::string &path)
 {
+  std::string dirname = base::dirname(path);
   const gchar *argv[] = {
     "xdg-open",
-    base::dirname(path).c_str(),
+    dirname.c_str(),
     NULL 
   };
   GError *error = NULL;
