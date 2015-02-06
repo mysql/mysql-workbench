@@ -47,6 +47,12 @@ class ImportScriptWindows(ImportScript):
 
     def generate_import_script(self, connection_args, path_to_file, schema_name):
         output = ['@ECHO OFF']
+        output.append('net session ^>nul 2^>^&1')
+        output.append('if not %%errorLevel%% == 0 ^(')
+        output.append('echo Please run this script with Administrator privileges.')
+        output.append('exit /b 1')
+        output.append('^)')
+        
         output.append('echo Started load data. Please wait.')
         
         output.append('SET MYPATH=%%~dp0')
@@ -104,9 +110,6 @@ class ImportScriptDarwin(ImportScript):
         #output.append('read -p "Press [Enter] key to continue..."')
         return output
 
-    def get_basedir_cmd(self, connection_args):
-        return "MYSQL_PWD=$arg_target_password mysql -h127.0.0.1 -P%s -u%s -s -N -p information_schema -e 'SELECT Variable_Value FROM GLOBAL_VARIABLES WHERE Variable_Name = \"basedir\"'" % (connection_args['target_port'], connection_args['target_user'])
-
 
 
 class SourceRDBMS:
@@ -137,10 +140,13 @@ class SourceRDBMSMssql(SourceRDBMS):
 class SourceRDBMSMysql(SourceRDBMS):
     def get_copy_table_cmd(self, table, connection_args):
         if self.source_os == 'windows':
-            return 'MYSQL_PWD=%%arg_source_password mysqldump.exe -h127.0.0.1 -P5615 -u%(source_user)s -t  -T. %(source_schema)s %(source_table)s --fields-terminated-by=\',\'' % dict(table.items() + connection_args.items())
+            return 'mysqldump.exe --login-path=wb_migration_source -t  -T. %(source_schema)s %(source_table)s --fields-terminated-by=,' % dict(table.items() + connection_args.items())
         else:
-            return 'MYSQL_PWD=$arg_source_password mysqldump -h127.0.0.1 -P5615 -u%(source_user)s -t  -T. %(source_schema)s %(source_table)s --fields-terminated-by=\',\'' % dict(table.items() + connection_args.items())
+            return 'MYSQL_PWD=$arg_source_password mysqldump -h127.0.0.1 -P%(source_port)s -u%(source_user)s -t  -T. %(source_schema)s %(source_table)s --fields-terminated-by=\',\'' % dict(table.items() + connection_args.items())
 
+    def get_cfg_editor_cmd(self, connection_args):
+        if self.source_os == 'windows':
+            return 'mysql_config_editor.exe set --login-path=wb_migration_source -h127.0.0.1 -P%(source_port)s -u%(source_user)s -p' % connection_args
 
 
 class SourceRDBMSPostgresql(SourceRDBMS):
@@ -170,6 +176,7 @@ class DataCopyScriptWindows(DataCopyScript):
         progress = 0 
         total_progress = (3 + len(tables))
         source_schema = tables[0]['source_schema']
+        target_schema = tables[0]['target_schema']
         dir_name = 'dump_%s' % source_schema
         log_file = '%s.log' % dir_name
         import_file_name = 'import_%s.%s' % (source_schema, import_script.get_script_ext())
@@ -178,17 +185,14 @@ class DataCopyScriptWindows(DataCopyScript):
         f = open(script_path, 'w+')
         f.write('@ECHO OFF\r\n')
 
-        f.write("REM Source and target DB passwords\r\n")
-        f.write("set arg_source_password=\"<put source password here>\"\r\n")
-        f.write("set arg_target_password=\"<put source password here>\"\r\n")
-        f.write("""
-IF [%arg_source_password%] == [] (
-    IF [%arg_target_password%] == [] (
-        ECHO WARNING: Both source and target RDBMSes passwords are empty. You should edit this file to set them.
-    )
-)
-\r\n""")
-    
+        if isinstance(source_rdbms, SourceRDBMSMysql):
+            f.write('%s\r\n' % source_rdbms.get_cfg_editor_cmd(connection_args))
+        else:
+            f.write("set arg_source_password=\"<put source password here>\"\r\n")
+
+        if not isinstance(import_script, ImportScriptWindows):
+            f.write("set arg_target_password=\"<put target password here>\"\r\n")
+
         f.write('SET MYPATH=%~dp0\r\n')
         f.write('echo [%d %%%%] Creating directory %s\r\n' % (progress, dir_name))
         f.write('mkdir %s\r\n' % dir_name)
@@ -199,21 +203,21 @@ IF [%arg_source_password%] == [] (
         f.write('copy NUL %s\r\n' % import_sql_file_name)
         f.write('echo %s >> %s\r\n' % ('SET SESSION UNIQUE_CHECKS=0;', import_sql_file_name))
         f.write('echo %s >> %s\r\n' % ('SET SESSION FOREIGN_KEY_CHECKS=0;', import_sql_file_name))
-        f.write('echo %s >> %s\r\n' % ('use %s;' % source_schema, import_sql_file_name))
+        f.write('echo %s >> %s\r\n' % ('use %s;' % target_schema, import_sql_file_name))
         
         f.write('echo [%d %%%%] Start dumping tables\r\n' % (progress * 100 / total_progress))
      
         for table in tables:
             f.write('%s\r\n' % source_rdbms.get_copy_table_cmd(table, connection_args))
-            #if isinstance(source_rdbms, SourceRDBMSMysql):
-            #    f.write('mv %s.txt %s.csv\n' % (table['source_table'], table['source_table']))
-            #    f.write('rm %s.sql\n' % table['source_table'])
+            if isinstance(source_rdbms, SourceRDBMSMysql):
+                f.write('rename %s.txt %s.csv\r\n' % (table['source_table'], table['source_table']))
+                f.write('del %s.sql\r\n' % table['source_table'])
             f.write('echo %s >> %s\r\n' % (import_script.get_import_cmd(table, '%s.csv' % (table['source_table'])), import_sql_file_name))
             progress = progress + 1
             f.write('echo [%d %%%%] Dumped table %s\r\n' % (progress * 100 / total_progress, table['source_table']))
 
         f.write('copy NUL %s\r\n' % import_file_name)
-        import_file_lines = import_script.generate_import_script(connection_args, import_sql_file_name, source_schema)
+        import_file_lines = import_script.generate_import_script(connection_args, import_sql_file_name, target_schema)
         for line in import_file_lines:
             f.write('(echo %s) >> %s\r\n' % (line, import_file_name))
 
@@ -235,6 +239,10 @@ IF [%arg_source_password%] == [] (
         progress = progress + 1
 
         f.write('echo [%d %%%%] Zipped all files to %s.zip file\n' % (progress * 100 / total_progress, dir_name))
+        
+        f.write('del _zipIt.vbs\r\n')
+        f.write('del /F /Q %s\*.*\r\n' % dir_name)
+        f.write('rmdir %s\r\n' % dir_name)
     
         f.write('echo Now you can copy %%MYPATH%%%s.zip file to target server and run import script.\r\n' % dir_name)
         f.write('pause\r\n')
@@ -246,6 +254,7 @@ class DataCopyScriptLinux(DataCopyScript):
         progress = 0 
         total_progress = (3 + len(tables))
         source_schema = tables[0]['source_schema']
+        target_schema = tables[0]['target_schema']
         dir_name = 'dump_%s' % source_schema
         log_file = '%s.log' % dir_name
         import_file_name = 'import_%s.%s' % (source_schema, import_script.get_script_ext())
@@ -273,26 +282,24 @@ fi
 
         f.write('echo "%s" > %s\n' % ('SET SESSION UNIQUE_CHECKS=0;', import_sql_file_name))
         f.write('echo "%s" >> %s\n' % ('SET SESSION FOREIGN_KEY_CHECKS=0;', import_sql_file_name))
-        f.write('echo "%s" >> %s\n' % ('use %s;' % source_schema, import_sql_file_name))
+        f.write('echo "%s" >> %s\n' % ('use %s;' % target_schema, import_sql_file_name))
 
 
         f.write('echo [%d %%] Start dumping tables\n' % (progress * 100 / total_progress))
 
-        #load_files = []
         for table in tables:
             f.write('%s\n' % source_rdbms.get_copy_table_cmd(table, connection_args))
             if isinstance(source_rdbms, SourceRDBMSMysql):
                 f.write('mv %s.txt %s.csv\n' % (table['source_table'], table['source_table']))
                 f.write('rm %s.sql\n' % table['source_table'])
             f.write('echo "%s" >> %s\n' % (import_script.get_import_cmd(table, '%s.csv' % (table['source_table'])), import_sql_file_name))
-            #load_files.append('%s.csv' % table['source_table'])
             progress = progress + 1
             f.write('echo [%d %%] Dumped table %s\n' % (progress * 100 / total_progress, table['source_table']))
 
         f.write('touch %s\n' % import_file_name)
         if isinstance(import_script, ImportScriptDarwin) or isinstance(import_script, ImportScriptLinux):
             f.write('chmod +x %s' % import_file_name)
-        import_file_lines = import_script.generate_import_script(connection_args, import_sql_file_name, source_schema)
+        import_file_lines = import_script.generate_import_script(connection_args, import_sql_file_name, target_schema)
         for line in import_file_lines:
             f.write('echo "%s" >> %s\n' % (line, import_file_name))
 
@@ -317,6 +324,7 @@ class DataCopyScriptDarwin(DataCopyScript):
         progress = 0 
         total_progress = (3 + len(tables))
         source_schema = tables[0]['source_schema']
+        target_schema = tables[0]['target_schema']
         dir_name = 'dump_%s' % source_schema
         log_file = '%s.log' % dir_name
         import_file_name = 'import_%s.%s' % (source_schema, import_script.get_script_ext())
@@ -344,26 +352,24 @@ fi
 
         f.write('echo "%s" > %s\n' % ('SET SESSION UNIQUE_CHECKS=0;', import_sql_file_name))
         f.write('echo "%s" >> %s\n' % ('SET SESSION FOREIGN_KEY_CHECKS=0;', import_sql_file_name))
-        f.write('echo "%s" >> %s\n' % ('use %s;' % source_schema, import_sql_file_name))
+        f.write('echo "%s" >> %s\n' % ('use %s;' % target_schema, import_sql_file_name))
 
 
         f.write('echo [%d %%] Start dumping tables\n' % (progress * 100 / total_progress))
 
-        load_files = []
         for table in tables:
             f.write('%s\n' % source_rdbms.get_copy_table_cmd(table, connection_args))
-            if isinstance(source_rdbms, SourceRDBMSMysql):
+            if isinstance(source_rdbms, SourceRDBMSMys):
                 f.write('mv %s.txt %s.csv\n' % (table['source_table'], table['source_table']))
                 f.write('rm %s.sql\n' % table['source_table'])
             f.write('echo "%s" >> %s\n' % (import_script.get_import_cmd(table, '%s.csv' % (table['source_table'])), import_sql_file_name))
-            load_files.append('%s.csv' % table['source_table'])
             progress = progress + 1
             f.write('echo [%d %%] Dumped table %s\n' % (progress * 100 / total_progress, table['source_table']))
 
         f.write('touch %s\n' % import_file_name)
         if isinstance(import_script, ImportScriptDarwin) or isinstance(import_script, ImportScriptLinux):
             f.write('chmod +x %s' % import_file_name)
-        import_file_lines = import_script.generate_import_script(connection_args, import_sql_file_name, source_schema)
+        import_file_lines = import_script.generate_import_script(connection_args, import_sql_file_name, target_schema)
         for line in import_file_lines:
             f.write('echo "%s" >> %s\n' % (line, import_file_name))
     
