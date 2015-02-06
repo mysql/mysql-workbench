@@ -363,6 +363,7 @@ class DataMigrator(object):
     def helper_connections_arglist(self):
         conn_args = { 'source_user': self._src_conn_object.parameterValues.get("userName", 'root'),
                       'source_instance': '',
+                      'source_port': self._src_conn_object.parameterValues.get("port", 3306),
                       'target_port': self._tgt_conn_object.parameterValues.get("port", 3306),
                       'target_user': self._tgt_conn_object.parameterValues.get("userName", 'root'),
                       'source_rdbms':self._src_conn_object.driver.owner.name.lower()}
