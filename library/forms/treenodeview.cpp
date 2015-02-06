@@ -278,18 +278,24 @@ void TreeNodeView::clear_selection()
 
 void TreeNodeView::select_node(TreeNodeRef node)
 {
-  _update_count++;
-  clear_selection();
-  _treeview_impl->set_selected(this, node, true);
-  _update_count--;
+  if (node.is_valid())
+  {
+    _update_count++;
+    clear_selection();
+    _treeview_impl->set_selected(this, node, true);
+    _update_count--;
+  }
 }
 
 
 void TreeNodeView::set_node_selected(TreeNodeRef node, bool flag)
 {
-  _update_count++;
-  _treeview_impl->set_selected(this, node, flag);
-  _update_count--;
+  if (node.is_valid())
+  {
+    _update_count++;
+    _treeview_impl->set_selected(this, node, flag);
+    _update_count--;
+  }
 }
 
 
