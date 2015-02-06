@@ -176,7 +176,7 @@ _lower_tab(mforms::TabViewDocument),
   }
   //  else
   {
-    _run_button = add_tool_button("tiny_execute.png", boost::bind(&GRTShellWindow::execute_file, this),
+    _run_button = add_tool_button("qe_sql-editor-tb-icon_execute.png", boost::bind(&GRTShellWindow::execute_file, this),
       _("Execute script"));
     _continue_button = add_tool_button("debug_continue.png", boost::bind(&GRTShellWindow::debug_continue, this), 
       _("Continue execution until next breakpoint"));
