@@ -224,6 +224,8 @@ class MySQLScriptImporter(object):
                             log_info("Task stdout: %s\n" % text)
                             if 'Access denied for user' in text:
                                 raise grt.DBLoginError(text)
+                            elif "Can't open named pipe to host" in text and sys.platform.lower() == "win32":
+                                text = "%s\n%s" % (text, "Please check if the server started with the --enabled-named-pipe parameter. The parameter can also be set in the config file.")
                             self.report_output(text.strip())
                         elif text is None:
                               stdout_q = None
