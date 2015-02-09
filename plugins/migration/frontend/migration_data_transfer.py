@@ -34,10 +34,12 @@ class SetupMainView(WizardPage):
             getattr(self, option+"_entry").set_value(form.get_path())
             setattr(self, option+"_check_duplicate", False)
 
-    def _add_script_checkbox_option(self, box, name, caption, path_caption, browser_caption, label_caption):
-        check = mforms.newCheckBox()
+    def _add_script_checkbox_option(self, box, name, caption, path_caption, browser_caption, label_caption, rid):
+        holder = mforms.newBox(False)
+        holder.set_spacing(4)
+        check = mforms.newRadioButton(rid)
         check.set_text(caption)
-        box.add(check, False, True)
+        holder.add(check, False, True)
         vbox = mforms.newBox(False)
         vbox.set_spacing(4)
         file_box = mforms.newBox(True)
@@ -56,7 +58,8 @@ class SetupMainView(WizardPage):
         label.set_style(mforms.SmallHelpTextStyle)
         vbox.add(label, False, True)
         vbox.set_enabled(False)
-        box.add(vbox, False, True)
+        holder.add(vbox, False, True)
+        box.add(holder, False, True)
 
         setattr(self, name+"_check_duplicate", False)
         setattr(self, name+"_checkbox", check)
@@ -68,7 +71,7 @@ class SetupMainView(WizardPage):
 
         self.main.add_wizard_page(self, "DataMigration", "Data Transfer Setup")
 
-        label = mforms.newLabel("Select options for the copy of the migrated schema tables in the target\nMySQL server and click [Next >] to execute.")
+        label = mforms.newLabel("Select options for the copy of the migrated schema tables in the target MySQL server and click [Next >] to execute.")
         self.content.add(label, False, True)
 
         panel = mforms.newPanel(mforms.TitledBoxPanel)
@@ -77,9 +80,12 @@ class SetupMainView(WizardPage):
 
         box = mforms.newBox(False)
         panel.add(box)
-        box.set_padding(12)
+        box.set_padding(16)
+        box.set_spacing(16)
 
-        self._copy_db = mforms.newCheckBox()
+        rid = mforms.RadioButton.new_id()
+
+        self._copy_db = mforms.newRadioButton(rid)
         self._copy_db.set_text("Online copy of table data to target RDBMS")
         box.add(self._copy_db, False, True)
 
@@ -87,14 +93,12 @@ class SetupMainView(WizardPage):
         #box.add(mforms.newLabel(""), False, True)
         #self._add_script_checkbox_option(box, "dump_to_file", "Create a dump file with the data", "Dump File:", "Save As")
 
-        box.add(mforms.newLabel(""), False, True)
-
         if sys.platform == "win32":
-            self._add_script_checkbox_option(box, "copy_script", "Create a batch file to copy the data at another time", "Batch File:", "Save As", "You should edit this file to add the source and target server passwords before running it.")
+            self._add_script_checkbox_option(box, "copy_script", "Create a batch file to copy the data at another time", "Batch File:", "Save As", "You should edit this file to add the source and target server passwords before running it.", rid)
         else:
-            self._add_script_checkbox_option(box, "copy_script", "Create a shell script to copy the data from outside Workbench", "Shell Script File:", "Save As", "You should edit this file to add the source and target server passwords before running it.")
+            self._add_script_checkbox_option(box, "copy_script", "Create a shell script to copy the data from outside Workbench", "Shell Script File:", "Save As", "You should edit this file to add the source and target server passwords before running it.", rid)
 
-        self._add_script_checkbox_option(box, "bulk_copy_script", "Create a shell script to bulk copy the data from outside Workbench", "Shell Bulk Data Copy Script File:", "Save As", "You should edit this file to add the source and target server passwords. Then copy it to source server and execute it. Further follow the instructions.")
+        self._add_script_checkbox_option(box, "bulk_copy_script", "Create a shell script to use native server dump and load abilities for fast migration", "Bulk Data Copy Script:", "Save As", "Edit the generated file and change passwords at the top of the generated script.\nRun it on the source server to create a zip package containing a data dump as well as a load script.\nCopy this to the target server, extract it and run the import script. See the script output for further details.", rid)
 
         panel = mforms.newPanel(mforms.TitledBoxPanel)
         panel.set_title("Options")
