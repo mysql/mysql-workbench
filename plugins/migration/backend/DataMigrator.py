@@ -316,9 +316,11 @@ class DataMigrator(object):
 
         args.append("--thread-count=" + str(num_processes));
         args.append('--source-rdbms-type=%s' % self._src_conn_object.driver.owner.name)
-        default_charset = self._src_conn_object.parameterValues.get("defaultCharSet")
-        if default_charset:
-            args.append('--source-charset=%s' % default_charset)
+
+        if 'defaultCharSet' in self._src_conn_object.parameterValues.keys():
+            default_charset = self._src_conn_object.parameterValues.get("defaultCharSet")
+            if default_charset:
+                args.append('--source-charset=%s' % default_charset)
 
         if self._resume:
           args.append("--resume")
