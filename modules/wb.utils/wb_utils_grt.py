@@ -766,9 +766,14 @@ class SSLGenerator(mforms.Form):
             set_shell = True if sys.platform == "win32" else False
             p = subprocess.Popen(command, stdout=output_to, stderr=subprocess.PIPE, shell=set_shell)
             out = p.communicate()
+
+            if p.returncode != 0:
+                log_error("Running command: %s\nOutput(retcode: %d):\n%s\n" % (str(command), p.returncode, str(out)))
+                return False
+
             return True
-        except subprocess.CalledProcessError, e:
-            log_error("Running command: %s\nOutput(retcode: %d):\n%s\n" % (str(e.cmd), e.returncode, str(e.output)))
+        except ValueError, e:
+            log_error("Running command: %s\nValueError exception\n" % (str(e.cmd)))
             return False
         except OSError, e:
             log_error("Running command: %s\nException:\n%s\n" % (str(command), str(e)))
@@ -792,7 +797,7 @@ class SSLGenerator(mforms.Form):
             return False, None, None, None, None, None
 
         # Check if path exists
-        if not os.path.isdir(self.path.get_string_value()):
+        if not os.path.exists(self.path.get_string_value()):
             self.display_error("Checking requirements", "The specified directory does not exist.")
             return False, None, None, None, None, None
 
@@ -828,11 +833,20 @@ class SSLGenerator(mforms.Form):
     def run(self):
         if self.run_modal(self.ok, self.cancel):
             config_file = None
+
             try:
                 path = self.path.get_string_value()
                 try:
-                    os.mkdir(path, 0700)
+                    if os.path.exists(path) and not os.path.isdir(path):
+                        self.display_error("Checking requirements", "The selected path is a file. You should select a directory.")
+                        return
+                    if not os.path.exists(path):
+                        if mforms.Utilities.show_message("Create directory", "The directory you selected does not exists. Do you want to create it?", "Create", "Cancel", "") == mforms.ResultCancel:
+                            self.display_error("Create directory", "The operation was canceled.")
+                            return
+                        os.mkdir(path, 0700)
                 except OSError, e:
+                    self.display_error("Create directory", "There was an error (%d)" % e.errno)
                     if e.errno != 17:
                         raise
 
