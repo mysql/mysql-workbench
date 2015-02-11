@@ -40,19 +40,14 @@ class ImportScript:
 
 class ImportScriptWindows(ImportScript):
     def get_import_cmd(self, table, path_to_file):
-        return "LOAD DATA INFILE '%s' INTO TABLE %s FIELDS TERMINATED BY ',' ENCLOSED BY '';" % (path_to_file, table['target_table'])
+        return "LOAD DATA INFILE '%s_#####_import/%s' INTO TABLE %s FIELDS TERMINATED BY ',' ENCLOSED BY '';" % (table['target_schema'], path_to_file, table['target_table'])
 
     def get_script_ext(self): 
         return 'cmd'
 
     def generate_import_script(self, connection_args, path_to_file, schema_name):
         output = ['@ECHO OFF']
-        output.append('net session ^>nul 2^>^&1')
-        output.append('if not %%errorLevel%% == 0 ^(')
-        output.append('echo Please run this script with Administrator privileges.')
-        output.append('exit /b 1')
-        output.append('^)')
-        
+
         output.append('echo Started load data. Please wait.')
         
         output.append('SET MYPATH=%%~dp0')
@@ -61,14 +56,19 @@ class ImportScriptWindows(ImportScript):
         output.append('FOR /F "tokens=* USEBACKQ" %%%%F IN ^(^`%%command%%^`^) DO ^(')
         output.append('    SET DADADIR=%%%%F')
         output.append('^)')
-        output.append('cd %%DADADIR%%')
+        output.append('pushd %%DADADIR%%')
 
-        output.append('xcopy %%%%MYPATH%%%%*.csv %s' % schema_name)
-        output.append('xcopy %%%%MYPATH%%%%*.sql %s' % schema_name)
+        output.append('mkdir %s_#####_import' % schema_name)
+        
+        output.append('xcopy %%%%MYPATH%%%%*.csv %s_#####_import\*' % schema_name)
+        output.append('xcopy %%%%MYPATH%%%%*.sql %s_#####_import\*' % schema_name)
         
         
-        output.append('mysql.exe -h127.0.0.1 -P%s -u%s -p ^< %s\%s' % (connection_args['target_port'], connection_args['target_user'], schema_name, path_to_file))
+        output.append('mysql.exe -h127.0.0.1 -P%s -u%s -p ^< %s_#####_import\%s' % (connection_args['target_port'], connection_args['target_user'], schema_name, path_to_file))
+        
+        output.append('rmdir %s_#####_import /s /q' % schema_name)
         output.append('echo Finished load data')
+        output.append('popd')
         output.append('pause')
         return output
 
@@ -182,7 +182,7 @@ class DataCopyScriptWindows(DataCopyScript):
         import_file_name = 'import_%s.%s' % (source_schema, import_script.get_script_ext())
         import_sql_file_name = 'import_%s.sql' % source_schema
 
-        f = open(script_path, 'w+')
+        f = open(script_path, 'wb+')
         f.write('@ECHO OFF\r\n')
 
         if isinstance(source_rdbms, SourceRDBMSMysql):
@@ -194,10 +194,10 @@ class DataCopyScriptWindows(DataCopyScript):
             f.write("set arg_target_password=\"<put target password here>\"\r\n")
 
         f.write('SET MYPATH=%~dp0\r\n')
-        f.write('cd %TEMP%\r\n')
+        f.write('pushd %TEMP%\r\n')
         f.write('echo [%d %%%%] Creating directory %s\r\n' % (progress, dir_name))
         f.write('mkdir %s\r\n' % dir_name)
-        f.write('cd %s\r\n' % dir_name)
+        f.write('pushd %s\r\n' % dir_name)
     
         progress = progress + 1
 
@@ -228,7 +228,7 @@ class DataCopyScriptWindows(DataCopyScript):
         progress = progress + 1
         f.write('echo [%d %%%%] Generated import script %s\r\n' % (progress * 100 / total_progress, import_file_name))
     
-        f.write('cd ..\r\n')
+        f.write('popd\r\n')
         f.write('set TEMPDIR=%%TEMP%%\%s\r\n' % dir_name)
         f.write('echo Set objArgs = WScript.Arguments > _zipIt.vbs\r\n')
         f.write('echo InputFolder = objArgs(0) >> _zipIt.vbs\r\n')
@@ -251,6 +251,7 @@ class DataCopyScriptWindows(DataCopyScript):
         f.write('del _zipIt.vbs\r\n')
         f.write('del /F /Q %s\*.*\r\n' % dir_name)
         f.write('rmdir %s\r\n' % dir_name)
+        f.write('popd\r\n')
     
         f.write('echo Now you can copy %%MYPATH%%%s.zip file to target server and run import script.\r\n' % dir_name)
         f.write('pause\r\n')
