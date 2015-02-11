@@ -634,6 +634,8 @@ class SSLGenerator(mforms.Form):
     def __init__(self):
         mforms.Form.__init__(self, mforms.Form.main_form(), mforms.FormNormal)
 
+        self.config_file = {}
+
         self.set_title("Generate SSL Certificates")
 
         box = mforms.newBox(False)
@@ -718,14 +720,14 @@ class SSLGenerator(mforms.Form):
         return row+1, control
 
 
-    def get_attributes(self):
+    def get_attributes(self, target):
         l = []
         l.append("C=%s"%self.country_code.get_string_value())
         l.append("ST=%s"%self.state_name.get_string_value())
         l.append("L=%s"%self.locality_name.get_string_value())
         l.append("O=%s"%self.org_name.get_string_value())
         l.append("OU=%s"%self.org_unit.get_string_value())
-        l.append("CN=%s"%self.common_name.get_string_value())
+        l.append("CN=%s-%s"%(self.common_name.get_string_value(), target))
         l.append("emailAddress=%s"%self.email_address.get_string_value())
         # filter out blank values
         l = [s for s in l if s.partition("=")[-1]]
@@ -810,26 +812,33 @@ class SSLGenerator(mforms.Form):
 
         log_debug2("Creating CA key...\n")
         
-        req_cmd = [tool, "req", "-new", "-x509", "-nodes", "-days", str(days), "-key", ca_key, "-out", ca_cert, "-config", config_file]
+        req_cmd = [tool, "req", "-new", "-x509", "-nodes", "-days", str(days), "-key", ca_key, "-out", ca_cert, "-config", self.config_file["CA"]]
         if not self.run_command(req_cmd):
             self.display_error("Creating CA certificate...", "Could not generate keys")
             return False, None, None, None, None, None
 
         log_debug2("Create server certificate and self-sign\n")
-        result, server_key, server_req, server_cert = self.generate_certificate(tool, path, "server", ca_cert, ca_key, config_file)
+        result, server_key, server_req, server_cert = self.generate_certificate(tool, path, "server", ca_cert, ca_key, self.config_file["Server"])
         if not result:
             self.display_error("Create server certificate and self-sign", "Could not generate keys")
             return False, server_key, server_req, server_cert
 
         log_debug2("Create client certificates and self-sign\n")
-        result, client_key, client_req, client_cert = self.generate_certificate(tool, path, "client", ca_cert, ca_key, config_file)
+        result, client_key, client_req, client_cert = self.generate_certificate(tool, path, "client", ca_cert, ca_key, self.config_file["Client"])
         if not result:
             self.display_error("Create client certificates and self-sign", "Could not generate keys")
             return False, server_key, server_req, server_cert
 
         return True, ca_cert, server_cert, server_key, client_cert, client_key
 
-
+    def generate_config_file(self, target):
+        self.config_file[target] = os.path.join(self.path.get_string_value(), "attribs-%s.txt" % target)
+        f = open(self.config_file[target], "w+")
+        f.write("[req]\ndistinguished_name=distinguished_name\nprompt=no\n")
+        f.write("\n".join(["[distinguished_name]"] + self.get_attributes(target))+"\n")
+        f.close()
+        return
+      
     def run(self):
         if self.run_modal(self.ok, self.cancel):
             config_file = None
@@ -856,11 +865,14 @@ class SSLGenerator(mforms.Form):
                                                      "Overwrite", "Cancel", "") == mforms.ResultCancel:
                         return
 
-                config_file = os.path.join(path, "attribs.txt")
-                f = open(config_file, "w+")
-                f.write("[req]\ndistinguished_name=distinguished_name\nprompt=no\n")
-                f.write("\n".join(["[distinguished_name]\n"] + self.get_attributes())+"\n")
-                f.close()
+                self.generate_config_file("CA")
+                self.generate_config_file("Server")
+                self.generate_config_file("Client")
+                #config_file = os.path.join(path, "attribs.txt")
+                #f = open(config_file, "w+")
+                #f.write("[req]\ndistinguished_name=distinguished_name\nprompt=no\n")
+                #f.write("\n".join(["[distinguished_name]\n"] + self.get_attributes())+"\n")
+                #f.close()
 
                 result, ca_cert, server_cert, server_key, client_cert, client_key = self.generate(path, config_file)
 
