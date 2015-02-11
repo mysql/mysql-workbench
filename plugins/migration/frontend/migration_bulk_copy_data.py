@@ -193,7 +193,7 @@ class DataCopyScriptWindows(DataCopyScript):
         if not isinstance(import_script, ImportScriptWindows):
             f.write("set arg_target_password=\"<put target password here>\"\r\n")
 
-        f.write('SET MYPATH=%~dp0\r\n')
+        f.write('cd %TEMP%\r\n')
         f.write('echo [%d %%%%] Creating directory %s\r\n' % (progress, dir_name))
         f.write('mkdir %s\r\n' % dir_name)
         f.write('cd %s\r\n' % dir_name)
@@ -216,6 +216,9 @@ class DataCopyScriptWindows(DataCopyScript):
             progress = progress + 1
             f.write('echo [%d %%%%] Dumped table %s\r\n' % (progress * 100 / total_progress, table['source_table']))
 
+        if isinstance(source_rdbms, SourceRDBMSMysql):
+            f.write('mysql_config_editor.exe remove --login-path=wb_migration_source\r\n')
+        
         f.write('copy NUL %s\r\n' % import_file_name)
         import_file_lines = import_script.generate_import_script(connection_args, import_sql_file_name, target_schema)
         for line in import_file_lines:
@@ -225,7 +228,7 @@ class DataCopyScriptWindows(DataCopyScript):
         f.write('echo [%d %%%%] Generated import script %s\r\n' % (progress * 100 / total_progress, import_file_name))
     
         f.write('cd ..\r\n')
-        f.write('set TEMPDIR=%%MYPATH%%%s\r\n' % dir_name)
+        f.write('set TEMPDIR=%%TEMP%%\%s\r\n' % dir_name)
         f.write('echo Set objArgs = WScript.Arguments > _zipIt.vbs\r\n')
         f.write('echo InputFolder = objArgs(0) >> _zipIt.vbs\r\n')
         f.write('echo ZipFile = objArgs(1) >> _zipIt.vbs\r\n')
@@ -233,8 +236,11 @@ class DataCopyScriptWindows(DataCopyScript):
         f.write('echo Set objShell = CreateObject("Shell.Application") >> _zipIt.vbs\r\n')
         f.write('echo Set source = objShell.NameSpace(InputFolder).Items >> _zipIt.vbs\r\n')
         f.write('echo objShell.NameSpace(ZipFile).CopyHere(source) >> _zipIt.vbs\r\n')
-        f.write('echo wScript.Sleep 2000 >> _zipIt.vbs\r\n')
-        f.write('CScript  _zipIt.vbs  %%TEMPDIR%%  %%MYPATH%%%s.zip\r\n' % dir_name)
+        f.write('echo Do Until objShell.NameSpace( ZipFile ).Items.Count ^= objShell.NameSpace( InputFolder ).Items.Count >> _zipIt.vbs\r\n')
+        f.write('echo wScript.Sleep 200 >> _zipIt.vbs\r\n')
+        f.write('echo Loop >> _zipIt.vbs\r\n')
+        
+        f.write('CScript  _zipIt.vbs  %%TEMPDIR%%  %%TEMP%%\%s.zip\r\n' % dir_name)
     
         progress = progress + 1
 
@@ -244,7 +250,7 @@ class DataCopyScriptWindows(DataCopyScript):
         f.write('del /F /Q %s\*.*\r\n' % dir_name)
         f.write('rmdir %s\r\n' % dir_name)
     
-        f.write('echo Now you can copy %%MYPATH%%%s.zip file to target server and run import script.\r\n' % dir_name)
+        f.write('echo Now you can copy %%TEMP%%\%s.zip file to target server and run import script.\r\n' % dir_name)
         f.write('pause\r\n')
 
 

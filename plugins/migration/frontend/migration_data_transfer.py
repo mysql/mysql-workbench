@@ -114,16 +114,17 @@ class SetupMainView(WizardPage):
         self.options_box.add(self._truncate_db, False, True)
 
         hbox = mforms.newBox(True)
-        hbox.set_spacing(8)
+        hbox.set_spacing(16)
         hbox.add(mforms.newLabel("Worker tasks"), False, True)
         self._worker_count = mforms.newTextEntry()
         self._worker_count.set_value("2")
-        self._worker_count.set_size(50, -1)
+        self._worker_count.set_size(30, -1)
         hbox.add(self._worker_count, False, True)
-        l = mforms.newLabel("Number of tasks to use for data transfer. Each task will open a\n"+
+        l = mforms.newImageBox()
+        l.set_image(mforms.App.get().get_resource_path("mini_notice.png"))
+        l.set_tooltip("Number of tasks to use for data transfer. Each task will open a "+
           "connection to both source and target RDBMSs to copy table rows.\nDefault value 2.")
-        l.set_style(mforms.SmallHelpTextStyle)
-        hbox.add(l, True, True)
+        hbox.add(l, False, True)
         self.options_box.add(hbox, False, True)
 
         self._debug_copy = mforms.newCheckBox()
@@ -361,11 +362,6 @@ class TransferMainView(WizardProgressPage):
 
         self.main.add_wizard_page(self, "DataMigration", "Bulk Data Transfer")
 
-        self.add_task(self._prepare_copy, "Prepare information for data copy")
-        self._copy_script_task = self.add_task(self._create_copy_script, "Create shell script for data copy")
-        self._bulk_copy_script_task = self.add_task(self._create_bulk_copy_script, "Create shell script for bulk data copy")
-        self._migrate_task1 = self.add_threaded_task(self._count_rows, "Determine number of rows to copy")
-        self._migrate_task2 = self.add_threaded_task(self._migrate_data, "Copy data to target RDBMS")
         self._tables_to_exclude = list()
 
     def page_activated(self, advancing):
@@ -373,14 +369,17 @@ class TransferMainView(WizardProgressPage):
             options = self.main.plan.state.dataBulkTransferParams
             copy_script = options.get("GenerateCopyScript", None)
             bulk_copy_script = options.get("GenerateBulkCopyScript", None)
-            self._copy_script_task.set_enabled(copy_script != None)
-            self._bulk_copy_script_task.set_enabled(bulk_copy_script != None)
+
+            self.add_task(self._prepare_copy, "Prepare information for data copy")
+            if copy_script != None:
+                self._copy_script_task = self.add_task(self._create_copy_script, "Create shell script for data copy")
+
+            if bulk_copy_script != None:
+                self._bulk_copy_script_task = self.add_task(self._create_bulk_copy_script, "Create shell script for bulk data copy")
+
             if options.get("LiveDataCopy", False) or options.get("GenerateDumpScript", False):
-                self._migrate_task1.set_enabled(True)
-                self._migrate_task2.set_enabled(True)
-            else:
-                self._migrate_task1.set_enabled(False)
-                self._migrate_task2.set_enabled(False)
+                self._migrate_task1 = self.add_threaded_task(self._count_rows, "Determine number of rows to copy")
+                self._migrate_task2 = self.add_threaded_task(self._migrate_data, "Copy data to target RDBMS")
 
             self._migrating_data = False
             self._progress_per_table = {}
@@ -409,6 +408,7 @@ class TransferMainView(WizardProgressPage):
 
 
     def go_back(self):
+        self.clear_tasks()
         self.reset(True)
         WizardProgressPage.go_back(self)
 

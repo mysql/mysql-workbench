@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -111,6 +111,9 @@ class FinalReportView(WizardPage):
     def page_activated(self, advancing):
         if advancing:
             self.generate_migration_report()
+            if "GenerateBulkCopyScript" in self.main.plan.state.dataBulkTransferParams.keys():
+                self.advanced_button.set_text("Open folder that contain generated script")
+                self.advanced_button.show(True)
         WizardPage.page_activated(self, advancing)
         
         
@@ -227,5 +230,7 @@ class FinalReportView(WizardPage):
         except Exception, exc:
             report = "Error generating report: %s" % exc
         self._report.set_value(report)
-        
-        
+
+
+    def go_advanced(self):
+        mforms.Utilities.reveal_file(self.main.plan.state.dataBulkTransferParams["GenerateBulkCopyScript"])
