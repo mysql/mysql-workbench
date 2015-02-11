@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -21,8 +21,9 @@ import wb_admin_ssh
 import errno
 try:
     from paramiko import SFTPError
+    paramiko_enabled = True
 except:
-    paramiko = None
+    paramiko_enabled = False
 
 from wb_common import OperationCancelledError, InvalidPasswordError, dprint_ex, parentdir, joinpath
 
@@ -58,7 +59,7 @@ class RemoteFileSelector(object):
         success = False
         target_is_file = False
         
-        if paramiko:
+        if paramiko_enabled:
             try:
                 success = self.cd(fname)
             except SFTPError, e:

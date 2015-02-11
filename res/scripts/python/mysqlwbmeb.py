@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2014, 2015 Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -36,18 +36,22 @@ def call_system(command, spawn, output_handler = None):
     logging.info('Executing command: %s' % command)
 
     if spawn or output_handler is None:
-        if os.fork() != 0:
-            return
-        
-        os.setpgrp()
-        
-        for i in range(0,100):
-            try:
-                os.close(i)
-            except:
-                pass
-                  
-        os.execvp("/bin/sh", ["/bin/sh", "-c", command])
+        try:
+            if os.fork() != 0:
+                return result
+            
+            os.setpgrp()
+            
+            for i in range(0,100):
+                try:
+                    os.close(i)
+                except:
+                    pass
+                      
+            os.execvp("/bin/sh", ["/bin/sh", "-c", command])
+        except OSError, e:
+            logging.error('Error on command execution: %s' % str(e))
+            result = 1
 
     else:
         child = subprocess.Popen(command, bufsize=0, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True, preexec_fn=os.setpgrp)
@@ -610,6 +614,7 @@ class MEBUpdateScheduling(MEBCommand):
         return schedule_command
 
     def execute(self):
+        output = StringIO.StringIO()
         ret_val = 0
         if self.read_params():
         
@@ -635,14 +640,20 @@ class MEBUpdateScheduling(MEBCommand):
             if self.new_fb_schedule == "True":
                 self.read_profile_data("full")
                 command = self.get_schedule_command("full")
-                ret_val = ret_val + call_system(command, False)
+                logging.debug("Scheduling full backup for profile: %s." % self.new_label)
+                ret_val = ret_val + call_system(command, False, output.write)
             
             if self.new_ib_schedule == "True":
                 self.read_profile_data("inc")
                 command = self.get_schedule_command("inc")
-                ret_val = ret_val + call_system(command, False)
+                logging.debug("Scheduling incremental backup for profile: %s." % self.new_label)
+                ret_val = ret_val + call_system(command, False, output.write)
         else:
             self.print_usage()
+
+        # In case of error prints the output
+        if ret_val:
+            self.write_output(output.getvalue().strip())
         
         return ret_val
 
@@ -861,7 +872,7 @@ class MEBGetProfiles(MEBCommand):
 class MEBHelperVersion(MEBCommand):
     # IMPORTANT: Any change to the current attribute must be
     # in synch with what is returned at WBMEBHelperHandlerLinux::current_helper_version
-    current = "6"
+    current = "7"
 
     def __init__(self, params = None, output_handler = None):
         super(MEBHelperVersion, self).__init__(params, output_handler)
