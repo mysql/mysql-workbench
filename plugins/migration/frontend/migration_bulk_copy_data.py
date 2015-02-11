@@ -193,6 +193,7 @@ class DataCopyScriptWindows(DataCopyScript):
         if not isinstance(import_script, ImportScriptWindows):
             f.write("set arg_target_password=\"<put target password here>\"\r\n")
 
+        f.write('SET MYPATH=%~dp0\r\n')
         f.write('cd %TEMP%\r\n')
         f.write('echo [%d %%%%] Creating directory %s\r\n' % (progress, dir_name))
         f.write('mkdir %s\r\n' % dir_name)
@@ -244,13 +245,14 @@ class DataCopyScriptWindows(DataCopyScript):
     
         progress = progress + 1
 
-        f.write('echo [%d %%%%] Zipped all files to %s.zip file\n' % (progress * 100 / total_progress, dir_name))
-        
+        f.write('echo [%d %%%%] Zipped all files to %s.zip file\r\n' % (progress * 100 / total_progress, dir_name))
+
+        f.write('xcopy %s.zip %%MYPATH%%\r\n' % dir_name)
         f.write('del _zipIt.vbs\r\n')
         f.write('del /F /Q %s\*.*\r\n' % dir_name)
         f.write('rmdir %s\r\n' % dir_name)
     
-        f.write('echo Now you can copy %%TEMP%%\%s.zip file to target server and run import script.\r\n' % dir_name)
+        f.write('echo Now you can copy %%MYPATH%%%s.zip file to target server and run import script.\r\n' % dir_name)
         f.write('pause\r\n')
 
 
