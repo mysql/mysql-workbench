@@ -316,9 +316,11 @@ class DataMigrator(object):
 
         args.append("--thread-count=" + str(num_processes));
         args.append('--source-rdbms-type=%s' % self._src_conn_object.driver.owner.name)
-        default_charset = self._src_conn_object.parameterValues.get("defaultCharSet")
-        if default_charset:
-            args.append('--source-charset=%s' % default_charset)
+
+        if 'defaultCharSet' in self._src_conn_object.parameterValues.keys():
+            default_charset = self._src_conn_object.parameterValues.get("defaultCharSet")
+            if default_charset:
+                args.append('--source-charset=%s' % default_charset)
 
         if self._resume:
           args.append("--resume")
@@ -362,7 +364,8 @@ class DataMigrator(object):
 
     def helper_connections_arglist(self):
         conn_args = { 'source_user': self._src_conn_object.parameterValues.get("userName", 'root'),
-                      'source_instance': 'SQLEXPRESS',
+                      'source_instance': '',
+                      'source_port': self._src_conn_object.parameterValues.get("port", 3306),
                       'target_port': self._tgt_conn_object.parameterValues.get("port", 3306),
                       'target_user': self._tgt_conn_object.parameterValues.get("userName", 'root'),
                       'source_rdbms':self._src_conn_object.driver.owner.name.lower()}

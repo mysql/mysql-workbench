@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -221,6 +221,14 @@ Please edit your connection settings and try again."""
             else:
                 host_name = self.db_connection_params.parameterValues["hostName"]
         return host_name
+    
+    @property
+    def port(self):
+        port = 3306
+        if self.db_connection_params:
+            if self.db_connection_params.driver.name != "MysqlNativeSocket":
+                port = self.db_connection_params.parameterValues["port"]
+        return port
 
     @property
     def mysql_username(self):
@@ -482,6 +490,8 @@ class PasswordHandler(object):
             password_type = "ssh"
         elif service_type == "sshkey":
             password_type = "sshkey"
+        elif service_type == "local":
+            password_type = "local"
         else:
             raise Exception("Unknown password type: %s" % service_type)
         return password_type
@@ -527,6 +537,9 @@ class PasswordHandler(object):
                 service = "%s@localhost" % sudo_type
 
             return (title, service, account)
+
+        elif password_type == "local":
+            return ("", "Mysql@%s:%s" % (profile.host_name, profile.port), profile.mysql_username)
 
         elif password_type == "wmi":
             return ("WMI Password Required", "wmi@%s" % profile.wmi_hostname, profile.wmi_username)

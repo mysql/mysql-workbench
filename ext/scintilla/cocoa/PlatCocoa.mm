@@ -1400,7 +1400,7 @@ public:
 @interface AutoCompletionDataSource :
 NSObject
 #if MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_5
-<NSTableViewDataSource>
+<NSTableViewDataSource, NSTableViewDelegate>
 #endif
 {
   IListBox* box;
@@ -1451,6 +1451,20 @@ NSObject
 	if (!box)
 		return 0;
 	return box->Rows();
+}
+
+- (void)tableView: (NSTableView *)tableView
+  willDisplayCell: (id)cell
+   forTableColumn: (NSTableColumn *)tableColumn
+              row: (NSInteger)row
+{
+  if ([cell isKindOfClass: NSTextFieldCell.class])
+  {
+    if (row == tableView.selectedRow)
+      [cell setTextColor: NSColor.whiteColor];
+    else
+      [cell setTextColor: NSColor.darkGrayColor];
+  }
 }
 
 @end
@@ -1609,13 +1623,17 @@ void ListBoxImpl::Create(Window& /*parent*/, int /*ctrlID*/, Scintilla::Point pt
   NSImageCell* imCell = [[[NSImageCell alloc] init] autorelease];
   [colIcon setDataCell:imCell];
   [table addTableColumn:colIcon];
+
   colText = [[NSTableColumn alloc] initWithIdentifier:@"name"];
   [colText setResizingMask:NSTableColumnAutoresizingMask];
   [colText setEditable:NO];
+
   [table addTableColumn:colText];
   ds = [[AutoCompletionDataSource alloc] init];
   [ds setBox:this];
   [table setDataSource: ds];	// Weak reference
+  table.delegate = ds;
+
   [scroller setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
   [[winLB contentView] addSubview: scroller];
 

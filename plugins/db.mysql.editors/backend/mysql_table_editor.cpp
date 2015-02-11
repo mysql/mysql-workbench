@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -951,10 +951,12 @@ public:
     if (_refreshing)
       return;
 
+    if (_code_editor->is_dirty())
+          code_edited();
+
     update_ui();
 
-    if (_code_editor->is_dirty())
-      code_edited();
+
   }
 
   //------------------------------------------------------------------------------------------------
@@ -1075,9 +1077,10 @@ public:
   {
     mforms::TreeNodeRef new_node = new_parent->insert_child(index);
     new_node->set_string(0, node->get_string(0));
-    new_node->set_tag(node->get_tag());
+    std::string tag = node->get_tag();
     new_node->set_data(node->get_data());
     node->remove_from_parent();
+    new_node->set_tag(tag);
     return new_node;
   }
 

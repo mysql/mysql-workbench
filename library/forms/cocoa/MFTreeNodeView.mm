@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -378,7 +378,31 @@ public:
       [[_self children] removeAllObjects];
     }
   }
-  
+
+  void move_node(mforms::TreeNodeRef node, bool before)
+  {
+    if (is_valid())
+    {
+      TreeNodeImpl *other = from_ref(node);
+      if (_self->mTree != other->_self->mTree)
+        return;
+
+      [_self removeFromParent];
+
+      MFTreeNodeImpl *parent = other->_self->mParent;
+      NSUInteger index = [parent.children indexOfObject: other->_self];
+      if (!before)
+        ++index;
+
+      _self->mParent = parent;
+      [parent.children insertObject: _self atIndex: index];
+
+      if (!_self->mTree.frozen) {
+        [_self->mTree setNeedsReload];
+      }
+    }
+  }
+
   virtual mforms::TreeNodeRef get_child(int index) const
   {
     if (is_valid())

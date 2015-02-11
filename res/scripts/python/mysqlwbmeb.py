@@ -618,23 +618,23 @@ class MEBUpdateScheduling(MEBCommand):
         ret_val = 0
         if self.read_params():
         
-            # Profile data would NOT be read on DELETE actions.
             if self.change != "DELETE":
                 self.init_profile()
             
             # Unscheduling would NOT occur on NEW profiles
             command = ""
             if self.change != "NEW":
-                message = ", renamed from %s" % self.old_label if self.old_label != self.new_label else "."
+                label = self.new_label if hasattr(self, 'new_label') else self.old_label
+                message = ", renamed from %s" % self.old_label if self.old_label != label else "."
                 
-                if self.old_fb_schedule == "1" or self.old_label != self.new_label:
+                if self.old_fb_schedule == "1" or self.old_label != label:
                     command = self.get_unschedule_command("full")
-                    logging.debug("Unscheduling full backup for profile: %s%s" % (self.new_label, message))
+                    logging.debug("Unscheduling full backup for profile: %s%s" % (label, message))
                     ret_val = ret_val + call_system(command, False, output.write)
 
-                if self.old_ib_schedule == "1" or self.old_label != self.new_label:
+                if self.old_ib_schedule == "1" or self.old_label != label:
                     command = self.get_unschedule_command("inc")
-                    logging.debug("Unscheduling incremental backup for profile: %s%s" % (self.new_label, message))
+                    logging.debug("Unscheduling incremental backup for profile: %s%s" % (label, message))
                     ret_val = ret_val + call_system(command, False, output.write)
             
             if self.new_fb_schedule == "True":

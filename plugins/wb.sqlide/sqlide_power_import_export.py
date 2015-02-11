@@ -32,6 +32,8 @@ import operator
 
 from workbench.log import log_debug3, log_debug2, log_debug, log_error, log_info
 
+last_location = ""
+
 def showPowerImport(editor, selection):
     importer = PowerImport(editor, mforms.Form.main_form(), selection)
     importer.set_title("Table Data Import")
@@ -84,6 +86,9 @@ class WorkerThread:
         self.finished_callback = None
 
     def call_finished_callback(self):
+        if self.is_running:
+            return True
+
         if self.finished_callback:
             self.finished_callback(True if not self.exception else False)
 
@@ -108,6 +113,15 @@ class WorkerThread:
             self.exception = e
 
         self.is_running = False
+        
+    def join(self, timeout = 0):
+        if self.thread and self.is_running:
+            self.thread.join(timeout)
+    
+    def is_alive(self):
+        if self.thread and self.is_running:
+            return self.thread.is_alive()
+        return False
 
 class base_module:
     def __init__(self, editor, is_import):
@@ -198,6 +212,18 @@ class base_module:
                    'is_float': True if c.columnType == "real" else False,
                    'value': None})
     
+    def prepare_new_table(self):
+        try:
+            self._editor.executeManagementCommand(""" CREATE TABLE %s (%s)""" % (self._table_w_prefix, ", ".join(["%s %s" % (col['name'], col['type']) for col in self._mapping])), 1)
+            # wee need to setup dest_col for each row, as the mapping is empty if we're creating new table
+            for col in self._mapping:
+                col['dest_col'] = col['name']
+            return True
+        except Exception, e:
+            log_error("Error creating table for import: %s" % e)
+            raise
+        
+    
     def get_command(self):
         return False
     
@@ -285,7 +311,7 @@ class csv_module(base_module):
                     self.read_user_query_columns(rset)
                     
                 self._max_rows = rset.rowCount
-
+                import time
                 with open(self._filepath, 'wb') as csvfile:
                     output = csv.writer(csvfile, delimiter = self.options['filedseparator']['value'], 
                                         lineterminator = self.options['lineseparator']['value'], 
@@ -312,18 +338,6 @@ class csv_module(base_module):
         else:
             self._editor.executeManagementCommand(query, 1)
     
-    
-    def prepare_new_table(self):
-        try:
-            self._editor.executeManagementCommand(""" CREATE TABLE %s (%s)""" % (self._table_w_prefix, ", ".join(["%s %s" % (col['name'], col['type']) for col in self._mapping])), 1)
-            # wee need to setup dest_col for each row, as the mapping is empty if we're creating new table
-            for col in self._mapping:
-                col['dest_col'] = col['name']
-            return True
-        except Exception, e:
-            log_error("Error creating table for import: %s" % e)
-            raise
-        
     def start_import(self):
         if not self._last_analyze:
             return
@@ -467,18 +481,10 @@ class json_module(base_module):
                         elif col['is_float']:
                             row.append("\"%s\":\"%s\"" % (col['name'], rset.floatFieldValueByName(col['name'])))
                     ok = rset.nextRow()
-                    jsonfile.write("{%s}%s" % (','.join(row), ", " if ok else ""))
+                    jsonfile.write("{%s}%s" % (', '.join(row), ",\n " if ok else ""))
                     jsonfile.flush()
                 jsonfile.write(']')
 
-    def prepare_new_table(self):
-        try:
-            self._editor.executeManagementCommand(""" CREATE TABLE %s (%s)""" % (self._table_w_prefix, ", ".join(["%s %s" % (col['name'], col['type']) for col in self._mapping])), 1)
-            return True
-        except Exception, e:
-            log_error("Error creating table for import: %s" % e)
-            return False
-        
     def start_import(self):
         if not self._last_analyze:
             return
@@ -489,7 +495,7 @@ class json_module(base_module):
         
         with open(self._filepath, 'rb') as jsonfile:
             import json
-            data = json.loads(jsonfile)
+            data = json.load(jsonfile)
             dest_col_order = list(set([i['dest_col'] for i in self._mapping if i['active']]))
             query = """PREPARE stmt FROM 'INSERT INTO %s (%s) VALUES(%s)'""" % (self._table_w_prefix, ",".join(dest_col_order), ",".join(["?" for i in dest_col_order]))
             col_order = dict([(i['dest_col'], i['name']) for i in self._mapping if i['active']])
@@ -510,9 +516,9 @@ class json_module(base_module):
                         elif col_type[col] == 'datetime':
                             val = datetime.datetime.strptime(row[col_order[col]], self._date_format).strftime("%Y-%m-%d %H:%M:%S")
                             
-                        self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val), 1)
+                        self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val), 0)
                     try:
-                        self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 1)
+                        self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 0)
                     except Exception, e:
                         log_error("Row import failed with error: %s" % e)
                         
@@ -682,9 +688,9 @@ class AdvancedTabExport(mforms.Box):
         lbl_box.add(mforms.newLabel("Type query that will be used as a base for export."), False, True)
         box.add(lbl_box, False, True)
         self.code_editor = mforms.CodeEditor()
+        self.code_editor.set_language(mforms.LanguageMySQL)
         self.code_editor.set_managed()
         self.code_editor.set_release_on_add()
-        self.code_editor.set_language(mforms.LanguageMySQL)
         box.add(self.code_editor, True, True)
         self.content.add(box, True, True)
         
@@ -775,7 +781,7 @@ class PowerExport(mforms.Form):
         self.optpanel.set_title("Options:")
         
         if sys.platform.lower() == "win32":
-            self.optpanel.set_size(-1, 100)
+            self.optpanel.set_size(-1, 110)
         elif sys.platform.lower() == "darwin":
             self.optpanel.set_size(-1, 150)
         
@@ -808,6 +814,7 @@ class PowerExport(mforms.Form):
         self.fileselectbox_btn = mforms.newButton()
         self.fileselectbox_btn.set_text("Browse...")
         self.fileselectbox_btn.set_size(120, -1)
+        self.destinationfile_entry.set_value(last_location)
         self.fileselectbox_btn.add_clicked_callback(self.select_destination)
         fileselector_box.add_end(self.fileselectbox_btn, False, True)
         bottom_box.add(fileselector_box, False, True)
@@ -815,11 +822,17 @@ class PowerExport(mforms.Form):
         start_box = mforms.newBox(True)
         start_box.set_spacing(8)
    
+        box = mforms.newBox(True)
         self.export_local = mforms.newCheckBox()
         self.export_local.set_text("Export to local machine")
         self.export_local.set_active(True)
         self.export_local.add_clicked_callback(self.toggle_export_destination)
-        start_box.add(self.export_local, False, True)
+        box.add(self.export_local, False, True)
+        l = mforms.newImageBox()
+        l.set_image(mforms.App.get().get_resource_path("mini_notice.png"))
+        l.set_tooltip("If checked rows will be exported on the location that started Workbench.\nIf not checked, rows will be exported on the server.")
+        box.add(l, False, True)
+        start_box.add(box, False, True)
         self.start_btn = mforms.newButton()
         self.start_btn.set_text("Start Export")
         self.start_btn.set_size(120, -1)
@@ -880,6 +893,8 @@ class PowerExport(mforms.Form):
             filechooser.set_extensions(module.get_file_extension()[0], module.get_file_extension()[1])
 
             if filechooser.run_modal():
+                global last_location
+                last_location = filechooser.get_path()
                 self.destinationfile_entry.set_value(filechooser.get_path())
         
     def setup_module(self, mod):
@@ -913,11 +928,14 @@ class PowerExport(mforms.Form):
         self.progress_bar.show(False)
         self.start_btn.set_enabled(True)
         
-        if success:
-            mforms.Utilities.show_message("Table Data Export", "Export finished succesfully", "Ok", "","")
-            self.close()
+        if self.export_thread.stop.is_set(): #it means it was cancelled by user
+            mforms.Utilities.show_message("Table Data Export", "Export cancelled by user", "Ok", "","")
         else:
-            mforms.Utilities.show_message("Table Data Export", "Export didn't finish succesfully, error was: %s" % self.export_thread.exception, "Ok", "","")
+            if success:
+                mforms.Utilities.show_message("Table Data Export", "Export finished succesfully", "Ok", "","")
+                self.close()
+            else:
+                mforms.Utilities.show_message("Table Data Export", "Export didn't finish succesfully, error was: %s" % self.export_thread.exception, "Ok", "","")
             
         
         self.export_thread = None
@@ -1243,7 +1261,7 @@ class PowerImport(mforms.Form):
         self.optpanel.set_title("Options:")
         self.optpanel.show(False)
         if sys.platform.lower() == "win32":
-            self.optpanel.set_size(-1, 100)
+            self.optpanel.set_size(-1, 110)
         elif sys.platform.lower() == "darwin":
             self.optpanel.set_size(-1, 150)
          
@@ -1347,11 +1365,14 @@ class PowerImport(mforms.Form):
         self.progress_box.show(False)
         self.start_btn.set_enabled(True)
         
-        if success:
-            mforms.Utilities.show_message("Table Data Import", "Import finished succesfully", "Ok", "","")
-            self.close()
+        if self.import_thread.stop.is_set(): #it means it was cancelled by user
+            mforms.Utilities.show_message("Table Data Export", "Import cancelled by user", "Ok", "","")
         else:
-            mforms.Utilities.show_message("Table Data Import", "Import didn't finish succesfully, error was: %s" % self.import_thread.exception, "Ok", "","")
+            if success:
+                mforms.Utilities.show_message("Table Data Import", "Import finished succesfully", "Ok", "","")
+                self.close()
+            else:
+                mforms.Utilities.show_message("Table Data Import", "Import didn't finish succesfully, error was: %s" % self.import_thread.exception, "Ok", "","")
              
         self.import_thread = None
     

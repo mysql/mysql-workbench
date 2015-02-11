@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -616,6 +616,33 @@ void TreeNodeWrapper::remove_children()
       treeWrapper->process_mapping(nullptr, node->MyTag);
   }
   nativeNode->Nodes->Clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TreeNodeWrapper::move_node(mforms::TreeNodeRef node, bool before)
+{
+  // Nodes must belong to the same tree.
+  TreeNodeWrapper *wrapper = (TreeNodeWrapper *)node.ptr();
+  if (treeWrapper != wrapper->treeWrapper)
+    return;
+
+  TreeViewNode ^thisNode = (TreeViewNode ^)(Node ^)nativeNode;
+  std::string tag = thisNode->MyTag;
+
+  // Remove this node from parent and *after* that determine the target index, as this might
+  // change when this and the other node have a common parent.
+  remove_from_parent();
+  int targetIndex = wrapper->nativeNode->Index;
+  if (!before)
+    ++targetIndex;
+
+
+  wrapper->nativeNode->Parent->Nodes->Insert(targetIndex, nativeNode);
+
+  // Update also the *Adv node as this has been recreated by the code above.
+  nativeNodeAdv = wrapper->nativeNodeAdv->Parent->Children[targetIndex];
+  treeWrapper->process_mapping(nativeNodeAdv, tag);
 }
 
 //--------------------------------------------------------------------------------------------------

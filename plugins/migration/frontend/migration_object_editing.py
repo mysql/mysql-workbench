@@ -345,12 +345,12 @@ class MainView(WizardPage):
                 self._regenerateSQL()
             elif column == self.COL_TARGET_AI:
                 node.set_bool(column, int(value) != 0)
-                object.autoIncrement = int(value)
+                object.autoIncrement = (int(value) != 0)
                 grt.log_info("Migration", "User changed target column autoIncrement of '%s' to '%s'\n"%(object.name, value))
                 self._regenerateSQL()
             elif column == self.COL_TARGET_NOTNULL:
                 node.set_bool(column, int(value) != 0)
-                object.isNotNull = int(value)
+                object.isNotNull = (int(value) != 0)
                 grt.log_info("Migration", "User changed target column isNotNull of '%s' to '%s'\n"%(object.name, value))
                 self._regenerateSQL()
             elif column == self.COL_TARGET_DEFAULT:
@@ -410,7 +410,7 @@ class MainView(WizardPage):
         if object and hasattr(object, "temp_sql"):
             self._code.set_text(object.temp_sql)
             self._code.set_enabled(not object.commentedOut)
-            self._comment_check.set_active(object.commentedOut)
+            self._comment_check.set_active(object.commentedOut != 0)
             self._lock_check.set_active(object.customData.get("migration:lock_temp_sql", False))
             self._advbox.set_enabled(True)
             self._apply_btn.set_enabled(False)

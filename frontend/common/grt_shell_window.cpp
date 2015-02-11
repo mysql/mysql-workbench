@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -176,7 +176,7 @@ _lower_tab(mforms::TabViewDocument),
   }
   //  else
   {
-    _run_button = add_tool_button("tiny_execute.png", boost::bind(&GRTShellWindow::execute_file, this),
+    _run_button = add_tool_button("qe_sql-editor-tb-icon_execute.png", boost::bind(&GRTShellWindow::execute_file, this),
       _("Execute script"));
     _continue_button = add_tool_button("debug_continue.png", boost::bind(&GRTShellWindow::debug_continue, this), 
       _("Continue execution until next breakpoint"));
@@ -493,6 +493,8 @@ void GRTShellWindow::shell_action(mforms::TextEntryAction action)
       break;
     }      
     case mforms::EntryCKeyDown:
+      break;
+    case mforms::EntryEscape:
       break;
   }
 }
