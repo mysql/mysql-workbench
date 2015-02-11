@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -122,7 +122,6 @@ void CatalogTreeView::menu_action(const std::string &name, grt::ValueRef val)
 {
   if (name == "edit" && _activate_callback)
     _activate_callback(val);
-
 }
 
 mforms::TreeNodeRef CatalogTreeView::create_new_node(const ObjectType &otype, mforms::TreeNodeRef parent, const std::string &name, grt::ObjectRef obj)
@@ -154,6 +153,7 @@ mforms::TreeNodeRef CatalogTreeView::create_new_node(const ObjectType &otype, mf
     case ObjSchema:
       new_node = parent->add_child();
       icon_path = get_node_icon_path(IconSchema);
+      break;
     default:
       break;
     }
@@ -219,6 +219,23 @@ void CatalogTreeView::node_activated(mforms::TreeNodeRef row, int column)
     _activate_callback(data->get_object_ref());
 }
 
+static bool compare_db_object(db_DatabaseObjectRef a, db_DatabaseObjectRef b)
+{
+  return base::string_compare(a->name(), b->name()) < 0 ? true : false;
+}
+
+template <typename T> static std::vector<grt::Ref<T> > sort_db_object (grt::ListRef<T> list)
+{
+
+  std::vector<grt::Ref<T> > vec;
+  for (size_t i = 0; i < list.count(); ++i)
+  {
+    vec.push_back(list[i]);
+  }
+  std::sort(vec.begin(), vec.end(), compare_db_object);
+  return vec;
+}
+
 
 void CatalogTreeView::refill(bool force)
 {
@@ -226,8 +243,6 @@ void CatalogTreeView::refill(bool force)
       return;
 
   clear();
-
-
   model_ModelRef model = _owner->get_model_diagram()->owner();
 
   boost::unordered_set<grt::internal::Value*> uset;
@@ -260,9 +275,12 @@ void CatalogTreeView::refill(bool force)
       node->expand();
     child->set_string(0, _("Tables"));
     child->set_icon_path(0, get_node_icon_path(IconTablesMany));
-    for (size_t j = 0; j < schema_list[i]->tables().count(); ++j)
+
+    std::vector<db_TableRef> table_list = sort_db_object<db_Table>(schema_list[i]->tables());
+
+    for (size_t j = 0; j < table_list.size(); ++j)
     {
-      db_TableRef table(schema_list[i]->tables()[j]);
+      db_TableRef table = table_list[j];
       mforms::TreeNodeRef subchild = child->add_child();
       subchild->set_string(0, table->name().c_str());
       subchild->set_icon_path(0, get_node_icon_path(IconTable));
@@ -272,13 +290,13 @@ void CatalogTreeView::refill(bool force)
         subchild->set_string(1, "\xe2\x97\x8f");
     }
 
-
     child = node->add_child();
     child->set_string(0, _("Views"));
     child->set_icon_path(0, get_node_icon_path(IconViewsMany));
-    for (size_t j = 0; j < schema_list[i]->views().count(); ++j)
+    std::vector<db_ViewRef> view_list = sort_db_object<db_View>(schema_list[i]->views());
+    for (size_t j = 0; j < view_list.size(); ++j)
     {
-      db_ViewRef view(schema_list[i]->views()[j]);
+      db_ViewRef view = view_list[j];
       mforms::TreeNodeRef subchild = child->add_child();
       subchild->set_string(0, view->name().c_str());
       subchild->set_icon_path(0, get_node_icon_path(IconView));
@@ -291,9 +309,10 @@ void CatalogTreeView::refill(bool force)
     child = node->add_child();
     child->set_string(0, _("Routine Groups"));
     child->set_icon_path(0, get_node_icon_path(IconRoutineGroupsMany));
-    for (size_t j = 0; j < schema_list[i]->routineGroups().count(); ++j)
+    std::vector<db_RoutineGroupRef> routine_group_list = sort_db_object<db_RoutineGroup>(schema_list[i]->routineGroups());
+    for (size_t j = 0; j < routine_group_list.size(); ++j)
     {
-      db_RoutineGroupRef routineGrp(schema_list[i]->routineGroups()[j]);
+      db_RoutineGroupRef routineGrp = routine_group_list[j];
       mforms::TreeNodeRef subchild = child->add_child();
       subchild->set_string(0, routineGrp->name().c_str());
       subchild->set_icon_path(0, get_node_icon_path(IconRoutineGroup));
@@ -351,6 +370,8 @@ void CatalogTreeView::context_menu_will_show(mforms::MenuItem *parent_item)
         parent->add_item_with_title(caption, boost::bind(&CatalogTreeView::menu_action, this, "edit", value));
     }
   }
+
+
 }
 //--------------------------------------------------------------------------------------------------
 void CatalogTreeView::mark_node(grt::ValueRef val, bool mark)
@@ -390,23 +411,84 @@ void CatalogTreeView::add_update_node_caption(grt::ValueRef val)
   else
     return;
 
+
   mforms::TreeNodeRef node = node_with_tag(obj.id());
   if (node.is_valid())
+  {
     node->set_string(0, new_name);
+  }
   else // if node is invalid it means that new object was added on diagram
   {
-    mforms::TreeNodeRef node = node_with_tag(obj->owner().id());
+    node = node_with_tag(obj->owner().id());
     if (node.is_valid())
     {
-      node = create_new_node(otype, node, new_name, obj);
+      mforms::TreeNodeRef prnt = node;
+      node = create_new_node(otype, prnt, new_name, obj);
       workbench_physical_DiagramRef view(workbench_physical_DiagramRef::cast_from(_owner->get_model_diagram()));
       if (view->getFigureForDBObject(obj).is_valid())
         node->set_string(1, "\xe2\x97\x8f");
 
     }
     else if (db_SchemaRef::can_wrap(obj)) //check if it's schemaref
+      node = create_new_node(otype, root_node(), new_name, obj);
+  }
+
+
+  if (node.is_valid() && node->get_parent()->count() > 1)// We check if node is valid, and if so we need to rearrange this into different position.
+  {
+    mforms::TreeNodeRef next_node = node->next_sibling();
+    mforms::TreeNodeRef parent = node->get_parent();
+    mforms::TreeNodeRef prev_node = node->previous_sibling();
+    bool moved = false;
+    if (next_node.is_valid())
     {
-      create_new_node(otype, root_node(), new_name, obj);
+      int new_idx = -1;
+      while (next_node.is_valid())
+      {
+        int ret = base::string_compare(node->get_string(0), next_node->get_string(0), false);
+        if (ret > 0)
+          new_idx = parent->get_child_index(next_node);
+        else
+        {
+          next_node = next_node->previous_sibling(); // wee need to get back to the prev node
+          break;
+        }
+
+        if (next_node->next_sibling().is_valid())
+          next_node = next_node->next_sibling();
+        else
+          break;
+      }
+      if (new_idx > -1 && next_node.is_valid())
+      {
+        node->move_node(next_node, false);
+        moved = true;
+      }
+    }
+    if (prev_node.is_valid() && !moved)
+    {
+      int new_idx = -1;
+      while (prev_node.is_valid())
+      {
+        int ret = base::string_compare(node->get_string(0), prev_node->get_string(0), false);
+        if (ret < 0)
+          new_idx = parent->get_child_index(prev_node);
+        else
+        {
+          prev_node = prev_node->next_sibling(); // wee need to get back to the prev node
+          break;
+        }
+
+        if (prev_node->previous_sibling().is_valid())
+          prev_node = prev_node->previous_sibling();
+        else
+          break;
+      }
+      if (new_idx > -1 && prev_node.is_valid())
+      {
+        node->move_node(prev_node, true);
+        moved = true;
+      }
     }
   }
 }

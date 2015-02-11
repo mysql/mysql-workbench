@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -878,7 +878,7 @@ def resetPasswordCache(editor):
         if context.ctrl_be and context.ctrl_be.password_handler:
             context.ctrl_be.password_handler.pwd_store = {}
 
-        for service_type in ["ssh", "sshkey", "file", "service.startstop", "remoteshell"]:
+        for service_type in ["local", "ssh", "sshkey", "file", "service.startstop", "remoteshell"]:
             details = handler.get_password_parameters(service_type)
             if details and details != "UAC":
                 title, service, account = details

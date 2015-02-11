@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -102,11 +102,13 @@ TextEntryImpl::TextEntryImpl(::mforms::TextEntry *self, TextEntryType type)
 #endif
     break;
   }
+
   _entry->signal_changed().connect(sigc::bind(sigc::mem_fun(this, &TextEntryImpl::changed), self));
   _entry->signal_activate().connect(sigc::bind(sigc::mem_fun(this, &TextEntryImpl::activated), self));
   _entry->signal_key_press_event().connect(sigc::bind(sigc::mem_fun(this, &TextEntryImpl::key_press), self));
   _entry->signal_focus_in_event().connect_notify(sigc::mem_fun(this, &TextEntryImpl::focus_in));
   _entry->signal_focus_out_event().connect_notify(sigc::mem_fun(this, &TextEntryImpl::focus_out));
+  _entry->add_events(Gdk::KEY_PRESS_MASK);
   _entry->show();
   _text_color = _entry->get_style()->get_text(Gtk::STATE_NORMAL);
   Gdk::Color color("#888888");
@@ -142,6 +144,11 @@ bool TextEntryImpl::key_press(GdkEventKey *event, mforms::TextEntry *self)
       self->action(mforms::EntryCKeyDown);
     else
       self->action(mforms::EntryKeyDown);
+    return true;
+  }
+  else if (event->keyval == GDK_Escape)
+  {
+    self->action(mforms::EntryEscape);
     return true;
   }
   return false;

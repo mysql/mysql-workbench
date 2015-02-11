@@ -255,6 +255,20 @@ WHERE n.nspname = '%s' AND c.relname = '%s'"""
 
 
 
+    @classmethod
+    def getOS(cls, connection):
+        ver = cls.execute_query(connection, "select version()").fetchone()[0]
+        if 'linux' in ver:
+            return 'linux'
+        elif 'Visual C++' in ver:
+            return 'windows'
+        elif 'darwin' in ver or 'apple' in ver:
+            return 'darwin'
+
+        return None
+
+
+
 ###########################################################################################
 
 @ModuleInfo.export(grt.classes.db_mgmt_Rdbms)
@@ -360,3 +374,7 @@ def reverseEngineerFunctions(connection, schema):
 @ModuleInfo.export(grt.INT, grt.classes.db_mgmt_Connection, grt.classes.db_Schema)
 def reverseEngineerTriggers(connection, schema):
     return PostgresqlReverseEngineering.reverseEngineerTriggers(connection, schema)
+
+@ModuleInfo.export(grt.STRING, grt.classes.db_mgmt_Connection)
+def getOS(connection):
+    return PostgresqlReverseEngineering.getOS(connection)

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -2921,7 +2921,6 @@ void TableEditorBE::set_name(const std::string &name)
     bec::ValidationManager::validate_instance(get_table(), CHECK_NAME);
     std::string name_= base::trim_right(name);
     get_dbobject()->name(name_);
-    update_change_date();
     undo.end(strfmt(_("Rename Table to '%s'"), name_.c_str()));
   }
 }

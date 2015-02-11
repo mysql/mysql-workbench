@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<data>
+    <value type="dict">
+    <value type="string" key="sys.config.path">%ProgramData%\MySQL\MySQL Server 5.7\my.ini</value>
+    <value type="string" key="sys.config.section">mysqld</value>
+      
+    <value type="string" key="sys.mysqld.start">sc start mysql</value>
+    <value type="string" key="sys.mysqld.stop">sc stop mysql</value>
+    <value type="string" key="sys.mysqld.service_name">MySQL57</value>
+
+    <value type="int" key="sys.usesudo">1</value>
+
+    <value type="string" key="sys.system">Windows</value>
+    <value type="string" key="serverVersion">5.7</value>
+  </value>
+</data>
+  
