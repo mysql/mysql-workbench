@@ -34,12 +34,12 @@ class SetupMainView(WizardPage):
             getattr(self, option+"_entry").set_value(form.get_path())
             setattr(self, option+"_check_duplicate", False)
 
-    def _add_script_checkbox_option(self, box, name, caption, path_caption, browser_caption, label_caption, rid):
+    def _add_script_radiobutton_option(self, box, name, caption, path_caption, browser_caption, label_caption, rid):
         holder = mforms.newBox(False)
         holder.set_spacing(4)
-        check = mforms.newRadioButton(rid)
-        check.set_text(caption)
-        holder.add(check, False, True)
+        radio = mforms.newRadioButton(rid)
+        radio.set_text(caption)
+        holder.add(radio, False, True)
         vbox = mforms.newBox(False)
         vbox.set_spacing(4)
         file_box = mforms.newBox(True)
@@ -48,7 +48,7 @@ class SetupMainView(WizardPage):
         file_entry = mforms.newTextEntry()
         file_entry.add_changed_callback(lambda self=self, option=name: setattr(self, name+"_check_duplicate", True))
         file_box.add(file_entry, True, True)
-        check.add_clicked_callback(lambda box=vbox, check=check: box.set_enabled(check.get_active()))
+        radio.add_clicked_callback(self._script_radio_option_callback)
         button = mforms.newButton()
         button.set_text("Browse...")
         button.add_clicked_callback(lambda option=name, title=browser_caption: self._browse_files(option, title))
@@ -62,9 +62,13 @@ class SetupMainView(WizardPage):
         box.add(holder, False, True)
 
         setattr(self, name+"_check_duplicate", False)
-        setattr(self, name+"_checkbox", check)
+        setattr(self, name+"_radiobutton", radio)
         setattr(self, name+"_entry", file_entry)
+        setattr(self, name+"_vbox", vbox)
 
+    def _script_radio_option_callback(self):
+        self.copy_script_vbox.set_enabled(self.copy_script_radiobutton.get_active())
+        self.bulk_copy_script_vbox.set_enabled(self.bulk_copy_script_radiobutton.get_active())
 
     def __init__(self, main):
         WizardPage.__init__(self, main, "Data Transfer Setup")
@@ -87,6 +91,7 @@ class SetupMainView(WizardPage):
 
         self._copy_db = mforms.newRadioButton(rid)
         self._copy_db.set_text("Online copy of table data to target RDBMS")
+        self._copy_db.add_clicked_callback(self._script_radio_option_callback)
         box.add(self._copy_db, False, True)
 
         # XXX TODO
@@ -94,11 +99,11 @@ class SetupMainView(WizardPage):
         #self._add_script_checkbox_option(box, "dump_to_file", "Create a dump file with the data", "Dump File:", "Save As")
 
         if sys.platform == "win32":
-            self._add_script_checkbox_option(box, "copy_script", "Create a batch file to copy the data at another time", "Batch File:", "Save As", "You should edit this file to add the source and target server passwords before running it.", rid)
+            self._add_script_radiobutton_option(box, "copy_script", "Create a batch file to copy the data at another time", "Batch File:", "Save As", "You should edit this file to add the source and target server passwords before running it.", rid)
         else:
-            self._add_script_checkbox_option(box, "copy_script", "Create a shell script to copy the data from outside Workbench", "Shell Script File:", "Save As", "You should edit this file to add the source and target server passwords before running it.", rid)
+            self._add_script_radiobutton_option(box, "copy_script", "Create a shell script to copy the data from outside Workbench", "Shell Script File:", "Save As", "You should edit this file to add the source and target server passwords before running it.", rid)
 
-        self._add_script_checkbox_option(box, "bulk_copy_script", "Create a shell script to use native server dump and load abilities for fast migration", "Bulk Data Copy Script:", "Save As", "Edit the generated file and change passwords at the top of the generated script.\nRun it on the source server to create a zip package containing a data dump as well as a load script.\nCopy this to the target server, extract it and run the import script. See the script output for further details.", rid)
+        self._add_script_radiobutton_option(box, "bulk_copy_script", "Create a shell script to use native server dump and load abilities for fast migration", "Bulk Data Copy Script:", "Save As", "Edit the generated file and change passwords at the top of the generated script.\nRun it on the source server to create a zip package containing a data dump as well as a load script.\nCopy this to the target server, extract it and run the import script. See the script output for further details.", rid)
 
         panel = mforms.newPanel(mforms.TitledBoxPanel)
         panel.set_title("Options")
@@ -177,13 +182,13 @@ All tables are copied by default.""")
         #    if "GenerateDumpScript" in self.main.plan.state.dataBulkTransferParams:
         #       del self.main.plan.state.dataBulkTransferParams["GenerateDumpScript"]
 
-        if self.copy_script_checkbox.get_active():
+        if self.copy_script_radiobutton.get_active():
             self.main.plan.state.dataBulkTransferParams["GenerateCopyScript"] = self.copy_script_entry.get_string_value()
         else:
             if self.main.plan.state.dataBulkTransferParams.has_key("GenerateCopyScript"):
                 del self.main.plan.state.dataBulkTransferParams["GenerateCopyScript"]
 
-        if self.bulk_copy_script_checkbox.get_active():
+        if self.bulk_copy_script_radiobutton.get_active():
             self.main.plan.state.dataBulkTransferParams["GenerateBulkCopyScript"] = self.bulk_copy_script_entry.get_string_value()
         else:
             if self.main.plan.state.dataBulkTransferParams.has_key("GenerateBulkCopyScript"):
@@ -222,7 +227,7 @@ All tables are copied by default.""")
 
         self.main.plan.state.dataBulkTransferParams["tableList"] = tables_to_copy
 
-        if self._copy_db.get_active() or self.copy_script_checkbox.get_active() or self.bulk_copy_script_checkbox.get_active():
+        if self._copy_db.get_active() or self.copy_script_radiobutton.get_active() or self.bulk_copy_script_radiobutton.get_active():
             return WizardPage.go_next(self)
         else:
             self.main.go_next_page(2)
