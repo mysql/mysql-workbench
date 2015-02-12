@@ -1,4 +1,4 @@
-MySQL Workbench 6.2
+MySQL Workbench 6.3
 
 This is a release of MySQL Workbench, the dual-license, 
 complete database modeling, administration and development
@@ -7,9 +7,9 @@ particular copy of the software is released under the
 version 2 of the GNU General Public License. MySQL Workbench
 is brought to you by the MySQL team at Oracle.
 
-Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
 
-This tree contains the source files for the MySQL Workbench 6.1.
+This tree contains the source files for the MySQL Workbench 6.3.
 MySQL Workbench is an extensible visual database design tool.
 For more information about MySQL Workbench, visit 
 http://wb.mysql.com
