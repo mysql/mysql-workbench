@@ -32,7 +32,7 @@ import grt
 import mforms
 
 from grt import log_warning
-from workbench.log import log_info, log_error, log_debug
+from workbench.log import log_info, log_error, log_debug, log_debug2
 
 # define this Python module as a GRT module
 ModuleInfo = DefineModule(name= "PyWbUtils", author= "Sun Microsystems Inc.", version="1.0")
@@ -634,6 +634,8 @@ class SSLGenerator(mforms.Form):
     def __init__(self):
         mforms.Form.__init__(self, mforms.Form.main_form(), mforms.FormNormal)
 
+        self.config_file = {}
+
         self.set_title("Generate SSL Certificates")
 
         box = mforms.newBox(False)
@@ -650,7 +652,17 @@ class SSLGenerator(mforms.Form):
         table.set_row_spacing(8)
         table.set_column_spacing(4)
 
-        row, self.path = self.add_label_row(table, 0, "Output Directory:", mforms.newTextEntry(), "Directory to place generated files")
+
+        self.path = mforms.newTextEntry()
+        self.path.set_size(100, -1)
+
+        browse_button = mforms.newButton()
+        browse_button.set_text("...")
+        browse_button.add_clicked_callback(self.browse_button_clicked)
+        
+        table.add(mforms.newLabel("Output Directory:"), 0, 1, 0, 1, mforms.HFillFlag)
+        table.add(self.path, 1, 2, 0, 1, mforms.HFillFlag|mforms.HExpandFlag)
+        table.add(browse_button, 2, 3, 0, 1, mforms.HFillFlag)
 
         box.add(table, False, True)
 
@@ -662,13 +674,13 @@ class SSLGenerator(mforms.Form):
         table.set_row_spacing(8)
         table.set_column_spacing(4)
 
-        row, self.country_code = self.add_label_row(table, 0, "Country:", mforms.newTextEntry(), "2 letter country code (eg, US)")
-        row, self.state_name = self.add_label_row(table, row, "State or Province Name:", mforms.newTextEntry(), "Full state or province name")
-        row, self.locality_name = self.add_label_row(table, row, "Locality Name:", mforms.newTextEntry(), "eg, city")
-        row, self.org_name = self.add_label_row(table, row, "Organization Name:", mforms.newTextEntry(), "eg, company")
-        row, self.org_unit = self.add_label_row(table, row, "Organizational Unit Name:", mforms.newTextEntry(), "eg, section, department")
-        row, self.common_name = self.add_label_row(table, row, "Common Name:", mforms.newTextEntry(), "eg, put the FQDN of the server to allow server address validation")
-        row, self.email_address = self.add_label_row(table, row, "Email Address:", mforms.newTextEntry(), "")
+        row, self.country_code = self.add_label_row(table, 0, "Country:", "2 letter country code (eg, US)")
+        row, self.state_name = self.add_label_row(table, row, "State or Province:", "Full state or province name")
+        row, self.locality_name = self.add_label_row(table, row, "Locality:", "eg, city")
+        row, self.org_name = self.add_label_row(table, row, "Organization:", "eg, company")
+        row, self.org_unit = self.add_label_row(table, row, "Org. Unit:", "eg, section, department")
+        row, self.email_address = self.add_label_row(table, row, "Email Address:", "")
+        row, self.common_name = self.add_label_row(table, row, "Common:", "eg, put the FQDN of the server\nto allow server address validation")
 
         panel = mforms.newPanel(mforms.TitledBoxPanel)
         panel.set_title("Optional Parameters")
@@ -690,27 +702,37 @@ class SSLGenerator(mforms.Form):
 
         self.path.focus()
 
+    def browse_button_clicked(self):
+        dialog = mforms.FileChooser(mforms.Form.main_form(), mforms.OpenDirectory)
+        dialog.set_directory(self.path.get_string_value())
+        dialog.set_title("Select output directory")
+        if dialog.run_modal():
+            self.path.set_value(dialog.get_directory())
 
-    def add_label_row(self, table, row, label, control, help):
+    def add_label_row(self, table, row, label, help):
+        control = mforms.newTextEntry()
         table.add(mforms.newLabel(label, True), 0, 1, row, row+1, mforms.HFillFlag)
         table.add(control, 1, 2, row, row+1, mforms.HFillFlag|mforms.HExpandFlag)
         l = mforms.newLabel(help)
         l.set_style(mforms.SmallHelpTextStyle)
         table.add(l, 2, 3, row, row+1, mforms.HFillFlag)
+        control.set_size(100, -1)
         return row+1, control
 
 
-    def get_attributes(self):
+    def get_attributes(self, target):
         l = []
         l.append("C=%s"%self.country_code.get_string_value())
         l.append("ST=%s"%self.state_name.get_string_value())
         l.append("L=%s"%self.locality_name.get_string_value())
         l.append("O=%s"%self.org_name.get_string_value())
         l.append("OU=%s"%self.org_unit.get_string_value())
-        l.append("CN=%s"%self.common_name.get_string_value())
+        l.append("CN=%s-%s"%(self.common_name.get_string_value(), target))
         l.append("emailAddress=%s"%self.email_address.get_string_value())
         # filter out blank values
         l = [s for s in l if s.partition("=")[-1]]
+        if not l:
+            l.append("C=US")
         return l
 
 
@@ -722,62 +744,118 @@ class SSLGenerator(mforms.Form):
         serial_file = os.path.join(out_path, out_name+".serial")
 
         req_cmd = [tool, "req", "-newkey", "rsa:2048", "-days", str(days), "-nodes", "-keyout", key, "-out", req, "-config", config_file]
-        log_debug("Executing %s\n" % req_cmd)
-        out = subprocess.check_output(req_cmd, stderr=subprocess.STDOUT)
-        log_debug("%s %s: %s\n" % (key, req, out))
+        if not self.run_command(req_cmd):
+            log_error("Unable to generate key.\n")
+            return False, key, req, cert
 
         rsa_cmd = [tool, "rsa", "-in", key, "-out", key]
-        log_debug("Executing %s\n" % rsa_cmd)
-        out = subprocess.check_output(rsa_cmd, stderr=subprocess.STDOUT)
-        log_debug("%s strip: %s\n" % (key, out))
+        if not self.run_command(rsa_cmd):
+            log_error("Unable to generate key.\n")
+            return False, key, req, cert
 
         rsa_cmd = [tool, "x509", "-req", "-in", req, "-days", str(days), "-CA", ca_cert, "-CAkey", ca_key,
-                          "-CAserial", serial_file, "-CAcreateserial",
-                          "-out", cert]
-        log_debug("Executing %s\n" % rsa_cmd)
-        out = subprocess.check_output(rsa_cmd, stderr=subprocess.STDOUT)
-        log_debug("%s strip: %s\n" % (cert, out))
+                         "-CAserial", serial_file, "-CAcreateserial",
+                         "-out", cert]
+        if not self.run_command(rsa_cmd):
+            log_error("Unable to generate certificate serial.\n")
+            return False, key, req, cert
 
-        return key, req, cert
+        return True, key, req, cert
 
+    def run_command(self, command, output_to = subprocess.PIPE):
+
+        try:
+            set_shell = True if sys.platform == "win32" else False
+            p = subprocess.Popen(command, stdout=output_to, stderr=subprocess.PIPE, shell=set_shell)
+            out = p.communicate()
+
+            if p.returncode != 0:
+                log_error("Running command: %s\nOutput(retcode: %d):\n%s\n" % (str(command), p.returncode, str(out)))
+                return False
+
+            return True
+        except ValueError, e:
+            log_error("Running command: %s\nValueError exception\n" % (str(e.cmd)))
+            return False
+        except OSError, e:
+            log_error("Running command: %s\nException:\n%s\n" % (str(command), str(e)))
+            return False
+
+    def display_error(self, title, message):
+        log_error("%s\n%s\n" % (title, message))
+        mforms.Utilities.show_error(title, message, "OK", "", "")
 
     def generate(self, path, config_file):
         days = 3600
 
         tool = "openssl"
-
-        log_info("Creating CA certificate...\n")
         ca_key = os.path.join(path, "ca-key.pem")
-        genrsa_cmd = [tool, "genrsa", "2048"]
-        out = subprocess.check_output("%s > %s" % (" ".join(genrsa_cmd), ca_key), shell=True, stderr=subprocess.STDOUT)
-        log_debug("genrsa: %s\n" % out)
-
         ca_cert = os.path.join(path, "ca-cert.pem")
-        req_cmd = [tool, "req", "-new", "-x509", "-nodes", "-days", str(days), "-key", ca_key, "-out", ca_cert, "-config", config_file]
-        log_debug("Executing %s\n" % req_cmd)
-        out = subprocess.check_output(req_cmd, stderr=subprocess.STDOUT)
-        log_debug("req: %s\n" % out)
-        log_info("Generated CA certificate %s\n" % ca_cert)
+        
+        # Check if the tool exists
+        log_debug2("Checking tool availability(%s)\n" % tool)
+        if not self.run_command([tool, "version"]):
+            self.display_error("Checking requirements", "The SSL tool (%s) is not available. Please verify if it's installed and the installation directory is in the PATH environment variable" % tool)
+            return False, None, None, None, None, None
 
-        log_info("Create server certificate and self-sign\n")
-        server_key, server_req, server_cert = self.generate_certificate(tool, path, "server", ca_cert, ca_key, config_file)
-        log_info("Generated server certificate %s\n" % server_cert)
+        # Check if path exists
+        if not os.path.exists(self.path.get_string_value()):
+            self.display_error("Checking requirements", "The specified directory does not exist.")
+            return False, None, None, None, None, None
 
-        log_info("Create client certificates and self-sign\n")
-        client_key, client_req, client_cert = self.generate_certificate(tool, path, "client", ca_cert, ca_key, config_file)
-        log_info("Generated client certificate %s\n" % server_cert)
+        log_debug2("Creating CA certificate...\n")
+        
+        f = open(ca_key, "w")
+        if not self.run_command([tool, "genrsa", "2048"], f):
+            self.display_error("Creating CA certificate...", "Could not generate RSA certificate")
+            return False, None, None, None, None, None
 
-        return ca_cert, server_cert, server_key, client_cert, client_key
+        log_debug2("Creating CA key...\n")
+        
+        req_cmd = [tool, "req", "-new", "-x509", "-nodes", "-days", str(days), "-key", ca_key, "-out", ca_cert, "-config", self.config_file["CA"]]
+        if not self.run_command(req_cmd):
+            self.display_error("Creating CA certificate...", "Could not generate keys")
+            return False, None, None, None, None, None
 
+        log_debug2("Create server certificate and self-sign\n")
+        result, server_key, server_req, server_cert = self.generate_certificate(tool, path, "server", ca_cert, ca_key, self.config_file["Server"])
+        if not result:
+            self.display_error("Create server certificate and self-sign", "Could not generate keys")
+            return False, server_key, server_req, server_cert
 
+        log_debug2("Create client certificates and self-sign\n")
+        result, client_key, client_req, client_cert = self.generate_certificate(tool, path, "client", ca_cert, ca_key, self.config_file["Client"])
+        if not result:
+            self.display_error("Create client certificates and self-sign", "Could not generate keys")
+            return False, server_key, server_req, server_cert
+
+        return True, ca_cert, server_cert, server_key, client_cert, client_key
+
+    def generate_config_file(self, target):
+        self.config_file[target] = os.path.join(self.path.get_string_value(), "attribs-%s.txt" % target)
+        f = open(self.config_file[target], "w+")
+        f.write("[req]\ndistinguished_name=distinguished_name\nprompt=no\n")
+        f.write("\n".join(["[distinguished_name]"] + self.get_attributes(target))+"\n")
+        f.close()
+        return
+      
     def run(self):
         if self.run_modal(self.ok, self.cancel):
             config_file = None
+
             try:
                 path = self.path.get_string_value()
                 try:
-                    os.mkdir(path, 0700)
+                    if os.path.exists(path) and not os.path.isdir(path):
+                        self.display_error("Checking requirements", "The selected path is a file. You should select a directory.")
+                        return
+                    if not os.path.exists(path):
+                        if mforms.Utilities.show_message("Create directory", "The directory you selected does not exists. Do you want to create it?", "Create", "Cancel", "") == mforms.ResultCancel:
+                            self.display_error("Create directory", "The operation was canceled.")
+                            return
+                        os.mkdir(path, 0700)
                 except OSError, e:
+                    self.display_error("Create directory", "There was an error (%d)" % e.errno)
                     if e.errno != 17:
                         raise
 
@@ -787,18 +865,22 @@ class SSLGenerator(mforms.Form):
                                                      "Overwrite", "Cancel", "") == mforms.ResultCancel:
                         return
 
-                config_file = os.path.join(path, "attribs.txt")
-                f = open(config_file, "w+")
-                f.write("[req]\ndistinguished_name=distinguished_name\nprompt=no\n")
-                f.write("\n".join(["[distinguished_name]"] + self.get_attributes())+"\n")
-                f.close()
+                self.generate_config_file("CA")
+                self.generate_config_file("Server")
+                self.generate_config_file("Client")
+                #config_file = os.path.join(path, "attribs.txt")
+                #f = open(config_file, "w+")
+                #f.write("[req]\ndistinguished_name=distinguished_name\nprompt=no\n")
+                #f.write("\n".join(["[distinguished_name]\n"] + self.get_attributes())+"\n")
+                #f.close()
 
-                ca_cert, server_cert, server_key, client_cert, client_key = self.generate(path, config_file)
+                result, ca_cert, server_cert, server_key, client_cert, client_key = self.generate(path, config_file)
 
                 # write a sample my.cnf file
                 sample_file = os.path.join(self.path.get_string_value(), "sample-my.cnf")
                 f = open(sample_file, "w+")
                 f.write("""
+# Copy this to your my.cnf file, correcting the paths if necessary.
 [client]
 ssl-ca=%(ca_cert)s
 ssl-cert=%(client_cert)s
@@ -810,8 +892,9 @@ ssl-key=%(server_key)s
 """ % {"ca_cert" : ca_cert, "server_cert" : server_cert, "server_key" : server_key, "client_cert" : client_cert, "client_key" : client_key})
                 f.close()
 
-                mforms.Utilities.show_message("Generate SSL Certificates",
-                                              """Certificates successfully generated.
+                if result:
+                    mforms.Utilities.show_message("Generate SSL Certificates",
+                                                  """Certificates successfully generated.
                                                 
 You may now move the certificates directory to somewhere like /etc/mysql/ssl in the desired server and update the MySQL configuration.
 To connect to a server using these certificates, copy the client-client.pem and client-key.pem files to a safe location in the client host.
@@ -828,7 +911,9 @@ A sample my.cnf file was written to %s.""" % sample_file,
 
 
 
-#@ModuleInfo.plugin("wb.tools.generateSSLCertificates", caption="Generate SSL Certificates...", groups=["Others/Menu/Ungrouped"])
+
+
+@ModuleInfo.plugin("wb.tools.generateSSLCertificates", caption="Generate SSL Certificates...", groups=["Others/Menu/Ungrouped"])
 @ModuleInfo.export(grt.INT)
 def generateCertificates():
     r = SSLGenerator()
