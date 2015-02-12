@@ -87,12 +87,19 @@ if paramiko and server_version_str2tuple(paramiko.__version__) >= (1, 7, 4):
             m.add_int(chanid)
             local_window_size = None
             local_max_packet_size = None
-            if (server_version_str2tuple(paramiko.__version__) <= (1, 15, 1)):
+            if (server_version_str2tuple(paramiko.__version__) < (1, 15, 0)):
                 local_window_size = self.window_size
                 local_max_packet_size = self.max_packet_size
             else:
-                local_window_size = self._sanitize_window_size(window_size)
-                local_max_packet_size = self._sanitize_packet_size(max_packet_size)
+                if window_size is not None:
+                    local_window_size = self._sanitize_window_size(window_size)
+                else:
+                    local_window_size = self.default_window_size
+                
+                if max_packet_size is not None:
+                    local_max_packet_size = self._sanitize_packet_size(max_packet_size)
+                else:
+                    local_max_packet_size = self.default_max_packet_size
 
             m.add_int(local_window_size)
             m.add_int(local_max_packet_size)
