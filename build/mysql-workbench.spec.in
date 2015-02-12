@@ -8,7 +8,7 @@
 # Here's a usage example:
 # rpmbuild -ba mysql-workbench.spec --target=`arch` \
 #                                   --define='edition community' \
-#                                   --define='version 6.1.8' \
+#                                   --define='version 6.3.1' \
 #                                   --define='release 1' 
 ####################################################################
 
@@ -25,17 +25,17 @@
 
 # Directory where iodbc and pyodbc binaries are located. Build both using the build_iodbc.sh script
 # If using distribution provided ODBC manager lib and pyodbc, then comment out this
-%define odbc_home        $HOME/linux-res-6.2/usr
-%define linuxres_home    $HOME/linux-res-6.2
+%define odbc_home        $HOME/linux-res-6.3/usr
+%define linuxres_home    $HOME/linux-res-6.3
 
-%define vsqlite_dir      $HOME/linux-res-6.2/vsqlite
-%define ctemplate_dir    $HOME/linux-res-6.2
+%define vsqlite_dir      $HOME/linux-res-6.3/vsqlite
+%define ctemplate_dir    $HOME/linux-res-6.3
 
-%define gdal_dir         $HOME/linux-res-6.2/gdal
+%define gdal_dir         $HOME/linux-res-6.3/gdal
 
 %if "%{edition}" == "commercial"
 %define commercial       1
-%define mysqlcppconn_dir $HOME/linux-res-6.2/cppconn-com
+%define mysqlcppconn_dir $HOME/linux-res-6.3/cppconn-com
 %define mysql_home       $HOME/mysql-server-advanced
 
 %define edition          commercial
@@ -43,7 +43,7 @@
 %define license_file     LICENSE.mysql
 %else
 %define community        1
-%define mysqlcppconn_dir $HOME/linux-res-6.2/cppconn-gpl
+%define mysqlcppconn_dir $HOME/linux-res-6.3/cppconn-gpl
 %define mysql_home       $HOME/mysql-server
 
 %define edition          community
