@@ -84,6 +84,7 @@ class WorkerThread:
         self.exception = None
         self.module = module
         self.finished_callback = None
+        self.run_result = True
 
     def call_finished_callback(self):
         if self.is_running:
@@ -106,7 +107,7 @@ class WorkerThread:
         self.is_running = True
         
         try:
-            self.module.start(self.stop)
+            self.run_result = self.module.start(self.stop)
         except Exception, e:
             import traceback
             log_error("WorkerThread caught exception: %s" % traceback.format_exc())
@@ -248,9 +249,9 @@ class base_module:
     def start(self, event):
         self._thread_event = event
         if self._is_import:
-            self.start_import()
+            return self.start_import()
         else:
-            self.start_export()
+            return self.start_export()
 
 class Utf8Reader:
     def __init__(self, f, enc):
@@ -356,15 +357,19 @@ class csv_module(base_module):
                         ok = rset.nextRow()
         else:
             self._editor.executeManagementCommand(query, 1)
+
+        return True
     
     def start_import(self):
         if not self._last_analyze:
-            return
+            return False
         
         if self._new_table:
             if not self.prepare_new_table():
-                return
+                return False
             
+        result = True
+        
         with open(self._filepath, 'rb') as csvfile:
             dest_col_order = list(set([i['dest_col'] for i in self._mapping if i['active']]))
             query = """PREPARE stmt FROM 'INSERT INTO %s (%s) VALUES(%s)'""" % (self._table_w_prefix, ",".join(dest_col_order), ",".join(["?" for i in dest_col_order]))
@@ -387,8 +392,9 @@ class csv_module(base_module):
                         continue
                     
                     for i, col in enumerate(col_order):
-                        if col_order[col] not in row:
+                        if col_order[col] >= len(row):
                             log_error("Can't find col: %s in row: %s" % (col_order[col], row))
+                            result = False
                             break
                         val = row[col_order[col]]
                         if col_type[col] == 'double':
@@ -408,6 +414,8 @@ class csv_module(base_module):
                 log_debug3("Import failed traceback: %s" % traceback.format_exc())
                 log_error("Import failed: %s" % e)
             self._editor.executeManagementCommand("DEALLOCATE PREPARE stmt", 1)
+
+        return result
 
     def analyze_file(self):
         with open(self._filepath, 'rb') as csvfile:
@@ -511,14 +519,17 @@ class json_module(base_module):
                     jsonfile.flush()
                 jsonfile.write(']')
 
+        return True
+
     def start_import(self):
         if not self._last_analyze:
-            return
+            return False
 
         if self._new_table:
             if not self.prepare_new_table():
-                return
+                return False
         
+        result = True
         with open(self._filepath, 'rb') as jsonfile:
             import json
             data = json.load(jsonfile)
@@ -538,6 +549,7 @@ class json_module(base_module):
                     for i, col in enumerate(col_order):
                         if col_order[col] not in row:
                             log_error("Can't find col: %s in row: %s" % (col_order[col], row))
+                            result = False
                             break
                         val = row[col_order[col]]
                         if col_type[col] == 'double':
@@ -555,6 +567,8 @@ class json_module(base_module):
             except Exception, e:
                 log_error("Import failed: %s" % e)
             self._editor.executeManagementCommand("DEALLOCATE PREPARE stmt", 1)
+            
+        return result
 
     def analyze_file(self):
         import json
@@ -962,7 +976,10 @@ class PowerExport(mforms.Form):
             mforms.Utilities.show_message("Table Data Export", "Export cancelled by user", "Ok", "","")
         else:
             if success:
-                mforms.Utilities.show_message("Table Data Export", "Export finished succesfully", "Ok", "","")
+                if self.export_thread.run_result:
+                    mforms.Utilities.show_message("Table Data Export", "Export finished succesfully", "Ok", "","")
+                else:
+                    mforms.Utilities.show_message("Table Data Export", "Export finished but there was some problems, please analyze log file for details.", "Ok", "","")
                 self.export_thread = None # we need to set it to None because can_close check this property to show confirmation dialog
                 self.close()
             else:
@@ -1418,7 +1435,10 @@ class PowerImport(mforms.Form):
             mforms.Utilities.show_message("Table Data Export", "Import cancelled by user", "Ok", "","")
         else:
             if success:
-                mforms.Utilities.show_message("Table Data Import", "Import finished succesfully", "Ok", "","")
+                if self.import_thread.run_result:
+                    mforms.Utilities.show_message("Table Data Import", "Import finished succesfully", "Ok", "","")
+                else:
+                    mforms.Utilities.show_message("Table Data Import", "Import finished, but there was some problems, please analyze log file for details.", "Ok", "","")
                 self.import_thread = None # we need to set it to None because can_close check this property to show confirmation dialog
                 self.close()
             else:
