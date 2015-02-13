@@ -55,6 +55,7 @@ static bool is_ssh_driver(const std::string &driver_name)
 DbConnectPanel::DbConnectPanel(DbConnectPanelFlags flags)
 : Box(false), _connection(0), 
 _tab(mforms::TabViewSystemStandard),
+_content(false),
 _params_panel(mforms::TransparentPanel), _params_table(0),
 _ssl_panel(mforms::TransparentPanel), _ssl_table(0),
 _advanced_panel(mforms::TransparentPanel), _advanced_table(0),
@@ -151,11 +152,13 @@ _dont_set_default_connection((flags & DbConnectPanelDontSetDefaultConnection) !=
   _options_panel.set_name("options_panel");
 
   set_name("connect_panel");
-  add(&_table, false, false);
-  add(&_tab, true, true);
+
+  add(&_content, true, true);
+  _content.add(&_table, false, false);
+  _content.add(&_tab, true, true);
   _warning.set_style(mforms::SmallHelpTextStyle);
   _warning.set_front_color("#FF0000");
-  add(&_warning, false, false);
+  _content.add(&_warning, false, false);
 }
 
 
@@ -476,8 +479,7 @@ void DbConnectPanel::change_active_driver()
     if (new_driver == current_driver)
       return;
 
-    show(false);
-    
+    _content.show(false);
     // When switching to/from ssh based connections the value for the host name gets another
     // semantic. In ssh based connections the sshHost is the remote server name (what is otherwise
     // the host name) and the host name is relative to the ssh host (usually localhost).
@@ -496,12 +498,13 @@ void DbConnectPanel::change_active_driver()
         actual_connection->parameterValues().gset("sshHost", machine + ":22");
         actual_connection->parameterValues().gset("hostName", "127.0.0.1");
       }
-    
+
     if (_driver_changed_cb)
       _driver_changed_cb(new_driver);
-    
+
     _connection->set_driver_and_update(new_driver);
-    show();
+
+    _content.show();
     
     //db_mgmt_ConnectionRef conn(_connection->get_connection());
 //    grt::DictRef current_params(conn->parameterValues());
