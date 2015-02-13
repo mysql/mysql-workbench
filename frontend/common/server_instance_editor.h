@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -141,6 +141,8 @@ class MYSQLWBBACKEND_PUBLIC_FUNC ServerInstanceEditor : public mforms::Form
   void refresh_connection_list();
 
   void tab_changed();
+
+  void driver_changed_cb(const db_mgmt_DriverRef &driver);
 
   void set_password(bool clear);
   

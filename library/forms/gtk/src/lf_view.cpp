@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,7 +35,7 @@ Gtk::Widget *ViewImpl::get_inner() const
 }
 
 ViewImpl::ViewImpl(::mforms::View *view)
-  : ObjectImpl(view),  _last_btn_down(NULL), _target(NULL), _drag_image(NULL)
+  : ObjectImpl(view), _back_image_alignment(mforms::NoAlign),  _last_btn_down(NULL), _target(NULL), _drag_image(NULL)
 {}
 
 

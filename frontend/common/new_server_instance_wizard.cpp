@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -283,12 +283,12 @@ HostAndRemoteTypePage::HostAndRemoteTypePage(WizardForm* host)
   _management_type_panel.add(&_management_type_box);
 
   _win_remote_admin.set_text(_("Native Windows remote management (only available on Windows)"));
-  scoped_connect(_win_remote_admin.signal_toggled(),boost::bind(&HostAndRemoteTypePage::toggle_remote_admin, this));
+  scoped_connect(_win_remote_admin.signal_clicked(),boost::bind(&HostAndRemoteTypePage::toggle_remote_admin, this));
 #ifndef _WIN32
   _win_remote_admin.set_enabled(false);
 #endif
   _ssh_remote_admin.set_text(_("SSH login based management"));
-  scoped_connect(_ssh_remote_admin.signal_toggled(),boost::bind(&HostAndRemoteTypePage::toggle_remote_admin, this));
+  scoped_connect(_ssh_remote_admin.signal_clicked(),boost::bind(&HostAndRemoteTypePage::toggle_remote_admin, this));
 
   _management_type_box.add(&_win_remote_admin, false, true);
   _management_type_box.add(&_ssh_remote_admin, false, true);
