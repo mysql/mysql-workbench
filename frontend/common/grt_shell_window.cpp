@@ -78,6 +78,7 @@ _lower_tab(mforms::TabViewDocument),
   set_content(&_content);
   set_menubar(&_menu);
   scoped_connect(signal_closed(),boost::bind(&GRTShellWindow::shell_closed, this));
+  set_on_close(boost::bind(&GRTShellWindow::can_close, this));
  
   _content.add(&_toolbar, false, true);
 
@@ -422,8 +423,9 @@ _lower_tab(mforms::TabViewDocument),
   {
     _debugger->init_pdb();
   }
-  catch (const std::exception)
+  catch (const std::exception &exc)
   {
+    log_error("Could not initialize the debugger: %s\n", exc.what());
     add_output("Could not initialize the debugger\n");
     delete _debugger;
     _debugger= 0;
@@ -442,6 +444,15 @@ _lower_tab(mforms::TabViewDocument),
   side_tab_changed();  
 }
 
+bool GRTShellWindow::can_close()
+{
+  // Because there's no other way to know if the window is about to close, we'll use this event to stop debugger.
+  if (_stop_button->is_enabled() && _debugger)
+    _debugger->stop();
+
+  // GRTShellWindow is about to close so we ask each editor if it's fine to quit.
+  return request_quit();
+}
 
 void GRTShellWindow::set_splitter_positions()
 {
