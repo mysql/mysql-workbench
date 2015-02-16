@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -721,7 +721,7 @@ static int view_get_y(::mforms::View *self)
 static void view_set_size(::mforms::View *self, int w, int h)
 {
   id view = self->get_data();
-  if (view)
+  if (view != nil && [view respondsToSelector: @selector(setFixedFrameSize:)])
   {
     [view setFixedFrameSize: NSMakeSize(w,h)];
   }
