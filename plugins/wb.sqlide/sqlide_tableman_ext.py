@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -18,7 +18,7 @@
 
 import mforms
 import grt
-
+import sys
 from workbench.log import log_error
 
 from sqlide_catalogman_ext import MaintenanceResultForm
@@ -190,6 +190,9 @@ class TableInfoPanel(mforms.Box):
         self.table_comment = mforms.newLabel("")
         self.table_comment.set_style(mforms.BoldStyle)
         self.table_comment.set_wrap_text(True)
+        if sys.platform.lower() == "win32": # We need this so Win will recompute the dimensions.
+            self.table_comment.set_size(1, -1)
+
         self.table.add(self.table_comment,                      1, 2, 18 + offset, 19 + offset, mforms.HFillFlag|mforms.HExpandFlag)
         
         scroll = mforms.ScrollPanel()
