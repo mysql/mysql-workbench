@@ -41,6 +41,8 @@ add_library(wb.model.editors.wbp MODULE
     editor_stored_note_fe.cpp
 )
 
+add_dependencies(wb.model.editors.wbp mysqlparser)
+
 target_link_libraries(wb.model.editors.wbp linux_utilities ${SIGC++_LIBRARIES} ${GRT_LIBRARIES})
 
 set_target_properties(wb.model.editors.wbp
