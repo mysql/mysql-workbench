@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -145,6 +145,8 @@ def pick_value(opt, version, platform):
                 # use the inversion of the next item
                 if i < len(opt['values'])-1:
                     tmp = opt['values'][i+1].get('inversion')
+                    if tmp == inversion and len(opt['values']) -2 > i:
+                        tmp = opt['values'][i+2].get('inversion')    
                     if not tmp: # if no value for inversion, assume outversion is both
                         tmp = opt['values'][i+1].get('outversion')
                     if not tmp:
