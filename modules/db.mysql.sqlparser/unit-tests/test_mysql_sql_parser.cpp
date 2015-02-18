@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,7 +34,7 @@
 
 using namespace parser;
 
-BEGIN_TEST_DATA_CLASS(mysql_sql_parser)
+BEGIN_TEST_DATA_CLASS(highlevel_mysql_parser_test)
 public:
   WBTester wbt;
   SqlFacade::Ref sql_facade;
@@ -49,7 +49,7 @@ public:
 
 END_TEST_DATA_CLASS
 
-TEST_MODULE(mysql_sql_parser, "SQL Parser (MySQL)");
+TEST_MODULE(highlevel_mysql_parser_test, "High level MySQL parser tests");
 
 TEST_FUNCTION(10)
 {
@@ -72,7 +72,7 @@ TEST_FUNCTION(10)
 
 //--------------------------------------------------------------------------------------------------
 
-void Test_object_base<mysql_sql_parser>::test_import_sql(int test_no, const char *old_schema_name,
+void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(int test_no, const char *old_schema_name,
   const char *new_schema_name)
 {
   static const char* TEST_DATA_DIR = "data/modules_grt/wb_mysql_import/sql/";
