@@ -171,7 +171,6 @@ xcopy /i /y /d %PYTHON_LIB_DIR%\DLLs\*.pyd %TARGET_DIR%\python\DLLs 1> nul 2> nu
 
 rem site packages that are release type independent
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\site-packages\paramiko %TARGET_DIR%\python\site-packages\paramiko 1> nul 2> nul
-xcopy /i /s /y /d %PYTHON_COMMON_DIR%\site-packages\mysql %TARGET_DIR%\python\site-packages\mysql 1> nul 2> nul
 
 rem site packages for debug/release types
 xcopy /i /s /y /d %PYTHON_LIB_DIR%\site-packages\Crypto %TARGET_DIR%\python\site-packages\Crypto 1> nul 2> nul

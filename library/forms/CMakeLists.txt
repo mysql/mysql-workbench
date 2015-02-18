@@ -62,6 +62,7 @@ add_library(mforms
     gtk/src/lf_panel.cpp
     gtk/src/lf_popover.cpp
     gtk/src/lf_popup.cpp
+    gtk/src/lf_radiobutton.cpp
     gtk/src/lf_scrollpanel.cpp
     gtk/src/lf_selector.cpp
     gtk/src/lf_splitter.cpp

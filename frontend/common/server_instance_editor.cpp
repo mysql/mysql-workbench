@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -167,6 +167,7 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
   _content_box.add(&_tabview, true, true);
   _top_hbox.add(&_content_box, true, true);
 
+  _connect_panel->set_driver_changed_cb(boost::bind(&ServerInstanceEditor::driver_changed_cb, this, _1));
   scoped_connect(_tabview.signal_tab_changed(), boost::bind(&ServerInstanceEditor::tab_changed, this));
   scoped_connect(_stored_connection_list.signal_changed(),boost::bind(&ServerInstanceEditor::show_connection, this));
   
@@ -185,14 +186,14 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
     mforms::Table* remote_param_table = NewTable(6, 2);
     
     _no_remote_admin.set_text(_("Do not use remote management"));
-    scoped_connect(_no_remote_admin.signal_toggled(),boost::bind(&ServerInstanceEditor::toggle_administration, this));
+    scoped_connect(_no_remote_admin.signal_clicked(),boost::bind(&ServerInstanceEditor::toggle_administration, this));
     _win_remote_admin.set_text(_("Native Windows remote management (only available on Windows)"));
-    scoped_connect(_win_remote_admin.signal_toggled(),boost::bind(&ServerInstanceEditor::toggle_administration, this));
+    scoped_connect(_win_remote_admin.signal_clicked(),boost::bind(&ServerInstanceEditor::toggle_administration, this));
 #ifndef _WIN32
     _win_remote_admin.set_enabled(false);
 #endif
     _ssh_remote_admin.set_text(_("SSH login based management"));
-    scoped_connect(_ssh_remote_admin.signal_toggled(),boost::bind(&ServerInstanceEditor::toggle_administration, this));
+    scoped_connect(_ssh_remote_admin.signal_clicked(),boost::bind(&ServerInstanceEditor::toggle_administration, this));
 
     _remote_admin_box.add(&_no_remote_admin, false, true);
     _remote_admin_box.add(&_win_remote_admin, false, true);
@@ -833,6 +834,29 @@ void ServerInstanceEditor::tab_changed()
     show_instance_info(instance->connection(), instance);
 }
 //--------------------------------------------------------------------------------------------------
+void ServerInstanceEditor::driver_changed_cb(const db_mgmt_DriverRef &driver)
+{
+  db_mgmt_ConnectionRef connection(selected_connection());
+  bool is_managed = connection.is_valid() ? connection->parameterValues().has_key("fabric_managed") : false;
+
+  if (driver->name() == "MySQLFabric" || is_managed)
+  {
+    if (_tabview.get_page_index(&_remote_admin_box) != -1)
+      _tabview.remove_page(&_remote_admin_box);
+
+    if (_tabview.get_page_index(&_sys_box) != -1)
+      _tabview.remove_page(&_sys_box);
+  }
+  else
+  {
+    if (_tabview.get_page_index(&_remote_admin_box) == -1)
+      _tabview.add_page(&_remote_admin_box, _("Remote Management"));
+
+    if (_tabview.get_page_index(&_sys_box) == -1)
+      _tabview.add_page(&_sys_box, _("System Profile"));
+  }
+
+}
 
 void ServerInstanceEditor::add_instance()
 {
