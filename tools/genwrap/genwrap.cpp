@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -33,7 +33,7 @@ using namespace grt;
 
 #define grt_lgpl "/*\n" \
 " Generic Runtime Library (GRT)\n" \
-" Copyright (c) 2005, 2014, Oracle and/or its affiliates. All rights reserved.\n" \
+" Copyright (c) 2005, 2015, Oracle and/or its affiliates. All rights reserved.\n" \
 " This program is free software; you can redistribute it and/or\n" \
 " modify it under the terms of the GNU General Public License as\n" \
 " published by the Free Software Foundation; version 2 of the\n" \

@@ -777,11 +777,16 @@ bool MySQLRecognizerTreeWalker::skip_token_sequence(unsigned int start_token, ..
 
 /**
  * Advance to the nth next token if the current one is that given by @token.
+ * Returns true if we skipped actually.
  */
-void MySQLRecognizerTreeWalker::skip_if(unsigned int token, size_t count)
+bool MySQLRecognizerTreeWalker::skip_if(unsigned int token, size_t count)
 {
   if (token_type() == token)
+  {
     next(count);
+    return true;
+  }
+  return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -874,6 +879,16 @@ void MySQLRecognizerTreeWalker::remove_tos()
 {
   if (!_token_stack.empty())
     _token_stack.pop();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+* Returns true if the current token is of the given type.
+*/
+bool MySQLRecognizerTreeWalker::is(unsigned int type)
+{
+  return _tree->getType(_tree) == type;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1247,6 +1262,9 @@ void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQL
 
   switch (parse_unit)
   {
+  case PuCreateTable:
+    d->_ast = d->_parser->create_table(d->_parser).tree;
+    break;
   case PuCreateTrigger:
     d->_ast = d->_parser->create_trigger(d->_parser).tree;
     break;
@@ -1259,11 +1277,23 @@ void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQL
   case PuCreateEvent:
     d->_ast = d->_parser->create_event(d->_parser).tree;
     break;
+  case PuCreateIndex:
+    d->_ast = d->_parser->create_index(d->_parser).tree;
+    break;
   case PuGrant:
     d->_ast = d->_parser->parse_grant(d->_parser).tree;
     break;
   case PuDataType:
     d->_ast = d->_parser->data_type_definition(d->_parser).tree;
+    break;
+  case PuCreateLogfileGroup:
+    d->_ast = d->_parser->create_logfile_group(d->_parser).tree;
+    break;
+  case PuCreateServer:
+    d->_ast = d->_parser->create_server(d->_parser).tree;
+    break;
+  case PuCreateTablespace:
+    d->_ast = d->_parser->create_tablespace(d->_parser).tree;
     break;
   default:
     d->_ast = d->_parser->query(d->_parser).tree;

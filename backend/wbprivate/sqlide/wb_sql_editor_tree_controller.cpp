@@ -1425,7 +1425,7 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
       rdbms->version()->owner(rdbms);
     }
 
-    //TODO needs reset_references to be called on editor close to prevent leaks
+    // reset_references on the catalog is called when we try to apply changes (generate the alter script).
     db_CatalogRef client_state_catalog= _grtm->get_grt()->create_object<db_Catalog>(database_package + ".Catalog");
     client_state_catalog->name("default");
     client_state_catalog->oldName("default");
@@ -1504,11 +1504,16 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
         return;
       }
     }
-    //TODO needs reset_references to be called on editor close to prevent leaks
+
+    // Make a copy of the catalog before we modify it with new/edited objects, 
+    // so we can later do a diff between both to find changes.
     db_CatalogRef server_state_catalog = grt::copy_object(client_state_catalog);
 
+#ifdef __APPLE__
   retry_search:
-    //TODO needs reset_references to be called on editor close to prevent leaks
+#endif
+
+    // reset_references for the created object is called when the base editor is destroyed.
     db_DatabaseObjectRef db_object;
     switch (type)
     {
@@ -1536,12 +1541,14 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
       default:
         break;
     }
+
+#ifdef __APPLE__
     if (!db_object.is_valid())
     {
       std::string lower;
       // There is a bug in server that causes get_object_ddl_script() for uppercase named tables
-      // to be returned in lowercase, in osx. http://bugs.mysql.com/bug.php?id=57830
-      // So, if you try to alter FOOBAR, it will not find it, since the table will be revenged
+      // to be returned in lowercase, in OS X. http://bugs.mysql.com/bug.php?id=57830
+      // So, if you try to alter FOOBAR, it will not find it, since the table will be returned
       // in lowercase. To work around that, we convert the object name to lowercase and repeat
       // the search if the 1st try didn't work.
       lower = tolower(obj_name);
@@ -1556,13 +1563,14 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
         log_warning("Object name %s was not found in catalog.", aobj_name.c_str());
       return;
     }
+#endif
 
     db_object->customData().set("sqlMode", grt::StringRef(sql_mode));
     db_object->customData().set("originalObjectDDL", grt::StringRef(ddl_script));
 
     open_alter_object_editor(db_object, server_state_catalog);
   }
-  catch (const std::exception & e)
+  catch (const std::exception &e)
   {
     log_error("Failed to create/alter `%s`.`%s`: %s", used_schema_name.c_str(), obj_name.c_str(), e.what());
     mforms::Utilities::show_error(strfmt(_("Failed to create/alter `%s`.`%s`"), used_schema_name.c_str(), obj_name.c_str()), e.what(), _("OK"));
@@ -1761,20 +1769,12 @@ std::string SqlEditorTreeController::generate_alter_script(const db_mgmt_RdbmsRe
 
 //--------------------------------------------------------------------------------------------------
 
-// Deprecated.
 std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::ObjectType type, const std::string &schema_name, const std::string &obj_name)
 {
-  //const size_t DDL_COLUMN= 5;
-  std::string delimiter;
-  {
-    SqlFacade::Ref sql_facade= SqlFacade::instance_for_rdbms(_owner->rdbms());
-    Sql_specifics::Ref sql_specifics= sql_facade->sqlSpecifics();
-    delimiter= sql_specifics->non_std_sql_delimiter();
-  }
-  std::string ddl_script;
-  //triggers are fetched prior to table ddl, but should appear after table created
+  std::string ddl_script = "delimiter $$\n\n";
+
+  // Triggers are fetched prior to table ddl, but should appear after table created.
   std::string additional_ddls;
-  ddl_script+= strfmt("delimiter %s\n\n", delimiter.c_str());
 
   try
   {
@@ -1783,7 +1783,7 @@ std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::O
 
     RecMutexLock aux_dbc_conn_mutex(_owner->ensure_valid_aux_connection(conn));
 
-    // cant use getSchemaObjects() because it silently ignores errors
+    // Can't use getSchemaObjects() because it silently ignores errors.
     switch (type)
     {
       case wb::LiveSchemaTree::Schema:
@@ -1802,11 +1802,11 @@ std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::O
           if (rs.get())
           {
             while(rs->next())
-                triggers.push_back(rs->getString(1));
+              triggers.push_back(rs->getString(1));
           }
         }
 
-        for(size_t index = 0; index < triggers.size(); index++)
+        for (size_t index = 0; index < triggers.size(); index++)
         {
           std::string trigger_query = base::sqlstring("SHOW CREATE TRIGGER !.!", 0) << schema_name << triggers[index];
           std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
@@ -1815,8 +1815,8 @@ std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::O
           if (rs.get() && rs->next())
           {
               std::string trigger_ddl = (rs->getString(3));
-              additional_ddls+= trigger_ddl;
-              additional_ddls+= delimiter + "\n\n";
+              additional_ddls += trigger_ddl;
+              additional_ddls += "$$\n\n";
           }
         }
       }
@@ -1847,14 +1847,17 @@ std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::O
     if (rs.get() && rs->next())
     {
       if (type == wb::LiveSchemaTree::Function || type == wb::LiveSchemaTree::Procedure)
-        ddl_script += rs->getString(3)  + delimiter + "\n\n";
+        ddl_script += rs->getString(3)  + "$$\n\n";
       else
-        ddl_script += rs->getString(2)  + delimiter + "\n\n";
+        ddl_script += rs->getString(2)  + "$$\n\n";
     }
-    ddl_script+= additional_ddls;
+    ddl_script += additional_ddls;
   }
   catch (const sql::SQLException &e)
   {
+    // Error 1356 comes up when any of the referenced tables in a view are invalid (e.g. dropped)
+    // or the definer/invoker has no rights to access it.
+    // Solve this by using the I_S.
     if (type == wb::LiveSchemaTree::View && e.getErrorCode() == 1356)
     {
       sql::Dbc_connection_handler::Ref conn;
@@ -1874,7 +1877,7 @@ std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::O
         ddl_script += "CREATE ALGORITHM=UNDEFINED DEFINER=" + definer;
         ddl_script += " SQL SECURITY " + rs->getString(2);
         ddl_script += " VIEW " + view + " AS ";
-        ddl_script += rs->getString(3) + delimiter + "\n\n";
+        ddl_script += rs->getString(3) + "$$\n\n";
       }
     }
     else
@@ -2174,17 +2177,16 @@ bool SqlEditorTreeController::parse_ddl_into_catalog(db_mgmt_RdbmsRef rdbms, db_
   int err_count= sql_parser->parse_sql_script(client_state_catalog, ddl_script, options);
   bool generic_parse_error = false;
 
-  //! dbms-specific code
-  if (options.has_key("sql_mode") && (0 < err_count))
+  if (options.has_key("sql_mode") && (err_count > 0))
   {
-    if (std::string::npos != sql_mode.find("ANSI_QUOTES"))
-      sql_mode= replace_string(sql_mode, "ANSI_QUOTES", "");
+    if (sql_mode.find("ANSI_QUOTES") != std::string::npos)
+      sql_mode = replace_string(sql_mode, "ANSI_QUOTES", "");
     else
-      sql_mode+= ",ANSI_QUOTES";
+      sql_mode += ",ANSI_QUOTES";
     options.gset("sql_mode", sql_mode);
     options.set("reuse_existing_objects", grt::IntegerRef(1));
-    err_count= sql_parser->parse_sql_script(client_state_catalog, ddl_script, options);
-    if (0 == err_count)
+    err_count = sql_parser->parse_sql_script(client_state_catalog, ddl_script, options);
+    if (err_count == 0) // Error(s) solved by new sql mode -> inconsistency.
     {
       if (mforms::Utilities::show_warning(strfmt(_("Error Parsing DDL for %s"), obj_descr.c_str()),
         _("The object's DDL retrieved from the server is inconsistent with respect to the SQL_MODE variable "
@@ -2359,7 +2361,7 @@ bool SqlEditorTreeController::apply_changes_to_object(bec::DBObjectEditorBE* obj
     _owner->wbsql()->get_wbui()->get_wb_options_value("", "DbSqlEditor:OnlineDDLLock", lock);
     std::string alter_script = generate_alter_script(_owner->rdbms(), db_object, algorithm, lock);
 
-    // the alter_script may contain a dummy USE statemnt
+    // The alter_script may contain a dummy USE statement.
     if (alter_script.empty() || (alter_script.find("CREATE") == std::string::npos && alter_script.find("ALTER") == std::string::npos && alter_script.find("DROP") == std::string::npos))
     {
       if (!dry_run && !_owner->on_sql_script_run_error.empty())

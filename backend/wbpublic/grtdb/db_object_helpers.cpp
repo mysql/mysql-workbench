@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1310,7 +1310,7 @@ static bool parse_type(const std::string &type,
     switch (walker.token_type())
     {
     case CHAR_SYMBOL: // LONG CHAR VARYING
-      if (walker.look_ahead(1) == VARYING_SYMBOL) // Otherwise we may get e.g. LONG CHAR SET...
+      if (walker.look_ahead(true) == VARYING_SYMBOL) // Otherwise we may get e.g. LONG CHAR SET...
       {
         type_name += " " + walker.token_text();
         walker.next();

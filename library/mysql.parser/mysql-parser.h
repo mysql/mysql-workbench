@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,7 +48,7 @@ public:
   bool advance_to_type(unsigned int type, bool recurse);
   void go_to_subquery_start();
   bool skip_token_sequence(unsigned int start_token, ...);
-  void skip_if(unsigned int token, size_t count = 1);
+  bool skip_if(unsigned int token, size_t count = 1);
   unsigned int look_ahead(bool recursive);
   unsigned int parent_type();
   unsigned int previous_type();
@@ -59,6 +59,7 @@ public:
   void remove_tos();
   
   // Properties of the current token.
+  bool is(unsigned int type);
   bool is_nil();
   bool is_subtree();
   bool is_identifier();

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -175,20 +175,29 @@ void Layer::repaint_for_export(const Rect &aBounds)
     _root_area->repaint(aBounds, true);
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void Layer::queue_repaint()
 {
-  _needs_repaint= true;
-  _owner->queue_repaint();
+  if (!_needs_repaint)
+  {
+    _needs_repaint = true;
+    _owner->queue_repaint();
+  }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void Layer::queue_repaint(const Rect &bounds)
 {
-  _needs_repaint= true;
-  _owner->queue_repaint(bounds);
+  if (!_needs_repaint)
+  {
+    _needs_repaint = true;
+    _owner->queue_repaint(bounds);
+  }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void Layer::queue_relayout(CanvasItem *item)
 {

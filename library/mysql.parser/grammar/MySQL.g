@@ -91,6 +91,9 @@ tokens {
 	COLUMN_INTERNAL_REF_TOKEN; // A column ref in the same table (e.g. in ALTER TABLE .. DROP COLUMN a).
 	COLUMN_REF_TOKEN;
 	
+	INDEX_NAME_TOKEN;
+	INDEX_REF_TOKEN;
+
 	VIEW_NAME_TOKEN;
 	VIEW_REF_TOKEN;
 	
@@ -112,14 +115,18 @@ tokens {
 	EVENT_NAME_TOKEN;
 	EVENT_REF_TOKEN;
 	
-	UDF_NAME_TOKEN;
-	UDF_REF_TOKEN;
+	UDF_NAME_TOKEN; // UDFs are referenced at the same places as any other function. So, no dedicated *_ref here.
+	ENGINE_REF_TOKEN; // No manipulation, just references.
+	
+	SERVER_NAME_TOKEN;
+	SERVER_REF_TOKEN;
 	
 	// Subparts of more complex statements.
 	ALTER_TABLE_ITEM_TOKEN;
 	CREATE_ITEM_TOKEN;
 	COLUMN_ASSIGNMENT_LIST_TOKEN;
 	LOGFILE_GROUP_OPTIONS_TOKEN;
+	TABLESPACE_OPTIONS_TOKEN;
 	CHANGE_MASTER_OPTIONS_TOKEN;
 	SLAVE_THREAD_OPTIONS_TOKEN;
 	PRIVILEGE_TARGET_TOKEN;
@@ -383,7 +390,7 @@ alter_log_file_group:
 ;
 
 alter_server:
-	SERVER_SYMBOL text_or_identifier server_options
+	SERVER_SYMBOL server_ref server_options
 ;
 
 alter_table:
@@ -410,26 +417,18 @@ alter_table_list_entry:
 			column_definition (FIRST_SYMBOL | AFTER_SYMBOL identifier)?
 			| OPEN_PAR_SYMBOL column_definition (COMMA_SYMBOL column_definition)* CLOSE_PAR_SYMBOL
 		)
-	| ADD_SYMBOL (INDEX_SYMBOL | KEY_SYMBOL) identifier? index_type? index_columns index_option*
-	| ADD_SYMBOL (CONSTRAINT_SYMBOL identifier?)?
-		(
-			PRIMARY_SYMBOL KEY_SYMBOL index_type? index_columns index_option*
-			| UNIQUE_SYMBOL (INDEX_SYMBOL | KEY_SYMBOL)? identifier? index_type? index_columns index_option*
-			| FOREIGN_SYMBOL KEY_SYMBOL identifier? index_columns reference_definition
-		)
-	| ADD_SYMBOL FULLTEXT_SYMBOL (INDEX_SYMBOL | KEY_SYMBOL)? identifier? index_columns index_option*
-	| ADD_SYMBOL SPATIAL_SYMBOL (INDEX_SYMBOL | KEY_SYMBOL)? identifier? index_columns index_option*
+	| ADD_SYMBOL key_def
 	| ALTER_SYMBOL COLUMN_SYMBOL? column_internal_ref (SET_SYMBOL DEFAULT_SYMBOL signed_literal | DROP_SYMBOL DEFAULT_SYMBOL)
 	| CHANGE_SYMBOL COLUMN_SYMBOL? column_internal_ref field_spec (FIRST_SYMBOL | AFTER_SYMBOL identifier)?
-	| MODIFY_SYMBOL COLUMN_SYMBOL? column_internal_ref field_spec (FIRST_SYMBOL | AFTER_SYMBOL identifier)?
+	| MODIFY_SYMBOL COLUMN_SYMBOL? column_internal_ref data_type attribute* (FIRST_SYMBOL | AFTER_SYMBOL identifier)?
 	| DROP_SYMBOL
 		(
-			(INDEX_SYMBOL | KEY_SYMBOL) identifier
+			(INDEX_SYMBOL | KEY_SYMBOL) column_ref
 			| COLUMN_SYMBOL? column_internal_ref
 			| PRIMARY_SYMBOL KEY_SYMBOL
 			| FOREIGN_SYMBOL KEY_SYMBOL
 				(
-					// This part no longer is optional starting with 5.7.
+					// This part is no longer optional starting with 5.7.
 					{SERVER_VERSION >= 50700}? => column_ref
 					| {SERVER_VERSION < 50700}? => column_ref?
 				)
@@ -437,12 +436,24 @@ alter_table_list_entry:
 	| DISABLE_SYMBOL KEYS_SYMBOL
 	| ENABLE_SYMBOL KEYS_SYMBOL
 	| RENAME_SYMBOL (TO_SYMBOL | AS_SYMBOL)? table_ref
-	| {SERVER_VERSION >= 50700}? => RENAME_SYMBOL (INDEX_SYMBOL | KEY_SYMBOL) identifier TO_SYMBOL identifier
+	| {SERVER_VERSION >= 50700}? => RENAME_SYMBOL (INDEX_SYMBOL | KEY_SYMBOL) column_ref TO_SYMBOL column_ref
 	| alter_order_by
 	| CONVERT_SYMBOL TO_SYMBOL CHAR_SYMBOL SET_SYMBOL charset_name_or_default (COLLATE_SYMBOL collation_name_or_default)?
 	| FORCE_SYMBOL
 	| {SERVER_VERSION >= 50600}? => alter_algorithm_option
 	| {SERVER_VERSION >= 50600}? => alter_lock_option
+;
+
+key_def:
+	(CONSTRAINT_SYMBOL column_ref?)?
+		(
+			PRIMARY_SYMBOL KEY_SYMBOL column_ref? index_type? index_columns normal_index_option*
+			| FOREIGN_SYMBOL KEY_SYMBOL column_ref? index_columns reference_definition
+			| UNIQUE_SYMBOL (INDEX_SYMBOL | KEY_SYMBOL)? column_ref? index_type? index_columns normal_index_option*
+			| CHECK_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
+		)
+	| (INDEX_SYMBOL | KEY_SYMBOL) column_ref? index_type? index_columns normal_index_option*
+	| (FULLTEXT_SYMBOL | SPATIAL_SYMBOL) (INDEX_SYMBOL | KEY_SYMBOL)? column_ref? index_columns normal_index_option*
 ;
 
 alter_order_by:
@@ -647,9 +658,9 @@ create_index: // For external use only. Don't reference this in the normal gramm
 create_index_tail:
 	online_option?
 	(
-		UNIQUE_SYMBOL? INDEX_SYMBOL identifier index_type? create_index_target index_option* index_lock_algorithm?
-		| FULLTEXT_SYMBOL INDEX_SYMBOL identifier create_index_target fulltext_index_option* index_lock_algorithm?
-		| SPATIAL_SYMBOL INDEX_SYMBOL identifier create_index_target spatial_index_option* index_lock_algorithm?
+		UNIQUE_SYMBOL? INDEX_SYMBOL index_name index_type? create_index_target normal_index_option* index_lock_algorithm?
+		| FULLTEXT_SYMBOL INDEX_SYMBOL index_name create_index_target fulltext_index_option* index_lock_algorithm?
+		| SPATIAL_SYMBOL INDEX_SYMBOL index_name create_index_target spatial_index_option* index_lock_algorithm?
 	)
 ;
 
@@ -685,7 +696,7 @@ create_server: // For external use only. Don't reference this in the normal gram
 ;
 
 create_server_tail:
-	SERVER_SYMBOL text_or_identifier
+	SERVER_SYMBOL server_name
 		FOREIGN_SYMBOL DATA_SYMBOL WRAPPER_SYMBOL text_or_identifier server_options
 ;
 
@@ -732,15 +743,7 @@ create_item:
 
 create_field_list_item:
 	column_definition
-	| (CONSTRAINT_SYMBOL identifier?)?
-		(
-			PRIMARY_SYMBOL KEY_SYMBOL index_type? index_columns index_option*
-			| FOREIGN_SYMBOL KEY_SYMBOL pure_identifier? index_columns reference_definition
-			| UNIQUE_SYMBOL (INDEX_SYMBOL | KEY_SYMBOL)? identifier? index_type? index_columns index_option*
-		)
-	| (INDEX_SYMBOL | KEY_SYMBOL) identifier? index_type? index_columns index_option*
-	| (FULLTEXT_SYMBOL | SPATIAL_SYMBOL) (INDEX_SYMBOL | KEY_SYMBOL)? identifier? index_columns index_option*
-	| CHECK_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
+	| key_def
 ;
 
 table_creation_source: // create3 in sql_yacc.yy
@@ -762,7 +765,12 @@ create_tablespace: // For external use only. Don't reference this in the normal 
 
 create_tablespace_tail:
 	TABLESPACE_SYMBOL tablespace_name ADD_SYMBOL DATAFILE_SYMBOL string_literal
-		(USE_SYMBOL LOGFILE_SYMBOL GROUP_SYMBOL logfile_group_ref)? (create_tablespace_option (COMMA_SYMBOL? create_tablespace_option)*)?
+		(USE_SYMBOL LOGFILE_SYMBOL GROUP_SYMBOL logfile_group_ref)? tablespace_options?
+;
+
+tablespace_options:
+	(create_tablespace_option (COMMA_SYMBOL? create_tablespace_option)*)
+		-> ^(TABLESPACE_OPTIONS_TOKEN create_tablespace_option (COMMA_SYMBOL? create_tablespace_option)*)
 ;
 
 create_tablespace_option:
@@ -821,10 +829,10 @@ drop_statement:
 				FUNCTION_SYMBOL if_exists? function_ref // Including UDFs.
 				| PROCEDURE_SYMBOL if_exists? procedure_ref
 			)
-		| online_option? INDEX_SYMBOL identifier ON_SYMBOL table_ref index_lock_algorithm?
+		| online_option? INDEX_SYMBOL index_ref ON_SYMBOL table_ref index_lock_algorithm?
 		| LOGFILE_SYMBOL GROUP_SYMBOL logfile_group_ref (drop_logfile_group_option (COMMA_SYMBOL? drop_logfile_group_option)*)?
-		| SERVER_SYMBOL if_exists? text_or_identifier
-		| TEMPORARY_SYMBOL? (TABLE_SYMBOL | TABLES_SYMBOL) if_exists? table_identifier_list (RESTRICT_SYMBOL | CASCADE_SYMBOL)?
+		| SERVER_SYMBOL if_exists? server_ref
+		| TEMPORARY_SYMBOL? (TABLE_SYMBOL | TABLES_SYMBOL) if_exists? table_ref_list (RESTRICT_SYMBOL | CASCADE_SYMBOL)?
 		| TABLESPACE_SYMBOL tablespace_ref (drop_logfile_group_option (COMMA_SYMBOL? drop_logfile_group_option)*)?
 		| TRIGGER_SYMBOL if_exists? trigger_ref
 		| VIEW_SYMBOL if_exists? view_identifier_list (RESTRICT_SYMBOL | CASCADE_SYMBOL)?
@@ -861,10 +869,10 @@ delete_statement:
 				// Both alternatives can start with identifier DOT, so we either need a predicate (which adds backtracking) or,
 				// as we actually do, an extended lookahead.
 				( options { k = 4; }:
-					 table_ref_list USING_SYMBOL table_references where_clause? // Multi table variant 1.
+					 table_ref_list_with_wildcard USING_SYMBOL table_references where_clause? // Multi table variant 1.
 					| table_ref partition_delete? where_clause? order_by_clause? (LIMIT_SYMBOL limit_option)? // Single table delete.
 				)
-			|  table_ref_list FROM_SYMBOL table_references where_clause? // Multi table variant 2.
+			|  table_ref_list_with_wildcard FROM_SYMBOL table_references where_clause? // Multi table variant 2.
 		)
 ;
 
@@ -874,10 +882,6 @@ partition_delete:
 
 delete_option:
 	LOW_PRIORITY_SYMBOL | QUICK_SYMBOL | IGNORE_SYMBOL
-;
-
-table_ref_list:
-	table_ref_with_wildcard (COMMA_SYMBOL table_ref_with_wildcard)*
 ;
 
 do_statement:
@@ -1636,13 +1640,13 @@ grant_option:
 //--------------------------------------------------------------------------------------------------
 
 table_administration_statement:
-	ANALYZE_SYMBOL^ no_write_to_bin_log? TABLE_SYMBOL qualified_identifier_list
-	| CHECK_SYMBOL^ TABLE_SYMBOL qualified_identifier_list check_option*
-	| CHECKSUM_SYMBOL^ TABLE_SYMBOL qualified_identifier_list (QUICK_SYMBOL | EXTENDED_SYMBOL)?
-	| OPTIMIZE_SYMBOL^ no_write_to_bin_log? TABLE_SYMBOL qualified_identifier_list
-	| REPAIR_SYMBOL^ no_write_to_bin_log? TABLE_SYMBOL qualified_identifier_list repair_option*
-	| {SERVER_VERSION < 50500}? => BACKUP_SYMBOL^ TABLE_SYMBOL table_identifier_list TO_SYMBOL string_literal
-	| {SERVER_VERSION < 50500}? => RESTORE_SYMBOL^ TABLE_SYMBOL table_identifier_list FROM_SYMBOL string_literal
+	ANALYZE_SYMBOL^ no_write_to_bin_log? TABLE_SYMBOL table_ref_list
+	| CHECK_SYMBOL^ TABLE_SYMBOL table_ref_list check_option*
+	| CHECKSUM_SYMBOL^ TABLE_SYMBOL table_ref_list (QUICK_SYMBOL | EXTENDED_SYMBOL)?
+	| OPTIMIZE_SYMBOL^ no_write_to_bin_log? TABLE_SYMBOL table_ref_list
+	| REPAIR_SYMBOL^ no_write_to_bin_log? TABLE_SYMBOL table_ref_list repair_option*
+	| {SERVER_VERSION < 50500}? => BACKUP_SYMBOL^ TABLE_SYMBOL table_ref_list TO_SYMBOL string_literal
+	| {SERVER_VERSION < 50500}? => RESTORE_SYMBOL^ TABLE_SYMBOL table_ref_list FROM_SYMBOL string_literal
 ;
 
 check_option:
@@ -2607,7 +2611,7 @@ column_definition:
 ;
 
 field_spec:
-	column_name data_type attribute* ( options { greedy = true; }: reference_definition)?
+	column_ref data_type attribute*
 ;
 
 attribute:
@@ -2627,9 +2631,13 @@ attribute:
 
 reference_definition:
 	REFERENCES_SYMBOL^ table_ref index_columns?
+		// The MATCH part (from the SQL standard) is discouraged to be used in MySQL.
+		// Using it will also cause the ON DELETE/UPDATE part to be ignored.
 		(MATCH_SYMBOL (FULL_SYMBOL | PARTIAL_SYMBOL | SIMPLE_SYMBOL))?
-		(ON_SYMBOL DELETE_SYMBOL reference_option)?
-		(ON_SYMBOL UPDATE_SYMBOL reference_option)?
+		(
+			ON_SYMBOL DELETE_SYMBOL reference_option (ON_SYMBOL UPDATE_SYMBOL reference_option)?
+			| ON_SYMBOL UPDATE_SYMBOL reference_option (ON_SYMBOL DELETE_SYMBOL reference_option)?
+		)?
 ;
 
 index_columns:
@@ -2644,17 +2652,21 @@ index_type:
 	(USING_SYMBOL | TYPE_SYMBOL) (BTREE_SYMBOL | RTREE_SYMBOL | HASH_SYMBOL)
 ;
 
-index_option:
+normal_index_option:
 	index_type
-	| spatial_index_option
+	| all_key_option
 ;
 
 fulltext_index_option:
 	WITH_SYMBOL PARSER_SYMBOL identifier
-	| spatial_index_option
+	| all_key_option
 ;
 
 spatial_index_option:
+	all_key_option
+;
+
+all_key_option:
 	KEY_BLOCK_SIZE_SYMBOL EQUAL_OPERATOR? INTEGER
 	| {SERVER_VERSION >= 50600}? => COMMENT_SYMBOL string_literal
 ;
@@ -2795,7 +2807,7 @@ create_table_option: // In the order as they appear in the server grammar.
 	| (CHECKSUM_SYMBOL | TABLE_CHECKSUM_SYMBOL) EQUAL_OPERATOR? INTEGER // Actually only 0 and 1. Same is true for the other INTEGER refs in this rule.
 	| DELAY_KEY_WRITE_SYMBOL EQUAL_OPERATOR? INTEGER
 	| ROW_FORMAT_SYMBOL EQUAL_OPERATOR? (DEFAULT_SYMBOL | DYNAMIC_SYMBOL | FIXED_SYMBOL | COMPRESSED_SYMBOL | REDUNDANT_SYMBOL | COMPACT_SYMBOL)
-	| UNION_SYMBOL^ EQUAL_OPERATOR? OPEN_PAR_SYMBOL qualified_identifier_list CLOSE_PAR_SYMBOL
+	| UNION_SYMBOL^ EQUAL_OPERATOR? OPEN_PAR_SYMBOL table_ref_list CLOSE_PAR_SYMBOL
 	| DEFAULT_SYMBOL?
 		(
 			COLLATE_SYMBOL EQUAL_OPERATOR? collation_name_or_default
@@ -2868,15 +2880,7 @@ partition_option:
 ;
 
 subpartition_definition:
-	SUBPARTITION_SYMBOL identifier
-		(STORAGE_SYMBOL? ENGINE_SYMBOL EQUAL_OPERATOR? IDENTIFIER)?
-		(COMMENT_SYMBOL EQUAL_OPERATOR? string_literal)?
-		(DATA_SYMBOL DIRECTORY_SYMBOL EQUAL_OPERATOR? string_literal)?
-		(INDEX_SYMBOL DIRECTORY_SYMBOL EQUAL_OPERATOR? string_literal)?
-		(MAX_ROWS_SYMBOL EQUAL_OPERATOR? INTEGER)?
-		(MIN_ROWS_SYMBOL EQUAL_OPERATOR? INTEGER)?
-		(TABLESPACE_SYMBOL EQUAL_OPERATOR? identifier)?
-		(NODEGROUP_SYMBOL EQUAL_OPERATOR? identifier)?
+	SUBPARTITION_SYMBOL identifier (partition_option)*
 ;
 
 partition_value_list:
@@ -2906,10 +2910,6 @@ function_parameter:
 schema_identifier_pair:
 	OPEN_PAR_SYMBOL schema_ref COMMA_SYMBOL schema_ref CLOSE_PAR_SYMBOL
 ;
-
-table_identifier_list:
-	table_ref (COMMA_SYMBOL table_ref)*
-;       
 
 view_identifier_list:
 	view_ref (COMMA_SYMBOL view_ref)*
@@ -2997,18 +2997,24 @@ use_partition:
 // 1) The name when creating that object.
 // 2) The name when used to reference it from other rules.
 //
-// Sometimes we need additional reference rules with different form, depending on the placed such a reference is used.
+// Sometimes we need additional reference rules with different form, depending on the place such a reference is used.
 
 column_name:
 	identifier -> ^(COLUMN_NAME_TOKEN identifier)
 ;
 
 column_ref:
-	qualified_identifier (DOT_SYMBOL identifier)? -> ^(COLUMN_REF_TOKEN qualified_identifier (DOT_SYMBOL identifier)?)
+	column_ref_variants -> ^(COLUMN_REF_TOKEN column_ref_variants)
+;
+
+// field_ident rule in the server parser.
+column_ref_variants:
+	DOT_SYMBOL identifier
+	| qualified_identifier (options { greedy = true; }: DOT_SYMBOL identifier)?
 ;
 
 column_internal_ref:
-	identifier -> ^(COLUMN_INTERNAL_REF_TOKEN identifier)
+	column_ref_variants -> ^(COLUMN_INTERNAL_REF_TOKEN column_ref_variants)
 ;
 
 column_ref_with_wildcard:
@@ -3019,6 +3025,14 @@ column_ref_with_wildcard:
 // are in the same rule.
 column_ref_with_wildcard2:
 	qualified_identifier (DOT_SYMBOL (identifier | MULT_OPERATOR))?
+;
+
+index_name:
+	identifier -> ^(INDEX_NAME_TOKEN identifier)
+;
+
+index_ref:
+	identifier -> ^(INDEX_REF_TOKEN identifier)
 ;
 
 table_wild: // Name as in sql_yacc.yy. Actually a column ref with non-optional wildcard.
@@ -3093,8 +3107,16 @@ udf_name: // UDFs are referenced at the same places as any other function. So, n
 	identifier -> ^(UDF_NAME_TOKEN identifier)
 ;
 
+server_name:
+	text_or_identifier -> ^(SERVER_NAME_TOKEN text_or_identifier)
+;
+
+server_ref:
+	text_or_identifier -> ^(SERVER_REF_TOKEN text_or_identifier)
+;
+
 engine_ref:
-	text_or_identifier
+	text_or_identifier -> ^(ENGINE_REF_TOKEN text_or_identifier)
 ;
 
 table_name:
@@ -3118,10 +3140,16 @@ table_ref_no_db:
 ;
 
 table_name_variants:
-	// In order to avoid ambiguities with following identifiers (which could be starting with a dot) we match
-	// any (DOT identifier) sequence as part of this table identifier.
-	identifier ( options { greedy = true; }: DOT_SYMBOL identifier)?
+	qualified_identifier
 	| DOT_SYMBOL identifier
+;
+
+table_ref_list:
+	table_ref (COMMA_SYMBOL table_ref)*
+;       
+
+table_ref_list_with_wildcard:
+	table_ref_with_wildcard (COMMA_SYMBOL table_ref_with_wildcard)*
 ;
 
 //----------------- Common basic rules -------------------------------------------------------------
@@ -3146,10 +3174,6 @@ identifier_list:
 identifier_list_with_parentheses:
 	OPEN_PAR_SYMBOL identifier_list CLOSE_PAR_SYMBOL
 ;
-
-qualified_identifier_list:
-	qualified_identifier (COMMA_SYMBOL qualified_identifier)*
-;       
 
 qualified_identifier:
 	identifier ( options { greedy = true; }: DOT_SYMBOL identifier)?

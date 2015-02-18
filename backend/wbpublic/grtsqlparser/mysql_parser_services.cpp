@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -50,7 +50,7 @@ long short_version(const GrtVersionRef &version)
 
 //------------------ ParserContext -----------------------------------------------------------------
 
-ParserContext::ParserContext(const GrtCharacterSetsRef &charsets, const GrtVersionRef &version,
+ParserContext::ParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version,
   bool case_sensitive)
 {
   _version = version;
@@ -176,7 +176,7 @@ uint32_t ParserContext::get_keyword_token(const std::string &keyword)
 /**
  * Returns the pointer to the internal keyword strings array in the parser, so we can directly
  * work with those keywords. The position in the keywords list corresponds to their token value.
- * The first user defined token name starts and index 4.
+ * The first user defined token name starts at index 4.
  */
 char ** ParserContext::get_token_name_list()
 {
@@ -185,8 +185,8 @@ char ** ParserContext::get_token_name_list()
 
 //------------------ MySQLParserServices -----------------------------------------------------------
 
-ParserContext::Ref MySQLParserServices::createParserContext(const GrtCharacterSetsRef &charsets,
-  const GrtVersionRef &version, bool case_sensitive)
+ParserContext::Ref MySQLParserServices::createParserContext(GrtCharacterSetsRef charsets,
+  GrtVersionRef version, bool case_sensitive)
 {
   boost::shared_ptr<ParserContext> result(new ParserContext(charsets, version, case_sensitive));
 

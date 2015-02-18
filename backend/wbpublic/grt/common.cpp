@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -402,8 +402,8 @@ namespace bec {
     {
       switch (to)
       {
-        case MoveUp: to = ui_item_index - 1; break; 
-        case MoveDown: to = ui_item_index + 2; break;
+        case MoveUp: to = (int)ui_item_index - 1; break; 
+        case MoveDown: to = (int)ui_item_index + 2; break;
         case MoveTop: 
           to = (grouped && fabric_names[group_name]) ? 1 : 0;
           break;
@@ -418,7 +418,7 @@ namespace bec {
 
       // In case o should point to the last element on the group
       if (to == MoveBottom)
-        to = target_group->count() - 1;
+        to = (int)target_group->count() - 1;
       else 
       {
         // This adjustment is needed because of the way reorder works
@@ -435,7 +435,7 @@ namespace bec {
     {
       // In case o should point to the last element on the entire list
       if (to == MoveBottom)
-        to = names_list.size() - 1;
+        to = (int)names_list.size() - 1;
       // This adjustment is needed because of the way reorder works
       else if ((int)ui_item_index < to)
         to--;

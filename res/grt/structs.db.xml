@@ -70,7 +70,7 @@
           </members>
       </gstruct>
 
-      <gstruct name="db.LogFileGroup" parent="GrtNamedObject" attr:caption="Log File Group">
+      <gstruct name="db.LogFileGroup" parent="db.DatabaseObject" attr:caption="Log File Group">
           <members>
               <member name="undoFile" type="string"/>
               <member name="initialSize" type="int"/>
@@ -78,11 +78,13 @@
           </members>
       </gstruct>
 
-      <gstruct name="db.Tablespace" parent="GrtNamedObject" attr:caption="Tablespace">
+      <gstruct name="db.Tablespace" parent="db.DatabaseObject" attr:caption="Tablespace">
           <members>
               <member name="dataFile" type="string"/>
               <member name="initialSize" type="int"/>
-              <member name="extendSize" type="int"/>
+              <member name="extentSize" type="int"/>
+              <member name="autoExtendSize" type="int"/>
+              <member name="maxSize" type="int"/>
               <member name="logFileGroup" type="object" struct-name="db.LogFileGroup" attr:caption="Log File Group" owned="1" attr:desc="the log file group that is used for this tablespace"/>
           </members>
       </gstruct>
@@ -98,7 +100,7 @@
               <member attr:caption="Synonyms" content-struct-name="db.Synonym" content-type="object" name="synonyms" type="list" owned="1" attr:editas="hide"/>
               <member attr:caption="Structured Types" content-struct-name="db.StructuredDatatype" content-type="object" name="structuredTypes" type="list" owned="1" attr:editas="hide"/>
               <member attr:caption="Sequences" content-struct-name="db.Sequence" content-type="object" name="sequences" type="list" owned="1" attr:editas="hide"/>
-
+              <member attr:caption="Events" content-struct-name="db.Event" content-type="object" name="events" type="list" owned="1" attr:editas="hide"/>
 
               <method name="addNewTable" attr:desc="create and add a new table to the schema. For MySQL tables, pass db.mysql as the dbpackage argument">
                   <argument name="dbpackage" type="string"/>
@@ -301,13 +303,13 @@
           </members>
       </gstruct>
 
-      <gstruct name="db.Index" parent="GrtNamedObject">
+      <gstruct name="db.Index" parent="db.DatabaseObject">
           <members>
               <member name="name" type="string" delegate-set="1" overrides="string"/>
               <member name="isPrimary" type="int"/>
               <member name="deferability" type="int"/>
               <member name="unique" type="int" attr:dontdiff="1" />
-              <member name="indexType" type="string" attr:desc="can be INDEX, PRIMARY, UNIQUE, FULLTEXT, SPACIAL"/>
+              <member name="indexType" type="string" attr:desc="one of INDEX, PRIMARY, UNIQUE, FULLTEXT and SPATIAL"/>
               <member name="columns" type="list" content-type="object" content-struct-name="db.IndexColumn" owned="1"/>
               <member name="comment" type="string" attr:dontdiff="1" /> 
           </members>
@@ -366,12 +368,6 @@
           </members>
       </gstruct>
 
-      <!-- SP and Function objects are not being used everywhere they should. db.Routine is being used instead, although wrongly. Replacing Routine with the subclasses would break backwards compatibility -->
-
-      <gstruct attr:caption="Function" name="db.Function" parent="db.Routine" />
-
-      <gstruct attr:caption="Stored Procedure" name="db.StoredProcedure" parent="db.Routine" />
-
       <gstruct attr:caption="Routine Group" attr:desc="a logical group of routines" name="db.RoutineGroup" parent="db.DatabaseObject" force-impl="1">
           <members>
               <member content-struct-name="db.Routine" content-type="object" name="routines" type="list" owned="1" attr:editas="hide"/>
@@ -390,6 +386,23 @@
               <member name="otherTrigger" type="string" attr:desc="the name of the trigger to which order is relative"/>
               <member name="timing" type="string" delegate-set="1" attr:desc="when the trigger fires (AFTER or BEFORE)"/>
               <member name="enabled" type="int"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.Event" parent="db.DatabaseDdlObject" attr:caption="Event">
+          <members>
+              <member name="name" type="string" overrides="string"/>
+			  <member name="definer" type="string" attr:desc = "a full user name ('user'@'host') or CURRENT_USER"/>
+			  <member name="useInterval" type="int" attr:desc = "1 if to use the interval* members, otherwise for at"/>
+			  <member name="at" type="string" attr:desc = "the expression to define an execution timestamp, mutually exclusive with the interval* members"/>
+			  <member name="interval" type="string" attr:desc = "the expression to define an interval, mutually exclusive with the at member"/>
+			  <member name="intervalUnit" type="string" attr:desc = "one of the interval units, except microseconds, e.g. SECOND, HOUR etc."/>
+			  <member name="intervalStart" type="string" attr:desc = "optional expression for a start timestamp"/>
+			  <member name="intervalEnd" type="string" attr:desc = "optional expression for an end timestamp"/>
+			  <member name="preserved" type="int" attr:desc = "0 if the event is automatically dropped after last occurrence"/>
+			  <member name="enabled" type="int"/>
+			  <member name="comment" type="string"/>
+			  <member name="sqlBody" type="string" attr:desc = "the sql code to execute on each invocation of the event"/>
           </members>
       </gstruct>
 

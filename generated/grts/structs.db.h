@@ -28,8 +28,6 @@ class db_ForeignKey;
 typedef grt::Ref<db_ForeignKey> db_ForeignKeyRef;
 class db_IndexColumn;
 typedef grt::Ref<db_IndexColumn> db_IndexColumnRef;
-class db_Index;
-typedef grt::Ref<db_Index> db_IndexRef;
 class db_CheckConstraint;
 typedef grt::Ref<db_CheckConstraint> db_CheckConstraintRef;
 class db_UserDatatype;
@@ -40,10 +38,6 @@ class db_DatatypeGroup;
 typedef grt::Ref<db_DatatypeGroup> db_DatatypeGroupRef;
 class db_Column;
 typedef grt::Ref<db_Column> db_ColumnRef;
-class db_Tablespace;
-typedef grt::Ref<db_Tablespace> db_TablespaceRef;
-class db_LogFileGroup;
-typedef grt::Ref<db_LogFileGroup> db_LogFileGroupRef;
 class db_RolePrivilege;
 typedef grt::Ref<db_RolePrivilege> db_RolePrivilegeRef;
 class db_Catalog;
@@ -56,6 +50,8 @@ class db_Synonym;
 typedef grt::Ref<db_Synonym> db_SynonymRef;
 class db_RoutineGroup;
 typedef grt::Ref<db_RoutineGroup> db_RoutineGroupRef;
+class db_Index;
+typedef grt::Ref<db_Index> db_IndexRef;
 class db_StructuredDatatype;
 typedef grt::Ref<db_StructuredDatatype> db_StructuredDatatypeRef;
 class db_Table;
@@ -64,20 +60,22 @@ class db_ServerLink;
 typedef grt::Ref<db_ServerLink> db_ServerLinkRef;
 class db_Schema;
 typedef grt::Ref<db_Schema> db_SchemaRef;
+class db_Tablespace;
+typedef grt::Ref<db_Tablespace> db_TablespaceRef;
+class db_LogFileGroup;
+typedef grt::Ref<db_LogFileGroup> db_LogFileGroupRef;
 class db_User;
 typedef grt::Ref<db_User> db_UserRef;
 class db_Role;
 typedef grt::Ref<db_Role> db_RoleRef;
 class db_DatabaseDdlObject;
 typedef grt::Ref<db_DatabaseDdlObject> db_DatabaseDdlObjectRef;
+class db_Event;
+typedef grt::Ref<db_Event> db_EventRef;
 class db_Trigger;
 typedef grt::Ref<db_Trigger> db_TriggerRef;
 class db_Routine;
 typedef grt::Ref<db_Routine> db_RoutineRef;
-class db_StoredProcedure;
-typedef grt::Ref<db_StoredProcedure> db_StoredProcedureRef;
-class db_Function;
-typedef grt::Ref<db_Function> db_FunctionRef;
 class db_View;
 typedef grt::Ref<db_View> db_ViewRef;
 
@@ -1068,213 +1066,6 @@ public:
       void (db_IndexColumn::*setter)(const db_ColumnRef &)= &db_IndexColumn::referencedColumn;
       db_ColumnRef (db_IndexColumn::*getter)() const= &db_IndexColumn::referencedColumn;
       meta->bind_member("referencedColumn", new grt::MetaClass::Property<db_IndexColumn,db_ColumnRef >(getter,setter));
-    }
-  }
-};
-
-
-class GRT_STRUCTS_DB_PUBLIC db_Index : public GrtNamedObject
-{
-  typedef GrtNamedObject super;
-public:
-  db_Index(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtNamedObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-    _columns(grt, this, false),
-     _deferability(0),
-     _indexType(""),
-     _isPrimary(0),
-     _unique(0)
-
-  {
-  }
-
-  virtual ~db_Index();
-
-  static std::string static_class_name() { return "db.Index"; }
-
-  // columns is owned by db_Index
-  /** Getter for attribute columns (read-only)
-   
-    
-   \par In Python:
-value = obj.columns
-   */
-  grt::ListRef<db_IndexColumn> columns() const { return _columns; }
-private: // the next attribute is read-only
-  virtual void columns(const grt::ListRef<db_IndexColumn> &value)
-  {
-    grt::ValueRef ovalue(_columns);
-
-    _columns= value;
-    owned_member_changed("columns", ovalue, value);
-  }
-public:
-
-  /** Getter for attribute comment
-   
-    
-   \par In Python:
-value = obj.comment
-   */
-  /** Setter for attribute comment
-   
-    
-    \par In Python:
-obj.comment = value
-   */
-
-  /** Getter for attribute deferability
-   
-    
-   \par In Python:
-value = obj.deferability
-   */
-  grt::IntegerRef deferability() const { return _deferability; }
-  /** Setter for attribute deferability
-   
-    
-    \par In Python:
-obj.deferability = value
-   */
-  virtual void deferability(const grt::IntegerRef &value)
-  {
-    grt::ValueRef ovalue(_deferability);
-   _deferability= value;
-    member_changed("deferability", ovalue, value);
-  }
-
-  /** Getter for attribute indexType
-   
-    can be INDEX, PRIMARY, UNIQUE, FULLTEXT, SPACIAL
-   \par In Python:
-value = obj.indexType
-   */
-  grt::StringRef indexType() const { return _indexType; }
-  /** Setter for attribute indexType
-   
-    can be INDEX, PRIMARY, UNIQUE, FULLTEXT, SPACIAL
-    \par In Python:
-obj.indexType = value
-   */
-  virtual void indexType(const grt::StringRef &value)
-  {
-    grt::ValueRef ovalue(_indexType);
-   _indexType= value;
-    member_changed("indexType", ovalue, value);
-  }
-
-  /** Getter for attribute isPrimary
-   
-    
-   \par In Python:
-value = obj.isPrimary
-   */
-  grt::IntegerRef isPrimary() const { return _isPrimary; }
-  /** Setter for attribute isPrimary
-   
-    
-    \par In Python:
-obj.isPrimary = value
-   */
-  virtual void isPrimary(const grt::IntegerRef &value)
-  {
-    grt::ValueRef ovalue(_isPrimary);
-   _isPrimary= value;
-    member_changed("isPrimary", ovalue, value);
-  }
-
-  /** Getter for attribute name
-   
-    
-   \par In Python:
-value = obj.name
-   */
-  grt::StringRef name() const { return super::name(); }
-  /** Setter for attribute name
-   
-    
-    \par In Python:
-obj.name = value
-   */
-  virtual void name(const grt::StringRef &value);
-
-  /** Getter for attribute unique
-   
-    
-   \par In Python:
-value = obj.unique
-   */
-  grt::IntegerRef unique() const { return _unique; }
-  /** Setter for attribute unique
-   
-    
-    \par In Python:
-obj.unique = value
-   */
-  virtual void unique(const grt::IntegerRef &value)
-  {
-    grt::ValueRef ovalue(_unique);
-   _unique= value;
-    member_changed("unique", ovalue, value);
-  }
-
-  // default initialization function. auto-called by ObjectRef constructor
-  virtual void init();
-
-protected:
-
-  grt::ListRef<db_IndexColumn> _columns;// owned
-  grt::IntegerRef _deferability;
-  grt::StringRef _indexType;
-  grt::IntegerRef _isPrimary;
-  grt::IntegerRef _unique;
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_Index(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_Index::create);
-    {
-      void (db_Index::*setter)(const grt::ListRef<db_IndexColumn> &)= &db_Index::columns;
-      grt::ListRef<db_IndexColumn> (db_Index::*getter)() const= &db_Index::columns;
-      meta->bind_member("columns", new grt::MetaClass::Property<db_Index,grt::ListRef<db_IndexColumn> >(getter,setter));
-    }
-    {
-      void (db_Index::*setter)(const grt::StringRef &)= 0;
-      grt::StringRef (db_Index::*getter)() const= 0;
-      meta->bind_member("comment", new grt::MetaClass::Property<db_Index,grt::StringRef >(getter,setter));
-    }
-    {
-      void (db_Index::*setter)(const grt::IntegerRef &)= &db_Index::deferability;
-      grt::IntegerRef (db_Index::*getter)() const= &db_Index::deferability;
-      meta->bind_member("deferability", new grt::MetaClass::Property<db_Index,grt::IntegerRef >(getter,setter));
-    }
-    {
-      void (db_Index::*setter)(const grt::StringRef &)= &db_Index::indexType;
-      grt::StringRef (db_Index::*getter)() const= &db_Index::indexType;
-      meta->bind_member("indexType", new grt::MetaClass::Property<db_Index,grt::StringRef >(getter,setter));
-    }
-    {
-      void (db_Index::*setter)(const grt::IntegerRef &)= &db_Index::isPrimary;
-      grt::IntegerRef (db_Index::*getter)() const= &db_Index::isPrimary;
-      meta->bind_member("isPrimary", new grt::MetaClass::Property<db_Index,grt::IntegerRef >(getter,setter));
-    }
-    {
-      void (db_Index::*setter)(const grt::StringRef &)= &db_Index::name;
-      grt::StringRef (db_Index::*getter)() const= 0;
-      meta->bind_member("name", new grt::MetaClass::Property<db_Index,grt::StringRef >(getter,setter));
-    }
-    {
-      void (db_Index::*setter)(const grt::IntegerRef &)= &db_Index::unique;
-      grt::IntegerRef (db_Index::*getter)() const= &db_Index::unique;
-      meta->bind_member("unique", new grt::MetaClass::Property<db_Index,grt::IntegerRef >(getter,setter));
     }
   }
 };
@@ -2322,258 +2113,6 @@ public:
       meta->bind_member("userType", new grt::MetaClass::Property<db_Column,db_UserDatatypeRef >(getter,setter));
     }
     meta->bind_method("setParseType", &db_Column::call_setParseType);
-  }
-};
-
-
-class  db_Tablespace : public GrtNamedObject
-{
-  typedef GrtNamedObject super;
-public:
-  db_Tablespace(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtNamedObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-     _dataFile(""),
-     _extendSize(0),
-     _initialSize(0)
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.Tablespace"; }
-
-  /** Getter for attribute dataFile
-   
-    
-   \par In Python:
-value = obj.dataFile
-   */
-  grt::StringRef dataFile() const { return _dataFile; }
-  /** Setter for attribute dataFile
-   
-    
-    \par In Python:
-obj.dataFile = value
-   */
-  virtual void dataFile(const grt::StringRef &value)
-  {
-    grt::ValueRef ovalue(_dataFile);
-   _dataFile= value;
-    member_changed("dataFile", ovalue, value);
-  }
-
-  /** Getter for attribute extendSize
-   
-    
-   \par In Python:
-value = obj.extendSize
-   */
-  grt::IntegerRef extendSize() const { return _extendSize; }
-  /** Setter for attribute extendSize
-   
-    
-    \par In Python:
-obj.extendSize = value
-   */
-  virtual void extendSize(const grt::IntegerRef &value)
-  {
-    grt::ValueRef ovalue(_extendSize);
-   _extendSize= value;
-    member_changed("extendSize", ovalue, value);
-  }
-
-  /** Getter for attribute initialSize
-   
-    
-   \par In Python:
-value = obj.initialSize
-   */
-  grt::IntegerRef initialSize() const { return _initialSize; }
-  /** Setter for attribute initialSize
-   
-    
-    \par In Python:
-obj.initialSize = value
-   */
-  virtual void initialSize(const grt::IntegerRef &value)
-  {
-    grt::ValueRef ovalue(_initialSize);
-   _initialSize= value;
-    member_changed("initialSize", ovalue, value);
-  }
-
-  // logFileGroup is owned by db_Tablespace
-  /** Getter for attribute logFileGroup
-   
-    the log file group that is used for this tablespace
-   \par In Python:
-value = obj.logFileGroup
-   */
-  db_LogFileGroupRef logFileGroup() const { return _logFileGroup; }
-  /** Setter for attribute logFileGroup
-   
-    the log file group that is used for this tablespace
-    \par In Python:
-obj.logFileGroup = value
-   */
-  virtual void logFileGroup(const db_LogFileGroupRef &value)
-  {
-    grt::ValueRef ovalue(_logFileGroup);
-
-    _logFileGroup= value;
-    owned_member_changed("logFileGroup", ovalue, value);
-  }
-
-protected:
-
-  grt::StringRef _dataFile;
-  grt::IntegerRef _extendSize;
-  grt::IntegerRef _initialSize;
-  db_LogFileGroupRef _logFileGroup;// owned
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_Tablespace(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_Tablespace::create);
-    {
-      void (db_Tablespace::*setter)(const grt::StringRef &)= &db_Tablespace::dataFile;
-      grt::StringRef (db_Tablespace::*getter)() const= &db_Tablespace::dataFile;
-      meta->bind_member("dataFile", new grt::MetaClass::Property<db_Tablespace,grt::StringRef >(getter,setter));
-    }
-    {
-      void (db_Tablespace::*setter)(const grt::IntegerRef &)= &db_Tablespace::extendSize;
-      grt::IntegerRef (db_Tablespace::*getter)() const= &db_Tablespace::extendSize;
-      meta->bind_member("extendSize", new grt::MetaClass::Property<db_Tablespace,grt::IntegerRef >(getter,setter));
-    }
-    {
-      void (db_Tablespace::*setter)(const grt::IntegerRef &)= &db_Tablespace::initialSize;
-      grt::IntegerRef (db_Tablespace::*getter)() const= &db_Tablespace::initialSize;
-      meta->bind_member("initialSize", new grt::MetaClass::Property<db_Tablespace,grt::IntegerRef >(getter,setter));
-    }
-    {
-      void (db_Tablespace::*setter)(const db_LogFileGroupRef &)= &db_Tablespace::logFileGroup;
-      db_LogFileGroupRef (db_Tablespace::*getter)() const= &db_Tablespace::logFileGroup;
-      meta->bind_member("logFileGroup", new grt::MetaClass::Property<db_Tablespace,db_LogFileGroupRef >(getter,setter));
-    }
-  }
-};
-
-
-class  db_LogFileGroup : public GrtNamedObject
-{
-  typedef GrtNamedObject super;
-public:
-  db_LogFileGroup(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtNamedObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-     _initialSize(0),
-     _undoBufferSize(0),
-     _undoFile("")
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.LogFileGroup"; }
-
-  /** Getter for attribute initialSize
-   
-    
-   \par In Python:
-value = obj.initialSize
-   */
-  grt::IntegerRef initialSize() const { return _initialSize; }
-  /** Setter for attribute initialSize
-   
-    
-    \par In Python:
-obj.initialSize = value
-   */
-  virtual void initialSize(const grt::IntegerRef &value)
-  {
-    grt::ValueRef ovalue(_initialSize);
-   _initialSize= value;
-    member_changed("initialSize", ovalue, value);
-  }
-
-  /** Getter for attribute undoBufferSize
-   
-    
-   \par In Python:
-value = obj.undoBufferSize
-   */
-  grt::IntegerRef undoBufferSize() const { return _undoBufferSize; }
-  /** Setter for attribute undoBufferSize
-   
-    
-    \par In Python:
-obj.undoBufferSize = value
-   */
-  virtual void undoBufferSize(const grt::IntegerRef &value)
-  {
-    grt::ValueRef ovalue(_undoBufferSize);
-   _undoBufferSize= value;
-    member_changed("undoBufferSize", ovalue, value);
-  }
-
-  /** Getter for attribute undoFile
-   
-    
-   \par In Python:
-value = obj.undoFile
-   */
-  grt::StringRef undoFile() const { return _undoFile; }
-  /** Setter for attribute undoFile
-   
-    
-    \par In Python:
-obj.undoFile = value
-   */
-  virtual void undoFile(const grt::StringRef &value)
-  {
-    grt::ValueRef ovalue(_undoFile);
-   _undoFile= value;
-    member_changed("undoFile", ovalue, value);
-  }
-
-protected:
-
-  grt::IntegerRef _initialSize;
-  grt::IntegerRef _undoBufferSize;
-  grt::StringRef _undoFile;
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_LogFileGroup(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_LogFileGroup::create);
-    {
-      void (db_LogFileGroup::*setter)(const grt::IntegerRef &)= &db_LogFileGroup::initialSize;
-      grt::IntegerRef (db_LogFileGroup::*getter)() const= &db_LogFileGroup::initialSize;
-      meta->bind_member("initialSize", new grt::MetaClass::Property<db_LogFileGroup,grt::IntegerRef >(getter,setter));
-    }
-    {
-      void (db_LogFileGroup::*setter)(const grt::IntegerRef &)= &db_LogFileGroup::undoBufferSize;
-      grt::IntegerRef (db_LogFileGroup::*getter)() const= &db_LogFileGroup::undoBufferSize;
-      meta->bind_member("undoBufferSize", new grt::MetaClass::Property<db_LogFileGroup,grt::IntegerRef >(getter,setter));
-    }
-    {
-      void (db_LogFileGroup::*setter)(const grt::StringRef &)= &db_LogFileGroup::undoFile;
-      grt::StringRef (db_LogFileGroup::*getter)() const= &db_LogFileGroup::undoFile;
-      meta->bind_member("undoFile", new grt::MetaClass::Property<db_LogFileGroup,grt::StringRef >(getter,setter));
-    }
   }
 };
 
@@ -3821,6 +3360,213 @@ public:
 };
 
 
+class GRT_STRUCTS_DB_PUBLIC db_Index : public db_DatabaseObject
+{
+  typedef db_DatabaseObject super;
+public:
+  db_Index(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_DatabaseObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+    _columns(grt, this, false),
+     _deferability(0),
+     _indexType(""),
+     _isPrimary(0),
+     _unique(0)
+
+  {
+  }
+
+  virtual ~db_Index();
+
+  static std::string static_class_name() { return "db.Index"; }
+
+  // columns is owned by db_Index
+  /** Getter for attribute columns (read-only)
+   
+    
+   \par In Python:
+value = obj.columns
+   */
+  grt::ListRef<db_IndexColumn> columns() const { return _columns; }
+private: // the next attribute is read-only
+  virtual void columns(const grt::ListRef<db_IndexColumn> &value)
+  {
+    grt::ValueRef ovalue(_columns);
+
+    _columns= value;
+    owned_member_changed("columns", ovalue, value);
+  }
+public:
+
+  /** Getter for attribute comment
+   
+    
+   \par In Python:
+value = obj.comment
+   */
+  /** Setter for attribute comment
+   
+    
+    \par In Python:
+obj.comment = value
+   */
+
+  /** Getter for attribute deferability
+   
+    
+   \par In Python:
+value = obj.deferability
+   */
+  grt::IntegerRef deferability() const { return _deferability; }
+  /** Setter for attribute deferability
+   
+    
+    \par In Python:
+obj.deferability = value
+   */
+  virtual void deferability(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_deferability);
+   _deferability= value;
+    member_changed("deferability", ovalue, value);
+  }
+
+  /** Getter for attribute indexType
+   
+    one of INDEX, PRIMARY, UNIQUE, FULLTEXT and SPATIAL
+   \par In Python:
+value = obj.indexType
+   */
+  grt::StringRef indexType() const { return _indexType; }
+  /** Setter for attribute indexType
+   
+    one of INDEX, PRIMARY, UNIQUE, FULLTEXT and SPATIAL
+    \par In Python:
+obj.indexType = value
+   */
+  virtual void indexType(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_indexType);
+   _indexType= value;
+    member_changed("indexType", ovalue, value);
+  }
+
+  /** Getter for attribute isPrimary
+   
+    
+   \par In Python:
+value = obj.isPrimary
+   */
+  grt::IntegerRef isPrimary() const { return _isPrimary; }
+  /** Setter for attribute isPrimary
+   
+    
+    \par In Python:
+obj.isPrimary = value
+   */
+  virtual void isPrimary(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_isPrimary);
+   _isPrimary= value;
+    member_changed("isPrimary", ovalue, value);
+  }
+
+  /** Getter for attribute name
+   
+    
+   \par In Python:
+value = obj.name
+   */
+  grt::StringRef name() const { return super::name(); }
+  /** Setter for attribute name
+   
+    
+    \par In Python:
+obj.name = value
+   */
+  virtual void name(const grt::StringRef &value);
+
+  /** Getter for attribute unique
+   
+    
+   \par In Python:
+value = obj.unique
+   */
+  grt::IntegerRef unique() const { return _unique; }
+  /** Setter for attribute unique
+   
+    
+    \par In Python:
+obj.unique = value
+   */
+  virtual void unique(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_unique);
+   _unique= value;
+    member_changed("unique", ovalue, value);
+  }
+
+  // default initialization function. auto-called by ObjectRef constructor
+  virtual void init();
+
+protected:
+
+  grt::ListRef<db_IndexColumn> _columns;// owned
+  grt::IntegerRef _deferability;
+  grt::StringRef _indexType;
+  grt::IntegerRef _isPrimary;
+  grt::IntegerRef _unique;
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_Index(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_Index::create);
+    {
+      void (db_Index::*setter)(const grt::ListRef<db_IndexColumn> &)= &db_Index::columns;
+      grt::ListRef<db_IndexColumn> (db_Index::*getter)() const= &db_Index::columns;
+      meta->bind_member("columns", new grt::MetaClass::Property<db_Index,grt::ListRef<db_IndexColumn> >(getter,setter));
+    }
+    {
+      void (db_Index::*setter)(const grt::StringRef &)= 0;
+      grt::StringRef (db_Index::*getter)() const= 0;
+      meta->bind_member("comment", new grt::MetaClass::Property<db_Index,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_Index::*setter)(const grt::IntegerRef &)= &db_Index::deferability;
+      grt::IntegerRef (db_Index::*getter)() const= &db_Index::deferability;
+      meta->bind_member("deferability", new grt::MetaClass::Property<db_Index,grt::IntegerRef >(getter,setter));
+    }
+    {
+      void (db_Index::*setter)(const grt::StringRef &)= &db_Index::indexType;
+      grt::StringRef (db_Index::*getter)() const= &db_Index::indexType;
+      meta->bind_member("indexType", new grt::MetaClass::Property<db_Index,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_Index::*setter)(const grt::IntegerRef &)= &db_Index::isPrimary;
+      grt::IntegerRef (db_Index::*getter)() const= &db_Index::isPrimary;
+      meta->bind_member("isPrimary", new grt::MetaClass::Property<db_Index,grt::IntegerRef >(getter,setter));
+    }
+    {
+      void (db_Index::*setter)(const grt::StringRef &)= &db_Index::name;
+      grt::StringRef (db_Index::*getter)() const= 0;
+      meta->bind_member("name", new grt::MetaClass::Property<db_Index,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_Index::*setter)(const grt::IntegerRef &)= &db_Index::unique;
+      grt::IntegerRef (db_Index::*getter)() const= &db_Index::unique;
+      meta->bind_member("unique", new grt::MetaClass::Property<db_Index,grt::IntegerRef >(getter,setter));
+    }
+  }
+};
+
+
 class  db_StructuredDatatype : public db_DatabaseObject
 {
   typedef db_DatabaseObject super;
@@ -4550,6 +4296,7 @@ public:
   : db_DatabaseObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
      _defaultCharacterSetName(""),
      _defaultCollationName(""),
+    _events(grt, this, false),
     _routineGroups(grt, this, false),
     _routines(grt, this, false),
     _sequences(grt, this, false),
@@ -4606,6 +4353,24 @@ obj.defaultCollationName = value
    _defaultCollationName= value;
     member_changed("defaultCollationName", ovalue, value);
   }
+
+  // events is owned by db_Schema
+  /** Getter for attribute events (read-only)
+   
+    
+   \par In Python:
+value = obj.events
+   */
+  grt::ListRef<db_Event> events() const { return _events; }
+private: // the next attribute is read-only
+  virtual void events(const grt::ListRef<db_Event> &value)
+  {
+    grt::ValueRef ovalue(_events);
+
+    _events= value;
+    owned_member_changed("events", ovalue, value);
+  }
+public:
 
   // routineGroups is owned by db_Schema
   /** Getter for attribute routineGroups (read-only)
@@ -4777,6 +4542,7 @@ protected:
 
   grt::StringRef _defaultCharacterSetName;
   grt::StringRef _defaultCollationName;
+  grt::ListRef<db_Event> _events;// owned
   grt::ListRef<db_RoutineGroup> _routineGroups;// owned
   grt::ListRef<db_Routine> _routines;// owned
   grt::ListRef<db_Sequence> _sequences;// owned
@@ -4820,6 +4586,11 @@ public:
       meta->bind_member("defaultCollationName", new grt::MetaClass::Property<db_Schema,grt::StringRef >(getter,setter));
     }
     {
+      void (db_Schema::*setter)(const grt::ListRef<db_Event> &)= &db_Schema::events;
+      grt::ListRef<db_Event> (db_Schema::*getter)() const= &db_Schema::events;
+      meta->bind_member("events", new grt::MetaClass::Property<db_Schema,grt::ListRef<db_Event> >(getter,setter));
+    }
+    {
       void (db_Schema::*setter)(const grt::ListRef<db_RoutineGroup> &)= &db_Schema::routineGroups;
       grt::ListRef<db_RoutineGroup> (db_Schema::*getter)() const= &db_Schema::routineGroups;
       meta->bind_member("routineGroups", new grt::MetaClass::Property<db_Schema,grt::ListRef<db_RoutineGroup> >(getter,setter));
@@ -4860,6 +4631,312 @@ public:
     meta->bind_method("addNewView", &db_Schema::call_addNewView);
     meta->bind_method("getForeignKeysReferencingTable", &db_Schema::call_getForeignKeysReferencingTable);
     meta->bind_method("removeTable", &db_Schema::call_removeTable);
+  }
+};
+
+
+class  db_Tablespace : public db_DatabaseObject
+{
+  typedef db_DatabaseObject super;
+public:
+  db_Tablespace(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_DatabaseObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+     _autoExtendSize(0),
+     _dataFile(""),
+     _extentSize(0),
+     _initialSize(0),
+     _maxSize(0)
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.Tablespace"; }
+
+  /** Getter for attribute autoExtendSize
+   
+    
+   \par In Python:
+value = obj.autoExtendSize
+   */
+  grt::IntegerRef autoExtendSize() const { return _autoExtendSize; }
+  /** Setter for attribute autoExtendSize
+   
+    
+    \par In Python:
+obj.autoExtendSize = value
+   */
+  virtual void autoExtendSize(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_autoExtendSize);
+   _autoExtendSize= value;
+    member_changed("autoExtendSize", ovalue, value);
+  }
+
+  /** Getter for attribute dataFile
+   
+    
+   \par In Python:
+value = obj.dataFile
+   */
+  grt::StringRef dataFile() const { return _dataFile; }
+  /** Setter for attribute dataFile
+   
+    
+    \par In Python:
+obj.dataFile = value
+   */
+  virtual void dataFile(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_dataFile);
+   _dataFile= value;
+    member_changed("dataFile", ovalue, value);
+  }
+
+  /** Getter for attribute extentSize
+   
+    
+   \par In Python:
+value = obj.extentSize
+   */
+  grt::IntegerRef extentSize() const { return _extentSize; }
+  /** Setter for attribute extentSize
+   
+    
+    \par In Python:
+obj.extentSize = value
+   */
+  virtual void extentSize(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_extentSize);
+   _extentSize= value;
+    member_changed("extentSize", ovalue, value);
+  }
+
+  /** Getter for attribute initialSize
+   
+    
+   \par In Python:
+value = obj.initialSize
+   */
+  grt::IntegerRef initialSize() const { return _initialSize; }
+  /** Setter for attribute initialSize
+   
+    
+    \par In Python:
+obj.initialSize = value
+   */
+  virtual void initialSize(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_initialSize);
+   _initialSize= value;
+    member_changed("initialSize", ovalue, value);
+  }
+
+  // logFileGroup is owned by db_Tablespace
+  /** Getter for attribute logFileGroup
+   
+    the log file group that is used for this tablespace
+   \par In Python:
+value = obj.logFileGroup
+   */
+  db_LogFileGroupRef logFileGroup() const { return _logFileGroup; }
+  /** Setter for attribute logFileGroup
+   
+    the log file group that is used for this tablespace
+    \par In Python:
+obj.logFileGroup = value
+   */
+  virtual void logFileGroup(const db_LogFileGroupRef &value)
+  {
+    grt::ValueRef ovalue(_logFileGroup);
+
+    _logFileGroup= value;
+    owned_member_changed("logFileGroup", ovalue, value);
+  }
+
+  /** Getter for attribute maxSize
+   
+    
+   \par In Python:
+value = obj.maxSize
+   */
+  grt::IntegerRef maxSize() const { return _maxSize; }
+  /** Setter for attribute maxSize
+   
+    
+    \par In Python:
+obj.maxSize = value
+   */
+  virtual void maxSize(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_maxSize);
+   _maxSize= value;
+    member_changed("maxSize", ovalue, value);
+  }
+
+protected:
+
+  grt::IntegerRef _autoExtendSize;
+  grt::StringRef _dataFile;
+  grt::IntegerRef _extentSize;
+  grt::IntegerRef _initialSize;
+  db_LogFileGroupRef _logFileGroup;// owned
+  grt::IntegerRef _maxSize;
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_Tablespace(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_Tablespace::create);
+    {
+      void (db_Tablespace::*setter)(const grt::IntegerRef &)= &db_Tablespace::autoExtendSize;
+      grt::IntegerRef (db_Tablespace::*getter)() const= &db_Tablespace::autoExtendSize;
+      meta->bind_member("autoExtendSize", new grt::MetaClass::Property<db_Tablespace,grt::IntegerRef >(getter,setter));
+    }
+    {
+      void (db_Tablespace::*setter)(const grt::StringRef &)= &db_Tablespace::dataFile;
+      grt::StringRef (db_Tablespace::*getter)() const= &db_Tablespace::dataFile;
+      meta->bind_member("dataFile", new grt::MetaClass::Property<db_Tablespace,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_Tablespace::*setter)(const grt::IntegerRef &)= &db_Tablespace::extentSize;
+      grt::IntegerRef (db_Tablespace::*getter)() const= &db_Tablespace::extentSize;
+      meta->bind_member("extentSize", new grt::MetaClass::Property<db_Tablespace,grt::IntegerRef >(getter,setter));
+    }
+    {
+      void (db_Tablespace::*setter)(const grt::IntegerRef &)= &db_Tablespace::initialSize;
+      grt::IntegerRef (db_Tablespace::*getter)() const= &db_Tablespace::initialSize;
+      meta->bind_member("initialSize", new grt::MetaClass::Property<db_Tablespace,grt::IntegerRef >(getter,setter));
+    }
+    {
+      void (db_Tablespace::*setter)(const db_LogFileGroupRef &)= &db_Tablespace::logFileGroup;
+      db_LogFileGroupRef (db_Tablespace::*getter)() const= &db_Tablespace::logFileGroup;
+      meta->bind_member("logFileGroup", new grt::MetaClass::Property<db_Tablespace,db_LogFileGroupRef >(getter,setter));
+    }
+    {
+      void (db_Tablespace::*setter)(const grt::IntegerRef &)= &db_Tablespace::maxSize;
+      grt::IntegerRef (db_Tablespace::*getter)() const= &db_Tablespace::maxSize;
+      meta->bind_member("maxSize", new grt::MetaClass::Property<db_Tablespace,grt::IntegerRef >(getter,setter));
+    }
+  }
+};
+
+
+class  db_LogFileGroup : public db_DatabaseObject
+{
+  typedef db_DatabaseObject super;
+public:
+  db_LogFileGroup(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_DatabaseObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+     _initialSize(0),
+     _undoBufferSize(0),
+     _undoFile("")
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.LogFileGroup"; }
+
+  /** Getter for attribute initialSize
+   
+    
+   \par In Python:
+value = obj.initialSize
+   */
+  grt::IntegerRef initialSize() const { return _initialSize; }
+  /** Setter for attribute initialSize
+   
+    
+    \par In Python:
+obj.initialSize = value
+   */
+  virtual void initialSize(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_initialSize);
+   _initialSize= value;
+    member_changed("initialSize", ovalue, value);
+  }
+
+  /** Getter for attribute undoBufferSize
+   
+    
+   \par In Python:
+value = obj.undoBufferSize
+   */
+  grt::IntegerRef undoBufferSize() const { return _undoBufferSize; }
+  /** Setter for attribute undoBufferSize
+   
+    
+    \par In Python:
+obj.undoBufferSize = value
+   */
+  virtual void undoBufferSize(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_undoBufferSize);
+   _undoBufferSize= value;
+    member_changed("undoBufferSize", ovalue, value);
+  }
+
+  /** Getter for attribute undoFile
+   
+    
+   \par In Python:
+value = obj.undoFile
+   */
+  grt::StringRef undoFile() const { return _undoFile; }
+  /** Setter for attribute undoFile
+   
+    
+    \par In Python:
+obj.undoFile = value
+   */
+  virtual void undoFile(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_undoFile);
+   _undoFile= value;
+    member_changed("undoFile", ovalue, value);
+  }
+
+protected:
+
+  grt::IntegerRef _initialSize;
+  grt::IntegerRef _undoBufferSize;
+  grt::StringRef _undoFile;
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_LogFileGroup(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_LogFileGroup::create);
+    {
+      void (db_LogFileGroup::*setter)(const grt::IntegerRef &)= &db_LogFileGroup::initialSize;
+      grt::IntegerRef (db_LogFileGroup::*getter)() const= &db_LogFileGroup::initialSize;
+      meta->bind_member("initialSize", new grt::MetaClass::Property<db_LogFileGroup,grt::IntegerRef >(getter,setter));
+    }
+    {
+      void (db_LogFileGroup::*setter)(const grt::IntegerRef &)= &db_LogFileGroup::undoBufferSize;
+      grt::IntegerRef (db_LogFileGroup::*getter)() const= &db_LogFileGroup::undoBufferSize;
+      meta->bind_member("undoBufferSize", new grt::MetaClass::Property<db_LogFileGroup,grt::IntegerRef >(getter,setter));
+    }
+    {
+      void (db_LogFileGroup::*setter)(const grt::StringRef &)= &db_LogFileGroup::undoFile;
+      grt::StringRef (db_LogFileGroup::*getter)() const= &db_LogFileGroup::undoFile;
+      meta->bind_member("undoFile", new grt::MetaClass::Property<db_LogFileGroup,grt::StringRef >(getter,setter));
+    }
   }
 };
 
@@ -5162,6 +5239,325 @@ public:
 };
 
 
+class  db_Event : public db_DatabaseDdlObject
+{
+  typedef db_DatabaseDdlObject super;
+public:
+  db_Event(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_DatabaseDdlObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+     _at(""),
+     _enabled(0),
+     _interval(""),
+     _intervalEnd(""),
+     _intervalStart(""),
+     _intervalUnit(""),
+     _preserved(0),
+     _useInterval(0)
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.Event"; }
+
+  /** Getter for attribute at
+   
+    the expression to define an execution timestamp, mutually exclusive with the interval* members
+   \par In Python:
+value = obj.at
+   */
+  grt::StringRef at() const { return _at; }
+  /** Setter for attribute at
+   
+    the expression to define an execution timestamp, mutually exclusive with the interval* members
+    \par In Python:
+obj.at = value
+   */
+  virtual void at(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_at);
+   _at= value;
+    member_changed("at", ovalue, value);
+  }
+
+  /** Getter for attribute comment
+   
+    
+   \par In Python:
+value = obj.comment
+   */
+  /** Setter for attribute comment
+   
+    
+    \par In Python:
+obj.comment = value
+   */
+
+  /** Getter for attribute definer
+   
+    a full user name ('user'@'host') or CURRENT_USER
+   \par In Python:
+value = obj.definer
+   */
+  /** Setter for attribute definer
+   
+    a full user name ('user'@'host') or CURRENT_USER
+    \par In Python:
+obj.definer = value
+   */
+
+  /** Getter for attribute enabled
+   
+    
+   \par In Python:
+value = obj.enabled
+   */
+  grt::IntegerRef enabled() const { return _enabled; }
+  /** Setter for attribute enabled
+   
+    
+    \par In Python:
+obj.enabled = value
+   */
+  virtual void enabled(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_enabled);
+   _enabled= value;
+    member_changed("enabled", ovalue, value);
+  }
+
+  /** Getter for attribute interval
+   
+    the expression to define an interval, mutually exclusive with the at member
+   \par In Python:
+value = obj.interval
+   */
+  grt::StringRef interval() const { return _interval; }
+  /** Setter for attribute interval
+   
+    the expression to define an interval, mutually exclusive with the at member
+    \par In Python:
+obj.interval = value
+   */
+  virtual void interval(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_interval);
+   _interval= value;
+    member_changed("interval", ovalue, value);
+  }
+
+  /** Getter for attribute intervalEnd
+   
+    optional expression for an end timestamp
+   \par In Python:
+value = obj.intervalEnd
+   */
+  grt::StringRef intervalEnd() const { return _intervalEnd; }
+  /** Setter for attribute intervalEnd
+   
+    optional expression for an end timestamp
+    \par In Python:
+obj.intervalEnd = value
+   */
+  virtual void intervalEnd(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_intervalEnd);
+   _intervalEnd= value;
+    member_changed("intervalEnd", ovalue, value);
+  }
+
+  /** Getter for attribute intervalStart
+   
+    optional expression for a start timestamp
+   \par In Python:
+value = obj.intervalStart
+   */
+  grt::StringRef intervalStart() const { return _intervalStart; }
+  /** Setter for attribute intervalStart
+   
+    optional expression for a start timestamp
+    \par In Python:
+obj.intervalStart = value
+   */
+  virtual void intervalStart(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_intervalStart);
+   _intervalStart= value;
+    member_changed("intervalStart", ovalue, value);
+  }
+
+  /** Getter for attribute intervalUnit
+   
+    one of the interval units, except microseconds, e.g. SECOND, HOUR etc.
+   \par In Python:
+value = obj.intervalUnit
+   */
+  grt::StringRef intervalUnit() const { return _intervalUnit; }
+  /** Setter for attribute intervalUnit
+   
+    one of the interval units, except microseconds, e.g. SECOND, HOUR etc.
+    \par In Python:
+obj.intervalUnit = value
+   */
+  virtual void intervalUnit(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_intervalUnit);
+   _intervalUnit= value;
+    member_changed("intervalUnit", ovalue, value);
+  }
+
+  /** Getter for attribute name
+   
+    
+   \par In Python:
+value = obj.name
+   */
+  /** Setter for attribute name
+   
+    
+    \par In Python:
+obj.name = value
+   */
+
+  /** Getter for attribute preserved
+   
+    0 if the event is automatically dropped after last occurrence
+   \par In Python:
+value = obj.preserved
+   */
+  grt::IntegerRef preserved() const { return _preserved; }
+  /** Setter for attribute preserved
+   
+    0 if the event is automatically dropped after last occurrence
+    \par In Python:
+obj.preserved = value
+   */
+  virtual void preserved(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_preserved);
+   _preserved= value;
+    member_changed("preserved", ovalue, value);
+  }
+
+  /** Getter for attribute sqlBody
+   
+    the sql code to execute on each invocation of the event
+   \par In Python:
+value = obj.sqlBody
+   */
+  /** Setter for attribute sqlBody
+   
+    the sql code to execute on each invocation of the event
+    \par In Python:
+obj.sqlBody = value
+   */
+
+  /** Getter for attribute useInterval
+   
+    1 if to use the interval* members, otherwise for at
+   \par In Python:
+value = obj.useInterval
+   */
+  grt::IntegerRef useInterval() const { return _useInterval; }
+  /** Setter for attribute useInterval
+   
+    1 if to use the interval* members, otherwise for at
+    \par In Python:
+obj.useInterval = value
+   */
+  virtual void useInterval(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_useInterval);
+   _useInterval= value;
+    member_changed("useInterval", ovalue, value);
+  }
+
+protected:
+
+  grt::StringRef _at;
+  grt::IntegerRef _enabled;
+  grt::StringRef _interval;
+  grt::StringRef _intervalEnd;
+  grt::StringRef _intervalStart;
+  grt::StringRef _intervalUnit;
+  grt::IntegerRef _preserved;
+  grt::IntegerRef _useInterval;
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_Event(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_Event::create);
+    {
+      void (db_Event::*setter)(const grt::StringRef &)= &db_Event::at;
+      grt::StringRef (db_Event::*getter)() const= &db_Event::at;
+      meta->bind_member("at", new grt::MetaClass::Property<db_Event,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_Event::*setter)(const grt::StringRef &)= 0;
+      grt::StringRef (db_Event::*getter)() const= 0;
+      meta->bind_member("comment", new grt::MetaClass::Property<db_Event,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_Event::*setter)(const grt::StringRef &)= 0;
+      grt::StringRef (db_Event::*getter)() const= 0;
+      meta->bind_member("definer", new grt::MetaClass::Property<db_Event,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_Event::*setter)(const grt::IntegerRef &)= &db_Event::enabled;
+      grt::IntegerRef (db_Event::*getter)() const= &db_Event::enabled;
+      meta->bind_member("enabled", new grt::MetaClass::Property<db_Event,grt::IntegerRef >(getter,setter));
+    }
+    {
+      void (db_Event::*setter)(const grt::StringRef &)= &db_Event::interval;
+      grt::StringRef (db_Event::*getter)() const= &db_Event::interval;
+      meta->bind_member("interval", new grt::MetaClass::Property<db_Event,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_Event::*setter)(const grt::StringRef &)= &db_Event::intervalEnd;
+      grt::StringRef (db_Event::*getter)() const= &db_Event::intervalEnd;
+      meta->bind_member("intervalEnd", new grt::MetaClass::Property<db_Event,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_Event::*setter)(const grt::StringRef &)= &db_Event::intervalStart;
+      grt::StringRef (db_Event::*getter)() const= &db_Event::intervalStart;
+      meta->bind_member("intervalStart", new grt::MetaClass::Property<db_Event,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_Event::*setter)(const grt::StringRef &)= &db_Event::intervalUnit;
+      grt::StringRef (db_Event::*getter)() const= &db_Event::intervalUnit;
+      meta->bind_member("intervalUnit", new grt::MetaClass::Property<db_Event,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_Event::*setter)(const grt::StringRef &)= 0;
+      grt::StringRef (db_Event::*getter)() const= 0;
+      meta->bind_member("name", new grt::MetaClass::Property<db_Event,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_Event::*setter)(const grt::IntegerRef &)= &db_Event::preserved;
+      grt::IntegerRef (db_Event::*getter)() const= &db_Event::preserved;
+      meta->bind_member("preserved", new grt::MetaClass::Property<db_Event,grt::IntegerRef >(getter,setter));
+    }
+    {
+      void (db_Event::*setter)(const grt::StringRef &)= 0;
+      grt::StringRef (db_Event::*getter)() const= 0;
+      meta->bind_member("sqlBody", new grt::MetaClass::Property<db_Event,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_Event::*setter)(const grt::IntegerRef &)= &db_Event::useInterval;
+      grt::IntegerRef (db_Event::*getter)() const= &db_Event::useInterval;
+      meta->bind_member("useInterval", new grt::MetaClass::Property<db_Event,grt::IntegerRef >(getter,setter));
+    }
+  }
+};
+
+
 class GRT_STRUCTS_DB_PUBLIC db_Trigger : public db_DatabaseDdlObject
 {
   typedef db_DatabaseDdlObject super;
@@ -5447,68 +5843,6 @@ public:
 };
 
 
-class  db_StoredProcedure : public db_Routine
-{
-  typedef db_Routine super;
-public:
-  db_StoredProcedure(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Routine(grt, meta ? meta : grt->get_metaclass(static_class_name()))
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.StoredProcedure"; }
-
-protected:
-
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_StoredProcedure(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_StoredProcedure::create);
-  }
-};
-
-
-class  db_Function : public db_Routine
-{
-  typedef db_Routine super;
-public:
-  db_Function(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Routine(grt, meta ? meta : grt->get_metaclass(static_class_name()))
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.Function"; }
-
-protected:
-
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_Function(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_Function::create);
-  }
-};
-
-
   /** a object that stores information about a database schema view */
 class  db_View : public db_DatabaseDdlObject
 {
@@ -5727,31 +6061,30 @@ inline void register_structs_db_xml()
   grt::internal::ClassRegistry::register_class<db_CharacterSet>();
   grt::internal::ClassRegistry::register_class<db_ForeignKey>();
   grt::internal::ClassRegistry::register_class<db_IndexColumn>();
-  grt::internal::ClassRegistry::register_class<db_Index>();
   grt::internal::ClassRegistry::register_class<db_CheckConstraint>();
   grt::internal::ClassRegistry::register_class<db_UserDatatype>();
   grt::internal::ClassRegistry::register_class<db_SimpleDatatype>();
   grt::internal::ClassRegistry::register_class<db_DatatypeGroup>();
   grt::internal::ClassRegistry::register_class<db_Column>();
-  grt::internal::ClassRegistry::register_class<db_Tablespace>();
-  grt::internal::ClassRegistry::register_class<db_LogFileGroup>();
   grt::internal::ClassRegistry::register_class<db_RolePrivilege>();
   grt::internal::ClassRegistry::register_class<db_Catalog>();
   grt::internal::ClassRegistry::register_class<db_DatabaseObject>();
   grt::internal::ClassRegistry::register_class<db_Sequence>();
   grt::internal::ClassRegistry::register_class<db_Synonym>();
   grt::internal::ClassRegistry::register_class<db_RoutineGroup>();
+  grt::internal::ClassRegistry::register_class<db_Index>();
   grt::internal::ClassRegistry::register_class<db_StructuredDatatype>();
   grt::internal::ClassRegistry::register_class<db_Table>();
   grt::internal::ClassRegistry::register_class<db_ServerLink>();
   grt::internal::ClassRegistry::register_class<db_Schema>();
+  grt::internal::ClassRegistry::register_class<db_Tablespace>();
+  grt::internal::ClassRegistry::register_class<db_LogFileGroup>();
   grt::internal::ClassRegistry::register_class<db_User>();
   grt::internal::ClassRegistry::register_class<db_Role>();
   grt::internal::ClassRegistry::register_class<db_DatabaseDdlObject>();
+  grt::internal::ClassRegistry::register_class<db_Event>();
   grt::internal::ClassRegistry::register_class<db_Trigger>();
   grt::internal::ClassRegistry::register_class<db_Routine>();
-  grt::internal::ClassRegistry::register_class<db_StoredProcedure>();
-  grt::internal::ClassRegistry::register_class<db_Function>();
   grt::internal::ClassRegistry::register_class<db_View>();
 }
 
