@@ -27,13 +27,17 @@
 
       <gstruct name="db.mysql.LogFileGroup" parent="db.LogFileGroup" attr:caption="MySQL Log File Group">
           <members>
-              <member name="engine" type="string"/>
+              <member name="engine" type="string" attr:desc = "usually only NDB makes sense"/>
+              <member name="nodeGroupId" type="int" attr:desc = "a unique id for the group, used in a tablespace"/>
+              <member name="wait" type="int" attr:desc = "no documentation yet"/>
           </members>
       </gstruct>
 
       <gstruct name="db.mysql.Tablespace" parent="db.Tablespace" attr:caption="MySQL Tablespace">
           <members>
-              <member name="engine" type="string"/>
+              <member name="engine" type="string" attr:desc = "usually only NDB makes sense"/>
+              <member name="nodeGroupId" type="int" attr:desc = "the same id as used for a logfile group"/>
+              <member name="wait" type="int" attr:desc = "no documentation yet"/>
           </members>
       </gstruct>
 
@@ -47,6 +51,9 @@
               <member name="indexDirectory" type="string"/>
               <member name="maxRows" type="string"/>
               <member name="minRows" type="string"/>
+			  <member name="tableSpace" type="string"/>
+			  <member name="engine" type="string"/>
+			  <member name="nodeGroupId" type="int"/>
               <member name="subpartitionDefinitions" type="list" content-type="object" content-struct-name="db.mysql.PartitionDefinition" owned="1"/>
           </members>
       </gstruct>
@@ -68,7 +75,7 @@
               <member name="mergeInsert" type="string" attr:editas="hide"/>
               <member name="tableDataDir" type="string"/>
               <member name="tableIndexDir" type="string"/>
-              <member name="packKeys" type="string" attr:editas="hide"/>
+              <member name="packKeys" type="string" attr:editas="hide" attr:desc = "DEFAULT, 0 or 1"/>
               <member name="raidType" type="string" attr:editas="hide"/>
               <member name="raidChunks" type="string" attr:editas="hide"/>
               <member name="raidChunkSize" type="string" attr:editas="hide"/>
@@ -81,12 +88,18 @@
               <member name="connection" type="object" struct-name="db.ServerLink"  owned="1" attr:caption="Server Link" attr:desc="if this is a federated table the connection is set to the server link object" attr:editas="hide"/>
               <member name="connectionString" type="string" attr:desc="if this is a federated table the connection is set to the server link object" attr:editas="hide"/>
               <member name="partitionType" type="string" attr:editas="hide"/>
-              <member name="partitionExpression" type="string" attr:editas="hide"/>
+              <member name="partitionExpression" type="string" attr:editas="hide" attr:desc = "a generic expression or a column list"/>
+			  <member name="partitionKeyAlgorithm" type="int" attr:editas="hide" attr:desc = "algorithm used for KEY partition type, can be 1 or 2"/>
               <member name="partitionCount" type="int" attr:editas="hide"/>
               <member name="subpartitionType" type="string" attr:editas="hide"/>
+			  <member name="subpartitionKeyAlgorithm" type="int" attr:editas="hide" attr:desc = "algorithm used for KEY partition type, can be 1 or 2"/>
               <member name="subpartitionExpression" type="string" attr:editas="hide"/>
               <member name="subpartitionCount" type="int" attr:editas="hide"/>
               <member name="partitionDefinitions" type="list" content-type="object" content-struct-name="db.mysql.PartitionDefinition" owned="1" attr:editas="hide"/>
+              <member name="statsAutoRecalc" type="string" attr:editas="hide" attr:desc = "DEFAULT, 0 or 1"/>
+              <member name="statsPersistent" type="string" attr:editas="hide" attr:desc = "DEFAULT, 0 or 1"/>
+              <member name="statsSamplePages" type="int" attr:editas="hide"/>
+              <member name="tableSpace" type="string" attr:editas="hide"/>
           </members>
       </gstruct>
 
@@ -102,9 +115,11 @@
 
       <gstruct name="db.mysql.Index" parent="db.Index">
           <members>
-              <member name="indexKind" type="string"/>
+              <member name="indexKind" type="string" attr:desc="one of BTREE, RTREE and HASH"/>
               <member name="keyBlockSize" type="int"/>
               <member name="withParser" type="string"/>
+			  <member name="algorithm" type="string" attr:desc = "one of DEFAULT, INPLACE and COPY"/>
+			  <member name="lockOption" type="string" attr:desc = "one of DEFAULT, NONE, SHARED and EXCLUSIVE"/>
               <member name="columns" type="list" content-type="object" content-struct-name="db.mysql.IndexColumn" overrides="db.IndexColumn" owned="1"/>
           </members>
       </gstruct>
@@ -118,6 +133,8 @@
       </gstruct>
 
       <gstruct name="db.mysql.Trigger" parent="db.Trigger" attr:caption="MySQL Trigger"/>
+
+      <gstruct name="db.mysql.Event" parent="db.Event" attr:caption="MySQL Event"/>
 
       <gstruct attr:caption="MySQL View" name="db.mysql.View" parent="db.View"/>
 

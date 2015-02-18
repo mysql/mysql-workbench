@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -128,13 +128,13 @@ namespace MySQL.GUI.Workbench
 
     public void RefreshGUI(RefreshType refresh, String str, IntPtr ptr)
     {
-      if (Closing)
+      if (ShuttingDown)
         return;
 
       switch (refresh)
       {
         case RefreshType.RefreshCloseDocument:
-          Closing = true;
+          ShuttingDown = true;
           break;
 
         case RefreshType.RefreshSelection:
@@ -292,7 +292,7 @@ namespace MySQL.GUI.Workbench
       set { formBE.set_zoom(value); }
     }
 
-    public bool Closing { get; set; }
+    public bool ShuttingDown { get; set; }
 
     #endregion
 

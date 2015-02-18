@@ -56,6 +56,7 @@ BaseEditor::BaseEditor(GRTManager *grtm, const grt::Ref<GrtObject> &object)
 
 BaseEditor::~BaseEditor()
 {
+  //_object->reset_references(); Cannot work. The editor doesn't own the object.
 }
 
 //--------------------------------------------------------------------------------------------------

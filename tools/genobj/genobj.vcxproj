@@ -84,19 +84,18 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\library\base;$(SolutionDir)\..\library\grt\src;$(SolutionDir)\..\..\mysql-win-res\include;$(SolutionDir)\..\..\mysql-win-res\include\glib;$(SolutionDir)\..\..\mysql-win-res\include\libxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../library/base;../../library/grt/src;../../generated;../../modules;$(SolutionDir)..\..\mysql-win-res\include\;$(SolutionDir)..\..\mysql-win-res\include\pcre;$(SolutionDir)..\..\mysql-win-res\include\glib;$(SolutionDir)..\..\mysql-win-res\include\libxml;$(SolutionDir)..\..\mysql-win-res\include\cppconn;$(SolutionDir)..\..\mysql-win-res\include\python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;BASELIBRARY_EXPORTS;MYSQLGRTLIBRARY_EXPORTS;HAVE_ROUND;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(SolutionDir)\..\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>wbpublic.be.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27_d.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\glib\gmodule-2.0.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\bin\$(PlatformTarget)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
     </Link>
@@ -104,19 +103,18 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\library\base;$(SolutionDir)\..\library\grt\src;$(SolutionDir)\..\..\mysql-win-res\include;$(SolutionDir)\..\..\mysql-win-res\include\glib;$(SolutionDir)\..\..\mysql-win-res\include\libxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../library/base;../../library/grt/src;../../generated;../../modules;$(SolutionDir)..\..\mysql-win-res\include\;$(SolutionDir)..\..\mysql-win-res\include\pcre;$(SolutionDir)..\..\mysql-win-res\include\glib;$(SolutionDir)..\..\mysql-win-res\include\libxml;$(SolutionDir)..\..\mysql-win-res\include\cppconn;$(SolutionDir)..\..\mysql-win-res\include\python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;BASELIBRARY_EXPORTS;MYSQLGRTLIBRARY_EXPORTS;HAVE_ROUND;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(SolutionDir)\..\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>wbpublic.be.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27_d.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\glib\gmodule-2.0.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\bin\$(PlatformTarget)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
     </Link>
@@ -125,8 +123,8 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\library\base;$(SolutionDir)\..\library\grt\src;$(SolutionDir)\..\..\mysql-win-res\include;$(SolutionDir)\..\..\mysql-win-res\include\glib;$(SolutionDir)\..\..\mysql-win-res\include\libxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../library/base;../../library/grt/src;../../generated;../../modules;$(SolutionDir)..\..\mysql-win-res\include\;$(SolutionDir)..\..\mysql-win-res\include\pcre;$(SolutionDir)..\..\mysql-win-res\include\glib;$(SolutionDir)..\..\mysql-win-res\include\libxml;$(SolutionDir)..\..\mysql-win-res\include\cppconn;$(SolutionDir)..\..\mysql-win-res\include\python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;BASELIBRARY_EXPORTS;MYSQLGRTLIBRARY_EXPORTS;HAVE_ROUND;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>
@@ -135,9 +133,8 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(SolutionDir)\..\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>wbpublic.be.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\glib\gmodule-2.0.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\bin\$(PlatformTarget)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -148,8 +145,8 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\library\base;$(SolutionDir)\..\library\grt\src;$(SolutionDir)\..\..\mysql-win-res\include;$(SolutionDir)\..\..\mysql-win-res\include\glib;$(SolutionDir)\..\..\mysql-win-res\include\libxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../library/base;../../library/grt/src;../../generated;../../modules;$(SolutionDir)..\..\mysql-win-res\include\;$(SolutionDir)..\..\mysql-win-res\include\pcre;$(SolutionDir)..\..\mysql-win-res\include\glib;$(SolutionDir)..\..\mysql-win-res\include\libxml;$(SolutionDir)..\..\mysql-win-res\include\cppconn;$(SolutionDir)..\..\mysql-win-res\include\python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;BASELIBRARY_EXPORTS;MYSQLGRTLIBRARY_EXPORTS;HAVE_ROUND;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>
@@ -158,9 +155,8 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(SolutionDir)\..\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>wbpublic.be.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\glib\gmodule-2.0.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\bin\$(PlatformTarget)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -168,15 +164,101 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\library\base\config_file.cpp" />
+    <ClCompile Include="..\..\library\base\debugging.cpp" />
+    <ClCompile Include="..\..\library\base\drawing.cpp" />
+    <ClCompile Include="..\..\library\base\file_functions.cpp" />
+    <ClCompile Include="..\..\library\base\file_utilities.cpp" />
+    <ClCompile Include="..\..\library\base\geometry.cpp" />
+    <ClCompile Include="..\..\library\base\log.cpp" />
+    <ClCompile Include="..\..\library\base\notifications.cpp" />
+    <ClCompile Include="..\..\library\base\profiling.cpp" />
+    <ClCompile Include="..\..\library\base\sqlstring.cpp" />
+    <ClCompile Include="..\..\library\base\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\library\base\string_utilities.cpp" />
+    <ClCompile Include="..\..\library\base\threaded_timer.cpp" />
+    <ClCompile Include="..\..\library\base\threading.cpp" />
+    <ClCompile Include="..\..\library\base\ui_form.cpp" />
+    <ClCompile Include="..\..\library\base\util_functions.cpp" />
+    <ClCompile Include="..\..\library\grt\src\diff\changefactory.cpp" />
+    <ClCompile Include="..\..\library\grt\src\diff\changelistobjects.cpp" />
+    <ClCompile Include="..\..\library\grt\src\diff\diffchange.cpp" />
+    <ClCompile Include="..\..\library\grt\src\diff\grtdiff.cpp" />
+    <ClCompile Include="..\..\library\grt\src\diff\grtlistdiff.cpp" />
+    <ClCompile Include="..\..\library\grt\src\grtpp_grt.cpp" />
+    <ClCompile Include="..\..\library\grt\src\grtpp_helper.cpp" />
+    <ClCompile Include="..\..\library\grt\src\grtpp_metaclass.cpp" />
+    <ClCompile Include="..\..\library\grt\src\grtpp_module.cpp" />
+    <ClCompile Include="..\..\library\grt\src\grtpp_module_cpp.cpp" />
+    <ClCompile Include="..\..\library\grt\src\grtpp_module_python.cpp" />
+    <ClCompile Include="..\..\library\grt\src\grtpp_notifications.cpp" />
+    <ClCompile Include="..\..\library\grt\src\grtpp_shell.cpp" />
+    <ClCompile Include="..\..\library\grt\src\grtpp_shell_python.cpp" />
+    <ClCompile Include="..\..\library\grt\src\grtpp_shell_python_help.cpp" />
+    <ClCompile Include="..\..\library\grt\src\grtpp_undo_manager.cpp" />
+    <ClCompile Include="..\..\library\grt\src\grtpp_util.cpp" />
+    <ClCompile Include="..\..\library\grt\src\grtpp_value.cpp" />
+    <ClCompile Include="..\..\library\grt\src\python_context.cpp" />
+    <ClCompile Include="..\..\library\grt\src\python_grtdict.cpp" />
+    <ClCompile Include="..\..\library\grt\src\python_grtlist.cpp" />
+    <ClCompile Include="..\..\library\grt\src\python_grtobject.cpp" />
+    <ClCompile Include="..\..\library\grt\src\python_module.cpp" />
+    <ClCompile Include="..\..\library\grt\src\serializer.cpp" />
+    <ClCompile Include="..\..\library\grt\src\unserializer.cpp" />
     <ClCompile Include="genobj.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\library\base\base.vcxproj">
-      <Project>{c3b85913-b106-40c6-8dde-a7cf52a4ec80}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\library\grt\grt.vcxproj">
-      <Project>{dc1ddaad-7dc1-4bc4-b6c8-b7cec998c7ed}</Project>
-    </ProjectReference>
+    <ClInclude Include="..\..\library\base\base\boost_smart_ptr_helpers.h" />
+    <ClInclude Include="..\..\library\base\base\common.h" />
+    <ClInclude Include="..\..\library\base\base\config_file.h" />
+    <ClInclude Include="..\..\library\base\base\debugging.h" />
+    <ClInclude Include="..\..\library\base\base\drawing.h" />
+    <ClInclude Include="..\..\library\base\base\entities.h" />
+    <ClInclude Include="..\..\library\base\base\file_functions.h" />
+    <ClInclude Include="..\..\library\base\base\file_utilities.h" />
+    <ClInclude Include="..\..\library\base\base\geometry.h" />
+    <ClInclude Include="..\..\library\base\base\log.h" />
+    <ClInclude Include="..\..\library\base\base\notifications.h" />
+    <ClInclude Include="..\..\library\base\base\profiling.h" />
+    <ClInclude Include="..\..\library\base\base\sqlstring.h" />
+    <ClInclude Include="..\..\library\base\base\string_utilities.h" />
+    <ClInclude Include="..\..\library\base\base\threaded_timer.h" />
+    <ClInclude Include="..\..\library\base\base\threading.h" />
+    <ClInclude Include="..\..\library\base\base\trackable.h" />
+    <ClInclude Include="..\..\library\base\base\ui_form.h" />
+    <ClInclude Include="..\..\library\base\base\util_functions.h" />
+    <ClInclude Include="..\..\library\base\base\wb_iterators.h" />
+    <ClInclude Include="..\..\library\base\base\wb_memory.h" />
+    <ClInclude Include="..\..\library\base\stdafx.h" />
+    <ClInclude Include="..\..\library\grt\src\diff\changefactory.h" />
+    <ClInclude Include="..\..\library\grt\src\diff\changelistobjects.h" />
+    <ClInclude Include="..\..\library\grt\src\diff\changeobjects.h" />
+    <ClInclude Include="..\..\library\grt\src\diff\diffchange.h" />
+    <ClInclude Include="..\..\library\grt\src\diff\grtdiff.h" />
+    <ClInclude Include="..\..\library\grt\src\diff\grtlistdiff.h" />
+    <ClInclude Include="..\..\library\grt\src\grtpp.h" />
+    <ClInclude Include="..\..\library\grt\src\grtpp_helper.h" />
+    <ClInclude Include="..\..\library\grt\src\grtpp_module_cpp.h" />
+    <ClInclude Include="..\..\library\grt\src\grtpp_module_python.h" />
+    <ClInclude Include="..\..\library\grt\src\grtpp_notifications.h" />
+    <ClInclude Include="..\..\library\grt\src\grtpp_shell.h" />
+    <ClInclude Include="..\..\library\grt\src\grtpp_shell_python.h" />
+    <ClInclude Include="..\..\library\grt\src\grtpp_shell_python_help.h" />
+    <ClInclude Include="..\..\library\grt\src\grtpp_undo_manager.h" />
+    <ClInclude Include="..\..\library\grt\src\grtpp_util.h" />
+    <ClInclude Include="..\..\library\grt\src\grtpp_value.h" />
+    <ClInclude Include="..\..\library\grt\src\python_context.h" />
+    <ClInclude Include="..\..\library\grt\src\python_grtdict.h" />
+    <ClInclude Include="..\..\library\grt\src\python_grtlist.h" />
+    <ClInclude Include="..\..\library\grt\src\python_grtobject.h" />
+    <ClInclude Include="..\..\library\grt\src\python_module.h" />
+    <ClInclude Include="..\..\library\grt\src\serializer.h" />
+    <ClInclude Include="..\..\library\grt\src\unserializer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
