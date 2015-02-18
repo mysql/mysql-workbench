@@ -724,7 +724,7 @@ class WbAdminConfigFileBE(object):
                             has_value = False
 
                         if current_section == filter_by_section:
-                            option_name = sline[:pos]
+                            option_name = sline[:pos].strip("")
 
                             option = None
                             # Get existing option. We handle all options as multiline.
