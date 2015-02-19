@@ -212,6 +212,9 @@ void TableTemplatePanel::on_action(const std::string &action)
         }
       }
     }
+    else
+      mforms::Utilities::show_message("Empty Selection", "Please select template to be used.", "Ok");
+
   }
 }
 
