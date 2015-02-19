@@ -551,8 +551,29 @@ void SqlEditorForm::sql_editor_panel_switched()
 
 void SqlEditorForm::sql_editor_panel_closed(mforms::AppView *view)
 {
-  if (_tabdock->view_count() == 0 && !_closing)
-    new_sql_scratch_area();
+  if (!_closing)
+  {
+    if (_tabdock->view_count() == 0)
+        new_sql_scratch_area();
+    else if(dynamic_cast<SqlEditorPanel*>(view))
+    {
+      // We check if the tab was closed is SqlEditorPanel if so,
+      // we need to find if there's at least one query tab left if not,
+      // we create new one
+      bool panel_found = false;
+      for (int i = 0; i < _tabdock->view_count(); ++i)
+      {
+        if (sql_editor_panel(i))
+        {
+          panel_found = true;
+          break;
+        }
+      }
+      if (!panel_found)
+        new_sql_scratch_area();
+
+    }
+  }
 }
 
 void SqlEditorForm::save_workspace_order(const std::string &prefix)
