@@ -84,7 +84,7 @@ std::pair<int, int> DockingPoint::get_size()
 
 bool DockingPoint::close_view(AppView *view)
 {
-  if (view->on_close())
+  if (view && view->on_close())
   {
     view->close();
 // the close call should do the undocking
