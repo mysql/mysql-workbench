@@ -1,17 +1,17 @@
-/* Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
-
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; version 2 of the License.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA */
+-- Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
+--
+-- This program is free software; you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation; version 2 of the License.
+--
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+--
+-- You should have received a copy of the GNU General Public License
+-- along with this program; if not, write to the Free Software
+-- Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 DROP PROCEDURE IF EXISTS create_synonym_db;
 
@@ -108,7 +108,7 @@ BEGIN
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
 
-    /* Check if the source database exists */
+    -- Check if the source database exists
     SELECT SCHEMA_NAME INTO v_db_name_check
       FROM INFORMATION_SCHEMA.SCHEMATA
      WHERE SCHEMA_NAME = in_db_name;
@@ -119,7 +119,7 @@ BEGIN
             SET MESSAGE_TEXT = v_db_err_msg;
     END IF;
 
-    /* Check if a database of the synonym name already exists */
+    -- Check if a database of the synonym name already exists
     SELECT SCHEMA_NAME INTO v_db_name_check
       FROM INFORMATION_SCHEMA.SCHEMATA
      WHERE SCHEMA_NAME = in_synonym;
@@ -130,7 +130,7 @@ BEGIN
             SET MESSAGE_TEXT = v_db_err_msg;
     END IF;
 
-    /* All good, create the database and views */
+    -- All good, create the database and views
     SET @create_db_stmt := CONCAT('CREATE DATABASE ', in_synonym);
     PREPARE create_db_stmt FROM @create_db_stmt;
     EXECUTE create_db_stmt;
