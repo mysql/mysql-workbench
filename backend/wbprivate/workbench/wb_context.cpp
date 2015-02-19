@@ -51,6 +51,7 @@
 
 #include "upgrade_helper.h"
 
+#include "grtui/grtdb_connect_dialog.h"
 #include "grtdb/db_helpers.h"
 
 #include "interfaces/interfaces.h"
@@ -3498,6 +3499,19 @@ boost::shared_ptr<SqlEditorForm> WBContext::add_new_query_window(const db_mgmt_C
 {
   db_mgmt_ConnectionRef target(targetConnection);
   
+  if (!target.is_valid())
+  {
+    grtui::DbConnectionDialog dialog(get_root()->rdbmsMgmt());
+    log_debug("No connection specified, showing connection selection dialog...\n");
+    target = dialog.run();
+    if (!target.is_valid())
+    {
+      log_debug("Connection selection dialog was cancelled\n");
+      show_status_text(_("Connection cancelled"));
+      return SqlEditorForm::Ref();
+    }
+  }
+
   show_status_text(_("Opening SQL Editor..."));
   
   SqlEditorForm::Ref form;
@@ -3532,7 +3546,11 @@ boost::shared_ptr<SqlEditorForm> WBContext::add_new_query_window(const db_mgmt_C
   }
   catch (grt::user_cancelled &e)
   {
-    log_info("Connection to %s cancelled by user: %s\n", targetConnection->name().c_str(), e.what());
+    if (target.is_valid())
+      log_info("Connection to %s cancelled by user: %s\n", target->name().c_str(), e.what());
+    else
+      log_info("Connection cancelled by user: %s\n", e.what());
+
     show_status_text(_("Connection cancelled"));
     return SqlEditorForm::Ref();
   }

@@ -63,16 +63,17 @@ def handleContextMenu(name, sender, args):
         else:
             return
 
-    if user_selection['table']:
-        item = mforms.newMenuItem("Table Data Export")
-        item.add_clicked_callback(lambda sender=sender : showPowerExport(sender, user_selection))
-        menu.insert_item(3, item)
-
-    item = mforms.newMenuItem("Table Data Import")
-    item.add_clicked_callback(lambda sender=sender : showPowerImport(sender, user_selection))
-    menu.insert_item(4, item)
+    if user_selection:
+        if user_selection['table']:
+            item = mforms.newMenuItem("Table Data Export")
+            item.add_clicked_callback(lambda sender=sender : showPowerExport(sender, user_selection))
+            menu.insert_item(3, item)
     
-    menu.insert_item(5, mforms.newMenuItem("", mforms.SeparatorMenuItem))
+        item = mforms.newMenuItem("Table Data Import")
+        item.add_clicked_callback(lambda sender=sender : showPowerImport(sender, user_selection))
+        menu.insert_item(4, item)
+        
+        menu.insert_item(5, mforms.newMenuItem("", mforms.SeparatorMenuItem))
     
 class WorkerThread:
     def __init__(self, module):
