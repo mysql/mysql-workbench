@@ -1,17 +1,17 @@
-/* Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
-
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; version 2 of the License.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA */
+-- Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
+--
+-- This program is free software; you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation; version 2 of the License.
+--
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+--
+-- You should have received a copy of the GNU General Public License
+-- along with this program; if not, write to the Free Software
+-- Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 DROP FUNCTION IF EXISTS format_statement;
 
@@ -20,12 +20,16 @@ DELIMITER $$
 CREATE DEFINER='root'@'localhost' FUNCTION format_statement (
         statement LONGTEXT
     )
-    RETURNS VARCHAR(65)
+    RETURNS LONGTEXT
     COMMENT '
              Description
              -----------
 
-             Formats a normalized statement, truncating it if it\'s > 64 characters long.
+             Formats a normalized statement, truncating it if it\'s > 64 characters long by default.
+
+             To configure the length to truncate the statement to by default, update the `statement_truncate_len`
+             variable with `sys_config` table to a different value. Alternatively, to change it just for just 
+             your particular session, use `SET @sys.statement_truncate_len := <some new value>`.
 
              Useful for printing statement related data from Performance Schema from 
              the command line.
@@ -62,11 +66,16 @@ CREATE DEFINER='root'@'localhost' FUNCTION format_statement (
     DETERMINISTIC
     NO SQL
 BEGIN
-  IF LENGTH(statement) > 64 THEN 
-      RETURN REPLACE(CONCAT(LEFT(statement, 30), ' ... ', RIGHT(statement, 30)), '\n', ' ');
+  -- Check if we have the configured length, if not, init it
+  IF @sys.statement_truncate_len IS NULL THEN
+      SET @sys.statement_truncate_len = sys_get_config('statement_truncate_len', 64);
+  END IF;
+
+  IF CHAR_LENGTH(statement) > @sys.statement_truncate_len THEN
+      RETURN REPLACE(CONCAT(LEFT(statement, (@sys.statement_truncate_len/2)-2), ' ... ', RIGHT(statement, (@sys.statement_truncate_len/2)-2)), '\n', ' ');
   ELSE 
       RETURN REPLACE(statement, '\n', ' ');
   END IF;
-END $$
+END$$
 
 DELIMITER ;

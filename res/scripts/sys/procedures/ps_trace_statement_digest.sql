@@ -1,17 +1,17 @@
-/* Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
-
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; version 2 of the License.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA */
+-- Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
+--
+-- This program is free software; you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation; version 2 of the License.
+--
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+--
+-- You should have received a copy of the GNU General Public License
+-- along with this program; if not, write to the Free Software
+-- Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 DROP PROCEDURE IF EXISTS ps_trace_statement_digest;
 
@@ -82,13 +82,13 @@ CREATE DEFINER='root'@'localhost' PROCEDURE ps_trace_statement_digest (
              +------------------------------------------+-------+-----------+
              | event_name                               | count | latency   |
              +------------------------------------------+-------+-----------+
-             | stage/sql/checking query cache for query |    16 | 724.37 µs |
-             | stage/sql/statistics                     |    16 | 546.92 µs |
-             | stage/sql/freeing items                  |    18 | 520.11 µs |
-             | stage/sql/init                           |    51 | 466.80 µs |
+             | stage/sql/checking query cache for query |    16 | 724.37 us |
+             | stage/sql/statistics                     |    16 | 546.92 us |
+             | stage/sql/freeing items                  |    18 | 520.11 us |
+             | stage/sql/init                           |    51 | 466.80 us |
              ...
-             | stage/sql/cleaning up                    |    18 | 11.92 µs  |
-             | stage/sql/executing                      |    16 | 6.95 µs   |
+             | stage/sql/cleaning up                    |    18 | 11.92 us  |
+             | stage/sql/executing                      |    16 | 6.95 us   |
              +------------------------------------------+-------+-----------+
              17 rows in set (9.12 sec)
 
@@ -102,7 +102,7 @@ CREATE DEFINER='root'@'localhost' PROCEDURE ps_trace_statement_digest (
              +-----------+-----------+-----------+-----------+---------------+------------+-----------+
              | thread_id | exec_time | lock_time | rows_sent | rows_examined | tmp_tables | full_scan |
              +-----------+-----------+-----------+-----------+---------------+------------+-----------+
-             |    166646 | 618.43 µs | 1.00 ms   |         0 |             1 |          0 |         0 |
+             |    166646 | 618.43 us | 1.00 ms   |         0 |             1 |          0 |         0 |
              +-----------+-----------+-----------+-----------+---------------+------------+-----------+
              1 row in set (9.16 sec)
 
@@ -117,12 +117,12 @@ CREATE DEFINER='root'@'localhost' PROCEDURE ps_trace_statement_digest (
              +------------------------------------------+-----------+
              | event_name                               | latency   |
              +------------------------------------------+-----------+
-             | stage/sql/init                           | 8.61 µs   |
-             | stage/sql/Waiting for query cache lock   | 453.23 µs |
+             | stage/sql/init                           | 8.61 us   |
+             | stage/sql/Waiting for query cache lock   | 453.23 us |
              | stage/sql/init                           | 331.07 ns |
-             | stage/sql/checking query cache for query | 43.04 µs  |
+             | stage/sql/checking query cache for query | 43.04 us  |
              ...
-             | stage/sql/freeing items                  | 30.46 µs  |
+             | stage/sql/freeing items                  | 30.46 us  |
              | stage/sql/cleaning up                    | 662.13 ns |
              +------------------------------------------+-----------+
              18 rows in set (9.23 sec)
@@ -151,7 +151,7 @@ BEGIN
     SET @log_bin := @@sql_log_bin;
     SET sql_log_bin = 0;
 
-    /* Do not track the current thread, it will kill the stack */
+    -- Do not track the current thread, it will kill the stack
     SELECT INSTRUMENTED INTO v_this_thread_enabed FROM performance_schema.threads WHERE PROCESSLIST_ID = CONNECTION_ID();
     CALL sys.ps_setup_disable_thread(CONNECTION_ID());
 
@@ -286,7 +286,7 @@ BEGIN
     IF v_auto_enable THEN
         CALL sys.ps_setup_reload_saved();
     END IF;
-    /* Restore INSTRUMENTED for this thread */
+    -- Restore INSTRUMENTED for this thread
     IF (v_this_thread_enabed = 'YES') THEN
         CALL sys.ps_setup_enable_thread(CONNECTION_ID());
     END IF;
