@@ -738,10 +738,15 @@ cairo_surface_t* Utilities::load_icon(const std::string& name, bool allow_hidpi)
   if (name.empty())
     return NULL;
 
+#ifdef __APPLE__
+  allow_hidpi = true; // For OSX we always want hires images.
+#endif
+
   if (allow_hidpi && mforms::App::get()->backing_scale_factor() > 1.0)
   {
     std::string hidpi_name = base::strip_extension(name) + "@2x" + base::extension(name);
-    cairo_surface_t *tmp = load_icon(hidpi_name, false);
+    std::string icon_path = App::get()->get_resource_path(hidpi_name);
+    cairo_surface_t *tmp = mdc::surface_from_png_image(icon_path);
     if (tmp)
     {
       // Mark the surface as being a hi-res variant of a standard icon.
@@ -750,8 +755,8 @@ cairo_surface_t* Utilities::load_icon(const std::string& name, bool allow_hidpi)
     }
   }
 
-  std::string icon_path= App::get()->get_resource_path(name);
-  return mdc::surface_from_png_image(icon_path.c_str());
+  std::string icon_path = App::get()->get_resource_path(name);
+  return mdc::surface_from_png_image(icon_path);
 }
 
 //--------------------------------------------------------------------------------------------------
