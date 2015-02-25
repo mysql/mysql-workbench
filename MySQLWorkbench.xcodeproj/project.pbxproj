@@ -13848,7 +13848,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "echo \"Generating swig wrapper...\"\n\nIFS=' ' read -ra header_paths_arr <<< \"$HEADER_SEARCH_PATHS\"\nheader_path_string=\"\"\nfor arg in ${header_paths_arr[@]}; do\n  header_path_string+=\"-I$arg \"\ndone\n\ncd library/forms/swig\n\n# Remove the file or it won't get regenerated.\nrm -f cairo_wrap.cxx\n\n/usr/local/bin/swig ${header_path_string} -DCAIRO_HAS_PNG_FUNCTIONS=1 -w312 -fvirtual -fcompact -c++ -python cairo.i\n\n# hack the generated file to fix some warnings\nsed -e 's/PyErr_Format(PyExc_RuntimeError, mesg);/PyErr_Format(PyExc_RuntimeError, \"%s\", mesg);/' cairo_wrap.cxx > cairo_wrap.tmp\nmv -f cairo_wrap.tmp cairo_wrap.cxx\n";
+			shellScript = "echo \"Generating swig wrapper...\"\n\nIFS=' ' read -ra header_paths_arr <<< \"$HEADER_SEARCH_PATHS\"\nheader_path_string=\"\"\nfor arg in ${header_paths_arr[@]}; do\n  header_path_string+=\"-I$arg \"\ndone\n\ncd library/forms/swig\n\n# Remove the file or it won't get regenerated.\nrm -f cairo_wrap.cxx\n\n/usr/local/bin/swig ${header_path_string} -DCAIRO_HAS_PNG_FUNCTIONS=1 -w312 -fvirtual -fcompact -c++ -DSWIG_PYTHON_LEGACY_BOOL -python cairo.i\n\n# hack the generated file to fix some warnings\nsed -e 's/PyErr_Format(PyExc_RuntimeError, mesg);/PyErr_Format(PyExc_RuntimeError, \"%s\", mesg);/' cairo_wrap.cxx > cairo_wrap.tmp\nmv -f cairo_wrap.tmp cairo_wrap.cxx\n";
 			showEnvVarsInLog = 0;
 		};
 		2B4B52EB122F102000F1EA6B /* Copy Other Resource Data Folders */ = {
@@ -13883,7 +13883,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "echo \"Generating swig wrapper...\"\n\nIFS=' ' read -ra header_paths_arr <<< \"$HEADER_SEARCH_PATHS\"\nheader_path_string=\"\"\nfor arg in ${header_paths_arr[@]}; do\nheader_path_string+=\"-I$arg \"\ndone\n\ncd \"${SRCROOT}/library/forms/swig\"\n\n# Remove the file or it won't get regenerated.\nrm -f mforms_wrap.cxx\n\n/usr/local/bin/swig -I../../../../mysql-mac-res/include -w401,402,509 -fvirtual -fcompact -c++ -python mforms.i\n\n# hack the generated file to fix some warnings\nsed -e 's/PyErr_Format(PyExc_RuntimeError, mesg);/PyErr_Format(PyExc_RuntimeError, \"%s\", mesg);/' mforms_wrap.cxx > mforms_wrap.tmp\nmv -f mforms_wrap.tmp mforms_wrap.cxx\n";
+			shellScript = "echo \"Generating swig wrapper...\"\n\nIFS=' ' read -ra header_paths_arr <<< \"$HEADER_SEARCH_PATHS\"\nheader_path_string=\"\"\nfor arg in ${header_paths_arr[@]}; do\nheader_path_string+=\"-I$arg \"\ndone\n\ncd \"${SRCROOT}/library/forms/swig\"\n\n# Remove the file or it won't get regenerated.\nrm -f mforms_wrap.cxx\n\n/usr/local/bin/swig -I../../../../mysql-mac-res/include -w401,402,509 -fvirtual -fcompact -c++ -DSWIG_PYTHON_LEGACY_BOOL -python mforms.i\n\n# hack the generated file to fix some warnings\nsed -e 's/PyErr_Format(PyExc_RuntimeError, mesg);/PyErr_Format(PyExc_RuntimeError, \"%s\", mesg);/' mforms_wrap.cxx > mforms_wrap.tmp\nmv -f mforms_wrap.tmp mforms_wrap.cxx\n";
 			showEnvVarsInLog = 0;
 		};
 		2BAD7913156B29810025F13F /* Setup config Header */ = {
