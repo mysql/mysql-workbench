@@ -724,7 +724,7 @@ class WbAdminConfigFileBE(object):
                             has_value = False
 
                         if current_section == filter_by_section:
-                            option_name = sline[:pos].strip("")
+                            option_name = sline[:pos].strip()
 
                             option = None
                             # Get existing option. We handle all options as multiline.
@@ -956,6 +956,7 @@ class WbAdminConfigFileBE(object):
     def get_options(self, section):
         options = []
         for (name, opt) in self.original_opts.iteritems():
+            name = name.strip()
             if opt.section == section:
                 if self.changeset.has_key(name):
                     options.append((name, self.changeset[name].value))
