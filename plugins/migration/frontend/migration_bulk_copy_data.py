@@ -166,7 +166,7 @@ class SourceRDBMSMysql(SourceRDBMS):
         if self.source_os == 'windows':
             return 'mysqldump.exe --login-path=wb_migration_source -t  -T. %(source_schema)s %(source_table)s --fields-terminated-by=,' % dict(table.items() + connection_args.items())
         else:
-            return 'MYSQL_PWD=$arg_source_password mysqldump -h127.0.0.1 -P%(source_port)s -u%(source_user)s -t  -T. %(source_schema)s %(source_table)s --fields-terminated-by=\',\'' % dict(table.items() + connection_args.items())
+            return 'MYSQL_PWD=$arg_source_password mysqldump -h127.0.0.1 -P%(source_port)s -u%(source_user)s -t  -T/tmp %(source_schema)s %(source_table)s --fields-terminated-by=\',\'' % dict(table.items() + connection_args.items())
 
     def get_cfg_editor_cmd(self, connection_args):
         if self.source_os == 'windows':
@@ -316,6 +316,14 @@ fi
 
 
         f.write('MYPATH=`pwd`\n')
+        
+        for table in tables:
+            f.write('if [ -f /tmp/%s.txt ];\n' % table['source_table'])
+            f.write('then\n')
+            f.write('   echo "File /tmp/%s.txt already exists. You should remove file before running this script."\n' % table['source_table'])
+            f.write('   exit 1\n')
+            f.write('fi\n')
+        
         f.write('pushd /tmp\n')
         f.write('echo [%d %%] Creating directory %s\n' % (progress, dir_name))
         f.write('mkdir %s\n' % dir_name)
@@ -333,8 +341,11 @@ fi
         for table in tables:
             f.write('%s\n' % source_rdbms.get_copy_table_cmd(table, connection_args))
             if isinstance(source_rdbms, SourceRDBMSMysql):
-                f.write('mv %s.txt %s.csv\n' % (table['source_table'], table['source_table']))
-                f.write('rm %s.sql\n' % table['source_table'])
+                f.write('cp /tmp/%s.txt %s.csv\n' % (table['source_table'], table['source_table']))
+                f.write('if [ -f /tmp/%s.sql ];\n' % table['source_table'])
+                f.write('then\n')
+                f.write('   rm /tmp/%s.sql\n' % table['source_table'])
+                f.write('fi\n')
             f.write('echo "%s" >> %s\n' % (import_script.get_import_cmd(table, '%s.csv' % (table['source_table'])), import_sql_file_name))
             progress = progress + 1
             f.write('echo [%d %%] Dumped table %s\n' % (progress * 100 / total_progress, table['source_table']))
@@ -389,9 +400,19 @@ fi
 """)
 
 
+        f.write('MYPATH=`pwd`\n')
+        
+        for table in tables:
+            f.write('if [ -f /tmp/%s.txt ];\n' % table['source_table'])
+            f.write('then\n')
+            f.write('   echo "File /tmp/%s.txt already exists. You should remove file before running this script."\n' % table['source_table'])
+            f.write('   exit 1\n')
+            f.write('fi\n')
+        
+        f.write('pushd /tmp\n')
         f.write('echo [%d %%] Creating directory %s\n' % (progress, dir_name))
         f.write('mkdir %s\n' % dir_name)
-        f.write('cd %s\n' % dir_name)
+        f.write('pushd %s\n' % dir_name)
 
         progress = progress + 1
 
@@ -404,32 +425,37 @@ fi
 
         for table in tables:
             f.write('%s\n' % source_rdbms.get_copy_table_cmd(table, connection_args))
-            if isinstance(source_rdbms, SourceRDBMSMys):
-                f.write('mv %s.txt %s.csv\n' % (table['source_table'], table['source_table']))
-                f.write('rm %s.sql\n' % table['source_table'])
+            if isinstance(source_rdbms, SourceRDBMSMysql):
+                f.write('cp /tmp/%s.txt %s.csv\n' % (table['source_table'], table['source_table']))
+                f.write('if [ -f /tmp/%s.sql ];\n' % table['source_table'])
+                f.write('then\n')
+                f.write('   rm /tmp/%s.sql\n' % table['source_table'])
+                f.write('fi\n')
             f.write('echo "%s" >> %s\n' % (import_script.get_import_cmd(table, '%s.csv' % (table['source_table'])), import_sql_file_name))
             progress = progress + 1
             f.write('echo [%d %%] Dumped table %s\n' % (progress * 100 / total_progress, table['source_table']))
 
         f.write('touch %s\n' % import_file_name)
         if isinstance(import_script, ImportScriptDarwin) or isinstance(import_script, ImportScriptLinux):
-            f.write('chmod +x %s' % import_file_name)
+            f.write('chmod +x %s\n' % import_file_name)
         import_file_lines = import_script.generate_import_script(connection_args, import_sql_file_name, target_schema)
         for line in import_file_lines:
             f.write('echo "%s" >> %s\n' % (line, import_file_name))
-    
+
         progress = progress + 1
         f.write('echo [%d %%] Generated import script %s\n' % (progress * 100 / total_progress, import_file_name))
-    
-        f.write('cd ..\n')
+
+        f.write('popd\n')
         f.write('zip -r %s.zip %s\n' % (dir_name, dir_name))
-    
+
         progress = progress + 1
         f.write('echo [%d %%] Zipped all files to %s.zip file\n' % (progress * 100 / total_progress, dir_name))
-        
+
         f.write('rm -rf %s\n' % dir_name)
-    
-        f.write('echo Now you can copy %s.zip file to the target server, unzip it and run the import script.\n' % dir_name)
+        f.write('cp %s.zip $MYPATH\n' % dir_name)
+        f.write('popd\n')
+
+        f.write('echo Now you can copy $MYPATH/%s.zip file to the target server, unzip it and run the import script.\n' % dir_name)
         f.write('read -p "Press [Enter] key to continue..."')
 
 
