@@ -339,10 +339,21 @@ class csv_module(base_module):
                                         quotechar = self.options['encolsestring']['value'], quoting = csv.QUOTE_NONNUMERIC)
                     output.writerow([value['name'].encode('utf-8') for value in self._columns])
                     ok = rset.goToFirstRow()
+                    
+                    # Because there's no realiable way to use offset only, we'll do this here.
+                    offset = 0
+                    if self._offset and not self._limit:
+                        offset = self._offset
+                    i = 0
                     while ok:
                         if self._thread_event and self._thread_event.is_set():
                             log_debug2("Worker thread was stopped by user")
                             break
+
+                        i += 1
+                        if offset > 0 and i <= offset:
+                            ok = rset.nextRow()
+                            continue
 
                         self._current_row = rset.currentRow + 1
                         row = []
@@ -381,13 +392,13 @@ class csv_module(base_module):
             try:
                 is_header = self.has_header
                 reader = UniReader(csvfile, self.dialect, encoding=self._encoding)
-                
+                self._max_rows = os.path.getsize(self._filepath)
                 for row in reader:
                     if self._thread_event and self._thread_event.is_set():
                         log_debug2("Worker thread was stopped by user")
                         break
-                    
-                    self._current_row = reader.line_num
+
+                    self._current_row = csvfile.tell()
                     if is_header:
                         is_header = False
                         continue
@@ -501,10 +512,21 @@ class json_module(base_module):
                 jsonfile.write('[')
                 ok = rset.goToFirstRow()
                 self._max_rows = rset.rowCount
+                
+                # Because there's no realiable way to use offset only, we'll do this here.
+                offset = 0
+                if self._offset and not self._limit:
+                    offset = self._offset
+                i = 0
                 while ok:
                     if self._thread_event and self._thread_event.is_set():
                         log_debug2("Worker thread was stopped by user")
                         break
+
+                    i += 1
+                    if offset > 0 and i <= offset:
+                        ok = rset.nextRow()
+                        continue
 
                     self._current_row = rset.currentRow + 1
                     row = []
@@ -660,7 +682,7 @@ class SimpleTabExport(mforms.Box):
         
         limit_box = mforms.newBox(True)
         limit_box.set_spacing(8)
-        limit_box.add(mforms.newLabel("Limit: "), False, False)
+        limit_box.add(mforms.newLabel("Count: "), False, False)
         self.limit_entry = mforms.newTextEntry()
         self.limit_entry.set_size(50, -1)
         self.limit_entry.add_changed_callback(lambda entry=self.limit_entry: self.entry_changed(entry))
@@ -668,7 +690,7 @@ class SimpleTabExport(mforms.Box):
         
         offset_box = mforms.newBox(True)
         offset_box.set_spacing(8)
-        offset_box.add(mforms.newLabel("Offset: "), False, False)
+        offset_box.add(mforms.newLabel("Row Offset: "), False, False)
         self.offset_entry = mforms.newTextEntry()
         self.offset_entry.set_size(50, -1)
         self.offset_entry.add_changed_callback(lambda entry=self.offset_entry: self.entry_changed(entry))
@@ -807,7 +829,7 @@ class PowerExport(mforms.Form):
         lbl_format_box.set_spacing(8)
         lbl_format_box.add(mforms.newLabel("Please select the output format:"), False, True)
         self.btn_show_advanced_options = mforms.newButton(mforms.ToolButton)
-        self.btn_show_advanced_options.set_icon(mforms.App.get().get_resource_path("admin_option_file.png"))
+        self.btn_show_advanced_options.set_icon(mforms.App.get().get_resource_path("admin_opton_file.png"))
         def show_hide_opt_panel(show):
             self.optpanel.show(show)
             self.optpanel.relayout()
@@ -953,8 +975,8 @@ class PowerExport(mforms.Form):
                 mod.set_user_query(uquery)
         else:
             mod.set_user_query(None)
-            mod.set_limit(self.simpleTab.limit_entry.get_string_value())
-            mod.set_offset(self.simpleTab.offset_entry.get_string_value())
+            mod.set_limit(int(self.simpleTab.limit_entry.get_string_value()) if self.simpleTab.limit_entry.get_string_value() else 0)
+            mod.set_offset(int(self.simpleTab.offset_entry.get_string_value()) if self.simpleTab.offset_entry.get_string_value() else 0)
             cols = []
             for r in range(self.simpleTab.column_list.count()):
                 node = self.simpleTab.column_list.node_at_row(r)

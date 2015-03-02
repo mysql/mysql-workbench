@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -244,7 +244,7 @@ static void filechooser_set_path(mforms::FileChooser *self, const std::string &p
 }
 
 
-static void filechooser_set_extensions(mforms::FileChooser *self, const std::string &extensions, const std::string &default_extension)
+static void filechooser_set_extensions(mforms::FileChooser *self, const std::string &extensions, const std::string &default_extension, bool allow_all_file_types = true)
 {
   MFFileChooserImpl *chooser= self->get_data();
   if (chooser)

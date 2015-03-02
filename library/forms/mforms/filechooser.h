@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -46,7 +46,7 @@ namespace mforms {
     void (*set_path)(FileChooser *self, const std::string &path);
     std::string (*get_directory)(FileChooser *self);
     std::string (*get_path)(FileChooser *self);
-    void (*set_extensions)(FileChooser *self, const std::string &extensions, const std::string &default_extension);
+    void (*set_extensions)(FileChooser *self, const std::string &extensions, const std::string &default_extension, bool allow_all_file_types);
 
     void (*add_selector_option)(FileChooser *self, const std::string &name, 
         const std::string &label, const std::vector<std::pair<std::string, std::string> > &options);
@@ -102,7 +102,7 @@ namespace mforms {
      The format is "Foo files (*.foo)|*.foo|SQL Scripts (*.sql)|*.sql"
      default_extension selects the default (ie "foo")
      */
-    void set_extensions(const std::string &extensions, const std::string &default_extension);
+    void set_extensions(const std::string &extensions, const std::string &default_extension, bool allow_all_file_types = true);
     
     /** Adds a selector type option to the file dialog, with the givan label and list of value caption/identifiers.
      If name is 'format', the option is treated as a file extension, where the identifier of the option is the file extension */

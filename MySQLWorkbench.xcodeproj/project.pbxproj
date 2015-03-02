@@ -2585,6 +2585,12 @@
 		2BFBF09E0F51BEB10016F9D1 /* MySQLViewEditor.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2BFBF09D0F51BEB10016F9D1 /* MySQLViewEditor.xib */; };
 		2BFBF0A10F51BF2D0016F9D1 /* MySQLViewEditor.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BFBF0A00F51BF2D0016F9D1 /* MySQLViewEditor.mm */; };
 		2BFDB83516C00F6A00D0C5A8 /* libvsqlitepp.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BFDB83416C00F6500D0C5A8 /* libvsqlitepp.0.dylib */; };
+		44FFC3D51AA0BA1F00950A48 /* sqlide_power_export_wizard.py in Resources */ = {isa = PBXBuildFile; fileRef = 44FFC3D21AA0BA1F00950A48 /* sqlide_power_export_wizard.py */; };
+		44FFC3D61AA0BA1F00950A48 /* sqlide_power_import_export_be.py in Resources */ = {isa = PBXBuildFile; fileRef = 44FFC3D31AA0BA1F00950A48 /* sqlide_power_import_export_be.py */; };
+		44FFC3D71AA0BA1F00950A48 /* sqlide_power_import_wizard.py in Resources */ = {isa = PBXBuildFile; fileRef = 44FFC3D41AA0BA1F00950A48 /* sqlide_power_import_wizard.py */; };
+		44FFC3D81AA0BC3A00950A48 /* sqlide_power_export_wizard.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 44FFC3D21AA0BA1F00950A48 /* sqlide_power_export_wizard.py */; };
+		44FFC3D91AA0BC3A00950A48 /* sqlide_power_import_export_be.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 44FFC3D31AA0BA1F00950A48 /* sqlide_power_import_export_be.py */; };
+		44FFC3DA1AA0BC3A00950A48 /* sqlide_power_import_wizard.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 44FFC3D41AA0BA1F00950A48 /* sqlide_power_import_wizard.py */; };
 		75C847F51067E9C70067947D /* opts.py in Resources */ = {isa = PBXBuildFile; fileRef = 75C847F21067E9C70067947D /* opts.py */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		ED08ADAA1A144435001DBE04 /* wb_fabric_interface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ED08ADA81A144435001DBE04 /* wb_fabric_interface.cpp */; };
@@ -3579,6 +3585,9 @@
 			dstPath = plugins;
 			dstSubfolderSpec = 7;
 			files = (
+				44FFC3D81AA0BC3A00950A48 /* sqlide_power_export_wizard.py in Copy Files (python plugins) */,
+				44FFC3D91AA0BC3A00950A48 /* sqlide_power_import_export_be.py in Copy Files (python plugins) */,
+				44FFC3DA1AA0BC3A00950A48 /* sqlide_power_import_wizard.py in Copy Files (python plugins) */,
 				27CD25191A6AAB83009DB982 /* migration_schema_mappings.py in Copy Files (python plugins) */,
 				27CD25181A6AAB5B009DB982 /* migration_bulk_copy_data.py in Copy Files (python plugins) */,
 				278A085919BC85410084C2F4 /* wb_docs_grt.py in Copy Files (python plugins) */,
@@ -6499,6 +6508,9 @@
 		2BFC2E9916D3C6A500C73F61 /* wba_audit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = wba_audit; path = plugins/wb.admin/internal/wba_audit; sourceTree = "<group>"; };
 		2BFDB83416C00F6500D0C5A8 /* libvsqlitepp.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvsqlitepp.0.dylib; path = "../mysql-mac-res/lib/libvsqlitepp.0.dylib"; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* MySQLWorkbench_Prefix.pch */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; path = MySQLWorkbench_Prefix.pch; sourceTree = "<group>"; };
+		44FFC3D21AA0BA1F00950A48 /* sqlide_power_export_wizard.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = sqlide_power_export_wizard.py; path = plugins/wb.sqlide/sqlide_power_export_wizard.py; sourceTree = "<group>"; };
+		44FFC3D31AA0BA1F00950A48 /* sqlide_power_import_export_be.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = sqlide_power_import_export_be.py; path = plugins/wb.sqlide/sqlide_power_import_export_be.py; sourceTree = "<group>"; };
+		44FFC3D41AA0BA1F00950A48 /* sqlide_power_import_wizard.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = sqlide_power_import_wizard.py; path = plugins/wb.sqlide/sqlide_power_import_wizard.py; sourceTree = "<group>"; };
 		7508826212F7240E00216C47 /* wb_admin_ui_profile.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb_admin_ui_profile.py; path = plugins/wb.admin/frontend/wb_admin_ui_profile.py; sourceTree = "<group>"; };
 		75522B8D10877DD30077082A /* wb_admin_ssh.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb_admin_ssh.py; path = plugins/wb.admin/backend/wb_admin_ssh.py; sourceTree = "<group>"; };
 		75C847F21067E9C70067947D /* opts.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = opts.py; path = plugins/wb.admin/backend/opts.py; sourceTree = "<group>"; };
@@ -9034,6 +9046,9 @@
 		2B6C6FBB16C0BDD500C4CC98 /* wb.sqlide */ = {
 			isa = PBXGroup;
 			children = (
+				44FFC3D21AA0BA1F00950A48 /* sqlide_power_export_wizard.py */,
+				44FFC3D31AA0BA1F00950A48 /* sqlide_power_import_export_be.py */,
+				44FFC3D41AA0BA1F00950A48 /* sqlide_power_import_wizard.py */,
 				279E7BE51A69238F00F5B79A /* sqlide_power_import_export.py */,
 				2B33A4711999B62A00412802 /* sqlide_import_spatial.py */,
 				2B6C6FC416C0BFB100C4CC98 /* text_output.py */,
@@ -13534,6 +13549,7 @@
 				2B15CC01171F2AB900EEF0EA /* wb_tile_time.png in Resources */,
 				2B15CC02171F2AB900EEF0EA /* wb_tile_user.png in Resources */,
 				270CE08A1725409000BEDDDD /* wb_close.png in Resources */,
+				44FFC3D71AA0BA1F00950A48 /* sqlide_power_import_wizard.py in Resources */,
 				2B15CCF8172ADF0D00EEF0EA /* wb_lock.png in Resources */,
 				2B15CCF9172ADF0D00EEF0EA /* wb_lock@2x.png in Resources */,
 				27F2E99F1A65CE7D00BD2996 /* ac_table.png in Resources */,
@@ -13554,6 +13570,7 @@
 				2BF049221739925E00A7EA35 /* mysql-logo-55.png in Resources */,
 				2BF049231739925E00A7EA35 /* mysql-logo-55@2x.png in Resources */,
 				2B85653D183ADE2D0081D52E /* dashboard_arrow_in_static.png in Resources */,
+				44FFC3D61AA0BA1F00950A48 /* sqlide_power_import_export_be.py in Resources */,
 				2BF049241739925E00A7EA35 /* mysql-logo-56.png in Resources */,
 				2BF049251739925E00A7EA35 /* mysql-logo-56@2x.png in Resources */,
 				2BF049261739925E00A7EA35 /* mysql-logo-57.png in Resources */,
@@ -13595,6 +13612,7 @@
 				2BF04997174E559C00A7EA35 /* title_startup.png in Resources */,
 				2BF04998174E559C00A7EA35 /* title_startup@2x.png in Resources */,
 				2B4BCE3418478FEE00865D37 /* title_dashboard.png in Resources */,
+				44FFC3D51AA0BA1F00950A48 /* sqlide_power_export_wizard.py in Resources */,
 				2BF04999174E559C00A7EA35 /* title_users.png in Resources */,
 				2BF0499A174E559C00A7EA35 /* title_users@2x.png in Resources */,
 				2BF0499B174E559C00A7EA35 /* title_variables.png in Resources */,

@@ -231,6 +231,15 @@ bool GridView::on_key_press_event(GdkEventKey *event)
   {
     switch (event->keyval)
     {
+      case GDK_Menu:
+      {
+        if (_context_menu)
+          _context_menu->popup();
+        else if (!_context_menu_responder.empty())
+          _context_menu_responder();
+        processed = true;
+        break;
+      }
       case GDK_Up:
       case GDK_Down:
       case GDK_Left:
