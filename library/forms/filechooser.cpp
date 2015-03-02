@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -84,9 +84,9 @@ std::string FileChooser::get_directory()
   return _filechooser_impl->get_directory(this);
 }
 
-void FileChooser::set_extensions(const std::string &extensions, const std::string &default_extension)
+void FileChooser::set_extensions(const std::string &extensions, const std::string &default_extension, bool allow_all_file_types)
 {
-  _filechooser_impl->set_extensions(this, extensions, default_extension);
+  _filechooser_impl->set_extensions(this, extensions, default_extension, allow_all_file_types);
 }
 
 void FileChooser::add_selector_option(const std::string &name, const std::string &label, const StringPairVector &options)

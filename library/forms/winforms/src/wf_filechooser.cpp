@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -227,7 +227,7 @@ void FileChooserWrapper::set_path(mforms::FileChooser *backend, const std::strin
 //-------------------------------------------------------------------------------------------------
 
 void FileChooserWrapper::set_extensions(mforms::FileChooser *backend, const std::string &extensions, 
-  const std::string &default_extension)
+  const std::string &default_extension, bool allow_all_file_types)
 {
   FileChooserWrapper *wrapper = backend->get_data<FileChooserWrapper>();
 
@@ -237,7 +237,10 @@ void FileChooserWrapper::set_extensions(mforms::FileChooser *backend, const std:
   case mforms::SaveFile:
     {
       FileDialog ^dialog = wrapper->GetManagedObject<FileDialog>();
-      std::string all_extensions = extensions +  "|All Files (*.*)|*.*"; // Add the "All Files" filter by default
+      std::string all_extensions = extensions;
+      if (allow_all_file_types)
+        all_extensions +=  "|All Files (*.*)|*.*"
+
       dialog->AddExtension = true;
       dialog->DefaultExt = CppStringToNativeRaw(default_extension);
       dialog->Filter = CppStringToNative(all_extensions);

@@ -1710,7 +1710,17 @@ void TreeNodeViewImpl::on_collapsed(const Gtk::TreeModel::iterator& iter, const 
 bool TreeNodeViewImpl::on_key_release(GdkEventKey *ev)
 {
   mforms::TreeNodeView* tv = dynamic_cast<mforms::TreeNodeView*>(owner);
-  TreeNodeRef node = this->get_selected_node(tv);
+    TreeNodeRef node = this->get_selected_node(tv);
+  if (ev->keyval == GDK_Menu)
+  {
+    mforms::TreeNodeView* tv = dynamic_cast<mforms::TreeNodeView*>(owner);
+    if (tv)
+    {
+      tv->get_context_menu()->popup_at(mforms::gtk::ViewImpl::get_view_for_widget(this->get_outer()), base::Point(0, 0)); //gtk will handle position automagically
+      return false;
+    }
+  }
+
   if (!node.is_valid())
     return false;
 
