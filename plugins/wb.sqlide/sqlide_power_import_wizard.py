@@ -348,7 +348,6 @@ class ConfigurationPage(WizardPage):
         
         type_items = {'is_string':'text', 'is_number':'int', 'is_float':'double', 'is_bin':'binary', 'is_date_or_time': 'datetime'}
         def create_select_type(row):
-            
             def sel_changed(sel, output):
                 selection = sel.get_string_value()
                 for v in type_items:
@@ -372,7 +371,7 @@ class ConfigurationPage(WizardPage):
             sel.set_size(120, -1)
             
             sel.add_items(type_items.values())
-            for i, v in enumerate(type_items):
+            for i, v in enumerate(type_items.values()):
                 if row['type'] in v:
                     sel.set_selected(i)
                     break
@@ -404,10 +403,7 @@ class ConfigurationPage(WizardPage):
         self.preview_table = mforms.newTable()
         self.preview_table.suspend_layout()
         self.column_scroll.add(self.preview_table)
-        
-        
-        
-        
+
         self.preview_table.set_column_count(5)
         self.preview_table.set_row_count(len(self.active_module._columns) + 1)
         self.preview_table.set_row_spacing(8)
@@ -479,7 +475,7 @@ class ConfigurationPage(WizardPage):
             for row in col_values:
                 node = self.treeview_preview.add_node()
                 for i, col in enumerate(row):
-                    node.set_string(i, col)
+                    node.set_string(i, str(col))
 
         self.treeview_preview.set_allow_sorting(True)
         self.treeview_preview.set_size(200, 100)
@@ -686,8 +682,6 @@ class SelectFileWizardPage(WizardPage):
         entry_box.add(self.importfile_browse_btn, False, False)
 
         self.content.add(entry_box, False, True)
-
-
 
     def go_cancel(self):
         self.main.close()
