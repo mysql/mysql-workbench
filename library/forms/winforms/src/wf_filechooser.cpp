@@ -239,7 +239,7 @@ void FileChooserWrapper::set_extensions(mforms::FileChooser *backend, const std:
       FileDialog ^dialog = wrapper->GetManagedObject<FileDialog>();
       std::string all_extensions = extensions;
       if (allow_all_file_types)
-        all_extensions +=  "|All Files (*.*)|*.*"
+        all_extensions +=  "|All Files (*.*)|*.*";
 
       dialog->AddExtension = true;
       dialog->DefaultExt = CppStringToNativeRaw(default_extension);
