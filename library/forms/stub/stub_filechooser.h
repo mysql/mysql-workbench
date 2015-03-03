@@ -83,7 +83,7 @@ class FileChooserWrapper : public ViewWrapper
     return "";
   }
 
-  static void set_extensions(FileChooser *self, const std::string &extensions, const std::string &default_extension)
+  static void set_extensions(FileChooser *self, const std::string &extensions, const std::string &default_extension, bool allow_all_file_types = true)
   {
   }
 
