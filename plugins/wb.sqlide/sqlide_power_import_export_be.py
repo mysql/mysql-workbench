@@ -103,9 +103,45 @@ class base_module:
         self._encoding = 'utf-8' #default encoding
         self._force_drop_table = False
         self._truncate_table = False
+        self._type_map = {'text':'is_string', 'int': 'is_number', 'double':'is_float'}
         self.is_running = False
         self.progress_info = None
         self.item_count = 0
+
+    def guess_type(self, vals):
+        def is_float(v):
+            v = str(v)
+            try:
+                if "%s" % float(v) == v:
+                    return True
+                return False
+            except:
+                return False
+        
+        def is_int(v):
+            v = str(v)
+            try:
+                if "%s" % int(v) == v:
+                    return True
+                return False
+            except:
+                return False
+        
+        cur_type = None
+        for v in vals:
+            if is_int(v):
+                if not cur_type:
+                    cur_type = "int"
+                continue
+    
+            if is_float(v):
+                if cur_type in [None, "int"]:
+                    cur_type = "double"
+                continue
+            cur_type = "text"
+            break
+        return cur_type
+
         
     def update_progress(self, pct, msg):
         if self.progress_info:
@@ -326,7 +362,6 @@ class csv_module(base_module):
                         i += 1
                         if offset > 0 and i <= offset:
                             ok = rset.nextRow()
-                            print "4"
                             continue
                         self.item_count = self.item_count + 1 
                         self._current_row = float(rset.currentRow + 1)
@@ -444,14 +479,7 @@ class csv_module(base_module):
                 
                 if row:
                     for col_value in row:
-                        col = {'name': None, 'type': None, 'is_string': None, 'is_number': None, 'is_date_or_time': None, 'is_bin': None, 'value': []}
-                        col['name'] = col_value 
-                        col['type'] = "varchar"
-                        col['is_number'] = False
-                        col['is_float'] = False 
-                        col['is_string'] = True
-                        col['is_bin'] = False  
-                        self._columns.append(col)
+                        self._columns.append({'name': col_value, 'type': 'text', 'is_string': True, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'value': []})
 
                     for i, row in enumerate(reader): #we will read only first few rows
                         if i < 5:
@@ -459,6 +487,18 @@ class csv_module(base_module):
                                 self._columns[j]['value'].append(col_value)
                         else:
                             break
+                    for col in self._columns:
+                        gtype = self.guess_type(col['value'])
+                        if gtype not in self._type_map:
+                            raise Exception("Unhandled type: %s in %s" % (gtype, self._type_map))
+                        else:
+                            col['type'] = gtype
+                            for attrib in col:
+                                if attrib.startswith("is_"):
+                                    if attrib == self._type_map[gtype]:
+                                        col[attrib] = True
+                                    else:
+                                        col[attrib] = False
 
             except (UnicodeError, UnicodeDecodeError), e:
                 import traceback
@@ -594,6 +634,7 @@ class json_module(base_module):
             stropen = False
             inside = 0
             datachunk = []
+            rowcount = 0 
             while True:
                 if f.tell() >= 4096:
                     log_error("Json file contains data that's in unknown structure: %s" % (self._filepath))
@@ -609,13 +650,14 @@ class json_module(base_module):
                     if c == '{' and prevchar != '\\':
                         inside = inside + 1
                     if c == '}' and prevchar != '\\':
-                        if inside != 1:
-                            inside = inside - 1
-                        else:
-                            datachunk.append(c)
-                            datachunk.append(']')
-                            break
-            
+                        inside = inside - 1
+                        if inside == 0:
+                            if rowcount >= 4:
+                                datachunk.append(c)
+                                datachunk.append(']')
+                                break
+                            else:
+                                rowcount = rowcount + 1 
                 datachunk.append(c)
                 prevchar = c
             try:
@@ -624,15 +666,32 @@ class json_module(base_module):
                 log_error("Unable to parse json file: %s,%s " % (self._filepath, e))
                 self._last_analyze = False
                 return False
-        if len(data) != 1:
+        if len(data) == 0:
             log_error("Json file contains no data, or data is inalivd: %s" % (self._filepath))
             self._last_analyze = False
             return False
         
         self._columns = []
         for elem in data[0]:
-            self._columns.append({'name': elem, 'type': 'varchar', 'is_string': True, 'is_number': False, 'is_date_or_time': None, 'is_bin': False, 'is_float':False, 'value': [data[0][elem]]})
+            self._columns.append({'name': elem, 'type': 'text', 'is_string': True, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'value': []})
 
+        for row in data:
+            for i, elem in enumerate(row):
+                self._columns[i]['value'].append(row[elem])
+                
+        for col in self._columns:
+            gtype = self.guess_type(col['value'])
+            if gtype not in self._type_map:
+                raise Exception("Unhandled type: %s in %s" % (gtype, self._type_map))
+            else:
+                col['type'] = gtype
+                for attrib in col:
+                    if attrib.startswith("is_"):
+                        if attrib == self._type_map[gtype]:
+                            col[attrib] = True
+                        else:
+                            col[attrib] = False
+        
         self._last_analyze = True
         return True
         
