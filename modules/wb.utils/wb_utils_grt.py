@@ -33,6 +33,11 @@ import mforms
 
 from grt import log_warning
 from workbench.log import log_info, log_error, log_debug, log_debug2
+import traceback
+
+from workbench.ui import WizardForm, WizardPage, WizardProgressPage
+from mforms import newButton, newCheckBox, newTreeNodeView
+from mforms import FileChooser
 
 # define this Python module as a GRT module
 ModuleInfo = DefineModule(name= "PyWbUtils", author= "Sun Microsystems Inc.", version="1.0")
@@ -627,11 +632,6 @@ def checkForUpdates():
 
 
 
-from workbench.ui import WizardForm, WizardPage, WizardProgressPage
-from mforms import newButton, newCheckBox, newTreeNodeView
-from mforms import FileChooser
-
-
 class SSLWizard_GenerationTask:
     def __init__(self, main, path):
         self.main = main
@@ -644,6 +644,10 @@ class SSLWizard_GenerationTask:
     
     def verify_preconditions(self):
         try:
+            if not os.path.exists(self.main.certificates_root) or not os.path.isdir(self.main.certificates_root):
+                log_info("Creating certificates toor directory[%s]" % self.main.certificates_root)
+                os.mkdir(self.main.certificates_root, 0700)
+            
             if os.path.exists(self.path) and not os.path.isdir(self.path):
                 self.display_error("Checking requirements", "The selected path is a file. You should select a directory.")
                 return False
@@ -655,7 +659,7 @@ class SSLWizard_GenerationTask:
                 
             return True
         except OSError, e:
-            self.display_error("Create directory", "There was an error (%d)" % e.errno)
+            self.display_error("Create directory", "There was an error (%d) - %s\n%s" % (e.errno, str(e), str(traceback.format_exc())))
             if e.errno == 17:
                 return True
                 #raise
@@ -762,6 +766,7 @@ class SSLWizard_GenerationTask:
 
       
     def run(self):
+        self.result = False
         if not self.verify_preconditions():
             return False
         
@@ -1012,7 +1017,8 @@ class SSLWizard(WizardForm):
 
         self.conn = conn
         self.conn_id = conn_id
-        self.results_path = os.path.join(os.path.join(mforms.App.get().get_user_data_folder(), "certificates"), self.conn_id)
+        self.certificates_root = os.path.join(mforms.App.get().get_user_data_folder(), "certificates")
+        self.results_path = os.path.join(self.certificates_root, self.conn_id)
         
         self.set_title("SSL Wizard")
 
@@ -1046,7 +1052,6 @@ class SSLWizard(WizardForm):
         self.options_page.generate_files.add_clicked_callback(lambda: self.generate_page.skip_page(not self.options_page.generate_files.get_active()))
         self.options_page.generate_files.add_clicked_callback(lambda: self.parameters_page.skip_page(self.options_page.use_default_parameters.get_active() or not self.options_page.generate_files.get_active()))
 
-import traceback
 @ModuleInfo.plugin("wb.tools.generateSSLCertificates", caption="Generate SSL Certificates...", groups=["Others/Menu/Ungrouped"])
 @ModuleInfo.export(grt.INT, mforms.Form, grt.classes.db_mgmt_Connection, grt.STRING)
 def generateCertificates(parent, conn, conn_id):
