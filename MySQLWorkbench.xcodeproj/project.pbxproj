@@ -408,7 +408,6 @@
 		27C9C9E81095DEA900C0004C /* home_screen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27C9C9E61095DEA900C0004C /* home_screen.cpp */; };
 		27CAD24D16C24A9A00A4FA02 /* wb_sql_editor_help.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAD24B16C24A9A00A4FA02 /* wb_sql_editor_help.cpp */; };
 		27CAD24E16C24A9A00A4FA02 /* wb_sql_editor_help.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CAD24C16C24A9A00A4FA02 /* wb_sql_editor_help.h */; };
-		27CD25131A6A9600009DB982 /* sqlide_power_import_export.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 279E7BE51A69238F00F5B79A /* sqlide_power_import_export.py */; };
 		27CD25181A6AAB5B009DB982 /* migration_bulk_copy_data.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 27CD25141A6A9807009DB982 /* migration_bulk_copy_data.py */; };
 		27CD25191A6AAB83009DB982 /* migration_schema_mappings.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 27CD25151A6A9807009DB982 /* migration_schema_mappings.py */; };
 		27CD3E9C18E3253000CDBD39 /* myx_sql_parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CD3E9A18E3253000CDBD39 /* myx_sql_parser.cpp */; };
@@ -3655,7 +3654,6 @@
 				278A089719BC85410084C2F4 /* sqlide_import_spatial.py in Copy Files (python plugins) */,
 				278A089819BC85410084C2F4 /* text_output.py in Copy Files (python plugins) */,
 				278A089919BC85410084C2F4 /* sqlide_grt.py in Copy Files (python plugins) */,
-				27CD25131A6A9600009DB982 /* sqlide_power_import_export.py in Copy Files (python plugins) */,
 				278A089A19BC85410084C2F4 /* run_script.py in Copy Files (python plugins) */,
 				278A089B19BC85410084C2F4 /* sql_reformatter.py in Copy Files (python plugins) */,
 				278A089C19BC85410084C2F4 /* sqlide_catalogman_ext.py in Copy Files (python plugins) */,
@@ -4188,7 +4186,6 @@
 		2798BFA7118AF2BC0090590E /* MHudController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MHudController.h; path = library/forms/cocoa/MHudController.h; sourceTree = "<group>"; };
 		2798BFA8118AF2BC0090590E /* MHudController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MHudController.mm; path = library/forms/cocoa/MHudController.mm; sourceTree = "<group>"; };
 		2798BFA9118AF2BC0090590E /* WizardWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = WizardWindow.xib; path = library/forms/cocoa/WizardWindow.xib; sourceTree = "<group>"; };
-		279E7BE51A69238F00F5B79A /* sqlide_power_import_export.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = sqlide_power_import_export.py; path = plugins/wb.sqlide/sqlide_power_import_export.py; sourceTree = "<group>"; };
 		279EC88B185214A6007D1252 /* wb-toolbar_automatic-help-off.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "wb-toolbar_automatic-help-off.png"; path = "images/toolbar/wb-toolbar_automatic-help-off.png"; sourceTree = "<group>"; };
 		279EC88C185214A6007D1252 /* wb-toolbar_automatic-help-off@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "wb-toolbar_automatic-help-off@2x.png"; path = "images/toolbar/wb-toolbar_automatic-help-off@2x.png"; sourceTree = "<group>"; };
 		279EC88D185214A6007D1252 /* wb-toolbar_automatic-help-on.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "wb-toolbar_automatic-help-on.png"; path = "images/toolbar/wb-toolbar_automatic-help-on.png"; sourceTree = "<group>"; };
@@ -9049,7 +9046,6 @@
 				44FFC3D21AA0BA1F00950A48 /* sqlide_power_export_wizard.py */,
 				44FFC3D31AA0BA1F00950A48 /* sqlide_power_import_export_be.py */,
 				44FFC3D41AA0BA1F00950A48 /* sqlide_power_import_wizard.py */,
-				279E7BE51A69238F00F5B79A /* sqlide_power_import_export.py */,
 				2B33A4711999B62A00412802 /* sqlide_import_spatial.py */,
 				2B6C6FC416C0BFB100C4CC98 /* text_output.py */,
 				2B6C6FBC16C0BE4B00C4CC98 /* sqlide_grt.py */,
