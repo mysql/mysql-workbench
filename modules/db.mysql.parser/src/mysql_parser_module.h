@@ -172,7 +172,7 @@ public:
       const std::string &sql);
 
     virtual size_t parseSQLIntoCatalog(parser::ParserContext::Ref context, db_mysql_CatalogRef catalog,
-      const std::string &sql);
+      const std::string &sql, grt::DictRef options);
 
     size_t doSyntaxCheck(parser_ContextReferenceRef context_ref, const std::string &sql, const std::string &type);
     virtual size_t checkSqlSyntax(parser::ParserContext::Ref context, const char *sql,

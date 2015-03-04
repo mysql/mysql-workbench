@@ -107,7 +107,7 @@ public:
   virtual size_t parseTablespace(parser::ParserContext::Ref context, db_mysql_TablespaceRef tablespace, const std::string &sql) = 0;
 
   virtual size_t parseSQLIntoCatalog(parser::ParserContext::Ref context, db_mysql_CatalogRef catalog,
-    const std::string &sql) = 0;
+    const std::string &sql, grt::DictRef options) = 0;
 
   virtual size_t checkSqlSyntax(ParserContext::Ref context, const char *sql, size_t length, MySQLQueryType type) = 0;
   virtual size_t renameSchemaReferences(parser::ParserContext::Ref context, db_mysql_CatalogRef catalog,
