@@ -20,7 +20,7 @@ import mforms
 
 class WizardForm(mforms.Form):
     def __init__(self, owner_form):
-        mforms.Form.__init__(self, owner_form, mforms.FormStayOnTop)
+        mforms.Form.__init__(self, owner_form)
 
         self.pages = []
 
