@@ -29,6 +29,9 @@
 #include "mforms/utilities.h"
 #include "mforms/checkbox.h"
 #include "mforms/textbox.h"
+#include <app.h>
+
+#include <file_utilities.h>
 
 #include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 
@@ -830,6 +833,12 @@ void DbConnectPanel::launch_ssl_wizard()
   _connection->update();
 }
 
+void DbConnectPanel::open_ssl_wizard_directory()
+{
+  std::string path = base::join_path(mforms::App::get()->get_user_data_folder().c_str(), "certificates", get_connection()->id().c_str(), "");
+  Utilities::open_url(path);
+}
+
 
 db_mgmt_ConnectionRef DbConnectPanel::open_editor()
 {
@@ -1087,6 +1096,10 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
       if (driver_param->object()->name() == "sslWizard")
       {
         scoped_connect(btn->signal_clicked(),boost::bind(&DbConnectPanel::launch_ssl_wizard, this));
+      }
+      else if (driver_param->object()->name() == "openSSLWizardDirectory")
+      {
+        scoped_connect(btn->signal_clicked(),boost::bind(&DbConnectPanel::open_ssl_wizard_directory, this));
       }
       
       break;

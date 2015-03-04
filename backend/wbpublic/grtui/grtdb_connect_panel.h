@@ -166,6 +166,7 @@ private:
   void reset_stored_conn_list();
   
   void launch_ssl_wizard();
+  void open_ssl_wizard_directory();
 
   grt::ListRef<db_mgmt_Connection> connection_list();
   

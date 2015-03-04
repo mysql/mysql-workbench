@@ -873,6 +873,21 @@ ciphers to use for SSL encryption.</value>
             <value type="dict" content-type="string" key="paramTypeDetails"/>
             <value type="int" key="required">0</value>
           </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl6">
+            <value type="string" key="caption">Files ...</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description"></value>
+            <value type="int" key="layoutAdvanced">2</value>
+            <value type="int" key="layoutRow">-1</value>
+            <value type="int" key="layoutWidth">120</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">openSSLWizardDirectory</value>
+            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+            <value type="string" key="paramType">button</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
         </value>
       </value>
       <value type="object" struct-name="db.mgmt.Driver" id="com.mysql.rdbms.mysql.driver.native_socket">
