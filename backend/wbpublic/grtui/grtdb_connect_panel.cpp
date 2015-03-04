@@ -836,7 +836,12 @@ void DbConnectPanel::launch_ssl_wizard()
 void DbConnectPanel::open_ssl_wizard_directory()
 {
   std::string path = base::join_path(mforms::App::get()->get_user_data_folder().c_str(), "certificates", get_connection()->id().c_str(), "");
-  Utilities::open_url(path);
+  
+  if (base::is_directory(path))
+    Utilities::open_url(path);
+  else
+    mforms::Utilities::show_warning(_("Cannot Open Directory"), _("The directory that should contain the files does not exist yet. Maybe you need to run the SSL Wizard first."), _("OK"));
+  
 }
 
 

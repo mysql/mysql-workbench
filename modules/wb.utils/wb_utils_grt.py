@@ -783,6 +783,9 @@ class SSLWizard_IntroPage(WizardPage):
     def __init__(self, owner):
         WizardPage.__init__(self, owner, "Welcome to MySQL Workbench SSL Wizard")
 
+    def go_cancel(self):
+        self.main.finish()
+
     def create_ui(self):
         box = mforms.newBox(False)
         box.set_padding(20)
@@ -817,6 +820,9 @@ class SSLWizard_OptionsPage(WizardPage):
         self.clear_button = newButton()
         self.clear_button.set_text("Clear")
         self.clear_button.add_clicked_callback(self.clear_button_clicked)
+
+    def go_cancel(self):
+        self.main.finish()
 
     def check_all_files_availability(self):
         if not os.path.isfile(os.path.join(self.main.results_path, "ca-cert.pem")):
@@ -875,6 +881,9 @@ class SSLWizard_ParametersPage(WizardPage):
         row, self.email_address = self.add_label_row(row, "Email Address:", "")
         row, self.common_name = self.add_label_row(row, "Common:", "eg, put the FQDN of the server\nto allow server address validation")
 
+    def go_cancel(self):
+        self.main.finish()
+
     def add_label_row(self, row, label, help):
         control = mforms.newTextEntry()
         self.table.add(mforms.newLabel(label, True), 0, 1, row, row+1, mforms.HFillFlag)
@@ -932,6 +941,9 @@ class SSLWizard_GeneratePage(WizardPage):
         label = mforms.newLabel("The wizard is ready to generate the files for you. Click next to generate the certificates and self-signed key files...")
 
         self.content.add(label, False, True)
+
+    def go_cancel(self):
+        self.main.finish()
 
     def go_next(self):
         log_debug2("Setting up in path %s\n" % self.main.results_path)
