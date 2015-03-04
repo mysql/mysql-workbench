@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,6 +38,7 @@ namespace MySQL {
       static void set_visible_scrollers(mforms::ScrollPanel *backend, bool, bool);
       static void scroll_to_view(mforms::ScrollPanel *backend, mforms::View *view);
       static base::Rect get_content_rect(mforms::ScrollPanel *backend);
+      static void scroll_to(mforms::ScrollPanel *backend, int x, int y);
     public:
 
       static void init();

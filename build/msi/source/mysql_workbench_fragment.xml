@@ -1688,7 +1688,9 @@
                   <File Id="file614025" Name="wb_server_management.py"/>
                   <File Id="file614026" Name="wb_server_control.py"/>
                   <File Id="file614027" Name="sqlide_grt.py"/>
-                  <File Id="file614028" Name="sqlide_power_import_export.py"/>
+                  <File Id="file6140281" Name="sqlide_power_import_wizard.py"/>
+                  <File Id="file6140282" Name="sqlide_power_export_wizard.py"/>
+                  <File Id="file6140283" Name="sqlide_power_import_export_be.py"/>
                   <File Id="file614029" Name="text_grt.py"/>
                   <File Id="file614030" Name="wba_monitor_be.py"/>
                   <File Id="file614031" Name="wba_ssh_ui.py"/>

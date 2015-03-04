@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -658,6 +658,17 @@ base::Rect ScrollPanelWrapper::get_content_rect(mforms::ScrollPanel *backend)
 
 //--------------------------------------------------------------------------------------------------
 
+void ScrollPanelWrapper::scroll_to(mforms::ScrollPanel *backend, int x, int y)
+{
+  ScrollPanelWrapper *wrapper = backend->get_data<ScrollPanelWrapper>();
+
+  // The backend works with positive offsets while we need negative ones (which is correct
+  // from a coordinate system view point as the offset defines a translation in the view space).
+  wrapper->container->SetOffset(-x, -y);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void ScrollPanelWrapper::init()
 {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
@@ -669,6 +680,7 @@ void ScrollPanelWrapper::init()
   f->_spanel_impl.set_autohide_scrollers = &ScrollPanelWrapper::set_autohide_scrollers;
   f->_spanel_impl.scroll_to_view = &ScrollPanelWrapper::scroll_to_view;
   f->_spanel_impl.get_content_rect = &ScrollPanelWrapper::get_content_rect;
+  f->_spanel_impl.scroll_to = &ScrollPanelWrapper::scroll_to;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -76,38 +76,60 @@ class ImportScriptWindows(ImportScript):
 
 class ImportScriptLinux(ImportScript):
     def get_import_cmd(self, table, path_to_file):
-        return "LOAD DATA INFILE '%s' INTO TABLE %s FIELDS TERMINATED BY ',' ENCLOSED BY '';" % (path_to_file, table['target_table'])
+        return "LOAD DATA INFILE '%s_#####_import/%s' INTO TABLE %s FIELDS TERMINATED BY ',' ENCLOSED BY '';" % (table['target_schema'], path_to_file, table['target_table'])
 
     def get_script_ext(self): 
         return 'sh'
 
     def generate_import_script(self, connection_args, path_to_file, schema_name):
         output = ['#!/bin/bash']
+        output.append('MYPATH=\`pwd\`')
         output.append("TARGET_DIR=\`MYSQL_PWD=$arg_target_password mysql -h127.0.0.1 -P%s -u%s -s -N information_schema -e 'SELECT Variable_Value FROM GLOBAL_VARIABLES WHERE Variable_Name = \\\"datadir\\\"'\`" % (connection_args['target_port'], connection_args['target_user']))
-        output.append('cp *.csv \$TARGET_DIR/%s/' % schema_name)
+        output.append('pushd \$TARGET_DIR')
+        
+        output.append('mkdir %s_#####_import' % schema_name)
+        
+        output.append('cp \$MYPATH/*.csv %s_#####_import/' % schema_name)
+        output.append('cp \$MYPATH/*.sql %s_#####_import/' % schema_name)
+        
         output.append('echo Started load data. Please wait.')
-        output.append('MYSQL_PWD=$arg_target_password mysql -h127.0.0.1 -P%s -u%s < %s' % (connection_args['target_port'], connection_args['target_user'], path_to_file))
+        output.append('MYSQL_PWD=$arg_target_password mysql -h127.0.0.1 -P%s -u%s < %s_#####_import/%s' % (connection_args['target_port'], connection_args['target_user'], schema_name, path_to_file))
         output.append('echo Finished load data')
-        #output.append('read -p "Press [Enter] key to continue..."')
+        
+        output.append('rm -rf %s_#####_import' % schema_name)
+        
+        output.append('popd')
+        #output.append('read -p Press [Enter] key to continue...')
         return output
 
 
 
 class ImportScriptDarwin(ImportScript):
     def get_import_cmd(self, table, path_to_file):
-        return "LOAD DATA INFILE '%s' INTO TABLE %s FIELDS TERMINATED BY ',' ENCLOSED BY '';" % (path_to_file, table['target_table'])
+        return "LOAD DATA INFILE '%s_#####_import/%s' INTO TABLE %s FIELDS TERMINATED BY ',' ENCLOSED BY '';" % (table['target_schema'], path_to_file, table['target_table'])
 
     def get_script_ext(self): 
         return 'sh'
 
     def generate_import_script(self, connection_args, path_to_file, schema_name):
         output = ['#!/bin/bash']
+        output.append('MYPATH=\`pwd\`')
         output.append("TARGET_DIR=\`MYSQL_PWD=$arg_target_password mysql -h127.0.0.1 -P%s -u%s -s -N information_schema -e 'SELECT Variable_Value FROM GLOBAL_VARIABLES WHERE Variable_Name = \\\"datadir\\\"'\`" % (connection_args['target_port'], connection_args['target_user']))
-        output.append('cp *.csv \$TARGET_DIR/%s/' % schema_name)
+        output.append('pushd \$TARGET_DIR')
+        
+        output.append('mkdir %s_#####_import' % schema_name)
+        
+        output.append('cp \$MYPATH/*.csv %s_#####_import/' % schema_name)
+        output.append('cp \$MYPATH/*.sql %s_#####_import/' % schema_name)
+        
         output.append('echo Started load data. Please wait.')
-        output.append('MYSQL_PWD=$arg_target_password mysql -h127.0.0.1 -P%s -u%s < %s' % (connection_args['target_port'], connection_args['target_user'], path_to_file))
+        output.append('MYSQL_PWD=$arg_target_password mysql -h127.0.0.1 -P%s -u%s < %s_#####_import/%s' % (connection_args['target_port'], connection_args['target_user'], schema_name, path_to_file))
         output.append('echo Finished load data')
-        #output.append('read -p "Press [Enter] key to continue..."')
+        
+        output.append('rm -rf %s_#####_import' % schema_name)
+        
+        output.append('popd')
+        #output.append('read -p Press [Enter] key to continue...')
         return output
 
 
@@ -124,6 +146,8 @@ class SourceRDBMS:
             return SourceRDBMSMysql(source_os)
         elif source_rdbms == 'postgresql':
             return SourceRDBMSPostgresql(source_os)
+        elif source_rdbms == 'sqlanywhere':
+            return SourceRDBMSSqlAnywhere(source_os)
         else:
             return None
 
@@ -142,7 +166,7 @@ class SourceRDBMSMysql(SourceRDBMS):
         if self.source_os == 'windows':
             return 'mysqldump.exe --login-path=wb_migration_source -t  -T. %(source_schema)s %(source_table)s --fields-terminated-by=,' % dict(table.items() + connection_args.items())
         else:
-            return 'MYSQL_PWD=$arg_source_password mysqldump -h127.0.0.1 -P%(source_port)s -u%(source_user)s -t  -T. %(source_schema)s %(source_table)s --fields-terminated-by=\',\'' % dict(table.items() + connection_args.items())
+            return 'MYSQL_PWD=$arg_source_password mysqldump -h127.0.0.1 -P%(source_port)s -u%(source_user)s -t  -T/tmp %(source_schema)s %(source_table)s --fields-terminated-by=\',\'' % dict(table.items() + connection_args.items())
 
     def get_cfg_editor_cmd(self, connection_args):
         if self.source_os == 'windows':
@@ -152,6 +176,14 @@ class SourceRDBMSMysql(SourceRDBMS):
 class SourceRDBMSPostgresql(SourceRDBMS):
     def get_copy_table_cmd(self, table, connection_args):
         return 'psql -U %(source_user)s -d %(source_schema)s -c "COPY %(source_table)s TO stdout DELIMITER \',\';" > %(source_table)s.csv' % dict(table.items() + connection_args.items())
+
+
+class SourceRDBMSSqlAnywhere(SourceRDBMS):
+    def get_copy_table_cmd(self, table, connection_args):
+        if self.source_os == 'windows':
+            return """dbisql.exe -c "DBN=%(source_schema)s;UID=%(source_user)s;PWD=%arg_source_password%" "SELECT * FROM %(source_table)s; OUTPUT TO '%(source_table)s.csv' FORMAT TEXT DELIMITED BY ',' QUOTE '';""" % dict(table.items() + connection_args.items())
+        else:
+            return """dbisql -c "DBN=%(source_schema)s;UID=%(source_user)s;PWD=$arg_source_password" "SELECT * FROM %(source_table)s; OUTPUT TO '%(source_table)s.csv' FORMAT TEXT DELIMITED BY ',' QUOTE '';""" % dict(table.items() + connection_args.items())
 
 
 
@@ -253,7 +285,7 @@ class DataCopyScriptWindows(DataCopyScript):
         f.write('rmdir %s\r\n' % dir_name)
         f.write('popd\r\n')
     
-        f.write('echo Now you can copy %%MYPATH%%%s.zip file to target server and run import script.\r\n' % dir_name)
+        f.write('echo Now you can copy %%MYPATH%%%s.zip file to the target server and run the import script.\r\n' % dir_name)
         f.write('pause\r\n')
 
 
@@ -283,9 +315,19 @@ fi
 """)
 
 
+        f.write('MYPATH=`pwd`\n')
+        
+        for table in tables:
+            f.write('if [ -f /tmp/%s.txt ];\n' % table['source_table'])
+            f.write('then\n')
+            f.write('   echo "File /tmp/%s.txt already exists. You should remove file before running this script."\n' % table['source_table'])
+            f.write('   exit 1\n')
+            f.write('fi\n')
+        
+        f.write('pushd /tmp\n')
         f.write('echo [%d %%] Creating directory %s\n' % (progress, dir_name))
         f.write('mkdir %s\n' % dir_name)
-        f.write('cd %s\n' % dir_name)
+        f.write('pushd %s\n' % dir_name)
 
         progress = progress + 1
 
@@ -299,15 +341,18 @@ fi
         for table in tables:
             f.write('%s\n' % source_rdbms.get_copy_table_cmd(table, connection_args))
             if isinstance(source_rdbms, SourceRDBMSMysql):
-                f.write('mv %s.txt %s.csv\n' % (table['source_table'], table['source_table']))
-                f.write('rm %s.sql\n' % table['source_table'])
+                f.write('cp /tmp/%s.txt %s.csv\n' % (table['source_table'], table['source_table']))
+                f.write('if [ -f /tmp/%s.sql ];\n' % table['source_table'])
+                f.write('then\n')
+                f.write('   rm /tmp/%s.sql\n' % table['source_table'])
+                f.write('fi\n')
             f.write('echo "%s" >> %s\n' % (import_script.get_import_cmd(table, '%s.csv' % (table['source_table'])), import_sql_file_name))
             progress = progress + 1
             f.write('echo [%d %%] Dumped table %s\n' % (progress * 100 / total_progress, table['source_table']))
 
         f.write('touch %s\n' % import_file_name)
         if isinstance(import_script, ImportScriptDarwin) or isinstance(import_script, ImportScriptLinux):
-            f.write('chmod +x %s' % import_file_name)
+            f.write('chmod +x %s\n' % import_file_name)
         import_file_lines = import_script.generate_import_script(connection_args, import_sql_file_name, target_schema)
         for line in import_file_lines:
             f.write('echo "%s" >> %s\n' % (line, import_file_name))
@@ -315,15 +360,17 @@ fi
         progress = progress + 1
         f.write('echo [%d %%] Generated import script %s\n' % (progress * 100 / total_progress, import_file_name))
 
-        f.write('cd ..\n')
+        f.write('popd\n')
         f.write('zip -r %s.zip %s\n' % (dir_name, dir_name))
 
         progress = progress + 1
         f.write('echo [%d %%] Zipped all files to %s.zip file\n' % (progress * 100 / total_progress, dir_name))
 
         f.write('rm -rf %s\n' % dir_name)
+        f.write('cp %s.zip $MYPATH\n' % dir_name)
+        f.write('popd\n')
 
-        f.write('echo Now you can copy %s.zip file to target server, unzip it and run import script.\n' % dir_name)
+        f.write('echo Now you can copy $MYPATH/%s.zip file to the target server, unzip it and run the import script.\n' % dir_name)
         f.write('read -p "Press [Enter] key to continue..."')
 
 
@@ -353,9 +400,19 @@ fi
 """)
 
 
+        f.write('MYPATH=`pwd`\n')
+        
+        for table in tables:
+            f.write('if [ -f /tmp/%s.txt ];\n' % table['source_table'])
+            f.write('then\n')
+            f.write('   echo "File /tmp/%s.txt already exists. You should remove file before running this script."\n' % table['source_table'])
+            f.write('   exit 1\n')
+            f.write('fi\n')
+        
+        f.write('pushd /tmp\n')
         f.write('echo [%d %%] Creating directory %s\n' % (progress, dir_name))
         f.write('mkdir %s\n' % dir_name)
-        f.write('cd %s\n' % dir_name)
+        f.write('pushd %s\n' % dir_name)
 
         progress = progress + 1
 
@@ -368,32 +425,37 @@ fi
 
         for table in tables:
             f.write('%s\n' % source_rdbms.get_copy_table_cmd(table, connection_args))
-            if isinstance(source_rdbms, SourceRDBMSMys):
-                f.write('mv %s.txt %s.csv\n' % (table['source_table'], table['source_table']))
-                f.write('rm %s.sql\n' % table['source_table'])
+            if isinstance(source_rdbms, SourceRDBMSMysql):
+                f.write('cp /tmp/%s.txt %s.csv\n' % (table['source_table'], table['source_table']))
+                f.write('if [ -f /tmp/%s.sql ];\n' % table['source_table'])
+                f.write('then\n')
+                f.write('   rm /tmp/%s.sql\n' % table['source_table'])
+                f.write('fi\n')
             f.write('echo "%s" >> %s\n' % (import_script.get_import_cmd(table, '%s.csv' % (table['source_table'])), import_sql_file_name))
             progress = progress + 1
             f.write('echo [%d %%] Dumped table %s\n' % (progress * 100 / total_progress, table['source_table']))
 
         f.write('touch %s\n' % import_file_name)
         if isinstance(import_script, ImportScriptDarwin) or isinstance(import_script, ImportScriptLinux):
-            f.write('chmod +x %s' % import_file_name)
+            f.write('chmod +x %s\n' % import_file_name)
         import_file_lines = import_script.generate_import_script(connection_args, import_sql_file_name, target_schema)
         for line in import_file_lines:
             f.write('echo "%s" >> %s\n' % (line, import_file_name))
-    
+
         progress = progress + 1
         f.write('echo [%d %%] Generated import script %s\n' % (progress * 100 / total_progress, import_file_name))
-    
-        f.write('cd ..\n')
+
+        f.write('popd\n')
         f.write('zip -r %s.zip %s\n' % (dir_name, dir_name))
-    
+
         progress = progress + 1
         f.write('echo [%d %%] Zipped all files to %s.zip file\n' % (progress * 100 / total_progress, dir_name))
-        
+
         f.write('rm -rf %s\n' % dir_name)
-    
-        f.write('echo Now you can copy %s.zip file to target server, unzip it and run import script.\n' % dir_name)
+        f.write('cp %s.zip $MYPATH\n' % dir_name)
+        f.write('popd\n')
+
+        f.write('echo Now you can copy $MYPATH/%s.zip file to the target server, unzip it and run the import script.\n' % dir_name)
         f.write('read -p "Press [Enter] key to continue..."')
 
 

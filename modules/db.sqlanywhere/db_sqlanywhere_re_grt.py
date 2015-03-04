@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -379,7 +379,18 @@ ORDER BY sic.sequence""" % (other_table_id, other_index_id)
             table.foreignKeys.append(foreign_key)
         return 0
         
+    @classmethod
+    @release_cursors
+    def getOS(cls, connection):
+        _os = cls.execute_query(connection, "SELECT PROPERTY ('Platform')").fetchone()[0].lower()
+        if 'unix' in _os:
+            return 'linux'
+        elif 'windows' in _os:
+            return 'windows'
+        else:
+            return 'darwin'
 
+        return None
 ###########################################################################################
 
 @ModuleInfo.export(grt.classes.db_mgmt_Rdbms)
@@ -485,3 +496,7 @@ def reverseEngineerFunctions(connection, schema):
 @ModuleInfo.export(grt.INT, grt.classes.db_mgmt_Connection, grt.classes.db_Schema)
 def reverseEngineerTriggers(connection, schema):
     return SQLAnywhereReverseEngineering.reverseEngineerTriggers(connection, schema)
+
+@ModuleInfo.export(grt.LIST, grt.classes.db_mgmt_Connection)
+def getOS(connection):
+    return SQLAnywhereReverseEngineering.getOS(connection)

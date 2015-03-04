@@ -676,7 +676,7 @@ void ListModelWrapper::handle_popup(const int x, const int y, const int time, Gd
 bool ListModelWrapper::handle_popup_event(GdkEvent* event)
 {
   bool ret = false;
-  if ( event->type == GDK_BUTTON_PRESS && event->button.button == 3 )
+  if ((event->type == GDK_BUTTON_PRESS && event->button.button == 3) || (event->type == GDK_KEY_RELEASE && event->key.keyval == GDK_Menu))
   {
     GdkEventButton* evb = (GdkEventButton*)event;
     handle_popup((int)event->button.x, (int)event->button.y, event->button.time, evb);

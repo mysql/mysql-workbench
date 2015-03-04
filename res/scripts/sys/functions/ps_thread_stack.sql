@@ -1,17 +1,17 @@
-/* Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
-
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; version 2 of the License.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA */
+-- Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
+--
+-- This program is free software; you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation; version 2 of the License.
+--
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+--
+-- You should have received a copy of the GNU General Public License
+-- along with this program; if not, write to the Free Software
+-- Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 DROP FUNCTION IF EXISTS ps_thread_stack;
 
@@ -59,7 +59,7 @@ BEGIN
     DECLARE json_objects LONGTEXT;
 
     /*!50602
-    /* Do not track the current thread, it will kill the stack */
+    -- Do not track the current thread, it will kill the stack
     UPDATE performance_schema.threads
        SET instrumented = 'NO'
      WHERE processlist_id = CONNECTION_ID();
@@ -67,12 +67,12 @@ BEGIN
 
     SET SESSION group_concat_max_len=@@global.max_allowed_packet;
 
-    /* Select the entire stack of events */
+    -- Select the entire stack of events
     SELECT GROUP_CONCAT(CONCAT( '{'
               , CONCAT_WS( ', '
               , CONCAT('"nesting_event_id": "', IF(nesting_event_id IS NULL, '0', nesting_event_id), '"')
               , CONCAT('"event_id": "', event_id, '"')
-              /* Convert from picoseconds to microseconds */
+              -- Convert from picoseconds to microseconds
               , CONCAT( '"timer_wait": ', ROUND(timer_wait/1000000, 2))  
               , CONCAT( '"event_info": "'
                   , CASE
@@ -82,11 +82,11 @@ BEGIN
                     END
                   , '"'
               )
-              /* Always dump the extra wait information gathered for statements */
+              -- Always dump the extra wait information gathered for statements
               , CONCAT( '"wait_info": "', IFNULL(wait_info, ''), '"')
-              /* If debug is enabled, add the file:lineno information for waits */
+              -- If debug is enabled, add the file:lineno information for waits
               , CONCAT( '"source": "', IF(true AND event_name LIKE 'wait%', IFNULL(wait_info, ''), ''), '"')
-              /* Depending on the type of event, name it appropriately */
+              -- Depending on the type of event, name it appropriately
               , CASE 
                      WHEN event_name LIKE 'wait/io/file%'      THEN '"event_type": "io/file"'
                      WHEN event_name LIKE 'wait/io/table%'     THEN '"event_type": "io/table"'
@@ -107,7 +107,7 @@ BEGIN
     INTO json_objects
     FROM (
           /*!50600
-          /* Select all statements, with the extra tracing information available */
+          -- Select all statements, with the extra tracing information available
           (SELECT thread_id, event_id, event_name, timer_wait, timer_start, nesting_event_id, 
                   CONCAT(sql_text, '\\n',
                          'errors: ', errors, '\\n',
@@ -132,11 +132,11 @@ BEGIN
                          ) AS wait_info
              FROM performance_schema.events_statements_history_long WHERE thread_id = thd_id)
           UNION 
-          /* Select all stages */
+          -- Select all stages
           (SELECT thread_id, event_id, event_name, timer_wait, timer_start, nesting_event_id, null AS wait_info
              FROM performance_schema.events_stages_history_long WHERE thread_id = thd_id) 
-          UNION*/
-          /* Select all events, adding information appropriate to the event */
+          UNION */
+          -- Select all events, adding information appropriate to the event
           (SELECT thread_id, event_id, 
                   CONCAT(event_name , 
                          IF(event_name NOT LIKE 'wait/synch/mutex%', IFNULL(CONCAT(' - ', operation), ''), ''), 
@@ -145,7 +145,7 @@ BEGIN
                          IF(object_schema IS NOT NULL, CONCAT('\\nObject: ', object_schema, '.'), ''), 
                          IF(object_name IS NOT NULL, 
                             IF (event_name LIKE 'wait/io/socket%',
-                                /* Print the socket if used, else the IP:port as reported */
+                                -- Print the socket if used, else the IP:port as reported
                                 CONCAT(IF (object_name LIKE ':0%', @@socket, object_name)),
                                 object_name),
                             ''),
