@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -69,6 +69,7 @@ mforms::gtk::CodeEditorImpl::CodeEditorImpl(CodeEditor* self)
 
 
   _sci_gtkmm_widget->signal_button_press_event().connect_notify(sigc::bind(sigc::mem_fun(this, &CodeEditorImpl::mouse_button_event), self));
+  _sci_gtkmm_widget->signal_key_release_event().connect_notify(sigc::bind(sigc::mem_fun(this, &CodeEditorImpl::keyboard_event), self));
   _sci_gtkmm_widget->show();
 
   _sci_gtkmm_widget->set_data("mforms", dynamic_cast<mforms::View*>(self));
@@ -96,6 +97,19 @@ bool mforms::gtk::CodeEditorImpl::create(CodeEditor* self)
   return new mforms::gtk::CodeEditorImpl(self);
 }
 //------------------------------------------------------------------------------
+void mforms::gtk::CodeEditorImpl::keyboard_event(GdkEventKey *event, CodeEditor *editor)
+{
+  if (event->type == GDK_KEY_RELEASE && event->keyval == GDK_Menu)
+  {
+    if (editor->get_context_menu() != NULL)
+    {
+      mforms::Menu *menu = editor->get_context_menu();
+      if (menu && !menu->empty())
+        menu->popup_at(editor, 0, 0); // gtk will handle position automagically
+    }
+  }
+}
+
 void mforms::gtk::CodeEditorImpl::mouse_button_event(GdkEventButton *event, CodeEditor *editor)
 {
   if (event->type == GDK_BUTTON_PRESS && event->button == 3) //right mouse click

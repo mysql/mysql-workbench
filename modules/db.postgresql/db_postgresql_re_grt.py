@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -257,10 +257,10 @@ WHERE n.nspname = '%s' AND c.relname = '%s'"""
 
     @classmethod
     def getOS(cls, connection):
-        ver = cls.execute_query(connection, "select version()").fetchone()[0]
+        ver = cls.execute_query(connection, "select version()").fetchone()[0].lower()
         if 'linux' in ver:
             return 'linux'
-        elif 'Visual C++' in ver:
+        elif 'visual c++' in ver:
             return 'windows'
         elif 'darwin' in ver or 'apple' in ver:
             return 'darwin'

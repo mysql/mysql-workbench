@@ -66,6 +66,7 @@ add_library(mforms
     gtk/src/lf_scrollpanel.cpp
     gtk/src/lf_selector.cpp
     gtk/src/lf_splitter.cpp
+    gtk/src/lf_tabview.cpp
     gtk/src/lf_textbox.cpp
     gtk/src/lf_textentry.cpp
     gtk/src/lf_table.cpp

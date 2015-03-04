@@ -1,17 +1,17 @@
-/* Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
-
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; version 2 of the License.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA */
+-- Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
+--
+-- This program is free software; you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation; version 2 of the License.
+--
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+--
+-- You should have received a copy of the GNU General Public License
+-- along with this program; if not, write to the Free Software
+-- Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 DROP PROCEDURE IF EXISTS ps_setup_reload_saved;
 
@@ -80,7 +80,7 @@ BEGIN
     INSERT INTO performance_schema.setup_actors SELECT * FROM tmp_setup_actors;
 
     BEGIN
-        /* Workaround for http://bugs.mysql.com/bug.php?id=70025 */
+        -- Workaround for http://bugs.mysql.com/bug.php?id=70025
         DECLARE v_name varchar(64);
         DECLARE v_enabled enum('YES', 'NO');
         DECLARE c_consumers CURSOR FOR SELECT NAME, ENABLED FROM tmp_setup_consumers;
@@ -106,7 +106,7 @@ BEGIN
        SET performance_schema.setup_instruments.ENABLED = tmp_setup_instruments.ENABLED,
            performance_schema.setup_instruments.TIMED   = tmp_setup_instruments.TIMED;
     BEGIN
-        /* Workaround for http://bugs.mysql.com/bug.php?id=70025 */
+        -- Workaround for http://bugs.mysql.com/bug.php?id=70025
         DECLARE v_thread_id bigint unsigned;
         DECLARE v_instrumented enum('YES', 'NO');
         DECLARE c_threads CURSOR FOR SELECT THREAD_ID, INSTRUMENTED FROM tmp_threads;

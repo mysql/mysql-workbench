@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -44,8 +44,8 @@ def get_current_sys_version(server_version):
         log_info("No sys script found\n")
         return None
     for line in open(path):
-        if line.startswith("CREATE OR REPLACE VIEW version"):
-            m = re.findall("'(.*)' AS sys_version", line)
+        if line.startswith("CREATE OR REPLACE ALGORITHM"):
+            m = re.findall("SELECT '(.*)' AS sys_version", line)
             if m:
                 return m[0]
     return None
