@@ -29,6 +29,9 @@
 GridView * GridView::create(bec::GridModel::Ref model, bool fixed_height_mode, bool allow_cell_selection)
 {
   GridView *view= Gtk::manage(new GridView(model, fixed_height_mode, allow_cell_selection));
+  //This function is used only by recordset so if we're forcing fixed heioght mode, then we need speed optimization.
+  view->set_text_cell_fixed_height(fixed_height_mode);
+
   view->init();
   return view;
 }
@@ -39,15 +42,22 @@ GridView::GridView(bec::GridModel::Ref model, bool fixed_height_mode, bool allow
          , _context_menu(0)
          , _allow_cell_selection(allow_cell_selection)
          , _selected_cell(false)
+         , _text_cell_fixed_height(false)
 {
   if (fixed_height_mode)
     set_fixed_height_mode(true);
+
   this->model(model);
   signal_cursor_changed().connect_notify(sigc::mem_fun(this, &GridView::on_signal_cursor_changed));
 }
 
 GridView::~GridView()
 {
+}
+
+void GridView::set_text_cell_fixed_height(bool val)
+{
+  _text_cell_fixed_height = val;
 }
 
 void GridView::on_signal_cursor_changed()
@@ -86,10 +96,13 @@ void GridView::model(bec::GridModel::Ref value)
 {
   _model= value;
   _view_model= GridViewModel::create(_model, this, "grid_view");
+  _view_model->set_text_cell_fixed_height(_text_cell_fixed_height);
 }
 
 int GridView::refresh(bool reset_columns)
 {
+  freeze_notify();
+
   Gtk::ScrolledWindow *swin = dynamic_cast<Gtk::ScrolledWindow*>(get_parent());
   float value=-1;
   Gtk::TreePath path;
@@ -102,14 +115,17 @@ int GridView::refresh(bool reset_columns)
   
   if (get_model())
     unset_model();
+
   _view_model->refresh(reset_columns);
   _row_count= _model->count();
   set_model(_view_model);
+
 
   if (get_column(0))
     get_column(0)->set_resizable(false);
   
   reset_sorted_columns();
+
 
   if (swin)
   {
@@ -123,6 +139,8 @@ int GridView::refresh(bool reset_columns)
         set_cursor(path);
     }
   }
+
+  thaw_notify();
 
   return 0;
 }

@@ -181,7 +181,7 @@ void mforms::gtk::LabelImpl::set_text_align(::mforms::Label *self, ::mforms::Ali
     ((Gtk::Label*)label->_label)->set_justify(gtk_align);
      */
     
-    float x, y;
+    float x = 0, y = 0;
     switch (align)
     {
     case ::mforms::BottomLeft:   x= 0;   y= 1; break;

@@ -15,7 +15,8 @@ Glib::ObjectBase(typeid(GridViewModel)),
 ListModelWrapper(model.get(), view, name),
 _model(model),
 _view(view),
-_row_numbers_visible(true)
+_row_numbers_visible(true),
+_text_cell_fixed_height(false)
 {
   _ignore_column_resizes = 0;
   view->set_rules_hint(true); // enable alternating row colors
@@ -53,6 +54,7 @@ struct ValueTypeTraits<bec::GridModel::FloatType>
 
 int GridViewModel::refresh(bool reset_columns)
 {
+  freeze_notify();
   model_changed(bec::NodeId(), -1);
 
   if (reset_columns)
@@ -118,7 +120,7 @@ int GridViewModel::refresh(bool reset_columns)
 
     ignore_column_resizes(false);
   }
-
+  thaw_notify();
   return 0;
 }
 
@@ -145,6 +147,11 @@ void GridViewModel::set_column_width(int column, int width)
   if (tc) 
     tc->set_fixed_width(width);
   ignore_column_resizes(false);
+}
+
+void GridViewModel::set_text_cell_fixed_height(bool val)
+{
+  _text_cell_fixed_height = val;
 }
 
 
@@ -174,6 +181,17 @@ Gtk::TreeViewColumn * GridViewModel::add_column(int index, const std::string &na
   }
   typedef CustomRenderer<typename ValueTypeTraits::Renderer, typename ValueTypeTraits::RendererValueType, typename ValueTypeTraits::ValueType> CustomRenderer;
   CustomRenderer *renderer= Gtk::manage(new CustomRenderer());
+
+  Gtk::CellRenderer *rendr = &renderer->_data_renderer;
+  if (GTK_IS_CELL_RENDERER_TEXT(rendr->gobj()))
+  {
+    Gtk::CellRendererText *txtrendr = (Gtk::CellRendererText*)rendr;
+    if (_text_cell_fixed_height)
+      txtrendr->set_fixed_height_from_font(1); //This will assume that there's only one row of text in the cell so the height check will be much faster.
+    else
+      txtrendr->set_fixed_height_from_font(-1);
+  }
+
   renderer->floating_point_visible_scale(_model->floating_point_visible_scale());
   renderer->set_edit_state= sigc::bind(sigc::mem_fun(_model.get(), &::bec::GridModel::set_edited_field), index);
   Gtk::TreeViewColumn *treeview_column= renderer->bind_columns(_view, name, index, col, icon);
