@@ -69,7 +69,7 @@ public:
   bool is_number();
   bool is_operator();
 
-  std::string token_text();
+  std::string token_text(bool keepQuotes = false);
   unsigned int token_type();
   unsigned int token_line();
   unsigned int token_start();
@@ -117,7 +117,7 @@ public:
 
   long server_version();
 
-  std::string token_text(pANTLR3_BASE_TREE node);
+  std::string token_text(pANTLR3_BASE_TREE node, bool keepQuotes = false);
   MySQLQueryType query_type();
   MySQLQueryType query_type(pANTLR3_BASE_TREE node);
 

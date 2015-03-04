@@ -980,9 +980,9 @@ bool MySQLRecognizerTreeWalker::is_operator()
  * parsed query (if it is a lexer symbol) or the textual expression of the constant name for abstract
  * tokens.
  */
-std::string MySQLRecognizerTreeWalker::token_text()
+std::string MySQLRecognizerTreeWalker::token_text(bool keepQuotes)
 {
-  return _recognizer->token_text(_tree);
+  return _recognizer->token_text(_tree, keepQuotes);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1404,7 +1404,7 @@ long MySQLRecognizer::server_version()
  * a quoted text entity then two consecutive quote chars are replaced by a single one and if
  * escape sequence parsing is not switched off (as per sql mode) then such sequences are handled too.
  */
-std::string MySQLRecognizer::token_text(pANTLR3_BASE_TREE node)
+std::string MySQLRecognizer::token_text(pANTLR3_BASE_TREE node, bool keepQuotes)
 {
   pANTLR3_STRING text = node->getText(node);
   if (text == NULL)
@@ -1456,6 +1456,8 @@ std::string MySQLRecognizer::token_text(pANTLR3_BASE_TREE node)
       base::replace(chars, double_quotes, quote_char);
     }
 
+  if (keepQuotes)
+    return chars;
   return chars.substr(1, chars.size() - 2);
 }
 
@@ -1477,8 +1479,6 @@ MySQLQueryType MySQLRecognizer::query_type()
 MySQLQueryType MySQLRecognizer::query_type(pANTLR3_BASE_TREE node)
 {
   MySQLRecognizerTreeWalker walker(this, node);
-  if (node->getToken(node) == NULL) // If we are at the root node advance to the first real node.
-    walker.next();
 
   switch (walker.token_type())
   {

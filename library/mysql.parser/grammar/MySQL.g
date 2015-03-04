@@ -1893,7 +1893,7 @@ utility_statement:
 				)? explainable_statement
 		)
 	| HELP_SYMBOL^ text_or_identifier
-	| USE_SYMBOL^ identifier
+	| use_command
 ;
 
 describe_command:
@@ -1911,6 +1911,10 @@ explainable_statement:
 			| update_statement
 		)
 	| {SERVER_VERSION >= 50700}? => FOR_SYMBOL CONNECTION_SYMBOL INTEGER
+;
+
+use_command:
+	USE_SYMBOL identifier -> ^(USE_SYMBOL SCHEMA_REF_TOKEN identifier)
 ;
 
 //----------------- Expression support -------------------------------------------------------------
