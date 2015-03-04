@@ -63,7 +63,7 @@ static std::string flatten_class_name(std::string name)
 PythonContextHelper::PythonContextHelper(const std::string &module_path)
 {
   static const char *argv[2] = { "/dev/null", NULL };
-
+  std::string wb_pythonpath;
   if (getenv("PYTHON_DEBUG"))
     Py_VerboseFlag = 5;
 
@@ -87,12 +87,18 @@ PythonContextHelper::PythonContextHelper(const std::string &module_path)
         npath.append(*p);
       }
     }
+
     putenv(g_strdup_printf("PATH=%s", npath.c_str()));
+
+	// This allows to define additional paths for python loadin
+	char *pythonpath = getenv("WB_PYTHONPATH");
+	if (pythonpath)
+		wb_pythonpath = getenv("WB_PYTHONPATH");
   }
 
   putenv(g_strdup_printf("PYTHONHOME=%s\\Python", module_path.c_str()));
-  putenv(g_strdup_printf("PYTHONPATH=%s\\Python;%s\\Python\\DLLs;%s\\Python\\Lib;%s\\Python\\mysql_libs.zip;",
-    module_path.c_str(), module_path.c_str(), module_path.c_str(), module_path.c_str()));
+  putenv(g_strdup_printf("PYTHONPATH=%s\\Python;%s\\Python\\DLLs;%s\\Python\\Lib;%s\\Python\\mysql_libs.zip;%s",
+	  module_path.c_str(), module_path.c_str(), module_path.c_str(), module_path.c_str(), wb_pythonpath.c_str()));
   //putenv("PYTHONHOME=C:\\nowhere");
 #endif
   Py_InitializeEx(0); // skips signal handler init

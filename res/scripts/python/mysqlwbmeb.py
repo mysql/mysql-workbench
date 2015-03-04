@@ -870,15 +870,21 @@ class MEBGetProfiles(MEBCommand):
         return 0
 
 class MEBHelperVersion(MEBCommand):
-    # IMPORTANT: Any change to the current attribute must be
-    # in synch with what is returned at WBMEBHelperHandlerLinux::current_helper_version
-    current = "7"
-
     def __init__(self, params = None, output_handler = None):
         super(MEBHelperVersion, self).__init__(params, output_handler)
         
     def execute(self):
-        self.write_output(self.current)
+        try:
+          import hashlib
+          
+          file = open (__file__, 'r')
+          data = file.read()
+          md5 = hashlib.md5(data)
+          
+          self.write_output(md5.digest())
+        except Exception, e:
+            logging.error('MEBHelperVersion error ' % str(e))
+            return 1
         return 0
     
 if __name__ == "__main__":

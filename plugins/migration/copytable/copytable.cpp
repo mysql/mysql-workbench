@@ -2736,7 +2736,7 @@ void CopyDataTask::copy_table(const TableParam &task)
 {
   boost::shared_ptr<std::vector<ColumnInfo> > columns;
 
-  long long i = 0, total;
+  long long i = 0, total = 0;
   int inserted_records;
 
   time_t start = time(NULL);

@@ -752,7 +752,7 @@ mforms::View *PreferencesForm::create_admin_page()
     mforms::FsObjectSelector *pathsel;
     table->add(new_label(_("Path to mysqldump Tool:"), true), 0, 1, 0, 1, mforms::HFillFlag);
     pathsel= new_path_option("mysqldump", true);
-    pathsel->get_entry()->set_tooltip(_("Specifiy the full path to the mysqldump tool, which is needed for the Workbench Administrator.\nIt usually comes bundled with the MySQL server and/or client packages."));
+    pathsel->get_entry()->set_tooltip(_("Specify the full path to the mysqldump tool, which is needed for the Workbench Administrator.\nIt is usually bundled with the MySQL server and/or client packages."));
     table->add(pathsel, 1, 2, 0, 1, mforms::HFillFlag|mforms::HExpandFlag);
 #ifdef HAVE_BUNDLED_MYSQLDUMP
     table->add(new_label(_("Leave blank to use bundled version."), false, true), 2, 3, 0, 1, mforms::HFillFlag);
@@ -761,7 +761,7 @@ mforms::View *PreferencesForm::create_admin_page()
 #endif
     table->add(new_label(_("Path to mysql Tool:"), true), 0, 1, 1, 2, mforms::HFillFlag);
     pathsel= new_path_option("mysqlclient", true);
-    pathsel->get_entry()->set_tooltip(_("Specifiy the full path to the mysql command line client tool, which is needed for the Workbench Administrator.\nIt usually comes bundled with the MySQL server and/or client packages."));
+    pathsel->get_entry()->set_tooltip(_("Specify the full path to the mysql command line client tool, which is needed for the Workbench Administrator.\nIt is usually bundled with the MySQL server and/or client packages."));
     table->add(pathsel, 1, 2, 1, 2, mforms::HFillFlag|mforms::HExpandFlag);
 #ifdef HAVE_BUNDLED_MYSQLDUMP
     table->add(new_label(_("Leave blank to use bundled version."), false, true), 2, 3, 1, 2, mforms::HFillFlag);
@@ -771,7 +771,7 @@ mforms::View *PreferencesForm::create_admin_page()
 
     table->add(new_label(_("Export Directory Path:"), true), 0, 1, 2, 3, mforms::HFillFlag);
     pathsel= new_path_option("dumpdirectory", false);
-    pathsel->get_entry()->set_tooltip(_("Specifiy the full path to the directory where dump files should be placed by default."));
+    pathsel->get_entry()->set_tooltip(_("Specify the full path to the directory where dump files should be placed by default."));
     table->add(pathsel, 1, 2, 2, 3, mforms::HFillFlag|mforms::HExpandFlag);
     table->add(new_label(_("Location where dump files should\nbe placed by default."), false, true), 2, 3, 2, 3, mforms::HFillFlag);
 
@@ -796,7 +796,7 @@ mforms::View *PreferencesForm::create_sqlide_page()
 
       save_workspace = table->add_checkbox_option("workbench:SaveSQLWorkspaceOnClose",
                                                   _("Save snapshot of open editors on close"),
-                                                  _("A snapshot of all open scripts is saved when the SQL Editor is closed. Next time it is opened to the same connection that state is restored. Unsaved files will remain unsaved, but their contents will be preserved."));
+                                                  _("A snapshot of all open scripts is saved when the SQL Editor is closed. Next time Workbench is opened with the same MySQL connection,\nthat state is restored. Unsaved files will remain unsaved, but their contents will be preserved."));
 
       {
         static const char *auto_save_intervals= "disable:0,5 seconds:5,10 seconds:10,15 seconds:15,30 seconds:30,1 minute:60,5 minutes:300,10 minutes:600,20 minutes:1200";
@@ -807,7 +807,7 @@ mforms::View *PreferencesForm::create_sqlide_page()
       }
 
       discard_unsaved = table->add_checkbox_option("DbSqlEditor:DiscardUnsavedQueryTabs",
-                                                   _("Create new tabs as Query tabs instead of File"),
+                                                   _("Create new tabs as Query tabs instead of File tabs"),
                                                    _("Unsaved Query tabs do not get a close confirmation, unlike File tabs.\nHowever, once saved, such tabs will also get unsaved change confirmations.\n"
                                                      "If Snapshot saving is enabled, query tabs are always autosaved to temporary files when the connection is closed."));
       save_workspace->signal_clicked()->connect(boost::bind(force_checkbox_on_toggle, save_workspace, discard_unsaved, true, true));
@@ -833,7 +833,7 @@ mforms::View *PreferencesForm::create_sqlide_page()
     {
       mforms::CheckBox *check = new_checkbox_option("DbSqlEditor:ShowSchemaTreeSchemaContents");
       check->set_text(_("Show Schema Contents in Schema Tree"));
-      check->set_tooltip(_("Whether to show schema contents (tables, views and routine names) in "
+      check->set_tooltip(_("Whether to show schema contents (tables, views and routine names) in the "
         "schema tree."));
       vbox->add(check, false);
     }
@@ -841,8 +841,8 @@ mforms::View *PreferencesForm::create_sqlide_page()
     {
       mforms::CheckBox *check = new_checkbox_option("DbSqlEditor:ShowMetadataSchemata");
       check->set_text(_("Show Metadata and Internal Schemas"));
-      check->set_tooltip(_("Whether to show internal schemas in the schema tree "
-        "(eg INFORMATION_SCHEMA, mysql and schemas starting with '.')."));
+      check->set_tooltip(_("Whether to show internal schemas in the schema tree, "
+        "(such as INFORMATION_SCHEMA, mysql, and schemas starting with '.')."));
       vbox->add(check, false);
     }
     
@@ -926,8 +926,8 @@ mforms::View *PreferencesForm::create_general_editor_page()
       tbox->add(new_label(_("Default SQL_MODE for syntax checker:"), true), false, false);
       mforms::TextEntry *entry= new_entry_option("SqlMode", false);
       entry->set_tooltip(_(
-                           "Value of SQL_MODE DBMS session variable customizes the rules and restrictions for SQL syntax and semantics. See MySQL Server reference for details.\n"
-                           "This globally defined parameter determines initial value for same named parameter in each newly created model. "
+                           "Value of SQL_MODE DBMS session variable customizes the rules and restrictions for SQL syntax and semantics. See the MySQL Server reference for details.\n"
+                           "This globally defined parameter determines the initial value for same named parameters in each newly created model. "
                            "Model scoped same named parameter in its turn affects SQL parsing within the model, and defines the value of SQL_MODE session variable when connecting to DBMS.\n"
                            "Note: Empty value for this parameter will cause Workbench to treat SQL_MODE as empty string when parsing SQL within the model, but will leave DBMS session variable at its default value.\n"
                            "To force Workbench to reset SQL_MODE session variable as well, this parameter needs to be set to a whitespace symbol."));
@@ -951,7 +951,7 @@ mforms::View *PreferencesForm::create_general_editor_page()
       mforms::TextEntry *entry= new_entry_option("SqlDelimiter", false);
       entry->set_size(50, -1);
       entry->set_tooltip(_(
-                           "SQL statement delimiter different from the normally used one (ie, shouldn't be ;). Change this only if the delimiter you normally use, specially in stored routines, happens to be the current setting."));
+                           "SQL statement delimiter different from the normally used one (in other words, shouldn't be ;). Change this only if the delimiter you normally use, specially in stored routines, happens to be the current setting."));
       tbox->add(entry, false, false);
     }
   }
@@ -997,7 +997,7 @@ mforms::View *PreferencesForm::create_editor_page()
                                                             this, check, subsettings_box));
 
         check->set_text(_("Enable Code Completion in Editors"));
-        check->set_tooltip(_("If enabled SQL editors display a code completion list when pressing "
+        check->set_tooltip(_("If enabled, SQL editors display a code completion list when pressing "
                              "the defined hotkey"));
         vbox->add(check, false);
 
@@ -1007,14 +1007,14 @@ mforms::View *PreferencesForm::create_editor_page()
         mforms::CheckBox *auto_start_check = new_checkbox_option("DbSqlEditor:AutoStartCodeCompletion");
         auto_start_check->set_text(_("Automatically Start Code Completion"));
         auto_start_check->set_tooltip(_("Available only if code completion is enabled. By activating "
-                                        "this option code completion will be started automatically when you type something and wait "
+                                        "this option, code completion will be started automatically when you type something and wait "
                                         "a moment"));
         subsettings_box->add(auto_start_check, false);
 
         mforms::CheckBox *upper_case_check = new_checkbox_option("DbSqlEditor:CodeCompletionUpperCaseKeywords");
         upper_case_check->set_text(_("Use UPPERCASE keywords on completion"));
         upper_case_check->set_tooltip(_("Normally keywords are shown and inserted as they come from the "
-                                        "code editor configuration file. With this swich they are always upper-cased instead."));
+                                        "code editor configuration file. With this option, they are always upper-cased instead."));
         subsettings_box->add(upper_case_check, false);
 
         // Set initial enabled state of sub settings depending on whether code completion is enabled.
@@ -1036,7 +1036,7 @@ mforms::View *PreferencesForm::create_editor_page()
       std::string comment_types = "--:--,#:#";
       mforms::Selector *selector = new_selector_option("DbSqlEditor:SQLCommentTypeForHotkey", comment_types, false);
       selector->set_size(150, -1);
-      selector->set_tooltip(_("Default comment type for SQL Query editor, to be used when the comment shortcut is used."));
+      selector->set_tooltip(_("Default comment type for the SQL Query editor, and used with the comment shortcut."));
       tbox->add(selector, false, false);
     }
 
@@ -1106,8 +1106,8 @@ mforms::View *PreferencesForm::create_object_editor_page()
       std::string algorithms = "Default:DEFAULT,In place:INPLACE,Copy:COPY";
       mforms::Selector *selector = new_selector_option("DbSqlEditor:OnlineDDLAlgorithm", algorithms, false);
       selector->set_size(150, -1);
-      selector->set_tooltip(_("If the currently connected server supports online DDL then use the selected "
-                              "algorithm as default. This setting can also be adjusted for each alter operation."));
+      selector->set_tooltip(_("If the currently connected server supports online DDL, then use the selected "
+                              "algorithm as the default. This setting can also be adjusted for each alter operation."));
       line_box->add(selector, false, false);
     }
     {
@@ -1122,8 +1122,8 @@ mforms::View *PreferencesForm::create_object_editor_page()
       std::string locks = "Default:DEFAULT,None:NONE,Shared:SHARED,Exclusive:EXCLUSIVE";
       mforms::Selector *selector = new_selector_option("DbSqlEditor:OnlineDDLLock", locks, false);
       selector->set_size(150, -1);
-      selector->set_tooltip(_("If the currently connected server supports online DDL then use the selected "
-                              "lock as default. This setting can also be adjusted for each alter operation."));
+      selector->set_tooltip(_("If the currently connected server supports online DDL, then use the selected "
+                              "lock as the default. This setting can also be adjusted for each alter operation."));
       line_box->add(selector, false, false);
     }
   }
@@ -1174,7 +1174,7 @@ mforms::View *PreferencesForm::create_query_page()
       tbox->set_spacing(4);
       vbox->add(tbox, false);
       
-      tbox->add(new_label(_("Max. query length to store in history (in bytes):"), true), false, false);
+      tbox->add(new_label(_("Maximum query length to store in history (in bytes):"), true), false, false);
       mforms::TextEntry *entry= new_entry_option("DbSqlEditor:MaxQuerySizeToHistory", false);
       entry->set_size(50, -1);
       entry->set_tooltip(_(
@@ -1230,7 +1230,7 @@ mforms::View *PreferencesForm::create_query_page()
       check->set_text(_("Limit Rows"));
       check->set_tooltip(_(
                            "Whether every select query to be implicitly adjusted to limit result set to specified number of rows by appending the LIMIT keyword to the query.\n"
-                           "If enabled it's still possible to load entire result set by pressing \"Fetch All\" button."));
+                           "If enabled, it's still possible to load the entire result set by pressing the \"Fetch All\" button."));
       vbox->add(check, false);
     }
     
@@ -1256,7 +1256,7 @@ mforms::View *PreferencesForm::create_query_page()
       mforms::TextEntry *entry= new_entry_option("Recordset:FieldValueTruncationThreshold", false);
       entry->set_size(50, -1);
       entry->set_tooltip(_(
-                           "Symbols beyond specified threashold will be truncated when showing in the grid. Doesn't affect editing field values.\n"
+                           "Symbols beyond specified threshold will be truncated when showing in the grid. Doesn't affect editing field values.\n"
                            "Set to -1 to disable truncation."));
       tbox->add(entry, false, false);
     }
@@ -1328,7 +1328,7 @@ mforms::View *PreferencesForm::create_model_page()
       entry->set_size(100, -1);
       
       table->add_option(entry, _("Model undo history size:"), 
-                        _("Allowed values are from 1 up.\nNote: using high values (> 100) will increase memory usage\nand slow down operation."));
+                        _("Allowed values are 1 and greater.\nNote: using high values (> 100) will increase memory usage\nand slow down operation."));
     }
     
     {
@@ -1349,7 +1349,7 @@ mforms::View *PreferencesForm::create_others_page()
   {
 #ifdef _WIN32
     table->add_checkbox_option("DisableSingleInstance", _("Allow more than one instance of MySQL Workbench to run"), 
-      _("By default only one instance of MySQL Workbench can run at the same time.\nThis is more resource friendly "
+      _("By default, only one MySQL Workbench instance can run at the same time.\nThis is more resource friendly "
         "and necessary as multiple instances share the same files (settings etc.). Change at your own risk."));
 #endif
   }
@@ -1786,7 +1786,7 @@ mforms::View *PreferencesForm::create_appearance_page()
 
     mforms::TextBox *text;
     
-    table->add(new_label(_("Colors available when creating tables, views etc")), 0, 1, 0, 1, mforms::HFillFlag);
+    table->add(new_label(_("Colors available when creating tables, views, etc.")), 0, 1, 0, 1, mforms::HFillFlag);
     text= mforms::manage(new mforms::TextBox(mforms::VerticalScrollBar));
     text->set_size(200, 100);
     table->add(text, 0, 1, 1, 2, mforms::FillAndExpand);
@@ -1797,7 +1797,7 @@ mforms::View *PreferencesForm::create_appearance_page()
     option->show_value= boost::bind(show_text_option, get_options(), "workbench.model.ObjectFigure:ColorList", text);
     option->update_value= boost::bind(update_text_option, get_options(), "workbench.model.ObjectFigure:ColorList", text);
     
-    table->add(new_label(_("Colors available when creating layers, notes etc")), 1, 2, 0, 1, mforms::HFillFlag);
+    table->add(new_label(_("Colors available when creating layers, notes, etc.")), 1, 2, 0, 1, mforms::HFillFlag);
     text= mforms::manage(new mforms::TextBox(mforms::VerticalScrollBar));
     text->set_size(200, 100);
     table->add(text, 1, 2, 1, 2, mforms::FillAndExpand);

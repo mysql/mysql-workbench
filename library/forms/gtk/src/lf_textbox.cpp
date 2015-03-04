@@ -200,8 +200,8 @@ TextBoxImpl::TextBoxImpl(::mforms::TextBox *self, mforms::ScrollBars scroll_type
   _text = Gtk::manage(new Gtk::TextView());
   _swin->add(*_text);
   
-  Gtk::PolicyType h_scrollbar_policy;
-  Gtk::PolicyType v_scrollbar_policy;
+  Gtk::PolicyType h_scrollbar_policy = Gtk::POLICY_AUTOMATIC;
+  Gtk::PolicyType v_scrollbar_policy = Gtk::POLICY_AUTOMATIC;
   
   switch (scroll_type)
   {
