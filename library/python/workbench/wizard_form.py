@@ -20,7 +20,7 @@ import mforms
 
 class WizardForm(mforms.Form):
     def __init__(self, owner_form):
-        mforms.Form.__init__(self, owner_form)
+        mforms.Form.__init__(self, owner_form, mforms.FormStayOnTop)
 
         self.pages = []
 
@@ -82,11 +82,13 @@ class WizardForm(mforms.Form):
         self.end_modal(False)
 
 
-    def run(self):
+    def run(self, modal = False):
         self.pages[0].page_activated(True)
 
-        #self.run_modal(None, None)
-        self.show()
+        if modal:
+            self.run_modal(None, None)
+        else:
+            self.show()
 
 
 

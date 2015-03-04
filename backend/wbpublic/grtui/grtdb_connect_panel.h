@@ -144,6 +144,8 @@ private:
   bool _dont_set_default_connection;
   std::string _last_validation;
 
+  int _last_active_tab;
+  
   void suspend_view_layout(bool flag);
   void begin_layout();
   void end_layout();
@@ -162,6 +164,8 @@ private:
   
   void change_active_stored_conn();
   void reset_stored_conn_list();
+  
+  void launch_ssl_wizard();
 
   grt::ListRef<db_mgmt_Connection> connection_list();
   
