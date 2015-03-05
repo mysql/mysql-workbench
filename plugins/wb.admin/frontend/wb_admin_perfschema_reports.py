@@ -69,6 +69,7 @@ class PSHelperViewTab(mforms.Box):
         self._owner = owner
         
         self.set_spacing(8)
+        self.set_back_color("#FFFFFF")
 
         self._refresh = None
         self._busy = False
