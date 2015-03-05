@@ -669,7 +669,7 @@ class SSLWizard_GenerationTask:
         self.config_file[target] = os.path.join(self.path, "attribs-%s.txt" % target)
         f = open(self.config_file[target], "w+")
         f.write("[req]\ndistinguished_name=distinguished_name\nprompt=no\n")
-        f.write("\n".join(["[distinguished_name]"] + self.main.parameters_page.get_attributes(target))+"\n")
+        f.write("\n".join(["[distinguished_name]"] + self.main.generate_page.get_attributes(target))+"\n")
         f.close()
       
 
@@ -778,7 +778,6 @@ class SSLWizard_GenerationTask:
         
         return True
 
-
 class SSLWizard_IntroPage(WizardPage):
     def __init__(self, owner):
         WizardPage.__init__(self, owner, "Welcome to MySQL Workbench SSL Wizard")
@@ -808,6 +807,7 @@ class SSLWizard_OptionsPage(WizardPage):
         self.generate_files = newCheckBox()
         self.generate_files.set_text("Generate new certificates and self-signed keys");
         self.generate_files.set_active(False if self.check_all_files_availability() == True else True)
+        self.generate_files.set_enabled(self.check_all_files_availability())
 
         self.update_connection = newCheckBox()
         self.update_connection.set_text("Update the connection");
@@ -825,6 +825,8 @@ class SSLWizard_OptionsPage(WizardPage):
         self.main.finish()
 
     def check_all_files_availability(self):
+        if not os.path.isdir(self.main.results_path):
+            return False
         if not os.path.isfile(os.path.join(self.main.results_path, "ca-cert.pem")):
             return False
         if not os.path.isfile(os.path.join(self.main.results_path, "client-cert.pem")):
@@ -842,29 +844,42 @@ class SSLWizard_OptionsPage(WizardPage):
                     os.unlink(filepath)
             except Exception, e:
                 log_error("SSL Wizard: Unable to remove file %s\n%s" % (filepath, str(e)))
+                return
                 
         self.generate_files.set_active(True)
+        self.generate_files.set_enabled(False)
+        self.main.generate_files_changed()
         
     def create_ui(self):
         box = mforms.newBox(False)
         box.set_spacing(12)
         box.set_padding(12)
 
-        label = mforms.newLabel("These options will help you configure the process. Please select how you want to proceed.")
+        message = "These optons allow you to configure the process. You can use default parameters\n"
+        message += "instead providing your own, allow the generation of the certifcates and determine\n"
+        message += "whether to uptade the connection settings or not."
 
+        label = mforms.newLabel(message)
 
         box.add(label, False, False)
         box.add(self.use_default_parameters, False, False)
         box.add(self.generate_files, False, False)
         box.add(self.update_connection, False, False)
-        box.add(self.clear_button, False, False)
         
-        self.content.add(box, False, True)
+        self.content.add(box, False, False)
+        self.content.add(self.clear_button, False, False)
         box.show(True)
 
-class SSLWizard_ParametersPage(WizardPage):
+class SSLWizard_GeneratePage(WizardPage):
     def __init__(self, owner):
-        WizardPage.__init__(self, owner, "Parameters")
+        WizardPage.__init__(self, owner, "Generate certificates and self-signed keys")
+
+        self.ca_cert = os.path.join(self.main.results_path, "ca-cert.pem")
+        self.server_cert = os.path.join(self.main.results_path, "server-cert.pem")
+        self.server_key = os.path.join(self.main.results_path, "server-key.pem")
+        self.client_cert = os.path.join(self.main.results_path, "client-cert.pem")
+        self.client_key = os.path.join(self.main.results_path, "client-key.pem")
+
         self.table = mforms.newTable()
         self.table.set_padding(12)
         self.table.set_column_count(3)
@@ -881,8 +896,23 @@ class SSLWizard_ParametersPage(WizardPage):
         row, self.email_address = self.add_label_row(row, "Email Address:", "")
         row, self.common_name = self.add_label_row(row, "Common:", "eg, put the FQDN of the server\nto allow server address validation")
 
-    def go_cancel(self):
-        self.main.finish()
+        message = "Now you must specify the parameters to use in the certificates and self-signed key generation.\n"
+        message += "This may include some data refering youself and/or the company you work for. All fields are optional."
+        
+        self.parameters_box = mforms.newBox(False)
+        self.parameters_box.set_padding(20)
+        self.parameters_box.set_spacing(20)
+
+        self.parameters_label = mforms.newLabel(message)
+        
+        self.parameters_panel = mforms.newPanel(mforms.TitledBoxPanel)
+        self.parameters_panel.set_title("Optional Parameters")
+        self.parameters_panel.add(self.table)
+        
+        self.parameters_box.add(self.parameters_label, False, False)
+        self.parameters_box.add(self.parameters_panel, False, False)
+
+        self.default_label = mforms.newLabel("The wizard is ready to generate the files for you. Click 'Next >' to generate \nthe certificates and self-signed key files...")
 
     def add_label_row(self, row, label, help):
         control = mforms.newTextEntry()
@@ -894,23 +924,10 @@ class SSLWizard_ParametersPage(WizardPage):
         control.set_size(100, -1)
         return row+1, control
 
-    def create_ui(self):
-        log_error("Passing here....!!!")
-        
-        message = "Now you must specify the parameters to use in the certificates and self-signed key generation.\n"
-        message += "This may include some data refering youself and/or the company you work for. All fields are optional."
-        
-        label = mforms.newLabel(message)
-        #label.set_wrap_text(True)
-        
-        panel = mforms.newPanel(mforms.TitledBoxPanel)
-        panel.set_title("Optional Parameters")
-        panel.add(self.table)
-        
-        self.content.add(label, False, True)
-        self.content.add(panel, False, True)
-        panel.show(True)
-        
+    def set_show_parameters(self, value):
+        self.parameters_box.show(value)
+        self.default_label.show(not value)
+
     def get_attributes(self, target):
         l = []
         l.append("C=%s"%self.country_code.get_string_value())
@@ -925,22 +942,10 @@ class SSLWizard_ParametersPage(WizardPage):
         if not l:
             l.append("C=US")
         return l
-      
-class SSLWizard_GeneratePage(WizardPage):
-    def __init__(self, owner):
-        WizardPage.__init__(self, owner, "Generate certificates and self-signed keys")
-
-        self.ca_cert = os.path.join(self.main.results_path, "ca-cert.pem")
-        self.server_cert = os.path.join(self.main.results_path, "server-cert.pem")
-        self.server_key = os.path.join(self.main.results_path, "server-key.pem")
-        self.client_cert = os.path.join(self.main.results_path, "client-cert.pem")
-        self.client_key = os.path.join(self.main.results_path, "client-key.pem")
-
 
     def create_ui(self):
-        label = mforms.newLabel("The wizard is ready to generate the files for you. Click next to generate the certificates and self-signed key files...")
-
-        self.content.add(label, False, True)
+        self.content.add(self.parameters_box, False, True)
+        self.content.add(self.default_label, False, True)
 
     def go_cancel(self):
         self.main.finish()
@@ -1039,30 +1044,26 @@ class SSLWizard(WizardForm):
 
         self.options_page = SSLWizard_OptionsPage(self)
         self.add_page(self.options_page)
-
-        self.parameters_page = SSLWizard_ParametersPage(self)
-        self.add_page(self.parameters_page)
-        
         
         self.generate_page = SSLWizard_GeneratePage(self)
         self.add_page(self.generate_page)
-
-        #self.serversertup_page = SSLWizard_ServerSetupPage(self)
-        #self.add_page(self.serversertup_page)
 
         self.results_page = SSLWizard_ResultsPage(self)
         self.add_page(self.results_page)
         
         # Set the default selection values
-        self.parameters_page.skip_page(self.options_page.use_default_parameters.get_active() or not self.options_page.generate_files.get_active())
+        self.generate_page.set_show_parameters(not self.options_page.use_default_parameters.get_active())
         self.results_page.set_update_connection(self.options_page.update_connection.get_active())
         self.generate_page.skip_page(not self.options_page.generate_files.get_active())
         
         # Setup up the callbacks for the options
-        self.options_page.use_default_parameters.add_clicked_callback(lambda: self.parameters_page.skip_page(self.options_page.use_default_parameters.get_active() or not self.options_page.generate_files.get_active()))
+        self.options_page.use_default_parameters.add_clicked_callback(lambda: self.generate_page.set_show_parameters(not self.options_page.use_default_parameters.get_active()))
         self.options_page.update_connection.add_clicked_callback(lambda: self.results_page.set_update_connection(self.options_page.update_connection.get_active()))
-        self.options_page.generate_files.add_clicked_callback(lambda: self.generate_page.skip_page(not self.options_page.generate_files.get_active()))
-        self.options_page.generate_files.add_clicked_callback(lambda: self.parameters_page.skip_page(self.options_page.use_default_parameters.get_active() or not self.options_page.generate_files.get_active()))
+        self.options_page.generate_files.add_clicked_callback(lambda: self.generate_files_changed())
+
+    def generate_files_changed(self):
+        self.generate_page.skip_page(not self.options_page.generate_files.get_active())
+
 
 @ModuleInfo.plugin("wb.tools.generateSSLCertificates", caption="Generate SSL Certificates...", groups=["Others/Menu/Ungrouped"])
 @ModuleInfo.export(grt.INT, mforms.Form, grt.classes.db_mgmt_Connection, grt.STRING)
