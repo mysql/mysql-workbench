@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -155,7 +155,7 @@ bool RecordsetView::on_event(GdkEvent *event)
 {
   bool processed= false;
 
-  if (GDK_BUTTON_PRESS == event->type && 3 == event->button.button)
+  if ((GDK_BUTTON_PRESS == event->type && 3 == event->button.button) )
   {
     std::vector<int> rows = _grid->get_selected_rows();
     Gtk::TreePath path;
@@ -191,6 +191,17 @@ bool RecordsetView::on_event(GdkEvent *event)
     _model->get_context_menu()->popup_at(NULL, base::Point(event->button.x, event->button.y));
 
     processed= true;
+  }
+  else if (event->type == GDK_KEY_RELEASE && event->key.keyval == GDK_Menu)
+  {
+    std::vector<int> rows = _grid->get_selected_rows();
+
+    _grid->grab_focus();
+    int row, col;
+    _grid->current_cell(row, col);
+
+    _model->update_selection_for_menu(rows, col);
+    _model->get_context_menu()->popup_at(NULL, base::Point(0, 0)); //gtk is handling this automagically
   }
 
   if (!processed)

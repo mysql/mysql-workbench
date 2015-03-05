@@ -287,9 +287,9 @@ public:
     cairo_select_font_face(cr, HOME_DETAILS_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, HOME_DETAILS_FONT_SIZE);
     if (is_fabric)
-    print_fabric_details_text(cr, content_bounds);
+      print_fabric_details_text(cr, content_bounds);
     else
-    print_details_text(cr, content_bounds);
+      print_details_text(cr, content_bounds);
 
     // Buttons at the bottom.
     base::Point position = base::Point(content_bounds.left(), content_bounds.bottom() - POPUP_BUTTON_HEIGHT);
@@ -1389,7 +1389,7 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner)
   _mouse_over_icon = mforms::Utilities::load_icon("wb_tile_mouseover.png");
   _mouse_over2_icon = mforms::Utilities::load_icon("wb_tile_mouseover_2.png");
   _network_icon = mforms::Utilities::load_icon("wb_tile_network.png");
-  // TODO: We need an tile icon for the group filter and the status
+  // TODO: We need a tile icon for the group filter and the status.
   _ha_filter_icon = mforms::Utilities::load_icon("wb_tile_network.png");
   _managed_status_icon = mforms::Utilities::load_icon("wb_tile_network.png");
   _page_down_icon = mforms::Utilities::load_icon("wb_tile_page-down.png");
@@ -1397,7 +1397,7 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner)
   _plus_icon = mforms::Utilities::load_icon("wb_tile_plus.png");
   _sakila_icon = mforms::Utilities::load_icon("wb_tile_sakila.png");
   _fabric_icon = mforms::Utilities::load_icon("wb_tile_fabric.png");
-  _schema_icon = mforms::Utilities::load_icon("wb_tile_schema.png", true);
+  _schema_icon = mforms::Utilities::load_icon("wb_tile_schema.png");
   _user_icon = mforms::Utilities::load_icon("wb_tile_user.png");
   _manage_icon = mforms::Utilities::load_icon("wb_tile_manage.png");
 
