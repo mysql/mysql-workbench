@@ -22,16 +22,16 @@
 #include "mforms/fs_object_selector.h"
 #include "grtdb/db_helpers.h"
 
-#include <grt/common.h>
+#include "grt/common.h"
 #include "base/string_utilities.h"
 #include "base/log.h"
+#include "base/file_utilities.h"
+
 #include "mforms/uistyle.h"
 #include "mforms/utilities.h"
 #include "mforms/checkbox.h"
 #include "mforms/textbox.h"
-#include <app.h>
-
-#include <file_utilities.h>
+#include "mforms/app.h"
 
 #include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 
@@ -1085,6 +1085,8 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
       label->set_text(caption);
       label->set_text_align(mforms::TopLeft);
       label->set_style(mforms::SmallHelpTextStyle);
+      label->set_wrap_text(true);
+      label->set_size(250, -1);
       table->add(mforms::manage(label), 2, 3, bounds.top, bounds.top + 1, mforms::HFillFlag | mforms::VFillFlag);
       _views.push_back(label);
       break;
