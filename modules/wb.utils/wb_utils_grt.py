@@ -1065,7 +1065,6 @@ class SSLWizard(WizardForm):
         self.generate_page.skip_page(not self.options_page.generate_files.get_active())
 
 
-@ModuleInfo.plugin("wb.tools.generateSSLCertificates", caption="Generate SSL Certificates...", groups=["Others/Menu/Ungrouped"])
 @ModuleInfo.export(grt.INT, mforms.Form, grt.classes.db_mgmt_Connection, grt.STRING)
 def generateCertificates(parent, conn, conn_id):
     try:
