@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,7 +38,7 @@ namespace MySQL {
       static std::string get_directory(mforms::FileChooser *backend);
       static std::string get_path(mforms::FileChooser *backend);
       static void set_extensions(mforms::FileChooser *backend, const std::string &extensions, 
-        const std::string &default_extension);
+        const std::string &default_extension, bool allow_all_file_types = true);
       static void add_selector_option(mforms::FileChooser *backend, const std::string& name,
         const std::string &label, const mforms::FileChooser::StringPairVector &options);
       static std::string get_selector_option_value(mforms::FileChooser *backend, const std::string &name);

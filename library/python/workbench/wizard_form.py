@@ -40,6 +40,14 @@ class WizardForm(mforms.Form):
         self.set_content(self.content)
         self.set_size(800, 600)
         self.center()
+        
+        self.set_on_close(self.on_close)
+     
+    def on_close(self):
+        current_page = self.tabview.get_active_tab()
+        if hasattr(self.pages[current_page], "on_close"):
+            return self.pages[current_page].on_close()
+        return True
 
 
     def add_page(self, page):

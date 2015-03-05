@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -40,7 +40,8 @@ import sqlide_catalogman_ext
 import sqlide_tableman_ext
 import sqlide_schematree_ext
 import sqlide_import_spatial
-import sqlide_power_import_export
+import sqlide_power_import_wizard
+import sqlide_power_export_wizard
 
 # define this Python module as a GRT module
 ModuleInfo = DefineModule(name= "SQLIDEUtils", author= "Oracle Corp.", version="1.1")
@@ -58,7 +59,8 @@ def initialize0():
     nc.add_observer(sqlide_catalogman_ext.handleLiveTreeContextMenu, name = "GRNLiveDBObjectMenuWillShow")
     nc.add_observer(sqlide_tableman_ext.handleLiveTreeContextMenu, name = "GRNLiveDBObjectMenuWillShow")
     nc.add_observer(sqlide_import_spatial.handleContextMenu, name = "GRNLiveDBObjectMenuWillShow")
-    nc.add_observer(sqlide_power_import_export.handleContextMenu, name = "GRNLiveDBObjectMenuWillShow")
+    nc.add_observer(sqlide_power_import_wizard.handleContextMenu, name = "GRNLiveDBObjectMenuWillShow")
+    nc.add_observer(sqlide_power_export_wizard.handleContextMenu, name = "GRNLiveDBObjectMenuWillShow")
 
 
 

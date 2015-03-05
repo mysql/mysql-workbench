@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -184,7 +184,7 @@ class FileChooserImpl : public ViewImpl
     return "";
   }
 
-  static void set_extensions(FileChooser *self, const std::string &extensions, const std::string &default_extension)
+  static void set_extensions(FileChooser *self, const std::string &extensions, const std::string &default_extension, bool allow_all_file_types = true)
   {
     FileChooserImpl *dlg = self->get_data<FileChooserImpl>();
     if (dlg)
@@ -213,10 +213,13 @@ class FileChooserImpl : public ViewImpl
         }
       }
       
-      Gtk::FileFilter filter;
-      filter.add_pattern("*");
-      filter.set_name("All Files");
-      dlg->_dlg->add_filter(filter);
+      if (allow_all_file_types)
+      {
+        Gtk::FileFilter filter;
+        filter.add_pattern("*");
+        filter.set_name("All Files");
+        dlg->_dlg->add_filter(filter);
+      }
     }
   }
 
