@@ -254,7 +254,8 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
   if (size.height > 0)
   {
     frame.size.height= size.height;
-    flags|= HeightFixedFlag;
+    flags|= HeightFixedFlag; //That flags leads to problems in layouting as then always
+                               // the current frame size is used, instead of the min/preferred size.
   }
   
   self.viewFlags = flags;
@@ -285,6 +286,10 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
 - (NSSize)preferredSize
 {
   NSSize size= [self minimumSize];
+
+  // The preferred size is actually about what would be needed to fit everything nicely
+  //   not what is the current size of the control. The latter approach messes up the layouting
+  //   where the fixed size is considered anyway.
   NSSize fsize = [self fixedFrameSize];
 
   // If a fixed size is set honour that but don't go below the
@@ -292,7 +297,8 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
   if ([self widthIsFixed])
     size.width= MAX(size.width, fsize.width);
   if ([self heightIsFixed])
-    size.height= MAX(size.height, fsize.height);
+    ; //size.height= MAX(size.height, fsize.height); see comment above
+
   return size;
 }
 
