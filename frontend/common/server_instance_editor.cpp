@@ -766,7 +766,16 @@ void ServerInstanceEditor::toggle_administration()
       std::string value = instance->connection()->parameterValues().get_string("sshHost");
       if (value.empty() || win_administration)
         value = instance->connection()->parameterValues().get_string("hostName");
-      _remote_host.set_value(value);
+      std::size_t char_pos = value.rfind(":");
+      if (std::string::npos != char_pos)
+      {
+        _remote_host.set_value(value.substr(0, char_pos));
+        char_pos++;
+        if (char_pos <= value.size())
+          _ssh_port.set_value(value.substr(char_pos, std::string::npos));
+      }
+      else
+        _remote_host.set_value(value);
     }
     if (ssh_administration)
     {
