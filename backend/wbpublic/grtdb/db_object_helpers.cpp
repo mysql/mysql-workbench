@@ -1357,8 +1357,11 @@ static bool parse_type(const std::string &type,
     // ENUM or SET.
     do 
     {
+      if (!explicitParams.empty())
+        explicitParams += ", ";
       explicitParams += walker.token_text(true);
       walker.next();
+      walker.skip_if(COMMA_SYMBOL); // We normalize the whitespace around the commas.
     } while (!walker.is(CLOSE_PAR_SYMBOL));
     explicitParams = "(" + explicitParams + ")";
 
