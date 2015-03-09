@@ -36,8 +36,8 @@ fi
 
 echo "Copying background image"
 cp build/mac/background.png template/
-chflags hidden template/background.png
-SetFile -a V template/background.png
+chflags hidden template/background.tiff
+SetFile -a V template/background.tiff
 rm -fr "template/LGPL sources"
 
 echo "Detaching template"
