@@ -35,7 +35,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Copying background image"
-cp build/mac/background.png template/
+cp build/mac/background.tiff template/
 chflags hidden template/background.tiff
 SetFile -a V template/background.tiff
 rm -fr "template/LGPL sources"
