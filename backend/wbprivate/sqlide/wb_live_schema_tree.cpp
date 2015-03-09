@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -865,7 +865,7 @@ bool LiveSchemaTree::update_node_children(mforms::TreeNodeRef parent, std::list<
     bool removed = false;
     std::vector<mforms::TreeNodeRef> childs_to_remove;
     
-    _model_view->freeze_refresh();
+    //_model_view->freeze_refresh(); cannot be called from a background thread.
     
     // Calculates the nodes to be removed and the new nodes to be created
     update_change_data(parent, children, type, childs_to_remove);
@@ -900,7 +900,7 @@ bool LiveSchemaTree::update_node_children(mforms::TreeNodeRef parent, std::list<
                                                end = it_end;
 
       // final_group will be used to prevent searching for the position
-      // of the childs once one has been found to be at the end.
+      // of the children once one has been found to be at the end.
       bool final_group = false;
       int last_position = -1;
       _node_collections[type].captions.clear();
@@ -943,7 +943,7 @@ bool LiveSchemaTree::update_node_children(mforms::TreeNodeRef parent, std::list<
 
           // All the time end will advance with the iterator
           end = it;
-        }while (it != it_end && !final_group);
+        } while (it != it_end && !final_group);
       }
 
       // Inserts the last group of nodes...
@@ -967,7 +967,7 @@ bool LiveSchemaTree::update_node_children(mforms::TreeNodeRef parent, std::list<
 
     std::string icon = get_node_icon_path(type);
 
-    _model_view->thaw_refresh();
+    //_model_view->thaw_refresh(); Cannot be called from a background thread.
     }
 
   return ret_val;
