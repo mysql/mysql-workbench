@@ -820,6 +820,7 @@ class SSLWizard_OptionsPage(WizardPage):
         self.clear_button = newButton()
         self.clear_button.set_text("Clear")
         self.clear_button.add_clicked_callback(self.clear_button_clicked)
+        self.clear_button.set_enabled(os.path.isdir(self.main.results_path))
 
     def go_cancel(self):
         self.main.finish()
