@@ -575,48 +575,64 @@ The lock waits are ordered by the age of the lock descending.
 
 ```SQL
 mysql> desc innodb_lock_waits;
-+--------------------+---------------------+------+-----+---------+-------+
-| Field              | Type                | Null | Key | Default | Extra |
-+--------------------+---------------------+------+-----+---------+-------+
-| wait_started       | datetime            | YES  |     | NULL    |       |
-| wait_age           | time                | YES  |     | NULL    |       |
-| locked_table       | varchar(1024)       | NO   |     |         |       |
-| locked_index       | varchar(1024)       | YES  |     | NULL    |       |
-| locked_type        | varchar(32)         | NO   |     |         |       |
-| waiting_trx_id     | varchar(18)         | NO   |     |         |       |
-| waiting_pid        | bigint(21) unsigned | NO   |     | 0       |       |
-| waiting_query      | longtext            | YES  |     | NULL    |       |
-| waiting_lock_id    | varchar(81)         | NO   |     |         |       |
-| waiting_lock_mode  | varchar(32)         | NO   |     |         |       |
-| blocking_trx_id    | varchar(18)         | NO   |     |         |       |
-| blocking_pid       | bigint(21) unsigned | NO   |     | 0       |       |
-| blocking_query     | longtext            | YES  |     | NULL    |       |
-| blocking_lock_id   | varchar(81)         | NO   |     |         |       |
-| blocking_lock_mode | varchar(32)         | NO   |     |         |       |
-+--------------------+---------------------+------+-----+---------+-------+
-15 rows in set (0.23 sec)
++----------------------------+---------------------+------+-----+---------------------+-------+
+| Field                      | Type                | Null | Key | Default             | Extra |
++----------------------------+---------------------+------+-----+---------------------+-------+
+| wait_started               | datetime            | YES  |     | NULL                |       |
+| wait_age                   | time                | YES  |     | NULL                |       |
+| locked_table               | varchar(1024)       | NO   |     |                     |       |
+| locked_index               | varchar(1024)       | YES  |     | NULL                |       |
+| locked_type                | varchar(32)         | NO   |     |                     |       |
+| waiting_trx_id             | varchar(18)         | NO   |     |                     |       |
+| waiting_trx_started        | datetime            | NO   |     | 0000-00-00 00:00:00 |       |
+| waiting_trx_age            | time                | YES  |     | NULL                |       |
+| waiting_trx_rows_locked    | bigint(21) unsigned | NO   |     | 0                   |       |
+| waiting_trx_rows_modified  | bigint(21) unsigned | NO   |     | 0                   |       |
+| waiting_pid                | bigint(21) unsigned | NO   |     | 0                   |       |
+| waiting_query              | longtext            | YES  |     | NULL                |       |
+| waiting_lock_id            | varchar(81)         | NO   |     |                     |       |
+| waiting_lock_mode          | varchar(32)         | NO   |     |                     |       |
+| blocking_trx_id            | varchar(18)         | NO   |     |                     |       |
+| blocking_pid               | bigint(21) unsigned | NO   |     | 0                   |       |
+| blocking_query             | longtext            | YES  |     | NULL                |       |
+| blocking_lock_id           | varchar(81)         | NO   |     |                     |       |
+| blocking_lock_mode         | varchar(32)         | NO   |     |                     |       |
+| blocking_trx_started       | datetime            | NO   |     | 0000-00-00 00:00:00 |       |
+| blocking_trx_age           | time                | YES  |     | NULL                |       |
+| blocking_trx_rows_locked   | bigint(21) unsigned | NO   |     | 0                   |       |
+| blocking_trx_rows_modified | bigint(21) unsigned | NO   |     | 0                   |       |
++----------------------------+---------------------+------+-----+---------------------+-------+
+23 rows in set (0.00 sec)
 
 mysql> desc x$innodb_lock_waits;
-+--------------------+---------------------+------+-----+---------+-------+
-| Field              | Type                | Null | Key | Default | Extra |
-+--------------------+---------------------+------+-----+---------+-------+
-| wait_started       | datetime            | YES  |     | NULL    |       |
-| wait_age           | time                | YES  |     | NULL    |       |
-| locked_table       | varchar(1024)       | NO   |     |         |       |
-| locked_index       | varchar(1024)       | YES  |     | NULL    |       |
-| locked_type        | varchar(32)         | NO   |     |         |       |
-| waiting_trx_id     | varchar(18)         | NO   |     |         |       |
-| waiting_pid        | bigint(21) unsigned | NO   |     | 0       |       |
-| waiting_query      | varchar(1024)       | YES  |     | NULL    |       |
-| waiting_lock_id    | varchar(81)         | NO   |     |         |       |
-| waiting_lock_mode  | varchar(32)         | NO   |     |         |       |
-| blocking_trx_id    | varchar(18)         | NO   |     |         |       |
-| blocking_pid       | bigint(21) unsigned | NO   |     | 0       |       |
-| blocking_query     | varchar(1024)       | YES  |     | NULL    |       |
-| blocking_lock_id   | varchar(81)         | NO   |     |         |       |
-| blocking_lock_mode | varchar(32)         | NO   |     |         |       |
-+--------------------+---------------------+------+-----+---------+-------+
-15 rows in set (0.01 sec)
++----------------------------+---------------------+------+-----+---------------------+-------+
+| Field                      | Type                | Null | Key | Default             | Extra |
++----------------------------+---------------------+------+-----+---------------------+-------+
+| wait_started               | datetime            | YES  |     | NULL                |       |
+| wait_age                   | time                | YES  |     | NULL                |       |
+| locked_table               | varchar(1024)       | NO   |     |                     |       |
+| locked_index               | varchar(1024)       | YES  |     | NULL                |       |
+| locked_type                | varchar(32)         | NO   |     |                     |       |
+| waiting_trx_id             | varchar(18)         | NO   |     |                     |       |
+| waiting_trx_started        | datetime            | NO   |     | 0000-00-00 00:00:00 |       |
+| waiting_trx_age            | time                | YES  |     | NULL                |       |
+| waiting_trx_rows_locked    | bigint(21) unsigned | NO   |     | 0                   |       |
+| waiting_trx_rows_modified  | bigint(21) unsigned | NO   |     | 0                   |       |
+| waiting_pid                | bigint(21) unsigned | NO   |     | 0                   |       |
+| waiting_query              | varchar(1024)       | YES  |     | NULL                |       |
+| waiting_lock_id            | varchar(81)         | NO   |     |                     |       |
+| waiting_lock_mode          | varchar(32)         | NO   |     |                     |       |
+| blocking_trx_id            | varchar(18)         | NO   |     |                     |       |
+| blocking_pid               | bigint(21) unsigned | NO   |     | 0                   |       |
+| blocking_query             | varchar(1024)       | YES  |     | NULL                |       |
+| blocking_lock_id           | varchar(81)         | NO   |     |                     |       |
+| blocking_lock_mode         | varchar(32)         | NO   |     |                     |       |
+| blocking_trx_started       | datetime            | NO   |     | 0000-00-00 00:00:00 |       |
+| blocking_trx_age           | time                | YES  |     | NULL                |       |
+| blocking_trx_rows_locked   | bigint(21) unsigned | NO   |     | 0                   |       |
+| blocking_trx_rows_modified | bigint(21) unsigned | NO   |     | 0                   |       |
++----------------------------+---------------------+------+-----+---------------------+-------+
+23 rows in set (0.12 sec)
 ```
 
 ##### Example
@@ -624,22 +640,29 @@ mysql> desc x$innodb_lock_waits;
 ```SQL
 mysql> SELECT * FROM innodb_lock_waits\G
 *************************** 1. row ***************************
-      wait_started: 2014-11-11 13:39:20
-          wait_age: 00:00:07
-      locked_table: `db1`.`t1`
-      locked_index: PRIMARY
-       locked_type: RECORD
-    waiting_trx_id: 867158
-       waiting_pid: 3
-     waiting_query: UPDATE t1 SET val = val + 1 WHERE id = 2
-   waiting_lock_id: 867158:2363:3:3
- waiting_lock_mode: X
-   blocking_trx_id: 867157
-      blocking_pid: 4
-    blocking_query: UPDATE t1 SET val = val + 1 + SLEEP(10) WHERE id = 2
-  blocking_lock_id: 867157:2363:3:3
-blocking_lock_mode: X
-1 row in set (0.01 sec)
+              wait_started: 2014-11-11 13:39:20
+                  wait_age: 00:00:07
+              locked_table: `db1`.`t1`
+              locked_index: PRIMARY
+               locked_type: RECORD
+            waiting_trx_id: 867158
+       waiting_trx_started: 2014-11-11 13:39:15
+           waiting_trx_age: 00:00:12
+   waiting_trx_rows_locked: 0
+ waiting_trx_rows_modified: 0
+               waiting_pid: 3
+             waiting_query: UPDATE t1 SET val = val + 1 WHERE id = 2
+           waiting_lock_id: 867158:2363:3:3
+         waiting_lock_mode: X
+           blocking_trx_id: 867157
+              blocking_pid: 4
+            blocking_query: UPDATE t1 SET val = val + 1 + SLEEP(10) WHERE id = 2
+          blocking_lock_id: 867157:2363:3:3
+        blocking_lock_mode: X
+      blocking_trx_started: 2014-11-11 13:39:11
+          blocking_trx_age: 00:00:16
+  blocking_trx_rows_locked: 1
+blocking_trx_rows_modified: 1
 ```
 
 #### io_by_thread_by_latency / x$io_by_thread_by_latency
