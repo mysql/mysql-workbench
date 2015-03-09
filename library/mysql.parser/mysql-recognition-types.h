@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -56,12 +56,17 @@ struct MySQLToken
 // Determines the sub parts of a query that can be parsed individually.
 enum MySQLParseUnit {
   PuGeneric,
+  PuCreateTable,
   PuCreateTrigger,
   PuCreateView,
   PuCreateRoutine,
   PuCreateEvent,
+  PuCreateIndex,
   PuGrant,
-  PuDataType
+  PuDataType,
+  PuCreateLogfileGroup,
+  PuCreateServer,
+  PuCreateTablespace,
 };
 
 // Describes the type of a given query.
@@ -246,3 +251,8 @@ struct MySQLParserErrorInfo
   uint32_t offset;     // Byte offset in the error line to the error start position.
   size_t length;
 };
+
+namespace parser {
+  typedef std::pair<std::string, std::string> Identifier;
+  typedef std::tuple<std::string, std::string, std::string> ColumnIdentifier;
+}
