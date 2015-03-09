@@ -250,7 +250,7 @@ class ConnectionDetailsPanel(mforms.Table):
         self.info.set_value(node.get_tag() if node else "")
         self.info.set_features(mforms.FeatureReadOnly, True)
         if self.explain:
-            self.explain.set_enabled(node and node.get_tag())
+            self.explain.set_enabled(True if node and node.get_tag() else False)
 
 
 class WbAdminConnections(WbAdminBaseTab):
