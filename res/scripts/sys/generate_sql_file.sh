@@ -166,8 +166,9 @@ then
   # Does essentially nothing right now, but may in future
   sed -e "/sql_log_bin/d" ./after_setup.sql >> $OUTPUTFILE
 
-  # Remove final leading spaces
+  # Remove final leading and trailing spaces
   sed -i -e "s/^ *//g" $OUTPUTFILE
+  sed -i -e "s/[ \t]*$//g" $OUTPUTFILE
   # Remove more than one empty line
   sed -i -e "/^$/N;/^\n$/D" $OUTPUTFILE
 
