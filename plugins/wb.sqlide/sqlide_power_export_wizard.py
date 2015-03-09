@@ -258,10 +258,11 @@ class ExportProgressPage(WizardProgressPage):
         return retval
         
     def page_activated(self, advancing):
-        super(ExportProgressPage, self).page_activated(advancing)
         self.reset(True)
         self.module = None
         self.stop = None
+        super(ExportProgressPage, self).page_activated(advancing)
+        
         
     def go_cancel(self):
         if self.on_close():
@@ -406,7 +407,15 @@ class SelectFilePage(WizardPage):
             self.optpanel.remove(self.optbox)
         if self.active_module and len(self.active_module.options) != 0:
             def set_text_entry(field, output):
-                operator.setitem(output, 'value', str(field.get_string_value()))
+                txt = field.get_string_value().encode('utf-8').strip()
+                if len(txt) == 0:
+                    operator.setitem(output, 'value', None)
+                elif len(txt) == 1:
+                    operator.setitem(output, 'value', txt)
+                else:
+                    field.set_value(operator.getitem(output, 'value').encode('utf-8').strip())
+                    mforms.Utilities.show_error(self.main.title, "Due to the nature of this wizard, you can't use unicode characters in this place, as also only one character is allowed.","Ok","","")
+                    
 
             def set_selector_entry(selector, output):
                 operator.setitem(output, 'value', output['opts'][str(selector.get_string_value())])
@@ -565,6 +574,9 @@ class DataInputPage(WizardPage):
             self.advanced_export.set_query(str(self.simple_export.get_query()))
             self.advanced_export.reset_dirty()
     
+    def go_cancel(self):
+        self.main.close()
+
     def get_query(self):
         return self.advanced_export.get_query()
     

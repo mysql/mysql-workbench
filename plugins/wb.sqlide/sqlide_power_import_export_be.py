@@ -344,7 +344,7 @@ class csv_module(base_module):
                 with open(self._filepath, 'wb') as csvfile:
                     output = csv.writer(csvfile, delimiter = self.options['filedseparator']['value'], 
                                         lineterminator = self.options['lineseparator']['value'], 
-                                        quotechar = self.options['encolsestring']['value'], quoting = csv.QUOTE_NONNUMERIC)
+                                        quotechar = self.options['encolsestring']['value'], quoting = csv.QUOTE_NONNUMERIC if self.options['encolsestring']['value'] else csv.QUOTE_NONE)
                     output.writerow([value['name'].encode('utf-8') for value in self._columns])
                     ok = rset.goToFirstRow()
                     
