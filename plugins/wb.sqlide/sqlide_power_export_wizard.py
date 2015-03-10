@@ -413,7 +413,7 @@ class SelectFilePage(WizardPage):
                 elif len(txt) == 1:
                     operator.setitem(output, 'value', txt)
                 else:
-                    field.set_value(operator.getitem(output, 'value').encode('utf-8').strip())
+                    field.set_value("")
                     mforms.Utilities.show_error(self.main.title, "Due to the nature of this wizard, you can't use unicode characters in this place, as also only one character is allowed.","Ok","","")
                     
 

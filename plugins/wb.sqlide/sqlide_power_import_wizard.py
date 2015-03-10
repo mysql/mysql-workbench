@@ -196,7 +196,7 @@ class ConfigurationPage(WizardPage):
                     operator.setitem(output, 'value', txt)
                     mforms.Utilities.add_timeout(0.1, self.call_create_preview_table)
                 else:
-                    field.set_value(operator.getitem(output, 'value').encode('utf-8').strip())
+                    field.set_value("")
                     mforms.Utilities.show_error("Import Wizard", "Due to the nature of this wizard, you can't use unicode characters in this place, as also only one character is allowed.","Ok","","")
 
 
