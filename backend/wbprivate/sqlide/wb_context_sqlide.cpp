@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1173,9 +1173,9 @@ db_query_EditorRef WBContextSQLIDE::get_grt_editor_object(SqlEditorForm *editor)
 
 //--------------------------------------------------------------------------------------------------
 
-static struct RegisterNotifDocs
+static struct RegisterNotifDocs_wb_context_sqlide
 {
-  RegisterNotifDocs()
+  RegisterNotifDocs_wb_context_sqlide()
   {
     base::NotificationCenter::get()->register_notification("GRNSQLEditorOpened",
                                                            "sqlide",
@@ -1217,6 +1217,6 @@ static struct RegisterNotifDocs
                                                          "selected_rows - a list of int values of the selected rows\n"
                                                          "selected_column - if this value is set, the selection is a single cell at selected_rows[0], selected_column");
   }
-} initdocs;
+} initdocs_wb_context_sqlide;
 
 
