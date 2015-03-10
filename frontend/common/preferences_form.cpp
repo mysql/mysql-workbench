@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -2019,9 +2019,9 @@ void PreferencesForm::toggle_use_global()
 
 //--------------------------------------------------------------------------------------------------
 
-static struct RegisterPrefsNotifDocs
+static struct RegisterNotifDocs_preferences_form
 {
-  RegisterPrefsNotifDocs()
+  RegisterNotifDocs_preferences_form()
   {
     base::NotificationCenter::get()->register_notification("GRNPreferencesDidCreate",
                                                            "preferences",
@@ -2051,6 +2051,6 @@ static struct RegisterPrefsNotifDocs
                                                            "model-options - the model specific options dictionary being changed\n"
                                                            "model-id - the object id of the model for which the options are being changed\n");
   }
-} initdocs;
+} initdocs_preferences_form;
 
 
