@@ -367,6 +367,9 @@ class SelectFilePage(WizardPage):
         self.load_module_options()
         
     def validate(self):
+        if not self.check_is_supported_format():
+            mforms.Utilities.show_error(self.main.title, "This file format is not supported, please select csv or json.", "Ok", "", "")
+            return False            
         file_path = self.exportfile_path.get_string_value()
         if not os.path.isdir(os.path.dirname(file_path)):
             mforms.Utilities.show_error(self.main.title, "Please specify a valid file path.", "OK", "", "")
@@ -385,21 +388,26 @@ class SelectFilePage(WizardPage):
                 return False
         global last_location
         last_location = file_path
-        return not self.unsupported_output_format 
+        return True
     
-    def get_module(self, silent = False):
+    def check_is_supported_format(self):
         file_name, file_ext = os.path.splitext(os.path.basename(self.exportfile_path.get_string_value()))
         self.input_file_type = file_ext[1:]
         for format in self.main.formats:
             if format.name == self.input_file_type:
-                self.active_module = format
-                break 
+                return format
+        return None
+
+    def get_module(self, silent = False):
+        self.unsupported_output_format = False
+        format = self.check_is_supported_format()
+        if format:
+            self.active_module = format 
         else:
             self.unsupported_output_format = True
-            self.active_module = None
+            self.active_module = self.main.formats[0] # we use first format as default one
             if not silent:
-                mforms.Utilities.show_error(self.main.title, "This file format is not supported, please select csv or json.", "Ok")
-
+                mforms.Utilities.show_error(self.main.title, "This file format is not supported, please select csv or json.", "Ok", "", "")
     
     def load_module_options(self):
         self.optpanel.show(False)
@@ -547,7 +555,7 @@ class DataInputPage(WizardPage):
                 if dbname.strip() in ["mysql", "sys", "information_schema", "fabric", "performance_schema"]:
                     ok = rset.nextRow()
                     continue
-                subrset = self.main.editor.executeManagementQuery("SHOW TABLES FROM %s" % dbname, 0)
+                subrset = self.main.editor.executeManagementQuery("SHOW TABLES FROM `%s`" % dbname, 0)
                 if subrset:
                     subok = subrset.goToFirstRow()
                     while subok:
