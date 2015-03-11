@@ -2016,9 +2016,10 @@
                 <Component DiskId="1" Guid="750471E1-68CA-4323-90D0-29D265DDD613" Id="sys" Location="either">
                   <File Id="wbsys001" Name="after_setup.sql"/>
                   <File Id="wbsys002" Name="before_setup.sql"/>
-                  <File Id="wbsys037" Name="sys_56.sql"/>
-                  <File Id="wbsys038" Name="sys_57.sql"/>
-                  <File Id="wbsys039" Name="sys_reports.js"/>
+                  <File Id="wbsys139" Name="sys_56.sql"/>
+                  <File Id="wbsys140" Name="sys_57.sql"/>
+                  <File Id="wbsys141" Name="sys_reports.js"/>
+                  <File Id="wbsys142" Name="generate_sql_file.sh"/>
                 </Component>
                 <Directory Id="sys_functions_dir" Name="functions">
                   <Component DiskId="1" Guid="44906CA8-383E-11E4-B39F-F01FAF106FB3" Id="sys_functions" Location="either">
@@ -2033,6 +2034,10 @@
                     <File Id="wbsys011" Name="ps_is_instrument_default_timed.sql"/>
                     <File Id="wbsys012" Name="ps_thread_id.sql"/>
                     <File Id="wbsys013" Name="ps_thread_stack.sql"/>
+                    <File Id="wbsys143" Name="ps_is_account_enabled_57.sql"/>
+                    <File Id="wbsys144" Name="ps_is_consumer_enabled.sql"/>
+                    <File Id="wbsys145" Name="ps_is_thread_instrumented.sql"/>
+                    <File Id="wbsys146" Name="sys_get_config.sql"/>
                   </Component>
                 </Directory>
                 <Directory Id="sys_procedures_dir" Name="procedures">
@@ -2060,6 +2065,10 @@
                     <File Id="wbsys034" Name="ps_trace_statement_digest.sql"/>
                     <File Id="wbsys035" Name="ps_trace_thread.sql"/>
                     <File Id="wbsys036" Name="ps_truncate_all_tables.sql"/>
+                    <File Id="wbsys037" Name="ps_setup_disable_consumer.sql"/>
+                    <File Id="wbsys038" Name="ps_setup_enable_consumer.sql"/>
+                    <File Id="wbsys039" Name="ps_setup_reset_to_default_57_after.sql"/>
+                    <File Id="wbsys147" Name="ps_setup_reset_to_default_57_before.sql"/>
                   </Component>
                 </Directory>
                 <Directory Id="sys_views_dir" Name="views">
@@ -2068,6 +2077,10 @@
                       <File Id="wbsys040" Name="innodb_buffer_stats_by_schema.sql"/>
                       <File Id="wbsys041" Name="innodb_buffer_stats_by_table.sql"/>
                       <File Id="wbsys042" Name="schema_object_overview.sql"/>
+                      <File Id="wbsys148" Name="innodb_lock_waits.sql"/>
+                      <File Id="wbsys149" Name="x_innodb_buffer_stats_by_schema.sql"/>
+                      <File Id="wbsys150" Name="x_innodb_buffer_stats_by_table.sql"/>
+                      <File Id="wbsys151" Name="x_innodb_lock_waits.sql"/>
                     </Component>
                   </Directory>
                   <Directory Id="sys_views_p_s_dir" Name="p_s">
@@ -2114,8 +2127,69 @@
                       <File Id="wbsys082" Name="waits_by_host_by_latency.sql"/>
                       <File Id="wbsys083" Name="waits_by_user_by_latency.sql"/>
                       <File Id="wbsys084" Name="waits_global_by_latency.sql"/>
+                      <File Id="wbsys085" Name="memory_by_host_by_current_bytes.sql"/>
+                      <File Id="wbsys086" Name="memory_by_thread_by_current_bytes.sql"/>
+                      <File Id="wbsys087" Name="memory_by_user_by_current_bytes.sql"/>
+                      <File Id="wbsys088" Name="memory_global_by_current_bytes.sql"/>
+                      <File Id="wbsys089" Name="x_host_summary.sql"/>
+                      <File Id="wbsys090" Name="x_host_summary_57.sql"/>
+                      <File Id="wbsys091" Name="x_host_summary_by_file_io.sql"/>
+                      <File Id="wbsys092" Name="x_host_summary_by_file_io_type.sql"/>
+                      <File Id="wbsys093" Name="x_host_summary_by_stages.sql"/>
+                      <File Id="wbsys094" Name="x_host_summary_by_statement_latency.sql"/>
+                      <File Id="wbsys095" Name="x_host_summary_by_statement_type.sql"/>
+                      <File Id="wbsys096" Name="x_io_by_thread_by_latency.sql"/>
+                      <File Id="wbsys097" Name="x_io_global_by_file_by_bytes.sql"/>
+                      <File Id="wbsys098" Name="x_io_global_by_file_by_latency.sql"/>
+                      <File Id="wbsys099" Name="x_io_global_by_wait_by_bytes.sql"/>
+                      <File Id="wbsys100" Name="x_io_global_by_wait_by_latency.sql"/>
+                      <File Id="wbsys101" Name="x_latest_file_io.sql"/>
+                      <File Id="wbsys102" Name="x_memory_by_host_by_current_bytes.sql"/>
+                      <File Id="wbsys103" Name="x_memory_by_thread_by_current_bytes.sql"/>
+                      <File Id="wbsys104" Name="x_memory_by_user_by_current_bytes.sql"/>
+                      <File Id="wbsys105" Name="x_memory_global_by_current_bytes.sql"/>
+                      <File Id="wbsys106" Name="x_memory_global_total.sql"/>
+                      <File Id="wbsys107" Name="x_processlist.sql"/>
+                      <File Id="wbsys108" Name="x_processlist_57.sql"/>
+                      <File Id="wbsys109" Name="x_ps_digest_95th_percentile_by_avg_us.sql"/>
+                      <File Id="wbsys111" Name="x_ps_digest_avg_latency_distribution.sql"/>
+                      <File Id="wbsys112" Name="x_ps_schema_table_statistics_io.sql"/>
+                      <File Id="wbsys113" Name="x_schema_index_statistics.sql"/>
+                      <File Id="wbsys114" Name="x_schema_table_statistics.sql"/>
+                      <File Id="wbsys115" Name="x_schema_table_statistics_with_buffer.sql"/>
+                      <File Id="wbsys116" Name="x_schema_tables_with_full_table_scans.sql"/>
+                      <File Id="wbsys117" Name="x_statement_analysis.sql"/>
+                      <File Id="wbsys118" Name="x_statements_with_errors_or_warnings.sql"/>
+                      <File Id="wbsys119" Name="x_statements_with_full_table_scans.sql"/>
+                      <File Id="wbsys120" Name="x_statements_with_runtimes_in_95th_percentile.sql"/>
+                      <File Id="wbsys121" Name="x_statements_with_sorting.sql"/>
+                      <File Id="wbsys122" Name="x_statements_with_temp_tables.sql"/>
+                      <File Id="wbsys123" Name="x_user_summary.sql"/>
+                      <File Id="wbsys124" Name="x_user_summary_57.sql"/>
+                      <File Id="wbsys125" Name="x_user_summary_by_file_io.sql"/>
+                      <File Id="wbsys126" Name="x_user_summary_by_file_io_type.sql"/>
+                      <File Id="wbsys127" Name="x_user_summary_by_stages.sql"/>
+                      <File Id="wbsys128" Name="x_user_summary_by_statement_latency.sql"/>
+                      <File Id="wbsys129" Name="x_user_summary_by_statement_type.sql"/>
+                      <File Id="wbsys130" Name="x_wait_classes_global_by_avg_latency.sql"/>
+                      <File Id="wbsys131" Name="x_wait_classes_global_by_latency.sql"/>
+                      <File Id="wbsys132" Name="x_waits_by_host_by_latency.sql"/>
+                      <File Id="wbsys133" Name="x_waits_by_user_by_latency.sql"/>
+                      <File Id="wbsys134" Name="x_waits_global_by_latency.sql"/>
                     </Component>
                   </Directory>
+                </Directory>
+                <Directory Id="sys_tables_dir" Name="tables">
+                  <Component DiskId="1" Guid="C9397300-BCDE-405A-AD4C-C295E519E6CA" Id="sys_tables" Location="either">
+                    <File Id="wbsys135" Name="sys_config.sql"/>
+                    <File Id="wbsys136" Name="sys_config_data.sql"/>
+                  </Component>
+                </Directory>
+                <Directory Id="sys_triggers_dir" Name="triggers">
+                  <Component DiskId="1" Guid="E02DF9FB-96B6-411B-9D27-B7393D631BA9" Id="sys_triggers" Location="either">
+                    <File Id="wbsys137" Name="sys_config_insert_set_user.sql"/>
+                    <File Id="wbsys138" Name="sys_config_update_set_user.sql"/>
+                  </Component>
                 </Directory>
               </Directory>   
               
