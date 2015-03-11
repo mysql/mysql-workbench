@@ -208,6 +208,8 @@
             <ComponentRef Id="sys_views_p_s" />
             <ComponentRef Id="extras" />
             <ComponentRef Id="RegKeys" />
+            <ComponentRef Id="sys_tables" />
+            <ComponentRef Id="sys_triggers" />
         </Feature>
 
         <Feature Id="WorkbenchProgramShortcut" Description="Place a Shortcut to MySQL Workbench in your Startmenus MySQL Folder" Level="1" Title="Program Shortcut">
