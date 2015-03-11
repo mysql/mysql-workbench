@@ -71,8 +71,7 @@ FsObjectSelector::~FsObjectSelector()
 //--------------------------------------------------------------------------------------------------
 
 void FsObjectSelector::initialize(const std::string& initial_path, FileChooserType type,
-                                  const std::string& extensions, const std::string& button_text,
-                                  bool show_hidden, boost::function<void ()> on_validate)
+                                  const std::string& extensions, bool show_hidden, boost::function<void ()> on_validate)
 {
   _type= type;
   _show_hidden = show_hidden;
@@ -96,10 +95,9 @@ void FsObjectSelector::initialize(const std::string& initial_path, FileChooserTy
   }
 
   _edit->set_value(initial_path);
-  _browse_button->set_text(button_text);
+  _browse_button->set_text("...");
   _browse_button->set_size(40, -1);
-  if (button_text == "...")
-    _browse_button->enable_internal_padding(false);
+  _browse_button->enable_internal_padding(false);
   _on_validate= on_validate;
   enable_file_browsing();
 }

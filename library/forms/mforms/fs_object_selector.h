@@ -55,8 +55,7 @@ namespace mforms {
     ~FsObjectSelector();
     
     void initialize(const std::string& initial_path, FileChooserType type, const std::string& extensions,
-                    const std::string& button_text= "...", bool show_hidden = false,
-                    boost::function<void ()> on_validate= boost::function<void ()>());
+                    bool show_hidden = false, boost::function<void ()> on_validate= boost::function<void ()>());
     void set_filename(const std::string &path);
     std::string get_filename();
     void set_enabled(bool value);
