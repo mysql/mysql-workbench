@@ -214,7 +214,7 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
     NSIndexSet *sel = [mMessagesTable selectedRowIndexes];
     if ([sel count] > 0)
     {
-      for (int i = [sel firstIndex]; i <= (int)[sel lastIndex]; i = [sel indexGreaterThanIndex: i])
+      for (NSUInteger i = [sel firstIndex]; i <= [sel lastIndex] and i != NSNotFound; i = [sel indexGreaterThanIndex: i])
         selection.push_back(i);
     }
     mBackEnd->log()->set_selection(selection);
