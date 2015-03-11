@@ -237,8 +237,8 @@ class ListModelWrapper : public Gtk::TreeModel, public Glib::Object,
                          public Gtk::TreeDragDest, public Gtk::TreeDragSource,
                          public base::trackable
 #else
-class ListModelWrapper : public Glib::Object, public Gtk::TreeModel,
-                         public Gtk::TreeDragDest, public Gtk::TreeDragSource,
+class ListModelWrapper : public Gtk::TreeModel, public Gtk::TreeDragDest, public Gtk::TreeDragSource,
+                         public Glib::Object,
                          public base::trackable
 
 #endif
