@@ -966,7 +966,8 @@ class SSLWizard_GeneratePage(WizardPage):
         self.client_cert = task.client_cert
         self.client_key = task.client_key
         f = open(os.path.join(self.main.results_path, "my.cnf.sample"), "w+")
-        f.write("""# Copy this to your my.cnf file. Please change <directory> to the corresponding directory where the files were copied.
+        f.write("""# Copy this to your my.cnf file. Please change <directory> to the corresponding 
+# directory where the files were copied.
 [client]
 ssl-ca=%(ca_cert)s
 ssl-cert=%(client_cert)s
@@ -1016,17 +1017,21 @@ class SSLWizard_ResultsPage(WizardPage):
         message += " - %s\n" % str(os.path.join(self.main.results_path, "ca_cert"))
         message += " - %s\n" % str(os.path.join(self.main.results_path, "server_cert"))
         message += " - %s\n" % str(os.path.join(self.main.results_path, "server_key"))
-        message += "\n\nand configure the config file with the following parameters:\n"
-        
-        f = open(os.path.join(self.main.results_path, "my.cnf.sample"), "r")
-        message += f.read()
-        f.close()
-        
-        message += "\n\nA copy of this file can be found in:\n%s" % str(os.path.join(self.main.results_path, "my.cnf.sample"))
+        message += "\n\nand edit the config file to use the following parameters:"
         
         label = mforms.newLabel(message)
-        #label.set_wrap_text(True)
         self.content.add(label, False, True)
+
+        f = open(os.path.join(self.main.results_path, "my.cnf.sample"), "r")
+        config_file = mforms.newTextBox(mforms.VerticalScrollBar)
+        config_file.set_value(f.read())
+        config_file.set_size(-1, 150)
+        self.content.add(config_file, False, True)
+        f.close()
+        
+        label = mforms.newLabel("A copy of this file can be found in:\n%s" % str(os.path.join(self.main.results_path, "my.cnf.sample")))
+        self.content.add(label, False, True)
+        
         return
 
 class SSLWizard(WizardForm):
