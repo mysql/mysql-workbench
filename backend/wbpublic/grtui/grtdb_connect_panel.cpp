@@ -1219,7 +1219,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
 
       ctrl->set_size(bounds.width, -1);
 
-      ctrl->initialize(initial_value, mforms::OpenFile, "", "...", true,
+      ctrl->initialize(initial_value, mforms::OpenFile, "", true,
         boost::bind(&DbConnectPanel::param_value_changed, this, ctrl));
       box->add(mforms::manage(ctrl), true, true);
       _views.push_back(ctrl);

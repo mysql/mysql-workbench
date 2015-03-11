@@ -49,7 +49,7 @@ ImportInputPage::ImportInputPage(WizardPlugin *form)
   _table.add(&_file_selector, 1, 2, 1, 2, mforms::HExpandFlag | mforms::HFillFlag);
 
   std::string initial_filename= form->module()->document_string_data("input_filename", "");
-  _file_selector.initialize(initial_filename, mforms::OpenFile, "SQL Files (*.sql)|*.sql", _("Browse..."),
+  _file_selector.initialize(initial_filename, mforms::OpenFile, "SQL Files (*.sql)|*.sql",
     false, boost::bind(&WizardPage::validate, this));
   scoped_connect(_file_selector.signal_changed(),boost::bind(&ImportInputPage::file_changed, this));
 
