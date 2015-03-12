@@ -578,7 +578,7 @@ class CheckForUpdateThread(threading.Thread):
             self.dom = xml.dom.minidom.parse(urllib2.urlopen('http://wb.mysql.com/installer/products.xml'))
         except Exception, error:
             self.dom = None
-            self.error = str(error)        
+            self.error = "%s\n\nPlease verify your internet connection is available." % str(error)        
     
     def checkForUpdatesCallback(self):
         if self.isAlive():
