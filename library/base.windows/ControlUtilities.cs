@@ -1,5 +1,5 @@
 ﻿/* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -114,10 +114,24 @@ namespace MySQL.Utilities
     /// will never show any content anymore.
     /// </summary>
     /// <param name="control">The control to stop drawing.</param>
+
+    private delegate void DelegateFunc();
+
     public static void SuspendDrawing(Control control)
     {
       if (control.IsHandleCreated)
+      {
+        if (control.InvokeRequired)
+        {
+          DelegateFunc f = delegate
+          {
+            Win32.SendMessage(control.Handle, (int)WM.SETREDRAW, 0, 0);
+          }; 
+          control.Invoke(f);
+          return;
+        }
         Win32.SendMessage(control.Handle, (int)WM.SETREDRAW, 0, 0);
+      }
     }
 
     /// <summary>
@@ -127,7 +141,18 @@ namespace MySQL.Utilities
     public static void ResumeDrawing(Control control)
     {
       if (control.IsHandleCreated)
+      {
+        if (control.InvokeRequired)
+        {
+          DelegateFunc f = delegate
+          {
+            Win32.SendMessage(control.Handle, (int)WM.SETREDRAW, 1, 0);
+          };
+          control.Invoke(f);
+          return;
+        }
         Win32.SendMessage(control.Handle, (int)WM.SETREDRAW, 1, 0);
+      }
     }
 
     /// <summary>
