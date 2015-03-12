@@ -3317,7 +3317,7 @@ void TableEditorBE::open_field_editor(int row, int column)
 void TableEditorBE::update_selection_for_menu_extra(mforms::ContextMenu *menu, const std::vector<int> &rows, int column)
 {
   mforms::MenuItem *item = menu->find_item("edit_cell");
-  if (item)
+  if (item != NULL && !rows.empty())
   {
     if (item->signal_clicked()->empty())
       item->signal_clicked()->connect(boost::bind(&TableEditorBE::open_field_editor, this, rows[0], column));
