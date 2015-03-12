@@ -495,7 +495,7 @@ namespace MySQL.GUI.Workbench.Plugins
         columnsListModel.RefreshModel();
         indicesListModel.RefreshModel();
         fkListModel.RefreshModel();
-        //tableEditorBE.load_trigger_sql(); no longer needed since form data refreshs are triggered by backend code.
+        tableEditorBE.load_trigger_sql();
 
         // partitioning
         if (tableEditorBE.get_partition_type() == null || tableEditorBE.get_partition_type() == "")
