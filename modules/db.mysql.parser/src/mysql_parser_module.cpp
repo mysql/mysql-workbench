@@ -152,6 +152,9 @@ size_t MySQLParserServicesImpl::parseTrigger(const ParserContext::Ref &context,
       trigger->otherTrigger(walker.token_text());
       walker.next();
     }
+    
+    if (type == LABEL_TOKEN)
+      walker.next_sibling();
 
     // The rest of the sql belongs to the sql body.
     trigger->sqlBody(sql.substr(walker.token_offset(), sql.size()));
