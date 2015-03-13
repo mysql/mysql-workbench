@@ -20,6 +20,7 @@ import grt
 import json
 
 import os
+import sys
 from workbench.log import log_error, log_debug
 
 from wb_admin_perfschema import WbAdminPSBaseTab
@@ -69,7 +70,8 @@ class PSHelperViewTab(mforms.Box):
         self._owner = owner
         
         self.set_spacing(8)
-        self.set_back_color("#FFFFFF")
+        if sys.platform == 'win32' or sys.platform == 'darwin':
+            self.set_back_color("#FFFFFF")
 
         self._refresh = None
         self._busy = False
