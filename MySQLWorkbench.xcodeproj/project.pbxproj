@@ -12727,7 +12727,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 0610;
+				LastUpgradeCheck = 0620;
 				ORGANIZATIONNAME = "Oracle and/or its affiliates";
 				TargetAttributes = {
 					27D8079D1A3F262D00EDCA8F = {
@@ -16173,6 +16173,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../mysql-mac-res/mysql/include",
+					"$(SRCROOT)/../mysql-mac-res/include/iodbc",
 					"$(SRCROOT)/backend/wbprivate",
 					/opt/local/include,
 				);
@@ -16195,6 +16196,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../mysql-mac-res/mysql/include",
+					"$(SRCROOT)/../mysql-mac-res/include/iodbc",
 					"$(SRCROOT)/backend/wbprivate",
 					/opt/local/include,
 				);
@@ -17983,7 +17985,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
 				COMBINE_HIDPI_IMAGES = NO;
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -18036,7 +18037,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
 				COMBINE_HIDPI_IMAGES = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -18087,7 +18087,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				COPY_PHASE_STRIP = NO;
@@ -18114,6 +18113,7 @@
 					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-headerpad_max_install_names";
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
@@ -18129,7 +18129,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				COPY_PHASE_STRIP = NO;
