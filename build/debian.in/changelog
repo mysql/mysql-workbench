@@ -1,6 +1,6 @@
-mysql-workbench-@edition@ (6.3.3) @distro@; urgency=low
+mysql-workbench-@edition@ (6.3.3-1@distrov@) @distro@; urgency=low
 
-  * new release
+  * New release
 
  -- Mike Lischke <mike.lischke@oracle.com>  Fri, 20 Mar 2015 12:00:00 +0100
 
