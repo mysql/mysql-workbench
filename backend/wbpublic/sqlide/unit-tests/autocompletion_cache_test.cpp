@@ -83,8 +83,14 @@ TEST_FUNCTION(3)
   std::vector<std::string> list = _cache->get_matching_schema_names("sakila");
   ensure("Schema list is not empty", list.empty());
 
-  // Give the cache a moment to finish the retrival.
-  g_usleep(1000000);
+  // After creation a first data retrieval starts automatically in the background.
+  // Wait a moment to have that finished.
+  g_usleep(2000000);
+
+  // Retrieve db objects in the sakila schema. So they are available when we ask for them
+  // in the following tests.
+  _cache->refresh_schema_cache_if_needed("sakila");
+  g_usleep(2000000);
 }
 
 static void ensure_list_equals(const char *what, const std::vector<std::string> &list, const char **comp)
@@ -118,7 +124,8 @@ TEST_FUNCTION(10)
 {
   std::vector<std::string> list = _cache->get_matching_schema_names("");
   int found = 0;
-  // this time the schema list should contain sakila and mysql
+
+  // This time the schema list should contain sakila and mysql.
   for (std::vector<std::string>::const_iterator i = list.begin(); i != list.end(); ++i)
   {
     if (*i == "sakila" || *i == "mysql")
