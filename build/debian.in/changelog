@@ -1,3 +1,10 @@
+mysql-workbench-@edition@ (7.0.0-1@distrov@) @distro@; urgency=low
+
+  * New release
+
+ -- Marcin Szalowicz <marcin.szalowicz@oracle.com>  Fri, 20 Mar 2015 12:00:00 +0100
+
+
 mysql-workbench-@edition@ (6.3.3-1@distrov@) @distro@; urgency=low
 
   * New release
