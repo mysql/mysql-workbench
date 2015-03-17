@@ -3,6 +3,7 @@ import raw_vars
 import options_layout
 import pprint
 
+print('-----------------------------------\nRunning %s\n-----------------------------------\n' % __file__)
 
 print "Converting raw_opts.py to opts.py"
 
