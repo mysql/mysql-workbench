@@ -359,7 +359,7 @@ class Tunnel(threading.Thread):
             local_sock.close()
             return
 
-        self.notify('INFO', 'Tunnel now open %r -> %r -> %r' % (local_sock.getpeername(), sshchan.getpeername(), self._target))
+        self.notify('INFO', 'Tunnel now open %r -> %r -> %r' % (local_sock.getsockname(), sshchan.getpeername(), self._target))
 
         self._connections.append((local_sock, sshchan))
 
