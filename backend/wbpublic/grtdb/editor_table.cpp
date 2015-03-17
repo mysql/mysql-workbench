@@ -774,7 +774,11 @@ bool TableColumnsListBE::set_field(const NodeId &node, ColumnId column, ssize_t 
       AutoUndoEdit undo(_owner);
 
       if (value != 0)
+      {
         _owner->get_table()->addPrimaryKeyColumn(col);
+        if (col->defaultValue() != "")
+          col->defaultValue("");
+      }
       else
         _owner->get_table()->removePrimaryKeyColumn(col);
 
