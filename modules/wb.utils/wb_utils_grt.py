@@ -818,7 +818,7 @@ class SSLWizard_OptionsPage(WizardPage):
         self.use_default_parameters.set_active(False)
         
         self.clear_button = newButton()
-        self.clear_button.set_text("Clear")
+        self.clear_button.set_text("Clear Files")
         self.clear_button.add_clicked_callback(self.clear_button_clicked)
         self.clear_button.set_enabled(os.path.isdir(self.main.results_path))
 
@@ -867,8 +867,14 @@ class SSLWizard_OptionsPage(WizardPage):
         box.add(self.generate_files, False, False)
         box.add(self.update_connection, False, False)
         
+        button_box = mforms.newBox(True)
+        button_box.set_spacing(12)
+        button_box.set_padding(12)
+        
+        button_box.add(self.clear_button, False, False)
+        
         self.content.add(box, False, False)
-        self.content.add(self.clear_button, False, False)
+        self.content.add(button_box, False, False)
         box.show(True)
 
 class SSLWizard_GeneratePage(WizardPage):
