@@ -342,6 +342,7 @@ class MySQLCopyDataTarget
   bool append_bulk_column(size_t col_index);
 
   void get_server_version();
+  bool is_mysql_version_at_least(const int _major, const int _minor, const int _build);
   void send_long_data(int column, const char *data, size_t length);
 
   void init();
