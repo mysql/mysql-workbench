@@ -151,6 +151,7 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
 
   _bottom_hbox.set_spacing(12);
       
+  _stored_connection_list.set_name("Connection List");
   _top_hbox.add(&_stored_connection_list, false, true);
 
   _content_box.set_spacing(8);
@@ -162,6 +163,7 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
     hbox->set_spacing(8);
     _content_box.add(hbox, false, true);
   }
+  _name_entry.set_name("Connection Name");
   scoped_connect(_name_entry.signal_changed(),boost::bind(&ServerInstanceEditor::entry_changed, this, &_name_entry));
 
   _content_box.add(&_tabview, true, true);

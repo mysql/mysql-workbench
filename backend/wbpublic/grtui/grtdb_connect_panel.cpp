@@ -107,6 +107,8 @@ _last_active_tab(-1)
   _desc3.set_text(_("Method to use to connect to the RDBMS"));
   _desc3.set_style(mforms::SmallHelpTextStyle);
 
+
+  _stored_connection_sel.set_name("Connection List");
   if (_show_connection_combo)
     scoped_connect(_stored_connection_sel.signal_changed(),boost::bind(&DbConnectPanel::change_active_stored_conn, this));
   scoped_connect(_rdbms_sel.signal_changed(),boost::bind(&DbConnectPanel::change_active_rdbms, this));
