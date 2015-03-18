@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -99,7 +99,7 @@ void ViewTextPage::save_clicked()
     
     try
     {
-      base::set_text_file_contents(fsel.get_path(), text);
+      base::setTextFileContent(fsel.get_path(), text);
     }
     catch (const std::exception &exc)
     {

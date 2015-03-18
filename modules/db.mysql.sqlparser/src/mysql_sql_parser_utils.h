@@ -121,8 +121,8 @@ public:
     {
       collation_name = base::tolower(collation_name);
       // clear collation if it's default collation or it belongs to another character set
-      if ((collation_name == get_cs_def_collation(cs_name))
-          || (cs_name != get_collation_cs(collation_name)))
+      if ((collation_name == defaultCollationForCharset(cs_name))
+          || (cs_name != charsetForCollation(collation_name)))
         set_collation_name("");
     }
   }
@@ -135,8 +135,8 @@ public:
         collation_name= base::tolower(*_parent_collation_mem_getter());
 
       // clear collation if it's default collation
-      std::string cs_name= get_collation_cs(collation_name);
-      std::string cs_def_collation_name= get_cs_def_collation(cs_name);
+      std::string cs_name= charsetForCollation(collation_name);
+      std::string cs_def_collation_name= defaultCollationForCharset(cs_name);
       if (cs_def_collation_name == collation_name)
         collation_name= "";
 

@@ -17,15 +17,15 @@
  * 02110-1301  USA
  */
 
-#ifndef _WIN32
+#ifndef HAVE_PRECOMPILED_HEADERS
 #include <stdio.h>
+#include <boost/scoped_array.hpp>
+#include <string.h>
 #endif
 
 #include "base/string_utilities.h"
 #include "base/util_functions.h"
 #include "base/log.h"
-
-#include <boost/scoped_array.hpp>
 
 #include "db_object_helpers.h"
 #include "grtpp_undo_manager.h"
@@ -39,10 +39,6 @@
 #include "MySQLParser.h" // For token types.
 
 DEFAULT_LOG_DOMAIN("dbhelpers");
-
-#ifndef _WIN32
-#include <string.h>
-#endif
 
 using namespace bec;
 using namespace grt;
@@ -1159,31 +1155,31 @@ void CatalogHelper::apply_defaults(db_mysql_CatalogRef cat, std::string default_
   {
     db_mysql_SchemaRef schema= cat->schemata().get(i);
 
-    if(strlen(schema->defaultCharacterSetName().c_str()) == 0)
+    if (schema->defaultCharacterSetName().empty())
       schema->defaultCharacterSetName(cat->defaultCharacterSetName());
-    if(strlen(schema->defaultCollationName().c_str()) == 0)
-      schema->defaultCollationName(get_cs_def_collation(schema->defaultCharacterSetName().c_str()));
+    if (schema->defaultCollationName().empty())
+      schema->defaultCollationName(defaultCollationForCharset(schema->defaultCharacterSetName()));
 
     for(size_t j= 0, tables_count= schema->tables().count(); j < tables_count; j++)
     {
       db_mysql_TableRef table= schema->tables().get(j);
 
-      if(strlen(table->defaultCharacterSetName().c_str()) == 0)
+      if (table->defaultCharacterSetName().empty())
         table->defaultCharacterSetName(schema->defaultCharacterSetName());
 
-      if(table->defaultCharacterSetName() == schema->defaultCharacterSetName())
+      if (table->defaultCharacterSetName() == schema->defaultCharacterSetName())
       {
         if(strlen(table->defaultCollationName().c_str()) == 0)
           table->defaultCollationName(schema->defaultCollationName());
       }
       else
       {
-        if(strlen(table->defaultCollationName().c_str()) == 0)
-          table->defaultCollationName(get_cs_def_collation(table->defaultCharacterSetName()));
+        if (table->defaultCollationName().empty())
+          table->defaultCollationName(defaultCollationForCharset(table->defaultCharacterSetName()));
       }
       
-      if(strlen(table->tableEngine().c_str()) == 0)
-        table->tableEngine(default_engine.empty()?"InnoDB":default_engine);
+      if (table->tableEngine().empty())
+        table->tableEngine(default_engine.empty() ? "InnoDB" : default_engine);
 
           for (size_t c= table->foreignKeys().count(), i= 0; i < c; i++)
           {

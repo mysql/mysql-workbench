@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -532,7 +532,7 @@ std::string ActionGenerateSQL::generate_create(db_mysql_ColumnRef column)
         .append("CHARACTER SET '")
         .append(column->characterSetName())
         .append("' ");
-      if (!(*column->collationName()).empty() && (get_collation_cs(column->collationName()) ==(*column->characterSetName())))
+      if (!(*column->collationName()).empty() && (charsetForCollation(column->collationName()) ==(*column->characterSetName())))
         sql
         .append("COLLATE '")
         .append(column->collationName())
@@ -833,7 +833,7 @@ void ActionGenerateSQL::create_schema(db_mysql_SchemaRef schema)
     schema_sql.append("DEFAULT CHARACTER SET ").append(schema->defaultCharacterSetName().c_str()).append(" ");
 
   if(schema->defaultCollationName().is_valid() && !schema->defaultCollationName().empty() && 
-      (get_collation_cs(schema->defaultCollationName()) == (schema->defaultCharacterSetName().c_str())))
+      (charsetForCollation(schema->defaultCollationName()) == (schema->defaultCharacterSetName().c_str())))
     schema_sql.append("COLLATE ").append(schema->defaultCollationName().c_str()).append(" ");
 
   remember(schema, schema_sql);

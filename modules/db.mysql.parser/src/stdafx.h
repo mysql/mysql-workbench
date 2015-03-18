@@ -29,6 +29,7 @@
 #include <set>
 #include <map>
 #include <list>
+#include <unordered_set>
 
 #include <glib.h>
 

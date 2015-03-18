@@ -42,7 +42,6 @@ protected:
   ParserContext::Ref _context;
   MySQLParserServices::Ref _services;
 
-  //db_mgmt_RdbmsRef rdbms;
   DictRef _options;
 
   void test_import_sql(int test_no, const char *old_schema_name = NULL, const char *new_schema_name= NULL);
@@ -80,39 +79,49 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(int test_no,
   std::string test_sql_filename = TEST_DATA_DIR + number_string + ".sql";
 
   // We have actually 2 parser tests here for now: the old server based parser and the new ANTLR one.
-  // Parse the sql with the old parser.
-  {/*
+  // First parse the sql with the old parser.
+  // 
+  // The old parser has some inflexibilities (e.g. regarding key/column ordering in a CREATE TABLE)
+  // so some tests fail for it now, as we use more complex sql for the new parser. Ignore those for the old parser.
+  if (test_no != 8 && test_no != 9)
+  {
+  // /*
     std::string test_catalog_state_filename = TEST_DATA_DIR + number_string + ".xml";
     std::string res_catalog_state_filename = TEST_DATA_DIR + number_string + "_res.xml";
 
-    db_mysql_CatalogRef res_catalog(_tester.grt);
-    res_catalog->version(_tester.get_rdbms()->version());
-    res_catalog->defaultCharacterSetName("utf8");
-    res_catalog->defaultCollationName("utf8_general_ci");
-    grt::replace_contents(res_catalog->simpleDatatypes(), _tester.get_rdbms()->simpleDatatypes());
+    if (g_file_test(test_catalog_state_filename.c_str(), G_FILE_TEST_EXISTS)) // Some newer tests are only done for the new parser.
+    {
+      db_mysql_CatalogRef res_catalog(_tester.grt);
+      res_catalog->version(_tester.get_rdbms()->version());
+      res_catalog->defaultCharacterSetName("utf8");
+      res_catalog->defaultCollationName("utf8_general_ci");
+      grt::replace_contents(res_catalog->simpleDatatypes(), _tester.get_rdbms()->simpleDatatypes());
 
-    _sqlFacade->parseSqlScriptFileEx(res_catalog, test_sql_filename, _options);
+      _sqlFacade->parseSqlScriptFileEx(res_catalog, test_sql_filename, _options);
 
-    // Rename the schema if asked.
-    if (old_schema_name && new_schema_name)
-      _sqlFacade->renameSchemaReferences(res_catalog, old_schema_name, new_schema_name);
+      // Rename the schema if asked.
+      if (old_schema_name && new_schema_name)
+        _sqlFacade->renameSchemaReferences(res_catalog, old_schema_name, new_schema_name);
 
-    // Serialize the catalog to file (not necessary for this test, but for manual checks).
-    _tester.grt->serialize(res_catalog, res_catalog_state_filename);
+      // Serialize the catalog to file (not necessary for this test, but for manual checks).
+      _tester.grt->serialize(res_catalog, res_catalog_state_filename);
 
-    // Unserialize the result so we can compare that with the generated catalog.
-    db_CatalogRef test_catalog = db_mysql_CatalogRef::cast_from(ValueRef(_tester.grt->unserialize(test_catalog_state_filename)));
+      // Unserialize the result so we can compare that with the generated catalog.
+      db_CatalogRef test_catalog = db_mysql_CatalogRef::cast_from(ValueRef(_tester.grt->unserialize(test_catalog_state_filename)));
 
-    // Before comparing set the simple data types list to that of the rdbms. Its not part of the
-    // parsing process we test here. The test data additionally doesn't contain full lists,
-    // so we would get a test failure on that.
-    grt::replace_contents(test_catalog->simpleDatatypes(), _tester.get_rdbms()->simpleDatatypes());
+      // Before comparing set the simple data types list to that of the rdbms. Its not part of the
+      // parsing process we test here. The test data additionally doesn't contain full lists,
+      // so we would get a test failure on that.
+      grt::replace_contents(test_catalog->simpleDatatypes(), _tester.get_rdbms()->simpleDatatypes());
 
-    grt_ensure_equals(test_message.c_str(), res_catalog, test_catalog);*/
+      grt_ensure_equals(test_message.c_str(), res_catalog, test_catalog);
+    }
+    //*/
   }
 
   // Same steps as above but using the ANTLR parser.
   {
+   // /*
     std::string test_catalog_state_filename = TEST_DATA_DIR + number_string + "a.xml";
     std::string res_catalog_state_filename = TEST_DATA_DIR + number_string + "a_res.xml";
 
@@ -122,11 +131,9 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(int test_no,
     res_catalog->defaultCollationName("utf8_general_ci");
     grt::replace_contents(res_catalog->simpleDatatypes(), _tester.get_rdbms()->simpleDatatypes());
 
-    std::ifstream file(test_sql_filename);
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    tut::ensure("Query failed to parse: \n" + buffer.str(), 
-      _services->parseSQLIntoCatalog(_context, res_catalog, buffer.str(), _options) == 0);
+    std::string sql = base::getTextFileContent(test_sql_filename);
+    tut::ensure("Query failed to parse", 
+      _services->parseSQLIntoCatalog(_context, res_catalog, sql, _options) == 0);
 
     // Rename the schema if asked.
     if (old_schema_name && new_schema_name)
@@ -138,19 +145,15 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(int test_no,
     // Unserialize the result so we can compare that with the generated catalog.
     db_CatalogRef test_catalog = db_mysql_CatalogRef::cast_from(ValueRef(_tester.grt->unserialize(test_catalog_state_filename)));
 
-    // Before comparing set the simple data types list to that of the rdbms. Its not part of the
-    // parsing process we test here. The test data additionally doesn't contain full lists,
-    // so we would get a test failure on that.
-    grt::replace_contents(test_catalog->simpleDatatypes(), _tester.get_rdbms()->simpleDatatypes());
-
     grt_ensure_equals(test_message.c_str(), res_catalog, test_catalog);
+    //*/
   }
 }
 
 // Table
 TEST_FUNCTION(20)
 {
-  for (int i = 10; i < 18; ++i)
+  for (int i = 0; i <= 18; ++i)
     test_import_sql(i);
 }
 

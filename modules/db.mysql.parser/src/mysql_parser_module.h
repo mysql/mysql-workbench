@@ -130,7 +130,7 @@ public:
 
     virtual size_t stopProcessing();
 
-    virtual size_t parseTable(parser::ParserContext::Ref context, db_mysql_TableRef &table,
+    virtual size_t parseTable(parser::ParserContext::Ref context, db_mysql_TableRef table,
       const std::string &sql);
 
     size_t parseTriggerSql(parser_ContextReferenceRef context_ref, db_mysql_TriggerRef trigger,

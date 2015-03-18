@@ -35,7 +35,7 @@
 
       <gstruct name="db.mysql.Tablespace" parent="db.Tablespace" attr:caption="MySQL Tablespace">
           <members>
-              <member name="engine" type="string" attr:desc = "usually only NDB makes sense"/>
+              <member name="engine" type="string" attr:desc = "NDB and InnoDB are supported"/>
               <member name="nodeGroupId" type="int" attr:desc = "the same id as used for a logfile group"/>
               <member name="wait" type="int" attr:desc = "no documentation yet"/>
           </members>

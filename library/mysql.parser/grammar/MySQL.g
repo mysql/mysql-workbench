@@ -155,9 +155,11 @@ tokens {
 // provide context information. The code which creates parser and lexer must set a reference to such a structure
 // initialized to the proper values in the shared lexer/parser state userp member.
 typedef struct {
+    int versionMatched;    // True if a given version number is less or equal compare to that of the server.
+	int inVersionComment;  // True if we are in a version comment (/*!12345 ... */).
 	long version;
-	unsigned sql_mode; // A collection of flags indicating which of relevant SQL modes are active.
-	void *payload;     // Since we use the usercp for this struct we need another way to pass around other arbitrary data.
+	unsigned sqlMode;      // A collection of flags indicating which of relevant SQL modes are active.
+	void *payload;         // Since we use the usercp for this struct we need another way to pass around other arbitrary data.
 } RecognitionContext;
 
 // SQL modes that control parsing behavior.
@@ -167,12 +169,16 @@ typedef struct {
 #define SQL_MODE_IGNORE_SPACE           8
 #define SQL_MODE_NO_BACKSLASH_ESCAPES  16
 
+// 2 vars stored in state pointer (otherwise we would have to create global vars).
+#define VERSION_MATCHED ((RecognitionContext*)RECOGNIZER->state->userp)->versionMatched
+#define IN_VERSION_COMMENT ((RecognitionContext*)RECOGNIZER->state->userp)->inVersionComment
+
 #define PAYLOAD ((RecognitionContext*)RECOGNIZER->state->userp)->payload
 #define SERVER_VERSION ((RecognitionContext*)RECOGNIZER->state->userp)->version
 #define TYPE_FROM_VERSION(version, type) (SERVER_VERSION >= version ? type : IDENTIFIER)
 #define DEPRECATED_TYPE_FROM_VERSION(version, type) (SERVER_VERSION < version ? type : IDENTIFIER)
 #define TYPE_IN_VERSION_RANGE(small_version, large_version, type) ((SERVER_VERSION >= small_version && SERVER_VERSION < large_version) ? type : IDENTIFIER)
-#define SQL_MODE_ACTIVE(mode) (((RecognitionContext*)RECOGNIZER->state->userp)->sql_mode & mode) != 0
+#define SQL_MODE_ACTIVE(mode) (((RecognitionContext*)RECOGNIZER->state->userp)->sqlMode & mode) != 0
 
 }
 
@@ -239,9 +245,6 @@ extern "C" {
 }
 
 @lexer::members {
-  ANTLR3_BOOLEAN matched_version = ANTLR3_FALSE; // True if a given version number is less than that of the server.
-  ANTLR3_BOOLEAN in_version_comment = ANTLR3_FALSE; // True if we are in a version comment (/*!12345 ... */).
-
   // Checks if the version number, given by the token, is less than or equal to the current server version.
   // Returns ANTRL3_TRUE if so, otherwise ANTLR3_FALSE.
   ANTLR3_BOOLEAN check_version_token(long server_version, pANTLR3_COMMON_TOKEN token)
@@ -4585,30 +4588,30 @@ COMMENT_RULE:
 // /*!12345 ... */ - Same as the previous one except code is only used when the given number is a lower value
 //                   than the current server version (specifying so the minimum server version the code can run with).
 fragment BLOCK_COMMENT options { greedy = false; }:
-	{in_version_comment == ANTLR3_FALSE}? => VERSION_COMMENT
+	{IN_VERSION_COMMENT == ANTLR3_FALSE}? => VERSION_COMMENT
 	| MULTILINE_COMMENT
 ;
 
 fragment VERSION_COMMENT
-@init { matched_version = ANTLR3_TRUE; }
+@init { VERSION_MATCHED = ANTLR3_TRUE; }
 :
 	VERSION_COMMENT_INTRODUCER
 		(
-			v = INTEGER { matched_version = check_version_token(SERVER_VERSION, $v); } VERSION_COMMENT_TAIL
+			v = INTEGER { VERSION_MATCHED = check_version_token(SERVER_VERSION, $v); } VERSION_COMMENT_TAIL
 			| VERSION_COMMENT_TAIL
 		)
 ;
 
 fragment VERSION_COMMENT_TAIL:
-	{ matched_version == ANTLR3_FALSE }? => // One level of block comment nesting is allowed for version comments.
+	{ VERSION_MATCHED == ANTLR3_FALSE }? => // One level of block comment nesting is allowed for version comments.
 		( options { greedy = false; }: (ML_COMMENT_HEAD MULTILINE_COMMENT) | . )* ML_COMMENT_END { $type = MULTILINE_COMMENT; $channel = HIDDEN; }
-	| { $type = VERSION_COMMENT; $channel = HIDDEN; in_version_comment = ANTLR3_TRUE; }
+	| { $type = VERSION_COMMENT; $channel = HIDDEN; IN_VERSION_COMMENT = ANTLR3_TRUE; }
 ;
 
 fragment MULTILINE_COMMENT:	( options { greedy = false; }: . )* ML_COMMENT_END { $channel = HIDDEN; };
 
 fragment VERSION_COMMENT_END:
-	{in_version_comment == ANTLR3_TRUE}? => ML_COMMENT_END { $channel = HIDDEN; in_version_comment = ANTLR3_FALSE; }
+	{IN_VERSION_COMMENT == ANTLR3_TRUE}? => ML_COMMENT_END { $channel = HIDDEN; IN_VERSION_COMMENT = ANTLR3_FALSE; }
 	| // Intentionally left empty to make the gated semantic predicate work.
 ;
 

@@ -4732,7 +4732,6 @@ obj.initialSize = value
     member_changed("initialSize", ovalue, value);
   }
 
-  // logFileGroup is owned by db_Tablespace
   /** Getter for attribute logFileGroup
    
     the log file group that is used for this tablespace
@@ -4749,9 +4748,8 @@ obj.logFileGroup = value
   virtual void logFileGroup(const db_LogFileGroupRef &value)
   {
     grt::ValueRef ovalue(_logFileGroup);
-
-    _logFileGroup= value;
-    owned_member_changed("logFileGroup", ovalue, value);
+   _logFileGroup= value;
+    member_changed("logFileGroup", ovalue, value);
   }
 
   /** Getter for attribute maxSize
@@ -4780,7 +4778,7 @@ protected:
   grt::StringRef _dataFile;
   grt::IntegerRef _extentSize;
   grt::IntegerRef _initialSize;
-  db_LogFileGroupRef _logFileGroup;// owned
+  db_LogFileGroupRef _logFileGroup;
   grt::IntegerRef _maxSize;
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
