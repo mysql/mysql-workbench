@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,7 +26,6 @@
  * This scanner class is not needed for the MySQLRecognizer class (it uses the raw lexer)
  * but provides tokenizing functionality beside it.
  */
-
 class MYSQL_PARSER_PUBLIC_FUNC MySQLScanner : public MySQLRecognitionBase
 {
 public:
@@ -34,6 +33,7 @@ public:
                const std::string &sql_mode_string, const std::set<std::string> &charsets);
   virtual ~MySQLScanner();
 
+  static MySQLQueryType getQueryType(const char *text, size_t length, bool is_utf8, long server_version);
   void reset();
 
   // Informations about the current token.
@@ -64,7 +64,8 @@ public:
   void set_sql_mode(const std::string &new_mode);
   unsigned int get_sql_mode_flags();
   
-  virtual const char* text();
+  virtual std::string text();
+  virtual const char* lineStart();
 
 protected:
   void setup();
@@ -72,4 +73,27 @@ protected:
 private:
   class Private;
   Private *d;
+};
+
+/**
+* Similar to the scanner class but using only the absolute minimum setup to determine the
+* type of a query in a given sql text, to make it as fast as possible.
+*/
+class MYSQL_PARSER_PUBLIC_FUNC MySQLQueryIdentifier : public MySQLRecognitionBase
+{
+public:
+  MySQLQueryIdentifier(long server_version, const std::string &sql_mode_string, const std::set<std::string> &charsets);
+  virtual ~MySQLQueryIdentifier();
+
+  MySQLQueryType getQueryType(const char *text, size_t length, bool is_utf8);
+
+  virtual std::string text() { return "";  };
+  virtual const char* lineStart() { return NULL;  };
+
+private:
+  class Private;
+  Private *d;
+
+  bool skipDefiner(pANTLR3_TOKEN_SOURCE tokenSource, pANTLR3_COMMON_TOKEN &token);
+  MySQLQueryType determineQueryType(pANTLR3_TOKEN_SOURCE tokenSource);
 };

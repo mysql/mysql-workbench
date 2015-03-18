@@ -2502,14 +2502,14 @@ public:
 
   /** Getter for attribute engine
    
-    usually only NDB makes sense
+    NDB and InnoDB are supported
    \par In Python:
 value = obj.engine
    */
   grt::StringRef engine() const { return _engine; }
   /** Setter for attribute engine
    
-    usually only NDB makes sense
+    NDB and InnoDB are supported
     \par In Python:
 obj.engine = value
    */

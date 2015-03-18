@@ -21,7 +21,7 @@
 #include "base/file_functions.h"
 #include "base/log.h"
 
-#ifndef _WIN32
+#ifndef HAVE_PRECOMPILED_HEADERS
 #include <stdexcept>
 #include <functional>
 #include <locale>
@@ -31,6 +31,8 @@
 #include <string.h>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
+
+#include <boost/locale/encoding_utf.hpp>
 #endif
 
 DEFAULT_LOG_DOMAIN(DOMAIN_BASE);
@@ -276,6 +278,8 @@ namespace base {
 
 #ifdef _WIN32
 
+// Win uses C++11 with support for wstring_convert. Other platforms use boost for now.
+
 //--------------------------------------------------------------------------------------------------
 
 static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
@@ -307,7 +311,23 @@ std::wstring path_from_utf8(const std::string &s)
 
 #else
 
-std::string path_from_utf8(const std::string &s)
+using boost::locale::conv::utf_to_utf;
+
+std::wstring string_to_wstring(const std::string &str)
+{
+  return utf_to_utf<wchar_t>(str.c_str(), str.c_str() + str.size());
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::string wstring_to_string(const std::wstring &str)
+{
+  return utf_to_utf<char>(str.c_str(), str.c_str() + str.size());
+}  
+  
+//--------------------------------------------------------------------------------------------------
+
+  std::string path_from_utf8(const std::string &s)
 {
   return s;
 }
@@ -1076,7 +1096,7 @@ void replace(std::string& value, const std::string& search, const std::string& r
 /**
  * Write text data to file, converting to \r\n if in Windows.
  */
-void set_text_file_contents(const std::string &filename, const std::string &data)
+void setTextFileContent(const std::string &filename, const std::string &data)
 {
 #ifdef _WIN32
   // Opening a file in text mode will automatically convert \n to \r\n.
@@ -1103,53 +1123,48 @@ void set_text_file_contents(const std::string &filename, const std::string &data
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Read text data from file, converting to \n if necessary.
+ * Reads text data from the given file (file name encoded as utf-8) and returns the content as utf-8.
+ * It can read ASCII/ANSI, utf-8 and utf-16 files (LE only) with and without BOM (BOM not included in result).
  */
-std::string get_text_file_contents(const std::string &filename)
+std::string getTextFileContent(const std::string &filename)
 {
-  FILE *f = base_fopen(filename.c_str(), "r");
-  if (!f)
-    throw std::runtime_error(g_strerror(errno));
+  enum Encoding { ANSI, UTF8, UTF16LE } encoding = ANSI;
 
-  std::string text;
-  char buffer[4098];
-  size_t c;
+  std::string result;
+#ifdef _WIN32
+  std::ifstream stream(string_to_wstring(filename).c_str(), std::ios::binary);
+#else
+  std::ifstream stream(filename, std::ios::binary);
+#endif
+  std::stringstream ss;
 
-  while ((c = fread(buffer, 1, sizeof(buffer), f)) > 0)
-  {
-    char *bufptr = buffer;
-    char *eobuf = buffer + c;
-    while (bufptr < eobuf)
+  if (!stream.is_open() || stream.eof())
+    return "";
+  
+  int ch1 = stream.get();
+  int ch2 = stream.get();
+  if (ch1 == 0xff && ch2 == 0xfe)
+    encoding = UTF16LE;
+  else
+    if (ch1 == 0xfe && ch2 == 0xff)
+      return "UTF-16BE not supported";
+    else
     {
-      char *eol = (char*)memchr(bufptr, '\r', eobuf - bufptr);
-      if (eol)
-      {
-        // if \r is in string, we append everyting up to it and then add \n
-        text.append(bufptr, eol-bufptr);
-        text.append("\n");
-        bufptr = eol+1;
-        if (*bufptr == '\n') // make sure it is \r\n and not only \r
-          bufptr++;
-      }
+      int ch3 = stream.get();
+      if (ch1 == 0xef && ch2 == 0xbb && ch3 == 0xbf)
+        encoding = UTF8;
       else
-      {
-        // no \r found, append the whole thing and go for more
-        text.append(bufptr);
-        break;
-      }
+        stream.seekg(0);
     }
-  }
 
-  if (c == (size_t)-1)
+  ss << stream.rdbuf() << '\0';
+  switch (encoding)
   {
-    int err = errno;
-    fclose(f);
-    throw std::runtime_error(g_strerror(err));
+  case UTF16LE:
+    return wstring_to_string(std::wstring((wchar_t *)ss.str().c_str()));
+  default:
+    return ss.str();
   }
-
-  fclose(f);
-
-  return text;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1212,42 +1227,70 @@ std::string escape_sql_string(const std::string &s, bool wildcards)
 }
 
 /**
- * Removes repeated quote chars and supported escape sequences from the given string.
+ * Removes repeated quote chars and replaces supported escape sequences in the given string.
  * Invalid escape sequences are handled like in the server, by dropping the backslash and
  * using the wrong char as normal char.
+ * The outer quoting stays intact and is not removed.
  */
 std::string unescape_sql_string(const std::string &s, char quote_char)
 {
+  // Early out if the string is simply empty but quoted.
+  if (s.size() == 2 && s[0] == quote_char && s[1] == quote_char)
+    return s;
+
   std::string result;
   result.reserve(s.size());
   
-  for (std::string::const_iterator ch = s.begin(); ch != s.end(); ++ch)
+  bool pendingQuote = false;
+  bool pendingEscape = false;
+  for (auto c: s)
   {
-    int out = *ch;
-    if (out == quote_char)
+    if (!pendingEscape && c == quote_char)
     {
-      if ((ch + 1) != s.end() && *(ch + 1) == quote_char)
-        ++ch; // Skip the first of the quote char pair.
-    }
-    else if (out == '\\')
-    {
-      ++ch;
-      if (ch == s.end())
-        break;
-
-      switch (*ch)
+      if (pendingQuote)
+        pendingQuote = false;
+      else
       {
-        case 'n': out = '\n'; break;
-        case 't': out = '\t'; break;
-        case 'r': out = '\r'; break;
-        case 'b': out = '\b'; break;
-        case '0': out = 0; break;         // Ascii null
-        case 'Z': out = '\032'; break;    // Win32 end of file
-        default: out = *ch; break;
+        pendingQuote = true;
+        continue;
       }
     }
-    result.push_back((char)out);
+    else
+    {
+      if (pendingQuote)
+      {
+        pendingQuote = false;
+        result.push_back(quote_char);
+      }
+
+      if (pendingEscape)
+      {
+        pendingEscape = false;
+        switch (c)
+        {
+        case 'n': c = '\n'; break;
+        case 't': c = '\t'; break;
+        case 'r': c = '\r'; break;
+        case 'b': c = '\b'; break;
+        case '0': c = 0; break;         // ASCII null
+        case 'Z': c = '\032'; break;    // Win32 end of file
+        }
+      }
+      else
+        if (c == '\\')
+        {
+          pendingEscape = true;
+          continue;
+        }
+    }
+    result.push_back(c);
   }
+
+  if (pendingQuote)
+    result.push_back(quote_char);
+  if (pendingEscape)
+    result.push_back('\\');
+
   return result;
 }
 

@@ -31,6 +31,7 @@
 class MySQLRecognizer;
 class MySQLSyntaxChecker;
 class MySQLScanner;
+class MySQLQueryIdentifier;
 
 namespace parser {
 
@@ -64,6 +65,7 @@ public:
   MySQLSyntaxChecker *syntax_checker() { return _syntax_checker; };
   MySQLScanner *create_scanner(const std::string &text); // The scanner uses the same version etc as the other recognizers
                                                          // and must be freed by the caller.
+  std::shared_ptr<MySQLQueryIdentifier> createQueryIdentifier();
 
   void use_sql_mode(const std::string &mode);
   std::string get_sql_mode();
@@ -94,7 +96,7 @@ public:
 
   virtual size_t stopProcessing() = 0;
 
-  virtual size_t parseTable(parser::ParserContext::Ref context, db_mysql_TableRef &table, const std::string &sql) = 0;
+  virtual size_t parseTable(parser::ParserContext::Ref context, db_mysql_TableRef table, const std::string &sql) = 0;
   virtual size_t parseRoutine(parser::ParserContext::Ref context, db_mysql_RoutineRef routine, const std::string &sql) = 0;
   virtual size_t parseRoutines(parser::ParserContext::Ref context, db_mysql_RoutineGroupRef group, const std::string &sql) = 0;
   virtual size_t parseTrigger(ParserContext::Ref context, db_mysql_TriggerRef trigger, const std::string &sql) = 0;

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,11 +41,14 @@
 #include <wchar.h>
 #include <codecvt>
 #include <fcntl.h>
+#include <fstream>
+#include <sstream>
 
 #include <VersionHelpers.h>
 
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
+#include <boost/locale/encoding_utf.hpp>
 
 #include <glib/glib.h>
 #include <glib/gstdio.h>

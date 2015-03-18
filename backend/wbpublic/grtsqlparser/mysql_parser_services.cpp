@@ -106,6 +106,14 @@ MySQLScanner* ParserContext::create_scanner(const std::string &text)
 
 //--------------------------------------------------------------------------------------------------
 
+std::shared_ptr<MySQLQueryIdentifier> ParserContext::createQueryIdentifier()
+{
+  long version = short_version(_version);
+  return std::shared_ptr<MySQLQueryIdentifier>(new MySQLQueryIdentifier(version, _sql_mode, _filtered_charsets));
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void ParserContext::use_sql_mode(const std::string &mode)
 {
   _sql_mode = mode;

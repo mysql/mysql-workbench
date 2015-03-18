@@ -49,6 +49,7 @@ public:
   void go_to_subquery_start();
   bool skip_token_sequence(unsigned int start_token, ...);
   bool skip_if(unsigned int token, size_t count = 1);
+  void skip_subtree();
   unsigned int look_ahead(bool recursive);
   unsigned int parent_type();
   unsigned int previous_type();
@@ -113,11 +114,11 @@ public:
   
   virtual void set_sql_mode(const std::string &new_mode);
   virtual void set_server_version(long new_version);
-  virtual const char* text();
+  virtual std::string text();
+  virtual const char* lineStart();
 
   long server_version();
 
-  std::string token_text(pANTLR3_BASE_TREE node, bool keepQuotes = false);
   MySQLQueryType query_type();
   MySQLQueryType query_type(pANTLR3_BASE_TREE node);
 

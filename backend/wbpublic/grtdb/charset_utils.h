@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,13 +17,13 @@
  * 02110-1301  USA
  */
 
-#ifndef _CHARSET_UTILS_H_
-#define _CHARSET_UTILS_H_
+#pragma once
 
+#ifndef HAVE_PRECOMPILED_HEADERS
 #include <string>
+#endif
+
 #include "wbpublic_public_interface.h"
 
-WBPUBLICBACKEND_PUBLIC_FUNC const std::string& get_cs_def_collation(std::string cs_name);
-WBPUBLICBACKEND_PUBLIC_FUNC const std::string& get_collation_cs(std::string collation_name);
-
-#endif // _CHARSET_UTILS_H_
+WBPUBLICBACKEND_PUBLIC_FUNC std::string defaultCollationForCharset(const std::string &charsetName);
+WBPUBLICBACKEND_PUBLIC_FUNC std::string charsetForCollation(const std::string &collationName);

@@ -85,7 +85,7 @@
               <member name="extentSize" type="int"/>
               <member name="autoExtendSize" type="int"/>
               <member name="maxSize" type="int"/>
-              <member name="logFileGroup" type="object" struct-name="db.LogFileGroup" attr:caption="Log File Group" owned="1" attr:desc="the log file group that is used for this tablespace"/>
+              <member name="logFileGroup" type="object" struct-name="db.LogFileGroup" attr:caption="Log File Group" attr:desc="the log file group that is used for this tablespace"/>
           </members>
       </gstruct>
 

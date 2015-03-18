@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,7 +20,6 @@
 #include <fstream>
 #include <glib/gstdio.h>
 #include <stdlib.h>
-#include <fstream>
 
 #include "tinyxml.h"
 #include <boost/foreach.hpp>

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,11 +55,13 @@ public:
   bool has_errors();
   unsigned sql_mode();
   virtual void set_sql_mode(const std::string &sql_mode);
-  virtual const char* text() = 0;
+  virtual std::string text() = 0;
+  virtual const char* lineStart() = 0;
 
   bool is_charset(const std::string &s);
   bool is_identifier(ANTLR3_UINT32 type);
 
+  std::string token_text(pANTLR3_BASE_TREE node, bool keepQuotes = false);
   uint32_t get_keyword_token(const std::string &keyword);
   char** get_token_list();
 

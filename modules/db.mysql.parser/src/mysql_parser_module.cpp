@@ -27,9 +27,14 @@
 #include "MySQLLexer.h"
 #include "mysql-parser.h"
 #include "mysql-syntax-check.h"
+#include "mysql-scanner.h"
 
 #include "objimpl/wrapper/parser_ContextReference_impl.h"
 #include "grtdb/db_object_helpers.h"
+
+#ifndef HAVE_PRECOMPILED_HEADERS
+#include <unordered_set>
+#endif
 
 using namespace grt;
 using namespace parser;
@@ -86,18 +91,28 @@ static std::string getDefiner(MySQLRecognizerTreeWalker &walker)
   if (walker.is(DEFINER_SYMBOL))
   {
     walker.next(2); // Skip DEFINER + equal sign.
-    definer = walker.token_text();
-    walker.next();
-    switch (walker.token_type())
+    if (walker.is(CURRENT_USER_SYMBOL))
     {
-      case OPEN_PAR_SYMBOL: // Optional parentheses.
-        walker.next(2);
-        break;
-      case AT_SIGN_SYMBOL: // A user@host entry.
+      definer = walker.token_text(true);
+      walker.next();
+      walker.skip_if(OPEN_PAR_SYMBOL, 2);
+    }
+    else
+    {
+      // A user@host entry.
+      definer = walker.token_text(true);
+      walker.next();
+      switch (walker.token_type())
+      {
+      case AT_TEXT_SUFFIX:
+        definer += walker.token_text();
         walker.next();
-        definer += '@' + walker.token_text();
-        walker.next();
         break;
+      case AT_SIGN_SYMBOL:
+        walker.next(); // Skip @.
+        definer += '@' + walker.token_text(true);
+        walker.next();
+      }
     }
   }
 
@@ -128,6 +143,7 @@ static Identifier getIdentifier(MySQLRecognizerTreeWalker &walker)
   case TABLESPACE_NAME_TOKEN:
   case TABLESPACE_REF_TOKEN:
   case UDF_NAME_TOKEN:
+  case INDEX_NAME_TOKEN:
     walker.next();
     if (walker.is_identifier())
     {
@@ -140,7 +156,8 @@ static Identifier getIdentifier(MySQLRecognizerTreeWalker &walker)
     result.second = walker.token_text(); // text or identifier
     walker.next();
     break;
-  case IDENTIFIER: // For indices.
+  case IDENTIFIER: // For indices, PKs.
+  case BACK_TICK_QUOTED_ID:
     result.second = walker.token_text(); // text or identifier
     walker.next();
     break;
@@ -309,7 +326,7 @@ static std::string getExpression(MySQLRecognizerTreeWalker &walker)
 
   walker.next();
   std::string text = walker.text_for_tree();
-  walker.next_sibling();
+  walker.skip_subtree();
   walker.next(); // Skip CLOSE_PAR.
   
   return text;
@@ -361,6 +378,56 @@ static db_SimpleDatatypeRef findType(grt::ListRef<db_SimpleDatatype> types, cons
   }
 
   return db_SimpleDatatypeRef();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * The next 2 functions take a charset or collation and retrieve the associated charset/collation pair.
+ */
+static std::pair<std::string, std::string> detailsForCharset(const std::string &charset,
+  const std::string &collation, const std::string &defaultCharset)
+{
+  std::pair<std::string, std::string> result;
+  if (!charset.empty())
+  {
+    result.first = base::tolower(charset);
+    if (result.first == "default")
+      result.first = base::tolower(defaultCharset);
+
+    if (!collation.empty())
+    {
+      result.second = base::tolower(collation);
+
+      // Clear collation if it's default collation or it belongs to another character set.
+      if ((result.second == defaultCollationForCharset(result.first))
+        || (result.first != charsetForCollation(result.second)))
+        result.second = "";
+    }
+  }
+
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+static std::pair<std::string, std::string> detailsForCollation(const std::string &collation, 
+  const std::string &defaultCollation)
+{
+  std::pair<std::string, std::string> result;
+  if (!collation.empty())
+  {
+    result.second = base::tolower(collation);
+    if (result.second == "default")
+      result.second = base::tolower(defaultCollation);
+
+    // Clear collation if it's default collation.
+    result.first = charsetForCollation(result.second);
+    if (defaultCollationForCharset(result.first) == result.second)
+      result.second = "";
+  }
+
+  return result;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -426,8 +493,10 @@ static db_mysql_SchemaRef ensureSchemaExists(db_CatalogRef catalog, const std::s
     result->owner(catalog);
     result->name(name);
     result->oldName(name);
-    result->defaultCharacterSetName(catalog->defaultCharacterSetName());
-    result->defaultCollationName(catalog->defaultCollationName());
+    std::pair<std::string, std::string> info = detailsForCharset(catalog->defaultCharacterSetName(),
+      catalog->defaultCollationName(), catalog->defaultCharacterSetName());
+    result->defaultCharacterSetName(info.first);
+    result->defaultCollationName(info.second);
     catalog->schemata().insert(result);
   }
   return db_mysql_SchemaRef::cast_from(result);
@@ -435,9 +504,15 @@ static db_mysql_SchemaRef ensureSchemaExists(db_CatalogRef catalog, const std::s
 
 //--------------------------------------------------------------------------------------------------
 
-static void fillTableCreateOptions(MySQLRecognizerTreeWalker &walker, std::string schemaName,
-  db_mysql_TableRef &table, DbObjectsRefsCache &refCache)
+static void fillTableCreateOptions(MySQLRecognizerTreeWalker &walker, db_CatalogRef catalog,
+  db_mysql_SchemaRef schema, db_mysql_TableRef table, bool caseSensitive)
 {
+  std::string schemaName = schema.is_valid() ? schema->name() : "";
+  std::string defaultCharset = schema.is_valid() ? schema->defaultCharacterSetName() : "";
+  std::string defaultCollation = schema.is_valid() ? schema->defaultCollationName() : "";
+  if (defaultCollation.empty() && !defaultCharset.empty())
+    defaultCollation = defaultCollationForCharset(defaultCharset);
+
   while (true) // create_table_options
   {
     switch (walker.token_type())
@@ -472,18 +547,19 @@ static void fillTableCreateOptions(MySQLRecognizerTreeWalker &walker, std::strin
       table->avgRowLength(walker.token_text());
       walker.next();
       break;
+
     case PASSWORD_SYMBOL:
       walker.next();
       walker.skip_if(EQUAL_OPERATOR);
       table->password(walker.token_text());
-      walker.next();
+      walker.skip_subtree(); // Skip string subtree. Can be PARAM_MARKER too, but skip_subtree() still works for that.
       break;
 
     case COMMENT_SYMBOL:
       walker.next();
       walker.skip_if(EQUAL_OPERATOR);
       table->comment(walker.token_text());
-      walker.next();
+      walker.skip_subtree(); // Skip over string sub tree.
       break;
 
     case AUTO_INCREMENT_SYMBOL:
@@ -496,7 +572,7 @@ static void fillTableCreateOptions(MySQLRecognizerTreeWalker &walker, std::strin
     case PACK_KEYS_SYMBOL:
       walker.next();
       walker.skip_if(EQUAL_OPERATOR);
-      table->packKeys(walker.token_text()); // toupper only has an effect on DEFAULT
+      table->packKeys(walker.token_text());
       walker.next();
       break;
 
@@ -555,17 +631,15 @@ static void fillTableCreateOptions(MySQLRecognizerTreeWalker &walker, std::strin
           value += ", ";
         Identifier identifier = getIdentifier(walker);
         
-        DbObjectReferences references(identifier);
-
         if (identifier.first.empty())
-        {
-          value += identifier.second;
-          references.targetIdentifier.first = schemaName;
-        }
+          // In order to avoid diff problems explicitly qualify unqualified tables
+          // with the current schema name.
+          value += schemaName + '.' + identifier.second;
         else
+        {
+          ensureSchemaExists(catalog, identifier.first, caseSensitive);
           value += identifier.first + "." + identifier.second;
-
-        refCache.push_back(references);
+        }
 
         if (walker.token_type() != COMMA_SYMBOL)
           break;
@@ -585,14 +659,21 @@ static void fillTableCreateOptions(MySQLRecognizerTreeWalker &walker, std::strin
       {
         walker.next();
         walker.skip_if(EQUAL_OPERATOR);
-        table->defaultCollationName(walker.token_text()); // Collation name or DEFAULT.
+
+        std::pair<std::string, std::string> info = detailsForCollation(walker.token_text(), defaultCollation);
+        table->defaultCharacterSetName(info.first);
+        table->defaultCollationName(info.second);
       }
       else
       {
         walker.next();
         walker.skip_if(SET_SYMBOL); // From CHAR SET.
         walker.skip_if(EQUAL_OPERATOR);
-        table->defaultCharacterSetName(walker.token_text()); // Charset name or DEFAULT.
+
+        std::pair<std::string, std::string> info = detailsForCharset(walker.token_text(),
+          defaultCollation, defaultCharset);
+        table->defaultCharacterSetName(info.first);
+        table->defaultCollationName(info.second); // Collation name or DEFAULT.
       }
       walker.next();
       break;
@@ -605,17 +686,17 @@ static void fillTableCreateOptions(MySQLRecognizerTreeWalker &walker, std::strin
       break;
 
     case DATA_SYMBOL:
-      walker.next();
+      walker.next(2); // Skip DATA DIRECTORY.
       walker.skip_if(EQUAL_OPERATOR);
       table->tableDataDir(walker.token_text());
-      walker.next();
+      walker.skip_subtree(); // Skip string subtree.
       break;
 
     case INDEX_SYMBOL:
-      walker.next();
+      walker.next(2); // Skip INDEX DIRECTORY.
       walker.skip_if(EQUAL_OPERATOR);
       table->tableIndexDir(walker.token_text());
-      walker.next();
+      walker.skip_subtree(); // Skip string subtree.
       break;
 
     case TABLESPACE_SYMBOL:
@@ -633,7 +714,7 @@ static void fillTableCreateOptions(MySQLRecognizerTreeWalker &walker, std::strin
       walker.next();
       walker.skip_if(EQUAL_OPERATOR);
       table->connectionString(walker.token_text());
-      walker.next();
+      walker.skip_subtree(); // Skip string sub tree.
       break;
 
     case KEY_BLOCK_SIZE_SYMBOL:
@@ -777,7 +858,7 @@ static void getPartitionDefinition(MySQLRecognizerTreeWalker &walker, db_mysql_P
 
 static void fillTablePartitioning(MySQLRecognizerTreeWalker &walker, db_mysql_TableRef &table)
 {
-  if (walker.token_type() != PARTITION_SYMBOL)
+  if (!walker.is(PARTITION_SYMBOL))
     return;
 
   walker.next(2); // Skip PARTITION BY.
@@ -1063,14 +1144,15 @@ static void fillDataTypeAndAttributes(MySQLRecognizerTreeWalker &walker, db_Cata
       else
       {
         if (simpleType->name() == "SET" || simpleType->name() == "ENUM")
-        {
           explicitParams = "(" + getValueList(walker, true) + ")";
-        }
         else
         {
           // Finally all cases with either precision, scale or both.
           walker.next(); // Skip OPEN_PAR.
-          precision = base::atoi<size_t>(walker.token_text());
+          if (simpleType->numericPrecision() != bec::EMPTY_TYPE_PRECISION)
+            precision = base::atoi<size_t>(walker.token_text());
+          else
+            length = base::atoi<size_t>(walker.token_text());
           walker.next();
           if (walker.is(COMMA_SYMBOL))
           {
@@ -1138,7 +1220,10 @@ static void fillDataTypeAndAttributes(MySQLRecognizerTreeWalker &walker, db_Cata
         }
         case CHAR_SYMBOL:
         case CHARSET_SYMBOL:
-          column->characterSetName(getCharsetName(walker));
+          std::pair<std::string, std::string> info = detailsForCharset(getCharsetName(walker),
+            column->collationName(), table->defaultCharacterSetName());
+          column->characterSetName(info.first);
+          column->collationName(info.second);
           break;
         }
         break;
@@ -1147,7 +1232,11 @@ static void fillDataTypeAndAttributes(MySQLRecognizerTreeWalker &walker, db_Cata
       case CHAR_SYMBOL:
       case CHARSET_SYMBOL: // The grammar allows for weird syntax like: "char char set binary binary".
       {
-        column->characterSetName(getCharsetName(walker));
+        std::pair<std::string, std::string> info = detailsForCharset(getCharsetName(walker),
+          column->collationName(), table->defaultCharacterSetName());
+        column->characterSetName(info.first);
+        column->collationName(info.second);
+
         if (walker.is(BINARY_SYMBOL))
         {
           if (flags.get_index("BINARY") == BaseListRef::npos)
@@ -1202,7 +1291,7 @@ static void fillDataTypeAndAttributes(MySQLRecognizerTreeWalker &walker, db_Cata
             // precision, which we may have later to handle.
             std::string newDefault = "CURRENT_TIMESTAMP";
             walker.next();
-            if (walker.is(OPEN_PAR_SYMBOL)) // Addition precision
+            if (walker.is(OPEN_PAR_SYMBOL)) // Additional precision.
             {
               newDefault += "(";
               walker.next();
@@ -1230,8 +1319,21 @@ static void fillDataTypeAndAttributes(MySQLRecognizerTreeWalker &walker, db_Cata
               newDefault += walker.token_text(); // The actual value.
             }
             else
-              newDefault = walker.token_text(); // Any literal (string, number, bool , null, temporal, bit, hex).
-            walker.next();
+            {
+              // Any literal (string, number, bool , null, temporal, bit, hex).
+              // We need to keep quotes around strings in order to distinguish between no default
+              // and an empty string default.
+              newDefault = walker.token_text(true);
+
+              // Temporal values have second part (the actual value).
+              if (walker.is(DATE_SYMBOL) || walker.is(TIME_SYMBOL) || walker.is(TIMESTAMP_SYMBOL))
+              {
+                walker.next();
+                newDefault += " " + walker.token_text(true);
+              }
+            }
+            
+            walker.skip_subtree();
             column->defaultValue(newDefault);
 
             if (base::same_string(newDefault, "NULL", false))
@@ -1337,10 +1439,15 @@ static void fillDataTypeAndAttributes(MySQLRecognizerTreeWalker &walker, db_Cata
         break;
 
       case COLLATE_SYMBOL:
-        walker.next();
-        column->collationName(walker.token_text());
-        walker.next();
-        break;
+        {
+          walker.next();
+
+          std::pair<std::string, std::string> info = detailsForCollation(walker.token_text(), table->defaultCollationName());
+          column->characterSetName(info.first);
+          column->collationName(info.second);
+          walker.next();
+          break;
+        }
 
       case COLUMN_FORMAT_SYMBOL: // Ignored by the server, so we ignore it here too.
         walker.next(2);
@@ -1520,6 +1627,121 @@ static void fillRefIndexDetails(MySQLRecognizerTreeWalker &walker, std::string &
 //--------------------------------------------------------------------------------------------------
 
 /**
+ *	Collects details for a new key/index definition (parses the key_def subrule in the grammar).
+ */
+static void processTableKeyItem(MySQLRecognizerTreeWalker &walker, db_CatalogRef catalog,
+  const std::string &schemaName, db_mysql_TableRef table, bool autoGenerateFkNames, DbObjectsRefsCache &refCache)
+{
+  db_mysql_IndexRef index(table->get_grt());
+  index->owner(table);
+
+  std::string constraintName;
+  if (walker.is(CONSTRAINT_SYMBOL))
+  {
+    walker.next();
+    if (walker.is(COLUMN_REF_TOKEN))
+    {
+      walker.next();
+      ColumnIdentifier identifier = getColumnIdentifier(walker);
+      constraintName = std::get<2>(identifier);
+    }
+  }
+
+  bool isForeignKey = false; // Need the new index only for non-FK constraints.
+  switch (walker.token_type())
+  {
+  case PRIMARY_SYMBOL:
+    index->isPrimary(1);
+    table->primaryKey(index);
+    constraintName = "PRIMARY";
+    index->indexType("PRIMARY");
+    walker.next(2); // Skip PRIMARY KEY.
+    break;
+
+  case FOREIGN_SYMBOL:
+  {
+    isForeignKey = true;
+    walker.next(2); // Skip FOREIGN KEY.
+
+    if (walker.is(COLUMN_REF_TOKEN))
+    {
+      walker.next();
+      ColumnIdentifier identifier = getColumnIdentifier(walker);
+      constraintName = std::get<2>(identifier);
+    }
+
+    db_mysql_ForeignKeyRef fk(table->get_grt());
+    fk->owner(table);
+    fk->name(constraintName);
+    fk->oldName(constraintName);
+
+    if (fk->name().empty() && autoGenerateFkNames)
+    {
+      std::string name = bec::TableHelper::generate_foreign_key_name();
+      fk->name(name);
+      fk->oldName(name);
+    }
+
+    // index_columns in the grammar (mandatory).
+    {
+      DbObjectReferences references(fk, DbObjectReferences::Referencing);
+
+      // Columns used in the FK might not have been parsed yet, so add the column refs
+      // to our cache as well and resolve them when we are fully done.
+      references.targetIdentifier.first = schemaName;
+      references.targetIdentifier.second = table->name();
+      references.table = table;
+
+      references.columnNames = getNamesList(walker);
+      refCache.push_back(references);
+    }
+
+    DbObjectReferences references(fk, DbObjectReferences::Referenced);
+    references.table = table;
+    fillColumnReference(walker, schemaName, references);
+    table->foreignKeys().insert(fk);
+    refCache.push_back(references);
+
+    break;
+  }
+
+  case UNIQUE_SYMBOL:
+  case INDEX_SYMBOL:
+  case KEY_SYMBOL:
+    if (walker.is(UNIQUE_SYMBOL))
+    {
+      index->unique(1);
+      index->indexType("UNIQUE");
+      walker.next();
+    }
+    else
+      index->indexType(formatIndexType(walker.token_text()));
+
+    walker.next();
+    break;
+
+  case FULLTEXT_SYMBOL:
+  case SPATIAL_SYMBOL:
+    index->indexType(formatIndexType(walker.token_text()));
+    walker.next();
+    if (walker.is(INDEX_SYMBOL) || walker.is(KEY_SYMBOL))
+      walker.next();
+    break;
+  }
+
+  if (!isForeignKey)
+  {
+    fillRefIndexDetails(walker, constraintName, index, table, refCache);
+    index->name(constraintName);
+    index->oldName(constraintName);
+    table->indices().insert(index);
+  }
+
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
  *	Collects details for a column/key/index definition.
  *	Column references cannot be resolved here so we use the refCache and do that after all
  *	definitions have been read and we can access the columns.
@@ -1567,7 +1789,7 @@ static void fillTableCreateItem(MySQLRecognizerTreeWalker &walker, db_CatalogRef
         {
           // CHECK (expression). Ignored by the server.
           walker.next(3); // Skip CHECK OPEN_PAR_SYMBOL EXPRESSION_TOKEN.
-          walker.next_sibling(); // Skip over expression subtree.
+          walker.skip_subtree(); // Skip over expression subtree.
           walker.next(); // Skip CLOSE_PAR_SYMBOL.
         }
 
@@ -1582,121 +1804,14 @@ static void fillTableCreateItem(MySQLRecognizerTreeWalker &walker, db_CatalogRef
   case KEY_SYMBOL:
   case FULLTEXT_SYMBOL:
   case SPATIAL_SYMBOL:
-    {
-      db_mysql_IndexRef index(table->get_grt());
-      index->owner(table);
-
-      std::string constraintName;
-      if (walker.is(CONSTRAINT_SYMBOL))
-      {
-        walker.next();
-        if (walker.is(COLUMN_REF_TOKEN))
-        {
-          walker.next();
-          ColumnIdentifier identifier = getColumnIdentifier(walker);
-          constraintName = std::get<2>(identifier);
-        }
-      }
-
-      bool isForeignKey = false; // Need the new index only for non-FK constraints.
-      switch (walker.token_type())
-      {
-      case PRIMARY_SYMBOL:
-        index->isPrimary(1);
-        table->primaryKey(index);
-        constraintName = "PRIMARY";
-        index->indexType("PRIMARY");
-        walker.next(2); // Skip PRIMARY KEY.
-        break;
-
-      case FOREIGN_SYMBOL:
-      {
-        isForeignKey = true;
-        walker.next(2); // Skip FOREIGN KEY.
-
-        if (walker.is(COLUMN_REF_TOKEN))
-        {
-          walker.next();
-          ColumnIdentifier identifier = getColumnIdentifier(walker);
-          constraintName = std::get<2>(identifier);
-        }
-
-        db_mysql_ForeignKeyRef fk(table->get_grt());
-        fk->owner(table);
-        fk->name(constraintName);
-        fk->oldName(constraintName);
-
-        if (fk->name().empty() && autoGenerateFkNames)
-        {
-          std::string name = bec::TableHelper::generate_foreign_key_name();
-          fk->name(name);
-          fk->oldName(name);
-        }
-
-        // index_columns in the grammar (mandatory).
-        {
-          DbObjectReferences references(fk, DbObjectReferences::Referencing);
-
-          // Columns used in the FK might not have been parsed yet, so add the column refs
-          // to our cache as well and resolve them when we are fully done.
-          references.targetIdentifier.first = schemaName;
-          references.targetIdentifier.second = table->name();
-          references.table = table;
-
-          references.columnNames = getNamesList(walker);
-          refCache.push_back(references);
-        }
-
-        DbObjectReferences references(fk, DbObjectReferences::Referenced);
-        references.table = table;
-        fillColumnReference(walker, schemaName, references);
-        table->foreignKeys().insert(fk);
-        refCache.push_back(references);
-
-        break;
-      }
-
-      case UNIQUE_SYMBOL:
-      case INDEX_SYMBOL:
-      case KEY_SYMBOL:
-        if (walker.is(UNIQUE_SYMBOL))
-        {
-          index->unique(1);
-          index->indexType("UNIQUE");
-          walker.next();
-        }
-        else
-          index->indexType(formatIndexType(walker.token_text()));
-
-        walker.next();
-
-        break;
-
-
-      case FULLTEXT_SYMBOL:
-      case SPATIAL_SYMBOL:
-        index->indexType(formatIndexType(walker.token_text()));
-        walker.next();
-        if (walker.is(INDEX_SYMBOL) || walker.is(KEY_SYMBOL))
-          walker.next();
-      }
-
-      if (!isForeignKey)
-      {
-        fillRefIndexDetails(walker, constraintName, index, table, refCache);
-        index->name(constraintName);
-        index->oldName(constraintName);
-        table->indices().insert(index);
-      }
-
-      break;
-    }
+    processTableKeyItem(walker, catalog, schemaName, table, autoGenerateFkNames, refCache);
+    break;
 
   case CHECK_SYMBOL:
     {
       // CHECK (expression). Ignored by the server.
       walker.next(3); // Skip CHECK OPEN_PAR_SYMBOL EXPRESSION_TOKEN.
-      walker.next_sibling(); // Skip over expression subtree.
+      walker.skip_subtree(); // Skip over expression subtree.
       walker.next(); // Skip CLOSE_PAR_SYMBOL.
       break;
     }
@@ -1706,7 +1821,7 @@ static void fillTableCreateItem(MySQLRecognizerTreeWalker &walker, db_CatalogRef
 //--------------------------------------------------------------------------------------------------
 
 static std::pair<std::string, bool> fillTableDetails(MySQLRecognizerTreeWalker &walker,
-  db_CatalogRef catalog, std::string schemaName, db_mysql_TableRef &table,
+  db_mysql_CatalogRef catalog, db_mysql_SchemaRef schema, db_mysql_TableRef &table,
   bool caseSensistive, bool autoGenerateFkNames, DbObjectsRefsCache &refCache)
 {
   std::pair<std::string, bool> result("", false);
@@ -1724,8 +1839,8 @@ static std::pair<std::string, bool> fillTableDetails(MySQLRecognizerTreeWalker &
 
   Identifier identifier = getIdentifier(walker);
   result.first = identifier.first;
-  if (!result.first.empty())
-    schemaName = result.first; // Use table's schema if there's one given instead of the current schema.
+  if (!identifier.first.empty())
+    schema = ensureSchemaExists(catalog, identifier.first, caseSensistive);
 
   table->name(identifier.second);
   table->oldName(identifier.second);
@@ -1774,6 +1889,7 @@ static std::pair<std::string, bool> fillTableDetails(MySQLRecognizerTreeWalker &
       else
       {
         // Table create items.
+        std::string schemaName = schema.is_valid() ? schema->name() : "";
         while (true)
         {
           fillTableCreateItem(walker, catalog, schemaName, table, autoGenerateFkNames, refCache);
@@ -1784,7 +1900,7 @@ static std::pair<std::string, bool> fillTableDetails(MySQLRecognizerTreeWalker &
 
         walker.next(); // Skip CLOSE_PAR.
 
-        fillTableCreateOptions(walker, schemaName, table, refCache);
+        fillTableCreateOptions(walker, catalog, schema, table, caseSensistive);
         fillTablePartitioning(walker, table);
 
         // table_creation_source ignored.
@@ -1792,7 +1908,7 @@ static std::pair<std::string, bool> fillTableDetails(MySQLRecognizerTreeWalker &
     }
     else
     {
-      fillTableCreateOptions(walker, schemaName, table, refCache);
+      fillTableCreateOptions(walker, catalog, schema, table, caseSensistive);
       fillTablePartitioning(walker, table);
 
       // table_creation_source ignored.
@@ -1805,12 +1921,10 @@ static std::pair<std::string, bool> fillTableDetails(MySQLRecognizerTreeWalker &
 //--------------------------------------------------------------------------------------------------
 
 /**
- *	When storing referenced columns in foreign keys they must exist at this point.
- *	While parsing however it can happen columns that not exist yet (or even entire tables) when a
- *	foreign is defined. So kept all the necessary info in the fk cache and make here the necessary
- *	connections between tables based on that info.
+ *	Resolves all column/table references we collected before to existing objects.
+ *	If any of the references does not point to a valid object, we create a stub object for it.
  */
-void updateForeignKeyReferences(db_mysql_CatalogRef catalog, DbObjectsRefsCache refCache, bool caseSensitive)
+void resolveReferences(db_mysql_CatalogRef catalog, DbObjectsRefsCache refCache, bool caseSensitive)
 {
   grt::ListRef<db_mysql_Schema> schemata = catalog->schemata();
 
@@ -1836,7 +1950,7 @@ void updateForeignKeyReferences(db_mysql_CatalogRef catalog, DbObjectsRefsCache 
         schema->tables().insert(referencedTable);
       }
 
-      if (references.foreignKey.is_valid())
+      if (references.foreignKey.is_valid() && (references.type == DbObjectReferences::Referenced))
         references.foreignKey->referencedTable(referencedTable);
 
       if (references.table.is_valid() && !references.table->tableEngine().empty()
@@ -1945,13 +2059,14 @@ void updateForeignKeyReferences(db_mysql_CatalogRef catalog, DbObjectsRefsCache 
         for (db_IndexRef index : references.table->indices())
         {
           ListRef<db_IndexColumn> indexColumns = index->columns();
-          if (indexColumns->count() != fkColumns->count())
-            continue;
 
           bool indexMatches = true;
+
+          // Go over all FK columns (not the index columns as they might differ).
+          // Check that all FK columns are at the beginning of the index, in the same order.
           for (size_t i = 0; i < fkColumns->count(); ++i)
           {
-            if (fkColumns->get(i) != indexColumns.get(i)->referencedColumn())
+            if (i >= indexColumns->count() || fkColumns->get(i) != indexColumns.get(i)->referencedColumn())
             {
               indexMatches = false;
               break;
@@ -2006,7 +2121,7 @@ void updateForeignKeyReferences(db_mysql_CatalogRef catalog, DbObjectsRefsCache 
  *	referenced table and hence replace the inner value of the passed in table reference.
  */
 size_t MySQLParserServicesImpl::parseTable(parser::ParserContext::Ref context,
-  db_mysql_TableRef &table, const std::string &sql)
+  db_mysql_TableRef table, const std::string &sql)
 {
   log_debug2("Parse table\n");
 
@@ -2018,16 +2133,16 @@ size_t MySQLParserServicesImpl::parseTable(parser::ParserContext::Ref context,
   if (error_count == 0)
   {
     db_mysql_CatalogRef catalog;
-    std::string schemaName;
+    db_mysql_SchemaRef schema;
     if (table->owner().is_valid())
     {
-      schemaName = table->owner()->name();
-      catalog = db_mysql_CatalogRef::cast_from(table->owner()->owner());
+      schema = db_mysql_SchemaRef::cast_from(table->owner());
+      catalog = db_mysql_CatalogRef::cast_from(schema->owner());
     }
 
     DbObjectsRefsCache refCache;
-    fillTableDetails(walker, catalog, schemaName, table, context->case_sensitive(), true, refCache);
-    updateForeignKeyReferences(catalog, refCache, context->case_sensitive());
+    fillTableDetails(walker, catalog, schema, table, context->case_sensitive(), true, refCache);
+    resolveReferences(catalog, refCache, context->case_sensitive());
   }
   else
   {
@@ -2078,10 +2193,6 @@ std::pair<std::string, std::string> fillTriggerDetails(MySQLRecognizerTreeWalker
     walker.next();
   }
 
-  // The rest of the sql belongs to the sql body.
-  std::string sql = trigger->sqlDefinition();
-  trigger->sqlBody(sql.substr(walker.token_offset(), sql.size()));
-
   return identifier;
 }
 
@@ -2106,7 +2217,7 @@ size_t MySQLParserServicesImpl::parseTrigger(ParserContext::Ref context, db_mysq
 {
   log_debug2("Parse trigger\n");
 
-  trigger->sqlDefinition(sql);
+  trigger->sqlDefinition(base::trim(sql));
   trigger->lastChangeDate(base::fmttime(0, DATETIME_FMT));
 
   context->recognizer()->parse(sql.c_str(), sql.length(), true, PuCreateTrigger);
@@ -2161,8 +2272,7 @@ size_t MySQLParserServicesImpl::parseTrigger(ParserContext::Ref context, db_mysq
 /**
  *	Returns schema name and ignore flag.
  */
-std::pair<std::string, bool> fillViewDetails(MySQLRecognizerTreeWalker &walker, db_mysql_ViewRef view,
-  bool caseSensitive)
+std::pair<std::string, bool> fillViewDetails(MySQLRecognizerTreeWalker &walker, db_mysql_ViewRef view)
 {
   walker.next(); // Skip CREATE.
 
@@ -2195,19 +2305,17 @@ std::pair<std::string, bool> fillViewDetails(MySQLRecognizerTreeWalker &walker, 
 
   walker.next(1); // Skip VIEW.
   Identifier identifier = getIdentifier(walker);
+  result.first = identifier.first;
 
-  if (!identifier.first.empty() && view->owner().is_valid())
-  {
-    db_SchemaRef schema = db_SchemaRef::cast_from(view->owner());
-    if (!base::same_string(schema->name(), identifier.first, caseSensitive))
-      identifier.second += "_WRONG_SCHEMA";
-  }
   view->name(identifier.second);
   view->oldName(view->name());
 
-  walker.next(2); // AS + SELECT subtree.
+  // Skip over the column list, if given. We don't use it atm.
+  if (walker.is(OPEN_PAR_SYMBOL))
+    getNamesList(walker);
+  walker.next(); // Skip AS.
+  walker.skip_subtree(); // Skip SELECT subtree.
 
-  // WITH_SYMBOL (CASCADED_SYMBOL | LOCAL_SYMBOL)? CHECK_SYMBOL OPTION_SYMBOL.
   view->withCheckCondition(walker.is(WITH_SYMBOL));
 
   view->modelOnly(0);
@@ -2236,14 +2344,28 @@ size_t MySQLParserServicesImpl::parseView(ParserContext::Ref context,
 {
   log_debug2("Parse view\n");
 
-  view->sqlDefinition(sql);
+  view->sqlDefinition(base::trim(sql));
   view->lastChangeDate(base::fmttime(0, DATETIME_FMT));
 
   context->recognizer()->parse(sql.c_str(), sql.length(), true, PuCreateView);
   size_t error_count = context->recognizer()->error_info().size();
   MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
   if (error_count == 0)
-    fillViewDetails(walker, view, context->case_sensitive());
+  {
+    db_mysql_SchemaRef schema;
+    if (view->owner().is_valid())
+      schema = db_mysql_SchemaRef::cast_from(view->owner());
+    std::pair<std::string, bool> info = fillViewDetails(walker, view);
+    if (!info.first.empty() && schema.is_valid())
+    {
+      if (!base::same_string(schema->name(), info.first, context->case_sensitive()))
+      {
+        view->name(*view->name() + "_WRONG_SCHEMA");
+        view->oldName(view->name());
+      }
+    }
+
+  }
   else
   {
     // Finished with errors. See if we can get at least the view name out.
@@ -2279,12 +2401,6 @@ std::string fillRoutineDetails(MySQLRecognizerTreeWalker &walker, db_mysql_Routi
   walker.next(1); // Skip FUNCTION/PROCEDURE.
   Identifier identifier = getIdentifier(walker);
 
-  if (!identifier.first.empty() && routine->owner().is_valid())
-  {
-    db_SchemaRef schema = db_SchemaRef::cast_from(routine->owner());
-    if (!base::same_string(schema->name(), identifier.first, false)) // Routine names are never case sensitive.
-      identifier.second += "_WRONG_SCHEMA";
-  }
   routine->name(identifier.second);
   routine->oldName(routine->name());
 
@@ -2294,73 +2410,96 @@ std::string fillRoutineDetails(MySQLRecognizerTreeWalker &walker, db_mysql_Routi
     routine->routineType("udf");
     walker.next();
     routine->returnDatatype(walker.token_text());
+
+    // SONAME is currently ignored.
   }
   else
   {
     // Parameters.
     ListRef<db_mysql_RoutineParam> params = routine->params();
     params.remove_all();
-    walker.next(); // Open par.
+    walker.next(); // Skip OPEN_PAR.
 
-    if (walker.token_type() != CLOSE_PAR_SYMBOL) //there are no params, skip
+    while (!walker.is(CLOSE_PAR_SYMBOL))
     {
-      while (true)
+      db_mysql_RoutineParamRef param(routine->get_grt());
+      param->owner(routine);
+
+      switch (walker.token_type())
       {
-        db_mysql_RoutineParamRef param(routine->get_grt());
-        param->owner(routine);
-
-        switch (walker.token_type())
-        {
-          case IN_SYMBOL:
-          case OUT_SYMBOL:
-          case INOUT_SYMBOL:
-            param->paramType(base::tolower(walker.token_text()));
-            walker.next();
-            break;
-        }
-
-        param->name(walker.token_text());
-        walker.next();
-
-        // DATA_TYPE_TOKEN.
-        param->datatype(walker.text_for_tree());
-        params.insert(param);
-
-        walker.next_sibling();
-        if (walker.token_type() != COMMA_SYMBOL)
+        case IN_SYMBOL:
+        case OUT_SYMBOL:
+        case INOUT_SYMBOL:
+          param->paramType(walker.token_text());
+          walker.next();
           break;
-        walker.next();
       }
-      walker.next(); // Closing par.
 
-      if (walker.is(RETURNS_SYMBOL))
-      {
-        walker.next();
+      param->name(walker.token_text());
+      walker.next();
 
-        // DATA_TYPE_TOKEN.
-        routine->returnDatatype(walker.text_for_tree());
-        walker.next();
-      }
+      // DATA_TYPE_TOKEN.
+      param->datatype(walker.text_for_tree());
+      params.insert(param);
+
+      walker.skip_subtree();
+      if (!walker.is(COMMA_SYMBOL))
+        break;
+      walker.next();
     }
+    walker.next(); // Skip CLOSE_PAR.
+
+    if (walker.is(RETURNS_SYMBOL))
+    {
+      walker.next();
+
+      // DATA_TYPE_TOKEN.
+      routine->returnDatatype(walker.text_for_tree());
+      walker.next_sibling();
+    }
+
     if (walker.is(ROUTINE_CREATE_OPTIONS))
     {
       // For now we only store comments and security settings.
       walker.next();
+      bool done = false;
       do
       {
         switch (walker.token_type())
         {
           case SQL_SYMBOL:
-            walker.next(2); // SQL + SECURITY (both are siblings)
+            walker.next(2); // Skip SQL + SECURITY (both are siblings)
             routine->security(walker.token_text());
+            walker.next(); // Skip DEFINER/INVOKER
             break;
 
           case COMMENT_SYMBOL:
             walker.next();
             routine->comment(walker.token_text());
+            walker.skip_subtree();
             break;
+
+          // Some options we just skip.
+          case NOT_SYMBOL:
+          case DETERMINISTIC_SYMBOL:
+            walker.next(walker.is(NOT_SYMBOL) ? 2 : 1);
+            break;
+
+          case CONTAINS_SYMBOL:
+          case LANGUAGE_SYMBOL:
+          case NO_SYMBOL:
+            walker.next(2);
+            break;
+
+          case READS_SYMBOL:
+          case MODIFIES_SYMBOL:
+            walker.next(3);
+            break;
+
+          default:
+            done = true;
         }
-      } while (walker.next_sibling());
+      } while (!done);
     }
   }
 
@@ -2429,14 +2568,25 @@ size_t MySQLParserServicesImpl::parseRoutine(ParserContext::Ref context,
 {
   log_debug2("Parse routine\n");
 
-  routine->sqlDefinition(sql);
+  routine->sqlDefinition(base::trim(sql));
   routine->lastChangeDate(base::fmttime(0, DATETIME_FMT));
 
   context->recognizer()->parse(sql.c_str(), sql.length(), true, PuCreateRoutine);
   MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
   size_t error_count = context->recognizer()->error_info().size();
   if (error_count == 0)
-    fillRoutineDetails(walker, routine);
+  {
+    std::string schemaName = fillRoutineDetails(walker, routine);
+    if (!schemaName.empty() && routine->owner().is_valid())
+    {
+      db_mysql_SchemaRef schema = db_mysql_SchemaRef::cast_from(routine->owner());
+      if (!base::same_string(schema->name(), schemaName, false)) // Routine names are never case sensitive.
+      {
+        routine->name(*routine->name() + "_WRONG_SCHEMA");
+        routine->oldName(routine->name());
+      }
+    }
+  }
   else
   {
     // Finished with errors. See if we can get at least the routine name out.
@@ -2530,7 +2680,7 @@ size_t MySQLParserServicesImpl::parseRoutines(ParserContext::Ref context,
       routine->name(*group->name() + "_SYNTAX_ERROR_" + base::to_string(syntax_error_counter++));
       routine->routineType("unknown");
       routine->modelOnly(1);
-      routine->sqlDefinition(routine_sql);
+      routine->sqlDefinition(base::trim(routine_sql));
 
       routines.insert(routine);
   }
@@ -2577,7 +2727,7 @@ size_t MySQLParserServicesImpl::parseRoutines(ParserContext::Ref context,
         routine->modelOnly(1);
       }
 
-      routine->sqlDefinition(routine_sql);
+      routine->sqlDefinition(base::trim(routine_sql));
       routine->lastChangeDate(base::fmttime(0, DATETIME_FMT));
 
       // Finally add the routine to the group if it isn't already there.
@@ -2600,7 +2750,54 @@ size_t MySQLParserServicesImpl::parseRoutines(ParserContext::Ref context,
 
 //--------------------------------------------------------------------------------------------------
 
-bool fillSchemaDetails(MySQLRecognizerTreeWalker &walker, db_mysql_SchemaRef schema)
+static void fillSchemaOptions(MySQLRecognizerTreeWalker &walker, db_mysql_CatalogRef catalog,
+  db_mysql_SchemaRef schema)
+{
+  std::string defaultCharset = catalog.is_valid() ? catalog->defaultCharacterSetName() : "";
+  std::string defaultCollation = catalog.is_valid() ? catalog->defaultCollationName() : "";
+
+  // Charset or collation info.
+  bool done = false;
+  while (!done)
+  {
+    walker.skip_if(DEFAULT_SYMBOL);
+    switch (walker.token_type())
+    {
+    case CHAR_SYMBOL: // CHARACTER is mapped to CHAR.
+    {
+      walker.next(2); // Skip CHARACTER SET.
+      walker.skip_if(EQUAL_OPERATOR);
+
+      std::pair<std::string, std::string> info = detailsForCharset(walker.token_text(),
+        defaultCollation, defaultCharset);
+      schema->defaultCharacterSetName(info.first);
+      schema->defaultCollationName(info.second);
+      walker.next();
+      break;
+    }
+
+    case COLLATE_SYMBOL:
+    {
+      walker.next(); // Skip COLLATE.
+
+      std::pair<std::string, std::string> info = detailsForCollation(walker.token_text(), defaultCollation);
+      schema->defaultCharacterSetName(info.first);
+      schema->defaultCollationName(info.second);
+      walker.next();
+      break;
+    }
+
+    default:
+      done = true;
+      break;
+    }
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+static bool fillSchemaDetails(MySQLRecognizerTreeWalker &walker, db_mysql_CatalogRef catalog,
+  db_mysql_SchemaRef schema)
 {
   bool ignoreIfExists = false;
 
@@ -2614,24 +2811,7 @@ bool fillSchemaDetails(MySQLRecognizerTreeWalker &walker, db_mysql_SchemaRef sch
   schema->name(identifier.second);
   schema->oldName(schema->name());
 
-  // Charset or collation info?
-  while (true)
-  {
-    walker.skip_if(DEFAULT_SYMBOL);
-    if (walker.is(CHARACTER_SYMBOL))
-    {
-      walker.next(3); // Skip CHARACTER SET =.
-      schema->defaultCharacterSetName(walker.token_text());
-    }
-    if (walker.is(COLLATE_SYMBOL))
-    {
-      walker.next(2); // Skip COLLATE =.
-      schema->defaultCollationName(walker.token_text());
-    }
-
-    if (!walker.next())
-      break;
-  }
+  fillSchemaOptions(walker, catalog, schema);
 
   return ignoreIfExists;
 }
@@ -2649,7 +2829,7 @@ size_t MySQLParserServicesImpl::parseSchema(parser::ParserContext::Ref context, 
   size_t error_count = context->recognizer()->error_info().size();
   MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
   if (error_count == 0)
-    fillSchemaDetails(walker, schema);
+    fillSchemaDetails(walker, db_mysql_CatalogRef::cast_from(schema->owner()), schema);
   else
   {
     // Finished with errors. See if we can get at least the schema name out.
@@ -2665,19 +2845,40 @@ size_t MySQLParserServicesImpl::parseSchema(parser::ParserContext::Ref context, 
 
 //--------------------------------------------------------------------------------------------------
 
-Identifier fillIndexDetails(MySQLRecognizerTreeWalker &walker,
-  db_CatalogRef catalog, db_mysql_IndexRef index, bool caseSensitiv)
+Identifier fillIndexDetails(MySQLRecognizerTreeWalker &walker, db_mysql_CatalogRef catalog,
+  db_mysql_SchemaRef schema, db_mysql_IndexRef index, bool caseSensitiv)
 {
-  walker.next();
+  walker.next(); // Skip CREATE.
   if (walker.is(ONLINE_SYMBOL) || walker.is(OFFLINE_SYMBOL))
     walker.next();
 
-  index->indexType(walker.token_text());
-  walker.next(walker.is(UNIQUE_SYMBOL) ? 2 : 1);
-  index->name(walker.token_text());
-  index->oldName(index->name());
+  index->unique(0);
+  switch (walker.token_type())
+  {
+  case UNIQUE_SYMBOL:
+  case INDEX_SYMBOL:
+    if (walker.is(UNIQUE_SYMBOL))
+    {
+      index->unique(1);
+      index->indexType("UNIQUE");
+      walker.next();
+    }
+    else
+      index->indexType(formatIndexType(walker.token_text()));
 
-  walker.next();
+    walker.next();
+    break;
+
+  case FULLTEXT_SYMBOL:
+  case SPATIAL_SYMBOL:
+    index->indexType(formatIndexType(walker.token_text()));
+    walker.next(2); // Skip FULLTEXT/SPATIAL INDEX.
+    break;
+  }
+
+  Identifier identifier = getIdentifier(walker);
+  index->name(identifier.second);
+  index->oldName(index->name());
 
   if (walker.is(USING_SYMBOL) || walker.is(TYPE_SYMBOL))
   {
@@ -2686,8 +2887,8 @@ Identifier fillIndexDetails(MySQLRecognizerTreeWalker &walker,
     walker.next();
   }
 
-  walker.next();
-  Identifier identifier = getIdentifier(walker);
+  walker.next(); // Skip ON.
+  identifier = getIdentifier(walker);
 
   // Index columns.
   // Note: the referenced column for an index column can only be set if we can find the table
@@ -2695,7 +2896,6 @@ Identifier fillIndexDetails(MySQLRecognizerTreeWalker &walker,
   db_TableRef table;
   if (catalog.is_valid())
   {
-    db_SchemaRef schema = catalog->defaultSchema();
     if (!identifier.first.empty())
       schema = find_named_object_in_list(catalog->schemata(), identifier.first, caseSensitiv);
     if (schema.is_valid())
@@ -2766,10 +2966,15 @@ size_t MySQLParserServicesImpl::parseIndex(parser::ParserContext::Ref context, d
   MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
   if (error_count == 0)
   {
-    db_CatalogRef catalog;
-    if (index->owner().is_valid() && index->owner()->owner().is_valid())
-      catalog = db_CatalogRef::cast_from(index->owner()->owner()->owner());
-    fillIndexDetails(walker, catalog, index, context->case_sensitive());
+    db_mysql_CatalogRef catalog;
+    db_mysql_SchemaRef schema;
+
+    if (index->owner().is_valid())
+    {
+      schema = db_mysql_SchemaRef::cast_from(index->owner()->owner());
+      catalog = db_mysql_CatalogRef::cast_from(schema->owner());
+    }
+    fillIndexDetails(walker, catalog, schema, index, context->case_sensitive());
   }
   else
   {
@@ -2793,7 +2998,10 @@ std::pair<std::string, bool> fillEventDetails(MySQLRecognizerTreeWalker &walker,
 {
   std::pair<std::string, bool> result("", false);
 
-  walker.next(2); // Skip CREATE EVENT.
+  walker.next(); // Skip CREATE.
+  event->definer(getDefiner(walker));
+  walker.next(); // Skip EVENT.
+
   if (walker.is(IF_SYMBOL))
   {
     result.second = true;
@@ -2801,6 +3009,7 @@ std::pair<std::string, bool> fillEventDetails(MySQLRecognizerTreeWalker &walker,
   }
 
   Identifier identifier = getIdentifier(walker);
+  result.first = identifier.first;
   event->name(identifier.second);
   event->oldName(event->name());
   walker.next(2); // Skip ON SCHEDULE.
@@ -2808,9 +3017,9 @@ std::pair<std::string, bool> fillEventDetails(MySQLRecognizerTreeWalker &walker,
   event->useInterval(walker.token_type() != AT_SYMBOL);
   if (event->useInterval())
   {
-    walker.next();
+    walker.next(); // Skip EVERY.
     event->at(walker.text_for_tree()); // The full expression subtree.
-    walker.next_sibling();
+    walker.skip_subtree();
     event->intervalUnit(walker.token_text());
     walker.next();
 
@@ -2818,52 +3027,48 @@ std::pair<std::string, bool> fillEventDetails(MySQLRecognizerTreeWalker &walker,
     {
       walker.next();
       event->intervalStart(walker.text_for_tree());
-      walker.next_sibling();
+      walker.skip_subtree();
     }
 
     if (walker.is(ENDS_SYMBOL))
     {
       walker.next();
       event->intervalEnd(walker.text_for_tree());
-      walker.next_sibling();
+      walker.skip_subtree();
     }
-
-    if (walker.is(ON_SYMBOL)) // ON COMPLETION NOT? PRESERVE
-    {
-      walker.next(2);
-      event->preserved(walker.token_type() != NOT_SYMBOL);
-      walker.next(event->preserved() ? 1 : 2);
-    }
-
-    bool enabled = true;
-    if (walker.is(ENABLE_SYMBOL) || walker.is(DISABLE_SYMBOL))
-    {
-      // Enabled/Disabled is optional.
-      enabled = walker.is(ENABLE_SYMBOL);
-      walker.next();
-      if (walker.is(ON_SYMBOL))
-        walker.next(2); // Skip ON SLAVE.
-    }
-    event->enabled(enabled);
-
-    if (walker.is(COMMENT_SYMBOL))
-    {
-      walker.next();
-      event->comment(walker.token_text());
-      walker.next();
-    }
-    walker.next(); // Skip DO.
-
-    // The rest of the sql belongs to the sql body.
-    std::string sql = event->sqlDefinition();
-    event->sqlBody(sql.substr(walker.token_offset(), sql.size()));
   }
   else
   {
     walker.next();
     event->at(walker.text_for_tree()); // The full expression subtree.
-    walker.next_sibling();
+    walker.skip_subtree();
   }
+
+  if (walker.is(ON_SYMBOL)) // ON COMPLETION NOT? PRESERVE
+  {
+    walker.next(2);
+    event->preserved(walker.token_type() != NOT_SYMBOL);
+    walker.next(event->preserved() ? 1 : 2);
+  }
+
+  bool enabled = true;
+  if (walker.is(ENABLE_SYMBOL) || walker.is(DISABLE_SYMBOL))
+  {
+    // Enabled/Disabled is optional.
+    enabled = walker.is(ENABLE_SYMBOL);
+    walker.next();
+    if (walker.is(ON_SYMBOL))
+      walker.next(2); // Skip ON SLAVE.
+  }
+  event->enabled(enabled);
+
+  if (walker.is(COMMENT_SYMBOL))
+  {
+    walker.next();
+    event->comment(walker.token_text());
+    walker.next();
+  }
+  walker.next(); // Skip DO.
 
   return result;
 }
@@ -2906,7 +3111,7 @@ void fillLogfileGroupDetails(MySQLRecognizerTreeWalker &walker, db_mysql_LogFile
 
   walker.next(2); // Skip ADD (UNDOFILE | REDOFILE).
   group->undoFile(walker.token_text());
-  walker.next_sibling();
+  walker.skip_subtree();
 
   if (walker.is(LOGFILE_GROUP_OPTIONS_TOKEN))
   {
@@ -2925,6 +3130,7 @@ void fillLogfileGroupDetails(MySQLRecognizerTreeWalker &walker, db_mysql_LogFile
         walker.next();
         walker.skip_if(EQUAL_OPERATOR);
         std::string value = walker.token_text();
+        walker.next();
 
         // Value can have a suffix. And it can be a hex number (atoi is supposed to handle that).
         size_t factor = 1;
@@ -2971,10 +3177,12 @@ void fillLogfileGroupDetails(MySQLRecognizerTreeWalker &walker, db_mysql_LogFile
         break;
 
       case STORAGE_SYMBOL:
-      case ENGINE_SYMBOL: //EQUAL_OPERATOR ? engine_ref
+      case ENGINE_SYMBOL:
         walker.next(token == STORAGE_SYMBOL ? 2 : 1);
         walker.skip_if(EQUAL_OPERATOR);
+        walker.next(); // Skip ENGINE_REF_TOKEN.
         group->engine(walker.token_text());
+        walker.next();
         break;
 
       default:
@@ -3110,20 +3318,18 @@ void fillTablespaceDetails(MySQLRecognizerTreeWalker &walker, db_CatalogRef cata
 
   walker.next(2); // Skip ADD DATAFILE.
   tablespace->dataFile(walker.token_text());
-  walker.next_sibling();
+  walker.skip_subtree();
 
   if (walker.is(USE_SYMBOL))
   {
-    // USE LOGFILE GROUP
-    walker.next(3);
-    std::string groupName = walker.token_text();
+    walker.next(3); // Skip USE LOGFILE GROUP.
+    Identifier identifier = getIdentifier(walker);
     if (catalog.is_valid())
     {
-      db_LogFileGroupRef logfileGroup = find_named_object_in_list(catalog->logFileGroups(), groupName);
+      db_LogFileGroupRef logfileGroup = find_named_object_in_list(catalog->logFileGroups(), identifier.second);
       if (logfileGroup.is_valid())
         tablespace->logFileGroup(logfileGroup);
     }
-    walker.next();
   }
 
   if (walker.is(TABLESPACE_OPTIONS_TOKEN))
@@ -3144,6 +3350,7 @@ void fillTablespaceDetails(MySQLRecognizerTreeWalker &walker, db_CatalogRef cata
         walker.next();
         walker.skip_if(EQUAL_OPERATOR);
         std::string value = walker.token_text();
+        walker.next();
 
         // Value can have a suffix. And it can be a hex number (atoi is supposed to handle that).
         size_t factor = 1;
@@ -3203,11 +3410,14 @@ void fillTablespaceDetails(MySQLRecognizerTreeWalker &walker, db_CatalogRef cata
         break;
 
       case STORAGE_SYMBOL:
-      case ENGINE_SYMBOL: //EQUAL_OPERATOR ? engine_ref
-        walker.next(token == STORAGE_SYMBOL ? 2 : 1);
-        walker.skip_if(EQUAL_OPERATOR);
-        tablespace->engine(walker.token_text());
-        break;
+      case ENGINE_SYMBOL:
+        {
+          walker.next(token == STORAGE_SYMBOL ? 2 : 1);
+          walker.skip_if(EQUAL_OPERATOR);
+          Identifier identifier = getIdentifier(walker);
+          tablespace->engine(identifier.second);
+          break;
+        }
 
       default:
         done = true;
@@ -3250,10 +3460,53 @@ size_t MySQLParserServicesImpl::parseTablespace(parser::ParserContext::Ref conte
 
 //--------------------------------------------------------------------------------------------------
 
+static std::unordered_set<MySQLQueryType> relevantQueryTypes = {
+  QtAlterDatabase,
+  QtAlterLogFileGroup,
+  QtAlterFunction,
+  QtAlterProcedure,
+  QtAlterServer,
+  QtAlterTable,
+  QtAlterTableSpace,
+  QtAlterEvent,
+  QtAlterView,
+
+  QtCreateTable,
+  QtCreateIndex,
+  QtCreateDatabase,
+  QtCreateEvent,
+  QtCreateView,
+  QtCreateRoutine,
+  QtCreateProcedure,
+  QtCreateFunction,
+  QtCreateUdf,
+  QtCreateTrigger,
+  QtCreateLogFileGroup,
+  QtCreateServer,
+  QtCreateTableSpace,
+
+  QtDropDatabase,
+  QtDropEvent,
+  QtDropFunction,
+  QtDropProcedure,
+  QtDropIndex,
+  QtDropLogfileGroup,
+  QtDropServer,
+  QtDropTable,
+  QtDropTablespace,
+  QtDropTrigger,
+  QtDropView,
+
+  QtRenameTable,
+
+  QtUse,
+
+};
+
 /**
- *	Expects the sql to be a single or multi-statement text which is parsed and the details used
- *	to build a grt tree. Exist objects are replaced unless the SQL has an "if not exist" clause
- *	(or no "or replace" clause for views).
+ *	Expects the sql to be a single or multi-statement text in utf-8 encoding which is parsed and 
+ *	the details are used to build a grt tree. Existing objects are replaced unless the SQL has
+ *	an "if not exist" clause (or no "or replace" clause for views).
  *	Statements handled are: create, drop and table rename, everything else is ignored.
  *
  *  Note for case sensitivity: only schema, table and trigger names *can* be case sensitive.
@@ -3279,6 +3532,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
 
   size_t errorCount = 0;
   MySQLRecognizer *recognizer = context->recognizer();
+  std::shared_ptr<MySQLQueryIdentifier> queryIdentifier = context->createQueryIdentifier();
   
   std::vector<std::pair<size_t, size_t>> ranges;
   determineStatementRanges(sql.c_str(), sql.size(), ";", ranges, "\n");
@@ -3289,8 +3543,19 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
   for (auto iterator = ranges.begin(); iterator != ranges.end(); ++iterator)
   {
     //std::string ddl(sql.c_str() + iterator->first, iterator->second);
+    MySQLQueryType queryType = queryIdentifier->getQueryType(sql.c_str() + iterator->first, iterator->second, true);
+    size_t errors = queryIdentifier->error_info().size(); // Can only be lexer errors.
+    if (errors > 0)
+    {
+      errorCount += errors;
+      continue;
+    }
+
+    if (relevantQueryTypes.count(queryType) == 0)
+      continue; // Something we are not interested in. Don't bother parsing it.
+
     recognizer->parse(sql.c_str() + iterator->first, iterator->second, true, PuGeneric);
-    size_t errors = recognizer->error_info().size();
+    errors = recognizer->error_info().size();
     if (errors > 0)
     {
       errorCount += errors;
@@ -3298,7 +3563,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
     }
 
     MySQLRecognizerTreeWalker walker = recognizer->tree_walker();
-    switch (recognizer->query_type())
+    switch (queryType)
     {
     case QtCreateTable:
     {
@@ -3306,25 +3571,30 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
       table->createDate(base::fmttime(0, DATETIME_FMT));
       table->lastChangeDate(table->createDate());
 
-      std::pair<std::string, bool> result = fillTableDetails(walker, catalog, currentSchema->name(),
+      std::pair<std::string, bool> result = fillTableDetails(walker, catalog, currentSchema,
         table, caseSensitive, autoGenerateFkNames, refCache);
-      db_SchemaRef schema = currentSchema;
+      db_mysql_SchemaRef schema = currentSchema;
       if (!result.first.empty() && !base::same_string(schema->name(), result.first, caseSensitive))
         schema = ensureSchemaExists(catalog, result.first, caseSensitive);
       table->owner(schema);
 
-      db_TableRef existing = find_named_object_in_list(schema->tables(), table->name());
-      if (existing.is_valid())
+      // Ignore tables that use a name that is already used for a view (no drop/new-add takes place then).
+      db_mysql_ViewRef existingView = find_named_object_in_list(schema->views(), table->name());
+      if (!existingView.is_valid())
       {
-        // Ignore if the table exists already?
-        if (!result.second)
+        db_TableRef existingTable = find_named_object_in_list(schema->tables(), table->name());
+        if (existingTable.is_valid())
         {
-          schema->tables()->remove(existing);
-          schema->tables().insert(table);
+          // Ignore if the table exists already?
+          if (!result.second)
+          {
+            schema->tables()->remove(existingTable);
+            schema->tables().insert(table);
+          }
         }
+        else
+          schema->tables().insert(table);
       }
-      else
-        schema->tables().insert(table);
 
       break;
     }
@@ -3335,8 +3605,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
       index->createDate(base::fmttime(0, DATETIME_FMT));
       index->lastChangeDate(index->createDate());
 
-      Identifier tableReference = fillIndexDetails(walker, catalog, index,
-        caseSensitive);
+      Identifier tableReference = fillIndexDetails(walker, catalog, currentSchema, index, caseSensitive);
       db_SchemaRef schema = currentSchema;
       if (!tableReference.first.empty() && !base::same_string(schema->name(), tableReference.first, caseSensitive))
         schema = ensureSchemaExists(catalog, tableReference.first, caseSensitive);
@@ -3359,12 +3628,16 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
       db_mysql_SchemaRef schema(catalog->get_grt());
       schema->createDate(base::fmttime(0, DATETIME_FMT));
       schema->lastChangeDate(schema->createDate());
-      schema->defaultCharacterSetName(catalog->defaultCharacterSetName());
-      schema->defaultCollationName(catalog->defaultCollationName());
-      bool ignoreIfExists = fillSchemaDetails(walker, schema);
+
+      std::pair<std::string, std::string> info = detailsForCharset(catalog->defaultCharacterSetName(),
+        catalog->defaultCollationName(), catalog->defaultCharacterSetName());
+      schema->defaultCharacterSetName(info.first);
+      schema->defaultCollationName(info.second);
+
+      bool ignoreIfExists = fillSchemaDetails(walker, catalog, schema);
       schema->owner(catalog);
 
-      db_SchemaRef existing = find_named_object_in_list(catalog->schemata(), schema->name());
+      db_SchemaRef existing = find_named_object_in_list(catalog->schemata(), schema->name(), caseSensitive);
       if (existing.is_valid())
       {
         if (!ignoreIfExists)
@@ -3390,14 +3663,14 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
     case QtCreateEvent:
     {
       db_mysql_EventRef event(catalog->get_grt());
-      event->sqlDefinition(recognizer->text());
+      event->sqlDefinition(base::trim(recognizer->text()));
       event->createDate(base::fmttime(0, DATETIME_FMT));
       event->lastChangeDate(event->createDate());
 
       std::pair<std::string, bool> result = fillEventDetails(walker, event);
       db_SchemaRef schema = currentSchema;
-      if (!result.first.empty() && !base::same_string(schema->name(), result.first, caseSensitive))
-        schema = ensureSchemaExists(catalog, result.first, caseSensitive);
+      if (!result.first.empty() && !base::same_string(schema->name(), result.first, false))
+        schema = ensureSchemaExists(catalog, result.first, false);
       event->owner(schema);
 
       db_EventRef existing = find_named_object_in_list(schema->events(), event->name());
@@ -3418,27 +3691,32 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
     case QtCreateView:
     {
       db_mysql_ViewRef view(catalog->get_grt());
-      view->sqlDefinition(recognizer->text());
+      view->sqlDefinition(base::trim(recognizer->text()));
       view->createDate(base::fmttime(0, DATETIME_FMT));
       view->lastChangeDate(view->createDate());
 
-      std::pair<std::string, bool> result = fillViewDetails(walker, view, caseSensitive);
-      db_SchemaRef schema = currentSchema;
+      std::pair<std::string, bool> result = fillViewDetails(walker, view);
+      db_mysql_SchemaRef schema = currentSchema;
       if (!result.first.empty() && !base::same_string(schema->name(), result.first, caseSensitive))
         schema = ensureSchemaExists(catalog, result.first, caseSensitive);
       view->owner(schema);
 
-      db_ViewRef existing = find_named_object_in_list(schema->views(), view->name());
-      if (existing.is_valid())
+      // Ignore views that use a name that is already used for a table (no drop/new-add takes place then).
+      db_mysql_TableRef existingTable = find_named_object_in_list(schema->tables(), view->name());
+      if (!existingTable.is_valid())
       {
-        if (!result.second) // Ignore if exists?
+        db_mysql_ViewRef existingView = find_named_object_in_list(schema->views(), view->name());
+        if (existingView.is_valid())
         {
-          schema->views()->remove(existing);
-          schema->views().insert(view);
+          if (!result.second) // Ignore if exists?
+          {
+            schema->views()->remove(existingView);
+            schema->views().insert(view);
+          }
         }
+        else
+          schema->views().insert(view);
       }
-      else
-        schema->views().insert(view);
 
       break;
     }
@@ -3448,7 +3726,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
     case QtCreateUdf:
     {
       db_mysql_RoutineRef routine(catalog->get_grt());
-      routine->sqlDefinition(recognizer->text());
+      routine->sqlDefinition(base::trim(recognizer->text()));
       routine->createDate(base::fmttime(0, DATETIME_FMT));
       routine->lastChangeDate(routine->createDate());
 
@@ -3469,17 +3747,29 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
     case QtCreateTrigger:
     {
       db_mysql_TriggerRef trigger(catalog->get_grt());
-      trigger->sqlDefinition(recognizer->text());
+      trigger->sqlDefinition(base::trim(recognizer->text()));
       trigger->createDate(base::fmttime(0, DATETIME_FMT));
       trigger->lastChangeDate(trigger->createDate());
 
       std::pair<std::string, std::string> tableName = fillTriggerDetails(walker, trigger);
+
+      // Trigger table referencing is a bit different than for other objects because we need
+      // the table now to add the trigger to it. We cannot defer that to the resolveReferences() call.
+      // This has the implication that we can only work with tables we have found so far.
       db_SchemaRef schema = currentSchema;
       if (!tableName.first.empty())
         schema = ensureSchemaExists(catalog, tableName.first, caseSensitive);
       db_TableRef table = find_named_object_in_list(schema->tables(), tableName.second, caseSensitive);
       if (!table.is_valid())
-        continue; // Invalid table reference.
+      {
+        // If we don't find a table with the given name we create a stub object to be used instead.
+        table = db_mysql_TableRef(catalog->get_grt());
+        table->owner(schema);
+        table->isStub(1);
+        table->name(tableName.second);
+        table->oldName(tableName.second);
+        schema->tables().insert(table);
+      }
 
       trigger->owner(table);
 
@@ -3637,7 +3927,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
     case QtDropTable:
     case QtDropView:
     {
-      bool isView = recognizer->query_type() == QtDropView;
+      bool isView = queryType == QtDropView;
       walker.next();
       walker.skip_if(TEMPORARY_SYMBOL);
       walker.next(); // Skip TABLE | TABLES | VIEW.
@@ -3723,32 +4013,29 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
 
         walker.next(); // Skip TO.
         Identifier target = getIdentifier(walker);
-        if (sourceSchema.is_valid())
-        {
-          db_SchemaRef targetSchema = currentSchema;
-          if (!target.first.empty())
-            targetSchema = ensureSchemaExists(catalog, target.first, caseSensitive);
+        db_SchemaRef targetSchema = currentSchema;
+        if (!target.first.empty())
+          targetSchema = ensureSchemaExists(catalog, target.first, caseSensitive);
 
-          db_ViewRef view = find_named_object_in_list(sourceSchema->views(), source.second);
-          if (view.is_valid())
+        db_ViewRef view = find_named_object_in_list(sourceSchema->views(), source.second);
+        if (view.is_valid())
+        {
+          // Cannot move between schemas.
+          if (sourceSchema == targetSchema)
+            view->name(target.second);
+        }
+        else
+        {
+          // Renaming a table.
+          db_TableRef table = find_named_object_in_list(sourceSchema->tables(), source.second);
+          if (table.is_valid())
           {
-            // Cannot move between schemas.
-            if (sourceSchema == targetSchema)
-              view->name(target.second);
-          }
-          else
-          {
-            // Renaming a table.
-            db_TableRef table = find_named_object_in_list(sourceSchema->tables(), source.second);
-            if (table.is_valid())
+            if (sourceSchema != targetSchema)
             {
-              if (sourceSchema != targetSchema)
-              {
-                sourceSchema->tables()->remove(table);
-                targetSchema->tables().insert(table);
-              }
-              table->name(target.second);
+              sourceSchema->tables()->remove(table);
+              targetSchema->tables().insert(table);
             }
+            table->name(target.second);
           }
         }
 
@@ -3760,12 +4047,137 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
       break;
     }
 
+    // Alter commands. At the moment we only support a limited number of cases as we mostly
+    // need SQL-to-GRT conversion for create scripts.
+    case QtAlterDatabase:
+      {
+        db_mysql_SchemaRef schema = currentSchema;
+        walker.next(); // Skip DATABASE.
+        if (walker.is_identifier())
+        {
+          Identifier identifier = getIdentifier(walker);
+          schema = ensureSchemaExists(catalog, identifier.second, caseSensitive);
+        }
+        schema->lastChangeDate(base::fmttime(0, DATETIME_FMT));
+        fillSchemaOptions(walker, catalog, schema);
+
+        break;
+      }
+
+    case QtAlterLogFileGroup:
+      break;
+
+    case QtAlterFunction:
+      break;
+
+    case QtAlterProcedure:
+      break;
+
+    case QtAlterServer:
+      break;
+
+    case QtAlterTable: // Alter table only for adding/removing indices and for renames.
+      {                // This is more than the old parser did. 
+        walker.next();
+        if (walker.is(ONLINE_SYMBOL) || walker.is(OFFLINE_SYMBOL))
+          walker.next();
+        walker.skip_if(IGNORE_SYMBOL);
+        walker.next(); // Skip TABLE.
+        Identifier identifier = getIdentifier(walker);
+        db_mysql_SchemaRef schema = currentSchema;
+        if (!identifier.first.empty())
+          schema = ensureSchemaExists(catalog, identifier.first, caseSensitive);
+
+        db_mysql_TableRef table = find_named_object_in_list(schema->tables(), identifier.second, caseSensitive);
+        if (table.is_valid())
+        {
+          // There must be at least one alter item.
+          while (true)
+          {
+            switch (walker.look_ahead(true))
+            {
+            case ADD_SYMBOL:
+              walker.next();
+              switch (walker.look_ahead(true))
+              {
+              case CONSTRAINT_SYMBOL:
+              case PRIMARY_SYMBOL:
+              case FOREIGN_SYMBOL:
+              case UNIQUE_SYMBOL:
+              case INDEX_SYMBOL:
+              case KEY_SYMBOL:
+              case FULLTEXT_SYMBOL:
+              case SPATIAL_SYMBOL:
+                walker.next();
+                processTableKeyItem(walker, catalog, schema->name(), table, autoGenerateFkNames, refCache);
+                break;
+
+              case RENAME_SYMBOL:
+                {
+                  walker.next(2);
+                  if (walker.is(TO_SYMBOL) || walker.is(AS_SYMBOL))
+                    walker.next();
+
+                  identifier = getIdentifier(walker);
+                  db_SchemaRef targetSchema = currentSchema;
+                  if (!identifier.first.empty())
+                    targetSchema = ensureSchemaExists(catalog, identifier.first, caseSensitive);
+
+                  db_ViewRef view = find_named_object_in_list(schema->views(), identifier.second);
+                  if (view.is_valid())
+                  {
+                    // Cannot move between schemas.
+                    if (schema == targetSchema)
+                      view->name(identifier.second);
+                  }
+                  else
+                  {
+                    // Renaming a table.
+                    db_TableRef table = find_named_object_in_list(schema->tables(), identifier.second);
+                    if (table.is_valid())
+                    {
+                      if (schema != targetSchema)
+                      {
+                        schema->tables()->remove(table);
+                        targetSchema->tables().insert(table);
+                      }
+                      table->name(identifier.second);
+                    }
+                  }
+
+                  break;
+                }
+
+              default:
+                walker.up();
+                walker.skip_subtree();
+              }
+              break;
+
+            default:
+              walker.skip_subtree();
+            }
+
+            if (!walker.is(COMMA_SYMBOL))
+              break;
+            walker.next();
+          }
+        }
+        break;
+      }
+
+    case QtAlterTableSpace:
+      break;
+    case QtAlterEvent:
+      break;
+    case QtAlterView:
+      break;
     default:
       continue; // Ignore anything else.
     }
   }
 
-  updateForeignKeyReferences(catalog, refCache, context->case_sensitive());
+  resolveReferences(catalog, refCache, context->case_sensitive());
 
   // Remove the default_schema we may have created at the start, if it is empty.
   if (defaultSchemaCreated)
