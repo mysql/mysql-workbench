@@ -930,8 +930,7 @@ class EventManager(ObjectManager):
                ("Originator", StringColumnType, "Originator", 100, None),
                ("character_set_client", StringColumnType, "Client Character Set", 100, None),
                ("collation_connection", StringColumnType, "Connection Collation", 100, None),
-               ("Database Collation", StringColumnType, "Database Collation", 100, None),
-               ("Comment", StringColumnType, "Comment", 400, None),
+               ("Database Collation", StringColumnType, "Database Collation", 100, None)
                ]
 
 class SchemaInfoPanel(mforms.Box):
