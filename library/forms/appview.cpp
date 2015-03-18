@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -46,6 +46,8 @@ AppView::AppView(bool horiz, const std::string &context_name, bool is_main)
 AppView::AppView(bool horiz, const std::string &context_name, bool is_main)
 : Box(horiz), _context_name(context_name), _menubar(0), _toolbar(0), _is_main(is_main)
 {
+
+  set_name(context_name);
 #ifdef __APPLE__
   // default, empty toolbar for mac, to show the 3px bar under the top tabs
   // TODO: move this to the platform layer. It doesn't belong here.
