@@ -2149,8 +2149,8 @@ class WbAdminProgressTab(mforms.Box):
 
 
     def set_start_enabled(self, flag):
-        self.export_button.set_enabled(flag)
-        self.operation_tab.export_button.set_enabled(flag)
+        self.export_button.set_enabled(bool(flag))
+        self.operation_tab.export_button.set_enabled(bool(flag))
 
 
     def set_status(self, text):

@@ -427,7 +427,7 @@ class ConfigurationPage(WizardPage):
 
         def sell_all(cols, active):
             for checkbox in self.checkbox_list:
-                checkbox.set_active(active)
+                checkbox.set_active(bool(active))
             for row in self.column_mapping:
                 row['active'] = active
         

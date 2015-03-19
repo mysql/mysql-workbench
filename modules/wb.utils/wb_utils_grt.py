@@ -806,7 +806,7 @@ class SSLWizard_OptionsPage(WizardPage):
         
         self.generate_files = newCheckBox()
         self.generate_files.set_text("Generate new certificates and self-signed keys");
-        self.generate_files.set_active(False if self.check_all_files_availability() == True else True)
+        self.generate_files.set_active(not self.check_all_files_availability())
         self.generate_files.set_enabled(self.check_all_files_availability())
 
         self.update_connection = newCheckBox()
@@ -926,7 +926,7 @@ class SSLWizard_GeneratePage(WizardPage):
         return row+1, control
 
     def set_show_parameters(self, value):
-        self.parameters_box.show(value)
+        self.parameters_box.show(bool(value))
         self.default_label.show(not value)
 
     def get_attributes(self, target):

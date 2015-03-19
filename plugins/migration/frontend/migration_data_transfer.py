@@ -746,7 +746,7 @@ fi
         self.start()
 
     def show_retry_button(self, _show):
-        self.retry_button.show(_show)
+        self.retry_button.show(bool(_show))
         self.next_button.set_enabled(not _show)
 
     def _update_resume_status(self, _resume):
