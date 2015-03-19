@@ -92,6 +92,7 @@ target_link_libraries(mysql-workbench-bin
     mysqlparser
     ${MYSQLCPPCONN_LIBRARIES}
     ${CTEMPLATE_LIBRARIES}
+    ${X11_LIBRARIES}
     ${GTK2_LIBRARIES}
     ${SIGC++_LIBRARIES}
     ${GRT_LIBRARIES}

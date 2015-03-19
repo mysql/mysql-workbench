@@ -22,13 +22,18 @@
 #include "mforms/fs_object_selector.h"
 #include "grtdb/db_helpers.h"
 
-#include <grt/common.h>
+#include "grt/common.h"
 #include "base/string_utilities.h"
 #include "base/log.h"
+#include "base/file_utilities.h"
+
 #include "mforms/uistyle.h"
 #include "mforms/utilities.h"
 #include "mforms/checkbox.h"
 #include "mforms/textbox.h"
+#include "mforms/app.h"
+
+#include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 
 #define MYSQL_RDBMS_ID "com.mysql.rdbms.mysql"
 
@@ -62,7 +67,8 @@ _advanced_panel(mforms::TransparentPanel), _advanced_table(0),
 _options_panel(mforms::TransparentPanel), _options_table(0),
 _show_connection_combo((flags & DbConnectPanelShowConnectionCombo) != 0),
 _show_manage_connections((flags & DbConnectPanelShowManageConnections) != 0),
-_dont_set_default_connection((flags & DbConnectPanelDontSetDefaultConnection) != 0)
+_dont_set_default_connection((flags & DbConnectPanelDontSetDefaultConnection) != 0),
+_last_active_tab(-1)
 {
   _allow_edit_connections = false;
   _initialized= false;
@@ -101,6 +107,8 @@ _dont_set_default_connection((flags & DbConnectPanelDontSetDefaultConnection) !=
   _desc3.set_text(_("Method to use to connect to the RDBMS"));
   _desc3.set_style(mforms::SmallHelpTextStyle);
 
+
+  _stored_connection_sel.set_name("Connection List");
   if (_show_connection_combo)
     scoped_connect(_stored_connection_sel.signal_changed(),boost::bind(&DbConnectPanel::change_active_stored_conn, this));
   scoped_connect(_rdbms_sel.signal_changed(),boost::bind(&DbConnectPanel::change_active_rdbms, this));
@@ -814,6 +822,30 @@ void DbConnectPanel::change_active_stored_conn()
   }
 }
 
+void DbConnectPanel::launch_ssl_wizard()
+{
+  mforms::Form *parent = get_parent_form();
+  grt::BaseListRef args(get_be()->get_grt());
+  args.ginsert(mforms_to_grt(get_be()->get_grt(), parent, "Form"));
+  args.ginsert(get_connection());
+  args.ginsert(grt::StringRef(get_connection()->id()));
+
+  get_be()->get_grt()->call_module_function("PyWbUtils", "generateCertificates", args);
+  
+  _connection->update();
+}
+
+void DbConnectPanel::open_ssl_wizard_directory()
+{
+  std::string path = base::join_path(mforms::App::get()->get_user_data_folder().c_str(), "certificates", get_connection()->id().c_str(), "");
+  
+  if (base::is_directory(path))
+    Utilities::open_url(path);
+  else
+    mforms::Utilities::show_warning(_("Cannot Open Directory"), _("The directory that should contain the files does not exist yet. Maybe you need to run the SSL Wizard first."), _("OK"));
+  
+}
+
 
 db_mgmt_ConnectionRef DbConnectPanel::open_editor()
 {
@@ -827,6 +859,7 @@ db_mgmt_ConnectionRef DbConnectPanel::open_editor()
 
 void DbConnectPanel::begin_layout()
 {
+  _last_active_tab = _tab.get_active_tab();
   if (_params_table)
   {
     _params_panel.remove(_params_table);	  
@@ -910,6 +943,9 @@ void DbConnectPanel::end_layout()
     _options_panel.add(_options_table);
     _tab.add_page(&_options_panel, _("Options"));
   }
+  
+  if (_last_active_tab != -1)
+    _tab.set_active_tab(_last_active_tab);
 }
 
 
@@ -1051,8 +1087,30 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
       label->set_text(caption);
       label->set_text_align(mforms::TopLeft);
       label->set_style(mforms::SmallHelpTextStyle);
+      label->set_wrap_text(true);
+      label->set_size(250, -1);
       table->add(mforms::manage(label), 2, 3, bounds.top, bounds.top + 1, mforms::HFillFlag | mforms::VFillFlag);
       _views.push_back(label);
+      break;
+    }
+  case ::ctButton:
+    {
+      Button *btn = new Button();
+      btn->set_text(caption);
+      btn->set_size(bounds.width, 30);
+      
+      box->add(mforms::manage(btn), false, true);
+      _views.push_back(btn);
+      
+      if (driver_param->object()->name() == "sslWizard")
+      {
+        scoped_connect(btn->signal_clicked(),boost::bind(&DbConnectPanel::launch_ssl_wizard, this));
+      }
+      else if (driver_param->object()->name() == "openSSLWizardDirectory")
+      {
+        scoped_connect(btn->signal_clicked(),boost::bind(&DbConnectPanel::open_ssl_wizard_directory, this));
+      }
+      
       break;
     }
   case ::ctCheckBox:
@@ -1163,7 +1221,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
 
       ctrl->set_size(bounds.width, -1);
 
-      ctrl->initialize(initial_value, mforms::OpenFile, "", "...", true,
+      ctrl->initialize(initial_value, mforms::OpenFile, "", true,
         boost::bind(&DbConnectPanel::param_value_changed, this, ctrl));
       box->add(mforms::manage(ctrl), true, true);
       _views.push_back(ctrl);

@@ -1,5 +1,5 @@
 ﻿/* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -165,7 +165,7 @@ TEST_FUNCTION(20)
   column->name("testee");
   table->columns().insert(column);
 
-  std::string expected_enum_parameters = "blah, foo, bar, 0b11100011011, 0x1234ABCDE";
+  std::string expected_enum_parameters = "('blah', 'foo', 'bar', 0b11100011011, 0x1234ABCDE)";
   ListRef<db_SimpleDatatype> types = tester.get_rdbms()->simpleDatatypes();
   for (size_t i= 0; i < tester.get_rdbms()->simpleDatatypes().count(); i++)
   {
@@ -173,7 +173,7 @@ TEST_FUNCTION(20)
     string no_params= types[i]->name();
     string single_num_param= no_params + "(777)";
     string double_num_params= no_params + "(111, 5)";
-    string param_list = no_params + "('blah', 'foo', 'bar', 0b11100011011, 0x1234ABCDE)";
+    string param_list = no_params + "('blah', 'foo'  ,       'bar'\n, \n0b11100011011,\n\n\n 0x1234ABCDE)";
     string invalid_list= no_params + "(1, a, 'bb')";
 
     // Depending on the server version a data type is defined for we need to set the

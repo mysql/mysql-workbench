@@ -1301,14 +1301,14 @@ class SetupThreads(mforms.Box):
         root = self.threads.root_node()
         for row in range(self.threads.count()):
             node = root.get_child(row)
-            self._threads[node.get_int(0)].instrumented = True
+            self._threads[node.get_long(0)].instrumented = True
             node.set_bool(2, True)
 
     def enable_none(self):
         root = self.threads.root_node()
         for row in range(self.threads.count()):
             node = root.get_child(row)
-            self._threads[node.get_int(0)].instrumented = False
+            self._threads[node.get_long(0)].instrumented = False
             node.set_bool(2, False)
 
     def refresh(self):
@@ -1380,7 +1380,7 @@ class WbAdminPerformanceSchemaInstrumentation(WbAdminPSBaseTab, ChangeCounter):
         ChangeCounter.count_change(self, change, attr, value)
         
         # Enables/Disables the buttons accordingly
-        self.apply_button.set_enabled(self.change_count)
+        self.apply_button.set_enabled(self.change_count != 0)
         #self.cancel_button.set_enabled(self.change_count)
 
     def create_ui(self):

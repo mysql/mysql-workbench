@@ -411,7 +411,6 @@ public:
     _editor_host = editor->get_sql_editor()->get_container();
     scoped_connect(editor->get_catalog()->signal_changed(), boost::bind(&MySQLTriggerPanel::catalog_changed, this, _1, _2));
 
-
     set_spacing(15);
     set_padding(4);
     
@@ -620,6 +619,7 @@ public:
   void refresh()
   {
     _refreshing = true;
+    _trigger_list.freeze_refresh();
 
     mforms::TreeNodeRef selected = _trigger_list.get_selected_node();
     int old_selected = 0;
@@ -653,6 +653,7 @@ public:
     _trigger_list.select_node(_trigger_list.node_at_row(old_selected));
 
     _refreshing = false;
+    _trigger_list.thaw_refresh();
   }
   
   //------------------------------------------------------------------------------------------------
@@ -1712,6 +1713,7 @@ std::string MySQLTableEditorBE::get_table_option_by_name(const std::string& name
 
 /**
  * Loads the current trigger sql text into the editor control and marks that as not dirty.
+ * In addition the trigger UI is refreshed so that the trigger tree contains update trigger references.
  */
 void MySQLTableEditorBE::load_trigger_sql()
 {

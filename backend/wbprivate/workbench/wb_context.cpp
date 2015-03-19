@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -4057,9 +4057,9 @@ void WBContext::handle_notification(const std::string &name, void *sender, std::
 
 //--------------------------------------------------------------------------------------------------
 
-static struct RegisterWBContextNotifDocs
+static struct RegisterNotifDocs_wb_context
 {
-  RegisterWBContextNotifDocs()
+  RegisterNotifDocs_wb_context()
   {
     base::NotificationCenter::get()->register_notification("GNDocumentOpened",
                                                            "modeling",
@@ -4074,5 +4074,5 @@ static struct RegisterWBContextNotifDocs
                                                            "");
     
   }
-} initdocs;
+} initdocs_wb_context;
 

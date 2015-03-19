@@ -1331,7 +1331,7 @@ static bool parse_type(const std::string &type,
   if (!simpleType.is_valid()) // Should always be valid at this point or we have messed up our type list.
     return false;
 
-  if (walker.token_type() != OPEN_PAR_SYMBOL)
+  if (!walker.is(OPEN_PAR_SYMBOL))
     return true;
 
   walker.next();
@@ -1344,32 +1344,33 @@ static bool parse_type(const std::string &type,
   {
     if (walker.token_type() != INTEGER)
       return false;
-    length = atoi(walker.token_text().c_str());
+    length = base::atoi<int>(walker.token_text().c_str());
     return true;
   }
 
-  if (walker.token_type() != INTEGER)
+  if (!walker.is(INTEGER))
   {
-    // ENUM or SET. Collect all values into a long string for now.
-    explicitParams = walker.token_text();
+    // ENUM or SET.
     do 
     {
+      if (!explicitParams.empty())
+        explicitParams += ", ";
+      explicitParams += walker.token_text(true);
       walker.next();
-      if (walker.token_type() == CLOSE_PAR_SYMBOL) // Otherwise it's a comma.
-        break;
-      walker.next();
-      explicitParams += ", " + walker.token_text();
-    } while (true);
+      walker.skip_if(COMMA_SYMBOL); // We normalize the whitespace around the commas.
+    } while (!walker.is(CLOSE_PAR_SYMBOL));
+    explicitParams = "(" + explicitParams + ")";
+
     return true;
   }
 
   // Finally all cases with either precision, scale or both.
-  precision = atoi(walker.token_text().c_str());
+  precision = base::atoi<int>(walker.token_text().c_str());
   walker.next();
   if (walker.token_type() != COMMA_SYMBOL)
     return true;
   walker.next();
-  scale = atoi(walker.token_text().c_str());
+  scale = base::atoi<int>(walker.token_text().c_str());
 
   return true;
 }

@@ -34,7 +34,7 @@
 --    waiting_trx_rows_locked: 0
 --  waiting_trx_rows_modified: 0
 --                waiting_pid: 3
---      waiting_query: UPDATE t1 SET val = val + 1 WHERE id = 2
+--              waiting_query: UPDATE t1 SET val = val + 1 WHERE id = 2
 --            waiting_lock_id: 867158:2363:3:3
 --          waiting_lock_mode: X
 --            blocking_trx_id: 867157

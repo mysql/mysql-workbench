@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -225,8 +225,6 @@ static NativeHandle windowOpenPlugin(bec::GRTManager *grtm,
         {
           // drop the old plugin->handle mapping
           grtm->get_plugin_manager()->forget_gui_plugin_handle(existingPanel);
-          
-          [window activatePanel: existingPanel];
           
           if ([existingPanel respondsToSelector: @selector(pluginEditor)])
           {

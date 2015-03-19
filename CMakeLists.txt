@@ -32,6 +32,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/build/cmake/Modu
 
 find_package(PkgConfig REQUIRED)
 
+find_package(X11)
+
 find_package(GTK2 2.20 REQUIRED gtk gtkmm)
 pkg_check_modules(GTHREAD REQUIRED gthread-2.0)
 pkg_check_modules(GMODULE REQUIRED gmodule-2.0)

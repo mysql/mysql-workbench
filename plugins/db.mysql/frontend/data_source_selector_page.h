@@ -69,7 +69,7 @@ struct DataSourceSelector: public base::trackable
     browse_box.add(file_radio, false,true);
     browse_box.add(&file_selector, true, true);
 
-    file_selector.initialize("", SaveFile ? mforms::SaveFile : mforms::OpenFile, "SQL Files (*.sql)|*.sql", _("Browse..."));
+    file_selector.initialize("", SaveFile ? mforms::SaveFile : mforms::OpenFile, "SQL Files (*.sql)|*.sql");
     scoped_connect(file_radio->signal_clicked(),boost::bind(&DataSourceSelector::file_source_selected, this));
   }
 

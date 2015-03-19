@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -324,7 +324,8 @@ class WbAdminServerStatus(mforms.Box):
         for key, (control, value_source) in self.controls.items():
             if callable(value_source):
                 if isinstance(control, mforms.Label):
-                    control.set_text(value_source(info, plugins))
+                    resp = value_source(info, plugins)
+                    control.set_text(resp if resp else "n/a")
                 else:
                     value = value_source(info, plugins)
                     if type(value) is tuple:

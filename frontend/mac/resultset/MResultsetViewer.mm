@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -261,6 +261,7 @@ static void selected_record_changed(MResultsetViewer *self)
     (*mData)->tree_changed_signal()->connect(boost::bind(onRefreshWhenIdle, self));
     
     (*mData)->refresh_ui_signal.connect(boost::bind(onRefresh, self));
+    (*mData)->rows_changed = boost::bind(onRefresh, self);
     //(*mData)->task->msg_cb(boost::bind(processTaskMessage, _1, _2, _3, self));
     
     [mTableView setIntercellSpacing: NSMakeSize(0, 1)];

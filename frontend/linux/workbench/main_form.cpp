@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 #include <gtkmm/eventbox.h>
 #include <gtkmm/fixed.h>
 #include <gtkmm/main.h>
-
+#include <atkmm.h>
 #include "main_form.h"
 #include "active_label.h"
 // the rest, backend, etc ...
@@ -91,7 +91,12 @@ MainForm::MainForm(wb::WBContextUI* ctx)
   
   bec::GRTManager *grtm= _wbui_context->get_wb()->get_grt_manager();
   _ui= Gtk::Builder::create_from_file(grtm->get_data_file_path("wb.glade"));
-
+  if(get_upper_note())
+  {
+    Glib::RefPtr<Atk::Object> acc = get_upper_note()->get_accessible();
+    if (acc)
+      acc->set_name("Main Tab Bar");
+  }
  {
     Gtk::TreeView dummy_treeview;
     _dummy_window->add(dummy_treeview);

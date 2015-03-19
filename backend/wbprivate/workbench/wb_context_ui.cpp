@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1120,9 +1120,9 @@ bool WBContextUI::start_plugin_install(const std::string &path)
 
 //--------------------------------------------------------------------------------------------------
 
-static struct RegisterWBContextUINotifDocs
+static struct RegisterNotifDocs_wb_context_ui
 {
-  RegisterWBContextUINotifDocs()
+  RegisterNotifDocs_wb_context_ui()
   {
     base::NotificationCenter::get()->register_notification("GNAppStarted",
                                                            "application",
@@ -1149,6 +1149,6 @@ static struct RegisterWBContextUINotifDocs
                                                            "",
                                                            "");
   }
-} initdocs;
+} initdocs_wb_context_ui;
 
 

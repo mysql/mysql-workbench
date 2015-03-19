@@ -291,7 +291,7 @@ BEGIN
         CLOSE c_stack;
 
         SELECT SLEEP(in_interval) INTO @sleep;
-        SET v_runtime = v_runtime + (UNIX_TIMESTAMP() - v_start);
+        SET v_runtime = (UNIX_TIMESTAMP() - v_start);
     END WHILE;
 
     INSERT INTO tmp_events VALUES (v_min_event_id+1, '}');

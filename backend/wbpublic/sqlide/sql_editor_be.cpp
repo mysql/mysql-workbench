@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -241,6 +241,7 @@ MySQLEditor::MySQLEditor(grt::GRT *grt, ParserContext::Ref syntax_check_context,
   _code_editor->set_font(d->_grtm->get_app_option_string("workbench.general.Editor:Font"));
   _code_editor->set_features(mforms::FeatureUsePopup, false);
   _code_editor->set_features(mforms::FeatureConvertEolOnPaste | mforms::FeatureAutoIndent, true);
+  _code_editor->set_name("Code Editor");
 
   GrtVersionRef version = syntax_check_context->get_server_version();
   _editor_config = NULL;

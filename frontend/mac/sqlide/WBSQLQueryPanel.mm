@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -214,7 +214,7 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
     NSIndexSet *sel = [mMessagesTable selectedRowIndexes];
     if ([sel count] > 0)
     {
-      for (int i = [sel firstIndex]; i <= (int)[sel lastIndex]; i = [sel indexGreaterThanIndex: i])
+      for (NSUInteger i = [sel firstIndex]; i <= [sel lastIndex] and i != NSNotFound; i = [sel indexGreaterThanIndex: i])
         selection.push_back(i);
     }
     mBackEnd->log()->set_selection(selection);
@@ -249,7 +249,7 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
   NSIndexSet *iset = [mHistoryDetailsTable selectedRowIndexes];
   
   if ([iset count] > 0)
-    for (int row = [iset firstIndex]; row <= (int)[iset lastIndex]; row = [iset indexGreaterThanIndex: row])
+    for (NSUInteger row = [iset firstIndex]; row <= [iset lastIndex] and row != NSNotFound; row = [iset indexGreaterThanIndex: row])
       sel_indexes.push_back(row);
 
   if (sel_indexes.empty() || mBackEnd->history()->current_entry() < 0)

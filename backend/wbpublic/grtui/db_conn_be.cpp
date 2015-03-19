@@ -80,6 +80,8 @@ DbDriverParam::ParamType DbDriverParam::decode_param_type(std::string type_name,
   }
   else if (0 == type_name.compare("text"))
     result= ptText;
+  else if (0 == type_name.compare("button"))
+    result = ptButton;
   else
     g_warning("Unknown DB driver parameter type '%s'", type_name.c_str());
 
@@ -128,6 +130,8 @@ ControlType DbDriverParam::get_control_type() const
       return ctEnumSelector;
     case DbDriverParam::ptText:
       return ctText;
+    case  DbDriverParam::ptButton:
+      return ctButton;
     case DbDriverParam::ptInt:
     case DbDriverParam::ptString:
     case DbDriverParam::ptPassword:
@@ -179,7 +183,6 @@ void DbDriverParam::set_value(const grt::ValueRef &value)
       _value= grt::StringRef::cast_from(value);
       break;
     }
-
   case ptUnknown:
   default:
     {
@@ -420,7 +423,7 @@ void DbDriverParams::init(
           continue;
 
         // create related label ctrl in UI
-        if (param_handle->get_control_type() != ctCheckBox)
+        if (param_handle->get_control_type() != ctCheckBox && param_handle->get_control_type() != ctButton)
         {
           LayoutControl ctrl(row.offset());
           ctrl.param_handle= param_handle;
@@ -440,7 +443,7 @@ void DbDriverParams::init(
           ctrl.type= param_handle->get_control_type();
           ctrl.bounds.width= (int)param->layoutWidth();
           ctrl.bounds.top = y_offset;
-          if (param_handle->get_control_type() == ctCheckBox)
+          if (param_handle->get_control_type() == ctCheckBox || param_handle->get_control_type() == ctButton)
             ctrl.caption= param->caption();
           //create_control(ctrl.param_handle, ctrl.type, ctrl.pos, ctrl.size, ctrl.caption);
           row.insert(ctrl);
@@ -647,6 +650,17 @@ void DbConnection::set_connection_keeping_parameters(const db_mgmt_ConnectionRef
   }
 }
 
+
+void DbConnection::update()
+{
+    _db_driver_param_handles.init(_active_driver,
+                                  _connection,
+                                  _suspend_layout,
+                                  _begin_layout,
+                                  _create_control,
+                                  _end_layout,
+                                  _skip_schema);
+}
 
 void DbConnection::set_driver_and_update(db_mgmt_DriverRef driver)
 {
