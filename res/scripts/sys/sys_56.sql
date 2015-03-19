@@ -142,7 +142,7 @@ SOURCE ./procedures/ps_setup_enable_thread.sql
 
 SOURCE ./procedures/ps_setup_reload_saved.sql
 SOURCE ./procedures/ps_setup_reset_to_default_57_before.sql
-SOURCE ./procedures/ps_setup_reset_to_default_57.sql
+SOURCE ./procedures/ps_setup_reset_to_default.sql
 SOURCE ./procedures/ps_setup_reset_to_default_57_after.sql
 SOURCE ./procedures/ps_setup_save.sql
 SOURCE ./procedures/ps_setup_show_disabled.sql

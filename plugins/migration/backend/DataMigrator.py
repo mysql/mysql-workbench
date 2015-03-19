@@ -390,7 +390,9 @@ class DataMigrator(object):
             if done:
                 # flush pending messages
                 try:
-                    self._owner._update_resume_status(self._resume)
+                    _update_resume_status = getattr(self._owner, "_update_resume_status", None)
+                    if callable(_update_resume_status):
+                        _update_resume_status(self._resume)
                     msgtype, message = self._result_queue.get_nowait()
                 except Queue.Empty:
                     break

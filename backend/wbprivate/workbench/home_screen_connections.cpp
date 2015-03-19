@@ -1403,7 +1403,7 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner)
 
   _info_popup = NULL;
 
-  _search_box.set_name("search-box");
+  _search_box.set_name("Search Box");
   _search_box.set_spacing(5);
   _search_text.set_size(150, -1);
 
@@ -1424,7 +1424,7 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner)
   image->set_image_align(mforms::MiddleCenter);
   _search_box.add(image, false, false);
 #endif
-
+  _search_text.set_name("Search Entry");
   _search_text.set_placeholder_text("Filter connections");
   _search_box.add(&_search_text, true, true);
   scoped_connect(_search_text.signal_changed(), boost::bind(&ConnectionsSection::on_search_text_changed, this));

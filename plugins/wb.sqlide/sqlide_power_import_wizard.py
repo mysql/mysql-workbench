@@ -125,10 +125,10 @@ class ImportProgressPage(WizardProgressPage):
         return retval
         
     def page_activated(self, advancing):
-        super(ImportProgressPage, self).page_activated(advancing)
         self.reset(True)
         self.module = None
         self.stop = None
+        super(ImportProgressPage, self).page_activated(advancing)
         
     def go_cancel(self):
         if self.on_close():
@@ -188,8 +188,17 @@ class ConfigurationPage(WizardPage):
             self.optpanel = mforms.newPanel(mforms.TitledBoxPanel)
             self.optpanel.set_title("Options:")
             def set_text_entry(field, output):
-                operator.setitem(output, 'value', str(field.get_string_value()))
-                mforms.Utilities.add_timeout(0.1, self.call_create_preview_table)
+                txt = field.get_string_value().encode('utf-8').strip()
+                if len(txt) == 0:
+                    operator.setitem(output, 'value', None)
+                    mforms.Utilities.add_timeout(0.1, self.call_create_preview_table)
+                elif len(txt) == 1:
+                    operator.setitem(output, 'value', txt)
+                    mforms.Utilities.add_timeout(0.1, self.call_create_preview_table)
+                else:
+                    field.set_value("")
+                    mforms.Utilities.show_error("Import Wizard", "Due to the nature of this wizard, you can't use unicode characters in this place, as also only one character is allowed.","Ok","","")
+
 
             def set_selector_entry(selector, output):
                 operator.setitem(output, 'value', output['opts'][str(selector.get_string_value())])

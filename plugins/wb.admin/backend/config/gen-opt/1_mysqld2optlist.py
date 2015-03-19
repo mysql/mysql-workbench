@@ -12,7 +12,7 @@ mycnf_vars = ['old_passwords',
            'validate_password_length',
            'validate_password_mixed_case_count',
            'validate_password_number_count',
-           'validate_password_policy_number',
+           'validate_password_policy',
            'validate_password_special_char_count']
 
 # table_type is a synonym to storage_engine
@@ -33,6 +33,8 @@ for tup in bool_tuples:
 
 tags = {}
 types = {}
+
+print('-----------------------------------\nRunning %s\n-----------------------------------\n' % __file__)
 
 
 def count_tag(dic, tag):
@@ -347,7 +349,6 @@ def check_redundant_option(opts, optid):
                 print 'Removed redundant option: %s'%o['name']
     return False
 #-------------------------------------------------------------------------------
-
 for option in doc.documentElement.getElementsByTagName('mysqloption'):
     opt = {}
     optid = str(option.getAttribute('id'))

@@ -258,10 +258,11 @@ class ExportProgressPage(WizardProgressPage):
         return retval
         
     def page_activated(self, advancing):
-        super(ExportProgressPage, self).page_activated(advancing)
         self.reset(True)
         self.module = None
         self.stop = None
+        super(ExportProgressPage, self).page_activated(advancing)
+        
         
     def go_cancel(self):
         if self.on_close():
@@ -366,6 +367,9 @@ class SelectFilePage(WizardPage):
         self.load_module_options()
         
     def validate(self):
+        if not self.check_is_supported_format():
+            mforms.Utilities.show_error(self.main.title, "This file format is not supported, please select csv or json.", "Ok", "", "")
+            return False            
         file_path = self.exportfile_path.get_string_value()
         if not os.path.isdir(os.path.dirname(file_path)):
             mforms.Utilities.show_error(self.main.title, "Please specify a valid file path.", "OK", "", "")
@@ -384,21 +388,26 @@ class SelectFilePage(WizardPage):
                 return False
         global last_location
         last_location = file_path
-        return not self.unsupported_output_format 
+        return True
     
-    def get_module(self, silent = False):
+    def check_is_supported_format(self):
         file_name, file_ext = os.path.splitext(os.path.basename(self.exportfile_path.get_string_value()))
         self.input_file_type = file_ext[1:]
         for format in self.main.formats:
             if format.name == self.input_file_type:
-                self.active_module = format
-                break 
+                return format
+        return None
+
+    def get_module(self, silent = False):
+        self.unsupported_output_format = False
+        format = self.check_is_supported_format()
+        if format:
+            self.active_module = format 
         else:
             self.unsupported_output_format = True
-            self.active_module = None
+            self.active_module = self.main.formats[0] # we use first format as default one
             if not silent:
-                mforms.Utilities.show_error(self.main.title, "This file format is not supported, please select csv or json.", "Ok")
-
+                mforms.Utilities.show_error(self.main.title, "This file format is not supported, please select csv or json.", "Ok", "", "")
     
     def load_module_options(self):
         self.optpanel.show(False)
@@ -406,7 +415,15 @@ class SelectFilePage(WizardPage):
             self.optpanel.remove(self.optbox)
         if self.active_module and len(self.active_module.options) != 0:
             def set_text_entry(field, output):
-                operator.setitem(output, 'value', str(field.get_string_value()))
+                txt = field.get_string_value().encode('utf-8').strip()
+                if len(txt) == 0:
+                    operator.setitem(output, 'value', None)
+                elif len(txt) == 1:
+                    operator.setitem(output, 'value', txt)
+                else:
+                    field.set_value("")
+                    mforms.Utilities.show_error(self.main.title, "Due to the nature of this wizard, you can't use unicode characters in this place, as also only one character is allowed.","Ok","","")
+                    
 
             def set_selector_entry(selector, output):
                 operator.setitem(output, 'value', output['opts'][str(selector.get_string_value())])
@@ -538,7 +555,7 @@ class DataInputPage(WizardPage):
                 if dbname.strip() in ["mysql", "sys", "information_schema", "fabric", "performance_schema"]:
                     ok = rset.nextRow()
                     continue
-                subrset = self.main.editor.executeManagementQuery("SHOW TABLES FROM %s" % dbname, 0)
+                subrset = self.main.editor.executeManagementQuery("SHOW TABLES FROM `%s`" % dbname, 0)
                 if subrset:
                     subok = subrset.goToFirstRow()
                     while subok:
@@ -565,6 +582,9 @@ class DataInputPage(WizardPage):
             self.advanced_export.set_query(str(self.simple_export.get_query()))
             self.advanced_export.reset_dirty()
     
+    def go_cancel(self):
+        self.main.close()
+
     def get_query(self):
         return self.advanced_export.get_query()
     

@@ -137,9 +137,13 @@ public:
   System::Windows::Forms::ContextMenuStrip ^header_right_click(int column)
   {
     backend->clicked_header_column(column);
-    backend->header_menu()->will_show();
-    
-    return MenuBarWrapper::GetManagedObject<System::Windows::Forms::ContextMenuStrip>(backend->header_menu());
+    if (backend->header_menu() != NULL)
+    {
+      backend->header_menu()->will_show();
+
+      return MenuBarWrapper::GetManagedObject<System::Windows::Forms::ContextMenuStrip>(backend->header_menu());
+    }
+    return nullptr;
   }
 };
 

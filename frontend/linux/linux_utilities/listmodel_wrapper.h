@@ -236,12 +236,17 @@ inline bool can_convert(const Glib::ustring& str, std::string &val)
 class ListModelWrapper : public Gtk::TreeModel, public Glib::Object,
                          public Gtk::TreeDragDest, public Gtk::TreeDragSource,
                          public base::trackable
+#elif GLIB_CHECK_VERSION(2, 40, 2)
+class ListModelWrapper : public Gtk::TreeModel, public Gtk::TreeDragDest, public Gtk::TreeDragSource,
+                         public Glib::Object,
+                         public base::trackable
 #else
-class ListModelWrapper : public Glib::Object, public Gtk::TreeModel,
-                         public Gtk::TreeDragDest, public Gtk::TreeDragSource,
+class ListModelWrapper : public Glib::Object, public Gtk::TreeModel, public Gtk::TreeDragDest,
+                         public Gtk::TreeDragSource,
                          public base::trackable
 
 #endif
+
 {
      friend class ColumnsModel;
   protected:

@@ -60,7 +60,7 @@ CREATE DEFINER='root'@'localhost' PROCEDURE ps_setup_disable_thread (
 BEGIN
     UPDATE performance_schema.threads
        SET instrumented = 'NO'
-     WHERE processlist_id = CONNECTION_ID();
+     WHERE processlist_id = in_connection_id;
 
     SELECT CONCAT('Disabled ', @rows := ROW_COUNT(), ' thread', IF(@rows != 1, 's', '')) AS summary;
 END$$

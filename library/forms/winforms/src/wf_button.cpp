@@ -110,11 +110,14 @@ void ButtonWrapper::set_text(mforms::Button *backend, const std::string &text)
     enable_internal_padding(backend, true);
 
   // Resize the button to fit its content.
-  // Keep the button's width, though, if that is currently larger than its preferred width.
-  Size size = control->PreferredSize;
+  // Keep the button's width, though, if that is currently larger than the computed width.
+  Graphics ^g = control->CreateGraphics();
+  SizeF size = g->MeasureString(control->Text, control->Font);
+  delete g;
+
   if (size.Width < control->Width)
-    size.Width = control->Width;
-  control->Size = size;
+    size.Width = (float)control->Width;
+  control->Width = (int)size.Width;
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -22,6 +22,7 @@
 #include "../lf_view.h"
 #include "base/util_functions.h"
 #include "base/log.h"
+#include <atkmm.h>
 DEFAULT_LOG_DOMAIN("mforms.linux")
 
 namespace mforms { namespace gtk {
@@ -281,7 +282,19 @@ void ViewImpl::set_name(::mforms::View *self, const std::string &name)
 
 void ViewImpl::set_name(const std::string &name)
 {
+  get_outer()->set_name(name);
 
+  {
+  Glib::RefPtr<Atk::Object> acc = get_outer()->get_accessible();
+  if (acc)
+    acc->set_name(name);
+  }
+  if (get_outer() != get_inner() && get_inner())
+  {
+    Glib::RefPtr<Atk::Object> acc = get_inner()->get_accessible();
+    if (acc)
+      acc->set_name(name);
+  }
 }
 
 void ViewImpl::relayout(::mforms::View *view)
