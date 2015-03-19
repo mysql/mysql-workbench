@@ -291,7 +291,7 @@ class SelectFilePage(WizardPage):
         
     def page_activated(self, advancing):
         super(SelectFilePage, self).page_activated(advancing)
-        self.export_local_box.show(self.main.data_input_page._showing_simple)
+        self.export_local_box.show(bool(self.main.data_input_page._showing_simple))
             
     def create_ui(self):
         self.set_spacing(16)
@@ -575,7 +575,7 @@ class DataInputPage(WizardPage):
         else:
             self.advanced_button.set_text("Simple >>")
         
-        self.simple_export_box.show(self._showing_simple)
+        self.simple_export_box.show(bool(self._showing_simple))
         self.advanced_export.show(not self._showing_simple)
         
         if not self._showing_simple:
