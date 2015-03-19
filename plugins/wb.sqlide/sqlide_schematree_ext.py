@@ -192,10 +192,10 @@ def handleLiveTreeContextMenu(name, sender, args):
                     send_submenu.add_separator()
                 else:
                     item = copy_submenu.add_item_with_title(caption, getattr(gencopy, name), name)
-                    item.set_enabled(enabled)
+                    item.set_enabled(bool(enabled))
 
                     item = send_submenu.add_item_with_title(caption, getattr(gensend, name), name)
-                    item.set_enabled(enabled)
+                    item.set_enabled(bool(enabled))
             needs_separator = True
         else:
             needs_separator = False

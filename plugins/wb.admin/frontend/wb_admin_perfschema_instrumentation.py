@@ -489,7 +489,7 @@ class SetupDataCollection(mforms.Box):
             caption = self.row_labels[element]
 
         checkbox.set_text(caption)
-        checkbox.set_enabled(enabled)
+        checkbox.set_enabled(bool(enabled))
 
         checkbox.set_active(self._data[name].enabled)
 
@@ -641,11 +641,11 @@ class SetupDataCollection(mforms.Box):
             if self._controls.has_key(item):
                 item_ctrl = self._controls[item]
 
-                item_ctrl.set_active(old)
+                item_ctrl.set_active(bool(old))
 
                 if self._child_controls.has_key(item_ctrl):
                     for control in self._child_controls[item_ctrl]:
-                        control.set_enabled(old)
+                        control.set_enabled(bool(old))
     
     def add_child_control(self, parent_id, child):
         parent = None
