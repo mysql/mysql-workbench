@@ -61,6 +61,8 @@ class FindPanelImpl : public mforms::gtk::ViewImpl
   Gtk::Entry          *_replace_entry;
   Gtk::Label          *_find_status;
   Gtk::Menu           *_search_menu;
+  Gtk::RadioButton    *_find_radio_button;
+  Gtk::RadioButton    *_replace_radio_button;
   bool                _search_match_whole_word;
   bool                _search_ignore_case;
   bool                _search_wrap_around;
@@ -76,7 +78,8 @@ public:
       _find_panel->get_widget("container", _container);
       _container->reference();
       _container->unparent();
-      _container->show_all();
+      _container->hide_all();
+      _container->show();
 
       _search_match_whole_word = false;
       _search_ignore_case = true;
@@ -89,11 +92,11 @@ public:
 
       _find_panel->get_widget("result_label", _find_status);
 
-      Gtk::RadioButton *r;
-      _find_panel->get_widget("find_radio", r);
-      r->signal_clicked().connect(sigc::bind(sigc::ptr_fun(&FindPanelImpl::enable_replace), owner, false));
-      _find_panel->get_widget("replace_radio", r);
-      r->signal_clicked().connect(sigc::bind(sigc::ptr_fun(&FindPanelImpl::enable_replace), owner, true));
+      _find_panel->get_widget("find_radio", _find_radio_button);
+      _find_radio_button->signal_clicked().connect(sigc::bind(&FindPanelImpl::find_clicked, this));
+      _find_panel->get_widget("replace_radio", _replace_radio_button);
+      _replace_radio_button->signal_clicked().connect(sigc::bind(&FindPanelImpl::replace_clicked, this));
+      
 
       _find_panel->get_widget("replace_all_button", btn);
       btn->signal_clicked().connect(sigc::hide_return(sigc::bind(sigc::mem_fun(this, &FindPanelImpl::perform_action), ReplaceAll)));
@@ -137,12 +140,24 @@ public:
       citem->signal_activate().connect(sigc::bind(sigc::ptr_fun(toggle_bool), sigc::ref(_search_ignore_case), citem));
       _find_panel->get_widget("word_item", citem);
       citem->signal_activate().connect(sigc::bind(sigc::ptr_fun(toggle_bool), sigc::ref(_search_match_whole_word), citem));
-
-      enable_replace(owner, false);
   }
 
 
 
+  void find_clicked()
+  {
+    if (_find_radio_button->get_active())
+    {
+      _container->hide_all();
+      _container->show();
+    }
+  }
+
+  void replace_clicked()
+  {
+    if (_replace_radio_button->get_active())
+      _container->show_all();
+  }
 
   bool on_find_key_press(GdkEventKey *key)
   {
@@ -281,14 +296,7 @@ public:
   static void enable_replace(FindPanel *fp, bool flag)
   {
     FindPanelImpl *self = fp->get_data<FindPanelImpl>();
-    // all find only widgets are marked No Show All, so we can use hide/show-all to hide the replace part
-    if (flag)
-      self->_container->show_all();
-    else
-    {
-      self->_container->hide_all();
-      self->_container->show();
-    }
+    flag ? self->_replace_radio_button->set_active(true) : self->_find_radio_button->set_active(true);
   }
 };
 
