@@ -143,13 +143,16 @@ TEST_FUNCTION(5)
   _sql_editor->set_auto_completion_cache(_cache);
 
   // We don't set up the sakila schema. This is needed in so many places, it should simply exist.
+  // After creation a first data retrieval starts automatically in the background.
+  // Wait a moment to have that finished.
+  g_usleep(2000000);
+
+  // Retrieve db objects in the sakila schema. So they are available when we ask for them
+  // in the following tests.
+  _cache->refresh_schema_cache_if_needed("sakila");
+  g_usleep(2000000);
+
   std::vector<std::string> list = _cache->get_matching_schema_names("sakila");
-  if (list.empty())
-  {
-    // Sakila not yet fetched. Give it a moment and try again.
-    g_usleep(1000000);
-    list = _cache->get_matching_schema_names("sakila");
-  }
   ensure("Could not get the schema list from the cache", !list.empty());
 
   bool found = false;
