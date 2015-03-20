@@ -519,9 +519,9 @@ class DataInputPage(WizardPage):
     def get_table_columns(self, table):
         cols = []
         try:
-            rset = self.main.editor.executeManagementQuery("SHOW COLUMNS FROM %s.%s" % (table['schema'], table['table']), 1)
+            rset = self.main.editor.executeManagementQuery("SHOW COLUMNS FROM `%s`.`%s`" % (table['schema'], table['table']), 1)
         except grt.DBError, e:
-            log_error("SHOW COLUMNS FROM %s.%s : %s" % (table['schema'], table['table'], e))
+            log_error("SHOW COLUMNS FROM `%s`.`%s` : %s" % (table['schema'], table['table'], e))
             rset = None
             
         if rset:
