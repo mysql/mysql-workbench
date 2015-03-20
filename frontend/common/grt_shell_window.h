@@ -232,6 +232,7 @@ private:
   void save_file(bool save_as);
   void close_tab();
   void show_find_panel();
+  void show_replace_panel();
 
   void refresh_modules_tree();
   std::string get_module_node_description(const mforms::TreeNodeRef &node);

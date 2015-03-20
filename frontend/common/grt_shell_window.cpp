@@ -120,6 +120,8 @@ _lower_tab(mforms::TabViewDocument),
     menu->add_separator();
     item = menu->add_item_with_title("Find...", boost::bind(&GRTShellWindow::show_find_panel, this));
     item->set_shortcut("Modifier+F");
+    item = menu->add_item_with_title("Replace...", boost::bind(&GRTShellWindow::show_replace_panel, this));
+    item->set_shortcut("Modifier+H");
 
     menu = mforms::manage(new mforms::MenuItem("Script"));
     _menu.add_submenu(menu);
@@ -708,6 +710,14 @@ void GRTShellWindow::show_find_panel()
  }
 }
 
+void GRTShellWindow::show_replace_panel()
+{
+  GRTCodeEditor *editor = get_active_editor();
+ if (editor)
+ {
+   editor->get_editor()->show_find_panel(true);
+ }
+}
 
 //--------------------------------------------------------------------------------------------------
 
