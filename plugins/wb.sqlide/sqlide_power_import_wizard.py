@@ -295,9 +295,9 @@ class ConfigurationPage(WizardPage):
         
     def load_dest_columns(self):
         try:
-            rset = self.main.editor.executeManagementQuery("SHOW COLUMNS FROM %s.%s" % (self.main.destination_table['schema'], self.main.destination_table['table']), 1)
+            rset = self.main.editor.executeManagementQuery("SHOW COLUMNS FROM `%s`.`%s`" % (self.main.destination_table['schema'], self.main.destination_table['table']), 1)
         except Exception, e:
-            log_error("SHOW COLUMNS FROM %s.%s : %s" % (self.main.destination_table['schema'], self.main.destination_table['table'], e))
+            log_error("SHOW COLUMNS FROM `%s`.`%s` : %s" % (self.main.destination_table['schema'], self.main.destination_table['table'], e))
             rset = None
             
         if rset:
@@ -516,7 +516,7 @@ class SelectDestinationPage(WizardPage):
     def __init__(self, owner):
         WizardPage.__init__(self, owner, "Select Destination", wide=True)
         self.back_button.set_enabled(False)
-        self.table_list = []
+        self.table_list = {}
         
     def go_cancel(self):
         self.main.close()
@@ -533,28 +533,30 @@ class SelectDestinationPage(WizardPage):
         rset = self.main.editor.executeManagementQuery("SHOW DATABASES", 1)
         if rset:
             ok = rset.goToFirstRow()
-            self.table_list = []
+            self.table_list = {}
             db_list = []
             while ok:
                 dbname = rset.stringFieldValue(0)
                 if dbname.strip() in ["mysql", "sys", "information_schema", "fabric", "performance_schema"]:
                     ok = rset.nextRow()
                     continue
-                subrset = self.main.editor.executeManagementQuery("SHOW TABLES FROM %s" % dbname, 0)
+                subrset = self.main.editor.executeManagementQuery("SHOW FULL TABLES FROM `%s`" % dbname, 0)
                 if subrset:
                     subok = subrset.goToFirstRow()
                     while subok:
-                        self.table_list.append("%s.%s" % (dbname, subrset.stringFieldValue(0)))
+                        if subrset.stringFieldValue(1) == "BASE TABLE":
+                            self.table_list["%s.%s" % (dbname, subrset.stringFieldValue(0))] = {'schema': dbname, 'table': subrset.stringFieldValue(0)} 
+                            
                         subok = subrset.nextRow()
                 db_list.append(dbname)
                 ok = rset.nextRow()
             
             self.destination_table_sel.clear()
-            self.destination_table_sel.add_items(self.table_list)
+            self.destination_table_sel.add_items(self.table_list.keys())
             if self.main.destination_table['schema'] and self.main.destination_table['table']:
                 table_name = "%s.%s" % (self.main.destination_table['schema'], self.main.destination_table['table'])
-                if table_name in self.table_list:
-                    self.destination_table_sel.set_selected(self.table_list.index(table_name))
+                if table_name in self.table_list.keys():
+                    self.destination_table_sel.set_selected(self.table_list.keys().index(table_name))
             self.destination_database_sel.clear()
             self.destination_database_sel.add_items(db_list)
             if self.main.destination_table['schema']:
@@ -640,9 +642,7 @@ class SelectDestinationPage(WizardPage):
     
     def validate(self):
         if self.existing_table_radio.get_active():
-            table = self.destination_table_sel.get_string_value().split('.')
-            self.main.destination_table['schema'] = table[0]
-            self.main.destination_table['table'] = table[1]
+            self.main.destination_table = self.table_list[self.destination_table_sel.get_string_value()]
         else:
             self.main.destination_table['schema'] = self.destination_database_sel.get_string_value()
             self.main.destination_table['table'] = self.new_table_name.get_string_value().strip()
