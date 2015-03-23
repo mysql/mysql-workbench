@@ -16,6 +16,7 @@
 # 02110-1301  USA
 
 from workbench.db_utils import QueryError, escape_sql_string
+from workbench.utils import Version
 from wb_common import PermissionDeniedError
 
 import mforms
@@ -925,8 +926,10 @@ class AdminAccount(object):
         self.password_expired = False
         if self._owner.has_password_expired:
             self.password_expired = result.stringByName("password_expired") == 'Y'
-        self.old_authentication = len(result.stringByName("password")) == 16
-        self.blank_password = len(result.stringByName("password")) == 0
+
+        password_column = 'password' if self._owner.ctrl_be.target_version and self._owner.ctrl_be.target_version < Version(5,7,6) else 'authentication_string'
+        self.old_authentication = len(result.stringByName(password_column)) == 16
+        self.blank_password = len(result.stringByName(password_column)) == 0
 
         self._global_privs = set()
         for priv in self._owner.global_privilege_names:
