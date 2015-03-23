@@ -255,7 +255,7 @@ def createScriptForCatalogObjects(path, catalog, objectCreationParams):
     preamble = catalog.customData["migration:preamble"]
     if preamble and preamble.temp_sql:
         #file.write(object_heading("Preamble script", ""))
-        file.write(preamble.temp_sql+";\n")
+        file.write(preamble.temp_sql+"\n")
 
     for schema in catalog.schemata:
         file.write(object_heading("Schema", schema.name))
@@ -281,7 +281,7 @@ def createScriptForCatalogObjects(path, catalog, objectCreationParams):
     postamble = catalog.customData["migration:postamble"]
     if postamble and postamble.temp_sql:
         #file.write(object_heading("Postamble script", ""))
-        file.write(postamble.temp_sql+";\n")
+        file.write(postamble.temp_sql+"\n")
 
     file.close()
 
