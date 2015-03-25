@@ -53,6 +53,8 @@ GRANT_LIMITS_QUERY = "GRANT USAGE ON *.* TO '%(user)s'@'%(host)s' WITH %(limit)s
 RENAME_USER_QUERY = "RENAME USER '%(old_user)s'@'%(old_host)s' TO '%(user)s'@'%(host)s'"
 CHANGE_PASSWORD_QUERY = "SET PASSWORD FOR '%(user)s'@'%(host)s' = PASSWORD('%(password)s')"
 BLANK_PASSWORD_QUERY = "SET PASSWORD FOR '%(user)s'@'%(host)s' = ''"
+CHANGE_PASSWORD_QUERY_576 = "ALTER USER '%(user)s'@'%(host)s' IDENTIFIED BY '%(password)s'"
+BLANK_PASSWORD_QUERY_576 = "ALTER USER '%(user)s'@'%(host)s' IDENTIFIED BY ''"
 
 REVOKE_SCHEMA_PRIVILEGES_QUERY = "REVOKE %(revoked_privs)s ON `%(db)s`.* FROM '%(user)s'@'%(host)s'"
 GRANT_SCHEMA_PRIVILEGES_QUERY = "GRANT %(granted_privs)s ON `%(db)s`.* TO '%(user)s'@'%(host)s'"
@@ -826,15 +828,17 @@ class AdminAccount(object):
                 queries.append(REVOKE_ALL % fields)
 
         if self.password != self._orig_password and not password_already_set:
+            change_pw = CHANGE_PASSWORD_QUERY if self._owner.ctrl_be.target_version and self._owner.ctrl_be.target_version < Version(5,7,6) else CHANGE_PASSWORD_QUERY_576
+            blank_pw = BLANK_PASSWORD_QUERY if self._owner.ctrl_be.target_version and self._owner.ctrl_be.target_version < Version(5,7,6) else BLANK_PASSWORD_QUERY
             # special hack required by server to handle sha256 password accounts
             if self.auth_plugin == "sha256_password":
                 queries.append("SET old_passwords = 2")
             else:
                 queries.append("SET old_passwords = 0")
             if fields["password"]:
-                queries.append(CHANGE_PASSWORD_QUERY % fields)
+                queries.append(change_pw % fields)
             else:
-                queries.append(BLANK_PASSWORD_QUERY % fields)
+                queries.append(blank_pw % fields)
 
         action = "changing" if self.is_commited else "creating"
         for query in queries:
