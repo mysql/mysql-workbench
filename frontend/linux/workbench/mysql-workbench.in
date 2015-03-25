@@ -17,12 +17,21 @@ destdir="$WB_DEST_DIR"
 wblibdir="$destdir@WB_INSTALL_LIB_DIR@"
 
 
-#set the PROJSO env variable so gdal can find proj cause it's using dlopen instead ld 
+# Set the PROJSO env variable so gdal can find proj cause it's using dlopen instead ld 
 if test -f "/usr/lib/libproj.so.0"; then
   export PROJSO="/usr/lib/libproj.so.0"
 elif test -f "/usr/lib64/libproj.so.0"; then
   export PROJSO="/usr/lib64/libproj.so.0"
 fi
+
+if test -f $wblibdir/libsqlite3.so; then
+  if test "$LD_PRELOAD" != ""; then
+    export LD_PRELOAD="$LD_PRELOAD:$wblibdir/libsqlite3.so"
+  else
+    export LD_PRELOAD="$wblibdir/libsqlite3.so"
+  fi
+fi
+
 
 # if libcairo and pixman are in the wb libraries dir, force them to be preloaded
 if test -f $wblibdir/libcairo.so.2; then
