@@ -1061,7 +1061,7 @@ int WBContextModel::get_object_list_popup_items(bec::UIForm *form,
   item.type= MenuAction;
   items.push_back(item);
 
-  if (nodes.empty() || nodes[0][0] != 0)
+  if ((nodes.empty() || nodes[0][0] != 0) && objects.count() > 0)
   {
     item.caption= label.empty() ? _("Remove Figure") : strfmt(_("Remove Figure %s"), label.c_str());
     item.name= "builtin:removeFigure";
