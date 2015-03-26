@@ -1760,7 +1760,6 @@ std::string SqlEditorTreeController::generate_alter_script(const db_mgmt_RdbmsRe
 }
 
 //--------------------------------------------------------------------------------------------------
-
 // Deprecated.
 std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::ObjectType type, const std::string &schema_name, const std::string &obj_name)
 {
@@ -1879,9 +1878,13 @@ std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::O
     }
     else
     {
-      log_error("Error getting SQL definition for %s.%s: %s\n", schema_name.c_str(), obj_name.c_str(), e.what());
-      mforms::Utilities::show_error("Error getting DDL for object", e.what(), "OK", "", "");
       ddl_script.clear();
+      std::string err = e.what();
+      log_error("Error getting SQL definition for %s.%s: %s\n", schema_name.c_str(), obj_name.c_str(), e.what());
+      if (_grtm->in_main_thread())
+        mforms::Utilities::show_error("Error getting DDL for object", e.what(), "OK", "", "");
+      else
+        _grtm->run_once_when_idle(boost::bind(&mforms::Utilities::show_error, "Error getting DDL for object", err, "OK", "", ""));
     }
   }
   return ddl_script;
