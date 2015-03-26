@@ -2370,6 +2370,7 @@ void WBComponentPhysical::catalog_object_list_changed(grt::internal::OwnedList *
       
       _object_listeners.erase(schema.id());
       _schema_list_listeners.erase(schema.id());
+      _wb->get_model_context()->notify_catalog_tree_view(NodeDelete, schema);
     }
   }
   else
