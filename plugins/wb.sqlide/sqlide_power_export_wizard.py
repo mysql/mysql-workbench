@@ -270,7 +270,7 @@ class ExportProgressPage(WizardProgressPage):
                 
     def on_close(self):
         if self.module and self.module.is_running:
-            if mforms.ResultOk == mforms.Utilities.show_message("Confirmation", "Do you wish to stop export process?", "Yes", "No",):
+            if mforms.ResultOk == mforms.Utilities.show_message("Confirmation", "Do you wish to stop export process?", "Yes", "No", ""):
                 self.stop.set()
                 return True
             return False
