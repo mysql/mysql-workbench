@@ -585,6 +585,7 @@ static NSString *dragText = nil;
 }
 
 static void *dragData = NULL;
+static bool dragInProgress = NO;
 
 - (mforms::DragOperation)startDragWithData: (void *)data
                                    details: (mforms::DragDetails)details
@@ -654,7 +655,18 @@ static void *dragData = NULL;
   draggingSession.animatesToStartingPositionsOnCancelOrFail = YES;
   draggingSession.draggingFormation = NSDraggingFormationNone;
 
+  dragInProgress = YES;
+  NSRunLoop *theRL = [NSRunLoop currentRunLoop];
+  while (dragInProgress && [theRL runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]);
+  
   return self.lastDragOperation;
+}
+
+- (void)draggingSession:(NSDraggingSession *)session
+           endedAtPoint:(NSPoint)screenPoint
+              operation:(NSDragOperation)operation
+{
+  dragInProgress = NO;
 }
 
 //--------------------------------------------------------------------------------------------------

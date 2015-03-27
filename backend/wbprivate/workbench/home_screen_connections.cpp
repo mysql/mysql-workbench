@@ -2899,10 +2899,10 @@ mforms::DragOperation ConnectionsSection::drag_over(View *sender, base::Point p,
 
     // Check that the drop position does not resolve to the dragged item.
     // Don't allow dragging a group on a group either.
-    if (index == _drag_index ||
+    if (_drag_index > -1 && (index == _drag_index ||
         (index + 1 == _drag_index && position == mforms::DropPositionRight) ||
         (index - 1 == _drag_index && position == mforms::DropPositionLeft) ||
-        (position == mforms::DropPositionOn && dynamic_cast<FolderEntry*>(entry_from_index(_drag_index).get())))
+        (position == mforms::DropPositionOn && dynamic_cast<FolderEntry*>(entry_from_index(_drag_index).get()))))
     {
       index = -1;
     }
