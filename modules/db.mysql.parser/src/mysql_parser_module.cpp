@@ -3563,6 +3563,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
     }
 
     MySQLRecognizerTreeWalker walker = recognizer->tree_walker();
+
     switch (queryType)
     {
     case QtCreateTable:

@@ -121,7 +121,7 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(int test_no,
 
   // Same steps as above but using the ANTLR parser.
   {
-   // /*
+    //*
     std::string test_catalog_state_filename = TEST_DATA_DIR + number_string + "a.xml";
     std::string res_catalog_state_filename = TEST_DATA_DIR + number_string + "a_res.xml";
 
