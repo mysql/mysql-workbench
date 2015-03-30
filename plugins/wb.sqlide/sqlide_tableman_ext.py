@@ -232,7 +232,7 @@ class TableInfoPanel(mforms.Box):
         return self._table_engine
 
     def analyze_table(self):
-        result = self.editor.executeManagementQuery("ANALYZE TABLE %s.%s" % (self._schema, self._table), 1)
+        result = self.editor.executeManagementQuery("ANALYZE TABLE `%s`.`%s`" % (self._schema, self._table), 1)
         form = MaintenanceResultForm(result, False)
         form.set_title("ANALYZE TABLE")
         form.run()
