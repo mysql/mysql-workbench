@@ -170,9 +170,9 @@ class base_module:
 
     def set_table(self, schema, table):
         if schema:
-            self._table_w_prefix = "%s.%s" % (schema, table)
+            self._table_w_prefix = "`%s`.`%s`" % (schema, table)
         else:
-            self._table_w_prefix = str(table)
+            self._table_w_prefix = "`%s`" % str(table)
         
     def set_mapping(self, mapping):
         self._mapping = mapping
