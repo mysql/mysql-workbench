@@ -17,6 +17,7 @@
  * 02110-1301  USA
  */
 
+#include "base/generic_templates.h"
 #include "base/string_utilities.h"
 #include "base/util_functions.h"
 #include "base/log.h"
@@ -28,13 +29,11 @@
 #include "mysql-parser.h"
 #include "mysql-syntax-check.h"
 #include "mysql-scanner.h"
+#include "mysql-recognition-types.h"
 
 #include "objimpl/wrapper/parser_ContextReference_impl.h"
 #include "grtdb/db_object_helpers.h"
 
-#ifndef HAVE_PRECOMPILED_HEADERS
-#include <unordered_set>
-#endif
 
 using namespace grt;
 using namespace parser;
@@ -2108,6 +2107,8 @@ void resolveReferences(db_mysql_CatalogRef catalog, DbObjectsRefsCache refCache,
         }
         break;
       }
+    default:
+      break;
     }
   }
 }
@@ -3459,8 +3460,7 @@ size_t MySQLParserServicesImpl::parseTablespace(parser::ParserContext::Ref conte
 }
 
 //--------------------------------------------------------------------------------------------------
-
-static std::unordered_set<MySQLQueryType> relevantQueryTypes = {
+static base::unordered_enumset<MySQLQueryType> relevantQueryTypes = {
   QtAlterDatabase,
   QtAlterLogFileGroup,
   QtAlterFunction,
