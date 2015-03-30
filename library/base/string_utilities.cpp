@@ -31,7 +31,7 @@
 #include <string.h>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
-
+#include <fstream>
 #include <boost/locale/encoding_utf.hpp>
 #endif
 
