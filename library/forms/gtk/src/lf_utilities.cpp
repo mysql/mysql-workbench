@@ -210,10 +210,14 @@ void UtilitiesImpl::open_url(const std::string &url)
     quoted_url,
     NULL 
   };
+  char **envp = g_get_environ();
+  envp = g_environ_unsetenv(envp, "LD_PRELOAD");
+
   GError *error = NULL;
-  gboolean result = g_spawn_async(NULL, (gchar**)argv, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error);
+  gboolean result = g_spawn_async(NULL, (gchar**)argv, envp, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error);
   
   free(quoted_url);
+  g_strfreev(envp);
   
   if (!result)
   {
@@ -818,7 +822,13 @@ void UtilitiesImpl::reveal_file(const std::string &path)
     NULL 
   };
   GError *error = NULL;
-  if (!g_spawn_async(NULL, (gchar**)argv, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error))
+  char **envp = g_get_environ();
+  envp = g_environ_unsetenv(envp, "LD_PRELOAD");
+
+  gboolean result = g_spawn_async(NULL, (gchar**)argv, envp, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error);
+  g_strfreev(envp);
+
+  if (!result)
   {
     char *err = g_strdup_printf("Error opening folder with xdg-open: %s", error->message);
     g_error_free(error);
