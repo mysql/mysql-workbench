@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef LIBRARY_BASE_BASE_GENERIC_TEMPLATES_H_
-#define LIBRARY_BASE_BASE_GENERIC_TEMPLATES_H_
+#pragma once
 
 #ifndef HAVE_PRECOMPILED_HEADERS
 #include <unordered_set>
@@ -37,5 +36,3 @@ namespace base {
   template<class T> using unordered_enumset = std::unordered_set<T>;
 #endif
 }
-
-#endif /* LIBRARY_BASE_BASE_GENERIC_TEMPLATES_H_ */
