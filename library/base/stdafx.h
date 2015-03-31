@@ -43,6 +43,7 @@
 #include <fcntl.h>
 #include <fstream>
 #include <sstream>
+#include <unordered_set>
 
 #include <VersionHelpers.h>
 

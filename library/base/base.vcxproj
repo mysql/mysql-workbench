@@ -287,6 +287,7 @@
     <ClInclude Include="base\entities.h" />
     <ClInclude Include="base\file_functions.h" />
     <ClInclude Include="base\file_utilities.h" />
+    <ClInclude Include="base\generic_templates.h" />
     <ClInclude Include="base\geometry.h" />
     <ClInclude Include="base\log.h" />
     <ClInclude Include="base\notifications.h" />
