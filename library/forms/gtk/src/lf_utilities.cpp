@@ -52,6 +52,42 @@ namespace mforms {
 namespace gtk {
 
 /**
+  * We need to use our implemenation of g_environ_unsetenv function because on OL6 that function is not avaiable.
+  * TODO: replace that function with g_environ_unsetenv when OL6 support will be dropped
+  */
+static gchar **wb_environ_unsetenv_internal(gchar **envp, const gchar *variable)
+{
+	g_return_val_if_fail(variable != NULL, NULL);
+	g_return_val_if_fail(strchr (variable, '=') == NULL, NULL);
+
+	if (envp == NULL)
+		return NULL;
+
+	gint len;
+	gchar **_envp, **envp_tmp;
+
+	len = strlen(variable);
+
+	/* Note that we remove *all* environment entries for
+	 * the variable name, not just the first.*/
+	_envp = envp_tmp = envp;
+	while (*_envp != NULL)
+	{
+		if (strncmp(*_envp, variable, len) != 0 || (*_envp)[len] != '=')
+		{
+			*envp_tmp = *_envp;
+			envp_tmp++;
+		} else
+			g_free(*_envp);
+
+		_envp++;
+	}
+	*envp_tmp = NULL;
+
+	return envp;
+}
+
+/**
   * Get the current active window for this application
   */
 GtkWindow *get_current_window()
@@ -211,7 +247,7 @@ void UtilitiesImpl::open_url(const std::string &url)
     NULL 
   };
   char **envp = g_get_environ();
-  envp = g_environ_unsetenv(envp, "LD_PRELOAD");
+  envp = wb_environ_unsetenv_internal(envp, "LD_PRELOAD");
 
   GError *error = NULL;
   gboolean result = g_spawn_async(NULL, (gchar**)argv, envp, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error);
@@ -823,7 +859,7 @@ void UtilitiesImpl::reveal_file(const std::string &path)
   };
   GError *error = NULL;
   char **envp = g_get_environ();
-  envp = g_environ_unsetenv(envp, "LD_PRELOAD");
+  envp = wb_environ_unsetenv_internal(envp, "LD_PRELOAD");
 
   gboolean result = g_spawn_async(NULL, (gchar**)argv, envp, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error);
   g_strfreev(envp);
