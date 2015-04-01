@@ -238,13 +238,13 @@ class AddSchemaPrivilegeForm(mforms.Form):
         self.schema1 = newRadioButton(mforms.RadioButton.new_id())
         self.schema1.set_active(True)
         self.schema1.add_clicked_callback(self.schema_radio_changed)
-        self.schema1.set_text("Any Schema (%)")
+        self.schema1.set_text("All Schema (%)")
         table.add(self.schema1, 0, 1, 0, 1, mforms.HFillFlag)
         table.add(dLabel("This rule will apply to any schema name."), 2, 3, 0, 1, mforms.HFillFlag)
 
         self.schema2 = newRadioButton(self.schema1.group_id())
         self.schema2.add_clicked_callback(self.schema_radio_changed)
-        self.schema2.set_text("Schemas matching pattern or name:")
+        self.schema2.set_text("Schemas matching pattern:")
         table.add(self.schema2, 0, 1, 1, 2, mforms.HFillFlag)
         table.add(dLabel("This rule will apply to schemas that match the given name or pattern.\nYou may use _ and % as wildcards in a pattern.\nEscape these characters with \\ in case you want their literal value."), 2, 3, 1, 2, mforms.HFillFlag)
 
@@ -261,9 +261,10 @@ class AddSchemaPrivilegeForm(mforms.Form):
         label.set_text_align(mforms.TopLeft)
         table.add(label, 2, 3, 2, 3, mforms.HFillFlag)
 
-        self.schema3sel = newListBox(False)
-        table.add(self.schema3sel, 1, 2, 2, 3, mforms.HFillFlag|mforms.HExpandFlag|mforms.VFillFlag|mforms.VExpandFlag)
-        self.schema3sel.add_items(self.secman.escaped_schema_names)
+        self.schema3sel = newSelector()
+        table.add(self.schema3sel, 1, 2, 2, 3, mforms.HFillFlag|mforms.HExpandFlag)
+        for item in self.secman.schema_names:
+            self.schema3sel.add_item(item)
 
         bbox = newBox(True)
         box.add(bbox, False, True)
