@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -393,6 +393,12 @@ namespace base {
     return true;
   }
   
+  //--------------------------------------------------------------------------------------------------
+  
+  /**
+   * Deletes file or folder.
+   * Returns false if the object doesn't exist and throws an exception on error.
+   */
   bool remove(const std::string &path)
   {
 #ifdef _WIN32
@@ -426,6 +432,26 @@ namespace base {
     return true;
   }
   
+  //--------------------------------------------------------------------------------------------------
+
+  /**
+   * Tries to delete a file or folder.
+   * No exception is thrown if that fails. Returns true on success, otherwise false.
+   */
+  bool tryRemove(const std::string &path)
+  {
+#ifdef _WIN32
+    if (is_directory(path))
+      return RemoveDirectory(path_from_utf8(path).c_str()) == TRUE;
+    else
+      return DeleteFile(path_from_utf8(path).c_str()) == TRUE;
+#else
+    return g_remove(path_from_utf8(path).c_str()) == 0;
+#endif
+  }
+
+  //--------------------------------------------------------------------------------------------------
+
   bool file_exists(const std::string &path)
   {
     char *f = g_filename_from_utf8(path.c_str(), -1, NULL, NULL, NULL);
@@ -438,6 +464,8 @@ namespace base {
     return false;
   }
 
+  //--------------------------------------------------------------------------------------------------
+
   bool is_directory(const std::string &path)
   {
     char *f = g_filename_from_utf8(path.c_str(), -1, NULL, NULL, NULL);
@@ -449,17 +477,9 @@ namespace base {
     g_free(f);
     return false;
   }
-  /*
-  std::string make_path(const std::string &path, const std::string &filename)
-  {
-    if (path.empty())
-      return filename;
-    
-    if (path[path.size()-1] == '/' || path[path.size()-1] == '\\')
-      return path+filename;
-    return path+G_DIR_SEPARATOR+filename;
-  }*/
   
+  //--------------------------------------------------------------------------------------------------
+
   std::string extension(const std::string &path)
   {
     std::string::size_type p = path.rfind('.');
