@@ -170,9 +170,9 @@ class base_module:
 
     def set_table(self, schema, table):
         if schema:
-            self._table_w_prefix = "%s.%s" % (schema, table)
+            self._table_w_prefix = "`%s`.`%s`" % (schema, table)
         else:
-            self._table_w_prefix = str(table)
+            self._table_w_prefix = "`%s`" % str(table)
         
     def set_mapping(self, mapping):
         self._mapping = mapping
@@ -402,8 +402,8 @@ class csv_module(base_module):
             dest_col_order = list(set([i['dest_col'] for i in self._mapping if i['active']]))
             query = """PREPARE stmt FROM 'INSERT INTO %s (%s) VALUES(%s)'""" % (self._table_w_prefix, ",".join(dest_col_order), ",".join(["?" for i in dest_col_order]))
             col_order = dict([(i['dest_col'], i['col_no']) for i in self._mapping if i['active']])
-            col_type = dict([(i['name'], i['type']) for i in self._mapping if i['active']])
-            
+            col_type = dict([(i['dest_col'], i['type']) for i in self._mapping if i['active']])
+
             self._editor.executeManagementCommand(query, 1)
             try:
                 is_header = self.has_header

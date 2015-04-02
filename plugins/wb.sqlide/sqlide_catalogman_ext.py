@@ -254,9 +254,13 @@ class ObjectManager(mforms.Box):
                     obj.schemaName = self.schema
                     obj.type = self.klass
                     if hasattr(self, 'parent_name_column'):
-                        parent_name = node.get_string(self.parent_name_column)
+                        if hasattr(self, 'table'):
+                            parent_name = self.table
+                        else:
+                            parent_name = node.get_string(self.parent_name_column)
+                        
                         if parent_nodes.has_key(parent_name):
-                            obj.owner = pobj
+                            obj.owner = parent_nodes[parent_name]
                         else:
                             pobj = grt.classes.db_query_LiveDBObject()
                             obj.owner = pobj

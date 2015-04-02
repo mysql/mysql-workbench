@@ -1,4 +1,4 @@
-# Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -19,7 +19,7 @@
 import grt
 import mforms
 
-import os
+import os, sys
 from xml.dom import minidom
 
 
@@ -49,7 +49,8 @@ class TemplateEditor(mforms.Form):
         self.template_list.add_changed_callback(self.table_selected)
         self.template_list.set_cell_edited_callback(self.table_edited)
         top.add(self.template_list, True, True)
-        self.template_list.set_size(-1, 150)
+        if sys.platform.lower() != "darwin":
+            self.template_list.set_size(-1, 150)
 
         bbox = mforms.newBox(False)
         bbox.set_spacing(8)

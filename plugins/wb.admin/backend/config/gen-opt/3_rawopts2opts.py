@@ -21,6 +21,8 @@ def hack_option(option):
             option['values'][0]['default'] = '{configdir}/mysql_ft_stopword_file.txt'
     elif option['name'] == 'socket':
         option['values'][0]['type'] = 'filebrowse'
+    elif option['name'] == 'ndb-recv-thread-cpu-mask':
+        option['values'][0]['type'] = 'string'
     elif option['name'] == 'innodb_data_file_path':
         option['values'][0]['type'] = 'string'
     elif option['name'] in ('slow_query_log_file', 'general_log_file', 'log_bin_basename', 'relay_log_basename',
