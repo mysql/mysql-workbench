@@ -48,7 +48,9 @@ AutoCompleteCache::AutoCompleteCache(const std::string &connection_id,
 {
   _feedback = feedback;
   std::string path = make_path(cache_dir, _connection_id) + ".cache";
-  bool newDb = base::tryRemove(path);
+  bool newDb = !base::file_exists(path);
+  if (!newDb)
+    newDb = base::tryRemove(path);
 
   _sqconn = new sqlite::connection(path);
   sqlite::execute(*_sqconn, "PRAGMA temp_store=MEMORY", true);
