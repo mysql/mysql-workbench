@@ -140,10 +140,13 @@ Logger::Logger(const std::string& dir, const bool stderr_log, const std::string&
     {
       try
       {
-        if (file_exists((_impl->_dir + filenames[i])))
-          remove(_impl->_dir + filenames[i]);
-        if (file_exists((_impl->_dir + filenames[i-1])))
-          rename((_impl->_dir + filenames[i-1]), (_impl->_dir + filenames[i]));
+        std::string filename = base::join_path(_impl->_dir.c_str(), filenames[i].c_str(), "");
+        if (file_exists(filename))
+          remove(filename);
+        
+        std::string filename2 = base::join_path(_impl->_dir.c_str(), filenames[i-1].c_str(), "");
+        if (file_exists(filename2))
+          rename(filename2, filename);
       }
       catch (...)
       {
