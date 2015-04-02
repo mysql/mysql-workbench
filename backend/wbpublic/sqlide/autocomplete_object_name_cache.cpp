@@ -47,54 +47,20 @@ AutoCompleteCache::AutoCompleteCache(const std::string &connection_id,
     _get_connection(get_connection), _shutdown(false)
 {
   _feedback = feedback;
-  _sqconn = new sqlite::connection(make_path(cache_dir, _connection_id) + ".cache");
+  std::string path = make_path(cache_dir, _connection_id) + ".cache";
+  bool newDb = base::tryRemove(path);
+
+  _sqconn = new sqlite::connection(path);
   sqlite::execute(*_sqconn, "PRAGMA temp_store=MEMORY", true);
   sqlite::execute(*_sqconn, "PRAGMA synchronous=NORMAL", true);
 
+  // Re-init only if we could remove the cache file, which might fail if another connection
+  // is open already that uses this cache.
+  if (newDb)
+    init_db();
+
   log_debug2("Using autocompletion cache file %s\n", (make_path(cache_dir, _connection_id) + ".cache").c_str());
 
-  // Check if the DB is already initialized.
-  sqlite::query q(*_sqconn, "select name from sqlite_master where type='table'");
-  int found = 0;
-  if (q.emit())
-  {
-    boost::shared_ptr<sqlite::result> res(q.get_result());
-    do
-    {
-      std::string name = res->get_string(0);
-      if (name == "tables"
-          || name == "views"
-          || name == "schemas"
-          || name == "procedures"
-          || name == "functions"
-          || name == "columns"
-          || name == "meta"
-          || name == "tablespaces"
-          || name == "logfile_groups"
-          || name == "triggers"
-          || name == "udfs"
-          || name == "engines"
-          || name == "variables")
-        found++;
-    }
-    while (res->next_row());
-  }
-  if (found == 0)
-  {
-    log_debug3("Initializing cache\n");
-    init_db();
-  }
-  else if (found != 13)
-  {
-    log_info("Unexpected number of tables found in cache (%i). Recreating the cache...\n", found);
-
-    delete _sqconn;
-    base::remove(make_path(cache_dir, _connection_id) + ".cache");
-    _sqconn = new sqlite::connection(make_path(cache_dir, _connection_id) + ".cache");
-    sqlite::execute(*_sqconn, "PRAGMA temp_store=MEMORY", true);
-    sqlite::execute(*_sqconn, "PRAGMA synchronous=NORMAL", true);
-    init_db();
-  }
 
   // Top level objects (aka. schemas).
   // They are retrieved automatically only once to limit traffic to the server.
