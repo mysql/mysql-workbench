@@ -16,6 +16,7 @@
 # 02110-1301  USA
 
 from workbench.db_utils import QueryError, escape_sql_string
+from workbench.utils import Version
 from wb_common import PermissionDeniedError
 
 import mforms
@@ -52,6 +53,8 @@ GRANT_LIMITS_QUERY = "GRANT USAGE ON *.* TO '%(user)s'@'%(host)s' WITH %(limit)s
 RENAME_USER_QUERY = "RENAME USER '%(old_user)s'@'%(old_host)s' TO '%(user)s'@'%(host)s'"
 CHANGE_PASSWORD_QUERY = "SET PASSWORD FOR '%(user)s'@'%(host)s' = PASSWORD('%(password)s')"
 BLANK_PASSWORD_QUERY = "SET PASSWORD FOR '%(user)s'@'%(host)s' = ''"
+CHANGE_PASSWORD_QUERY_576 = "ALTER USER '%(user)s'@'%(host)s' IDENTIFIED BY '%(password)s'"
+BLANK_PASSWORD_QUERY_576 = "ALTER USER '%(user)s'@'%(host)s' IDENTIFIED BY ''"
 
 REVOKE_SCHEMA_PRIVILEGES_QUERY = "REVOKE %(revoked_privs)s ON `%(db)s`.* FROM '%(user)s'@'%(host)s'"
 GRANT_SCHEMA_PRIVILEGES_QUERY = "GRANT %(granted_privs)s ON `%(db)s`.* TO '%(user)s'@'%(host)s'"
@@ -825,15 +828,17 @@ class AdminAccount(object):
                 queries.append(REVOKE_ALL % fields)
 
         if self.password != self._orig_password and not password_already_set:
+            change_pw = CHANGE_PASSWORD_QUERY if self._owner.ctrl_be.target_version and self._owner.ctrl_be.target_version < Version(5,7,6) else CHANGE_PASSWORD_QUERY_576
+            blank_pw = BLANK_PASSWORD_QUERY if self._owner.ctrl_be.target_version and self._owner.ctrl_be.target_version < Version(5,7,6) else BLANK_PASSWORD_QUERY
             # special hack required by server to handle sha256 password accounts
             if self.auth_plugin == "sha256_password":
                 queries.append("SET old_passwords = 2")
             else:
                 queries.append("SET old_passwords = 0")
             if fields["password"]:
-                queries.append(CHANGE_PASSWORD_QUERY % fields)
+                queries.append(change_pw % fields)
             else:
-                queries.append(BLANK_PASSWORD_QUERY % fields)
+                queries.append(blank_pw % fields)
 
         action = "changing" if self.is_commited else "creating"
         for query in queries:
@@ -925,8 +930,10 @@ class AdminAccount(object):
         self.password_expired = False
         if self._owner.has_password_expired:
             self.password_expired = result.stringByName("password_expired") == 'Y'
-        self.old_authentication = len(result.stringByName("password")) == 16
-        self.blank_password = len(result.stringByName("password")) == 0
+
+        password_column = 'password' if self._owner.ctrl_be.target_version and self._owner.ctrl_be.target_version < Version(5,7,6) else 'authentication_string'
+        self.old_authentication = len(result.stringByName(password_column)) == 16
+        self.blank_password = len(result.stringByName(password_column)) == 0
 
         self._global_privs = set()
         for priv in self._owner.global_privilege_names:

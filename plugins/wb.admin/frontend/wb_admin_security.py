@@ -238,13 +238,13 @@ class AddSchemaPrivilegeForm(mforms.Form):
         self.schema1 = newRadioButton(mforms.RadioButton.new_id())
         self.schema1.set_active(True)
         self.schema1.add_clicked_callback(self.schema_radio_changed)
-        self.schema1.set_text("Any Schema (%)")
+        self.schema1.set_text("All Schema (%)")
         table.add(self.schema1, 0, 1, 0, 1, mforms.HFillFlag)
         table.add(dLabel("This rule will apply to any schema name."), 2, 3, 0, 1, mforms.HFillFlag)
 
         self.schema2 = newRadioButton(self.schema1.group_id())
         self.schema2.add_clicked_callback(self.schema_radio_changed)
-        self.schema2.set_text("Schemas matching pattern or name:")
+        self.schema2.set_text("Schemas matching pattern:")
         table.add(self.schema2, 0, 1, 1, 2, mforms.HFillFlag)
         table.add(dLabel("This rule will apply to schemas that match the given name or pattern.\nYou may use _ and % as wildcards in a pattern.\nEscape these characters with \\ in case you want their literal value."), 2, 3, 1, 2, mforms.HFillFlag)
 
@@ -261,9 +261,10 @@ class AddSchemaPrivilegeForm(mforms.Form):
         label.set_text_align(mforms.TopLeft)
         table.add(label, 2, 3, 2, 3, mforms.HFillFlag)
 
-        self.schema3sel = newListBox(False)
-        table.add(self.schema3sel, 1, 2, 2, 3, mforms.HFillFlag|mforms.HExpandFlag|mforms.VFillFlag|mforms.VExpandFlag)
-        self.schema3sel.add_items(self.secman.escaped_schema_names)
+        self.schema3sel = newSelector()
+        table.add(self.schema3sel, 1, 2, 2, 3, mforms.HFillFlag|mforms.HExpandFlag)
+        for item in self.secman.schema_names:
+            self.schema3sel.add_item(item)
 
         bbox = newBox(True)
         box.add(bbox, False, True)
@@ -894,15 +895,15 @@ class SecurityAccount(mforms.Box):
             info = AUTHENTICATION_PLUGIN_TYPES["*"]
 
         if info:
-            self.password_caption.set_enabled(info["enable_password"])
-            self.password_caption2.set_enabled(info["enable_password"])
-            self.password_label.set_enabled(info["enable_password"])
-            self.password.set_enabled(info["enable_password"])
-            self.confirm.set_enabled(info["enable_password"])
-            self.confirm_caption.set_enabled(info["enable_password"])
-            self.confirm_caption2.set_enabled(info["enable_password"])
-            self.hostlimithost.set_enabled(info["enable_host"])
-            self.hostlimithost_caption.set_enabled(info["enable_host"])
+            self.password_caption.set_enabled(bool(info["enable_password"]))
+            self.password_caption2.set_enabled(bool(info["enable_password"]))
+            self.password_label.set_enabled(bool(info["enable_password"]))
+            self.password.set_enabled(bool(info["enable_password"]))
+            self.confirm.set_enabled(bool(info["enable_password"]))
+            self.confirm_caption.set_enabled(bool(info["enable_password"]))
+            self.confirm_caption2.set_enabled(bool(info["enable_password"]))
+            self.hostlimithost.set_enabled(bool(info["enable_host"]))
+            self.hostlimithost_caption.set_enabled(bool(info["enable_host"]))
 
             if self.auth_string_param:
                 if info["auth_string_label"]:
@@ -1041,7 +1042,7 @@ class SecurityAccount(mforms.Box):
             return
 
         self.content_box.set_enabled(user != None)
-        self.revoke_all_button.set_enabled(user != None and user.is_commited)
+        self.revoke_all_button.set_enabled(bool(user != None and user.is_commited))
         self.unset_dirty()
 
         self._selected_user = user
@@ -1051,7 +1052,7 @@ class SecurityAccount(mforms.Box):
             #self.dup_button.set_enabled(True)
             self.del_button.set_enabled(True)
             if self.expire_button:
-                self.expire_button.set_enabled(user.is_commited and not user.password_expired)
+                self.expire_button.set_enabled(bool(user.is_commited and not user.password_expired))
 
             self.username.set_value(user.username)
             self.password.set_value(user.password or "")
@@ -1479,8 +1480,8 @@ or a new password must be supplied.'''
             caption = 'No password is set for this account.'
         
         self.bottom_message_caption.set_text(caption)
-        self.bottom_message_hbox.show(user.old_authentication or user.password_expired or user.blank_password or not user.username)
-        self.upgrade_account_button.show(user.old_authentication) 
+        self.bottom_message_hbox.show(bool(user.old_authentication or user.password_expired or user.blank_password or not user.username))
+        self.upgrade_account_button.show(bool(user.old_authentication)) 
 
 
     def reload_user(self, is_new_user):

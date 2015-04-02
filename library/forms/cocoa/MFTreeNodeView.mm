@@ -267,8 +267,8 @@ public:
 
         [child release];
       }
-                                     
-      if (![[_self treeNodeView] frozen] && (!get_parent() || is_expanded() || [added_nodes count] == 1))
+
+      if (![[_self treeNodeView] frozen])
       {
         [[_self treeNodeView] setNeedsReload];
       }

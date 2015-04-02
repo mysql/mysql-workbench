@@ -411,7 +411,7 @@ class MainView(WizardPage):
             self._code.set_text(object.temp_sql)
             self._code.set_enabled(not object.commentedOut)
             self._comment_check.set_active(object.commentedOut != 0)
-            self._lock_check.set_active(object.customData.get("migration:lock_temp_sql", False))
+            self._lock_check.set_active(bool(object.customData.get("migration:lock_temp_sql", False)))
             self._advbox.set_enabled(True)
             self._apply_btn.set_enabled(False)
             self._revert_btn.set_enabled(False)
@@ -877,7 +877,7 @@ class MainView(WizardPage):
         if selected_node:
             to_replace = selected_node.get_string(type)
             repl_form = ReplaceForm(title, description)
-            ret, to_replace, replace_with = repl_form.show(to_replace)
+            ret, to_replace, replace_with = repl_form.show(bool(to_replace))
             if ret:
                 for i in range(self._columns.count()):
                     node = self._columns.node_at_row(i)

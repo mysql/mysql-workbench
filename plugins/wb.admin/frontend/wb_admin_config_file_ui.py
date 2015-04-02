@@ -187,7 +187,7 @@ class WbAdminConfigFileUI(mforms.Box):
             self.create_ui()
             #self.resume_layout()
         else:
-            on = self.server_profile.admin_enabled
+            on = bool(self.server_profile.admin_enabled)
             self.file_name_ctrl.set_enabled(on)
             self.section_ctrl.set_enabled(on)
             self.bottom_box.set_enabled(on)
@@ -889,7 +889,7 @@ class WbAdminConfigFileUI(mforms.Box):
                           # of control tupple(the one that goes after tag is defined by the type of control
 
             if force_enabled is not None:
-                enabled = force_enabled
+                enabled = bool(force_enabled)
                 control(0).set_active(enabled)
             else:
                 enabled = control(0).get_active()

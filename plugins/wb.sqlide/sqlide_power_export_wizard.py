@@ -270,7 +270,7 @@ class ExportProgressPage(WizardProgressPage):
                 
     def on_close(self):
         if self.module and self.module.is_running:
-            if mforms.ResultOk == mforms.Utilities.show_message("Confirmation", "Do you wish to stop export process?", "Yes", "No",):
+            if mforms.ResultOk == mforms.Utilities.show_message("Confirmation", "Do you wish to stop export process?", "Yes", "No", ""):
                 self.stop.set()
                 return True
             return False
@@ -291,7 +291,7 @@ class SelectFilePage(WizardPage):
         
     def page_activated(self, advancing):
         super(SelectFilePage, self).page_activated(advancing)
-        self.export_local_box.show(self.main.data_input_page._showing_simple)
+        self.export_local_box.show(bool(self.main.data_input_page._showing_simple))
             
     def create_ui(self):
         self.set_spacing(16)
@@ -485,6 +485,7 @@ class DataInputPage(WizardPage):
         self.simple_export = None
         self.advanced_export = None
         self._showing_simple = True
+        self.table_list = {}
         
     def create_ui(self):
         self.set_spacing(16)
@@ -498,11 +499,13 @@ class DataInputPage(WizardPage):
         
         self.source_table_sel = mforms.newSelector()
         self.source_table_sel.set_size(self.get_width(), -1)
-        table_list = self.preload_existing_tables()
-        self.source_table_sel.add_items(table_list)
+        self.preload_existing_tables()
+        sorted_keys = self.table_list.keys()
+        sorted_keys.sort()
+        self.source_table_sel.add_items(sorted_keys)
         table_name = "%s.%s" % (self.main.source_table['schema'], self.main.source_table['table'])
-        if table_name in table_list:
-            self.source_table_sel.set_selected(table_list.index(table_name))
+        if table_name in self.table_list.keys():
+            self.source_table_sel.set_selected(sorted_keys.index(table_name))
         self.source_table_sel.add_changed_callback(lambda selector = self.source_table_sel: self.source_table_changed(selector.get_string_value()))
         self.simple_export_box.add(self.source_table_sel, False, True)
         
@@ -519,9 +522,9 @@ class DataInputPage(WizardPage):
     def get_table_columns(self, table):
         cols = []
         try:
-            rset = self.main.editor.executeManagementQuery("SHOW COLUMNS FROM %s.%s" % (table['schema'], table['table']), 1)
+            rset = self.main.editor.executeManagementQuery("SHOW COLUMNS FROM `%s`.`%s`" % (table['schema'], table['table']), 1)
         except grt.DBError, e:
-            log_error("SHOW COLUMNS FROM %s.%s : %s" % (table['schema'], table['table'], e))
+            log_error("SHOW COLUMNS FROM `%s`.`%s` : %s" % (table['schema'], table['table'], e))
             rset = None
             
         if rset:
@@ -539,7 +542,7 @@ class DataInputPage(WizardPage):
         return cols
     
     def source_table_changed(self, table):
-        self.main.source_table = {'schema':table.split('.')[0], 'table':table.split('.')[1]}
+        self.main.source_table = self.table_list[table]
         self.preload_table_info()
         
     def preload_table_info(self):
@@ -547,7 +550,7 @@ class DataInputPage(WizardPage):
     
     def preload_existing_tables(self):
         rset = self.main.editor.executeManagementQuery("SHOW DATABASES", 1)
-        table_list = []
+        self.table_list = {}
         if rset:
             ok = rset.goToFirstRow()
             while ok:
@@ -559,10 +562,9 @@ class DataInputPage(WizardPage):
                 if subrset:
                     subok = subrset.goToFirstRow()
                     while subok:
-                        table_list.append("%s.%s" % (dbname, subrset.stringFieldValue(0)))
+                        self.table_list["%s.%s" % (dbname, subrset.stringFieldValue(0))] = {'schema': dbname, 'table': subrset.stringFieldValue(0)}
                         subok = subrset.nextRow()
                 ok = rset.nextRow()
-        return table_list
         
     def go_advanced(self):
         if not self._showing_simple and self.advanced_export.is_dirty:
@@ -575,7 +577,7 @@ class DataInputPage(WizardPage):
         else:
             self.advanced_button.set_text("Simple >>")
         
-        self.simple_export_box.show(self._showing_simple)
+        self.simple_export_box.show(bool(self._showing_simple))
         self.advanced_export.show(not self._showing_simple)
         
         if not self._showing_simple:
