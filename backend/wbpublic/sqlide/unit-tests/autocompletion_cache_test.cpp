@@ -217,6 +217,9 @@ TEST_FUNCTION(19)
   delete _cache;
   _cache = new AutoCompleteCache("testconn", boost::bind(&Test_object_base<autocompletion_cache_test>::get_connection, this, _1),
     ".", NULL);
+
+  _cache->refresh_schema_cache_if_needed("sakila");
+  g_usleep(2000000);
 }
 
 
