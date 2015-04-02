@@ -52,6 +52,42 @@ namespace mforms {
 namespace gtk {
 
 /**
+  * We need to use our implemenation of g_environ_unsetenv function because on OL6 that function is not avaiable.
+  * TODO: replace that function with g_environ_unsetenv when OL6 support will be dropped
+  */
+static gchar **wb_environ_unsetenv_internal(gchar **envp, const gchar *variable)
+{
+	g_return_val_if_fail(variable != NULL, NULL);
+	g_return_val_if_fail(strchr (variable, '=') == NULL, NULL);
+
+	if (envp == NULL)
+		return NULL;
+
+	gint len;
+	gchar **_envp, **envp_tmp;
+
+	len = strlen(variable);
+
+	/* Note that we remove *all* environment entries for
+	 * the variable name, not just the first.*/
+	_envp = envp_tmp = envp;
+	while (*_envp != NULL)
+	{
+		if (strncmp(*_envp, variable, len) != 0 || (*_envp)[len] != '=')
+		{
+			*envp_tmp = *_envp;
+			envp_tmp++;
+		} else
+			g_free(*_envp);
+
+		_envp++;
+	}
+	*envp_tmp = NULL;
+
+	return envp;
+}
+
+/**
   * Get the current active window for this application
   */
 GtkWindow *get_current_window()
@@ -210,10 +246,14 @@ void UtilitiesImpl::open_url(const std::string &url)
     quoted_url,
     NULL 
   };
+  char **envp = g_get_environ();
+  envp = wb_environ_unsetenv_internal(envp, "LD_PRELOAD");
+
   GError *error = NULL;
-  gboolean result = g_spawn_async(NULL, (gchar**)argv, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error);
+  gboolean result = g_spawn_async(NULL, (gchar**)argv, envp, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error);
   
   free(quoted_url);
+  g_strfreev(envp);
   
   if (!result)
   {
@@ -818,7 +858,13 @@ void UtilitiesImpl::reveal_file(const std::string &path)
     NULL 
   };
   GError *error = NULL;
-  if (!g_spawn_async(NULL, (gchar**)argv, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error))
+  char **envp = g_get_environ();
+  envp = wb_environ_unsetenv_internal(envp, "LD_PRELOAD");
+
+  gboolean result = g_spawn_async(NULL, (gchar**)argv, envp, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error);
+  g_strfreev(envp);
+
+  if (!result)
   {
     char *err = g_strdup_printf("Error opening folder with xdg-open: %s", error->message);
     g_error_free(error);

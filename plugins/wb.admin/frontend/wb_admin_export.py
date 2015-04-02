@@ -101,7 +101,11 @@ class DumpThread(threading.Thread):
         pwdfilename = None
         tmpdir = None
         try:
-            params = [self.command] + extra_arguments
+            if '<' in self.command:
+                index = self.command.find('<')
+                params = [self.command[:index] + ' '.join(extra_arguments) + ' ' + self.command[index:]]
+            else:
+                params = [self.command] + extra_arguments
 
             for arg in object_names:
                 params.append(local_quote_shell_token(arg))
@@ -1141,14 +1145,15 @@ class WbAdminImportTab(WbAdminSchemaListTab):
             for schema, table in selection:
                 logmsg = "Restoring %s (%s)" % (schema, table)
                 path = self.tables_paths.get((schema, table))
+                extra_args = "--database=%s" % schema
                 # description, object_count, extra_args, objects, pipe_factory
                 if path != None:
-                    task = DumpThread.TaskData(logmsg, 1, [], [path], None, lambda:None)
+                    task = DumpThread.TaskData(logmsg, 1, [extra_args], [path], None, lambda:None)
                     #operations.insert(0,task)
                     operations.append(task)
                 else:
                     path = self.views_paths.get((schema, table))
-                    task = DumpThread.TaskData(logmsg, 1, [], [path], None, lambda:None)
+                    task = DumpThread.TaskData(logmsg, 1, [extra_args], [path], None, lambda:None)
                     if path != None:
                         operations.append(task)
         else:
