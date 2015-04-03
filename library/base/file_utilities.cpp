@@ -446,7 +446,7 @@ namespace base {
     else
       return DeleteFile(path_from_utf8(path).c_str()) == TRUE;
 #else
-    return g_remove(path_from_utf8(path).c_str()) == 0;
+    return ::g_remove(path_from_utf8(path).c_str()) == 0;
 #endif
   }
 
