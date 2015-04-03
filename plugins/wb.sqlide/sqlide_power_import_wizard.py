@@ -540,16 +540,17 @@ class SelectDestinationPage(WizardPage):
                 if dbname.strip() in ["mysql", "sys", "information_schema", "fabric", "performance_schema"]:
                     ok = rset.nextRow()
                     continue
-                subrset = self.main.editor.executeManagementQuery("SHOW FULL TABLES FROM `%s`" % dbname, 0)
-                if subrset:
-                    subok = subrset.goToFirstRow()
-                    while subok:
-                        if subrset.stringFieldValue(1) == "BASE TABLE":
-                            self.table_list["%s.%s" % (dbname, subrset.stringFieldValue(0))] = {'schema': dbname, 'table': subrset.stringFieldValue(0)} 
-                            
-                        subok = subrset.nextRow()
                 db_list.append(dbname)
                 ok = rset.nextRow()
+            
+            rset = self.main.editor.executeManagementQuery("SHOW FULL TABLES FROM `%s`" % self.main.destination_table['schema'], 0)
+            if rset:
+                ok = rset.goToFirstRow()
+                while ok:
+                    if rset.stringFieldValue(1) == "BASE TABLE":
+                        self.table_list["%s.%s" % (self.main.destination_table['schema'], rset.stringFieldValue(0))] = {'schema': self.main.destination_table['schema'], 'table': rset.stringFieldValue(0)} 
+                        
+                    ok = rset.nextRow()
             
             self.destination_table_sel.clear()
             self.destination_table_sel.add_items(self.table_list.keys())
@@ -640,6 +641,13 @@ class SelectDestinationPage(WizardPage):
             self.drop_table_cb.show(False)
             self.truncate_table_cb.show(True)
     
+    def check_if_table_exists(self, schema, table):
+        rset = self.main.editor.executeManagementQuery("SHOW TABLES FROM `%s` like '%s'" % (schema, table), 1)
+        if rset and rset.goToFirstRow():
+            return True
+        return False
+            
+    
     def validate(self):
         if self.existing_table_radio.get_active():
             self.main.destination_table = self.table_list[self.destination_table_sel.get_string_value()]
@@ -650,14 +658,15 @@ class SelectDestinationPage(WizardPage):
                 mforms.Utilities.show_error("Table Import", "You need to specify new table name", "Ok", "", "")
                 return False 
             table_name = "%s.%s" % (self.main.destination_table['schema'], self.main.destination_table['table'])
-            if not self.drop_table_cb.get_active() and table_name in self.table_list:
+            
+            if not self.drop_table_cb.get_active() and (table_name in self.table_list or self.check_if_table_exists(self.main.destination_table['schema'], self.main.destination_table['table'])):
                 res = mforms.Utilities.show_message("Table Import", "You specify to create new table, but table with such name already exists in the selected schema. Would you like to drop it, or use existing one and truncate?", "Drop the table", "Use Existing One and Truncate it", "Cancel")
                 if res == mforms.ResultOk: 
                     self.drop_table_cb.set_active(True)
                 elif res == mforms.ResultCancel:
                     self.truncate_table_cb.set_active(True)
                     self.existing_table_radio.set_active(True)
-                    self.destination_table_sel.set_selected(self.table_list.index(table_name))
+                    self.destination_table_sel.set_selected(self.table_list.keys().index(table_name))
                 else:
                     return False 
         return True
