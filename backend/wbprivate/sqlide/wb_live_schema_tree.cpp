@@ -791,7 +791,7 @@ void LiveSchemaTree::update_node_icon(mforms::TreeNodeRef node)
  *   type: the type of children that will be affected (some nodes may have children of different types)
  *   to_remove: a vector containing the nodes to be removed from the parent node
  */
-void LiveSchemaTree::update_change_data(mforms::TreeNodeRef parent, std::list<std::string>& children, ObjectType type, std::vector<mforms::TreeNodeRef>& to_remove)
+void LiveSchemaTree::update_change_data(mforms::TreeNodeRef parent, StringListPtr children, ObjectType type, std::vector<mforms::TreeNodeRef>& to_remove)
 {
   mforms::TreeNodeRef node;
 
@@ -808,15 +808,15 @@ void LiveSchemaTree::update_change_data(mforms::TreeNodeRef parent, std::list<st
         // Ensure only items of the same type are analyzed
         if ( pchild_data && pchild_data->get_type() == type)
         {
-          std::list<std::string>::iterator found_child = std::find(children.begin(), children.end(), node->get_string(0));
+          std::list<std::string>::iterator found_child = std::find(children->begin(), children->end(), node->get_string(0));
 
           // If not found, the item will be removed
-          if ( found_child == children.end())
+          if ( found_child == children->end())
             to_remove.push_back(node);
           // If found, the item is removed from the incoming list
           // to let only nodes to be added
           else
-            children.erase(found_child);
+            children->erase(found_child);
         }
       }
     }
@@ -839,7 +839,7 @@ void LiveSchemaTree::update_change_data(mforms::TreeNodeRef parent, std::list<st
  * 
  * NOTE : That children may change, so if the original list is needed, the caller needs to have a copy
  */
-bool LiveSchemaTree::update_node_children(mforms::TreeNodeRef parent, std::list<std::string>& children, ObjectType type, bool sorted, bool just_append)
+bool LiveSchemaTree::update_node_children(mforms::TreeNodeRef parent, StringListPtr children, ObjectType type, bool sorted, bool just_append)
 {
   bool ret_val = false;
 
@@ -887,16 +887,16 @@ bool LiveSchemaTree::update_node_children(mforms::TreeNodeRef parent, std::list<
     std::string icon_path = get_node_icon_path(type);
 
     if (sorted)
-      children.sort(boost::bind(base::stl_string_compare, _1, _2, _case_sensitive_identifiers));
+      children->sort(boost::bind(base::stl_string_compare, _1, _2, _case_sensitive_identifiers));
     
-    if (!children.empty())
+    if (!children->empty())
     {
       // it and it_end are used on the iteration process
       // start and end are used to determine a group to be inserted
       // which by default is the whole list
-      std::list<std::string>::const_iterator   it = children.begin(),
+      std::list<std::string>::const_iterator   it = children->begin(),
                                                start = it,
-                                               it_end = children.end(),
+                                               it_end = children->end(),
                                                end = it_end;
 
       // final_group will be used to prevent searching for the position
@@ -947,7 +947,7 @@ bool LiveSchemaTree::update_node_children(mforms::TreeNodeRef parent, std::list<
       }
 
       // Inserts the last group of nodes...
-      end = children.end();
+      end = children->end();
       _node_collections[type].captions.assign(start, end);
       if (!_node_collections[type].captions.empty())
       {
@@ -1209,10 +1209,10 @@ void LiveSchemaTree::schema_contents_arrived(const std::string &schema_name,
           int old_table_count = tables_node->count();
           int old_view_count = tables_node->count();
           
-          update_node_children(tables_node,   *tables,     Table,    true, just_append);
-          update_node_children(views_node,    *views,      View,     true, just_append);
-          update_node_children(procedures_node, *procedures, Procedure,true, just_append);
-          update_node_children(functions_node, *functions,  Function, true, just_append);
+          update_node_children(tables_node,   tables,     Table,    true, just_append);
+          update_node_children(views_node,    views,      View,     true, just_append);
+          update_node_children(procedures_node, procedures, Procedure,true, just_append);
+          update_node_children(functions_node, functions,  Function, true, just_append);
           
 
           // If there were nodes that means this is a refresh, in such case loaded tables
@@ -2169,7 +2169,7 @@ bool LiveSchemaTree::find_child_position(const mforms::TreeNodeRef& parent, cons
   return child ? true : false;
 }
 
-void LiveSchemaTree::update_schemata(std::list<std::string> &schema_list)
+void LiveSchemaTree::update_schemata(StringListPtr schema_list)
 {
   mforms::TreeNodeRef schema_node;
 
@@ -2183,7 +2183,7 @@ void LiveSchemaTree::update_schemata(std::list<std::string> &schema_list)
       root = _model_view->root_node();
     }
     
-    schema_list.sort(boost::bind(base::stl_string_compare, _1, _2, _case_sensitive_identifiers));
+    schema_list->sort(boost::bind(base::stl_string_compare, _1, _2, _case_sensitive_identifiers));
     
     update_node_children(root, schema_list, Schema, true);
 
