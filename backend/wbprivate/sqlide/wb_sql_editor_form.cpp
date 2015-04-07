@@ -2693,8 +2693,8 @@ std::string SqlEditorForm::active_schema() const
  * info to update the auto completion cache - avoiding so a separate set of queries to the server.
  */
 void SqlEditorForm::schema_meta_data_refreshed(const std::string &schema_name,
-    StringListPtr tables, StringListPtr views,
-    StringListPtr procedures, StringListPtr functions)
+    wb::StringListPtr tables, wb::StringListPtr views,
+    wb::StringListPtr procedures, wb::StringListPtr functions)
 {
   if (_auto_completion_cache != NULL)
   {
