@@ -478,7 +478,7 @@ void AutoCompleteCache::refresh_schemas_w()
 
 void AutoCompleteCache::refresh_tables_w(const std::string &schema)
 {
-  std::list<std::string> tables;
+  StringListPtr tables(new std::list<std::string>());
   {
     sql::Dbc_connection_handler::Ref conn;
 
@@ -496,7 +496,7 @@ void AutoCompleteCache::refresh_tables_w(const std::string &schema)
           std::string table = rs->getString(1);
           if (type != "VIEW")
           {
-            tables.push_back(table);
+            tables->push_back(table);
 
             // Implicitly load table-local objects for each table/view.
             add_pending_refresh(RefreshTask::RefreshColumns, schema, table);
@@ -504,7 +504,7 @@ void AutoCompleteCache::refresh_tables_w(const std::string &schema)
           }
         }
 
-        log_debug2("Found %li tables\n", (long)tables.size());
+        log_debug2("Found %li tables\n", (long)tables->size());
       }
       else
         log_debug2("No tables found for %s\n", schema.c_str());
@@ -519,7 +519,7 @@ void AutoCompleteCache::refresh_tables_w(const std::string &schema)
 
 void AutoCompleteCache::refresh_views_w(const std::string &schema)
 {
-  std::list<std::string> views;
+  StringListPtr views(new std::list<std::string>());
   {
     sql::Dbc_connection_handler::Ref conn;
 
@@ -536,14 +536,14 @@ void AutoCompleteCache::refresh_views_w(const std::string &schema)
           std::string table = rs->getString(1);
           if (type == "VIEW")
           {
-            views.push_back(table);
+            views->push_back(table);
 
             // Implicitly load columns for each table/view.
             add_pending_refresh(RefreshTask::RefreshColumns, schema, table);
           }
         }
 
-        log_debug2("Found %li views\n", (long)views.size());
+        log_debug2("Found %li views\n", (long)views->size());
       }
       else
         log_debug2("No views found for %s\n", schema.c_str());
@@ -558,7 +558,7 @@ void AutoCompleteCache::refresh_views_w(const std::string &schema)
 
 void AutoCompleteCache::refresh_functions_w(const std::string &schema)
 {
-  std::list<std::string> functions;
+  StringListPtr functions(new std::list<std::string>());
   {
     sql::Dbc_connection_handler::Ref conn;
     base::RecMutexLock lock(_get_connection(conn));
@@ -569,7 +569,7 @@ void AutoCompleteCache::refresh_functions_w(const std::string &schema)
       if (rs.get())
       {
         while (rs->next() && !_shutdown)
-          functions.push_back(rs->getString(2));
+          functions->push_back(rs->getString(2));
       }
       else
         log_debug2("No functions found for %s\n", schema.c_str());
@@ -584,7 +584,7 @@ void AutoCompleteCache::refresh_functions_w(const std::string &schema)
 
 void AutoCompleteCache::refresh_procedures_w(const std::string &schema)
 {
-  std::list<std::string> procedures;
+  StringListPtr procedures(new std::list<std::string>());
   {
     sql::Dbc_connection_handler::Ref conn;
     base::RecMutexLock lock(_get_connection(conn));
@@ -595,7 +595,7 @@ void AutoCompleteCache::refresh_procedures_w(const std::string &schema)
       if (rs.get())
       {
         while (rs->next() && !_shutdown)
-          procedures.push_back(rs->getString(2));
+          procedures->push_back(rs->getString(2));
       }
       else
         log_debug2("No procedures found for %s\n", schema.c_str());
@@ -1016,28 +1016,28 @@ void AutoCompleteCache::update_schemas(const std::vector<std::string> &schemas)
 
 //--------------------------------------------------------------------------------------------------
 
-void AutoCompleteCache::update_tables(const std::string &schema, const std::list<std::string> &tables)
+void AutoCompleteCache::update_tables(const std::string &schema, StringListPtr tables)
 {
   update_object_names("tables", schema, tables);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void AutoCompleteCache::update_views(const std::string &schema, const std::list<std::string> &views)
+void AutoCompleteCache::update_views(const std::string &schema, StringListPtr views)
 {
   update_object_names("views", schema, views);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void AutoCompleteCache::update_procedures(const std::string &schema, const std::list<std::string> &procedures)
+void AutoCompleteCache::update_procedures(const std::string &schema, StringListPtr procedures)
 {
   update_object_names("procedures", schema, procedures);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void AutoCompleteCache::update_functions(const std::string &schema, const std::list<std::string> &functions)
+void AutoCompleteCache::update_functions(const std::string &schema, StringListPtr functions)
 {
   update_object_names("functions", schema, functions);
 }
@@ -1083,7 +1083,7 @@ void AutoCompleteCache::update_object_names(const std::string &cache, const std:
  * for calls from the SQL IDE which uses lists for them.
  */
 void AutoCompleteCache::update_object_names(const std::string &cache, const std::string &schema,
-  const std::list<std::string> &objects)
+    StringListPtr objects)
 {
   try
   {
@@ -1099,7 +1099,7 @@ void AutoCompleteCache::update_object_names(const std::string &cache, const std:
 
     sqlite::query insert(*_sqconn, "insert into " + cache + " (schema_id, name) values (?, ?)");
     insert.bind(1, schema);
-    for (std::list<std::string>::const_iterator i = objects.begin(); i != objects.end(); ++i)
+    for (std::list<std::string>::const_iterator i = objects->begin(); i != objects->end(); ++i)
     {
       insert.bind(2, *i);
       insert.emit();
