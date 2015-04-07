@@ -486,7 +486,6 @@ mforms::View *SqlEditorTreeController::get_sidebar()
   return _side_splitter;
 }
 
-
 grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *grt, boost::weak_ptr<SqlEditorTreeController> self_ptr, const std::string &schema_name, wb::LiveSchemaTree::NewSchemaContentArrivedSlot arrived_slot)
 {
   RETVAL_IF_FAIL_TO_RETAIN_WEAK_PTR (SqlEditorTreeController, self_ptr, self, grt::StringRef(""))
@@ -691,7 +690,7 @@ void SqlEditorTreeController::fetch_column_data(const std::string& schema_name, 
     pdata = dynamic_cast<LiveSchemaTree::ViewData*>(node->get_data());
 
   // Loads the information...
-  std::list<std::string> columns;
+  StringListPtr columns(new std::list<std::string>);
   std::map<std::string, LiveSchemaTree::ColumnData> column_data;
 
   log_debug3("Fetching column data for %s.%s\n", schema_name.c_str(), obj_name.c_str());
@@ -710,7 +709,7 @@ void SqlEditorTreeController::fetch_column_data(const std::string& schema_name, 
       LiveSchemaTree::ColumnData col_node(type);
       std::string column_name= rs->getString(1);
 
-      columns.push_back(column_name);
+      columns->push_back(column_name);
 
       std::string type = rs->getString(2);
       std::string collation = rs->isNull(3) ? "" : rs->getString(3);
@@ -737,7 +736,7 @@ void SqlEditorTreeController::fetch_column_data(const std::string& schema_name, 
 
 
     // If information was found, creates the TreeNode structure for it
-    if (columns.size())
+    if (columns->size())
     {
       // Creates the node if it didn't exist...
       if (!node)
@@ -805,7 +804,8 @@ void SqlEditorTreeController::fetch_column_data(const std::string& schema_name, 
 void SqlEditorTreeController::fetch_trigger_data(const std::string& schema_name, const std::string& obj_name, wb::LiveSchemaTree::ObjectType type, const wb::LiveSchemaTree::NodeChildrenUpdaterSlot &updater_slot)
 {
   // Loads the information...
-  std::list<std::string> triggers;
+  StringListPtr triggers(new std::list<std::string>);
+//  std::list<std::string> triggers;
   std::map<std::string, LiveSchemaTree::TriggerData> trigger_data_dict;
 
   try
@@ -825,7 +825,7 @@ void SqlEditorTreeController::fetch_trigger_data(const std::string& schema_name,
       trigger_node.event_manipulation= wb::LiveSchemaTree::internalize_token(rs->getString(2));
       trigger_node.timing= wb::LiveSchemaTree::internalize_token(rs->getString(5));
 
-      triggers.push_back(name);
+      triggers->push_back(name);
       trigger_data_dict[name] = trigger_node;
     }
 
@@ -864,7 +864,7 @@ void SqlEditorTreeController::fetch_trigger_data(const std::string& schema_name,
 void SqlEditorTreeController::fetch_index_data(const std::string& schema_name, const std::string& obj_name, wb::LiveSchemaTree::ObjectType type, const wb::LiveSchemaTree::NodeChildrenUpdaterSlot &updater_slot)
 {
   // Loads the information...
-  std::list<std::string> indexes;
+  StringListPtr indexes(new std::list<std::string>());
   std::map<std::string, LiveSchemaTree::IndexData> index_data_dict;
 
   try
@@ -885,7 +885,7 @@ void SqlEditorTreeController::fetch_index_data(const std::string& schema_name, c
       // Inserts the index to the list
       if (!index_data_dict.count(name))
       {
-        indexes.push_back(name);
+        indexes->push_back(name);
 
         index_data.type = wb::LiveSchemaTree::internalize_token(rs->getString(11));
         index_data.unique = (rs->getInt(2) == 0);
@@ -929,7 +929,7 @@ void SqlEditorTreeController::fetch_index_data(const std::string& schema_name, c
 
 void SqlEditorTreeController::fetch_foreign_key_data(const std::string& schema_name, const std::string& obj_name, wb::LiveSchemaTree::ObjectType type, const wb::LiveSchemaTree::NodeChildrenUpdaterSlot &updater_slot)
 {
-  std::list<std::string> foreign_keys;
+  StringListPtr foreign_keys(new std::list<std::string>());
   std::map<std::string, LiveSchemaTree::FKData> fk_data_dict;
 
   sql::Dbc_connection_handler::Ref conn;
@@ -1004,7 +1004,7 @@ void SqlEditorTreeController::fetch_foreign_key_data(const std::string& schema_n
 
           // Create the foreign key node
           wb::LiveSchemaTree::FKData new_fk;
-          foreign_keys.push_back(fk_name);
+          foreign_keys->push_back(fk_name);
           new_fk.referenced_table = (fk_ref_table);
 
           // Set the default update and delete rules
@@ -2592,8 +2592,10 @@ grt::StringRef SqlEditorTreeController::do_refresh_schema_tree_safe(grt::GRT *gr
     return grt::StringRef("");
 
   _is_refreshing_schema_tree= true;
+  StringListPtr schema_list(new std::list<std::string>());
 
-  std::list<std::string> schema_list = fetch_schema_list();
+  std::list<std::string> fsl = fetch_schema_list();
+  schema_list->assign(fsl.begin(), fsl.end());
   _grtm->run_once_when_idle(this, boost::bind(&LiveSchemaTree::update_schemata, _schema_tree, schema_list));
   _grtm->run_once_when_idle(this, boost::bind(&SqlEditorForm::schema_tree_did_populate, _owner));
 
