@@ -12,7 +12,7 @@ Replaces: mysql-workbench-gpl, mysql-workbench-oss, mysql-workbench, mysql-workb
 @else
 Replaces: mysql-workbench-com-se, mysql-workbench, mysql-workbench-community, mysql-workbench-data
 @endif
-Depends: ${shlibs:Depends}, python-paramiko
+Depends: ${shlibs:Depends}, python-paramiko, libglib2.0 (>= 2.28)
 Architecture: i386 amd64
 Suggests: gnome-keyring
 Description: MySQL Workbench

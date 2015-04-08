@@ -96,7 +96,7 @@ Requires: libzip
 Requires: python-paramiko
 Requires: gnome-keyring
 Requires: proj
-
+Requires: glib2 >= 2.28
 Requires: gtk2 >= 2.20
 
 # our old package names
