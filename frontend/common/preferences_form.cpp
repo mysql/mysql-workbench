@@ -229,6 +229,7 @@ public:
 
     mforms::TextEntry *entry = _owner->new_entry_option(option, false);
     entry->set_tooltip(tooltip);
+    entry->set_size(80, -1);      //  Set a default size. If the size is never set, the text entry will not show if the _help_column == true
     
 #ifdef _WIN32
     TableItemFlags descriptionFlags = mforms::HFillFlag;
