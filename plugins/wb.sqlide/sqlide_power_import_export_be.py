@@ -629,7 +629,7 @@ class json_module(base_module):
 
     def analyze_file(self):
         data = []
-        with open(self._filepath, 'r') as f:
+        with open(self._filepath, 'rb') as f:
             prevchar = None
             stropen = False
             inside = 0
