@@ -104,9 +104,10 @@ MainForm::MainForm(wb::WBContextUI* ctx)
 // There is some bug in Fedora 14 where this code causes other stuff later to crash
 // The same code works just fine in Ubuntu, where the exact same version of gtk is shipped
 //    _sys_selection_color= Gtk::RC::get_style(dummy_treeview)->get_bg(Gtk::STATE_SELECTED);
-    GtkStyle *style = gtk_rc_get_style(GTK_WIDGET(dummy_treeview.gobj()));
-    if (style)
-      _sys_selection_color = Gdk::Color(&style->bg[GTK_STATE_SELECTED]);
+    fprintf(stderr, "MainForm::MainForm:: Check if this can be removed\n");
+//    GtkStyle *style = gtk_rc_get_style(GTK_WIDGET(dummy_treeview.gobj()));
+//    if (style)
+//      _sys_selection_color = Gdk::Color(&style->bg[GTK_STATE_SELECTED]);
   }
 
   get_mainwindow()->signal_delete_event().connect(sigc::mem_fun(this, &MainForm::close_window));
@@ -1233,7 +1234,7 @@ void MainForm::refresh_gui_becb(wb::RefreshType type, const std::string& arg_id,
             if (column)
             {
               // this is not working...
-              std::vector<Gtk::CellRenderer*> rends(column->get_cell_renderers());
+              std::vector<Gtk::CellRenderer*> rends(column->get_cells());
               for (std::vector<Gtk::CellRenderer*>::iterator iter = rends.begin(); iter != rends.end(); ++iter)
               {
                 (*iter)->stop_editing(true);
@@ -1283,7 +1284,7 @@ void MainForm::lock_gui_becb(bool lock)
 }
 
 //------------------------------------------------------------------------------
-void MainForm::switch_page(GtkNotebookPage*, guint pagenum)
+void MainForm::switch_page(Gtk::Widget*, guint pagenum)
 {
   if (_gui_locked)
     return;
@@ -1815,6 +1816,11 @@ static base::Color gdk_color_to_mforms(const Gdk::Color& c)
   return base::Color(c.get_red_p(), c.get_green_p(), c.get_blue_p(), 1);
 }
 
+static base::Color rgba_colot_to_mforms(const Gdk::RGBA& c)
+{
+  return base::Color(c.get_red(), c.get_green(), c.get_blue(), c.get_alpha());
+}
+
 
 //------------------------------------------------------------------------------
 static base::Color get_system_color(mforms::SystemColor type)
@@ -1846,10 +1852,8 @@ static base::Color get_system_color(mforms::SystemColor type)
         ret = it->second;
       else
       {
-        Glib::RefPtr<Gtk::Style> style = get_mainwindow()->get_style();
-        base::Color new_color(gdk_color_to_mforms(style->get_base(Gtk::STATE_NORMAL)));
-        colors[type] = new_color;
-        ret = new_color;
+        ret = base::Color(rgba_colot_to_mforms(get_mainwindow()->get_style_context()->get_color(Gtk::STATE_FLAG_NORMAL)));
+        colors[type] = ret;
       }
       break;
 
@@ -1861,10 +1865,8 @@ static base::Color get_system_color(mforms::SystemColor type)
         ret = it->second;
       else
       {
-        Glib::RefPtr<Gtk::Style> style = get_mainwindow()->get_style();
-        base::Color new_color(gdk_color_to_mforms(style->get_base(Gtk::STATE_INSENSITIVE)));
-        colors[type] = new_color;
-        ret = new_color;
+        ret = base::Color(rgba_colot_to_mforms(get_mainwindow()->get_style_context()->get_color(Gtk::STATE_FLAG_INSENSITIVE)));
+        colors[type] = ret;
       }
       break;
     }

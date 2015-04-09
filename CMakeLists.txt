@@ -44,13 +44,17 @@ find_package(PkgConfig REQUIRED)
 
 find_package(X11)
 
-find_package(GTK2 2.20 REQUIRED gtk gtkmm)
+#find_package(GTK3 REQUIRED gtk+-3.0 gtkmm-3.0)
+pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+pkg_check_modules(GTKMM REQUIRED gtkmm-3.0)
 pkg_check_modules(GTHREAD REQUIRED gthread-2.0)
 pkg_check_modules(GMODULE REQUIRED gmodule-2.0)
-set(GTK2_INCLUDE_DIRS ${GTK2_INCLUDE_DIRS} ${GTHREAD_INCLUDE_DIRS} ${GMODULE_INCLUDE_DIRS})
-list(REMOVE_DUPLICATES GTK2_INCLUDE_DIRS)
-set(GTK2_LIBRARIES ${GTK2_LIBRARIES} ${GTHREAD_LIBRARIES} ${GMODULE_LIBRARIES})
-list(REMOVE_DUPLICATES GTK2_LIBRARIES)
+#set(GTK3_INCLUDE_DIRS ${GTK3_INCLUDE_DIRS} ${GTHREAD_INCLUDE_DIRS} ${GMODULE_INCLUDE_DIRS})
+set(GTK3_INCLUDE_DIRS ${GTK3_INCLUDE_DIRS} ${GTKMM_INCLUDE_DIRS} ${GTHREAD_INCLUDE_DIRS} ${GMODULE_INCLUDE_DIRS})
+list(REMOVE_DUPLICATES GTK3_INCLUDE_DIRS)
+#set(GTK3_LIBRARIES ${GTK3_LIBRARIES} ${GTHREAD_LIBRARIES} ${GMODULE_LIBRARIES})
+set(GTK3_LIBRARIES ${GTK3_LIBRARIES} ${GTKMM_LIBRARIES} ${GTHREAD_LIBRARIES} ${GMODULE_LIBRARIES})
+list(REMOVE_DUPLICATES GTK3_LIBRARIES)
 
 pkg_check_modules(GLIB REQUIRED glib-2.0)
 
@@ -244,6 +248,10 @@ endif ()
 #	add_definitions(-Wsign-compare)
 #endif()
 add_definitions(-D__STDC_FORMAT_MACROS)
+add_definitions(-DGTK_DISABLE_SINGLE_INCLUDES)
+add_definitions(-DGDK_DISABLE_DEPRECATED)
+add_definitions(-DGTK_DISABLE_DEPRECATED)
+add_definitions(-DGSEAL_ENABLE)
 
 set(BUILD_SHARED_LIBS ON)  # By default all libs will be built as shared libs
 
@@ -252,7 +260,7 @@ set(BUILD_SHARED_LIBS ON)  # By default all libs will be built as shared libs
 if (CMAKE_COMPILER_IS_GNUCXX)
 	set(MY_CXXFLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-deprecated -DTIXML_USE_STL=1 -std=c++11")
 
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Werror -ggdb3 ${MY_CXXFLAGS}")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb3 ${MY_CXXFLAGS}")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${MY_CXXFLAGS}") 
 endif()
 
@@ -276,7 +284,7 @@ configure_file(${PROJECT_SOURCE_DIR}/mysql-workbench.desktop.in mysql-workbench.
 
 # FIXME: Should this go here? ---v
 include_directories(${PROJECT_SOURCE_DIR}/plugins/migration/copytable ${PROJECT_SOURCE_DIR}/library/base)
-include_directories(${GTK2_INCLUDE_DIRS})
+include_directories(${GTK3_INCLUDE_DIRS})
 
 add_subdirectory(tools)
 add_subdirectory(backend)

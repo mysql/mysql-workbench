@@ -76,7 +76,7 @@ class DbSqlEditorView : public Gtk::VBox, public FormViewBase
     void set_busy_tab(int);
     void on_exec_sql_done();
 
-    void editor_page_switched(GtkNotebookPage *page, guint index);
+    void editor_page_switched(Gtk::Widget *page, guint index);
     void editor_page_reordered(Gtk::Widget *page, guint index);
     void editor_page_added(Gtk::Widget *page, guint index);
     void editor_page_removed(Gtk::Widget *page, guint index);

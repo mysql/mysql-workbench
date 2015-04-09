@@ -25,6 +25,7 @@
 #include "mforms/app.h"
 #include "base/string_utilities.h"
 #include <gtkmm.h>
+#include <gtkmm/menushell.h>
 
 
 using namespace mforms;
@@ -161,7 +162,7 @@ public:
 
   bool on_find_key_press(GdkEventKey *key)
   {
-    if (key->keyval == GDK_Escape)
+    if (key->keyval == GDK_KEY_Escape)
     {
       dynamic_cast<mforms::FindPanel*>(owner)->get_editor()->hide_find_panel();
       return true;
@@ -197,10 +198,22 @@ public:
   {
     if (_search_menu)
     {
-      Gtk::MenuShell::MenuList items(_search_menu->items());
-      while (items.size() > 7)
-        items.remove(items[5]);
-      items[items.size()-1].set_sensitive(false);
+      std::vector<Gtk::Widget*> children = _search_menu->get_children();
+      while(children.size()> 5)
+      {
+        Gtk::Widget* w = children.back();
+        _search_menu->remove(*w);
+        children.pop_back();
+      }
+      Gtk::Widget *w = children.back();
+      if (w)
+        w->set_sensitive(false);
+      //TODO: Lolek check
+
+//      Gtk::MenuShell::MenuList items(_search_menu->items());
+//      while (items.size() > 7)
+//        items.remove(items[5]);
+//      items[items.size()-1].set_sensitive(false);
     }
   }
 
@@ -297,6 +310,14 @@ public:
   {
     FindPanelImpl *self = fp->get_data<FindPanelImpl>();
     flag ? self->_replace_radio_button->set_active(true) : self->_find_radio_button->set_active(true);
+    // all find only widgets are marked No Show All, so we can use hide/show-all to hide the replace part
+    if (flag)
+      self->_container->show_all();
+    else
+    {
+      self->_container->hide();
+      self->_container->show();
+    }
   }
 };
 

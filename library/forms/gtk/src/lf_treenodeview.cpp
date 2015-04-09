@@ -1138,7 +1138,7 @@ int TreeNodeViewImpl::ColumnRecord::add_integer(Gtk::TreeView *tree, const std::
     column_attr_index.push_back(-1);
 
   if (editable)
-    tree->get_column(idx)->get_first_cell_renderer()->signal_editing_started().connect(sigc::mem_fun(this, &ColumnRecord::on_cell_editing_started));
+    (*tree->get_column(idx)->get_cells().begin())->signal_editing_started().connect(sigc::mem_fun(this, &ColumnRecord::on_cell_editing_started));
   return idx-1;
 }
 
@@ -1163,7 +1163,7 @@ int TreeNodeViewImpl::ColumnRecord::add_long_integer(Gtk::TreeView *tree, const 
     column_attr_index.push_back(-1);
 
   if (editable)
-    tree->get_column(idx)->get_first_cell_renderer()->signal_editing_started().connect(sigc::mem_fun(this, &ColumnRecord::on_cell_editing_started));
+    (*tree->get_column(idx)->get_cells().begin())->signal_editing_started().connect(sigc::mem_fun(this, &ColumnRecord::on_cell_editing_started));
 
   return idx-1;
 }
@@ -1187,7 +1187,7 @@ int TreeNodeViewImpl::ColumnRecord::add_float(Gtk::TreeView *tree, const std::st
       column_attr_index.push_back(-1);
 
     if (editable)
-      tree->get_column(idx)->get_first_cell_renderer()->signal_editing_started().connect(sigc::mem_fun(this, &ColumnRecord::on_cell_editing_started));
+      (*tree->get_column(idx)->get_cells().begin())->signal_editing_started().connect(sigc::mem_fun(this, &ColumnRecord::on_cell_editing_started));
 
     return idx-1;
 }
@@ -1306,7 +1306,8 @@ TreeNodeViewImpl::TreeNodeViewImpl(TreeNodeView *self, mforms::TreeOptions opts)
   _tree.signal_button_press_event().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_button_event), false);
 //  _tree.set_reorderable((opts & mforms::TreeAllowReorderRows) || (opts & mforms::TreeCanBeDragSource)); // we need this to have D&D working
   _tree.signal_button_release_event().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_button_release), false);
-  _tree.signal_expose_event().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_expose_event), true);
+  _tree.signal_draw().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_draw_event), true);
+//  _tree.signal_expose_event().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_expose_event), true);
   _tree.signal_realize().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_realize));
   _tree.signal_motion_notify_event().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_motion_notify), false);
   _tree.signal_enter_notify_event().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_enter_notify), false);
@@ -1366,11 +1367,10 @@ bool TreeNodeViewImpl::slot_drag_failed(const Glib::RefPtr<Gdk::DragContext> &co
 
 }
 
-bool TreeNodeViewImpl::on_expose_event(GdkEventExpose *ev)
+bool TreeNodeViewImpl::on_draw_event(const ::Cairo::RefPtr< ::Cairo::Context>& context)
 {
   if (!_overlay_icons.empty() && !_overlayed_row.empty() && _mouse_inside)
   {
-    Cairo::RefPtr<Cairo::Context> context(_tree.get_bin_window()->create_cairo_context());
     Gdk::Rectangle rect;
     Gdk::Rectangle vrect;
     int i = 1;
@@ -1543,16 +1543,8 @@ bool TreeNodeViewImpl::on_motion_notify(GdkEventMotion *ev)
         Gtk::TreeModel::Path path;
         if(_tree.get_path_at_pos(_drag_start_x, _drag_start_y, path))
         {
-          Glib::RefPtr<Gdk::Pixmap> row_icon = _tree.create_row_drag_icon(path);
-          int ico_w, ico_h;
-          row_icon->get_size(ico_w, ico_h);
-
-          Glib::RefPtr<Gdk::Pixbuf> pix = Gdk::Pixbuf::create(row_icon->get_image(0, 0, ico_w, ico_h), 0, 0, ico_w, ico_h);
-          //sadly we need a cairo_surface
-          details.image = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, ico_w, ico_h);
-          cairo_t *cr = cairo_create(details.image);
-          gdk_cairo_set_source_pixbuf(cr, pix->gobj(), 0, 0);
-          cairo_paint(cr);
+          Cairo::RefPtr<Cairo::Surface> row_icon = _tree.create_row_drag_icon(path);
+          details.image = row_icon->cobj();
 
           void *data = NULL;
           std::string text;
@@ -1577,8 +1569,6 @@ bool TreeNodeViewImpl::on_motion_notify(GdkEventMotion *ev)
 
             if (text.empty())
             {
-              cairo_surface_destroy(details.image);
-              cairo_destroy(cr);
               return false;
             }
 
@@ -1586,8 +1576,6 @@ bool TreeNodeViewImpl::on_motion_notify(GdkEventMotion *ev)
           }
 
           mforms::DragOperation operation = view->do_drag_drop(details, data, format);
-          cairo_surface_destroy(details.image);
-          cairo_destroy(cr);
           view->drag_finished(operation);
         }
       }
@@ -1639,11 +1627,7 @@ void TreeNodeViewImpl::set_back_color(const std::string &color)
   if (!force_sys_colors)
   {
     if (!color.empty())
-    {
-      Gdk::Color col(color);
-      _tree.get_colormap()->alloc_color(col);
-      _tree.modify_base(Gtk::STATE_NORMAL, col);
-    }
+      _tree.override_background_color(color_to_rgba(Gdk::Color(color)), Gtk::STATE_FLAG_NORMAL);
   }
 }
 
@@ -1711,7 +1695,7 @@ bool TreeNodeViewImpl::on_key_release(GdkEventKey *ev)
 {
   mforms::TreeNodeView* tv = dynamic_cast<mforms::TreeNodeView*>(owner);
     TreeNodeRef node = this->get_selected_node(tv);
-  if (ev->keyval == GDK_Menu)
+  if (ev->keyval == GDK_KEY_Menu)
   {
     mforms::TreeNodeView* tv = dynamic_cast<mforms::TreeNodeView*>(owner);
     if (tv)
@@ -1724,9 +1708,9 @@ bool TreeNodeViewImpl::on_key_release(GdkEventKey *ev)
   if (!node.is_valid())
     return false;
 
-  if (ev->keyval == GDK_Left)
+  if (ev->keyval == GDK_KEY_Left)
     node->collapse();
-  else if (ev->keyval == GDK_Right)
+  else if (ev->keyval == GDK_KEY_Right)
     node->expand();
 
   return false;
@@ -1805,7 +1789,7 @@ int TreeNodeViewImpl::add_column(TreeColumnType type, const std::string &name, i
     column= _columns.add_string(&_tree, name, editable, attributed, true);
     if (editable)
     {
-      std::vector<Gtk::CellRenderer*> rends(_tree.get_column(column)->get_cell_renderers());
+      std::vector<Gtk::CellRenderer*> rends = _tree.get_column(column)->get_cells();
       ((Gtk::CellRendererText*)rends[1])->signal_edited().
         connect(sigc::bind(sigc::mem_fun(this, &TreeNodeViewImpl::string_edited), column));
     }
@@ -1815,7 +1799,7 @@ int TreeNodeViewImpl::add_column(TreeColumnType type, const std::string &name, i
     column= _columns.add_string(&_tree, name, editable, attributed, false);
     if (editable)
     {
-      Gtk::CellRendererText *rend = ((Gtk::CellRendererText*)_tree.get_column(column)->get_first_cell_renderer());
+      Gtk::CellRendererText *rend = ((Gtk::CellRendererText*)*_tree.get_column(column)->get_cells().begin());
       rend->signal_edited().connect(sigc::bind(sigc::mem_fun(this, &TreeNodeViewImpl::string_edited), column));
       if (type == StringLTColumnType)
         rend->property_ellipsize() = Pango::ELLIPSIZE_START;
@@ -1827,7 +1811,7 @@ int TreeNodeViewImpl::add_column(TreeColumnType type, const std::string &name, i
     column= _columns.add_integer(&_tree, name, editable, attributed);
     if (editable)
     {
-      ((Gtk::CellRendererText*)_tree.get_column(column)->get_first_cell_renderer())->signal_edited().
+      ((Gtk::CellRendererText*)*_tree.get_column(column)->get_cells().begin())->signal_edited().
         connect(sigc::bind(sigc::mem_fun(this, &TreeNodeViewImpl::string_edited), column));
     }
     break;
@@ -1835,7 +1819,7 @@ int TreeNodeViewImpl::add_column(TreeColumnType type, const std::string &name, i
     column= _columns.add_long_integer(&_tree, name, editable, attributed);
     if (editable)
     {
-      ((Gtk::CellRendererText*)_tree.get_column(column)->get_first_cell_renderer())->signal_edited().
+      ((Gtk::CellRendererText*)*_tree.get_column(column)->get_cells().begin())->signal_edited().
         connect(sigc::bind(sigc::mem_fun(this, &TreeNodeViewImpl::string_edited), column));
     }
     break;
@@ -1843,7 +1827,7 @@ int TreeNodeViewImpl::add_column(TreeColumnType type, const std::string &name, i
     column= _columns.add_float(&_tree, name, editable, attributed);
     if (editable)
     {
-      ((Gtk::CellRendererText*)_tree.get_column(column)->get_first_cell_renderer())->signal_edited().
+      ((Gtk::CellRendererText*)*_tree.get_column(column)->get_cells().begin())->signal_edited().
         connect(sigc::bind(sigc::mem_fun(this, &TreeNodeViewImpl::string_edited), column));
     }
     break;
@@ -1851,7 +1835,7 @@ int TreeNodeViewImpl::add_column(TreeColumnType type, const std::string &name, i
     column= _columns.add_check(&_tree, name, editable, attributed);
     if (editable)
     {
-      ((Gtk::CellRendererToggle*)_tree.get_column(column)->get_first_cell_renderer())->signal_toggled().
+      ((Gtk::CellRendererToggle*)*_tree.get_column(column)->get_cells().begin())->signal_toggled().
         connect(sigc::bind(sigc::mem_fun(this, &TreeNodeViewImpl::toggle_edited), column));
     }
     break;
@@ -1859,7 +1843,7 @@ int TreeNodeViewImpl::add_column(TreeColumnType type, const std::string &name, i
     column= _columns.add_string(&_tree, name, editable, attributed, false, true);
     if (editable)
     {
-      ((Gtk::CellRendererText*)_tree.get_column(column)->get_first_cell_renderer())->signal_edited().
+      ((Gtk::CellRendererText*)*_tree.get_column(column)->get_cells().begin())->signal_edited().
         connect(sigc::bind(sigc::mem_fun(this, &TreeNodeViewImpl::string_edited), column));
     }
     break;
@@ -1867,7 +1851,7 @@ int TreeNodeViewImpl::add_column(TreeColumnType type, const std::string &name, i
     column= _columns.add_tri_check(&_tree, name, editable, attributed);
     if (editable)
     {
-      ((Gtk::CellRendererToggle*)_tree.get_column(column)->get_first_cell_renderer())->signal_toggled().
+      ((Gtk::CellRendererToggle*)*_tree.get_column(column)->get_cells().begin())->signal_toggled().
         connect(sigc::bind(sigc::mem_fun(this, &TreeNodeViewImpl::toggle_edited), column));
     }
     break;
@@ -2112,7 +2096,7 @@ void TreeNodeViewImpl::set_allow_sorting(bool flag)
         break;
     }      
     
-    Glib::ListHandle<Gtk::CellRenderer*> renderers = col->get_cell_renderers();
+    Glib::ListHandle<Gtk::CellRenderer*> renderers = col->get_cells();
     
     for (Glib::ListHandle<Gtk::CellRenderer*>::const_iterator iter = renderers.begin(); iter != renderers.end(); ++iter)
       (*iter)->set_alignment(align, 0);
@@ -2244,7 +2228,7 @@ TreeSelectionMode TreeNodeViewImpl::get_selection_mode(TreeNodeView *self)
   switch (impl->_tree.get_selection()->get_mode())
   {
   case Gtk::SELECTION_BROWSE:
-  case Gtk::SELECTION_EXTENDED:
+  case Gtk::SELECTION_MULTIPLE:
     return TreeSelectMultiple;
   case Gtk::SELECTION_SINGLE:
   default:
@@ -2262,7 +2246,7 @@ void TreeNodeViewImpl::set_selection_mode(TreeNodeView *self, TreeSelectionMode 
     impl->_tree.get_selection()->set_mode(Gtk::SELECTION_SINGLE);
     break;
   case TreeSelectMultiple:
-    impl->_tree.get_selection()->set_mode(Gtk::SELECTION_EXTENDED);
+    impl->_tree.get_selection()->set_mode(Gtk::SELECTION_MULTIPLE);
     break;
   }
 }

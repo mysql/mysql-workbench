@@ -19,7 +19,7 @@
 #include "treemodel_wrapper.h"
 
 #include "mysql_table_editor_index_page.h"
-
+#include <glibmm/main.h>
 #include <gtkmm/notebook.h>
 #include <gtkmm/treeview.h>
 #include <gtkmm/textview.h>
@@ -356,23 +356,27 @@ void DbMySQLTableEditorIndexPage::cell_editing_done(GtkCellEditable* ce)
   //if so we revert it to the last known value or to the default one.
   if (GTK_IS_ENTRY(ce))
   {
-    GtkEntry *entry = GTK_ENTRY(ce);
-    if (entry)
+
+    GtkEntry *entry_widget = GTK_ENTRY(ce);
+    if (entry_widget)
     {
-      if (entry->text_length == 0)
+      Gtk::Entry *entry = Glib::wrap(entry_widget);
+
+      if (entry && entry->get_text_length() == 0)
       {
-          Gtk::TreeModel::Path   path;
-           Gtk::TreeView::Column *column(0);
-           _indexes_tv->get_cursor(path, column);
-           bec::NodeId node(path.to_string());
-           if (node.is_valid())
-           {
-             std::string name = _user_index_name;
-             if (name.empty())
-               name = strfmt("index%i", path[0] + 1);
-             _be->get_indexes()->set_field(node, MySQLTableIndexListBE::Name, name);
-             gtk_entry_set_text(entry, name.c_str());
-           }
+        Gtk::TreeModel::Path path;
+        Gtk::TreeView::Column *column(0);
+        _indexes_tv->get_cursor(path, column);
+        bec::NodeId node(path.to_string());
+        if (node.is_valid())
+        {
+          std::string name = _user_index_name;
+          if (name.empty())
+            name = strfmt("index%i", path[0] + 1);
+
+          _be->get_indexes()->set_field(node, MySQLTableIndexListBE::Name, name);
+          entry->set_text(name);
+        }
       }
     }
   }

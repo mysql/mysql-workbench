@@ -29,7 +29,7 @@ MultiView::MultiView(bool tree_view, bool icon_view)
   {
     _icon_view= Gtk::manage(new EditableIconView());
     pack_start(*_icon_view, false, false);
-    _icon_view->set_orientation(Gtk::ORIENTATION_HORIZONTAL);
+    _icon_view->set_item_orientation(Gtk::ORIENTATION_HORIZONTAL);
     _icon_view->set_selection_mode(Gtk::SELECTION_MULTIPLE);
     _icon_view->set_item_width(HORIZONTAL_LAYOUT_ITEM_WIDTH);
     _icon_view->set_row_spacing(0);
@@ -63,7 +63,7 @@ void MultiView::set_icon_mode(bool flag, bool horizontal_icons)
       _tree_view->hide();
       _icon_view->show();
 
-      _icon_view->set_orientation(horizontal_icons ? Gtk::ORIENTATION_HORIZONTAL : Gtk::ORIENTATION_VERTICAL);
+      _icon_view->set_item_orientation(horizontal_icons ? Gtk::ORIENTATION_HORIZONTAL : Gtk::ORIENTATION_VERTICAL);
       
       if (horizontal_icons)
         _icon_view->set_item_width(HORIZONTAL_LAYOUT_ITEM_WIDTH);
@@ -77,7 +77,7 @@ void MultiView::set_icon_mode(bool flag, bool horizontal_icons)
     }
   }
   else if (_icon_view)
-    _icon_view->set_orientation(horizontal_icons ? Gtk::ORIENTATION_HORIZONTAL : Gtk::ORIENTATION_VERTICAL);
+    _icon_view->set_item_orientation(horizontal_icons ? Gtk::ORIENTATION_HORIZONTAL : Gtk::ORIENTATION_VERTICAL);
 }
 
 

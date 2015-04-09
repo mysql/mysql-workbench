@@ -3,7 +3,8 @@
 
 #include "grt/tree_model.h"
 #include <gtkmm/builder.h>
-#include <gtkmm/comboboxentry.h>
+#include <gtkmm/combobox.h>
+#include <gtkmm/togglebutton.h>
 
 class MySQLTableEditorBE;
 class ListModelWrapper;

@@ -40,7 +40,7 @@ public:
   mdc::EventState get_event_state(int event_state);
   
 private:
-  bool redraw(GdkEventExpose *ev);
+  bool redraw(::Cairo::RefPtr< ::Cairo::Context> context);
   virtual void on_realize();
   virtual void on_unrealize();
   virtual void on_map();

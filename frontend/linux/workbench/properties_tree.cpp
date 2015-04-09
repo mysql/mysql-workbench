@@ -32,13 +32,13 @@ PropertyValue::PropertyValue(PropertyInspector* owner, const bec::NodeId& node)
               , _prop_node(node)
 {
   add(_text);
-  _text.set_alignment(Gtk::ALIGN_LEFT);
+  _text.set_alignment(Gtk::ALIGN_START);
   _text.set_single_line_mode(true);
   _text.set_ellipsize(Pango::ELLIPSIZE_END);
   _text.show();
   _conn = signal_event().connect(sigc::mem_fun(this, &PropertyValue::on_event));
 
-  modify_bg(Gtk::STATE_NORMAL, Gdk::Color("#f5f5f5"));
+  override_background_color(color_to_rgba(Gdk::Color("#f5f5f5")), Gtk::STATE_FLAG_NORMAL);
 }
     
 //------------------------------------------------------------------------------
@@ -84,13 +84,13 @@ bool PropertyValue::on_event(GdkEvent* event)
   else if ( event->type == GDK_KEY_RELEASE )
   {
     const int key = event->key.keyval;                                                                                                  
-    if ( key == GDK_Escape)
+    if ( key == GDK_KEY_Escape)
     {  
       _owner->edit_canceled();
       stop_edit();
       return true;
     }
-    else if (key == GDK_Return)
+    else if (key == GDK_KEY_Return)
     {   
       set_text(get_new_value());
       _owner->edit_done(this, true);
@@ -106,7 +106,7 @@ PropertyString::PropertyString(PropertyInspector* owner, const bec::NodeId& node
                : PropertyValue(owner,node)
 {
   _entry.set_has_frame(false);
-  _entry.set_alignment(Gtk::ALIGN_LEFT);
+  _entry.set_alignment(Gtk::ALIGN_START);
 }
 
 //------------------------------------------------------------------------------
@@ -213,12 +213,12 @@ void PropertyColor::start_editing()
 //------------------------------------------------------------------------------
 void PropertyColor::show_dlg()
 {
-  _dlg.get_colorsel()->set_current_color(Gdk::Color(get_text()));
+  _dlg.get_color_selection()->set_current_color(Gdk::Color(get_text()));
   const int resp = _dlg.run();
 
   if ( resp == Gtk::RESPONSE_OK )
   {     
-    const Gdk::Color color(_dlg.get_colorsel()->get_current_color());
+    const Gdk::Color color(_dlg.get_color_selection()->get_current_color());
     char buffer[32];
     snprintf(buffer, sizeof(buffer)-1, "#%02x%02x%02x", color.get_red()>>8, color.get_green()>>8, color.get_blue()>>8);
     buffer[sizeof(buffer)-1] = 0;
@@ -245,7 +245,6 @@ PropertyText::PropertyText(PropertyInspector* owner, const bec::NodeId& node)
   _scroll.add(_text);
   _wnd.get_vbox()->add(_scroll);
   _wnd.set_position(Gtk::WIN_POS_MOUSE);
-  _wnd.set_has_separator(false);
   _wnd.set_transient_for(*get_mainwindow());
   _wnd.resize(128,96);
   _text.signal_event().connect(sigc::mem_fun(this, &PropertyText::handle_event));
@@ -277,22 +276,22 @@ bool PropertyText::handle_event(GdkEvent* event)
   if ( event->type == GDK_KEY_PRESS )
   {
     const int key = event->key.keyval;                                                                                                  
-    if ( key == GDK_Control_L || key == GDK_Control_R )
+    if ( key == GDK_KEY_Control_L || key == GDK_KEY_Control_R )
       _ctrl = true;
   }
   if ( event->type == GDK_KEY_RELEASE )
   {
     const int key = event->key.keyval;                                                                                                  
-    if ( key == GDK_Control_L || key == GDK_Control_R )
+    if ( key == GDK_KEY_Control_L || key == GDK_KEY_Control_R )
       _ctrl = false;
       
-    if ( key == GDK_Escape)
+    if ( key == GDK_KEY_Escape)
     {
       _owner->edit_canceled();
       stop_edit();
       return true;
     }
-    else if (key == GDK_KP_Enter || (_ctrl && key == GDK_Return))
+    else if (key == GDK_KEY_KP_Enter || (_ctrl && key == GDK_KEY_Return))
     {   
       set_text(get_new_value());
       _owner->edit_done(this, true);
@@ -341,7 +340,7 @@ void PropertyInspector::clear()
   add(*_table);
   _table->show();
   Gtk::Viewport* vp = static_cast<Gtk::Viewport*>(_table->get_parent());
-  vp->modify_bg(Gtk::STATE_NORMAL, Gdk::Color("#ffffff"));
+  vp->override_background_color(color_to_rgba(Gdk::Color("#ffffff")), Gtk::STATE_FLAG_NORMAL);
 }
 
 //------------------------------------------------------------------------------

@@ -3,6 +3,7 @@
 
 #include "grt/tree_model.h"
 #include <gtkmm/builder.h>
+#include <gtkmm/checkbutton.h>
 
 class MySQLTableEditorBE;
 class ListModelWrapper;

@@ -3,6 +3,7 @@
 #include "base/string_utilities.h"
 #include "grt/common.h"
 #include "grtpp_util.h"
+#include <glibmm/main.h>
 
 #define TIMER_INTERVAL 700
 
@@ -66,7 +67,10 @@ void DocumentationBox::update_for_form(bec::UIForm *form)
     // handle different number of selected items
     if (!items.empty())
     {
-      std::for_each(items.begin(), items.end(), sigc::mem_fun(_combo, &Gtk::ComboBoxText::append_text));
+      std::vector<std::string>::iterator it;
+      for(it = items.begin(); it != items.end(); ++it)
+        _combo.append(*it);
+
       _combo.set_active(0);
 
       // lock on multi selection
@@ -84,7 +88,7 @@ void DocumentationBox::update_for_form(bec::UIForm *form)
     else
     {
       _combo.clear();
-      _combo.append_text(_("No Selection"));
+      _combo.append(_("No Selection"));
       _combo.set_active(0);
 
       _text.get_buffer()->set_text("");
@@ -139,7 +143,7 @@ void DocumentationBox::combo_changed()
 
 void DocumentationBox::text_key_press(GdkEventKey *key)
 {
-  if (key->state & GDK_CONTROL_MASK && key->keyval == GDK_Return && _text.get_editable())
+  if ((key->state & GDK_CONTROL_MASK) && key->keyval == GDK_KEY_Return && _text.get_editable())
   {
     commit();
   }

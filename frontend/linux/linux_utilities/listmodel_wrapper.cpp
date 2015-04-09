@@ -186,7 +186,7 @@ Gtk::TreeModel::Path node2path(const ::bec::NodeId& node)
   Gtk::TreeModel::Path path;
 
   for ( int i = 0; i < depth; i++ )
-    path.append_index(node[i]);
+    path.push_back(node[i]);
 
   return path;
 }
@@ -361,7 +361,7 @@ ColumnsModel::append_string_column(const int bec_tm_idx, const std::string& name
   if (editable == EDITABLE || editable == EDITABLE_WO_FIRST)
   {
 
-    std::vector<Gtk::CellRenderer*> rends= column->get_cell_renderers();
+    std::vector<Gtk::CellRenderer*> rends= column->get_cells();
 
     Gtk::CellRendererText *cell = (Gtk::CellRendererText*)rends[icon ? 1 : 0];
     cell->property_editable()= true;
@@ -676,7 +676,7 @@ void ListModelWrapper::handle_popup(const int x, const int y, const int time, Gd
 bool ListModelWrapper::handle_popup_event(GdkEvent* event)
 {
   bool ret = false;
-  if ((event->type == GDK_BUTTON_PRESS && event->button.button == 3) || (event->type == GDK_KEY_RELEASE && event->key.keyval == GDK_Menu))
+  if ((event->type == GDK_BUTTON_PRESS && event->button.button == 3) || (event->type == GDK_KEY_RELEASE && event->key.keyval == GDK_KEY_Menu))
   {
     GdkEventButton* evb = (GdkEventButton*)event;
     handle_popup((int)event->button.x, (int)event->button.y, event->button.time, evb);

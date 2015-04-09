@@ -25,7 +25,8 @@
 #include <gtkmm/stock.h>
 #include <gtkmm/combobox.h>
 #include <gtkmm/comboboxtext.h>
-#include <gtkmm/comboboxentrytext.h>
+#include <gtkmm/checkmenuitem.h>
+#include <gtkmm/separatormenuitem.h>
 #include <gtkmm/menu.h>
 #include <gtkmm/eventbox.h>
 #include <gtkmm/paned.h>
@@ -238,13 +239,13 @@ void fill_combo_from_string_list(Gtk::ComboBox* combo, const std::vector<std::st
 }
 
 //------------------------------------------------------------------------------
-void fill_combo_from_string_list(Gtk::ComboBoxEntryText* combo, const std::vector<std::string>& list)
+void fill_combo_from_string_list(Gtk::ComboBoxText* combo, const std::vector<std::string>& list)
 {
   std::vector<std::string>::const_iterator it   = list.begin();
   std::vector<std::string>::const_iterator last = list.end();
 
   for (; last != it; ++it )
-    combo->append_text(*it);
+    combo->append(*it);
 }
 
 //------------------------------------------------------------------------------
@@ -261,9 +262,9 @@ static std::string file_chooser_impl(const bool is_for_save, const std::string &
 
   if (!filter.empty())
   {
-    Gtk::FileFilter filter_any;
+    Glib::RefPtr<Gtk::FileFilter> filter_any = Gtk::FileFilter::create();
     //filter_any.set_name("Any files");
-    filter_any.add_pattern(filter);
+    filter_any->add_pattern(filter);
     dialog.add_filter(filter_any);
   }
   const int result = dialog.run();
@@ -538,6 +539,13 @@ void gtk_reparent_realized(Gtk::Widget *widget, Gtk::Container *new_parent)
   widget->get_parent()->remove(*widget);
   new_parent->add(*widget);
   widget->unreference();
+}
+
+Gdk::RGBA color_to_rgba(Gdk::Color c)
+{
+  Gdk::RGBA rgba;
+  rgba.set_rgba(c.get_red_p(), c.get_green_p(), c.get_blue_p());
+  return rgba;
 }
 
 //------------------------------------------------------------------------------

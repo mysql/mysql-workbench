@@ -4,7 +4,7 @@ include_directories(.
     ../include
     ../src
     ../lexlib
-    ${GTK2_INCLUDE_DIRS}
+    ${GTK3_INCLUDE_DIRS}
 )
 
 add_library(wbscintilla
@@ -57,6 +57,6 @@ add_library(wbscintilla
     ../lexers/LexSQL.cxx
 )
 
-target_link_libraries(wbscintilla ${GTK2_LIBRARIES})
+target_link_libraries(wbscintilla ${GTK3_LIBRARIES})
 
 install(TARGETS wbscintilla DESTINATION ${WB_INSTALL_LIB_DIR})

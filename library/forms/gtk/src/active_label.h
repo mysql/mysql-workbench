@@ -55,7 +55,7 @@ class ActiveLabel : public Gtk::HBox
   private:
     bool button_press_slot(GdkEventButton*);
     bool handle_event(GdkEventButton*);
-    void button_style_changed(const Glib::RefPtr<Gtk::Style>& prevstyle);
+    void button_style_changed();
     const sigc::slot<void>             _close_callback;
     Gtk::Button                        _btn_close;
     Gtk::Image                         _closeImage;

@@ -125,7 +125,7 @@ void RecordGridView::set_column_header_indicator(int column_index, ColumnHeaderI
 
 void RecordGridView::set_font(const std::string &font)
 {
-  viewer->grid_view()->modify_font(Pango::FontDescription(font));
+  viewer->grid_view()->override_font(Pango::FontDescription(font));
 }
 
 

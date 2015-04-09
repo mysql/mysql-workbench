@@ -24,7 +24,7 @@
 #include "linux_utilities/gtk_helpers.h"
 #include <gtkmm/alignment.h>
 #include <gtkmm/notebook.h>
-#include <gtk/gtkhpaned.h>
+#include <gtk/gtkpaned.h>
 #include "mforms/../gtk/lf_toolbar.h"
 #include "mforms/../gtk/lf_menubar.h"
 #include "mforms/../gtk/lf_view.h"
@@ -68,7 +68,8 @@ ModelPanel *ModelPanel::create(wb::WBContextUI *wb, wb::OverviewBE *overview)
 
 
 ModelPanel::ModelPanel(GtkVBox *paned, Glib::RefPtr<Gtk::Builder> xml)
-  : Gtk::VBox(paned), FormViewBase("ModelOverview"), _wb(0)
+  : Gtk::VBox(paned), FormViewBase("ModelOverview"), _wb(0), _overview(0), _documentation_box(0),
+    _history_tree(0), _editor_paned(0), _usertypes_box(0), _secondary_sidebar(0), _sidebar(0)
 #ifdef COMMERCIAL_CODE
   , _validation_panel(0)
 #endif

@@ -19,7 +19,7 @@ install(FILES ${BASIC_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/modules/data/d
 
 
 include_directories(.
-    ${GTK2_INCLUDE_DIRS}
+    ${GTK3_INCLUDE_DIRS}
     ${PCRE_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
     ${SIGC++_INCLUDE_DIRS}
@@ -44,7 +44,7 @@ add_library(db.mysql.grt
     src/module_db_mysql.cpp
 )
 
-target_link_libraries(db.mysql.grt wbpublic ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${PCRE_LIBRARIES} ${SIGC++_LIBRARIES} ${CTEMPLATE_LIBRARIES})
+target_link_libraries(db.mysql.grt wbpublic ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${PCRE_LIBRARIES} ${SIGC++_LIBRARIES} ${CTEMPLATE_LIBRARIES})
 
 set_target_properties(db.mysql.grt
                       PROPERTIES PREFIX    ""

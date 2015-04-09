@@ -43,7 +43,7 @@ ActiveLabel::ActiveLabel(const Glib::ustring& text, const sigc::slot<void> &clos
   _btn_close.add_events(Gdk::BUTTON_RELEASE_MASK);
   _btn_close.signal_button_release_event().connect(sigc::mem_fun(this, &ActiveLabel::handle_event), false);
   _btn_close.set_name("wbtab-close-button");
-  _btn_close.signal_style_changed().connect(sigc::mem_fun(this, &ActiveLabel::button_style_changed));
+  _btn_close.get_style_context()->signal_changed().connect(sigc::mem_fun(this, &ActiveLabel::button_style_changed));
 
   _text_label_eventbox.set_visible_window(false);
   _text_label_eventbox.add(_text_label);
@@ -87,7 +87,7 @@ bool ActiveLabel::handle_event(GdkEventButton* e)
   return false;
 }
 //--------------------------------------------------------------------------------
-void ActiveLabel::button_style_changed(const Glib::RefPtr<Gtk::Style>& prevstyle)
+void ActiveLabel::button_style_changed()
 {
   int w, h;
   if (Gtk::IconSize::lookup(Gtk::ICON_SIZE_MENU, w, h, _btn_close.get_settings()))

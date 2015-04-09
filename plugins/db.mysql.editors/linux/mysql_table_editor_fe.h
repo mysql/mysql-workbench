@@ -54,14 +54,14 @@ class DbMySQLTableEditor : public PluginEditorBase
   void refresh_table_page();
   void partial_refresh(const int what);
 
-  void set_table_collation(Gtk::ComboBoxEntryText* combo);
-  void set_table_engine(Gtk::ComboBoxEntryText* combo);
+  void set_table_collation(Gtk::ComboBoxText* combo);
+  void set_table_engine(Gtk::ComboBoxText* combo);
 
   virtual bec::BaseEditor *get_be();
 
   bool event_from_table_name_entry(GdkEvent*);
 
-  void page_changed(GtkNotebookPage* page, guint page_num);
+  void page_changed(Gtk::Widget* page, guint page_num);
 
   void set_table_name(const std::string &);
 

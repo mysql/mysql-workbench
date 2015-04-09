@@ -16,7 +16,7 @@ install(FILES ${MODULE_DATA_FILES} DESTINATION ${WB_PYTHON_MODULES_DIR})
 
 include_directories(.
     ${CAIRO_INCLUDE_DIRS}
-    ${GTK2_INCLUDE_DIRS}
+    ${GTK3_INCLUDE_DIRS}
     ${LIBXML2_INCLUDE_DIR}
     ${SIGC++_INCLUDE_DIRS}
     ${PYTHON_INCLUDE_DIRS}
@@ -39,7 +39,7 @@ set(CMAKE_SWIG_FLAGS -w401,402,509)
 set_source_files_properties(mforms.i PROPERTIES CPLUSPLUS ON)
 set_property(SOURCE mforms.i PROPERTY SWIG_FLAGS -w512 -fvirtual -DSWIG_PYTHON_LEGACY_BOOL)
 swig_add_module(mforms python mforms.i)
-swig_link_libraries(mforms mforms wbscintilla ${GTK2_LIBRARIES} ${LIBXML2_LIBRARIES})
+swig_link_libraries(mforms mforms wbscintilla ${GTK3_LIBRARIES} ${LIBXML2_LIBRARIES})
 set_source_files_properties(${swig_generated_file_fullname} PROPERTIES COMPILE_FLAGS "-Wno-missing-field-initializers -Wno-parentheses")
 
 set_target_properties(_mforms

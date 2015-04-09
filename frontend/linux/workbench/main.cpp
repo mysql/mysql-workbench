@@ -25,6 +25,7 @@ extern "C" {
   #include <gnome-keyring.h>
 };
 #endif
+#include <X11/Xlib.h>
 
 using base::strfmt;
 
@@ -119,15 +120,17 @@ int main(int argc, char **argv)
     lf_record_grid_init();
   }
 
-  Gtk::RC::add_default_file(wboptions.basedir+"/workbench.rc");
+
 
   gdk_threads_enter();
   Gtk::Main app(argc, argv);
 
+//  Gtk::CssProvider::get_default()->load_from_path(wboptions.basedir+"/workbench.rc");
+
   if (getenv("XSYNC"))
   {
     g_message("Enabling XSynchronize()");
-    XSynchronize(gdk_display, 1);
+    XSynchronize(GDK_DISPLAY_XDISPLAY(gdk_display_get_default()), 1);
   }
 
   Program program(wboptions);

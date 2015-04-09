@@ -29,7 +29,7 @@ static int zoom_levels[]= {
 
 
 NavigatorBox::NavigatorBox()
-  : Gtk::VBox(false, 2), _model(0), _canvas(mdc::GtkCanvas::XlibCanvasType), _changing_zoom(false)
+  : Gtk::VBox(false, 2), _model(0), _canvas(mdc::GtkCanvas::XlibCanvasType), _changing_zoom(false), _combo(true)
 {
   Gtk::HBox *hbox= Gtk::manage(new Gtk::HBox(false, 0));
 
@@ -51,7 +51,7 @@ NavigatorBox::NavigatorBox()
   _combo.get_entry()->signal_focus_out_event().connect(sigc::bind_return(sigc::hide(sigc::bind(sigc::mem_fun(this, &NavigatorBox::combo_changed), true)), false));
 
   for (unsigned int i= 0; i < sizeof(zoom_levels)/sizeof(int); i++)
-    _combo.append_text(strfmt("%i", zoom_levels[i]));
+    _combo.append(strfmt("%i", zoom_levels[i]));
   _combo.set_active_text("100");
 
   _zoom_in.add(*image1);

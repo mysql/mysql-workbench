@@ -20,7 +20,7 @@ include_directories(.
     ${VSQLITE_INCLUDE_DIRS}
     ${LIBXML2_INCLUDE_DIR}
     ${CAIRO_INCLUDE_DIRS}
-    ${GTK2_INCLUDE_DIRS}
+    ${GTK3_INCLUDE_DIRS}
     ${SIGC++_INCLUDE_DIRS}
     ${PCRE_INCLUDE_DIRS}
     ${MYSQLCPPCONN_INCLUDE_DIRS}
@@ -39,7 +39,7 @@ set_target_properties(db.mysql.diff.reporting.wbp PROPERTIES
 	PREFIX ""
 )
 
-target_link_libraries(db.mysql.diff.reporting.wbp grt mforms wbscintilla ${GTK2_LIBRARIES} ${LIBXML2_LIBRARIES})
+target_link_libraries(db.mysql.diff.reporting.wbp grt mforms wbscintilla ${GTK3_LIBRARIES} ${LIBXML2_LIBRARIES})
 
 set_target_properties(db.mysql.diff.reporting.wbp
                       PROPERTIES PREFIX    ""

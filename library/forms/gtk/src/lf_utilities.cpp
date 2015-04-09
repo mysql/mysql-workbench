@@ -675,8 +675,9 @@ TransparentMessage::TransparentMessage()
   property_decorated() = false;
 
   set_size_request(MESSAGE_WINDOW_WIDTH, MESSAGE_WINDOW_HEIGHT);
-  
-  set_style(get_style()->copy());
+
+  //TODO: Lolek - check
+//  set_style(get_style()->copy());
 
   {
     Gtk::VBox *vbox = Gtk::manage(new Gtk::VBox(false, 0));
@@ -707,7 +708,9 @@ void TransparentMessage::show_message(const std::string& title, const std::strin
   }
 
   realize();
-
+  fprintf(stderr, "Fix TransparetnWindow::show_message");
+  //TODO: Lolek fix this
+/*
   Gdk::Color black("black"), white("white");
   black.rgb_find_color(get_colormap());
   white.rgb_find_color(get_colormap());
@@ -744,7 +747,7 @@ void TransparentMessage::show_message(const std::string& title, const std::strin
   layout->set_width((MESSAGE_WINDOW_WIDTH-icon->get_width()-30-20)*Pango::SCALE);
   pixmap->draw_layout(gc, icon->get_width()+30, 90, layout);
 
-  get_style()->set_bg_pixmap(Gtk::STATE_NORMAL, pixmap);
+  get_style()->set_bg_pixmap(Gtk::STATE_NORMAL, pixmap);*/
   Glib::RefPtr<Gdk::Window> window = get_window();
 #if GTK_VERSION_GE(2,12)
   window->set_opacity(0.85);
@@ -857,6 +860,12 @@ void UtilitiesImpl::reveal_file(const std::string &path)
     dirname.c_str(),
     NULL 
   };
+
+  char **envp = g_get_environ();
+
+  char **envp_new = g_environ_unsetenv(envp, "LD_PRELOAD");
+  g_strfreev(envp);
+
   GError *error = NULL;
   char **envp = g_get_environ();
   envp = wb_environ_unsetenv_internal(envp, "LD_PRELOAD");
@@ -940,7 +949,7 @@ Glib::RefPtr<Gdk::Pixbuf> UtilitiesImpl::get_cached_icon(const std::string &icon
 
   if (icon == "folder")
   {
-    Glib::RefPtr<Gdk::Pixbuf> pix = get_mainwindow()->render_icon(Gtk::Stock::DIRECTORY, Gtk::ICON_SIZE_MENU);
+    Glib::RefPtr<Gdk::Pixbuf> pix = get_mainwindow()->render_icon_pixbuf(Gtk::Stock::DIRECTORY, Gtk::ICON_SIZE_MENU);
     icon_cache[icon] = pix;
     return pix;
   }

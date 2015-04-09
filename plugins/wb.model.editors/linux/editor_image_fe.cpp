@@ -4,6 +4,7 @@
 #include <gtkmm/image.h>
 #include <gtkmm/button.h>
 #include <gtkmm/entry.h>
+#include <gtkmm/checkbutton.h>
 
 class ImageEditorFE : public PluginEditorBase
 {

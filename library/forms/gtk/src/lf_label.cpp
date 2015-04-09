@@ -28,8 +28,8 @@ mforms::gtk::LabelImpl::LabelImpl(::mforms::Label *self)
   _label->set_alignment(0, 0.5);
   _label->set_use_underline(false);
 
-  setup();    
-  _label->signal_expose_event().connect(sigc::bind(sigc::ptr_fun(mforms::gtk::expose_event_slot), _label), false);
+  setup();
+  _label->signal_draw().connect(sigc::bind(sigc::ptr_fun(mforms::gtk::expose_event_slot), _label), false);
   _label->signal_realize().connect(sigc::mem_fun(this, &LabelImpl::realized));
   _label->show();
 }
@@ -44,7 +44,7 @@ void mforms::gtk::LabelImpl::set_style(::mforms::Label *self, ::mforms::LabelSty
 {
   LabelImpl *label = self->get_data<LabelImpl>();
   label->_style= style;
-  if (label->_label->is_realized())
+  if (label->_label->get_realized())
     label->realized();
 }
 
@@ -67,45 +67,46 @@ void mforms::gtk::LabelImpl::realized()
     case ::mforms::BigStyle:
       {
         font.set_size(font.get_size()*4/3);
-        _label->modify_font(font);
+        _label->get_pango_context()->set_font_description(font);
+
       }
       break;
     case ::mforms::VeryBigStyle:
       {
         font.set_size(font.get_size()*5/3);
-        _label->modify_font(font);
+        _label->get_pango_context()->set_font_description(font);
       }
       break;
     case ::mforms::BigBoldStyle:
       {
         font.set_size(font.get_size()*4/3);
         font.set_weight(Pango::WEIGHT_BOLD);
-        _label->modify_font(font);
+        _label->get_pango_context()->set_font_description(font);
       }
       break;
     case ::mforms::BoldStyle:
       {
         font.set_weight(Pango::WEIGHT_BOLD);
-        _label->modify_font(font);
+        _label->get_pango_context()->set_font_description(font);
       }
       break;
     case ::mforms::SmallBoldStyle:
       {
         font.set_weight(Pango::WEIGHT_BOLD);
         font.set_size(font.get_size()*5/7);
-        _label->modify_font(font);
+        _label->get_pango_context()->set_font_description(font);
       }
       break;
     case ::mforms::SmallStyle:
       {
         font.set_size(font.get_size()*5/6);
-        _label->modify_font(font);
+        _label->get_pango_context()->set_font_description(font);
       }
       break;
     case ::mforms::VerySmallStyle:
       {
         font.set_size(font.get_size()*3/5);
-        _label->modify_font(font);
+        _label->get_pango_context()->set_font_description(font);
       }
       break;
     case ::mforms::InfoCaptionStyle:
@@ -113,20 +114,20 @@ void mforms::gtk::LabelImpl::realized()
     case ::mforms::BoldInfoCaptionStyle:
       {
         font.set_weight(Pango::WEIGHT_BOLD);
-        _label->modify_font(font);
+        _label->get_pango_context()->set_font_description(font);
       }
       break;
     case ::mforms::WizardHeadingStyle:
       {
         font.set_size(font.get_size()*1.2);
         font.set_weight(Pango::WEIGHT_BOLD);
-        _label->modify_font(font);
+        _label->get_pango_context()->set_font_description(font);
       }
       break;
     case ::mforms::SmallHelpTextStyle:
       {
         font.set_size(font.get_size()*4/5);
-        _label->modify_font(font);
+        _label->get_pango_context()->set_font_description(font);
       }
       break;
     }
@@ -149,9 +150,11 @@ void mforms::gtk::LabelImpl::set_color(::mforms::Label *self, const std::string 
 
   if ( label )
   {
-    Gdk::Color color(text);
-    ((Gtk::Label*)label->_label)->get_colormap()->alloc_color(color);
-    ((Gtk::Label*)label->_label)->modify_fg(Gtk::STATE_NORMAL, color);
+    //TODO: Lolek fix it implement
+//    Gdk::Color color(text);
+//    ((Gtk::Label*)label->_label)->get_style_context()->get_font(Gtk::STATE_FLAG_NORMAL).;
+//    ((Gtk::Label*)label->_label)->get_colormap()->alloc_color(color);
+//    ((Gtk::Label*)label->_label)->modify_fg(Gtk::STATE_NORMAL, color);
   }
 }
 

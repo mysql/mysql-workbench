@@ -3,9 +3,9 @@
 #pragma SWIG nowarn=312
 
 %{
-#include <cairo/cairo.h>
-#include <cairo/cairo-pdf.h>
-#include <cairo/cairo-svg.h>
+#include <cairo.h>
+#include <cairo-pdf.h>
+#include <cairo-svg.h>
 
 
 /*
@@ -203,7 +203,7 @@ static cairo_status_t py_read_func(void *closure, unsigned char *data, unsigned 
 }
 
 
-%include <cairo/cairo.h>
+%include <cairo.h>
 cairo_surface_t *cairo_image_surface_create_from_png_stream(PyObject *reader)
 {
   return cairo_image_surface_create_from_png_stream(py_read_func, reader);

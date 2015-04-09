@@ -96,7 +96,7 @@ void mforms::gtk::ScrollPanelImpl::scroll_to_view(mforms::ScrollPanel* self, mfo
     if (child_impl)
     {
      // Gtk::Widget *child_widget = child_impl->get_outer();
-      Gtk::Adjustment *vadj = panel->_swin->get_vadjustment();
+      Glib::RefPtr<Gtk::Adjustment> vadj = panel->_swin->get_vadjustment();
       if (vadj)
       {
         const int y = child_impl->get_y(child);
@@ -123,10 +123,8 @@ base::Rect mforms::gtk::ScrollPanelImpl::get_content_rect(mforms::ScrollPanel* s
   {
     rect.pos.y = panel->_swin->get_vadjustment()->get_value();
     rect.pos.x = panel->_swin->get_hadjustment()->get_value();
-    int w, h;
-    vp->get_window()->get_size(w, h);
-    rect.size.width = w;
-    rect.size.height = h;
+    rect.size.width = vp->get_window()->get_width();
+    rect.size.height = vp->get_window()->get_height();
   }
 
   return rect;

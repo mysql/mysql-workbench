@@ -68,7 +68,7 @@ class ModelDiagramPanel : public Gtk::HPaned, public FormViewBase
   wb::ModelDiagramForm *_be;
   mdc::GtkCanvasScroller _scroller;
   mdc::GtkCanvas *_canvas;
-  Gdk::Cursor *_cursor;
+  Glib::RefPtr<Gdk::Cursor> _cursor;
   InlineEditor _inline_editor;
   Gtk::Paned *_editor_paned;
   Gtk::Widget *_sidebar;

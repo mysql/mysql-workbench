@@ -35,7 +35,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/ext/antlr-runtime
     ${VSQLITE_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
-    ${GTK2_INCLUDE_DIRS}
+    ${GTK3_INCLUDE_DIRS}
     ${CAIRO_INCLUDE_DIRS}
     ${SIGC++_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
@@ -68,7 +68,7 @@ add_library(db.mysql.editors.wbp MODULE
 
 add_dependencies(db.mysql.editors.wbp mysqlparser)
 
-target_link_libraries(db.mysql.editors.wbp linux_utilities wbscintilla wbpublic ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${SIGC++_LIBRARIES})
+target_link_libraries(db.mysql.editors.wbp linux_utilities wbscintilla wbpublic ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${SIGC++_LIBRARIES})
 
 set_target_properties(db.mysql.editors.wbp
                       PROPERTIES PREFIX    ""

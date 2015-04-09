@@ -38,7 +38,7 @@ class PopupImpl : public ObjectImpl
   int               _result;
   mforms::PopupStyle  _style;
 
-  bool handle_expose_event(GdkEventExpose *event);
+  bool handle_draw_event(const ::Cairo::RefPtr< ::Cairo::Context>&  context);
   bool mouse_cross_event(GdkEventCrossing *event);
   bool mouse_button_event(GdkEventButton *event);
   bool mouse_move_event(GdkEventMotion *event);
