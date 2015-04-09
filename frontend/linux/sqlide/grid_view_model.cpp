@@ -91,7 +91,7 @@ int GridViewModel::refresh(bool reset_columns)
       if (_row_numbers_visible)
       {
         Gtk::TreeViewColumn *col= add_column<ValueTypeTraits<> >(-2, "#", RO, NULL);
-        col->get_first_cell_renderer()->property_cell_background()= "LightGray";
+        (*col->get_cells().begin())->property_cell_background() = "LightGray";
         col->set_min_width(35);
         col->set_resizable(true);
       }
@@ -270,7 +270,7 @@ void GridViewModel::set_ellipsize(const int column, const bool on)
 
   if (col)
   {
-    const std::vector<Gtk::CellRenderer*> rends = col->get_cell_renderers();
+    const std::vector<Gtk::CellRenderer*> rends = col->get_cells();
     const int rends_size = rends.size();
     for (int i = 0; i < rends_size; ++i)
     {

@@ -126,7 +126,7 @@ protected:
   virtual void set_back_image(const std::string &path, mforms::Alignment alig);
 
   // for supporting subclasses that support background painting
-  bool on_expose_event(GdkEventExpose *event, Gtk::Widget *target);
+  bool on_draw_event(const ::Cairo::RefPtr< ::Cairo::Context>&  context, Gtk::Widget *target);
 
   bool slot_drag_drop(const Glib::RefPtr<Gdk::DragContext> &context, int x, int y, guint time);
   void slot_drag_data_delete(const Glib::RefPtr<Gdk::DragContext> &context);
@@ -143,7 +143,7 @@ public:
   static mforms::View *get_view_for_widget(Gtk::Widget *w);
 };
 
-bool expose_event_slot(GdkEventExpose* event, Gtk::Widget* w);
+bool expose_event_slot(const ::Cairo::RefPtr< ::Cairo::Context>& context, Gtk::Widget* w);
 void set_bgcolor(Gtk::Widget*, const std::string& color);
 
 };

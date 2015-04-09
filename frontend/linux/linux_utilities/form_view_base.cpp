@@ -4,6 +4,7 @@
 #include <gtkmm/label.h>
 #include <gtkmm/eventbox.h>
 #include <gtkmm/window.h>
+#include <glibmm/main.h>
 #include "active_label.h"
 #include "grt/grt_manager.h"
 #include "mforms/toolbar.h"

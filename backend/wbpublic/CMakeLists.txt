@@ -1,6 +1,6 @@
 include_directories(.
     ${CAIRO_INCLUDE_DIRS}
-    ${GTK2_INCLUDE_DIRS}
+    ${GTK3_INCLUDE_DIRS}
     ${SIGC++_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
     ${PCRE_INCLUDE_DIRS}

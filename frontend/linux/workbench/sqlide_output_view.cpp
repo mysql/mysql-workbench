@@ -147,7 +147,7 @@ QueryOutputView::QueryOutputView(const SqlEditorForm::Ref& be, DbSqlEditorView *
 
 
   for (size_t i = 0; i < (sizeof(sections) / sizeof(const char* const)); ++i)
-    _mode.append_text(sections[i]);
+    _mode.append(sections[i]);
 
   _text_swnd.add(_text_output);
   _text_swnd.show_all();

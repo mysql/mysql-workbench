@@ -2,7 +2,7 @@ add_definitions(-Wno-sign-compare -Wno-type-limits -Wno-unused
 -Wno-missing-field-initializers)
 
 include_directories(.
-    ${GTK2_INCLUDE_DIRS}
+    ${GTK3_INCLUDE_DIRS}
     ${ANTLR3C_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/library/base
 )
@@ -29,7 +29,7 @@ else ()
     link_directories(${PROJECT_BINARY_DIR}/antlr-wb)
 endif ()
 
-target_link_libraries(mysqlparser ${GTK2_LIBRARIES} ${ANTLR3C_LIBRARIES})
+target_link_libraries(mysqlparser ${GTK3_LIBRARIES} ${ANTLR3C_LIBRARIES})
 
 set_target_properties(mysqlparser
                       PROPERTIES VERSION   ${WB_VERSION}

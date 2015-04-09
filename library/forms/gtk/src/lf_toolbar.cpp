@@ -560,7 +560,7 @@ void mforms::gtk::ToolBarImpl::set_selector_items(ToolBarItem* item, const std::
       #endif
       const int size = values.size();
       for (int i = 0; i < size; ++i)
-        w->append_text(values[i]);
+        w->append(values[i]);
 
       if (w->get_active_row_number() < 0 && !values.empty())
         w->set_active_text(values[0]);
@@ -574,7 +574,10 @@ void mforms::gtk::ToolBarImpl::set_selector_items(ToolBarItem* item, const std::
     if (w)
     {
       w->set_data("ignore_signal", (void*)1);
-
+      
+      //TODO: Lolek fix implementation
+      fprintf(stderr, "Fix implementation: lf_toolbar.cpp:set_selector_items:578\n");
+      /*
       Glib::RefPtr<Gtk::ListStore> model = Gtk::ListStore::create(*color_combo_columns);
       Glib::RefPtr<Gdk::Colormap>  colormap = w->get_colormap();
 
@@ -593,7 +596,7 @@ void mforms::gtk::ToolBarImpl::set_selector_items(ToolBarItem* item, const std::
         row[color_combo_columns->image] = pixbuf;
       }
 
-      w->set_model(model);
+      w->set_model(model);*/
 
       if (w->get_active_row_number() < 0)
         w->set_active(0);

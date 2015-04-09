@@ -383,7 +383,7 @@ void DbMySQLTableEditor::refresh_indices()
 //\TESTING
 
 //--------------------------------------------------------------------------------
-void DbMySQLTableEditor::page_changed(GtkNotebookPage* page, guint page_num)
+void DbMySQLTableEditor::page_changed(Gtk::Widget* page, guint page_num)
 {
   switch (page_num)
   {
@@ -425,8 +425,8 @@ void DbMySQLTableEditor::page_changed(GtkNotebookPage* page, guint page_num)
 //--------------------------------------------------------------------------------
 bool DbMySQLTableEditor::event_from_table_name_entry(GdkEvent* event)
 {
-  if ( event->type == GDK_KEY_RELEASE && (   event->key.keyval == GDK_Return
-                                          || event->key.keyval == GDK_KP_Enter
+  if ( event->type == GDK_KEY_RELEASE && (   event->key.keyval == GDK_KEY_Return
+                                          || event->key.keyval == GDK_KEY_KP_Enter
                                          )
      )
   {

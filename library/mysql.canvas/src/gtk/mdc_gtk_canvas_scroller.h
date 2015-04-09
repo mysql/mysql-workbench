@@ -16,8 +16,8 @@ class GtkCanvas;
   public:
     GtkCanvasScroller();
 
-    Gtk::Adjustment *get_hadjustment();
-    Gtk::Adjustment *get_vadjustment();
+    Glib::RefPtr<Gtk::Adjustment> get_hadjustment();
+    Glib::RefPtr<Gtk::Adjustment> get_vadjustment();
 
     void add(GtkCanvas &canvas);
 };

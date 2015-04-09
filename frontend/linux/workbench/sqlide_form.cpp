@@ -266,14 +266,12 @@ void DbSqlEditorView::tab_menu_handler(const std::string& action, ActiveLabel *s
 //------------------------------------------------------------------------------
 void DbSqlEditorView::reenable_items_in_tab_menus()
 {
-  const Gtk::Notebook::PageList pages = _editor_note->pages();
-  const int size = pages.size();
+  const int size = _editor_note->get_n_pages();
 
   for (int i = 0; i < size; ++i)
   {
-
-    Gtk::Notebook_Helpers::Page page = pages[i];
-    ActiveLabel* const al = dynamic_cast<ActiveLabel*>(page.get_tab_label());
+    Gtk::Widget *page = _editor_note->get_nth_page(i);
+    ActiveLabel* const al = dynamic_cast<ActiveLabel*>(_editor_note->get_tab_label(*page));
     if (al)
     {
       mforms::Menu* const menu = al->get_menu();
@@ -298,8 +296,8 @@ void DbSqlEditorView::set_busy_tab(int tab)
   }
   if (tab >= 0)
   {
-    Gtk::Notebook_Helpers::Page page = _editor_note->pages()[tab];
-    ActiveLabel* const al = dynamic_cast<ActiveLabel*>(page.get_tab_label());
+    Gtk::Widget *page = _editor_note->get_nth_page(tab);
+    ActiveLabel* const al = dynamic_cast<ActiveLabel*>(_editor_note->get_tab_label(*page));
     if (al)
     {
       al->start_busy();
@@ -370,7 +368,7 @@ bool DbSqlEditorView::close_focused_tab()
 }
 
 //------------------------------------------------------------------------------
-void DbSqlEditorView::editor_page_switched(GtkNotebookPage *page, guint index)
+void DbSqlEditorView::editor_page_switched(Gtk::Widget *page, guint index)
 {
   if (_be)
   {

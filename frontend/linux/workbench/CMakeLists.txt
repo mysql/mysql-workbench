@@ -43,7 +43,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
     ${PROJECT_SOURCE_DIR}/library/mysql.canvas/src
     ${PROJECT_SOURCE_DIR}/library/mysql.parser
-    ${GTK2_INCLUDE_DIRS}
+    ${GTK3_INCLUDE_DIRS}
     ${CAIRO_INCLUDE_DIRS}
     ${LIBZIP_INCLUDE_DIRS}
     ${MYSQLCPPCONN_INCLUDE_DIRS}
@@ -100,7 +100,7 @@ target_link_libraries(mysql-workbench-bin
     ${MYSQLCPPCONN_LIBRARIES}
     ${CTEMPLATE_LIBRARIES}
     ${X11_LIBRARIES}
-    ${GTK2_LIBRARIES}
+    ${GTK3_LIBRARIES}
     ${SIGC++_LIBRARIES}
     ${GRT_LIBRARIES}
     ${PCRE_LIBRARIES}

@@ -9,7 +9,7 @@
 #include <gtkmm/textview.h>
 #include <gtkmm/liststore.h>
 #include <gtkmm/box.h>
-#include <gtk/gtkversion.h>
+//#include <gtk/gtkversion.h>
 
 class SchemaEditor : public PluginEditorBase
 {

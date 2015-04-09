@@ -31,8 +31,8 @@ class TextEntryImpl : public ViewImpl
 {
   Gtk::Entry    *_entry;
   std::string _placeholder;
-  Gdk::Color _text_color;
-  Gdk::Color _placeholder_color;
+  Gdk::RGBA _text_color;
+  Gdk::RGBA _placeholder_color;
   TextEntryType _type;
   bool _has_real_text;
   bool _changing_text;

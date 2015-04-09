@@ -18,7 +18,7 @@
  */
 
 #include "mforms/../gtk/lf_view.h"
-#include <gtk/gtkhpaned.h>
+#include <gtk/gtkpaned.h>
 
 #include "model_diagram_panel.h"
 #include "image_cache.h"
@@ -106,42 +106,42 @@ class CanvasViewer : public mdc::GtkCanvas
       guint key;
       mdc::KeyCode kcode;
     } keycodes[]= {
-      {GDK_BackSpace, mdc::KBackspace},
-      {GDK_Delete,  mdc::KDelete},
-      {GDK_Down,    mdc::KDown},
-      {GDK_End,     mdc::KEnd},
-      {GDK_Return,  mdc::KEnter},
-      {GDK_Escape,  mdc::KEscape},
-      {GDK_F1,      mdc::KF1},
-      {GDK_F2,      mdc::KF2},
-      {GDK_F3,      mdc::KF3},
-      {GDK_F4,      mdc::KF4},
-      {GDK_F5,      mdc::KF5},
-      {GDK_F6,      mdc::KF6},
-      {GDK_F7,      mdc::KF7},
-      {GDK_F8,      mdc::KF8},
-      {GDK_F9,      mdc::KF9},
-      {GDK_F10,     mdc::KF10},
-      {GDK_F11,     mdc::KF11},
-      {GDK_F12,     mdc::KF12},
-      {GDK_Home,    mdc::KHome},
-      {GDK_Insert,  mdc::KInsert},
-      {GDK_Left,    mdc::KLeft},
-      {GDK_Next,    mdc::KPageDown},
-      {GDK_Page_Down,mdc::KPageDown},
-      {GDK_Page_Up,  mdc::KPageUp},
-      {GDK_Prior,   mdc::KPageUp},
-      {GDK_Return,  mdc::KEnter},
-      {GDK_Shift_L, mdc::KShift},
-      {GDK_Shift_R, mdc::KShift},
-      {GDK_Tab,     mdc::KTab},
+      {GDK_KEY_BackSpace, mdc::KBackspace},
+      {GDK_KEY_Delete,  mdc::KDelete},
+      {GDK_KEY_Down,    mdc::KDown},
+      {GDK_KEY_End,     mdc::KEnd},
+      {GDK_KEY_Return,  mdc::KEnter},
+      {GDK_KEY_Escape,  mdc::KEscape},
+      {GDK_KEY_F1,      mdc::KF1},
+      {GDK_KEY_F2,      mdc::KF2},
+      {GDK_KEY_F3,      mdc::KF3},
+      {GDK_KEY_F4,      mdc::KF4},
+      {GDK_KEY_F5,      mdc::KF5},
+      {GDK_KEY_F6,      mdc::KF6},
+      {GDK_KEY_F7,      mdc::KF7},
+      {GDK_KEY_F8,      mdc::KF8},
+      {GDK_KEY_F9,      mdc::KF9},
+      {GDK_KEY_F10,     mdc::KF10},
+      {GDK_KEY_F11,     mdc::KF11},
+      {GDK_KEY_F12,     mdc::KF12},
+      {GDK_KEY_Home,    mdc::KHome},
+      {GDK_KEY_Insert,  mdc::KInsert},
+      {GDK_KEY_Left,    mdc::KLeft},
+      {GDK_KEY_Next,    mdc::KPageDown},
+      {GDK_KEY_Page_Down,mdc::KPageDown},
+      {GDK_KEY_Page_Up,  mdc::KPageUp},
+      {GDK_KEY_Prior,   mdc::KPageUp},
+      {GDK_KEY_Return,  mdc::KEnter},
+      {GDK_KEY_Shift_L, mdc::KShift},
+      {GDK_KEY_Shift_R, mdc::KShift},
+      {GDK_KEY_Tab,     mdc::KTab},
 
-      {GDK_plus,    mdc::KPlus},
-      {GDK_minus,   mdc::KMinus},
-      {GDK_space,   mdc::KSpace},
-      {GDK_period,  mdc::KPeriod},
-      {GDK_comma,   mdc::KComma},
-      {GDK_semicolon, mdc::KSemicolon}
+      {GDK_KEY_plus,    mdc::KPlus},
+      {GDK_KEY_minus,   mdc::KMinus},
+      {GDK_KEY_space,   mdc::KSpace},
+      {GDK_KEY_period,  mdc::KPeriod},
+      {GDK_KEY_comma,   mdc::KComma},
+      {GDK_KEY_semicolon, mdc::KSemicolon}
     };
 
     mdc::KeyInfo k;
@@ -479,13 +479,12 @@ ModelDiagramPanel::~ModelDiagramPanel()
   delete _catalog_tree;
   delete _usertypes_list;
   delete _history_list;
-  delete _cursor;
 }
 
 
 bool ModelDiagramPanel::drag_drop(const Glib::RefPtr<Gdk::DragContext> &context, int x, int y, guint time)
 {
-  std::vector<std::string> targets(context->get_targets());
+  std::vector<std::string> targets(context->list_targets());
   if (!targets.empty())
     drag_get_data(context, targets[0], time);
   
@@ -503,7 +502,7 @@ void ModelDiagramPanel::drag_data_received(const Glib::RefPtr<Gdk::DragContext> 
   if (!dwrapper)
     return;
 
-  std::string tmpstr = std::vector<std::string>(context->get_targets())[0];
+  std::string tmpstr = std::vector<std::string>(context->list_targets())[0];
 
   std::string type= selection_data.get_data_type();
   if ( type == WB_DBOBJECT_DRAG_TYPE)
@@ -516,7 +515,7 @@ void ModelDiagramPanel::drag_data_received(const Glib::RefPtr<Gdk::DragContext> 
 }
 
 
-static Gdk::Cursor *load_cursor(const std::string &path)
+static Glib::RefPtr<Gdk::Cursor> load_cursor(const std::string &path)
 {
   gsize size;
   guint8 *buffer;
@@ -527,7 +526,7 @@ static Gdk::Cursor *load_cursor(const std::string &path)
     if (buffer[0] != 0 || buffer[1] != 0 || buffer[2] != 2 || buffer[3] != 0)
     {
       g_free(buffer);
-      return 0;
+      return Glib::RefPtr<Gdk::Cursor>();
     }
     // read directory info
     int width= buffer[6+0];
@@ -597,16 +596,16 @@ static Gdk::Cursor *load_cursor(const std::string &path)
     g_free(buffer);
     
     if (pixbuf)
-      return new Gdk::Cursor(Gdk::Display::get_default(), pixbuf, xspot, yspot);
-    return 0;
+      return Gdk::Cursor::create(Gdk::Display::get_default(), pixbuf, xspot, yspot);
+    return Glib::RefPtr<Gdk::Cursor>();
   }
-  return 0;
+  return Glib::RefPtr<Gdk::Cursor>();
 }
 
 
 void ModelDiagramPanel::update_tool_cursor()
 {
-  if (_canvas->is_realized())
+  if (_canvas->get_realized())
   {
     std::string cursor= _be->get_cursor();
     std::string path= bec::IconManager::get_instance()->get_icon_path(cursor+".png");
@@ -618,11 +617,10 @@ void ModelDiagramPanel::update_tool_cursor()
       _canvas->get_window()->set_cursor();
       return;
     }
-    delete _cursor;
 
-    _cursor= load_cursor(path);
+    _cursor = load_cursor(path);
     if (_cursor)
-      _canvas->get_window()->set_cursor(*_cursor);
+      _canvas->get_window()->set_cursor(_cursor);
     else
       _canvas->get_window()->set_cursor();
   }

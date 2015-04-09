@@ -35,7 +35,6 @@ class EntryCompletion;
 class HBox;
 class ComboBox;
 class ComboBoxText;
-class ComboBoxEntryText;
 class Window;
 class Menu;
 class Label;
@@ -84,7 +83,7 @@ void set_glib_bool(Glib::ValueBase& value, const bool b);
 void set_glib_double(Glib::ValueBase& value, const double d);
 
 void fill_combo_from_string_list(Gtk::ComboBox* combo, const std::vector<std::string>& list);
-void fill_combo_from_string_list(Gtk::ComboBoxEntryText* combo, const std::vector<std::string>& list);
+void fill_combo_from_string_list(Gtk::ComboBoxText* combo, const std::vector<std::string>& list);
 
 //! get_mainwindow is declared here as extern while it is implemented in frontend/linux/workbench/Program.cpp
 //! and frontend/linux/shell/shell.cpp. get_mainwindow is needed by some functions/methods to
@@ -125,6 +124,8 @@ void gtk_paned_set_pos_ratio(Gtk::Paned* paned, const float ratio);
 float gtk_paned_get_pos_ratio(Gtk::Paned* paned);
 
 void gtk_reparent_realized(Gtk::Widget *widget, Gtk::Container *new_parent);
+
+Gdk::RGBA color_to_rgba(Gdk::Color);
 
 class PanedConstrainer {
 public:

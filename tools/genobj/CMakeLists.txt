@@ -4,7 +4,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}/generated
     ${GRT_INCLUDE_DIRS}
-    ${GTK2_INCLUDE_DIRS}
+    ${GTK3_INCLUDE_DIRS}
     ${SIGC++_INCLUDE_DIRS}
     ${PCRE_INCLUDE_DIRS}
 )

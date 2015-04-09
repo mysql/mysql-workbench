@@ -3,6 +3,7 @@
 
 #include <gtkmm/cellrendererspin.h>
 #include <gtkmm/treeview.h>
+#include <glibmm/property.h>
 
 #include <sstream>
 #include <limits>
@@ -15,11 +16,11 @@ public:
   CellRendererProxy() : Glib::ObjectBase(typeid(CellRendererProxy)), Renderer() {}
   virtual ~CellRendererProxy() {}
 
-  virtual void get_size_vfunc (Gtk::Widget& widget, const Gdk::Rectangle* cell_area, int* x_offset, int* y_offset, int* width, int* height) const
-  { Renderer::get_size_vfunc (widget, cell_area, x_offset, y_offset, width, height); }
+//  virtual void get_size_vfunc (Gtk::Widget& widget, const Gdk::Rectangle* cell_area, int* x_offset, int* y_offset, int* width, int* height) const
+//  { Renderer::get_size_vfunc (widget, cell_area, x_offset, y_offset, width, height); }
 
-  virtual void render_vfunc (const Glib::RefPtr<Gdk::Drawable>& window, Gtk::Widget& widget, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, const Gdk::Rectangle& expose_area, Gtk::CellRendererState flags)
-  { Renderer::render_vfunc (window, widget, background_area, cell_area, expose_area, flags); }
+  virtual void render_vfunc (const ::Cairo::RefPtr< ::Cairo::Context>& cr, Gtk::Widget& widget, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, Gtk::CellRendererState flags)
+  { Renderer::render_vfunc (cr, widget, background_area, cell_area, flags); }
 
   virtual bool activate_vfunc (GdkEvent* event, Gtk::Widget& widget, const Glib::ustring& path, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, Gtk::CellRendererState flags)
   { return Renderer::activate_vfunc (event, widget, path, background_area, cell_area, flags); }
@@ -79,8 +80,8 @@ protected:
   Glib::PropertyProxy<Glib::ustring>                    property_cell_background_;
   Glib::PropertyProxy<Gdk::Color>                       property_cell_background_gdk_;
 
-  virtual void get_size_vfunc (Gtk::Widget& widget, const Gdk::Rectangle* cell_area, int* x_offset, int* y_offset, int* width, int* height) const;
-  virtual void render_vfunc (const Glib::RefPtr<Gdk::Drawable>& window, Gtk::Widget& widget, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, const Gdk::Rectangle& expose_area, Gtk::CellRendererState flags);
+//  virtual void get_size_vfunc (Gtk::Widget& widget, const Gdk::Rectangle* cell_area, int* x_offset, int* y_offset, int* width, int* height) const;
+  virtual void render_vfunc (const ::Cairo::RefPtr< ::Cairo::Context>& cr, Gtk::Widget& widget, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, Gtk::CellRendererState flags);
   virtual bool activate_vfunc (GdkEvent* event, Gtk::Widget& widget, const Glib::ustring& path, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, Gtk::CellRendererState flags);
   virtual Gtk::CellEditable* start_editing_vfunc(GdkEvent* event, Gtk::Widget& widget, const Glib::ustring& path, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, Gtk::CellRendererState flags);
   virtual void on_editing_canceled();
@@ -116,7 +117,7 @@ void init_data_renderer(Renderer *renderer)
 template <typename Renderer, typename ModelValueType>
 void init_data_renderer(Gtk::CellRendererSpin *renderer)
 {
-  renderer->property_adjustment()= manage(new Gtk::Adjustment (0, std::numeric_limits<ModelValueType>::min(), std::numeric_limits<ModelValueType>::max()));
+  renderer->property_adjustment() =  Gtk::Adjustment::create(0, std::numeric_limits<ModelValueType>::min(), std::numeric_limits<ModelValueType>::max());
 }
 
 //==============================================================================
@@ -317,17 +318,17 @@ on_cell_data(Gtk::CellRenderer* cr, const Gtk::TreeModel::iterator &iter, Gtk::T
 }
 
 //------------------------------------------------------------------------------
-template <typename Renderer, typename RendererValueType, typename ModelValueType>
-void CustomRenderer<Renderer, RendererValueType, ModelValueType>::
-get_size_vfunc(Gtk::Widget& widget, const Gdk::Rectangle* cell_area, int* x_offset, int* y_offset, int* width, int* height) const
-{
-  _data_renderer.get_size_vfunc(widget, cell_area, x_offset, y_offset, width, height);
-}
+//template <typename Renderer, typename RendererValueType, typename ModelValueType>
+//void CustomRenderer<Renderer, RendererValueType, ModelValueType>::
+//get_size_vfunc(Gtk::Widget& widget, const Gdk::Rectangle* cell_area, int* x_offset, int* y_offset, int* width, int* height) const
+//{
+//  _data_renderer.get_size_vfunc(widget, cell_area, x_offset, y_offset, width, height);
+//}
 
 //------------------------------------------------------------------------------
 template <typename Renderer, typename RendererValueType, typename ModelValueType>
 void CustomRenderer<Renderer, RendererValueType, ModelValueType>::
-render_vfunc(const Glib::RefPtr<Gdk::Drawable>& window, Gtk::Widget& widget, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, const Gdk::Rectangle& expose_area, Gtk::CellRendererState flags)
+render_vfunc(const ::Cairo::RefPtr< ::Cairo::Context>& cr, Gtk::Widget& widget, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, Gtk::CellRendererState flags)
 {
 
   int row = -1;
@@ -341,9 +342,10 @@ render_vfunc(const Glib::RefPtr<Gdk::Drawable>& window, Gtk::Widget& widget, con
       _treeview->current_cell(srow, scol);
       if (_treeview->selection_is_cell() && srow >= 0 && scol >= 0 && srow == row && scol == _column_index)
       {
-        _treeview->get_style()->paint_flat_box(Glib::RefPtr<Gdk::Window>::cast_dynamic(window), Gtk::STATE_SELECTED, Gtk::SHADOW_ETCHED_IN, background_area, 
-                    widget, "", background_area.get_x(), background_area.get_y(), 
-                    background_area.get_width(), background_area.get_height());
+        fprintf(stderr, "Custom_renderers.h render_vfunc implementation missing\n");
+//        _treeview->get_style()->paint_flat_box(Glib::RefPtr<Gdk::Window>::cast_dynamic(window), Gtk::STATE_SELECTED, Gtk::SHADOW_ETCHED_IN, background_area,
+//                    widget, "", background_area.get_x(), background_area.get_y(),
+//                    background_area.get_width(), background_area.get_height());
         flags |= Gtk::CELL_RENDERER_SELECTED;
       }
     }
@@ -351,10 +353,10 @@ render_vfunc(const Glib::RefPtr<Gdk::Drawable>& window, Gtk::Widget& widget, con
   switch (_active_renderer_type)
   {
   case rt_data:
-    _data_renderer.render_vfunc(window, widget, background_area, cell_area, expose_area, flags);
+    _data_renderer.render_vfunc(cr, widget, background_area, cell_area, flags);
     break;
   default:
-    _pixbuf_renderer.render_vfunc(window, widget, background_area, cell_area, expose_area, flags);
+    _pixbuf_renderer.render_vfunc(cr, widget, background_area, cell_area, flags);
     break;
   }
 }

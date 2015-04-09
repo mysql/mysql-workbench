@@ -4,7 +4,6 @@
 
 #include "mysql_table_editor_part_page.h"
 #include <gtkmm/comboboxtext.h>
-#include <gtkmm/comboboxentrytext.h>
 #include <gtkmm/togglebutton.h>
 
 //------------------------------------------------------------------------------

@@ -44,7 +44,8 @@ DrawBoxImpl::DrawBoxImpl(::mforms::DrawBox *self)
   _padding._top = 0;
   _padding._bottom = 0;
   _last_btn = MouseButtonNone;
-  _darea.signal_expose_event().connect(sigc::bind(sigc::mem_fun(this, &DrawBoxImpl::repaint), self));
+//  _darea.signal_expose_event().connect(sigc::bind(sigc::mem_fun(this, &DrawBoxImpl::repaint), self));
+  _darea.signal_draw().connect(sigc::bind(sigc::mem_fun(this, &DrawBoxImpl::repaint), self));
 
 
   _darea.signal_size_allocate().connect_notify(sigc::bind(sigc::mem_fun(this, &DrawBoxImpl::on_size_allocate), self));
@@ -87,7 +88,9 @@ bool DrawBoxImpl::relayout(::mforms::DrawBox *self)
   if (_fixed && window)
   {
     int ww, wh;
-    window->get_size(ww,wh);
+    ww = window->get_width();
+    wh = window->get_height();
+
     for (std::map<Gtk::Widget *, AlignControl>::iterator it = _alignments.begin(); it != _alignments.end(); ++it)
     {
       if (it->second._align == mforms::NoAlign)
@@ -104,13 +107,13 @@ bool DrawBoxImpl::relayout(::mforms::DrawBox *self)
       case mforms::BottomCenter:
       case mforms::MiddleCenter:
       case mforms::TopCenter:
-        x = (ww - it->first->size_request().width) / 2;
+        x = (ww - it->first->get_width()) / 2;
         break;
 
       case mforms::BottomRight:
       case mforms::MiddleRight:
       case mforms::TopRight:
-        x = ww -_padding._right - it->first->size_request().width;
+        x = ww -_padding._right - it->first->get_width();
       break;
 
       default:
@@ -123,13 +126,13 @@ bool DrawBoxImpl::relayout(::mforms::DrawBox *self)
       case mforms::BottomLeft:
       case mforms::BottomCenter:
       case mforms::BottomRight:
-        y = wh - it->first->size_request().height - _padding._bottom;
+        y = wh - it->first->get_height() - _padding._bottom;
       break;
 
       case mforms::MiddleLeft:
       case mforms::MiddleCenter:
       case mforms::MiddleRight:
-        y = (wh - it->first->size_request().height) / 2;
+        y = (wh - it->first->get_height()) / 2;
       break;
 
       case mforms::TopLeft:
@@ -163,10 +166,9 @@ void DrawBoxImpl::on_size_allocate(Gtk::Allocation& alloc, ::mforms::DrawBox *se
   }
 }
 
-bool DrawBoxImpl::repaint(GdkEventExpose *event, ::mforms::DrawBox *self)
+bool DrawBoxImpl::repaint(const ::Cairo::RefPtr< ::Cairo::Context>& context, ::mforms::DrawBox *self)
 {
-  if (event->count != 0)
-    return true;
+
   //This vv needs improvment on linux. Maybe setup an event listener which is bound to resize
   int w  = -1;
   int h = -1;
@@ -177,10 +179,11 @@ bool DrawBoxImpl::repaint(GdkEventExpose *event, ::mforms::DrawBox *self)
     w = _fixed_width;
   _darea.set_size_request(w, h);
 
-  mforms::gtk::expose_event_slot(event, &_darea);
+  mforms::gtk::expose_event_slot(context, &_darea);
+  double x1, y1, x2, y2;
+  context->get_clip_extents(x1, y1, x2, y2);
 
-  Cairo::RefPtr<Cairo::Context> context(_darea.get_window()->create_cairo_context());
-  self->repaint(context->cobj(), event->area.x, event->area.y, event->area.width, event->area.height);
+  self->repaint(context->cobj(), x1, y1, x2- x1, y2-y1);
 
   return true;
 }

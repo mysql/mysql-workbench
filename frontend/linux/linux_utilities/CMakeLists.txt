@@ -19,7 +19,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/generated/grti
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
     ${PROJECT_SOURCE_DIR}/library/mysql.parser
-    ${GTK2_INCLUDE_DIRS}
+    ${GTK3_INCLUDE_DIRS}
     ${CAIRO_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
     ${SIGC++_INCLUDE_DIRS}
@@ -41,7 +41,7 @@ add_library(linux_utilities
     widget_saver.cpp
 )
 
-target_link_libraries(linux_utilities ${GTK2_LIBRARIES} ${CAIRO_LIBRARIES} ${GRT_LIBRARIES} ${SIGC++_LIBRARIES})
+target_link_libraries(linux_utilities ${GTK3_LIBRARIES} ${CAIRO_LIBRARIES} ${GRT_LIBRARIES} ${SIGC++_LIBRARIES})
 
 set_target_properties(linux_utilities
                       PROPERTIES VERSION   ${WB_VERSION}

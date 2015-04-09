@@ -267,8 +267,8 @@ public:
 
   void toggle(bool flag)
   {
-    std::list<Gtk::Widget*> children(get_children());
-    std::list<Gtk::Widget*>::iterator iter= children.begin();
+    std::vector<Gtk::Widget*> children(get_children());
+    std::vector<Gtk::Widget*>::iterator iter= children.begin();
 
     while (iter != children.end() && (*iter)->gobj() != (GtkWidget*)_sep.gobj())
       ++iter;
@@ -426,7 +426,7 @@ void OverviewItemContainer::drag_data_get(const Glib::RefPtr<Gdk::DragContext> &
         
         wb::ModelFile::copy_file(file, _drag_tmp_file);
         {
-          std::vector<std::string> uris;
+          std::vector<Glib::ustring> uris;
           uris.push_back("file://"+_drag_tmp_file);
           data.set_uris(uris);
         }
@@ -465,8 +465,8 @@ void OverviewItemContainer::drag_data_delete(const Glib::RefPtr<Gdk::DragContext
 //------------------------------------------------------------------------------ 
 bool OverviewItemContainer::drag_drop(const Glib::RefPtr<Gdk::DragContext> &context, int, int, guint time)
 {
-  std::vector<Glib::ustring> targets(context->get_targets());
-  std::vector<Glib::ustring>::iterator iter;
+  std::vector<std::string> targets(context->list_targets());
+  std::vector<std::string>::iterator iter;
 
   if ((iter= std::find(targets.begin(), targets.end(), "text/uri-list")) != targets.end())
   {
@@ -484,7 +484,7 @@ bool OverviewItemContainer::drag_drop(const Glib::RefPtr<Gdk::DragContext> &cont
 bool OverviewItemContainer::drag_motion(const Glib::RefPtr<Gdk::DragContext> &context, int, int, guint time,
                                         Gtk::Widget *target)
 {
-  std::vector<std::string> targets(context->get_targets());
+  std::vector<std::string> targets(context->list_targets());
 
   if (!target->drag_dest_find_target(context).empty())
   {
@@ -823,7 +823,7 @@ public:
   int current_page_index() { return _current_page_index; }
 
 private:
-  void page_switched(GtkNotebookPage *page, guint num)
+  void page_switched(Gtk::Widget *page, guint num)
   {
     if ((size_t)num < _overview->count_children(_node))
       _overview->focus_node(_overview->get_child(_node, num));
@@ -889,11 +889,11 @@ private:
 
 
 protected:
-  virtual void on_size_request(Gtk::Requisition *requisition)
+  virtual void on_size_allocate(Gdk::Rectangle& rect)
   {
     bool was_focus_node_enabled= _is_focus_node_enabled;
     _is_focus_node_enabled= false;
-    Notebook::on_size_request(requisition);
+    Notebook::on_size_allocate(rect);
     _is_focus_node_enabled= was_focus_node_enabled;
   }
   
@@ -994,11 +994,15 @@ void OverviewPanel::reset()
 
   delete_container_contents(_container);
   
-  Gtk::DrawingArea *filler= Gtk::manage(new Gtk::DrawingArea());
+  Gtk::Layout *filler = Gtk::manage(new Gtk::Layout());
+  Gtk::Image *img = Gtk::manage(new Gtk::Image(bec::IconManager::get_instance()->get_icon_path("background.png")));
+  filler->put(*img, 0, 0);
   filler->set_name("overview_filler");
   _container->pack_start(*filler, true, true);
   filler->show();
-  filler->modify_bg_pixmap(Gtk::STATE_NORMAL, bec::IconManager::get_instance()->get_icon_path("background.png"));
+
+  //TODO: Lolek check this
+  fprintf(stderr, "overview_panel.cpp:OverviewPanel::reset\n");
 }
 
 
@@ -1037,11 +1041,15 @@ void OverviewPanel::rebuild_all()
     build_division(_container, node);
   }
 
-  Gtk::DrawingArea *filler= Gtk::manage(new Gtk::DrawingArea());
+  Gtk::Layout *filler = Gtk::manage(new Gtk::Layout());
+  Gtk::Image *img = Gtk::manage(new Gtk::Image(bec::IconManager::get_instance()->get_icon_path("background.png")));
+  filler->put(*img, 0, 0);
+
   filler->set_name("overview_filler");
   _container->pack_start(*filler, true, true);
   filler->show();
-  filler->modify_bg_pixmap(Gtk::STATE_NORMAL, bec::IconManager::get_instance()->get_icon_path("background.png"));
+  //TODO: Lolek check this
+  fprintf(stderr, "overview_panel.cpp:OverviewPanel::rebuild_all\n");
   
   {
     size_t group_index= 0;

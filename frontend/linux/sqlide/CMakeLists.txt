@@ -9,7 +9,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/base
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
     ${VSQLITE_INCLUDE_DIRS}
-    ${GTK2_INCLUDE_DIRS}
+    ${GTK3_INCLUDE_DIRS}
     ${CAIRO_INCLUDE_DIRS}
     ${SIGC++_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
@@ -24,7 +24,7 @@ add_library(sqlide
     ../mforms/record_grid_view.cpp
 )
 
-target_link_libraries(sqlide ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${CAIRO_LIBRARIES} ${SIGC++_LIBRARIES})
+target_link_libraries(sqlide ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${CAIRO_LIBRARIES} ${SIGC++_LIBRARIES})
 
 set_target_properties(sqlide
                       PROPERTIES VERSION   ${WB_VERSION}

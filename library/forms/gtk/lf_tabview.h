@@ -36,7 +36,7 @@ class TabViewImpl : public ViewImpl
   TabViewImpl(::mforms::TabView *self, ::mforms::TabViewType tabType);
   virtual ~TabViewImpl();
 
-  void tab_changed(GtkNotebookPage*, guint);
+  void tab_changed(Gtk::Widget*, guint);
   void tab_reordered(Gtk::Widget *page, guint to);
 
   void close_tab_clicked(mforms::View *page);

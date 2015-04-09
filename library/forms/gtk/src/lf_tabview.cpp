@@ -77,7 +77,7 @@ mforms::gtk::TabViewImpl::~TabViewImpl()
 }
 
 
-void mforms::gtk::TabViewImpl::tab_changed(GtkNotebookPage*, guint)
+void mforms::gtk::TabViewImpl::tab_changed(Gtk::Widget*, guint)
 {
   TabView* tv = dynamic_cast< TabView* >(owner);
   if (tv && !tv->is_destroying())

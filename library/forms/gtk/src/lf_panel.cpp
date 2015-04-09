@@ -22,21 +22,23 @@ mforms::gtk::PanelImpl::PanelImpl(::mforms::Panel *self, ::mforms::PanelType typ
     break;
   case StyledHeaderPanel:      // just a container with color filled background
     _evbox = new Gtk::EventBox();
-    _evbox->signal_expose_event().connect(sigc::bind(sigc::mem_fun(this, &PanelImpl::on_expose_event), _evbox));
+    _evbox->signal_draw().connect(sigc::bind(sigc::mem_fun(this, &PanelImpl::on_draw_event), _evbox));
 
     break;
   case FilledHeaderPanel:
   {
-    mforms::App                 *app      = mforms::App::get();
-    Glib::RefPtr<Gdk::Colormap>  colormap = _evbox->get_colormap();
-    if (app && colormap)
-    {
-      base::Color sclr = app->get_system_color(mforms::SystemColorHighlight);
-      Gdk::Color clr;
-      clr.set_rgb_p(sclr.red, sclr.green, sclr.blue);
-      if (colormap->alloc_color(clr))
-        _evbox->modify_bg(Gtk::STATE_NORMAL, clr);
-    }
+    //TODO: Lolek implement
+    fprintf(stderr, "Missing implementation");
+//    mforms::App                 *app      = mforms::App::get();
+//    Glib::RefPtr<Gdk::Colormap>  colormap = _evbox->get_colormap();
+//    if (app && colormap)
+//    {
+//      base::Color sclr = app->get_system_color(mforms::SystemColorHighlight);
+//      Gdk::Color clr;
+//      clr.set_rgb_p(sclr.red, sclr.green, sclr.blue);
+//      if (colormap->alloc_color(clr))
+//        _evbox->modify_bg(Gtk::STATE_NORMAL, clr);
+//    }
   }
   case FilledPanel:      // just a container with color filled background
     _evbox= new Gtk::EventBox();
@@ -111,11 +113,13 @@ void mforms::gtk::PanelImpl::set_back_color(::mforms::Panel *self, const std::st
 
   if (panel->_evbox)
   {
-    Gdk::Color c(color);
-    panel->_evbox->get_colormap()->alloc_color(c);
-
-    panel->_evbox->modify_bg(Gtk::STATE_NORMAL, c);
-    panel->_evbox->modify_base(Gtk::STATE_NORMAL, c);
+    //TODO: Lolek implement
+    fprintf(stderr, "Missing implementation");
+//    Gdk::Color c(color);
+//    panel->_evbox->get_colormap()->alloc_color(c);
+//
+//    panel->_evbox->modify_bg(Gtk::STATE_NORMAL, c);
+//    panel->_evbox->modify_base(Gtk::STATE_NORMAL, c);
   }
 }
 

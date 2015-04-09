@@ -113,14 +113,16 @@ WizardImpl::WizardImpl(::mforms::Wizard *wiz, ::mforms::Form* owner)
   _step_table.set_row_spacings(8);
 
   _step_background.add(_step_table);
-  if (!force_sys_colors)
-  {
-    Gdk::Color c("#ffffff");
-    get_window()->get_colormap()->alloc_color(c);
-    
-    _step_background.modify_bg(Gtk::STATE_NORMAL, c);
-    _step_background.modify_base(Gtk::STATE_NORMAL, c);
-  }
+  fprintf(stderr, "Fix force_sys_colors lf_wizard.cpp\n");
+//  if (!force_sys_colors)
+//  {
+//
+//    Gdk::Color c("#ffffff");
+//    get_window()->get_colormap()->alloc_color(c);
+//
+//    _step_background.modify_bg(Gtk::STATE_NORMAL, c);
+//    _step_background.modify_base(Gtk::STATE_NORMAL, c);
+//  }
   _top_table.attach(_step_background, 0, 1, 0, 2, Gtk::FILL, Gtk::FILL);
   _top_table.attach(_content, 1, 2, 1, 2, Gtk::EXPAND|Gtk::FILL, Gtk::EXPAND|Gtk::FILL);
 

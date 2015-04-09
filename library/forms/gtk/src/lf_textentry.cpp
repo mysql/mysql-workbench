@@ -19,6 +19,7 @@
 
 #include "../lf_mforms.h"
 #include "../lf_textentry.h"
+#include "gtk_helpers.h"
 
 namespace mforms {
 namespace gtk {
@@ -110,9 +111,9 @@ TextEntryImpl::TextEntryImpl(::mforms::TextEntry *self, TextEntryType type)
   _entry->signal_focus_out_event().connect_notify(sigc::mem_fun(this, &TextEntryImpl::focus_out));
   _entry->add_events(Gdk::KEY_PRESS_MASK);
   _entry->show();
-  _text_color = _entry->get_style()->get_text(Gtk::STATE_NORMAL);
+  _text_color = _entry->get_style_context()->get_color(Gtk::STATE_FLAG_NORMAL);
   Gdk::Color color("#888888");
-  _placeholder_color = color;
+  _placeholder_color = color_to_rgba(color);
 }
 
 #if GTK_VERSION_GE(2, 16)
@@ -130,7 +131,7 @@ void TextEntryImpl::activated(mforms::TextEntry *self)
 
 bool TextEntryImpl::key_press(GdkEventKey *event, mforms::TextEntry *self)
 {
-  if (event->keyval == GDK_Up)
+  if (event->keyval == GDK_KEY_Up)
   {
     if (event->state & GDK_CONTROL_MASK)
       self->action(mforms::EntryCKeyUp);
@@ -138,7 +139,7 @@ bool TextEntryImpl::key_press(GdkEventKey *event, mforms::TextEntry *self)
       self->action(mforms::EntryKeyUp);
     return true;
   }
-  else if (event->keyval == GDK_Down)
+  else if (event->keyval == GDK_KEY_Down)
   {
     if (event->state & GDK_CONTROL_MASK)
       self->action(mforms::EntryCKeyDown);
@@ -146,7 +147,7 @@ bool TextEntryImpl::key_press(GdkEventKey *event, mforms::TextEntry *self)
       self->action(mforms::EntryKeyDown);
     return true;
   }
-  else if (event->keyval == GDK_Escape)
+  else if (event->keyval == GDK_KEY_Escape)
   {
     self->action(mforms::EntryEscape);
     return true;
@@ -179,8 +180,7 @@ void TextEntryImpl::changed(mforms::TextEntry *self)
 
 void TextEntryImpl::set_front_color(const std::string &color)
 {
-  Gdk::Color gcolor(color);
-  this->_text_color = gcolor;
+  this->_text_color = color_to_rgba(Gdk::Color(color));
 }
 
 void TextEntryImpl::set_text(const std::string &text)
@@ -211,17 +211,14 @@ void TextEntryImpl::set_placeholder_color(::mforms::TextEntry *self, const std::
 {
   TextEntryImpl* te = self->get_data<TextEntryImpl>();
   if(te)
-  {
-    Gdk::Color gcolor(color);
-    te->_placeholder_color = gcolor;
-  }
+    te->_placeholder_color = color_to_rgba(Gdk::Color(color));
 }
 
 void TextEntryImpl::focus_in(GdkEventFocus*)
 {
   if (!_has_real_text)
   {
-    _entry->modify_text(Gtk::STATE_NORMAL, _text_color);
+    _entry->override_color(_text_color, Gtk::STATE_FLAG_NORMAL);
     _changing_text = true;
     _entry->set_text("");
     _changing_text = false;
@@ -232,8 +229,7 @@ void TextEntryImpl::focus_out(GdkEventFocus*)
 {
   if (!_has_real_text && !_placeholder.empty())
   {
-    _entry->get_colormap()->alloc_color(_placeholder_color);
-    _entry->modify_text(Gtk::STATE_NORMAL, _placeholder_color);
+    _entry->override_color(_placeholder_color, Gtk::STATE_FLAG_NORMAL);
     _changing_text = true;
     _entry->set_text(_placeholder);
     _changing_text = false;

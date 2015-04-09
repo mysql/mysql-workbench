@@ -1,6 +1,7 @@
 #include "base/log.h"
 #include "widget_saver.h"
 #include <gtkmm/paned.h>
+#include <glibmm/main.h>
 #include "grt/grt_manager.h"
 #include "mforms/toolbar.h"
 

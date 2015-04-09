@@ -32,6 +32,7 @@
 #include <gtkmm/colorselection.h>
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/comboboxtext.h>
+#include <gtkmm/checkbutton.h>
 
 #include "listmodel_wrapper.h"
 #include "workbench/wb_context_ui.h"
