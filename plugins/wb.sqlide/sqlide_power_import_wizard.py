@@ -275,7 +275,17 @@ class ConfigurationPage(WizardPage):
         self.ds_box.add(self.ds_entry, False, True)
         self.ds_box.show(False)
         
-        self.df_box.add(self.make_label_with_tooltip("Date format: ", "Tooltip"), False, True)
+        self.df_box.add(self.make_label_with_tooltip("Date format: ", "Expects string pattern with the date format.\n"
+                                                    "Default format is: %Y-%m-%d %H:%M:%S\n"
+                                                    "\nCommon used options:\n"
+                                                    "\t%d is the day number\n"
+                                                    "\t%m is the month number\n"
+                                                    "\t%y is the four digits year number\n"
+                                                    "\t%H is the hour number\n"
+                                                    "\t%M is the minute number\n"
+                                                    "\t%S is the second number\n\n"
+                                                    "More formats can be found under the following location:\n" 
+                                                    "https://docs.python.org/2/library/datetime.html#strftime-and-strptime-behavior"), False, True)
         self.df_entry = mforms.newTextEntry()
         self.df_entry.set_value("%Y-%m-%d %H:%M:%S")
         self.df_entry.set_size(200, -1)
