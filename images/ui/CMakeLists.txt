@@ -11,6 +11,7 @@ set(IMAGE_FILES
     DotRed.png
     EditorCollapsed.png
     EditorExpanded.png
+    Firewall_reports.png
     First_16x16.png
     Last_16x16.png
     MacWizardBackground.png
