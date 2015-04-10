@@ -54,6 +54,11 @@ if (IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/internal)
         internal/wba_audit/wb_admin_audit_log_parser.py
     )
     install(FILES ${PY_WBA_AUDIT_FILES} DESTINATION ${WB_PYTHON_MODULES_DIR}/wba_audit)
+    set(PY_WBA_FIREWALL_FILES 
+        internal/wba_firewall/__init__.py
+        internal/wba_firewall/wb_admin_firewall_reports.py
+    )
+    install(FILES ${PY_WBA_FIREWALL_FILES} DESTINATION ${WB_PYTHON_MODULES_DIR}/wba_firewall)
 endif ()
 
 install(FILES ${PY_FILES} DESTINATION ${WB_PYTHON_MODULES_DIR})
