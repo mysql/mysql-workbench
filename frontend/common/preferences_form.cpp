@@ -400,7 +400,7 @@ PreferencesForm::PreferencesForm(wb::WBContextUI *wbui, const workbench_physical
 
   _switcher.select_node(_switcher.node_at_row(0));
 
-  set_size(1100, 700);
+  set_size(900, 700);
   center();
   
   show_values();
