@@ -543,6 +543,8 @@ class SelectDestinationPage(WizardPage):
             self.preload_existing_tables()
         
     def preload_existing_tables(self):
+        compare_in_lowercase = self.check_server_lower_case_table_names()
+        
         rset = self.main.editor.executeManagementQuery("SHOW DATABASES", 1)
         if rset:
             ok = rset.goToFirstRow()
@@ -561,7 +563,8 @@ class SelectDestinationPage(WizardPage):
                 ok = rset.goToFirstRow()
                 while ok:
                     if rset.stringFieldValue(1) == "BASE TABLE":
-                        self.table_list["%s.%s" % (self.main.destination_table['schema'], rset.stringFieldValue(0))] = {'schema': self.main.destination_table['schema'], 'table': rset.stringFieldValue(0)} 
+                        table_name = rset.stringFieldValue(0) if not compare_in_lowercase else rset.stringFieldValue(0).lower() 
+                        self.table_list["%s.%s" % (self.main.destination_table['schema'], table_name)] = {'schema': self.main.destination_table['schema'], 'table': table_name} 
                         
                     ok = rset.nextRow()
             
@@ -653,15 +656,21 @@ class SelectDestinationPage(WizardPage):
         elif self.existing_table_radio.get_active():
             self.drop_table_cb.show(False)
             self.truncate_table_cb.show(True)
+            
+    def check_server_lower_case_table_names(self):
+        rset = self.main.editor.executeManagementQuery("SHOW SESSION VARIABLES LIKE 'lower_case_table_names'", 1)
+        if rset and rset.goToFirstRow():
+            return rset.intFieldValueByName("Value") != 0 
+        return False
     
     def check_if_table_exists(self, schema, table):
         rset = self.main.editor.executeManagementQuery("SHOW TABLES FROM `%s` like '%s'" % (schema, table), 1)
         if rset and rset.goToFirstRow():
             return True
         return False
-            
-    
+
     def validate(self):
+        compare_in_lowercase = self.check_server_lower_case_table_names()
         if self.existing_table_radio.get_active():
             self.main.destination_table = self.table_list[self.destination_table_sel.get_string_value()]
         else:
@@ -670,8 +679,12 @@ class SelectDestinationPage(WizardPage):
             if len(self.main.destination_table['table']) == 0:
                 mforms.Utilities.show_error("Table Import", "You need to specify new table name", "Ok", "", "")
                 return False 
-            table_name = "%s.%s" % (self.main.destination_table['schema'], self.main.destination_table['table'])
             
+            if compare_in_lowercase:
+                self.main.destination_table['table'] = self.main.destination_table['table'].lower()
+            
+            table_name = "%s.%s" % (self.main.destination_table['schema'], self.main.destination_table['table'])
+
             if not self.drop_table_cb.get_active() and (table_name in self.table_list or self.check_if_table_exists(self.main.destination_table['schema'], self.main.destination_table['table'])):
                 res = mforms.Utilities.show_message("Table Import", "You specify to create new table, but table with such name already exists in the selected schema. Would you like to drop it, or use existing one and truncate?", "Drop the table", "Use Existing One and Truncate it", "Cancel")
                 if res == mforms.ResultOk: 
