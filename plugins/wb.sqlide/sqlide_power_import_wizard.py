@@ -146,6 +146,7 @@ class ConfigurationPage(WizardPage):
     def __init__(self, owner):
         WizardPage.__init__(self, owner, "Configure Import Settings", wide=True)
         
+        self.last_analyze_status = False
         self.input_file_type = 'csv'
         self.active_module = self.main.formats[0] # csv
         self.encoding_list = {'cp1250 (windows-1250)':'cp1250', 
@@ -333,8 +334,10 @@ class ConfigurationPage(WizardPage):
         if self.input_file_type == 'csv':
             self.active_module.set_encoding(self.encoding_list[self.encoding_sel.get_string_value()])
         if not self.active_module.analyze_file():
-            mforms.Utilities.show_warning("Table Data Import", "Can't analyze file, please try to change encoding type, if that doesn't help, maybe the file is not: %s." % self.active_module.title, "Ok", "", "")
+            mforms.Utilities.show_warning("Table Data Import", "Can't analyze file, please try to change encoding type, if that doesn't help, maybe the file is not: %s, or the file is empty." % self.active_module.title, "Ok", "", "")
+            self.last_analyze_status = False
             return False
+        self.last_analyze_status = True
         return True 
 
     def show_df_box(self, show = True):
@@ -518,6 +521,10 @@ class ConfigurationPage(WizardPage):
             raise Exception("Unsupported file type.")
         
     def validate(self):
+        if not self.last_analyze_status:
+            mforms.Utilities.show_message("Table Data Import", "File not loaded properly, please check the file and try again.", "Ok", "","")
+            return False
+        
         for row in self.column_mapping:
             if row['active']:
                 return True
