@@ -162,12 +162,14 @@ class ConfigurationPage(WizardPage):
         self.main.close()
     
     def page_activated(self, advancing):
+        if advancing:
+            self.get_module()
+            
         if advancing and not self.main.destination_page.new_table_radio.get_active():
             self.load_dest_columns()
         super(ConfigurationPage, self).page_activated(advancing)
         
         if advancing:
-            self.get_module()
             self.call_create_preview_table()
         
     
@@ -328,7 +330,8 @@ class ConfigurationPage(WizardPage):
     
     def call_analyze(self):
         self.active_module.set_filepath(self.main.select_file_page.importfile_path.get_string_value())
-        self.active_module.set_encoding(self.encoding_list[self.encoding_sel.get_string_value()])
+        if self.input_file_type == 'csv':
+            self.active_module.set_encoding(self.encoding_list[self.encoding_sel.get_string_value()])
         if not self.active_module.analyze_file():
             mforms.Utilities.show_warning("Table Data Import", "Can't analyze file, please try to change encoding type, if that doesn't help, maybe the file is not: %s." % self.active_module.title, "Ok", "", "")
             return False
@@ -506,7 +509,7 @@ class ConfigurationPage(WizardPage):
         
     def get_module(self):
         file_name, file_ext = os.path.splitext(os.path.basename(self.main.select_file_page.importfile_path.get_string_value()))
-        self.input_file_type = file_ext[1:]
+        self.input_file_type = str(file_ext[1:])
         for format in self.main.formats:
             if format.name == self.input_file_type:
                 self.active_module = format
