@@ -107,7 +107,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workbench", "workbench", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wb.utils", "wb.utils", "{E04AB54A-84C8-48B2-92E0-0854EF226AEF}"
 	ProjectSection(SolutionItems) = preProject
-		modules\wb.utils\catalog_utils.grt.lua = modules\wb.utils\catalog_utils.grt.lua
 		modules\wb.utils\code_utils_grt.py = modules\wb.utils\code_utils_grt.py
 		modules\wb.utils\table_templates.py = modules\wb.utils\table_templates.py
 		modules\wb.utils\table_utils_grt.py = modules\wb.utils\table_utils_grt.py
