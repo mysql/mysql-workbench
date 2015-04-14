@@ -861,10 +861,10 @@ delete_statement:
 				// Both alternatives can start with identifier DOT, so we either need a predicate (which adds backtracking) or,
 				// as we actually do, an extended lookahead.
 				( options { k = 4; }:
-					 table_ref_list USING_SYMBOL table_references where_clause? // Multi table variant 1.
+					 table_ref_list USING_SYMBOL table_reference_list where_clause? // Multi table variant 1.
 					| table_ref partition_delete? where_clause? order_by_clause? (LIMIT_SYMBOL limit_option)? // Single table delete.
 				)
-			|  table_ref_list FROM_SYMBOL table_references where_clause? // Multi table variant 2.
+			|  table_ref_list FROM_SYMBOL table_reference_list where_clause? // Multi table variant 2.
 		)
 ;
 
@@ -1003,12 +1003,22 @@ select_paren:
 	| OPEN_PAR_SYMBOL select_paren CLOSE_PAR_SYMBOL
 ;
 
-select_part2: // This is an optimized variant of the same rule form sql_yacc.yy.
-	( options { greedy = true; }: select_option)* select_item_list select_source_and_options? select_lock_type?
+select_from:
+	from_clause where_clause? group_by_clause? having_clause? order_by_clause? limit_clause? procedure_analyse_clause?
+;
+
+select_part2:
+	( options { greedy = true; }: select_option)* select_item_list
+		(
+			order_by_clause? limit_clause?
+			| into_clause select_from?
+			| select_from into_clause?
+		)
+		select_lock_type?
 ;
 
 table_expression:
-	( options { greedy = true; }: from_clause)?
+	from_clause?
 	( options { greedy = true; }: where_clause)?
 	( options { greedy = true; }: group_by_clause)?
 	( options { greedy = true; }: having_clause)?
@@ -1064,12 +1074,6 @@ select_alias:
 	AS_SYMBOL? text_or_identifier
 ;         
 
-select_source_and_options:
-	limit_clause
-	| into_clause select_from?
-	| select_from into_clause?
-;
-
 limit_clause:
 	LIMIT_SYMBOL limit_options
 ;
@@ -1091,20 +1095,6 @@ into_clause:
 		| DUMPFILE_SYMBOL string_literal
 		| AT_SIGN_SYMBOL? text_or_identifier (COMMA_SYMBOL AT_SIGN_SYMBOL? text_or_identifier)*
 		| AT_TEXT_SUFFIX (COMMA_SYMBOL AT_TEXT_SUFFIX)*
-	)
-;
-
-select_from:
-	FROM_SYMBOL^
-	(
-		DUAL_SYMBOL ( options { greedy = true; }: where_clause)? ( options { greedy = true; }: limit_clause)?
-		| table_references
-			( options { greedy = true; }: where_clause)?
-			( options { greedy = true; }: group_by_clause)?
-			( options { greedy = true; }: having_clause)?
-			( options { greedy = true; }: order_by_clause)?
-			( options { greedy = true; }: limit_clause)?
-			( options { greedy = true; }: procedure_analyse_clause)?
 	)
 ;
 
@@ -1140,14 +1130,19 @@ direction:
 ;
 
 from_clause:
-	FROM_SYMBOL table_references
+	FROM_SYMBOL table_reference_list
 ;
 
 where_clause:
 	WHERE_SYMBOL^ expression
 ;
 
-table_references: // derived_table_list in sql_yacc.yy
+table_reference_list:
+	join_table_list
+	| DUAL_SYMBOL
+;
+
+join_table_list: // join_table_list + derived_table_list in sql_yacc.yy.
 	 escaped_table_reference ( options { greedy = true; }: COMMA_SYMBOL escaped_table_reference)*
 ;
 
@@ -1162,7 +1157,7 @@ escaped_table_reference:
 	| OPEN_CURLY_SYMBOL identifier table_reference CLOSE_CURLY_SYMBOL
 ;
 
-table_reference:
+table_reference: // table_ref in sql_yacc.yy, we use table_ref here for a different rule.
 	table_factor ( options { greedy = true; }: join)*
 ;
 
@@ -1176,13 +1171,8 @@ table_factor:
 	| table_ref use_partition? table_alias? index_hint_list?
 ;
 
-table_factor_select_tail:
-	select_from ( options { greedy = true; }: select_lock_type)?
-	| limit_clause
-;
-
 select_table_factor_union:
-	(table_references order_by_or_limit?) (UNION_SYMBOL union_option? query_specification)*
+	(table_reference_list order_by_or_limit?) (UNION_SYMBOL union_option? query_specification)*
 ;
 
 query_specification:
@@ -1190,7 +1180,7 @@ query_specification:
 	| OPEN_PAR_SYMBOL query_specification CLOSE_PAR_SYMBOL order_by_or_limit?
 ;
 
-join_table:
+join_table: // Like the same named rule in sql_yacc.yy but with removed left recursion.
 	(INNER_SYMBOL | CROSS_SYMBOL)? JOIN_SYMBOL table_reference ( options {greedy = true;}: join_condition)?
 	| STRAIGHT_JOIN_SYMBOL table_factor ( options {greedy = true;}: ON_SYMBOL expression)?
 	| (LEFT_SYMBOL | RIGHT_SYMBOL) OUTER_SYMBOL? JOIN_SYMBOL table_reference join_condition
@@ -1233,6 +1223,7 @@ index_hint:
 	index_hint_type key_or_index index_hint_clause? OPEN_PAR_SYMBOL index_list CLOSE_PAR_SYMBOL
 	| USE_SYMBOL key_or_index index_hint_clause? OPEN_PAR_SYMBOL index_list? CLOSE_PAR_SYMBOL
 ;
+
 index_hint_type:
 	FORCE_SYMBOL
 	| IGNORE_SYMBOL
@@ -1259,7 +1250,7 @@ index_list_element:
 //--------------------------------------------------------------------------------------------------
 
 update_statement:
-	UPDATE_SYMBOL^ LOW_PRIORITY_SYMBOL? IGNORE_SYMBOL? table_references
+	UPDATE_SYMBOL^ LOW_PRIORITY_SYMBOL? IGNORE_SYMBOL? table_reference_list
 		SET_SYMBOL column_assignment_list_with_default where_clause? order_by_clause? limit_clause?
 ;
 
@@ -1315,6 +1306,7 @@ lock_statement:
 lock_item:
 	table_ref table_alias? lock_option
 ;
+
 lock_option:
 	READ_SYMBOL LOCAL_SYMBOL?
 	| LOW_PRIORITY_SYMBOL? WRITE_SYMBOL // low priority deprecated since 5.7
