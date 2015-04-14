@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -103,15 +103,15 @@ public:
   LiveSchemaTree::ObjectType _mock_object_type;
   short _mock_flags;
 
-  std::list<std::string> _mock_schema_list;
+  StringListPtr  _mock_schema_list;
   StringListPtr _mock_table_list;
   StringListPtr _mock_view_list;
   StringListPtr _mock_procedure_list;
   StringListPtr _mock_function_list;
-  std::list<std::string> _mock_column_list;
-  std::list<std::string> _mock_index_list;
-  std::list<std::string> _mock_trigger_list;
-  std::list<std::string> _mock_fk_list;
+  StringListPtr _mock_column_list;
+  StringListPtr _mock_index_list;
+  StringListPtr _mock_trigger_list;
+  StringListPtr _mock_fk_list;
 
   std::vector<LiveSchemaTree::ChangeRecord>_mock_expected_changes;
 
@@ -152,10 +152,15 @@ public:
 
   void expect_fetch_schema_contents_call()
   {
+    _mock_schema_list = StringListPtr(new std::list<std::string>());
     _mock_table_list = StringListPtr(new std::list<std::string>());
     _mock_view_list = StringListPtr(new std::list<std::string>());
     _mock_procedure_list = StringListPtr(new std::list<std::string>());
     _mock_function_list = StringListPtr(new std::list<std::string>());
+    _mock_column_list = StringListPtr(new std::list<std::string>());
+    _mock_index_list = StringListPtr(new std::list<std::string>());
+    _mock_trigger_list = StringListPtr(new std::list<std::string>());
+    _mock_fk_list = StringListPtr(new std::list<std::string>());
     _expect_fetch_schema_contents_call = true;
   }
 
@@ -163,8 +168,9 @@ public:
   {
     ensure(_check_id + " : Unexpected call to fetch_schema_list", _expect_fetch_schema_list_call);
     _expect_fetch_schema_list_call = false;
-
-    return _mock_schema_list;
+    std::list<std::string> slist;
+    slist.assign(_mock_schema_list->begin(), _mock_schema_list->end());
+    return slist;
   }
   virtual bool fetch_data_for_filter(const std::string &schema_filter, const std::string &object_filter, const wb::LiveSchemaTree::NewSchemaContentArrivedSlot &arrived_slot)
   {
@@ -214,7 +220,7 @@ public:
       mforms::TreeNodeRef column;
       LiveSchemaTree::ColumnData* pdata;
 
-      for(size_t index = 0; index < _mock_column_list.size(); index++)
+      for(size_t index = 0; index < _mock_column_list->size(); index++)
       {
         column = parent->get_child((int)index);
         pdata = dynamic_cast<LiveSchemaTree::ColumnData*>(column->get_data());
@@ -223,7 +229,7 @@ public:
       
       pviewdata->set_loaded_data(LiveSchemaTree::COLUMN_DATA);
       
-      _mock_column_list.clear();
+      _mock_column_list->clear();
       _mock_call_back_slot_columns = false;
     }
 
@@ -238,7 +244,7 @@ public:
         mforms::TreeNodeRef index_node;
         LiveSchemaTree::IndexData* pdata;
 
-        for(size_t index = 0; index < _mock_index_list.size(); index++)
+        for(size_t index = 0; index < _mock_index_list->size(); index++)
         {
           index_node = parent->get_child((int)index);
           pdata = dynamic_cast<LiveSchemaTree::IndexData*>(index_node->get_data());
@@ -247,7 +253,7 @@ public:
 
         pviewdata->set_loaded_data(LiveSchemaTree::INDEX_DATA);
 
-        _mock_index_list.clear();
+        _mock_index_list->clear();
         _mock_call_back_slot_indexes = false;
       }
 
@@ -260,7 +266,7 @@ public:
         mforms::TreeNodeRef fk_node;
         LiveSchemaTree::FKData* pdata;
 
-        for(size_t index = 0; index < _mock_fk_list.size(); index++)
+        for(size_t index = 0; index < _mock_fk_list->size(); index++)
         {
           fk_node = parent->get_child((int)index);
           pdata = dynamic_cast<LiveSchemaTree::FKData*>(fk_node->get_data());
@@ -269,7 +275,7 @@ public:
 
         pviewdata->set_loaded_data(LiveSchemaTree::FK_DATA);
 
-        _mock_fk_list.clear();
+        _mock_fk_list->clear();
         _mock_call_back_slot_foreign_keys = false;
       }
 
@@ -282,7 +288,7 @@ public:
         mforms::TreeNodeRef trigger_node;
         LiveSchemaTree::TriggerData* pdata;
 
-        for(size_t index = 0; index < _mock_trigger_list.size(); index++)
+        for(size_t index = 0; index < _mock_trigger_list->size(); index++)
         {
           trigger_node = parent->get_child((int)index);
           pdata = dynamic_cast<LiveSchemaTree::TriggerData*>(trigger_node->get_data());
@@ -291,7 +297,7 @@ public:
 
         pviewdata->set_loaded_data(LiveSchemaTree::TRIGGER_DATA);
 
-        _mock_trigger_list.clear();
+        _mock_trigger_list->clear();
         _mock_call_back_slot_triggers = false;
       }
     }
@@ -442,10 +448,10 @@ TEST_DATA_CONSTRUCTOR(wb_live_schema_tree_test):
 void fill_basic_schema(const std::string &check_id)
 {
     // Fills the tree using the real structure..
-    std::list<std::string> schemas;
+    wb::StringListPtr schemas(new std::list<std::string>());
     mforms::TreeNodeRef node;
 
-    schemas.push_back("schema1");
+    schemas->push_back("schema1");
 
     // Fills a schema...
     _lst.update_schemata(schemas);
@@ -471,7 +477,7 @@ void fill_basic_schema(const std::string &check_id)
     deleg->_mock_object_name = "view1";
     deleg->_mock_object_type = LiveSchemaTree::View;
     deleg->_expect_fetch_object_details_call = true;
-    deleg->_mock_column_list.push_back("view_column1");
+    deleg->_mock_column_list->push_back("view_column1");
     deleg->_mock_call_back_slot_columns = true;
     deleg->_check_id = check_id;
 
@@ -484,12 +490,12 @@ void fill_basic_schema(const std::string &check_id)
     deleg->_mock_object_name = "table1";
     deleg->_mock_object_type = LiveSchemaTree::Table;
     deleg->_expect_fetch_object_details_call = true;
-    deleg->_mock_column_list.clear();
-    deleg->_mock_index_list.clear();
-    deleg->_mock_column_list.push_back("table_column1");
-    deleg->_mock_index_list.push_back("index1");
-    deleg->_mock_trigger_list.push_back("trigger1");
-    deleg->_mock_fk_list.push_back("fk1");
+    deleg->_mock_column_list->clear();
+    deleg->_mock_index_list->clear();
+    deleg->_mock_column_list->push_back("table_column1");
+    deleg->_mock_index_list->push_back("index1");
+    deleg->_mock_trigger_list->push_back("trigger1");
+    deleg->_mock_fk_list->push_back("fk1");
     deleg->_mock_call_back_slot_columns = true;
     deleg->_mock_call_back_slot_indexes = true;
     deleg->_mock_call_back_slot_triggers = true;
@@ -529,15 +535,15 @@ void fill_schema_object_lists()
 void fill_complex_schema(const std::string &check_id)
 {
     // Fills the tree using the real structure..
-    std::list<std::string> schemas;
+    wb::StringListPtr schemas(new std::list<std::string>());
     mforms::TreeNodeRef node;
     deleg->_check_id = check_id;
 
 
-    schemas.push_back("test_schema");
-    schemas.push_back("basic_schema");
-    schemas.push_back("basic_training");
-    schemas.push_back("dev_schema");
+    schemas->push_back("test_schema");
+    schemas->push_back("basic_schema");
+    schemas->push_back("basic_training");
+    schemas->push_back("dev_schema");
 
     // Fills a schema...
     _lst.update_schemata(schemas);
@@ -574,10 +580,10 @@ void fill_complex_schema(const std::string &check_id)
     deleg->check_and_reset(check_id);
 
     // Fills view column...
-    deleg->_mock_column_list.push_back("view_col1");
-    deleg->_mock_column_list.push_back("view_col2");
-    deleg->_mock_column_list.push_back("view_col3");
-    deleg->_mock_column_list.push_back("view_col4");
+    deleg->_mock_column_list->push_back("view_col1");
+    deleg->_mock_column_list->push_back("view_col2");
+    deleg->_mock_column_list->push_back("view_col3");
+    deleg->_mock_column_list->push_back("view_col4");
 
     deleg->_mock_schema_name = "test_schema";
     deleg->_mock_object_name = "first_view";
@@ -602,15 +608,15 @@ void fill_complex_schema(const std::string &check_id)
     // Fills table data...
     deleg->_mock_schema_name = "test_schema";
     deleg->_mock_object_type = LiveSchemaTree::Table;
-    deleg->_mock_column_list.clear();
-    deleg->_mock_index_list.clear();
-    deleg->_mock_column_list.push_back("id");
-    deleg->_mock_column_list.push_back("name");
-    deleg->_mock_column_list.push_back("relation");
-    deleg->_mock_index_list.push_back("primary_key");
-    deleg->_mock_index_list.push_back("name_unique");
-    deleg->_mock_trigger_list.push_back("a_trigger");
-    deleg->_mock_fk_list.push_back("some_fk");
+    deleg->_mock_column_list->clear();
+    deleg->_mock_index_list->clear();
+    deleg->_mock_column_list->push_back("id");
+    deleg->_mock_column_list->push_back("name");
+    deleg->_mock_column_list->push_back("relation");
+    deleg->_mock_index_list->push_back("primary_key");
+    deleg->_mock_index_list->push_back("name_unique");
+    deleg->_mock_trigger_list->push_back("a_trigger");
+    deleg->_mock_fk_list->push_back("some_fk");
     deleg->_mock_call_back_slot_columns = true;
     deleg->_mock_call_back_slot_indexes = true;
     deleg->_mock_call_back_slot_triggers = true;
@@ -939,12 +945,12 @@ TEST_FUNCTION(1)
 
 
     // Fills the tree using the real structure..
-    std::list<std::string> schemas;
+    wb::StringListPtr schemas(new std::list<std::string>());
     mforms::TreeNodeRef schema;
     mforms::TreeNodeRef view;
     LiveSchemaTree::ViewData *pdata;
 
-    schemas.push_back("one");
+    schemas->push_back("one");
 
     _lst.update_schemata(schemas);
     schema = _lst.get_child_node(test_node_ref, "one");
@@ -962,8 +968,8 @@ TEST_FUNCTION(1)
     deleg->_mock_object_name = "view1";
     deleg->_mock_object_type = LiveSchemaTree::View;
     deleg->_expect_fetch_object_details_call = true;
-    deleg->_mock_column_list.push_back("first_column");
-    deleg->_mock_column_list.push_back("second_column");
+    deleg->_mock_column_list->push_back("first_column");
+    deleg->_mock_column_list->push_back("second_column");
     deleg->_mock_call_back_slot_columns = true;
 
     _lst.load_table_details(LiveSchemaTree::View, "one", "view1", LiveSchemaTree::COLUMN_DATA);
@@ -1087,12 +1093,12 @@ TEST_FUNCTION(1)
 
 
     // Fills the tree using the real structure..
-    std::list<std::string> schemas;
+    wb::StringListPtr schemas(new std::list<std::string>());
     mforms::TreeNodeRef schema;
     mforms::TreeNodeRef table;
     LiveSchemaTree::TableData *pdata;
 
-    schemas.push_back("one");
+    schemas->push_back("one");
 
     _lst.update_schemata(schemas);
     schema = _lst.get_child_node(test_node_ref, "one");
@@ -1110,16 +1116,16 @@ TEST_FUNCTION(1)
     deleg->_mock_object_name = "table1";
     deleg->_mock_object_type = LiveSchemaTree::Table;
     deleg->_expect_fetch_object_details_call = true;
-    deleg->_mock_fk_list.push_back("fk_1");
-    deleg->_mock_fk_list.push_back("fk_2");
+    deleg->_mock_fk_list->push_back("fk_1");
+    deleg->_mock_fk_list->push_back("fk_2");
     deleg->_mock_call_back_slot_indexes = true;
-    deleg->_mock_index_list.push_back("first_column");
+    deleg->_mock_index_list->push_back("first_column");
     deleg->_mock_call_back_slot_triggers = true;
-    deleg->_mock_trigger_list.push_back("trigger1");
+    deleg->_mock_trigger_list->push_back("trigger1");
     deleg->_mock_call_back_slot_columns = true;
     deleg->_mock_call_back_slot_foreign_keys = true;
-    deleg->_mock_column_list.push_back("first_column");
-    deleg->_mock_column_list.push_back("second_column");
+    deleg->_mock_column_list->push_back("first_column");
+    deleg->_mock_column_list->push_back("second_column");
 
     _lst.load_table_details(LiveSchemaTree::Table, "one", "table1", LiveSchemaTree::COLUMN_DATA | LiveSchemaTree::FK_DATA | LiveSchemaTree::TRIGGER_DATA | LiveSchemaTree::INDEX_DATA);
 
@@ -1677,14 +1683,14 @@ TEST_FUNCTION(7)
 {
   mforms::TreeNodeRef node = pmodel_view->root_node();
   mforms::TreeNodeRef node_filtered = pmodel_view->root_node();
-  std::list<std::string> children01;
-  std::list<std::string> children02;
-  children01.push_back("actor");
-  children01.push_back("address");
-  children01.push_back("client");
-  children02.push_back("client");
-  children02.push_back("film");
-  children02.push_back("movie");
+  wb::StringListPtr children01(new std::list<std::string>());
+  wb::StringListPtr children02(new std::list<std::string>());
+  children01->push_back("actor");
+  children01->push_back("address");
+  children01->push_back("client");
+  children02->push_back("client");
+  children02->push_back("film");
+  children02->push_back("movie");
 
   // Clears the node to have a clean start of the test
   node->remove_children();
@@ -1710,9 +1716,9 @@ TEST_FUNCTION(7)
   ensure("TF007CHK004: Unable to find node film",   _lst.get_child_node(node, "film"));
   ensure("TF007CHK004: Unable to find node movie",   _lst.get_child_node(node, "movie"));
 
-  children01.push_back("actor");
-  children01.push_back("address");
-  children01.push_back("client");
+  children01->push_back("actor");
+  children01->push_back("address");
+  children01->push_back("client");
 
   // Testing an update removing nodes for unexisting names and appending new nodes
   ensure("TF007CHK005: Unexpected failure updating children",_lst.update_node_children(node, children01, LiveSchemaTree::Schema, true, true));
@@ -1734,9 +1740,9 @@ TEST_FUNCTION(7)
   ensure_equals("TF007CHK011: Unexpected number of schema nodes", node_filtered->count(), 3);
 
   // The first update will add the client nodes into the root
-  children01.push_back("filtered");
-  children01.push_back("finally");
-  children01.push_back("done");
+  children01->push_back("filtered");
+  children01->push_back("finally");
+  children01->push_back("done");
   ensure("TF007CHK002: Unexpected failure updating children", _lst_filtered.update_node_children(node_filtered, children01, LiveSchemaTree::Schema, true, true));
   ensure_equals("TF007CHK012: Unexpected number of nodes on base", node->count(), 8);
   ensure_equals("TF007CHK012: Unexpected number of nodes on filtered", node_filtered->count(), 5);
@@ -1752,8 +1758,8 @@ TEST_FUNCTION(7)
   ensure_equals("TF007CHK013: Unexpected number of nodes on filtered", node_filtered->count(), 5);
 
 
-  children02.push_back("client");
-  children02.push_back("customer");
+  children02->push_back("client");
+  children02->push_back("customer");
 
   // Testing an update removing nodes for unexisting names and appending new nodes
   ensure("TF007CHK014: Unexpected failure updating children", _lst_filtered.update_node_children(node_filtered, children02, LiveSchemaTree::Schema, true, false));
@@ -1763,14 +1769,14 @@ TEST_FUNCTION(7)
   ensure("TF007CHK014: Unable to find node customer",  _lst_filtered.get_child_node(node_filtered, "customer"));
   ensure("TF007CHK014: Unable to find node movie",  _lst_filtered.get_child_node(node_filtered, "movie"));
 
-  children01.push_back("actor");
-  children01.push_back("address");
-  children01.push_back("client");
-  children01.push_back("film");
-  children01.push_back("filtered");
-  children01.push_back("finally");
-  children01.push_back("movie");
-  children01.push_back("done");
+  children01->push_back("actor");
+  children01->push_back("address");
+  children01->push_back("client");
+  children01->push_back("film");
+  children01->push_back("filtered");
+  children01->push_back("finally");
+  children01->push_back("movie");
+  children01->push_back("done");
 
   // Testing an update removing nodes for unexisting names and appending new nodes
   ensure("TF007CHK015: Unexpected failure updating children",_lst_filtered.update_node_children(node_filtered, children01, LiveSchemaTree::Schema, true, false));
@@ -1794,11 +1800,11 @@ TEST_FUNCTION(8)
 {
   mforms::TreeNodeRef node = pmodel_view->root_node();
   mforms::TreeNodeRef schema;
-  std::list<std::string> schemas;
+  wb::StringListPtr schemas(new std::list<std::string>());
 
-  schemas.push_back("one");
-  schemas.push_back("two");
-  schemas.push_back("three");
+  schemas->push_back("one");
+  schemas->push_back("two");
+  schemas->push_back("three");
 
   _lst.update_node_children(node, schemas, LiveSchemaTree::Schema, true, true);
 
@@ -1825,14 +1831,14 @@ TEST_FUNCTION(9)
 {
   mforms::TreeNodeRef node = pmodel_view->root_node();
   mforms::TreeNodeRef schema;
-  std::list<std::string> schemas;
+  wb::StringListPtr schemas(new std::list<std::string>());
   LiveSchemaTree::SchemaData *pdata = NULL;
 
   ensure_equals("TF009CHK001: Unexpected number of nodes in root", node->count(), 0);
 
-  schemas.push_back("one");
-  schemas.push_back("two");
-  schemas.push_back("three");
+  schemas->push_back("one");
+  schemas->push_back("two");
+  schemas->push_back("three");
 
   _lst.update_schemata(schemas);
 
@@ -1882,14 +1888,14 @@ TEST_FUNCTION(10)
   mforms::TreeNodeRef schema;
   mforms::TreeNodeRef schema_base;
   mforms::TreeNodeRef child;
-  std::list<std::string> schemas;
+  wb::StringListPtr schemas(new std::list<std::string>());
   LiveSchemaTree::SchemaData *pdata = NULL;
 
   ensure_equals("TF010CHK001: Unexpected number of nodes in root", node->count(), 0);
 
-  schemas.push_back("one");
-  schemas.push_back("two");
-  schemas.push_back("three");
+  schemas->push_back("one");
+  schemas->push_back("two");
+  schemas->push_back("three");
 
   _lst.update_schemata(schemas);
 
@@ -1949,14 +1955,14 @@ TEST_FUNCTION(11)
   mforms::TreeNodeRef schema;
   mforms::TreeNodeRef schema_base;
   mforms::TreeNodeRef child;
-  std::list<std::string> schemas;
+  wb::StringListPtr schemas(new std::list<std::string>());
   LiveSchemaTree::SchemaData *pdata = NULL;
 
   ensure_equals("TF011CHK001: Unexpected number of nodes in root", node->count(), 0);
 
-  schemas.push_back("one");
-  schemas.push_back("two");
-  schemas.push_back("three");
+  schemas->push_back("one");
+  schemas->push_back("two");
+  schemas->push_back("three");
 
   _lst.update_schemata(schemas);
 
@@ -2104,12 +2110,12 @@ TEST_FUNCTION(12)
   mforms::TreeNodeRef node = pmodel_view->root_node();
   mforms::TreeNodeRef schema;
   mforms::TreeNodeRef table;
-  std::list<std::string> schemas;
+  wb::StringListPtr schemas(new std::list<std::string>());
   LiveSchemaTree::TableData *pdata = NULL;
 
   ensure_equals("TF012CHK001: Unexpected number of nodes in root", node->count(), 0);
 
-  schemas.push_back("one");
+  schemas->push_back("one");
 
   _lst.update_schemata(schemas);
 
@@ -2875,7 +2881,7 @@ TEST_FUNCTION(25)
 TEST_FUNCTION(26)
 {
     // Fills the tree using the real structure..
-    std::list<std::string> schemas;
+    wb::StringListPtr schemas(new std::list<std::string>());
     mforms::TreeNodeRef schema_node;
     mforms::TreeNodeRef schema_node_filtered;
     mforms::TreeNodeRef child_node;
@@ -2883,9 +2889,9 @@ TEST_FUNCTION(26)
     mforms::TreeNodeRef object_node;
     mforms::TreeNodeRef object_node_filtered;
 
-    schemas.push_back("schema1");
-    schemas.push_back("schema2");
-    schemas.push_back("schema3");
+    schemas->push_back("schema1");
+    schemas->push_back("schema2");
+    schemas->push_back("schema3");
 
     _lst.enable_events(true);
 
@@ -2925,12 +2931,12 @@ TEST_FUNCTION(26)
     deleg->_mock_object_name = "table3";
     deleg->_mock_object_type = LiveSchemaTree::Table;
     deleg->_expect_fetch_object_details_call = true;
-    deleg->_mock_column_list.clear();
-    deleg->_mock_index_list.clear();
-    deleg->_mock_column_list.push_back("table_column1");
-    deleg->_mock_index_list.push_back("index1");
-    deleg->_mock_trigger_list.push_back("trigger1");
-    deleg->_mock_fk_list.push_back("fk1");
+    deleg->_mock_column_list->clear();
+    deleg->_mock_index_list->clear();
+    deleg->_mock_column_list->push_back("table_column1");
+    deleg->_mock_index_list->push_back("index1");
+    deleg->_mock_trigger_list->push_back("trigger1");
+    deleg->_mock_fk_list->push_back("fk1");
     deleg->_mock_call_back_slot_columns = true;
     deleg->_mock_call_back_slot_indexes = true;
     deleg->_mock_call_back_slot_triggers = true;
@@ -2980,7 +2986,7 @@ TEST_FUNCTION(26)
     deleg->_mock_object_name = "view1";
     deleg->_mock_object_type = LiveSchemaTree::View;
     deleg->_expect_fetch_object_details_call = true;
-    deleg->_mock_column_list.push_back("view_column1");
+    deleg->_mock_column_list->push_back("view_column1");
     deleg->_mock_call_back_slot_columns = true;
     deleg->_check_id = "TF026CHK005";
 

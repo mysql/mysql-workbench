@@ -229,6 +229,7 @@ public:
 
     mforms::TextEntry *entry = _owner->new_entry_option(option, false);
     entry->set_tooltip(tooltip);
+    entry->set_size(80, -1);      //  Set a default size. If the size is never set, the text entry will not show if the _help_column == true
     
 #ifdef _WIN32
     TableItemFlags descriptionFlags = mforms::HFillFlag;
@@ -399,7 +400,7 @@ PreferencesForm::PreferencesForm(wb::WBContextUI *wbui, const workbench_physical
 
   _switcher.select_node(_switcher.node_at_row(0));
 
-  set_size(750, 600);
+  set_size(900, 700);
   center();
   
   show_values();
@@ -888,7 +889,7 @@ mforms::View *PreferencesForm::create_sqlide_page()
 
     {
       otable->add_checkbox_option("DbSqlEditor:SafeUpdates",
-                                  _("\"Safe Updates\".\nForbid UPDATEs and DELETEs with no key in WHERE clause or no LIMIT clause.\nRequires a reconnection."),
+                                  _("\"Safe Updates\". Forbid UPDATEs and DELETEs with no key in WHERE clause or no LIMIT clause. Requires a reconnection."),
                                   _("Enables the SQL_SAFE_UPDATES option for the session.\n"
                                     "If enabled, MySQL aborts UPDATE or DELETE statements\n"
                                     "that do not use a key in the WHERE clause or a LIMIT clause.\n"

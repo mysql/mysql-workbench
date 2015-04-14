@@ -146,6 +146,7 @@ class ConfigurationPage(WizardPage):
     def __init__(self, owner):
         WizardPage.__init__(self, owner, "Configure Import Settings", wide=True)
         
+        self.last_analyze_status = False
         self.input_file_type = 'csv'
         self.active_module = self.main.formats[0] # csv
         self.encoding_list = {'cp1250 (windows-1250)':'cp1250', 
@@ -162,12 +163,14 @@ class ConfigurationPage(WizardPage):
         self.main.close()
     
     def page_activated(self, advancing):
+        if advancing:
+            self.get_module()
+            
         if advancing and not self.main.destination_page.new_table_radio.get_active():
             self.load_dest_columns()
         super(ConfigurationPage, self).page_activated(advancing)
         
         if advancing:
-            self.get_module()
             self.call_create_preview_table()
         
     
@@ -275,7 +278,17 @@ class ConfigurationPage(WizardPage):
         self.ds_box.add(self.ds_entry, False, True)
         self.ds_box.show(False)
         
-        self.df_box.add(self.make_label_with_tooltip("Date format: ", "Tooltip"), False, True)
+        self.df_box.add(self.make_label_with_tooltip("Date format: ", "Expects string pattern with the date format.\n"
+                                                    "Default format is: %Y-%m-%d %H:%M:%S\n"
+                                                    "\nCommon used options:\n"
+                                                    "\t%d is the day number\n"
+                                                    "\t%m is the month number\n"
+                                                    "\t%y is the four digits year number\n"
+                                                    "\t%H is the hour number\n"
+                                                    "\t%M is the minute number\n"
+                                                    "\t%S is the second number\n\n"
+                                                    "More formats can be found under the following location:\n" 
+                                                    "https://docs.python.org/2/library/datetime.html#strftime-and-strptime-behavior"), False, True)
         self.df_entry = mforms.newTextEntry()
         self.df_entry.set_value("%Y-%m-%d %H:%M:%S")
         self.df_entry.set_size(200, -1)
@@ -318,10 +331,13 @@ class ConfigurationPage(WizardPage):
     
     def call_analyze(self):
         self.active_module.set_filepath(self.main.select_file_page.importfile_path.get_string_value())
-        self.active_module.set_encoding(self.encoding_list[self.encoding_sel.get_string_value()])
+        if self.input_file_type == 'csv':
+            self.active_module.set_encoding(self.encoding_list[self.encoding_sel.get_string_value()])
         if not self.active_module.analyze_file():
-            mforms.Utilities.show_warning("Table Data Import", "Can't analyze file, please try to change encoding type, if that doesn't help, maybe the file is not: %s." % self.active_module.title, "Ok", "", "")
+            mforms.Utilities.show_warning("Table Data Import", "Can't analyze file, please try to change encoding type, if that doesn't help, maybe the file is not: %s, or the file is empty." % self.active_module.title, "Ok", "", "")
+            self.last_analyze_status = False
             return False
+        self.last_analyze_status = True
         return True 
 
     def show_df_box(self, show = True):
@@ -496,7 +512,7 @@ class ConfigurationPage(WizardPage):
         
     def get_module(self):
         file_name, file_ext = os.path.splitext(os.path.basename(self.main.select_file_page.importfile_path.get_string_value()))
-        self.input_file_type = file_ext[1:]
+        self.input_file_type = str(file_ext[1:])
         for format in self.main.formats:
             if format.name == self.input_file_type:
                 self.active_module = format
@@ -505,6 +521,10 @@ class ConfigurationPage(WizardPage):
             raise Exception("Unsupported file type.")
         
     def validate(self):
+        if not self.last_analyze_status:
+            mforms.Utilities.show_message("Table Data Import", "File not loaded properly, please check the file and try again.", "Ok", "","")
+            return False
+        
         for row in self.column_mapping:
             if row['active']:
                 return True
@@ -530,6 +550,8 @@ class SelectDestinationPage(WizardPage):
             self.preload_existing_tables()
         
     def preload_existing_tables(self):
+        compare_in_lowercase = self.check_server_lower_case_table_names()
+        
         rset = self.main.editor.executeManagementQuery("SHOW DATABASES", 1)
         if rset:
             ok = rset.goToFirstRow()
@@ -540,16 +562,18 @@ class SelectDestinationPage(WizardPage):
                 if dbname.strip() in ["mysql", "sys", "information_schema", "fabric", "performance_schema"]:
                     ok = rset.nextRow()
                     continue
-                subrset = self.main.editor.executeManagementQuery("SHOW FULL TABLES FROM `%s`" % dbname, 0)
-                if subrset:
-                    subok = subrset.goToFirstRow()
-                    while subok:
-                        if subrset.stringFieldValue(1) == "BASE TABLE":
-                            self.table_list["%s.%s" % (dbname, subrset.stringFieldValue(0))] = {'schema': dbname, 'table': subrset.stringFieldValue(0)} 
-                            
-                        subok = subrset.nextRow()
                 db_list.append(dbname)
                 ok = rset.nextRow()
+            
+            rset = self.main.editor.executeManagementQuery("SHOW FULL TABLES FROM `%s`" % self.main.destination_table['schema'], 0)
+            if rset:
+                ok = rset.goToFirstRow()
+                while ok:
+                    if rset.stringFieldValue(1) == "BASE TABLE":
+                        table_name = rset.stringFieldValue(0) if not compare_in_lowercase else rset.stringFieldValue(0).lower() 
+                        self.table_list["%s.%s" % (self.main.destination_table['schema'], table_name)] = {'schema': self.main.destination_table['schema'], 'table': table_name} 
+                        
+                    ok = rset.nextRow()
             
             self.destination_table_sel.clear()
             self.destination_table_sel.add_items(self.table_list.keys())
@@ -639,8 +663,21 @@ class SelectDestinationPage(WizardPage):
         elif self.existing_table_radio.get_active():
             self.drop_table_cb.show(False)
             self.truncate_table_cb.show(True)
+            
+    def check_server_lower_case_table_names(self):
+        rset = self.main.editor.executeManagementQuery("SHOW SESSION VARIABLES LIKE 'lower_case_table_names'", 1)
+        if rset and rset.goToFirstRow():
+            return rset.intFieldValueByName("Value") != 0 
+        return False
     
+    def check_if_table_exists(self, schema, table):
+        rset = self.main.editor.executeManagementQuery("SHOW TABLES FROM `%s` like '%s'" % (schema, table), 1)
+        if rset and rset.goToFirstRow():
+            return True
+        return False
+
     def validate(self):
+        compare_in_lowercase = self.check_server_lower_case_table_names()
         if self.existing_table_radio.get_active():
             self.main.destination_table = self.table_list[self.destination_table_sel.get_string_value()]
         else:
@@ -649,15 +686,20 @@ class SelectDestinationPage(WizardPage):
             if len(self.main.destination_table['table']) == 0:
                 mforms.Utilities.show_error("Table Import", "You need to specify new table name", "Ok", "", "")
                 return False 
+            
+            if compare_in_lowercase:
+                self.main.destination_table['table'] = self.main.destination_table['table'].lower()
+            
             table_name = "%s.%s" % (self.main.destination_table['schema'], self.main.destination_table['table'])
-            if not self.drop_table_cb.get_active() and table_name in self.table_list:
+
+            if not self.drop_table_cb.get_active() and (table_name in self.table_list or self.check_if_table_exists(self.main.destination_table['schema'], self.main.destination_table['table'])):
                 res = mforms.Utilities.show_message("Table Import", "You specify to create new table, but table with such name already exists in the selected schema. Would you like to drop it, or use existing one and truncate?", "Drop the table", "Use Existing One and Truncate it", "Cancel")
                 if res == mforms.ResultOk: 
                     self.drop_table_cb.set_active(True)
                 elif res == mforms.ResultCancel:
                     self.truncate_table_cb.set_active(True)
                     self.existing_table_radio.set_active(True)
-                    self.destination_table_sel.set_selected(self.table_list.index(table_name))
+                    self.destination_table_sel.set_selected(self.table_list.keys().index(table_name))
                 else:
                     return False 
         return True
