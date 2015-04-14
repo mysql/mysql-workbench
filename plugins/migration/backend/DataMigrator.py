@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014 Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2015 Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -233,7 +233,7 @@ class DataMigrator(object):
         if not self.copytable_path:
             raise RuntimeError("Path to wbcopytables not found")
 
-        args = self.helper_basic_arglist(False)
+        args = self.helper_basic_arglist(self._resume)
 
         if self._resume:
             args.append("--resume")
