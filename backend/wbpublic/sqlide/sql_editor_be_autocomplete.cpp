@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -152,7 +152,6 @@ static struct
 
     // We have to use strings for the ignored tokens, instead of their #defines because we would have
     // to include MySQLParser.h, which conflicts with ANTLRv3Parser.h.
-    // Additionally, we need strings anyway to show in the code completion list.
     ignored_tokens.clear();
     ignored_tokens.insert("EQUAL_OPERATOR");
     ignored_tokens.insert("ASSIGN_OPERATOR");
@@ -202,22 +201,35 @@ static struct
     ignored_tokens.insert("DOUBLE_QUOTED_TEXT");
     ignored_tokens.insert("NCHAR_TEXT");
 
-    // Load token map first. Assume the grammar file has the .g extension.
-    std::string token_file_name = name.substr(0, name.size() - 2) + ".tokens";
-    std::ifstream token_file(token_file_name.c_str());
-    assert(token_file.is_open());
-    while (!token_file.eof())
+    // Load token map first.
+    std::string tokenFileName = base::strip_extension(name) + ".tokens";
+    std::ifstream tokenFile(tokenFileName.c_str());
+    if (tokenFile.is_open())
     {
-      std::string line;
-      std::getline(token_file, line);
-      std::string::size_type p = line.find('=');
+      while (!tokenFile.eof())
+      {
+        std::string line;
+        std::getline(tokenFile, line);
+        std::string::size_type p = line.find('=');
 
-      token_map[line.substr(0, p)] = atoi(line.substr(p + 1).c_str());
+        token_map[line.substr(0, p)] = atoi(line.substr(p + 1).c_str());
+      }
     }
+    else
+      log_error("Token file not found (%s)\n", tokenFileName.c_str());
+
     token_map["EOF"] = ANTLR3_TOKEN_EOF;
 
     // Now parse the grammar.
     std::ifstream stream(name.c_str(), std::ifstream::binary);
+    if (!stream.is_open())
+    {
+      log_error("Grammar file not found\n");
+      return;
+    }
+
+    log_debug("Parsing grammar...");
+
     std::string text((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
 
     pANTLR3_INPUT_STREAM input = antlr3StringStreamNew((pANTLR3_UINT8)text.c_str(), ANTLR3_ENC_UTF8,
@@ -228,30 +240,28 @@ static struct
 
     pANTLR3_BASE_TREE tree = parser->grammarDef(parser).tree;
 
-    ANTLR3_UINT32 error_count = parser->pParser->rec->state->errorCount;
-    //std::cout << "Errors found: " << error_count << "\n";
-
-    //std::string dump = dumpTree(tree, parser->pParser->rec->state, "");
-    //std::cout << dump;
-
-    if (error_count == 0)
+    if (parser->pParser->rec->state->errorCount > 0)
+      log_error("Found grammar errors. No code completion data available.");
+    else
     {
+      //std::string dump = dumpTree(tree, parser->pParser->rec->state, "");
+      //std::cout << dump;
+
       // Walk the AST and put all the rules into our data structures.
       // We can handle here only combined and pure parser grammars (the lexer rules are ignored in a combined grammar).
       switch (tree->getType(tree))
       {
-        case COMBINED_GRAMMAR_V3TOK:
-        case PARSER_GRAMMAR_V3TOK:
-          // Advanced to the first rule. The first node is the grammar node. Everything else is in child nodes of this.
-          for (ANTLR3_UINT32 index = 0; index < tree->getChildCount(tree); index++)
-          {
-            pANTLR3_BASE_TREE child = (pANTLR3_BASE_TREE)tree->getChild(tree, index);
-            if (child->getType(child) == RULE_V3TOK)
-              traverse_rule(child);
-          }
-          break;
+      case COMBINED_GRAMMAR_V3TOK:
+      case PARSER_GRAMMAR_V3TOK:
+        // Advanced to the first rule. The first node is the grammar node. Everything else is in child nodes of this.
+        for (ANTLR3_UINT32 index = 0; index < tree->getChildCount(tree); index++)
+        {
+          pANTLR3_BASE_TREE child = (pANTLR3_BASE_TREE)tree->getChild(tree, index);
+          if (child->getType(child) == RULE_V3TOK)
+            traverse_rule(child);
+        }
+        break;
       }
-
     }
     
     // Must manually clean up.
@@ -1008,8 +1018,7 @@ void MySQLEditor::setup_auto_completion()
   if (rules_holder.rules.empty())
   {
     std::string grammar_path = make_path(grtm()->get_basedir(), "data/MySQL.g");
-    if (file_exists(grammar_path))
-      rules_holder.parse_file(grammar_path);
+    rules_holder.parse_file(grammar_path);
   }
 }
 
