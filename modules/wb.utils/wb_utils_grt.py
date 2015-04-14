@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -241,7 +241,6 @@ def connectionFromString(connstr):
         # check if this is a mysql cmdline client command
         tokens = shlex.split(connstr.strip())
         if tokens:
-            print tokens
             if tokens[0].endswith("mysql") or tokens[0].endswith("mysql.exe"):
                 i = 1
                 valid = True
@@ -931,13 +930,13 @@ class SSLWizard_GeneratePage(WizardPage):
 
     def get_attributes(self, target):
         l = []
-        l.append("C=%s"%self.country_code.get_string_value())
-        l.append("ST=%s"%self.state_name.get_string_value())
-        l.append("L=%s"%self.locality_name.get_string_value())
-        l.append("O=%s"%self.org_name.get_string_value())
-        l.append("OU=%s"%self.org_unit.get_string_value())
-        l.append("CN=%s-%s"%(self.common_name.get_string_value(), target))
-        l.append("emailAddress=%s"%self.email_address.get_string_value())
+        l.append("C=%s"%self.country_code.get_string_value().encode('utf-8'))
+        l.append("ST=%s"%self.state_name.get_string_value().encode('utf-8'))
+        l.append("L=%s"%self.locality_name.get_string_value().encode('utf-8'))
+        l.append("O=%s"%self.org_name.get_string_value().encode('utf-8'))
+        l.append("OU=%s"%self.org_unit.get_string_value().encode('utf-8'))
+        l.append("CN=%s-%s"%(self.common_name.get_string_value().encode('utf-8'), target))
+        l.append("emailAddress=%s"%self.email_address.get_string_value().encode('utf-8'))
         # filter out blank values
         l = [s for s in l if s.partition("=")[-1]]
         if not l:
