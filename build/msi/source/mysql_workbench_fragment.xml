@@ -113,6 +113,7 @@
                 <File Id="file1073" Name="base.wr.dll"/>
                 <File Id="file1052" Name="MySQLCsUtilities.dll"/>
                 <File Id="file1053" Name="WBControls.dll"/>
+				<File Id="file1054" Name="WBControls.dll.config"/>
                 <File Id="file1067" Name="wb.model.editors.wbp.be.dll"/>
                 <File Id="file1068" Name="wb.model.editors.wbp.fe.dll"/>
                 <File Id="file1069" Name="wb.model.editors.wbp.wr.dll"/>
@@ -158,6 +159,7 @@
 
               <Component DiskId="1" Guid="47641656-8430-4722-B558-DAE76CA7C0CA" Id="MySQLWorkbench.exe" Location="either">
                 <File Id="file1056" KeyPath="yes" Name="MySQLWorkbench.exe"/>
+				<File Id="file1057" Name="MySQLWorkbench.exe.config"/>
 
                 <File Id="MySQLWorkbenchDoc.ico" Name="MySQLWorkbenchDoc.ico"/>
                 <File Id="MySQLWBPlugin.ico" Name="MySQLWBPlugin.ico"/>
@@ -187,6 +189,8 @@
                   <File Id="file2001" Name="db_datatype_groups.xml"/>
                   <File Id="file2002" Name="main_menu.xml"/>
                   <File Id="file2003" Name="model_toolbar.xml"/>
+                  <File Id="mysql.g" Name="MySQL.g"/>
+                  <File Id="mysql.tokens" Name="MySQL.tokens"/>
                   <File Id="file2004" Name="model_option_toolbar_layer.xml"/>
                   <File Id="file2005" Name="model_option_toolbar_note.xml"/>
                   <File Id="file2006" Name="model_option_toolbar_physical_relationship.xml"/>
@@ -780,6 +784,7 @@
                     <File Id="home22" Name="wb_tile_time.png"/>
                     <File Id="home23" Name="wb_tile_user.png"/>
                     <File Id="home24" Name="wb_doc_model.png"/>
+					<File Id="home24a" Name="wb_doc_model@2x.png"/>
                     <File Id="home25" Name="wb_doc_sql.png"/>
                     <File Id="home26" Name="wb_tile_number.png"/>
                     <File Id="home27" Name="wb_close.png"/>
@@ -1961,6 +1966,7 @@
                   <File Id="file12122" Name="Windows_x64_(MySQL_x86_zip_Package).xml"/>
                   <File Id="file12123" Name="Windows_(MySQL_5.5_Installer_Package).xml"/>
                   <File Id="file12126" Name="Windows_(MySQL_5.6_Installer_Package).xml"/>
+				  <File Id="file12127" Name="Windows_(MySQL_5.7_Installer_Package).xml"/>
                   <File Id="file12129" Name="Oracle_Linux_6_(MySQL_Package).xml"/>
                   <File Id="file12130" Name="Oracle_Linux_7_(MySQL_Package).xml"/>
                   <File Id="file12131" Name="RHEL_7_(MySQL_Package).xml"/>
