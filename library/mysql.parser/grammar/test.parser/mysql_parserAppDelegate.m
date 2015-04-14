@@ -362,6 +362,7 @@ NSString *sql10 = @"CREATE TABLE total (\n"
   "  message CHAR(20), INDEX(a))\n"
   "  ENGINE=MERGE UNION=(t1,t2) INSERT_METHOD=LAST;\n";
 NSString *sql11 = @"SELECT a FROM tick t WHERE timestamp > (((((((SELECT 1)  + 1))))))";
+NSString *sql12 = @"select * from (select 1 from dual)";
 
 @implementation mysql_parserAppDelegate
 
@@ -372,7 +373,7 @@ NSString *sql11 = @"SELECT a FROM tick t WHERE timestamp > (((((((SELECT 1)  + 1
   // Make the SQL edit control scroll horizontally too.
   [[text textContainer] setContainerSize: NSMakeSize(FLT_MAX, FLT_MAX)];
   [[text textContainer] setWidthTracksTextView: NO];
-  [text setString: sql11];
+  [text setString: sql12];
 }
 
 - (NSString*)dumpTree: (pANTLR3_BASE_TREE)tree state: (pANTLR3_RECOGNIZER_SHARED_STATE)state indentation: (NSString*)indentation
@@ -483,7 +484,7 @@ NSString *sql11 = @"SELECT a FROM tick t WHERE timestamp > (((((((SELECT 1)  + 1
   pANTLR3_COMMON_TOKEN_STREAM tokens;
   pMySQLParser parser;
 
-  RecognitionContext context = {[self getServerVersion], [self getSqlModes], nil};
+  RecognitionContext context = { 0, 0, [self getServerVersion], [self getSqlModes], nil };
 
   NSString *sql = [text string];
   std::string utf8 = [sql UTF8String];
@@ -527,7 +528,7 @@ NSString *sql11 = @"SELECT a FROM tick t WHERE timestamp > (((((((SELECT 1)  + 1
   pANTLR3_COMMON_TOKEN_STREAM tokens;
   pMySQLParser parser;
   
-  RecognitionContext context = {serverVersion, sqlModes, nil};
+  RecognitionContext context = { 0, 0, serverVersion, sqlModes, nil };
   
   std::string utf8 = [query UTF8String];
   input = antlr3StringStreamNew((pANTLR3_UINT8)utf8.c_str(), ANTLR3_ENC_UTF8, utf8.size(), (pANTLR3_UINT8)"sql-script");
@@ -559,7 +560,7 @@ bool parse_and_compare(const std::string query, pANTLR3_BASE_TREE tree, unsigned
   pANTLR3_COMMON_TOKEN_STREAM tokens;
   pMySQLParser parser;
   
-  RecognitionContext context = {server_version, sql_modes, nil};
+  RecognitionContext context = { 0, 0, server_version, sql_modes, nil };
   
   input = antlr3StringStreamNew((pANTLR3_UINT8)query.c_str(), ANTLR3_ENC_UTF8, query.size(), (pANTLR3_UINT8)"sql-script");
   input->setUcaseLA(input, ANTLR3_TRUE);
@@ -1543,7 +1544,7 @@ bool parse_and_compare(const std::string query, pANTLR3_BASE_TREE tree, unsigned
     pANTLR3_COMMON_TOKEN_STREAM tokenStream;
     pMySQLParser parser;
 
-    RecognitionContext context = {[self getServerVersion], [self getSqlModes], nil};
+    RecognitionContext context = { 0, 0, [self getServerVersion], [self getSqlModes], nil};
 
     std::string utf8 = [query UTF8String];
     input = antlr3StringStreamNew((pANTLR3_UINT8)utf8.c_str(), ANTLR3_ENC_UTF8, utf8.size(), (pANTLR3_UINT8)"sql-script");
