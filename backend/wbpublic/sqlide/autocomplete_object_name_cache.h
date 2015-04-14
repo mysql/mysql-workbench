@@ -25,9 +25,13 @@
 #include "base/threading.h"
 #include "cppdbc.h"
 
+
+typedef boost::shared_ptr<std::list<std::string> > StringListPtr;
 class WBPUBLICBACKEND_PUBLIC_FUNC AutoCompleteCache
 {
+
 public:
+
   // Note: feedback can be called from the worker thread. Make the necessary arrangements.
   //       It comes with parameter true if the cache update is going on, otherwise false.
   AutoCompleteCache(const std::string &connection_id,
@@ -72,10 +76,10 @@ public:
 
   // Update functions that can also be called from outside.
   void update_schemas(const std::vector<std::string> &schemas);
-  void update_tables(const std::string &schema, const std::list<std::string> &tables);
-  void update_views(const std::string &schema, const std::list<std::string> &tables);
-  void update_procedures(const std::string &schema, const std::list<std::string> &tables);
-  void update_functions(const std::string &schema, const std::list<std::string> &tables);
+  void update_tables(const std::string &schema, StringListPtr tables);
+  void update_views(const std::string &schema, StringListPtr tables);
+  void update_procedures(const std::string &schema, StringListPtr tables);
+  void update_functions(const std::string &schema, StringListPtr tables);
 
   // Status functions.
   bool is_schema_list_fetch_done();
@@ -146,7 +150,7 @@ private:
   void update_object_names(const std::string &cache, const std::vector<std::string> &objects);
   void update_object_names(const std::string &cache,
                            const std::string &schema,
-                           const std::list<std::string> &objects);
+                           StringListPtr objects);
   void update_object_names(const std::string &cache,
                            const std::string &schema,
                            const std::string &table,

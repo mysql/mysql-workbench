@@ -2693,13 +2693,13 @@ std::string SqlEditorForm::active_schema() const
  * info to update the auto completion cache - avoiding so a separate set of queries to the server.
  */
 void SqlEditorForm::schema_meta_data_refreshed(const std::string &schema_name,
-    StringListPtr tables, StringListPtr views,
-    StringListPtr procedures, StringListPtr functions)
+    wb::StringListPtr tables, wb::StringListPtr views,
+    wb::StringListPtr procedures, wb::StringListPtr functions)
 {
   if (_auto_completion_cache != NULL)
   {
-    _auto_completion_cache->update_tables(schema_name, *tables);
-    _auto_completion_cache->update_views(schema_name, *views);
+    _auto_completion_cache->update_tables(schema_name, tables);
+    _auto_completion_cache->update_views(schema_name, views);
 
     // Schedule a refresh of column info for all tables/views.
     for (std::list<std::string>::const_iterator i = tables->begin(); i != tables->end(); ++i)
@@ -2707,8 +2707,8 @@ void SqlEditorForm::schema_meta_data_refreshed(const std::string &schema_name,
     for (std::list<std::string>::const_iterator i = views->begin(); i != views->end(); ++i)
       _auto_completion_cache->refresh_columns(schema_name, *i);
 
-    _auto_completion_cache->update_procedures(schema_name, *procedures);
-    _auto_completion_cache->update_functions(schema_name, *functions);
+    _auto_completion_cache->update_procedures(schema_name, procedures);
+    _auto_completion_cache->update_functions(schema_name, functions);
   }
 }
 

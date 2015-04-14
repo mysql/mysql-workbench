@@ -82,6 +82,7 @@ class SimpleTabExport(mforms.Box):
         self.create_ui()
         
     def create_ui(self):
+        self.suspend_layout()
         self.set_spacing(16)
         self.content.set_spacing(16)
         
@@ -128,6 +129,7 @@ class SimpleTabExport(mforms.Box):
 
         colbox.add(limit_offset, False, True)
         self.content.add(colbox, True, True)
+        self.resume_layout()
     
     def sell_all(self, checkbox):
         for i in range(self.column_list.count()):
@@ -141,13 +143,14 @@ class SimpleTabExport(mforms.Box):
             control.set_value("".join([s for s in list(txt) if s.isdigit()])) 
  
     def set_columns(self, cols):
+        self.column_list.freeze_refresh()
         self.column_list.clear()
         self.columns = cols
         for col in self.columns:
             node = self.column_list.add_node()
             node.set_bool(0, True)
             node.set_string(1, col['name'])     
-        self.column_list.relayout()
+        self.column_list.thaw_refresh()
         
     def get_query(self):
         limit = ""
@@ -294,6 +297,7 @@ class SelectFilePage(WizardPage):
         self.export_local_box.show(bool(self.main.data_input_page._showing_simple))
             
     def create_ui(self):
+        self.suspend_layout()
         self.set_spacing(16)
         
         label = mforms.newLabel("Table Data Export allows you to easily export data into csv, json datafiles.\n")
@@ -347,6 +351,7 @@ class SelectFilePage(WizardPage):
         self.export_local_box.add(l, False, True)
         
         self.content.add(self.export_local_box, False, True)
+        self.resume_layout()
         
         self.load_module_options()
     
@@ -410,6 +415,8 @@ class SelectFilePage(WizardPage):
                 mforms.Utilities.show_error(self.main.title, "This file format is not supported, please select csv or json.", "Ok", "", "")
     
     def load_module_options(self):
+        self.suspend_layout()
+        
         self.optpanel.show(False)
         if self.optbox:
             self.optpanel.remove(self.optbox)
@@ -451,6 +458,7 @@ class SelectFilePage(WizardPage):
                 self.optbox.add(label_box, False, False)
             self.optpanel.add(self.optbox)
             self.optpanel.show(True)        
+        self.resume_layout()
         
     def go_cancel(self):
         self.main.close()
@@ -488,6 +496,7 @@ class DataInputPage(WizardPage):
         self.table_list = {}
         
     def create_ui(self):
+        self.suspend_layout()
         self.set_spacing(16)
         
         self.simple_export_box = mforms.newBox(False)
@@ -516,8 +525,10 @@ class DataInputPage(WizardPage):
         self.advanced_export = AdvancedTabExport(self.main.editor, self)
         self.advanced_export.show(False)
         self.content.add(self.advanced_export, True, True)
+        self.resume_layout()
         
         self.preload_table_info()
+        
         
     def get_table_columns(self, table):
         cols = []
@@ -549,21 +560,13 @@ class DataInputPage(WizardPage):
         self.simple_export.set_columns(self.get_table_columns(self.main.source_table))
     
     def preload_existing_tables(self):
-        rset = self.main.editor.executeManagementQuery("SHOW DATABASES", 1)
         self.table_list = {}
+       
+        rset = self.main.editor.executeManagementQuery("SHOW TABLES FROM `%s`" % self.main.source_table['schema'], 0)
         if rset:
             ok = rset.goToFirstRow()
             while ok:
-                dbname = rset.stringFieldValue(0)
-                if dbname.strip() in ["mysql", "sys", "information_schema", "fabric", "performance_schema"]:
-                    ok = rset.nextRow()
-                    continue
-                subrset = self.main.editor.executeManagementQuery("SHOW TABLES FROM `%s`" % dbname, 0)
-                if subrset:
-                    subok = subrset.goToFirstRow()
-                    while subok:
-                        self.table_list["%s.%s" % (dbname, subrset.stringFieldValue(0))] = {'schema': dbname, 'table': subrset.stringFieldValue(0)}
-                        subok = subrset.nextRow()
+                self.table_list["%s.%s" % (self.main.source_table['schema'], rset.stringFieldValue(0))] = {'schema': self.main.source_table['schema'], 'table': rset.stringFieldValue(0)}
                 ok = rset.nextRow()
         
     def go_advanced(self):

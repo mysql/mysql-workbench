@@ -488,6 +488,10 @@ class csv_module(base_module):
                         else:
                             break
                     for col in self._columns:
+                        # Means the file is missing some data or is mallformed
+                        if len(col['value']) == 0:
+                            return False
+
                         gtype = self.guess_type(col['value'])
                         if gtype not in self._type_map:
                             raise Exception("Unhandled type: %s in %s" % (gtype, self._type_map))
@@ -629,7 +633,7 @@ class json_module(base_module):
 
     def analyze_file(self):
         data = []
-        with open(self._filepath, 'r') as f:
+        with open(self._filepath, 'rb') as f:
             prevchar = None
             stropen = False
             inside = 0
