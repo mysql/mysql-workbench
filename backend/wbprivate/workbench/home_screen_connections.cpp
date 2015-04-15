@@ -1434,6 +1434,7 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner)
 
   _accessible_click_handler = boost::bind(&ConnectionsSection::mouse_click, this,
                                           mforms::MouseButtonLeft, _1, _2);
+  scoped_connect(signal_resized(), boost::bind(&ConnectionsSection::on_resize, this));
 
   _add_button.name = "Add Connection";
   _add_button.default_action = "Open New Connection Wizard";
@@ -1690,6 +1691,8 @@ boost::shared_ptr<ConnectionEntry> ConnectionsSection::entry_from_point(int x, i
   boost::shared_ptr<ConnectionEntry> entry;
 
   ConnectionVector connections(displayed_connections());
+  if (_page_start > (ssize_t)connections.size())
+    return entry;
   for (ConnectionVector::iterator conn = connections.begin() + _page_start; conn != connections.end(); ++conn)
   {
     if ((*conn)->bounds.contains(x, y))
@@ -1889,6 +1892,7 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
   bool page_start = true;
 
   _next_page_start = -1;
+  _entries_per_page = -1;
   while (!done)
   {
     bounds.pos.x = CONNECTIONS_LEFT_PADDING;
@@ -2023,9 +2027,11 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
     {
       // We light flag to indicate the next row is partially drawn
       // And backup the indext of the first item of this row which will be
-      // the first item on the nexp page.
+      // the first item on the next page.
       draw_partial = true;
       _next_page_start = index;
+      if (_entries_per_page < 0)
+        _entries_per_page = index;
     }
 
     // Next row is totally out of the available space
@@ -2038,9 +2044,13 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
       if (draw_partial)
         draw_partial = false;
       else
+      {
         // This case there was not row painted partially, so next page start item
         // is the current index.
         _next_page_start = index;
+        if (_entries_per_page < 0)
+          _entries_per_page = index;
+      }
         
 
       // We reinit these vars so the calculation of the next page is done correctly
@@ -2054,6 +2064,12 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
     }
   }
 
+  if (visible_page >= num_pages)
+  {
+    --visible_page;
+    _prev_page_start.pop_back();
+    set_needs_repaint();
+  }
   // See if we need to draw the paging indicator.
   if (num_pages > 1)
   {
@@ -2065,6 +2081,13 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
     _page_down_button.bounds = base::Rect();
     _page_start = 0; // Size increased to cover the full content.
   }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void ConnectionsSection::on_resize()
+{
+  _page_start = _prev_page_start.size() * _entries_per_page;
 }
 
 //------------------------------------------------------------------------------------------------
@@ -2280,7 +2303,7 @@ bool ConnectionsSection::mouse_double_click(mforms::MouseButton button, int x, i
       if (_page_down_button.bounds.contains(x, y))
       {
         _prev_page_start.push_back(_page_start);
-        _page_start = _next_page_start;
+        _page_start = _prev_page_start.size() * _entries_per_page;
         set_needs_repaint();
         return true;
       }
@@ -2334,7 +2357,7 @@ bool ConnectionsSection::mouse_click(mforms::MouseButton button, int x, int y)
       if (_page_down_button.bounds.contains(x, y))
       {
         _prev_page_start.push_back(_page_start);
-        _page_start = _next_page_start;
+        _page_start = _prev_page_start.size() * _entries_per_page;
         set_needs_repaint();
         return true;
       }
