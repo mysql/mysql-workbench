@@ -172,12 +172,15 @@ private:
   base::RecMutex _sqconn_mutex;
   sqlite::connection *_sqconn;
 
+protected:
   GThread *_refresh_thread;
   base::Semaphore _cache_working;
+
 
   base::RecMutex _pending_mutex; // Protects the pending tasks.
   std::list<RefreshTask> _pending_tasks;
 
+private:
   std::string _connection_id;
   boost::function<base::RecMutexLock (sql::Dbc_connection_handler::Ref &)> _get_connection;
   boost::function<void (bool)> _feedback;
