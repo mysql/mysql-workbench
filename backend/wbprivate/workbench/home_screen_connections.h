@@ -99,6 +99,8 @@ namespace wb
     ssize_t _next_page_start_backup;
     std::list<ssize_t> _prev_page_start_backup; // a stack of previous page start indexes
 
+    ssize_t _entries_per_page;
+
     typedef std::vector<boost::shared_ptr<ConnectionEntry> > ConnectionVector;
     typedef ConnectionVector::iterator ConnectionIterator;
     ConnectionVector _connections;
@@ -150,6 +152,8 @@ namespace wb
     void draw_paging_part(cairo_t *cr, int current_page, int pages, bool high_contrast);
 
     void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah);
+
+    void on_resize();
 
     virtual bool mouse_down(mforms::MouseButton button, int x, int y);
     virtual bool mouse_up(mforms::MouseButton button, int x, int y);
