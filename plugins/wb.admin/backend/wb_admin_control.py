@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -130,6 +130,17 @@ class SQLQueryExecutor(object):
             if self.is_connected():
                 log_debug("Executing query %s\n" % strip_password(query))
                 result = self.dbconn.executeQuery(query)
+        finally:
+            self.mtx.release()
+        return result
+
+    def exec_query_multi_result(self, query):
+        result = None
+        self.mtx.acquire()
+        try:
+            if self.is_connected():
+                log_debug("Executing query multi result %s\n" % strip_password(query))
+                result = self.dbconn.executeQueryMultiResult(query)
         finally:
             self.mtx.release()
         return result
@@ -552,6 +563,23 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
                 log_warning("Error executing query %s: %s\n"%(q, strip_password(str(e))))
                 if auto_reconnect and e.is_connection_error():
                     log_warning("exec_query: Loss of connection to mysql server was detected.\n")
+                    self.handle_sql_disconnection(e)
+                else: # if exception is not handled, give a chance to the caller do it
+                    raise e
+        else:
+            log_info("sql connection is down\n")
+
+        return ret
+
+    def exec_query_multi_result(self, q, auto_reconnect=True):
+        ret = None
+        if self.sql is not None:
+            try:
+                ret = self.sql.exec_query_multi_result(q)
+            except QueryError, e:
+                log_warning("Error executing query multi result %s: %s\n"%(q, strip_password(str(e))))
+                if auto_reconnect and e.is_connection_error():
+                    log_warning("exec_query_multi_result: Loss of connection to mysql server was detected.\n")
                     self.handle_sql_disconnection(e)
                 else: # if exception is not handled, give a chance to the caller do it
                     raise e
