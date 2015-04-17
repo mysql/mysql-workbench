@@ -181,7 +181,13 @@ build/zip/distribution/
 MySQL.tokens
 config.cnf
 wb-build/
-testing/tut/data/
 testing/tut/build/
 *.kdev4
 
+testing/tut/data/connections.xml
+testing/tut/data/**/*_res.xml
+testing/tut/data/wb_state.xml
+testing/tut/data/wb_options.xml
+testing/tut/data/user_starters.xml
+testing/tut/data/starters_settings.xml
+testing/tut/data/server_instances.xml
