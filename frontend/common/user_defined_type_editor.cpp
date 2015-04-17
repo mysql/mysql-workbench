@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -156,7 +156,10 @@ void UserDefinedTypeEditor::refresh()
   for (grt::ListRef<db_UserDatatype>::const_iterator t= udts.begin(); t != udts.end(); ++t)
   {
     // skip system entries
-    if (!g_str_has_prefix((*t).id().c_str(), "com.mysql.rdbms.mysql.userdatatype"))
+    // ml: this concept is wrong. There are no "system user datatypes". User datatypes are those
+    //     created by the user. All other types must be listed/handled as usual.
+    //     Search also wb_component_physical.cpp for "create_builtin_user_datatypes" for more info.
+    //if (!g_str_has_prefix((*t).id().c_str(), "com.mysql.rdbms.mysql.userdatatype"))
     {
       mforms::TreeNodeRef node = _type_list.add_node();
       node->set_string(0, (*t)->name().c_str());
@@ -387,12 +390,10 @@ void UserDefinedTypeEditor::delete_clicked()
   selected_row();
 }
 
+//--------------------------------------------------------------------------------------------------
 
 static bool is_missing(const grt::ObjectRef &item, const std::vector<db_UserDatatypeRef> &types)
 {
-  if (g_str_has_prefix(item.id().c_str(), "com.mysql.rdbms.mysql.userdatatype"))
-    return false;
-  
   for (std::vector<db_UserDatatypeRef>::const_iterator iter= types.begin(); iter != types.end(); ++iter)
   {
     if ((*iter).is_valid() && (*iter).id() == item.id())
@@ -401,27 +402,16 @@ static bool is_missing(const grt::ObjectRef &item, const std::vector<db_UserData
   return true;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void UserDefinedTypeEditor::ok_clicked()
 {
-  // check if everything is ok and then commit
+  // Check if everything is ok and then commit.
   
   std::set<std::string> names;
-  std::set<std::string> systemNames;
-  
   grt::ListRef<db_UserDatatype> udts(_model->catalog()->userDatatypes());
-  for (grt::ListRef<db_UserDatatype>::const_iterator udt= udts.begin(); udt != udts.end(); ++udt)
-  {
-    if (g_str_has_prefix((*udt).id().c_str(), "com.mysql.rdbms.mysql.userdatatype"))
-      systemNames.insert(*(*udt)->name());
-  }
-  grt::ListRef<db_SimpleDatatype> sdts(_model->catalog()->simpleDatatypes());
-  for (grt::ListRef<db_SimpleDatatype>::const_iterator sdt= sdts.begin(); sdt != sdts.end(); ++sdt)
-  {
-    systemNames.insert(*(*sdt)->name());
-  }
-  
-  // check for duplicate or invalid names
+
+  // Check for duplicate or invalid names.
   for (int c= _type_list.count(), i= 0; i < c; i++)
   {
     std::string name= _type_list.root_node()->get_child(i)->get_string(0);
@@ -429,16 +419,17 @@ void UserDefinedTypeEditor::ok_clicked()
    
     for (std::string::size_type i= 0; i < name.size(); i++)
     {
-      if (!isalnum(name[i]) && name[i] != '_')
+      if (!isalnum(name[i]) && name[i] != '_' && name[i] != ' ')
       {
-        ok= false;
+        ok = false;
         break;
       }
     }
+
     if (name.empty() || !ok)
     {
       mforms::Utilities::show_error(_("Invalid Type Name"),
-                                    strfmt(_("'%s' is not a valid type name. Names may only contain alpha-numeric characters and _"),
+                                    strfmt(_("'%s' is not a valid type name. Names may only contain alpha-numeric characters, spaces and _"),
                                            name.c_str()), _("OK"));
       return;
     }
@@ -452,13 +443,6 @@ void UserDefinedTypeEditor::ok_clicked()
     }
     names.insert(name);
 
-    if (systemNames.find(name) != systemNames.end())
-    {
-      mforms::Utilities::show_error(_("Invalid Type Name"),
-                                    strfmt(_("'%s' is reserved and cannot be used for a user defined type."),
-                                           name.c_str()), _("OK"));
-      return;
-    }
   }
 
   // check for deleted types

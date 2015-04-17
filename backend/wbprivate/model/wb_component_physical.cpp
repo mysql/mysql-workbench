@@ -264,7 +264,14 @@ void WBComponentPhysical::init_catalog_grt(const db_mgmt_RdbmsRef &rdbms,
 
   model->catalog(catalog);
 
-  replace_contents(catalog->userDatatypes(), create_builtin_user_datatypes(catalog, rdbms));
+  // ml: the user datatypes created by this call are not really user datatypes but explicit
+  //     types for implicit aliases in the server, which is not correct. From a parsing standpoint
+  //     all accepted server datatypes, alias or not, should go through the normal parsing + handling
+  //     process.
+  //     User datatypes are datatypes defined by a user.
+  //     Commented but not removed as this can have a deeper impact. If it turns out to be ok
+  //     then remove entirely (including the create function code). 2015-04-17
+  //replace_contents(catalog->userDatatypes(), create_builtin_user_datatypes(catalog, rdbms));
   
   // add listener for any operation on the schema list
   reset_document();
@@ -2320,10 +2327,12 @@ void WBComponentPhysical::document_loaded()
   {
     db_CatalogRef catalog((*pmodel)->catalog());
     db_mgmt_RdbmsRef rdbms((*pmodel)->rdbms());
-    grt::ListRef<db_UserDatatype> userTypes(create_builtin_user_datatypes(catalog, rdbms));
+
+    // ml: see comment for other place with that code in this file.
+    //grt::ListRef<db_UserDatatype> userTypes(create_builtin_user_datatypes(catalog, rdbms));
     
     // merge in built-in UDTs with the one from the model, replacing stuff from the model with ours
-    grt::merge_contents_by_id(catalog->userDatatypes(), userTypes, true);
+    //grt::merge_contents_by_id(catalog->userDatatypes(), userTypes, true);
 
     // Merge simple datatypes and charsets, in case some new type was added to WB since the model was created
     grt::merge_contents_by_id(catalog->simpleDatatypes(), rdbms->simpleDatatypes(), false);
