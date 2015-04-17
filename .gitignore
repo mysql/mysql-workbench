@@ -27,7 +27,6 @@ Lib_Commercial
 Lib_Debug
 Lib_Release
 public_interface
-testing/tut/**/*.xml
 testing/tut/output/*
 __history
 .metadata
