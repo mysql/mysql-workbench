@@ -413,9 +413,11 @@ for option in doc.documentElement.getElementsByTagName('mysqloption'):
 
     if is_variable_dynamic is not None:
         if variable_class == "system":
-            sys_vars.append((opt['name'], opt.get('description', ''), is_variable_dynamic))
+            var = {'name':opt['name'], 'description':opt.get('description', ''), 'dynamic':is_variable_dynamic}
+            sys_vars.append(var)
         else:
-            stat_vars.append((opt['name'], opt.get('description', ''), is_variable_dynamic))
+            var = {'name':opt['name'], 'description':opt.get('description', ''), 'dynamic':is_variable_dynamic}
+            stat_vars.append(var)
             stat_var_sections.append((opt['name'], option.getAttribute('section').encode('latin1')))
 
 
