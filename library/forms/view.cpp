@@ -196,7 +196,7 @@ bool View::contains_subview(View* subview)
 
 void View::set_name(const std::string &name)
 {
-  _name= name;
+  _name = name;
 
   // Optional implementation.
   if (_view_impl->set_name)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1051,7 +1051,7 @@ void SqlEditorPanel::query_started(bool retain_old_recordsets)
         int i = _lower_tabview.get_page_index(result);
         if (i >= 0)
         {
-          _lower_dock.close_view(result);
+          result->close();
           result_removed();
         }
       }
@@ -1356,8 +1356,9 @@ bool SqlEditorPanel::lower_tab_closing(int tab)
   mforms::AppView *view = _lower_dock.view_at_index(tab);
   if (view)
   {
-    if (_lower_dock.close_view(view))
+    if (view->on_close())
     {
+      view->close();
       result_removed();
       return true;
     }
