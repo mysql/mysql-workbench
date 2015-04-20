@@ -29,6 +29,8 @@ namespace bec {
 };
 
 namespace mforms {
+  class AppView;
+  class DockingPoint;
   class ToolBar;
   class MenuBar;
 
