@@ -336,6 +336,12 @@ ConnectionWrapper DriverManager::getConnection(const db_mgmt_ConnectionRef &conn
   if (drv->name() == "MysqlNativeSocket")
   {
 #ifdef _WIN32
+    ConnectOptionsMap::iterator it = properties.find("socket");
+    if (it != properties.end())
+    {
+      properties["pipe"] = it->second;
+      properties.erase(it);
+    }
     properties["hostName"] = std::string(".");
 #else
     properties["hostName"] = std::string();
