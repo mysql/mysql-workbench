@@ -35,6 +35,8 @@ using namespace base;
 #include <cctype>
 #include <algorithm>
 #include <memory>
+#include <set>
+#include <boost/assign/list_of.hpp>
 
 #undef max
 
@@ -310,6 +312,34 @@ public:
   }
 };
 
+bool DbDriverParams::parameter_not_valid(const db_mgmt_DriverRef &driver, const std::string& param)
+{
+
+  const std::string& name = driver->name();
+  if (name == "MysqlNativeSocket")
+  {
+    static const std::set<std::string> restricted_params = boost::assign::list_of(std::string("port"))
+      ("connections_created")("haGroupFilter")("managedConnectionsUpdateTime")("mysqlUserName")
+      ("sshPassword")("sshKeyFile")("sshHost")("sshUserName");
+    if (restricted_params.count(param) > 0)
+      return true;
+  }
+  else if (name == "MysqlNative")
+  {
+    static const std::set<std::string> restricted_params = boost::assign::list_of(std::string("connections_created"))("socked")
+      ("haGroupFilter")("managedConnectionsUpdateTime")("mysqlUserName")("sshPassword")("sshKeyFile")("sshHost")("sshUserName");
+    if (restricted_params.count(param) > 0)
+      return true;
+  }
+  else if (name == "MysqlNativeSSH")
+  {
+    static const std::set<std::string> restricted_params = boost::assign::list_of(std::string("socket"))
+      ("haGroupFilter")("managedConnectionsUpdateTime")("mysqlUserName");
+    if (restricted_params.count(param) > 0)
+      return true;
+  }
+  return false;
+}
 
 typedef std::list<LayoutRow> LayoutRows;
 
@@ -326,6 +356,7 @@ void DbDriverParams::init(
   int hmargin,
   int vmargin)
 {
+  typedef std::vector<std::string>::iterator StringVectorIterator;
   if (begin_layout)
     begin_layout();
 
@@ -357,8 +388,10 @@ void DbDriverParams::init(
     db_mgmt_DriverParameterRef param= params.get(n);
 
     // remove known options
-    std::vector<std::string>::iterator it = std::find(unknown_options.begin(), unknown_options.end(), *param->name());
-    if (it != unknown_options.end())
+
+    StringVectorIterator end = unknown_options.end();
+    StringVectorIterator it = std::find(unknown_options.begin(), end, *param->name());
+    if (it != end)
       unknown_options.erase(it);
 
     if (skip_schema && param->name() == "schema")
@@ -379,8 +412,11 @@ void DbDriverParams::init(
   if (others_option.is_valid())
   {
     std::string unknown_options_text;
-    for (std::vector<std::string>::const_iterator k = unknown_options.begin(); k != unknown_options.end(); ++k)
+    StringVectorIterator end = unknown_options.end();
+    for (std::vector<std::string>::const_iterator k = unknown_options.begin(); k != end; ++k)
     {
+      if (parameter_not_valid(driver, *k))
+        continue;
       if (!k->empty())
       {
         unknown_options_text.append(*k);

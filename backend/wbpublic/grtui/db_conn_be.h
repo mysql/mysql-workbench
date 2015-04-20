@@ -108,6 +108,8 @@ private:
   DbDriverParams(const DbDriverParams&) {}
   void free_dyn_mem();
 
+  bool parameter_not_valid(const db_mgmt_DriverRef& driver, const std::string& param);
+
 public:
   DbDriverParams() {}
   ~DbDriverParams() { free_dyn_mem(); }
