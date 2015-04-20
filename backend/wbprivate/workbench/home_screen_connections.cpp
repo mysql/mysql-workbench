@@ -2064,7 +2064,7 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
     }
   }
 
-  if (visible_page >= num_pages)
+  if (visible_page >= num_pages && _prev_page_start.size() > 0)
   {
     --visible_page;
     _prev_page_start.pop_back();
