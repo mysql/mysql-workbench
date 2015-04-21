@@ -49,6 +49,7 @@ AppView::AppView(bool horiz, const std::string &context_name, bool is_main)
 : Box(horiz), _context_name(context_name), _menubar(0), _toolbar(0), _is_main(is_main)
 {
   set_name(context_name);
+#ifdef __APPLE__
   // default, empty toolbar for mac, to show the 3px bar under the top tabs
   // TODO: move this to the platform layer. It doesn't belong here.
   _toolbar = new mforms::ToolBar(mforms::MainToolBar);
