@@ -219,6 +219,7 @@ TEST_FUNCTION(19)
     ".", NULL);
 
   g_usleep(2000000);
+
   _cache->refresh_schema_cache_if_needed("sakila");
   g_usleep(2000000);
 }

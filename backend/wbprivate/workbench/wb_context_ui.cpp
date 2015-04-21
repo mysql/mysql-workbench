@@ -421,7 +421,7 @@ PhysicalOverviewBE *WBContextUI::get_physical_overview()
 void WBContextUI::show_output()
 {
   mforms::App::get()->dock_view(_output_view, "maintab");
-  mforms::App::get()->set_view_title(_output_view, "Output");
+  _output_view->set_title("Output");
   _output_view->setup_ui();
 }
 
@@ -437,7 +437,7 @@ void WBContextUI::show_web_page(const std::string& url, bool internal_browser)
   {
     WebBrowserView* browser= mforms::manage(new WebBrowserView(this));
     mforms::App::get()->dock_view(browser, "maintab");
-    mforms::App::get()->set_view_title(browser, _("Loading web page..."));
+    browser->set_title(_("Loading web page..."));
     browser->navigate(url);
   }
   else
