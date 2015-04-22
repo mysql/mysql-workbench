@@ -31,7 +31,10 @@ public:
   sigc::slot<void, const int, Glib::ValueBase*>   before_render;
 
   sigc::slot<void, int> column_resized;
+  sigc::slot<void, const std::vector<int> > columns_resized;
   sigc::slot<void, int, int, int> column_right_clicked;
+//  void on_column_resized(Gtk::TreeViewColumn *c);
+  void onColumnsResized(const std::vector<Gtk::TreeViewColumn*> &cols);
 protected:
   GridViewModel(bec::GridModel::Ref model, GridView *view, const std::string &name);
   virtual void get_value_vfunc(const iterator& iter, int column, Glib::ValueBase& value) const;
@@ -51,7 +54,7 @@ private:
   void get_cell_value(const iterator& iter, int column, GType type, Glib::ValueBase& value);
   void set_cell_value(const iterator& itier, int column, GType type, const Glib::ValueBase& value);
 
-  void on_column_resized(Gtk::TreeViewColumn *c);
+
   void on_column_header_button_press(GdkEventButton *ev, Gtk::TreeViewColumn *col);
 };
 

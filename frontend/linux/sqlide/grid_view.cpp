@@ -49,6 +49,9 @@ GridView::GridView(bec::GridModel::Ref model, bool fixed_height_mode, bool allow
 
   this->model(model);
   signal_cursor_changed().connect_notify(sigc::mem_fun(this, &GridView::on_signal_cursor_changed));
+
+  //In GTK we can't monitor single column resize easily, instead we monitor release button and check if it was header, we store all column size if so.
+  signal_button_release_event().connect_notify(sigc::mem_fun(this, &GridView::on_signal_button_release_event));
 }
 
 GridView::~GridView()
@@ -67,6 +70,19 @@ void GridView::on_signal_cursor_changed()
   if (col == -2) //It can be -2 if we have _row_numbers_visible.
     col = -1;
   _model->set_edited_field(row, col);
+}
+
+void GridView::on_signal_button_release_event(GdkEventButton *ev)
+{
+  Gtk::TreeModel::Path path;
+  Gtk::TreeViewColumn* col;
+  int x, y;
+
+  if (get_path_at_pos(ev->x, ev->y, path, col, x, y) && get_headers_visible() && _view_model)
+  {
+    if (path[0] == 0) //User resized column
+      _view_model->onColumnsResized(get_columns());
+  }
 }
 
 void GridView::set_context_menu(mforms::Menu* menu)
