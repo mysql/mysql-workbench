@@ -1078,7 +1078,7 @@ select_item options { k = 5; }:
 ;
 
 select_alias:
-	AS_SYMBOL? text_or_identifier
+	AS_SYMBOL? (identifier| SINGLE_QUOTED_TEXT )
 ;         
 
 limit_clause:
@@ -1100,8 +1100,7 @@ into_clause:
 	(
 		OUTFILE_SYMBOL string_literal charset_clause? fields_clause? lines_clause?
 		| DUMPFILE_SYMBOL string_literal
-		| AT_SIGN_SYMBOL? text_or_identifier (COMMA_SYMBOL AT_SIGN_SYMBOL? text_or_identifier)*
-		| AT_TEXT_SUFFIX (COMMA_SYMBOL AT_TEXT_SUFFIX)*
+		| AT_SIGN_SYMBOL? (text_or_identifier | AT_TEXT_SUFFIX) (COMMA_SYMBOL AT_SIGN_SYMBOL? (text_or_identifier | AT_TEXT_SUFFIX))*
 	)
 ;
 
@@ -3307,7 +3306,7 @@ text_or_param_marker:
 text_or_identifier:
 	SINGLE_QUOTED_TEXT
 	| identifier
-	//| USER_VARIABLE // LEX_HOSTNAME in the server grammar.
+	//| AT_TEXT_SUFFIX // LEX_HOSTNAME in the server grammar.
 ;
 
 float_or_param:
