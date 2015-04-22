@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -279,7 +279,7 @@ IconId VarGridModel::get_field_icon(const NodeId &node, ColumnId column, IconSiz
   base::RecMutexLock data_mutex UNUSED (_data_mutex);
 
   Cell cell;
-  static const sqlite::variant_t null_value= sqlite::null_t();
+  static const sqlite::variant_t null_value((sqlite::null_t()));
   if (((ssize_t)column < 0) || (column + 1 >= _column_types.size()))
     return 0;
   const sqlite::variant_t &var= get_cell(cell, node, column, false) ? *cell : null_value;
