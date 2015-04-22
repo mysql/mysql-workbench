@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -68,6 +68,7 @@ namespace mforms {
 
     // TODO must be emited from Windows
     boost::signals2::signal<void (int)>* signal_column_resized() { return &_signal_column_resized; }
+    boost::signals2::signal<void (const std::vector<int>)>* signal_columns_resized() { return &_signal_columns_resized; }
 
     ContextMenu *header_menu() { return _header_menu; }
 
@@ -78,6 +79,7 @@ namespace mforms {
     RecordGrid();
   private:
     boost::signals2::signal<void (int)> _signal_column_resized;
+    boost::signals2::signal<void (const std::vector<int>)> _signal_columns_resized;
     ContextMenu *_header_menu;
     int _clicked_header_column;
   };

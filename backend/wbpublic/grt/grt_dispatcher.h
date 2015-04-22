@@ -322,10 +322,10 @@ namespace bec {
     void add_task(const GRTTaskBase::Ref task);
     grt::ValueRef add_task_and_wait(const GRTTaskBase::Ref task) THROW (grt::grt_runtime_error);
 
-    grt::ValueRef execute_simple_function(const std::string &name, 
+    grt::ValueRef execute_sync_function(const std::string &name,
       const boost::function<grt::ValueRef (grt::GRT*)> &function) THROW (grt::grt_runtime_error);
 
-    void execute_async_function(const std::string &name, 
+    void execute_async_function(const std::string &name,
       const boost::function<grt::ValueRef (grt::GRT*)> &function) THROW (grt::grt_runtime_error);
 
     void wait_task(const GRTTaskBase::Ref task);
