@@ -25,6 +25,7 @@
 
 #include "grts/structs.db.h"
 #include "grts/structs.db.mgmt.h"
+#include "grts/structs.db.mysql.h"
 
 #include "grtpp_notifications.h"
 
