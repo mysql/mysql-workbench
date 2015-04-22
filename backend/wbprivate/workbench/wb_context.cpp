@@ -3682,20 +3682,6 @@ void WBContext::execute_in_main_thread(const std::string &name,
   _manager->get_dispatcher()->call_from_main_thread<void>(function, wait, false);
 }
 
-// XXX: not used anymore.
-grt::ValueRef WBContext::execute_in_grt_thread(const std::string &name, 
-                                                   const boost::function<grt::ValueRef (grt::GRT*)> &function) THROW (grt::grt_runtime_error)
-{
-  return _manager->get_dispatcher()->execute_simple_function(name, function);
-}
-
-// XXX: not used anymore.
-void WBContext::execute_async_in_grt_thread(const std::string &name, 
-                                            const boost::function<grt::ValueRef (grt::GRT*)> &function) THROW (grt::grt_runtime_error)
-{
-  _manager->get_dispatcher()->execute_async_function(name, function);
-}
-
 void WBContext::show_exception(const std::string &operation, const std::exception &exc)
 {
   const grt::grt_runtime_error *rt= dynamic_cast<const grt::grt_runtime_error*>(&exc);

@@ -807,7 +807,7 @@ std::string PluginManagerImpl::open_gui_plugin(const app_PluginRef &plugin, cons
     // for opening the plugin.
     if (_grtm->in_main_thread())
     {
-      _grtm->get_dispatcher()->execute_simple_function("Open normal plugin",
+      _grtm->get_dispatcher()->execute_sync_function("Open normal plugin",
         boost::bind(&PluginManagerImpl::open_normal_plugin_grt, this, _1, plugin, args));
     }
     else
