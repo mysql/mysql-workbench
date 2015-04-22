@@ -248,6 +248,9 @@ void SqlEditorResult::set_recordset(Recordset::Ref rset)
   bec::UIForm::scoped_connect(_result_grid->signal_column_resized(),
                               boost::bind(&SqlEditorResult::on_recordset_column_resized, this, _1));
 
+  bec::UIForm::scoped_connect(_result_grid->signal_columns_resized(),
+                                boost::bind(&SqlEditorResult::onRecordsetColumnsResized, this, _1));
+
   rset->data_edited_signal.connect(boost::bind(&SqlEditorPanel::resultset_edited, _owner));
   rset->data_edited_signal.connect(boost::bind(&mforms::View::set_needs_repaint, grid));
 }
@@ -526,11 +529,39 @@ void SqlEditorResult::toggle_switcher_collapsed()
 
 void SqlEditorResult::on_recordset_column_resized(int column)
 {
-  std::string column_id = _column_width_storage_ids[column];
-  int width = _result_grid->get_column_width(column);
-  _owner->owner()->column_width_cache()->save_column_width(column_id, width);
+  if (column >= 0)
+  {
+    std::string column_id = _column_width_storage_ids[column];
+    int width = _result_grid->get_column_width(column);
+   _owner->owner()->column_width_cache()->save_column_width(column_id, width);
+  }
 }
 
+grt::ValueRef run_and_return(const boost::function<void()>& f)
+{
+  f();
+  return grt::ValueRef();
+}
+
+void SqlEditorResult::onRecordsetColumnsResized(const std::vector<int> cols)
+{
+  std::vector<int>::const_iterator it;
+  std::map<std::string, int> widths;
+  for(it = cols.begin(); it != cols.end(); ++it)
+  {
+    if (*it >= 0)
+    {
+      std::string column_id = _column_width_storage_ids[*it];
+      int width = _result_grid->get_column_width(*it);
+      widths.insert(std::make_pair(column_id, width));
+    }
+  }
+  if (!widths.empty())
+  {
+    boost::function<void()> f = boost::bind(&ColumnWidthCache::save_columns_width, _owner->owner()->column_width_cache(), widths);
+    _owner->owner()->grt_manager()->get_dispatcher()->execute_async_function("store column widths", boost::bind(&run_and_return, f));
+  }
+}
 
 void SqlEditorResult::reset_column_widths()
 {
