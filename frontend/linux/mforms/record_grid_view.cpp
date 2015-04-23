@@ -46,6 +46,7 @@ static void destroy_nativecontainer(void *ptr)
 
 RecordGridView::RecordGridView(Recordset::Ref rset)
 {
+
   viewer = RecordsetView::create(rset);
   viewer->grid_view()->view_model()->columns_resized = boost::bind(&RecordGridView::columns_resized, this, _1);
   viewer->grid_view()->view_model()->column_right_clicked = boost::bind(&RecordGridView::column_right_clicked, this, _1, _2, _3);

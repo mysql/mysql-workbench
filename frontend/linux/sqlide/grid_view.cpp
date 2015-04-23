@@ -29,7 +29,7 @@
 GridView * GridView::create(bec::GridModel::Ref model, bool fixed_height_mode, bool allow_cell_selection)
 {
   GridView *view= Gtk::manage(new GridView(model, fixed_height_mode, allow_cell_selection));
-  //This function is used only by recordset so if we're forcing fixed heioght mode, then we need speed optimization.
+  //This function is used only by recordset so if we're forcing fixed height mode, then we need speed optimization.
   view->set_text_cell_fixed_height(fixed_height_mode);
 
   view->init();
@@ -125,6 +125,7 @@ int GridView::refresh(bool reset_columns)
   Gtk::TreeViewColumn *col = 0;
   if (swin)
   {
+    swin->set_policy(Gtk::POLICY_ALWAYS, Gtk::POLICY_ALWAYS);
     value = swin->get_vadjustment()->get_value();
     get_cursor(path, col);
   }
@@ -136,6 +137,11 @@ int GridView::refresh(bool reset_columns)
   _row_count= _model->count();
   set_model(_view_model);
   
+  std::vector<Gtk::TreeViewColumn*> cols = get_columns();
+  for(size_t i = 0; i < cols.size(); ++i)
+  {
+    cols[i]->set_sizing(Gtk::TREE_VIEW_COLUMN_GROW_ONLY);
+  }
   reset_sorted_columns();
 
 

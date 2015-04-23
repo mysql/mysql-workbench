@@ -41,6 +41,7 @@ _text_cell_fixed_height(false)
   view->set_rules_hint(true); // enable alternating row colors
   set_fake_column_value_getter(sigc::mem_fun(this, &GridViewModel::get_cell_value));
   //set_fake_column_value_setter(sigc::mem_fun(this, &GridViewModel::set_cell_value));
+
 }
 
 GridViewModel::~GridViewModel()
@@ -224,6 +225,7 @@ Gtk::TreeViewColumn * GridViewModel::add_column(int index, const std::string &na
     treeview_column->signal_clicked().connect(sigc::bind(sigc::mem_fun(_view, &GridView::on_column_header_clicked), treeview_column, index));
     treeview_column->set_clickable();
   }
+
   if (index >= 0)
   {
     Gtk::Label *label = Gtk::manage(new Gtk::Label(name));

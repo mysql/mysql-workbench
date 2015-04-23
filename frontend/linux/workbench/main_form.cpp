@@ -962,6 +962,7 @@ mdc::CanvasView* MainForm::create_view_becb(const model_DiagramRef &diagram)
   }
 
   add_form_pane(model_panel, tabState);
+  model_panel->show_all_children(true);
  // model_panel->set_data("model_panel", model_panel);
   mdc::CanvasView* view = model_panel->get_canvas();
   _diagram_panel_list.insert(std::pair<mdc::CanvasView*, ModelDiagramPanel*>(view, model_panel));
@@ -1657,6 +1658,9 @@ void MainForm::add_form_pane(FormViewBase *panel, TabStateInfo tabState)
 
   ActiveLabel *label = 0;
   append_tab_page(get_upper_note(), panel->get_panel(), panel->get_title(), tabState, &label);
+  //Fix gtk3 issue... caused by gtk3: 399de111167c198a7d2ccbd459a2db7c6389181e
+  get_upper_note()->set_current_page(get_upper_note()->page_num(*panel->get_panel()));
+
   if (tabState == TabClosed)
     panel->get_panel()->hide();
 

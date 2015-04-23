@@ -50,12 +50,10 @@ std::string mdc::detect_opengl_version()
   return "";
 }
 
-
-
-
 GtkCanvas::GtkCanvas(CanvasType type)
-  : _canvas(0), _canvas_type(type), _reentrance(false), _initialized(false)
+  : Gtk::Layout(), _canvas(0), _canvas_type(type), _reentrance(false), _initialized(false)
 {
+  set_has_window(false);
   set_app_paintable(true);
   set_can_focus(true);
 
@@ -67,20 +65,27 @@ GtkCanvas::GtkCanvas(CanvasType type)
 
   set_double_buffered(false);
   add_events(Gdk::POINTER_MOTION_MASK|Gdk::BUTTON_PRESS_MASK|Gdk::BUTTON_RELEASE_MASK|Gdk::KEY_PRESS_MASK|Gdk::KEY_RELEASE_MASK|Gdk::ENTER_NOTIFY_MASK|Gdk::LEAVE_NOTIFY_MASK);
-//  signal_expose_event().connect(sigc::mem_fun(this, &GtkCanvas::redraw));
   signal_draw().connect(sigc::mem_fun(this, &GtkCanvas::redraw));
+
 }
 
 
 GtkCanvas::~GtkCanvas()
 {
-  delete _canvas;
+  if (_canvas != 0)
+    delete _canvas;
 }
 
-
-void GtkCanvas::on_realize()
+CanvasView* GtkCanvas::get_canvas()
 {
-  super::on_realize();
+    return _canvas;
+}
+
+void GtkCanvas::create_canvas()
+{
+  if (_canvas != 0)
+    return;
+
   Display *dpy = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
 
 
@@ -106,11 +111,20 @@ void GtkCanvas::on_realize()
   _initialized= false;
 }
 
+void GtkCanvas::on_realize()
+{
+  super::on_realize();
+  this->create_canvas();
+
+}
 
 void GtkCanvas::on_unrealize()
 {
-  delete _canvas;
-  _canvas = 0;
+  if (_canvas != 0)
+  {
+    delete _canvas;
+    _canvas = 0;
+  }
 
   super::on_unrealize();
 }
@@ -290,6 +304,8 @@ bool GtkCanvas::on_scroll_event(GdkEventScroll *event)
   case GDK_SCROLL_LEFT:
     x -= WHEEL_SCROLL_STEP;
     break;
+  default:
+    break;
   }
   
   if (get_vadjustment())
@@ -334,8 +350,7 @@ bool GtkCanvas::on_key_release_event(GdkEventKey *event)
 
 bool GtkCanvas::redraw(::Cairo::RefPtr< ::Cairo::Context> context)
 {
-//TODO: Lolek
-//  if (ev->window == get_bin_window()->gobj())
+  if (should_draw_window(context, this->get_bin_window()))
   {
     struct timeval tv, tv2;
 

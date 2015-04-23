@@ -19,6 +19,7 @@
 
 #include "../lf_mforms.h"
 #include "../lf_label.h"
+#include "gtk_helpers.h"
 
 mforms::gtk::LabelImpl::LabelImpl(::mforms::Label *self)
   : ViewImpl(self), _font_set(false)
@@ -29,7 +30,7 @@ mforms::gtk::LabelImpl::LabelImpl(::mforms::Label *self)
   _label->set_use_underline(false);
 
   setup();
-  _label->signal_draw().connect(sigc::bind(sigc::ptr_fun(mforms::gtk::expose_event_slot), _label), false);
+  _label->signal_draw().connect(sigc::bind(sigc::ptr_fun(mforms::gtk::draw_event_slot), _label), false);
   _label->signal_realize().connect(sigc::mem_fun(this, &LabelImpl::realized));
   _label->show();
 }
@@ -138,24 +139,15 @@ void mforms::gtk::LabelImpl::set_text(::mforms::Label *self, const std::string &
 {
   LabelImpl* label = self->get_data<LabelImpl>();
 
-  if ( label )
-  {   
+  if (label)
     ((Gtk::Label*)label->_label)->set_text(text);
-  }
 }
 
 void mforms::gtk::LabelImpl::set_color(::mforms::Label *self, const std::string &text)
 {
   LabelImpl* label = self->get_data<LabelImpl>();
-
-  if ( label )
-  {
-    //TODO: Lolek fix it implement
-//    Gdk::Color color(text);
-//    ((Gtk::Label*)label->_label)->get_style_context()->get_font(Gtk::STATE_FLAG_NORMAL).;
-//    ((Gtk::Label*)label->_label)->get_colormap()->alloc_color(color);
-//    ((Gtk::Label*)label->_label)->modify_fg(Gtk::STATE_NORMAL, color);
-  }
+  if (label)
+   ((Gtk::Label*)label->_label)->override_color(color_to_rgba(Gdk::Color(text)), Gtk::STATE_FLAG_NORMAL);
 }
 
 void mforms::gtk::LabelImpl::set_wrap_text(::mforms::Label *self, bool flag)

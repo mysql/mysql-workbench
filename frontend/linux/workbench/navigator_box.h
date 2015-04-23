@@ -29,6 +29,7 @@ class NavigatorBox : public Gtk::VBox
   bool _changing_zoom;
 
   void size_change(Gtk::Allocation &alloc);
+  void canvas_realize();
 
   void slider_changed();
   void combo_changed(bool force_update);
