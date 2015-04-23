@@ -84,6 +84,8 @@
                 <File Id="gdal.dll" Name="gdal.dll"/>
                 <File Id="ogrinfo.exe" Name="ogrinfo.exe"/>
                 <File Id="ogr2ogr.exe" Name="ogr2ogr.exe"/>
+				<File Id="file1121" Name="vsqlite++.dll"/>
+				<File Id="file1122" Name="tinyxml.dll"/>
               </Component>
 
               <Component DiskId="1" Guid="87543D9F-DCBF-41bd-89ED-42161A8DA2AA" Id="Libraries" Location="either">
