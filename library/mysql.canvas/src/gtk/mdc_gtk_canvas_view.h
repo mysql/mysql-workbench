@@ -35,11 +35,13 @@ public:
   GtkCanvas(CanvasType type);
   virtual ~GtkCanvas();
 
-  CanvasView *get_canvas() { return _canvas; };
+  CanvasView *get_canvas();
 
   mdc::EventState get_event_state(int event_state);
   
-private:
+  void create_canvas();
+
+protected:
   bool redraw(::Cairo::RefPtr< ::Cairo::Context> context);
   virtual void on_realize();
   virtual void on_unrealize();

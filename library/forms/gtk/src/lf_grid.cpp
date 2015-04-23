@@ -29,7 +29,6 @@
 #include <gtkmm/eventbox.h>
 #include <gtkmm/box.h>
 #include <gtkmm/scrolledwindow.h>
-#include <gtkmm/comboboxentrytext.h>
 #include <gdk/gdkkeysyms.h>
 #include "gtk_helpers.h"
 

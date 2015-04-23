@@ -179,11 +179,15 @@ bool DrawBoxImpl::repaint(const ::Cairo::RefPtr< ::Cairo::Context>& context, ::m
     w = _fixed_width;
   _darea.set_size_request(w, h);
 
-  mforms::gtk::expose_event_slot(context, &_darea);
+  mforms::gtk::draw_event_slot(context, &_darea);
   double x1, y1, x2, y2;
   context->get_clip_extents(x1, y1, x2, y2);
 
+
   self->repaint(context->cobj(), x1, y1, x2- x1, y2-y1);
+
+//  Cairo::RefPtr<Cairo::Context> context(_darea.get_window()->create_cairo_context());
+//    self->repaint(context->cobj(), event->area.x, event->area.y, event->area.width, event->area.height);
 
   return true;
 }

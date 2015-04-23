@@ -30,7 +30,6 @@ namespace gtk {
 class TextEntryImpl : public ViewImpl
 {
   Gtk::Entry    *_entry;
-  std::string _placeholder;
   Gdk::RGBA _text_color;
   Gdk::RGBA _placeholder_color;
   TextEntryType _type;
@@ -56,10 +55,8 @@ class TextEntryImpl : public ViewImpl
   void activated(mforms::TextEntry *self);
   bool key_press(GdkEventKey *event, mforms::TextEntry *self);
  
-#if GTK_VERSION_GT(2, 16)
-  void icon_pressed(Gtk::EntryIconPosition pos, const GdkEventButton *ev);
-#endif
 
+  void icon_pressed(Gtk::EntryIconPosition pos, const GdkEventButton *ev);
   void set_placeholder_text(const std::string &text);
   void set_text(const std::string &text);
   void focus_in(GdkEventFocus*);

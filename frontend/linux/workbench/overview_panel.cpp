@@ -730,17 +730,41 @@ public:
 
 
 
-class OverviewGroup : public Gtk::VBox
+class OverviewGroup : public Gtk::Box
 {
   wb::OverviewBE *_overview;
   bec::NodeId _node;
   std::string _uid;
   Gtk::Label *_label;
   
+  void invalidate_children(Gtk::Widget& widget)
+  {
+    OverviewItemContainer* items= dynamic_cast<OverviewItemContainer*>(&widget);
+    if (items)
+    {
+      items->get_tree_model()->invalidate();
+      items->get_icon_model()->invalidate();
+    }
+  }
+
+  void update_base_node_children(Gtk::Widget& widget, const bec::NodeId &node)
+  {
+    OverviewItemContainer* items= dynamic_cast<OverviewItemContainer*>(&widget);
+    if (items)
+    {
+      bec::NodeId new_node(node);
+
+      new_node.append(items->get_base_node().back());
+
+      items->update_base_node(new_node);
+    }
+  }
+
 public:
   OverviewGroup(wb::OverviewBE *overview, const bec::NodeId &node, Gtk::Label *label)
-    : Gtk::VBox(false, 0), _overview(overview), _node(node), _label(label)
+    : Gtk::Box(Gtk::ORIENTATION_VERTICAL, 0), _overview(overview), _node(node), _label(label)
   {
+    set_homogeneous(false);
     set_border_width(12);
     set_name("overview_note_page");
     _uid= _overview->get_node_unique_id(node);
@@ -754,17 +778,7 @@ public:
   
   void invalidate()
   {
-    std::vector<Gtk::Widget*> children(get_children());
-    for (std::vector<Gtk::Widget*>::iterator iter= children.begin();
-         iter != children.end(); ++iter)
-    {
-      OverviewItemContainer* items= dynamic_cast<OverviewItemContainer*>(*iter);
-      if (items)
-      {
-        items->get_tree_model()->invalidate();
-        items->get_icon_model()->invalidate();
-      }
-    }
+    foreach(sigc::mem_fun(this, &OverviewGroup::invalidate_children));
   }
 
   std::string get_unique_id() { return _uid; }
@@ -773,21 +787,7 @@ public:
   {
     if (_node.back() != node.back())
     {
-      std::vector<Gtk::Widget*> children(get_children());
-      for (std::vector<Gtk::Widget*>::iterator iter= children.begin();
-           iter != children.end(); ++iter)
-      {
-        OverviewItemContainer* items= dynamic_cast<OverviewItemContainer*>(*iter);
-        if (items)
-        {
-          bec::NodeId new_node(node);
-          
-          new_node.append(items->get_base_node().back());
-
-          items->update_base_node(new_node);
-        }
-      }
-
+      foreach(sigc::bind(sigc::mem_fun(this, &OverviewGroup::update_base_node_children), node));
       _node= node;
     }
   }
@@ -1000,9 +1000,6 @@ void OverviewPanel::reset()
   filler->set_name("overview_filler");
   _container->pack_start(*filler, true, true);
   filler->show();
-
-  //TODO: Lolek check this
-  fprintf(stderr, "overview_panel.cpp:OverviewPanel::reset\n");
 }
 
 
@@ -1048,9 +1045,7 @@ void OverviewPanel::rebuild_all()
   filler->set_name("overview_filler");
   _container->pack_start(*filler, true, true);
   filler->show();
-  //TODO: Lolek check this
-  fprintf(stderr, "overview_panel.cpp:OverviewPanel::rebuild_all\n");
-  
+
   {
     size_t group_index= 0;
     if (_groups->current_page_index() >= 0)
@@ -1183,7 +1178,7 @@ void OverviewPanel::build_division(Gtk::VBox *container, const bec::NodeId &pnod
 //------------------------------------------------------------------------------
 void OverviewPanel::build_group(OverviewDivision *division, OverviewGroupContainer *group_container, const bec::NodeId &pnode, int position)
 {
-  Gtk::VBox *page= group_container->add_group(pnode, position);
+  Gtk::Box *page= group_container->add_group(pnode, position);
   
   page->set_spacing(8);
   
@@ -1191,7 +1186,7 @@ void OverviewPanel::build_group(OverviewDivision *division, OverviewGroupContain
 }
 
 
-void OverviewPanel::build_group_contents(OverviewDivision *division, Gtk::VBox *page, const bec::NodeId &pnode)
+void OverviewPanel::build_group_contents(OverviewDivision *division, Gtk::Box *page, const bec::NodeId &pnode)
 {
   ssize_t type;
   _overview_be->get_field(pnode, wb::OverviewBE::ChildNodeType, type);

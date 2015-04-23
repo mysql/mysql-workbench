@@ -272,11 +272,22 @@ void ModelDiagramPanel::on_activate()
 ModelDiagramPanel::ModelDiagramPanel(GtkHPaned *paned, Glib::RefPtr<Gtk::Builder> builder)
   : Gtk::HPaned(paned), FormViewBase("ModelDiagram")
   , _top_box(false, 0)
+  , _tools_toolbar(0)
+  , _vbox(0)
+  , _diagram_hbox(0)
   , _wb(0)
   , _be(0)
   , _canvas(0)
   , _cursor(0)
   , _inline_editor(this)
+  , _editor_paned(0)
+  , _sidebar(0)
+  , _navigator_box(0)
+  , _catalog_tree(0)
+  , _usertypes_list(0)
+  , _history_list(0)
+  , _documentation_box(0)
+  , _properties_tree(0)
   , _xml(builder)
 {
 }
@@ -427,7 +438,6 @@ void ModelDiagramPanel::init(const std::string &view_id)
   }
 
   _be->set_inline_editor_context(&_inline_editor);
-
   _vbox->pack_start(_scroller, true, true);
 
   _scroller.add(*_canvas);
@@ -441,7 +451,6 @@ void ModelDiagramPanel::init(const std::string &view_id)
   _canvas->signal_drag_motion().connect(sigc::mem_fun(this, &ModelDiagramPanel::drag_motion));
   _canvas->signal_drag_drop().connect(sigc::mem_fun(this, &ModelDiagramPanel::drag_drop));
   _canvas->signal_drag_data_received().connect(sigc::mem_fun(this, &ModelDiagramPanel::drag_data_received));
-
 
   _canvas->signal_realize().connect_notify(sigc::mem_fun(this, &ModelDiagramPanel::view_realized));
 
@@ -654,7 +663,7 @@ void ModelDiagramPanel::setup_navigator()
 
 void ModelDiagramPanel::refresh_zoom()
 {
-  _navigator_box->refresh(); 
+  _navigator_box->refresh();
 }
 
 

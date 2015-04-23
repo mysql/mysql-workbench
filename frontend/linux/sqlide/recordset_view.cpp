@@ -41,7 +41,9 @@ RecordsetView::RecordsetView(Recordset::Ref model)
 :
 _grid(NULL), _close_btn(NULL), _single_row_height(-1)
 {
+  set_policy(Gtk::POLICY_ALWAYS, Gtk::POLICY_ALWAYS);
   this->model(model);
+
 }
 
 RecordsetView::~RecordsetView()
@@ -140,7 +142,7 @@ void RecordsetView::refresh()
     {
       int mh, nh;
       rend->get_preferred_height(*_grid, mh, nh);
-      _single_row_height = mh;
+      _single_row_height = nh;
     }
   }
  

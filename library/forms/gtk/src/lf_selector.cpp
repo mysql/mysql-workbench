@@ -81,7 +81,7 @@ class SelectorPopupImpl : public SelectorImpl::Impl
       _items.clear();
       _list.clear();
       _list.remove_all();
-	  do_not_call_callback = false;
+	    do_not_call_callback = false;
     }
 
     bool is_separator(const Glib::RefPtr<Gtk::TreeModel>& model, const Gtk::TreeModel::iterator &iter)
@@ -250,6 +250,7 @@ SelectorImpl::SelectorImpl(::mforms::Selector *self, ::mforms::SelectorStyle sty
     _pimpl = new SelectorPopupImpl(self);
 
   _align->add(*_pimpl->widget());
+  _pimpl->widget()->show();
   _align->show_all();
 }
 

@@ -19,6 +19,21 @@ public:
 //  virtual void get_size_vfunc (Gtk::Widget& widget, const Gdk::Rectangle* cell_area, int* x_offset, int* y_offset, int* width, int* height) const
 //  { Renderer::get_size_vfunc (widget, cell_area, x_offset, y_offset, width, height); }
 
+  virtual Gtk::SizeRequestMode get_request_mode_vfunc() const
+  { return Renderer::get_request_mode_vfunc(); }
+
+  virtual void get_preferred_width_vfunc(Gtk::Widget& widget, int& minimum_width, int& natural_width) const
+  { Renderer::get_preferred_width_vfunc(widget, minimum_width, natural_width); }
+
+  virtual void get_preferred_height_for_width_vfunc(Gtk::Widget& widget, int width, int& minimum_height, int& natural_height) const
+  { Renderer::get_preferred_height_for_width_vfunc(widget, width, minimum_height, natural_height); }
+
+  virtual void get_preferred_height_vfunc(Gtk::Widget& widget, int& minimum_height, int& natural_height) const
+  { Renderer::get_preferred_height_vfunc(widget, minimum_height, natural_height); }
+
+  virtual void get_preferred_width_for_height_vfunc(Gtk::Widget& widget, int height, int& minimum_width, int& natural_width) const
+  { Renderer::get_preferred_width_for_height_vfunc(widget, height, minimum_width, natural_width); }
+
   virtual void render_vfunc (const ::Cairo::RefPtr< ::Cairo::Context>& cr, Gtk::Widget& widget, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, Gtk::CellRendererState flags)
   { Renderer::render_vfunc (cr, widget, background_area, cell_area, flags); }
 
@@ -81,8 +96,13 @@ protected:
   Glib::PropertyProxy<Gdk::Color>                       property_cell_background_gdk_;
 
 //  virtual void get_size_vfunc (Gtk::Widget& widget, const Gdk::Rectangle* cell_area, int* x_offset, int* y_offset, int* width, int* height) const;
-  virtual void render_vfunc (const ::Cairo::RefPtr< ::Cairo::Context>& cr, Gtk::Widget& widget, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, Gtk::CellRendererState flags);
+  virtual Gtk::SizeRequestMode get_request_mode_vfunc() const;
+  virtual void get_preferred_width_vfunc(Gtk::Widget& widget, int& minimum_width, int& natural_width) const;
+  virtual void get_preferred_height_for_width_vfunc(Gtk::Widget& widget, int width, int& minimum_height, int& natural_height) const;
+  virtual void get_preferred_height_vfunc(Gtk::Widget& widget, int& minimum_height, int& natural_height) const;
+  virtual void get_preferred_width_for_height_vfunc(Gtk::Widget& widget, int height, int& minimum_width, int& natural_width) const;
   virtual bool activate_vfunc (GdkEvent* event, Gtk::Widget& widget, const Glib::ustring& path, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, Gtk::CellRendererState flags);
+  virtual void render_vfunc (const ::Cairo::RefPtr< ::Cairo::Context>& cr, Gtk::Widget& widget, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, Gtk::CellRendererState flags);
   virtual Gtk::CellEditable* start_editing_vfunc(GdkEvent* event, Gtk::Widget& widget, const Glib::ustring& path, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, Gtk::CellRendererState flags);
   virtual void on_editing_canceled();
   void on_editing_done(Gtk::CellEditable* editable);
@@ -325,6 +345,40 @@ on_cell_data(Gtk::CellRenderer* cr, const Gtk::TreeModel::iterator &iter, Gtk::T
 //  _data_renderer.get_size_vfunc(widget, cell_area, x_offset, y_offset, width, height);
 //}
 
+template <typename Renderer, typename RendererValueType, typename ModelValueType>
+Gtk::SizeRequestMode CustomRenderer<Renderer, RendererValueType, ModelValueType>::get_request_mode_vfunc() const
+{
+  return _data_renderer.get_request_mode_vfunc();
+}
+
+template <typename Renderer, typename RendererValueType, typename ModelValueType>
+void CustomRenderer<Renderer, RendererValueType, ModelValueType>::
+get_preferred_width_vfunc(Gtk::Widget& widget, int& minimum_width, int& natural_width) const //get_preferred_width_vfunc(Gtk::Widget& widget, int& minimum_width, int& natural_width)
+{
+  _data_renderer.get_preferred_width_vfunc(widget, minimum_width, natural_width);
+}
+
+template <typename Renderer, typename RendererValueType, typename ModelValueType>
+void CustomRenderer<Renderer, RendererValueType, ModelValueType>::
+get_preferred_height_for_width_vfunc(Gtk::Widget& widget, int width, int& minimum_height, int& natural_height) const
+{
+  _data_renderer.get_preferred_height_for_width_vfunc(widget, width, minimum_height, natural_height);
+}
+
+template <typename Renderer, typename RendererValueType, typename ModelValueType>
+void CustomRenderer<Renderer, RendererValueType, ModelValueType>::
+get_preferred_height_vfunc(Gtk::Widget& widget, int& minimum_height, int& natural_height) const
+{
+  _data_renderer.get_preferred_height_vfunc(widget, minimum_height, natural_height);
+}
+
+template <typename Renderer, typename RendererValueType, typename ModelValueType>
+void CustomRenderer<Renderer, RendererValueType, ModelValueType>::
+get_preferred_width_for_height_vfunc(Gtk::Widget& widget, int height, int& minimum_width, int& natural_width) const
+{
+  _data_renderer.get_preferred_width_for_height_vfunc(widget, height, minimum_width, natural_width);
+}
+
 //------------------------------------------------------------------------------
 template <typename Renderer, typename RendererValueType, typename ModelValueType>
 void CustomRenderer<Renderer, RendererValueType, ModelValueType>::
@@ -343,6 +397,9 @@ render_vfunc(const ::Cairo::RefPtr< ::Cairo::Context>& cr, Gtk::Widget& widget, 
       if (_treeview->selection_is_cell() && srow >= 0 && scol >= 0 && srow == row && scol == _column_index)
       {
         fprintf(stderr, "Custom_renderers.h render_vfunc implementation missing\n");
+        _treeview->get_style_context()->add_class("entry");
+        _treeview->get_style_context()->render_frame(cr, background_area.get_x(), background_area.get_y(), background_area.get_width(), background_area.get_height());
+        _treeview->get_style_context()->render_background(cr, background_area.get_x(), background_area.get_y(), background_area.get_width(), background_area.get_height());
 //        _treeview->get_style()->paint_flat_box(Glib::RefPtr<Gdk::Window>::cast_dynamic(window), Gtk::STATE_SELECTED, Gtk::SHADOW_ETCHED_IN, background_area,
 //                    widget, "", background_area.get_x(), background_area.get_y(),
 //                    background_area.get_width(), background_area.get_height());

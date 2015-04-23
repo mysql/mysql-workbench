@@ -97,10 +97,8 @@ TextEntryImpl::TextEntryImpl(::mforms::TextEntry *self, TextEntryType type)
     _entry->set_visibility(false);
     break;
   case mforms::SearchEntry:
-#if GTK_VERSION_GE(2, 16)
     _entry->set_icon_from_stock(Gtk::Stock::FIND);
     _entry->signal_icon_press().connect(sigc::mem_fun(this, &TextEntryImpl::icon_pressed));
-#endif
     break;
   }
 
@@ -116,13 +114,12 @@ TextEntryImpl::TextEntryImpl(::mforms::TextEntry *self, TextEntryType type)
   _placeholder_color = color_to_rgba(color);
 }
 
-#if GTK_VERSION_GE(2, 16)
+
 void TextEntryImpl::icon_pressed(Gtk::EntryIconPosition pos, const GdkEventButton *ev)
 {
   if (pos == Gtk::ENTRY_ICON_SECONDARY)
     set_text("");
 }
-#endif
 
 void TextEntryImpl::activated(mforms::TextEntry *self)
 {
@@ -161,7 +158,6 @@ void TextEntryImpl::changed(mforms::TextEntry *self)
     return;
   if (_has_real_text)
   {
-#if GTK_VERSION_GT(2, 16)
     if (_type == mforms::SearchEntry)
     {
       if (_entry->get_text().empty())
@@ -169,7 +165,7 @@ void TextEntryImpl::changed(mforms::TextEntry *self)
       else
         _entry->set_icon_from_stock(Gtk::Stock::CLEAR, Gtk::ENTRY_ICON_SECONDARY);
     }
-#endif
+
     if (_entry->get_text().empty())
       _has_real_text = false;
   }
@@ -202,9 +198,7 @@ void TextEntryImpl::set_text(const std::string &text)
 
 void TextEntryImpl::set_placeholder_text(const std::string &text)
 {
-  _placeholder = text;
-  if (!_entry->has_focus() && !_has_real_text)
-    focus_out(NULL);
+  _entry->set_placeholder_text(text);
 }
 
 void TextEntryImpl::set_placeholder_color(::mforms::TextEntry *self, const std::string &color)
@@ -217,23 +211,13 @@ void TextEntryImpl::set_placeholder_color(::mforms::TextEntry *self, const std::
 void TextEntryImpl::focus_in(GdkEventFocus*)
 {
   if (!_has_real_text)
-  {
     _entry->override_color(_text_color, Gtk::STATE_FLAG_NORMAL);
-    _changing_text = true;
-    _entry->set_text("");
-    _changing_text = false;
-  }
 }
 
 void TextEntryImpl::focus_out(GdkEventFocus*)
 {
-  if (!_has_real_text && !_placeholder.empty())
-  {
+  if (!_has_real_text)
     _entry->override_color(_placeholder_color, Gtk::STATE_FLAG_NORMAL);
-    _changing_text = true;
-    _entry->set_text(_placeholder);
-    _changing_text = false;
-  }
 }
 
 void TextEntryImpl::cut(::mforms::TextEntry *self)

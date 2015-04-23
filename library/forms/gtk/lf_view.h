@@ -143,9 +143,11 @@ public:
   static mforms::View *get_view_for_widget(Gtk::Widget *w);
 };
 
-bool expose_event_slot(const ::Cairo::RefPtr< ::Cairo::Context>& context, Gtk::Widget* w);
-void set_bgcolor(Gtk::Widget*, const std::string& color);
+bool draw_event_slot(const ::Cairo::RefPtr< ::Cairo::Context>& context, Gtk::Widget* w);
+enum WBColor { BG_COLOR, FG_COLOR };
 
+void set_color(Gtk::Widget*, const std::string& color, const WBColor col);
+base::Color *get_color(Gtk::Widget* w, const WBColor colr);
 };
 
 inline Gtk::Widget *widget_for_view(mforms::View *view)
