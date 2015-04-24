@@ -288,7 +288,7 @@ size_t PythonCopyDataSource::count_rows(const std::string &schema, const std::st
   PyGILState_Release(state);
 
   if ((spec.type == CopyAll || spec.type == CopyWhere) && spec.max_count > 0 && spec.max_count < (long long)count)
-      count = spec.max_count;
+      count = (size_t)spec.max_count;
 
   return count;
 }

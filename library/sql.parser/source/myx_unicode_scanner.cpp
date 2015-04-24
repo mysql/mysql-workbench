@@ -347,8 +347,8 @@ inline SqlAstNode * new_ast_terminal_node(LEX *lex, const char* value, int value
       value,
       value_length,
       token_start_lineno,
-      /*stmt_boffset*/(lex->tok_start - lex->buf),
-      /*stmt_eoffset*/(lex->ptr - lex->buf)));
+      /*stmt_boffset*/(int)(lex->tok_start - lex->buf),
+      /*stmt_eoffset*/(int)(lex->ptr - lex->buf)));
     if (!lex->first_item)
       lex->first_item= lex->last_item;
     free(lex_string_to_free);
@@ -360,8 +360,8 @@ inline SqlAstNode * new_ast_terminal_node(LEX *lex, const char* value, int value
         value,
         value_length,
         token_start_lineno,
-        /*stmt_boffset*/(lex->tok_start - lex->buf),
-        /*stmt_eoffset*/(lex->ptr - lex->buf)));
+        /*stmt_boffset*/(int)(lex->tok_start - lex->buf),
+        /*stmt_eoffset*/(int)(lex->ptr - lex->buf)));
     
     lex->last_item = node.get();
     SqlAstStatics::last_terminal_node(node);
@@ -803,7 +803,7 @@ int MYSQLlex(void **arg, void *yyl)
       }
       (void) yyGet();				// Skip '
       while ((c = yyGet()) && (c !='\'')) ;
-      length=(lex->ptr - lex->tok_start);	// Length of hexnum+3
+      length=(uint)(lex->ptr - lex->tok_start);	// Length of hexnum+3
       if (c != '\'')
       {
 	return(ABORT_SYM);		// Illegal hex constant
@@ -1133,7 +1133,7 @@ int MYSQLlex(void **arg, void *yyl)
     case MY_LEX_HEX_NUMBER:		// Found x'hexstring'
       (void) yyGet();				// Skip '
       while (my_isxdigit(cs,(c = yyGet()))) ;
-      length=(lex->ptr - lex->tok_start);	// Length of hexnum+3
+      length=(uint)(lex->ptr - lex->tok_start);	// Length of hexnum+3
       if (!(length & 1) || c != '\'')
       {
 	return(ABORT_SYM);		// Illegal hex constant
@@ -1152,7 +1152,7 @@ int MYSQLlex(void **arg, void *yyl)
     case MY_LEX_BIN_NUMBER:           // Found b'bin-string'
       (void) yyGet();                                // Skip '
       while ((c= yyGet()) == '0' || c == '1') ;
-      length= (lex->ptr - lex->tok_start);    // Length of bin-num + 3
+      length= (uint)(lex->ptr - lex->tok_start);    // Length of bin-num + 3
       if (c != '\'')
       return(ABORT_SYM);              // Illegal hex constant
       (void) yyGet();                        // get_token makes an unget
