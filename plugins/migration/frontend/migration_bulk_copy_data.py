@@ -54,20 +54,41 @@ class ImportScriptWindows(ImportScript):
         output.append('echo Started load data. Please wait.')
         
         output.append('SET MYPATH=%%~dp0')
-        output.append("SET command=mysql.exe -h127.0.0.1 -P%s -u%s -p -s -N information_schema -e \"SELECT Variable_Value FROM GLOBAL_VARIABLES WHERE Variable_Name = 'datadir'\"" % (connection_args['target_port'], connection_args['target_user']))
         
+        output.append('IF EXIST %%%%MYPATH%%%%%s del /F %%%%MYPATH%%%%%s' % (self.error_log_name, self.error_log_name))
+        output.append("SET command=mysql.exe -h127.0.0.1 -P%s -u%s -p -s -N information_schema -e \"SELECT Variable_Value FROM GLOBAL_VARIABLES WHERE Variable_Name = 'datadir'\" 2^>^> %%%%MYPATH%%%%%s" % (connection_args['target_port'], connection_args['target_user'], self.error_log_name))
+
         output.append('FOR /F "tokens=* USEBACKQ" %%%%F IN ^(^`%%command%%^`^) DO ^(')
         output.append('    SET DADADIR=%%%%F')
         output.append('^)')
+
+        output.append('if %%ERRORLEVEL%% GEQ 1 ^(')
+        output.append('    echo Script has failed. See the log file for details.')
+        output.append('    exit /b 1')
+        output.append('^)')
+
         output.append('pushd %%DADADIR%%')
 
         output.append('mkdir %s_#####_import' % schema_name)
         
-        output.append('xcopy %%%%MYPATH%%%%*.csv %s_#####_import\*' % schema_name)
-        output.append('xcopy %%%%MYPATH%%%%*.sql %s_#####_import\*' % schema_name)
+        output.append('xcopy %%%%MYPATH%%%%*.csv %s_#####_import\* 2^>^> %%%%MYPATH%%%%%s' % (schema_name, self.error_log_name))
+        output.append('if %%ERRORLEVEL%% GEQ 1 ^(')
+        output.append('    echo Script has failed. See the log file for details.')
+        output.append('    exit /b 1')
+        output.append('^)')
+        
+        output.append('xcopy %%%%MYPATH%%%%*.sql %s_#####_import\* 2^>^> %%%%MYPATH%%%%%s' % (schema_name, self.error_log_name))
+        output.append('if %%ERRORLEVEL%% GEQ 1 ^(')
+        output.append('    echo Script has failed. See the log file for details.')
+        output.append('    exit /b 1')
+        output.append('^)')
         
         
-        output.append('mysql.exe -h127.0.0.1 -P%s -u%s -p ^< %s_#####_import\%s' % (connection_args['target_port'], connection_args['target_user'], schema_name, path_to_file))
+        output.append('mysql.exe -h127.0.0.1 -P%s -u%s -p ^< %s_#####_import\%s 2^>^> %%%%MYPATH%%%%%s' % (connection_args['target_port'], connection_args['target_user'], schema_name, path_to_file, self.error_log_name))
+        output.append('if %%ERRORLEVEL%% GEQ 1 ^(')
+        output.append('    echo Script has failed. See the log file for details.')
+        output.append('    exit /b 1')
+        output.append('^)')
         
         output.append('rmdir %s_#####_import /s /q' % schema_name)
         output.append('echo Finished load data')
@@ -270,17 +291,41 @@ class DataCopyScriptWindows(DataCopyScript):
 
         with open(script_path, 'wb+') as f:
             f.write('@ECHO OFF\r\n')
+            f.write('SET MYPATH=%~dp0\r\n')
+            f.write('IF EXIST %%MYPATH%%%s del /F %%MYPATH%%%s\r\n' % (self.error_log_name, self.error_log_name))
     
             if isinstance(source_rdbms, SourceRDBMSMysql):
-                f.write('%s\r\n' % source_rdbms.get_cfg_editor_cmd(connection_args))
+                f.write('mysql_config_editor.exe remove --login-path=wb_migration_source 2>> "%%MYPATH%%%s"\r\n' % self.error_log_name)
+                f.write('if %ERRORLEVEL% GEQ 1 (\r\n')
+                f.write('    echo Script has failed. See the log file for details.\r\n')
+                f.write('    exit /b 1\r\n')
+                f.write(')\r\n')
+
+                f.write('%s 2>> "%%MYPATH%%%s"\r\n' % (source_rdbms.get_cfg_editor_cmd(connection_args), self.error_log_name))
+                f.write('if %ERRORLEVEL% GEQ 1 (\r\n')
+                f.write('    echo Script has failed. See the log file for details.\r\n')
+                f.write('    exit /b 1\r\n')
+                f.write(')\r\n')
+                
+                f.write("SET command=mysql.exe -h127.0.0.1 -P%s -u%s -p -s -N information_schema -e \"SELECT Variable_Value FROM GLOBAL_VARIABLES WHERE Variable_Name = 'datadir'\" 2>> \"%%MYPATH%%%s\"\r\n" % (connection_args['source_port'], connection_args['source_user'], self.error_log_name))
+
+                f.write('FOR /F "tokens=* USEBACKQ" %%F IN (`%command%`) DO (\r\n')
+                f.write('    SET DADADIR=%%F\r\n')
+                f.write(')\r\n')
+        
+                f.write('if %ERRORLEVEL% GEQ 1 (\r\n')
+                f.write('    echo Script has failed. See the log file for details.\r\n')
+                f.write('    exit /b 1\r\n')
+                f.write(')\r\n')
             else:
                 f.write("set arg_source_password=\"<put source password here>\"\r\n")
+                f.write('SET DADADIR=%TEMP%\\\r\n')
     
             if not isinstance(import_script, ImportScriptWindows):
                 f.write("set arg_target_password=\"<put target password here>\"\r\n")
     
-            f.write('SET MYPATH=%~dp0\r\n')
-            f.write('pushd %TEMP%\r\n')
+            f.write('pushd %DADADIR%\r\n')
+            
             f.write('echo [%d %%%%] Creating directory %s\r\n' % (progress, dir_name))
             f.write('mkdir %s\r\n' % dir_name)
             f.write('pushd %s\r\n' % dir_name)
@@ -295,7 +340,11 @@ class DataCopyScriptWindows(DataCopyScript):
             f.write('echo [%d %%%%] Start dumping tables\r\n' % (progress * 100 / total_progress))
          
             for table in tables:
-                f.write('%s\r\n' % source_rdbms.get_copy_table_cmd(table, connection_args))
+                f.write('%s 2>> "%%MYPATH%%%s"\r\n' % (source_rdbms.get_copy_table_cmd(table, connection_args), self.error_log_name))
+                f.write('if %ERRORLEVEL% GEQ 1 (\r\n')
+                f.write('    echo Script has failed. See the log file for details.\r\n')
+                f.write('    exit /b 1\r\n')
+                f.write(')\r\n')
                 if isinstance(source_rdbms, SourceRDBMSMysql):
                     f.write('rename %s.txt %s.csv\r\n' % (table['source_table'], table['source_table']))
                     f.write('del %s.sql\r\n' % table['source_table'])
@@ -303,9 +352,6 @@ class DataCopyScriptWindows(DataCopyScript):
                 progress = progress + 1
                 f.write('echo [%d %%%%] Dumped table %s\r\n' % (progress * 100 / total_progress, table['source_table']))
     
-            if isinstance(source_rdbms, SourceRDBMSMysql):
-                f.write('mysql_config_editor.exe remove --login-path=wb_migration_source\r\n')
-            
             f.write('copy NUL %s\r\n' % import_file_name)
             import_file_lines = import_script.generate_import_script(connection_args, import_sql_file_name, target_schema)
             for line in import_file_lines:
@@ -315,10 +361,10 @@ class DataCopyScriptWindows(DataCopyScript):
             f.write('echo [%d %%%%] Generated import script %s\r\n' % (progress * 100 / total_progress, import_file_name))
         
             f.write('popd\r\n')
-            f.write('set TEMPDIR=%%TEMP%%\%s\r\n' % dir_name)
-            f.write('echo Set objArgs = WScript.Arguments > _zipIt.vbs\r\n')
-            f.write('echo InputFolder = objArgs(0) >> _zipIt.vbs\r\n')
-            f.write('echo ZipFile = objArgs(1) >> _zipIt.vbs\r\n')
+            f.write('set TEMPDIR=%%DADADIR%%%s\r\n' % dir_name)
+            f.write('echo Set fso = CreateObject("Scripting.FileSystemObject") > _zipIt.vbs\r\n')
+            f.write('echo InputFolder = fso.GetAbsolutePathName(WScript.Arguments.Item(0)) >> _zipIt.vbs\r\n')
+            f.write('echo ZipFile = fso.GetAbsolutePathName(WScript.Arguments.Item(1)) >> _zipIt.vbs\r\n')
             f.write('echo CreateObject("Scripting.FileSystemObject").CreateTextFile(ZipFile, True).Write "PK" ^& Chr(5) ^& Chr(6) ^& String(18, vbNullChar) >> _zipIt.vbs\r\n')
             f.write('echo Set objShell = CreateObject("Shell.Application") >> _zipIt.vbs\r\n')
             f.write('echo Set source = objShell.NameSpace(InputFolder).Items >> _zipIt.vbs\r\n')
@@ -327,13 +373,23 @@ class DataCopyScriptWindows(DataCopyScript):
             f.write('echo wScript.Sleep 200 >> _zipIt.vbs\r\n')
             f.write('echo Loop >> _zipIt.vbs\r\n')
             
-            f.write('CScript  _zipIt.vbs  %%TEMPDIR%%  %%TEMP%%\%s.zip\r\n' % dir_name)
+            f.write('CScript  _zipIt.vbs  "%%TEMPDIR%%"  "%%DADADIR%%%s.zip" 2>> "%%MYPATH%%%s"\r\n' % (dir_name, self.error_log_name))
+            f.write('if %ERRORLEVEL% GEQ 1 (\r\n')
+            f.write('    echo Script has failed. See the log file for details.\r\n')
+            f.write('    exit /b 1\r\n')
+            f.write(')\r\n')
         
             progress = progress + 1
     
             f.write('echo [%d %%%%] Zipped all files to %s.zip file\r\n' % (progress * 100 / total_progress, dir_name))
     
-            f.write('xcopy %s.zip %%MYPATH%%\r\n' % dir_name)
+            f.write('xcopy %s.zip %%MYPATH%% 2>> "%%MYPATH%%%s"\r\n' % (dir_name, self.error_log_name))
+            f.write('if %ERRORLEVEL% GEQ 1 (\r\n')
+            f.write('    echo Script has failed. See the log file for details.\r\n')
+            f.write('    exit /b 1\r\n')
+            f.write(')\r\n')
+            
+            f.write('del %s.zip\r\n' % dir_name)    
             f.write('del _zipIt.vbs\r\n')
             f.write('del /F /Q %s\*.*\r\n' % dir_name)
             f.write('rmdir %s\r\n' % dir_name)
