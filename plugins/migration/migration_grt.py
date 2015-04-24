@@ -1,4 +1,4 @@
-# Copyright (c) 2012, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -46,7 +46,7 @@ def openMigration():
     mgview = migration_main.Migration()
 
     app.dock_view(mgview, "maintab")
-    app.set_view_title(mgview, "Migration")
+    mgview.set_title("Migration")
 
     tab_reference = mgview
     mgview.on_close(lambda: handle_view_close(mgview)) # TODO: create weak ref
