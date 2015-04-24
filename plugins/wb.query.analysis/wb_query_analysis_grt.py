@@ -574,7 +574,7 @@ def visualExplainForConnection(editor, conn_id, the_query):
     dock = mforms.fromgrt(editor.resultDockingPoint)
     dock.dock_view(view, "", 0)
     dock.select_view(view)
-    dock.set_view_title(view, "Explain for Connection")
+    view.set_title("Explain for Connection")
     
     return 0
 

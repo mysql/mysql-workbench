@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -44,7 +44,7 @@ def openDBCopy():
     view = db_copy_main.DBCopy()
 
     app.dock_view(view, "maintab")
-    app.set_view_title(view, "Schema Transfer Wizard")
+    view.set_title("Schema Transfer Wizard")
 
     tab_reference = view
     view.on_close(lambda: handle_view_close(view)) # TODO: create weak ref
