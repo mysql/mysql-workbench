@@ -146,5 +146,146 @@ TEST_FUNCTION(4)
   ensure("4.2 Comment is mydb, ", comment == "mydb");
 }
 
+// Test if opened model can be saved (we ran into an issue with libzip that 
+// didn't close the file properly, resulting in inability to save the model)
+TEST_FUNCTION(10)
+{
+  grt::GRT*        grt  = tester.wb->get_grt();
+  bec::GRTManager* grtm = bec::GRTManager::get_instance_for(grt);
+
+  base::create_directory(TMP_DIR, 0666);
+  std::string temp_dir = TMP_DIR;
+
+  // read the file - the file should be properly closed after reading
+  ModelFile mf(temp_dir);
+  try
+  {
+    mf.open("data/workbench/test_model1.mwb", grtm);
+  }
+  catch (...)
+  {
+    fail("opening model failed");
+  }
+
+  // try to write to the file - if the file wasn't closed, it will fail
+  try
+  {
+    mf.save_to("data/workbench/test_model1.mwb");
+  }
+  catch (...)
+  {
+    fail("saving file failed - perhaps the file is locked?");
+  }
+}
+
+std::string test_loading_and_saving_a_model( const WBTester& tester, std::string& base_path )
+{
+  grt::GRT *grt= tester.wb->get_grt();
+  bec::GRTManager* grtm = bec::GRTManager::get_instance_for(grt);
+  
+  #ifdef _WIN32
+    base::create_directory(TMP_DIR, 0666);
+  #endif
+  std::string temp_dir = TMP_DIR;
+  ModelFile mf(temp_dir);
+
+  std::string src_path = base_path +     ".mwb";
+  std::string dst_path = base_path + "_tmp.mwb";
+ 
+  // remove copy file if it was left over from a previous unsuccessful run
+  base::remove(dst_path);
+
+  // open the file 
+  try
+  {
+    mf.open(src_path, grtm);
+  }
+  catch (...)
+  {
+    return "opening model failed";
+  }
+
+  // write a copy
+  try
+  {
+    mf.save_to(dst_path);
+    mf.cleanup();
+  }
+  catch (...)
+  {
+     return "saving model copy failed";
+  }
+
+  // verify the copy was created
+  try
+  {
+    mf.open(dst_path, grtm);
+    mf.cleanup();
+  }
+  catch (...)
+  {
+    // if the copy exists but somehow failed to open, it will be left on disk on purpose.
+    // This is so a developer can see if the copy was created.  It will be erased on subsuquent runs (via base::remove() above)
+
+    return "opening model copy failed - was the file created?";
+  }
+
+  // delete the copy
+  try
+  {
+    if (!base::remove(dst_path))
+    {
+      return "model copy was not created";
+    }
+  }
+  catch (base::file_error)
+  {
+    return "removing model copy failed";
+  }
+  
+  // all went ok
+  return "";
+}
+
+// Test model loading and saving with ASCII path + ASCII file
+TEST_FUNCTION(15)
+{
+  std::string base_path = "data/workbench/test_model1";
+
+  std::string result = test_loading_and_saving_a_model( tester, base_path );
+  if ( !result.empty() )
+    fail(result);
+}
+
+// Test model loading and saving with ASCII path + Unicode file
+TEST_FUNCTION(16)
+{
+  std::string base_path = "data/workbench/file_with_unicode_\xC4\x85\xC4\x87\xC4\x99";
+
+  std::string result = test_loading_and_saving_a_model(tester, base_path);
+  if (!result.empty())
+    fail(result);
+}
+
+// Test model loading and saving with Unicode path + ASCII file
+TEST_FUNCTION(17)
+{
+  std::string base_path = "data/workbench/path_with_unicode_\xC4\x85\xC4\x87\xC4\x99/test_model1";
+
+  std::string result = test_loading_and_saving_a_model(tester, base_path);
+  if (!result.empty())
+    fail(result);
+}
+
+// Test model loading and saving with Unicode path + Unicode file
+TEST_FUNCTION(18)
+{
+  std::string base_path = "data/workbench/path_with_unicode_\xC4\x85\xC4\x87\xC4\x99/file_with_unicode_\xC4\x85\xC4\x87\xC4\x99";
+
+  std::string result = test_loading_and_saving_a_model(tester, base_path);
+  if (!result.empty())
+    fail(result);
+}
 
 END_TESTS
+

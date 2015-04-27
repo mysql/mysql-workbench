@@ -527,7 +527,7 @@ std::list<std::string> ModelFile::unpack_zip(const std::string &zipfile, const s
 
   #ifdef ZIP_DISABLE_DEPRECATED
     // the new API doesn't offer a way to extract an error without a pertaining zip*, which is NULL in this case
-	std::string msg = "error opening zip archive";
+    std::string msg = "error opening zip archive";
   #else
 	int len= zip_error_to_str(NULL, 0, 0, err);
     std::string msg;
