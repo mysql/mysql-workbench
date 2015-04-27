@@ -44,6 +44,7 @@
 #include <fstream>
 #include <sstream>
 #include <unordered_set>
+#include <list>
 
 #include <VersionHelpers.h>
 

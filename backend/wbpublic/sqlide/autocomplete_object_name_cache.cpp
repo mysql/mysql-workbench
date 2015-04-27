@@ -478,7 +478,7 @@ void AutoCompleteCache::refresh_schemas_w()
 
 void AutoCompleteCache::refresh_tables_w(const std::string &schema)
 {
-  StringListPtr tables(new std::list<std::string>());
+  base::StringListPtr tables(new std::list<std::string>());
   {
     sql::Dbc_connection_handler::Ref conn;
 
@@ -519,7 +519,7 @@ void AutoCompleteCache::refresh_tables_w(const std::string &schema)
 
 void AutoCompleteCache::refresh_views_w(const std::string &schema)
 {
-  StringListPtr views(new std::list<std::string>());
+  base::StringListPtr views(new std::list<std::string>());
   {
     sql::Dbc_connection_handler::Ref conn;
 
@@ -558,7 +558,7 @@ void AutoCompleteCache::refresh_views_w(const std::string &schema)
 
 void AutoCompleteCache::refresh_functions_w(const std::string &schema)
 {
-  StringListPtr functions(new std::list<std::string>());
+  base::StringListPtr functions(new std::list<std::string>());
   {
     sql::Dbc_connection_handler::Ref conn;
     base::RecMutexLock lock(_get_connection(conn));
@@ -584,7 +584,7 @@ void AutoCompleteCache::refresh_functions_w(const std::string &schema)
 
 void AutoCompleteCache::refresh_procedures_w(const std::string &schema)
 {
-  StringListPtr procedures(new std::list<std::string>());
+  base::StringListPtr procedures(new std::list<std::string>());
   {
     sql::Dbc_connection_handler::Ref conn;
     base::RecMutexLock lock(_get_connection(conn));
@@ -1016,28 +1016,28 @@ void AutoCompleteCache::update_schemas(const std::vector<std::string> &schemas)
 
 //--------------------------------------------------------------------------------------------------
 
-void AutoCompleteCache::update_tables(const std::string &schema, StringListPtr tables)
+void AutoCompleteCache::update_tables(const std::string &schema, base::StringListPtr tables)
 {
   update_object_names("tables", schema, tables);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void AutoCompleteCache::update_views(const std::string &schema, StringListPtr views)
+void AutoCompleteCache::update_views(const std::string &schema, base::StringListPtr views)
 {
   update_object_names("views", schema, views);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void AutoCompleteCache::update_procedures(const std::string &schema, StringListPtr procedures)
+void AutoCompleteCache::update_procedures(const std::string &schema, base::StringListPtr procedures)
 {
   update_object_names("procedures", schema, procedures);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void AutoCompleteCache::update_functions(const std::string &schema, StringListPtr functions)
+void AutoCompleteCache::update_functions(const std::string &schema, base::StringListPtr functions)
 {
   update_object_names("functions", schema, functions);
 }
@@ -1083,7 +1083,7 @@ void AutoCompleteCache::update_object_names(const std::string &cache, const std:
  * for calls from the SQL IDE which uses lists for them.
  */
 void AutoCompleteCache::update_object_names(const std::string &cache, const std::string &schema,
-    StringListPtr objects)
+  base::StringListPtr objects)
 {
   try
   {
