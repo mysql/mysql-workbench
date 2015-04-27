@@ -22,7 +22,6 @@
 #include "grtpp.h"
 #include "test.h"
 
-
 using namespace grt;
 using namespace wb;
 
@@ -77,11 +76,11 @@ namespace wb
 
 BEGIN_TEST_DATA_CLASS(wb_live_schema_tree_test)
 
-  public:
+public:
 class LiveTreeTestDelegate : public wb::LiveSchemaTree::Delegate, public wb::LiveSchemaTree::FetchDelegate
 {
 public:
-  LiveSchemaTree *ptree;
+  wb::LiveSchemaTree *ptree;
   bool _expect_fetch_schema_list_call;
   bool _expect_fetch_schema_contents_call;
   bool _expect_fetch_object_details_call;
@@ -103,15 +102,15 @@ public:
   LiveSchemaTree::ObjectType _mock_object_type;
   short _mock_flags;
 
-  StringListPtr  _mock_schema_list;
-  StringListPtr _mock_table_list;
-  StringListPtr _mock_view_list;
-  StringListPtr _mock_procedure_list;
-  StringListPtr _mock_function_list;
-  StringListPtr _mock_column_list;
-  StringListPtr _mock_index_list;
-  StringListPtr _mock_trigger_list;
-  StringListPtr _mock_fk_list;
+  base::StringListPtr _mock_schema_list;
+  base::StringListPtr _mock_table_list;
+  base::StringListPtr _mock_view_list;
+  base::StringListPtr _mock_procedure_list;
+  base::StringListPtr _mock_function_list;
+  base::StringListPtr _mock_column_list;
+  base::StringListPtr _mock_index_list;
+  base::StringListPtr _mock_trigger_list;
+  base::StringListPtr _mock_fk_list;
 
   std::vector<LiveSchemaTree::ChangeRecord>_mock_expected_changes;
 
@@ -152,15 +151,15 @@ public:
 
   void expect_fetch_schema_contents_call()
   {
-    _mock_schema_list = StringListPtr(new std::list<std::string>());
-    _mock_table_list = StringListPtr(new std::list<std::string>());
-    _mock_view_list = StringListPtr(new std::list<std::string>());
-    _mock_procedure_list = StringListPtr(new std::list<std::string>());
-    _mock_function_list = StringListPtr(new std::list<std::string>());
-    _mock_column_list = StringListPtr(new std::list<std::string>());
-    _mock_index_list = StringListPtr(new std::list<std::string>());
-    _mock_trigger_list = StringListPtr(new std::list<std::string>());
-    _mock_fk_list = StringListPtr(new std::list<std::string>());
+    _mock_schema_list = base::StringListPtr(new std::list<std::string>());
+    _mock_table_list = base::StringListPtr(new std::list<std::string>());
+    _mock_view_list = base::StringListPtr(new std::list<std::string>());
+    _mock_procedure_list = base::StringListPtr(new std::list<std::string>());
+    _mock_function_list = base::StringListPtr(new std::list<std::string>());
+    _mock_column_list = base::StringListPtr(new std::list<std::string>());
+    _mock_index_list = base::StringListPtr(new std::list<std::string>());
+    _mock_trigger_list = base::StringListPtr(new std::list<std::string>());
+    _mock_fk_list = base::StringListPtr(new std::list<std::string>());
     _expect_fetch_schema_contents_call = true;
   }
 
@@ -448,7 +447,7 @@ TEST_DATA_CONSTRUCTOR(wb_live_schema_tree_test):
 void fill_basic_schema(const std::string &check_id)
 {
     // Fills the tree using the real structure..
-    wb::StringListPtr schemas(new std::list<std::string>());
+    base::StringListPtr schemas(new std::list<std::string>());
     mforms::TreeNodeRef node;
 
     schemas->push_back("schema1");
@@ -535,7 +534,7 @@ void fill_schema_object_lists()
 void fill_complex_schema(const std::string &check_id)
 {
     // Fills the tree using the real structure..
-    wb::StringListPtr schemas(new std::list<std::string>());
+    base::StringListPtr schemas(new std::list<std::string>());
     mforms::TreeNodeRef node;
     deleg->_check_id = check_id;
 
@@ -669,7 +668,7 @@ TEST_FUNCTION(1)
 
   // Testing a ColumnData node
   {
-    wb::LiveSchemaTree::ColumnData source, target;
+    LiveSchemaTree::ColumnData source, target;
     source.details = "This is a sample";
     source.default_value = "A default value";
     source.is_fk = true;
@@ -701,7 +700,7 @@ TEST_FUNCTION(1)
 
   // Testing a ForeignKey node
   {
-    wb::LiveSchemaTree::FKData source, target;
+    LiveSchemaTree::FKData source, target;
     source.details = "This is a sample to test copy";
     source.delete_rule = 1;
     source.update_rule = 5;
@@ -753,7 +752,7 @@ TEST_FUNCTION(1)
 
   // Testing an Index node
   {
-    wb::LiveSchemaTree::IndexData source, target;
+    LiveSchemaTree::IndexData source, target;
     source.details = "This is a sample to test copy";
     source.columns.push_back("one");
     source.columns.push_back("two");
@@ -805,7 +804,7 @@ TEST_FUNCTION(1)
 
   // Testing copy and get_details for a Trigger node
   {
-    wb::LiveSchemaTree::TriggerData source, target;
+    LiveSchemaTree::TriggerData source, target;
     source.details = "This is a sample to test copy";
     source.event_manipulation = 11;
     source.timing = 15;
@@ -842,7 +841,7 @@ TEST_FUNCTION(1)
 
   // Testing an Object node
   {
-    wb::LiveSchemaTree::ObjectData source, target;
+    LiveSchemaTree::ObjectData source, target;
     source.details = "This is a sample";
     source.fetched = true;
     source.fetching = true;
@@ -868,7 +867,7 @@ TEST_FUNCTION(1)
   // A concatenation between the formatted header, and the details which should be 
   // html code with the parameter information
   {
-    wb::LiveSchemaTree::FunctionData source, target;
+    LiveSchemaTree::FunctionData source, target;
     source.details = "This is a sample";
     source.fetched = true;
     source.fetching = true;
@@ -894,7 +893,7 @@ TEST_FUNCTION(1)
   // A concatenation between the formatted header, and the details which should be 
   // html code with the parameter information
   {
-    wb::LiveSchemaTree::ProcedureData source, target;
+    LiveSchemaTree::ProcedureData source, target;
     source.details = "This is a sample";
     source.fetched = true;
     source.fetching = true;
@@ -917,7 +916,7 @@ TEST_FUNCTION(1)
 
   // Testing a View node
   {
-    wb::LiveSchemaTree::ViewData source, target;
+    LiveSchemaTree::ViewData source, target;
     source.details = "This is a sample";
     source.columns_load_error = true;
     source.fetched = true;
@@ -945,7 +944,7 @@ TEST_FUNCTION(1)
 
 
     // Fills the tree using the real structure..
-    wb::StringListPtr schemas(new std::list<std::string>());
+    base::StringListPtr schemas(new std::list<std::string>());
     mforms::TreeNodeRef schema;
     mforms::TreeNodeRef view;
     LiveSchemaTree::ViewData *pdata;
@@ -990,7 +989,7 @@ TEST_FUNCTION(1)
     test_node_ref->remove_children();
 
     /* Testing the flag setting logic */
-    wb::LiveSchemaTree::ViewData view_node;
+    LiveSchemaTree::ViewData view_node;
 
     ensure_equals("TF001CHK010: Unexpected loaded mask 1", view_node.get_loaded_mask(), 0);
     ensure_equals("TF001CHK010: Unexpected loading mask 1", view_node.get_loading_mask(), 0);
@@ -1065,7 +1064,7 @@ TEST_FUNCTION(1)
 
   // Testing a Table node
   {
-    wb::LiveSchemaTree::TableData source, target;
+    LiveSchemaTree::TableData source, target;
     source.details = "This is a sample";
     source.columns_load_error = true;
     source.fetched = true;
@@ -1093,7 +1092,7 @@ TEST_FUNCTION(1)
 
 
     // Fills the tree using the real structure..
-    wb::StringListPtr schemas(new std::list<std::string>());
+    base::StringListPtr schemas(new std::list<std::string>());
     mforms::TreeNodeRef schema;
     mforms::TreeNodeRef table;
     LiveSchemaTree::TableData *pdata;
@@ -1148,7 +1147,7 @@ TEST_FUNCTION(1)
 
   // Testing copy and get_details for a Schema node
   {
-    wb::LiveSchemaTree::SchemaData source, target;
+    LiveSchemaTree::SchemaData source, target;
     source.details = "This is a sample";
     source.fetched = true;
     source.fetching = true;
@@ -1683,8 +1682,8 @@ TEST_FUNCTION(7)
 {
   mforms::TreeNodeRef node = pmodel_view->root_node();
   mforms::TreeNodeRef node_filtered = pmodel_view->root_node();
-  wb::StringListPtr children01(new std::list<std::string>());
-  wb::StringListPtr children02(new std::list<std::string>());
+  base::StringListPtr children01(new std::list<std::string>());
+  base::StringListPtr children02(new std::list<std::string>());
   children01->push_back("actor");
   children01->push_back("address");
   children01->push_back("client");
@@ -1800,7 +1799,7 @@ TEST_FUNCTION(8)
 {
   mforms::TreeNodeRef node = pmodel_view->root_node();
   mforms::TreeNodeRef schema;
-  wb::StringListPtr schemas(new std::list<std::string>());
+  base::StringListPtr schemas(new std::list<std::string>());
 
   schemas->push_back("one");
   schemas->push_back("two");
@@ -1831,7 +1830,7 @@ TEST_FUNCTION(9)
 {
   mforms::TreeNodeRef node = pmodel_view->root_node();
   mforms::TreeNodeRef schema;
-  wb::StringListPtr schemas(new std::list<std::string>());
+  base::StringListPtr schemas(new std::list<std::string>());
   LiveSchemaTree::SchemaData *pdata = NULL;
 
   ensure_equals("TF009CHK001: Unexpected number of nodes in root", node->count(), 0);
@@ -1888,7 +1887,7 @@ TEST_FUNCTION(10)
   mforms::TreeNodeRef schema;
   mforms::TreeNodeRef schema_base;
   mforms::TreeNodeRef child;
-  wb::StringListPtr schemas(new std::list<std::string>());
+  base::StringListPtr schemas(new std::list<std::string>());
   LiveSchemaTree::SchemaData *pdata = NULL;
 
   ensure_equals("TF010CHK001: Unexpected number of nodes in root", node->count(), 0);
@@ -1955,7 +1954,7 @@ TEST_FUNCTION(11)
   mforms::TreeNodeRef schema;
   mforms::TreeNodeRef schema_base;
   mforms::TreeNodeRef child;
-  wb::StringListPtr schemas(new std::list<std::string>());
+  base::StringListPtr schemas(new std::list<std::string>());
   LiveSchemaTree::SchemaData *pdata = NULL;
 
   ensure_equals("TF011CHK001: Unexpected number of nodes in root", node->count(), 0);
@@ -2110,7 +2109,7 @@ TEST_FUNCTION(12)
   mforms::TreeNodeRef node = pmodel_view->root_node();
   mforms::TreeNodeRef schema;
   mforms::TreeNodeRef table;
-  wb::StringListPtr schemas(new std::list<std::string>());
+  base::StringListPtr schemas(new std::list<std::string>());
   LiveSchemaTree::TableData *pdata = NULL;
 
   ensure_equals("TF012CHK001: Unexpected number of nodes in root", node->count(), 0);
@@ -2881,7 +2880,7 @@ TEST_FUNCTION(25)
 TEST_FUNCTION(26)
 {
     // Fills the tree using the real structure..
-    wb::StringListPtr schemas(new std::list<std::string>());
+    base::StringListPtr schemas(new std::list<std::string>());
     mforms::TreeNodeRef schema_node;
     mforms::TreeNodeRef schema_node_filtered;
     mforms::TreeNodeRef child_node;
