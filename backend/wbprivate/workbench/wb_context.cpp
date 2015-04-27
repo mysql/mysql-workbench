@@ -3519,7 +3519,7 @@ boost::shared_ptr<SqlEditorForm> WBContext::add_new_query_window(const db_mgmt_C
   {
     show_status_text(_("Connecting..."));
     
-    form= get_sqlide_context()->create_connected_editor(target);
+    form = get_sqlide_context()->create_connected_editor(target);
     
     if (form->connection_details().find("dbmsProductVersion") != form->connection_details().end())
     {
