@@ -272,6 +272,10 @@ namespace mforms {
      */
     static bool find_cached_password(const std::string &service, const std::string &account, std::string &ret_password);
 
+    /** Clears the stored password for the given service and account from in-memory cache only
+     */
+    static void forget_cached_password(const std::string &service, const std::string &account);
+
     /** Clears the stored password for the given service and account */
     static void forget_password(const std::string &service, const std::string &account);
     
