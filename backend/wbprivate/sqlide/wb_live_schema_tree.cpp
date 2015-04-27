@@ -791,7 +791,8 @@ void LiveSchemaTree::update_node_icon(mforms::TreeNodeRef node)
  *   type: the type of children that will be affected (some nodes may have children of different types)
  *   to_remove: a vector containing the nodes to be removed from the parent node
  */
-void LiveSchemaTree::update_change_data(mforms::TreeNodeRef parent, StringListPtr children, ObjectType type, std::vector<mforms::TreeNodeRef>& to_remove)
+void LiveSchemaTree::update_change_data(mforms::TreeNodeRef parent, base::StringListPtr children,
+  ObjectType type, std::vector<mforms::TreeNodeRef>& to_remove)
 {
   mforms::TreeNodeRef node;
 
@@ -839,7 +840,8 @@ void LiveSchemaTree::update_change_data(mforms::TreeNodeRef parent, StringListPt
  * 
  * NOTE : That children may change, so if the original list is needed, the caller needs to have a copy
  */
-bool LiveSchemaTree::update_node_children(mforms::TreeNodeRef parent, StringListPtr children, ObjectType type, bool sorted, bool just_append)
+bool LiveSchemaTree::update_node_children(mforms::TreeNodeRef parent, base::StringListPtr children,
+  ObjectType type, bool sorted, bool just_append)
 {
   bool ret_val = false;
 
@@ -1180,8 +1182,8 @@ void LiveSchemaTree::update_live_object_state(ObjectType type, const std::string
 }
 
 void LiveSchemaTree::schema_contents_arrived(const std::string &schema_name,
-    StringListPtr tables, StringListPtr views,
-    StringListPtr procedures, StringListPtr functions, bool just_append)
+  base::StringListPtr tables, base::StringListPtr views, base::StringListPtr procedures,
+  base::StringListPtr functions, bool just_append)
 {
   if (_base)
   {
@@ -2169,7 +2171,7 @@ bool LiveSchemaTree::find_child_position(const mforms::TreeNodeRef& parent, cons
   return child ? true : false;
 }
 
-void LiveSchemaTree::update_schemata(StringListPtr schema_list)
+void LiveSchemaTree::update_schemata(base::StringListPtr schema_list)
 {
   mforms::TreeNodeRef schema_node;
 
