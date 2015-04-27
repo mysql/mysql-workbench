@@ -36,12 +36,14 @@
 
 #ifndef HAVE_PREDEFINED_HEADERS
   #include <string>
+  #include <list>
   #include <vector>
   #include <sstream>
   #include <typeinfo>
 
   #include <boost/optional.hpp>
   #include <boost/cstdint.hpp>
+  #include <boost/shared_ptr.hpp>
 
 #endif
 
@@ -312,4 +314,6 @@ template<typename T> T inline atof(const std::string &val, boost::optional<T> de
   return ConvertHelper::string_to_number<T>(val, def_val);
 }
   
+typedef boost::shared_ptr<std::list<std::string>> StringListPtr;
+
 } // namespace base
