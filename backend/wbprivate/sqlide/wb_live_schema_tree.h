@@ -30,8 +30,6 @@
 
 namespace wb
 {
-  typedef boost::shared_ptr<std::list<std::string> > StringListPtr;
-
   class MYSQLWBBACKEND_PUBLIC_FUNC LiveSchemaTree: base::trackable
   {
   public:
@@ -302,9 +300,13 @@ namespace wb
       virtual std::string get_object_name() { return _("Schema"); }
     };
 
-    typedef boost::function<void (const std::string& schema_name, StringListPtr tables, StringListPtr views, StringListPtr procedures, StringListPtr functions, bool just_append)> NewSchemaContentArrivedSlot;
-    typedef boost::function<void (const std::string& schema_name, const std::string& object_name, ObjectType obj_type, ObjectType child_type, const std::map<std::string, LSTData*> &children)> NewObjectDetailsArrivedSlot;
-    typedef boost::function<bool (mforms::TreeNodeRef, StringListPtr, ObjectType, bool sorted, bool just_append)>NodeChildrenUpdaterSlot;
+    typedef boost::function<void(const std::string& schema_name, base::StringListPtr tables,
+      base::StringListPtr views, base::StringListPtr procedures, base::StringListPtr functions,
+      bool just_append)> NewSchemaContentArrivedSlot;
+    typedef boost::function<void (const std::string& schema_name, const std::string& object_name,
+      ObjectType obj_type, ObjectType child_type, const std::map<std::string, LSTData*> &children)> NewObjectDetailsArrivedSlot;
+    typedef boost::function<bool(mforms::TreeNodeRef, base::StringListPtr, ObjectType, bool sorted,
+      bool just_append)>NodeChildrenUpdaterSlot;
 
     struct FetchDelegate
     {
@@ -336,9 +338,12 @@ namespace wb
 
     bool _case_sensitive_identifiers;
 
-    void schema_contents_arrived(const std::string &schema_name, StringListPtr tables, StringListPtr views, StringListPtr procedures, StringListPtr functions, bool just_append);
+    void schema_contents_arrived(const std::string &schema_name, base::StringListPtr tables,
+      base::StringListPtr views, base::StringListPtr procedures, base::StringListPtr functions,
+      bool just_append);
     void load_table_details(mforms::TreeNodeRef& node, int fetch_mask);
-    void fetch_table_details(ObjectType object_type, const std::string schema_name, const std::string object_name, int fetch_mask);
+    void fetch_table_details(ObjectType object_type, const std::string schema_name,
+      const std::string object_name, int fetch_mask);
     void load_routine_details(mforms::TreeNodeRef& node);
     void load_schema_content(mforms::TreeNodeRef& schema_node);
     void reload_object_data(mforms::TreeNodeRef& node);
@@ -352,7 +357,8 @@ namespace wb
     std::string get_filter_wildcard(const std::string& filter, FilterType type = LocalLike);
     void clean_filter();
     void filter_children_collection(mforms::TreeNodeRef& source, mforms::TreeNodeRef& target);
-    bool filter_children(ObjectType type, mforms::TreeNodeRef& source, mforms::TreeNodeRef& target, GPatternSpec* pattern = NULL);
+    bool filter_children(ObjectType type, mforms::TreeNodeRef& source, mforms::TreeNodeRef& target,
+      GPatternSpec* pattern = NULL);
     bool is_object_type(ObjectTypeValidation validation, ObjectType type);
   public:
     LiveSchemaTree(grt::GRT* grtm);
@@ -395,13 +401,16 @@ namespace wb
 
     void set_base(LiveSchemaTree *base) { _base = base; }
 
-    bool update_node_children(mforms::TreeNodeRef parent, StringListPtr children, ObjectType type, bool sorted = false, bool just_append = false);
-    void update_change_data(mforms::TreeNodeRef parent, StringListPtr children, ObjectType type, std::vector<mforms::TreeNodeRef>& to_remove);
+    bool update_node_children(mforms::TreeNodeRef parent, base::StringListPtr children,
+      ObjectType type, bool sorted = false, bool just_append = false);
+    void update_change_data(mforms::TreeNodeRef parent, base::StringListPtr children,
+      ObjectType type, std::vector<mforms::TreeNodeRef>& to_remove);
     mforms::TreeNodeRef insert_node(mforms::TreeNodeRef parent, const std::string& name, ObjectType type);
-    void setup_node(mforms::TreeNodeRef node, ObjectType type, mforms::TreeNodeData* data = NULL, bool ignore_null_data = false);
+    void setup_node(mforms::TreeNodeRef node, ObjectType type, mforms::TreeNodeData* data = NULL,
+      bool ignore_null_data = false);
     void update_node_icon(mforms::TreeNodeRef node);
 
-    void update_schemata(StringListPtr schema_list);
+    void update_schemata(base::StringListPtr schema_list);
     mforms::TreeNodeRef binary_search_node(const mforms::TreeNodeRef& parent, int first, int last, const std::string &name, ObjectType type, int &position);
     mforms::TreeNodeRef get_child_node(const mforms::TreeNodeRef& parent, const std::string& name, ObjectType type = Any, bool binary_search = true);
     bool find_child_position(const mforms::TreeNodeRef& parent, const std::string& name, ObjectType type, int &position);
