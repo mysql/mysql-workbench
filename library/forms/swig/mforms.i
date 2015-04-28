@@ -570,6 +570,12 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
 %typemap (in) int64_t, boost::int64_t = long long;
 %typemap (out) int64_t, boost::int64_t = long long;
 
+%typemap (in) ssize_t = long long;
+%typemap (out) ssize_t = long long;
+
+%typemap (in) size_t = unsigned long long;
+%typemap (out) size_t = unsigned long long;
+
 %typemap (out) base::Rect {
   $result = Py_BuildValue("(ffff)", $1.left(), $1.top(), $1.width(), $1.height());
 }
