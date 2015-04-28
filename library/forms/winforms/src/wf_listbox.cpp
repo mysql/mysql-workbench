@@ -166,6 +166,25 @@ std::vector<size_t> ListBoxWrapper::get_selected_indices(mforms::ListBox *backen
 
 //--------------------------------------------------------------------------------------------------
 
+size_t ListBoxWrapper::get_count(mforms::ListBox *backend)
+{
+  ListBox ^listbox = ListBoxWrapper::GetManagedObject<ListBox>(backend);
+  return listbox->Items->Count;
+}
+
+//------------------------------------------------------------------------------
+
+std::string ListBoxWrapper::get_string_value_from_index(mforms::ListBox *backend, size_t index)
+{
+  ListBox ^listbox = ListBoxWrapper::GetManagedObject<ListBox>(backend);
+  if (listbox->Items->Count < index)
+    return "";
+
+  return NativeToCppString(listbox->Items[index]->ToString());
+}
+
+//------------------------------------------------------------------------------
+
 void ListBoxWrapper::init()
 {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
@@ -179,6 +198,8 @@ void ListBoxWrapper::init()
   f->_listbox_impl.set_index = &ListBoxWrapper::set_index;
   f->_listbox_impl.get_index = &ListBoxWrapper::get_index;
   f->_listbox_impl.get_selected_indices = &ListBoxWrapper::get_selected_indices;
+  f->_listbox_impl.get_count            = &ListBoxWrapper::get_count;
+  f->_listbox_impl.get_string_value_from_index = &ListBoxWrapper::get_string_value_from_index;
 }
 
 //--------------------------------------------------------------------------------------------------
