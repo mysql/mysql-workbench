@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -121,8 +121,9 @@ public:
   /* mock function that will simulate the schema list loading using this thread */
   void tree_refresh()
   {
-    std::list<std::string> schema_list = _form->get_live_tree()->fetch_schema_list();
-
+    std::list<std::string> sl = _form->get_live_tree()->fetch_schema_list();
+    base::StringListPtr schema_list(new std::list<std::string>());
+    schema_list->assign(sl.begin(), sl.end());
     _form->get_live_tree()->_schema_tree->update_schemata(schema_list);
   }
 
@@ -132,7 +133,7 @@ public:
     _form->get_live_tree()->_schema_tree->enable_events(true);
   }
 
-  bool mock_update_node_children(mforms::TreeNodeRef& parent, std::list<std::string>& children, wb::LiveSchemaTree::ObjectType type, bool sorted = false, bool just_append = false)
+  bool mock_update_node_children(mforms::TreeNodeRef& parent, base::StringListPtr children, wb::LiveSchemaTree::ObjectType type, bool sorted = false, bool just_append = false)
   {
     tut::ensure(_check_id + " : Unexpected call to update_node_children", _expect_update_node_children);
     _expect_update_node_children = false;
@@ -145,8 +146,8 @@ public:
     return false;
   }
 
-  void mock_schema_content_arrived(const std::string &schema_name, StringListPtr tables,
-    StringListPtr views, StringListPtr procedures, StringListPtr functions, bool just_append)
+  void mock_schema_content_arrived(const std::string &schema_name, base::StringListPtr tables,
+    base::StringListPtr views, base::StringListPtr procedures, base::StringListPtr functions, bool just_append)
   {
     tut::ensure(_check_id + " : Unexpected call to schema_content_arrived", _expect_schema_content_arrived);
     _expect_schema_content_arrived = false;
