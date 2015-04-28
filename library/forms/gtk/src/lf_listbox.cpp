@@ -215,6 +215,27 @@ std::vector<size_t> ListBoxImpl::get_selected_indices(ListBox *self)
 }
 
 //------------------------------------------------------------------------------
+
+size_t ListBoxImpl::get_count(ListBox *self) 
+{
+  ListBoxImpl* sel= self->get_data<ListBoxImpl>();
+  return sel->_store->children().size();
+}
+
+//------------------------------------------------------------------------------
+
+std::string ListBoxImpl::get_string_value_from_index (ListBox *self, size_t index) 
+{
+  ListBoxImpl* sel= self->get_data<ListBoxImpl>();
+  Gtk::TreeModel::Children children = sel->_store->children();
+  std::string result;
+  if (children.size() > index)
+    children[index - 1]->get_value<std::string>(0, result);
+  return result;
+}
+
+//------------------------------------------------------------------------------
+
 void ListBoxImpl::init()
 {
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
@@ -230,6 +251,8 @@ void ListBoxImpl::init()
   f->_listbox_impl.set_heading            = &ListBoxImpl::set_heading;
   f->_listbox_impl.remove_index           = &ListBoxImpl::remove_index;
   f->_listbox_impl.remove_indexes         = &ListBoxImpl::remove_indices;
+  f->_listbox_impl.get_count              = &ListBoxImpl::get_count;
+  f->_listbox_impl.get_string_value_from_index  = &ListBoxImpl::get_string_value_from_index;
 }
 
 }

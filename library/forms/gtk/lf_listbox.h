@@ -63,6 +63,8 @@ protected:
   static ssize_t get_index(::mforms::ListBox *self);
   static void set_heading(ListBox *self, const std::string &text);
   static std::vector<size_t> get_selected_indices(ListBox *self);
+  static size_t get_count(ListBox *self);
+  static std::string get_string_value_from_index(ListBox *self, size_t index);
 
  public:
   static void init();
