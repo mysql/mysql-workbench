@@ -799,25 +799,27 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         white_list_button_box.add(self.white_list_save_to_file_button, False, True)
         white_list_button_box.add(self.white_list_clear_button, False, True)
 
-        white_list_box.add(self.white_list, False, True)
+        white_list_box.add(self.white_list, True, True)
         white_list_box.add(white_list_button_box, False, True)
         
-        firewall_rules_main_box.add(mforms.newLabel("Allowed queries:"), False, True)
-        firewall_rules_main_box.add(white_list_box, False, True)
+        self.available_rules_label = mforms.newLabel("Allowed rules:")
+        firewall_rules_main_box.add(self.available_rules_label, False, True)
+        firewall_rules_main_box.add(white_list_box, True, True)
 
         cache_list_box = mforms.newBox(True)
 
         self.cache_list = mforms.newListBox(True)
         self.cache_list.set_size(500, 200)
         
-        cache_list_box.add(self.cache_list, False, True)
+        cache_list_box.add(self.cache_list, True, True)
         
-        firewall_rules_main_box.add(mforms.newLabel("Cached queries:"), False, True)
-        firewall_rules_main_box.add(cache_list_box, False, True)
+        self.cached_rules_label = mforms.newLabel("Cached rules:")
+        firewall_rules_main_box.add(self.cached_rules_label, False, True)
+        firewall_rules_main_box.add(cache_list_box, True, True)
         
         #self.add(firewall_rules_panel, False, True)
         firewall_rules_panel.add(firewall_rules_main_box)
-        self.add(firewall_rules_panel, False, True)
+        self.add(firewall_rules_panel, True, True)
 
 
 
@@ -839,28 +841,29 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         #panel.add(self.copy_box)
         #self.add(panel, False, True)
         
-    def show_user(self, user, host):
-        self.current_user = user
-        self.current_host = host
-        self.current_userhost = "%s@%s" % (user, host)
-        self.update_rules(user, host)
-        return self.state.set_value(self.commands.get_user_mode(self.current_userhost))
-      
     def refresh_row(self, current_row, user, host):
         userhost = "%s@%s" % (user, host)
         current_row.set_string(2, str(self.commands.get_user_mode(userhost)))
         current_row.set_string(3, str(self.commands.get_rule_count(userhost)))
         current_row.set_string(4, str(self.commands.get_cached_rule_count(userhost)))
             
-    def update_rules(self, user, host):
-        userhost = "%s@%s" % (user, host)
+    def show_user(self, user, host):
+        self.current_user = user
+        self.current_host = host
+        self.current_userhost = "%s@%s" % (user, host)
+        self.update_rules()
+        return self.state.set_value(self.commands.get_user_mode(self.current_userhost))
+      
+    def update_rules(self):
         self.white_list.clear()
         self.cache_list.clear()
 
-        for rule in self.commands.get_user_rules(userhost):
+        self.available_rules_label.set_text("Available rules[%s]:" % str(self.commands.get_rule_count(self.current_userhost)))
+        for rule in self.commands.get_user_rules(self.current_userhost):
             self.white_list.add_item(rule)
 
-        for rule in self.commands.get_cached_user_rules(userhost):
+        self.cached_rules_label.set_text("Cached rules[%s]:" % str(self.commands.get_cached_rule_count(self.current_userhost)))
+        for rule in self.commands.get_cached_user_rules(self.current_userhost):
             self.cache_list.add_item(rule)
             
     def tweak_user_list(self):
