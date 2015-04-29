@@ -638,6 +638,14 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
    }
 }
 
+%typemap(out) std::vector<size_t> {
+   $result = PyList_New(0);
+   for (std::vector<size_t>::const_iterator iter = $1.begin(); iter != $1.end(); ++iter)
+   {
+     PyList_Append($result, PyInt_FromLong(*iter));
+   }
+}
+
 %typemap(out) std::pair<int, int> {
     $result = Py_BuildValue("(ii)", $1.first, $1.second);
 }
