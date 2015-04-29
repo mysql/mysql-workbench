@@ -114,3 +114,16 @@ void ListBox::selection_changed()
 }
 
 //--------------------------------------------------------------------------------------------------
+
+size_t ListBox::get_count() 
+{
+    return _listbox_impl->get_count(this);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::string ListBox::get_string_value_from_index (size_t index) 
+{
+    return _listbox_impl->get_string_value_from_index(this, index);
+}
+
