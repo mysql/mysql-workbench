@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -242,27 +242,23 @@ bool CommandUI::validate_command_item(const app_CommandItemRef &item, const wb::
   return true;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 bool CommandUI::validate_plugin_command(app_PluginRef plugin)
 {
-//  app_PluginRef plugin(_wb->get_plugin_manager()->get_plugin(name));
+  bool result = false;
   if (plugin.is_valid())
   {
-    //bec::ArgumentPool argpool;
-    //_wb->update_plugin_arguments_pool(argpool);
-    //argpool["app.PluginInputDefinition:string"]= grt::StringRef("");
-    if (!_wb->get_grt_manager()->check_plugin_runnable(plugin, _argpool))
-    {
-      //g_message("plugin %s is not runnable", name.c_str());
-      return false;
-    }
-    return true;
+    if (_wb->get_grt_manager()->check_plugin_runnable(plugin, _argpool))
+      result = true;
   }
-  return false;
+
+  return result;
 }
 
 
-//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+
 // Keyboard and Shortcut Handling
 
 static bool parse_key(const std::string &key, mdc::KeyInfo &info)
@@ -1199,12 +1195,16 @@ void CommandUI::activate_command(const std::string &command)
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void CommandUI::revalidate_menu_bar(mforms::MenuBar *menu)
 {
+  // XXX: the arg pool can hold a reference to a grt value representing an editor and what not.
+  //      So keeping that around can prevent freeing such an editor.
+  //      Hence this must be redesigned not to rely on a global argpool.
   _argpool.clear();
   _wb->update_plugin_arguments_pool(_argpool);
-  _argpool["app.PluginInputDefinition:string"]= grt::StringRef("");
+  _argpool["app.PluginInputDefinition:string"] = grt::StringRef("");
   menu->validate();
 }
 
@@ -1212,7 +1212,7 @@ void CommandUI::revalidate_edit_menu_items()
 {
   _argpool.clear();
   _wb->update_plugin_arguments_pool(_argpool);
-  _argpool["app.PluginInputDefinition:string"]= grt::StringRef("");
+  _argpool["app.PluginInputDefinition:string"] = grt::StringRef("");
 
   if (mforms::Utilities::in_main_thread())
     _validate_edit_menu_items();

@@ -212,7 +212,7 @@ def verticalOutput(editor):
         dock = mforms.fromgrt(editor.resultDockingPoint)
         dock.dock_view(view, '', 0)
         dock.select_view(view)
-        dock.set_view_title(view, 'Vertical Output')
+        view.set_title('Vertical Output')
 
 
     return 0

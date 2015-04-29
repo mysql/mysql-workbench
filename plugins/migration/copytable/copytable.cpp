@@ -920,7 +920,7 @@ size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::stri
   if ((spec.type == CopyAll || spec.type == CopyWhere) && spec.max_count > 0 && spec.max_count < count)
     count = spec.max_count;
 
-  return count;
+  return (size_t)count;
 }
 
 
@@ -1434,7 +1434,7 @@ size_t MySQLCopyDataSource::count_rows(const std::string &schema, const std::str
   if ((spec.type == CopyAll || spec.type == CopyWhere) && spec.max_count > 0 && spec.max_count < count)
       count = spec.max_count;
 
-  return count;
+  return (size_t)count;
 }
 
 boost::shared_ptr<std::vector<ColumnInfo> > MySQLCopyDataSource::begin_select_table(const std::string &schema, const std::string &table,

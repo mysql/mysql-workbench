@@ -1416,7 +1416,7 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
   try
   {
     db_mgmt_RdbmsRef rdbms= _owner->rdbms();
-    std::string database_package= *rdbms->databaseObjectPackage();
+    //std::string database_package= *rdbms->databaseObjectPackage();
 
     if (rdbms.is_valid())
     {
@@ -1426,7 +1426,7 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
     }
 
     // reset_references on the catalog is called when we try to apply changes (generate the alter script).
-    db_CatalogRef client_state_catalog= _grtm->get_grt()->create_object<db_Catalog>(database_package + ".Catalog");
+    db_mysql_CatalogRef client_state_catalog= _grtm->get_grt()->create_object<db_mysql_Catalog>("db.mysql.Catalog");
     client_state_catalog->name("default");
     client_state_catalog->oldName("default");
     client_state_catalog->version(rdbms->version());
@@ -1436,7 +1436,7 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
     //XXX    grt::replace_contents(client_state_catalog->userDatatypes(),
     //XXX                          workbench_physical_ModelRef::cast_from(_live_physical_overview->get_model())->catalog()->userDatatypes());
 
-    db_SchemaRef schema;
+    db_mysql_SchemaRef schema;
     if (wb::LiveSchemaTree::Schema != type)
     {
       if (used_schema_name == "")
@@ -1452,7 +1452,7 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
       }
       else
       {
-        schema= _grtm->get_grt()->create_object<db_Schema>(database_package + ".Schema");
+        schema = _grtm->get_grt()->create_object<db_mysql_Schema>("db.mysql.Schema");
         schema->owner(client_state_catalog);
 
         schema->name(used_schema_name);
@@ -1498,7 +1498,7 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
         }
       }
 
-      if (!parse_ddl_into_catalog(rdbms, client_state_catalog, strfmt("`%s`.`%s`", schema_name.c_str(), obj_name.c_str()), ddl_script, sql_mode))
+      if (!parse_ddl_into_catalog(client_state_catalog, strfmt("`%s`.`%s`", schema_name.c_str(), obj_name.c_str()), ddl_script, sql_mode))
       {
         log_warning("Error parsing DDL for %s.%s: %s", schema_name.c_str(), obj_name.c_str(), ddl_script.c_str());
         return;
@@ -1520,23 +1520,23 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
       case wb::LiveSchemaTree::Schema:
         db_object= is_object_new ?
           create_new_schema(client_state_catalog) :
-          find_named_object_in_list(client_state_catalog->schemata(), obj_name);
+          db_SchemaRef::cast_from(find_named_object_in_list(client_state_catalog->schemata(), obj_name));
         break;
       case wb::LiveSchemaTree::Table:
         db_object= is_object_new ?
           create_new_table(schema) :
-          find_named_object_in_list(schema->tables(), obj_name);
+          db_TableRef::cast_from(find_named_object_in_list(schema->tables(), obj_name));
         break;
       case wb::LiveSchemaTree::View:
         db_object= is_object_new ?
           create_new_view(schema) :
-          find_named_object_in_list(schema->views(), obj_name);
+          db_ViewRef::cast_from(find_named_object_in_list(schema->views(), obj_name));
         break;
       case wb::LiveSchemaTree::Procedure:
       case wb::LiveSchemaTree::Function:
         db_object= is_object_new ?
           create_new_routine(schema, type) :
-          find_named_object_in_list(schema->routines(), obj_name);
+          db_RoutineRef::cast_from(find_named_object_in_list(schema->routines(), obj_name));
         break;
       default:
         break;
@@ -2042,7 +2042,7 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
 {
   db_DatabaseObjectRef db_object= obj_editor->get_dbobject();
 
-  db_CatalogRef client_state_catalog= db_CatalogRef::cast_from(db_object->customData().get("clientStateCatalog"));
+  db_mysql_CatalogRef client_state_catalog = db_mysql_CatalogRef::cast_from(db_object->customData().get("clientStateCatalog"));
 
   std::string obj_name= using_old_name ? db_object->oldName() : db_object->name();
   // don't refresh new objects that where not applied yet
@@ -2139,7 +2139,7 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
       }
       CATCH_ANY_EXCEPTION_AND_DISPATCH(_("Get 'sql_mode' session variable"));
 
-      parse_ddl_into_catalog(_owner->rdbms(), client_state_catalog,
+      parse_ddl_into_catalog(client_state_catalog,
                              strfmt("`%s`.`%s`", schema_name.c_str(), obj_name.c_str()),
                              ddl_script, sql_mode);
     }
@@ -2166,66 +2166,72 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
-bool SqlEditorTreeController::parse_ddl_into_catalog(db_mgmt_RdbmsRef rdbms, db_CatalogRef client_state_catalog,
-                                           const std::string &obj_descr, const std::string &ddl_script, std::string sql_mode)
+bool SqlEditorTreeController::parse_ddl_into_catalog(db_mysql_CatalogRef catalog,
+  const std::string &objectDescription, const std::string &sql, std::string sqlMode)
 {
-  SqlFacade::Ref sql_facade= SqlFacade::instance_for_rdbms(rdbms);
-  Sql_parser::Ref sql_parser= sql_facade->sqlParser();
-  sql_parser->messages_enabled(false);
+  std::string currentSqlMode = _owner->work_parser_context()->get_sql_mode();
   grt::DictRef options(_grtm->get_grt());
   options.set("reuse_existing_objects", grt::IntegerRef(1));
-  if (!sql_mode.empty())
-    options.gset("sql_mode", sql_mode);
+  if (!sqlMode.empty())
+    _owner->work_parser_context()->use_sql_mode(sqlMode);
 
-  int err_count= sql_parser->parse_sql_script(client_state_catalog, ddl_script, options);
-  bool generic_parse_error = false;
+  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(_grtm->get_grt());
+  size_t errorCount = services->parseSQLIntoCatalog(_owner->work_parser_context(), catalog, sql, options);
 
-  if (options.has_key("sql_mode") && (err_count > 0))
+  bool haveErrors = false;
+
+  if (options.has_key("sql_mode") && (errorCount > 0))
   {
-    if (sql_mode.find("ANSI_QUOTES") != std::string::npos)
-      sql_mode = replace_string(sql_mode, "ANSI_QUOTES", "");
+    if (sqlMode.find("ANSI_QUOTES") != std::string::npos)
+      sqlMode = replace_string(sqlMode, "ANSI_QUOTES", "");
     else
-      sql_mode += ",ANSI_QUOTES";
-    options.gset("sql_mode", sql_mode);
-    options.set("reuse_existing_objects", grt::IntegerRef(1));
-    err_count = sql_parser->parse_sql_script(client_state_catalog, ddl_script, options);
-    if (err_count == 0) // Error(s) solved by new sql mode -> inconsistency.
+      sqlMode += ", ANSI_QUOTES";
+    _owner->work_parser_context()->use_sql_mode(sqlMode);
+
+    errorCount = services->parseSQLIntoCatalog(_owner->work_parser_context(), catalog, sql, options);
+    _owner->work_parser_context()->use_sql_mode(currentSqlMode);
+
+    if (errorCount == 0) // Error(s) solved by new sql mode -> inconsistency.
     {
-      if (mforms::Utilities::show_warning(strfmt(_("Error Parsing DDL for %s"), obj_descr.c_str()),
+      if (mforms::Utilities::show_warning(strfmt(_("Error Parsing DDL for %s"), objectDescription.c_str()),
         _("The object's DDL retrieved from the server is inconsistent with respect to the SQL_MODE variable "
-          "set for the connection. In particular the current state of the ANSI_QUOTES flag contradicts "
-          "the value set when the object had been created. This may lead to errors when trying to "
-          "apply changes. As a workaround you may want to temporarily change the SQL_MODE variable "
-          "to its previous value.\nDo you want to view the DDL or cancel processing it?"),
-                                          _("View DDL"), _("Cancel")) == mforms::ResultOk)
+        "set for the connection. In particular the current state of the ANSI_QUOTES flag contradicts "
+        "the value set when the object had been created. This may lead to errors when trying to "
+        "apply changes. As a workaround you may want to temporarily change the SQL_MODE variable "
+        "to its previous value.\nDo you want to view the DDL or cancel processing it?"),
+        _("View DDL"), _("Cancel")) == mforms::ResultOk)
       {
         _owner->new_sql_scratch_area();
-        insert_text_to_active_editor(ddl_script);
+        insert_text_to_active_editor(sql);
       }
       return false;
     }
     else
-      generic_parse_error = true;
+      haveErrors = true;
   }
-  else if (err_count > 0)
-    generic_parse_error = true;
+  else
+    haveErrors = errorCount > 0;
 
-  if (generic_parse_error)
+  _owner->work_parser_context()->use_sql_mode(currentSqlMode);
+  if (haveErrors)
   {
-    if (mforms::Utilities::show_error(strfmt(_("Error Parsing DDL for %s"), obj_descr.c_str()),
+    if (mforms::Utilities::show_error(strfmt(_("Error Parsing DDL for %s"), objectDescription.c_str()),
       _("There was an error while parsing the DDL retrieved from the server.\n"
       "Do you want to view the DDL or cancel processing it?"),
       _("View DDL"), _("Cancel")) == mforms::ResultOk)
     {
       _owner->new_sql_scratch_area();
-      insert_text_to_active_editor(ddl_script);
+      insert_text_to_active_editor(sql);
     }
     return false;
   }
 
   return true;
 }
+
+//--------------------------------------------------------------------------------------------------
 
 bool SqlEditorTreeController::apply_changes_to_object(bec::DBObjectEditorBE* obj_editor, bool dry_run)
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,6 +33,7 @@ public:
   ColumnWidthCache(const std::string &connection_id, const std::string &cache_dir);
 
   void save_column_width(const std::string &column_id, int width);
+  void save_columns_width(const std::map<std::string, int> &columns);
   int get_column_width(const std::string &column_id);
   void delete_column_width(const std::string &column_id);
 };

@@ -159,7 +159,7 @@ static int my_xml_enter(MY_XML_PARSER *st, const char *str, uint len)
   if (st->flags & MY_XML_FLAG_RELATIVE_NAMES)
     return st->enter ? st->enter(st, str, len) : MY_XML_OK;
   else
-    return st->enter ?  st->enter(st,st->attr,st->attrend-st->attr) : MY_XML_OK;
+    return st->enter ?  st->enter(st,st->attr,(uint)(st->attrend-st->attr)) : MY_XML_OK;
 }
 
 
@@ -194,7 +194,7 @@ static int my_xml_leave(MY_XML_PARSER *p, const char *str, uint slen)
   if (p->flags & MY_XML_FLAG_RELATIVE_NAMES)
     rc= p->leave_xml ? p->leave_xml(p, str, slen) : MY_XML_OK;
   else
-    rc = p->leave_xml ?  p->leave_xml(p,p->attr,p->attrend-p->attr) : MY_XML_OK;
+    rc = p->leave_xml ?  p->leave_xml(p,p->attr,(uint)(p->attrend-p->attr)) : MY_XML_OK;
   
   *e='\0';
   p->attrend=e;

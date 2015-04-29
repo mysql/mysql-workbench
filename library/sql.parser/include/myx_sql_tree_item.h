@@ -1,6 +1,11 @@
 #ifndef MYX_SQL_TREE_ITEM
 #define MYX_SQL_TREE_ITEM
 
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4251 )
+#endif
+
 #include "mysql_sql_parser_public_interface.h"
 #include "myx_sql_parser_public_interface.h"
 #include "sql_parser_symbols.h"
@@ -173,6 +178,10 @@ MYX_PUBLIC_FUNC std::ostream& operator << (std::ostream&, const SqlAstNode&);
 #endif // __cplusplus
 
 } // namespace mysql_parser
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif
 
 #endif // MYX_SQL_TREE_ITEM
 

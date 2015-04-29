@@ -70,8 +70,12 @@ export DBC_DRIVER_PATH="$destdir@LIB_INSTALL_DIR@/mysql-workbench"
 export MWB_BASE_DIR="$destdir@WB_INSTALL_DIR@"
 export MWB_BINARIES_DIR="$destdir@WB_INSTALL_DIR_EXECUTABLE@"
 
-if type -p catchsegv > /dev/null; then
-catchsegv $MWB_BINARIES_DIR/mysql-workbench-bin "$@"
+if test "$WB_DEBUG" != ""; then
+  $WB_DEBUG $MWB_BINARIES_DIR/mysql-workbench-bin "$@"
 else
-$MWB_BINARIES_DIR/mysql-workbench-bin "$@"
+  if type -p catchsegv > /dev/null; then
+  catchsegv $MWB_BINARIES_DIR/mysql-workbench-bin "$@"
+  else
+  $MWB_BINARIES_DIR/mysql-workbench-bin "$@"
+  fi
 fi

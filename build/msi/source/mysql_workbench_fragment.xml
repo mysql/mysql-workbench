@@ -84,6 +84,8 @@
                 <File Id="gdal.dll" Name="gdal.dll"/>
                 <File Id="ogrinfo.exe" Name="ogrinfo.exe"/>
                 <File Id="ogr2ogr.exe" Name="ogr2ogr.exe"/>
+				<File Id="file1121" Name="vsqlite++.dll"/>
+				<File Id="file1122" Name="tinyxml.dll"/>
               </Component>
 
               <Component DiskId="1" Guid="87543D9F-DCBF-41bd-89ED-42161A8DA2AA" Id="Libraries" Location="either">
@@ -170,6 +172,14 @@
                   <RegistryValue Id="Reg.Class.MWB.Value" Type="string" Value="MySQL Workbench File"/>
                   <RegistryValue Id="Reg.Class.MWB.Icon" Key="DefaultIcon" Type="string" Value="[#MySQLWorkbenchDoc.ico],0"/>
                   <RegistryValue Action="write" Id="Reg.Class.MWB.Command" Key="Shell\Open\Command" Type="string" Value="&quot;[#file1056]&quot; &quot;%1&quot;"/>
+                </RegistryKey>
+				
+				<RegistryValue Action="write" Id="Reg.Extn.SQL" Key=".sql" Root="HKCR" Type="string" Value="SQLFile"/>	
+				
+                <RegistryKey Action="create" Id="Reg.Class.SQL" Key="SQLfile" Root="HKCR">
+                  <RegistryValue Id="Reg.Class.SQL.Value" Type="string" Value="SQL Text File"/>
+                  <RegistryValue Id="Reg.Class.SQL.Icon" Key="DefaultIcon" Type="string" Value="[#MySQLWorkbenchDoc.ico],0"/>
+                  <RegistryValue Action="write" Id="Reg.Class.SQL.Command" Key="Shell\Open\Command" Type="string" Value="&quot;[#file1056]&quot; &quot;%1&quot;"/>
                 </RegistryKey>
 
               </Component>

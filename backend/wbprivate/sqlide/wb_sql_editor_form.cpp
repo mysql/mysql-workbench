@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -166,7 +166,6 @@ private:
   double _start_timestamp;
   double _duration;
 };
-
 
 SqlEditorForm::Ref SqlEditorForm::create(wb::WBContextSQLIDE *wbsql, const db_mgmt_ConnectionRef &conn)
 {
@@ -404,6 +403,10 @@ void SqlEditorForm::title_changed()
 
 SqlEditorForm::~SqlEditorForm()
 {
+  // We need to remove it from cache, if not someone will be able to login without providing PW
+  mforms::Utilities::forget_cached_password(_connection->hostIdentifier(), _connection->parameterValues().get_string("userName"));
+
+
   if (_auto_completion_cache)
     _auto_completion_cache->shutdown();
 
@@ -1111,6 +1114,7 @@ void SqlEditorForm::set_connection(db_mgmt_ConnectionRef conn)
         ok = false;
     if (ok)
       _dbc_auth->set_password(password.c_str());
+
   }
 
   // send editor open notification again, in case the connection is being set after the connection
@@ -2693,8 +2697,8 @@ std::string SqlEditorForm::active_schema() const
  * info to update the auto completion cache - avoiding so a separate set of queries to the server.
  */
 void SqlEditorForm::schema_meta_data_refreshed(const std::string &schema_name,
-    wb::StringListPtr tables, wb::StringListPtr views,
-    wb::StringListPtr procedures, wb::StringListPtr functions)
+  base::StringListPtr tables, base::StringListPtr views, base::StringListPtr procedures,
+  base::StringListPtr functions)
 {
   if (_auto_completion_cache != NULL)
   {

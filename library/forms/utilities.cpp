@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -474,9 +474,17 @@ bool Utilities::find_cached_password(const std::string &service, const std::stri
 
 //--------------------------------------------------------------------------------------------------
 
+void Utilities::forget_cached_password(const std::string &service, const std::string &account)
+{
+  log_debug2("Forgetting cached password for '%s'@'%s'\n", account.c_str(), service.c_str());
+  PasswordCache::get()->remove_password(service, account);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void Utilities::forget_password(const std::string &service, const std::string &account)
 {
-  PasswordCache::get()->remove_password(service, account);
+  Utilities::forget_cached_password(service, account);
   
   log_debug("Forgetting password for '%s'@'%s'\n", account.c_str(), service.c_str());
   ControlFactory::get_instance()->_utilities_impl.forget_password(service, account);
