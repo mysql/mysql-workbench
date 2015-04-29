@@ -33,7 +33,7 @@ from wb_common import PermissionDeniedError
 from workbench.log import log_error
 
 import grt
-import db_utils
+from workbench import db_utils
 
 SCHEMA_OBJECT_RIGHTS = [
 "Select_priv",
@@ -620,7 +620,7 @@ class FirewallCommands:
         return result.stringByIndex(1)
 
     def delete_user_rule(self, userhost, rule):
-        self.ctrl_be.exec_query("DELETE FROM mysql.firewall_whitelist WHERE USERHOST='%s' AND RULE='%s'" % (userhost, rule))
+        self.ctrl_be.exec_query("DELETE FROM mysql.firewall_whitelist WHERE USERHOST='%s' AND RULE='%s'" % (userhost, db_utils.escape_sql_string(rule)))
 
     def add_user_rule(self, userhost, rule):
         firewall_rule = self.normalize_query(rule)
@@ -631,10 +631,9 @@ class FirewallCommands:
         return False
 
     def normalize_query(self, query):
-        multi_result = self.ctrl_be.exec_query_multi_result("SELECT normalize_statement('%s')" % db_utils.escape_sql_string(query))
-        result = multi_result[len(multi_result) - 1]
-        result.nextRow()
-        return result.stringByIndex(1)
+        query_result = self.ctrl_be.exec_query("SELECT normalize_statement('%s')" % db_utils.escape_sql_string(query))
+        query_result.nextRow()
+        return query_result.stringByIndex(1)
 
     def get_user_mode(self, userhost):
         result = self.ctrl_be.exec_query("SELECT mode FROM mysql.firewall_users WHERE userhost='%s'" % userhost)
@@ -891,32 +890,41 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         return
         
     def add_from_file_button_click(self):
-        return
+        dialog = mforms.FileChooser(mforms.OpenFile)
+        dialog.set_title("Load firewall rules")
+        if dialog.run_modal():
+            with open(dialog.get_path()) as f:
+                content = [x.strip('\n') for x in f.readlines()]
+
+            self.commands.set_user_mode(self.current_userhost, "OFF")
+            for rule in content:
+                self.commands.add_user_rule(self.current_userhost, rule)
+        
+            self.commands.set_user_mode(self.current_userhost, "RECORDING")
+            self.owner.refresh()
         
     def save_to_file_button_click(self):
-        return
+        dialog = mforms.FileChooser(mforms.SaveFile)
+        dialog.set_title("Save firewall rules")
+        if dialog.run_modal():
+            f = open(dialog.get_path(), "w")
+            for index in range(0, self.white_list.get_count()):
+                rule = self.white_list.get_string_value_from_index(index)
+                f.write("%s\n" % rule)
+            f.close()
         
     def delete_button_click(self):
         indexes = self.white_list.get_selected_indices()
-        Utilities.show_message("delete_button_click", str(indexes), "OK", "", "")
+        for index in indexes:
+            rule = self.white_list.get_string_value_from_index(index)
+            self.commands.delete_user_rule(self.current_userhost, rule)
+            self.owner.refresh()
         return
         
     def clear_button_click(self):
         self.commands.reset_user(self.current_userhost)
         self.owner.refresh()
         
-    def manage_rules_button_click(self):
-        Utilities.show_message("manage_rules_button_click", "", "OK", "", "")
-        return
-
-    def copy_from_button_click(self):
-        Utilities.show_message("copy_from_button_click", "", "OK", "", "")
-        return
-        
-    def copy_to_button_click(self):
-        Utilities.show_message("copy_to_button_click", "", "OK", "", "")
-        return
-
     def save(self):
         self.commands.set_user_mode(self.current_userhost, self.state.get_string_value())
 
