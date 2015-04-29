@@ -344,6 +344,12 @@ class SecuritySchemaPrivileges(mforms.Box):
         bbox.add_end(self.del_entry_button, False, True)
         self.del_entry_button.add_clicked_callback(self.del_entry)
 
+        self.revoke_all_button = newButton()
+        self.revoke_all_button.set_text("Revoke All Privileges")
+        bbox.add_end(self.revoke_all_button, False, True)
+        self.revoke_all_button.add_clicked_callback(self._owner.revoke_all)
+        self.revoke_all_button.set_tooltip("Immediately remove all privileges from the account, from every object at all levels.\nThe account itself will be left untouched and logins will still be possible.")
+
         self.add(bbox, False, True)
 
         self.schema_priv_label = newLabel("")
@@ -991,21 +997,6 @@ class SecurityAccount(mforms.Box):
         bottom_box.add_end(self.revert_button, False, True)
         self.revert_button.add_clicked_callback(self.revert)
 
-        if self.owner.ctrl_be.target_version and self.owner.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 6, 7):
-            self.expire_button = newButton()
-            self.expire_button.set_text("Expire Password")
-            self.expire_button.set_tooltip("Force user to change password after next login. The user will be unable to issue any command other than SET PASSWORD.")
-            bottom_box.add_end(self.expire_button, False, True)
-            self.expire_button.add_clicked_callback(self.expire)
-        else:
-            self.expire_button = None
-
-        self.revoke_all_button = newButton()
-        self.revoke_all_button.set_text("Revoke All Privileges")
-        bottom_box.add_end(self.revoke_all_button, False, True)
-        self.revoke_all_button.add_clicked_callback(self.revoke_all)
-        self.revoke_all_button.set_tooltip("Immediately remove all privileges from the account, from every object at all levels.\nThe account itself will be left untouched and logins will still be possible.")
-
         account_list_box = newBox(False)
         account_list_box.set_spacing(8)
         account_list_box.set_size(220, -1)
@@ -1049,7 +1040,7 @@ class SecurityAccount(mforms.Box):
         table = newTable()
         vbox.add(table, False, True)
 
-        table.set_row_count(8)
+        table.set_row_count(9)
         table.set_column_count(3)
         table.set_row_spacing(8)
         table.set_column_spacing(8)
@@ -1119,16 +1110,26 @@ class SecurityAccount(mforms.Box):
         self.confirm_caption2 = dLabel("Enter password again to confirm.")
         table.add(self.confirm_caption2, 2, 3, 5, 6, mforms.HFillFlag|mforms.HExpandFlag)
 
-        table.add(newLabel(""), 1, 2, 6, 7, mforms.HFillFlag)
+        if self.owner.ctrl_be.target_version and self.owner.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 6, 7):
+            self.expire_button = newButton()
+            self.expire_button.set_text("Expire Password")
+            self.expire_button.set_tooltip("Force user to change password after next login. The user will be unable to issue any command other than SET PASSWORD.")
+            #bottom_box.add_end(self.expire_button, False, True)
+            table.add(self.expire_button, 1, 2, 6, 7, mforms.HFillFlag)
+            self.expire_button.add_clicked_callback(self.expire)
+        else:
+            self.expire_button = None
+
+        table.add(newLabel(""), 1, 2, 7, 8, mforms.HFillFlag)
 
         if self.has_extra_plugins:
             self.auth_string_param = newTextEntry()
             self.auth_string_param.add_changed_callback(self.set_dirty)
             self.auth_string_label = rLabel("Authentication String:")
             self.auth_string_desc = dLabel("Authentication plugin specific parameters.")
-            table.add(self.auth_string_label, 0, 1, 7, 8, mforms.HFillFlag)
-            table.add(self.auth_string_param, 1, 2, 7, 8, mforms.HFillFlag)
-            table.add(self.auth_string_desc, 2, 3, 7, 8, mforms.HFillFlag|mforms.HExpandFlag)
+            table.add(self.auth_string_label, 0, 1, 8, 9, mforms.HFillFlag)
+            table.add(self.auth_string_param, 1, 2, 8, 9, mforms.HFillFlag)
+            table.add(self.auth_string_desc, 2, 3, 8, 9, mforms.HFillFlag|mforms.HExpandFlag)
             self.auth_string_help = newLabel("")
             vbox.add(self.auth_string_help, False, True)
             
@@ -1197,6 +1198,12 @@ class SecurityAccount(mforms.Box):
         box.add(lbox, True, True)
         lbox.set_spacing(12)
         lbox.set_padding(12)
+
+        self.revoke_all_button = newButton()
+        self.revoke_all_button.set_text("Revoke All Privileges")
+        box.add(self.revoke_all_button, False, True)
+        self.revoke_all_button.add_clicked_callback(self.revoke_all)
+        self.revoke_all_button.set_tooltip("Immediately remove all privileges from the account, from every object at all levels.\nThe account itself will be left untouched and logins will still be possible.")
 
         self.role_list = newTreeNodeView(mforms.TreeFlatList)
         self.role_list.add_column(mforms.CheckColumnType, "", 30, True)
@@ -1692,7 +1699,7 @@ class SecurityAccount(mforms.Box):
     def revoke_all(self):
         if self._selected_user:
             if Utilities.show_message("Revoke All Privileges",
-                  "Please confirm revokation of all privileges for the account '%s'@'%s'.\nNote: the account itself will be maintained."%(self._selected_user.username, self._selected_user.host),
+                  "Please confirm revokation of all privileges for the account '%s'@'%s'.\nNote: the account itself will be maintained.\n\nAdd new privileges afterwards or the user will not be able to access any schema object."%(self._selected_user.username, self._selected_user.host),
                   "Revoke", "Cancel", "") == mforms.ResultOk:
                 try:
                     self._selected_user.revoke_all()
