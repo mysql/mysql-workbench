@@ -39,14 +39,23 @@ void NotebookDockingPoint::set_notebook(Gtk::Notebook *note)
 
 void NotebookDockingPoint::close_appview_page(mforms::AppView *view)
 {
-  _dpoint->close_view(view);
+  if (view->on_close())
+    view->close();
 }
 
 bool NotebookDockingPoint::close_page(Gtk::Widget *w)
 {
   mforms::AppView *aview = dynamic_cast<mforms::AppView*>(mforms::gtk::ViewImpl::get_view_for_widget(w));
   if (aview)
-    return _dpoint->close_view(aview);
+  {
+    if (aview->on_close())
+    {
+      aview->close();
+      return true;
+    }
+    else
+      return false;
+  }
   return true;
 }
 

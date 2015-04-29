@@ -426,6 +426,10 @@ namespace bec {
           to--;
       }
 
+      // The element is already first one after group tiles
+      if (ui_item_index == 0 && to < 0)
+        to = 0;
+
       target_item = grt::Ref<T>::cast_from(target_group->get(to));
       target_index = items->get_index(target_item);
 

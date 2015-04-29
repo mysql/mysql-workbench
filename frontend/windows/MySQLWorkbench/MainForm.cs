@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1676,7 +1676,7 @@ namespace MySQL.GUI.Workbench
             if (document is MySQL.Forms.AppViewDockContent)
             {
               MySQL.Forms.AppViewDockContent content = document as MySQL.Forms.AppViewDockContent;
-              e.Cancel = !content.DocumentClosing();
+              e.Cancel = !content.CanCloseDocument();
             }
 
           if (e.Cancel)
@@ -1714,11 +1714,10 @@ namespace MySQL.GUI.Workbench
         // with that loop as well).
         for (int i = documents.Length - 1; i >= 0; i--)
         {
-          // WBA is closed via the appview's DocumentClosing() function not by normal closing.
           if (documents[i] is MySQL.Forms.AppViewDockContent)
           {
             MySQL.Forms.AppViewDockContent content = documents[i] as MySQL.Forms.AppViewDockContent;
-            content.DocumentClosing();
+            content.CloseDocument();
           }
           else
             documents[i].Close();
@@ -1852,7 +1851,7 @@ namespace MySQL.GUI.Workbench
         if (document is MySQL.Forms.AppViewDockContent)
         {
           MySQL.Forms.AppViewDockContent content = document as MySQL.Forms.AppViewDockContent;
-          e.canClose = content.DocumentClosing();
+          e.canClose = content.CanCloseDocument();
         }
     }
 
@@ -1866,7 +1865,9 @@ namespace MySQL.GUI.Workbench
         {
           // Remove the appview from the page, otherwise it gets disposed with the page,
           // what we don't want.
-          e.page.Controls.Clear();
+          //e.page.Controls.Clear();
+          MySQL.Forms.AppViewDockContent content = document as MySQL.Forms.AppViewDockContent;
+          content.CloseDocument();
         }
     }
 

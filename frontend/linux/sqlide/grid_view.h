@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -85,6 +85,7 @@ class GridView : public Gtk::TreeView
     virtual bool on_button_press_event(GdkEventButton *event);
     bool on_focus_out(GdkEventFocus *event, Gtk::CellRenderer *cell, Gtk::Entry *e);
     void on_signal_cursor_changed();
+    void on_signal_button_release_event(GdkEventButton *ev);
     void reset_sorted_columns();
 
   private:

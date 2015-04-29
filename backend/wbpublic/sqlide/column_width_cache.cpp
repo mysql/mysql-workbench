@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,6 +27,7 @@
 #include "base/file_utilities.h"
 #include "base/sqlstring.h"
 #include "grt/common.h"
+#include "sqlide_generics.h"
 
 using namespace bec;
 
@@ -94,6 +95,27 @@ void ColumnWidthCache::save_column_width(const std::string &column_id, int width
   catch (std::exception &exc)
   {
     log_error("Error storing column width to cache %s: %s\n", column_id.c_str(), exc.what());
+  }
+}
+
+void ColumnWidthCache::save_columns_width(const std::map<std::string, int> &columns)
+{
+  std::map<std::string, int>::const_iterator it;
+  try
+  {
+    sqlide::Sqlite_transaction_guarder transaction(_sqconn);
+    sqlite::query q(*_sqconn, "insert or replace into widths values (?, ?)");
+    for(it = columns.begin(); it!= columns.end(); ++it)
+    {
+      q.bind(1, it->first);
+      q.bind(2, it->second);
+      q.emit();
+      q.clear();
+    }
+  }
+  catch (std::exception &exc)
+  {
+    log_error("Error storing column width to cache %s: %s\n", it->first.c_str(), exc.what());
   }
 }
 

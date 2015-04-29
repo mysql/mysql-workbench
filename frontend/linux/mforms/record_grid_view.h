@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +30,7 @@ class RecordGridView : public mforms::RecordGrid
 {
   RecordsetView *viewer;
 
-  void column_resized(int c) { (*signal_column_resized())(c); }
+  void columns_resized(const std::vector<int> cols) { (*signal_columns_resized())(cols); }
   void column_right_clicked(int c, int x, int y);
 public:
   RecordGridView(boost::shared_ptr<Recordset> rset);

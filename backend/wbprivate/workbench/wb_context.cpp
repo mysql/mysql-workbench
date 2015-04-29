@@ -3519,7 +3519,7 @@ boost::shared_ptr<SqlEditorForm> WBContext::add_new_query_window(const db_mgmt_C
   {
     show_status_text(_("Connecting..."));
     
-    form= get_sqlide_context()->create_connected_editor(target);
+    form = get_sqlide_context()->create_connected_editor(target);
     
     if (form->connection_details().find("dbmsProductVersion") != form->connection_details().end())
     {
@@ -3680,20 +3680,6 @@ void WBContext::execute_in_main_thread(const std::string &name,
                               const boost::function<void ()> &function, bool wait) THROW (grt::grt_runtime_error)
 {
   _manager->get_dispatcher()->call_from_main_thread<void>(function, wait, false);
-}
-
-// XXX: not used anymore.
-grt::ValueRef WBContext::execute_in_grt_thread(const std::string &name, 
-                                                   const boost::function<grt::ValueRef (grt::GRT*)> &function) THROW (grt::grt_runtime_error)
-{
-  return _manager->get_dispatcher()->execute_simple_function(name, function);
-}
-
-// XXX: not used anymore.
-void WBContext::execute_async_in_grt_thread(const std::string &name, 
-                                            const boost::function<grt::ValueRef (grt::GRT*)> &function) THROW (grt::grt_runtime_error)
-{
-  _manager->get_dispatcher()->execute_async_function(name, function);
 }
 
 void WBContext::show_exception(const std::string &operation, const std::exception &exc)

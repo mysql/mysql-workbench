@@ -337,7 +337,7 @@ namespace MySQL.GUI.Workbench
 
       // Any docked app view (plugin)?
       if (e.page.Tag is AppViewDockContent)
-        e.canClose = (e.page.Tag as AppViewDockContent).DocumentClosing();
+        e.canClose = (e.page.Tag as AppViewDockContent).CanCloseDocument();
       else
       {
         // One of the object editors.

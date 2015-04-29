@@ -712,8 +712,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
 }
 
 
-- (BOOL)tabView:(NSTabView *)tabView
-willCloseTabViewItem:(NSTabViewItem*)tabViewItem
+- (BOOL)tabView: (NSTabView *)tabView willCloseTabViewItem: (NSTabViewItem *)tabViewItem
 {
   if (tabView == mUpperTabView)
   {
@@ -721,7 +720,12 @@ willCloseTabViewItem:(NSTabViewItem*)tabViewItem
     mforms::AppView *appView = deleg->appview_for_view([tabViewItem view]);
 
     if (appView)
-      return mDockingPoint->close_view(appView);
+    {
+      if (!appView->on_close())
+        return false;
+      appView->close();
+      return true;
+    }
     else
     {
       id editor = mEditors[[tabViewItem identifier]];

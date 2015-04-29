@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -63,6 +63,8 @@ namespace mforms {
    */
   class MFORMS_EXPORT DockingPoint : public Object
   {
+    friend class AppView; // for set_view_title().
+
   protected:
     DockingPoint() {}
   public:
@@ -72,7 +74,6 @@ namespace mforms {
   public:
     ~DockingPoint();
 
-//    std::string get_name();
     std::string get_type();
 
     /** Docks an AppView into a view belonging to the application, at the requested position.
@@ -94,25 +95,18 @@ namespace mforms {
 
     /** Returns the currently selected view
      
-     Note that a return value of NULL may just mean that the selected tab is not an AppView.
+        Note that a return value of NULL may just mean that the selected tab is not an AppView.
      */
     AppView *selected_view();
     
-    /** Undocks an AppView from the main window.
-     */
+    /** Undocks an AppView from the main window. */
     void undock_view(AppView *view);
     
-    /** Closes the AppView as if the user clicks its close button */
-    bool close_view(AppView *view);
+    /* Closes the view at the given index if it exists and is an appview. */
+    void close_view_at_index(int index);
 
-    /** Calls close_view on all docked views, unless one of them returns false */
+    /** Checks if all docked views can be closed and if so closes them. Returns true if all of them could be closed. */
     bool close_all_views();
-    
-    /** Sets the title of a previously docked AppView. 
-     
-     In Workbench this will set the label of the Tab where the AppView is docked.
-     */
-    void set_view_title(AppView *view, const std::string &title);
     
     /** Gets the size of the view. */
     std::pair<int, int> get_size();
@@ -130,7 +124,6 @@ namespace mforms {
 
     boost::signals2::signal<void (AppView*)> *signal_view_undocked() { return &_view_undocked; }
 
-    //XXX Windows: need to call this whenever a tab is switched (main tabs and connection tabs)
     void view_switched();
 #endif
   protected:
@@ -139,5 +132,7 @@ namespace mforms {
     boost::signals2::signal<void (AppView*)> _view_undocked;
 
     bool _delete_delegate;
+
+    void set_view_title(AppView *view, const std::string &title);
   };
 };
