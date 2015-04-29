@@ -1,23 +1,23 @@
-/* 
+/*
  * Copyright (c) 2011, 2014 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
 
-// test model file 
+// test model file
 
 #include "workbench/wb_model_file.h"
 
@@ -65,7 +65,7 @@ TEST_FUNCTION(1)
     workbench_DocumentRef doc(grt);
 
     // create a test file, change it and then save_as
-    
+
     mf.create(grtm);
 
     doc->name("t1");
@@ -146,7 +146,7 @@ TEST_FUNCTION(4)
   ensure("4.2 Comment is mydb, ", comment == "mydb");
 }
 
-// Test if opened model can be saved (we ran into an issue with libzip that 
+// Test if opened model can be saved (we ran into an issue with libzip that
 // didn't close the file properly, resulting in inability to save the model)
 TEST_FUNCTION(10)
 {
@@ -182,7 +182,7 @@ std::string test_loading_and_saving_a_model( const WBTester& tester, std::string
 {
   grt::GRT *grt= tester.wb->get_grt();
   bec::GRTManager* grtm = bec::GRTManager::get_instance_for(grt);
-  
+
   #ifdef _WIN32
     base::create_directory(TMP_DIR, 0666);
   #endif
@@ -191,11 +191,11 @@ std::string test_loading_and_saving_a_model( const WBTester& tester, std::string
 
   std::string src_path = base_path +     ".mwb";
   std::string dst_path = base_path + "_tmp.mwb";
- 
+
   // remove copy file if it was left over from a previous unsuccessful run
   base::remove(dst_path);
 
-  // open the file 
+  // open the file
   try
   {
     mf.open(src_path, grtm);
@@ -242,7 +242,7 @@ std::string test_loading_and_saving_a_model( const WBTester& tester, std::string
   {
     return "removing model copy failed";
   }
-  
+
   // all went ok
   return "";
 }
