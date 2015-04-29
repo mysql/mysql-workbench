@@ -32,6 +32,8 @@ from wb_admin_security_be import AdminSecurity, PrivilegeInfo, PrivilegeReverseD
 from wb_common import PermissionDeniedError
 from workbench.log import log_error
 
+import grt
+from workbench import db_utils
 
 SCHEMA_OBJECT_RIGHTS = [
 "Select_priv",
@@ -588,6 +590,346 @@ class SecuritySchemaPrivileges(mforms.Box):
         self.show_user(None)
 
 
+class FirewallCommands:
+    def __init__(self, owner):
+        self.owner = owner
+        self.ctrl_be = owner.ctrl_be
+
+    def get_user_rules(self, userhost):
+        query_result = self.ctrl_be.exec_query("SELECT RULE FROM mysql.firewall_whitelist WHERE USERHOST='%s'" % (userhost))
+        result = []
+        while query_result.nextRow():
+            result.append(query_result.stringByIndex(1))
+        return result
+
+    def get_cached_user_rules(self, userhost):
+        query_result = self.ctrl_be.exec_query("SELECT RULE FROM information_schema.mysql_firewall_whitelist WHERE USERHOST='%s'" % (userhost))
+        result = []
+        while query_result.nextRow():
+            result.append(query_result.stringByIndex(1))
+        return result
+
+    def get_rule_count(self, userhost):
+        result = self.ctrl_be.exec_query("SELECT COUNT(*) CNT FROM mysql.firewall_whitelist WHERE USERHOST='%s'" % (userhost))
+        result.nextRow()
+        return result.stringByIndex(1)
+
+    def get_cached_rule_count(self, userhost):
+        result = self.ctrl_be.exec_query("SELECT COUNT(*) CNT FROM information_schema.mysql_firewall_whitelist WHERE USERHOST='%s'" % (userhost))
+        result.nextRow()
+        return result.stringByIndex(1)
+
+    def delete_user_rule(self, userhost, rule):
+        self.ctrl_be.exec_query("DELETE FROM mysql.firewall_whitelist WHERE USERHOST='%s' AND RULE='%s'" % (userhost, db_utils.escape_sql_string(rule)))
+
+    def add_user_rule(self, userhost, rule):
+        firewall_rule = self.normalize_query(rule)
+        if firewall_rule and firewall_rule != "":
+            self.ctrl_be.exec_query("INSERT INTO mysql.firewall_whitelist (USERHOST, RULE) VALUES ('%s', '%s')" % (userhost, db_utils.escape_sql_string(firewall_rule)))
+            return True
+        log_error("Adding a firewall user rule failed to normalize the query. Probably, the inserted query does not translate to a firewall rule.\n")
+        return False
+
+    def normalize_query(self, query):
+        query_result = self.ctrl_be.exec_query("SELECT normalize_statement('%s')" % db_utils.escape_sql_string(query))
+        query_result.nextRow()
+        return query_result.stringByIndex(1)
+
+    def get_user_mode(self, userhost):
+        result = self.ctrl_be.exec_query("SELECT mode FROM mysql.firewall_users WHERE userhost='%s'" % userhost)
+        if result and result.nextRow():
+            return result.stringByName("mode")
+        return "OFF"
+
+    def set_user_mode(self, userhost, mode):
+        multi_result = self.ctrl_be.exec_query_multi_result("CALL mysql.sp_set_firewall_mode('%s', '%s')" % (userhost, mode))
+        result = multi_result[len(multi_result) - 1]
+        if result.nextRow():
+            return result.stringByIndex(1) == "OK"
+        return False
+
+    def reset_user(self, userhost):
+        return self.set_user_mode(userhost, 'RESET')
+
+
+class FirewallUserInterfaceBase(mforms.Box):
+    def __init__(self, owner):
+        mforms.Box.__init__(self, False)
+        self.rule_count = 0
+        self.owner = owner
+        self.ctrl_be = owner.owner.ctrl_be
+
+    def show_user(self, user, host):
+        return
+
+    def update_rules(self, user, host):
+        return
+
+    def get_rule_count(self):
+        return self.rule_count
+
+    def refresh_users(self, users):
+        return
+
+    def change_state(self):
+        return
+
+    def refresh_row(self, current_row, user, host):
+        return
+
+    def change_layout(self):
+        return
+
+    def tweak_user_list(self):
+        return
+
+    def tweak_tabs(self, tabView):
+        return
+
+    def save(self):
+        return
+
+
+class FirewallUserInterfaceDummy(FirewallUserInterfaceBase):
+    def __init__(self, owner):
+        return
+
+
+class FirewallAddRuleDialog(mforms.Form):
+    def __init__(self, owner):
+        mforms.Form.__init__(self, None, mforms.FormResizable | mforms.FormMinimizable)
+
+        self.set_title("Add new rule")
+
+        self.content = mforms.newBox(False)
+        self.set_content(self.content)
+        
+        self.content.add(mforms.newLabel("Type the rule you want to add for this user."), False, True)
+        
+        self.query_box = mforms.newTextBox(mforms.SmallScrollBars)
+        self.content.add(self.query_box, False, True)
+        
+        button_box = mforms.newBox(True)
+        self.content.add(button_box, False, True)
+
+        button_box.set_spacing(8)
+
+        self.ok_button = mforms.newButton()
+        self.ok_button.set_text("OK")
+        self.ok_button.add_clicked_callback(self.ok_button_pressed)
+        
+        button_box.add_end(self.ok_button, False, True)
+
+        self.cancel_button = mforms.newButton()
+        self.cancel_button.set_text("Cancel")
+        self.cancel_button.add_clicked_callback(self.cancel_button_pressed)
+        button_box.add_end(self.cancel_button, False, True)
+        
+    def ok_button_pressed(self):
+        self.end_modal(True)
+
+    def cancel_button_pressed(self):
+        self.end_modal(False)
+
+    def run(self):
+        return self.run_modal(None, None)
+
+class FirewallUserInterface(FirewallUserInterfaceBase):
+    def __init__(self, owner):
+        FirewallUserInterfaceBase.__init__(self, owner)
+
+        self.set_managed()
+        self.set_release_on_add()
+
+        self.suspend_layout()
+        self.set_spacing(8)
+        self.set_padding(8)
+        
+        self.commands = FirewallCommands(self)
+
+        # Firewall rules panel
+        firewall_rules_panel = mforms.newPanel(mforms.TitledBoxPanel)
+        firewall_rules_panel.set_title("Firewall Rules")
+        firewall_rules_main_box = mforms.newBox(False)
+        
+        state_box = mforms.newBox(True)
+        
+        self.state = mforms.newSelector()
+        self.state.add_item("OFF")
+        self.state.add_item("PROTECTING")
+        self.state.add_item("RECORDING")
+        self.state.add_item("RESET")
+        self.state.add_changed_callback(self.change_state)
+        state_box.add(mforms.newLabel("State:"), False, True)
+        state_box.add(self.state, False, True)
+        
+        firewall_rules_main_box.add(state_box, False, True)
+
+        # White list section
+        white_list_box = mforms.newBox(True)
+        
+        self.white_list = mforms.newListBox(True)
+        self.white_list.set_size(500, -1)
+        
+        white_list_button_box = mforms.newBox(False)
+        
+        self.white_list_add_button = mforms.newButton()
+        self.white_list_add_button.set_text("Add")
+        self.white_list_add_button.add_clicked_callback(self.add_button_click)
+
+        self.white_list_add_from_file_button = mforms.newButton()
+        self.white_list_add_from_file_button.set_text("Add From File")
+        self.white_list_add_from_file_button.add_clicked_callback(self.add_from_file_button_click)
+
+        self.white_list_save_to_file_button = mforms.newButton()
+        self.white_list_save_to_file_button.set_text("Save To File")
+        self.white_list_save_to_file_button.add_clicked_callback(self.save_to_file_button_click)
+
+        self.white_list_delete_button = mforms.newButton()
+        self.white_list_delete_button.set_text("Delete")
+        self.white_list_delete_button.add_clicked_callback(self.delete_button_click)
+
+        self.white_list_clear_button = mforms.newButton()
+        self.white_list_clear_button.set_text("Clear")
+        self.white_list_clear_button.add_clicked_callback(self.clear_button_click)
+        
+        white_list_button_box.add(self.white_list_add_button, False, True)
+        white_list_button_box.add(self.white_list_delete_button, False, True)
+        white_list_button_box.add(self.white_list_add_from_file_button, False, True)
+        white_list_button_box.add(self.white_list_save_to_file_button, False, True)
+        white_list_button_box.add(self.white_list_clear_button, False, True)
+
+        white_list_box.add(self.white_list, True, True)
+        white_list_box.add(white_list_button_box, False, True)
+        
+        self.available_rules_label = mforms.newLabel("Allowed rules:")
+        firewall_rules_main_box.add(self.available_rules_label, False, True)
+        firewall_rules_main_box.add(white_list_box, True, True)
+
+        cache_list_box = mforms.newBox(True)
+
+        self.cache_list = mforms.newListBox(True)
+        self.cache_list.set_size(500, 200)
+        
+        cache_list_box.add(self.cache_list, True, True)
+        
+        self.cached_rules_label = mforms.newLabel("Cached rules:")
+        firewall_rules_main_box.add(self.cached_rules_label, False, True)
+        firewall_rules_main_box.add(cache_list_box, True, True)
+        
+        #self.add(firewall_rules_panel, False, True)
+        firewall_rules_panel.add(firewall_rules_main_box)
+        self.add(firewall_rules_panel, True, True)
+
+
+
+
+
+
+        # Copy section
+        #panel = mforms.newPanel(mforms.TitledBoxPanel)
+        #panel.set_title("Copy queries")
+
+        #self.copy_box = mforms.newBox(True)
+        #self.users = mforms.newSelector()
+        #self.copy_box.add(self.users, False, True)
+        
+        #self.copy_from_button = mforms.newButton()
+        #self.copy_from_button.set_text("Copy From...")
+        #self.copy_box.add(self.copy_from_button, False, True)
+        
+        #panel.add(self.copy_box)
+        #self.add(panel, False, True)
+        
+    def refresh_row(self, current_row, user, host):
+        userhost = "%s@%s" % (user, host)
+        current_row.set_string(2, str(self.commands.get_user_mode(userhost)))
+        current_row.set_string(3, str(self.commands.get_rule_count(userhost)))
+        current_row.set_string(4, str(self.commands.get_cached_rule_count(userhost)))
+            
+    def show_user(self, user, host):
+        self.current_user = user
+        self.current_host = host
+        self.current_userhost = "%s@%s" % (user, host)
+        self.update_rules()
+        return self.state.set_value(self.commands.get_user_mode(self.current_userhost))
+      
+    def update_rules(self):
+        self.white_list.clear()
+        self.cache_list.clear()
+
+        self.available_rules_label.set_text("Available rules[%s]:" % str(self.commands.get_rule_count(self.current_userhost)))
+        for rule in self.commands.get_user_rules(self.current_userhost):
+            self.white_list.add_item(rule)
+
+        self.cached_rules_label.set_text("Cached rules[%s]:" % str(self.commands.get_cached_rule_count(self.current_userhost)))
+        for rule in self.commands.get_cached_user_rules(self.current_userhost):
+            self.cache_list.add_item(rule)
+            
+    def tweak_user_list(self):
+        self.owner.user_list.add_column(mforms.StringColumnType, "FW State", 200, False)
+        self.owner.user_list.add_column(mforms.StringColumnType, "# FW Rules", 200, False)
+        self.owner.user_list.add_column(mforms.StringColumnType, "# FW Cached", 200, False)
+        
+    def tweak_tabs(self, tabView):
+        tabView.add_page(self, "Firewall Rules")
+        
+    def refresh_users(self, users):
+        return
+        #for user, host in users:
+            #self.users.add_item(user)
+
+    def change_state(self):
+        self.owner.set_dirty()
+
+    def add_button_click(self):
+        dialog = FirewallAddRuleDialog(self)
+        if dialog.run():
+            rule = dialog.query_box.get_string_value()
+            result = self.commands.add_user_rule(self.current_userhost, rule)
+            if not result:
+                Utilities.show_error("Add user rule", "Add a new rule for this user failed to be inserted. Please check the log for more information.", "OK", "", "")
+            self.owner.refresh()
+        return
+        
+    def add_from_file_button_click(self):
+        dialog = mforms.FileChooser(mforms.OpenFile)
+        dialog.set_title("Load firewall rules")
+        if dialog.run_modal():
+            with open(dialog.get_path()) as f:
+                content = [x.strip('\n') for x in f.readlines()]
+
+            self.commands.set_user_mode(self.current_userhost, "OFF")
+            for rule in content:
+                self.commands.add_user_rule(self.current_userhost, rule)
+        
+            self.commands.set_user_mode(self.current_userhost, "RECORDING")
+            self.owner.refresh()
+        
+    def save_to_file_button_click(self):
+        dialog = mforms.FileChooser(mforms.SaveFile)
+        dialog.set_title("Save firewall rules")
+        if dialog.run_modal():
+            f = open(dialog.get_path(), "w")
+            for index in range(0, self.white_list.get_count()):
+                rule = self.white_list.get_string_value_from_index(index)
+                f.write("%s\n" % rule)
+            f.close()
+        
+    def delete_button_click(self):
+        indexes = self.white_list.get_selected_indices()
+        for index in indexes:
+            rule = self.white_list.get_string_value_from_index(index)
+            self.commands.delete_user_rule(self.current_userhost, rule)
+            self.owner.refresh()
+        return
+        
+    def clear_button_click(self):
+        self.commands.reset_user(self.current_userhost)
+        self.owner.refresh()
+        
+    def save(self):
+        self.commands.set_user_mode(self.current_userhost, self.state.get_string_value())
 
 #############################
 
@@ -605,6 +947,14 @@ class SecurityAccount(mforms.Box):
         self.suspend_layout()
         self.set_padding(8)
         self.set_spacing(8)
+
+        if self.owner.ctrl_be.server_variables.get('mysql_firewall_mode'):
+            #Utilities.show_message("Using GPL Firewall", str(grt.root.wb.info), "OK", "", "")
+            self.firewall_rules = FirewallUserInterface(self)
+        else:
+            #Utilities.show_message("Using COMMERCIAL Firewall", str(grt.root.wb.info), "OK", "", "")
+            self.firewall_rules = FirewallUserInterfaceDummy(self)
+
 
         self.splitter = mforms.newSplitter(True)
 
@@ -669,6 +1019,9 @@ class SecurityAccount(mforms.Box):
         self.user_list = newTreeNodeView(mforms.TreeFlatList)
         self.user_list.add_column(mforms.StringColumnType, "User", 120, False)
         self.user_list.add_column(mforms.StringColumnType, "From Host", 200, False)
+        
+        self.firewall_rules.tweak_user_list()
+        
         self.user_list.end_columns()
         self.user_list.add_changed_callback(self.user_selected)
         self.user_list.set_allow_sorting(True)
@@ -866,6 +1219,8 @@ class SecurityAccount(mforms.Box):
         self.schema_privs = SecuritySchemaPrivileges(self)
         tabView.add_page(self.schema_privs, "Schema Privileges")
 
+        self.firewall_rules.tweak_tabs(tabView)
+
         abox.add(tabView, True, True)
         self.splitter.add(abox, 200)
         self.add(self.splitter, True, True)
@@ -1015,6 +1370,7 @@ class SecurityAccount(mforms.Box):
                 self.show_zombie_user(user, host)
             else:
                 self.owner.secman.async_get_account(self.show_user, user, host)
+                
         else:
             self.account_label.set_text("Select an account to edit or click [Add Account] to create a new one")
 
@@ -1084,6 +1440,7 @@ class SecurityAccount(mforms.Box):
             self.refresh_role_list()
 
             self.schema_privs.show_user(user.schema_privs)
+            self.firewall_rules.show_user(user.username, user.host)
         else:
             self.username.set_value("")
             self.password.set_value("")
@@ -1228,14 +1585,20 @@ class SecurityAccount(mforms.Box):
         suo = self._selected_user_original
         self.user_list.freeze_refresh()
         self.user_list.clear()
+        self.firewall_rules.refresh_users(self.owner.secman.account_names)
         for user, host in self.owner.secman.account_names:
             row = self.user_list.add_node()
+
             if self.owner.secman.is_zombie(user, host):
                 row.set_string(0, "(!) "+(user or "<anonymous>"))
             else:
                 row.set_string(0, user or "<anonymous>")
             row.set_string(1, host)
             row.set_tag(repr((user, host)))
+
+            # Change row with firewall values
+            self.firewall_rules.refresh_row(row, user, host)
+
             if su and (user == su.username and host == su.host):
                 selected_row = row
 
@@ -1444,6 +1807,15 @@ class SecurityAccount(mforms.Box):
                 Utilities.show_error("Permission Errors",
                       str(exc), "OK", "", "")
                 return
+            except Exception, exc:
+                import traceback
+                log_error("Exception while saving account: %s\n" % traceback.format_exc())
+                Utilities.show_error("Error Saving Account",
+                      str(exc), "OK", "", "")
+                return
+            
+            try:
+                self.firewall_rules.save()
             except Exception, exc:
                 import traceback
                 log_error("Exception while saving account: %s\n" % traceback.format_exc())
