@@ -1922,7 +1922,7 @@ MySQLCopyDataTarget::MySQLCopyDataTarget(const std::string &hostname, int port,
   mysql_init(&_mysql);
 #if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
 #if MYSQL_CHECK_VERSION(5,6,6)
-  if (is_mysql_version_at_least(5,6,6))
+  if (MySQLCopyDataTarget::is_mysql_version_at_least(5,6,6))
     mysql_options4(&_mysql, MYSQL_OPT_CONNECT_ATTR_ADD, "program_name", app_name.c_str());
 #endif
 #endif
@@ -2872,7 +2872,7 @@ bool MySQLCopyDataTarget::InsertBuffer::append_escaped(const char *data, size_t 
   // This is needed because the escaping depends on the character set in use by the server
   #if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
   #if MYSQL_CHECK_VERSION(5,7,6)
-    if (is_mysql_version_at_least(5,7,6))
+    if (MySQLCopyDataTarget::is_mysql_version_at_least(5,7,6))
       length += mysql_real_escape_string_quote(_mysql, buffer + length, data, (unsigned long)dlength);
     else
       length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
