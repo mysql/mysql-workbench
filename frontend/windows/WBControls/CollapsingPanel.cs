@@ -128,7 +128,7 @@ namespace MySQL.Utilities
     private bool expanded = true;
     private int computedExpandedHeight = 0;
     private int manualHeight = 0;
-    private int descriptionSpace = 3;
+    private static int descriptionSpace = 3;
     private int headerHeight = 23 + descriptionSpace;
     private int headerHeightTabsOnly = 63;
     private int headerSpace = 5;
