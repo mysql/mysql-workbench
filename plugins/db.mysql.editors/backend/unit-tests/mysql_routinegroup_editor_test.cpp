@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -66,40 +66,40 @@ TEST_FUNCTION(20)
 #endif
 
 const char* routine_sql =
-  "DELIMITER //"NL
-  "CREATE FUNCTION get_count(less_than INT, greather_than INT) RETURNS INT"NL
-  "    DETERMINISTIC"NL
-  "    READS SQL DATA"NL
-  "BEGIN"NL
-  "       #OK, here some comment"NL
-  "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY"NL
-  "  SELECT count(*) INTO res"NL
-  "    FROM t1"NL
-  "    WHERE id > less_than AND id < greather_than;"NL
-  "  RETURN res;"NL
-  "END //"NL
-  "CREATE FUNCTION get_count1(less_than INT, greather_than INT) RETURNS INT"NL
-  "    DETERMINISTIC"NL
-  "    READS SQL DATA"NL
-  "BEGIN"NL
-  "       #OK, here some comment"NL
-  "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY"NL
-  "  SELECT count(*) INTO res"NL
-  "    FROM t1"NL
-  "    WHERE id > less_than AND id < greather_than;"NL
-  "  RETURN res;"NL
-  "END //"NL
-  "CREATE FUNCTION get_count2(less_than INT, greather_than INT) RETURNS INT"NL
-  "    DETERMINISTIC"NL
-  "    READS SQL DATA"NL
-  "BEGIN"NL
-  "       #OK, here some comment"NL
-  "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY"NL
-  "  SELECT count(*) INTO res"NL
-  "    FROM t1"NL
-  "    WHERE id > less_than AND id < greather_than;"NL
-  "  RETURN res;"NL
-  "END //"NL
+  "DELIMITER //" NL
+  "CREATE FUNCTION get_count(less_than INT, greather_than INT) RETURNS INT" NL
+  "    DETERMINISTIC" NL
+  "    READS SQL DATA" NL
+  "BEGIN" NL
+  "       #OK, here some comment" NL
+  "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY" NL
+  "  SELECT count(*) INTO res" NL
+  "    FROM t1" NL
+  "    WHERE id > less_than AND id < greather_than;" NL
+  "  RETURN res;" NL
+  "END //" NL
+  "CREATE FUNCTION get_count1(less_than INT, greather_than INT) RETURNS INT" NL
+  "    DETERMINISTIC" NL
+  "    READS SQL DATA" NL
+  "BEGIN" NL
+  "       #OK, here some comment" NL
+  "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY" NL
+  "  SELECT count(*) INTO res" NL
+  "    FROM t1" NL
+  "    WHERE id > less_than AND id < greather_than;" NL
+  "  RETURN res;" NL
+  "END //" NL
+  "CREATE FUNCTION get_count2(less_than INT, greather_than INT) RETURNS INT" NL
+  "    DETERMINISTIC" NL
+  "    READS SQL DATA" NL
+  "BEGIN" NL
+  "       #OK, here some comment" NL
+  "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY" NL
+  "  SELECT count(*) INTO res" NL
+  "    FROM t1" NL
+  "    WHERE id > less_than AND id < greather_than;" NL
+  "  RETURN res;" NL
+  "END //" NL
   "DELIMITER ;";
 
   SynteticMySQLModel model(grt);
@@ -154,40 +154,40 @@ const char* routine_sql =
 TEST_FUNCTION(30) 
 {
 const char* routine_sql =
-  "DELIMITER //"NL
-  "CR!!! FUNCTION get_count(less_than INT, greather_than INT) RETURNS INT"NL
-  "    DETERMINISTIC"NL
-  "    READS SQL DATA"NL
-  "BEGIN"NL
-  "       #OK, here some comment"NL
-  "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY"NL
-  "  SELECT count(*) INTO res"NL
-  "    FROM t1"NL
-  "    WHERE id > less_than AND id < greather_than;"NL
-  "  RETURN res;"NL
-  "END //"NL
-  "CREATE FUNCTION get_count1(less_than INT, greather_than INT) RETURNS INT"NL
-  "    DETERMINISTIC"NL
-  "    READS SQL DATA"NL
-  "BEGIN"NL
-  "       #OK, here some comment"NL
-  "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY"NL
-  "  SELECT count(*) INTO res"NL
-  "    FROM t1"NL
-  "    WHERE id > less_than AND id < greather_than;"NL
-  "  RETURN res;"NL
-  "END //"NL
-  "CREATE FUNCTION get_count2(less_than INT, greather_than INT) RETURNS INT"NL
-  "    DETERMINISTIC"NL
-  "    READS SQL DATA"NL
-  "-- BEGIN"NL
-  "       #OK, here some comment"NL
-  "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY"NL
-  "  SELECT count(*) INTO res"NL
-  "    FROM t1"NL
-  "    WHERE id > less_than AND id < greather_than;"NL
-  "  RETURN res;"NL
-  "END //"NL
+  "DELIMITER //" NL
+  "CR!!! FUNCTION get_count(less_than INT, greather_than INT) RETURNS INT" NL
+  "    DETERMINISTIC" NL
+  "    READS SQL DATA" NL
+  "BEGIN" NL
+  "       #OK, here some comment" NL
+  "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY" NL
+  "  SELECT count(*) INTO res" NL
+  "    FROM t1" NL
+  "    WHERE id > less_than AND id < greather_than;" NL
+  "  RETURN res;" NL
+  "END //" NL
+  "CREATE FUNCTION get_count1(less_than INT, greather_than INT) RETURNS INT" NL
+  "    DETERMINISTIC" NL
+  "    READS SQL DATA" NL
+  "BEGIN" NL
+  "       #OK, here some comment" NL
+  "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY" NL
+  "  SELECT count(*) INTO res" NL
+  "    FROM t1" NL
+  "    WHERE id > less_than AND id < greather_than;" NL
+  "  RETURN res;" NL
+  "END //" NL
+  "CREATE FUNCTION get_count2(less_than INT, greather_than INT) RETURNS INT" NL
+  "    DETERMINISTIC" NL
+  "    READS SQL DATA" NL
+  "-- BEGIN" NL
+  "       #OK, here some comment" NL
+  "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY" NL
+  "  SELECT count(*) INTO res" NL
+  "    FROM t1" NL
+  "    WHERE id > less_than AND id < greather_than;" NL
+  "  RETURN res;" NL
+  "END //" NL
   "DELIMITER ;";
 
   SynteticMySQLModel model(grt);
