@@ -465,7 +465,7 @@ void GridView::on_cell_editing_started(Gtk::CellEditable* e, const Glib::ustring
 
 void GridView::on_text_insert(unsigned int position, const char* incoming_text, unsigned int character_num)
 {
-  if ((unsigned int)strlen(incoming_text) != character_num)
+  if ((unsigned int)g_utf8_strlen(incoming_text, -1) != character_num)
     mforms::Utilities::show_warning(_("Text Truncation"), _("Inserted data has been truncated as the control's limit was reached. Please use the value editor instead for editing such large text data."), "Ok", "", "");
 }
 
