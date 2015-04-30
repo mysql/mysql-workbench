@@ -339,10 +339,13 @@ void GRTManager::initialize(bool init_python, const std::string &loader_module_p
 #ifdef _WIN32
   add_python_module_dir(_grt, _basedir + "\\python");
   add_python_module_dir(_grt, _basedir + "\\modules");
-#elif !defined(__APPLE__)
+#elif __APPLE__
+  add_python_module_dir(_grt, _basedir + "/plugins");
+#else
   std::vector<std::string> path(base::split(_module_pathlist, G_SEARCHPATH_SEPARATOR_S));
   for (std::vector<std::string>::const_iterator i= path.begin(); i != path.end(); ++i)
     add_python_module_dir(_grt, *i);
+  
 #endif
 
   pyobject_initialize();
