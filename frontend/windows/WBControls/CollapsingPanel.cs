@@ -128,7 +128,8 @@ namespace MySQL.Utilities
     private bool expanded = true;
     private int computedExpandedHeight = 0;
     private int manualHeight = 0;
-    private int headerHeight = 23;
+    private int descriptionSpace = 3;
+    private int headerHeight = 23 + descriptionSpace;
     private int headerHeightTabsOnly = 63;
     private int headerSpace = 5;
     private int buttonOffset = 0;
@@ -591,7 +592,7 @@ namespace MySQL.Utilities
               // Draw the description
               if (!description.Equals(""))
                 g.DrawString(description, tabHeaderDescriptionFont, Brushes.Gray,
-                  x, y + 15 + 16);
+                  x, y + 15 + 16 + descriptionSpace);
             }
 
             itemPos += itemWidth;
