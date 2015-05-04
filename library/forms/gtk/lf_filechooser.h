@@ -41,7 +41,7 @@ class FileChooserImpl : public ViewImpl
   Gtk::Table *_options_table;
   std::map<std::string, Gtk::ComboBoxText*> _combos;
   std::map<std::string, std::map<std::string, std::string> > _option_values;
-  std::vector<std::string> _ext_list;
+  std::map<std::string, std::string> _ext_list;
   std::string _default_extension;
   
   static std::vector<std::string> split_string(const std::string &s, const std::string &sep)
@@ -162,7 +162,7 @@ class FileChooserImpl : public ViewImpl
     {
       combo->append_text(iter->first);
       dlg->_option_values[name][iter->first] = iter->second;
-      dlg->_ext_list.push_back(iter->second);
+      dlg->_ext_list.insert(std::make_pair(iter->first, iter->second));
     }
     combo->set_active(0);
   }
@@ -200,10 +200,11 @@ class FileChooserImpl : public ViewImpl
         filter.add_pattern(iter->second);
         filter.set_name(iter->first);
         dlg->_dlg->add_filter(filter);
+        if (iter->second.substr(2) == default_extension)
+          dlg->_dlg->set_filter(filter);
 
-
-        dlg->_ext_list.push_back(iter->second);
-        dlg->_ext_list.back().erase(0, 2); //Remove the *.
+        dlg->_ext_list.insert(std::make_pair(iter->first, iter->second));
+        dlg->_ext_list[iter->first].erase(0, 2); //Remove the *.
 
         if (dlg->_default_extension.empty()) //First extension set default ext
         {
@@ -278,7 +279,18 @@ class FileChooserImpl : public ViewImpl
     //  If the dialog has no file format options, there's nothing to do here...
     std::string format_ext;
     if (chooser->_selector_options.find("format") == chooser->_selector_options.end())
-      format_ext = _default_extension;
+    {
+      // We need to check if there are maybe extensions specified if so we've pick up currently selected.
+      GtkFileFilter *filter = gtk_file_chooser_get_filter(((Gtk::FileChooser*)_dlg)->gobj()); // Because of bug in gtkmm we can't use get_filter, we fallback to c api
+      if (filter)
+      {
+        std::map<std::string, std::string>::iterator it =  _ext_list.find(gtk_file_filter_get_name(filter));
+        if (it != _ext_list.end())
+          format_ext = it->second;
+      }
+      else
+        format_ext = _default_extension;
+    }
     else
     {
       std::string format_human = get_selector_option_value(chooser, "format");
@@ -295,11 +307,14 @@ class FileChooserImpl : public ViewImpl
       if (ext != format_ext)
       {
         std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
-        std::vector<std::string>::iterator it = std::find(_ext_list.begin(), _ext_list.end(), ext);
-        if (it == _ext_list.end())
-          path.append(".").append(format_ext);
-        else //If we support extension provided by user - don't change anything
-          return;
+        std::map<std::string, std::string>::iterator it;
+        for (it = _ext_list.begin(); it != _ext_list.end(); ++it)
+        {
+          if (it->second == ext) //If we support extension provided by user - don't change anything
+            return;
+        }
+
+        path.append(".").append(format_ext);
       }
 
       _dlg->set_current_name(base::basename(path.c_str()));
