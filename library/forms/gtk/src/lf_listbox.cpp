@@ -230,7 +230,7 @@ std::string ListBoxImpl::get_string_value_from_index (ListBox *self, size_t inde
   Gtk::TreeModel::Children children = sel->_store->children();
   std::string result;
   if (children.size() > index)
-    children[index - 1]->get_value<std::string>(0, result);
+    children[index]->get_value<std::string>(0, result);
   return result;
 }
 
