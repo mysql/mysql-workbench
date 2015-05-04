@@ -2257,13 +2257,16 @@ size_t MySQLParserServicesImpl::parseTrigger(ParserContext::Ref context, db_mysq
   }
 
   trigger->modelOnly(result_flag);
-  if (trigger->owner().is_valid() && result_flag == 1)
+  if (trigger->owner().is_valid())
   {
     // TODO: this is modeled after the old parser code but doesn't make much sense this way.
     //       There's only one flag for all triggers. So, at least there should be a scan over all triggers
     //       when determining this flag.
     db_TableRef table = db_TableRef::cast_from(trigger->owner());
-    table->customData().set("triggerInvalid", grt::IntegerRef(1));
+    if (result_flag == 1)
+      table->customData().set("triggerInvalid", grt::IntegerRef(1));
+    else
+      table->customData().remove("triggerInvalid");
   }
   return error_count;
 }

@@ -2835,10 +2835,8 @@ std::string DbMySQLImpl::makeAlterScriptForObject(GrtNamedObjectRef source, GrtN
         std::string trigger_code = result.get_string(get_full_object_name_for_key(triggers.get(i),case_sensitive != 0), "");
         if (!trigger_code.empty())
         {
-          sql.append("USE `").append(table->owner()->name()).append("`;\n").append("\nDELIMITER ").append(non_std_sql_delimiter).append("\n\n");
-          sql.append("DROP TRIGGER IF EXISTS ").append(table->owner()->name()).append(".");
-          sql.append(triggers.get(i)->name()).append(non_std_sql_delimiter).append("\n");
-          sql.append(trigger_code).append(non_std_sql_delimiter).append("\nDELIMITER ;\n");
+          sql += base::sqlstring("DROP TRIGGER IF EXISTS !.!;\n\nDELIMITER $$\n", 0) << table->owner()->name() << triggers.get(i)->name();
+          sql += trigger_code + "$$\nDELIMITER ;\n";
         }
       }
 
