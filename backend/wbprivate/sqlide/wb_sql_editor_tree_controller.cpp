@@ -2264,10 +2264,10 @@ bool SqlEditorTreeController::apply_changes_to_object(bec::DBObjectEditorBE* obj
 
     if (!dry_run)
     {
-      ValueRef is_trigger_changed= db_object->customData().get("triggerInvalid");
-      if (is_trigger_changed.is_valid() && (IntegerRef::cast_from(is_trigger_changed) != 0))
+      ValueRef hasErrors = db_object->customData().get("triggerInvalid");
+      if (hasErrors.is_valid() && (IntegerRef::cast_from(hasErrors) != 0))
       {
-        int res= mforms::Utilities::show_warning(
+        int res = mforms::Utilities::show_warning(
           _("Apply Changes to Object"),
           _("The tables's trigger SQL code contains errors.\n"
             "This will lead to invalid sql generated.\n"
