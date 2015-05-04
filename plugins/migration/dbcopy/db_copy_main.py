@@ -144,8 +144,7 @@ class DBCopy(mforms.AppView):
     def close(self):
         # Restore default locale:
         locale.setlocale(locale.LC_NUMERIC, 'C')
-        app = mforms.App.get()
-        app.close_view(self)
+        super(DBCopy, self).close()
         
     
     def cleanup(self):
