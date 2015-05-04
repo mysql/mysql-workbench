@@ -471,7 +471,7 @@ class SelectFilePage(WizardPage):
         for module in self.main.formats:
             extensions.append(module.get_file_extension()[0])
  
-        filechooser.set_extensions("|".join(extensions), self.main.formats[0].get_file_extension()[1], False)
+        filechooser.set_extensions("|".join(extensions), self.active_module.get_file_extension()[1], False)
         
         if filechooser.run_modal():
             file_path = filechooser.get_path()
