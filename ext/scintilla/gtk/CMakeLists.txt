@@ -46,6 +46,9 @@ add_library(wbscintilla
     ../src/PerLine.cxx
     ../src/CaseConvert.cxx
     ../src/CaseFolder.cxx
+    ../src/EditModel.cxx
+	../src/EditView.cxx
+	../src/MarginView.cxx
     ../lexers/LexCPP.cxx
     ../lexers/LexHTML.cxx
     ../lexers/LexMSSQL.cxx
