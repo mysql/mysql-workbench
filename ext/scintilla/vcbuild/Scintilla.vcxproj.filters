@@ -171,6 +171,18 @@
     <ClInclude Include="..\win32\PlatWin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\EditModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\EditView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\MarginView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\win32\HanjaDic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\AutoComplete.cxx">
@@ -307,6 +319,18 @@
     </ClCompile>
     <ClCompile Include="..\lexers\LexHTML.cxx">
       <Filter>Lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\EditModel.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\EditView.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\MarginView.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\win32\HanjaDic.cxx">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
