@@ -106,6 +106,12 @@
 		2791F3E00FC1A390009DBCF9 /* ScintillaCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = 2744E5A20FC168A100E85C33 /* ScintillaCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2791F3E30FC1A3AE009DBCF9 /* QuartzTextLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 2744E59F0FC168A100E85C33 /* QuartzTextLayout.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2791F3E40FC1A3AE009DBCF9 /* QuartzTextStyleAttribute.h in Headers */ = {isa = PBXBuildFile; fileRef = 2744E5A00FC168A100E85C33 /* QuartzTextStyleAttribute.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		27A522FA1AE046E300CE90B9 /* EditModel.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27A522F41AE046E300CE90B9 /* EditModel.cxx */; };
+		27A522FB1AE046E300CE90B9 /* EditModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 27A522F51AE046E300CE90B9 /* EditModel.h */; };
+		27A522FC1AE046E300CE90B9 /* EditView.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27A522F61AE046E300CE90B9 /* EditView.cxx */; };
+		27A522FD1AE046E300CE90B9 /* EditView.h in Headers */ = {isa = PBXBuildFile; fileRef = 27A522F71AE046E300CE90B9 /* EditView.h */; };
+		27A522FE1AE046E300CE90B9 /* MarginView.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27A522F81AE046E300CE90B9 /* MarginView.cxx */; };
+		27A522FF1AE046E300CE90B9 /* MarginView.h in Headers */ = {isa = PBXBuildFile; fileRef = 27A522F91AE046E300CE90B9 /* MarginView.h */; };
 		27FEF4540FC1B413005E115A /* info_bar_bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FEF4510FC1B413005E115A /* info_bar_bg.png */; };
 		27FEF4550FC1B413005E115A /* mac_cursor_busy.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FEF4520FC1B413005E115A /* mac_cursor_busy.png */; };
 		27FEF4560FC1B413005E115A /* mac_cursor_flipped.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FEF4530FC1B413005E115A /* mac_cursor_flipped.png */; };
@@ -223,6 +229,12 @@
 		2744E5AE0FC168C500E85C33 /* PlatCocoa.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PlatCocoa.mm; path = ../PlatCocoa.mm; sourceTree = SOURCE_ROOT; };
 		2744E5B00FC168C500E85C33 /* ScintillaCocoa.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ScintillaCocoa.mm; path = ../ScintillaCocoa.mm; sourceTree = "<group>"; };
 		2744E5B10FC168C500E85C33 /* ScintillaView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ScintillaView.mm; path = ../ScintillaView.mm; sourceTree = "<group>"; };
+		27A522F41AE046E300CE90B9 /* EditModel.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EditModel.cxx; path = ../../src/EditModel.cxx; sourceTree = "<group>"; };
+		27A522F51AE046E300CE90B9 /* EditModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EditModel.h; path = ../../src/EditModel.h; sourceTree = "<group>"; };
+		27A522F61AE046E300CE90B9 /* EditView.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EditView.cxx; path = ../../src/EditView.cxx; sourceTree = "<group>"; };
+		27A522F71AE046E300CE90B9 /* EditView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EditView.h; path = ../../src/EditView.h; sourceTree = "<group>"; };
+		27A522F81AE046E300CE90B9 /* MarginView.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MarginView.cxx; path = ../../src/MarginView.cxx; sourceTree = "<group>"; };
+		27A522F91AE046E300CE90B9 /* MarginView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MarginView.h; path = ../../src/MarginView.h; sourceTree = "<group>"; };
 		27FEF4510FC1B413005E115A /* info_bar_bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = info_bar_bg.png; sourceTree = "<group>"; };
 		27FEF4520FC1B413005E115A /* mac_cursor_busy.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mac_cursor_busy.png; sourceTree = "<group>"; };
 		27FEF4530FC1B413005E115A /* mac_cursor_flipped.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mac_cursor_flipped.png; sourceTree = "<group>"; };
@@ -358,7 +370,9 @@
 				114B6FA711FA7623004FB6AB /* ContractionState.h */,
 				114B6FA811FA7623004FB6AB /* Decoration.h */,
 				114B6FA911FA7623004FB6AB /* Document.h */,
+				27A522F51AE046E300CE90B9 /* EditModel.h */,
 				114B6FAA11FA7623004FB6AB /* Editor.h */,
+				27A522F71AE046E300CE90B9 /* EditView.h */,
 				114B6FAB11FA7623004FB6AB /* ExternalLexer.h */,
 				114B6FAC11FA7623004FB6AB /* FontQuality.h */,
 				114B6FA011FA75DB004FB6AB /* ILexer.h */,
@@ -370,6 +384,7 @@
 				114B6FDD11FA7645004FB6AB /* LexerNoExceptions.h */,
 				114B6FDE11FA7645004FB6AB /* LexerSimple.h */,
 				114B6FAF11FA7623004FB6AB /* LineMarker.h */,
+				27A522F91AE046E300CE90B9 /* MarginView.h */,
 				114B6FDF11FA7645004FB6AB /* OptionSet.h */,
 				114B6FB011FA7623004FB6AB /* Partitioning.h */,
 				114B6FB111FA7623004FB6AB /* PerLine.h */,
@@ -410,7 +425,9 @@
 				114B6F6511FA7597004FB6AB /* ContractionState.cxx */,
 				114B6F6611FA7597004FB6AB /* Decoration.cxx */,
 				114B6F6711FA7597004FB6AB /* Document.cxx */,
+				27A522F41AE046E300CE90B9 /* EditModel.cxx */,
 				114B6F6811FA7597004FB6AB /* Editor.cxx */,
+				27A522F61AE046E300CE90B9 /* EditView.cxx */,
 				114B6F6911FA7598004FB6AB /* ExternalLexer.cxx */,
 				114B6F6A11FA7598004FB6AB /* Indicator.cxx */,
 				114B6F6B11FA7598004FB6AB /* KeyMap.cxx */,
@@ -419,6 +436,7 @@
 				114B6F9211FA75BE004FB6AB /* LexerNoExceptions.cxx */,
 				114B6F9311FA75BE004FB6AB /* LexerSimple.cxx */,
 				114B6F6C11FA7598004FB6AB /* LineMarker.cxx */,
+				27A522F81AE046E300CE90B9 /* MarginView.cxx */,
 				114B6F6D11FA7598004FB6AB /* PerLine.cxx */,
 				114B6F6E11FA7598004FB6AB /* PositionCache.cxx */,
 				114B6F9411FA75BE004FB6AB /* PropSetSimple.cxx */,
@@ -517,6 +535,7 @@
 				114B6FC511FA7623004FB6AB /* Editor.h in Headers */,
 				114B6FC611FA7623004FB6AB /* ExternalLexer.h in Headers */,
 				114B6FC711FA7623004FB6AB /* FontQuality.h in Headers */,
+				27A522FB1AE046E300CE90B9 /* EditModel.h in Headers */,
 				114B6FC811FA7623004FB6AB /* Indicator.h in Headers */,
 				114B6FC911FA7623004FB6AB /* KeyMap.h in Headers */,
 				114B6FCA11FA7623004FB6AB /* LineMarker.h in Headers */,
@@ -524,6 +543,7 @@
 				114B6FCC11FA7623004FB6AB /* PerLine.h in Headers */,
 				114B6FCD11FA7623004FB6AB /* PositionCache.h in Headers */,
 				114B6FCE11FA7623004FB6AB /* RESearch.h in Headers */,
+				27A522FD1AE046E300CE90B9 /* EditView.h in Headers */,
 				114B6FCF11FA7623004FB6AB /* RunStyles.h in Headers */,
 				280056FD188DDD2C00F200AE /* SubStyles.h in Headers */,
 				114B6FD011FA7623004FB6AB /* ScintillaBase.h in Headers */,
@@ -542,6 +562,7 @@
 				114B6FE811FA7645004FB6AB /* LexerNoExceptions.h in Headers */,
 				114B6FE911FA7645004FB6AB /* LexerSimple.h in Headers */,
 				114B6FEA11FA7645004FB6AB /* OptionSet.h in Headers */,
+				27A522FF1AE046E300CE90B9 /* MarginView.h in Headers */,
 				114B6FEB11FA7645004FB6AB /* PropSetSimple.h in Headers */,
 				114B6FEC11FA7645004FB6AB /* StyleContext.h in Headers */,
 				114B6FED11FA7645004FB6AB /* WordList.h in Headers */,
@@ -632,6 +653,7 @@
 				114B6F1E11FA7526004FB6AB /* LexCPP.cxx in Sources */,
 				114B6F2C11FA7526004FB6AB /* LexHTML.cxx in Sources */,
 				114B6F3811FA7526004FB6AB /* LexMSSQL.cxx in Sources */,
+				27A522FA1AE046E300CE90B9 /* EditModel.cxx in Sources */,
 				114B6F3911FA7526004FB6AB /* LexMySQL.cxx in Sources */,
 				114B6F4711FA7526004FB6AB /* LexPython.cxx in Sources */,
 				114B6F5111FA7526004FB6AB /* LexSQL.cxx in Sources */,
@@ -655,6 +677,7 @@
 				114B6F8811FA7598004FB6AB /* ScintillaBase.cxx in Sources */,
 				114B6F8911FA7598004FB6AB /* Selection.cxx in Sources */,
 				114B6F8A11FA7598004FB6AB /* Style.cxx in Sources */,
+				27A522FC1AE046E300CE90B9 /* EditView.cxx in Sources */,
 				114B6F8B11FA7598004FB6AB /* UniConversion.cxx in Sources */,
 				114B6F8C11FA7598004FB6AB /* ViewStyle.cxx in Sources */,
 				114B6F8D11FA7598004FB6AB /* XPM.cxx in Sources */,
@@ -663,6 +686,7 @@
 				114B6F9911FA75BE004FB6AB /* LexerBase.cxx in Sources */,
 				114B6F9A11FA75BE004FB6AB /* LexerModule.cxx in Sources */,
 				114B6F9B11FA75BE004FB6AB /* LexerNoExceptions.cxx in Sources */,
+				27A522FE1AE046E300CE90B9 /* MarginView.cxx in Sources */,
 				114B6F9C11FA75BE004FB6AB /* LexerSimple.cxx in Sources */,
 				114B6F9D11FA75BE004FB6AB /* PropSetSimple.cxx in Sources */,
 				114B6F9E11FA75BE004FB6AB /* StyleContext.cxx in Sources */,
@@ -712,6 +736,7 @@
 				GCC_WARN_UNUSED_LABEL = YES;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = Scintilla;
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = framework;
@@ -740,6 +765,7 @@
 				GCC_WARN_UNUSED_LABEL = YES;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = Scintilla;
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = framework;
@@ -749,9 +775,9 @@
 		1DEB91B208733DA50010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
-				GCC_C_LANGUAGE_STANDARD = c99;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
@@ -759,7 +785,7 @@
 					../../src,
 					../../lexlib,
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 			};
@@ -768,8 +794,8 @@
 		1DEB91B308733DA50010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
-				GCC_C_LANGUAGE_STANDARD = c99;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
@@ -777,7 +803,7 @@
 					../../src,
 					../../lexlib,
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				SDKROOT = macosx;
 			};
 			name = Release;

@@ -1,5 +1,5 @@
 repo: bdf8c3ef2fb01ea24578e726337888e706d10b92
-node: 467035efc90f36ded907222e58684be9c30579e3
-branch: 343-Win32-Fix
-latesttag: rel-3-4-3
+node: 91225471e5caa64de91357b347754ac79931941a
+branch: default
+latesttag: rel-3-5-4
 latesttagdistance: 1

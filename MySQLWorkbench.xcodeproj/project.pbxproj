@@ -12731,7 +12731,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 0620;
+				LastUpgradeCheck = 0630;
 				ORGANIZATIONNAME = "Oracle and/or its affiliates";
 				TargetAttributes = {
 					27D8079D1A3F262D00EDCA8F = {
@@ -18005,7 +18005,6 @@
 					SCI_NAMESPACE,
 					ENABLE_PYTHON_MODULES,
 					ENABLE_DEBUG,
-					ENABLE_LUA_MODULES,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (
@@ -18054,7 +18053,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_NAMESPACE,
 					ENABLE_PYTHON_MODULES,
-					ENABLE_LUA_MODULES,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (

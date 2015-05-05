@@ -8,9 +8,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <ctype.h>
 #include <stdarg.h>
 #include <assert.h>
+#include <ctype.h>
 
 #include <vector>
 
@@ -79,7 +79,6 @@ int Scintilla_LinkLexers() {
 	LINK_LEXER(lmCPP);
 	LINK_LEXER(lmCPPNoCase);
 	LINK_LEXER(lmHTML);
-	LINK_LEXER(lmMSSQL);
 	LINK_LEXER(lmMySQL);
 	LINK_LEXER(lmPHPSCRIPT);
 	LINK_LEXER(lmPython);
