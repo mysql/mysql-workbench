@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,51 +37,18 @@ public:
     Name = ::bec::RoleTreeBE::Name
   };
 
-public:
-  RoleTreeBE(::bec::RoleTreeBE *inn)
-    : MySQL::Grt::TreeModelWrapper(inn), free_inner(false)
-  {}
+  RoleTreeBE(::bec::RoleTreeBE *inn);
+  RoleTreeBE(GrtValue^ catalog);
+  ~RoleTreeBE();
 
-  RoleTreeBE(GrtValue^ catalog)
-    : MySQL::Grt::TreeModelWrapper(new ::bec::RoleTreeBE(db_CatalogRef::cast_from(catalog->get_unmanaged_object()))), free_inner(true)
-  {}
+  ::bec::RoleTreeBE *get_unmanaged_object();
+  MySQL::Grt::GrtValue^ get_role_with_id(MySQL::Grt::NodeIdWrapper^ node);
+  void erase_node(MySQL::Grt::NodeIdWrapper^ node);
+  void insert_node_before(MySQL::Grt::NodeIdWrapper^ before, MySQL::Grt::NodeIdWrapper^ node);
+  void insert_node_after(MySQL::Grt::NodeIdWrapper^ after, MySQL::Grt::NodeIdWrapper^ node);
+  void append_child(MySQL::Grt::NodeIdWrapper^ parent, MySQL::Grt::NodeIdWrapper^ child);
+  void move_to_top_level(MySQL::Grt::NodeIdWrapper^ node);
 
-  ~RoleTreeBE()
-  {
-    if (free_inner)
-      delete inner;
-  }
-
-  ::bec::RoleTreeBE *get_unmanaged_object()
-  { return static_cast<::bec::RoleTreeBE *>(inner); }
-
-  MySQL::Grt::GrtValue^ get_role_with_id(MySQL::Grt::NodeIdWrapper^ node)
-  { return gcnew MySQL::Grt::GrtValue(get_unmanaged_object()->get_role_with_id(*node->get_unmanaged_object())); }
-
-  void erase_node(MySQL::Grt::NodeIdWrapper^ node)
-  {
-    get_unmanaged_object()->erase_node(*node->get_unmanaged_object());
-  }
-
-  void insert_node_before(MySQL::Grt::NodeIdWrapper^ before, MySQL::Grt::NodeIdWrapper^ node)
-  {
-    get_unmanaged_object()->insert_node_before(*before->get_unmanaged_object(), *node->get_unmanaged_object());
-  }
-
-  void insert_node_after(MySQL::Grt::NodeIdWrapper^ after, MySQL::Grt::NodeIdWrapper^ node)
-  {
-    get_unmanaged_object()->insert_node_after(*after->get_unmanaged_object(), *node->get_unmanaged_object());
-  }
-
-  void append_child(MySQL::Grt::NodeIdWrapper^ parent, MySQL::Grt::NodeIdWrapper^ child)
-  {
-    get_unmanaged_object()->append_child(*parent->get_unmanaged_object(), *child->get_unmanaged_object());
-  }
-
-  void move_to_top_level(MySQL::Grt::NodeIdWrapper^ node)
-  {
-    get_unmanaged_object()->move_to_top_level(*node->get_unmanaged_object());
-  }
 private:
   bool free_inner;
 };

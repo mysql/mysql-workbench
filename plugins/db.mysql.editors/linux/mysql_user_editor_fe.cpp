@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include "text_list_columns_model.h"
 #include <gtkmm/notebook.h>
 #include <gtkmm/image.h>
+#include <gtkmm/stock.h>
 #include <gtkmm/treeview.h>
 #include <gtkmm/textview.h>
 
@@ -35,9 +36,13 @@ class DbMySQLUserEditor : public PluginEditorBase
   Glib::RefPtr<ListModelWrapper>     _roles_model;
   Gtk::TreeView                     *_all_roles_tv;
   Gtk::TreeView                     *_user_roles_tv;
+  Gtk::Entry                        *_user_pw;
+  Gtk::ToggleButton                 *_show_pw;
   
   virtual bec::BaseEditor *get_be();
   
+
+  void show_password();
   void add_role();
   void remove_role();
   
@@ -95,6 +100,13 @@ DbMySQLUserEditor::DbMySQLUserEditor(grt::Module *m, bec::GRTManager *grtm, cons
 
   xml()->get_widget("all_roles", _all_roles_tv);
   xml()->get_widget("user_roles", _user_roles_tv);
+
+  xml()->get_widget("user_password", _user_pw);
+  xml()->get_widget("show_pw_toggle_btn", _show_pw);
+
+  Gtk::Image* img = Gtk::manage(new Gtk::Image(Gtk::Stock::DIALOG_AUTHENTICATION, Gtk::ICON_SIZE_MENU));
+  _show_pw->set_image(*img);
+  _show_pw->signal_clicked().connect(sigc::mem_fun(this, &DbMySQLUserEditor::show_password));
 
   _assigned_roles_model = model_from_string_list(_be->get_roles(), &_assigned_roles_columns);
   _roles_model          = ListModelWrapper::create(_be->get_role_tree(), _all_roles_tv, "AllRoles");
@@ -190,7 +202,12 @@ void DbMySQLUserEditor::add_role_by_iter(const Gtk::TreeModel::iterator& iter)
   g_log("UserEditorFE", G_LOG_LEVEL_DEBUG, "adding role '%s'", role_name.c_str());
   _be->add_role(role_name);
 }
-
+//------------------------------------------------------------------------------
+void DbMySQLUserEditor::show_password()
+{
+  if (_show_pw)
+    _user_pw->set_visibility(!_user_pw->get_visibility());
+}
 //------------------------------------------------------------------------------
 void DbMySQLUserEditor::add_role()
 {
