@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,13 +28,16 @@
 
 #include "ObjectRolesWrapper.h"
 
+using namespace MySQL::Grt;
 using namespace MySQL::Grt::Db;
 
 //--------------------------------------------------------------------------------------------------
 
 ObjectRoleListWrapper::ObjectRoleListWrapper(DBObjectEditorWrapper^ editor)
-  : MySQL::Grt::ListModelWrapper(new ::bec::ObjectRoleListBE(editor->get_unmanaged_object(),
-  get_rdbms_for_db_object(editor->get_unmanaged_object()->get_dbobject())))
+  : MySQL::Grt::ListModelWrapper(
+    new ::bec::ObjectRoleListBE(
+      editor->get_unmanaged_object(),
+      get_rdbms_for_db_object(editor->get_unmanaged_object()->get_dbobject())))
 {
 }
 
@@ -46,3 +49,53 @@ ObjectPrivilegeListBE^ ObjectRoleListWrapper::get_privilege_list()
 }
 
 //--------------------------------------------------------------------------------------------------
+
+ObjectRoleListWrapper::~ObjectRoleListWrapper()
+{
+  delete inner;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+::bec::ObjectRoleListBE* ObjectRoleListWrapper::get_unmanaged_object()
+{
+  return static_cast<::bec::ObjectRoleListBE *>(inner);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void ObjectRoleListWrapper::add_role_for_privileges(GrtValue^ role)
+{
+  get_unmanaged_object()->add_role_for_privileges(db_RoleRef::cast_from(role->get_unmanaged_object()));
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void ObjectRoleListWrapper::remove_role_from_privileges(GrtValue^ role)
+{
+  get_unmanaged_object()->remove_role_from_privileges(db_RoleRef::cast_from(role->get_unmanaged_object()));
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void ObjectRoleListWrapper::set_selected(NodeIdWrapper^ node)
+{
+  get_unmanaged_object()->select_role(*node->get_unmanaged_object());
+}
+
+//--------------------------------------------------------------------------------------------------
+
+ObjectPrivilegeListBE::ObjectPrivilegeListBE(::bec::ObjectPrivilegeListBE *inn)
+    : MySQL::Grt::ListModelWrapper(inn)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+
+::bec::ObjectPrivilegeListBE* ObjectPrivilegeListBE::get_unmanaged_object()
+{
+  return static_cast<::bec::ObjectPrivilegeListBE *>(inner);
+}
+
+//--------------------------------------------------------------------------------------------------
+
