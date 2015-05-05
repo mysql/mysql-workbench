@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,57 +32,23 @@ namespace Db {
 public ref class UserEditorBE : public BaseEditorWrapper
 {
 protected:
-  UserEditorBE(::bec::UserEditorBE *inn)
-    : BaseEditorWrapper(inn)
-  {}
+  UserEditorBE(::bec::UserEditorBE *inn);
+  ~UserEditorBE();
 
 public:
-  UserEditorBE::UserEditorBE(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist)
-  : BaseEditorWrapper(
-        new bec::UserEditorBE(grtm->get_unmanaged_object(), 
-        db_UserRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
-        )
-      )
-  {
-  }
+  UserEditorBE::UserEditorBE(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist);
+  ::bec::UserEditorBE *get_unmanaged_object();
+  void set_name(String ^name);
+  String^ get_name();
+  void set_password(String^ pass);
+  String^ get_password();
+  void set_comment(String^ comment);
+  String^ get_comment();
+  RoleTreeBE^ get_role_tree();
+  void add_role(String^ pass);
+  void remove_role(String^ pass);;
+  List<String^>^ get_roles();
 
-  ::bec::UserEditorBE *get_unmanaged_object()
-  { return static_cast<::bec::UserEditorBE *>(inner); }
-
-  void set_name(String ^name)
-  { get_unmanaged_object()->set_name(NativeToCppString(name)); }
-
-  String^ get_name()
-  { return CppStringToNative(get_unmanaged_object()->get_name()); }
-
-  void set_password(String^ pass)
-  { get_unmanaged_object()->set_password(NativeToCppString(pass)); }
-
-  String^ get_password()
-  { return gcnew String(get_unmanaged_object()->get_password().c_str()); }
-
-  void set_comment(String^ comment)
-  { get_unmanaged_object()->set_comment(NativeToCppString(comment)); }
-
-  String^ get_comment()
-  { return CppStringToNative(get_unmanaged_object()->get_comment()); }
-
-
-  RoleTreeBE^ get_role_tree()
-  {
-    return gcnew RoleTreeBE(get_unmanaged_object()->get_role_tree());
-  }
-
-  void add_role(String^ pass)
-  { get_unmanaged_object()->add_role(NativeToCppString(pass)); }
-
-  void remove_role(String^ pass)
-  { get_unmanaged_object()->remove_role(NativeToCppString(pass)); }
-
-  List<String^>^ get_roles()
-  {
-    return CppStringListToNative(get_unmanaged_object()->get_roles());
-  }
 };
 
 } // namespace Db
