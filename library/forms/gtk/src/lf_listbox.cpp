@@ -39,6 +39,8 @@ mforms::gtk::ListBoxImpl::ListBoxImpl(::mforms::ListBox *self, bool multi_select
   _lbox.set_headers_visible(false);
   _lbox.get_selection()->signal_changed().connect(sigc::bind(sigc::ptr_fun(&ListBoxImpl::selection_changed), self));
 
+  _lbox.get_selection()->set_mode(multi_select ? Gtk::SELECTION_MULTIPLE : Gtk::SELECTION_SINGLE);
+  
   _swin.add(_lbox);
   _lbox.show();
   _swin.show();
@@ -99,7 +101,7 @@ void ListBoxImpl::remove_indices(mforms::ListBox *self, const std::vector<size_t
   {
     std::list<Gtk::TreeModel::RowReference> rows;
     int row_num = 0;
-    for (Gtk::TreeModel::iterator it = sel->_store->children().begin(); it <= sel->_store->children().end(); ++it)
+    for (Gtk::TreeModel::iterator it = sel->_store->children().begin(); it != sel->_store->children().end(); ++it)
     {
       if (std::find(indices.begin(), indices.end(), row_num) != indices.end())
       {
