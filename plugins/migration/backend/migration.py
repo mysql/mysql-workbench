@@ -377,7 +377,10 @@ class MigrationSource(object):
             self._rev_eng_module.cleanup()
 
     def get_os(self):
-        return self.module_re().getOS(self.connection)
+        if hasattr(self.module_re(), 'getOS'):
+            return self.module_re().getOS(self.connection)
+        else:
+            return None
 
     def get_source_instance(self):
         return self.module_re().getSourceInstance(self.connection)
