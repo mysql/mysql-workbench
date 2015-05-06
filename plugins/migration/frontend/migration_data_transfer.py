@@ -262,7 +262,11 @@ All tables are copied by default.""")
             self.copy_script_entry.set_value(filename)
             self.copy_script_check_duplicate = True
 
-            if self.main.plan.migrationSource.get_os() == "windows":
+            source_os = self.main.plan.migrationSource.get_os()
+            if not source_os:
+                self.bulk_copy_script_radiobutton.set_enabled(False)
+                bulk_copy_filename = ''
+            elif source_os == "windows":
                 bulk_copy_filename = os.path.join(mforms.Utilities.get_special_folder(mforms.Desktop), 'bulk_copy_tables.cmd')
             else:
                 bulk_copy_filename = os.path.join(mforms.Utilities.get_special_folder(mforms.Desktop), 'bulk_copy_tables.sh')
