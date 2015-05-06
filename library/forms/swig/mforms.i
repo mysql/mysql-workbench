@@ -646,6 +646,19 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
    }
 }
 
+%typemap(in) const std::vector<size_t>& {
+  if (PyList_Check($input)) {
+    $1 = new std::vector<size_t>();
+    for (int c= PyList_Size($input), i= 0; i < c; i++)
+    {
+      PyObject *item = PyList_GetItem($input, i);
+      $1->push_back(PyInt_AsLong(item));
+    }
+  }
+  else
+    SWIG_exception_fail(SWIG_TypeError, "expected vector of size_t");
+}
+
 %typemap(out) std::pair<int, int> {
     $result = Py_BuildValue("(ii)", $1.first, $1.second);
 }
