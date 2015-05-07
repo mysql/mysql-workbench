@@ -59,18 +59,6 @@ extern "C" {
     return IDENTIFIER;
   }
   
-  /**
-   * Checks the given text if it is equal to "\N" (w/o quotes and in uppercase). We need this extra
-   * check as our lexer is case insensitive.
-   */
-  ANTLR3_UINT32 check_null(pANTLR3_STRING text)
-  {
-    std::string token_text((const char*)text->chars, text->len - 1);
-    if (token_text == "\\N")
-      return NULL2_SYMBOL;
-    return ANTLR3_TOKEN_INVALID;
-  }
-
 } // extern "C"
 
 //----------------- MySQLRecognitionBase ---------------------------------------------------------------
@@ -302,8 +290,7 @@ bool MySQLRecognitionBase::is_keyword(ANTLR3_UINT32 type)
   case AT_AT_SIGN_SYMBOL:
   case BACK_TICK:
   case BACK_TICK_QUOTED_ID:
-  case BITNUMBER:
-  case BITSTRING:
+  case BIN_NUMBER:
   case BITWISE_AND_OPERATOR:
   case BITWISE_NOT_OPERATOR:
   case BITWISE_OR_OPERATOR:
@@ -322,16 +309,15 @@ bool MySQLRecognitionBase::is_keyword(ANTLR3_UINT32 type)
   case ESCAPE_OPERATOR:
   case EXPRESSION_TOKEN:
   case COLUMN_NAME_TOKEN:
-  case FLOAT:
+  case FLOAT_NUMBER:
   case FUNCTION_CALL_TOKEN:
   case GREATER_OR_EQUAL_OPERATOR:
   case GREATER_THAN_OPERATOR:
   case HEXDIGIT:
-  case HEXNUMBER:
-  case HEXSTRING:
+  case HEX_NUMBER:
   case IDENTIFIER:
   case INDEX_HINT_LIST_TOKEN:
-  case INTEGER:
+  case NUMBER:
   case JOIN_EXPR_TOKEN:
   case LESS_OR_EQUAL_OPERATOR:
   case LESS_THAN_OPERATOR:
@@ -438,12 +424,10 @@ bool MySQLRecognitionBase::is_number(ANTLR3_UINT32 type)
 {
   switch (type)
   {
-    case INTEGER:
-    case FLOAT:
-    case HEXNUMBER:
-    case HEXSTRING:
-    case BITNUMBER:
-    case BITSTRING:
+    case NUMBER:
+    case FLOAT_NUMBER:
+    case HEX_NUMBER:
+    case BIN_NUMBER:
       return true;
 
   default:

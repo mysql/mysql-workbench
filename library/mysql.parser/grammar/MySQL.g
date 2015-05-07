@@ -285,24 +285,24 @@ extern "C" {
   // Checks the given text and determines the smallest number type from it. Code has been taken from sql_lex.cc.
   ANTLR3_UINT32 determine_num_type(pANTLR3_STRING text)
   {
-    static const char *long_str              = "2147483647";
-    static const uint long_len               = 10;
-    static const char *signed_long_str       = "-2147483648";
-    static const char *longlong_str          = "9223372036854775807";
-    static const uint longlong_len           = 19;
-    static const char *signed_longlong_str   = "-9223372036854775808";
-    static const uint signed_longlong_len    = 19;
-    static const char *unsigned_longlong_str = "18446744073709551615";
-    static const uint unsigned_longlong_len  = 20;
+    static const char *long_str                 = "2147483647";
+    static const unsigned long_len              = 10;
+    static const char *signed_long_str          = "-2147483648";
+    static const char *longlong_str             = "9223372036854775807";
+    static const unsigned longlong_len          = 19;
+    static const char *signed_longlong_str      = "-9223372036854775808";
+    static const unsigned signed_longlong_len   = 19;
+    static const char *unsigned_longlong_str    = "18446744073709551615";
+    static const unsigned unsigned_longlong_len = 20;
 
     // The original code checks for leading +/- but actually that can never happen, neither in the
     // server parser (as a digit is used to trigger processing in the lexer) nor in our parser
     // as our rules are defined without signs. But we do it anyway for maximum compatibility.
-    uint length = text->len - 1;
+    unsigned length = text->len - 1;
     const char *str = (const char *)text->chars;
     if (length < long_len)			// quick normal case
       return INT_NUMBER;
-    bool negative = 0;
+    unsigned negative = 0;
 
     if (*str == '+')				// Remove sign and pre-zeros
     {
@@ -322,7 +322,7 @@ extern "C" {
     if (length < long_len)
       return INT_NUMBER;
 
-    uint smaller, bigger;
+    unsigned smaller, bigger;
     const char *cmp;
     if (negative)
     {
@@ -1186,7 +1186,7 @@ select_item options { k = 5; }:
 ;
 
 select_alias:
-	AS_SYMBOL? (identifier| text_string )
+	AS_SYMBOL? (identifier | text_string )
 ;         
 
 limit_clause:
@@ -1648,7 +1648,7 @@ account_lock_password_expire_options:
 			INTERVAL_SYMBOL real_ulong_number DAY_SYMBOL
 			| NEVER_SYMBOL
 			| DEFAULT_SYMBOL
-		)		
+		)	
 ;
 
 drop_user:
