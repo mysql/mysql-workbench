@@ -14,6 +14,7 @@
 #include <vector>
 
 #include <stdlib.h>
+#include <string.h>
 
 static std::string last_error;
 
@@ -313,18 +314,6 @@ extern "C" {
     return IDENTIFIER;
   }
 
-  /**
-   * Checks the given text if it is equal to "\N" (w/o quotes and in uppercase). We need this extra
-   * check as our lexer is case insensitive.
-   */
-  ANTLR3_UINT32 check_null(pANTLR3_STRING text)
-  {
-    std::string token_text((const char*)text->chars, text->len - 1);
-    if (token_text == "\\N")
-        return NULL2_SYMBOL;
-    return ANTLR3_TOKEN_INVALID;
-  }
-
 }
 
 NSString *sql1 = @"select 2 as expected, /*!01000/**/*/ 2 as result";
@@ -363,6 +352,7 @@ NSString *sql10 = @"CREATE TABLE total (\n"
   "  ENGINE=MERGE UNION=(t1,t2) INSERT_METHOD=LAST;\n";
 NSString *sql11 = @"SELECT a FROM tick t WHERE timestamp > (((((((SELECT 1)  + 1))))))";
 NSString *sql12 = @"select * from (select 1 from dual)";
+NSString *sql13 = @"create user mike identified by 'blah' password expire never";
 
 @implementation mysql_parserAppDelegate
 
@@ -373,7 +363,7 @@ NSString *sql12 = @"select * from (select 1 from dual)";
   // Make the SQL edit control scroll horizontally too.
   [[text textContainer] setContainerSize: NSMakeSize(FLT_MAX, FLT_MAX)];
   [[text textContainer] setWidthTracksTextView: NO];
-  [text setString: sql12];
+  [text setString: sql13];
 }
 
 - (NSString*)dumpTree: (pANTLR3_BASE_TREE)tree state: (pANTLR3_RECOGNIZER_SHARED_STATE)state indentation: (NSString*)indentation
