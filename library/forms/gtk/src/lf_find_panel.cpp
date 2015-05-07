@@ -79,7 +79,7 @@ public:
       _find_panel->get_widget("container", _container);
       _container->reference();
       _container->unparent();
-      _container->hide_all();
+      _container->hide();
       _container->show();
 
       _search_match_whole_word = false;
@@ -149,7 +149,7 @@ public:
   {
     if (_find_radio_button->get_active())
     {
-      _container->hide_all();
+      _container->hide();
       _container->show();
     }
   }

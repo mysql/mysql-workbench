@@ -24,6 +24,7 @@
 #include <gtkmm/stock.h>
 #include <gtkmm/treeview.h>
 #include <gtkmm/textview.h>
+#include <gtkmm/togglebutton.h>
 
 //==============================================================================
 //

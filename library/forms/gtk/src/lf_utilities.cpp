@@ -861,11 +861,6 @@ void UtilitiesImpl::reveal_file(const std::string &path)
     NULL 
   };
 
-  char **envp = g_get_environ();
-
-  char **envp_new = g_environ_unsetenv(envp, "LD_PRELOAD");
-  g_strfreev(envp);
-
   GError *error = NULL;
   char **envp = g_get_environ();
   envp = wb_environ_unsetenv_internal(envp, "LD_PRELOAD");
