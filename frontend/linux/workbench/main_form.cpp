@@ -75,7 +75,6 @@ static void set_window_icons(Gtk::Window *window)
   window->set_default_icon_list(icons);
 }
 
-static Gtk::Window *_dummy_window = 0;
 static Gdk::Color _sys_selection_color;
 
 //------------------------------------------------------------------------------
@@ -84,9 +83,6 @@ MainForm::MainForm(wb::WBContextUI* ctx)
   : _wbui_context(ctx),
     _exiting(false)
 {
-  _dummy_window = new Gtk::Window(Gtk::WINDOW_TOPLEVEL);
-  gtk_widget_realize(GTK_WIDGET(_dummy_window->gobj()));
-
   setup_mforms_app();
   
   bec::GRTManager *grtm= _wbui_context->get_wb()->get_grt_manager();
@@ -97,18 +93,7 @@ MainForm::MainForm(wb::WBContextUI* ctx)
     if (acc)
       acc->set_name("Main Tab Bar");
   }
- {
-    Gtk::TreeView dummy_treeview;
-    _dummy_window->add(dummy_treeview);
-    dummy_treeview.show();
-// There is some bug in Fedora 14 where this code causes other stuff later to crash
-// The same code works just fine in Ubuntu, where the exact same version of gtk is shipped
-//    _sys_selection_color= Gtk::RC::get_style(dummy_treeview)->get_bg(Gtk::STATE_SELECTED);
-    fprintf(stderr, "MainForm::MainForm:: Check if this can be removed\n");
-//    GtkStyle *style = gtk_rc_get_style(GTK_WIDGET(dummy_treeview.gobj()));
-//    if (style)
-//      _sys_selection_color = Gdk::Color(&style->bg[GTK_STATE_SELECTED]);
-  }
+
 
   get_mainwindow()->signal_delete_event().connect(sigc::mem_fun(this, &MainForm::close_window));
   get_mainwindow()->signal_set_focus().connect(sigc::mem_fun(this, &MainForm::on_focus_widget));
