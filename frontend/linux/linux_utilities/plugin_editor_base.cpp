@@ -101,7 +101,7 @@ void PluginEditorBase::decorate_object_editor()
     if (!_live_object_editor_decorator_control)
     {
       _live_object_editor_decorator_xml= Gtk::Builder::create_from_file(_grtm->get_data_file_path("modules/data/live_editor_decoration.glade"));
-      _live_object_editor_decorator_xml->get_widget("vbox1", _live_object_editor_decorator_control);
+      _live_object_editor_decorator_xml->get_widget("box1", _live_object_editor_decorator_control);
       _live_object_editor_decorator_xml->get_widget("live_editor_placeholder", _live_editor_placeholder);
 
       Gtk::Button *apply_live_edtior_button= 0;
