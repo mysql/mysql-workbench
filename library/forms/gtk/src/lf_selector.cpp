@@ -79,7 +79,6 @@ class SelectorPopupImpl : public SelectorImpl::Impl
     {
       do_not_call_callback = true;
       _items.clear();
-      _list.clear();
       _list.remove_all();
 	    do_not_call_callback = false;
     }
@@ -177,7 +176,6 @@ class SelectorComboboxImpl : public SelectorImpl::Impl
     virtual void clear()
     {
       _items.clear();
-      _list.clear();
       _list.remove_all();
     }
 
