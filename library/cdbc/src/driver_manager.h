@@ -150,7 +150,13 @@ public:
   
   bool findStoredPassword(const db_mgmt_ConnectionRef &conn, std::string &password) { return _findPassword(conn, password); }
   std::string requestPassword(const db_mgmt_ConnectionRef &conn, bool forceAsk) { return _requestPassword(conn, forceAsk); }
+  
+  const std::string& getClientLibVersion() const;
+
 private:
+
+  void getClientLibVersion(Driver * driver);
+  
   TunnelFactoryFunction _createTunnel;
   PasswordFindFunction _findPassword;
   PasswordRequestFunction _requestPassword;
@@ -158,6 +164,7 @@ private:
   std::string _cachedPassword;
   std::string _cacheKey;
   time_t _cacheTime;
+  std::string _versionInfo;
 };
 
 
