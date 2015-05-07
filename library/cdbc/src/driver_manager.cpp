@@ -23,6 +23,7 @@
 #include "cppconn/driver.h"
 #include "cppconn/statement.h"
 #include "cppconn/exception.h"
+#include "base/string_utilities.h"
 
 #include <gmodule.h>
 #include <boost/foreach.hpp>
@@ -214,6 +215,23 @@ void DriverManager::thread_cleanup()
 
 //--------------------------------------------------------------------------------------------------
 
+void DriverManager::getClientLibVersion(Driver * driver)
+{
+  assert(driver != NULL);
+  _versionInfo = "C++ " + base::to_string(driver->getMajorVersion()) + ".";
+  _versionInfo += base::to_string(driver->getMinorVersion()) + ".";
+  _versionInfo += base::to_string(driver->getPatchVersion());
+}
+
+//--------------------------------------------------------------------------------------------------
+
+const std::string& DriverManager::getClientLibVersion() const
+{
+  return _versionInfo;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 ConnectionWrapper DriverManager::getConnection(const db_mgmt_ConnectionRef &connectionProperties,
   boost::shared_ptr<TunnelConnection> tunnel, Authentication::Ref password,
   ConnectionInitSlot connection_init_slot)
@@ -269,6 +287,8 @@ ConnectionWrapper DriverManager::getConnection(const db_mgmt_ConnectionRef &conn
     throw SQLException("Database driver: Failed to get driver instance. Check  settings.");
   else
     _drivers[library] = boost::bind(&Driver::threadEnd, driver);
+
+  getClientLibVersion(driver);
 
   // 2. call driver->connect()
   Param_types param_types;

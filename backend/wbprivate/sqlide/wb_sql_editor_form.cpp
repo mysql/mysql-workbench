@@ -1239,6 +1239,17 @@ std::string create_html_line(const std::string& name, const std::string& value)
 
 //--------------------------------------------------------------------------------------------------
 
+std::string SqlEditorForm::get_client_lib_version()
+{
+  std::string version;
+  sql::DriverManager *dbc_driver_man = sql::DriverManager::getDriverManager();
+  if (dbc_driver_man != NULL)
+    version = dbc_driver_man->getClientLibVersion();
+  return version;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref &auth, ConnectionErrorInfo *err_ptr)
 {
   try
@@ -1313,6 +1324,7 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
       _connection_info.append(create_html_line("Server:", _connection_details["dbmsProductName"]));
       _connection_info.append(create_html_line("Version:",  _connection_details["dbmsProductVersion"]));
       // User:
+      _connection_info.append(create_html_line("Connector:", get_client_lib_version()));
       _connection_info.append(create_html_line("Login User:", _connection->parameterValues().get_string("userName")));
       
       // check the actual user we're logged in as

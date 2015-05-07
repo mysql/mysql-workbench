@@ -236,6 +236,7 @@ private:
 
   grt::StringRef do_connect(grt::GRT *grt, boost::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref &auth,
     struct ConnectionErrorInfo *autherr_ptr);
+  std::string get_client_lib_version();
   grt::StringRef do_disconnect(grt::GRT *grt);
 
   void update_connected_state();
