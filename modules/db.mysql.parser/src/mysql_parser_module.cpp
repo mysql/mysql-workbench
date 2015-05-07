@@ -1133,7 +1133,7 @@ static void fillDataTypeAndAttributes(MySQLRecognizerTreeWalker &walker, db_Cata
         || simpleType->characterOctetLength() != bec::EMPTY_TYPE_OCTET_LENGTH)
       {
         walker.next(); // Skip OPEN_PAR.
-        if (walker.is(INTEGER))
+        if (walker.is(NUMBER))
         {
           length = base::atoi<size_t>(walker.token_text());
           walker.next();

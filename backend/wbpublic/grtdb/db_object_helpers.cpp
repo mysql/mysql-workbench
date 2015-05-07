@@ -1342,13 +1342,13 @@ static bool parse_type(const std::string &type,
   if (simpleType->characterMaximumLength() != bec::EMPTY_TYPE_MAXIMUM_LENGTH
     || simpleType->characterOctetLength() != bec::EMPTY_TYPE_OCTET_LENGTH)
   {
-    if (walker.token_type() != INTEGER)
+    if (walker.token_type() != NUMBER)
       return false;
     length = base::atoi<int>(walker.token_text().c_str());
     return true;
   }
 
-  if (!walker.is(INTEGER))
+  if (!walker.is(NUMBER))
   {
     // ENUM or SET.
     do 
