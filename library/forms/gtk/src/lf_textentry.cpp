@@ -179,6 +179,15 @@ void TextEntryImpl::set_front_color(const std::string &color)
   this->_text_color = color_to_rgba(Gdk::Color(color));
 }
 
+void TextEntryImpl::set_back_color(const std::string &color)
+{
+  ViewImpl::set_back_color(color);
+  Glib::RefPtr<Gtk::CssProvider> provider = Gtk::CssProvider::create();
+  if (!color.empty())
+    provider->load_from_data(".entry { background: " + color + "; }");
+  _entry->get_style_context()->add_provider(provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
+}
+
 void TextEntryImpl::set_text(const std::string &text)
 {
   if (!text.empty())

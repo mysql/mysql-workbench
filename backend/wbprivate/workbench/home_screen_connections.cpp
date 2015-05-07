@@ -1426,6 +1426,7 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner)
 #endif
   _search_text.set_name("Search Entry");
   _search_text.set_placeholder_text("Filter connections");
+  _search_text.set_bordered(false);
   _search_box.add(&_search_text, true, true);
   scoped_connect(_search_text.signal_changed(), boost::bind(&ConnectionsSection::on_search_text_changed, this));
   scoped_connect(_search_text.signal_action(), boost::bind(&ConnectionsSection::on_search_text_action, this, _1));
