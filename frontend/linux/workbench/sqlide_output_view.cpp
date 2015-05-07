@@ -59,7 +59,7 @@ static const std::vector<bec::NodeId> selected_nodeids(GridView& g)
   entries.reserve(rows.size());
 
   for (base::const_range<std::vector<int> > it(rows); it; ++it)
-    entries.push_back(*it);
+    entries.push_back((bec::NodeId)*it);
 
   return entries;
 }

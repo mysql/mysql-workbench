@@ -64,6 +64,7 @@ class TextEntryImpl : public ViewImpl
   void changed(mforms::TextEntry *);
 protected:
   void set_front_color(const std::string &color);
+  virtual void set_back_color(const std::string &color);
 
 public:
   static void init();
