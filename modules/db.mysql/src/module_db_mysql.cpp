@@ -954,7 +954,11 @@ void ActionGenerateSQL::alter_table_collate(db_mysql_TableRef table, grt::String
 
 void ActionGenerateSQL::alter_table_comment(db_mysql_TableRef table, grt::StringRef str)
 {
-  alter_table_property(sql, "\nCOMMENT = ", bec::TableHelper::generate_comment_text(str, _maxTableCommentLength));
+  std::string comment = bec::TableHelper::generate_comment_text(str, _maxTableCommentLength);
+  if( comment.empty() )
+	  alter_table_property(sql, "\nCOMMENT = ", "''");
+  else
+	  alter_table_property(sql, "\nCOMMENT = ", comment);
 }
 
 void ActionGenerateSQL::alter_table_merge_union(db_mysql_TableRef table, grt::StringRef str)
