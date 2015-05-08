@@ -533,7 +533,7 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
 
 #define SWIG_ADD_SIGNAL_BOOL_INT_CALLBACK(method, signal)\
         void add_##method(PyObject *callback) { signal->connect(pycall_bool_int_fun(callback)); }\
-        bool call_##method(int i) { return (*signal)(i); }
+        bool call_##method(int i) { return *( (*signal)(i) ); }
 
 #define SWIG_ADD_SIGNAL_VOID_ENTRYACTION_CALLBACK(method, signal)\
 	void add_##method(PyObject *callback) { signal->connect(pycall_void_entryaction_fun(callback)); }
