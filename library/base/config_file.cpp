@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -215,7 +215,10 @@ void ConfigurationFile::Private::clear_includes(const std::string &section_name)
   if (section == NULL)
     return;
 
-  std::remove_if(section->keys.begin(), section->keys.end(), is_include);
+  for (EntryListIterator iterator = section->keys.end(); iterator != section->keys.begin(); iterator--)
+	if (is_include(*iterator))
+		section->keys.erase(iterator);
+
   _dirty = true;
 }
 
