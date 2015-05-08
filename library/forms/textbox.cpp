@@ -125,7 +125,7 @@ bool TextBox::key_event(KeyCode code, ModifierKey modifiers, const std::string& 
   // Return false if it is handled in backend code.
   if (_key_event_signal.empty())
     return true;
-  return _key_event_signal(code, modifiers, text);
+  return *_key_event_signal(code, modifiers, text);
 }
 
 //--------------------------------------------------------------------------------------------------
