@@ -2737,6 +2737,12 @@ workbench_DocumentRef WBContext::openModelFile(const std::string &file)
 
   try
   {
+    if (base::string_compare(file, get_filename(), false) == 0)
+    {
+      mforms::Utilities::show_message("Open Document",
+        "Error while including another model. A model cannot be added to itself.", "OK");
+      return doc;
+    }
     _model_import_file->open(file, _manager);
 //    _manager->set_db_file_path(_file->get_db_file_path());
 
