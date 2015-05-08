@@ -1507,5 +1507,5 @@ std::string bec::TableHelper::generate_comment_text(const std::string& comment_t
   else if (!comment_text.empty())
     return "'"+base::escape_sql_string(comment_text)+"'";
 
-  return "''";
+  return "";
 }
