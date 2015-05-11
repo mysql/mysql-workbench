@@ -2037,6 +2037,29 @@
                 </Component>
               </Directory>
 
+              <?if $(var.LICENSE_TYPE) = "commercial"?>
+              <Directory Id="firewall_dir" Name="firewall">
+                  <Directory Id="firewall_linux_dir" Name="linux">
+                        <Component DiskId="1" Guid="750471E1-68CA-4323-90D0-29D265DDD613" Id="firewall_linux" Location="either">
+                                <File Id="firewall_linux_01" Name="install.sql"/>
+                                <File Id="firewall_linux_02" Name="uninstall.sql"/>
+                                <File Id="firewall_linux_03" Name="enable.sql"/>
+                                <File Id="firewall_linux_04" Name="disable.sql"/>
+                        </Component>
+                        <Component DiskId="1" Guid="750471E1-68CA-4323-90D0-29D265DDD613" Id="firewall_windows" Location="either">
+                                <File Id="firewall_windows_01" Name="install.sql"/>
+                                <File Id="firewall_windows_02" Name="uninstall.sql"/>
+                                <File Id="firewall_windows_03" Name="enable.sql"/>
+                                <File Id="firewall_windows_04" Name="disable.sql"/>
+                        </Component>
+                  </Directory>
+                  <Directory Id="firewall_windows_dir" Name="windows">
+                        <Component DiskId="1" Guid="750471E1-68CA-4323-90D0-29D265DDD613" Id="sys" Location="either">
+                        </Component>
+                  </Directory>
+              </Directory>
+              <?endif ?>
+              
               <Directory Id="sys_dir" Name="sys">
                 <Component DiskId="1" Guid="750471E1-68CA-4323-90D0-29D265DDD613" Id="sys" Location="either">
                   <File Id="wbsys001" Name="after_setup.sql"/>

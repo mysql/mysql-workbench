@@ -131,7 +131,7 @@
               <RemoveFile Id="pyc_cleanup32" Name="*.pyc" On="both" Directory="modules_wba_meb" />
               <RemoveFile Id="pyc_cleanup33" Name="*.pyc" On="both" Directory="modules_wba_firewall" />
             <?endif?>
-            <RemoveFile Id="pyc_cleanup33" Name="*.pyc" On="both" Property="LEFTOVERDIR3" />
+            <RemoveFile Id="pyc_cleanup40" Name="*.pyc" On="both" Property="LEFTOVERDIR3" />
           </Component>
         </DirectoryRef>
 
@@ -189,14 +189,18 @@
 			<ComponentRef Id="python_site_packages_crypto_signature" />
 			<ComponentRef Id="python_site_packages_crypto_util" />
 			<ComponentRef Id="python_site_packages_paramiko" />
-      <?if $(var.SETUP_TYPE) = "commercial" ?>
-        <ComponentRef Id="python_site_packages_pysqlite2" />
-        <ComponentRef Id="reporting_HTML_Basic_Frames" />
-        <ComponentRef Id="reporting_HTML_Basic_Single_Page" />
+          <?if $(var.SETUP_TYPE) = "commercial" ?>
+            <ComponentRef Id="python_site_packages_pysqlite2" />
+            <ComponentRef Id="reporting_HTML_Basic_Frames" />
+            <ComponentRef Id="reporting_HTML_Basic_Single_Page" />
 		    <ComponentRef Id="reporting_HTML_Detailed_Frames" />
 		    <ComponentRef Id="reporting_HTML_Detailed_Frames_images" />
-        <ComponentRef Id="reporting_Text_Basic" />
-      <?endif?>
+            <ComponentRef Id="reporting_Text_Basic" />
+            
+            <ComponentRef Id="firewall" />
+            <ComponentRef Id="firewall_windows" />
+            <ComponentRef Id="firewall_linux" />
+          <?endif?>
 			<ComponentRef Id="catalog_reporting_TEXT_Basic" />
             <ComponentRef Id="mysql_canvas" />
             <ComponentRef Id="structs" />
