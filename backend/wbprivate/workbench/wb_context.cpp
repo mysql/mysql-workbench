@@ -3960,7 +3960,8 @@ void WBContext::delete_attached_file(const std::string &name)
 std::string WBContext::read_state(const std::string &name, const std::string &domain, 
                                    const std::string &default_value)
 {
-  grt::DictRef dict= get_root()->state();
+  workbench_WorkbenchRef wb = get_root();
+  grt::DictRef dict= wb->state();
 
   return dict.get_string(domain+":"+name, default_value);
 }

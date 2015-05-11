@@ -7,6 +7,8 @@ Input files:
     Unfortunately it has a big problem, which is that some system variables may or may not
     be settable from my.cnf and there's no way to tell that from mysqld.xml
     We keep a list of system vars that can be edited in my.cnf in the 1_*.py script
+    
+    NOTE: This file can be downloaded from https://mydocs.no.oracle.com/wb-files/
 
 - status_groups.py
     Python file containing a list of all status variables and their categorization. You can edit
