@@ -630,6 +630,7 @@
                     <File Id="file62069" Name="query_stop_on_error.png"/>
                     <File Id="file62070" Name="tiny_rollback.png"/>
                     <File Id="file62071" Name="tiny_rollback_disabled.png"/>
+                    <File Id="file62080" Name="admin_firewall.png"/>
                   </Component>
                 </Directory>
 
@@ -772,6 +773,9 @@
                     <File Id="item_overlay_delete.png" Name="item_overlay_delete.png"/>
 
                     <File Id="file60670" Name="Close_16x16.png"/>
+                    
+                    <File Id="file60675" Name="firewall-header.png"/>
+
                     </Component>
                 </Directory>
 
@@ -1816,8 +1820,15 @@
                     <File Id="wba_meb09" Name="wb_admin_meb.py"/>
                   </Component>
                 </Directory>
-                <?endif ?>
  
+                <Directory Id="modules_wba_firewall" Name="wba_firewall">
+                  <Component DiskId="1" Guid="514f4fc3-d405-492f-85b4-c5295bf78360" Id="modules_wba_firewall" Location="either">
+                    <File Id="wba_firewall01" Name="__init__.py"/>
+                    <File Id="wba_firewall02" Name="wb_admin_firewall.py"/>
+                  </Component>
+                </Directory>
+                <?endif ?>
+
                  <Directory Id="data" Name="data">
                   <Component DiskId="1" Guid="2bfa656d-c6a9-4c05-b7d8-155ccb03fc21" Id="modules_data" Location="either">
                     <File Id="file7001" Name="mysql_reserved.xml"/>

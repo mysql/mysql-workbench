@@ -4,6 +4,9 @@ from variable_groups import variable_groups
 
 tabs = {}
 
+print('-----------------------------------\nRunning %s\n-----------------------------------\n' % __file__)
+
+
 for name, groups in variable_groups:
     for group in groups:
         tab, section = group.split("/", 1)

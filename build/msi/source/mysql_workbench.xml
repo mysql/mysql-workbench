@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
 
 <?if $(var.SETUP_TYPE) = "commercial" ?>
@@ -129,6 +129,7 @@
             <?if $(var.LICENSE_TYPE) = "commercial"?>
               <RemoveFile Id="pyc_cleanup31" Name="*.pyc" On="both" Directory="modules_wba_audit" />
               <RemoveFile Id="pyc_cleanup32" Name="*.pyc" On="both" Directory="modules_wba_meb" />
+              <RemoveFile Id="pyc_cleanup33" Name="*.pyc" On="both" Directory="modules_wba_firewall" />
             <?endif?>
             <RemoveFile Id="pyc_cleanup33" Name="*.pyc" On="both" Property="LEFTOVERDIR3" />
           </Component>
@@ -154,6 +155,7 @@
             <?if $(var.LICENSE_TYPE) = "commercial"?>
             <ComponentRef Id="modules_wba_audit" />
             <ComponentRef Id="modules_wba_meb" />
+            <ComponentRef Id="modules_wba_firewall" />
             <?endif?>
             <ComponentRef Id="modules_data" />
             <ComponentRef Id="modules_data_sqlite" />

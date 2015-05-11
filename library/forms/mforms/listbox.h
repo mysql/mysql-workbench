@@ -41,6 +41,8 @@ namespace mforms {
     void(*set_index)(ListBox *self, ssize_t index);
     ssize_t(*get_index)(ListBox *self);
     std::vector<size_t>(*get_selected_indices)(ListBox* self);
+    size_t(*get_count)(ListBox* self);
+    std::string (*get_string_value_from_index)(ListBox* self, size_t index);
   };
 #endif
 #endif
@@ -85,6 +87,12 @@ namespace mforms {
     /** Gets the list of selected indexes in the list */
     std::vector<size_t> get_selected_indices(); // For multi selection lists.
 
+    /** Gets the number of rows in the list */
+    size_t get_count();
+    
+    /** Gets the string value from the "index" position */
+    std::string get_string_value_from_index(size_t index);
+    
 #ifndef SWIG
     /** Signal emitted when the selection changes. 
      

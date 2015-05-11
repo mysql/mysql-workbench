@@ -570,6 +570,12 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
 %typemap (in) int64_t, boost::int64_t = long long;
 %typemap (out) int64_t, boost::int64_t = long long;
 
+%typemap (in) ssize_t = long long;
+%typemap (out) ssize_t = long long;
+
+%typemap (in) size_t = unsigned long long;
+%typemap (out) size_t = unsigned long long;
+
 %typemap (out) base::Rect {
   $result = Py_BuildValue("(ffff)", $1.left(), $1.top(), $1.width(), $1.height());
 }
@@ -630,6 +636,27 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
    {
      PyList_Append($result, PyInt_FromLong(*iter));
    }
+}
+
+%typemap(out) std::vector<size_t> {
+   $result = PyList_New(0);
+   for (std::vector<size_t>::const_iterator iter = $1.begin(); iter != $1.end(); ++iter)
+   {
+     PyList_Append($result, PyInt_FromLong(*iter));
+   }
+}
+
+%typemap(in) const std::vector<size_t>& {
+  if (PyList_Check($input)) {
+    $1 = new std::vector<size_t>();
+    for (int c= PyList_Size($input), i= 0; i < c; i++)
+    {
+      PyObject *item = PyList_GetItem($input, i);
+      $1->push_back(PyInt_AsLong(item));
+    }
+  }
+  else
+    SWIG_exception_fail(SWIG_TypeError, "expected vector of size_t");
 }
 
 %typemap(out) std::pair<int, int> {

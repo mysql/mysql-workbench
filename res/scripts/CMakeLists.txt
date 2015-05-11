@@ -221,3 +221,21 @@ set(SYS_TRIGGERS_FILES
 
 install(FILES ${SYS_TRIGGERS_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/sys/triggers)
 # SYS_END
+
+
+set(FIREWALL_LINUX_SERVER_FILES
+    firewall/linux/install.sql
+    firewall/linux/uninstall.sql
+    firewall/linux/enable.sql
+    firewall/linux/disable.sql
+)
+
+set(FIREWALL_WINDOWS_SERVER_FILES
+    firewall/linux/install.sql
+    firewall/linux/uninstall.sql
+    firewall/linux/enable.sql
+    firewall/linux/disable.sql
+)
+
+install(FILES ${FIREWALL_LINUX_SERVER_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/firewall/linux)
+install(FILES ${FIREWALL_WINDOWS_SERVER_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/firewall/windows)
