@@ -219,7 +219,7 @@ class base_module:
     def prepare_new_table(self):
         try:
             
-            self._editor.executeManagementCommand(""" CREATE TABLE %s (%s)""" % (self._table_w_prefix, ", ".join(["%s %s" % (col['name'], col['type']) for col in self._mapping])), 1)
+            self._editor.executeManagementCommand(""" CREATE TABLE %s (%s)""" % (self._table_w_prefix, ", ".join(["`%s` %s" % (col['name'], col['type']) for col in self._mapping])), 1)
             self.update_progress(0.0, "Prepared new table")
             # wee need to setup dest_col for each row, as the mapping is empty if we're creating new table
             for col in self._mapping:
@@ -400,7 +400,7 @@ class csv_module(base_module):
         with open(self._filepath, 'rb') as csvfile:
             self.update_progress(0.0, "Prepare Import")
             dest_col_order = list(set([i['dest_col'] for i in self._mapping if i['active']]))
-            query = """PREPARE stmt FROM 'INSERT INTO %s (%s) VALUES(%s)'""" % (self._table_w_prefix, ",".join(dest_col_order), ",".join(["?" for i in dest_col_order]))
+            query = """PREPARE stmt FROM 'INSERT INTO %s (%s) VALUES(%s)'""" % (self._table_w_prefix, ",".join(["`%s`" % col for col in dest_col_order]), ",".join(["?" for i in dest_col_order]))
             col_order = dict([(i['dest_col'], i['col_no']) for i in self._mapping if i['active']])
             col_type = dict([(i['dest_col'], i['type']) for i in self._mapping if i['active']])
 
