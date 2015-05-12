@@ -70,6 +70,11 @@ export DBC_DRIVER_PATH="$destdir@LIB_INSTALL_DIR@/mysql-workbench"
 export MWB_BASE_DIR="$destdir@WB_INSTALL_DIR@"
 export MWB_BINARIES_DIR="$destdir@WB_INSTALL_DIR_EXECUTABLE@"
 
+if [ "$GNOME_KEYRING_CONTROL" == "" ] && [ "$GNOME_KEYRING_SOCKET" == "" ] && [ $(ls $XDG_RUNTIME_DIR | grep -i keyring- | wc -l) == 0 ]; then
+  echo "Gnome keyring daemon seems to not be available. Stored passwords will be lost once quit."
+  export WB_NO_GNOME_KEYRING=1
+fi
+
 if test "$WB_DEBUG" != ""; then
   $WB_DEBUG $MWB_BINARIES_DIR/mysql-workbench-bin "$@"
 else
