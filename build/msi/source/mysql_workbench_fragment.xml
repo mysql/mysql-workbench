@@ -632,6 +632,7 @@
                     <File Id="file62069" Name="query_stop_on_error.png"/>
                     <File Id="file62070" Name="tiny_rollback.png"/>
                     <File Id="file62071" Name="tiny_rollback_disabled.png"/>
+                    <File Id="file62080" Name="admin_firewall.png"/>
                   </Component>
                 </Directory>
 
@@ -774,6 +775,9 @@
                     <File Id="item_overlay_delete.png" Name="item_overlay_delete.png"/>
 
                     <File Id="file60670" Name="Close_16x16.png"/>
+                    
+                    <File Id="file60675" Name="firewall-header.png"/>
+
                     </Component>
                 </Directory>
 
@@ -1818,8 +1822,15 @@
                     <File Id="wba_meb09" Name="wb_admin_meb.py"/>
                   </Component>
                 </Directory>
-                <?endif ?>
  
+                <Directory Id="modules_wba_firewall" Name="wba_firewall">
+                  <Component DiskId="1" Guid="514f4fc3-d405-492f-85b4-c5295bf78360" Id="modules_wba_firewall" Location="either">
+                    <File Id="wba_firewall01" Name="__init__.py"/>
+                    <File Id="wba_firewall02" Name="wb_admin_firewall.py"/>
+                  </Component>
+                </Directory>
+                <?endif ?>
+
                  <Directory Id="data" Name="data">
                   <Component DiskId="1" Guid="2bfa656d-c6a9-4c05-b7d8-155ccb03fc21" Id="modules_data" Location="either">
                     <File Id="file7001" Name="mysql_reserved.xml"/>
@@ -2028,6 +2039,29 @@
                 </Component>
               </Directory>
 
+              <?if $(var.LICENSE_TYPE) = "commercial"?>
+              <Directory Id="firewall_dir" Name="firewall">
+                  <Directory Id="firewall_linux_dir" Name="linux">
+                        <Component DiskId="1" Guid="750471E1-68CA-4323-90D0-29D265DDD613" Id="firewall_linux" Location="either">
+                                <File Id="firewall_linux_01" Name="install.sql"/>
+                                <File Id="firewall_linux_02" Name="uninstall.sql"/>
+                                <File Id="firewall_linux_03" Name="enable.sql"/>
+                                <File Id="firewall_linux_04" Name="disable.sql"/>
+                        </Component>
+                        <Component DiskId="1" Guid="750471E1-68CA-4323-90D0-29D265DDD613" Id="firewall_windows" Location="either">
+                                <File Id="firewall_windows_01" Name="install.sql"/>
+                                <File Id="firewall_windows_02" Name="uninstall.sql"/>
+                                <File Id="firewall_windows_03" Name="enable.sql"/>
+                                <File Id="firewall_windows_04" Name="disable.sql"/>
+                        </Component>
+                  </Directory>
+                  <Directory Id="firewall_windows_dir" Name="windows">
+                        <Component DiskId="1" Guid="750471E1-68CA-4323-90D0-29D265DDD613" Id="sys" Location="either">
+                        </Component>
+                  </Directory>
+              </Directory>
+              <?endif ?>
+              
               <Directory Id="sys_dir" Name="sys">
                 <Component DiskId="1" Guid="750471E1-68CA-4323-90D0-29D265DDD613" Id="sys" Location="either">
                   <File Id="wbsys001" Name="after_setup.sql"/>

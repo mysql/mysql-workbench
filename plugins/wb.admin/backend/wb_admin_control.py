@@ -156,6 +156,8 @@ class SQLQueryExecutor(object):
             self.mtx.release()
         return result
 
+    def updateCount(self):
+        return self.dbconn.updateCount()
 
 #===============================================================================
 
@@ -589,10 +591,11 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
         return ret
 
     def exec_sql(self, q, auto_reconnect=True):
-        ret = None
         if self.sql is not None:
             try:
                 ret = self.sql.execute(q)
+                cnt = self.sql.updateCount()
+                return ret, cnt
             except QueryError, e:
                 log_warning("Error executing SQL %s: %s\n"%(strip_password(q), strip_password(str(e))))
                 if auto_reconnect and e.is_connection_error():
@@ -603,7 +606,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
         else:
             log_info("sql connection is down\n")
 
-        return ret
+        return None, -1
 
     def handle_sql_disconnection(self, e):
         self.disconnect_sql()

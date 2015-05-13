@@ -32,7 +32,7 @@ namespace MySQL {
       static void set_heading(mforms::ListBox *backend, const std::string &text);
       static void add_items(mforms::ListBox *backend, const std::list<std::string> &items);
       static size_t add_item(mforms::ListBox *backend, const std::string &item);
-      static void remove_indices(mforms::ListBox *backend, const std::vector<size_t> &indices);
+      static void remove_indexes(mforms::ListBox *backend, const std::vector<size_t> &indices);
       static void remove_index(mforms::ListBox *backend, size_t index);
       static std::string get_text(mforms::ListBox *backend);
       static void set_index(mforms::ListBox *backend, ssize_t index);

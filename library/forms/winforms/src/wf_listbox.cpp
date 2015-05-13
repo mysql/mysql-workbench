@@ -57,13 +57,6 @@ bool ListBoxWrapper::create(mforms::ListBox *backend, bool multi_select)
 
   MformsListBox ^listbox = ListBoxWrapper::Create<MformsListBox>(backend, wrapper);
   listbox->Size = Drawing::Size(100, 100);
-  int verticalMinimumSize = 50;
-  System::Drawing::Graphics ^graph = listbox->CreateGraphics();
-  if (graph != nullptr)
-    verticalMinimumSize = (int)graph->MeasureString("Some text", listbox->Font).Height;
-  // ListBox::IntegralHeight is set to true by default then we have to increase minimum height by one
-  // to get tree visible rows otherwise we will see only two rows
-  listbox->MinimumSize = Drawing::Size(50, verticalMinimumSize * 3 + 1);
   if (multi_select)
     listbox->SelectionMode = SelectionMode::MultiExtended;
   return true;
@@ -109,7 +102,7 @@ size_t ListBoxWrapper::add_item(mforms::ListBox *backend, const std::string &ite
 
 //--------------------------------------------------------------------------------------------------
 
-void ListBoxWrapper::remove_indices(mforms::ListBox *backend, const std::vector<size_t> &indices)
+void ListBoxWrapper::remove_indexes(mforms::ListBox *backend, const std::vector<size_t> &indices)
 {
   ListBox ^listbox = ListBoxWrapper::GetManagedObject<ListBox>(backend);
   listbox->BeginUpdate();
@@ -166,7 +159,7 @@ std::vector<size_t> ListBoxWrapper::get_selected_indices(mforms::ListBox *backen
 {
   std::vector<size_t> result;
   ListBox ^listbox = ListBoxWrapper::GetManagedObject<ListBox>(backend);
-  for each (int index in listbox->SelectedIndices) // It's an arrow of Int32. Don't change to size_t.
+  for each (int index in listbox->SelectedIndices) // It's an array of Int32. Don't change to size_t.
     result.push_back(index);
   return result;
 }
@@ -201,6 +194,10 @@ void ListBoxWrapper::init()
   f->_listbox_impl.set_heading = &ListBoxWrapper::set_heading;
   f->_listbox_impl.add_items = &ListBoxWrapper::add_items;
   f->_listbox_impl.add_item = &ListBoxWrapper::add_item;
+
+  f->_listbox_impl.remove_index = &ListBoxWrapper::remove_index;
+  f->_listbox_impl.remove_indexes = &ListBoxWrapper::remove_indexes;
+
   f->_listbox_impl.get_text = &ListBoxWrapper::get_text;
   f->_listbox_impl.set_index = &ListBoxWrapper::set_index;
   f->_listbox_impl.get_index = &ListBoxWrapper::get_index;
