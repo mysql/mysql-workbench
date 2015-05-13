@@ -105,6 +105,9 @@ xcopy /i /s /y /d %RES_DIR%\scripts\snippets\shell_snippets.* %TARGET_DIR%\
 xcopy /i /s /y /d %LIBRARY_DIR%\sshtunnel\sshtunnel.py %TARGET_DIR%\
 xcopy /i /s /y /d %RES_DIR%\scripts\shell\*.vbs %TARGET_DIR%\
 
+if not exist %TARGET_DIR%\firewall\ mkdir %TARGET_DIR%\firewall
+xcopy /i /s /y /d %RES_DIR%\scripts\firewall\* %TARGET_DIR%\firewall 1> nul 2> nul
+
 echo Copy python workbench files
 if not exist %TARGET_DIR%\workbench mkdir %TARGET_DIR%\workbench
 xcopy /i /s /y /d %LIBRARY_DIR%\python\workbench\*.py %TARGET_DIR%\workbench

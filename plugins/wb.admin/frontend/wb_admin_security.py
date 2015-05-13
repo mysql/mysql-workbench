@@ -626,7 +626,8 @@ class FirewallCommands:
         return result.stringByIndex(1)
 
     def delete_user_rule(self, userhost, rule):
-        self.ctrl_be.exec_query("DELETE FROM mysql.firewall_whitelist WHERE USERHOST='%s' AND RULE='%s'" % (userhost, db_utils.escape_sql_string(rule)))
+        result, cnt = self.ctrl_be.exec_sql("DELETE FROM mysql.firewall_whitelist WHERE USERHOST='%s' AND RULE='%s'" % (userhost, db_utils.escape_sql_string(rule)))
+        return cnt > 0
 
     def add_user_rule(self, userhost, rule):
         firewall_rule = self.normalize_query(rule)
@@ -747,16 +748,15 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         self.set_managed()
         self.set_release_on_add()
 
-        self.suspend_layout()
         self.set_spacing(8)
         self.set_padding(8)
         
         self.commands = FirewallCommands(self)
 
         # Firewall rules panel
-        firewall_rules_panel = mforms.newPanel(mforms.TitledBoxPanel)
-        firewall_rules_panel.set_title("Firewall Rules")
         firewall_rules_main_box = mforms.newBox(False)
+        firewall_rules_main_box.set_padding(12)
+        firewall_rules_main_box.set_spacing(8)
         
         state_box = mforms.newBox(True)
         
@@ -765,6 +765,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         self.state.add_item("PROTECTING")
         self.state.add_item("RECORDING")
         self.state.add_item("RESET")
+        self.state.set_size(120, -1)
         self.state.add_changed_callback(self.change_state)
         state_box.add(mforms.newLabel("State:"), False, True)
         state_box.add(self.state, False, True)
@@ -773,6 +774,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
 
         # White list section
         white_list_box = mforms.newBox(True)
+        white_list_box.set_spacing(8)
         
         self.white_list = mforms.newListBox(True)
         self.white_list.set_size(500, -1)
@@ -808,7 +810,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         white_list_box.add(self.white_list, True, True)
         white_list_box.add(white_list_button_box, False, True)
         
-        self.available_rules_label = mforms.newLabel("Allowed rules:")
+        self.available_rules_label = mforms.newLabel("Active rules:")
         firewall_rules_main_box.add(self.available_rules_label, False, True)
         firewall_rules_main_box.add(white_list_box, True, True)
 
@@ -819,13 +821,11 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         
         cache_list_box.add(self.cache_list, True, True)
         
-        self.cached_rules_label = mforms.newLabel("Cached rules:")
+        self.cached_rules_label = mforms.newLabel("Rules being recorded:")
         firewall_rules_main_box.add(self.cached_rules_label, False, True)
         firewall_rules_main_box.add(cache_list_box, True, True)
         
-        #self.add(firewall_rules_panel, False, True)
-        firewall_rules_panel.add(firewall_rules_main_box)
-        self.add(firewall_rules_panel, True, True)
+        self.add(firewall_rules_main_box, True, True)
 
 
 
@@ -864,18 +864,18 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         self.white_list.clear()
         self.cache_list.clear()
 
-        self.available_rules_label.set_text("Available rules[%s]:" % str(self.commands.get_rule_count(self.current_userhost)))
+        self.available_rules_label.set_text("Active rules (%s):" % str(self.commands.get_rule_count(self.current_userhost)))
         for rule in self.commands.get_user_rules(self.current_userhost):
             self.white_list.add_item(rule)
 
-        self.cached_rules_label.set_text("Cached rules[%s]:" % str(self.commands.get_cached_rule_count(self.current_userhost)))
+        self.cached_rules_label.set_text("Rules being recorded (%s):" % str(self.commands.get_cached_rule_count(self.current_userhost)))
         for rule in self.commands.get_cached_user_rules(self.current_userhost):
             self.cache_list.add_item(rule)
             
     def tweak_user_list(self):
-        self.owner.user_list.add_column(mforms.StringColumnType, "FW State", 200, False)
-        self.owner.user_list.add_column(mforms.StringColumnType, "# FW Rules", 200, False)
-        self.owner.user_list.add_column(mforms.StringColumnType, "# FW Cached", 200, False)
+        self.owner.user_list.add_column(mforms.StringColumnType, "FW State", 80, False)
+        self.owner.user_list.add_column(mforms.StringColumnType, "# FW Rules", 80, False)
+        self.owner.user_list.add_column(mforms.StringColumnType, "# FW Recorded", 80, False)
         
     def tweak_tabs(self, tabView):
         tabView.add_page(self, "Firewall Rules")
@@ -901,6 +901,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
     def add_from_file_button_click(self):
         dialog = mforms.FileChooser(mforms.OpenFile)
         dialog.set_title("Load firewall rules")
+        dialog.set_extensions("Firewall Rules (*.fwr)|*.fwr", ".fwr")
         if dialog.run_modal():
             with open(dialog.get_path()) as f:
                 content = [x.strip('\n') for x in f.readlines()]
@@ -915,6 +916,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
     def save_to_file_button_click(self):
         dialog = mforms.FileChooser(mforms.SaveFile)
         dialog.set_title("Save firewall rules")
+        dialog.set_extensions("Firewall Rules (*.fwr)|*.fwr", ".fwr")
         if dialog.run_modal():
             f = open(dialog.get_path(), "w")
             for index in range(0, self.white_list.get_count()):
@@ -924,10 +926,13 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         
     def delete_button_click(self):
         indexes = self.white_list.get_selected_indices()
+        deleted_indexes = []
         for index in indexes:
             rule = self.white_list.get_string_value_from_index(index)
-            self.commands.delete_user_rule(self.current_userhost, rule)
-            self.owner.refresh()
+            result = self.commands.delete_user_rule(self.current_userhost, rule)
+            if result:
+                deleted_indexes.append(index)
+        self.white_list.remove_indexes(deleted_indexes)
         return
         
     def clear_button_click(self):
@@ -944,6 +949,7 @@ class SecurityAccount(mforms.Box):
         mforms.Box.__init__(self, False)
         self.set_managed()
         self.set_release_on_add()
+        self.set_name("SecurityAccount")
         self.owner = owner
         self.dirty = False
 
@@ -1009,7 +1015,7 @@ class SecurityAccount(mforms.Box):
 
         self.user_list = newTreeNodeView(mforms.TreeFlatList)
         self.user_list.add_column(mforms.StringColumnType, "User", 120, False)
-        self.user_list.add_column(mforms.StringColumnType, "From Host", 200, False)
+        self.user_list.add_column(mforms.StringColumnType, "From Host", 100, False)
         
         self.firewall_rules.tweak_user_list()
         
@@ -1017,7 +1023,7 @@ class SecurityAccount(mforms.Box):
         self.user_list.add_changed_callback(self.user_selected)
         self.user_list.set_allow_sorting(True)
         account_list_box.add(self.user_list, True, True)
-        self.splitter.add(account_list_box, 100, True)
+        self.splitter.add(account_list_box, 200, True)
 
         # Right part
 
@@ -1903,6 +1909,17 @@ class WbAdminSecurity(mforms.Box):
         self.server_profile = server_profile
         self.main_view = main_view
 
+        self.firewall_enabled = False
+        
+        self.heading = None
+        self.warning = None
+        self.account_tab = None
+
+    def firewall_status_changed(self):
+        current_status = self.ctrl_be.server_variables.get('mysql_firewall_mode')
+        changed = current_status != self.firewall_enabled
+        self.firewall_enabled = current_status
+        return changed
 
     def create_ui(self):
         self.suspend_layout()
@@ -1910,17 +1927,28 @@ class WbAdminSecurity(mforms.Box):
         self.set_padding(12)
         self.set_spacing(8)
 
+        if self.heading:
+            self.remove(self.heading)
+            self.heading = None
+
         self.heading = make_panel_header("title_users.png", self.server_profile.name, "Users and Privileges")
         self.add(self.heading, False, True)
 
+        if self.warning:
+            self.remove(self.warning)
+            self.warning = None
+
         self.warning = not_running_warning_label()
         self.add(self.warning, False, True)
+
+        if self.account_tab:
+            self.remove(self.account_tab)
+            self.account_tab = None
 
         self.account_tab = SecurityAccount(self)
         self.add(self.account_tab, True, True)
 
         self.resume_layout()
-
 
     def show_no_permission(self):
         self.warning.set_text("\n\n\n\nThe account you are currently using does not have sufficient privileges to make changes to MySQL users and privileges.")
@@ -1943,7 +1971,8 @@ class WbAdminSecurity(mforms.Box):
 
 
     def page_activated(self):
-        if not self.ui_created:
+        if (not self.ui_created) or self.firewall_status_changed():
+            log_error("CREATING NEW UI!!!!\n")
             self.create_ui()
             self.ui_created = True
         self.update_ui()

@@ -6,7 +6,7 @@ set(IMAGE_FILES
 	admin_connections.png
 	admin_dashboard.png
 	admin_export.png
-  admin_firewall_reports.png
+  admin_firewall.png
 	admin_info_running.png
 	admin_info_stopped.png
 	admin_info_unknown.png

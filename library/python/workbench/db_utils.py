@@ -324,7 +324,7 @@ class MySQLConnection:
               raise QueryError("Error executing '%s'\n%s" % (strip_password(query), error), code, error)
 
             self.send_status(0)
-            return result != 0
+            return result == 0
         else:
             self.send_status(-1, "Connection to MySQL server is currently not established")
             raise QueryError("Connection to MySQL server is currently not established", -1)

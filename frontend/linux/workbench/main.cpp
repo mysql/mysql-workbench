@@ -44,13 +44,6 @@ extern  void lf_record_grid_init();
 int main(int argc, char **argv)
 {
 
-  // disable gnome keyring if it's not running
-  if (!getenv("GNOME_KEYRING_CONTROL") && !getenv("GNOME_KEYRING_SOCKET") && !getenv("XDG_RUNTIME_DIR"))
-  {
-    g_message("Gnome keyring daemon seems to not be available. Stored passwords will be lost once quit");
-    setenv("WB_NO_GNOME_KEYRING", "1", 1);
-  }
-
   if (!getenv("MWB_DATA_DIR"))
   {
     std::string script_name = argv[0];
