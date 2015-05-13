@@ -215,10 +215,8 @@ void ConfigurationFile::Private::clear_includes(const std::string &section_name)
   if (section == NULL)
     return;
 
-  for (EntryListIterator iterator = section->keys.end(); iterator != section->keys.begin(); iterator--)
-	if (is_include(*iterator))
-		section->keys.erase(iterator);
-
+  std::remove_if(section->keys.begin(), section->keys.end(), is_include);
+  
   _dirty = true;
 }
 
