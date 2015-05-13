@@ -470,7 +470,8 @@ class TunnelManager:
                     elif msg_type == 'IO_ERROR':
                         error = msg
                         break # Exit returning the error message
-
+                    else:
+                        time.sleep(0.3)
                     _msg = msg
                     if type(msg) is tuple:
                         msg = '\n' + ''.join(traceback.format_exception(*msg))
