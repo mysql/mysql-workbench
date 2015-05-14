@@ -57,6 +57,13 @@ bool ListBoxWrapper::create(mforms::ListBox *backend, bool multi_select)
 
   MformsListBox ^listbox = ListBoxWrapper::Create<MformsListBox>(backend, wrapper);
   listbox->Size = Drawing::Size(100, 100);
+  int verticalMinimumSize = 50;
+  System::Drawing::Graphics ^graph = listbox->CreateGraphics();
+  if (graph != nullptr)
+    verticalMinimumSize = (int)graph->MeasureString("Some text", listbox->Font).Height;
+  // ListBox::IntegralHeight is set to true by default then we have to increase minimum height by one
+  // to get tree visible rows otherwise we will see only two rows
+  listbox->MinimumSize = Drawing::Size(50, verticalMinimumSize * 3 + 1);
   if (multi_select)
     listbox->SelectionMode = SelectionMode::MultiExtended;
   return true;
