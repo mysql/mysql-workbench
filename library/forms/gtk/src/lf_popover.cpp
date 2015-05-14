@@ -106,7 +106,6 @@ PopoverWidget::PopoverWidget(Gtk::Window* parent, mforms::PopoverStyle style)
     set_border_width(2);
     _align= Gtk::manage(new Gtk::Alignment());
 
-
 //    _align->set_padding(this->get_style()->get_ythickness(), this->get_style()->get_ythickness(), this->get_style()->get_xthickness(), this->get_style()->get_xthickness());
     add(*_align);
 //    _hbox = Gtk::manage(new Gtk::HBox(false, this->get_style()->get_xthickness()));
@@ -286,34 +285,29 @@ void PopoverWidget::recalc_shape_mask()
 {
   const int w = get_width();
   const int h = get_height();
-  //printf("recalc shape for %i,%i\n", w, h);
 
-  // recalc mask
-//  Glib::RefPtr<Gdk::Pixmap> mask = Gdk::Pixmap::create(Glib::RefPtr<Gdk::Drawable>(0), w, h, 1);
-  Cairo::RefPtr<Cairo::Context> context = this->get_window()->create_cairo_context();
-
-  cairo_t *cr = context->cobj();
-
-  if (cr)
+  if (this->get_window())
   {
-    // Draw round corners
-   // const int W = w;
-   // const int H = h;
+    cairo_surface_t *mask = cairo_image_surface_create(CAIRO_FORMAT_A1, this->get_window()->get_width(), this->get_window()->get_height());
+    cairo_t *cr = cairo_create(mask);
+    if (cr)
+    {
 
-    cairo_save (cr);
-    cairo_rectangle (cr, 0, 0, w, h);
-    cairo_set_operator (cr, CAIRO_OPERATOR_CLEAR);
-    cairo_fill (cr);
-    cairo_restore (cr);
+      cairo_save (cr);
+      cairo_rectangle (cr, 0, 0, w, h);
+      cairo_set_operator (cr, CAIRO_OPERATOR_CLEAR);
+      cairo_fill (cr);
+      cairo_restore (cr);
 
-    cairo_set_source_rgb(cr, 0.7, 0.7, 0.7);
-    cairo_set_line_width(cr, 0.2);
-    create_shape_path(cr, 0);
-    cairo_fill_preserve(cr);
+      cairo_set_source_rgb(cr, 0.7, 0.7, 0.7);
+      cairo_set_line_width(cr, 0.2);
+      create_shape_path(cr, 0);
+      cairo_fill_preserve(cr);
+    }
+    cairo_region_t* mask_region = gdk_cairo_region_create_from_surface(mask);
+
+    gtk_widget_shape_combine_region(GTK_WIDGET(gobj()), mask_region);
   }
-  gtk_widget_shape_combine_region(GTK_WIDGET(gobj()), NULL);
-
-//  gtk_widget_shape_combine_mask(GTK_WIDGET(gobj()), mask->gobj(), 0, 0);
 }
 
 //------------------------------------------------------------------------------

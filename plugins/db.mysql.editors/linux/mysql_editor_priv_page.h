@@ -73,6 +73,8 @@ class DbMySQLEditorPrivPage : private WidgetsAutoCleaner
     Gtk::Button                 *_remove_button;
     Gtk::TreeView               *_all_roles_tv;
     std::vector<Gtk::TreePath>   _selected;
+
+    bool                        _reentrant;
 };
 
 #endif

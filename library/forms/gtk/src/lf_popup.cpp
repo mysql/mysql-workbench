@@ -45,7 +45,6 @@ PopupImpl::PopupImpl(::mforms::Popup *self, mforms::PopupStyle style)
   _wnd.set_app_paintable(true);
 
   _wnd.signal_draw().connect(sigc::mem_fun(this, &PopupImpl::handle_draw_event));
-  _wnd.signal_screen_changed().connect(sigc::mem_fun(this, &PopupImpl::on_screen_changed));
   _wnd.signal_key_press_event().connect(sigc::mem_fun(this, &PopupImpl::key_press_event));
   _wnd.signal_button_press_event().connect(sigc::mem_fun(this, &PopupImpl::mouse_button_event));
   _wnd.signal_button_release_event().connect(sigc::mem_fun(this, &PopupImpl::mouse_button_event));
@@ -64,8 +63,6 @@ PopupImpl::PopupImpl(::mforms::Popup *self, mforms::PopupStyle style)
 
   _wnd.override_background_color(color_to_rgba(Gdk::Color("black")), Gtk::STATE_FLAG_NORMAL);
 
-
-  on_screen_changed(_wnd.get_screen());
   set_size(self, 825, 351);
   _wnd.set_transient_for(*get_mainwindow());
   _wnd.set_modal(true);
@@ -79,19 +76,6 @@ PopupImpl::~PopupImpl()
 }
 
 //------------------------------------------------------------------------------
-void PopupImpl::on_screen_changed(const Glib::RefPtr<Gdk::Screen>& screen)
-{
-  //TODO: Lolek implementation
-  fprintf(stderr, "Fix this PopupImpl::on_screen_changed\n");
-//  d("\n");
-//  Glib::RefPtr<Gdk::Colormap> colormap = screen->get_rgba_colormap();
-//  _have_rgba = colormap;
-//
-//  if (!_have_rgba)
-//    colormap = screen->get_rgb_colormap();
-//
-//  _wnd.set_colormap(colormap);
-}
 
 //------------------------------------------------------------------------------
 bool PopupImpl::handle_draw_event(const ::Cairo::RefPtr< ::Cairo::Context>& context)

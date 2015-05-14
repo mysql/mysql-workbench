@@ -199,7 +199,7 @@ public:
     if (_search_menu)
     {
       std::vector<Gtk::Widget*> children = _search_menu->get_children();
-      while(children.size()> 5)
+      while(children.size() > 7)
       {
         Gtk::Widget* w = children.back();
         _search_menu->remove(*w);
@@ -208,12 +208,6 @@ public:
       Gtk::Widget *w = children.back();
       if (w)
         w->set_sensitive(false);
-      //TODO: Lolek check
-
-//      Gtk::MenuShell::MenuList items(_search_menu->items());
-//      while (items.size() > 7)
-//        items.remove(items[5]);
-//      items[items.size()-1].set_sensitive(false);
     }
   }
 
