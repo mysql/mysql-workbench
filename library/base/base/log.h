@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -119,11 +119,19 @@ namespace base
 
     static void log_to_stderr(bool value);
 
+    static int                maxLogLevel()                { return LogLevel::NumOfLevels; }
+    static const std::string& maxLogLevel(int index)       { return _logLevelNames[index]; }
+
+    static bool               wasLogLevelSpecifiedByUser() { return _logLevelSpecifiedByUser;        }
+    static void               setLogLevelSpecifiedByUser() {        _logLevelSpecifiedByUser = true; }
+
   protected:
     static void logv(const LogLevel level, const char* const domain, const char* format, va_list args);
   private:
     struct LoggerImpl;
-    static LoggerImpl* _impl;
+    static LoggerImpl*       _impl;
+    static const std::string _logLevelNames[LogLevel::NumOfLevels + 1];
+    static bool              _logLevelSpecifiedByUser;        // false until set to true
   };
 
 } // End of namespace
