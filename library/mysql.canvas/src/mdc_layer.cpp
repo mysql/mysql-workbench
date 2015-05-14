@@ -143,8 +143,8 @@ void Layer::repaint_pending()
   {
     // XXX record pending areas and repaint only what's needed
     repaint(Rect(Point(0,0), _owner->get_total_view_size()));
+    _needs_repaint= false;
   }
-  _needs_repaint= false;
 }
 
 
@@ -179,22 +179,16 @@ void Layer::repaint_for_export(const Rect &aBounds)
 
 void Layer::queue_repaint()
 {
-  if (!_needs_repaint)
-  {
-    _needs_repaint = true;
-    _owner->queue_repaint();
-  }
+  _needs_repaint = true;
+  _owner->queue_repaint();
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void Layer::queue_repaint(const Rect &bounds)
 {
-  if (!_needs_repaint)
-  {
-    _needs_repaint = true;
-    _owner->queue_repaint(bounds);
-  }
+  _needs_repaint = true;
+  _owner->queue_repaint(bounds);
 }
 
 //--------------------------------------------------------------------------------------------------
