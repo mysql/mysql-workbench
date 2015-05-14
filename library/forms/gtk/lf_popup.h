@@ -44,7 +44,6 @@ class PopupImpl : public ObjectImpl
   bool mouse_move_event(GdkEventMotion *event);
   bool key_press_event(GdkEventKey *event);
   void set_size(int, int);
-  void on_screen_changed(const Glib::RefPtr<Gdk::Screen>&);
 
   static bool create(::mforms::Popup *self, mforms::PopupStyle style);
   static void destroy(::mforms::Popup *self);

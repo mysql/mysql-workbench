@@ -36,7 +36,6 @@ class PanelImpl : public ViewImpl, public BinImpl
   Gtk::EventBox *_evbox;
   Gtk::CheckButton *_title_check;
   Glib::RefPtr<Gdk::Pixbuf> _back_image;
-  mforms::Alignment _back_image_alignment;
 
   Gtk::RadioButtonGroup _radio_group;
   bool _radio_group_set;
