@@ -196,10 +196,6 @@
 		    <ComponentRef Id="reporting_HTML_Detailed_Frames" />
 		    <ComponentRef Id="reporting_HTML_Detailed_Frames_images" />
             <ComponentRef Id="reporting_Text_Basic" />
-            
-            <ComponentRef Id="firewall" />
-            <ComponentRef Id="firewall_windows" />
-            <ComponentRef Id="firewall_linux" />
           <?endif?>
 			<ComponentRef Id="catalog_reporting_TEXT_Basic" />
             <ComponentRef Id="mysql_canvas" />
@@ -216,6 +212,10 @@
             <ComponentRef Id="RegKeys" />
             <ComponentRef Id="sys_tables" />
             <ComponentRef Id="sys_triggers" />
+         <?if $(var.LICENSE_TYPE) = "commercial"?>
+            <ComponentRef Id="firewall_windows" />
+            <ComponentRef Id="firewall_linux" />
+          <?endif?>
         </Feature>
 
         <Feature Id="WorkbenchProgramShortcut" Description="Place a Shortcut to MySQL Workbench in your Startmenus MySQL Folder" Level="1" Title="Program Shortcut">

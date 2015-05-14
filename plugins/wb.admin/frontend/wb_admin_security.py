@@ -707,14 +707,18 @@ class FirewallAddRuleDialog(mforms.Form):
         mforms.Form.__init__(self, None, mforms.FormResizable | mforms.FormMinimizable)
 
         self.set_title("Add new rule")
+        self.set_size(400, 300)
+        self.center()
+
 
         self.content = mforms.newBox(False)
         self.set_content(self.content)
         
-        self.content.add(mforms.newLabel("Type the rule you want to add for this user."), False, True)
+        self.content.add(mforms.newLabel("\nType the rule you want to add for this user.\n"), False, True)
         
         self.query_box = mforms.newTextBox(mforms.SmallScrollBars)
-        self.content.add(self.query_box, False, True)
+        self.query_box.set_size(400, 200)
+        self.content.add(self.query_box, True, True)
         
         button_box = mforms.newBox(True)
         self.content.add(button_box, False, True)
@@ -1972,7 +1976,6 @@ class WbAdminSecurity(mforms.Box):
 
     def page_activated(self):
         if (not self.ui_created) or self.firewall_status_changed():
-            log_error("CREATING NEW UI!!!!\n")
             self.create_ui()
             self.ui_created = True
         self.update_ui()
