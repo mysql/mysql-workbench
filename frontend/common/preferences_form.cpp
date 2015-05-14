@@ -20,6 +20,7 @@
 #include "base/ui_form.h"
 #include "base/string_utilities.h"
 #include "base/util_functions.h"
+#include "base/log.h"
 
 #include "mforms/widgets.h"
 #include "mforms/sectionbox.h"
@@ -1389,9 +1390,47 @@ mforms::View *PreferencesForm::create_others_page()
   }
 #endif
 
+  createLogLevelSelectionPulldown(content);
+
   return content;
 }
 
+void PreferencesForm::createLogLevelSelectionPulldown( mforms::Box *content )
+{
+  OptionTable *logTable = mforms::manage( new OptionTable(this, _("Logs"), true) );
+  content->add(logTable, false, true);
+
+  // put together comma-separated list of all loglevels (i.e: "none,error,warning,info,debug1,...")
+  std::string logLevels;
+  {
+    logLevels.reserve(80);
+
+    for (int i = 0; i <= base::Logger::maxLogLevel(); i++)
+      logLevels += base::Logger::maxLogLevel(i) + ',';
+
+    if (logLevels.size() > 0)
+      logLevels.resize( logLevels.size() - 1 );
+  }
+
+  // add dropdown (combo) box
+  mforms::Selector *selector = new_selector_option( "workbench.logger:LogLevel", logLevels, false );
+  selector->set_tooltip(_(
+    "Log level determines how serious a message has to be before it gets logged.  For example, an error is more serious than a warning, a warning is more serious than an info, etc.  So if log level is set to error, "
+    "anything less serious (warning, info, etc) will not be logged.  If log level is set to warning, both warning and error will still be logged, but info and anything lower will not.  None disables all logging.") );
+  logTable->add_option( selector, _("Log Level"),
+    _("Sets the \"chattyness\" of logs. Choices\nfurther down the list produce more output \nthan the ones that preceed them.") );
+
+  // callback: on user selection, set log level
+  selector->signal_changed()->connect( [selector]()
+  {
+    bool ok = base::Logger::active_level(selector->get_string_value());
+
+    if (ok)
+      base::Logger::log( base::Logger::LogError, DOMAIN_WB_CONTEXT_UI, "Logger set to level '%s' in Preferences menu\n", base::Logger::active_level().c_str() );
+
+    assert(ok);
+  });
+}
 
 mforms::View *PreferencesForm::create_model_defaults_page()
 {

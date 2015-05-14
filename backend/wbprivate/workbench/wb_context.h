@@ -496,6 +496,8 @@ namespace wb {
 
     bool show_error(const std::string& title, const std::string& message);
 
+    void setLogLevelFromGuiPreferences(const grt::DictRef& dict);
+
   public:
     std::string request_connection_password(const db_mgmt_ConnectionRef &conn, bool force_asking);
 
