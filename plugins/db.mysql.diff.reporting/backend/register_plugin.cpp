@@ -40,7 +40,7 @@ public:
   {
   }
 
-  DEFINE_INIT_MODULE(MODULE_VERSION, "MySQL AB", grt::ModuleImplBase,
+  DEFINE_INIT_MODULE(MODULE_VERSION, "Oracle and/or its affiliates", grt::ModuleImplBase,
                      DECLARE_MODULE_FUNCTION(MySQLDbDiffReportingModuleImpl::getPluginInfo), 
                      DECLARE_MODULE_FUNCTION(MySQLDbDiffReportingModuleImpl::runWizard),
                      NULL);

@@ -158,7 +158,7 @@ class WbUtilsNativeImpl : public grt::ModuleImplBase
 public:
   WbUtilsNativeImpl(grt::CPPModuleLoader *ldr) : grt::ModuleImplBase(ldr) {}
 
-  DEFINE_INIT_MODULE(WbUtilsNative_VERSION, "MySQL", grt::ModuleImplBase,
+  DEFINE_INIT_MODULE(WbUtilsNative_VERSION, "Oracle and/or its affiliates", grt::ModuleImplBase,
                   DECLARE_MODULE_FUNCTION(WbUtilsNativeImpl::sortIndexes));
 
   int sortIndexes(db_mysql_CatalogRef cat)

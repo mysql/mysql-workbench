@@ -40,7 +40,7 @@ public grt::ModuleImplBase
 public:
   WbMysqlImportImpl(grt::CPPModuleLoader *ldr) : grt::ModuleImplBase(ldr) {}
 
-  DEFINE_INIT_MODULE(WbMysqlImport_VERSION, "MySQL AB", grt::ModuleImplBase,
+  DEFINE_INIT_MODULE(WbMysqlImport_VERSION, "Oracle and/or its affiliates", grt::ModuleImplBase,
     DECLARE_MODULE_FUNCTION(WbMysqlImportImpl::getPluginInfo),
     DECLARE_MODULE_FUNCTION(WbMysqlImportImpl::importDBD4),
     DECLARE_MODULE_FUNCTION(WbMysqlImportImpl::importDBD4Ex),

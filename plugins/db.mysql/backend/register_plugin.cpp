@@ -37,7 +37,7 @@ public:
   {
   }
 
-  DEFINE_INIT_MODULE(MODULE_VERSION, "MySQL AB", grt::ModuleImplBase,
+  DEFINE_INIT_MODULE(MODULE_VERSION, "Oracle and/or its affiliates", grt::ModuleImplBase,
     DECLARE_MODULE_FUNCTION(MySQLDbModuleImpl::getPluginInfo), 
                      DECLARE_MODULE_FUNCTION(MySQLDbModuleImpl::runExportCREATEScriptWizard),
                      DECLARE_MODULE_FUNCTION(MySQLDbModuleImpl::runImportScriptWizard),

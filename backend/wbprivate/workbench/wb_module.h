@@ -46,7 +46,7 @@ public:
   std::string getSystemInfo(bool indent);
   std::map<std::string, std::string> getSystemInfoMap();
 
-  DEFINE_INIT_MODULE(WBModule_VERSION, "Oracle Corporation", grt::ModuleImplBase,
+  DEFINE_INIT_MODULE(WBModule_VERSION, "Oracle and/or its affiliates", grt::ModuleImplBase,
     DECLARE_MODULE_FUNCTION(WorkbenchImpl::getPluginInfo),
 
 

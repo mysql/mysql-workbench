@@ -41,7 +41,7 @@ class WB_MODEL_WBM_PUBLIC_FUNC WbModelImpl
 public:
   WbModelImpl(grt::CPPModuleLoader *ldr);
 
-  DEFINE_INIT_MODULE(WbModel_VERSION, "MySQL AB", grt::ModuleImplBase,
+  DEFINE_INIT_MODULE(WbModel_VERSION, "Oracle and/or its affiliates", grt::ModuleImplBase,
                 DECLARE_MODULE_FUNCTION(WbModelImpl::getPluginInfo),
                 DECLARE_MODULE_FUNCTION(WbModelImpl::autolayout),
                 DECLARE_MODULE_FUNCTION(WbModelImpl::createDiagramWithCatalog),

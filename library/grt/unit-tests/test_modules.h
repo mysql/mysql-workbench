@@ -97,7 +97,7 @@ class SampleModule3Impl : public SampleModule2Impl
 public:
   SampleModule3Impl(CPPModuleLoader *ldr) : SampleModule2Impl(ldr) {}
   
-  DEFINE_INIT_MODULE("1.0", "MySQL AB", SampleModule2Impl,
+  DEFINE_INIT_MODULE("1.0", "Oracle and/or its affiliates", SampleModule2Impl,
                     DECLARE_MODULE_FUNCTION(SampleModule3Impl::doSomethingWithNumbers),
                     DECLARE_MODULE_FUNCTION(SampleModule3Impl::doSomethingWithObject),
                     DECLARE_MODULE_FUNCTION(SampleModule3Impl::doSomethingWithNumberList),
