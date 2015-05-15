@@ -458,12 +458,12 @@ bool GRTShellWindow::can_close()
 
 void GRTShellWindow::set_splitter_positions()
 {
-  _hsplitter.set_position(300);
-  _global_splitter.set_position(400);
-  _modules_splitter.set_position(400);
-  _classes_splitter.set_position(400);
-  _notifs_splitter.set_position(400);
-  _snippet_splitter.set_position(200);
+  _hsplitter.set_divider_position(300);
+  _global_splitter.set_divider_position(400);
+  _modules_splitter.set_divider_position(400);
+  _classes_splitter.set_divider_position(400);
+  _notifs_splitter.set_divider_position(400);
+  _snippet_splitter.set_divider_position(200);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1444,11 +1444,11 @@ void GRTShellWindow::load_state()
   set_position(x, y);
 
   // Restore divider positions.
-  _hsplitter.set_position(_context->read_state("main-splitter", "scripting-shell", 250));
-  _global_splitter.set_position(_context->read_state("global-splitter", "scripting-shell", 400));
-  _modules_splitter.set_position(_context->read_state("modules-splitter", "scripting-shell", 400));
-  _classes_splitter.set_position(_context->read_state("classes-splitter", "scripting-shell", 400));
-  _snippet_splitter.set_position(_context->read_state("snippets-splitter", "scripting-shell", 400));
+  _hsplitter.set_divider_position(_context->read_state("main-splitter", "scripting-shell", 250));
+  _global_splitter.set_divider_position(_context->read_state("global-splitter", "scripting-shell", 400));
+  _modules_splitter.set_divider_position(_context->read_state("modules-splitter", "scripting-shell", 400));
+  _classes_splitter.set_divider_position(_context->read_state("classes-splitter", "scripting-shell", 400));
+  _snippet_splitter.set_divider_position(_context->read_state("snippets-splitter", "scripting-shell", 400));
 
   _shell_text.set_font(grtm()->get_app_option_string("workbench.scripting.ScriptingShell:Font"));
   _snippet_text.set_font(grtm()->get_app_option_string("workbench.scripting.ScriptingEditor:Font"));
@@ -1470,11 +1470,11 @@ void GRTShellWindow::save_state()
   _context->save_state("height", "scripting-shell", get_height());
 
   // Store all divider positions.
-  _context->save_state("main-splitter", "scripting-shell", _hsplitter.get_position());
-  _context->save_state("global-splitter", "scripting-shell", _global_splitter.get_position());
-  _context->save_state("modules-splitter", "scripting-shell", _modules_splitter.get_position());
-  _context->save_state("classes-splitter", "scripting-shell", _classes_splitter.get_position());
-  _context->save_state("snippet-splitter", "scripting-shell", _snippet_splitter.get_position());
+  _context->save_state("main-splitter", "scripting-shell", _hsplitter.get_divider_position());
+  _context->save_state("global-splitter", "scripting-shell", _global_splitter.get_divider_position());
+  _context->save_state("modules-splitter", "scripting-shell", _modules_splitter.get_divider_position());
+  _context->save_state("classes-splitter", "scripting-shell", _classes_splitter.get_divider_position());
+  _context->save_state("snippet-splitter", "scripting-shell", _snippet_splitter.get_divider_position());
 }
 
 //--------------------------------------------------------------------------------------------------

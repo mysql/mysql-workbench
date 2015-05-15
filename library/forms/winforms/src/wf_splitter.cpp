@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -254,7 +254,7 @@ void SplitterWrapper::remove(mforms::Splitter *backend, mforms::View *child)
 
 //--------------------------------------------------------------------------------------------------
 
-void SplitterWrapper::set_position(mforms::Splitter *backend, int position)
+void SplitterWrapper::set_divider_position(mforms::Splitter *backend, int position)
 {
   MformsSplitContainer ^container = SplitterWrapper::GetManagedObject<MformsSplitContainer>(backend);
   container->SetPosition(position);
@@ -262,7 +262,7 @@ void SplitterWrapper::set_position(mforms::Splitter *backend, int position)
 
 //--------------------------------------------------------------------------------------------------
 
-int SplitterWrapper::get_position(mforms::Splitter *backend)
+int SplitterWrapper::get_divider_position(mforms::Splitter *backend)
 {
   MformsSplitContainer ^container = SplitterWrapper::GetManagedObject<MformsSplitContainer>(backend);
   return container->GetPosition();
@@ -288,8 +288,8 @@ void SplitterWrapper::init()
   f->_splitter_impl.create = &SplitterWrapper::create;
   f->_splitter_impl.add = &SplitterWrapper::add;
   f->_splitter_impl.remove = &SplitterWrapper::remove;
-  f->_splitter_impl.set_position = &SplitterWrapper::set_position;
-  f->_splitter_impl.get_position = &SplitterWrapper::get_position;
+  f->_splitter_impl.set_divider_position = &SplitterWrapper::set_divider_position;
+  f->_splitter_impl.get_divider_position = &SplitterWrapper::get_divider_position;
   f->_splitter_impl.set_expanded = &SplitterWrapper::set_expanded;
 }
 

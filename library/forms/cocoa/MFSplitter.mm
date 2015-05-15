@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -216,7 +216,7 @@ static bool splitter_create(::mforms::Splitter *self, bool horiz, bool thin)
   return true;  
 }
 
-static void splitter_set_position(::mforms::Splitter *self, int pos)
+static void splitter_set_divider_position(::mforms::Splitter *self, int pos)
 {
   if ( self )
   {
@@ -229,7 +229,7 @@ static void splitter_set_position(::mforms::Splitter *self, int pos)
   }
 }
 
-static int splitter_get_position(::mforms::Splitter *self)
+static int splitter_get_divider_position(::mforms::Splitter *self)
 {
   if ( self )
   {
@@ -345,8 +345,8 @@ void cf_splitter_init()
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
   
   f->_splitter_impl.create= &splitter_create;
-  f->_splitter_impl.set_position= &splitter_set_position;
-  f->_splitter_impl.get_position= &splitter_get_position;
+  f->_splitter_impl.set_divider_position= &splitter_set_divider_position;
+  f->_splitter_impl.get_divider_position= &splitter_get_divider_position;
   f->_splitter_impl.add= &splitter_add;
   f->_splitter_impl.remove= &splitter_remove;
   f->_splitter_impl.set_expanded = &splitter_set_expanded;

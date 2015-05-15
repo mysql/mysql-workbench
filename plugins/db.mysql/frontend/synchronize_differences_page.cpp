@@ -377,7 +377,7 @@ bool SynchronizeDifferencesPage::pre_load()
       }
     }
   }
-  _splitter.set_position(_splitter.get_height()*2/3);
+  _splitter.set_divider_position(_splitter.get_height()*2/3);
 
   select_row();
 

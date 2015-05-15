@@ -1241,7 +1241,7 @@ class SecurityAccount(mforms.Box):
 
         self.resume_layout()
 
-        mforms.Utilities.add_timeout(0.1, lambda self=self: self.splitter.set_position(240))
+        mforms.Utilities.add_timeout(0.1, lambda self=self: self.splitter.set_divider_position(240))
 
         self.user_selected()
 

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,14 +45,14 @@ void Splitter::remove(View *subview)
   remove_from_cache(subview);
 }
 
-void Splitter::set_position(int pos)
+void Splitter::set_divider_position(int pos)
 {
-  _splitter_impl->set_position(this, pos);
+  _splitter_impl->set_divider_position(this, pos);
 }
 
-int Splitter::get_position()
+int Splitter::get_divider_position()
 {
-  return _splitter_impl->get_position(this);
+  return _splitter_impl->get_divider_position(this);
 }
 
 void Splitter::set_expanded(bool first, bool expand)

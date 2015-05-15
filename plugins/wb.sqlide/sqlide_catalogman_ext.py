@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -669,7 +669,7 @@ class TableManagerParent(mforms.Splitter):
     def switch_maintenance(self):
         self.right_view = TableMaintenancePanel(self.editor)
         self.add(self.right_view)
-        self.set_position(250)
+        self.set_divider_position(250)
         self.right_view.relayout()
 
         self.right_view.show_tables(self.schema, self.selected_tables())

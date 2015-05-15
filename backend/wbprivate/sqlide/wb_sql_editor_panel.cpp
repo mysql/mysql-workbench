@@ -335,7 +335,7 @@ void SqlEditorPanel::splitter_resized()
   if (_lower_tabview.page_count() > 0)
   {
     _form->grt_manager()->set_app_option("DbSqlEditor:ResultSplitterPosition",
-                                         grt::IntegerRef(_splitter.get_position()));
+                                         grt::IntegerRef(_splitter.get_divider_position()));
   }
 }
 
@@ -1162,7 +1162,7 @@ void SqlEditorPanel::lower_tab_switched()
     int position = _form->grt_manager()->get_app_option_int("DbSqlEditor:ResultSplitterPosition", 200);
     if (position > _splitter.get_height() - 100)
       position = _splitter.get_height() - 100;
-    _splitter.set_position(position);
+    _splitter.set_divider_position(position);
   }
 }
 
@@ -1278,7 +1278,7 @@ void SqlEditorPanel::dock_result_panel(SqlEditorResult *result)
     int position = _form->grt_manager()->get_app_option_int("DbSqlEditor:ResultSplitterPosition", 200);
     if (position > _splitter.get_height() - 100)
       position = _splitter.get_height() - 100;
-    _splitter.set_position(position);
+    _splitter.set_divider_position(position);
 
     // scroll the editor to make the cursor visible
     _editor->get_editor_control()->set_caret_pos(_editor->get_editor_control()->get_caret_pos());

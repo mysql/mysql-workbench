@@ -274,7 +274,7 @@ void SqlEditorTreeController::finish_init()
   tree_refresh();
 
   // make sure to restore the splitter pos after layout is ready
-  _grtm->run_once_when_idle(this, boost::bind(&mforms::Splitter::set_position, _side_splitter, initial_splitter_pos));
+  _grtm->run_once_when_idle(this, boost::bind(&mforms::Splitter::set_divider_position, _side_splitter, initial_splitter_pos));
 
   // Connect the splitter change event after the setup is done to avoid wrong triggering.
   _splitter_connection = _side_splitter->signal_position_changed()->connect(boost::bind(&SqlEditorTreeController::sidebar_splitter_changed, this));
@@ -351,7 +351,7 @@ void SqlEditorTreeController::side_bar_filter_changed(const std::string& filter)
 
 void SqlEditorTreeController::sidebar_splitter_changed()
 {
-  int pos = _side_splitter->get_position();
+  int pos = _side_splitter->get_divider_position();
   if (pos > 0)
     _grtm->set_app_option("DbSqlEditor:SidebarInitialSplitterPos", grt::IntegerRef(pos));
 }

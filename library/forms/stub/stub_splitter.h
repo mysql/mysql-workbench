@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,11 +45,11 @@ protected:
   {
   }
   
-  static void set_position(Splitter *self, int pos)
+  static void set_divider_position(Splitter *self, int pos)
   {
   }
 
-  static int get_position(Splitter *self)
+  static int get_divider_position(Splitter *self)
   {
     return 0;
   }
@@ -67,8 +67,8 @@ public:
     f->_splitter_impl.create= &SplitterWrapper::create;
     f->_splitter_impl.add= &SplitterWrapper::add;
     f->_splitter_impl.remove= &SplitterWrapper::remove;
-    f->_splitter_impl.set_position= &SplitterWrapper::set_position;
-    f->_splitter_impl.get_position= &SplitterWrapper::get_position;
+    f->_splitter_impl.set_divider_position= &SplitterWrapper::set_divider_position;
+    f->_splitter_impl.get_divider_position= &SplitterWrapper::get_divider_position;
     f->_splitter_impl.set_expanded= &SplitterWrapper::set_expanded;
   }
   

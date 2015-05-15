@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -655,8 +655,8 @@ void SpatialDataView::activate()
   if (!_activated)
   {
     _activated = true;
-    if (_splitter->get_position() != this->get_width() - 200)
-      _splitter->set_position(this->get_width() - 200);
+    if (_splitter->get_divider_position() != this->get_width() - 200)
+      _splitter->set_divider_position(this->get_width() - 200);
   }
   _viewer->activate();
 }
