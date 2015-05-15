@@ -29,7 +29,7 @@ namespace Gtk
 {
 class TreeView;
 class ListStore;
-class HBox;
+class Box;
 class Button;
 class Widget;
 }
@@ -46,7 +46,7 @@ class DbMySQLEditorPrivPage : private WidgetsAutoCleaner
 
     void switch_be(bec::DBObjectEditorBE* be);
         
-    Gtk::HBox& page() const { return *_holder; }
+    Gtk::Box& page() const { return *_holder; }
     
   private:
     void assign_privilege_handler();
@@ -66,7 +66,7 @@ class DbMySQLEditorPrivPage : private WidgetsAutoCleaner
     Glib::RefPtr<ListModelWrapper>      _all_roles_model;
     Glib::RefPtr<ListModelWrapper>      _assigned_priv_model;
     
-    Gtk::HBox                   *_holder;
+    Gtk::Box                    *_holder;
     Gtk::TreeView               *_roles_tv;
     Gtk::TreeView               *_assigned_priv_tv;
     Gtk::Button                 *_add_button;

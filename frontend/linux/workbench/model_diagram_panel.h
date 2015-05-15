@@ -37,7 +37,7 @@ class NavigatorBox;
 class InfoBox;
 
 
-class ModelDiagramPanel : public Gtk::HPaned, public FormViewBase
+class ModelDiagramPanel : public Gtk::Paned, public FormViewBase
 {
   class InlineEditor : public wb::InlineEditContext
   {
@@ -57,12 +57,12 @@ class ModelDiagramPanel : public Gtk::HPaned, public FormViewBase
   
   friend class InlineEditor;
  
-  Gtk::VBox  _top_box;
+  Gtk::Box  _top_box;
 
-  Gtk::VBox *_tools_toolbar;
+  Gtk::Box *_tools_toolbar;
   
   Gtk::Box *_vbox;
-  Gtk::HBox *_diagram_hbox;
+  Gtk::Box *_diagram_hbox;
 
   wb::WBContextUI *_wb;
   wb::ModelDiagramForm *_be;
@@ -101,7 +101,7 @@ class ModelDiagramPanel : public Gtk::HPaned, public FormViewBase
 public:
   static ModelDiagramPanel *create(wb::WBContextUI *wb);
 
-  ModelDiagramPanel(GtkHPaned *paned, Glib::RefPtr<Gtk::Builder> xml);
+  ModelDiagramPanel(GtkPaned *paned, Glib::RefPtr<Gtk::Builder> xml);
 
   ~ModelDiagramPanel();
 

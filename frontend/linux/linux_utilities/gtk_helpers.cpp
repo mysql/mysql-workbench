@@ -47,9 +47,9 @@ Glib::RefPtr<Gtk::ListStore> get_empty_model()
 }
 
 //------------------------------------------------------------------------------
-Gtk::HBox &create_icon_label(const std::string &icon, const std::string &text)
+Gtk::Box &create_icon_label(const std::string &icon, const std::string &text)
 {
-  Gtk::HBox *hbox= Gtk::manage(new Gtk::HBox(false, 0));
+  Gtk::Box *hbox= Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 0));
   
   Gtk::Image *image= Gtk::manage(new Gtk::Image(ImageCache::get_instance()->image_from_filename(icon)));
   Gtk::Label *label= Gtk::manage(new Gtk::Label(text));
@@ -430,7 +430,7 @@ Gtk::Widget *create_closeable_tab(const Glib::ustring &title,
                                   const sigc::slot<void> &close_callback,
                                   Gtk::Label **title_label)
 {
-  Gtk::HBox *hbox= Gtk::manage(new Gtk::HBox(false, 1));
+  Gtk::Box *hbox= Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 1));
   Gtk::Label *label= Gtk::manage(new Gtk::Label("\342\234\225"));
   Gtk::EventBox *evbox= Gtk::manage(new Gtk::EventBox());
   Gtk::Label *text_label= Gtk::manage(new Gtk::Label(title));
@@ -603,8 +603,7 @@ PanedConstrainer::PanedConstrainer(Gtk::Paned *pan) : _pan(pan), _vertical(true)
   if (_pan)
   {
 
-    Gtk::VPaned* vpan = dynamic_cast<Gtk::VPaned*>(pan);
-    if (vpan)
+    if (pan->get_orientation() == Gtk::ORIENTATION_VERTICAL)
       _vertical = true;
     else
       _vertical = false;

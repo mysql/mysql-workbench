@@ -18,7 +18,7 @@ namespace wb
 };
 
 
-class NavigatorBox : public Gtk::VBox
+class NavigatorBox : public Gtk::Box
 {
   wb::ModelDiagramForm *_model;
   mdc::GtkCanvas _canvas;

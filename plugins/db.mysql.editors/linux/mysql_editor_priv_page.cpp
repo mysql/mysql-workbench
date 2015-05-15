@@ -16,7 +16,7 @@ DbMySQLEditorPrivPage::DbMySQLEditorPrivPage(::bec::DBObjectEditorBE *be)
                       , _object_privilege_list_be(0)
                       , _reentrant(false)
 {
-  _holder = new Gtk::HBox(false, 8);
+  _holder = new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 8);
 
   Gtk::ScrolledWindow *scrolled = new Gtk::ScrolledWindow();
   scrolled->set_shadow_type(Gtk::SHADOW_ETCHED_IN);
@@ -34,7 +34,7 @@ DbMySQLEditorPrivPage::DbMySQLEditorPrivPage(::bec::DBObjectEditorBE *be)
   scrolled->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
   manage(scrolled); // add to auto-clean on exit list
 
-  Gtk::VBox *vbox = new Gtk::VBox();
+  Gtk::Box *vbox = new Gtk::Box(Gtk::ORIENTATION_VERTICAL);
   manage(vbox); // add to auto-clean on exit list
   
   _add_button       = new Gtk::Button(" < ");

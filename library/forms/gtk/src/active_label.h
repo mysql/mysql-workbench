@@ -35,7 +35,7 @@
 //==============================================================================
 //
 //==============================================================================
-class ActiveLabel : public Gtk::HBox
+class ActiveLabel : public Gtk::Box
 {
   public:
     ActiveLabel(const Glib::ustring& text, const sigc::slot<void> &close_callback);

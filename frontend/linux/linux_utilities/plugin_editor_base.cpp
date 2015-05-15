@@ -287,7 +287,7 @@ bool PluginEditorBase::should_close_on_delete_of(const std::string &oid)
 
 
 //------------------------------------------------------------------------------
-void PluginEditorBase::embed_code_editor(mforms::View *container, Gtk::VBox *vbox, bool commit_on_focus_out)
+void PluginEditorBase::embed_code_editor(mforms::View *container, Gtk::Box *vbox, bool commit_on_focus_out)
 {
   if (_old_embedded_editor)
     vbox->remove(*_old_embedded_editor);

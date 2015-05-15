@@ -26,7 +26,7 @@ static bool set_paned_position(Gtk::Paned *paned, const long pos, const bool rig
   if (right)
   {
     int size;
-    if (dynamic_cast<Gtk::HPaned*>(paned))
+    if (paned->get_orientation() == Gtk::ORIENTATION_HORIZONTAL)
       size = paned->get_width() - pos;
     else
       size = paned->get_height() - pos;

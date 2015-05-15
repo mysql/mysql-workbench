@@ -24,7 +24,8 @@
 
 //--------------------------------------------------------------------------------
 ActiveLabel::ActiveLabel(const Glib::ustring& text, const sigc::slot<void> &close_callback)
-            : _close_callback(close_callback)
+            : Gtk::Box(Gtk::ORIENTATION_HORIZONTAL)
+            , _close_callback(close_callback)
             , _text_label(text)
             , _menu(NULL)
             , _delete_menu(false)
