@@ -67,8 +67,8 @@ ModelPanel *ModelPanel::create(wb::WBContextUI *wb, wb::OverviewBE *overview)
 }
 
 
-ModelPanel::ModelPanel(GtkVBox *paned, Glib::RefPtr<Gtk::Builder> xml)
-  : Gtk::VBox(paned), FormViewBase("ModelOverview"), _wb(0), _overview(0), _documentation_box(0),
+ModelPanel::ModelPanel(GtkBox *paned, Glib::RefPtr<Gtk::Builder> xml)
+  : Gtk::Box(paned), FormViewBase("ModelOverview"), _wb(0), _overview(0), _documentation_box(0),
     _history_tree(0), _editor_paned(0), _usertypes_box(0), _secondary_sidebar(0), _sidebar(0)
 #ifdef COMMERCIAL_CODE
   , _validation_panel(0)

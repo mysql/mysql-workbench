@@ -6,7 +6,7 @@
 
 
 MultiView::MultiView(bool tree_view, bool icon_view)
-  : Gtk::VBox(false, 0), _tree_view(0), _icon_view(0)
+  : Gtk::Box(Gtk::ORIENTATION_VERTICAL, 0), _tree_view(0), _icon_view(0)
 {
   if (tree_view)
   {

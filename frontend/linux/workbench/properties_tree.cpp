@@ -189,7 +189,7 @@ void PropertyBool::on_value_changed()
 //==============================================================================
 PropertyColor::PropertyColor(PropertyInspector* owner, const bec::NodeId& node)
               : PropertyValue(owner,node)
-              , _button("...")
+              , _hbox(Gtk::ORIENTATION_HORIZONTAL), _button("...")
 {
   _hbox.pack_start(_entry);
   _hbox.pack_end(_button, false, false);
@@ -451,7 +451,7 @@ void PropertyInspector::edit_canceled()
 
 //------------------------------------------------------------------------------
 PropertiesTree::PropertiesTree(wb::WBContextUI *wb)
-  : _wb(wb), _inspector(0)
+  : Gtk::Box(Gtk::ORIENTATION_VERTICAL), _wb(wb), _inspector(0)
 {
   pack_start(_inspector_view, true, true);
 

@@ -33,7 +33,7 @@
 
 using base::strfmt;
 
-class OverviewDivision : public Gtk::VBox
+class OverviewDivision : public Gtk::Box
 {
   bool header_button_release(GdkEventButton *e)
   {
@@ -70,7 +70,7 @@ class OverviewDivision : public Gtk::VBox
   }
 
 
-  Gtk::Button *add_mode_switch_button(Gtk::HBox *view_mode_box,
+  Gtk::Button *add_mode_switch_button(Gtk::Box *view_mode_box,
                                       const std::string &filename,
                                       wb::OverviewBE::OverviewDisplayMode mode)
   {
@@ -97,7 +97,7 @@ class OverviewDivision : public Gtk::VBox
   }
 
 
-  Gtk::Button *add_action_button(Gtk::HBox *view_mode_box,
+  Gtk::Button *add_action_button(Gtk::Box *view_mode_box,
                                  const std::string &filename,
                                  const std::string &tooltip,
                                  const sigc::slot<void> &callback)
@@ -128,7 +128,7 @@ class OverviewDivision : public Gtk::VBox
 
   void create_header(const std::string& text,
                      Gtk::EventBox **ebox_dptr,
-                     Gtk::HBox **hbox_dptr)
+                     Gtk::Box **hbox_dptr)
   {
     // Let us get events from the header's widgets by creating EventBox
     Gtk::EventBox *ebox = *ebox_dptr = Gtk::manage(new Gtk::EventBox());
@@ -136,7 +136,7 @@ class OverviewDivision : public Gtk::VBox
     ebox->set_size_request(-1, 24);
     ebox->show();
     
-    Gtk::HBox *hdr_box = *hbox_dptr= Gtk::manage(new Gtk::HBox(false));
+    Gtk::Box *hdr_box = *hbox_dptr= Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL));
     ebox->add(*hdr_box);  
 
     _arrow = Gtk::manage(new Gtk::Arrow(Gtk::ARROW_DOWN, Gtk::SHADOW_NONE));
@@ -156,7 +156,7 @@ class OverviewDivision : public Gtk::VBox
   bec::NodeId _node;
   Gtk::HSeparator _sep;
   Gtk::Arrow *_arrow;
-  Gtk::HBox *_header_box;
+  Gtk::Box *_header_box;
   wb::OverviewBE *_overview;
   wb::OverviewBE::OverviewDisplayMode _display_mode;
   bool _view_mode_changing;
@@ -165,7 +165,7 @@ public:
   sigc::signal<void, wb::OverviewBE::OverviewDisplayMode> signal_view_mode_change() { return _view_mode_change; }
 
   OverviewDivision(wb::OverviewBE *overview, const bec::NodeId &node, const std::string &text, bool view_switch, bool no_header=false)
-    : Gtk::VBox(false, 0), _node(node), _overview(overview), _view_mode_changing(false)
+    : Gtk::Box(Gtk::ORIENTATION_VERTICAL, 0), _node(node), _overview(overview), _view_mode_changing(false)
   {
     Gtk::EventBox *ebox        = 0;
 
@@ -860,7 +860,7 @@ private:
   Gtk::EventBox *create_group_heading(const bec::NodeId &node, Gtk::Label **tab_label)
   {
     Gtk::EventBox *tab_box= Gtk::manage(new Gtk::EventBox());
-    Gtk::HBox *tab= Gtk::manage(new Gtk::HBox(false, 4));
+    Gtk::Box *tab= Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 4));
     std::string icon_path;
     std::string text, descr;
     int icon;
@@ -953,7 +953,7 @@ public:
 //----------------------------------------------------------------------------------------------------
 
 OverviewPanel::OverviewPanel(wb::WBContextUI *wb, wb::OverviewBE *overview)
-  : _container(Gtk::manage(new Gtk::VBox(false, 0)))
+  : _container(Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_VERTICAL, 0)))
   , _wb(wb)
   , _overview_be(overview)
 {
@@ -1073,7 +1073,7 @@ void OverviewPanel::item_list_selection_changed(const std::vector<bec::NodeId>& 
 //------------------------------------------------------------------------------
 // Build division e.g. EER Diagrams, Physical Schemata, 
 // Schema Privileges in the model overview. @pnode points to a subtree
-void OverviewPanel::build_division(Gtk::VBox *container, const bec::NodeId &pnode)
+void OverviewPanel::build_division(Gtk::Box *container, const bec::NodeId &pnode)
 {
   // Fetch division name, wb::OverviewBE::Label is a enum defined in 
   // backend/workbench/wb_overview.h so it is passed as a column index

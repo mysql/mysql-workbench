@@ -99,7 +99,7 @@ public:
     return entry ? add_text_change_timer(entry, sigc::mem_fun(be, setter)) : sigc::connection();
   }
 
-  void embed_code_editor(mforms::View *container, Gtk::VBox *vbox, bool commit_on_focus_out = true);
+  void embed_code_editor(mforms::View *container, Gtk::Box *vbox, bool commit_on_focus_out = true);
 protected:
   struct TextChangeTimer
   {

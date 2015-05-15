@@ -678,11 +678,11 @@ TransparentMessage::TransparentMessage()
   set_size_request(MESSAGE_WINDOW_WIDTH, MESSAGE_WINDOW_HEIGHT);
 
   {
-    Gtk::VBox *vbox = Gtk::manage(new Gtk::VBox(false, 0));
+    Gtk::Box *vbox = Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_VERTICAL, 0));
     vbox->set_border_width(20);
     add(*vbox);
 
-    Gtk::HBox *hbox = Gtk::manage(new Gtk::HBox(false, 12));
+    Gtk::Box *hbox = Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 12));
     vbox->pack_end(*hbox, false, false);
 
     cancel_button = Gtk::manage(new Gtk::Button("Cancel"));

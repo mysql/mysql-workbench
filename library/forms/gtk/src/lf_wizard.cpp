@@ -41,7 +41,7 @@ static void setup_padded_button(Gtk::Button *button, Gtk::Label *label, Gtk::Ima
 
   if (image)
   {
-    Gtk::HBox *hbox= Gtk::manage(new Gtk::HBox(false, 4));
+    Gtk::Box *hbox= Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 4));
     align->add(*hbox);
     hbox->pack_start(*image, false, true);
     hbox->pack_start(*label, true, true);
@@ -59,6 +59,7 @@ static void setup_padded_button(Gtk::Button *button, Gtk::Label *label, Gtk::Ima
 WizardImpl::WizardImpl(::mforms::Wizard *wiz, ::mforms::Form* owner)
     : FormImpl(wiz, owner, mforms::FormDialogFrame)
       , _top_table(3, 2)
+      , _button_box(Gtk::ORIENTATION_HORIZONTAL)
       , _cancel_btn()
       , _back_btn()
 {

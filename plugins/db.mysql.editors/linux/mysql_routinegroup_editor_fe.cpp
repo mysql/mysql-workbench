@@ -83,7 +83,7 @@ DbMySQLRoutineGroupEditor::DbMySQLRoutineGroupEditor(grt::Module *m, bec::GRTMan
   xml()->get_widget("rg_comment", tv);
   add_text_change_timer(tv, sigc::mem_fun(this, &DbMySQLRoutineGroupEditor::set_comment));
   
-  Gtk::VBox* code_win;
+  Gtk::Box* code_win;
   xml()->get_widget("rg_code_holder", code_win);
   embed_code_editor(_be->get_sql_editor()->get_container(), code_win);
   _be->load_routines_sql();
@@ -122,7 +122,7 @@ void DbMySQLRoutineGroupEditor::activate_row(const Gtk::TreePath &path, Gtk::Tre
 //------------------------------------------------------------------------------
 bool DbMySQLRoutineGroupEditor::switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args)
 {
-  Gtk::VBox* code_win;
+  Gtk::Box* code_win;
   xml()->get_widget("rg_code_holder", code_win);
   delete _be;
  

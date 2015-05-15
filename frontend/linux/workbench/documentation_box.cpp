@@ -9,7 +9,7 @@
 
 
 DocumentationBox::DocumentationBox(wb::WBContextUI *wbui)
-  : Gtk::VBox(false, 0), _wbui(wbui), _multiple_items(false)
+  : Gtk::Box(Gtk::ORIENTATION_VERTICAL, 0), _wbui(wbui), _multiple_items(false)
 {
   pack_start(_combo, false, false);
   

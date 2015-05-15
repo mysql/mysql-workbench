@@ -32,7 +32,7 @@ class Widget;
 class Entry;
 class ListStore;
 class EntryCompletion;
-class HBox;
+class Box;
 class ComboBox;
 class ComboBoxText;
 class Window;
@@ -57,7 +57,7 @@ class TextListColumnsModel;
 class TreeModelWrapper;
 void expand_tree_nodes_as_in_be(const Glib::RefPtr<TreeModelWrapper> &model, Gtk::TreeView *tv);
 
-Gtk::HBox &create_icon_label(const std::string &icon, const std::string &label);
+Gtk::Box &create_icon_label(const std::string &icon, const std::string &label);
 
 
 //Gtk::Widget *create_closeable_tab(const Glib::ustring &title, const sigc::slot<void> &close_callback,
@@ -140,9 +140,9 @@ public:
      *
      * @param top_or_left_limit should be set to prevent Gtk::Paned to be smaller than the specified size,
      * or to be automagically hidden when user make it smaller than that value, based on sticky behaviour.
-     * from the left or top side, depends if it's Gtk::HPaned or Gtk::VPaned. Set to 0 to disable this limit.
+     * from the left or top side, depends if it's horizontal or vertical. Set to 0 to disable this limit.
      * @param bottom_or_right_limit it's similar to the previous parameter except it limits the right or bottom size,
-     * depends if it's Gtk::HPaned or Gtk::VPaned. Set to 0 to disable this limit.
+     * depends if it's horizontal or vertical. Set to 0 to disable this limit.
 
      * @return PanedContrainer* Pointer to PanedConstrainer. The pointer will be automagically freed when Gtk::Paned is desotryed.
      */

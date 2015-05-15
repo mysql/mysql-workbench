@@ -11,7 +11,7 @@
 #include "grt/tree_model.h"
 #include "editable_iconview.h"
 
-class MultiView : public Gtk::VBox
+class MultiView : public Gtk::Box
 {
   Gtk::TreeView                    *_tree_view;
   EditableIconView                 *_icon_view;

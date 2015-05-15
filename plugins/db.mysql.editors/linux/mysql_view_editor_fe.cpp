@@ -64,7 +64,7 @@ DbMySQLViewEditor::DbMySQLViewEditor(grt::Module *m, bec::GRTManager *grtm, cons
 
 
 
-  Gtk::VBox *ddl_win;
+  Gtk::Box *ddl_win;
   xml()->get_widget("editor_placeholder", ddl_win);
   embed_code_editor(_be->get_sql_editor()->get_container(), ddl_win);
   _be->load_view_sql();
@@ -105,7 +105,7 @@ DbMySQLViewEditor::~DbMySQLViewEditor()
 bool DbMySQLViewEditor::switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args)
 {
   MySQLViewEditorBE *old_be = _be;
-  Gtk::VBox *ddl_win;
+  Gtk::Box *ddl_win;
   xml()->get_widget("editor_placeholder", ddl_win);
  
   _be = new MySQLViewEditorBE(grtm, db_mysql_ViewRef::cast_from(args[0]));

@@ -8,8 +8,7 @@
 DbMySQLTableEditorTriggerPage::DbMySQLTableEditorTriggerPage(DbMySQLTableEditor *owner
                                                           ,MySQLTableEditorBE *be
                                                           ,Glib::RefPtr<Gtk::Builder>         xml)
-                             : _owner(owner)
-                             , _be(be)
+                             : _be(be)
                              , _xml(xml)
 {
 
@@ -26,7 +25,7 @@ DbMySQLTableEditorTriggerPage::~DbMySQLTableEditorTriggerPage()
 //------------------------------------------------------------------------------
 void DbMySQLTableEditorTriggerPage::switch_be(MySQLTableEditorBE* be)
 {
-  Gtk::VBox* trigger_code_win;
+  Gtk::Box* trigger_code_win;
   _xml->get_widget("trigger_code_holder", trigger_code_win);
 
 //  trigger_code_win->remove_all();

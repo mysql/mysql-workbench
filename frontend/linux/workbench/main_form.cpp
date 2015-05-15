@@ -1978,7 +1978,7 @@ Gtk::Widget *MainForm::decorate_widget(Gtk::Widget *panel, bec::UIForm *form)
   mforms::MenuBar *menu = form->get_menubar();
   mforms::ToolBar *toolbar = form->get_toolbar();
 
-  Gtk::VBox *top_box = Gtk::manage(new Gtk::VBox(false, 0));
+  Gtk::Box *top_box = Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_VERTICAL, 0));
   if (menu)
   {
     Gtk::Widget *w = mforms::widget_for_menubar(menu);

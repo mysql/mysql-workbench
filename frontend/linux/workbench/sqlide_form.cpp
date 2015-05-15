@@ -36,7 +36,6 @@
 #include "widget_saver.h"
 #include "plugin_editor_base.h"
 
-DEFAULT_LOG_DOMAIN("UI")
 using base::strfmt;
 
 
@@ -49,7 +48,10 @@ DbSqlEditorView *DbSqlEditorView::create(SqlEditorForm::Ref editor_be)
 
 //------------------------------------------------------------------------------
 DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
-                : FormViewBase("DbSqlEditor"), _be(editor_be)
+                : Gtk::Box(Gtk::ORIENTATION_VERTICAL), FormViewBase("DbSqlEditor"), _be(editor_be)
+                , _top_pane(Gtk::ORIENTATION_HORIZONTAL)
+                , _top_right_pane(Gtk::ORIENTATION_HORIZONTAL)
+                , _main_pane(Gtk::ORIENTATION_VERTICAL)
                 , _output(_be, this)
                 , _side_palette(mforms::gtk::ViewImpl::get_widget_for_view(_be->get_side_palette()))
                 , _dock_delegate(NULL, MAIN_DOCKING_POINT)

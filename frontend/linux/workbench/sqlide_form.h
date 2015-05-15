@@ -38,7 +38,7 @@ class QueryView;
 //==============================================================================
 //
 //==============================================================================
-class DbSqlEditorView : public Gtk::VBox, public FormViewBase
+class DbSqlEditorView : public Gtk::Box, public FormViewBase
 {
   public:
     DbSqlEditorView(SqlEditorForm::Ref editor_be);
@@ -88,9 +88,9 @@ class DbSqlEditorView : public Gtk::VBox, public FormViewBase
     void set_maximized_editor_mode(bool flag);
 
     SqlEditorForm::Ref    _be;
-    Gtk::HPaned           _top_pane;
-    Gtk::HPaned           _top_right_pane;
-    Gtk::VPaned           _main_pane;
+    Gtk::Paned           _top_pane;
+    Gtk::Paned           _top_right_pane;
+    Gtk::Paned           _main_pane;
     QueryOutputView       _output;
     Gtk::Widget          *_side_palette;
 

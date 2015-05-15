@@ -129,7 +129,7 @@ class PropertyColor : public PropertyValue
   private:
     void show_dlg();
     
-    Gtk::HBox                  _hbox;
+    Gtk::Box                   _hbox;
     Gtk::ColorSelectionDialog  _dlg;
     Gtk::Entry                 _entry;
     Gtk::Button                _button;
@@ -199,7 +199,7 @@ class PropertyInspector : public Gtk::ScrolledWindow
 };
 
 //==============================================================================
-class PropertiesTree : public Gtk::VBox
+class PropertiesTree : public Gtk::Box
 {  
   wb::WBContextUI       *_wb;
   bec::ValueInspectorBE *_inspector;

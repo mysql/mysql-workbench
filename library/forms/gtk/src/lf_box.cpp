@@ -24,10 +24,7 @@
 mforms::gtk::BoxImpl::BoxImpl(::mforms::Box *self, bool horiz)
   : ViewImpl(self)
 {
-  if (horiz)
-    _box = new Gtk::HBox();
-  else
-    _box = new Gtk::VBox();
+  _box = new Gtk::Box(horiz ? Gtk::ORIENTATION_HORIZONTAL : Gtk::ORIENTATION_VERTICAL);
 
   _alignment = new Gtk::Alignment();
   _alignment->add(*_box);

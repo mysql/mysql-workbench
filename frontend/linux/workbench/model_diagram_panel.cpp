@@ -269,9 +269,9 @@ void ModelDiagramPanel::on_activate()
 
 }
 
-ModelDiagramPanel::ModelDiagramPanel(GtkHPaned *paned, Glib::RefPtr<Gtk::Builder> builder)
-  : Gtk::HPaned(paned), FormViewBase("ModelDiagram")
-  , _top_box(false, 0)
+ModelDiagramPanel::ModelDiagramPanel(GtkPaned *paned, Glib::RefPtr<Gtk::Builder> builder)
+  : Gtk::Paned(paned), FormViewBase("ModelDiagram")
+  , _top_box(Gtk::ORIENTATION_VERTICAL, 0)
   , _tools_toolbar(0)
   , _vbox(0)
   , _diagram_hbox(0)
@@ -288,6 +288,9 @@ ModelDiagramPanel::ModelDiagramPanel(GtkHPaned *paned, Glib::RefPtr<Gtk::Builder
   , _history_list(0)
   , _documentation_box(0)
   , _properties_tree(0)
+#ifdef COMMERCIAL_CODE
+  , _validation_panel(0)
+#endif
   , _xml(builder)
 {
 }
@@ -298,7 +301,6 @@ void ModelDiagramPanel::post_construct(wb::WBContextUI *wb, Glib::RefPtr<Gtk::Bu
   _grtm = wb->get_wb()->get_grt_manager();
   _diagram_hbox= 0;
   xml->get_widget("diagram_hbox", _diagram_hbox);
-  //_top_box = new Gtk::VBox(false, 0);
   _top_box.show();
 
   _top_box.pack_end(*this, true, true);
@@ -358,7 +360,7 @@ void ModelDiagramPanel::init(const std::string &view_id)
 
     #ifdef COMMERCIAL_CODE
     _validation_panel = Gtk::manage(new ValidationPanel());
-    Gtk::HBox* hbox = Gtk::manage(new Gtk::HBox());
+    Gtk::Box* hbox = Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL));
     note->append_page(*_validation_panel, *hbox);
     _validation_panel->notebook_label(hbox);
     #endif
@@ -418,7 +420,7 @@ void ModelDiagramPanel::init(const std::string &view_id)
     log_debug3("ModelDiagramPanel::init got tools toolbar %p\n", tools_toolbar);
     if (tools_toolbar)
     {
-      _tools_toolbar = dynamic_cast<Gtk::VBox*>(mforms::widget_for_toolbar(tools_toolbar));
+      _tools_toolbar = dynamic_cast<Gtk::Box*>(mforms::widget_for_toolbar(tools_toolbar));
       log_debug3("ModelDiagramPanel::init cast _tools_toolbar = %p\n", _tools_toolbar);
       if (_tools_toolbar)
       {
@@ -464,7 +466,7 @@ void ModelDiagramPanel::init(const std::string &view_id)
   _sig_restore_sidebar = Glib::signal_idle().connect(sigc::bind_return(sigc::mem_fun(this, &FormViewBase::restore_sidebar_layout), false));
   
   //  Set the sidebar pane sizes
-  Gtk::VPaned *pane = NULL;
+  Gtk::Paned *pane = NULL;
   _xml->get_widget("model_sidebar", pane);
   pane->set_position(_wb->get_wb()->get_grt_manager()->get_app_option_int("Sidebar:VBox1:Position", pane->get_position()));
 
@@ -638,7 +640,7 @@ void ModelDiagramPanel::update_tool_cursor()
 
 bool ModelDiagramPanel::on_close()
 {
-  Gtk::VPaned *pane = NULL;
+  Gtk::Paned *pane = NULL;
   _xml->get_widget("model_sidebar", pane);
   _wb->get_wb()->get_grt_manager()->set_app_option("Sidebar:VBox1:Position", grt::IntegerRef(pane->get_position()));
   

@@ -29,9 +29,9 @@ static int zoom_levels[]= {
 
 
 NavigatorBox::NavigatorBox()
-  : Gtk::VBox(false, 2), _model(0), _canvas(mdc::GtkCanvas::XlibCanvasType), _combo(true), _changing_zoom(false)
+  : Gtk::Box(Gtk::ORIENTATION_VERTICAL, 2), _model(0), _canvas(mdc::GtkCanvas::XlibCanvasType), _combo(true), _changing_zoom(false)
 {
-  Gtk::HBox *hbox= Gtk::manage(new Gtk::HBox(false, 0));
+  Gtk::Box *hbox= Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 0));
 
   _canvas.signal_size_allocate().connect(sigc::mem_fun(this, &NavigatorBox::size_change));
   _canvas.signal_realize().connect(sigc::mem_fun(this, &NavigatorBox::canvas_realize));

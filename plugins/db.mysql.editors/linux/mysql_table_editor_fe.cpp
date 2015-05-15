@@ -124,7 +124,7 @@ void DbMySQLTableEditor::decorate_object_editor()
   if (is_editing_live_object())
   {
     PluginEditorBase::decorate_object_editor();
-    Gtk::HBox* header_part = 0;
+    Gtk::Box* header_part = 0;
     xml()->get_widget("header_part", header_part);
 
     if (header_part->get_parent() == NULL)
@@ -137,7 +137,7 @@ void DbMySQLTableEditor::decorate_object_editor()
       Gtk::Image* hide_image = Gtk::manage(new Gtk::Image(ImageCache::get_instance()->image_from_filename("EditorExpanded.png", false)));
       Gtk::Image* show_image = Gtk::manage(new Gtk::Image(ImageCache::get_instance()->image_from_filename("EditorCollapsed.png", false)));
       hide_image->show();
-      Gtk::VBox* box = Gtk::manage(new Gtk::VBox());
+      Gtk::Box* box = Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_VERTICAL));
       box->pack_start(*hide_image, false, false);
       box->pack_start(*show_image, false, false);
       box->show();
@@ -161,7 +161,7 @@ void DbMySQLTableEditor::toggle_header_part()
   image->set(ImageCache::get_instance()->image_from_filename(make_image_small ? "db.Table.editor.24x24.png" : "db.Table.editor.48x48.png", false));
   image->set_data("is_large", (void*)(!make_image_small));
 
-  Gtk::VBox* image_box = dynamic_cast<Gtk::VBox*>(hide_button->get_image());
+  Gtk::Box* image_box = dynamic_cast<Gtk::Box*>(hide_button->get_image());
   if (image_box)
   {
     const std::vector<Gtk::Widget*> images = image_box->get_children();
