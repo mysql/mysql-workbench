@@ -34,6 +34,7 @@ PluginEditorBase::PluginEditorBase(grt::Module *module, bec::GRTManager *grtm, c
   , _xml(0)
   , _live_object_editor_decorator_xml(0)
   , _live_object_editor_decorator_control(0)
+  , _live_editor_placeholder(0)
   , _old_embedded_editor(0)
   , _old_embedded_find(0)
 {
