@@ -514,14 +514,17 @@ bool WBOptions::parse_args(char **argv, int argc, int *retval)
     }
     else
       log_level_set = true;
-    
+
     std::string level = base::tolower(log_setting);
     base::Logger::active_level(level);
   }
-  
+
   if (log_level_set)
+  {
     log_info("Logger set to level '%s'\n", base::Logger::active_level().c_str());
-  
+    base::Logger::setLogLevelSpecifiedByUser();
+  }
+
   return true;
 }
 
@@ -1843,7 +1846,12 @@ void WBContext::set_default_options(grt::DictRef options)
 
   // Other options
   set_default(options, "workbench.physical.Connection:ShowCaptions", 0);
-  set_default(options, "workbench.physical.Connection:CenterCaptions", 0);  
+  set_default(options, "workbench.physical.Connection:CenterCaptions", 0);
+
+  // By the time we make it here, Logger's log level has already been set to default (whatever it may be).
+  // NOTE that there's a cornercase we ignore: if user set --log-level or WB_LOG_LEVEL, this is what Logger::active_level() will return instead.
+  // But since set_default() only has effect the first time the Workbench is run, this shouldn't really matter for the user while keeping our code simpler.
+  set_default(options, "workbench.logger:LogLevel", base::Logger::active_level());
 }
 
 
@@ -1876,6 +1884,24 @@ static void strip_options_dict(grt::DictRef dict)
   }
 }
 
+void WBContext::setLogLevelFromGuiPreferences(const grt::DictRef& dict)
+{
+  // don't set if user already specified log level (via commmandline or shell env variable)
+  if (base::Logger::wasLogLevelSpecifiedByUser())
+    return;
+
+  std::string currentLogLevel = base::Logger::active_level();
+  std::string prefsLogLevel   = dict.get_string("workbench.logger:LogLevel", currentLogLevel);
+
+  if (currentLogLevel != prefsLogLevel)
+  {
+    bool ok = base::Logger::active_level(prefsLogLevel);
+    if (ok)
+      base::Logger::log(base::Logger::LogInfo, DOMAIN_WB_CONTEXT, "Log level changed to '%s' according to UI option\n", prefsLogLevel.c_str());
+    else
+      assert(0);
+  }
+}
 
 void WBContext::load_app_options(bool update)
 {
@@ -1933,6 +1959,8 @@ void WBContext::load_app_options(bool update)
         grt::merge_contents(curOptions->options(), options->options(), true);
 
         grt::merge_contents(curOptions->commonOptions(), options->commonOptions(), true);
+
+        setLogLevelFromGuiPreferences(options->options());
 
         // set loaded recent files list (if they exist)
         while (curOptions->recentFiles().count() > 0)

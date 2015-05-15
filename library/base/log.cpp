@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,7 +36,9 @@
 
 using namespace base;
 
-static const char* LevelText[] = {"", "ERR", "WRN", "INF", "DB1", "DB2", "DB3"};
+static     const char*       LevelText[]              = { "",     "ERR",   "WRN",     "INF",  "DB1",    "DB2",    "DB3"    };
+/*static*/ const std::string Logger::_logLevelNames[] = { "none", "error", "warning", "info", "debug1", "debug2", "debug3" };
+/*static*/ bool              Logger::_logLevelSpecifiedByUser = false;
 
 //--------------------------------------------------------------------------------------------------
 
@@ -393,10 +395,8 @@ bool Logger::active_level(const std::string& value)
   if (_impl == NULL)
     return false;
 
-  std::string levels[] = { "none", "error", "warning", "info", "debug1", "debug2", "debug3" };
-
   int levelIndex = NumOfLevels;
-  while (levelIndex >= 0 && !same_string(value, levels[levelIndex]))
+  while (levelIndex >= 0 && !same_string(value, _logLevelNames[levelIndex]))
     levelIndex--;
 
   if (levelIndex < 0)
