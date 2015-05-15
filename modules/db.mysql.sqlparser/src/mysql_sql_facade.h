@@ -54,7 +54,7 @@ class MYSQL_SQL_PARSER_PUBLIC_FUNC MysqlSqlFacadeImpl
 public:
   MysqlSqlFacadeImpl(grt::CPPModuleLoader *ldr) : grt::ModuleImplBase(ldr) {}
 
-  DEFINE_INIT_MODULE_DOC(MysqlSqlFacade_VERSION, "MySQL AB", DOC_MysqlSqlFacadeImpl, grt::ModuleImplBase,
+  DEFINE_INIT_MODULE_DOC(MysqlSqlFacade_VERSION, "Oracle and/or its affiliates", DOC_MysqlSqlFacadeImpl, grt::ModuleImplBase,
     DECLARE_MODULE_FUNCTION_DOC(MysqlSqlFacadeImpl::parseSqlScriptString,
                                 "Parses a SQL script containing CREATE statements from a string, "
                                 "filling the given catalog object with the encountered tables, views and other objects.",

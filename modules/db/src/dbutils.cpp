@@ -29,7 +29,7 @@ class DbUtilsImpl : public grt::ModuleImplBase
 public:
   DbUtilsImpl(grt::CPPModuleLoader *loader) : grt::ModuleImplBase(loader) {}
 
-  DEFINE_INIT_MODULE(DbUtils_VERSION, "MySQL AB", grt::ModuleImplBase,
+  DEFINE_INIT_MODULE(DbUtils_VERSION, "Oracle and/or its affiliates", grt::ModuleImplBase,
                   DECLARE_MODULE_FUNCTION(DbUtilsImpl::loadRdbmsInfo), NULL);
 
   int mergeCatalogs(db_CatalogRef sourceCatalog, db_CatalogRef targetCatalog)

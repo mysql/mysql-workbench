@@ -34,7 +34,7 @@ class WbPrintingImpl : public grt::ModuleImplBase, PluginInterfaceImpl
 public:
   WbPrintingImpl(grt::CPPModuleLoader *ldr);
 
-  DEFINE_INIT_MODULE(WBModule_VERSION, "MySQL AB", grt::ModuleImplBase,
+  DEFINE_INIT_MODULE(WBModule_VERSION, "Oracle and/or its affiliates", grt::ModuleImplBase,
     DECLARE_MODULE_FUNCTION(WbPrintingImpl::getPluginInfo),
 
     DECLARE_MODULE_FUNCTION(WbPrintingImpl::printDiagramsToFile),

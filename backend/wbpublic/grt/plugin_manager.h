@@ -103,7 +103,7 @@ namespace bec {
 
     void rescan_plugins();
 
-    DEFINE_INIT_MODULE(PluginManager_VERSION, "MySQL AB", grt::ModuleImplBase,
+    DEFINE_INIT_MODULE(PluginManager_VERSION, "Oracle and/or its affiliates", grt::ModuleImplBase,
                        DECLARE_MODULE_FUNCTION(PluginManagerImpl::show_plugin),
                        DECLARE_MODULE_FUNCTION(PluginManagerImpl::close_plugin)
                        );
