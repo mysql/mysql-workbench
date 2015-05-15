@@ -1,24 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Generated with glade 3.16.1 -->
 <interface>
-  <requires lib="gtk+" version="3.0"/>
-  <object class="GtkVBox" id="top_vbox">
+  <requires lib="gtk+" version="3.8"/>
+  <object class="GtkBox" id="top_vbox">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
+    <property name="resize_mode">queue</property>
+    <property name="orientation">vertical</property>
     <child>
-      <object class="GtkHPaned" id="model_hpane">
+      <object class="GtkPaned" id="model_hpane">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <child>
-          <object class="GtkHPaned" id="model_pane">
+          <object class="GtkPaned" id="model_pane">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="position">180</property>
             <property name="position_set">True</property>
             <child>
-              <object class="GtkVPaned" id="model_sidebar">
+              <object class="GtkPaned" id="model_sidebar">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="orientation">vertical</property>
                 <property name="position">180</property>
                 <property name="position_set">True</property>
                 <child>
@@ -26,6 +29,24 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="tab_pos">bottom</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child type="tab">
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child type="tab">
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child type="tab">
+                      <placeholder/>
+                    </child>
                   </object>
                   <packing>
                     <property name="resize">False</property>
@@ -37,9 +58,27 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="tab_pos">bottom</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child type="tab">
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child type="tab">
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child type="tab">
+                      <placeholder/>
+                    </child>
                   </object>
                   <packing>
-                    <property name="resize">False</property>
+                    <property name="resize">True</property>
                     <property name="shrink">True</property>
                   </packing>
                 </child>
@@ -50,9 +89,10 @@
               </packing>
             </child>
             <child>
-              <object class="GtkVPaned" id="content">
+              <object class="GtkPaned" id="content">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="orientation">vertical</property>
                 <property name="position">800</property>
                 <property name="position_set">True</property>
                 <child>
@@ -71,6 +111,24 @@
                 <child>
                   <object class="GtkNotebook" id="editor_tab">
                     <property name="can_focus">True</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child type="tab">
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child type="tab">
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child type="tab">
+                      <placeholder/>
+                    </child>
                   </object>
                   <packing>
                     <property name="resize">False</property>
@@ -95,6 +153,12 @@
             <property name="can_focus">False</property>
             <property name="label_xalign">0</property>
             <property name="shadow_type">none</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child type="label_item">
+              <placeholder/>
+            </child>
           </object>
           <packing>
             <property name="resize">False</property>
