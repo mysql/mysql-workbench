@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,8 +30,8 @@ namespace MySQL {
       static bool create(mforms::Splitter *backend, bool horizontal);
       static void add(mforms::Splitter *backend, mforms::View *view, int min_size, bool fixed);
       static void remove(mforms::Splitter *backend, mforms::View *view);
-      static void set_position(mforms::Splitter *backend, int position);
-      static int get_position(mforms::Splitter *backend);
+      static void set_divider_position(mforms::Splitter *backend, int position);
+      static int get_divider_position(mforms::Splitter *backend);
       static void set_expanded(mforms::Splitter *backend, bool first, bool expand);
     public:
       static void init();

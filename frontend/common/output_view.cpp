@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -166,7 +166,7 @@ bool OutputView::will_close()
 void OutputView::setup_ui()
 {
   int splitter_position = _wb->read_state("message_width", "output_view", 500);
-  _splitter.set_position(splitter_position);
+  _splitter.set_divider_position(splitter_position);
   _can_track_changes = true;
 }
 
@@ -177,7 +177,7 @@ void OutputView::splitter_moved()
   if (!_can_track_changes)
     return;
 
-  int splitter_position = _splitter.get_position();
+  int splitter_position = _splitter.get_divider_position();
   _wb->save_state("message_width", "output_view", splitter_position);
 }
 

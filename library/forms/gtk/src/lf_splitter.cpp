@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,14 +53,14 @@ void mforms::gtk::SplitterImpl::remove(Splitter *self, View *child)
   splitview->_paned->remove(*child->get_data<ViewImpl>()->get_outer());
 }
 
-void mforms::gtk::SplitterImpl::set_position(Splitter *self, int pos)
+void mforms::gtk::SplitterImpl::set_divider_position(Splitter *self, int pos)
 {
   SplitterImpl *splitview= self->get_data<SplitterImpl>();
   
   splitview->_paned->set_position(pos);
 }
 
-int mforms::gtk::SplitterImpl::get_position(Splitter *self)
+int mforms::gtk::SplitterImpl::get_divider_position(Splitter *self)
 {
   SplitterImpl *splitview= self->get_data<SplitterImpl>();
   
@@ -91,8 +91,8 @@ void mforms::gtk::SplitterImpl::init()
   f->_splitter_impl.create= &SplitterImpl::create;
   f->_splitter_impl.add= &SplitterImpl::add;
   f->_splitter_impl.remove= &SplitterImpl::remove;
-  f->_splitter_impl.set_position= &SplitterImpl::set_position;
-  f->_splitter_impl.get_position= &SplitterImpl::get_position;
+  f->_splitter_impl.set_divider_position= &SplitterImpl::set_divider_position;
+  f->_splitter_impl.get_divider_position= &SplitterImpl::get_divider_position;
   f->_splitter_impl.set_expanded= &SplitterImpl::set_expanded;
 }
 

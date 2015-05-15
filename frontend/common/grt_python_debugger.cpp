@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -270,7 +270,7 @@ PythonDebugger::PythonDebugger(GRTShellWindow *shell, mforms::TabView *tabview)
   _variable_list->end_columns();
   spl->add(_variable_list);
   
-  spl->set_position(500);
+  spl->set_divider_position(500);
   _program_stopped = false;
 }
 

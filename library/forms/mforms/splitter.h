@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,8 +38,8 @@ namespace mforms {
 #endif
     void (*add)(Splitter *self, View *child, int minsize, bool fixed);
     void (*remove)(Splitter *self, View *child);
-    void (*set_position)(Splitter *self, int);
-    int (*get_position)(Splitter *self);
+    void (*set_divider_position)(Splitter *self, int);
+    int (*get_divider_position)(Splitter *self);
     void (*set_expanded)(Splitter *self, bool first, bool expand);
   };
 #endif
@@ -64,8 +64,8 @@ namespace mforms {
     virtual void remove(View *subview);
     
     /** Sets/gets position of the divider */
-    void set_position(int position);
-    int get_position();
+    void set_divider_position(int position);
+    int get_divider_position();
 
     /** Sets either the first (left/top) or the second (right/bottom) part of the splitter to visible or hidden. */
     void set_expanded(bool first, bool expand);

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,8 +39,8 @@ protected:
   static bool create(::mforms::Splitter *self, bool horiz);
   static void add(Splitter *self, View *child, int minwidth, bool fixed);
   static void remove(Splitter *self, View *child);
-  static void set_position(Splitter *self, int pos);
-  static int get_position(Splitter *self);
+  static void set_divider_position(Splitter *self, int pos);
+  static int get_divider_position(Splitter *self);
   static void set_expanded(Splitter *self, bool first, bool expand);
 
 public:
