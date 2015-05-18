@@ -1532,7 +1532,7 @@ namespace MySQL.Controls
     {
       if (TabCount > 1 || CanCloseLastTab)
       {
-        TabClosingEventArgs args = new TabClosingEventArgs(page, true);
+        TabClosingEventArgs args = new TabClosingEventArgs(page, true, TabPages.IndexOf(page));
         OnTabClosing(args);
         if (args.canClose)
         {
@@ -2169,13 +2169,15 @@ namespace MySQL.Controls
 
   public class TabClosingEventArgs : EventArgs
   {
+    public int index;
     public TabPage page;
     public bool canClose;
 
-    public TabClosingEventArgs(TabPage page, bool canClose)
+    public TabClosingEventArgs(TabPage page, bool canClose, int index)
     {
       this.page = page;
       this.canClose = canClose;
+      this.index = index;
     }
   }
 
