@@ -22,6 +22,7 @@
 #include "mforms.h"
 #include "gtk_helpers.h"
 #include <typeinfo>
+#include <gdkmm/devicemanager.h>
 
 //#define d(...) {fprintf(stderr, "%s:%i: ", __PRETTY_FUNCTION__, __LINE__); fprintf(stderr,__VA_ARGS__);}
 #define d(...)
