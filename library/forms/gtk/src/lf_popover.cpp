@@ -23,7 +23,7 @@
 
 #include <gtkmm/window.h>
 #include <gtkmm/fixed.h>
-
+#include <gdkmm/devicemanager.h>
 #include "gtk_helpers.h"
 
 namespace
