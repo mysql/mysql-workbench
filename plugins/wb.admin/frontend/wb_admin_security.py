@@ -658,6 +658,12 @@ class FirewallCommands:
     def reset_user(self, userhost):
         return self.set_user_mode(userhost, 'RESET')
 
+    def is_enabled(self):
+        result = self.ctrl_be.exec_query("SELECT @@mysql_firewall_mode")
+        if result and result.nextRow():
+            return result.intByIndex(1) == 1
+        return False
+
 
 class FirewallUserInterfaceBase(mforms.Box):
     def __init__(self, owner):
@@ -707,14 +713,18 @@ class FirewallAddRuleDialog(mforms.Form):
         mforms.Form.__init__(self, None, mforms.FormResizable | mforms.FormMinimizable)
 
         self.set_title("Add new rule")
+        self.set_size(400, 300)
+        self.center()
+
 
         self.content = mforms.newBox(False)
         self.set_content(self.content)
         
-        self.content.add(mforms.newLabel("Type the rule you want to add for this user."), False, True)
+        self.content.add(mforms.newLabel("\nType the rule you want to add for this user.\n"), False, True)
         
         self.query_box = mforms.newTextBox(mforms.SmallScrollBars)
-        self.content.add(self.query_box, False, True)
+        self.query_box.set_size(400, 200)
+        self.content.add(self.query_box, True, True)
         
         button_box = mforms.newBox(True)
         self.content.add(button_box, False, True)
@@ -757,6 +767,10 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         firewall_rules_main_box = mforms.newBox(False)
         firewall_rules_main_box.set_padding(12)
         firewall_rules_main_box.set_spacing(8)
+        
+        self.note = mforms.newLabel("")
+        self.build_note()
+        firewall_rules_main_box.add(self.note, False, True)
         
         state_box = mforms.newBox(True)
         
@@ -827,25 +841,15 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         
         self.add(firewall_rules_main_box, True, True)
 
-
-
-
-
-
-        # Copy section
-        #panel = mforms.newPanel(mforms.TitledBoxPanel)
-        #panel.set_title("Copy queries")
-
-        #self.copy_box = mforms.newBox(True)
-        #self.users = mforms.newSelector()
-        #self.copy_box.add(self.users, False, True)
+    def build_note(self):
+        text = ""
+        self.note.show(False)
+        if self.commands.is_enabled() == False:
+            text = "The firewall is currently disabled. You can still manage user rules and modes, but changes will not have any effect until the firewall is enabled again."
+            self.note.show(True)
         
-        #self.copy_from_button = mforms.newButton()
-        #self.copy_from_button.set_text("Copy From...")
-        #self.copy_box.add(self.copy_from_button, False, True)
-        
-        #panel.add(self.copy_box)
-        #self.add(panel, False, True)
+        text = "%s\n\n" % text
+        self.note.set_text(text)
         
     def refresh_row(self, current_row, user, host):
         userhost = "%s@%s" % (user, host)
@@ -872,6 +876,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         for rule in self.commands.get_cached_user_rules(self.current_userhost):
             self.cache_list.add_item(rule)
             
+        self.build_note()
     def tweak_user_list(self):
         self.owner.user_list.add_column(mforms.StringColumnType, "FW State", 80, False)
         self.owner.user_list.add_column(mforms.StringColumnType, "# FW Rules", 80, False)
@@ -1972,7 +1977,6 @@ class WbAdminSecurity(mforms.Box):
 
     def page_activated(self):
         if (not self.ui_created) or self.firewall_status_changed():
-            log_error("CREATING NEW UI!!!!\n")
             self.create_ui()
             self.ui_created = True
         self.update_ui()
