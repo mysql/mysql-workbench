@@ -169,7 +169,7 @@ int View::get_subview_index(View *sv)
 
 View *View::get_subview_at_index(int index)
 {
-  if (index < 0 || index > (int)_subviews.size())
+  if (index < 0 || index >= (int)_subviews.size())
     return NULL;
 
   return _subviews[index].first;
