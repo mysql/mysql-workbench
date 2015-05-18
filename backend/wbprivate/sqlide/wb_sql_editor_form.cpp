@@ -404,7 +404,8 @@ void SqlEditorForm::title_changed()
 SqlEditorForm::~SqlEditorForm()
 {
   // We need to remove it from cache, if not someone will be able to login without providing PW
-  mforms::Utilities::forget_cached_password(_connection->hostIdentifier(), _connection->parameterValues().get_string("userName"));
+  if (_connection.is_valid())
+    mforms::Utilities::forget_cached_password(_connection->hostIdentifier(), _connection->parameterValues().get_string("userName"));
 
 
   if (_auto_completion_cache)
@@ -472,7 +473,7 @@ void SqlEditorForm::handle_notification(const std::string &name, void *sender, b
   else if (name == "GNFormTitleDidChange")
   {
     // Validates only if another editor to the same connection has sent the notification
-    if (info["form"] != form_id() && _connection->name() == info["connection"])
+    if (info["form"] != form_id() && _connection.is_valid() && _connection->name() == info["connection"])
     {
       // This code is reached when at least 2 editors to the same host
       // have been opened, so the label of the old editor (which may not
@@ -2807,9 +2808,12 @@ int SqlEditorForm::count_connection_editors(const std::string &conn_name)
   for(index = _wbsql->get_open_editors()->begin(); index != end; index++)
   {
     SqlEditorForm::Ref editor((*index).lock());
-    std::string editor_connection = editor->_connection->name();
-    if (editor_connection == conn_name)
-      count++;    
+    if (editor->_connection.is_valid())
+    {
+      std::string editor_connection = editor->_connection->name();
+      if (editor_connection == conn_name)
+        count++;
+    }
   }
   
   return count;  
