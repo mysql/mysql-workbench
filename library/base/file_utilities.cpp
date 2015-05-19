@@ -247,7 +247,12 @@ namespace base {
       throw std::runtime_error(strfmt("%s while locking file", g_strerror(errno)));
     }
 
-    ftruncate(fd, 0);
+    if (ftruncate(fd, 0))
+    {
+      close(fd);
+      fd = -1;
+      throw std::runtime_error(strfmt("%s while truncating file", g_strerror(errno)));
+    }
 
     char pid[32];
     snprintf(pid, sizeof(pid), "%i", getpid());

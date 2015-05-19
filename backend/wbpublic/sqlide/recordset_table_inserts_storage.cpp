@@ -87,7 +87,7 @@ void Recordset_table_inserts_storage::do_unserialize(Recordset *recordset, sqlit
       known_typegroups["com.mysql.rdbms.common.typegroup.userdefined"]= std::string();
       known_typegroups["com.mysql.rdbms.common.typegroup.structured"]= std::string();
 
-      long double ld;
+      long double ld = 0.0L;
       known_real_typegroups= known_typegroups;
       known_real_typegroups["com.mysql.rdbms.common.typegroup.numeric"]= ld;
     }

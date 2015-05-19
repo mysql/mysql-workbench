@@ -713,7 +713,7 @@ bool parser_is_stopped;
 //int MYSQLlex(void *arg, void *yythd)
 int MYSQLlex(void **arg, void *yyl)
 {
-  reg1	uchar c;
+  reg1	uchar c = 0;
   int	tokval, result_state;
   uint length;
   enum my_lex_states state;
@@ -740,7 +740,6 @@ int MYSQLlex(void **arg, void *yyl)
   lex->tok_start=lex->tok_end=lex->ptr;
   state=lex->next_state;
   lex->next_state=MY_LEX_OPERATOR_OR_IDENT;
-  LINT_INIT(c);
   for (;;)
   {
     if (parser_is_stopped)

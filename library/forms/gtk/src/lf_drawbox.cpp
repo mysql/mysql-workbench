@@ -17,8 +17,10 @@
  * 02110-1301  USA
  */
 #include "../lf_mforms.h"
-
 #include "../lf_drawbox.h"
+#include "base/log.h"
+
+DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_GTK);
 
 namespace mforms {
 namespace gtk {
@@ -199,8 +201,12 @@ bool DrawBoxImpl::mouse_button_event(GdkEventButton *event, ::mforms::DrawBox *s
   case 1: mbtn = MouseButtonLeft; break;
   case 2: mbtn = MouseButtonOther; break;
   case 3: mbtn = MouseButtonRight; break;
+  default:
+    mbtn = MouseButtonNone;
+    log_error("Unrecognised mouse button pressed");
+    break;
   }
-  
+
   if (event->type == GDK_BUTTON_PRESS)
   {
     //if there is some widget inside darea then we need to grab focus, so if there will be entry box,
