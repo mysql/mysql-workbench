@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -208,8 +208,8 @@ void DBObjectFilterFrame::refresh(ssize_t object_list_selection, ssize_t mask_li
 
 void DBObjectFilterFrame::update_button_enabled()
 {
-  _add1_button.set_enabled(_object_list.get_selected_index() >= 0);
-  _del1_button.set_enabled(_mask_list.get_selected_index() >= 0);
+  _add1_button.set_enabled(!_object_list.get_selected_indices().empty());
+  _del1_button.set_enabled(!_mask_list.get_selected_indices().empty());
 }
 
 //--------------------------------------------------------------------------------------------------

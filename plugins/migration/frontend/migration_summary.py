@@ -114,6 +114,8 @@ class FinalReportView(WizardPage):
             if "GenerateBulkCopyScript" in self.main.plan.state.dataBulkTransferParams.keys():
                 self.advanced_button.set_text("Open folder that contain generated script")
                 self.advanced_button.show(True)
+            else:
+                self.advanced_button.show(False)
         WizardPage.page_activated(self, advancing)
         
         
