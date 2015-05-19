@@ -99,7 +99,7 @@ void Recordset_sqlite_storage::do_unserialize(Recordset *recordset, sqlite::conn
     {
       Known_type_initializer()
       {
-        long double ld;
+        long double ld = 0.0L;
         known_types["BLOB"]= sqlite::blob_ref_t();
         known_quoted_types["BLOB"]= true;
         known_types["CHAR"]= std::string();
