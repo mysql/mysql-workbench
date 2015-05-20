@@ -696,17 +696,17 @@ public:
 
     _label.set_use_markup(true);
     _label.show();
-    pack_start(_label, false, false);
+    add(_label);
     
     update_label();
   
     Gtk::Separator *separator= Gtk::manage(new Gtk::HSeparator());
-    pack_start(*separator, false, false);
+    add(*separator);
     separator->show();
 
     for (std::vector<Gtk::Widget*>::iterator iter= children.begin(); iter != children.end(); ++iter)
     {
-      pack_start(**iter, false, false);
+      add(**iter);
       (*iter)->unreference();
     }
   }
