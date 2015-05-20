@@ -379,7 +379,9 @@ public:
 
   void draw_entry(cairo_t *cr, const DocumentEntry &entry, bool hot, bool high_contrast)
   {
-    mforms::Utilities::paint_icon(cr, _model_icon, entry.bounds.left(), entry.bounds.top() + 26);
+    const int icon_top = 26;
+    const int detail_spacing = 15;
+    mforms::Utilities::paint_icon(cr, _model_icon, entry.bounds.left(), entry.bounds.top() + icon_top);
 
     int icon_width, icon_height;
     mforms::Utilities::get_icon_size(_model_icon, icon_width, icon_height);
@@ -419,15 +421,15 @@ public:
 
     cairo_set_font_size(cr, HOME_SMALL_INFO_FONT_SIZE);
 
-    draw_icon_with_text(cr, x, (int)entry.bounds.top() + 26, _folder_icon,
+    draw_icon_with_text(cr, x, (int)entry.bounds.top() + icon_top, _folder_icon,
                         entry.folder_shorted, high_contrast);
     if (entry.is_model)
-      draw_icon_with_text(cr, x, (int)entry.bounds.top() + 40, _schema_icon,
+      draw_icon_with_text(cr, x, (int)entry.bounds.top() + icon_top + detail_spacing, _schema_icon,
       entry.schemas.empty() ? "--" : entry.schemas_shorted, high_contrast);
     else
-      draw_icon_with_text(cr, x, (int)entry.bounds.top() + 40, _size_icon,
+      draw_icon_with_text(cr, x, (int)entry.bounds.top() + icon_top + detail_spacing, _size_icon,
         entry.size.empty() ? "--" : entry.size, high_contrast);
-    draw_icon_with_text(cr, x, (int)entry.bounds.top() + 54, _time_icon, entry.last_accessed,
+    draw_icon_with_text(cr, x, (int)entry.bounds.top() + icon_top + (detail_spacing * 2), _time_icon, entry.last_accessed,
       high_contrast);
   }
 
