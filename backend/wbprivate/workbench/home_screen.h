@@ -50,10 +50,10 @@
 #endif
 
 #define HOME_TITLE_FONT_SIZE 20
-#define HOME_SUBTITLE_FONT_SIZE 13
+#define HOME_SUBTITLE_FONT_SIZE 16
 
 #define HOME_TILES_TITLE_FONT_SIZE 16
-#define HOME_SMALL_INFO_FONT_SIZE 10
+#define HOME_SMALL_INFO_FONT_SIZE 12
 #define HOME_DETAILS_FONT_SIZE 12
 
 #define TILE_DRAG_FORMAT "com.mysql.workbench-drag-tile-format"
