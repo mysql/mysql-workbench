@@ -6,13 +6,14 @@
 
 
 MultiView::MultiView(bool tree_view, bool icon_view)
-  : Gtk::Box(Gtk::ORIENTATION_VERTICAL, 0), _tree_view(0), _icon_view(0)
+  : Gtk::Grid(), _tree_view(0), _icon_view(0)
 {
+  set_orientation(Gtk::ORIENTATION_VERTICAL);
   if (tree_view)
   {
     _tree_view= Gtk::manage(new Gtk::TreeView());
-    pack_start(*_tree_view, false, false);
-
+    add(*_tree_view);
+    _tree_view->set_hexpand(true);
     _tree_view->signal_row_activated().connect(sigc::mem_fun(this, &MultiView::tree_row_activated));
     _tree_view->signal_button_release_event().
       connect_notify(sigc::mem_fun(*this, &MultiView::tree_button_release_event));
@@ -28,7 +29,8 @@ MultiView::MultiView(bool tree_view, bool icon_view)
   if (icon_view)
   {
     _icon_view= Gtk::manage(new EditableIconView());
-    pack_start(*_icon_view, false, false);
+    add(*_icon_view);
+    _icon_view->set_hexpand(true);
     _icon_view->set_item_orientation(Gtk::ORIENTATION_HORIZONTAL);
     _icon_view->set_selection_mode(Gtk::SELECTION_MULTIPLE);
     _icon_view->set_item_width(HORIZONTAL_LAYOUT_ITEM_WIDTH);
