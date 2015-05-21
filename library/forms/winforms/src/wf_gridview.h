@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -24,27 +24,27 @@ using namespace System::Windows::Forms;
 
 namespace MySQL {
   namespace Forms {
-    public delegate MySQL::Base::IRecordsetView ^CreateRecordGridDelegate(IntPtr  /* to a boost::shared_ptr<Recordset> ptr */ rset);
+    public delegate MySQL::Base::IRecordsetView ^CreateGridViewDelegate(IntPtr  /* to a boost::shared_ptr<Recordset> ptr */ rset);
 
     ref class ColumnCallbackWrapper;
 
-    public class RecordGridViewWrapper : public NativeWrapper
+    public class GridViewWrapper : public NativeWrapper
     {
-      static gcroot<CreateRecordGridDelegate^> factory;
+      static gcroot<CreateGridViewDelegate^> factory;
       gcroot<ColumnCallbackWrapper^> column_callback_delegate;
 
     public:
-      static mforms::RecordGrid *create(boost::shared_ptr<class ::Recordset> rset);
-      static void init(CreateRecordGridDelegate ^creator);
+      static mforms::GridView* create(boost::shared_ptr<class ::Recordset> rset);
+      static void init(CreateGridViewDelegate ^creator);
 
-      RecordGridViewWrapper(mforms::RecordGrid *backend);
-      virtual ~RecordGridViewWrapper();
+      GridViewWrapper(mforms::GridView* backend);
+      virtual ~GridViewWrapper();
     };
 
-    public ref class RecordGridViewHelper
+    public ref class GridViewHelper
     {
     public:
-      static void init(CreateRecordGridDelegate ^creator) { RecordGridViewWrapper::init(creator); }
+      static void init(CreateGridViewDelegate ^creator) { GridViewWrapper::init(creator); }
     };
   }
 }

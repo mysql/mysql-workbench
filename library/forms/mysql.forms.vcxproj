@@ -283,7 +283,7 @@
     <ClCompile Include="popup.cpp" />
     <ClCompile Include="progressbar.cpp" />
     <ClCompile Include="radiobutton.cpp" />
-    <ClCompile Include="record_grid.cpp" />
+    <ClCompile Include="gridview.cpp" />
     <ClCompile Include="scrollpanel.cpp" />
     <ClCompile Include="sectionbox.cpp" />
     <ClCompile Include="selector.cpp" />
@@ -342,7 +342,7 @@
     <ClInclude Include="mforms\popup.h" />
     <ClInclude Include="mforms\progressbar.h" />
     <ClInclude Include="mforms\radiobutton.h" />
-    <ClInclude Include="mforms\record_grid.h" />
+    <ClInclude Include="mforms\gridview.h" />
     <ClInclude Include="mforms\scrollpanel.h" />
     <ClInclude Include="mforms\sectionbox.h" />
     <ClInclude Include="mforms\selector.h" />

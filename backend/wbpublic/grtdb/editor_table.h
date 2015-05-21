@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,7 +43,7 @@ namespace mforms {
   class View;
   class Box;
   class ContextMenu;
-  class RecordGrid;
+  class GridView;
 }
 
 namespace bec {
@@ -402,7 +402,7 @@ namespace bec {
 
   private:
     mforms::Box *_inserts_panel;
-    mforms::RecordGrid *_inserts_grid;
+    mforms::GridView* _inserts_grid;
     RecordsetRef _inserts_model;
     RecordsetTableInsertsStorageRef _inserts_storage;
 

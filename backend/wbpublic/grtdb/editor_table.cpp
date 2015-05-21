@@ -36,7 +36,7 @@
 #include "mforms/box.h"
 #include "mforms/form.h"
 #include "mforms/menubar.h"
-#include "mforms/record_grid.h"
+#include "mforms/gridview.h"
 #include "mforms/toolbar.h"
 #include "mforms/utilities.h"
 
@@ -3358,7 +3358,7 @@ mforms::View *TableEditorBE::get_inserts_panel()
     if (tbar->find_item("record_import"))
       tbar->find_item("record_import")->signal_activated()->connect(boost::bind(&TableEditorBE::show_import_wizard, this));
 
-    _inserts_grid = mforms::RecordGrid::create(get_inserts_model());
+    _inserts_grid = mforms::GridView::create(get_inserts_model());
     restore_inserts_columns();
     _inserts_grid->signal_column_resized()->connect(boost::bind(&TableEditorBE::inserts_column_resized, this, _1));
 

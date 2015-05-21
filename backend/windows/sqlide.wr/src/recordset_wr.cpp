@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -137,5 +137,5 @@ MySQL::Base::IRecordsetView ^RecordsetWrapper::wrap_and_create_recordset_view(In
 void RecordsetWrapper::init_mforms(CreateRecordsetViewForWrapper ^deleg)
 {
   create_recordset_for_wrapper = deleg;
-  MySQL::Forms::RecordGridViewHelper::init(gcnew MySQL::Forms::CreateRecordGridDelegate(RecordsetWrapper::wrap_and_create_recordset_view));
+  MySQL::Forms::GridViewHelper::init(gcnew MySQL::Forms::CreateGridViewDelegate(RecordsetWrapper::wrap_and_create_recordset_view));
 }
