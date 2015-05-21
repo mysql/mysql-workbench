@@ -1129,6 +1129,16 @@ SWIG_ADD_SIGNAL_VOID_CALLBACK(deactivated_callback, self->signal_deactivated());
 
 %extend mforms::TextBox {
 SWIG_ADD_SIGNAL_VOID_CALLBACK(changed_callback, self->signal_changed());
+#if SWIG_VERSION >= 0x030003  // SWIG v3.0.3 changed its behaviour and broke compatibility (https://github.com/swig/swig/pull/201).  This is a workaround to make it work again.
+ void append_text_and_scroll(const std::string &text, bool scroll_to_end= false)
+ {
+   self->append_text(text, scroll_to_end);
+ }
+ void append_text_with_encoding_and_scroll(const std::string &text, const std::string &encoding, bool scroll_to_end= false)
+ {
+   self->append_text_with_encoding(text, encoding, scroll_to_end);
+ }
+#endif
 }
 
 %extend mforms::TextEntry {

@@ -58,10 +58,10 @@ class WbAdminConfigurationStartup(mforms.Box):
     def __init__(self, ctrl_be, server_profile, main_view):
         mforms.Box.__init__(self, False)
         self.set_managed()
-        self.set_release_on_add()                               
+        self.set_release_on_add()
         self.main_view = main_view
         self.ctrl_be = ctrl_be
-        self.server_profile = server_profile
+        self.ctrl_be.server_profile = server_profile
 
     #---------------------------------------------------------------------------
     @property
