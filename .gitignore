@@ -141,6 +141,7 @@ xcuserdata
 RE:testing/python/test_results_.*\.txt(\.[0-9])?
 plugins/migration/doc/_*
 ext/antlr-runtime/m4/*
+ext/antlr-runtime/compile
 m4
 log
 antlr3config.h
