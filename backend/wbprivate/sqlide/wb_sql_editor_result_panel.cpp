@@ -49,7 +49,7 @@
 #include "mforms/toolbar.h"
 #include "mforms/scrollpanel.h"
 #include "mforms/menubar.h"
-#include "mforms/record_grid.h"
+#include "mforms/gridview.h"
 #include "mforms/imagebox.h"
 
 #include "mforms/button.h"
@@ -226,7 +226,7 @@ void SqlEditorResult::set_recordset(Recordset::Ref rset)
   _grid_header_menu->add_item_with_title("Reset Sorting", boost::bind(&SqlEditorResult::reset_sorting, this));
   _grid_header_menu->add_item_with_title("Reset Column Widths", boost::bind(&SqlEditorResult::reset_column_widths, this));
 
-  mforms::RecordGrid *grid = mforms::manage(mforms::RecordGrid::create(rset));
+  mforms::GridView* grid = mforms::manage(mforms::GridView::create(rset));
   {
     std::string font = _owner->owner()->grt_manager()->get_app_option_string("workbench.general.Resultset:Font");
     if (!font.empty())
@@ -651,7 +651,7 @@ void SqlEditorResult::restore_grid_column_widths()
 }
 
 
-void SqlEditorResult::dock_result_grid(mforms::RecordGrid *view)
+void SqlEditorResult::dock_result_grid(mforms::GridView* view)
 {
   _result_grid = view;
   view->set_name("result-grid-wrapper");

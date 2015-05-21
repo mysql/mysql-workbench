@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,7 +33,7 @@
 #include "base/log.h"
 #include "base/boost_smart_ptr_helpers.h"
 
-#include "mforms/record_grid.h"
+#include "mforms/gridview.h"
 #include "mforms/utilities.h"
 #include "mforms/treenodeview.h"
 #include "mforms/textbox.h"

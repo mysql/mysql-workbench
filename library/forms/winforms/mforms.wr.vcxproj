@@ -271,7 +271,7 @@
     <ClInclude Include="src\wf_popup.h" />
     <ClInclude Include="src\wf_progressbar.h" />
     <ClInclude Include="src\wf_radiobutton.h" />
-    <ClInclude Include="src\wf_record_grid_view.h" />
+    <ClInclude Include="src\wf_gridview.h" />
     <ClInclude Include="src\wf_scrollpanel.h" />
     <ClInclude Include="src\wf_selector.h" />
     <ClInclude Include="src\wf_splitter.h" />
@@ -327,7 +327,7 @@
     <ClCompile Include="src\wf_popup.cpp" />
     <ClCompile Include="src\wf_progressbar.cpp" />
     <ClCompile Include="src\wf_radiobutton.cpp" />
-    <ClCompile Include="src\wf_record_grid_view.cpp" />
+    <ClCompile Include="src\wf_gridview.cpp" />
     <ClCompile Include="src\wf_scrollpanel.cpp" />
     <ClCompile Include="src\wf_selector.cpp" />
     <ClCompile Include="src\wf_splitter.cpp" />

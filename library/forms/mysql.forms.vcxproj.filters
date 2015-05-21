@@ -160,7 +160,7 @@
     <ClCompile Include="canvas.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="record_grid.cpp">
+    <ClCompile Include="gridview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -313,7 +313,7 @@
     <ClInclude Include="mforms\canvas.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="mforms\record_grid.h">
+    <ClInclude Include="mforms\gridview.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

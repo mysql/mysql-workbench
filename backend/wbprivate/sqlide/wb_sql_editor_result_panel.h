@@ -42,7 +42,7 @@ namespace mforms
   class ToolBarItem;
   class ContextMenu;
   class TreeNodeView;
-  class RecordGrid;
+  class GridView;
 };
 
 class ResultFormView;
@@ -80,7 +80,7 @@ public:
   std::vector<SpatialDataView::SpatialDataSource> get_spatial_columns();
 
 
-  mforms::RecordGrid *result_grid() { return _result_grid; }
+  mforms::GridView* result_grid() { return _result_grid; }
 
   mforms::DockingPoint *dock() { return &_tabdock; }
 
@@ -112,7 +112,7 @@ private:
   mforms::ContextMenu *_column_info_menu;
   mforms::ContextMenu *_grid_header_menu;
   std::list<mforms::ToolBar*> _toolbars;
-  mforms::RecordGrid *_result_grid;
+  mforms::GridView* _result_grid;
   boost::signals2::signal<void (bool)> _collapse_toggled;
   boost::signals2::connection _collapse_toggled_sig;
 
@@ -137,7 +137,7 @@ private:
   void create_column_info_panel();
   void create_spatial_view_panel_if_needed();
 
-  void dock_result_grid(mforms::RecordGrid *view);
+  void dock_result_grid(mforms::GridView* view);
 
   void restore_grid_column_widths();
   std::vector<float> get_autofit_column_widths(Recordset *rs);

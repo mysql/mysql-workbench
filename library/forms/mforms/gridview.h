@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2015 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,7 +41,7 @@ namespace mforms {
   // The main use for this class is to provide an interface for SWIG
   // and to allow the frontend to register a factory function to allocate the
   // concrete implementation.
-  class MFORMS_EXPORT RecordGrid : public NativeContainer
+  class MFORMS_EXPORT GridView: public NativeContainer
   {
   public:
     virtual int get_column_count() = 0;
@@ -61,9 +61,9 @@ namespace mforms {
     int get_clicked_header_column() { return _clicked_header_column; }
 
 #ifndef SWIG
-    static RecordGrid* create(boost::shared_ptr<Recordset> rset);
+    static GridView* create(boost::shared_ptr<Recordset> rset);
 
-    static void register_factory(RecordGrid* (*create)(boost::shared_ptr<Recordset> rset));
+    static void register_factory(GridView* (*create)(boost::shared_ptr<Recordset> rset));
 #endif
 
     // TODO must be emited from Windows
@@ -76,7 +76,7 @@ namespace mforms {
     void clicked_header_column(int column);
 #endif
   protected:
-    RecordGrid();
+    GridView();
   private:
     boost::signals2::signal<void (int)> _signal_column_resized;
     boost::signals2::signal<void (const std::vector<int>)> _signal_columns_resized;

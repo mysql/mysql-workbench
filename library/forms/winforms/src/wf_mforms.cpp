@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -54,7 +54,7 @@
 #include "wf_find_panel.h"
 #include "wf_native.h"
 #include "wf_canvas.h"
-#include "wf_record_grid_view.h"
+#include "wf_gridview.h"
 
 #include "wf_appview.h"
 #include "wf_app.h"

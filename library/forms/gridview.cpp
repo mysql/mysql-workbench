@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2015 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,33 +22,33 @@
 using namespace mforms;
 
 
-static RecordGrid* (*record_grid_factory)(boost::shared_ptr<Recordset> rset) = NULL;
+static GridView* (*record_grid_factory)(boost::shared_ptr<Recordset> rset) = NULL;
 
-RecordGrid* RecordGrid::create(boost::shared_ptr<Recordset> rset)
+GridView* GridView::create(boost::shared_ptr<Recordset> rset)
 {
   return record_grid_factory(rset);
 }
 
 
-RecordGrid::RecordGrid()
+GridView::GridView()
 : _header_menu(NULL), _clicked_header_column(0)
 {
 }
 
 
-void RecordGrid::register_factory(RecordGrid* (*create)(boost::shared_ptr<Recordset> rset))
+void GridView::register_factory(GridView* (*create)(boost::shared_ptr<Recordset> rset))
 {
   record_grid_factory = create;
 }
 
 
-void RecordGrid::set_header_menu(ContextMenu *menu)
+void GridView::set_header_menu(ContextMenu *menu)
 {
   _header_menu = menu;
 }
 
 
-void RecordGrid::clicked_header_column(int column)
+void GridView::clicked_header_column(int column)
 {
   _clicked_header_column = column;
 }
