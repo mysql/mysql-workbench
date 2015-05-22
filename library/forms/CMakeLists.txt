@@ -89,7 +89,7 @@ add_library(mforms
     popup.cpp
     progressbar.cpp
     radiobutton.cpp
-    record_grid.cpp
+    gridview.cpp
     scrollpanel.cpp
     sectionbox.cpp
     selector.cpp

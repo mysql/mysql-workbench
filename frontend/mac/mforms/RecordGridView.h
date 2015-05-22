@@ -20,13 +20,13 @@
 #ifndef _MFORMS_RECORD_GRID_VIEW_H_
 #define _MFORMS_RECORD_GRID_VIEW_H_
 
-#include "mforms/record_grid.h"
+#include "mforms/gridview.h"
 
 @class MResultsetViewer;
 
 namespace mforms
 {
-class RecordGridView : public mforms::RecordGrid
+class RecordGridView : public mforms::GridView
 {
   MResultsetViewer *viewer;
 
