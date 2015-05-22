@@ -238,19 +238,28 @@ def local_run_cmd_linux(command, as_user = Users.CURRENT, user_password=None, su
         return data
 
     # script should already have sudo
+    my_env = os.environ.copy()
+    my_env['LANG'] = "C" # Force english locale 
     child = subprocess.Popen(["/bin/sh", "-c", script], bufsize=0,
                              stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                             close_fds=True)
+                             close_fds=True, env = my_env)
 
     expect_sudo_failure = False
-    if as_user != Users.CURRENT:
+
+    if as_user != Users.CURRENT: 
         # If sudo is being used, we need to input the password
         data = read_nonblocking_until_nl_or(child, child.stdout, "EnterPasswordHere", timeout=output_timeout)
         if data.endswith("EnterPasswordHere"):
+            
+            if not user_password:
+                log_debug2("Password required for sudo, but user_password is empty, throwing exception.")
+                child.terminate() # sudo need pw, but pw is empty, throw exception, 
+                                  # it will be handled upper in the chain and proper pw dialog will be shown.
+                raise InvalidPasswordError("Incorrect password for sudo")
             # feed the password
             if debug_run_cmd:
                 log_debug2("local_run_cmd_linux: sending password to child...\n")
-            child.stdin.write((user_password or "")+"\n")
+            child.stdin.write((user_password or " ")+"\n"+'\x1a')
             expect_sudo_failure = True # we could get a Sorry or the password prompt again
         else:
             # If the prompt didn't come in, it could mean that password is not required
@@ -262,7 +271,7 @@ def local_run_cmd_linux(command, as_user = Users.CURRENT, user_password=None, su
             # - a certain number of lines are read from the pipe
             # - until a timeout occurs (a short one, since the banner shouldn't take very long to get printed)
             # - until the sudo terminates
-
+            log_debug2("sudo prompt available, but it's not standard. Trying to parse.")
             max_lines_to_read_until_giving_up_waiting_for_sudo_prompt = 10
             num_seconds_to_wait_for_sudo_greeting_message_until_we_assume_prompt_wont_come = 1
 
@@ -271,6 +280,11 @@ def local_run_cmd_linux(command, as_user = Users.CURRENT, user_password=None, su
             while child.poll() is None:
                 data = read_nonblocking_until_nl_or(child, child.stdout, "EnterPasswordHere", timeout=1)
                 if data.endswith("EnterPasswordHere"):
+                    if not user_password:
+                        log_debug2("Password required for sudo, but user_password is empty, throwing exception.")
+                        child.terminate() # sudo need pw, but pw is empty, throw exception, 
+                                          # it will be handled upper in the chain and proper pw dialog will be shown.
+                        raise InvalidPasswordError("Incorrect password for sudo")
                     log_info("Banner message from sudo for command %s:\n%s\n" % (script, "".join(buffered_output)))
                     buffered_output = None
                     # ok, so the stuff that came in until now is all garbage and the sudo prompt finally arrived
@@ -314,15 +328,15 @@ def local_run_cmd_linux(command, as_user = Users.CURRENT, user_password=None, su
             if output_handler and current_text:
                 output_handler(current_text)
 
-    
     # Try to read anything left, wait exit
     try:
-        current_text, _ = child.communicate()
-        if current_text and output_handler:
-            output_handler(current_text)
+        # Before trying to read, we check if child process has terminated, we read only if not.
+        if child.poll():
+            current_text, _ = child.communicate()
+            if current_text and output_handler:
+                output_handler(current_text)
     except:
         pass
-    
     result = child.returncode
     if debug_run_cmd:
         log_debug2("local_run_cmd_linux: child returned %s\n" % result)
