@@ -323,13 +323,13 @@ class WbAdminConfigurationStartup(mforms.Box):
                               "Administrator password was possibly wrong.",
                               "Retry", "Cancel", "")
             if r == mforms.ResultOk:
-                self.server_control.stop_async(self.async_stop_callback)
-                return
+                if self.server_control.stop_async(self.async_stop_callback):
+                    return
             else:
                 self.print_output("Could not stop server. Permission denied")
         elif status == "need_password":
-            self.server_control.stop_async(self.async_stop_callback, False)
-            return
+            if self.server_control.stop_async(self.async_stop_callback, False):
+                return
         else:
             self.print_output("Could not stop server: %s" % (status or "unknown error"))
             Utilities.show_error("Could not stop server", str(status), "OK", "", "")
