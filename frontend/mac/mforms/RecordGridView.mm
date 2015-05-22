@@ -31,7 +31,7 @@ DEFAULT_LOG_DOMAIN("RecordGridView");
 using namespace mforms;
 
 
-static RecordGrid* create_record_grid(boost::shared_ptr<Recordset> rset)
+static GridView* create_record_grid(boost::shared_ptr<Recordset> rset)
 {
   return new RecordGridView(rset);
 }
@@ -39,7 +39,7 @@ static RecordGrid* create_record_grid(boost::shared_ptr<Recordset> rset)
 
 void cf_record_grid_init()
 {
-  mforms::RecordGrid::register_factory(create_record_grid);
+  mforms::GridView::register_factory(create_record_grid);
 }
 
 

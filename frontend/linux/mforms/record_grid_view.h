@@ -20,13 +20,14 @@
 #ifndef _MFORMS_RECORD_GRID_VIEW_H_
 #define _MFORMS_RECORD_GRID_VIEW_H_
 
-#include "mforms/record_grid.h"
+#include "mforms/gridview.h"
 
 class RecordsetView;
+using mforms::ColumnHeaderIndicator;
 
-namespace mforms
-{
-class RecordGridView : public mforms::RecordGrid
+//namespace mforms
+//{
+class RecordGridView : public mforms::GridView
 {
   RecordsetView *viewer;
 
@@ -47,6 +48,6 @@ public:
   virtual void set_column_header_indicator(int column, ColumnHeaderIndicator order);
 
   virtual void set_font(const std::string &font);
-};
+//};
 };
 #endif
