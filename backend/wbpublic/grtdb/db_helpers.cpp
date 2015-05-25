@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -67,10 +67,11 @@ std::string bec::get_description_for_connection(const db_mgmt_ConnectionRef &con
   }
   else if (g_str_has_suffix(driver.c_str(), "SSH"))
   {    
-    conn_type = base::strfmt("%s at %s:%i through SSH tunnel at %s with user %s",
+    conn_type = base::strfmt("%s at %s:%i through SSH tunnel at %s@%s with user %s",
                              server.c_str(),
                              params.get_string("hostName").c_str(),
                              (int) params.get_int("port"),
+                             params.get_string("sshUserName").c_str(),
                              params.get_string("sshHost").c_str(),
                              user.c_str());
   }

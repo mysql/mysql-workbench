@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -30,19 +30,24 @@ except IOError, err:
 import os
 import errno
 import stat
-#import mforms
+import mforms
 import time
 import traceback
 
 from wb_common import PermissionDeniedError, InvalidPasswordError, OperationCancelledError, Users
 from workbench.utils import server_version_str2tuple
-from wb_common import CmdOptions, CmdOutput
+from wb_common import CmdOptions, CmdOutput, SSHFingerprintNewError, format_bad_host_exception
 
 from workbench.log import log_info, log_warning, log_error, log_debug, log_debug2, log_debug3
 
 try:
     import paramiko
     import socket
+    
+    class StoreIfConfirmedPolicy(paramiko.MissingHostKeyPolicy):
+        def missing_host_key(self, client, hostname, key):
+            raise SSHFingerprintNewError("Key mismatched", client, hostname, key)
+    
 except:
     traceback.print_exc()
     # temporary workaround
@@ -330,6 +335,22 @@ class WbAdminSSH(object):
             #  raise OperationCancelledError("Cancelled login")
         log_debug2("%s: Leave\n" % self.__class__.__name__)
 
+    def _get_ssh_config_path(self):
+        paths = []
+        if platform.system().lower() == "windows":
+            paths.append("%s\ssh\config" % mforms.App.get().get_user_data_folder())
+            paths.append("%s\ssh\ssh_config" % mforms.App.get().get_user_data_folder())
+        else:
+            paths.append("~/.ssh/config")
+            paths.append("~/.ssh/ssh_config")
+            
+        for path in paths:
+            if os.path.isfile(os.path.expanduser(path)):
+                return os.path.expanduser(path)
+        else:
+            log_debug3("ssh config file not found")
+            return None
+
     def connect(self, host, port, user, pwd, usekey = 0, key = None):
         if port == None or port == 0:
             port = 22
@@ -340,22 +361,49 @@ class WbAdminSSH(object):
         if key and key.startswith("~"):
             key = os.path.expanduser(key)
 
+        config = paramiko.config.SSHConfig()
+        config_file_path = self._get_ssh_config_path()
+        if config_file_path:
+            with open(config_file_path) as f:
+                config.parse(f)
+
+        opts = config.lookup(host)
+        
+
         client = paramiko.SSHClient()
         if usekey:
-            client.load_system_host_keys()
+            ssh_known_hosts_file = None
+            if "userknownhostsfile" in opts:
+                ssh_known_hosts_file = opts["userknownhostsfile"]
+            else:
+                client.get_host_keys().clear()
+                ssh_known_hosts_file = '~/.ssh/known_hosts'
+                
+                if platform.system().lower() == "windows":
+                    ssh_known_hosts_file = '%s\ssh\known_hosts' % mforms.App.get().get_user_data_folder()
+                    
+            try:
+                client.load_host_keys(os.path.expanduser(ssh_known_hosts_file))
+            except IOError, e:
+                log_warning("IOError, probably caused by file %s not found, the message was: %s\n" % (ssh_known_hosts_file, e))
+        
+        if "stricthostkeychecking" in opts and opts["stricthostkeychecking"].lower() == "no":
+            client.set_missing_host_key_policy(WarningPolicy())
+        else:
+            client.set_missing_host_key_policy(StoreIfConfirmedPolicy())
 
         # TODO: Check if file with
         #client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        client.set_missing_host_key_policy(paramiko.WarningPolicy()) # This is a temp workaround, later we need to have UI with buttons accept
+        #client.set_missing_host_key_policy(paramiko.WarningPolicy()) # This is a temp workaround, later we need to have UI with buttons accept
 
            
         try:
             if 'timeout' in paramiko.SSHClient.connect.func_code.co_varnames:
-                client.connect(hostname = host, port = int(port), username = user, password = pwd, pkey = None,
-                                    key_filename = key, timeout = 10, look_for_keys=False, allow_agent=bool(usekey) )
+                client.connect(hostname = host, port = int(port), username = user, password = pwd, #pkey = None,
+                                    key_filename = key, timeout = 10, look_for_keys=bool(usekey), allow_agent=bool(usekey) )
             else:
-                client.connect(hostname = host, port = int(port), username = user, password = pwd, pkey = None,
-                                    key_filename = key, look_for_keys=False, allow_agent=bool(usekey) )
+                client.connect(hostname = host, port = int(port), username = user, password = pwd, #pkey = None,
+                                    key_filename = key, look_for_keys=bool(usekey), allow_agent=bool(usekey) )
             log_info("%s: Connected via ssh to %s\n" % (self.__class__.__name__, host) )
             if self.keepalive != 0:
                 client.get_transport().set_keepalive(self.keepalive)
@@ -373,6 +421,9 @@ class WbAdminSSH(object):
             #  raise ConnectionError("Could not establish SSH connection: %r.\nMake sure the SSH daemon is running and is accessible." % exc)
             #else:
             #  raise ConnectionError("Could not establish SSH connection: %r.\nMake sure the SSH daemon is running and is accessible." % exc)
+        except paramiko.BadHostKeyException, exc:
+            raise Exception(format_bad_host_exception(exc, '%s\ssh\known_hosts' % mforms.App.get().get_user_data_folder() if platform.system().lower() == "windows" else "~/.ssh/known_hosts file"))
+
         except paramiko.PasswordRequiredException, exc:
             if pwd is not None:
                 raise ConnectionError("Could not unlock private keys. %s" % exc)
@@ -388,11 +439,16 @@ class WbAdminSSH(object):
         except paramiko.AuthenticationException, exc:
             import traceback
             log_error("Error opening SSH connection: %s\n" % traceback.format_exc())
-            raise InvalidPasswordError("Invalid password for SSH user %s" % user)
+            if usekey:
+                raise InvalidPasswordError("Invalid ssh key %s for SSH user %s" % (key ,user))
+            else:
+                raise InvalidPasswordError("Invalid password for SSH user %s" % user)
         except paramiko.SSHException, exc:
             import traceback
             log_error("Error opening SSH connection: %s\n" % traceback.format_exc())
             raise ConnectionError("Could not establish SSH connection: %s." % exc)
+        except SSHFingerprintNewError, exc: # We need to handle this upper in the chain
+            raise exc
         except Exception, exc:
             import traceback
             log_error("Error opening SSH connection: %s\n" % traceback.format_exc())
