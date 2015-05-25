@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -95,6 +95,7 @@ namespace MySQL {
 
       virtual void set_front_color(String ^color);
       virtual void set_padding(int left, int top, int right, int bottom);
+      virtual void set_font(const std::string &fontDescription);
 
       virtual void register_file_drop(mforms::DropDelegate *target) {};
       virtual mforms::DropPosition get_drop_position() { return mforms::DropPositionUnknown;  };
