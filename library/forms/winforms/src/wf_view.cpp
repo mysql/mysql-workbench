@@ -883,9 +883,9 @@ void ViewWrapper::set_tooltip(mforms::View *backend, const std::string& text)
 
 //-------------------------------------------------------------------------------------------------
 
-void ViewWrapper::set_font(mforms::View *backend, const std::string& fontDescription)
+void ViewWrapper::set_font(const std::string &fontDescription)
 {
-  Control ^control = GetManagedObject<Control>(backend);
+  Control ^control = GetManagedObject<Control>();
 
   std::string font;
   float size;
@@ -909,6 +909,15 @@ void ViewWrapper::set_font(mforms::View *backend, const std::string& fontDescrip
     // Argument exception pops up when the system cannot find the Regular font style (corrupt font).
     log_error("ViewWrapper::set_font failed. %s\n", e->Message);
   }
+
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void ViewWrapper::set_font(mforms::View *backend, const std::string &text)
+{
+  ViewWrapper *wrapper = backend->get_data<ViewWrapper>();
+  wrapper->set_font(text);
 }
 
 //-------------------------------------------------------------------------------------------------
