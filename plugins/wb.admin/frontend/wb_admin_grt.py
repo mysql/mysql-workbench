@@ -37,7 +37,7 @@ from workbench.utils import Version
 from workbench.notifications import NotificationCenter
 
 
-from workbench.log import log_info, log_warning, log_error, log_debug
+from workbench.log import log_info, log_warning, log_error, log_debug, log_debug2
 
 
 # How the Administrator Module Works
@@ -677,11 +677,9 @@ test_ssh_connection_is_windows = None
 @ModuleInfo.export(grt.STRING, grt.STRING, grt.classes.db_mgmt_Connection, grt.classes.db_mgmt_ServerInstance)
 def testInstanceSettingByName(what, connection, server_instance):
     global test_ssh_connection
-
     log_debug("Test %s in %s\n" % (what, connection.name))
 
     profile = ServerProfile(connection, server_instance)
-
     if what == "connect_to_host":
         if test_ssh_connection:
             test_ssh_connection = None
@@ -689,12 +687,14 @@ def testInstanceSettingByName(what, connection, server_instance):
         log_info("Instance test: Connecting to %s\n" % profile.ssh_hostname)
 
         try:
-            test_ssh_connection = wb_admin_control.WbAdminControl(profile, None, connect_sql=False)
+            test_ssh_connection = wb_admin_control.WbAdminControl(profile, None, connect_sql=False, test_only = True)
             test_ssh_connection.init()
+                
             grt.send_info("connected.")
         except Exception, exc:
+            log_error("Exception: %s" % exc.message)
             import traceback
-            traceback.print_exc()
+            log_debug2("Backtrace was: " % traceback.format_stack())
             return "ERROR "+str(exc)
         except:
             print "Unknown error"
@@ -703,8 +703,9 @@ def testInstanceSettingByName(what, connection, server_instance):
         try:
             test_ssh_connection.acquire_admin_access()
         except Exception, exc:
+            log_error("Exception: %s" % exc.message)
             import traceback
-            traceback.print_exc()
+            log_debug2("Backtrace was: " % traceback.format_stack())
             return "ERROR "+str(exc)
 
         os_info = test_ssh_connection.detect_operating_system_version()

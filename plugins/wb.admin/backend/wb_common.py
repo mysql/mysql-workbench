@@ -113,6 +113,10 @@ class SSHFingerprintNewError(Exception):
          return self.message
 
 
+def format_bad_host_exception(exc, known_hosts_filepath):
+    import binascii
+    return "The host %s fingerprint missmatch.\nExpected key: %s\nServer sent: %s\nPlease verify if it's correct.\nTo continue, delete entries for the host from the %s file." % (exc.hostname, binascii.hexlify(exc.expected_key.get_fingerprint()), binascii.hexlify(exc.key.get_fingerprint()), known_hosts_filepath)
+
 # Decorator to log an exception
 def log_error_decorator(method):
     def wrapper(self, error):
