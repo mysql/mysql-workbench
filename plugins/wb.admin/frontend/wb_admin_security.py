@@ -778,10 +778,9 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         self.state.add_item("OFF")
         self.state.add_item("PROTECTING")
         self.state.add_item("RECORDING")
-        self.state.add_item("RESET")
         self.state.set_size(120, -1)
         self.state.add_changed_callback(self.change_state)
-        state_box.add(mforms.newLabel("State:"), False, True)
+        state_box.add(mforms.newLabel("Mode:"), False, True)
         state_box.add(self.state, False, True)
         
         firewall_rules_main_box.add(state_box, False, True)
@@ -812,8 +811,8 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         self.white_list_delete_button.add_clicked_callback(self.delete_button_click)
 
         self.white_list_clear_button = mforms.newButton()
-        self.white_list_clear_button.set_text("Clear")
-        self.white_list_clear_button.add_clicked_callback(self.clear_button_click)
+        self.white_list_clear_button.set_text("Reset")
+        self.white_list_clear_button.add_clicked_callback(self.reset_button_click)
         
         white_list_button_box.add(self.white_list_add_button, False, True)
         white_list_button_box.add(self.white_list_delete_button, False, True)
@@ -940,9 +939,11 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         self.white_list.remove_indexes(deleted_indexes)
         return
         
-    def clear_button_click(self):
-        self.commands.reset_user(self.current_userhost)
-        self.owner.refresh()
+    def reset_button_click(self):
+        result = Utilities.show_warning("Reset user rules", "Reseting the user rules will delete all rules that were collected", "Yes", "No", "")
+        if result:
+            self.commands.reset_user(self.current_userhost)
+            self.owner.refresh()
         
     def save(self):
         self.commands.set_user_mode(self.current_userhost, self.state.get_string_value())
@@ -966,10 +967,8 @@ class SecurityAccount(mforms.Box):
         self.set_spacing(8)
 
         if self.owner.ctrl_be.server_variables.get('mysql_firewall_mode'):
-            #Utilities.show_message("Using GPL Firewall", str(grt.root.wb.info), "OK", "", "")
             self.firewall_rules = FirewallUserInterface(self)
         else:
-            #Utilities.show_message("Using COMMERCIAL Firewall", str(grt.root.wb.info), "OK", "", "")
             self.firewall_rules = FirewallUserInterfaceDummy(self)
 
 
