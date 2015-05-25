@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,6 +30,7 @@ namespace MySQL {
     private:
       gcroot<Windows::Forms::Button ^> button;
       bool internal_padding;
+      void enable_internal_padding(bool flag);
     protected:
       ButtonWrapper(mforms::Button *backend);
 
@@ -40,6 +41,7 @@ namespace MySQL {
       static void enable_internal_padding(mforms::Button *backend, bool flag);
     public:
       static void init();
+      virtual int set_text(const std::string &text);
 
       bool uses_internal_padding();
     };
