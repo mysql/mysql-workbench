@@ -31,7 +31,7 @@ import mforms
 
 import paramiko
 from workbench.log import log_warning, log_error, log_debug, log_debug2, log_debug3, log_info
-from wb_common import SSHFingerprintNewError
+from wb_common import SSHFingerprintNewError, format_bad_host_exception
 
 SSH_PORT = 22
 REMOTE_PORT = 3306
@@ -252,6 +252,7 @@ class Tunnel(threading.Thread):
         else:
             log_debug3("ssh config file not found")
             return None
+
     def _connect_ssh(self):
         """Create the SSH client and set up the connection.
         
@@ -296,10 +297,7 @@ class Tunnel(threading.Thread):
                                  key_filename=self._keyfile, password=self._password,
                                  look_for_keys=has_key, allow_agent=has_key)
         except paramiko.BadHostKeyException, exc:
-            if platform.system().lower() == "windows":
-                self.notify_exception_error('ERROR', "%s\nDelete entries for the host from the %s file" % (str(exc), '%s\ssh\known_hosts' % mforms.App.get().get_user_data_folder()))
-            else:
-                self.notify_exception_error('ERROR', "%s\nDelete entries for the host from the ~/.ssh/known_hosts file" % str(exc))
+            self.notify_exception_error('ERROR',format_bad_host_exception(exc, '%s\ssh\known_hosts' % mforms.App.get().get_user_data_folder() if platform.system().lower() == "windows" else "~/.ssh/known_hosts file"))
             return False
         except paramiko.BadAuthenticationType, exc:
             self.notify_exception_error('ERROR', "Bad authentication type, the server is not accepting this type of authentication.\nAllowed ones are:\n %s" % exc.allowed_types, sys.exc_info());
@@ -314,7 +312,7 @@ class Tunnel(threading.Thread):
             self.notify_exception_error('ERROR', "Error connecting SSH channel.\nPlease refer to logs for details: %s" % str(exc), sys.exc_info())
             return False
         except SSHFingerprintNewError, exc:
-            self.notify_exception_error('KEY_ERROR', { 'msg': "The authenticity of host '%(0)s (%(0)s)' can't be established.\nECDSA key fingerprint is %(1)s\nAre you sure you want to continue connecting?"  % {'0': "%s:%s" % (self._server[0], self._server[1]), '1': exc.fingerprint}, 'obj': exc})
+            self.notify_exception_error('KEY_ERROR', { 'msg': "The authenticity of host '%(0)s (%(0)s)' can't be established.\n%(1)s key fingerprint is %(2)s\nAre you sure you want to continue connecting?"  % {'0': "%s:%s" % (self._server[0], self._server[1]), '1': exc.key.get_name(), '2': exc.fingerprint}, 'obj': exc})
             return False
         except IOError, exc:
             #Io should be report to the user, so maybe he will be able to fix this issue
@@ -420,7 +418,7 @@ class TunnelManager:
 
         if found:
             with tunnel.lock:
-                print 'Reusing tunnel at port %d' % tunnel.local_port
+                log_debug('Reusing tunnel at port %d' % tunnel.local_port)
                 return tunnel.local_port
         else:
             tunnel = Tunnel(Queue.Queue(), server, username, target, password, keyfile)
@@ -480,8 +478,8 @@ class TunnelManager:
                     if msg_type == 'ERROR':
                         error = _msg
                         break  # Exit returning the error message
-
-                if not tunnel.is_connecting() or not tunnel.isAlive():
+                
+                if (not tunnel.is_connecting() or not tunnel.isAlive()) and tunnel.q.empty():  
                     break
                 time.sleep(0.3)
         log_debug("returning from wait_connection(%s): %s\n" % (port, error))
