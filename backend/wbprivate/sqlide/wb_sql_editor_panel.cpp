@@ -1146,6 +1146,10 @@ void SqlEditorPanel::lower_tab_switched()
     _tab_action_revert.set_enabled(false);
   }
 
+#ifdef _WIN32
+  _editor->focus();
+#endif
+
   mforms::MenuBar *menu;
   if ((menu = _form->get_menubar()))
   {
