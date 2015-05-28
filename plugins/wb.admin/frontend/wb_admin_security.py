@@ -762,6 +762,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         self.set_padding(8)
         
         self.commands = FirewallCommands(self)
+        self.new_user = False
 
         # Firewall rules panel
         firewall_rules_main_box = mforms.newBox(False)
@@ -846,7 +847,10 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         if self.commands.is_enabled() == False:
             text = "The firewall is currently disabled. You can still manage user rules and modes, but changes will not have any effect until the firewall is enabled again."
             self.note.show(True)
-        
+        if self.new_user:
+            text = "The user is not created yet. Please finish creating the user to makes changes here."
+            self.note.show(True)
+            
         text = "%s\n\n" % text
         self.note.set_text(text)
         
@@ -856,10 +860,12 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         current_row.set_string(3, str(self.commands.get_rule_count(userhost)))
         current_row.set_string(4, str(self.commands.get_cached_rule_count(userhost)))
             
-    def show_user(self, user, host):
+    def show_user(self, user, host, new_user):
         self.current_user = user
         self.current_host = host
         self.current_userhost = "%s@%s" % (user, host)
+        self.new_user = new_user
+        self.set_enabled(not new_user)
         self.update_rules()
         return self.state.set_value(self.commands.get_user_mode(self.current_userhost))
       
@@ -1457,7 +1463,7 @@ class SecurityAccount(mforms.Box):
             self.refresh_role_list()
 
             self.schema_privs.show_user(user.schema_privs)
-            self.firewall_rules.show_user(user.username, user.host)
+            self.firewall_rules.show_user(user.username, user.host, False if self._selected_user and self._selected_user.is_commited else True)
         else:
             self.username.set_value("")
             self.password.set_value("")
