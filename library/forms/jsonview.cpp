@@ -108,7 +108,7 @@ JsonView *JsonView::createInstance(JsonViewType type /*= JsonTabControl*/)
   case JsonGridControl:
     return new JsonGridView();
   default:
-    throw new std::exception("no construction method found");
+    throw std::runtime_error("Attempt to create not existing class");
   }
 }
 
@@ -163,7 +163,7 @@ void JsonTextView::init()
   _textEditor->set_language(mforms::LanguageNone);
   _textEditor->set_features(mforms::FeatureWrapText, true);
   _textEditor->set_features(mforms::FeatureReadOnly, false);
-  cache_view(_textEditor.get());
+  add(_textEditor.get());
 }
 
 /// <summary>
@@ -304,7 +304,7 @@ JsonTabView::JsonTabView() : _textView(std::make_shared<JsonTextView>()),
   _tabView->add_page(manage(_textView.get()), "Text");
   _tabView->add_page(manage(_treeView.get()), "Tree");
   _tabView->add_page(manage(_gridView.get()), "Grid");
-  cache_view(_tabView.get());
+  add(_tabView.get());
 }
 
 /// <summary>

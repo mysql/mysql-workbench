@@ -59,6 +59,7 @@ mforms::gtk::TabViewImpl::TabViewImpl(::mforms::TabView *self, ::mforms::TabView
       _nb->set_show_tabs(false);
       _nb->set_show_border(false);
       break;
+    case mforms::TabViewPalette:
     case mforms::TabViewEditorBottom:
       _nb->set_tab_pos(Gtk::POS_BOTTOM);
       break;
