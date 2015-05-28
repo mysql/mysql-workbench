@@ -1,3 +1,22 @@
+/*
+ * Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+
 #include "sqlide/grid_view_model.h"
 #include "sqlide/grid_view.h"
 #include "linux_utilities/gtk_helpers.h"
@@ -74,6 +93,7 @@ int GridViewModel::refresh(bool reset_columns)
         Gtk::TreeViewColumn *col= add_column<ValueTypeTraits<> >(-2, "#", RO, NULL);
         col->get_first_cell_renderer()->property_cell_background()= "LightGray";
         col->set_min_width(35);
+        col->set_resizable(true);
       }
     }
 
