@@ -446,6 +446,7 @@ class WbAdminLogs(mforms.Box):
         self.server_profile = server_profile
         self.main_view = main_view
         self.disable_log_refresh = False
+        self._error_label = None
 
     def create_ui(self):
         self.set_padding(12)
@@ -643,6 +644,25 @@ http://dev.mysql.com/doc/refman/5.1/en/log-destinations.html""" % self.server_pr
         self.tabView.show(True)
 
     def page_activated(self):
+
+        def show_error_page(text):
+            if self._error_label is None:
+                import mforms
+                self._error_label = mforms.newLabel(text)
+                self._error_label.set_style(mforms.BoldStyle)
+                self._error_label.set_text_align(mforms.MiddleCenter)
+                self.add(self._error_label, True, True)
+
+        def remove_error_page_if_necessary():
+            if self._error_label:
+                self.remove(self._error_label)
+
+        if not self.server_profile.config_file_path:
+            show_error_page("Location of MySQL configuration file (ie: my.cnf) not specified")
+            return
+        else:
+            remove_error_page_if_necessary()
+
         if not self.ui_created:
             self.detect_paths()
             self.create_ui()
