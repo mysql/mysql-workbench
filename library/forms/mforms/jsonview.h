@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "mforms/Panel.h"
+#include "mforms/panel.h"
 
 namespace mforms {
   enum JsonViewType
@@ -53,12 +53,11 @@ namespace mforms {
 
     void setData(const std::string &text);
     const std::string &getData() const;
-#ifndef SWIG
+
     static JsonView* createInstance(JsonViewType type = JsonTabControl);
     static void registerFactory(JsonView* (*create)(JsonViewType type));
     static bool __init;
     static bool initFactoryMethod();
-#endif
 
   protected:
     JsonView();
@@ -66,8 +65,8 @@ namespace mforms {
     std::string _jsonText;
 
   private:
-    virtual void setJson(const std::string &text) abstract;
-    virtual const std::string &getJson() const abstract;
+    virtual void setJson(const std::string &text) = 0;
+    virtual const std::string &getJson() const = 0;
   };
 
   class CodeEditor;
