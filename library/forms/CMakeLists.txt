@@ -111,6 +111,7 @@ add_library(mforms
     jsonview.cpp
     widgets.cpp
     wizard.cpp
+    jsonview.cpp
 )
 
 if (KEYRING_DEFINITION)
