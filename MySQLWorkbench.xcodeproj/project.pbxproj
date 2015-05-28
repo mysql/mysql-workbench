@@ -206,7 +206,6 @@
 		2769C8831726761F0096ACF5 /* ui_ObjectEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2769C8801726761F0096ACF5 /* ui_ObjectEditor.cpp */; };
 		276C9C9210FF64AB00FE9A78 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		276C9C9C10FF64C900FE9A78 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
-		276CAB5E1A67FBC10074AD2F /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 276CAB5D1A67FBC10074AD2F /* libiconv.dylib */; };
 		2773B87E11006A21000CA2F9 /* splitter.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773B87D11006A21000CA2F9 /* splitter.h */; };
 		2773B88011006A2D000CA2F9 /* splitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2773B87F11006A2D000CA2F9 /* splitter.cpp */; };
 		2773B88511006B53000CA2F9 /* MFSplitter.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773B88411006B53000CA2F9 /* MFSplitter.h */; };
@@ -4156,7 +4155,6 @@
 		2769C87E1726761F0096ACF5 /* ui_ObjectEditor_impl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ui_ObjectEditor_impl.cpp; path = backend/wbpublic/objimpl/ui/ui_ObjectEditor_impl.cpp; sourceTree = "<group>"; };
 		2769C87F1726761F0096ACF5 /* ui_ObjectEditor_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ui_ObjectEditor_impl.h; path = backend/wbpublic/objimpl/ui/ui_ObjectEditor_impl.h; sourceTree = "<group>"; };
 		2769C8801726761F0096ACF5 /* ui_ObjectEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ui_ObjectEditor.cpp; path = backend/wbpublic/objimpl/ui/ui_ObjectEditor.cpp; sourceTree = "<group>"; };
-		276CAB5D1A67FBC10074AD2F /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = usr/lib/libiconv.dylib; sourceTree = SDKROOT; };
 		2773B87D11006A21000CA2F9 /* splitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = splitter.h; path = library/forms/mforms/splitter.h; sourceTree = "<group>"; };
 		2773B87F11006A2D000CA2F9 /* splitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = splitter.cpp; path = library/forms/splitter.cpp; sourceTree = "<group>"; };
 		2773B88411006B53000CA2F9 /* MFSplitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MFSplitter.h; path = library/forms/cocoa/MFSplitter.h; sourceTree = "<group>"; };
@@ -6623,7 +6621,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				276CAB5E1A67FBC10074AD2F /* libiconv.dylib in Frameworks */,
 				27B4571A1A67DB860074CDAC /* libiconv.2.dylib in Frameworks */,
 				2BECA53918BD2F3000E12F8B /* Python in Frameworks */,
 				2B2E92F21589991B0078D08A /* libwbbase.dylib in Frameworks */,
@@ -9154,7 +9151,6 @@
 				2B774FA515CEC32900923448 /* libglib-2.0.0.dylib */,
 				2B15AE9712D6C6B5006567D6 /* libgmodule-2.0.0.dylib */,
 				2B774FA615CEC32900923448 /* libgthread-2.0.0.dylib */,
-				276CAB5D1A67FBC10074AD2F /* libiconv.dylib */,
 				27B457191A67DB860074CDAC /* libiconv.2.dylib */,
 				2BCBAE4415E7D749009571DE /* libintl.8.dylib */,
 				2B2E92FD158999890078D08A /* libiodbc.dylib */,
