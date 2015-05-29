@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -294,35 +294,6 @@ std::string save_file_chooser(const std::string &filter)
   return file_chooser_impl(true, filter); // true - is for save
 }
 
-//------------------------------------------------------------------------------
-static void expand_node(bec::TreeModel* tm, const bec::NodeId& node, Gtk::TreeView* tv)
-{
-  // Expand the node itself if needed
-  if (tm->is_expandable(node))
-  {
-    if (tm->is_expanded(node))
-    {
-      const int             node_depth = node.depth();
-      Gtk::TreeModel::Path  path;
-
-      for (int i = 0; i < node_depth; ++i)
-          path.push_back(node[i]);
- 
-      tv->expand_row(path, true);
-    }
-
-    // Apply the same thing for all node's children
-    const int children_count = tm->count_children(node);
-    if ( children_count > 0 )
-    {
-      for (int i = 0; i < children_count; ++i)
-      {
-        bec::NodeId child = tm->get_child(node, i);
-        expand_node(tm, child, tv);
-      }
-    }
-  }
-}
 //------------------------------------------------------------------------------
 //std::string run_string_dialog(const std::string& title, const std::string& init_value)
 //{

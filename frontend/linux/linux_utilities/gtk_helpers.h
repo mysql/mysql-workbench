@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -96,12 +96,6 @@ inline Gtk::Window* get_mainwindow()
 
 extern std::string open_file_chooser(const std::string &filter = "*");
 extern std::string save_file_chooser(const std::string &filter = "*");
-
-struct GtkAutoLock
-{
-  GtkAutoLock() {gdk_threads_enter();}
-  ~GtkAutoLock() {gdk_threads_leave();}
-};
 
 template <typename MutexType>
 class Locker

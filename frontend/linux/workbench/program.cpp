@@ -203,9 +203,23 @@ void Program::shutdown()
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
 
+struct GtkAutoLock
+{
+  GtkAutoLock() {
+    if (getenv("WB_ADD_LOCKS"))
+      gdk_threads_enter();
+  }
+  ~GtkAutoLock() {
+    if (getenv("WB_ADD_LOCKS"))
+      gdk_threads_leave();
+  }
+};
+
 int Program::confirm_action_becb(const std::string& title, const std::string& msg, const std::string& default_btn, const std::string& alt_btn, const std::string& other_btn)
 {
+
   GtkAutoLock lock;
+
   Gtk::MessageDialog dlg(strfmt("<b>%s</b>\n%s", title.c_str(), msg.c_str()), true, Gtk::MESSAGE_QUESTION,
                          Gtk::BUTTONS_NONE, true);
   dlg.set_title(title);
