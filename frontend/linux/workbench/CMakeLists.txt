@@ -48,6 +48,7 @@ include_directories(.
     ${LIBZIP_INCLUDE_DIRS}
     ${MYSQLCPPCONN_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
+    ${GNOME_KEYRING_INCLUDE_DIRS}
 )
 
 #link_directories(${PROJECT_BINARY_DIR}/mysqlcppconnector/lib ${PROJECT_BINARY_DIR}/antlr-wb)
@@ -77,6 +78,12 @@ add_executable(mysql-workbench-bin
     ../../common/grt_plugin_wizard.cpp
 )
 
+if (KEYRING_DEFINITION)
+	set_target_properties(mysql-workbench-bin PROPERTIES
+		COMPILE_DEFINITIONS "${KEYRING_DEFINITION}"
+	)
+endif()
+
 target_link_libraries(mysql-workbench-bin
     mforms
     linux_utilities
@@ -101,6 +108,7 @@ target_link_libraries(mysql-workbench-bin
     ${LIBZIP_LIBRARIES}
     ${MYSQL_LIBRARIES}
     ${SQLITE3_LIBRARIES}
+    ${GNOME_KEYRING_LIBRARIES}
 )
 
 install(TARGETS mysql-workbench-bin DESTINATION ${WB_INSTALL_DIR_EXECUTABLE})
