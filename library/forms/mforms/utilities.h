@@ -75,7 +75,8 @@ namespace mforms {
   enum DialogResult {
     ResultOk     =  1,
     ResultCancel =  0,
-    ResultOther  = -1
+    ResultOther  = -1,
+    ResultUnknown = -2
   };
 
   // Describes the type of message, confirmation etc. we want to show to the user.
