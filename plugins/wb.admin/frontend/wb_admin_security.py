@@ -600,67 +600,159 @@ class FirewallCommands:
     def __init__(self, owner):
         self.owner = owner
         self.ctrl_be = owner.ctrl_be
+        class CommandType:
+            simple_result = 0
+            simple_result_with_count = 1
+            multi_result = 2
+            
+
+    def execute_command(self, command):
+        affcted_record_count = 0
+        if not self.ctrl_be.sql_ping():
+            log_error("Executing firewall command. The connection is down.\n")
+            Utilities.show_error("Execute firewall command", "The connection is down. Please check if you have connection to the server.", "Ok", "", "")
+            return False, 0
+          
+        result, affcted_record_count = self.ctrl_be.exec_sql(command)
+        
+        return result, affcted_record_count
+        
+    def execute_result_command(self, command):
+        if not self.ctrl_be.sql_ping():
+            log_error("Executing firewall command. The connection is down.\n")
+            Utilities.show_error("Execute firewall command", "The connection is down. Please check if you have connection to the server.", "Ok", "", "")
+            return False
+        
+        result = self.ctrl_be.exec_query(command)
+        
+        if result == False:
+            return False
+      
+        if result is None:
+            log_error("Executing firewall command. There was no resultset from the command.\n")
+            Utilities.show_error("Execute firewall command", "There was a problem executing a Firewall command.", "Ok", "", "")
+            return False
+          
+        return result
+
+    def execute_multiresult_command(self, command):
+        if not self.ctrl_be.sql_ping():
+            log_error("Executing firewall command. The connection is down.\n")
+            Utilities.show_error("Execute firewall command", "The connection is down. Please check if you have connection to the server.", "Ok", "", "")
+            return False
+      
+        multi_result = self.ctrl_be.exec_query_multi_result(command)
+
+        if multi_result == False:
+            return False
+        
+        if not multi_result:
+            log_error("Executing firewall command. There was no resultset from the command.\n")
+            Utilities.show_error("Execute firewall command", "There was a problem executing a Firewall command.", "Ok", "", "")
+            return False
+          
+        for result in multi_result:
+            if not result:
+                log_error("Executing firewall command with multiple resultsets. Resultset is 'None'.\n")
+                Utilities.show_error("Execute firewall command", "Resultset is 'None'.", "Ok", "", "")
+                return False
+        
+        return multi_result
 
     def get_user_rules(self, userhost):
-        query_result = self.ctrl_be.exec_query("SELECT RULE FROM mysql.firewall_whitelist WHERE USERHOST='%s'" % (userhost))
         result = []
+
+        query_result = self.execute_result_command("SELECT RULE FROM mysql.firewall_whitelist WHERE USERHOST='%s'" % (userhost))
+        if not query_result:
+            return result
+        
         while query_result.nextRow():
             result.append(query_result.stringByIndex(1))
         return result
 
     def get_cached_user_rules(self, userhost):
-        query_result = self.ctrl_be.exec_query("SELECT RULE FROM information_schema.mysql_firewall_whitelist WHERE USERHOST='%s'" % (userhost))
         result = []
+
+        query_result = self.execute_result_command("SELECT RULE FROM information_schema.mysql_firewall_whitelist WHERE USERHOST='%s'" % (userhost))
+        if not query_result:
+            return result
+
         while query_result.nextRow():
             result.append(query_result.stringByIndex(1))
         return result
 
     def get_rule_count(self, userhost):
-        result = self.ctrl_be.exec_query("SELECT COUNT(*) CNT FROM mysql.firewall_whitelist WHERE USERHOST='%s'" % (userhost))
+        result = self.execute_result_command("SELECT COUNT(*) CNT FROM mysql.firewall_whitelist WHERE USERHOST='%s'" % (userhost))
+        if not result:
+            return 0
+          
         result.nextRow()
         return result.stringByIndex(1)
 
     def get_cached_rule_count(self, userhost):
-        result = self.ctrl_be.exec_query("SELECT COUNT(*) CNT FROM information_schema.mysql_firewall_whitelist WHERE USERHOST='%s'" % (userhost))
+        result = self.execute_result_command("SELECT COUNT(*) CNT FROM information_schema.mysql_firewall_whitelist WHERE USERHOST='%s'" % (userhost))
         result.nextRow()
         return result.stringByIndex(1)
 
     def delete_user_rule(self, userhost, rule):
-        result, cnt = self.ctrl_be.exec_sql("DELETE FROM mysql.firewall_whitelist WHERE USERHOST='%s' AND RULE='%s'" % (userhost, db_utils.escape_sql_string(rule)))
+        result, cnt = self.execute_command("DELETE FROM mysql.firewall_whitelist WHERE USERHOST='%s' AND RULE='%s'" % (userhost, db_utils.escape_sql_string(rule)))
         return cnt > 0
 
     def add_user_rule(self, userhost, rule):
         firewall_rule = self.normalize_query(rule)
-        if firewall_rule and firewall_rule != "":
-            self.ctrl_be.exec_query("INSERT INTO mysql.firewall_whitelist (USERHOST, RULE) VALUES ('%s', '%s')" % (userhost, db_utils.escape_sql_string(firewall_rule)))
+        if firewall_rule:
+            self.execute_command("INSERT INTO mysql.firewall_whitelist (USERHOST, RULE) VALUES ('%s', '%s')" % (userhost, db_utils.escape_sql_string(firewall_rule)))
             return True
         log_error("Adding a firewall user rule failed to normalize the query. Probably, the inserted query does not translate to a firewall rule.\n")
         return False
 
+    def add_normalized_rule(self, userhost, rule):
+        self.execute_command(rule)
+        return True
+
     def normalize_query(self, query):
-        query_result = self.ctrl_be.exec_query("SELECT normalize_statement('%s')" % db_utils.escape_sql_string(query))
+        query_result = self.execute_result_command("SELECT normalize_statement('%s')" % db_utils.escape_sql_string(query))
+        if not query_result:
+            return False
+        
         query_result.nextRow()
-        return query_result.stringByIndex(1)
+        result = query_result.stringByIndex(1)
+        
+        if result == "":
+            return False
+        
+        return result
 
     def get_user_mode(self, userhost):
-        result = self.ctrl_be.exec_query("SELECT mode FROM mysql.firewall_users WHERE userhost='%s'" % userhost)
-        if result and result.nextRow():
+        result = self.execute_result_command("SELECT mode FROM mysql.firewall_users WHERE userhost='%s'" % userhost)
+        if not result:
+            return False
+        
+        if result.nextRow():
             return result.stringByName("mode")
         return "OFF"
 
     def set_user_mode(self, userhost, mode):
-        multi_result = self.ctrl_be.exec_query_multi_result("CALL mysql.sp_set_firewall_mode('%s', '%s')" % (userhost, mode))
+        multi_result = self.execute_multiresult_command("CALL mysql.sp_set_firewall_mode('%s', '%s')" % (userhost, mode))
+        if not multi_result:
+            return False
+        
         result = multi_result[len(multi_result) - 1]
+        
         if result.nextRow():
             return result.stringByIndex(1) == "OK"
+          
         return False
 
     def reset_user(self, userhost):
         return self.set_user_mode(userhost, 'RESET')
 
     def is_enabled(self):
-        result = self.ctrl_be.exec_query("SELECT @@mysql_firewall_mode")
-        if result and result.nextRow():
+        result = self.execute_result_command("SELECT @@mysql_firewall_mode")
+        if not result:
+            return False
+          
+        if result.nextRow():
             return result.intByIndex(1) == 1
         return False
 
@@ -750,6 +842,7 @@ class FirewallAddRuleDialog(mforms.Form):
 
     def run(self):
         return self.run_modal(None, None)
+
 
 class FirewallUserInterface(FirewallUserInterfaceBase):
     def __init__(self, owner):
@@ -916,12 +1009,18 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
             with open(dialog.get_path()) as f:
                 content = [x.strip('\n') for x in f.readlines()]
 
-            self.commands.set_user_mode(self.current_userhost, "OFF")
+            if not self.commands.set_user_mode(self.current_userhost, "OFF"):
+              return
+            
+            added_rules = []
+            
             for rule in content:
-                self.commands.add_user_rule(self.current_userhost, rule)
+                if not self.commands.add_user_rule(self.current_userhost, rule):
+                    break
+                added_rules.append(rule)
         
             self.commands.set_user_mode(self.current_userhost, "RECORDING")
-            self.owner.refresh()
+            self.white_list.add_items(added_rules)
         
     def save_to_file_button_click(self):
         dialog = mforms.FileChooser(mforms.SaveFile)
@@ -943,13 +1042,12 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
             if result:
                 deleted_indexes.append(index)
         self.white_list.remove_indexes(deleted_indexes)
-        return
         
     def reset_button_click(self):
         result = Utilities.show_warning("Reset user rules", "Reseting the user rules will delete all rules that were collected", "Yes", "No", "")
         if result:
-            self.commands.reset_user(self.current_userhost)
-            self.owner.refresh()
+            if self.commands.reset_user(self.current_userhost):
+                self.owner.refresh()
         
     def save(self):
         self.commands.set_user_mode(self.current_userhost, self.state.get_string_value())
