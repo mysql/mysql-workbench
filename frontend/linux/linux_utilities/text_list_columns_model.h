@@ -8,7 +8,7 @@
 
 #include <gtkmm/treemodelcolumn.h>
 
-struct TextListColumnsModel : public Gtk::TreeModelColumnRecord
+class TextListColumnsModel : public Gtk::TreeModelColumnRecord
 {
   public:
     TextListColumnsModel() {add(item); }

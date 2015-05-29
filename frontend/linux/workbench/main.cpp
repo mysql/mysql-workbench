@@ -78,7 +78,9 @@ int main(int argc, char **argv)
 
   init_gdk_thread_callbacks(); // This call MUST be before g_threads_init is called
   base::threading_init();
-  gdk_threads_init();
+
+  if (getenv("WB_ADD_LOCKS"))
+      gdk_threads_init();
   // process cmdline options
   std::string user_data_dir = std::string(g_get_home_dir()).append("/.mysql/workbench");
   base::Logger log(user_data_dir, getenv("MWB_LOG_TO_STDERR")!=NULL);
@@ -121,8 +123,9 @@ int main(int argc, char **argv)
   }
 
 
+  if (getenv("WB_ADD_LOCKS"))
+    gdk_threads_enter();
 
-  gdk_threads_enter();
   Gtk::Main app(argc, argv);
 
 //  Gtk::CssProvider::get_default()->load_from_path(wboptions.basedir+"/workbench.rc");
@@ -179,7 +182,8 @@ int main(int argc, char **argv)
   }
 
   program.shutdown();
-  gdk_threads_leave();
+  if (getenv("WB_ADD_LOCKS"))
+    gdk_threads_leave();
 
   return 0;
 }

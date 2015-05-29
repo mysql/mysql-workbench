@@ -26,11 +26,6 @@
 
 namespace mforms {
 namespace gtk {
-  struct GtkAutoLock
-  {
-    GtkAutoLock() {gdk_threads_enter();}
-    ~GtkAutoLock() {gdk_threads_leave();}
-  };
 
   class ObjectImpl : public sigc::trackable, public base::trackable
   {

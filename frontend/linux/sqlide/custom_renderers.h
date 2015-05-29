@@ -1,3 +1,22 @@
+/*
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+
 #ifndef _CUSTOM_RENDERERS_H_
 #define _CUSTOM_RENDERERS_H_
 
@@ -396,13 +415,10 @@ render_vfunc(const ::Cairo::RefPtr< ::Cairo::Context>& cr, Gtk::Widget& widget, 
       _treeview->current_cell(srow, scol);
       if (_treeview->selection_is_cell() && srow >= 0 && scol >= 0 && srow == row && scol == _column_index)
       {
-        fprintf(stderr, "Custom_renderers.h render_vfunc implementation missing\n");
         _treeview->get_style_context()->add_class("entry");
         _treeview->get_style_context()->render_frame(cr, background_area.get_x(), background_area.get_y(), background_area.get_width(), background_area.get_height());
         _treeview->get_style_context()->render_background(cr, background_area.get_x(), background_area.get_y(), background_area.get_width(), background_area.get_height());
-//        _treeview->get_style()->paint_flat_box(Glib::RefPtr<Gdk::Window>::cast_dynamic(window), Gtk::STATE_SELECTED, Gtk::SHADOW_ETCHED_IN, background_area,
-//                    widget, "", background_area.get_x(), background_area.get_y(),
-//                    background_area.get_width(), background_area.get_height());
+
         flags |= Gtk::CELL_RENDERER_SELECTED;
       }
     }
