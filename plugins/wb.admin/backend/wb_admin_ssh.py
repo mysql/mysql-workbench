@@ -47,6 +47,16 @@ try:
     class StoreIfConfirmedPolicy(paramiko.MissingHostKeyPolicy):
         def missing_host_key(self, client, hostname, key):
             raise SSHFingerprintNewError("Key mismatched", client, hostname, key)
+        
+    # paramiko 1.6 didn't have this class
+    if hasattr(paramiko, "WarningPolicy"):
+        WarningPolicy = paramiko.WarningPolicy
+    else:
+        class WarningPolicy(paramiko.MissingHostKeyPolicy):
+            def missing_host_key(self, client, hostname, key):
+                import binascii
+                log_warning('WARNING: Unknown %s host key for %s: %s\n' % (key.get_name(), hostname, binascii.hexlify(key.get_fingerprint())))
+
     
 except:
     traceback.print_exc()
