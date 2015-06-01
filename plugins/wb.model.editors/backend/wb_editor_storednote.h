@@ -47,6 +47,7 @@ public:
   
   void load_text();
   virtual void commit_changes();
+  virtual bool has_editor() { return true; }
 
 protected:
   MySQLEditor::Ref _sql_editor;
