@@ -764,7 +764,7 @@ class FirewallUserInterfaceBase(mforms.Box):
         self.owner = owner
         self.ctrl_be = owner.owner.ctrl_be
 
-    def show_user(self, user, host):
+    def show_user(self, user, host, new_user):
         return
 
     def update_rules(self, user, host):
