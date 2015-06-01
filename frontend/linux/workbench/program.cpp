@@ -202,7 +202,8 @@ void Program::shutdown()
 
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 struct GtkAutoLock
 {
   GtkAutoLock() {
@@ -214,6 +215,7 @@ struct GtkAutoLock
       gdk_threads_leave();
   }
 };
+#pragma GCC diagnostic pop
 
 int Program::confirm_action_becb(const std::string& title, const std::string& msg, const std::string& default_btn, const std::string& alt_btn, const std::string& other_btn)
 {
