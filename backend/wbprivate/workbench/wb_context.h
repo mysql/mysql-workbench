@@ -525,6 +525,9 @@ namespace wb {
     boost::function<void (std::string)> perform_command;
     
     boost::function<bool ()> quit_application;
+
+  private:
+    void warnIfRunningOnUnsupportedOS();
   };
 
   struct GUILock

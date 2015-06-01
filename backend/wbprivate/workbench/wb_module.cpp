@@ -224,22 +224,57 @@ std::map<std::string, std::string> WorkbenchImpl::getSystemInfoMap()
   result["platform"] = "Mac OS X";
 #else
   result["platform"] = "Linux/Unix";
-  {
-    int rc;
-    char *stdo;
-    if (g_spawn_command_line_sync("lsb_release -d", &stdo, NULL, &rc, NULL) && stdo)
-    {
-      char *d = strchr(stdo, ':');
-      if (d)
-        result["distribution"] = base::trim(g_strchug(d+1));
-      g_free(stdo);
-    }
-  }
+  result["distribution"] = result["os"];
 #endif  
 
   return result;
 }
 
+int WorkbenchImpl::isOsSupported(const std::string& os)
+{
+  if (os.find("unknown") != std::string::npos)
+  {
+    log_warning("OS detection failed, skipping OS support check.  OS string: '%s'\n", os.c_str());
+    return true;
+  }
+
+  if (os.find("x86_64") == std::string::npos && os.find("Windows") == std::string::npos)
+  {
+    log_warning("Detected 32-bit non-Windows OS.  OS string: '%s'\n", os.c_str());
+    return false;
+  }
+
+  std::vector<std::string> supportedOsList {
+    "Ubuntu 14.04",
+    "Ubuntu 15.04",
+    "Debian 8",
+
+    "Red Hat Enterprise Linux Server release 6",
+    "Red Hat Enterprise Linux Server release 7",  // Oracle 7.1 looks like this: "Red Hat Enterprise Linux Server release 7.1 (Maipo)"
+    "Fedora release 21",
+    "Fedora release 22",
+    "CentOS release 6",
+    "CentOS release 7",
+
+    "Windows 7",
+    "Windows 8",
+    "Windows 10",
+    "Windows 2012 Server",
+
+    "OS X 10.9",
+    "OS X 10.10",
+    "OS X 10.11",
+  };
+
+  for (std::string s : supportedOsList)
+  {
+    if (os.find(s) != std::string::npos)
+      return true;
+  }
+
+  log_warning("OS not found on supported OS list.  OS string: '%s'\n", os.c_str());
+  return false;
+}
 //--------------------------------------------------------------------------------------------------
 
 #define def_plugin(group, aName, type, aCaption, descr)\

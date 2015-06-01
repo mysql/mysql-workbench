@@ -1104,6 +1104,26 @@ static bool output_to_stdout(const grt::Message &msg, void *sender)
   return true;
 }
 
+void WBContext::warnIfRunningOnUnsupportedOS()
+{
+  std::string os = get_local_os_name();
+  log_debug2("get_local_os_name() returned '%s'\n", os.c_str());
+
+  if (!_workbench->isOsSupported(os))
+  {
+    mforms::Utilities::show_message_and_remember(
+      "Unsupported Operating System",
+
+      "You are running Workbench on an unsupported operating system. "
+      "While it may work for you just fine, it wasn't designed to run on your platform. "
+      "Please keep this in mind if you run into problems.",
+
+      "OK", "", "",
+      "wb.supported_os_check.suppress_warning", "Don't show this message again"
+    );
+  }
+}
+
 void WBContext::init_finish_(WBOptions *options)
 {
   // initialize plugins that have a initializer (start with builtins and then go through user plugins)
@@ -1191,6 +1211,8 @@ void WBContext::init_finish_(WBOptions *options)
   // SSH tunnel manager is created on first creation of a connection.
  
   show_status_text(_("Ready."));
+
+  warnIfRunningOnUnsupportedOS();
 
   try
   {
