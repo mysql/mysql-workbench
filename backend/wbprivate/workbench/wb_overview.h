@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -353,7 +353,7 @@ namespace wb {
 
     ContainerNode *_root_node;
 
-    Node *get_node(const bec::NodeId &node) const { return do_get_node(node); }
+    Node *get_node_by_id(const bec::NodeId &node) const { return do_get_node(node); }
     virtual Node *do_get_node(const bec::NodeId &node) const;
 
     Node *get_deepest_focused();

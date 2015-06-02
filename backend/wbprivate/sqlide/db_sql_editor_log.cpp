@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -289,7 +289,7 @@ bool DbSqlEditorLog::get_field(const bec::NodeId &node, ColumnId column, std::st
 
 //--------------------------------------------------------------------------------------------------
 
-bool DbSqlEditorLog::get_field_description(const bec::NodeId &node, ColumnId column, std::string &value)
+bool DbSqlEditorLog::get_field_description_value(const bec::NodeId &node, ColumnId column, std::string &value)
 {
   return VarGridModel::get_field(node, column, value);
 }
