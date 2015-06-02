@@ -350,6 +350,12 @@ bool VarGridModel::get_field(const NodeId &node, ColumnId column, sqlite::varian
   return get_field_(node, column, value);
 }
 
+bool VarGridModel::get_field(const NodeId &node, ColumnId column, bool &value)
+{
+  base::RecMutexLock data_mutex UNUSED (_data_mutex);
+  return get_field_(node, column, value);
+}
+
 //--------------------------------------------------------------------------------------------------
 
 bool VarGridModel::get_field_(const NodeId &node, ColumnId column, sqlite::variant_t &value)
@@ -358,6 +364,15 @@ bool VarGridModel::get_field_(const NodeId &node, ColumnId column, sqlite::varia
   bool res= get_cell(cell, node, column, false);
   if (res)
     value= *cell;
+  return res;
+}
+
+bool VarGridModel::get_field_(const NodeId &node, ColumnId column, bool &value)
+{
+  Cell cell;
+  bool res = get_cell(cell, node, column, false);
+  if (res)
+    value = (ssize_t)boost::apply_visitor(_var_to_bool, *cell);
   return res;
 }
 
@@ -448,6 +463,10 @@ bool VarGridModel::set_field(const NodeId &node, ColumnId column, const std::str
   return set_field(node, column, sqlite::variant_t(value));
 }
 
+bool VarGridModel::set_field(const NodeId &node, ColumnId column, bool value)
+{
+  return set_field(node, column, sqlite::variant_t((bool)value));
+}
 //--------------------------------------------------------------------------------------------------
 
 bool VarGridModel::set_field(const NodeId &node, ColumnId column, double value)
@@ -461,6 +480,8 @@ bool VarGridModel::set_field(const NodeId &node, ColumnId column, ssize_t value)
 {
   return set_field(node, column, sqlite::variant_t((boost::int64_t)value));
 }
+
+
 
 //--------------------------------------------------------------------------------------------------
 
