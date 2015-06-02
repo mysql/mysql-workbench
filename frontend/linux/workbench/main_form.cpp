@@ -57,7 +57,6 @@
 #include "mforms/../gtk/lf_form.h"
 
 #include <base/log.h>
-DEFAULT_LOG_DOMAIN("linux.ui")
 
 using base::strfmt;
 

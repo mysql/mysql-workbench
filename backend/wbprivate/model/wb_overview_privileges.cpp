@@ -126,11 +126,15 @@ public:
     refresh_children();
   }
   
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
   void refresh(const std::string &member, const grt::ValueRef &)
   {
     if (member == "name")
       _owner->send_refresh_users();
   }
+#pragma GCC diagnostic pop
+
 
   virtual void refresh_children()
   {
@@ -187,11 +191,14 @@ public:
     refresh_children();
   }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
   void refresh(const std::string &member, const grt::ValueRef &)
   {
     if (member == "name")
       _owner->send_refresh_roles();
   }
+#pragma GCC diagnostic push
   
   virtual void refresh_children()
   {

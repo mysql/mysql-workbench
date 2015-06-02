@@ -20,7 +20,10 @@ public:
   Db_plugin() : _db_conn(0) {}
   virtual ~Db_plugin() { delete _db_conn; }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
   void grtm(bec::GRTManager *grtm, bool reveng);
+#pragma GCC diagnostic pop
 
   grt::StringRef apply_script_to_db(grt::GRT *);
 

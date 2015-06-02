@@ -151,8 +151,8 @@ public:
   virtual void draw_outline_ring_gl(const base::Color &color);
 
   State get_state();
-  virtual void stroke_outline(CairoCtx *, float offset= 0) {}
-  virtual void stroke_outline_gl(float offset= 0) {}
+  virtual void stroke_outline(CairoCtx *, float offset= 0) const {}
+  virtual void stroke_outline_gl(float offset= 0) const  {}
 
   virtual void set_needs_relayout();
   void set_needs_render();

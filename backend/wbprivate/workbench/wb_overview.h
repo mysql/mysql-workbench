@@ -143,7 +143,11 @@ namespace wb {
     // for use by frontend
     boost::function<void ()> pre_refresh_groups;
     void refresh();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
+    // This is ok, as Overview contains children which also need to be refreshed.
     virtual void refresh_node(const bec::NodeId &node, bool children)= 0;
+#pragma GCC diagnostic pop
 
     virtual std::string get_edit_target_name();
     std::string get_target_name_for_nodes(const std::vector<bec::NodeId> &nodes);
@@ -215,13 +219,13 @@ namespace wb {
         return panel;
       }
 
-      virtual void restore_state(workbench_OverviewPanelRef panel) 
+      virtual void restore_state(const workbench_OverviewPanelRef &panel)
       {
         expanded= *panel->expanded() ? true : false;
         display_mode= (OverviewDisplayMode)*panel->itemDisplayMode();
       }
 
-      Node() : small_icon(0), large_icon(0), display_mode(MNone), expanded(false), selected(false) {}
+      Node() : type(ORoot), small_icon(0), large_icon(0), display_mode(MNone), expanded(false), selected(false) {}
 
       Node(const Node &node) : type(node.type), label(node.label),
         description(node.description), small_icon(node.small_icon), large_icon(node.large_icon),

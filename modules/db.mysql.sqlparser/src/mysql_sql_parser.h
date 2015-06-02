@@ -154,7 +154,7 @@ protected:
   void process_index_kind_item(db_mysql_IndexRef &obj, const SqlAstNode *item);
 
   // prepare/clear routines
-  void set_options(grt::DictRef options);
+  void set_options(const grt::DictRef &options);
   void build_datatype_cache();
   void clear_datatype_cache();
 

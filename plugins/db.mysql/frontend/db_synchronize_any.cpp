@@ -126,7 +126,7 @@ public:
     return execute_caption();
   }
 
-  virtual bool allow_cancel() const  { return false; }
+  virtual bool allow_cancel() { return false; }
   virtual bool next_closes_wizard() { return values().get_int("result") != DataSourceSelector::ServerSource; }
 
 protected:  

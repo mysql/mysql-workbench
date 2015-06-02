@@ -64,9 +64,10 @@ namespace mforms {
     bool show();
 
     std::map<std::string, View*> get_views();
-    std::string get_string_value(const std::string &name);
-    bool get_bool_value(const std::string &name);
-    int get_int_value(const std::string &name);
+    std::string get_string_view_value(const std::string &name);
+
+    bool get_bool_view_value(const std::string &name);
+    int get_int_view_value(const std::string &name);
 
   private:
 

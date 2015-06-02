@@ -40,10 +40,13 @@ protected:
   Mysql_sql_semantic_check(grt::GRT *grt);
 
 protected:
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
   virtual Parse_result check_sql(const SqlAstNode *tree);
   virtual Parse_result check_trigger(const SqlAstNode *tree, const SqlAstNode *trigger_tail);
   virtual Parse_result check_view(const SqlAstNode *tree, const SqlAstNode *view_tail);
   virtual Parse_result check_routine(const SqlAstNode *tree, const SqlAstNode *routine_tail);
+#pragma GCC diagnostic pop
 
   class Null_state_keeper : Mysql_sql_syntax_check::Null_state_keeper
   {

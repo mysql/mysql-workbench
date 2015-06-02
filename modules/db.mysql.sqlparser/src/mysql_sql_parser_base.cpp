@@ -62,7 +62,7 @@ _override_sql_mode(false)
 }
 
 
-void Mysql_sql_parser_base::set_options(grt::DictRef options)
+void Mysql_sql_parser_base::set_options(const grt::DictRef &options)
 {
   Sql_parser_base::set_options(options);
 

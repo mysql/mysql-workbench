@@ -383,7 +383,7 @@ bool TableColumnsListBE::set_column_type(const NodeId &node, const GrtObjectRef 
 }
 
 
-IconId TableColumnsListBE::get_field_icon(const NodeId &node, int column, IconSize size)
+IconId TableColumnsListBE::get_field_icon(const NodeId &node, size_t column, IconSize size)
 {
   if (node[0] < real_count())
   {

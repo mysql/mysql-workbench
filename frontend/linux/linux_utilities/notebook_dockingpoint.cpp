@@ -22,7 +22,6 @@
 #include "gtk/lf_mforms.h"
 #include "gtk/lf_view.h"
 #include "base/log.h"
-DEFAULT_LOG_DOMAIN("notebook_dockingpoint")
 
 NotebookDockingPoint::NotebookDockingPoint(Gtk::Notebook *note, const std::string &type)
   : _notebook(note), _type(type) 

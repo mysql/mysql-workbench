@@ -136,7 +136,7 @@ Sql_parser(grt)
 }
 
 
-void Mysql_sql_parser::set_options(grt::DictRef options)
+void Mysql_sql_parser::set_options(const grt::DictRef &options)
 {
   Mysql_sql_parser_base::set_options(options);
 
