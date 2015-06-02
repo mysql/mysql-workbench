@@ -1,4 +1,6 @@
 #pragma once
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
 
 #include <grtpp.h>
 
@@ -918,3 +920,4 @@ inline void register_structs_xml()
 static struct _autoreg__structs_xml { _autoreg__structs_xml() { register_structs_xml(); } } __autoreg__structs_xml;
 #endif
 
+#pragma GCC diagnostic pop
