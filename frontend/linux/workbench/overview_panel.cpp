@@ -27,7 +27,10 @@
 #include "workbench/wb_context.h"
 
 #include <glib/gstdio.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #include <gtkmm.h>
+#pragma GCC diagnostic pop
 #include "gtk_helpers.h"
 #include "base/string_utilities.h"
 

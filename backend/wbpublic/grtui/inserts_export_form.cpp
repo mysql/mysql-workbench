@@ -95,7 +95,7 @@ std::string InsertsExportForm::run()
           return "";
         for (std::list<std::pair<std::string,std::string> >::const_iterator arg= info.arguments.begin();
              arg != info.arguments.end(); ++arg)
-          textStorage->parameter_value(arg->second, form.get_string_value(arg->second));
+          textStorage->parameter_value(arg->second, form.get_string_view_value(arg->second));
       }
     }
     /*else

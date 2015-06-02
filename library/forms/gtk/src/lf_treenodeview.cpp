@@ -504,12 +504,12 @@ bool TreeNodeImpl::is_root() const
 
 
 TreeNodeImpl::TreeNodeImpl(TreeNodeViewImpl *tree, Glib::RefPtr<Gtk::TreeStore> model, const Gtk::TreePath &path)
-: RootTreeNodeImpl(tree), _rowref(model, path), _is_expanding(false)
+: RootTreeNodeImpl(tree), _rowref(model, path)
 {
 }
 
 TreeNodeImpl::TreeNodeImpl(TreeNodeViewImpl *tree, const Gtk::TreeRowReference &ref)
-: RootTreeNodeImpl(tree), _rowref(ref), _is_expanding(false)
+: RootTreeNodeImpl(tree), _rowref(ref)
 {
 }
 

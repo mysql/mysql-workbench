@@ -160,7 +160,7 @@ void PythonModule::add_parse_function(const std::string &name, PyObject *return_
   if (doc && doc != Py_None)
     func.description = PyString_AsString(doc);
   
-  func.call= boost::bind(&PythonModule::call_function, this, _1, callable, func);
+  func.call= boost::bind(&PythonModule::call_python_function, this, _1, callable, func);
   
   add_function(func);
 }
@@ -187,7 +187,7 @@ static std::string exception_detail()
   return "";
 }
 
-ValueRef PythonModule::call_function(const BaseListRef &args, PyObject *function, const Function &funcdef)
+ValueRef PythonModule::call_python_function(const BaseListRef &args, PyObject *function, const Function &funcdef)
 {
   WillEnterPython lock;
 

@@ -45,13 +45,16 @@ namespace grtui {
 
   class WizardPage;
 
-  class WBPUBLICBACKEND_PUBLIC_FUNC WizardForm : public ::mforms::Wizard
+  class WBPUBLICBACKEND_PUBLIC_FUNC WizardForm : public mforms::Wizard
   {
   public:
     WizardForm(bec::GRTManager *mgr);
     virtual ~WizardForm();
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
     virtual bool run_modal();
+#pragma GCC diagnostic pop
 
     void add_page(WizardPage *page);
 
@@ -72,8 +75,7 @@ namespace grtui {
     bec::GRTManager *grtm() { return _grtm; }
     
     grt::DictRef values() { return _values; }
-    
-  public:
+
     // util stuff for storing state
     void set_wizard_option(const std::string &key, const std::string &value);
     std::string string_wizard_option(const std::string &key, const std::string &default_value= "");
@@ -81,7 +83,7 @@ namespace grtui {
     void set_wizard_option(const std::string &key, int value);
     int int_wizard_option(const std::string &key, int default_value= 0);
 
-  private:    
+  private:
     grt::DictRef _values;
      
     std::string _problem;

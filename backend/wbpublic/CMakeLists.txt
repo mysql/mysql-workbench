@@ -183,6 +183,11 @@ add_library(wbpublic
 #	)
 #endif()
 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  set_source_files_properties(sqlide/grammar-parser/ANTLRv3Lexer.c
+          PROPERTIES COMPILE_FLAGS "-Wno-tautological-compare")
+  endif()
+
 target_link_libraries(wbpublic wbbase mdcanvas mforms cdbc grt ${VSQLITE_LIBRARIES} wbscintilla mysqlparser ${CAIRO_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${CTEMPLATE_LIBRARIES} ${OPENGL_LIBRARIES} ${PCRE_LIBRARIES} ${GDAL_LIBRARIES})
 
 set_target_properties(wbpublic

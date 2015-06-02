@@ -29,7 +29,6 @@ namespace gtk
 class TabViewImpl : public ViewImpl
 {
   Gtk::Notebook *_nb;
-  int _rclicked_tab;
   bool _reorderable;
   virtual Gtk::Widget *get_outer() const { return _nb; }
  protected:

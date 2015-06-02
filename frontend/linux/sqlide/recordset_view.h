@@ -22,7 +22,10 @@
 
 #include "sqlide/grid_view.h"
 #include "sqlide/recordset_be.h"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #include <gtkmm.h>
+#pragma GCC diagnostic pop
 #include "mforms/tabview.h"
 
 

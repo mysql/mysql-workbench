@@ -40,7 +40,7 @@ namespace grt {
   protected:
     PyObject *_module;
     
-    virtual ValueRef call_function(const BaseListRef &args, PyObject *function, const Function &funcdef);
+    virtual ValueRef call_python_function(const BaseListRef &args, PyObject *function, const Function &funcdef);
   };
   
   

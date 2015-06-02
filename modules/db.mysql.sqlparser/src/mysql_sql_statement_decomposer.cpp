@@ -38,7 +38,7 @@ Mysql_sql_statement_decomposer::Null_state_keeper::~Null_state_keeper()
 }
 #define NULL_STATE_KEEPER Null_state_keeper _nsk(this);
 
-void Mysql_sql_statement_decomposer::set_options(grt::DictRef opts)
+void Mysql_sql_statement_decomposer::set_options(const grt::DictRef &opts)
 {
   if (opts.is_valid())
     Sql_parser_base::case_sensitive_identifiers(opts.get_int("case_sensitive_identifiers", grt::IntegerRef(1)) != 0);

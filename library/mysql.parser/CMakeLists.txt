@@ -24,6 +24,11 @@ add_dependencies(mysqlparser
     generate_parser
 )
 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+set_source_files_properties(MySQLLexer.c 
+    PROPERTIES COMPILE_FLAGS "-Wno-tautological-compare")
+endif()
+
 if (SKIP_BUNDLED_ANTLR)
 else ()
     link_directories(${PROJECT_BINARY_DIR}/antlr-wb)

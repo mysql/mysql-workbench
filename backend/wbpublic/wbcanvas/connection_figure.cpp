@@ -400,7 +400,7 @@ void Connection::stroke_outline(mdc::CairoCtx *cr, float offset) const
 
 //--------------------------------------------------------------------------------------------------
 
-void Connection::stroke_outline_gl(float offset)
+void Connection::stroke_outline_gl(float offset) const
 {
   if (!_split || _segments.size() < 2)
     mdc::Line::stroke_outline_gl(offset);

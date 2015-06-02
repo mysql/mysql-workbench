@@ -259,7 +259,7 @@ set(BUILD_SHARED_LIBS ON)  # By default all libs will be built as shared libs
 # we use supports each flag to allow for non-gcc compilers in Linux (as above)?
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set(MY_CXXFLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-deprecated -DTIXML_USE_STL=1 -std=c++11")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g ${MY_CXXFLAGS}")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Werror -g ${MY_CXXFLAGS}")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${MY_CXXFLAGS}") 
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	set(MY_CXXFLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-deprecated -DTIXML_USE_STL=1 -std=c++11")

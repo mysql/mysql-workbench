@@ -44,7 +44,7 @@ public:
   virtual ~Mysql_sql_statement_decomposer() {}
 protected:
   Mysql_sql_statement_decomposer(grt::GRT *grt);
-  void set_options(grt::DictRef opts);
+  void set_options(const grt::DictRef &opts);
   int decompose_query(const std::string &sql, SelectStatement::Ref select_statement);
   int decompose_view(const std::string &ddl, SelectStatement::Ref select_statement);
   int decompose_view(db_ViewRef view, SelectStatement::Ref select_statement);

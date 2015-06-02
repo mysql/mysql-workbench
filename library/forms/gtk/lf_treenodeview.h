@@ -175,7 +175,6 @@ class TreeNodeImpl : public RootTreeNodeImpl
   // If _rowref becomes invalidated (eg because Model was deleted),
   // we just ignore all operations on the node
   Gtk::TreeRowReference _rowref;
-  bool _is_expanding;
 public:
   inline Glib::RefPtr<Gtk::TreeStore> model();
   inline Gtk::TreeIter iter();
