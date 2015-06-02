@@ -1,4 +1,4 @@
-system_variable_list=[ ( 'audit_log_buffer_size',
+system_variable_list = [ ( 'audit_log_buffer_size',
     'The size of the audit log buffer',
     False,
     ['Logging/Audit']),
@@ -2538,7 +2538,7 @@ system_variable_list=[ ( 'audit_log_buffer_size',
 
 
 
-status_variable_list=[ ( 'Aborted_clients',
+status_variable_list = [ ( 'Aborted_clients',
     'Number of connections aborted because the client died without closing the connection properly',
     False,
     ['Networking/Stats']),
