@@ -169,7 +169,7 @@ Use cases for the server logs
 
 from mforms import newBox, newLabel, newTreeNodeView, newTabView, newButton
 import mforms
-from wb_admin_utils import not_running_warning_label, make_panel_header
+from wb_admin_utils import not_running_warning_label, make_panel_header, show_error_page, remove_error_page_if_exists
 from wb_log_reader import GeneralQueryLogReader, SlowQueryLogReader, GeneralLogFileReader, SlowLogFileReader, ErrorLogFileReader
 import wb_admin_config_file_be
 
@@ -643,6 +643,13 @@ http://dev.mysql.com/doc/refman/5.1/en/log-destinations.html""" % self.server_pr
         self.tabView.show(True)
 
     def page_activated(self):
+
+        if not self.server_profile.config_file_path:
+            show_error_page(self, "Location of MySQL configuration file (ie: my.cnf) not specified")
+            return
+        else:
+            remove_error_page_if_exists(self)
+
         if not self.ui_created:
             self.detect_paths()
             self.create_ui()
