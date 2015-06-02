@@ -104,18 +104,21 @@ public:
   virtual bool set_field(const bec::NodeId &node, ColumnId column, const sqlite::variant_t &value);
   virtual bool set_field(const bec::NodeId &node, ColumnId column, const std::string &value);
   virtual bool set_field(const bec::NodeId &node, ColumnId column, double value);
+  virtual bool set_field(const bec::NodeId &node, ColumnId column, bool value);
   virtual bool set_field(const bec::NodeId &node, ColumnId column, ssize_t value);
   virtual bool get_field(const bec::NodeId &node, ColumnId column, std::string &value);
   virtual bool get_field_repr(const bec::NodeId &node, ColumnId column, std::string &value);
   bool get_field_repr_no_truncate(const bec::NodeId &node, ColumnId column, std::string &value);
   virtual bool get_field(const bec::NodeId &node, ColumnId column, ssize_t &value);
   virtual bool get_field(const bec::NodeId &node, ColumnId column, double &value);
+  virtual bool get_field(const bec::NodeId &node, ColumnId column, bool &value);
   virtual bool get_field(const bec::NodeId &node, ColumnId column, sqlite::variant_t &value);
 protected:
   bool get_field_(const bec::NodeId &node, ColumnId column, std::string &value);
   bool get_field_repr_(const bec::NodeId &node, ColumnId column, std::string &value);
   bool get_field_(const bec::NodeId &node, ColumnId column, ssize_t &value);
   bool get_field_(const bec::NodeId &node, ColumnId column, double &value);
+  bool get_field_(const bec::NodeId &node, ColumnId column, bool &value);
   bool get_field_(const bec::NodeId &node, ColumnId column, sqlite::variant_t &value);
 protected:
   virtual bool get_field_grt(const bec::NodeId &node, ColumnId column, grt::ValueRef &value);
@@ -176,6 +179,7 @@ protected:
   sqlide::VarToStr _var_to_str;
   sqlide::VarToStr _var_to_str_repr; // supposed to be used only by UI part, set to do truncation of long text values
   sqlide::VarToInt _var_to_int;
+  sqlide::VarToBool _var_to_bool;
   sqlide::VarToLongDouble _var_to_long_double;
 
 public:
