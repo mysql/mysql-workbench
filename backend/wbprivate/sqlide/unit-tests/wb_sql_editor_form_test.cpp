@@ -133,7 +133,7 @@ public:
     _form->get_live_tree()->_schema_tree->enable_events(true);
   }
 
-  bool mock_update_node_children(mforms::TreeNodeRef& parent, base::StringListPtr children, wb::LiveSchemaTree::ObjectType type, bool sorted = false, bool just_append = false)
+  bool mock_update_node_children(mforms::TreeNodeRef parent, base::StringListPtr children, wb::LiveSchemaTree::ObjectType type, bool sorted = false, bool just_append = false)
   {
     tut::ensure(_check_id + " : Unexpected call to update_node_children", _expect_update_node_children);
     _expect_update_node_children = false;
