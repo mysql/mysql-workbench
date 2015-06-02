@@ -1,5 +1,6 @@
 #pragma once
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #include <grtpp.h>
 
 #ifdef _WIN32
@@ -665,3 +666,4 @@ inline void register_structs_workbench_logical_xml()
 static struct _autoreg__structs_workbench_logical_xml { _autoreg__structs_workbench_logical_xml() { register_structs_workbench_logical_xml(); } } __autoreg__structs_workbench_logical_xml;
 #endif
 
+#pragma GCC diagnostic pop

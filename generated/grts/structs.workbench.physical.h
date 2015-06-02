@@ -1,5 +1,6 @@
 #pragma once
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #include <grtpp.h>
 
 #ifdef _WIN32
@@ -1321,3 +1322,4 @@ inline void register_structs_workbench_physical_xml()
 static struct _autoreg__structs_workbench_physical_xml { _autoreg__structs_workbench_physical_xml() { register_structs_workbench_physical_xml(); } } __autoreg__structs_workbench_physical_xml;
 #endif
 
+#pragma GCC diagnostic pop
