@@ -169,18 +169,27 @@ class WbAdminConfigFileUI(mforms.Box):
 
         #---------------------------------------------------------------------------
     def page_activated(self):
-        if not self.server_profile.is_local and not self.server_profile.remote_admin_enabled:
+        def error_page(text):
             import mforms
             box = mforms.newBox(False)
-            
-            label = mforms.newLabel("MySQL Workbench requires an SSH connection to support managing Option File remotely.")
+
+            label = mforms.newLabel(text)
             label.set_style(mforms.BoldStyle)
             label.set_text_align(mforms.MiddleCenter)
             box.add(label, True, True)
+
             self.tab_view.add_page(box, "")
             self.search_panel.show(False)
             self.bottom_box.show(False)
+
+        if not self.server_profile.is_local and not self.server_profile.remote_admin_enabled:
+            error_page("MySQL Workbench requires an SSH connection to support managing Option File remotely.")
             return
+
+        if not self.server_profile.config_file_path:
+            error_page("Location of MySQL configuration file (ie: my.cnf) not specified")
+            return
+
         if not self.ui_created:
             self.ui_created = True
             #self.suspend_layout()
