@@ -158,7 +158,7 @@ public:
   template<typename T>
   result_type operator()(const T &v) const
   {
-    return -1;
+    return false;
     //!throw std::runtime_error(std::string("Variant: wrong type: '")+typeid(T).name()+"' instead of '"+typeid(result_type).name()+"'");
   }
 };
