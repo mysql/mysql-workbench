@@ -362,8 +362,7 @@ public:
     : BinaryDataViewer(owner)
   {
     set_spacing(8);
-    _jsonView = mforms::JsonView::createInstance();
-    add(_jsonView, true, true);
+    add(&_jsonView, true, true);
   }
 
   virtual void data_changed()
@@ -371,7 +370,7 @@ public:
   }
 
 private:
-  mforms::JsonView  *_jsonView;
+  mforms::JsonTabView _jsonView;
 };
 
 
