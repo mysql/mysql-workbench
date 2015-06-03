@@ -27,117 +27,175 @@
 #include <mforms/tabview.h>
 
 using namespace mforms;
+using namespace JsonParser;
 
-JsonView* (*JsonView::jsonViewFactory)(JsonViewType type) = nullptr;
+/**
+ * Implementation of the json parser view, which is the base for most of the visual controls in mforms.
+ */
 
-// implicitly initialize the adv. sidebar
-bool JsonView::__init = JsonView::initFactoryMethod();
+
+/**
+*  @brief  Default constructor creates empty element.
+*/
+JsonObject::JsonObject()
+{
+}
+
+/**
+*  @brief  %JsonObject move constructor.
+*  @param val A %JsonObject of identical element and allocator types.
+*/
+JsonObject::JsonObject(JsonObject &&other) 
+  : _data(std::move(other._data))
+{
+}
+
+JsonObject &JsonObject::operator=(JsonObject &&other)
+{
+  _data = std::move(other._data);
+  return *this;
+}
+
+// return iterator for begining of sequence
+JsonObject::Iterator JsonObject::begin()
+{
+  return _data.begin();
+}
+
+JsonObject::ConstIterator JsonObject::begin() const
+{
+  return _data.begin();
+}
+
+JsonObject::ConstIterator JsonObject::cbegin() const
+{
+  return _data.begin();
+}
+
+JsonObject::Iterator JsonObject::end()
+{
+  return _data.end();
+}
+
+JsonObject::ConstIterator JsonObject::end() const
+{
+  return _data.end();
+}
+
+JsonObject::ConstIterator JsonObject::cend() const
+{
+  return _data.end();
+}
+
+JsonObject::SizeType JsonObject::size()
+{
+  return _data.size();
+}
+
+JsonObject::Iterator JsonObject::find(const KeyType& key)
+{
+  return _data.find(key);
+}
+
+JsonObject::ConstIterator JsonObject::find(const KeyType& key) const
+{
+  return _data.find(key);
+}
+// test if container is empty
+bool JsonObject::empty() const
+{
+  return _data.empty();
+}
+
+void JsonObject::clear()
+{
+  _data.clear();
+}
+
+JsonObject::Iterator JsonObject::erase(Iterator it)
+{
+  return _data.erase(it);
+}
+
+JsonObject::Iterator JsonObject::erase(Iterator first, Iterator last)
+{
+  return _data.erase(first, last);
+}
+
+void JsonObject::insert(const KeyType &key, const JsonValue& value)
+{
+  _data[key] = value;
+}
+
+JsonValue &JsonObject::get(const KeyType &key)
+{
+    return _data[key];;
+}
 
 /// <summary>
 /// Set JsonView factory method function.
 /// </summary>
-bool JsonView::initFactoryMethod()
-{
-  registerFactory(&createInstance);
-  return true;
-}
+//bool JsonView::initFactoryMethod()
+//{
+//  registerFactory(&createInstance);
+//  return true;
+//}
 
 /// <summary>
 /// ctor.
 /// </summary>
-JsonView::JsonView() : Panel(TransparentPanel)
+JsonBaseView::JsonBaseView() : Panel(TransparentPanel)
 {
 }
 
 /// <summary>
 /// dtor
 /// </summary>
-JsonView::~JsonView()
+JsonBaseView::~JsonBaseView()
 {
+}
+
+boost::signals2::signal<void()>* JsonBaseView::signalChanged()
+{
+  return &_signalChanged;
 }
 
 /// <summary>
 /// The Json data as string to add to the control.
 /// </summary>
 /// <param name="text">A string that contains the json text data to set.</param>
-void JsonView::setJson(const std::string &text)
-{
-}
+//void JsonBaseView::setText(const std::string &text)
+//{
+//  //_jsonText = text;
+//}
+
+/// <summary>
+/// The Json data to add to the control.
+/// </summary>
+/// <param name="text">A JsonValue object that contains the json text data to set.</param>
+//void JsonBaseView::setJson(const JsonValue &val)
+//{
+//  //_json = val;
+//}
 
 /// <summary>
 /// Retrieves data from the Json control in the text format
 /// <summary>
 /// <returns>Returns a string that represents the current control data.</returns>
-const std::string &JsonView::getJson() const
-{
-  return _jsonText;
-}
-
-/// <summary>
-/// The Json data as string to add to the control.
-/// </summary>
-/// <param name="text">A string that contains the json text data to set.</param>
-void JsonView::setData(const std::string &text)
-{
-}
-
+//const JsonValue &JsonBaseView::getJson() const
+//{
+//  //return _json;
+//}
+//
 /// <summary>
 /// Retrieves data from the Json control in the text format
 /// <summary>
 /// <returns>Returns a string that represents the current control data.</returns>
-const std::string &JsonView::getData() const
-{
-  return getJson();
-}
-
-/// <summary>
-/// Create JsonView control using factory pattern.
-/// </summary>
-/// <param name="jsonData">JSON data.</param>
-/// <returns>pointer to jsonview control.</returns>
-JsonView *JsonView::createInstance(JsonViewType type /*= JsonTabControl*/)
-{
-  switch (type)
-  {
-  case JsonTabControl:
-    return new JsonTabView();
-  case JsonTextControl:
-    return new JsonTextView();
-  case JsonTreeControl:
-    return new JsonTreeView();
-  case JsonGridControl:
-    return new JsonGridView();
-  default:
-    throw std::runtime_error("Attempt to create not existing class");
-  }
-}
-
-/// <summary>
-/// Register factory for JsonView control.
-/// </summary>
-/// <param name="create">JSON data.</param>
-void JsonView::registerFactory(JsonView* (*create)(JsonViewType type))
-{
-  jsonViewFactory = create;
-}
-
-/// <summary>
-/// The Json data as string to add to the control.
-/// </summary>
-/// <param name="text">A string that contains the json text data to set.</param>
-void JsonTextView::setData(const std::string &text)
-{
-}
-
-/// <summary>
-/// Retrieves data from the Json control in the text format
-/// <summary>
-/// <returns>Returns a string that represents the current control data.</returns>
-const std::string &JsonTextView::getData() const
-{
-  return getJson();
-}
-
+//const std::string &JsonBaseView::getText() const
+//{
+// // return _jsonText;
+//}
+//
 /// <summary>
 /// ctor.
 /// </summary>
@@ -145,6 +203,12 @@ JsonTextView::JsonTextView()
   :  _textEditor(std::make_shared<CodeEditor>())
 {
   init();
+  scoped_connect(_textEditor->signal_changed(), boost::bind(&JsonTextView::textChanged, this));
+}
+
+void JsonTextView::textChanged()
+{
+  _signalChanged();
 }
 
 /// <summary>
@@ -166,39 +230,13 @@ void JsonTextView::init()
   add(_textEditor.get());
 }
 
-/// <summary>
-/// The Json data as string to add to the control.
-/// </summary>
-/// <param name="text">A string that contains the json text data to set.</param>
-void JsonTextView::setJson(const std::string &text)
-{
-}
 
-/// <summary>
-/// Retrieves data from the Json control in the text format
-/// <summary>
-/// <returns>Returns a string that represents the current control data.</returns>
-const std::string &JsonTextView::getJson() const
-{
-  return _jsonText;
-}
 
-/// <summary>
-/// The Json data as string to add to the control.
-/// </summary>
-/// <param name="text">A string that contains the json text data to set.</param>
-void JsonTreeView::setData(const std::string &text)
-{
-}
-
-/// <summary>
-/// Retrieves data from the Json control in the text format
-/// <summary>
-/// <returns>Returns a string that represents the current control data.</returns>
-const std::string &JsonTreeView::getData() const
-{
-  return getJson();
-}
+/**
+* The content of a draw box is, by nature, drawn by the box itself, so we need to know what
+* space the box needs. Overwritten by descendants. Subviews do not automatically add to the content
+* size. If that's needed then additional computations are needed by the host.
+*/
 
 /// <summary>
 /// ctor
@@ -215,36 +253,6 @@ JsonTreeView::~JsonTreeView()
 }
 
 /// <summary>
-/// The Json data as string to add to the control.
-/// </summary>
-/// <param name="text">A string that contains the json text data to set.</param>
-void JsonTreeView::setJson(const std::string &text)
-{
-}
-
-const std::string &JsonTreeView::getJson() const
-{
-  return _jsonText;
-}
-
-/// <summary>
-/// The Json data as string to add to the control.
-/// </summary>
-/// <param name="text">A string that contains the json text data to set.</param>
-void JsonGridView::setData(const std::string &text)
-{
-}
-
-/// <summary>
-/// Retrieves data from the Json control in the text format
-/// <summary>
-/// <returns>Returns a string that represents the current control data.</returns>
-const std::string &JsonGridView::getData() const
-{
-  return getJson();
-}
-
-/// <summary>
 /// ctor
 /// </summary>
 JsonGridView::JsonGridView()
@@ -258,46 +266,7 @@ JsonGridView::~JsonGridView()
 {
 }
 
-/// <summary>
-/// The Json data as string to add to the control.
-/// </summary>
-/// <param name="text">A string that contains the json text data to set.</param>
-void JsonGridView::setJson(const std::string& text)
-{
-}
-
-/// <summary>
-/// Retrieves data from the Json control in the text format
-/// <summary>
-/// <returns>Returns a string that represents the current control data.</returns>
-const std::string &JsonGridView::getJson() const
-{
-  return _jsonText;
-}
-
-/// <summary>
-/// The Json data as string to add to the control.
-/// </summary>
-/// <param name="text">A string that contains the json text data to set.</param>
-void JsonTabView::setData(const std::string &text)
-{
-}
-
-/// <summary>
-/// Retrieves data from the Json control in the text format
-/// <summary>
-/// <returns>Returns a string that represents the current control data.</returns>
-const std::string &JsonTabView::getData() const
-{
-  return getJson();
-}
-
-/// <summary>
-/// ctor
-/// </summary>
-JsonTabView::JsonTabView() : _textView(std::make_shared<JsonTextView>()),
-  _treeView(std::make_shared<JsonTreeView>()), _gridView(std::make_shared<JsonGridView>()), 
-  _tabView(std::make_shared<TabView>(TabViewPalette))
+void JsonTabView::Setup()
 {
   assert(_tabView.get() != NULL);
   _tabView->set_name("json_editor:tab");
@@ -305,6 +274,18 @@ JsonTabView::JsonTabView() : _textView(std::make_shared<JsonTextView>()),
   _tabView->add_page(manage(_treeView.get()), "Tree");
   _tabView->add_page(manage(_gridView.get()), "Grid");
   add(_tabView.get());
+
+  scoped_connect(_textView->signalChanged(), boost::bind(&JsonTabView::textViewTextChanged, this));
+}
+
+/// <summary>
+/// ctor
+/// </summary>
+JsonTabView::JsonTabView() : Panel(TransparentPanel), _textView(std::make_shared<JsonTextView>()),
+  _treeView(std::make_shared<JsonTreeView>()), _gridView(std::make_shared<JsonGridView>()), 
+  _tabView(std::make_shared<TabView>(TabViewPalette))
+{
+  Setup();
 }
 
 /// <summary>
@@ -314,20 +295,26 @@ JsonTabView::~JsonTabView()
 {
 }
 
-/// <summary>
-/// The Json data as string to add to the control.
-/// </summary>
-/// <param name="text">A string that contains the json text data to set.</param>
-void JsonTabView::setJson(const std::string &text)
+void JsonTabView::setJson(const JsonParser::JsonValue& val)
 {
-  _jsonText = text;
 }
 
-/// <summary>
-/// Retrieves data from the Json control in the text format
-/// <summary>
-/// <returns>Returns a string that represents the current control data.</returns>
-const std::string &JsonTabView::getJson() const
+//const JsonParser::JsonValue& JsonTabView::getJson() const
+//{
+//}
+
+void JsonTabView::setText(const std::string& text)
 {
-  return _jsonText;
+  //_textView->set = text;
+}
+
+//const std::string& JsonTabView::getText() const
+//{
+// // return _textView;
+//}
+
+void JsonTabView::textViewTextChanged()
+{
+  int b = 3;
+  b++;
 }
