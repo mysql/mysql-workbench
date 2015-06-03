@@ -184,6 +184,11 @@ config.cnf
 wb-build/
 testing/tut/build/
 *.kdev4
+.autotools
+.cproject
+.project
+.pydevproject
+.settings/
 
 testing/tut/data/connections.xml
 testing/tut/data/**/*_res.xml
