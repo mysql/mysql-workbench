@@ -143,11 +143,15 @@ namespace wb {
     // for use by frontend
     boost::function<void ()> pre_refresh_groups;
     void refresh();
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#ifndef _WIN32
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#endif
     // This is ok, as Overview contains children which also need to be refreshed.
     virtual void refresh_node(const bec::NodeId &node, bool children)= 0;
-#pragma GCC diagnostic pop
+#ifndef _WIN32
+  #pragma GCC diagnostic pop
+#endif
 
     virtual std::string get_edit_target_name();
     std::string get_target_name_for_nodes(const std::vector<bec::NodeId> &nodes);

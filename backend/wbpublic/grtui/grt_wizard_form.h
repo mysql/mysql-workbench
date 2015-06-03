@@ -50,11 +50,14 @@ namespace grtui {
   public:
     WizardForm(bec::GRTManager *mgr);
     virtual ~WizardForm();
-
+#ifndef _WIN32
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#endif
     virtual bool run_modal();
+#ifndef _WIN32
 #pragma GCC diagnostic pop
+#endif
 
     void add_page(WizardPage *page);
 
