@@ -188,8 +188,7 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
   int column;
   if (aTableView == mMessagesTable && ((column = [[aTableColumn identifier] intValue]) == 3 || column == 4))
   {
-    std::string text;
-    mBackEnd->log()->get_field_description(row, column, text);
+    std::string text = mBackEnd->log()->get_field_description(row, column);
     return [NSString stringWithCPPString: text];
   }     
   return nil;
