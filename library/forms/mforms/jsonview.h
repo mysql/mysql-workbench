@@ -102,12 +102,12 @@ namespace JsonParser {
     JsonArray& operator=(JsonArray &&other);
 
     // subscript sequence with checking
-    JsonArray& at(SizeType pos);
-    const JsonArray& at(SizeType pos) const;
+    JsonValue& at(SizeType pos);
+    const JsonValue& at(SizeType pos) const;
 
     // subscript sequence
-    JsonArray &operator[](SizeType pos);
-    const JsonArray &operator[](SizeType pos) const;
+    JsonValue &operator[](SizeType pos);
+    const JsonValue &operator[](SizeType pos) const;
 
 
     // return iterator for begining of sequence
@@ -129,22 +129,8 @@ namespace JsonParser {
     Iterator erase(Iterator pos);
     Iterator erase(Iterator first, Iterator last);
 
-    // test for equality
-    bool operator==(const JsonArray &rhs) const;
-    // test for inequality
-    bool operator!=(const JsonArray &rhs) const;
-    // test if this < rhs
-    bool operator <(const JsonArray &rhs) const;
-    // test if this <= rhs
-    bool operator <=(const JsonArray &rhs) const;
-    // test if this > rhs
-    bool operator >(const JsonArray &rhs) const;
-    // test if this >= rhs
-    bool operator >=(const JsonArray &rhs) const;
-
     // insert value at pos
     Iterator insert(Iterator pos, const JsonValue& value);
-
     // insert count * value at pos
     void insert(Iterator pos, SizeType count, const JsonValue& value);
 
@@ -152,7 +138,7 @@ namespace JsonParser {
     void pushBack(const ValueType& value);
 
   private:
-    Container data_;
+    Container _data;
   };
 
   template <typename T>

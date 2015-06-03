@@ -141,6 +141,128 @@ JsonValue &JsonObject::get(const KeyType &key)
 //  return true;
 //}
 
+
+// Default constructor
+JsonArray::JsonArray()
+{
+
+}
+
+
+// move operations
+JsonArray::JsonArray(JsonArray &&other)
+  : _data(std::move(other._data))
+{
+}
+
+JsonArray &JsonArray::operator = (JsonArray &&other)
+{
+  _data = std::move(other._data);
+  return *this;
+}
+
+// subscript sequence with checking
+JsonValue& JsonArray::at(SizeType pos)
+{
+  assert(pos < _data.size());
+  return _data.at(pos);
+}
+const JsonValue &JsonArray::at(SizeType pos) const
+{
+  assert(pos < _data.size());
+  return _data.at(pos);
+}
+
+// subscript sequence
+JsonValue &JsonArray::operator[](SizeType pos)
+{
+  assert(pos < _data.size());
+  return _data[pos];
+}
+
+
+const JsonValue &JsonArray::operator[](SizeType pos) const
+{
+  assert(pos < _data.size());
+  return _data[pos];
+}
+
+
+// return iterator for begining of sequence
+JsonArray::Iterator JsonArray::begin()
+{
+  return _data.begin();
+}
+
+
+JsonArray::ConstIterator JsonArray::begin() const
+{
+  return _data.begin();
+}
+
+JsonArray::ConstIterator JsonArray::cbegin() const
+{
+  return _data.begin();
+}
+
+// return iterator for end of sequence
+JsonArray::Iterator JsonArray::end()
+{
+  return _data.end();
+}
+
+JsonArray::ConstIterator JsonArray::end() const
+{
+  return _data.end();
+}
+
+JsonArray::ConstIterator JsonArray::cend() const
+{
+  return _data.end();
+}
+
+// return length of sequence
+JsonArray::SizeType JsonArray::size()
+{
+  return _data.size();
+}
+
+// test if container is empty
+bool JsonArray::empty() const
+{
+  return _data.empty();
+}
+void JsonArray::clear()
+{
+  _data.clear();
+}
+
+
+JsonArray::Iterator JsonArray::erase(Iterator pos)
+{
+  return erase(pos);
+
+}
+
+JsonArray::Iterator JsonArray::erase(Iterator first, Iterator last)
+{
+  return _data.erase(first, last);
+}
+
+// insert value at pos
+JsonArray::Iterator JsonArray::insert(Iterator pos, const JsonValue& value)
+{
+  return _data.insert(pos, value);
+}
+
+// insert element at end
+void JsonArray::pushBack(const ValueType& value)
+{
+  _data.push_back(value);
+}
+
+
+
 /// <summary>
 /// ctor.
 /// </summary>
