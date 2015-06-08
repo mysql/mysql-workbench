@@ -380,12 +380,17 @@ void DbSqlEditorView::editor_page_switched(GtkNotebookPage *page, guint index)
     if (aview && aview->get_form_context_name() == "administrator")
       set_maximized_editor_mode(true);
     else
-      set_maximized_editor_mode(false);
+    {
+      if (!_be->connectionIsValid())
+        set_maximized_editor_mode(true, true);
+      else
+        set_maximized_editor_mode(false);
+    }
   }
 }
 
 //------------------------------------------------------------------------------
-void DbSqlEditorView::set_maximized_editor_mode(bool flag)
+void DbSqlEditorView::set_maximized_editor_mode(bool flag, bool hide_schemas)
 {
   if (_editor_maximized != flag)
   {
@@ -396,13 +401,21 @@ void DbSqlEditorView::set_maximized_editor_mode(bool flag)
       be()->get_toolbar()->set_item_checked("wb.toggleSecondarySidebar", false);
       _main_pane.get_child2()->hide();
       _top_right_pane.get_child2()->hide();
+
+      if (hide_schemas)
+      {
+        be()->get_toolbar()->set_item_checked("wb.toggleSidebar", false);
+        _sidebar1_pane->get_child1()->hide();
+      }
     }
     else
     {
+      be()->get_toolbar()->set_item_checked("wb.toggleSidebar", true);
       be()->get_toolbar()->set_item_checked("wb.toggleOutputArea", 
                 !_grtm->get_app_option_int("DbSqlEditor:OutputAreaHidden"));
       be()->get_toolbar()->set_item_checked("wb.toggleSecondarySidebar", 
                 !_grtm->get_app_option_int("DbSqlEditor:SecondarySidebarHidden"));
+      _sidebar1_pane->get_child1()->show();
       perform_command("wb.toggleOutputArea");
       perform_command("wb.toggleSecondarySidebar");
     }

@@ -85,7 +85,7 @@ class DbSqlEditorView : public Gtk::VBox, public FormViewBase
     void tab_menu_handler(const std::string& action, ActiveLabel *sender, Gtk::Widget *widget);
     void reenable_items_in_tab_menus();
 
-    void set_maximized_editor_mode(bool flag);
+    void set_maximized_editor_mode(bool flag, bool hide_schemas = false);
 
     SqlEditorForm::Ref    _be;
     Gtk::HPaned           _top_pane;
