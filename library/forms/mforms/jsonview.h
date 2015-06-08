@@ -145,15 +145,31 @@ namespace JsonParser {
   class JsonTrivialType
   {
   public:
-    JsonTrivialType(const T& t = JsonTrivialType());
+    JsonTrivialType(const T& t = T()) {}
 
-    operator JsonTrivialType&();
-    operator const JsonTrivialType&() const;
+    operator T&() 
+    {
 
-    T& Value();
-    const T& Value() const;
+    }
+    operator const T&() const 
+    {
+      return _value;
+    }
 
-    bool operator == (const JsonTrivialType<T>& trivial) const;
+    T& Value() 
+    {
+      return _value;
+    }
+
+    const T& Value() const 
+    {
+      return _value;
+    }
+
+    bool operator == (const JsonTrivialType<T>& trivial) const 
+    {
+      return trivial._value == _value;
+    }
 
   private:
     T _value;
@@ -174,76 +190,60 @@ namespace JsonParser {
       JsonValue(JsonValue&& rhs);
 
       // construct from std::string
-      JsonValue::JsonValue(const std::string& val);
-      JsonValue::JsonValue(std::string&& val);
+      JsonValue(const std::string& val);
+      JsonValue(std::string&& val);
       // construct from c string pointer
-      JsonValue::JsonValue(const char* val);
+      JsonValue(const char* val);
       // construct from bool
-      JsonValue::JsonValue(bool val);
+      JsonValue(bool val);
       // construct from int
-      JsonValue::JsonValue(int val);
+      JsonValue(int val);
       // construct from double
-      JsonValue::JsonValue(double val);
+      JsonValue(double val);
       // construct from JsonObject
-      JsonValue::JsonValue(const JsonObject&& val);
-      JsonValue::JsonValue(JsonObject&& val);
+      JsonValue(const JsonObject&& val);
+      JsonValue(JsonObject&& val);
       // // construct from JsonArray
-      JsonValue::JsonValue(const JsonArray &val);
-      JsonValue::JsonValue(const JsonArray&& val);
+      JsonValue(const JsonArray &val);
+      JsonValue(const JsonArray&& val);
 
       // return type of value
-      DataType GetType() const;
+      DataType getType() const;
 
       // test for equality
       bool operator==(const JsonValue &rhs) const;
       // test for inequality
       bool operator!=(const JsonValue &rhs) const;
-      // test if this < rhs
-      bool operator <(const JsonValue &rhs) const;
-      // test if this <= rhs
-      bool operator <=(const JsonValue &rhs) const;
-      // test if this > rhs
-      bool operator >(const JsonValue &rhs) const;
-      // test if this >= rhs
-      bool operator >=(const JsonValue &rhs) const;
 
-      // Subscript operator, access by key
-      JsonValue& operator[] (const std::string& key);
-      const JsonValue& operator[] (const std::string& key) const;
-
-      // Subscript operator, access by index
-      JsonValue& operator[] (JsonArray::SizeType idx);
-      const JsonValue& operator[] (JsonArray::SizeType idx) const;
 
       // access function
-      int GetDouble() const;
-      void SetDouble(int val);
+      double getDouble() const;
+      void setDouble(double val);
 
-      int GetInt() const;
-      void SetInt(int val);
+      int getInt() const;
+      void setInt(int val);
 
-      bool GetBool() const;
-      void SetBool(bool val);
+      bool getBool() const;
+      void setBool(bool val);
 
-      const std::string& GetString() const;
-      void SetString(const std::string& val);
+      const std::string& getString() const;
+      void setString(const std::string& val);
 
-      operator JsonObject () const { return object_; }
-      const JsonObject& GetObject() const;
-      void SetObject(const JsonObject& val);
+      operator JsonObject () const;
+      const JsonObject& getObject() const;
+      void setObject(const JsonObject& val);
 
       operator JsonArray () const;
-      const JsonArray& GetArray() const;
-      void SetArray(const JsonArray& val);
+      const JsonArray& getArray() const;
+      void setArray(const JsonArray& val);
 
     private:
-      Number double_;
-      Boolean bool_;
-      String string_;
-      JsonObject object_;
-      JsonArray array_;
-
-      DataType type_;
+      Number _double;
+      Boolean _bool;
+      String _string;
+      JsonObject _object;
+      JsonArray _array;
+      DataType _type;
     };
  
 };
