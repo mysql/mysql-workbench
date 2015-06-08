@@ -330,11 +330,9 @@ def local_run_cmd_linux(command, as_user = Users.CURRENT, user_password=None, su
 
     # Try to read anything left, wait exit
     try:
-        # Before trying to read, we check if child process has terminated, we read only if not.
-        if child.poll():
-            current_text, _ = child.communicate()
-            if current_text and output_handler:
-                output_handler(current_text)
+        current_text, _ = child.communicate()
+        if current_text and output_handler:
+            output_handler(current_text)
     except:
         pass
     result = child.returncode
