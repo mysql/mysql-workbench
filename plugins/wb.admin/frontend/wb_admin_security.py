@@ -764,7 +764,7 @@ class FirewallUserInterfaceBase(mforms.Box):
         self.owner = owner
         self.ctrl_be = owner.owner.ctrl_be
 
-    def show_user(self, user, host):
+    def show_user(self, user, host, new_user):
         return
 
     def update_rules(self, user, host):
@@ -1070,7 +1070,7 @@ class SecurityAccount(mforms.Box):
         self.set_padding(8)
         self.set_spacing(8)
 
-        if self.owner.ctrl_be.server_variables.get('mysql_firewall_mode'):
+        if self.owner.ctrl_be.server_variables.get('mysql_firewall_mode') and not grt.root.wb.info.edition == "Community":
             self.firewall_rules = FirewallUserInterface(self)
         else:
             self.firewall_rules = FirewallUserInterfaceDummy(self)
