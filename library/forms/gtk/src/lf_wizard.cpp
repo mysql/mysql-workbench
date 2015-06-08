@@ -41,7 +41,7 @@ static void setup_padded_button(Gtk::Button *button, Gtk::Label *label, Gtk::Ima
 
   if (image)
   {
-    Gtk::HBox *hbox= Gtk::manage(new Gtk::HBox(false, 4));
+    Gtk::Box *hbox= Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 4));
     align->add(*hbox);
     hbox->pack_start(*image, false, true);
     hbox->pack_start(*label, true, true);
@@ -59,6 +59,7 @@ static void setup_padded_button(Gtk::Button *button, Gtk::Label *label, Gtk::Ima
 WizardImpl::WizardImpl(::mforms::Wizard *wiz, ::mforms::Form* owner)
     : FormImpl(wiz, owner, mforms::FormDialogFrame)
       , _top_table(3, 2)
+      , _button_box(Gtk::ORIENTATION_HORIZONTAL)
       , _cancel_btn()
       , _back_btn()
 {
@@ -113,14 +114,10 @@ WizardImpl::WizardImpl(::mforms::Wizard *wiz, ::mforms::Form* owner)
   _step_table.set_row_spacings(8);
 
   _step_background.add(_step_table);
-  if (!force_sys_colors)
-  {
-    Gdk::Color c("#ffffff");
-    get_window()->get_colormap()->alloc_color(c);
-    
-    _step_background.modify_bg(Gtk::STATE_NORMAL, c);
-    _step_background.modify_base(Gtk::STATE_NORMAL, c);
-  }
+
+  Gdk::RGBA c("#ffffff");
+  _step_background.override_background_color(c, Gtk::STATE_FLAG_NORMAL);
+
   _top_table.attach(_step_background, 0, 1, 0, 2, Gtk::FILL, Gtk::FILL);
   _top_table.attach(_content, 1, 2, 1, 2, Gtk::EXPAND|Gtk::FILL, Gtk::EXPAND|Gtk::FILL);
 

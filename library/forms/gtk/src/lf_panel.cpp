@@ -1,5 +1,6 @@
 #include "../lf_mforms.h"
 #include "../lf_panel.h"
+#include "gtk_helpers.h"
 
 mforms::gtk::PanelImpl::PanelImpl(::mforms::Panel *self, ::mforms::PanelType type)
   : ViewImpl(self), BinImpl(this), _frame(0), _evbox(0), _radio_group_set(false)
@@ -22,20 +23,16 @@ mforms::gtk::PanelImpl::PanelImpl(::mforms::Panel *self, ::mforms::PanelType typ
     break;
   case StyledHeaderPanel:      // just a container with color filled background
     _evbox = new Gtk::EventBox();
-    _evbox->signal_expose_event().connect(sigc::bind(sigc::mem_fun(this, &PanelImpl::on_expose_event), _evbox));
+    _evbox->signal_draw().connect(sigc::bind(sigc::mem_fun(this, &PanelImpl::on_draw_event), _evbox));
 
     break;
   case FilledHeaderPanel:
   {
-    mforms::App                 *app      = mforms::App::get();
-    Glib::RefPtr<Gdk::Colormap>  colormap = _evbox->get_colormap();
-    if (app && colormap)
+    mforms::App *app = mforms::App::get();
+    if (app)
     {
       base::Color sclr = app->get_system_color(mforms::SystemColorHighlight);
-      Gdk::Color clr;
-      clr.set_rgb_p(sclr.red, sclr.green, sclr.blue);
-      if (colormap->alloc_color(clr))
-        _evbox->modify_bg(Gtk::STATE_NORMAL, clr);
+      _evbox->override_background_color(color_to_rgba(Gdk::Color(sclr.to_html())), Gtk::STATE_FLAG_NORMAL);
     }
   }
   case FilledPanel:      // just a container with color filled background
@@ -110,13 +107,7 @@ void mforms::gtk::PanelImpl::set_back_color(::mforms::Panel *self, const std::st
   PanelImpl *panel= self->get_data<PanelImpl>();
 
   if (panel->_evbox)
-  {
-    Gdk::Color c(color);
-    panel->_evbox->get_colormap()->alloc_color(c);
-
-    panel->_evbox->modify_bg(Gtk::STATE_NORMAL, c);
-    panel->_evbox->modify_base(Gtk::STATE_NORMAL, c);
-  }
+    panel->_evbox->override_background_color(color_to_rgba(Gdk::Color(color)), Gtk::STATE_FLAG_NORMAL);
 }
 
 

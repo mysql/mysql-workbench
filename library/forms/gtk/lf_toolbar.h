@@ -21,7 +21,10 @@
 #define _MFORMS_LF_TOOLBAR_H_
 
 #include "mforms/toolbar.h"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #include <gtkmm.h>
+#pragma GCC diagnostic pop
 
 namespace mforms {
   Gtk::Widget *widget_for_toolbar(mforms::ToolBar*);

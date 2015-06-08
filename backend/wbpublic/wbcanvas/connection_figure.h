@@ -128,7 +128,7 @@ namespace wbfig {
     virtual bool contains_point(const base::Point &point) const;
 
     virtual void stroke_outline(mdc::CairoCtx *cr, float offset= 0) const;
-    void stroke_outline_gl(float offset= 0);
+    void stroke_outline_gl(float offset= 0) const;
 
     double get_middle_segment_angle();
 

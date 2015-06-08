@@ -1,42 +1,52 @@
-<?xml version="1.0"?>
-<!--Generated with glade3 3.4.5 on Mon Mar  2 18:00:59 2009 -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.16.1 -->
 <interface>
+  <requires lib="gtk+" version="3.8"/>
   <object class="GtkWindow" id="window1">
     <property name="name">window1</property>
+    <property name="can_focus">False</property>
     <child>
-      <object class="GtkHBox" id="editor_image_hbox">
+      <object class="GtkBox" id="editor_image_hbox">
         <property name="name">editor_image_hbox</property>
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <child>
           <object class="GtkImage" id="image">
             <property name="name">image</property>
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0.039999999105930328</property>
             <property name="yalign">0.039999999105930328</property>
             <property name="stock">gtk-missing-image</property>
           </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
         </child>
         <child>
           <object class="GtkAspectFrame" id="aspectframe2">
             <property name="name">aspectframe2</property>
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="label_xalign">0</property>
             <property name="label_yalign">1</property>
-            <property name="shadow_type">GTK_SHADOW_NONE</property>
+            <property name="shadow_type">none</property>
             <property name="yalign">1</property>
-            <property name="ratio">1</property>
             <child>
               <object class="GtkButton" id="browse_button">
+                <property name="label" translatable="yes">Browse...</property>
                 <property name="name">browse_button</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="label" translatable="yes">Browse...</property>
               </object>
             </child>
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="position">1</property>
           </packing>
         </child>
@@ -44,12 +54,14 @@
           <object class="GtkAlignment" id="alignment1">
             <property name="name">alignment1</property>
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="yalign">0</property>
             <property name="yscale">0</property>
             <child>
               <object class="GtkTable" id="table2">
                 <property name="name">table2</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="n_rows">3</property>
                 <property name="n_columns">4</property>
                 <property name="column_spacing">8</property>
@@ -62,11 +74,11 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="reset_size_button">
+                    <property name="label" translatable="yes">Reset Size</property>
                     <property name="name">reset_size_button</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="label" translatable="yes">Reset Size</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -79,10 +91,12 @@
                 </child>
                 <child>
                   <object class="GtkCheckButton" id="aspect_check">
+                    <property name="label" translatable="yes">Keep Aspect Ratio</property>
                     <property name="name">aspect_check</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="label" translatable="yes">Keep Aspect Ratio</property>
+                    <property name="receives_default">False</property>
+                    <property name="xalign">0.5</property>
                     <property name="draw_indicator">True</property>
                   </object>
                   <packing>
@@ -126,6 +140,7 @@
                   <object class="GtkLabel" id="label2">
                     <property name="name">label2</property>
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Height:</property>
                   </object>
                   <packing>
@@ -138,6 +153,7 @@
                   <object class="GtkLabel" id="label1">
                     <property name="name">label1</property>
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Width:</property>
                   </object>
                   <packing>
@@ -149,6 +165,7 @@
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="position">2</property>
           </packing>
         </child>

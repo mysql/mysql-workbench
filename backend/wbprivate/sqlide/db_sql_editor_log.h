@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,7 +52,7 @@ public:
   virtual bec::IconId get_field_icon(const bec::NodeId &node, ColumnId column, bec::IconSize size);
   virtual bool get_field(const bec::NodeId &node, ColumnId column, std::string &value);
   virtual bool get_field(const bec::NodeId &node, ColumnId column, ssize_t &value) { return VarGridModel::get_field(node, column, value); }
-  virtual bool get_field_description(const bec::NodeId &node, ColumnId column, std::string &value);
+  virtual bool get_field_description_value(const bec::NodeId &node, ColumnId column, std::string &value);
   
   std::string get_selection_text(bool time, bool query, bool result, bool duration);
 

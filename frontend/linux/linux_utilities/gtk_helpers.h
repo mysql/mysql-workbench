@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,10 +32,9 @@ class Widget;
 class Entry;
 class ListStore;
 class EntryCompletion;
-class HBox;
+class Box;
 class ComboBox;
 class ComboBoxText;
-class ComboBoxEntryText;
 class Window;
 class Menu;
 class Label;
@@ -58,7 +57,7 @@ class TextListColumnsModel;
 class TreeModelWrapper;
 void expand_tree_nodes_as_in_be(const Glib::RefPtr<TreeModelWrapper> &model, Gtk::TreeView *tv);
 
-Gtk::HBox &create_icon_label(const std::string &icon, const std::string &label);
+Gtk::Box &create_icon_label(const std::string &icon, const std::string &label);
 
 
 //Gtk::Widget *create_closeable_tab(const Glib::ustring &title, const sigc::slot<void> &close_callback,
@@ -84,7 +83,7 @@ void set_glib_bool(Glib::ValueBase& value, const bool b);
 void set_glib_double(Glib::ValueBase& value, const double d);
 
 void fill_combo_from_string_list(Gtk::ComboBox* combo, const std::vector<std::string>& list);
-void fill_combo_from_string_list(Gtk::ComboBoxEntryText* combo, const std::vector<std::string>& list);
+void fill_combo_from_string_list(Gtk::ComboBoxText* combo, const std::vector<std::string>& list);
 
 //! get_mainwindow is declared here as extern while it is implemented in frontend/linux/workbench/Program.cpp
 //! and frontend/linux/shell/shell.cpp. get_mainwindow is needed by some functions/methods to
@@ -97,12 +96,6 @@ inline Gtk::Window* get_mainwindow()
 
 extern std::string open_file_chooser(const std::string &filter = "*");
 extern std::string save_file_chooser(const std::string &filter = "*");
-
-struct GtkAutoLock
-{
-  GtkAutoLock() {gdk_threads_enter();}
-  ~GtkAutoLock() {gdk_threads_leave();}
-};
 
 template <typename MutexType>
 class Locker
@@ -126,6 +119,8 @@ float gtk_paned_get_pos_ratio(Gtk::Paned* paned);
 
 void gtk_reparent_realized(Gtk::Widget *widget, Gtk::Container *new_parent);
 
+Gdk::RGBA color_to_rgba(Gdk::Color);
+
 class PanedConstrainer {
 public:
   enum PanedInfo {
@@ -139,9 +134,9 @@ public:
      *
      * @param top_or_left_limit should be set to prevent Gtk::Paned to be smaller than the specified size,
      * or to be automagically hidden when user make it smaller than that value, based on sticky behaviour.
-     * from the left or top side, depends if it's Gtk::HPaned or Gtk::VPaned. Set to 0 to disable this limit.
+     * from the left or top side, depends if it's horizontal or vertical. Set to 0 to disable this limit.
      * @param bottom_or_right_limit it's similar to the previous parameter except it limits the right or bottom size,
-     * depends if it's Gtk::HPaned or Gtk::VPaned. Set to 0 to disable this limit.
+     * depends if it's horizontal or vertical. Set to 0 to disable this limit.
 
      * @return PanedContrainer* Pointer to PanedConstrainer. The pointer will be automagically freed when Gtk::Paned is desotryed.
      */

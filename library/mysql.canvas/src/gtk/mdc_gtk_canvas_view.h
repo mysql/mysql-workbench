@@ -35,21 +35,21 @@ public:
   GtkCanvas(CanvasType type);
   virtual ~GtkCanvas();
 
-  CanvasView *get_canvas() { return _canvas; };
+  CanvasView *get_canvas();
 
   mdc::EventState get_event_state(int event_state);
   
-private:
-  bool redraw(GdkEventExpose *ev);
+  void create_canvas();
+  void set_vadjustment(const Glib::RefPtr<Gtk::Adjustment>& vadjustment);
+  void set_hadjustment(const Glib::RefPtr<Gtk::Adjustment>& hadjustment);
+protected:
+  bool redraw(::Cairo::RefPtr< ::Cairo::Context> context);
   virtual void on_realize();
   virtual void on_unrealize();
   virtual void on_map();
   virtual void on_size_allocate(Gtk::Allocation &alloc);
 
   virtual bool on_scroll_event(GdkEventScroll *event);
-
-  virtual void on_set_scroll_adjustments(Gtk::Adjustment* hadjustment,
-                                         Gtk::Adjustment* vadjustment);
   
   virtual void on_zoom_in_event();
   virtual void on_zoom_out_event();

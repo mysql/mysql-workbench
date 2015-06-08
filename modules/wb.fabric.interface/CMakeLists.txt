@@ -1,5 +1,5 @@
 include_directories(.
-    ${GTK2_INCLUDE_DIRS}
+    ${GTK3_INCLUDE_DIRS}
     ${SIGC++_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
     ${MYSQL_INCLUDE_DIRS}

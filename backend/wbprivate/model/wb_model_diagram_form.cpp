@@ -73,9 +73,6 @@ static const double zoom_steps[]= {
   0.1
 };
 
-
-
-
 ModelDiagramForm::ModelDiagramForm(WBComponent *owner, const model_DiagramRef &view)
 : _catalog_tree(NULL), _view(0), _owner(owner), _model_diagram(view), _mini_view(0), _menu(0),
 _toolbar(0), _tools_toolbar(0), _options_toolbar(0)
@@ -544,8 +541,11 @@ void ModelDiagramForm::close()
   set_closed(true);
   _mini_view->set_active_view(NULL, model_DiagramRef());
 
-  delete _mini_view;
-  _mini_view = 0;
+  if (_mini_view != 0)
+  {
+    delete _mini_view;
+    _mini_view = 0;
+  }
 
   _model_diagram->get_data()->unrealize();
 }

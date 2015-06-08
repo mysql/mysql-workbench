@@ -1,6 +1,9 @@
 
 #include "grtui/gui_plugin_base.h"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #include <gtkmm.h>
+#pragma GCC diagnostic pop
 #include "wb_printing.h"
 #include "mdc_canvas_view_printing.h"
 #include "wbcanvas/model_diagram_impl.h"

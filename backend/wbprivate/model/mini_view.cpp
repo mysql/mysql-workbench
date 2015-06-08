@@ -333,12 +333,11 @@ void MiniView::set_active_view(mdc::CanvasView *canvas_view, const model_Diagram
 
   if (_canvas_view)
   {
-      _view_viewport_change_connection= _canvas_view->signal_viewport_changed()->connect(
-      boost::bind(&MiniView::viewport_changed, this));
-    
-      _view_repaint_connection= _canvas_view->signal_repaint()->connect(
-      (boost::bind(&CanvasItem::set_needs_render, this)));
+    _view_viewport_change_connection= _canvas_view->signal_viewport_changed()->connect(
+    boost::bind(&MiniView::viewport_changed, this));
 
+    _view_repaint_connection= _canvas_view->signal_repaint()->connect(
+    (boost::bind(&CanvasItem::set_needs_render, this)));
 
     _viewport_figure->set_visible(true);
 
@@ -348,7 +347,11 @@ void MiniView::set_active_view(mdc::CanvasView *canvas_view, const model_Diagram
     viewport_changed();
   }
   else
+  {
+    _view_viewport_change_connection.disconnect();
+    _view_repaint_connection.disconnect();
     _viewport_figure->set_visible(false);
+  }
 
   set_needs_render();
 }

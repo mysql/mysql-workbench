@@ -57,7 +57,7 @@ protected:
 
   DrawBoxImpl(::mforms::DrawBox *self);
   virtual ~DrawBoxImpl();
-  bool repaint(GdkEventExpose *event, ::mforms::DrawBox *self);
+  bool repaint(const ::Cairo::RefPtr< ::Cairo::Context>& context, ::mforms::DrawBox *self);
   bool relayout(::mforms::DrawBox *self);
   void on_size_allocate(Gtk::Allocation& alloc, ::mforms::DrawBox *self);
   void mouse_cross_event(GdkEventCrossing *event, ::mforms::DrawBox *self);

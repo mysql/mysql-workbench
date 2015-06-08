@@ -21,7 +21,6 @@ class DbMySQLTableEditorTriggerPage
 
     void switch_be(MySQLTableEditorBE* be);  
   private:
-    DbMySQLTableEditor                       *_owner;
     MySQLTableEditorBE                       *_be;
     Glib::RefPtr<Gtk::Builder>                _xml;
 };

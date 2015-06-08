@@ -19,6 +19,7 @@
 
 #include "../lf_mforms.h"
 #include "../lf_textentry.h"
+#include "gtk_helpers.h"
 
 namespace mforms {
 namespace gtk {
@@ -96,10 +97,8 @@ TextEntryImpl::TextEntryImpl(::mforms::TextEntry *self, TextEntryType type)
     _entry->set_visibility(false);
     break;
   case mforms::SearchEntry:
-#if GTK_VERSION_GE(2, 16)
     _entry->set_icon_from_stock(Gtk::Stock::FIND);
     _entry->signal_icon_press().connect(sigc::mem_fun(this, &TextEntryImpl::icon_pressed));
-#endif
     break;
   }
 
@@ -110,18 +109,17 @@ TextEntryImpl::TextEntryImpl(::mforms::TextEntry *self, TextEntryType type)
   _entry->signal_focus_out_event().connect_notify(sigc::mem_fun(this, &TextEntryImpl::focus_out));
   _entry->add_events(Gdk::KEY_PRESS_MASK);
   _entry->show();
-  _text_color = _entry->get_style()->get_text(Gtk::STATE_NORMAL);
+  _text_color = _entry->get_style_context()->get_color(Gtk::STATE_FLAG_NORMAL);
   Gdk::Color color("#888888");
-  _placeholder_color = color;
+  _placeholder_color = color_to_rgba(color);
 }
 
-#if GTK_VERSION_GE(2, 16)
+
 void TextEntryImpl::icon_pressed(Gtk::EntryIconPosition pos, const GdkEventButton *ev)
 {
   if (pos == Gtk::ENTRY_ICON_SECONDARY)
     set_text("");
 }
-#endif
 
 void TextEntryImpl::activated(mforms::TextEntry *self)
 {
@@ -130,7 +128,7 @@ void TextEntryImpl::activated(mforms::TextEntry *self)
 
 bool TextEntryImpl::key_press(GdkEventKey *event, mforms::TextEntry *self)
 {
-  if (event->keyval == GDK_Up)
+  if (event->keyval == GDK_KEY_Up)
   {
     if (event->state & GDK_CONTROL_MASK)
       self->action(mforms::EntryCKeyUp);
@@ -138,7 +136,7 @@ bool TextEntryImpl::key_press(GdkEventKey *event, mforms::TextEntry *self)
       self->action(mforms::EntryKeyUp);
     return true;
   }
-  else if (event->keyval == GDK_Down)
+  else if (event->keyval == GDK_KEY_Down)
   {
     if (event->state & GDK_CONTROL_MASK)
       self->action(mforms::EntryCKeyDown);
@@ -146,7 +144,7 @@ bool TextEntryImpl::key_press(GdkEventKey *event, mforms::TextEntry *self)
       self->action(mforms::EntryKeyDown);
     return true;
   }
-  else if (event->keyval == GDK_Escape)
+  else if (event->keyval == GDK_KEY_Escape)
   {
     self->action(mforms::EntryEscape);
     return true;
@@ -160,7 +158,6 @@ void TextEntryImpl::changed(mforms::TextEntry *self)
     return;
   if (_has_real_text)
   {
-#if GTK_VERSION_GT(2, 16)
     if (_type == mforms::SearchEntry)
     {
       if (_entry->get_text().empty())
@@ -168,7 +165,7 @@ void TextEntryImpl::changed(mforms::TextEntry *self)
       else
         _entry->set_icon_from_stock(Gtk::Stock::CLEAR, Gtk::ENTRY_ICON_SECONDARY);
     }
-#endif
+
     if (_entry->get_text().empty())
       _has_real_text = false;
   }
@@ -179,8 +176,16 @@ void TextEntryImpl::changed(mforms::TextEntry *self)
 
 void TextEntryImpl::set_front_color(const std::string &color)
 {
-  Gdk::Color gcolor(color);
-  this->_text_color = gcolor;
+  this->_text_color = color_to_rgba(Gdk::Color(color));
+}
+
+void TextEntryImpl::set_back_color(const std::string &color)
+{
+  ViewImpl::set_back_color(color);
+  Glib::RefPtr<Gtk::CssProvider> provider = Gtk::CssProvider::create();
+  if (!color.empty())
+    provider->load_from_data(".entry { background: " + color + "; }");
+  _entry->get_style_context()->add_provider(provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
 }
 
 void TextEntryImpl::set_text(const std::string &text)
@@ -202,42 +207,26 @@ void TextEntryImpl::set_text(const std::string &text)
 
 void TextEntryImpl::set_placeholder_text(const std::string &text)
 {
-  _placeholder = text;
-  if (!_entry->has_focus() && !_has_real_text)
-    focus_out(NULL);
+  _entry->set_placeholder_text(text);
 }
 
 void TextEntryImpl::set_placeholder_color(::mforms::TextEntry *self, const std::string &color)
 {
   TextEntryImpl* te = self->get_data<TextEntryImpl>();
   if(te)
-  {
-    Gdk::Color gcolor(color);
-    te->_placeholder_color = gcolor;
-  }
+    te->_placeholder_color = color_to_rgba(Gdk::Color(color));
 }
 
 void TextEntryImpl::focus_in(GdkEventFocus*)
 {
   if (!_has_real_text)
-  {
-    _entry->modify_text(Gtk::STATE_NORMAL, _text_color);
-    _changing_text = true;
-    _entry->set_text("");
-    _changing_text = false;
-  }
+    _entry->override_color(_text_color, Gtk::STATE_FLAG_NORMAL);
 }
 
 void TextEntryImpl::focus_out(GdkEventFocus*)
 {
-  if (!_has_real_text && !_placeholder.empty())
-  {
-    _entry->get_colormap()->alloc_color(_placeholder_color);
-    _entry->modify_text(Gtk::STATE_NORMAL, _placeholder_color);
-    _changing_text = true;
-    _entry->set_text(_placeholder);
-    _changing_text = false;
-  }
+  if (!_has_real_text)
+    _entry->override_color(_placeholder_color, Gtk::STATE_FLAG_NORMAL);
 }
 
 void TextEntryImpl::cut(::mforms::TextEntry *self)

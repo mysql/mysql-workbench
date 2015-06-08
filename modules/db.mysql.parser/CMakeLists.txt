@@ -24,6 +24,6 @@ set_target_properties(db.mysql.parser.grt PROPERTIES
 
 
 
-# target_link_libraries(db.mysql.parser.grt ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${SIGC++_LIBRARIES} ${PCRE_LIBRARIES})
+# target_link_libraries(db.mysql.parser.grt ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${SIGC++_LIBRARIES} ${PCRE_LIBRARIES})
 
 install(TARGETS db.mysql.parser.grt DESTINATION ${WB_PYTHON_MODULES_DIR})

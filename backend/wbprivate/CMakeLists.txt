@@ -2,7 +2,7 @@ add_definitions(${USE_BUNDLED_MYSQLDUMP})
 
 include_directories(.
     ${CAIRO_INCLUDE_DIRS}
-    ${GTK2_INCLUDE_DIRS}
+    ${GTK3_INCLUDE_DIRS}
     ${SIGC++_INCLUDE_DIRS}
     ${LIBZIP_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
@@ -103,7 +103,7 @@ target_link_libraries(wbprivate
     grt
     mdcanvas
     ${CAIRO_LIBRARIES}
-    ${GTK2_LIBRARIES}
+    ${GTK3_LIBRARIES}
     ${SIGC++_LIBRARIES}
     ${LIBZIP_LIBRARIES}
     ${TINYXML_LIBRARY}

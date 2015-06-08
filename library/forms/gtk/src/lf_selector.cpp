@@ -79,9 +79,8 @@ class SelectorPopupImpl : public SelectorImpl::Impl
     {
       do_not_call_callback = true;
       _items.clear();
-      _list.clear();
-      _list.clear_items();
-	  do_not_call_callback = false;
+      _list.remove_all();
+	    do_not_call_callback = false;
     }
 
     bool is_separator(const Glib::RefPtr<Gtk::TreeModel>& model, const Gtk::TreeModel::iterator &iter)
@@ -94,7 +93,7 @@ class SelectorPopupImpl : public SelectorImpl::Impl
 
     virtual int add_item(const std::string &item)
     {
-      _list.append_text(item);
+      _list.append(item);
       _items.push_back(item);
       if (_items.size() == 1)
         _list.set_active(0);
@@ -107,7 +106,7 @@ class SelectorPopupImpl : public SelectorImpl::Impl
       const std::list<std::string>::const_iterator last = items.end();
       for (; it != last; ++it)
       {
-        _list.append_text(*it);
+        _list.append(*it);
         _items.push_back(*it);
       }
       if (_items.size() > 0)
@@ -162,7 +161,7 @@ class SelectorPopupImpl : public SelectorImpl::Impl
 class SelectorComboboxImpl : public SelectorImpl::Impl
 {
   public:
-    SelectorComboboxImpl(mforms::Selector *self)
+    SelectorComboboxImpl(mforms::Selector *self) : _list(true)
     {
       _list.signal_changed().connect(sigc::mem_fun(self, &mforms::Selector::callback));
       _list.get_entry()->signal_insert_at_cursor().
@@ -177,14 +176,13 @@ class SelectorComboboxImpl : public SelectorImpl::Impl
     virtual void clear()
     {
       _items.clear();
-      _list.clear();
-      _list.clear_items();
+      _list.remove_all();
     }
 
     virtual int add_item(const std::string &item)
     {
       _items.push_back(item);
-      _list.append_text(item);
+      _list.append(item);
       return _items.size();
     }
 
@@ -194,7 +192,7 @@ class SelectorComboboxImpl : public SelectorImpl::Impl
       const std::list<std::string>::const_iterator last = items.end();
       for (; it != last; ++it)
       {
-        _list.append_text(*it);
+        _list.append(*it);
         _items.push_back(*it);
       }
     }
@@ -231,7 +229,7 @@ class SelectorComboboxImpl : public SelectorImpl::Impl
       _list.get_entry()->set_text(value);
     }
   private:
-    Gtk::ComboBoxEntryText   _list;
+    Gtk::ComboBoxText   _list;
     std::vector<std::string> _items; // to impl get_item with GTK. [The rest of the comment is censored]
 };
 
@@ -250,6 +248,7 @@ SelectorImpl::SelectorImpl(::mforms::Selector *self, ::mforms::SelectorStyle sty
     _pimpl = new SelectorPopupImpl(self);
 
   _align->add(*_pimpl->widget());
+  _pimpl->widget()->show();
   _align->show_all();
 }
 

@@ -29,7 +29,7 @@
 GridView * GridView::create(bec::GridModel::Ref model, bool fixed_height_mode, bool allow_cell_selection)
 {
   GridView *view= Gtk::manage(new GridView(model, fixed_height_mode, allow_cell_selection));
-  //This function is used only by recordset so if we're forcing fixed heioght mode, then we need speed optimization.
+  //This function is used only by recordset so if we're forcing fixed height mode, then we need speed optimization.
   view->set_text_cell_fixed_height(fixed_height_mode);
 
   view->init();
@@ -125,6 +125,7 @@ int GridView::refresh(bool reset_columns)
   Gtk::TreeViewColumn *col = 0;
   if (swin)
   {
+    swin->set_policy(Gtk::POLICY_ALWAYS, Gtk::POLICY_ALWAYS);
     value = swin->get_vadjustment()->get_value();
     get_cursor(path, col);
   }
@@ -136,6 +137,11 @@ int GridView::refresh(bool reset_columns)
   _row_count= _model->count();
   set_model(_view_model);
   
+  std::vector<Gtk::TreeViewColumn*> cols = get_columns();
+  for(size_t i = 0; i < cols.size(); ++i)
+  {
+    cols[i]->set_sizing(Gtk::TREE_VIEW_COLUMN_GROW_ONLY);
+  }
   reset_sorted_columns();
 
 
@@ -243,7 +249,7 @@ bool GridView::on_key_press_event(GdkEventKey *event)
   {
     switch (event->keyval)
     {
-      case GDK_Menu:
+      case GDK_KEY_Menu:
       {
         if (_context_menu)
           _context_menu->popup();
@@ -252,10 +258,10 @@ bool GridView::on_key_press_event(GdkEventKey *event)
         processed = true;
         break;
       }
-      case GDK_Up:
-      case GDK_Down:
-      case GDK_Left:
-      case GDK_Right:
+      case GDK_KEY_Up:
+      case GDK_KEY_Down:
+      case GDK_KEY_Left:
+      case GDK_KEY_Right:
         if (_selected_cell)
         {
           Gtk::TreePath path;
@@ -266,13 +272,13 @@ bool GridView::on_key_press_event(GdkEventKey *event)
           {
             switch (event->keyval)
             {
-            case GDK_Up:
+            case GDK_KEY_Up:
               path.prev();
               break;
-            case GDK_Down:
+            case GDK_KEY_Down:
               path.next();
               break;
-            case GDK_Left:
+            case GDK_KEY_Left:
               i = 0;
               for (Gtk::TreeViewColumn *c = get_column(i); c != NULL; c = get_column(++i))
               {
@@ -284,7 +290,7 @@ bool GridView::on_key_press_event(GdkEventKey *event)
                 }
               }
               break;
-            case GDK_Right:
+            case GDK_KEY_Right:
               i = 0;
               for (Gtk::TreeViewColumn *c = get_column(i); c != NULL; c = get_column(++i))
               {
@@ -307,8 +313,8 @@ bool GridView::on_key_press_event(GdkEventKey *event)
           }
         }
         break;
-      case GDK_Delete:
-      case GDK_KP_Delete:
+      case GDK_KEY_Delete:
+      case GDK_KEY_KP_Delete:
       {
         if (0 == event->state)
         { 
@@ -320,8 +326,8 @@ bool GridView::on_key_press_event(GdkEventKey *event)
         }
         break;
       }
-      case GDK_Tab:
-      case GDK_ISO_Left_Tab:
+      case GDK_KEY_Tab:
+      case GDK_KEY_ISO_Left_Tab:
         {
           Gtk::TreeViewColumn  *col    = _column_edited;
           if (col)
@@ -335,7 +341,7 @@ bool GridView::on_key_press_event(GdkEventKey *event)
             {
               if (cols[i] == col)
               {
-                if ((event->state & GDK_SHIFT_MASK) && event->keyval == GDK_ISO_Left_Tab)
+                if ((event->state & GDK_SHIFT_MASK) && event->keyval == GDK_KEY_ISO_Left_Tab)
                 {
                   if (--i == 0)
                   {
@@ -413,7 +419,7 @@ bool GridView::on_button_press_event(GdkEventButton *event)
 
 static void add_node_for_path(const Gtk::TreeModel::Path &path, std::vector<int> *rows)
 {
-  rows->push_back(path[0]);
+  rows->push_back((int)path[0]);
 }
 
 std::vector<int> GridView::get_selected_rows()
@@ -455,7 +461,7 @@ void GridView::on_cell_editing_started(Gtk::CellEditable* e, const Glib::ustring
     }
 #endif
     w->signal_hide().connect(sigc::mem_fun(this, &GridView::on_cell_editing_done));
-    w->signal_focus_out_event().connect(sigc::bind(sigc::mem_fun(this, &GridView::on_focus_out), column->get_first_cell_renderer(), dynamic_cast<Gtk::Entry*>(e)), false);
+    w->signal_focus_out_event().connect(sigc::bind(sigc::mem_fun(this, &GridView::on_focus_out), *column->get_cells().begin(), dynamic_cast<Gtk::Entry*>(e)), false);
   }
 }
 

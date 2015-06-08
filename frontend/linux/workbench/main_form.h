@@ -144,7 +144,7 @@ private:
   // command handlers
   void reset_layout();
   
-  void switch_page(GtkNotebookPage* page, guint pagenum);
+  void switch_page(Gtk::Widget* page, guint pagenum);
 
   Gtk::Notebook *get_upper_note() const;
 

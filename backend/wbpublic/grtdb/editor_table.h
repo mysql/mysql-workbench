@@ -97,7 +97,7 @@ namespace bec {
                  std::string &comment
                  );
 
-    virtual IconId get_field_icon(const NodeId &node, int column, IconSize size);
+    virtual IconId get_field_icon(const NodeId &node, size_t column, IconSize size);
 
     virtual void refresh();
     virtual size_t count();

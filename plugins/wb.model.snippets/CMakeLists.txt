@@ -15,7 +15,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/plugins
     ../backend
     ${PROJECT_SOURCE_DIR}
-    ${GTK2_INCLUDE_DIRS}
+    ${GTK3_INCLUDE_DIRS}
     ${CAIRO_INCLUDE_DIRS}
     ${SIGC++_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}

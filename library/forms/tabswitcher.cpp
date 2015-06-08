@@ -539,7 +539,7 @@ void TabSwitcher::set_needs_relayout()
 
 //--------------------------------------------------------------------------------------------------
 
-void TabSwitcher::set_layout_dirty()
+void TabSwitcher::set_layout_dirty(bool value)
 {
   DrawBox::set_layout_dirty(true);
   set_needs_relayout();

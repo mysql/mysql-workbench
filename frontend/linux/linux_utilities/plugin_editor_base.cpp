@@ -34,6 +34,7 @@ PluginEditorBase::PluginEditorBase(grt::Module *module, bec::GRTManager *grtm, c
   , _xml(0)
   , _live_object_editor_decorator_xml(0)
   , _live_object_editor_decorator_control(0)
+  , _live_editor_placeholder(0)
   , _old_embedded_editor(0)
   , _old_embedded_find(0)
 {
@@ -101,7 +102,7 @@ void PluginEditorBase::decorate_object_editor()
     if (!_live_object_editor_decorator_control)
     {
       _live_object_editor_decorator_xml= Gtk::Builder::create_from_file(_grtm->get_data_file_path("modules/data/live_editor_decoration.glade"));
-      _live_object_editor_decorator_xml->get_widget("vbox1", _live_object_editor_decorator_control);
+      _live_object_editor_decorator_xml->get_widget("box1", _live_object_editor_decorator_control);
       _live_object_editor_decorator_xml->get_widget("live_editor_placeholder", _live_editor_placeholder);
 
       Gtk::Button *apply_live_edtior_button= 0;
@@ -287,7 +288,7 @@ bool PluginEditorBase::should_close_on_delete_of(const std::string &oid)
 
 
 //------------------------------------------------------------------------------
-void PluginEditorBase::embed_code_editor(mforms::View *container, Gtk::VBox *vbox, bool commit_on_focus_out)
+void PluginEditorBase::embed_code_editor(mforms::View *container, Gtk::Box *vbox, bool commit_on_focus_out)
 {
   if (_old_embedded_editor)
     vbox->remove(*_old_embedded_editor);

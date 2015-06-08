@@ -73,27 +73,24 @@ static Gtk::Orientation toolbar_orientation_from_type(const mforms::ToolBarType 
 //
 //==============================================================================
 
-struct ToolBarImpl : public mforms::gtk::ViewImpl
+class ToolBarImpl : public mforms::gtk::ViewImpl
 {
-  mutable Gtk::Box           *_toolbar;
+public:
+  mutable Gtk::Box           _toolbar;
   const mforms::ToolBarType   _toolbar_type;
 
-  virtual Gtk::Widget *get_outer() const { return _toolbar; }
+  virtual Gtk::Widget *get_outer() const { return &_toolbar; }
 
   ToolBarImpl(mforms::ToolBar* self, const mforms::ToolBarType type)
         : mforms::gtk::ViewImpl(self)
-        , _toolbar(0)
+        , _toolbar(toolbar_orientation_from_type(type))
         , _toolbar_type(type)
   {
-    const bool is_horiz = toolbar_orientation_from_type(type) == Gtk::ORIENTATION_HORIZONTAL;
-    _toolbar = is_horiz ? static_cast<Gtk::Box*>(new Gtk::HBox())
-                        : static_cast<Gtk::Box*>(new Gtk::VBox());
-    _toolbar->show();
+    _toolbar.show();
   }
 
   virtual ~ToolBarImpl()
   {
-    delete _toolbar;
   }
 
  protected:
@@ -157,7 +154,7 @@ void mforms::gtk::ToolBarImpl::insert_item(mforms::ToolBar *toolbar, int index, 
     }
   }
 
-  const int size = impl->_toolbar->get_children().size();
+  const int size = impl->_toolbar.get_children().size();
   if (index < 0 || index >= size)
     index = -1;
   if (impl && w)
@@ -167,8 +164,8 @@ void mforms::gtk::ToolBarImpl::insert_item(mforms::ToolBar *toolbar, int index, 
     if (item->get_type() == mforms::ExpanderItem)
       expand = fill = true;
 
-    impl->_toolbar->pack_start(*Gtk::manage(w), expand, fill);
-    impl->_toolbar->reorder_child(*w, index);
+    impl->_toolbar.pack_start(*Gtk::manage(w), expand, fill);
+    impl->_toolbar.reorder_child(*w, index);
 
     w->show_all();
   }
@@ -184,14 +181,14 @@ void mforms::gtk::ToolBarImpl::remove_item(mforms::ToolBar *toolbar, mforms::Too
   {
     if (w)
     {
-      impl->_toolbar->remove(*w);
+      impl->_toolbar.remove(*w);
     }
     else
     {
       typedef Glib::ListHandle<Gtk::Widget*>    WList;
-      WList list = impl->_toolbar->get_children();
+      WList list = impl->_toolbar.get_children();
       for (base::const_range<WList> it(list); it; ++it)
-        impl->_toolbar->remove(*(*it));
+        impl->_toolbar.remove(*(*it));
     }
   }
 }
@@ -240,7 +237,7 @@ bool mforms::gtk::ToolBarImpl::create_tool_item(mforms::ToolBarItem *item, ToolB
       w= entry;
       entry->set_icon_from_stock(Gtk::Stock::FIND);
 #else
-      Gtk::HBox *hbox = Gtk::manage(new Gtk::HBox(false, 0));
+      Gtk::Box *hbox = Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 0));
       w = hbox;
       Gtk::Image *image = Gtk::manage(new Gtk::Image(Gtk::Stock::FIND, Gtk::ICON_SIZE_MENU));
       Gtk::Entry *entry = Gtk::manage(new Gtk::Entry());
@@ -560,7 +557,7 @@ void mforms::gtk::ToolBarImpl::set_selector_items(ToolBarItem* item, const std::
       #endif
       const int size = values.size();
       for (int i = 0; i < size; ++i)
-        w->append_text(values[i]);
+        w->append(values[i]);
 
       if (w->get_active_row_number() < 0 && !values.empty())
         w->set_active_text(values[0]);
@@ -574,18 +571,12 @@ void mforms::gtk::ToolBarImpl::set_selector_items(ToolBarItem* item, const std::
     if (w)
     {
       w->set_data("ignore_signal", (void*)1);
-
       Glib::RefPtr<Gtk::ListStore> model = Gtk::ListStore::create(*color_combo_columns);
-      Glib::RefPtr<Gdk::Colormap>  colormap = w->get_colormap();
-
       const int size = values.size();
       for (int i = 0; i < size; ++i)
       {
         Gtk::TreeRow row = *model->append();
         Gdk::Color color(values[i]);
-
-        colormap->alloc_color(color);
-
         Glib::RefPtr<Gdk::Pixbuf> pixbuf = Gdk::Pixbuf::create(Gdk::COLORSPACE_RGB, false, 8, 16, 14);
         pixbuf->fill(color.get_pixel() << 8);
 
@@ -606,7 +597,7 @@ void mforms::gtk::ToolBarImpl::set_selector_items(ToolBarItem* item, const std::
 //------------------------------------------------------------------------------
 void ::ToolBarImpl::set_padding_impl(int left, int top, int right, int bottom)
 {
-  _toolbar->set_border_width(left);
+  _toolbar.set_border_width(left);
 }
 
 //------------------------------------------------------------------------------

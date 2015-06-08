@@ -23,6 +23,7 @@
 #include "base/util_functions.h"
 #include "base/log.h"
 #include <atkmm.h>
+#include "gtk_helpers.h"
 DEFAULT_LOG_DOMAIN("mforms.linux")
 
 namespace mforms { namespace gtk {
@@ -118,8 +119,6 @@ int ViewImpl::get_width(::mforms::View *self)
   if ( view )
   {
     Gtk::Widget* widget = view->get_outer();
-    //int w, h;
-    //widget->get_size_request(w, h);
     return widget->get_allocation().get_width();
   }
   return 0;
@@ -131,8 +130,6 @@ int ViewImpl::get_height(::mforms::View *self)
   if ( view )
   {
     Gtk::Widget* widget = view->get_outer();
-    //int w, h;
-    //widget->get_size_request(w, h);
     return widget->get_allocation().get_height();
   }
   return 0;
@@ -328,7 +325,7 @@ void ViewImpl::suspend_layout(::mforms::View *self, bool flag)
 
 void ViewImpl::size_changed()
 {
-  if (get_outer() && get_outer()->is_realized())
+  if (get_outer() && get_outer()->get_realized())
   {
     ::mforms::View* owner_view = dynamic_cast< ::mforms::View*>(owner);
     if (owner_view)
@@ -338,7 +335,7 @@ void ViewImpl::size_changed()
 
 void ViewImpl::on_focus_grab()
 {
-  if (get_outer() && get_outer()->is_realized())
+  if (get_outer() && get_outer()->get_realized())
   {
     ::mforms::View* owner_view = dynamic_cast< ::mforms::View*>(owner);
     if (owner_view)
@@ -398,14 +395,11 @@ void ViewImpl::set_front_color(::mforms::View *self, const std::string &color)
   Gtk::Widget *w = view->get_inner();
   if (w)
   {
-    if (color.empty())
-      w->unset_fg(Gtk::STATE_NORMAL);
+    mforms::gtk::set_color(w, color, FG_COLOR);
+    if (!color.empty())
+      w->override_color(color_to_rgba(Gdk::Color(color)), Gtk::STATE_FLAG_NORMAL);
     else
-    {
-      Gdk::Color c(color.substr(1));
-      w->get_colormap()->alloc_color(c);
-      w->modify_fg(Gtk::STATE_NORMAL, c);
-    }
+      w->unset_color(Gtk::STATE_FLAG_NORMAL);
   }
   view->set_front_color(color);
 }
@@ -415,19 +409,11 @@ void ViewImpl::set_back_color(const std::string &color)
   Gtk::Widget *w = this->get_inner();
   if (w)
   {
-    mforms::gtk::set_bgcolor(w, color);
-    if (color.empty())
-    {
-      w->unset_bg(Gtk::STATE_NORMAL);
-      w->unset_base(Gtk::STATE_NORMAL);
-    }
+    mforms::gtk::set_color(w, color, BG_COLOR);
+    if (!color.empty())
+      w->override_background_color(color_to_rgba(Gdk::Color(color)), Gtk::STATE_FLAG_NORMAL);
     else
-    {
-      Gdk::Color gcolor(color);
-      w->get_colormap()->alloc_color(gcolor);
-      w->modify_bg(Gtk::STATE_NORMAL, gcolor);
-      w->modify_base(Gtk::STATE_NORMAL, gcolor);
-    }
+      w->unset_background_color(Gtk::STATE_FLAG_NORMAL);
   }
 }
 
@@ -440,24 +426,24 @@ void ViewImpl::set_back_color(::mforms::View *self, const std::string &color)
 
 std::string ViewImpl::get_front_color(::mforms::View *self)
 {
- // ViewImpl *view= self->get_data<ViewImpl>();
-  //TODO
+  ViewImpl *view= self->get_data<ViewImpl>();
+  base::Color *c = mforms::gtk::get_color(view->get_inner(), FG_COLOR);
+  if (c)
+    return c->to_html();
   return "";
 }
 
 std::string ViewImpl::get_back_color(::mforms::View *self)
 {
   ViewImpl *view= self->get_data<ViewImpl>();
-  base::Color *color = (base::Color*)g_object_get_data(G_OBJECT(view->get_inner()->gobj()), "bg");
-  if (color)
-  {
-    return color->to_html();
-  }
+  base::Color *c = mforms::gtk::get_color(view->get_inner(), BG_COLOR);
+  if (c)
+    return c->to_html();
   return "";
 }
 
 
-bool ViewImpl::on_expose_event(GdkEventExpose *event, Gtk::Widget *target)
+bool ViewImpl::on_draw_event(const ::Cairo::RefPtr< ::Cairo::Context>& context, Gtk::Widget *target)
 {
   int x, y;
   int iwidth, fwidth;
@@ -514,7 +500,9 @@ bool ViewImpl::on_expose_event(GdkEventExpose *event, Gtk::Widget *target)
         break;
     }
 
-    _back_image->render_to_drawable(target->get_window(), target->get_style()->get_fg_gc(Gtk::STATE_NORMAL), 0, 0, x, y, iwidth, iheight, Gdk::RGB_DITHER_NONE, 0, 0);
+    ::Cairo::RefPtr< ::Cairo::Context> ctx = target->get_window()->create_cairo_context();
+    Gdk::Cairo::set_source_pixbuf(ctx, _back_image, x, y);
+    ctx->paint();
 
     return true;
   }
@@ -708,7 +696,7 @@ bool ViewImpl::slot_drag_drop(const Glib::RefPtr<Gdk::DragContext> &context, int
   if (drop_delegate == NULL || view == NULL || widget == NULL)
     return false; // abandon drop cause we can't accept anything
 
-  std::vector<std::string> targets(context->get_targets());
+  std::vector<std::string> targets(context->list_targets());
   if (targets.empty()) //is not valid drop drop site :(
     return false;
 
@@ -762,7 +750,7 @@ bool ViewImpl::slot_drag_motion(const Glib::RefPtr<Gdk::DragContext> &context, i
   bool ret_val = false;
   if (drop_delegate != NULL)
   {
-    std::vector<std::string> targets = context->get_targets();
+    std::vector<std::string> targets = context->list_targets();
     //We need to fix a formats a little, so file will be recognized
     bool accept_string = false;
 
@@ -833,7 +821,7 @@ void ViewImpl::slot_drag_data_received(const Glib::RefPtr<Gdk::DragContext> &con
   if (drop_delegate == NULL || !dwrapper)
     return;
 
-  std::vector<std::string> files;
+  std::vector<Glib::ustring> files;
   if (data.get_length() >= 0 && data.get_format() == 8)
      files = data.get_uris();
 
@@ -846,17 +834,20 @@ void ViewImpl::slot_drag_data_received(const Glib::RefPtr<Gdk::DragContext> &con
 
   if (files.empty())
   {
-    std::string tmpstr = std::vector<std::string>(context->get_targets())[0];
+    std::string tmpstr = *context->list_targets().begin();
 
     drop_delegate->data_dropped((mforms::View*)owner, base::Point(x, y), allowedOperations, dwrapper->GetData(), tmpstr);
   }
   else
   {
     //We need to convert uris to file names
-    for(std::vector<std::string>::iterator it = files.begin(); it < files.end(); ++it)
+    for(std::vector<Glib::ustring>::iterator it = files.begin(); it < files.end(); ++it)
         (*it) = Glib::filename_from_uri((*it));
 
-    drop_delegate->files_dropped((mforms::View*)owner, base::Point(x, y), allowedOperations, files);
+    std::vector<std::string> files_std;
+    files_std.assign(files.begin(), files.end());
+
+    drop_delegate->files_dropped((mforms::View*)owner, base::Point(x, y), allowedOperations, files_std);
   }
 
   context->drag_finish(true, false, time);
@@ -925,26 +916,8 @@ DragOperation ViewImpl::drag_data(::mforms::DragDetails details, void *data,cons
   return drag_op;
 }
 
-bool expose_event_slot(GdkEventExpose* event, Gtk::Widget* widget)
+bool draw_event_slot(const ::Cairo::RefPtr< ::Cairo::Context>& context, Gtk::Widget* widget)
 {
-  GdkWindow* wnd = event->window;
-  base::Color *color = (base::Color*)g_object_get_data(G_OBJECT(widget->gobj()), "bg");
-
-  //log_debug3("expose event, obj %p, color %p", obj, color);
-
-  if (color)
-  {
-    cairo_t *cr = gdk_cairo_create(wnd);
-
-    cairo_set_source_rgb(cr, color->red, color->green, color->blue);
-    cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
-
-    gdk_cairo_region(cr, event->region);
-
-    cairo_fill(cr);
-
-    cairo_destroy(cr);
-  }
   return false;
 }
 
@@ -954,16 +927,47 @@ static void destroy_color(base::Color *col)
     delete col;
 }
 
-void set_bgcolor(Gtk::Widget* w, const std::string& strcolor)
+void set_color(Gtk::Widget* w, const std::string& color, const mforms::gtk::WBColor col_type)
 {
-  if (!strcolor.empty())
+  std::string key;
+  switch (col_type)
   {
-    base::Color *col = new base::Color(strcolor);
+  case mforms::gtk::BG_COLOR:
+    key = "BG_COLOR";
+    break;
+  case mforms::gtk::FG_COLOR:
+    key = "FG_COLOR";
+    break;
+  }
+  if (!color.empty())
+  {
+    base::Color *col = new base::Color(color);
     if (col->is_valid())
-      g_object_set_data_full(G_OBJECT(w->gobj()), "bg", (void*)col, (GDestroyNotify)destroy_color);
+      g_object_set_data_full(G_OBJECT(w->gobj()), key.c_str(), (void*)col, (GDestroyNotify)destroy_color);
+  }
+  else
+  {
+    base::Color *color = (base::Color*)g_object_get_data(G_OBJECT(w->gobj()), key.c_str());
+    if (color)
+      delete color;
+    g_object_set_data(G_OBJECT(w->gobj()), key.c_str(), NULL);
   }
 }
 
+base::Color *get_color(Gtk::Widget* w, const mforms::gtk::WBColor col_type)
+{
+  std::string key;
+  switch (col_type)
+  {
+  case mforms::gtk::BG_COLOR:
+    key = "BG_COLOR";
+    break;
+  case mforms::gtk::FG_COLOR:
+    key = "FG_COLOR";
+    break;
+  }
+  return (base::Color*)g_object_get_data(G_OBJECT(w->gobj()), key.c_str());
+}
 
 void ViewImpl::focus(::mforms::View *self)
 {

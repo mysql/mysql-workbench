@@ -22,6 +22,7 @@
 #include "mforms.h"
 #include "gtk_helpers.h"
 #include <typeinfo>
+#include <gdkmm/devicemanager.h>
 
 //#define d(...) {fprintf(stderr, "%s:%i: ", __PRETTY_FUNCTION__, __LINE__); fprintf(stderr,__VA_ARGS__);}
 #define d(...)
@@ -44,8 +45,7 @@ PopupImpl::PopupImpl(::mforms::Popup *self, mforms::PopupStyle style)
 //  mforms::Popup* selfc = dynamic_cast<mforms::Popup*>(owner);
   _wnd.set_app_paintable(true);
 
-  _wnd.signal_expose_event().connect(sigc::mem_fun(this, &PopupImpl::handle_expose_event));
-  _wnd.signal_screen_changed().connect(sigc::mem_fun(this, &PopupImpl::on_screen_changed));
+  _wnd.signal_draw().connect(sigc::mem_fun(this, &PopupImpl::handle_draw_event));
   _wnd.signal_key_press_event().connect(sigc::mem_fun(this, &PopupImpl::key_press_event));
   _wnd.signal_button_press_event().connect(sigc::mem_fun(this, &PopupImpl::mouse_button_event));
   _wnd.signal_button_release_event().connect(sigc::mem_fun(this, &PopupImpl::mouse_button_event));
@@ -61,9 +61,9 @@ PopupImpl::PopupImpl(::mforms::Popup *self, mforms::PopupStyle style)
   _wnd.property_skip_taskbar_hint() = true;
   _wnd.property_skip_pager_hint() = true;
   _wnd.property_decorated() = false;
-  _wnd.modify_bg(Gtk::STATE_NORMAL, Gdk::Color("black"));
 
-  on_screen_changed(_wnd.get_screen());
+  _wnd.override_background_color(color_to_rgba(Gdk::Color("black")), Gtk::STATE_FLAG_NORMAL);
+
   set_size(self, 825, 351);
   _wnd.set_transient_for(*get_mainwindow());
   _wnd.set_modal(true);
@@ -77,31 +77,14 @@ PopupImpl::~PopupImpl()
 }
 
 //------------------------------------------------------------------------------
-void PopupImpl::on_screen_changed(const Glib::RefPtr<Gdk::Screen>& screen)
-{
-  d("\n");
-  Glib::RefPtr<Gdk::Colormap> colormap = screen->get_rgba_colormap();
-  _have_rgba = colormap;
-
-  if (!_have_rgba)
-    colormap = screen->get_rgb_colormap();
-
-  _wnd.set_colormap(colormap);
-}
 
 //------------------------------------------------------------------------------
-bool PopupImpl::handle_expose_event(GdkEventExpose *event)
+bool PopupImpl::handle_draw_event(const ::Cairo::RefPtr< ::Cairo::Context>& context)
 {
   d("\n");
   mforms::Popup* self = dynamic_cast<mforms::Popup*>(owner);
   if (self)
   {
-//    Gtk::Requisition size = _wnd.size_request();
-
-   // int w = size.width;
-   // int h = size.height;
-
-    Cairo::RefPtr<Cairo::Context> context(_wnd.get_window()->create_cairo_context());
     cairo_t *cr = context->cobj();
 
     if (cr)
@@ -142,7 +125,9 @@ bool PopupImpl::handle_expose_event(GdkEventExpose *event)
       }
       else
       {
-        self->repaint(cr, event->area.x, event->area.y, event->area.width, event->area.height);
+        double x1, y1, x2, y2;
+        context->get_clip_extents(x1, y1, x2, y2);
+        self->repaint(cr, x1, y1, x2-x1, y2-y1);
       }
     }
   }
@@ -152,7 +137,7 @@ bool PopupImpl::handle_expose_event(GdkEventExpose *event)
 //------------------------------------------------------------------------------
 bool PopupImpl::key_press_event(GdkEventKey *event)
 {
-  if (event->keyval == GDK_Escape)
+  if (event->keyval == GDK_KEY_Escape)
   {
     set_modal_result(dynamic_cast<mforms::Popup*>(owner), 0);
   }
@@ -288,7 +273,9 @@ int PopupImpl::show(::mforms::Popup *self, int x, int y)
     
     if (impl->_style == mforms::PopupBezel)
     {
-      impl->_wnd.get_window()->pointer_grab(true, Gdk::BUTTON_PRESS_MASK|Gdk::BUTTON_RELEASE_MASK|Gdk::POINTER_MOTION_MASK, 0);
+      impl->_wnd.get_window()->get_display()->get_device_manager()->get_client_pointer()->grab(impl->_wnd.get_window(), Gdk::OWNERSHIP_NONE, true,Gdk::BUTTON_PRESS_MASK|Gdk::BUTTON_RELEASE_MASK|Gdk::POINTER_MOTION_MASK, 0);
+
+//      impl->_wnd.get_window()->pointer_grab(true, Gdk::BUTTON_PRESS_MASK|Gdk::BUTTON_RELEASE_MASK|Gdk::POINTER_MOTION_MASK, 0);
 
       Gtk::Main::run();
       impl->_wnd.set_modal(false);

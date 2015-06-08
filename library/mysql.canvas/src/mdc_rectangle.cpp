@@ -31,12 +31,12 @@ RectangleFigure::RectangleFigure(Layer *layer)
 }
 
 
-void RectangleFigure::stroke_outline(CairoCtx *cr, float offset)
+void RectangleFigure::stroke_outline(CairoCtx *cr, float offset) const
 {
   stroke_rounded_rectangle(cr, get_bounds(), _corners, _corner_radius, offset);
 }
 
-void RectangleFigure::stroke_outline_gl(float offset)
+void RectangleFigure::stroke_outline_gl(float offset) const
 {
   stroke_rounded_rectangle_gl(get_bounds(), _corners, _corner_radius, offset);
 }

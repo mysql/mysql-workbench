@@ -24,7 +24,7 @@ namespace mforms
   class TreeNodeView;
 };
 
-class ModelPanel : public Gtk::VBox, public FormViewBase
+class ModelPanel : public Gtk::Box, public FormViewBase
 {
 public:
   static ModelPanel *create(wb::WBContextUI *wb, wb::OverviewBE *overview);
@@ -61,7 +61,7 @@ private:
   bool                         _pending_rebuild_overview;
 
   friend class Gtk::Builder;
-  ModelPanel(GtkVBox *vb, Glib::RefPtr<Gtk::Builder> xml);
+  ModelPanel(GtkBox *vb, Glib::RefPtr<Gtk::Builder> xml);
   void post_construct(wb::WBContextUI *wb, wb::OverviewBE *overview, Glib::RefPtr<Gtk::Builder> xml);
 
   bool restore_state(Glib::RefPtr<Gtk::Builder> xml);

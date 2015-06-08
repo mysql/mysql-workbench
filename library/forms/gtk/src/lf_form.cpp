@@ -122,14 +122,14 @@ void FormImpl::show_modal(::mforms::Form *self, ::mforms::Button *accept, ::mfor
 
 bool FormImpl::on_key_release(GdkEventKey* event, bool *status, const bool is_run, ::mforms::Button *accept, ::mforms::Button *cancel)
 {
-  if (event->keyval == GDK_Escape)
+  if (event->keyval == GDK_KEY_Escape)
   {
     *status = false;
     cancel_clicked(status, is_run);
     if (cancel)
       cancel->callback();
   }
-  else if (accept && (event->keyval == GDK_Return || event->keyval == GDK_Return))
+  else if (accept && (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_Return))
   {
     *status = true;
     accept_clicked(status, is_run);

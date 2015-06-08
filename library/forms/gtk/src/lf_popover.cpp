@@ -23,7 +23,7 @@
 
 #include <gtkmm/window.h>
 #include <gtkmm/fixed.h>
-
+#include <gdkmm/devicemanager.h>
 #include "gtk_helpers.h"
 
 namespace
@@ -31,6 +31,16 @@ namespace
 //==============================================================================
 //
 //==============================================================================
+
+class WBFixed : public Gtk::Fixed
+{
+public:
+  void set_has_window(bool has_window =  true)
+  {
+    Gtk::Fixed::set_has_window(has_window);
+  }
+};
+
 class PopoverWidget : public Gtk::Window
 {
   public:
@@ -41,7 +51,8 @@ class PopoverWidget : public Gtk::Window
     void set_content(Gtk::Widget* w, bool move_only = false);
 
   protected:
-    virtual bool on_expose_event(GdkEventExpose* event);
+//    virtual bool on_expose_event(GdkEventExpose* event);
+    virtual bool on_draw(const ::Cairo::RefPtr< ::Cairo::Context>& cr);
     virtual bool on_configure_event(GdkEventConfigure* ce);
 
   private:
@@ -59,9 +70,9 @@ class PopoverWidget : public Gtk::Window
     int                     _handle_x;
     int                     _handle_y;
 
-    Gtk::Fixed              _fixed;
+    WBFixed                 _fixed;
     Gtk::Alignment         *_align;
-    Gtk::HBox               *_hbox;
+    Gtk::Box               *_hbox;
     int                     _old_w;
     int                     _old_h;
     bool                    _ignore_configure;
@@ -94,9 +105,10 @@ PopoverWidget::PopoverWidget(Gtk::Window* parent, mforms::PopoverStyle style)
     set_name("gtk-tooltip");
     set_border_width(2);
     _align= Gtk::manage(new Gtk::Alignment());
-    _align->set_padding(this->get_style()->get_ythickness(), this->get_style()->get_ythickness(), this->get_style()->get_xthickness(), this->get_style()->get_xthickness());
+
     add(*_align);
-    _hbox = Gtk::manage(new Gtk::HBox(false, this->get_style()->get_xthickness()));
+
+    _hbox = Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL));
     _align->add(*_hbox);
     signal_event().connect(sigc::mem_fun(this, &PopoverWidget::tooltip_signal_event));
     parent->add_events(Gdk::KEY_RELEASE_MASK);
@@ -272,33 +284,29 @@ void PopoverWidget::recalc_shape_mask()
 {
   const int w = get_width();
   const int h = get_height();
-  //printf("recalc shape for %i,%i\n", w, h);
 
-  // recalc mask
-  Glib::RefPtr<Gdk::Pixmap> mask = Gdk::Pixmap::create(Glib::RefPtr<Gdk::Drawable>(0), w, h, 1);
-  Cairo::RefPtr<Cairo::Context> context = mask->create_cairo_context();
-
-  cairo_t *cr = context->cobj();
-
-  if (cr)
+  if (this->get_window())
   {
-    // Draw round corners
-   // const int W = w;
-   // const int H = h;
+    cairo_surface_t *mask = cairo_image_surface_create(CAIRO_FORMAT_A1, this->get_window()->get_width(), this->get_window()->get_height());
+    cairo_t *cr = cairo_create(mask);
+    if (cr)
+    {
 
-    cairo_save (cr);
-    cairo_rectangle (cr, 0, 0, w, h);
-    cairo_set_operator (cr, CAIRO_OPERATOR_CLEAR);
-    cairo_fill (cr);
-    cairo_restore (cr);
+      cairo_save (cr);
+      cairo_rectangle (cr, 0, 0, w, h);
+      cairo_set_operator (cr, CAIRO_OPERATOR_CLEAR);
+      cairo_fill (cr);
+      cairo_restore (cr);
 
-    cairo_set_source_rgb(cr, 0.7, 0.7, 0.7);
-    cairo_set_line_width(cr, 0.2);
-    create_shape_path(cr, 0);
-    cairo_fill_preserve(cr);
+      cairo_set_source_rgb(cr, 0.7, 0.7, 0.7);
+      cairo_set_line_width(cr, 0.2);
+      create_shape_path(cr, 0);
+      cairo_fill_preserve(cr);
+    }
+    cairo_region_t* mask_region = gdk_cairo_region_create_from_surface(mask);
+
+    gtk_widget_shape_combine_region(GTK_WIDGET(gobj()), mask_region);
   }
-
-  gtk_widget_shape_combine_mask(GTK_WIDGET(gobj()), mask->gobj(), 0, 0);
 }
 
 //------------------------------------------------------------------------------
@@ -386,7 +394,7 @@ void PopoverWidget::show_popover(const int rx, const int ry, const mforms::Start
       int yy;
       Gdk::ModifierType mask;
       wnd->get_pointer(xx, yy, mask);
-      if (mask & Gdk::BUTTON1_MASK || mask & Gdk::BUTTON2_MASK || mask & Gdk::BUTTON3_MASK)
+      if ((mask & Gdk::BUTTON1_MASK) || (mask & Gdk::BUTTON2_MASK) || (mask & Gdk::BUTTON3_MASK))
         return;
     }
   }
@@ -394,10 +402,17 @@ void PopoverWidget::show_popover(const int rx, const int ry, const mforms::Start
   int x = rx, y = ry;
   if (x < 0 && y < 0)
   {
-    Gdk::ModifierType mask;
     Glib::RefPtr<Gdk::Display> dsp = Gdk::Display::get_default();
     if (dsp != 0)
-      dsp->get_pointer(x, y, mask);
+    {
+      Glib::RefPtr<Gdk::DeviceManager> dvm = dsp->get_device_manager();
+      if (dvm != 0)
+      {
+        Glib::RefPtr<Gdk::Device> dev = dvm->get_client_pointer();
+        if (dev != 0)
+          dev->get_position(x, y);
+      }
+    }
   }
 
   _content_pos = pos;
@@ -415,21 +430,60 @@ void PopoverWidget::show_popover(const int rx, const int ry, const mforms::Start
   }
 }
 
-//------------------------------------------------------------------------------
-bool PopoverWidget::on_expose_event(GdkEventExpose* event)
+////------------------------------------------------------------------------------
+//bool PopoverWidget::on_expose_event(GdkEventExpose* event)
+//{
+//  if (_style == mforms::PopoverStyleTooltip)
+//  {
+//    //Because gtkmm didn't allow me to pass widget param as null we're forced to use gtk function.
+//    gtk_paint_flat_box(const_cast<GtkStyle*>(this->get_style()->gobj()),
+//                   Glib::unwrap(this->get_window()), ((GtkStateType)(Gtk::STATE_NORMAL)), ((GtkShadowType)(Gtk::SHADOW_OUT)), NULL,
+//                             GTK_WIDGET(gobj()), "tooltip", 0, 0, this->get_allocation().get_width(), this->get_allocation().get_height());
+//    //We need it here, because without it we will not be able to move the window.
+//    adjust_position();
+//    return Gtk::Window::on_expose_event(event);
+//  }
+//
+//  Gtk::Window::on_expose_event(event);
+//
+//  if (_handle_x >= 0 && _handle_y >= 0)
+//  {
+//    Cairo::RefPtr<Cairo::Context> context(get_window()->create_cairo_context());
+//    cairo_t *cr = context->cobj();
+//
+//    if (cr)
+//    {
+//      cairo_save(cr);
+//      create_shape_path(cr, 1);
+//      cairo_set_source_rgb(cr, 0.5, 0.5, 0.5);
+//      cairo_set_line_width(cr, 0.5);
+//      cairo_stroke(cr);
+//      cairo_restore(cr);
+//    }
+//  }
+//
+//  return false;
+//}
+
+bool PopoverWidget::on_draw(const ::Cairo::RefPtr< ::Cairo::Context>& cr)
 {
   if (_style == mforms::PopoverStyleTooltip)
   {
     //Because gtkmm didn't allow me to pass widget param as null we're forced to use gtk function.
-    gtk_paint_flat_box(const_cast<GtkStyle*>(this->get_style()->gobj()),
-                   Glib::unwrap(this->get_window()), ((GtkStateType)(Gtk::STATE_NORMAL)), ((GtkShadowType)(Gtk::SHADOW_OUT)), NULL,
-                             GTK_WIDGET(gobj()), "tooltip", 0, 0, this->get_allocation().get_width(), this->get_allocation().get_height());
+
+    this->get_style_context()->render_frame(get_window()->create_cairo_context(), 0, 0, this->get_allocation().get_width(), this->get_allocation().get_height());
+
+//    gtk_paint_flat_box(const_cast<GtkStyle*>(this->get_style()->gobj()),
+//                   Glib::unwrap(this->get_window()),
+//                   ((GtkStateType)(Gtk::STATE_NORMAL)),
+//                   ((GtkShadowType)(Gtk::SHADOW_OUT)), NULL,
+//                             GTK_WIDGET(gobj()), "tooltip", 0, 0, this->get_allocation().get_width(), this->get_allocation().get_height());
     //We need it here, because without it we will not be able to move the window.
     adjust_position();
-    return Gtk::Window::on_expose_event(event);
+    return Gtk::Window::on_draw(cr);
   }
 
-  Gtk::Window::on_expose_event(event);
+  Gtk::Window::on_draw(cr);
 
   if (_handle_x >= 0 && _handle_y >= 0)
   {
@@ -446,6 +500,7 @@ bool PopoverWidget::on_expose_event(GdkEventExpose* event)
       cairo_restore(cr);
     }
   }
+
 
   return false;
 }

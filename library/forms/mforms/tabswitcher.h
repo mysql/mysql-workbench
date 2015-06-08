@@ -75,7 +75,7 @@ namespace mforms
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
     virtual int get_preferred_height();
-    virtual void set_layout_dirty();
+    virtual void set_layout_dirty(bool value = true);
     
     virtual void repaint(cairo_t *cr, int x, int y, int w, int h);
     virtual bool mouse_down(mforms::MouseButton button, int x, int y);

@@ -23,7 +23,7 @@
 #include "mysql_table_editor_opt_page.h"
 #include <gtkmm/entry.h>
 #include <gtkmm/comboboxtext.h>
-
+#include <gtkmm/togglebutton.h>
 //------------------------------------------------------------------------------
 DbMySQLTableEditorOptPage::DbMySQLTableEditorOptPage(DbMySQLTableEditor *owner
                                                       ,MySQLTableEditorBE *be

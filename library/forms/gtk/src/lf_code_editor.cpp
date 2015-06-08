@@ -64,8 +64,8 @@ mforms::gtk::CodeEditorImpl::CodeEditorImpl(CodeEditor* self)
 
   _sci = SCINTILLA(_sci_gtk_widget);
   _owner = self;
-  g_signal_connect(_sci_gtk_widget, "command", GTK_SIGNAL_FUNC(command_signal), this);
-  g_signal_connect(_sci_gtk_widget, SCINTILLA_NOTIFY, GTK_SIGNAL_FUNC(notify_signal), this);
+  g_signal_connect(_sci_gtk_widget, "command", G_CALLBACK(command_signal), this);
+  g_signal_connect(_sci_gtk_widget, SCINTILLA_NOTIFY, G_CALLBACK(notify_signal), this);
 
 
   _sci_gtkmm_widget->signal_button_press_event().connect_notify(sigc::bind(sigc::mem_fun(this, &CodeEditorImpl::mouse_button_event), self));
@@ -99,7 +99,7 @@ bool mforms::gtk::CodeEditorImpl::create(CodeEditor* self)
 //------------------------------------------------------------------------------
 void mforms::gtk::CodeEditorImpl::keyboard_event(GdkEventKey *event, CodeEditor *editor)
 {
-  if (event->type == GDK_KEY_RELEASE && event->keyval == GDK_Menu)
+  if (event->type == GDK_KEY_RELEASE && event->keyval == GDK_KEY_Menu)
   {
     if (editor->get_context_menu() != NULL)
     {

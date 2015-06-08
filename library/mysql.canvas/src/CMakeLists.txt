@@ -1,6 +1,6 @@
 include_directories(.
     ${CAIRO_INCLUDE_DIRS}
-    ${GTK2_INCLUDE_DIRS}
+    ${GTK3_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/backend
     ${PROJECT_SOURCE_DIR}/library/base
 )
@@ -63,7 +63,7 @@ add_library(mdcanvasgtk
     gtk/mdc_gtk_canvas_view.cpp
     gtk/mdc_gtk_canvas_scroller.cpp
 )
-target_link_libraries(mdcanvasgtk mdcanvas ${CAIRO_LIBRARIES} ${GTK2_LIBRARIES})
+target_link_libraries(mdcanvasgtk mdcanvas ${CAIRO_LIBRARIES} ${GTK3_LIBRARIES})
 
 set_target_properties(mdcanvasgtk
                       PROPERTIES VERSION   ${WB_VERSION}

@@ -651,8 +651,10 @@ class TransparentMessage : public Gtk::Window
     sigc::slot<bool> cancel_slot;
     Glib::Mutex mutex;
     bool _is_runing;
-
+    std::string _title;
+    std::string _description;
     virtual bool on_button_release_event(GdkEventButton* ev);
+    bool on_signal_draw(const ::Cairo::RefPtr< ::Cairo::Context>& ctx);
     void cancel_clicked();
 };
 
@@ -669,21 +671,18 @@ TransparentMessage::TransparentMessage()
   else
     set_position(Gtk::WIN_POS_CENTER);
 
-
   property_skip_taskbar_hint() = true;
   property_skip_pager_hint() = true;
   property_decorated() = false;
 
   set_size_request(MESSAGE_WINDOW_WIDTH, MESSAGE_WINDOW_HEIGHT);
-  
-  set_style(get_style()->copy());
 
   {
-    Gtk::VBox *vbox = Gtk::manage(new Gtk::VBox(false, 0));
+    Gtk::Box *vbox = Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_VERTICAL, 0));
     vbox->set_border_width(20);
     add(*vbox);
 
-    Gtk::HBox *hbox = Gtk::manage(new Gtk::HBox(false, 12));
+    Gtk::Box *hbox = Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 12));
     vbox->pack_end(*hbox, false, false);
 
     cancel_button = Gtk::manage(new Gtk::Button("Cancel"));
@@ -691,9 +690,108 @@ TransparentMessage::TransparentMessage()
     vbox->show_all();
 
     cancel_button->signal_clicked().connect(sigc::mem_fun(this, &TransparentMessage::cancel_clicked));
+    set_app_paintable(false);
+    set_opacity(0.75);
+    signal_draw().connect(sigc::mem_fun(this, &TransparentMessage::on_signal_draw));
   }
-}
 
+  override_background_color(Gdk::RGBA("Black"), Gtk::STATE_FLAG_NORMAL);
+}
+bool TransparentMessage::on_signal_draw(const ::Cairo::RefPtr< ::Cairo::Context>& ctx)
+{
+  cairo_surface_t *mask = cairo_image_surface_create(CAIRO_FORMAT_A1, this->get_window()->get_width(), this->get_window()->get_height());
+  cairo_t *cr = cairo_create(mask);
+  if (cr)
+  {
+    double W = get_width();
+    double H = get_height();
+    double R = 45, x = 0, y = 0;
+
+    cairo_save (cr);
+    cairo_rectangle (cr, 0, 0, W, H);
+    cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+    cairo_set_operator (cr, CAIRO_OPERATOR_CLEAR);
+    cairo_fill (cr);
+    cairo_restore (cr);
+
+    cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
+    cairo_set_line_width(cr, 2);
+
+    cairo_new_path(cr);
+    cairo_move_to(cr, x + R, y);                    // 1
+    cairo_line_to(cr, x + (W-R), y);                // 2
+    cairo_curve_to(cr, x+W, y, x+W, y, x+W, y+R);     // 3
+    cairo_line_to(cr, x+W, y+(H-R));                        // 4
+    cairo_curve_to(cr, x+W, y+H, x+W, y+H, x+(W-R), y+H);   // 5
+    cairo_line_to(cr, x+R, y+H);                  // 6
+    cairo_curve_to(cr, x, y+H, x, y+H, x, y+(H-R));   // 7
+    cairo_line_to(cr, x, y+R);                  // 8
+    cairo_curve_to(cr, x, y, x, y, x+R, y);     // 9
+    cairo_close_path(cr);
+
+    cairo_fill_preserve(cr);
+
+    cairo_region_t* mask_region = gdk_cairo_region_create_from_surface(mask);
+
+    gtk_widget_shape_combine_region(GTK_WIDGET(gobj()), mask_region);
+    cairo_surface_destroy(mask);
+    cairo_destroy(cr);
+
+    //draw frame
+    W -= 3;
+    H -= 3;
+    x = 1.5;
+    y = 1.5;
+    R -= 2;
+
+    ctx->save();
+    ctx->set_source_rgb(1.0, 1.0, 1.0);
+    ctx->set_line_width(2.5);
+    ctx->begin_new_path();
+    ctx->move_to(x + R, y); // 1
+    ctx->line_to(x + (W-R), y);                // 2
+    ctx->curve_to(x+W, y, x+W, y, x+W, y+R);     // 3
+    ctx->line_to(x+W, y+(H-R));                        // 4
+    ctx->curve_to(x+W, y+H, x+W, y+H, x+(W-R), y+H);   // 5
+    ctx->line_to(x+R, y+H);                  // 6
+    ctx->curve_to(x, y+H, x, y+H, x, y+(H-R));   // 7
+    ctx->line_to(x, y+R);                  // 8
+    ctx->curve_to(x, y, x, y, x+R, y);     // 9
+    ctx->close_path();
+    ctx->stroke_preserve();
+    ctx->restore();
+
+    //draw icon
+    Glib::RefPtr<Gdk::Pixbuf> icon = Gdk::Pixbuf::create_from_file(App::get()->get_resource_path("message_wb_wait.png"));
+    ctx->save();
+    Gdk::Cairo::set_source_pixbuf(ctx, icon, 30, 30);
+    ctx->rectangle(0, 0, icon->get_width(), icon->get_height());
+    ctx->fill();
+    ctx->restore();
+
+    //draw text title
+    ctx->save();
+    ctx->set_source_rgb(1.0, 1.0, 1.0);
+    ctx->move_to(40 + icon->get_width(), 50);
+    Glib::RefPtr<Pango::Layout> layout_title = create_pango_layout(_title.c_str());
+    layout_title->set_font_description(Pango::FontDescription("Bitstream Vera Sans,Helvetica, bold 14"));
+    layout_title->set_width((MESSAGE_WINDOW_WIDTH - icon->get_width() - 30 - 20) * Pango::SCALE);
+    layout_title->show_in_cairo_context(ctx);
+    ctx->restore();
+
+    //draw text description
+    ctx->save();
+    ctx->set_source_rgb(1.0, 1.0, 1.0);
+    ctx->move_to(40 + icon->get_width(), 90);
+    Glib::RefPtr<Pango::Layout> layout_desc = create_pango_layout(_description.c_str());
+    layout_desc->set_font_description(Pango::FontDescription("Bitstream Vera Sans,Helvetica, 9"));
+    layout_desc->set_width((MESSAGE_WINDOW_WIDTH - icon->get_width() - 30 - 20) * Pango::SCALE);
+    layout_desc->show_in_cairo_context(ctx);
+    ctx->restore();
+
+  }
+  return false;
+}
 //------------------------------------------------------------------------------
 void TransparentMessage::show_message(const std::string& title, const std::string& text, const sigc::slot<bool> &cancel_slot)
 {
@@ -706,49 +804,17 @@ void TransparentMessage::show_message(const std::string& title, const std::strin
     add_events(Gdk::BUTTON_RELEASE_MASK);
   }
 
-  realize();
+  // We need to set text before we call realize.
+  _title = title;
+  _description = text;
+  if (get_realized()) // Then we need to just force redraw instead of realizing the widget
+    queue_draw();
+  else
+    realize();
 
-  Gdk::Color black("black"), white("white");
-  black.rgb_find_color(get_colormap());
-  white.rgb_find_color(get_colormap());
-  
-  Glib::RefPtr<Gdk::Pixmap> pixmap = Gdk::Pixmap::create(get_window(),
-                                                         MESSAGE_WINDOW_WIDTH, MESSAGE_WINDOW_HEIGHT,
-                                                         get_window()->get_depth());
 
-  Glib::RefPtr<Gdk::GC> gc = Gdk::GC::create(pixmap);
-    
-  gc->set_foreground(white);
-  pixmap->draw_rectangle(gc, false, 0, 0, MESSAGE_WINDOW_WIDTH-1, MESSAGE_WINDOW_HEIGHT-1);
 
-  gc->set_foreground(black);
-  pixmap->draw_rectangle(gc, true, 2, 2, MESSAGE_WINDOW_WIDTH-3, MESSAGE_WINDOW_HEIGHT-3);
-
-  
-  Glib::RefPtr<Gdk::Pixbuf> icon = Gdk::Pixbuf::create_from_file(App::get()->get_resource_path("message_wb_wait.png"));
-    
-  pixmap->draw_pixbuf(gc, icon, 0, 0, 20, 20, icon->get_width(), icon->get_height(),
-                      Gdk::RGB_DITHER_NORMAL, 0, 0);
-
-  Glib::RefPtr<Pango::Layout> layout = create_pango_layout(title);
-  
-  gc->set_foreground(white);
-
-  layout->set_font_description(Pango::FontDescription("Bitstream Vera Sans,Helvetica, bold 14"));
-  layout->set_width((MESSAGE_WINDOW_WIDTH-icon->get_width()-30-20)*Pango::SCALE);
-  pixmap->draw_layout(gc, icon->get_width()+30, 40, layout);
-
-  
-  layout = create_pango_layout(text);
-  layout->set_font_description(Pango::FontDescription("Bitstream Vera Sans,Helvetica, 9"));
-  layout->set_width((MESSAGE_WINDOW_WIDTH-icon->get_width()-30-20)*Pango::SCALE);
-  pixmap->draw_layout(gc, icon->get_width()+30, 90, layout);
-
-  get_style()->set_bg_pixmap(Gtk::STATE_NORMAL, pixmap);
   Glib::RefPtr<Gdk::Window> window = get_window();
-#if GTK_VERSION_GE(2,12)
-  window->set_opacity(0.85);
-#endif
   show_all();
   window->process_updates(true);
 }
@@ -857,6 +923,7 @@ void UtilitiesImpl::reveal_file(const std::string &path)
     dirname.c_str(),
     NULL 
   };
+
   GError *error = NULL;
   char **envp = g_get_environ();
   envp = wb_environ_unsetenv_internal(envp, "LD_PRELOAD");
@@ -933,14 +1000,12 @@ static std::map<std::string, Glib::RefPtr<Gdk::Pixbuf> > icon_cache;
    
 Glib::RefPtr<Gdk::Pixbuf> UtilitiesImpl::get_cached_icon(const std::string &icon)
 {
-
-
   if (icon_cache.find(icon) != icon_cache.end())
     return icon_cache[icon];
 
   if (icon == "folder")
   {
-    Glib::RefPtr<Gdk::Pixbuf> pix = get_mainwindow()->render_icon(Gtk::Stock::DIRECTORY, Gtk::ICON_SIZE_MENU);
+    Glib::RefPtr<Gdk::Pixbuf> pix = get_mainwindow()->render_icon_pixbuf(Gtk::Stock::DIRECTORY, Gtk::ICON_SIZE_MENU);
     icon_cache[icon] = pix;
     return pix;
   }

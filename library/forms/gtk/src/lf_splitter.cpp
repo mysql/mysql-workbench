@@ -23,10 +23,7 @@
 mforms::gtk::SplitterImpl::SplitterImpl(::mforms::Splitter *self, bool horiz)
   : ViewImpl(self)
 {
-  if (horiz)
-    _paned= new Gtk::HPaned();
-  else
-    _paned= new Gtk::VPaned();
+  _paned = new Gtk::Paned(horiz ? Gtk::ORIENTATION_HORIZONTAL : Gtk::ORIENTATION_VERTICAL);
   _paned->property_position().signal_changed().connect(sigc::mem_fun(self, &mforms::Splitter::position_changed));
   _paned->show();
 }

@@ -1,6 +1,7 @@
 #include "base/log.h"
 #include "widget_saver.h"
 #include <gtkmm/paned.h>
+#include <glibmm/main.h>
 #include "grt/grt_manager.h"
 #include "mforms/toolbar.h"
 
@@ -25,7 +26,7 @@ static bool set_paned_position(Gtk::Paned *paned, const long pos, const bool rig
   if (right)
   {
     int size;
-    if (dynamic_cast<Gtk::HPaned*>(paned))
+    if (paned->get_orientation() == Gtk::ORIENTATION_HORIZONTAL)
       size = paned->get_width() - pos;
     else
       size = paned->get_height() - pos;

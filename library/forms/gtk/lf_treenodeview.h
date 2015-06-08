@@ -175,7 +175,6 @@ class TreeNodeImpl : public RootTreeNodeImpl
   // If _rowref becomes invalidated (eg because Model was deleted),
   // we just ignore all operations on the node
   Gtk::TreeRowReference _rowref;
-  bool _is_expanding;
 public:
   inline Glib::RefPtr<Gtk::TreeStore> model();
   inline Gtk::TreeIter iter();
@@ -361,7 +360,7 @@ private:
   bool on_button_event(GdkEventButton *ev);
   bool on_button_release(GdkEventButton* ev);
   bool on_motion_notify(GdkEventMotion* ev);
-  bool on_expose_event(GdkEventExpose *ev);
+  bool on_draw_event(const ::Cairo::RefPtr< ::Cairo::Context>& context);
   bool on_enter_notify(GdkEventCrossing *ev);
   bool on_leave_notify(GdkEventCrossing *ev);
 

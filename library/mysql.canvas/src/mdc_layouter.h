@@ -49,8 +49,8 @@ public:
   void set_background_color(const base::Color &color);
   void set_border_color(const base::Color &color);
   
-  virtual void stroke_outline(CairoCtx *cr, float offset= 0);
-  virtual void stroke_outline_gl(float offset= 0);
+  virtual void stroke_outline(CairoCtx *cr, float offset= 0) const;
+  virtual void stroke_outline_gl(float offset= 0) const;
   
 protected:
   base::Color _border_color;

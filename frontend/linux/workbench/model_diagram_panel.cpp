@@ -18,7 +18,7 @@
  */
 
 #include "mforms/../gtk/lf_view.h"
-#include <gtk/gtkhpaned.h>
+#include <gtk/gtkpaned.h>
 
 #include "model_diagram_panel.h"
 #include "image_cache.h"
@@ -106,42 +106,42 @@ class CanvasViewer : public mdc::GtkCanvas
       guint key;
       mdc::KeyCode kcode;
     } keycodes[]= {
-      {GDK_BackSpace, mdc::KBackspace},
-      {GDK_Delete,  mdc::KDelete},
-      {GDK_Down,    mdc::KDown},
-      {GDK_End,     mdc::KEnd},
-      {GDK_Return,  mdc::KEnter},
-      {GDK_Escape,  mdc::KEscape},
-      {GDK_F1,      mdc::KF1},
-      {GDK_F2,      mdc::KF2},
-      {GDK_F3,      mdc::KF3},
-      {GDK_F4,      mdc::KF4},
-      {GDK_F5,      mdc::KF5},
-      {GDK_F6,      mdc::KF6},
-      {GDK_F7,      mdc::KF7},
-      {GDK_F8,      mdc::KF8},
-      {GDK_F9,      mdc::KF9},
-      {GDK_F10,     mdc::KF10},
-      {GDK_F11,     mdc::KF11},
-      {GDK_F12,     mdc::KF12},
-      {GDK_Home,    mdc::KHome},
-      {GDK_Insert,  mdc::KInsert},
-      {GDK_Left,    mdc::KLeft},
-      {GDK_Next,    mdc::KPageDown},
-      {GDK_Page_Down,mdc::KPageDown},
-      {GDK_Page_Up,  mdc::KPageUp},
-      {GDK_Prior,   mdc::KPageUp},
-      {GDK_Return,  mdc::KEnter},
-      {GDK_Shift_L, mdc::KShift},
-      {GDK_Shift_R, mdc::KShift},
-      {GDK_Tab,     mdc::KTab},
+      {GDK_KEY_BackSpace, mdc::KBackspace},
+      {GDK_KEY_Delete,  mdc::KDelete},
+      {GDK_KEY_Down,    mdc::KDown},
+      {GDK_KEY_End,     mdc::KEnd},
+      {GDK_KEY_Return,  mdc::KEnter},
+      {GDK_KEY_Escape,  mdc::KEscape},
+      {GDK_KEY_F1,      mdc::KF1},
+      {GDK_KEY_F2,      mdc::KF2},
+      {GDK_KEY_F3,      mdc::KF3},
+      {GDK_KEY_F4,      mdc::KF4},
+      {GDK_KEY_F5,      mdc::KF5},
+      {GDK_KEY_F6,      mdc::KF6},
+      {GDK_KEY_F7,      mdc::KF7},
+      {GDK_KEY_F8,      mdc::KF8},
+      {GDK_KEY_F9,      mdc::KF9},
+      {GDK_KEY_F10,     mdc::KF10},
+      {GDK_KEY_F11,     mdc::KF11},
+      {GDK_KEY_F12,     mdc::KF12},
+      {GDK_KEY_Home,    mdc::KHome},
+      {GDK_KEY_Insert,  mdc::KInsert},
+      {GDK_KEY_Left,    mdc::KLeft},
+      {GDK_KEY_Next,    mdc::KPageDown},
+      {GDK_KEY_Page_Down,mdc::KPageDown},
+      {GDK_KEY_Page_Up,  mdc::KPageUp},
+      {GDK_KEY_Prior,   mdc::KPageUp},
+      {GDK_KEY_Return,  mdc::KEnter},
+      {GDK_KEY_Shift_L, mdc::KShift},
+      {GDK_KEY_Shift_R, mdc::KShift},
+      {GDK_KEY_Tab,     mdc::KTab},
 
-      {GDK_plus,    mdc::KPlus},
-      {GDK_minus,   mdc::KMinus},
-      {GDK_space,   mdc::KSpace},
-      {GDK_period,  mdc::KPeriod},
-      {GDK_comma,   mdc::KComma},
-      {GDK_semicolon, mdc::KSemicolon}
+      {GDK_KEY_plus,    mdc::KPlus},
+      {GDK_KEY_minus,   mdc::KMinus},
+      {GDK_KEY_space,   mdc::KSpace},
+      {GDK_KEY_period,  mdc::KPeriod},
+      {GDK_KEY_comma,   mdc::KComma},
+      {GDK_KEY_semicolon, mdc::KSemicolon}
     };
 
     mdc::KeyInfo k;
@@ -269,14 +269,28 @@ void ModelDiagramPanel::on_activate()
 
 }
 
-ModelDiagramPanel::ModelDiagramPanel(GtkHPaned *paned, Glib::RefPtr<Gtk::Builder> builder)
-  : Gtk::HPaned(paned), FormViewBase("ModelDiagram")
-  , _top_box(false, 0)
+ModelDiagramPanel::ModelDiagramPanel(GtkPaned *paned, Glib::RefPtr<Gtk::Builder> builder)
+  : Gtk::Paned(paned), FormViewBase("ModelDiagram")
+  , _top_box(Gtk::ORIENTATION_VERTICAL, 0)
+  , _tools_toolbar(0)
+  , _vbox(0)
+  , _diagram_hbox(0)
   , _wb(0)
   , _be(0)
   , _canvas(0)
   , _cursor(0)
   , _inline_editor(this)
+  , _editor_paned(0)
+  , _sidebar(0)
+  , _navigator_box(0)
+  , _catalog_tree(0)
+  , _usertypes_list(0)
+  , _history_list(0)
+  , _documentation_box(0)
+  , _properties_tree(0)
+#ifdef COMMERCIAL_CODE
+  , _validation_panel(0)
+#endif
   , _xml(builder)
 {
 }
@@ -287,7 +301,6 @@ void ModelDiagramPanel::post_construct(wb::WBContextUI *wb, Glib::RefPtr<Gtk::Bu
   _grtm = wb->get_wb()->get_grt_manager();
   _diagram_hbox= 0;
   xml->get_widget("diagram_hbox", _diagram_hbox);
-  //_top_box = new Gtk::VBox(false, 0);
   _top_box.show();
 
   _top_box.pack_end(*this, true, true);
@@ -347,7 +360,7 @@ void ModelDiagramPanel::init(const std::string &view_id)
 
     #ifdef COMMERCIAL_CODE
     _validation_panel = Gtk::manage(new ValidationPanel());
-    Gtk::HBox* hbox = Gtk::manage(new Gtk::HBox());
+    Gtk::Box* hbox = Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL));
     note->append_page(*_validation_panel, *hbox);
     _validation_panel->notebook_label(hbox);
     #endif
@@ -407,7 +420,7 @@ void ModelDiagramPanel::init(const std::string &view_id)
     log_debug3("ModelDiagramPanel::init got tools toolbar %p\n", tools_toolbar);
     if (tools_toolbar)
     {
-      _tools_toolbar = dynamic_cast<Gtk::VBox*>(mforms::widget_for_toolbar(tools_toolbar));
+      _tools_toolbar = dynamic_cast<Gtk::Box*>(mforms::widget_for_toolbar(tools_toolbar));
       log_debug3("ModelDiagramPanel::init cast _tools_toolbar = %p\n", _tools_toolbar);
       if (_tools_toolbar)
       {
@@ -427,7 +440,6 @@ void ModelDiagramPanel::init(const std::string &view_id)
   }
 
   _be->set_inline_editor_context(&_inline_editor);
-
   _vbox->pack_start(_scroller, true, true);
 
   _scroller.add(*_canvas);
@@ -442,7 +454,6 @@ void ModelDiagramPanel::init(const std::string &view_id)
   _canvas->signal_drag_drop().connect(sigc::mem_fun(this, &ModelDiagramPanel::drag_drop));
   _canvas->signal_drag_data_received().connect(sigc::mem_fun(this, &ModelDiagramPanel::drag_data_received));
 
-
   _canvas->signal_realize().connect_notify(sigc::mem_fun(this, &ModelDiagramPanel::view_realized));
 
   show_all();
@@ -455,7 +466,7 @@ void ModelDiagramPanel::init(const std::string &view_id)
   _sig_restore_sidebar = Glib::signal_idle().connect(sigc::bind_return(sigc::mem_fun(this, &FormViewBase::restore_sidebar_layout), false));
   
   //  Set the sidebar pane sizes
-  Gtk::VPaned *pane = NULL;
+  Gtk::Paned *pane = NULL;
   _xml->get_widget("model_sidebar", pane);
   pane->set_position(_wb->get_wb()->get_grt_manager()->get_app_option_int("Sidebar:VBox1:Position", pane->get_position()));
 
@@ -479,13 +490,12 @@ ModelDiagramPanel::~ModelDiagramPanel()
   delete _catalog_tree;
   delete _usertypes_list;
   delete _history_list;
-  delete _cursor;
 }
 
 
 bool ModelDiagramPanel::drag_drop(const Glib::RefPtr<Gdk::DragContext> &context, int x, int y, guint time)
 {
-  std::vector<std::string> targets(context->get_targets());
+  std::vector<std::string> targets(context->list_targets());
   if (!targets.empty())
     drag_get_data(context, targets[0], time);
   
@@ -503,7 +513,7 @@ void ModelDiagramPanel::drag_data_received(const Glib::RefPtr<Gdk::DragContext> 
   if (!dwrapper)
     return;
 
-  std::string tmpstr = std::vector<std::string>(context->get_targets())[0];
+  std::string tmpstr = std::vector<std::string>(context->list_targets())[0];
 
   std::string type= selection_data.get_data_type();
   if ( type == WB_DBOBJECT_DRAG_TYPE)
@@ -516,7 +526,7 @@ void ModelDiagramPanel::drag_data_received(const Glib::RefPtr<Gdk::DragContext> 
 }
 
 
-static Gdk::Cursor *load_cursor(const std::string &path)
+static Glib::RefPtr<Gdk::Cursor> load_cursor(const std::string &path)
 {
   gsize size;
   guint8 *buffer;
@@ -527,7 +537,7 @@ static Gdk::Cursor *load_cursor(const std::string &path)
     if (buffer[0] != 0 || buffer[1] != 0 || buffer[2] != 2 || buffer[3] != 0)
     {
       g_free(buffer);
-      return 0;
+      return Glib::RefPtr<Gdk::Cursor>();
     }
     // read directory info
     int width= buffer[6+0];
@@ -597,16 +607,16 @@ static Gdk::Cursor *load_cursor(const std::string &path)
     g_free(buffer);
     
     if (pixbuf)
-      return new Gdk::Cursor(Gdk::Display::get_default(), pixbuf, xspot, yspot);
-    return 0;
+      return Gdk::Cursor::create(Gdk::Display::get_default(), pixbuf, xspot, yspot);
+    return Glib::RefPtr<Gdk::Cursor>();
   }
-  return 0;
+  return Glib::RefPtr<Gdk::Cursor>();
 }
 
 
 void ModelDiagramPanel::update_tool_cursor()
 {
-  if (_canvas->is_realized())
+  if (_canvas->get_realized())
   {
     std::string cursor= _be->get_cursor();
     std::string path= bec::IconManager::get_instance()->get_icon_path(cursor+".png");
@@ -618,11 +628,10 @@ void ModelDiagramPanel::update_tool_cursor()
       _canvas->get_window()->set_cursor();
       return;
     }
-    delete _cursor;
 
-    _cursor= load_cursor(path);
+    _cursor = load_cursor(path);
     if (_cursor)
-      _canvas->get_window()->set_cursor(*_cursor);
+      _canvas->get_window()->set_cursor(_cursor);
     else
       _canvas->get_window()->set_cursor();
   }
@@ -631,7 +640,7 @@ void ModelDiagramPanel::update_tool_cursor()
 
 bool ModelDiagramPanel::on_close()
 {
-  Gtk::VPaned *pane = NULL;
+  Gtk::Paned *pane = NULL;
   _xml->get_widget("model_sidebar", pane);
   _wb->get_wb()->get_grt_manager()->set_app_option("Sidebar:VBox1:Position", grt::IntegerRef(pane->get_position()));
   
@@ -656,7 +665,7 @@ void ModelDiagramPanel::setup_navigator()
 
 void ModelDiagramPanel::refresh_zoom()
 {
-  _navigator_box->refresh(); 
+  _navigator_box->refresh();
 }
 
 

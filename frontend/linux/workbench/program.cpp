@@ -202,10 +202,26 @@ void Program::shutdown()
 
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+struct GtkAutoLock
+{
+  GtkAutoLock() {
+    if (getenv("WB_ADD_LOCKS"))
+      gdk_threads_enter();
+  }
+  ~GtkAutoLock() {
+    if (getenv("WB_ADD_LOCKS"))
+      gdk_threads_leave();
+  }
+};
+#pragma GCC diagnostic pop
 
 int Program::confirm_action_becb(const std::string& title, const std::string& msg, const std::string& default_btn, const std::string& alt_btn, const std::string& other_btn)
 {
+
   GtkAutoLock lock;
+
   Gtk::MessageDialog dlg(strfmt("<b>%s</b>\n%s", title.c_str(), msg.c_str()), true, Gtk::MESSAGE_QUESTION,
                          Gtk::BUTTONS_NONE, true);
   dlg.set_title(title);
@@ -269,7 +285,7 @@ std::string Program::show_file_dialog_becb(const std::string& type
   for (std::vector<std::string>::const_iterator iter= exts.begin();
        iter != exts.end(); ++iter)
   {
-    Gtk::FileFilter filter;
+    Glib::RefPtr<Gtk::FileFilter> filter = Gtk::FileFilter::create();
 
     if (iter->find('|') != std::string::npos)
     {
@@ -286,33 +302,33 @@ std::string Program::show_file_dialog_becb(const std::string& type
         if (default_ext[0] == '.')
           default_ext = default_ext.substr(1);
       }
-      filter.add_pattern(ext);
-      filter.set_name(descr);
+      filter->add_pattern(ext);
+      filter->set_name(descr);
     }
     else if (*iter == "mwb")
     {
       if (default_ext.empty()) default_ext = "mwb";
-      filter.add_pattern("*.mwb");
-      filter.set_name("MySQL Workbench Models (*.mwb)");
+      filter->add_pattern("*.mwb");
+      filter->set_name("MySQL Workbench Models (*.mwb)");
     }
     else if (*iter == "sql")
     {
       if (default_ext.empty()) default_ext = "sql";
-      filter.add_pattern("*.sql");
-      filter.set_name("SQL Script Files");
+      filter->add_pattern("*.sql");
+      filter->set_name("SQL Script Files");
     }
     else
     {
       if (default_ext.empty()) default_ext = *iter;
-      filter.add_pattern("*."+*iter);
-      filter.set_name(strfmt("%s files (*.%s)", iter->c_str(), iter->c_str()));
+      filter->add_pattern("*."+*iter);
+      filter->set_name(strfmt("%s files (*.%s)", iter->c_str(), iter->c_str()));
     }
     dlg.add_filter(filter);
   }
 
-  Gtk::FileFilter filter;
-  filter.add_pattern("*");
-  filter.set_name("All Files");
+  Glib::RefPtr<Gtk::FileFilter> filter = Gtk::FileFilter::create();
+  filter->add_pattern("*");
+  filter->set_name("All Files");
   dlg.add_filter(filter);
 
   std::string file("");

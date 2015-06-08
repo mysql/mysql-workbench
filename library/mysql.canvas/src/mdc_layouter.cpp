@@ -60,12 +60,12 @@ void Layouter::render_gl(mdc::CairoCtx *cr)
   draw_state_gl();
 }
 
-void Layouter::stroke_outline(CairoCtx *cr, float offset)
+void Layouter::stroke_outline(CairoCtx *cr, float offset) const
 {
   stroke_rounded_rectangle(cr, get_bounds(), _corner_mask, _corner_radius, offset);
 }
 
-void Layouter::stroke_outline_gl(float offset)
+void Layouter::stroke_outline_gl(float offset) const
 {
   stroke_rounded_rectangle_gl(get_bounds(), _corner_mask, _corner_radius, offset);
 }

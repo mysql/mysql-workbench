@@ -41,7 +41,9 @@ RecordsetView::RecordsetView(Recordset::Ref model)
 :
 _grid(NULL), _close_btn(NULL), _single_row_height(-1)
 {
+  set_policy(Gtk::POLICY_ALWAYS, Gtk::POLICY_ALWAYS);
   this->model(model);
+
 }
 
 RecordsetView::~RecordsetView()
@@ -135,12 +137,12 @@ void RecordsetView::refresh()
   if (_grid->view_model()->row_numbers_visible())
   {
     Gtk::TreeViewColumn *col = _grid->get_column(0);
-    Gtk::CellRenderer *rend = col ? col->get_first_cell_renderer() : 0;
+    Gtk::CellRenderer *rend = col ? *col->get_cells().begin() : 0;
     if (rend)
     {
-      int x, y, w, h;
-      rend->get_size(*_grid, x, y, w, h);
-      _single_row_height = h;
+      int mh, nh;
+      rend->get_preferred_height(*_grid, mh, nh);
+      _single_row_height = nh;
     }
   }
  
@@ -170,13 +172,13 @@ bool RecordsetView::on_event(GdkEvent *event)
       {
         if (_grid->allow_cell_selection() && column != _grid->get_column(0))
         {
-          _grid->select_cell(path[0], *column);
+          _grid->select_cell((int)path[0], *column);
           _grid->get_selection()->unselect_all();
           rows.clear();
-          rows.push_back(path[0]);
+          rows.push_back((int)path[0]);
         }
         else
-          _grid->select_cell(path[0], -1);
+          _grid->select_cell((int)path[0], -1);
       }
       else
       {
@@ -192,7 +194,7 @@ bool RecordsetView::on_event(GdkEvent *event)
 
     processed= true;
   }
-  else if (event->type == GDK_KEY_RELEASE && event->key.keyval == GDK_Menu)
+  else if (event->type == GDK_KEY_RELEASE && event->key.keyval == GDK_KEY_Menu)
   {
     std::vector<int> rows = _grid->get_selected_rows();
 
@@ -305,13 +307,13 @@ void RecordsetView::on_record_del()
   std::vector<int> rows = _grid->get_selected_rows();
   std::vector<bec::NodeId> nodes;
   for (size_t i = 0; i < rows.size(); i++)
-    nodes.push_back(rows[i]);
+    nodes.push_back((bec::NodeId)rows[i]);
   if (nodes.empty())
   {
     Gtk::TreeModel::Path path;
     Gtk::TreeViewColumn *column= NULL;
     _grid->get_cursor(path, column);
-    nodes.push_back(path.front());
+    nodes.push_back((bec::NodeId)path.front());
   }
 //  _grid->delete_selected_rows();
   _model->delete_nodes(nodes);
@@ -352,7 +354,7 @@ void RecordsetView::set_fixed_row_height(int height)
 
     for (std::vector<Gtk::TreeViewColumn*>::iterator iter = columns.begin(); iter != columns.end(); ++iter)
     {
-      std::vector<Gtk::CellRenderer*> cells((*iter)->get_cell_renderers());
+      std::vector<Gtk::CellRenderer*> cells((*iter)->get_cells());
       for (std::vector<Gtk::CellRenderer*>::iterator cell = cells.begin(); cell != cells.end(); ++cell)
         (*cell)->set_fixed_size(-1, height);
     }

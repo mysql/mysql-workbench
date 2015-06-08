@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -684,7 +684,7 @@ internal::PhysicalSchemaNode *PhysicalOverviewBE::get_active_schema_node()
   NodeId node(get_focused_child(NodeId(_schemata_node_index)));
   
   if (node.is_valid())
-    return dynamic_cast<PhysicalSchemaNode*>(get_node(node));
+    return dynamic_cast<PhysicalSchemaNode*>(get_node_by_id(node));
   return 0;
 }
 
@@ -777,7 +777,7 @@ void PhysicalOverviewBE::send_refresh_for_schema_object(const GrtObjectRef &obje
 
 void PhysicalOverviewBE::refresh_node(const bec::NodeId &node_id, bool children)
 {
-  Node *node= get_node(node_id);
+  Node *node= get_node_by_id(node_id);
   if ( node )
   {
     node->refresh();
@@ -824,7 +824,7 @@ void PhysicalOverviewBE::add_file_to_node(const bec::NodeId &node, const std::st
 
 bool PhysicalOverviewBE::get_file_data_for_node(const bec::NodeId &node, char *&data, size_t &length)
 {
-  GrtStoredNoteRef note(GrtStoredNoteRef::cast_from(get_node(node)->object));
+  GrtStoredNoteRef note(GrtStoredNoteRef::cast_from(get_node_by_id(node)->object));
 
   data= 0;
 
@@ -844,7 +844,7 @@ bool PhysicalOverviewBE::get_file_data_for_node(const bec::NodeId &node, char *&
 
 std::string PhysicalOverviewBE::get_file_for_node(const bec::NodeId &node)
 {
-  GrtStoredNoteRef note(GrtStoredNoteRef::cast_from(get_node(node)->object));
+  GrtStoredNoteRef note(GrtStoredNoteRef::cast_from(get_node_by_id(node)->object));
 
   if (note.is_valid())
     return _wb->get_attached_file_tmp_path(note->filename());

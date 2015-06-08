@@ -62,7 +62,7 @@ DbMySQLRoutineEditor::DbMySQLRoutineEditor(grt::Module *m, bec::GRTManager *grtm
   _editor_notebook->reparent(*this);
   _editor_notebook->show();
 
-  Gtk::VBox *ddl_win;
+  Gtk::Box *ddl_win;
   xml()->get_widget("routine_ddl", ddl_win);
   embed_code_editor(_be->get_sql_editor()->get_container(), ddl_win);
   _be->load_routine_sql();
@@ -109,7 +109,7 @@ bool DbMySQLRoutineEditor::comment_lost_focus(GdkEventFocus *ev, Gtk::TextView *
 //------------------------------------------------------------------------------
 bool DbMySQLRoutineEditor::switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args)
 {
-  Gtk::VBox *ddl_win;
+  Gtk::Box *ddl_win;
   xml()->get_widget("routine_ddl", ddl_win);
  
   delete _be;

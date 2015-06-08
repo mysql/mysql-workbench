@@ -13,7 +13,7 @@
 #include "workbench/wb_context_ui.h"
 
 
-class DocumentationBox : public Gtk::VBox
+class DocumentationBox : public Gtk::Box
 {
   wb::WBContextUI *_wbui;
   Gtk::ComboBoxText _combo;

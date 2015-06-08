@@ -10,6 +10,7 @@
 #include <gtkmm/comboboxtext.h>
 #include <gtkmm/textview.h>
 #include <gtkmm/scrolledwindow.h>
+#include <glibmm/main.h>
 #include <set>
 #include <memory>
 
@@ -129,7 +130,7 @@ void DbMySQLTableEditorColumnPage::refill_columns_tv()
   std::vector<Gtk::TreeViewColumn*> cols = _tv->get_columns();
   for (int j = cols.size() - 1; j >= 0; --j)
   {
-    std::vector<Gtk::CellRenderer*> rends= cols[j]->get_cell_renderers();
+    std::vector<Gtk::CellRenderer*> rends= cols[j]->get_cells();
     
     for (int i = rends.size() - 1; i >= 0; --i)
     {
@@ -206,7 +207,7 @@ void DbMySQLTableEditorColumnPage::partial_refresh(const int what)
       break;
 		case ::bec::TableEditorBE::RefreshColumnMoveUp:
 		{
-			std::list<Gtk::TreePath> rows = _tv->get_selection()->get_selected_rows();
+			std::vector<Gtk::TreePath> rows = _tv->get_selection()->get_selected_rows();
 			if (!rows.empty())
 			{
 				_tv->get_selection()->unselect_all();
@@ -218,7 +219,7 @@ void DbMySQLTableEditorColumnPage::partial_refresh(const int what)
 		}
 		case ::bec::TableEditorBE::RefreshColumnMoveDown:
     {
-			std::list<Gtk::TreePath> rows = _tv->get_selection()->get_selected_rows();
+			std::vector<Gtk::TreePath> rows = _tv->get_selection()->get_selected_rows();
 			if (!rows.empty())
 			{
 				_tv->get_selection()->unselect_all();
@@ -260,19 +261,24 @@ void DbMySQLTableEditorColumnPage::type_cell_editing_started(GtkCellRenderer* cr
   DbMySQLTableEditorColumnPage* columns_page = reinterpret_cast<DbMySQLTableEditorColumnPage*>(udata);
   columns_page->_editing = true;
 
-  const int idx = (int)((long long)gtk_object_get_data(GTK_OBJECT(cr), "idx"));
+//  GTK_WIDGET()
+  const int idx = (int)((long long)g_object_get_data(G_OBJECT(cr), "idx"));
   
   bec::NodeId node(path);
 
   columns_page->_old_column_count = columns_page->_be->get_columns()->count();
 
-  if ( GTK_IS_COMBO_BOX_ENTRY(ce) && idx == 1) // Attach types auto completion to the cell
+  if ( GTK_IS_COMBO_BOX(ce) && idx == 1) // Attach types auto completion to the cell
   {
     GtkBin     *combo = GTK_BIN(ce);
-    Gtk::Entry *entry = Glib::wrap((GtkEntry*)gtk_bin_get_child(combo));
-    
-    if ( entry )
-      types_completion()->add_to_entry(entry);
+    GtkWidget  *widget = gtk_bin_get_child(combo);
+    if (GTK_IS_ENTRY(widget))
+    {
+      Gtk::Entry *entry = Glib::wrap((GtkEntry*)widget);
+
+      if ( entry )
+        types_completion()->add_to_entry(entry);
+    }
   }
   else if ( GTK_IS_ENTRY(ce) && idx == 0) // Fill in name of the column
   {
@@ -413,7 +419,7 @@ void DbMySQLTableEditorColumnPage::type_column_event(GdkEvent* event)
   if ( event->type == GDK_KEY_RELEASE )
   {
     const int key = event->key.keyval;
-    if ( key == GDK_Tab/* || key == GDK_Return */)
+    if ( key == GDK_KEY_Tab/* || key == GDK_Return */)
     {
       // Advance to the next column
       Gtk::TreeModel::Path    path;

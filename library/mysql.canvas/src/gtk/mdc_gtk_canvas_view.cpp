@@ -32,76 +32,109 @@ using namespace mdc;
 std::string mdc::detect_opengl_version()
 {
   int major, minor;
-  
-  if (!glXQueryVersion(gdk_display, &major, &minor))
+  Display *dpy = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
+  if (!glXQueryVersion(dpy, &major, &minor))
     return "";  // glx not supported
-
-  /*
-  char buffer[100];
-  
-  sprintf(buffer, "Vendor: %s, Renderer: %s, OpenGL version: %s, GLX version: %i.%i",
-          glGetString(GL_VENDOR),
-          glGetString(GL_RENDERER),
-          glGetString(GL_VERSION),
-          major, minor);*/
-
-//  return (const char*)glGetString(GL_VERSION) ?:"";
-
   return "";
 }
 
-
-
-
 GtkCanvas::GtkCanvas(CanvasType type)
-  : _canvas(0), _canvas_type(type), _reentrance(false)
+  : Gtk::Layout(), _canvas(0), _canvas_type(type), _reentrance(false), _initialized(false)
 {
-  set_flags(get_flags()|Gtk::CAN_FOCUS|Gtk::APP_PAINTABLE);
-  modify_bg(Gtk::STATE_NORMAL, get_style()->get_white());
+
+  Gdk::Color c("white");
+  Gdk::RGBA rgba;
+  rgba.set_rgba(c.get_red_p(), c.get_green_p(), c.get_blue_p());
+
+  override_background_color(rgba, Gtk::STATE_FLAG_NORMAL);
+
   set_double_buffered(false);
   add_events(Gdk::POINTER_MOTION_MASK|Gdk::BUTTON_PRESS_MASK|Gdk::BUTTON_RELEASE_MASK|Gdk::KEY_PRESS_MASK|Gdk::KEY_RELEASE_MASK|Gdk::ENTER_NOTIFY_MASK|Gdk::LEAVE_NOTIFY_MASK);
-  signal_expose_event().connect(sigc::mem_fun(this, &GtkCanvas::redraw));
+  signal_draw().connect(sigc::mem_fun(this, &GtkCanvas::redraw));
 
+  unset_vadjustment(); // we don't need this as we will set our own
+  unset_hadjustment(); // we don't need this as we will set our own
 }
 
 
 GtkCanvas::~GtkCanvas()
 {
-  delete _canvas;
+  if (_canvas != 0)
+    delete _canvas;
 }
 
-
-void GtkCanvas::on_realize()
+CanvasView* GtkCanvas::get_canvas()
 {
-  super::on_realize();
+    return _canvas;
+}
+
+void GtkCanvas::create_canvas()
+{
+  if (_canvas != 0)
+    return;
+
+  Display *dpy = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
+
 
   switch (_canvas_type)
   {
   case OpenGLCanvasType:
-    _canvas= new GLXCanvasView(gdk_display, gdk_x11_drawable_get_xid(get_bin_window()->gobj()),
+    _canvas= new GLXCanvasView(dpy, gdk_x11_window_get_xid(get_bin_window()->gobj()),
                                gdk_x11_visual_get_xvisual(get_visual()->gobj()),
                                get_width(), get_height());
     break;
   case XlibCanvasType:
-    _canvas= new XlibCanvasView(gdk_display, gdk_x11_drawable_get_xid(get_bin_window()->gobj()),
+    _canvas= new XlibCanvasView(dpy, gdk_x11_window_get_xid(get_bin_window()->gobj()),
                                 gdk_x11_visual_get_xvisual(get_visual()->gobj()), 
                                 get_width(), get_height());
     break;
   case BufferedXlibCanvasType:
-    _canvas= new BufferedXlibCanvasView(gdk_display, gdk_x11_drawable_get_xid(get_bin_window()->gobj()),
+    _canvas= new BufferedXlibCanvasView(dpy, gdk_x11_window_get_xid(get_bin_window()->gobj()),
                                         gdk_x11_visual_get_xvisual(get_visual()->gobj()), 
-                                        gdk_drawable_get_depth(get_bin_window()->gobj()),
+                                        gdk_visual_get_depth(gdk_window_get_visual(get_bin_window()->gobj())),
                                         get_width(), get_height());
     break;
   }
   _initialized= false;
 }
 
+void GtkCanvas::set_vadjustment(const Glib::RefPtr<Gtk::Adjustment>& vadjustment)
+{
+  Scrollable::set_vadjustment(vadjustment);
+  get_vadjustment()->set_lower(0);
+  get_vadjustment()->signal_value_changed().connect(sigc::mem_fun(*this, &GtkCanvas::scroll_canvas));
+
+  int ret = g_signal_handlers_disconnect_matched(get_vadjustment()->gobj(),
+                                       G_SIGNAL_MATCH_DATA,
+                                       0, 0, 0, 0, gobj());
+  g_assert(ret == 1);
+}
+
+void GtkCanvas::set_hadjustment(const Glib::RefPtr<Gtk::Adjustment>& hadjustment)
+{
+  Scrollable::set_hadjustment(hadjustment);
+  get_hadjustment()->set_lower(0);
+  get_hadjustment()->signal_value_changed().connect(sigc::mem_fun(*this, &GtkCanvas::scroll_canvas));
+  int ret = g_signal_handlers_disconnect_matched(get_hadjustment()->gobj(),
+                                       G_SIGNAL_MATCH_DATA,
+                                       0, 0, 0, 0, gobj());
+  g_assert(ret == 1);
+}
+
+void GtkCanvas::on_realize()
+{
+  super::on_realize();
+  this->create_canvas();
+
+}
 
 void GtkCanvas::on_unrealize()
 {
-  delete _canvas;
-  _canvas = 0;
+  if (_canvas != 0)
+  {
+    delete _canvas;
+    _canvas = 0;
+  }
 
   super::on_unrealize();
 }
@@ -281,6 +314,8 @@ bool GtkCanvas::on_scroll_event(GdkEventScroll *event)
   case GDK_SCROLL_LEFT:
     x -= WHEEL_SCROLL_STEP;
     break;
+  default:
+    break;
   }
   
   if (get_vadjustment())
@@ -323,15 +358,17 @@ bool GtkCanvas::on_key_release_event(GdkEventKey *event)
 }
 
 
-bool GtkCanvas::redraw(GdkEventExpose *ev)
+bool GtkCanvas::redraw(::Cairo::RefPtr< ::Cairo::Context> context)
 {
-  if (ev->window == get_bin_window()->gobj())
+  if (should_draw_window(context, this->get_bin_window()))
   {
     struct timeval tv, tv2;
 
     gettimeofday(&tv, NULL);
 
-    _canvas->repaint(ev->area.x, ev->area.y, ev->area.width, ev->area.height);
+    double x1, y1, x2, y2;
+    context->get_clip_extents(x1, y1, x2, y2);
+    _canvas->repaint(x1, y1, x2-x1, y2-y1);
     gettimeofday(&tv2, NULL);
 
     static const char *debug_canvas= getenv("DEBUG_CANVAS");
@@ -356,37 +393,6 @@ void GtkCanvas::canvas_view_viewport_changed()
   update_scrollers();
 }
 
-
-void GtkCanvas::on_set_scroll_adjustments(Gtk::Adjustment* hadjustment,
-                                          Gtk::Adjustment* vadjustment)
-{
-  super::on_set_scroll_adjustments(hadjustment, vadjustment);
-
-  hadjustment->set_lower(0);
-  vadjustment->set_lower(0);
-
-  // disconnect all signal handlers from GtkLayout because
-  // we don't want the default scrolling of the GtkLayout as it
-  // moves the bin_window around and the canvas expects it to be static
-  int ret;
-  ret= g_signal_handlers_disconnect_matched(hadjustment->gobj(),
-                                       G_SIGNAL_MATCH_DATA,
-                                       0, 0, 0, 0, gobj());
-  g_assert(ret == 1);
-
-  ret= g_signal_handlers_disconnect_matched(vadjustment->gobj(),
-                                       G_SIGNAL_MATCH_DATA,
-                                       0, 0, 0, 0, gobj());
-  g_assert(ret == 1);
-
-  hadjustment->signal_value_changed().connect(sigc::mem_fun(*this, &GtkCanvas::scroll_canvas));
-  vadjustment->signal_value_changed().connect(sigc::mem_fun(*this, &GtkCanvas::scroll_canvas));
-    
-  if (_canvas)
-    update_scrollers();
-}
-
-
 void GtkCanvas::scroll_canvas()
 {
   if (_canvas)
@@ -403,8 +409,9 @@ void GtkCanvas::update_scrollers()
 {
   base::Size size= _canvas->get_total_view_size();
   base::Rect vp= _canvas->get_viewport();
-  Gtk::Adjustment *hadjustment= get_hadjustment();
-  Gtk::Adjustment *vadjustment= get_vadjustment();
+  Glib::RefPtr<Gtk::Adjustment> hadjustment = get_hadjustment();
+  Glib::RefPtr<Gtk::Adjustment> vadjustment = get_vadjustment();
+
 
   set_size(size.width, size.height);
 
