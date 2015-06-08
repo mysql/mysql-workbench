@@ -1278,9 +1278,12 @@ void WBContext::init_finish_(WBOptions *options)
             if (conn.is_valid())
               add_new_query_window(conn);
             else
-              add_new_query_window();
-            if (!options->open_at_startup.empty())
-              open_script_file(options->open_at_startup);
+            {
+              if (!options->open_at_startup.empty())
+                open_script_file(options->open_at_startup);
+              else
+                add_new_query_window();
+            }
           }
         }
         catch (std::exception &e)

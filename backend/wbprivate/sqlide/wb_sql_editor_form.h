@@ -243,6 +243,9 @@ private:
 public:
   bool connect(boost::shared_ptr<sql::TunnelConnection> tunnel);
   bool connected() const;
+  bool connectionIsValid() const {
+    return _connection.is_valid();
+  }
   bool ping() const;
   void finish_startup();
   void cancel_query();
