@@ -240,7 +240,7 @@ void JsonArray::clear()
 
 JsonArray::Iterator JsonArray::erase(Iterator pos)
 {
-  return erase(pos);
+  return _data.erase(pos);
 
 }
 
@@ -259,6 +259,175 @@ JsonArray::Iterator JsonArray::insert(Iterator pos, const JsonValue& value)
 void JsonArray::pushBack(const ValueType& value)
 {
   _data.push_back(value);
+}
+
+
+JsonValue::JsonValue()
+{
+}
+
+  // Copy operations
+JsonValue::JsonValue(const JsonValue& rhs)
+{}
+
+
+JsonValue::JsonValue(JsonValue&& rhs)
+{
+
+}
+
+JsonValue &JsonValue::operator=(const JsonValue& rhs)
+{
+  return *this;
+}
+// move operations
+JsonValue& JsonValue::operator=(JsonValue&& rhs)
+{
+  return *this;
+}
+
+
+  // construct from std::string
+JsonValue::JsonValue(const std::string& val)
+{}
+    
+JsonValue::JsonValue(std::string&& val)
+{}
+  // construct from c string pointer
+JsonValue::JsonValue(const char* val)
+{}
+
+  // construct from bool
+JsonValue::JsonValue(bool val)
+{}
+
+// construct from int
+JsonValue::JsonValue(int val)
+{
+}
+// construct from double
+JsonValue::JsonValue(double val)
+{}
+// construct from JsonObject
+JsonValue::JsonValue(const JsonObject&& val)
+{}
+JsonValue::JsonValue(JsonObject&& val)
+{}
+// // construct from JsonArray
+JsonValue::JsonValue(const JsonArray &val)
+{}
+JsonValue::JsonValue(const JsonArray&& val)
+{}
+
+// return type of value
+DataType JsonValue::getType() const
+{
+  return _type;
+}
+
+// test for equality
+bool JsonValue::operator==(const JsonValue &rhs) const
+{
+
+  return true;
+}
+// test for inequality
+bool JsonValue::operator!=(const JsonValue &rhs) const
+{
+  return true;
+}
+// test if this < rhs
+//bool JsonValue::operator <(const JsonValue &rhs) const
+//{}
+//// test if this <= rhs
+//bool JsonValue::operator <=(const JsonValue &rhs) const
+//{}
+//// test if this > rhs
+//bool JsonValue::operator >(const JsonValue &rhs) const
+//{}
+//// test if this >= rhs
+//bool JsonValue::operator >=(const JsonValue &rhs) const
+//{}
+
+// Subscript operator, access by key
+//JsonValue& JsonValue::operator[] (const std::string& key)
+//{}
+//const JsonValue& JsonValue::operator[] (const std::string& key) const
+//{}
+//
+//// Subscript operator, access by index
+//JsonValue& JsonValue::operator[] (JsonArray::SizeType idx)
+//{}
+//const JsonValue& JsonValue::operator[] (JsonArray::SizeType idx) const
+//{}
+
+// access function
+double JsonValue::getDouble() const
+{
+
+  return _double;
+}
+void JsonValue::setDouble(double val)
+{
+  _double = val;
+
+}
+
+int JsonValue::getInt() const
+{
+  return (int)_double;
+}
+void JsonValue::setInt(int val)
+{
+  _double = val;
+}
+
+bool JsonValue::getBool() const
+{
+  return _bool;
+}
+void JsonValue::setBool(bool val)
+{
+  _bool = val;
+}
+
+const std::string& JsonValue::getString() const
+{
+  return _string;
+}
+void JsonValue::setString(const std::string& val)
+{
+  _string = val;
+}
+
+JsonValue::operator JsonObject() const
+{ 
+  return _object; 
+}
+const JsonObject& JsonValue::getObject() const
+{
+  return _object;
+}
+void JsonValue::setObject(const JsonObject& val)
+{
+  _object = val;
+}
+
+JsonValue::operator JsonArray() const
+{
+  if (_type == VAarray)
+    return _array;
+  else
+    throw std::bad_typeid("Value is not of type array");
+}
+const JsonArray& JsonValue::getArray() const
+{
+  return _array;
+}
+
+void JsonValue::setArray(const JsonArray& val)
+{
+  _array = val;
 }
 
 
