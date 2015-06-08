@@ -21,9 +21,13 @@
 #include <cstdio>
 #include <pcre.h>
 #include <sstream>
+#include <fstream>
+#include <vector>
 
 #include "base/common.h"
 #include "base/string_utilities.h"
+#include "base/log.h"
+DEFAULT_LOG_DOMAIN(DOMAIN_BASE)
 
 // Windows includes
 #ifdef _WIN32
@@ -409,25 +413,25 @@ std::string get_local_os_name()
   int version = base::atoi<int>(info.release, 0);
   switch (version) {
     case 14:
-      return "OS X 10.10.x Yosemite";
+      return "OS X 10.10.x Yosemite " + info.machine;
     case 13:
-      return "OS X 10.9.x Mavericks";
+      return "OS X 10.9.x Mavericks " + info.machine;
     case 12:
-      return "OS X 10.8.x Mountain Lion";
+      return "OS X 10.8.x Mountain Lion " + info.machine;
     case 11:
-      return "OS X 10.7.x Lion";
+      return "OS X 10.7.x Lion " + info.machine;
     case 10:
-      return "OS X 10.6.x Snow Leopard"; // For completeness. Not that WB would actually run on this or lower :-)
+      return "OS X 10.6.x Snow Leopard " + info.machine; // For completeness. Not that WB would actually run on this or lower :-)
     case 9:
-      return "OS X 10.5.x Leopard";
+      return "OS X 10.5.x Leopard " + info.machine;
     case 8:
-      return "OS X 10.4.x Tiger";
+      return "OS X 10.4.x Tiger " + info.machine;
     case 7:
-      return "OS X 10.3.x Panther";
+      return "OS X 10.3.x Panther " + info.machine;
     case 6:
-      return "OS X 10.2.x Jaguar";
+      return "OS X 10.2.x Jaguar " + info.machine;
     case 5:
-      return "OS X 10.1.x Puma";
+      return "OS X 10.1.x Puma " + info.machine;
   }
   return "unknown";
 }
@@ -608,12 +612,64 @@ static int _get_hardware_info(hardware_info &info)
 
 std::string get_local_os_name()
 {
+  auto is_debian_based = [](struct utsname& info) -> bool
+  {
+    return strstr(info.version, "Ubuntu") or strstr(info.version, "Debian");
+  };
+
+  // get distro name and version - Debian-based systems
+  auto get_lsb_release_param = [](char param) -> std::string
+  {
+    char cmd[] = "lsb_release -_";
+    cmd[sizeof(cmd)-2] = param;     // replace _ with param
+
+    int rc;
+    char *stdo;
+    std::string result;
+    GError* error;
+
+    if (g_spawn_command_line_sync(cmd, &stdo, NULL, &rc, &error) && stdo)
+    {
+      char *d = strchr(stdo, ':');
+      if (d)
+        result = base::trim(g_strchug(d+1));
+      g_free(stdo);
+      return result;
+    }
+    else
+    {
+      log_error("Error executing lsb_release -%c: %s\n", param, error->message);
+      return std::string("unknown");
+    }
+
+  };
+
+  // get distro name and version - Red-Hat-based systems
+  auto cat_redhat_release = []() -> std::string
+  {
+    std::ifstream is;
+    try
+    {
+      is.open("/etc/redhat-release", std::ifstream::in);
+      char buf[256];
+      is.getline(buf, 256);
+      return std::string(buf);
+    }
+    catch(const std::ios_base::failure& e)
+    {
+      log_error("Error reading /etc/redhat-release: %s\n", e.what());
+      return std::string("unknown");
+    }
+  };
+
   struct utsname info;
 
   if (uname(&info) < 0)
     return "unknown";
-
-  return base::strfmt("%s %s", info.sysname, info.release);
+  else if (is_debian_based(info))
+    return get_lsb_release_param('i') + ' ' + get_lsb_release_param('r') + ' ' + info.machine;
+  else
+    return cat_redhat_release() + ' ' + info.machine;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

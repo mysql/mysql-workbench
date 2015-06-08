@@ -45,6 +45,7 @@ public:
   void set_context(WBContext *wb);
   std::string getSystemInfo(bool indent);
   std::map<std::string, std::string> getSystemInfoMap();
+  int isOsSupported(const std::string& os);
 
   DEFINE_INIT_MODULE(WBModule_VERSION, "Oracle and/or its affiliates", grt::ModuleImplBase,
     DECLARE_MODULE_FUNCTION(WorkbenchImpl::getPluginInfo),
@@ -104,11 +105,7 @@ public:
     DECLARE_MODULE_FUNCTION(WorkbenchImpl::finishTrackingUndo),
     DECLARE_MODULE_FUNCTION(WorkbenchImpl::cancelTrackingUndo),
 
-    DECLARE_MODULE_FUNCTION(WorkbenchImpl::createAttachedFile),
-    DECLARE_MODULE_FUNCTION(WorkbenchImpl::setAttachedFileContents),
-    DECLARE_MODULE_FUNCTION(WorkbenchImpl::getAttachedFileContents),
-    DECLARE_MODULE_FUNCTION(WorkbenchImpl::getAttachedFileTmpPath),
-    DECLARE_MODULE_FUNCTION(WorkbenchImpl::exportAttachedFileContents),
+    DECLARE_MODULE_FUNCTION(WorkbenchImpl::isOsSupported),
 
     DECLARE_MODULE_FUNCTION(WorkbenchImpl::addUndoListAdd),
     DECLARE_MODULE_FUNCTION(WorkbenchImpl::addUndoListRemove),
