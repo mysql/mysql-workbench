@@ -9,7 +9,7 @@
 #include <gtkmm/textview.h>
 #include <gtkmm/liststore.h>
 #include <gtkmm/box.h>
-#include <gtk/gtkversion.h>
+//#include <gtk/gtkversion.h>
 
 class SchemaEditor : public PluginEditorBase
 {
@@ -33,9 +33,6 @@ public:
     , _be(new MySQLSchemaEditorBE(grtm, db_mysql_SchemaRef::cast_from(args[0])))
   {
     xml()->get_widget("mysql_schema_editor_notebook", _editor_notebook);
-    
-    Gtk::Widget *widget;
-    xml()->get_widget("base_table", widget);
 
     Gtk::Image *image;
     xml()->get_widget("image", image);

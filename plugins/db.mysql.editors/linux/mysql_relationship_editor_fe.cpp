@@ -21,6 +21,8 @@
 #include <gtkmm/notebook.h>
 #include <gtkmm/textview.h>
 #include <gtkmm/box.h>
+#include <gtkmm/checkbutton.h>
+#include <gtkmm/radiobutton.h>
 #include "widgets_auto_cleaner.h"
 
 //==============================================================================

@@ -25,6 +25,7 @@ extern "C" {
   #include <gnome-keyring.h>
 };
 #endif
+#include <X11/Xlib.h>
 
 using base::strfmt;
 
@@ -33,7 +34,8 @@ using base::strfmt;
 // callbacks to glib via gdk_threads_set_lock_functions(). Out lock/unlock
 // functions operate on static rec mutex.
 static base::RecMutex custom_gdk_rec_mutex;
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 static void custom_gdk_threads_enter()
 {
   custom_gdk_rec_mutex.lock();
@@ -48,7 +50,7 @@ inline void init_gdk_thread_callbacks()
 {
   gdk_threads_set_lock_functions(G_CALLBACK(&custom_gdk_threads_enter), G_CALLBACK(&custom_gdk_threads_leave));
 }
-
+#pragma GCC diagnostic pop
 //==============================================================================
 
 extern  void lf_record_grid_init();
@@ -77,7 +79,13 @@ int main(int argc, char **argv)
 
   init_gdk_thread_callbacks(); // This call MUST be before g_threads_init is called
   base::threading_init();
-  gdk_threads_init();
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+  if (getenv("WB_ADD_LOCKS"))
+      gdk_threads_init();
+#pragma GCC diagnostic pop
+
   // process cmdline options
   std::string user_data_dir = std::string(g_get_home_dir()).append("/.mysql/workbench");
   base::Logger log(user_data_dir, getenv("MWB_LOG_TO_STDERR")!=NULL);
@@ -119,15 +127,20 @@ int main(int argc, char **argv)
     lf_record_grid_init();
   }
 
-  Gtk::RC::add_default_file(wboptions.basedir+"/workbench.rc");
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+  if (getenv("WB_ADD_LOCKS"))
+    gdk_threads_enter();
+#pragma GCC diagnostic pop
 
-  gdk_threads_enter();
   Gtk::Main app(argc, argv);
+
+//  Gtk::CssProvider::get_default()->load_from_path(wboptions.basedir+"/workbench.rc");
 
   if (getenv("XSYNC"))
   {
     g_message("Enabling XSynchronize()");
-    XSynchronize(gdk_display, 1);
+    XSynchronize(GDK_DISPLAY_XDISPLAY(gdk_display_get_default()), 1);
   }
 
   Program program(wboptions);
@@ -176,7 +189,11 @@ int main(int argc, char **argv)
   }
 
   program.shutdown();
-  gdk_threads_leave();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+  if (getenv("WB_ADD_LOCKS"))
+    gdk_threads_leave();
+#pragma GCC diagnostic pop
 
   return 0;
 }

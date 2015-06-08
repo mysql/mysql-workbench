@@ -19,8 +19,14 @@ class WBPLUGINDBMYSQLBE_PUBLIC_FUNC Db_plugin : virtual public Wb_plugin
 public:
   Db_plugin() : _db_conn(0) {}
   virtual ~Db_plugin() { delete _db_conn; }
-
+#ifndef _WIN32
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#endif
   void grtm(bec::GRTManager *grtm, bool reveng);
+#ifndef _WIN32
+  #pragma GCC diagnostic pop
+#endif
 
   grt::StringRef apply_script_to_db(grt::GRT *);
 

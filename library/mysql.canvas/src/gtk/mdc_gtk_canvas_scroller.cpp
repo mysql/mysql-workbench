@@ -24,18 +24,17 @@ void GtkCanvasScroller::add(GtkCanvas &canvas)
 {
   attach(canvas, 0, 1, 0, 1, Gtk::FILL|Gtk::EXPAND, Gtk::FILL|Gtk::EXPAND);
   canvas.show();
-  
-  canvas.set_scroll_adjustments(*_hscroll.get_adjustment(), *_vscroll.get_adjustment());
+  canvas.set_vadjustment(_vscroll.get_adjustment());
+  canvas.set_hadjustment(_hscroll.get_adjustment());
 }
 
-
-Gtk::Adjustment *GtkCanvasScroller::get_hadjustment()
+Glib::RefPtr<Gtk::Adjustment> GtkCanvasScroller::get_hadjustment()
 {
   return _hscroll.get_adjustment();
 }
 
 
-Gtk::Adjustment *GtkCanvasScroller::get_vadjustment()
+Glib::RefPtr<Gtk::Adjustment> GtkCanvasScroller::get_vadjustment()
 {
   return _vscroll.get_adjustment();
 }

@@ -27,13 +27,16 @@
 #include "workbench/wb_context.h"
 
 #include <glib/gstdio.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #include <gtkmm.h>
+#pragma GCC diagnostic pop
 #include "gtk_helpers.h"
 #include "base/string_utilities.h"
 
 using base::strfmt;
 
-class OverviewDivision : public Gtk::VBox
+class OverviewDivision : public Gtk::Box
 {
   bool header_button_release(GdkEventButton *e)
   {
@@ -70,7 +73,7 @@ class OverviewDivision : public Gtk::VBox
   }
 
 
-  Gtk::Button *add_mode_switch_button(Gtk::HBox *view_mode_box,
+  Gtk::Button *add_mode_switch_button(Gtk::Box *view_mode_box,
                                       const std::string &filename,
                                       wb::OverviewBE::OverviewDisplayMode mode)
   {
@@ -97,7 +100,7 @@ class OverviewDivision : public Gtk::VBox
   }
 
 
-  Gtk::Button *add_action_button(Gtk::HBox *view_mode_box,
+  Gtk::Button *add_action_button(Gtk::Box *view_mode_box,
                                  const std::string &filename,
                                  const std::string &tooltip,
                                  const sigc::slot<void> &callback)
@@ -128,7 +131,7 @@ class OverviewDivision : public Gtk::VBox
 
   void create_header(const std::string& text,
                      Gtk::EventBox **ebox_dptr,
-                     Gtk::HBox **hbox_dptr)
+                     Gtk::Box **hbox_dptr)
   {
     // Let us get events from the header's widgets by creating EventBox
     Gtk::EventBox *ebox = *ebox_dptr = Gtk::manage(new Gtk::EventBox());
@@ -136,7 +139,7 @@ class OverviewDivision : public Gtk::VBox
     ebox->set_size_request(-1, 24);
     ebox->show();
     
-    Gtk::HBox *hdr_box = *hbox_dptr= Gtk::manage(new Gtk::HBox(false));
+    Gtk::Box *hdr_box = *hbox_dptr= Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL));
     ebox->add(*hdr_box);  
 
     _arrow = Gtk::manage(new Gtk::Arrow(Gtk::ARROW_DOWN, Gtk::SHADOW_NONE));
@@ -156,7 +159,7 @@ class OverviewDivision : public Gtk::VBox
   bec::NodeId _node;
   Gtk::HSeparator _sep;
   Gtk::Arrow *_arrow;
-  Gtk::HBox *_header_box;
+  Gtk::Box *_header_box;
   wb::OverviewBE *_overview;
   wb::OverviewBE::OverviewDisplayMode _display_mode;
   bool _view_mode_changing;
@@ -165,7 +168,7 @@ public:
   sigc::signal<void, wb::OverviewBE::OverviewDisplayMode> signal_view_mode_change() { return _view_mode_change; }
 
   OverviewDivision(wb::OverviewBE *overview, const bec::NodeId &node, const std::string &text, bool view_switch, bool no_header=false)
-    : Gtk::VBox(false, 0), _node(node), _overview(overview), _view_mode_changing(false)
+    : Gtk::Box(Gtk::ORIENTATION_VERTICAL, 0), _node(node), _overview(overview), _view_mode_changing(false)
   {
     Gtk::EventBox *ebox        = 0;
 
@@ -267,8 +270,8 @@ public:
 
   void toggle(bool flag)
   {
-    std::list<Gtk::Widget*> children(get_children());
-    std::list<Gtk::Widget*>::iterator iter= children.begin();
+    std::vector<Gtk::Widget*> children(get_children());
+    std::vector<Gtk::Widget*>::iterator iter= children.begin();
 
     while (iter != children.end() && (*iter)->gobj() != (GtkWidget*)_sep.gobj())
       ++iter;
@@ -426,7 +429,7 @@ void OverviewItemContainer::drag_data_get(const Glib::RefPtr<Gdk::DragContext> &
         
         wb::ModelFile::copy_file(file, _drag_tmp_file);
         {
-          std::vector<std::string> uris;
+          std::vector<Glib::ustring> uris;
           uris.push_back("file://"+_drag_tmp_file);
           data.set_uris(uris);
         }
@@ -465,8 +468,8 @@ void OverviewItemContainer::drag_data_delete(const Glib::RefPtr<Gdk::DragContext
 //------------------------------------------------------------------------------ 
 bool OverviewItemContainer::drag_drop(const Glib::RefPtr<Gdk::DragContext> &context, int, int, guint time)
 {
-  std::vector<Glib::ustring> targets(context->get_targets());
-  std::vector<Glib::ustring>::iterator iter;
+  std::vector<std::string> targets(context->list_targets());
+  std::vector<std::string>::iterator iter;
 
   if ((iter= std::find(targets.begin(), targets.end(), "text/uri-list")) != targets.end())
   {
@@ -484,7 +487,7 @@ bool OverviewItemContainer::drag_drop(const Glib::RefPtr<Gdk::DragContext> &cont
 bool OverviewItemContainer::drag_motion(const Glib::RefPtr<Gdk::DragContext> &context, int, int, guint time,
                                         Gtk::Widget *target)
 {
-  std::vector<std::string> targets(context->get_targets());
+  std::vector<std::string> targets(context->list_targets());
 
   if (!target->drag_dest_find_target(context).empty())
   {
@@ -696,17 +699,17 @@ public:
 
     _label.set_use_markup(true);
     _label.show();
-    pack_start(_label, false, false);
+    add(_label);
     
     update_label();
   
     Gtk::Separator *separator= Gtk::manage(new Gtk::HSeparator());
-    pack_start(*separator, false, false);
+    add(*separator);
     separator->show();
 
     for (std::vector<Gtk::Widget*>::iterator iter= children.begin(); iter != children.end(); ++iter)
     {
-      pack_start(**iter, false, false);
+      add(**iter);
       (*iter)->unreference();
     }
   }
@@ -730,17 +733,41 @@ public:
 
 
 
-class OverviewGroup : public Gtk::VBox
+class OverviewGroup : public Gtk::Box
 {
   wb::OverviewBE *_overview;
   bec::NodeId _node;
   std::string _uid;
   Gtk::Label *_label;
   
+  void invalidate_children(Gtk::Widget& widget)
+  {
+    OverviewItemContainer* items= dynamic_cast<OverviewItemContainer*>(&widget);
+    if (items)
+    {
+      items->get_tree_model()->invalidate();
+      items->get_icon_model()->invalidate();
+    }
+  }
+
+  void update_base_node_children(Gtk::Widget& widget, const bec::NodeId &node)
+  {
+    OverviewItemContainer* items= dynamic_cast<OverviewItemContainer*>(&widget);
+    if (items)
+    {
+      bec::NodeId new_node(node);
+
+      new_node.append(items->get_base_node().back());
+
+      items->update_base_node(new_node);
+    }
+  }
+
 public:
   OverviewGroup(wb::OverviewBE *overview, const bec::NodeId &node, Gtk::Label *label)
-    : Gtk::VBox(false, 0), _overview(overview), _node(node), _label(label)
+    : Gtk::Box(Gtk::ORIENTATION_VERTICAL, 0), _overview(overview), _node(node), _label(label)
   {
+    set_homogeneous(false);
     set_border_width(12);
     set_name("overview_note_page");
     _uid= _overview->get_node_unique_id(node);
@@ -754,17 +781,7 @@ public:
   
   void invalidate()
   {
-    std::vector<Gtk::Widget*> children(get_children());
-    for (std::vector<Gtk::Widget*>::iterator iter= children.begin();
-         iter != children.end(); ++iter)
-    {
-      OverviewItemContainer* items= dynamic_cast<OverviewItemContainer*>(*iter);
-      if (items)
-      {
-        items->get_tree_model()->invalidate();
-        items->get_icon_model()->invalidate();
-      }
-    }
+    foreach(sigc::mem_fun(this, &OverviewGroup::invalidate_children));
   }
 
   std::string get_unique_id() { return _uid; }
@@ -773,21 +790,7 @@ public:
   {
     if (_node.back() != node.back())
     {
-      std::vector<Gtk::Widget*> children(get_children());
-      for (std::vector<Gtk::Widget*>::iterator iter= children.begin();
-           iter != children.end(); ++iter)
-      {
-        OverviewItemContainer* items= dynamic_cast<OverviewItemContainer*>(*iter);
-        if (items)
-        {
-          bec::NodeId new_node(node);
-          
-          new_node.append(items->get_base_node().back());
-
-          items->update_base_node(new_node);
-        }
-      }
-
+      foreach(sigc::bind(sigc::mem_fun(this, &OverviewGroup::update_base_node_children), node));
       _node= node;
     }
   }
@@ -823,7 +826,7 @@ public:
   int current_page_index() { return _current_page_index; }
 
 private:
-  void page_switched(GtkNotebookPage *page, guint num)
+  void page_switched(Gtk::Widget *page, guint num)
   {
     if ((size_t)num < _overview->count_children(_node))
       _overview->focus_node(_overview->get_child(_node, num));
@@ -860,7 +863,7 @@ private:
   Gtk::EventBox *create_group_heading(const bec::NodeId &node, Gtk::Label **tab_label)
   {
     Gtk::EventBox *tab_box= Gtk::manage(new Gtk::EventBox());
-    Gtk::HBox *tab= Gtk::manage(new Gtk::HBox(false, 4));
+    Gtk::Box *tab= Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 4));
     std::string icon_path;
     std::string text, descr;
     int icon;
@@ -889,11 +892,11 @@ private:
 
 
 protected:
-  virtual void on_size_request(Gtk::Requisition *requisition)
+  virtual void on_size_allocate(Gdk::Rectangle& rect)
   {
     bool was_focus_node_enabled= _is_focus_node_enabled;
     _is_focus_node_enabled= false;
-    Notebook::on_size_request(requisition);
+    Notebook::on_size_allocate(rect);
     _is_focus_node_enabled= was_focus_node_enabled;
   }
   
@@ -953,7 +956,7 @@ public:
 //----------------------------------------------------------------------------------------------------
 
 OverviewPanel::OverviewPanel(wb::WBContextUI *wb, wb::OverviewBE *overview)
-  : _container(Gtk::manage(new Gtk::VBox(false, 0)))
+  : _container(Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_VERTICAL, 0)))
   , _wb(wb)
   , _overview_be(overview)
 {
@@ -994,11 +997,12 @@ void OverviewPanel::reset()
 
   delete_container_contents(_container);
   
-  Gtk::DrawingArea *filler= Gtk::manage(new Gtk::DrawingArea());
+  Gtk::Layout *filler = Gtk::manage(new Gtk::Layout());
+  Gtk::Image *img = Gtk::manage(new Gtk::Image(bec::IconManager::get_instance()->get_icon_path("background.png")));
+  filler->put(*img, 0, 0);
   filler->set_name("overview_filler");
   _container->pack_start(*filler, true, true);
   filler->show();
-  filler->modify_bg_pixmap(Gtk::STATE_NORMAL, bec::IconManager::get_instance()->get_icon_path("background.png"));
 }
 
 
@@ -1037,12 +1041,14 @@ void OverviewPanel::rebuild_all()
     build_division(_container, node);
   }
 
-  Gtk::DrawingArea *filler= Gtk::manage(new Gtk::DrawingArea());
+  Gtk::Layout *filler = Gtk::manage(new Gtk::Layout());
+  Gtk::Image *img = Gtk::manage(new Gtk::Image(bec::IconManager::get_instance()->get_icon_path("background.png")));
+  filler->put(*img, 0, 0);
+
   filler->set_name("overview_filler");
   _container->pack_start(*filler, true, true);
   filler->show();
-  filler->modify_bg_pixmap(Gtk::STATE_NORMAL, bec::IconManager::get_instance()->get_icon_path("background.png"));
-  
+
   {
     size_t group_index= 0;
     if (_groups->current_page_index() >= 0)
@@ -1070,7 +1076,7 @@ void OverviewPanel::item_list_selection_changed(const std::vector<bec::NodeId>& 
 //------------------------------------------------------------------------------
 // Build division e.g. EER Diagrams, Physical Schemata, 
 // Schema Privileges in the model overview. @pnode points to a subtree
-void OverviewPanel::build_division(Gtk::VBox *container, const bec::NodeId &pnode)
+void OverviewPanel::build_division(Gtk::Box *container, const bec::NodeId &pnode)
 {
   // Fetch division name, wb::OverviewBE::Label is a enum defined in 
   // backend/workbench/wb_overview.h so it is passed as a column index
@@ -1175,7 +1181,7 @@ void OverviewPanel::build_division(Gtk::VBox *container, const bec::NodeId &pnod
 //------------------------------------------------------------------------------
 void OverviewPanel::build_group(OverviewDivision *division, OverviewGroupContainer *group_container, const bec::NodeId &pnode, int position)
 {
-  Gtk::VBox *page= group_container->add_group(pnode, position);
+  Gtk::Box *page= group_container->add_group(pnode, position);
   
   page->set_spacing(8);
   
@@ -1183,7 +1189,7 @@ void OverviewPanel::build_group(OverviewDivision *division, OverviewGroupContain
 }
 
 
-void OverviewPanel::build_group_contents(OverviewDivision *division, Gtk::VBox *page, const bec::NodeId &pnode)
+void OverviewPanel::build_group_contents(OverviewDivision *division, Gtk::Box *page, const bec::NodeId &pnode)
 {
   ssize_t type;
   _overview_be->get_field(pnode, wb::OverviewBE::ChildNodeType, type);

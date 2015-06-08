@@ -13,7 +13,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/backend/wbpublic
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}
-    ${GTK2_INCLUDE_DIRS}
+    ${GTK3_INCLUDE_DIRS}
     ${CAIRO_INCLUDE_DIRS}
     ${SIGC++_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
@@ -25,7 +25,7 @@ add_library(wb.printing.wbp MODULE
     wb_printing_linux.cpp
 )
 
-target_link_libraries(wb.printing.wbp linux_utilities ${GTK2_LIBRARIES} ${SIGC++_LIBRARIES} ${GRT_LIBRARIES})
+target_link_libraries(wb.printing.wbp linux_utilities ${GTK3_LIBRARIES} ${SIGC++_LIBRARIES} ${GRT_LIBRARIES})
 
 set_target_properties(wb.printing.wbp
                       PROPERTIES PREFIX    ""

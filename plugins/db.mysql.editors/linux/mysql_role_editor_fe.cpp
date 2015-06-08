@@ -33,7 +33,6 @@ class DbMySQLRoleEditor : public PluginEditorBase
   Glib::RefPtr<ListModelWrapper>     _role_tree_model;
   Glib::RefPtr<ListModelWrapper>     _role_objects_model;
   Glib::RefPtr<ListModelWrapper>     _role_privs_model;
-  Gtk::Entry                        *_entry;
   Gtk::TreeView                     *_role_tree_tv;
   Gtk::TreeView                     *_role_objects_tv;
   Gtk::TreeView                     *_role_privs_tv;

@@ -19,6 +19,7 @@
 
 #include "../lf_mforms.h"
 #include "../lf_textbox.h"
+#include "gtk_helpers.h"
 
 namespace mforms {
 namespace gtk {
@@ -150,14 +151,15 @@ void TextBoxImpl::set_monospaced(::mforms::TextBox *self, bool flag)
   TextBoxImpl* cb = self->get_data<TextBoxImpl>();
   if (cb)
   {
-    Pango::FontDescription font(cb->_text->get_style()->get_font());
     
+    Pango::FontDescription font = cb->_text->get_pango_context()->get_font_description();
+
     if (flag)
     {
       font.set_family("Bitstream Vera Sans Mono");
       font.set_size(9 * Pango::SCALE);
     }
-    cb->_text->modify_font(font);
+    cb->_text->get_pango_context()->set_font_description(font);
   }
 }
 
@@ -189,8 +191,7 @@ void TextBoxImpl::clear(::mforms::TextBox *self)
 
 void TextBoxImpl::set_front_color(const std::string &color)
 {
-  Gdk::Color clr(color);
-  this->_text->modify_text(Gtk::STATE_NORMAL, clr);
+  this->_text->override_color(color_to_rgba(Gdk::Color(color)), Gtk::STATE_FLAG_NORMAL);
 }
 
 TextBoxImpl::TextBoxImpl(::mforms::TextBox *self, mforms::ScrollBars scroll_type)

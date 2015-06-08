@@ -41,6 +41,7 @@ _text_cell_fixed_height(false)
   view->set_rules_hint(true); // enable alternating row colors
   set_fake_column_value_getter(sigc::mem_fun(this, &GridViewModel::get_cell_value));
   //set_fake_column_value_setter(sigc::mem_fun(this, &GridViewModel::set_cell_value));
+
 }
 
 GridViewModel::~GridViewModel()
@@ -91,7 +92,7 @@ int GridViewModel::refresh(bool reset_columns)
       if (_row_numbers_visible)
       {
         Gtk::TreeViewColumn *col= add_column<ValueTypeTraits<> >(-2, "#", RO, NULL);
-        col->get_first_cell_renderer()->property_cell_background()= "LightGray";
+        (*col->get_cells().begin())->property_cell_background() = "LightGray";
         col->set_min_width(35);
         col->set_resizable(true);
       }
@@ -224,6 +225,7 @@ Gtk::TreeViewColumn * GridViewModel::add_column(int index, const std::string &na
     treeview_column->signal_clicked().connect(sigc::bind(sigc::mem_fun(_view, &GridView::on_column_header_clicked), treeview_column, index));
     treeview_column->set_clickable();
   }
+
   if (index >= 0)
   {
     Gtk::Label *label = Gtk::manage(new Gtk::Label(name));
@@ -270,7 +272,7 @@ void GridViewModel::set_ellipsize(const int column, const bool on)
 
   if (col)
   {
-    const std::vector<Gtk::CellRenderer*> rends = col->get_cell_renderers();
+    const std::vector<Gtk::CellRenderer*> rends = col->get_cells();
     const int rends_size = rends.size();
     for (int i = 0; i < rends_size; ++i)
     {

@@ -36,7 +36,6 @@
 #include "widget_saver.h"
 #include "plugin_editor_base.h"
 
-DEFAULT_LOG_DOMAIN("UI")
 using base::strfmt;
 
 
@@ -49,7 +48,10 @@ DbSqlEditorView *DbSqlEditorView::create(SqlEditorForm::Ref editor_be)
 
 //------------------------------------------------------------------------------
 DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
-                : FormViewBase("DbSqlEditor"), _be(editor_be)
+                : Gtk::Box(Gtk::ORIENTATION_VERTICAL), FormViewBase("DbSqlEditor"), _be(editor_be)
+                , _top_pane(Gtk::ORIENTATION_HORIZONTAL)
+                , _top_right_pane(Gtk::ORIENTATION_HORIZONTAL)
+                , _main_pane(Gtk::ORIENTATION_VERTICAL)
                 , _output(_be, this)
                 , _side_palette(mforms::gtk::ViewImpl::get_widget_for_view(_be->get_side_palette()))
                 , _dock_delegate(NULL, MAIN_DOCKING_POINT)
@@ -266,14 +268,12 @@ void DbSqlEditorView::tab_menu_handler(const std::string& action, ActiveLabel *s
 //------------------------------------------------------------------------------
 void DbSqlEditorView::reenable_items_in_tab_menus()
 {
-  const Gtk::Notebook::PageList pages = _editor_note->pages();
-  const int size = pages.size();
+  const int size = _editor_note->get_n_pages();
 
   for (int i = 0; i < size; ++i)
   {
-
-    Gtk::Notebook_Helpers::Page page = pages[i];
-    ActiveLabel* const al = dynamic_cast<ActiveLabel*>(page.get_tab_label());
+    Gtk::Widget *page = _editor_note->get_nth_page(i);
+    ActiveLabel* const al = dynamic_cast<ActiveLabel*>(_editor_note->get_tab_label(*page));
     if (al)
     {
       mforms::Menu* const menu = al->get_menu();
@@ -298,8 +298,8 @@ void DbSqlEditorView::set_busy_tab(int tab)
   }
   if (tab >= 0)
   {
-    Gtk::Notebook_Helpers::Page page = _editor_note->pages()[tab];
-    ActiveLabel* const al = dynamic_cast<ActiveLabel*>(page.get_tab_label());
+    Gtk::Widget *page = _editor_note->get_nth_page(tab);
+    ActiveLabel* const al = dynamic_cast<ActiveLabel*>(_editor_note->get_tab_label(*page));
     if (al)
     {
       al->start_busy();
@@ -370,7 +370,7 @@ bool DbSqlEditorView::close_focused_tab()
 }
 
 //------------------------------------------------------------------------------
-void DbSqlEditorView::editor_page_switched(GtkNotebookPage *page, guint index)
+void DbSqlEditorView::editor_page_switched(Gtk::Widget *page, guint index)
 {
   if (_be)
   {

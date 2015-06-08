@@ -1,45 +1,62 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.16.1 -->
 <!--*- mode: xml -*-->
 <interface>
+  <requires lib="gtk+" version="3.8"/>
   <object class="GtkWindow" id="window1">
     <property name="name">window1</property>
+    <property name="can_focus">False</property>
     <child>
-      <object class="GtkVBox" id="find_box">
+      <object class="GtkBox" id="find_box">
         <property name="name">find_box</property>
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
         <property name="spacing">4</property>
         <child>
-          <object class="GtkHSeparator" id="hseparator1">
+          <object class="GtkSeparator" id="hseparator1">
             <property name="name">hseparator1</property>
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
           </packing>
         </child>
         <child>
-          <object class="GtkHBox" id="find_hbox">
+          <object class="GtkBox" id="find_hbox">
             <property name="name">find_hbox</property>
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="spacing">4</property>
             <child>
               <object class="GtkImage" id="image1">
                 <property name="name">image1</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="xalign">1</property>
                 <property name="stock">gtk-find</property>
                 <property name="icon_size">2</property>
               </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
             </child>
             <child>
               <object class="GtkLabel" id="label1">
                 <property name="name">label1</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="xalign">1</property>
                 <property name="label" translatable="yes">Find Object:</property>
               </object>
               <packing>
                 <property name="expand">False</property>
+                <property name="fill">True</property>
                 <property name="padding">4</property>
                 <property name="position">1</property>
               </packing>
@@ -52,57 +69,71 @@
                 <property name="has_focus">True</property>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">2</property>
               </packing>
             </child>
             <child>
-              <object class="GtkHBox" id="hbox3">
+              <object class="GtkBox" id="hbox3">
                 <property name="name">hbox3</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkButton" id="previous_button">
+                    <property name="label">gtk-media-previous</property>
                     <property name="name">previous_button</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="label" translatable="yes">_Previous</property>
+                    <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
+                    <property name="use_stock">True</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
                   </packing>
                 </child>
                 <child>
                   <object class="GtkButton" id="next_button">
+                    <property name="label">gtk-media-next</property>
                     <property name="name">next_button</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="can_default">True</property>
                     <property name="has_default">True</property>
                     <property name="receives_default">True</property>
-                    <property name="label" translatable="yes">_Next</property>
                     <property name="use_underline">True</property>
+                    <property name="use_stock">True</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
+                    <property name="fill">True</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
                 <child>
                   <object class="GtkButton" id="all_button">
+                    <property name="label">gtk-find</property>
                     <property name="name">all_button</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="label" translatable="yes">Find _All</property>
+                    <property name="receives_default">False</property>
                     <property name="use_underline">True</property>
+                    <property name="use_stock">True</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
+                    <property name="fill">True</property>
                     <property name="position">2</property>
                   </packing>
                 </child>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">3</property>
               </packing>
             </child>
@@ -111,11 +142,13 @@
                 <property name="name">close_button</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="relief">GTK_RELIEF_NONE</property>
+                <property name="receives_default">False</property>
+                <property name="relief">none</property>
                 <child>
                   <object class="GtkImage" id="image2">
                     <property name="name">image2</property>
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="stock">gtk-close</property>
                     <property name="icon_size">1</property>
                   </object>
@@ -129,35 +162,43 @@
             </child>
           </object>
           <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
             <property name="position">1</property>
           </packing>
         </child>
         <child>
-          <object class="GtkHBox" id="find_hbox1">
+          <object class="GtkBox" id="find_hbox1">
             <property name="name">find_hbox1</property>
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="spacing">4</property>
             <child>
               <object class="GtkCheckButton" id="case_check1">
+                <property name="label" translatable="yes">Match Case</property>
                 <property name="name">case_check1</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="label" translatable="yes">Match Case</property>
+                <property name="receives_default">False</property>
                 <property name="use_underline">True</property>
+                <property name="xalign">0.5</property>
                 <property name="draw_indicator">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
+                <property name="position">0</property>
               </packing>
             </child>
             <child>
               <object class="GtkCheckButton" id="comment_check1">
+                <property name="label" translatable="yes">Search in Comments</property>
                 <property name="name">comment_check1</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="label" translatable="yes">Search in Comments</property>
+                <property name="receives_default">False</property>
                 <property name="use_underline">True</property>
+                <property name="xalign">0.5</property>
                 <property name="draw_indicator">True</property>
               </object>
               <packing>
@@ -183,6 +224,8 @@
             </child>
           </object>
           <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
             <property name="position">2</property>
           </packing>
         </child>

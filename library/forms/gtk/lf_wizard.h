@@ -37,7 +37,7 @@ class WizardImpl : public FormImpl
     Gtk::Table                      _top_table;
     Gtk::Label                      _heading;
     Gtk::Frame                      _content;
-    Gtk::HBox                       _button_box;
+    Gtk::Box                        _button_box;
     Gtk::Button                     _cancel_btn;
     Gtk::Button                     _fwd_btn;
     Gtk::Button                     _back_btn;

@@ -57,7 +57,6 @@
 #include "mforms/../gtk/lf_form.h"
 
 #include <base/log.h>
-DEFAULT_LOG_DOMAIN("linux.ui")
 
 using base::strfmt;
 
@@ -75,7 +74,6 @@ static void set_window_icons(Gtk::Window *window)
   window->set_default_icon_list(icons);
 }
 
-static Gtk::Window *_dummy_window = 0;
 static Gdk::Color _sys_selection_color;
 
 //------------------------------------------------------------------------------
@@ -84,9 +82,6 @@ MainForm::MainForm(wb::WBContextUI* ctx)
   : _wbui_context(ctx),
     _exiting(false)
 {
-  _dummy_window = new Gtk::Window(Gtk::WINDOW_TOPLEVEL);
-  gtk_widget_realize(GTK_WIDGET(_dummy_window->gobj()));
-
   setup_mforms_app();
   
   bec::GRTManager *grtm= _wbui_context->get_wb()->get_grt_manager();
@@ -97,17 +92,7 @@ MainForm::MainForm(wb::WBContextUI* ctx)
     if (acc)
       acc->set_name("Main Tab Bar");
   }
- {
-    Gtk::TreeView dummy_treeview;
-    _dummy_window->add(dummy_treeview);
-    dummy_treeview.show();
-// There is some bug in Fedora 14 where this code causes other stuff later to crash
-// The same code works just fine in Ubuntu, where the exact same version of gtk is shipped
-//    _sys_selection_color= Gtk::RC::get_style(dummy_treeview)->get_bg(Gtk::STATE_SELECTED);
-    GtkStyle *style = gtk_rc_get_style(GTK_WIDGET(dummy_treeview.gobj()));
-    if (style)
-      _sys_selection_color = Gdk::Color(&style->bg[GTK_STATE_SELECTED]);
-  }
+
 
   get_mainwindow()->signal_delete_event().connect(sigc::mem_fun(this, &MainForm::close_window));
   get_mainwindow()->signal_set_focus().connect(sigc::mem_fun(this, &MainForm::on_focus_widget));
@@ -961,6 +946,7 @@ mdc::CanvasView* MainForm::create_view_becb(const model_DiagramRef &diagram)
   }
 
   add_form_pane(model_panel, tabState);
+  model_panel->show_all_children(true);
  // model_panel->set_data("model_panel", model_panel);
   mdc::CanvasView* view = model_panel->get_canvas();
   _diagram_panel_list.insert(std::pair<mdc::CanvasView*, ModelDiagramPanel*>(view, model_panel));
@@ -1233,7 +1219,7 @@ void MainForm::refresh_gui_becb(wb::RefreshType type, const std::string& arg_id,
             if (column)
             {
               // this is not working...
-              std::vector<Gtk::CellRenderer*> rends(column->get_cell_renderers());
+              std::vector<Gtk::CellRenderer*> rends(column->get_cells());
               for (std::vector<Gtk::CellRenderer*>::iterator iter = rends.begin(); iter != rends.end(); ++iter)
               {
                 (*iter)->stop_editing(true);
@@ -1283,7 +1269,7 @@ void MainForm::lock_gui_becb(bool lock)
 }
 
 //------------------------------------------------------------------------------
-void MainForm::switch_page(GtkNotebookPage*, guint pagenum)
+void MainForm::switch_page(Gtk::Widget*, guint pagenum)
 {
   if (_gui_locked)
     return;
@@ -1656,6 +1642,9 @@ void MainForm::add_form_pane(FormViewBase *panel, TabStateInfo tabState)
 
   ActiveLabel *label = 0;
   append_tab_page(get_upper_note(), panel->get_panel(), panel->get_title(), tabState, &label);
+  //Fix gtk3 issue... caused by gtk3: 399de111167c198a7d2ccbd459a2db7c6389181e
+  get_upper_note()->set_current_page(get_upper_note()->page_num(*panel->get_panel()));
+
   if (tabState == TabClosed)
     panel->get_panel()->hide();
 
@@ -1815,6 +1804,11 @@ static base::Color gdk_color_to_mforms(const Gdk::Color& c)
   return base::Color(c.get_red_p(), c.get_green_p(), c.get_blue_p(), 1);
 }
 
+static base::Color rgba_colot_to_mforms(const Gdk::RGBA& c)
+{
+  return base::Color(c.get_red(), c.get_green(), c.get_blue(), c.get_alpha());
+}
+
 
 //------------------------------------------------------------------------------
 static base::Color get_system_color(mforms::SystemColor type)
@@ -1846,10 +1840,8 @@ static base::Color get_system_color(mforms::SystemColor type)
         ret = it->second;
       else
       {
-        Glib::RefPtr<Gtk::Style> style = get_mainwindow()->get_style();
-        base::Color new_color(gdk_color_to_mforms(style->get_base(Gtk::STATE_NORMAL)));
-        colors[type] = new_color;
-        ret = new_color;
+        ret = base::Color(rgba_colot_to_mforms(get_mainwindow()->get_style_context()->get_color(Gtk::STATE_FLAG_NORMAL)));
+        colors[type] = ret;
       }
       break;
 
@@ -1861,10 +1853,8 @@ static base::Color get_system_color(mforms::SystemColor type)
         ret = it->second;
       else
       {
-        Glib::RefPtr<Gtk::Style> style = get_mainwindow()->get_style();
-        base::Color new_color(gdk_color_to_mforms(style->get_base(Gtk::STATE_INSENSITIVE)));
-        colors[type] = new_color;
-        ret = new_color;
+        ret = base::Color(rgba_colot_to_mforms(get_mainwindow()->get_style_context()->get_color(Gtk::STATE_FLAG_INSENSITIVE)));
+        colors[type] = ret;
       }
       break;
     }
@@ -1987,7 +1977,7 @@ Gtk::Widget *MainForm::decorate_widget(Gtk::Widget *panel, bec::UIForm *form)
   mforms::MenuBar *menu = form->get_menubar();
   mforms::ToolBar *toolbar = form->get_toolbar();
 
-  Gtk::VBox *top_box = Gtk::manage(new Gtk::VBox(false, 0));
+  Gtk::Box *top_box = Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_VERTICAL, 0));
   if (menu)
   {
     Gtk::Widget *w = mforms::widget_for_menubar(menu);

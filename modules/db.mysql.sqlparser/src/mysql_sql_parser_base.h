@@ -63,7 +63,7 @@ protected:
   virtual void sql_mode(const std::string &value);
 
   // prepare/clear routines
-  void set_options(grt::DictRef options);
+  void set_options(const grt::DictRef &options);
 
   // parse tree helpers
   void process_obj_full_name_item(const SqlAstNode *item, std::string &schema_name, std::string &obj_name);

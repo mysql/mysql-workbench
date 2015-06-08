@@ -15,7 +15,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/ext/antlr-runtime/include
     ${PROJECT_SOURCE_DIR}/library/mysql.parser   
     ${VSQLITE_INCLUDE_DIRS}
-    ${GTK2_INCLUDE_DIRS}
+    ${GTK3_INCLUDE_DIRS}
     ${SIGC++_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
     ${PCRE_INCLUDE_DIR}
@@ -88,7 +88,7 @@ add_library(db.mysql.sqlparser.grt
 add_dependencies(db.mysql.sqlparser.grt mysqlparser)
 
 
-target_link_libraries(db.mysql.sqlparser.grt ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${SIGC++_LIBRARIES} ${PCRE_LIBRARIES})
+target_link_libraries(db.mysql.sqlparser.grt ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${SIGC++_LIBRARIES} ${PCRE_LIBRARIES})
 
 set_target_properties(db.mysql.sqlparser.grt
                       PROPERTIES PREFIX    ""

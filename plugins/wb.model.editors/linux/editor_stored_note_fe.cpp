@@ -45,7 +45,7 @@ public:
     
     _xml= Gtk::Builder::create_from_file(grtm->get_data_file_path("modules/data/editor_storednote.glade"));
 
-    Gtk::VBox* box(0);
+    Gtk::Box* box(0);
     _xml->get_widget("vbox1", box);
     box->reparent(*this);
 
@@ -68,7 +68,7 @@ public:
   
   virtual bool switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args)
   {    
-    Gtk::VBox *vbox;
+    Gtk::Box *vbox;
     _xml->get_widget("editor_placeholder", vbox);
  
     delete _be;

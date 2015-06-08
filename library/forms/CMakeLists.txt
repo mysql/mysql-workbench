@@ -8,7 +8,7 @@ install(FILES ${DATA_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR})
 
 include_directories(.
     ${CAIRO_INCLUDE_DIRS}
-    ${GTK2_INCLUDE_DIRS}
+    ${GTK3_INCLUDE_DIRS}
     ${SIGC++_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
     ${GNOME_KEYRING_INCLUDE_DIRS}
@@ -122,7 +122,7 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 	)
 endif()
 
-target_link_libraries(mforms linux_utilities mdcanvasgtk mdcanvas ${CAIRO_LIBRARIES} ${GTK2_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${TINYXML_LIBRARY})
+target_link_libraries(mforms linux_utilities mdcanvasgtk mdcanvas ${CAIRO_LIBRARIES} ${GTK3_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${TINYXML_LIBRARY})
 
 set_target_properties(mforms
                       PROPERTIES VERSION   ${WB_VERSION}

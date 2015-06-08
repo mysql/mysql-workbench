@@ -59,7 +59,7 @@ class QueryOutputView
     void history_context_menu_responder();
 
     SqlEditorForm::Ref      _be;
-    Gtk::VBox               _top_box;
+    Gtk::Box               _top_box;
     Gtk::Notebook           _note;
     Gtk::ComboBoxText       _mode;
     Gtk::Menu               _context_menu;
@@ -73,7 +73,7 @@ class QueryOutputView
     Gtk::ScrolledWindow     _action_swnd;
 
     // History output
-    Gtk::HPaned             _history_box;
+    Gtk::Paned             _history_box;
     Gtk::ScrolledWindow     _entries_swnd;
     GridView                _entries_grid;
     Gtk::ScrolledWindow     _details_swnd;

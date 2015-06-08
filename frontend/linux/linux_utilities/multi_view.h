@@ -6,12 +6,15 @@
 #ifndef _MULTIVIEW_H_
 #define _MULTIVIEW_H_
 
-#include <gtkmm/box.h>
+#include <gtkmm/grid.h>
 #include "treemodel_wrapper.h"
 #include "grt/tree_model.h"
 #include "editable_iconview.h"
 
-class MultiView : public Gtk::VBox
+// Because of Gtk3 bug: https://bugzilla.gnome.org/show_bug.cgi?id=749575
+// we need to use Gtk::Grid instead of Gtk::Box parent of MultiView
+
+class MultiView : public Gtk::Grid
 {
   Gtk::TreeView                    *_tree_view;
   EditableIconView                 *_icon_view;

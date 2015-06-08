@@ -29,12 +29,12 @@ static int zoom_levels[]= {
 
 
 NavigatorBox::NavigatorBox()
-  : Gtk::VBox(false, 2), _model(0), _canvas(mdc::GtkCanvas::XlibCanvasType), _changing_zoom(false)
+  : Gtk::Box(Gtk::ORIENTATION_VERTICAL, 2), _model(0), _canvas(mdc::GtkCanvas::XlibCanvasType), _combo(true), _changing_zoom(false)
 {
-  Gtk::HBox *hbox= Gtk::manage(new Gtk::HBox(false, 0));
+  Gtk::Box *hbox= Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 0));
 
   _canvas.signal_size_allocate().connect(sigc::mem_fun(this, &NavigatorBox::size_change));
-  
+  _canvas.signal_realize().connect(sigc::mem_fun(this, &NavigatorBox::canvas_realize));
   pack_start(_canvas, true, true);
   pack_start(*hbox, false, false);
   
@@ -51,7 +51,7 @@ NavigatorBox::NavigatorBox()
   _combo.get_entry()->signal_focus_out_event().connect(sigc::bind_return(sigc::hide(sigc::bind(sigc::mem_fun(this, &NavigatorBox::combo_changed), true)), false));
 
   for (unsigned int i= 0; i < sizeof(zoom_levels)/sizeof(int); i++)
-    _combo.append_text(strfmt("%i", zoom_levels[i]));
+    _combo.append(strfmt("%i", zoom_levels[i]));
   _combo.set_active_text("100");
 
   _zoom_in.add(*image1);
@@ -87,6 +87,13 @@ void NavigatorBox::size_change(Gtk::Allocation &alloc)
 {
   if (_model)
     _model->update_mini_view_size(_canvas.get_width(), _canvas.get_height());
+}
+
+void NavigatorBox::canvas_realize()
+{
+  //we need to add additional reference as gtk3 is releasing it in different order so there's a crash
+  if (_canvas.get_canvas())
+    cairo_reference(_canvas.get_canvas()->cairoctx()->get_cr());
 }
 
 

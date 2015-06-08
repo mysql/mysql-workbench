@@ -46,7 +46,7 @@ public:
   void refresh_active_group_node_children();
 private:
 
-  Gtk::VBox *_container;
+  Gtk::Box *_container;
   OverviewGroupContainer *_groups;
   Gtk::Menu _context_menu;
 
@@ -63,9 +63,9 @@ private:
 
   void update_group_note(OverviewGroupContainer *group_container, const bec::NodeId &node);
   
-  void build_division(Gtk::VBox *container, const bec::NodeId &node);
+  void build_division(Gtk::Box *container, const bec::NodeId &node);
   void build_group(OverviewDivision *division, OverviewGroupContainer *group_container, const bec::NodeId &node, int position= -1);
-  void build_group_contents(OverviewDivision *division, Gtk::VBox *page, const bec::NodeId &node);
+  void build_group_contents(OverviewDivision *division, Gtk::Box *page, const bec::NodeId &node);
 
   void item_list_selection_changed(const std::vector<bec::NodeId>& nodes, MultiView *mview);
 };

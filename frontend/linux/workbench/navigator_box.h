@@ -9,7 +9,7 @@
 #include "gtk/mdc_gtk_canvas_view.h"
 #include <gtkmm/box.h>
 #include <gtkmm/scale.h>
-#include <gtkmm/comboboxentrytext.h>
+#include <gtkmm/comboboxtext.h>
 
 
 namespace wb
@@ -18,17 +18,18 @@ namespace wb
 };
 
 
-class NavigatorBox : public Gtk::VBox
+class NavigatorBox : public Gtk::Box
 {
   wb::ModelDiagramForm *_model;
   mdc::GtkCanvas _canvas;
   Gtk::HScale _slider;
-  Gtk::ComboBoxEntryText _combo;
+  Gtk::ComboBoxText _combo;
   Gtk::Button _zoom_in;
   Gtk::Button _zoom_out;
   bool _changing_zoom;
 
   void size_change(Gtk::Allocation &alloc);
+  void canvas_realize();
 
   void slider_changed();
   void combo_changed(bool force_update);

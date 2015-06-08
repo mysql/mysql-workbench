@@ -1,5 +1,5 @@
 include_directories(.
-    ${GTK2_INCLUDE_DIRS}
+    ${GTK3_INCLUDE_DIRS}
     ${SIGC++_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
     ${VSQLITE_INCLUDE_DIRS}
@@ -18,7 +18,7 @@ set_target_properties(dbutils.grt PROPERTIES
 	PREFIX ""
 )
 
-target_link_libraries(dbutils.grt ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${SIGC++_LIBRARIES})
+target_link_libraries(dbutils.grt ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${SIGC++_LIBRARIES})
 
 set_target_properties(dbutils.grt
                       PROPERTIES VERSION   ${WB_VERSION}

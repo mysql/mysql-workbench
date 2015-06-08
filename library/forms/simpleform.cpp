@@ -376,7 +376,7 @@ std::map<std::string, View*> SimpleForm::get_views()
 }
 
 
-std::string SimpleForm::get_string_value(const std::string &name)
+std::string SimpleForm::get_string_view_value(const std::string &name)
 {
   View *view= dynamic_cast<View*>(_content->find_subview(name));
   if (view)
@@ -386,7 +386,7 @@ std::string SimpleForm::get_string_value(const std::string &name)
 }
 
 
-bool SimpleForm::get_bool_value(const std::string &name)
+bool SimpleForm::get_bool_view_value(const std::string &name)
 {
   View *view= dynamic_cast<View*>(_content->find_subview(name));
   if (view)
@@ -396,7 +396,7 @@ bool SimpleForm::get_bool_value(const std::string &name)
 }
 
 
-int SimpleForm::get_int_value(const std::string &name)
+int SimpleForm::get_int_view_value(const std::string &name)
 {
   View *view= dynamic_cast<View*>(_content->find_subview(name));
   if (view)

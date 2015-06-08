@@ -14,8 +14,9 @@ DbMySQLEditorPrivPage::DbMySQLEditorPrivPage(::bec::DBObjectEditorBE *be)
                       , _object_roles_list_be(new bec::ObjectRoleListBE(_be, get_rdbms_for_db_object(be->get_dbobject())))
                       , _role_tree_be(new bec::RoleTreeBE(_be->get_catalog()))
                       , _object_privilege_list_be(0)
+                      , _reentrant(false)
 {
-  _holder = new Gtk::HBox(false, 8);
+  _holder = new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 8);
 
   Gtk::ScrolledWindow *scrolled = new Gtk::ScrolledWindow();
   scrolled->set_shadow_type(Gtk::SHADOW_ETCHED_IN);
@@ -33,7 +34,7 @@ DbMySQLEditorPrivPage::DbMySQLEditorPrivPage(::bec::DBObjectEditorBE *be)
   scrolled->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
   manage(scrolled); // add to auto-clean on exit list
 
-  Gtk::VBox *vbox = new Gtk::VBox();
+  Gtk::Box *vbox = new Gtk::Box(Gtk::ORIENTATION_VERTICAL);
   manage(vbox); // add to auto-clean on exit list
   
   _add_button       = new Gtk::Button(" < ");
@@ -53,7 +54,7 @@ DbMySQLEditorPrivPage::DbMySQLEditorPrivPage(::bec::DBObjectEditorBE *be)
   scrolled->add(*_all_roles_tv);
   scrolled->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
 
-  _roles_tv->signal_cursor_changed().connect(sigc::mem_fun(*this, &DbMySQLEditorPrivPage::role_selected));
+
 
   _all_roles_model     = ListModelWrapper::create(_role_tree_be, _all_roles_tv, "PrivPageAllRoles");
   _all_roles_model->model().append_string_column(::bec::RoleTreeBE::Name, "All Roles", EDITABLE, NO_ICON);
@@ -63,6 +64,8 @@ DbMySQLEditorPrivPage::DbMySQLEditorPrivPage(::bec::DBObjectEditorBE *be)
 
   _all_roles_tv->set_model(_all_roles_model);
   _roles_tv->set_model(_roles_model);
+
+  _roles_tv->signal_cursor_changed().connect(sigc::mem_fun(*this, &DbMySQLEditorPrivPage::role_selected));
 
   _holder->show_all_children();
 }
@@ -96,6 +99,9 @@ void DbMySQLEditorPrivPage::refresh()
 //------------------------------------------------------------------------------
 void DbMySQLEditorPrivPage::role_selected()
 {
+  if (_reentrant)
+    return;
+  _reentrant = true;
   Gtk::TreeModel::iterator          iter = _roles_tv->get_selection()->get_selected();
   bec::NodeId              selected_role = _roles_model->node_for_iter(iter);
 
@@ -126,6 +132,7 @@ void DbMySQLEditorPrivPage::role_selected()
     _object_roles_list_be->select_role(bec::NodeId());
     refresh();
   }
+  _reentrant = false;
 }
 
 //------------------------------------------------------------------------------

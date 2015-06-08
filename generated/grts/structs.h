@@ -1,4 +1,8 @@
 #pragma once
+#ifndef _WIN32
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#endif
 
 #include <grtpp.h>
 
@@ -918,3 +922,6 @@ inline void register_structs_xml()
 static struct _autoreg__structs_xml { _autoreg__structs_xml() { register_structs_xml(); } } __autoreg__structs_xml;
 #endif
 
+#ifndef _WIN32
+  #pragma GCC diagnostic pop
+#endif

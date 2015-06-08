@@ -56,7 +56,7 @@ void Figure::render_gl(mdc::CairoCtx *cr)
  * Draws a hollow rectangle given by the bounds of this figure and a certain offset.
  * This version uses Cairo to draw it.
  */
-void Figure::stroke_outline(CairoCtx *cr, float offset)
+void Figure::stroke_outline(CairoCtx *cr, float offset) const
 {
   Rect bounds= get_bounds();
   
@@ -69,7 +69,7 @@ void Figure::stroke_outline(CairoCtx *cr, float offset)
  * Draws a hollow rectangle given by the bounds of this figure and a certain offset.
  * This version uses OpenGL to draw it.
  */
-void Figure::stroke_outline_gl(float offset)
+void Figure::stroke_outline_gl(float offset) const
 {
   Rect bounds= get_bounds();
   

@@ -113,7 +113,7 @@ class FileChooserImpl : public ViewImpl
   static std::string get_path(FileChooser *self)
   {
     FileChooserImpl *dlg = self->get_data<FileChooserImpl>();
-    return dlg ? dlg->_dlg->get_filename().raw() : "";
+    return dlg ? dlg->_dlg->get_filename() : "";
   }
 
   static void set_path(FileChooser *self, const std::string &path)
@@ -156,11 +156,10 @@ class FileChooserImpl : public ViewImpl
       dlg->_options_table->attach(*dlg->_combos[name], 1, 2, row, row+1, Gtk::FILL|Gtk::EXPAND, Gtk::FILL);
       dlg->_options_table->show_all();
     }
-    //combo->remove_all();
-    combo->clear_items();
+    combo->remove_all();
     for (std::vector<std::pair<std::string,std::string> >::const_iterator iter = values.begin(); iter != values.end(); ++iter)
     {
-      combo->append_text(iter->first);
+      combo->append(iter->first);
       dlg->_option_values[name][iter->first] = iter->second;
       dlg->_ext_list.insert(std::make_pair(iter->first, iter->second));
     }
@@ -196,9 +195,9 @@ class FileChooserImpl : public ViewImpl
       for (std::vector<std::pair<std::string, std::string> >::const_iterator iter= exts.begin();
            iter != exts.end(); ++iter)
       {
-        Gtk::FileFilter filter;
-        filter.add_pattern(iter->second);
-        filter.set_name(iter->first);
+        Glib::RefPtr<Gtk::FileFilter> filter = Gtk::FileFilter::create();
+        filter->add_pattern(iter->second);
+        filter->set_name(iter->first);
         dlg->_dlg->add_filter(filter);
         if (iter->second.substr(2) == default_extension)
           dlg->_dlg->set_filter(filter);
@@ -216,9 +215,9 @@ class FileChooserImpl : public ViewImpl
       
       if (allow_all_file_types)
       {
-        Gtk::FileFilter filter;
-        filter.add_pattern("*");
-        filter.set_name("All Files");
+        Glib::RefPtr<Gtk::FileFilter> filter = Gtk::FileFilter::create();
+        filter->add_pattern("*");
+        filter->set_name("All Files");
         dlg->_dlg->add_filter(filter);
       }
     }

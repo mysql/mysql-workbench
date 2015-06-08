@@ -32,6 +32,14 @@
 
 DEFAULT_LOG_DOMAIN("MySQL parsing")
 
+#ifdef _WIN32
+  #ifdef _WIN64
+    typedef __int64 ssize_t;
+  #else
+    typedef int ssize_t;
+  #endif
+#endif
+
 extern "C" {
   
   /**
@@ -280,11 +288,11 @@ uint32_t MySQLScanner::look_around(int offset, bool ignore_hidden)
   if (offset == 0)
     return d->_tokens[d->_token_index]->type;
 
-  if (d->_token_index + offset < 0 || d->_token_index + offset >= d->_tokens.size())
+  ssize_t index = (ssize_t)d->_token_index;
+  if (index + offset < 0 || index + offset >= (ssize_t)d->_tokens.size())
     return ANTLR3_TOKEN_INVALID;
 
   pANTLR3_COMMON_TOKEN token;
-  int index = (int)d->_token_index;
   if (offset < 0)
   {
     while (index > 0 && offset < 0)

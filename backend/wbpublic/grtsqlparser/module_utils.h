@@ -27,14 +27,14 @@
 
 
 template<typename T1>
-void overwrite_default_option(bool &value, const char *name, grt::DictRef &options)
+void overwrite_default_option(bool &value, const char *name, const grt::DictRef &options)
 {
   if (options.is_valid() && options.has_key(name))
     value= T1::cast_from(options.get(name)) != 0;
 }
 
 template<typename T>
-void overwrite_default_option(T &value, const char *name, grt::DictRef &options, bool init_with_empty_value)
+void overwrite_default_option(T &value, const char *name, const grt::DictRef &options, bool init_with_empty_value)
 {
   if (options.is_valid() && options.has_key(name))
   {

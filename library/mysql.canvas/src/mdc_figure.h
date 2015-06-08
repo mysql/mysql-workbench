@@ -39,8 +39,8 @@ public:
   virtual void draw_contents(CairoCtx *cr)= 0;
   virtual void draw_contents_gl();
 
-  virtual void stroke_outline(CairoCtx *cr, float offset);
-  virtual void stroke_outline_gl(float offset);
+  virtual void stroke_outline(CairoCtx *cr, float offset) const;
+  virtual void stroke_outline_gl(float offset) const;
 
 protected:
   base::Color _pen_color;

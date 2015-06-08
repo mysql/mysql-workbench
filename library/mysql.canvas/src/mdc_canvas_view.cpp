@@ -126,7 +126,10 @@ CanvasView::~CanvasView()
   delete _cairo;
 
   if (_crsurface)
-    cairo_surface_destroy(_crsurface);
+  {
+     cairo_surface_destroy(_crsurface);
+     _crsurface = NULL;
+  }
 }
 
 

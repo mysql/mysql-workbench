@@ -7,7 +7,8 @@
 #include "base/string_utilities.h"
 
 ValidationPanel::ValidationPanel()
-                : _label_box(0)
+                : Gtk::Box(Gtk::ORIENTATION_VERTICAL)
+                , _label_box(0)
                 , _label(_("<small>Validations</small>"))
 {
   _label.set_use_markup(true);
@@ -22,7 +23,7 @@ ValidationPanel::ValidationPanel()
   
   show_all();
 
-  std::vector<Gtk::CellRenderer*> cells = _tv.get_column(0)->get_cell_renderers();
+  std::vector<Gtk::CellRenderer*> cells = _tv.get_column(0)->get_cells();
   Gtk::CellRendererText* ct = dynamic_cast<Gtk::CellRendererText*>(cells[1]);
   ct->property_wrap_width() = 120;
   ct->property_wrap_mode() = Pango::WRAP_WORD;
@@ -48,15 +49,15 @@ void ValidationPanel::refresh(const bec::NodeId &node, int ocount)
 
 void ValidationPanel::size_request_slot(Gtk::Allocation& req)
 {   
-  std::vector<Gtk::CellRenderer*> cells = _tv.get_column(0)->get_cell_renderers();
+  std::vector<Gtk::CellRenderer*> cells = _tv.get_column(0)->get_cells();
   Gtk::CellRendererText* ct = dynamic_cast<Gtk::CellRendererText*>(cells[1]);
   ct->property_wrap_width() = req.get_width() - 20;
 }
 
-Gtk::HBox* ValidationPanel::notebook_label(Gtk::HBox* lbl)
+Gtk::Box* ValidationPanel::notebook_label(Gtk::Box* lbl)
 {
   if (!lbl)
-    lbl = new Gtk::HBox();
+    lbl = new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL);
 
   _label_box = lbl;
   _label_box->add(_icon);

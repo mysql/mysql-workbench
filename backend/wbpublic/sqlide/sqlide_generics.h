@@ -149,6 +149,20 @@ public:
 };
 
 
+class VarToBool : public boost::static_visitor<bool>
+{
+public:
+  result_type operator()(const bool &v) const { return v; }
+  result_type operator()(const null_t &v) const { return false; }
+
+  template<typename T>
+  result_type operator()(const T &v) const
+  {
+    return false;
+    //!throw std::runtime_error(std::string("Variant: wrong type: '")+typeid(T).name()+"' instead of '"+typeid(result_type).name()+"'");
+  }
+};
+
 class WBPUBLICBACKEND_PUBLIC_FUNC VarToLongDouble : public boost::static_visitor<long double>
 {
 public:

@@ -11,8 +11,8 @@ public:
   RectangleFigure(Layer *layer);
   
   virtual void draw_contents(CairoCtx *cr);
-  virtual void stroke_outline(CairoCtx *cr, float offset= 0);
-  virtual void stroke_outline_gl(float offset= 0);
+  virtual void stroke_outline(CairoCtx *cr, float offset= 0) const;
+  virtual void stroke_outline_gl(float offset= 0) const;
 
   virtual void draw_contents_gl();
   

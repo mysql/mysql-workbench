@@ -28,7 +28,6 @@
 #include "sqlide_form.h"
 #include "sqlide/wb_sql_editor_panel.h"
 
-DEFAULT_LOG_DOMAIN("UI")
 using base::strfmt;
 
 //==============================================================================
@@ -59,7 +58,7 @@ static const std::vector<bec::NodeId> selected_nodeids(GridView& g)
   entries.reserve(rows.size());
 
   for (base::const_range<std::vector<int> > it(rows); it; ++it)
-    entries.push_back(*it);
+    entries.push_back((bec::NodeId)*it);
 
   return entries;
 }
@@ -80,7 +79,9 @@ struct SigcBlocker
 //==============================================================================
 QueryOutputView::QueryOutputView(const SqlEditorForm::Ref& be, DbSqlEditorView *db_sql_editor_view)
           : _be(be)
+          , _top_box(Gtk::ORIENTATION_VERTICAL)
           , _action_output(be->log(), true, false)
+          , _history_box(Gtk::ORIENTATION_HORIZONTAL)
           , _entries_grid(be->history()->entries_model(), true, false)
           , _details_grid(be->history()->details_model(), true, false)
           , _db_sql_editor_view(db_sql_editor_view)
@@ -147,7 +148,7 @@ QueryOutputView::QueryOutputView(const SqlEditorForm::Ref& be, DbSqlEditorView *
 
 
   for (size_t i = 0; i < (sizeof(sections) / sizeof(const char* const)); ++i)
-    _mode.append_text(sections[i]);
+    _mode.append(sections[i]);
 
   _text_swnd.add(_text_output);
   _text_swnd.show_all();
@@ -170,7 +171,7 @@ QueryOutputView::QueryOutputView(const SqlEditorForm::Ref& be, DbSqlEditorView *
 
   _note.set_show_tabs(false);
 
-  Gtk::HBox  *mode_box = Gtk::manage(new Gtk::HBox());
+  Gtk::Box  *mode_box = Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL));
   Gtk::Label *spacer   = Gtk::manage(new Gtk::Label());
   mode_box->pack_start(_mode, false, true);
   mode_box->pack_start(*spacer, true, true);

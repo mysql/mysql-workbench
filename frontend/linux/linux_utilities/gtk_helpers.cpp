@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,7 +25,8 @@
 #include <gtkmm/stock.h>
 #include <gtkmm/combobox.h>
 #include <gtkmm/comboboxtext.h>
-#include <gtkmm/comboboxentrytext.h>
+#include <gtkmm/checkmenuitem.h>
+#include <gtkmm/separatormenuitem.h>
 #include <gtkmm/menu.h>
 #include <gtkmm/eventbox.h>
 #include <gtkmm/paned.h>
@@ -46,9 +47,9 @@ Glib::RefPtr<Gtk::ListStore> get_empty_model()
 }
 
 //------------------------------------------------------------------------------
-Gtk::HBox &create_icon_label(const std::string &icon, const std::string &text)
+Gtk::Box &create_icon_label(const std::string &icon, const std::string &text)
 {
-  Gtk::HBox *hbox= Gtk::manage(new Gtk::HBox(false, 0));
+  Gtk::Box *hbox= Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 0));
   
   Gtk::Image *image= Gtk::manage(new Gtk::Image(ImageCache::get_instance()->image_from_filename(icon)));
   Gtk::Label *label= Gtk::manage(new Gtk::Label(text));
@@ -238,13 +239,13 @@ void fill_combo_from_string_list(Gtk::ComboBox* combo, const std::vector<std::st
 }
 
 //------------------------------------------------------------------------------
-void fill_combo_from_string_list(Gtk::ComboBoxEntryText* combo, const std::vector<std::string>& list)
+void fill_combo_from_string_list(Gtk::ComboBoxText* combo, const std::vector<std::string>& list)
 {
   std::vector<std::string>::const_iterator it   = list.begin();
   std::vector<std::string>::const_iterator last = list.end();
 
   for (; last != it; ++it )
-    combo->append_text(*it);
+    combo->append(*it);
 }
 
 //------------------------------------------------------------------------------
@@ -261,9 +262,9 @@ static std::string file_chooser_impl(const bool is_for_save, const std::string &
 
   if (!filter.empty())
   {
-    Gtk::FileFilter filter_any;
+    Glib::RefPtr<Gtk::FileFilter> filter_any = Gtk::FileFilter::create();
     //filter_any.set_name("Any files");
-    filter_any.add_pattern(filter);
+    filter_any->add_pattern(filter);
     dialog.add_filter(filter_any);
   }
   const int result = dialog.run();
@@ -293,35 +294,6 @@ std::string save_file_chooser(const std::string &filter)
   return file_chooser_impl(true, filter); // true - is for save
 }
 
-//------------------------------------------------------------------------------
-static void expand_node(bec::TreeModel* tm, const bec::NodeId& node, Gtk::TreeView* tv)
-{
-  // Expand the node itself if needed
-  if (tm->is_expandable(node))
-  {
-    if (tm->is_expanded(node))
-    {
-      const int             node_depth = node.depth();
-      Gtk::TreeModel::Path  path;
-
-      for (int i = 0; i < node_depth; ++i)
-          path.push_back(node[i]);
- 
-      tv->expand_row(path, true);
-    }
-
-    // Apply the same thing for all node's children
-    const int children_count = tm->count_children(node);
-    if ( children_count > 0 )
-    {
-      for (int i = 0; i < children_count; ++i)
-      {
-        bec::NodeId child = tm->get_child(node, i);
-        expand_node(tm, child, tv);
-      }
-    }
-  }
-}
 //------------------------------------------------------------------------------
 //std::string run_string_dialog(const std::string& title, const std::string& init_value)
 //{
@@ -429,7 +401,7 @@ Gtk::Widget *create_closeable_tab(const Glib::ustring &title,
                                   const sigc::slot<void> &close_callback,
                                   Gtk::Label **title_label)
 {
-  Gtk::HBox *hbox= Gtk::manage(new Gtk::HBox(false, 1));
+  Gtk::Box *hbox= Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 1));
   Gtk::Label *label= Gtk::manage(new Gtk::Label("\342\234\225"));
   Gtk::EventBox *evbox= Gtk::manage(new Gtk::EventBox());
   Gtk::Label *text_label= Gtk::manage(new Gtk::Label(title));
@@ -540,6 +512,13 @@ void gtk_reparent_realized(Gtk::Widget *widget, Gtk::Container *new_parent)
   widget->unreference();
 }
 
+Gdk::RGBA color_to_rgba(Gdk::Color c)
+{
+  Gdk::RGBA rgba;
+  rgba.set_rgba(c.get_red_p(), c.get_green_p(), c.get_blue_p());
+  return rgba;
+}
+
 //------------------------------------------------------------------------------
 void PanedConstrainer::size_alloc(Gtk::Allocation &_alloc)
 {
@@ -595,8 +574,7 @@ PanedConstrainer::PanedConstrainer(Gtk::Paned *pan) : _pan(pan), _vertical(true)
   if (_pan)
   {
 
-    Gtk::VPaned* vpan = dynamic_cast<Gtk::VPaned*>(pan);
-    if (vpan)
+    if (pan->get_orientation() == Gtk::ORIENTATION_VERTICAL)
       _vertical = true;
     else
       _vertical = false;

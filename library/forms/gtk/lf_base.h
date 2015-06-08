@@ -21,16 +21,14 @@
 
 #include <string>
 #include <mforms/base.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #include <gtkmm.h>
+#pragma GCC diagnostic pop
 #include "base/trackable.h"
 
 namespace mforms {
 namespace gtk {
-  struct GtkAutoLock
-  {
-    GtkAutoLock() {gdk_threads_enter();}
-    ~GtkAutoLock() {gdk_threads_leave();}
-  };
 
   class ObjectImpl : public sigc::trackable, public base::trackable
   {
