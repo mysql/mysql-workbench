@@ -7,13 +7,7 @@ import missing_info
 skip_list = set(['version', 'help', 'license', 'version_comment', 'version_compile_machine', 'version_compile_os'])
 
 # variables that should be also treated as mycnf options
-mycnf_vars = ['old_passwords', 
-           'validate_password_dictionary_file', 
-           'validate_password_length',
-           'validate_password_mixed_case_count',
-           'validate_password_number_count',
-           'validate_password_policy',
-           'validate_password_special_char_count']
+mycnf_vars = []
 
 # table_type is a synonym to storage_engine
 OPTIONS_TO_IGNORE = ["default-table-type", "new"]
