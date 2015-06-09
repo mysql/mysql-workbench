@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1019,16 +1019,11 @@ std::string Object::repr() const
 
 bool Object::is_instance(MetaClass *metaclass) const
 {
-  if (!this)
-    return false;
   return _metaclass->is_a(metaclass);
 }
 
 bool Object::is_instance(const std::string &name) const
 {
-  if (!this)
-    return false;
-
   return _metaclass->is_a(get_grt()->get_metaclass(name));
 }
 
