@@ -442,7 +442,10 @@ def startCommandLineClientForConnection(conn):
     elif platform.system().lower() == "windows":
         if not bundled_client_path:
             bundled_client_path = mforms.App.get().get_executable_path("mysql.exe")
-        command = """start cmd /C %s -u%s -h%s -P%i %s -p %s""" % (bundled_client_path.replace(" ", "\\ "), user, host, port, socket, schema)
+
+        # call mysql client, and if it exits with error, pause so that the user can see what went wrong, before closing the window
+        # (the ideal way would have been to do what we do for Linux, but Windows shell is too limited)
+        command = """start cmd /C "%s -u%s -h%s -P%i %s -p %s || pause" """ % (bundled_client_path.replace(" ", "\\ "), user, host, port, socket, schema)
         subprocess.Popen(command, shell = True)
     else:
         if not bundled_client_path:
@@ -450,8 +453,10 @@ def startCommandLineClientForConnection(conn):
         if not bundled_client_path:
             bundled_client_path = "mysql"
         command = """\\"%s\\" \\"-u%s\\" \\"-h%s\\" -P%i %s -p %s""" % (bundled_client_path, user, host, port, socket, schema)
-        
-        subprocess.call(["/bin/sh", "-c", "%s -e \"%s\" &" % (get_linux_terminal_program(), command)])
+
+        # call mysql client in a loop until either: 1. it exits with no error, or 2. user exits with Ctrl+C.
+        # This is necessary because if the user enters wrong password, the window closes too quick for the user to see what's going on.
+        subprocess.call(["/bin/sh", "-c", "%s -e \"while :; do %s && break || ( echo 'Press Enter to retry or Ctrl+C to quit'; read; ); done\" &" % (get_linux_terminal_program(), command)])
 
 
 if sys.platform == "linux2":
