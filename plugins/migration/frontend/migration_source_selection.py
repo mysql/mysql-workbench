@@ -298,6 +298,7 @@ class SourceMainView(SourceWizardPage):
         self._store_connection_check = mforms.newCheckBox()
         self._store_connection_check.set_text("Store connection for future usage as ")
         self._store_connection_check.add_clicked_callback(self._toggle_store_connection)
+        self._store_connection_check.set_size(270, -1)
         box.add(self._store_connection_check, False, False)
         self._store_connection_entry = mforms.newTextEntry()
         box.add(self._store_connection_entry, True, True)
