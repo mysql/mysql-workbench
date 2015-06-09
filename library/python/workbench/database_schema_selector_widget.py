@@ -124,7 +124,7 @@ class DatabaseSchemaSelector(mforms.Box):
         helper_buttons_box.set_spacing(12)
 
         self.select_summary_label = mforms.newLabel('')
-        helper_buttons_box.add(self.select_summary_label, True, True)
+        helper_buttons_box.add(self.select_summary_label, False, True)
 
         if self.ui_settings['general']['show_unselect_all_button']:
             self.unselect_all_btn = mforms.newButton()
