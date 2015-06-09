@@ -2394,10 +2394,7 @@ std::string fillRoutineDetails(MySQLRecognizerTreeWalker &walker, db_mysql_Routi
 
   // A UDF is also a function and will be handled as such here.
   walker.skip_if(AGGREGATE_SYMBOL);
-  bool is_function = false;
   if (walker.is(FUNCTION_SYMBOL))
-    is_function = true;
-  if (is_function)
     routine->routineType("function");
   else
     routine->routineType("procedure");
@@ -2522,7 +2519,7 @@ std::string fillRoutineDetails(MySQLRecognizerTreeWalker &walker, db_mysql_Routi
 std::pair<std::string, std::string> getRoutineNameAndType(ParserContext::Ref context,
   const std::string &sql)
 {
-  std::pair<std::string, std::string> result = { "unkown", "unknown" };
+  std::pair<std::string, std::string> result = { "unknown", "unknown" };
   std::shared_ptr<MySQLScanner> scanner = context->createScanner(sql);
 
   if (scanner->token_type() != CREATE_SYMBOL)
@@ -2561,6 +2558,7 @@ std::pair<std::string, std::string> getRoutineNameAndType(ParserContext::Ref con
     }
   }
 
+  scanner->skipIf(AGGREGATE_SYMBOL);
   switch (scanner->token_type())
   {
     case PROCEDURE_SYMBOL:
@@ -2569,18 +2567,8 @@ std::pair<std::string, std::string> getRoutineNameAndType(ParserContext::Ref con
       break;
 
     case FUNCTION_SYMBOL: // Both normal function and UDF.
+      result.second = "function";
       scanner->next();
-      if (scanner->look_around(1, true) == UDF_NAME_TOKEN)
-        result.second = "udf";
-      else
-        if (scanner->look_around(1, true) == FUNCTION_NAME_TOKEN)
-          result.second = "function";
-      break;
-
-    case AGGREGATE_SYMBOL:
-      result.second = "udf";
-      scanner->next();
-      scanner->skipIf(FUNCTION_SYMBOL);
       break;
   }
   
@@ -2595,6 +2583,9 @@ std::pair<std::string, std::string> getRoutineNameAndType(ParserContext::Ref con
         result.first = scanner->token_text();
     }
   }
+
+  if (scanner->is(RETURNS_SYMBOL))
+    result.second = "udf";
 
   return result;
 }
@@ -2708,19 +2699,19 @@ size_t MySQLParserServicesImpl::parseRoutines(ParserContext::Ref context,
   int syntax_error_counter = 1;
   for (auto iterator = ranges.begin(); iterator != ranges.end(); ++iterator)
   {
-    std::string routine_sql = sql.substr(iterator->first, iterator->second);
-    context->recognizer()->parse(routine_sql.c_str(), routine_sql.length(), true, PuCreateRoutine);
+    std::string routineSQL = sql.substr(iterator->first, iterator->second);
+    context->recognizer()->parse(sql.c_str() + iterator->first, iterator->second, true, PuCreateRoutine);
     size_t local_error_count = context->recognizer()->error_info().size();
     error_count += local_error_count;
 
     // Before filling a routine we need to know if there's already one with that name in the schema.
     // Hence we first extract the name and act based on that.
     MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
-    std::pair<std::string, std::string> values = getRoutineNameAndType(context, sql);
+    std::pair<std::string, std::string> values = getRoutineNameAndType(context, routineSQL);
 
     // If there's no usable info from parsing preserve at least the code and generate a
     // name for the routine using a counter.
-    if (values.first.empty())
+    if (values.first == "unknown" || values.second == "unknown")
     {
       // Create a new routine instance.
       db_mysql_RoutineRef routine = db_mysql_RoutineRef(group->get_grt());
@@ -2732,10 +2723,10 @@ size_t MySQLParserServicesImpl::parseRoutines(ParserContext::Ref context,
       routine->name(*group->name() + "_SYNTAX_ERROR_" + base::to_string(syntax_error_counter++));
       routine->routineType("unknown");
       routine->modelOnly(1);
-      routine->sqlDefinition(base::trim(routine_sql));
+      routine->sqlDefinition(base::trim(routineSQL));
 
       routines.insert(routine);
-  }
+    }
     else
     {
       db_mysql_RoutineRef routine;
@@ -2779,7 +2770,7 @@ size_t MySQLParserServicesImpl::parseRoutines(ParserContext::Ref context,
         routine->modelOnly(1);
       }
 
-      routine->sqlDefinition(base::trim(routine_sql));
+      routine->sqlDefinition(base::trim(routineSQL));
       routine->lastChangeDate(base::fmttime(0, DATETIME_FMT));
 
       // Finally add the routine to the group if it isn't already there.
