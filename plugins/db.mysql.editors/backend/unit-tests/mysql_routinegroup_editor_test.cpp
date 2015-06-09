@@ -155,7 +155,7 @@ TEST_FUNCTION(30)
 {
 const char* routine_sql =
   "DELIMITER //" NL
-  "CR!!! FUNCTION get_count(less_than INT, greather_than INT) RETURNS INT" NL
+  "CREATE FUNCTION get_count(less_than INT, greather_than INT) RETURNS ..." NL
   "    DETERMINISTIC" NL
   "    READS SQL DATA" NL
   "BEGIN" NL
@@ -177,7 +177,7 @@ const char* routine_sql =
   "    WHERE id > less_than AND id < greather_than;" NL
   "  RETURN res;" NL
   "END //" NL
-  "CREATE FUNCTION get_count2(less_than INT, greather_than INT) RETURNS INT" NL
+  "CREATE TABLE get_count2(less_than INT, greather_than INT) RETURNS INT" NL
   "    DETERMINISTIC" NL
   "    READS SQL DATA" NL
   "-- BEGIN" NL
@@ -199,11 +199,12 @@ const char* routine_sql =
 
   std::string names[] = {"get_count_SYNTAX_ERROR", "get_count1", "rg_SYNTAX_ERROR_1"};
   assure_equal(model.routineGroup->routines().count(), sizeof(names) / sizeof(names[0]));
-  for (size_t i = 0, size = model.routineGroup->routines().count(); i < size; i++)
+
+  size_t i = 0;
+  for (db_RoutineRef routine : model.routineGroup->routines())
   {
-    db_RoutineRef r= model.routineGroup->routines().get(i);
-    std::string name= r->name();
-    assure_equal(names[i], name);
+    std::string name = routine->name();
+    assure_equal(name, names[i++]);
   }
 
   // Read back the sql from the group to see how it changed.
@@ -217,20 +218,20 @@ const char* routine_sql =
   rg.use_sql(processed_sql);
 
   assure_equal(model.routineGroup->routines().count(), sizeof(names) / sizeof(names[0]));
-  for (size_t i = 0, size = model.routineGroup->routines().count(); i < size; i++)
+  i = 0;
+  for (db_RoutineRef routine : model.routineGroup->routines())
   {
-    db_RoutineRef r = model.routineGroup->routines().get(i);
-    std::string name = r->name();
-    assure_equal(names[i], name);
+    std::string name = routine->name();
+    assure_equal(name, names[i++]);
   }
 
-  std::string twice_processed_sql = rg.get_sql();
-  std::vector<std::string> twice_processed_routines = base::split(twice_processed_sql, "\n\n");
-  ensure_equals("Lines unintentionally removed", 5U, twice_processed_routines.size());
+  std::string double_processed_sql = rg.get_sql();
+  std::vector<std::string> double_processed_routines = base::split(double_processed_sql, "\n\n");
+  ensure_equals("Lines unintentionally removed", 5U, double_processed_routines.size());
 
   // Now compares each routine to discard any difference
   for (size_t index = 0; index < processed_routines.size(); index++)
-    ensure_equals("Routine unintentionally changed", processed_routines[index], twice_processed_routines[index]);
+    ensure_equals("Routine unintentionally changed", processed_routines[index], double_processed_routines[index]);
 }
 
 END_TESTS

@@ -193,7 +193,6 @@ std::string MySQLScanner::token_text()
 
 void MySQLScanner::next(bool skip_hidden)
 {
-  pANTLR3_COMMON_TOKEN token;
   while (d->_token_index < d->_tokens.size() - 1)
   {
     ++d->_token_index;
@@ -329,12 +328,13 @@ uint32_t MySQLScanner::look_around(int offset, bool ignore_hidden)
   }
   else
   {
-    while (index > 0 && offset > 0)
+    ssize_t count = (ssize_t)d->_tokens.size();
+    while (index < count && offset > 0)
     {
       --offset;
       if (ignore_hidden)
       {
-        while (++index >= 0 && d->_tokens[index]->channel != 0)
+        while (++index < count && d->_tokens[index]->channel != 0)
           ;
       }
       else
