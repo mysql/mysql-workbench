@@ -26,7 +26,6 @@
 
 #include <errno.h>
 #include <stdlib.h>
-#include <iconv.h>
 
 #include <vector>
 #include <set>
@@ -230,7 +229,6 @@ class ODBCCopyDataSource : public CopyDataSource
 
   char *_blob_buffer;
   char *_utf8_blob_buffer;
-  iconv_t _iconv;
 
   bool _stmt_ok;
   bool _force_utf8_input;
