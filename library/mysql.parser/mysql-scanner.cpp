@@ -220,6 +220,22 @@ void MySQLScanner::previous(bool skip_hidden)
 //--------------------------------------------------------------------------------------------------
 
 /**
+ * Advances to the next token if the current is of the given type. Returns true if that is the case.
+ */
+bool MySQLScanner::skipIf(uint32_t token)
+{
+  if (d->_tokens[d->_token_index]->type == token)
+  {
+    next();
+    return true;
+  }
+
+  return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
  * Returns the position in the token vector.
  */
 size_t MySQLScanner::position()
@@ -329,6 +345,13 @@ uint32_t MySQLScanner::look_around(int offset, bool ignore_hidden)
       return ANTLR3_TOKEN_INVALID;
     return d->_tokens[index]->type;
   }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool MySQLScanner::is(uint32_t type)
+{
+  return d->_tokens[d->_token_index]->type == type;
 }
 
 //--------------------------------------------------------------------------------------------------

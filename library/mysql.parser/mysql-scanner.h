@@ -44,14 +44,16 @@ public:
   size_t token_channel();
   std::string token_text();
 
-  void next(bool skip_hidden);
-  void previous(bool skip_hidden);
+  void next(bool skip_hidden = true);
+  void previous(bool skip_hidden = true);
+  bool skipIf(uint32_t token);
 
   size_t position();
   void seek(size_t position);
   void seek(size_t line, size_t offset);
   uint32_t look_around(int offset, bool ignore_hidden);
 
+  bool is(uint32_t type);
   bool is_keyword();
   bool is_relation();
   bool is_number();

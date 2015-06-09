@@ -98,10 +98,11 @@ void ParserContext::update_filtered_charsets(long version)
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLScanner* ParserContext::create_scanner(const std::string &text)
+std::shared_ptr<MySQLScanner> ParserContext::createScanner(const std::string &text)
 {
   long server_version = short_version(_version);
-  return new MySQLScanner(text.c_str(), text.size(), true, server_version, _sql_mode, _filtered_charsets);
+  return std::shared_ptr<MySQLScanner>(new MySQLScanner(text.c_str(), text.size(), true, server_version,
+    _sql_mode, _filtered_charsets));
 }
 
 //--------------------------------------------------------------------------------------------------

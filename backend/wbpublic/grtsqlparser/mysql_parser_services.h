@@ -63,8 +63,7 @@ public:
 
   MySQLRecognizer *recognizer() { return _recognizer; };
   MySQLSyntaxChecker *syntax_checker() { return _syntax_checker; };
-  MySQLScanner *create_scanner(const std::string &text); // The scanner uses the same version etc as the other recognizers
-                                                         // and must be freed by the caller.
+  std::shared_ptr<MySQLScanner> createScanner(const std::string &text); // The scanner uses the same version etc as the other recognizers.
   std::shared_ptr<MySQLQueryIdentifier> createQueryIdentifier();
 
   void use_sql_mode(const std::string &mode);
