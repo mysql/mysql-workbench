@@ -1019,37 +1019,11 @@ std::string Object::repr() const
 
 bool Object::is_instance(MetaClass *metaclass) const
 {
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wundefined-bool-conversion"
-#endif
-  if (!this)
-  {
-    assert(true);
-    return false;
-  }
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
-
   return _metaclass->is_a(metaclass);
 }
 
 bool Object::is_instance(const std::string &name) const
 {
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wundefined-bool-conversion"
-#endif
-  if (!this)
-  {
-    assert(true);
-    return false;
-  }
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
-
   return _metaclass->is_a(get_grt()->get_metaclass(name));
 }
 
