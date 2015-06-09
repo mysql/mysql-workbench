@@ -2515,39 +2515,87 @@ std::string fillRoutineDetails(MySQLRecognizerTreeWalker &walker, db_mysql_Routi
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Tries to find the name of a routine from the parse tree by examining the possible subtrees.
+ * Tries to find the name and schema of a routine using a simple scan, as this is called only in error
+ * case and we have no AST to walk through.
  * Returns a tuple with name and the found routine type. Both can be empty.
  */
-std::pair<std::string, std::string> get_routine_name_and_type(MySQLRecognizerTreeWalker &walker)
+std::pair<std::string, std::string> getRoutineNameAndType(ParserContext::Ref context,
+  const std::string &sql)
 {
-  std::pair<std::string, std::string> result;
+  std::pair<std::string, std::string> result = { "unkown", "unknown" };
+  std::shared_ptr<MySQLScanner> scanner = context->createScanner(sql);
 
-  if (walker.advance_to_type(PROCEDURE_NAME_TOKEN, true))
+  if (scanner->token_type() != CREATE_SYMBOL)
+    return result;
+
+  // Scan definer clause. Handling here is similar to getDefiner() only that we deal here with
+  // potentially wrong syntax, have a scanner instead of the walker and don't need the definer value.
+  scanner->next();
+  if (scanner->is(DEFINER_SYMBOL))
   {
-    result.second = "procedure";
-    Identifier identifier = getIdentifier(walker);
-    result.first = identifier.second;
-  }
-  else
-  {
-    walker.reset();
-    if (walker.advance_to_type(FUNCTION_NAME_TOKEN, true))
+    scanner->next();
+    scanner->skipIf(EQUAL_OPERATOR);
+
+    if (scanner->is(CURRENT_USER_SYMBOL))
     {
-      result.second = "function";
-      Identifier identifier = getIdentifier(walker);
-      result.first = identifier.second;
+      scanner->next();
+      if (scanner->skipIf(OPEN_PAR_SYMBOL))
+        scanner->skipIf(CLOSE_PAR_SYMBOL);
     }
     else
     {
-      walker.reset();
-      if (walker.advance_to_type(UDF_NAME_TOKEN, true))
+      // A user@host entry.
+      if (scanner->is_identifier() || scanner->is(SINGLE_QUOTED_TEXT))
+        scanner->next();
+      switch (scanner->token_type())
       {
-        result.second = "udf";
-        Identifier identifier = getIdentifier(walker);
-        result.first = identifier.second;
+        case AT_TEXT_SUFFIX:
+          scanner->next();
+          break;
+        case AT_SIGN_SYMBOL:
+          scanner->next();
+          if (scanner->is_identifier() || scanner->is(SINGLE_QUOTED_TEXT))
+            scanner->next();
+          break;
       }
     }
   }
+
+  switch (scanner->token_type())
+  {
+    case PROCEDURE_SYMBOL:
+      result.second = "procedure";
+      scanner->next();
+      break;
+
+    case FUNCTION_SYMBOL: // Both normal function and UDF.
+      scanner->next();
+      if (scanner->look_around(1, true) == UDF_NAME_TOKEN)
+        result.second = "udf";
+      else
+        if (scanner->look_around(1, true) == FUNCTION_NAME_TOKEN)
+          result.second = "function";
+      break;
+
+    case AGGREGATE_SYMBOL:
+      result.second = "udf";
+      scanner->next();
+      scanner->skipIf(FUNCTION_SYMBOL);
+      break;
+  }
+  
+  if (scanner->is_identifier())
+  {
+    result.first = scanner->token_text();
+    scanner->next();
+    if (scanner->skipIf(DOT_SYMBOL))
+    {
+      // Qualified identifier.
+      if (scanner->is_identifier())
+        result.first = scanner->token_text();
+    }
+  }
+
   return result;
 }
 
@@ -2594,7 +2642,7 @@ size_t MySQLParserServicesImpl::parseRoutine(ParserContext::Ref context,
   else
   {
     // Finished with errors. See if we can get at least the routine name out.
-    std::pair<std::string, std::string> values = get_routine_name_and_type(walker);
+    std::pair<std::string, std::string> values = getRoutineNameAndType(context, sql);
     routine->name(values.first + "_SYNTAX_ERROR");
     routine->routineType(values.second);
 
@@ -2668,7 +2716,7 @@ size_t MySQLParserServicesImpl::parseRoutines(ParserContext::Ref context,
     // Before filling a routine we need to know if there's already one with that name in the schema.
     // Hence we first extract the name and act based on that.
     MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
-    std::pair<std::string, std::string> values = get_routine_name_and_type(walker);
+    std::pair<std::string, std::string> values = getRoutineNameAndType(context, sql);
 
     // If there's no usable info from parsing preserve at least the code and generate a
     // name for the routine using a counter.

@@ -2559,7 +2559,7 @@ compound_statement:
 	| cursor_close
 	
 	| statement
-	| {SERVER_VERSION >= 50600}? => get_diagnostics
+	| {SERVER_VERSION >= 50604}? => get_diagnostics
 	| {SERVER_VERSION >= 50500}? => signal_statement
 	| {SERVER_VERSION >= 50500}? => resignal_statement
 ;
@@ -4194,7 +4194,7 @@ FROM_SYMBOL:							'FROM';
 FULL_SYMBOL:							'FULL';								// SQL-2003-R
 FULLTEXT_SYMBOL:						'FULLTEXT';
 FUNCTION_SYMBOL:						'FUNCTION';							// SQL-2003-R
-GET_SYMBOL:								'GET'								{ $type = TYPE_FROM_VERSION(50600, $type); };
+GET_SYMBOL:								'GET'								{ $type = TYPE_FROM_VERSION(50604, $type); };
 GENERAL_SYMBOL:							'GENERAL'							{ $type = TYPE_FROM_VERSION(50500, $type); };
 GENERATED_SYMBOL:						'GENERATED'							{ $type = TYPE_FROM_VERSION(50707, $type); };
 GROUP_REPLICATION_SYMBOL:				'GROUP_REPLICATION'					{ $type = TYPE_FROM_VERSION(50707, $type); };
