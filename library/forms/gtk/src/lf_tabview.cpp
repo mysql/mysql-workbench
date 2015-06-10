@@ -147,10 +147,10 @@ int mforms::gtk::TabViewImpl::add_page(::mforms::TabView *self, ::mforms::View *
         label= Gtk::manage(new MyActiveLabel(self, page, caption, sigc::bind(sigc::mem_fun(cb, &TabViewImpl::close_tab_clicked), page)));
       else
         label= Gtk::manage(new Gtk::Label(caption));
-      page_index_after_insert = cb->_nb->append_page(*widget_wrapper->get_outer(), *label);
-      label->show();
-      widget_wrapper->get_outer()->set_data("TabViewLabel", label);
       widget_wrapper->get_outer()->show();
+      page_index_after_insert = cb->_nb->append_page(*widget_wrapper->get_outer(), *label);
+      widget_wrapper->get_outer()->set_data("TabViewLabel", label);
+
       if (cb->_reorderable)
         cb->_nb->set_tab_reorderable(*widget_wrapper->get_outer(), true);
     }
