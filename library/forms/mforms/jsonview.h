@@ -18,27 +18,11 @@
  */
 
 #pragma once
-
 #include "mforms/panel.h"
-
 
 namespace JsonParser {
   
-  enum DataType
-  {
-    VInt,
-    VString,
-    VDouble,
-    VOobject,
-    VAarray,
-    VEmpty
-  };
-
-  template <typename T> class JsonTrivialType;
-  typedef JsonTrivialType<double> Number;
-  typedef JsonTrivialType<bool> Boolean;
-  typedef JsonTrivialType<std::string> String;
-
+  enum DataType { VInt, VBoolean, VString, VDouble, VObject, VArray, VEmpty };
   class JsonValue;
   class MFORMS_EXPORT JsonObject
   {
@@ -53,7 +37,9 @@ namespace JsonParser {
     JsonObject();
     // move operations
     JsonObject(JsonObject&& val);
-    JsonObject& operator=(JsonObject&& val);
+    JsonObject(const JsonObject& other) : _data(other._data) { }
+    JsonObject &operator=(JsonObject &&val);
+    JsonObject &operator=(const JsonObject &val) { return *this; }
 
     // return iterator for begining of sequence
     Iterator begin();
@@ -96,7 +82,12 @@ namespace JsonParser {
 
     // Default constructor
     JsonArray();
-
+    JsonArray(const JsonArray &other) : _data(other._data) { }
+    JsonArray& operator=(const JsonArray &other)
+    {
+      _data = other._data;
+      return *this;
+    }
     // move operations
     JsonArray(JsonArray &&other);
     JsonArray& operator=(JsonArray &&other);
@@ -132,7 +123,7 @@ namespace JsonParser {
     // insert value at pos
     Iterator insert(Iterator pos, const JsonValue& value);
     // insert count * value at pos
-    void insert(Iterator pos, SizeType count, const JsonValue& value);
+    //void insert(Iterator pos, SizeType count, const JsonValue& value);
 
     // insert element at end
     void pushBack(const ValueType& value);
@@ -141,158 +132,145 @@ namespace JsonParser {
     Container _data;
   };
 
-  template <typename T>
-  class JsonTrivialType
-  {
-  public:
-    JsonTrivialType(const T& t = T()) {}
-
-    operator T&() 
-    {
-
-    }
-    operator const T&() const 
-    {
-      return _value;
-    }
-
-    T& Value() 
-    {
-      return _value;
-    }
-
-    const T& Value() const 
-    {
-      return _value;
-    }
-
-    bool operator == (const JsonTrivialType<T>& trivial) const 
-    {
-      return trivial._value == _value;
-    }
-
-  private:
-    T _value;
-  };
-
   class MFORMS_EXPORT JsonValue
   {
-    // JSON value
     
-    public:
-      // Default constructor
-      JsonValue();
-      // Copy operations
-      JsonValue(const JsonValue& rhs);
-      JsonValue& operator=(const JsonValue& rhs);
-      // move operations
-      JsonValue& operator=(JsonValue&& rhs);
-      JsonValue(JsonValue&& rhs);
+  public:
+    JsonValue();
+    JsonValue(const JsonValue& rhs);
+    JsonValue& operator=(const JsonValue& rhs);
+    JsonValue& operator=(JsonValue&& rhs);
+    JsonValue(JsonValue&& rhs);
 
-      // construct from std::string
-      JsonValue(const std::string& val);
-      JsonValue(std::string&& val);
-      // construct from c string pointer
-      JsonValue(const char* val);
-      // construct from bool
-      JsonValue(bool val);
-      // construct from int
-      JsonValue(int val);
-      // construct from double
-      JsonValue(double val);
-      // construct from JsonObject
-      JsonValue(const JsonObject&& val);
-      JsonValue(JsonObject&& val);
-      // // construct from JsonArray
-      JsonValue(const JsonArray &val);
-      JsonValue(const JsonArray&& val);
+    explicit JsonValue(const std::string& val);
+    explicit JsonValue(std::string&& val);
+    explicit JsonValue(const char* val);
+    explicit JsonValue(bool val);
+    explicit JsonValue(int val);
+    explicit JsonValue(double val);
+    explicit JsonValue(const JsonObject& val);
+    explicit JsonValue(JsonObject&& val);
+    explicit JsonValue(const JsonArray &val);
+    explicit JsonValue(JsonArray &&val);
 
-      // return type of value
-      DataType getType() const;
+    // access function
+    double getDouble() const;
+    int getInt() const;
+    void setNumber(double val);
 
-      // test for equality
-      bool operator==(const JsonValue &rhs) const;
-      // test for inequality
-      bool operator!=(const JsonValue &rhs) const;
+    bool getBool() const;
+    void setBool(bool val);
 
+    const std::string& getString() const;
+    void setString(const std::string& val);
 
-      // access function
-      double getDouble() const;
-      void setDouble(double val);
+    operator JsonObject () const;
+    JsonObject& getObject();
+    void setObject(const JsonObject& val);
 
-      int getInt() const;
-      void setInt(int val);
+    operator JsonArray () const;
+    JsonArray& getArray();
+    void setArray(const JsonArray& val);
 
-      bool getBool() const;
-      void setBool(bool val);
+    void setType(DataType type);
+    DataType getType() const;
 
-      const std::string& getString() const;
-      void setString(const std::string& val);
-
-      operator JsonObject () const;
-      const JsonObject& getObject() const;
-      void setObject(const JsonObject& val);
-
-      operator JsonArray () const;
-      const JsonArray& getArray() const;
-      void setArray(const JsonArray& val);
-
-    private:
-      Number _double;
-      Boolean _bool;
-      String _string;
-      JsonObject _object;
-      JsonArray _array;
-      DataType _type;
-    };
- 
-};
-
-
-namespace mforms {
-  enum JsonViewType
-  {
-    /// <summary> 
-    /// Json editor with tree tabs texeditor, treeview, gridview
-    /// </summary>
-    JsonTabControl = 0,
-    /// <summary> 
-    /// One tab JSON text ditor
-    /// </summary>
-    JsonTextControl,
-    /// <summary> 
-    /// One tab JSON tree view editor
-    /// </summary>
-    JsonTreeControl,
-    /// <summary> 
-    /// One tab JSON grid view editor
-    /// </summary>
-    JsonGridControl,
-    
+  private:
+    double _double;
+    bool _bool;
+    std::string _string;
+    JsonObject _object;
+    JsonArray _array;
+    DataType _type;
   };
 
-  /// <summary>
-  /// Json view base class definition.
-  /// <summary>
+  class MFORMS_EXPORT ParserException : public std::exception
+  {
+  public:
+    ParserException(const std::string& message) : std::exception(message.c_str()) {}
+  };
+
+  class MFORMS_EXPORT JsonReader : public boost::noncopyable
+  {
+    struct JsonToken
+    {
+      enum JsonTokenType { JsonTokenString, JsonTokenNumber, JsonTokenBoolean, JsonTokenEmpty, JsonTokenObjectStart,
+        JsonTokenObjectEnd, JsonTokenArrayStart, JsonTokenArrayEnd, JsonTokenNext, JsonTokenAssign, };
+      JsonToken(JsonTokenType type, const std::string& value) : _type(type), _value(value) { }
+      JsonTokenType getType() const { return _type;  }
+      const std::string &getValue() const { return _value; }
+    private:
+      JsonTokenType _type;
+      std::string _value;
+    };
+  public:
+    typedef std::vector<JsonToken> Tokens;
+    typedef Tokens::const_iterator TokensConstIterator;
+    static void read(const std::string &str, JsonValue &value);
+    explicit JsonReader(const std::string &str);
+
+  private:
+    char peek();
+    bool eos();
+    void eatWhitespace();
+    void moveAhead();
+    static bool isWhiteSpace(char c);
+    std::string getJsonNumber();
+    std::string getJsonString();
+    bool match(const std::string &text);
+    bool match(JsonToken::JsonTokenType type, bool skip = false, bool mustMach = true);
+    void checkJsonNull();
+    std::string getJsonBoolean();
+    void scan();
+    void parse(JsonObject &obj);
+    void parseNumber(JsonValue& value);
+    void parseBoolean(JsonValue& value);
+    void parseString(JsonValue& value);
+    void parseEmpty(JsonValue& value);
+    void parseObject(JsonValue& value);
+    void parseArray(JsonValue& value);
+    void parse(JsonValue &value);
+
+    // members
+    std::string _jsonText;
+    std::string::size_type _actualPos;
+    Tokens _tokens;
+    TokensConstIterator _tokenIterator;
+    TokensConstIterator _tokenEnd;
+  };
+
+  class MFORMS_EXPORT JsonWriter : public boost::noncopyable
+  {
+    //not implemented yet
+    static bool write(const std::string &/*str*/, JsonValue &/*value*/)
+    {
+      return true;
+    }
+  };
+};
+
+/**
+* @brief A Json view tab control with tree diffrent view text, tree and grid.
+*
+**/
+namespace mforms {
+   /**
+   * @brief Json view base class definition.
+   **/
   class JsonBaseView : public Panel
   {
   public:
     JsonBaseView();
     virtual ~JsonBaseView();
     boost::signals2::signal<void()>* signalChanged();
-    //void setText(const std::string &text);
-    ///void setJson(const JsonParser::JsonValue &val);
-    //const std::string &getText() const;
-    //const JsonParser::JsonValue &getJson() const;
-
   protected:
     boost::signals2::signal<void()> _signalChanged;
   };
 
+  /**
+  * @brief Json text view control class definition.
+  **/
   class CodeEditor;
-  /// <summary>
-  /// Json text view control class definition.
-  /// <summary>
   class JsonTextView : public JsonBaseView
   {
   public:
@@ -305,9 +283,9 @@ namespace mforms {
     std::shared_ptr<CodeEditor> _textEditor;
   };
 
-  /// <summary>
-  /// Json tree view control class definition.
-  /// <summary>
+  /**
+  * @brief Json tree view control class definition.
+  **/
   class TreeNodeView;
   class JsonTreeView : public JsonBaseView
   {
@@ -319,9 +297,9 @@ namespace mforms {
     std::shared_ptr<TreeNodeView> _treeView;
   };
 
-  /// <summary>
-  /// Json grid view control class definition.
-  /// <summary>
+  /**
+  * @brief Json grid view control class definition.
+  **/
   class JsonGridView : public JsonBaseView
   {
   public:
@@ -329,10 +307,9 @@ namespace mforms {
     virtual ~JsonGridView();
   };
 
-
-  /// <summary>
-  /// Json tab view control class definition.
-  /// <summary>
+  /**
+  * @brief Json tab view control class definition.
+  **/
   class TabView;
   class MFORMS_EXPORT JsonTabView : public Panel
   {
@@ -346,11 +323,8 @@ namespace mforms {
     void setText(const std::string &text);
    // const std::string &getText() const;
 
-    
-
   private:
     void textViewTextChanged();
-
     std::shared_ptr<JsonTextView> _textView;
     std::shared_ptr<JsonTreeView> _treeView;
     std::shared_ptr<JsonGridView> _gridView;
