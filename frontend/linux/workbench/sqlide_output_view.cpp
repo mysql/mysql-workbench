@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -197,12 +197,16 @@ QueryOutputView::~QueryOutputView()
 bool QueryOutputView::on_query_tooltip(int x, int y, bool keyboard_tooltip, const Glib::RefPtr<Gtk::Tooltip>& tooltip)
 {
   Gtk::TreePath path;
-  if (_action_output.get_path_at_pos(x, y, path))
+  int bx, by;
+  _action_output.convert_widget_to_bin_window_coords(x, y, bx, by);
+  if (_action_output.get_path_at_pos(bx, by, path))
   {
     std::string action, response, duration;
-    _be->log()->get_field(path[0], 3, action);
-    _be->log()->get_field(path[0], 4, response);
-    _be->log()->get_field(path[0], 5, duration);
+    bec::NodeId node(path[0]);
+	_be->log()->get_field(node, 3, action);
+	_be->log()->get_field(node, 4, response);
+	_be->log()->get_field(node, 5, duration);
+
     if (duration.empty())
       tooltip->set_markup(base::strfmt("<b>Action:</b> %s\n<b>Response:</b> %s",
               action.c_str(), response.c_str()));
