@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -95,7 +95,7 @@ std::string WorkbenchImpl::getSystemInfo(bool indent)
       #endif
   #elif defined(__APPLE__)
     #define PLATFORM_NAME "Mac OS X"
-    #define ARCHITECTURE "32 bit"
+    #define ARCHITECTURE "64 bit"
   #else
     #define PLATFORM_NAME "Linux/Unix"
     #define ARCHITECTURE "64 bit"
@@ -117,8 +117,9 @@ std::string WorkbenchImpl::getSystemInfo(bool indent)
   result += strfmt("%sOS: %s\n", tab, get_local_os_name().c_str());
   result += strfmt("%sCPU: %s\n", tab, get_local_hardware_info().c_str());
 
-#ifdef _WIN32
   result += getFullVideoAdapterInfo(indent);
+
+#ifdef _WIN32
 
   int locale_buffer_size = GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SLANGUAGE, NULL, 0);
   if (locale_buffer_size > 0)
@@ -139,8 +140,6 @@ std::string WorkbenchImpl::getSystemInfo(bool indent)
 
 #elif defined(__APPLE__)
 #else
-  // not sure about how to fetch video adapter info, but could be useful
-
   // get distro name/version from lsb_release
   {
     int rc;
