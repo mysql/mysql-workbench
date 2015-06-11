@@ -37,9 +37,11 @@ namespace JsonParser {
     JsonObject();
     // move operations
     JsonObject(JsonObject&& val);
-    JsonObject(const JsonObject& other) : _data(other._data) { }
+    JsonObject(const JsonObject& other);
     JsonObject &operator=(JsonObject &&val);
-    JsonObject &operator=(const JsonObject &val) { return *this; }
+    JsonObject &operator=(const JsonObject &val);
+
+    //bool operator !=(const JsonObject &rhs);
 
     // return iterator for begining of sequence
     Iterator begin();
@@ -160,16 +162,13 @@ namespace JsonParser {
 
     bool getBool() const;
     void setBool(bool val);
-
     const std::string& getString() const;
     void setString(const std::string& val);
-
-    operator JsonObject () const;
     JsonObject& getObject();
+    const JsonObject& getObject() const;
     void setObject(const JsonObject& val);
-
-    operator JsonArray () const;
     JsonArray& getArray();
+    const JsonArray& getArray() const;
     void setArray(const JsonArray& val);
 
     void setType(DataType type);
@@ -241,11 +240,21 @@ namespace JsonParser {
 
   class MFORMS_EXPORT JsonWriter : public boost::noncopyable
   {
-    //not implemented yet
-    static bool write(const std::string &/*str*/, JsonValue &/*value*/)
-    {
-      return true;
-    }
+  public:
+    explicit JsonWriter(const JsonValue &value);
+    static void write(std::string &str, const JsonValue &value);
+
+  private:
+    void toString(std::string &output);
+    void generate(std::string &output);
+    void write(const JsonValue& value);
+    void write(const JsonObject& value);
+    void write(const JsonArray& value);
+    void write(const std::string& value);
+
+    const JsonValue &_jsonValue;
+    int _depth;
+    std::string _output;
   };
 };
 
@@ -277,6 +286,7 @@ namespace mforms {
     JsonTextView();
     virtual ~JsonTextView();
     void textChanged();
+    void setText(const std::string &jsonText);
 
   private:
     void init();
@@ -314,6 +324,8 @@ namespace mforms {
   class MFORMS_EXPORT JsonTabView : public Panel
   {
   public:
+    void generateTextOutput();
+    void generateTextOutput(const JsonParser::JsonValue& value);
     void Setup();
     JsonTabView();
     ~JsonTabView();
@@ -322,14 +334,15 @@ namespace mforms {
     //const JsonParser::JsonValue &getJson() const;
     void setText(const std::string &text);
    // const std::string &getText() const;
+    void textViewTextChanged();
 
   private:
-    void textViewTextChanged();
     std::shared_ptr<JsonTextView> _textView;
     std::shared_ptr<JsonTreeView> _treeView;
     std::shared_ptr<JsonGridView> _gridView;
     std::shared_ptr<TabView> _tabView;
     std::string _jsonText;
     JsonParser::JsonValue _json;
+    int _ident;
   };
 };

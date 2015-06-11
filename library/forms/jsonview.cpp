@@ -151,6 +151,18 @@ JsonObject::Iterator JsonObject::end()
   return _data.find(key);
 }
 
+JsonObject::JsonObject(const JsonObject& other) : _data(other._data)
+{
+  
+}
+
+JsonObject &JsonObject::operator=(const JsonObject &other)
+{ 
+  //if (*this != other)
+  _data = other._data;
+  return *this; 
+}
+
 /**
 * @brief
 *
@@ -700,7 +712,6 @@ int JsonValue::getInt() const
   return static_cast<int>(_double);
 }
 
-
 /**
 * @brief
 *
@@ -751,9 +762,9 @@ void JsonValue::setString(const std::string& val)
 * @param
 * @return
 **/
-JsonValue::operator JsonObject() const
-{ 
-  return _object; 
+JsonObject &JsonValue::getObject()
+{
+  return _object;
 }
 
 /**
@@ -762,7 +773,7 @@ JsonValue::operator JsonObject() const
 * @param
 * @return
 **/
-JsonObject &JsonValue::getObject()
+const JsonObject& JsonValue::getObject() const
 {
   return _object;
 }
@@ -784,13 +795,10 @@ void JsonValue::setObject(const JsonObject& val)
 * @param
 * @return
 **/
-JsonValue::operator JsonArray() const
+JsonArray &JsonValue::getArray()
 {
-  if (_type == VArray)
-    return _array;
-  throw std::bad_typeid(""); //@@FIXMEE
+  return _array;
 }
-
 
 /**
 * @brief
@@ -798,11 +806,17 @@ JsonValue::operator JsonArray() const
 * @param
 * @return
 **/
-JsonArray &JsonValue::getArray()
+const JsonArray& JsonValue::getArray() const
 {
   return _array;
 }
 
+/**
+* @brief
+*
+* @param
+* @return
+**/
 void JsonValue::setType(DataType type)
 {
    _type = type;
@@ -849,7 +863,7 @@ char JsonReader::peek()
 **/
 bool JsonReader::eos()
 {
-  return _actualPos == _jsonText.length();
+  return _actualPos == _jsonText.length() - 1;
 }
 
 /**
@@ -1045,8 +1059,8 @@ std::string JsonReader::getJsonString()
         string += '\r';
       case 't':
         string += '\t';
-      /*case 'u':        //@@FIXMEE
-        string += '\u';*/
+      /*case 'u':
+        string += '\x';*/
       default:
           throw ParserException(std::string("Unrecognized escape sequence: \\") + currentChar);
       }
@@ -1299,6 +1313,193 @@ void JsonReader::parse(JsonValue &value)
   }
 }
 
+
+/**
+* -------------------------------------------------------------------------------------------------
+*   JSON writer implementation 
+* -------------------------------------------------------------------------------------------------
+*/
+
+JsonWriter::JsonWriter(const JsonValue& value)
+  : _jsonValue(value), _depth(0)
+{
+}
+
+/**
+* @brief
+*
+* @param
+* @return
+**/
+void JsonWriter::write(std::string& str, const JsonValue& value)
+{
+  JsonWriter writer(value);
+  writer.toString(str);
+}
+
+/**
+* @brief
+*
+* @param
+* @return
+**/
+void JsonWriter::toString(std::string& output)
+{
+  generate(output);
+}
+
+/**
+* @brief
+*
+* @param
+* @return
+**/
+void JsonWriter::generate(std::string& output)
+{
+  write(_jsonValue);
+  output = _output;
+}
+
+/**
+* @brief
+*
+* @param
+* @return
+**/
+void JsonWriter::write(const JsonValue& value)
+{
+  switch(value.getType())
+  {
+  case VInt: 
+    _output = std::to_string(value.getInt());
+    break;
+  case VBoolean: 
+    _output += value.getBool() ? "true" : "false";
+    break;
+  case VString: 
+    write(value.getString());
+    break;
+  case VDouble: 
+    _output = std::to_string(value.getDouble());
+    break;
+  case VObject:
+    write(value.getObject());
+    break;
+  case VArray:
+    write(value.getArray());
+    break;
+  case VEmpty:
+    _output += "null";
+    break;
+  default: break;
+  }
+}
+
+/**
+* @brief
+*
+* @param
+* @return
+**/
+void JsonWriter::write(const JsonObject& value)
+{
+  _output += "{";
+  ++_depth;
+  auto end = value.cend();
+  auto finalIter = end;
+  if (!value.empty())
+  {
+    _output += "\n";
+    --finalIter;
+  }
+  for (auto it = value.cbegin();  it != end; ++it)
+  {
+    _output += std::string(_depth, '\t');
+    write(it->first);
+    _output += " : ";
+    write(it->second);
+    if (it != finalIter)
+      _output += ",";
+    _output += "\n";
+  }
+  --_depth;
+  _output += "}";
+}
+
+/**
+* @brief
+*
+* @param
+* @return
+**/
+void JsonWriter::write(const JsonArray& value)
+{
+  _output += "[";
+  ++_depth;
+  auto end = value.cend();
+  auto finalIter = end;
+  if (!value.empty())
+  {
+    _output += "\n";
+    --finalIter;
+  }
+  for (auto it = value.cbegin(); it != end; ++it)
+  {
+    _output += std::string(_depth, '\t');
+    write(*it);
+    if (it != finalIter)
+      _output += ",";
+    _output += "\n";
+  }
+  --_depth;
+  _output += "]";
+}
+
+/**
+* @brief
+*
+* @param
+* @return
+**/
+void JsonWriter::write(const std::string& value)
+{
+  _output += '"';
+  for (auto character : value)
+  {
+    switch (character)
+    {
+    case '"':
+      _output += "\\\"";
+      break;
+    case '\\':
+      _output += "\\\\";
+      break;
+    case '\b':
+      _output += "\\b";
+      break;
+    case '\f':
+      _output += "\\f";
+      break;
+    case '\n':
+      _output += "\\n";
+      break;
+    case '\r':
+      _output += "\\r";
+      break;
+    case '\t':
+      _output += "\\t";
+      break;
+    //case '\x':
+    //  _output += "\\u";
+    //  break;
+    default:
+      _output += character;
+      break;
+    }
+  }
+  _output += '"';
+}
+
 /**
 * @brief default constructor.
 *
@@ -1315,6 +1516,12 @@ JsonBaseView::~JsonBaseView()
 {
 }
 
+/**
+* @brief
+*
+* @param
+* @return
+**/
 boost::signals2::signal<void()>* JsonBaseView::signalChanged()
 {
   return &_signalChanged;
@@ -1368,9 +1575,27 @@ JsonTextView::JsonTextView()
   scoped_connect(_textEditor->signal_changed(), boost::bind(&JsonTextView::textChanged, this));
 }
 
+/**
+* @brief
+*
+* @param
+* @return
+**/
 void JsonTextView::textChanged()
 {
   _signalChanged();
+}
+
+/**
+* @brief
+*
+* @param
+* @return
+**/
+void JsonTextView::setText(const std::string& jsonText)
+{
+  _textEditor->set_value(jsonText.c_str());
+  _textEditor->is_dirty();
 }
 
 /**
@@ -1435,6 +1660,93 @@ JsonGridView::~JsonGridView()
 {
 }
 
+
+/**
+* @brief
+*
+* @param
+* @return
+**/
+void JsonTabView::generateTextOutput(const JsonValue &value)
+{
+  switch (value.getType())
+  {
+  case VInt:
+    _jsonText += std::to_string(value.getInt());
+    break;
+  case VBoolean:
+    _jsonText += value.getBool() ? "true" : "false";
+    break;
+  case VString:
+    _jsonText += "\"";
+    _jsonText += value.getString();
+    _jsonText += "\"";
+    break;
+  case VDouble:
+    _jsonText += std::to_string(value.getDouble());
+    break;
+  case VObject:
+    {
+      auto object = value.getObject();
+      //_jsonText += "(O) \"object\"\n";
+      ++_ident;
+      auto end = object.cend();
+      auto finalIter = end;
+      if (!object.empty())
+      {
+        _jsonText += "\n";
+        --finalIter;
+      }
+      for (auto it = object.cbegin(); it != end; ++it)
+      {
+        _jsonText += std::string(_ident, '\t');
+        _jsonText += it->first;
+        _jsonText += " : ";
+        generateTextOutput(it->second);
+        if (it != finalIter)
+          _jsonText += ",";
+        _jsonText += "\n";
+      }
+      --_ident;
+    }
+    break;
+  case VArray:
+    {
+    
+      auto jsonArray = value.getArray();
+      //_jsonText += "(A) \"array\"\n";
+      ++_ident;
+      auto end = jsonArray.cend();
+      auto finalIter = end;
+      if (!jsonArray.empty())
+      {
+        _jsonText += "\n";
+        --finalIter;
+      }
+      auto idx = 0;
+      for (auto it = jsonArray.cbegin(); it != end; ++it, ++idx)
+      {
+        _jsonText += std::string(_ident, '\t');
+        std::istringstream tmpIdx(idx);
+        _jsonText += "[";
+        _jsonText += tmpIdx.str();
+        _jsonText += "] ";
+        generateTextOutput(*it);
+        if (it != finalIter)
+          _jsonText += ",";
+        _jsonText += "\n";
+      }
+      --_ident;
+    }
+
+    break;
+  case VEmpty:
+    _jsonText += "<<null>>";
+    break;
+  default: break;
+  }
+}
+
 /**
 * @brief
 *
@@ -1449,7 +1761,6 @@ void JsonTabView::Setup()
   _tabView->add_page(manage(_treeView.get()), "Tree");
   _tabView->add_page(manage(_gridView.get()), "Grid");
   add(_tabView.get());
-
   scoped_connect(_textView->signalChanged(), boost::bind(&JsonTabView::textViewTextChanged, this));
 }
 
@@ -1482,8 +1793,13 @@ JsonTabView::~JsonTabView()
 * @param
 * @return
 **/
-void JsonTabView::setJson(const JsonParser::JsonValue& val)
+void JsonTabView::setJson(const JsonParser::JsonValue& value)
 {
+  _json = value;
+  _ident = 0;
+  _jsonText = "";
+  generateTextOutput(_json);
+  _textView->setText(_jsonText);
 }
 
 /**
@@ -1493,7 +1809,7 @@ void JsonTabView::setJson(const JsonParser::JsonValue& val)
 * @return
 **/void JsonTabView::setText(const std::string& text)
 {
-  //_textView->set = text;
+  _jsonText = text;
 }
 
 /**

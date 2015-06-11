@@ -38,6 +38,7 @@ DEFAULT_LOG_DOMAIN("BlobViewer");
 #include "mforms/code_editor.h"
 #include "mforms/find_panel.h"
 #include "mforms/filechooser.h"
+#include "mforms/jsonview.h"
 
 BinaryDataViewer::BinaryDataViewer(BinaryDataEditor *owner)
 : mforms::Box(false), _owner(owner)
@@ -358,19 +359,23 @@ private:
 class JsonDataViewer : public BinaryDataViewer
 {
 public:
-  JsonDataViewer(BinaryDataEditor *owner, bool read_only)
-    : BinaryDataViewer(owner)
+  JsonDataViewer(BinaryDataEditor *owner, JsonParser::JsonValue &value)
+    : BinaryDataViewer(owner), _value(value)
   {
     set_spacing(8);
+    _jsonView.setJson(value);
     add(&_jsonView, true, true);
+    //scoped_connect(_jsonView.textViewTextChanged(), boost::bind(&JsonDataViewer::edited, this));
   }
 
-  virtual void data_changed()
+  virtual void data_changed() override
   {
   }
 
 private:
-  mforms::JsonTabView _jsonView;
+  mforms::JsonTabView  _jsonView;
+  JsonParser::JsonValue &_value;
+  
 };
 
 
@@ -493,9 +498,9 @@ BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size
   if (ImageDataViewer::can_display(data, length))
     add_viewer(new ImageDataViewer(this, read_only), "Image");
 
-  add_viewer(new JsonDataViewer(this, read_only), "JSON");
-
   assign_data(data, length);
+
+  add_json_viewer(read_only, text_encoding, "JSON");
 
   if (tab.is_valid())
     _tab_view.set_active_tab((int)*tab);  
@@ -595,6 +600,38 @@ void BinaryDataEditor::add_viewer(BinaryDataViewer *viewer, const std::string &t
   
   _tab_view.add_page(mforms::manage(viewer), title);
 }
+
+void BinaryDataEditor::add_json_viewer(bool read_only, const std::string& text_encoding, const std::string& title)
+{
+  if (!data())
+    return;
+  GError *error = nullptr;
+  gsize bread = 0, bwritten = 0;
+  auto converted = g_convert(data(), static_cast<gssize>(length()), "UTF-8", text_encoding.c_str(), &bread, &bwritten, &error);
+  if (!converted || length() != bread)
+  {
+    //convert problem
+    return;
+  }
+  std::string dataToTest = converted;
+  auto pos = dataToTest.find_first_not_of(" \t\r\n");
+  if (pos != std::string::npos && dataToTest.at(pos) != '{')
+    return;
+
+  auto isJson = true;
+  JsonParser::JsonValue value;
+  try
+  {
+    JsonParser::JsonReader::read(converted, value);
+  }
+  catch (JsonParser::ParserException &)
+  {
+    isJson = false;
+  }
+  if (isJson)
+    add_viewer(new JsonDataViewer(this, value), "JSON");
+}
+
 
 void BinaryDataEditor::save()
 {
