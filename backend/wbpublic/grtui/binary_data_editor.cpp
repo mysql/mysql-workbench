@@ -471,9 +471,19 @@ BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size
   add_viewer(new TextDataViewer(this, "LATIN1", read_only), "Text");
   if (ImageDataViewer::can_display(data, length))
     add_viewer(new ImageDataViewer(this, read_only), "Image");
-    
+
+  int activeTab = 0;
   if (tab.is_valid())
-    _tab_view.set_active_tab((int)*tab);
+    activeTab = (int)*tab;
+  if (*tab >= _tab_view.page_count())
+  {
+    grt::DictRef dict(grt::DictRef::cast_from(_grtm->get_app_option("")));
+    if (dict.is_valid())
+      dict.gset("BlobViewer:DefaultTab", 0);
+    activeTab = 0;
+  }
+  
+  _tab_view.set_active_tab(activeTab);
   tab_changed();
 }
 
@@ -502,8 +512,18 @@ BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size
 
   add_json_viewer(read_only, text_encoding, "JSON");
 
+  int activeTab = 0;
   if (tab.is_valid())
-    _tab_view.set_active_tab((int)*tab);  
+    activeTab = (int)*tab;
+  if (*tab >= _tab_view.page_count())
+  {
+    grt::DictRef dict(grt::DictRef::cast_from(_grtm->get_app_option("")));
+    if (dict.is_valid())
+      dict.gset("BlobViewer:DefaultTab", 0);
+    activeTab = 0;
+  }
+
+  _tab_view.set_active_tab(activeTab);
   tab_changed();
 }
 
