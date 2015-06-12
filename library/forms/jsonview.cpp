@@ -863,7 +863,7 @@ char JsonReader::peek()
 **/
 bool JsonReader::eos()
 {
-  return _actualPos == _jsonText.length() - 1;
+  return _actualPos == _jsonText.length();
 }
 
 /**
@@ -874,7 +874,7 @@ bool JsonReader::eos()
 **/
 bool JsonReader::isWhiteSpace(char c)
 {
-  return c == ' ' || c == '\t' || c == '\n';
+  return c == ' ' || c == '\t' || c == '\n' || c == '\r';
 }
 
 /**
@@ -993,6 +993,8 @@ void JsonReader::scan()
     case 'n':
       checkJsonNull();
       type = JsonToken::JsonTokenEmpty;
+      break;
+    case 0:
       break;
     default:
       throw ParserException(std::string("Unexpected start sequence: ") + chr); // @@FIXMEE
@@ -1142,9 +1144,16 @@ std::string JsonReader::getJsonNumber()
 **/
 bool JsonReader::match(JsonToken::JsonTokenType type, bool skip /*= false*/, bool mustMatch/* = true*/)
 {
-  bool ret = _tokenIterator->getType() == type;
+  auto ret = _tokenIterator != _tokenEnd && _tokenIterator->getType() == type;
   if (!ret && mustMatch)
-    throw ParserException(std::string("Unexpected token: ") + _tokenIterator->getValue());
+  {
+    std::string message;
+    if (_tokenIterator != _tokenEnd)
+      message = std::string("Unexpected token: ") + _tokenIterator->getValue();
+    else
+    message = std::string("Not compleated json data");
+    throw ParserException(message);
+  }
   if (skip && ret)
   {
     ++_tokenIterator;
@@ -1371,7 +1380,7 @@ void JsonWriter::write(const JsonValue& value)
   switch(value.getType())
   {
   case VInt: 
-    _output = std::to_string(value.getInt());
+    _output += std::to_string(value.getInt());
     break;
   case VBoolean: 
     _output += value.getBool() ? "true" : "false";
@@ -1380,7 +1389,7 @@ void JsonWriter::write(const JsonValue& value)
     write(value.getString());
     break;
   case VDouble: 
-    _output = std::to_string(value.getDouble());
+    _output += std::to_string(value.getDouble());
     break;
   case VObject:
     write(value.getObject());
@@ -1423,6 +1432,7 @@ void JsonWriter::write(const JsonObject& value)
     _output += "\n";
   }
   --_depth;
+  _output += std::string(_depth, '\t');
   _output += "}";
 }
 
@@ -1452,6 +1462,7 @@ void JsonWriter::write(const JsonArray& value)
     _output += "\n";
   }
   --_depth;
+  _output += std::string(_depth, '\t');
   _output += "]";
 }
 
@@ -1595,7 +1606,8 @@ void JsonTextView::textChanged()
 void JsonTextView::setText(const std::string& jsonText)
 {
   _textEditor->set_value(jsonText.c_str());
-  _textEditor->is_dirty();
+  _textEditor->set_features(mforms::FeatureReadOnly, false);
+  //_textEditor->set_features(mforms::LanguageHtml, false);
 }
 
 /**
@@ -1613,9 +1625,8 @@ JsonTextView::~JsonTextView()
 void JsonTextView::init()
 {
   assert(_textEditor.get() != nullptr);
-  _textEditor->set_language(mforms::LanguageNone);
-  _textEditor->set_features(mforms::FeatureWrapText, true);
-  _textEditor->set_features(mforms::FeatureReadOnly, false);
+  _textEditor->set_language(mforms::LanguageHtml);
+  _textEditor->set_features(mforms::FeatureWrapText, false);
   add(_textEditor.get());
 }
 
@@ -1691,20 +1702,16 @@ void JsonTabView::generateTextOutput(const JsonValue &value)
       //_jsonText += "(O) \"object\"\n";
       ++_ident;
       auto end = object.cend();
-      auto finalIter = end;
       if (!object.empty())
-      {
         _jsonText += "\n";
-        --finalIter;
-      }
       for (auto it = object.cbegin(); it != end; ++it)
       {
         _jsonText += std::string(_ident, '\t');
+        _jsonText += "\"";
         _jsonText += it->first;
+        _jsonText += "\"";
         _jsonText += " : ";
         generateTextOutput(it->second);
-        if (it != finalIter)
-          _jsonText += ",";
         _jsonText += "\n";
       }
       --_ident;
@@ -1712,17 +1719,11 @@ void JsonTabView::generateTextOutput(const JsonValue &value)
     break;
   case VArray:
     {
-    
       auto jsonArray = value.getArray();
-      //_jsonText += "(A) \"array\"\n";
       ++_ident;
       auto end = jsonArray.cend();
-      auto finalIter = end;
       if (!jsonArray.empty())
-      {
         _jsonText += "\n";
-        --finalIter;
-      }
       auto idx = 0;
       for (auto it = jsonArray.cbegin(); it != end; ++it, ++idx)
       {
@@ -1732,8 +1733,6 @@ void JsonTabView::generateTextOutput(const JsonValue &value)
         _jsonText += tmpIdx.str();
         _jsonText += "] ";
         generateTextOutput(*it);
-        if (it != finalIter)
-          _jsonText += ",";
         _jsonText += "\n";
       }
       --_ident;
@@ -1797,8 +1796,8 @@ void JsonTabView::setJson(const JsonParser::JsonValue& value)
 {
   _json = value;
   _ident = 0;
-  _jsonText = "";
-  generateTextOutput(_json);
+  JsonWriter::write(_jsonText, value);
+  //generateTextOutput(_json);
   _textView->setText(_jsonText);
 }
 
