@@ -2456,8 +2456,8 @@
 		2BF249EB1404B07D003B3C0F /* wb_sql_editor_tree_controller.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF249E91404B07D003B3C0F /* wb_sql_editor_tree_controller.h */; };
 		2BF249EC1404B07D003B3C0F /* wb_sql_editor_tree_controller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF249EA1404B07D003B3C0F /* wb_sql_editor_tree_controller.cpp */; };
 		2BF2786D1869FBB40026215C /* GrtStoredNote.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF2786B1869FBAB0026215C /* GrtStoredNote.cpp */; };
-		2BF2CB9D191197A7007B0BB9 /* record_grid.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF2CB9C191197A7007B0BB9 /* record_grid.h */; };
-		2BF2CBAB1911A70E007B0BB9 /* record_grid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF2CBA91911A70E007B0BB9 /* record_grid.cpp */; };
+		2BF2CB9D191197A7007B0BB9 /* gridview.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF2CB9C191197A7007B0BB9 /* gridview.h */; };
+		2BF2CBAB1911A70E007B0BB9 /* gridview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF2CBA91911A70E007B0BB9 /* gridview.cpp */; };
 		2BF2CBB21911A815007B0BB9 /* RecordGridView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF2CBB01911A815007B0BB9 /* RecordGridView.mm */; };
 		2BF2CBB31911A815007B0BB9 /* RecordGridView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF2CBB11911A815007B0BB9 /* RecordGridView.h */; };
 		2BF2CBB61911C702007B0BB9 /* result_form_view.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF2CBB41911C702007B0BB9 /* result_form_view.cpp */; };
@@ -6368,8 +6368,8 @@
 		2BF249E91404B07D003B3C0F /* wb_sql_editor_tree_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb_sql_editor_tree_controller.h; path = backend/wbprivate/sqlide/wb_sql_editor_tree_controller.h; sourceTree = "<group>"; };
 		2BF249EA1404B07D003B3C0F /* wb_sql_editor_tree_controller.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wb_sql_editor_tree_controller.cpp; path = backend/wbprivate/sqlide/wb_sql_editor_tree_controller.cpp; sourceTree = "<group>"; wrapsLines = 0; };
 		2BF2786B1869FBAB0026215C /* GrtStoredNote.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrtStoredNote.cpp; path = backend/wbpublic/objimpl/GrtStoredNote.cpp; sourceTree = "<group>"; };
-		2BF2CB9C191197A7007B0BB9 /* record_grid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = record_grid.h; path = library/forms/mforms/record_grid.h; sourceTree = "<group>"; };
-		2BF2CBA91911A70E007B0BB9 /* record_grid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = record_grid.cpp; path = library/forms/record_grid.cpp; sourceTree = "<group>"; };
+		2BF2CB9C191197A7007B0BB9 /* gridview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gridview.h; path = library/forms/mforms/gridview.h; sourceTree = "<group>"; };
+		2BF2CBA91911A70E007B0BB9 /* gridview.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gridview.cpp; path = library/forms/gridview.cpp; sourceTree = "<group>"; };
 		2BF2CBB01911A815007B0BB9 /* RecordGridView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RecordGridView.mm; path = frontend/mac/mforms/RecordGridView.mm; sourceTree = "<group>"; };
 		2BF2CBB11911A815007B0BB9 /* RecordGridView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RecordGridView.h; path = frontend/mac/mforms/RecordGridView.h; sourceTree = "<group>"; };
 		2BF2CBB41911C702007B0BB9 /* result_form_view.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = result_form_view.cpp; path = backend/wbprivate/sqlide/result_form_view.cpp; sourceTree = "<group>"; };
@@ -7482,7 +7482,7 @@
 				275E55CD11AD35F100B3886E /* popup.h */,
 				2B9616640F275B0A00F0B599 /* progressbar.h */,
 				2B9616650F275B0A00F0B599 /* radiobutton.h */,
-				2BF2CB9C191197A7007B0BB9 /* record_grid.h */,
+				2BF2CB9C191197A7007B0BB9 /* gridview.h */,
 				2B9616660F275B0A00F0B599 /* scrollpanel.h */,
 				2B9616670F275B0A00F0B599 /* selector.h */,
 				2B9616680F275B0A00F0B599 /* simpleform.h */,
@@ -7537,7 +7537,7 @@
 				275E55CF11AD35FE00B3886E /* popup.cpp */,
 				2B9616340F275AF200F0B599 /* progressbar.cpp */,
 				2B9616350F275AF200F0B599 /* radiobutton.cpp */,
-				2BF2CBA91911A70E007B0BB9 /* record_grid.cpp */,
+				2BF2CBA91911A70E007B0BB9 /* gridview.cpp */,
 				2B9616360F275AF200F0B599 /* scrollpanel.cpp */,
 				27D6594A1076538E0030F627 /* sectionbox.cpp */,
 				2B9616370F275AF200F0B599 /* selector.cpp */,
@@ -11676,7 +11676,7 @@
 				2B7395840F60488F0084CA96 /* MFUtilities.h in Headers */,
 				2BE67EFA0F8DB1F000E00A97 /* uistyle.h in Headers */,
 				2B2405751020A1BC00079580 /* app.h in Headers */,
-				2BF2CB9D191197A7007B0BB9 /* record_grid.h in Headers */,
+				2BF2CB9D191197A7007B0BB9 /* gridview.h in Headers */,
 				2B2405761020A1BC00079580 /* appview.h in Headers */,
 				2B23975E103B64AB00D9023B /* MFDrawBox.h in Headers */,
 				2B2397AA103B6C3800D9023B /* drawbox.h in Headers */,
@@ -14565,7 +14565,7 @@
 				2B3D49330F3E3FCA009238A7 /* MFTextEntry.mm in Sources */,
 				2B3D49350F3E3FCA009238A7 /* MFView.mm in Sources */,
 				2B3D49370F3E3FCA009238A7 /* MFWizard.mm in Sources */,
-				2BF2CBAB1911A70E007B0BB9 /* record_grid.cpp in Sources */,
+				2BF2CBAB1911A70E007B0BB9 /* gridview.cpp in Sources */,
 				2B3D4B850F3F2412009238A7 /* MFImageBox.mm in Sources */,
 				2B3D4BB30F3F26A3009238A7 /* MFProgressBar.mm in Sources */,
 				2B3D4E300F3FA70B009238A7 /* MFFileChooser.mm in Sources */,
