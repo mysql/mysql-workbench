@@ -880,8 +880,12 @@ class WbAdminSSH(object):
         if out is not None and user_password is not None and not initial_data:
             out = out.replace(user_password, "", 1)
 
-        log_debug3("%s.exec_cmd(cmd=%s, output=%s. Retcode = %s)\n" % (self.__class__.__name__.encode('utf8'), cmd.encode('utf8'), out.decode('utf8'), ret_code) )
-        
+        try:
+            log_debug3("%s.exec_cmd(cmd=%s, output=%s. Retcode = %s)\n" % (self.__class__.__name__.encode('utf8'), cmd.encode('utf8'), out.decode('utf8'), ret_code) )
+        except (UnicodeDecodeError, UnicodeEncodeError), e:
+            log_error("Unexpected output received (byte-string <-> UTF-8 conversion failed).  Below is the sanitised version of output:\n")
+            log_error("  %s.exec_cmd(cmd=%s, output=%s. Retcode = %s)\n" % (self.__class__.__name__.encode('utf8','replace'), cmd.encode('utf8','replace'), out.decode('utf8','replace'), ret_code))
+
         return (out, ret_code)
 
     def getftp(self):
