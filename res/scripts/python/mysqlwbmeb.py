@@ -877,17 +877,17 @@ class MEBHelperVersion(MEBCommand):
     def execute(self):
         try:
           import hashlib
-          
+
           file = open (__file__, 'r')
           data = file.read()
           md5 = hashlib.md5(data)
-          
-          self.write_output(md5.digest())
+
+          self.write_output(md5.hexdigest())
         except Exception, e:
             logging.error('MEBHelperVersion error ' % str(e))
             return 1
         return 0
-    
+
 if __name__ == "__main__":
     # The parameters passed to the command will have an offset when called
     # form the script, this is the script name and the command name
