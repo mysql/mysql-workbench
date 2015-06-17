@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,6 +39,7 @@ namespace mforms {
   enum TextEntryAction
   {
     EntryActivate, //!< Enter key was pressed
+    EntryEscape,   //!< Esc key was pressed
     EntryKeyUp, //!< Up arrow key was pressed
     EntryKeyDown, //!< Down arrow key was pressed
     EntryCKeyUp, //!< Up arrow key was pressed with Control/Command held

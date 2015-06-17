@@ -113,7 +113,7 @@ class DatabaseObjectSelector(mforms.Box):
             text_box = mforms.Box(False)
             group_selector = mforms.newCheckBox()
             group_selector.set_text(self.ui_settings[group]['group_label'])
-            group_selector.set_active(self.ui_settings[group]['group_selected'])
+            group_selector.set_active(bool(self.ui_settings[group]['group_selected']))
             group_selector.add_clicked_callback(functools.partial(self.group_checkbox_clicked, group=group))
             text_box.add(group_selector, False)
             info_label = mforms.newLabel(self.ui_settings[group]['status_text'] % {'total': len(group_objects), 
@@ -126,7 +126,7 @@ class DatabaseObjectSelector(mforms.Box):
             self.ui_settings[group]['_showing_details'] = show_details
             filter_button = mforms.newButton()
             filter_button.set_text('Hide Selection' if show_details else 'Show Selection')
-            filter_button.set_enabled(self.ui_settings[group]['group_selected'])
+            filter_button.set_enabled(bool(self.ui_settings[group]['group_selected']))
             filter_button.add_clicked_callback(functools.partial(self.filter_button_clicked, group=group))
             header_box.add_end(filter_button, False, True)
             
@@ -191,7 +191,7 @@ class DatabaseObjectSelector(mforms.Box):
                 
                 group_box.add(filter_container, True, True)
                 
-                filter_container.show(show_details)
+                filter_container.show(bool(show_details))
             
                 self.ui[group].update( {
                     'filter_container': filter_container,
@@ -221,7 +221,7 @@ class DatabaseObjectSelector(mforms.Box):
         '''Shows/hides the details of the selections for the group'''
 
         if 'filter_container' in self.ui[group]:  # The group is not empty
-            self.ui[group]['filter_container'].show(show_details)
+            self.ui[group]['filter_container'].show(bool(show_details))
         self.ui[group]['filter_button'].set_text('Hide Selection' if show_details else 'Show Selection')
         self.ui_settings[group]['_showing_details'] = show_details
         self.relayout()
@@ -259,8 +259,8 @@ class DatabaseObjectSelector(mforms.Box):
         available_list.thaw_refresh()
 
     def group_checkbox_clicked(self, group):
-        is_active = self.ui[group]['group_selector'].get_active()
-        has_elements = self.ui[group]['has_elements']
+        is_active = bool(self.ui[group]['group_selector'].get_active())
+        has_elements = bool(self.ui[group]['has_elements'])
         should_expand = is_active and self.ui_settings[group]['show_details']
         self._show_selection(group, should_expand)
         self.ui[group]['filter_button'].set_enabled(is_active and has_elements)

@@ -55,7 +55,7 @@ using namespace mforms;
 
 @implementation MFCodeEditor
 
-- (id) initWithFrame: (NSRect) frame
+- (instancetype) initWithFrame: (NSRect) frame
           codeEditor: (CodeEditor*) codeEditor
 {
   self = [super initWithFrame: frame];

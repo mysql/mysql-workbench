@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -69,8 +69,8 @@ struct DataSourceSelector: public base::trackable
     browse_box.add(file_radio, false,true);
     browse_box.add(&file_selector, true, true);
 
-    file_selector.initialize("", SaveFile ? mforms::SaveFile : mforms::OpenFile, "SQL Files (*.sql)|*.sql", _("Browse..."));
-    scoped_connect(file_radio->signal_toggled(),boost::bind(&DataSourceSelector::file_source_selected, this));
+    file_selector.initialize("", SaveFile ? mforms::SaveFile : mforms::OpenFile, "SQL Files (*.sql)|*.sql");
+    scoped_connect(file_radio->signal_clicked(),boost::bind(&DataSourceSelector::file_source_selected, this));
   }
 
   void file_source_selected()
@@ -80,9 +80,9 @@ struct DataSourceSelector: public base::trackable
 
   void set_change_slot(const boost::function<void()> &change_slot)
   {
-    scoped_connect(model_radio->signal_toggled(),change_slot);
-    scoped_connect(server_radio->signal_toggled(),change_slot);
-    scoped_connect(file_radio->signal_toggled(),change_slot);
+    scoped_connect(model_radio->signal_clicked(),change_slot);
+    scoped_connect(server_radio->signal_clicked(),change_slot);
+    scoped_connect(file_radio->signal_clicked(),change_slot);
   }
 
   void set_source(SourceType type)
@@ -91,15 +91,15 @@ struct DataSourceSelector: public base::trackable
     {
       case ModelSource:
         model_radio->set_active(true);
-        (*model_radio->signal_toggled())();
+        (*model_radio->signal_clicked())();
         break;
       case ServerSource:
         server_radio->set_active(true);
-        (*server_radio->signal_toggled())();
+        (*server_radio->signal_clicked())();
         break;
       case FileSource:
         file_radio->set_active(true);
-        (*file_radio->signal_toggled())();
+        (*file_radio->signal_clicked())();
         break;
     }
   }

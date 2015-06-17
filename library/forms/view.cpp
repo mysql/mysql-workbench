@@ -169,7 +169,7 @@ int View::get_subview_index(View *sv)
 
 View *View::get_subview_at_index(int index)
 {
-  if (index < 0 || index > (int)_subviews.size())
+  if (index < 0 || index >= (int)_subviews.size())
     return NULL;
 
   return _subviews[index].first;
@@ -196,7 +196,7 @@ bool View::contains_subview(View* subview)
 
 void View::set_name(const std::string &name)
 {
-  _name= name;
+  _name = name;
 
   // Optional implementation.
   if (_view_impl->set_name)

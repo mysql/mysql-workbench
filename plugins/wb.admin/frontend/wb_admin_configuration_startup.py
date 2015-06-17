@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -51,16 +51,17 @@ class WbAdminConfigurationStartup(mforms.Box):
     #---------------------------------------------------------------------------
     def print_output(self, text):
         ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S - ")
-        self.startup_msgs_log.append_text_with_encoding(ts + text + "\n", self.ctrl_be.server_helper.cmd_output_encoding)
+        if self.startup_msgs_log:
+            self.startup_msgs_log.append_text_with_encoding(ts + text + "\n", self.ctrl_be.server_helper.cmd_output_encoding)
 
     #---------------------------------------------------------------------------
     def __init__(self, ctrl_be, server_profile, main_view):
         mforms.Box.__init__(self, False)
         self.set_managed()
-        self.set_release_on_add()                               
+        self.set_release_on_add()
         self.main_view = main_view
         self.ctrl_be = ctrl_be
-        self.server_profile = server_profile
+        self.ctrl_be.server_profile = server_profile
 
     #---------------------------------------------------------------------------
     @property
@@ -158,9 +159,14 @@ class WbAdminConfigurationStartup(mforms.Box):
 
     #---------------------------------------------------------------------------
     def page_activated(self):
+        if not self.server_profile.admin_enabled:
+            self.add(no_remote_admin_warning_label(self.server_profile), True, True)
+            return
+        
         if not self.ui_created:
             self.create_ui()
             self.ui_created = True
+
         if self.server_control:
             self.server_control.set_output_handler(self.print_output_cb)
 
@@ -317,13 +323,13 @@ class WbAdminConfigurationStartup(mforms.Box):
                               "Administrator password was possibly wrong.",
                               "Retry", "Cancel", "")
             if r == mforms.ResultOk:
-                self.server_control.stop_async(self.async_stop_callback)
-                return
+                if self.server_control.stop_async(self.async_stop_callback):
+                    return
             else:
                 self.print_output("Could not stop server. Permission denied")
         elif status == "need_password":
-            self.server_control.stop_async(self.async_stop_callback, False)
-            return
+            if self.server_control.stop_async(self.async_stop_callback, False):
+                return
         else:
             self.print_output("Could not stop server: %s" % (status or "unknown error"))
             Utilities.show_error("Could not stop server", str(status), "OK", "", "")

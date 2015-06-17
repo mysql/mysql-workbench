@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,7 +35,7 @@
 
 @implementation CairoPrintView
 
-- (id)initWithFrame:(NSRect)frame
+- (instancetype)initWithFrame:(NSRect)frame
             diagram:(model_DiagramRef&)diagram
        pageSettings:(app_PageSettingsRef&)pageSettings
           printInfo:(NSPrintInfo*)printInfo
@@ -141,11 +141,11 @@
 
 @implementation PrintDialog
 
-- (id)initWithModule:(grt::Module*)module 
-          GRTManager:(bec::GRTManager*)grtm
-           arguments:(const grt::BaseListRef&)args
+- (instancetype)initWithModule: (grt::Module*)module
+                    grtManager: (bec::GRTManager *)grtm
+                     arguments: (const grt::BaseListRef &)args
 {
-  self= [super initWithModule:module GRTManager:grtm arguments:args];
+  self = [super initWithModule: module grtManager: grtm arguments: args];
   if (self)
   {
     model_DiagramRef diagram(model_DiagramRef::cast_from(args[0]));
@@ -160,15 +160,12 @@
     app_PaperTypeRef paperType(pageSettings->paperType());
         
     printInfo= [[NSPrintInfo alloc] initWithDictionary:
-                [NSDictionary dictionaryWithObjectsAndKeys:
-                 [NSString stringWithUTF8String: paperType->name().c_str()], NSPrintPaperName,
-                 //[NSValue valueWithSize:NSMakeSize(paperType->width(), paperType->height())], NSPrintPaperSize,
-                 nil]];
+                @{NSPrintPaperName: @(paperType->name().c_str())}];
 
     if (pageSettings->orientation() == "landscape")
-      [printInfo setOrientation: NSLandscapeOrientation];
+      [printInfo setOrientation: NSPaperOrientationLandscape];
     else
-      [printInfo setOrientation: NSPortraitOrientation];
+      [printInfo setOrientation: NSPaperOrientationPortrait];
     
     printView= [[CairoPrintView alloc] initWithFrame: rect 
                                              diagram: diagram

@@ -1,4 +1,7 @@
 %module mforms
+
+#pragma SWIG nowarn=401,402,509
+
 %{
 #include <boost/signals2/signal.hpp>
 #include <base/drawing.h>
@@ -567,6 +570,12 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
 %typemap (in) int64_t, boost::int64_t = long long;
 %typemap (out) int64_t, boost::int64_t = long long;
 
+%typemap (in) ssize_t = long long;
+%typemap (out) ssize_t = long long;
+
+%typemap (in) size_t = unsigned long long;
+%typemap (out) size_t = unsigned long long;
+
 %typemap (out) base::Rect {
   $result = Py_BuildValue("(ffff)", $1.left(), $1.top(), $1.width(), $1.height());
 }
@@ -627,6 +636,27 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
    {
      PyList_Append($result, PyInt_FromLong(*iter));
    }
+}
+
+%typemap(out) std::vector<size_t> {
+   $result = PyList_New(0);
+   for (std::vector<size_t>::const_iterator iter = $1.begin(); iter != $1.end(); ++iter)
+   {
+     PyList_Append($result, PyInt_FromLong(*iter));
+   }
+}
+
+%typemap(in) const std::vector<size_t>& {
+  if (PyList_Check($input)) {
+    $1 = new std::vector<size_t>();
+    for (int c= PyList_Size($input), i= 0; i < c; i++)
+    {
+      PyObject *item = PyList_GetItem($input, i);
+      $1->push_back(PyInt_AsLong(item));
+    }
+  }
+  else
+    SWIG_exception_fail(SWIG_TypeError, "expected vector of size_t");
 }
 
 %typemap(out) std::pair<int, int> {
@@ -1091,6 +1121,7 @@ SWIG_ADD_SIGNAL_VOID_CALLBACK(changed_callback, self->signal_changed());
 }
 
 %extend mforms::Form {
+SWIG_ADD_SET_BOOL_CALLBACK(set_on_close, self->set_on_close);
 SWIG_ADD_SIGNAL_VOID_CALLBACK(closed_callback, self->signal_closed());
 SWIG_ADD_SIGNAL_VOID_CALLBACK(activated_callback, self->signal_activated());
 SWIG_ADD_SIGNAL_VOID_CALLBACK(deactivated_callback, self->signal_deactivated());
@@ -1098,6 +1129,16 @@ SWIG_ADD_SIGNAL_VOID_CALLBACK(deactivated_callback, self->signal_deactivated());
 
 %extend mforms::TextBox {
 SWIG_ADD_SIGNAL_VOID_CALLBACK(changed_callback, self->signal_changed());
+#if SWIG_VERSION >= 0x030003  // SWIG v3.0.3 changed its behaviour and broke compatibility (https://github.com/swig/swig/pull/201).  This is a workaround to make it work again.
+ void append_text_and_scroll(const std::string &text, bool scroll_to_end= false)
+ {
+   self->append_text(text, scroll_to_end);
+ }
+ void append_text_with_encoding_and_scroll(const std::string &text, const std::string &encoding, bool scroll_to_end= false)
+ {
+   self->append_text_with_encoding(text, encoding, scroll_to_end);
+ }
+#endif
 }
 
 %extend mforms::TextEntry {

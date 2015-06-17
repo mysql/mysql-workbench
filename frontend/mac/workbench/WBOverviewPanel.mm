@@ -34,31 +34,37 @@
 
 static void DrawTiledImage(NSImage *image, NSRect rect, BOOL composite)
 {
-  NSSize imageSize= [image size];
+  NSSize imageSize = image.size;
   NSRect imageRect;
   
-  imageRect.origin= NSMakePoint(0, 0);
-  imageRect.size= imageSize;
-  for (CGFloat y= 0; y < rect.size.height; y+= imageSize.height)
+  imageRect.origin = NSMakePoint(0, 0);
+  imageRect.size = imageSize;
+
+  NSRect targetRect = NSMakeRect(rect.origin.x, rect.origin.y, imageSize.width, imageSize.height);
+  while (targetRect.origin.y < rect.size.height)
   {
-    for (CGFloat x= 0; x < rect.size.width; x+= imageSize.width)
+    while (targetRect.origin.x < rect.size.width)
     {
-      [image drawAtPoint:NSMakePoint(rect.origin.x+x, rect.origin.y+y) 
-                fromRect:imageRect
-               operation:composite ? NSCompositeSourceOver : NSCompositeCopy 
-                fraction:1.0];
+      [image drawInRect: targetRect
+               fromRect: imageRect
+              operation: composite ? NSCompositeSourceOver : NSCompositeCopy
+               fraction: 1
+         respectFlipped: YES
+                  hints: nil];
+
+      targetRect.origin.x += imageSize.width;
     }
+    targetRect.origin.y += imageSize.height;
   }
 }
 
 @implementation WBOverviewBackgroundView
 
-- (id)initWithFrame:(NSRect)rect
+- (instancetype)initWithFrame:(NSRect)rect
 {
   if ((self= [super initWithFrame:rect]) != nil)
   {
     bgImage= [[NSImage imageNamed:@"background.png"] retain];
-    [bgImage setFlipped: YES];
     shadowImage= [[NSImage imageNamed:@"background_top_shadow.png"] retain];
     [self setExpandSubviewsByDefault: NO];
   }
@@ -105,24 +111,13 @@ static void DrawTiledImage(NSImage *image, NSRect rect, BOOL composite)
 
 @end
 
-
-
-
+#pragma mark -
 
 @implementation WBOverviewPanel
 
 static NSString *stringFromNodeId(const bec::NodeId &node)
 {
-  return [NSString stringWithUTF8String: node.repr().c_str()];
-}
-
-- (id)initWithOverviewBE:(wb::OverviewBE*)overview
-{
-  if ((self= [super initWithFrame: NSMakeRect(0, 0, 300, 300)]) != nil)
-  {
-    [self setupWithOverviewBE: overview];
-  }
-  return self;
+  return @(node.repr().c_str());
 }
 
 - (void)setupWithOverviewBE:(wb::OverviewBE*)overview
@@ -130,7 +125,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   _overview= overview;
   _overview->set_frontend_data(self);
   
-  _identifier= [[NSString stringWithUTF8String: _overview->identifier().c_str()] retain];
+  _identifier= [@(_overview->identifier().c_str()) retain];
   
   [self setHasVerticalScroller:YES];
   [self setHasHorizontalScroller:NO];
@@ -206,7 +201,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   {
     _lastFoundNode= new bec::NodeId(node);
     
-    id container= [_itemContainers objectForKey:stringFromNodeId(_overview->get_parent(node))];
+    id container= _itemContainers[stringFromNodeId(_overview->get_parent(node))];
     
     for (id cont in [_itemContainers objectEnumerator])
     {
@@ -245,7 +240,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 {  
   try
   {
-    return [NSString stringWithUTF8String: _overview->get_title().c_str()];
+    return @(_overview->get_title().c_str());
   }
   catch (...)
   {
@@ -293,13 +288,13 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   
   for (id key in [_itemContainers keyEnumerator])
   {
-    id item = [_itemContainers objectForKey: key];
+    id item = _itemContainers[key];
     if ([item isKindOfClass: [WBOverviewGroupContainer class]])
     {
       WBOverviewGroupContainer *group = item;
       NSInteger index = [group indexOfTabViewItem: [group selectedTabViewItem]];
       if (index != NSNotFound)
-        [selectedTabs setObject: [NSNumber numberWithInt: index] forKey: key];
+        selectedTabs[key] = @((int)index);
     }
   }
 
@@ -311,11 +306,11 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   if ([selectedTabs count] > 0)
     for (id key in [selectedTabs keyEnumerator])
     {
-      id item = [_itemContainers objectForKey: key];
+      id item = _itemContainers[key];
       if ([item isKindOfClass: [WBOverviewGroupContainer class]])
       {
         WBOverviewGroupContainer *group = item;
-        id index = [selectedTabs objectForKey: key];
+        id index = selectedTabs[key];
         if (index)
         {
           // selectTabViewItemWithIdentifier is the only method that works in this hacked tabview thing
@@ -332,14 +327,14 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
 - (id)itemContainerForNode:(const bec::NodeId&)node
 {
-  return [_itemContainers objectForKey: [NSString stringWithUTF8String: node.repr().c_str()]];
+  return _itemContainers[@(node.repr().c_str())];
 }
 
 
 - (void)registerContainer:(id)container
                   forItem:(NSString*)item
 {
-  [_itemContainers setObject:container forKey:item];
+  _itemContainers[item] = container;
 }
 
 
@@ -351,13 +346,13 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
 - (void)refreshNode:(const bec::NodeId&)node
 {
-  id container= [_itemContainers objectForKey:stringFromNodeId(node)];
+  id container= _itemContainers[stringFromNodeId(node)];
 
   if (container && [container respondsToSelector:@selector(refreshInfo)])
     [container refreshInfo];
   else
   {
-    container= [_itemContainers objectForKey:stringFromNodeId(_overview->get_parent(node))];
+    container= _itemContainers[stringFromNodeId(_overview->get_parent(node))];
   
     if ([container respondsToSelector:@selector(refreshChildInfo:)])
       [container refreshChildInfo:node];
@@ -381,11 +376,11 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
       switch ((wb::OverviewBE::OverviewNodeType)type)
       {
         case wb::OverviewBE::OGroup:
-          [[_itemContainers objectForKey:stringFromNodeId(node)] refreshChildren];
+          [_itemContainers[stringFromNodeId(node)] refreshChildren];
           break;
           
         case wb::OverviewBE::OItem:
-          [[_itemContainers objectForKey:stringFromNodeId(node)] refreshChildren];
+          [_itemContainers[stringFromNodeId(node)] refreshChildren];
           break;
           
         default: break;
@@ -397,7 +392,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
       parent= _overview->get_parent(node);
       while (parent.is_valid())
       {
-        id container = [_itemContainers objectForKey: stringFromNodeId(parent)];
+        id container = _itemContainers[stringFromNodeId(parent)];
         if ([container isKindOfClass: [WBOverviewGroupContainer class]])
         {
           [container tile];
@@ -453,7 +448,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
          withAction:@selector(performGroupDelete:)
              target:groups];
     
-    [_itemContainers setObject:groups forKey:[NSString stringWithUTF8String: node.repr().c_str()]];
+    _itemContainers[@(node.repr().c_str())] = groups;
     
     [groups buildChildren];
     
@@ -464,7 +459,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     WBOverviewItemContainer *itemList= [[[WBOverviewItemContainer alloc] initWithOverview:self
                                                                                    nodeId:node] autorelease];
     
-    [_itemContainers setObject:itemList forKey:[NSString stringWithUTF8String: node.repr().c_str()]];
+    _itemContainers[@(node.repr().c_str())] = itemList;
     
     [pane setContentView: itemList];
     
@@ -474,7 +469,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   {
     WBOverviewGroup *group= [[[WBOverviewGroup alloc] initWithOverview:self nodeId:node tabItem:nil] autorelease];
     
-    [_itemContainers setObject:group forKey:[NSString stringWithUTF8String:node.repr().c_str()]];
+    _itemContainers[@(node.repr().c_str())] = group;
     
     [group buildChildren];
     
@@ -516,7 +511,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
       {
         MTogglePane *pane= [[[MTogglePane alloc] initWithFrame:NSMakeRect(0, 0, width, 100)
                                                  includeHeader:!_noHeaders] autorelease];
-        [pane setLabel:[NSString stringWithUTF8String:label.c_str()]];
+        [pane setLabel:@(label.c_str())];
         [pane setAutoresizingMask:NSViewWidthSizable|NSViewMaxYMargin];
         [_backgroundView addSubview:pane];
         

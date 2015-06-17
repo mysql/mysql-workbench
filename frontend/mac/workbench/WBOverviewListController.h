@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,11 +41,9 @@
 
 - (void)setCollectionView: (NSCollectionView*) view;
 
-- (void) setItems: (NSMutableArray*) items;
-- (NSMutableArray*) items;
+@property (copy) NSMutableArray *items;
 
-- (void) setSelectedIndexes: (NSIndexSet*) indexSet;
-- (NSIndexSet*) selectedIndexes;
+@property (copy) NSIndexSet *selectedIndexes;
 
 - (void) fillFromChildrenOf: (const bec::NodeId&) node
                   overview:(wb::OverviewBE*) overview

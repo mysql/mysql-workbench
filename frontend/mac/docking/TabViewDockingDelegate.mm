@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,9 +40,16 @@ bool TabViewDockingPointDelegate::close_all()
 {
   for (NSTabViewItem *item in [_tabView tabViewItems])
   {
-    mforms::AppView *aview = appview_for_view([item view]);
-    if (aview && !_dpoint->close_view(aview))
+    mforms::AppView *view = appview_for_view(item.view);
+    if (view != NULL && !view->on_close())
       return false;
+  }
+
+  for (NSTabViewItem *item in [_tabView tabViewItems])
+  {
+    mforms::AppView *view = appview_for_view(item.view);
+    if (view != NULL)
+      view->close();
   }
   return true;
 }

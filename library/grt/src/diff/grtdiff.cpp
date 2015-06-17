@@ -29,7 +29,7 @@
 #include "base/util_functions.h"
 #include "base/log.h"
 
-//DEFAULT_LOG_DOMAIN("Diff module")
+//DEFAULT_LOG_DOMAIN("Diff module") currently unused
 
 namespace grt
 {

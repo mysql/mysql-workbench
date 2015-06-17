@@ -60,6 +60,8 @@ public:
     args.ginsert(grt::StringRef(path));
 
     workbench_DocumentRef doc(workbench_DocumentRef::cast_from(module->call_function("openModelFile", args)));
+    if (!doc.is_valid())
+      return grt::IntegerRef(0);
 
     //Merge catalog
     db_CatalogRef source_catalog = doc->physicalModels()[0]->catalog();

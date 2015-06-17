@@ -75,7 +75,8 @@ namespace mforms {
   enum DialogResult {
     ResultOk     =  1,
     ResultCancel =  0,
-    ResultOther  = -1
+    ResultOther  = -1,
+    ResultUnknown = -2
   };
 
   // Describes the type of message, confirmation etc. we want to show to the user.
@@ -271,6 +272,10 @@ namespace mforms {
      * @return true if password was found else false.
      */
     static bool find_cached_password(const std::string &service, const std::string &account, std::string &ret_password);
+
+    /** Clears the stored password for the given service and account from in-memory cache only
+     */
+    static void forget_cached_password(const std::string &service, const std::string &account);
 
     /** Clears the stored password for the given service and account */
     static void forget_password(const std::string &service, const std::string &account);

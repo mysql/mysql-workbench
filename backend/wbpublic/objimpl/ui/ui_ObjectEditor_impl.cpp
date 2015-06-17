@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -68,9 +68,9 @@ GrtObjectRef ui_ObjectEditor::ImplData::edited_object()
 
 //--------------------------------------------------------------------------------------------------
 
-static struct Registerui_ObjectEditorNotifDocs
+static struct RegisterNotifDocs_ui_ObjectEditor_impl
 {
-  Registerui_ObjectEditorNotifDocs()
+  RegisterNotifDocs_ui_ObjectEditor_impl()
   {
     // GRNObjectEditorDidCreate?
     base::NotificationCenter::get()->register_notification(GRNObjectEditorWillOpen,
@@ -107,5 +107,5 @@ static struct Registerui_ObjectEditorNotifDocs
                                                            ui_ObjectEditor::static_class_name(),
                                                            "");
   }
-} initdocs;
+} initdocs_ui_ObjectEditor_impl;
 

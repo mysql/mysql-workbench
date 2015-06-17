@@ -17,5 +17,4 @@
  * 02110-1301  USA
  */
 
-#include "Stdafx.h"
 #include "IRecordsetView.h"

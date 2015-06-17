@@ -78,15 +78,15 @@ namespace mforms { class View; }
 
 - (void)writeNativeData: (void *)data typeAsString: (NSString *)type;
 - (void)writeNativeData: (void *)data typeAsChar: (const char *)type;
-- (void *)nativeDataForTypeAsString: (NSString *)type;
-- (void *)nativeDataForTypeAsChar: (const char *)type;
+- (void *)nativeDataForTypeAsString: (NSString *)type NS_RETURNS_INNER_POINTER;
+- (void *)nativeDataForTypeAsChar: (const char *)type NS_RETURNS_INNER_POINTER;
 
 @end
 
 /** MForms control implementations must subclass their own NS counterpart and implement
  *  the size related methods like below if they need it.
  */
-@interface NSView(MForms) <NSDraggingDestination>
+@interface NSView(MForms) <NSDraggingDestination, NSDraggingSource, NSPasteboardItemDataProvider>
 
 @property NSInteger viewFlags;
 @property NSArray *acceptableDropFormats;
@@ -94,18 +94,17 @@ namespace mforms { class View; }
 @property mforms::DragOperation allowedDragOperations;
 @property mforms::DropPosition lastDropPosition; // Only valid during a drag operation. Set by descendants.
 
-- (id)innerView;
+@property (readonly, strong) id innerView;
 
 - (void)subviewMinimumSizeChanged;
-- (NSSize)minimumSize;
+@property (readonly) NSSize minimumSize;
 - (NSSize)minimumSizeForWidth:(float)width;
-- (NSSize)preferredSize;
+@property (readonly) NSSize preferredSize;
 - (NSSize)preferredSizeForWidth:(float)width;
 
-- (void)setFixedFrameSize:(NSSize)size;
-- (NSSize)fixedFrameSize;
-- (BOOL)widthIsFixed;
-- (BOOL)heightIsFixed;
+@property  NSSize fixedFrameSize;
+@property (readonly) BOOL widthIsFixed;
+@property (readonly) BOOL heightIsFixed;
 
 - (bool)handleMouseUp: (NSEvent*) event owner: (mforms::View *)mOwner;
 - (bool)handleMouseDown: (NSEvent*) event owner: (mforms::View *)mOwner;

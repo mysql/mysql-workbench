@@ -24,7 +24,7 @@ static const float DEFAULT_HEIGHT = 24;
 
 @implementation WBMiniToolbar
 
-- (id)initWithFrame:(NSRect)frame 
+- (instancetype)initWithFrame:(NSRect)frame 
 {
   frame.size.height = DEFAULT_HEIGHT;
   self = [super initWithFrame: frame];
@@ -95,22 +95,22 @@ static const float DEFAULT_HEIGHT = 24;
 
 - (void)colorPopupChanged:(id)sender
 {
-  id info= [mOptionInfoList objectAtIndex: [sender tag]];
+  id info= mOptionInfoList[[sender tag]];
   
   [mDelegate miniToolbar: self
-            popupChanged: [info objectForKey: @"name"]
-                  option: [info objectForKey: @"option"]
+            popupChanged: info[@"name"]
+                  option: info[@"option"]
                    value: [[sender selectedItem] representedObject]];
 }
 
 
 - (void)popupChanged:(id)sender
 {
-  id info= [mOptionInfoList objectAtIndex: [sender tag]];
+  id info= mOptionInfoList[[sender tag]];
   
   [mDelegate miniToolbar: self
-            popupChanged: [info objectForKey: @"name"]
-                  option: [info objectForKey: @"option"]
+            popupChanged: info[@"name"]
+                  option: info[@"option"]
                    value: [sender titleOfSelectedItem]];
 }
 
@@ -208,8 +208,8 @@ static const float DEFAULT_HEIGHT = 24;
   [[seg cell] setTrackingMode: NSSegmentSwitchTrackingSelectAny];
   for (NSUInteger i = 0; i < [iconsAndTags count]/2; i++)
   {
-    [seg setImage: [iconsAndTags objectAtIndex: i*2] forSegment: i];
-    [[seg cell] setTag: [[iconsAndTags objectAtIndex: i*2+1] intValue] forSegment: i];
+    [seg setImage: iconsAndTags[i*2] forSegment: i];
+    [[seg cell] setTag: [iconsAndTags[i*2+1] intValue] forSegment: i];
   }
 
   [self addSubview: seg];
@@ -297,9 +297,8 @@ static const float DEFAULT_HEIGHT = 24;
   
   [popup setTag: [mOptionInfoList count]];  
     
-  [mOptionInfoList addObject: [NSDictionary dictionaryWithObjectsAndKeys: 
-                               name, @"name", 
-                               option, @"option", nil]];
+  [mOptionInfoList addObject: @{@"name": name, 
+                               @"option": option}];
   
   return popup;
 }
@@ -350,7 +349,7 @@ static const float DEFAULT_HEIGHT = 24;
   [self addSubview: popup];
   
   [popup setTag: [mOptionInfoList count]];
-  [mOptionInfoList addObject: [NSDictionary dictionaryWithObjectsAndKeys: name, @"name", option, @"option", nil]];
+  [mOptionInfoList addObject: @{@"name": name, @"option": option}];
 
   [self tile];
 }

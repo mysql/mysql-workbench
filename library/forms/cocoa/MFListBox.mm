@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,7 +32,7 @@
 
 @implementation DraggingTableView
 
-- (id)initWithFrame: (NSRect)frame owner: (mforms::ListBox*)theOwner
+- (instancetype)initWithFrame: (NSRect)frame owner: (mforms::ListBox*)theOwner
 {
   self = [super initWithFrame: frame];
   if (self != nil)
@@ -53,7 +53,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 @implementation MFListBoxImpl
 
-- (id)initWithObject:(::mforms::ListBox*)aListBox
+- (instancetype)initWithObject:(::mforms::ListBox*)aListBox
 {
   self= [super initWithFrame:NSMakeRect(0, 0, 40, 40)];
   if (self)
@@ -66,10 +66,12 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
     NSRect rect;
     rect.origin= NSMakePoint(0, 0);
-    rect.size= [NSScrollView contentSizeForFrameSize: [self frame].size
-                               hasHorizontalScroller: NO
-                                 hasVerticalScroller: YES
-                                          borderType: NSBezelBorder];
+    rect.size= [NSScrollView contentSizeForFrameSize: self.frame.size
+                             horizontalScrollerClass: nil
+                               verticalScrollerClass: [NSScroller class]
+                                          borderType: NSBezelBorder
+                                         controlSize: NSRegularControlSize
+                                       scrollerStyle: NSScrollerStyleOverlay];
     mTable = [[[DraggingTableView alloc] initWithFrame: rect owner: aListBox] autorelease];
     mHeader= [[mTable headerView] retain];
     [mTable setHeaderView: nil];
@@ -122,7 +124,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
 {
-  return [mContents objectAtIndex: rowIndex];
+  return mContents[rowIndex];
 }
 
 
@@ -250,7 +252,7 @@ static std::string listbox_get_text(::mforms::ListBox *self)
     if ( listbox )
     {
       if ([listbox->mTable selectedRow] >= 0)
-        return [[listbox->mContents objectAtIndex: [listbox->mTable selectedRow]] UTF8String];
+        return [listbox->mContents[[listbox->mTable selectedRow]] UTF8String];
     }
   }
   return "";
@@ -288,6 +290,34 @@ static ssize_t listbox_get_index(::mforms::ListBox *self)
   return -1;
 }
 
+static size_t listbox_get_count(::mforms::ListBox *self)
+{
+  if (self)
+  {
+    MFListBoxImpl* listbox = self->get_data();
+    
+    if (listbox)
+    {
+      return [listbox->mContents count];
+    }
+  }
+  return 0;
+}
+
+static std::string listbox_get_string_value_from_index(::mforms::ListBox *self, size_t index)
+{
+  if (self)
+  {
+    MFListBoxImpl* listbox = self->get_data();
+    
+    if (listbox)
+    {
+      if (index < [listbox->mContents count])
+        return [listbox->mContents[index] UTF8String];
+    }
+  }
+  return "";
+}
 
 static std::vector<size_t> listbox_get_selected_indices(::mforms::ListBox *self)
 {
@@ -334,17 +364,19 @@ void cf_listbox_init()
 {
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
   
-  f->_listbox_impl.create               = &listbox_create;
-  f->_listbox_impl.clear                = &listbox_clear;
-  f->_listbox_impl.set_heading          = &listbox_set_heading;
-  f->_listbox_impl.add_items            = &listbox_add_items;
-  f->_listbox_impl.add_item             = &listbox_add_item;
-  f->_listbox_impl.remove_indexes       = &listbox_remove_indices;
-  f->_listbox_impl.remove_index         = &listbox_remove_index;
-  f->_listbox_impl.get_text             = &listbox_get_text;
-  f->_listbox_impl.set_index            = &listbox_set_index;
-  f->_listbox_impl.get_index            = &listbox_get_index;
-  f->_listbox_impl.get_selected_indices = &listbox_get_selected_indices;
+  f->_listbox_impl.create                       = &listbox_create;
+  f->_listbox_impl.clear                        = &listbox_clear;
+  f->_listbox_impl.set_heading                  = &listbox_set_heading;
+  f->_listbox_impl.add_items                    = &listbox_add_items;
+  f->_listbox_impl.add_item                     = &listbox_add_item;
+  f->_listbox_impl.remove_indexes               = &listbox_remove_indices;
+  f->_listbox_impl.remove_index                 = &listbox_remove_index;
+  f->_listbox_impl.get_text                     = &listbox_get_text;
+  f->_listbox_impl.set_index                    = &listbox_set_index;
+  f->_listbox_impl.get_index                    = &listbox_get_index;
+  f->_listbox_impl.get_selected_indices         = &listbox_get_selected_indices;
+  f->_listbox_impl.get_count                    = &listbox_get_count;
+  f->_listbox_impl.get_string_value_from_index  = &listbox_get_string_value_from_index;
 }
 
 

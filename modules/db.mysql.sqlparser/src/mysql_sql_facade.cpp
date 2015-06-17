@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,7 +17,8 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
+#include <glib.h>
+#include <boost/signals2.hpp>
 
 #include "mysql_sql_facade.h"
 #include "mysql_sql_parser.h"
@@ -1081,7 +1082,7 @@ grt::DictRef MysqlSqlFacadeImpl::parseStatement(const std::string &sql_statement
   }
   
   MySQLRecognizer recognizer(server_version, sql_mode, charsets);
-  recognizer.parse(sql_statement.c_str(), sql_statement.length(), true, QtGrant);
+  recognizer.parse(sql_statement.c_str(), sql_statement.length(), true, PuGrant);
 
   if (!recognizer.has_errors())
     ret_val = parseGrantStatement(recognizer);
@@ -1093,7 +1094,7 @@ grt::DictRef MysqlSqlFacadeImpl::parseStatement(const std::string &sql_statement
 grt::StringRef MysqlSqlFacadeImpl::concatenateTokens(MySQLRecognizerTreeWalker &walker, std::unordered_set<int> &stop_symbols, const std::string &separator)
 {
   std::string data;
-  bool is_id = walker.is_identifier();
+  bool is_id = walker.is_identifier() && !walker.is_keyword();
 
   // Identifiers are back quoted
   if (is_id)
@@ -1113,7 +1114,7 @@ grt::StringRef MysqlSqlFacadeImpl::concatenateTokens(MySQLRecognizerTreeWalker &
   {
     data += separator;
 
-    is_id = walker.is_identifier();
+	is_id = walker.is_identifier() && !walker.is_keyword();
 
     // Identifiers are back quoted
     if (is_id)

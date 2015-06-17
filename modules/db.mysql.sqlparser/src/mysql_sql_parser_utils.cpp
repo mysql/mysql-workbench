@@ -17,14 +17,11 @@
  * 02110-1301  USA
  */
 
+#include <glib.h>
+#include <boost/signals2.hpp>
 
-#include "stdafx.h"
-#include <locale>
-
-#ifndef _WIN32
 #include <cctype>
 #include <algorithm>
-#endif
 
 #include <locale>
 #include "mysql_sql_parser_utils.h"

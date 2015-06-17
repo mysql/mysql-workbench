@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,6 +45,7 @@ class FormImpl : public ViewImpl
   void accept_clicked(bool *status, const bool is_run);
   void cancel_clicked(bool *status, const bool is_run);
   bool on_widget_delete_event(GdkEventAny* event, Button *cancel);
+  bool can_delete_widget(GdkEventAny* event);
   static void show_modal(::mforms::Form *self, ::mforms::Button *accept, ::mforms::Button *cancel);
   static void end_modal(::mforms::Form *self, bool result);
   bool on_key_release(GdkEventKey* event, bool *status, const bool is_run, ::mforms::Button *accept, ::mforms::Button *cancel);

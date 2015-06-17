@@ -831,7 +831,7 @@ grt::ValueRef GRTDispatcher::add_task_and_wait(const GRTTaskBase::Ref task) THRO
 
 //--------------------------------------------------------------------------------------------------
 
-grt::ValueRef GRTDispatcher::execute_simple_function(const std::string &name,
+grt::ValueRef GRTDispatcher::execute_sync_function(const std::string &name,
   const boost::function<grt::ValueRef (grt::GRT*)> &function) THROW (grt::grt_runtime_error)
 {
   GRTSimpleTask::Ref task(GRTSimpleTask::create_task(name, shared_from_this(), function));

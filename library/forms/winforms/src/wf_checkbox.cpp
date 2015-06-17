@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -84,6 +84,42 @@ bool CheckBoxWrapper::get_active(mforms::CheckBox *backend)
 CheckBoxWrapper::CheckBoxWrapper(mforms::CheckBox *cbox)
   : ButtonWrapper(cbox)
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+
+int CheckBoxWrapper::set_text(const std::string &text)
+{
+  int height = __super::set_text(text);
+  MformsCheckBox ^checkbox = GetManagedObject<MformsCheckBox>();
+  assert(checkbox != nullptr);
+  if (height < checkbox->PreferredSize.Height)
+    height = checkbox->PreferredSize.Height;
+  checkbox->MinimumSize = System::Drawing::Size(checkbox->MinimumSize.Width, height);
+  return height;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void CheckBoxWrapper::set_font(const std::string &fontDescription)
+{
+  __super::set_font(fontDescription);
+  MformsCheckBox ^checkbox = GetManagedObject<MformsCheckBox>();
+  assert(checkbox != nullptr);
+  Graphics ^graphics = checkbox->CreateGraphics();
+  if (graphics != nullptr)
+  {
+    Font^ font = checkbox->Font != nullptr ? checkbox->Font : checkbox->DefaultFont;
+    int height = 0;
+    if (font)
+    {
+      String ^text = String::IsNullOrEmpty(checkbox->Text) ? "Some text" : checkbox->Text;
+      height = (int)graphics->MeasureString(text, font).Height;
+    }
+    if (height < checkbox->PreferredSize.Height)
+      height = checkbox->PreferredSize.Height;
+    checkbox->MinimumSize = System::Drawing::Size(checkbox->MinimumSize.Width, height);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------

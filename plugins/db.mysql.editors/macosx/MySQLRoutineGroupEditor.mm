@@ -20,6 +20,7 @@
 #include "base/geometry.h"
 #include "base/string_utilities.h"
 
+#include "wb_context.h"
 #import "MySQLRoutineGroupEditor.h"
 #import "MCPPUtilities.h"
 #import "MVerticalLayoutView.h"
@@ -34,9 +35,11 @@ static void call_refresh(DbMysqlRoutineGroupEditor *self)
   [self performSelectorOnMainThread:@selector(refresh) withObject:nil waitUntilDone:YES];
 }
 
-- (id)initWithModule:(grt::Module*)module GRTManager:(bec::GRTManager*)grtm arguments:(const grt::BaseListRef&)args
+- (instancetype)initWithModule: (grt::Module*)module
+                    grtManager: (bec::GRTManager *)grtm
+                     arguments: (const grt::BaseListRef &)args
 {
-  self= [super initWithNibName: @"MySQLRoutineGroupEditor" bundle: [NSBundle bundleForClass:[self class]]];
+  self = [super initWithNibName: @"MySQLRoutineGroupEditor" bundle: [NSBundle bundleForClass:[self class]]];
   if (self != nil)
   {
     _grtm = grtm;
@@ -46,7 +49,7 @@ static void call_refresh(DbMysqlRoutineGroupEditor *self)
     [routineTable setTarget: self];
     [routineTable setDoubleAction: @selector(doubleClickRoutine:)];
 
-    [routineTable registerForDraggedTypes: [NSArray arrayWithObject: @"x-mysql-wb/db.DatabaseObject"]];
+    [routineTable registerForDraggedTypes: @[[NSString stringWithCPPString: WB_DBOBJECT_DRAG_TYPE]]];
     
     // take the minimum size of the view from the initial size in the nib.
     // Therefore the nib should be designed as small as possible
@@ -128,7 +131,7 @@ static void call_refresh(DbMysqlRoutineGroupEditor *self)
                  proposedRow:(NSInteger)row
        proposedDropOperation:(NSTableViewDropOperation)operation
 {
-  id data= [[info draggingPasteboard] stringForType: @"x-mysql-wb/db.DatabaseObject"];
+  id data = [[info draggingPasteboard] stringForType: [NSString stringWithCPPString: WB_DBOBJECT_DRAG_TYPE]];
   if (data)
   {
     std::list<db_DatabaseObjectRef> objects;
@@ -157,7 +160,7 @@ static void call_refresh(DbMysqlRoutineGroupEditor *self)
               row:(NSInteger)row
     dropOperation:(NSTableViewDropOperation)operation
 {
-  id data= [[info draggingPasteboard] stringForType: @"x-mysql-wb/db.DatabaseObject"];
+  id data= [[info draggingPasteboard] stringForType: [NSString stringWithCPPString: WB_DBOBJECT_DRAG_TYPE]];
   if (data)
   {
     std::list<db_DatabaseObjectRef> objects;
@@ -228,7 +231,7 @@ static void call_refresh(DbMysqlRoutineGroupEditor *self)
 
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
 {
-  return [mRoutineArray objectAtIndex: rowIndex];
+  return mRoutineArray[rowIndex];
 }
 
 //--------------------------------------------------------------------------------------------------

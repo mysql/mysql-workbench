@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,6 +33,7 @@
 #include "sqlide/db_sql_editor_log.h"
 #include "sqlide/db_sql_editor_history_be.h"
 #include "sqlide/wb_context_sqlide.h"
+#include "sqlide/wb_live_schema_tree.h"
 
 #include "cppdbc.h"
 
@@ -282,7 +283,7 @@ private:
 private:
   std::string _sql_mode;
   int _lower_case_table_names;
-  parser::ParserContextRef _work_parser_context; // Never use in a background thread.
+  parser::ParserContext::Ref _work_parser_context; // Never use in a background thread.
 private:
   void create_connection(sql::Dbc_connection_handler::Ref &dbc_conn, db_mgmt_ConnectionRef db_mgmt_conn, boost::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref auth, bool autocommit_mode, bool user_connection);
   void init_connection(sql::Connection* dbc_conn_ref, const db_mgmt_ConnectionRef& connectionProperties, sql::Dbc_connection_handler::Ref& dbc_conn, bool user_connection);
@@ -293,7 +294,7 @@ private:
 
 public:
   base::RecMutexLock ensure_valid_aux_connection(sql::Dbc_connection_handler::Ref &conn);
-  parser::ParserContextRef work_parser_context() { return _work_parser_context;  };
+  parser::ParserContext::Ref work_parser_context() { return _work_parser_context;  };
 
 private:
   bec::TimerActionThread *_keep_alive_thread;
@@ -408,10 +409,8 @@ public:
 public:
   void active_schema(const std::string &value);
   std::string active_schema() const;
-  void schema_meta_data_refreshed(const std::string &schema_name,
-                                  const std::vector<std::pair<std::string,bool> >& tables, 
-                                  const std::vector<std::pair<std::string,bool> >& procedures, 
-                                  bool just_append);
+  void schema_meta_data_refreshed(const std::string &schema_name, base::StringListPtr tables,
+    base::StringListPtr views, base::StringListPtr procedures, base::StringListPtr functions);
 private:
   void cache_active_schema_name();
 

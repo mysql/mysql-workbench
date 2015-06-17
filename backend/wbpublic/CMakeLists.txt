@@ -16,6 +16,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library
     ${PROJECT_SOURCE_DIR}/library/grt/src 
     ${PROJECT_SOURCE_DIR}/library/base
+    ${PROJECT_SOURCE_DIR}/library/base/base
     ${PROJECT_SOURCE_DIR}/library/forms
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
     ${PROJECT_SOURCE_DIR}/library/cdbc/src
@@ -97,6 +98,8 @@ add_library(wbpublic
     sqlide/autocomplete_object_name_cache.cpp
     sqlide/sql_script_run_wizard.cpp
     sqlide/column_width_cache.cpp
+    sqlide/grammar-parser/ANTLRv3Lexer.c
+    sqlide/grammar-parser/ANTLRv3Parser.c
     wbcanvas/figure_common.cpp
     wbcanvas/badge_figure.cpp
     wbcanvas/connection_figure.cpp

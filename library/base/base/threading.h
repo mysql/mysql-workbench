@@ -22,9 +22,12 @@
 #include "common.h"
 
 #include <stdexcept>
-#include "glib.h"
 
-namespace base{
+#ifndef HAVE_PRECOMPILED_HEADERS
+#include "glib.h"
+#endif
+
+namespace base {
 
   typedef gint refcount_t;
 

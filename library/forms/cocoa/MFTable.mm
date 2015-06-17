@@ -46,7 +46,7 @@
 
 @implementation MFTableImpl
 
-- (id)initWithObject:(::mforms::Table*)aTable
+- (instancetype)initWithObject:(::mforms::Table*)aTable
 {
   self= [super initWithFrame:NSMakeRect(0,0,1,1)];
   if (self)

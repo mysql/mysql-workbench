@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,6 +34,8 @@ namespace MySQL {
 
     public:
       static void init();
+      virtual int set_text(const std::string &text);
+      virtual void set_font(const std::string &fontDescription);
     };
 
   };

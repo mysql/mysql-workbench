@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -138,7 +138,7 @@ mforms::DialogResult CustomMessageBox::ShowInternal(const std::string& title, co
   BOOL verificationChecked = FALSE;
 
   int buttonCount = 0;
-  TASKDIALOG_BUTTON buttons[2];
+  TASKDIALOG_BUTTON buttons[3]; 
 
   std::wstring do_text = base::string_to_wstring(buttonOK);
   if (!do_text.empty())

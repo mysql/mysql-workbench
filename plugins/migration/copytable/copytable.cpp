@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1779,6 +1779,13 @@ void MySQLCopyDataTarget::get_server_version()
   log_debug("Detected server version=%s\n", version.c_str());
 }
 
+bool MySQLCopyDataTarget::is_mysql_version_at_least(const int _major, const int _minor, const int _build)
+{
+  return _major_version > _major
+           || (_major_version == _major && _minor_version > _minor)
+           || (_major_version == _major && _minor_version == _minor && _build_version >= _build);
+}
+
 std::string MySQLCopyDataTarget::ps_query()
 {
   std::string q("INSERT INTO ");
@@ -1915,7 +1922,8 @@ MySQLCopyDataTarget::MySQLCopyDataTarget(const std::string &hostname, int port,
   mysql_init(&_mysql);
 #if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
 #if MYSQL_CHECK_VERSION(5,6,6)
-  mysql_options4(&_mysql, MYSQL_OPT_CONNECT_ATTR_ADD, "program_name", app_name.c_str());
+  if (is_mysql_version_at_least(5,6,6))
+    mysql_options4(&_mysql, MYSQL_OPT_CONNECT_ATTR_ADD, "program_name", app_name.c_str());
 #endif
 #endif
 
@@ -2862,7 +2870,16 @@ bool MySQLCopyDataTarget::InsertBuffer::append_escaped(const char *data, size_t 
 
   // This function is used to create a legal SQL string that you can use in an SQL statement
   // This is needed because the escaping depends on the character set in use by the server
-  length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
+  #if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
+  #if MYSQL_CHECK_VERSION(5,7,6)
+    if (is_mysql_version_at_least(5,7,6))
+      length += mysql_real_escape_string_quote(_mysql, buffer + length, data, (unsigned long)dlength);
+    else
+      length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
+  #else
+    length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
+  #endif
+  #endif
 
   return true;
 }

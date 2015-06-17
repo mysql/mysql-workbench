@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -238,19 +238,28 @@ def local_run_cmd_linux(command, as_user = Users.CURRENT, user_password=None, su
         return data
 
     # script should already have sudo
+    my_env = os.environ.copy()
+    my_env['LANG'] = "C" # Force english locale 
     child = subprocess.Popen(["/bin/sh", "-c", script], bufsize=0,
                              stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                             close_fds=True)
+                             close_fds=True, env = my_env)
 
     expect_sudo_failure = False
-    if as_user != Users.CURRENT:
+
+    if as_user != Users.CURRENT: 
         # If sudo is being used, we need to input the password
         data = read_nonblocking_until_nl_or(child, child.stdout, "EnterPasswordHere", timeout=output_timeout)
         if data.endswith("EnterPasswordHere"):
+            
+            if not user_password:
+                log_debug2("Password required for sudo, but user_password is empty, throwing exception.")
+                child.terminate() # sudo need pw, but pw is empty, throw exception, 
+                                  # it will be handled upper in the chain and proper pw dialog will be shown.
+                raise InvalidPasswordError("Incorrect password for sudo")
             # feed the password
             if debug_run_cmd:
                 log_debug2("local_run_cmd_linux: sending password to child...\n")
-            child.stdin.write((user_password or "")+"\n")
+            child.stdin.write((user_password or " ")+"\n"+'\x1a')
             expect_sudo_failure = True # we could get a Sorry or the password prompt again
         else:
             # If the prompt didn't come in, it could mean that password is not required
@@ -262,7 +271,7 @@ def local_run_cmd_linux(command, as_user = Users.CURRENT, user_password=None, su
             # - a certain number of lines are read from the pipe
             # - until a timeout occurs (a short one, since the banner shouldn't take very long to get printed)
             # - until the sudo terminates
-
+            log_debug2("sudo prompt available, but it's not standard. Trying to parse.")
             max_lines_to_read_until_giving_up_waiting_for_sudo_prompt = 10
             num_seconds_to_wait_for_sudo_greeting_message_until_we_assume_prompt_wont_come = 1
 
@@ -271,6 +280,11 @@ def local_run_cmd_linux(command, as_user = Users.CURRENT, user_password=None, su
             while child.poll() is None:
                 data = read_nonblocking_until_nl_or(child, child.stdout, "EnterPasswordHere", timeout=1)
                 if data.endswith("EnterPasswordHere"):
+                    if not user_password:
+                        log_debug2("Password required for sudo, but user_password is empty, throwing exception.")
+                        child.terminate() # sudo need pw, but pw is empty, throw exception, 
+                                          # it will be handled upper in the chain and proper pw dialog will be shown.
+                        raise InvalidPasswordError("Incorrect password for sudo")
                     log_info("Banner message from sudo for command %s:\n%s\n" % (script, "".join(buffered_output)))
                     buffered_output = None
                     # ok, so the stuff that came in until now is all garbage and the sudo prompt finally arrived
@@ -314,7 +328,6 @@ def local_run_cmd_linux(command, as_user = Users.CURRENT, user_password=None, su
             if output_handler and current_text:
                 output_handler(current_text)
 
-    
     # Try to read anything left, wait exit
     try:
         current_text, _ = child.communicate()
@@ -322,7 +335,6 @@ def local_run_cmd_linux(command, as_user = Users.CURRENT, user_password=None, su
             output_handler(current_text)
     except:
         pass
-    
     result = child.returncode
     if debug_run_cmd:
         log_debug2("local_run_cmd_linux: child returned %s\n" % result)
@@ -359,7 +371,7 @@ def local_run_cmd_windows(command, as_user=Users.CURRENT, user_password=None, su
 
             # Patch to ensure old OS calls get executed properly
             actual_command = command.split(' ')[0]
-            if not actual_command in ['LISTDIR','GETFILE','GET_FREE_SPACE', 'CHECK_DIR_WRITABLE', 'CHECK_PATH_EXISTS', 'CREATE_DIRECTORY', 'CREATE_DIRECTORY_RECURSIVE', 'REMOVE_DIRECTORY', 'REMOVE_DIRECTORY_RECURSIVE','DELETE_FILE', 'COPY_FILE', 'GET_FILE_OWNER', 'GETFILE_LINES', 'EXEC']:
+            if not actual_command in ['LISTDIR','GETFILE','GET_FREE_SPACE', 'CHECK_FILE_READABLE', 'CHECK_DIR_WRITABLE', 'CHECK_PATH_EXISTS', 'CREATE_DIRECTORY', 'CREATE_DIRECTORY_RECURSIVE', 'REMOVE_DIRECTORY', 'REMOVE_DIRECTORY_RECURSIVE','DELETE_FILE', 'COPY_FILE', 'GET_FILE_OWNER', 'GETFILE_LINES', 'EXEC']:
                 command = "EXEC " + command
             cmdname = helper_path
             cmdparams = '%d %s %s %s' % (listener.port, listener.handshake, listener.close_key, command)
@@ -813,6 +825,9 @@ class FileOpsNope(object):
     def _copy_file(self, source, dest, as_user = Users.CURRENT, user_password = None): # not used externally
         pass
 
+    def check_file_readable(self, path, as_user=Users.CURRENT, user_password=None):
+        return False
+
     def check_dir_writable(self, path, as_user=Users.CURRENT, user_password=None):
         return False
 
@@ -1019,6 +1034,35 @@ class FileOpsLinuxBase(object):
             output = sanitize_sudo_output(output.getvalue()).strip()
             self.raise_exception(output)
     
+    @useAbsPath("path")
+    def check_file_readable(self, path, as_user=Users.CURRENT, user_password=None):
+        ret_val = True
+        
+        output = StringIO.StringIO()
+        
+        path = quote_path(path)
+        command = "test -e %s;_fe=$?;test -f %s;_fd=$?;test -r %s;echo $_fe$_fd$?" % (path, path, path)
+        self.process_ops.exec_cmd(command,
+                                  as_user,
+                                  user_password,
+                                  output_handler = output.write)
+
+        # The validation will depend on the output and not the returned value
+        output = sanitize_sudo_output(output.getvalue()).strip()
+      
+        log_debug2('check_file_readable :%s %s\n' % (len(output), output))
+        
+        if len(output) == 3:
+            if output[0] == '1':
+                raise OSError(errno.ENOENT, 'The path "%s" does not exist' % path)
+            elif output[1] == '1':
+                raise OSError(errno.ENOTDIR, 'The path "%s" is not a regular file' % path)
+            elif output[2] == '1':
+                ret_val = False
+        else:
+          raise Exception('Unable to verify file is readable : %s' % output)
+
+        return ret_val    
     @useAbsPath("path")
     def check_dir_writable(self, path, as_user=Users.CURRENT, user_password=None):
         ret_val = True
@@ -1335,6 +1379,14 @@ class FileOpsLocalWindows(object): # Used for remote as well, if not using sftp
         else:
             ret_val = self.exec_helper_command('GET_FILE_OWNER %s' % path, FunctionType.String, as_user, user_password)
 
+        return ret_val
+
+    def check_file_readable(self, path, as_user=Users.CURRENT, user_password=None):
+        if as_user == Users.CURRENT:
+            ret_val = FileUtils.check_file_readable(path)
+        else:
+            ret_val = self.exec_helper_command('CHECK_FILE_READABLE %s' % path, FunctionType.Boolean, as_user, user_password)
+          
         return ret_val
 
 
@@ -1783,6 +1835,12 @@ class FileOpsRemoteWindows(object):
             print "Attempt to read remote file with no ssh session"
             raise Exception("Cannot read remote file without an SSH session")
 
+    #TODO fix for windows
+    def check_file_readable(self, path, as_user=Users.CURRENT, user_password=None):
+        msg, code = self.process_ops.get_cmd_output('if exist ' + quote_path(path) + ' ( type '+ quote_path(path) +'>NUL && echo 0 ) else ( echo 1 )')
+        ret = (code == 0)
+        return ret
+
     def check_dir_writable(self, path, as_user=Users.CURRENT, user_password=None):
         msg, code = self.process_ops.get_cmd_output('echo 1 > ' + quote_path(path + "/wba_tmp_file.bak"))
         ret = (code == 0)
@@ -1827,6 +1885,7 @@ class ServerManagementHelper(object):
         self.profile = profile
 
         klass = None
+        
         match_tuple = (profile.host_os, profile.target_os, profile.connect_method)
         for k in _process_ops_classes:
             if k.match(match_tuple):
@@ -1860,6 +1919,10 @@ class ServerManagementHelper(object):
         if self.shell:
             return self.shell.cmd_output_encoding
         return ""
+
+    #-----------------------------------------------------------------------------
+    def check_file_readable(self, path, as_user=Users.CURRENT, user_password=None):
+        return self.file.check_file_readable(path, as_user, user_password)
 
     #-----------------------------------------------------------------------------
     def check_dir_writable(self, path, as_user=Users.CURRENT, user_password=None):
@@ -2010,41 +2073,71 @@ class SFTPInputFile(object):
 
 import multiprocessing
 class SudoTailInputFile(object):
-    def __init__(self, server_helper, path, password):
+    def __init__(self, server_helper, path, password = None, password_cb = None):
         self.path = path
         self.server_helper = server_helper # ServerManagementHelper
         self.data = None
         self._password = password
+        self._password_cb = password_cb
         self.skip_first_newline = True
         self._pos = 0
         self._proc = None
         self._queue = None
         # multiprocessing + paramiko doesn't work, so fallback to threading for remote access
         self._is_local = self.server_helper.profile.is_local
-
+        # check if we can read the file as normall user, if not we need to gather password if callback is provided
+        self._need_sudo = False
+        while True:
+            if not self._need_sudo:
+                try:
+                    if not self.server_helper.check_file_readable(self.path):
+                        self._need_sudo = True 
+                    break
+                except OSError, e:
+                    log_debug3("check_file_readable returned OSError, we will try with sudo then")
+                    self._need_sudo = True
+            else:
+                self._password = self.get_password
+                self.server_helper.check_file_readable(self.path, as_user = Users.ADMIN, user_password=self._password)
+                break
+            
     def __del__(self):
         if self._proc:
             self._proc.join()
 
     def tell(self):
         return self._pos
+    
+    @property
+    def get_password(self):
+        return self._password if not self._password_cb else self._password_cb()
 
     @property
     def size(self):
-        files = self.server_helper.listdir(self.path, as_user = Users.ADMIN, user_password=self._password, include_size=True)
+        if not self._need_sudo:
+            files = self.server_helper.listdir(self.path, as_user = Users.CURRENT, user_password=None, include_size=True)
+        else:
+            files = self.server_helper.listdir(self.path, as_user = Users.ADMIN, user_password=self._password, include_size=True)
         if not files:
             raise RuntimeError("Could not get size of file %s" % self.path)
         return files[0][1]
 
     def get_range(self, start, end):
         f = StringIO.StringIO()
-        ret = self.server_helper.execute_command("/bin/dd if=%s ibs=1 skip=%i count=%i 2> /dev/null" % (quote_path(self.path), start, end-start), as_user = Users.ADMIN, user_password=self._password, output_handler=f.write)
+        if not self._need_sudo:
+            ret = self.server_helper.execute_command("/bin/dd if=%s ibs=1 skip=%i count=%i 2> /dev/null" % (quote_path(self.path), start, end-start), as_user = Users.CURRENT, user_password=None, output_handler=f.write)
+        else:
+            ret = self.server_helper.execute_command("/bin/dd if=%s ibs=1 skip=%i count=%i 2> /dev/null" % (quote_path(self.path), start, end-start), as_user = Users.ADMIN, user_password=self.get_password, output_handler=f.write)
+
         if ret != 0:
             raise RuntimeError("Could not get data from file %s" % self.path)
         return f.getvalue()
 
     def read_task(self, offset, file):
-        self.server_helper.execute_command("/bin/dd if=%s ibs=1 skip=%i 2> /dev/null" % (quote_path(self.path), offset), as_user = Users.ADMIN, user_password=self._password, output_handler=file.write)
+        if not self._need_sudo:
+            self.server_helper.execute_command("/bin/dd if=%s ibs=1 skip=%i 2> /dev/null" % (quote_path(self.path), offset), as_user = Users.CURRENT, user_password=None, output_handler=file.write)
+        else:
+            self.server_helper.execute_command("/bin/dd if=%s ibs=1 skip=%i 2> /dev/null" % (quote_path(self.path), offset), as_user = Users.ADMIN, user_password=self.get_password, output_handler=file.write)
         # this will signal the reader end that there's no more data
         file.close()
 
@@ -2069,7 +2162,10 @@ class SudoTailInputFile(object):
             return self.start_read_task_from(offset)
         self._pos = offset
         f = StringIO.StringIO()
-        self.server_helper.execute_command("/bin/dd if=%s ibs=1 skip=%i 2> /dev/null" % (quote_path(self.path), offset), as_user = Users.ADMIN, user_password=self._password, output_handler=f.write)
+        if not self._need_sudo:
+            self.server_helper.execute_command("/bin/dd if=%s ibs=1 skip=%i 2> /dev/null" % (quote_path(self.path), offset), as_user = Users.CURRENT, user_password=None, output_handler=f.write)
+        else:
+            self.server_helper.execute_command("/bin/dd if=%s ibs=1 skip=%i 2> /dev/null" % (quote_path(self.path), offset), as_user = Users.ADMIN, user_password=self._password, output_handler=f.write)
         self.data = f
         self.data.seek(0)
         if self.skip_first_newline:

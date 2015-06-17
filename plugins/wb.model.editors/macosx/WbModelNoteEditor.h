@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,6 +36,8 @@
   BOOL mEditing;
 }
 
-- (id)initWithModule:(grt::Module*)module GRTManager:(bec::GRTManager*)grtm arguments:(const grt::BaseListRef&)args;
+- (instancetype)initWithModule: (grt::Module*)module
+                    grtManager: (bec::GRTManager *)grtm
+                     arguments: (const grt::BaseListRef &)args NS_DESIGNATED_INITIALIZER;
 
 @end

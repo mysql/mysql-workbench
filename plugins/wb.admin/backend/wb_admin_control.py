@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -27,7 +27,7 @@ from workbench.utils import Version
 from wb_admin_ssh import SSHDownException
 from workbench.db_utils import MySQLConnection, MySQLError, QueryError, strip_password
 
-from wb_common import OperationCancelledError, Users, PermissionDeniedError, InvalidPasswordError
+from wb_common import OperationCancelledError, Users, PermissionDeniedError, InvalidPasswordError, SSHFingerprintNewError
 
 from wb_server_control import PasswordHandler, ServerControlShell, ServerControlWMI
 from wb_server_management import ServerManagementHelper, SSH, wbaOS
@@ -134,6 +134,17 @@ class SQLQueryExecutor(object):
             self.mtx.release()
         return result
 
+    def exec_query_multi_result(self, query):
+        result = None
+        self.mtx.acquire()
+        try:
+            if self.is_connected():
+                log_debug("Executing query multi result %s\n" % strip_password(query))
+                result = self.dbconn.executeQueryMultiResult(query)
+        finally:
+            self.mtx.release()
+        return result
+
     def execute(self, query):
         result = None
         self.mtx.acquire()
@@ -145,6 +156,8 @@ class SQLQueryExecutor(object):
             self.mtx.release()
         return result
 
+    def updateCount(self):
+        return self.dbconn.updateCount()
 
 #===============================================================================
 
@@ -160,8 +173,8 @@ class WbAdminControl(object):
     target_version = None
     raw_version = "unknown"
     
-    def __init__(self, server_profile, editor, connect_sql=True):
-
+    def __init__(self, server_profile, editor, connect_sql=True, test_only = False):
+        self.test_only = test_only
         self.server_control = None
         self.events   = EventManager()
         self.defer_events() # continue events should be called when all listeners are registered, that happens later in the caller code
@@ -205,13 +218,43 @@ class WbAdminControl(object):
     def admin_access_available(self):
         return self.server_control is not None
 
+    def _confirm_server_fingerprint(self, host, port, fingerprint_exception):
+        msg = { 'msg': "The authenticity of host '%(0)s (%(0)s)' can't be established.\n%(1)s key fingerprint is %(2)s\nAre you sure you want to continue connecting?"  % {'0': "%s:%s" % (host, port), '1': fingerprint_exception.key.get_name(), '2': fingerprint_exception.fingerprint}, 'obj': fingerprint_exception}
+        if mforms.Utilities.show_message("SSH Server Fingerprint Missing", msg['msg'], "Continue", "Cancel", "") == mforms.ResultOk:
+            msg['obj'].client._host_keys.add(msg['obj'].hostname, msg['obj'].key.get_name(), msg['obj'].key)
+            if msg['obj'].client._host_keys_filename is not None:
+                try:
+                    if os.path.isdir(os.path.dirname(msg['obj'].client._host_keys_filename)) == False:
+                        log_warning("Host_keys directory is missing, recreating it\n")
+                        os.makedirs(os.path.dirname(msg['obj'].client._host_keys_filename))
+                    if os.path.exists(msg['obj'].client._host_keys_filename) == False:
+                        log_warning("Host_keys file is missing, recreating it\n")
+                        open(msg['obj'].client._host_keys_filename, 'a').close()
+                    msg['obj'].client.save_host_keys(msg['obj'].client._host_keys_filename)
+                    log_warning("Successfully saved host_keys file.\n")
+                    return True
+                except IOError, e:
+                    error = str(e)
+                    raise e
+        else:
+            return False
+
     def acquire_admin_access(self):
         """Make sure we have access to the instance for admin (for config file, start/stop etc)"""
         if self.server_control or not self.server_profile.admin_enabled:
             return
         if self.server_profile.uses_ssh:
             try:
-                self.ssh = SSH(self.server_profile, self.password_handler)
+                while True:
+                    try:
+                        self.ssh = SSH(self.server_profile, self.password_handler)
+                        break
+                    except SSHFingerprintNewError, exc:
+                        if self._confirm_server_fingerprint(self.server_profile.ssh_hostname, self.server_profile.ssh_port, exc):
+                            continue;
+                        else:
+                            raise OperationCancelledError("user cancel")
+                    
             except OperationCancelledError:
                 self.ssh = None
                 raise OperationCancelledError("SSH connection cancelled")
@@ -285,7 +328,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
                     if not self.server_profile.admin_enabled:  # We have neither sql connection nor management method
                         raise Exception('Could not connect to MySQL Server and no management method is available')
 
-        if not self.worker_thread:
+        if not self.worker_thread and not self.test_only:
             # start status variable check thread
             self.worker_thread = threading.Thread(target=self.server_polling_thread)
             self.worker_thread.start()
@@ -560,11 +603,29 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
 
         return ret
 
-    def exec_sql(self, q, auto_reconnect=True):
+    def exec_query_multi_result(self, q, auto_reconnect=True):
         ret = None
         if self.sql is not None:
             try:
+                ret = self.sql.exec_query_multi_result(q)
+            except QueryError, e:
+                log_warning("Error executing query multi result %s: %s\n"%(q, strip_password(str(e))))
+                if auto_reconnect and e.is_connection_error():
+                    log_warning("exec_query_multi_result: Loss of connection to mysql server was detected.\n")
+                    self.handle_sql_disconnection(e)
+                else: # if exception is not handled, give a chance to the caller do it
+                    raise e
+        else:
+            log_info("sql connection is down\n")
+
+        return ret
+
+    def exec_sql(self, q, auto_reconnect=True):
+        if self.sql is not None:
+            try:
                 ret = self.sql.execute(q)
+                cnt = self.sql.updateCount()
+                return ret, cnt
             except QueryError, e:
                 log_warning("Error executing SQL %s: %s\n"%(strip_password(q), strip_password(str(e))))
                 if auto_reconnect and e.is_connection_error():
@@ -575,7 +636,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
         else:
             log_info("sql connection is down\n")
 
-        return ret
+        return None, -1
 
     def handle_sql_disconnection(self, e):
         self.disconnect_sql()

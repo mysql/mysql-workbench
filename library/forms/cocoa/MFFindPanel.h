@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,11 +39,11 @@
   BOOL mUseRegex;
 }
 
-- (id)initWithOwner:(mforms::FindPanel*)owner;
+- (instancetype)initWithOwner:(mforms::FindPanel*)owner NS_DESIGNATED_INITIALIZER;
 - (IBAction)findActionClicked:(id)sender;
 - (void)enableReplaceInFindPanel: (BOOL)flag;
-- (NSView*)topView;
+@property (readonly, strong) NSView *topView;
 - (BOOL)findNext:(BOOL)backwards;
-- (int)replaceAll;
+@property (readonly) int replaceAll;
 - (void)focusFindPanel;
 @end

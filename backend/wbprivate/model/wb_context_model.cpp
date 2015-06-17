@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1061,7 +1061,7 @@ int WBContextModel::get_object_list_popup_items(bec::UIForm *form,
   item.type= MenuAction;
   items.push_back(item);
 
-  if (nodes.empty() || nodes[0][0] != 0)
+  if ((nodes.empty() || nodes[0][0] != 0) && objects.count() > 0)
   {
     item.caption= label.empty() ? _("Remove Figure") : strfmt(_("Remove Figure %s"), label.c_str());
     item.name= "builtin:removeFigure";
@@ -1575,9 +1575,9 @@ mforms::View *WBContextModel::shared_secondary_sidebar()
 
 //--------------------------------------------------------------------------------------------------
 
-static struct RegisterNotifDocs
+static struct RegisterNotifDocs_wb_context_model
 {
-  RegisterNotifDocs()
+  RegisterNotifDocs_wb_context_model()
   {
     base::NotificationCenter::get()->register_notification("GRNModelOpened",
                                                            "modeling",
@@ -1597,5 +1597,5 @@ static struct RegisterNotifDocs
                                                            "ui.ModelPanel instance",
                                                            "");
   }
-} initdocs;
+} initdocs_wb_context_model;
 

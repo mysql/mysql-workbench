@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -293,7 +293,7 @@ namespace MySQL.GUI.Workbench
         if (document is MySQL.Forms.AppViewDockContent)
         {
           MySQL.Forms.AppViewDockContent content = document as MySQL.Forms.AppViewDockContent;
-          e.canClose = content.DocumentClosing();
+          e.canClose = content.CanCloseDocument();
         }
     }
 
@@ -308,9 +308,10 @@ namespace MySQL.GUI.Workbench
       else
         if (document is MySQL.Forms.AppViewDockContent)
         {
-          // This type of document is already closed (in TabClosing).
-          // TODO: adjust code to support OnClosing/OnClose duality also in AppView.
+          MySQL.Forms.AppViewDockContent content = document as MySQL.Forms.AppViewDockContent;
+          content.CloseDocument();
         }
+
       e.page.Controls.Clear();
       e.page.Dispose();
       GC.Collect();

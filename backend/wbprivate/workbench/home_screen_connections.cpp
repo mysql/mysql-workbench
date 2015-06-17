@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1434,6 +1434,7 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner)
 
   _accessible_click_handler = boost::bind(&ConnectionsSection::mouse_click, this,
                                           mforms::MouseButtonLeft, _1, _2);
+  scoped_connect(signal_resized(), boost::bind(&ConnectionsSection::on_resize, this));
 
   _add_button.name = "Add Connection";
   _add_button.default_action = "Open New Connection Wizard";
@@ -1584,7 +1585,12 @@ void ConnectionsSection::on_search_text_changed()
 
 void ConnectionsSection::on_search_text_action(mforms::TextEntryAction action)
 {
-  if (action == mforms::EntryActivate)
+  if (action == mforms::EntryEscape)
+  {
+    _search_text.set_value("");
+    on_search_text_changed();
+  }
+  else if (action == mforms::EntryActivate)
   {
     if (_active_folder)
     {
@@ -1685,6 +1691,8 @@ boost::shared_ptr<ConnectionEntry> ConnectionsSection::entry_from_point(int x, i
   boost::shared_ptr<ConnectionEntry> entry;
 
   ConnectionVector connections(displayed_connections());
+  if (_page_start > (ssize_t)connections.size())
+    return entry;
   for (ConnectionVector::iterator conn = connections.begin() + _page_start; conn != connections.end(); ++conn)
   {
     if ((*conn)->bounds.contains(x, y))
@@ -1716,7 +1724,7 @@ boost::shared_ptr<ConnectionEntry> ConnectionsSection::entry_from_index(ssize_t 
 
 //------------------------------------------------------------------------------------------------
 
-base::Rect ConnectionsSection::bounds_for_entry(int index)
+base::Rect ConnectionsSection::bounds_for_entry(ssize_t index)
 {
   base::Rect result(CONNECTIONS_LEFT_PADDING, CONNECTIONS_TOP_PADDING, CONNECTIONS_TILE_WIDTH, CONNECTIONS_TILE_HEIGHT);
   int tiles_per_row = (get_width() - CONNECTIONS_LEFT_PADDING - CONNECTIONS_RIGHT_PADDING) / (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
@@ -1724,7 +1732,7 @@ base::Rect ConnectionsSection::bounds_for_entry(int index)
   index -= _page_start;
 
   int column = index % tiles_per_row;
-  int row = index / tiles_per_row;
+  ssize_t row = index / tiles_per_row;
   result.pos.x += column * (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
   result.pos.y += row * (CONNECTIONS_TILE_HEIGHT + CONNECTIONS_SPACING);
 
@@ -1879,11 +1887,12 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
   int current_page = 0;
   int num_pages = 0;
   bool draw_partial = false;
-  int index = 0;
+  ssize_t index = 0;
   int items_after_last_visible = 0;
   bool page_start = true;
 
   _next_page_start = -1;
+  _entries_per_page = -1;
   while (!done)
   {
     bounds.pos.x = CONNECTIONS_LEFT_PADDING;
@@ -2018,9 +2027,11 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
     {
       // We light flag to indicate the next row is partially drawn
       // And backup the indext of the first item of this row which will be
-      // the first item on the nexp page.
+      // the first item on the next page.
       draw_partial = true;
       _next_page_start = index;
+      if (_entries_per_page < 0)
+        _entries_per_page = index;
     }
 
     // Next row is totally out of the available space
@@ -2033,9 +2044,13 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
       if (draw_partial)
         draw_partial = false;
       else
+      {
         // This case there was not row painted partially, so next page start item
         // is the current index.
         _next_page_start = index;
+        if (_entries_per_page < 0)
+          _entries_per_page = index;
+      }
         
 
       // We reinit these vars so the calculation of the next page is done correctly
@@ -2049,6 +2064,12 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
     }
   }
 
+  if (visible_page >= num_pages && _prev_page_start.size() > 0)
+  {
+    --visible_page;
+    _prev_page_start.pop_back();
+    set_needs_repaint();
+  }
   // See if we need to draw the paging indicator.
   if (num_pages > 1)
   {
@@ -2060,6 +2081,13 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
     _page_down_button.bounds = base::Rect();
     _page_start = 0; // Size increased to cover the full content.
   }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void ConnectionsSection::on_resize()
+{
+  _page_start = _prev_page_start.size() * _entries_per_page;
 }
 
 //------------------------------------------------------------------------------------------------
@@ -2275,7 +2303,7 @@ bool ConnectionsSection::mouse_double_click(mforms::MouseButton button, int x, i
       if (_page_down_button.bounds.contains(x, y))
       {
         _prev_page_start.push_back(_page_start);
-        _page_start = _next_page_start;
+        _page_start = _prev_page_start.size() * _entries_per_page;
         set_needs_repaint();
         return true;
       }
@@ -2329,7 +2357,7 @@ bool ConnectionsSection::mouse_click(mforms::MouseButton button, int x, int y)
       if (_page_down_button.bounds.contains(x, y))
       {
         _prev_page_start.push_back(_page_start);
-        _page_start = _next_page_start;
+        _page_start = _prev_page_start.size() * _entries_per_page;
         set_needs_repaint();
         return true;
       }
@@ -2513,7 +2541,7 @@ void ConnectionsSection::handle_command(const std::string &command)
         // We only want to delete all connections in the active group. This is the same as
         // removing the group entirely, since the group is formed by connections in it.
         _entry_for_menu = _active_folder;
-        handle_folder_command("delete_connection_group", dynamic_cast<FabricFolderEntry*>(_active_folder.get()));
+        handle_folder_command("delete_connection_group", dynamic_cast<FabricFolderEntry*>(_active_folder.get()) != NULL);
         return;
       }
       else
@@ -2613,7 +2641,7 @@ void ConnectionsSection::cancel_operation()
 int ConnectionsSection::get_acc_child_count()
 {
   // At least 2 is returned because of the add and manage icons.
-  int ret_val = 2;
+  size_t ret_val = 2;
 
 
   if (_filtered)
@@ -2632,7 +2660,7 @@ int ConnectionsSection::get_acc_child_count()
   if (_page_up_button.bounds.width())
     ret_val += 2;
 
-  return ret_val;
+  return (int)ret_val;
 }
 
 mforms::Accessible* ConnectionsSection::get_acc_child(int index)
@@ -2894,10 +2922,10 @@ mforms::DragOperation ConnectionsSection::drag_over(View *sender, base::Point p,
 
     // Check that the drop position does not resolve to the dragged item.
     // Don't allow dragging a group on a group either.
-    if (index == _drag_index ||
+    if (_drag_index > -1 && (index == _drag_index ||
         (index + 1 == _drag_index && position == mforms::DropPositionRight) ||
         (index - 1 == _drag_index && position == mforms::DropPositionLeft) ||
-        (position == mforms::DropPositionOn && dynamic_cast<FolderEntry*>(entry_from_index(_drag_index).get())))
+        (position == mforms::DropPositionOn && dynamic_cast<FolderEntry*>(entry_from_index(_drag_index).get()))))
     {
       index = -1;
     }

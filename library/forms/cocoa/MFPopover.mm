@@ -64,7 +64,7 @@
 
 @implementation MFPopover
 
-- (id)initWithContentRect: (NSRect)contentRect
+- (instancetype)initWithContentRect: (NSRect)contentRect
                 styleMask: (NSUInteger)windowStyle
                   backing: (NSBackingStoreType)bufferingType
                     defer: (BOOL)deferCreation
@@ -281,7 +281,7 @@
   PopoverFrameView* frameView = [super contentView];
   
   NSRect bounds = [frameView bounds];
-  NSPoint localHotSpot = [self convertScreenToBase: mHotSpot];
+  NSPoint localHotSpot = [self convertRectFromScreen: NSMakeRect(mHotSpot.x, mHotSpot.y, 0, 0)].origin;
   localHotSpot.x += 0.5;
 
   // The path is constructed counterclockwise.
@@ -438,7 +438,7 @@
   [[NSAnimationContext currentContext] setDuration: 0.25];
   [[self animator] setAlphaValue: 0];
   [self performSelector: @selector(orderOut:) withObject: nil afterDelay: 0.5
-                inModes: [NSArray arrayWithObjects: NSModalPanelRunLoopMode, NSDefaultRunLoopMode, nil]];
+                inModes: @[NSModalPanelRunLoopMode, NSDefaultRunLoopMode]];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -491,7 +491,7 @@ static void popover_show_and_track(Popover* popover, View *owner, int x, int y, 
   NSTrackingArea *tarea = [[NSTrackingArea alloc] initWithRect: [owner->get_data() bounds]
                                                        options: NSTrackingMouseEnteredAndExited|NSTrackingAssumeInside|NSTrackingActiveAlways
                                                          owner: popover->get_data()
-                                                      userInfo: [NSDictionary dictionary]];
+                                                      userInfo: @{}];
   [owner->get_data() addTrackingArea: tarea];
   impl->mTrackedView = owner->get_data();
   impl->mOwnerTracking = tarea;

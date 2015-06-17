@@ -25,7 +25,7 @@
 
 static NSSize initialSize = {10,10};
 
-- (id)initWithObject:(::mforms::Splitter*)aSplitter
+- (instancetype)initWithObject:(::mforms::Splitter*)aSplitter
 {
   self= [super initWithFrame: NSMakeRect(10,10,10,10)];
   if (self)
@@ -72,7 +72,7 @@ static NSSize initialSize = {10,10};
     return mRequestedPosition;
   else
   {
-    NSRect frame = [[[self subviews] objectAtIndex:0] frame];
+    NSRect frame = [[self subviews][0] frame];
     return [self isVertical] ? NSMaxX(frame) : NSMaxY(frame);
   }
 }
@@ -273,8 +273,8 @@ static void splitter_set_expanded(::mforms::Splitter *self, bool first, bool exp
 {
   MFSplitterImpl *impl = self->get_data();
   
-  NSView *view1  = [[impl subviews] objectAtIndex: 0];
-	NSView *view2 = [[impl subviews] objectAtIndex: 1];
+  NSView *view1  = [impl subviews][0];
+	NSView *view2 = [impl subviews][1];
 
   [impl adjustSubviews];
 

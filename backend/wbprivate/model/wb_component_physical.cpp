@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -2205,16 +2205,20 @@ std::vector<std::string> WBComponentPhysical::get_command_dropdown_items(const s
 
 void WBComponentPhysical::add_schema_listeners(const db_SchemaRef &schema)
 {
-  // listener for changes in schema itself
-  _object_listeners[schema.id()]=
-      schema->signal_changed()->connect(boost::bind(&WBComponentPhysical::schema_member_changed, this, _1, _2, schema));
-
-  _schema_content_listeners[schema.id()]= schema->signal_refreshDisplay()->connect
-      (boost::bind(&WBComponentPhysical::schema_content_object_changed, this, _1));
+  std::map<std::string, boost::signals2::connection>::iterator it = _object_listeners.find(schema.id());
+  if (it == _object_listeners.end())
+  {
+    // listener for changes in schema itself
+    _object_listeners[schema.id()]=
+        schema->signal_changed()->connect(boost::bind(&WBComponentPhysical::schema_member_changed, this, _1, _2, schema));
   
-  // for changes in table, view, SP/function, routine (and other) lists 
-  _schema_list_listeners[schema.id()]= schema->signal_list_changed()->connect(
-      boost::bind(&WBComponentPhysical::schema_object_list_changed, this, _1, _2, _3, schema));
+    _schema_content_listeners[schema.id()]= schema->signal_refreshDisplay()->connect
+        (boost::bind(&WBComponentPhysical::schema_content_object_changed, this, _1));
+
+    // for changes in table, view, SP/function, routine (and other) lists
+    _schema_list_listeners[schema.id()]= schema->signal_list_changed()->connect(
+        boost::bind(&WBComponentPhysical::schema_object_list_changed, this, _1, _2, _3, schema));
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2366,6 +2370,7 @@ void WBComponentPhysical::catalog_object_list_changed(grt::internal::OwnedList *
       
       _object_listeners.erase(schema.id());
       _schema_list_listeners.erase(schema.id());
+      _wb->get_model_context()->notify_catalog_tree_view(NodeDelete, schema);
     }
   }
   else
@@ -2402,10 +2407,7 @@ void WBComponentPhysical::schema_object_list_changed(grt::internal::OwnedList *l
   grt::ObjectRef object(grt::ObjectRef::cast_from(value));
 
   if (added)
-  {
     add_schema_object_listeners(object);
-    _wb->get_model_context()->notify_catalog_tree_view(NodeAddUpdate, object);
-  }
   else
   {
     _wb->get_model_context()->notify_catalog_tree_view(NodeDelete, value);

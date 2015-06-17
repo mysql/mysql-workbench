@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -118,7 +118,6 @@ db_TableRef db_Schema::addNewTable(const std::string &dbpackage)
   table->owner(this);
   table->name(name);
   table->createDate(base::fmttime(0, DATETIME_FMT));
-  table->lastChangeDate(base::fmttime(0, DATETIME_FMT));
 
   _tables.insert(table);
   if (um)

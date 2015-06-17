@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,7 +47,7 @@
 
 @implementation MFMenuImpl
 
-- (id) initWithObject:(::mforms::Menu*) aMenu
+- (instancetype) initWithObject:(::mforms::Menu*) aMenu
 {
   self= [super initWithTitle: @""];
   if (self)
@@ -92,10 +92,10 @@ static int menu_add_item(mforms::Menu *self, const std::string &caption, const s
   NSMenuItem* item;
   
   item = [[NSMenuItem alloc] init];
-  [item setRepresentedObject: [NSString stringWithUTF8String: action.c_str()]];
+  [item setRepresentedObject: @(action.c_str())];
   [item setTarget: menu];
   [item setAction: @selector(handleCommand:)];
-  [item setTitle: [NSString stringWithUTF8String: caption.c_str()]];
+  [item setTitle: @(caption.c_str())];
   [item setEnabled: true];
   
   [menu addItem: item];
@@ -122,7 +122,7 @@ static int menu_add_submenu(mforms::Menu *self, const std::string &caption, mfor
   
   NSMenuItem* item;
   item = [[[NSMenuItem alloc] init] autorelease];
-  [item setTitle: [NSString stringWithUTF8String: caption.c_str()]];
+  [item setTitle: @(caption.c_str())];
   [item setEnabled: true];
 
   [menu addItem: item];

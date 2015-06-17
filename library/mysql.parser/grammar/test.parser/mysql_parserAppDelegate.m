@@ -3,7 +3,7 @@
 //  mysql.parser
 //
 //  Created by Mike on 03.04.12.
-//  Copyright 2012 Oracle Corporation. All rights reserved.
+//  Copyright 2012, 2015 Oracle Corporation. All rights reserved.
 //
 
 // These are redefined by the parser.
@@ -357,6 +357,12 @@ NSString *sql9 = @"CREATE definer = `root`@`localhost` trigger `upd_film` AFTER 
   "    WHERE film_id=old.film_id;\n"
   "  END IF;\n"
   "END";
+NSString *sql10 = @"CREATE TABLE total (\n"
+  "  a INT NOT NULL AUTO_INCREMENT,\n"
+  "  message CHAR(20), INDEX(a))\n"
+  "  ENGINE=MERGE UNION=(t1,t2) INSERT_METHOD=LAST;\n";
+NSString *sql11 = @"SELECT a FROM tick t WHERE timestamp > (((((((SELECT 1)  + 1))))))";
+NSString *sql12 = @"select * from (select 1 from dual)";
 
 @implementation mysql_parserAppDelegate
 
@@ -367,7 +373,7 @@ NSString *sql9 = @"CREATE definer = `root`@`localhost` trigger `upd_film` AFTER 
   // Make the SQL edit control scroll horizontally too.
   [[text textContainer] setContainerSize: NSMakeSize(FLT_MAX, FLT_MAX)];
   [[text textContainer] setWidthTracksTextView: NO];
-  [text setString: sql9];
+  [text setString: sql12];
 }
 
 - (NSString*)dumpTree: (pANTLR3_BASE_TREE)tree state: (pANTLR3_RECOGNIZER_SHARED_STATE)state indentation: (NSString*)indentation
@@ -415,8 +421,10 @@ NSString *sql9 = @"CREATE definer = `root`@`localhost` trigger `upd_film` AFTER 
   pANTLR3_COMMON_TOKEN token = tree->getToken(tree);
   if (token != NULL) {
     ANTLR3_UINT32 token_type = token->getType(token);
-    pANTLR3_UINT8 token_name = state->tokenNames[token_type];
-    if (token_name == (pANTLR3_UINT8)ANTLR3_TOKEN_EOF)
+    pANTLR3_UINT8 token_name;
+    if (token_type != ANTLR3_TOKEN_EOF)
+      token_name = state->tokenNames[token_type];
+    if (token_type == ANTLR3_TOKEN_EOF || token_name == (pANTLR3_UINT8)ANTLR3_TOKEN_EOF)
       token_name = (pANTLR3_UINT8)"ANTLR3_TOKEN_EOF";
 
     result = [NSString stringWithFormat: @"(%s) ", token_name];
@@ -476,7 +484,7 @@ NSString *sql9 = @"CREATE definer = `root`@`localhost` trigger `upd_film` AFTER 
   pANTLR3_COMMON_TOKEN_STREAM tokens;
   pMySQLParser parser;
 
-  RecognitionContext context = {[self getServerVersion], [self getSqlModes], nil};
+  RecognitionContext context = { 0, 0, [self getServerVersion], [self getSqlModes], nil };
 
   NSString *sql = [text string];
   std::string utf8 = [sql UTF8String];
@@ -520,7 +528,7 @@ NSString *sql9 = @"CREATE definer = `root`@`localhost` trigger `upd_film` AFTER 
   pANTLR3_COMMON_TOKEN_STREAM tokens;
   pMySQLParser parser;
   
-  RecognitionContext context = {serverVersion, sqlModes, nil};
+  RecognitionContext context = { 0, 0, serverVersion, sqlModes, nil };
   
   std::string utf8 = [query UTF8String];
   input = antlr3StringStreamNew((pANTLR3_UINT8)utf8.c_str(), ANTLR3_ENC_UTF8, utf8.size(), (pANTLR3_UINT8)"sql-script");
@@ -552,7 +560,7 @@ bool parse_and_compare(const std::string query, pANTLR3_BASE_TREE tree, unsigned
   pANTLR3_COMMON_TOKEN_STREAM tokens;
   pMySQLParser parser;
   
-  RecognitionContext context = {server_version, sql_modes, nil};
+  RecognitionContext context = { 0, 0, server_version, sql_modes, nil };
   
   input = antlr3StringStreamNew((pANTLR3_UINT8)query.c_str(), ANTLR3_ENC_UTF8, query.size(), (pANTLR3_UINT8)"sql-script");
   input->setUcaseLA(input, ANTLR3_TRUE);
@@ -1536,7 +1544,7 @@ bool parse_and_compare(const std::string query, pANTLR3_BASE_TREE tree, unsigned
     pANTLR3_COMMON_TOKEN_STREAM tokenStream;
     pMySQLParser parser;
 
-    RecognitionContext context = {[self getServerVersion], [self getSqlModes], nil};
+    RecognitionContext context = { 0, 0, [self getServerVersion], [self getSqlModes], nil};
 
     std::string utf8 = [query UTF8String];
     input = antlr3StringStreamNew((pANTLR3_UINT8)utf8.c_str(), ANTLR3_ENC_UTF8, utf8.size(), (pANTLR3_UINT8)"sql-script");
@@ -1561,7 +1569,7 @@ bool parse_and_compare(const std::string query, pANTLR3_BASE_TREE tree, unsigned
       tokens = @"(no tree)";
     }
     tokenListString = [tokenListString stringByAppendingString:
-                       [NSString stringWithFormat: @"{\"%@\",\nlist_of %@\n},\n", query, tokens]
+                       [NSString stringWithFormat: @"list_of %@,\n", tokens]
                        ];
 
     // Must manually clean up.

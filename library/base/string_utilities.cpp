@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1012,7 +1012,7 @@ std::string make_valid_filename(const std::string &name)
 /**
  * Get a string containing the 'len' left most characters.
  */
-std::string left(const std::string& s, unsigned int len)
+std::string left(const std::string& s, size_t len)
 {
   return s.substr(0, len);
 }
@@ -1022,15 +1022,15 @@ std::string left(const std::string& s, unsigned int len)
 /**
  * Get a string containing the 'len' right most characters.
  */
-std::string right(const std::string& s, unsigned int len)
+std::string right(const std::string& s, size_t len)
 {
-  // If len is negative or zero, then an empty string is returned
+  if (len > s.size())
+    len = s.size();
   if (len < 1)
     return "";
   
-  return s.substr(std::max((int)(s.length() - len), 0));
+  return s.substr(std::max(s.length() - len, (size_t)0));
 }
-
 
 //--------------------------------------------------------------------------------------------------
 

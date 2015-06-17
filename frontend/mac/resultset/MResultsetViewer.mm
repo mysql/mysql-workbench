@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -94,7 +94,7 @@ static const char *viewFlagsKey = "viewFlagsKey";
     //bec::GridModel::ColumnType type= (*mData)->get_column_type(index);
     NSTableColumn *column= [[[NSTableColumn alloc] initWithIdentifier: [NSString stringWithFormat:@"%i", index]] autorelease];
 
-    [[column headerCell] setTitle: [NSString stringWithUTF8String: label.c_str()]];
+    [[column headerCell] setTitle: @(label.c_str())];
 
     [column setEditable: YES];
     
@@ -137,7 +137,7 @@ static const char *viewFlagsKey = "viewFlagsKey";
   float rowHeight = 0;
   for (int index= 0, count= (*mData)->get_column_count(); index <= count; ++index)
   {
-    NSTableColumn *column= [[mTableView tableColumns] objectAtIndex: index];
+    NSTableColumn *column= [mTableView tableColumns][index];
     if (mFont)
     {
       [[column dataCell] setFont: mFont];
@@ -239,7 +239,7 @@ static void selected_record_changed(MResultsetViewer *self)
   [self->mTableView selectCellAtRow: (*self->mData)->edited_field_row() column: (*self->mData)->edited_field_column()];
 }
   
-- (id)initWithRecordset:(Recordset::Ref)rset
+- (instancetype)initWithRecordset:(Recordset::Ref)rset
 {
   if (!ascendingSortIndicator)
   {
@@ -261,6 +261,7 @@ static void selected_record_changed(MResultsetViewer *self)
     (*mData)->tree_changed_signal()->connect(boost::bind(onRefreshWhenIdle, self));
     
     (*mData)->refresh_ui_signal.connect(boost::bind(onRefresh, self));
+    (*mData)->rows_changed = boost::bind(onRefresh, self);
     //(*mData)->task->msg_cb(boost::bind(processTaskMessage, _1, _2, _3, self));
     
     [mTableView setIntercellSpacing: NSMakeSize(0, 1)];

@@ -26,7 +26,7 @@
 
 @implementation MFHyperTextView
 
-- (id)initWithObject: (mforms::HyperText*)ht
+- (instancetype)initWithObject: (mforms::HyperText*)ht
 {
   self = [super initWithFrame: NSMakeRect(0, 0, 50, 50)];
   if (self)
@@ -103,11 +103,9 @@ static void ht_set_markup(mforms::HyperText *ht, const std::string &text)
   [[htv->mTextView textStorage] replaceCharactersInRange: NSMakeRange(0, [[htv->mTextView textStorage] length])
                                     withAttributedString: [[[NSAttributedString alloc] initWithHTML: [NSData dataWithBytes: text.data()
                                                                                                                    length: text.size()]
-                                                                                           options: [NSDictionary dictionaryWithObjectsAndKeys:
-                                                                                                     defaults, NSWebPreferencesDocumentOption,
-                                                                                                     @"UTF-8", NSTextEncodingNameDocumentOption,
-                                                                                                     [NSURL URLWithString: @""], NSBaseURLDocumentOption,
-                                                                                                     nil]
+                                                                                           options: @{NSWebPreferencesDocumentOption: defaults,
+                                                                                                     NSTextEncodingNameDocumentOption: @"UTF-8",
+                                                                                                     NSBaseURLDocumentOption: [NSURL URLWithString: @""]}
                                                                                 documentAttributes: nil] autorelease]];
 
 }

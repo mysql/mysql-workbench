@@ -96,6 +96,15 @@ class MigrationTarget(object):
     def module_db(self):
         return grt.modules.DbMySQL
 
+    def get_os(self):
+        if self.checkConnection():
+            os_name = self.module_fe().getOS(self.connection)
+            self.disconnect()
+            return os_name
+
+        return None
+
+
 
 class MigrationSource(object):
     def __init__(self, state, connection):
@@ -249,9 +258,13 @@ class MigrationSource(object):
             accumulated_progress = 0.1
             step_progress_share = 1.0 / (len(catalog_names) + 1e-10)
             for catalog in catalog_names:
+                if not catalog:
+                    continue
                 grt.send_progress(accumulated_progress, 'Fetching schema names from %s...' % catalog)
                 schema_names = self.getSchemaNames(catalog)
                 for schema in schema_names:
+                    if not schema:
+                        continue
                     self.state.sourceSchemataNames.append("%s.%s" % (self._db_module.quoteIdentifier(catalog), self._db_module.quoteIdentifier(schema)))
                 accumulated_progress += 0.9 * step_progress_share
         elif self.rdbms.doesSupportCatalogs == 0:  # The rdbms doesn't support catalogs
@@ -362,6 +375,15 @@ class MigrationSource(object):
     def cleanup(self):
         if hasattr(self._rev_eng_module, "cleanup"):
             self._rev_eng_module.cleanup()
+
+    def get_os(self):
+        if hasattr(self.module_re(), 'getOS'):
+            return self.module_re().getOS(self.connection)
+        else:
+            return None
+
+    def get_source_instance(self):
+        return self.module_re().getSourceInstance(self.connection)
 
 
 

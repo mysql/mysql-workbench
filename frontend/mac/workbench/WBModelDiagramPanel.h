@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -66,12 +66,12 @@ namespace wb
   BOOL _miniViewReady;
 }
 
-- (id)initWithId: (NSString *)oid formBE: (wb::ModelDiagramForm *)be;
+- (instancetype)initWithId: (NSString *)oid formBE: (wb::ModelDiagramForm *)be NS_DESIGNATED_INITIALIZER;
 
-- (NSView*)topView;
+@property (readonly, strong) NSView *topView;
 
-- (NSString*)identifier;
-- (bec::UIForm*)formBE;
+@property (readonly, copy) NSString *identifier;
+@property (readonly) bec::UIForm *formBE;
 
 - (void)updateCursor;
 
@@ -81,10 +81,10 @@ namespace wb
 
 - (void)setRightSidebar:(BOOL)flag;
 
-- (MCanvasViewer*)canvasViewer;
-- (mdc::CanvasView*)canvas;
+@property (readonly, strong) MCanvasViewer *canvasViewer;
+@property (readonly) mdc::CanvasView *canvas;
 
-- (BOOL)isClosed;
+@property (getter=isClosed, readonly) BOOL closed;
 
 - (void)refreshZoom;
 

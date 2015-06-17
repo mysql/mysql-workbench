@@ -1168,3 +1168,12 @@ def cleanup():
     global _connections
     _connections = {}
     return 0
+
+@ModuleInfo.export(grt.STRING, grt.classes.db_mgmt_Connection)
+def getOS(connection):
+    return 'windows'
+
+@ModuleInfo.export(grt.STRING, grt.classes.db_mgmt_Connection)
+def getSourceInstance(connection):
+    return execute_query(connection, "SELECT @@servicename ").fetchone()[0]
+

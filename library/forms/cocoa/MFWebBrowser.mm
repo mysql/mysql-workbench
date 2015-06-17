@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,9 +24,12 @@
 
 //--------------------------------------------------------------------------------------------------
 
-- (id)initWithObject: (mforms::WebBrowser*) aBrowser
+- (instancetype)initWithObject: (mforms::WebBrowser*) aBrowser
 {
-  self= [super initWithFrame: NSMakeRect(10, 10, 10, 10)];
+  if (aBrowser == nil)
+    return nil;
+
+  self = [super initWithFrame: NSMakeRect(10, 10, 10, 10)];
   if (self)
   {
     mOwner = aBrowser;
@@ -41,6 +44,16 @@
     [mBrowser setShouldCloseWithWindow: YES];
   }
   return self;
+}
+
+-(instancetype)initWithFrame: (NSRect)frame
+{
+  return [self initWithObject: nil];
+}
+
+-(instancetype)initWithCoder: (NSCoder *)coder
+{
+  return [self initWithObject: nil];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,9 +97,9 @@
           frame:(WebFrame *)frame
 decisionListener:(id < WebPolicyDecisionListener >)listener
 {
-  if ([[actionInformation objectForKey: WebActionNavigationTypeKey] integerValue] == WebNavigationTypeLinkClicked)
+  if ([actionInformation[WebActionNavigationTypeKey] integerValue] == WebNavigationTypeLinkClicked)
   {
-    NSURL *url = [[actionInformation objectForKey: WebActionElementKey] objectForKey: WebElementLinkURLKey];
+    NSURL *url = actionInformation[WebActionElementKey][WebElementLinkURLKey];
     if (url && mOwner->on_link_clicked([[url description] UTF8String]))
     {
       [listener ignore];
@@ -167,7 +180,7 @@ static void WebBrowser_set_html(::mforms::WebBrowser *self, const std::string& c
   {
     MFWebBrowserImpl* browser = self->get_data();
     if (browser)
-      [browser setHTML: [NSString stringWithUTF8String: code.c_str()]];
+      [browser setHTML: @(code.c_str())];
   }
 }
 
@@ -179,7 +192,7 @@ static void WebBrowser_navigate(::mforms::WebBrowser *self, const std::string& u
   {
     MFWebBrowserImpl* browser = self->get_data();
     if (browser)
-      [browser navigate: [NSString stringWithUTF8String: url.c_str()]];
+      [browser navigate: @(url.c_str())];
   }
 }
 

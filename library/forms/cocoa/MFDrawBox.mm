@@ -26,7 +26,7 @@
 @synthesize drawsBackground = mDrawsBackground;
 @synthesize backgroundColor = mBackgroundColor;
 
-- (id)initWithObject: (mforms::DrawBox*)aBox
+- (instancetype)initWithObject: (mforms::DrawBox*)aBox
 {
   self= [super initWithFrame:NSMakeRect(10, 10, 10, 10)];
   if (self)

@@ -23,6 +23,7 @@ class WizardPage(mforms.Box):
         self.set_managed()
         self.set_release_on_add()
 
+        self.skip_this_page = False
         self.ui_created = False
         self.main = main
 
@@ -76,6 +77,9 @@ class WizardPage(mforms.Box):
             self.add_end(self.button_box, False, True)
 
 
+    def set_last_page(self, value):
+          self.next_button.set_text('Finish') if value else self.next_button.set_text('Next >')
+
     def identifier(self):
         return self._identifier
 
@@ -85,9 +89,12 @@ class WizardPage(mforms.Box):
     def go_next(self):
         self.main.go_next_page()
 
+    def skip_page(self, value):
+        self.skip_this_page = value
+
     def should_skip(self):
         """Return True if the page should not be displayed"""
-        return False
+        return self.skip_this_page
 
     def page_skipped(self):
         """Called when the page is not opened, because should_skip returned True"""

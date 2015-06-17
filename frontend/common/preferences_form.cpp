@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -229,6 +229,7 @@ public:
 
     mforms::TextEntry *entry = _owner->new_entry_option(option, false);
     entry->set_tooltip(tooltip);
+    entry->set_size(80, -1);      //  Set a default size. If the size is never set, the text entry will not show if the _help_column == true
     
 #ifdef _WIN32
     TableItemFlags descriptionFlags = mforms::HFillFlag;
@@ -380,11 +381,7 @@ PreferencesForm::PreferencesForm(wb::WBContextUI *wbui, const workbench_physical
     // Fonts only for now in Mac/Linux
     add_page(NULL, _("Fonts"), create_fonts_and_colors_page());
 #endif
-    add_page(NULL, _("Advanced"), create_advanced_settings_page());
-#ifdef _WIN32
-    // right now, there's only a single option specific to windows
     add_page(NULL, _("Others"), create_others_page());
-#endif
   }
 
 
@@ -403,7 +400,7 @@ PreferencesForm::PreferencesForm(wb::WBContextUI *wbui, const workbench_physical
 
   _switcher.select_node(_switcher.node_at_row(0));
 
-  set_size(750, 600);
+  set_size(1100, 700);
   center();
   
   show_values();
@@ -870,6 +867,11 @@ mforms::View *PreferencesForm::create_sqlide_page()
                              _("DBMS connection read time out (in seconds):"),
                              _("Max time the a query can take to return data from the DBMS"));
     entry->set_size(80, -1);
+
+    entry = otable->add_entry_option("DbSqlEditor:ConnectionTimeOut",
+      _("DBMS connection time out (in seconds):"),
+      _("Maximum time to wait before a connection attempt is aborted."));
+    entry->set_size(80, -1);
     box->add(otable, false, true);
   }
 
@@ -887,7 +889,7 @@ mforms::View *PreferencesForm::create_sqlide_page()
 
     {
       otable->add_checkbox_option("DbSqlEditor:SafeUpdates",
-                                  _("\"Safe Updates\".\nForbid UPDATEs and DELETEs with no key in WHERE clause or no LIMIT clause.\nRequires a reconnection."),
+                                  _("\"Safe Updates\". Forbid UPDATEs and DELETEs with no key in WHERE clause or no LIMIT clause. Requires a reconnection."),
                                   _("Enables the SQL_SAFE_UPDATES option for the session.\n"
                                     "If enabled, MySQL aborts UPDATE or DELETE statements\n"
                                     "that do not use a key in the WHERE clause or a LIMIT clause.\n"
@@ -1345,15 +1347,49 @@ mforms::View *PreferencesForm::create_model_page()
 
 mforms::View *PreferencesForm::create_others_page()
 {
-  OptionTable *table = mforms::manage(new OptionTable(this, _("Others"), true));
+
+  Box* content = manage(new Box(false));
+  content->set_spacing(8);
+
+  OptionTable *timeouts_table;
+
+  timeouts_table = mforms::manage(new OptionTable(this, _("Timeouts"), true));
+  content->add(timeouts_table, false, true);
   {
+    mforms::TextEntry *entry = new_numeric_entry_option("sshkeepalive", 0, 500);
+    entry->set_max_length(5);
+    entry->set_size(50, -1);
+    entry->set_tooltip(_(
+      "The interval in seconds without sending any data over the connection, a \"keepalive\" packet will be sent.\nThis option will apply to both SSH tunnel connections and remote management via SSH."));
+
+    timeouts_table->add_option(entry, _("SSH KeepAlive:"),
+      _("SSH keep-alive interval in seconds.\nUse 0 to disable."));
+
+
+
+    // Using arbitrary max value of 1 Hour for connection timeout.
+    entry = new_numeric_entry_option("Fabric:ConnectionTimeOut", 0, 3600);
+    entry->set_max_length(5);
+    entry->set_size(50, -1);
+    entry->set_tooltip(_(
+      "The interval in seconds without sending any data over the connection, a \"keepalive\" packet will be sent.\nThis option will apply to both SSH tunnel connections and remote management via SSH."));
+
+    timeouts_table->add_option(entry, _("Fabric Connection Timeout:"),
+      _("Maximum time to wait before a connection\nattempt is aborted."));
+
+  }
+
 #ifdef _WIN32
+  OptionTable *table = mforms::manage(new OptionTable(this, _("Others"), true));
+  content->add(table, false, true);
+  {
     table->add_checkbox_option("DisableSingleInstance", _("Allow more than one instance of MySQL Workbench to run"), 
       _("By default, only one MySQL Workbench instance can run at the same time.\nThis is more resource friendly "
         "and necessary as multiple instances share the same files (settings etc.). Change at your own risk."));
-#endif
   }
-  return table;
+#endif
+
+  return content;
 }
 
 
@@ -1898,29 +1934,6 @@ mforms::View *PreferencesForm::create_fonts_and_colors_page()
   return content;
 }
 
-mforms::View *PreferencesForm::create_advanced_settings_page()
-{
-  Box* content = manage(new Box(false));
-  content->set_spacing(8);
-
-  OptionTable *table;
-
-  table = mforms::manage(new OptionTable(this, _("SSH"), true));
-  content->add(table, false, true);
-  {
-      mforms::TextEntry *entry= new_numeric_entry_option("sshkeepalive", 0, 500);
-      entry->set_max_length(5);
-      entry->set_size(50, -1);
-      entry->set_tooltip(_(
-      "The interval in seconds without sending any data over the connection, a \"keepalive\" packet will be sent.\nThis option will apply to both SSH tunnel connections and remote management via SSH."));
-
-      table->add_option(entry, _("SSH KeepAlive:"),
-                        _("SSH keep-alive interval in seconds.\nUse 0 to disable."));
-  }
-
-  return content;
-}
-
 
 static std::string separate_camel_word(const std::string &word)
 {
@@ -2007,9 +2020,9 @@ void PreferencesForm::toggle_use_global()
 
 //--------------------------------------------------------------------------------------------------
 
-static struct RegisterPrefsNotifDocs
+static struct RegisterNotifDocs_preferences_form
 {
-  RegisterPrefsNotifDocs()
+  RegisterNotifDocs_preferences_form()
   {
     base::NotificationCenter::get()->register_notification("GRNPreferencesDidCreate",
                                                            "preferences",
@@ -2039,6 +2052,6 @@ static struct RegisterPrefsNotifDocs
                                                            "model-options - the model specific options dictionary being changed\n"
                                                            "model-id - the object id of the model for which the options are being changed\n");
   }
-} initdocs;
+} initdocs_preferences_form;
 
 

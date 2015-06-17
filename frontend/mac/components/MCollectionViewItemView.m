@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -178,38 +178,77 @@
 
 //--------------------------------------------------------------------------------------------------
 
-- (void) mouseDragged: (NSEvent*) event
+- (void)mouseDragged: (NSEvent*) event
 {
-  NSPoint location= [self convertPoint: [event locationInWindow] fromView: nil];
+  NSPoint location = [self convertPoint: [event locationInWindow] fromView: nil];
   
   if (fabs(mMouseDownLocation.x - location.x) >= 5 ||
       fabs(mMouseDownLocation.y - location.y) >= 5)
   {
-    NSImage *image= nil;
+    NSArray *types = nil;
+    if ([delegate respondsToSelector: @selector(dropTypesForItem:)])
+    {
+      types = [delegate dropTypesForItem:self];
+
+      if (types == nil)
+        return;
+    }
+
+    NSImage *image = nil;
     for (id view in [self subviews])
     {
       if ([view isKindOfClass: [NSImageView class]])
       {
-        image= [view image];
+        image = [view image];
         break;
       }
     }
     
-    NSPasteboard *pboard= [NSPasteboard pasteboardWithName: NSDragPboard];
-    
-    if ([delegate respondsToSelector:@selector(declareDragDataForItem:pasteboard:)] &&
-        [delegate declareDragDataForItem: self
-                              pasteboard: pboard])
-    {
-      location.y-= [image size].height;
-      
-      [self dragImage:image at:location offset:NSMakeSize(0,0)
-                event:event pasteboard:pboard source:self slideBack:YES];
-    }
+    NSPasteboardItem *pbItem = [NSPasteboardItem new];
+    [pbItem setDataProvider: self forTypes: types];
+
+    NSDraggingItem *dragItem = [[NSDraggingItem alloc] initWithPasteboardWriter: pbItem];
+
+    [dragItem setDraggingFrame: NSMakeRect(0, 0, image.size.width, image.size.height)
+                      contents: image];
+    NSDraggingSession *draggingSession = [self beginDraggingSessionWithItems: @[dragItem]
+                                                                       event: event
+                                                                      source: self];
+    draggingSession.animatesToStartingPositionsOnCancelOrFail = YES;
+    draggingSession.draggingFormation = NSDraggingFormationNone;
   }
 }
 
 //--------------------------------------------------------------------------------------------------
+
+- (void)pasteboard: (NSPasteboard *)sender item: (NSPasteboardItem *)item provideDataForType: (NSString *)type
+{
+  if ([delegate respondsToSelector: @selector(declareDragDataForItem:pasteboard:)])
+      [delegate declareDragDataForItem: self pasteboard: sender];
+}
+
+//--------------------------------------------------------------------------------------------------
+
+- (NSDragOperation)       draggingSession: (NSDraggingSession *)session
+    sourceOperationMaskForDraggingContext: (NSDraggingContext)context;
+{
+  switch (context) {
+    case NSDraggingContextOutsideApplication:
+      return NSDragOperationNone;
+      break;
+
+    case NSDraggingContextWithinApplication:
+    default:
+      return NSDragOperationCopy;
+      break;
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+- (BOOL)ignoreModifierKeysForDraggingSession: (NSDraggingSession *)session {
+  return YES;
+}
 
 - (void) mouseUp: (NSEvent *) theEvent
 {
@@ -224,7 +263,7 @@
     
     if (!control && !shift && !command && [theEvent clickCount] == 1)
       [self performSelector: @selector(beginInlineEditing) withObject: nil afterDelay: 0.5
-                    inModes: [NSArray arrayWithObjects: NSModalPanelRunLoopMode, NSDefaultRunLoopMode, nil]];
+                    inModes: @[NSModalPanelRunLoopMode, NSDefaultRunLoopMode]];
   }
 }
 
@@ -294,8 +333,8 @@
 
 - (void) setDelegate: (id) aDelegate
 {
-  delegate= aDelegate;
-  
+  delegate = aDelegate;
+  /* Outlines currently don't accept drag operations.
   if ([delegate respondsToSelector: @selector(dropTypesForItem:)])
   {
     NSArray *types= [delegate dropTypesForItem:self];
@@ -303,6 +342,7 @@
     if (types)
       [self registerForDraggedTypes: types];
   }
+   */
 }
 
 //--------------------------------------------------------------------------------------------------

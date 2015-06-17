@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -96,6 +96,7 @@ public:
   virtual mforms::TreeNodeRef previous_sibling() const;
   virtual mforms::TreeNodeRef next_sibling() const;
   virtual void remove_children();
+  virtual void move_node(mforms::TreeNodeRef node, bool before);
 
   virtual std::vector<mforms::TreeNodeRef> add_node_collection(const mforms::TreeNodeCollectionSkeleton &nodes, int position = -1);
   void add_children_from_skeletons(std::vector<TreeNodeWrapper*> &parents, const std::vector<mforms::TreeNodeSkeleton>& children);

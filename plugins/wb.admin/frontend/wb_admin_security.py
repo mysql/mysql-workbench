@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -32,6 +32,8 @@ from wb_admin_security_be import AdminSecurity, PrivilegeInfo, PrivilegeReverseD
 from wb_common import PermissionDeniedError
 from workbench.log import log_error
 
+import grt
+from workbench import db_utils
 
 SCHEMA_OBJECT_RIGHTS = [
 "Select_priv",
@@ -238,13 +240,13 @@ class AddSchemaPrivilegeForm(mforms.Form):
         self.schema1 = newRadioButton(mforms.RadioButton.new_id())
         self.schema1.set_active(True)
         self.schema1.add_clicked_callback(self.schema_radio_changed)
-        self.schema1.set_text("Any Schema (%)")
+        self.schema1.set_text("All Schema (%)")
         table.add(self.schema1, 0, 1, 0, 1, mforms.HFillFlag)
         table.add(dLabel("This rule will apply to any schema name."), 2, 3, 0, 1, mforms.HFillFlag)
 
         self.schema2 = newRadioButton(self.schema1.group_id())
         self.schema2.add_clicked_callback(self.schema_radio_changed)
-        self.schema2.set_text("Schemas matching pattern or name:")
+        self.schema2.set_text("Schemas matching pattern:")
         table.add(self.schema2, 0, 1, 1, 2, mforms.HFillFlag)
         table.add(dLabel("This rule will apply to schemas that match the given name or pattern.\nYou may use _ and % as wildcards in a pattern.\nEscape these characters with \\ in case you want their literal value."), 2, 3, 1, 2, mforms.HFillFlag)
 
@@ -261,9 +263,10 @@ class AddSchemaPrivilegeForm(mforms.Form):
         label.set_text_align(mforms.TopLeft)
         table.add(label, 2, 3, 2, 3, mforms.HFillFlag)
 
-        self.schema3sel = newListBox(False)
-        table.add(self.schema3sel, 1, 2, 2, 3, mforms.HFillFlag|mforms.HExpandFlag|mforms.VFillFlag|mforms.VExpandFlag)
-        self.schema3sel.add_items(self.secman.escaped_schema_names)
+        self.schema3sel = newSelector()
+        table.add(self.schema3sel, 1, 2, 2, 3, mforms.HFillFlag|mforms.HExpandFlag)
+        for item in self.secman.schema_names:
+            self.schema3sel.add_item(item)
 
         bbox = newBox(True)
         box.add(bbox, False, True)
@@ -340,6 +343,12 @@ class SecuritySchemaPrivileges(mforms.Box):
         self.del_entry_button.set_text("Delete Entry")
         bbox.add_end(self.del_entry_button, False, True)
         self.del_entry_button.add_clicked_callback(self.del_entry)
+
+        self.revoke_all_button = newButton()
+        self.revoke_all_button.set_text("Revoke All Privileges")
+        bbox.add_end(self.revoke_all_button, False, True)
+        self.revoke_all_button.add_clicked_callback(self._owner.revoke_all)
+        self.revoke_all_button.set_tooltip("Immediately remove all privileges from the account, from every object at all levels.\nThe account itself will be left untouched and logins will still be possible.")
 
         self.add(bbox, False, True)
 
@@ -492,7 +501,7 @@ class SecuritySchemaPrivileges(mforms.Box):
         
         self.add_entry_button.set_enabled(True)
         self.del_entry_button.set_enabled(True)
-        self.refresh_button.set_enabled(True)
+        self._owner.refresh_button.set_enabled(True)
 
 
     def schema_priv_selected(self):
@@ -587,6 +596,461 @@ class SecuritySchemaPrivileges(mforms.Box):
         self.show_user(None)
 
 
+class FirewallCommands:
+    def __init__(self, owner):
+        self.owner = owner
+        self.ctrl_be = owner.ctrl_be
+        class CommandType:
+            simple_result = 0
+            simple_result_with_count = 1
+            multi_result = 2
+            
+
+    def execute_command(self, command):
+        affcted_record_count = 0
+        if not self.ctrl_be.sql_ping():
+            log_error("Executing firewall command. The connection is down.\n")
+            Utilities.show_error("Execute firewall command", "The connection is down. Please check if you have connection to the server.", "Ok", "", "")
+            return False, 0
+          
+        result, affcted_record_count = self.ctrl_be.exec_sql(command)
+        
+        return result, affcted_record_count
+        
+    def execute_result_command(self, command):
+        if not self.ctrl_be.sql_ping():
+            log_error("Executing firewall command. The connection is down.\n")
+            Utilities.show_error("Execute firewall command", "The connection is down. Please check if you have connection to the server.", "Ok", "", "")
+            return False
+        
+        result = self.ctrl_be.exec_query(command)
+        
+        if result == False:
+            return False
+      
+        if result is None:
+            log_error("Executing firewall command. There was no resultset from the command.\n")
+            Utilities.show_error("Execute firewall command", "There was a problem executing a Firewall command.", "Ok", "", "")
+            return False
+          
+        return result
+
+    def execute_multiresult_command(self, command):
+        if not self.ctrl_be.sql_ping():
+            log_error("Executing firewall command. The connection is down.\n")
+            Utilities.show_error("Execute firewall command", "The connection is down. Please check if you have connection to the server.", "Ok", "", "")
+            return False
+      
+        multi_result = self.ctrl_be.exec_query_multi_result(command)
+
+        if multi_result == False:
+            return False
+        
+        if not multi_result:
+            log_error("Executing firewall command. There was no resultset from the command.\n")
+            Utilities.show_error("Execute firewall command", "There was a problem executing a Firewall command.", "Ok", "", "")
+            return False
+          
+        for result in multi_result:
+            if not result:
+                log_error("Executing firewall command with multiple resultsets. Resultset is 'None'.\n")
+                Utilities.show_error("Execute firewall command", "Resultset is 'None'.", "Ok", "", "")
+                return False
+        
+        return multi_result
+
+    def get_user_rules(self, userhost):
+        result = []
+
+        query_result = self.execute_result_command("SELECT RULE FROM mysql.firewall_whitelist WHERE USERHOST='%s'" % (userhost))
+        if not query_result:
+            return result
+        
+        while query_result.nextRow():
+            result.append(query_result.stringByIndex(1))
+        return result
+
+    def get_cached_user_rules(self, userhost):
+        result = []
+
+        query_result = self.execute_result_command("SELECT RULE FROM information_schema.mysql_firewall_whitelist WHERE USERHOST='%s'" % (userhost))
+        if not query_result:
+            return result
+
+        while query_result.nextRow():
+            result.append(query_result.stringByIndex(1))
+        return result
+
+    def get_rule_count(self, userhost):
+        result = self.execute_result_command("SELECT COUNT(*) CNT FROM mysql.firewall_whitelist WHERE USERHOST='%s'" % (userhost))
+        if not result:
+            return 0
+          
+        result.nextRow()
+        return result.stringByIndex(1)
+
+    def get_cached_rule_count(self, userhost):
+        result = self.execute_result_command("SELECT COUNT(*) CNT FROM information_schema.mysql_firewall_whitelist WHERE USERHOST='%s'" % (userhost))
+        result.nextRow()
+        return result.stringByIndex(1)
+
+    def delete_user_rule(self, userhost, rule):
+        result, cnt = self.execute_command("DELETE FROM mysql.firewall_whitelist WHERE USERHOST='%s' AND RULE='%s'" % (userhost, db_utils.escape_sql_string(rule)))
+        return cnt > 0
+
+    def add_user_rule(self, userhost, rule):
+        firewall_rule = self.normalize_query(rule)
+        if firewall_rule:
+            self.execute_command("INSERT INTO mysql.firewall_whitelist (USERHOST, RULE) VALUES ('%s', '%s')" % (userhost, db_utils.escape_sql_string(firewall_rule)))
+            return True
+        log_error("Adding a firewall user rule failed to normalize the query. Probably, the inserted query does not translate to a firewall rule.\n")
+        return False
+
+    def add_normalized_rule(self, userhost, rule):
+        self.execute_command(rule)
+        return True
+
+    def normalize_query(self, query):
+        query_result = self.execute_result_command("SELECT normalize_statement('%s')" % db_utils.escape_sql_string(query))
+        if not query_result:
+            return False
+        
+        query_result.nextRow()
+        result = query_result.stringByIndex(1)
+        
+        if result == "":
+            return False
+        
+        return result
+
+    def get_user_mode(self, userhost):
+        result = self.execute_result_command("SELECT mode FROM mysql.firewall_users WHERE userhost='%s'" % userhost)
+        if not result:
+            return False
+        
+        if result.nextRow():
+            return result.stringByName("mode")
+        return "OFF"
+
+    def set_user_mode(self, userhost, mode):
+        multi_result = self.execute_multiresult_command("CALL mysql.sp_set_firewall_mode('%s', '%s')" % (userhost, mode))
+        if not multi_result:
+            return False
+        
+        result = multi_result[len(multi_result) - 1]
+        
+        if result.nextRow():
+            return result.stringByIndex(1) == "OK"
+          
+        return False
+
+    def reset_user(self, userhost):
+        return self.set_user_mode(userhost, 'RESET')
+
+    def is_enabled(self):
+        result = self.execute_result_command("SELECT @@mysql_firewall_mode")
+        if not result:
+            return False
+          
+        if result.nextRow():
+            return result.intByIndex(1) == 1
+        return False
+
+
+class FirewallUserInterfaceBase(mforms.Box):
+    def __init__(self, owner):
+        mforms.Box.__init__(self, False)
+        self.rule_count = 0
+        self.owner = owner
+        self.ctrl_be = owner.owner.ctrl_be
+
+    def show_user(self, user, host, new_user):
+        return
+
+    def update_rules(self, user, host):
+        return
+
+    def get_rule_count(self):
+        return self.rule_count
+
+    def refresh_users(self, users):
+        return
+
+    def change_state(self):
+        return
+
+    def refresh_row(self, current_row, user, host):
+        return
+
+    def change_layout(self):
+        return
+
+    def tweak_user_list(self):
+        return
+
+    def tweak_tabs(self, tabView):
+        return
+
+    def save(self):
+        return
+
+
+class FirewallUserInterfaceDummy(FirewallUserInterfaceBase):
+    def __init__(self, owner):
+        return
+
+
+class FirewallAddRuleDialog(mforms.Form):
+    def __init__(self, owner):
+        mforms.Form.__init__(self, None, mforms.FormResizable | mforms.FormMinimizable)
+
+        self.set_title("Add new rule")
+        self.set_size(400, 300)
+        self.center()
+
+
+        self.content = mforms.newBox(False)
+        self.set_content(self.content)
+        
+        self.content.add(mforms.newLabel("\nType the rule you want to add for this user.\n"), False, True)
+        
+        self.query_box = mforms.newTextBox(mforms.SmallScrollBars)
+        self.query_box.set_size(400, 200)
+        self.content.add(self.query_box, True, True)
+        
+        button_box = mforms.newBox(True)
+        self.content.add(button_box, False, True)
+
+        button_box.set_spacing(8)
+
+        self.ok_button = mforms.newButton()
+        self.ok_button.set_text("OK")
+        self.ok_button.add_clicked_callback(self.ok_button_pressed)
+        
+        button_box.add_end(self.ok_button, False, True)
+
+        self.cancel_button = mforms.newButton()
+        self.cancel_button.set_text("Cancel")
+        self.cancel_button.add_clicked_callback(self.cancel_button_pressed)
+        button_box.add_end(self.cancel_button, False, True)
+        
+    def ok_button_pressed(self):
+        self.end_modal(True)
+
+    def cancel_button_pressed(self):
+        self.end_modal(False)
+
+    def run(self):
+        return self.run_modal(None, None)
+
+
+class FirewallUserInterface(FirewallUserInterfaceBase):
+    def __init__(self, owner):
+        FirewallUserInterfaceBase.__init__(self, owner)
+
+        self.set_managed()
+        self.set_release_on_add()
+
+        self.set_spacing(8)
+        self.set_padding(8)
+        
+        self.commands = FirewallCommands(self)
+        self.new_user = False
+
+        # Firewall rules panel
+        firewall_rules_main_box = mforms.newBox(False)
+        firewall_rules_main_box.set_padding(12)
+        firewall_rules_main_box.set_spacing(8)
+        
+        self.note = mforms.newLabel("")
+        self.build_note()
+        firewall_rules_main_box.add(self.note, False, True)
+        
+        state_box = mforms.newBox(True)
+        
+        self.state = mforms.newSelector()
+        self.state.add_item("OFF")
+        self.state.add_item("PROTECTING")
+        self.state.add_item("RECORDING")
+        self.state.set_size(120, -1)
+        self.state.add_changed_callback(self.change_state)
+        state_box.add(mforms.newLabel("Mode:"), False, True)
+        state_box.add(self.state, False, True)
+        
+        firewall_rules_main_box.add(state_box, False, True)
+
+        # White list section
+        white_list_box = mforms.newBox(True)
+        white_list_box.set_spacing(8)
+        
+        self.white_list = mforms.newListBox(True)
+        self.white_list.set_size(500, -1)
+        
+        white_list_button_box = mforms.newBox(False)
+        
+        self.white_list_add_button = mforms.newButton()
+        self.white_list_add_button.set_text("Add")
+        self.white_list_add_button.add_clicked_callback(self.add_button_click)
+
+        self.white_list_add_from_file_button = mforms.newButton()
+        self.white_list_add_from_file_button.set_text("Add From File")
+        self.white_list_add_from_file_button.add_clicked_callback(self.add_from_file_button_click)
+
+        self.white_list_save_to_file_button = mforms.newButton()
+        self.white_list_save_to_file_button.set_text("Save To File")
+        self.white_list_save_to_file_button.add_clicked_callback(self.save_to_file_button_click)
+
+        self.white_list_delete_button = mforms.newButton()
+        self.white_list_delete_button.set_text("Delete")
+        self.white_list_delete_button.add_clicked_callback(self.delete_button_click)
+
+        self.white_list_clear_button = mforms.newButton()
+        self.white_list_clear_button.set_text("Reset")
+        self.white_list_clear_button.add_clicked_callback(self.reset_button_click)
+        
+        white_list_button_box.add(self.white_list_add_button, False, True)
+        white_list_button_box.add(self.white_list_delete_button, False, True)
+        white_list_button_box.add(self.white_list_add_from_file_button, False, True)
+        white_list_button_box.add(self.white_list_save_to_file_button, False, True)
+        white_list_button_box.add(self.white_list_clear_button, False, True)
+
+        white_list_box.add(self.white_list, True, True)
+        white_list_box.add(white_list_button_box, False, True)
+        
+        self.available_rules_label = mforms.newLabel("Active rules:")
+        firewall_rules_main_box.add(self.available_rules_label, False, True)
+        firewall_rules_main_box.add(white_list_box, True, True)
+
+        cache_list_box = mforms.newBox(True)
+
+        self.cache_list = mforms.newListBox(True)
+        self.cache_list.set_size(500, 200)
+        
+        cache_list_box.add(self.cache_list, True, True)
+        
+        self.cached_rules_label = mforms.newLabel("Rules being recorded:")
+        firewall_rules_main_box.add(self.cached_rules_label, False, True)
+        firewall_rules_main_box.add(cache_list_box, True, True)
+        
+        self.add(firewall_rules_main_box, True, True)
+
+    def build_note(self):
+        text = ""
+        self.note.show(False)
+        if self.commands.is_enabled() == False:
+            text = "The firewall is currently disabled. You can still manage user rules and modes, but changes will not have any effect until the firewall is enabled again."
+            self.note.show(True)
+        if self.new_user:
+            text = "The user is not created yet. Please finish creating the user to makes changes here."
+            self.note.show(True)
+            
+        text = "%s\n\n" % text
+        self.note.set_text(text)
+        
+    def refresh_row(self, current_row, user, host):
+        userhost = "%s@%s" % (user, host)
+        current_row.set_string(2, str(self.commands.get_user_mode(userhost)))
+        current_row.set_string(3, str(self.commands.get_rule_count(userhost)))
+        current_row.set_string(4, str(self.commands.get_cached_rule_count(userhost)))
+            
+    def show_user(self, user, host, new_user):
+        self.current_user = user
+        self.current_host = host
+        self.current_userhost = "%s@%s" % (user, host)
+        self.new_user = new_user
+        self.set_enabled(not new_user)
+        self.update_rules()
+        return self.state.set_value(self.commands.get_user_mode(self.current_userhost))
+      
+    def update_rules(self):
+        self.white_list.clear()
+        self.cache_list.clear()
+
+        self.available_rules_label.set_text("Active rules (%s):" % str(self.commands.get_rule_count(self.current_userhost)))
+        for rule in self.commands.get_user_rules(self.current_userhost):
+            self.white_list.add_item(rule)
+
+        self.cached_rules_label.set_text("Rules being recorded (%s):" % str(self.commands.get_cached_rule_count(self.current_userhost)))
+        for rule in self.commands.get_cached_user_rules(self.current_userhost):
+            self.cache_list.add_item(rule)
+            
+        self.build_note()
+    def tweak_user_list(self):
+        self.owner.user_list.add_column(mforms.StringColumnType, "FW State", 80, False)
+        self.owner.user_list.add_column(mforms.StringColumnType, "# FW Rules", 80, False)
+        self.owner.user_list.add_column(mforms.StringColumnType, "# FW Recorded", 80, False)
+        
+    def tweak_tabs(self, tabView):
+        tabView.add_page(self, "Firewall Rules")
+        
+    def refresh_users(self, users):
+        return
+        #for user, host in users:
+            #self.users.add_item(user)
+
+    def change_state(self):
+        self.owner.set_dirty()
+
+    def add_button_click(self):
+        dialog = FirewallAddRuleDialog(self)
+        if dialog.run():
+            rule = dialog.query_box.get_string_value()
+            result = self.commands.add_user_rule(self.current_userhost, rule)
+            if not result:
+                Utilities.show_error("Add user rule", "Add a new rule for this user failed to be inserted. Please check the log for more information.", "OK", "", "")
+            self.owner.refresh()
+        return
+        
+    def add_from_file_button_click(self):
+        dialog = mforms.FileChooser(mforms.OpenFile)
+        dialog.set_title("Load firewall rules")
+        dialog.set_extensions("Firewall Rules (*.fwr)|*.fwr", ".fwr")
+        if dialog.run_modal():
+            with open(dialog.get_path()) as f:
+                content = [x.strip('\n') for x in f.readlines()]
+
+            if not self.commands.set_user_mode(self.current_userhost, "OFF"):
+              return
+            
+            added_rules = []
+            
+            for rule in content:
+                if not self.commands.add_user_rule(self.current_userhost, rule):
+                    break
+                added_rules.append(rule)
+        
+            self.commands.set_user_mode(self.current_userhost, "RECORDING")
+            self.white_list.add_items(added_rules)
+        
+    def save_to_file_button_click(self):
+        dialog = mforms.FileChooser(mforms.SaveFile)
+        dialog.set_title("Save firewall rules")
+        dialog.set_extensions("Firewall Rules (*.fwr)|*.fwr", ".fwr")
+        if dialog.run_modal():
+            f = open(dialog.get_path(), "w")
+            for index in range(0, self.white_list.get_count()):
+                rule = self.white_list.get_string_value_from_index(index)
+                f.write("%s\n" % rule)
+            f.close()
+        
+    def delete_button_click(self):
+        indexes = self.white_list.get_selected_indices()
+        deleted_indexes = []
+        for index in indexes:
+            rule = self.white_list.get_string_value_from_index(index)
+            result = self.commands.delete_user_rule(self.current_userhost, rule)
+            if result:
+                deleted_indexes.append(index)
+        self.white_list.remove_indexes(deleted_indexes)
+        
+    def reset_button_click(self):
+        result = Utilities.show_warning("Reset user rules", "Reseting the user rules will delete all rules that were collected", "Yes", "No", "")
+        if result:
+            if self.commands.reset_user(self.current_userhost):
+                self.owner.refresh()
+        
+    def save(self):
+        self.commands.set_user_mode(self.current_userhost, self.state.get_string_value())
 
 #############################
 
@@ -595,6 +1059,7 @@ class SecurityAccount(mforms.Box):
         mforms.Box.__init__(self, False)
         self.set_managed()
         self.set_release_on_add()
+        self.set_name("SecurityAccount")
         self.owner = owner
         self.dirty = False
 
@@ -604,6 +1069,12 @@ class SecurityAccount(mforms.Box):
         self.suspend_layout()
         self.set_padding(8)
         self.set_spacing(8)
+
+        if self.owner.ctrl_be.server_variables.get('mysql_firewall_mode') and not grt.root.wb.info.edition == "Community":
+            self.firewall_rules = FirewallUserInterface(self)
+        else:
+            self.firewall_rules = FirewallUserInterfaceDummy(self)
+
 
         self.splitter = mforms.newSplitter(True)
 
@@ -640,21 +1111,6 @@ class SecurityAccount(mforms.Box):
         bottom_box.add_end(self.revert_button, False, True)
         self.revert_button.add_clicked_callback(self.revert)
 
-        if self.owner.ctrl_be.target_version and self.owner.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 6, 7):
-            self.expire_button = newButton()
-            self.expire_button.set_text("Expire Password")
-            self.expire_button.set_tooltip("Force user to change password after next login. The user will be unable to issue any command other than SET PASSWORD.")
-            bottom_box.add_end(self.expire_button, False, True)
-            self.expire_button.add_clicked_callback(self.expire)
-        else:
-            self.expire_button = None
-
-        self.revoke_all_button = newButton()
-        self.revoke_all_button.set_text("Revoke All Privileges")
-        bottom_box.add_end(self.revoke_all_button, False, True)
-        self.revoke_all_button.add_clicked_callback(self.revoke_all)
-        self.revoke_all_button.set_tooltip("Immediately remove all privileges from the account, from every object at all levels.\nThe account itself will be left untouched and logins will still be possible.")
-
         account_list_box = newBox(False)
         account_list_box.set_spacing(8)
         account_list_box.set_size(220, -1)
@@ -667,12 +1123,15 @@ class SecurityAccount(mforms.Box):
 
         self.user_list = newTreeNodeView(mforms.TreeFlatList)
         self.user_list.add_column(mforms.StringColumnType, "User", 120, False)
-        self.user_list.add_column(mforms.StringColumnType, "From Host", 200, False)
+        self.user_list.add_column(mforms.StringColumnType, "From Host", 100, False)
+        
+        self.firewall_rules.tweak_user_list()
+        
         self.user_list.end_columns()
         self.user_list.add_changed_callback(self.user_selected)
         self.user_list.set_allow_sorting(True)
         account_list_box.add(self.user_list, True, True)
-        self.splitter.add(account_list_box, 100, True)
+        self.splitter.add(account_list_box, 200, True)
 
         # Right part
 
@@ -695,7 +1154,7 @@ class SecurityAccount(mforms.Box):
         table = newTable()
         vbox.add(table, False, True)
 
-        table.set_row_count(8)
+        table.set_row_count(9)
         table.set_column_count(3)
         table.set_row_spacing(8)
         table.set_column_spacing(8)
@@ -765,16 +1224,26 @@ class SecurityAccount(mforms.Box):
         self.confirm_caption2 = dLabel("Enter password again to confirm.")
         table.add(self.confirm_caption2, 2, 3, 5, 6, mforms.HFillFlag|mforms.HExpandFlag)
 
-        table.add(newLabel(""), 1, 2, 6, 7, mforms.HFillFlag)
+        if self.owner.ctrl_be.target_version and self.owner.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 6, 7):
+            self.expire_button = newButton()
+            self.expire_button.set_text("Expire Password")
+            self.expire_button.set_tooltip("Force user to change password after next login. The user will be unable to issue any command other than SET PASSWORD.")
+            #bottom_box.add_end(self.expire_button, False, True)
+            table.add(self.expire_button, 1, 2, 6, 7, mforms.HFillFlag)
+            self.expire_button.add_clicked_callback(self.expire)
+        else:
+            self.expire_button = None
+
+        table.add(newLabel(""), 1, 2, 7, 8, mforms.HFillFlag)
 
         if self.has_extra_plugins:
             self.auth_string_param = newTextEntry()
             self.auth_string_param.add_changed_callback(self.set_dirty)
             self.auth_string_label = rLabel("Authentication String:")
             self.auth_string_desc = dLabel("Authentication plugin specific parameters.")
-            table.add(self.auth_string_label, 0, 1, 7, 8, mforms.HFillFlag)
-            table.add(self.auth_string_param, 1, 2, 7, 8, mforms.HFillFlag)
-            table.add(self.auth_string_desc, 2, 3, 7, 8, mforms.HFillFlag|mforms.HExpandFlag)
+            table.add(self.auth_string_label, 0, 1, 8, 9, mforms.HFillFlag)
+            table.add(self.auth_string_param, 1, 2, 8, 9, mforms.HFillFlag)
+            table.add(self.auth_string_desc, 2, 3, 8, 9, mforms.HFillFlag|mforms.HExpandFlag)
             self.auth_string_help = newLabel("")
             vbox.add(self.auth_string_help, False, True)
             
@@ -844,6 +1313,12 @@ class SecurityAccount(mforms.Box):
         lbox.set_spacing(12)
         lbox.set_padding(12)
 
+        self.revoke_all_button = newButton()
+        self.revoke_all_button.set_text("Revoke All Privileges")
+        box.add(self.revoke_all_button, False, True)
+        self.revoke_all_button.add_clicked_callback(self.revoke_all)
+        self.revoke_all_button.set_tooltip("Immediately remove all privileges from the account, from every object at all levels.\nThe account itself will be left untouched and logins will still be possible.")
+
         self.role_list = newTreeNodeView(mforms.TreeFlatList)
         self.role_list.add_column(mforms.CheckColumnType, "", 30, True)
         self.role_list.add_column(mforms.StringColumnType, "Role", 150, False)
@@ -864,6 +1339,8 @@ class SecurityAccount(mforms.Box):
 
         self.schema_privs = SecuritySchemaPrivileges(self)
         tabView.add_page(self.schema_privs, "Schema Privileges")
+
+        self.firewall_rules.tweak_tabs(tabView)
 
         abox.add(tabView, True, True)
         self.splitter.add(abox, 200)
@@ -894,15 +1371,15 @@ class SecurityAccount(mforms.Box):
             info = AUTHENTICATION_PLUGIN_TYPES["*"]
 
         if info:
-            self.password_caption.set_enabled(info["enable_password"])
-            self.password_caption2.set_enabled(info["enable_password"])
-            self.password_label.set_enabled(info["enable_password"])
-            self.password.set_enabled(info["enable_password"])
-            self.confirm.set_enabled(info["enable_password"])
-            self.confirm_caption.set_enabled(info["enable_password"])
-            self.confirm_caption2.set_enabled(info["enable_password"])
-            self.hostlimithost.set_enabled(info["enable_host"])
-            self.hostlimithost_caption.set_enabled(info["enable_host"])
+            self.password_caption.set_enabled(bool(info["enable_password"]))
+            self.password_caption2.set_enabled(bool(info["enable_password"]))
+            self.password_label.set_enabled(bool(info["enable_password"]))
+            self.password.set_enabled(bool(info["enable_password"]))
+            self.confirm.set_enabled(bool(info["enable_password"]))
+            self.confirm_caption.set_enabled(bool(info["enable_password"]))
+            self.confirm_caption2.set_enabled(bool(info["enable_password"]))
+            self.hostlimithost.set_enabled(bool(info["enable_host"]))
+            self.hostlimithost_caption.set_enabled(bool(info["enable_host"]))
 
             if self.auth_string_param:
                 if info["auth_string_label"]:
@@ -1014,6 +1491,7 @@ class SecurityAccount(mforms.Box):
                 self.show_zombie_user(user, host)
             else:
                 self.owner.secman.async_get_account(self.show_user, user, host)
+                
         else:
             self.account_label.set_text("Select an account to edit or click [Add Account] to create a new one")
 
@@ -1041,7 +1519,7 @@ class SecurityAccount(mforms.Box):
             return
 
         self.content_box.set_enabled(user != None)
-        self.revoke_all_button.set_enabled(user != None and user.is_commited)
+        self.revoke_all_button.set_enabled(bool(user != None and user.is_commited))
         self.unset_dirty()
 
         self._selected_user = user
@@ -1051,7 +1529,7 @@ class SecurityAccount(mforms.Box):
             #self.dup_button.set_enabled(True)
             self.del_button.set_enabled(True)
             if self.expire_button:
-                self.expire_button.set_enabled(user.is_commited and not user.password_expired)
+                self.expire_button.set_enabled(bool(user.is_commited and not user.password_expired))
 
             self.username.set_value(user.username)
             self.password.set_value(user.password or "")
@@ -1083,6 +1561,7 @@ class SecurityAccount(mforms.Box):
             self.refresh_role_list()
 
             self.schema_privs.show_user(user.schema_privs)
+            self.firewall_rules.show_user(user.username, user.host, False if self._selected_user and self._selected_user.is_commited else True)
         else:
             self.username.set_value("")
             self.password.set_value("")
@@ -1227,14 +1706,20 @@ class SecurityAccount(mforms.Box):
         suo = self._selected_user_original
         self.user_list.freeze_refresh()
         self.user_list.clear()
+        self.firewall_rules.refresh_users(self.owner.secman.account_names)
         for user, host in self.owner.secman.account_names:
             row = self.user_list.add_node()
+
             if self.owner.secman.is_zombie(user, host):
                 row.set_string(0, "(!) "+(user or "<anonymous>"))
             else:
                 row.set_string(0, user or "<anonymous>")
             row.set_string(1, host)
             row.set_tag(repr((user, host)))
+
+            # Change row with firewall values
+            self.firewall_rules.refresh_row(row, user, host)
+
             if su and (user == su.username and host == su.host):
                 selected_row = row
 
@@ -1328,7 +1813,7 @@ class SecurityAccount(mforms.Box):
     def revoke_all(self):
         if self._selected_user:
             if Utilities.show_message("Revoke All Privileges",
-                  "Please confirm revokation of all privileges for the account '%s'@'%s'.\nNote: the account itself will be maintained."%(self._selected_user.username, self._selected_user.host),
+                  "Please confirm revokation of all privileges for the account '%s'@'%s'.\nNote: the account itself will be maintained.\n\nAdd new privileges afterwards or the user will not be able to access any schema object."%(self._selected_user.username, self._selected_user.host),
                   "Revoke", "Cancel", "") == mforms.ResultOk:
                 try:
                     self._selected_user.revoke_all()
@@ -1449,6 +1934,15 @@ class SecurityAccount(mforms.Box):
                 Utilities.show_error("Error Saving Account",
                       str(exc), "OK", "", "")
                 return
+            
+            try:
+                self.firewall_rules.save()
+            except Exception, exc:
+                import traceback
+                log_error("Exception while saving account: %s\n" % traceback.format_exc())
+                Utilities.show_error("Error Saving Account",
+                      str(exc), "OK", "", "")
+                return
 
             self.reload_user(is_new_user)
 
@@ -1479,8 +1973,8 @@ or a new password must be supplied.'''
             caption = 'No password is set for this account.'
         
         self.bottom_message_caption.set_text(caption)
-        self.bottom_message_hbox.show(user.old_authentication or user.password_expired or user.blank_password or not user.username)
-        self.upgrade_account_button.show(user.old_authentication) 
+        self.bottom_message_hbox.show(bool(user.old_authentication or user.password_expired or user.blank_password or not user.username))
+        self.upgrade_account_button.show(bool(user.old_authentication)) 
 
 
     def reload_user(self, is_new_user):
@@ -1523,6 +2017,17 @@ class WbAdminSecurity(mforms.Box):
         self.server_profile = server_profile
         self.main_view = main_view
 
+        self.firewall_enabled = False
+        
+        self.heading = None
+        self.warning = None
+        self.account_tab = None
+
+    def firewall_status_changed(self):
+        current_status = self.ctrl_be.server_variables.get('mysql_firewall_mode')
+        changed = current_status != self.firewall_enabled
+        self.firewall_enabled = current_status
+        return changed
 
     def create_ui(self):
         self.suspend_layout()
@@ -1530,17 +2035,28 @@ class WbAdminSecurity(mforms.Box):
         self.set_padding(12)
         self.set_spacing(8)
 
+        if self.heading:
+            self.remove(self.heading)
+            self.heading = None
+
         self.heading = make_panel_header("title_users.png", self.server_profile.name, "Users and Privileges")
         self.add(self.heading, False, True)
 
+        if self.warning:
+            self.remove(self.warning)
+            self.warning = None
+
         self.warning = not_running_warning_label()
         self.add(self.warning, False, True)
+
+        if self.account_tab:
+            self.remove(self.account_tab)
+            self.account_tab = None
 
         self.account_tab = SecurityAccount(self)
         self.add(self.account_tab, True, True)
 
         self.resume_layout()
-
 
     def show_no_permission(self):
         self.warning.set_text("\n\n\n\nThe account you are currently using does not have sufficient privileges to make changes to MySQL users and privileges.")
@@ -1563,7 +2079,7 @@ class WbAdminSecurity(mforms.Box):
 
 
     def page_activated(self):
-        if not self.ui_created:
+        if (not self.ui_created) or self.firewall_status_changed():
             self.create_ui()
             self.ui_created = True
         self.update_ui()

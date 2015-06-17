@@ -338,6 +338,11 @@ System::Drawing::Size HorizontalGtkBoxLayout::ComputeLayout(LayoutBox ^box, Syst
         if (button->MinimumSize.Height > 0 && button->MinimumSize.Height < control->PreferredSize.Height)
           entry->bounds.Height = button->MinimumSize.Height;
       }
+      if (entry->fills)
+      {
+        Button^ btn = dynamic_cast<Button^>(entry->control);
+        btn->AutoSizeMode = AutoSizeMode::GrowAndShrink;
+      }
     }
 
     // Sort control into the proper alignment list.
@@ -556,6 +561,12 @@ System::Drawing::Size VerticalGtkBoxLayout::ComputeLayout(LayoutBox ^box, System
     // to this smaller height, though). So this wrong value is messing up our computed overall height.
     if (is<ComboBox>(entry->control))
       entry->bounds.Height++;
+
+    if (is<Button>(entry->control) && entry->fills)
+    {
+      Button^ btn = dynamic_cast<Button^>(entry->control);
+      btn->AutoSizeMode = AutoSizeMode::GrowAndShrink;
+    }
 
     if (max_width < entry->bounds.Width)
       max_width= entry->bounds.Width;

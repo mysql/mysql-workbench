@@ -33,7 +33,7 @@
 
 @implementation PopupStyleSelector
 
-- (id) initWithObject: (::mforms::Selector*) aSelector
+- (instancetype) initWithObject: (::mforms::Selector*) aSelector
 {
   self= [super initWithFrame:NSMakeRect(0, 0, 10, 20)];
   if (self)
@@ -90,7 +90,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 @implementation ComboStyleSelector
 
-- (id) initWithObject: (::mforms::Selector*) aSelector
+- (instancetype) initWithObject: (::mforms::Selector*) aSelector
 {
   self = [super initWithFrame:NSMakeRect(0, 0, 10, 20)];
   if (self)

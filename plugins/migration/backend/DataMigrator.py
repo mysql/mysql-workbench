@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014 Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2015 Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -233,7 +233,7 @@ class DataMigrator(object):
         if not self.copytable_path:
             raise RuntimeError("Path to wbcopytables not found")
 
-        args = self.helper_basic_arglist(False)
+        args = self.helper_basic_arglist(self._resume)
 
         if self._resume:
             args.append("--resume")
@@ -362,6 +362,17 @@ class DataMigrator(object):
         return args
 
 
+    def helper_connections_arglist(self):
+        conn_args = { 'source_user': self._src_conn_object.parameterValues.get("userName", 'root'),
+                      'source_instance': '',
+                      'source_port': self._src_conn_object.parameterValues.get("port", 3306),
+                      'target_port': self._tgt_conn_object.parameterValues.get("port", 3306),
+                      'target_user': self._tgt_conn_object.parameterValues.get("userName", 'root'),
+                      'source_rdbms':self._src_conn_object.driver.owner.name.lower()}
+
+        return conn_args
+
+
     def process_until_done(self):
         total_row_count = 0
         for table in self._working_set.values():
@@ -379,7 +390,9 @@ class DataMigrator(object):
             if done:
                 # flush pending messages
                 try:
-                    self._owner._update_resume_status(self._resume)
+                    _update_resume_status = getattr(self._owner, "_update_resume_status", None)
+                    if callable(_update_resume_status):
+                        _update_resume_status(self._resume)
                     msgtype, message = self._result_queue.get_nowait()
                 except Queue.Empty:
                     break

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2005, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 
 @implementation MQIndicatorCell
 
-- (id)initWithCoder:(NSCoder*)coder
+- (instancetype)initWithCoder:(NSCoder*)coder
 {
   self= [super initWithCoder:coder];
   if (self)
@@ -31,7 +31,7 @@
                 [NSColor blackColor], NSForegroundColorAttributeName,
                 nil] retain];
     
-    _arrow= [[NSString stringWithUTF8String:"\xe2\x96\xb6"] retain];
+    _arrow= [@"\xe2\x96\xb6" retain];
   }
   return self;
 }
@@ -73,9 +73,9 @@
   if (_selected)
   {
     if ([[controlView window] firstResponder] == controlView)
-      [_attribs setObject: [NSColor blackColor] forKey: NSForegroundColorAttributeName];
+      _attribs[NSForegroundColorAttributeName] = [NSColor blackColor];
     else
-      [_attribs setObject: [NSColor lightGrayColor] forKey: NSForegroundColorAttributeName];
+      _attribs[NSForegroundColorAttributeName] = [NSColor lightGrayColor];
     
     if (_placeholder)
       [@"*" drawAtPoint:NSMakePoint(cellFrame.origin.x+cellFrame.size.width-14,cellFrame.origin.y+2)

@@ -32,9 +32,10 @@
 
 //--------------------------------------------------------------------------------------------------
 
-ExecuteRoutineWizard::ExecuteRoutineWizard(db_mysql_RoutineRef routine)
+ExecuteRoutineWizard::ExecuteRoutineWizard(db_mysql_RoutineRef routine, const std::string &sql_mode)
   : Form(NULL)
 {
+  _sql_mode = sql_mode;
   _routine = routine;
   _catalog = db_mysql_CatalogRef::cast_from(_routine->owner()->owner());
 
@@ -141,8 +142,8 @@ bool ExecuteRoutineWizard::needs_quoting(const std::string &type)
 
   // Since we work with code directly from the server parsing should always succeed.
   // But just in case there's an unexpected error assume quoting is needed.
-  if (!bec::parseType(type, target_version, type_list, grt::ListRef<db_UserDatatype>(), default_type_list,
-    simpleType, userType, precision, scale, length, datatypeExplicitParams))
+  if (!bec::parse_type_definition(type, target_version, type_list, grt::ListRef<db_UserDatatype>(),
+    default_type_list, simpleType, userType, precision, scale, length, datatypeExplicitParams))
     return true;
 
   return simpleType->needsQuotes() != 0;

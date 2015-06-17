@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,7 @@
 
 @implementation WBSplitPanel
 
-- (id) init
+- (instancetype) init
 {
   self = [super init];
   if (self != nil) 
@@ -61,7 +61,7 @@
 {
   id tabItem= [[[NSTabViewItem alloc] initWithIdentifier:[editor identifier]] autorelease];
   
-  [_editorById setObject: editor forKey: [editor identifier]];
+  _editorById[[editor identifier]] = editor;
   
   [tabItem setView:[editor topView]];
   [tabItem setLabel:[editor title]];
@@ -85,7 +85,7 @@
   {
     if (!ident || [[item identifier] isEqualTo: ident])
     {
-      [self closeEditor: [_editorById objectForKey: [item identifier]]];
+      [self closeEditor: _editorById[[item identifier]]];
       return YES;
     }
   }
@@ -146,7 +146,7 @@
   {
     if ([item view] == view)
     {
-      return [_editorById objectForKey: [item identifier]];
+      return _editorById[[item identifier]];
     }
   }  
   return nil;
@@ -157,7 +157,7 @@
 {
   for (NSTabViewItem *item in [editorTabView tabViewItems])
   {
-    id editor = [_editorById objectForKey: [item identifier]];
+    id editor = _editorById[[item identifier]];
     if ([editor respondsToSelector:@selector(pluginEditor)] &&
         [[editor performSelector:@selector(pluginEditor)] isKindOfClass: klass])
       return editor;
@@ -180,7 +180,7 @@
   
   if (firstResponder)
   {
-    WBBasePanel *panel= [_editorById objectForKey: [[editorTabView selectedTabViewItem] identifier]];
+    WBBasePanel *panel= _editorById[[[editorTabView selectedTabViewItem] identifier]];
     
     [self closeEditor: panel];
     return YES;
@@ -232,7 +232,7 @@
   
   for (NSTabViewItem *tab in [editorTabView tabViewItems])
   {
-    WBBasePanel *panel= [_editorById objectForKey: [tab identifier]];
+    WBBasePanel *panel= _editorById[[tab identifier]];
     
     if ([panel respondsToSelector:@selector(minimumSize)])
     {
@@ -318,7 +318,7 @@
 
 - (BOOL)tabView:(NSTabView *)tabView willCloseTabViewItem:(NSTabViewItem*)tabViewItem
 {
-  WBBasePanel *panel = [_editorById objectForKey: [tabViewItem identifier]];
+  WBBasePanel *panel = _editorById[[tabViewItem identifier]];
   
   //if (![panel willClose])
 //    return NO;

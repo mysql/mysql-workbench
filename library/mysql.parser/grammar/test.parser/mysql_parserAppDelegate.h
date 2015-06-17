@@ -3,7 +3,7 @@
 //  mysql.parser
 //
 //  Created by Mike on 03.04.12.
-//  Copyright 2012 Oracle Corporation. All rights reserved.
+//  Copyright 2012, 2015 Oracle Corporation. All rights reserved.
 //
 
 #include "MySQLLexer.h"

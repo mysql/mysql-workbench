@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "wb_sql_editor_form.h"
 #include "wb_sql_editor_panel.h"
@@ -1011,7 +1009,7 @@ void SqlEditorPanel::update_title()
 void SqlEditorPanel::list_members()
 {
   if (owner()->work_parser_context() != NULL)
-    editor_be()->show_auto_completion(true, owner()->work_parser_context()->recognizer());
+    editor_be()->show_auto_completion(false, owner()->work_parser_context());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1053,7 +1051,7 @@ void SqlEditorPanel::query_started(bool retain_old_recordsets)
         int i = _lower_tabview.get_page_index(result);
         if (i >= 0)
         {
-          _lower_dock.close_view(result);
+          result->close();
           result_removed();
         }
       }
@@ -1147,6 +1145,10 @@ void SqlEditorPanel::lower_tab_switched()
     _tab_action_apply.set_enabled(false);
     _tab_action_revert.set_enabled(false);
   }
+
+#ifdef _WIN32
+  _editor->focus();
+#endif
 
   mforms::MenuBar *menu;
   if ((menu = _form->get_menubar()))
@@ -1358,8 +1360,9 @@ bool SqlEditorPanel::lower_tab_closing(int tab)
   mforms::AppView *view = _lower_dock.view_at_index(tab);
   if (view)
   {
-    if (_lower_dock.close_view(view))
+    if (view->on_close())
     {
+      view->close();
       result_removed();
       return true;
     }

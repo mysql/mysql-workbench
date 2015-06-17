@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,11 +48,11 @@
   BOOL mSmallFont;
 }
 
-- (mforms::TreeNodeView *)backend;
+@property (readonly) mforms::TreeNodeView *backend;
 
 - (NSString*)keyForColumn: (int)column;
-- (NSOutlineView*)outlineView;
-- (BOOL)frozen;
+@property (readonly, weak) NSOutlineView *outlineView;
+@property (readonly) BOOL frozen;
 
 - (NSImage*)iconForFile: (NSString*)path;
 

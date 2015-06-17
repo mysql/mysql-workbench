@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -167,7 +167,6 @@ private:
   double _duration;
 };
 
-
 SqlEditorForm::Ref SqlEditorForm::create(wb::WBContextSQLIDE *wbsql, const db_mgmt_ConnectionRef &conn)
 {
   SqlEditorForm::Ref instance(new SqlEditorForm(wbsql));
@@ -320,7 +319,7 @@ void SqlEditorForm::finish_startup()
         _auto_completion_cache = new AutoCompleteCache(sanitize_file_name(get_session_name()),
           boost::bind(&SqlEditorForm::get_autocompletion_connection, this, _1), cache_dir,
           boost::bind(&SqlEditorForm::on_cache_action, this, _1));
-        _auto_completion_cache->refresh_schema_cache(""); // Start fetching of schema names immediately.
+        _auto_completion_cache->refresh_schema_list(); // Start fetching schema names immediately.
       }
       catch (std::exception &e)
       {
@@ -404,6 +403,11 @@ void SqlEditorForm::title_changed()
 
 SqlEditorForm::~SqlEditorForm()
 {
+  // We need to remove it from cache, if not someone will be able to login without providing PW
+  if (_connection.is_valid())
+    mforms::Utilities::forget_cached_password(_connection->hostIdentifier(), _connection->parameterValues().get_string("userName"));
+
+
   if (_auto_completion_cache)
     _auto_completion_cache->shutdown();
 
@@ -469,7 +473,7 @@ void SqlEditorForm::handle_notification(const std::string &name, void *sender, b
   else if (name == "GNFormTitleDidChange")
   {
     // Validates only if another editor to the same connection has sent the notification
-    if (info["form"] != form_id() && _connection->name() == info["connection"])
+    if (info["form"] != form_id() && _connection.is_valid() && _connection->name() == info["connection"])
     {
       // This code is reached when at least 2 editors to the same host
       // have been opened, so the label of the old editor (which may not
@@ -1008,6 +1012,11 @@ void SqlEditorForm::create_connection(sql::Dbc_connection_handler::Ref &dbc_conn
   int read_timeout = _grtm->get_app_option_int("DbSqlEditor:ReadTimeOut");
   if (read_timeout > 0)
     temp_connection->parameterValues().set("OPT_READ_TIMEOUT", grt::IntegerRef(read_timeout));
+
+  int connect_timeout = _grtm->get_app_option_int("DbSqlEditor:ConnectionTimeOut");
+  if (connect_timeout  > 0)
+    temp_connection->parameterValues().set("OPT_CONNECT_TIMEOUT", grt::IntegerRef(connect_timeout));
+
   temp_connection->parameterValues().set("CLIENT_INTERACTIVE", grt::IntegerRef(1));
 
   try
@@ -1106,6 +1115,7 @@ void SqlEditorForm::set_connection(db_mgmt_ConnectionRef conn)
         ok = false;
     if (ok)
       _dbc_auth->set_password(password.c_str());
+
   }
 
   // send editor open notification again, in case the connection is being set after the connection
@@ -2684,22 +2694,26 @@ std::string SqlEditorForm::active_schema() const
 }
 
 /**
- * Notification from the tree controller that schema meta data has been refreshed. We use this
+ * Notification from the tree controller that (some) schema meta data has been refreshed. We use this
  * info to update the auto completion cache - avoiding so a separate set of queries to the server.
  */
 void SqlEditorForm::schema_meta_data_refreshed(const std::string &schema_name,
- const std::vector<std::pair<std::string,bool> >& tables, 
- const std::vector<std::pair<std::string,bool> >& procedures, bool just_append)
+  base::StringListPtr tables, base::StringListPtr views, base::StringListPtr procedures,
+  base::StringListPtr functions)
 {
   if (_auto_completion_cache != NULL)
   {
-    _auto_completion_cache->update_schema_tables(schema_name, tables, just_append);
+    _auto_completion_cache->update_tables(schema_name, tables);
+    _auto_completion_cache->update_views(schema_name, views);
 
     // Schedule a refresh of column info for all tables/views.
-    for (std::vector<std::pair<std::string, bool> >::const_iterator iterator = tables.begin(); iterator != tables.end(); ++iterator)
-      _auto_completion_cache->refresh_table_cache(schema_name, iterator->first);
+    for (std::list<std::string>::const_iterator i = tables->begin(); i != tables->end(); ++i)
+      _auto_completion_cache->refresh_columns(schema_name, *i);
+    for (std::list<std::string>::const_iterator i = views->begin(); i != views->end(); ++i)
+      _auto_completion_cache->refresh_columns(schema_name, *i);
 
-    _auto_completion_cache->update_schema_routines(schema_name, procedures, just_append);
+    _auto_completion_cache->update_procedures(schema_name, procedures);
+    _auto_completion_cache->update_functions(schema_name, functions);
   }
 }
 
@@ -2794,9 +2808,12 @@ int SqlEditorForm::count_connection_editors(const std::string &conn_name)
   for(index = _wbsql->get_open_editors()->begin(); index != end; index++)
   {
     SqlEditorForm::Ref editor((*index).lock());
-    std::string editor_connection = editor->_connection->name();
-    if (editor_connection == conn_name)
-      count++;    
+    if (editor->_connection.is_valid())
+    {
+      std::string editor_connection = editor->_connection->name();
+      if (editor_connection == conn_name)
+        count++;
+    }
   }
   
   return count;  

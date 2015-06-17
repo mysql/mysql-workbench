@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,6 +37,10 @@
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
+
+#ifdef __APPLE
+  #pragma GCC diagnostic ignored "-Wdeprecated-register"
+#endif
 
 #endif
 
@@ -338,6 +342,7 @@ class MySQLCopyDataTarget
   bool append_bulk_column(size_t col_index);
 
   void get_server_version();
+  bool is_mysql_version_at_least(const int _major, const int _minor, const int _build);
   void send_long_data(int column, const char *data, size_t length);
 
   void init();

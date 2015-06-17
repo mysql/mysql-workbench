@@ -1,4 +1,4 @@
-# Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -324,7 +324,7 @@ class MySQLConnection:
               raise QueryError("Error executing '%s'\n%s" % (strip_password(query), error), code, error)
 
             self.send_status(0)
-            return result != 0
+            return result == 0
         else:
             self.send_status(-1, "Connection to MySQL server is currently not established")
             raise QueryError("Connection to MySQL server is currently not established", -1)
@@ -333,7 +333,7 @@ class MySQLConnection:
     def executeQuery(self, query):
         if self.connection:
             #assert self.thread == thread.get_ident()
-            result = modules.DbMySQLQuery.executeQuery(self.connection, query.encode("utf8") if type(query) is unicode else query)
+            result = modules.DbMySQLQuery.executeQuery(self.connection, query.encode("utf-8") if type(query) is unicode else query)
             if result < 0:
                 code = modules.DbMySQLQuery.lastConnectionErrorCode(self.connection)
                 error = modules.DbMySQLQuery.lastConnectionError(self.connection)
@@ -346,6 +346,25 @@ class MySQLConnection:
             self.send_status(-1, "Connection to MySQL server is currently not established")
             raise QueryError("Connection to MySQL server is currently not established", -1)
 
+    def executeQueryMultiResult(self, query):
+        if self.connection:
+            result = modules.DbMySQLQuery.executeQueryMultiResult(self.connection, query.encode("utf-8") if type(query) is unicode else query)
+            if len(result) == 0:
+                code = modules.DbMySQLQuery.lastConnectionErrorCode(self.connection)
+                error = modules.DbMySQLQuery.lastConnectionError(self.connection)
+                self.send_status(code, error)
+                raise QueryError("Error executing '%s'\n%s"%(query, error), code, error)
+
+            self.send_status(0)
+
+            result_list = []
+
+            for index in range(0, len(result)):
+                result_list.append(MySQLResult(result[index]))
+            return result_list
+        else:
+            self.send_status(-1, "Connection to MySQL server is currently not established")
+            raise QueryError("Connection to MySQL server is currently not established", -1)
 
     def updateCount(self):
         return modules.DbMySQLQuery.lastUpdateCount(self.connection)

@@ -50,6 +50,7 @@ set(PY_FILES
     frontend/migration_main.py
     frontend/migration_summary.py
     frontend/migration_object_editing.py
+    frontend/migration_bulk_copy_data.py
     backend/migration.py
     backend/DataMigrator.py
     dbcopy/db_copy_grt.py

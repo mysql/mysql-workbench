@@ -32,6 +32,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/build/cmake/Modu
 
 find_package(PkgConfig REQUIRED)
 
+find_package(X11)
+
 find_package(GTK2 2.20 REQUIRED gtk gtkmm)
 pkg_check_modules(GTHREAD REQUIRED gthread-2.0)
 pkg_check_modules(GMODULE REQUIRED gmodule-2.0)
@@ -88,9 +90,9 @@ if (MYSQLCPPCONN_VERSION_1_1_4)
   add_definitions(-DMYSQLCPPCONN_VERSION_1_1_4)
 endif ()
 
-if (MYSQLCPPCONN_VERSION_1_1_5 EQUAL "1")
+if (MYSQLCPPCONN_VERSION_1_1_5)
   add_definitions(-DMYSQLCPPCONN_VERSION_1_1_5)
-endif (MYSQLCPPCONN_VERSION_1_1_5 EQUAL "1")
+endif (MYSQLCPPCONN_VERSION_1_1_5)
 
 
 if (UNIX)
@@ -253,8 +255,9 @@ endif()
 #if(CMAKE_COMPILER_IS_GNUCXX)
 #	set(CMAKE_CXX_FLAGS "${CMAKE_CKK_FLAGS} -j${NCORES}")
 #	message(STATUS "CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}")
-#	#set(CMAKE_EXE_LINKER_FLAGS "-s")  ## Strip binary
+#	set(CMAKE_EXE_LINKER_FLAGS_DEBUG "-s")  ## Strip binary
 #endif()
+
 
 set(GRT_LIBRARIES ${PYTHON_LIBRARIES} ${LIBXML2_LIBRARIES})
 set(GRT_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS} ${LIBXML2_INCLUDE_DIR})

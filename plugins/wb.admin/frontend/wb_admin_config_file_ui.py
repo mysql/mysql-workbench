@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -169,13 +169,25 @@ class WbAdminConfigFileUI(mforms.Box):
 
         #---------------------------------------------------------------------------
     def page_activated(self):
+        if not self.server_profile.is_local and not self.server_profile.remote_admin_enabled:
+            import mforms
+            box = mforms.newBox(False)
+            
+            label = mforms.newLabel("MySQL Workbench requires an SSH connection to support managing Option File remotely.")
+            label.set_style(mforms.BoldStyle)
+            label.set_text_align(mforms.MiddleCenter)
+            box.add(label, True, True)
+            self.tab_view.add_page(box, "")
+            self.search_panel.show(False)
+            self.bottom_box.show(False)
+            return
         if not self.ui_created:
             self.ui_created = True
             #self.suspend_layout()
             self.create_ui()
             #self.resume_layout()
         else:
-            on = self.server_profile.admin_enabled
+            on = bool(self.server_profile.admin_enabled)
             self.file_name_ctrl.set_enabled(on)
             self.section_ctrl.set_enabled(on)
             self.bottom_box.set_enabled(on)
@@ -877,7 +889,7 @@ class WbAdminConfigFileUI(mforms.Box):
                           # of control tupple(the one that goes after tag is defined by the type of control
 
             if force_enabled is not None:
-                enabled = force_enabled
+                enabled = bool(force_enabled)
                 control(0).set_active(enabled)
             else:
                 enabled = control(0).get_active()
@@ -1114,6 +1126,8 @@ class WbAdminConfigFileUI(mforms.Box):
         try:
             self.cfg_be.open_configuration_file(self.server_profile.config_file_path or "")
         except Exception, exc:
+            import traceback
+            traceback.print_exc()
             mforms.Utilities.show_error("Error opening configuration file",
                                         "%s: %s" % (type(exc).__name__, exc),
                                         "OK", "", "")

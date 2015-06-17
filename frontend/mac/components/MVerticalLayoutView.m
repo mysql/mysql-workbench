@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@
 #import "MVerticalLayoutView.h"
 
 @interface NSView(NSView_Extras)
-- (NSSize)minimumSize;
+@property (readonly) NSSize minimumSize;
 - (BOOL)expandsOnLayoutVertically:(BOOL)vertically;
 @end
 
@@ -31,7 +31,7 @@
 
 @implementation MVerticalLayoutView
 
-- (id)initWithFrame:(NSRect)frameRect
+- (instancetype)initWithFrame:(NSRect)frameRect
 {
   self = [super initWithFrame: frameRect];
   if (self)

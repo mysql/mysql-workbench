@@ -360,7 +360,7 @@ namespace MySQL.GUI.Workbench
         if (document is MySQL.Forms.AppViewDockContent)
         {
           MySQL.Forms.AppViewDockContent content = document as MySQL.Forms.AppViewDockContent;
-          e.canClose = content.DocumentClosing();
+          e.canClose = content.CanCloseDocument();
         }
     }
 
@@ -380,8 +380,8 @@ namespace MySQL.GUI.Workbench
       else
         if (document is MySQL.Forms.AppViewDockContent)
         {
-          // This type of document is already closed (in TabClosing).
-          // TODO: adjust code to support OnClosing/OnClose duality also in AppView.
+          MySQL.Forms.AppViewDockContent content = document as MySQL.Forms.AppViewDockContent;
+          content.CloseDocument();
         }
     }
     private void ModelDiagramForm_Shown(object sender, EventArgs e)
