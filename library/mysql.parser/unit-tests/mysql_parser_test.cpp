@@ -795,7 +795,7 @@ const sql_mode_test_entry sql_mode_test_data[] = {
     list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(STRING_TOKEN)(DOUBLE_QUOTED_TEXT)(DOUBLE_QUOTED_TEXT)(SINGLE_QUOTED_TEXT)(ANTLR3_TOKEN_EOF),
   },
   {"select \"abc\" \"def\" 'ghi''\\n\\Z\\z'", "ANSI_QUOTES", 1,
-  list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(COLUMN_REF_TOKEN)(DOUBLE_QUOTED_TEXT)(DOUBLE_QUOTED_TEXT)(ANTLR3_TOKEN_EOF),
+  list_of(SELECT_SYMBOL) (ANTLR3_TOKEN_INVALID)(ANTLR3_TOKEN_EOF),
   },
   // PIPES_AS_CONCAT
   {"select \"abc\" || \"def\"", "", 0,
@@ -816,7 +816,7 @@ const sql_mode_test_entry sql_mode_test_data[] = {
     list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(STRING_TOKEN)(DOUBLE_QUOTED_TEXT)(ANTLR3_TOKEN_EOF),
   },
   {"select \"abc \\\"def\"", "NO_BACKSLASH_ESCAPES", 1,
-    list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(STRING_TOKEN)(DOUBLE_QUOTED_TEXT)(IDENTIFIER)(ANTLR3_TOKEN_EOF),
+    list_of(SELECT_SYMBOL) (ANTLR3_TOKEN_INVALID)(ANTLR3_TOKEN_EOF),
   },
 
   // TODO: add tests for sql modes that are synonyms for a combination of the base modes.
