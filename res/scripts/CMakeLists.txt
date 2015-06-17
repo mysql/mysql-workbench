@@ -42,6 +42,7 @@ set(SYS_FILES
     sys/sys_56.sql
     sys/sys_57.sql
     sys/sys_reports.js
+    sys/generate_sql_file.sh
 )
 
 install(FILES ${SYS_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/sys)
@@ -56,8 +57,12 @@ set(SYS_FUNCTIONS_FILES
     sys/functions/ps_is_account_enabled.sql
     sys/functions/ps_is_instrument_default_enabled.sql
     sys/functions/ps_is_instrument_default_timed.sql
+    sys/functions/ps_is_account_enabled_57.sql
+	sys/functions/ps_is_consumer_enabled.sql
+	sys/functions/ps_is_thread_instrumented.sql
     sys/functions/ps_thread_id.sql
     sys/functions/ps_thread_stack.sql
+    sys/functions/sys_get_config.sql
 )
 
 install(FILES ${SYS_FUNCTIONS_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/sys/functions)
@@ -105,6 +110,55 @@ set(SYS_VIEWS_P_S_FILES
     sys/views/p_s/waits_by_host_by_latency.sql
     sys/views/p_s/waits_by_user_by_latency.sql
     sys/views/p_s/waits_global_by_latency.sql
+    sys/views/p_s/memory_by_host_by_current_bytes.sql
+	sys/views/p_s/memory_by_thread_by_current_bytes.sql
+	sys/views/p_s/memory_by_user_by_current_bytes.sql
+	sys/views/p_s/memory_global_by_current_bytes.sql
+	sys/views/p_s/x_host_summary.sql
+	sys/views/p_s/x_host_summary_57.sql
+	sys/views/p_s/x_host_summary_by_file_io.sql
+	sys/views/p_s/x_host_summary_by_file_io_type.sql
+	sys/views/p_s/x_host_summary_by_stages.sql
+	sys/views/p_s/x_host_summary_by_statement_latency.sql
+	sys/views/p_s/x_host_summary_by_statement_type.sql
+	sys/views/p_s/x_io_by_thread_by_latency.sql
+	sys/views/p_s/x_io_global_by_file_by_bytes.sql
+	sys/views/p_s/x_io_global_by_file_by_latency.sql
+	sys/views/p_s/x_io_global_by_wait_by_bytes.sql
+	sys/views/p_s/x_io_global_by_wait_by_latency.sql
+	sys/views/p_s/x_latest_file_io.sql
+	sys/views/p_s/x_memory_by_host_by_current_bytes.sql
+	sys/views/p_s/x_memory_by_thread_by_current_bytes.sql
+	sys/views/p_s/x_memory_by_user_by_current_bytes.sql
+	sys/views/p_s/x_memory_global_by_current_bytes.sql
+	sys/views/p_s/x_memory_global_total.sql
+	sys/views/p_s/x_processlist.sql
+	sys/views/p_s/x_processlist_57.sql
+	sys/views/p_s/x_ps_digest_95th_percentile_by_avg_us.sql
+	sys/views/p_s/x_ps_digest_avg_latency_distribution.sql
+	sys/views/p_s/x_ps_schema_table_statistics_io.sql
+	sys/views/p_s/x_schema_index_statistics.sql
+	sys/views/p_s/x_schema_table_statistics.sql
+	sys/views/p_s/x_schema_table_statistics_with_buffer.sql
+	sys/views/p_s/x_schema_tables_with_full_table_scans.sql
+	sys/views/p_s/x_statement_analysis.sql
+	sys/views/p_s/x_statements_with_errors_or_warnings.sql
+	sys/views/p_s/x_statements_with_full_table_scans.sql
+	sys/views/p_s/x_statements_with_runtimes_in_95th_percentile.sql
+	sys/views/p_s/x_statements_with_sorting.sql
+	sys/views/p_s/x_statements_with_temp_tables.sql
+	sys/views/p_s/x_user_summary.sql
+	sys/views/p_s/x_user_summary_57.sql
+	sys/views/p_s/x_user_summary_by_file_io.sql
+	sys/views/p_s/x_user_summary_by_file_io_type.sql
+	sys/views/p_s/x_user_summary_by_stages.sql
+	sys/views/p_s/x_user_summary_by_statement_latency.sql
+	sys/views/p_s/x_user_summary_by_statement_type.sql
+	sys/views/p_s/x_wait_classes_global_by_avg_latency.sql
+	sys/views/p_s/x_wait_classes_global_by_latency.sql
+	sys/views/p_s/x_waits_by_host_by_latency.sql
+	sys/views/p_s/x_waits_by_user_by_latency.sql
+	sys/views/p_s/x_waits_global_by_latency.sql
 )
 
 install(FILES ${SYS_VIEWS_P_S_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/sys/views/p_s)
@@ -133,6 +187,10 @@ set(SYS_PROCEDURES_FILES
     sys/procedures/ps_trace_statement_digest.sql
     sys/procedures/ps_trace_thread.sql
     sys/procedures/ps_truncate_all_tables.sql
+    sys/procedures/ps_setup_disable_consumer.sql
+	sys/procedures/ps_setup_enable_consumer.sql
+	sys/procedures/ps_setup_reset_to_default_57_after.sql
+	sys/procedures/ps_setup_reset_to_default_57_before.sql
 )
 
 install(FILES ${SYS_PROCEDURES_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/sys/procedures)
@@ -141,7 +199,43 @@ set(SYS_VIEWS_I_S_FILES
     sys/views/i_s/innodb_buffer_stats_by_schema.sql
     sys/views/i_s/innodb_buffer_stats_by_table.sql
     sys/views/i_s/schema_object_overview.sql
+    sys/views/i_s/innodb_lock_waits.sql
+	sys/views/i_s/x_innodb_buffer_stats_by_schema.sql
+	sys/views/i_s/x_innodb_buffer_stats_by_table.sql
+	sys/views/i_s/x_innodb_lock_waits.sql
 )
 
 install(FILES ${SYS_VIEWS_I_S_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/sys/views/i_s)
+
+set(SYS_TABLES_FILES
+	sys/tables/sys_config.sql
+	sys/tables/sys_config_data.sql
+)
+
+install(FILES ${SYS_TABLES_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/sys/tables)
+
+set(SYS_TRIGGERS_FILES
+	sys/triggers/sys_config_insert_set_user.sql
+	sys/triggers/sys_config_update_set_user.sql
+)
+
+install(FILES ${SYS_TRIGGERS_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/sys/triggers)
 # SYS_END
+
+
+set(FIREWALL_LINUX_SERVER_FILES
+    firewall/linux/install.sql
+    firewall/linux/uninstall.sql
+    firewall/linux/enable.sql
+    firewall/linux/disable.sql
+)
+
+set(FIREWALL_WINDOWS_SERVER_FILES
+    firewall/linux/install.sql
+    firewall/linux/uninstall.sql
+    firewall/linux/enable.sql
+    firewall/linux/disable.sql
+)
+
+install(FILES ${FIREWALL_LINUX_SERVER_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/firewall/linux)
+install(FILES ${FIREWALL_WINDOWS_SERVER_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/firewall/windows)

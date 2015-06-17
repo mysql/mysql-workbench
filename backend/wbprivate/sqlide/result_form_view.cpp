@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
 #include "wb_sql_editor_form.h"
 #include "wb_sql_editor_result_panel.h"
 #include "result_form_view.h"

@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -384,6 +384,14 @@ class LogView(mforms.Box):
 
     def copy_record(self):
         selection = self.tree.get_selection()
+        text = []
+        for node in selection:
+            text.append(node.get_string(self.log_reader.detail_column))
+        if text:
+            mforms.Utilities.set_clipboard_text("\n".join(text))
+
+    def copy_details(self):
+        selection = self.tree.get_selection()
         text = [", ".join([r[0] for r in self.log_reader.column_specs])]
         for node in selection:
             record = []
@@ -392,15 +400,6 @@ class LogView(mforms.Box):
             text.append(", ".join(record))
         if text:
             mforms.Utilities.set_clipboard_text("\n".join(text))
-
-    def copy_details(self):
-        selection = self.tree.get_selection()
-        text = []
-        for node in selection:
-            text.append(node.get_string(self.log_reader.detail_column))
-        if text:
-            mforms.Utilities.set_clipboard_text("\n".join(text))
-
 
     def go_bof(self):
         try:

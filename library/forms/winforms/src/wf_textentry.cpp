@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -93,6 +93,12 @@ public:
         entry->action(mforms::EntryCKeyDown);
       else
         entry->action(mforms::EntryKeyDown);
+      args->SuppressKeyPress = true;
+
+      break;
+
+    case Keys::Escape:
+      entry->action(mforms::EntryEscape);
       args->SuppressKeyPress = true;
 
       break;

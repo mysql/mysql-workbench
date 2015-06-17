@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
 #include "base/log.h"
 #include "base/file_utilities.h"
 #include "spatial_data_view.h"
@@ -675,7 +674,7 @@ void SpatialDataView::refresh_layers()
     {
       for (size_t i = 0; i < panel->result_panel_count(); ++i)
       {
-        SqlEditorResult *result = panel->result_panel(i);
+        SqlEditorResult *result = panel->result_panel((int)i);
         if (result)
         {
           std::vector<SpatialDataView::SpatialDataSource> tmp(result->get_spatial_columns());
@@ -686,7 +685,7 @@ void SpatialDataView::refresh_layers()
   }
 
   set_geometry_columns(spatial_columns);
-  if ((bool)get_option("SqlEditor::SpatialAutoZoom", 1))
+  if (get_option("SqlEditor::SpatialAutoZoom", 1) >= 1)
     _viewer->auto_zoom(_active_layer);
 }
 
@@ -721,7 +720,7 @@ void SpatialDataView::layer_menu_action(const std::string &action)
   }
 
 
-  node = move_node_to(node, group_node, new_index);
+  node = move_node_to(node, group_node, (int)new_index);
   spatial::Layer *layer = _viewer->get_layer(base::atoi<int>(node->get_tag(), 0));
   if (layer)
     set_color_icon(node, 1, layer->color());
@@ -956,7 +955,7 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
 void SpatialDataView::update_coordinates(base::Point p)
 {
   double lat, lon;
-  if (_viewer->screen_to_world(p.x, p.y, lat, lon))
+  if (_viewer->screen_to_world((int)p.x, (int)p.y, lat, lon))
     _mouse_pos_label->set_text(base::strfmt("Lat:  %s\nLon: %s",
                                             spatial::Converter::dec_to_dms(lat, spatial::AxisLat, 2).c_str(),
                                             spatial::Converter::dec_to_dms(lon, spatial::AxisLon, 2).c_str()));

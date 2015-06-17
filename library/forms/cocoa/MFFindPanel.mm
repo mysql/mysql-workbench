@@ -29,8 +29,11 @@ using namespace mforms;
 
 @implementation MFFindPanel
 
-- (id)initWithOwner:(mforms::FindPanel*)owner
+- (instancetype)initWithOwner: (mforms::FindPanel*)owner
 {
+  if (owner == nil)
+    return nil;
+
   self = [super initWithFrame: NSMakeRect(0, 0, 100, 100)];
   if (self)
   {
@@ -69,6 +72,15 @@ using namespace mforms;
   return self;
 }
 
+-(instancetype)initWithFrame: (NSRect)frame
+{
+  return [self initWithOwner: nil];
+}
+
+-(instancetype)initWithCoder: (NSCoder *)coder
+{
+  return [self initWithOwner: nil];
+}
 
 - (void) dealloc
 {

@@ -43,7 +43,7 @@
   if ([self listModel] != nil) {
     std::string value;
     if ([self listModel]->get_field(rowIndex, valueIndex, value))
-      val = [NSString stringWithUTF8String: value.c_str()];
+      val = @(value.c_str());
     else
       val = @"";
   }

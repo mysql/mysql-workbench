@@ -43,7 +43,7 @@
 
 @implementation MFPanelContent
 
-- (id)initWithPanel:(MFPanelImpl*)aPanel
+- (instancetype)initWithPanel:(MFPanelImpl*)aPanel
 {
   NSRect frame= [aPanel frame];
   frame.origin= NSMakePoint(0, 0);
@@ -183,11 +183,12 @@ STANDARD_MOUSE_HANDLING(panel) // Add handling for mouse events.
         break;
     }
     
-    [mBackImage setFlipped: YES];
     [mBackImage drawInRect: NSMakeRect(x, y, isize.width, isize.height)
                   fromRect: NSZeroRect
                  operation: NSCompositeSourceOver
-                  fraction: 1.0];
+                  fraction: 1.0
+            respectFlipped: YES
+                     hints: nil];
   }
   else if (panel->mType == mforms::StyledHeaderPanel)
   {
@@ -205,7 +206,7 @@ STANDARD_MOUSE_HANDLING(panel) // Add handling for mouse events.
 
 @implementation MFPanelImpl
 
-- (id)initWithObject:(::mforms::Panel*)aPanel type:(::mforms::PanelType)type
+- (instancetype)initWithObject:(::mforms::Panel*)aPanel type:(::mforms::PanelType)type
 {
   self= [super initWithFrame:NSMakeRect(10, 10, 10, 10)];
   if (self)

@@ -28,9 +28,14 @@
 
 //--------------------------------------------------------------------------------------------------
 
-- (id)initWithModule:(grt::Module*)module GRTManager:(bec::GRTManager*)grtm arguments:(const grt::BaseListRef&)args
+- (instancetype)initWithModule: (grt::Module*)module
+                    grtManager: (bec::GRTManager *)grtm
+                     arguments: (const grt::BaseListRef &)args
 {
-  self= [super initWithNibName: @"WbModelStoredNoteEditor" bundle: [NSBundle bundleForClass:[self class]]];
+  if (grtm == nil)
+    return nil;
+  
+  self = [super initWithNibName: @"WbModelStoredNoteEditor" bundle: [NSBundle bundleForClass:[self class]]];
   if (self != nil)
   {
     _grtm = grtm;
@@ -47,7 +52,15 @@
   return self;
 }
 
-//--------------------------------------------------------------------------------------------------
+- (instancetype)initWithNibName: (NSString *)nibNameOrNil bundle: (NSBundle *)nibBundleOrNil
+{
+  return [self initWithModule: nil grtManager: nil arguments: grt::BaseListRef()];
+}
+
+-(instancetype)initWithCoder: (NSCoder *)coder
+{
+  return [self initWithModule: nil grtManager: nil arguments: grt::BaseListRef()];
+}
 
 - (void)reinitWithArguments: (const grt::BaseListRef&)args
 {

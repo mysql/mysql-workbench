@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,11 +34,13 @@
   StoredNoteEditorBE *mBackEnd;
 }
 
-- (id)initWithModule:(grt::Module*)module GRTManager:(bec::GRTManager*)grtm arguments:(const grt::BaseListRef&)args;
+- (instancetype)initWithModule: (grt::Module*)module
+                    grtManager: (bec::GRTManager *)grtm
+                     arguments: (const grt::BaseListRef &)args NS_DESIGNATED_INITIALIZER;
 
-- (IBAction)applyChanges:(id)sender;
-- (IBAction)revertChanges:(id)sender;
+- (IBAction)applyChanges: (id)sender;
+- (IBAction)revertChanges: (id)sender;
 
-- (bec::BaseEditor*) editorBE;
+@property (readonly) bec::BaseEditor *editorBE;
 
 @end

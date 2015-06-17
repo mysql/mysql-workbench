@@ -417,9 +417,9 @@ std::string get_local_os_name()
     case 11:
       return "OS X 10.7.x Lion";
     case 10:
-      return "OS X 10.6.x Snow Leopard";
+      return "OS X 10.6.x Snow Leopard"; // For completeness. Not that WB would actually run on this or lower :-)
     case 9:
-      return "OS X 10.5.x Leopard"; // For completeness. Not that WB would actually run on this or lower :-)
+      return "OS X 10.5.x Leopard";
     case 8:
       return "OS X 10.4.x Tiger";
     case 7:

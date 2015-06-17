@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -82,6 +82,12 @@ public:
                   DECLARE_MODULE_FUNCTION_DOC(DbMySQLQueryImpl::executeQuery,
                                               "Executes a query in the server, such as SELECT statements.\n"
                                               "Returns the result_id of the generated resultset. Use the result* functions to get the results.\n"
+                                              "You must call closeResult() on the returned id once done with it.",
+                                              "conn_id the connection id\n"
+                                              "query the statement/query to be executed"),
+                  DECLARE_MODULE_FUNCTION_DOC(DbMySQLQueryImpl::executeQueryMultiResult,
+                                              "Executes a query in the server, such as SELECT statements and stored procedures.\n"
+                                              "Returns a list with all the result IDs of the generated resultsets. Use the result* functions to get the results.\n"
                                               "You must call closeResult() on the returned id once done with it.",
                                               "conn_id the connection id\n"
                                               "query the statement/query to be executed"),
@@ -181,7 +187,10 @@ public:
 
   // returns result-id or -1 for error
   int executeQuery(int conn, const std::string &query);
-
+  
+  //  returns a list with all the result ids. On error will return an empty list
+  grt::IntegerListRef executeQueryMultiResult(int conn, const std::string &query);
+  
   size_t resultNumRows(int result);
   int resultNumFields(int result);
   std::string resultFieldType(int result, int field);
@@ -253,7 +262,7 @@ private:
   int _last_error_code;
 
   int _connection_id;
-  int _resultset_id;
+  base::refcount_t _resultset_id;
   int _tunnel_id;
 };
 
@@ -420,10 +429,11 @@ int DbMySQLQueryImpl::executeQuery(int conn, const std::string &query)
       throw;
     }
 
-    ++_resultset_id;
+    g_atomic_int_inc(&_resultset_id);
+    int id = g_atomic_int_get(&_resultset_id);
 
     cinfo->last_update_count = (size_t)pstmt->getUpdateCount();
-    _resultsets[_resultset_id] = res;
+    _resultsets[id] = res;
   }
   catch (sql::SQLException &exc)
   {
@@ -441,6 +451,67 @@ int DbMySQLQueryImpl::executeQuery(int conn, const std::string &query)
   }
 
   return _resultset_id;
+}
+
+
+grt::IntegerListRef DbMySQLQueryImpl::executeQueryMultiResult(int conn, const std::string &query)
+{
+  CLEAR_ERROR();
+  
+  ConnectionInfo::Ref cinfo;
+  sql::Connection *con= 0;
+  {
+    base::MutexLock lock(_mutex);
+    if (_connections.find(conn) == _connections.end())
+      throw std::invalid_argument("Invalid connection");
+    cinfo = _connections[conn];
+    con = cinfo->prepare();
+  }
+
+  grt::IntegerListRef result(get_grt());
+  
+  try
+  {
+    std::auto_ptr<sql::Statement> pstmt(con->createStatement());
+    pstmt->execute(query);
+
+    try
+    {
+      do
+      {
+        int id = g_atomic_int_get(&_resultset_id);
+        g_atomic_int_inc(&_resultset_id);
+        
+        result.insert(grt::IntegerRef(id));
+        _resultsets[id] = pstmt->getResultSet();
+        cinfo->last_update_count = (size_t)pstmt->getUpdateCount();
+      } while (pstmt->getMoreResults());
+    }
+    catch (sql::SQLException &exc)
+    {
+      if (exc.getErrorCode() == 0) // just means there's no resultset
+        return result;
+      
+      throw;
+    }
+
+  }
+  catch (sql::SQLException &exc)
+  {
+    _last_error = exc.what();
+    _last_error_code = exc.getErrorCode();
+    cinfo->last_error = exc.what();
+    cinfo->last_error_code = _last_error_code;
+    return result;
+  }
+  catch (std::exception &e)
+  {
+    _last_error = e.what();
+    cinfo->last_error = e.what();
+    return result;
+  }
+
+  return result;
 }
 
 
@@ -521,7 +592,7 @@ std::string DbMySQLQueryImpl::resultFieldName(int result, int field)
     throw std::invalid_argument("Invalid resultset");
   sql::ResultSet *res = _resultsets[result];
 
-  return res->getMetaData()->getColumnName(field);
+  return res->getMetaData()->getColumnLabel(field);
 }
 
 

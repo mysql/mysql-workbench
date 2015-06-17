@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -16,6 +16,7 @@
 # 02110-1301  USA
 
 from __future__ import with_statement
+from workbench.log import log_info, log_error, log_warning
 
 from workbench.utils import format_duration
 from workbench.db_utils import QueryError
@@ -281,15 +282,13 @@ class WbAdminServerStatus(mforms.Box):
         self.connection_info.update(self.ctrl_be)
         self.status.refresh_status(self.ctrl_be.is_server_running(verbose=False))
         info = self.ctrl_be.server_variables
+        status = self.ctrl_be.status_variables
         plugins = dict(self.ctrl_be.server_active_plugins) # plugin -> type
 
         repl_error = None
         res = None
         try:
-            if self.ctrl_be.target_version and self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 0):
-                res = self.ctrl_be.exec_query("SHOW SLAVE STATUS NONBLOCKING")
-            else:
-                res = self.ctrl_be.exec_query("SHOW SLAVE STATUS")
+            res = self.ctrl_be.exec_query("SHOW SLAVE STATUS")
         except QueryError, e:
             if e.error == 1227:
                 repl_error = "Insufficient privileges to view slave status"
@@ -324,9 +323,10 @@ class WbAdminServerStatus(mforms.Box):
         for key, (control, value_source) in self.controls.items():
             if callable(value_source):
                 if isinstance(control, mforms.Label):
-                    control.set_text(value_source(info, plugins))
+                    resp = value_source(info, plugins, status)
+                    control.set_text(resp if resp else "n/a")
                 else:
-                    value = value_source(info, plugins)
+                    value = value_source(info, plugins, status)
                     if type(value) is tuple:
                         control.set_state(value[0])
                         if value[0] and value[1]:
@@ -341,6 +341,7 @@ class WbAdminServerStatus(mforms.Box):
 
     def create_info_sections(self):
         info = self.ctrl_be.server_variables
+        status = self.ctrl_be.status_variables
         plugins = dict(self.ctrl_be.server_active_plugins) # plugin -> type
 
         repl = {}
@@ -367,31 +368,33 @@ class WbAdminServerStatus(mforms.Box):
                 semi_sync_slave = False
 
         # the params to be passed to the lambdas
-        params = (info, plugins)
+        params = (info, plugins, status)
 
         self.add_info_section_2("Available Server Features",
-                              [("Performance Schema:", lambda info, plugins: tristate(info.get("performance_schema"))),
-                               ("Thread Pool:", lambda info, plugins: tristate(info.get("thread_handling"), "loaded-dynamically")),
-                               ("Memcached Plugin:", lambda info, plugins: memcached_status),
-                               ("Semisync Replication Plugin:", lambda info, plugins: semi_sync_status),
-                               ("SSL Availability:", lambda info, plugins: info.get("have_openssl") == "YES" or info.get("have_ssl") == "YES"),
-                               ("Windows Authentication:", lambda info, plugins: plugins.has_key("authentication_windows")) if self.server_profile.target_is_windows else ("PAM Authentication:", lambda info, plugins: plugins.has_key("authentication_pam")),
-                               ("Password Validation:", lambda info, plugins: (tristate(info.get("validate_password_policy")), "(Policy: %s)" % info.get("validate_password_policy"))),
-                               ("Audit Log:", lambda info, plugins: (tristate(info.get("audit_log_policy")), "(Log Policy: %s)" % info.get("audit_log_policy")))],
+                              [("Performance Schema:", lambda info, plugins, status: tristate(info.get("performance_schema"))),
+                               ("Thread Pool:", lambda info, plugins, status: tristate(info.get("thread_handling"), "loaded-dynamically")),
+                               ("Memcached Plugin:", lambda info, plugins, status: memcached_status),
+                               ("Semisync Replication Plugin:", lambda info, plugins, status: semi_sync_status),
+                               ("SSL Availability:", lambda info, plugins, status: info.get("have_openssl") == "YES" or info.get("have_ssl") == "YES"),
+                               ("Windows Authentication:", lambda info, plugins, status: plugins.has_key("authentication_windows")) if self.server_profile.target_is_windows else ("PAM Authentication:", lambda info, plugins, status: plugins.has_key("authentication_pam")),
+                               ("Password Validation:", lambda info, plugins, status: (tristate(info.get("validate_password_policy")), "(Policy: %s)" % info.get("validate_password_policy"))),
+                               ("Audit Log:", lambda info, plugins, status: (tristate(info.get("audit_log_policy")), "(Log Policy: %s)" % info.get("audit_log_policy"))),
+                               ("Firewall:", lambda info, plugins, status: tristate(info.get("mysql_firewall_mode"))),
+                               ("Firewall Trace:", lambda info, plugins, status: tristate(info.get("mysql_firewall_trace")))],
                                 params)
 
         log_output = info.get("log_output", "FILE")
 
         self.add_info_section("Server Directories",
-                              [("Base Directory:", lambda info, plugins: info.get("basedir")),
-                               ("Data Directory:", lambda info, plugins: info.get("datadir")),
+                              [("Base Directory:", lambda info, plugins, status: info.get("basedir")),
+                               ("Data Directory:", lambda info, plugins, status: info.get("datadir")),
                                ("Disk Space in Data Dir:", disk_space),
-                               ("InnoDB Data Directory:", lambda info, plugins: info.get("innodb_data_home_dir")) if info.get("innodb_data_home_dir") else None,
-                               ("Plugins Directory:", lambda info, plugins: info.get("plugin_dir")),
-                               ("Tmp Directory:", lambda info, plugins: info.get("tmpdir")),
-                               ("Error Log:", lambda info, plugins: (info.get("log_error") and info.get("log_error")!="OFF", info.get("log_error"))),
-                               ("General Log:", lambda info, plugins: (info.get("general_log")!="OFF" and log_output != "NONE", info.get("general_log_file") if "FILE" in log_output else "[Stored in database]")),
-                               ("Slow Query Log:", lambda info, plugins: (info.get("slow_query_log")!="OFF" and log_output != "NONE", info.get("slow_query_log_file") if "FILE" in log_output else "[Stored in database]"))],
+                               ("InnoDB Data Directory:", lambda info, plugins, status: info.get("innodb_data_home_dir")) if info.get("innodb_data_home_dir") else None,
+                               ("Plugins Directory:", lambda info, plugins, status: info.get("plugin_dir")),
+                               ("Tmp Directory:", lambda info, plugins, status: info.get("tmpdir")),
+                               ("Error Log:", lambda info, plugins, status: (info.get("log_error") and info.get("log_error")!="OFF", info.get("log_error"))),
+                               ("General Log:", lambda info, plugins, status: (info.get("general_log")!="OFF" and log_output != "NONE", info.get("general_log_file") if "FILE" in log_output else "[Stored in database]")),
+                               ("Slow Query Log:", lambda info, plugins, status: (info.get("slow_query_log")!="OFF" and log_output != "NONE", info.get("slow_query_log_file") if "FILE" in log_output else "[Stored in database]"))],
                               params)
 
         self.add_info_section("Replication Slave",
@@ -399,20 +402,30 @@ class WbAdminServerStatus(mforms.Box):
                               params)
 
         self.add_info_section("Authentication",
-                              [("SHA256 password private key:", lambda info, plugins: info.get("sha256_password_private_key_path")),
-                               ("SHA256 password public key:", lambda info, plugins: info.get("sha256_password_public_key_path"))],
+                              [("SHA256 password private key:", lambda info, plugins, status: info.get("sha256_password_private_key_path")),
+                               ("SHA256 password public key:", lambda info, plugins, status: info.get("sha256_password_public_key_path"))],
                               params)
 
         self.add_info_section("SSL",
-                              [("SSL CA:", lambda info, plugins: info.get("ssl_ca") or "n/a"),
-                               ("SSL CA path:", lambda info, plugins: info.get("ssl_capath") or "n/a"),
-                               ("SSL Cert:", lambda info, plugins: info.get("ssl_cert") or "n/a"),
-                               ("SSL Cipher:", lambda info, plugins: info.get("ssl_cipher") or "n/a"),
-                               ("SSL CRL:", lambda info, plugins: info.get("ssl_crl") or "n/a"),
-                               ("SSL CRL path:", lambda info, plugins: info.get("ssl_crlpath") or "n/a"),
-                               ("SSL Key:", lambda info, plugins: info.get("ssl_key") or "n/a")],
+                              [("SSL CA:", lambda info, plugins, status: info.get("ssl_ca") or "n/a"),
+                               ("SSL CA path:", lambda info, plugins, status: info.get("ssl_capath") or "n/a"),
+                               ("SSL Cert:", lambda info, plugins, status: info.get("ssl_cert") or "n/a"),
+                               ("SSL Cipher:", lambda info, plugins, status: info.get("ssl_cipher") or "n/a"),
+                               ("SSL CRL:", lambda info, plugins, status: info.get("ssl_crl") or "n/a"),
+                               ("SSL CRL path:", lambda info, plugins, status: info.get("ssl_crlpath") or "n/a"),
+                               ("SSL Key:", lambda info, plugins, status: info.get("ssl_key") or "n/a")],
                               params)
 
+        log_error("Firewall_access_denied: %s\n" % status.get("Firewall_access_denied"))
+        log_error("Firewall_access_granted: %s\n" % status.get("Firewall_access_granted"))
+        log_error("Firewall_cached_entries: %s\n" % status.get("Firewall_cached_entries"))
+
+        if info.get("mysql_firewall_trace"):
+            self.add_info_section("Firewall",
+                                  [("Access denied:", lambda info, plugins, status: str(status.get("Firewall_access_denied")) or "n/a"),
+                                  ("Access granted:", lambda info, plugins, status: str(status.get("Firewall_access_granted")) or "n/a"),
+                                  ("Cached entries:", lambda info, plugins, status: str(status.get("Firewall_cached_entries")) or "n/a")],
+                                  params)
 
     def add_info_section_2(self, title, info, params):
         label = mforms.newLabel(title)

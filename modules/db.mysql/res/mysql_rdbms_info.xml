@@ -71,7 +71,7 @@
         </value>
       </value>
     </value>
-  
+
     <!-- Character Sets -->
 
     <value type="list" content-type="object" content-struct-name="db.CharacterSet" key="characterSets">
@@ -493,7 +493,8 @@
         <value type="string" key="name">eucjpms</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
       </value>
-      <value type="object" struct-name="db.CharacterSet" id="com.mysql.rdbms.mysql.charset.utf8mb4"> <!-- Added in 5.5.3 -->
+      <value type="object" struct-name="db.CharacterSet" id="com.mysql.rdbms.mysql.charset.utf8mb4">
+        <!-- Added in 5.5.3 -->
         <value type="list" content-type="string" key="collations">
           <value type="string">utf8mb4_bin</value>
           <value type="string">utf8mb4_czech_ci</value>
@@ -517,13 +518,15 @@
           <value type="string">utf8mb4_spanish2_ci</value>
           <value type="string">utf8mb4_swedish_ci</value>
           <value type="string">utf8mb4_turkish_ci</value>
-          <value type="string">utf8mb4_unicode_ci</value>        </value>
+          <value type="string">utf8mb4_unicode_ci</value>
+        </value>
         <value type="string" key="defaultCollation">utf8mb4_general_ci</value>
         <value type="string" key="description">UTF-8 Unicode</value>
         <value type="string" key="name">utf8mb4</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
       </value>
-      <value type="object" struct-name="db.CharacterSet" id="com.mysql.rdbms.mysql.charset.utf16"> <!-- Added in 5.5.3 -->
+      <value type="object" struct-name="db.CharacterSet" id="com.mysql.rdbms.mysql.charset.utf16">
+        <!-- Added in 5.5.3 -->
         <value type="list" content-type="string" key="collations">
           <value type="string">utf16_bin</value>
           <value type="string">utf16_czech_ci</value>
@@ -554,7 +557,8 @@
         <value type="string" key="name">utf16</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
       </value>
-      <value type="object" struct-name="db.CharacterSet" id="com.mysql.rdbms.mysql.charset.utf32"> <!-- Added in 5.5.3 -->
+      <value type="object" struct-name="db.CharacterSet" id="com.mysql.rdbms.mysql.charset.utf32">
+        <!-- Added in 5.5.3 -->
         <value type="list" content-type="string" key="collations">
           <value type="string">utf32_bin</value>
           <value type="string">utf32_czech_ci</value>
@@ -605,8 +609,7 @@
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param1">
             <value type="string" key="caption">Hostname:</value>
             <value type="string" key="defaultValue">127.0.0.1</value>
-            <value type="string" key="description">Name or IP address of the server host.
-</value>
+            <value type="string" key="description">Name or IP address of the server host</value>
             <value type="int" key="layoutAdvanced">0</value>
             <value type="int" key="layoutRow">1</value>
             <value type="int" key="layoutWidth">118</value>
@@ -651,8 +654,7 @@
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param4">
             <value type="string" key="caption">Password:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">The user's password. Will be requested
-later if it's not set.</value>
+            <value type="string" key="description">The user's password. Will be requested later if it's not set.</value>
             <value type="int" key="layoutAdvanced">0</value>
             <value type="int" key="layoutRow">3</value>
             <value type="int" key="layoutWidth">218</value>
@@ -669,8 +671,7 @@ later if it's not set.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param5">
             <value type="string" key="caption">Default Schema:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">The schema to use as default schema.
-Leave blank to select it later.</value>
+            <value type="string" key="description">The schema to use as default schema. Leave blank to select it later.</value>
             <value type="int" key="layoutAdvanced">0</value>
             <value type="int" key="layoutRow">4</value>
             <value type="int" key="layoutWidth">218</value>
@@ -683,7 +684,7 @@ Leave blank to select it later.</value>
             <value type="int" key="required">0</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param6">
-            <value type="string" key="caption">Use compression protocol.</value>
+            <value type="string" key="caption">Use compression protocol</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">Select this option for WAN connections.</value>
             <value type="int" key="layoutAdvanced">1</value>
@@ -698,10 +699,9 @@ Leave blank to select it later.</value>
             <value type="int" key="required">0</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param8">
-            <value type="string" key="caption">Use ANSI quotes to quote identifiers.</value>
+            <value type="string" key="caption">Use ANSI quotes to quote identifiers</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">If enabled this option overwrites
-the serverside settings.</value>
+            <value type="string" key="description">If enabled this option overwrites the serverside settings.</value>
             <value type="int" key="layoutAdvanced">1</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">318</value>
@@ -716,8 +716,7 @@ the serverside settings.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param9">
             <value type="string" key="caption">Enable Cleartext Authentication Plugin</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Send user password in cleartext.
-Required for some authentication methods.</value>
+            <value type="string" key="description">Send user password in cleartext. Required for some authentication methods.</value>
             <value type="int" key="layoutAdvanced">1</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">318</value>
@@ -730,10 +729,9 @@ Required for some authentication methods.</value>
             <value type="int" key="required">0</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.legacyauth">
-            <value type="string" key="caption">Use the old authentication protocol.</value>
+            <value type="string" key="caption">Use the old authentication protocol</value>
             <value type="string" key="defaultValue"></value>
-	    <value type="string" key="description">This option disables Connector/C++'s
-secure_auth option.</value>
+            <value type="string" key="description">This option disables Connector/C++'s secure_auth option.</value>
             <value type="int" key="layoutAdvanced">1</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">318</value>
@@ -748,8 +746,7 @@ secure_auth option.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.sqlmode">
             <value type="string" key="caption">SQL_MODE:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Override the default SQL_MODE
-used by the server.</value>
+            <value type="string" key="description">Override the default SQL_MODE used by the server.</value>
             <value type="int" key="layoutAdvanced">1</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -764,8 +761,7 @@ used by the server.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.others">
             <value type="string" key="caption">Others:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Other options for Connector/C++
-as option=value pairs, one per line.</value>
+            <value type="string" key="description">Other options for Connector/C++ as option=value pairs, one per line.</value>
             <value type="int" key="layoutAdvanced">1</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -791,8 +787,8 @@ as option=value pairs, one per line.</value>
             <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
             <value type="string" key="paramType">enum</value>
             <value type="dict" content-type="string" key="paramTypeDetails">
-                <value type="string" key="options">0|No,1|If available,2|Require</value>
-                <value type="string" key="type">int</value>
+              <value type="string" key="options">0|No,1|If available,2|Require</value>
+              <value type="string" key="type">int</value>
             </value>
             <value type="int" key="required">0</value>
           </value>
@@ -856,6 +852,36 @@ as option=value pairs, one per line.</value>
             <value type="dict" content-type="string" key="paramTypeDetails"/>
             <value type="int" key="required">0</value>
           </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl5">
+            <value type="string" key="caption">SSL Wizard ...</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description"></value>
+            <value type="int" key="layoutAdvanced">2</value>
+            <value type="int" key="layoutRow">-1</value>
+            <value type="int" key="layoutWidth">120</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">sslWizard</value>
+            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+            <value type="string" key="paramType">button</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl6">
+            <value type="string" key="caption">Files ...</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description"></value>
+            <value type="int" key="layoutAdvanced">2</value>
+            <value type="int" key="layoutRow">-1</value>
+            <value type="int" key="layoutWidth">120</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">openSSLWizardDirectory</value>
+            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+            <value type="string" key="paramType">button</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
         </value>
       </value>
       <value type="object" struct-name="db.mgmt.Driver" id="com.mysql.rdbms.mysql.driver.native_socket">
@@ -870,11 +896,10 @@ as option=value pairs, one per line.</value>
         <value type="string" key="name">MysqlNativeSocket</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
         <value _ptr_="017258B3s" type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
-            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.param1">
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.param1">
             <value type="string" key="caption">Socket/Pipe Path:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Path to local socket or pipe file.
-Leave empty for default.</value>
+            <value type="string" key="description">Path to local socket or pipe file. Leave empty for default.</value>
             <value type="int" key="layoutAdvanced">0</value>
             <value type="int" key="layoutRow">1</value>
             <value type="int" key="layoutWidth">218</value>
@@ -904,8 +929,7 @@ Leave empty for default.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.param4">
             <value type="string" key="caption">Password:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">The user's password. Will be requested
-later if it's not set now.</value>
+            <value type="string" key="description">The user's password. Will be requested later if it's not set now.</value>
             <value type="int" key="layoutAdvanced">0</value>
             <value type="int" key="layoutRow">3</value>
             <value type="int" key="layoutWidth">218</value>
@@ -922,8 +946,7 @@ later if it's not set now.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.param5">
             <value type="string" key="caption">Default Schema:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">The schema to use as default schema.
-Leave blank to select it later.</value>
+            <value type="string" key="description">The schema to use as default schema. Leave blank to select it later.</value>
             <value type="int" key="layoutAdvanced">0</value>
             <value type="int" key="layoutRow">4</value>
             <value type="int" key="layoutWidth">218</value>
@@ -936,10 +959,9 @@ Leave blank to select it later.</value>
             <value type="int" key="required">0</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.param8">
-            <value type="string" key="caption">Use ANSI quotes to quote identifiers.</value>
+            <value type="string" key="caption">Use ANSI quotes to quote identifiers</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">If enabled this option overwrites
-the serverside settings.</value>
+            <value type="string" key="description">If enabled this option overwrites the serverside settings.</value>
             <value type="int" key="layoutAdvanced">1</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">318</value>
@@ -954,8 +976,7 @@ the serverside settings.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.param9">
             <value type="string" key="caption">Enable Cleartext Authentication Plugin</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Send user password in cleartext.
-Required for some authentication methods.</value>
+            <value type="string" key="description">Send user password in cleartext. Required for some authentication methods.</value>
             <value type="int" key="layoutAdvanced">1</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">318</value>
@@ -966,12 +987,11 @@ Required for some authentication methods.</value>
             <value type="string" key="paramType">boolean</value>
             <value type="dict" content-type="string" key="paramTypeDetails"/>
             <value type="int" key="required">0</value>
-          </value>          
+          </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.legacyauth">
-            <value type="string" key="caption">Use the old authentication protocol.</value>
+            <value type="string" key="caption">Use the old authentication protocol</value>
             <value type="string" key="defaultValue"></value>
-	    <value type="string" key="description">This option disables Connector/C++'s
-secure_auth option.</value>
+            <value type="string" key="description">This option disables Connector/C++'s secure_auth option.</value>
             <value type="int" key="layoutAdvanced">1</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">318</value>
@@ -986,8 +1006,7 @@ secure_auth option.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.sqlmode">
             <value type="string" key="caption">SQL_MODE:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Override the default SQL_MODE
-used by the server.</value>
+            <value type="string" key="description">Override the default SQL_MODE used by the server.</value>
             <value type="int" key="layoutAdvanced">1</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -1002,1078 +1021,1193 @@ used by the server.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.others">
             <value type="string" key="caption">Others:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Other options for Connector/C++
-as option=value pairs, one per line.</value>
-            <value type="int" key="layoutAdvanced">1</value>
-            <value type="int" key="layoutRow">-1</value>
-            <value type="int" key="layoutWidth">180</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">$others</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_socket</link>
-            <value type="string" key="paramType">text</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">0</value>
-          </value>
+            <value type="string" key="description">Other options for Connector/C++ as option=value pairs, one per line</value>
+              <value type="int" key="layoutAdvanced">1</value>
+              <value type="int" key="layoutRow">-1</value>
+              <value type="int" key="layoutWidth">180</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">$others</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_socket</link>
+              <value type="string" key="paramType">text</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">0</value>
+            </value>
 
 
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl0">
-            <value type="string" key="caption">Use SSL</value>
-            <value type="string" key="defaultValue">1</value>
-            <value type="string" key="description">Turns on SSL encryption.
-Connection will fail if SSL is not available.</value>
-            <value type="int" key="layoutAdvanced">2</value>
-            <value type="int" key="layoutRow">-1</value>
-            <value type="int" key="layoutWidth">318</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">useSSL</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">enum</value>
-            <value type="dict" content-type="string" key="paramTypeDetails">
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl0">
+              <value type="string" key="caption">Use SSL</value>
+              <value type="string" key="defaultValue">1</value>
+              <value type="string" key="description">Turns on SSL encryption. Connection will fail if SSL is not available.</value>
+              <value type="int" key="layoutAdvanced">2</value>
+              <value type="int" key="layoutRow">-1</value>
+              <value type="int" key="layoutWidth">318</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">useSSL</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+              <value type="string" key="paramType">enum</value>
+              <value type="dict" content-type="string" key="paramTypeDetails">
                 <value type="string" key="options">0|No,1|If available,2|Require</value>
                 <value type="string" key="type">int</value>
+              </value>
+              <value type="int" key="required">0</value>
             </value>
-            <value type="int" key="required">0</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl1">
-            <value type="string" key="caption">SSL CA File:</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Path to Certificate Authority file for SSL.</value>
-            <value type="int" key="layoutAdvanced">2</value>
-            <value type="int" key="layoutRow">-1</value>
-            <value type="int" key="layoutWidth">180</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">sslCA</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">file</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">0</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl2">
-            <value type="string" key="caption">SSL CERT File:</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Path to Client Certificate file for SSL.</value>
-            <value type="int" key="layoutAdvanced">2</value>
-            <value type="int" key="layoutRow">-1</value>
-            <value type="int" key="layoutWidth">180</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">sslCert</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">file</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">0</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl3">
-            <value type="string" key="caption">SSL Key File:</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Path to Client Key file for SSL.</value>
-            <value type="int" key="layoutAdvanced">2</value>
-            <value type="int" key="layoutRow">-1</value>
-            <value type="int" key="layoutWidth">180</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">sslKey</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">file</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">0</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl4">
-            <value type="string" key="caption">SSL Cipher:</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Optional : separated list of permissible
-ciphers to use for SSL encryption.</value>
-            <value type="int" key="layoutAdvanced">2</value>
-            <value type="int" key="layoutRow">-1</value>
-            <value type="int" key="layoutWidth">180</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">sslCipher</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">string</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">0</value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl1">
+              <value type="string" key="caption">SSL CA File:</value>
+              <value type="string" key="defaultValue"></value>
+              <value type="string" key="description">Path to Certificate Authority file for SSL.</value>
+              <value type="int" key="layoutAdvanced">2</value>
+              <value type="int" key="layoutRow">-1</value>
+              <value type="int" key="layoutWidth">180</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">sslCA</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+              <value type="string" key="paramType">file</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">0</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl2">
+              <value type="string" key="caption">SSL CERT File:</value>
+              <value type="string" key="defaultValue"></value>
+              <value type="string" key="description">Path to Client Certificate file for SSL.</value>
+              <value type="int" key="layoutAdvanced">2</value>
+              <value type="int" key="layoutRow">-1</value>
+              <value type="int" key="layoutWidth">180</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">sslCert</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+              <value type="string" key="paramType">file</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">0</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl3">
+              <value type="string" key="caption">SSL Key File:</value>
+              <value type="string" key="defaultValue"></value>
+              <value type="string" key="description">Path to Client Key file for SSL.</value>
+              <value type="int" key="layoutAdvanced">2</value>
+              <value type="int" key="layoutRow">-1</value>
+              <value type="int" key="layoutWidth">180</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">sslKey</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+              <value type="string" key="paramType">file</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">0</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl4">
+              <value type="string" key="caption">SSL Cipher:</value>
+              <value type="string" key="defaultValue"></value>
+              <value type="string" key="description">Optional : separated list of permissible ciphers to use for SSL encryption.</value>
+              <value type="int" key="layoutAdvanced">2</value>
+              <value type="int" key="layoutRow">-1</value>
+              <value type="int" key="layoutWidth">180</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">sslCipher</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+              <value type="string" key="paramType">string</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">0</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl5">
+              <value type="string" key="caption">SSL Wizard ...</value>
+              <value type="string" key="defaultValue"></value>
+              <value type="string" key="description"></value>
+              <value type="int" key="layoutAdvanced">2</value>
+              <value type="int" key="layoutRow">-1</value>
+              <value type="int" key="layoutWidth">120</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">sslWizard</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+              <value type="string" key="paramType">button</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">0</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl6">
+              <value type="string" key="caption">Files ...</value>
+              <value type="string" key="defaultValue"></value>
+              <value type="string" key="description"></value>
+              <value type="int" key="layoutAdvanced">2</value>
+              <value type="int" key="layoutRow">-1</value>
+              <value type="int" key="layoutWidth">120</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">openSSLWizardDirectory</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+              <value type="string" key="paramType">button</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">0</value>
+            </value>
+            
           </value>
         </value>
-      </value>
-      <value type="object" struct-name="db.mgmt.Driver" id="com.mysql.rdbms.mysql.driver.native_sshtun">
-        <value type="string" key="caption">Standard TCP/IP over SSH</value>
-        <value type="string" key="description">MySQL native driver using the MySQL client library</value>
-        <value type="list" content-type="string" key="files">
-          <value type="string">libmysql.dll</value>
-        </value>
-        <value type="string" key="hostIdentifierTemplate">Mysql@%hostName%:%port%@%sshHost%</value>
-        <value type="string" key="filesTarget">.</value>
-        <value type="string" key="driverLibraryName">mysqlcppconn</value>
-        <value type="string" key="name">MysqlNativeSSH</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <value type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
-	      <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.sparam1">
-            <value type="string" key="caption">SSH Hostname:</value>
-            <value type="string" key="defaultValue">127.0.0.1:22</value>
-            <value type="string" key="description">SSH server hostname, with 
-optional port number.</value>
-            <value type="int" key="layoutAdvanced">0</value>
-            <value type="int" key="layoutRow">1</value>
-            <value type="int" key="layoutWidth">218</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">sshHost</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
-            <value type="string" key="paramType">string</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">1</value>
+        <value type="object" struct-name="db.mgmt.Driver" id="com.mysql.rdbms.mysql.driver.native_sshtun">
+          <value type="string" key="caption">Standard TCP/IP over SSH</value>
+          <value type="string" key="description">MySQL native driver using the MySQL client library</value>
+          <value type="list" content-type="string" key="files">
+            <value type="string">libmysql.dll</value>
           </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.sparam3">
-            <value type="string" key="caption">SSH Username:</value>
-            <value type="string" key="defaultValue">user</value>
-            <value type="string" key="description">Name of the SSH user to connect with.</value>
-            <value type="int" key="layoutAdvanced">0</value>
-            <value type="int" key="layoutRow">2</value>
-            <value type="int" key="layoutWidth">218</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">sshUserName</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
-            <value type="string" key="paramType">string</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">1</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.sparam4">
-            <value type="string" key="caption">SSH Password:</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">SSH user password to connect
-to the SSH tunnel.</value>
-            <value type="int" key="layoutAdvanced">0</value>
-            <value type="int" key="layoutRow">3</value>
-            <value type="int" key="layoutWidth">218</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">sshPassword</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
-            <value type="string" key="paramType">keychain</value>
-            <value type="dict" content-type="string" key="paramTypeDetails">
-              <value type="string" key="storageKeyFormat">%sshUserName%::ssh@%sshHost%</value>
+          <value type="string" key="hostIdentifierTemplate">Mysql@%hostName%:%port%@%sshHost%</value>
+          <value type="string" key="filesTarget">.</value>
+          <value type="string" key="driverLibraryName">mysqlcppconn</value>
+          <value type="string" key="name">MysqlNativeSSH</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+          <value type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.sparam1">
+              <value type="string" key="caption">SSH Hostname:</value>
+              <value type="string" key="defaultValue">127.0.0.1:22</value>
+              <value type="string" key="description">SSH server hostname, with  optional port number.</value>
+              <value type="int" key="layoutAdvanced">0</value>
+              <value type="int" key="layoutRow">1</value>
+              <value type="int" key="layoutWidth">218</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">sshHost</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
+              <value type="string" key="paramType">string</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">1</value>
             </value>
-            <value type="int" key="required">0</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.sparam5">
-            <value type="string" key="caption">SSH Key File:</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Path to SSH private key file.</value>
-            <value type="int" key="layoutAdvanced">0</value>
-            <value type="int" key="layoutRow">4</value>
-            <value type="int" key="layoutWidth">218</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">sshKeyFile</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
-            <value type="string" key="paramType">file</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">0</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.param1">
-            <value type="string" key="caption">MySQL Hostname:</value>
-            <value type="string" key="defaultValue">127.0.0.1</value>
-            <value type="string" key="description">MySQL server host relative
-to the SSH server.</value>
-            <value type="int" key="layoutAdvanced">0</value>
-            <value type="int" key="layoutRow">6</value>
-            <value type="int" key="layoutWidth">118</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">hostName</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
-            <value type="string" key="paramType">string</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">1</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.param2">
-            <value type="string" key="caption">MySQL Server Port:</value>
-            <value type="string" key="defaultValue">3306</value>
-            <value type="string" key="description">TCP/IP port of the MySQL server.</value>
-            <value type="int" key="layoutAdvanced">0</value>
-            <value type="int" key="layoutRow">7</value>
-            <value type="int" key="layoutWidth">46</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">port</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
-            <value type="string" key="paramType">int</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">1</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.param3">
-            <value type="string" key="caption">Username:</value>
-            <value type="string" key="defaultValue">root</value>
-            <value type="string" key="description">Name of the user to connect with.</value>
-            <value type="int" key="layoutAdvanced">0</value>
-            <value type="int" key="layoutRow">8</value>
-            <value type="int" key="layoutWidth">218</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">userName</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
-            <value type="string" key="paramType">string</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">1</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.param4">
-            <value type="string" key="caption">Password:</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">The MySQL user's password.
-Will be requested later if not set.</value>
-            <value type="int" key="layoutAdvanced">0</value>
-            <value type="int" key="layoutRow">9</value>
-            <value type="int" key="layoutWidth">218</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">password</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
-            <value type="string" key="paramType">keychain</value>
-            <value type="dict" content-type="string" key="paramTypeDetails">
-              <value type="string" key="storageKeyFormat">%userName%::Mysql@%hostName%:%port%@%sshHost%</value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.sparam3">
+              <value type="string" key="caption">SSH Username:</value>
+              <value type="string" key="defaultValue">user</value>
+              <value type="string" key="description">Name of the SSH user to connect with.</value>
+              <value type="int" key="layoutAdvanced">0</value>
+              <value type="int" key="layoutRow">2</value>
+              <value type="int" key="layoutWidth">218</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">sshUserName</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
+              <value type="string" key="paramType">string</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">1</value>
             </value>
-            <value type="int" key="required">0</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.param5">
-            <value type="string" key="caption">Default Schema:</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">The schema to use as default schema.
-Leave blank to select it later.</value>
-            <value type="int" key="layoutAdvanced">0</value>
-            <value type="int" key="layoutRow">10</value>
-            <value type="int" key="layoutWidth">218</value>
-            <value type="string" key="lookupValueMethod">getSchemata</value>
-            <value type="string" key="lookupValueModule">ReverseEngineeringMysql</value>
-            <value type="string" key="name">schema</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
-            <value type="string" key="paramType">string</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">0</value>
-          </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.sparam4">
+              <value type="string" key="caption">SSH Password:</value>
+              <value type="string" key="defaultValue"></value>
+              <value type="string" key="description">SSH user password to connect to the SSH tunnel.</value>
+              <value type="int" key="layoutAdvanced">0</value>
+              <value type="int" key="layoutRow">3</value>
+              <value type="int" key="layoutWidth">218</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">sshPassword</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
+              <value type="string" key="paramType">keychain</value>
+              <value type="dict" content-type="string" key="paramTypeDetails">
+                <value type="string" key="storageKeyFormat">%sshUserName%::ssh@%sshHost%</value>
+              </value>
+              <value type="int" key="required">0</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.sparam5">
+              <value type="string" key="caption">SSH Key File:</value>
+              <value type="string" key="defaultValue"></value>
+              <value type="string" key="description">Path to SSH private key file.</value>
+              <value type="int" key="layoutAdvanced">0</value>
+              <value type="int" key="layoutRow">4</value>
+              <value type="int" key="layoutWidth">218</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">sshKeyFile</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
+              <value type="string" key="paramType">file</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">0</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.param1">
+              <value type="string" key="caption">MySQL Hostname:</value>
+              <value type="string" key="defaultValue">127.0.0.1</value>
+              <value type="string" key="description">MySQL server host relative to the SSH server.</value>
+              <value type="int" key="layoutAdvanced">0</value>
+              <value type="int" key="layoutRow">6</value>
+              <value type="int" key="layoutWidth">118</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">hostName</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
+              <value type="string" key="paramType">string</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">1</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.param2">
+              <value type="string" key="caption">MySQL Server Port:</value>
+              <value type="string" key="defaultValue">3306</value>
+              <value type="string" key="description">TCP/IP port of the MySQL server.</value>
+              <value type="int" key="layoutAdvanced">0</value>
+              <value type="int" key="layoutRow">7</value>
+              <value type="int" key="layoutWidth">46</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">port</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
+              <value type="string" key="paramType">int</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">1</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.param3">
+              <value type="string" key="caption">Username:</value>
+              <value type="string" key="defaultValue">root</value>
+              <value type="string" key="description">Name of the user to connect with.</value>
+              <value type="int" key="layoutAdvanced">0</value>
+              <value type="int" key="layoutRow">8</value>
+              <value type="int" key="layoutWidth">218</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">userName</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
+              <value type="string" key="paramType">string</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">1</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.param4">
+              <value type="string" key="caption">Password:</value>
+              <value type="string" key="defaultValue"></value>
+              <value type="string" key="description">The MySQL user's password. Will be requested later if not set.</value>
+              <value type="int" key="layoutAdvanced">0</value>
+              <value type="int" key="layoutRow">9</value>
+              <value type="int" key="layoutWidth">218</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">password</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
+              <value type="string" key="paramType">keychain</value>
+              <value type="dict" content-type="string" key="paramTypeDetails">
+                <value type="string" key="storageKeyFormat">%userName%::Mysql@%hostName%:%port%@%sshHost%</value>
+              </value>
+              <value type="int" key="required">0</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.param5">
+              <value type="string" key="caption">Default Schema:</value>
+              <value type="string" key="defaultValue"></value>
+              <value type="string" key="description">The schema to use as default schema. Leave blank to select it later.</value>
+              <value type="int" key="layoutAdvanced">0</value>
+              <value type="int" key="layoutRow">10</value>
+              <value type="int" key="layoutWidth">218</value>
+              <value type="string" key="lookupValueMethod">getSchemata</value>
+              <value type="string" key="lookupValueModule">ReverseEngineeringMysql</value>
+              <value type="string" key="name">schema</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
+              <value type="string" key="paramType">string</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">0</value>
+            </value>
 
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.aparam1">
-            <value type="string" key="caption">Use compression protocol.</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Select this option for WAN connections.</value>
-            <value type="int" key="layoutAdvanced">1</value>
-            <value type="int" key="layoutRow">-1</value>
-            <value type="int" key="layoutWidth">318</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">CLIENT_COMPRESS</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
-            <value type="string" key="paramType">boolean</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">0</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.aparam3">
-            <value type="string" key="caption">Use ANSI quotes to quote identifiers.</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">If enabled this option overwrites
-the serverside settings.</value>
-            <value type="int" key="layoutAdvanced">1</value>
-            <value type="int" key="layoutRow">-1</value>
-            <value type="int" key="layoutWidth">318</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">useAnsiQuotes</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
-            <value type="string" key="paramType">tristate</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">0</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.aparam4">
-            <value type="string" key="caption">Enable Cleartext Authentication Plugin</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Send user password in cleartext.
-Required for some authentication methods.</value>
-            <value type="int" key="layoutAdvanced">1</value>
-            <value type="int" key="layoutRow">-1</value>
-            <value type="int" key="layoutWidth">318</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">OPT_ENABLE_CLEARTEXT_PLUGIN</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">boolean</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">0</value>
-          </value>          
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.legacyauth">
-            <value type="string" key="caption">Use the old authentication protocol.</value>
-            <value type="string" key="defaultValue"></value>
-	    <value type="string" key="description">This option disables Connector/C++'s
-secure_auth option.</value>
-            <value type="int" key="layoutAdvanced">1</value>
-            <value type="int" key="layoutRow">-1</value>
-            <value type="int" key="layoutWidth">318</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">useLegacyAuth</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
-            <value type="string" key="paramType">boolean</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">0</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.sqlmode">
-            <value type="string" key="caption">SQL_MODE:</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Override the default SQL_MODE
-used by the server.</value>
-            <value type="int" key="layoutAdvanced">1</value>
-            <value type="int" key="layoutRow">-1</value>
-            <value type="int" key="layoutWidth">180</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">SQL_MODE</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
-            <value type="string" key="paramType">string</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">0</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.others">
-            <value type="string" key="caption">Others:</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Other options for Connector/C++
-as option=value pairs, one per line.</value>
-            <value type="int" key="layoutAdvanced">1</value>
-            <value type="int" key="layoutRow">-1</value>
-            <value type="int" key="layoutWidth">180</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">$others</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
-            <value type="string" key="paramType">text</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">0</value>
-          </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.aparam1">
+              <value type="string" key="caption">Use compression protocol</value>
+              <value type="string" key="defaultValue"></value>
+              <value type="string" key="description">Select this option for WAN connections.</value>
+              <value type="int" key="layoutAdvanced">1</value>
+              <value type="int" key="layoutRow">-1</value>
+              <value type="int" key="layoutWidth">318</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">CLIENT_COMPRESS</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
+              <value type="string" key="paramType">boolean</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">0</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.aparam3">
+              <value type="string" key="caption">Use ANSI quotes to quote identifiers</value>
+              <value type="string" key="defaultValue"></value>
+              <value type="string" key="description">If enabled this option overwrites the serverside settings.</value>
+              <value type="int" key="layoutAdvanced">1</value>
+              <value type="int" key="layoutRow">-1</value>
+              <value type="int" key="layoutWidth">318</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">useAnsiQuotes</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
+              <value type="string" key="paramType">tristate</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">0</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.aparam4">
+              <value type="string" key="caption">Enable Cleartext Authentication Plugin</value>
+              <value type="string" key="defaultValue"></value>
+              <value type="string" key="description">Send user password in cleartext. Required for some authentication methods.</value>
+              <value type="int" key="layoutAdvanced">1</value>
+              <value type="int" key="layoutRow">-1</value>
+              <value type="int" key="layoutWidth">318</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">OPT_ENABLE_CLEARTEXT_PLUGIN</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+              <value type="string" key="paramType">boolean</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">0</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.legacyauth">
+              <value type="string" key="caption">Use the old authentication protocol</value>
+              <value type="string" key="defaultValue"></value>
+              <value type="string" key="description">This option disables Connector/C++'s secure_auth option.</value>
+              <value type="int" key="layoutAdvanced">1</value>
+              <value type="int" key="layoutRow">-1</value>
+              <value type="int" key="layoutWidth">318</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">useLegacyAuth</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
+              <value type="string" key="paramType">boolean</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">0</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.sqlmode">
+              <value type="string" key="caption">SQL_MODE:</value>
+              <value type="string" key="defaultValue"></value>
+              <value type="string" key="description">Override the default SQL_MODE used by the server.</value>
+              <value type="int" key="layoutAdvanced">1</value>
+              <value type="int" key="layoutRow">-1</value>
+              <value type="int" key="layoutWidth">180</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">SQL_MODE</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
+              <value type="string" key="paramType">string</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">0</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.others">
+              <value type="string" key="caption">Others:</value>
+              <value type="string" key="defaultValue"></value>
+              <value type="string" key="description">Other options for Connector/C++ as option=value pairs, one per line.</value>
+              <value type="int" key="layoutAdvanced">1</value>
+              <value type="int" key="layoutRow">-1</value>
+              <value type="int" key="layoutWidth">180</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">$others</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
+              <value type="string" key="paramType">text</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">0</value>
+            </value>
 
 
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.aparam2">
-            <value type="string" key="caption">Use SSL</value>
-            <value type="string" key="defaultValue">1</value>
-            <value type="string" key="description">Turns on SSL encryption. Connection will
-fail if SSL is not available.</value>
-            <value type="int" key="layoutAdvanced">2</value>
-            <value type="int" key="layoutRow">-1</value>
-            <value type="int" key="layoutWidth">318</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">useSSL</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
-            <value type="string" key="paramType">enum</value>
-            <value type="dict" content-type="string" key="paramTypeDetails">
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.aparam2">
+              <value type="string" key="caption">Use SSL</value>
+              <value type="string" key="defaultValue">1</value>
+              <value type="string" key="description">Turns on SSL encryption. Connection will fail if SSL is not available.</value>
+              <value type="int" key="layoutAdvanced">2</value>
+              <value type="int" key="layoutRow">-1</value>
+              <value type="int" key="layoutWidth">318</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">useSSL</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
+              <value type="string" key="paramType">enum</value>
+              <value type="dict" content-type="string" key="paramTypeDetails">
                 <value type="string" key="options">0|No,1|If available,2|Require</value>
                 <value type="string" key="type">int</value>
+              </value>
+              <value type="int" key="required">0</value>
             </value>
-            <value type="int" key="required">0</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.ssl1">
-            <value type="string" key="caption">SSL CA File:</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Path to Certificate Authority file for SSL.</value>
-            <value type="int" key="layoutAdvanced">2</value>
-            <value type="int" key="layoutRow">-1</value>
-            <value type="int" key="layoutWidth">180</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">sslCA</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">file</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">0</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.ssl2">
-            <value type="string" key="caption">SSL CERT File:</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Path to Client Certificate file for SSL.</value>
-            <value type="int" key="layoutAdvanced">2</value>
-            <value type="int" key="layoutRow">-1</value>
-            <value type="int" key="layoutWidth">180</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">sslCert</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">file</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">0</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.ssl3">
-            <value type="string" key="caption">SSL Key File:</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Path to Client Key file for SSL.</value>
-            <value type="int" key="layoutAdvanced">2</value>
-            <value type="int" key="layoutRow">-1</value>
-            <value type="int" key="layoutWidth">180</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">sslKey</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">file</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">0</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.ssl4">
-            <value type="string" key="caption">SSL Cipher:</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Optional : separated list of permissible
-ciphers to use for SSL encryption.</value>
-            <value type="int" key="layoutAdvanced">2</value>
-            <value type="int" key="layoutRow">-1</value>
-            <value type="int" key="layoutWidth">180</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">sslCipher</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">string</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">0</value>
-          </value>
-
-        </value>
-      </value>
-
-      <value type="object" struct-name="db.mgmt.Driver" id="com.mysql.rdbms.mysql.driver.fabric">
-        <value type="string" key="caption">MySQL Fabric Management Node</value>
-        <value type="string" key="description">Connection using the MySQL Fabric Utility</value>
-        <value type="string" key="hostIdentifierTemplate">Mysql@%hostName%:%port%</value>
-        <value type="string" key="filesTarget">.</value>
-        <value type="string" key="driverLibraryName">mysqlcppconn</value>
-        <value type="string" key="name">MySQLFabric</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <value type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param1">
-            <value type="string" key="caption">Hostname:</value>
-            <value type="string" key="defaultValue">127.0.0.1</value>
-            <value type="string" key="description">Name or IP address of the fabric node.
-</value>
-            <value type="int" key="layoutAdvanced">0</value>
-            <value type="int" key="layoutRow">1</value>
-            <value type="int" key="layoutWidth">118</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">hostName</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">string</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">1</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param2">
-            <value type="string" key="caption">Port:</value>
-            <value type="string" key="defaultValue">32275</value>
-            <value type="string" key="description">and TCP/IP port.</value>
-            <value type="int" key="layoutAdvanced">0</value>
-            <value type="int" key="layoutRow">1</value>
-            <value type="int" key="layoutWidth">46</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">port</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">int</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">1</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param3">
-            <value type="string" key="caption">Username:</value>
-            <value type="string" key="defaultValue">admin</value>
-            <value type="string" key="description">Name of the user to connect with.</value>
-            <value type="int" key="layoutAdvanced">0</value>
-            <value type="int" key="layoutRow">2</value>
-            <value type="int" key="layoutWidth">218</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">userName</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">string</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">1</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param4">
-            <value type="string" key="caption">Password:</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">The user's password. Will be requested later 
-if it's not set.</value>
-            <value type="int" key="layoutAdvanced">0</value>
-            <value type="int" key="layoutRow">3</value>
-            <value type="int" key="layoutWidth">218</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">password</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">keychain</value>
-            <value type="dict" content-type="string" key="paramTypeDetails">
-              <value type="string" key="storageKeyFormat">%userName%::Mysql@%hostName%:%port%</value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.ssl1">
+              <value type="string" key="caption">SSL CA File:</value>
+              <value type="string" key="defaultValue"></value>
+              <value type="string" key="description">Path to Certificate Authority file for SSL.</value>
+              <value type="int" key="layoutAdvanced">2</value>
+              <value type="int" key="layoutRow">-1</value>
+              <value type="int" key="layoutWidth">180</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">sslCA</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+              <value type="string" key="paramType">file</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">0</value>
             </value>
-            <value type="int" key="required">0</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param5">
-            <value type="string" key="caption">MySQL Username:</value>
-            <value type="string" key="defaultValue">fabric</value>
-            <value type="string" key="description">MySQL account to use when connecting to 
-managed MySQL Instances.</value>
-            <value type="int" key="layoutAdvanced">3</value>
-            <value type="int" key="layoutRow">1</value>
-            <value type="int" key="layoutWidth">218</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">mysqlUserName</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">string</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">1</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param6">
-            <value type="string" key="caption">H.A. Group Filter:</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Comma separated list of groups to be included. 
-Leave empty to include all the available groups.</value>
-            <value type="int" key="layoutAdvanced">3</value>
-            <value type="int" key="layoutRow">2</value>
-            <value type="int" key="layoutWidth">218</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">haGroupFilter</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">string</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">0</value>
-          </value>
-          <!-- Note this parameters is to store the status about the connections for managed nodes being created or not -->
-          <!-- But it is not a field displayed on the UI -->
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param7">
-            <value type="string" key="defaultValue">0</value>
-            <value type="int" key="layoutAdvanced">-1</value>
-            <value type="int" key="layoutRow">-1</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">connections_created</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">int</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">1</value>
-          </value>        
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param8">
-            <value type="string" key="defaultValue">0000-00-00 00:00:00</value>
-            <value type="int" key="layoutAdvanced">-1</value>
-            <value type="int" key="layoutRow">-1</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">managedConnectionsUpdateTime</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">string</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">1</value>
-          </value>        
-        </value>
-      </value>    
-    </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.ssl2">
+              <value type="string" key="caption">SSL CERT File:</value>
+              <value type="string" key="defaultValue"></value>
+              <value type="string" key="description">Path to Client Certificate file for SSL.</value>
+              <value type="int" key="layoutAdvanced">2</value>
+              <value type="int" key="layoutRow">-1</value>
+              <value type="int" key="layoutWidth">180</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">sslCert</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+              <value type="string" key="paramType">file</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">0</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.ssl3">
+              <value type="string" key="caption">SSL Key File:</value>
+              <value type="string" key="defaultValue"></value>
+              <value type="string" key="description">Path to Client Key file for SSL.</value>
+              <value type="int" key="layoutAdvanced">2</value>
+              <value type="int" key="layoutRow">-1</value>
+              <value type="int" key="layoutWidth">180</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">sslKey</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+              <value type="string" key="paramType">file</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">0</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.ssl4">
+              <value type="string" key="caption">SSL Cipher:</value>
+              <value type="string" key="defaultValue"></value>
+              <value type="string" key="description">Optional : separated list of permissible ciphers to use for SSL encryption.</value>
+              <value type="int" key="layoutAdvanced">2</value>
+              <value type="int" key="layoutRow">-1</value>
+              <value type="int" key="layoutWidth">180</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">sslCipher</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+              <value type="string" key="paramType">string</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">0</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl5">
+              <value type="string" key="caption">SSL Wizard ...</value>
+              <value type="string" key="defaultValue"></value>
+              <value type="string" key="description"></value>
+              <value type="int" key="layoutAdvanced">2</value>
+              <value type="int" key="layoutRow">-1</value>
+              <value type="int" key="layoutWidth">120</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">sslWizard</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+              <value type="string" key="paramType">button</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">0</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl6">
+              <value type="string" key="caption">Files ...</value>
+              <value type="string" key="defaultValue"></value>
+              <value type="string" key="description"></value>
+              <value type="int" key="layoutAdvanced">2</value>
+              <value type="int" key="layoutRow">-1</value>
+              <value type="int" key="layoutWidth">120</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">openSSLWizardDirectory</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+              <value type="string" key="paramType">button</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">0</value>
+            </value>
 
-    <!-- Datatypes -->
+          </value>
+        </value>
 
-    <value type="list" content-type="object" content-struct-name="db.SimpleDatatype" key="simpleDatatypes">
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.tinyint">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags">
-          <value type="string">UNSIGNED</value>
-          <value type="string">ZEROFILL</value>
+        <value type="object" struct-name="db.mgmt.Driver" id="com.mysql.rdbms.mysql.driver.fabric">
+          <value type="string" key="caption">MySQL Fabric Management Node</value>
+          <value type="string" key="description">Connection using the MySQL Fabric Utility</value>
+          <value type="string" key="hostIdentifierTemplate">Mysql@%hostName%:%port%</value>
+          <value type="string" key="filesTarget">.</value>
+          <value type="string" key="driverLibraryName">mysqlcppconn</value>
+          <value type="string" key="name">MySQLFabric</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+          <value type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param1">
+              <value type="string" key="caption">Hostname:</value>
+              <value type="string" key="defaultValue">127.0.0.1</value>
+              <value type="string" key="description">Name or IP address of the fabric node</value>
+              <value type="int" key="layoutAdvanced">0</value>
+              <value type="int" key="layoutRow">1</value>
+              <value type="int" key="layoutWidth">118</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">hostName</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+              <value type="string" key="paramType">string</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">1</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param2">
+              <value type="string" key="caption">Port:</value>
+              <value type="string" key="defaultValue">32275</value>
+              <value type="string" key="description">and TCP/IP port.</value>
+              <value type="int" key="layoutAdvanced">0</value>
+              <value type="int" key="layoutRow">1</value>
+              <value type="int" key="layoutWidth">46</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">port</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+              <value type="string" key="paramType">int</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">1</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param3">
+              <value type="string" key="caption">Username:</value>
+              <value type="string" key="defaultValue">admin</value>
+              <value type="string" key="description">Name of the user to connect with.</value>
+              <value type="int" key="layoutAdvanced">0</value>
+              <value type="int" key="layoutRow">2</value>
+              <value type="int" key="layoutWidth">218</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">userName</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+              <value type="string" key="paramType">string</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">1</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param4">
+              <value type="string" key="caption">Password:</value>
+              <value type="string" key="defaultValue"></value>
+              <value type="string" key="description">The user's password. Will be requested later  if it's not set.</value>
+              <value type="int" key="layoutAdvanced">0</value>
+              <value type="int" key="layoutRow">3</value>
+              <value type="int" key="layoutWidth">218</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">password</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+              <value type="string" key="paramType">keychain</value>
+              <value type="dict" content-type="string" key="paramTypeDetails">
+                <value type="string" key="storageKeyFormat">%userName%::Mysql@%hostName%:%port%</value>
+              </value>
+              <value type="int" key="required">0</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param5">
+              <value type="string" key="caption">MySQL Username:</value>
+              <value type="string" key="defaultValue">fabric</value>
+              <value type="string" key="description">MySQL account to use when connecting to managed MySQL Instances.</value>
+              <value type="int" key="layoutAdvanced">3</value>
+              <value type="int" key="layoutRow">1</value>
+              <value type="int" key="layoutWidth">218</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">mysqlUserName</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+              <value type="string" key="paramType">string</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">1</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param6">
+              <value type="string" key="caption">H.A. Group Filter:</value>
+              <value type="string" key="defaultValue"></value>
+              <value type="string" key="description">Comma separated list of groups to be included. Leave empty to include all the available groups.</value>
+              <value type="int" key="layoutAdvanced">3</value>
+              <value type="int" key="layoutRow">2</value>
+              <value type="int" key="layoutWidth">218</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">haGroupFilter</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+              <value type="string" key="paramType">string</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">0</value>
+            </value>
+            <!-- Note this parameters is to store the status about the connections for managed nodes being created or not -->
+            <!-- But it is not a field displayed on the UI -->
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param7">
+              <value type="string" key="defaultValue">0</value>
+              <value type="int" key="layoutAdvanced">-1</value>
+              <value type="int" key="layoutRow">-1</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">connections_created</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+              <value type="string" key="paramType">int</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">1</value>
+            </value>
+            <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param8">
+              <value type="string" key="defaultValue">0000-00-00 00:00:00</value>
+              <value type="int" key="layoutAdvanced">-1</value>
+              <value type="int" key="layoutRow">-1</value>
+              <value type="string" key="lookupValueMethod"></value>
+              <value type="string" key="lookupValueModule"></value>
+              <value type="string" key="name">managedConnectionsUpdateTime</value>
+              <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+              <value type="string" key="paramType">string</value>
+              <value type="dict" content-type="string" key="paramTypeDetails"/>
+              <value type="int" key="required">1</value>
+            </value>
+          </value>
         </value>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
-        <value type="string" key="name">TINYINT</value>
-        <value type="int" key="numericPrecision">3</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">2</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.smallint">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags">
-          <value type="string">UNSIGNED</value>
-          <value type="string">ZEROFILL</value>
+
+      <!-- Datatypes -->
+
+      <value type="list" content-type="object" content-struct-name="db.SimpleDatatype" key="simpleDatatypes">
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.tinyint">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags">
+            <value type="string">UNSIGNED</value>
+            <value type="string">ZEROFILL</value>
+          </value>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+          <value type="string" key="name">TINYINT</value>
+          <value type="int" key="numericPrecision">3</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">2</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+          <value type="list" content-type="string" key="synonyms">
+            <value type="string">BOOL</value>
+            <value type="string">BOOLEAN</value>
+            <value type="string">INT1</value>
+          </value>
         </value>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
-        <value type="string" key="name">SMALLINT</value>
-        <value type="int" key="numericPrecision">5</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">2</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.mediumint">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags">
-          <value type="string">UNSIGNED</value>
-          <value type="string">ZEROFILL</value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.smallint">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags">
+            <value type="string">UNSIGNED</value>
+            <value type="string">ZEROFILL</value>
+          </value>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+          <value type="string" key="name">SMALLINT</value>
+          <value type="int" key="numericPrecision">5</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">2</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+          <value type="list" content-type="string" key="synonyms">
+            <value type="string">INT2</value>
+          </value>
         </value>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
-        <value type="string" key="name">MEDIUMINT</value>
-        <value type="int" key="numericPrecision">8</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">2</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.int">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags">
-          <value type="string">UNSIGNED</value>
-          <value type="string">ZEROFILL</value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.mediumint">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags">
+            <value type="string">UNSIGNED</value>
+            <value type="string">ZEROFILL</value>
+          </value>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+          <value type="string" key="name">MEDIUMINT</value>
+          <value type="int" key="numericPrecision">8</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">2</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+          <value type="list" content-type="string" key="synonyms">
+            <value type="string">INT3</value>
+            <value type="string">MIDDLEINT</value>
+          </value>
         </value>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
-        <value type="string" key="name">INT</value>
-        <value type="int" key="numericPrecision">10</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">2</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms">
-          <value type="string">INTEGER</value>
-        </value-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.bigint">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags">
-          <value type="string">UNSIGNED</value>
-          <value type="string">ZEROFILL</value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.int">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags">
+            <value type="string">UNSIGNED</value>
+            <value type="string">ZEROFILL</value>
+          </value>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+          <value type="string" key="name">INT</value>
+          <value type="int" key="numericPrecision">10</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">2</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+          <value type="list" content-type="string" key="synonyms">
+            <value type="string">INTEGER</value>
+            <value type="string">INT4</value>
+          </value>
         </value>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
-        <value type="string" key="name">BIGINT</value>
-        <value type="int" key="numericPrecision">20</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">2</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.float">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags">
-          <value type="string">UNSIGNED</value>
-          <value type="string">ZEROFILL</value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.bigint">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags">
+            <value type="string">UNSIGNED</value>
+            <value type="string">ZEROFILL</value>
+          </value>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+          <value type="string" key="name">BIGINT</value>
+          <value type="int" key="numericPrecision">20</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">2</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+          <value type="list" content-type="string" key="synonyms">
+            <value type="string">INT8</value>
+            <value type="string">SERIAL</value>
+            <!-- Actually, SERIAL is an alias for BIGINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE -->
+          </value>
         </value>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
-        <value type="string" key="name">FLOAT</value>
-        <value type="int" key="numericPrecision">53</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">30</value>
-        <value type="int" key="parameterFormatType">6</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms">
-          <value type="string">FLOAT4</value>
-        </value-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.double">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags">
-          <value type="string">UNSIGNED</value>
-          <value type="string">ZEROFILL</value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.float">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags">
+            <value type="string">UNSIGNED</value>
+            <value type="string">ZEROFILL</value>
+          </value>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+          <value type="string" key="name">FLOAT</value>
+          <value type="int" key="numericPrecision">53</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">30</value>
+          <value type="int" key="parameterFormatType">6</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+          <value type="list" content-type="string" key="synonyms">
+            <value type="string">FLOAT4</value>
+          </value>
         </value>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
-        <value type="string" key="name">DOUBLE</value>
-        <value type="int" key="numericPrecision">53</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">30</value>
-        <value type="int" key="parameterFormatType">5</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.decimal">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags">
-          <value type="string">UNSIGNED</value>
-          <value type="string">ZEROFILL</value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.real">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags">
+            <value type="string">UNSIGNED</value>
+            <value type="string">ZEROFILL</value>
+          </value>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+          <value type="string" key="name">REAL</value>
+          <value type="int" key="numericPrecision">53</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">30</value>
+          <value type="int" key="parameterFormatType">5</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
         </value>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
-        <value type="string" key="name">DECIMAL</value>
-        <value type="int" key="numericPrecision">65</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">30</value>
-        <value type="int" key="parameterFormatType">6</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms">
-          <value type="string">DEC</value>
-          <value type="string">NUMERIC</value>
-        </value-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.char">
-        <value type="int" key="characterMaximumLength">255</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags">
-          <value type="string">BINARY</value>
-          <value type="string">UNICODE</value>
-          <value type="string">ASCII</value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.double">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags">
+            <value type="string">UNSIGNED</value>
+            <value type="string">ZEROFILL</value>
+          </value>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+          <value type="string" key="name">DOUBLE</value>
+          <value type="int" key="numericPrecision">53</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">30</value>
+          <value type="int" key="parameterFormatType">5</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+          <value type="list" content-type="string" key="synonyms">
+            <value type="string">FLOAT8</value>
+          </value>
         </value>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
-        <value type="string" key="name">CHAR</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="needsQuotes">1</value>
-        <value type="int" key="parameterFormatType">2</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms">
-          <value type="string">CHARACTER</value>
-        </value-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.varchar">
-        <value type="int" key="characterMaximumLength">65535</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags">
-          <value type="string">BINARY</value>
-          <value type="string">UNICODE</value>
-          <value type="string">ASCII</value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.decimal">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags">
+            <value type="string">UNSIGNED</value>
+            <value type="string">ZEROFILL</value>
+          </value>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+          <value type="string" key="name">DECIMAL</value>
+          <value type="int" key="numericPrecision">65</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">30</value>
+          <value type="int" key="parameterFormatType">6</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+          <value type="list" content-type="string" key="synonyms">
+            <value type="string">FIXED</value>
+            <value type="string">NUMERIC</value>
+          </value>
         </value>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
-        <value type="string" key="name">VARCHAR</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="needsQuotes">1</value>
-        <value type="int" key="parameterFormatType">1</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.binary">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">255</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.blob</link>
-        <value type="string" key="name">BINARY</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">2</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.varbinary">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">65535</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.blob</link>
-        <value type="string" key="name">VARBINARY</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">1</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.tinytext">
-        <value type="int" key="characterMaximumLength">255</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags">
-          <value type="string">BINARY</value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.char">
+          <value type="int" key="characterMaximumLength">255</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags">
+            <value type="string">BINARY</value>
+            <value type="string">UNICODE</value>
+            <value type="string">ASCII</value>
+          </value>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+          <value type="string" key="name">CHAR</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="needsQuotes">1</value>
+          <value type="int" key="parameterFormatType">2</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+          <value type="list" content-type="string" key="synonyms">
+            <value type="string">NCHAR</value>
+            <!-- nchar is char with utf8 charset -->
+            <value type="string">NATIONAL CHAR</value>
+          </value>
         </value>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
-        <value type="string" key="name">TINYTEXT</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="needsQuotes">1</value>
-        <value type="int" key="parameterFormatType">0</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.text">
-        <value type="int" key="characterMaximumLength">65535</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags">
-          <value type="string">BINARY</value>
-          <value type="string">ASCII</value>
-          <value type="string">UNICODE</value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.nchar">
+          <value type="int" key="characterMaximumLength">255</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags">
+            <value type="string">BINARY</value>
+            <value type="string">UNICODE</value>
+            <value type="string">ASCII</value>
+          </value>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+          <value type="string" key="name">CHAR</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="needsQuotes">1</value>
+          <value type="int" key="parameterFormatType">2</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+          <value type="list" content-type="string" key="synonyms">
+            <value type="string">NATIONAL CHAR</value>
+          </value>
         </value>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
-        <value type="string" key="name">TEXT</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="needsQuotes">1</value>
-        <value type="int" key="parameterFormatType">2</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.mediumtext">
-        <value type="int" key="characterMaximumLength">-24</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags">
-          <value type="string">BINARY</value>
-          <value type="string">ASCII</value>
-          <value type="string">UNICODE</value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.varchar">
+          <value type="int" key="characterMaximumLength">65535</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags">
+            <value type="string">BINARY</value>
+            <value type="string">UNICODE</value>
+            <value type="string">ASCII</value>
+          </value>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+          <value type="string" key="name">VARCHAR</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="needsQuotes">1</value>
+          <value type="int" key="parameterFormatType">1</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+          <value type="list" content-type="string" key="synonyms">
+            <value type="string">CHAR VARYING</value>
+            <!-- CHARACTER is automatically mapped to CHAR -->
+          </value>
         </value>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
-        <value type="string" key="name">MEDIUMTEXT</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="needsQuotes">1</value>
-        <value type="int" key="parameterFormatType">0</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.longtext">
-        <value type="int" key="characterMaximumLength">-32</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags">
-          <value type="string">BINARY</value>
-          <value type="string">ASCII</value>
-          <value type="string">UNICODE</value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.nvarchar">
+          <value type="int" key="characterMaximumLength">65535</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags">
+            <value type="string">BINARY</value>
+            <value type="string">UNICODE</value>
+            <value type="string">ASCII</value>
+          </value>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+          <value type="string" key="name">NVARCHAR</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="needsQuotes">1</value>
+          <value type="int" key="parameterFormatType">1</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+          <value type="list" content-type="string" key="synonyms">
+            <value type="string">NATIONAL VARCHAR</value>
+            <value type="string">NCHAR VARCHAR</value>
+            <value type="string">NATIONAL CHAR VARYING</value>
+            <value type="string">NCHAR VARYING</value>
+          </value>
         </value>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
-        <value type="string" key="name">LONGTEXT</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="needsQuotes">1</value>
-        <value type="int" key="parameterFormatType">0</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.tinyblob">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.blob</link>
-        <value type="string" key="name">TINYBLOB</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">0</value>
-        <value type="int" key="needsQuotes">1</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.blob">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">65535</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.blob</link>
-        <value type="string" key="name">BLOB</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">2</value>
-        <value type="int" key="needsQuotes">1</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.mediumblob">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.blob</link>
-        <value type="string" key="name">MEDIUMBLOB</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">0</value>
-        <value type="int" key="needsQuotes">1</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.longblob">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.blob</link>
-        <value type="string" key="name">LONGBLOB</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">0</value>
-        <value type="int" key="needsQuotes">1</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.datetime">
-        <value type="string" key="validity">&lt;5.6</value>
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">8</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
-        <value type="string" key="name">DATETIME</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="needsQuotes">1</value>
-        <value type="int" key="parameterFormatType">0</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.datetime_f">
-        <value type="string" key="validity">&gt;=5.6</value>
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">8</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
-        <value type="string" key="name">DATETIME</value>
-        <value type="int" key="numericPrecision">6</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="needsQuotes">1</value>
-        <value type="int" key="parameterFormatType">2</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.date">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">3</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
-        <value type="string" key="name">DATE</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="needsQuotes">1</value>
-        <value type="int" key="parameterFormatType">0</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.time">
-        <value type="string" key="validity">&lt;5.6</value>
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">3</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
-        <value type="string" key="name">TIME</value>
-        <value type="int" key="needsQuotes">1</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">0</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.time_f">
-        <value type="string" key="validity">&gt;=5.6</value>
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">3</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
-        <value type="string" key="name">TIME</value>
-        <value type="int" key="needsQuotes">1</value>
-        <value type="int" key="numericPrecision">6</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">2</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.year">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">1</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
-        <value type="string" key="name">YEAR</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">2</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.timestamp">
-        <value type="string" key="validity">&lt;5.6</value>
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">4</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
-        <value type="string" key="name">TIMESTAMP</value>
-        <value type="int" key="needsQuotes">1</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">0</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.timestamp_f">
-        <value type="string" key="validity">&gt;=5.6</value>
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">4</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
-        <value type="string" key="name">TIMESTAMP</value>
-        <value type="int" key="needsQuotes">1</value>
-        <value type="int" key="numericPrecision">6</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">2</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.geometry">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.gis</link>
-        <value type="string" key="name">GEOMETRY</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">0</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-	  <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.point">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.gis</link>
-        <value type="string" key="name">POINT</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">0</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-	  <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.curve">
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.binary">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">255</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.blob</link>
+          <value type="string" key="name">BINARY</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">2</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        </value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.varbinary">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">65535</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.blob</link>
+          <value type="string" key="name">VARBINARY</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">1</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        </value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.tinytext">
+          <value type="int" key="characterMaximumLength">255</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags">
+            <value type="string">BINARY</value>
+          </value>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
+          <value type="string" key="name">TINYTEXT</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="needsQuotes">1</value>
+          <value type="int" key="parameterFormatType">0</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        </value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.text">
+          <value type="int" key="characterMaximumLength">65535</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags">
+            <value type="string">BINARY</value>
+            <value type="string">ASCII</value>
+            <value type="string">UNICODE</value>
+          </value>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
+          <value type="string" key="name">TEXT</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="needsQuotes">1</value>
+          <value type="int" key="parameterFormatType">2</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        </value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.mediumtext">
+          <value type="int" key="characterMaximumLength">-24</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags">
+            <value type="string">BINARY</value>
+            <value type="string">ASCII</value>
+            <value type="string">UNICODE</value>
+          </value>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
+          <value type="string" key="name">MEDIUMTEXT</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="needsQuotes">1</value>
+          <value type="int" key="parameterFormatType">0</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+          <value type="list" content-type="string" key="synonyms">
+            <value type="string">LONG</value>
+            <value type="string">LONG VARCHAR</value>
+            <value type="string">LONG CHAR VARYING</value>
+          </value>
+        </value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.longtext">
+          <value type="int" key="characterMaximumLength">-32</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags">
+            <value type="string">BINARY</value>
+            <value type="string">ASCII</value>
+            <value type="string">UNICODE</value>
+          </value>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
+          <value type="string" key="name">LONGTEXT</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="needsQuotes">1</value>
+          <value type="int" key="parameterFormatType">0</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        </value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.tinyblob">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.blob</link>
+          <value type="string" key="name">TINYBLOB</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">0</value>
+          <value type="int" key="needsQuotes">1</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        </value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.blob">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">65535</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.blob</link>
+          <value type="string" key="name">BLOB</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">2</value>
+          <value type="int" key="needsQuotes">1</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        </value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.mediumblob">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.blob</link>
+          <value type="string" key="name">MEDIUMBLOB</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">0</value>
+          <value type="int" key="needsQuotes">1</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+          <value type="list" content-type="string" key="synonyms">
+            <value type="string">LONG VARBINARY</value>
+          </value>
+        </value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.longblob">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.blob</link>
+          <value type="string" key="name">LONGBLOB</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">0</value>
+          <value type="int" key="needsQuotes">1</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+          <!--value type="list" content-type="string" key="synonyms"/-->
+        </value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.datetime">
+          <value type="string" key="validity">&lt;5.6</value>
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">8</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+          <value type="string" key="name">DATETIME</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="needsQuotes">1</value>
+          <value type="int" key="parameterFormatType">0</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+          <!--value type="list" content-type="string" key="synonyms"/-->
+        </value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.datetime_f">
+          <value type="string" key="validity">&gt;=5.6</value>
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">8</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+          <value type="string" key="name">DATETIME</value>
+          <value type="int" key="numericPrecision">6</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="needsQuotes">1</value>
+          <value type="int" key="parameterFormatType">2</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+          <!--value type="list" content-type="string" key="synonyms"/-->
+        </value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.date">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">3</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+          <value type="string" key="name">DATE</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="needsQuotes">1</value>
+          <value type="int" key="parameterFormatType">0</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        </value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.time">
+          <value type="string" key="validity">&lt;5.6</value>
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">3</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+          <value type="string" key="name">TIME</value>
+          <value type="int" key="needsQuotes">1</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">0</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        </value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.time_f">
+          <value type="string" key="validity">&gt;=5.6</value>
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">3</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+          <value type="string" key="name">TIME</value>
+          <value type="int" key="needsQuotes">1</value>
+          <value type="int" key="numericPrecision">6</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">2</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        </value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.year">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">1</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+          <value type="string" key="name">YEAR</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">2</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        </value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.timestamp">
+          <value type="string" key="validity">&lt;5.6</value>
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">4</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+          <value type="string" key="name">TIMESTAMP</value>
+          <value type="int" key="needsQuotes">1</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">0</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        </value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.timestamp_f">
+          <value type="string" key="validity">&gt;=5.6</value>
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">4</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+          <value type="string" key="name">TIMESTAMP</value>
+          <value type="int" key="needsQuotes">1</value>
+          <value type="int" key="numericPrecision">6</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">2</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        </value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.geometry">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.gis</link>
+          <value type="string" key="name">GEOMETRY</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">0</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        </value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.point">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.gis</link>
+          <value type="string" key="name">POINT</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">0</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        </value>
+        <!--value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.curve">
         <value type="int" key="characterMaximumLength">0</value>
         <value type="int" key="characterOctetLength">0</value>
         <value type="int" key="dateTimePrecision">0</value>
@@ -2085,23 +2219,21 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">0</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.linestring">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.gis</link>
-        <value type="string" key="name">LINESTRING</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">0</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-	  <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.surface">
+      </value-->
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.linestring">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.gis</link>
+          <value type="string" key="name">LINESTRING</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">0</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        </value>
+        <!--value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.surface">
         <value type="int" key="characterMaximumLength">0</value>
         <value type="int" key="characterOctetLength">0</value>
         <value type="int" key="dateTimePrecision">0</value>
@@ -2113,51 +2245,47 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">0</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.polygon">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.gis</link>
-        <value type="string" key="name">POLYGON</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">0</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-	  <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.geometrycollection">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.gis</link>
-        <value type="string" key="name">GEOMETRYCOLLECTION</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">0</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.multipoint">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.gis</link>
-        <value type="string" key="name">MULTIPOINT</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">0</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-	  <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.multicurve">
+      </value-->
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.polygon">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.gis</link>
+          <value type="string" key="name">POLYGON</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">0</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        </value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.geometrycollection">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.gis</link>
+          <value type="string" key="name">GEOMETRYCOLLECTION</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">0</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        </value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.multipoint">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.gis</link>
+          <value type="string" key="name">MULTIPOINT</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">0</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        </value>
+        <!--value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.multicurve">
         <value type="int" key="characterMaximumLength">0</value>
         <value type="int" key="characterOctetLength">0</value>
         <value type="int" key="dateTimePrecision">0</value>
@@ -2169,23 +2297,21 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">0</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.multilinestring">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.gis</link>
-        <value type="string" key="name">MULTILINESTRING</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">0</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-	  <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.multisurface">
+      </value-->
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.multilinestring">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.gis</link>
+          <value type="string" key="name">MULTILINESTRING</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">0</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        </value>
+        <!--value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.multisurface">
         <value type="int" key="characterMaximumLength">0</value>
         <value type="int" key="characterOctetLength">0</value>
         <value type="int" key="dateTimePrecision">0</value>
@@ -2197,37 +2323,34 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">0</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.multipolygon">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.gis</link>
-        <value type="string" key="name">MULTIPOLYGON</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">0</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.bit">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
-        <value type="string" key="name">BIT</value>
-        <value type="int" key="numericPrecision">2</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="parameterFormatType">2</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <!--value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.boolean">
+      </value-->
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.multipolygon">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.gis</link>
+          <value type="string" key="name">MULTIPOLYGON</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">0</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        </value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.bit">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+          <value type="string" key="name">BIT</value>
+          <value type="int" key="numericPrecision">2</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">2</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        </value>
+        <!--value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.boolean">
         <value type="int" key="characterMaximumLength">0</value>
         <value type="int" key="characterOctetLength">0</value>
         <value type="int" key="dateTimePrecision">0</value>
@@ -2243,36 +2366,34 @@ Leave empty to include all the available groups.</value>
           <value type="string">BOOL</value>
         </value>
       </value-->
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.enum">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
-        <value type="string" key="name">ENUM</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="needsQuotes">1</value>
-        <value type="int" key="parameterFormatType">10</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
-      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.set">
-        <value type="int" key="characterMaximumLength">0</value>
-        <value type="int" key="characterOctetLength">0</value>
-        <value type="int" key="dateTimePrecision">0</value>
-        <value type="list" content-type="string" key="flags"/>
-        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
-        <value type="string" key="name">SET</value>
-        <value type="int" key="numericPrecision">0</value>
-        <value type="int" key="numericPrecisionRadix">0</value>
-        <value type="int" key="numericScale">0</value>
-        <value type="int" key="needsQuotes">1</value>
-        <value type="int" key="parameterFormatType">10</value>
-        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.enum">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+          <value type="string" key="name">ENUM</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="needsQuotes">1</value>
+          <value type="int" key="parameterFormatType">10</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        </value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.set">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+          <value type="string" key="name">SET</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="needsQuotes">1</value>
+          <value type="int" key="parameterFormatType">10</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        </value>
       </value>
     </value>
-  </value>
-</data>
+  </data>

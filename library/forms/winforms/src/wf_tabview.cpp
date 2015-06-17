@@ -81,7 +81,7 @@ public:
 
     mforms::TabView *tabview = TabViewWrapper::GetBackend<mforms::TabView>(this);
     if (tabview != NULL)
-      args->canClose = tabview->can_close_tab(args->page->TabIndex);
+      args->canClose = tabview->can_close_tab(args->index);
   }
 
   //------------------------------------------------------------------------------------------------

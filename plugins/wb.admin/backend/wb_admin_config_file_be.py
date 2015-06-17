@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -145,6 +145,8 @@ def pick_value(opt, version, platform):
                 # use the inversion of the next item
                 if i < len(opt['values'])-1:
                     tmp = opt['values'][i+1].get('inversion')
+                    if tmp == inversion and len(opt['values']) -2 > i:
+                        tmp = opt['values'][i+2].get('inversion')    
                     if not tmp: # if no value for inversion, assume outversion is both
                         tmp = opt['values'][i+1].get('outversion')
                     if not tmp:
@@ -715,10 +717,14 @@ class WbAdminConfigFileBE(object):
                         pass
                     else:
                         # Split line into option name and option value
-                        opt = sline.split("=")
+                        pos = sline.find("=")
+                        has_value = True
+                        if pos == -1:
+                            pos = len(sline)
+                            has_value = False
 
                         if current_section == filter_by_section:
-                            option_name = opt[0].strip(" \t")
+                            option_name = sline[:pos].strip()
 
                             option = None
                             # Get existing option. We handle all options as multiline.
@@ -738,8 +744,8 @@ class WbAdminConfigFileBE(object):
                             # Some sort of validation is performed when loading options to UI,
                             # unsupported options will not be displayed and they are left
                             # unaltered in the file.
-                            value = " ".join(opt[1:]).strip(" \t")
-                            if len(opt) > 1:
+                            value = sline[pos+1:]
+                            if has_value:
                                 option.append(i, value)
                             else:
                                 option.append(i, True)
@@ -755,7 +761,7 @@ class WbAdminConfigFileBE(object):
                                 # we need to take care of options that exists in config file but not in UI
                                 # so if option is bool and has no 'skip-' in name we put additional option 'skip-option_name'
                                 # to cur_file_original_opts list with opposite value to properly handle every options 
-                                if len(opt) > 1:
+                                if has_value:
                                     value = not self.normalize_bool(value)
                                 else:
                                     value = False
@@ -950,6 +956,7 @@ class WbAdminConfigFileBE(object):
     def get_options(self, section):
         options = []
         for (name, opt) in self.original_opts.iteritems():
+            name = name.strip()
             if opt.section == section:
                 if self.changeset.has_key(name):
                     options.append((name, self.changeset[name].value))

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,7 +25,7 @@
 
 @implementation MFLabelImpl
 
-- (id)initWithObject:(::mforms::Label*)aLabel
+- (instancetype)initWithObject:(::mforms::Label*)aLabel
 {
   self= [super initWithFrame:NSMakeRect(10,10,10,20)];
   if (self)
@@ -270,7 +270,7 @@ static void label_set_color(mforms::Label *self, const std::string &color)
   {
     MFLabelImpl* label = self->get_data();
     
-    [label setTextColor: [NSColor colorFromHexString: [NSString stringWithUTF8String:color.c_str()]]];
+    [label setTextColor: [NSColor colorFromHexString: @(color.c_str())]];
   }
 }
 

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,11 +52,45 @@ void Utilities::beep()
 
 //--------------------------------------------------------------------------------------------------
 
+static void* _show_dialog(const DialogType type, const std::string &title, const std::string &text,
+    const std::string &ok, const std::string &cancel,
+    const std::string &other)
+{
+  int *ret = new int;
+  switch(type)
+  {
+  case DialogMessage:
+    *ret = ControlFactory::get_instance()->_utilities_impl.show_message(title, text, ok, cancel, other);
+    break;
+  case DialogWarning:
+    *ret = ControlFactory::get_instance()->_utilities_impl.show_warning(title, text, ok, cancel, other);
+    break;
+  case DialogError:
+    *ret = ControlFactory::get_instance()->_utilities_impl.show_error(title, text, ok, cancel, other);
+    break;
+  default:
+    *ret = mforms::ResultUnknown;
+  }
+
+  return (void*)ret;
+}
+
+static int void_to_int(void* val)
+{
+  int *ret = (int*)val;
+  int ret_val = *ret;
+  delete ret;
+  return ret_val;
+}
+
 int Utilities::show_message(const std::string &title, const std::string &text,
                             const std::string &ok, const std::string &cancel,
                             const std::string &other)
 {
-  return ControlFactory::get_instance()->_utilities_impl.show_message(title, text, ok, cancel, other);
+  if (Utilities::in_main_thread())
+    return void_to_int(_show_dialog(DialogMessage, title, text, ok, cancel, other));
+  else
+    return void_to_int(Utilities::perform_from_main_thread(boost::bind(&_show_dialog, DialogMessage, title, text, ok, cancel, other)));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,7 +99,10 @@ int Utilities::show_error(const std::string &title, const std::string &text,
                           const std::string &ok, const std::string &cancel,
                           const std::string &other)
 {
-  return ControlFactory::get_instance()->_utilities_impl.show_error(title, text, ok, cancel, other);
+  if (Utilities::in_main_thread())
+    return void_to_int(_show_dialog(DialogError, title, text, ok, cancel, other));
+  else
+    return void_to_int(Utilities::perform_from_main_thread(boost::bind(&_show_dialog, DialogError, title, text, ok, cancel, other)));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,7 +111,10 @@ int Utilities::show_warning(const std::string &title, const std::string &text,
                             const std::string &ok, const std::string &cancel,
                             const std::string &other)
 {
-  return ControlFactory::get_instance()->_utilities_impl.show_warning(title, text, ok, cancel, other);
+  if (Utilities::in_main_thread())
+    return void_to_int(_show_dialog(DialogWarning, title, text, ok, cancel, other));
+  else
+    return void_to_int(Utilities::perform_from_main_thread(boost::bind(&_show_dialog, DialogWarning, title, text, ok, cancel, other)));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -474,9 +514,17 @@ bool Utilities::find_cached_password(const std::string &service, const std::stri
 
 //--------------------------------------------------------------------------------------------------
 
+void Utilities::forget_cached_password(const std::string &service, const std::string &account)
+{
+  log_debug2("Forgetting cached password for '%s'@'%s'\n", account.c_str(), service.c_str());
+  PasswordCache::get()->remove_password(service, account);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void Utilities::forget_password(const std::string &service, const std::string &account)
 {
-  PasswordCache::get()->remove_password(service, account);
+  Utilities::forget_cached_password(service, account);
   
   log_debug("Forgetting password for '%s'@'%s'\n", account.c_str(), service.c_str());
   ControlFactory::get_instance()->_utilities_impl.forget_password(service, account);
@@ -620,7 +668,7 @@ static bool _ask_for_password(const std::string &title, const std::string &servi
   if (Utilities::in_main_thread())
     return _ask_for_password_main(title, service, &username, prompt_storage, &ret_password, &ret_store) != NULL;
   else
-    return Utilities::perform_from_main_thread(boost::bind(&_ask_for_password_main, 
+    return Utilities::perform_from_main_thread(boost::bind(&_ask_for_password_main,
                                                title, service, &username, prompt_storage, &ret_password, &ret_store)) != NULL;
 }
 

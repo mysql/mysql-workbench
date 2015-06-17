@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -556,13 +556,16 @@ void SqlEditorForm::handle_tab_menu_action(const std::string &action, int tab_in
       mforms::Utilities::set_clipboard_text(editor->filename());
   }
   else if (action == "close_tab")
-    _grtm->run_once_when_idle(this, boost::bind(&mforms::DockingPoint::close_view, _tabdock, _tabdock->view_at_index(tab_index)));
+  {
+    if (_tabdock->view_at_index(tab_index)->on_close())
+      _grtm->run_once_when_idle(this, boost::bind(&mforms::DockingPoint::close_view_at_index, _tabdock, tab_index));
+  }
   else if (action == "close_other_tabs")
   {
-    for (int i = _tabdock->view_count()-1; i >= 0; --i)
+    for (int i = _tabdock->view_count() - 1; i >= 0; --i)
     {
       if (i != tab_index)
-        _tabdock->close_view(_tabdock->view_at_index(i));
+        _tabdock->view_at_index(i)->close();
     }
   }
 }

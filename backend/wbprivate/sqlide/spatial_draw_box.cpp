@@ -454,7 +454,7 @@ void SpatialDrawBox::set_context_menu(mforms::ContextMenu *menu)
 void SpatialDrawBox::add_layer(spatial::Layer *layer)
 {
   base::MutexLock lock(_layer_mutex);
-  layer->set_fill_polygons((bool)get_option("SqlEditor::FillUpPolygons", 1));
+  layer->set_fill_polygons(get_option("SqlEditor::FillUpPolygons", 1) >= 1);
   _layers.push_back(layer);
 }
 
@@ -541,8 +541,8 @@ bool SpatialDrawBox::mouse_double_click(mforms::MouseButton button, int x, int y
   int dx, dy;
   dx = this->get_width() / 2;
   dy = this->get_height() / 2;
-  _offset_x = _initial_offset_x - (x - dx) / _zoom_level;
-  _offset_y = _initial_offset_y - (y - dy) / _zoom_level;
+  _offset_x = (int)(_initial_offset_x - (x - dx) / _zoom_level);
+  _offset_y = (int)(_initial_offset_y - (y - dy) / _zoom_level);
   _dragging = false;
   invalidate();
   zoom_in();
@@ -616,8 +616,8 @@ bool SpatialDrawBox::mouse_move(mforms::MouseButton button, int x, int y)
 {
   if (_dragging)
   {
-    _offset_x = _initial_offset_x + (x - _drag_x) / _zoom_level;
-    _offset_y = _initial_offset_y + (y - _drag_y) / _zoom_level;
+    _offset_x = (int)(_initial_offset_x + (x - _drag_x) / _zoom_level);
+    _offset_y = (int)(_initial_offset_y + (y - _drag_y) / _zoom_level);
     set_needs_repaint();
   }
   else if (_selecting)
@@ -767,7 +767,7 @@ bool SpatialDrawBox::screen_to_world(const int &x, const int &y, double &lat, do
 //    if (x >= _offset_x && y >= _offset_y) <- this is not working when we do rectangular zoom
 
     base::Point p = apply_cairo_transformation(base::Point(x, y));
-    return _spatial_reprojector->to_latlon(p.x, p.y, lat, lon);
+    return _spatial_reprojector->to_latlon((int)p.x, (int)p.y, lat, lon);
 
   }
   return false;
@@ -781,8 +781,8 @@ void SpatialDrawBox::world_to_screen(const double &lat, const double &lon, int &
 
     base::Point p = unapply_cairo_transformation(base::Point(x, y));
 
-    x = p.x;
-    y = p.y;
+    x = (int)p.x;
+    y = (int)p.y;
   }
 }
 
@@ -818,7 +818,7 @@ base::Point SpatialDrawBox::apply_cairo_transformation(const base::Point &p) con
 void SpatialDrawBox::place_pin(cairo_surface_t *pin, const base::Point &p)
 {
   double lat, lon;
-  screen_to_world(p.x, p.y, lat, lon);
+  screen_to_world((int)p.x, (int)p.y, lat, lon);
   _pins.push_back(Pin(lat, lon, pin));
   set_needs_repaint();
 }

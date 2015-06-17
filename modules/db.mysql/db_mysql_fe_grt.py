@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -255,7 +255,7 @@ def createScriptForCatalogObjects(path, catalog, objectCreationParams):
     preamble = catalog.customData["migration:preamble"]
     if preamble and preamble.temp_sql:
         #file.write(object_heading("Preamble script", ""))
-        file.write(preamble.temp_sql+";\n")
+        file.write(preamble.temp_sql+"\n")
 
     for schema in catalog.schemata:
         file.write(object_heading("Schema", schema.name))
@@ -281,7 +281,7 @@ def createScriptForCatalogObjects(path, catalog, objectCreationParams):
     postamble = catalog.customData["migration:postamble"]
     if postamble and postamble.temp_sql:
         #file.write(object_heading("Postamble script", ""))
-        file.write(postamble.temp_sql+";\n")
+        file.write(postamble.temp_sql+"\n")
 
     file.close()
 
@@ -397,4 +397,20 @@ def getServerVersion(connection):
                 ver_parts = [int(n) for n in p.groups()] + [0]*4
                 version.majorNumber, version.minorNumber, version.releaseNumber, version.buildNumber = ver_parts[:4]
                 return version
+    return None
+
+@ModuleInfo.export(grt.STRING, grt.classes.db_mgmt_Connection)
+def getOS(connection):
+    conn = get_connection(connection)
+    if conn:
+        result = conn.executeQuery("SELECT @@version_compile_os")
+        if result and result.nextRow():
+            compile_os = result.stringByIndex(1).lower()
+            if 'linux' in compile_os:
+                return 'linux'
+            elif 'win' in compile_os:
+                return 'windows'
+            elif 'osx' in compile_os:
+                return 'darwin'
+
     return None

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,7 +48,7 @@ public:
   bool advance_to_type(unsigned int type, bool recurse);
   void go_to_subquery_start();
   bool skip_token_sequence(unsigned int start_token, ...);
-  void skip_if(unsigned int token, size_t count = 1);
+  bool skip_if(unsigned int token, size_t count = 1);
   unsigned int look_ahead(bool recursive);
   unsigned int parent_type();
   unsigned int previous_type();
@@ -59,6 +59,7 @@ public:
   void remove_tos();
   
   // Properties of the current token.
+  bool is(unsigned int type);
   bool is_nil();
   bool is_subtree();
   bool is_identifier();
@@ -68,7 +69,7 @@ public:
   bool is_number();
   bool is_operator();
 
-  std::string token_text();
+  std::string token_text(bool keepQuotes = false);
   unsigned int token_type();
   unsigned int token_line();
   unsigned int token_start();
@@ -103,7 +104,7 @@ public:
   MySQLRecognizer(long server_version, const std::string &sql_mode, const std::set<std::string> &charsets);
   virtual ~MySQLRecognizer();
   
-  void parse(const char *text, size_t length, bool is_utf8, MySQLQueryType parse_unit);
+  void parse(const char *text, size_t length, bool is_utf8, MySQLParseUnit parse_unit);
 
   std::string dump_tree();
   std::string dump_tree(pANTLR3_BASE_TREE tree, const std::string &indentation);
@@ -116,7 +117,7 @@ public:
 
   long server_version();
 
-  std::string token_text(pANTLR3_BASE_TREE node);
+  std::string token_text(pANTLR3_BASE_TREE node, bool keepQuotes = false);
   MySQLQueryType query_type();
   MySQLQueryType query_type(pANTLR3_BASE_TREE node);
 

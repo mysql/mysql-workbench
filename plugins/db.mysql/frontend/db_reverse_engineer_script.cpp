@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,6 +38,7 @@ ImportInputPage::ImportInputPage(WizardPlugin *form)
   _table.set_column_count(2);
   _table.set_row_spacing(14);
   _table.set_column_spacing(4);
+  _table.set_padding(12);
   
   _heading.set_style(WizardHeadingStyle);
   _heading.set_text(_("Select the script containing the schemata to reverse engineer"));
@@ -49,7 +50,7 @@ ImportInputPage::ImportInputPage(WizardPlugin *form)
   _table.add(&_file_selector, 1, 2, 1, 2, mforms::HExpandFlag | mforms::HFillFlag);
 
   std::string initial_filename= form->module()->document_string_data("input_filename", "");
-  _file_selector.initialize(initial_filename, mforms::OpenFile, "SQL Files (*.sql)|*.sql", _("Browse..."),
+  _file_selector.initialize(initial_filename, mforms::OpenFile, "SQL Files (*.sql)|*.sql",
     false, boost::bind(&WizardPage::validate, this));
   scoped_connect(_file_selector.signal_changed(),boost::bind(&ImportInputPage::file_changed, this));
 

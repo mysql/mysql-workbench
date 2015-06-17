@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,6 +24,7 @@
 #include <set>
 
 #include <antlr3.h>
+#include <glib.h>
 
 #include "MySQLLexer.h"  // The generated lexer.
 #include "MySQLParser.h" // The generated parser.
@@ -131,11 +132,10 @@ bool handle_parser_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION e
   if (eoi)
   {
     // We are at the end of the input. Seek back one token to have a meaningful error indicator.
-    // If we cannot get a previous token then the stream is messed up enough to not
-    // give us a useful error *here*. In that case we very likely have already a lexer error.
-    error_token = parser->tstream->_LT(parser->tstream, -1);
-    if (error_token == NULL)
-      return false;
+    // If we cannot get a previous token then issue a generic eoi error.
+    pANTLR3_COMMON_TOKEN previous_token = parser->tstream->_LT(parser->tstream, -1);
+    if (previous_token != NULL)
+      error_token = previous_token;
   }
   else
     token_name = get_token_name(tokenNames, error_token->type);
@@ -160,7 +160,7 @@ bool handle_parser_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION e
   case ANTLR3_NO_VIABLE_ALT_EXCEPTION:
     // No alternative to choose from here.
     if (eoi)
-      error << "unexpected end of statement";
+      error << "unexpected end of input";
     else
       error << "unexpected " << token_text << " (" << token_name << ")";
 
@@ -226,7 +226,7 @@ bool handle_parser_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION e
     // this when the token that follows this unwanted token would normally be part of the
     // syntactically correct stream.
     if	(exception->expecting == ANTLR3_TOKEN_EOF)
-      error << "extraneous input found - expected end of statement";
+      error << "extraneous input found - expected end of input";
     else
       error << "extraneous input found - expected '" << get_token_name(tokenNames, exception->expecting) << "'";
     break;
@@ -243,7 +243,7 @@ bool handle_parser_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION e
       {
         if (exception->expecting == ANTLR3_TOKEN_EOF)
           // Will probably not occur since ANTLR3_UNWANTED_TOKEN_EXCEPTION will kick in instead.
-          error << "expected end of statement";
+          error << "expected end of input";
         else
           error << "missing '" << get_token_name(tokenNames, exception->expecting) << "'";
       }
@@ -777,11 +777,16 @@ bool MySQLRecognizerTreeWalker::skip_token_sequence(unsigned int start_token, ..
 
 /**
  * Advance to the nth next token if the current one is that given by @token.
+ * Returns true if we skipped actually.
  */
-void MySQLRecognizerTreeWalker::skip_if(unsigned int token, size_t count)
+bool MySQLRecognizerTreeWalker::skip_if(unsigned int token, size_t count)
 {
   if (token_type() == token)
+  {
     next(count);
+    return true;
+  }
+  return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -879,6 +884,16 @@ void MySQLRecognizerTreeWalker::remove_tos()
 //--------------------------------------------------------------------------------------------------
 
 /**
+* Returns true if the current token is of the given type.
+*/
+bool MySQLRecognizerTreeWalker::is(unsigned int type)
+{
+  return _tree->getType(_tree) == type;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
  * Returns true if the current token is empty, false otherwise.
  */
 bool MySQLRecognizerTreeWalker::is_nil()
@@ -965,9 +980,9 @@ bool MySQLRecognizerTreeWalker::is_operator()
  * parsed query (if it is a lexer symbol) or the textual expression of the constant name for abstract
  * tokens.
  */
-std::string MySQLRecognizerTreeWalker::token_text()
+std::string MySQLRecognizerTreeWalker::token_text(bool keepQuotes)
 {
-  return _recognizer->token_text(_tree);
+  return _recognizer->token_text(_tree, keepQuotes);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1200,7 +1215,7 @@ MySQLRecognizer::~MySQLRecognizer()
  * @param parse_unit used to restrict parsing to a particular query type. 
  *                   Note: only a few types are supported, everything else is just parsed as a query.
  */
-void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQLQueryType parse_unit)
+void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQLParseUnit parse_unit)
 {
   // If the text is not using utf-8 (which it should) then we interpret as 8bit encoding
   // (everything requiring only one byte per char as Latin1, ASCII and similar).
@@ -1247,19 +1262,42 @@ void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQL
 
   switch (parse_unit)
   {
-  case QtCreateTrigger:
+  case PuCreateTable:
+    d->_ast = d->_parser->create_table(d->_parser).tree;
+    break;
+  case PuCreateTrigger:
     d->_ast = d->_parser->create_trigger(d->_parser).tree;
     break;
-  case QtCreateView:
+  case PuCreateView:
     d->_ast = d->_parser->create_view(d->_parser).tree;
     break;
-  case QtCreateRoutine:
+  case PuCreateRoutine:
     d->_ast = d->_parser->create_routine(d->_parser).tree;
     break;
-  case QtCreateEvent:
-    d->_ast = d->_parser->create_trigger(d->_parser).tree;
+  case PuCreateEvent:
+    d->_ast = d->_parser->create_event(d->_parser).tree;
+    break;
+  case PuCreateIndex:
+    d->_ast = d->_parser->create_index(d->_parser).tree;
+    break;
+  case PuGrant:
+    d->_ast = d->_parser->parse_grant(d->_parser).tree;
+    break;
+  case PuDataType:
+    d->_ast = d->_parser->data_type_definition(d->_parser).tree;
+    break;
+  case PuCreateLogfileGroup:
+    d->_ast = d->_parser->create_logfile_group(d->_parser).tree;
+    break;
+  case PuCreateServer:
+    d->_ast = d->_parser->create_server(d->_parser).tree;
+    break;
+  case PuCreateTablespace:
+    d->_ast = d->_parser->create_tablespace(d->_parser).tree;
+    break;
   default:
     d->_ast = d->_parser->query(d->_parser).tree;
+    break;
   }
 }
 
@@ -1296,9 +1334,9 @@ std::string MySQLRecognizer::dump_tree(pANTLR3_BASE_TREE tree, const std::string
       token_name = state->tokenNames[token_type];
 
 #ifdef  ANTLR3_USE_64BIT
-    result = base::strfmt("%s(line: %i, offset: %i, length: %li, index: %li, %s[%i])    %s\n",
-                          indentation.c_str(), line, char_pos, token->stop - token->start + 1, token->index, token_name,
-                          token_type, utf8);
+    result = base::strfmt("%s(line: %i, offset: %i, length: %" PRId64 ", index: %" PRId64 ", %s[%i])    %s\n",
+                               indentation.c_str(), line, char_pos, token->stop - token->start + 1, token->index, token_name,
+                               token_type, utf8);
 #else
     result = base::strfmt("%s(line: %i, offset: %i, length: %i, index: %i, %s[%i])    %s\n",
                           indentation.c_str(), line, char_pos, token->stop - token->start + 1, token->index, token_name,
@@ -1366,7 +1404,7 @@ long MySQLRecognizer::server_version()
  * a quoted text entity then two consecutive quote chars are replaced by a single one and if
  * escape sequence parsing is not switched off (as per sql mode) then such sequences are handled too.
  */
-std::string MySQLRecognizer::token_text(pANTLR3_BASE_TREE node)
+std::string MySQLRecognizer::token_text(pANTLR3_BASE_TREE node, bool keepQuotes)
 {
   pANTLR3_STRING text = node->getText(node);
   if (text == NULL)
@@ -1383,7 +1421,7 @@ std::string MySQLRecognizer::token_text(pANTLR3_BASE_TREE node)
     for (ANTLR3_UINT32 index = 0; index < node->getChildCount(node); index++)
     {
       pANTLR3_BASE_TREE child = (pANTLR3_BASE_TREE)node->getChild(node, index);
-      chars += token_text(child);
+      chars += token_text(child, keepQuotes);
     }
 
     return chars;
@@ -1406,8 +1444,6 @@ std::string MySQLRecognizer::token_text(pANTLR3_BASE_TREE node)
       return chars;
   }
 
-  std::string double_quotes = quote_char + quote_char;
-
   if ((d->_context.sql_mode & SQL_MODE_NO_BACKSLASH_ESCAPES) == 0)
     chars = base::unescape_sql_string(chars, quote_char[0]);
   else
@@ -1415,9 +1451,11 @@ std::string MySQLRecognizer::token_text(pANTLR3_BASE_TREE node)
     {
       // The field user1 is set by the parser to the number of quote char pairs it found.
       // So we can use it to shortcut our handling here.
-      base::replace(chars, double_quotes, quote_char);
+      base::replace(chars, quote_char + quote_char, quote_char);
     }
 
+  if (keepQuotes)
+    return chars;
   return chars.substr(1, chars.size() - 2);
 }
 
@@ -1439,8 +1477,6 @@ MySQLQueryType MySQLRecognizer::query_type()
 MySQLQueryType MySQLRecognizer::query_type(pANTLR3_BASE_TREE node)
 {
   MySQLRecognizerTreeWalker walker(this, node);
-  if (node->getToken(node) == NULL) // If we are at the root node advance to the first real node.
-    walker.next();
 
   switch (walker.token_type())
   {

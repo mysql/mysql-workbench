@@ -1,19 +1,30 @@
-//
-//  MTogglePane.m
-//  MySQLWorkbench
-//
-//  Created by Alfredo Kojima on 6/Oct/08.
-//  Copyright 2008 Sun Microsystems Inc. All rights reserved.
-//
-
+/*
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
 #import "MTogglePane.h"
 
 
 @implementation MTogglePane
 
-- (id)initWithFrame:(NSRect)frame includeHeader:(BOOL)hasHeader
+- (instancetype)initWithFrame: (NSRect)frame includeHeader: (BOOL)hasHeader
 {
-  if ((self= [super initWithFrame:frame]) != nil)
+  self = [super initWithFrame:frame];
+  if (self != nil)
   {
     _initializing= YES;
     if (hasHeader)
@@ -42,17 +53,21 @@
     }
     _buttons= [[NSMutableArray array] retain];
     
-    _initializing= NO;
-    _relayouting= NO;
+    _initializing = NO;
+    _relayouting = NO;
   }
   return self;
 }
 
-- (id)initWithFrame:(NSRect)frame
+- (instancetype)initWithFrame: (NSRect)frame
 {
-  return [self initWithFrame:frame includeHeader:YES];
+  return [self initWithFrame: frame includeHeader: YES];
 }
 
+-(instancetype)initWithCoder: (NSCoder *)coder
+{
+  return [self initWithFrame: NSMakeRect(0, 0, 100, 100) includeHeader: YES];
+}
 
 - (void) dealloc
 {
@@ -62,13 +77,10 @@
   [super dealloc];
 }
 
-
-
 - (BOOL)isFlipped
 {
   return YES;
 }
-
 
 - (IBAction)toggle:(id)sender
 {

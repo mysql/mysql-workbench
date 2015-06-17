@@ -35,6 +35,8 @@ using namespace base;
 #include <cctype>
 #include <algorithm>
 #include <memory>
+#include <set>
+#include <boost/assign/list_of.hpp>
 
 #undef max
 
@@ -80,6 +82,8 @@ DbDriverParam::ParamType DbDriverParam::decode_param_type(std::string type_name,
   }
   else if (0 == type_name.compare("text"))
     result= ptText;
+  else if (0 == type_name.compare("button"))
+    result = ptButton;
   else
     g_warning("Unknown DB driver parameter type '%s'", type_name.c_str());
 
@@ -128,6 +132,8 @@ ControlType DbDriverParam::get_control_type() const
       return ctEnumSelector;
     case DbDriverParam::ptText:
       return ctText;
+    case  DbDriverParam::ptButton:
+      return ctButton;
     case DbDriverParam::ptInt:
     case DbDriverParam::ptString:
     case DbDriverParam::ptPassword:
@@ -179,7 +185,6 @@ void DbDriverParam::set_value(const grt::ValueRef &value)
       _value= grt::StringRef::cast_from(value);
       break;
     }
-
   case ptUnknown:
   default:
     {
@@ -307,6 +312,34 @@ public:
   }
 };
 
+bool DbDriverParams::parameter_not_valid(const db_mgmt_DriverRef &driver, const std::string& param)
+{
+
+  const std::string& name = driver->name();
+  if (name == "MysqlNativeSocket")
+  {
+    static const std::set<std::string> restricted_params = boost::assign::list_of(std::string("port"))
+      ("connections_created")("haGroupFilter")("managedConnectionsUpdateTime")("mysqlUserName")
+      ("sshPassword")("sshKeyFile")("sshHost")("sshUserName");
+    if (restricted_params.count(param) > 0)
+      return true;
+  }
+  else if (name == "MysqlNative")
+  {
+    static const std::set<std::string> restricted_params = boost::assign::list_of(std::string("connections_created"))("socked")
+      ("haGroupFilter")("managedConnectionsUpdateTime")("mysqlUserName")("sshPassword")("sshKeyFile")("sshHost")("sshUserName");
+    if (restricted_params.count(param) > 0)
+      return true;
+  }
+  else if (name == "MysqlNativeSSH")
+  {
+    static const std::set<std::string> restricted_params = boost::assign::list_of(std::string("socket"))
+      ("haGroupFilter")("managedConnectionsUpdateTime")("mysqlUserName");
+    if (restricted_params.count(param) > 0)
+      return true;
+  }
+  return false;
+}
 
 typedef std::list<LayoutRow> LayoutRows;
 
@@ -323,6 +356,7 @@ void DbDriverParams::init(
   int hmargin,
   int vmargin)
 {
+  typedef std::vector<std::string>::iterator StringVectorIterator;
   if (begin_layout)
     begin_layout();
 
@@ -354,8 +388,10 @@ void DbDriverParams::init(
     db_mgmt_DriverParameterRef param= params.get(n);
 
     // remove known options
-    std::vector<std::string>::iterator it = std::find(unknown_options.begin(), unknown_options.end(), *param->name());
-    if (it != unknown_options.end())
+
+    StringVectorIterator end = unknown_options.end();
+    StringVectorIterator it = std::find(unknown_options.begin(), end, *param->name());
+    if (it != end)
       unknown_options.erase(it);
 
     if (skip_schema && param->name() == "schema")
@@ -376,8 +412,11 @@ void DbDriverParams::init(
   if (others_option.is_valid())
   {
     std::string unknown_options_text;
-    for (std::vector<std::string>::const_iterator k = unknown_options.begin(); k != unknown_options.end(); ++k)
+    StringVectorIterator end = unknown_options.end();
+    for (std::vector<std::string>::const_iterator k = unknown_options.begin(); k != end; ++k)
     {
+      if (parameter_not_valid(driver, *k))
+        continue;
       if (!k->empty())
       {
         unknown_options_text.append(*k);
@@ -420,7 +459,7 @@ void DbDriverParams::init(
           continue;
 
         // create related label ctrl in UI
-        if (param_handle->get_control_type() != ctCheckBox)
+        if (param_handle->get_control_type() != ctCheckBox && param_handle->get_control_type() != ctButton)
         {
           LayoutControl ctrl(row.offset());
           ctrl.param_handle= param_handle;
@@ -440,7 +479,7 @@ void DbDriverParams::init(
           ctrl.type= param_handle->get_control_type();
           ctrl.bounds.width= (int)param->layoutWidth();
           ctrl.bounds.top = y_offset;
-          if (param_handle->get_control_type() == ctCheckBox)
+          if (param_handle->get_control_type() == ctCheckBox || param_handle->get_control_type() == ctButton)
             ctrl.caption= param->caption();
           //create_control(ctrl.param_handle, ctrl.type, ctrl.pos, ctrl.size, ctrl.caption);
           row.insert(ctrl);
@@ -647,6 +686,17 @@ void DbConnection::set_connection_keeping_parameters(const db_mgmt_ConnectionRef
   }
 }
 
+
+void DbConnection::update()
+{
+    _db_driver_param_handles.init(_active_driver,
+                                  _connection,
+                                  _suspend_layout,
+                                  _begin_layout,
+                                  _create_control,
+                                  _end_layout,
+                                  _skip_schema);
+}
 
 void DbConnection::set_driver_and_update(db_mgmt_DriverRef driver)
 {

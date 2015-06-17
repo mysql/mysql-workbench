@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
 #include "wb_sql_editor_form.h"
 #include "wb_sql_editor_panel.h"
 #include "wb_sql_editor_result_panel.h"
@@ -248,6 +247,9 @@ void SqlEditorResult::set_recordset(Recordset::Ref rset)
   restore_grid_column_widths();
   bec::UIForm::scoped_connect(_result_grid->signal_column_resized(),
                               boost::bind(&SqlEditorResult::on_recordset_column_resized, this, _1));
+
+  bec::UIForm::scoped_connect(_result_grid->signal_columns_resized(),
+                                boost::bind(&SqlEditorResult::onRecordsetColumnsResized, this, _1));
 
   rset->data_edited_signal.connect(boost::bind(&SqlEditorPanel::resultset_edited, _owner));
   rset->data_edited_signal.connect(boost::bind(&mforms::View::set_needs_repaint, grid));
@@ -527,11 +529,39 @@ void SqlEditorResult::toggle_switcher_collapsed()
 
 void SqlEditorResult::on_recordset_column_resized(int column)
 {
-  std::string column_id = _column_width_storage_ids[column];
-  int width = _result_grid->get_column_width(column);
-  _owner->owner()->column_width_cache()->save_column_width(column_id, width);
+  if (column >= 0)
+  {
+    std::string column_id = _column_width_storage_ids[column];
+    int width = _result_grid->get_column_width(column);
+   _owner->owner()->column_width_cache()->save_column_width(column_id, width);
+  }
 }
 
+grt::ValueRef run_and_return(const boost::function<void()>& f)
+{
+  f();
+  return grt::ValueRef();
+}
+
+void SqlEditorResult::onRecordsetColumnsResized(const std::vector<int> cols)
+{
+  std::vector<int>::const_iterator it;
+  std::map<std::string, int> widths;
+  for(it = cols.begin(); it != cols.end(); ++it)
+  {
+    if (*it >= 0)
+    {
+      std::string column_id = _column_width_storage_ids[*it];
+      int width = _result_grid->get_column_width(*it);
+      widths.insert(std::make_pair(column_id, width));
+    }
+  }
+  if (!widths.empty())
+  {
+    boost::function<void()> f = boost::bind(&ColumnWidthCache::save_columns_width, _owner->owner()->column_width_cache(), widths);
+    _owner->owner()->grt_manager()->get_dispatcher()->execute_async_function("store column widths", boost::bind(&run_and_return, f));
+  }
+}
 
 void SqlEditorResult::reset_column_widths()
 {
@@ -561,15 +591,15 @@ std::vector<float> SqlEditorResult::get_autofit_column_widths(Recordset *rs)
   std::vector<float> widths(rs->get_column_count());
   std::string font = _owner->owner()->grt_manager()->get_app_option_string("workbench.general.Resultset:Font");
 
-  for (int c = rs->get_column_count(), j = 0; j < c; j++)
+  for (size_t c = rs->get_column_count(), j = 0; j < c; j++)
   {
     widths[j] = (float)mforms::Utilities::get_text_width(rs->get_column_caption(j), font);
   }
 
   // look in 1st 10 rows for the max width of the columns
-  for (int i = 0; i < 10; i++)
+  for (size_t i = 0; i < 10; i++)
   {
-    for (int c = rs->get_column_count(), j = 0; j < c; j++)
+    for (size_t c = rs->get_column_count(), j = 0; j < c; j++)
     {
       std::string value;
       rs->get_field(i, j, value);
@@ -609,7 +639,7 @@ void SqlEditorResult::restore_grid_column_widths()
         if (autofit_widths.empty())
           autofit_widths = get_autofit_column_widths(rs);
 
-        float width = autofit_widths[i] + 10;
+        int width = int(autofit_widths[i] + 10);
         if (width < 40)
           width = 40;
         else if (width > 250)

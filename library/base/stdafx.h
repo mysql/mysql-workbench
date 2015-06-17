@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,18 +18,11 @@
  */
 
 #pragma once
-#if _WIN32
-#define _WIN_OS 1
-#endif
-#if _WIN64
-#define _WIN_OS 1
-#endif
 
-#ifdef _WIN_OS
 #ifdef _WIN64
-typedef __int64 ssize_t;
+  typedef __int64 ssize_t;
 #else
-typedef int ssize_t;
+  typedef int ssize_t;
 #endif
 
 #define WIN32_LEAN_AND_MEAN
@@ -48,6 +41,7 @@ typedef int ssize_t;
 #include <wchar.h>
 #include <codecvt>
 #include <fcntl.h>
+#include <list>
 
 #include <VersionHelpers.h>
 
@@ -56,4 +50,3 @@ typedef int ssize_t;
 
 #include <glib/glib.h>
 #include <glib/gstdio.h>
-#endif

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -121,8 +121,9 @@ public:
   /* mock function that will simulate the schema list loading using this thread */
   void tree_refresh()
   {
-    std::list<std::string> schema_list = _form->get_live_tree()->fetch_schema_list();
-
+    std::list<std::string> sl = _form->get_live_tree()->fetch_schema_list();
+    base::StringListPtr schema_list(new std::list<std::string>());
+    schema_list->assign(sl.begin(), sl.end());
     _form->get_live_tree()->_schema_tree->update_schemata(schema_list);
   }
 
@@ -132,7 +133,7 @@ public:
     _form->get_live_tree()->_schema_tree->enable_events(true);
   }
 
-  bool mock_update_node_children(mforms::TreeNodeRef& parent, std::list<std::string>& children, wb::LiveSchemaTree::ObjectType type, bool sorted = false, bool just_append = false)
+  bool mock_update_node_children(mforms::TreeNodeRef& parent, base::StringListPtr children, wb::LiveSchemaTree::ObjectType type, bool sorted = false, bool just_append = false)
   {
     tut::ensure(_check_id + " : Unexpected call to update_node_children", _expect_update_node_children);
     _expect_update_node_children = false;
@@ -145,7 +146,8 @@ public:
     return false;
   }
 
-  void mock_schema_content_arrived(const std::string &schema_name, std::list<std::string>* tables, std::list<std::string>* views, std::list<std::string>* procedures, std::list<std::string>* functions, bool just_append)
+  void mock_schema_content_arrived(const std::string &schema_name, base::StringListPtr tables,
+    base::StringListPtr views, base::StringListPtr procedures, base::StringListPtr functions, bool just_append)
   {
     tut::ensure(_check_id + " : Unexpected call to schema_content_arrived", _expect_schema_content_arrived);
     _expect_schema_content_arrived = false;
@@ -626,24 +628,24 @@ TEST_FUNCTION(5)
   pchild_data = dynamic_cast<wb::LiveSchemaTree::TriggerData*>(child_node->get_data());
 
   ensure_equals("TF005CHK004 : Unexpected trigger name", child_node->get_string(0), "ins_film");
-  ensure_equals("TF005CHK004 : Unexpected trigger event", pchild_data->event_manipulation, 10); //10 is INSERT
-  ensure_equals("TF005CHK004 : Unexpected trigger timing", pchild_data->timing, 14);// 14 is AFTER
+  ensure_equals("TF005CHK004 : Unexpected trigger event", pchild_data->event_manipulation, 11); //11 is INSERT
+  ensure_equals("TF005CHK004 : Unexpected trigger timing", pchild_data->timing, 15);// 15 is AFTER
 
 
   child_node = collection_node->get_child(1);
   pchild_data = dynamic_cast<wb::LiveSchemaTree::TriggerData*>(child_node->get_data());
 
   ensure_equals("TF005CHK005 : Unexpected trigger name", child_node->get_string(0), "upd_film");
-  ensure_equals("TF005CHK005 : Unexpected trigger event", pchild_data->event_manipulation, 11); //11 is UPDATE
-  ensure_equals("TF005CHK005 : Unexpected trigger timing", pchild_data->timing, 14);// 14 is AFTER
+  ensure_equals("TF005CHK005 : Unexpected trigger event", pchild_data->event_manipulation, 12); //12 is UPDATE
+  ensure_equals("TF005CHK005 : Unexpected trigger timing", pchild_data->timing, 15);// 15 is AFTER
 
 
   child_node = collection_node->get_child(2);
   pchild_data = dynamic_cast<wb::LiveSchemaTree::TriggerData*>(child_node->get_data());
 
   ensure_equals("TF005CHK006 : Unexpected trigger name", child_node->get_string(0), "del_film");
-  ensure_equals("TF005CHK006 : Unexpected trigger event", pchild_data->event_manipulation, 12); //12 is DELETE
-  ensure_equals("TF005CHK006 : Unexpected trigger timing", pchild_data->timing, 14); // 14 is AFTER
+  ensure_equals("TF005CHK006 : Unexpected trigger event", pchild_data->event_manipulation, 13); //13 is DELETE
+  ensure_equals("TF005CHK006 : Unexpected trigger timing", pchild_data->timing, 15); // 15 is AFTER
 }
 
 // Testing for SqlEditorForm::fetch_foreign_key_data.

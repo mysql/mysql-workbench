@@ -217,6 +217,9 @@
     <ClInclude Include="MySQLSimpleParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="mysql-recognition-types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="grammar\MySQL.g" />

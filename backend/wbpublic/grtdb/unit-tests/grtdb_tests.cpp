@@ -1,5 +1,5 @@
-/* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+﻿/* 
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +22,9 @@
 #include "grtdb/editor_table.h"
 #include "grtdb/db_object_helpers.h"
 #include "wb_helpers.h"
+
+#include <boost/assign/list_of.hpp>
+using namespace boost::assign;
 
 using namespace grt;
 using namespace bec;
@@ -140,6 +143,10 @@ void check_type_cardinalities(db_SimpleDatatypeRef type, db_ColumnRef column, in
   }
 }
 
+/**
+ *	 Data type parsing tests based on our rdbms info xml. Does additional checks, e.g. for cardinality,
+ *	 but does not consider all possible data type definitions, to do a full parser test.
+ */
 TEST_FUNCTION(20)
 {
   // Go through all our defined datatypes and construct a column definition.
@@ -158,15 +165,15 @@ TEST_FUNCTION(20)
   column->name("testee");
   table->columns().insert(column);
 
-  ListRef<db_SimpleDatatype> types= tester.get_rdbms()->simpleDatatypes();
+  std::string expected_enum_parameters = "('blah', 'foo', 'bar', 0b11100011011, 0x1234ABCDE)";
+  ListRef<db_SimpleDatatype> types = tester.get_rdbms()->simpleDatatypes();
   for (size_t i= 0; i < tester.get_rdbms()->simpleDatatypes().count(); i++)
   {
     // Try all parameter combinations.
     string no_params= types[i]->name();
     string single_num_param= no_params + "(777)";
     string double_num_params= no_params + "(111, 5)";
-    string enum_parameters= "('blah', 'foo', 'bar', 'gah')";
-    string param_list= no_params + enum_parameters;
+    string param_list = no_params + "('blah', 'foo'  ,       'bar'\n, \n0b11100011011,\n\n\n 0x1234ABCDE)";
     string invalid_list= no_params + "(1, a, 'bb')";
 
     // Depending on the server version a data type is defined for we need to set the
@@ -249,7 +256,7 @@ TEST_FUNCTION(20)
         // The following tests just check if the parameter list is properly stored.
         // No type checking takes place for now.
         grt::StringRef explicitParam= column->datatypeExplicitParams();
-        ensure_equals("Parameter list not properly stored", *explicitParam, enum_parameters);
+        ensure_equals("Parameter list not properly stored", *explicitParam, expected_enum_parameters);
         break;
     }
 
@@ -261,6 +268,350 @@ TEST_FUNCTION(20)
   }
 }
 
+/**
+ *	 Another data type test, but with focus on all possible input and its proper handling,
+ *	 even for corner cases.
+ *	 Based on the MySQL grammar we construct here all possible input combinations.
+ */
+
+// Valid id string for unquoted identifiers.
+static std::string special_id = "\xE2\x86\xB2\xE2\x86\xB3"; // ↲↳
+
+// This is the node of which a sequence consists.
+struct GrammarNode {
+  bool is_terminal;
+  bool is_required;  // false for * and ? operators, otherwise true.
+  bool multiple;     // true for + and * operators, otherwise false.
+  std::string value; // Either the text of a terminal or the name of a non-terminal.
+
+  GrammarNode(bool _terminal, bool _required, bool _multiple, std::string _value)
+    : is_terminal(_terminal), is_required(_required), multiple(_multiple), value(_value)
+  {};
+};
+
+// A sequence of grammar nodes (either terminal or non-terminal) in the order they appear in the grammar.
+// Expressions in parentheses are extracted into an own rule with a private name.
+// A sequence can have an optional predicate (min/max server version).
+struct GrammarSequence {
+  int min_version;
+  int max_version;
+  std::vector<GrammarNode> nodes;
+  
+  GrammarSequence(std::vector<GrammarNode> _nodes, int _min_version = MIN_SERVER_VERSION, int _max_version = MAX_SERVER_VERSION)
+    : min_version(_min_version), max_version(_max_version), nodes(_nodes)
+  {};
+
+};
+
+// A list of alternatives for a given rule.
+typedef std::vector<GrammarSequence> RuleAlternatives;
+
+static std::map<std::string, RuleAlternatives> rules = map_list_of<std::string, RuleAlternatives>
+  // First the root rule. Everything starts with this.
+  ("data_type", list_of<GrammarSequence>
+    (list_of<GrammarNode>(false, true, false, "integer_type") (false, false, false, "field_length") (false, false, false, "field_options").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(false, true, false, "real_literal") (false, false, false, "precision") (false, false, false, "field_options").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "FLOAT") (false, false, false, "float_options") (false, false, false, "field_options").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "BIT") (false, false, false, "field_length").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "BOOL").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "BOOLEAN").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "CHAR") (false, false, false, "field_length") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(false, true, false, "nchar_literal") (false, false, false, "field_length") (true, false, false, "BINARY").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, " BINARY") (false, false, false, "field_length").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(false, true, false, "varchar_literal") (false, true, false, "field_length") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(false, true, false, "nvarchar_literal") (false, true, false, "field_length") (true, false, false, "BINARY").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "VARBINARY") (false, true, false, "field_length").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "YEAR") (false, false, false, "field_length") (false, false, false, "field_options").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "DATE").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "TIME") (false, false, false, "type_datetime_precision").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "TIMESTAMP") (false, false, false, "type_datetime_precision").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "DATETIME") (false, false, false, "type_datetime_precision").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "TINYBLOB").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "BLOB") (false, false, false, "field_length").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "MEDIUMBLOB").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "LONGBLOB").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "LONG") (true, true, false, "VARBINARY").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "LONG") (false, false, false, "varchar_literal") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "TINYTEXT") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "TEXT") (false, false, false, "field_length") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "MEDIUMTEXT") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "LONGTEXT") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "DECIMAL") (false, false, false, "float_options") (false, false, false, "field_options").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "NUMERIC") (false, false, false, "float_options") (false, false, false, "field_options").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "FIXED") (false, false, false, "float_options") (false, false, false, "field_options").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "ENUM") (false, true, false, "string_list") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "SET") (false, true, false, "string_list") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "SERIAL").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(false, true, false, "spatial_type").convert_to_container<std::vector<GrammarNode> >())
+  )
+
+  // Rules referenced from the main rule or sub rules.
+  ("integer_type", list_of<GrammarSequence>
+    (list_of<GrammarNode>(true, true, false, "INTEGER").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "INT").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "INT1").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "INT2").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "INT3").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "INT4").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "INT8").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "TINYINT").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "SMALLINT").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "MEDIUMINT").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "BIGINT").convert_to_container<std::vector<GrammarNode> >())
+  )
+
+  ("field_length", list_of<GrammarSequence>
+    (list_of<GrammarNode>(true, true, false, "(") (true, true, false, "6") (true, true, false, ")").convert_to_container<std::vector<GrammarNode> >())
+  )
+
+  ("field_options", list_of<GrammarSequence>
+    (list_of<GrammarNode>(false, true, true, "field_options_alt1").convert_to_container<std::vector<GrammarNode> >())
+  )
+
+  ("field_options_alt1", list_of<GrammarSequence>
+    (list_of<GrammarNode>(true, true, false, "SIGNED").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "UNSIGNED").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "ZEROFILL").convert_to_container<std::vector<GrammarNode> >())
+  )
+
+  ("real_literal", list_of<GrammarSequence>
+    (list_of<GrammarNode>(true, true, false, "REAL").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "DOUBLE") (true, false, false, "PRECISION").convert_to_container<std::vector<GrammarNode> >())
+  )
+
+  ("precision", list_of<GrammarSequence>
+    (list_of<GrammarNode>(true, true, false, "(") (true, true, false, "12") (true, true, false, ",") (true, true, false, "5") (true, true, false, ")").convert_to_container<std::vector<GrammarNode> >())
+  )
+
+  ("float_options", list_of<GrammarSequence>
+    (list_of<GrammarNode>(false, true, false, "float_options_alt1").convert_to_container<std::vector<GrammarNode> >())
+  )
+
+  ("float_options_alt1", list_of<GrammarSequence>
+    (list_of<GrammarNode>(true, true, false, "(") (true, true, false, "12") (false, false, false, "float_options_alt1_seq1") (true, true, false, ")").convert_to_container<std::vector<GrammarNode> >())
+  )
+
+  ("float_options_alt1_seq1", list_of<GrammarSequence>
+    (list_of<GrammarNode>(true, true, false, ",") (true, true, false, "6").convert_to_container<std::vector<GrammarNode> >())
+  )
+
+  ("string_binary", list_of<GrammarSequence>
+    (list_of<GrammarNode>(false, true, false, "ascii").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(false, true, false, "unicode").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "BYTE").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(false, true, false, "charset") (false, true, false, "charset_name") (true, true, false, "BINARY").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "BINARY") (false, false, false, "string_binary_seq1").convert_to_container<std::vector<GrammarNode> >())
+  )
+
+  ("string_binary_seq1", list_of<GrammarSequence>
+    (list_of<GrammarNode>(false, true, false, "charset") (false, true, false, "charset_name").convert_to_container<std::vector<GrammarNode> >())
+  )
+
+  ("ascii", list_of<GrammarSequence>
+    (list_of<GrammarNode>(true, true, false, "ASCII") (true, false, false, "BINARY").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode> (true, true, false, "BINARY") (true, true, false, "ASCII"), 50500)
+  )
+
+  ("unicode", list_of<GrammarSequence>
+    (list_of<GrammarNode>(true, true, false, "UNICODE") (true, false, false, "BINARY").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode> (true, true, false, "BINARY") (true, true, false, "UNICODE"), 50500)
+  )
+
+  ("charset", list_of<GrammarSequence>
+    (list_of<GrammarNode>(true, true, false, "CHAR") (true, true, false, "SET").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "CHARSET").convert_to_container<std::vector<GrammarNode> >())
+  )
+
+  ("charset_name", list_of<GrammarSequence>
+    (list_of<GrammarNode>(true, true, false, "'utf8'").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "utf8").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "BINARY").convert_to_container<std::vector<GrammarNode> >())
+  )
+
+  ("text_or_identifier", list_of<GrammarSequence>
+    (list_of<GrammarNode>(false, true, false, "string_literal").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(false, true, false, "identifier").convert_to_container<std::vector<GrammarNode> >())
+  )
+
+  ("string_literal", list_of<GrammarSequence>
+    (list_of<GrammarNode>(true, true, false, "n'text'").convert_to_container<std::vector<GrammarNode> >()) // NCHAR_TEXT
+    (list_of<GrammarNode>(true, false, false, "_utf8") (false, true, true, "string_literal_seq1").convert_to_container<std::vector<GrammarNode> >())
+  )
+
+  ("string_literal_seq1", list_of<GrammarSequence>
+    (list_of<GrammarNode>(true, true, false, "'text'").convert_to_container<std::vector<GrammarNode> >()) // SINGLE_QUOTED_TEXT
+    (list_of<GrammarNode>(true, true, false, "\"text\"").convert_to_container<std::vector<GrammarNode> >()) // DOUBLE_QUOTED_TEXT
+  )
+
+  ("identifier", list_of<GrammarSequence>
+    (list_of<GrammarNode>(true, true, false, special_id).convert_to_container<std::vector<GrammarNode> >()) // IDENTIFIER
+    (list_of<GrammarNode>(true, true, false, "`identifier`").convert_to_container<std::vector<GrammarNode> >()) // BACK_TICK_QUOTED_ID
+    (list_of<GrammarNode>(true, true, false, "host").convert_to_container<std::vector<GrammarNode> >()) // (certain) keywords
+  )
+
+  ("nchar_literal", list_of<GrammarSequence>
+    (list_of<GrammarNode>(true, true, false, "NCHAR").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "NATIONAL\tCHAR").convert_to_container<std::vector<GrammarNode> >())
+  )
+
+  ("varchar_literal", list_of<GrammarSequence>
+    (list_of<GrammarNode>(true, true, false, "CHAR") (true, true, false, "VARYING").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "VARCHAR").convert_to_container<std::vector<GrammarNode> >())
+  )
+
+  ("nvarchar_literal", list_of<GrammarSequence>
+    (list_of<GrammarNode>(true, true, false, "NATIONAL CHAR") (true, true, false, "VARYING").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "NVARCHAR").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "NCHAR") (true, true, false, "VARCHAR").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "NATIONAL") (true, true, false, "CHAR") (true, true, false, "VARYING").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "NCHAR") (true, true, false, "VARYING").convert_to_container<std::vector<GrammarNode> >())
+  )
+
+  ("type_datetime_precision", list_of<GrammarSequence>
+    (list_of<GrammarNode> (true, true, false, "(") (true, true, false, "6")  (true, true, false, ")"), 50600)
+  )
+
+  ("string_list", list_of<GrammarSequence>
+    (list_of<GrammarNode>(true, true, false, "(") (false, true, false, "text_string") (false, false, true, "string_list_seq1") (true, true, false, ")").convert_to_container<std::vector<GrammarNode> >())
+  )
+
+  ("string_list_seq1", list_of<GrammarSequence>
+    (list_of<GrammarNode>(true, true, false, ",") (false, true, false, "text_string").convert_to_container<std::vector<GrammarNode> >())
+  )
+
+  ("text_string", list_of<GrammarSequence>
+    (list_of<GrammarNode>(true, true, false, "'text'").convert_to_container<std::vector<GrammarNode> >()) // SINGLE_QUOTED_TEXT
+    (list_of<GrammarNode>(true, true, false, "0x12345AABBCCDDEEFF").convert_to_container<std::vector<GrammarNode> >()) // HEXNUMBER
+    (list_of<GrammarNode>(true, true, false, "0b1000111101001011").convert_to_container<std::vector<GrammarNode> >()) // BITNUMBER
+  )
+
+  ("spatial_type", list_of<GrammarSequence>
+    (list_of<GrammarNode>(true, true, false, "GEOMETRY").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "GEOMETRYCOLLECTION").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "POINT").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "MULTIPOINT").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "LINESTRING").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "MULTILINESTRING").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "POLYGON").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "MULTIPOLYGON").convert_to_container<std::vector<GrammarNode> >())
+  )
+
+;
+
+//--------------------------------------------------------------------------------------------------
+
+std::vector<std::string> get_variations_for_rule(std::string rule_name);
+
+std::vector<std::string> get_variations_for_sequence(const GrammarSequence &sequence)
+{
+  std::vector<std::string> result;
+  result.push_back(""); // Start with an empty entry to get the code rolling.
+
+  // For each entry add its variations to each of the existing entries in the result.
+  // If it is an optional entry duplicate existing entries and append the values to the duplicates
+  // so we have one set with and one without the value.
+  // For entries with multiple appearance add more duplicates with different repeat counts.
+  for (std::vector<tut::GrammarNode>::const_iterator iterator = sequence.nodes.begin(); iterator != sequence.nodes.end(); ++iterator)
+  {
+    std::vector<std::string> variations;
+    if (iterator->is_terminal)
+      variations.push_back(iterator->value); // Only one variation.
+    else
+      variations = get_variations_for_rule(iterator->value); // Potentially many variations.
+
+    std::vector<std::string> intermediate;
+    if (!iterator->is_required)
+      intermediate.insert(intermediate.begin(), result.begin(), result.end());
+
+    for (std::vector<std::string>::iterator result_iterator = result.begin(); result_iterator != result.end(); ++result_iterator)
+    {
+      // Add each variation to each result we have so far already. This is the default occurrence.
+      for (std::vector<std::string>::iterator variation_iterator = variations.begin(); variation_iterator != variations.end(); ++variation_iterator)
+      {
+        if (result_iterator->empty())
+          intermediate.push_back(*variation_iterator);
+        else
+          intermediate.push_back(*result_iterator + " " + *variation_iterator);
+      }
+
+      if (iterator->multiple)
+      {
+        // If there can be multiple occurrences create a cross product of all alternatives,
+        // so we have at least 2 values in all possible combinations.
+        for (std::vector<std::string>::iterator outer_iterator = variations.begin(); outer_iterator != variations.end(); ++outer_iterator)
+        {
+          for (std::vector<std::string>::iterator inner_iterator = variations.begin(); inner_iterator != variations.end(); ++inner_iterator)
+          {
+            if (result_iterator->empty())
+              intermediate.push_back(*outer_iterator + " " + *inner_iterator);
+            else
+              intermediate.push_back(*result_iterator + " " + *outer_iterator + " " + *inner_iterator);
+          }
+        }
+      }
+    }
+
+    // Finally the intermediate entries become now our result entries and each might get
+    // one or more additional entries.
+    result = intermediate;
+  }
+
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::vector<std::string> get_variations_for_rule(std::string rule_name)
+{
+  std::vector<std::string> result;
+
+  std::map<std::string, tut::RuleAlternatives>::iterator rule = rules.find(rule_name);
+  if (rule == rules.end())
+  {
+    fail("Rule: " + rule_name + " not found");
+    return result;
+  }
+
+  for (tut::RuleAlternatives::const_iterator iterator = rule->second.begin(); iterator != rule->second.end(); ++iterator)
+  {
+    std::vector<std::string> values = get_variations_for_sequence(*iterator);
+    result.insert(result.end(), values.begin(), values.end());
+  }
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+TEST_FUNCTION(22)
+{
+  // First generate all possible combinations.
+  std::vector<std::string> definitions = get_variations_for_rule("data_type");
+
+  grt::ListRef<db_UserDatatype> user_types;
+  grt::ListRef<db_SimpleDatatype> type_list = tester.get_catalog()->simpleDatatypes();
+
+  // The latest version at the point of writing this, to include all possible variations.
+  GrtVersionRef version(grtm->get_grt());
+  version->majorNumber(5);
+  version->minorNumber(7);
+  version->releaseNumber(4);
+  version->buildNumber(-1);
+
+  for (std::vector<std::string>::iterator iterator = definitions.begin(); iterator != definitions.end(); ++iterator)
+  {
+    db_SimpleDatatypeRef simple_type;
+    db_UserDatatypeRef user_type;
+    int precision;
+    int scale;
+    int length;
+    std::string explicit_params;
+
+    std::string sql = *iterator;
+    ensure("Data type parsing failed for: \"" + sql + "\"",
+      parse_type_definition(sql, version, type_list, user_types, type_list, simple_type,
+      user_type, precision, scale, length, explicit_params));
+  }
+}
 
 TEST_FUNCTION(25)
 {

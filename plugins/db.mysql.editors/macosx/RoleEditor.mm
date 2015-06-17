@@ -20,6 +20,8 @@
 #include "base/geometry.h"
 #include "base/string_utilities.h"
 
+#include "wb_context.h"
+
 #import "RoleEditor.h"
 #import "MCPPUtilities.h"
 #import "GRTTreeDataSource.h"
@@ -58,7 +60,7 @@
                  proposedRow:(NSInteger)row
        proposedDropOperation:(NSTableViewDropOperation)op
 {
-  if ([[[info draggingPasteboard] types] containsObject: @"x-mysql-wb/db.DatabaseObject"])
+  if ([[[info draggingPasteboard] types] containsObject: [NSString stringWithCPPString: WB_DBOBJECT_DRAG_TYPE]])
     return NSDragOperationGeneric;
   
   return NSDragOperationNone;
@@ -69,7 +71,7 @@
               row:(NSInteger)row dropOperation:(NSTableViewDropOperation)operation
 {  
   NSPasteboard *pboard= [info draggingPasteboard];
-  NSString *data= [pboard stringForType:@"x-mysql-wb/db.DatabaseObject"];
+  NSString *data= [pboard stringForType: [NSString stringWithCPPString: WB_DBOBJECT_DRAG_TYPE]];
   return mBackEnd->add_dropped_objectdata([data UTF8String]);
 }
 
@@ -116,7 +118,7 @@
     ssize_t enabled;
     mList->get_field(rowIndex, bec::RolePrivilegeListBE::Enabled, enabled);
     
-    return [NSNumber numberWithInt: enabled];
+    return @((int)enabled);
   }
   return nil;
 }
@@ -157,7 +159,9 @@ static void call_refresh(DbMysqlRoleEditor *self)
 }
 
 
-- (id)initWithModule:(grt::Module*)module GRTManager:(bec::GRTManager*)grtm arguments:(const grt::BaseListRef&)args
+- (instancetype)initWithModule: (grt::Module *)module
+                    grtManager: (bec::GRTManager *)grtm
+                     arguments: (const grt::BaseListRef &)args
 {
   self= [super initWithNibName: @"RoleEditor" bundle: [NSBundle bundleForClass:[self class]]];
   if (self != nil)
@@ -168,10 +172,10 @@ static void call_refresh(DbMysqlRoleEditor *self)
 
     [self setMinimumSize: [tabView frame].size];
 
-    [roleOutline registerForDraggedTypes:[NSArray arrayWithObject:@"x-mysql-wb/controlprivate"]];
+    [roleOutline registerForDraggedTypes:@[[NSString stringWithCPPString: WB_CONTROL_DRAG_TYPE]]];
     
     // setup the object list for accepting drops
-    [objectTable registerForDraggedTypes:[NSArray arrayWithObject:@"x-mysql-wb/db.DatabaseObject"]];
+    [objectTable registerForDraggedTypes:@[[NSString stringWithCPPString: WB_DBOBJECT_DRAG_TYPE]]];
     
     [self reinitWithArguments: args];
   }

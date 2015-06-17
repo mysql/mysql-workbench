@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -774,7 +774,11 @@ bool TableColumnsListBE::set_field(const NodeId &node, ColumnId column, ssize_t 
       AutoUndoEdit undo(_owner);
 
       if (value != 0)
+      {
         _owner->get_table()->addPrimaryKeyColumn(col);
+        if (col->defaultValue() != "")
+          col->defaultValue("");
+      }
       else
         _owner->get_table()->removePrimaryKeyColumn(col);
 
@@ -2921,7 +2925,6 @@ void TableEditorBE::set_name(const std::string &name)
     bec::ValidationManager::validate_instance(get_table(), CHECK_NAME);
     std::string name_= base::trim_right(name);
     get_dbobject()->name(name_);
-    update_change_date();
     undo.end(strfmt(_("Rename Table to '%s'"), name_.c_str()));
   }
 }
@@ -3318,7 +3321,7 @@ void TableEditorBE::open_field_editor(int row, int column)
 void TableEditorBE::update_selection_for_menu_extra(mforms::ContextMenu *menu, const std::vector<int> &rows, int column)
 {
   mforms::MenuItem *item = menu->find_item("edit_cell");
-  if (item)
+  if (item != NULL && !rows.empty())
   {
     if (item->signal_clicked()->empty())
       item->signal_clicked()->connect(boost::bind(&TableEditorBE::open_field_editor, this, rows[0], column));

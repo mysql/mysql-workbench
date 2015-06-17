@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,6 +51,7 @@
 
 #include "upgrade_helper.h"
 
+#include "grtui/grtdb_connect_dialog.h"
 #include "grtdb/db_helpers.h"
 
 #include "interfaces/interfaces.h"
@@ -1686,6 +1687,7 @@ void WBContext::set_default_options(grt::DictRef options)
   set_default(options, "DbSqlEditor:ProgressStatusUpdateInterval", 500); // in ms
   set_default(options, "DbSqlEditor:KeepAliveInterval", 600); // in seconds
   set_default(options, "DbSqlEditor:ReadTimeOut", 600); // in seconds
+  set_default(options, "DbSqlEditor:ConnectionTimeOut", 60); // in seconds
   set_default(options, "DbSqlEditor:MaxQuerySizeToHistory", 65536);
   set_default(options, "DbSqlEditor:ContinueOnError", 0); // continue running sql script bypassing failed statements
   set_default(options, "DbSqlEditor:AutocommitMode", 1); // when enabled, each statement will be committed immediately
@@ -1708,6 +1710,9 @@ void WBContext::set_default_options(grt::DictRef options)
 
   // DB SQL editor (MySQL)
   //set_default(options, "DbSqlEditor:MySQL:TreatBinaryAsText", 0);
+
+  // Fabric
+  set_default(options, "Fabric:ConnectionTimeOut", 60); // in seconds
 
   // Recordset
   set_default(options, "Recordset:FloatingPointVisibleScale", 3);
@@ -2732,6 +2737,12 @@ workbench_DocumentRef WBContext::openModelFile(const std::string &file)
 
   try
   {
+    if (base::string_compare(file, get_filename(), false) == 0)
+    {
+      mforms::Utilities::show_message("Open Document",
+        "Error while including another model. A model cannot be added to itself.", "OK");
+      return doc;
+    }
     _model_import_file->open(file, _manager);
 //    _manager->set_db_file_path(_file->get_db_file_path());
 
@@ -3494,6 +3505,19 @@ boost::shared_ptr<SqlEditorForm> WBContext::add_new_query_window(const db_mgmt_C
 {
   db_mgmt_ConnectionRef target(targetConnection);
   
+  if (!target.is_valid())
+  {
+    grtui::DbConnectionDialog dialog(get_root()->rdbmsMgmt());
+    log_debug("No connection specified, showing connection selection dialog...\n");
+    target = dialog.run();
+    if (!target.is_valid())
+    {
+      log_debug("Connection selection dialog was cancelled\n");
+      show_status_text(_("Connection cancelled"));
+      return SqlEditorForm::Ref();
+    }
+  }
+
   show_status_text(_("Opening SQL Editor..."));
   
   SqlEditorForm::Ref form;
@@ -3501,7 +3525,7 @@ boost::shared_ptr<SqlEditorForm> WBContext::add_new_query_window(const db_mgmt_C
   {
     show_status_text(_("Connecting..."));
     
-    form= get_sqlide_context()->create_connected_editor(target);
+    form = get_sqlide_context()->create_connected_editor(target);
     
     if (form->connection_details().find("dbmsProductVersion") != form->connection_details().end())
     {
@@ -3528,7 +3552,11 @@ boost::shared_ptr<SqlEditorForm> WBContext::add_new_query_window(const db_mgmt_C
   }
   catch (grt::user_cancelled &e)
   {
-    log_info("Connection to %s cancelled by user: %s\n", targetConnection->name().c_str(), e.what());
+    if (target.is_valid())
+      log_info("Connection to %s cancelled by user: %s\n", target->name().c_str(), e.what());
+    else
+      log_info("Connection cancelled by user: %s\n", e.what());
+
     show_status_text(_("Connection cancelled"));
     return SqlEditorForm::Ref();
   }
@@ -3658,20 +3686,6 @@ void WBContext::execute_in_main_thread(const std::string &name,
                               const boost::function<void ()> &function, bool wait) THROW (grt::grt_runtime_error)
 {
   _manager->get_dispatcher()->call_from_main_thread<void>(function, wait, false);
-}
-
-// XXX: not used anymore.
-grt::ValueRef WBContext::execute_in_grt_thread(const std::string &name, 
-                                                   const boost::function<grt::ValueRef (grt::GRT*)> &function) THROW (grt::grt_runtime_error)
-{
-  return _manager->get_dispatcher()->execute_simple_function(name, function);
-}
-
-// XXX: not used anymore.
-void WBContext::execute_async_in_grt_thread(const std::string &name, 
-                                            const boost::function<grt::ValueRef (grt::GRT*)> &function) THROW (grt::grt_runtime_error)
-{
-  _manager->get_dispatcher()->execute_async_function(name, function);
 }
 
 void WBContext::show_exception(const std::string &operation, const std::exception &exc)
@@ -3946,7 +3960,8 @@ void WBContext::delete_attached_file(const std::string &name)
 std::string WBContext::read_state(const std::string &name, const std::string &domain, 
                                    const std::string &default_value)
 {
-  grt::DictRef dict= get_root()->state();
+  workbench_WorkbenchRef wb = get_root();
+  grt::DictRef dict= wb->state();
 
   return dict.get_string(domain+":"+name, default_value);
 }
@@ -4035,9 +4050,9 @@ void WBContext::handle_notification(const std::string &name, void *sender, std::
 
 //--------------------------------------------------------------------------------------------------
 
-static struct RegisterWBContextNotifDocs
+static struct RegisterNotifDocs_wb_context
 {
-  RegisterWBContextNotifDocs()
+  RegisterNotifDocs_wb_context()
   {
     base::NotificationCenter::get()->register_notification("GNDocumentOpened",
                                                            "modeling",
@@ -4052,5 +4067,5 @@ static struct RegisterWBContextNotifDocs
                                                            "");
     
   }
-} initdocs;
+} initdocs_wb_context;
 

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -75,10 +75,6 @@ namespace mforms {
     bool get_active();
 
 #ifndef SWIG
-    /** Signal emited when the radio button is toggled 
-     
-     In Python use add_toggled_callback() */
-    boost::signals2::signal<void ()>* signal_toggled() { return &_signal_toggled; }
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
     virtual void callback();
 #endif

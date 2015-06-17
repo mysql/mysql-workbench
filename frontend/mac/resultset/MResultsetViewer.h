@@ -38,12 +38,12 @@ class Recordset;
   BOOL mPendingRefresh;
 }
 
-- (id)initWithRecordset:(boost::shared_ptr<Recordset>)rset;
-- (boost::shared_ptr<Recordset>)recordset;
-- (NSView*)view;
-- (MGridView*)gridView;
+- (instancetype)initWithRecordset:(boost::shared_ptr<Recordset>)rset;
+@property (readonly) boost::shared_ptr<Recordset> recordset;
+@property (readonly, strong) NSView *view;
+@property (readonly, strong) MGridView *gridView;
 
-- (BOOL)hasPendingChanges;
+@property (readonly) BOOL hasPendingChanges;
 
 - (void)rebuildColumns;
 - (void)refresh;

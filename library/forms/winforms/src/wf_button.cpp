@@ -96,6 +96,28 @@ bool ButtonWrapper::create(mforms::Button *backend, mforms::ButtonType btype)
 
 //-------------------------------------------------------------------------------------------------
 
+int ButtonWrapper::set_text(const std::string &text)
+{
+  Control ^control = GetManagedObject<Control>();
+  control->Text = CppStringToNativeRaw(text);
+
+  if (control->Padding.Left == 0 && uses_internal_padding())
+    enable_internal_padding(true);
+
+  // Resize the button to fit its content.
+  // Keep the button's width, though, if that is currently larger than the computed width.
+  Graphics ^g = control->CreateGraphics();
+  SizeF size = g->MeasureString(control->Text, control->Font);
+  delete g;
+
+  if (size.Width < control->Width)
+    size.Width = (float)control->Width;
+  control->Width = (int)size.Width;
+  return (int)size.Height;
+}
+
+//-------------------------------------------------------------------------------------------------
+
 void ButtonWrapper::set_text(mforms::Button *backend, const std::string &text)
 {
   // Note: DON'T try to replace underscores by ampersand to make the UI interpreting
@@ -103,18 +125,7 @@ void ButtonWrapper::set_text(mforms::Button *backend, const std::string &text)
   //       Underscores are VALID characters and here is the wrong place to handle this.
   //       Only the caller can know the context and has to do such replacements.
   ButtonWrapper *wrapper = backend->get_data<ButtonWrapper>();
-  Control^ control = wrapper->GetControl();
-  control->Text= CppStringToNative(text);
-
-  if (control->Padding.Left == 0 && wrapper->uses_internal_padding())
-    enable_internal_padding(backend, true);
-
-  // Resize the button to fit its content.
-  // Keep the button's width, though, if that is currently larger than its preferred width.
-  Size size = control->PreferredSize;
-  if (size.Width < control->Width)
-    size.Width = control->Width;
-  control->Size = size;
+  wrapper->set_text(text);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -145,30 +156,36 @@ void ButtonWrapper::set_icon(mforms::Button *backend, const std::string &icon)
     }
   }
 }
+
 //-------------------------------------------------------------------------------------------------
 
 void ButtonWrapper::enable_internal_padding(mforms::Button *backend, bool flag)
 {
   ButtonWrapper *wrapper = backend->get_data<ButtonWrapper>();
+  wrapper->enable_internal_padding(flag);
+}
 
+//-------------------------------------------------------------------------------------------------
+
+void ButtonWrapper::enable_internal_padding(bool flag)
+{
   // The internal padding feature is just some beautifying added to the button
   // which gives it a bit more room left and right of the text than what is the default
   // for it. It should actually be implemented via the View::set_padding function.
-  
-  Control ^control = wrapper->GetControl();
+  Control ^control = GetManagedObject<Control>();
   if (flag)
   {
     if (control->Padding.Left == 0)
     {
       // Only add extra padding if that didn't happen already.
-      int extra= 10;
+      int extra = 10;
       control->Padding = Padding::Add(control->Padding, Padding(extra, 0, extra, 0));
     }
   }
   else
-    control->Padding= Padding(0, 0, 0, 0);
+    control->Padding = Padding(0, 0, 0, 0);
 
-  wrapper->internal_padding= flag;
+  internal_padding = flag;
 }
 
 //-------------------------------------------------------------------------------------------------

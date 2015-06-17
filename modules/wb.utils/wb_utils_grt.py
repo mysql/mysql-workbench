@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -32,7 +32,12 @@ import grt
 import mforms
 
 from grt import log_warning
-from workbench.log import log_info, log_error, log_debug
+from workbench.log import log_info, log_error, log_debug, log_debug2
+import traceback
+
+from workbench.ui import WizardForm, WizardPage, WizardProgressPage
+from mforms import newButton, newCheckBox, newTreeNodeView
+from mforms import FileChooser
 
 # define this Python module as a GRT module
 ModuleInfo = DefineModule(name= "PyWbUtils", author= "Sun Microsystems Inc.", version="1.0")
@@ -236,7 +241,6 @@ def connectionFromString(connstr):
         # check if this is a mysql cmdline client command
         tokens = shlex.split(connstr.strip())
         if tokens:
-            print tokens
             if tokens[0].endswith("mysql") or tokens[0].endswith("mysql.exe"):
                 i = 1
                 valid = True
@@ -573,7 +577,7 @@ class CheckForUpdateThread(threading.Thread):
             self.dom = xml.dom.minidom.parse(urllib2.urlopen('http://wb.mysql.com/installer/products.xml'))
         except Exception, error:
             self.dom = None
-            self.error = str(error)        
+            self.error = "%s\n\nPlease verify your internet connection is available." % str(error)        
     
     def checkForUpdatesCallback(self):
         if self.isAlive():
@@ -627,92 +631,46 @@ def checkForUpdates():
 
 
 
+class SSLWizard_GenerationTask:
+    def __init__(self, main, path):
+        self.main = main
+        self.path = path
+        self.config_file = {}
 
-
-
-class SSLGenerator(mforms.Form):
-    def __init__(self):
-        mforms.Form.__init__(self, mforms.Form.main_form(), mforms.FormNormal)
-
-        self.set_title("Generate SSL Certificates")
-
-        box = mforms.newBox(False)
-        box.set_padding(20)
-        box.set_spacing(20)
-
-        label = mforms.newLabel("This will generate a set of SSL certificates and other files that are required by the MySQL server to enable SSL.")
-        box.add(label, False, True)
-
-        table = mforms.newTable()
-        table.set_column_count(3)
-        table.set_row_count(1)
-
-        table.set_row_spacing(8)
-        table.set_column_spacing(4)
-
-        row, self.path = self.add_label_row(table, 0, "Output Directory:", mforms.newTextEntry(), "Directory to place generated files")
-
-        box.add(table, False, True)
-
-        table = mforms.newTable()
-        table.set_padding(12)
-        table.set_column_count(3)
-        table.set_row_count(7)
-
-        table.set_row_spacing(8)
-        table.set_column_spacing(4)
-
-        row, self.country_code = self.add_label_row(table, 0, "Country:", mforms.newTextEntry(), "2 letter country code (eg, US)")
-        row, self.state_name = self.add_label_row(table, row, "State or Province Name:", mforms.newTextEntry(), "Full state or province name")
-        row, self.locality_name = self.add_label_row(table, row, "Locality Name:", mforms.newTextEntry(), "eg, city")
-        row, self.org_name = self.add_label_row(table, row, "Organization Name:", mforms.newTextEntry(), "eg, company")
-        row, self.org_unit = self.add_label_row(table, row, "Organizational Unit Name:", mforms.newTextEntry(), "eg, section, department")
-        row, self.common_name = self.add_label_row(table, row, "Common Name:", mforms.newTextEntry(), "eg, put the FQDN of the server to allow server address validation")
-        row, self.email_address = self.add_label_row(table, row, "Email Address:", mforms.newTextEntry(), "")
-
-        panel = mforms.newPanel(mforms.TitledBoxPanel)
-        panel.set_title("Optional Parameters")
-        panel.add(table)
-
-        box.add(panel, False, True)
-
-        hbox = mforms.newBox(True)
-        hbox.set_spacing(8)
-        self.ok = mforms.newButton()
-        self.ok.set_text("OK")
-        self.cancel = mforms.newButton()
-        self.cancel.set_text("Cancel")
-        mforms.Utilities.add_end_ok_cancel_buttons(hbox, self.ok, self.cancel)
-
-        box.add_end(hbox, False, True)
-
-        self.set_content(box)
-
-        self.path.focus()
-
-
-    def add_label_row(self, table, row, label, control, help):
-        table.add(mforms.newLabel(label, True), 0, 1, row, row+1, mforms.HFillFlag)
-        table.add(control, 1, 2, row, row+1, mforms.HFillFlag|mforms.HExpandFlag)
-        l = mforms.newLabel(help)
-        l.set_style(mforms.SmallHelpTextStyle)
-        table.add(l, 2, 3, row, row+1, mforms.HFillFlag)
-        return row+1, control
-
-
-    def get_attributes(self):
-        l = []
-        l.append("C=%s"%self.country_code.get_string_value())
-        l.append("ST=%s"%self.state_name.get_string_value())
-        l.append("L=%s"%self.locality_name.get_string_value())
-        l.append("O=%s"%self.org_name.get_string_value())
-        l.append("OU=%s"%self.org_unit.get_string_value())
-        l.append("CN=%s"%self.common_name.get_string_value())
-        l.append("emailAddress=%s"%self.email_address.get_string_value())
-        # filter out blank values
-        l = [s for s in l if s.partition("=")[-1]]
-        return l
-
+    def display_error(self, title, message):
+        log_error("%s\n%s\n" % (title, message))
+        mforms.Utilities.show_error(title, message, "OK", "", "")
+    
+    def verify_preconditions(self):
+        try:
+            if not os.path.exists(self.main.certificates_root) or not os.path.isdir(self.main.certificates_root):
+                log_info("Creating certificates toor directory[%s]" % self.main.certificates_root)
+                os.mkdir(self.main.certificates_root, 0700)
+            
+            if os.path.exists(self.path) and not os.path.isdir(self.path):
+                self.display_error("Checking requirements", "The selected path is a file. You should select a directory.")
+                return False
+            if not os.path.exists(self.path):
+                if mforms.Utilities.show_message("Create directory", "The directory you selected does not exists. Do you want to create it?", "Create", "Cancel", "") == mforms.ResultCancel:
+                    self.display_error("Create directory", "The operation was canceled.")
+                    return False
+                os.mkdir(self.path, 0700)
+                
+            return True
+        except OSError, e:
+            self.display_error("Create directory", "There was an error (%d) - %s\n%s" % (e.errno, str(e), str(traceback.format_exc())))
+            if e.errno == 17:
+                return True
+                #raise
+            return False
+      
+    def generate_config_file(self, target):
+        self.config_file[target] = os.path.join(self.path, "attribs-%s.txt" % target)
+        f = open(self.config_file[target], "w+")
+        f.write("[req]\ndistinguished_name=distinguished_name\nprompt=no\n")
+        f.write("\n".join(["[distinguished_name]"] + self.main.generate_page.get_attributes(target))+"\n")
+        f.close()
+      
 
     def generate_certificate(self, tool, out_path, out_name, ca_cert, ca_key, config_file, days=3600):
         key = os.path.join(out_path, out_name+"-key.pem")
@@ -722,116 +680,405 @@ class SSLGenerator(mforms.Form):
         serial_file = os.path.join(out_path, out_name+".serial")
 
         req_cmd = [tool, "req", "-newkey", "rsa:2048", "-days", str(days), "-nodes", "-keyout", key, "-out", req, "-config", config_file]
-        log_debug("Executing %s\n" % req_cmd)
-        out = subprocess.check_output(req_cmd, stderr=subprocess.STDOUT)
-        log_debug("%s %s: %s\n" % (key, req, out))
+        if not self.run_command(req_cmd):
+            log_error("Unable to generate key.\n")
+            return False, key, req, cert
 
         rsa_cmd = [tool, "rsa", "-in", key, "-out", key]
-        log_debug("Executing %s\n" % rsa_cmd)
-        out = subprocess.check_output(rsa_cmd, stderr=subprocess.STDOUT)
-        log_debug("%s strip: %s\n" % (key, out))
+        if not self.run_command(rsa_cmd):
+            log_error("Unable to generate key.\n")
+            return False, key, req, cert
 
         rsa_cmd = [tool, "x509", "-req", "-in", req, "-days", str(days), "-CA", ca_cert, "-CAkey", ca_key,
-                          "-CAserial", serial_file, "-CAcreateserial",
-                          "-out", cert]
-        log_debug("Executing %s\n" % rsa_cmd)
-        out = subprocess.check_output(rsa_cmd, stderr=subprocess.STDOUT)
-        log_debug("%s strip: %s\n" % (cert, out))
+                         "-CAserial", serial_file, "-CAcreateserial",
+                         "-out", cert]
+        if not self.run_command(rsa_cmd):
+            log_error("Unable to generate certificate serial.\n")
+            return False, key, req, cert
 
-        return key, req, cert
+        return True, key, req, cert
 
+    def run_command(self, command, output_to = subprocess.PIPE):
+
+        try:
+            set_shell = True if sys.platform == "win32" else False
+            p = subprocess.Popen(command, stdout=output_to, stderr=subprocess.PIPE, shell=set_shell)
+            out = p.communicate()
+
+            if p.returncode != 0:
+                log_error("Running command: %s\nOutput(retcode: %d):\n%s\n" % (str(command), p.returncode, str(out)))
+                return False
+
+            return True
+        except ValueError, e:
+            log_error("Running command: %s\nValueError exception\n" % (str(e.cmd)))
+            return False
+        except OSError, e:
+            log_error("Running command: %s\nException:\n%s\n" % (str(command), str(e)))
+            return False
 
     def generate(self, path, config_file):
         days = 3600
 
         tool = "openssl"
-
-        log_info("Creating CA certificate...\n")
         ca_key = os.path.join(path, "ca-key.pem")
-        genrsa_cmd = [tool, "genrsa", "2048"]
-        out = subprocess.check_output("%s > %s" % (" ".join(genrsa_cmd), ca_key), shell=True, stderr=subprocess.STDOUT)
-        log_debug("genrsa: %s\n" % out)
-
         ca_cert = os.path.join(path, "ca-cert.pem")
-        req_cmd = [tool, "req", "-new", "-x509", "-nodes", "-days", str(days), "-key", ca_key, "-out", ca_cert, "-config", config_file]
-        log_debug("Executing %s\n" % req_cmd)
-        out = subprocess.check_output(req_cmd, stderr=subprocess.STDOUT)
-        log_debug("req: %s\n" % out)
-        log_info("Generated CA certificate %s\n" % ca_cert)
+        
+        # Check if the tool exists
+        log_debug2("Checking tool availability(%s)\n" % tool)
+        if not self.run_command([tool, "version"]):
+            self.display_error("Checking requirements", "The SSL tool (%s) is not available. Please verify if it's installed and the installation directory is in the PATH environment variable" % tool)
+            return False, None, None, None, None, None
 
-        log_info("Create server certificate and self-sign\n")
-        server_key, server_req, server_cert = self.generate_certificate(tool, path, "server", ca_cert, ca_key, config_file)
-        log_info("Generated server certificate %s\n" % server_cert)
+        # Check if path exists
+        if not os.path.exists(self.path):
+            self.display_error("Checking requirements", "The specified directory does not exist.")
+            return False, None, None, None, None, None
 
-        log_info("Create client certificates and self-sign\n")
-        client_key, client_req, client_cert = self.generate_certificate(tool, path, "client", ca_cert, ca_key, config_file)
-        log_info("Generated client certificate %s\n" % server_cert)
+        log_debug2("Creating CA certificate...\n")
+        
+        f = open(ca_key, "w")
+        if not self.run_command([tool, "genrsa", "2048"], f):
+            self.display_error("Creating CA certificate...", "Could not generate RSA certificate")
+            return False, None, None, None, None, None
 
-        return ca_cert, server_cert, server_key, client_cert, client_key
+        log_debug2("Creating CA key...\n")
+        
+        req_cmd = [tool, "req", "-new", "-x509", "-nodes", "-days", str(days), "-key", ca_key, "-out", ca_cert, "-config", self.config_file["CA"]]
+        if not self.run_command(req_cmd):
+            self.display_error("Creating CA certificate...", "Could not generate keys")
+            return False, None, None, None, None, None
 
+        log_debug2("Create server certificate and self-sign\n")
+        result, server_key, server_req, server_cert = self.generate_certificate(tool, path, "server", ca_cert, ca_key, self.config_file["Server"])
+        if not result:
+            self.display_error("Create server certificate and self-sign", "Could not generate keys")
+            return False, server_key, server_req, server_cert
 
+        log_debug2("Create client certificates and self-sign\n")
+        result, client_key, client_req, client_cert = self.generate_certificate(tool, path, "client", ca_cert, ca_key, self.config_file["Client"])
+        if not result:
+            self.display_error("Create client certificates and self-sign", "Could not generate keys")
+            return False, server_key, server_req, server_cert
+
+        return True, ca_cert, server_cert, server_key, client_cert, client_key
+
+      
     def run(self):
-        if self.run_modal(self.ok, self.cancel):
-            config_file = None
+        self.result = False
+        if not self.verify_preconditions():
+            return False
+        
+        self.generate_config_file("CA")
+        self.generate_config_file("Server")
+        self.generate_config_file("Client")
+        
+        self.result, self.ca_cert, self.server_cert, self.server_key, self.client_cert, self.client_key = self.generate(self.path, self.config_file)
+        
+        return True
+
+class SSLWizard_IntroPage(WizardPage):
+    def __init__(self, owner):
+        WizardPage.__init__(self, owner, "Welcome to MySQL Workbench SSL Wizard")
+
+    def go_cancel(self):
+        self.main.finish()
+
+    def create_ui(self):
+        box = mforms.newBox(False)
+        box.set_padding(20)
+        box.set_spacing(20)
+
+        message = "This wizard will assist you generating a set of SSL certificates and self-signed keys that are required \n"
+        message += "by the MySQL server to enable SSL. Other files will also be generated so that you can check how to \n"
+        message += "configure your server and clients as well as the attributes used to generate them."
+
+        label = mforms.newLabel(message)
+        box.add(label, False, True)
+        
+        self.content.add(box, False, True)
+        box.show(True)
+
+class SSLWizard_OptionsPage(WizardPage):
+    def __init__(self, owner):
+        WizardPage.__init__(self, owner, "Options")
+        
+        self.generate_files = newCheckBox()
+        self.generate_files.set_text("Generate new certificates and self-signed keys");
+        self.generate_files.set_active(not self.check_all_files_availability())
+        self.generate_files.set_enabled(self.check_all_files_availability())
+
+        self.update_connection = newCheckBox()
+        self.update_connection.set_text("Update the connection");
+        self.update_connection.set_active(True)
+
+        self.use_default_parameters = newCheckBox()
+        self.use_default_parameters.set_text("Use default parameters");
+        self.use_default_parameters.set_active(False)
+        
+        self.clear_button = newButton()
+        self.clear_button.set_text("Clear")
+        self.clear_button.add_clicked_callback(self.clear_button_clicked)
+        self.clear_button.set_enabled(os.path.isdir(self.main.results_path))
+
+    def go_cancel(self):
+        self.main.finish()
+
+    def check_all_files_availability(self):
+        if not os.path.isdir(self.main.results_path):
+            return False
+        if not os.path.isfile(os.path.join(self.main.results_path, "ca-cert.pem")):
+            return False
+        if not os.path.isfile(os.path.join(self.main.results_path, "client-cert.pem")):
+            return False
+        if not os.path.isfile(os.path.join(self.main.results_path, "client-key.pem")):
+            return False
+
+        return True
+
+    def clear_button_clicked(self):
+        for filename in os.listdir(self.main.results_path):
+            filepath = os.path.join(self.main.results_path, filename)
             try:
-                path = self.path.get_string_value()
-                try:
-                    os.mkdir(path, 0700)
-                except OSError, e:
-                    if e.errno != 17:
-                        raise
+                if os.path.isfile(filepath):
+                    os.unlink(filepath)
+            except Exception, e:
+                log_error("SSL Wizard: Unable to remove file %s\n%s" % (filepath, str(e)))
+                return
+                
+        self.generate_files.set_active(True)
+        self.generate_files.set_enabled(False)
+        self.main.generate_files_changed()
+        
+    def create_ui(self):
+        box = mforms.newBox(False)
+        box.set_spacing(12)
+        box.set_padding(12)
 
-                if os.path.exists(os.path.join(path, "ca-cert.pem")):
-                    if mforms.Utilities.show_warning("Generate SSL Certificates",
-                                                     "Output directory %s already contains certificates, do you want to overwrite them?" % path,
-                                                     "Overwrite", "Cancel", "") == mforms.ResultCancel:
-                        return
+        message = "These optons allow you to configure the process. You can use default parameters\n"
+        message += "instead providing your own, allow the generation of the certifcates and determine\n"
+        message += "whether to uptade the connection settings or not."
 
-                config_file = os.path.join(path, "attribs.txt")
-                f = open(config_file, "w+")
-                f.write("[req]\ndistinguished_name=distinguished_name\nprompt=no\n")
-                f.write("\n".join(["[distinguished_name]"] + self.get_attributes())+"\n")
-                f.close()
+        label = mforms.newLabel(message)
 
-                ca_cert, server_cert, server_key, client_cert, client_key = self.generate(path, config_file)
+        box.add(label, False, False)
+        box.add(self.use_default_parameters, False, False)
+        box.add(self.generate_files, False, False)
+        box.add(self.update_connection, False, False)
+        
+        self.content.add(box, False, False)
+        self.content.add(self.clear_button, False, False)
+        box.show(True)
 
-                # write a sample my.cnf file
-                sample_file = os.path.join(self.path.get_string_value(), "sample-my.cnf")
-                f = open(sample_file, "w+")
-                f.write("""
+class SSLWizard_GeneratePage(WizardPage):
+    def __init__(self, owner):
+        WizardPage.__init__(self, owner, "Generate certificates and self-signed keys")
+
+        self.ca_cert = os.path.join(self.main.results_path, "ca-cert.pem")
+        self.server_cert = os.path.join(self.main.results_path, "server-cert.pem")
+        self.server_key = os.path.join(self.main.results_path, "server-key.pem")
+        self.client_cert = os.path.join(self.main.results_path, "client-cert.pem")
+        self.client_key = os.path.join(self.main.results_path, "client-key.pem")
+
+        self.table = mforms.newTable()
+        self.table.set_padding(12)
+        self.table.set_column_count(3)
+        self.table.set_row_count(7)
+
+        self.table.set_row_spacing(8)
+        self.table.set_column_spacing(4)
+
+        row, self.country_code = self.add_label_row(0, "Country:", "2 letter country code (eg, US)")
+        row, self.state_name = self.add_label_row(row, "State or Province:", "Full state or province name")
+        row, self.locality_name = self.add_label_row(row, "Locality:", "eg, city")
+        row, self.org_name = self.add_label_row(row, "Organization:", "eg, company")
+        row, self.org_unit = self.add_label_row(row, "Org. Unit:", "eg, section, department")
+        row, self.email_address = self.add_label_row(row, "Email Address:", "")
+        row, self.common_name = self.add_label_row(row, "Common:", "eg, put the FQDN of the server\nto allow server address validation")
+
+        message = "Now you must specify the parameters to use in the certificates and self-signed key generation.\n"
+        message += "This may include some data refering youself and/or the company you work for. All fields are optional."
+        
+        self.parameters_box = mforms.newBox(False)
+        self.parameters_box.set_padding(20)
+        self.parameters_box.set_spacing(20)
+
+        self.parameters_label = mforms.newLabel(message)
+        
+        self.parameters_panel = mforms.newPanel(mforms.TitledBoxPanel)
+        self.parameters_panel.set_title("Optional Parameters")
+        self.parameters_panel.add(self.table)
+        
+        self.parameters_box.add(self.parameters_label, False, False)
+        self.parameters_box.add(self.parameters_panel, False, False)
+
+        self.default_label = mforms.newLabel("The wizard is ready to generate the files for you. Click 'Next >' to generate \nthe certificates and self-signed key files...")
+
+    def add_label_row(self, row, label, help):
+        control = mforms.newTextEntry()
+        self.table.add(mforms.newLabel(label, True), 0, 1, row, row+1, mforms.HFillFlag)
+        self.table.add(control, 1, 2, row, row+1, mforms.HFillFlag|mforms.HExpandFlag)
+        l = mforms.newLabel(help)
+        l.set_style(mforms.SmallHelpTextStyle)
+        self.table.add(l, 2, 3, row, row+1, mforms.HFillFlag)
+        control.set_size(100, -1)
+        return row+1, control
+
+    def set_show_parameters(self, value):
+        self.parameters_box.show(bool(value))
+        self.default_label.show(not value)
+
+    def get_attributes(self, target):
+        l = []
+        l.append("C=%s"%self.country_code.get_string_value().encode('utf-8'))
+        l.append("ST=%s"%self.state_name.get_string_value().encode('utf-8'))
+        l.append("L=%s"%self.locality_name.get_string_value().encode('utf-8'))
+        l.append("O=%s"%self.org_name.get_string_value().encode('utf-8'))
+        l.append("OU=%s"%self.org_unit.get_string_value().encode('utf-8'))
+        l.append("CN=%s-%s"%(self.common_name.get_string_value().encode('utf-8'), target))
+        l.append("emailAddress=%s"%self.email_address.get_string_value().encode('utf-8'))
+        # filter out blank values
+        l = [s for s in l if s.partition("=")[-1]]
+        if not l:
+            l.append("C=US")
+        return l
+
+    def create_ui(self):
+        self.content.add(self.parameters_box, False, True)
+        self.content.add(self.default_label, False, True)
+
+    def go_cancel(self):
+        self.main.finish()
+
+    def go_next(self):
+        log_debug2("Setting up in path %s\n" % self.main.results_path)
+        
+        task = SSLWizard_GenerationTask(self.main, self.main.results_path)
+        task.run()
+        
+        if task.result == False:
+            return
+          
+        self.ca_cert = task.ca_cert
+        self.server_cert = task.server_cert
+        self.server_key = task.server_key
+        self.client_cert = task.client_cert
+        self.client_key = task.client_key
+        f = open(os.path.join(self.main.results_path, "my.cnf.sample"), "w+")
+        f.write("""# Copy this to your my.cnf file. Please change <directory> to the corresponding 
+# directory where the files were copied.
 [client]
 ssl-ca=%(ca_cert)s
 ssl-cert=%(client_cert)s
 ssl-key=%(client_key)s
+
 [mysqld]
 ssl-ca=%(ca_cert)s
 ssl-cert=%(server_cert)s
 ssl-key=%(server_key)s
-""" % {"ca_cert" : ca_cert, "server_cert" : server_cert, "server_key" : server_key, "client_cert" : client_cert, "client_key" : client_key})
-                f.close()
-
-                mforms.Utilities.show_message("Generate SSL Certificates",
-                                              """Certificates successfully generated.
-                                                
-You may now move the certificates directory to somewhere like /etc/mysql/ssl in the desired server and update the MySQL configuration.
-To connect to a server using these certificates, copy the client-client.pem and client-key.pem files to a safe location in the client host.
-A sample my.cnf file was written to %s.""" % sample_file,
-                                              "OK", "", "")
-
-            except Exception, e:
-                import traceback
-                log_error("Error generating SSL certificates: %s\n" % traceback.format_exc())
-                mforms.Utilities.show_error("Generate SSL Certificates", "An error occurred while generating the certificates.\n%s" % e, "OK", "", "")
-            finally:
-                if config_file:
-                    os.remove(config_file)
+        """ % {"ca_cert"     : os.path.join("<directory>", os.path.basename(self.ca_cert)), 
+               "server_cert" : os.path.join("<directory>", os.path.basename(self.server_cert)), 
+               "server_key"  : os.path.join("<directory>", os.path.basename(self.server_key)), 
+               "client_cert" : os.path.join("<directory>", os.path.basename(self.client_cert)), 
+               "client_key"  : os.path.join("<directory>", os.path.basename(self.client_key))
+              })
+        f.close()
+        log_debug2("SSL Wizard generation task result: %s\n" % str(task.result))
+        
+        self.main.go_next_page()
 
 
+class SSLWizard_ResultsPage(WizardPage):
+    def __init__(self, owner):
+        WizardPage.__init__(self, owner, "Results")
+        self.update_connection = True
+        
+    def set_update_connection(self, value):
+        self.update_connection = value
 
-#@ModuleInfo.plugin("wb.tools.generateSSLCertificates", caption="Generate SSL Certificates...", groups=["Others/Menu/Ungrouped"])
-@ModuleInfo.export(grt.INT)
-def generateCertificates():
-    r = SSLGenerator()
-    r.run()
+    def go_next(self):
+        if self.update_connection:
+            self.main.conn.parameterValues['sslCA'] = self.main.generate_page.ca_cert
+            self.main.conn.parameterValues['sslCert'] = self.main.generate_page.client_cert
+            self.main.conn.parameterValues['sslKey'] = self.main.generate_page.client_key
+            self.main.conn.parameterValues['useSSL'] = 2
+            
+        self.main.go_next_page()
+
+    def create_ui(self):
+      
+        message = "The wizard was sucessful. "
+        
+        if self.update_connection:
+            message += "Click on the finish button to update the connection. "
+            
+        message += "To setup the server, you should \ncopy the following files to a <directory> inside %s:\n\n" % self.main.conn.parameterValues['hostName']
+        message += " - %s\n" % str(os.path.join(self.main.results_path, "ca_cert"))
+        message += " - %s\n" % str(os.path.join(self.main.results_path, "server_cert"))
+        message += " - %s\n" % str(os.path.join(self.main.results_path, "server_key"))
+        message += "\n\nand edit the config file to use the following parameters:"
+        
+        label = mforms.newLabel(message)
+        self.content.add(label, False, True)
+
+        f = open(os.path.join(self.main.results_path, "my.cnf.sample"), "r")
+        config_file = mforms.newTextBox(mforms.VerticalScrollBar)
+        config_file.set_value(f.read())
+        config_file.set_size(-1, 150)
+        self.content.add(config_file, False, True)
+        f.close()
+        
+        label = mforms.newLabel("A copy of this file can be found in:\n%s" % str(os.path.join(self.main.results_path, "my.cnf.sample")))
+        self.content.add(label, False, True)
+        
+        return
+
+class SSLWizard(WizardForm):
+    def __init__(self, parent, conn, conn_id):
+        WizardForm.__init__(self, parent)
+
+        self.conn = conn
+        self.conn_id = conn_id
+        self.certificates_root = os.path.join(mforms.App.get().get_user_data_folder(), "certificates")
+        self.results_path = os.path.join(self.certificates_root, self.conn_id)
+        
+        self.set_title("SSL Wizard")
+
+        self.intro_page = SSLWizard_IntroPage(self)
+        self.add_page(self.intro_page)
+
+        self.options_page = SSLWizard_OptionsPage(self)
+        self.add_page(self.options_page)
+        
+        self.generate_page = SSLWizard_GeneratePage(self)
+        self.add_page(self.generate_page)
+
+        self.results_page = SSLWizard_ResultsPage(self)
+        self.add_page(self.results_page)
+        
+        # Set the default selection values
+        self.generate_page.set_show_parameters(not self.options_page.use_default_parameters.get_active())
+        self.results_page.set_update_connection(self.options_page.update_connection.get_active())
+        self.generate_page.skip_page(not self.options_page.generate_files.get_active())
+        
+        # Setup up the callbacks for the options
+        self.options_page.use_default_parameters.add_clicked_callback(lambda: self.generate_page.set_show_parameters(not self.options_page.use_default_parameters.get_active()))
+        self.options_page.update_connection.add_clicked_callback(lambda: self.results_page.set_update_connection(self.options_page.update_connection.get_active()))
+        self.options_page.generate_files.add_clicked_callback(lambda: self.generate_files_changed())
+
+    def generate_files_changed(self):
+        self.generate_page.skip_page(not self.options_page.generate_files.get_active())
+
+
+@ModuleInfo.export(grt.INT, mforms.Form, grt.classes.db_mgmt_Connection, grt.STRING)
+def generateCertificates(parent, conn, conn_id):
+    try:
+        log_info("Running SSL Wizard\nParent: %s\nUser Folder: %s\nConn Parameters: %s\nConn ID: %s\n" % (str(parent), mforms.App.get().get_user_data_folder(), str(conn.parameterValues), conn_id))
+        p = mforms.fromgrt(parent)
+        log_info("Running SSL Wizard\n%s\n" % str(p))
+        r = SSLWizard(p, conn, conn_id)
+        r.run(True)
+    except Exception, e:
+        log_error("There was an exception running SSL Wizard.\n%s\n\n%s" % (str(e), traceback.format_exc()))
 
 

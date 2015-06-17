@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -44,14 +44,14 @@
   wb::WBContextUI* _wbui;
 }
 
-- (id)initWithWBContextUI:(wb::WBContextUI*)wbui;
+- (instancetype)initWithWBContextUI:(wb::WBContextUI*)wbui NS_DESIGNATED_INITIALIZER;
 
-- (NSString*)identifier;
+@property (readonly, copy) NSString *identifier;
 
-- (WBOverviewPanel*)overview;
+@property (readonly, strong) WBOverviewPanel *overview;
 
 - (void)selectionChanged;
 
-- (WBModelSidebarController*)sidebarController;
+@property (readonly, strong) WBModelSidebarController *sidebarController;
 //- (void)setRightSidebar:(BOOL)flag;
 @end

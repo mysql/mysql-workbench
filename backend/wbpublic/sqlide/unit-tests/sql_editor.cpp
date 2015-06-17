@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -21,35 +21,42 @@
 #include <sstream>
 #endif
 
-
 #include "sqlide/sql_editor_be.h"
+#include "grt_test_utility.h"
+#include "db_helpers.h"
 #include "testgrt.h"
+#include "wb_helpers.h"
 
+
+using namespace grt;
 
 BEGIN_TEST_DATA_CLASS(sql_editor)
 public:
-	GRTManagerTest grtm;
-	db_mgmt_RdbmsRef rdbms;
+  WBTester tester;
+  db_mgmt_RdbmsRef rdbms;
 END_TEST_DATA_CLASS
 
-
-TEST_MODULE(sql_editor, "SQL Editor");
-
+TEST_MODULE(sql_editor, "SQL editor");
 
 TEST_FUNCTION(1)
 {
-	rdbms= db_mgmt_RdbmsRef::cast_from(grtm.get_grt()->unserialize("data/res/mysql_rdbms_info.xml"));
+	rdbms= db_mgmt_RdbmsRef::cast_from(tester.grt->unserialize("data/res/mysql_rdbms_info.xml"));
 	ensure("db_mgmt_RdbmsRef initialization", rdbms.is_valid());
 
 	//!ListRef<db_mgmt_Rdbms> rdbms_list= ListRef<db_mgmt_Rdbms>::cast_from(grtm.get_grt()->get("/wb/rdbmsMgmt/rdbms"));
-	ListRef<db_mgmt_Rdbms> rdbms_list(grtm.get_grt());
+	ListRef<db_mgmt_Rdbms> rdbms_list(tester.grt);
 	rdbms_list.insert(rdbms);
 
+
+  GrtVersionRef version = bec::parse_version(tester.grt, "5.6.10");
+  version->name("MySQL Community Server (GPL)");
+  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(tester.grt);
+  parser::ParserContext::Ref parser = services->createParserContext(rdbms->characterSets(), version, 1);
 	ensure("failed to retrieve RDBMS list", rdbms_list.is_valid());
 	for (int n= 0, count= rdbms_list.count(); n < count; ++n)
 	{
 		db_mgmt_RdbmsRef rdbms= rdbms_list[n];
-		MySQLEditor::Ref sql_editor = MySQLEditor::create(rdbms);
+		MySQLEditor::Ref sql_editor = MySQLEditor::create(tester.grt, parser, parser);
 		ensure(("failed to get sql editor for " + rdbms->name().repr() + " RDBMS").c_str(), (NULL != sql_editor.get()));
 	}
 }

@@ -109,8 +109,7 @@ class Migration(mforms.AppView):
     def close(self):
         # Restore default locale:
         locale.setlocale(locale.LC_NUMERIC, 'C')
-        app = mforms.App.get()
-        app.close_view(self)
+        super(Migration, self).close()
         
     
     def cleanup(self):

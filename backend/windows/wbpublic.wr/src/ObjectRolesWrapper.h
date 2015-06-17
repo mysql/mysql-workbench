@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,35 +37,14 @@ public:
 
 public:
   ObjectRoleListWrapper(DBObjectEditorWrapper^ editor);
+  ~ObjectRoleListWrapper();
 
-  ~ObjectRoleListWrapper()
-  {
-    delete inner;
-  }
-
-  ::bec::ObjectRoleListBE *get_unmanaged_object()
-  { return static_cast<::bec::ObjectRoleListBE *>(inner); }
-
-
-  void add_role_for_privileges(GrtValue^ role)
-  {
-    get_unmanaged_object()->add_role_for_privileges(db_RoleRef::cast_from(role->get_unmanaged_object()));
-  }
-
-  void remove_role_from_privileges(GrtValue^ role)
-  {
-    get_unmanaged_object()->remove_role_from_privileges(db_RoleRef::cast_from(role->get_unmanaged_object()));
-  }
-
-
+  ::bec::ObjectRoleListBE *get_unmanaged_object();
+  void add_role_for_privileges(GrtValue^ role);
+  void remove_role_from_privileges(GrtValue^ role);
   ObjectPrivilegeListBE^ get_privilege_list();
-
-  void set_selected(NodeIdWrapper^ node)
-  {
-    get_unmanaged_object()->select_role(*node->get_unmanaged_object());
-  }
+  void set_selected(NodeIdWrapper^ node);
 };
-
 
 
 public ref class ObjectPrivilegeListBE : public MySQL::Grt::ListModelWrapper
@@ -77,13 +56,10 @@ public:
   };
 
 public:
-  ObjectPrivilegeListBE(::bec::ObjectPrivilegeListBE *inn)
-    : MySQL::Grt::ListModelWrapper(inn)
-  {}
-
-  ::bec::ObjectPrivilegeListBE *get_unmanaged_object()
-  { return static_cast<::bec::ObjectPrivilegeListBE *>(inner); }
+  ObjectPrivilegeListBE(::bec::ObjectPrivilegeListBE *inn);
+  ::bec::ObjectPrivilegeListBE *get_unmanaged_object();
 };
+
 } // namespace Db
 } // namespace Grt
 } // namespace MySQL

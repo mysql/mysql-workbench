@@ -58,7 +58,7 @@ add_library(wbprivate
     sqlide/wb_sql_editor_form_ui.cpp
     sqlide/wb_sql_editor_help.cpp
     sqlide/wb_sql_editor_tree_controller.cpp
-	sqlide/execute_routine_wizard.cpp
+  	sqlide/execute_routine_wizard.cpp
     sqlide/wb_sql_editor_panel.cpp
     sqlide/wb_sql_editor_result_panel.cpp
     sqlide/wb_context_sqlide.cpp

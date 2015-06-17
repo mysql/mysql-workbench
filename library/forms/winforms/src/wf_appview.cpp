@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -101,18 +101,16 @@ ToolStrip^ AppViewDockContent::GetToolBar()
 
 //--------------------------------------------------------------------------------------------------
 
-bool AppViewDockContent::DocumentClosing()
+bool AppViewDockContent::CanCloseDocument()
 {
-  if (appview->containing_docking_point())
-  {
-    if (appview->containing_docking_point()->close_view(appview))
-    {
-      return true;
-    }
-    return false;
-  }
-  else
-    return true;
+  return appview->on_close();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void AppViewDockContent::CloseDocument()
+{
+  appview->close();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -214,3 +212,5 @@ AppViewWrapper::~AppViewWrapper()
   delete host;
   host = nullptr;
 }
+
+//--------------------------------------------------------------------------------------------------

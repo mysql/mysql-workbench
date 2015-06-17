@@ -49,6 +49,9 @@ GridView::GridView(bec::GridModel::Ref model, bool fixed_height_mode, bool allow
 
   this->model(model);
   signal_cursor_changed().connect_notify(sigc::mem_fun(this, &GridView::on_signal_cursor_changed));
+
+  //In GTK we can't monitor single column resize easily, instead we monitor release button and check if it was header, we store all column size if so.
+  signal_button_release_event().connect_notify(sigc::mem_fun(this, &GridView::on_signal_button_release_event));
 }
 
 GridView::~GridView()
@@ -67,6 +70,19 @@ void GridView::on_signal_cursor_changed()
   if (col == -2) //It can be -2 if we have _row_numbers_visible.
     col = -1;
   _model->set_edited_field(row, col);
+}
+
+void GridView::on_signal_button_release_event(GdkEventButton *ev)
+{
+  Gtk::TreeModel::Path path;
+  Gtk::TreeViewColumn* col;
+  int x, y;
+
+  if (get_path_at_pos(ev->x, ev->y, path, col, x, y) && get_headers_visible() && _view_model)
+  {
+    if (path[0] == 0) //User resized column
+      _view_model->onColumnsResized(get_columns());
+  }
 }
 
 void GridView::set_context_menu(mforms::Menu* menu)
@@ -119,10 +135,6 @@ int GridView::refresh(bool reset_columns)
   _view_model->refresh(reset_columns);
   _row_count= _model->count();
   set_model(_view_model);
-
-
-  if (get_column(0))
-    get_column(0)->set_resizable(false);
   
   reset_sorted_columns();
 
@@ -231,6 +243,15 @@ bool GridView::on_key_press_event(GdkEventKey *event)
   {
     switch (event->keyval)
     {
+      case GDK_Menu:
+      {
+        if (_context_menu)
+          _context_menu->popup();
+        else if (!_context_menu_responder.empty())
+          _context_menu_responder();
+        processed = true;
+        break;
+      }
       case GDK_Up:
       case GDK_Down:
       case GDK_Left:
@@ -440,7 +461,7 @@ void GridView::on_cell_editing_started(Gtk::CellEditable* e, const Glib::ustring
 
 void GridView::on_text_insert(unsigned int position, const char* incoming_text, unsigned int character_num)
 {
-  if ((unsigned int)strlen(incoming_text) != character_num)
+  if (g_utf8_strlen(incoming_text, -1) != character_num)
     mforms::Utilities::show_warning(_("Text Truncation"), _("Inserted data has been truncated as the control's limit was reached. Please use the value editor instead for editing such large text data."), "Ok", "", "");
 }
 

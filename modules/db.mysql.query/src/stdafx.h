@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,3 +23,5 @@
 #define WIN32_LEAN_AND_MEAN 
 #include <windows.h>
 #include <stdint.h>
+
+#include <glib.h>

@@ -254,7 +254,8 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
   if (size.height > 0)
   {
     frame.size.height= size.height;
-    flags|= HeightFixedFlag;
+    flags|= HeightFixedFlag; //That flags leads to problems in layouting as then always
+                               // the current frame size is used, instead of the min/preferred size.
   }
   
   self.viewFlags = flags;
@@ -285,6 +286,10 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
 - (NSSize)preferredSize
 {
   NSSize size= [self minimumSize];
+
+  // The preferred size is actually about what would be needed to fit everything nicely
+  //   not what is the current size of the control. The latter approach messes up the layouting
+  //   where the fixed size is considered anyway.
   NSSize fsize = [self fixedFrameSize];
 
   // If a fixed size is set honour that but don't go below the
@@ -292,7 +297,8 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
   if ([self widthIsFixed])
     size.width= MAX(size.width, fsize.width);
   if ([self heightIsFixed])
-    size.height= MAX(size.height, fsize.height);
+    ; //size.height= MAX(size.height, fsize.height); see comment above
+
   return size;
 }
 
@@ -489,11 +495,17 @@ struct PasteboardDataWrapper {
   self.lastDropPosition = mforms::DropPositionUnknown;
 }
 
+// Since drag initiation and data retrieval are now separated we need a temporary storage for the data.
+// Since this is category we would have to go the long way, or simply use a static var.
+// No concurrency here as dd is per se safe (only one drag operation at a time possible).
+static NSString *dragText = nil;
+
 - (mforms::DragOperation)startDragWithText: (NSString *)text
                                    details: (mforms::DragDetails)details
 {
   self.allowedDragOperations = details.allowedOperations;
   self.lastDropPosition = mforms::DropPositionUnknown;
+  dragText = text;
 
   NSPasteboard *pasteboard = NSPasteboard.generalPasteboard;
   [pasteboard clearContents];
@@ -555,16 +567,25 @@ struct PasteboardDataWrapper {
                                       pressure: 1];
   position.x -= details.hotspot.x;
   position.y -= details.hotspot.y;
-  [self dragImage: dragImage
-               at: position
-           offset: NSZeroSize
-            event: event
-       pasteboard: pasteboard
-           source: self
-        slideBack: YES];
 
+  NSPasteboardItem *pbItem = [NSPasteboardItem new];
+  [pbItem setDataProvider: self forTypes: @[NSStringPboardType]];
+
+  NSDraggingItem *dragItem = [[NSDraggingItem alloc] initWithPasteboardWriter: pbItem];
+
+  [dragItem setDraggingFrame: NSMakeRect(position.x, position.y, dragImage.size.width, dragImage.size.height)
+                    contents: dragImage];
+  NSDraggingSession *draggingSession = [self beginDraggingSessionWithItems: @[dragItem]
+                                                                     event: event
+                                                                    source: self];
+  draggingSession.animatesToStartingPositionsOnCancelOrFail = YES;
+  draggingSession.draggingFormation = NSDraggingFormationNone;
+  
   return self.lastDragOperation;
 }
+
+static void *dragData = NULL;
+static bool dragInProgress = NO;
 
 - (mforms::DragOperation)startDragWithData: (void *)data
                                    details: (mforms::DragDetails)details
@@ -572,10 +593,7 @@ struct PasteboardDataWrapper {
 {
   self.allowedDragOperations = details.allowedOperations;
   self.lastDropPosition = mforms::DropPositionUnknown;
-
-  NSPasteboard *pasteboard = NSPasteboard.generalPasteboard;
-  [pasteboard clearContents];
-  [pasteboard writeNativeData: data typeAsString: format];
+  dragData = data;
 
   NSImage *dragImage = [[[NSImage alloc] init] autorelease];
   if (details.image != NULL)
@@ -622,20 +640,69 @@ struct PasteboardDataWrapper {
 
   // The drag image position must always be the lower left corner (regardless of the flippedness of the view).
   position.x -= details.hotspot.x;
-  position.y += cairo_image_surface_get_height(details.image) - details.hotspot.y;
-  [self dragImage: dragImage
-               at: position
-           offset: NSZeroSize
-            event: event
-       pasteboard: pasteboard
-           source: self
-        slideBack: YES];
+  position.y -= details.hotspot.y;
+
+  NSPasteboardItem *pbItem = [NSPasteboardItem new];
+  [pbItem setDataProvider: self forTypes: @[format]];
+
+  NSDraggingItem *dragItem = [[NSDraggingItem alloc] initWithPasteboardWriter: pbItem];
+
+  [dragItem setDraggingFrame: NSMakeRect(position.x, position.y, dragImage.size.width, dragImage.size.height)
+                    contents: dragImage];
+  NSDraggingSession *draggingSession = [self beginDraggingSessionWithItems: @[dragItem]
+                                                                     event: event
+                                                                    source: self];
+  draggingSession.animatesToStartingPositionsOnCancelOrFail = YES;
+  draggingSession.draggingFormation = NSDraggingFormationNone;
+
+  dragInProgress = YES;
+  NSRunLoop *theRL = [NSRunLoop currentRunLoop];
+  while (dragInProgress && [theRL runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]);
   
   return self.lastDragOperation;
 }
 
+- (void)draggingSession:(NSDraggingSession *)session
+           endedAtPoint:(NSPoint)screenPoint
+              operation:(NSDragOperation)operation
+{
+  dragInProgress = NO;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+- (void)pasteboard: (NSPasteboard *)sender item: (NSPasteboardItem *)item provideDataForType: (NSString *)type
+{
+  if ([type isEqualTo: NSStringPboardType])
+    [sender setString: dragText forType: NSStringPboardType];
+  else
+    [sender writeNativeData: dragData typeAsString: type];
+}
+
+//--------------------------------------------------------------------------------------------------
+
+- (NSDragOperation)   draggingSession: (NSDraggingSession *)session
+sourceOperationMaskForDraggingContext: (NSDraggingContext)context;
+{
+  switch (context) {
+    case NSDraggingContextOutsideApplication:
+      return NSDragOperationNone;
+      break;
+
+    case NSDraggingContextWithinApplication:
+    default:
+      mforms::DragOperation operations = self.allowedDragOperations;
+      NSDragOperation nativeOperations = NSDragOperationNone;
+      if ((operations & mforms::DragOperationMove) == mforms::DragOperationMove)
+        nativeOperations |= NSDragOperationMove;
+      if ((operations & mforms::DragOperationCopy) == mforms::DragOperationCopy)
+        nativeOperations |= NSDragOperationMove;
+      return nativeOperations;
+  }
+}
 @end
 
+//--------------------------------------------------------------------------------------------------
 
 NSView *nsviewForView(mforms::View *view)
 {
@@ -659,7 +726,7 @@ NSView *nsviewForView(mforms::View *view)
 
 - (void)writeNativeData: (void *)data typeAsChar: (const char *)type
 {
-  NSString *format = [NSString stringWithUTF8String: type];
+  NSString *format = @(type);
   [self writeNativeData: data typeAsString: format];
 }
 
@@ -676,7 +743,7 @@ NSView *nsviewForView(mforms::View *view)
 
 - (void *)nativeDataForTypeAsChar: (const char *)type
 {
-  NSString *format = [NSString stringWithUTF8String: type];
+  NSString *format = @(type);
   return [self nativeDataForTypeAsString: format];
 }
 
@@ -741,12 +808,10 @@ static std::pair<int, int> view_client_to_screen(::mforms::View *self, int x, in
   id view = self->get_data();
   if (view)
   {
-    NSPoint pointInWindowCoordinates;
-    NSPoint pointInScreenCoords;
-    
-    pointInWindowCoordinates = [view convertPoint: NSMakePoint(x, y) toView: nil];
-    pointInScreenCoords = [[view window] convertBaseToScreen: pointInWindowCoordinates];
-    return std::make_pair(pointInScreenCoords.x, pointInScreenCoords.y);
+    NSRect rect = NSMakeRect(x, y, 0, 0);
+    rect.origin = [view convertPoint: rect.origin toView: nil];
+    rect = [[view window] convertRectToScreen: rect];
+    return std::make_pair(rect.origin.x, rect.origin.y);
   }
   return std::make_pair(0, 0);
 }
@@ -756,8 +821,9 @@ static std::pair<int, int> view_screen_to_client(mforms::View *self, int x, int 
   id view = self->get_data();
   if (view)
   {
-    NSPoint pointInWindowCoordinates = [[view window] convertScreenToBase: NSMakePoint(x, y)];
-    NSPoint localPoint = [view convertPoint: pointInWindowCoordinates fromView: nil];
+    NSRect rect = NSMakeRect(x, y, 0, 0);
+    rect = [[view window] convertRectFromScreen: rect];
+    NSPoint localPoint = [view convertPoint: rect.origin fromView: nil];
     return std::make_pair(localPoint.x, localPoint.y);
   }
   return std::make_pair(0, 0);
@@ -891,7 +957,7 @@ static void view_set_font(::mforms::View *self, const std::string &fontDescripti
       if (italic)
         traitMask |= NSItalicFontMask;
       NSFontManager* fontManager = [NSFontManager sharedFontManager];
-      NSFont* font = [fontManager fontWithFamily: [NSString stringWithUTF8String: name.c_str()]
+      NSFont* font = [fontManager fontWithFamily: @(name.c_str())
                                           traits: traitMask
                                           weight: 0
                                             size: size];
@@ -933,7 +999,7 @@ static void view_set_front_color(::mforms::View *self, const std::string &color)
 {
   // Foreground color means text color, so that is supported only by text storage and text layer controls.
   if ([self->get_data() respondsToSelector: @selector(setTextColor:)])
-    [self->get_data() setTextColor: [NSColor colorFromHexString: [NSString stringWithUTF8String: color.c_str()]]];
+    [self->get_data() setTextColor: [NSColor colorFromHexString: @(color.c_str())]];
 }
 
 static std::string view_get_front_color(::mforms::View *self)
@@ -950,7 +1016,7 @@ static void view_set_back_color(::mforms::View *self, const std::string &color)
 {
   if ([self->get_data() respondsToSelector: @selector(setBackgroundColor:)])
   {
-    [self->get_data() setBackgroundColor: [NSColor colorFromHexString: [NSString stringWithUTF8String: color.c_str()]]];
+    [self->get_data() setBackgroundColor: [NSColor colorFromHexString: @(color.c_str())]];
     if ([self->get_data() respondsToSelector: @selector(setDrawsBackground:)])
       [self->get_data() setDrawsBackground: !color.empty()];
   }
@@ -1012,7 +1078,7 @@ static void register_drop_formats(mforms::View *self, mforms::DropDelegate *targ
       if (formats[i] == mforms::DragFormatFileName)
         [list addObject: NSFilenamesPboardType];
       else
-        [list addObject: [NSString stringWithUTF8String: formats[i].c_str()]];
+        [list addObject: @(formats[i].c_str())];
   }
   NSView *view = self->get_data();
 
@@ -1023,7 +1089,7 @@ static void register_drop_formats(mforms::View *self, mforms::DropDelegate *targ
 static mforms::DragOperation view_drag_text(mforms::View *self, mforms::DragDetails details, const std::string &text)
 {
   NSView *view = self->get_data();
-  return [view startDragWithText: [NSString stringWithUTF8String: text.c_str()]
+  return [view startDragWithText: @(text.c_str())
                         details: details];
 }
 
@@ -1033,7 +1099,7 @@ static mforms::DragOperation view_drag_data(mforms::View *self, mforms::DragDeta
   NSView *view = self->get_data();
   return [view startDragWithData: data
                          details: details
-                          format: [NSString stringWithUTF8String: format.c_str()]];
+                          format: @(format.c_str())];
 }
 
 static mforms::DropPosition view_get_drop_position(mforms::View *self)

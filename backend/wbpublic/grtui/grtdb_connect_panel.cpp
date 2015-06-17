@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,13 +22,18 @@
 #include "mforms/fs_object_selector.h"
 #include "grtdb/db_helpers.h"
 
-#include <grt/common.h>
+#include "grt/common.h"
 #include "base/string_utilities.h"
 #include "base/log.h"
+#include "base/file_utilities.h"
+
 #include "mforms/uistyle.h"
 #include "mforms/utilities.h"
 #include "mforms/checkbox.h"
 #include "mforms/textbox.h"
+#include "mforms/app.h"
+
+#include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 
 #define MYSQL_RDBMS_ID "com.mysql.rdbms.mysql"
 
@@ -55,13 +60,15 @@ static bool is_ssh_driver(const std::string &driver_name)
 DbConnectPanel::DbConnectPanel(DbConnectPanelFlags flags)
 : Box(false), _connection(0), 
 _tab(mforms::TabViewSystemStandard),
+_content(false),
 _params_panel(mforms::TransparentPanel), _params_table(0),
 _ssl_panel(mforms::TransparentPanel), _ssl_table(0),
 _advanced_panel(mforms::TransparentPanel), _advanced_table(0),
 _options_panel(mforms::TransparentPanel), _options_table(0),
 _show_connection_combo((flags & DbConnectPanelShowConnectionCombo) != 0),
 _show_manage_connections((flags & DbConnectPanelShowManageConnections) != 0),
-_dont_set_default_connection((flags & DbConnectPanelDontSetDefaultConnection) != 0)
+_dont_set_default_connection((flags & DbConnectPanelDontSetDefaultConnection) != 0),
+_last_active_tab(-1)
 {
   _allow_edit_connections = false;
   _initialized= false;
@@ -151,11 +158,13 @@ _dont_set_default_connection((flags & DbConnectPanelDontSetDefaultConnection) !=
   _options_panel.set_name("options_panel");
 
   set_name("connect_panel");
-  add(&_table, false, false);
-  add(&_tab, true, true);
+
+  add(&_content, true, true);
+  _content.add(&_table, false, false);
+  _content.add(&_tab, true, true);
   _warning.set_style(mforms::SmallHelpTextStyle);
   _warning.set_front_color("#FF0000");
-  add(&_warning, false, false);
+  _content.add(&_warning, false, false);
 }
 
 
@@ -476,8 +485,7 @@ void DbConnectPanel::change_active_driver()
     if (new_driver == current_driver)
       return;
 
-    show(false);
-    
+    _content.show(false);
     // When switching to/from ssh based connections the value for the host name gets another
     // semantic. In ssh based connections the sshHost is the remote server name (what is otherwise
     // the host name) and the host name is relative to the ssh host (usually localhost).
@@ -496,12 +504,13 @@ void DbConnectPanel::change_active_driver()
         actual_connection->parameterValues().gset("sshHost", machine + ":22");
         actual_connection->parameterValues().gset("hostName", "127.0.0.1");
       }
-    
+
     if (_driver_changed_cb)
       _driver_changed_cb(new_driver);
-    
+
     _connection->set_driver_and_update(new_driver);
-    show();
+
+    _content.show();
     
     //db_mgmt_ConnectionRef conn(_connection->get_connection());
 //    grt::DictRef current_params(conn->parameterValues());
@@ -612,21 +621,31 @@ void DbConnectPanel::save_connection_as(const std::string &name)
 
 bool DbConnectPanel::test_connection()
 {
-  std::string message = "Connection parameters are correct";
+  std::string message = "Information related to this connection:\n\n";
+
   bool failed = false;
   try
   {
     sql::DriverManager *dbc_drv_man= sql::DriverManager::getDriverManager();
     db_mgmt_ConnectionRef connectionProperties = get_be()->get_connection();
     std::string ssl_cipher;
-    
+
+    message.append("Host: " + connectionProperties->parameterValues().get_string("hostName") + "\n");
+    message.append("Port: " + grt::IntegerRef(connectionProperties->parameterValues().get_int("port")).repr() + "\n");
+    message.append("User: " + connectionProperties->parameterValues().get_string("userName") + "\n");
+
     if ( connectionProperties->driver()->name() == "MySQLFabric")
     {
       grt::GRT *grt = connectionProperties->get_grt();
       grt::BaseListRef args(grt);
       args->insert_unchecked(connectionProperties);
       grt::ValueRef result= grt->call_module_function("WBFabric", "testConnection", args);
-      message = grt::StringRef::extract_from(result);
+      std::string error = grt::StringRef::extract_from(result);
+      if (!error.empty())
+      {
+        failed = true;
+        message = error;
+      }
     }
     else
     {
@@ -663,9 +682,9 @@ bool DbConnectPanel::test_connection()
             ssl_cipher = result->getString(2);
 
           if (ssl_cipher.empty())
-            message.append("\n\nSSL not enabled");
+            message.append("SSL: not enabled\n");
           else
-            message.append("\n\nSSL enabled with "+ssl_cipher);
+            message.append("SSL: enabled with " + ssl_cipher + "\n");
         }
 
       }
@@ -694,8 +713,8 @@ bool DbConnectPanel::test_connection()
     }
     else
     {
-      title = base::strfmt("Connected to %s", bec::get_description_for_connection(get_be()->get_connection()).c_str());
-      mforms::Utilities::show_message(title, message, "OK");
+      message.append("\nA successful MySQL connection was made with\nthe parameters defined for this connection.");
+      mforms::Utilities::show_message("Successfully made the MySQL connection", message, "OK");
       ret_val = true;
     }
   }
@@ -801,6 +820,30 @@ void DbConnectPanel::change_active_stored_conn()
   }
 }
 
+void DbConnectPanel::launch_ssl_wizard()
+{
+  mforms::Form *parent = get_parent_form();
+  grt::BaseListRef args(get_be()->get_grt());
+  args.ginsert(mforms_to_grt(get_be()->get_grt(), parent, "Form"));
+  args.ginsert(get_connection());
+  args.ginsert(grt::StringRef(get_connection()->id()));
+
+  get_be()->get_grt()->call_module_function("PyWbUtils", "generateCertificates", args);
+  
+  _connection->update();
+}
+
+void DbConnectPanel::open_ssl_wizard_directory()
+{
+  std::string path = base::join_path(mforms::App::get()->get_user_data_folder().c_str(), "certificates", get_connection()->id().c_str(), "");
+  
+  if (base::is_directory(path))
+    Utilities::open_url(path);
+  else
+    mforms::Utilities::show_warning(_("Cannot Open Directory"), _("The directory that should contain the files does not exist yet. Maybe you need to run the SSL Wizard first."), _("OK"));
+  
+}
+
 
 db_mgmt_ConnectionRef DbConnectPanel::open_editor()
 {
@@ -814,6 +857,7 @@ db_mgmt_ConnectionRef DbConnectPanel::open_editor()
 
 void DbConnectPanel::begin_layout()
 {
+  _last_active_tab = _tab.get_active_tab();
   if (_params_table)
   {
     _params_panel.remove(_params_table);	  
@@ -897,6 +941,9 @@ void DbConnectPanel::end_layout()
     _options_panel.add(_options_table);
     _tab.add_page(&_options_panel, _("Options"));
   }
+  
+  if (_last_active_tab != -1)
+    _tab.set_active_tab(_last_active_tab);
 }
 
 
@@ -1038,8 +1085,30 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
       label->set_text(caption);
       label->set_text_align(mforms::TopLeft);
       label->set_style(mforms::SmallHelpTextStyle);
+      label->set_wrap_text(true);
+      label->set_size(250, -1);
       table->add(mforms::manage(label), 2, 3, bounds.top, bounds.top + 1, mforms::HFillFlag | mforms::VFillFlag);
       _views.push_back(label);
+      break;
+    }
+  case ::ctButton:
+    {
+      Button *btn = new Button();
+      btn->set_text(caption);
+      btn->set_size(bounds.width, 30);
+      
+      box->add(mforms::manage(btn), false, true);
+      _views.push_back(btn);
+      
+      if (driver_param->object()->name() == "sslWizard")
+      {
+        scoped_connect(btn->signal_clicked(),boost::bind(&DbConnectPanel::launch_ssl_wizard, this));
+      }
+      else if (driver_param->object()->name() == "openSSLWizardDirectory")
+      {
+        scoped_connect(btn->signal_clicked(),boost::bind(&DbConnectPanel::open_ssl_wizard_directory, this));
+      }
+      
       break;
     }
   case ::ctCheckBox:
@@ -1150,7 +1219,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
 
       ctrl->set_size(bounds.width, -1);
 
-      ctrl->initialize(initial_value, mforms::OpenFile, "", "...", true,
+      ctrl->initialize(initial_value, mforms::OpenFile, "", true,
         boost::bind(&DbConnectPanel::param_value_changed, this, ctrl));
       box->add(mforms::manage(ctrl), true, true);
       _views.push_back(ctrl);

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,6 +30,6 @@ NSString *wrap_nsstring(const std::string &s);
 @interface NSObject(MFormsBase)
 
 - (void)setObject:(mforms::Object*)object;
-- (mforms::Object*)mformsObject;
+@property (readonly) mforms::Object *mformsObject;
 
 @end

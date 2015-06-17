@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -67,19 +67,19 @@ def scan_admin_modules():
     grt.log_info("WBA", "Looking for extension modules for WBA...\n")
     init_count = 0
     # search in the same dir where the WBA code itself is located
+    extra_mods = {}
     for location in [os.path.dirname(__file__)]:
         try:
             folders = [f for f in os.listdir(location) if f.startswith("wba_") and os.path.isdir(os.path.join(location, f))]
         except:
             continue
-
         sys.path.append(location)
 
         for candidate in folders:
             if os.path.exists(os.path.join(location, candidate, "__init__.py")):
                 mod = __import__(candidate)
                 if hasattr(mod, "wba_register"):
-                    modules.append(mod)
+                    extra_mods[candidate] = mod
                     init_count+= 1
                 else:
                     # unload the module
@@ -88,6 +88,12 @@ def scan_admin_modules():
 
         sys.path.pop()
 
+    if len(extra_mods) != 0:
+        import collections
+        od = collections.OrderedDict(sorted(extra_mods.items()))
+        for mod in od.values():
+            modules.append(mod)
+        
     grt.log_info("WBA", "%i extension modules found\n" % init_count)
 
     return modules

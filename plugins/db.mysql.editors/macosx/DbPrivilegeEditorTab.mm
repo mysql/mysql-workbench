@@ -29,7 +29,7 @@
 
 @implementation DbPrivilegeEditorTab
 
-- (id)initWithObjectEditor:(bec::DBObjectEditorBE*)be
+- (instancetype)initWithObjectEditor:(bec::DBObjectEditorBE*)be
 {
   self= [super init];
   if (self)
@@ -138,7 +138,7 @@
     _privilegeListBE->get_field(bec::NodeId(rowIndex), (int)bec::ObjectPrivilegeListBE::Name, text);
     
     [aCell setState: enabled ? NSOnState : NSOffState];
-    [aCell setTitle: [NSString stringWithUTF8String: text.c_str()]];
+    [aCell setTitle: @(text.c_str())];
   }
 }
 

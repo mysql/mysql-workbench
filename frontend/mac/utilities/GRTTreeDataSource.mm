@@ -23,7 +23,7 @@
  
 @implementation GRTTreeDataSource
 
-- (id)initWithTreeModel:(bec::TreeModel*)model
+- (instancetype)initWithTreeModel:(bec::TreeModel*)model
 {
   if ((self = [super init]) != nil)
   {
@@ -35,7 +35,7 @@
 }
 
 
-- (id)init
+- (instancetype)init
 {
   if ((self = [super init]) != nil)
   {
@@ -95,12 +95,12 @@
 
 - (id)itemForNodeId:(const bec::NodeId&)nodeId
 {
-  NSString *key= [NSString stringWithUTF8String:nodeId.repr().c_str()];
+  NSString *key= @(nodeId.repr().c_str());
   GRTNodeId *node;
-  if (!(node= [_nodeCache objectForKey:key]))
+  if (!(node= _nodeCache[key]))
   {
     node= [[GRTNodeId nodeIdWithNodeId:nodeId] retain];
-    [_nodeCache setObject:node forKey:key];
+    _nodeCache[key] = node;
   }
   return node;
 }
@@ -137,7 +137,7 @@
 
 - (void)outlineViewItemWillExpand:(NSNotification *)notification
 {
-  id item= [[notification userInfo] objectForKey:@"NSObject"];
+  id item= [notification userInfo][@"NSObject"];
   if (_tree)
     _tree->expand_node([self nodeIdForItem:item]);
 }
@@ -145,7 +145,7 @@
 
 - (void)outlineViewItemDidCollapse:(NSNotification *)notification
 {
-  id item= [[notification userInfo] objectForKey:@"NSObject"];
+  id item= [notification userInfo][@"NSObject"];
   
   if (_tree)
     _tree->collapse_node([self nodeIdForItem:item]);
@@ -168,7 +168,7 @@
   if (!_tree || !_tree->get_field([self nodeIdForItem:item], column, strvalue))
     return nil;
   
-  return [NSString stringWithUTF8String:strvalue.c_str()];
+  return @(strvalue.c_str());
 }
 
 

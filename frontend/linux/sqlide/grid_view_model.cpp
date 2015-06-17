@@ -1,3 +1,22 @@
+/*
+ * Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+
 #include "sqlide/grid_view_model.h"
 #include "sqlide/grid_view.h"
 #include "linux_utilities/gtk_helpers.h"
@@ -74,6 +93,7 @@ int GridViewModel::refresh(bool reset_columns)
         Gtk::TreeViewColumn *col= add_column<ValueTypeTraits<> >(-2, "#", RO, NULL);
         col->get_first_cell_renderer()->property_cell_background()= "LightGray";
         col->set_min_width(35);
+        col->set_resizable(true);
       }
     }
 
@@ -106,7 +126,6 @@ int GridViewModel::refresh(bool reset_columns)
       col->set_sizing(Gtk::TREE_VIEW_COLUMN_FIXED);
       col->set_resizable(true);
       _current_column_size[index] = col->get_width();
-      col->property_width().signal_changed().connect(sigc::bind(sigc::mem_fun(this, &GridViewModel::on_column_resized), col));
     }
 
     // horrible hack to workaround shitty gtk column resizing, needed to make the last column resizable
@@ -124,19 +143,25 @@ int GridViewModel::refresh(bool reset_columns)
   return 0;
 }
 
-
-void GridViewModel::on_column_resized(Gtk::TreeViewColumn *col)
+void GridViewModel::onColumnsResized(const std::vector<Gtk::TreeViewColumn*> &cols)
 {
-  int column = column_index(col);
-  if (_current_column_size[column] != col->get_width())
+  if (_ignore_column_resizes != 0)
+    return;
+  std::vector<Gtk::TreeViewColumn*>::const_iterator it;
+  std::vector<int> columns;
+  columns.resize(cols.size());
+  for (it = cols.begin(); it != cols.end(); ++it)
   {
-    _current_column_size[column] = col->get_width();
-
-    // this will be called whenever the width property changes, not only when the column is resized by the user, so we need
-    // to do some filtering
-    if (_ignore_column_resizes == 0) 
-      column_resized(column);
+    int column_idx = column_index(*it);
+    if (_current_column_size[column_idx] != (*it)->get_width())
+    {
+      _current_column_size[column_idx] = (*it)->get_width();
+      columns.push_back(column_idx);
+    }
   }
+
+  if (!columns.empty() && columns_resized)
+    columns_resized(columns);
 }
 
 
@@ -163,7 +188,6 @@ void GridViewModel::on_column_header_button_press(GdkEventButton *ev, Gtk::TreeV
     column_right_clicked(col, ev->x, ev->y);
   }
 }
-
 
 template <typename ValueTypeTraits>
 Gtk::TreeViewColumn * GridViewModel::add_column(int index, const std::string &name, Editable editable, Gtk::TreeModelColumnBase *color_column)

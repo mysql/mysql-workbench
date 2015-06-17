@@ -25,7 +25,7 @@
 
 @implementation MFImageBoxImpl
 
-- (id)initWithObject:(::mforms::ImageBox*)aImage
+- (instancetype)initWithObject:(::mforms::ImageBox*)aImage
 {
   self= [super initWithFrame:NSMakeRect(10,10,10,10)];
   if (self)

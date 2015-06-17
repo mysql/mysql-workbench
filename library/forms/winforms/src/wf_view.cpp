@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -412,6 +412,7 @@ bool ViewWrapper::use_min_width_for_layout(Control ^control)
       || is<ProgressBar>(control)
       || is<ScintillaControl>(control)
       || is<DataGridView>(control)
+      || is<TextBox>(control)
     ;
   }
 
@@ -882,9 +883,9 @@ void ViewWrapper::set_tooltip(mforms::View *backend, const std::string& text)
 
 //-------------------------------------------------------------------------------------------------
 
-void ViewWrapper::set_font(mforms::View *backend, const std::string& fontDescription)
+void ViewWrapper::set_font(const std::string &fontDescription)
 {
-  Control ^control = GetManagedObject<Control>(backend);
+  Control ^control = GetManagedObject<Control>();
 
   std::string font;
   float size;
@@ -908,6 +909,15 @@ void ViewWrapper::set_font(mforms::View *backend, const std::string& fontDescrip
     // Argument exception pops up when the system cannot find the Regular font style (corrupt font).
     log_error("ViewWrapper::set_font failed. %s\n", e->Message);
   }
+
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void ViewWrapper::set_font(mforms::View *backend, const std::string &text)
+{
+  ViewWrapper *wrapper = backend->get_data<ViewWrapper>();
+  wrapper->set_font(text);
 }
 
 //-------------------------------------------------------------------------------------------------

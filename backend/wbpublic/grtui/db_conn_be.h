@@ -62,7 +62,8 @@ public:
     ptFile,
     ptEnum,
     ptIntEnum,
-    ptText
+    ptText,
+    ptButton
   };
 
 private:
@@ -106,6 +107,8 @@ private:
 
   DbDriverParams(const DbDriverParams&) {}
   void free_dyn_mem();
+
+  bool parameter_not_valid(const db_mgmt_DriverRef& driver, const std::string& param);
 
 public:
   DbDriverParams() {}
@@ -162,6 +165,7 @@ public:
 
   DbDriverParams *get_db_driver_param_handles() { return &_db_driver_param_handles; }
   
+  void update();
   void set_connection_and_update(const db_mgmt_ConnectionRef &connection);
   void set_connection_keeping_parameters(const db_mgmt_ConnectionRef &connection);
   db_mgmt_ConnectionRef get_connection();

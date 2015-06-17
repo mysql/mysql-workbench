@@ -12,9 +12,10 @@
 
 INSTALL_PREFIX=/usr
 
-ODBC_HOME=$(HOME)/linux-res-6.2/usr/
-LINUXRES_HOME=$(HOME)/linux-res-6.2/
+ODBC_HOME=$(HOME)/linux-res-6.3/usr/
+LINUXRES_HOME=$(HOME)/linux-res-6.3/
 CPPCONN_HOME=$(LINUXRES_HOME)/cppconn-com
+PYCONN_DIR=$(LINUXRES_HOME)/python/mysql
 VSQLITE_HOME=$(LINUXRES_HOME)/vsqlite
 MYSQL_HOME=$(HOME)/mysql-server-advanced/
 
@@ -72,6 +73,7 @@ install: build
 	cp -a $(ODBC_HOME)/bin/iodbcadm-gtk $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(ODBC_HOME)/lib/libiodbc*.so.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(LINUXRES_HOME)/pyodbc.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+	cp -a $(PYCONN_DIR) $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	# Bundle other unpackaged libs
 	cp -a $(VSQLITE_HOME)/lib/libvsqlite* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(CPPCONN_HOME)/lib/libmysqlcppconn* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)

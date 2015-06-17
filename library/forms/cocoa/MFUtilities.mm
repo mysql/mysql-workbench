@@ -92,8 +92,8 @@ static int util_show_message_with_checkbox(const std::string &title, const std::
 static void util_set_clipboard_text(const std::string &text)
 {
   NSPasteboard *pasteBoard= [NSPasteboard generalPasteboard];
-  [pasteBoard declareTypes: [NSArray arrayWithObject:NSStringPboardType] owner:nil];
-  [pasteBoard setString: [NSString stringWithUTF8String:text.c_str()]
+  [pasteBoard declareTypes: @[NSStringPboardType] owner:nil];
+  [pasteBoard setString: @(text.c_str())
                                       forType: NSStringPboardType];
 }
 
@@ -106,9 +106,9 @@ static std::string util_get_clipboard_text()
 static void util_open_url(const std::string &url)
 {
   if (g_file_test(url.c_str(), G_FILE_TEST_EXISTS) || (!url.empty() && url[0] == '/'))
-    [[NSWorkspace sharedWorkspace] openURL:[NSURL fileURLWithPath: [NSString stringWithUTF8String: url.c_str()]]];
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL fileURLWithPath: @(url.c_str())]];
   else
-    if (![[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString: [[NSString stringWithUTF8String: url.c_str()]
+    if (![[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString: [@(url.c_str())
                                                                        stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding]]])
       log_error("Could not open URL %s\n", url.c_str());
 }
@@ -139,7 +139,7 @@ static std::string get_special_folder(mforms::FolderType type)
   boost::function<bool ()> *callback;
 }
 
-- (id)initWithSlot:(boost::function<bool ()>)slot;
+- (instancetype)initWithSlot:(boost::function<bool ()>)slot NS_DESIGNATED_INITIALIZER;
 - (void)fire:(NSTimer*)timer;
 
 @end
@@ -151,7 +151,7 @@ static base::Mutex timeout_lock;
 
 @implementation MFTimerHandler
 
-- (id)initWithSlot:(boost::function<bool ()>)slot
+- (instancetype)initWithSlot:(boost::function<bool ()>)slot
 {
   self = [super init];
   if (self)
@@ -312,8 +312,8 @@ static void util_forget_password(const std::string &service, const std::string &
 
 static void util_show_wait_message(const std::string &title, const std::string &message)
 {
-  [MHudController showHudWithTitle: [NSString stringWithUTF8String: title.c_str()]
-                    andDescription: [NSString stringWithUTF8String: message.c_str()]];
+  [MHudController showHudWithTitle: @(title.c_str())
+                    andDescription: @(message.c_str())];
 }
 
 
@@ -321,8 +321,8 @@ static bool util_run_cancelable_wait_message(const std::string &title, const std
                                              const boost::function<void ()> &start_task, 
                                              const boost::function<bool ()> &cancel_task)
 {
-  return [MHudController runModalHudWithTitle: [NSString stringWithUTF8String: title.c_str()]
-                               andDescription: [NSString stringWithUTF8String: text.c_str()]
+  return [MHudController runModalHudWithTitle: @(title.c_str())
+                               andDescription: @(text.c_str())
                                   notifyReady: start_task
                                  cancelAction: cancel_task];
 }
@@ -414,7 +414,7 @@ static void *util_perform_from_main_thread(const boost::function<void* ()> &slot
 static void util_set_thread_name(const std::string &name)
 {
   @autoreleasepool {
-    [[NSThread currentThread] setName: [NSString stringWithUTF8String: name.c_str()]];
+    [[NSThread currentThread] setName: @(name.c_str())];
   }
 }
 
@@ -432,16 +432,16 @@ static double util_get_text_width(const std::string &text, const std::string &fo
     attributeDict = nil;
     if (base::parse_font_description(font_desc, font, size, bold, italic))
     {
-      NSFontDescriptor *fd = [NSFontDescriptor fontDescriptorWithName: [NSString stringWithUTF8String: font.c_str()] size: size];
+      NSFontDescriptor *fd = [NSFontDescriptor fontDescriptorWithName: @(font.c_str()) size: size];
       NSFont *font = [NSFont fontWithDescriptor: [fd fontDescriptorWithSymbolicTraits: (bold ? NSFontBoldTrait : 0) | (italic ? NSFontItalicTrait : 0)]
                                       size: size];
 
-      attributeDict = [[NSDictionary dictionaryWithObjectsAndKeys: font, NSFontAttributeName, nil] retain];
+      attributeDict = [@{NSFontAttributeName: font} retain];
     }
     cachedFontName = font_desc;
   }
 
-  NSAttributedString *str = [[NSAttributedString alloc] initWithString: [NSString stringWithUTF8String: text.c_str()]
+  NSAttributedString *str = [[NSAttributedString alloc] initWithString: @(text.c_str())
                                                             attributes: attributeDict];
   double w = [str size].width;
   [str release];

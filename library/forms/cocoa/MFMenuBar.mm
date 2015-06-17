@@ -29,8 +29,8 @@
   mforms::MenuItem *item;
 }
 
-- (id)initWithTitle:(NSString*)title
-               slot:(boost::function<void ()>)aslot;
+- (instancetype)initWithTitle:(NSString*)title
+               slot:(boost::function<void ()>)aslot NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -39,7 +39,7 @@ static NSMenuItem *defaultEditMenu = nil;
 
 @implementation  MFMenuItem
 
-- (id)initWithTitle:(NSString*)title
+- (instancetype)initWithTitle:(NSString*)title
                slot:(boost::function<void ()>)aslot
 {
   self = [super initWithTitle: title action: @selector(callSlot:) keyEquivalent:@""];
@@ -78,7 +78,7 @@ static NSMenuItem *defaultEditMenu = nil;
 
 @implementation MFContextMenu
 
-- (id)initWithTitle: (NSString*)title
+- (instancetype)initWithTitle: (NSString*)title
 {
   self = [super initWithTitle: title];
   if (self)

@@ -13,6 +13,18 @@
 #include "base/log.h"
 #include <gdk/gdkx.h>
 #include <iostream>
+DEFAULT_LOG_DOMAIN("main")
+
+#if defined(HAVE_GNOME_KEYRING) || defined(HAVE_OLD_GNOME_KEYRING)
+extern "C" {
+// gnome-keyring has been deprecated in favor of libsecret
+// More informations can be found here  https://mail.gnome.org/archives/commits-list/2013-October/msg08876.html
+// Below defines will turn off deprecations and allow build with never Gnome until we will not move to libsecret.
+  #define GNOME_KEYRING_DEPRECATED
+  #define GNOME_KEYRING_DEPRECATED_FOR(x)
+  #include <gnome-keyring.h>
+};
+#endif
 
 using base::strfmt;
 
@@ -44,12 +56,7 @@ extern  void lf_record_grid_init();
 int main(int argc, char **argv)
 {
 
-  // disable gnome keyring if it's not running
-  if (!getenv("GNOME_KEYRING_CONTROL") && !getenv("GNOME_KEYRING_SOCKET") && !getenv("XDG_RUNTIME_DIR"))
-  {
-    g_message("Gnome keyring daemon seems to not be available. Stored passwords will be lost once quit");
-    setenv("WB_NO_GNOME_KEYRING", "1", 1);
-  }
+
 
   if (!getenv("MWB_DATA_DIR"))
   {
@@ -74,6 +81,19 @@ int main(int argc, char **argv)
   // process cmdline options
   std::string user_data_dir = std::string(g_get_home_dir()).append("/.mysql/workbench");
   base::Logger log(user_data_dir, getenv("MWB_LOG_TO_STDERR")!=NULL);
+
+  #if defined(HAVE_GNOME_KEYRING) || defined(HAVE_OLD_GNOME_KEYRING)
+  if (getenv("WB_NO_GNOME_KEYRING"))
+    log_info("WB_NO_GNOME_KEYRING environment variable has been set. Stored passwords will be lost once quit.\n");
+  else
+  {
+    if (!gnome_keyring_is_available())
+    {
+      setenv("WB_NO_GNOME_KEYRING", "1", 1);
+      log_error("Can't communicate with gnome-keyring, it's probably not running. Stored passwords will be lost once quit.\n");
+    }
+  }
+  #endif
 
   wb::WBOptions wboptions;
   wboptions.user_data_dir = user_data_dir;

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -71,9 +71,7 @@ void RadioButton::callback()
     _updating = true;
     _radio_activated(_group_id);
     _updating = false;
-    _signal_toggled();
   }
-
+  // We leave it here as there's additional if(!_updating) check inside the callback()
   Button::callback();
 }
-

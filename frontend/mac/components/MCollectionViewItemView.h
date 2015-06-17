@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,7 +19,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface MCollectionViewItemView : NSView <NSTextDelegate>
+@interface MCollectionViewItemView : NSView <NSTextDelegate, NSDraggingSource, NSPasteboardItemDataProvider>
 {
 @private
   NSCollectionViewItem* mOwner;
@@ -31,16 +31,13 @@
   IBOutlet id delegate;
 }
 
-- (void) setOwner: (NSCollectionViewItem*) owner;
-- (NSCollectionViewItem*) owner;
+@property (copy) NSCollectionViewItem *owner;
 
-- (NSCollectionView*) activeCollectionView;
+@property (readonly, strong) NSCollectionView *activeCollectionView;
 
-- (void) setSelected: (BOOL) flag;
-- (BOOL) selected;
+@property  BOOL selected;
 
-- (id) delegate;
-- (void) setDelegate: (id) delegate;
+@property (assign) id delegate;
 
 // Inline editing.
 - (void) beginInlineEditing;

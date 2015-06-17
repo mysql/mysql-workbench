@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -79,6 +79,7 @@ namespace mforms {
     bool _release_on_close;
     bool _active;
 
+    boost::function<bool()> _can_close_slot;
     boost::signals2::signal<void ()> _closed_signal;
     boost::signals2::signal<void ()> _activated_signal;
     boost::signals2::signal<void ()> _deactivated_signal;
@@ -157,6 +158,14 @@ namespace mforms {
     void set_release_on_close(bool flag);
 
 #ifndef SWIG
+
+    /** Function called when window is about to close.
+        return false to prevent window closing.
+
+     In Python use on_close()
+     */
+    void set_on_close(const boost::function<bool ()> &slot) { _can_close_slot = slot; }
+
     /** Signal sent when the user clicks the close button in the window.
      
      In Python use add_closed_callback()
@@ -173,6 +182,7 @@ namespace mforms {
 #endif
 
     bool is_active();
+    bool can_close();
 
     void was_closed()
     {

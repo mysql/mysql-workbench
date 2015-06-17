@@ -57,7 +57,7 @@ void cf_record_grid_init()
   std::map<NSTableView*, RecordGridView*>::iterator iter = gridView.find([notif object]);
   if (iter != gridView.end())
   {
-    id theColumn = [[notif userInfo] objectForKey: @"NSTableColumn"];
+    id theColumn = [notif userInfo][@"NSTableColumn"];
     NSInteger i = [[iter->first tableColumns] indexOfObject: theColumn];
     if (i != NSNotFound)
       (*iter->second->signal_column_resized())(i-1);
@@ -169,7 +169,7 @@ void RecordGridView::set_font(const std::string &font_desc)
   bool italic;
   if (base::parse_font_description(font_desc, font, size, bold, italic))
   {
-    NSFontDescriptor *fd = [NSFontDescriptor fontDescriptorWithName: [NSString stringWithUTF8String: font.c_str()] size: size];
+    NSFontDescriptor *fd = [NSFontDescriptor fontDescriptorWithName: @(font.c_str()) size: size];
     [viewer setFont: [NSFont fontWithDescriptor: [fd fontDescriptorWithSymbolicTraits: (bold ? NSFontBoldTrait : 0) | (italic ? NSFontItalicTrait : 0)]
                                            size: size]];
   }

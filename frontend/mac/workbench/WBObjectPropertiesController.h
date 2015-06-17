@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,12 +24,12 @@
 
 
 
-typedef enum {
+typedef NS_ENUM(NSInteger, PropertyType) {
   PROPERTY_TYPE_UNDEFINED = 0,
   PROPERTY_TYPE_STRING = 1,
   PROPERTY_TYPE_BOOL = 2,
   PROPERTY_TYPE_COLOR = 3
-} PropertyType;
+} ;
 
 
 

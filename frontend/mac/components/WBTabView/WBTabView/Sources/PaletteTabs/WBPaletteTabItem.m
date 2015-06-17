@@ -1,32 +1,26 @@
-
-/*!
- 
- Copyright 2009 Sun Microsystems, Inc.
- 
- @author
- jak
- 
- @class
- WBPaletteTabItem
- 
- @abstract
- Implements the custom tabs. Small tabs at the top of the tab view, pointing upwards.
- 
- @ingroup
- Custom Tab Views
- 
+/*
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
  */
-
-
 
 #import "WBPaletteTabItem.h"
 #import "CGColorUtilities.h"
 
-
-
 @implementation WBPaletteTabItem
-
-
 
 - (void) updateAppearance;
 {
@@ -38,15 +32,12 @@
 		[mTitleLayer setOpacity: 0.7];
 }	
 
-
-
 - (CGFloat) preferredWidth;
 {
 	CGFloat preferredWidth = 0;
 	
 	NSFont* font = [NSFont boldSystemFontOfSize: 9];
-	NSDictionary* attributes = [NSDictionary dictionaryWithObject: font
-                                                         forKey: NSFontAttributeName];
+	NSDictionary* attributes = @{NSFontAttributeName: font};
 	CGFloat labelWidth = ceil([mLabel sizeWithAttributes:attributes].width);
 	preferredWidth = 5 + labelWidth + 5;
 	
@@ -55,7 +46,7 @@
 
 
 
-- (id) initWithIdentifier: (id) identifier
+- (instancetype) initWithIdentifier: (id) identifier
                     label: (NSString*) label
                 direction: (WBTabDirection) tabDirection
                 placement: (WBTabPlacement) tabPlacement

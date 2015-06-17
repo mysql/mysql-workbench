@@ -3,6 +3,7 @@ import raw_vars
 import options_layout
 import pprint
 
+print('-----------------------------------\nRunning %s\n-----------------------------------\n' % __file__)
 
 print "Converting raw_opts.py to opts.py"
 
@@ -20,6 +21,8 @@ def hack_option(option):
             option['values'][0]['default'] = '{configdir}/mysql_ft_stopword_file.txt'
     elif option['name'] == 'socket':
         option['values'][0]['type'] = 'filebrowse'
+    elif option['name'] == 'ndb-recv-thread-cpu-mask':
+        option['values'][0]['type'] = 'string'
     elif option['name'] == 'innodb_data_file_path':
         option['values'][0]['type'] = 'string'
     elif option['name'] in ('slow_query_log_file', 'general_log_file', 'log_bin_basename', 'relay_log_basename',
@@ -85,7 +88,9 @@ variable_groups = normalize_dict_keys(dict(variable_groups))
 
 system_var_list = []
 for var in raw_vars.system_vars_list:
-    system_var_list.append(tuple(list(var) + [variable_groups.get(var[0].replace("-","_"), [])]))
+    current_var = (var['name'], var['description'], var['dynamic'], variable_groups.get(var['name'].replace("-","_"), []))
+    #system_var_list.append(tuple(current_var + [variable_groups.get(var['name'].replace("-","_"), [])]))
+    system_var_list.append(current_var)
 
 
 from status_groups import variable_groups
@@ -93,16 +98,18 @@ status_groups = normalize_dict_keys(dict(variable_groups))
 
 status_var_list = []
 for var in raw_vars.status_vars_list:
-    status_var_list.append(tuple(list(var) + [status_groups.get(var[0].replace("-","_"), [])]))
+    current_var = (var['name'], var['description'], var['dynamic'], status_groups.get(var['name'].replace("-","_"), []))
+    #status_var_list.append(tuple(current_var + [status_groups.get(var['name'].replace("-","_"), [])]))
+    status_var_list.append(current_var)
 
 print "Generating wb_admin_variable_list.py"
 out=open("wb_admin_variable_list.py", "w+")
 
 pp = pprint.PrettyPrinter(indent=2, stream=out)
-out.write("system_variable_list=")
+out.write("system_variable_list = ")
 pp.pprint(system_var_list)
 out.write("\n\n\n")
-out.write("status_variable_list=")
+out.write("status_variable_list = ")
 pp.pprint(status_var_list)
 out.close()
 

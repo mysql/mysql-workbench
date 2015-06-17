@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -421,7 +421,7 @@ PhysicalOverviewBE *WBContextUI::get_physical_overview()
 void WBContextUI::show_output()
 {
   mforms::App::get()->dock_view(_output_view, "maintab");
-  mforms::App::get()->set_view_title(_output_view, "Output");
+  _output_view->set_title("Output");
   _output_view->setup_ui();
 }
 
@@ -437,7 +437,7 @@ void WBContextUI::show_web_page(const std::string& url, bool internal_browser)
   {
     WebBrowserView* browser= mforms::manage(new WebBrowserView(this));
     mforms::App::get()->dock_view(browser, "maintab");
-    mforms::App::get()->set_view_title(browser, _("Loading web page..."));
+    browser->set_title(_("Loading web page..."));
     browser->navigate(url);
   }
   else
@@ -1120,9 +1120,9 @@ bool WBContextUI::start_plugin_install(const std::string &path)
 
 //--------------------------------------------------------------------------------------------------
 
-static struct RegisterWBContextUINotifDocs
+static struct RegisterNotifDocs_wb_context_ui
 {
-  RegisterWBContextUINotifDocs()
+  RegisterNotifDocs_wb_context_ui()
   {
     base::NotificationCenter::get()->register_notification("GNAppStarted",
                                                            "application",
@@ -1149,6 +1149,6 @@ static struct RegisterWBContextUINotifDocs
                                                            "",
                                                            "");
   }
-} initdocs;
+} initdocs_wb_context_ui;
 
 

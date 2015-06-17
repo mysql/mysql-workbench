@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,20 +25,29 @@
 # endif
 #else
 # include <inttypes.h>
+
 #endif
 
 #include "common.h"
-#include <string>
-#include <vector>
-#include <sstream>
-#include <typeinfo>
 
-#include <glib.h>
+#if !defined(_WIN32) && !defined(__APPLE)
+  #include <glib.h>
+#endif
+
+#ifndef HAVE_PREDEFINED_HEADERS
+  #include <string>
+  #include <list>
+  #include <vector>
+  #include <sstream>
+  #include <typeinfo>
+
+  #include <boost/optional.hpp>
+  #include <boost/cstdint.hpp>
+  #include <boost/shared_ptr.hpp>
+
+#endif
 
 #define _(s) s // TODO: replace with localization code.
-
-#include <boost/optional.hpp>
-#include <boost/cstdint.hpp>
 
 using boost::uint64_t;
 using boost::int64_t;
@@ -94,15 +103,15 @@ namespace base
                                                       float &size, bool &bold, bool &italic);
 
   // Searching, splitting etc.
-  BASELIBRARY_PUBLIC_FUNC std::string left(const std::string& s, unsigned int len);
-  BASELIBRARY_PUBLIC_FUNC std::string right(const std::string& s, unsigned int len);
+  BASELIBRARY_PUBLIC_FUNC std::string left(const std::string& s, size_t len);
+  BASELIBRARY_PUBLIC_FUNC std::string right(const std::string& s, size_t len);
   BASELIBRARY_PUBLIC_FUNC bool starts_with(const std::string& s, const std::string& part);
   BASELIBRARY_PUBLIC_FUNC bool ends_with(const std::string& s, const std::string& part);
   BASELIBRARY_PUBLIC_FUNC void replace(std::string& value, const std::string& search, const std::string& replacement);
   /**
    * @brief Split the a string into a vector, using @a sep as a separator
    * 
-   * This function splits all the words of a string and stores them into a vector. To differenciate 
+   * This function splits all the words of a string and stores them into a vector. To differentiate 
    * each, it uses the @a sep parameter as a separator
    * 
    * @param s The string to split
@@ -305,4 +314,6 @@ template<typename T> T inline atof(const std::string &val, boost::optional<T> de
   return ConvertHelper::string_to_number<T>(val, def_val);
 }
   
+typedef boost::shared_ptr<std::list<std::string> > StringListPtr;
+
 } // namespace base
