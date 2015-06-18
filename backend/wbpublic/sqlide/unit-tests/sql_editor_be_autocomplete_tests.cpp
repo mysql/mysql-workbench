@@ -105,6 +105,7 @@ TEST_FUNCTION(5)
 
   std::auto_ptr<sql::Statement> stmt(_conn->ref->createStatement());
 
+  g_usleep(1000);
   sql::ResultSet *res = stmt->executeQuery("SELECT VERSION() as VERSION");
   if (res && res->next())
   {
