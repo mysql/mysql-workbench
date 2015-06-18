@@ -270,7 +270,7 @@ namespace mforms {
     
     void set_name(const std::string &name);
     void set_tooltip(const std::string &text);
-    void set_font(const std::string &fontDescription); // e.g. "Trebuchet MS bold 9"
+    virtual void set_font(const std::string &fontDescription); // e.g. "Trebuchet MS bold 9"
     std::string get_name();
     void set_parent(View *parent);
     View *get_parent() const;
