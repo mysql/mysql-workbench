@@ -1,6 +1,6 @@
 #pragma once
 
-#include <grtpp.h>
+#include "grtpp.h"
 
 #ifdef _WIN32
   #pragma warning(disable: 4355) // 'this' : used in base member initializer list

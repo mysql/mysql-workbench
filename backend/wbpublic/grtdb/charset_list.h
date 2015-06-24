@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,10 +16,10 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _CHARSET_LIST_H_
-#define _CHARSET_LIST_H_
 
-#include <grtpp.h>
+#pragma once
+
+#include "grtpp.h"
 #include "grt/tree_model.h"
 
 namespace bec {
@@ -45,5 +45,3 @@ namespace bec {
   };
   
 };
-
-#endif /* _CHARSET_LIST_H_ */

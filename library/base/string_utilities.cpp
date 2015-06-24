@@ -1134,7 +1134,7 @@ std::string getTextFileContent(const std::string &filename)
 #ifdef _WIN32
   std::ifstream stream(string_to_wstring(filename).c_str(), std::ios::binary);
 #else
-  std::ifstream stream(filename, std::ios::binary);
+  std::ifstream stream(filename.c_str(), std::ifstream::binary);
 #endif
   std::stringstream ss;
 

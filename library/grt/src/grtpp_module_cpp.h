@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,12 +17,11 @@
  * 02110-1301  USA
  */
 
-#ifndef _GRTPP_MODULE_CPP_H_
-#define _GRTPP_MODULE_CPP_H_
+#pragma once
 
 #include "base/trackable.h"
 #include <cstring>
-#include <grtpp.h>
+#include "grtpp.h"
 #include <typeinfo>
 
 #include <gmodule.h>
@@ -958,6 +957,3 @@ ModuleFunctor7<T_ret, T_obj, T_arg1, T_arg2, T_arg3, T_arg4, T_arg5, T_arg6, T_a
 #endif
   
 };
-
-
-#endif

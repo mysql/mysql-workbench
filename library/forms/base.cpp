@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -86,7 +86,7 @@ bool Object::is_destroying()
 //--------------------------------------------------------------------------------------------------
 
 #ifndef SWIG
-#if defined(__APPLE__) && !defined(MFORMS_STUB)
+#if defined(__APPLE__)
     
 Object::Object()
   : _data(nil), _refcount(1), _managed(false), _release_on_add(false), _destroying(false)
