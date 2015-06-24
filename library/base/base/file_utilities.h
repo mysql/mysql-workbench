@@ -46,7 +46,7 @@ namespace base
   public:
     file_error(const std::string &text, int err);
     
-    error_code code();
+    virtual error_code code(); // Leave that virtual to counter type problems in Mac tut tests.
     int sys_code();
   };
   

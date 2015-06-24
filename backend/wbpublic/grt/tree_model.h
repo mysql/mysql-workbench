@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _TREE_MODEL_H_
-#define _TREE_MODEL_H_
+#pragma once
 
 /*
  * TreeModel is the base class for all list or tree based
@@ -26,7 +25,7 @@
  */
 #include <algorithm>
 
-#include <grtpp.h>
+#include "grtpp.h"
 #include "grt/icon_manager.h"
 #include "grt/common.h"
 #include "base/ui_form.h" // for menu stuff
@@ -437,5 +436,3 @@ namespace bec
   };
 
 };
-
-#endif // _TREE_MODEL_H_

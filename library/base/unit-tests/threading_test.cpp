@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -72,7 +72,7 @@ TEST_FUNCTION(10)
   GError *error = NULL;
   GThread *thread = create_thread(thread_function1, &semaphore, &error);
   if (thread == NULL)
-    fail("Thread creation failed: " + (error != NULL) ? error->message : "out of mem?");
+    fail(std::string("Thread creation failed: ") + ((error != NULL) ? error->message : "out of mem?"));
 
   // Thread runs. Now wait for a moment. The thread does so too (via the semaphore).
   g_usleep(100 * BASE_TIME);
@@ -126,7 +126,7 @@ TEST_FUNCTION(20)
     GError *error = NULL;
     threads[i] = create_thread(thread_function2, &semaphore, &error);
     if (threads[i] == NULL)
-      fail("Thread creation failed: " + (error != NULL) ? error->message : "out of mem?");
+      fail(std::string("Thread creation failed: ") + ((error != NULL) ? error->message : "out of mem?"));
   }
 
   try

@@ -188,12 +188,7 @@ static NativeHandle windowOpenPlugin(bec::GRTManager *grtm,
                       nil, nil, nil, shlib.c_str());
       return 0;
     }
-    /* debug msg
-    if (![pluginBundle isLoaded])
-      NSLog(@"plugin bundle is not yet loaded");
-    else
-      NSLog(@"plugin bundle is supposed to be already loaded");
-        */
+
     Class pclass= [pluginBundle classNamed:@(class_name.c_str())];
     if (!pclass)
     {
@@ -251,8 +246,6 @@ static NativeHandle windowOpenPlugin(bec::GRTManager *grtm,
     // Instantiate and initialize the plugin.
     id plugin = [[pclass alloc] initWithModule: ownerModule grtManager: grtm arguments: args];
       
-    //NSLog(@"CREATED PLUGIN %@ %@ %@", plugin, [plugin identifier], [plugin title]);
-    
     if ([plugin isKindOfClass: [WBPluginEditorBase class]])
     {      
       if ((flags & bec::StandaloneWindowFlag))
@@ -943,9 +936,6 @@ static NSString *applicationSupportFolder()
         path = g_strdup_printf("PYTHONPATH=%s", _options->library_search_path.c_str());
         putenv(path); // path should not be freed
       }
-      
-      // we ship 32bit binary python modules, so python needs to be started as 32bit as well
-      //putenv((char*)"VERSIONER_PYTHON_PREFER_32_BIT=yes");
     }
 
     _wbui->init(&wbcallbacks, _options);

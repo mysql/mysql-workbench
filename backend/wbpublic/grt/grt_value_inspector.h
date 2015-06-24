@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,11 +16,10 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _GRT_VALUE_INSPECTOR_H_
-#define _GRT_VALUE_INSPECTOR_H_
 
+#pragma once
 
-#include <grtpp.h>
+#include "grtpp.h"
 
 #include "tree_model.h"
 #include "refresh_ui.h"
@@ -83,5 +82,3 @@ private:
 };
 
 };
-
-#endif /* _GRT_VALUE_INSPECTOR_H_ */

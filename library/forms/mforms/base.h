@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,7 +33,7 @@
 # define MFORMS_EXPORT
 #endif
 
-#if defined(__APPLE__) && !defined(MFORMS_STUB)
+#if defined(__APPLE__)
 #ifdef nil
 #undef nil
 #endif 
@@ -64,7 +64,7 @@ namespace mforms {
 #ifndef SWIG
     //! Note: set_data and get_data should be used exclusively by the implementation code
     //! for each platform.
-#if defined(__APPLE__) && !defined(MFORMS_STUB)
+#if defined(__APPLE__)
   public:
     Object();
     virtual ~Object();

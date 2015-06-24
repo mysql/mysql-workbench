@@ -149,6 +149,8 @@ public:
     {
     }
 
+    virtual ~LiveTreeTestDelegate() {} // To silence clang.
+
     void expect_fetch_schema_contents_call()
     {
       _mock_schema_list = base::StringListPtr(new std::list<std::string>());

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _STUB_BASE_H_
-#define _STUB_BASE_H_
+
+#pragma once
 
 #include <string>
 
@@ -33,7 +33,12 @@ namespace stub {
     ObjectWrapper(::mforms::Object *object)
       : owner(object)
     {
+      // XXX: it's very questionable to set a data pointer in the tests stub here, as that differs
+      //      greatly to what is used regularly and it doesn't work with obj-c objects at all.
+#ifdef __APPLE__
+#else
       object->set_data(this);
+#endif
     }
 
     virtual ~ObjectWrapper()
@@ -41,8 +46,7 @@ namespace stub {
       puts("FREE OBJECT");
       //TODO: Check if we need to free memory here?
     }
+
   };
 };
 };
-
-#endif

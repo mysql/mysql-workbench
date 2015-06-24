@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _STUB_TREENODEVIEW_H_
-#define _STUB_TREENODEVIEW_H_
+
+#pragma once
 
 #include "stub_view.h"
 #include "stub_treenode.h"
@@ -26,17 +26,15 @@ namespace mforms {
 namespace stub {
 
 
-class TreeNodeViewWrapper : public ViewWrapper
+class TreeViewWrapper : public ViewWrapper
 {
 private:
   TreeNodeWrapper *_root;
 
-  TreeNodeViewWrapper(TreeNodeView *self, mforms::TreeOptions opts)
+  TreeViewWrapper(TreeNodeView *self, mforms::TreeOptions opts)
       : ViewWrapper(self)
   {
     _root = new TreeNodeWrapper();
-
-    self->set_data(this);
   }
 
   int add_column(TreeColumnType type, const std::string &name, int initial_width, bool editable)
@@ -50,7 +48,7 @@ private:
 
   static bool create(TreeNodeView *self, mforms::TreeOptions opt)
   {
-    new TreeNodeViewWrapper(self, opt);
+    new TreeViewWrapper(self, opt);
     return true;
   }
 
@@ -58,31 +56,39 @@ private:
   {
     return 0;
   }
+
   static int add_column(TreeNodeView *self, TreeColumnType type, const std::string &name, int width, bool editable, bool a)
   {
     return 0;
   }
+
   static void end_columns(TreeNodeView *self)
   {
   }
+
   static void clear(TreeNodeView *self)
   {
   }
+
   static TreeSelectionMode get_selection_mode(TreeNodeView *self)
   {
     return TreeSelectSingle;
   }
+
   static void set_selection_mode(TreeNodeView *self, TreeSelectionMode mode)
   {
   }
+
   static TreeNodeRef get_selected_node(TreeNodeView *self)
   {
     return TreeNodeRef();
   }
+
   static TreeNodeRef root_node(TreeNodeView *self)
   {
-    TreeNodeViewWrapper *ptree_node_view = self->get_data<TreeNodeViewWrapper>();
-    return ptree_node_view->root_node();
+    return TreeNodeRef();
+    //TreeViewWrapper *ptree_node_view = self->get_data<TreeViewWrapper>();
+    //return ptree_node_view->root_node();
   }
 
   TreeNodeRef root_node()
@@ -135,28 +141,26 @@ public:
   {
     ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
 
-    f->_treenodeview_impl.create= &TreeNodeViewWrapper::create;
-    f->_treenodeview_impl.add_column= &TreeNodeViewWrapper::add_column;
-    f->_treenodeview_impl.end_columns= &TreeNodeViewWrapper::end_columns;
-    f->_treenodeview_impl.clear= &TreeNodeViewWrapper::clear;
-    f->_treenodeview_impl.get_selected_node= &TreeNodeViewWrapper::get_selected_node;
-    f->_treenodeview_impl.set_selected= &TreeNodeViewWrapper::set_selected;
-    f->_treenodeview_impl.get_selection= &TreeNodeViewWrapper::get_selection;
-    f->_treenodeview_impl.set_allow_sorting = &TreeNodeViewWrapper::set_allow_sorting;
-    f->_treenodeview_impl.freeze_refresh = &TreeNodeViewWrapper::freeze_refresh;
-    f->_treenodeview_impl.set_selection_mode = &TreeNodeViewWrapper::set_selection_mode;
-    f->_treenodeview_impl.get_selection_mode = &TreeNodeViewWrapper::get_selection_mode;
-    f->_treenodeview_impl.root_node = &TreeNodeViewWrapper::root_node;
-    f->_treenodeview_impl.node_at_row = &TreeNodeViewWrapper::node_at_row;
-    f->_treenodeview_impl.row_for_node = &TreeNodeViewWrapper::row_for_node;
-    f->_treenodeview_impl.set_row_height = &TreeNodeViewWrapper::set_row_height;
-    f->_treenodeview_impl.clear_selection = &TreeNodeViewWrapper::clear_selection;
-    f->_treenodeview_impl.node_with_tag = &TreeNodeViewWrapper::node_with_tag;
+    f->_treenodeview_impl.create= &TreeViewWrapper::create;
+    f->_treenodeview_impl.add_column= &TreeViewWrapper::add_column;
+    f->_treenodeview_impl.end_columns= &TreeViewWrapper::end_columns;
+    f->_treenodeview_impl.clear= &TreeViewWrapper::clear;
+    f->_treenodeview_impl.get_selected_node= &TreeViewWrapper::get_selected_node;
+    f->_treenodeview_impl.set_selected= &TreeViewWrapper::set_selected;
+    f->_treenodeview_impl.get_selection= &TreeViewWrapper::get_selection;
+    f->_treenodeview_impl.set_allow_sorting = &TreeViewWrapper::set_allow_sorting;
+    f->_treenodeview_impl.freeze_refresh = &TreeViewWrapper::freeze_refresh;
+    f->_treenodeview_impl.set_selection_mode = &TreeViewWrapper::set_selection_mode;
+    f->_treenodeview_impl.get_selection_mode = &TreeViewWrapper::get_selection_mode;
+    f->_treenodeview_impl.root_node = &TreeViewWrapper::root_node;
+    f->_treenodeview_impl.node_at_row = &TreeViewWrapper::node_at_row;
+    f->_treenodeview_impl.row_for_node = &TreeViewWrapper::row_for_node;
+    f->_treenodeview_impl.set_row_height = &TreeViewWrapper::set_row_height;
+    f->_treenodeview_impl.clear_selection = &TreeViewWrapper::clear_selection;
+    f->_treenodeview_impl.node_with_tag = &TreeViewWrapper::node_with_tag;
   }
 };
 
   
 }
 }
-
-#endif

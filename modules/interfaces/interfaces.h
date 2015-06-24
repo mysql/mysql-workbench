@@ -1,5 +1,5 @@
 
-#include <grtpp.h>
+#include "grtpp.h"
 
 #include "plugin.h"
 #include "sqlgenerator.h"

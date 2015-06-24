@@ -2,7 +2,7 @@
 #ifndef _PLUGIN_IF_H_
 #define _PLUGIN_IF_H_
 
-#include <grtpp_module_cpp.h>
+#include "grtpp_module_cpp.h"
 #include "grts/structs.app.h"
 
 // plugin interface definition header

@@ -2,7 +2,7 @@
 #ifndef _WB_MODEL_REPORTING_IF_H_
 #define _WB_MODEL_REPORTING_IF_H_
 
-#include <grtpp_module_cpp.h>
+#include "grtpp_module_cpp.h"
 #include "grts/structs.workbench.physical.h"
 #include "grts/structs.workbench.model.reporting.h"
 
