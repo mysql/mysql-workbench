@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,15 +17,17 @@
  * 02110-1301  USA
  */
 
-#ifndef _GEOMETRY_H_
-#define _GEOMETRY_H_
+#pragma once
 
 /**
  * Definitions and implementations of geometry related types and classes. Defines all the usual base types
  * like point, rectangle and the like.
  */
 
+#ifndef HAVE_PRECOMPILED_HEADERS
 #include <stdio.h>
+#endif
+
 #ifndef SWIG
 #include "common.h"
 #endif
@@ -168,5 +170,3 @@ namespace base {
   };
 
 } // namespace base
-
-#endif /* _GEOMETRY_H_ */

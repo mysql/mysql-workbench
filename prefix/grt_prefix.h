@@ -20,3 +20,23 @@
 #ifdef __OBJC__
     #import <Cocoa/Cocoa.h>
 #endif
+
+#ifdef __cplusplus
+
+#include <time.h>
+#include <assert.h>
+#include <algorithm>
+#include <string.h>
+#include <errno.h>
+#include <stdio.h>
+#include <unistd.h>
+
+#include <sys/types.h>
+#include <sys/time.h>
+
+#include <glib.h>
+#include <glib/gstdio.h>
+
+#include <boost/cstdint.hpp>
+
+#endif

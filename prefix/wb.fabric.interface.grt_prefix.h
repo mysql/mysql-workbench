@@ -20,3 +20,19 @@
 #ifdef __OBJC__
     #import <Cocoa/Cocoa.h>
 #endif
+
+#ifdef __cplusplus
+
+#include <map>
+#include <string>
+#include <math.h>
+#include <stdio.h>
+#include <stdexcept>
+
+#include <glib.h>
+
+#include <mysql.h>
+
+#include "grts/structs.db.mgmt.h"
+
+#endif

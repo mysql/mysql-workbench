@@ -20,3 +20,11 @@
 #ifdef __OBJC__
     #import <Cocoa/Cocoa.h>
 #endif
+
+#ifdef __cplusplus
+
+#include <string>
+
+#include <glib.h>
+
+#endif

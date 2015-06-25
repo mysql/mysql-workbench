@@ -299,7 +299,7 @@
 		2773B88711006B58000CA2F9 /* MFSplitter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2773B88611006B58000CA2F9 /* MFSplitter.mm */; };
 		27751DDF17422A060025DEAE /* about_box.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CC86041741348D00AAA267 /* about_box.cpp */; };
 		27751DE017422A0F0025DEAE /* about_box.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CC86051741348D00AAA267 /* about_box.h */; };
-		2777A7E41A30A36400A5441E /* cdbc_prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 2777A7E31A30A36400A5441E /* cdbc_prefix.pch */; };
+		2777A7E41A30A36400A5441E /* cdbc_prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 2777A7E31A30A36400A5441E /* cdbc_prefix.h */; };
 		277A7CAC1B3957D100A667AA /* mysql.parser.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 277A7CAB1B3957D100A667AA /* mysql.parser.dylib */; };
 		277A7CB01B39586300A667AA /* db.mysql.sqlparser.grt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 277A7CAF1B39586300A667AA /* db.mysql.sqlparser.grt.dylib */; };
 		277A7CB21B39588900A667AA /* db.mysql.grt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 277A7CB11B39588900A667AA /* db.mysql.grt.dylib */; };
@@ -454,7 +454,7 @@
 		27B3026D1B39A928005B7D27 /* libwbprivate.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27B3026C1B39A928005B7D27 /* libwbprivate.be.dylib */; };
 		27B3026F1B39A92C005B7D27 /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27B3026E1B39A92C005B7D27 /* libwbpublic.be.dylib */; };
 		27B302701B39A9D8005B7D27 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
-		27B37DC41A32001B00C73F1F /* mforms_prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 27B37DC31A32001B00C73F1F /* mforms_prefix.pch */; };
+		27B37DC41A32001B00C73F1F /* mforms_prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 27B37DC31A32001B00C73F1F /* mforms_prefix.h */; };
 		27B3B4C319C6EDA1007D4A92 /* mysql-recognition-types.h in Headers */ = {isa = PBXBuildFile; fileRef = 27B3B4C219C6EDA1007D4A92 /* mysql-recognition-types.h */; };
 		27B3B4DE19C727E5007D4A92 /* ANTLRv3Lexer.c in Sources */ = {isa = PBXBuildFile; fileRef = 27B3B4DA19C727E5007D4A92 /* ANTLRv3Lexer.c */; };
 		27B3B4DF19C727E5007D4A92 /* ANTLRv3Lexer.h in Headers */ = {isa = PBXBuildFile; fileRef = 27B3B4DB19C727E5007D4A92 /* ANTLRv3Lexer.h */; };
@@ -485,15 +485,15 @@
 		27B923CF196ED20000D98D18 /* parser_ContextReference_impl.h in Headers */ = {isa = PBXBuildFile; fileRef = 27B923C9196ED20000D98D18 /* parser_ContextReference_impl.h */; };
 		27B923D0196ED20000D98D18 /* parser_ContextReference.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27B923CA196ED20000D98D18 /* parser_ContextReference.cpp */; };
 		27B923D2196EDB1300D98D18 /* mysql.parser.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27467EBD154A96CB00021708 /* mysql.parser.dylib */; };
-		27BFE4561924B80D0070B8FB /* db.mysql.parser.grt_prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 27BFE4551924B80D0070B8FB /* db.mysql.parser.grt_prefix.pch */; };
-		27BFE4581924B89E0070B8FB /* wbpublic.be_prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 27BFE4571924B89E0070B8FB /* wbpublic.be_prefix.pch */; };
-		27BFE45B1924BB080070B8FB /* WBExtras_prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 27BFE45A1924BB080070B8FB /* WBExtras_prefix.pch */; };
-		27BFE45F1924BBB90070B8FB /* wb.model.editors.wbp_prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 27BFE45D1924BBB90070B8FB /* wb.model.editors.wbp_prefix.pch */; };
-		27BFE4611924BC290070B8FB /* wbprivate.be_prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 27BFE4601924BC290070B8FB /* wbprivate.be_prefix.pch */; };
-		27BFE4641924BC750070B8FB /* db.mysql.editors.wbp_prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 27BFE4621924BC670070B8FB /* db.mysql.editors.wbp_prefix.pch */; };
-		27C15E661A30989000EB73F7 /* wbbase_prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 27C15E651A30989000EB73F7 /* wbbase_prefix.pch */; };
-		27C15E691A309CA000EB73F7 /* mysql.parser_prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 27C15E681A309CA000EB73F7 /* mysql.parser_prefix.pch */; };
-		27C15E6B1A30A2E000EB73F7 /* grt_prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 27C15E6A1A30A2E000EB73F7 /* grt_prefix.pch */; };
+		27BFE4561924B80D0070B8FB /* db.mysql.parser.grt_prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 27BFE4551924B80D0070B8FB /* db.mysql.parser.grt_prefix.h */; };
+		27BFE4581924B89E0070B8FB /* wbpublic.be_prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 27BFE4571924B89E0070B8FB /* wbpublic.be_prefix.h */; };
+		27BFE45B1924BB080070B8FB /* WBExtras_prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 27BFE45A1924BB080070B8FB /* WBExtras_prefix.h */; };
+		27BFE45F1924BBB90070B8FB /* wb.model.editors.wbp_prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 27BFE45D1924BBB90070B8FB /* wb.model.editors.wbp_prefix.h */; };
+		27BFE4611924BC290070B8FB /* wbprivate.be_prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 27BFE4601924BC290070B8FB /* wbprivate.be_prefix.h */; };
+		27BFE4641924BC750070B8FB /* db.mysql.editors.wbp_prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 27BFE4621924BC670070B8FB /* db.mysql.editors.wbp_prefix.h */; };
+		27C15E661A30989000EB73F7 /* wbbase_prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 27C15E651A30989000EB73F7 /* wbbase_prefix.h */; };
+		27C15E691A309CA000EB73F7 /* mysql.parser_prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 27C15E681A309CA000EB73F7 /* mysql.parser_prefix.h */; };
+		27C15E6B1A30A2E000EB73F7 /* grt_prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 27C15E6A1A30A2E000EB73F7 /* grt_prefix.h */; };
 		27C3A1311070C3B200DD5717 /* common.h in Headers */ = {isa = PBXBuildFile; fileRef = 27C3A1301070C3B200DD5717 /* common.h */; };
 		27C5903614C9755100FFC45E /* code_editor.xml in Copy Files (data) */ = {isa = PBXBuildFile; fileRef = 27C5903514C9755100FFC45E /* code_editor.xml */; };
 		27C6887F10B58C9B00B8D810 /* new_server_instance_wizard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27C6887D10B58C9A00B8D810 /* new_server_instance_wizard.cpp */; };
@@ -4276,6 +4276,23 @@
 		274E897E1313BFC1000459A0 /* drawing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = drawing.h; path = library/base/base/drawing.h; sourceTree = "<group>"; };
 		274E89801313BFCF000459A0 /* drawing.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = drawing.cpp; path = library/base/drawing.cpp; sourceTree = "<group>"; };
 		274E9B9A107C9FF100551AC4 /* options-horizontal-separator.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "options-horizontal-separator.png"; sourceTree = "<group>"; };
+		27504D701B3BF22B0007CAEA /* db.mysql.query.grt_prefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = db.mysql.query.grt_prefix.h; path = prefix/db.mysql.query.grt_prefix.h; sourceTree = "<group>"; };
+		27504D711B3BF2D80007CAEA /* db.mysql.sqlparser.grt_prefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = db.mysql.sqlparser.grt_prefix.h; path = prefix/db.mysql.sqlparser.grt_prefix.h; sourceTree = "<group>"; };
+		27504D721B3BF3410007CAEA /* db.mysql.wbp_prefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = db.mysql.wbp_prefix.h; path = prefix/db.mysql.wbp_prefix.h; sourceTree = "<group>"; };
+		27504D731B3BF35F0007CAEA /* db.search.wbp_prefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = db.search.wbp_prefix.h; path = prefix/db.search.wbp_prefix.h; sourceTree = "<group>"; };
+		27504D741B3BF3820007CAEA /* mysql.canvas_prefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mysql.canvas_prefix.h; path = prefix/mysql.canvas_prefix.h; sourceTree = "<group>"; };
+		27504D751B3BF3AE0007CAEA /* sql.parser_prefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sql.parser_prefix.h; path = prefix/sql.parser_prefix.h; sourceTree = "<group>"; };
+		27504D761B3BF3CF0007CAEA /* wb.model.advfind.wbp_prefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wb.model.advfind.wbp_prefix.h; path = prefix/wb.model.advfind.wbp_prefix.h; sourceTree = "<group>"; };
+		27504D771B3BF4120007CAEA /* wb.model.grt_prefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wb.model.grt_prefix.h; path = prefix/wb.model.grt_prefix.h; sourceTree = "<group>"; };
+		27504D781B3BF4440007CAEA /* wb.model.reporting.wbp_prefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wb.model.reporting.wbp_prefix.h; path = prefix/wb.model.reporting.wbp_prefix.h; sourceTree = "<group>"; };
+		27504D791B3BF4580007CAEA /* wb.model.snippets.wbp_prefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wb.model.snippets.wbp_prefix.h; path = prefix/wb.model.snippets.wbp_prefix.h; sourceTree = "<group>"; };
+		27504D7A1B3BF4760007CAEA /* wb.mysql.import.grt_prefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wb.mysql.import.grt_prefix.h; path = prefix/wb.mysql.import.grt_prefix.h; sourceTree = "<group>"; };
+		27504D7B1B3BF48E0007CAEA /* wb.mysql.validation.grt_prefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wb.mysql.validation.grt_prefix.h; path = prefix/wb.mysql.validation.grt_prefix.h; sourceTree = "<group>"; };
+		27504D7C1B3BF4B90007CAEA /* wb.printing_prefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wb.printing_prefix.h; path = prefix/wb.printing_prefix.h; sourceTree = "<group>"; };
+		27504D7D1B3BF5150007CAEA /* wb.printing.wbp_prefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wb.printing.wbp_prefix.h; path = prefix/wb.printing.wbp_prefix.h; sourceTree = "<group>"; };
+		27504D7E1B3BF5630007CAEA /* wbtests_prefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wbtests_prefix.h; path = prefix/wbtests_prefix.h; sourceTree = "<group>"; };
+		27504D7F1B3BF76A0007CAEA /* db.grt_prefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = db.grt_prefix.h; path = prefix/db.grt_prefix.h; sourceTree = "<group>"; };
+		27504D801B3BFABF0007CAEA /* db.mysql.diff.reporting.wbp_prefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = db.mysql.diff.reporting.wbp_prefix.h; path = prefix/db.mysql.diff.reporting.wbp_prefix.h; sourceTree = "<group>"; };
 		27512ED01240F4F600EF37DD /* code_editor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = code_editor.cpp; path = library/forms/code_editor.cpp; sourceTree = "<group>"; };
 		27512ED21240F50200EF37DD /* code_editor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = code_editor.h; path = library/forms/mforms/code_editor.h; sourceTree = "<group>"; };
 		2753E59818E95FBC0079DAA8 /* sshtunnel.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = sshtunnel.py; path = library/sshtunnel/sshtunnel.py; sourceTree = SOURCE_ROOT; };
@@ -4312,7 +4329,7 @@
 		2773B87F11006A2D000CA2F9 /* splitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = splitter.cpp; path = library/forms/splitter.cpp; sourceTree = "<group>"; };
 		2773B88411006B53000CA2F9 /* MFSplitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MFSplitter.h; path = library/forms/cocoa/MFSplitter.h; sourceTree = "<group>"; };
 		2773B88611006B58000CA2F9 /* MFSplitter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MFSplitter.mm; path = library/forms/cocoa/MFSplitter.mm; sourceTree = "<group>"; };
-		2777A7E31A30A36400A5441E /* cdbc_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cdbc_prefix.pch; path = prefix/cdbc_prefix.pch; sourceTree = SOURCE_ROOT; };
+		2777A7E31A30A36400A5441E /* cdbc_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cdbc_prefix.h; path = prefix/cdbc_prefix.h; sourceTree = SOURCE_ROOT; };
 		277A7CA51B3955A600A667AA /* wb.mysql.validation.grt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = wb.mysql.validation.grt.dylib; path = DerivedData/MySQLWorkbench/Build/Products/Debug/MySQLWorkbench.app/Contents/PlugIns/wb.mysql.validation.grt.dylib; sourceTree = "<group>"; };
 		277A7CA71B3955BD00A667AA /* db.mysql.editors.wbp.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = db.mysql.editors.wbp.dylib; path = DerivedData/MySQLWorkbench/Build/Products/Debug/MySQLWorkbench.app/Contents/PlugIns/db.mysql.editors.mwbplugin/Contents/Frameworks/db.mysql.editors.wbp.dylib; sourceTree = "<group>"; };
 		277A7CA91B39579200A667AA /* libsql.parser.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsql.parser.dylib; path = DerivedData/MySQLWorkbench/Build/Products/Debug/MySQLWorkbench.app/Contents/Frameworks/libsql.parser.dylib; sourceTree = "<group>"; };
@@ -4323,7 +4340,7 @@
 		277A7CB31B3958A500A667AA /* db.mysql.wbp.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = db.mysql.wbp.dylib; path = DerivedData/MySQLWorkbench/Build/Products/Debug/MySQLWorkbench.app/Contents/PlugIns/db.mysql.wbp.dylib; sourceTree = "<group>"; };
 		277A7CB51B3958D600A667AA /* wb.model.grt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = wb.model.grt.dylib; path = DerivedData/MySQLWorkbench/Build/Products/Debug/MySQLWorkbench.app/Contents/PlugIns/wb.model.grt.dylib; sourceTree = "<group>"; };
 		277A7CB71B3958F800A667AA /* wb.mysql.import.grt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = wb.mysql.import.grt.dylib; path = DerivedData/MySQLWorkbench/Build/Products/Debug/MySQLWorkbench.app/Contents/PlugIns/wb.mysql.import.grt.dylib; sourceTree = "<group>"; };
-		277F196B1A1507DB00E816F6 /* wb.fabric.interface.grt_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb.fabric.interface.grt_prefix.pch; path = prefix/wb.fabric.interface.grt_prefix.pch; sourceTree = "<group>"; };
+		277F196B1A1507DB00E816F6 /* wb.fabric.interface.grt_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb.fabric.interface.grt_prefix.h; path = prefix/wb.fabric.interface.grt_prefix.h; sourceTree = "<group>"; };
 		27805B191B3987E3002AF516 /* libwbbase.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libwbbase.dylib; path = DerivedData/MySQLWorkbench/Build/Products/Debug/MySQLWorkbench.app/Contents/Frameworks/libwbbase.dylib; sourceTree = "<group>"; };
 		278874851189DA8500E477EF /* webbrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = webbrowser.h; path = library/forms/mforms/webbrowser.h; sourceTree = "<group>"; };
 		278874871189DA9300E477EF /* webbrowser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = webbrowser.cpp; path = library/forms/webbrowser.cpp; sourceTree = "<group>"; };
@@ -4366,8 +4383,8 @@
 		27B302691B39A906005B7D27 /* libmforms.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmforms.dylib; path = DerivedData/MySQLWorkbench/Build/Products/Debug/MySQLWorkbench.app/Contents/Frameworks/libmforms.dylib; sourceTree = "<group>"; };
 		27B3026C1B39A928005B7D27 /* libwbprivate.be.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libwbprivate.be.dylib; path = DerivedData/MySQLWorkbench/Build/Products/Debug/MySQLWorkbench.app/Contents/Frameworks/libwbprivate.be.dylib; sourceTree = "<group>"; };
 		27B3026E1B39A92C005B7D27 /* libwbpublic.be.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libwbpublic.be.dylib; path = DerivedData/MySQLWorkbench/Build/Products/Debug/MySQLWorkbench.app/Contents/Frameworks/libwbpublic.be.dylib; sourceTree = "<group>"; };
-		27B37DC31A32001B00C73F1F /* mforms_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mforms_prefix.pch; path = prefix/mforms_prefix.pch; sourceTree = "<group>"; };
-		27B37DC51A32100E00C73F1F /* db.mysql.grt_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = db.mysql.grt_prefix.pch; path = prefix/db.mysql.grt_prefix.pch; sourceTree = "<group>"; };
+		27B37DC31A32001B00C73F1F /* mforms_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mforms_prefix.h; path = prefix/mforms_prefix.h; sourceTree = "<group>"; };
+		27B37DC51A32100E00C73F1F /* db.mysql.grt_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = db.mysql.grt_prefix.h; path = prefix/db.mysql.grt_prefix.h; sourceTree = "<group>"; };
 		27B3B4C219C6EDA1007D4A92 /* mysql-recognition-types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "mysql-recognition-types.h"; path = "library/mysql.parser/mysql-recognition-types.h"; sourceTree = "<group>"; };
 		27B3B4CD19C7148D007D4A92 /* MySQL.tokens */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = MySQL.tokens; path = library/mysql.parser/MySQL.tokens; sourceTree = "<group>"; };
 		27B3B4CE19C714A4007D4A92 /* MySQL.g */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = MySQL.g; path = library/mysql.parser/grammar/MySQL.g; sourceTree = "<group>"; };
@@ -4398,19 +4415,19 @@
 		27B923C8196ED20000D98D18 /* mforms_ObjectReference.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mforms_ObjectReference.cpp; path = backend/wbpublic/objimpl/wrapper/mforms_ObjectReference.cpp; sourceTree = "<group>"; };
 		27B923C9196ED20000D98D18 /* parser_ContextReference_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = parser_ContextReference_impl.h; path = backend/wbpublic/objimpl/wrapper/parser_ContextReference_impl.h; sourceTree = "<group>"; };
 		27B923CA196ED20000D98D18 /* parser_ContextReference.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = parser_ContextReference.cpp; path = backend/wbpublic/objimpl/wrapper/parser_ContextReference.cpp; sourceTree = "<group>"; };
-		27BFE4551924B80D0070B8FB /* db.mysql.parser.grt_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = db.mysql.parser.grt_prefix.pch; path = prefix/db.mysql.parser.grt_prefix.pch; sourceTree = SOURCE_ROOT; };
-		27BFE4571924B89E0070B8FB /* wbpublic.be_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wbpublic.be_prefix.pch; path = prefix/wbpublic.be_prefix.pch; sourceTree = "<group>"; };
-		27BFE45A1924BB080070B8FB /* WBExtras_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WBExtras_prefix.pch; path = prefix/WBExtras_prefix.pch; sourceTree = "<group>"; };
-		27BFE45D1924BBB90070B8FB /* wb.model.editors.wbp_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb.model.editors.wbp_prefix.pch; path = prefix/wb.model.editors.wbp_prefix.pch; sourceTree = "<group>"; };
-		27BFE4601924BC290070B8FB /* wbprivate.be_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wbprivate.be_prefix.pch; path = prefix/wbprivate.be_prefix.pch; sourceTree = "<group>"; };
-		27BFE4621924BC670070B8FB /* db.mysql.editors.wbp_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = db.mysql.editors.wbp_prefix.pch; path = prefix/db.mysql.editors.wbp_prefix.pch; sourceTree = "<group>"; };
-		27BFE4651924C31C0070B8FB /* db.mysql.editors_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = db.mysql.editors_prefix.pch; path = prefix/db.mysql.editors_prefix.pch; sourceTree = "<group>"; };
-		27BFE4671924C3930070B8FB /* wb.model.editors_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb.model.editors_prefix.pch; path = prefix/wb.model.editors_prefix.pch; sourceTree = "<group>"; };
-		27BFE4691924C3DB0070B8FB /* MySQLWorkbench_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MySQLWorkbench_prefix.pch; path = prefix/MySQLWorkbench_prefix.pch; sourceTree = "<group>"; };
-		27C15E651A30989000EB73F7 /* wbbase_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wbbase_prefix.pch; path = prefix/wbbase_prefix.pch; sourceTree = "<group>"; };
-		27C15E671A309C2000EB73F7 /* wbcopytables_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wbcopytables_prefix.pch; path = prefix/wbcopytables_prefix.pch; sourceTree = "<group>"; };
-		27C15E681A309CA000EB73F7 /* mysql.parser_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mysql.parser_prefix.pch; path = prefix/mysql.parser_prefix.pch; sourceTree = "<group>"; };
-		27C15E6A1A30A2E000EB73F7 /* grt_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grt_prefix.pch; path = prefix/grt_prefix.pch; sourceTree = "<group>"; };
+		27BFE4551924B80D0070B8FB /* db.mysql.parser.grt_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = db.mysql.parser.grt_prefix.h; path = prefix/db.mysql.parser.grt_prefix.h; sourceTree = SOURCE_ROOT; };
+		27BFE4571924B89E0070B8FB /* wbpublic.be_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wbpublic.be_prefix.h; path = prefix/wbpublic.be_prefix.h; sourceTree = "<group>"; };
+		27BFE45A1924BB080070B8FB /* WBExtras_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WBExtras_prefix.h; path = prefix/WBExtras_prefix.h; sourceTree = "<group>"; };
+		27BFE45D1924BBB90070B8FB /* wb.model.editors.wbp_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb.model.editors.wbp_prefix.h; path = prefix/wb.model.editors.wbp_prefix.h; sourceTree = "<group>"; };
+		27BFE4601924BC290070B8FB /* wbprivate.be_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wbprivate.be_prefix.h; path = prefix/wbprivate.be_prefix.h; sourceTree = "<group>"; };
+		27BFE4621924BC670070B8FB /* db.mysql.editors.wbp_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = db.mysql.editors.wbp_prefix.h; path = prefix/db.mysql.editors.wbp_prefix.h; sourceTree = "<group>"; };
+		27BFE4651924C31C0070B8FB /* db.mysql.editors_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = db.mysql.editors_prefix.h; path = prefix/db.mysql.editors_prefix.h; sourceTree = "<group>"; };
+		27BFE4671924C3930070B8FB /* wb.model.editors_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb.model.editors_prefix.h; path = prefix/wb.model.editors_prefix.h; sourceTree = "<group>"; };
+		27BFE4691924C3DB0070B8FB /* MySQLWorkbench_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MySQLWorkbench_prefix.h; path = prefix/MySQLWorkbench_prefix.h; sourceTree = "<group>"; };
+		27C15E651A30989000EB73F7 /* wbbase_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wbbase_prefix.h; path = prefix/wbbase_prefix.h; sourceTree = "<group>"; };
+		27C15E671A309C2000EB73F7 /* wbcopytables_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wbcopytables_prefix.h; path = prefix/wbcopytables_prefix.h; sourceTree = "<group>"; };
+		27C15E681A309CA000EB73F7 /* mysql.parser_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mysql.parser_prefix.h; path = prefix/mysql.parser_prefix.h; sourceTree = "<group>"; };
+		27C15E6A1A30A2E000EB73F7 /* grt_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grt_prefix.h; path = prefix/grt_prefix.h; sourceTree = "<group>"; };
 		27C3A1301070C3B200DD5717 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = common.h; path = library/base/base/common.h; sourceTree = "<group>"; };
 		27C5903514C9755100FFC45E /* code_editor.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = code_editor.xml; path = res/wbdata/code_editor.xml; sourceTree = "<group>"; };
 		27C6887D10B58C9A00B8D810 /* new_server_instance_wizard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = new_server_instance_wizard.cpp; path = frontend/common/new_server_instance_wizard.cpp; sourceTree = "<group>"; };
@@ -6603,7 +6620,6 @@
 		2BFBF0A00F51BF2D0016F9D1 /* MySQLViewEditor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MySQLViewEditor.mm; path = plugins/db.mysql.editors/macosx/MySQLViewEditor.mm; sourceTree = "<group>"; wrapsLines = 0; };
 		2BFC2E9916D3C6A500C73F61 /* wba_audit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = wba_audit; path = plugins/wb.admin/internal/wba_audit; sourceTree = "<group>"; };
 		2BFDB83416C00F6500D0C5A8 /* libvsqlitepp.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvsqlitepp.0.dylib; path = "../mysql-mac-res/lib/libvsqlitepp.0.dylib"; sourceTree = "<group>"; };
-		32CA4F630368D1EE00C91783 /* MySQLWorkbench_Prefix.pch */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; path = MySQLWorkbench_Prefix.pch; sourceTree = "<group>"; };
 		44683E4B1AC9A40B00C516C5 /* generic_templates.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = generic_templates.h; path = library/base/base/generic_templates.h; sourceTree = "<group>"; };
 		44FFC3D21AA0BA1F00950A48 /* sqlide_power_export_wizard.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = sqlide_power_export_wizard.py; path = plugins/wb.sqlide/sqlide_power_export_wizard.py; sourceTree = "<group>"; };
 		44FFC3D31AA0BA1F00950A48 /* sqlide_power_import_export_be.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = sqlide_power_import_export_be.py; path = plugins/wb.sqlide/sqlide_power_import_export_be.py; sourceTree = "<group>"; };
@@ -7713,7 +7729,7 @@
 			children = (
 				27CE5FA019179DA5005574D4 /* mysql_parser_module.cpp */,
 				27CE5FA119179DA5005574D4 /* mysql_parser_module.h */,
-				27BFE4551924B80D0070B8FB /* db.mysql.parser.grt_prefix.pch */,
+				27BFE4551924B80D0070B8FB /* db.mysql.parser.grt_prefix.h */,
 			);
 			name = db.mysql.parser;
 			sourceTree = "<group>";
@@ -7789,7 +7805,7 @@
 		27467FBA154AC77A00021708 /* mysql.parser */ = {
 			isa = PBXGroup;
 			children = (
-				27C15E681A309CA000EB73F7 /* mysql.parser_prefix.pch */,
+				27C15E681A309CA000EB73F7 /* mysql.parser_prefix.h */,
 				27B3B4CE19C714A4007D4A92 /* MySQL.g */,
 				27B3B4CD19C7148D007D4A92 /* MySQL.tokens */,
 				27467FD9154AC8B500021708 /* mysql-parser.h */,
@@ -8074,7 +8090,6 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
-				32CA4F630368D1EE00C91783 /* MySQLWorkbench_Prefix.pch */,
 				29B97316FDCFA39411CA2CEA /* main.m */,
 			);
 			name = "Other Sources";
@@ -8186,7 +8201,7 @@
 		2B17B0100F4D97AA0087ED42 /* Backend */ = {
 			isa = PBXGroup;
 			children = (
-				27BFE45D1924BBB90070B8FB /* wb.model.editors.wbp_prefix.pch */,
+				27BFE45D1924BBB90070B8FB /* wb.model.editors.wbp_prefix.h */,
 				2B025BF40FBB091F00EA1A57 /* wb_editor_layer.cpp */,
 				2B025BF50FBB091F00EA1A57 /* wb_editor_layer.h */,
 				2B17B0130F4D98310087ED42 /* wb_editor_image.cpp */,
@@ -8202,7 +8217,7 @@
 		2B17B0110F4D97B00087ED42 /* Frontend */ = {
 			isa = PBXGroup;
 			children = (
-				27BFE4671924C3930070B8FB /* wb.model.editors_prefix.pch */,
+				27BFE4671924C3930070B8FB /* wb.model.editors_prefix.h */,
 				2B025BF80FBB092500EA1A57 /* Layer Editor */,
 				2B17B0600F4D9B3A0087ED42 /* Note Editor */,
 				2B17B0610F4D9B410087ED42 /* Image Editor */,
@@ -8289,6 +8304,7 @@
 			children = (
 				270509FE1B34052200D6135D /* Header Files */,
 				270509FF1B34053300D6135D /* Source Files */,
+				27504D7E1B3BF5630007CAEA /* wbtests_prefix.h */,
 			);
 			name = "WB Tests";
 			sourceTree = "<group>";
@@ -8950,6 +8966,7 @@
 		2B2DF847105E9A2800F267F9 /* db.mysql.query */ = {
 			isa = PBXGroup;
 			children = (
+				27504D701B3BF22B0007CAEA /* db.mysql.query.grt_prefix.h */,
 				2B113E2D10755BF6006BBE1B /* dbquery.cpp */,
 			);
 			name = db.mysql.query;
@@ -8958,7 +8975,7 @@
 		2B2E91E8158916050078D08A /* copytable */ = {
 			isa = PBXGroup;
 			children = (
-				27C15E671A309C2000EB73F7 /* wbcopytables_prefix.pch */,
+				27C15E671A309C2000EB73F7 /* wbcopytables_prefix.h */,
 				27327B9F172FAFC800DE65D7 /* python_copy_data_source.cpp */,
 				27327BA0172FAFC800DE65D7 /* python_copy_data_source.h */,
 				2B2E96B5158BC95E0078D08A /* converter.h */,
@@ -9017,6 +9034,7 @@
 		2B3D496D0F3E6FAD009238A7 /* db.mysql */ = {
 			isa = PBXGroup;
 			children = (
+				27504D721B3BF3410007CAEA /* db.mysql.wbp_prefix.h */,
 				2B3D4FB80F40C726009238A7 /* register_plugin.cpp */,
 				2B3D49A80F3E70C3009238A7 /* Backend */,
 				2B3D49A90F3E70CA009238A7 /* Frontend */,
@@ -9027,6 +9045,7 @@
 		2B3D496E0F3E6FB5009238A7 /* wb.model.reporting */ = {
 			isa = PBXGroup;
 			children = (
+				27504D781B3BF4440007CAEA /* wb.model.reporting.wbp_prefix.h */,
 				2B3D5D510F43DD43009238A7 /* register_plugin.cpp */,
 				2B3D5D570F43DD4D009238A7 /* Backend */,
 				2B3D5D580F43DD5D009238A7 /* Frontend */,
@@ -9163,6 +9182,7 @@
 		2B5283FC0F1A56E0005FBF7C /* wb.model */ = {
 			isa = PBXGroup;
 			children = (
+				27504D771B3BF4120007CAEA /* wb.model.grt_prefix.h */,
 				2B5283FD0F1A5718005FBF7C /* graph_renderer.cpp */,
 				2B5283FE0F1A5718005FBF7C /* reporting.cpp */,
 				2B5283FF0F1A5718005FBF7C /* wb_model.cpp */,
@@ -9184,7 +9204,7 @@
 		2B52841A0F1A581F005FBF7C /* Backend */ = {
 			isa = PBXGroup;
 			children = (
-				27BFE4621924BC670070B8FB /* db.mysql.editors.wbp_prefix.pch */,
+				27BFE4621924BC670070B8FB /* db.mysql.editors.wbp_prefix.h */,
 				2B3D482A0F3E38BD009238A7 /* mysql_view_editor.h */,
 				2B3D482B0F3E38BD009238A7 /* mysql_table_editor.h */,
 				2B3D482C0F3E38BD009238A7 /* mysql_schema_editor.h */,
@@ -9204,7 +9224,7 @@
 		2B52841B0F1A582B005FBF7C /* Frontend */ = {
 			isa = PBXGroup;
 			children = (
-				27BFE4651924C31C0070B8FB /* db.mysql.editors_prefix.pch */,
+				27BFE4651924C31C0070B8FB /* db.mysql.editors_prefix.h */,
 				168C65B80F437A3900973922 /* MySQL Schema Editor */,
 				168C65B70F437A2A00973922 /* MySQL Table Editor */,
 				2BFBF09C0F51BE710016F9D1 /* MySQL View Editor */,
@@ -9220,6 +9240,7 @@
 		2B5285E50F1C1D5A005FBF7C /* wb.mysql.import */ = {
 			isa = PBXGroup;
 			children = (
+				27504D7A1B3BF4760007CAEA /* wb.mysql.import.grt_prefix.h */,
 				2B52862B0F1C1EB6005FBF7C /* wb_mysql_import.cpp */,
 				2B52862C0F1C1EB6005FBF7C /* wb_mysql_import.h */,
 				2B52862D0F1C1EB6005FBF7C /* wb_mysql_import_dbd4.cpp */,
@@ -9243,6 +9264,7 @@
 		2B5285E70F1C1D8E005FBF7C /* wb.mysql.validation */ = {
 			isa = PBXGroup;
 			children = (
+				27504D7B1B3BF48E0007CAEA /* wb.mysql.validation.grt_prefix.h */,
 				2B5286330F1C1ED1005FBF7C /* register_plugin.cpp */,
 				2B5286340F1C1ED1005FBF7C /* wb_module_validation_mysql.cpp */,
 				2B5286350F1C1ED1005FBF7C /* wb_module_validation_mysql.h */,
@@ -9301,6 +9323,7 @@
 		2B6BBEBD16BAB13900F8A39E /* db.mysql.search */ = {
 			isa = PBXGroup;
 			children = (
+				27504D731B3BF35F0007CAEA /* db.search.wbp_prefix.h */,
 				2B6BBED316BAC5ED00F8A39E /* DbSearchFilterPanel.cpp */,
 				2B6BBED416BAC5ED00F8A39E /* DbSearchFilterPanel.h */,
 				2B6BBED516BAC5ED00F8A39E /* DbSearchPanel.cpp */,
@@ -9369,7 +9392,7 @@
 		2B750DB40E877D7E0003120A /* cdbc */ = {
 			isa = PBXGroup;
 			children = (
-				2777A7E31A30A36400A5441E /* cdbc_prefix.pch */,
+				2777A7E31A30A36400A5441E /* cdbc_prefix.h */,
 				2753E59818E95FBC0079DAA8 /* sshtunnel.py */,
 				27EADE1618E5707100D3C85D /* cppdbc_public_interface.h */,
 				27EADE1718E5707100D3C85D /* cppdbc.h */,
@@ -9808,7 +9831,7 @@
 			isa = PBXGroup;
 			children = (
 				44683E4B1AC9A40B00C516C5 /* generic_templates.h */,
-				27C15E651A30989000EB73F7 /* wbbase_prefix.pch */,
+				27C15E651A30989000EB73F7 /* wbbase_prefix.h */,
 				ED69F9E715DEC9F600FF2FE3 /* profiling.h */,
 				ED69F9E515DEC9DB00FF2FE3 /* profiling.cpp */,
 				273F6AFE17044B37002117F2 /* threading.h */,
@@ -9854,7 +9877,7 @@
 			isa = PBXGroup;
 			children = (
 				2B825D950E0B604D00BE52DF /* diff */,
-				27C15E6A1A30A2E000EB73F7 /* grt_prefix.pch */,
+				27C15E6A1A30A2E000EB73F7 /* grt_prefix.h */,
 				2B825DC80E0B605A00BE52DF /* grtpp_grt.cpp */,
 				2B825DBA0E0B605A00BE52DF /* grtpp_helper.cpp */,
 				2B825DBD0E0B605A00BE52DF /* grtpp_helper.h */,
@@ -9905,6 +9928,7 @@
 			isa = PBXGroup;
 			children = (
 				2BE5B31C0EA52D8400194EB2 /* Headers */,
+				27504D741B3BF3820007CAEA /* mysql.canvas_prefix.h */,
 				2B825E280E0B664E00BE52DF /* mdc_canvas_view_macosx.cpp */,
 				2BB37B421109507800DA4577 /* mdc_canvas_view_printing.cpp */,
 				2B00E5130EB40438006B9A7C /* mdc_canvas_view_opengl.cpp */,
@@ -9947,7 +9971,7 @@
 		2B825EBC0E0B68D900BE52DF /* Workbench */ = {
 			isa = PBXGroup;
 			children = (
-				27BFE4691924C3DB0070B8FB /* MySQLWorkbench_prefix.pch */,
+				27BFE4691924C3DB0070B8FB /* MySQLWorkbench_prefix.h */,
 				27A3EC8C164BA997001B6D8F /* MainMenu.xib */,
 				2B263BC90E9463FB00933149 /* WBMainController.h */,
 				2B263BCA0E9463FB00933149 /* WBMainController.mm */,
@@ -10129,7 +10153,7 @@
 		2B9616140F27594600F0B599 /* mforms */ = {
 			isa = PBXGroup;
 			children = (
-				27B37DC31A32001B00C73F1F /* mforms_prefix.pch */,
+				27B37DC31A32001B00C73F1F /* mforms_prefix.h */,
 				27A5768C10FE078100A948A6 /* High Level Controls */,
 				27A5768D10FE07C300A948A6 /* Low level Controls */,
 				2BCAD0471006D07800D1772C /* python */,
@@ -10364,7 +10388,7 @@
 		2BAE1A650F368E3300BE725E /* Private */ = {
 			isa = PBXGroup;
 			children = (
-				27BFE4601924BC290070B8FB /* wbprivate.be_prefix.pch */,
+				27BFE4601924BC290070B8FB /* wbprivate.be_prefix.h */,
 				2B3D49480F3E41A7009238A7 /* Common Panels */,
 				2B75103E0E87966E0003120A /* Workbench */,
 				2BF87A280FA7CED00012EADA /* Model */,
@@ -10459,6 +10483,7 @@
 			isa = PBXGroup;
 			children = (
 				2BB37A9B11094BA700DA4577 /* Backend */,
+				27504D7C1B3BF4B90007CAEA /* wb.printing_prefix.h */,
 				2BB37A6D11094AD000DA4577 /* PrintDialog.h */,
 				2BB37A6E11094AD000DA4577 /* PrintDialog.mm */,
 			);
@@ -10468,6 +10493,7 @@
 		2BB37A9B11094BA700DA4577 /* Backend */ = {
 			isa = PBXGroup;
 			children = (
+				27504D7D1B3BF5150007CAEA /* wb.printing.wbp_prefix.h */,
 				2BB37A9C11094BC600DA4577 /* wb_module_printing.cpp */,
 				2BB37A9D11094BC600DA4577 /* wb_module_printing.h */,
 				2BB37A9E11094BC600DA4577 /* wb_printing.cpp */,
@@ -10479,6 +10505,7 @@
 		2BB588EC0F44D54300089423 /* db.mysql.diff.reporting */ = {
 			isa = PBXGroup;
 			children = (
+				27504D801B3BFABF0007CAEA /* db.mysql.diff.reporting.wbp_prefix.h */,
 				2BB589090F44D62900089423 /* register_plugin.cpp */,
 				2BB589040F44D5FC00089423 /* Backend */,
 				2BB589060F44D60600089423 /* Frontend */,
@@ -10657,7 +10684,7 @@
 		2BCFD7BA0E88BA6000D2A0CB /* WBExtras */ = {
 			isa = PBXGroup;
 			children = (
-				27BFE45A1924BB080070B8FB /* WBExtras_prefix.pch */,
+				27BFE45A1924BB080070B8FB /* WBExtras_prefix.h */,
 				2B29F9161140B20D009DA9B0 /* WBBasePanel.h */,
 				2B29F9171140B20D009DA9B0 /* WBBasePanel.mm */,
 				2B843D4217090AEE004F08F2 /* WBSidebarPanel.h */,
@@ -10716,7 +10743,7 @@
 				2B4BD6AF0ED1F8F4003E44F2 /* SQL IDE */,
 				2B750FEF0E87966E0003120A /* grtui */,
 				2B7510050E87966E0003120A /* wbcanvas */,
-				27BFE4571924B89E0070B8FB /* wbpublic.be_prefix.pch */,
+				27BFE4571924B89E0070B8FB /* wbpublic.be_prefix.h */,
 			);
 			name = Public;
 			sourceTree = "<group>";
@@ -10748,6 +10775,7 @@
 		2BDC26230E8566CF0018CE34 /* sql.parser */ = {
 			isa = PBXGroup;
 			children = (
+				27504D751B3BF3AE0007CAEA /* sql.parser_prefix.h */,
 				2B2E92D00FC475F9001F9022 /* charset-def.cpp */,
 				2B2E92D10FC475F9001F9022 /* charset.cpp */,
 				2B2E92D20FC475F9001F9022 /* ctype-big5.cpp */,
@@ -10983,6 +11011,7 @@
 		2BE732E90EFAFB4000287AE0 /* db */ = {
 			isa = PBXGroup;
 			children = (
+				27504D7F1B3BF76A0007CAEA /* db.grt_prefix.h */,
 				2BE733130EFAFBCE00287AE0 /* dbutils.cpp */,
 			);
 			name = db;
@@ -10991,7 +11020,7 @@
 		2BE732EA0EFAFB4600287AE0 /* db.mysql */ = {
 			isa = PBXGroup;
 			children = (
-				27B37DC51A32100E00C73F1F /* db.mysql.grt_prefix.pch */,
+				27B37DC51A32100E00C73F1F /* db.mysql.grt_prefix.h */,
 				2BAD7C3F156D89220025F13F /* db_mysql_fe_grt.py */,
 				2BAD7C40156D89220025F13F /* db_mysql_migration_grt.py */,
 				2BAD7C41156D89220025F13F /* db_mysql_re_grt.py */,
@@ -11012,6 +11041,7 @@
 		2BE7336F0EFAFE9C00287AE0 /* db.mysql.sqlparser */ = {
 			isa = PBXGroup;
 			children = (
+				27504D711B3BF2D80007CAEA /* db.mysql.sqlparser.grt_prefix.h */,
 				2BEC8E7A1035F80900607CA4 /* mysql_sql_semantic_check.cpp */,
 				2BEC8E7B1035F80900607CA4 /* mysql_sql_semantic_check.h */,
 				2B5DE7320FFE9FA800701821 /* mysql_sql_statement_decomposer.cpp */,
@@ -11060,6 +11090,7 @@
 		2BF049481741AC7A00A7EA35 /* wb.model.advfind */ = {
 			isa = PBXGroup;
 			children = (
+				27504D761B3BF3CF0007CAEA /* wb.model.advfind.wbp_prefix.h */,
 				2BF0496517426BE500A7EA35 /* register_plugin.cpp */,
 				2BF0495E1741BB4C00A7EA35 /* wb_find_dialog.cpp */,
 				2BF0495F1741BB4C00A7EA35 /* wb_find_dialog.h */,
@@ -11314,6 +11345,7 @@
 		2BF7E09F133101CA002EBA46 /* wb.model.snippets */ = {
 			isa = PBXGroup;
 			children = (
+				27504D791B3BF4580007CAEA /* wb.model.snippets.wbp_prefix.h */,
 				2BF7E0D0133102B1002EBA46 /* register_plugin.cpp */,
 				2BF7E112133141A4002EBA46 /* include_model_wizard.h */,
 				2BF7E113133141A4002EBA46 /* include_model_wizard.cpp */,
@@ -11523,7 +11555,7 @@
 			children = (
 				ED08ADA81A144435001DBE04 /* wb_fabric_interface.cpp */,
 				ED08ADA91A144435001DBE04 /* wb_fabric_interface.h */,
-				277F196B1A1507DB00E816F6 /* wb.fabric.interface.grt_prefix.pch */,
+				277F196B1A1507DB00E816F6 /* wb.fabric.interface.grt_prefix.h */,
 			);
 			name = wb.fabric.interface;
 			sourceTree = "<group>";
@@ -11551,7 +11583,7 @@
 				27467EF1154A97BC00021708 /* antlr3bitset.h in Headers */,
 				27467EF2154A97BC00021708 /* antlr3collections.h in Headers */,
 				27467EF3154A97BC00021708 /* antlr3commontoken.h in Headers */,
-				27C15E691A309CA000EB73F7 /* mysql.parser_prefix.pch in Headers */,
+				27C15E691A309CA000EB73F7 /* mysql.parser_prefix.h in Headers */,
 				27467EF4154A97BC00021708 /* antlr3commontree.h in Headers */,
 				27467EF5154A97BC00021708 /* antlr3commontreeadaptor.h in Headers */,
 				27467EF6154A97BC00021708 /* antlr3commontreenodestream.h in Headers */,
@@ -11589,7 +11621,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				27BFE4561924B80D0070B8FB /* db.mysql.parser.grt_prefix.pch in Headers */,
+				27BFE4561924B80D0070B8FB /* db.mysql.parser.grt_prefix.h in Headers */,
 				27CE5FA319179DA5005574D4 /* mysql_parser_module.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -11598,7 +11630,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				27BFE45F1924BBB90070B8FB /* wb.model.editors.wbp_prefix.pch in Headers */,
+				27BFE45F1924BBB90070B8FB /* wb.model.editors.wbp_prefix.h in Headers */,
 				2B17B01B0F4D98310087ED42 /* wb_editor_image.h in Headers */,
 				2B17B01D0F4D98310087ED42 /* wb_editor_note.h in Headers */,
 				2B17B01F0F4D98310087ED42 /* wb_editor_storednote.h in Headers */,
@@ -11670,7 +11702,7 @@
 			files = (
 				2B3D49950F3E7087009238A7 /* mysql_relationship_editor.h in Headers */,
 				2B3D49970F3E7088009238A7 /* mysql_routine_editor.h in Headers */,
-				27BFE4641924BC750070B8FB /* db.mysql.editors.wbp_prefix.pch in Headers */,
+				27BFE4641924BC750070B8FB /* db.mysql.editors.wbp_prefix.h in Headers */,
 				2B3D49990F3E7089009238A7 /* mysql_routinegroup_editor.h in Headers */,
 				2B3D499B0F3E708A009238A7 /* mysql_schema_editor.h in Headers */,
 				2B3D499D0F3E708D009238A7 /* mysql_table_editor.h in Headers */,
@@ -11721,7 +11753,7 @@
 				27EADE2018E5707100D3C85D /* driver_manager.h in Headers */,
 				27EADE1D18E5707100D3C85D /* cppdbc_public_interface.h in Headers */,
 				27EADE2218E5707100D3C85D /* sql_batch_exec.h in Headers */,
-				2777A7E41A30A36400A5441E /* cdbc_prefix.pch in Headers */,
+				2777A7E41A30A36400A5441E /* cdbc_prefix.h in Headers */,
 				27EADE1E18E5707100D3C85D /* cppdbc.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -11757,7 +11789,7 @@
 				2B41EF4C0F8BB07000F5EB1E /* sql_specifics.h in Headers */,
 				2B41EF4E0F8BB07000F5EB1E /* sql_normalizer.h in Headers */,
 				2B41EF500F8BB07000F5EB1E /* sql_inserts_loader.h in Headers */,
-				27BFE4581924B89E0070B8FB /* wbpublic.be_prefix.pch in Headers */,
+				27BFE4581924B89E0070B8FB /* wbpublic.be_prefix.h in Headers */,
 				2B0748620F93F9A100D7E4E3 /* string_list_editor.h in Headers */,
 				2B1CA3220F957772001443CA /* recordset_be.h in Headers */,
 				2BD9968E0FAC02B00074852E /* grtdb_connect_dialog.h in Headers */,
@@ -11806,7 +11838,7 @@
 				2B299C4F12CF8C3D008B57C9 /* wb_memory.h in Headers */,
 				27B3E26012E05FC700FFF572 /* log.h in Headers */,
 				274E897F1313BFC1000459A0 /* drawing.h in Headers */,
-				27C15E661A30989000EB73F7 /* wbbase_prefix.pch in Headers */,
+				27C15E661A30989000EB73F7 /* wbbase_prefix.h in Headers */,
 				2B497E6113D0DD5600F6AF47 /* sqlstring.h in Headers */,
 				2B22CA9E146DF85100625F5C /* notifications.h in Headers */,
 				2B0F1CC21501D7630087D62A /* trackable.h in Headers */,
@@ -11838,7 +11870,7 @@
 				2BB58BC10F46027E00089423 /* python_grtlist.h in Headers */,
 				2BB58D490F4673A400089423 /* grtpp_shell_python.h in Headers */,
 				2BB58F290F471B3900089423 /* python_grtobject.h in Headers */,
-				27C15E6B1A30A2E000EB73F7 /* grt_prefix.pch in Headers */,
+				27C15E6B1A30A2E000EB73F7 /* grt_prefix.h in Headers */,
 				2B8760E60F47E568000B6DE1 /* python_grtdict.h in Headers */,
 				2B8761280F47ECB5000B6DE1 /* python_module.h in Headers */,
 				2B7F19DA119B74730051F062 /* grtpp_shell_python_help.h in Headers */,
@@ -11934,7 +11966,7 @@
 				2B3D492A0F3E3FCA009238A7 /* MFSelector.h in Headers */,
 				2B3D492C0F3E3FCA009238A7 /* MFTable.h in Headers */,
 				2B3D49300F3E3FCA009238A7 /* MFTextBox.h in Headers */,
-				27B37DC41A32001B00C73F1F /* mforms_prefix.pch in Headers */,
+				27B37DC41A32001B00C73F1F /* mforms_prefix.h in Headers */,
 				2B83E5BE1992B3D900781432 /* MCanvasViewer.h in Headers */,
 				2B3D49320F3E3FCA009238A7 /* MFTextEntry.h in Headers */,
 				2B3D49340F3E3FCA009238A7 /* MFView.h in Headers */,
@@ -12061,7 +12093,7 @@
 				2B83E5CA1992B54B00781432 /* spatial_draw_box.h in Headers */,
 				2B4D197A124030D8004E6309 /* wb_context_ui_home.h in Headers */,
 				2B84DEAF124A89A7009136B7 /* grt_python_debugger.h in Headers */,
-				27BFE4611924BC290070B8FB /* wbprivate.be_prefix.pch in Headers */,
+				27BFE4611924BC290070B8FB /* wbprivate.be_prefix.h in Headers */,
 				27987708195C5253003E8E44 /* execute_routine_wizard.h in Headers */,
 				27B3E24812E05C1C00FFF572 /* advanced_sidebar.h in Headers */,
 				2BAE52C6134429CA00076130 /* plugin_install_window.h in Headers */,
@@ -12117,7 +12149,7 @@
 				2B1CA4230F965CB1001443CA /* MQIndicatorCell.h in Headers */,
 				2B1CA4250F965CB1001443CA /* MQResultSetCell.h in Headers */,
 				2BB9A1870FB1476F001F9968 /* NSColor_extras.h in Headers */,
-				27BFE45B1924BB080070B8FB /* WBExtras_prefix.pch in Headers */,
+				27BFE45B1924BB080070B8FB /* WBExtras_prefix.h in Headers */,
 				2BB9A3730FB21A56001F9968 /* MStatusBar.h in Headers */,
 				2B7CED900FBA588B00DCC700 /* WBSplitViewUnbrokenizerDelegate.h in Headers */,
 				2B7CEDE30FBA6C7500DCC700 /* MContainerView.h in Headers */,
@@ -15930,8 +15962,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = ENABLE_DEBUG;
 				GCC_WARN_SIGN_COMPARE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
@@ -15963,8 +15993,6 @@
 				DYLIB_CURRENT_VERSION = 1;
 				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = ".bzr *.nib *.lproj *.framework *.gch (*) CVS .svn .git *.xcodeproj *.xcode *.pbproj *.pbxproj";
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_WARN_SIGN_COMPARE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
@@ -16003,12 +16031,6 @@
 				ENABLE_NS_ASSERTIONS = YES;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -16049,8 +16071,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = YES;
 				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -16074,6 +16094,8 @@
 		27D8079F1A3F262E00EDCA8F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -16081,6 +16103,8 @@
 		27D807A01A3F262E00EDCA8F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -16094,8 +16118,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_DEBUG,
@@ -16127,8 +16149,6 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_LUA_MODULES,
@@ -16162,8 +16182,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_NAMESPACE,
 					ENABLE_PYTHON_MODULES,
@@ -16205,8 +16223,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_NAMESPACE,
 					ENABLE_PYTHON_MODULES,
@@ -16247,8 +16263,6 @@
 				COPY_PHASE_STRIP = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					AUTO_REGISTER_GRT_CLASSES,
 					ENABLE_PYTHON_MODULES,
@@ -16258,6 +16272,7 @@
 					HAVE_PRECOMPILED_HEADERS,
 					ENABLE_DEBUG,
 				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)",
 					"$(SRCROOT)/ext",
@@ -16309,8 +16324,6 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					AUTO_REGISTER_GRT_CLASSES,
 					ENABLE_PYTHON_MODULES,
@@ -16320,6 +16333,7 @@
 					HAVE_PRECOMPILED_HEADERS,
 					ENABLE_TESTING,
 				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)",
 					"$(SRCROOT)/ext",
@@ -16372,8 +16386,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/library/cdbc/src",
@@ -16395,8 +16407,6 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/library/cdbc/src",
@@ -16419,8 +16429,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../mysql-mac-res/mysql/include",
@@ -16442,8 +16450,6 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../mysql-mac-res/mysql/include",
@@ -16469,8 +16475,8 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"SWIG_TYPE_TABLE=mforms",
 					ENABLE_PYTHON_MODULES,
@@ -16497,8 +16503,8 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_EXTENSION = so;
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"SWIG_TYPE_TABLE=mforms",
 					ENABLE_PYTHON_MODULES,
@@ -16525,8 +16531,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_DEBUG,
@@ -16561,8 +16565,6 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_LUA_MODULES,
@@ -16598,8 +16600,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_DEBUG,
@@ -16632,8 +16632,6 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_LUA_MODULES,
@@ -16667,8 +16665,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_LEXER,
 					SCI_NAMESPACE,
@@ -16702,8 +16698,6 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_NAMESPACE,
 					SCI_LEXER,
@@ -16738,8 +16732,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_DEBUG,
@@ -16771,8 +16763,6 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_LUA_MODULES,
@@ -16808,8 +16798,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OBJC_CALL_CXX_CDTORS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_NAMESPACE,
 					ENABLE_PYTHON_MODULES,
@@ -16854,8 +16842,6 @@
 				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_MODEL_TUNING = G5;
 				GCC_OBJC_CALL_CXX_CDTORS = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_NAMESPACE,
 					ENABLE_PYTHON_MODULES,
@@ -16898,8 +16884,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TIXML_USE_STL,
 					ENABLE_PYTHON_MODULES,
@@ -16930,8 +16914,6 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TIXML_USE_STL,
 					ENABLE_PYTHON_MODULES,
@@ -16963,8 +16945,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/library/sql-parser/include",
@@ -16987,8 +16967,6 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/library/sql-parser/include",
@@ -17013,8 +16991,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/library/sql-parser/include",
@@ -17037,8 +17013,6 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/library/sql-parser/include",
@@ -17063,8 +17037,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/library/dbc/src",
@@ -17089,8 +17061,6 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/library/dbc/src",
@@ -17119,8 +17089,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"../mysql-mac-res/include/cppconn",
@@ -17143,8 +17111,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_PREFIX = lib;
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"../mysql-mac-res/include/cppconn",
@@ -17169,8 +17135,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_NAMESPACE,
 					ENABLE_PYTHON_MODULES,
@@ -17206,8 +17170,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_PREFIX = lib;
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_NAMESPACE,
 					ENABLE_PYTHON_MODULES,
@@ -17244,8 +17206,6 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = wbbase;
 				SKIP_INSTALL = YES;
@@ -17260,8 +17220,6 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_PREFIX = lib;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = wbbase;
 				SKIP_INSTALL = YES;
@@ -17276,8 +17234,6 @@
 				COPY_PHASE_STRIP = NO;
 				EXECUTABLE_PREFIX = lib;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"/library/grt",
@@ -17298,8 +17254,6 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_PREFIX = lib;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"/library/grt",
@@ -17322,8 +17276,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = mysql.canvas;
 				SKIP_INSTALL = YES;
@@ -17339,8 +17291,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_PREFIX = lib;
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = mysql.canvas;
 				SKIP_INSTALL = YES;
@@ -17361,8 +17311,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TIXML_USE_STL,
 					ENABLE_PYTHON_MODULES,
@@ -17403,8 +17351,6 @@
 				EXECUTABLE_PREFIX = lib;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TIXML_USE_STL,
 					ENABLE_PYTHON_MODULES,
@@ -17442,8 +17388,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/generated",
@@ -17466,8 +17410,6 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/generated",
@@ -17492,8 +17434,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/generated",
@@ -17524,8 +17464,6 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/generated",
@@ -17558,8 +17496,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_DEBUG,
@@ -17593,8 +17529,6 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_LUA_MODULES,
@@ -17630,8 +17564,8 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"SWIG_TYPE_TABLE=mforms",
 					ENABLE_PYTHON_MODULES,
@@ -17667,8 +17601,8 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_EXTENSION = so;
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"SWIG_TYPE_TABLE=mforms",
 					ENABLE_PYTHON_MODULES,
@@ -17705,8 +17639,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TIXML_USE_STL,
 					WB_USE_INTERNAL_BROWSER,
@@ -17746,8 +17678,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_PREFIX = lib;
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TIXML_USE_STL,
 					WB_USE_INTERNAL_BROWSER,
@@ -17792,8 +17722,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OBJC_CALL_CXX_CDTORS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_NAMESPACE,
 					SCI_LEXER,
@@ -17843,8 +17771,6 @@
 				FRAMEWORK_VERSION = A;
 				GCC_MODEL_TUNING = G5;
 				GCC_OBJC_CALL_CXX_CDTORS = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_NAMESPACE,
 					SCI_LEXER,
@@ -17891,8 +17817,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -17914,8 +17838,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_PREFIX = lib;
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -17938,8 +17860,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/library/forms",
@@ -17964,8 +17884,6 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/library/forms",
@@ -17992,8 +17910,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ext/antlr-runtime/include",
@@ -18017,8 +17933,6 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ext/antlr-runtime/include",
@@ -18044,8 +17958,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/generated",
@@ -18071,8 +17983,6 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/generated",
@@ -18100,8 +18010,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_DEBUG,
@@ -18134,8 +18042,6 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_LUA_MODULES,
@@ -18169,8 +18075,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_DEBUG,
@@ -18201,8 +18105,6 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_LUA_MODULES,
@@ -18239,8 +18141,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OBJC_CALL_CXX_CDTORS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_NAMESPACE,
 					ENABLE_PYTHON_MODULES,
@@ -18288,8 +18188,6 @@
 				);
 				GCC_MODEL_TUNING = G5;
 				GCC_OBJC_CALL_CXX_CDTORS = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_NAMESPACE,
 					ENABLE_PYTHON_MODULES,
@@ -18333,8 +18231,11 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				COPY_PHASE_STRIP = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.h";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					BOOST_NO_CXX11_RVALUE_REFERENCES,
+					HAVE_PRECOMPILED_HEADERS,
 					ENABLE_DEBUG,
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -18376,7 +18277,12 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				GCC_PREPROCESSOR_DEFINITIONS = BOOST_NO_CXX11_RVALUE_REFERENCES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.h";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					BOOST_NO_CXX11_RVALUE_REFERENCES,
+					HAVE_PRECOMPILED_HEADERS,
+				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
@@ -18417,8 +18323,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/generated",
@@ -18441,8 +18345,6 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/generated",
