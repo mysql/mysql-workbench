@@ -101,6 +101,8 @@ class MYSQLWBBACKEND_PUBLIC_FUNC ServerInstanceEditor : public mforms::Form
   mforms::TextEntry _sudo_prefix;
   
   grtui::DbConnectPanel *_connect_panel;
+
+  bool _contains_group;
   
 //  mforms::Button _save_preset_button;
 //  mforms::Button _delete_preset_button;
