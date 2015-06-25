@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,10 +21,11 @@
 
 #include "common.h"
 
-#include <stdexcept>
-
 #ifndef HAVE_PRECOMPILED_HEADERS
+
+#include <stdexcept>
 #include "glib.h"
+
 #endif
 
 namespace base {

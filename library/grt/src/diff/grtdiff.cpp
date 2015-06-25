@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,17 +17,21 @@
  * 02110-1301  USA
  */
 
-#include "grtdiff.h"
+#ifndef HAVE_PRECOMPILED_HEADERS
 #include <assert.h>
 #include <algorithm>
+#endif
+
+#include "base/util_functions.h"
+#include "base/log.h"
+
+#include "grtdiff.h"
 #include "diffchange.h"
 #include "changefactory.h"
 #include "grtlistdiff.h"
-
 #include "grtpp_util.h"
+
 #include "grts/structs.h"
-#include "base/util_functions.h"
-#include "base/log.h"
 
 //DEFAULT_LOG_DOMAIN("Diff module") currently unused
 

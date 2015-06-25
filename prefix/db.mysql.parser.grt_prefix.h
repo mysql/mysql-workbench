@@ -20,3 +20,32 @@
 #ifdef __OBJC__
     #import <Cocoa/Cocoa.h>
 #endif
+
+#ifdef __cplusplus
+
+#define _USE_MATH_DEFINES
+#include <math.h>
+
+#include <string>
+#include <vector>
+#include <stdexcept>
+#include <stdarg.h>
+#include <algorithm>
+#include <map>
+#include <list>
+#include <sstream>
+#include <cctype>
+#include <algorithm>
+#include <exception>
+#include <unordered_set>
+
+#include <glib.h>
+
+#include <antlr3.h>
+
+#include "grts/structs.db.mgmt.h"
+#include "grts/structs.db.mysql.h"
+#include "grts/structs.wrapper.h"
+
+#endif
+

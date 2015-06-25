@@ -20,3 +20,23 @@
 #ifdef __OBJC__
     #import <Cocoa/Cocoa.h>
 #endif
+
+#ifdef __cplusplus
+
+#define _USE_MATH_DEFINES
+#include <math.h>
+#include <sstream>
+#include <string>
+#include <assert.h>
+
+#include <glib.h>
+#include <glib/gstdio.h>
+
+#include <cairo/cairo.h>
+
+#include <boost/function.hpp>
+#include <boost/signals2.hpp>
+
+#include "mforms/mforms.h"
+
+#endif

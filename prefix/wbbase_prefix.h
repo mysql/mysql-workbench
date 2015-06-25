@@ -20,3 +20,36 @@
 #ifdef __OBJC__
     #import <Cocoa/Cocoa.h>
 #endif
+
+#ifdef __cplusplus
+
+#include <errno.h>
+#include <string>
+#include <math.h>
+#include <stdio.h>
+#include <stdarg.h>
+#include <time.h>
+#include <vector>
+#include <list>
+#include <sstream>
+#include <typeinfo>
+#include <unistd.h>
+#include <stdexcept>
+#include <functional>
+#include <locale>
+#include <algorithm>
+#include <fstream>
+
+#include <sys/types.h>
+#include <sys/time.h>
+
+#include <glib.h>
+#include <glib/gstdio.h>
+
+#include <boost/bind.hpp>
+#include <boost/optional.hpp>
+#include <boost/cstdint.hpp>
+#include <boost/function.hpp>
+#include <boost/locale/encoding_utf.hpp>
+
+#endif
