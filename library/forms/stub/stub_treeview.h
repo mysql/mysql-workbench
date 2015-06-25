@@ -86,9 +86,8 @@ private:
 
   static TreeNodeRef root_node(TreeNodeView *self)
   {
-    return TreeNodeRef();
-    //TreeViewWrapper *ptree_node_view = self->get_data<TreeViewWrapper>();
-    //return ptree_node_view->root_node();
+    TreeViewWrapper *ptree_node_view = self->get_data<TreeViewWrapper>();
+    return ptree_node_view->root_node();
   }
 
   TreeNodeRef root_node()
