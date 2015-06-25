@@ -68,7 +68,7 @@ _options_panel(mforms::TransparentPanel), _options_table(0),
 _show_connection_combo((flags & DbConnectPanelShowConnectionCombo) != 0),
 _show_manage_connections((flags & DbConnectPanelShowManageConnections) != 0),
 _dont_set_default_connection((flags & DbConnectPanelDontSetDefaultConnection) != 0),
-_last_active_tab(-1)
+_last_active_tab(-1), _create_group(false)
 {
   _allow_edit_connections = false;
   _initialized= false;
@@ -113,6 +113,7 @@ _last_active_tab(-1)
     scoped_connect(_stored_connection_sel.signal_changed(),boost::bind(&DbConnectPanel::change_active_stored_conn, this));
   scoped_connect(_rdbms_sel.signal_changed(),boost::bind(&DbConnectPanel::change_active_rdbms, this));
   scoped_connect(_driver_sel.signal_changed(),boost::bind(&DbConnectPanel::change_active_driver, this));
+  scoped_connect(_name_entry.signal_changed(), boost::bind(&DbConnectPanel::change_connection_name, this));
 
   _table.set_name("connect_panel:table");
   _table.set_row_count(flags & DbConnectPanelShowRDBMSCombo ? 4 : 2);
@@ -174,6 +175,40 @@ DbConnectPanel::~DbConnectPanel()
 {
   if (_delete_connection_be)
     delete _connection;
+}
+
+
+void DbConnectPanel::connection_user_input(std::string &text_entry, bool &create_group, bool new_entry /*= true*/)
+{
+  std::size_t pos = text_entry.find_first_of("/");
+  if (pos == std::string::npos)
+    return;
+  create_group = false;
+  std::string group = text_entry.substr(0, pos);
+  std::string message = (new_entry) ? "Do you want to create connection inside the group" : "Do you want to split the name and move the connection to the group";
+  int ret = mforms::Utilities::show_message("Place Connection in a Group.",
+                                            base::strfmt("You have used a forward slash in your connection name, which is used to separate a group from the real connection name.\n"
+                                            "%s '%s'? If you select 'No' all forward slashes in the name will be replaced by underscores.", 
+                                            message.c_str(), group.c_str()), _("Yes"), _("No"));
+  if (ret == mforms::ResultOk)
+  {
+    create_group = true;
+    return;
+  }
+  while (pos != std::string::npos)
+  {
+    text_entry[pos] = '_';
+    pos = text_entry.find_first_of("/", pos + 1);
+  }
+}
+
+void DbConnectPanel::change_connection_name()
+{
+  if (_create_group)
+    return;
+  std::string text = _name_entry.get_string_value();
+  connection_user_input(text, _create_group);
+  _name_entry.set_value(text);
 }
 
 

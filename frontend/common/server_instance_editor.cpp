@@ -122,6 +122,7 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
 , _connect_panel(new grtui::DbConnectPanel(grtui::DbConnectPanelHideConnectionName))
 , _bottom_hbox(true)
 , _remote_admin_box(false)
+, _contains_group(false)
 {
   set_name("instance_editor");
   _mgmt= mgmt;
@@ -1075,11 +1076,16 @@ void ServerInstanceEditor::entry_changed(mforms::TextEntry *sender)
   {
     if (&_name_entry == sender)
     {
-      connection->name(value);
-
+      std::string text = value;
+      if (!_contains_group)
+      {
+        _connect_panel->connection_user_input(text, _contains_group, false);
+        _name_entry.set_value(text);
+      }
+      connection->name(text);
       mforms::TreeNodeRef node(_stored_connection_list.get_selected_node());
       if (node)
-        node->set_string(0, value);
+        node->set_string(0, text);
     }
   }
   
@@ -1314,6 +1320,14 @@ void ServerInstanceEditor::show_connection()
   _del_inst_button.set_enabled(valid_connection && !is_managed);
   _dup_inst_button.set_enabled(valid_connection);
 
+  _contains_group = false;
+  if (valid_connection)
+  {
+    std::string text = connection->name();
+    std::size_t pos = text.find_first_of("/");
+    if (pos != std::string::npos)
+      _contains_group = true;
+  }
   _name_entry.set_value(valid_connection ? connection->name() : "");
 
   show_instance_info(connection, instance);
