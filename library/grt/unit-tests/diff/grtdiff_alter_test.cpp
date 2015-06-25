@@ -1453,7 +1453,7 @@ TEST_FUNCTION(7)
     base::replace(str, "\r\n", "\n");
 #endif
 
-    ensure_equals("Reports differ:", *report, str);
+    ensure_equals("Reports differ", *report, str);
 // Test Data generation
 /*
 	sprintf(buf1, "testres%s%d.txt",j?"_longname":"_shortname", i);

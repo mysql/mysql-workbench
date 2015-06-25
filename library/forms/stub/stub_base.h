@@ -33,12 +33,7 @@ namespace stub {
     ObjectWrapper(::mforms::Object *object)
       : owner(object)
     {
-      // XXX: it's very questionable to set a data pointer in the tests stub here, as that differs
-      //      greatly to what is used regularly and it doesn't work with obj-c objects at all.
-#ifdef __APPLE__
-#else
       object->set_data(this);
-#endif
     }
 
     virtual ~ObjectWrapper()
