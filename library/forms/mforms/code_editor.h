@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,7 +53,6 @@ namespace mforms {
     LanguageCpp,    // Lexer for C++, C, Java, and JavaScript (which includes JSON).
     LanguageJS,
     LanguageJson,
-
     LanguageMySQL = LanguageMySQL56, // Always the latest (released) language.
   };
 
@@ -67,7 +66,6 @@ namespace mforms {
     LineMarkupBreakpoint    = 1 << 2, // Line has a marker set for a break point.
     LineMarkupBreakpointHit = 1 << 3, // Line has a marker set for a break point which is currently hit.
     LineMarkupCurrent       = 1 << 4, // Current execution line.
-    LineMarkupErrorContinue = 1 << 5, // ine's background is drawn in red to mark an execution error on continue.
 
     LineMarkupAll           = 0xFF,   // All markup, useful for remove_markup.
   };
@@ -251,10 +249,10 @@ public:
      * NOTE: Scintilla uses bytes everywhere when a position or length is set or read. So be very
      *       careful when doing char maths (we use utf-8 with a variable code length per character).
      */
-    void set_selection(std::size_t start, std::size_t length);
+    void set_selection(size_t start, size_t length);
 
     /** Gets the current selection range. */
-    void get_selection(std::size_t &start, std::size_t &length);
+    void get_selection(size_t &start, size_t &length);
 
     /** Removes the current selection without moving the caret. */
     void clear_selection();
@@ -509,7 +507,7 @@ public:
     void lost_focus();
 
     virtual void resize();
-    
+
 #endif
 #endif
   protected:
