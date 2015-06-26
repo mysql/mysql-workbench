@@ -43,6 +43,7 @@
 		16E4CDF90F28CA8300C1E118 /* WBColorCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 16F7A3B90F1F0D2E0084C11D /* WBColorCell.m */; };
 		16F7A2460F1CFFDC0084C11D /* WBObjectPropertiesController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 16F7A2440F1CFFDC0084C11D /* WBObjectPropertiesController.mm */; };
 		2701535014EBE9FF00AD28BC /* Scintilla.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2744E6800FC1831900E85C33 /* Scintilla.framework */; };
+		27070A281B3D556200B1D1B9 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		270C4FF4173293BC00CD33BB /* libtinyxml.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 270C4FF3173293BC00CD33BB /* libtinyxml.dylib */; };
 		270C4FF6173293EA00CD33BB /* libtinyxml.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 270C4FF3173293BC00CD33BB /* libtinyxml.dylib */; };
 		270C4FF7173293F600CD33BB /* libtinyxml.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 270C4FF3173293BC00CD33BB /* libtinyxml.dylib */; };
@@ -6656,6 +6657,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				27070A281B3D556200B1D1B9 /* libwbbase.dylib in Frameworks */,
 				2B774FC815CEC55200923448 /* libglib-2.0.0.dylib in Frameworks */,
 				2B3D5D4D0F43DCF9009238A7 /* libmforms.dylib in Frameworks */,
 				2B3D5D4E0F43DCF9009238A7 /* libwbpublic.be.dylib in Frameworks */,
