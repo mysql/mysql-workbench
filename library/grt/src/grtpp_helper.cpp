@@ -1332,10 +1332,10 @@ static void export_module_function(FILE *f, const Module::Function &function)
 
   {
     std::string code = func_template;
-    base::replace(code, "%return_type%", return_type);
-    base::replace(code, "%function_name%", function.name);
-    base::replace(code, "%args%", args);
-    base::replace(code, "%make_args%", make_args);
+    base::replaceStringInplace(code, "%return_type%", return_type);
+    base::replaceStringInplace(code, "%function_name%", function.name);
+    base::replaceStringInplace(code, "%args%", args);
+    base::replaceStringInplace(code, "%make_args%", make_args);
 
     fprintf(f, "%s", code.c_str());
   }
@@ -1351,7 +1351,7 @@ void grt::helper::generate_module_wrappers(GRT *grt, const std::string &outpath,
     throw grt::os_error(errno);
 
   std::string header_name = base::basename(outpath);
-  base::replace(header_name, ".", "_");
+  base::replaceStringInplace(header_name, ".", "_");
 
   fprintf(f, "#ifndef __%s__\n", header_name.c_str());
   fprintf(f, "#define __%s__\n", header_name.c_str());
@@ -1361,14 +1361,14 @@ void grt::helper::generate_module_wrappers(GRT *grt, const std::string &outpath,
        module != modules.end(); ++module)
   {
     std::string code = module_base_template_h;
-    base::replace(code, "%module_name%", (*module)->name());
+    base::replaceStringInplace(code, "%module_name%", (*module)->name());
 
-    base::replace(code, "%module_class_name%", base::strfmt("%sWrapper", (*module)->name().c_str()));
+    base::replaceStringInplace(code, "%module_class_name%", base::strfmt("%sWrapper", (*module)->name().c_str()));
 
     if (!(*module)->extends().empty())
-      base::replace(code, "%parent_module_class_name%", base::strfmt("%sWrapper", (*module)->extends().c_str()));
+      base::replaceStringInplace(code, "%parent_module_class_name%", base::strfmt("%sWrapper", (*module)->extends().c_str()));
     else
-      base::replace(code, "%parent_module_class_name%", "grt::ModuleWrapper");
+      base::replaceStringInplace(code, "%parent_module_class_name%", "grt::ModuleWrapper");
 
     fprintf(f, "%s", code.c_str());
 

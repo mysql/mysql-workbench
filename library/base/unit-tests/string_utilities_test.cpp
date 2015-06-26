@@ -967,5 +967,20 @@ TEST_FUNCTION(43)
   assure_false(italic);
 }
 
+TEST_FUNCTION(50)
+{
+  std::string separator(1, G_DIR_SEPARATOR);
+
+  ensure_equals("Path normalization", normalize_path(""), "");
+  ensure_equals("Path normalization", normalize_path("/"), separator);
+  ensure_equals("Path normalization", normalize_path("\\"), separator);
+  ensure_equals("Path normalization", normalize_path("/////////"), separator);
+  ensure_equals("Path normalization", normalize_path("../../../"), "");
+  ensure_equals("Path normalization", normalize_path("abc/././../def"), "def");
+  ensure_equals("Path normalization", normalize_path("a/./b/.././d/./.."), "a");
+  ensure_equals("Path normalization", normalize_path("a/b/c/../d/../"), base::replaceString("a/b/", "/", separator));
+  ensure_equals("Path normalization", normalize_path("/path///to/my//////dir"), base::replaceString("/path/to/my/dir", "/", separator));
+  ensure_equals("Path normalization", normalize_path("D:\\files\\to//scan"), base::replaceString("D:/files/to/scan", "/", separator));
+}
 
 END_TESTS

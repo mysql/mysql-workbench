@@ -70,7 +70,7 @@ std::string get_token_name(pANTLR3_UINT8 *tokenNames, ANTLR3_UINT32 token)
     if (position != std::string::npos)
       result = result.substr(0, position);
 
-    base::replace(result, "_", " ");
+    base::replaceStringInplace(result, "_", " ");
     return result;
   }
 }

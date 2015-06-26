@@ -720,7 +720,7 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
       if (grt::StringRef::can_wrap(object))
       {
         grt::StringRef arg(grt::StringRef::cast_from(object));
-        if (has_suffix(arg, ".mwb"))
+        if (base::hasSuffix(arg, ".mwb"))
           argument_pool.add_simple_value("selectedModelFile", arg); // assume a model file
         else
           argument_pool.add_simple_value("selectedGroupName", arg); // assume a connection group name
@@ -1174,7 +1174,7 @@ void WBContextUI::refresh_home_documents()
       {
         if (g_file_test(path_iterator->c_str(), G_FILE_TEST_IS_DIR))
         {
-          std::string pattern = make_path(*path_iterator, "*.mwb");
+          std::string pattern = base::makePath(*path_iterator, "*.mwb");
           std::list<std::string> sample_model_files = base::scan_for_files_matching(pattern, true);
           for (std::list<std::string>::const_iterator iterator = sample_model_files.begin();
             iterator != sample_model_files.end(); iterator++)

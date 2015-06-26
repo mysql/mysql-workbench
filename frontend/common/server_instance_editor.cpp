@@ -23,7 +23,6 @@
 #include "grtui/grtdb_connection_editor.h"
 
 #include "grtpp_util.h"
-#include <grt/common.h>
 #include "base/string_utilities.h"
 
 #include "mforms/uistyle.h"
@@ -450,7 +449,7 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
       if (g_str_has_suffix(file, ".xml"))
       {
         std::string fname= std::string(file, strlen(file)-4);
-        std::string label= bec::replace_string(fname, "_", " ");
+        std::string label= base::replaceString(fname, "_", " ");
         grt::DictRef dict;
         try
         {

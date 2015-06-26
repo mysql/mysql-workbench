@@ -30,6 +30,7 @@
 
 #include "base/notifications.h"
 #include "base/file_functions.h"
+#include "base/file_utilities.h"
 #include "base/string_utilities.h"
 #include "mforms/utilities.h"
 
@@ -140,7 +141,7 @@ void GRTManager::set_basedir(const std::string &path)
   if (!g_path_is_absolute(path.c_str()))
   {
     gchar *dir= g_get_current_dir();
-    _basedir= make_path(dir, path);
+    _basedir= base::makePath(dir, path);
     g_free(dir);
   }
   else
@@ -153,7 +154,7 @@ void GRTManager::set_datadir(const std::string &path)
   if (!g_path_is_absolute(path.c_str()))
   {
     gchar *dir= g_get_current_dir();
-    _datadir= make_path(dir, path);
+    _datadir= base::makePath(dir, path);
     g_free(dir);
   }
   else
@@ -163,7 +164,7 @@ void GRTManager::set_datadir(const std::string &path)
 
 std::string GRTManager::get_data_file_path(const std::string &file)
 {
-  return make_path(_datadir, file);
+  return base::makePath(_datadir, file);
 }
 
 
@@ -172,7 +173,7 @@ void GRTManager::set_user_datadir(const std::string &path)
   if (!g_path_is_absolute(path.c_str()))
   {
     gchar *dir= g_get_current_dir();
-    _user_datadir= make_path(dir, path);
+    _user_datadir= base::makePath(dir, path);
     g_free(dir);
   }
   else
@@ -242,8 +243,8 @@ void GRTManager::set_user_extension_paths(const std::string &user_module_path,
   _user_library_path= user_library_path;
   _user_script_path= user_script_path;
   
-  _module_pathlist= pathlist_prepend(_module_pathlist, user_module_path);
-  _libraries_pathlist= pathlist_prepend(_libraries_pathlist, user_library_path);
+  _module_pathlist= base::pathlistPrepend(_module_pathlist, user_module_path);
+  _libraries_pathlist= base::pathlistPrepend(_libraries_pathlist, user_library_path);
 }
 
 

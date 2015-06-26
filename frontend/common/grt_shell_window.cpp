@@ -880,7 +880,7 @@ void GRTShellWindow::handle_global_menu(const std::string &action)
 
 void GRTShellWindow::save_snippets()
 {
-  std::string path = make_path(grtm()->get_user_datadir(), "shell_snippets"+_script_extension);
+  std::string path = base::makePath(grtm()->get_user_datadir(), "shell_snippets"+_script_extension);
   FILE *f = base_fopen(path.c_str(), "w+");
   if (!f)
   {
@@ -950,7 +950,7 @@ void GRTShellWindow::refresh_snippets()
 
   load_snippets_from(grtm()->get_data_file_path("shell_snippets"+_script_extension+".txt"));
   _global_snippet_count = _snippet_list->root_node()->count();
-  load_snippets_from(make_path(grtm()->get_user_datadir(), "shell_snippets"+_script_extension));
+  load_snippets_from(base::makePath(grtm()->get_user_datadir(), "shell_snippets"+_script_extension));
 
   snippet_selected();
 }
@@ -1263,7 +1263,7 @@ void GRTShellWindow::add_new_script()
   {
     GRTCodeEditor *editor= add_editor(is_script, language);
     if (!path.empty() && base::basename(path) == path)
-      path= make_path(grtm()->get_user_script_path(), path);
+      path= base::makePath(grtm()->get_user_script_path(), path);
     editor->set_path(path);
     editor->set_text(code);
   }

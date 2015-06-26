@@ -372,7 +372,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
       }
 
       std::string name_prefix= "DBD4 Model";
-      /// std::string view_class_name= bec::replace_string(model.class_name(), ".Model", ".View");
+      /// std::string view_class_name= base::replaceString(model.class_name(), ".Model", ".View");
       std::string name= grt::get_name_suggestion_for_list_object(
         grt::ObjectListRef::cast_from(model->diagrams()),
         name_prefix, false);

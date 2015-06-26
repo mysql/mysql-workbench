@@ -718,7 +718,7 @@ void SqlEditorTreeController::fetch_column_data(const std::string& schema_name, 
       std::string default_value = rs->getString(6);
       std::string extra = rs->getString(7);
 
-      base::replace(type, "unsigned", "UN");
+      base::replaceStringInplace(type, "unsigned", "UN");
 
       if (extra == "auto_increment")
         type += " AI";
@@ -2185,7 +2185,7 @@ bool SqlEditorTreeController::parse_ddl_into_catalog(db_mysql_CatalogRef catalog
   if (options.has_key("sql_mode") && (errorCount > 0))
   {
     if (sqlMode.find("ANSI_QUOTES") != std::string::npos)
-      sqlMode = replace_string(sqlMode, "ANSI_QUOTES", "");
+      sqlMode = base::replaceString(sqlMode, "ANSI_QUOTES", "");
     else
       sqlMode += ", ANSI_QUOTES";
     _owner->work_parser_context()->use_sql_mode(sqlMode);

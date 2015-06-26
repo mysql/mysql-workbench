@@ -30,6 +30,7 @@
 #include "base/geometry.h"
 #include "base/log.h"
 #include "base/util_functions.h"
+#include "base/file_utilities.h"
 
 #include "mforms/code_editor.h"
 
@@ -318,7 +319,7 @@ ssize_t WbModelImpl::getAvailableReportingTemplates(grt::StringListRef templates
   // get pointer to the GRT
   grt::GRT *grt= get_grt();
   string basedir= bec::GRTManager::get_instance_for(grt)->get_basedir();
-  string template_base_dir= bec::make_path(basedir, "modules/data/wb_model_reporting");
+  string template_base_dir= base::makePath(basedir, "modules/data/wb_model_reporting");
   GDir *dir;
   const char *entry;
 
@@ -368,7 +369,7 @@ workbench_model_reporting_TemplateInfoRef WbModelImpl::getReportingTemplateInfo(
 {
   string template_dir= getTemplateDirFromName(template_name);
 
-  string template_info_path= bec::make_path(template_dir, "info.xml");
+  string template_info_path= base::makePath(template_dir, "info.xml");
   if (g_file_test(template_info_path.c_str(), (GFileTest)(G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR)))
     return workbench_model_reporting_TemplateInfoRef::cast_from(get_grt()->unserialize(template_info_path));
   else
@@ -385,7 +386,7 @@ workbench_model_reporting_TemplateStyleInfoRef WbModelImpl::get_template_style_f
 
   string template_dir= getTemplateDirFromName(template_name);
 
-  string template_info_path= bec::make_path(template_dir, "info.xml");
+  string template_info_path= base::makePath(template_dir, "info.xml");
   if (g_file_test(template_info_path.c_str(), (GFileTest)(G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR)))
   {
     workbench_model_reporting_TemplateInfoRef info= 
@@ -817,12 +818,12 @@ void set_ddl(TemplateDictionary *target, SQLGeneratorInterfaceImpl* sqlgenModule
       for (i= 0; i < (int) sql.size(); i++)
         if (currentStyle != accessor->StyleAt(i))
         {
-          markup += bec::replace_string(markupFromStyle(currentStyle), "%s", sql.substr(tokenStart, i - tokenStart));
+          markup += base::replaceString(markupFromStyle(currentStyle), "%s", sql.substr(tokenStart, i - tokenStart));
           tokenStart= i;
           currentStyle= accessor->StyleAt(i);
         }
       
-      markup += bec::replace_string(markupFromStyle(currentStyle), "%s", sql.substr(tokenStart, i - tokenStart));
+      markup += base::replaceString(markupFromStyle(currentStyle), "%s", sql.substr(tokenStart, i - tokenStart));
       
       delete accessor;
       delete document;
@@ -830,7 +831,7 @@ void set_ddl(TemplateDictionary *target, SQLGeneratorInterfaceImpl* sqlgenModule
       sql= markup;
     };
     
-    string fixed_line_breaks= bec::replace_string(sql, "\n", "<br />");
+    string fixed_line_breaks= base::replaceString(sql, "\n", "<br />");
 
     // The DDL script is wrapped in an own section dir to allow switching it off entirely (including
     // the surrounding HTML code).
@@ -882,7 +883,7 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
   // get pointer to the GRT
   grt::GRT *grt= model.get_grt();
   string basedir= bec::GRTManager::get_instance_for(grt)->get_basedir();
-  string template_base_dir= bec::make_path(basedir, "modules/data/wb_model_reporting");
+  string template_base_dir= base::makePath(basedir, "modules/data/wb_model_reporting");
 
   db_mysql_CatalogRef catalog= db_mysql_CatalogRef::cast_from(model->catalog());
 
@@ -1282,7 +1283,7 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
           if (single_file_report)
           {
             // For single file reports the target file name is constructed from the report title.
-            output_filename = bec::make_path(output_path, title);
+            output_filename = base::makePath(output_path, title);
             string template_filename(entry);
 
             // Remove the .tpl suffix.
@@ -1296,7 +1297,7 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
           else
           {
             string template_filename(entry);
-            output_filename= bec::make_path(output_path, template_filename.substr(0, template_filename.size() - 4));
+            output_filename= base::makePath(output_path, template_filename.substr(0, template_filename.size() - 4));
           }
 
           // write output to file
@@ -1308,7 +1309,7 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
         else
         {
           // Copy files/folders.
-          string target= bec::make_path(output_path, entry);
+          string target= base::makePath(output_path, entry);
           if (g_file_test(path, G_FILE_TEST_IS_DIR))
             copy_folder(path, target.c_str());
           else

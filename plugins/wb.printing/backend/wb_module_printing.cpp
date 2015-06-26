@@ -18,7 +18,6 @@
  */
 
 #include "grtpp.h"
-#include "grt/common.h"
 
 #include "grts/structs.app.h"
 #include "grts/structs.workbench.h"
@@ -216,10 +215,10 @@ int WbPrintingImpl::printDiagramsToFile(grt::ListRef<model_Diagram> views, const
       }
 
       std::string htext = options.get_string("header_text");
-      base::replace(htext, "$diagram", (*view)->name());
+      base::replaceStringInplace(htext, "$diagram", (*view)->name());
 
       std::string ftext = options.get_string("footer_text");
-      base::replace(ftext, "$diagram", (*view)->name());
+      base::replaceStringInplace(ftext, "$diagram", (*view)->name());
 
       pages += extras.print_to_surface(surf.get(), htext, ftext, pages, total_pages);
     }

@@ -371,7 +371,7 @@ void HostAndRemoteTypePage::enter(bool advancing)
       if (g_str_has_suffix(file, ".xml"))
       {
         std::string fname= std::string(file, strlen(file)-4);
-        std::string label= bec::replace_string(fname, "_", " ");          
+        std::string label= base::replaceString(fname, "_", " ");          
         grt::DictRef dict;
         try
         {
@@ -918,7 +918,7 @@ void WindowsManagementPage::enter(bool advancing)
             if (config_file.empty())
               config_file = "C$\\";
             config_file = "\\\\" + host + "\\" + config_file;
-            base::replace(config_file, ":", "$");
+            base::replaceStringInplace(config_file, ":", "$");
           }
           _config_paths.push_back(config_file);
           _service_names.push_back(service_name);

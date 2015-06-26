@@ -25,7 +25,6 @@
 #include "table_figure.h"
 #include "table_figure_wb.h"
 
-#include "grt/common.h"
 #include "grt/grt_manager.h"
 #include "grtdb/db_object_helpers.h"
 
@@ -56,8 +55,8 @@ void workbench_physical_TableFigure::ImplData::update_options(const std::string 
       _figure->set_max_columns_shown(max_columns);
   }
   
-  if (bec::has_prefix(key, "workbench.physical.ObjectFigure:")
-      || bec::has_prefix(key, "workbench.physical.TableFigure:"))
+  if (base::hasPrefix(key, "workbench.physical.ObjectFigure:")
+      || base::hasPrefix(key, "workbench.physical.TableFigure:"))
   {
     if (_figure)
       sync_columns();

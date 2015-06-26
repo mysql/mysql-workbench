@@ -344,7 +344,7 @@ std::string Program::show_file_dialog_becb(const std::string& type
     if ( result == Gtk::RESPONSE_OK)
     {
       file = dlg.get_filename();
-      if (!bec::has_suffix(file, default_ext) && type == "save")
+      if (!base::hasSuffix(file, default_ext) && type == "save")
 	file = file + default_ext;
 
       if (type == "save" && g_file_test(file.c_str(), G_FILE_TEST_EXISTS))

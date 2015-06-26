@@ -24,6 +24,7 @@
 #include "grt_manager.h"
 #include "grt_shell.h"
 #include "base/file_functions.h"
+#include "base/file_utilities.h"
 
 
 using namespace grt;
@@ -391,7 +392,7 @@ std::vector<std::string> ShellBE::complete_line(const std::string &line, std::st
 
 std::string ShellBE::get_snippet_data()
 {
-  std::string path= make_path(_savedata_dir, SNIPPETS_FILENAME);
+  std::string path= base::makePath(_savedata_dir, SNIPPETS_FILENAME);
   gchar *contents;
   gsize length;
   
@@ -407,7 +408,7 @@ std::string ShellBE::get_snippet_data()
 
 void ShellBE::set_snippet_data(const std::string &data)
 {
-  std::string path= make_path(_savedata_dir, SNIPPETS_FILENAME);
+  std::string path= base::makePath(_savedata_dir, SNIPPETS_FILENAME);
 
   // Make sure path exists, if not create it with privileges 755
   g_mkdir_with_parents(_savedata_dir.c_str(), 0755);
@@ -448,7 +449,7 @@ void ShellBE::store_state()
   g_mkdir_with_parents(_savedata_dir.c_str(), 0700);
 
   {
-    std::string path= make_path(_savedata_dir, HISTORY_FILENAME);
+    std::string path= base::makePath(_savedata_dir, HISTORY_FILENAME);
     
     FILE *f= base_fopen(path.c_str(), "w+");
     if (!f)
@@ -467,7 +468,7 @@ void ShellBE::store_state()
   }
   
   {
-    std::string path= make_path(_savedata_dir, BOOKMARKS_FILENAME);
+    std::string path= base::makePath(_savedata_dir, BOOKMARKS_FILENAME);
     
     FILE *f= base_fopen(path.c_str(), "w+");
     if (!f)
@@ -487,7 +488,7 @@ void ShellBE::restore_state()
 {
   {
     char line[1024];
-    std::string path= make_path(_savedata_dir, HISTORY_FILENAME);
+    std::string path= base::makePath(_savedata_dir, HISTORY_FILENAME);
     std::string command;
     FILE *f= base_fopen(path.c_str(), "r");
     if (f)
@@ -515,7 +516,7 @@ void ShellBE::restore_state()
   
   {
     char line[1024];
-    std::string path= make_path(_savedata_dir, BOOKMARKS_FILENAME);
+    std::string path= base::makePath(_savedata_dir, BOOKMARKS_FILENAME);
     FILE *f= base_fopen(path.c_str(), "r");
     if (f)
     {

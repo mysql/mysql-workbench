@@ -25,6 +25,7 @@
 #include <grtpp_undo_manager.h>
 #include "base/string_utilities.h"
 #include "base/wb_iterators.h"
+#include "base/file_utilities.h"
 
 #ifndef M_PI
 # define M_PI   3.14159265358979323846
@@ -224,7 +225,7 @@ std::string WbModelImpl::getTemplateDirFromName(const std::string& template_name
 {
   // get pointer to the GRT
   grt::GRT *grt= get_grt();
-  std::string template_base_dir= bec::make_path(
+  std::string template_base_dir= base::makePath(
     bec::GRTManager::get_instance_for(grt)->get_basedir(), 
     "modules/data/wb_model_reporting");
 
@@ -239,7 +240,7 @@ std::string WbModelImpl::getTemplateDirFromName(const std::string& template_name
 
   template_dir.append(".tpl");
 
-  return bec::make_path(template_base_dir, template_dir);
+  return base::makePath(template_base_dir, template_dir);
 }
 
 WbModelImpl::WbModelImpl(grt::CPPModuleLoader *ldr)
@@ -998,7 +999,7 @@ workbench_physical_DiagramRef WbModelImpl::add_model_view(const db_CatalogRef &c
   calculate_view_size(page, width, height);
 
   std::string name_prefix= "Model";
-  std::string view_class_name= bec::replace_string(model->get_metaclass()->name(), ".Model", ".Diagram");
+  std::string view_class_name= base::replaceString(model->get_metaclass()->name(), ".Model", ".Diagram");
   std::string name= grt::get_name_suggestion_for_list_object(model->diagrams(), name_prefix, true);
 
   model_DiagramRef diagram= model->addNewDiagram(0);
