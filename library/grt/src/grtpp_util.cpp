@@ -181,7 +181,7 @@ ValueRef grt::get_value_by_path(const ValueRef &root, const std::string &path)
 
   suffix= path.substr(1); // skip the /
   // fix possible typos
-  base::replace(suffix, "//", "/");
+  base::replaceStringInplace(suffix, "//", "/");
 
   while (!suffix.empty() && value.is_valid())
   {

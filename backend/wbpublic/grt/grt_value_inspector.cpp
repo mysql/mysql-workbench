@@ -133,7 +133,7 @@ public:
     bool skip= false;
     if (v.type() == ObjectType)
     {
-      if (has_prefix(editas, "fields:"))
+      if (base::hasPrefix(editas, "fields:"))
       {
         ObjectRef mobj(ObjectRef::cast_from(v));
         MetaClass *mstruct(mobj.get_metaclass());

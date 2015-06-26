@@ -38,6 +38,7 @@
 #include "base/string_utilities.h"
 #include "base/sqlstring.h"
 #include "base/util_functions.h"
+#include "base/file_utilities.h"
 
 #include "grtsqlparser/sql_specifics.h"
 #include "sqlide/recordset_table_inserts_storage.h"
@@ -1860,7 +1861,7 @@ static std::string reformat_text_for_comment(const std::string &text)
   if (text.empty())
     return "";
   std::string comment = text;
-  base::replace(comment, "\n", "\n-- ");
+  base::replaceStringInplace(comment, "\n", "\n-- ");
   return "-- "+comment+"\n";
 }
 
@@ -2062,7 +2063,7 @@ protected:
             else
                 sql.append(create_view);
 
-          if (!bec::has_suffix(base::trim_right(create_view, "\n"), ";"))
+          if (!base::hasSuffix(base::trim_right(create_view, "\n"), ";"))
               sql.append(";");
             sql.append("\n");
         }
@@ -2138,7 +2139,7 @@ protected:
                 if (!comment.empty())
                 {
                   result.append("--\n");
-                  base::replace(comment, "\n", "\n-- ");
+                  base::replaceStringInplace(comment, "\n", "\n-- ");
                   result.append("-- ").append(comment).append("\n");
                 }
                 result.append("-- -----------------------------------------------------\n");
@@ -2338,7 +2339,7 @@ public:
           if (strlen(doc->info()->description().c_str()))
           {
             std::string description = doc->info()->description();
-            base::replace(description, "\n", "\n --");
+            base::replaceStringInplace(description, "\n", "\n --");
             out_sql.append("-- ").append(description).append("\n");
           }
         }
@@ -2576,7 +2577,7 @@ public:
           if (strlen(doc->info()->description().c_str()))
           {
             std::string description = doc->info()->description();
-            base::replace(description, "\n", "\n --");
+            base::replaceStringInplace(description, "\n", "\n --");
             out_sql.append("-- ").append(description).append("\n");
           }
         }
@@ -2917,7 +2918,7 @@ std::string DbMySQLImpl::makeCreateScriptForObject(GrtNamedObjectRef object)
 db_mgmt_RdbmsRef DbMySQLImpl::initializeDBMSInfo()
 {
   bec::GRTManager *grtm(bec::GRTManager::get_instance_for(get_grt()));
-  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(get_grt()->unserialize(make_path(grtm->get_basedir(), "modules/data/mysql_rdbms_info.xml")));
+  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(get_grt()->unserialize(base::makePath(grtm->get_basedir(), "modules/data/mysql_rdbms_info.xml")));
 
   workbench_WorkbenchRef::cast_from(get_grt()->get("/wb"))->rdbmsMgmt()->rdbms().insert(rdbms);
   return rdbms;

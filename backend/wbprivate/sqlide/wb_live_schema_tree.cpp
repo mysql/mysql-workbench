@@ -1869,10 +1869,10 @@ std::string LiveSchemaTree::get_filter_wildcard(const std::string& filter, Filte
         wildcard += "*";
       break;
     case RemoteLike:
-      base::replace(wildcard, "%","\\%");
-      base::replace(wildcard, "_","\\_");
-      base::replace(wildcard, "?","_");
-      base::replace(wildcard, "*","%");
+      base::replaceStringInplace(wildcard, "%","\\%");
+      base::replaceStringInplace(wildcard, "_","\\_");
+      base::replaceStringInplace(wildcard, "?","_");
+      base::replaceStringInplace(wildcard, "*","%");
 
       if ('%' != wildcard.at(wildcard.length() - 1))
         wildcard += "%";

@@ -22,7 +22,6 @@
 #include "mforms/fs_object_selector.h"
 #include "grtdb/db_helpers.h"
 
-#include "grt/common.h"
 #include "base/string_utilities.h"
 #include "base/log.h"
 #include "base/file_utilities.h"
@@ -872,7 +871,7 @@ void DbConnectPanel::launch_ssl_wizard()
 
 void DbConnectPanel::open_ssl_wizard_directory()
 {
-  std::string path = base::join_path(mforms::App::get()->get_user_data_folder().c_str(), "certificates", get_connection()->id().c_str(), "");
+  std::string path = base::joinPath(mforms::App::get()->get_user_data_folder().c_str(), "certificates", get_connection()->id().c_str(), "");
   
   if (base::is_directory(path))
     Utilities::open_url(path);
@@ -1002,8 +1001,8 @@ void DbConnectPanel::set_keychain_password(DbDriverParam *param, bool clear)
   }
   for (grt::DictRef::const_iterator iter = paramValues.begin(); iter != paramValues.end(); ++iter)
   {
-    storage_key = bec::replace_string(storage_key, "%"+iter->first+"%", iter->second.repr());
-    username = bec::replace_string(username, "%"+iter->first+"%", iter->second.repr());
+    storage_key = base::replaceString(storage_key, "%"+iter->first+"%", iter->second.repr());
+    username = base::replaceString(username, "%"+iter->first+"%", iter->second.repr());
   }
 
   if (username.empty())

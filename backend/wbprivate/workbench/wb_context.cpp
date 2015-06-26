@@ -34,6 +34,7 @@
 
 #include "base/string_utilities.h"
 #include "base/util_functions.h"
+#include "base/scope_exit_trigger.h"
 
 #include "grt/clipboard.h"
 #include "grt/plugin_manager.h"
@@ -925,7 +926,7 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options)
   _manager->cleanup_tmp_dir();
   
   mforms::App::get()->set_user_data_folder_path(options->user_data_dir);
-  mforms::Utilities::set_message_answers_storage_path(bec::make_path(options->user_data_dir, "mforms_remembered_dialog_responses"));
+  mforms::Utilities::set_message_answers_storage_path(base::makePath(options->user_data_dir, "mforms_remembered_dialog_responses"));
 
 
   bec::IconManager::get_instance()->set_basedir(options->basedir);
@@ -950,7 +951,7 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options)
 
   for (unsigned int i= 0; dirs[i]!=NULL; i++)
   {
-    mdc::ImageManager::get_instance()->add_search_path(make_path(options->basedir, dirs[i]));
+    mdc::ImageManager::get_instance()->add_search_path(base::makePath(options->basedir, dirs[i]));
     bec::IconManager::get_instance()->add_search_path(dirs[i]);
   }
   
@@ -1002,13 +1003,13 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options)
   std::string user_scripts_path;
   std::string user_libraries_path;
 
-  user_modules_path= make_path(options->user_data_dir, "modules");
-  user_scripts_path= make_path(options->user_data_dir, "scripts");
-  user_libraries_path= make_path(options->user_data_dir, "libraries");
+  user_modules_path= base::makePath(options->user_data_dir, "modules");
+  user_scripts_path= base::makePath(options->user_data_dir, "scripts");
+  user_libraries_path= base::makePath(options->user_data_dir, "libraries");
 
   modules_path= options->module_search_path;
 #ifdef _WIN32
-  modules_path= pathlist_prepend(modules_path, ".");
+  modules_path= base::pathlistPrepend(modules_path, ".");
 #endif
 
   libraries_path= options->library_search_path;
@@ -1025,7 +1026,7 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options)
 
   _manager->set_search_paths(
     modules_path,
-    pathlist_prepend(options->struct_search_path, make_path(options->basedir, "structs")),
+    base::pathlistPrepend(options->struct_search_path, base::makePath(options->basedir, "structs")),
     libraries_path);
 
   _manager->set_user_extension_paths(user_modules_path, user_libraries_path,  user_scripts_path);
@@ -1494,7 +1495,7 @@ void WBContext::init_grt_tree(grt::GRT *grt, WBOptions *options, boost::shared_p
   
   ListRef<db_DatatypeGroup> grouplist;
 
-  grouplist= ListRef<db_DatatypeGroup>::cast_from(grt->unserialize(make_path(options->basedir, TYPE_GROUP_FILE), unserializer));
+  grouplist= ListRef<db_DatatypeGroup>::cast_from(grt->unserialize(base::makePath(options->basedir, TYPE_GROUP_FILE), unserializer));
   for (size_t c= grouplist.count(), i= 0; i < c; i++)
   {
     grouplist[i]->owner(mgmt_info);
@@ -1509,7 +1510,7 @@ void WBContext::init_grt_tree(grt::GRT *grt, WBOptions *options, boost::shared_p
     grt::DictRef options(get_root()->options()->options());
     if (!options.has_key("TableTemplates"))
     {
-      grt::ListRef<db_Table> templates = grt::ListRef<db_Table>::cast_from(grt->unserialize(make_path(get_datadir(), "data/table_templates.xml")));
+      grt::ListRef<db_Table> templates = grt::ListRef<db_Table>::cast_from(grt->unserialize(base::makePath(get_datadir(), "data/table_templates.xml")));
       options.set("TableTemplates", templates);
     }
   }
@@ -1519,8 +1520,8 @@ void WBContext::init_grt_tree(grt::GRT *grt, WBOptions *options, boost::shared_p
 
 void WBContext::run_init_scripts_grt(grt::GRT *grt, WBOptions *options)
 {
-  std::string sysinitpath= make_path(options->basedir, SYS_INIT_FILE);
-  std::string userinitpath= make_path(g_get_home_dir(), USER_INIT_FILE);
+  std::string sysinitpath= base::makePath(options->basedir, SYS_INIT_FILE);
+  std::string userinitpath= base::makePath(g_get_home_dir(), USER_INIT_FILE);
 
   // first try the user's custom init script
   if (g_file_test(userinitpath.c_str(), G_FILE_TEST_EXISTS))
@@ -1599,7 +1600,7 @@ void WBContext::init_plugins_grt(grt::GRT *grt, WBOptions *options)
 
 
   // scan user plugins  
-  std::string plugin_path= normalize_path(make_path(options->user_data_dir, "plugins"));
+  std::string plugin_path= normalize_path(base::makePath(options->user_data_dir, "plugins"));
   _manager->get_grt()->send_output(strfmt("Looking for user plugins in %s\n", plugin_path.c_str()));
 
   _manager->do_scan_modules(plugin_path, exts, false);
@@ -1612,7 +1613,7 @@ void WBContext::init_plugins_grt(grt::GRT *grt, WBOptions *options)
     if (scanned_dir_list.find(paths[i]) == scanned_dir_list.end()
       && g_file_test(paths[i].c_str(), G_FILE_TEST_IS_DIR))
     {
-      std::string full_path= normalize_path(make_path(options->user_data_dir, paths[i]));
+      std::string full_path= normalize_path(base::makePath(options->user_data_dir, paths[i]));
 
       if (scanned_dir_list.find(full_path) == scanned_dir_list.end())
       {
@@ -1882,7 +1883,7 @@ void WBContext::set_default_options(grt::DictRef options)
 
 grt::ListRef<app_PaperType> WBContext::get_paper_types(grt::GRT *grt, boost::shared_ptr<grt::internal::Unserializer> unserializer)
 {
-  return grt::ListRef<app_PaperType>::cast_from(grt->unserialize(make_path(get_datadir(),
+  return grt::ListRef<app_PaperType>::cast_from(grt->unserialize(base::makePath(get_datadir(),
     "data/paper_types.xml"), unserializer));
 }
 
@@ -1936,7 +1937,7 @@ void WBContext::load_app_options(bool update)
   _uicontext->load_app_options(update);
 
   // load saved options
-  std::string options_xml= make_path(_user_datadir, OPTIONS_FILE_NAME);
+  std::string options_xml= base::makePath(_user_datadir, OPTIONS_FILE_NAME);
   if (g_file_test(options_xml.c_str(), G_FILE_TEST_EXISTS))
   {
     try 
@@ -1950,7 +1951,7 @@ void WBContext::load_app_options(bool update)
           "The file will skipped and settings are reset to their default values."));
       }
 
-      bec::ScopeExitTrigger free_on_leave(boost::bind(xmlFreeDoc, xmlDocument));
+      base::ScopeExitTrigger free_on_leave(boost::bind(xmlFreeDoc, xmlDocument));
 
       std::string doctype, version;
       grt->get_xml_metainfo(xmlDocument, doctype, version);
@@ -2049,7 +2050,7 @@ void WBContext::load_app_options(bool update)
   
   // load list of server instances
   db_mgmt_ManagementRef mgmt= get_root()->rdbmsMgmt();
-  std::string inst_list_xml= make_path(get_user_datadir(), SERVER_INSTANCE_LIST);
+  std::string inst_list_xml= base::makePath(get_user_datadir(), SERVER_INSTANCE_LIST);
   if (g_file_test(inst_list_xml.c_str(), G_FILE_TEST_EXISTS))
   {
     try
@@ -2082,7 +2083,7 @@ void WBContext::load_other_connections()
   unsigned int connection_count = 0;
   unsigned int total_connections = 0;
   db_mgmt_ManagementRef mgmt= get_root()->rdbmsMgmt();
-  std::string conn_list_xml= make_path(get_user_datadir(), FILE_OTHER_CONNECTION_LIST);
+  std::string conn_list_xml= base::makePath(get_user_datadir(), FILE_OTHER_CONNECTION_LIST);
   if (g_file_test(conn_list_xml.c_str(), G_FILE_TEST_EXISTS))
   {
     try
@@ -2134,7 +2135,7 @@ void WBContext::attempt_options_upgrade(xmlDocPtr xmldoc, const std::string &ver
 
 void WBContext::save_app_options()
 {
-  std::string options_file= make_path(_user_datadir, OPTIONS_FILE_NAME);
+  std::string options_file= base::makePath(_user_datadir, OPTIONS_FILE_NAME);
   app_OptionsRef options(get_root()->options());
   
   // set owner of options to nil so that it wont point to a bogus object when loading
@@ -2159,7 +2160,7 @@ void WBContext::save_instances()
   db_mgmt_ManagementRef mgmt= get_root()->rdbmsMgmt();
   if (!mgmt.is_valid())
       return;
-  std::string inst_list_xml= make_path(get_user_datadir(), SERVER_INSTANCE_LIST);
+  std::string inst_list_xml= base::makePath(get_user_datadir(), SERVER_INSTANCE_LIST);
   _manager->get_grt()->serialize(mgmt->storedInstances(), inst_list_xml);
 }
 
@@ -2175,13 +2176,13 @@ void WBContext::save_connections()
   // save other connections list
   if (_other_connections_loaded)
   {
-    std::string conn_list_xml= make_path(get_user_datadir(), FILE_OTHER_CONNECTION_LIST);
+    std::string conn_list_xml= base::makePath(get_user_datadir(), FILE_OTHER_CONNECTION_LIST);
     _manager->get_grt()->serialize(mgmt->otherStoredConns(), conn_list_xml);
     log_debug("Saved connection list (Non-MySQL: %u)\n", (unsigned int)mgmt->otherStoredConns()->count());
   }
 
   _manager->get_grt()->serialize(mgmt->storedConns(),
-                                 make_path(get_user_datadir(), FILE_CONNECTION_LIST));
+                                 base::makePath(get_user_datadir(), FILE_CONNECTION_LIST));
   log_debug("Saved connection list (MySQL: %u)\n", (unsigned int)mgmt->storedConns()->count());
 }
 
@@ -2198,14 +2199,14 @@ void WBContext::load_starters(boost::shared_ptr<grt::internal::Unserializer> uns
   get_root()->starters(starters);
 
   // Load predefined starters.
-  std::string starters_file = make_path(_datadir, STARTERS_PREDEFINED_FILE_NAME);
+  std::string starters_file = base::makePath(_datadir, STARTERS_PREDEFINED_FILE_NAME);
   if (g_file_test(starters_file.c_str(), G_FILE_TEST_EXISTS))
   {
     xmlDocPtr xmlDocument= NULL;
     try 
     {
       xmlDocument= _manager->get_grt()->load_xml(starters_file);
-      bec::ScopeExitTrigger free_on_leave(boost::bind(xmlFreeDoc, xmlDocument));
+      base::ScopeExitTrigger free_on_leave(boost::bind(xmlFreeDoc, xmlDocument));
 
       std::string doctype, version;
       _manager->get_grt()->get_xml_metainfo(xmlDocument, doctype, version);
@@ -2246,14 +2247,14 @@ void WBContext::load_starters(boost::shared_ptr<grt::internal::Unserializer> uns
   }
 
   // Load user starters if there are any.
-  starters_file= make_path(_user_datadir, STARTERS_USER_FILE_NAME);
+  starters_file= base::makePath(_user_datadir, STARTERS_USER_FILE_NAME);
   if (g_file_test(starters_file.c_str(), G_FILE_TEST_EXISTS))
   {
     xmlDocPtr xmlDocument= NULL;
     try 
     {
       xmlDocument= _manager->get_grt()->load_xml(starters_file);
-      bec::ScopeExitTrigger free_on_leave(boost::bind(xmlFreeDoc, xmlDocument));
+      base::ScopeExitTrigger free_on_leave(boost::bind(xmlFreeDoc, xmlDocument));
 
       std::string doctype, version;
       _manager->get_grt()->get_xml_metainfo(xmlDocument, doctype, version);
@@ -2281,7 +2282,7 @@ void WBContext::load_starters(boost::shared_ptr<grt::internal::Unserializer> uns
 
   // Finally fill the the starter display list. If there is no saved list use the
   // predefined starters for this.
-  starters_file= make_path(_user_datadir, STARTERS_SETTINGS_FILE_NAME);
+  starters_file= base::makePath(_user_datadir, STARTERS_SETTINGS_FILE_NAME);
   grt::ListRef<app_Starter> starter_links= grt::ListRef<app_Starter>(get_grt());
   if (g_file_test(starters_file.c_str(), G_FILE_TEST_EXISTS))
   {
@@ -2289,7 +2290,7 @@ void WBContext::load_starters(boost::shared_ptr<grt::internal::Unserializer> uns
     try 
     {
       xmlDocument= _manager->get_grt()->load_xml(starters_file);
-      bec::ScopeExitTrigger free_on_leave(boost::bind(xmlFreeDoc, xmlDocument));
+      base::ScopeExitTrigger free_on_leave(boost::bind(xmlFreeDoc, xmlDocument));
 
       std::string doctype, version;
       _manager->get_grt()->get_xml_metainfo(xmlDocument, doctype, version);
@@ -2361,14 +2362,14 @@ void WBContext::save_starters()
   if(!get_root()->starters().is_valid())
     return;
   // User starters.
-  std::string starters_file= make_path(_user_datadir, STARTERS_USER_FILE_NAME);
+  std::string starters_file= base::makePath(_user_datadir, STARTERS_USER_FILE_NAME);
   _manager->get_grt()->serialize(get_root()->starters()->custom(), starters_file + ".tmp",
     STARTERS_DOCUMENT_FORMAT, STARTERS_DOCUMENT_VERSION);
   g_remove(starters_file.c_str());
   g_rename(std::string(starters_file + ".tmp").c_str(), starters_file.c_str());
 
   // Starter settings.
-  starters_file= make_path(_user_datadir, STARTERS_SETTINGS_FILE_NAME);
+  starters_file= base::makePath(_user_datadir, STARTERS_SETTINGS_FILE_NAME);
   _manager->get_grt()->serialize(get_root()->starters()->displayList(), starters_file + ".tmp",
     STARTERS_DOCUMENT_FORMAT, STARTERS_DOCUMENT_VERSION, true);
   g_remove(starters_file.c_str());
@@ -2380,14 +2381,14 @@ void WBContext::save_starters()
 void WBContext::load_app_state(boost::shared_ptr<grt::internal::Unserializer> unserializer)
 {
   // Load saved state.
-  std::string state_xml= make_path(_user_datadir, STATE_FILE_NAME);
+  std::string state_xml= base::makePath(_user_datadir, STATE_FILE_NAME);
   if (g_file_test(state_xml.c_str(), G_FILE_TEST_EXISTS))
   {
     xmlDocPtr xmlDocument= NULL;
     try 
     {
       xmlDocument= _manager->get_grt()->load_xml(state_xml);
-      bec::ScopeExitTrigger free_on_leave(boost::bind(xmlFreeDoc, xmlDocument));
+      base::ScopeExitTrigger free_on_leave(boost::bind(xmlFreeDoc, xmlDocument));
 
       std::string doctype, version;
       _manager->get_grt()->get_xml_metainfo(xmlDocument, doctype, version);
@@ -2426,7 +2427,7 @@ void WBContext::save_app_state()
   std::string version = strfmt("%i.%i.%i", APP_MAJOR_NUMBER, APP_MINOR_NUMBER, APP_RELEASE_NUMBER);
   save_state("last-run-as", "global", version);
 
-  std::string state_file= make_path(_user_datadir, STATE_FILE_NAME);
+  std::string state_file= base::makePath(_user_datadir, STATE_FILE_NAME);
   _manager->get_grt()->serialize(get_root()->state(), state_file + ".tmp", STATE_DOCUMENT_FORMAT, 
     STATE_DOCUMENT_VERSION);
   g_remove(state_file.c_str());
@@ -3268,7 +3269,7 @@ bool WBContext::save_as(const std::string &path)
     if (s.empty())
       return false;
 
-    if (!bec::has_suffix(s, ".mwb"))
+    if (!base::hasSuffix(s, ".mwb"))
       s.append(".mwb");
     
     _filename= s;

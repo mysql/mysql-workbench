@@ -259,7 +259,7 @@ std::string MySQLRecognitionBase::token_text(pANTLR3_BASE_TREE node, bool keepQu
     {
       // The field user1 is set by the parser to the number of quote char pairs it found.
       // So we can use it to shortcut our handling here.
-      base::replace(chars, quote_char + quote_char, quote_char);
+      base::replaceStringInplace(chars, quote_char + quote_char, quote_char);
     }
 
   if (keepQuotes)
