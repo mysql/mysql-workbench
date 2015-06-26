@@ -89,11 +89,11 @@ static void scan_templates(GRTManager *grtm)
 {
   if (_templates.empty())
   {
-    std::string template_dir = bec::make_path(grtm->get_basedir(), "modules/data/sqlide");
+    std::string template_dir = base::makePath(grtm->get_basedir(), "modules/data/sqlide");
     std::list<std::string> files = base::scan_for_files_matching(template_dir+"/*.tpli");
     process_templates(files);
     
-    template_dir = bec::make_path(grtm->get_user_datadir(), "recordset_export_templates");
+    template_dir = base::makePath(grtm->get_user_datadir(), "recordset_export_templates");
     files = base::scan_for_files_matching(template_dir+"/*.tpli");
     process_templates(files);        
   }

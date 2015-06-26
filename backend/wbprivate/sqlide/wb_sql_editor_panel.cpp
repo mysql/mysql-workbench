@@ -681,7 +681,7 @@ void SqlEditorPanel::auto_save(const std::string &path)
 {
   // save info about the file
   {
-    std::ofstream f(bec::make_path(path, _autosave_file_suffix+".info").c_str());
+    std::ofstream f(base::makePath(path, _autosave_file_suffix+".info").c_str());
 
     if (_is_scratch)
       f << "type=scratch\n";
@@ -714,7 +714,7 @@ void SqlEditorPanel::auto_save(const std::string &path)
     f.close();
   }
 
-  std::string fn = bec::make_path(path, _autosave_file_suffix+".scratch");
+  std::string fn = base::makePath(path, _autosave_file_suffix+".scratch");
 
   // only save editor contents for scratch areas and unsaved editors
   if (_is_scratch || _filename.empty() || (!_filename.empty() && is_dirty()))
@@ -753,11 +753,11 @@ void SqlEditorPanel::delete_auto_save(const std::string &path)
   // delete the autosave related files
   try
   {
-    base::remove(bec::make_path(path, _autosave_file_suffix+".autosave"));
+    base::remove(base::makePath(path, _autosave_file_suffix+".autosave"));
   } catch (std::exception &exc) { log_warning("Could not delete auto-save file: %s\n", exc.what()); }
   try
   {
-    base::remove(bec::make_path(path, _autosave_file_suffix+".info"));
+    base::remove(base::makePath(path, _autosave_file_suffix+".info"));
   } catch (std::exception &exc) { log_warning("Could not delete auto-save file: %s\n", exc.what()); }
 }
 

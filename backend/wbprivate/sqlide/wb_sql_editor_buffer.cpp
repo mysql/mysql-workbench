@@ -30,7 +30,6 @@
 #include <fstream>
 #include <errno.h>
 
-#include "grt/common.h"
 
 #include "base/util_functions.h"
 #include "base/file_functions.h"
@@ -80,7 +79,7 @@ void SqlEditorForm::save_workspace(const std::string &workspace_name, bool is_au
   // if we're autosaving, just use the same path from previous saves
   if (!is_autosave || _autosave_path.empty())
   {
-    std::string path_prefix = make_path(_grtm->get_user_datadir(),
+    std::string path_prefix = base::makePath(_grtm->get_user_datadir(),
                                         "sql_workspaces");
     if (!g_file_test(path_prefix.c_str(), G_FILE_TEST_EXISTS))
     {
@@ -91,13 +90,13 @@ void SqlEditorForm::save_workspace(const std::string &workspace_name, bool is_au
     int i= 1;
     do
     {
-      path = make_path(path_prefix, strfmt("%s-%i%s", workspace_name.c_str(), i++, (is_autosave ? ".autosave" : ".workspace")));
+      path = base::makePath(path_prefix, strfmt("%s-%i%s", workspace_name.c_str(), i++, (is_autosave ? ".autosave" : ".workspace")));
     }
     while (!create_directory(path, 0700)); // returns false if dir exists, exception on other errors
     
     if (is_autosave)
     {
-      _autosave_lock = new base::LockFile(make_path(path, "lock"));
+      _autosave_lock = new base::LockFile(base::makePath(path, "lock"));
       _autosave_path = path;
     }
   }
@@ -106,7 +105,7 @@ void SqlEditorForm::save_workspace(const std::string &workspace_name, bool is_au
   
   // save the real id of the connection
   if (_connection.is_valid())
-    g_file_set_contents(make_path(path, "connection_id").c_str(), _connection->id().c_str(),
+    g_file_set_contents(base::makePath(path, "connection_id").c_str(), _connection->id().c_str(),
       (gssize)_connection->id().size(), NULL);
 
   // save some of the state of the schema tree
@@ -137,7 +136,7 @@ void SqlEditorForm::save_workspace(const std::string &workspace_name, bool is_au
       info.append("expanded=").append(expand_state).append("\n");
     }
 
-    g_file_set_contents(make_path(path, "schema_tree").c_str(), info.c_str(), info.size(), NULL);
+    g_file_set_contents(base::makePath(path, "schema_tree").c_str(), info.c_str(), info.size(), NULL);
   }
 
   if (_tabdock)
@@ -167,7 +166,7 @@ void SqlEditorForm::save_workspace(const std::string &workspace_name, bool is_au
 
 std::string SqlEditorForm::find_workspace_state(const std::string &workspace_name, std::auto_ptr<base::LockFile> &lock_file)
 {
-  std::string path_prefix = make_path(_grtm->get_user_datadir(), "sql_workspaces");
+  std::string path_prefix = base::makePath(_grtm->get_user_datadir(), "sql_workspaces");
 
   // find workspaces on disk
   std::string workspace_path;
@@ -190,14 +189,14 @@ std::string SqlEditorForm::find_workspace_state(const std::string &workspace_nam
 
         if (g_str_has_suffix(name, ".autosave"))
         {
-          if (LockFile::check(make_path(make_path(path_prefix, name), "lock")) != LockFile::NotLocked)
+          if (LockFile::check(base::makePath(base::makePath(path_prefix, name), "lock")) != LockFile::NotLocked)
             continue;
 
           if (!restoring_autosave)
           {
             try
             {
-              lock_file.reset(new base::LockFile(make_path(make_path(path_prefix, name), "lock")));
+              lock_file.reset(new base::LockFile(base::makePath(base::makePath(path_prefix, name), "lock")));
             }
             catch (const base::file_locked_error)
             {
@@ -212,7 +211,7 @@ std::string SqlEditorForm::find_workspace_state(const std::string &workspace_nam
             {
               try
               {
-                lock_file.reset(new base::LockFile(make_path(make_path(path_prefix, name), "lock")));
+                lock_file.reset(new base::LockFile(base::makePath(base::makePath(path_prefix, name), "lock")));
               }
               catch (const base::file_locked_error)
               {
@@ -228,7 +227,7 @@ std::string SqlEditorForm::find_workspace_state(const std::string &workspace_nam
           {
             try
             {
-              lock_file.reset(new base::LockFile(make_path(make_path(path_prefix, name), "lock")));
+              lock_file.reset(new base::LockFile(base::makePath(base::makePath(path_prefix, name), "lock")));
             }
             catch (const base::file_locked_error)
             {
@@ -256,19 +255,19 @@ struct GuardBoolFlag
 // Restore a previously saved workspace for this connection. The loaded data is deleted immediately after loading (unless its an autosave)
 bool SqlEditorForm::load_workspace(const std::string &workspace_name)
 {
-  std::string path_prefix = make_path(_grtm->get_user_datadir(), "sql_workspaces");
+  std::string path_prefix = base::makePath(_grtm->get_user_datadir(), "sql_workspaces");
 
   GuardBoolFlag flag(&_loading_workspace);
 
   std::auto_ptr<base::LockFile> lock_file;
   std::string workspace_path = find_workspace_state(workspace_name, lock_file);
   if (workspace_path.empty()) return false;
-  workspace_path = make_path(path_prefix, workspace_path);
+  workspace_path = base::makePath(path_prefix, workspace_path);
 
-  if (base::file_exists(bec::make_path(workspace_path, "tab_order")))
+  if (base::file_exists(base::makePath(workspace_path, "tab_order")))
   {
     // new WB 6.2 format workspace
-    std::ifstream f(bec::make_path(workspace_path, "tab_order").c_str());
+    std::ifstream f(base::makePath(workspace_path, "tab_order").c_str());
 
     std::vector<std::string> editor_files;
     while (!f.eof())
@@ -283,8 +282,8 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
 
     BOOST_FOREACH(std::string file, editor_files)
     {
-      std::string info_file = bec::make_path(workspace_path, file+".info");
-      std::string text_file = bec::make_path(workspace_path, file+".scratch");
+      std::string info_file = base::makePath(workspace_path, file+".info");
+      std::string text_file = base::makePath(workspace_path, file+".scratch");
       SqlEditorPanel::AutoSaveInfo info(info_file);
 
       try
@@ -337,13 +336,13 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
       while ((name = g_dir_read_name(dir)) != NULL)
       {
         SqlEditorPanel::AutoSaveInfo info;
-        std::string path = bec::make_path(workspace_path, name);
+        std::string path = base::makePath(workspace_path, name);
 
-        if (bec::has_suffix(name, ".scratch"))
+        if (base::hasSuffix(name, ".scratch"))
         {
           editor_files.push_back(std::make_pair(path, SqlEditorPanel::AutoSaveInfo::old_scratch(path)));
         }
-        else if (bec::has_suffix(name, ".autosave"))
+        else if (base::hasSuffix(name, ".autosave"))
         {
           editor_files.push_back(std::make_pair(path, SqlEditorPanel::AutoSaveInfo::old_autosave(path)));
         }
@@ -392,7 +391,7 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
   {
     gchar *data;
     gsize length;
-    if (g_file_get_contents(make_path(workspace_path, "schema_tree").c_str(), &data, &length, NULL))
+    if (g_file_get_contents(base::makePath(workspace_path, "schema_tree").c_str(), &data, &length, NULL))
     {
       char *line = strtok(data, "\n");
       while (line)
@@ -412,7 +411,7 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
     }
   }
   
-  if (has_suffix(workspace_path, ".autosave"))
+  if (base::hasSuffix(workspace_path, ".autosave"))
   {
     _autosave_lock = lock_file.release();
     _autosave_path = workspace_path;
@@ -584,7 +583,7 @@ void SqlEditorForm::save_workspace_order(const std::string &prefix)
     log_error("save with empty path\n");
   }
 
-  order_file.open(bec::make_path(prefix, "tab_order").c_str(), std::ofstream::out);
+  order_file.open(base::makePath(prefix, "tab_order").c_str(), std::ofstream::out);
 
   if (_tabdock)
   {

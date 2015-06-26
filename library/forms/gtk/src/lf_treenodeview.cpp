@@ -1077,7 +1077,7 @@ int TreeNodeViewImpl::ColumnRecord::add_string(Gtk::TreeView *tree, const std::s
 {
   Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> > *icon= 0;
   std::string tmp = title;
-  base::replace(tmp, "_", "__");
+  base::replaceStringInplace(tmp, "_", "__");
   Gtk::TreeViewColumn *column= Gtk::manage(new Gtk::TreeViewColumn(tmp));
   int idx;
 
@@ -1235,7 +1235,7 @@ void TreeNodeViewImpl::ColumnRecord::format_tri_check(Gtk::CellRenderer* cell,
 int TreeNodeViewImpl::ColumnRecord::add_tri_check(Gtk::TreeView *tree, const std::string &title, bool editable, bool attr)
 {
   std::string tmp = title;
-  base::replace(tmp, "_", "__");
+  base::replaceStringInplace(tmp, "_", "__");
   Gtk::TreeViewColumn *column= Gtk::manage(new Gtk::TreeViewColumn(tmp));
 
   Gtk::TreeModelColumn<int> *col= add_model_column<int>();

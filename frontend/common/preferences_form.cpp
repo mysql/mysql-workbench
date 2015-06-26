@@ -2003,7 +2003,7 @@ void PreferencesForm::show_colors_and_fonts()
         base::starts_with(*iter, "workbench.scripting"))
       continue;
 
-    if (bec::has_suffix(*iter, "Font") && bec::has_prefix(*iter, "workbench."))
+    if (base::hasSuffix(*iter, "Font") && base::hasPrefix(*iter, "workbench."))
     {
       std::string::size_type pos= iter->find(':');
       
@@ -2018,7 +2018,7 @@ void PreferencesForm::show_colors_and_fonts()
           part= part.substr(0, part.length() - 4);
 
           // substitute some figure names
-          figure= bec::replace_string(figure, "NoteFigure", "TextFigure");
+          figure= base::replaceString(figure, "NoteFigure", "TextFigure");
           
           caption= separate_camel_word(figure) + " " + part;
           

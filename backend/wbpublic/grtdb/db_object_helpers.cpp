@@ -30,7 +30,6 @@
 #include "db_object_helpers.h"
 #include "grtpp_undo_manager.h"
 #include "grtpp_util.h"
-#include "grt/common.h"
 #include "grt/parse_utils.h"
 #include "grts/structs.workbench.physical.h"
 #include "grtdb/db_helpers.h"
@@ -288,8 +287,8 @@ db_TableRef TableHelper::create_associative_table(const db_SchemaRef &schema,
 
   name= options.get_string("AuxTableTemplate", global_options.get_string("AuxTableTemplate", "%stable%_%dtable%"));
 
-  name= replace_variable(name, "%stable%", table1->name().c_str());
-  name= replace_variable(name, "%dtable%", table2->name().c_str());
+  name= base::replaceVariable(name, "%stable%", table1->name().c_str());
+  name= base::replaceVariable(name, "%dtable%", table2->name().c_str());
 
   atable= schema.get_grt()->create_object<db_Table>(table1.get_metaclass()->name());
   atable->owner(schema);
@@ -325,17 +324,17 @@ db_TableRef TableHelper::create_associative_table(const db_SchemaRef &schema,
 //
 //static std::string format_ident_with_table(const std::string &fmt, const db_TableRef &table)
 //{
-//  return replace_variable(fmt, "%table%", table->name().c_str());
+//  return base::replaceVariable(fmt, "%table%", table->name().c_str());
 //}
 
 static std::string format_ident_with_stable_dtable(const std::string &fmt, const db_TableRef &stable, const db_TableRef &dtable)
 {
-  return replace_variable(replace_variable(fmt, "%stable%", stable->name().c_str()), "%dtable%", dtable->name().c_str());
+  return base::replaceVariable(base::replaceVariable(fmt, "%stable%", stable->name().c_str()), "%dtable%", dtable->name().c_str());
 }
 
 static std::string format_ident_with_column(const std::string &fmt, const db_ColumnRef &column)
 {
-  return replace_variable(replace_variable(fmt, "%table%", db_TableRef::cast_from(column->owner())->name().c_str()),
+  return base::replaceVariable(base::replaceVariable(fmt, "%table%", db_TableRef::cast_from(column->owner())->name().c_str()),
                         "%column%", column->name().c_str());
 }
 
@@ -753,7 +752,7 @@ db_ForeignKeyRef TableHelper::create_foreign_key_to_table(const db_TableRef &tab
   }
   
   // substitute scolumn/dcolumn now that we know the created column name
-  name_format= replace_variable(replace_variable(name_format, "%scolumn%", scolumn_name), "%dcolumn%", dcolumn_name);
+  name_format= base::replaceVariable(base::replaceVariable(name_format, "%scolumn%", scolumn_name), "%dcolumn%", dcolumn_name);
   
   new_fk->name(SchemaHelper::get_unique_foreign_key_name(db_SchemaRef::cast_from(table->owner()), 
                                                          name_format, 
@@ -842,7 +841,7 @@ db_ForeignKeyRef TableHelper::create_foreign_key_to_table(const db_TableRef &tab
   }
   
   // substitute scolumn/dcolumn now that we know the created column name
-  name_format= replace_variable(replace_variable(name_format, "%scolumn%", scolumn_name), "%dcolumn%", dcolumn_name);  
+  name_format= base::replaceVariable(base::replaceVariable(name_format, "%scolumn%", scolumn_name), "%dcolumn%", dcolumn_name);  
   
   new_fk->name(SchemaHelper::get_unique_foreign_key_name(db_SchemaRef::cast_from(table->owner()), 
                                                          name_format,
@@ -1497,7 +1496,7 @@ std::string bec::TableHelper::generate_comment_text(const std::string& comment_t
       comment = "'"+base::escape_sql_string(comment)+"'";
     if (!leftover.empty())
     {
-      base::replace(leftover, "*/", "*\\/");
+      base::replaceStringInplace(leftover, "*/", "*\\/");
       comment.append(" /* comment truncated */ /*")
       .append(leftover)
       .append("*/");

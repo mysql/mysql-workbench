@@ -2,7 +2,6 @@
 #include "gtk_helpers.h"
 #include <gtkmm/cellrenderercombo.h>
 #include <gtkmm/icontheme.h>
-#include "grt/common.h"
 #include "base/string_utilities.h"
 
 //#define DEBUG
@@ -280,7 +279,7 @@ ColumnsModel::append_int_column(const int bec_tm_idx, const std::string& name, c
   int nr_of_cols;
   if ( editable == EDITABLE )
   {
-    nr_of_cols= _treeview->append_column_editable(bec::replace_string(name, "_", "__"), *col);
+    nr_of_cols= _treeview->append_column_editable(base::replaceString(name, "_", "__"), *col);
 
     Gtk::CellRendererText *cell = (Gtk::CellRendererText*)(_treeview->get_column_cell_renderer(nr_of_cols - 1));
     cell->signal_edited().connect(sigc::bind
@@ -292,7 +291,7 @@ ColumnsModel::append_int_column(const int bec_tm_idx, const std::string& name, c
                                  );
   }
   else
-    nr_of_cols= _treeview->append_column(bec::replace_string(name, "_", "__"), *col);
+    nr_of_cols= _treeview->append_column(base::replaceString(name, "_", "__"), *col);
 
   _treeview->get_column(nr_of_cols-1)->set_resizable(true);
 
@@ -336,7 +335,7 @@ ColumnsModel::append_string_column(const int bec_tm_idx, const std::string& name
 {
   Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> > *icon= 0;
 
-  Gtk::TreeViewColumn *column= Gtk::manage(new Gtk::TreeViewColumn(bec::replace_string(name, "_", "__")));
+  Gtk::TreeViewColumn *column= Gtk::manage(new Gtk::TreeViewColumn(base::replaceString(name, "_", "__")));
 
   if ( have_icon == WITH_ICON )
   {
@@ -386,7 +385,7 @@ ColumnsModel::append_markup_column(const int bec_tm_idx, const std::string& name
 {
   Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> > *icon= 0;
 
-  Gtk::TreeViewColumn *column= Gtk::manage(new Gtk::TreeViewColumn(bec::replace_string(name, "_", "__")));
+  Gtk::TreeViewColumn *column= Gtk::manage(new Gtk::TreeViewColumn(base::replaceString(name, "_", "__")));
 
   if ( have_icon == WITH_ICON )
   {
@@ -427,7 +426,7 @@ ColumnsModel::append_combo_column(const int bec_tm_idx
   add(*choosen);
   add_bec_index_mapping(bec_tm_idx);
 
-  Gtk::TreeView::Column   *col = Gtk::manage(new Gtk::TreeViewColumn(bec::replace_string(name, "_", "__")));
+  Gtk::TreeView::Column   *col = Gtk::manage(new Gtk::TreeViewColumn(base::replaceString(name, "_", "__")));
   Gtk::CellRendererCombo *cell = Gtk::manage(new Gtk::CellRendererCombo);
   col->pack_start(*cell);
 
@@ -480,7 +479,7 @@ ColumnsModel::append_check_column(const int bec_tm_idx
   // ListModelWrapper::_fake_column_value_getter/setter slot
   if ( editable == EDITABLE  )
   {
-    nr_of_cols= _treeview->append_column_editable(bec::replace_string(name, "_", "__"), *col);
+    nr_of_cols= _treeview->append_column_editable(base::replaceString(name, "_", "__"), *col);
 
     Gtk::CellRendererToggle *cell = (Gtk::CellRendererToggle*)(_treeview->get_column_cell_renderer(nr_of_cols - 1));
     cell->property_activatable() = true;
@@ -496,7 +495,7 @@ ColumnsModel::append_check_column(const int bec_tm_idx
     }
   }
   else
-    nr_of_cols= _treeview->append_column(bec::replace_string(name, "_", "__"), *col);
+    nr_of_cols= _treeview->append_column(base::replaceString(name, "_", "__"), *col);
 
   _treeview->get_column(nr_of_cols-1)->set_resizable(true);
 

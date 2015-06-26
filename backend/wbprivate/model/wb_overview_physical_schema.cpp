@@ -420,7 +420,7 @@ bool PhysicalSchemaNode::is_pasteable(bec::Clipboard *clip)
       && !(*iter).is_instance(db_RoutineGroup::static_class_name()))
       return false;
 
-    if (!bec::has_prefix((*iter).get_metaclass()->name(), prefix))
+    if (!base::hasPrefix((*iter).get_metaclass()->name(), prefix))
       return false;
   }
   return !objects.empty();

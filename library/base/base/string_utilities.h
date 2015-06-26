@@ -40,6 +40,7 @@
   #include <vector>
   #include <sstream>
   #include <typeinfo>
+  #include <string.h>
 
   #include <boost/optional.hpp>
   #include <boost/cstdint.hpp>
@@ -87,6 +88,7 @@ namespace base
   BASELIBRARY_PUBLIC_FUNC std::string pop_path_front(std::string &path);
   BASELIBRARY_PUBLIC_FUNC std::string pop_path_back(std::string &path);
   BASELIBRARY_PUBLIC_FUNC std::string strip_text(const std::string &text, bool left= true, bool right= true);
+  BASELIBRARY_PUBLIC_FUNC std::string replaceVariable(const std::string &format, const std::string &variable, const std::string &value);
 
   BASELIBRARY_PUBLIC_FUNC std::string normalize_path_extension(std::string filename, std::string extension);
   BASELIBRARY_PUBLIC_FUNC std::string normalize_path(const std::string path);
@@ -107,7 +109,11 @@ namespace base
   BASELIBRARY_PUBLIC_FUNC std::string right(const std::string& s, size_t len);
   BASELIBRARY_PUBLIC_FUNC bool starts_with(const std::string& s, const std::string& part);
   BASELIBRARY_PUBLIC_FUNC bool ends_with(const std::string& s, const std::string& part);
-  BASELIBRARY_PUBLIC_FUNC void replace(std::string& value, const std::string& search, const std::string& replacement);
+  BASELIBRARY_PUBLIC_FUNC void replaceStringInplace(std::string& value, const std::string& search, const std::string& replacement);
+  BASELIBRARY_PUBLIC_FUNC std::string replaceString(const std::string &s, const std::string &from, const std::string &to);
+  inline bool hasPrefix(const std::string &str, const std::string &pref) { return (strncmp(str.c_str(), pref.c_str(), pref.length())==0); }
+  inline bool hasSuffix(const std::string &str, const std::string &suf) { return (suf.length() < str.length() && strncmp(str.c_str()+str.length()-suf.length(), suf.c_str(), suf.length())==0); }
+
   /**
    * @brief Split the a string into a vector, using @a sep as a separator
    * 
