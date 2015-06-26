@@ -19,6 +19,7 @@
 
 #pragma once
 #include "mforms/panel.h"
+#include "mforms/treenodeview.h"
 
 namespace JsonParser {
   
@@ -183,10 +184,14 @@ namespace JsonParser {
     DataType _type;
   };
 
-  class MFORMS_EXPORT ParserException : public std::exception
+#ifdef _WIN32
+# pragma warning(disable: 4275) // non dll-interface class used as base dll-interface class.
+#endif
+
+  class MFORMS_EXPORT ParserException : public std::runtime_error
   {
   public:
-    ParserException(const std::string& message) : std::exception(message.c_str()) {}
+    explicit ParserException(const std::string& message) : std::runtime_error(message.c_str()) {}
   };
 
   class MFORMS_EXPORT JsonReader : public boost::noncopyable
@@ -269,11 +274,13 @@ namespace mforms {
   class JsonBaseView : public Panel
   {
   public:
+    enum JsonNodeIcons { JsonObjectIcon, JsonArrayIcon, JsonStringIcon, JsonNumericIcon, JsonNullIcon };
     JsonBaseView();
     virtual ~JsonBaseView();
     boost::signals2::signal<void()>* signalChanged();
   protected:
     boost::signals2::signal<void()> _signalChanged;
+    static std::string getNodeIconPath(JsonNodeIcons icon);
   };
 
   /**
@@ -283,6 +290,7 @@ namespace mforms {
   class JsonTextView : public JsonBaseView
   {
   public:
+
     JsonTextView();
     virtual ~JsonTextView();
     void textChanged();
@@ -296,25 +304,34 @@ namespace mforms {
   /**
   * @brief Json tree view control class definition.
   **/
-  class TreeNodeView;
   class JsonTreeView : public JsonBaseView
   {
   public:
     JsonTreeView();
     virtual ~JsonTreeView();
+    void setJson(const JsonParser::JsonValue &val);
 
   private:
+    void init();
+    void generateTree(const JsonParser::JsonValue &value, mforms::TreeNodeRef node, bool addNew = true);
+    void generateArrayInTree(const JsonParser::JsonValue& value, TreeNodeRef node, bool addNew);
+    void generateObjectInTree(const JsonParser::JsonValue& value, TreeNodeRef node, bool addNew);
     std::shared_ptr<TreeNodeView> _treeView;
   };
 
   /**
   * @brief Json grid view control class definition.
   **/
+  class GridView;
   class JsonGridView : public JsonBaseView
   {
   public:
     JsonGridView();
     virtual ~JsonGridView();
+
+  private:
+    void init();
+    std::shared_ptr<GridView> _greedView;
   };
 
   /**
@@ -324,8 +341,6 @@ namespace mforms {
   class MFORMS_EXPORT JsonTabView : public Panel
   {
   public:
-    void generateTextOutput();
-    void generateTextOutput(const JsonParser::JsonValue& value);
     void Setup();
     JsonTabView();
     ~JsonTabView();
