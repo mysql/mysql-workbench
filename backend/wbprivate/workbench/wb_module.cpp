@@ -32,7 +32,6 @@
 
 #include "mdc_back_layer.h"
 
-#include "grt/common.h"
 
 #include "wbcanvas/model_figure_impl.h"
 
@@ -577,7 +576,7 @@ int WorkbenchImpl::saveModel()
 
 int WorkbenchImpl::saveModelAs(const std::string &filename)
 {
-  _wb->save_as(bec::append_extension_if_needed(filename, ".mwb"));
+  _wb->save_as(base::appendExtensionIfNeeded(filename, ".mwb"));
 
   return 0;
 }
@@ -585,14 +584,14 @@ int WorkbenchImpl::saveModelAs(const std::string &filename)
 
 int WorkbenchImpl::exportPNG(const std::string &filename)
 {
-  _wb->get_model_context()->export_png(bec::append_extension_if_needed(filename, ".png"));
+  _wb->get_model_context()->export_png(base::appendExtensionIfNeeded(filename, ".png"));
 
   return 0;
 }
 
 int WorkbenchImpl::exportPDF(const std::string &filename)
 {
-  _wb->get_model_context()->export_pdf(bec::append_extension_if_needed(filename, ".pdf"));
+  _wb->get_model_context()->export_pdf(base::appendExtensionIfNeeded(filename, ".pdf"));
 
   return 0;
 }
@@ -600,7 +599,7 @@ int WorkbenchImpl::exportPDF(const std::string &filename)
 
 int WorkbenchImpl::exportSVG(const std::string &filename)
 {
-  _wb->get_model_context()->export_svg(bec::append_extension_if_needed(filename, ".svg"));
+  _wb->get_model_context()->export_svg(base::appendExtensionIfNeeded(filename, ".svg"));
 
   return 0;
 }
@@ -608,7 +607,7 @@ int WorkbenchImpl::exportSVG(const std::string &filename)
 
 int WorkbenchImpl::exportPS(const std::string &filename)
 {
-  _wb->get_model_context()->export_ps(bec::append_extension_if_needed(filename, ".ps"));
+  _wb->get_model_context()->export_ps(base::appendExtensionIfNeeded(filename, ".ps"));
 
   return 0;
 }

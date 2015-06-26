@@ -23,6 +23,7 @@
 
 #include "base/file_utilities.h"
 #include "base/ui_form.h"
+#include "base/threaded_timer.h"
 
 #include "grts/structs.workbench.h"
 #include "grts/structs.db.mgmt.h"
@@ -301,12 +302,13 @@ public:
   parser::ParserContext::Ref work_parser_context() { return _work_parser_context;  };
 
 private:
-  bec::TimerActionThread *_keep_alive_thread;
+  int         _keep_alive_task_id;
   base::Mutex _keep_alive_thread_mutex;
 private:
   void send_message_keep_alive();
+  bool send_message_keep_alive_bool_wrapper() { send_message_keep_alive(); return false; } // need it for ThreadedTimer, which expects callbacks to return bool
   void reset_keep_alive_thread();
-  
+
   db_mgmt_ConnectionRef _connection;
   // connection for maintenance operations, fetching schema contents & live editors (DDL only)
   sql::Dbc_connection_handler::Ref _aux_dbc_conn;

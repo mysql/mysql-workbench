@@ -22,7 +22,7 @@ namespace linux_printing
                                              const app_PageSettingsRef &settings,
                                              bool skip_margins)
   {
-    Gtk::PaperSize paper_size(bec::replace_string(settings->paperType()->name().c_str(), "-", "_"));
+    Gtk::PaperSize paper_size(base::replaceString(settings->paperType()->name().c_str(), "-", "_"));
 
     setup->set_bottom_margin((skip_margins?0:1)*settings->marginBottom(), Gtk::UNIT_MM);
     setup->set_left_margin((skip_margins?0:1)*settings->marginLeft(), Gtk::UNIT_MM);
@@ -104,7 +104,7 @@ void WBPageSetup::propagate_print_settings_to_grt_tree()
   Gtk::PaperSize   gtk_paper_size      = _page_setup->get_paper_size();
   app_PaperTypeRef paper_type          = _app_page_settings->paperType();
 
-  const std::string paper_name = bec::replace_string(gtk_paper_size_get_name(gtk_paper_size.gobj()), "_", "-");
+  const std::string paper_name = base::replaceString(gtk_paper_size_get_name(gtk_paper_size.gobj()), "_", "-");
 
   grt::ListRef<app_PaperType> paper_types(grt::ListRef<app_PaperType>::cast_from(_app_page_settings.get_grt()->get("/wb/options/paperTypes")));
   

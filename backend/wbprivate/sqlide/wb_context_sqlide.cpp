@@ -46,7 +46,6 @@
 #include "sqlide/wb_sql_editor_help.h"
 #include "sqlide/wb_sql_editor_result_panel.h"
 #include "sqlide/wb_sql_editor_tree_controller.h"
-#include "grt/common.h"
 
 #include "objimpl/db.query/db_query_Editor.h"
 #include "objimpl/db.query/db_query_Resultset.h"
@@ -625,9 +624,9 @@ static bool validate_toolbar_alias_toggle(wb::WBContextSQLIDE *sqlide, const std
     {
       std::string title = mitem->get_title();
       if (item->get_checked())
-        base::replace(title, "Show", "Hide");
+        base::replaceStringInplace(title, "Show", "Hide");
       else
-        base::replace(title, "Hide", "Show");
+        base::replaceStringInplace(title, "Hide", "Show");
       mitem->set_title(title);
     }
   }
@@ -711,7 +710,7 @@ void WBContextSQLIDE::detect_auto_save_files(const std::string &autosave_dir)
   std::list<std::string> autosaves;
   try
   {
-    autosaves = base::scan_for_files_matching(bec::make_path(autosave_dir, "sql_workspaces/*.autosave"));
+    autosaves = base::scan_for_files_matching(base::makePath(autosave_dir, "sql_workspaces/*.autosave"));
   }
   catch (const std::runtime_error& e)
   {
@@ -722,7 +721,7 @@ void WBContextSQLIDE::detect_auto_save_files(const std::string &autosave_dir)
   {
     gchar *conn_id;
     gsize length;
-    if (g_file_get_contents(bec::make_path(*d, "connection_id").c_str(),
+    if (g_file_get_contents(base::makePath(*d, "connection_id").c_str(),
                             &conn_id, &length, NULL))
     {
       ::auto_save_sessions[std::string(conn_id, length)] = *d;
@@ -763,7 +762,7 @@ void WBContextSQLIDE::handle_notification(const std::string &name, void *sender,
 
 void WBContextSQLIDE::init()
 {
-  DbSqlEditorSnippets::setup(this, bec::make_path(get_grt_manager()->get_user_datadir(), "snippets"));
+  DbSqlEditorSnippets::setup(this, base::makePath(get_grt_manager()->get_user_datadir(), "snippets"));
   
   //scoped_connect(_wbui->get_wb()->signal_app_closing(),boost::bind(&WBContextSQLIDE::finalize, this));
   base::NotificationCenter::get()->add_observer(this, "GNAppClosing");

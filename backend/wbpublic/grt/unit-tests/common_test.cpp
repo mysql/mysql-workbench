@@ -19,10 +19,8 @@
 
 #include "test.h"
 #include "grt/parse_utils.h"
-#include "grt/common.h"
 #include "base/string_utilities.h"
 
-using namespace grt;
 using namespace bec;
 
 TEST_MODULE(be_common_utils, "common utility functions");
@@ -78,24 +76,5 @@ TEST_FUNCTION(1)
   CHECK_FAIL("'foo', bar", true);
   CHECK_FAIL("'foo', NULL", true);
 }
-
-using base::normalize_path; // this was moved from bec to base
-
-TEST_FUNCTION(2)
-{
-  std::string separator(1, G_DIR_SEPARATOR);
-
-  ensure_equals("Path normalization", normalize_path(""), "");
-  ensure_equals("Path normalization", normalize_path("/"), separator);
-  ensure_equals("Path normalization", normalize_path("\\"), separator);
-  ensure_equals("Path normalization", normalize_path("/////////"), separator);
-  ensure_equals("Path normalization", normalize_path("../../../"), "");
-  ensure_equals("Path normalization", normalize_path("abc/././../def"), "def");
-  ensure_equals("Path normalization", normalize_path("a/./b/.././d/./.."), "a");
-  ensure_equals("Path normalization", normalize_path("a/b/c/../d/../"), replace_string("a/b/", "/", separator));
-  ensure_equals("Path normalization", normalize_path("/path///to/my//////dir"), 
-    replace_string("/path/to/my/dir", "/", separator));
-  ensure_equals("Path normalization", normalize_path("D:\\files\\to//scan"), 
-    replace_string("D:/files/to/scan", "/", separator));}
 
 END_TESTS

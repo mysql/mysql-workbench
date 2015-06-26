@@ -613,9 +613,9 @@ void QuerySidePalette::click_link(const std::string &link)
   {
     // Internal link.
     std::string topic = base::trim(link.substr(6, link.size() - 6));
-    base::replace(topic, "%20", " ");
+    base::replaceStringInplace(topic, "%20", " ");
     while (topic.find("  ") != std::string::npos)
-      base::replace(topic, "  ", " ");
+      base::replaceStringInplace(topic, "  ", " ");
     
     update_help_history(topic);
     show_help_text_for_topic(topic);

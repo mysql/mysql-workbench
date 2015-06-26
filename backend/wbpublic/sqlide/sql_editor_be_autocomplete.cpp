@@ -1017,7 +1017,7 @@ void MySQLEditor::setup_auto_completion()
   // Set up the shared grammar data if this is the first editor.
   if (rules_holder.rules.empty())
   {
-    std::string grammar_path = make_path(grtm()->get_basedir(), "data/MySQL.g");
+    std::string grammar_path = base::makePath(grtm()->get_basedir(), "data/MySQL.g");
     rules_holder.parse_file(grammar_path);
   }
 }

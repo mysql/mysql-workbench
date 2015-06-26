@@ -96,19 +96,19 @@ void WBComponentPhysical::load_app_options(bool update)
   {
     app_ToolbarRef toolbar;
     toolbar= app_ToolbarRef::cast_from(
-      grt->unserialize(make_path(_wb->get_datadir(),"data/model_option_toolbar_physical_table.xml")));
+      grt->unserialize(base::makePath(_wb->get_datadir(),"data/model_option_toolbar_physical_table.xml")));
     _toolbars[toolbar->name()]= toolbar;
 
     toolbar= app_ToolbarRef::cast_from(
-      grt->unserialize(make_path(_wb->get_datadir(),"data/model_option_toolbar_physical_view.xml")));
+      grt->unserialize(base::makePath(_wb->get_datadir(),"data/model_option_toolbar_physical_view.xml")));
     _toolbars[toolbar->name()]= toolbar;
 
     toolbar= app_ToolbarRef::cast_from(
-      grt->unserialize(make_path(_wb->get_datadir(),"data/model_option_toolbar_physical_routinegroup.xml")));
+      grt->unserialize(base::makePath(_wb->get_datadir(),"data/model_option_toolbar_physical_routinegroup.xml")));
     _toolbars[toolbar->name()]= toolbar;
 
     toolbar= app_ToolbarRef::cast_from(
-      grt->unserialize(make_path(_wb->get_datadir(),"data/model_option_toolbar_physical_relationship.xml")));
+      grt->unserialize(base::makePath(_wb->get_datadir(),"data/model_option_toolbar_physical_relationship.xml")));
     _toolbars["main/" WB_TOOL_PREL11_NOID]= toolbar;
     _toolbars["main/" WB_TOOL_PREL1n_NOID]= toolbar;
     _toolbars["main/" WB_TOOL_PREL11]= toolbar;
@@ -117,12 +117,12 @@ void WBComponentPhysical::load_app_options(bool update)
     _toolbars["main/" WB_TOOL_PREL_PICK]= toolbar;
 
     _shortcuts= grt::ListRef<app_ShortcutItem>::cast_from(
-      grt->unserialize(make_path(_wb->get_datadir(),"data/shortcuts_physical.xml")));
+      grt->unserialize(base::makePath(_wb->get_datadir(),"data/shortcuts_physical.xml")));
   }
 
   // this needs to be loaded after drivers list has been loaded
   db_mgmt_ManagementRef mgmt= _wb->get_root()->rdbmsMgmt();
-  std::string conn_list_xml= make_path(_wb->get_user_datadir(), FILE_CONNECTION_LIST);
+  std::string conn_list_xml= base::makePath(_wb->get_user_datadir(), FILE_CONNECTION_LIST);
   if (g_file_test(conn_list_xml.c_str(), G_FILE_TEST_EXISTS))
   {
     try
@@ -2053,7 +2053,7 @@ void WBComponentPhysical::unblock_model_notifications()
 
 app_ToolbarRef WBComponentPhysical::get_tools_toolbar()
 {
-  return app_ToolbarRef::cast_from(_wb->get_grt()->unserialize(make_path(_wb->get_datadir(),"data/tools_toolbar_physical.xml")));  
+  return app_ToolbarRef::cast_from(_wb->get_grt()->unserialize(base::makePath(_wb->get_datadir(),"data/tools_toolbar_physical.xml")));  
 }
 
 
@@ -2076,9 +2076,9 @@ std::vector<std::string> WBComponentPhysical::get_command_dropdown_items(const s
   std::vector<std::string> items;
   ModelDiagramForm *form= dynamic_cast<ModelDiagramForm*>(_wb->get_active_main_form());
 
-  if (has_prefix(option, "workbench.physical."))
+  if (base::hasPrefix(option, "workbench.physical."))
   {
-    if (has_suffix(option, ":Color"))
+    if (base::hasSuffix(option, ":Color"))
     {
       std::string colors= _wb->get_wb_options().get_string("workbench.model.ObjectFigure:ColorList");
       std::vector<std::string> colorList;
@@ -2115,7 +2115,7 @@ std::vector<std::string> WBComponentPhysical::get_command_dropdown_items(const s
 
       form->set_tool_argument(option, selected);
     }
-    else if (has_suffix(option, ":Template"))
+    else if (base::hasSuffix(option, ":Template"))
     {
       grt::BaseListRef templates = grt::BaseListRef::cast_from(_wb->get_root()->options()->options().get("TableTemplates"));
 
@@ -2126,7 +2126,7 @@ std::vector<std::string> WBComponentPhysical::get_command_dropdown_items(const s
 
       form->set_tool_argument(option, "None");
     }
-    else if (has_suffix(option, ":Schema"))
+    else if (base::hasSuffix(option, ":Schema"))
     {
       workbench_physical_ModelRef model(get_parent_for_object<workbench_physical_Model>(form->get_model_diagram()));
 
@@ -2143,7 +2143,7 @@ std::vector<std::string> WBComponentPhysical::get_command_dropdown_items(const s
 
       form->set_tool_argument(option, selected);
     }
-    else if (has_suffix(option, ":Engine"))
+    else if (base::hasSuffix(option, ":Engine"))
     {
       items.push_back("*Default Engine*");
 
@@ -2166,7 +2166,7 @@ std::vector<std::string> WBComponentPhysical::get_command_dropdown_items(const s
 
       form->set_tool_argument(option, selected);
     }
-    else if (has_suffix(option, ":Collation"))
+    else if (base::hasSuffix(option, ":Collation"))
     {
       workbench_physical_ModelRef model(get_parent_for_object<workbench_physical_Model>(form->get_model_diagram()));
 
@@ -2549,7 +2549,7 @@ void WBComponentPhysical::model_object_list_changed(grt::internal::OwnedList *li
         {
           gchar *data;
           gsize length;
-          std::string path= make_path(_wb->get_grt_manager()->get_tmp_dir(), object->filename());
+          std::string path= base::makePath(_wb->get_grt_manager()->get_tmp_dir(), object->filename());
           
           if (g_file_get_contents(path.c_str(), &data, &length, NULL))
           {
@@ -2604,7 +2604,7 @@ void WBComponentPhysical::model_object_list_changed(grt::internal::OwnedList *li
 #if 0
         if (object->filename() != "")
         {
-          std::string path= make_path(_wb->get_grt_manager()->get_tmp_dir(), object->filename());
+          std::string path= base::makePath(_wb->get_grt_manager()->get_tmp_dir(), object->filename());
           std::string tmp= base::dirname(path.c_str());
           g_mkdir_with_parents(tmp.c_str(), 0700);
           

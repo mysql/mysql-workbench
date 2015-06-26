@@ -497,7 +497,18 @@ namespace base {
     }
     return "";
   }
-  
+
+  //--------------------------------------------------------------------------------------------------
+
+  std::string appendExtensionIfNeeded(const std::string &path, const std::string &ext)
+  {
+    if (!base::hasSuffix(path, ext))
+      return path + ext;
+    return path;
+  }
+
+  //--------------------------------------------------------------------------------------------------
+
   std::string dirname(const std::string &path)
   {
     char *dn = g_path_get_dirname(path.c_str());
@@ -576,7 +587,17 @@ bool file_mtime(const std::string &path, time_t &mtime)
   return false;
 }
 
-std::string join_path(const char *prefix, ...)
+std::string makePath(const std::string &prefix, const std::string &file)
+{
+  if (prefix.empty())
+    return file;
+
+  if (prefix[prefix.size() - 1] == '/' || prefix[prefix.size() - 1] == '\\')
+    return prefix + file;
+  return prefix + G_DIR_SEPARATOR + file;
+}
+
+std::string joinPath(const char *prefix, ...)
 {
   std::string path = prefix;
   char wrong_path_separator = G_DIR_SEPARATOR == '/' ? '\\' : '/';
@@ -598,6 +619,20 @@ std::string join_path(const char *prefix, ...)
   va_end(ap);
 
   return path;
+}
+
+std::string pathlistAppend(const std::string &l, const std::string &s)
+{
+  if (l.empty())
+    return s;
+  return l + G_SEARCHPATH_SEPARATOR + s;
+}
+
+std::string pathlistPrepend(const std::string &l, const std::string &s)
+{
+  if (l.empty())
+    return s;
+  return s + G_SEARCHPATH_SEPARATOR + l;
 }
 
 };

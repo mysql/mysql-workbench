@@ -125,8 +125,8 @@ Logger::Logger(const std::string& dir, const bool stderr_log, const std::string&
   _impl->_new_line_pending = true;
   if (!dir.empty() && !file_name.empty())
   {
-    _impl->_dir = base::join_path(dir.c_str(), "log", "");
-    _impl->_filename = base::join_path(_impl->_dir.c_str(), filenames[0].c_str(), "");
+    _impl->_dir = base::joinPath(dir.c_str(), "log", "");
+    _impl->_filename = base::joinPath(_impl->_dir.c_str(), filenames[0].c_str(), "");
     try
     {
       create_directory(_impl->_dir, 0700, true);
@@ -142,11 +142,11 @@ Logger::Logger(const std::string& dir, const bool stderr_log, const std::string&
     {
       try
       {
-        std::string filename = base::join_path(_impl->_dir.c_str(), filenames[i].c_str(), "");
+        std::string filename = base::joinPath(_impl->_dir.c_str(), filenames[i].c_str(), "");
         if (file_exists(filename))
           remove(filename);
         
-        std::string filename2 = base::join_path(_impl->_dir.c_str(), filenames[i-1].c_str(), "");
+        std::string filename2 = base::joinPath(_impl->_dir.c_str(), filenames[i-1].c_str(), "");
         if (file_exists(filename2))
           rename(filename2, filename);
       }

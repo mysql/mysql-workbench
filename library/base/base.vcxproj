@@ -292,6 +292,7 @@
     <ClInclude Include="base\log.h" />
     <ClInclude Include="base\notifications.h" />
     <ClInclude Include="base\profiling.h" />
+    <ClInclude Include="base\scope_exit_trigger.h" />
     <ClInclude Include="base\sqlstring.h" />
     <ClInclude Include="base\string_utilities.h" />
     <ClInclude Include="base\threaded_timer.h" />

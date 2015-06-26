@@ -914,12 +914,12 @@ bool TableColumnsListBE::get_field_grt(const NodeId &node, ColumnId column, grt:
     {
       if (node[0] == 0)
       {
-        value= grt::StringRef(replace_variable(_owner->get_grt_manager()->get_app_option_string("PkColumnNameTemplate"),
+        value= grt::StringRef(base::replaceVariable(_owner->get_grt_manager()->get_app_option_string("PkColumnNameTemplate"),
                                              "%table%", _owner->get_name().c_str()));
       }
       else
       {
-        std::string templ= replace_variable(_owner->get_grt_manager()->get_app_option_string("ColumnNameTemplate"),
+        std::string templ= base::replaceVariable(_owner->get_grt_manager()->get_app_option_string("ColumnNameTemplate"),
                                           "%table%", _owner->get_name().c_str());
         
         value= grt::StringRef(grt::get_name_suggestion_for_list_object(_owner->get_table()->columns(), templ, false));
@@ -2779,10 +2779,10 @@ bool FKConstraintListBE::get_field_grt(const NodeId &node, ColumnId column, grt:
       value= fk->name();
     else if (_editing_placeholder_row == node[0])
     {
-      std::string temp = replace_string(_owner->get_grt_manager()->get_app_option_string("FKNameTemplate"),
+      std::string temp = base::replaceString(_owner->get_grt_manager()->get_app_option_string("FKNameTemplate"),
                                                     "%stable%", _owner->get_name().c_str());
 
-      value = grt::StringRef(get_name_suggestion_for_list_object(_owner->get_table()->foreignKeys(), replace_string(temp, "%dtable%", ""), true));
+      value = grt::StringRef(get_name_suggestion_for_list_object(_owner->get_table()->foreignKeys(), base::replaceString(temp, "%dtable%", ""), true));
     }
     else 
       value= grt::StringRef("");
@@ -3383,7 +3383,7 @@ void TableEditorBE::show_export_wizard(mforms::Form *owner)
     exporter.set_title(strfmt(_("Export Inserts for %s"), get_name().c_str()));
     if (!path.empty())
     {
-      path = bec::make_path(path, get_name());
+      path = base::makePath(path, get_name());
       exporter.set_path(path);
     }
     path = exporter.run();

@@ -23,6 +23,7 @@
 #endif
 
 #include "base/file_utilities.h"
+#include "base/string_utilities.h"
 #include "icon_manager.h"
 #include "common.h"
 #ifdef __APPLE__
@@ -76,7 +77,7 @@ static std::string get_icon_file_for_size(const std::string &aicon_file, IconSiz
   std::string icon_file= aicon_file;
 
   if (!extra_qualifier.empty())
-    icon_file= replace_string(icon_file, "$", extra_qualifier + ".$");
+    icon_file= base::replaceString(icon_file, "$", extra_qualifier + ".$");
 
   if (icon_file.find('$')!=std::string::npos)
   {
@@ -252,7 +253,7 @@ void IconManager::add_search_path(const std::string &path)
   std::string npath;
 
 #ifdef _WIN32
-  npath= replace_string(path, "/", G_DIR_SEPARATOR_S);
+  npath= base::replaceString(path, "/", G_DIR_SEPARATOR_S);
 #else
   npath= path;
 #endif

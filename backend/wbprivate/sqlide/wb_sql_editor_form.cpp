@@ -48,6 +48,7 @@
 #include "base/log.h"
 #include "base/boost_smart_ptr_helpers.h"
 #include "base/util_functions.h"
+#include "base/scope_exit_trigger.h"
 
 #include "workbench/wb_command_ui.h"
 #include "workbench/wb_context_names.h"
@@ -58,7 +59,6 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2/connection.hpp>
-#include "grt/common.h"
 
 #include "query_side_palette.h"
 
@@ -209,10 +209,10 @@ void SqlEditorForm::report_connection_failure(const std::string &error, const db
   "3 Check the %user% has rights to connect to %server% from your address (mysql rights define what clients can connect to the server and from which machines) \n"\
   "4 Make sure you are both providing a password if needed and using the correct password for %server% connecting from the host address you're connecting from";
 
-  message = bec::replace_string(message, "%user%", target->parameterValues().get_string("userName"));
-  message = bec::replace_string(message, "%port%", target->parameterValues().get("port").repr());
-  message = bec::replace_string(message, "%server%", target->parameterValues().get_string("hostName", "localhost"));
-  message = bec::replace_string(message, "%error%", error);
+  message = base::replaceString(message, "%user%", target->parameterValues().get_string("userName"));
+  message = base::replaceString(message, "%port%", target->parameterValues().get("port").repr());
+  message = base::replaceString(message, "%server%", target->parameterValues().get_string("hostName", "localhost"));
+  message = base::replaceString(message, "%error%", error);
 
   log_error("%s", (message + '\n').c_str());
   mforms::Utilities::show_error(_("Cannot Connect to Database Server"), message, _("Close"));
@@ -233,7 +233,7 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
   _closing(false),
   _sql_editors_serial(0),
   _scratch_editors_serial(0),
-  _keep_alive_thread(NULL),
+  _keep_alive_task_id(0),
   _aux_dbc_conn(new sql::Dbc_connection_handler()),
   _usr_dbc_conn(new sql::Dbc_connection_handler()),
   _last_server_running_state(UnknownState),
@@ -263,8 +263,7 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
   int keep_alive_interval= _grtm->get_app_option_int("DbSqlEditor:KeepAliveInterval", 600);
   if (keep_alive_interval != 0)
   {
-    _keep_alive_thread= TimerActionThread::create(boost::bind(&SqlEditorForm::send_message_keep_alive, this), keep_alive_interval*1000);
-    _keep_alive_thread->on_exit.connect(boost::bind(&SqlEditorForm::reset_keep_alive_thread, this));
+    _keep_alive_task_id = ThreadedTimer::add_task(TimerTimeSpan, keep_alive_interval, false, boost::bind(&SqlEditorForm::send_message_keep_alive_bool_wrapper, this));
   }
 
   _lower_case_table_names = 0;
@@ -496,10 +495,10 @@ void SqlEditorForm::handle_notification(const std::string &name, void *sender, b
 void SqlEditorForm::reset_keep_alive_thread()
 {
   MutexLock keep_alive_thread_lock(_keep_alive_thread_mutex);
-  if (_keep_alive_thread)
+  if (_keep_alive_task_id)
   {
-    _keep_alive_thread->stop(true);
-    _keep_alive_thread= NULL;
+    ThreadedTimer::remove_task(_keep_alive_task_id);
+    _keep_alive_task_id = 0;
   }
 }
 
@@ -561,7 +560,7 @@ void SqlEditorForm::close()
             do
             {
               ++try_count;
-              new_name = make_path(path, sanitize_file_name(get_session_name()).append(strfmt("-%i.workspace", try_count)));
+              new_name = base::makePath(path, sanitize_file_name(get_session_name()).append(strfmt("-%i.workspace", try_count)));
             } while (file_exists(new_name));
 
             if (err.code() == base::already_exists)
@@ -1617,7 +1616,7 @@ void SqlEditorForm::cancel_query()
       RecMutexLock aux_dbc_conn_mutex(ensure_valid_aux_connection());
       std::auto_ptr<sql::Statement> stmt(_aux_dbc_conn->ref->createStatement());
       {
-        ScopeExitTrigger schedule_timer_stop(boost::bind(&Timer::stop, &timer));
+        base::ScopeExitTrigger schedule_timer_stop(boost::bind(&Timer::stop, &timer));
         timer.run();
         stmt->execute(query_kill_query);
         
@@ -1850,7 +1849,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
     update_menu_and_toolbar();
 
     _has_pending_log_messages= false;
-    ScopeExitTrigger schedule_log_messages_refresh(boost::bind(
+    base::ScopeExitTrigger schedule_log_messages_refresh(boost::bind(
       &SqlEditorForm::refresh_log_messages, this, true));
 
     SqlFacade::Ref sql_facade= SqlFacade::instance_for_rdbms(rdbms());
@@ -1972,7 +1971,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
           try
           {
             {
-              ScopeExitTrigger schedule_statement_exec_timer_stop(boost::bind(&Timer::stop, &statement_exec_timer));
+              base::ScopeExitTrigger schedule_statement_exec_timer_stop(boost::bind(&Timer::stop, &statement_exec_timer));
               statement_exec_timer.run();
               is_result_set_first= dbc_statement->execute(statement);
             }
@@ -2086,7 +2085,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                   reuse_log_msg= false;
                   boost::shared_ptr<sql::ResultSet> dbc_resultset;
                   {
-                    ScopeExitTrigger schedule_statement_fetch_timer_stop(boost::bind(&Timer::stop, &statement_fetch_timer));
+                    base::ScopeExitTrigger schedule_statement_fetch_timer_stop(boost::bind(&Timer::stop, &statement_fetch_timer));
                     statement_fetch_timer.run();
                     
                     // need a separate exception catcher here, because sometimes a query error
@@ -2463,7 +2462,7 @@ void SqlEditorForm::apply_changes_to_recordset(Recordset::Ptr rs_ptr)
     // we need transaction to enforce atomicity of change set
     // so if autocommit is currently enabled disable it temporarily
     bool auto_commit= _usr_dbc_conn->ref->getAutoCommit();
-    ScopeExitTrigger autocommit_mode_keeper;
+    base::ScopeExitTrigger autocommit_mode_keeper;
     int res= -2;
 
     if (!auto_commit)
