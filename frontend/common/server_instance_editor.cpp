@@ -119,9 +119,9 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
 , _details_panel(mforms::TitledBoxPanel)
 , _custom_sudo_box(true)
 , _connect_panel(new grtui::DbConnectPanel(grtui::DbConnectPanelHideConnectionName))
+, _contains_group(false)
 , _bottom_hbox(true)
 , _remote_admin_box(false)
-, _contains_group(false)
 {
   set_name("instance_editor");
   _mgmt= mgmt;
