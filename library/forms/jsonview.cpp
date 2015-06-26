@@ -18,14 +18,17 @@
  */
 
 #include <memory>
+#include <set>
+#include <sstream>
 
 #include "mforms/jsonview.h"
 #include <mforms/panel.h>
-//#include <mforms/treenodeview.h>
+#include <mforms/treenodeview.h>
 //#include <mforms/gridview.h>
 #include <mforms/code_editor.h>
 #include <mforms/tabview.h>
-
+#include <stub/stub_utilities.h>
+#include <base/string_utilities.h>
 
 using namespace mforms;
 using namespace JsonParser;
@@ -958,7 +961,7 @@ void JsonReader::scan()
       value += chr;
       type = JsonToken::JsonTokenNext;
       moveAhead();
-      break;;
+      break;
 
     case ':':
       value += chr;
@@ -1051,16 +1054,22 @@ std::string JsonReader::getJsonString()
       case '"':
       case '\\':
         string += currentChar;
+        break;
       case 'b':
         string += '\b';
+        break;
       case 'f':
         string += '\f';
+        break;
       case 'n':
         string += '\n';
+        break;
       case 'r':
         string += '\r';
+        break;
       case 't':
         string += '\t';
+        break;
       /*case 'u':
         string += '\x';*/
       default:
@@ -1202,7 +1211,8 @@ void JsonReader::parse(JsonObject &obj)
 **/
 void JsonReader::parseNumber(JsonValue& value)
 {
-   std::istringstream buffer(_tokenIterator->getValue());
+   std::stringstream buffer;
+   buffer << _tokenIterator->getValue();
    double number = 0;
    buffer >> number;
    double intpart = 0;
@@ -1533,6 +1543,37 @@ JsonBaseView::~JsonBaseView()
 * @param
 * @return
 **/
+//static std::string JsonBaseView::getNodeIconPath(JsonBaseView::JsonNodeIcons icon);
+//{
+//  bec::IconId iconid;
+//  switch (icon)
+//  {
+//  case JsonObjectIcon:
+//    iconid = bec::IconManager::get_instance()->get_icon_id("db.Table.many.$.png", bec::Icon16);
+//    break;
+//  case JsonArrayIcon:
+//    iconid = bec::IconManager::get_instance()->get_icon_id("db.Table.$.png", bec::Icon16);
+//    break;
+//  case JsonStringIcon:
+//    iconid = bec::IconManager::get_instance()->get_icon_id("db.View.many.$.png", bec::Icon16);
+//    break;
+//  case JsonNumericIcon:
+//    iconid = bec::IconManager::get_instance()->get_icon_id("db.View.$.png", bec::Icon16);
+//    break;
+//  case JsonNullIcon:
+//    iconid = bec::IconManager::get_instance()->get_icon_id("db.Routine.many.$.png", bec::Icon16);
+//    break;
+//  default:
+//    return "";
+//  }
+//}
+
+/**
+* @brief
+*
+* @param
+* @return
+**/
 boost::signals2::signal<void()>* JsonBaseView::signalChanged()
 {
   return &_signalChanged;
@@ -1607,7 +1648,6 @@ void JsonTextView::setText(const std::string& jsonText)
 {
   _textEditor->set_value(jsonText.c_str());
   _textEditor->set_features(mforms::FeatureReadOnly, false);
-  //_textEditor->set_features(mforms::LanguageHtml, false);
 }
 
 /**
@@ -1625,30 +1665,164 @@ JsonTextView::~JsonTextView()
 void JsonTextView::init()
 {
   assert(_textEditor.get() != nullptr);
-  _textEditor->set_language(mforms::LanguageHtml);
+  _textEditor->set_language(mforms::LanguageJson);
   _textEditor->set_features(mforms::FeatureWrapText, false);
   add(_textEditor.get());
 }
 
 
 /**
-* @brief
+* @brief Constructor
 *
-* @param
-* @return
 **/
 JsonTreeView::JsonTreeView()
+   : _treeView(std::make_shared<mforms::TreeNodeView>(TreeNoBorder | TreeShowColumnLines))
+{
+  _treeView->add_column(IconStringColumnType, "", 150, false, true);
+  _treeView->add_column(IconStringColumnType, "Value", 200, false, true);
+  _treeView->end_columns();
+  init();
+}
+
+/**
+* @brief Destructor
+*
+**/
+JsonTreeView::~JsonTreeView()
 {
 }
 
 /**
-* @brief
+* @brief Init tree view
 *
-* @param
-* @return
+* Based of readed json data control function initialize mforms control TreNodeView
 **/
-JsonTreeView::~JsonTreeView()
+void JsonTreeView::init()
 {
+  assert(_treeView.get() != nullptr);
+  add(_treeView.get());
+}
+
+
+void JsonTreeView::setJson(const JsonParser::JsonValue& value)
+{
+  _treeView->clear();
+  TreeNodeRef node = _treeView->root_node();
+  generateTree(value, node);
+}
+
+
+void JsonTreeView::generateObjectInTree(const JsonParser::JsonValue& value, TreeNodeRef node, bool addNew)
+{
+  auto object = value.getObject();
+  size_t size = 0;
+  std::stringstream textSize;
+  auto end = object.cend();
+  for (auto it = object.cbegin(); it != end; ++it)
+  {
+    auto text = it->first;
+    switch (it->second.getType())
+    {
+    case VArray:
+    {
+      auto arrayVal = it->second.getArray();
+      size = arrayVal.size();
+      textSize << size;
+      text += "[";
+      text += textSize.str();
+      text += "]";
+      break;
+    }
+    case VObject:
+    {
+      auto objectVal = it->second.getObject();
+      size = objectVal.size();
+      textSize << size;
+      text += "{";
+      text += textSize.str();
+      text += "}";
+      break;
+    }
+    }
+    mforms::TreeNodeRef node2 = (addNew) ? node->add_child() : node;
+    node->set_icon_path(0, "json_obj.png");
+    node2->set_string(0, text);
+    node2->set_string(1, "");
+    generateTree(it->second, node2);
+    node2->expand();
+  }
+}
+
+
+void JsonTreeView::generateArrayInTree(const JsonParser::JsonValue& value, TreeNodeRef node, bool addNew)
+{
+  auto arrayType = value.getArray();
+  auto size = arrayType.size();
+  std::stringstream textSize;
+  textSize << size;
+  auto text = "array [" + textSize.str() + "]";
+  mforms::TreeNodeRef node2 = node->add_child();
+  node->set_icon_path(0, "json_arr.png");
+  node2->set_string(0, text);
+  node2->set_string(1, "");
+  auto end = arrayType.cend();
+  int idx = 0;
+  for (auto it = arrayType.cbegin(); it != end; ++it, ++idx)
+  {
+    mforms::TreeNodeRef arrrayNode = node2->add_child();
+    bool addNew = false;
+    if (it->getType() == VArray || it->getType() == VObject)
+      addNew = true;
+    arrrayNode->set_string(0, base::strfmt("[%d] {%d}", idx, arrayType.size()));
+    arrrayNode->set_string(1, "");
+    generateTree(*it, arrrayNode, addNew);
+  }
+  node2->expand();
+}
+
+
+void JsonTreeView::generateTree(const JsonParser::JsonValue &value, TreeNodeRef node, bool addNew)
+{
+  switch (value.getType())
+  {
+  case VInt:
+    node->set_icon_path(0, "json_nmb.png");
+    node->set_attributes(1, mforms::TextAttributes("#99cc66", false, true));
+    node->set_int(1, value.getInt());
+    node->expand();
+    break;
+  case VBoolean:
+    node->set_icon_path(0, "json_nmb.png");
+    node->set_attributes(1, mforms::TextAttributes("#0099ff", true, true));
+    node->set_bool(1, value.getBool());
+    node->expand();
+    break;
+  case VString:
+    node->set_icon_path(0, "json_str.png");
+    node->set_attributes(1, mforms::TextAttributes("#cc9966", false, false));
+    node->set_string(1, value.getString());
+    node->expand();
+    break;
+  case VDouble:
+    node->set_icon_path(0, "json_nmb.png");
+    node->set_attributes(1, mforms::TextAttributes("#99cc66", false, true));
+    node->set_float(1, value.getDouble());
+    node->expand();
+    break;
+  case VObject:
+    generateObjectInTree(value, node, addNew);
+    break;
+  case VArray:
+    generateArrayInTree(value, node, addNew);
+    break;
+  case VEmpty:
+    node->set_icon_path(0, "json_null.png");
+    node->set_string(0, "<<null>>");
+    node->set_string(1, "");
+    node->expand();
+    break;
+  default: break;
+  }
 }
 
 /**
@@ -1672,79 +1846,80 @@ JsonGridView::~JsonGridView()
 }
 
 
-/**
-* @brief
-*
-* @param
-* @return
-**/
-void JsonTabView::generateTextOutput(const JsonValue &value)
-{
-  switch (value.getType())
-  {
-  case VInt:
-    _jsonText += std::to_string(value.getInt());
-    break;
-  case VBoolean:
-    _jsonText += value.getBool() ? "true" : "false";
-    break;
-  case VString:
-    _jsonText += "\"";
-    _jsonText += value.getString();
-    _jsonText += "\"";
-    break;
-  case VDouble:
-    _jsonText += std::to_string(value.getDouble());
-    break;
-  case VObject:
-    {
-      auto object = value.getObject();
-      //_jsonText += "(O) \"object\"\n";
-      ++_ident;
-      auto end = object.cend();
-      if (!object.empty())
-        _jsonText += "\n";
-      for (auto it = object.cbegin(); it != end; ++it)
-      {
-        _jsonText += std::string(_ident, '\t');
-        _jsonText += "\"";
-        _jsonText += it->first;
-        _jsonText += "\"";
-        _jsonText += " : ";
-        generateTextOutput(it->second);
-        _jsonText += "\n";
-      }
-      --_ident;
-    }
-    break;
-  case VArray:
-    {
-      auto jsonArray = value.getArray();
-      ++_ident;
-      auto end = jsonArray.cend();
-      if (!jsonArray.empty())
-        _jsonText += "\n";
-      auto idx = 0;
-      for (auto it = jsonArray.cbegin(); it != end; ++it, ++idx)
-      {
-        _jsonText += std::string(_ident, '\t');
-        std::istringstream tmpIdx(idx);
-        _jsonText += "[";
-        _jsonText += tmpIdx.str();
-        _jsonText += "] ";
-        generateTextOutput(*it);
-        _jsonText += "\n";
-      }
-      --_ident;
-    }
-
-    break;
-  case VEmpty:
-    _jsonText += "<<null>>";
-    break;
-  default: break;
-  }
-}
+///**
+//* @brief
+//*
+//* @param
+//* @return
+//**/
+//void JsonTabView::generateTextOutput(const JsonValue &value)
+//{
+//  switch (value.getType())
+//  {
+//  case VInt:
+//    _jsonText += std::to_string(value.getInt());
+//    break;
+//  case VBoolean:
+//    _jsonText += value.getBool() ? "true" : "false";
+//    break;
+//  case VString:
+//    _jsonText += "\"";
+//    _jsonText += value.getString();
+//    _jsonText += "\"";
+//    break;
+//  case VDouble:
+//    _jsonText += std::to_string(value.getDouble());
+//    break;
+//  case VObject:
+//    {
+//      auto object = value.getObject();
+//      //_jsonText += "(O) \"object\"\n";
+//      ++_ident;
+//      auto end = object.cend();
+//      if (!object.empty())
+//        _jsonText += "\n";
+//      for (auto it = object.cbegin(); it != end; ++it)
+//      {
+//        _jsonText += std::string(_ident, '\t');
+//        _jsonText += "\"";
+//        _jsonText += it->first;
+//        _jsonText += "\"";
+//        _jsonText += " : ";
+//        generateTextOutput(it->second);
+//        _jsonText += "\n";
+//      }
+//      --_ident;
+//    }
+//    break;
+//  case VArray:
+//    {
+//      auto jsonArray = value.getArray();
+//      ++_ident;
+//      auto end = jsonArray.cend();
+//      if (!jsonArray.empty())
+//        _jsonText += "\n";
+//      auto idx = 0;
+//      for (auto it = jsonArray.cbegin(); it != end; ++it, ++idx)
+//      {
+//        _jsonText += std::string(_ident, '\t');
+//        std::stringstream tmpIdx;
+//        tmpIdx << idx;
+//        _jsonText += "[";
+//        _jsonText += tmpIdx.str();
+//        _jsonText += "] ";
+//        generateTextOutput(*it);
+//        _jsonText += "\n";
+//      }
+//      --_ident;
+//    }
+//
+//    break;
+//  case VEmpty:
+//    _jsonText += "<<null>>";
+//    break;
+//  default: break;
+//  }
+//}
 
 /**
 * @brief
@@ -1797,8 +1972,8 @@ void JsonTabView::setJson(const JsonParser::JsonValue& value)
   _json = value;
   _ident = 0;
   JsonWriter::write(_jsonText, value);
-  //generateTextOutput(_json);
   _textView->setText(_jsonText);
+  _treeView->setJson(value);
 }
 
 /**
