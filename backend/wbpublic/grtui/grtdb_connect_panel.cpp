@@ -64,10 +64,11 @@ _params_panel(mforms::TransparentPanel), _params_table(0),
 _ssl_panel(mforms::TransparentPanel), _ssl_table(0),
 _advanced_panel(mforms::TransparentPanel), _advanced_table(0),
 _options_panel(mforms::TransparentPanel), _options_table(0),
+_create_group(false),
 _show_connection_combo((flags & DbConnectPanelShowConnectionCombo) != 0),
 _show_manage_connections((flags & DbConnectPanelShowManageConnections) != 0),
 _dont_set_default_connection((flags & DbConnectPanelDontSetDefaultConnection) != 0),
-_last_active_tab(-1), _create_group(false)
+_last_active_tab(-1)
 {
   _allow_edit_connections = false;
   _initialized= false;
