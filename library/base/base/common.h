@@ -22,6 +22,21 @@
 #define MIN_SERVER_VERSION 50100
 #define MAX_SERVER_VERSION 99999
 
+// set OS-independent debug flag
+#if defined(_WIN32)
+  #ifdef _DEBUG
+    #define WB_DEBUG
+  #endif
+#elif defined(__APPLE__)
+  #ifdef ENABLE_DEBUG
+    #define WB_DEBUG
+  #endif
+#elif defined(__linux__)
+  #ifndef NDEBUG
+    #define WB_DEBUG
+  #endif
+#endif
+
 #ifdef _WIN32
   #pragma warning(disable:4251) // class needs to have dll-interface
 
