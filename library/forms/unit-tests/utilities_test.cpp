@@ -33,9 +33,9 @@ TEST_FUNCTION(1)
 
   mforms::stub::init(NULL);
   
-  std::string service= "A quick brown fox jumps over the lazy dog. ÄÖÜ";
+  std::string service= "A quick brown fox jumps over the lazy dog. Ã„Ã–Ãœ";
   std::string user_name= "father abraham";
-  std::string the_password= "!§$%&dingeling ß123@";
+  std::string the_password= "!Â§$%&dingeling ÃŸ123@";
 
   std::string result;
   ensure("Reading non-existing password", !Utilities::find_password("out of service", "don't call me, I call you", result));

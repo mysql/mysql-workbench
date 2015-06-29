@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1448,15 +1448,12 @@ TEST_FUNCTION(7)
     rep.open(buf1);
     std::string str((std::istreambuf_iterator<char>(rep)), std::istreambuf_iterator<char>());
 
-    if (report != str)
-    {
-        alter_change->dump_log(0);
-//         int pp = strcmp(report.c_str(),str.c_str());
-        std::cout<<report.c_str()<<std::endl;
-        std::cout<<"=======================================================================================================================\n";
-        std::cout<<str<<std::endl;
-        fail(buf1);
-    }
+#ifndef _WIN32
+    // Reports are stored with Windows line endings, hence replace that by just \n for comparison.
+    base::replace(str, "\r\n", "\n");
+#endif
+
+    ensure_equals("Reports differ", *report, str);
 // Test Data generation
 /*
 	sprintf(buf1, "testres%s%d.txt",j?"_longname":"_shortname", i);

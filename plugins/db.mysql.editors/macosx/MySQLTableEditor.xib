@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6254" systemVersion="14B25" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7706" systemVersion="14D136" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
-        <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6254"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7706"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="DbMysqlTableEditor">
@@ -140,7 +139,7 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                 <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="23" id="19">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <menu key="menu" title="OtherViews" id="20">
                                         <items>
                                             <menuItem title="Item 1" state="on" id="23"/>
@@ -159,7 +158,7 @@
                                 <string key="toolTip">The charset/collation specifies which language-specific characters can be stored in the table and their sort order. Common choices are Latin1 or UTF8.</string>
                                 <popUpButtonCell key="cell" type="push" title="utf8mb4 - utf8mb4_lithuanian_ci" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="15" id="13">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <menu key="menu" title="OtherViews" id="14">
                                         <items>
                                             <menuItem title="utf8mb4 - utf8mb4_lithuanian_ci" state="on" id="15"/>
@@ -176,7 +175,7 @@
                                 <rect key="frame" x="78" y="52" width="66" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Comments:" id="11">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -185,7 +184,7 @@
                                 <rect key="frame" x="458" y="76" width="44" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Engine:" id="9">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -194,7 +193,7 @@
                                 <rect key="frame" x="88" y="76" width="56" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Collation:" id="7">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -203,7 +202,7 @@
                                 <rect key="frame" x="105" y="103" width="39" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Name:" id="5">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -212,7 +211,7 @@
                                 <rect key="frame" x="149" y="100" width="293" height="19"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="Table Name" drawsBackground="YES" id="3">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -224,7 +223,7 @@
                                 <rect key="frame" x="453" y="103" width="49" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Schema:" id="640">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -244,7 +243,7 @@
                                 <rect key="frame" x="504" y="103" width="281" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Schema:" id="903">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -263,7 +262,7 @@
                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                             <buttonCell key="cell" type="roundRect" title="Apply" bezelStyle="roundedRect" alignment="center" controlSize="small" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="660">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                <font key="font" metaFont="smallSystem"/>
+                                <font key="font" metaFont="system" size="11"/>
                             </buttonCell>
                         </button>
                         <button hidden="YES" verticalHuggingPriority="750" id="661">
@@ -271,7 +270,7 @@
                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                             <buttonCell key="cell" type="roundRect" title="Revert" bezelStyle="roundedRect" alignment="center" controlSize="small" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="662">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                <font key="font" metaFont="smallSystem"/>
+                                <font key="font" metaFont="system" size="11"/>
                             </buttonCell>
                         </button>
                     </subviews>
@@ -310,17 +309,17 @@
                                         <rect key="frame" x="0.0" y="0.0" width="681" height="18"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <size key="intercellSpacing" width="3" height="2"/>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                         <tableColumns>
                                             <tableColumn identifier="name" width="101" minWidth="40" maxWidth="1000" id="34">
                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Column">
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" white="0.33333299" alpha="1" colorSpace="calibratedWhite"/>
                                                 </tableHeaderCell>
                                                 <textFieldCell key="dataCell" controlSize="small" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" id="37" customClass="MTextImageCell">
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                 </textFieldCell>
@@ -328,12 +327,12 @@
                                             </tableColumn>
                                             <tableColumn identifier="type" width="111" minWidth="40" maxWidth="1000" id="35">
                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Datatype">
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" white="0.33333299" alpha="1" colorSpace="calibratedWhite"/>
                                                 </tableHeaderCell>
                                                 <comboBoxCell key="dataCell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" buttonBordered="NO" usesDataSource="YES" numberOfVisibleItems="5" id="49">
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     <connections>
@@ -344,89 +343,89 @@
                                             </tableColumn>
                                             <tableColumn identifier="primarykey" width="25" minWidth="10" maxWidth="3.4028229999999999e+38" headerToolTip="Mark column as part of the Primary Key" id="40">
                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="PK">
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                 </tableHeaderCell>
                                                 <buttonCell key="dataCell" type="check" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="45">
                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                 </buttonCell>
                                             </tableColumn>
                                             <tableColumn identifier="notnull" width="25" minWidth="10" maxWidth="3.4028229999999999e+38" headerToolTip="Mark column as NOT NULL" id="38">
                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="NN">
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                 </tableHeaderCell>
                                                 <buttonCell key="dataCell" type="check" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="44">
                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                 </buttonCell>
                                             </tableColumn>
                                             <tableColumn identifier="unique" width="25" minWidth="10" maxWidth="3.4028229999999999e+38" headerToolTip="Create a UNIQUE index for the column" id="609">
                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="UQ">
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                 </tableHeaderCell>
                                                 <buttonCell key="dataCell" type="check" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="610">
                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                 </buttonCell>
                                             </tableColumn>
                                             <tableColumn identifier="binary" width="26" minWidth="10" maxWidth="3.4028229999999999e+38" headerToolTip="Mark column as BINARY" id="601">
                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="BIN">
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                 </tableHeaderCell>
                                                 <buttonCell key="dataCell" type="check" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="602">
                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                 </buttonCell>
                                             </tableColumn>
                                             <tableColumn identifier="unsigned" width="25" minWidth="10" maxWidth="3.4028229999999999e+38" headerToolTip="Mark column as UNSIGNED" id="603">
                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="UN">
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                 </tableHeaderCell>
                                                 <buttonCell key="dataCell" type="check" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="604">
                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                 </buttonCell>
                                             </tableColumn>
                                             <tableColumn identifier="zerofill" width="25" minWidth="10" maxWidth="3.4028229999999999e+38" headerToolTip="Mark column as ZEROFILL" id="605">
                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="ZF">
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                 </tableHeaderCell>
                                                 <buttonCell key="dataCell" type="check" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="606">
                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                 </buttonCell>
                                             </tableColumn>
                                             <tableColumn identifier="autoincrement" width="25" minWidth="10" maxWidth="3.4028229999999999e+38" headerToolTip="Mark column as AUTO_INCREMENT" id="607">
                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="AI">
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                 </tableHeaderCell>
                                                 <buttonCell key="dataCell" type="check" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="608">
                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                 </buttonCell>
                                             </tableColumn>
                                             <tableColumn identifier="default" width="263" minWidth="10" maxWidth="3.4028229999999999e+38" id="42">
                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Default">
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                 </tableHeaderCell>
                                                 <textFieldCell key="dataCell" controlSize="small" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="43">
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                 </textFieldCell>
@@ -483,17 +482,17 @@
                                         <rect key="frame" x="0.0" y="0.0" width="203" height="18"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <size key="intercellSpacing" width="3" height="2"/>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                         <tableColumns>
                                             <tableColumn identifier="name" width="101" minWidth="40" maxWidth="1000" id="74">
                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Index">
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" white="0.33333299" alpha="1" colorSpace="calibratedWhite"/>
                                                 </tableHeaderCell>
                                                 <textFieldCell key="dataCell" controlSize="small" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="77">
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                 </textFieldCell>
@@ -501,13 +500,13 @@
                                             </tableColumn>
                                             <tableColumn identifier="type" width="96" minWidth="40" maxWidth="1000" id="75">
                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Type">
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" white="0.33333299" alpha="1" colorSpace="calibratedWhite"/>
                                                 </tableHeaderCell>
                                                 <popUpButtonCell key="dataCell" type="bevel" title="Pop Up" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="bezel" imageScaling="proportionallyDown" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="259" id="257">
                                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                     <menu key="menu" title="OtherViews" id="258">
                                                         <items>
                                                             <menuItem title="Pop Up" state="on" id="259"/>
@@ -542,14 +541,14 @@
                             <rect key="frame" x="225" y="0.0" width="596" height="183"/>
                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" heightSizable="YES"/>
                             <view key="contentView">
-                                <rect key="frame" x="1" y="1" width="594" height="167"/>
+                                <rect key="frame" x="1" y="1" width="594" height="163"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <textField verticalHuggingPriority="750" id="99">
                                         <rect key="frame" x="293" y="115" width="84" height="14"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Key Block Size:" id="100">
-                                            <font key="font" metaFont="smallSystem"/>
+                                            <font key="font" metaFont="system" size="11"/>
                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
@@ -558,7 +557,7 @@
                                         <rect key="frame" x="293" y="88" width="84" height="14"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Parser:" id="102">
-                                            <font key="font" metaFont="smallSystem"/>
+                                            <font key="font" metaFont="system" size="11"/>
                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
@@ -567,7 +566,7 @@
                                         <rect key="frame" x="293" y="64" width="84" height="14"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Comments:" id="108">
-                                            <font key="font" metaFont="smallSystem"/>
+                                            <font key="font" metaFont="system" size="11"/>
                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
@@ -576,7 +575,7 @@
                                         <rect key="frame" x="382" y="86" width="96" height="19"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="98">
-                                            <font key="font" metaFont="smallSystem"/>
+                                            <font key="font" metaFont="system" size="11"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
@@ -595,42 +594,42 @@
                                                     <rect key="frame" x="0.0" y="0.0" width="266" height="18"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <size key="intercellSpacing" width="3" height="2"/>
-                                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                    <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                                     <tableColumns>
                                                         <tableColumn identifier="name" width="131" minWidth="40" maxWidth="1000" id="84">
                                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Index Columns">
-                                                                <font key="font" metaFont="smallSystem"/>
+                                                                <font key="font" metaFont="system" size="11"/>
                                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                 <color key="backgroundColor" white="0.33333299" alpha="1" colorSpace="calibratedWhite"/>
                                                             </tableHeaderCell>
                                                             <buttonCell key="dataCell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="224">
                                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                                <font key="font" metaFont="smallSystem"/>
+                                                                <font key="font" metaFont="system" size="11"/>
                                                             </buttonCell>
                                                             <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                         </tableColumn>
                                                         <tableColumn identifier="#" width="25" minWidth="25" maxWidth="25" id="83">
                                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="#">
-                                                                <font key="font" metaFont="smallSystem"/>
+                                                                <font key="font" metaFont="system" size="11"/>
                                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                 <color key="backgroundColor" white="0.33333299" alpha="1" colorSpace="calibratedWhite"/>
                                                             </tableHeaderCell>
                                                             <textFieldCell key="dataCell" controlSize="small" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="86">
-                                                                <font key="font" metaFont="smallSystem"/>
+                                                                <font key="font" metaFont="system" size="11"/>
                                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                             </textFieldCell>
                                                         </tableColumn>
                                                         <tableColumn identifier="order" width="48" minWidth="10" maxWidth="3.4028229999999999e+38" id="225">
                                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Order">
-                                                                <font key="font" metaFont="smallSystem"/>
+                                                                <font key="font" metaFont="system" size="11"/>
                                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                 <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                             </tableHeaderCell>
                                                             <popUpButtonCell key="dataCell" type="bevel" title="ASC" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="bezel" imageScaling="proportionallyDown" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="232" id="229">
                                                                 <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                                                <font key="font" metaFont="smallSystem"/>
+                                                                <font key="font" metaFont="system" size="11"/>
                                                                 <menu key="menu" title="OtherViews" id="230">
                                                                     <items>
                                                                         <menuItem title="ASC" state="on" id="232">
@@ -645,12 +644,12 @@
                                                         </tableColumn>
                                                         <tableColumn identifier="length" width="50" minWidth="50" maxWidth="50" id="227">
                                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Length">
-                                                                <font key="font" metaFont="smallSystem"/>
+                                                                <font key="font" metaFont="system" size="11"/>
                                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                 <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                             </tableHeaderCell>
                                                             <textFieldCell key="dataCell" controlSize="small" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="228">
-                                                                <font key="font" metaFont="smallSystem"/>
+                                                                <font key="font" metaFont="system" size="11"/>
                                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                             </textFieldCell>
@@ -681,7 +680,7 @@
                                         <rect key="frame" x="382" y="113" width="96" height="19"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMinY="YES"/>
                                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="96">
-                                            <font key="font" metaFont="smallSystem"/>
+                                            <font key="font" metaFont="system" size="11"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
@@ -700,10 +699,10 @@
                                                     <rect key="frame" x="0.0" y="0.0" width="192" height="62"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                    <size key="minSize" width="192" height="62"/>
+                                                    <size key="minSize" width="192" height="58"/>
                                                     <size key="maxSize" width="463" height="10000000"/>
                                                     <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                    <size key="minSize" width="192" height="62"/>
+                                                    <size key="minSize" width="192" height="58"/>
                                                     <size key="maxSize" width="463" height="10000000"/>
                                                     <connections>
                                                         <outlet property="delegate" destination="-2" id="215"/>
@@ -726,7 +725,7 @@
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="92" id="90">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="smallSystem"/>
+                                            <font key="font" metaFont="system" size="11"/>
                                             <menu key="menu" title="OtherViews" id="91">
                                                 <items>
                                                     <menuItem title="Item 1" state="on" id="92"/>
@@ -743,7 +742,7 @@
                                         <rect key="frame" x="299" y="141" width="78" height="14"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Storage Type:" id="88">
-                                            <font key="font" metaFont="smallSystem"/>
+                                            <font key="font" metaFont="system" size="11"/>
                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
@@ -780,17 +779,17 @@
                                         <rect key="frame" x="0.0" y="0.0" width="301" height="19"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <size key="intercellSpacing" width="3" height="2"/>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                         <tableColumns>
                                             <tableColumn identifier="name" width="155" minWidth="40" maxWidth="1000" id="115">
                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Foreign Key">
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" white="0.33333299" alpha="1" colorSpace="calibratedWhite"/>
                                                 </tableHeaderCell>
                                                 <textFieldCell key="dataCell" controlSize="small" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="118">
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                 </textFieldCell>
@@ -798,13 +797,13 @@
                                             </tableColumn>
                                             <tableColumn identifier="referenced table" width="140" minWidth="40" maxWidth="1000" id="116">
                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Referenced Table">
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" white="0.33333299" alpha="1" colorSpace="calibratedWhite"/>
                                                 </tableHeaderCell>
                                                 <popUpButtonCell key="dataCell" type="bevel" title="Pop Up" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="bezel" imageScaling="proportionallyDown" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="252" id="250">
                                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <font key="font" metaFont="system" size="11"/>
                                                     <menu key="menu" title="OtherViews" id="251">
                                                         <items>
                                                             <menuItem title="Pop Up" state="on" id="252"/>
@@ -839,7 +838,7 @@
                             <rect key="frame" x="323" y="0.0" width="505" height="225"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <view key="contentView">
-                                <rect key="frame" x="1" y="1" width="503" height="209"/>
+                                <rect key="frame" x="1" y="1" width="503" height="205"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <scrollView horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="119">
@@ -858,25 +857,25 @@
                                                     <tableColumns>
                                                         <tableColumn identifier="name" width="119" minWidth="40" maxWidth="1000" id="125">
                                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Column">
-                                                                <font key="font" metaFont="smallSystem"/>
+                                                                <font key="font" metaFont="system" size="11"/>
                                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                 <color key="backgroundColor" white="0.33333299" alpha="1" colorSpace="calibratedWhite"/>
                                                             </tableHeaderCell>
                                                             <buttonCell key="dataCell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="253">
                                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                                <font key="font" metaFont="smallSystem"/>
+                                                                <font key="font" metaFont="system" size="11"/>
                                                             </buttonCell>
                                                             <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                         </tableColumn>
                                                         <tableColumn identifier="referenced column" width="132" minWidth="40" maxWidth="1000" id="124">
                                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Referenced Column">
-                                                                <font key="font" metaFont="smallSystem"/>
+                                                                <font key="font" metaFont="system" size="11"/>
                                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                 <color key="backgroundColor" white="0.33333299" alpha="1" colorSpace="calibratedWhite"/>
                                                             </tableHeaderCell>
                                                             <popUpButtonCell key="dataCell" type="bevel" title="Pop Up" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="bezel" imageScaling="proportionallyDown" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="256" id="254">
                                                                 <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                                                <font key="font" metaFont="smallSystem"/>
+                                                                <font key="font" metaFont="system" size="11"/>
                                                                 <menu key="menu" title="OtherViews" id="255">
                                                                     <items>
                                                                         <menuItem title="Pop Up" state="on" id="256"/>
@@ -911,7 +910,7 @@
                                         <rect key="frame" x="287" y="183" width="65" height="14"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="On Update:" id="130">
-                                            <font key="font" metaFont="smallSystem"/>
+                                            <font key="font" metaFont="system" size="11"/>
                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
@@ -920,7 +919,7 @@
                                         <rect key="frame" x="287" y="158" width="65" height="14"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="On Delete:" id="132">
-                                            <font key="font" metaFont="smallSystem"/>
+                                            <font key="font" metaFont="system" size="11"/>
                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
@@ -929,7 +928,7 @@
                                         <rect key="frame" x="282" y="136" width="65" height="14"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Comment:" id="146">
-                                            <font key="font" metaFont="smallSystem"/>
+                                            <font key="font" metaFont="system" size="11"/>
                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
@@ -939,7 +938,7 @@
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <popUpButtonCell key="cell" type="push" title="Item 2" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="143" id="140">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="smallSystem"/>
+                                            <font key="font" metaFont="system" size="11"/>
                                             <menu key="menu" title="OtherViews" id="141">
                                                 <items>
                                                     <menuItem title="Item 2" state="on" id="143"/>
@@ -962,10 +961,10 @@
                                                     <rect key="frame" x="0.0" y="0.0" width="203" height="97"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                    <size key="minSize" width="203" height="97"/>
+                                                    <size key="minSize" width="203" height="93"/>
                                                     <size key="maxSize" width="463" height="10000000"/>
                                                     <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                    <size key="minSize" width="203" height="97"/>
+                                                    <size key="minSize" width="203" height="93"/>
                                                     <size key="maxSize" width="463" height="10000000"/>
                                                     <connections>
                                                         <outlet property="delegate" destination="-2" id="247"/>
@@ -988,7 +987,7 @@
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <popUpButtonCell key="cell" type="push" title="Item 2" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="137" id="134">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="smallSystem"/>
+                                            <font key="font" metaFont="system" size="11"/>
                                             <menu key="menu" title="OtherViews" id="135">
                                                 <items>
                                                     <menuItem title="Item 2" state="on" id="137"/>
@@ -1006,7 +1005,7 @@
                                         <string key="toolTip">Causes this foreign key and associated index to be ignored during SQL generation, forward engineering and synchronization operations. Note that foreign keys are always ignored for tables using storage engines that do not support them, such as MyISAM.</string>
                                         <buttonCell key="cell" type="check" title="Skip on SQL generation" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="617">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                            <font key="font" metaFont="smallSystem"/>
+                                            <font key="font" metaFont="system" size="11"/>
                                             <connections>
                                                 <action selector="userClickButton:" target="-2" id="619"/>
                                             </connections>
@@ -1056,7 +1055,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="check" title="Manual" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="268">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                 </buttonCell>
                                 <connections>
                                     <action selector="userClickButton:" target="-2" id="376"/>
@@ -1067,7 +1066,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="check" title="Manual" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="270">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                 </buttonCell>
                                 <connections>
                                     <action selector="userClickButton:" target="-2" id="377"/>
@@ -1077,7 +1076,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <rect key="frame" x="35" y="184" width="69" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Partition by:" id="272">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1086,7 +1085,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <rect key="frame" x="15" y="156" width="89" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Subpartition by:" id="274">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1095,7 +1094,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <rect key="frame" x="542" y="184" width="88" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Partition Count:" id="278">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1104,7 +1103,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <rect key="frame" x="521" y="156" width="109" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Subpartition Count:" id="277">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1113,7 +1112,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <rect key="frame" x="252" y="184" width="67" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Parameters:" id="282">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1122,7 +1121,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <rect key="frame" x="252" y="156" width="67" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Parameters:" id="284">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1132,7 +1131,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <popUpButtonCell key="cell" type="push" title="HASH" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="288" id="286">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <menu key="menu" title="OtherViews" id="287">
                                         <items>
                                             <menuItem title="HASH" state="on" id="288"/>
@@ -1159,7 +1158,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <popUpButtonCell key="cell" type="push" title="Disabled" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="370" id="315">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <menu key="menu" title="OtherViews" id="316">
                                         <items>
                                             <menuItem title="Disabled" state="on" id="370">
@@ -1183,7 +1182,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <rect key="frame" x="324" y="182" width="192" height="19"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="321">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1195,7 +1194,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <rect key="frame" x="324" y="154" width="192" height="19"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="323">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1214,17 +1213,17 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                             <rect key="frame" x="0.0" y="0.0" width="751" height="18"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
-                                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                            <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                             <tableColumns>
                                                 <tableColumn identifier="0" width="113" minWidth="16" maxWidth="1000" id="558">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Partition">
-                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <font key="font" metaFont="system" size="11"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" white="0.33333299" alpha="1" colorSpace="calibratedWhite"/>
                                                     </tableHeaderCell>
                                                     <textFieldCell key="dataCell" controlSize="small" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="561">
-                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <font key="font" metaFont="system" size="11"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
@@ -1232,12 +1231,12 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                                 </tableColumn>
                                                 <tableColumn identifier="1" width="112" minWidth="40" maxWidth="1000" id="559">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Values">
-                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <font key="font" metaFont="system" size="11"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" white="0.33333299" alpha="1" colorSpace="calibratedWhite"/>
                                                     </tableHeaderCell>
                                                     <textFieldCell key="dataCell" controlSize="small" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="560">
-                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <font key="font" metaFont="system" size="11"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
@@ -1245,12 +1244,12 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                                 </tableColumn>
                                                 <tableColumn identifier="2" width="85" minWidth="10" maxWidth="3.4028229999999999e+38" id="562">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Data Directory">
-                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <font key="font" metaFont="system" size="11"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                     </tableHeaderCell>
                                                     <textFieldCell key="dataCell" controlSize="small" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="563">
-                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <font key="font" metaFont="system" size="11"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
@@ -1258,12 +1257,12 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                                 </tableColumn>
                                                 <tableColumn identifier="3" width="91" minWidth="10" maxWidth="3.4028229999999999e+38" id="564">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Index Directory">
-                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <font key="font" metaFont="system" size="11"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                     </tableHeaderCell>
                                                     <textFieldCell key="dataCell" controlSize="small" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="565">
-                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <font key="font" metaFont="system" size="11"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
@@ -1271,12 +1270,12 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                                 </tableColumn>
                                                 <tableColumn identifier="4" width="59" minWidth="10" maxWidth="3.4028229999999999e+38" id="566">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Min Rows">
-                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <font key="font" metaFont="system" size="11"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                     </tableHeaderCell>
                                                     <textFieldCell key="dataCell" controlSize="small" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="567">
-                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <font key="font" metaFont="system" size="11"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
@@ -1284,12 +1283,12 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                                 </tableColumn>
                                                 <tableColumn identifier="5" width="64" minWidth="10" maxWidth="3.4028229999999999e+38" id="568">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Max Rows">
-                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <font key="font" metaFont="system" size="11"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                     </tableHeaderCell>
                                                     <textFieldCell key="dataCell" controlSize="small" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="569">
-                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <font key="font" metaFont="system" size="11"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
@@ -1297,12 +1296,12 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                                 </tableColumn>
                                                 <tableColumn identifier="6" width="206" minWidth="10" maxWidth="3.4028229999999999e+38" id="570">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Comment">
-                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <font key="font" metaFont="system" size="11"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                     </tableHeaderCell>
                                                     <textFieldCell key="dataCell" controlSize="small" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="571">
-                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <font key="font" metaFont="system" size="11"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
@@ -1331,7 +1330,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="885">
                                     <numberFormatter key="formatter" formatterBehavior="default10_4" localizesFormat="NO" usesGroupingSeparator="NO" groupingSize="0" minimumIntegerDigits="0" maximumIntegerDigits="42" id="886"/>
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1344,7 +1343,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="888">
                                     <numberFormatter key="formatter" formatterBehavior="default10_4" localizesFormat="NO" usesGroupingSeparator="NO" groupingSize="0" minimumIntegerDigits="0" maximumIntegerDigits="42" id="889"/>
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1362,7 +1361,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="check" title="Enable Partitioning" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="264">
                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                        <font key="font" metaFont="smallSystem"/>
+                        <font key="font" metaFont="system" size="11"/>
                     </buttonCell>
                     <connections>
                         <action selector="userClickButton:" target="-2" id="364"/>
@@ -1378,14 +1377,14 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                     <rect key="frame" x="5" y="6" width="753" height="84"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <view key="contentView">
-                        <rect key="frame" x="1" y="1" width="751" height="68"/>
+                        <rect key="frame" x="1" y="1" width="751" height="64"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textField verticalHuggingPriority="750" id="441">
                                 <rect key="frame" x="34" y="41" width="78" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Union Tables:" id="442">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1394,7 +1393,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <rect key="frame" x="27" y="15" width="85" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Merge Method:" id="444">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1404,7 +1403,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <popUpButtonCell key="cell" type="push" title="No Inserts" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="418" id="414">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <menu key="menu" title="OtherViews" id="415">
                                         <items>
                                             <menuItem title="No Inserts" state="on" id="418"/>
@@ -1422,7 +1421,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <rect key="frame" x="117" y="39" width="200" height="19"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="402">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1457,14 +1456,14 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                     <rect key="frame" x="5" y="94" width="753" height="86"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <view key="contentView">
-                        <rect key="frame" x="1" y="1" width="751" height="70"/>
+                        <rect key="frame" x="1" y="1" width="751" height="66"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textField verticalHuggingPriority="750" id="397">
                                 <rect key="frame" x="117" y="41" width="200" height="19"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="398">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1476,7 +1475,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <rect key="frame" x="22" y="16" width="90" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Index Directory:" id="440">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1485,7 +1484,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <rect key="frame" x="117" y="14" width="200" height="19"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="400">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1497,7 +1496,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <rect key="frame" x="27" y="43" width="85" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Data Directory:" id="438">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1529,14 +1528,14 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                     <rect key="frame" x="5" y="184" width="753" height="196"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <view key="contentView">
-                        <rect key="frame" x="1" y="1" width="751" height="180"/>
+                        <rect key="frame" x="1" y="1" width="751" height="176"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textField verticalHuggingPriority="750" id="435">
                                 <rect key="frame" x="47" y="42" width="65" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Max. Rows:" id="436">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1545,7 +1544,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <rect key="frame" x="117" y="40" width="200" height="19"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="396">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1557,7 +1556,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <rect key="frame" x="41" y="154" width="71" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Row Format:" id="430">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1566,7 +1565,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <rect key="frame" x="28" y="126" width="84" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Key Block Size:" id="906">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1575,7 +1574,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <rect key="frame" x="15" y="96" width="97" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Avg. Row Length:" id="432">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1584,7 +1583,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <rect key="frame" x="117" y="94" width="200" height="19"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="392">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1596,7 +1595,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <rect key="frame" x="50" y="69" width="62" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Min. Rows:" id="434">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1606,7 +1605,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <popUpButtonCell key="cell" type="push" title="Default" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="408" id="404">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <menu key="menu" title="OtherViews" id="405">
                                         <items>
                                             <menuItem title="Default" state="on" id="408"/>
@@ -1628,7 +1627,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <popUpButtonCell key="cell" type="push" title="Default" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="913" id="908">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <menu key="menu" title="OtherViews" id="909">
                                         <items>
                                             <menuItem title="Default" state="on" id="913"/>
@@ -1650,7 +1649,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="check" title="Use Checksum" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="446">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                 </buttonCell>
                                 <connections>
                                     <action selector="userClickButton:" target="-2" id="480"/>
@@ -1660,7 +1659,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <rect key="frame" x="117" y="67" width="200" height="19"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="394">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1734,14 +1733,14 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                     <rect key="frame" x="5" y="384" width="753" height="133"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <view key="contentView">
-                        <rect key="frame" x="1" y="1" width="751" height="117"/>
+                        <rect key="frame" x="1" y="1" width="751" height="113"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textField verticalHuggingPriority="750" id="389">
                                 <rect key="frame" x="117" y="36" width="200" height="19"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="390">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1753,7 +1752,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <rect key="frame" x="21" y="65" width="91" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Table Password:" id="426">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1763,7 +1762,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="check" title="Delay Key Updates" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="420">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                 </buttonCell>
                                 <connections>
                                     <action selector="userClickButton:" target="-2" id="479"/>
@@ -1773,7 +1772,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <rect key="frame" x="52" y="91" width="60" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Pack Keys:" id="424">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1782,7 +1781,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <rect key="frame" x="117" y="63" width="200" height="19"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="388">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1795,7 +1794,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <popUpButtonCell key="cell" type="push" title="Default" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="384" id="382">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <menu key="menu" title="OtherViews" id="383">
                                         <items>
                                             <menuItem title="Default" state="on" id="384"/>
@@ -1813,7 +1812,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <rect key="frame" x="22" y="38" width="90" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Auto Increment:" id="428">
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" metaFont="system" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1875,14 +1874,14 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                 <userLayoutGuide location="349" affinity="minX"/>
             </userGuides>
             <view key="contentView">
-                <rect key="frame" x="1" y="1" width="697" height="134"/>
+                <rect key="frame" x="1" y="1" width="697" height="130"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
                     <textField verticalHuggingPriority="750" tag="12" id="54">
                         <rect key="frame" x="41" y="61" width="66" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Comments:" id="55">
-                            <font key="font" metaFont="smallSystem"/>
+                            <font key="font" metaFont="system" size="11"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
@@ -1891,7 +1890,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         <rect key="frame" x="51" y="86" width="56" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Collation:" id="51">
-                            <font key="font" metaFont="smallSystem"/>
+                            <font key="font" metaFont="system" size="11"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
@@ -1900,7 +1899,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         <rect key="frame" x="23" y="111" width="84" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Column Name:" id="698">
-                            <font key="font" metaFont="smallSystem"/>
+                            <font key="font" metaFont="system" size="11"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
@@ -1909,7 +1908,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         <rect key="frame" x="342" y="110" width="56" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Datatype:" id="702">
-                            <font key="font" metaFont="smallSystem"/>
+                            <font key="font" metaFont="system" size="11"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
@@ -1918,7 +1917,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         <rect key="frame" x="342" y="84" width="56" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Default:" id="708">
-                            <font key="font" metaFont="smallSystem"/>
+                            <font key="font" metaFont="system" size="11"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
@@ -1928,7 +1927,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                         <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="59" id="57">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="smallSystem"/>
+                            <font key="font" metaFont="system" size="11"/>
                             <menu key="menu" title="OtherViews" id="58">
                                 <items>
                                     <menuItem title="Item 1" state="on" id="59"/>
@@ -1945,7 +1944,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         <rect key="frame" x="112" y="109" width="219" height="19"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="700">
-                            <font key="font" metaFont="smallSystem"/>
+                            <font key="font" metaFont="system" size="11"/>
                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
@@ -1957,7 +1956,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         <rect key="frame" x="403" y="82" width="269" height="19"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="710">
-                            <font key="font" metaFont="smallSystem"/>
+                            <font key="font" metaFont="system" size="11"/>
                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
@@ -1969,7 +1968,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         <rect key="frame" x="403" y="105" width="272" height="22"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                         <comboBoxCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" usesDataSource="YES" numberOfVisibleItems="5" id="706">
-                            <font key="font" metaFont="smallSystem"/>
+                            <font key="font" metaFont="system" size="11"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                             <connections>
@@ -1985,7 +1984,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="Primary Key" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="712">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="smallSystem"/>
+                            <font key="font" metaFont="system" size="11"/>
                         </buttonCell>
                         <connections>
                             <action selector="userClickButton:" target="-2" id="749"/>
@@ -1996,7 +1995,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="Binary" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="716">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="smallSystem"/>
+                            <font key="font" metaFont="system" size="11"/>
                         </buttonCell>
                         <connections>
                             <action selector="userClickButton:" target="-2" id="752"/>
@@ -2007,7 +2006,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="Auto Increment" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="718">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="smallSystem"/>
+                            <font key="font" metaFont="system" size="11"/>
                         </buttonCell>
                         <connections>
                             <action selector="userClickButton:" target="-2" id="755"/>
@@ -2018,7 +2017,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="Not NULL" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="720">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="smallSystem"/>
+                            <font key="font" metaFont="system" size="11"/>
                         </buttonCell>
                         <connections>
                             <action selector="userClickButton:" target="-2" id="750"/>
@@ -2029,7 +2028,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="Unique" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="722">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="smallSystem"/>
+                            <font key="font" metaFont="system" size="11"/>
                         </buttonCell>
                         <connections>
                             <action selector="userClickButton:" target="-2" id="751"/>
@@ -2040,7 +2039,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="ZeroFill" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="724">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="smallSystem"/>
+                            <font key="font" metaFont="system" size="11"/>
                         </buttonCell>
                         <connections>
                             <action selector="userClickButton:" target="-2" id="754"/>
@@ -2051,7 +2050,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="Unsigned" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="726">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="smallSystem"/>
+                            <font key="font" metaFont="system" size="11"/>
                         </buttonCell>
                         <connections>
                             <action selector="userClickButton:" target="-2" id="753"/>
@@ -2068,10 +2067,10 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                     <rect key="frame" x="0.0" y="0.0" width="217" height="63"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                    <size key="minSize" width="217" height="63"/>
+                                    <size key="minSize" width="217" height="59"/>
                                     <size key="maxSize" width="463" height="10000000"/>
                                     <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                    <size key="minSize" width="217" height="63"/>
+                                    <size key="minSize" width="217" height="59"/>
                                     <size key="maxSize" width="463" height="10000000"/>
                                     <connections>
                                         <outlet property="delegate" destination="-2" id="821"/>
@@ -2103,14 +2102,14 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                 <userLayoutGuide location="349" affinity="minX"/>
             </userGuides>
             <view key="contentView">
-                <rect key="frame" x="1" y="1" width="363" height="138"/>
+                <rect key="frame" x="1" y="1" width="363" height="134"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
                     <textField verticalHuggingPriority="750" tag="12" id="773">
                         <rect key="frame" x="15" y="89" width="66" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Comments:" id="774">
-                            <font key="font" metaFont="smallSystem"/>
+                            <font key="font" metaFont="system" size="11"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
@@ -2119,7 +2118,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         <rect key="frame" x="25" y="112" width="56" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Collation:" id="787">
-                            <font key="font" metaFont="smallSystem"/>
+                            <font key="font" metaFont="system" size="11"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
@@ -2129,7 +2128,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                         <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="792" id="790">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="smallSystem"/>
+                            <font key="font" metaFont="system" size="11"/>
                             <menu key="menu" title="OtherViews" id="791">
                                 <items>
                                     <menuItem title="Item 1" state="on" id="792"/>
@@ -2153,10 +2152,10 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                     <rect key="frame" x="0.0" y="0.0" width="260" height="92"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                    <size key="minSize" width="260" height="92"/>
+                                    <size key="minSize" width="260" height="88"/>
                                     <size key="maxSize" width="463" height="10000000"/>
                                     <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                    <size key="minSize" width="260" height="92"/>
+                                    <size key="minSize" width="260" height="88"/>
                                     <size key="maxSize" width="463" height="10000000"/>
                                     <connections>
                                         <outlet property="delegate" destination="-2" id="828"/>

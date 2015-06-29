@@ -1,7 +1,7 @@
 #ifndef __grts_structs_meta_h__
 #define __grts_structs_meta_h__
 
-#include <grtpp.h>
+#include "grtpp.h"
 
 #ifdef _WIN32
   #pragma warning(disable: 4355) // 'this' : used in base member initizalizer list

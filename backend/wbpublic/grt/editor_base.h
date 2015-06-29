@@ -20,9 +20,9 @@
 #pragma once
 
 #include "base/ui_form.h"
-#include <grtpp.h>
+#include "grtpp.h"
 #include "grt/grt_manager.h"
-#include <grtpp_undo_manager.h>
+#include "grtpp_undo_manager.h"
 #include "sqlide/sql_editor_be.h"
 #include "refresh_ui.h"
 

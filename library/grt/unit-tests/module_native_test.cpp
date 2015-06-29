@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,8 +23,6 @@
 
 #define DEFINE_TEST_MODULES_CODE
 #include "test_modules.h"
-
-using namespace grt;
 
 BEGIN_TEST_DATA_CLASS(grt_module_native)
 protected:
@@ -89,7 +87,7 @@ TEST_FUNCTION(4)
   
 
   // virtual int getNumber()= 0;
-  const Module::Function *f= &iface->get_functions()[0];
+  const grt::Module::Function *f= &iface->get_functions()[0];
 
   ensure("interfaces[0] functions[0] params_num", f->arg_types.empty());
   ensure("interfaces[0] functions[0] name", f->name == "getNumber");
@@ -128,11 +126,11 @@ TEST_FUNCTION(4)
 
 TEST_FUNCTION(5)
 {
-  const Module::Function *f;
+  const grt::Module::Function *f;
   
   ensure("No Modules loaded",!_grt.get_modules().empty());
   // modules[0]
-  Module *m= _grt.get_modules()[0];
+  grt::Module *m= _grt.get_modules()[0];
 
   ensure("modules[0] name", m->name() == "SampleModule1");
   ensure("modules[0] functions_num", m->get_functions().size() == 2);
@@ -236,7 +234,7 @@ TEST_FUNCTION(5)
 
 TEST_FUNCTION(6)
 {  // test module calling
-  Module *module= _grt.get_module("SampleModule1");
+  grt::Module *module= _grt.get_module("SampleModule1");
   
   ensure("get SampleModule1", module!=NULL);
   
@@ -251,7 +249,7 @@ TEST_FUNCTION(6)
 
 TEST_FUNCTION(7)
 {  // functions returning NULL value were causing exception
-  Module *module= _grt.get_module("TestModule");
+  grt::Module *module= _grt.get_module("TestModule");
   
   ensure("get TestModule", module!=NULL);
   
