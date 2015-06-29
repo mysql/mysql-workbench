@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -84,75 +84,3 @@ bool Object::is_destroying()
 };
 
 //--------------------------------------------------------------------------------------------------
-
-#ifndef SWIG
-#if defined(__APPLE__) && !defined(MFORMS_STUB)
-    
-Object::Object()
-  : _data(nil), _refcount(1), _managed(false), _release_on_add(false), _destroying(false)
-{
-  ControlFactory::get_instance()->instance_created();
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void Object::set_data(id data)
-{
-  objc_msgSend(_data, sel_getUid("release")); // [_data release]
-  _data = data;
-  objc_msgSend(data, sel_getUid("retain")); // [_data retain]
-}
-
-//--------------------------------------------------------------------------------------------------
-
-id Object::get_data() const
-{
-  return _data;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-Object::~Object()
-{
-  /*objc_msgSend(_data, sel_getUid("release"));*/ /* calls [_data release] */
-  ControlFactory::get_instance()->instance_destroyed();
-}
-
-#else // !__APPLE__
-
-//--------------------------------------------------------------------------------------------------
-
-Object::Object()
-  : _data(0), _data_free_fn(0), _refcount(1), _managed(false), _release_on_add(false), _destroying(false)
-{
-  ControlFactory::get_instance()->instance_created();
-}
-
-//--------------------------------------------------------------------------------------------------
-
-Object::~Object()
-{
-  if (_data_free_fn && _data)
-    (*_data_free_fn)(_data);
-  ControlFactory::get_instance()->instance_destroyed();
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void Object::set_data(void *data, FreeDataFn free_fn)
-{
-  _data = data;
-  _data_free_fn = free_fn;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void* Object::get_data_ptr() const
-{
-  return _data;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-#endif // !__APPLE__
-#endif // ifndef SWIG

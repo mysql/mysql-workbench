@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,7 +18,7 @@
  */
 
 #include "mdc.h"
-#include <mdc_canvas_view_image.h>
+#include "mdc_canvas_view_image.h"
 #include "wb_helpers.h"
 
 using namespace mdc;

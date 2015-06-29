@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,16 +30,16 @@ extern GThread *_mforms_main_thread;
 // The first time this method is called must be from the main thread, during startup.
 ControlFactory *ControlFactory::get_instance()
 {
-  static ControlFactory *instance= 0;
+  static ControlFactory *instance = NULL;
   
   if (!instance)
   {
     log_debug2("Initializing mforms factory\n");
     
     // Do some one time initializations.
-    _mforms_main_thread= g_thread_self();
+    _mforms_main_thread = g_thread_self();
 
-    instance= new ControlFactory();
+    instance = new ControlFactory();
   }
 
   return instance;
@@ -48,9 +48,6 @@ ControlFactory *ControlFactory::get_instance()
 
 ControlFactory::ControlFactory()
 {
-  _created = 0;
-  _destroyed = 0;
-
   memset(&_view_impl, 0, sizeof(_view_impl));
   memset(&_form_impl, 0, sizeof(_form_impl));
   memset(&_box_impl, 0, sizeof(_box_impl));
@@ -144,23 +141,6 @@ void ControlFactory::check_impl()
 ControlFactory::~ControlFactory()
 {
   log_info("Shutting down mforms backend\n");
-  log_debug2("Created %i objects, destroyed %i, leaking %i objects\n",
-    _created, _destroyed, _created - _destroyed);
-
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void ControlFactory::instance_created()
-{
-  g_atomic_int_inc(&_created);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void ControlFactory::instance_destroyed()
-{
-  g_atomic_int_inc(&_destroyed);
 }
 
 //--------------------------------------------------------------------------------------------------
