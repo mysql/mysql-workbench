@@ -24,6 +24,7 @@
 #include <glib/gstdio.h>
 #include <boost/bind.hpp>
 
+#include "base/common.h"
 #include "sqlide/wb_sql_editor_form.h"
 
 #include "wb_context.h"
@@ -1110,19 +1111,21 @@ void WBContext::warnIfRunningOnUnsupportedOS()
   std::string os = get_local_os_name();
   log_debug2("get_local_os_name() returned '%s'\n", os.c_str());
 
-  if (!_workbench->isOsSupported(os))
-  {
-    mforms::Utilities::show_message_and_remember(
-      "Unsupported Operating System",
+  #ifndef WB_DEBUG // <--- so that our runtime tests don't lock up (they run in debug mode)
+    if (!_workbench->isOsSupported(os))
+    {
+      mforms::Utilities::show_message_and_remember(
+        "Unsupported Operating System",
 
-      "You are running Workbench on an unsupported operating system. "
-      "While it may work for you just fine, it wasn't designed to run on your platform. "
-      "Please keep this in mind if you run into problems.",
+        "You are running Workbench on an unsupported operating system. "
+        "While it may work for you just fine, it wasn't designed to run on your platform. "
+        "Please keep this in mind if you run into problems.",
 
-      "OK", "", "",
-      "wb.supported_os_check.suppress_warning", "Don't show this message again"
-    );
-  }
+        "OK", "", "",
+        "wb.supported_os_check.suppress_warning", "Don't show this message again"
+      );
+    }
+  #endif
 }
 
 void WBContext::init_finish_(WBOptions *options)
