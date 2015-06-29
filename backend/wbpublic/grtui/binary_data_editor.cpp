@@ -360,7 +360,7 @@ class JsonDataViewer : public BinaryDataViewer
 {
 public:
   JsonDataViewer(BinaryDataEditor *owner, JsonParser::JsonValue &value)
-    : BinaryDataViewer(owner), _value(value)
+    : BinaryDataViewer(owner)
   {
     set_spacing(8);
     _jsonView.setJson(value);
@@ -374,8 +374,6 @@ public:
 
 private:
   mforms::JsonTabView  _jsonView;
-  JsonParser::JsonValue &_value;
-  
 };
 
 

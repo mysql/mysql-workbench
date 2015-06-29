@@ -85,12 +85,8 @@ namespace JsonParser {
 
     // Default constructor
     JsonArray();
-    JsonArray(const JsonArray &other) : _data(other._data) { }
-    JsonArray& operator=(const JsonArray &other)
-    {
-      _data = other._data;
-      return *this;
-    }
+    JsonArray(const JsonArray &other);
+    JsonArray& operator=(const JsonArray &other);
     // move operations
     JsonArray(JsonArray &&other);
     JsonArray& operator=(JsonArray &&other);
@@ -279,6 +275,15 @@ namespace mforms {
     virtual ~JsonBaseView();
     boost::signals2::signal<void()>* signalChanged();
   protected:
+    void generateTree(const JsonParser::JsonValue &value, mforms::TreeNodeRef node, bool addNew = true);
+    virtual void generateArrayInTree(const JsonParser::JsonValue& value, TreeNodeRef node, bool addNew);
+    virtual void generateObjectInTree(const JsonParser::JsonValue& value, TreeNodeRef node, bool addNew);
+    virtual void generateIntInTree(const JsonParser::JsonValue& value, TreeNodeRef node);
+    virtual void generateBoolInTree(const JsonParser::JsonValue& value, TreeNodeRef node);
+    virtual void generateStringInTree(const JsonParser::JsonValue& value, TreeNodeRef node);
+    virtual void generateDoubleInTree(const JsonParser::JsonValue& value, TreeNodeRef node);
+    virtual void generateNullInTree(TreeNodeRef node);
+
     boost::signals2::signal<void()> _signalChanged;
     static std::string getNodeIconPath(JsonNodeIcons icon);
   };
@@ -290,7 +295,6 @@ namespace mforms {
   class JsonTextView : public JsonBaseView
   {
   public:
-
     JsonTextView();
     virtual ~JsonTextView();
     void textChanged();
@@ -313,25 +317,36 @@ namespace mforms {
 
   private:
     void init();
-    void generateTree(const JsonParser::JsonValue &value, mforms::TreeNodeRef node, bool addNew = true);
-    void generateArrayInTree(const JsonParser::JsonValue& value, TreeNodeRef node, bool addNew);
-    void generateObjectInTree(const JsonParser::JsonValue& value, TreeNodeRef node, bool addNew);
+    virtual void generateArrayInTree(const JsonParser::JsonValue& value, TreeNodeRef node, bool addNew);
+    virtual void generateObjectInTree(const JsonParser::JsonValue& value, TreeNodeRef node, bool addNew);
+    virtual void generateIntInTree(const JsonParser::JsonValue& value, TreeNodeRef node);
+    virtual void generateBoolInTree(const JsonParser::JsonValue& value, TreeNodeRef node);
+    virtual void generateStringInTree(const JsonParser::JsonValue& value, TreeNodeRef node);
+    virtual void generateDoubleInTree(const JsonParser::JsonValue& value, TreeNodeRef node);
+    virtual void generateNullInTree(TreeNodeRef node);
     std::shared_ptr<TreeNodeView> _treeView;
   };
 
   /**
   * @brief Json grid view control class definition.
   **/
-  class GridView;
   class JsonGridView : public JsonBaseView
   {
   public:
     JsonGridView();
     virtual ~JsonGridView();
+    void setJson(const JsonParser::JsonValue &val);
 
   private:
     void init();
-    std::shared_ptr<GridView> _greedView;
+    virtual void generateArrayInTree(const JsonParser::JsonValue& value, TreeNodeRef node, bool addNew);
+    virtual void generateObjectInTree(const JsonParser::JsonValue& value, TreeNodeRef node, bool addNew);
+    virtual void generateIntInTree(const JsonParser::JsonValue& value, TreeNodeRef node);
+    virtual void generateBoolInTree(const JsonParser::JsonValue& value, TreeNodeRef node);
+    virtual void generateStringInTree(const JsonParser::JsonValue& value, TreeNodeRef node);
+    virtual void generateDoubleInTree(const JsonParser::JsonValue& value, TreeNodeRef node);
+    virtual void generateNullInTree(TreeNodeRef node);
+    std::shared_ptr<TreeNodeView> _gridView;
   };
 
   /**

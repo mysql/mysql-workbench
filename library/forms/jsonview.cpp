@@ -27,7 +27,6 @@
 //#include <mforms/gridview.h>
 #include <mforms/code_editor.h>
 #include <mforms/tabview.h>
-#include <stub/stub_utilities.h>
 #include <base/string_utilities.h>
 
 using namespace mforms;
@@ -55,7 +54,10 @@ JsonObject::JsonObject(JsonObject &&other)
 }
 
 /**
-*  @brief  Dfault constructor creates empty element.
+*  @brief Move assignment operator.
+*  @param other A JsonObject of identical element and allocator types.
+* 
+*  @return returns the reference to assigned value.
 */
 JsonObject &JsonObject::operator=(JsonObject &&other)
 {
@@ -64,12 +66,33 @@ JsonObject &JsonObject::operator=(JsonObject &&other)
 }
 
 /**
-* @brief Returns a read/write iterator
+*  @brief Copy constructor.
+*  @param other a JsonObject of identical element and allocator types.
+*/
+JsonObject::JsonObject(const JsonObject& other) : _data(other._data)
+{
+}
+
+/**
+*  @brief Assignment operator.
+*  @param other a JsonObject of identical element and allocator types.
+*
+*  @return returns the reference to assigned value.
+*/
+JsonObject &JsonObject::operator=(const JsonObject &other)
+{
+  //if (*this != other)
+  _data = other._data;
+  return *this;
+}
+
+/**
+* @brief Returns a read/write iterator.
 * 
 * Returns a read/write iterator that points to the first
-* element in the JsonObjeect container. Iteration is done in accessing order according to the key.
+* element in the JsonObject container. Iteration is done in accessing order according to the key.
 *
-* @return iterator for begining of sequence
+* @return iterator for begining of sequence.
 **/
 JsonObject::Iterator JsonObject::begin()
 {
@@ -77,12 +100,12 @@ JsonObject::Iterator JsonObject::begin()
 }
 
 /**
-* @brief Returns a readonly iterator
+* @brief Returns a readonly iterator.
 *
 * Returns a readonly iterator that points to the first
-* element in the JsonObjeect container. Iteration is done in accessing order according to the key.
+* element in the JsonObject container. Iteration is done in accessing order according to the key.
 *
-* @return iterator for begining of sequence
+* @return iterator for begining of sequence.
 **/
 JsonObject::ConstIterator JsonObject::begin() const
 {
@@ -90,12 +113,12 @@ JsonObject::ConstIterator JsonObject::begin() const
 }
 
 /**
-* @brief Returns a readonly iterator
+* @brief Returns a readonly iterator.
 *
 * Returns a readonly iterator that points to the first
-* element in the JsonObjeect container. Iteration is done in accessing order according to the key.
+* element in the JsonObject container. Iteration is done in accessing order according to the key.
 *
-* @return iterator for begining of sequence
+* @return iterator for begining of sequence.
 **/
 JsonObject::ConstIterator JsonObject::cbegin() const
 {
@@ -103,11 +126,11 @@ JsonObject::ConstIterator JsonObject::cbegin() const
 }
 
 /**
-* @brief Returns iterator for end of sequence
+* @brief Returns iterator for end of sequence.
 *
-* Returns a readonly iterator that points to one past the last pairin the JsonObjeect container.
+* Returns a read/write iterator that points to one past the last pair in the JsonObject container.
 *
-* @return iterator for end of sequence
+* @return iterator for end of sequence.
 **/
 JsonObject::Iterator JsonObject::end()
 {
@@ -115,94 +138,88 @@ JsonObject::Iterator JsonObject::end()
 }
 
 /**
-* @brief
+* @brief Returns a readonly iterator.
 *
-* @param
-* @return
-**/JsonObject::ConstIterator JsonObject::end() const
+* Returns a readonly (const) iterator that points to one past the last pair in the JsonObject container.
+*
+* @return iterator for end of sequence.
+**/
+JsonObject::ConstIterator JsonObject::end() const
 {
   return _data.end();
 }
 
 /**
-* @brief
+* @brief Returns a readonly iterator.
 *
-* @param
-* @return
-**/JsonObject::ConstIterator JsonObject::cend() const
+* Returns a readonly (const) iterator that points to one past the last pair in the JsonObject container.
+*
+* @return iterator for end of sequence.
+**/
+JsonObject::ConstIterator JsonObject::cend() const
 {
   return _data.end();
 }
 
 /**
-* @brief
+* @brief Returns the size of the JsonObject container.
 *
-* @param
-* @return
-**/JsonObject::SizeType JsonObject::size()
+* @return the size of the JsonObject container.
+**/
+JsonObject::SizeType JsonObject::size()
 {
   return _data.size();
 }
 
 /**
-* @brief
+* @brief Tries to find an element in a JsonObject container.
 *
-* @param
-* @return
-**/JsonObject::Iterator JsonObject::find(const KeyType& key)
-{
-  return _data.find(key);
-}
-
-JsonObject::JsonObject(const JsonObject& other) : _data(other._data)
-{
-  
-}
-
-JsonObject &JsonObject::operator=(const JsonObject &other)
-{ 
-  //if (*this != other)
-  _data = other._data;
-  return *this; 
-}
-
-/**
-* @brief
-*
-* @param
-* @return
-**/JsonObject::ConstIterator JsonObject::find(const KeyType& key) const
-{
-  return _data.find(key);
-}
-
-/**
-* @brief
-*
-* @param
-* @return
+* @param key Kay to be located in the JsonObject container.
+* @return Iterator pointing to element, or end() if not found.
 **/
-// test if container is empty
+JsonObject::Iterator JsonObject::find(const KeyType& key)
+{
+  return _data.find(key);
+}
+
+
+/**
+* @brief Tries to find an element in a JsonObject container.
+*
+* @param key Kay to be located in the JsonObject container.
+* @return Read only iterator pointing to element, or end() if not found.
+**/
+JsonObject::ConstIterator JsonObject::find(const KeyType& key) const
+{
+  return _data.find(key);
+}
+
+/**
+* @brief Test if container is empty.
+*
+* @return returns true if the JsonObject container is empty.
+**/
 bool JsonObject::empty() const
 {
   return _data.empty();
 }
 
 /**
-* @brief
+* @brief Erases all elements in a JsonObject container.
 *
-* @param
-* @return
-**/void JsonObject::clear()
+*/
+void JsonObject::clear()
 {
   _data.clear();
 }
 
 /**
-* @brief
+* @brief Erases an element from a JsonObject container.
 *
-* @param
-* @return
+* @param it An iterator pointing to the element to be erased.
+* @return An iterator pointing to the element immediately following
+*         a position prior to the element being erased.If no such
+*         element exists, end() is returned.
 **/
 JsonObject::Iterator JsonObject::erase(Iterator it)
 {
@@ -210,21 +227,23 @@ JsonObject::Iterator JsonObject::erase(Iterator it)
 }
 
 /**
-* @brief
+* @brief Erases an element from a JsonObject container.
 *
-* @param
-* @return
-**/
+* @param first An iterator pointing to the start of the range to be erased.
+* @param last An iterator pointing to the end of the range to be erased.
+* @return An iterator pointing to the element immediately following
+*         a position prior to the element being erased.If no such
+*         element exists, end() is returned.
+*/
 JsonObject::Iterator JsonObject::erase(Iterator first, Iterator last)
 {
   return _data.erase(first, last);
 }
 
 /**
-* @brief
-*
-* @param
-* @return
+*  @brief Attempts to insert a Json value into the container.
+*  @param  key  The key for which json data should be stored.
+*  @param  value  JsonValue to be inserted.
 **/
 void JsonObject::insert(const KeyType &key, const JsonValue& value)
 {
@@ -232,84 +251,104 @@ void JsonObject::insert(const KeyType &key, const JsonValue& value)
 }
 
 /**
-* @brief
+* @brief Access to JsonObject container data.
 *
-* @param
-* @return
-**/
+* @param key The key for which data should be retrieved.
+* @return  A reference to the data whose key is equivalent to 'key', if
+*          such a data is present in the Json container. If no such data is present
+*          std::out_of_range is thrown.
+*/
 JsonValue &JsonObject::get(const KeyType &key)
 {
-    return _data[key];;
+  if (_data.count(key) == 0)
+    throw std::out_of_range(base::strfmt("no element '%s' found in caontainer", key.c_str()));
+  return _data[key];
 }
 
-// Default constructor
 /**
-* @brief
+* @brief Default constructor.
 *
-* @param
-* @return
 **/
 JsonArray::JsonArray()
 {
 }
 
-
-// move operations
 /**
-* @brief
-*
-* @param
-* @return
-**/
+*  @brief  Move constructor.
+*  @param other A JsonArray of identical element and allocator types.
+*/
 JsonArray::JsonArray(JsonArray &&other)
   : _data(std::move(other._data))
 {
 }
 
 /**
-* @brief
+*  @brief Move assignment operator.
+*  @param other A JsonArray of identical element and allocator types.
 *
-* @param
-* @return
+*  @return returns the reference to assigned value.
 **/
-JsonArray &JsonArray::operator =(JsonArray &&other)
+JsonArray &JsonArray::operator=(JsonArray &&other)
 {
   _data = std::move(other._data);
   return *this;
 }
 
 /**
-* @brief
+*  @brief Copy constructor.
+*  @param other a JsonObject of identical element and allocator types.
+*/
+JsonArray::JsonArray(const JsonArray &other) : _data(other._data)
+{
+}
+
+/**
+*  @brief Assignment operator.
+*  @param other a JsonArray of identical element and allocator types.
 *
-* @param
-* @return
+*  @return returns the reference to assigned value.
 **/
-// subscript sequence with checking
+JsonArray& JsonArray::operator=(const JsonArray &other)
+{
+  _data = other._data;
+  return *this;
+}
+
+/**
+*  @brief  Access to the data.
+*  @param pos The index of the element for which data should be
+*         accessed.
+*  @return Read/write reference to data stored in continer. 
+*          If no such data is present std::out_of_range is thrown.
+*/
 JsonValue& JsonArray::at(SizeType pos)
 {
-  assert(pos < _data.size());
+  if (pos > _data.size())
+    throw std::out_of_range(base::strfmt("Index '%d' is out of range.", pos));
   return _data.at(pos);
 }
 
 /**
-* @brief
-*
-* @param
-* @return
+*  @brief  Access to the data.
+*  @param pos The index of the element for which data should be
+*         accessed.
+*  @return Read only reference to data stored in continer.
+*          If no such data is present std::out_of_range is thrown.
 **/
 const JsonValue &JsonArray::at(SizeType pos) const
 {
-  assert(pos < _data.size());
+  if (pos > _data.size())
+    throw std::out_of_range(base::strfmt("Index '%d' is out of range.", pos));
   return _data.at(pos);
 }
 
 /**
-* @brief
+*  @brief  Access to the data.
+*  @param pos The index of the element for which data should be accessed.
+*  @return Read/Write reference to data stored in continer.
 *
-* @param
-* @return
-**/
-// subscript sequence
+*  This operator allows for easy, array-style, data access.
+*/
 JsonValue &JsonArray::operator[](SizeType pos)
 {
   assert(pos < _data.size());
@@ -317,10 +356,11 @@ JsonValue &JsonArray::operator[](SizeType pos)
 }
 
 /**
-* @brief
+*  @brief  Access to the data.
+*  @param pos The index of the element for which data should be accessed.
+*  @return Read only reference to data stored in continer.
 *
-* @param
-* @return
+*  This operator allows for easy, array-style, data access.
 **/
 const JsonValue &JsonArray::operator[](SizeType pos) const
 {
@@ -330,22 +370,25 @@ const JsonValue &JsonArray::operator[](SizeType pos) const
 
 
 /**
-* @brief
+* @brief Returns a read/write iterator.
 *
-* @param
-* @return
-**/
-// return iterator for begining of sequence
+* Returns a read/write iterator that points to the first
+* element in the JsonArray container.
+*
+* @return iterator for begining of sequence.
+*/
 JsonArray::Iterator JsonArray::begin()
 {
   return _data.begin();
 }
 
 /**
-* @brief
+* @brief Returns a rad only iterator.
 *
-* @param
-* @return
+* Returns a read only iterator that points to the first
+* element in the JsonArray container.
+*
+* @return iterator for begining of sequence.
 **/
 JsonArray::ConstIterator JsonArray::begin() const
 {
@@ -353,44 +396,48 @@ JsonArray::ConstIterator JsonArray::begin() const
 }
 
 /**
-* @brief
+* @brief Returns a rad only iterator.
 *
-* @param
-* @return
-**/
+* Returns a read only iterator that points to the first
+* element in the JsonArray container.
+*
+* @return iterator for begining of sequence.
+*/
 JsonArray::ConstIterator JsonArray::cbegin() const
 {
   return _data.begin();
 }
 
 /**
-* @brief
+* @brief Returns iterator for end of sequence.
 *
-* @param
-* @return
+* Returns a read/write iterator that points to one past the last pair in the JsonArray container.
+*
+* @return iterator for end of sequence.
 **/
-// return iterator for end of sequence
 JsonArray::Iterator JsonArray::end()
 {
   return _data.end();
 }
 
 /**
-* @brief
+* @brief Returns iterator for end of sequence.
 *
-* @param
-* @return
-**/
+* Returns a read only iterator that points to one past the last pair in the JsonArray container.
+*
+* @return iterator for end of sequence.
+*/
 JsonArray::ConstIterator JsonArray::end() const
 {
   return _data.end();
 }
 
 /**
-* @brief
+* @brief Returns iterator for end of sequence.
 *
-* @param
-* @return
+* Returns a read only iterator that points to one past the last pair in the JsonArray container.
+*
+* @return iterator for end of sequence.
 **/
 JsonArray::ConstIterator JsonArray::cend() const
 {
@@ -398,47 +445,42 @@ JsonArray::ConstIterator JsonArray::cend() const
 }
 
 /**
-* @brief
+* @brief Get size of JsonArray.
 *
-* @param
-* @return
+* @return return length of sequence.
 **/
-// return length of sequence
 JsonArray::SizeType JsonArray::size()
 {
   return _data.size();
 }
 
 /**
-* @brief
+* @brief Test if container is empty.
 *
-* @param
-* @return
+* @return returns true if the JsonArray container is empty.
 **/
-// test if container is empty
 bool JsonArray::empty() const
 {
   return _data.empty();
 }
 
 /**
-* @brief
+* @brief Erases all elements in a JsonArray container.
 *
-* @param
-* @return
 **/
 void JsonArray::clear()
 {
   _data.clear();
 }
 
-
 /**
-* @brief
+* @brief Erases an element from a JsonArray container.
 *
-* @param
-* @return
-**/
+* @param it An iterator pointing to the element to be erased.
+* @return An iterator pointing to the element immediately following
+*         a position prior to the element being erased. If no such
+*         element exists, end() is returned.
+*/
 JsonArray::Iterator JsonArray::erase(Iterator pos)
 {
   return _data.erase(pos);
@@ -446,10 +488,13 @@ JsonArray::Iterator JsonArray::erase(Iterator pos)
 }
 
 /**
-* @brief
+* @brief Erases an element from a JsonArray container.
 *
-* @param
-* @return
+* @param first An iterator pointing to the start of the range to be erased.
+* @param last An iterator pointing to the end of the range to be erased.
+* @return An iterator pointing to the element immediately following
+*         a position prior to the element being erased.If no such
+*         element exists, end() is returned.
 **/
 JsonArray::Iterator JsonArray::erase(Iterator first, Iterator last)
 {
@@ -457,34 +502,30 @@ JsonArray::Iterator JsonArray::erase(Iterator first, Iterator last)
 }
 
 /**
-* @brief
+*  @brief Attempts to insert value at pos.
+*  @param  pos  A iterator to the JsonArray where insert value.
+*  @param  value  JsonValue to be inserted.
 *
-* @param
-* @return
-**/
-// insert value at pos
+*  @return An iterator that points to the inserted data.
+*/
 JsonArray::Iterator JsonArray::insert(Iterator pos, const JsonValue& value)
 {
   return _data.insert(pos, value);
 }
 
 /**
-* @brief
+*  @brief Add data to the end of the container.
+   @param  value  JsonValue to be inserted.
 *
-* @param
-* @return
 **/
-// insert element at end
 void JsonArray::pushBack(const ValueType& value)
 {
   _data.push_back(value);
 }
 
 /**
-* @brief
+* @brief default destructor.
 *
-* @param
-* @return
 **/
 JsonValue::JsonValue()
   : _double(0), _bool(false), _type(VEmpty)
@@ -492,12 +533,9 @@ JsonValue::JsonValue()
 }
 
 /**
-* @brief
-*
-* @param
-* @return
+*  @brief  Copy constructor.
+*  @param other A JsonValue of identical element and allocator types.
 **/
-  // Copy operations
 JsonValue::JsonValue(const JsonValue& rhs)
    : _double(rhs._double), _bool(rhs._bool), _string(rhs._string), _object(rhs._object),  
    _array(rhs._array), _type(rhs._type)
@@ -506,11 +544,9 @@ JsonValue::JsonValue(const JsonValue& rhs)
 
 
 /**
-* @brief
-*
-* @param
-* @return
-**/
+*  @brief  Move constructor.
+*  @param other A JsonValue of identical element and allocator types.
+*/
 JsonValue::JsonValue(JsonValue&& rhs)
    : _double(rhs._double), _bool(rhs._bool), _string(std::move(rhs._string)), _object(std::move(rhs._object)),
    _array(std::move(rhs._array)), _type(rhs._type)
@@ -518,10 +554,10 @@ JsonValue::JsonValue(JsonValue&& rhs)
 }
 
 /**
-* @brief
+*  @brief Assignment operator.
+*  @param other A JsonValue of identical element and allocator types.
 *
-* @param
-* @return
+*  @return returns the reference to assigned value.
 **/
 JsonValue &JsonValue::operator=(const JsonValue& rhs)
 {
@@ -535,12 +571,11 @@ JsonValue &JsonValue::operator=(const JsonValue& rhs)
 }
 
 /**
-* @brief
+*  @brief Move assignment operator.
+*  @param other A JsonValue of identical element and allocator types.
 *
-* @param
-* @return
-**/
-// move operations
+*  @return returns the reference to assigned value.
+*/
 JsonValue& JsonValue::operator=(JsonValue&& rhs)
 {
   _double = rhs._double;
@@ -553,21 +588,17 @@ JsonValue& JsonValue::operator=(JsonValue&& rhs)
 }
 
 /**
-* @brief
-*
-* @param
-* @return
+*  @brief  Construct JsonValue from string.
+*  @param val A string value.
 **/
 JsonValue::JsonValue(const std::string& val)
    : _double(0), _bool(false), _string(val), _type(VString)
 {
 }
-    
+
 /**
-* @brief
-*
-* @param
-* @return
+*  @brief  Construct JsonValue from string.
+*  @param val A string value.
 **/
 JsonValue::JsonValue(std::string&& val)
   : _double(0), _bool(false), _string(std::move(val)), _type(VString)
@@ -575,10 +606,8 @@ JsonValue::JsonValue(std::string&& val)
 }
 
 /**
-* @brief
-*
-* @param
-* @return
+*  @brief  Construct JsonValue from string.
+*  @param val A string const value.
 **/
 JsonValue::JsonValue(const char* val)
   : _double(0), _bool(false), _type(VString)
@@ -586,25 +615,18 @@ JsonValue::JsonValue(const char* val)
   _string = std::string(val != nullptr ? val : "");
 }
 
-
 /**
-* @brief construct from bool
-*
-* @param
-* @return
+*  @brief Construct JsonValue from bool.
+*  @param val A bool value.
 **/
-  // 
 JsonValue::JsonValue(bool val)
   : _double(0), _bool(val), _type(VBoolean)
 {
 }
 
-// construct from int
 /**
-* @brief construct from bool
-*
-* @param
-* @return
+*  @brief Construct JsonValue from int.
+*  @param val A int value.
 **/
 JsonValue::JsonValue(int val)
   : _double(val), _bool(false), _type(VInt)
@@ -612,22 +634,17 @@ JsonValue::JsonValue(int val)
 }
 
 /**
-* @brief construct from bool
-*
-* @param
-* @return
+*  @brief Construct JsonValue from double.
+*  @param val A double value.
 **/
-// construct from double
 JsonValue::JsonValue(double val)
   : _double(val), _bool(false), _type(VDouble)
 {
 }
 
 /**
-* @brief
-*
-* @param
-* @return
+*  @brief Construct JsonValue from JsonObject value.
+*  @param val A JsonObject value.
 **/
 JsonValue::JsonValue(const JsonObject &val)
   : _double(0), _bool(false), _object(val), _type(VObject)
@@ -635,10 +652,8 @@ JsonValue::JsonValue(const JsonObject &val)
 }
 
 /**
-* @brief
-*
-* @param
-* @return
+*  @brief Construct JsonValue from JsonObject value.
+*  @param val A JsonObject value.
 **/
 JsonValue::JsonValue(JsonObject&& val)
   : _double(0), _bool(false), _object(std::move(val)), _type(VObject)
@@ -646,22 +661,17 @@ JsonValue::JsonValue(JsonObject&& val)
 }
 
 /**
-* @brief
-*
-* @param
-* @return
+*  @brief Construct JsonValue from JsonArray value.
+*  @param val A JsonArray value.
 **/
-// // construct from JsonArray
 JsonValue::JsonValue(const JsonArray &val)
   : _double(0), _bool(false), _array(val), _type(VObject)
 {
 }
 
 /**
-* @brief
-*
-* @param
-* @return
+*  @brief Construct JsonValue from JsonArray value.
+*  @param val A JsonArray value.
 **/
 JsonValue::JsonValue(JsonArray &&val)
   : _double(0), _bool(false), _array(std::move(val)), _type(VObject)
@@ -669,35 +679,28 @@ JsonValue::JsonValue(JsonArray &&val)
 }
 
 /**
-* @brief
+* @brief Access to type of value.
 *
-* @param
-* @return
+* @return return type of value.
 **/
-// return type of value
 DataType JsonValue::getType() const
 {
   return _type;
 }
 
 /**
-* @brief
+* @brief Access to the double value.
 *
-* @param
-* @return
+* @return return double value.
 **/
-// access function
 double JsonValue::getDouble() const
 {
-
   return _double;
 }
 
 /**
-* @brief
-*
-* @param
-* @return
+*  @brief Set number value.
+*  @param val A double value to set.
 **/
 void JsonValue::setNumber(double val)
 {
@@ -705,10 +708,9 @@ void JsonValue::setNumber(double val)
 }
 
 /**
-* @brief
+* @brief Access to the int value.
 *
-* @param
-* @return
+* @return return int value.
 **/
 int JsonValue::getInt() const
 {
@@ -716,10 +718,9 @@ int JsonValue::getInt() const
 }
 
 /**
-* @brief
+* @brief Access to the bool value.
 *
-* @param
-* @return
+* @return return bool value.
 **/
 bool JsonValue::getBool() const
 {
@@ -727,10 +728,8 @@ bool JsonValue::getBool() const
 }
 
 /**
-* @brief
-*
-* @param
-* @return
+*  @brief Set bool value.
+*  @param val A bool value to set.
 **/
 void JsonValue::setBool(bool val)
 {
@@ -738,10 +737,9 @@ void JsonValue::setBool(bool val)
 }
 
 /**
-* @brief
+* @brief Access to the string value.
 *
-* @param
-* @return
+* @return return const reference to string value.
 **/
 const std::string& JsonValue::getString() const
 {
@@ -749,10 +747,8 @@ const std::string& JsonValue::getString() const
 }
 
 /**
-* @brief
-*
-* @param
-* @return
+*  @brief Set string value.
+*  @param val A string reference to set.
 **/
 void JsonValue::setString(const std::string& val)
 {
@@ -760,10 +756,9 @@ void JsonValue::setString(const std::string& val)
 }
 
 /**
-* @brief
+* @brief Access to the JsonObject value.
 *
-* @param
-* @return
+* @return return reference to the JsonObject value.
 **/
 JsonObject &JsonValue::getObject()
 {
@@ -771,10 +766,9 @@ JsonObject &JsonValue::getObject()
 }
 
 /**
-* @brief
+* @brief Access to the JsonObject value.
 *
-* @param
-* @return
+* @return return const reference to the JsonObject value.
 **/
 const JsonObject& JsonValue::getObject() const
 {
@@ -782,10 +776,8 @@ const JsonObject& JsonValue::getObject() const
 }
 
 /**
-* @brief
-*
-* @param
-* @return
+*  @brief Set JsonObject value.
+*  @param val A reference to JsonObject to set.
 **/
 void JsonValue::setObject(const JsonObject& val)
 {
@@ -793,10 +785,9 @@ void JsonValue::setObject(const JsonObject& val)
 }
 
 /**
-* @brief
+* @brief Access to the JsonArray value.
 *
-* @param
-* @return
+* @return return reference to the JsonObject value.
 **/
 JsonArray &JsonValue::getArray()
 {
@@ -804,32 +795,8 @@ JsonArray &JsonValue::getArray()
 }
 
 /**
-* @brief
-*
-* @param
-* @return
-**/
-const JsonArray& JsonValue::getArray() const
-{
-  return _array;
-}
-
-/**
-* @brief
-*
-* @param
-* @return
-**/
-void JsonValue::setType(DataType type)
-{
-   _type = type;
-}
-
-/**
-* @brief
-*
-* @param
-* @return
+*  @brief Set setArray value.
+*  @param val A reference to setArray to set.
 **/
 void JsonValue::setArray(const JsonArray& val)
 {
@@ -837,21 +804,46 @@ void JsonValue::setArray(const JsonArray& val)
 }
 
 /**
-* @brief
+* @brief Access to the double value.
 *
-* @param
-* @return
+* @return return double value.
 **/
-JsonReader::JsonReader(const std::string &str) 
-  : _jsonText(str), _actualPos(0)
+const JsonArray& JsonValue::getArray() const
+{
+  return _array;
+}
+
+/**
+*  @brief Set JsonValue type.
+*  @param type A type to set.
+**/
+void JsonValue::setType(DataType type)
+{
+   _type = type;
+}
+
+
+/**
+* -------------------------------------------------------------------------------------------------
+*   JSON reader implementation
+* -------------------------------------------------------------------------------------------------
+*/
+
+/**
+* @brief Construtor
+*        Construct JsonReader from string
+*
+* @param value string reference contaning Json data
+**/
+JsonReader::JsonReader(const std::string &value) 
+  : _jsonText(value), _actualPos(0)
 {
 }
 
 /**
-* @brief
+* @brief Returns the next available character but does not consume it.
 *
-* @param
-* @return
+* @return An char representing the next character to be read, or 0 if there are no characters to be read.
 **/
 char JsonReader::peek()
 {
@@ -859,10 +851,10 @@ char JsonReader::peek()
 }
 
 /**
-* @brief
+* @brief Check if the end of a string has been reached
 *
 * @param
-* @return
+* @return Returns a bool value true when the end of a string has been reached
 **/
 bool JsonReader::eos()
 {
@@ -870,10 +862,10 @@ bool JsonReader::eos()
 }
 
 /**
-* @brief
+* @brief Indicates whether the specified  character is categorized as white space.
 *
-* @param
-* @return
+* @param c The character to evaluate. 
+* @return true if c is white space; otherwise, false.
 **/
 bool JsonReader::isWhiteSpace(char c)
 {
@@ -881,10 +873,8 @@ bool JsonReader::isWhiteSpace(char c)
 }
 
 /**
-* @brief
+* @brief skip white spaces 
 *
-* @param
-* @return
 **/
 void JsonReader::eatWhitespace()
 {
@@ -893,10 +883,8 @@ void JsonReader::eatWhitespace()
 }
 
 /**
-* @brief
+* @brief Consume actual character and move the next available.
 *
-* @param
-* @return
 **/
 void JsonReader::moveAhead()
 {
@@ -904,10 +892,10 @@ void JsonReader::moveAhead()
 }
 
 /**
-* @brief
+* @brief Try to parse Json data
 *
-* @param
-* @return
+* @param str String to parse.
+* @param value Parsed Json value.
 **/
 void JsonReader::read(const std::string &str, JsonValue &value)
 {
@@ -918,10 +906,8 @@ void JsonReader::read(const std::string &str, JsonValue &value)
 
 
 /**
-* @brief
+* @brief Scan every character in Json data
 *
-* @param
-* @return
 **/
 void JsonReader::scan()
 {
@@ -1009,10 +995,10 @@ void JsonReader::scan()
 }
 
 /**
-* @brief
+* @brief Check if Json data contains given text starting with actual reader position
 *
-* @param
-* @return
+* @param text String to check
+* @return true if text match to readed text from Json data member; otherwise, false.
 **/
 bool JsonReader::match(const std::string &text)
 {
@@ -1031,7 +1017,7 @@ bool JsonReader::match(const std::string &text)
 }
 
 /**
-* @brief
+* @brief Parse json string a
 *
 * @param
 * @return
@@ -1216,7 +1202,7 @@ void JsonReader::parseNumber(JsonValue& value)
    double number = 0;
    buffer >> number;
    double intpart = 0;
-   if (std::modf(number, &intpart) == 0.0)
+   if (modf(number, &intpart) == 0.0)
       value.setType(VInt);
    else
       value.setType(VDouble);
@@ -1543,40 +1529,68 @@ JsonBaseView::~JsonBaseView()
 * @param
 * @return
 **/
-//static std::string JsonBaseView::getNodeIconPath(JsonBaseView::JsonNodeIcons icon);
-//{
-//  bec::IconId iconid;
-//  switch (icon)
-//  {
-//  case JsonObjectIcon:
-//    iconid = bec::IconManager::get_instance()->get_icon_id("db.Table.many.$.png", bec::Icon16);
-//    break;
-//  case JsonArrayIcon:
-//    iconid = bec::IconManager::get_instance()->get_icon_id("db.Table.$.png", bec::Icon16);
-//    break;
-//  case JsonStringIcon:
-//    iconid = bec::IconManager::get_instance()->get_icon_id("db.View.many.$.png", bec::Icon16);
-//    break;
-//  case JsonNumericIcon:
-//    iconid = bec::IconManager::get_instance()->get_icon_id("db.View.$.png", bec::Icon16);
-//    break;
-//  case JsonNullIcon:
-//    iconid = bec::IconManager::get_instance()->get_icon_id("db.Routine.many.$.png", bec::Icon16);
-//    break;
-//  default:
-//    return "";
-//  }
-//}
-
-/**
-* @brief
-*
-* @param
-* @return
-**/
 boost::signals2::signal<void()>* JsonBaseView::signalChanged()
 {
   return &_signalChanged;
+}
+
+void JsonBaseView::generateObjectInTree(const JsonParser::JsonValue& value, TreeNodeRef node, bool addNew)
+{
+}
+
+void JsonBaseView::generateArrayInTree(const JsonParser::JsonValue& value, TreeNodeRef node, bool addNew)
+{
+}
+
+void JsonBaseView::generateIntInTree(const JsonParser::JsonValue& value, TreeNodeRef node)
+{
+}
+
+
+void JsonBaseView::generateBoolInTree(const JsonParser::JsonValue& value, TreeNodeRef node)
+{
+}
+
+
+void JsonBaseView::generateStringInTree(const JsonParser::JsonValue& value, TreeNodeRef node)
+{
+}
+
+void JsonBaseView::generateDoubleInTree(const JsonParser::JsonValue& value, TreeNodeRef node)
+{
+}
+
+void JsonBaseView::generateNullInTree(TreeNodeRef node)
+{
+}
+
+void JsonBaseView::generateTree(const JsonParser::JsonValue &value, TreeNodeRef node, bool addNew)
+{
+  switch (value.getType())
+  {
+  case VInt:
+    generateIntInTree(value, node);
+    break;
+  case VBoolean:
+    generateBoolInTree(value, node);    break;
+  case VString:
+    generateStringInTree(value, node);
+    break;
+  case VDouble:
+    generateDoubleInTree(value, node);
+    break;
+  case VObject:
+    generateObjectInTree(value, node, addNew);
+    break;
+  case VArray:
+    generateArrayInTree(value, node, addNew);
+    break;
+  case VEmpty:
+    generateNullInTree(node);
+    break;
+  default: 
+    break;
+  }
 }
 
 /// <summary>
@@ -1588,14 +1602,6 @@ boost::signals2::signal<void()>* JsonBaseView::signalChanged()
 //  //_jsonText = text;
 //}
 
-/// <summary>
-/// The Json data to add to the control.
-/// </summary>
-/// <param name="text">A JsonValue object that contains the json text data to set.</param>
-//void JsonBaseView::setJson(const JsonValue &val)
-//{
-//  //_json = val;
-//}
 
 /// <summary>
 /// Retrieves data from the Json control in the text format
@@ -1617,7 +1623,7 @@ boost::signals2::signal<void()>* JsonBaseView::signalChanged()
 //
 
 /**
-* @brief Constructor
+* @brief Default constructor
 *
 **/
 JsonTextView::JsonTextView() 
@@ -1704,6 +1710,11 @@ void JsonTreeView::init()
 }
 
 
+/**
+* @brief Add Json data to the control.
+*
+* @param value A JsonValue object that contains the json text data to set.
+**/
 void JsonTreeView::setJson(const JsonParser::JsonValue& value)
 {
   _treeView->clear();
@@ -1781,58 +1792,73 @@ void JsonTreeView::generateArrayInTree(const JsonParser::JsonValue& value, TreeN
 }
 
 
-void JsonTreeView::generateTree(const JsonParser::JsonValue &value, TreeNodeRef node, bool addNew)
+void JsonTreeView::generateIntInTree(const JsonParser::JsonValue& value, TreeNodeRef node)
 {
-  switch (value.getType())
-  {
-  case VInt:
-    node->set_icon_path(0, "json_nmb.png");
-    node->set_attributes(1, mforms::TextAttributes("#99cc66", false, true));
-    node->set_int(1, value.getInt());
-    node->expand();
-    break;
-  case VBoolean:
-    node->set_icon_path(0, "json_nmb.png");
-    node->set_attributes(1, mforms::TextAttributes("#0099ff", true, true));
-    node->set_bool(1, value.getBool());
-    node->expand();
-    break;
-  case VString:
-    node->set_icon_path(0, "json_str.png");
-    node->set_attributes(1, mforms::TextAttributes("#cc9966", false, false));
-    node->set_string(1, value.getString());
-    node->expand();
-    break;
-  case VDouble:
+  node->set_icon_path(0, "json_nmb.png");
+  node->set_attributes(1, mforms::TextAttributes("#99cc66", false, true));
+  node->set_int(1, value.getInt());
+  node->expand();
+}
+
+
+void JsonTreeView::generateBoolInTree(const JsonParser::JsonValue& value, TreeNodeRef node)
+{
+  node->set_icon_path(0, "json_nmb.png");
+  node->set_attributes(1, mforms::TextAttributes("#0099ff", true, true));
+  node->set_bool(1, value.getBool());
+  node->expand();
+}
+
+
+void JsonTreeView::generateStringInTree(const JsonParser::JsonValue& value, TreeNodeRef node)
+{
+  node->set_icon_path(0, "json_str.png");
+  node->set_attributes(1, mforms::TextAttributes("#cc9966", false, false));
+  node->set_string(1, value.getString());
+  node->expand();
+}
+
+void JsonTreeView::generateDoubleInTree(const JsonParser::JsonValue& value, TreeNodeRef node)
+{
     node->set_icon_path(0, "json_nmb.png");
     node->set_attributes(1, mforms::TextAttributes("#99cc66", false, true));
     node->set_float(1, value.getDouble());
     node->expand();
-    break;
-  case VObject:
-    generateObjectInTree(value, node, addNew);
-    break;
-  case VArray:
-    generateArrayInTree(value, node, addNew);
-    break;
-  case VEmpty:
+}
+  
+void JsonTreeView::generateNullInTree(TreeNodeRef node)
+{
     node->set_icon_path(0, "json_null.png");
     node->set_string(0, "<<null>>");
     node->set_string(1, "");
     node->expand();
-    break;
-  default: break;
-  }
 }
 
 /**
-* @brief
+* @brief Constructor
 *
-* @param
-* @return
 **/
 JsonGridView::JsonGridView()
+  : _gridView(std::make_shared<mforms::TreeNodeView>(mforms::TreeAltRowColors | mforms::TreeShowRowLines | mforms::TreeShowColumnLines | mforms::TreeNoBorder))
 {
+  _gridView->add_column(IconStringColumnType, "Key", 150, false, true);
+  _gridView->add_column(IconStringColumnType, "Value", 200, false, true);
+  _gridView->add_column(IconStringColumnType, "Type", 200, false, true);
+  _gridView->end_columns();
+  init();
+}
+
+
+
+/**
+* @brief Init tree view
+*
+* Based of readed json data control function initialize mforms control TreNodeView
+**/
+void JsonGridView::init()
+{
+  assert(_gridView.get() != nullptr);
+  add(_gridView.get());
 }
 
 /**
@@ -1846,80 +1872,137 @@ JsonGridView::~JsonGridView()
 }
 
 
-///**
-//* @brief
-//*
-//* @param
-//* @return
-//**/
-//void JsonTabView::generateTextOutput(const JsonValue &value)
-//{
-//  switch (value.getType())
-//  {
-//  case VInt:
-//    _jsonText += std::to_string(value.getInt());
-//    break;
-//  case VBoolean:
-//    _jsonText += value.getBool() ? "true" : "false";
-//    break;
-//  case VString:
-//    _jsonText += "\"";
-//    _jsonText += value.getString();
-//    _jsonText += "\"";
-//    break;
-//  case VDouble:
-//    _jsonText += std::to_string(value.getDouble());
-//    break;
-//  case VObject:
-//    {
-//      auto object = value.getObject();
-//      //_jsonText += "(O) \"object\"\n";
-//      ++_ident;
-//      auto end = object.cend();
-//      if (!object.empty())
-//        _jsonText += "\n";
-//      for (auto it = object.cbegin(); it != end; ++it)
-//      {
-//        _jsonText += std::string(_ident, '\t');
-//        _jsonText += "\"";
-//        _jsonText += it->first;
-//        _jsonText += "\"";
-//        _jsonText += " : ";
-//        generateTextOutput(it->second);
-//        _jsonText += "\n";
-//      }
-//      --_ident;
-//    }
-//    break;
-//  case VArray:
-//    {
-//      auto jsonArray = value.getArray();
-//      ++_ident;
-//      auto end = jsonArray.cend();
-//      if (!jsonArray.empty())
-//        _jsonText += "\n";
-//      auto idx = 0;
-//      for (auto it = jsonArray.cbegin(); it != end; ++it, ++idx)
-//      {
-//        _jsonText += std::string(_ident, '\t');
-//        std::stringstream tmpIdx;
-//        tmpIdx << idx;
-//        _jsonText += "[";
-//        _jsonText += tmpIdx.str();
-//        _jsonText += "] ";
-//        generateTextOutput(*it);
-//        _jsonText += "\n";
-//      }
-//      --_ident;
-//    }
-//
-//    break;
-//  case VEmpty:
-//    _jsonText += "<<null>>";
-//    break;
-//  default: break;
-//  }
-//}
+/**
+* @brief Add the Json data to the control.
+*
+* @param value A JsonValue object that contains the json text data to set.
+**/
+void JsonGridView::setJson(const JsonParser::JsonValue& value)
+{
+  _gridView->clear();
+  TreeNodeRef node = _gridView->root_node()->add_child();
+  generateTree(value, node);
+}
+
+
+void JsonGridView::generateObjectInTree(const JsonParser::JsonValue& value, TreeNodeRef node, bool addNew)
+{
+  auto object = value.getObject();
+  size_t size = 0;
+  std::stringstream textSize;
+  auto end = object.cend();
+  for (auto it = object.cbegin(); it != end; ++it)
+  {
+    auto text = it->first;
+    switch (it->second.getType())
+    {
+    case VArray:
+    {
+      auto arrayVal = it->second.getArray();
+      size = arrayVal.size();
+      textSize << size;
+      text += "[";
+      text += textSize.str();
+      text += "]";
+      break;
+    }
+    case VObject:
+    {
+      auto objectVal = it->second.getObject();
+      size = objectVal.size();
+      textSize << size;
+      text += "{";
+      text += textSize.str();
+      text += "}";
+      break;
+    }
+    }
+    mforms::TreeNodeRef node2 = (addNew) ? node->add_child() : node;
+    node->set_icon_path(0, "json_obj.png");
+    node2->set_string(0, text);
+    node2->set_string(1, "");
+    node2->set_string(2, "Object");
+    generateTree(it->second, node2);
+    node2->expand();
+  }
+}
+
+
+void JsonGridView::generateArrayInTree(const JsonParser::JsonValue& value, TreeNodeRef node, bool addNew)
+{
+  auto arrayType = value.getArray();
+  auto size = arrayType.size();
+  std::stringstream textSize;
+  textSize << size;
+  auto text = "array [" + textSize.str() + "]";
+  mforms::TreeNodeRef node2 = node->add_child();
+  node->set_icon_path(0, "json_arr.png");
+  node2->set_string(0, text);
+  node2->set_string(1, "");
+  node2->set_string(2, "Array");
+  auto end = arrayType.cend();
+  int idx = 0;
+  for (auto it = arrayType.cbegin(); it != end; ++it, ++idx)
+  {
+    mforms::TreeNodeRef arrrayNode = node2->add_child();
+    bool addNew = false;
+    if (it->getType() == VArray || it->getType() == VObject)
+      addNew = true;
+    arrrayNode->set_string(0, base::strfmt("[%d] {%d}", idx, arrayType.size()));
+    arrrayNode->set_string(1, "");
+    generateTree(*it, arrrayNode, addNew);
+  }
+  node2->expand();
+}
+
+
+void JsonGridView::generateIntInTree(const JsonParser::JsonValue& value, TreeNodeRef node)
+{
+  node->set_icon_path(0, "json_nmb.png");
+  node->set_attributes(1, mforms::TextAttributes("#99cc66", false, true));
+  node->set_int(1, value.getInt());
+  node->set_string(2, "Integer");
+  node->expand();
+}
+
+
+void JsonGridView::generateBoolInTree(const JsonParser::JsonValue& value, TreeNodeRef node)
+{
+  node->set_icon_path(0, "json_nmb.png");
+  node->set_attributes(1, mforms::TextAttributes("#0099ff", true, true));
+  node->set_bool(1, value.getBool());
+  node->set_string(2, "Boolean");
+  node->expand();
+}
+
+
+void JsonGridView::generateStringInTree(const JsonParser::JsonValue& value, TreeNodeRef node)
+{
+  node->set_icon_path(0, "json_str.png");
+  node->set_attributes(1, mforms::TextAttributes("#cc9966", false, false));
+  node->set_string(1, value.getString());
+  node->set_string(2, "String");
+  node->expand();
+}
+
+void JsonGridView::generateDoubleInTree(const JsonParser::JsonValue& value, TreeNodeRef node)
+{
+  node->set_icon_path(0, "json_nmb.png");
+  node->set_attributes(1, mforms::TextAttributes("#99cc66", false, true));
+  node->set_float(1, value.getDouble());
+  node->set_string(2, "Double");
+  node->expand();
+}
+
+void JsonGridView::generateNullInTree(TreeNodeRef node)
+{
+  node->set_icon_path(0, "json_null.png");
+  node->set_string(0, "<<null>>");
+  node->set_string(1, "");
+  node->set_string(2, "null");
+  node->expand();
+}
+
 
 /**
 * @brief
@@ -1937,6 +2020,7 @@ void JsonTabView::Setup()
   add(_tabView.get());
   scoped_connect(_textView->signalChanged(), boost::bind(&JsonTabView::textViewTextChanged, this));
 }
+
 
 /**
 * @brief
@@ -1962,10 +2046,9 @@ JsonTabView::~JsonTabView()
 }
 
 /**
-* @brief
+* @brief Add the Json data to the control.
 *
-* @param
-* @return
+* @param value A JsonValue object that contains the json text data to set.
 **/
 void JsonTabView::setJson(const JsonParser::JsonValue& value)
 {
@@ -1974,6 +2057,7 @@ void JsonTabView::setJson(const JsonParser::JsonValue& value)
   JsonWriter::write(_jsonText, value);
   _textView->setText(_jsonText);
   _treeView->setJson(value);
+  _gridView->setJson(value);
 }
 
 /**
