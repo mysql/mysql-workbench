@@ -1450,10 +1450,10 @@ TEST_FUNCTION(7)
 
 #ifndef _WIN32
     // Reports are stored with Windows line endings, hence replace that by just \n for comparison.
-    base::replace(str, "\r\n", "\n");
+    str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
 #endif
-
     ensure_equals("Reports differ", *report, str);
+
 // Test Data generation
 /*
 	sprintf(buf1, "testres%s%d.txt",j?"_longname":"_shortname", i);
