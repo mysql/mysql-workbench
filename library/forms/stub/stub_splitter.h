@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _STUB_SPLITTER_H_
-#define _STUB_SPLITTER_H_
+
+#pragma once
 
 #include "stub_view.h"
 
@@ -27,15 +27,22 @@ namespace stub {
 class SplitterWrapper : public ViewWrapper
 {  
 protected:
-  SplitterWrapper(::mforms::Splitter *self, bool horiz)
+  SplitterWrapper(::mforms::Splitter *self, bool horiz, bool thin)
     : ViewWrapper(self)
   {
   }
 
+#ifdef __APPLE__
+  static bool create(::mforms::Splitter *self, bool horiz, bool thin)
+  {
+    return true;
+  }
+#else
   static bool create(::mforms::Splitter *self, bool horiz)
   {
     return true;
   }
+#endif
 
   static void add(Splitter *self, View *child, int minwidth, bool fixed)
   {
@@ -79,6 +86,3 @@ public:
 
 }
 }
-
-
-#endif /* _STUB_SPLITTER_H_ */

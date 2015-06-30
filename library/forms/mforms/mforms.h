@@ -103,9 +103,6 @@ namespace mforms
 {
   class MFORMS_EXPORT ControlFactory
   {
-  private:
-    int _created;
-    int _destroyed;
   public:
     ViewImplPtrs _view_impl;
     FormImplPtrs _form_impl;
@@ -154,8 +151,6 @@ namespace mforms
     void check_impl();
     void shutdown();
 
-    void instance_created();
-    void instance_destroyed();
   };
 };
 

@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 #include "grt_test_utility.h"
 
 #include "grtpp.h"
-#include <diffchange.h>
+#include "diffchange.h"
 #include "grts/structs.db.mgmt.h"
 #include "util_functions.h"
 #include "grtdb/diff_dbobjectmatch.h"
@@ -142,7 +142,7 @@ void test_suites(
     { 
       std::string test_group_name= std::string("grt_diff::") + suite_name;
       // TODO LEAK!
-      DiffTestsParams::iterator iter= tests_params.insert(std::make_pair(test_group_name, std::vector<DiffSubSuiteParam>())).first;
+      //DiffTestsParams::iterator iter= tests_params.insert(std::make_pair(test_group_name, std::vector<DiffSubSuiteParam>())).first;
       //Test_group<testsuite> *group= new Test_group<testsuite>(&test_params, iter->first.c_str(), iter->first.c_str());
 
       std::string initial_object;

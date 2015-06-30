@@ -865,6 +865,11 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         self.note = mforms.newLabel("")
         self.build_note()
         firewall_rules_main_box.add(self.note, False, True)
+
+        info_box = mforms.newBox(True)
+        info_label = mforms.newLabel("Manage the rules for the current user. Changing the mode to RECORDING will start collecting the SQL commands used by your application.\nWhen all the neccessary rules were collected, you should set the mode to PROTECTING. You can then fine-tune the set of rules by adding or deleting them.")
+        info_box.add(info_label, True, True)
+        self.add(info_box, False, False)
         
         state_box = mforms.newBox(True)
         
@@ -966,11 +971,11 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         self.white_list.clear()
         self.cache_list.clear()
 
-        self.available_rules_label.set_text("Active rules (%s):" % str(self.commands.get_rule_count(self.current_userhost)))
+        self.available_rules_label.set_text("Active rules (%s) - These are the rules used in PROTECTED mode for this user" % str(self.commands.get_rule_count(self.current_userhost)))
         for rule in self.commands.get_user_rules(self.current_userhost):
             self.white_list.add_item(rule)
 
-        self.cached_rules_label.set_text("Rules being recorded (%s):" % str(self.commands.get_cached_rule_count(self.current_userhost)))
+        self.cached_rules_label.set_text("Rules being recorded (%s) - These are the rules gathered while in RECORDING mode" % str(self.commands.get_cached_rule_count(self.current_userhost)))
         for rule in self.commands.get_cached_user_rules(self.current_userhost):
             self.cache_list.add_item(rule)
             

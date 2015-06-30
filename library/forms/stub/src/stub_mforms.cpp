@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,7 +44,7 @@
 #include "../stub_menu.h"
 #include "../stub_menuitem.h"
 #include "../stub_splitter.h"
-#include "../stub_treenodeview.h"
+#include "../stub_treeview.h"
 #include "../stub_codeeditor.h"
 #include "../stub_toolbar.h"
 #include "mforms/dockingpoint.h"
@@ -99,7 +99,7 @@ void ::mforms::stub::init(wb::WBOptions *options)
   MenuItemWrapper::init();
   CodeEditorWrapper::init();
   ToolBarWrapper::init();
-  TreeNodeViewWrapper::init();
+  TreeViewWrapper::init();
 
   if (getenv("VERBOSE"))
     puts("done setting up mforms stubs...");

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -56,8 +56,12 @@ std::string AppWrapper::get_resource_path(App *app, const std::string &file)
   {
     std::string basedir = (options != NULL) ? options->basedir + "/": "";
     scan_dir_names(basedir + "data");
-    scan_dir_names(basedir + "images");
     scan_dir_names(basedir + "modules");
+#ifdef __APPLE__
+    scan_dir_names(basedir);
+#else
+    scan_dir_names(basedir + "images");
+#endif
   }
   
   if (file.empty())
