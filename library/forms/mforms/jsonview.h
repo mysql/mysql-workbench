@@ -38,7 +38,7 @@ namespace JsonParser {
     JsonObject();
     // move operations
     JsonObject(JsonObject&& val);
-    JsonObject(const JsonObject& other);
+    JsonObject(const JsonObject &other);
     JsonObject &operator=(JsonObject &&val);
     JsonObject &operator=(const JsonObject &val);
 
@@ -56,8 +56,8 @@ namespace JsonParser {
 
     // return length of sequence
     SizeType size();
-    Iterator find(const KeyType& key);
-    ConstIterator find(const KeyType& key) const;
+    Iterator find(const KeyType &key);
+    ConstIterator find(const KeyType &key) const;
 
     // test if container is empty
     bool empty() const;
@@ -66,7 +66,7 @@ namespace JsonParser {
     Iterator erase(Iterator pos);
     Iterator erase(Iterator first, Iterator last);
 
-    void insert(const KeyType &key, const JsonValue& value);
+    void insert(const KeyType &key, const JsonValue &value);
     JsonValue &get(const KeyType &key);
 
   private:
@@ -86,14 +86,14 @@ namespace JsonParser {
     // Default constructor
     JsonArray();
     JsonArray(const JsonArray &other);
-    JsonArray& operator=(const JsonArray &other);
+    JsonArray &operator=(const JsonArray &other);
     // move operations
     JsonArray(JsonArray &&other);
-    JsonArray& operator=(JsonArray &&other);
+    JsonArray &operator=(JsonArray &&other);
 
     // subscript sequence with checking
-    JsonValue& at(SizeType pos);
-    const JsonValue& at(SizeType pos) const;
+    JsonValue &at(SizeType pos);
+    const JsonValue &at(SizeType pos) const;
 
     // subscript sequence
     JsonValue &operator[](SizeType pos);
@@ -120,12 +120,12 @@ namespace JsonParser {
     Iterator erase(Iterator first, Iterator last);
 
     // insert value at pos
-    Iterator insert(Iterator pos, const JsonValue& value);
+    Iterator insert(Iterator pos, const JsonValue &value);
     // insert count * value at pos
-    //void insert(Iterator pos, SizeType count, const JsonValue& value);
+    //void insert(Iterator pos, SizeType count, const JsonValue &value);
 
     // insert element at end
-    void pushBack(const ValueType& value);
+    void pushBack(const ValueType &value);
 
   private:
     Container _data;
@@ -136,18 +136,18 @@ namespace JsonParser {
     
   public:
     JsonValue();
-    JsonValue(const JsonValue& rhs);
-    JsonValue& operator=(const JsonValue& rhs);
-    JsonValue& operator=(JsonValue&& rhs);
+    JsonValue(const JsonValue &rhs);
+    JsonValue &operator=(const JsonValue &rhs);
+    JsonValue &operator=(JsonValue&& rhs);
     JsonValue(JsonValue&& rhs);
 
-    explicit JsonValue(const std::string& val);
+    explicit JsonValue(const std::string &val);
     explicit JsonValue(std::string&& val);
-    explicit JsonValue(const char* val);
+    explicit JsonValue(const char *val);
     explicit JsonValue(bool val);
     explicit JsonValue(int val);
     explicit JsonValue(double val);
-    explicit JsonValue(const JsonObject& val);
+    explicit JsonValue(const JsonObject &val);
     explicit JsonValue(JsonObject&& val);
     explicit JsonValue(const JsonArray &val);
     explicit JsonValue(JsonArray &&val);
@@ -159,14 +159,14 @@ namespace JsonParser {
 
     bool getBool() const;
     void setBool(bool val);
-    const std::string& getString() const;
-    void setString(const std::string& val);
-    JsonObject& getObject();
-    const JsonObject& getObject() const;
-    void setObject(const JsonObject& val);
-    JsonArray& getArray();
-    const JsonArray& getArray() const;
-    void setArray(const JsonArray& val);
+    const std::string &getString() const;
+    void setString(const std::string &val);
+    JsonObject &getObject();
+    const JsonObject &getObject() const;
+    void setObject(const JsonObject &val);
+    JsonArray &getArray();
+    const JsonArray &getArray() const;
+    void setArray(const JsonArray &val);
 
     void setType(DataType type);
     DataType getType() const;
@@ -187,7 +187,7 @@ namespace JsonParser {
   class MFORMS_EXPORT ParserException : public std::runtime_error
   {
   public:
-    explicit ParserException(const std::string& message) : std::runtime_error(message.c_str()) {}
+    explicit ParserException(const std::string &message) : std::runtime_error(message.c_str()) {}
   };
 
   class MFORMS_EXPORT JsonReader : public boost::noncopyable
@@ -196,7 +196,7 @@ namespace JsonParser {
     {
       enum JsonTokenType { JsonTokenString, JsonTokenNumber, JsonTokenBoolean, JsonTokenEmpty, JsonTokenObjectStart,
         JsonTokenObjectEnd, JsonTokenArrayStart, JsonTokenArrayEnd, JsonTokenNext, JsonTokenAssign, };
-      JsonToken(JsonTokenType type, const std::string& value) : _type(type), _value(value) { }
+      JsonToken(JsonTokenType type, const std::string &value) : _type(type), _value(value) { }
       JsonTokenType getType() const { return _type;  }
       const std::string &getValue() const { return _value; }
     private:
@@ -206,8 +206,8 @@ namespace JsonParser {
   public:
     typedef std::vector<JsonToken> Tokens;
     typedef Tokens::const_iterator TokensConstIterator;
-    static void read(const std::string &str, JsonValue &value);
-    explicit JsonReader(const std::string &str);
+    static void read(const std::string &text, JsonValue &value);
+    explicit JsonReader(const std::string &text);
 
   private:
     char peek();
@@ -223,12 +223,12 @@ namespace JsonParser {
     std::string getJsonBoolean();
     void scan();
     void parse(JsonObject &obj);
-    void parseNumber(JsonValue& value);
-    void parseBoolean(JsonValue& value);
-    void parseString(JsonValue& value);
-    void parseEmpty(JsonValue& value);
-    void parseObject(JsonValue& value);
-    void parseArray(JsonValue& value);
+    void parseNumber(JsonValue &value);
+    void parseBoolean(JsonValue &value);
+    void parseString(JsonValue &value);
+    void parseEmpty(JsonValue &value);
+    void parseObject(JsonValue &value);
+    void parseArray(JsonValue &value);
     void parse(JsonValue &value);
 
     // members
@@ -243,15 +243,15 @@ namespace JsonParser {
   {
   public:
     explicit JsonWriter(const JsonValue &value);
-    static void write(std::string &str, const JsonValue &value);
+    static void write(std::string &text, const JsonValue &value);
 
   private:
     void toString(std::string &output);
     void generate(std::string &output);
-    void write(const JsonValue& value);
-    void write(const JsonObject& value);
-    void write(const JsonArray& value);
-    void write(const std::string& value);
+    void write(const JsonValue &value);
+    void write(const JsonObject &value);
+    void write(const JsonArray &value);
+    void write(const std::string &value);
 
     const JsonValue &_jsonValue;
     int _depth;
@@ -276,12 +276,12 @@ namespace mforms {
     boost::signals2::signal<void()>* signalChanged();
   protected:
     void generateTree(const JsonParser::JsonValue &value, mforms::TreeNodeRef node, bool addNew = true);
-    virtual void generateArrayInTree(const JsonParser::JsonValue& value, TreeNodeRef node, bool addNew);
-    virtual void generateObjectInTree(const JsonParser::JsonValue& value, TreeNodeRef node, bool addNew);
-    virtual void generateIntInTree(const JsonParser::JsonValue& value, TreeNodeRef node);
-    virtual void generateBoolInTree(const JsonParser::JsonValue& value, TreeNodeRef node);
-    virtual void generateStringInTree(const JsonParser::JsonValue& value, TreeNodeRef node);
-    virtual void generateDoubleInTree(const JsonParser::JsonValue& value, TreeNodeRef node);
+    virtual void generateArrayInTree(const JsonParser::JsonValue &value, TreeNodeRef node, bool addNew);
+    virtual void generateObjectInTree(const JsonParser::JsonValue &value, TreeNodeRef node, bool addNew);
+    virtual void generateIntInTree(const JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void generateBoolInTree(const JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void generateStringInTree(const JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void generateDoubleInTree(const JsonParser::JsonValue &value, TreeNodeRef node);
     virtual void generateNullInTree(TreeNodeRef node);
 
     boost::signals2::signal<void()> _signalChanged;
@@ -317,12 +317,12 @@ namespace mforms {
 
   private:
     void init();
-    virtual void generateArrayInTree(const JsonParser::JsonValue& value, TreeNodeRef node, bool addNew);
-    virtual void generateObjectInTree(const JsonParser::JsonValue& value, TreeNodeRef node, bool addNew);
-    virtual void generateIntInTree(const JsonParser::JsonValue& value, TreeNodeRef node);
-    virtual void generateBoolInTree(const JsonParser::JsonValue& value, TreeNodeRef node);
-    virtual void generateStringInTree(const JsonParser::JsonValue& value, TreeNodeRef node);
-    virtual void generateDoubleInTree(const JsonParser::JsonValue& value, TreeNodeRef node);
+    virtual void generateArrayInTree(const JsonParser::JsonValue &value, TreeNodeRef node, bool addNew);
+    virtual void generateObjectInTree(const JsonParser::JsonValue &value, TreeNodeRef node, bool addNew);
+    virtual void generateIntInTree(const JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void generateBoolInTree(const JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void generateStringInTree(const JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void generateDoubleInTree(const JsonParser::JsonValue &value, TreeNodeRef node);
     virtual void generateNullInTree(TreeNodeRef node);
     std::shared_ptr<TreeNodeView> _treeView;
   };
@@ -339,12 +339,12 @@ namespace mforms {
 
   private:
     void init();
-    virtual void generateArrayInTree(const JsonParser::JsonValue& value, TreeNodeRef node, bool addNew);
-    virtual void generateObjectInTree(const JsonParser::JsonValue& value, TreeNodeRef node, bool addNew);
-    virtual void generateIntInTree(const JsonParser::JsonValue& value, TreeNodeRef node);
-    virtual void generateBoolInTree(const JsonParser::JsonValue& value, TreeNodeRef node);
-    virtual void generateStringInTree(const JsonParser::JsonValue& value, TreeNodeRef node);
-    virtual void generateDoubleInTree(const JsonParser::JsonValue& value, TreeNodeRef node);
+    virtual void generateArrayInTree(const JsonParser::JsonValue &value, TreeNodeRef node, bool addNew);
+    virtual void generateObjectInTree(const JsonParser::JsonValue &value, TreeNodeRef node, bool addNew);
+    virtual void generateIntInTree(const JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void generateBoolInTree(const JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void generateStringInTree(const JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void generateDoubleInTree(const JsonParser::JsonValue &value, TreeNodeRef node);
     virtual void generateNullInTree(TreeNodeRef node);
     std::shared_ptr<TreeNodeView> _gridView;
   };
