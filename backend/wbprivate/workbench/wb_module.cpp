@@ -267,7 +267,10 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
   for (std::string s : supportedOsList)
   {
     if (os.find(s) != std::string::npos)
+    {
+      log_debug2("OS '%s' is supported\n", os.c_str());
       return true;
+    }
   }
 
   log_warning("OS not found on supported OS list.  OS string: '%s'\n", os.c_str());
