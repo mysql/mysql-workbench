@@ -2,7 +2,7 @@
 #ifndef _WBVALIDATION_IF_H_
 #define _WBVALIDATION_IF_H_
 
-#include <grtpp_module_cpp.h>
+#include "grtpp_module_cpp.h"
 #include "grts/structs.db.h"
 
 // database object validation interface definition header

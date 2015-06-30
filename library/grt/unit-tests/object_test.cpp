@@ -99,7 +99,6 @@ TEST_FUNCTION(5)
 */
 }
 
-
 TEST_FUNCTION(6)
 {
   test_BookRef obj(grt);
@@ -109,6 +108,7 @@ TEST_FUNCTION(6)
   } catch (grt::bad_item &) {
     flag= true;
   };
+
   ensure("set invalid member", flag==true);
 
   flag= false;
