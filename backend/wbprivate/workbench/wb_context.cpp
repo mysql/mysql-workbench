@@ -24,7 +24,6 @@
 #include <glib/gstdio.h>
 #include <boost/bind.hpp>
 
-#include "base/common.h"
 #include "sqlide/wb_sql_editor_form.h"
 
 #include "wb_context.h"
@@ -1111,21 +1110,19 @@ void WBContext::warnIfRunningOnUnsupportedOS()
   std::string os = get_local_os_name();
   log_debug2("get_local_os_name() returned '%s'\n", os.c_str());
 
-  #ifndef WB_DEBUG // <--- so that our runtime tests don't lock up (they run in debug mode)
-    if (!_workbench->isOsSupported(os))
-    {
-      mforms::Utilities::show_message_and_remember(
-        "Unsupported Operating System",
+  if (!_workbench->isOsSupported(os))
+  {
+    mforms::Utilities::show_message_and_remember(
+      "Unsupported Operating System",
 
-        "You are running Workbench on an unsupported operating system. "
-        "While it may work for you just fine, it wasn't designed to run on your platform. "
-        "Please keep this in mind if you run into problems.",
+      "You are running Workbench on an unsupported operating system. "
+      "While it may work for you just fine, it wasn't designed to run on your platform. "
+      "Please keep this in mind if you run into problems.",
 
-        "OK", "", "",
-        "wb.supported_os_check.suppress_warning", "Don't show this message again"
-      );
-    }
-  #endif
+      "OK", "", "",
+      "wb.supported_os_check.suppress_warning", "Don't show this message again"
+    );
+  }
 }
 
 void WBContext::init_finish_(WBOptions *options)
@@ -1211,12 +1208,13 @@ void WBContext::init_finish_(WBOptions *options)
   }
 
   block_user_interaction(false);
-  
+
   // SSH tunnel manager is created on first creation of a connection.
- 
+
   show_status_text(_("Ready."));
 
-  warnIfRunningOnUnsupportedOS();
+  if (options->open_at_startup_type != "run-script") // <--- so that our runtime tests don't lock up when a modal warning dialog is displayed
+    warnIfRunningOnUnsupportedOS();
 
   try
   {
