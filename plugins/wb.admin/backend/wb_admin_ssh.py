@@ -381,21 +381,20 @@ class WbAdminSSH(object):
         
 
         client = paramiko.SSHClient()
-        if usekey:
-            ssh_known_hosts_file = None
-            if "userknownhostsfile" in opts:
-                ssh_known_hosts_file = opts["userknownhostsfile"]
-            else:
-                client.get_host_keys().clear()
-                ssh_known_hosts_file = '~/.ssh/known_hosts'
+        ssh_known_hosts_file = None
+        if "userknownhostsfile" in opts:
+            ssh_known_hosts_file = opts["userknownhostsfile"]
+        else:
+            client.get_host_keys().clear()
+            ssh_known_hosts_file = '~/.ssh/known_hosts'
+            
+            if platform.system().lower() == "windows":
+                ssh_known_hosts_file = '%s\ssh\known_hosts' % mforms.App.get().get_user_data_folder()
                 
-                if platform.system().lower() == "windows":
-                    ssh_known_hosts_file = '%s\ssh\known_hosts' % mforms.App.get().get_user_data_folder()
-                    
-            try:
-                client.load_host_keys(os.path.expanduser(ssh_known_hosts_file))
-            except IOError, e:
-                log_warning("IOError, probably caused by file %s not found, the message was: %s\n" % (ssh_known_hosts_file, e))
+        try:
+            client.load_host_keys(os.path.expanduser(ssh_known_hosts_file))
+        except IOError, e:
+            log_warning("IOError, probably caused by file %s not found, the message was: %s\n" % (ssh_known_hosts_file, e))
         
         if "stricthostkeychecking" in opts and opts["stricthostkeychecking"].lower() == "no":
             client.set_missing_host_key_policy(WarningPolicy())
