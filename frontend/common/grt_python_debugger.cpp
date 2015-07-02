@@ -248,7 +248,7 @@ PythonDebugger::PythonDebugger(GRTShellWindow *shell, mforms::TabView *tabview)
   _breakpoint_list->add_column(StringColumnType, "Location", 200, false);
   _breakpoint_list->add_column(StringColumnType, "Condition", 200, true);
   _breakpoint_list->end_columns();
-  _breakpoint_list->set_cell_edit_handler(boost::bind(&PythonDebugger::edit_breakpoint, this, _1, _2, _3));
+  _breakpoint_list->set_cell_edit_handler(std::bind(&PythonDebugger::edit_breakpoint, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
   _lower_tabs->add_page(_breakpoint_list, _("Breakpoints"));
 
   mforms::Splitter *spl = manage(new Splitter(true));

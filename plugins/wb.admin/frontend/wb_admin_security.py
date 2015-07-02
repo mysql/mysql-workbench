@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -26,11 +26,11 @@ import os
 
 import mforms
 
-from mforms import newBox, newLabel, newButton, newTextEntry, newTreeView, newTable, newRadioButton, newSelector, newPanel, newTabView, Utilities, newCheckBox, newImageBox, App
+from mforms import newBox, newLabel, newButton, newTextEntry, newTreeNodeView, newTable, newRadioButton, newListBox, newSelector, newPanel, newTabView, Utilities, newCheckBox, newImageBox, App
 from wb_admin_utils import not_running_warning_label, make_panel_header
 from wb_admin_security_be import AdminSecurity, PrivilegeInfo, PrivilegeReverseDict, SecurityAdminRoles, WBSecurityValidationError
 from wb_common import PermissionDeniedError
-from workbench.log import log_error, log_debug3
+from workbench.log import log_error
 
 import grt
 from workbench import db_utils
@@ -120,7 +120,7 @@ class ThreadedInputValidator(object):
     """This class validates the changes in the associated text entry widget displaying the result in a validation label
 
     Usage:
-        Instantiate this class and set is callback method to be the callback of the associated text entry.
+        Instanciate this class and set is callback method to be the callback of the associated text entry.
     """
     def __init__(self, owner, text_entry, validation_label, ctrl_be, delay=1, colors=('#33aa33', '#aa3333')):
         self.owner = owner
@@ -181,7 +181,7 @@ class ThreadedInputValidator(object):
             if passwd == '':
                 return 0
 
-            result = self.ctrl_be.exec_query("SELECT VALIDATE_PASSWORD_STRENGTH('%s')" % db_utils.escape_sql_string(passwd))
+            result = self.ctrl_be.exec_query("SELECT VALIDATE_PASSWORD_STRENGTH('%s')" % passwd)
             if result and result.nextRow():
                 estimate = result.intByIndex(1)
             else:
@@ -321,7 +321,7 @@ class SecuritySchemaPrivileges(mforms.Box):
 
         self.schema_rights_checks = {}
 
-        self.privs_list = newTreeView(mforms.TreeFlatList)
+        self.privs_list = newTreeNodeView(mforms.TreeFlatList)
         self.privs_list.add_column(mforms.StringColumnType, "Schema", 150, True)
         self.privs_list.add_column(mforms.StringColumnType, "Privileges", 800, False)
         self.privs_list.end_columns()
@@ -694,29 +694,21 @@ class FirewallCommands:
         result.nextRow()
         return result.stringByIndex(1)
 
-    def reload_rules(self, userhost):
-        self.execute_multiresult_command("CALL mysql.sp_reload_firewall_rules('%s')" % userhost)
-
     def delete_user_rule(self, userhost, rule):
         result, cnt = self.execute_command("DELETE FROM mysql.firewall_whitelist WHERE USERHOST='%s' AND RULE='%s'" % (userhost, db_utils.escape_sql_string(rule)))
-        deleted_something = cnt > 0
-        if deleted_something:
-            self.reload_rules(userhost)
-        return deleted_something
+        return cnt > 0
 
-    def add_user_rule(self, userhost, rule, normalized = False):
-        if not normalized:
-            firewall_rule = self.normalize_query(rule)
-        else:
-            firewall_rule = rule
-            
+    def add_user_rule(self, userhost, rule):
+        firewall_rule = self.normalize_query(rule)
         if firewall_rule:
-            result = self.execute_command("INSERT INTO mysql.firewall_whitelist (USERHOST, RULE) VALUES ('%s', '%s')" % (userhost, db_utils.escape_sql_string(firewall_rule)))
-            if result:
-                self.reload_rules(userhost)
+            self.execute_command("INSERT INTO mysql.firewall_whitelist (USERHOST, RULE) VALUES ('%s', '%s')" % (userhost, db_utils.escape_sql_string(firewall_rule)))
             return True
         log_error("Adding a firewall user rule failed to normalize the query. Probably, the inserted query does not translate to a firewall rule.\n")
         return False
+
+    def add_normalized_rule(self, userhost, rule):
+        self.execute_command(rule)
+        return True
 
     def normalize_query(self, query):
         query_result = self.execute_result_command("SELECT normalize_statement('%s')" % db_utils.escape_sql_string(query))
@@ -747,24 +739,9 @@ class FirewallCommands:
         
         result = multi_result[len(multi_result) - 1]
         
-        try:
-            if result.nextRow():
-                if result.stringByIndex(1).startswith("ERROR"):
-                    log_error("Firewall: Failed to set user mode (user=%s, mode=%s): %s\n" % (userhost, mode, result.stringByIndex(1)))
-                    return False
-            log_debug3("Firewall: Returning 'True' due to lack of 'ERROR' records\n")
-            return True
-        except SystemError, err:  # sp_set_firewall_mode return resultset only on error, but nextRow will throw exception if result is missing resultset.
-            if self.owner.ctrl_be.target_version and self.owner.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 6, 27):
-                log_debug3("Firewall: Returning 'True' due to server ('%s') not responding with the 'OK' record any more\n" % self.owner.ctrl_be.target_version)
-                return True
-            import traceback
-            log_error("Exception while setting firewall user mode: Expecting 'OK' record for this version ('%s')\n" % str(self.owner.ctrl_be.target_version))
-        except Exception, exc:
-            import traceback
-            log_error("Exception while setting firewall user mode: %s\n" % (traceback.format_exc()))
+        if result.nextRow():
+            return result.stringByIndex(1) == "OK"
           
-        log_error("Firewall: Failed to set user mode (user=%s, mode=%s): Unknow error\n" % (userhost, mode))
         return False
 
     def reset_user(self, userhost):
@@ -827,7 +804,7 @@ class FirewallAddRuleDialog(mforms.Form):
     def __init__(self, owner):
         mforms.Form.__init__(self, None, mforms.FormResizable | mforms.FormMinimizable)
 
-        self.set_title("Add new rule or SQL statement")
+        self.set_title("Add new rule")
         self.set_size(400, 300)
         self.center()
 
@@ -840,12 +817,6 @@ class FirewallAddRuleDialog(mforms.Form):
         self.query_box = mforms.newTextBox(mforms.SmallScrollBars)
         self.query_box.set_size(400, 200)
         self.content.add(self.query_box, True, True)
-        
-        self.normalized = False
-        self.normalized_checkbox = mforms.newCheckBox(False)
-        self.normalized_checkbox.set_text("This is a normalized rule")
-        self.normalized_checkbox.add_clicked_callback(self.normalized_clicked)
-        self.content.add(self.normalized_checkbox, True, True)
         
         button_box = mforms.newBox(True)
         self.content.add(button_box, False, True)
@@ -862,10 +833,7 @@ class FirewallAddRuleDialog(mforms.Form):
         self.cancel_button.set_text("Cancel")
         self.cancel_button.add_clicked_callback(self.cancel_button_pressed)
         button_box.add_end(self.cancel_button, False, True)
-    
-    def normalized_clicked(self):
-        self.normalized = self.normalized_checkbox.get_active()
-    
+        
     def ok_button_pressed(self):
         self.end_modal(True)
 
@@ -899,7 +867,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         firewall_rules_main_box.add(self.note, False, True)
 
         info_box = mforms.newBox(True)
-        info_label = mforms.newLabel("Manage the rules for the current user. Changing the mode to RECORDING will start collecting the SQL commands used by your application.\nWhen all the necessary rules were collected, you should set the mode to PROTECTING. You can then fine-tune the set of rules by adding or deleting them.")
+        info_label = mforms.newLabel("Manage the rules for the current user. Changing the mode to RECORDING will start collecting the SQL commands used by your application.\nWhen all the neccessary rules were collected, you should set the mode to PROTECTING. You can then fine-tune the set of rules by adding or deleting them.")
         info_box.add(info_label, True, True)
         self.add(info_box, False, False)
         
@@ -909,7 +877,6 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         self.state.add_item("OFF")
         self.state.add_item("PROTECTING")
         self.state.add_item("RECORDING")
-        self.state.add_item("DETECTING")
         self.state.set_size(120, -1)
         self.state.add_changed_callback(self.change_state)
         state_box.add(mforms.newLabel("Mode:"), False, True)
@@ -986,7 +953,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         self.note.set_text(text)
         
     def refresh_row(self, current_row, user, host):
-        userhost = "%s@%s" % (db_utils.escape_sql_string(user), host)
+        userhost = "%s@%s" % (user, host)
         current_row.set_string(2, str(self.commands.get_user_mode(userhost)))
         current_row.set_string(3, str(self.commands.get_rule_count(userhost)))
         current_row.set_string(4, str(self.commands.get_cached_rule_count(userhost)))
@@ -994,7 +961,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
     def show_user(self, user, host, new_user):
         self.current_user = user
         self.current_host = host
-        self.current_userhost = "%s@%s" % (db_utils.escape_sql_string(user), host)
+        self.current_userhost = "%s@%s" % (user, host)
         self.new_user = new_user
         self.set_enabled(not new_user)
         self.update_rules()
@@ -1033,7 +1000,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         dialog = FirewallAddRuleDialog(self)
         if dialog.run():
             rule = dialog.query_box.get_string_value()
-            result = self.commands.add_user_rule(self.current_userhost, rule, dialog.normalized)
+            result = self.commands.add_user_rule(self.current_userhost, rule)
             if not result:
                 Utilities.show_error("Add user rule", "Add a new rule for this user failed to be inserted. Please check the log for more information.", "OK", "", "")
             self.owner.refresh()
@@ -1042,11 +1009,9 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
     def add_from_file_button_click(self):
         dialog = mforms.FileChooser(mforms.OpenFile)
         dialog.set_title("Load firewall rules")
-        dialog.set_extensions("Firewall Rules (*.fwr)|*.fwr|SQL Statements (*.sql)|*.sql", ".fwr")
+        dialog.set_extensions("Firewall Rules (*.fwr)|*.fwr", ".fwr")
         if dialog.run_modal():
-            path = dialog.get_path()
-            is_rules_file = True if path.endswith(".fwr") else False
-            with open(path) as f:
+            with open(dialog.get_path()) as f:
                 content = [x.strip('\n') for x in f.readlines()]
 
             if not self.commands.set_user_mode(self.current_userhost, "OFF"):
@@ -1055,7 +1020,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
             added_rules = []
             
             for rule in content:
-                if not self.commands.add_user_rule(self.current_userhost, rule, is_rules_file):
+                if not self.commands.add_user_rule(self.current_userhost, rule):
                     break
                 added_rules.append(rule)
         
@@ -1090,8 +1055,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
                 self.owner.refresh()
         
     def save(self):
-        if not self.commands.set_user_mode(self.current_userhost, self.state.get_string_value()):
-            Utilities.show_error("Setting user mode", "There was a problem setting the user mode. Please check the log for more details.", "OK", "", "")
+        self.commands.set_user_mode(self.current_userhost, self.state.get_string_value())
 
 #############################
 
@@ -1162,7 +1126,7 @@ class SecurityAccount(mforms.Box):
         #searchbox = TextEntry(SearchEntry)
         #account_list_box.add(searchbox, False, True)
 
-        self.user_list = newTreeView(mforms.TreeFlatList)
+        self.user_list = newTreeNodeView(mforms.TreeFlatList)
         self.user_list.add_column(mforms.StringColumnType, "User", 120, False)
         self.user_list.add_column(mforms.StringColumnType, "From Host", 100, False)
         
@@ -1203,10 +1167,7 @@ class SecurityAccount(mforms.Box):
         self.username = newTextEntry()
         self.username.set_size(180, -1)
         self.username.add_changed_callback(self.set_dirty)
-        if self.owner.ctrl_be.target_version and self.owner.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 8):
-            self.username.set_max_length(32) # max username length for mysql since 5.7.8
-        else:
-            self.username.set_max_length(16) # max username length for mysql before 5.7.8
+        self.username.set_max_length(16) # max username length for mysql
         self.password = newTextEntry(mforms.PasswordEntry)
         self.password.set_size(180, -1)
         self.password_advice = 'Consider using a password with 8 or more characters with\nmixed case letters, numbers and punctuation marks.'
@@ -1363,7 +1324,7 @@ class SecurityAccount(mforms.Box):
         self.revoke_all_button.add_clicked_callback(self.revoke_all)
         self.revoke_all_button.set_tooltip("Immediately remove all privileges from the account, from every object at all levels.\nThe account itself will be left untouched and logins will still be possible.")
 
-        self.role_list = newTreeView(mforms.TreeFlatList)
+        self.role_list = newTreeNodeView(mforms.TreeFlatList)
         self.role_list.add_column(mforms.CheckColumnType, "", 30, True)
         self.role_list.add_column(mforms.StringColumnType, "Role", 150, False)
         self.role_list.add_column(mforms.StringColumnType, "Description", 300, False)
@@ -1371,7 +1332,7 @@ class SecurityAccount(mforms.Box):
         lbox.add(self.role_list, True, True)
         self.role_list.set_cell_edited_callback(self.role_list_toggled)
 
-        self.role_priv_list = newTreeView(mforms.TreeFlatList)
+        self.role_priv_list = newTreeNodeView(mforms.TreeFlatList)
         self.role_priv_list.add_column(mforms.CheckColumnType, '', 30, True)
         self.role_priv_list.add_column(mforms.StringColumnType, "Global Privileges", 180, False)
         self.role_priv_list.end_columns()
@@ -1808,7 +1769,7 @@ class SecurityAccount(mforms.Box):
                 self.valid_name = False
 
         if self.valid_name:
-            allowed = re.compile("^(([a-zA-Z0-9%_]|[a-zA-Z0-9_][a-zA-Z0-9\-_]*[a-zA-Z0-9_])\.)*([A-Za-z0-9%_]|[A-Za-z0-9_][A-Za-z0-9\-_]*[A-Za-z0-9_])$", re.IGNORECASE)
+            allowed = re.compile(r"^(?!-)[\.A-Z%_-]{1,63}(?<!-)$", re.IGNORECASE)
             allowed_ipv4 = re.compile(r"^(((%|_)?|25[0-5%_]|(%|_)?|2[0-4%_][0-9%_]|[01%_]?[0-9%_][0-9%_]?)\.){0,3}((%|_)?|25[0-5%_]|2[0-4%_][0-9%_]|[01%_]?[0-9%_][0-9%_]?)$")
             allowed_ipv6 = re.compile(r"^\s*(?!.*::.*::)(?:(?!:)|:(?=:))(?:[0-9a-f%_]{0,4}(?:(?<=::)|(?<!::):)){6}(?:[0-9a-f%_]{0,4}(?:(?<=::)|(?<!::):)[0-9a-f%_]{0,4}(?:(?<=::)|(?<!:)|(?<=:)(?<!::):)|(?:25[0-4%_]|2[0-4%_]\d|1\d\d|[1-9%_]?\d)(?:\.(?:25[0-4%_]|2[0-4%_]\d|1\d\d|[1-9%_]?\d)){3})\s*$"
                                       , re.IGNORECASE)
@@ -1857,7 +1818,7 @@ class SecurityAccount(mforms.Box):
     def revoke_all(self):
         if self._selected_user:
             if Utilities.show_message("Revoke All Privileges",
-                  "Please confirm revocation of all privileges for the account '%s'@'%s'.\nNote: the account itself will be maintained.\n\nAdd new privileges afterwards or the user will not be able to access any schema object."%(self._selected_user.username, self._selected_user.host),
+                  "Please confirm revokation of all privileges for the account '%s'@'%s'.\nNote: the account itself will be maintained.\n\nAdd new privileges afterwards or the user will not be able to access any schema object."%(self._selected_user.username, self._selected_user.host),
                   "Revoke", "Cancel", "") == mforms.ResultOk:
                 try:
                     self._selected_user.revoke_all()
@@ -1893,7 +1854,7 @@ class SecurityAccount(mforms.Box):
             is_new_user = not self._selected_user.is_commited
 
             password_unneeded = False
-            self.password_label.set_text("Password has expired. User must change password to use the account." if self._selected_user.password_expired else self.password_advice)
+            self.password_label.set_text("Password is expired. User must change password to use the account." if self._selected_user.password_expired else self.password_advice)
             plugin_info = AUTHENTICATION_PLUGIN_TYPES.get(self.selected_plugin_type(), {})
             if self.has_extra_plugins and not plugin_info.get("enable_password", True):
                 password_unneeded = True
@@ -2010,7 +1971,7 @@ Please click [Upgrade Account] to fix that.
 Either the account password must be provided to reset it
 or a new password must be supplied.'''
         elif user.password_expired:
-            caption = 'Password has expired. User must change password to use the account.'
+            caption = 'Password is expired. User must change password to use the account.'
         elif not user.username:
             caption = 'This is an anonymous account. It is usually advisable to delete this account.'
         elif user.blank_password :

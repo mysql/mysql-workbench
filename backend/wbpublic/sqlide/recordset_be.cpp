@@ -1669,6 +1669,10 @@ public:
   }
 };
 
+void Recordset::binary_editor_closed()
+{
+}
+
 void Recordset::open_field_data_editor(RowId row, ColumnId column, const std::string &logical_type)
 {
   base::RecMutexLock data_mutex(_data_mutex);
@@ -1705,8 +1709,9 @@ void Recordset::open_field_data_editor(RowId row, ColumnId column, const std::st
     if (!data_editor)
       return;
     data_editor->set_title(base::strfmt("Edit Data for %s (%s)", _column_names[column].c_str(), logical_type.c_str()));
-    data_editor->set_release_on_close(true);
     data_editor->signal_saved.connect(boost::bind(&Recordset::set_field_value,this, row, column, data_editor));
+    scoped_connect(data_editor->signal_closed(), boost::bind(&Recordset::binary_editor_closed, this));
+
     data_editor->show(true);
   }
   CATCH_AND_DISPATCH_EXCEPTION(false, "Open field editor")

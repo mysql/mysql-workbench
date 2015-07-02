@@ -42,6 +42,8 @@ namespace JsonParser {
     JsonObject &operator=(JsonObject &&val);
     JsonObject &operator=(const JsonObject &val);
 
+    JsonValue& operator [](const std::string& name);
+
     //bool operator !=(const JsonObject &rhs);
 
     // return iterator for begining of sequence
@@ -68,6 +70,7 @@ namespace JsonParser {
 
     void insert(const KeyType &key, const JsonValue &value);
     JsonValue &get(const KeyType &key);
+    const JsonValue &get(const KeyType &key) const;
 
   private:
     Container _data;
@@ -151,6 +154,14 @@ namespace JsonParser {
     explicit JsonValue(JsonObject&& val);
     explicit JsonValue(const JsonArray &val);
     explicit JsonValue(JsonArray &&val);
+
+    // implicit cast to actual element type. throw if its not possible
+    operator const JsonObject& () const;
+    operator const JsonArray& () const;
+    operator const int () const;
+    operator const double () const;
+    operator const bool () const;
+    operator const std::string& () const;
 
     // access function
     double getDouble() const;
@@ -267,21 +278,31 @@ namespace mforms {
    /**
    * @brief Json view base class definition.
    **/
+  
   class JsonBaseView : public Panel
   {
   public:
+     struct JsonValueNodeData : public mforms::TreeNodeData
+     {
+        JsonValueNodeData(JsonParser::JsonValue &value) : _jsonValue(value) {}
+        JsonParser::JsonValue &getData() { return _jsonValue; }
+     private:
+        JsonParser::JsonValue &_jsonValue;
+     };
     enum JsonNodeIcons { JsonObjectIcon, JsonArrayIcon, JsonStringIcon, JsonNumericIcon, JsonNullIcon };
     JsonBaseView();
     virtual ~JsonBaseView();
+    void setCellValue(mforms::TreeNodeRef node, int column, const std::string &value);
     boost::signals2::signal<void()>* signalChanged();
+
   protected:
-    void generateTree(const JsonParser::JsonValue &value, mforms::TreeNodeRef node, bool addNew = true);
-    virtual void generateArrayInTree(const JsonParser::JsonValue &value, TreeNodeRef node, bool addNew);
-    virtual void generateObjectInTree(const JsonParser::JsonValue &value, TreeNodeRef node, bool addNew);
-    virtual void generateIntInTree(const JsonParser::JsonValue &value, TreeNodeRef node);
-    virtual void generateBoolInTree(const JsonParser::JsonValue &value, TreeNodeRef node);
-    virtual void generateStringInTree(const JsonParser::JsonValue &value, TreeNodeRef node);
-    virtual void generateDoubleInTree(const JsonParser::JsonValue &value, TreeNodeRef node);
+    void generateTree(JsonParser::JsonValue &value, mforms::TreeNodeRef node, bool addNew = true);
+    virtual void generateArrayInTree(JsonParser::JsonValue &value, TreeNodeRef node, bool addNew);
+    virtual void generateObjectInTree(JsonParser::JsonValue &value, TreeNodeRef node, bool addNew);
+    virtual void generateIntInTree(JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void generateBoolInTree(JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void generateStringInTree(JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void generateDoubleInTree(JsonParser::JsonValue &value, TreeNodeRef node);
     virtual void generateNullInTree(TreeNodeRef node);
 
     boost::signals2::signal<void()> _signalChanged;
@@ -313,16 +334,16 @@ namespace mforms {
   public:
     JsonTreeView();
     virtual ~JsonTreeView();
-    void setJson(const JsonParser::JsonValue &val);
+    void setJson(JsonParser::JsonValue &val);
 
   private:
     void init();
-    virtual void generateArrayInTree(const JsonParser::JsonValue &value, TreeNodeRef node, bool addNew);
-    virtual void generateObjectInTree(const JsonParser::JsonValue &value, TreeNodeRef node, bool addNew);
-    virtual void generateIntInTree(const JsonParser::JsonValue &value, TreeNodeRef node);
-    virtual void generateBoolInTree(const JsonParser::JsonValue &value, TreeNodeRef node);
-    virtual void generateStringInTree(const JsonParser::JsonValue &value, TreeNodeRef node);
-    virtual void generateDoubleInTree(const JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void generateArrayInTree(JsonParser::JsonValue &value, TreeNodeRef node, bool addNew);
+    virtual void generateObjectInTree(JsonParser::JsonValue &value, TreeNodeRef node, bool addNew);
+    virtual void generateIntInTree(JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void generateBoolInTree(JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void generateStringInTree(JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void generateDoubleInTree(JsonParser::JsonValue &value, TreeNodeRef node);
     virtual void generateNullInTree(TreeNodeRef node);
     std::shared_ptr<TreeNodeView> _treeView;
   };
@@ -335,16 +356,16 @@ namespace mforms {
   public:
     JsonGridView();
     virtual ~JsonGridView();
-    void setJson(const JsonParser::JsonValue &val);
+    void setJson(JsonParser::JsonValue &val);
 
   private:
     void init();
-    virtual void generateArrayInTree(const JsonParser::JsonValue &value, TreeNodeRef node, bool addNew);
-    virtual void generateObjectInTree(const JsonParser::JsonValue &value, TreeNodeRef node, bool addNew);
-    virtual void generateIntInTree(const JsonParser::JsonValue &value, TreeNodeRef node);
-    virtual void generateBoolInTree(const JsonParser::JsonValue &value, TreeNodeRef node);
-    virtual void generateStringInTree(const JsonParser::JsonValue &value, TreeNodeRef node);
-    virtual void generateDoubleInTree(const JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void generateArrayInTree(JsonParser::JsonValue &value, TreeNodeRef node, bool addNew);
+    virtual void generateObjectInTree(JsonParser::JsonValue &value, TreeNodeRef node, bool addNew);
+    virtual void generateIntInTree(JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void generateBoolInTree(JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void generateStringInTree(JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void generateDoubleInTree(JsonParser::JsonValue &value, TreeNodeRef node);
     virtual void generateNullInTree(TreeNodeRef node);
     std::shared_ptr<TreeNodeView> _gridView;
   };

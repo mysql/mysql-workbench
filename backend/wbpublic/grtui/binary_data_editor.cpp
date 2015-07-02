@@ -123,7 +123,7 @@ public:
       _tree.add_column(mforms::StringColumnType, base::strfmt("%X", i), 25, !read_only);
     _tree.end_columns();
 
-    _tree.set_cell_edit_handler(boost::bind(&HexDataViewer::set_cell_value, this, _1, _2, _3));
+    _tree.set_cell_edit_handler(std::bind(&HexDataViewer::set_cell_value, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
   }
 
   virtual void data_changed()
@@ -363,9 +363,18 @@ public:
     : BinaryDataViewer(owner)
   {
     set_spacing(8);
+    mforms::JsonTabView  jsw;
+
+
     _jsonView.setJson(value);
     add(&_jsonView, true, true);
     //scoped_connect(_jsonView.textViewTextChanged(), boost::bind(&JsonDataViewer::edited, this));
+  }
+
+  ~JsonDataViewer()
+  {
+    int a = 0;
+    ++a;
   }
 
   virtual void data_changed() override
@@ -562,6 +571,8 @@ void BinaryDataEditor::setup()
   scoped_connect(_close.signal_clicked(),boost::bind(&BinaryDataEditor::close, this));
   scoped_connect(_import.signal_clicked(),boost::bind(&BinaryDataEditor::import_value, this));
   scoped_connect(_export.signal_clicked(),boost::bind(&BinaryDataEditor::export_value, this));
+
+  set_release_on_close(true);
 
   set_size(640, 500);
   center();
