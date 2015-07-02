@@ -380,6 +380,8 @@ namespace wb
     void set_active_schema(const std::string &schema);
 
     void set_no_connection();
+    
+    void set_enabled(bool enabled);
 
     void update_live_object_state(ObjectType type, const std::string &schema_name, const std::string &old_obj_name, const std::string &new_obj_name);
 

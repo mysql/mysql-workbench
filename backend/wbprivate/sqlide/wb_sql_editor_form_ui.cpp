@@ -159,6 +159,20 @@ mforms::MenuBar *SqlEditorForm::get_menubar()
         limit_rows(active_limit);
     }
 
+    _menu->find_item("query.cancel")->add_validator( [this](){ return is_running_query() && connected(); } );
+    _menu->find_item("query.execute")->add_validator( [this](){ return !is_running_query() && connected() && (active_sql_editor_panel() ? active_sql_editor_panel()->get_name() == "db.query.QueryBuffer" : false); }  );
+    _menu->find_item("query.reconnect")->add_validator( [this](){ return !is_running_query(); }  );
+    _menu->find_item("wb.sqlide.executeToTextOutput")->add_validator( [this](){ return !is_running_query() && connected(); }  );
+    _menu->find_item("wb.sqlide.verticalOutput")->add_validator( [this](){ return !is_running_query() && connected(); }  );
+    _menu->find_item("query.execute_current_statement")->add_validator( [this](){ return !is_running_query() && connected() && (active_sql_editor_panel() ? active_sql_editor_panel()->get_name() == "db.query.QueryBuffer" : false); }  );
+    _menu->find_item("query.explain_current_statement")->add_validator( [this](){ return !is_running_query() && connected() && (active_sql_editor_panel() ? active_sql_editor_panel()->get_name() == "db.query.QueryBuffer" : false); }  );
+    _menu->find_item("query.commit")->add_validator( [this](){ return !is_running_query() && connected() && !auto_commit(); }  );
+    _menu->find_item("query.rollback")->add_validator( [this](){ return !is_running_query() && connected() && !auto_commit(); }  );
+    _menu->find_item("query.stopOnError")->add_validator( [this](){ return !is_running_query(); }  );
+    _menu->find_item("query.autocommit")->add_validator( [this](){ return !is_running_query() && connected(); }  );
+    _menu->find_item("query.gatherPSInfo")->add_validator( [this](){ return !is_running_query() && connected() && bec::is_supported_mysql_version_at_least(_version, 5, 5); }  );
+    _menu->find_item("wb.sqlide.runScript")->add_validator( [this](){ return connected(); });
+
     update_menu_and_toolbar();
     
     _menu->set_item_enabled("query.save_edits", false);
@@ -182,30 +196,18 @@ void SqlEditorForm::update_menu_and_toolbar()
   
   bool running = is_running_query();
   bool connected = this->connected();
-
+  
   if (_menu)
   {
-    _menu->set_item_enabled("query.cancel", running && connected);
-    _menu->set_item_enabled("query.execute", !running && connected);
-    _menu->set_item_enabled("query.reconnect", !running);
-    _menu->set_item_enabled("wb.sqlide.executeToTextOutput", !running && connected);
-    _menu->set_item_enabled("query.execute_current_statement", !running && connected);
-    _menu->set_item_enabled("query.explain_current_statement", !running && connected);
-    _menu->set_item_enabled("query.commit", !running && !auto_commit() && connected);
-    _menu->set_item_enabled("query.rollback", !running && !auto_commit() && connected);
-    _menu->set_item_enabled("query.stopOnError", connected);
+    _menu->validate();
+
     mforms::MenuItem *item = _menu->find_item("query.autocommit");
     if (item)
-    {
-      item->set_enabled(!running && connected);
       item->set_checked(auto_commit());    
-    }
+
     item = _menu->find_item("query.gatherPSInfo");
     if (item)
-    {
-      item->set_enabled(!running && connected && bec::is_supported_mysql_version_at_least(_version, 5, 5));
       item->set_checked(collect_ps_statement_events());
-    }
   }
 
   if (_toolbar)

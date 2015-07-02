@@ -505,7 +505,7 @@ void CommandUI::add_plugins_menu_items(mforms::MenuItem *parent, const std::stri
   {
     mforms::MenuItem *item = mforms::manage(new mforms::MenuItem((*iter)->caption()));
     item->set_name(std::string("plugin:").append(*(*iter)->name()));
-    item->set_validator(boost::bind(&CommandUI::validate_plugin_command, this, *iter));
+    item->add_validator(boost::bind(&CommandUI::validate_plugin_command, this, *iter));
     item->validate();
     scoped_connect(item->signal_clicked(),boost::bind((void(CommandUI::*)(const std::string&))&CommandUI::activate_command, this, item->get_name()));
     parent->add_item(item);
@@ -740,7 +740,7 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
         {
           item->set_enabled(true);
           if (validator)
-            item->set_validator(validator);
+            item->add_validator(validator);
         }
       }
             

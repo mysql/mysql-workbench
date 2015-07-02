@@ -1854,6 +1854,13 @@ void LiveSchemaTree::set_no_connection()
 
 //--------------------------------------------------------------------------------------------------
 
+void LiveSchemaTree::set_enabled(bool enabled)
+{
+    _model_view->set_enabled(enabled);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 std::string LiveSchemaTree::get_filter_wildcard(const std::string& filter, FilterType type)
 {
   std::string wildcard = filter;

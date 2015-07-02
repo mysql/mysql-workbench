@@ -280,10 +280,10 @@ mforms::MenuBar *ModelDiagramForm::get_menubar()
     
     mforms::MenuItem *item = _menu->find_item("wb.edit.editSelectedFigure");
     if (item)
-      item->set_validator(boost::bind(&ModelDiagramForm::has_selection, this));
+      item->add_validator(boost::bind(&ModelDiagramForm::has_selection, this));
     item = _menu->find_item("wb.edit.editSelectedFigureInNewWindow");
     if (item)
-      item->set_validator(boost::bind(&ModelDiagramForm::has_selection, this));
+      item->add_validator(boost::bind(&ModelDiagramForm::has_selection, this));
   }
   revalidate_menu();
   return _menu;
