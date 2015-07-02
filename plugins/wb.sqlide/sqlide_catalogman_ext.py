@@ -26,6 +26,13 @@ from wb_admin_utils import make_panel_header
 from workbench.utils import human_size, Version
 
 def show_schema_manager(editor, selection, table_maintenance=False):
+    try:
+        editor.executeManagementQuery("select 1", 0)
+    except grt.DBError, e:
+        mforms.Utilities.show_error("Schema Inspector", "Can not launch the Schema Inspector because the server is unreacheble.", "OK", "", "")
+        log_error("Can not launch the Schema Inspector because the server is unreacheble.\n")
+        return False
+    
     for schema_name in selection:
         sman = SchemaManager(editor, schema_name)
         dpoint = mforms.fromgrt(editor.dockingPoint)

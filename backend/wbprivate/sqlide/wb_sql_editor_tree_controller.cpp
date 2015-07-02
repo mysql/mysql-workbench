@@ -1232,11 +1232,17 @@ wb::LiveSchemaTree::ObjectType SqlEditorTreeController::fetch_object_type(const 
 void SqlEditorTreeController::tree_refresh()
 {
   if (_owner->connected())
+  {
     live_schemata_refresh_task->exec(false,
                                    boost::bind((grt::StringRef(SqlEditorTreeController::*)(grt::GRT *, SqlEditorForm::Ptr))&SqlEditorTreeController::do_refresh_schema_tree_safe, this, _1,
                                                weak_ptr_from(_owner)));
+    _schema_tree->set_enabled(true);
+  }
   else
+  {
     _schema_tree->set_no_connection();
+    _schema_tree->set_enabled(false);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
