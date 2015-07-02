@@ -92,7 +92,7 @@ DBSearchFilterPanel::DBSearchFilterPanel(): Box(false), _search_box(true), _filt
 
   _filter_tree.add_column(mforms::StringColumnType, "", 150, true);
   _filter_tree.end_columns();
-  _filter_tree.set_cell_edit_handler(boost::bind(&DBSearchFilterPanel::cell_edited, this, _1, _2, _3));
+  _filter_tree.set_cell_edit_handler(std::bind(&DBSearchFilterPanel::cell_edited, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
   _filter_tree.add_node()->set_string(0, "Schema.Table.Column");
   _hint_label.set_text("Place list of patterns in the form of schema.table.[column].\nYou can use % or _ as wildcarts.");
 //  _table.add(&_filter_tree, 1, 2, 3, 4, mforms::FillAndExpand);

@@ -91,6 +91,7 @@ public:
 private:
   bool reset(Recordset_data_storage_Ptr data_storage_ptr, bool rethrow);
   void data_edited();
+  void binary_editor_closed();
 
 public:
   RowId real_row_count() const;

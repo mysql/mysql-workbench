@@ -41,7 +41,6 @@
 
 DEFAULT_LOG_DOMAIN("spatial");
 
-
 class RecordsetLayer : public spatial::Layer
 {
   Recordset::Ptr _rset;
@@ -275,7 +274,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _layer_tree->add_column(mforms::IconStringColumnType, "Layer", 120, false, true);
   _layer_tree->add_column(mforms::StringColumnType, "Source", 200, false, true);
   _layer_tree->end_columns();
-  _layer_tree->set_cell_edit_handler(boost::bind(&SpatialDataView::tree_toggled, this, _1, _3));
+  _layer_tree->set_cell_edit_handler(std::bind(&SpatialDataView::tree_toggled, this, std::placeholders::_1, std::placeholders::_3));
   _layer_tree->set_context_menu(_layer_menu);
   _layer_tree->signal_node_activated()->connect(boost::bind(&SpatialDataView::activate_layer, this, _1, _2));
   _layer_tree->signal_changed()->connect(boost::bind(&SpatialDataView::activate_layer, this, mforms::TreeNodeRef(), -42));// unused dummy value... should just not conflict with possibly valid values

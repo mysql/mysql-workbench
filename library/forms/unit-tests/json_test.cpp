@@ -170,18 +170,18 @@ TEST_FUNCTION(10)
   const JsonObject& objRoot = (const JsonObject&)value;
 
   // check getter
-  JsonValue value1 = objRoot.get("colorsArray");
+  auto value1 = objRoot.get("colorsArray");
   
-  //no exception should be thrown, only number should be null
-  double number = value1.getDouble();
+  //no exception shouldbe thrown, only number shloulb be null
+  auto number = value1.getDouble();
   ensure_true("Retured value should be equal 0", number == 0);
 
-  JsonArray jsArray = (const JsonArray&)value1;
+  auto jsArray = (const JsonArray&)value1;
   ensure_true("It should be JsonArray and it should contains tree elements", jsArray.size() == 3);
-  for (JsonArray::Iterator it = jsonArray.begin(); it != jsonArray.end(); ++it)
+  for (auto entry : jsonArray)
   {
-    ensure_true("Array should contains JsonObjects", it->getType() == VObject);
-    JsonObject value2 = (const JsonObject&)*it;
+    ensure_true("Array should contains JsonObjects", entry.getType() == VObject);
+    auto value2 = (const JsonObject&)entry;
     ensure_true("Every object in array should contains two elemants", value2.size() == 2);
   }
 }

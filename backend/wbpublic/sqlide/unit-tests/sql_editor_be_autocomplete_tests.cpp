@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -50,7 +50,7 @@ struct ac_test_entry
 
 BEGIN_TEST_DATA_CLASS(sql_editor_be_autocomplete_tests)
 protected:
-  WBTester *_tester;
+  WBTester _tester;
   MySQLEditor::Ref _sql_editor;
   GrtVersionRef _version;
 
@@ -64,8 +64,7 @@ public:
 TEST_DATA_CONSTRUCTOR(sql_editor_be_autocomplete_tests)
   : _conn(new sql::Dbc_connection_handler()), _cache(NULL)
 {
-  _tester = new WBTester();
-  populate_grt(*_tester);
+  populate_grt(_tester.grt, _tester);
 
   // Auto completion needs a cache for object name look up, so we have to set up one
   // with all bells and whistles.
@@ -94,30 +93,32 @@ TEST_MODULE(sql_editor_be_autocomplete_tests, "SQL code completion tests");
  */
 TEST_FUNCTION(5)
 {
-  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
-  setup_env(connectionProperties);
+  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
+  setup_env(_tester.grt, connectionProperties);
 
   sql::DriverManager *dm = sql::DriverManager::getDriverManager();
   _conn->ref = dm->getConnection(connectionProperties);
 
+  base::remove("testconn.cache");
+  _cache = new AutoCompleteCache("testconn", boost::bind(&Test_object_base<sql_editor_be_autocomplete_tests>::get_connection, this, _1),
+    ".", NULL);
+
   std::auto_ptr<sql::Statement> stmt(_conn->ref->createStatement());
 
+  g_usleep(1000);
   sql::ResultSet *res = stmt->executeQuery("SELECT VERSION() as VERSION");
   if (res && res->next())
   {
     std::string version_string = res->getString("VERSION");
-    _version = parse_version(version_string);
+    _version = parse_version(_tester.grt, version_string);
   }
   delete res;
 
   ensure("Server version is invalid", _version.is_valid());
 
-  _tester->get_rdbms()->version(_version);
+  _tester.get_rdbms()->version(_version);
   version = (int)(_version->majorNumber() * 10000 + _version->minorNumber() * 100 + _version->releaseNumber());
-
-  _cache = new AutoCompleteCache("temp/testconn", boost::bind(&Test_object_base<sql_editor_be_autocomplete_tests>::get_connection, this, _1),
-    ".", NULL);
-
+  
   // Copy a current version of the code editor configuration file to the test data folder.
   gchar *contents;
   gsize length;
@@ -131,14 +132,14 @@ TEST_FUNCTION(5)
   else
     fail("Could not copy code editor configuration");
 
-  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
-  parser::ParserContext::Ref context = services->createParserContext(_tester->get_rdbms()->characterSets(),
+  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(_tester.grt);
+  parser::ParserContext::Ref context = services->createParserContext(_tester.get_rdbms()->characterSets(),
     _version, false);
 
-  _autocomplete_context = services->createParserContext(_tester->get_rdbms()->characterSets(),
+  _autocomplete_context = services->createParserContext(_tester.get_rdbms()->characterSets(),
     _version, false);
 
-  _sql_editor = MySQLEditor::create(context, _autocomplete_context);
+  _sql_editor = MySQLEditor::create(_tester.grt, context, _autocomplete_context);
   _sql_editor->set_current_schema("sakila");
   _sql_editor->set_auto_completion_cache(_cache);
 
@@ -180,11 +181,36 @@ TEST_FUNCTION(10)
 }
 
 //--------------------------------------------------------------------------------------------------
-// Due to the tut nature, this must be executed as a last test always,
-// we can't have this inside of the d-tor.
-TEST_FUNCTION(99)
+
+/**
+ * Collecting AC info for each position in a simple but typical statement.
+ */
+TEST_FUNCTION(15)
 {
-  delete _tester;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Testing 1-2 examples for each possible query type (i.e. major keywords with a typical case).
+ * Possibilities are endless so we can only peek for possible problems.
+ * Note: for now no language parts are included that are introduced in 5.6 or later.
+ * Add more test cases for specific bugs.
+ */
+TEST_FUNCTION(20)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Collecting AC info for the same statement as in TC 15, but this time as if we were writing
+ * each letter. This usually causes various parse errors to appear, but we want essentially the same
+ * output as for the valid statement (except for not-yet-written references).
+ */
+TEST_FUNCTION(90)
+{
 }
 
 END_TESTS
+
