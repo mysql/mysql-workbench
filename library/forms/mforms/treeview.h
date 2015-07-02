@@ -377,7 +377,7 @@ namespace mforms {
      if this handler is set, it must call set() itself whenever a cell is edited
      otherwise changes will not be committed.
      */
-    void set_cell_edit_handler(const boost::function<void (TreeNodeRef, int, std::string)> &handler);
+    void set_cell_edit_handler(const std::function<void (TreeNodeRef, int, std::string)> &handler);
 #endif
     /** Sets a context menu to be attached to the treeview, to be shown on right click
      
@@ -463,7 +463,7 @@ namespace mforms {
     boost::signals2::signal<void ()>  _signal_changed;
     boost::signals2::signal<void (TreeNodeRef, int)>  _signal_activated;
     boost::signals2::signal<void (TreeNodeRef, bool)> _signal_expand_toggle;
-    boost::function<void (TreeNodeRef, int, std::string)> _cell_edited;
+    std::function<void (TreeNodeRef, int, std::string)> _cell_edited;
     boost::signals2::signal<void (int)> _signal_column_resized;
     boost::function<std::vector<std::string> (TreeNodeRef)> _overlay_icons_for_node;
     ContextMenu *_context_menu;

@@ -107,7 +107,7 @@ SchemaMatchingPage::SchemaMatchingPage(grtui::WizardForm *form, const char *name
   _tree.add_column(mforms::IconStringColumnType, "", 300, false);
   _tree.end_columns();
   _tree.set_context_menu(&_menu);
-  _tree.set_cell_edit_handler(boost::bind(&SchemaMatchingPage::cell_edited, this, _1, _2, _3));
+  _tree.set_cell_edit_handler(std::bind(&SchemaMatchingPage::cell_edited, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
   scoped_connect(_tree.signal_changed(), boost::bind(&SchemaMatchingPage::selection_changed, this));
 
   add(&_tree, true, true);
