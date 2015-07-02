@@ -442,7 +442,7 @@ void GraphRenderer::recalc_focus_nodes()
   }
 
   // add edges to avoid unconnected nodes/pieces
-  std::remove_if(_alledges.begin(), _alledges.end(), edge_is_special);
+  _alledges.erase(std::remove_if(_alledges.begin(), _alledges.end(), edge_is_special), _alledges.end());
   std::for_each(_allnodes.begin(), _allnodes.end(), reset_visited);
   if(_allnodes.size() > 0)
   {
