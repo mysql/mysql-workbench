@@ -1212,6 +1212,54 @@ std::string escape_sql_string(const std::string &s, bool wildcards)
 }
 
 /**
+ * Escape a string to be used in a JSON
+ */
+std::string escape_json_string(const std::string &s)
+{
+  std::string result;
+  result.reserve(s.size());
+  for (std::string::const_iterator ch= s.begin(); ch != s.end(); ++ch)
+  {
+    char escape = 0;
+    switch (*ch)
+    {
+    case '"':
+      escape = '"';
+      break;
+    case '\\':
+      escape = '\\';
+      break;
+    case '\b':
+      escape = 'b';
+      break;
+    case '\f':
+      escape = 'f';
+      break;
+    case '\n':
+      escape = 'n';
+      break;
+    case '\r':
+      escape = 'r';
+      break;
+    case '\t':
+      escape = 't';
+      break;
+    default:
+      break;
+    }
+    if (escape)
+    {
+      result.push_back('\\');
+      result.push_back(escape);
+    }
+    else
+      result.push_back(*ch);
+  }
+  return result;
+
+}
+
+/**
  * Removes repeated quote chars and supported escape sequences from the given string.
  * Invalid escape sequences are handled like in the server, by dropping the backslash and
  * using the wrong char as normal char.
