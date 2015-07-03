@@ -96,6 +96,7 @@ namespace base
   BASELIBRARY_PUBLIC_FUNC std::string make_valid_filename(const std::string &name);
   
   BASELIBRARY_PUBLIC_FUNC std::string escape_sql_string(const std::string &string, bool wildcards = false); // "strings" or 'strings'
+  BASELIBRARY_PUBLIC_FUNC std::string escape_json_string(const std::string &string);
   BASELIBRARY_PUBLIC_FUNC std::string unescape_sql_string(const std::string &string, char escape_char);
   BASELIBRARY_PUBLIC_FUNC std::string escape_backticks(const std::string &string);  // `identifier`
   BASELIBRARY_PUBLIC_FUNC std::string extract_option_from_command_line(const std::string& option,
