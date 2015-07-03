@@ -462,10 +462,14 @@ class csv_module(base_module):
                 self.dialect = csv.Sniffer().sniff(csvsample)
                 self.has_header = csv.Sniffer().has_header(csvsample)
                 csvfile.seek(0)
+                self.options['filedseparator']['value'] = self.dialect.delimiter 
+                self.options['lineseparator']['value'] = self.dialect.lineterminator 
+                self.options['encolsestring']['value'] = self.dialect.quotechar 
             else:
                 self.dialect.delimiter = self.options['filedseparator']['value']
                 self.dialect.lineterminator = self.options['lineseparator']['value']
                 self.dialect.quotechar = self.options['encolsestring']['value']
+                csvfile.seek(0)
                 
             try:
                 reader = UniReader(csvfile, self.dialect, encoding=self._encoding)
