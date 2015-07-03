@@ -436,8 +436,7 @@ class csv_module(base_module):
                             val = row[col_order[col]].replace(self._decimal_separator, ',')
                         elif col_type[col] == 'datetime':
                             val = datetime.datetime.strptime(row[col_order[col]], self._date_format).strftime("%Y-%m-%d %H:%M:%S")
-
-                        self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val), 0)
+                        self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val.replace("\\", "\\\\").replace('"', '\\"')), 0)
                     else:
                         try:
                             self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 0)
@@ -618,7 +617,7 @@ class json_module(base_module):
                         elif col_type[col] == 'datetime':
                             val = datetime.datetime.strptime(row[col_order[col]], self._date_format).strftime("%Y-%m-%d %H:%M:%S")
                             
-                        self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val), 0)
+                        self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val.replace("\\", "\\\\").replace('"', '\\"')), 0)
                     else:
                         try:
                             self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 0)
