@@ -211,7 +211,7 @@ class base_module:
             self._columns.append({'name': c.name, 'type': c.columnType, 
                    'is_string': True if c.columnType == "string" else False, 
                    'is_number': True if c.columnType == "int" else False, 
-                   'is_date_or_time': any(x in c.columnType for x in ['time', 'datetime', 'date']), 
+                   'is_date_or_time': any(x in c.columnType for x in ['timestamp', 'time', 'datetime', 'date']), 
                    'is_bin': any(x in c.columnType for x in ['geo', 'blob']),
                    'is_float': True if c.columnType == "real" else False,
                    'value': None})
@@ -564,7 +564,7 @@ class json_module(base_module):
                     self._current_row = rset.currentRow + 1
                     row = []
                     for col in self._columns:
-                        if col['is_string'] or col['is_bin']:
+                        if col['is_string'] or col['is_bin'] or col['is_date_or_time']:
                             row.append("\"%s\":%s" % (col['name'], json.dumps(rset.stringFieldValueByName(col['name']))))
                         elif col['is_number']:
                             row.append("\"%s\":%s" % (col['name'], json.dumps(rset.intFieldValueByName(col['name']))))
