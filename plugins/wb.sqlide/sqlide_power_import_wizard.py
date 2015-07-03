@@ -158,6 +158,7 @@ class ConfigurationPage(WizardPage):
         self.column_mapping = []
         self.ds_show_count = 0
         self.df_show_count = 0
+        self.opts_mapping = {}
 
     def go_cancel(self):
         self.main.close()
@@ -220,12 +221,14 @@ class ConfigurationPage(WizardPage):
                     opt_val.set_value(opts['value'])
                     opt_val.add_changed_callback(lambda field = opt_val, output = opts: set_text_entry(field, output))
                     label_box.add_end(opt_val, False, False)
+                    self.opts_mapping[name] = lambda val: opt_val.set_value(val)
                 if opts['type'] == 'select':
                     opt_val = mforms.newSelector()
                     opt_val.set_size(75, -1)
                     opt_val.add_items([v for v in opts['opts']])
                     opt_val.set_selected(opts['opts'].values().index(opts['value']))
                     opt_val.add_changed_callback(lambda selector = opt_val, output = opts: set_selector_entry(selector, output))
+                    self.opts_mapping[name] = lambda input, values =  opts['opts'].values(): opt_val.set_selected(values.index(input))
                     label_box.add_end(opt_val, False, False)
                 box.add(label_box, False, False)
             self.optpanel.add(box)
@@ -327,7 +330,9 @@ class ConfigurationPage(WizardPage):
         self.df_show_count = 0
         
         self.create_preview_table(self.call_analyze())
-        
+        if self.input_file_type == 'csv' and self.active_module.dialect:
+            for name, opts in self.active_module.options.items():
+                self.opts_mapping[name](opts['value'])
     
     def call_analyze(self):
         self.active_module.set_filepath(self.main.select_file_page.importfile_path.get_string_value())
