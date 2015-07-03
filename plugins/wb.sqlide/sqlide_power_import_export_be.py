@@ -297,7 +297,7 @@ class csv_module(base_module):
         base_module.__init__(self, editor, is_import)
         self.name = "csv"
         self.title = self.name
-        self.options = {'filedseparator': {'description':'Field Separator', 'type':'select', 'opts':{'TAB':'\t',';':';', ':':':'}, 'value':';', 'entry': None}, 
+        self.options = {'filedseparator': {'description':'Field Separator', 'type':'select', 'opts':{'TAB':'\t',';':';', ':':':', ',':','}, 'value':';', 'entry': None},
                 'lineseparator': {'description':'Line Separator', 'type':'select','opts':{"CR":'\r', "CR LF":'\r\n', "LF":'\n'}, 'value':'\n', 'entry': None}, 
                 'encolsestring': {'description':'Enclose Strings in', 'type':'text', 'value':'"', 'entry': None}};
         
