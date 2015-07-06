@@ -363,9 +363,6 @@ public:
     : BinaryDataViewer(owner)
   {
     set_spacing(8);
-    mforms::JsonTabView  jsw;
-
-
     _jsonView.setJson(value);
     add(&_jsonView, true, true);
     //scoped_connect(_jsonView.textViewTextChanged(), boost::bind(&JsonDataViewer::edited, this));
@@ -373,8 +370,6 @@ public:
 
   ~JsonDataViewer()
   {
-    int a = 0;
-    ++a;
   }
 
   virtual void data_changed() override
