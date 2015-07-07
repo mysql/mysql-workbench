@@ -159,19 +159,45 @@ mforms::MenuBar *SqlEditorForm::get_menubar()
         limit_rows(active_limit);
     }
 
-    _menu->find_item("query.cancel")->add_validator( [this](){ return is_running_query() && connected(); } );
-    _menu->find_item("query.execute")->add_validator( [this](){ return !is_running_query() && connected() && (active_sql_editor_panel() ? active_sql_editor_panel()->get_name() == "db.query.QueryBuffer" : false); }  );
-    _menu->find_item("query.reconnect")->add_validator( [this](){ return !is_running_query(); }  );
-    _menu->find_item("wb.sqlide.executeToTextOutput")->add_validator( [this](){ return !is_running_query() && connected(); }  );
-    _menu->find_item("wb.sqlide.verticalOutput")->add_validator( [this](){ return !is_running_query() && connected(); }  );
-    _menu->find_item("query.execute_current_statement")->add_validator( [this](){ return !is_running_query() && connected() && (active_sql_editor_panel() ? active_sql_editor_panel()->get_name() == "db.query.QueryBuffer" : false); }  );
-    _menu->find_item("query.explain_current_statement")->add_validator( [this](){ return !is_running_query() && connected() && (active_sql_editor_panel() ? active_sql_editor_panel()->get_name() == "db.query.QueryBuffer" : false); }  );
-    _menu->find_item("query.commit")->add_validator( [this](){ return !is_running_query() && connected() && !auto_commit(); }  );
-    _menu->find_item("query.rollback")->add_validator( [this](){ return !is_running_query() && connected() && !auto_commit(); }  );
-    _menu->find_item("query.stopOnError")->add_validator( [this](){ return !is_running_query(); }  );
-    _menu->find_item("query.autocommit")->add_validator( [this](){ return !is_running_query() && connected(); }  );
-    _menu->find_item("query.gatherPSInfo")->add_validator( [this](){ return !is_running_query() && connected() && bec::is_supported_mysql_version_at_least(_version, 5, 5); }  );
-    _menu->find_item("wb.sqlide.runScript")->add_validator( [this](){ return connected(); });
+    auto item = _menu->find_item("query.cancel");
+    if(item != nullptr)
+      item->add_validator([this](){ return is_running_query() && connected(); });
+    item = _menu->find_item("query.execute");
+    if (item != nullptr)
+      item->add_validator([this](){ return !is_running_query() && connected() && (active_sql_editor_panel() ? active_sql_editor_panel()->get_name() == "db.query.QueryBuffer" : false); });
+    item = _menu->find_item("query.reconnect");
+    if (item != nullptr)
+      item->add_validator([this](){ return !is_running_query(); });
+    item = _menu->find_item("wb.sqlide.executeToTextOutput");
+    if (item != nullptr)
+      item->add_validator([this](){ return !is_running_query() && connected(); });
+    item = _menu->find_item("wb.sqlide.verticalOutput");
+    if (item != nullptr)
+      item->add_validator([this](){ return !is_running_query() && connected(); });
+    item = _menu->find_item("query.execute_current_statement");
+    if (item != nullptr)
+      item->add_validator([this](){ return !is_running_query() && connected() && (active_sql_editor_panel() ? active_sql_editor_panel()->get_name() == "db.query.QueryBuffer" : false); });
+    item = _menu->find_item("query.explain_current_statement");
+    if (item != nullptr)
+      item->add_validator([this](){ return !is_running_query() && connected() && (active_sql_editor_panel() ? active_sql_editor_panel()->get_name() == "db.query.QueryBuffer" : false); });
+    item = _menu->find_item("query.commit");
+    if (item != nullptr)
+      item->add_validator([this](){ return !is_running_query() && connected() && !auto_commit(); });
+    item = _menu->find_item("query.rollback");
+    if (item != nullptr)
+      item->add_validator([this](){ return !is_running_query() && connected() && !auto_commit(); });
+    item = _menu->find_item("query.stopOnError");
+    if (item != nullptr)
+      item->add_validator([this](){ return !is_running_query(); });
+    item = _menu->find_item("query.autocommit");
+    if (item != nullptr)
+      item->add_validator([this](){ return !is_running_query() && connected(); });
+    item = _menu->find_item("query.gatherPSInfo");
+    if (item != nullptr)
+      item->add_validator([this](){ return !is_running_query() && connected() && bec::is_supported_mysql_version_at_least(_version, 5, 5); });
+    item = _menu->find_item("wb.sqlide.runScript");
+    if (item != nullptr)
+      item->add_validator([this](){ return connected(); });
 
     update_menu_and_toolbar();
     
