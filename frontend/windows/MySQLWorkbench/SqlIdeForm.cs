@@ -719,6 +719,8 @@ namespace MySQL.GUI.Workbench
 
     public TabPage SelectedDocument()
     {
+      if (mainContentTabControl.TabCount == 0)
+        return null;
       return mainContentTabControl.SelectedTab;
     }
 
