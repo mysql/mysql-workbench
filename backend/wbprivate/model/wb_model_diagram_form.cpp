@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -74,8 +74,8 @@ static const double zoom_steps[]= {
 };
 
 ModelDiagramForm::ModelDiagramForm(WBComponent *owner, const model_DiagramRef &view)
-: _catalog_tree(NULL), _view(0), _owner(owner), _model_diagram(view), _mini_view(0), _menu(0),
-_toolbar(0), _tools_toolbar(0), _options_toolbar(0)
+  : _catalog_tree(NULL), _view(NULL), _owner(owner), _model_diagram(view), _mini_view(NULL), _menu(NULL),
+  _toolbar(NULL), _tools_toolbar(NULL), _options_toolbar(NULL)
 {
   _drag_panning= false;
   _space_panning= false;
@@ -166,6 +166,9 @@ extern std::string find_icon_name(std::string icon_name, bool use_win8);
 
 void ModelDiagramForm::update_toolbar_icons()
 {
+  if (_toolbar == NULL)
+    return; // Can happen if the diagram hasn't shown yet.
+
   bool use_win8;
 
   switch (base::Color::get_active_scheme())
