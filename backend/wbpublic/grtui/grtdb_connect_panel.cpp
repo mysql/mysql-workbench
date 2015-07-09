@@ -263,10 +263,13 @@ void DbConnectPanel::init(DbConnection *conn, const db_mgmt_ConnectionRef &defau
   if (!_anonymous_connection->driver().is_valid())
     _anonymous_connection->driver(selected_driver());
   
-  if (default_conn.is_valid())
-    _connection->set_connection_and_update(_anonymous_connection);
-  else
-    _connection->set_connection_keeping_parameters(_anonymous_connection);
+  if (_stored_connection_sel.get_selected_index() == 0)
+  {
+    if (default_conn.is_valid())
+      _connection->set_connection_and_update(_anonymous_connection);
+    else
+      _connection->set_connection_keeping_parameters(_anonymous_connection);
+  }
 }
 
 
