@@ -8,7 +8,7 @@ include_directories(.
     ${Boost_INCLUDE_DIRS}
 )
 
-add_subdirectory(grammar)
+add_subdirectory(grammars)
 
 add_library(mysqlparser
     MySQLLexer.c

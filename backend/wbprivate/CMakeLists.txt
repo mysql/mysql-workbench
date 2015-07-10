@@ -14,7 +14,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/base
     ${PROJECT_SOURCE_DIR}/library/forms
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
-    ${PROJECT_SOURCE_DIR}/library/mysql.parser
+    ${PROJECT_SOURCE_DIR}/library/parsers
     ${PROJECT_SOURCE_DIR}/library/mysql.canvas/src
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}/frontend/common
