@@ -13,7 +13,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/modules/interfaces
     ${PROJECT_SOURCE_DIR}/ext/antlr-runtime
     ${PROJECT_SOURCE_DIR}/ext/antlr-runtime/include
-    ${PROJECT_SOURCE_DIR}/library/mysql.parser   
+    ${PROJECT_SOURCE_DIR}/library/parsers
     ${VSQLITE_INCLUDE_DIRS}
     ${GTK3_INCLUDE_DIRS}
     ${SIGC++_INCLUDE_DIRS}

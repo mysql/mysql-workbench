@@ -18,7 +18,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/forms/gtk/src
     ${PROJECT_SOURCE_DIR}/generated/grti
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
-    ${PROJECT_SOURCE_DIR}/library/mysql.parser
+    ${PROJECT_SOURCE_DIR}/library/parsers
     ${GTK3_INCLUDE_DIRS}
     ${CAIRO_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
