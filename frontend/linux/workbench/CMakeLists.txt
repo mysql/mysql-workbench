@@ -42,7 +42,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
     ${PROJECT_SOURCE_DIR}/library/mysql.canvas/src
-    ${PROJECT_SOURCE_DIR}/library/mysql.parser
+    ${PROJECT_SOURCE_DIR}/library/parsers
     ${GTK3_INCLUDE_DIRS}
     ${CAIRO_INCLUDE_DIRS}
     ${LIBZIP_INCLUDE_DIRS}
