@@ -37,12 +37,12 @@ namespace JsonParser {
 
     JsonObject();
     // move operations
-    JsonObject(JsonObject&& val);
+    JsonObject(JsonObject &&val);
     JsonObject(const JsonObject &other);
     JsonObject &operator=(JsonObject &&val);
     JsonObject &operator=(const JsonObject &val);
 
-    JsonValue& operator [](const std::string& name);
+    JsonValue &operator [](const std::string &name);
 
     //bool operator !=(const JsonObject &rhs);
 
@@ -141,27 +141,27 @@ namespace JsonParser {
     JsonValue();
     JsonValue(const JsonValue &rhs);
     JsonValue &operator=(const JsonValue &rhs);
-    JsonValue &operator=(JsonValue&& rhs);
-    JsonValue(JsonValue&& rhs);
+    JsonValue &operator=(JsonValue &&rhs);
+    JsonValue(JsonValue &&rhs);
 
     explicit JsonValue(const std::string &val);
-    explicit JsonValue(std::string&& val);
+    explicit JsonValue(std::string &&val);
     explicit JsonValue(const char *val);
     explicit JsonValue(bool val);
     explicit JsonValue(int val);
     explicit JsonValue(double val);
     explicit JsonValue(const JsonObject &val);
-    explicit JsonValue(JsonObject&& val);
+    explicit JsonValue(JsonObject &&val);
     explicit JsonValue(const JsonArray &val);
     explicit JsonValue(JsonArray &&val);
 
     // implicit cast to actual element type. throw if its not possible
-    operator const JsonObject& () const;
-    operator const JsonArray& () const;
-    operator const int () const;
-    operator const double () const;
-    operator const bool () const;
-    operator const std::string& () const;
+    operator const JsonObject & () const;
+    operator const JsonArray & () const;
+    operator int () const;
+    operator double () const;
+    operator bool () const;
+    operator const std::string & () const;
 
     // access function
     double getDouble() const;
@@ -201,7 +201,7 @@ namespace JsonParser {
     explicit ParserException(const std::string &message) : std::runtime_error(message.c_str()) {}
   };
 
-  class MFORMS_EXPORT JsonReader : public boost::noncopyable
+  class MFORMS_EXPORT JsonReader
   {
     struct JsonToken
     {
@@ -250,7 +250,7 @@ namespace JsonParser {
     TokensConstIterator _tokenEnd;
   };
 
-  class MFORMS_EXPORT JsonWriter : public boost::noncopyable
+  class MFORMS_EXPORT JsonWriter
   {
   public:
     explicit JsonWriter(const JsonValue &value);
