@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,7 +29,14 @@ using namespace stub;
 using namespace tut;
 
 boost::function<mforms::DialogResult (void)> UtilitiesWrapper::message_callback;
-std::map<const std::string, std::string> UtilitiesWrapper::passwords;
+
+// the only reason why we're wrapping this map is so our unit tests don't segfault.  We're running into static initialisation order fiasco,
+// because the unit tests are created before main() runs, at which point they call different things.  Feel free to remove the wrapper once the problem is amended.
+/*static*/ std::map<const std::string, std::string>& UtilitiesWrapper::passwords()
+{
+  static std::map<const std::string, std::string> passwords_;
+  return passwords_;
+}
 
 DEFAULT_LOG_DOMAIN("mforms");
 
@@ -133,7 +140,7 @@ void UtilitiesWrapper::cancel_timeout(mforms::TimeoutHandle)
 
 void UtilitiesWrapper::store_password(const std::string &service, const std::string &account, const std::string &password)
 {
-  passwords[service+":"+account] = password;
+  passwords()[service + ":" + account] = password;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -167,9 +174,9 @@ bool UtilitiesWrapper::find_password(const std::string &service, const std::stri
             if (e) *e = 0;
             e = strchr(tmp, '\n');
             if (e) *e = 0;
-            passwords[std::string(line, tmp-line)] = tmp+1;
+            passwords()[std::string(line, tmp - line)] = tmp + 1;
             if (getenv("VERBOSE"))
-              g_message("%s=%s", std::string(line, tmp-line).c_str(), tmp+1);
+              g_message("%s=%s", std::string(line, tmp - line).c_str(), tmp + 1);
           }
         }
       }
@@ -179,16 +186,16 @@ bool UtilitiesWrapper::find_password(const std::string &service, const std::stri
     loaded_passwords = true;
   }
 
-  if (passwords.count(service+":"+account))
+  if (passwords().count(service + ":" + account))
   {
-    password = passwords[service+":"+account];
+    password = passwords()[service + ":" + account];
     ret_val = true;
   }
   else
   {
-    if (passwords.count(":"+account))
+    if (passwords().count(":" + account))
     {
-      password = passwords[":"+account];
+      password = passwords()[":" + account];
       ret_val = true;
     }
     else
