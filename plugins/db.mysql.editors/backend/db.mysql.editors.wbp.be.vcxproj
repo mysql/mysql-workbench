@@ -133,7 +133,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\library\base;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\generated;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\library\base;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\parsers;$(SolutionDir)\generated;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -151,7 +151,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\library\base;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\generated;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\library\base;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\parsers;$(SolutionDir)\generated;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
       <BrowseInformation>false</BrowseInformation>
     </ClCompile>
@@ -174,7 +174,7 @@
       <PreprocessorDefinitions>MYSQLWBMYSQLSUPPORTBACKEND_EXPORTS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\library\base;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\generated;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\library\base;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\parsers;$(SolutionDir)\generated;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -195,7 +195,7 @@
       <PreprocessorDefinitions>MYSQLWBMYSQLSUPPORTBACKEND_EXPORTS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\library\base;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\generated;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\library\base;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\parsers;$(SolutionDir)\generated;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -216,7 +216,7 @@
       <PreprocessorDefinitions>MYSQLWBMYSQLSUPPORTBACKEND_EXPORTS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\library\base;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\generated;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\library\base;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\parsers;$(SolutionDir)\generated;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -237,7 +237,7 @@
       <PreprocessorDefinitions>MYSQLWBMYSQLSUPPORTBACKEND_EXPORTS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\library\base;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\generated;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\library\base;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\parsers;$(SolutionDir)\generated;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -287,7 +287,7 @@
     <ProjectReference Include="..\..\..\library\grt\grt.vcxproj">
       <Project>{dc1ddaad-7dc1-4bc4-b6c8-b7cec998c7ed}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\library\mysql.parser\mysql.parser.vcxproj">
+    <ProjectReference Include="..\..\..\library\parsers\parsers.vcxproj">
       <Project>{f563e3de-39ba-4a9d-a6c2-9e9222e8f518}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\..\modules\db.mysql\db.mysql.grt.vcxproj">

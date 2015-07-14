@@ -431,7 +431,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cdbc", "library\cdbc\cdbc.v
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mforms.wr", "library\forms\winforms\mforms.wr.vcxproj", "{1D67C943-0432-4EE0-8AB0-915540C9538F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mysql.parser", "library\mysql.parser\mysql.parser.vcxproj", "{F563E3DE-39BA-4A9D-A6C2-9E9222E8F518}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "parsers", "library\parsers\parsers.vcxproj", "{F563E3DE-39BA-4A9D-A6C2-9E9222E8F518}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wbpublic.be", "backend\wbpublic\wbpublic.be.vcxproj", "{55EE797D-2B76-474B-82D6-1F96F7788AF8}"
 EndProject

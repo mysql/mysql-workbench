@@ -140,7 +140,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>MYSQL_PARSER_EXPORTS;BOOST_OPTIONAL_USE_OLD_DEFINITION_OF_NONE;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\parsers;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <MinimalRebuild>false</MinimalRebuild>
@@ -160,7 +160,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <MinimalRebuild>false</MinimalRebuild>
-      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\parsers;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -173,7 +173,7 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>MYSQL_PARSER_EXPORTS;BOOST_OPTIONAL_USE_OLD_DEFINITION_OF_NONE;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\parsers;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalOptions>-Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
@@ -188,7 +188,7 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>MYSQL_PARSER_EXPORTS;BOOST_OPTIONAL_USE_OLD_DEFINITION_OF_NONE;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\parsers;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalOptions>-Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
@@ -206,7 +206,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <MinimalRebuild>false</MinimalRebuild>
-      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\parsers;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -222,7 +222,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <MinimalRebuild>false</MinimalRebuild>
-      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\parsers;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -258,7 +258,7 @@
     <ProjectReference Include="..\..\library\grt\grt.vcxproj">
       <Project>{7de910df-4057-447d-98c3-5b1ece715ed5}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\library\mysql.parser\mysql.parser.vcxproj">
+    <ProjectReference Include="..\..\library\parsers\parsers.vcxproj">
       <Project>{f563e3de-39ba-4a9d-a6c2-9e9222e8f518}</Project>
     </ProjectReference>
   </ItemGroup>

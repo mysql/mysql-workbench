@@ -147,7 +147,7 @@
                 <File Id="file1112" Name="mforms.wr.dll"/>
                 <File Id="file1113" Name="wb.model.snippets.wbp.dll"/>
                 <File Id="file1114" Name="HTMLRenderer.dll"/>
-                <File Id="file1115" Name="mysql.parser.dll"/>
+                <File Id="file1115" Name="parsers.dll"/>
                 <File Id="wbcopytables.exe" Name="wbcopytables.exe"/>
                 <?if $(var.SETUP_TYPE) = "commercial" ?>
                 <File Id="file1117" Name="wb.model.advfind.wbp.dll"/>

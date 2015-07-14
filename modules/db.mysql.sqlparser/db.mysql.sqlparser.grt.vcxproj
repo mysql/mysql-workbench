@@ -136,7 +136,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\library\sql.parser\include;$(SolutionDir)\library\sql.parser\source\;$(SolutionDir)\library\sql.parser\source\windows;$(SolutionDir)\library\sql.parser\source;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\parsers;$(SolutionDir)\library\sql.parser\include;$(SolutionDir)\library\sql.parser\source\;$(SolutionDir)\library\sql.parser\source\windows;$(SolutionDir)\library\sql.parser\source;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;4703</DisableSpecificWarnings>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -156,7 +156,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\library\sql.parser\include;$(SolutionDir)\library\sql.parser\source\;$(SolutionDir)\library\sql.parser\source\windows;$(SolutionDir)\library\sql.parser\source;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\parsers;$(SolutionDir)\library\sql.parser\include;$(SolutionDir)\library\sql.parser\source\;$(SolutionDir)\library\sql.parser\source\windows;$(SolutionDir)\library\sql.parser\source;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;4703</DisableSpecificWarnings>
       <BrowseInformation>false</BrowseInformation>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
@@ -182,7 +182,7 @@
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
       <DisableSpecificWarnings>4996;4703</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\library\sql.parser\include;$(SolutionDir)\library\sql.parser\source\;$(SolutionDir)\library\sql.parser\source\windows;$(SolutionDir)\library\sql.parser\source;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\parsers;$(SolutionDir)\library\sql.parser\include;$(SolutionDir)\library\sql.parser\source\;$(SolutionDir)\library\sql.parser\source\windows;$(SolutionDir)\library\sql.parser\source;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -205,7 +205,7 @@
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
       <DisableSpecificWarnings>4996;4703</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\library\sql.parser\include;$(SolutionDir)\library\sql.parser\source\;$(SolutionDir)\library\sql.parser\source\windows;$(SolutionDir)\library\sql.parser\source;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\parsers;$(SolutionDir)\library\sql.parser\include;$(SolutionDir)\library\sql.parser\source\;$(SolutionDir)\library\sql.parser\source\windows;$(SolutionDir)\library\sql.parser\source;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -228,7 +228,7 @@
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
       <DisableSpecificWarnings>4996;4703</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\library\sql.parser\include;$(SolutionDir)\library\sql.parser\source\;$(SolutionDir)\library\sql.parser\source\windows;$(SolutionDir)\library\sql.parser\source;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\parsers;$(SolutionDir)\library\sql.parser\include;$(SolutionDir)\library\sql.parser\source\;$(SolutionDir)\library\sql.parser\source\windows;$(SolutionDir)\library\sql.parser\source;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -251,7 +251,7 @@
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
       <DisableSpecificWarnings>4996;4703</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\library\sql.parser\include;$(SolutionDir)\library\sql.parser\source\;$(SolutionDir)\library\sql.parser\source\windows;$(SolutionDir)\library\sql.parser\source;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\parsers;$(SolutionDir)\library\sql.parser\include;$(SolutionDir)\library\sql.parser\source\;$(SolutionDir)\library\sql.parser\source\windows;$(SolutionDir)\library\sql.parser\source;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -359,7 +359,7 @@
     <ProjectReference Include="..\..\library\grt\grt.vcxproj">
       <Project>{dc1ddaad-7dc1-4bc4-b6c8-b7cec998c7ed}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\library\mysql.parser\mysql.parser.vcxproj">
+    <ProjectReference Include="..\..\library\parsers\parsers.vcxproj">
       <Project>{f563e3de-39ba-4a9d-a6c2-9e9222e8f518}</Project>
     </ProjectReference>
   </ItemGroup>
