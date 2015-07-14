@@ -1794,7 +1794,7 @@ void JsonBaseView::setCellValue(mforms::TreeNodeRef node, int column, const std:
         break;
       buffer << value;
       buffer >> std::boolalpha >> retBool;
-      storedValue.setBool(number);
+      storedValue.setBool(retBool);
       setData = true;
       break;
     case VString:
