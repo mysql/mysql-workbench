@@ -1279,7 +1279,7 @@ bool TreeNodeViewImpl::ColumnRecord::on_focus_out(GdkEventFocus *event, Gtk::Ent
 //---------------------------------------------------------------------------------------
 
 TreeNodeViewImpl::TreeNodeViewImpl(TreeNodeView *self, mforms::TreeOptions opts)
-  : ViewImpl(self), _row_height(-1), _org_event(0)
+  : ViewImpl(self), _row_height(-1)
 {
   _mouse_inside = false;
   _hovering_overlay = -1;
@@ -1337,8 +1337,6 @@ TreeNodeViewImpl::TreeNodeViewImpl(TreeNodeView *self, mforms::TreeOptions opts)
 
 TreeNodeViewImpl::~TreeNodeViewImpl()
 {
-  if (_org_event)
-    delete _org_event;
 }
 
 void TreeNodeViewImpl::slot_drag_end(const Glib::RefPtr<Gdk::DragContext> &context)
@@ -1346,11 +1344,6 @@ void TreeNodeViewImpl::slot_drag_end(const Glib::RefPtr<Gdk::DragContext> &conte
   ViewImpl::slot_drag_end(context);
   _drag_in_progress  = false;
   _drag_button = 0;
-  if (_org_event)
-  {
-    delete _org_event;
-    _org_event = 0;
-  }
 }
 
 bool TreeNodeViewImpl::slot_drag_failed(const Glib::RefPtr<Gdk::DragContext> &context,Gtk::DragResult result)
@@ -1358,11 +1351,6 @@ bool TreeNodeViewImpl::slot_drag_failed(const Glib::RefPtr<Gdk::DragContext> &co
   bool ret_val = ViewImpl::slot_drag_failed(context, result);
   _drag_in_progress  = false;
   _drag_button = 0;
-  if (_org_event)
-  {
-    delete _org_event;
-    _org_event = 0;
-  }
   return ret_val;
 
 }
@@ -1498,12 +1486,6 @@ bool TreeNodeViewImpl::on_motion_notify(GdkEventMotion *ev)
   {
     if (w->drag_check_threshold(_drag_start_x, _drag_start_y, ev->x, ev->y))
     {
-      if (_org_event != 0)
-      {
-        delete _org_event;
-        _org_event = 0;
-      }
-
       {
         //Because of problems when Treeview has been set to multiselect,
         //there are some DnD problems, below code is fixing those.
@@ -1600,15 +1582,6 @@ bool TreeNodeViewImpl::on_button_release(GdkEventButton* ev)
     return false;
   }
 
-  //Because of problems when Treeview has been set to multiselect,
-  //there are some DnD problems, below code is fixing those.
-  //we need this to emit press event again cause we're changing default behavior of it
-  if (_org_event != 0)
-  {
-    gtk_propagate_event((GtkWidget*)_tree.gobj(), (GdkEvent*)_org_event);
-    delete _org_event;
-    _org_event = 0;
-  }
 //  _tree.
   _drag_button = 0;
   return false;
@@ -1749,14 +1722,9 @@ bool TreeNodeViewImpl::on_button_event(GdkEventButton *event)
     Gtk::TreeViewDropPosition   pos;
     if (_tree.get_dest_row_at_pos(event->x, event->y, path, pos) && _is_drag_source)
     {
-      if (_org_event == 0)
-      {
-        _org_event = new GdkEventButton(*event);
         _drag_button = event->button;
         _drag_start_x = event->x;
         _drag_start_y = event->y;
-        ret_val = true;
-      }
     }
   }
 
