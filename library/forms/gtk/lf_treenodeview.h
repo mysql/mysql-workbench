@@ -327,7 +327,6 @@ private:
   int _clicking_overlay;
   bool _mouse_inside;
 
-  GdkEventButton *_org_event;
   int _drag_button;
   int _drag_start_x;
   int _drag_start_y;
