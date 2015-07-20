@@ -11,6 +11,7 @@
 #                                   --define='version 6.3.5' \
 #                                   --define='release 1' 
 ####################################################################
+%bcond_with paramiko
 
 # Allow to continue when a binary with no build-id was found
 %undefine _missing_build_ids_terminate_build
@@ -93,7 +94,9 @@ Provides: mysql-workbench = %{version}-%{release}
 Provides: mysql-workbench%{?_isa} = %{version}-%{release}
 Requires: tinyxml
 Requires: libzip
-Requires: python-paramiko
+%if %{without paramiko}
+Requires: python-paramiko >= 1.15.1
+%endif
 Requires: gnome-keyring
 Requires: proj
 Requires: glib2 >= 2.28
@@ -263,6 +266,11 @@ if [ %{linuxres_home} ]; then
   cp -a %{linuxres_home}/pysqlite2 %{buildroot}%{_libdir}/mysql-workbench/modules
 %endif
 fi
+
+%if %{with paramiko}
+  cp -a %{linuxres_home}/python/paramiko %{buildroot}%{_libdir}/mysql-workbench/modules/
+  cp -a %{linuxres_home}/python/ecdsa %{buildroot}%{_libdir}/mysql-workbench/modules/
+%endif
 
 cp -a %{gdal_dir}/lib/libgdal.so.* %{buildroot}%{_libdir}/mysql-workbench/
 

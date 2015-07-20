@@ -9,7 +9,12 @@ Homepage: http://dev.mysql.com/workbench/
 Package: mysql-workbench-commercial
 Architecture: i386 amd64
 Replaces: mysql-workbench-com-se
-Depends: ${shlibs:Depends}, python-paramiko, python-pysqlite2, mysql-client|virtual-mysql-client, libglib2.0-0 (>= 2.28)
+@ifdef paramiko
+Depends: ${shlibs:Depends}, python-pysqlite2, mysql-client|virtual-mysql-client, libglib2.0-0 (>= 2.28)
+@else
+Depends: ${shlibs:Depends}, python-paramiko (>= 1.15.1), python-pysqlite2, mysql-client|virtual-mysql-client, libglib2.0-0 (>= 2.28)
+@endif
+
 Suggests: gnome-keyring
 Description: MySQL Workbench
  MySQL Workbench is a modeling tool that allows you to design
