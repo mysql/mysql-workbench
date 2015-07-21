@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -478,26 +478,26 @@ long Layouter::distance_to_node(const size_t i1, const size_t i2, bool* is_horiz
   {
     dy = y11 - y22;
     dx = x21 - x12;
-    l1 = dy ? ::fabs(dy/cos(qr)) : ::abs(dx);
-    l2 = dx ? ::fabs(dx/sin(qr)) : ::abs(dy);
+    l1 = dy ? ::fabs(dy/cos(qr)) : ::fabs(dx);
+    l2 = dx ? ::fabs(dx/sin(qr)) : ::fabs(dy);
   }
   else if (0.0 < qr && qr <= M_PI_2)
   {
     dy = y21 - y12;
     dx = x21 - x12;
     if (dy > dx)
-      l1 = l2 = dy ? ::fabs(dy/cos(qr)) : ::abs(dx);
+      l1 = l2 = dy ? ::fabs(dy/cos(qr)) : ::fabs(dx);
     else
-      l1 = l2 = dx ? ::fabs(dx/sin(qr)) : ::abs(dy);
+      l1 = l2 = dx ? ::fabs(dx/sin(qr)) : ::fabs(dy);
   }
   else if (qr < -M_PI_2)
   {
     dy = y11 - y22;
     dx = -(x22 - x11);
     if (dy > dx)
-      l1 = l2 = dy ? ::fabs(dy/cos(qr)) : ::abs(dx);
+      l1 = l2 = dy ? ::fabs(dy/cos(qr)) : ::fabs(dx);
     else
-      l1 = l2 = dx ? ::fabs(dx/sin(qr)) : ::abs(dy);
+      l1 = l2 = dx ? ::fabs(dx/sin(qr)) : ::fabs(dy);
   }
   else
   {
@@ -507,9 +507,9 @@ long Layouter::distance_to_node(const size_t i1, const size_t i2, bool* is_horiz
     else
       dx = dcx;
     if (dy > dx)
-      l1 = l2 = dy ? ::fabs(dy/cos(qr)) : ::abs(dx);
+      l1 = l2 = dy ? ::fabs(dy/cos(qr)) : ::fabs(dx);
     else
-      l1 = l2 = (dx && qr != 0.0) ? ::fabs(dx/sin(qr)) : ::abs(dy);
+      l1 = l2 = (dx && qr != 0.0) ? ::fabs(dx/sin(qr)) : ::fabs(dy);
   }
 
   //printf("qr %f (cos(qr) = %f, sin(rq) = %f), l1 %li, l2 %li, dy %li, dx %li\n", qr, cos(qr), sin(qr), l1, l2, dy, dx);
