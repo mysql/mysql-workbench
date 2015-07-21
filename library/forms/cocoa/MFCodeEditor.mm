@@ -19,6 +19,7 @@
 
 #import "MFMForms.h"
 #include "base/string_utilities.h"
+#include "keymap.h"
 
 #import "MFView.h"
 #import "MFCodeEditor.h"
@@ -63,6 +64,23 @@ using namespace mforms;
   {
     mOwner = codeEditor;
     mOwner->set_data(self);
+
+    // Change keyboard handling from extend rectangular selection with shift + alt + left/right arrows
+    // to the standard handling on OSX (extend normal selection wordwise). Rectangular selection
+    // is still available via alt + mouse.
+    [MFCodeEditor directCall: self message: SCI_ASSIGNCMDKEY wParam: SCK_LEFT | SCI_ASHIFT << 16 lParam: SCI_WORDLEFTEXTEND];
+    [MFCodeEditor directCall: self message: SCI_ASSIGNCMDKEY wParam: SCK_RIGHT | SCI_ASHIFT << 16 lParam: SCI_WORDRIGHTEXTEND];
+
+    // Disable shift + alt + up/down arrows, because they would show weird behavior with the corrected selection handling.
+    [MFCodeEditor directCall: self message: SCI_CLEARCMDKEY wParam: SCK_UP | SCI_ASHIFT << 16 lParam: 0];
+    [MFCodeEditor directCall: self message: SCI_CLEARCMDKEY wParam: SCK_DOWN | SCI_ASHIFT << 16 lParam: 0];
+
+    // Finally change ctrl + left/right arrow to standard behavior (go to line start/end).
+    // Atm SCI_META represents the control key and SCI_CTRL represents command, which is rather weird.
+    [MFCodeEditor directCall: self message: SCI_ASSIGNCMDKEY wParam: SCK_LEFT | SCI_META << 16 lParam: SCI_VCHOME];
+    [MFCodeEditor directCall: self message: SCI_ASSIGNCMDKEY wParam: SCK_RIGHT | SCI_META << 16 lParam: SCI_LINEEND];
+    [MFCodeEditor directCall: self message: SCI_ASSIGNCMDKEY wParam: SCK_LEFT | (SCI_META | SCI_SHIFT) << 16 lParam: SCI_VCHOMEEXTEND];
+    [MFCodeEditor directCall: self message: SCI_ASSIGNCMDKEY wParam: SCK_RIGHT | (SCI_META | SCI_SHIFT) << 16 lParam: SCI_LINEENDEXTEND];
   }
   return self;
 }
