@@ -104,7 +104,7 @@ MainForm::MainForm(wb::WBContextUI* ctx)
   get_mainwindow()->signal_focus_out_event().connect(sigc::bind_return(sigc::hide(sigc::mem_fun(mforms::Form::main_form(), &mforms::Form::deactivated)), false));
   get_mainwindow()->set_title("MySQL Workbench");
 
-  _model_panel= 0;
+  _model_panel = nullptr;
 
   get_upper_note()->signal_switch_page().connect(sigc::mem_fun(*this, &MainForm::switch_page));
 
@@ -945,6 +945,12 @@ mdc::CanvasView* MainForm::create_view_becb(const model_DiagramRef &diagram)
     tabState = TabClosed;
   }
 
+  //even considering this widget is not managed, we need to reference it as later we can end up with crash because gtk3 will release it
+  //this will be deleted later in destroy_view_becb
+  //TODO: check if this can be removed after refactoring modeling
+#if GTK_VERSION_GE(3,14)
+  model_panel->reference();
+#endif
   add_form_pane(model_panel, tabState);
   model_panel->show_all_children(true);
  // model_panel->set_data("model_panel", model_panel);
@@ -1242,24 +1248,31 @@ void MainForm::handle_model_created()
 {
   wb::OverviewBE* overview_be = _wbui_context->get_physical_overview();
   // Create the model overview panel
-  _model_panel= ModelPanel::create(_wbui_context, overview_be);
+  _model_panel = ModelPanel::create(_wbui_context, overview_be);
   _model_panel->set_close_editor_callback(sigc::bind(sigc::ptr_fun(close_plugin), _wbui_context->get_wb()));
-  
   _model_panel->get_overview()->get_be()->set_frontend_data(dynamic_cast<FormViewBase*>(_model_panel));
-
   _signal_close_editor.connect(sigc::hide_return(sigc::mem_fun(_model_panel, &ModelPanel::close_editors_for_object)));
 
-  add_form_pane(_model_panel, TabOpenActive);
+  //even considering this widget is not managed, we need to reference it as later we can end up with crash because gtk3 will release it
+  //this will be deleted later in handle_model_closed
+  //TODO: check if this can be removed after refactoring modeling
+#if GTK_VERSION_GE(3,14)
+  _model_panel->reference();
+#endif
+
+   add_form_pane(dynamic_cast<FormViewBase*>(_model_panel), TabOpenActive);
 
   _model_panel->get_overview()->rebuild_all();
 }
 //------------------------------------------------------------------------------
 void MainForm::handle_model_closed()
 {
-  if (_model_panel)
+  if (_model_panel != nullptr)
+  {
     get_upper_note()->remove_page(*_model_panel);
-  delete _model_panel;
-  _model_panel= 0;
+    delete _model_panel;
+    _model_panel = nullptr;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -1498,7 +1511,10 @@ bool MainForm::close_tab(Gtk::Notebook *note, Gtk::Widget *page)
         page->unreference();
 
         if (form == _model_panel)
-          _model_panel = 0;
+        {
+          delete _model_panel;
+          _model_panel = nullptr;
+        }
       }
     }
     else
@@ -1670,7 +1686,7 @@ void MainForm::prepare_close_document()
   }
 
   // reset overview
-  if (_model_panel)
+  if (_model_panel != nullptr)
     _model_panel->get_overview()->reset();
 }
 
