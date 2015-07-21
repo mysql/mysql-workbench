@@ -58,13 +58,13 @@ private:
   #ifdef COMMERCIAL_CODE
   ValidationPanel             *_validation_panel;
   #endif
+  Glib::RefPtr<Gtk::Builder>   _builder;
   bool                         _pending_rebuild_overview;
 
   friend class Gtk::Builder;
-  ModelPanel(GtkBox *vb, Glib::RefPtr<Gtk::Builder> xml);
-  void post_construct(wb::WBContextUI *wb, wb::OverviewBE *overview, Glib::RefPtr<Gtk::Builder> xml);
+  ModelPanel(GtkBox *cobject, const Glib::RefPtr<Gtk::Builder> &xml);
+  void post_construct(wb::WBContextUI *wb, wb::OverviewBE *overview);
 
-  bool restore_state(Glib::RefPtr<Gtk::Builder> xml);
   void resize_overview();
   bool do_resize_overview();
 

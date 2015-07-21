@@ -249,8 +249,8 @@ ModelDiagramPanel *ModelDiagramPanel::create(wb::WBContextUI *wb)
   Glib::RefPtr<Gtk::Builder> xml= Gtk::Builder::create_from_file(wb->get_wb()->get_grt_manager()->get_data_file_path("diagram_view.glade"));
 
   ModelDiagramPanel *panel = 0;
-  xml->get_widget_derived<ModelDiagramPanel>("diagram_pane", panel);
-  panel->post_construct(wb, xml);
+  xml->get_widget_derived("diagram_pane", panel);
+  panel->post_construct(wb);
 
   return panel;
 }
@@ -269,7 +269,7 @@ void ModelDiagramPanel::on_activate()
 
 }
 
-ModelDiagramPanel::ModelDiagramPanel(GtkPaned *paned, Glib::RefPtr<Gtk::Builder> builder)
+ModelDiagramPanel::ModelDiagramPanel(GtkPaned *paned, const Glib::RefPtr<Gtk::Builder> &builder)
   : Gtk::Paned(paned), FormViewBase("ModelDiagram")
   , _top_box(Gtk::ORIENTATION_VERTICAL, 0)
   , _tools_toolbar(0)
@@ -282,6 +282,7 @@ ModelDiagramPanel::ModelDiagramPanel(GtkPaned *paned, Glib::RefPtr<Gtk::Builder>
   , _inline_editor(this)
   , _editor_paned(0)
   , _sidebar(0)
+  , _side_model_pane2(0)
   , _navigator_box(0)
   , _catalog_tree(0)
   , _usertypes_list(0)
@@ -295,27 +296,29 @@ ModelDiagramPanel::ModelDiagramPanel(GtkPaned *paned, Glib::RefPtr<Gtk::Builder>
 {
 }
 
-void ModelDiagramPanel::post_construct(wb::WBContextUI *wb, Glib::RefPtr<Gtk::Builder> xml)
+void ModelDiagramPanel::post_construct(wb::WBContextUI *wb)
 {
   _wb = wb;
   _grtm = wb->get_wb()->get_grt_manager();
   _diagram_hbox= 0;
-  xml->get_widget("diagram_hbox", _diagram_hbox);
+  _xml->get_widget("diagram_hbox", _diagram_hbox);
   _top_box.show();
 
   _top_box.pack_end(*this, true, true);
   show();
 
-  xml->get_widget("diagram_pane", _sidebar1_pane);
-  xml->get_widget("diagram_pane2", _sidebar2_pane);
+  _xml->get_widget("diagram_pane", _sidebar1_pane);
+  _xml->get_widget("diagram_pane2", _sidebar2_pane);
 
   //xml->get_widget("tools_toolbar", _tools_toolbar);
-  xml->get_widget("diagram_box", _vbox);
+  _xml->get_widget("diagram_box", _vbox);
   
-  xml->get_widget("editor_note", _editor_note);
-  xml->get_widget("content", _editor_paned);
+  _xml->get_widget("editor_note", _editor_note);
+  _xml->get_widget("content", _editor_paned);
   
-  xml->get_widget("model_sidebar", _sidebar);
+  _xml->get_widget("model_sidebar", _sidebar);
+  _xml->get_widget("side_model_pane2", _side_model_pane2);
+
 
 }
 
@@ -342,11 +345,11 @@ void ModelDiagramPanel::init(const std::string &view_id)
     Gtk::Label *label;
     Gtk::Paned *pan;
 
-    _xml->get_widget("model_sidebar", pan);
-    PanedConstrainer::make_constrainer(pan, 64, 90);
+    //_xml->get_widget("model_sidebar", pan);
+    PanedConstrainer::make_constrainer(_sidebar, 64, 90);
 
-    _xml->get_widget("side_model_pane2", pan);
-    PanedConstrainer::make_constrainer(pan, 64, 90);
+    //_xml->get_widget("side_model_pane2", pan);
+    PanedConstrainer::make_constrainer(_side_model_pane2, 64, 90);
 
     _xml->get_widget("diagram_pane", pan);
     PanedConstrainer::make_constrainer(pan, 130, 0);
@@ -466,12 +469,9 @@ void ModelDiagramPanel::init(const std::string &view_id)
   _sig_restore_sidebar = Glib::signal_idle().connect(sigc::bind_return(sigc::mem_fun(this, &FormViewBase::restore_sidebar_layout), false));
   
   //  Set the sidebar pane sizes
-  Gtk::Paned *pane = NULL;
-  _xml->get_widget("model_sidebar", pane);
-  pane->set_position(_wb->get_wb()->get_grt_manager()->get_app_option_int("Sidebar:VBox1:Position", pane->get_position()));
+  _sidebar->set_position(_wb->get_wb()->get_grt_manager()->get_app_option_int("Sidebar:VBox1:Position", _sidebar->get_position()));
 
-  _xml->get_widget("side_model_pane2", pane);
-  pane->set_position(_wb->get_wb()->get_grt_manager()->get_app_option_int("Sidebar:VBox2:Position", pane->get_position()));
+  _side_model_pane2->set_position(_wb->get_wb()->get_grt_manager()->get_app_option_int("Sidebar:VBox2:Position", _side_model_pane2->get_position()));
     
 }
 bool ModelDiagramPanel::drag_motion(const Glib::RefPtr<Gdk::DragContext> &context, int x, int y, guint time)
@@ -485,7 +485,6 @@ bool ModelDiagramPanel::drag_motion(const Glib::RefPtr<Gdk::DragContext> &contex
 
 ModelDiagramPanel::~ModelDiagramPanel()
 {
-  on_close();
   _sig_restore_sidebar.disconnect();
   delete _catalog_tree;
   delete _usertypes_list;
@@ -640,12 +639,9 @@ void ModelDiagramPanel::update_tool_cursor()
 
 bool ModelDiagramPanel::on_close()
 {
-  Gtk::Paned *pane = NULL;
-  _xml->get_widget("model_sidebar", pane);
-  _wb->get_wb()->get_grt_manager()->set_app_option("Sidebar:VBox1:Position", grt::IntegerRef(pane->get_position()));
+  _wb->get_wb()->get_grt_manager()->set_app_option("Sidebar:VBox1:Position", grt::IntegerRef(_sidebar->get_position()));
   
-  _xml->get_widget("side_model_pane2", pane);
-  _wb->get_wb()->get_grt_manager()->set_app_option("Sidebar:VBox2:Position", grt::IntegerRef(pane->get_position()));
+  _wb->get_wb()->get_grt_manager()->set_app_option("Sidebar:VBox2:Position", grt::IntegerRef(_side_model_pane2->get_position()));
 
   _be->set_closed(true);
   get_parent()->hide(); // hide the container
