@@ -355,7 +355,7 @@
 		27A5768A10FE065000A948A6 /* fs_object_selector.h in Headers */ = {isa = PBXBuildFile; fileRef = 27A5768910FE065000A948A6 /* fs_object_selector.h */; };
 		27A7330F16C2706300C326E0 /* mysql.parser.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27467EBD154A96CB00021708 /* mysql.parser.dylib */; };
 		27AF7C110FC2A913007160EF /* Scintilla.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2744E6800FC1831900E85C33 /* Scintilla.framework */; };
-		27B37DC41A32001B00C73F1F /* mforms_prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 27B37DC31A32001B00C73F1F /* mforms_prefix.pch */; };
+		27B37DC41A32001B00C73F1F /* mforms_prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 27B37DC31A32001B00C73F1F /* mforms_prefix.h */; };
 		27B3B4C319C6EDA1007D4A92 /* mysql-recognition-types.h in Headers */ = {isa = PBXBuildFile; fileRef = 27B3B4C219C6EDA1007D4A92 /* mysql-recognition-types.h */; };
 		27B3B4DE19C727E5007D4A92 /* ANTLRv3Lexer.c in Sources */ = {isa = PBXBuildFile; fileRef = 27B3B4DA19C727E5007D4A92 /* ANTLRv3Lexer.c */; };
 		27B3B4DF19C727E5007D4A92 /* ANTLRv3Lexer.h in Headers */ = {isa = PBXBuildFile; fileRef = 27B3B4DB19C727E5007D4A92 /* ANTLRv3Lexer.h */; };
@@ -496,6 +496,7 @@
 		27F2E9A81A65CE7D00BD2996 /* ac_uservar@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27F2E9821A65CE7D00BD2996 /* ac_uservar@2x.png */; };
 		27F2E9A91A65CE7D00BD2996 /* ac_view.png in Resources */ = {isa = PBXBuildFile; fileRef = 27F2E9831A65CE7D00BD2996 /* ac_view.png */; };
 		27F2E9AA1A65CE7D00BD2996 /* ac_view@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27F2E9841A65CE7D00BD2996 /* ac_view@2x.png */; };
+		27F855461B5E5004000DAD41 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		2B00E5150EB40439006B9A7C /* mdc_canvas_view_opengl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B00E5130EB40438006B9A7C /* mdc_canvas_view_opengl.cpp */; };
 		2B00E5160EB40439006B9A7C /* mdc_canvas_view_opengl.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B00E5140EB40438006B9A7C /* mdc_canvas_view_opengl.h */; };
 		2B0123E81090B617009B2112 /* WBPluginPanelController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B0123E71090B617009B2112 /* WBPluginPanelController.mm */; };
@@ -2458,8 +2459,8 @@
 		2BF249EB1404B07D003B3C0F /* wb_sql_editor_tree_controller.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF249E91404B07D003B3C0F /* wb_sql_editor_tree_controller.h */; };
 		2BF249EC1404B07D003B3C0F /* wb_sql_editor_tree_controller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF249EA1404B07D003B3C0F /* wb_sql_editor_tree_controller.cpp */; };
 		2BF2786D1869FBB40026215C /* GrtStoredNote.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF2786B1869FBAB0026215C /* GrtStoredNote.cpp */; };
-		2BF2CB9D191197A7007B0BB9 /* record_grid.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF2CB9C191197A7007B0BB9 /* record_grid.h */; };
-		2BF2CBAB1911A70E007B0BB9 /* record_grid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF2CBA91911A70E007B0BB9 /* record_grid.cpp */; };
+		2BF2CB9D191197A7007B0BB9 /* gridview.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF2CB9C191197A7007B0BB9 /* gridview.h */; };
+		2BF2CBAB1911A70E007B0BB9 /* gridview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF2CBA91911A70E007B0BB9 /* gridview.cpp */; };
 		2BF2CBB21911A815007B0BB9 /* RecordGridView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF2CBB01911A815007B0BB9 /* RecordGridView.mm */; };
 		2BF2CBB31911A815007B0BB9 /* RecordGridView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF2CBB11911A815007B0BB9 /* RecordGridView.h */; };
 		2BF2CBB61911C702007B0BB9 /* result_form_view.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF2CBB41911C702007B0BB9 /* result_form_view.cpp */; };
@@ -4199,7 +4200,7 @@
 		27A3EC90164BA9AB001B6D8F /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = frontend/mac/English.lproj/IconCollectionView.xib; sourceTree = "<group>"; };
 		27A5768610FE061C00A948A6 /* fs_object_selector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fs_object_selector.cpp; path = library/forms/fs_object_selector.cpp; sourceTree = "<group>"; };
 		27A5768910FE065000A948A6 /* fs_object_selector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fs_object_selector.h; path = library/forms/mforms/fs_object_selector.h; sourceTree = "<group>"; };
-		27B37DC31A32001B00C73F1F /* mforms_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mforms_prefix.pch; path = prefix/mforms_prefix.pch; sourceTree = "<group>"; };
+		27B37DC31A32001B00C73F1F /* mforms_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mforms_prefix.h; path = prefix/mforms_prefix.h; sourceTree = "<group>"; };
 		27B37DC51A32100E00C73F1F /* db.mysql.grt_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = db.mysql.grt_prefix.pch; path = prefix/db.mysql.grt_prefix.pch; sourceTree = "<group>"; };
 		27B3B4C219C6EDA1007D4A92 /* mysql-recognition-types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "mysql-recognition-types.h"; path = "library/mysql.parser/mysql-recognition-types.h"; sourceTree = "<group>"; };
 		27B3B4CD19C7148D007D4A92 /* MySQL.tokens */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = MySQL.tokens; path = library/mysql.parser/MySQL.tokens; sourceTree = "<group>"; };
@@ -6370,8 +6371,8 @@
 		2BF249E91404B07D003B3C0F /* wb_sql_editor_tree_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb_sql_editor_tree_controller.h; path = backend/wbprivate/sqlide/wb_sql_editor_tree_controller.h; sourceTree = "<group>"; };
 		2BF249EA1404B07D003B3C0F /* wb_sql_editor_tree_controller.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wb_sql_editor_tree_controller.cpp; path = backend/wbprivate/sqlide/wb_sql_editor_tree_controller.cpp; sourceTree = "<group>"; wrapsLines = 0; };
 		2BF2786B1869FBAB0026215C /* GrtStoredNote.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrtStoredNote.cpp; path = backend/wbpublic/objimpl/GrtStoredNote.cpp; sourceTree = "<group>"; };
-		2BF2CB9C191197A7007B0BB9 /* record_grid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = record_grid.h; path = library/forms/mforms/record_grid.h; sourceTree = "<group>"; };
-		2BF2CBA91911A70E007B0BB9 /* record_grid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = record_grid.cpp; path = library/forms/record_grid.cpp; sourceTree = "<group>"; };
+		2BF2CB9C191197A7007B0BB9 /* gridview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gridview.h; path = library/forms/mforms/gridview.h; sourceTree = "<group>"; };
+		2BF2CBA91911A70E007B0BB9 /* gridview.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gridview.cpp; path = library/forms/gridview.cpp; sourceTree = "<group>"; };
 		2BF2CBB01911A815007B0BB9 /* RecordGridView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RecordGridView.mm; path = frontend/mac/mforms/RecordGridView.mm; sourceTree = "<group>"; };
 		2BF2CBB11911A815007B0BB9 /* RecordGridView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RecordGridView.h; path = frontend/mac/mforms/RecordGridView.h; sourceTree = "<group>"; };
 		2BF2CBB41911C702007B0BB9 /* result_form_view.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = result_form_view.cpp; path = backend/wbprivate/sqlide/result_form_view.cpp; sourceTree = "<group>"; };
@@ -6659,6 +6660,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				27F855461B5E5004000DAD41 /* libwbbase.dylib in Frameworks */,
 				2B774FC815CEC55200923448 /* libglib-2.0.0.dylib in Frameworks */,
 				2B3D5D4D0F43DCF9009238A7 /* libmforms.dylib in Frameworks */,
 				2B3D5D4E0F43DCF9009238A7 /* libwbpublic.be.dylib in Frameworks */,
@@ -7485,7 +7487,7 @@
 				275E55CD11AD35F100B3886E /* popup.h */,
 				2B9616640F275B0A00F0B599 /* progressbar.h */,
 				2B9616650F275B0A00F0B599 /* radiobutton.h */,
-				2BF2CB9C191197A7007B0BB9 /* record_grid.h */,
+				2BF2CB9C191197A7007B0BB9 /* gridview.h */,
 				2B9616660F275B0A00F0B599 /* scrollpanel.h */,
 				2B9616670F275B0A00F0B599 /* selector.h */,
 				2B9616680F275B0A00F0B599 /* simpleform.h */,
@@ -7540,7 +7542,7 @@
 				275E55CF11AD35FE00B3886E /* popup.cpp */,
 				2B9616340F275AF200F0B599 /* progressbar.cpp */,
 				2B9616350F275AF200F0B599 /* radiobutton.cpp */,
-				2BF2CBA91911A70E007B0BB9 /* record_grid.cpp */,
+				2BF2CBA91911A70E007B0BB9 /* gridview.cpp */,
 				2B9616360F275AF200F0B599 /* scrollpanel.cpp */,
 				27D6594A1076538E0030F627 /* sectionbox.cpp */,
 				2B9616370F275AF200F0B599 /* selector.cpp */,
@@ -9859,7 +9861,7 @@
 		2B9616140F27594600F0B599 /* mforms */ = {
 			isa = PBXGroup;
 			children = (
-				27B37DC31A32001B00C73F1F /* mforms_prefix.pch */,
+				27B37DC31A32001B00C73F1F /* mforms_prefix.h */,
 				27A5768C10FE078100A948A6 /* High Level Controls */,
 				27A5768D10FE07C300A948A6 /* Low level Controls */,
 				2BCAD0471006D07800D1772C /* python */,
@@ -11663,7 +11665,7 @@
 				2B3D492A0F3E3FCA009238A7 /* MFSelector.h in Headers */,
 				2B3D492C0F3E3FCA009238A7 /* MFTable.h in Headers */,
 				2B3D49300F3E3FCA009238A7 /* MFTextBox.h in Headers */,
-				27B37DC41A32001B00C73F1F /* mforms_prefix.pch in Headers */,
+				27B37DC41A32001B00C73F1F /* mforms_prefix.h in Headers */,
 				2B83E5BE1992B3D900781432 /* MCanvasViewer.h in Headers */,
 				2B3D49320F3E3FCA009238A7 /* MFTextEntry.h in Headers */,
 				2B3D49340F3E3FCA009238A7 /* MFView.h in Headers */,
@@ -11678,7 +11680,7 @@
 				2B7395840F60488F0084CA96 /* MFUtilities.h in Headers */,
 				2BE67EFA0F8DB1F000E00A97 /* uistyle.h in Headers */,
 				2B2405751020A1BC00079580 /* app.h in Headers */,
-				2BF2CB9D191197A7007B0BB9 /* record_grid.h in Headers */,
+				2BF2CB9D191197A7007B0BB9 /* gridview.h in Headers */,
 				2B2405761020A1BC00079580 /* appview.h in Headers */,
 				2B23975E103B64AB00D9023B /* MFDrawBox.h in Headers */,
 				2B2397AA103B6C3800D9023B /* drawbox.h in Headers */,
@@ -14567,7 +14569,7 @@
 				2B3D49330F3E3FCA009238A7 /* MFTextEntry.mm in Sources */,
 				2B3D49350F3E3FCA009238A7 /* MFView.mm in Sources */,
 				2B3D49370F3E3FCA009238A7 /* MFWizard.mm in Sources */,
-				2BF2CBAB1911A70E007B0BB9 /* record_grid.cpp in Sources */,
+				2BF2CBAB1911A70E007B0BB9 /* gridview.cpp in Sources */,
 				2B3D4B850F3F2412009238A7 /* MFImageBox.mm in Sources */,
 				2B3D4BB30F3F26A3009238A7 /* MFProgressBar.mm in Sources */,
 				2B3D4E300F3FA70B009238A7 /* MFFileChooser.mm in Sources */,
@@ -15687,7 +15689,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				INFOPLIST_FILE = "UnitTests-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
 				OTHER_LDFLAGS = (
@@ -15713,7 +15714,6 @@
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				INFOPLIST_FILE = "UnitTests-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
 				OTHER_LDFLAGS = (
@@ -15742,7 +15742,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = ENABLE_DEBUG;
 				GCC_WARN_SIGN_COMPARE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
@@ -15775,7 +15774,6 @@
 				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = ".bzr *.nib *.lproj *.framework *.gch (*) CVS .svn .git *.xcodeproj *.xcode *.pbproj *.pbxproj";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_WARN_SIGN_COMPARE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
@@ -15815,7 +15813,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -15861,7 +15858,6 @@
 				ENABLE_NS_ASSERTIONS = YES;
 				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -15906,7 +15902,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_DEBUG,
@@ -15939,7 +15934,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_LUA_MODULES,
@@ -15974,7 +15968,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_NAMESPACE,
 					ENABLE_PYTHON_MODULES,
@@ -16017,7 +16010,6 @@
 				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_NAMESPACE,
 					ENABLE_PYTHON_MODULES,
@@ -16059,7 +16051,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					MFORMS_STUB,
 					ENABLE_PYTHON_MODULES,
@@ -16090,7 +16081,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					MFORMS_STUB,
 					EXCLUDE_MYSQL_SUPPORT,
@@ -16122,7 +16112,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/library/cdbc/src",
@@ -16145,7 +16134,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/library/cdbc/src",
@@ -16169,7 +16157,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../mysql-mac-res/mysql/include",
@@ -16192,7 +16179,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../mysql-mac-res/mysql/include",
@@ -16219,7 +16205,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"SWIG_TYPE_TABLE=mforms",
 					ENABLE_PYTHON_MODULES,
@@ -16247,7 +16232,6 @@
 				EXECUTABLE_EXTENSION = so;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"SWIG_TYPE_TABLE=mforms",
 					ENABLE_PYTHON_MODULES,
@@ -16275,7 +16259,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_DEBUG,
@@ -16311,7 +16294,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_LUA_MODULES,
@@ -16348,7 +16330,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_DEBUG,
@@ -16382,7 +16363,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_LUA_MODULES,
@@ -16417,7 +16397,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_LEXER,
 					SCI_NAMESPACE,
@@ -16452,7 +16431,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_NAMESPACE,
 					SCI_LEXER,
@@ -16488,7 +16466,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_DEBUG,
@@ -16521,7 +16498,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_LUA_MODULES,
@@ -16558,7 +16534,6 @@
 				GCC_OBJC_CALL_CXX_CDTORS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_NAMESPACE,
 					ENABLE_PYTHON_MODULES,
@@ -16604,7 +16579,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OBJC_CALL_CXX_CDTORS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_NAMESPACE,
 					ENABLE_PYTHON_MODULES,
@@ -16648,7 +16622,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TIXML_USE_STL,
 					ENABLE_PYTHON_MODULES,
@@ -16680,7 +16653,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TIXML_USE_STL,
 					ENABLE_PYTHON_MODULES,
@@ -16713,7 +16685,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/library/sql-parser/include",
@@ -16737,7 +16708,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/library/sql-parser/include",
@@ -16763,7 +16733,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/library/sql-parser/include",
@@ -16787,7 +16756,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/library/sql-parser/include",
@@ -16813,7 +16781,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/library/dbc/src",
@@ -16839,7 +16806,6 @@
 				COPY_PHASE_STRIP = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/library/dbc/src",
@@ -16869,7 +16835,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"../mysql-mac-res/include/cppconn",
@@ -16893,7 +16858,6 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"../mysql-mac-res/include/cppconn",
@@ -16919,7 +16883,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_NAMESPACE,
 					ENABLE_PYTHON_MODULES,
@@ -16956,7 +16919,6 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_NAMESPACE,
 					ENABLE_PYTHON_MODULES,
@@ -16995,7 +16957,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = wbbase;
 				SKIP_INSTALL = YES;
@@ -17012,7 +16973,6 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = wbbase;
 				SKIP_INSTALL = YES;
@@ -17031,7 +16991,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"/library/grt",
@@ -17054,7 +17013,6 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"/library/grt",
@@ -17079,7 +17037,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = mysql.canvas;
 				SKIP_INSTALL = YES;
@@ -17096,7 +17053,6 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = mysql.canvas;
 				SKIP_INSTALL = YES;
@@ -17118,7 +17074,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TIXML_USE_STL,
 					ENABLE_PYTHON_MODULES,
@@ -17160,7 +17115,6 @@
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TIXML_USE_STL,
 					ENABLE_PYTHON_MODULES,
@@ -17199,7 +17153,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/generated",
@@ -17223,7 +17176,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/generated",
@@ -17249,7 +17201,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/generated",
@@ -17281,7 +17232,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/generated",
@@ -17315,7 +17265,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_DEBUG,
@@ -17350,7 +17299,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_LUA_MODULES,
@@ -17387,7 +17335,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"SWIG_TYPE_TABLE=mforms",
 					ENABLE_PYTHON_MODULES,
@@ -17424,7 +17371,6 @@
 				EXECUTABLE_EXTENSION = so;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"SWIG_TYPE_TABLE=mforms",
 					ENABLE_PYTHON_MODULES,
@@ -17462,7 +17408,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TIXML_USE_STL,
 					WB_USE_INTERNAL_BROWSER,
@@ -17503,7 +17448,6 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TIXML_USE_STL,
 					WB_USE_INTERNAL_BROWSER,
@@ -17549,7 +17493,6 @@
 				GCC_OBJC_CALL_CXX_CDTORS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_NAMESPACE,
 					SCI_LEXER,
@@ -17600,7 +17543,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OBJC_CALL_CXX_CDTORS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_NAMESPACE,
 					SCI_LEXER,
@@ -17648,7 +17590,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -17671,7 +17612,6 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -17695,7 +17635,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/library/forms",
@@ -17721,7 +17660,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/library/forms",
@@ -17749,7 +17687,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ext/antlr-runtime/include",
@@ -17774,7 +17711,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ext/antlr-runtime/include",
@@ -17801,7 +17737,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/generated",
@@ -17828,7 +17763,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/generated",
@@ -17857,7 +17791,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_DEBUG,
@@ -17891,7 +17824,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_LUA_MODULES,
@@ -17926,7 +17858,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_DEBUG,
@@ -17958,7 +17889,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_LUA_MODULES,
@@ -17996,7 +17926,6 @@
 				GCC_OBJC_CALL_CXX_CDTORS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_NAMESPACE,
 					ENABLE_PYTHON_MODULES,
@@ -18046,7 +17975,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OBJC_CALL_CXX_CDTORS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SCI_NAMESPACE,
 					ENABLE_PYTHON_MODULES,
@@ -18091,6 +18019,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				COPY_PHASE_STRIP = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.h";
 				GCC_PREPROCESSOR_DEFINITIONS = ENABLE_DEBUG;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
@@ -18132,6 +18061,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				COPY_PHASE_STRIP = NO;
+				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.h";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
@@ -18174,7 +18104,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/generated",
@@ -18198,7 +18127,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/generated",
