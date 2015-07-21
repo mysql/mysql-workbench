@@ -12727,7 +12727,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 0620;
+				LastUpgradeCheck = 0640;
 				ORGANIZATIONNAME = "Oracle and/or its affiliates";
 				TargetAttributes = {
 					27D8079D1A3F262D00EDCA8F = {
