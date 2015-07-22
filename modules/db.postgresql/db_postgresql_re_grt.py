@@ -195,6 +195,8 @@ WHERE n.nspname = '%s' AND c.relname = '%s'"""
             WHERE n.nspname NOT IN ('information_schema', 'pg_catalog') AND t.typtype = 'd' """
         domain_types = cls.execute_query(connection, query_domains)
         for type_name, type_def in domain_types:
+            if not type_def:
+                continue
             datatype = grt.classes.db_UserDatatype()
             datatype.name = type_name
             datatype.sqlDefinition = type_def
