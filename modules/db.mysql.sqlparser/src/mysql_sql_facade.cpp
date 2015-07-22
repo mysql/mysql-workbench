@@ -605,6 +605,11 @@ bool MysqlSqlFacadeImpl::parseSelectStatementForEdit(const std::string &sql, std
     /* Correct results are given inside a list, errors are reported as strings */
     if (result->count() == 1 && result[0].type() == ListType )
     {
+      std::string uninon_path = "verb_clause,statement,select,select_init,select_init2,union_clause,union_list,select_init";
+      grt::BaseListRef select_union = getItemFromPath(uninon_path, result);
+      if (select_union.is_valid())
+        return ret_val;
+
       /* Retrieves the node containing for a SELECT statement */
       std::string select_path = "verb_clause,statement,select,select_init,select_init2,select_part2";
       grt::BaseListRef select_item = getItemFromPath(select_path, result);
