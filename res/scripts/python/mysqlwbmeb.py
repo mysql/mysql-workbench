@@ -538,9 +538,9 @@ class MEBUpdateScheduling(MEBCommand):
         cron_file = "%s/wb_cron_file" % os.path.dirname(__file__)
 
         if backup_type == 'full':
-            command = "crontab -l | grep -v '%s.*%s\.cnf\s\d\s0' > '%s'; crontab '%s';rm '%s'" % (__file__, self.uuid, cron_file, cron_file, cron_file)
+            command = "crontab -l | grep -P -v '%s.*%s\.cnf\s\d\s0' > '%s'; crontab '%s';rm '%s'" % (__file__, self.uuid, cron_file, cron_file, cron_file)
         else:
-            command = "crontab -l | grep -v '%s.*%s\.cnf\s\d\s1' > '%s'; crontab '%s';rm '%s'" % (__file__, self.uuid, cron_file, cron_file, cron_file)
+            command = "crontab -l | grep -P -v '%s.*%s\.cnf\s\d\s1' > '%s'; crontab '%s';rm '%s'" % (__file__, self.uuid, cron_file, cron_file, cron_file)
             
         return command
 
