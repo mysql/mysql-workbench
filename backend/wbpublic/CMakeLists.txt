@@ -96,7 +96,7 @@ add_library(wbpublic
     sqlide/recordset_table_inserts_storage.cpp
     sqlide/recordset_text_storage.cpp
     sqlide/table_inserts_loader_be.cpp
-    sqlide/autocomplete_object_name_cache.cpp
+    sqlide/mysql_object_names_cache.cpp
     sqlide/sql_script_run_wizard.cpp
     sqlide/column_width_cache.cpp
     sqlide/grammar-parser/ANTLRv3Lexer.c
