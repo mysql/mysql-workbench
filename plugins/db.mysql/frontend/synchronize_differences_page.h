@@ -68,7 +68,7 @@ protected:
 
   std::map<bec::IconId, std::string> _icons;
   
-  mforms::TreeNodeView _tree;
+  mforms::TreeView _tree;
   boost::shared_ptr<DiffTreeBE> _diff_tree;
   mforms::Label _heading;
   ::mforms::CodeEditor _diff_sql_text;

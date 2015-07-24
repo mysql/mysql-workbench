@@ -61,7 +61,7 @@ class MYSQLWBBACKEND_PUBLIC_FUNC ServerInstanceEditor : public mforms::Form
   mforms::Button _dup_inst_button;
   mforms::Button _move_up_button;
   mforms::Button _move_down_button;
-  mforms::TreeNodeView _stored_connection_list;
+  mforms::TreeView _stored_connection_list;
   
   mforms::TabView _tabview;
 

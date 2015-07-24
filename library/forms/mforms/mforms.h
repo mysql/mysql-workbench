@@ -140,7 +140,7 @@ namespace mforms
     UtilitiesImplPtrs _utilities_impl;
   public:
     
-    TreeNodeViewImplPtrs _treenodeview_impl;
+    TreeViewImplPtrs _treenodeview_impl;
     FindPanelImplPtrs _findpanel_impl;
 
     ControlFactory();

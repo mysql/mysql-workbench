@@ -30,7 +30,7 @@ namespace wb
   class WBContextUI;
   class ModelDiagramForm;
 
-  class LayerTree : public mforms::TreeNodeView
+  class LayerTree : public mforms::TreeView
   {
   private:
     class FigureNode : public mforms::TreeNodeData

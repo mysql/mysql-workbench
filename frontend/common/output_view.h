@@ -46,7 +46,7 @@ private:
   bec::MessageListBE *_messages;
 
   mforms::Splitter _splitter;
-  mforms::TreeNodeView _message_list;
+  mforms::TreeView _message_list;
   mforms::TextBox _output_text;
   mforms::ContextMenu _context_menu;
   bool _can_track_changes;

@@ -203,7 +203,7 @@ public:
   }
   
 private:
-  mforms::TreeNodeView _tree;
+  mforms::TreeView _tree;
   mforms::Box _box;
   mforms::Button _first;
   mforms::Button _back;

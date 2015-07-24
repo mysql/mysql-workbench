@@ -111,31 +111,31 @@ protected:
   
   mforms::Button _file_add;
   mforms::Button _file_delete;
-  mforms::TreeNodeView* _files_tree;
+  mforms::TreeView* _files_tree;
   mforms::ContextMenu _files_menu;
 
   mforms::Box _global_box1;
   mforms::Box _global_box2;
   mforms::Splitter _global_splitter;
   mforms::Selector _global_combo;
-  mforms::TreeNodeView _global_tree;
+  mforms::TreeView _global_tree;
   mforms::TextEntry _global_entry;
-  mforms::TreeNodeView _global_list;
+  mforms::TreeView _global_list;
   mforms::ContextMenu _global_menu;
   bec::ValueInspectorBE *_inspector;
 
   mforms::Box _classes_box;
   mforms::Splitter _classes_splitter;
   mforms::Selector _classes_sorting;
-  mforms::TreeNodeView _classes_tree;
+  mforms::TreeView _classes_tree;
   mforms::TextBox _classes_text;
 
   mforms::Splitter _modules_splitter;
-  mforms::TreeNodeView _modules_tree;
+  mforms::TreeView _modules_tree;
   mforms::TextBox _modules_text;
   
   mforms::Splitter _notifs_splitter;
-  mforms::TreeNodeView _notifs_tree;
+  mforms::TreeView _notifs_tree;
   mforms::TextBox _notifs_text;
   
   mforms::Splitter _right_splitter;
@@ -154,7 +154,7 @@ protected:
   int _lower_tab_height;
   
   mforms::Splitter _snippet_splitter;
-  mforms::TreeNodeView* _snippet_list;
+  mforms::TreeView* _snippet_list;
   mforms::Button* _snippet_delete_button;
   mforms::Button* _snippet_copy_button;
   mforms::CodeEditor _snippet_text;

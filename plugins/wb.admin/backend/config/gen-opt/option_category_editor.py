@@ -16,7 +16,7 @@
 # 02110-1301  USA
 
 import mforms
-from mforms import newBox, newButton, newTreeNodeView, newTextEntry, newTabView
+from mforms import newBox, newButton, newTreeView, newTextEntry, newTabView
 
 import os
 import sys
@@ -43,7 +43,7 @@ class VariablesGrouper(mforms.Box):
         sidebox = newBox(False)
         sidebox.set_spacing(12)
 
-        self.groups_tree = newTreeNodeView(mforms.TreeFlatList)
+        self.groups_tree = newTreeView(mforms.TreeFlatList)
         self.groups_tree.set_size(220, -1)
         self.groups_tree.add_column(mforms.CheckColumnType, "", 20, True)
         self.groups_tree.add_column(mforms.StringColumnType, "", 160, False)
@@ -53,7 +53,7 @@ class VariablesGrouper(mforms.Box):
         sidebox.add(self.groups_tree, True, True)
         box.add_end(sidebox, False, True)
 
-        self.values_tree = newTreeNodeView(mforms.TreeFlatList)
+        self.values_tree = newTreeView(mforms.TreeFlatList)
         self.values_tree.add_column(mforms.StringColumnType, "Name", 200, False)
         self.values_tree.add_column(mforms.StringColumnType, "Groups", 1000, False)
         self.values_tree.set_selection_mode(mforms.TreeSelectMultiple)

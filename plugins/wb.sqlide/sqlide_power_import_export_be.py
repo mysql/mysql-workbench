@@ -24,7 +24,7 @@ import threading
 
 import sys, os, csv
 
-from mforms import newTreeNodeView
+from mforms import newTreeView
 from mforms import FileChooser
 import datetime
 import operator

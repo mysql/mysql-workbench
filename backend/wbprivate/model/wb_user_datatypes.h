@@ -32,7 +32,7 @@
 namespace wb {
   class WBContext;
 
-  class MYSQLWBBACKEND_PUBLIC_FUNC UserDatatypeList : public mforms::TreeNodeView
+  class MYSQLWBBACKEND_PUBLIC_FUNC UserDatatypeList : public mforms::TreeView
   {
   public:
     UserDatatypeList(WBContext *wb);

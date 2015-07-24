@@ -41,7 +41,7 @@ namespace mforms
   class ToolBar;
   class ToolBarItem;
   class ContextMenu;
-  class TreeNodeView;
+  class TreeView;
   class GridView;
 };
 
@@ -145,8 +145,8 @@ private:
   
   void add_switch_toggle_toolbar_item(mforms::ToolBar *tbar);
 
-  void copy_column_info_name(mforms::TreeNodeView *tree);
-  void copy_column_info(mforms::TreeNodeView *tree);
+  void copy_column_info_name(mforms::TreeView *tree);
+  void copy_column_info(mforms::TreeView *tree);
 
   void copy_column_name();
   void copy_all_column_names();

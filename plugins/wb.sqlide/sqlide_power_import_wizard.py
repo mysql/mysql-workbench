@@ -24,7 +24,7 @@ import threading
 
 import sys, os, csv
 
-from mforms import newTreeNodeView
+from mforms import newTreeView
 from mforms import FileChooser
 from sqlide_power_import_export_be import create_module
 from workbench.ui import WizardForm, WizardPage, WizardProgressPage
@@ -481,7 +481,7 @@ class ConfigurationPage(WizardPage):
                 self.preview_table.add(create_select_type(row), 3, 4, i+1, i+2, mforms.HFillFlag)
             self.column_mapping.append(row)
             
-        self.treeview_preview = newTreeNodeView(mforms.TreeFlatList)
+        self.treeview_preview = newTreeView(mforms.TreeFlatList)
         for i, col in enumerate(self.active_module._columns):
             self.treeview_preview.add_column(mforms.StringColumnType, str(col['name']), 75, True)
         self.treeview_preview.end_columns()

@@ -45,7 +45,7 @@ from workbench.utils import Version
 from workbench.log import log_warning, log_error, log_debug
 
 
-from mforms import newBox, newButton, newPanel, newTextBox, newRadioButton, newLabel, newTreeNodeView, newProgressBar, newTextEntry, newCheckBox, newScrollPanel, newTabView, newSelector
+from mforms import newBox, newButton, newPanel, newTextBox, newRadioButton, newLabel, newTreeView, newProgressBar, newTextEntry, newCheckBox, newScrollPanel, newTabView, newSelector
 from mforms import Utilities, FileChooser
 import mforms
 
@@ -404,7 +404,7 @@ class WbAdminSchemaListTab(mforms.Box):
         if self.savefile_path is None:
             self.savefile_path = os.path.join(self.savefolder_path, "export.sql")
 
-        self.schema_list = newTreeNodeView(mforms.TreeFlatList)
+        self.schema_list = newTreeView(mforms.TreeFlatList)
         self.schema_list.add_column(mforms.CheckColumnType, is_importing and "Import" or "Export", 40, True)
         self.schema_list.add_column(mforms.IconColumnType, "Schema", 300, False)
 
@@ -412,7 +412,7 @@ class WbAdminSchemaListTab(mforms.Box):
         self.schema_list.end_columns()
         self.schema_list.set_allow_sorting(True)
 
-        self.table_list = newTreeNodeView(mforms.TreeFlatList)
+        self.table_list = newTreeView(mforms.TreeFlatList)
         self.table_list.add_column(mforms.CheckColumnType, is_importing and "Import" or "Export", 40, True)
         self.table_list.add_column(mforms.IconColumnType, "Schema Objects", 300, False)
         self.table_list.end_columns()
