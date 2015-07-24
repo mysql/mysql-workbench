@@ -24,45 +24,45 @@ namespace MySQL {
     
     ref class TreeViewNode;
 
-    public class TreeNodeViewWrapper : public ViewWrapper
+    public class TreeViewWrapper : public ViewWrapper       // maybe
     {
     protected:
-      TreeNodeViewWrapper(mforms::TreeNodeView *backend);
-      virtual ~TreeNodeViewWrapper();
+      TreeViewWrapper(mforms::TreeView *backend);
+      virtual ~TreeViewWrapper();
 
-      static bool create(mforms::TreeNodeView *backend, mforms::TreeOptions options);
-      static int add_column(mforms::TreeNodeView *backend, mforms::TreeColumnType type,
+      static bool create(mforms::TreeView *backend, mforms::TreeOptions options);
+      static int add_column(mforms::TreeView *backend, mforms::TreeColumnType type,
         const std::string &name, int initial_width, bool editable);
-      static void end_columns(mforms::TreeNodeView *backend);
+      static void end_columns(mforms::TreeView *backend);
       
-      static void clear(mforms::TreeNodeView *backend);
+      static void clear(mforms::TreeView *backend);
 
-      static mforms::TreeSelectionMode get_selection_mode(mforms::TreeNodeView *backend);
-      static void set_selection_mode(mforms::TreeNodeView *backend, mforms::TreeSelectionMode mode);
-      static std::list<mforms::TreeNodeRef> get_selection(mforms::TreeNodeView *backend);
-      static mforms::TreeNodeRef get_selected_node(mforms::TreeNodeView *backend);
-      static void clear_selection(mforms::TreeNodeView *backend);
-      static void set_selected(mforms::TreeNodeView *backend, mforms::TreeNodeRef node, bool flag);
+      static mforms::TreeSelectionMode get_selection_mode(mforms::TreeView *backend);
+      static void set_selection_mode(mforms::TreeView *backend, mforms::TreeSelectionMode mode);
+      static std::list<mforms::TreeNodeRef> get_selection(mforms::TreeView *backend);
+      static mforms::TreeNodeRef get_selected_node(mforms::TreeView *backend);
+      static void clear_selection(mforms::TreeView *backend);
+      static void set_selected(mforms::TreeView *backend, mforms::TreeNodeRef node, bool flag);
 
-      static void set_allow_sorting(mforms::TreeNodeView *backend, bool flag);
-      static void set_row_height(mforms::TreeNodeView *backend, int h);
+      static void set_allow_sorting(mforms::TreeView *backend, bool flag);
+      static void set_row_height(mforms::TreeView *backend, int h);
 
-      static void freeze_refresh(mforms::TreeNodeView *backend, bool flag);
+      static void freeze_refresh(mforms::TreeView *backend, bool flag);
 
-      static mforms::TreeNodeRef root_node(mforms::TreeNodeView *backend);
+      static mforms::TreeNodeRef root_node(mforms::TreeView *backend);
 
-      static mforms::TreeNodeRef node_at_row(mforms::TreeNodeView *backend, int row);
-      static mforms::TreeNodeRef node_at_position(mforms::TreeNodeView *backend, base::Point position);
-      static int row_for_node(mforms::TreeNodeView *backend, mforms::TreeNodeRef node);
-      static mforms::TreeNodeRef node_with_tag(mforms::TreeNodeView *backend, const std::string &tag);
+      static mforms::TreeNodeRef node_at_row(mforms::TreeView *backend, int row);
+      static mforms::TreeNodeRef node_at_position(mforms::TreeView *backend, base::Point position);
+      static int row_for_node(mforms::TreeView *backend, mforms::TreeNodeRef node);
+      static mforms::TreeNodeRef node_with_tag(mforms::TreeView *backend, const std::string &tag);
 
-      static void set_column_title(mforms::TreeNodeView *backend, int column, const std::string &title);
+      static void set_column_title(mforms::TreeView *backend, int column, const std::string &title);
 
-      static void set_column_visible(mforms::TreeNodeView *backend, int column, bool flag);
-      static bool get_column_visible(mforms::TreeNodeView *backend, int column);
+      static void set_column_visible(mforms::TreeView *backend, int column, bool flag);
+      static bool get_column_visible(mforms::TreeView *backend, int column);
 
-      static void set_column_width(mforms::TreeNodeView *backend, int column, int width);
-      static int get_column_width(mforms::TreeNodeView *backend, int column);
+      static void set_column_width(mforms::TreeView *backend, int column, int width);
+      static int get_column_width(mforms::TreeView *backend, int column);
 
       virtual mforms::DropPosition get_drop_position();
     public:

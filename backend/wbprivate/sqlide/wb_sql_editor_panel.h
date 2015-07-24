@@ -42,7 +42,7 @@ namespace mforms
   class ToolBar;
   class ToolBarItem;
   class ContextMenu;
-  class TreeNodeView;
+  class TreeView;
   class RecordGrid;
 };
 

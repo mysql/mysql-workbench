@@ -36,7 +36,7 @@ from workbench.log import log_info, log_error, log_debug, log_debug2
 import traceback
 
 from workbench.ui import WizardForm, WizardPage, WizardProgressPage
-from mforms import newButton, newCheckBox, newTreeNodeView
+from mforms import newButton, newCheckBox, newTreeView
 from mforms import FileChooser
 
 # define this Python module as a GRT module

@@ -72,7 +72,7 @@ class MaintenanceResultForm(mforms.Form):
         self.box.set_spacing(8)
         self.set_content(self.box)
 
-        self.tree = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeAltRowColors|mforms.TreeShowColumnLines)
+        self.tree = mforms.newTreeView(mforms.TreeFlatList|mforms.TreeAltRowColors|mforms.TreeShowColumnLines)
         self.tree.set_selection_mode(mforms.TreeSelectMultiple)
         self.box.add(self.tree, True, True)
         self.tree.add_column(mforms.StringColumnType, "Table", 200, False)
@@ -179,7 +179,7 @@ class ObjectManager(mforms.Box):
         self.main.set_padding(8)
         self.main.set_spacing(8)
 
-        self.tree = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeAltRowColors|mforms.TreeShowColumnLines)
+        self.tree = mforms.newTreeView(mforms.TreeFlatList|mforms.TreeAltRowColors|mforms.TreeShowColumnLines)
         self.tree.set_selection_mode(mforms.TreeSelectMultiple)
         
         #Check if there is method to load the columns, if not, skip.

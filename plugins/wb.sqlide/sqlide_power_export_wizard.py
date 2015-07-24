@@ -24,7 +24,7 @@ import threading
 
 import sys, os, csv
 
-from mforms import newTreeNodeView
+from mforms import newTreeView
 from mforms import FileChooser
 from sqlide_power_import_export_be import create_module
 from workbench.ui import WizardForm, WizardPage, WizardProgressPage
@@ -90,7 +90,7 @@ class SimpleTabExport(mforms.Box):
         colbox.set_spacing(8)
         colbox.add(mforms.newLabel("Select columns you'd like to export"), False, True)
         
-        self.column_list = newTreeNodeView(mforms.TreeFlatList)
+        self.column_list = newTreeView(mforms.TreeFlatList)
         self.column_list.add_column(mforms.CheckColumnType, "Export", 50, True)
         self.column_list.add_column(mforms.StringColumnType, "Column name", self.owner.main.get_width(), False)
         self.column_list.end_columns()

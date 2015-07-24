@@ -2067,7 +2067,7 @@ void LiveSchemaTree::set_filter(std::string filter)
   }
 }
 
-void LiveSchemaTree::set_model_view(mforms::TreeNodeView* target)
+void LiveSchemaTree::set_model_view(mforms::TreeView* target)
 {
   _model_view = target;
 

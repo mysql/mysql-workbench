@@ -43,7 +43,7 @@ class TemplateEditor(mforms.Form):
 
         #top.set_padding(12)
         top.set_spacing(12)
-        self.template_list = mforms.newTreeNodeView(mforms.TreeFlatList)
+        self.template_list = mforms.newTreeView(mforms.TreeFlatList)
         self.template_list.add_column(mforms.IconStringColumnType, "Table Template", 200, True)
         self.template_list.end_columns()
         self.template_list.add_changed_callback(self.table_selected)
@@ -74,7 +74,7 @@ class TemplateEditor(mforms.Form):
         hbox = mforms.newBox(True)
         hbox.set_spacing(12)
       
-        self.column_list = mforms.newTreeNodeView(mforms.TreeFlatList)
+        self.column_list = mforms.newTreeView(mforms.TreeFlatList)
         self.column_list.add_column(mforms.IconStringColumnType, "Column", 100, True)
         self.column_list.add_column(mforms.StringColumnType, "Datatype", 100, True)
         self.column_list.add_column(mforms.StringColumnType, "Default", 150, True)

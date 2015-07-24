@@ -50,7 +50,7 @@ namespace wb {
 
 
 
-  class MYSQLWBBACKEND_PUBLIC_FUNC CatalogTreeView : public mforms::TreeNodeView
+  class MYSQLWBBACKEND_PUBLIC_FUNC CatalogTreeView : public mforms::TreeView
   {
   private:
     class ObjectNodeData : public mforms::TreeNodeData
