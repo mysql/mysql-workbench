@@ -27,6 +27,7 @@
 #include "base/log.h"
 
 #include "mforms/app.h"
+#include <boost/make_shared.hpp>
 
 using namespace wb;
 using namespace bec;
@@ -1211,10 +1212,12 @@ void LiveSchemaTree::schema_contents_arrived(const std::string &schema_name,
           int old_table_count = tables_node->count();
           int old_view_count = tables_node->count();
           
-          update_node_children(tables_node,   tables,     Table,    true, just_append);
-          update_node_children(views_node,    views,      View,     true, just_append);
-          update_node_children(procedures_node, procedures, Procedure,true, just_append);
-          update_node_children(functions_node, functions,  Function, true, just_append);
+          //We need to duplicate the data, because it's being changed inside update_node_children
+          //and we can't do this because it's shared between threads
+          update_node_children(tables_node, boost::make_shared<StringList>(*tables), Table, true, just_append);
+          update_node_children(views_node, boost::make_shared<StringList>(*views), View, true, just_append);
+          update_node_children(procedures_node, boost::make_shared<StringList>(*procedures), Procedure,true, just_append);
+          update_node_children(functions_node, boost::make_shared<StringList>(*functions), Function, true, just_append);
           
 
           // If there were nodes that means this is a refresh, in such case loaded tables
