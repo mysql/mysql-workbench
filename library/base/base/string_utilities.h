@@ -320,6 +320,7 @@ template<typename T> T inline atof(const std::string &val, boost::optional<T> de
   return ConvertHelper::string_to_number<T>(val, def_val);
 }
   
-typedef boost::shared_ptr<std::list<std::string> > StringListPtr;
+typedef std::list<std::string> StringList;
+typedef boost::shared_ptr<StringList> StringListPtr;
 
 } // namespace base
