@@ -8,15 +8,18 @@ fi
 
 
 case "$1" in
- "mysql") echo "Selected MySQL parser"
+ "mysql") echo "Building MySQL parser"
    java -Xmx1024m -jar ../../../../mysql-mac-res/bin/antlr-3.4-complete.jar -make MySQL.g -o .. -Xmaxswitchcaselabels=30
    java -Xmx1024m -jar ../../../../mysql-mac-res/bin/antlr-3.4-complete.jar -make MySQLSimpleParser.g -o .. -Xmaxswitchcaselabels=30
  ;;
- "js") echo "Selected JS Parser"
+ "js") echo "Building JS Parser"
+   java -Xmx1024m -jar ../../../../mysql-mac-res/bin/antlr-3.4-complete.jar -make ECMA.g -o .. -Xmaxswitchcaselabels=30
  ;;
- "python") echo "Selected Python parser"
+ "python") echo "Building Python parser"
+   java -Xmx1024m -jar ../../../../mysql-mac-res/bin/antlr-3.4-complete.jar -make Python25.g -o .. -Xmaxswitchcaselabels=30
  ;;
  *) echo "Unknown parser type $1"
  exit 1
  ;;
 esac
+
