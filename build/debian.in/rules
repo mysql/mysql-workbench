@@ -46,6 +46,7 @@ GDAL_HOME=$(LINUXRES_HOME)/gdal
 WBDIRNAME=mysql-workbench-@edition@
 
 WBLIBPATH=$(INSTALL_PREFIX)/lib/mysql-workbench
+WBDATADIRPATH=$(INSTALL_PREFIX)/share/mysql-workbench
 WBDOCPATH=$(INSTALL_PREFIX)/share/doc/mysql-workbench-@edition@
 
 configure: configure-stamp
@@ -113,6 +114,13 @@ install: build
 	cp -a $(LINUXRES_HOME)/sqlite3/libsqlite3.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(LINUXRES_HOME)/pysqlite2 $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)/modules/
 @endif
+
+@ifdef paramiko
+	#bundle paramiko based on the param
+	cp -a $(LINUXRES_HOME)/python/paramiko  $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)/modules/
+	cp -a $(LINUXRES_HOME)/python/ecdsa $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)/modules/
+@endif
+
 	# Bundle client programs and lib
 	cp -a $(MYSQL_HOME)/lib/libmysqlclient.so.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(MYSQL_HOME)/bin/mysql $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
