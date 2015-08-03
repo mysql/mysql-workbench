@@ -334,7 +334,7 @@ namespace wb
     boost::weak_ptr<Delegate> _delegate;
     grt::GRT* _grt;
     std::string _active_schema;
-    mforms::TreeNodeView* _model_view;
+    mforms::TreeView* _model_view;
 
     bool _case_sensitive_identifiers;
 
@@ -364,7 +364,7 @@ namespace wb
     LiveSchemaTree(grt::GRT* grtm);
     virtual ~LiveSchemaTree();
 
-    void set_model_view(mforms::TreeNodeView* target);
+    void set_model_view(mforms::TreeView* target);
     void set_delegate(boost::shared_ptr<Delegate> delegate);
     void set_fetch_delegate(boost::shared_ptr<FetchDelegate> delegate);
 

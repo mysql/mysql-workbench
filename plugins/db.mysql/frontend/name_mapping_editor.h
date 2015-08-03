@@ -318,7 +318,7 @@ private:
   db_SchemaRef _right_schema;
   mforms::Box _vbox;
   mforms::Label _heading;
-  mforms::TreeNodeView _tree;
+  mforms::TreeView _tree;
 
   mforms::Panel *_panel;
 
@@ -594,7 +594,7 @@ private:
   db_TableRef _right_table;
   mforms::Box _vbox;
   mforms::Label _heading;
-  mforms::TreeNodeView _tree;
+  mforms::TreeView _tree;
 
   mforms::Panel *_panel;
 

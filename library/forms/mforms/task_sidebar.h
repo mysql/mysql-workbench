@@ -36,7 +36,7 @@ namespace wb {
 namespace mforms {
 
   class ContextMenu;
-  class TreeNodeView;
+  class TreeView;
   class TaskSidebar;
   class TextEntry;
 
@@ -106,7 +106,7 @@ namespace mforms {
     virtual void set_filtered_schema_model(wb::LiveSchemaTree* model) {}
     virtual void enable_server_search(bool enabled) {}
 
-    virtual TreeNodeView *get_schema_tree() { return NULL; }
+    virtual TreeView *get_schema_tree() { return NULL; }
     virtual TextEntry *get_filter_entry() { return NULL; }
 
     virtual void expand_schema(int schema_index) {}

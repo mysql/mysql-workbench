@@ -237,8 +237,8 @@ namespace wb {
   private:
     typedef boost::signals2::signal<void (const std::string&)> SearchBoxChangedSignal;
     typedef boost::signals2::signal<void (void)> TreeNodeSelected;
-    mforms::TreeNodeView _new_schema_tree;
-    mforms::TreeNodeView _filtered_schema_tree;
+    mforms::TreeView _new_schema_tree;
+    mforms::TreeView _filtered_schema_tree;
     mforms::ContextMenu _tree_context_menu;
     mforms::Box _schema_search_box;
     mforms::TextEntry _schema_search_text;
@@ -272,7 +272,7 @@ namespace wb {
 
     virtual void mark_section_busy(const std::string& section_name, bool busy);
 
-    virtual mforms::TreeNodeView *get_schema_tree() { return (_schema_model == _base_model) ? &_new_schema_tree : &_filtered_schema_tree; }
+    virtual mforms::TreeView *get_schema_tree() { return (_schema_model == _base_model) ? &_new_schema_tree : &_filtered_schema_tree; }
     virtual mforms::TextEntry *get_filter_entry() { return &_schema_search_text; }
     void tool_action_clicked(const std::string &action);
     virtual void set_schema_model(wb::LiveSchemaTree* model);

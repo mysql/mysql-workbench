@@ -40,9 +40,9 @@ class PythonDebugger : public base::trackable
   GRTShellWindow *_shell;
   mforms::TabView *_lower_tabs;
   
-  mforms::TreeNodeView *_stack_list;
-  mforms::TreeNodeView *_breakpoint_list;
-  mforms::TreeNodeView *_variable_list;
+  mforms::TreeView *_stack_list;
+  mforms::TreeView *_breakpoint_list;
+  mforms::TreeView *_variable_list;
 
   GRTCodeEditor *_stack_position_editor;
   int _stack_position_line;

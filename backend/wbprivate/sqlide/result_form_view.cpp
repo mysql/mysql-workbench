@@ -158,7 +158,7 @@ public:
 
 class SetFieldView : public ResultFormView::FieldView
 {
-  mforms::TreeNodeView _tree;
+  mforms::TreeView _tree;
 
   void changed()
   {

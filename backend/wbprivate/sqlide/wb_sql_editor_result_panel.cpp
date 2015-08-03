@@ -791,7 +791,7 @@ static mforms::Label *bold_label(const std::string text)
 }
 
 
-void SqlEditorResult::copy_column_info(mforms::TreeNodeView *tree)
+void SqlEditorResult::copy_column_info(mforms::TreeView *tree)
 {
   std::list<mforms::TreeNodeRef> nodes(tree->get_selection());
   std::string text;
@@ -812,7 +812,7 @@ void SqlEditorResult::copy_column_info(mforms::TreeNodeView *tree)
 }
 
 
-void SqlEditorResult::copy_column_info_name(mforms::TreeNodeView *tree)
+void SqlEditorResult::copy_column_info_name(mforms::TreeView *tree)
 {
   std::list<mforms::TreeNodeRef> nodes(tree->get_selection());
   std::string text;
@@ -845,7 +845,7 @@ void SqlEditorResult::create_column_info_panel()
 
     if (_owner->owner()->collect_field_info())
     {
-      mforms::TreeNodeView *tree = mforms::manage(new mforms::TreeNodeView(mforms::TreeFlatList|mforms::TreeAltRowColors|mforms::TreeShowRowLines|mforms::TreeShowColumnLines|mforms::TreeNoBorder));
+      mforms::TreeView *tree = mforms::manage(new mforms::TreeView(mforms::TreeFlatList|mforms::TreeAltRowColors|mforms::TreeShowRowLines|mforms::TreeShowColumnLines|mforms::TreeNoBorder));
       tree->add_column(mforms::IntegerColumnType, "#", 50);
       tree->add_column(mforms::StringColumnType, "Field", 130);
       tree->add_column(mforms::StringColumnType, "Schema", 130);

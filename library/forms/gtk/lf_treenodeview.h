@@ -73,12 +73,12 @@ public:
   void copy_iter( Gtk::TreeModel::iterator& from, Gtk::TreeModel::iterator& to);
 };
 
-class TreeNodeViewImpl;
+class TreeViewImpl; // rename
 
 class RootTreeNodeImpl : public ::mforms::TreeNode
 {
 protected:
-  TreeNodeViewImpl *_treeview;
+  TreeViewImpl *_treeview;
   int _refcount;
 
   inline TreeNodeRef ref_from_iter(const Gtk::TreeIter &iter) const;
@@ -93,7 +93,7 @@ protected:
   virtual int level() const;
 
 public:
-  RootTreeNodeImpl(TreeNodeViewImpl *tree);
+  RootTreeNodeImpl(TreeViewImpl *tree);
 
   virtual void invalidate();
 
@@ -188,9 +188,9 @@ public:
   virtual Gtk::TreeIter duplicate_node(TreeNodeRef oldnode);
 
 public:
-  TreeNodeImpl(TreeNodeViewImpl *tree, Glib::RefPtr<Gtk::TreeStore> model, const Gtk::TreePath &path);
+  TreeNodeImpl(TreeViewImpl *tree, Glib::RefPtr<Gtk::TreeStore> model, const Gtk::TreePath &path);
 
-  TreeNodeImpl(TreeNodeViewImpl *tree, const Gtk::TreeRowReference &ref);
+  TreeNodeImpl(TreeViewImpl *tree, const Gtk::TreeRowReference &ref);
 
   virtual bool equals(const TreeNode &other);
 
@@ -260,7 +260,7 @@ public:
 };
 
 
-class TreeNodeViewImpl : public ViewImpl
+class TreeViewImpl : public ViewImpl  // rename
 {
   friend class RootTreeNodeImpl;
   friend class TreeNodeImpl;
@@ -346,8 +346,8 @@ private:
   virtual Gtk::Widget *get_outer() const { return &(const_cast<Gtk::ScrolledWindow&>(_swin)); }
   virtual Gtk::Widget *get_inner() const { return &(const_cast<Gtk::TreeView&>(_tree)); }
 
-  TreeNodeViewImpl(TreeNodeView *self, mforms::TreeOptions opts);
-  ~TreeNodeViewImpl();
+  TreeViewImpl(TreeView *self, mforms::TreeOptions opts);
+  ~TreeViewImpl();
   void string_edited(const Glib::ustring &path, const Glib::ustring &new_text, int column);
   void toggle_edited(const Glib::ustring &path, int column);
   void on_activated(const Gtk::TreeModel::Path&, Gtk::TreeViewColumn*);
@@ -370,33 +370,33 @@ private:
 
   int add_column(TreeColumnType type, const std::string &name, int initial_width, bool editable, bool attributed);
   void end_columns();
-  static bool create(TreeNodeView *self, mforms::TreeOptions opt);
-  static int add_column(TreeNodeView *self, TreeColumnType type, const std::string &name, int width, bool editable, bool attr);
-  static void end_columns(TreeNodeView *self);
-  static void clear(TreeNodeView *self);
-  static TreeNodeRef root_node(TreeNodeView *self);
-  static TreeNodeRef get_selected_node(TreeNodeView *self);
-  static std::list<TreeNodeRef> get_selection(TreeNodeView *self);
-  static void set_selected(TreeNodeView* self, TreeNodeRef node, bool flag);
-  static TreeSelectionMode get_selection_mode(TreeNodeView *self);
-  static void set_selection_mode(TreeNodeView *self, TreeSelectionMode mode);
-  static void clear_selection(TreeNodeView *self);
+  static bool create(TreeView *self, mforms::TreeOptions opt);
+  static int add_column(TreeView *self, TreeColumnType type, const std::string &name, int width, bool editable, bool attr);
+  static void end_columns(TreeView *self);
+  static void clear(TreeView *self);
+  static TreeNodeRef root_node(TreeView *self);
+  static TreeNodeRef get_selected_node(TreeView *self);
+  static std::list<TreeNodeRef> get_selection(TreeView *self);
+  static void set_selected(TreeView* self, TreeNodeRef node, bool flag);
+  static TreeSelectionMode get_selection_mode(TreeView *self);
+  static void set_selection_mode(TreeView *self, TreeSelectionMode mode);
+  static void clear_selection(TreeView *self);
 
-  static int row_for_node(TreeNodeView *self, TreeNodeRef node);
-  static TreeNodeRef node_at_row(TreeNodeView *self, int row);
-  static TreeNodeRef node_with_tag(TreeNodeView *self, const std::string &tag);
+  static int row_for_node(TreeView *self, TreeNodeRef node);
+  static TreeNodeRef node_at_row(TreeView *self, int row);
+  static TreeNodeRef node_with_tag(TreeView *self, const std::string &tag);
 
-  static void set_row_height(TreeNodeView *self, int height);
+  static void set_row_height(TreeView *self, int height);
 
-  static void set_allow_sorting(TreeNodeView* self, bool flag);
-  static void freeze_refresh(TreeNodeView* self, bool flag);
-  static void set_column_visible(TreeNodeView* self, int column, bool flag);
-  static bool get_column_visible(TreeNodeView* self, int column);
-  static void set_column_title(TreeNodeView* self, int column, const std::string &title);
+  static void set_allow_sorting(TreeView* self, bool flag);
+  static void freeze_refresh(TreeView* self, bool flag);
+  static void set_column_visible(TreeView* self, int column, bool flag);
+  static bool get_column_visible(TreeView* self, int column);
+  static void set_column_title(TreeView* self, int column, const std::string &title);
 
-  static void set_column_width(TreeNodeView* self, int column, int width);
-  static int get_column_width(TreeNodeView* self, int column);
-  static TreeNodeRef node_at_position(TreeNodeView* self, base::Point position);
+  static void set_column_width(TreeView* self, int column, int width);
+  static int get_column_width(TreeView* self, int column);
+  static TreeNodeRef node_at_position(TreeView* self, base::Point position);
 
 
   Gtk::TreeModel::iterator to_list_iter(const Gtk::TreeModel::iterator &it);
@@ -418,7 +418,7 @@ public:
   int index_for_column(int i) { return _columns.column_value_index[i]; }
   Glib::RefPtr<Gtk::TreeStore> tree_store() { return _tree_store; }
 
-  TreeNodeView* get_owner();
+  TreeView* get_owner();
 };
 
   

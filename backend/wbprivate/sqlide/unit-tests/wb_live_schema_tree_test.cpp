@@ -47,7 +47,7 @@ namespace wb
       return _tree->is_object_type(validation, type);
     }
 
-    mforms::TreeNodeView* get_model_view() { return _tree->_model_view; }
+    mforms::TreeView* get_model_view() { return _tree->_model_view; }
     boost::weak_ptr<LiveSchemaTree::Delegate> get_delegate() { return _tree->_delegate; }
     boost::weak_ptr<LiveSchemaTree::FetchDelegate> get_fetch_delegate() { return _tree->_fetch_delegate; }
 
@@ -400,8 +400,8 @@ public:
   GRT grt;
   LiveSchemaTree _lst;
   LiveSchemaTree _lst_filtered;
-  mforms::TreeNodeView *pmodel_view;
-  mforms::TreeNodeView *pmodel_view_filtered;
+  mforms::TreeView *pmodel_view;
+  mforms::TreeView *pmodel_view_filtered;
   LiveSchemaTreeTester _tester;
   LiveSchemaTreeTester _tester_filtered;
   boost::shared_ptr<LiveTreeTestDelegate> deleg;
@@ -426,8 +426,8 @@ public:
     grt.set("/wb/options/options/SqlEditor:AutoFetchColumnInfo", grt::IntegerRef(1));
 
     mforms::stub::init(NULL);
-    pmodel_view = new mforms::TreeNodeView(mforms::TreeNoColumns | mforms::TreeNoBorder | mforms::TreeSidebar | mforms::TreeNoHeader);
-    pmodel_view_filtered = new mforms::TreeNodeView(mforms::TreeNoColumns | mforms::TreeNoBorder | mforms::TreeSidebar | mforms::TreeNoHeader);
+    pmodel_view = new mforms::TreeView(mforms::TreeNoColumns | mforms::TreeNoBorder | mforms::TreeSidebar | mforms::TreeNoHeader);
+    pmodel_view_filtered = new mforms::TreeView(mforms::TreeNoColumns | mforms::TreeNoBorder | mforms::TreeSidebar | mforms::TreeNoHeader);
 
     _lst.set_model_view(pmodel_view);
     _lst_filtered.set_model_view(pmodel_view_filtered);

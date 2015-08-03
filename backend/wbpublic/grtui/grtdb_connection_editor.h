@@ -55,7 +55,7 @@ protected:
   mforms::Button _dup_conn_button;
   mforms::Button _move_up_button;
   mforms::Button _move_down_button;
-  mforms::TreeNodeView _stored_connection_list;
+  mforms::TreeView _stored_connection_list;
   mforms::TextEntry *_conn_name;
 
   mforms::Box _bottom_hbox;

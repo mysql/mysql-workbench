@@ -153,7 +153,7 @@ All tables are copied by default.""")
         l.set_style(mforms.SmallHelpTextStyle)
         box.add(l, False, True)
 
-        self._tree = mforms.newTreeNodeView(mforms.TreeDefault)
+        self._tree = mforms.newTreeView(mforms.TreeDefault)
         self._tree.add_column(mforms.IconStringColumnType, "Table", 200, False)
         self._tree.add_column(mforms.StringColumnType, "Limit Copy", 100, True)
         self._tree.add_column(mforms.StringColumnType, "Referencing Tables", 500, False)

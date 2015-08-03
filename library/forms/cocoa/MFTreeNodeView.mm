@@ -39,12 +39,12 @@ class TreeNodeImpl;
 {
 @public
   MFTreeNodeImpl *mParent;
-  MFTreeNodeViewImpl *mTree;
+  MFTreeViewImpl *mTree;  // someone else
   NSMutableDictionary *mData;
 }
 
-- (instancetype)initWithOwner:(MFTreeNodeViewImpl*)owner NS_DESIGNATED_INITIALIZER;
-@property (readonly, weak) MFTreeNodeViewImpl *treeNodeView;
+- (instancetype)initWithOwner:(MFTreeViewImpl*)owner NS_DESIGNATED_INITIALIZER;
+@property (readonly, weak) MFTreeViewImpl *treeNodeView;
 @property (readonly) mforms::TreeNodeRef nodeRef;
 - (void)setObject:(id)anObject forKey:(id)aKey;
 - (id)objectForKey:(id)key;
@@ -637,7 +637,7 @@ inline TreeNodeImpl *from_ref(mforms::TreeNodeRef node)
 
 @implementation MFTreeNodeImpl
 
-- (instancetype)initWithOwner:(MFTreeNodeViewImpl*)owner
+- (instancetype)initWithOwner:(MFTreeViewImpl*)owner
 {
   self = [super init];
   if (self)
@@ -654,7 +654,7 @@ inline TreeNodeImpl *from_ref(mforms::TreeNodeRef node)
   [super dealloc];
 }
 
-- (MFTreeNodeViewImpl*)treeNodeView
+- (MFTreeViewImpl*)treeNodeView
 {
   return mTree;
 }
@@ -762,10 +762,10 @@ static NSImage *descendingSortIndicator = nil;
 @end
 
 
-@interface TreeNodeViewOutlineView : NSOutlineView
+@interface TreeViewOutlineView : NSOutlineView
 {
   @public
-  mforms::TreeNodeView *mOwner;
+  mforms::TreeView *mOwner;
   NSTrackingArea *mTrackingArea;
 
   NSInteger mOverlayedRow;
@@ -777,9 +777,9 @@ static NSImage *descendingSortIndicator = nil;
 }
 @end
 
-@implementation TreeNodeViewOutlineView
+@implementation TreeViewOutlineView
 
-- (instancetype)initWithFrame: (NSRect)frame owner: (mforms::TreeNodeView *)treeView
+- (instancetype)initWithFrame: (NSRect)frame owner: (mforms::TreeView *)treeView
 {
   self = [super initWithFrame: frame];
   if (self != nil)
@@ -872,7 +872,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
           // Iterating the icons reversely to simplify hit computation.
           for (std::vector<std::string>::reverse_iterator icon = icons.rbegin(); icon != icons.rend(); ++icon, ++i)
           {
-            NSImage *img = icon->empty() ? nil : [(MFTreeNodeViewImpl*)[self delegate] iconForFile: [NSString stringWithCPPString: *icon]];
+            NSImage *img = icon->empty() ? nil : [(MFTreeViewImpl*)[self delegate] iconForFile: [NSString stringWithCPPString: *icon]];
             if (img)
               [mOverlayIcons insertObject: img atIndex: 0];
             else
@@ -988,7 +988,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 - (NSMenu*)menuForEvent:(NSEvent *)event
 {
-  TreeNodeViewOutlineView *outline = (TreeNodeViewOutlineView*)[self tableView];
+  TreeViewOutlineView *outline = (TreeViewOutlineView*)[self tableView];
   
   if (outline)
   {
@@ -1007,10 +1007,10 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 // ------------------------------------------------------------------------------------------------
 
-@implementation MFTreeNodeViewImpl
+@implementation MFTreeViewImpl
 
 
-- (instancetype)initWithObject:(::mforms::TreeNodeView*)aTreeView
+- (instancetype)initWithObject:(::mforms::TreeView*)aTreeView
 {
   if (!ascendingSortIndicator)
   {
@@ -1043,7 +1043,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
                                          controlSize: NSRegularControlSize
                                        scrollerStyle: NSScrollerStyleOverlay];
 
-    mOutline= [[TreeNodeViewOutlineView alloc] initWithFrame: rect owner: mOwner];
+    mOutline= [[TreeViewOutlineView alloc] initWithFrame: rect owner: mOwner];
 
     [self setDocumentView: mOutline];
     [mOutline setColumnAutoresizingStyle: NSTableViewLastColumnOnlyAutoresizingStyle];
@@ -1218,7 +1218,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 - (NSString*)keyForColumn:(int)column
 {
   if (column >= (int)[mColumnKeys count])
-      throw std::invalid_argument(base::strfmt("invalid column %i in TreeNodeView, last column is %s", column,
+      throw std::invalid_argument(base::strfmt("invalid column %i in TreeView, last column is %s", column,
                                                [[[[[mOutline tableColumns] lastObject] headerCell] stringValue] UTF8String]));
     
   return mColumnKeys[column];
@@ -1290,7 +1290,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
         sd = [NSSortDescriptor sortDescriptorWithKey: tableColumn.identifier
                                            ascending: ascending
                                           comparator: ^(id o1, id o2) {
-                                            double d = mforms::TreeNodeView::parse_string_with_unit([o1 UTF8String]) - mforms::TreeNodeView::parse_string_with_unit([o2 UTF8String]);
+                                            double d = mforms::TreeView::parse_string_with_unit([o1 UTF8String]) - mforms::TreeView::parse_string_with_unit([o2 UTF8String]);
                                             if (d > 0)
                                               return (NSComparisonResult)NSOrderedAscending;
                                             else if (d < 0)
@@ -1332,7 +1332,7 @@ static void sortChildrenOfNode(MFTreeNodeImpl *node,
   return mOutline.viewFlags;
 }
 
-- (mforms::TreeNodeView *)backend
+- (mforms::TreeView *)backend
 {
   return mOwner;
 }
@@ -1737,9 +1737,9 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
 
 //--------------------------------------------------------------------------------------------------
 
-static bool treeview_create(mforms::TreeNodeView *self, mforms::TreeOptions options)
+static bool treeview_create(mforms::TreeView *self, mforms::TreeOptions options)
 {
-  MFTreeNodeViewImpl *tree= [[[MFTreeNodeViewImpl alloc] initWithObject: self] autorelease];
+  MFTreeViewImpl *tree= [[[MFTreeViewImpl alloc] initWithObject: self] autorelease];
 
   if (options & mforms::TreeAllowReorderRows || options & mforms::TreeCanBeDragSource)
   {
@@ -1797,9 +1797,9 @@ static bool treeview_create(mforms::TreeNodeView *self, mforms::TreeOptions opti
   return true;
 }
 
-static int treeview_add_column(mforms::TreeNodeView *self, mforms::TreeColumnType type, const std::string &name, int width, bool editable, bool attributed)
+static int treeview_add_column(mforms::TreeView *self, mforms::TreeColumnType type, const std::string &name, int width, bool editable, bool attributed)
 {
-  MFTreeNodeViewImpl *tree= self->get_data();
+  MFTreeViewImpl *tree= self->get_data();
   if (tree)
   {
     return [tree addColumnWithTitle:wrap_nsstring(name) type:type editable:editable width:width];
@@ -1808,9 +1808,9 @@ static int treeview_add_column(mforms::TreeNodeView *self, mforms::TreeColumnTyp
 }
 
 
-static void treeview_end_columns(mforms::TreeNodeView *self)
+static void treeview_end_columns(mforms::TreeView *self)
 {
-  MFTreeNodeViewImpl *tree= self->get_data();
+  MFTreeViewImpl *tree= self->get_data();
   if (tree)
   {
     [tree->mOutline sizeLastColumnToFit];
@@ -1818,9 +1818,9 @@ static void treeview_end_columns(mforms::TreeNodeView *self)
 }
 
 
-static void treeview_clear(mforms::TreeNodeView *self)
+static void treeview_clear(mforms::TreeView *self)
 {
-  MFTreeNodeViewImpl *tree= self->get_data();
+  MFTreeViewImpl *tree= self->get_data();
   if (tree)
   {
     [[tree->mRootNode children] removeAllObjects];
@@ -1828,17 +1828,17 @@ static void treeview_clear(mforms::TreeNodeView *self)
   }
 }
 
-static mforms::TreeNodeRef treeview_root_node(mforms::TreeNodeView *self)
+static mforms::TreeNodeRef treeview_root_node(mforms::TreeView *self)
 {
-  MFTreeNodeViewImpl *tree= self->get_data();
+  MFTreeViewImpl *tree= self->get_data();
   if (tree)
     return [tree->mRootNode nodeRef];
   return mforms::TreeNodeRef();
 }
 
-static mforms::TreeNodeRef treeview_get_selected(mforms::TreeNodeView *self)
+static mforms::TreeNodeRef treeview_get_selected(mforms::TreeView *self)
 {
-  MFTreeNodeViewImpl *tree = self->get_data();
+  MFTreeViewImpl *tree = self->get_data();
   if (tree)
   {
     NSArray *draggedNodes = tree->mDraggedNodes;
@@ -1854,9 +1854,9 @@ static mforms::TreeNodeRef treeview_get_selected(mforms::TreeNodeView *self)
   return mforms::TreeNodeRef();
 }
 
-static std::list<mforms::TreeNodeRef> treeview_get_selection(mforms::TreeNodeView *self)
+static std::list<mforms::TreeNodeRef> treeview_get_selection(mforms::TreeView *self)
 {
-  MFTreeNodeViewImpl *tree = self->get_data();
+  MFTreeViewImpl *tree = self->get_data();
   std::list<mforms::TreeNodeRef> selection;
   if (tree)
   {
@@ -1882,15 +1882,15 @@ static std::list<mforms::TreeNodeRef> treeview_get_selection(mforms::TreeNodeVie
   return selection;
 }
 
-static int treeview_row_for_node(mforms::TreeNodeView *self, mforms::TreeNodeRef node);
+static int treeview_row_for_node(mforms::TreeView *self, mforms::TreeNodeRef node);
 
-static void treeview_set_selected(mforms::TreeNodeView *self, mforms::TreeNodeRef node, bool flag)
+static void treeview_set_selected(mforms::TreeView *self, mforms::TreeNodeRef node, bool flag)
 {
-  MFTreeNodeViewImpl *tree= self->get_data();
+  MFTreeViewImpl *tree= self->get_data();
   if (tree && node)
   {
     if ([tree frozen])
-      NSLog(@"WARNING: Selecting items on a frozen TreeNodeView will probably not work");
+      NSLog(@"WARNING: Selecting items on a frozen TreeView will probably not work");
     
     if (flag)
     {
@@ -1904,24 +1904,24 @@ static void treeview_set_selected(mforms::TreeNodeView *self, mforms::TreeNodeRe
 }
 
 
-static void treeview_set_row_height(mforms::TreeNodeView *self, int height)
+static void treeview_set_row_height(mforms::TreeView *self, int height)
 {
-  MFTreeNodeViewImpl *tree= self->get_data();
+  MFTreeViewImpl *tree= self->get_data();
   if (tree)
     [tree->mOutline setRowHeight: height];
 }
 
 
-static void treeview_clear_selection(mforms::TreeNodeView *self)
+static void treeview_clear_selection(mforms::TreeView *self)
 {
-  MFTreeNodeViewImpl *tree= self->get_data();
+  MFTreeViewImpl *tree= self->get_data();
   if (tree)
     [tree->mOutline deselectAll: nil];
 }
 
-static void treeview_allow_sorting(mforms::TreeNodeView *self, bool flag)
+static void treeview_allow_sorting(mforms::TreeView *self, bool flag)
 {
-  MFTreeNodeViewImpl *tree= self->get_data();
+  MFTreeViewImpl *tree= self->get_data();
   if (tree)
   {
     tree->mSortColumnEnabled = flag;
@@ -1936,9 +1936,9 @@ static void treeview_allow_sorting(mforms::TreeNodeView *self, bool flag)
 }
 
 
-static void treeview_freeze_refresh(mforms::TreeNodeView *self, bool flag)
+static void treeview_freeze_refresh(mforms::TreeView *self, bool flag)
 {
-  MFTreeNodeViewImpl *tree= self->get_data();
+  MFTreeViewImpl *tree= self->get_data();
   if (tree)
   {
     if (flag)
@@ -1968,9 +1968,9 @@ static void treeview_freeze_refresh(mforms::TreeNodeView *self, bool flag)
 }
 
 
-static void treeview_set_selection_mode(mforms::TreeNodeView *self, mforms::TreeSelectionMode mode)
+static void treeview_set_selection_mode(mforms::TreeView *self, mforms::TreeSelectionMode mode)
 {
-  MFTreeNodeViewImpl *tree= self->get_data();
+  MFTreeViewImpl *tree= self->get_data();
   if (tree)
   {
     switch (mode)
@@ -1988,9 +1988,9 @@ static void treeview_set_selection_mode(mforms::TreeNodeView *self, mforms::Tree
 }
 
 
-static mforms::TreeSelectionMode treeview_get_selection_mode(mforms::TreeNodeView *self)
+static mforms::TreeSelectionMode treeview_get_selection_mode(mforms::TreeView *self)
 {
-  MFTreeNodeViewImpl *tree= self->get_data();
+  MFTreeViewImpl *tree= self->get_data();
   if (tree)
   {
     mforms::TreeSelectionMode mode;
@@ -2038,9 +2038,9 @@ static int row_for_node(NSOutlineView *outline, MFTreeNodeImpl *node)
 }
 
 
-static int treeview_row_for_node(mforms::TreeNodeView *self, mforms::TreeNodeRef node)
+static int treeview_row_for_node(mforms::TreeView *self, mforms::TreeNodeRef node)
 {
-  MFTreeNodeViewImpl *tree= self->get_data();
+  MFTreeViewImpl *tree= self->get_data();
   TreeNodeImpl *nodei = from_ref(node);
   if (tree && nodei)
   {
@@ -2078,9 +2078,9 @@ static mforms::TreeNodeRef find_node_at_row(mforms::TreeNodeRef node, int &row_c
   return res;
 }
 
-static mforms::TreeNodeRef treeview_node_with_tag(mforms::TreeNodeView *self, const std::string &tag)
+static mforms::TreeNodeRef treeview_node_with_tag(mforms::TreeView *self, const std::string &tag)
 {
-  MFTreeNodeViewImpl *tree= self->get_data();
+  MFTreeViewImpl *tree= self->get_data();
   if (tree->mTagIndexEnabled)
   {
     std::map<std::string, MFTreeNodeImpl*>::iterator iter;
@@ -2091,9 +2091,9 @@ static mforms::TreeNodeRef treeview_node_with_tag(mforms::TreeNodeView *self, co
 }
 
 
-static mforms::TreeNodeRef treeview_node_at_row(mforms::TreeNodeView *self, int row)
+static mforms::TreeNodeRef treeview_node_at_row(mforms::TreeView *self, int row)
 {
-  MFTreeNodeViewImpl *tree= self->get_data();
+  MFTreeViewImpl *tree= self->get_data();
   if (tree && row >= 0)
   {
     if ([tree frozen])
@@ -2123,9 +2123,9 @@ static mforms::TreeNodeRef treeview_node_at_row(mforms::TreeNodeView *self, int 
   return mforms::TreeNodeRef();
 }
 
-mforms::TreeNodeRef treeview_node_at_position(mforms::TreeNodeView *self, base::Point position)
+mforms::TreeNodeRef treeview_node_at_position(mforms::TreeView *self, base::Point position)
 {
-  MFTreeNodeViewImpl *tree = self->get_data();
+  MFTreeViewImpl *tree = self->get_data();
   NSInteger row = [tree->mOutline rowAtPoint: NSMakePoint((float)position.x, (float)position.y)];
   if (row < 0)
     return mforms::TreeNodeRef();
@@ -2138,42 +2138,42 @@ mforms::TreeNodeRef treeview_node_at_position(mforms::TreeNodeView *self, base::
 }
 
 
-static void treeview_set_column_visible(mforms::TreeNodeView *self, int column, bool flag)
+static void treeview_set_column_visible(mforms::TreeView *self, int column, bool flag)
 {
-  MFTreeNodeViewImpl *tree= self->get_data();
+  MFTreeViewImpl *tree= self->get_data();
   if (tree)
     [[tree->mOutline tableColumnWithIdentifier: [NSString stringWithFormat:@"%i", column]] setHidden: !flag];
 }
 
 
-static bool treeview_get_column_visible(mforms::TreeNodeView *self, int column)
+static bool treeview_get_column_visible(mforms::TreeView *self, int column)
 {
-  MFTreeNodeViewImpl *tree= self->get_data();
+  MFTreeViewImpl *tree= self->get_data();
   if (tree)
     return ![[tree->mOutline tableColumnWithIdentifier: [NSString stringWithFormat:@"%i", column]] isHidden];
   return true;
 }
 
-static void treeview_set_column_title(mforms::TreeNodeView *self, int column, const std::string &title)
+static void treeview_set_column_title(mforms::TreeView *self, int column, const std::string &title)
 {
-  MFTreeNodeViewImpl *tree= self->get_data();
+  MFTreeViewImpl *tree= self->get_data();
   if (tree)
     [[[tree->mOutline tableColumnWithIdentifier: [NSString stringWithFormat:@"%i", column]] headerCell]
        setStringValue: [NSString stringWithCPPString: title]];
 }
 
 
-static void treeview_set_column_width(mforms::TreeNodeView *self, int column, int width)
+static void treeview_set_column_width(mforms::TreeView *self, int column, int width)
 {
-  MFTreeNodeViewImpl *tree= self->get_data();
+  MFTreeViewImpl *tree= self->get_data();
   if (tree)
     [[tree->mOutline tableColumnWithIdentifier: [NSString stringWithFormat:@"%i", column]] setWidth: width];
 }
 
 
-static int treeview_get_column_width(mforms::TreeNodeView *self, int column)
+static int treeview_get_column_width(mforms::TreeView *self, int column)
 {
-  MFTreeNodeViewImpl *tree= self->get_data();
+  MFTreeViewImpl *tree= self->get_data();
   if (tree)
     return (int)[[tree->mOutline tableColumnWithIdentifier: [NSString stringWithFormat:@"%i", column]] width];
   return 0;

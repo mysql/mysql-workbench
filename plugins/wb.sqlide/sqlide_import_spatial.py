@@ -27,7 +27,7 @@ if sys.platform=="darwin":
     os_icon_suffix = "_mac"
 
 
-from mforms import newButton, newCheckBox, newTreeNodeView
+from mforms import newButton, newCheckBox, newTreeView
 from mforms import FileChooser
 from datetime import datetime
 
@@ -391,7 +391,7 @@ class ContentPreviewPage(WizardPage):
 
         cbox = mforms.newBox(False)
 
-        self.column_list = newTreeNodeView(mforms.TreeFlatList)
+        self.column_list = newTreeView(mforms.TreeFlatList)
         self.column_list.add_column(mforms.CheckColumnType, "", 40, True)
         self.column_list.add_column(mforms.StringColumnType, "Column name", 300, False)
         self.column_list.end_columns()

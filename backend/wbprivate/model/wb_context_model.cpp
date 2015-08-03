@@ -184,7 +184,7 @@ void WBContextModel::refill_catalog_tree()
 }
 
 
-mforms::TreeNodeView *WBContextModel::create_user_type_list()
+mforms::TreeView *WBContextModel::create_user_type_list()
 {
   UserDatatypeList *type_list;
 
@@ -199,7 +199,7 @@ mforms::TreeNodeView *WBContextModel::create_user_type_list()
 
 //--------------------------------------------------------------------------------------------------
 
-mforms::TreeNodeView* WBContextModel::create_history_tree()
+mforms::TreeView* WBContextModel::create_history_tree()
 {
   HistoryTree *history_tree = new HistoryTree(_wbui->get_wb()->get_grt_manager(), _wbui->get_wb()->get_grt()->get_undo_manager());
   history_tree->refresh();

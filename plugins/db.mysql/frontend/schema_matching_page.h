@@ -54,7 +54,7 @@ private:
   mforms::Box _header;
   mforms::ImageBox _image;
   mforms::Label _label;
-  mforms::TreeNodeView _tree;
+  mforms::TreeView _tree;
   OverridePanel *_override;
 
   bool _unselect_by_default;

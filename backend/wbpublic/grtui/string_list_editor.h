@@ -35,7 +35,7 @@ protected:
   grt::GRT *_grt;
   
   mforms::Box _vbox;
-  mforms::TreeNodeView _tree;
+  mforms::TreeView _tree;
   mforms::Box _button_box;
   mforms::Button _ok_button;
   mforms::Button _cancel_button;
