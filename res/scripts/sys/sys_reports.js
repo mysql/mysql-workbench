@@ -450,7 +450,7 @@
     "columns" : [["User", "user", "StringLT", 80],
                  ["IO Event Type", "event_name", "StringLT", 80],
                  ["Total IOs (#)", "total", "LongInteger", 80],
-                 ["Time", "latency", "Time", 80],
+                 ["Total Time", "latency", "Time", 80],
                  ["Max Time", "max_latency", "Time", 80]
                  ]
   },
