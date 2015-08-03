@@ -51,7 +51,7 @@ protected:
     mforms::Button _pause_button;
     mforms::ProgressBar _progress_bar;
     mforms::Label _matches_label;
-    mforms::TreeNodeView _results_tree;
+    mforms::TreeView _results_tree;
     mforms::ContextMenu _context_menu;
     boost::shared_ptr<DBSearch> _searcher;
     bec::GRTManager::Timer* _update_timer;

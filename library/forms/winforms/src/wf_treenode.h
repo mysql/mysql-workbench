@@ -80,7 +80,7 @@ namespace MySQL {
       gcroot<Aga::Controls::Tree::Node ^> nativeNode;    // The model node (implicitly there's always a model in TreeViewAdv).
       gcroot<Aga::Controls::Tree::TreeNodeAdv ^> nativeNodeAdv; // The tree node for the model node.
 
-      TreeNodeViewWrapper *treeWrapper;
+      TreeViewWrapper *treeWrapper;
 
       bool isRoot;
       int refCount;
@@ -89,8 +89,8 @@ namespace MySQL {
         const std::vector<mforms::TreeNodeSkeleton>& children);
       void node_changed(Aga::Controls::Tree::TreeNodeAdv ^new_node);
     public:
-      TreeNodeWrapper(TreeNodeViewWrapper *wrapper, Aga::Controls::Tree::TreeNodeAdv ^node);
-      TreeNodeWrapper(TreeNodeViewWrapper *wrapper);
+      TreeNodeWrapper(TreeViewWrapper *wrapper, Aga::Controls::Tree::TreeNodeAdv ^node);
+      TreeNodeWrapper(TreeViewWrapper *wrapper);
   
       int node_index();
 

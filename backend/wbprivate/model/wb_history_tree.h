@@ -29,7 +29,7 @@ namespace bec
 };
 
 namespace wb {
-  class HistoryTree : public mforms::TreeNodeView
+  class HistoryTree : public mforms::TreeView
   {
     bec::GRTManager *_grtm;
     grt::UndoManager *_undom;

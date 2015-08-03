@@ -359,7 +359,7 @@ class CreateIndexForm(mforms.Form):
         l = mforms.newLabel("Columns:")
         l.set_text_align(mforms.TopRight)
         table.add(l, 0, 1, 2, 3, mforms.HFillFlag|mforms.VFillFlag)
-        self.columns = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeAltRowColors|mforms.TreeShowColumnLines)
+        self.columns = mforms.newTreeView(mforms.TreeFlatList|mforms.TreeAltRowColors|mforms.TreeShowColumnLines)
         self.columns.add_column(mforms.StringColumnType, "Column", 200, False)
         self.columns.add_column(mforms.StringColumnType, "Length", 60, True)
         #        self.columns.add_column(mforms.CheckColumnType, "Order", 50, False) # ignored by server
@@ -523,7 +523,7 @@ class TableIndexInfoPanel(mforms.Box):
             return l
 
         table.add(make_title("Indexes in Table"), 0, 1, 0, 1, mforms.HFillFlag)
-        self.index_list = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeAltRowColors|mforms.TreeShowColumnLines)
+        self.index_list = mforms.newTreeView(mforms.TreeFlatList|mforms.TreeAltRowColors|mforms.TreeShowColumnLines)
         self.index_list.add_column(mforms.IconStringColumnType, "Key", 140, False)
         self.index_list.add_column(mforms.StringColumnType, "Type", 80, False)
         self.index_list.add_column(mforms.StringColumnType, "Unique", 40, False)
@@ -602,7 +602,7 @@ class TableIndexInfoPanel(mforms.Box):
 
         table.add(make_title("Columns in table"), 0, 2, 0, 1, mforms.HFillFlag|mforms.HExpandFlag)
 
-        self.column_list = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeAltRowColors|mforms.TreeShowColumnLines)
+        self.column_list = mforms.newTreeView(mforms.TreeFlatList|mforms.TreeAltRowColors|mforms.TreeShowColumnLines)
         self.column_list.add_column(mforms.IconStringColumnType, "Column", 150, False)
         self.column_list.add_column(mforms.StringColumnType, "Type", 150, False)
         self.column_list.add_column(mforms.StringColumnType, "Nullable", 50, False)

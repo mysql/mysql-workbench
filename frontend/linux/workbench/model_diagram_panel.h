@@ -75,9 +75,9 @@ class ModelDiagramPanel : public Gtk::Paned, public FormViewBase
   Gtk::Paned *_side_model_pane2;
 
   NavigatorBox                *_navigator_box;
-  mforms::TreeNodeView        *_catalog_tree;
-  mforms::TreeNodeView        *_usertypes_list;
-  mforms::TreeNodeView        *_history_list;
+  mforms::TreeView        *_catalog_tree;
+  mforms::TreeView        *_usertypes_list;
+  mforms::TreeView        *_history_list;
   DocumentationBox            *_documentation_box;
   PropertiesTree              *_properties_tree;
 #ifdef COMMERCIAL_CODE

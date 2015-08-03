@@ -232,9 +232,9 @@ _lower_tab(mforms::TabViewDocument),
   mforms::Box *files_box= mforms::manage(new mforms::Box(false));
   
 #ifdef _WIN32
-  _files_tree = mforms::manage(new mforms::TreeNodeView(mforms::TreeNoBorder|mforms::TreeNoHeader));
+  _files_tree = mforms::manage(new mforms::TreeView(mforms::TreeNoBorder|mforms::TreeNoHeader));
 #else
-  _files_tree = mforms::manage(new mforms::TreeNodeView(mforms::TreeDefault|mforms::TreeNoHeader));
+  _files_tree = mforms::manage(new mforms::TreeView(mforms::TreeDefault|mforms::TreeNoHeader));
 #endif
 
   _files_menu.add_item_with_title("Add New File", boost::bind(&GRTShellWindow::file_menu_activate, this, "file-from-template"));
@@ -361,9 +361,9 @@ _lower_tab(mforms::TabViewDocument),
  
   // setup shell
 #ifdef _WIN32
-  _snippet_list = mforms::manage(new TreeNodeView(mforms::TreeNoBorder|mforms::TreeFlatList));
+  _snippet_list = mforms::manage(new TreeView(mforms::TreeNoBorder|mforms::TreeFlatList));
 #else
-  _snippet_list = mforms::manage(new TreeNodeView(mforms::TreeDefault|mforms::TreeFlatList));
+  _snippet_list = mforms::manage(new TreeView(mforms::TreeDefault|mforms::TreeFlatList));
 #endif
 
   _shell_box.add(&_shell_text, true, true);

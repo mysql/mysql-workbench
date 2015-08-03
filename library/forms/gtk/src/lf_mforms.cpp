@@ -82,7 +82,7 @@ void ::mforms::gtk::init(bool force_sys_colors_)
   ProgressBarImpl::init();
   TableImpl::init();
   ScrollPanelImpl::init();
-  TreeNodeViewImpl::init();
+  TreeViewImpl::init();
   WizardImpl::init();
   UtilitiesImpl::init();
   DrawBoxImpl::init();

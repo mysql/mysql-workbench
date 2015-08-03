@@ -110,8 +110,8 @@ public:
 
 protected:
   mforms::Box _body;
-  mforms::TreeNodeView _left;
-  mforms::TreeNodeView _right;
+  mforms::TreeView _left;
+  mforms::TreeView _right;
 };
 
 

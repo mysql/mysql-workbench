@@ -310,7 +310,7 @@ The timed column indicates whether information about the event duration is recor
         label = mforms.newLabel(description)
         self.add(label, False, False)
         
-        self._instruments = mforms.newTreeNodeView(mforms.TreeAltRowColors)
+        self._instruments = mforms.newTreeView(mforms.TreeAltRowColors)
         self._instruments.add_column(mforms.IconStringColumnType, "Instrument", 400, False)
         self._instruments.add_column(mforms.TriCheckColumnType, "Enabled", 50, True)
         self._instruments.add_column(mforms.TriCheckColumnType, "Timed", 50, True)
@@ -869,7 +869,7 @@ class SetupFiltering(mforms.Box):
         users_box.set_spacing(12)
         users_box.set_padding(12)
 
-        self.users = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeAltRowColors)
+        self.users = mforms.newTreeView(mforms.TreeFlatList|mforms.TreeAltRowColors)
         self.users.add_column(mforms.StringColumnType, "User", 150, False)
         self.users.add_column(mforms.StringColumnType, "Host", 150, False)
         self.users.end_columns()
@@ -909,7 +909,7 @@ class SetupFiltering(mforms.Box):
         db_box.set_spacing(12)
         db_box.set_padding(12)
         
-        self.objects = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeAltRowColors)
+        self.objects = mforms.newTreeView(mforms.TreeFlatList|mforms.TreeAltRowColors)
         self.objects.add_column(mforms.StringColumnType, "Type", 100, False)
         self.objects.add_column(mforms.StringColumnType, "Schema", 200, False)
         self.objects.add_column(mforms.StringColumnType, "Object", 200, False)
@@ -1252,7 +1252,7 @@ class SetupThreads(mforms.Box):
 
         self.add(description, False, False)
 
-        self.threads = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeAltRowColors)
+        self.threads = mforms.newTreeView(mforms.TreeFlatList|mforms.TreeAltRowColors)
         self.threads.add_column(mforms.LongIntegerColumnType, "Id", 50, False)
         self.threads.add_column(mforms.StringColumnType, "Name", 250, False)
         self.threads.add_column(mforms.CheckColumnType, "Instrumented", 80, True)

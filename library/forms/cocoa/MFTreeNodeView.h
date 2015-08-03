@@ -24,13 +24,13 @@
 
 @class MFTreeNodeImpl;
 
-@interface MFTreeNodeViewImpl : NSScrollView <NSOutlineViewDataSource, NSOutlineViewDelegate>
+@interface MFTreeViewImpl : NSScrollView <NSOutlineViewDataSource, NSOutlineViewDelegate> // someone else
 {
   NSOutlineView *mOutline;
   NSMutableDictionary *mIconCache;
   MFTreeNodeImpl *mRootNode;
   NSMutableArray *mColumnKeys;
-  mforms::TreeNodeView *mOwner;
+  mforms::TreeView *mOwner;
   NSMutableDictionary *mAttributedFonts;
 
   std::map<std::string, MFTreeNodeImpl*> mTagMap;
@@ -48,7 +48,7 @@
   BOOL mSmallFont;
 }
 
-@property (readonly) mforms::TreeNodeView *backend;
+@property (readonly) mforms::TreeView *backend;
 
 - (NSString*)keyForColumn: (int)column;
 @property (readonly, weak) NSOutlineView *outlineView;

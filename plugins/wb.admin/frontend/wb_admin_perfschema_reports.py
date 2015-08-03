@@ -106,7 +106,7 @@ class PSHelperViewTab(mforms.Box):
             self._description = mforms.newLabel(self.description.encode("utf8"))
             self.add(self._description, False, True)
             
-        self._tree = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeAltRowColors|mforms.TreeShowColumnLines)
+        self._tree = mforms.newTreeView(mforms.TreeFlatList|mforms.TreeAltRowColors|mforms.TreeShowColumnLines)
         self._tree.set_selection_mode(mforms.TreeSelectMultiple)
         self._tree.add_column_resized_callback(self._tree_column_resized)
         c = 0
@@ -479,7 +479,7 @@ class WbAdminPerformanceSchema(WbAdminPSBaseTab):
         self.content = mforms.newBox(True)
         self.content.set_spacing(12)
 
-        self.tree = mforms.newTreeNodeView(mforms.TreeDefault)
+        self.tree = mforms.newTreeView(mforms.TreeDefault)
         self.tree.add_column(mforms.IconStringColumnType, "Report", 250, False)
         self.tree.end_columns()
         self.tree.set_size(250, -1)

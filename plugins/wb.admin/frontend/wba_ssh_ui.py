@@ -15,7 +15,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from mforms import App, Utilities, newBox, newPanel, newButton, newLabel, newTabView, newTabSwitcher, newTextEntry, newSelector, Form, newTreeNodeView, OpenFile, SaveFile
+from mforms import App, Utilities, newBox, newPanel, newButton, newLabel, newTabView, newTabSwitcher, newTextEntry, newSelector, Form, newTreeView, OpenFile, SaveFile
 import mforms
 import wb_admin_ssh
 import errno
@@ -192,7 +192,7 @@ class RemoteFileSelector(object):
         self._invalid_text = False
         self.form  = Form(None, mforms.FormResizable)
         self.form.set_title(self.title)
-        self.flist = newTreeNodeView(mforms.TreeFlatList)
+        self.flist = newTreeView(mforms.TreeFlatList)
         self.curdir = newTextEntry()
 
         self.flist.add_column(mforms.IconStringColumnType, "File", 400, False)

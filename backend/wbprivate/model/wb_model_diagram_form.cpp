@@ -199,7 +199,7 @@ void ModelDiagramForm::update_toolbar_icons()
 
 //--------------------------------------------------------------------------------------------------
 
-mforms::TreeNodeView *ModelDiagramForm::get_layer_tree()
+mforms::TreeView *ModelDiagramForm::get_layer_tree()
 {
   if (!_layer_tree)
   {

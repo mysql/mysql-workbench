@@ -300,7 +300,7 @@ ToolStrip^ ModelDiagramFormWrapper::get_options_toolbar()
 
 TreeViewAdv^ ModelDiagramFormWrapper::get_layer_tree()
 {
-  mforms::TreeNodeView *tree = get_unmanaged_object()->get_layer_tree();
+  mforms::TreeView *tree = get_unmanaged_object()->get_layer_tree();
 
   return dynamic_cast<TreeViewAdv ^>(ObjectMapper::GetManagedComponent(tree));
 }

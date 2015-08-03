@@ -178,7 +178,7 @@ void TreeViewNode::Attributes::set(int index, mforms::TreeNodeTextAttributes new
 
 //----------------- TreeNodeWrapper ----------------------------------------------------------------
 
-TreeNodeWrapper::TreeNodeWrapper(TreeNodeViewWrapper *wrapper, TreeNodeAdv ^node)
+TreeNodeWrapper::TreeNodeWrapper(TreeViewWrapper *wrapper, TreeNodeAdv ^node)
 {
   treeWrapper = wrapper;
   nativeNodeAdv = node;
@@ -189,7 +189,7 @@ TreeNodeWrapper::TreeNodeWrapper(TreeNodeViewWrapper *wrapper, TreeNodeAdv ^node
 
 //--------------------------------------------------------------------------------------------------
 
-TreeNodeWrapper::TreeNodeWrapper(TreeNodeViewWrapper *wrapper)
+TreeNodeWrapper::TreeNodeWrapper(TreeViewWrapper *wrapper)
 {
   treeWrapper = wrapper;
   nativeNodeAdv = treeWrapper->GetManagedObject<TreeViewAdv>()->Root;

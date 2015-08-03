@@ -27,7 +27,7 @@
  */
 
 namespace mforms {
-  class TreeNodeView;
+  class TreeView;
   class ContextMenu;
   
   /** Determines what type a column should have (mainly describing the column *editor*). */
@@ -204,7 +204,7 @@ namespace mforms {
     virtual void collapse() = 0;
     virtual bool is_expanded() = 0;
 
-    // Primitive check. Use TreeNodeView::can_expand() instead for potentially more sophisticated checks.
+    // Primitive check. Use TreeView::can_expand() instead for potentially more sophisticated checks.
     virtual bool can_expand() { return count() > 0; };
     virtual void toggle();
 
@@ -218,48 +218,48 @@ namespace mforms {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef SWIG
-  struct TreeNodeViewImplPtrs
+  struct TreeViewImplPtrs // probably too
   {
-    bool (*create)(TreeNodeView *self, TreeOptions options);
+    bool (*create)(TreeView *self, TreeOptions options);
     
 #if defined(_WIN32)
-    int (*add_column)(TreeNodeView *self, TreeColumnType type, const std::string &name, int initial_width, bool editable);
+    int (*add_column)(TreeView *self, TreeColumnType type, const std::string &name, int initial_width, bool editable);
 #else
-    int (*add_column)(TreeNodeView *self, TreeColumnType type, const std::string &name, int initial_width, bool editable, bool attributed);
+    int (*add_column)(TreeView *self, TreeColumnType type, const std::string &name, int initial_width, bool editable, bool attributed);
 #endif
-    void (*end_columns)(TreeNodeView *self);
+    void (*end_columns)(TreeView *self);
     
-    void (*clear)(TreeNodeView *self);
+    void (*clear)(TreeView *self);
 
-    TreeNodeRef (*root_node)(TreeNodeView *self);
+    TreeNodeRef (*root_node)(TreeView *self);
 
-    void (*set_row_height)(TreeNodeView *self, int height);
+    void (*set_row_height)(TreeView *self, int height);
     
-    void (*set_allow_sorting)(TreeNodeView *self, bool);
+    void (*set_allow_sorting)(TreeView *self, bool);
     
-    void (*freeze_refresh)(TreeNodeView *self, bool);
+    void (*freeze_refresh)(TreeView *self, bool);
     
-    void (*set_selection_mode)(TreeNodeView *self, TreeSelectionMode mode);
-    TreeSelectionMode (*get_selection_mode)(TreeNodeView *self);
+    void (*set_selection_mode)(TreeView *self, TreeSelectionMode mode);
+    TreeSelectionMode (*get_selection_mode)(TreeView *self);
     
-    std::list<TreeNodeRef> (*get_selection)(TreeNodeView *self);
-    TreeNodeRef (*get_selected_node)(TreeNodeView *self);
+    std::list<TreeNodeRef> (*get_selection)(TreeView *self);
+    TreeNodeRef (*get_selected_node)(TreeView *self);
 
-    void (*clear_selection)(TreeNodeView *self);
-    void (*set_selected)(TreeNodeView *self, TreeNodeRef node, bool state);
+    void (*clear_selection)(TreeView *self);
+    void (*set_selected)(TreeView *self, TreeNodeRef node, bool state);
     
-    int (*row_for_node)(TreeNodeView *self, TreeNodeRef node);
-    TreeNodeRef (*node_at_row)(TreeNodeView *self, int row);
-    TreeNodeRef(*node_at_position)(TreeNodeView *self, base::Point position);
-    TreeNodeRef (*node_with_tag)(TreeNodeView *self, const std::string &tag);
+    int (*row_for_node)(TreeView *self, TreeNodeRef node);
+    TreeNodeRef (*node_at_row)(TreeView *self, int row);
+    TreeNodeRef(*node_at_position)(TreeView *self, base::Point position);
+    TreeNodeRef (*node_with_tag)(TreeView *self, const std::string &tag);
 
-    void (*set_column_title)(TreeNodeView *self, int column, const std::string &title);
+    void (*set_column_title)(TreeView *self, int column, const std::string &title);
     
-    void (*set_column_visible)(TreeNodeView *self, int column, bool flag);
-    bool (*get_column_visible)(TreeNodeView *self, int column);
+    void (*set_column_visible)(TreeView *self, int column, bool flag);
+    bool (*get_column_visible)(TreeView *self, int column);
       
-    void (*set_column_width)(TreeNodeView *self, int column, int width);
-    int (*get_column_width)(TreeNodeView *self, int column);
+    void (*set_column_width)(TreeView *self, int column, int width);
+    int (*get_column_width)(TreeView *self, int column);
   };
 #endif
 #endif
@@ -271,11 +271,11 @@ namespace mforms {
    Before adding items, you must first define the columns and the content types with
    add_column() and end_columns()
    */
-  class MFORMS_EXPORT TreeNodeView : public View
+  class MFORMS_EXPORT TreeView : public View
   {
   public:
-    TreeNodeView(TreeOptions options);
-    ~TreeNodeView();
+    TreeView(TreeOptions options);
+    ~TreeView();
 
     /** Adds a column to be displayed in the tree.
      
@@ -459,7 +459,7 @@ namespace mforms {
 #endif
 
   private:
-    TreeNodeViewImplPtrs *_treeview_impl;
+    TreeViewImplPtrs *_treeview_impl;
     boost::signals2::signal<void ()>  _signal_changed;
     boost::signals2::signal<void (TreeNodeRef, int)>  _signal_activated;
     boost::signals2::signal<void (TreeNodeRef, bool)> _signal_expand_toggle;

@@ -44,7 +44,7 @@ public:
 private:
   wb::WBContext *_wb;
   bec::GRTManager *_grtm;
-  mforms::TreeNodeView plugin_list;
+  mforms::TreeView plugin_list;
   mforms::ImageBox plugin_icon;
   mforms::Label plugin_caption;
   mforms::Label plugin_version;

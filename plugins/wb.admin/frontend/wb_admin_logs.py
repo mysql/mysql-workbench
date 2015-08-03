@@ -167,7 +167,7 @@ Use cases for the server logs
    session or until the user clicks on the tab's *Close* button.
 """
 
-from mforms import newBox, newLabel, newTreeNodeView, newTabView, newButton
+from mforms import newBox, newLabel, newTreeView, newTabView, newButton
 import mforms
 from wb_admin_utils import not_running_warning_label, make_panel_header, show_error_page, remove_error_page_if_exists
 from wb_log_reader import GeneralQueryLogReader, SlowQueryLogReader, GeneralLogFileReader, SlowLogFileReader, ErrorLogFileReader
@@ -265,7 +265,7 @@ class LogView(mforms.Box):
             self.warning_box.add(warning_label, False, False)
             self.add(self.warning_box, False, True)
 
-        self.tree = newTreeNodeView(mforms.TreeFlatList)
+        self.tree = newTreeView(mforms.TreeFlatList)
         self.tree.set_selection_mode(mforms.TreeSelectMultiple)
 
         for colspec in self.log_reader.column_specs:

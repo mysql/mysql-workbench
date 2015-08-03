@@ -366,13 +366,13 @@ bool MySQLTableColumnsListBE::activate_popup_item_for_nodes(const std::string &n
 
 #define TRIGGER_DRAG_FORMAT "com.mysql.workbench.drag-trigger"
 
-class TriggerTreeView : public mforms::TreeNodeView
+class TriggerTreeView : public mforms::TreeView
 {
 public:
   mforms::TreeNodeRef selection;
 
   TriggerTreeView(mforms::TreeOptions options)
-    : mforms::TreeNodeView(options)
+    : mforms::TreeView(options)
   {
   }
 
