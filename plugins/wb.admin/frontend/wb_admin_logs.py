@@ -223,14 +223,14 @@ class LogView(mforms.Box):
         try_again_button.add_clicked_callback(self.try_again)
         self.add(self.error_box, False, True)
 
-
     def try_again(self):
         self.update_ui()
         self.refresh()
 
+    def create_filter_box(self):
+        pass
 
     def update_ui(self):
-        # Clean up:
         if self.error_box:
             self.remove(self.error_box)
             self.error_box = None
@@ -249,7 +249,11 @@ class LogView(mforms.Box):
 
         self.set_padding(8)
         self.set_spacing(8)
-
+        
+        filter_box = self.create_filter_box()
+        if filter_box:
+            self.add(filter_box, False, False)
+        
         try:
             self.log_reader = self.BackendLogReaderClass(*self.args)
         except Exception, error:
@@ -428,6 +432,46 @@ class LogView(mforms.Box):
             self._show_error(error)
 
 
+class LogViewGeneric(LogView):
+
+    def __init__(self, owner, BackendLogReaderClass, *args):
+        self.filter_list = {}
+        self.filter_box = mforms.newBox(True)
+        self.filter_text = ""
+
+        super(LogViewGeneric, self).__init__(owner, BackendLogReaderClass, *args)
+
+    def add_filter_option(self, text):
+        filter = mforms.newRadioButton(1)
+        filter.set_text(text)
+        filter.add_clicked_callback(self.filter_handler)
+        
+        self.filter_list[text] = filter
+        self.filter_box.add(filter, False, False)
+        
+    def create_filter_box(self):
+        self.add_filter_option("All")
+        self.add_filter_option("InnoDB")
+        self.add_filter_option("Firewall")
+        return self.filter_box
+    
+    def filter_handler(self):
+        for text, filter in self.filter_list.iteritems():
+            if filter.get_active():
+                self.filter_text = text
+
+        self.refresh(None)
+
+    def refresh(self, records=None):
+        filtered_records = None
+        if records:
+            filtered_records = []
+            for record in records:
+                text = record[3]
+                if self.filter_text == "All" or text.lower().find(self.filter_text.lower()) >= 0:
+                    filtered_records.append(record)
+        super(LogViewGeneric, self).refresh(filtered_records)
+
 class WbAdminLogs(mforms.Box):
     ui_created = False
 
@@ -571,7 +615,7 @@ class WbAdminLogs(mforms.Box):
 
         if 'error_file_tab' in source and self.server_profile.error_log_file_path and not self.error_file_log_tab:
             try:
-                self.error_file_log_tab = LogView(self, ErrorLogFileReader, self.ctrl_be, self.server_profile.error_log_file_path)
+                self.error_file_log_tab = LogViewGeneric(self, ErrorLogFileReader, self.ctrl_be, self.server_profile.error_log_file_path)
                 self.tabView.add_page(self.error_file_log_tab, "Error Log File")
             except IOError:
                 self.show_message_panel('There was a problem reading %s. Please verify that you have read permissions on that file' % self.server_profile.error_log_file_path)
@@ -606,7 +650,7 @@ class WbAdminLogs(mforms.Box):
         dest = self.get_log_destination()
 
         self._add_tabs('error_file_tab')
-
+        
         if not self.server_profile.log_output:
             self.server_profile.log_output = 'TABLE,FILE'
 
