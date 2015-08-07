@@ -698,8 +698,12 @@ class FirewallCommands:
         result, cnt = self.execute_command("DELETE FROM mysql.firewall_whitelist WHERE USERHOST='%s' AND RULE='%s'" % (userhost, db_utils.escape_sql_string(rule)))
         return cnt > 0
 
-    def add_user_rule(self, userhost, rule):
-        firewall_rule = self.normalize_query(rule)
+    def add_user_rule(self, userhost, rule, normalized = False):
+        if not normalized:
+            firewall_rule = self.normalize_query(rule)
+        else:
+            firewall_rule = rule
+            
         if firewall_rule:
             self.execute_command("INSERT INTO mysql.firewall_whitelist (USERHOST, RULE) VALUES ('%s', '%s')" % (userhost, db_utils.escape_sql_string(firewall_rule)))
             return True
@@ -804,7 +808,7 @@ class FirewallAddRuleDialog(mforms.Form):
     def __init__(self, owner):
         mforms.Form.__init__(self, None, mforms.FormResizable | mforms.FormMinimizable)
 
-        self.set_title("Add new rule")
+        self.set_title("Add new rule or SQL statement")
         self.set_size(400, 300)
         self.center()
 
@@ -817,6 +821,12 @@ class FirewallAddRuleDialog(mforms.Form):
         self.query_box = mforms.newTextBox(mforms.SmallScrollBars)
         self.query_box.set_size(400, 200)
         self.content.add(self.query_box, True, True)
+        
+        self.normalized = False
+        self.normalized_checkbox = mforms.newCheckBox(False)
+        self.normalized_checkbox.set_text("This is a normalized rule")
+        self.normalized_checkbox.add_clicked_callback(self.normalized_clicked)
+        self.content.add(self.normalized_checkbox, True, True)
         
         button_box = mforms.newBox(True)
         self.content.add(button_box, False, True)
@@ -833,7 +843,10 @@ class FirewallAddRuleDialog(mforms.Form):
         self.cancel_button.set_text("Cancel")
         self.cancel_button.add_clicked_callback(self.cancel_button_pressed)
         button_box.add_end(self.cancel_button, False, True)
-        
+    
+    def normalized_clicked(self):
+        self.normalized = self.normalized_checkbox.get_active()
+    
     def ok_button_pressed(self):
         self.end_modal(True)
 
@@ -877,6 +890,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         self.state.add_item("OFF")
         self.state.add_item("PROTECTING")
         self.state.add_item("RECORDING")
+        self.state.add_item("DETECTING")
         self.state.set_size(120, -1)
         self.state.add_changed_callback(self.change_state)
         state_box.add(mforms.newLabel("Mode:"), False, True)
@@ -1000,7 +1014,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         dialog = FirewallAddRuleDialog(self)
         if dialog.run():
             rule = dialog.query_box.get_string_value()
-            result = self.commands.add_user_rule(self.current_userhost, rule)
+            result = self.commands.add_user_rule(self.current_userhost, rule, dialog.normalized)
             if not result:
                 Utilities.show_error("Add user rule", "Add a new rule for this user failed to be inserted. Please check the log for more information.", "OK", "", "")
             self.owner.refresh()
@@ -1009,9 +1023,11 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
     def add_from_file_button_click(self):
         dialog = mforms.FileChooser(mforms.OpenFile)
         dialog.set_title("Load firewall rules")
-        dialog.set_extensions("Firewall Rules (*.fwr)|*.fwr", ".fwr")
+        dialog.set_extensions("Firewall Rules (*.fwr)|*.fwr|SQL Statements (*.sql)|*.sql", ".fwr")
         if dialog.run_modal():
-            with open(dialog.get_path()) as f:
+            path = dialog.get_path()
+            is_rules_file = True if path.endswith(".fwr") else False
+            with open(path) as f:
                 content = [x.strip('\n') for x in f.readlines()]
 
             if not self.commands.set_user_mode(self.current_userhost, "OFF"):
@@ -1020,7 +1036,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
             added_rules = []
             
             for rule in content:
-                if not self.commands.add_user_rule(self.current_userhost, rule):
+                if not self.commands.add_user_rule(self.current_userhost, rule, is_rules_file):
                     break
                 added_rules.append(rule)
         
