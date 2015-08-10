@@ -663,13 +663,13 @@ class WbAdminSSH(object):
             while chan.recv_ready() and len(data) < read_size:
                 data += stdout.read(1)
             if data:
-                log_debug2("ssh session stdout: %s\n" % data)
+                log_debug2("ssh session stdout [%d]: plain>>>%s<<<   hex>>>%s<<<x\n" % (len(data), data, ' '.join(x.encode('hex') for x in data)))
 
             # Reads from the stderr if available
             while chan.recv_stderr_ready() and len(error) < read_size:
                 error += stderr.read(1)
             if error:
-                log_debug2("ssh session stderr: %s\n" % error)
+                log_debug2("ssh session stderr [%d]: plain>>>%s<<<   hex>>>%s<<<x\n" % (len(error), error, ' '.join(x.encode('hex') for x in error)))
 
             # Appends any read data on stdout and stderr
             if data or error:
@@ -683,7 +683,8 @@ class WbAdminSSH(object):
                     cmd_ret = chan.recv_exit_status()
                 
                 # No need to read output...
-                if all_data or all_error or wait_output == CmdOutput.WAIT_NEVER or\
+                if ((all_data or all_error) and chan.closed) or\
+                   (wait_output == CmdOutput.WAIT_NEVER) or\
                    (wait_output == CmdOutput.WAIT_IF_OK and cmd_ret != 0) or\
                    (wait_output == CmdOutput.WAIT_IF_FAIL and cmd_ret == 0):
                    read_done = True
