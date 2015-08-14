@@ -33,6 +33,7 @@ class ProgressBarImpl : public ViewImpl
   Gtk::ProgressBar *_pbar;
   sigc::connection     _pbar_pulser;
   virtual Gtk::Widget *get_outer() const { return _pbar; }
+  sigc::connection _idle_set_val;
   
 
   ProgressBarImpl(::mforms::ProgressBar *self)
@@ -51,9 +52,24 @@ class ProgressBarImpl : public ViewImpl
   static void set_value(::mforms::ProgressBar *self, float pct)
   {
     ProgressBarImpl *progressbar= self->get_data<ProgressBarImpl>();
-    
     if (progressbar)
-      progressbar->_pbar->set_fraction(pct);
+      progressbar->set_value(pct);
+  }
+
+  void set_value(float pct)
+  {
+    if (_pbar)
+    {
+      if (Utilities::in_main_thread())
+        _pbar->set_fraction(pct);
+      else
+      {
+        if (!_idle_set_val.empty())
+          _idle_set_val.disconnect();
+
+        _idle_set_val = Glib::signal_idle().connect(sigc::bind_return(sigc::bind(sigc::mem_fun(*_pbar, &Gtk::ProgressBar::set_fraction), pct), false));
+      }
+    }
   }
 
   bool pulse()
@@ -81,9 +97,12 @@ class ProgressBarImpl : public ViewImpl
 
   ~ProgressBarImpl()
   {
-    if (_pbar && !_pbar_pulser.empty())
+    if (_pbar)
     {
-      _pbar_pulser.disconnect();
+      if (!_idle_set_val.empty())
+        _idle_set_val.disconnect();
+      if (!_pbar_pulser.empty())
+        _pbar_pulser.disconnect();
     }
   }
 
