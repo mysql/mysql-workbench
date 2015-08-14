@@ -24,7 +24,7 @@ namespace MySQL {
     
     ref class TreeViewNode;
 
-    public class TreeViewWrapper : public ViewWrapper       // maybe
+    public class TreeViewWrapper : public ViewWrapper
     {
     protected:
       TreeViewWrapper(mforms::TreeView *backend);

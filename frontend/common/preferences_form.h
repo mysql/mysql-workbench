@@ -28,7 +28,7 @@
 #include "mforms/box.h"
 #include "mforms/button.h"
 #include "mforms/checkbox.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/selector.h"
 #include "mforms/fs_object_selector.h"
 

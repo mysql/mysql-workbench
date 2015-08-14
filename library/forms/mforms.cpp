@@ -78,7 +78,7 @@ ControlFactory::ControlFactory()
   memset(&_code_editor_impl, 0, sizeof(_code_editor_impl));
   memset(&_hypertext_impl, 0, sizeof(_hypertext_impl));
   memset(&_popover_impl, 0, sizeof(_popover_impl));
-  memset(&_treenodeview_impl, 0, sizeof(_treenodeview_impl));
+  memset(&_treeview_impl, 0, sizeof(_treeview_impl));
   memset(&_findpanel_impl, 0, sizeof(_findpanel_impl));
   memset(&_webbrowser_impl, 0, sizeof(_webbrowser_impl));
   memset(&_popup_impl, 0, sizeof(_popup_impl));
@@ -119,7 +119,7 @@ void ControlFactory::check_impl()
   CHECKPTRS(_progressbar_impl);
   CHECKPTRS(_table_impl);
   CHECKPTRS(_spanel_impl);
-  CHECKPTRS(_treenodeview_impl);
+  CHECKPTRS(_treeview_impl);
   CHECKPTRS(_wizard_impl);
   CHECKPTRS(_utilities_impl);
   CHECKPTRS(_drawbox_impl);

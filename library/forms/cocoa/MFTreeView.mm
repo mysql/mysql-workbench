@@ -17,7 +17,7 @@
  * 02110-1301  USA
  */
 
-#import "MFTreeNodeView.h"
+#import "MFTreeView.h"
 #import "NSString_extras.h"
 #import "NSColor_extras.h"
 #import "MFView.h"
@@ -44,7 +44,7 @@ class TreeNodeImpl;
 }
 
 - (instancetype)initWithOwner:(MFTreeViewImpl*)owner NS_DESIGNATED_INITIALIZER;
-@property (readonly, weak) MFTreeViewImpl *treeNodeView;
+@property (readonly, weak) MFTreeViewImpl *treeView;
 @property (readonly) mforms::TreeNodeRef nodeRef;
 - (void)setObject:(id)anObject forKey:(id)aKey;
 - (id)objectForKey:(id)key;
@@ -158,7 +158,7 @@ public:
   {
     if (is_valid())
     {
-      MFTreeNodeImpl *child = [[[MFTreeNodeImpl alloc] initWithOwner: [_self treeNodeView]] autorelease];
+      MFTreeNodeImpl *child = [[[MFTreeNodeImpl alloc] initWithOwner: [_self treeView]] autorelease];
       
       mforms::TreeNodeRef node([child nodeRef]);
       
@@ -175,9 +175,9 @@ public:
         else
           [children insertObject: nodei->self() atIndex: index];
         
-        if (![[_self treeNodeView] frozen] && (!get_parent() || is_expanded() || [children count] == 1))
+        if (![[_self treeView] frozen] && (!get_parent() || is_expanded() || [children count] == 1))
         {
-          [[_self treeNodeView] setNeedsReload];
+          [[_self treeView] setNeedsReload];
         }
       }
             
@@ -220,7 +220,7 @@ public:
     
     if (is_valid())
     {
-      id columnKey = [[_self treeNodeView] keyForColumn: 0];
+      id columnKey = [[_self treeView] keyForColumn: 0];
 
       // Creates an array to hold each equal child for all the parents
       NSMutableArray *added_nodes = [NSMutableArray arrayWithCapacity: (int)nodes.captions.size()];
@@ -229,7 +229,7 @@ public:
       
       for (std::vector<std::string>::const_iterator v = nodes.captions.begin(); v != nodes.captions.end(); ++v)
       {
-        MFTreeNodeImpl *child = [[MFTreeNodeImpl alloc] initWithOwner: [_self treeNodeView]];
+        MFTreeNodeImpl *child = [[MFTreeNodeImpl alloc] initWithOwner: [_self treeView]];
         
         [child setObject: [NSString stringWithCPPString: *v]
                   forKey: columnKey];
@@ -237,7 +237,7 @@ public:
         if (image)
         {
           [child setObject: image
-                    forKey: [[[_self treeNodeView] keyForColumn: 0] stringByAppendingString: @"icon"]];
+                    forKey: [[[_self treeView] keyForColumn: 0] stringByAppendingString: @"icon"]];
         }
         
         [added_nodes addObject: child];
@@ -268,9 +268,9 @@ public:
         [child release];
       }
 
-      if (![[_self treeNodeView] frozen])
+      if (![[_self treeView] frozen])
       {
-        [[_self treeNodeView] setNeedsReload];
+        [[_self treeView] setNeedsReload];
       }
     }
     
@@ -292,7 +292,7 @@ public:
           children_array = [parent createChildrenWithCapacity: (int)children.size()];
       }
       
-      id columnKey = [[_self treeNodeView] keyForColumn: 0];
+      id columnKey = [[_self treeView] keyForColumn: 0];
       
       
       // Now enters the process if creating each children at this level
@@ -311,7 +311,7 @@ public:
         // Setups the child for all the parents (same name, icon)
         for(unsigned int index = 0; index < [parents count]; index++)
         {
-          MFTreeNodeImpl *child = [[[MFTreeNodeImpl alloc] initWithOwner: [_self treeNodeView]] autorelease];
+          MFTreeNodeImpl *child = [[[MFTreeNodeImpl alloc] initWithOwner: [_self treeView]] autorelease];
           [child setObject: caption
                     forKey: columnKey];
           
@@ -428,13 +428,13 @@ public:
   {
     if (!is_expanded())
     {
-      _self.treeNodeView.backend->expand_toggle(_self.nodeRef, true);
+      _self.treeView.backend->expand_toggle(_self.nodeRef, true);
       mforms::TreeNodeRef parent(get_parent());
 
       if (parent)
         parent->expand();
 
-      [[[_self treeNodeView] outlineView] performSelector: @selector(expandItem:)
+      [[[_self treeView] outlineView] performSelector: @selector(expandItem:)
                                                withObject: _self
                                                afterDelay: 0.0
                                                inModes: @[NSModalPanelRunLoopMode, NSDefaultRunLoopMode]];
@@ -451,17 +451,17 @@ public:
     if (count() > 0)
       return true;
 
-    return _self.treeNodeView.backend->can_expand(_self.nodeRef);
+    return _self.treeView.backend->can_expand(_self.nodeRef);
   }
 
   virtual void collapse()
   {
-    [[[_self treeNodeView] outlineView] collapseItem: _self];
+    [[[_self treeView] outlineView] collapseItem: _self];
   }
                 
   virtual bool is_expanded()
   {
-    return [[[_self treeNodeView] outlineView] isItemExpanded: _self];
+    return [[[_self treeView] outlineView] isItemExpanded: _self];
   }
   
   virtual void set_tag(const std::string &tag)
@@ -501,12 +501,12 @@ public:
       image = folderIcon;
     }
     else
-      image = [[_self treeNodeView] iconForFile: [NSString stringWithCPPString: icon_path]];
+      image = [[_self treeView] iconForFile: [NSString stringWithCPPString: icon_path]];
     
     if (image)
     {
       NSSize size = [image size];
-      float rowHeight = [[[_self treeNodeView] outlineView] rowHeight];
+      float rowHeight = [[[_self treeView] outlineView] rowHeight];
       if (size.height > rowHeight)
       {
         rowHeight -= 2;
@@ -522,7 +522,7 @@ public:
   {
     // 0 for the root node, 1 for top level nodes etc.
     // NSOutlineView returns 0 for the top level nodes, however.
-    return [_self.treeNodeView.outlineView levelForItem: _self] + 1;
+    return [_self.treeView.outlineView levelForItem: _self] + 1;
   }
 
   virtual void set_icon_path(int column, const std::string &icon)
@@ -531,9 +531,9 @@ public:
 
     if (image)
       [_self setObject: image
-                forKey: [[[_self treeNodeView] keyForColumn: column] stringByAppendingString: @"icon"]];
+                forKey: [[[_self treeView] keyForColumn: column] stringByAppendingString: @"icon"]];
     else
-      [_self removeObjectForKey: [[[_self treeNodeView] keyForColumn: column] stringByAppendingString: @"icon"]];
+      [_self removeObjectForKey: [[[_self treeView] keyForColumn: column] stringByAppendingString: @"icon"]];
   }
   
   virtual void set_attributes(int column, const mforms::TreeNodeTextAttributes& attrs)
@@ -543,22 +543,22 @@ public:
       NSString *attrstr = [NSString stringWithFormat: @"%s%s%s", attrs.bold ? "b" : "", attrs.italic ? "i" : "",
                            attrs.color.is_valid() ? attrs.color.to_html().c_str() : ""];
       [_self setObject: attrstr
-                forKey: [[[_self treeNodeView] keyForColumn: column] stringByAppendingString: @"attrs"]];
+                forKey: [[[_self treeView] keyForColumn: column] stringByAppendingString: @"attrs"]];
     }
     else
-      [_self removeObjectForKey: [[[_self treeNodeView] keyForColumn: column] stringByAppendingString: @"attrs"]];
+      [_self removeObjectForKey: [[[_self treeView] keyForColumn: column] stringByAppendingString: @"attrs"]];
   }
 
   virtual void set_string(int column, const std::string &value)
   {
     [_self setObject: [NSString stringWithCPPString: value]
-              forKey: [[_self treeNodeView] keyForColumn: column]];
+              forKey: [[_self treeView] keyForColumn: column]];
   }
 
   
   virtual void set_int(int column, int value)
   {
-    id key = [[_self treeNodeView] keyForColumn: column];
+    id key = [[_self treeView] keyForColumn: column];
       
     [_self setObject: @(value)
               forKey: key];
@@ -567,12 +567,12 @@ public:
   virtual void set_long(int column, boost::int64_t value)
   {
     [_self setObject: @(value)
-              forKey: [[_self treeNodeView] keyForColumn: column]];
+              forKey: [[_self treeView] keyForColumn: column]];
   }
 
   virtual void set_float(int column, double value)
   {
-    id key = [[_self treeNodeView] keyForColumn: column];
+    id key = [[_self treeView] keyForColumn: column];
 
     [_self setObject: @(value)
               forKey: key];
@@ -581,12 +581,12 @@ public:
   virtual void set_bool(int column, bool value)
   {
     [_self setObject: @(value)
-              forKey: [[_self treeNodeView] keyForColumn: column]];
+              forKey: [[_self treeView] keyForColumn: column]];
   }
   
   virtual std::string get_string(int column) const
   {
-    NSString *s = [_self objectForKey: [[_self treeNodeView] keyForColumn: column]];
+    NSString *s = [_self objectForKey: [[_self treeView] keyForColumn: column]];
     if (s)
       return [s UTF8String];
 //    NSLog(@"Invalid column %i for TreeNode::grt_string()", column);
@@ -595,7 +595,7 @@ public:
 
   virtual int get_int(int column) const
   {
-    NSNumber *n = [_self objectForKey: [[_self treeNodeView] keyForColumn: column]];
+    NSNumber *n = [_self objectForKey: [[_self treeView] keyForColumn: column]];
     if (n)
       return [n intValue];
     return 0;
@@ -603,7 +603,7 @@ public:
 
   virtual boost::int64_t get_long(int column) const
   {
-    NSNumber *n = [_self objectForKey: [[_self treeNodeView] keyForColumn: column]];
+    NSNumber *n = [_self objectForKey: [[_self treeView] keyForColumn: column]];
     if (n)
       return [n longLongValue];
     return 0;
@@ -611,7 +611,7 @@ public:
 
   virtual double get_float(int column) const
   {
-    NSNumber *n = [_self objectForKey: [[_self treeNodeView] keyForColumn: column]];
+    NSNumber *n = [_self objectForKey: [[_self treeView] keyForColumn: column]];
     if (n)
       return [n doubleValue];
     return 0.0;
@@ -619,7 +619,7 @@ public:
 
   virtual bool get_bool(int column) const
   {
-    NSNumber *n = [_self objectForKey: [[_self treeNodeView] keyForColumn: column]];
+    NSNumber *n = [_self objectForKey: [[_self treeView] keyForColumn: column]];
     if (n)
       return [n boolValue];
     return false;    
@@ -654,7 +654,7 @@ inline TreeNodeImpl *from_ref(mforms::TreeNodeRef node)
   [super dealloc];
 }
 
-- (MFTreeViewImpl*)treeNodeView
+- (MFTreeViewImpl*)treeView
 {
   return mTree;
 }
@@ -705,19 +705,19 @@ inline TreeNodeImpl *from_ref(mforms::TreeNodeRef node)
   if (children)
   {
     // if the node being removed is selected, unselect it, so that the selection isn't passed to a different node
-    NSIndexSet *rows = [[[self treeNodeView] outlineView] selectedRowIndexes];
+    NSIndexSet *rows = [[[self treeView] outlineView] selectedRowIndexes];
     if (rows && [rows count] == 1)
     {
-      if ([rows containsIndex: [[[self treeNodeView] outlineView] rowForItem: self]])
-        [[[self treeNodeView] outlineView] deselectAll: nil];
+      if ([rows containsIndex: [[[self treeView] outlineView] rowForItem: self]])
+        [[[self treeView] outlineView] deselectAll: nil];
     }
 
     [[self retain] autorelease];
     [children removeObject: self];
     mParent = nil;
    
-    if (![[self treeNodeView] frozen])
-      [[[self treeNodeView] outlineView] reloadData];
+    if (![[self treeView] frozen])
+      [[[self treeView] outlineView] reloadData];
   }
 }
 
@@ -779,14 +779,14 @@ static NSImage *descendingSortIndicator = nil;
 
 @implementation TreeViewOutlineView
 
-- (instancetype)initWithFrame: (NSRect)frame owner: (mforms::TreeView *)treeView
+- (instancetype)initWithFrame: (NSRect)frame owner: (mforms::TreeView *)ownerTreeView
 {
   self = [super initWithFrame: frame];
   if (self != nil)
   {
     mOverOverlay = -1;
     mClickingOverlay = -1;
-    mOwner = treeView;
+    mOwner = ownerTreeView;
     [self setHeaderView: [[TreeNodeHeaderView alloc] init]];
     self.draggingDestinationFeedbackStyle = NSTableViewDraggingDestinationFeedbackStyleSourceList;
   }
@@ -2179,43 +2179,43 @@ static int treeview_get_column_width(mforms::TreeView *self, int column)
   return 0;
 }
 
-void cf_treenodeview_init()
+void cf_treeview_init()
 {
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
   
-  f->_treenodeview_impl.create= &treeview_create;
-  f->_treenodeview_impl.add_column= &treeview_add_column;
-  f->_treenodeview_impl.end_columns= &treeview_end_columns;
+  f->_treeview_impl.create= &treeview_create;
+  f->_treeview_impl.add_column= &treeview_add_column;
+  f->_treeview_impl.end_columns= &treeview_end_columns;
   
-  f->_treenodeview_impl.clear= &treeview_clear;
+  f->_treeview_impl.clear= &treeview_clear;
 
-  f->_treenodeview_impl.clear_selection= &treeview_clear_selection;
-  f->_treenodeview_impl.get_selected_node= &treeview_get_selected;
-  f->_treenodeview_impl.get_selection= &treeview_get_selection;
-  f->_treenodeview_impl.set_selected= &treeview_set_selected;
+  f->_treeview_impl.clear_selection= &treeview_clear_selection;
+  f->_treeview_impl.get_selected_node= &treeview_get_selected;
+  f->_treeview_impl.get_selection= &treeview_get_selection;
+  f->_treeview_impl.set_selected= &treeview_set_selected;
 
-  f->_treenodeview_impl.set_selection_mode = &treeview_set_selection_mode;
-  f->_treenodeview_impl.get_selection_mode = &treeview_get_selection_mode;
+  f->_treeview_impl.set_selection_mode = &treeview_set_selection_mode;
+  f->_treeview_impl.get_selection_mode = &treeview_get_selection_mode;
   
-  f->_treenodeview_impl.set_row_height= &treeview_set_row_height;
+  f->_treeview_impl.set_row_height= &treeview_set_row_height;
   
-  f->_treenodeview_impl.root_node= &treeview_root_node;
+  f->_treeview_impl.root_node= &treeview_root_node;
 
-  f->_treenodeview_impl.set_allow_sorting= &treeview_allow_sorting;
-  f->_treenodeview_impl.freeze_refresh= &treeview_freeze_refresh;
+  f->_treeview_impl.set_allow_sorting= &treeview_allow_sorting;
+  f->_treeview_impl.freeze_refresh= &treeview_freeze_refresh;
   
-  f->_treenodeview_impl.row_for_node = &treeview_row_for_node;
-  f->_treenodeview_impl.node_at_row = &treeview_node_at_row;
-  f->_treenodeview_impl.node_at_position = &treeview_node_at_position;
-  f->_treenodeview_impl.node_with_tag = &treeview_node_with_tag;
+  f->_treeview_impl.row_for_node = &treeview_row_for_node;
+  f->_treeview_impl.node_at_row = &treeview_node_at_row;
+  f->_treeview_impl.node_at_position = &treeview_node_at_position;
+  f->_treeview_impl.node_with_tag = &treeview_node_with_tag;
 
-  f->_treenodeview_impl.set_column_visible = &treeview_set_column_visible;
-  f->_treenodeview_impl.get_column_visible = &treeview_get_column_visible;
+  f->_treeview_impl.set_column_visible = &treeview_set_column_visible;
+  f->_treeview_impl.get_column_visible = &treeview_get_column_visible;
 
-  f->_treenodeview_impl.set_column_title = &treeview_set_column_title;
+  f->_treeview_impl.set_column_title = &treeview_set_column_title;
   
-  f->_treenodeview_impl.set_column_width = &treeview_set_column_width;
-  f->_treenodeview_impl.get_column_width = &treeview_get_column_width;
+  f->_treeview_impl.set_column_width = &treeview_set_column_width;
+  f->_treeview_impl.get_column_width = &treeview_get_column_width;
 }
 
 

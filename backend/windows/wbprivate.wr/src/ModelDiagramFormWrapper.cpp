@@ -17,7 +17,7 @@
  * 02110-1301  USA
  */
 
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 
 #include "workbench/wb_context.h"
 #include "model/wb_model_diagram_form.h"

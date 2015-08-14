@@ -32,7 +32,7 @@
 #include "mforms/toolbar.h"
 #include "mforms/menubar.h"
 #include "mforms/checkbox.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/label.h"
 #include "mforms/textbox.h"
 #include "mforms/filechooser.h"

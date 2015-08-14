@@ -59,7 +59,7 @@
 #include <mforms/popover.h>
 #include <mforms/fs_object_selector.h>
 #include <mforms/simpleform.h>
-#include <mforms/treenodeview.h>
+#include <mforms/treeview.h>
 #include <mforms/find_panel.h>
 
 #include <mforms/mforms.h>
