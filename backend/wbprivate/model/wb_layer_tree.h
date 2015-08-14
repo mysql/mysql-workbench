@@ -20,7 +20,7 @@
 #ifndef _WB_LAYER_TREE_H_
 #define _WB_LAYER_TREE_H_
 
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include <set>
 
 #include "grts/structs.workbench.physical.h"

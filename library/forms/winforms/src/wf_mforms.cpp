@@ -50,7 +50,7 @@
 #include "wf_code_editor.h"
 #include "wf_hypertext.h"
 #include "wf_popover.h"
-#include "wf_treenodeview.h"
+#include "wf_treeview.h"
 #include "wf_find_panel.h"
 #include "wf_native.h"
 #include "wf_canvas.h"

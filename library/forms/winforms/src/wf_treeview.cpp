@@ -21,7 +21,7 @@
 
 #include "wf_base.h"
 #include "wf_view.h"
-#include "wf_treenodeview.h"
+#include "wf_treeview.h"
 #include "wf_treenode.h"
 #include "wf_menubar.h"
 
@@ -99,7 +99,7 @@ public:
 
     case mforms::NumberWithUnitColumnType:
       {
-        Double d1 = mforms::TreeView::parse_string_with_unit(NativeToCppStringRaw(node1->Caption[column]).c_str()); // here too 
+        Double d1 = mforms::TreeView::parse_string_with_unit(NativeToCppStringRaw(node1->Caption[column]).c_str());
         Double d2 = mforms::TreeView::parse_string_with_unit(NativeToCppStringRaw(node2->Caption[column]).c_str());
         if (direction == SortOrder::Ascending)
           return d1.CompareTo(d2);
@@ -467,7 +467,7 @@ public:
       TreeNodeAdv^ node;
       if (tagMap->TryGetValue(tag, node))
       {
-        TreeViewWrapper *wrapper = TreeViewWrapper::GetWrapper<TreeViewWrapper>(this);  // maybe
+        TreeViewWrapper *wrapper = TreeViewWrapper::GetWrapper<TreeViewWrapper>(this);
         return mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, node));
       }
       return mforms::TreeNodeRef();
@@ -1573,32 +1573,32 @@ void TreeViewWrapper::init()
 {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
 
-  f->_treenodeview_impl.create = &TreeViewWrapper::create;
-  f->_treenodeview_impl.add_column = &TreeViewWrapper::add_column;
-  f->_treenodeview_impl.end_columns = &TreeViewWrapper::end_columns;
-  f->_treenodeview_impl.clear = &TreeViewWrapper::clear;
-  f->_treenodeview_impl.clear_selection = &TreeViewWrapper::clear_selection;
-  f->_treenodeview_impl.get_selection = &TreeViewWrapper::get_selection;
-  f->_treenodeview_impl.get_selected_node = &TreeViewWrapper::get_selected_node;
-  f->_treenodeview_impl.set_selected = &TreeViewWrapper::set_selected;
-  f->_treenodeview_impl.set_allow_sorting = &TreeViewWrapper::set_allow_sorting;
-  f->_treenodeview_impl.set_row_height = &TreeViewWrapper::set_row_height;
-  f->_treenodeview_impl.freeze_refresh = &TreeViewWrapper::freeze_refresh;
-  f->_treenodeview_impl.root_node = &TreeViewWrapper::root_node;
-  f->_treenodeview_impl.row_for_node = &TreeViewWrapper::row_for_node;
-  f->_treenodeview_impl.node_at_row = &TreeViewWrapper::node_at_row;
-  f->_treenodeview_impl.node_at_position = &TreeViewWrapper::node_at_position;
-  f->_treenodeview_impl.set_selection_mode = &TreeViewWrapper::set_selection_mode;
-  f->_treenodeview_impl.get_selection_mode = &TreeViewWrapper::get_selection_mode;
-  f->_treenodeview_impl.node_with_tag = &TreeViewWrapper::node_with_tag;
+  f->_treeview_impl.create = &TreeViewWrapper::create;
+  f->_treeview_impl.add_column = &TreeViewWrapper::add_column;
+  f->_treeview_impl.end_columns = &TreeViewWrapper::end_columns;
+  f->_treeview_impl.clear = &TreeViewWrapper::clear;
+  f->_treeview_impl.clear_selection = &TreeViewWrapper::clear_selection;
+  f->_treeview_impl.get_selection = &TreeViewWrapper::get_selection;
+  f->_treeview_impl.get_selected_node = &TreeViewWrapper::get_selected_node;
+  f->_treeview_impl.set_selected = &TreeViewWrapper::set_selected;
+  f->_treeview_impl.set_allow_sorting = &TreeViewWrapper::set_allow_sorting;
+  f->_treeview_impl.set_row_height = &TreeViewWrapper::set_row_height;
+  f->_treeview_impl.freeze_refresh = &TreeViewWrapper::freeze_refresh;
+  f->_treeview_impl.root_node = &TreeViewWrapper::root_node;
+  f->_treeview_impl.row_for_node = &TreeViewWrapper::row_for_node;
+  f->_treeview_impl.node_at_row = &TreeViewWrapper::node_at_row;
+  f->_treeview_impl.node_at_position = &TreeViewWrapper::node_at_position;
+  f->_treeview_impl.set_selection_mode = &TreeViewWrapper::set_selection_mode;
+  f->_treeview_impl.get_selection_mode = &TreeViewWrapper::get_selection_mode;
+  f->_treeview_impl.node_with_tag = &TreeViewWrapper::node_with_tag;
 
-  f->_treenodeview_impl.set_column_title = &TreeViewWrapper::set_column_title;
+  f->_treeview_impl.set_column_title = &TreeViewWrapper::set_column_title;
 
-  f->_treenodeview_impl.set_column_visible = &TreeViewWrapper::set_column_visible;
-  f->_treenodeview_impl.get_column_visible = &TreeViewWrapper::get_column_visible;
+  f->_treeview_impl.set_column_visible = &TreeViewWrapper::set_column_visible;
+  f->_treeview_impl.get_column_visible = &TreeViewWrapper::get_column_visible;
 
-  f->_treenodeview_impl.set_column_width = &TreeViewWrapper::set_column_width;
-  f->_treenodeview_impl.get_column_width = &TreeViewWrapper::get_column_width;
+  f->_treeview_impl.set_column_width = &TreeViewWrapper::set_column_width;
+  f->_treeview_impl.get_column_width = &TreeViewWrapper::get_column_width;
 }
 
 //--------------------------------------------------------------------------------------------------

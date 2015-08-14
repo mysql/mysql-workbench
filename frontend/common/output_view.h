@@ -22,7 +22,7 @@
 
 #include "grt/grt_message_list.h"
 
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/splitter.h"
 #include "mforms/menubar.h"
 #include "mforms/appview.h"

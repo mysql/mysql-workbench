@@ -25,7 +25,7 @@
 #include "grt/tree_model.h"
 #include "workbench/wb_backend_public_interface.h"
 #include "base/string_utilities.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "base/trackable.h"
 
 namespace wb

@@ -46,7 +46,7 @@
 #include <mforms/popover.h>
 #include <mforms/fs_object_selector.h>
 #include <mforms/simpleform.h>
-#include <mforms/treenodeview.h>
+#include <mforms/treeview.h>
 #include <mforms/dockingpoint.h>
 
 #include "mforms_grt.h"
@@ -1076,7 +1076,7 @@ def newToolBarItem(*args):
 %include "../mforms/code_editor.h"
 %include "../mforms/task_sidebar.h"
 %include "../mforms/hypertext.h"
-%include "../mforms/treenodeview.h"
+%include "../mforms/treeview.h"
 
 %include "../../base/base/common.h"
 %include "../../base/base/drawing.h"

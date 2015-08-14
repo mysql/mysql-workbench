@@ -22,7 +22,7 @@
 
 #include "workbench/wb_backend_public_interface.h"
 
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "grtpp_value.h"
 
 namespace mforms {

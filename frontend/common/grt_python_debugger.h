@@ -25,7 +25,7 @@
 #include "base/trackable.h"
 
 #include "mforms/tabview.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/utilities.h"
 #include "mforms/panel.h"
 #include "mforms/splitter.h"

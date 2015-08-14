@@ -26,7 +26,7 @@ namespace wb {
   class WBContext;
 };
 
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/code_editor.h"
 #include "mforms/menubar.h"
 #include "mforms/splitter.h"

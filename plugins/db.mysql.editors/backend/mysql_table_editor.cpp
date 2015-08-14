@@ -27,7 +27,7 @@
 
 #include "mforms/code_editor.h"
 #include "mforms/table.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/textentry.h"
 #include "mforms/button.h"
 #include "mforms/box.h"
