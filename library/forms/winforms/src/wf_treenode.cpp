@@ -19,7 +19,7 @@
 
 #include "wf_base.h"
 #include "wf_view.h"
-#include "wf_treenodeview.h"
+#include "wf_treeview.h"
 #include "wf_treenode.h"
 
 using namespace System::Drawing;

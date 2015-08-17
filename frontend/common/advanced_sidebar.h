@@ -22,7 +22,7 @@
 
 #include "mforms/task_sidebar.h"
 #include "mforms/drawbox.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/menubar.h"
 #include "mforms/textentry.h"
 #include "mforms/button.h"

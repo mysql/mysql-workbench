@@ -19,7 +19,7 @@
 
 #include "db_mysql_sql_script_sync.h"
 
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/splitter.h"
 #include "mforms/label.h"
 #include "mforms/code_editor.h"

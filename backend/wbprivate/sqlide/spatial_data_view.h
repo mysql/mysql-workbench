@@ -26,7 +26,7 @@
 #include "mforms/box.h"
 #include "mforms/utilities.h"
 #include "mforms/splitter.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 
 #include <deque>
 

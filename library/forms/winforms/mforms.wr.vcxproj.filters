@@ -121,7 +121,7 @@
     <ClInclude Include="src\wf_treenode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\wf_treenodeview.h">
+    <ClInclude Include="src\wf_treeview.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\wf_utilities.h">
@@ -260,7 +260,7 @@
     <ClCompile Include="src\wf_treenode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\wf_treenodeview.cpp">
+    <ClCompile Include="src\wf_treeview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\wf_utilities.cpp">

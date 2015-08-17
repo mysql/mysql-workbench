@@ -138,7 +138,7 @@
     <ClCompile Include="toolbar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="treenodeview.cpp">
+    <ClCompile Include="treeview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="utilities.cpp">
@@ -289,7 +289,7 @@
     <ClInclude Include="mforms\toolbar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="mforms\treenodeview.h">
+    <ClInclude Include="mforms\treeview.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="mforms\uistyle.h">

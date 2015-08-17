@@ -23,7 +23,7 @@
 #include "grt/grt_manager.h"
 
 #include "mforms/form.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/imagebox.h"
 #include "mforms/label.h"
 #include "mforms/checkbox.h"

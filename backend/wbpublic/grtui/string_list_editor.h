@@ -24,7 +24,7 @@
 
 #include "mforms/form.h"
 #include "mforms/box.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/button.h"
 
 namespace grtui {

@@ -521,10 +521,10 @@
 		2B0609F21952B2AA00022F40 /* db.Table.32x32.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B0609F11952B2AA00022F40 /* db.Table.32x32.png */; };
 		2B0609FB195A496700022F40 /* column_width_cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B0609F9195A496700022F40 /* column_width_cache.cpp */; };
 		2B0609FC195A496700022F40 /* column_width_cache.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0609FA195A496700022F40 /* column_width_cache.h */; };
-		2B064CDA14D3257200B01887 /* treenodeview.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B064CD914D3257200B01887 /* treenodeview.h */; };
-		2B064CE014D327F400B01887 /* treenodeview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B064CDE14D327F400B01887 /* treenodeview.cpp */; };
-		2B064D0714D32DAD00B01887 /* MFTreeNodeView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B064D0514D32DAD00B01887 /* MFTreeNodeView.h */; };
-		2B064D0814D32DAD00B01887 /* MFTreeNodeView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B064D0614D32DAD00B01887 /* MFTreeNodeView.mm */; };
+		2B064CDA14D3257200B01887 /* treeview.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B064CD914D3257200B01887 /* treeview.h */; };
+		2B064CE014D327F400B01887 /* treeview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B064CDE14D327F400B01887 /* treeview.cpp */; };
+		2B064D0714D32DAD00B01887 /* MFTreeView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B064D0514D32DAD00B01887 /* MFTreeView.h */; };
+		2B064D0814D32DAD00B01887 /* MFTreeView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B064D0614D32DAD00B01887 /* MFTreeView.mm */; };
 		2B0748300F93EC1100D7E4E3 /* MResultsetViewer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B07482C0F93EC1100D7E4E3 /* MResultsetViewer.h */; };
 		2B0748310F93EC1100D7E4E3 /* MResultsetViewer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B07482D0F93EC1100D7E4E3 /* MResultsetViewer.mm */; };
 		2B0748610F93F9A100D7E4E3 /* string_list_editor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B07485F0F93F9A100D7E4E3 /* string_list_editor.cpp */; };
@@ -4367,10 +4367,10 @@
 		2B0609F11952B2AA00022F40 /* db.Table.32x32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = db.Table.32x32.png; path = structs/db.Table.32x32.png; sourceTree = "<group>"; };
 		2B0609F9195A496700022F40 /* column_width_cache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = column_width_cache.cpp; path = backend/wbpublic/sqlide/column_width_cache.cpp; sourceTree = "<group>"; };
 		2B0609FA195A496700022F40 /* column_width_cache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = column_width_cache.h; path = backend/wbpublic/sqlide/column_width_cache.h; sourceTree = "<group>"; };
-		2B064CD914D3257200B01887 /* treenodeview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = treenodeview.h; path = library/forms/mforms/treenodeview.h; sourceTree = "<group>"; wrapsLines = 0; };
-		2B064CDE14D327F400B01887 /* treenodeview.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = treenodeview.cpp; path = library/forms/treenodeview.cpp; sourceTree = "<group>"; };
-		2B064D0514D32DAD00B01887 /* MFTreeNodeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MFTreeNodeView.h; path = library/forms/cocoa/MFTreeNodeView.h; sourceTree = "<group>"; };
-		2B064D0614D32DAD00B01887 /* MFTreeNodeView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MFTreeNodeView.mm; path = library/forms/cocoa/MFTreeNodeView.mm; sourceTree = "<group>"; wrapsLines = 0; };
+		2B064CD914D3257200B01887 /* treeview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = treeview.h; path = library/forms/mforms/treeview.h; sourceTree = "<group>"; wrapsLines = 0; };
+		2B064CDE14D327F400B01887 /* treeview.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = treeview.cpp; path = library/forms/treeview.cpp; sourceTree = "<group>"; };
+		2B064D0514D32DAD00B01887 /* MFTreeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MFTreeView.h; path = library/forms/cocoa/MFTreeView.h; sourceTree = "<group>"; };
+		2B064D0614D32DAD00B01887 /* MFTreeView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MFTreeView.mm; path = library/forms/cocoa/MFTreeView.mm; sourceTree = "<group>"; wrapsLines = 0; };
 		2B07482C0F93EC1100D7E4E3 /* MResultsetViewer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MResultsetViewer.h; path = frontend/mac/resultset/MResultsetViewer.h; sourceTree = "<group>"; };
 		2B07482D0F93EC1100D7E4E3 /* MResultsetViewer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MResultsetViewer.mm; path = frontend/mac/resultset/MResultsetViewer.mm; sourceTree = "<group>"; wrapsLines = 0; };
 		2B07485F0F93F9A100D7E4E3 /* string_list_editor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = string_list_editor.cpp; sourceTree = "<group>"; };
@@ -7500,7 +7500,7 @@
 				2B96166C0F275B0A00F0B599 /* textbox.h */,
 				2B96166D0F275B0A00F0B599 /* textentry.h */,
 				2B15B0A512D8BEC4006567D6 /* toolbar.h */,
-				2B064CD914D3257200B01887 /* treenodeview.h */,
+				2B064CD914D3257200B01887 /* treeview.h */,
 				2BE67EF90F8DB1F000E00A97 /* uistyle.h */,
 				2B73957E0F6048620084CA96 /* utilities.h */,
 				2B96166F0F275B0A00F0B599 /* view.h */,
@@ -7556,7 +7556,7 @@
 				2B96163C0F275AF200F0B599 /* textbox.cpp */,
 				2B96163D0F275AF200F0B599 /* textentry.cpp */,
 				2B15B0A312D8BE7F006567D6 /* toolbar.cpp */,
-				2B064CDE14D327F400B01887 /* treenodeview.cpp */,
+				2B064CDE14D327F400B01887 /* treeview.cpp */,
 				2B7395800F6048780084CA96 /* utilities.cpp */,
 				2B96163F0F275AF200F0B599 /* view.cpp */,
 				278874871189DA9300E477EF /* webbrowser.cpp */,
@@ -9941,8 +9941,8 @@
 				2B3D49120F3E3FCA009238A7 /* MFTextEntry.mm */,
 				2B15B35012DA288E006567D6 /* MFToolBar.h */,
 				2B15B35112DA288E006567D6 /* MFToolBar.mm */,
-				2B064D0514D32DAD00B01887 /* MFTreeNodeView.h */,
-				2B064D0614D32DAD00B01887 /* MFTreeNodeView.mm */,
+				2B064D0514D32DAD00B01887 /* MFTreeView.h */,
+				2B064D0614D32DAD00B01887 /* MFTreeView.mm */,
 				2B7395820F60488F0084CA96 /* MFUtilities.h */,
 				2B7395830F60488F0084CA96 /* MFUtilities.mm */,
 				2B3D49130F3E3FCA009238A7 /* MFView.h */,
@@ -11710,8 +11710,8 @@
 				27597A0314192EE900641E30 /* container.h in Headers */,
 				2B83FCE11419B70B00A2C82B /* popover.h in Headers */,
 				2B83FCE41419C64500A2C82B /* MFPopover.h in Headers */,
-				2B064CDA14D3257200B01887 /* treenodeview.h in Headers */,
-				2B064D0714D32DAD00B01887 /* MFTreeNodeView.h in Headers */,
+				2B064CDA14D3257200B01887 /* treeview.h in Headers */,
+				2B064D0714D32DAD00B01887 /* MFTreeView.h in Headers */,
 				2B0F18CF14FECBCE0087D62A /* find_panel.h in Headers */,
 				2B0F18D214FECBE10087D62A /* MFFindPanel.h in Headers */,
 				2BAD74EB156182DB0025F13F /* dockingpoint.h in Headers */,
@@ -14611,8 +14611,8 @@
 				27597A0114192ED100641E30 /* container.cpp in Sources */,
 				2B83FCDD1419B6B300A2C82B /* popover.cpp in Sources */,
 				2B83FCE51419C64500A2C82B /* MFPopover.mm in Sources */,
-				2B064CE014D327F400B01887 /* treenodeview.cpp in Sources */,
-				2B064D0814D32DAD00B01887 /* MFTreeNodeView.mm in Sources */,
+				2B064CE014D327F400B01887 /* treeview.cpp in Sources */,
+				2B064D0814D32DAD00B01887 /* MFTreeView.mm in Sources */,
 				2B0F18D314FECBE10087D62A /* MFFindPanel.mm in Sources */,
 				2B83E5BD1992B3D900781432 /* MCanvasScrollView.mm in Sources */,
 				2B0F1AF714FFB88B0087D62A /* find_panel.cpp in Sources */,

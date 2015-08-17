@@ -305,7 +305,7 @@
     <ClCompile Include="textbox.cpp" />
     <ClCompile Include="textentry.cpp" />
     <ClCompile Include="toolbar.cpp" />
-    <ClCompile Include="treenodeview.cpp" />
+    <ClCompile Include="treeview.cpp" />
     <ClCompile Include="utilities.cpp" />
     <ClCompile Include="view.cpp" />
     <ClCompile Include="webbrowser.cpp" />
@@ -356,7 +356,7 @@
     <ClInclude Include="mforms\textbox.h" />
     <ClInclude Include="mforms\textentry.h" />
     <ClInclude Include="mforms\toolbar.h" />
-    <ClInclude Include="mforms\treenodeview.h" />
+    <ClInclude Include="mforms\treeview.h" />
     <ClInclude Include="mforms\uistyle.h" />
     <ClInclude Include="mforms\utilities.h" />
     <ClInclude Include="mforms\view.h" />

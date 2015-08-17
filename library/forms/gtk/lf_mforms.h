@@ -37,7 +37,7 @@
 #include "mforms/progressbar.h"
 #include "mforms/table.h"
 #include "mforms/scrollpanel.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/wizard.h"
 #include "mforms/drawbox.h"
 #include "mforms/tabswitcher.h"
