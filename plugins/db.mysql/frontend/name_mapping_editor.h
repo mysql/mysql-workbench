@@ -20,7 +20,7 @@
 #ifndef _NAME_MAPPING_EDITOR_H_
 #define _NAME_MAPPING_EDITOR_H_
 
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/label.h"
 #include "mforms/textbox.h"
 #include "mforms/box.h"
@@ -28,7 +28,6 @@
 #include "mforms/panel.h"
 #include "mforms/button.h"
 #include "mforms/selector.h"
-#include "mforms/treenodeview.h"
 #include "mforms/checkbox.h"
 #include "mforms/table.h"
 #include "mforms/uistyle.h"

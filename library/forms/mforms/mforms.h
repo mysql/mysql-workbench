@@ -71,7 +71,7 @@
 #include <mforms/progressbar.h>
 #include <mforms/table.h>
 #include <mforms/scrollpanel.h>
-#include <mforms/treenodeview.h>
+#include <mforms/treeview.h>
 #include <mforms/wizard.h>
 #include <mforms/drawbox.h>
 #include <mforms/tabswitcher.h>
@@ -140,7 +140,7 @@ namespace mforms
     UtilitiesImplPtrs _utilities_impl;
   public:
     
-    TreeViewImplPtrs _treenodeview_impl;
+    TreeViewImplPtrs _treeview_impl;
     FindPanelImplPtrs _findpanel_impl;
 
     ControlFactory();

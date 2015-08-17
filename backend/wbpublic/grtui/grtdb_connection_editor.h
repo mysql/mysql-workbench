@@ -22,7 +22,7 @@
 #include "mforms/form.h"
 #include "mforms/box.h"
 #include "mforms/button.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 
 #include "db_conn_be.h"
 #include "grtdb_connect_panel.h"

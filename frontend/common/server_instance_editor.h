@@ -30,7 +30,7 @@
 #include "mforms/form.h"
 #include "mforms/box.h"
 #include "mforms/textentry.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/selector.h"
 #include "mforms/button.h"
 #include "mforms/tabview.h"

@@ -25,7 +25,7 @@
 
 #include <grtpp_undo_manager.h>
 
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 
 #include "workbench/wb_backend_public_interface.h"
 

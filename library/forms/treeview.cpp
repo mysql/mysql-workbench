@@ -151,7 +151,7 @@ void TreeNode::toggle()
 TreeView::TreeView(TreeOptions options) // yep
 : _context_menu(0), _header_menu(0), _update_count(0), _clicked_header_column(0), _end_column_called(false)
 {
-  _treeview_impl= &ControlFactory::get_instance()->_treenodeview_impl;
+  _treeview_impl= &ControlFactory::get_instance()->_treeview_impl;
   _index_on_tag = (options & TreeIndexOnTag) ? true : false;
 
   _treeview_impl->create(this, options);

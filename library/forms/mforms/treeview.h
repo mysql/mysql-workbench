@@ -218,7 +218,7 @@ namespace mforms {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef SWIG
-  struct TreeViewImplPtrs // probably too
+  struct TreeViewImplPtrs
   {
     bool (*create)(TreeView *self, TreeOptions options);
     

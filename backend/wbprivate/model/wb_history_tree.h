@@ -20,7 +20,7 @@
 #ifndef _WB_HISTORY_TREE_H_
 #define _WB_HISTORY_TREE_H_
 
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include <grtpp_undo_manager.h>
 
 namespace bec

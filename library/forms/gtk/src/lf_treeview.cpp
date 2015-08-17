@@ -20,7 +20,7 @@
 #include <inttypes.h>
 
 #include "../lf_mforms.h"
-#include "../lf_treenodeview.h"
+#include "../lf_treeview.h"
 #include "../lf_utilities.h"
 
 #include <glib.h>
@@ -2395,29 +2395,29 @@ void TreeViewImpl::init()
 {
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
 
-  f->_treenodeview_impl.create= &TreeViewImpl::create;
-  f->_treenodeview_impl.root_node= &TreeViewImpl::root_node;
-  f->_treenodeview_impl.add_column= &TreeViewImpl::add_column;
-  f->_treenodeview_impl.end_columns= &TreeViewImpl::end_columns;
-  f->_treenodeview_impl.clear= &TreeViewImpl::clear;
-  f->_treenodeview_impl.get_selection_mode= &TreeViewImpl::get_selection_mode;
-  f->_treenodeview_impl.set_selection_mode= &TreeViewImpl::set_selection_mode;
-  f->_treenodeview_impl.clear_selection= &TreeViewImpl::clear_selection;
-  f->_treenodeview_impl.get_selected_node= &TreeViewImpl::get_selected_node;
-  f->_treenodeview_impl.get_selection= &TreeViewImpl::get_selection;
-  f->_treenodeview_impl.set_selected= &TreeViewImpl::set_selected;
-  f->_treenodeview_impl.set_allow_sorting= &TreeViewImpl::set_allow_sorting;
-  f->_treenodeview_impl.freeze_refresh= &TreeViewImpl::freeze_refresh;
-  f->_treenodeview_impl.set_row_height= &TreeViewImpl::set_row_height;
-  f->_treenodeview_impl.node_at_row= &TreeViewImpl::node_at_row;
-  f->_treenodeview_impl.node_with_tag= &TreeViewImpl::node_with_tag;
-  f->_treenodeview_impl.row_for_node= &TreeViewImpl::row_for_node;
-  f->_treenodeview_impl.set_column_visible= &TreeViewImpl::set_column_visible;
-  f->_treenodeview_impl.get_column_visible= &TreeViewImpl::get_column_visible;
-  f->_treenodeview_impl.set_column_title= &TreeViewImpl::set_column_title;
-  f->_treenodeview_impl.set_column_width= &TreeViewImpl::set_column_width;
-  f->_treenodeview_impl.get_column_width= &TreeViewImpl::get_column_width;
-  f->_treenodeview_impl.node_at_position = &TreeViewImpl::node_at_position;
+  f->_treeview_impl.create= &TreeViewImpl::create;
+  f->_treeview_impl.root_node= &TreeViewImpl::root_node;
+  f->_treeview_impl.add_column= &TreeViewImpl::add_column;
+  f->_treeview_impl.end_columns= &TreeViewImpl::end_columns;
+  f->_treeview_impl.clear= &TreeViewImpl::clear;
+  f->_treeview_impl.get_selection_mode= &TreeViewImpl::get_selection_mode;
+  f->_treeview_impl.set_selection_mode= &TreeViewImpl::set_selection_mode;
+  f->_treeview_impl.clear_selection= &TreeViewImpl::clear_selection;
+  f->_treeview_impl.get_selected_node= &TreeViewImpl::get_selected_node;
+  f->_treeview_impl.get_selection= &TreeViewImpl::get_selection;
+  f->_treeview_impl.set_selected= &TreeViewImpl::set_selected;
+  f->_treeview_impl.set_allow_sorting= &TreeViewImpl::set_allow_sorting;
+  f->_treeview_impl.freeze_refresh= &TreeViewImpl::freeze_refresh;
+  f->_treeview_impl.set_row_height= &TreeViewImpl::set_row_height;
+  f->_treeview_impl.node_at_row= &TreeViewImpl::node_at_row;
+  f->_treeview_impl.node_with_tag= &TreeViewImpl::node_with_tag;
+  f->_treeview_impl.row_for_node= &TreeViewImpl::row_for_node;
+  f->_treeview_impl.set_column_visible= &TreeViewImpl::set_column_visible;
+  f->_treeview_impl.get_column_visible= &TreeViewImpl::get_column_visible;
+  f->_treeview_impl.set_column_title= &TreeViewImpl::set_column_title;
+  f->_treeview_impl.set_column_width= &TreeViewImpl::set_column_width;
+  f->_treeview_impl.get_column_width= &TreeViewImpl::get_column_width;
+  f->_treeview_impl.node_at_position = &TreeViewImpl::node_at_position;
 }
 
 }

@@ -24,7 +24,7 @@
 #include "workbench/wb_backend_public_interface.h"
 #include "grts/structs.workbench.physical.h"
 
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/table.h"
 #include "mforms/box.h"
 #include "mforms/label.h"

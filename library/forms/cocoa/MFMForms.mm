@@ -39,7 +39,7 @@ extern void cf_progressbar_init();
 extern void cf_filechooser_init();
 extern void cf_scrollpanel_init();
 extern void cf_listbox_init();
-extern void cf_treenodeview_init();
+extern void cf_treeview_init();
 extern void cf_wizard_init();
 extern void cf_util_init();
 extern void cf_drawbox_init();
@@ -91,7 +91,7 @@ void mforms_cocoa_init()
   cf_hypertext_init();
   cf_popover_init();
   
-  cf_treenodeview_init();
+  cf_treeview_init();
   cf_findpanel_init();
 
   cf_canvas_init();

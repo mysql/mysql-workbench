@@ -35,7 +35,7 @@
 
 #include "mforms/gridview.h"
 #include "mforms/utilities.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/textbox.h"
 #include "mforms/label.h"
 #include "mforms/tabview.h"

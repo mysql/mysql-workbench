@@ -140,23 +140,23 @@ public:
   {
     ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
 
-    f->_treenodeview_impl.create= &TreeViewWrapper::create;
-    f->_treenodeview_impl.add_column= &TreeViewWrapper::add_column;
-    f->_treenodeview_impl.end_columns= &TreeViewWrapper::end_columns;
-    f->_treenodeview_impl.clear= &TreeViewWrapper::clear;
-    f->_treenodeview_impl.get_selected_node= &TreeViewWrapper::get_selected_node;
-    f->_treenodeview_impl.set_selected= &TreeViewWrapper::set_selected;
-    f->_treenodeview_impl.get_selection= &TreeViewWrapper::get_selection;
-    f->_treenodeview_impl.set_allow_sorting = &TreeViewWrapper::set_allow_sorting;
-    f->_treenodeview_impl.freeze_refresh = &TreeViewWrapper::freeze_refresh;
-    f->_treenodeview_impl.set_selection_mode = &TreeViewWrapper::set_selection_mode;
-    f->_treenodeview_impl.get_selection_mode = &TreeViewWrapper::get_selection_mode;
-    f->_treenodeview_impl.root_node = &TreeViewWrapper::root_node;
-    f->_treenodeview_impl.node_at_row = &TreeViewWrapper::node_at_row;
-    f->_treenodeview_impl.row_for_node = &TreeViewWrapper::row_for_node;
-    f->_treenodeview_impl.set_row_height = &TreeViewWrapper::set_row_height;
-    f->_treenodeview_impl.clear_selection = &TreeViewWrapper::clear_selection;
-    f->_treenodeview_impl.node_with_tag = &TreeViewWrapper::node_with_tag;
+    f->_treeview_impl.create= &TreeViewWrapper::create;
+    f->_treeview_impl.add_column= &TreeViewWrapper::add_column;
+    f->_treeview_impl.end_columns= &TreeViewWrapper::end_columns;
+    f->_treeview_impl.clear= &TreeViewWrapper::clear;
+    f->_treeview_impl.get_selected_node= &TreeViewWrapper::get_selected_node;
+    f->_treeview_impl.set_selected= &TreeViewWrapper::set_selected;
+    f->_treeview_impl.get_selection= &TreeViewWrapper::get_selection;
+    f->_treeview_impl.set_allow_sorting = &TreeViewWrapper::set_allow_sorting;
+    f->_treeview_impl.freeze_refresh = &TreeViewWrapper::freeze_refresh;
+    f->_treeview_impl.set_selection_mode = &TreeViewWrapper::set_selection_mode;
+    f->_treeview_impl.get_selection_mode = &TreeViewWrapper::get_selection_mode;
+    f->_treeview_impl.root_node = &TreeViewWrapper::root_node;
+    f->_treeview_impl.node_at_row = &TreeViewWrapper::node_at_row;
+    f->_treeview_impl.row_for_node = &TreeViewWrapper::row_for_node;
+    f->_treeview_impl.set_row_height = &TreeViewWrapper::set_row_height;
+    f->_treeview_impl.clear_selection = &TreeViewWrapper::clear_selection;
+    f->_treeview_impl.node_with_tag = &TreeViewWrapper::node_with_tag;
   }
 };
 

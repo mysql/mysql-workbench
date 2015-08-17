@@ -23,7 +23,7 @@
 
 #include "grtui/grt_wizard_form.h"
 #include "mforms/label.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/imagebox.h"
 #include "mforms/menubar.h"
 #include "mforms/checkbox.h"

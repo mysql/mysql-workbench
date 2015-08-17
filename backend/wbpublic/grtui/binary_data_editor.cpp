@@ -34,7 +34,7 @@ DEFAULT_LOG_DOMAIN("BlobViewer");
 #include "mforms/imagebox.h"
 #include "mforms/textbox.h"
 #include "mforms/selector.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/code_editor.h"
 #include "mforms/find_panel.h"
 #include "mforms/filechooser.h"

@@ -19,7 +19,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include <map>
 
 @class MFTreeNodeImpl;
