@@ -1652,7 +1652,19 @@ model_ObjectRef WBComponentPhysical::paste_object(ModelDiagramForm *view, const 
         figure->color(original->color());
         figure->top(original->top());
         figure->left(original->left());
-        
+        figure->expanded(original->expanded());
+        figure->width(original->width());
+        figure->height(original->height());
+
+        // We need to try to cast is to workbench_physical_TableFigureRef, so we can copy additional properties.
+        if (workbench_physical_TableFigureRef::can_wrap(original))
+        {
+          workbench_physical_TableFigureRef src(workbench_physical_TableFigureRef::cast_from(original));
+          workbench_physical_TableFigureRef dst(workbench_physical_TableFigureRef::cast_from(figure));
+          dst->indicesExpanded(src->indicesExpanded());
+          dst->height(src->height()); // Height needs to be recopied after we changed indicesExpanded property.
+        }
+
         return figure;
       }
     }
