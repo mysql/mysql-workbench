@@ -22,7 +22,7 @@ grammar MySQL;
 /*
  * Merged in all changes up to mysql-trunk git revision [94e53ac] (07 May 2015).
  *
- * MySQL grammar for ANTLR 3.4 with language features from MySQL 4.0 up to MySQL 5.7.7 (except for
+ * MySQL grammar for ANTLR 3.4 with language features from MySQL 4.0 up to MySQL 5.7.8 (except for
  * internal function names which were reduced significantly in 5.1, we only use the reduced set).
  * The server version in the generated parser can be switched at runtime, making it so possible
  * to switch the supported feature set dynamically.
@@ -4683,7 +4683,7 @@ INVALID_INPUT:
 // Number types.
 NUMBER:			DIGITS { $type = determine_num_type($text); };
 
-DECIMAL_NUMBER:	DIGITS? DOT_SYMBOL DIGITS; // Also set determine_num_type() function if the number is > ULONGLONG.
+DECIMAL_NUMBER:	DIGITS? DOT_SYMBOL DIGITS; // Also set in the determine_num_type() function if the number is > ULONGLONG.
 FLOAT_NUMBER:	DECIMAL_NUMBER 'E' (MINUS_OPERATOR | PLUS_OPERATOR)? DIGITS;
 HEX_NUMBER:		('0X' HEXDIGIT+) | ('X' '\'' HEXDIGIT+ '\'');
 BIN_NUMBER: 	('0B' ('0' | '1')+) | ('B' '\'' ('0' | '1')+ '\'');
