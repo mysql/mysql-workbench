@@ -1744,6 +1744,9 @@ void WBContext::set_default_options(grt::DictRef options)
   // Fabric
   set_default(options, "Fabric:ConnectionTimeOut", 60); // in seconds
 
+  // Migration
+  set_default(options, "Migration:ConnectionTimeOut", 60); // in seconds
+
   // Recordset
   set_default(options, "Recordset:FloatingPointVisibleScale", 3);
   set_default(options, "Recordset:FieldValueTruncationThreshold", 256);

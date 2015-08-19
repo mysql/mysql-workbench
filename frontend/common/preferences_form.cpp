@@ -1376,7 +1376,15 @@ mforms::View *PreferencesForm::create_others_page()
       "The interval in seconds without sending any data over the connection, a \"keepalive\" packet will be sent.\nThis option will apply to both SSH tunnel connections and remote management via SSH."));
 
     timeouts_table->add_option(entry, _("Fabric Connection Timeout:"),
-      _("Maximum time to wait before a connection\nattempt is aborted."));
+        _("Maximum time to wait before a connection\nattempt is aborted."));
+
+    entry = new_numeric_entry_option("Migration:ConnectionTimeOut", 0, 3600);
+    entry->set_max_length(5);
+    entry->set_size(50, -1);
+    entry->set_tooltip(_("The interval in seconds before connection is aborted."));
+
+    timeouts_table->add_option(entry, _("Migration Connection Timeout:"),
+        _("Maximum time to wait before a connection is aborted."));
 
   }
 

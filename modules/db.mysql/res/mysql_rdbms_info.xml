@@ -745,6 +745,21 @@ secure_auth option.</value>
             <value type="dict" content-type="string" key="paramTypeDetails"/>
             <value type="int" key="required">0</value>
           </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.timeout">
+            <value type="string" key="caption">Timeout:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">Maximum time to wait before a connection is aborted.</value>
+            <value type="int" key="layoutAdvanced">1</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">46</value>
+            <value type="string" key="lookupValueModule">Options</value>
+            <value type="string" key="lookupValueMethod">Migration:ConnectionTimeOut</value>
+            <value type="string" key="name">timeout</value>
+            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+            <value type="string" key="paramType">int</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.sqlmode">
             <value type="string" key="caption">SQL_MODE:</value>
             <value type="string" key="defaultValue"></value>
