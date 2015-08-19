@@ -193,6 +193,7 @@ protected:
   bool _abort_on_oversized_blobs;
   bool _use_bulk_inserts;
   bool _get_field_lengths_from_target;
+  unsigned int _connection_timeout;
 
 public:
   CopyDataSource();
@@ -273,7 +274,8 @@ class MySQLCopyDataSource : public CopyDataSource
 public:
   MySQLCopyDataSource(const std::string &hostname, int port,
                     const std::string &username, const std::string &password,
-                    const std::string &socket, bool use_cleartext_plugin);
+                    const std::string &socket, bool use_cleartext_plugin,
+                    const unsigned int connection_timeout);
   virtual ~MySQLCopyDataSource();
 
   virtual size_t count_rows(const std::string &schema, const std::string &table, const std::vector<std::string> &pk_columns,
@@ -332,6 +334,7 @@ class MySQLCopyDataTarget
   int _bulk_record_count;
   int _bulk_insert_batch;
   std::string _source_rdbms_type;
+  unsigned int _connection_timeout;
 
   MYSQL_RES * get_server_value(const std::string& variable);
   void get_server_value(const std::string& variable, std::string &value);
@@ -351,7 +354,8 @@ public:
   MySQLCopyDataTarget(const std::string &hostname, int port,
                       const std::string &username, const std::string &password,
                       const std::string &socket, bool use_cleartext_plugin, const std::string &app_name,
-                      const std::string &incoming_charset, const std::string &source_rdbms_type);
+                      const std::string &incoming_charset, const std::string &source_rdbms_type,
+					  const unsigned int connection_timeout);
 
   ~MySQLCopyDataTarget();
 

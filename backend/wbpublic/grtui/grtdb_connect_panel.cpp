@@ -1212,7 +1212,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
       
       // value
       {
-        grt::StringRef value= driver_param->get_value_repr();
+        grt::StringRef value = driver_param->getValue();
         if (value.is_valid())
           ctrl->set_value(*value);
       }
