@@ -1295,9 +1295,11 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
 
 MySQLCopyDataSource::MySQLCopyDataSource(const std::string &hostname, int port,
                     const std::string &username, const std::string &password,
-                    const std::string &socket, bool use_cleartext_plugin)
+                    const std::string &socket, bool use_cleartext_plugin,
+                    unsigned int connection_timeout)
   : _select_stmt(NULL), _has_long_data(false)
 {
+  this->_connection_timeout = connection_timeout;
   std::string host = hostname;
   mysql_init(&_mysql);
 
@@ -1328,6 +1330,7 @@ MySQLCopyDataSource::MySQLCopyDataSource(const std::string &hostname, int port,
            socket.c_str(), username.c_str());
   }
 
+  mysql_options(&_mysql, MYSQL_OPT_CONNECT_TIMEOUT, &_connection_timeout);
 
 #if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
 #if MYSQL_CHECK_VERSION(5,5,27)
@@ -1890,10 +1893,11 @@ enum enum_field_types MySQLCopyDataTarget::field_type_to_ps_param_type(enum enum
 MySQLCopyDataTarget::MySQLCopyDataTarget(const std::string &hostname, int port,
                     const std::string &username, const std::string &password,
                     const std::string &socket, bool use_cleartext_plugin, const std::string &app_name,
-                    const std::string &incoming_charset, const std::string &source_rdbms_type)
+                    const std::string &incoming_charset, const std::string &source_rdbms_type,
+					const unsigned int connection_timeout)
 : _insert_stmt(NULL), _max_allowed_packet(1000000), _max_long_data_size(1000000),// 1M default
   _row_buffer(NULL), _major_version(0), _minor_version(0), _build_version(0), _use_bulk_inserts(true),
-  _bulk_insert_batch(0), _source_rdbms_type(source_rdbms_type)
+  _bulk_insert_batch(0), _source_rdbms_type(source_rdbms_type), _connection_timeout(connection_timeout)
 {
   std::string host = hostname;
   _truncate = false;
@@ -1940,6 +1944,8 @@ MySQLCopyDataTarget::MySQLCopyDataTarget(const std::string &hostname, int port,
     log_info("Connecting to MySQL server using socket %s with user %s\n",
            socket.c_str(), username.c_str());
   }
+
+  mysql_options(&_mysql, MYSQL_OPT_CONNECT_TIMEOUT, &_connection_timeout);
 
 #if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
 #if MYSQL_CHECK_VERSION(5,5,27)
