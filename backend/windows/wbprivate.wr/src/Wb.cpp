@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,7 +20,6 @@
 #include "sqlide/wb_sql_editor_form.h"
 
 #include "base/string_utilities.h"
-#include "base/file_utilities.h"
 #include "workbench/wb_overview.h"
 #include "ConvUtils.h"
 #include "GrtTemplates.h"
@@ -39,6 +38,7 @@ using namespace System::Windows::Forms;
 using namespace Aga::Controls::Tree;
 
 using namespace base;
+using namespace wb;
 
 using namespace MySQL::Base;
 using namespace MySQL::Forms;
@@ -54,28 +54,7 @@ WbOptions::WbOptions(String^ baseDir, String^ userDir, bool full_init)
   inner->module_search_path = inner->basedir + "/modules";
   inner->struct_search_path = "";
   inner->library_search_path = inner->basedir;
-
- if (!inner->user_data_dir.empty())
-  {
-    if (!base::is_directory(inner->user_data_dir))
-    {
-      try
-      {
-        if (!base::copyDirectoryRecursive(NativeToCppStringRaw(userDir), inner->user_data_dir))
-        {
-          Logger::LogError("WBContext managed", String::Format("Unable to prepare new config directory: {0} \n", CppStringToNative(inner->user_data_dir)));
-        }
-      }
-      catch (std::exception &exc)
-      {
-        Logger::LogError("WBContext managed", String::Format("There was a problem preparing new config directory. Falling back to default one. The error was: {0}\n", CppStringToNative(exc.what())));
-        inner->user_data_dir = NativeToCppStringRaw(userDir);
-      }
-    }
-  }
-  else
-    inner->user_data_dir = NativeToCppStringRaw(userDir);
-
+  inner->user_data_dir = NativeToCppStringRaw(userDir);
   inner->full_init = full_init;
 }
 
@@ -128,7 +107,8 @@ String^ WbOptions::OpenAtStartupType::get()
 
 WbContext::WbContext(bool verbose)
 {
-  inner = new ::wb::WBContextUI(verbose);
+  inner = WBContextUI::get();
+  manager = nullptr;
   physical_overview = nullptr;
 
   Logger::LogDebug("WBContext managed", 1, "Creating WbContext\n");
@@ -138,8 +118,9 @@ WbContext::WbContext(bool verbose)
 
 WbContext::~WbContext()
 {
+  // Don't delete the inner object. It's a singleton.
   delete physical_overview;
-  delete inner;
+  delete manager;
 
   Logger::LogDebug("WBContext managed", 1, "Destroying WbContext\n");
 }
@@ -160,11 +141,10 @@ bool WbContext::init(WbFrontendCallbacks ^callbacks, WbOptions ^options,
 GrtManager^ WbContext::get_grt_manager()
 {
   if (manager == nullptr)
-    manager = gcnew GrtManager(&bec::GRTManager::get());
+    manager= gcnew GrtManager(inner->get_wb()->get_grt_manager());
 
-  return manager;
+  return manager; 
 }
-
 
 //--------------------------------------------------------------------------------------------------
 
@@ -492,11 +472,12 @@ MenuStrip^ WbContext::menu_for_appview(MySQL::Forms::AppViewDockContent ^content
   if (menuStrip != nullptr)
     return menuStrip;
 
-  mforms::MenuBar *menu = inner->get_command_ui()->create_menubar_for_context("");
+  auto backend = content->GetBackend();
+  mforms::MenuBar *menu = inner->get_command_ui()->create_menubar_for_context(backend->is_main_form() ? backend->get_form_context_name() : "");
   if (menu == NULL)
     return nullptr;
 
-  content->GetBackend()->set_menubar(menu);
+  backend->set_menubar(menu);
   return content->GetMenuBar();
 }
 
@@ -637,14 +618,14 @@ void WbContext::flush_idle_tasks()
 
 double WbContext::delay_for_next_timer()
 {
-  return bec::GRTManager::get().delay_for_next_timeout();
+  return inner->get_wb()->get_grt_manager()->delay_for_next_timeout();
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void WbContext::flush_timers()
 {
-  return bec::GRTManager::get().flush_timers();
+  return inner->get_wb()->get_grt_manager()->flush_timers();
 }
 
 //--------------------------------------------------------------------------------------------------
