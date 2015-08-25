@@ -190,12 +190,18 @@ namespace JsonParser {
     DataType _type;
   };
 
+#if defined(_WIN32) || defined(__APPLE__)
+  #define NOEXCEPT _NOEXCEPT
+#else
+  #define NOEXCEPT _GLIBCXX_USE_NOEXCEPT
+#endif
+
   class MFORMS_EXPORT ParserException : public std::exception
   {
   public:
     explicit ParserException(const std::string &message) : _msgText(message) {}
     explicit ParserException(const char *message) : _msgText(message) {}
-    virtual const char *what() const _GLIBCXX_USE_NOEXCEPT { return _msgText.c_str(); }
+    virtual const char *what() const NOEXCEPT { return _msgText.c_str(); }
   private:
     std::string _msgText;
   };
