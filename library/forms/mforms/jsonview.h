@@ -190,11 +190,14 @@ namespace JsonParser {
     DataType _type;
   };
 
-  class MFORMS_EXPORT ParserException : public std::runtime_error
+  class MFORMS_EXPORT ParserException : public std::exception
   {
   public:
-    ParserException(const std::string &message) : std::runtime_error(message) {}
-    ParserException(const char *message) : std::runtime_error(message) {}
+    explicit ParserException(const std::string &message) : _msgText(message) {}
+    explicit ParserException(const char *message) : _msgText(message) {}
+    virtual const char *what() const _GLIBCXX_USE_NOEXCEPT { return _msgText.c_str(); }
+  private:
+    std::string _msgText;
   };
 
   class MFORMS_EXPORT JsonReader
