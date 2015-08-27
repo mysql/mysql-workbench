@@ -278,6 +278,7 @@ class WbAdminSSH(object):
                    # it will be retrived later
         port = settings.ssh_port#loginInfo['ssh.port']
         self.keepalive = settings.ssh_keepalive
+        self.ssh_timeout = settings.ssh_timeout
         if usekey == 1:
             # We need to check if keyfile needs password. For some reason paramiko does not always
             # throw exception to request password
@@ -750,10 +751,10 @@ class WbAdminSSH(object):
 
         if type(user_password) is not str:
             user_password = None
-            
+
         expect_sudo_failure = False
 
-        read_timeout = 10
+        read_timeout = self.ssh_timeout
 
         if self.client is not None:
             transport = self.client.get_transport()
