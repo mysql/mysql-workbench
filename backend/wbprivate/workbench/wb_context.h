@@ -345,11 +345,13 @@ namespace wb {
     int read_state(const std::string &name, const std::string &domain, const int &default_value);
     double read_state(const std::string &name, const std::string &domain, const double &default_value);
     bool read_state(const std::string &name, const std::string &domain, const bool &default_value);
+    grt::ValueRef read_state(const std::string &name, const std::string &domain);
      
     void save_state(const std::string &name, const std::string &domain, const std::string &value);
     void save_state(const std::string &name, const std::string &domain, const int &value);
     void save_state(const std::string &name, const std::string &domain, const double &value);
     void save_state(const std::string &name, const std::string &domain, const bool &value);
+    void save_state(const std::string &name, const std::string &domain, grt::ValueRef value);
 
   protected:
     friend class WBContextModel; // to access _components

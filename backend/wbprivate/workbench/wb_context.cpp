@@ -4060,6 +4060,16 @@ bool WBContext::read_state(const std::string &name, const std::string &domain, c
 }
 
 /**
+ * Returns the value for a state given by name as ValueRef, if it exists or the default value if not.
+ */
+grt::ValueRef WBContext::read_state(const std::string &name, const std::string &domain)
+{
+  grt::DictRef dict= get_root()->state();
+
+  return dict.get(domain + ":" + name);
+}
+
+/**
  * Stores the given string state value in the grt tree.
  */
 void WBContext::save_state(const std::string &name, const std::string &domain, const std::string &value)
@@ -4101,6 +4111,17 @@ void WBContext::save_state(const std::string &name, const std::string &domain, c
 
   // Set new value for the given state name in that domain.
   dict.gset(domain + ":" + name, value ? 1 : 0);
+}
+
+/**
+ * Stores the given ValueRef state value in the grt tree.
+ */
+void WBContext::save_state(const std::string &name, const std::string &domain, grt::ValueRef value)
+{
+  grt::DictRef dict= get_root()->state();
+
+  // Set new value for the given state name in that domain.
+  dict.set(domain + ":" + name, value);
 }
 
 //--------------------------------------------------------------------------------------------------
