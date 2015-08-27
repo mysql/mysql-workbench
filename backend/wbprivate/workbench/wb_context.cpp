@@ -1840,6 +1840,7 @@ void WBContext::set_default_options(grt::DictRef options)
 
   //Advanced options
   set_default(options, "sshkeepalive", 0); // by default turned off
+  set_default(options, "sshtimeout", 10);
 
   // Other options
   set_default(options, "workbench.physical.Connection:ShowCaptions", 0);
