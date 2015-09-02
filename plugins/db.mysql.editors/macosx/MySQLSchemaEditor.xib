@@ -90,7 +90,7 @@
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <textField verticalHuggingPriority="750" setsMaxLayoutWidthAtFirstLayout="YES" id="65">
+                                    <textField verticalHuggingPriority="750" id="65">
                                         <rect key="frame" x="426" y="160" width="329" height="25"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                         <string key="toolTip">The name of the schema. It is recommended to use only alpha-numeric characters. Spaces should be avoided and be replaced by an underscore char (_).</string>
