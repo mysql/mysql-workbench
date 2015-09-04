@@ -826,7 +826,13 @@
   </language>
 	
 	<language name="SCLEX_CPP_JS">
+
     <!-- Editor settings -->
+    <property name="fold" value="1" />
+    <property name="fold.compact" value="0" />
+    <property name="fold.comment" value="1" />
+    <property name="fold.at.else" value="1" />
+
     <setting name="usetabs" value="0" />
     <setting name="tabwidth" value="2" />
     <setting name="indentation" value="2" />
