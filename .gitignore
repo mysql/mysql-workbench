@@ -197,3 +197,4 @@ testing/tut/data/wb_options.xml
 testing/tut/data/user_starters.xml
 testing/tut/data/starters_settings.xml
 testing/tut/data/server_instances.xml
+library/parsers/ECMA*
