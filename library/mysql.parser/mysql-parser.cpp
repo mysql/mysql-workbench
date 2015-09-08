@@ -285,7 +285,7 @@ extern "C" {
   /**
    * Error report function which is set in the parser (see MySQL.g where this is done).
    */
-  void on_parse_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_UINT8 *tokenNames)
+  void onMySQLParseError(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_UINT8 *tokenNames)
   {
     pANTLR3_EXCEPTION exception = recognizer->state->exception;
 
@@ -1380,7 +1380,7 @@ MySQLRecognizerTreeWalker MySQLRecognizer::tree_walker()
 void MySQLRecognizer::set_sql_mode(const std::string &new_mode)
 {
   MySQLRecognitionBase::set_sql_mode(new_mode);
-  d->_context.sql_mode = sql_mode(); // Parsed SQL mode.
+  d->_context.sqlMode = sql_mode(); // Parsed SQL mode.
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1444,7 +1444,7 @@ std::string MySQLRecognizer::token_text(pANTLR3_BASE_TREE node, bool keepQuotes)
       return chars;
   }
 
-  if ((d->_context.sql_mode & SQL_MODE_NO_BACKSLASH_ESCAPES) == 0)
+  if ((d->_context.sqlMode & SQL_MODE_NO_BACKSLASH_ESCAPES) == 0)
     chars = base::unescape_sql_string(chars, quote_char[0]);
   else
     if (token->user1 > 0)
