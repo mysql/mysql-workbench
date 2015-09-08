@@ -59,18 +59,6 @@ extern "C" {
     return IDENTIFIER;
   }
   
-  /**
-   * Checks the given text if it is equal to "\N" (w/o quotes and in uppercase). We need this extra
-   * check as our lexer is case insensitive.
-   */
-  ANTLR3_UINT32 check_null(pANTLR3_STRING text)
-  {
-    std::string token_text((const char*)text->chars, text->len - 1);
-    if (token_text == "\\N")
-      return NULL2_SYMBOL;
-    return ANTLR3_TOKEN_INVALID;
-  }
-
 } // extern "C"
 
 //----------------- MySQLRecognitionBase ---------------------------------------------------------------
@@ -237,79 +225,77 @@ bool MySQLRecognitionBase::is_keyword(ANTLR3_UINT32 type)
 
   switch (type)
   {
-  case AT_SIGN_SYMBOL:
-  case AT_AT_SIGN_SYMBOL:
-  case BACK_TICK:
-  case BACK_TICK_QUOTED_ID:
-  case BITNUMBER:
-  case BITSTRING:
-  case BITWISE_AND_OPERATOR:
-  case BITWISE_NOT_OPERATOR:
-  case BITWISE_OR_OPERATOR:
-  case BITWISE_XOR_OPERATOR:
-  case CLOSE_PAR_SYMBOL:
-  case COLON_SYMBOL:
-  case COMMA_SYMBOL:
-  case DASHDASH_COMMENT:
-  case DIGIT:
-  case DIGITS:
-  case DIV_OPERATOR:
-  case DOT_SYMBOL:
-  case DOUBLE_QUOTE:
-  case DOUBLE_QUOTED_TEXT:
-  case EQUAL_OPERATOR:
-  case ESCAPE_OPERATOR:
-  case EXPRESSION_TOKEN:
-  case COLUMN_NAME_TOKEN:
-  case FLOAT:
-  case FUNCTION_CALL_TOKEN:
-  case GREATER_OR_EQUAL_OPERATOR:
-  case GREATER_THAN_OPERATOR:
-  case HEXDIGIT:
-  case HEXNUMBER:
-  case HEXSTRING:
-  case IDENTIFIER:
-  case INDEX_HINT_LIST_TOKEN:
-  case INTEGER:
-  case JOIN_EXPR_TOKEN:
-  case LESS_OR_EQUAL_OPERATOR:
-  case LESS_THAN_OPERATOR:
-  case LETTER_WHEN_UNQUOTED:
-  case LOGICAL_AND_OPERATOR:
-  case LOGICAL_NOT_OPERATOR:
-  case LOGICAL_OR_OPERATOR:
-  case MINUS_OPERATOR:
-  case ML_COMMENT_END:
-  case ML_COMMENT_HEAD:
-  case MOD_OPERATOR:
-  case MULT_OPERATOR:
-  case NCHAR_TEXT:
-  case NOT_EQUAL2_OPERATOR:
-  case NOT_EQUAL_OPERATOR:
-  case NULL2_SYMBOL:
-  case NULL_SAFE_EQUAL_OPERATOR:
-  case OPEN_PAR_SYMBOL:
-  case PARAM_MARKER:
-  case PAR_EXPRESSION_TOKEN:
-  case PLUS_OPERATOR:
-  case POUND_COMMENT:
-  case SEMICOLON_SYMBOL:
-  case SHIFT_LEFT_OPERATOR:
-  case SHIFT_RIGHT_OPERATOR:
-  case SINGLE_QUOTE:
-  case SINGLE_QUOTED_TEXT:
-  case STRING_TOKEN:
-  case SUBQUERY_TOKEN:
-  case TABLE_NAME_TOKEN:
-  case UNDERLINE_SYMBOL:
-  case UNDERSCORE_CHARSET:
-  case VERSION_COMMENT:
-  case VERSION_COMMENT_END:
-  case VERSION_COMMENT_INTRODUCER:
-  case VERSION_COMMENT_START_TOKEN:
-  case VERSION_COMMENT_TAIL:
-  case WHITESPACE:
-  case XA_ID_TOKEN:
+    case AT_SIGN_SYMBOL:
+    case AT_AT_SIGN_SYMBOL:
+    case BACK_TICK:
+    case BACK_TICK_QUOTED_ID:
+    case BIN_NUMBER:
+    case BITWISE_AND_OPERATOR:
+    case BITWISE_NOT_OPERATOR:
+    case BITWISE_OR_OPERATOR:
+    case BITWISE_XOR_OPERATOR:
+    case CLOSE_PAR_SYMBOL:
+    case COLON_SYMBOL:
+    case COMMA_SYMBOL:
+    case DASHDASH_COMMENT:
+    case DIGIT:
+    case DIGITS:
+    case DIV_OPERATOR:
+    case DOT_SYMBOL:
+    case DOUBLE_QUOTE:
+    case DOUBLE_QUOTED_TEXT:
+    case EQUAL_OPERATOR:
+    case ESCAPE_OPERATOR:
+    case EXPRESSION_TOKEN:
+    case COLUMN_NAME_TOKEN:
+    case FLOAT_NUMBER:
+    case FUNCTION_CALL_TOKEN:
+    case GREATER_OR_EQUAL_OPERATOR:
+    case GREATER_THAN_OPERATOR:
+    case HEXDIGIT:
+    case HEX_NUMBER:
+    case IDENTIFIER:
+    case INDEX_HINT_LIST_TOKEN:
+    case NUMBER:
+    case JOIN_EXPR_TOKEN:
+    case LESS_OR_EQUAL_OPERATOR:
+    case LESS_THAN_OPERATOR:
+    case LETTER_WHEN_UNQUOTED:
+    case LOGICAL_AND_OPERATOR:
+    case LOGICAL_NOT_OPERATOR:
+    case LOGICAL_OR_OPERATOR:
+    case MINUS_OPERATOR:
+    case ML_COMMENT_END:
+    case ML_COMMENT_HEAD:
+    case MOD_OPERATOR:
+    case MULT_OPERATOR:
+    case NCHAR_TEXT:
+    case NOT_EQUAL2_OPERATOR:
+    case NOT_EQUAL_OPERATOR:
+    case NULL2_SYMBOL:
+    case NULL_SAFE_EQUAL_OPERATOR:
+    case OPEN_PAR_SYMBOL:
+    case PARAM_MARKER:
+    case PAR_EXPRESSION_TOKEN:
+    case PLUS_OPERATOR:
+    case POUND_COMMENT:
+    case SEMICOLON_SYMBOL:
+    case SHIFT_LEFT_OPERATOR:
+    case SHIFT_RIGHT_OPERATOR:
+    case SINGLE_QUOTE:
+    case SINGLE_QUOTED_TEXT:
+    case STRING_TOKEN:
+    case SUBQUERY_TOKEN:
+    case TABLE_NAME_TOKEN:
+    case UNDERLINE_SYMBOL:
+    case UNDERSCORE_CHARSET:
+    case VERSION_COMMENT:
+    case VERSION_COMMENT_END:
+    case VERSION_COMMENT_INTRODUCER:
+    case VERSION_COMMENT_START_TOKEN:
+    case VERSION_COMMENT_TAIL:
+    case WHITESPACE:
+    case XA_ID_TOKEN:
   case ANTLR3_TOKEN_EOF:
     return false;
 
@@ -377,12 +363,10 @@ bool MySQLRecognitionBase::is_number(ANTLR3_UINT32 type)
 {
   switch (type)
   {
-    case INTEGER:
-    case FLOAT:
-    case HEXNUMBER:
-    case HEXSTRING:
-    case BITNUMBER:
-    case BITSTRING:
+    case NUMBER:
+    case FLOAT_NUMBER:
+    case HEX_NUMBER:
+    case BIN_NUMBER:
       return true;
 
   default:
