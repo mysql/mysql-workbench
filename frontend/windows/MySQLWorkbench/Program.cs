@@ -232,7 +232,7 @@ namespace MySQL.GUI.Workbench
             + Environment.NewLine
             + "Press [OK] to check for a new version and exit the application. "
             + "Press [Cancel] to continue using this version.",
-            "MySQL Worbench Version Outdated", MessageBoxButtons.OKCancel,
+            "MySQL Workbench Version Outdated", MessageBoxButtons.OKCancel,
             MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.OK)
           {
             CheckForNewVersion();
