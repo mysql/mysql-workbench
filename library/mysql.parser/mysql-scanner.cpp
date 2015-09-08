@@ -450,14 +450,14 @@ long MySQLScanner::get_server_version()
 void MySQLScanner::set_sql_mode(const std::string &new_mode)
 {
   MySQLRecognitionBase::set_sql_mode(new_mode);
-  d->_context.sql_mode = sql_mode(); // Parsed SQL mode.
+  d->_context.sqlMode = sql_mode(); // Parsed SQL mode.
 }
 
 //--------------------------------------------------------------------------------------------------
 
 unsigned int MySQLScanner::get_sql_mode_flags()
 {
-  return d->_context.sql_mode;
+  return d->_context.sqlMode;
 }
 
 //--------------------------------------------------------------------------------------------------

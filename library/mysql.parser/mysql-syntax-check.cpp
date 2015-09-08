@@ -149,7 +149,7 @@ void MySQLSyntaxChecker::parse(const char *text, size_t length, bool is_utf8, My
 void MySQLSyntaxChecker::set_sql_mode(const std::string &new_mode)
 {
   MySQLRecognitionBase::set_sql_mode(new_mode);
-  d->_context.sql_mode = sql_mode();
+  d->_context.sqlMode = sql_mode();
 }
 
 //--------------------------------------------------------------------------------------------------
