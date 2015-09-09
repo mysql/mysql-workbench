@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+﻿# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -167,6 +167,7 @@ Use cases for the server logs
    session or until the user clicks on the tab's *Close* button.
 """
 
+import grt
 from mforms import newBox, newLabel, newTreeView, newTabView, newButton
 import mforms
 from wb_admin_utils import not_running_warning_label, make_panel_header, show_error_page, remove_error_page_if_exists
@@ -289,7 +290,14 @@ class LogView(mforms.Box):
 
         table.add(newLabel("Log File Location:"), 0, 1, 0, 1, mforms.HFillFlag)
         if self.log_reader.log_file:
-            label = newLabel(self.log_reader.log_file.path)
+            if self.log_reader.log_file.path == "stderr":
+                self.query = """<QueryList><Query Id = "0" Path = "Application">
+                                <Select Path = "Application">*[System[Provider[@Name = 'MySQL'] and TimeCreated[timediff(@SystemTime) &lt;= 604800000]]]</Select>
+                                </Query></QueryList>"""
+                grt.setEventlogCallback(self.printResults)
+                label = newLabel("Windows Event viewer")
+            else:
+                label = newLabel(self.log_reader.log_file.path)
         else:
             label = newLabel("TABLE")
         label.set_style(mforms.BoldStyle)
@@ -342,6 +350,17 @@ class LogView(mforms.Box):
         self.bbox.add(self.refresh_button, False, True)
         self.refresh_button.add_clicked_callback(self.refresh)
 
+        if self.log_reader.log_file.path == "stderr":
+            self.actual_position = 0
+            grt.getEventLogEntry(0, self.query)
+
+    def printResults(self, text, args):
+        self.actual_position = self.actual_position + 1
+        row = self.tree.add_node()
+        self.size_label.set_text(str(self.actual_position))
+        for idx, key in enumerate(self.log_reader.column_keys):
+            row.set_string(idx, args[key])
+
     def read_data_worker(self, out):
         out(self.log_reader.current())
 
@@ -355,6 +374,13 @@ class LogView(mforms.Box):
         self.worker = None
 
     def refresh(self, records=None):
+        if self.log_reader.log_file.path == "stderr":
+            grt.getEventLogEntry(self.actual_position, self.query)
+            self.bof_button.set_enabled(False)
+            self.back_button.set_enabled(False)
+            self.eof_button.set_enabled(False)
+            self.next_button.set_enabled(False)
+            return
         if self.log_reader:
             try:
                 self.log_reader.refresh()
