@@ -39,7 +39,9 @@
 
 #include "base/log.h"
 
+#ifdef _WIN32
 #include "base/event_log.h"
+#endif
 
 DEFAULT_LOG_DOMAIN("python context")
 
@@ -715,8 +717,8 @@ void PythonContext::printResult(std::map<std::string, std::string> &output)
   {
     WillEnterPython lock;
     PyObject *dict = PyDict_New();
-    auto end = output.end();
-    for (auto it = output.begin(); it != end; ++it)
+    std::map<std::string, std::string>::iterator end = output.end();
+    for (std::map<std::string, std::string>::iterator it = output.begin(); it != end; ++it)
     {
       PyObject *str = PyString_FromString(it->second.c_str());
       PyDict_SetItemString(dict, it->first.c_str(), str);
@@ -737,6 +739,7 @@ void PythonContext::printResult(std::map<std::string, std::string> &output)
   }
 }
 
+#ifdef _WIN32
 static void printResultCallback(std::map<std::string, std::string> &output)
 {
   PythonContext *ctx;
@@ -746,6 +749,7 @@ static void printResultCallback(std::map<std::string, std::string> &output)
 
   ctx->printResult(output);
 }
+#endif
 
 static PyObject *getEventLogEntry(PyObject *self, PyObject *args)
 {
@@ -759,9 +763,11 @@ static PyObject *getEventLogEntry(PyObject *self, PyObject *args)
   if (!PyArg_ParseTuple(args, "ls", &seek, &query))
     return NULL;
 
+#ifdef _WIN32
   EventLogReader reader(query, printResultCallback);
   reader.SetPosition(seek);
   reader.ReadEvents();
+#endif
 
   Py_INCREF(Py_None);
   return Py_None;
