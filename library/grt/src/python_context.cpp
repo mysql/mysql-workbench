@@ -39,6 +39,8 @@
 
 #include "base/log.h"
 
+#include "base/event_log.h"
+
 DEFAULT_LOG_DOMAIN("python context")
 
 using namespace grt;
@@ -320,7 +322,6 @@ void PythonContext::handle_grt_notification(const std::string &name, ObjectRef s
     Py_DECREF(args);
   }
 }
-
 
 void PythonContext::handle_notification(const std::string &name, void *sender, base::NotificationInfo &info)
 {
@@ -701,6 +702,92 @@ static PyObject *grt_get_by_path(PyObject *self, PyObject *args)
   }
 
   return ctx->from_grt(value);
+}
+
+void PythonContext::setEventlogCallback(PyObject *obj)
+{
+  _grtEventLogNotification = obj;
+}
+
+void PythonContext::printResult(std::map<std::string, std::string> &output)
+{
+  if (_grtEventLogNotification)
+  {
+    WillEnterPython lock;
+    PyObject *dict = PyDict_New();
+    auto end = output.end();
+    for (auto it = output.begin(); it != end; ++it)
+    {
+      PyObject *str = PyString_FromString(it->second.c_str());
+      PyDict_SetItemString(dict, it->first.c_str(), str);
+      Py_DECREF(str);
+    }
+    PyObject *args = Py_BuildValue("sO", "", dict);
+    PyObject *res;
+    if (!(res = PyObject_CallObject(_grtEventLogNotification, args)))
+    {
+      log_python_error("Error forwarding GRT notification to Python");
+    }
+    if (res)
+    {
+      Py_DECREF(res);
+    }
+    Py_DECREF(args);
+    Py_DECREF(dict);
+  }
+}
+
+static void printResultCallback(std::map<std::string, std::string> &output)
+{
+  PythonContext *ctx;
+
+  if (!(ctx = PythonContext::get_and_check()))
+    return;
+
+  ctx->printResult(output);
+}
+
+static PyObject *getEventLogEntry(PyObject *self, PyObject *args)
+{
+  PythonContext *ctx;
+
+  if (!(ctx = PythonContext::get_and_check()))
+    return NULL;
+
+  char *query = NULL;
+  long seek = 0;
+  if (!PyArg_ParseTuple(args, "ls", &seek, &query))
+    return NULL;
+
+  EventLogReader reader(query, printResultCallback);
+  reader.SetPosition(seek);
+  reader.ReadEvents();
+
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
+static PyObject *setEventlogCallback(PyObject *self, PyObject *args)
+{
+  PythonContext *ctx;
+  if (!(ctx = PythonContext::get_and_check()))
+    return NULL;
+
+  PyObject *object;
+
+  if (!PyArg_ParseTuple(args, "O", &object))
+    return NULL;
+
+  if (!PyCallable_Check(object))
+  {
+    PyErr_SetString(PyExc_ValueError, "notification observer argument must be a callable");
+    return NULL;
+  }
+
+  ctx->setEventlogCallback(object);
+
+  Py_INCREF(Py_None);
+  return Py_None;
 }
 
 
@@ -1129,6 +1216,9 @@ static PyMethodDef GrtModuleMethods[] = {
 {"togrt", grt_wrap_pyobject, METH_VARARGS,
   "Wraps a Python object in a grt_PyObject GRT object, which you can then use to reference from GRT objects (such as GRT dicts and lists)"},
 
+{ "getEventLogEntry", getEventLogEntry, METH_VARARGS, "Read logentry from windows event log." },
+{ "setEventlogCallback", setEventlogCallback, METH_VARARGS, "Pushes a callback that print log entry form a EventViewer." },
+
 {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
@@ -1197,8 +1287,6 @@ void PythonContext::register_grt_module()
   
   PyModule_AddObject(_grt_classes_module, "grt", _grt_module);
 }
-
-
 
 
 PyObject *PythonContext::get_grt_module()
