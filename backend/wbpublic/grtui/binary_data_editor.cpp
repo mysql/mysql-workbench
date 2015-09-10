@@ -614,7 +614,7 @@ void BinaryDataEditor::tab_changed()
   }
   catch (std::exception &exc)
   {
-    log_error("Error displaying binary data: %s\n", exc.what());
+    logError("Error displaying binary data: %s\n", exc.what());
   }
 }
 
