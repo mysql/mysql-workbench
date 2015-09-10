@@ -280,11 +280,11 @@ uint32_t MySQLScanner::look_around(int offset, bool ignore_hidden)
   if (offset == 0)
     return d->_tokens[d->_token_index]->type;
 
-  if (d->_token_index + offset < 0 || d->_token_index + offset >= d->_tokens.size())
+  ssize_t index = (ssize_t)d->_token_index;
+  if (index + offset < 0 || index + offset >= (ssize_t)d->_tokens.size())
     return ANTLR3_TOKEN_INVALID;
 
   pANTLR3_COMMON_TOKEN token;
-  int index = (int)d->_token_index;
   if (offset < 0)
   {
     while (index > 0 && offset < 0)
@@ -305,12 +305,13 @@ uint32_t MySQLScanner::look_around(int offset, bool ignore_hidden)
   }
   else
   {
-    while (index > 0 && offset > 0)
+    ssize_t count = (ssize_t)d->_tokens.size();
+    while (index < count && offset > 0)
     {
       --offset;
       if (ignore_hidden)
       {
-        while (++index >= 0 && d->_tokens[index]->channel != 0)
+        while (++index < count && d->_tokens[index]->channel != 0)
           ;
       }
       else
