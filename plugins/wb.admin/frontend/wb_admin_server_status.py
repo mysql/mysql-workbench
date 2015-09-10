@@ -18,7 +18,7 @@
 from __future__ import with_statement
 from workbench.log import log_info, log_error, log_warning
 
-from workbench.utils import format_duration
+from workbench.utils import format_duration, Version
 from workbench.db_utils import QueryError
 import mforms
 import time
@@ -485,7 +485,7 @@ class WbAdminServerStatus(mforms.Box):
                 info_table.remove(self.controls[label][0])
             else:
                 info_table.add(mforms.newLabel(label), 0, 1, i, i+1, mforms.HFillFlag)
-
+            is_gtid_mode_setable = label == 'GTID Mode:' and self.ctrl_be.target_version >= Version(5, 7, 6)
             if type(value) is bool or value is None:
                 b = StateIcon()
                 b.set_state(value)
@@ -499,11 +499,19 @@ class WbAdminServerStatus(mforms.Box):
                 info_table.add(b, 1, 2, i, i+1, mforms.HFillFlag|mforms.HExpandFlag)
                 self.controls[label] = (b, value_source)
             else:
-                l2 = mforms.newLabel(value or "")
-                l2.set_style(mforms.BoldStyle)
-                l2.set_color("#1c1c1c")
-                info_table.add(l2, 1, 2, i, i+1, mforms.HFillFlag|mforms.HExpandFlag)
-                self.controls[label] = (l2, value_source)
+                if is_gtid_mode_setable:
+                    self.gtid_mode_selector = mforms.newSelector()
+                    self.gtid_mode_selector.add_items(["OFF", "UPGRADE_STEP_1", "UPGRADE_STEP_1", "ON"])
+                    self.gtid_mode_selector.set_selected(self.gtid_mode_selector.index_of_item_with_title(value_source))
+                    self.gtid_mode_selector.add_changed_callback(self._gtid_mode_changed)
+                    info_table.add(self.gtid_mode_selector, 1, 2, i, i + 1, mforms.HFillFlag | mforms.HExpandFlag)
+                    self.controls[label] = (self.gtid_mode_selector, value_source)
+                else:
+                    l2 = mforms.newLabel(value or "")
+                    l2.set_style(mforms.BoldStyle)
+                    l2.set_color("#1c1c1c")
+                    info_table.add(l2, 1, 2, i, i + 1, mforms.HFillFlag | mforms.HExpandFlag)
+                    self.controls[label] = (l2, value_source)
         info_table.add(mforms.newLabel(""), 0, 1, len(info), len(info)+1, mforms.HFillFlag) # blank space
         return info_table
 
@@ -519,3 +527,10 @@ class WbAdminServerStatus(mforms.Box):
             self._update_timeout = None
         self.status.stop()
 
+    #---------------------------------------------------------------------------
+    def _gtid_mode_changed(self):
+        new_value = self.gtid_mode_selector.get_string_value()
+        try:
+            self.ctrl_be.exec_query("SET @@GLOBAL.GTID_MODE = %s;" % new_value)
+        except QueryError, e:
+            log_error("Error update GTID mode: %s" % str(e))
