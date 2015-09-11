@@ -16,6 +16,7 @@ install(FILES ${MODULE_DATA_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/modules/
 include_directories(.
     ${PROJECT_SOURCE_DIR}/generated
     ${PROJECT_SOURCE_DIR}/backend/wbpublic
+    ${PROJECT_SOURCE_DIR}/backend/wbprivate
     ${PROJECT_SOURCE_DIR}/library/grt/src 
     ${PROJECT_SOURCE_DIR}/library/base
     ${PROJECT_SOURCE_DIR}/library/forms
