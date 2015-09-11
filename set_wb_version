@@ -5,8 +5,7 @@ major=`echo $version|cut -d. -f1`
 minor=`echo $version|cut -d. -f2`
 release=`echo $version|cut -d. -f3`
 release_number=`echo $version|cut -d. -f3|sed -e 's/\([0-9]*\).*/\1/'`
-revision=`echo $version|cut -d. -f4`
-build=`echo $version|cut -d. -f5`
+build=`echo $version|cut -d. -f4`
 release_type=$2
 edition_name=$3
 license_type=$4
@@ -16,12 +15,7 @@ if test "$build" = ""; then
 fi
 
 if test "$version" = ""; then
-  echo "$0 <major.minor.release.revision[.build]> [<release-type>]"
-  exit 1
-fi
-
-if test "$revision" = ""; then
-  echo "$0 <major.minor.release.revision[.build]> [<release-type>]"
+  echo "$0 <major.minor.release[.build]> [<release-type>]"
   exit 1
 fi
 
@@ -38,7 +32,6 @@ sed -e "s/#define APP_MAJOR_NUMBER.*/#define APP_MAJOR_NUMBER $major/" \
    -e "s/#define APP_MINOR_NUMBER.*/#define APP_MINOR_NUMBER $minor/" \
    -e "s/#define APP_RELEASE_NUMBER.*/#define APP_RELEASE_NUMBER $release_number/" \
    -e "s/#define APP_RELEASE_TYPE.*/#define APP_RELEASE_TYPE \"$release_type\"/" \
-   -e "s/#define APP_REVISION_NUMBER.*/#define APP_REVISION_NUMBER $revision/" \
    -e "s/#define APP_BUILD_NUMBER.*/#define APP_BUILD_NUMBER $build/" \
        -i.bak backend/wbprivate/workbench/wb_version.h 
 
@@ -49,8 +42,8 @@ sed -e "s/#define APP_LICENSE_TYPE.*/#define APP_LICENSE_TYPE \"$license_type\"/
 fi
 
 echo "Updating AssemblyInfo.cs"
-sed -e "s/\[assembly: AssemblyVersion(.*)\]/[assembly: AssemblyVersion(\"$major.$minor.$release_number.$revision\")]/"\
-        -e "s/\[assembly: AssemblyFileVersion(.*)\]/[assembly: AssemblyFileVersion(\"$major.$minor.$release_number.$revision\")]/" \
+sed -e "s/\[assembly: AssemblyVersion(.*)\]/[assembly: AssemblyVersion(\"$major.$minor.$release_number\")]/"\
+        -e "s/\[assembly: AssemblyFileVersion(.*)\]/[assembly: AssemblyFileVersion(\"$major.$minor.$release_number\")]/" \
         -e "s/\[assembly: AssemblyReleaseType(.*)\]/[assembly: AssemblyReleaseType(\"$release_type\")]/" \
   -i.bak frontend/windows/MySQLWorkbench/Properties/AssemblyInfo.cs
 

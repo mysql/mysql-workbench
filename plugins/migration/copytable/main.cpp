@@ -387,13 +387,12 @@ int main(int argc, char **argv)
       if (strcmp(APP_EDITION_NAME, "Community") == 0)
         type = "CE";
 
-      printf("%s %s (%s) %i.%i.%i %i %s build %i\n"
+      printf("%s %s (%s) %i.%i.%i %s build %i\n"
              , base::basename(argv[0]).c_str()
              , type, APP_LICENSE_TYPE
              , APP_MAJOR_NUMBER
              , APP_MINOR_NUMBER
              , APP_RELEASE_NUMBER
-             , APP_REVISION_NUMBER
              , APP_RELEASE_TYPE
              , APP_BUILD_NUMBER
             );
