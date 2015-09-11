@@ -553,7 +553,7 @@ class AdminUserDbPrivs(object):
 
             fields = { "user":escape_sql_string(self._owner.username),
                        "host":escape_sql_string(self._owner.host),
-                       "db":entry.db if entry.db != '%' else '*'
+                       "db":entry.db
                      }
 
             granted_privs = []
