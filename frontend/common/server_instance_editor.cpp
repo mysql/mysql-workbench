@@ -409,11 +409,11 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
   _bottom_hbox.add(&_move_up_button, false, true);
   _bottom_hbox.add(&_move_down_button, false, true);
   
-  _bottom_hbox.add_end(&_ok_button, false, true);
+  _bottom_hbox.add_end(&_close_button, false, true);
   _bottom_hbox.add_end(&_test_button, false, true);
   //  _bottom_hbox.add_end(&_cancel_button, false, true);
   
-  _ok_button.set_text(_("Close"));
+  _close_button.set_text(_("Close"));
 
   _test_button.set_text(_("Test Connection"));
 //  _test_button.set_enabled(_grtm->get_grt()->get_module("WbAdmin")!=0);
@@ -421,7 +421,7 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
   
   _add_inst_button.enable_internal_padding(true);
   _del_inst_button.enable_internal_padding(true);
-  _ok_button.enable_internal_padding(true);
+  _close_button.enable_internal_padding(true);
   _test_button.enable_internal_padding(true);
 
   _stored_connection_list.set_size(180, -1);
@@ -561,7 +561,7 @@ db_mgmt_ServerInstanceRef ServerInstanceEditor::run(db_mgmt_ConnectionRef select
     _tabview.set_active_tab(2);
 
   _top_vbox.resume_layout();
-  run_modal(&_ok_button, NULL);
+  run_modal(NULL, &_close_button);
 
   _grtm->get_grt()->call_module_function("Workbench", "saveConnections", grt::BaseListRef());
   _grtm->get_grt()->call_module_function("Workbench", "saveInstances", grt::BaseListRef());
