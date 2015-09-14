@@ -51,6 +51,7 @@ class TextBoxImpl : public ViewImpl
   static void clear(::mforms::TextBox *self);
 protected:
   void set_front_color(const std::string &color);
+  bool on_key_press(GdkEventKey *event, mforms::TextBox *self);
 
 public:
   static void init();
