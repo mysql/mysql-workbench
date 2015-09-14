@@ -284,13 +284,13 @@ class BaseLogFileReader(object):
 
         **This is not intended for direct instantiation.**
         '''
-    def __init__(self, ctrl_be, log_file, pat, chunk_size, truncate_long_lines, append_gaps=True):
+    def __init__(self, ctrl_be, log_file_param, pat, chunk_size, truncate_long_lines, append_gaps=True):
         """Constructor
 
             :param ctrl_be:  Control backend instance to retrieve root password if needed
-            :param log_file: The path to the log file to read from or a file like instance to
+            :param log_file_param: The path to the log file to read from or a file like instance to
             read log entries from
-            :type log_file: str/file
+            :type log_file_param: str/file
             :param pat: A regular expression pattern that matches a log entry
             :type pat: regular expression object
             :param chunk_size: The size in bytes of the chunks that are read from the log file
@@ -312,12 +312,12 @@ class BaseLogFileReader(object):
         self.partial_support = False
 
         # If there isn't a directory component in the path, use @@datadir as the directory for the log file:
-        log_file = log_file.strip(' "')
+        log_file_param = log_file_param.strip(' "')
         ospath = server_os_path(self.ctrl_be.server_profile)
         datadir = self.ctrl_be.server_profile.datadir
         if not datadir and ctrl_be.is_sql_connected():
             datadir = self.ctrl_be.get_server_variable('datadir')
-        self.log_file_name = log_file if ospath.isabs(log_file) else ospath.join(datadir, log_file)
+        self.log_file_name = log_file_param if ospath.isabs(log_file_param) else ospath.join(datadir, log_file_param)
 
         use_sftp = False
         use_event_viewer = False
@@ -325,7 +325,7 @@ class BaseLogFileReader(object):
             use_sudo = False
             # In Windows we can either access the file locally as a plain file or remotely with sftp
             # Ther is no upport for reading log files that are only readable by the admin
-            if log_file.lower() == "stderr":
+            if log_file_param.lower() == "stderr":
                 use_event_viewer = True
             if not self.ctrl_be.server_profile.is_local:
                 if not self.ctrl_be.server_profile.remote_admin_enabled:
@@ -543,7 +543,7 @@ class BaseLogFileReader(object):
             reopen the file again to keep going with the changes.
             Warning: this function only supports appending to the log file.
             '''
-        if log_file.lower() == "stderr":
+        if self.log_file.path == "stderr":
             return
         else:
             new_size = self.log_file.size
