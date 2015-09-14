@@ -47,28 +47,24 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -130,9 +126,11 @@
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
-      <PreprocessorDefinitions>MYSQL_PARSER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\base;..\..\ext\antlr-runtime\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>PARSERS_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;..\base;..\..\ext\antlr-runtime\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -146,10 +144,12 @@
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
-      <PreprocessorDefinitions>MYSQL_PARSER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\base;..\..\ext\antlr-runtime\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>PARSERS_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;..\base;..\..\ext\antlr-runtime\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BrowseInformation>false</BrowseInformation>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -167,9 +167,11 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>MYSQL_PARSER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\base;..\..\ext\antlr-runtime\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>PARSERS_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;..\base;..\..\ext\antlr-runtime\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -186,9 +188,11 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>MYSQL_PARSER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\base;..\..\ext\antlr-runtime\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>PARSERS_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;..\base;..\..\ext\antlr-runtime\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -205,9 +209,11 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>MYSQL_PARSER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\base;..\..\ext\antlr-runtime\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>PARSERS_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;..\base;..\..\ext\antlr-runtime\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -224,9 +230,11 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>MYSQL_PARSER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\base;..\..\ext\antlr-runtime\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>PARSERS_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;..\base;..\..\ext\antlr-runtime\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -236,6 +244,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="code-completion\mysql-code-completion.h" />
+    <ClInclude Include="code-completion\mysql_object_names_cache.h" />
+    <ClInclude Include="ecma-parser.h" />
+    <ClInclude Include="ECMALexer.h" />
+    <ClInclude Include="ECMAParser.h" />
+    <ClInclude Include="grammar-parser\ANTLRv3Lexer.h" />
+    <ClInclude Include="grammar-parser\ANTLRv3Parser.h" />
     <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3.h" />
     <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3baserecognizer.h" />
     <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3basetree.h" />
@@ -274,60 +289,492 @@
     <ClInclude Include="MySQLLexer.h" />
     <ClInclude Include="MySQLParser.h" />
     <ClInclude Include="MySQLSimpleParser.h" />
+    <ClInclude Include="parsers-common.h" />
+    <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3baserecognizer.c" />
-    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3basetree.c" />
-    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3basetreeadaptor.c" />
-    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3bitset.c" />
-    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3collections.c" />
-    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3commontoken.c" />
-    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3commontree.c" />
-    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3commontreeadaptor.c" />
-    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3commontreenodestream.c" />
-    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3convertutf.c" />
-    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3cyclicdfa.c" />
-    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3debughandlers.c" />
-    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3encodings.c" />
-    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3exception.c" />
-    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3filestream.c" />
-    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3inputstream.c" />
-    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3intstream.c" />
-    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3lexer.c" />
-    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3parser.c" />
-    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3rewritestreams.c" />
-    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3string.c" />
-    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3tokenstream.c" />
-    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3treeparser.c" />
-    <ClCompile Include="mysql-parser-common.cpp" />
-    <ClCompile Include="mysql-parser.cpp" />
-    <ClCompile Include="mysql-scanner.cpp" />
-    <ClCompile Include="mysql-syntax-check.cpp" />
-    <ClCompile Include="MySQLLexer.c" />
-    <ClCompile Include="MySQLParser.c" />
-    <ClCompile Include="MySQLSimpleParser.c" />
+    <ClCompile Include="code-completion\mysql-code-completion.cpp" />
+    <ClCompile Include="code-completion\mysql_object_names_cache.cpp" />
+    <ClCompile Include="ecma-parser.cpp" />
+    <ClCompile Include="ECMALexer.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="ECMAParser.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="grammar-parser\ANTLRv3Lexer.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="grammar-parser\ANTLRv3Parser.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3baserecognizer.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3basetree.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3basetreeadaptor.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3bitset.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3collections.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3commontoken.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3commontree.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3commontreeadaptor.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3commontreenodestream.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3convertutf.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3cyclicdfa.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3debughandlers.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3encodings.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3exception.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3filestream.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3inputstream.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3intstream.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3lexer.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3parser.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3rewritestreams.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3string.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3tokenstream.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3treeparser.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="mysql-parser-common.cpp">
+    </ClCompile>
+    <ClCompile Include="mysql-parser.cpp">
+    </ClCompile>
+    <ClCompile Include="mysql-scanner.cpp">
+    </ClCompile>
+    <ClCompile Include="mysql-syntax-check.cpp">
+    </ClCompile>
+    <ClCompile Include="MySQLLexer.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="MySQLParser.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="MySQLSimpleParser.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" />
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    </ClCompile>
+    <ClCompile Include="parsers-common.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">Create</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="grammar\MySQL.g">
+    <CustomBuild Include="grammars\MySQL.g">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd grammars
-build-parsers.cmd mysql
-cd ..</Command>
+call build-parsers.cmd mysql
+cd ..
+      </Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd grammars
-build-parsers.cmd mysql
-cd ..</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd grammars
-build-parsers.cmd sasas
-cd ..</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cd grammars
-build-parsers.cmd mysql
-cd ..</Command>
+call build-parsers.cmd mysql
+cd ..
+      </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+        cd grammars
+        build-parsers.cmd mysql
+        cd ..
+      </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+        cd grammars
+        build-parsers.cmd mysql
+        cd ..
+      </Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">cd grammars
-build-parsers.cmd mysql
-cd ..</Command>
+call build-parsers.cmd mysql
+cd ..
+      </Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">cd grammars
-build-parsers.cmd mysql
-cd ..</Command>
+call build-parsers.cmd mysql
+cd ..
+      </Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Regenerating ANTLR parser...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Regenerating ANTLR parser...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Regenerating ANTLR parser...</Message>
@@ -354,20 +801,24 @@ cd ..</Command>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="grammar\MySQLSimpleParser.g">
+    <CustomBuild Include="grammars\MySQLSimpleParser.g">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd grammars
-build-parsers.cmd mysql
-cd ..</Command>
+call build-parsers.cmd mysqls
+cd ..
+      </Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">cd grammars
-build-parsers.cmd mysql
-cd ..</Command>
+call build-parsers.cmd mysqls
+cd ..
+      </Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd grammars
-build-parsers.cmd mysql
-cd ..</Command>
+call build-parsers.cmd mysqls
+cd ..
+      </Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">cd grammars
-build-parsers.cmd mysql
-cd ..</Command>
+call build-parsers.cmd mysqls
+cd ..
+      </Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Regenerating simple ANTLR parser...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MySQLSimpleParser.h;MySQLSimpleParser.c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">Regenerating simple ANTLR parser...</Message>
@@ -377,6 +828,39 @@ cd ..</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">Regenerating simple ANTLR parser...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">MySQLSimpleParser.h;MySQLSimpleParser.c;%(Outputs)</Outputs>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="grammars\ECMA.g">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd grammars
+call build-parsers.cmd js
+cd ..
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">cd grammars
+call build-parsers.cmd js
+cd ..
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd grammars
+call build-parsers.cmd js
+cd ..
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">cd grammars
+call build-parsers.cmd js
+cd ..
+</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Regenerating JS parser...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">Regenerating JS parser...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Regenerating JS parser...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">Regenerating JS parser...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ECMAParser.h;ECMAParser.c;ECMALexer.h;ECMALexer.c;ECMA.tokens;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">ECMAParser.h;ECMAParser.c;ECMALexer.h;ECMALexer.c;ECMA.tokens;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ECMAParser.h;ECMAParser.c;ECMALexer.h;ECMALexer.c;ECMA.tokens;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">ECMAParser.h;ECMAParser.c;ECMALexer.h;ECMALexer.c;ECMA.tokens;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ECMA.tokens" />
+    <None Include="grammars\predefined.tokens" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
