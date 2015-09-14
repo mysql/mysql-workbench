@@ -241,9 +241,75 @@ TextBoxImpl::TextBoxImpl(::mforms::TextBox *self, mforms::ScrollBars scroll_type
   _swin->show();
 
   _text->get_buffer()->signal_changed().connect(sigc::mem_fun(*self, &::mforms::TextBox::callback));
+  _text->add_events(Gdk::KEY_PRESS_MASK);
+  _text->signal_key_press_event().connect(sigc::bind(sigc::mem_fun(this, &TextBoxImpl::on_key_press), self), true);
+}
+  
+static mforms::ModifierKey GetModifiers(const guint state, const guint keyval)
+{
+  mforms::ModifierKey modifiers = mforms::ModifierNoModifier;
+  Gdk::ModifierType mod_type = Gtk::AccelGroup::get_default_mod_mask();
+  if ((state & mod_type) == 0)
+  {
+    if ((keyval == GDK_KEY_Control_L) || (keyval == GDK_KEY_Control_R))
+      modifiers = modifiers | mforms::ModifierControl;
+    if ((keyval == GDK_KEY_Shift_L) || (keyval == GDK_KEY_Shift_R))
+     modifiers = modifiers | mforms::ModifierShift;
+    if ((keyval == GDK_KEY_Alt_L) || (keyval == GDK_KEY_Alt_R))
+        modifiers = modifiers | mforms::ModifierAlt;
+    if ((keyval == GDK_KEY_Super_L) || (keyval == GDK_KEY_Super_R))
+      modifiers = modifiers | mforms::ModifierCommand;
+  }
+  return modifiers;
 }
 
-  
+bool TextBoxImpl::on_key_press(GdkEventKey *event, mforms::TextBox *self)
+{
+  mforms::KeyCode code = mforms::KeyNone;
+  switch(event->keyval)
+  {
+  case GDK_Home:
+    code = mforms::KeyHome;
+    break;
+  case GDK_End:
+    code = mforms::KeyEnd;
+    break;
+  case GDK_Page_Up:
+    code = mforms::KeyPrevious;
+    break;
+  case GDK_Page_Down:
+    code = mforms::KeyNext;
+    break;
+
+  case GDK_KEY_Return:
+    code = mforms::KeyReturn;
+    break;
+
+  case GDK_KEY_KP_Enter:
+    code = mforms::KeyEnter;
+    break;
+  case GDK_KEY_Shift_L:
+  case GDK_KEY_Shift_R:
+  case GDK_KEY_Alt_L:
+  case GDK_KEY_Alt_R:
+  case GDK_KEY_Control_L:
+  case GDK_KEY_Control_R:
+  case GDK_KEY_Super_L:
+  case GDK_KEY_Super_R:
+    code = mforms::KeyModifierOnly;
+    break;
+  }
+
+  if (code == mforms::KeyNone && ((event->keyval >= GDK_KEY_A && event->keyval <= GDK_KEY_Z) || (event->keyval >= GDK_KEY_a && event->keyval <= GDK_KEY_z)))
+    code = mforms::KeyChar;
+  else
+    code = mforms::KeyUnkown;
+
+
+  return !self->key_event(code, GetModifiers(event->state, event->keyval), "");
+}
+
+
 void TextBoxImpl::init()
 {
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
