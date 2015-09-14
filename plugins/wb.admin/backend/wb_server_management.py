@@ -1210,7 +1210,6 @@ class FileOpsLinuxBase(object):
 
     def join_paths(self, path, *paths):
         result = posixpath.join(path, *paths)
-        log_error("Remote join paths [FileOpsLinuxBase]: %s\n" % result)
         return result
         
         
@@ -1322,7 +1321,6 @@ class FileOpsLocalUnix(FileOpsLinuxBase):
 
     def join_paths(self, path, *paths):
         result = posixpath.join(path, *paths)
-        log_error("Remote join paths [FileOpsLocalUnix]: %s\n" % result)
         return result
 
 _file_ops_classes.append(FileOpsLocalUnix)
@@ -1539,7 +1537,6 @@ class FileOpsLocalWindows(object): # Used for remote as well, if not using sftp
 
     def join_paths(self, path, *paths):
         result = ntpath.join(path, *paths)
-        log_error("Remote join paths [FileOpsLocalWindows]: %s\n" % result)
         return result
 
 
@@ -1661,7 +1658,6 @@ class FileOpsRemoteUnix(FileOpsLinuxBase):
         
     def join_paths(self, path, *paths):
         result = posixpath.join(path, *paths)
-        log_error("Remote join paths [FileOpsRemoteUnix]: %s\n" % result)
         return result
 
 _file_ops_classes.append(FileOpsRemoteUnix)
@@ -1880,7 +1876,6 @@ class FileOpsRemoteWindows(object):
 
     def join_paths(self, path, *paths):
         result = os.path.join(path, *paths)
-        log_error("Remote join paths [FileOpsRemoteWindows]: %s\n" % result)
         return result
         
 _file_ops_classes.append(FileOpsRemoteWindows)
@@ -2028,7 +2023,6 @@ class ServerManagementHelper(object):
 
     def join_paths(self, path, *paths):
         result = self.file.join_paths(path, *paths)
-        log_error("Remote join paths: %s\n" % result)
         return result
 #===============================================================================
 
