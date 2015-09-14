@@ -109,7 +109,7 @@ class MYSQLWBBACKEND_PUBLIC_FUNC ServerInstanceEditor : public mforms::Form
   
   mforms::Box _bottom_hbox;
   mforms::Box _remote_admin_box;
-  mforms::Button _ok_button;
+  mforms::Button _close_button;
   mforms::Button _test_button;
   
   std::map<std::string, std::vector<std::pair<std::string,grt::DictRef> > > _presets;
