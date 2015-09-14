@@ -107,6 +107,7 @@ add_library(mforms
     utilities.cpp
     view.cpp
     webbrowser.cpp
+    jsonview.cpp
     widgets.cpp
     wizard.cpp
 )
