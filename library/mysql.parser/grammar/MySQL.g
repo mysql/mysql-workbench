@@ -189,7 +189,7 @@ typedef struct {
 // so it's ok for this specific case.
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wparentheses"
-#ifndef _WIN32
+#ifdef __clang__
 // Comparison of unsigned expression >= 0 is always true.
 #pragma GCC diagnostic ignored "-Wtautological-compare"
 #else
@@ -209,7 +209,7 @@ typedef struct {
 #ifndef _WIN32
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wparentheses"
-#ifndef _WIN32
+#ifdef __clang___
 // Comparison of unsigned expression >= 0 is always true.
 #pragma GCC diagnostic ignored "-Wtautological-compare"
 #else
