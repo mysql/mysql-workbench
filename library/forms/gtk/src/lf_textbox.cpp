@@ -20,6 +20,7 @@
 #include "../lf_mforms.h"
 #include "../lf_textbox.h"
 #include "gtk_helpers.h"
+#include <gdk/gdkkeysyms-compat.h>
 
 namespace mforms {
 namespace gtk {
