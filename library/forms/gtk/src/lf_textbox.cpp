@@ -19,6 +19,7 @@
 
 #include "../lf_mforms.h"
 #include "../lf_textbox.h"
+#include <gdk/gdkkeysyms-compat.h>
 
 namespace mforms {
 namespace gtk {
