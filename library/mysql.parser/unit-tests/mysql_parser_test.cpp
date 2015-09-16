@@ -749,69 +749,71 @@ TEST_FUNCTION(25)
  * ANSI_QUOTES, PIPES_AS_CONCAT, NO_BACKSLASH_ESCAPES, IGNORE_SPACE, HIGH_NOT_PRECEDENCE and combinations of them).
  */
 
+
 struct SqlModeTestEntry {
   std::string query;
   std::string sqlMode;
   size_t errors;
+  SqlModeTestEntry(std::string q, std::string s, std::size_t e) :
+    query(q), sqlMode(s), errors(e) {};
 };
-
-static const std::vector<SqlModeTestEntry> sqlModeTestQueries = {
-  // IGNORE_SPACE
-  { "create table count (id int)", "", 0 },
-  { "create table count(id int)", "", 1 },
-  { "create table count (id int)", "IGNORE_SPACE", 1 },
-  { "create table count(id int)", "IGNORE_SPACE", 1 },
-  { "create table xxx (id int)", "", 0 },
-  { "create table xxx(id int)", "", 0 },
-  { "create table xxx (id int)", "IGNORE_SPACE", 0 },
-  { "create table xxx(id int)", "IGNORE_SPACE", 0 },
-
-  // ANSI_QUOTES
-  { "select \"abc\" \"def\" 'ghi''\\n\\Z\\z'", "", 0 }, // Double quoted text concatenated + alias.
-  { "select \"abc\" \"def\" 'ghi''\\n\\Z\\z'", "ANSI_QUOTES", 1 }, // column ref + alias + invalid single quoted text.
-  
-  // PIPES_AS_CONCAT
-  { "select \"abc\" || \"def\"", "", 0 },
-  { "select \"abc\" || \"def\"", "PIPES_AS_CONCAT", 0 },
-  
-  // HIGH_NOT_PRECEDENCE
-  { "select not 1 between -5 and 5", "", 0 },
-  { "select not 1 between -5 and 5", "HIGH_NOT_PRECEDENCE", 0 },
-  
-  // NO_BACKSLASH_ESCAPES
-  { "select \"abc \\\"def\"", "", 0 },
-  { "select \"abc \\\"def\"", "NO_BACKSLASH_ESCAPES", 1 },
-
-  // TODO: add tests for sql modes that are synonyms for a combination of the base modes.
-};
-
-static const std::vector<TokenVector> sqlModeTestResults = {
-  list_of(CREATE_SYMBOL) (TABLE_SYMBOL)(TABLE_NAME_TOKEN)(IDENTIFIER)(OPEN_PAR_SYMBOL)(CREATE_ITEM_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(DATA_TYPE_TOKEN)(INT_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF),
-  list_of(CREATE_SYMBOL) (TABLE_SYMBOL)(TABLE_NAME_TOKEN)(ANTLR3_TOKEN_INVALID)(OPEN_PAR_SYMBOL)(CREATE_ITEM_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(DATA_TYPE_TOKEN)(INT_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF),
-  list_of(CREATE_SYMBOL) (TABLE_SYMBOL)(TABLE_NAME_TOKEN)(ANTLR3_TOKEN_INVALID)(OPEN_PAR_SYMBOL)(CREATE_ITEM_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(DATA_TYPE_TOKEN)(INT_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF),
-  list_of(CREATE_SYMBOL) (TABLE_SYMBOL)(TABLE_NAME_TOKEN)(ANTLR3_TOKEN_INVALID)(OPEN_PAR_SYMBOL)(CREATE_ITEM_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(DATA_TYPE_TOKEN)(INT_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF),
-  list_of(CREATE_SYMBOL) (TABLE_SYMBOL)(TABLE_NAME_TOKEN)(IDENTIFIER)(OPEN_PAR_SYMBOL)(CREATE_ITEM_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(DATA_TYPE_TOKEN)(INT_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF),
-  list_of(CREATE_SYMBOL) (TABLE_SYMBOL)(TABLE_NAME_TOKEN)(IDENTIFIER)(OPEN_PAR_SYMBOL)(CREATE_ITEM_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(DATA_TYPE_TOKEN)(INT_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF),
-  list_of(CREATE_SYMBOL) (TABLE_SYMBOL)(TABLE_NAME_TOKEN)(IDENTIFIER)(OPEN_PAR_SYMBOL)(CREATE_ITEM_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(DATA_TYPE_TOKEN)(INT_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF),
-  list_of(CREATE_SYMBOL) (TABLE_SYMBOL)(TABLE_NAME_TOKEN)(IDENTIFIER)(OPEN_PAR_SYMBOL)(CREATE_ITEM_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(DATA_TYPE_TOKEN)(INT_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF),
-  list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(STRING_TOKEN)(DOUBLE_QUOTED_TEXT)(DOUBLE_QUOTED_TEXT)(SINGLE_QUOTED_TEXT)(ANTLR3_TOKEN_EOF),
-  list_of(SELECT_SYMBOL) (ANTLR3_TOKEN_INVALID)(ANTLR3_TOKEN_EOF),
-  list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(LOGICAL_OR_OPERATOR)(STRING_TOKEN)(DOUBLE_QUOTED_TEXT)(STRING_TOKEN)(DOUBLE_QUOTED_TEXT)(ANTLR3_TOKEN_EOF),
-  list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(CONCAT_PIPES_SYMBOL)(STRING_TOKEN)(DOUBLE_QUOTED_TEXT)(STRING_TOKEN)(DOUBLE_QUOTED_TEXT)(ANTLR3_TOKEN_EOF),
-  list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_SYMBOL)(BETWEEN_SYMBOL)(INT_NUMBER)(MINUS_OPERATOR)(INT_NUMBER)(AND_SYMBOL)(INT_NUMBER)(ANTLR3_TOKEN_EOF),
-  list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BETWEEN_SYMBOL)(NOT2_SYMBOL)(INT_NUMBER)(MINUS_OPERATOR)(INT_NUMBER)(AND_SYMBOL)(INT_NUMBER)(ANTLR3_TOKEN_EOF),
-  list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(STRING_TOKEN)(DOUBLE_QUOTED_TEXT)(ANTLR3_TOKEN_EOF),
-  list_of(SELECT_SYMBOL) (ANTLR3_TOKEN_INVALID)(ANTLR3_TOKEN_EOF),
-};
-
 TEST_FUNCTION(30)
 {
+
+  std::vector<SqlModeTestEntry> sqlModeTestQueries;
+
+  // IGNORE_SPACE
+  sqlModeTestQueries.push_back(SqlModeTestEntry("create table count (id int)", "", 0));
+  sqlModeTestQueries.push_back(SqlModeTestEntry("create table count(id int)", "", 1));
+  sqlModeTestQueries.push_back(SqlModeTestEntry("create table count (id int)", "IGNORE_SPACE", 1));
+  sqlModeTestQueries.push_back(SqlModeTestEntry("create table count(id int)", "IGNORE_SPACE", 1));
+  sqlModeTestQueries.push_back(SqlModeTestEntry("create table xxx (id int)", "", 0));
+  sqlModeTestQueries.push_back(SqlModeTestEntry("create table xxx(id int)", "", 0));
+  sqlModeTestQueries.push_back(SqlModeTestEntry("create table xxx (id int)", "IGNORE_SPACE", 0));
+  sqlModeTestQueries.push_back(SqlModeTestEntry("create table xxx(id int)", "IGNORE_SPACE", 0));
+
+  // ANSI_QUOTES
+  sqlModeTestQueries.push_back(SqlModeTestEntry("select \"abc\" \"def\" 'ghi''\\n\\Z\\z'", "", 0)); // Double quoted text concatenated + alias.
+  sqlModeTestQueries.push_back(SqlModeTestEntry("select \"abc\" \"def\" 'ghi''\\n\\Z\\z'", "ANSI_QUOTES", 1)); // column ref + alias + invalid single quoted text.
+
+  // PIPES_AS_CONCAT
+  sqlModeTestQueries.push_back(SqlModeTestEntry("select \"abc\" || \"def\"", "", 0));
+  sqlModeTestQueries.push_back(SqlModeTestEntry("select \"abc\" || \"def\"", "PIPES_AS_CONCAT", 0));
+
+  // HIGH_NOT_PRECEDENCE
+  sqlModeTestQueries.push_back(SqlModeTestEntry("select not 1 between -5 and 5", "", 0));
+  sqlModeTestQueries.push_back(SqlModeTestEntry("select not 1 between -5 and 5", "HIGH_NOT_PRECEDENCE", 0));
+
+  // NO_BACKSLASH_ESCAPES
+  sqlModeTestQueries.push_back(SqlModeTestEntry("select \"abc \\\"def\"", "", 0));
+  sqlModeTestQueries.push_back(SqlModeTestEntry("select \"abc \\\"def\"", "NO_BACKSLASH_ESCAPES", 1));
+
+  std::vector<TokenVector> sqlModeTestResults;
+  sqlModeTestResults.push_back(list_of(CREATE_SYMBOL) (TABLE_SYMBOL)(TABLE_NAME_TOKEN)(IDENTIFIER)(OPEN_PAR_SYMBOL)(CREATE_ITEM_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(DATA_TYPE_TOKEN)(INT_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF));
+  sqlModeTestResults.push_back(list_of(CREATE_SYMBOL) (TABLE_SYMBOL)(TABLE_NAME_TOKEN)(ANTLR3_TOKEN_INVALID)(OPEN_PAR_SYMBOL)(CREATE_ITEM_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(DATA_TYPE_TOKEN)(INT_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF));
+  sqlModeTestResults.push_back(list_of(CREATE_SYMBOL) (TABLE_SYMBOL)(TABLE_NAME_TOKEN)(ANTLR3_TOKEN_INVALID)(OPEN_PAR_SYMBOL)(CREATE_ITEM_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(DATA_TYPE_TOKEN)(INT_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF));
+  sqlModeTestResults.push_back(list_of(CREATE_SYMBOL) (TABLE_SYMBOL)(TABLE_NAME_TOKEN)(ANTLR3_TOKEN_INVALID)(OPEN_PAR_SYMBOL)(CREATE_ITEM_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(DATA_TYPE_TOKEN)(INT_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF));
+  sqlModeTestResults.push_back(list_of(CREATE_SYMBOL) (TABLE_SYMBOL)(TABLE_NAME_TOKEN)(IDENTIFIER)(OPEN_PAR_SYMBOL)(CREATE_ITEM_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(DATA_TYPE_TOKEN)(INT_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF));
+  sqlModeTestResults.push_back(list_of(CREATE_SYMBOL) (TABLE_SYMBOL)(TABLE_NAME_TOKEN)(IDENTIFIER)(OPEN_PAR_SYMBOL)(CREATE_ITEM_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(DATA_TYPE_TOKEN)(INT_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF));
+  sqlModeTestResults.push_back(list_of(CREATE_SYMBOL) (TABLE_SYMBOL)(TABLE_NAME_TOKEN)(IDENTIFIER)(OPEN_PAR_SYMBOL)(CREATE_ITEM_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(DATA_TYPE_TOKEN)(INT_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF));
+  sqlModeTestResults.push_back(list_of(CREATE_SYMBOL) (TABLE_SYMBOL)(TABLE_NAME_TOKEN)(IDENTIFIER)(OPEN_PAR_SYMBOL)(CREATE_ITEM_TOKEN)(COLUMN_REF_TOKEN)(IDENTIFIER)(DATA_TYPE_TOKEN)(INT_SYMBOL)(CLOSE_PAR_SYMBOL)(ANTLR3_TOKEN_EOF));
+  sqlModeTestResults.push_back(list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(STRING_TOKEN)(DOUBLE_QUOTED_TEXT)(DOUBLE_QUOTED_TEXT)(SINGLE_QUOTED_TEXT)(ANTLR3_TOKEN_EOF));
+  sqlModeTestResults.push_back(list_of(SELECT_SYMBOL) (ANTLR3_TOKEN_INVALID)(ANTLR3_TOKEN_EOF));
+  sqlModeTestResults.push_back(list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(LOGICAL_OR_OPERATOR)(STRING_TOKEN)(DOUBLE_QUOTED_TEXT)(STRING_TOKEN)(DOUBLE_QUOTED_TEXT)(ANTLR3_TOKEN_EOF));
+  sqlModeTestResults.push_back(list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(CONCAT_PIPES_SYMBOL)(STRING_TOKEN)(DOUBLE_QUOTED_TEXT)(STRING_TOKEN)(DOUBLE_QUOTED_TEXT)(ANTLR3_TOKEN_EOF));
+  sqlModeTestResults.push_back(list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(NOT_SYMBOL)(BETWEEN_SYMBOL)(INT_NUMBER)(MINUS_OPERATOR)(INT_NUMBER)(AND_SYMBOL)(INT_NUMBER)(ANTLR3_TOKEN_EOF));
+  sqlModeTestResults.push_back(list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(BETWEEN_SYMBOL)(NOT2_SYMBOL)(INT_NUMBER)(MINUS_OPERATOR)(INT_NUMBER)(AND_SYMBOL)(INT_NUMBER)(ANTLR3_TOKEN_EOF));
+  sqlModeTestResults.push_back(list_of(SELECT_SYMBOL) (SELECT_EXPR_TOKEN)(EXPRESSION_TOKEN)(STRING_TOKEN)(DOUBLE_QUOTED_TEXT)(ANTLR3_TOKEN_EOF));
+  sqlModeTestResults.push_back(list_of(SELECT_SYMBOL) (ANTLR3_TOKEN_INVALID)(ANTLR3_TOKEN_EOF));
+
   for (size_t i = 0; i < sqlModeTestQueries.size(); i++)
+  {
     if (!parse_and_compare(sqlModeTestQueries[i].query, 50610, sqlModeTestQueries[i].sqlMode,
       _charsets, sqlModeTestResults[i], sqlModeTestQueries[i].errors))
     {
       fail("SQL mode test - query failed: " + sqlModeTestQueries[i].query);
     }
+  }
 }
 
 /**
