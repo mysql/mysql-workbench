@@ -608,7 +608,7 @@ struct AutoCompletionContext
   std::vector<TableReference> references; // As in FROM, UPDATE etc.
 
   //------------------------------------------------------------------------------------------------
-  
+
   /**
    * Uses the given scanner (with set input) to collect a set of possible completion candidates
    * at the given line + offset.
@@ -642,12 +642,246 @@ struct AutoCompletionContext
       completion_candidates.insert("NOT_SYMBOL");
     }
 
+    if (completion_candidates.find("column_ref") != completion_candidates.end())
+      collectTableReferences();
+
     return matched;
   }
 
   //------------------------------------------------------------------------------------------------
   
 private:
+  /**
+   * Matches the entire sequence if the input allows that and returns true if that was the case,
+   * otherwise false.
+   * Collects table references as we come along them.
+   */
+  bool matchAltAndCollectTableRefs(const GrammarSequence &sequence)
+  {
+    // An empty sequence per se matches anything without consuming input.
+    if (sequence.nodes.empty())
+      return true;
+
+    size_t i = 0;
+    while (true)
+    {
+      // Set to true if the current node allows multiple occurrences and was matched at least once.
+      bool matched_loop = false;
+
+      // Skip any optional nodes if they don't match the current input.
+      bool matched;
+      GrammarNode node;
+      do
+      {
+        node = sequence.nodes[i];
+        if (node.is_terminal)
+          matched = node.token_ref == scanner->token_type();
+        else
+          matched = matchRuleAndCollectTableRefs(node.rule_ref);
+
+        if (matched && node.multiple)
+          matched_loop = true;
+
+        if (matched || node.is_required)
+          break;
+
+        // Did not match an optional part. That's ok, skip this then.
+        ++i;
+        if (i == sequence.nodes.size()) // Done with the sequence?
+          return true;
+
+      } while (true);
+
+      if (matched)
+      {
+        // Load next token if the grammar node is a terminal node.
+        // Otherwise the match-rule-call will have advanced the input position already.
+        if (node.is_terminal)
+          scanner->next(true);
+
+        // If the current grammar node can be matched multiple times try as often as you can.
+        // This is the greedy approach and default in ANTLR. At the moment we don't support non-greedy matches
+        // as we don't use them in MySQL parser rules.
+        if (scanner->token_type() != ANTLR3_TOKEN_EOF && node.multiple)
+        {
+          do
+          {
+            if (node.is_terminal)
+            {
+              matched = node.token_ref == scanner->token_type();
+              scanner->next(true);
+            }
+            else
+              matched = matchRuleAndCollectTableRefs(node.rule_ref);
+          } while (matched);
+
+          if (scanner->token_type() == ANTLR3_TOKEN_EOF)
+            break;
+        }
+      }
+      else
+      {
+        // No match, but could be end of a grammar node loop.
+        if (!matched_loop)
+          return false;
+      }
+      
+      ++i;
+      if (i == sequence.nodes.size())
+        break;
+    }
+
+    return true;
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  /**
+   * Similar as the main rule matching function below, but simpler and specific for table references.
+   * We try to match only one of the alts in the given rule (the first wins) and collect
+   * table references on the way.
+   */
+  bool matchRuleAndCollectTableRefs(const std::string &rule)
+  {
+    walk_stack.push_back(rule);
+
+    size_t marker = scanner->position();
+    RuleAlternatives alts = rules_holder.rules[rule];
+    for (std::vector<GrammarSequence>::const_iterator i = alts.begin(); i != alts.end(); ++i)
+    {
+      // First run predicate checks if this alt can be considered at all.
+      if ((i->min_version > server_version) || (server_version > i->max_version))
+        continue;
+
+      if ((i->active_sql_modes > -1) && (i->active_sql_modes & sql_mode) != i->active_sql_modes)
+        continue;
+
+      if ((i->inactive_sql_modes > -1) && (i->inactive_sql_modes & sql_mode) != 0)
+        continue;
+
+      if (matchAltAndCollectTableRefs(*i))
+      {
+        walk_stack.pop_back();
+
+        // If that was the table_alias rule then we can look back for which table (or subquery)
+        // it was set and collect the values.
+        if (rule == "table_alias")
+        {
+          // The current scanner position is after the alias, so we can seek back straight to the
+          // needed values. Need to hard code grammar knowledge here, for this to work however.
+          marker = scanner->position();
+
+          TableReference reference;
+          scanner->previous(true);
+          reference.alias = scanner->token_text();
+          scanner->previous(true);
+          if (scanner->token_type() == AS_SYMBOL || scanner->token_type() == EQUAL_OPERATOR)
+            scanner->previous(true); // Skip AS and = operators if they exist.
+
+          if (scanner->token_type() == CLOSE_PAR_SYMBOL)
+          {
+            // There can be a partition list between table reference and alias, which we have
+            // to skip too. Since there can only be an identifier list and we have valid syntax
+            // to even arrive here, we can simply scan back to the open par and be done.
+            do
+            {
+              scanner->previous(true);
+            } while (scanner->token_type() != OPEN_PAR_SYMBOL);
+
+            // Skip open par and PARTITION.
+            scanner->previous(true);
+            scanner->previous(true);
+          }
+
+          // Finally arrived at the table reference.
+          reference.table = scanner->token_text();
+          scanner->previous(true);
+          if (scanner->token_type() == DOT_SYMBOL)
+          {
+            // Might have a schema part (or just a leading dot).
+            scanner->previous(true);
+            if (scanner->token_type() == IDENTIFIER)
+              reference.schema = scanner->token_text();
+          }
+
+
+          references.push_back(reference);
+          scanner->seek(marker);
+        }
+        return true;
+      }
+
+      scanner->seek(marker);
+    }
+
+    walk_stack.pop_back();
+    return false;
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  /**
+   * Called if one of the candidates is a column_ref before a FROM keyword (i.e. a select item).
+   * The function attempts to get table references together with aliases where possible.
+   * Since it is not required that the sql code must be valid after the caret we scan only as far
+   * as we can match the input to the grammar.
+   */
+  void collectTableReferences()
+  {
+    // First advance to the FROM keyword on the same level as we are (no subselects etc.).
+    size_t level = 0;
+    bool done = false;
+    while (!done)
+    {
+      switch (scanner->token_type())
+      {
+        case FROM_SYMBOL:
+          if (level > 0)
+          {
+            scanner->next(true);
+            break;
+          }
+          // Fall through.
+
+        case ANTLR3_TOKEN_EOF:
+          done = true;
+          break;
+
+        case OPEN_PAR_SYMBOL:
+          ++level;
+          scanner->next(true);
+          break;
+
+        case CLOSE_PAR_SYMBOL:
+          // We can act relaxed here, even if the number of opening and closing
+          // parentheses doesn't match.
+          // Additionally, it can happen we are called with any number of opening pars before
+          // the caret position.
+          if (level > 0)
+            --level;
+          scanner->next(true);
+          break;
+
+        default:
+          scanner->next(true);
+      }
+    }
+
+    if (scanner->token_type() != FROM_SYMBOL)
+      return; // Something is wrong (but not critical), e.g. end of input .
+
+    scanner->next(true);
+
+    if (scanner->token_type() == DUAL_SYMBOL)
+      return; // Nothing to do.
+
+    walk_stack.clear();
+    references.clear();
+    matchRuleAndCollectTableRefs("join_table_list");
+  }
+
+  //------------------------------------------------------------------------------------------------
+  
   bool is_token_end_after_caret()
   {
     // The first time we found that the caret is before the current token we store the
@@ -837,11 +1071,14 @@ private:
           {
             collect_from_alternative(sequence, i + 1);
 
+            /* This part looks suspicious as it inserts special rules even if they don't match.
+
             // If we just started collecting it might be we are in a special rule.
             // Check the end of the stack and if so push the rule name to the candidates.
             // Duplicates will be handled automatically.
             if (rules_holder.special_rules.find(walk_stack.back()) != rules_holder.special_rules.end())
               completion_candidates.insert(walk_stack.back());
+             */
           }
           return false;
         }
@@ -1163,72 +1400,58 @@ enum ObjectFlags {
 /**
  * Determines the qualifier used for a qualified identifier with up to 2 parts (id or id.id).
  * Returns the found qualifier (if any) and a flag indicating what should be shown.
+ *
+ * Note: it is essential to understand that we do the determination only up to the caret
+ *       (or the token following it, solely for getting a terminator). Since we cannot know the user's
+ *       intention, we never look forward.
  */
-ObjectFlags determine_qualifier(std::shared_ptr<MySQLScanner> scanner, std::string &qualfier)
+static ObjectFlags determine_qualifier(std::shared_ptr<MySQLScanner> scanner, std::string &qualifier)
 {
-  ObjectFlags result = ObjectFlags(ShowFirst | ShowSecond);
+  // Five possible positions here:
+  //   - In the first id (including directly before the first or directly after the last char).
+  //   - In space between first id an a dot.
+  //   - On a dot (visually directly before the dot).
+  //   - In space after the dot, that includes the position directly after the dot.
+  //   - In the second id.
+  // All parts are optional (though not at the same time). The on-dot position is considered the same
+  // as in first id as it visually belongs to the first id.
 
-  // If we are currently in whitespaces between an identifier and a dot (e.g.: "id   |  .") jump
-  // forward to the dot. We can ignore the whitespaces entirely in this case.
-  // No need to do an extra check if we are really in an identifier. We wouldn't be here if that
-  // were not the case.
+  size_t position = scanner->position();
+  
   if (scanner->token_channel() != 0)
-    scanner->next(true);
-  uint32_t token_type = scanner->token_type();
-  if (token_type != ANTLR3_TOKEN_EOF && token_type != DOT_SYMBOL && !scanner->is_identifier())
-    return result;
+    scanner->next(true); // First skip to the next non-hidden token.
 
-  switch (token_type)
+  if (scanner->token_type() != DOT_SYMBOL && !scanner->is_identifier())
   {
-    case DOT_SYMBOL:
-    {
-      // Being on a dot is the same as being in the qualifier (as the dot is only one char).
-      scanner->previous(true);
-      if (scanner->is_identifier())
-        qualfier = scanner->token_text();
-      return result;
-    }
-    case ANTLR3_TOKEN_EOF:
-    {
-      if (scanner->look_around(-1, true) == DOT_SYMBOL)
-      {
-        scanner->previous(true);
-        scanner->previous(true);
-        if (scanner->is_identifier())
-          qualfier = scanner->token_text();
-        return ShowSecond;
-      }
-      return result;
-    }
-
-    default:
-    {
-      // First look left as this is more reliable (we need valid syntax until the caret to arrive here).
-      std::string id = scanner->token_text();
-      if (scanner->look_around(-1, true) == DOT_SYMBOL)
-      {
-        // We are in the second part of a fully qualified identifier.
-        scanner->previous(true);
-        if (scanner->MySQLRecognitionBase::is_identifier(scanner->look_around(-1, true)))
-        {
-          scanner->previous(true);
-          qualfier = scanner->token_text();
-          return ShowSecond;
-        }
-      }
-      else
-      {
-        // No qualifier or we are in the qualifier. Look right.
-        if (scanner->look_around(2, true) == DOT_SYMBOL)
-        {
-          qualfier = id;
-          return ShowFirst;
-        }
-      }
-    }
+    // We are at the end of an incomplete identifier spec. Jump back, so that the other tests succeed.
+    scanner->previous(true);
   }
 
-  return result;
+  // Go left until we find something not related to an id or find at most 1 dot.
+  if (position > 0)
+  {
+    if (scanner->is_identifier() && scanner->look_around(-1, true) == DOT_SYMBOL)
+      scanner->previous(true);
+    if (scanner->token_type() == DOT_SYMBOL && scanner->MySQLRecognitionBase::is_identifier(scanner->look_around(-1, true)))
+      scanner->previous(true);
+  }
+
+  // The scanner is now on the leading identifier or dot (if there's no leading id).
+  qualifier = "";
+  std::string temp;
+  if (scanner->is_identifier())
+  {
+    temp = scanner->token_text();
+    scanner->next(true);
+  }
+
+  // Bail out if there is no more id parts or we are already behind the caret position.
+  if (scanner->token_type() != DOT_SYMBOL || position <= scanner->position())
+    return ObjectFlags(ShowFirst | ShowSecond);
+
+  qualifier = temp;
+
+  return ShowSecond;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1238,26 +1461,27 @@ ObjectFlags determine_qualifier(std::shared_ptr<MySQLScanner> scanner, std::stri
  * column references (and table_wild in multi table delete, for that matter).
  * Returns a set of flags that indicate what to show for that identifier, as well as schema and table
  * if given.
- * Because id.id can be schema.table or table.column we need a second schema to indicate the second variant.
+ * The returned schema can be either for a schema.table situation (which requires to show tables)
+ * or a schema.table.column situation. Which one is determined by whether showing columns alone or not.
  */
-ObjectFlags determine_schema_table_qualifier(std::shared_ptr<MySQLScanner> scanner, std::string &schema,
-  std::string &table, std::string &column_schema)
+static ObjectFlags determine_schema_table_qualifier(std::shared_ptr<MySQLScanner> scanner, std::string &schema, std::string &table)
 {
-  ObjectFlags result = ObjectFlags(ShowSchemas | ShowTables | ShowColumns);
-
+  size_t position = scanner->position();
   if (scanner->token_channel() != 0)
     scanner->next(true);
-  uint32_t token_type = scanner->token_type();
-  if (token_type != ANTLR3_TOKEN_EOF && token_type != DOT_SYMBOL && !scanner->is_identifier())
-    return result;
 
-  // Mark the position and go as far left as possible.
-  size_t position = scanner->position();
+  uint32_t token_type = scanner->token_type();
+  if (token_type != DOT_SYMBOL && !scanner->is_identifier())
+  {
+    // Just like in the simpler function. If we have found no identifier or dot then we are at the
+    // end of an incomplete definition. Simply seek back to the previous non-hidden token.
+    scanner->previous(true);
+  }
+
+  // Go left until we find something not related to an id or at most 2 dots.
   if (position > 0)
   {
-    // Move to the previous dot symbol if there's one.
-    if ((scanner->is_identifier() || token_type == ANTLR3_TOKEN_EOF)
-        && scanner->look_around(-1, true) == DOT_SYMBOL)
+    if (scanner->is_identifier() && scanner->look_around(-1, true) == DOT_SYMBOL)
       scanner->previous(true);
     if (scanner->token_type() == DOT_SYMBOL && scanner->MySQLRecognitionBase::is_identifier(scanner->look_around(-1, true)))
     {
@@ -1273,60 +1497,36 @@ ObjectFlags determine_schema_table_qualifier(std::shared_ptr<MySQLScanner> scann
     }
   }
 
-  // The scanner is on the leading identifier or dot (if there's no leading id).
+  // The scanner is now on the leading identifier or dot (if there's no leading id).
   schema = "";
-  column_schema = "";
   table = "";
-  if (scanner->is_identifier() && scanner->look_around(1, true) == DOT_SYMBOL)
+
+  std::string temp;
+  if (scanner->is_identifier())
   {
-    schema = scanner->token_text(); // schema.table
-    table = schema;                 // table.column
+    temp = scanner->token_text();
     scanner->next(true);
   }
 
-  if (scanner->token_type() == DOT_SYMBOL)
-  {
-    size_t dot1_position = scanner->position();
-    size_t dot2_position = 0;
+  // Bail out if there is no more id parts or we are already behind the caret position.
+  if (scanner->token_type() != DOT_SYMBOL || position <= scanner->position())
+    return ObjectFlags(ShowSchemas | ShowTables | ShowColumns);
 
+  scanner->next(true); // Skip dot.
+  table = temp;
+  schema = temp;
+  if (scanner->is_identifier())
+  {
+    temp = scanner->token_text();
     scanner->next(true);
 
-    if (scanner->is_identifier())
-    {
-      std::string text = scanner->token_text();
-      scanner->next(true);
+    if (scanner->token_type() != DOT_SYMBOL || position <= scanner->position())
+      return ObjectFlags(ShowTables | ShowColumns); // Schema only valid for tables. Columns must use default schema.
 
-      if (scanner->token_type() == DOT_SYMBOL)
-      {
-        dot2_position = scanner->position();
-        schema = table;
-        column_schema = table;
-        table = text;
-      }
-    }
-
-    // Now the flags.
-    if (dot2_position == 0)
-    {
-      if (position <= dot1_position)
-        result = ObjectFlags(ShowSchemas | ShowTables);
-      else
-        result = (table.empty()) ? ShowTables : ObjectFlags(ShowTables | ShowColumns);
-    }
-    else
-    {
-      if (position <= dot1_position)
-        result = ShowSchemas;
-      else
-        if (position < dot2_position)
-          result = ShowTables;
-      else
-        result = ShowColumns;
-    }
+    table = temp;
+    return ShowColumns;
   }
-
-
-  return result;
+  return ObjectFlags(ShowTables | ShowColumns); // Schema only valid for tables. Columns must use default schema.
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1367,7 +1567,7 @@ void insert_views(AutoCompleteCache *cache, CompletionSet &set, const std::strin
 {
   std::vector<std::string> views = cache->get_matching_view_names(schema, typed_part);
   for (std::vector<std::string>::const_iterator view = views.begin(); view != views.end(); ++view)
-    set.insert(std::make_pair(AC_TABLE_IMAGE, *view));
+    set.insert(std::make_pair(AC_VIEW_IMAGE, *view));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1599,8 +1799,8 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
           // Handling is similar as for column references (just that we have table/view objects instead of column refs).
           log_debug3("Adding table + view names from cache\n");
 
-          std::string schema, table, column_schema;
-          ObjectFlags flags = determine_schema_table_qualifier(scanner, schema, table, column_schema);
+          std::string schema, table;
+          ObjectFlags flags = determine_schema_table_qualifier(scanner, schema, table);
           if ((flags & ShowSchemas) != 0)
             insert_schemas(_auto_completion_cache, schema_entries, context.typed_part);
 
@@ -1636,23 +1836,60 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
         {
           log_debug3("Adding column names from cache\n");
 
-          std::string schema, table, column_schema;
-          ObjectFlags flags = determine_schema_table_qualifier(scanner, schema, table, column_schema);
+          std::string schema, table;
+          ObjectFlags flags = determine_schema_table_qualifier(scanner, schema, table);
           if ((flags & ShowSchemas) != 0)
             insert_schemas(_auto_completion_cache, schema_entries, context.typed_part);
 
           if (schema.empty())
             schema = _current_schema;
           if ((flags & ShowTables) != 0)
+          {
             insert_tables(_auto_completion_cache, table_entries, schema, context.typed_part);
+            if (*i == "column_ref")
+            {
+              // Insert also views.
+              insert_views(_auto_completion_cache, view_entries, schema, context.typed_part);
+
+              // Insert also tables from our references list (which is a collection of table names
+              // with aliases).
+              for (size_t i = 0; i < context.references.size(); ++i)
+              {
+                TableReference reference = context.references[i];
+                std::string used_schema = schema;
+                if (reference.schema.empty())
+                  used_schema = _current_schema;
+                if (reference.schema == used_schema)
+                  table_entries.insert(std::make_pair(AC_TABLE_IMAGE, reference.alias));
+              }
+            }
+          }
 
           if ((flags & ShowColumns) != 0)
           {
-            if (column_schema.empty())
-              column_schema = _current_schema;
-            std::vector<std::string> columns = _auto_completion_cache->get_matching_column_names(column_schema, table, context.typed_part);
+            // If we only show columns then we can use the given schema.
+            // Otherwise we don't have an explict schema and use the default one.
+            if (flags != ShowColumns)
+              schema = _current_schema;
+            std::vector<std::string> columns = _auto_completion_cache->get_matching_column_names(schema, table, context.typed_part);
             for (std::vector<std::string>::const_iterator column = columns.begin(); column != columns.end(); ++column)
               column_entries.insert(std::make_pair(AC_COLUMN_IMAGE, *column));
+
+            if (*i == "column_ref")
+            {
+              // Insert also columns from matching tables from our references list.
+              for (size_t i = 0; i < context.references.size(); ++i)
+              {
+                TableReference reference = context.references[i];
+                if ((reference.schema.empty() || reference.schema == schema)
+                    && (reference.alias == table))
+                {
+                  columns = _auto_completion_cache->get_matching_column_names(schema, reference.table, context.typed_part);
+                  for (std::vector<std::string>::const_iterator column = columns.begin(); column != columns.end(); ++column)
+                    column_entries.insert(std::make_pair(AC_COLUMN_IMAGE, *column));
+                }
+              }
+            }
           }
         }
         else if (*i == "trigger_ref")
