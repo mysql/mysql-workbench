@@ -1183,7 +1183,10 @@ class SecurityAccount(mforms.Box):
         self.username = newTextEntry()
         self.username.set_size(180, -1)
         self.username.add_changed_callback(self.set_dirty)
-        self.username.set_max_length(16) # max username length for mysql
+        if self.owner.ctrl_be.target_version and self.owner.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 8):
+            self.username.set_max_length(32) # max username length for mysql since 5.7.8
+        else:
+            self.username.set_max_length(16) # max username length for mysql before 5.7.8
         self.password = newTextEntry(mforms.PasswordEntry)
         self.password.set_size(180, -1)
         self.password_advice = 'Consider using a password with 8 or more characters with\nmixed case letters, numbers and punctuation marks.'
