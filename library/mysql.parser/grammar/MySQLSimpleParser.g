@@ -967,7 +967,7 @@ join:
 
 table_factor:
 	SELECT_SYMBOL ( options { greedy = true; }: select_option)* select_item_list table_expression
-	| OPEN_PAR_SYMBOL select_table_factor_union CLOSE_PAR_SYMBOL table_alias?
+	| OPEN_PAR_SYMBOL select_table_factor_union CLOSE_PAR_SYMBOL table_alias // It's not optional as the server grammar suggests.
 	| table_ref use_partition? table_alias? index_hint_list?
 ;
 
@@ -981,9 +981,17 @@ query_specification:
 ;
 
 join_table: // Like the same named rule in sql_yacc.yy but with removed left recursion.
-	(INNER_SYMBOL | CROSS_SYMBOL)? JOIN_SYMBOL table_reference ( options {greedy = true;}: join_condition)?
+	(INNER_SYMBOL | CROSS_SYMBOL)? JOIN_SYMBOL table_reference
+		( options { greedy = true; }:
+			ON_SYMBOL expression
+			| USING_SYMBOL identifier_list_with_parentheses
+		)?
 	| STRAIGHT_JOIN_SYMBOL table_factor ( options {greedy = true;}: ON_SYMBOL expression)?
-	| (LEFT_SYMBOL | RIGHT_SYMBOL) OUTER_SYMBOL? JOIN_SYMBOL table_reference join_condition
+	| (LEFT_SYMBOL | RIGHT_SYMBOL) OUTER_SYMBOL? JOIN_SYMBOL table_factor
+		(
+			join* ON_SYMBOL expression
+			| USING_SYMBOL identifier_list_with_parentheses
+		)
 	| NATURAL_SYMBOL ((LEFT_SYMBOL | RIGHT_SYMBOL) OUTER_SYMBOL?)? JOIN_SYMBOL table_factor
 ;
 

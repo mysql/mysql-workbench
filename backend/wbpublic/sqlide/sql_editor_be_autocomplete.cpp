@@ -1868,7 +1868,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
           if ((flags & ShowColumns) != 0)
           {
             // If we only show columns then we can use the given schema.
-            // Otherwise we don't have an explict schema and use the default one.
+            // Otherwise we don't have an explicit schema and use the default one.
             if (flags != ShowColumns)
               schema = _current_schema;
             std::vector<std::string> columns = _auto_completion_cache->get_matching_column_names(schema, table, context.typed_part);
