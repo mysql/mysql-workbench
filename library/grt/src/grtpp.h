@@ -131,6 +131,17 @@ namespace grt {
     user_cancelled(const std::string &exc) : std::runtime_error(exc) {}
   };  
 
+  class MYSQLGRT_PUBLIC server_denied : public std::runtime_error
+  {
+
+  public:
+    int errNo;
+
+    server_denied(const server_denied &other) : std::runtime_error(other), errNo(other.errNo) {}
+    server_denied(const std::string &exc, int err) : std::runtime_error(exc), errNo(err) {}
+    virtual ~server_denied() THROW() {}
+  };
+
   class MYSQLGRT_PUBLIC db_error : public std::runtime_error
   {
     int _error;
