@@ -911,6 +911,13 @@ static void *connect_editor(SqlEditorForm::Ref editor, boost::shared_ptr<sql::Tu
     log_error("Got an authentication error during connection: %s\n", exc.what());
     return new std::string(exc.what());
   }
+  catch (grt::server_denied &sd)
+  {
+    if (sd.errNo == 3159)
+      return new std::string(":SSL_ONLY");
+    if (sd.errNo == 3032)
+      return new std::string(":OFFLINE_MODE");
+  }
   catch (grt::user_cancelled &)
   {
     log_info("User cancelled connection\n");
@@ -986,6 +993,14 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
       else if (tmp == ":CANCELLED")
       {
         throw grt::user_cancelled("Cancelled");
+      }
+      else if (tmp == ":SSL_ONLY")
+      {
+        throw grt::server_denied("Connections using insecure transport are prohibited while --require_secure_transport=ON.", 3159);
+      }
+      else if (tmp == ":OFFLINE_MODE")
+      {
+        throw grt::server_denied("The server is currently in offline mode.", 3032);
       }
       
       throw std::runtime_error(tmp);
