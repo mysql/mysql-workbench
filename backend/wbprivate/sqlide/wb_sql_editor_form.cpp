@@ -17,7 +17,7 @@
  * 02110-1301  USA
  */
 
-#include "wb_sql_editor_form.h"
+#include "wb_sql_editor_form.h"co
 
 #include "grtdb/db_helpers.h"
 #include "grtsqlparser/sql_facade.h"
@@ -215,6 +215,31 @@ void SqlEditorForm::report_connection_failure(const std::string &error, const db
   message = bec::replace_string(message, "%error%", error);
 
   log_error("%s", (message + '\n').c_str());
+  mforms::Utilities::show_error(_("Cannot Connect to Database Server"), message, _("Close"));
+}
+
+void SqlEditorForm::report_connection_failure(const grt::server_denied &info, const db_mgmt_ConnectionRef &target)
+{
+  std::string message;
+
+  log_error("Server is alive, but has login restrictions: %d, %s\n", info.errNo, info.what());
+
+  mforms::App::get()->set_status_text(_("Connection restricted"));
+
+  message = "Your connection attempt failed for user '";
+  message += target->parameterValues().get_string("userName");
+  message += "' from your host to server at ";//%server%:%port%\n";
+  message += target->parameterValues().get_string("hostName", "localhost");
+  message += ":";
+  message += target->parameterValues().get("port").repr() + "\n";
+  if (info.errNo == 3159)
+    message += "Only connections with enabled SSL support are accepted.\n";
+  else if (info.errNo == 3032)
+    message += "The server is in super-user mode and does not accept any other connection.\n";
+
+  message += "\nThe server response was:\n";
+  message += info.what();
+
   mforms::Utilities::show_error(_("Cannot Connect to Database Server"), message, _("Close"));
 }
 
@@ -1084,11 +1109,13 @@ struct ConnectionErrorInfo
   sql::AuthenticationError *auth_error;
   bool password_expired;
   bool server_probably_down;
+  grt::server_denied *serverException;
 
-  ConnectionErrorInfo() : auth_error(0), password_expired(false), server_probably_down(false) {}
+  ConnectionErrorInfo() : auth_error(NULL), password_expired(false), server_probably_down(false), serverException(NULL) {}
   ~ConnectionErrorInfo()
   {
     delete auth_error;
+    delete serverException;
   }
 };
 
@@ -1158,8 +1185,11 @@ bool SqlEditorForm::connect(boost::shared_ptr<sql::TunnelConnection> tunnel)
         return false;
       }
     }
-    catch (grt::grt_runtime_error)
+    catch (grt::grt_runtime_error &err)
     {
+      if (error_ptr.serverException != NULL)
+        throw grt::server_denied(*error_ptr.serverException);
+
       if (error_ptr.password_expired)
         throw std::runtime_error(":PASSWORD_EXPIRED");
 
@@ -1338,9 +1368,9 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
     }
     CATCH_ANY_EXCEPTION_AND_DISPATCH(_("Get connection information"));
   }
-  catch (sql::AuthenticationError &exc)
+  catch (sql::AuthenticationError &authException)
   {
-    err_ptr->auth_error = new sql::AuthenticationError(exc);
+    err_ptr->auth_error = new sql::AuthenticationError(authException);
     throw;
   }
   catch (sql::SQLException &exc)
@@ -1384,6 +1414,12 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
 
       return grt::StringRef();
     }
+    else if (exc.getErrorCode() == 3159 || exc.getErrorCode() == 3032) //require SSL, offline mode
+    {
+      err_ptr->serverException = new grt::server_denied(exc.what(), exc.getErrorCode()); // we need to change exception type so we can properly handle it in
+    }
+                                                                // wb_context_sqlide::connect_editor
+
     _connection_info.append("</body></html>");
     throw;
   }
