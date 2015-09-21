@@ -116,6 +116,7 @@ public:
   typedef boost::weak_ptr<SqlEditorForm> Ptr;
   static SqlEditorForm::Ref create(wb::WBContextSQLIDE *wbsql, const db_mgmt_ConnectionRef &conn);
   static void report_connection_failure(const std::string &error, const db_mgmt_ConnectionRef &target);
+  static void report_connection_failure(const grt::server_denied &info, const db_mgmt_ConnectionRef &target);
 
   void set_tab_dock(mforms::DockingPoint *dp);
 
