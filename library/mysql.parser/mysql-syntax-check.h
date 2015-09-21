@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014,2015,  Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,7 +35,8 @@ public:
 
   virtual void set_sql_mode(const std::string &new_mode);
   virtual void set_server_version(long new_version);
-  virtual const char* text();
+  virtual std::string text();
+  virtual const char* lineStart();
   long server_version();
 
 protected:

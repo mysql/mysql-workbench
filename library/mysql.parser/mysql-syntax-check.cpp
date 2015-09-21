@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -168,9 +168,17 @@ long MySQLSyntaxChecker::server_version()
 
 //--------------------------------------------------------------------------------------------------
 
-const char* MySQLSyntaxChecker::text()
+std::string MySQLSyntaxChecker::text()
+{
+  return std::string(d->_text, d->_text_length);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+const char* MySQLSyntaxChecker::lineStart()
 {
   return d->_text;
 }
 
 //--------------------------------------------------------------------------------------------------
+

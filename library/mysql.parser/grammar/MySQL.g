@@ -1292,7 +1292,7 @@ join:
 
 table_factor:
 	SELECT_SYMBOL ( options { greedy = true; }: select_option)* select_item_list table_expression
-	| OPEN_PAR_SYMBOL select_table_factor_union CLOSE_PAR_SYMBOL table_alias // It's not optional as the server grammar suggests.
+	| OPEN_PAR_SYMBOL select_table_factor_union CLOSE_PAR_SYMBOL table_alias?
 	| table_ref use_partition? table_alias? index_hint_list?
 ;
 
