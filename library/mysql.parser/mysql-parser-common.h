@@ -25,13 +25,6 @@
   #else
     #define MYSQL_PARSER_PUBLIC_FUNC __declspec(dllimport)
   #endif
-
-  #ifdef _WIN64
-    typedef __int64 ssize_t;
-  #else
-    typedef int ssize_t;
-  #endif
-
 #else
   #define MYSQL_PARSER_PUBLIC_FUNC
 #endif
@@ -62,11 +55,13 @@ public:
   bool has_errors();
   unsigned sql_mode();
   virtual void set_sql_mode(const std::string &sql_mode);
-  virtual const char* text() = 0;
+  virtual std::string text() = 0;
+  virtual const char* lineStart() = 0;
 
   bool is_charset(const std::string &s);
   bool is_identifier(ANTLR3_UINT32 type);
 
+  std::string token_text(pANTLR3_BASE_TREE node, bool keepQuotes = false);
   uint32_t get_keyword_token(const std::string &keyword);
   char** get_token_list();
 
