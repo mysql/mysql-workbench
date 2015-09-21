@@ -1279,6 +1279,8 @@ void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQL
   }
   else
   {
+    // TODO: looks like there's still a problem with reusing a parser in certain circumstances.
+    //       mysql_parser_test consumes endless memory with at least one query when reusing the recognizer.
     d->_input->reuse(d->_input, (pANTLR3_UINT8)d->_text, (ANTLR3_UINT32)d->_text_length, (pANTLR3_UINT8)"");
     d->_tokens->reset(d->_tokens);
     d->_lexer->reset(d->_lexer);

@@ -40,6 +40,9 @@ BEGIN_TEST_DATA_CLASS(mysql_parser_test)
 protected:
   WBTester _tester;
   std::set<std::string> _charsets;
+  //std::auto_ptr<MySQLRecognizer> _recognizer;
+
+  bool parse(const char *sql, size_t size, bool is_utf8, long server_version, const std::string &sql_mode);
 
 TEST_DATA_CONSTRUCTOR(mysql_parser_test)
 {
@@ -50,6 +53,8 @@ TEST_DATA_CONSTRUCTOR(mysql_parser_test)
   grt::ListRef<db_CharacterSet> list= _tester.get_rdbms()->characterSets();
   for (size_t i = 0; i < list->count(); i++)
     _charsets.insert(base::tolower(*list[i]->name()));
+
+  //_recognizer.reset(new MySQLRecognizer(50620, "", _charsets));
 }
 
 END_TEST_DATA_CLASS
@@ -61,10 +66,15 @@ TEST_MODULE(mysql_parser_test, "MySQL parser test suite (ANTLR)");
 /**
  * Parses the given string and returns true if no error occurred, otherwise false.
  */
-bool parse(const char *sql, size_t size, bool is_utf8, long server_version, const std::string &sql_mode,
-  const std::set<std::string> &charsets)
+bool Test_object_base<mysql_parser_test>::parse(const char *sql, size_t size, bool is_utf8, long server_version, const std::string &sql_mode)
 {
-  MySQLRecognizer recognizer(server_version, sql_mode, charsets);
+  // When reusing the recognizer at least one query consumes endless memory (until system crawls to hold).
+  // So stay for now with a fresh parser on each test (which makes them slower than they need to be).
+
+  MySQLRecognizer recognizer(server_version, sql_mode, _charsets);
+  //_recognizer->set_server_version(server_version);
+  //_recognizer->set_sql_mode(sql_mode);
+  //_recognizer->parse(sql, size, is_utf8, PuGeneric);
   recognizer.parse(sql, size, is_utf8, PuGeneric);
   bool result = recognizer.error_info().size() == 0;
 
@@ -180,7 +190,7 @@ TEST_FUNCTION(10)
 
     for (iterator = ranges.begin(); iterator != ranges.end(); ++iterator)
     {
-      if (!parse(sql + iterator->first, iterator->second, test_files[i].is_utf8, 50604, "ANSI_QUOTES", _charsets))
+      if (!parse(sql + iterator->first, iterator->second, test_files[i].is_utf8, 50604, "ANSI_QUOTES"))
       {
         std::string query(sql + iterator->first, iterator->second);
         ensure("This query failed to parse:\n" + query, false);
@@ -430,10 +440,10 @@ TEST_FUNCTION(20)
   for (int i = 0; i < count; i++)
   {
     std::string query = base::strfmt(query1, functions[i]);
-    ensure("A statement failed to parse", parse(query.c_str(), query.size(), true, 50530, "ANSI_QUOTES", _charsets));
+    ensure("A statement failed to parse", parse(query.c_str(), query.size(), true, 50530, "ANSI_QUOTES"));
 
     query = base::strfmt(query2, functions[i], functions[i]);
-    ensure("A statement failed to parse", parse(query.c_str(), query.size(), true, 50530, "ANSI_QUOTES", _charsets));
+    ensure("A statement failed to parse", parse(query.c_str(), query.size(), true, 50530, "ANSI_QUOTES"));
   }
 }
 
