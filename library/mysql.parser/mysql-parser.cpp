@@ -107,8 +107,14 @@ bool handle_lexer_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION ex
 
       message += "' is not valid input";
       break;
+
+    case ANTLR3_NO_VIABLE_ALT_EXCEPTION:
+      message += (ANTLR3_UINT8)(exception->c);
+      message += " is not valid input";
+      break;
     }
   }
+
   return true;
 }
 
@@ -319,6 +325,24 @@ extern "C" {
   }
 
 } // extern "C"
+
+//--------------------------------------------------------------------------------------------------
+
+class MySQLRecognizer::Private
+{
+public:
+  const char *_text;
+  size_t _text_length;
+  int _input_encoding;
+  RecognitionContext _context;
+
+  pANTLR3_INPUT_STREAM _input;
+  pMySQLLexer _lexer;
+  pANTLR3_COMMON_TOKEN_STREAM _tokens;
+  pMySQLParser _parser;
+  pANTLR3_BASE_TREE _ast;
+};
+
 
 //----------------- MySQLTreeWalker ----------------------------------------------------------------
 
@@ -776,7 +800,7 @@ bool MySQLRecognizerTreeWalker::skip_token_sequence(unsigned int start_token, ..
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Advance to the nth next token if the current one is that given by @token.
+ * Advances to the nth next token if the current one is that given by @token.
  * Returns true if we skipped actually.
  */
 bool MySQLRecognizerTreeWalker::skip_if(unsigned int token, size_t count)
@@ -787,6 +811,30 @@ bool MySQLRecognizerTreeWalker::skip_if(unsigned int token, size_t count)
     return true;
   }
   return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+* Advances to the next node after the current subtree. If the current node is not a subtree then
+* we simply skip to the next node after that.
+* Properly handles subtrees at the end of a child list where there is no next sibling.
+*/
+void MySQLRecognizerTreeWalker::skip_subtree()
+{
+  if (is_subtree())
+  {
+    if (next_sibling())
+      return;
+
+    do {
+      up();
+    } while (!next_sibling()); // Terminates reliably on the top level as there is always the EOF node.
+
+    return;
+  }
+
+  next();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1034,7 +1082,7 @@ ANTLR3_MARKER MySQLRecognizerTreeWalker::token_index()
 size_t MySQLRecognizerTreeWalker::token_offset()
 {
   pANTLR3_COMMON_TOKEN token = _tree->getToken(_tree);
-  return (size_t)(token->start - (ANTLR3_MARKER)_recognizer->text());
+  return (size_t)(token->start - (ANTLR3_MARKER)_recognizer->lineStart());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1158,21 +1206,6 @@ MySQLQueryType MySQLRecognizerTreeWalker::get_main_query_type()
 
 //----------------- MySQLRecognizer ----------------------------------------------------------------
 
-class MySQLRecognizer::Private
-{
-public:
-  const char *_text;
-  size_t _text_length;
-  int _input_encoding;
-  RecognitionContext _context;
-
-  pANTLR3_INPUT_STREAM _input;
-  pMySQLLexer _lexer;
-  pANTLR3_COMMON_TOKEN_STREAM _tokens;
-  pMySQLParser _parser;
-  pANTLR3_BASE_TREE _ast;
-};
-
 MySQLRecognizer::MySQLRecognizer(long server_version, const std::string &sql_mode, const std::set<std::string> &charsets)
   : MySQLRecognitionBase(charsets)
 {
@@ -1246,6 +1279,8 @@ void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQL
   }
   else
   {
+    // TODO: looks like there's still a problem with reusing a parser in certain circumstances.
+    //       mysql_parser_test consumes endless memory with at least one query when reusing the recognizer.
     d->_input->reuse(d->_input, (pANTLR3_UINT8)d->_text, (ANTLR3_UINT32)d->_text_length, (pANTLR3_UINT8)"");
     d->_tokens->reset(d->_tokens);
     d->_lexer->reset(d->_lexer);
@@ -1360,7 +1395,14 @@ std::string MySQLRecognizer::dump_tree(pANTLR3_BASE_TREE tree, const std::string
 
 //--------------------------------------------------------------------------------------------------
 
-const char* MySQLRecognizer::text()
+std::string MySQLRecognizer::text()
+{
+  return std::string(d->_text, d->_text_length);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+const char* MySQLRecognizer::lineStart()
 {
   return d->_text;
 }
@@ -1400,68 +1442,6 @@ long MySQLRecognizer::server_version()
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Returns the text of the given node. The result depends on the type of the node. If it represents
- * a quoted text entity then two consecutive quote chars are replaced by a single one and if
- * escape sequence parsing is not switched off (as per sql mode) then such sequences are handled too.
- */
-std::string MySQLRecognizer::token_text(pANTLR3_BASE_TREE node, bool keepQuotes)
-{
-  pANTLR3_STRING text = node->getText(node);
-  if (text == NULL)
-    return "";
-
-  std::string chars;
-  pANTLR3_COMMON_TOKEN token = node->getToken(node);
-  ANTLR3_UINT32 type = (token != NULL) ? token->type : ANTLR3_TOKEN_INVALID;
-
-  if (type == STRING_TOKEN)
-  {
-    // STRING is the grouping subtree for multiple consecutive string literals, which
-    // must be concatenated.
-    for (ANTLR3_UINT32 index = 0; index < node->getChildCount(node); index++)
-    {
-      pANTLR3_BASE_TREE child = (pANTLR3_BASE_TREE)node->getChild(node, index);
-      chars += token_text(child, keepQuotes);
-    }
-
-    return chars;
-  }
-
-  chars = (const char*)text->chars;
-  std::string quote_char;
-  switch (type)
-  {
-    case BACK_TICK_QUOTED_ID:
-      quote_char = "`";
-      break;
-    case SINGLE_QUOTED_TEXT:
-      quote_char = "'";
-      break;
-    case DOUBLE_QUOTED_TEXT:
-      quote_char = "\"";
-      break;
-    default:
-      return chars;
-  }
-
-  if ((d->_context.sqlMode & SQL_MODE_NO_BACKSLASH_ESCAPES) == 0)
-    chars = base::unescape_sql_string(chars, quote_char[0]);
-  else
-    if (token->user1 > 0)
-    {
-      // The field user1 is set by the parser to the number of quote char pairs it found.
-      // So we can use it to shortcut our handling here.
-      base::replace(chars, quote_char + quote_char, quote_char);
-    }
-
-  if (keepQuotes)
-    return chars;
-  return chars.substr(1, chars.size() - 2);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
  * Determines the type of the query the recognizer is set to (and has parsed).
  * We don't check the validity of a query here, but only scan as much info as needed to
  * disambiguate the queries.
@@ -1469,11 +1449,12 @@ std::string MySQLRecognizer::token_text(pANTLR3_BASE_TREE node, bool keepQuotes)
 
 MySQLQueryType MySQLRecognizer::query_type()
 {
-  return query_type(d->_ast);
+  return query_type(d->_ast); // XXX: obsolete with the new MySQLQueryIdentifier.
 }
 
 //--------------------------------------------------------------------------------------------------
 
+// XXX: obsolete with the new MySQLQueryIdentifier.
 MySQLQueryType MySQLRecognizer::query_type(pANTLR3_BASE_TREE node)
 {
   MySQLRecognizerTreeWalker walker(this, node);
@@ -1552,10 +1533,16 @@ MySQLQueryType MySQLRecognizer::query_type(pANTLR3_BASE_TREE node)
     case ONLINE_SYMBOL:
     case OFFLINE_SYMBOL:
     case INDEX_SYMBOL:
+    case UNIQUE_SYMBOL:
+    case FULLTEXT_SYMBOL:
+    case SPATIAL_SYMBOL:
       return QtCreateIndex;
 
     case DATABASE_SYMBOL:
       return QtCreateDatabase;
+
+    case TRIGGER_SYMBOL:
+      return QtCreateTrigger;
 
     case DEFINER_SYMBOL: // Can be event, view, procedure, function, UDF, trigger.
       {
@@ -1569,20 +1556,17 @@ MySQLQueryType MySQLRecognizer::query_type(pANTLR3_BASE_TREE node)
 
         case VIEW_SYMBOL:
         case SQL_SYMBOL:
-          return QtAlterView;
+          return QtCreateView;
 
         case PROCEDURE_SYMBOL:
           return QtCreateProcedure;
 
         case FUNCTION_SYMBOL:
           {
-            if (!walker.next() || !walker.is_identifier())
-              return QtAmbiguous;
-
             if (!walker.next())
               return QtAmbiguous;
 
-            if (walker.token_type() == RETURNS_SYMBOL)
+            if (walker.is(UDF_NAME_TOKEN))
               return QtCreateUdf;
             return QtCreateFunction;
           }
@@ -1595,9 +1579,22 @@ MySQLQueryType MySQLRecognizer::query_type(pANTLR3_BASE_TREE node)
         }
       }
 
+    case VIEW_SYMBOL:
     case OR_SYMBOL:        // CREATE OR REPLACE ... VIEW
     case ALGORITHM_SYMBOL: // CREATE ALGORITHM ... VIEW
       return QtCreateView;
+
+    case EVENT_SYMBOL:
+      return QtCreateEvent;
+
+    case FUNCTION_SYMBOL:
+      return QtCreateFunction;
+
+    case AGGREGATE_SYMBOL:
+      return QtCreateUdf;
+
+    case PROCEDURE_SYMBOL:
+      return QtCreateProcedure;
 
     case LOGFILE_SYMBOL:
       return QtCreateLogFileGroup;
@@ -2161,6 +2158,22 @@ MySQLQueryType MySQLRecognizer::query_type(pANTLR3_BASE_TREE node)
 //--------------------------------------------------------------------------------------------------
 
 /**
+ *	Returns the token start of this token or it's first real child/grandchild etc.
+ */
+static ANTLR3_MARKER getRealTokenStart(pANTLR3_BASE_TREE node)
+{
+  if (node->getChildCount(node) == 0)
+  {
+    pANTLR3_COMMON_TOKEN token = node->getToken(node);
+    return token->start;
+  }
+
+  return getRealTokenStart((pANTLR3_BASE_TREE)node->getChild(node, 0));
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
  * If the given node is a subtree this function collects the original text for all tokens in this tree,
  * including all tokens on the hidden channel (whitespaces).
  */
@@ -2171,11 +2184,22 @@ std::string MySQLRecognizer::text_for_tree(pANTLR3_BASE_TREE node)
 
   std::string result;
 
-  pANTLR3_BASE_TREE child = (pANTLR3_BASE_TREE)node->getChild(node, 0);
+  // Find the start of the first real node (no virtual nodes).
+  pANTLR3_BASE_TREE child = node;
+  do
+  {
+    child = (pANTLR3_BASE_TREE)child->getChild(child, 0);
+  } while (node->getChildCount(child) > 0);
   pANTLR3_COMMON_TOKEN token = child->getToken(child);
   ANTLR3_MARKER start = token->start;
 
-  child = (pANTLR3_BASE_TREE)node->getChild(node, node->getChildCount(node) - 1);
+  // Similar for the last node.
+  child = node;
+  do
+  {
+    child = (pANTLR3_BASE_TREE)child->getChild(child, child->getChildCount(child) - 1);
+  } while (node->getChildCount(child) > 0);
+
   token = child->getToken(child);
   ANTLR3_MARKER stop = token->stop;
   return std::string((char*)start, stop - start + 1);

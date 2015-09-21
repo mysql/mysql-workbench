@@ -83,8 +83,8 @@ MySQLRecognitionBase::MySQLRecognitionBase(const std::set<std::string> &charsets
 void MySQLRecognitionBase::add_error(const std::string &message, ANTLR3_UINT32 token,
   ANTLR3_MARKER token_start, ANTLR3_UINT32 line, ANTLR3_UINT32 offset_in_line, ANTLR3_MARKER length)
 {
-  MySQLParserErrorInfo info = { message, token, (size_t)(token_start - (ANTLR3_MARKER)text()),
-    line, offset_in_line, (size_t)length};
+  MySQLParserErrorInfo info = { message, token, (size_t)(token_start - (ANTLR3_MARKER)lineStart()),
+    line, offset_in_line, (size_t)length };
   d->_error_info.push_back(info);
 };
 
@@ -169,7 +169,6 @@ bool MySQLRecognitionBase::is_identifier(ANTLR3_UINT32 type)
       // Symbols are sorted so that keywords allowed as identifiers are in a continuous range
       // making this check easy (and reduce the parser size significantly compared to generated token ids).
       result = (type >= ASCII_SYMBOL && type <= YEAR_SYMBOL);
-      
     }
   }
   return result;
@@ -208,6 +207,68 @@ uint32_t MySQLRecognitionBase::get_keyword_token(const std::string &keyword)
 
 //--------------------------------------------------------------------------------------------------
 
+/**
+* Returns the text of the given node. The result depends on the type of the node. If it represents
+* a quoted text entity then two consecutive quote chars are replaced by a single one and if
+* escape sequence parsing is not switched off (as per sql mode) then such sequences are handled too.
+*/
+std::string MySQLRecognitionBase::token_text(pANTLR3_BASE_TREE node, bool keepQuotes)
+{
+  pANTLR3_STRING text = node->getText(node);
+  if (text == NULL)
+    return "";
+
+  std::string chars;
+  pANTLR3_COMMON_TOKEN token = node->getToken(node);
+  ANTLR3_UINT32 type = (token != NULL) ? token->type : ANTLR3_TOKEN_INVALID;
+
+  if (type == STRING_TOKEN)
+  {
+    // STRING is the grouping subtree for multiple consecutive string literals, which
+    // must be concatenated.
+    for (ANTLR3_UINT32 index = 0; index < node->getChildCount(node); index++)
+    {
+      pANTLR3_BASE_TREE child = (pANTLR3_BASE_TREE)node->getChild(node, index);
+      chars += token_text(child, keepQuotes);
+    }
+
+    return chars;
+  }
+
+  chars = (const char*)text->chars;
+  std::string quote_char;
+  switch (type)
+  {
+  case BACK_TICK_QUOTED_ID:
+    quote_char = "`";
+    break;
+  case SINGLE_QUOTED_TEXT:
+    quote_char = "'";
+    break;
+  case DOUBLE_QUOTED_TEXT:
+    quote_char = "\"";
+    break;
+  default:
+    return chars;
+  }
+
+  if ((d->_sql_mode & SQL_MODE_NO_BACKSLASH_ESCAPES) == 0)
+    chars = base::unescape_sql_string(chars, quote_char[0]);
+  else
+    if (token->user1 > 0)
+    {
+      // The field user1 is set by the parser to the number of quote char pairs it found.
+      // So we can use it to shortcut our handling here.
+      base::replace(chars, quote_char + quote_char, quote_char);
+    }
+
+  if (keepQuotes)
+    return chars;
+  return chars.substr(1, chars.size() - 2);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 char** MySQLRecognitionBase::get_token_list()
 {
   return (char**)&MySQLParserTokenNames;
@@ -225,77 +286,77 @@ bool MySQLRecognitionBase::is_keyword(ANTLR3_UINT32 type)
 
   switch (type)
   {
-    case AT_SIGN_SYMBOL:
-    case AT_AT_SIGN_SYMBOL:
-    case BACK_TICK:
-    case BACK_TICK_QUOTED_ID:
-    case BIN_NUMBER:
-    case BITWISE_AND_OPERATOR:
-    case BITWISE_NOT_OPERATOR:
-    case BITWISE_OR_OPERATOR:
-    case BITWISE_XOR_OPERATOR:
-    case CLOSE_PAR_SYMBOL:
-    case COLON_SYMBOL:
-    case COMMA_SYMBOL:
-    case DASHDASH_COMMENT:
-    case DIGIT:
-    case DIGITS:
-    case DIV_OPERATOR:
-    case DOT_SYMBOL:
-    case DOUBLE_QUOTE:
-    case DOUBLE_QUOTED_TEXT:
-    case EQUAL_OPERATOR:
-    case ESCAPE_OPERATOR:
-    case EXPRESSION_TOKEN:
-    case COLUMN_NAME_TOKEN:
-    case FLOAT_NUMBER:
-    case FUNCTION_CALL_TOKEN:
-    case GREATER_OR_EQUAL_OPERATOR:
-    case GREATER_THAN_OPERATOR:
-    case HEXDIGIT:
-    case HEX_NUMBER:
-    case IDENTIFIER:
-    case INDEX_HINT_LIST_TOKEN:
-    case NUMBER:
-    case JOIN_EXPR_TOKEN:
-    case LESS_OR_EQUAL_OPERATOR:
-    case LESS_THAN_OPERATOR:
-    case LETTER_WHEN_UNQUOTED:
-    case LOGICAL_AND_OPERATOR:
-    case LOGICAL_NOT_OPERATOR:
-    case LOGICAL_OR_OPERATOR:
-    case MINUS_OPERATOR:
-    case ML_COMMENT_END:
-    case ML_COMMENT_HEAD:
-    case MOD_OPERATOR:
-    case MULT_OPERATOR:
-    case NCHAR_TEXT:
-    case NOT_EQUAL2_OPERATOR:
-    case NOT_EQUAL_OPERATOR:
-    case NULL2_SYMBOL:
-    case NULL_SAFE_EQUAL_OPERATOR:
-    case OPEN_PAR_SYMBOL:
-    case PARAM_MARKER:
-    case PAR_EXPRESSION_TOKEN:
-    case PLUS_OPERATOR:
-    case POUND_COMMENT:
-    case SEMICOLON_SYMBOL:
-    case SHIFT_LEFT_OPERATOR:
-    case SHIFT_RIGHT_OPERATOR:
-    case SINGLE_QUOTE:
-    case SINGLE_QUOTED_TEXT:
-    case STRING_TOKEN:
-    case SUBQUERY_TOKEN:
-    case TABLE_NAME_TOKEN:
-    case UNDERLINE_SYMBOL:
-    case UNDERSCORE_CHARSET:
-    case VERSION_COMMENT:
-    case VERSION_COMMENT_END:
-    case VERSION_COMMENT_INTRODUCER:
-    case VERSION_COMMENT_START_TOKEN:
-    case VERSION_COMMENT_TAIL:
-    case WHITESPACE:
-    case XA_ID_TOKEN:
+  case AT_SIGN_SYMBOL:
+  case AT_AT_SIGN_SYMBOL:
+  case BACK_TICK:
+  case BACK_TICK_QUOTED_ID:
+  case BIN_NUMBER:
+  case BITWISE_AND_OPERATOR:
+  case BITWISE_NOT_OPERATOR:
+  case BITWISE_OR_OPERATOR:
+  case BITWISE_XOR_OPERATOR:
+  case CLOSE_PAR_SYMBOL:
+  case COLON_SYMBOL:
+  case COMMA_SYMBOL:
+  case DASHDASH_COMMENT:
+  case DIGIT:
+  case DIGITS:
+  case DIV_OPERATOR:
+  case DOT_SYMBOL:
+  case DOUBLE_QUOTE:
+  case DOUBLE_QUOTED_TEXT:
+  case EQUAL_OPERATOR:
+  case ESCAPE_OPERATOR:
+  case EXPRESSION_TOKEN:
+  case COLUMN_NAME_TOKEN:
+  case FLOAT_NUMBER:
+  case FUNCTION_CALL_TOKEN:
+  case GREATER_OR_EQUAL_OPERATOR:
+  case GREATER_THAN_OPERATOR:
+  case HEXDIGIT:
+  case HEX_NUMBER:
+  case IDENTIFIER:
+  case INDEX_HINT_LIST_TOKEN:
+  case NUMBER:
+  case JOIN_EXPR_TOKEN:
+  case LESS_OR_EQUAL_OPERATOR:
+  case LESS_THAN_OPERATOR:
+  case LETTER_WHEN_UNQUOTED:
+  case LOGICAL_AND_OPERATOR:
+  case LOGICAL_NOT_OPERATOR:
+  case LOGICAL_OR_OPERATOR:
+  case MINUS_OPERATOR:
+  case ML_COMMENT_END:
+  case ML_COMMENT_HEAD:
+  case MOD_OPERATOR:
+  case MULT_OPERATOR:
+  case NCHAR_TEXT:
+  case NOT_EQUAL2_OPERATOR:
+  case NOT_EQUAL_OPERATOR:
+  case NULL2_SYMBOL:
+  case NULL_SAFE_EQUAL_OPERATOR:
+  case OPEN_PAR_SYMBOL:
+  case PARAM_MARKER:
+  case PAR_EXPRESSION_TOKEN:
+  case PLUS_OPERATOR:
+  case POUND_COMMENT:
+  case SEMICOLON_SYMBOL:
+  case SHIFT_LEFT_OPERATOR:
+  case SHIFT_RIGHT_OPERATOR:
+  case SINGLE_QUOTE:
+  case SINGLE_QUOTED_TEXT:
+  case STRING_TOKEN:
+  case SUBQUERY_TOKEN:
+  case TABLE_NAME_TOKEN:
+  case UNDERLINE_SYMBOL:
+  case UNDERSCORE_CHARSET:
+  case VERSION_COMMENT:
+  case VERSION_COMMENT_END:
+  case VERSION_COMMENT_INTRODUCER:
+  case VERSION_COMMENT_START_TOKEN:
+  case VERSION_COMMENT_TAIL:
+  case WHITESPACE:
+  case XA_ID_TOKEN:
   case ANTLR3_TOKEN_EOF:
     return false;
 
