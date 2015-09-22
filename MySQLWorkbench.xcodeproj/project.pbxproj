@@ -12729,7 +12729,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 0640;
+				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = "Oracle and/or its affiliates";
 				TargetAttributes = {
 					27D8079D1A3F262D00EDCA8F = {
@@ -15697,6 +15697,7 @@
 					"-framework",
 					SenTestingKit,
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.oracle.mysql.workbench.${PRODUCT_NAME:identifier}";
 				PRODUCT_NAME = UnitTests;
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = octest;
@@ -15722,6 +15723,7 @@
 					"-framework",
 					SenTestingKit,
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.oracle.mysql.workbench.${PRODUCT_NAME:identifier}";
 				PRODUCT_NAME = UnitTests;
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = octest;
@@ -15994,6 +15996,7 @@
 					"-framework",
 					AppKit,
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.oracle.mysql.workbench.wbmodeleditors;
 				PRODUCT_NAME = wb.model.editors;
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = mwbplugin;
@@ -16035,6 +16038,7 @@
 					"-framework",
 					AppKit,
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.oracle.mysql.workbench.wbmodeleditors;
 				PRODUCT_NAME = wb.model.editors;
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = mwbplugin;
@@ -16561,6 +16565,7 @@
 					"-framework",
 					AppKit,
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.oracle.mysql.workbench.dbmysqleditors;
 				PRODUCT_NAME = db.mysql.editors;
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = mwbplugin;
@@ -16605,6 +16610,7 @@
 					"-framework",
 					AppKit,
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.oracle.mysql.workbench.dbmysqleditors;
 				PRODUCT_NAME = db.mysql.editors;
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = mwbplugin;
@@ -17217,6 +17223,7 @@
 					"-framework",
 					AppKit,
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.oracle.mysql.workbench.wbprinting;
 				PRODUCT_NAME = wb.printing;
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = mwbplugin;
@@ -17248,6 +17255,7 @@
 					"-framework",
 					AppKit,
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.oracle.mysql.workbench.wbprinting;
 				PRODUCT_NAME = wb.printing;
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = mwbplugin;
@@ -17524,6 +17532,7 @@
 					"-framework",
 					AppKit,
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.oracle.mysql.workbench.${PRODUCT_NAME:identifier}";
 				PRODUCT_NAME = WBExtras;
 				SKIP_INSTALL = YES;
 			};
@@ -17573,6 +17582,7 @@
 					"-framework",
 					AppKit,
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.oracle.mysql.workbench.${PRODUCT_NAME:identifier}";
 				PRODUCT_NAME = WBExtras;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -17956,6 +17966,7 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CODE_SIGN_FLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.oracle.mysql.workbench;
 				PRODUCT_NAME = MySQLWorkbench;
 				SDKROOT = macosx;
 				VALID_ARCHS = "i386 x86_64";
@@ -18004,6 +18015,7 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CODE_SIGN_FLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.oracle.mysql.workbench;
 				PRODUCT_NAME = MySQLWorkbench;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = YES;
