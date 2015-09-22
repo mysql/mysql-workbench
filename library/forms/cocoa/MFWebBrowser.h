@@ -20,8 +20,7 @@
 #import "MFView.h"
 #import "mforms/WebBrowser.h"
 
-
-@interface MFWebBrowserImpl : NSView <WebFrameLoadDelegate, WebUIDelegate, WebPolicyDelegate, WebResourceLoadDelegate> {
+@interface MFWebBrowserImpl : NSView {
   mforms::WebBrowser* mOwner;
   WebView* mBrowser;
 }
