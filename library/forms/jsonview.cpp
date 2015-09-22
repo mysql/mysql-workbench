@@ -2264,7 +2264,7 @@ void JsonTextView::findAndHighlightText(const std::string &text, bool backward /
  */
 JsonTreeView::JsonTreeView()
 {
-  _treeView.reset(new mforms::TreeNodeView(TreeNoBorder | TreeShowColumnLines));
+  _treeView.reset(new mforms::TreeView(TreeNoBorder | TreeShowColumnLines));
   _treeView->add_column(IconStringColumnType, "", 150, false, true);
   _treeView->add_column(StringColumnType, "Value", 200, false, true);
   _treeView->end_columns();
@@ -2528,7 +2528,7 @@ void JsonTreeView::generateNullInTree(JsonParser::JsonValue &value, TreeNodeRef 
  */
 JsonGridView::JsonGridView()
 {
-  _treeView.reset(new mforms::TreeNodeView(mforms::TreeAltRowColors | mforms::TreeShowRowLines | mforms::TreeShowColumnLines | mforms::TreeNoBorder));
+  _treeView.reset(new mforms::TreeView(mforms::TreeAltRowColors | mforms::TreeShowRowLines | mforms::TreeShowColumnLines | mforms::TreeNoBorder));
   _treeView->add_column(IconStringColumnType, "Key", 150, false, true);
   _treeView->add_column(StringLTColumnType, "Value", 200, true, true);
   _treeView->add_column(StringLTColumnType, "Type", 200, false, true);
