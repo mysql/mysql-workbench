@@ -142,6 +142,15 @@ set(IMAGE_FILES
     editor_current_pos.xpm
     editor_error.xpm
     editor_statement.xpm
+    JS_Datatype_Array.png
+    JS_Datatype_Bin.png
+    JS_Datatype_Bool.png
+    JS_Datatype_Date.png
+    JS_Datatype_Null.png
+    JS_Datatype_Number.png
+    JS_Datatype_Object.png
+    JS_Datatype_ObjectId.png
+    JS_Datatype_String.png
 )
 
 if (UNIX)

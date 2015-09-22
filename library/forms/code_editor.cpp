@@ -99,6 +99,16 @@ CodeEditorConfig::CodeEditorConfig(SyntaxHighlighterLanguage language)
     lexer = "SCLEX_CPP";
     break;
 
+  case mforms::LanguageJS:
+    lexer = "SCLEX_CPP";
+    override_lexer = "SCLEX_CPP_JS";
+    break;
+
+  case mforms::LanguageJson:
+    lexer = "SCLEX_CPP";
+    override_lexer = "SCLEX_CPP_JSON";
+    break;
+
   default:
     return;
   }
@@ -719,6 +729,8 @@ void CodeEditor::set_language(SyntaxHighlighterLanguage language)
     break;
 
   case mforms::LanguageCpp:
+  case mforms::LanguageJS:
+  case mforms::LanguageJson:
     _code_editor_impl->send_editor(this, SCI_SETLEXER, SCLEX_CPP, 0);
     break;
 
