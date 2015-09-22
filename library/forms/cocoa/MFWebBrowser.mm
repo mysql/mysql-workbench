@@ -37,10 +37,10 @@
     
     mBrowser = [[[WebView alloc] initWithFrame: [self frame]] autorelease];
     [self addSubview: mBrowser];
-    [mBrowser setFrameLoadDelegate: self];
-    [mBrowser setUIDelegate: self];
-    [mBrowser setPolicyDelegate: self];
-    [mBrowser setResourceLoadDelegate: self];
+    [mBrowser setFrameLoadDelegate: (id)self];
+    [mBrowser setUIDelegate: (id)self];
+    [mBrowser setPolicyDelegate: (id)self];
+    [mBrowser setResourceLoadDelegate: (id)self];
     [mBrowser setShouldCloseWithWindow: YES];
   }
   return self;
