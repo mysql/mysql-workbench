@@ -20,7 +20,7 @@
 #pragma once
 
 #include "mforms/panel.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include <algorithm>
 #include <set>
 #include <boost/tuple/tuple.hpp>
@@ -360,7 +360,7 @@ namespace mforms {
     bool _useFilter;
     std::string _textToFind;
     size_t _searchIdx;
-    boost::shared_ptr<TreeNodeView> _treeView;
+    boost::shared_ptr<TreeView> _treeView;
   };
 
   /**
@@ -405,7 +405,7 @@ namespace mforms {
     virtual void generateBoolInTree(JsonParser::JsonValue &value, TreeNodeRef node);
     virtual void generateStringInTree(JsonParser::JsonValue &value, TreeNodeRef node);
     virtual void generateNullInTree(JsonParser::JsonValue &value, TreeNodeRef node);
-    boost::shared_ptr<TreeNodeView> _gridView;
+    boost::shared_ptr<TreeView> _gridView;
   };
 
   /**

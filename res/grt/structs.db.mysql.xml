@@ -106,6 +106,8 @@
       <gstruct name="db.mysql.Column" parent="db.Column">
           <members>
               <member name="autoIncrement" type="int"/>
+              <member name="generated" type="int"/>
+              <member name="expression" type="string"/>
           </members>
       </gstruct>
 
