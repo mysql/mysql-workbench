@@ -27,6 +27,7 @@
 #include "mforms/tabview.h"
 #include "mforms/label.h"
 #include "mforms/button.h"
+#include "mforms/jsonview.h"
 
 namespace bec {
   class GRTManager;
@@ -61,6 +62,7 @@ public:
   
 public:
   void add_viewer(BinaryDataViewer *viewer, const std::string &title);
+  void add_json_viewer(bool read_only, const std::string &text_encoding, const std::string &title);
 
   void assign_data(const char *data, size_t length, bool steal_pointer=false);
   void notify_edit();
@@ -84,7 +86,7 @@ protected:
   mforms::Button _close;
   mforms::Button _export;
   mforms::Button _import;
-  
+
   bool _read_only;
   
   void setup();

@@ -271,6 +271,7 @@
     <ClCompile Include="fs_object_selector.cpp" />
     <ClCompile Include="hypertext.cpp" />
     <ClCompile Include="imagebox.cpp" />
+    <ClCompile Include="jsonview.cpp" />
     <ClCompile Include="label.cpp" />
     <ClCompile Include="listbox.cpp" />
     <ClCompile Include="menu.cpp" />
@@ -330,6 +331,7 @@
     <ClInclude Include="mforms\fs_object_selector.h" />
     <ClInclude Include="mforms\hypertext.h" />
     <ClInclude Include="mforms\imagebox.h" />
+    <ClInclude Include="mforms\jsonview.h" />
     <ClInclude Include="mforms\label.h" />
     <ClInclude Include="mforms\listbox.h" />
     <ClInclude Include="mforms\menu.h" />
