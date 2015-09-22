@@ -230,7 +230,7 @@ class ConfigurationPage(WizardPage):
                     opt_val.add_items([v for v in opts['opts']])
                     opt_val.set_selected(opts['opts'].values().index(opts['value']))
                     opt_val.add_changed_callback(lambda selector = opt_val, output = opts: set_selector_entry(selector, output))
-                    self.opts_mapping[name] = lambda input, values =  opts['opts'].values(): opt_val.set_selected(values.index(input))
+                    self.opts_mapping[name] = lambda input, values =  opts['opts'].values(): opt_val.set_selected(values.index(input) if input in values else 0)
                     label_box.add_end(opt_val, False, False)
                 box.add(label_box, False, False)
             self.optpanel.add(box)
@@ -378,7 +378,7 @@ class ConfigurationPage(WizardPage):
             chk.add_clicked_callback(lambda checkbox = chk, output = row: operator.setitem(output, 'active', True if checkbox.get_active() else False))
             return chk
         
-        type_items = {'is_string':'text', 'is_number':'int', 'is_float':'double', 'is_bin':'binary', 'is_date_or_time': 'datetime'}
+        type_items = {'is_string':'text', 'is_number':'int', 'is_float':'double', 'is_bin':'binary', 'is_date_or_time': 'datetime', 'is_json':'json'}
         def create_select_type(row):
             def sel_changed(sel, output):
                 selection = sel.get_string_value()

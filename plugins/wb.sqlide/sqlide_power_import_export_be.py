@@ -103,12 +103,15 @@ class base_module:
         self._encoding = 'utf-8' #default encoding
         self._force_drop_table = False
         self._truncate_table = False
-        self._type_map = {'text':'is_string', 'int': 'is_number', 'double':'is_float'}
+        self._type_map = {'text':'is_string', 'int': 'is_number', 'double':'is_float', 'json': 'is_json'}
         self.is_running = False
         self.progress_info = None
         self.item_count = 0
 
     def guess_type(self, vals):
+        def is_json(v):
+            return True if type(v) in [dict, list] else False
+        
         def is_float(v):
             v = str(v)
             try:
@@ -129,6 +132,8 @@ class base_module:
         
         cur_type = None
         for v in vals:
+            if is_json(v):
+                return "json" # If JSON then we can return immediately. 
             if is_int(v):
                 if not cur_type:
                     cur_type = "int"
@@ -209,17 +214,18 @@ class base_module:
         self._columns = []
         for c in result.columns:
             self._columns.append({'name': c.name, 'type': c.columnType, 
-                   'is_string': True if c.columnType == "string" else False, 
-                   'is_number': True if c.columnType == "int" else False, 
+                   'is_string': any(x in c.columnType for x in ['char', 'text', 'set', 'enum']),
+                   'is_json': any(x in c.columnType for x in ['json']), 
+                   'is_number': any(x in c.columnType for x in ['int', 'integer']), 
                    'is_date_or_time': any(x in c.columnType for x in ['timestamp', 'time', 'datetime', 'date']), 
-                   'is_bin': any(x in c.columnType for x in ['geo', 'blob']),
-                   'is_float': True if c.columnType == "real" else False,
+                   'is_bin': any(x in c.columnType for x in ['geo', 'blob', 'binary']),
+                   'is_float': any(x in c.columnType for x in ['decimal', 'float', 'double', 'real']),
                    'value': None})
     
     def prepare_new_table(self):
         try:
             
-            self._editor.executeManagementCommand(""" CREATE TABLE %s (%s)""" % (self._table_w_prefix, ", ".join(["`%s` %s" % (col['name'], col['type']) for col in self._mapping])), 1)
+            self._editor.executeManagementCommand(""" CREATE TABLE %s (%s)""" % (self._table_w_prefix, ", ".join(["`%s` %s" % (col['name'], col["type"]) for col in self._mapping])), 1)
             self.update_progress(0.0, "Prepared new table")
             # wee need to setup dest_col for each row, as the mapping is empty if we're creating new table
             for col in self._mapping:
@@ -433,7 +439,7 @@ class csv_module(base_module):
                             break
                         val = row[col_order[col]]
                         if col_type[col] == 'double':
-                            val = row[col_order[col]].replace(self._decimal_separator, ',')
+                            val = row[col_order[col]].replace(self._decimal_separator, '.')
                         elif col_type[col] == 'datetime':
                             val = datetime.datetime.strptime(row[col_order[col]], self._date_format).strftime("%Y-%m-%d %H:%M:%S")
                         self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val.replace("\\", "\\\\").replace('"', '\\"')), 0)
@@ -482,12 +488,18 @@ class csv_module(base_module):
                 
                 if row:
                     for col_value in row:
-                        self._columns.append({'name': col_value, 'type': 'text', 'is_string': True, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'value': []})
+                        self._columns.append({'name': col_value, 'type': 'text', 'is_string': True, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'is_json':False,'value': []})
 
                     for i, row in enumerate(reader): #we will read only first few rows
                         if i < 5:
                             for j, col_value in enumerate(row):
-                                self._columns[j]['value'].append(col_value)
+                                try:
+                                    json_value = json.loads(col_value)
+                                    self._columns[j]['is_string'] = False
+                                    self._columns[j]['is_json'] = True
+                                    self._columns[j]['value'].append(json_value)
+                                except Exception as e:
+                                    self._columns[j]['value'].append(col_value)
                         else:
                             break
                     for col in self._columns:
@@ -567,12 +579,15 @@ class json_module(base_module):
                     self._current_row = rset.currentRow + 1
                     row = []
                     for col in self._columns:
-                        if col['is_string'] or col['is_bin'] or col['is_date_or_time']:
-                            row.append("\"%s\":%s" % (col['name'], json.dumps(rset.stringFieldValueByName(col['name']))))
-                        elif col['is_number']:
+                        if col['is_number']:
                             row.append("\"%s\":%s" % (col['name'], json.dumps(rset.intFieldValueByName(col['name']))))
                         elif col['is_float']:
                             row.append("\"%s\":%s" % (col['name'], json.dumps(rset.floatFieldValueByName(col['name']))))
+                        else:
+                            if col['type'] == "json":
+                                row.append("\"%s\":%s" % (col['name'], rset.stringFieldValueByName(col['name'])))
+                            else:
+                                row.append("\"%s\":%s" % (col['name'], json.dumps(rset.stringFieldValueByName(col['name']))))
                     ok = rset.nextRow()
                     jsonfile.write("{%s}%s" % (', '.join(row), ",\n " if ok else ""))
                     jsonfile.flush()
@@ -617,11 +632,17 @@ class json_module(base_module):
                             break
                         val = row[col_order[col]]
                         if col_type[col] == 'double':
-                            val = row[col_order[col]].replace(self._decimal_separator, ',')
+                            val = str(val).replace(self._decimal_separator, '.')
                         elif col_type[col] == 'datetime':
-                            val = datetime.datetime.strptime(row[col_order[col]], self._date_format).strftime("%Y-%m-%d %H:%M:%S")
-                            
-                        self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val.replace("\\", "\\\\").replace('"', '\\"')), 0)
+                            val = datetime.datetime.strptime(val, self._date_format).strftime("%Y-%m-%d %H:%M:%S")
+
+                        if type(val) in [dict, list]:
+                            val = json.dumps(val)
+                        
+                        if col_type[col] == "int":
+                            self._editor.executeManagementCommand("""SET @a%d = %d """ % (i, val), 0)
+                        else:
+                            self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val.replace("\\", "\\\\").replace('"', '\\"')), 0)
                     else:
                         try:
                             self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 0)
@@ -680,10 +701,13 @@ class json_module(base_module):
         
         self._columns = []
         for elem in data[0]:
-            self._columns.append({'name': elem, 'type': 'text', 'is_string': True, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'value': []})
+            self._columns.append({'name': elem, 'type': 'text', 'is_string': True, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'is_json':False, 'value': []})
 
         for row in data:
             for i, elem in enumerate(row):
+                if type(row[elem]) in [dict, list]:
+                    self._columns[i]['is_string'] = False
+                    self._columns[i]['is_json'] = True
                 self._columns[i]['value'].append(row[elem])
                 
         for col in self._columns:
