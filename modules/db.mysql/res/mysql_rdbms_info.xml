@@ -2062,6 +2062,21 @@
           <link type="object" key="owner">com.mysql.rdbms.mysql</link>
           <!--value type="list" content-type="string" key="synonyms"/-->
         </value>
+        <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.json">
+          <value type="int" key="characterMaximumLength">0</value>
+          <value type="int" key="characterOctetLength">0</value>
+          <value type="int" key="dateTimePrecision">0</value>
+          <value type="list" content-type="string" key="flags"/>
+          <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+          <value type="string" key="name">JSON</value>
+          <value type="int" key="numericPrecision">0</value>
+          <value type="int" key="numericPrecisionRadix">0</value>
+          <value type="int" key="numericScale">0</value>
+          <value type="int" key="parameterFormatType">0</value>
+          <value type="int" key="needsQuotes">1</value>
+          <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+          <!--value type="list" content-type="string" key="synonyms"/-->
+        </value>
         <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.datetime">
           <value type="string" key="validity">&lt;5.6</value>
           <value type="int" key="characterMaximumLength">0</value>
