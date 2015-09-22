@@ -355,6 +355,28 @@ private:
 
 //--------------------------------------------------------------------------------
 
+class JsonDataViewer : public BinaryDataViewer
+{
+public:
+  JsonDataViewer(BinaryDataEditor *owner, JsonParser::JsonValue &value)
+  : BinaryDataViewer(owner)
+  {
+    set_spacing(8);
+    _jsonView.setJson(value);
+    add(&_jsonView, true, true);
+    //scoped_connect(_jsonView.textViewTextChanged(), boost::bind(&JsonDataViewer::edited, this));
+  }
+
+  virtual void data_changed()
+  {
+  }
+
+private:
+  mforms::JsonTabView  _jsonView;
+};
+
+//--------------------------------------------------------------------------------
+
 class GeomDataViewer : public BinaryDataViewer
 {
 public:
@@ -449,7 +471,7 @@ BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size
   int activeTab = 0;
   if (tab.is_valid())
     activeTab = (int)*tab;
-  if (*tab >= _tab_view.page_count())
+  if (tab.is_valid() && *tab >= _tab_view.page_count())
   {
     grt::DictRef dict(grt::DictRef::cast_from(_grtm->get_app_option("")));
     if (dict.is_valid())
@@ -483,11 +505,12 @@ BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size
     add_viewer(new ImageDataViewer(this, read_only), "Image");
 
   assign_data(data, length);
+  add_json_viewer(read_only, text_encoding, "JSON");
 
   int activeTab = 0;
   if (tab.is_valid())
     activeTab = (int)*tab;
-  if (*tab >= _tab_view.page_count())
+  if (tab.is_valid() && *tab >= _tab_view.page_count())
   {
     grt::DictRef dict(grt::DictRef::cast_from(_grtm->get_app_option("")));
     if (dict.is_valid())
@@ -597,6 +620,37 @@ void BinaryDataEditor::add_viewer(BinaryDataViewer *viewer, const std::string &t
   _viewers.push_back(std::make_pair(viewer, true));
   
   _tab_view.add_page(mforms::manage(viewer), title);
+}
+
+void BinaryDataEditor::add_json_viewer(bool read_only, const std::string& text_encoding, const std::string& title)
+{
+  if (!data())
+    return;
+  GError *error = NULL;
+  gsize bread = 0, bwritten = 0;
+  char *converted = g_convert(data(), static_cast<gssize>(length()), "UTF-8", text_encoding.c_str(), &bread, &bwritten, &error);
+  if (!converted || length() != bread)
+  {
+    //convert problem
+    return;
+  }
+  std::string dataToTest = converted;
+  size_t pos = dataToTest.find_first_not_of(" \t\r\n");
+  if (pos != std::string::npos && dataToTest.at(pos) != '{')
+    return;
+
+  bool isJson = true;
+  JsonParser::JsonValue value;
+  try
+  {
+    JsonParser::JsonReader::read(converted, value);
+  }
+  catch (JsonParser::ParserException &)
+  {
+    isJson = false;
+  }
+  if (isJson)
+    add_viewer(new JsonDataViewer(this, value), title.c_str());
 }
 
 void BinaryDataEditor::save()

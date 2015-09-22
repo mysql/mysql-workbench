@@ -177,6 +177,7 @@ namespace base
   BASELIBRARY_PUBLIC_FUNC bool contains_string(const std::string &text, const std::string &candidate, bool case_sensitive = true);
 
   BASELIBRARY_PUBLIC_FUNC bool is_number(const std::string &word);
+  BASELIBRARY_PUBLIC_FUNC bool isBool(const std::string &text);
 
 
   /**

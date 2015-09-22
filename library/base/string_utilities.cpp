@@ -1677,6 +1677,22 @@ bool is_number(const std::string &word)
 }
 
 //--------------------------------------------------------------------------------------------------
+
+/**
+ * @brief Determine if a string is a boolean.
+ *
+ * @param text Text to check
+ * @return Return true if given string is a boolean.
+ */
+bool isBool(const std::string &text)
+{
+  std::string lower = tolower(text);
+  if (lower.compare("true") != 0 && lower.compare("false") != 0)
+    return false;
+  return true;
+}
+
+//--------------------------------------------------------------------------------------------------
   
 /**
  * Function : stl_string_compare
