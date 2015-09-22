@@ -17,9 +17,6 @@
  * 02110-1301  USA
  */
 
-#import <Cocoa/Cocoa.h>
-#import <WebKit/WebKit.h>
-
 #import "MFView.h"
 #import "mforms/WebBrowser.h"
 
