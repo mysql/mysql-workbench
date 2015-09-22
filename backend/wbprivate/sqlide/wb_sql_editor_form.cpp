@@ -17,7 +17,7 @@
  * 02110-1301  USA
  */
 
-#include "wb_sql_editor_form.h"co
+#include "wb_sql_editor_form.h"
 
 #include "grtdb/db_helpers.h"
 #include "grtsqlparser/sql_facade.h"
