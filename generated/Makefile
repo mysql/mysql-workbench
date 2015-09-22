@@ -1,8 +1,8 @@
 top_srcdir = ..
 
-genobj = ../DerivedData/MySQLWorkbench/Build/Products/Debug/genobj
+genobj = $(top_srcdir)/wb-build/tools/genobj/genobj
 
-genwrap = $(top_srcdir)/tools/genwrap/genwrap
+genwrap = $(top_srcdir)/wb-build/tools/genwrap/genwrap
 
 #BUILT_SOURCES=\
 #  grts/structs.app.h\
