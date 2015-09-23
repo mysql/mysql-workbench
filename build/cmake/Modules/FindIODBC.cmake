@@ -18,6 +18,10 @@
 find_program(IODBC_CONFIG_PATH iodbc-config)
 
 if (IODBC_CONFIG_PATH)
+  if (NOT EXISTS ${IODBC_CONFIG_PATH})
+    MESSAGE(FATAL_ERROR "iodbc-config not found in " ${IODBC_CONFIG_PATH})
+  endif()
+
   exec_program(${IODBC_CONFIG_PATH} ARGS --cflags
                   OUTPUT_VARIABLE IODBC_DEFINITIONS)
   exec_program(${IODBC_CONFIG_PATH} ARGS --libs
