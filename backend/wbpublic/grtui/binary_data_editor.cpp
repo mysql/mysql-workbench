@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,11 +34,10 @@ DEFAULT_LOG_DOMAIN("BlobViewer");
 #include "mforms/imagebox.h"
 #include "mforms/textbox.h"
 #include "mforms/selector.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/code_editor.h"
 #include "mforms/find_panel.h"
 #include "mforms/filechooser.h"
-#include "mforms/jsonview.h"
 
 BinaryDataViewer::BinaryDataViewer(BinaryDataEditor *owner)
 : mforms::Box(false), _owner(owner)
@@ -123,7 +122,7 @@ public:
       _tree.add_column(mforms::StringColumnType, base::strfmt("%X", i), 25, !read_only);
     _tree.end_columns();
 
-    _tree.set_cell_edit_handler(std::bind(&HexDataViewer::set_cell_value, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+    _tree.set_cell_edit_handler(boost::bind(&HexDataViewer::set_cell_value, this, _1, _2, _3));
   }
 
   virtual void data_changed()
@@ -204,7 +203,7 @@ public:
   }
   
 private:
-  mforms::TreeNodeView _tree;
+  mforms::TreeView _tree;
   mforms::Box _box;
   mforms::Button _first;
   mforms::Button _back;
@@ -360,7 +359,7 @@ class JsonDataViewer : public BinaryDataViewer
 {
 public:
   JsonDataViewer(BinaryDataEditor *owner, JsonParser::JsonValue &value)
-    : BinaryDataViewer(owner)
+  : BinaryDataViewer(owner)
   {
     set_spacing(8);
     _jsonView.setJson(value);
@@ -368,18 +367,13 @@ public:
     //scoped_connect(_jsonView.textViewTextChanged(), boost::bind(&JsonDataViewer::edited, this));
   }
 
-  ~JsonDataViewer()
-  {
-  }
-
-  virtual void data_changed() override
+  virtual void data_changed()
   {
   }
 
 private:
   mforms::JsonTabView  _jsonView;
 };
-
 
 //--------------------------------------------------------------------------------
 
@@ -477,15 +471,15 @@ BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size
   int activeTab = 0;
   if (tab.is_valid())
     activeTab = (int)*tab;
-  if (*tab >= _tab_view.page_count())
+  if (tab.is_valid() && *tab >= _tab_view.page_count())
   {
     grt::DictRef dict(grt::DictRef::cast_from(_grtm->get_app_option("")));
     if (dict.is_valid())
       dict.gset("BlobViewer:DefaultTab", 0);
     activeTab = 0;
   }
-  
   _tab_view.set_active_tab(activeTab);
+
   tab_changed();
 }
 
@@ -511,13 +505,12 @@ BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size
     add_viewer(new ImageDataViewer(this, read_only), "Image");
 
   assign_data(data, length);
-
   add_json_viewer(read_only, text_encoding, "JSON");
 
   int activeTab = 0;
   if (tab.is_valid())
     activeTab = (int)*tab;
-  if (*tab >= _tab_view.page_count())
+  if (tab.is_valid() && *tab >= _tab_view.page_count())
   {
     grt::DictRef dict(grt::DictRef::cast_from(_grtm->get_app_option("")));
     if (dict.is_valid())
@@ -525,7 +518,7 @@ BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size
     activeTab = 0;
   }
 
-  _tab_view.set_active_tab(activeTab);
+  _tab_view.set_active_tab(activeTab);  
   tab_changed();
 }
 
@@ -567,8 +560,6 @@ void BinaryDataEditor::setup()
   scoped_connect(_import.signal_clicked(),boost::bind(&BinaryDataEditor::import_value, this));
   scoped_connect(_export.signal_clicked(),boost::bind(&BinaryDataEditor::export_value, this));
 
-  set_release_on_close(true);
-
   set_size(640, 500);
   center();
 }
@@ -605,7 +596,13 @@ void BinaryDataEditor::tab_changed()
   grt::DictRef dict(grt::DictRef::cast_from(_grtm->get_app_option("")));
   if (dict.is_valid())
     dict.gset("BlobViewer:DefaultTab", i);
-
+  if (i >= _tab_view.page_count())
+  {
+    grt::DictRef dict(grt::DictRef::cast_from(_grtm->get_app_option("")));
+    if (dict.is_valid())
+      dict.gset("BlobViewer:DefaultTab", 0);
+    i = 0;
+  }
   try
   {
     if (_viewers[i].second && _data)
@@ -629,20 +626,20 @@ void BinaryDataEditor::add_json_viewer(bool read_only, const std::string& text_e
 {
   if (!data())
     return;
-  GError *error = nullptr;
+  GError *error = NULL;
   gsize bread = 0, bwritten = 0;
-  auto converted = g_convert(data(), static_cast<gssize>(length()), "UTF-8", text_encoding.c_str(), &bread, &bwritten, &error);
+  char *converted = g_convert(data(), static_cast<gssize>(length()), "UTF-8", text_encoding.c_str(), &bread, &bwritten, &error);
   if (!converted || length() != bread)
   {
     //convert problem
     return;
   }
   std::string dataToTest = converted;
-  auto pos = dataToTest.find_first_not_of(" \t\r\n");
+  size_t pos = dataToTest.find_first_not_of(" \t\r\n");
   if (pos != std::string::npos && dataToTest.at(pos) != '{')
     return;
 
-  auto isJson = true;
+  bool isJson = true;
   JsonParser::JsonValue value;
   try
   {
@@ -653,9 +650,8 @@ void BinaryDataEditor::add_json_viewer(bool read_only, const std::string& text_e
     isJson = false;
   }
   if (isJson)
-    add_viewer(new JsonDataViewer(this, value), "JSON");
+    add_viewer(new JsonDataViewer(this, value), title.c_str());
 }
-
 
 void BinaryDataEditor::save()
 {
