@@ -404,6 +404,8 @@
 		27C79EF016E0A8220092958E /* mysql-parser-common.h in Headers */ = {isa = PBXBuildFile; fileRef = 27C79EEC16E0A8210092958E /* mysql-parser-common.h */; };
 		27C79EF116E0A8220092958E /* mysql-scanner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27C79EED16E0A8210092958E /* mysql-scanner.cpp */; };
 		27C79EF216E0A8220092958E /* mysql-scanner.h in Headers */ = {isa = PBXBuildFile; fileRef = 27C79EEE16E0A8220092958E /* mysql-scanner.h */; };
+		27C8F4111BB2AF57009EC958 /* jsonview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27C8F40F1BB2AF4D009EC958 /* jsonview.cpp */; settings = {ASSET_TAGS = (); }; };
+		27C8F4121BB2AF6A009EC958 /* canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B83E5AF1992B1F600781432 /* canvas.cpp */; settings = {ASSET_TAGS = (); }; };
 		27C9C9E71095DEA900C0004C /* home_screen.h in Headers */ = {isa = PBXBuildFile; fileRef = 27C9C9E51095DEA900C0004C /* home_screen.h */; };
 		27C9C9E81095DEA900C0004C /* home_screen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27C9C9E61095DEA900C0004C /* home_screen.cpp */; };
 		27CAD24D16C24A9A00A4FA02 /* wb_sql_editor_help.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAD24B16C24A9A00A4FA02 /* wb_sql_editor_help.cpp */; };
@@ -1805,7 +1807,6 @@
 		2B83660F1230071A00A73961 /* libmforms.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B96161B0F2759A400F0B599 /* libmforms.dylib */; };
 		2B83661A12300D6C00A73961 /* MFTabView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3D490D0F3E3FCA009238A7 /* MFTabView.h */; };
 		2B83661B12300D6C00A73961 /* MFTabView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B3D490E0F3E3FCA009238A7 /* MFTabView.mm */; };
-		2B83E5B31992B1F600781432 /* canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B83E5AF1992B1F600781432 /* canvas.cpp */; };
 		2B83E5B51992B2C600781432 /* libmysql.canvas.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825E220E0B662200BE52DF /* libmysql.canvas.dylib */; };
 		2B83E5B71992B34500781432 /* MFCanvas.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B83E5B11992B1F600781432 /* MFCanvas.mm */; };
 		2B83E5BC1992B3D900781432 /* MCanvasScrollView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B83E5B81992B3D800781432 /* MCanvasScrollView.h */; };
@@ -4253,6 +4254,9 @@
 		27C79EEC16E0A8210092958E /* mysql-parser-common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "mysql-parser-common.h"; path = "library/mysql.parser/mysql-parser-common.h"; sourceTree = "<group>"; };
 		27C79EED16E0A8210092958E /* mysql-scanner.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "mysql-scanner.cpp"; path = "library/mysql.parser/mysql-scanner.cpp"; sourceTree = "<group>"; };
 		27C79EEE16E0A8220092958E /* mysql-scanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "mysql-scanner.h"; path = "library/mysql.parser/mysql-scanner.h"; sourceTree = "<group>"; };
+		27C8F40F1BB2AF4D009EC958 /* jsonview.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = jsonview.cpp; path = library/forms/jsonview.cpp; sourceTree = "<group>"; };
+		27C8F4131BB2AF93009EC958 /* jsonview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = jsonview.h; path = library/forms/mforms/jsonview.h; sourceTree = "<group>"; };
+		27C8F4141BB2AF93009EC958 /* password_cache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = password_cache.h; path = library/forms/mforms/password_cache.h; sourceTree = "<group>"; };
 		27C9C9E51095DEA900C0004C /* home_screen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = home_screen.h; sourceTree = "<group>"; wrapsLines = 0; };
 		27C9C9E61095DEA900C0004C /* home_screen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = home_screen.cpp; sourceTree = "<group>"; wrapsLines = 0; };
 		27CAD24B16C24A9A00A4FA02 /* wb_sql_editor_help.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wb_sql_editor_help.cpp; path = backend/wbprivate/sqlide/wb_sql_editor_help.cpp; sourceTree = "<group>"; wrapsLines = 0; };
@@ -7464,6 +7468,7 @@
 				2B9616570F275B0A00F0B599 /* base.h */,
 				2B9616580F275B0A00F0B599 /* box.h */,
 				2B9616590F275B0A00F0B599 /* button.h */,
+				2B83E5B21992B1F600781432 /* canvas.h */,
 				2B96165A0F275B0A00F0B599 /* checkbox.h */,
 				27512ED21240F50200EF37DD /* code_editor.h */,
 				27597A0214192EE900641E30 /* container.h */,
@@ -7474,6 +7479,7 @@
 				2B96165D0F275B0A00F0B599 /* form.h */,
 				2B4971F013C93BBD00F6AF47 /* hypertext.h */,
 				2B96165F0F275B0A00F0B599 /* imagebox.h */,
+				27C8F4131BB2AF93009EC958 /* jsonview.h */,
 				2B9616600F275B0A00F0B599 /* label.h */,
 				2B9616610F275B0A00F0B599 /* listbox.h */,
 				2B4CAD5510ABA9F000D5F19E /* menu.h */,
@@ -7481,6 +7487,7 @@
 				2B9616620F275B0A00F0B599 /* mforms.h */,
 				2BD9E7A61860012000A7252B /* native.h */,
 				2B9616630F275B0A00F0B599 /* panel.h */,
+				27C8F4141BB2AF93009EC958 /* password_cache.h */,
 				2B83FCE01419B70B00A2C82B /* popover.h */,
 				275E55CD11AD35F100B3886E /* popup.h */,
 				2B9616640F275B0A00F0B599 /* progressbar.h */,
@@ -7492,8 +7499,8 @@
 				2773B87D11006A21000CA2F9 /* splitter.h */,
 				2B96166A0F275B0A00F0B599 /* table.h */,
 				2B2DEF5E1055F95400F267F9 /* tabswitcher.h */,
-				2B96166B0F275B0A00F0B599 /* tabview.h */,
 				2BC929A3170E21DB00D5BCAD /* tabview_dock.h */,
+				2B96166B0F275B0A00F0B599 /* tabview.h */,
 				27B3E23E12E05B3200FFF572 /* task_sidebar.h */,
 				2B96166C0F275B0A00F0B599 /* textbox.h */,
 				2B96166D0F275B0A00F0B599 /* textentry.h */,
@@ -7511,13 +7518,12 @@
 		27A5769110FE087500A948A6 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				2B83E5AF1992B1F600781432 /* canvas.cpp */,
-				2B83E5B21992B1F600781432 /* canvas.h */,
 				2B2405771020A1CA00079580 /* app.cpp */,
 				2B0F9ADC10692A6C002C55E1 /* appview.cpp */,
 				276948B215B5BC4D0011172A /* base.cpp */,
 				2B9616290F275AF200F0B599 /* box.cpp */,
 				2B96162A0F275AF200F0B599 /* button.cpp */,
+				2B83E5AF1992B1F600781432 /* canvas.cpp */,
 				2B96162B0F275AF200F0B599 /* checkbox.cpp */,
 				27512ED01240F4F600EF37DD /* code_editor.cpp */,
 				27597A0014192ED100641E30 /* container.cpp */,
@@ -7528,6 +7534,7 @@
 				2B96162D0F275AF200F0B599 /* form.cpp */,
 				2B4971F213C93BCF00F6AF47 /* hypertext.cpp */,
 				2B96162F0F275AF200F0B599 /* imagebox.cpp */,
+				27C8F40F1BB2AF4D009EC958 /* jsonview.cpp */,
 				2B9616300F275AF200F0B599 /* label.cpp */,
 				2B9616310F275AF200F0B599 /* listbox.cpp */,
 				2B4CAD5210ABA9E300D5F19E /* menu.cpp */,
@@ -7548,8 +7555,8 @@
 				2773B87F11006A2D000CA2F9 /* splitter.cpp */,
 				2B96163A0F275AF200F0B599 /* table.cpp */,
 				2B2DEF5B1055F90B00F267F9 /* tabswitcher.cpp */,
-				2B96163B0F275AF200F0B599 /* tabview.cpp */,
 				2BC929A1170E21D100D5BCAD /* tabview_dock.cpp */,
+				2B96163B0F275AF200F0B599 /* tabview.cpp */,
 				27B3E23C12E05B2100FFF572 /* task_sidebar.cpp */,
 				2B96163C0F275AF200F0B599 /* textbox.cpp */,
 				2B96163D0F275AF200F0B599 /* textentry.cpp */,
@@ -14542,6 +14549,7 @@
 				2B96164B0F275AF200F0B599 /* progressbar.cpp in Sources */,
 				2B96164C0F275AF200F0B599 /* radiobutton.cpp in Sources */,
 				2B96164D0F275AF200F0B599 /* scrollpanel.cpp in Sources */,
+				27C8F4121BB2AF6A009EC958 /* canvas.cpp in Sources */,
 				2B96164E0F275AF200F0B599 /* selector.cpp in Sources */,
 				2B96164F0F275AF200F0B599 /* simpleform.cpp in Sources */,
 				2B9616510F275AF200F0B599 /* table.cpp in Sources */,
@@ -14589,6 +14597,7 @@
 				2773B88711006B58000CA2F9 /* MFSplitter.mm in Sources */,
 				2B83E5B71992B34500781432 /* MFCanvas.mm in Sources */,
 				2B83E5BF1992B3D900781432 /* MCanvasViewer.mm in Sources */,
+				27C8F4111BB2AF57009EC958 /* jsonview.cpp in Sources */,
 				278874881189DA9300E477EF /* webbrowser.cpp in Sources */,
 				278874AF1189DFE100E477EF /* MFWebBrowser.mm in Sources */,
 				2798BFAB118AF2BC0090590E /* MHudController.mm in Sources */,
@@ -14921,7 +14930,6 @@
 				2B29F4C6114010AA009DA9B0 /* WBModelOverviewPanel.mm in Sources */,
 				2B15C26C12E523C9006567D6 /* WBMenuManager.mm in Sources */,
 				ED69F9E615DEC9DB00FF2FE3 /* profiling.cpp in Sources */,
-				2B83E5B31992B1F600781432 /* canvas.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
