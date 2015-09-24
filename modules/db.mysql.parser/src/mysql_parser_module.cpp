@@ -1162,6 +1162,37 @@ static void fillDataTypeAndAttributes(MySQLRecognizerTreeWalker &walker, db_Cata
         }
       }
     }
+    else
+    {
+      if (walker.is(COLLATE_SYMBOL))
+      {
+        column->generated(1);
+
+        // Generated columns
+        walker.next();
+
+        std::pair<std::string, std::string> info = detailsForCollation(walker.token_text(), table->defaultCollationName());
+        column->characterSetName(info.first);
+        column->collationName(info.second);
+        walker.next();
+      }
+
+      if (walker.skip_token_sequence(GENERATED_SYMBOL, ALWAYS_SYMBOL, ANTLR3_TOKEN_INVALID))
+      {
+        column->generated(1); // In case we didn't find a leading collation.
+
+        walker.next(2); // Skip AS (.
+        column->expression(walker.text_for_tree());
+        walker.skip_subtree();
+        walker.next(); // Skip ).
+
+        if (walker.is(VIRTUAL_SYMBOL) || walker.is(STORED_SYMBOL)) // Storage type of the gcol.
+        {
+          column->generatedStorage(walker.token_text());
+          walker.next();
+        }
+      }
+    }
 
     // Collect additional flags + charset.
     bool done = false;
@@ -1761,7 +1792,7 @@ static void fillTableCreateItem(MySQLRecognizerTreeWalker &walker, db_CatalogRef
     ColumnIdentifier identifier = getColumnIdentifier(walker);
     column->name(identifier.column);
     column->oldName(column->name());
-    walker.next(); // Skip DATA_TYPT_TOKEN.
+    walker.next(); // Skip DATA_TYPE_TOKEN.
     fillDataTypeAndAttributes(walker, catalog, table, column);
     table->columns().insert(column);
 
