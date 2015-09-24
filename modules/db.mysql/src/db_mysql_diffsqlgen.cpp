@@ -312,7 +312,7 @@ void DiffSQLGeneratorBE::generate_create_stmt(db_mysql_TableRef table)
       callback->create_table_checksum(table->checksum());
 
     if(table->defaultCollationName().is_valid() && strlen(table->defaultCollationName().c_str())&&
-        (get_collation_cs(table->defaultCollationName()) == (table->defaultCharacterSetName().c_str())) )
+      (defaultCollationForCharset(table->defaultCollationName()) == (table->defaultCharacterSetName().c_str())))
       callback->create_table_collate(table->defaultCollationName());
 
     if(strlen(table->comment().c_str()))

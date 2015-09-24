@@ -1162,7 +1162,7 @@ void CatalogHelper::apply_defaults(db_mysql_CatalogRef cat, std::string default_
     if(strlen(schema->defaultCharacterSetName().c_str()) == 0)
       schema->defaultCharacterSetName(cat->defaultCharacterSetName());
     if(strlen(schema->defaultCollationName().c_str()) == 0)
-      schema->defaultCollationName(get_cs_def_collation(schema->defaultCharacterSetName().c_str()));
+      schema->defaultCollationName(defaultCollationForCharset(schema->defaultCharacterSetName().c_str()));
 
     for(size_t j= 0, tables_count= schema->tables().count(); j < tables_count; j++)
     {
@@ -1179,7 +1179,7 @@ void CatalogHelper::apply_defaults(db_mysql_CatalogRef cat, std::string default_
       else
       {
         if(strlen(table->defaultCollationName().c_str()) == 0)
-          table->defaultCollationName(get_cs_def_collation(table->defaultCharacterSetName()));
+          table->defaultCollationName(defaultCollationForCharset(table->defaultCharacterSetName()));
       }
       
       if(strlen(table->tableEngine().c_str()) == 0)

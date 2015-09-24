@@ -1416,7 +1416,7 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
   try
   {
     db_mgmt_RdbmsRef rdbms= _owner->rdbms();
-    std::string database_package= *rdbms->databaseObjectPackage();
+    //std::string database_package= *rdbms->databaseObjectPackage();
 
     if (rdbms.is_valid())
     {
@@ -1425,8 +1425,8 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
       rdbms->version()->owner(rdbms);
     }
 
-    //TODO needs reset_references to be called on editor close to prevent leaks
-    db_CatalogRef client_state_catalog= _grtm->get_grt()->create_object<db_Catalog>(database_package + ".Catalog");
+    // reset_references on the catalog is called when we try to apply changes(generate the alter script).
+    db_mysql_CatalogRef client_state_catalog = _grtm->get_grt()->create_object<db_mysql_Catalog>("db.mysql.Catalog");
     client_state_catalog->name("default");
     client_state_catalog->oldName("default");
     client_state_catalog->version(rdbms->version());
@@ -1436,7 +1436,7 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
     //XXX    grt::replace_contents(client_state_catalog->userDatatypes(),
     //XXX                          workbench_physical_ModelRef::cast_from(_live_physical_overview->get_model())->catalog()->userDatatypes());
 
-    db_SchemaRef schema;
+    db_mysql_SchemaRef schema;
     if (wb::LiveSchemaTree::Schema != type)
     {
       if (used_schema_name == "")
@@ -1452,7 +1452,7 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
       }
       else
       {
-        schema= _grtm->get_grt()->create_object<db_Schema>(database_package + ".Schema");
+        schema = _grtm->get_grt()->create_object<db_mysql_Schema>("db.mysql.Schema");
         schema->owner(client_state_catalog);
 
         schema->name(used_schema_name);
@@ -1498,50 +1498,57 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
         }
       }
 
-      if (!parse_ddl_into_catalog(rdbms, client_state_catalog, strfmt("`%s`.`%s`", schema_name.c_str(), obj_name.c_str()), ddl_script, sql_mode))
+      if (!parse_ddl_into_catalog(client_state_catalog, strfmt("`%s`.`%s`", schema_name.c_str(), obj_name.c_str()), ddl_script, sql_mode))
       {
         log_warning("Error parsing DDL for %s.%s: %s", schema_name.c_str(), obj_name.c_str(), ddl_script.c_str());
         return;
       }
     }
-    //TODO needs reset_references to be called on editor close to prevent leaks
+
+    // Make a copy of the catalog before we modify it with new/edited objects, 
+    // so we can later do a diff between both to find changes.
     db_CatalogRef server_state_catalog = grt::copy_object(client_state_catalog);
 
-  retry_search:
-    //TODO needs reset_references to be called on editor close to prevent leaks
+#ifdef __APPLE__
+  retry_search :
+#endif
+
+    // reset_references for the created object is called when the base editor is destroyed.
     db_DatabaseObjectRef db_object;
     switch (type)
     {
       case wb::LiveSchemaTree::Schema:
-        db_object= is_object_new ?
+        db_object = is_object_new ?
           create_new_schema(client_state_catalog) :
-          find_named_object_in_list(client_state_catalog->schemata(), obj_name);
+          db_SchemaRef::cast_from(find_named_object_in_list(client_state_catalog->schemata(), obj_name));
         break;
       case wb::LiveSchemaTree::Table:
-        db_object= is_object_new ?
+        db_object = is_object_new ?
           create_new_table(schema) :
-          find_named_object_in_list(schema->tables(), obj_name);
+          db_TableRef::cast_from(find_named_object_in_list(schema->tables(), obj_name));
         break;
       case wb::LiveSchemaTree::View:
-        db_object= is_object_new ?
+        db_object = is_object_new ?
           create_new_view(schema) :
-          find_named_object_in_list(schema->views(), obj_name);
+          db_ViewRef::cast_from(find_named_object_in_list(schema->views(), obj_name));
         break;
       case wb::LiveSchemaTree::Procedure:
       case wb::LiveSchemaTree::Function:
-        db_object= is_object_new ?
+        db_object = is_object_new ?
           create_new_routine(schema, type) :
-          find_named_object_in_list(schema->routines(), obj_name);
+          db_RoutineRef::cast_from(find_named_object_in_list(schema->routines(), obj_name));
         break;
       default:
         break;
     }
+
+#ifdef __APPLE__
     if (!db_object.is_valid())
     {
       std::string lower;
       // There is a bug in server that causes get_object_ddl_script() for uppercase named tables
-      // to be returned in lowercase, in osx. http://bugs.mysql.com/bug.php?id=57830
-      // So, if you try to alter FOOBAR, it will not find it, since the table will be revenged
+      // to be returned in lowercase, in OSX. http://bugs.mysql.com/bug.php?id=57830
+      // So, if you try to alter FOOBAR, it will not find it, since the table will be returned
       // in lowercase. To work around that, we convert the object name to lowercase and repeat
       // the search if the 1st try didn't work.
       lower = tolower(obj_name);
@@ -1556,13 +1563,14 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
         log_warning("Object name %s was not found in catalog.", aobj_name.c_str());
       return;
     }
+#endif
 
     db_object->customData().set("sqlMode", grt::StringRef(sql_mode));
     db_object->customData().set("originalObjectDDL", grt::StringRef(ddl_script));
 
     open_alter_object_editor(db_object, server_state_catalog);
   }
-  catch (const std::exception & e)
+  catch (const std::exception &e)
   {
     log_error("Failed to create/alter `%s`.`%s`: %s", used_schema_name.c_str(), obj_name.c_str(), e.what());
     mforms::Utilities::show_error(strfmt(_("Failed to create/alter `%s`.`%s`"), used_schema_name.c_str(), obj_name.c_str()), e.what(), _("OK"));
@@ -1760,20 +1768,13 @@ std::string SqlEditorTreeController::generate_alter_script(const db_mgmt_RdbmsRe
 }
 
 //--------------------------------------------------------------------------------------------------
-// Deprecated.
+  
 std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::ObjectType type, const std::string &schema_name, const std::string &obj_name)
 {
-  //const size_t DDL_COLUMN= 5;
-  std::string delimiter;
-  {
-    SqlFacade::Ref sql_facade= SqlFacade::instance_for_rdbms(_owner->rdbms());
-    Sql_specifics::Ref sql_specifics= sql_facade->sqlSpecifics();
-    delimiter= sql_specifics->non_std_sql_delimiter();
-  }
-  std::string ddl_script;
-  //triggers are fetched prior to table ddl, but should appear after table created
+  std::string ddl_script = "delimiter $$\n\n";
+
+  // Triggers are fetched prior to table ddl, but should appear after table created.
   std::string additional_ddls;
-  ddl_script+= strfmt("delimiter %s\n\n", delimiter.c_str());
 
   try
   {
@@ -1782,61 +1783,61 @@ std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::O
 
     RecMutexLock aux_dbc_conn_mutex(_owner->ensure_valid_aux_connection(conn));
 
-    // cant use getSchemaObjects() because it silently ignores errors
+    // Can't use getSchemaObjects() because it silently ignores errors.
     switch (type)
     {
-      case wb::LiveSchemaTree::Schema:
-        query = base::sqlstring("SHOW CREATE SCHEMA !", 0) << obj_name;
-        break;
+    case wb::LiveSchemaTree::Schema:
+      query = base::sqlstring("SHOW CREATE SCHEMA !", 0) << obj_name;
+      break;
 
-      case wb::LiveSchemaTree::Table:
+    case wb::LiveSchemaTree::Table:
+    {
+      // triggers
+      std::vector<std::string> triggers;
       {
-        // triggers
-        std::vector<std::string> triggers;
+        std::string trigger_query = base::sqlstring("SHOW TRIGGERS FROM ! WHERE ! = ?", 0) << schema_name << "Table" << obj_name;
+        std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
+        std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(trigger_query));
+
+        if (rs.get())
         {
-          std::string trigger_query = base::sqlstring("SHOW TRIGGERS FROM ! WHERE ! = ?", 0) << schema_name << "Table" << obj_name;
-          std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
-          std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(trigger_query));
-
-          if (rs.get())
-          {
-            while(rs->next())
-                triggers.push_back(rs->getString(1));
-          }
-        }
-
-        for(size_t index = 0; index < triggers.size(); index++)
-        {
-          std::string trigger_query = base::sqlstring("SHOW CREATE TRIGGER !.!", 0) << schema_name << triggers[index];
-          std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
-          std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(trigger_query));
-
-          if (rs.get() && rs->next())
-          {
-              std::string trigger_ddl = (rs->getString(3));
-              additional_ddls+= trigger_ddl;
-              additional_ddls+= delimiter + "\n\n";
-          }
+          while (rs->next())
+            triggers.push_back(rs->getString(1));
         }
       }
 
-        query = base::sqlstring("SHOW CREATE TABLE !.!", 0) << schema_name << obj_name;
-        break;
+      for (size_t index = 0; index < triggers.size(); index++)
+      {
+        std::string trigger_query = base::sqlstring("SHOW CREATE TRIGGER !.!", 0) << schema_name << triggers[index];
+        std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
+        std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(trigger_query));
 
-      case wb::LiveSchemaTree::View:
-        query = base::sqlstring("SHOW CREATE VIEW !.!", 0) << schema_name << obj_name;
-        break;
+        if (rs.get() && rs->next())
+        {
+          std::string trigger_ddl = (rs->getString(3));
+          additional_ddls += trigger_ddl;
+          additional_ddls += "$$\n\n";
+        }
+      }
+    }
 
-      case wb::LiveSchemaTree::Procedure:
-        query = base::sqlstring("SHOW CREATE PROCEDURE !.!", 0) << schema_name << obj_name;
-        break;
+    query = base::sqlstring("SHOW CREATE TABLE !.!", 0) << schema_name << obj_name;
+    break;
 
-      case wb::LiveSchemaTree::Function:
-        query = base::sqlstring("SHOW CREATE FUNCTION !.!", 0) << schema_name << obj_name;
-        break;
+    case wb::LiveSchemaTree::View:
+      query = base::sqlstring("SHOW CREATE VIEW !.!", 0) << schema_name << obj_name;
+      break;
 
-      default:
-        break;
+    case wb::LiveSchemaTree::Procedure:
+      query = base::sqlstring("SHOW CREATE PROCEDURE !.!", 0) << schema_name << obj_name;
+      break;
+
+    case wb::LiveSchemaTree::Function:
+      query = base::sqlstring("SHOW CREATE FUNCTION !.!", 0) << schema_name << obj_name;
+      break;
+
+    default:
+      break;
     }
 
     std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
@@ -1846,14 +1847,17 @@ std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::O
     if (rs.get() && rs->next())
     {
       if (type == wb::LiveSchemaTree::Function || type == wb::LiveSchemaTree::Procedure)
-        ddl_script += rs->getString(3)  + delimiter + "\n\n";
+        ddl_script += rs->getString(3) + "$$\n\n";
       else
-        ddl_script += rs->getString(2)  + delimiter + "\n\n";
+        ddl_script += rs->getString(2) + "$$\n\n";
     }
-    ddl_script+= additional_ddls;
+    ddl_script += additional_ddls;
   }
   catch (const sql::SQLException &e)
   {
+    // Error 1356 comes up when any of the referenced tables in a view are invalid (e.g. dropped)
+    // or the definer/invoker has no rights to access it.
+    // Solve this by using the I_S.
     if (type == wb::LiveSchemaTree::View && e.getErrorCode() == 1356)
     {
       sql::Dbc_connection_handler::Ref conn;
@@ -1868,12 +1872,12 @@ std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::O
         std::string view, definer;
         std::vector<std::string> definer_tokens = base::split(rs->getString(1), "@", 2);
 
-        view = base::sqlstring("!.!", 0)  << schema_name << obj_name;
-        definer = base::sqlstring("!@!", 0)  << definer_tokens[0] << definer_tokens[1];
+        view = base::sqlstring("!.!", 0) << schema_name << obj_name;
+        definer = base::sqlstring("!@!", 0) << definer_tokens[0] << definer_tokens[1];
         ddl_script += "CREATE ALGORITHM=UNDEFINED DEFINER=" + definer;
         ddl_script += " SQL SECURITY " + rs->getString(2);
         ddl_script += " VIEW " + view + " AS ";
-        ddl_script += rs->getString(3) + delimiter + "\n\n";
+        ddl_script += rs->getString(3) + "$$\n\n";
       }
     }
     else
@@ -2038,7 +2042,7 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
 {
   db_DatabaseObjectRef db_object= obj_editor->get_dbobject();
 
-  db_CatalogRef client_state_catalog= db_CatalogRef::cast_from(db_object->customData().get("clientStateCatalog"));
+  db_mysql_CatalogRef client_state_catalog = db_mysql_CatalogRef::cast_from(db_object->customData().get("clientStateCatalog"));
 
   std::string obj_name= using_old_name ? db_object->oldName() : db_object->name();
   // don't refresh new objects that where not applied yet
@@ -2135,7 +2139,7 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
       }
       CATCH_ANY_EXCEPTION_AND_DISPATCH(_("Get 'sql_mode' session variable"));
 
-      parse_ddl_into_catalog(_owner->rdbms(), client_state_catalog,
+      parse_ddl_into_catalog(client_state_catalog,
                              strfmt("`%s`.`%s`", schema_name.c_str(), obj_name.c_str()),
                              ddl_script, sql_mode);
     }
@@ -2162,67 +2166,72 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
-bool SqlEditorTreeController::parse_ddl_into_catalog(db_mgmt_RdbmsRef rdbms, db_CatalogRef client_state_catalog,
-                                           const std::string &obj_descr, const std::string &ddl_script, std::string sql_mode)
+bool SqlEditorTreeController::parse_ddl_into_catalog(db_mysql_CatalogRef catalog,
+  const std::string &objectDescription, const std::string &sql, std::string sqlMode)
 {
-  SqlFacade::Ref sql_facade= SqlFacade::instance_for_rdbms(rdbms);
-  Sql_parser::Ref sql_parser= sql_facade->sqlParser();
-  sql_parser->messages_enabled(false);
+  std::string currentSqlMode = _owner->work_parser_context()->get_sql_mode();
   grt::DictRef options(_grtm->get_grt());
   options.set("reuse_existing_objects", grt::IntegerRef(1));
-  if (!sql_mode.empty())
-    options.gset("sql_mode", sql_mode);
+  if (!sqlMode.empty())
+    _owner->work_parser_context()->use_sql_mode(sqlMode);
 
-  int err_count= sql_parser->parse_sql_script(client_state_catalog, ddl_script, options);
-  bool generic_parse_error = false;
+  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(_grtm->get_grt());
+  size_t errorCount = services->parseSQLIntoCatalog(_owner->work_parser_context(), catalog, sql, options);
 
-  //! dbms-specific code
-  if (options.has_key("sql_mode") && (0 < err_count))
+  bool haveErrors = false;
+
+  if (options.has_key("sql_mode") && (errorCount > 0))
   {
-    if (std::string::npos != sql_mode.find("ANSI_QUOTES"))
-      sql_mode= replace_string(sql_mode, "ANSI_QUOTES", "");
+    if (sqlMode.find("ANSI_QUOTES") != std::string::npos)
+      base::replace(sqlMode, "ANSI_QUOTES", "");
     else
-      sql_mode+= ",ANSI_QUOTES";
-    options.gset("sql_mode", sql_mode);
-    options.set("reuse_existing_objects", grt::IntegerRef(1));
-    err_count= sql_parser->parse_sql_script(client_state_catalog, ddl_script, options);
-    if (0 == err_count)
+      sqlMode += ", ANSI_QUOTES";
+    _owner->work_parser_context()->use_sql_mode(sqlMode);
+
+    errorCount = services->parseSQLIntoCatalog(_owner->work_parser_context(), catalog, sql, options);
+    _owner->work_parser_context()->use_sql_mode(currentSqlMode);
+
+    if (errorCount == 0) // Error(s) solved by new sql mode -> inconsistency.
     {
-      if (mforms::Utilities::show_warning(strfmt(_("Error Parsing DDL for %s"), obj_descr.c_str()),
+      if (mforms::Utilities::show_warning(strfmt(_("Error Parsing DDL for %s"), objectDescription.c_str()),
         _("The object's DDL retrieved from the server is inconsistent with respect to the SQL_MODE variable "
-          "set for the connection. In particular the current state of the ANSI_QUOTES flag contradicts "
-          "the value set when the object had been created. This may lead to errors when trying to "
-          "apply changes. As a workaround you may want to temporarily change the SQL_MODE variable "
-          "to its previous value.\nDo you want to view the DDL or cancel processing it?"),
-                                          _("View DDL"), _("Cancel")) == mforms::ResultOk)
+        "set for the connection. In particular the current state of the ANSI_QUOTES flag contradicts "
+        "the value set when the object had been created. This may lead to errors when trying to "
+        "apply changes. As a workaround you may want to temporarily change the SQL_MODE variable "
+        "to its previous value.\nDo you want to view the DDL or cancel processing it?"),
+        _("View DDL"), _("Cancel")) == mforms::ResultOk)
       {
         _owner->new_sql_scratch_area();
-        insert_text_to_active_editor(ddl_script);
+        insert_text_to_active_editor(sql);
       }
       return false;
     }
     else
-      generic_parse_error = true;
+      haveErrors = true;
   }
-  else if (err_count > 0)
-    generic_parse_error = true;
+  else
+    haveErrors = errorCount > 0;
 
-  if (generic_parse_error)
+  _owner->work_parser_context()->use_sql_mode(currentSqlMode);
+  if (haveErrors)
   {
-    if (mforms::Utilities::show_error(strfmt(_("Error Parsing DDL for %s"), obj_descr.c_str()),
+    if (mforms::Utilities::show_error(strfmt(_("Error Parsing DDL for %s"), objectDescription.c_str()),
       _("There was an error while parsing the DDL retrieved from the server.\n"
       "Do you want to view the DDL or cancel processing it?"),
       _("View DDL"), _("Cancel")) == mforms::ResultOk)
     {
       _owner->new_sql_scratch_area();
-      insert_text_to_active_editor(ddl_script);
+      insert_text_to_active_editor(sql);
     }
     return false;
   }
 
   return true;
 }
+
+//--------------------------------------------------------------------------------------------------
 
 bool SqlEditorTreeController::apply_changes_to_object(bec::DBObjectEditorBE* obj_editor, bool dry_run)
 {
@@ -2255,10 +2264,10 @@ bool SqlEditorTreeController::apply_changes_to_object(bec::DBObjectEditorBE* obj
 
     if (!dry_run)
     {
-      ValueRef is_trigger_changed= db_object->customData().get("triggerInvalid");
-      if (is_trigger_changed.is_valid() && (IntegerRef::cast_from(is_trigger_changed) != 0))
+      ValueRef hasErrors = db_object->customData().get("triggerInvalid");
+      if (hasErrors.is_valid() && (IntegerRef::cast_from(hasErrors) != 0))
       {
-        int res= mforms::Utilities::show_warning(
+        int res = mforms::Utilities::show_warning(
           _("Apply Changes to Object"),
           _("The tables's trigger SQL code contains errors.\n"
             "This will lead to invalid sql generated.\n"
@@ -2362,7 +2371,7 @@ bool SqlEditorTreeController::apply_changes_to_object(bec::DBObjectEditorBE* obj
     _owner->wbsql()->get_wbui()->get_wb_options_value("", "DbSqlEditor:OnlineDDLLock", lock);
     std::string alter_script = generate_alter_script(_owner->rdbms(), db_object, algorithm, lock);
 
-    // the alter_script may contain a dummy USE statemnt
+    // The alter_script may contain a dummy USE statement.
     if (alter_script.empty() || (alter_script.find("CREATE") == std::string::npos && alter_script.find("ALTER") == std::string::npos && alter_script.find("DROP") == std::string::npos))
     {
       if (!dry_run && !_owner->on_sql_script_run_error.empty())
