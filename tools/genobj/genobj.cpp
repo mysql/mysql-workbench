@@ -25,7 +25,7 @@
   #include <windows.h>
 #endif // _WIN32
 
-#include <glib/glib.h>
+#include <glib.h>
 
 #include "grtpp.h"
 #include "grtpp_helper.h"
