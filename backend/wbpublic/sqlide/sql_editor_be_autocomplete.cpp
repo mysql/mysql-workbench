@@ -599,7 +599,7 @@ struct AutoCompletionContext
 
   enum RunState { RunStateMatching, RunStateCollectionPending, RunStateCollectionDone } run_state;
 
-  MySQLScanner *scanner;
+  boost::shared_ptr<MySQLScanner> scanner;
   std::set<std::string> completion_candidates;
 
   size_t caret_line;
@@ -619,7 +619,7 @@ struct AutoCompletionContext
    * Actual candidates are stored in the completion_candidates member set.
    *
    */
-  bool collect_candiates(MySQLScanner *aScanner)
+  bool collect_candiates(boost::shared_ptr<MySQLScanner> aScanner)
   {
     scanner = aScanner; // Has all the data necessary for scanning already.
     server_version = scanner->get_server_version();
@@ -1405,7 +1405,7 @@ enum ObjectFlags {
  *       (or the token following it, solely for getting a terminator). Since we cannot know the user's
  *       intention, we never look forward.
  */
-ObjectFlags determine_qualifier(MySQLScanner *scanner, std::string &qualifier)
+ObjectFlags determine_qualifier(boost::shared_ptr<MySQLScanner> scanner, std::string &qualifier)
 {
   // Five possible positions here:
   //   - In the first id (including directly before the first or directly after the last char).
@@ -1464,7 +1464,7 @@ ObjectFlags determine_qualifier(MySQLScanner *scanner, std::string &qualifier)
  * The returned schema can be either for a schema.table situation (which requires to show tables)
  * or a schema.table.column situation. Which one is determined by whether showing columns alone or not.
  */
-ObjectFlags determine_schema_table_qualifier(MySQLScanner *scanner, std::string &schema, std::string &table)
+ObjectFlags determine_schema_table_qualifier(boost::shared_ptr<MySQLScanner> scanner, std::string &schema, std::string &table)
 {
   size_t position = scanner->position();
   if (scanner->token_channel() != 0)
@@ -1667,7 +1667,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
   _auto_completion_entries.clear();
 
   bool uppercase_keywords = make_keywords_uppercase();
-  MySQLScanner *scanner = parser_context->create_scanner(statement);
+  boost::shared_ptr<MySQLScanner> scanner = parser_context->createScanner(statement);
   context.server_version = scanner->get_server_version();
   context.collect_candiates(scanner);
 
@@ -1881,8 +1881,9 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
               for (size_t i = 0; i < context.references.size(); ++i)
               {
                 TableReference reference = context.references[i];
-                if ((reference.schema.empty() || reference.schema == schema)
-                    && (reference.alias == table))
+                if (!reference.schema.empty())
+                  schema = reference.schema;
+                if (reference.alias == table)
                 {
                   columns = _auto_completion_cache->get_matching_column_names(schema, reference.table, context.typed_part);
                   for (std::vector<std::string>::const_iterator column = columns.begin(); column != columns.end(); ++column)
@@ -1992,8 +1993,6 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
   std::copy(user_var_entries.begin(), user_var_entries.end(), std::back_inserter(_auto_completion_entries));
   std::copy(runtime_function_entries.begin(), runtime_function_entries.end(), std::back_inserter(_auto_completion_entries));
   std::copy(system_var_entries.begin(), system_var_entries.end(), std::back_inserter(_auto_completion_entries));
-
-  delete scanner;
 
   update_auto_completion(context.typed_part);
 }
