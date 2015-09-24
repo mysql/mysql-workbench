@@ -28,19 +28,22 @@
 
 INSTALL_PREFIX=/usr
 
-LINUXRES_HOME=$(HOME)/linux-res-6.3
+LINUXRES_HOME=$(HOME)/linux-res
+LINUXRES_BINARIES=$(LINUXRES_HOME)/builds
 
-ODBC_HOME=$(LINUXRES_HOME)/usr/
-SQLITE_HOME=$(LINUXRES_HOME)/usr
-VSQLITE_HOME=$(LINUXRES_HOME)/usr
-GDAL_HOME=$(LINUXRES_HOME)/usr
+ODBC_HOME=$(LINUXRES_BINARIES)/odbc
+SQLITE_HOME=$(LINUXRES_BINARIES)/sqlite
+VSQLITE_HOME=$(LINUXRES_BINARIES)/vsqlite
+PYSQLITE2_HOME=$(LINUXRES_BINARIES)/pysqlite2
 
 @ifdef community
-CPPCONN_HOME=$(LINUXRES_HOME)/cppconn-gpl
+CPPCONN_HOME=$(LINUXRES_BINARIES)/cppconn-gpl
 MYSQL_HOME=$(HOME)/mysql-server/
+GDAL_HOME=$(LINUXRES_BINARIES)/gdal-gpl
 @else
-CPPCONN_HOME=$(LINUXRES_HOME)/cppconn-com
+CPPCONN_HOME=$(LINUXRES_BINARIES)/cppconn-com
 MYSQL_HOME=$(HOME)/mysql-server-advanced/
+GDAL_HOME=$(LINUXRES_BINARIES)/gdal-com
 @endif
 
 WBDIRNAME=mysql-workbench-@edition@
@@ -112,7 +115,7 @@ install: build
 @ifdef commercial
 	# Bundle libs only needed for SE edition
 	cp -a $(SQLITE_HOME)/libsqlite3.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
-	cp -a $(LINUXRES_HOME)/pysqlite2 $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)/modules/
+	cp -a $(PYSQLITE2_HOME) $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)/modules/
 @endif
 
 @ifdef paramiko
