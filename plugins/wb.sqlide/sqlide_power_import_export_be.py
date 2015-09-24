@@ -423,7 +423,7 @@ class csv_module(base_module):
                         is_header = False
                         continue
 
-                    self.item_count = self.item_count + 1
+                    
                     self.update_progress(round(self._current_row / self._max_rows, 2), "Data import")
 
                     for i, col in enumerate(col_order):
@@ -440,6 +440,7 @@ class csv_module(base_module):
                     else:
                         try:
                             self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 0)
+                            self.item_count = self.item_count + 1
                         except Exception, e:
                             log_error("Row import failed with error: %s" % e)
                 self.update_progress(1.0, "Import finished")
@@ -609,7 +610,6 @@ class json_module(base_module):
                         return False
 
                     self._current_row = self._current_row + 1
-                    self.item_count = self.item_count + 1
                     for i, col in enumerate(col_order):
                         if col_order[col] not in row:
                             log_error("Can't find col: %s in row: %s" % (col_order[col], row))
@@ -625,6 +625,7 @@ class json_module(base_module):
                     else:
                         try:
                             self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 0)
+                            self.item_count = self.item_count + 1
                         except Exception, e:
                             log_error("Row import failed with error: %s" % e)
                         
