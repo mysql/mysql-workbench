@@ -1042,7 +1042,8 @@ public:
   : db_Column(grt, meta ? meta : grt->get_metaclass(static_class_name())),
      _autoIncrement(0),
      _expression(""),
-     _generated(0)
+     _generated(0),
+     _generatedStorage("")
 
   {
   }
@@ -1071,14 +1072,14 @@ obj.autoIncrement = value
 
   /** Getter for attribute expression
    
-    
+    The full expression for a generated column as text
    \par In Python:
 value = obj.expression
    */
   grt::StringRef expression() const { return _expression; }
   /** Setter for attribute expression
    
-    
+    The full expression for a generated column as text
     \par In Python:
 obj.expression = value
    */
@@ -1091,14 +1092,14 @@ obj.expression = value
 
   /** Getter for attribute generated
    
-    
+    0 or 1, 1 if generated column
    \par In Python:
 value = obj.generated
    */
   grt::IntegerRef generated() const { return _generated; }
   /** Setter for attribute generated
    
-    
+    0 or 1, 1 if generated column
     \par In Python:
 obj.generated = value
    */
@@ -1109,11 +1110,32 @@ obj.generated = value
     member_changed("generated", ovalue, value);
   }
 
+  /** Getter for attribute generatedStorage
+   
+    VIRTUAL or STORED, for generated columns only
+   \par In Python:
+value = obj.generatedStorage
+   */
+  grt::StringRef generatedStorage() const { return _generatedStorage; }
+  /** Setter for attribute generatedStorage
+   
+    VIRTUAL or STORED, for generated columns only
+    \par In Python:
+obj.generatedStorage = value
+   */
+  virtual void generatedStorage(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_generatedStorage);
+   _generatedStorage= value;
+    member_changed("generatedStorage", ovalue, value);
+  }
+
 protected:
 
   grt::IntegerRef _autoIncrement;
   grt::StringRef _expression;
   grt::IntegerRef _generated;
+  grt::StringRef _generatedStorage;
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
@@ -1141,6 +1163,11 @@ public:
       void (db_mysql_Column::*setter)(const grt::IntegerRef &)= &db_mysql_Column::generated;
       grt::IntegerRef (db_mysql_Column::*getter)() const= &db_mysql_Column::generated;
       meta->bind_member("generated", new grt::MetaClass::Property<db_mysql_Column,grt::IntegerRef >(getter,setter));
+    }
+    {
+      void (db_mysql_Column::*setter)(const grt::StringRef &)= &db_mysql_Column::generatedStorage;
+      grt::StringRef (db_mysql_Column::*getter)() const= &db_mysql_Column::generatedStorage;
+      meta->bind_member("generatedStorage", new grt::MetaClass::Property<db_mysql_Column,grt::StringRef >(getter,setter));
     }
   }
 };
