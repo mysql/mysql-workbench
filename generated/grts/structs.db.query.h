@@ -36,10 +36,6 @@ class db_query_Editor;
 typedef grt::Ref<db_query_Editor> db_query_EditorRef;
 
 
-class mforms_ObjectReference;
-typedef grt::Ref<mforms_ObjectReference> mforms_ObjectReferenceRef;
-
-
 namespace mforms { 
   class Object;
 }; 
