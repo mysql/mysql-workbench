@@ -243,7 +243,7 @@ void SqlEditorForm::report_connection_failure(const grt::server_denied &info, co
   mforms::Utilities::show_error(_("Cannot Connect to Database Server"), message, _("Close"));
 }
 
-
+//--------------------------------------------------------------------------------------------------
 SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
   :
   _wbsql(wbsql),
@@ -299,6 +299,49 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
   // set initial autocommit mode value
   _usr_dbc_conn->autocommit_mode= (_grtm->get_app_option_int("DbSqlEditor:AutocommitMode", 1) != 0);
 }
+
+//--------------------------------------------------------------------------------------------------
+
+SqlEditorForm::~SqlEditorForm()
+{
+  if (_refreshPending.connected())
+    _refreshPending.disconnect();
+
+  // We need to remove it from cache, if not someone will be able to login without providing PW
+  if (_connection.is_valid())
+    mforms::Utilities::forget_cached_password(_connection->hostIdentifier(), _connection->parameterValues().get_string("userName"));
+
+
+  if (_auto_completion_cache)
+    _auto_completion_cache->shutdown();
+
+  delete _column_width_cache;
+
+  // debug: ensure that close() was called when the tab is closed
+  if (_toolbar != NULL)
+    log_fatal("SqlEditorForm::close() was not called\n");
+
+  NotificationCenter::get()->remove_observer(this);
+  GRTNotificationCenter::get()->remove_grt_observer(this);
+
+  delete _auto_completion_cache;
+  delete _autosave_lock;
+  _autosave_lock = 0;
+
+  // Destructor can be called before the startup was finished.
+  // On Windows the side palette is a child of the palette host and hence gets freed when we
+  // free the host. On other platforms both are the same. In any case, double freeing it is
+  // not a good idea.
+  if (_side_palette_host != NULL)
+    _side_palette_host->release();
+
+  delete _toolbar;
+  delete _menu;
+
+  reset_keep_alive_thread();
+}
+
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::cancel_connect()
 {
@@ -423,43 +466,6 @@ void SqlEditorForm::title_changed()
   info["title"] = _title;
   info["connection"] = _connection.is_valid() ? _connection->name() : "";
   base::NotificationCenter::get()->send("GNFormTitleDidChange", this, info);
-}
-
-
-SqlEditorForm::~SqlEditorForm()
-{
-  // We need to remove it from cache, if not someone will be able to login without providing PW
-  if (_connection.is_valid())
-    mforms::Utilities::forget_cached_password(_connection->hostIdentifier(), _connection->parameterValues().get_string("userName"));
-
-
-  if (_auto_completion_cache)
-    _auto_completion_cache->shutdown();
-
-  delete _column_width_cache;
-
-  // debug: ensure that close() was called when the tab is closed
-  if (_toolbar != NULL)
-    log_fatal("SqlEditorForm::close() was not called\n");
-
-  NotificationCenter::get()->remove_observer(this);
-  GRTNotificationCenter::get()->remove_grt_observer(this);
-
-  delete _auto_completion_cache;
-  delete _autosave_lock;
-  _autosave_lock = 0;
-  
-  // Destructor can be called before the startup was finished.
-  // On Windows the side palette is a child of the palette host and hence gets freed when we
-  // free the host. On other platforms both are the same. In any case, double freeing it is
-  // not a good idea.
-  if (_side_palette_host != NULL)
-    _side_palette_host->release();
-
-  delete _toolbar;
-  delete _menu;
-
-  reset_keep_alive_thread();
 }
 
 
@@ -2686,10 +2692,21 @@ void SqlEditorForm::apply_object_alter_script(const std::string &alter_script, b
           db_object_type= wb::LiveSchemaTree::Procedure;
       }
       
-      _live_tree->refresh_live_object_in_overview(db_object_type, schema_name, db_object->oldName(), db_object->name());
+      //_live_tree->refresh_live_object_in_overview(db_object_type, schema_name, db_object->oldName(), db_object->name());
+      // Run refresh on main thread, but only if there's not another refresh pending already.
+      if (!_refreshPending.connected())
+      {
+        _refreshPending = _grtm->run_once_when_idle(this, boost::bind(&SqlEditorTreeController::refresh_live_object_in_overview,
+          _live_tree, db_object_type, schema_name, db_object->oldName(), db_object->name()));
+      }
     }
     
-    _live_tree->refresh_live_object_in_editor(obj_editor, false);
+    //_live_tree->refresh_live_object_in_editor(obj_editor, false);
+    if (!_refreshPending.connected())
+    {
+      _refreshPending = _grtm->run_once_when_idle(this, boost::bind(&SqlEditorTreeController::refresh_live_object_in_editor,
+        _live_tree, obj_editor, false));
+    }
   }
 }
 
