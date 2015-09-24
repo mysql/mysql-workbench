@@ -1893,11 +1893,11 @@ enum enum_field_types MySQLCopyDataTarget::field_type_to_ps_param_type(enum enum
 MySQLCopyDataTarget::MySQLCopyDataTarget(const std::string &hostname, int port,
                     const std::string &username, const std::string &password,
                     const std::string &socket, bool use_cleartext_plugin, const std::string &app_name,
-                    const std::string &incoming_charset, const std::string &source_rdbms_type)
+                    const std::string &incoming_charset, const std::string &source_rdbms_type,
+                    const unsigned int connection_timeout)
 : _insert_stmt(NULL), _max_allowed_packet(1000000), _max_long_data_size(1000000),// 1M default
-_row_buffer(NULL), _major_version(0), _minor_version(0), _build_version(0),
-_use_bulk_inserts(true), _bulk_insert_buffer(this), _bulk_insert_record(this),
-  _bulk_insert_batch(0), _source_rdbms_type(source_rdbms_type)
+  _row_buffer(NULL), _major_version(0), _minor_version(0), _build_version(0), _use_bulk_inserts(true),
+  _bulk_insert_batch(0), _source_rdbms_type(source_rdbms_type), _connection_timeout(connection_timeout)
 {
   std::string host = hostname;
   _truncate = false;

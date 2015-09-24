@@ -355,7 +355,7 @@ public:
                       const std::string &username, const std::string &password,
                       const std::string &socket, bool use_cleartext_plugin, const std::string &app_name,
                       const std::string &incoming_charset, const std::string &source_rdbms_type,
-					  const unsigned int connection_timeout);
+                      const unsigned int connection_timeout);
 
   ~MySQLCopyDataTarget();
 
