@@ -1524,23 +1524,23 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
     switch (type)
     {
       case wb::LiveSchemaTree::Schema:
-        db_object= is_object_new ?
+        db_object = is_object_new ?
           create_new_schema(client_state_catalog) :
           db_SchemaRef::cast_from(find_named_object_in_list(client_state_catalog->schemata(), obj_name));
         break;
       case wb::LiveSchemaTree::Table:
-        db_object= is_object_new ?
+        db_object = is_object_new ?
           create_new_table(schema) :
           db_TableRef::cast_from(find_named_object_in_list(schema->tables(), obj_name));
         break;
       case wb::LiveSchemaTree::View:
-        db_object= is_object_new ?
+        db_object = is_object_new ?
           create_new_view(schema) :
           db_ViewRef::cast_from(find_named_object_in_list(schema->views(), obj_name));
         break;
       case wb::LiveSchemaTree::Procedure:
       case wb::LiveSchemaTree::Function:
-        db_object= is_object_new ?
+        db_object = is_object_new ?
           create_new_routine(schema, type) :
           db_RoutineRef::cast_from(find_named_object_in_list(schema->routines(), obj_name));
         break;
