@@ -25,7 +25,7 @@ import traceback
 
 from workbench.utils import Version
 from wb_admin_ssh import SSHDownException
-from workbench.db_utils import MySQLConnection, MySQLError, QueryError, strip_password
+from workbench.db_utils import MySQLConnection, MySQLError, QueryError, strip_password, escape_sql_string
 
 from wb_common import OperationCancelledError, Users, PermissionDeniedError, InvalidPasswordError, SSHFingerprintNewError
 
@@ -926,4 +926,17 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
                     log_error("Could not execute uname command on remote server, system type is unknown\n")
         return None
 
+    def is_old_authentication_protocol(self, user, host):
+        GET_ACCOUNT_QUERY = "SELECT * FROM mysql.user WHERE User='%(user)s' AND Host='%(host)s' ORDER BY User, Host"
+        PASSWORD_COLUMN = 'password' if self.target_version and self.target_version < Version(5,7,6) else 'authentication_string'
+        
+        query = GET_ACCOUNT_QUERY % {"user":escape_sql_string(user),"host":escape_sql_string(host)}
+        try:
+            result = self.exec_query(query)
+        except Exception, e:
+            raise Exception("Error querying security information: %s" % e)
 
+        if not result.nextRow():
+            raise Exception("Could not load account information for %s@%s"%(user,host))
+
+        return len(result.stringByName(PASSWORD_COLUMN)) == 16
