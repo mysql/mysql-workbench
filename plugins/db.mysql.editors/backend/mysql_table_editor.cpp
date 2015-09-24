@@ -779,7 +779,7 @@ public:
           std::string sql;
           std::string source = _selected_trigger->sqlDefinition();
 
-          MySQLScanner *scanner = _editor->_parser_context->create_scanner(source);
+          boost::shared_ptr<MySQLScanner> scanner = _editor->_parser_context->createScanner(source);
           size_t ordering_token = _editor->_parser_context->get_keyword_token(_selected_trigger->ordering());
           bool removal_done = false;
           do
@@ -822,8 +822,6 @@ public:
 
           } while (true);
 
-          delete scanner;
-          
           // Finally remove position information from the trigger object, regardless wether the other trigger actually
           // exists (or is valid) and update the code editor.
           _selected_trigger->ordering("");
@@ -1365,7 +1363,7 @@ public:
     std::string sql;
     std::string source = trigger->sqlDefinition();
 
-    MySQLScanner *scanner = _editor->_parser_context->create_scanner(source);
+    boost::shared_ptr<MySQLScanner> scanner = _editor->_parser_context->createScanner(source);
     size_t timing_token = _editor->_parser_context->get_keyword_token(trigger->timing());
     size_t event_token = _editor->_parser_context->get_keyword_token(trigger->event());
     bool replace_done = false;
@@ -1402,8 +1400,6 @@ public:
     trigger->sqlDefinition(sql);
     trigger->timing(timing);
     trigger->event(event);
-
-    delete scanner;
   }
 
   //------------------------------------------------------------------------------------------------
