@@ -368,7 +368,7 @@ static db_SimpleDatatypeRef findType(grt::ListRef<db_SimpleDatatype> types, cons
       return types[i];
 
     // Type has not the default name, but maybe one of the synonyms.
-    for (auto synonym = types[i]->synonyms().begin(); synonym != types[i]->synonyms().end(); ++synonym)
+    for (grt::StringListRef::const_iterator synonym = types[i]->synonyms().begin(); synonym != types[i]->synonyms().end(); ++synonym)
     {
       if (base::same_string(*synonym, name, false))
         return types[i];
@@ -1926,8 +1926,9 @@ void resolveReferences(db_mysql_CatalogRef catalog, DbObjectsRefsCache refCache,
 {
   grt::ListRef<db_mysql_Schema> schemata = catalog->schemata();
 
-  for (DbObjectReferences references : refCache)
+  for (DbObjectsRefsCache::iterator refIt = refCache.begin(); refIt != refCache.end(); ++refIt)
   {
+    DbObjectReferences references = (*refIt);
     // Referenced table. Only used for foreign keys.
     db_mysql_TableRef referencedTable;
     if (references.type != DbObjectReferences::Index)
@@ -1962,14 +1963,14 @@ void resolveReferences(db_mysql_CatalogRef catalog, DbObjectsRefsCache refCache,
     case DbObjectReferences::Index:
     {
       // Filling column references for an index.
-      for (db_IndexColumnRef indexColumn : references.index->columns())
+      for (grt::ListRef<db_IndexColumn>::const_iterator indexIt = references.index->columns().begin(); indexIt != references.index->columns().end(); ++indexIt)
       {
-        db_mysql_ColumnRef column = find_named_object_in_list(references.table->columns(), indexColumn->name(), false);
+        db_mysql_ColumnRef column = find_named_object_in_list(references.table->columns(), (*indexIt)->name(), false);
 
         // Reset name field to avoid unnecessary trouble with test code.
-        indexColumn->name("");
+        (*indexIt)->name("");
         if (column.is_valid())
-          indexColumn->referencedColumn(column);
+          (*indexIt)->referencedColumn(column);
       }
       break;
     }
@@ -1977,9 +1978,9 @@ void resolveReferences(db_mysql_CatalogRef catalog, DbObjectsRefsCache refCache,
     case DbObjectReferences::Referencing:
     {
       // Filling column references for the referencing table.
-      for (std::string name : references.columnNames)
+      for (std::vector<std::string>::iterator nameIt = references.columnNames.begin(); nameIt != references.columnNames.end(); ++nameIt)
       {
-        db_mysql_ColumnRef column = find_named_object_in_list(references.table->columns(), name, false);
+        db_mysql_ColumnRef column = find_named_object_in_list(references.table->columns(), *nameIt, false);
         if (column.is_valid())
           references.foreignKey->columns().insert(column);
       }
@@ -1990,9 +1991,10 @@ void resolveReferences(db_mysql_CatalogRef catalog, DbObjectsRefsCache refCache,
     {
       // Column references for the referenced table.
       int columnIndex = 0;
-      for (std::string name : references.columnNames)
+
+      for (std::vector<std::string>::iterator columnNameIt = references.columnNames.begin(); columnNameIt != references.columnNames.end(); ++columnNameIt)
       {
-        db_mysql_ColumnRef column = find_named_object_in_list(referencedTable->columns(), name, false); // MySQL columns are always case-insensitive.
+        db_mysql_ColumnRef column = find_named_object_in_list(referencedTable->columns(), *columnNameIt, false); // MySQL columns are always case-insensitive.
 
         if (!column.is_valid())
         {
@@ -2000,8 +2002,8 @@ void resolveReferences(db_mysql_CatalogRef catalog, DbObjectsRefsCache refCache,
           {
             column = db_mysql_ColumnRef(catalog->get_grt());
             column->owner(referencedTable);
-            column->name(name);
-            column->oldName(name);
+            column->name(*columnNameIt);
+            column->oldName(*columnNameIt);
 
             // For the stub column we use all the data type settings from the foreign key column.
             db_mysql_ColumnRef templateColumn = db_mysql_ColumnRef::cast_from(references.foreignKey->columns().get(columnIndex));
@@ -2016,8 +2018,9 @@ void resolveReferences(db_mysql_CatalogRef catalog, DbObjectsRefsCache refCache,
 
             StringListRef templateFlags = templateColumn->flags();
             StringListRef flags = column->flags();
-            for (std::string flag : templateColumn->flags())
-              flags.insert(flag);
+
+            for (grt::StringListRef::const_iterator flagIt = templateColumn->flags().begin(); flagIt != templateColumn->flags().end(); ++flagIt)
+              flags.insert(*flagIt);
 
             column->characterSetName(templateColumn->characterSetName());
             column->collationName(templateColumn->collationName());
@@ -2054,9 +2057,9 @@ void resolveReferences(db_mysql_CatalogRef catalog, DbObjectsRefsCache refCache,
 
       ListRef<db_Column> fkColumns = references.foreignKey->columns();
       db_IndexRef foundIndex;
-      for (db_IndexRef index : references.table->indices())
+      for (grt::ListRef<db_mysql_Index>::const_iterator indexIt = references.table->indices().begin(); indexIt != references.table->indices().end(); ++indexIt)
       {
-        ListRef<db_IndexColumn> indexColumns = index->columns();
+        ListRef<db_IndexColumn> indexColumns = (*indexIt)->columns();
 
         bool indexMatches = true;
 
@@ -2073,7 +2076,7 @@ void resolveReferences(db_mysql_CatalogRef catalog, DbObjectsRefsCache refCache,
 
         if (indexMatches)
         {
-          foundIndex = index;
+          foundIndex = *indexIt;
           break;
         }
       }
@@ -2094,11 +2097,11 @@ void resolveReferences(db_mysql_CatalogRef catalog, DbObjectsRefsCache refCache,
         index->indexType("INDEX");
         references.foreignKey->index(index);
 
-        for (db_ColumnRef column : fkColumns)
+        for (ListRef<db_Column>::const_iterator columnIt = fkColumns.begin(); columnIt != fkColumns.end(); ++columnIt)
         {
           db_mysql_IndexColumnRef indexColumn(catalog.get_grt());
           indexColumn->owner(index);
-          indexColumn->referencedColumn(column);
+          indexColumn->referencedColumn(*columnIt);
           index->columns().insert(indexColumn);
         }
 
@@ -2518,7 +2521,7 @@ std::string fillRoutineDetails(MySQLRecognizerTreeWalker &walker, db_mysql_Routi
 std::pair<std::string, std::string> getRoutineNameAndType(ParserContext::Ref context,
   const std::string &sql)
 {
-  std::pair<std::string, std::string> result = { "unknown", "unknown" };
+  std::pair<std::string, std::string> result = std::make_pair("unknown", "unknown");
   boost::shared_ptr<MySQLScanner> scanner = context->createScanner(sql);
 
   if (scanner->token_type() != CREATE_SYMBOL)
@@ -2696,7 +2699,8 @@ size_t MySQLParserServicesImpl::parseRoutines(ParserContext::Ref context,
 
   int sequence_number = 0;
   int syntax_error_counter = 1;
-  for (auto iterator = ranges.begin(); iterator != ranges.end(); ++iterator)
+
+  for (std::vector<std::pair<size_t, size_t> >::iterator iterator = ranges.begin(); iterator != ranges.end(); ++iterator)
   {
     std::string routineSQL = sql.substr(iterator->first, iterator->second);
     context->recognizer()->parse(sql.c_str() + iterator->first, iterator->second, true, PuCreateRoutine);
@@ -3500,51 +3504,6 @@ size_t MySQLParserServicesImpl::parseTablespace(parser::ParserContext::Ref conte
   return error_count;
 }
 
-//--------------------------------------------------------------------------------------------------
-
-static std::set<MySQLQueryType> relevantQueryTypes {
-  QtAlterDatabase,
-  QtAlterLogFileGroup,
-  QtAlterFunction,
-  QtAlterProcedure,
-  QtAlterServer,
-  QtAlterTable,
-  QtAlterTableSpace,
-  QtAlterEvent,
-  QtAlterView,
-
-  QtCreateTable,
-  QtCreateIndex,
-  QtCreateDatabase,
-  QtCreateEvent,
-  QtCreateView,
-  QtCreateRoutine,
-  QtCreateProcedure,
-  QtCreateFunction,
-  QtCreateUdf,
-  QtCreateTrigger,
-  QtCreateLogFileGroup,
-  QtCreateServer,
-  QtCreateTableSpace,
-
-  QtDropDatabase,
-  QtDropEvent,
-  QtDropFunction,
-  QtDropProcedure,
-  QtDropIndex,
-  QtDropLogfileGroup,
-  QtDropServer,
-  QtDropTable,
-  QtDropTablespace,
-  QtDropTrigger,
-  QtDropView,
-
-  QtRenameTable,
-
-  QtUse,
-
-};
-
 /**
 *	Expects the sql to be a single or multi-statement text in utf-8 encoding which is parsed and
 *	the details are used to build a grt tree. Existing objects are replaced unless the SQL has
@@ -3560,6 +3519,49 @@ static std::set<MySQLQueryType> relevantQueryTypes {
 size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref context,
   db_mysql_CatalogRef catalog, const std::string &sql, grt::DictRef options)
 {
+
+  std::set<MySQLQueryType> relevantQueryTypes;
+  relevantQueryTypes.insert(QtAlterDatabase);
+  relevantQueryTypes.insert(QtAlterLogFileGroup);
+  relevantQueryTypes.insert(QtAlterFunction);
+  relevantQueryTypes.insert(QtAlterProcedure);
+  relevantQueryTypes.insert(QtAlterServer);
+  relevantQueryTypes.insert(QtAlterTable);
+  relevantQueryTypes.insert(QtAlterTableSpace);
+  relevantQueryTypes.insert(QtAlterEvent);
+  relevantQueryTypes.insert(QtAlterView);
+
+  relevantQueryTypes.insert(QtCreateTable);
+  relevantQueryTypes.insert(QtCreateIndex);
+  relevantQueryTypes.insert(QtCreateDatabase);
+  relevantQueryTypes.insert(QtCreateEvent);
+  relevantQueryTypes.insert(QtCreateView);
+  relevantQueryTypes.insert(QtCreateRoutine);
+  relevantQueryTypes.insert(QtCreateProcedure);
+  relevantQueryTypes.insert(QtCreateFunction);
+  relevantQueryTypes.insert(QtCreateUdf);
+  relevantQueryTypes.insert(QtCreateTrigger);
+  relevantQueryTypes.insert(QtCreateLogFileGroup);
+  relevantQueryTypes.insert(QtCreateServer);
+  relevantQueryTypes.insert(QtCreateTableSpace);
+
+  relevantQueryTypes.insert(QtDropDatabase);
+  relevantQueryTypes.insert(QtDropEvent);
+  relevantQueryTypes.insert(QtDropFunction);
+  relevantQueryTypes.insert(QtDropProcedure);
+  relevantQueryTypes.insert(QtDropIndex);
+  relevantQueryTypes.insert(QtDropLogfileGroup);
+  relevantQueryTypes.insert(QtDropServer);
+  relevantQueryTypes.insert(QtDropTable);
+  relevantQueryTypes.insert(QtDropTablespace);
+  relevantQueryTypes.insert(QtDropTrigger);
+  relevantQueryTypes.insert(QtDropView);
+
+  relevantQueryTypes.insert(QtRenameTable);
+
+  relevantQueryTypes.insert(QtUse);
+
+
   log_debug2("Parse sql into catalog\n");
 
   bool caseSensitive = context->case_sensitive();
@@ -3576,13 +3578,13 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
   MySQLRecognizer *recognizer = context->recognizer();
   boost::shared_ptr<MySQLQueryIdentifier> queryIdentifier = context->createQueryIdentifier();
 
-  std::vector<std::pair<size_t, size_t>> ranges;
+  std::vector<std::pair<size_t, size_t> > ranges;
   determineStatementRanges(sql.c_str(), sql.size(), ";", ranges, "\n");
 
   // Collect textual FK references into a local cache. At the end this is used
   // to find actual ref tables + columns, when all tables have been parsed.
   DbObjectsRefsCache refCache;
-  for (auto iterator = ranges.begin(); iterator != ranges.end(); ++iterator)
+  for (std::vector<std::pair<size_t, size_t> >::iterator iterator = ranges.begin(); iterator != ranges.end(); ++iterator)
   {
     //std::string ddl(sql.c_str() + iterator->first, iterator->second);
     MySQLQueryType queryType = queryIdentifier->getQueryType(sql.c_str() + iterator->first, iterator->second, true);
@@ -4027,7 +4029,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
       db_SchemaRef schema = currentSchema;
       if (!identifier.first.empty())
         schema = ensureSchemaExists(catalog, identifier.first, caseSensitive);
-      for (auto table = schema->tables().begin(); table != schema->tables().end(); ++table)
+      for (grt::ListRef<db_Table>::const_iterator table = schema->tables().begin(); table != schema->tables().end(); ++table)
       {
         db_TriggerRef trigger = find_named_object_in_list((*table)->triggers(), identifier.second);
         if (trigger.is_valid())
