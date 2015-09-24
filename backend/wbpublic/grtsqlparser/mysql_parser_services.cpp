@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -50,7 +50,7 @@ long short_version(const GrtVersionRef &version)
 
 //------------------ ParserContext -----------------------------------------------------------------
 
-ParserContext::ParserContext(const GrtCharacterSetsRef &charsets, const GrtVersionRef &version,
+ParserContext::ParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version,
   bool case_sensitive)
 {
   _version = version;
@@ -61,7 +61,7 @@ ParserContext::ParserContext(const GrtCharacterSetsRef &charsets, const GrtVersi
 
   long server_version = short_version(_version);
   update_filtered_charsets(server_version);
-  
+
   // Both, parser and syntax checker are only a few hundreds of bytes in size (except for any
   // stored token strings or the AST), so we can always simply create both without serious memory
   // concerns (the syntax checker has no AST).
@@ -98,10 +98,19 @@ void ParserContext::update_filtered_charsets(long version)
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLScanner* ParserContext::create_scanner(const std::string &text)
+boost::shared_ptr<MySQLScanner> ParserContext::createScanner(const std::string &text)
 {
   long server_version = short_version(_version);
-  return new MySQLScanner(text.c_str(), text.size(), true, server_version, _sql_mode, _filtered_charsets);
+  return boost::shared_ptr<MySQLScanner>(new MySQLScanner(text.c_str(), text.size(), true, server_version,
+    _sql_mode, _filtered_charsets));
+}
+
+//--------------------------------------------------------------------------------------------------
+
+boost::shared_ptr<MySQLQueryIdentifier> ParserContext::createQueryIdentifier()
+{
+  long version = short_version(_version);
+  return boost::shared_ptr<MySQLQueryIdentifier>(new MySQLQueryIdentifier(version, _sql_mode, _filtered_charsets));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,7 +137,7 @@ void ParserContext::use_server_version(GrtVersionRef version)
     return;
 
   _version = version;
-  
+
   long server_version = short_version(_version);
   update_filtered_charsets(server_version);
 
@@ -139,9 +148,9 @@ void ParserContext::use_server_version(GrtVersionRef version)
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Returns a collection of errors from the last parser run. The start position is offset by the given
- * value (used to adjust error position in a larger context).
- */
+* Returns a collection of errors from the last parser run. The start position is offset by the given
+* value (used to adjust error position in a larger context).
+*/
 std::vector<ParserErrorEntry> ParserContext::get_errors_with_offset(size_t offset, bool for_syntax_check)
 {
   std::vector<ParserErrorEntry> errors;
@@ -174,10 +183,10 @@ uint32_t ParserContext::get_keyword_token(const std::string &keyword)
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Returns the pointer to the internal keyword strings array in the parser, so we can directly
- * work with those keywords. The position in the keywords list corresponds to their token value.
- * The first user defined token name starts and index 4.
- */
+* Returns the pointer to the internal keyword strings array in the parser, so we can directly
+* work with those keywords. The position in the keywords list corresponds to their token value.
+* The first user defined token name starts at index 4.
+*/
 char ** ParserContext::get_token_name_list()
 {
   return _recognizer->get_token_list();
@@ -185,8 +194,8 @@ char ** ParserContext::get_token_name_list()
 
 //------------------ MySQLParserServices -----------------------------------------------------------
 
-ParserContext::Ref MySQLParserServices::createParserContext(const GrtCharacterSetsRef &charsets,
-  const GrtVersionRef &version, bool case_sensitive)
+ParserContext::Ref MySQLParserServices::createParserContext(GrtCharacterSetsRef charsets,
+  GrtVersionRef version, bool case_sensitive)
 {
   boost::shared_ptr<ParserContext> result(new ParserContext(charsets, version, case_sensitive));
 
@@ -199,7 +208,7 @@ MySQLParserServices::Ref MySQLParserServices::get(grt::GRT *grt)
 {
   MySQLParserServices::Ref module = dynamic_cast<MySQLParserServices::Ref>(grt->get_module("MySQLParserServices"));
   if (!module)
-		throw std::runtime_error("Can't get MySQLParserServices module.");
+    throw std::runtime_error("Can't get MySQLParserServices module.");
   return module;
 }
 
