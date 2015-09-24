@@ -1881,8 +1881,9 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
               for (size_t i = 0; i < context.references.size(); ++i)
               {
                 TableReference reference = context.references[i];
-                if ((reference.schema.empty() || reference.schema == schema)
-                    && (reference.alias == table))
+                if (!reference.schema.empty())
+                  schema = reference.schema;
+                if (reference.alias == table)
                 {
                   columns = _auto_completion_cache->get_matching_column_names(schema, reference.table, context.typed_part);
                   for (std::vector<std::string>::const_iterator column = columns.begin(); column != columns.end(); ++column)

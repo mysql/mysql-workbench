@@ -19,6 +19,18 @@
 #include <grts/structs.db.h>
 
 
+class db_sybase_Sequence;
+typedef grt::Ref<db_sybase_Sequence> db_sybase_SequenceRef;
+class db_sybase_Synonym;
+typedef grt::Ref<db_sybase_Synonym> db_sybase_SynonymRef;
+class db_sybase_Routine;
+typedef grt::Ref<db_sybase_Routine> db_sybase_RoutineRef;
+class db_sybase_RoutineGroup;
+typedef grt::Ref<db_sybase_RoutineGroup> db_sybase_RoutineGroupRef;
+class db_sybase_View;
+typedef grt::Ref<db_sybase_View> db_sybase_ViewRef;
+class db_sybase_Trigger;
+typedef grt::Ref<db_sybase_Trigger> db_sybase_TriggerRef;
 class db_sybase_ForeignKey;
 typedef grt::Ref<db_sybase_ForeignKey> db_sybase_ForeignKeyRef;
 class db_sybase_IndexColumn;
@@ -27,30 +39,18 @@ class db_sybase_Index;
 typedef grt::Ref<db_sybase_Index> db_sybase_IndexRef;
 class db_sybase_UserDatatype;
 typedef grt::Ref<db_sybase_UserDatatype> db_sybase_UserDatatypeRef;
+class db_sybase_StructuredDatatype;
+typedef grt::Ref<db_sybase_StructuredDatatype> db_sybase_StructuredDatatypeRef;
 class db_sybase_SimpleDatatype;
 typedef grt::Ref<db_sybase_SimpleDatatype> db_sybase_SimpleDatatypeRef;
 class db_sybase_Column;
 typedef grt::Ref<db_sybase_Column> db_sybase_ColumnRef;
-class db_sybase_Catalog;
-typedef grt::Ref<db_sybase_Catalog> db_sybase_CatalogRef;
-class db_sybase_Sequence;
-typedef grt::Ref<db_sybase_Sequence> db_sybase_SequenceRef;
-class db_sybase_Synonym;
-typedef grt::Ref<db_sybase_Synonym> db_sybase_SynonymRef;
-class db_sybase_RoutineGroup;
-typedef grt::Ref<db_sybase_RoutineGroup> db_sybase_RoutineGroupRef;
-class db_sybase_StructuredDatatype;
-typedef grt::Ref<db_sybase_StructuredDatatype> db_sybase_StructuredDatatypeRef;
 class db_sybase_Table;
 typedef grt::Ref<db_sybase_Table> db_sybase_TableRef;
 class db_sybase_Schema;
 typedef grt::Ref<db_sybase_Schema> db_sybase_SchemaRef;
-class db_sybase_Trigger;
-typedef grt::Ref<db_sybase_Trigger> db_sybase_TriggerRef;
-class db_sybase_Routine;
-typedef grt::Ref<db_sybase_Routine> db_sybase_RoutineRef;
-class db_sybase_View;
-typedef grt::Ref<db_sybase_View> db_sybase_ViewRef;
+class db_sybase_Catalog;
+typedef grt::Ref<db_sybase_Catalog> db_sybase_CatalogRef;
 
 
 namespace mforms { 
@@ -60,6 +60,197 @@ namespace mforms {
 namespace grt { 
   class AutoPyObject;
 }; 
+
+  /** a Sybase database sequence object */
+class  db_sybase_Sequence : public db_Sequence
+{
+  typedef db_Sequence super;
+public:
+  db_sybase_Sequence(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_Sequence(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.sybase.Sequence"; }
+
+protected:
+
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_sybase_Sequence(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_sybase_Sequence::create);
+  }
+};
+
+
+  /** a Sybase synonym object */
+class  db_sybase_Synonym : public db_Synonym
+{
+  typedef db_Synonym super;
+public:
+  db_sybase_Synonym(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_Synonym(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.sybase.Synonym"; }
+
+protected:
+
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_sybase_Synonym(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_sybase_Synonym::create);
+  }
+};
+
+
+  /** a Sybase database routine object */
+class  db_sybase_Routine : public db_Routine
+{
+  typedef db_Routine super;
+public:
+  db_sybase_Routine(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_Routine(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.sybase.Routine"; }
+
+protected:
+
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_sybase_Routine(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_sybase_Routine::create);
+  }
+};
+
+
+  /** a Sybase database routine group */
+class  db_sybase_RoutineGroup : public db_RoutineGroup
+{
+  typedef db_RoutineGroup super;
+public:
+  db_sybase_RoutineGroup(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_RoutineGroup(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.sybase.RoutineGroup"; }
+
+protected:
+
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_sybase_RoutineGroup(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_sybase_RoutineGroup::create);
+  }
+};
+
+
+  /** a Sybase database view object */
+class  db_sybase_View : public db_View
+{
+  typedef db_View super;
+public:
+  db_sybase_View(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_View(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.sybase.View"; }
+
+protected:
+
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_sybase_View(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_sybase_View::create);
+  }
+};
+
+
+class  db_sybase_Trigger : public db_Trigger
+{
+  typedef db_Trigger super;
+public:
+  db_sybase_Trigger(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_Trigger(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.sybase.Trigger"; }
+
+protected:
+
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_sybase_Trigger(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_sybase_Trigger::create);
+  }
+};
+
 
 class  db_sybase_ForeignKey : public db_ForeignKey
 {
@@ -401,6 +592,38 @@ public:
 };
 
 
+  /** a Sybase structured datatype object */
+class  db_sybase_StructuredDatatype : public db_StructuredDatatype
+{
+  typedef db_StructuredDatatype super;
+public:
+  db_sybase_StructuredDatatype(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_StructuredDatatype(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.sybase.StructuredDatatype"; }
+
+protected:
+
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_sybase_StructuredDatatype(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_sybase_StructuredDatatype::create);
+  }
+};
+
+
 class  db_sybase_SimpleDatatype : public db_SimpleDatatype
 {
   typedef db_SimpleDatatype super;
@@ -513,182 +736,6 @@ public:
       grt::IntegerRef (db_sybase_Column::*getter)() const= &db_sybase_Column::identity;
       meta->bind_member("identity", new grt::MetaClass::Property<db_sybase_Column,grt::IntegerRef >(getter,setter));
     }
-  }
-};
-
-
-class  db_sybase_Catalog : public db_Catalog
-{
-  typedef db_Catalog super;
-public:
-  db_sybase_Catalog(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Catalog(grt, meta ? meta : grt->get_metaclass(static_class_name()))
-
-  {
-    _schemata.content().__retype(grt::ObjectType, "db.sybase.Schema");
-  }
-
-  static std::string static_class_name() { return "db.sybase.Catalog"; }
-
-  // schemata is owned by db_sybase_Catalog
-  /** Getter for attribute schemata (read-only)
-   
-    
-   \par In Python:
-value = obj.schemata
-   */
-  grt::ListRef<db_sybase_Schema> schemata() const { return grt::ListRef<db_sybase_Schema>::cast_from(_schemata); }
-private: // the next attribute is read-only
-public:
-
-protected:
-
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_sybase_Catalog(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_sybase_Catalog::create);
-    {
-      void (db_sybase_Catalog::*setter)(const grt::ListRef<db_sybase_Schema> &)= 0;
-      grt::ListRef<db_sybase_Schema> (db_sybase_Catalog::*getter)() const= 0;
-      meta->bind_member("schemata", new grt::MetaClass::Property<db_sybase_Catalog,grt::ListRef<db_sybase_Schema> >(getter,setter));
-    }
-  }
-};
-
-
-  /** a Sybase database sequence object */
-class  db_sybase_Sequence : public db_Sequence
-{
-  typedef db_Sequence super;
-public:
-  db_sybase_Sequence(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Sequence(grt, meta ? meta : grt->get_metaclass(static_class_name()))
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.sybase.Sequence"; }
-
-protected:
-
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_sybase_Sequence(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_sybase_Sequence::create);
-  }
-};
-
-
-  /** a Sybase synonym object */
-class  db_sybase_Synonym : public db_Synonym
-{
-  typedef db_Synonym super;
-public:
-  db_sybase_Synonym(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Synonym(grt, meta ? meta : grt->get_metaclass(static_class_name()))
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.sybase.Synonym"; }
-
-protected:
-
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_sybase_Synonym(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_sybase_Synonym::create);
-  }
-};
-
-
-  /** a Sybase database routine group */
-class  db_sybase_RoutineGroup : public db_RoutineGroup
-{
-  typedef db_RoutineGroup super;
-public:
-  db_sybase_RoutineGroup(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_RoutineGroup(grt, meta ? meta : grt->get_metaclass(static_class_name()))
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.sybase.RoutineGroup"; }
-
-protected:
-
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_sybase_RoutineGroup(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_sybase_RoutineGroup::create);
-  }
-};
-
-
-  /** a Sybase structured datatype object */
-class  db_sybase_StructuredDatatype : public db_StructuredDatatype
-{
-  typedef db_StructuredDatatype super;
-public:
-  db_sybase_StructuredDatatype(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_StructuredDatatype(grt, meta ? meta : grt->get_metaclass(static_class_name()))
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.sybase.StructuredDatatype"; }
-
-protected:
-
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_sybase_StructuredDatatype(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_sybase_StructuredDatatype::create);
   }
 };
 
@@ -902,24 +949,36 @@ public:
 };
 
 
-class  db_sybase_Trigger : public db_Trigger
+class  db_sybase_Catalog : public db_Catalog
 {
-  typedef db_Trigger super;
+  typedef db_Catalog super;
 public:
-  db_sybase_Trigger(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Trigger(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+  db_sybase_Catalog(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_Catalog(grt, meta ? meta : grt->get_metaclass(static_class_name()))
 
   {
+    _schemata.content().__retype(grt::ObjectType, "db.sybase.Schema");
   }
 
-  static std::string static_class_name() { return "db.sybase.Trigger"; }
+  static std::string static_class_name() { return "db.sybase.Catalog"; }
+
+  // schemata is owned by db_sybase_Catalog
+  /** Getter for attribute schemata (read-only)
+   
+    
+   \par In Python:
+value = obj.schemata
+   */
+  grt::ListRef<db_sybase_Schema> schemata() const { return grt::ListRef<db_sybase_Schema>::cast_from(_schemata); }
+private: // the next attribute is read-only
+public:
 
 protected:
 
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
-    return grt::ObjectRef(new db_sybase_Trigger(grt));
+    return grt::ObjectRef(new db_sybase_Catalog(grt));
   }
 
 
@@ -928,71 +987,12 @@ public:
   {
     grt::MetaClass *meta= grt->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_sybase_Trigger::create);
-  }
-};
-
-
-  /** a Sybase database routine object */
-class  db_sybase_Routine : public db_Routine
-{
-  typedef db_Routine super;
-public:
-  db_sybase_Routine(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Routine(grt, meta ? meta : grt->get_metaclass(static_class_name()))
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.sybase.Routine"; }
-
-protected:
-
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_sybase_Routine(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_sybase_Routine::create);
-  }
-};
-
-
-  /** a Sybase database view object */
-class  db_sybase_View : public db_View
-{
-  typedef db_View super;
-public:
-  db_sybase_View(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_View(grt, meta ? meta : grt->get_metaclass(static_class_name()))
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.sybase.View"; }
-
-protected:
-
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_sybase_View(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_sybase_View::create);
+    meta->bind_allocator(&db_sybase_Catalog::create);
+    {
+      void (db_sybase_Catalog::*setter)(const grt::ListRef<db_sybase_Schema> &)= 0;
+      grt::ListRef<db_sybase_Schema> (db_sybase_Catalog::*getter)() const= 0;
+      meta->bind_member("schemata", new grt::MetaClass::Property<db_sybase_Catalog,grt::ListRef<db_sybase_Schema> >(getter,setter));
+    }
   }
 };
 
@@ -1001,22 +1001,22 @@ public:
 
 inline void register_structs_db_sybase_xml()
 {
+  grt::internal::ClassRegistry::register_class<db_sybase_Sequence>();
+  grt::internal::ClassRegistry::register_class<db_sybase_Synonym>();
+  grt::internal::ClassRegistry::register_class<db_sybase_Routine>();
+  grt::internal::ClassRegistry::register_class<db_sybase_RoutineGroup>();
+  grt::internal::ClassRegistry::register_class<db_sybase_View>();
+  grt::internal::ClassRegistry::register_class<db_sybase_Trigger>();
   grt::internal::ClassRegistry::register_class<db_sybase_ForeignKey>();
   grt::internal::ClassRegistry::register_class<db_sybase_IndexColumn>();
   grt::internal::ClassRegistry::register_class<db_sybase_Index>();
   grt::internal::ClassRegistry::register_class<db_sybase_UserDatatype>();
+  grt::internal::ClassRegistry::register_class<db_sybase_StructuredDatatype>();
   grt::internal::ClassRegistry::register_class<db_sybase_SimpleDatatype>();
   grt::internal::ClassRegistry::register_class<db_sybase_Column>();
-  grt::internal::ClassRegistry::register_class<db_sybase_Catalog>();
-  grt::internal::ClassRegistry::register_class<db_sybase_Sequence>();
-  grt::internal::ClassRegistry::register_class<db_sybase_Synonym>();
-  grt::internal::ClassRegistry::register_class<db_sybase_RoutineGroup>();
-  grt::internal::ClassRegistry::register_class<db_sybase_StructuredDatatype>();
   grt::internal::ClassRegistry::register_class<db_sybase_Table>();
   grt::internal::ClassRegistry::register_class<db_sybase_Schema>();
-  grt::internal::ClassRegistry::register_class<db_sybase_Trigger>();
-  grt::internal::ClassRegistry::register_class<db_sybase_Routine>();
-  grt::internal::ClassRegistry::register_class<db_sybase_View>();
+  grt::internal::ClassRegistry::register_class<db_sybase_Catalog>();
 }
 
 #ifdef AUTO_REGISTER_GRT_CLASSES

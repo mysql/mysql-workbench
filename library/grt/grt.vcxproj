@@ -135,9 +135,8 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27_d.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\gmodule-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>\python\$(Configuration)\python27_d.lib;glib\glib-2.0.lib;glib\gmodule-2.0.lib;glib\gthread-2.0.lib;libxml\libiconv.lib;libxml\libxml2.lib;mysqlcppconn\$(Configuration)\mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -156,9 +155,8 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27_d.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\gmodule-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>\python\$(Configuration)\python27_d.lib;glib\glib-2.0.lib;glib\gmodule-2.0.lib;glib\gthread-2.0.lib;libxml\libiconv.lib;libxml\libxml2.lib;mysqlcppconn\$(Configuration)\mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -182,9 +180,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\gmodule-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>python\$(Configuration)\python27.lib;glib\glib-2.0.lib;glib\gmodule-2.0.lib;\glib\gthread-2.0.lib;libxml\libiconv.lib;libxml\libxml2.lib;mysqlcppconn\$(Configuration)\mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -205,9 +202,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\gmodule-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>python\$(Configuration)\python27.lib;glib\glib-2.0.lib;glib\gmodule-2.0.lib;\glib\gthread-2.0.lib;libxml\libiconv.lib;libxml\libxml2.lib;mysqlcppconn\$(Configuration)\mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">
@@ -228,9 +224,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\gmodule-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>python\$(Configuration)\python27.lib;glib\glib-2.0.lib;glib\gmodule-2.0.lib;\glib\gthread-2.0.lib;libxml\libiconv.lib;libxml\libxml2.lib;mysqlcppconn\$(Configuration)\mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
@@ -251,9 +246,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\gmodule-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>python\$(Configuration)\python27.lib;glib\glib-2.0.lib;glib\gmodule-2.0.lib;\glib\gthread-2.0.lib;libxml\libiconv.lib;libxml\libxml2.lib;mysqlcppconn\$(Configuration)\mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
