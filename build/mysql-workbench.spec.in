@@ -26,17 +26,22 @@
 
 # Directory where iodbc and pyodbc binaries are located. Build both using the build_iodbc.sh script
 # If using distribution provided ODBC manager lib and pyodbc, then comment out this
-%define linuxres_home    $HOME/linux-res
-%define odbc_home        $linuxres_home/usr
+%define linuxres_home     $HOME/linux-res
+%define linuxres_binaries $linuxres_home/builds
 
-%define vsqlite_dir      $linuxres_home/usr
-%define ctemplate_dir    $linuxres_home/usr
+%define odbc_home         $linuxres_binaries/odbc
+%define vsqlite_dir       $linuxres_binaries/vsqlite
+%define ctemplate_dir     $linuxres_binaries/ctemplate
+%define sqlite_dir       $linuxres_binaries/sqlite
+%define pysqlite_dir     $linuxres_binaries/pysqlite
+%define python_dir       $linuxres_binaries/python
 
-%define gdal_dir         $linuxres_home/usr
+
 
 %if "%{edition}" == "commercial"
 %define commercial       1
-%define mysqlcppconn_dir $linuxres_home/usr
+%define mysqlcppconn_dir $linuxres_binaries/cppconn-com
+%define gdal_dir         $linuxres_binaries/gdal-com
 %define mysql_home       $HOME/mysql-server-advanced
 
 %define edition          commercial
@@ -44,7 +49,8 @@
 %define license_file     LICENSE.mysql
 %else
 %define community        1
-%define mysqlcppconn_dir $linuxres_home/usr
+%define mysqlcppconn_dir $linuxres_binaries/cppconn-gpl
+%define gdal_dir         $linuxres_binaries/gdal-gpl
 %define mysql_home       $HOME/mysql-server
 
 %define edition          community
@@ -258,18 +264,18 @@ find %{buildroot}%{_libdir}/mysql-workbench -name \*.la -exec rm {} \; -print
   cp -a %{odbc_home}/bin/iodbcadm-gtk %{buildroot}%{_libexecdir}/mysql-workbench/
 %endif
 
-if [ %{linuxres_home} ]; then
-  cp -a %{linuxres_home}/pyodbc.so %{buildroot}%{_libdir}/mysql-workbench/modules
+if [ %{linuxres_binaries} ]; then
+  cp -a %{linuxres_binaries}/pyodbc.so %{buildroot}%{_libdir}/mysql-workbench/modules
 %if 0%{?commercial}
   # Bundle libs only needed in commercial edition
-  cp -a %{linuxres_home}/sqlite3/libsqlite3.so %{buildroot}%{_libdir}/mysql-workbench/
-  cp -a %{linuxres_home}/pysqlite2 %{buildroot}%{_libdir}/mysql-workbench/modules
+  cp -a %{sqlite_dir}/libsqlite3.so %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a %{pysqlite_dir} %{buildroot}%{_libdir}/mysql-workbench/modules
 %endif
 fi
 
 %if %{with paramiko}
-  cp -a %{linuxres_home}/python/paramiko %{buildroot}%{_libdir}/mysql-workbench/modules/
-  cp -a %{linuxres_home}/python/ecdsa %{buildroot}%{_libdir}/mysql-workbench/modules/
+  cp -a %{pysqlite_dir}/paramiko %{buildroot}%{_libdir}/mysql-workbench/modules/
+  cp -a %{pysqlite_dir}/ecdsa %{buildroot}%{_libdir}/mysql-workbench/modules/
 %endif
 
 cp -a %{gdal_dir}/lib/libgdal.so.* %{buildroot}%{_libdir}/mysql-workbench/
