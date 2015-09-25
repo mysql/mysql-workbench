@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -213,7 +213,7 @@ grt::IntegerRef db_Column::setParseType(const std::string &type, const grt::List
 
   if (!bec::parse_type_definition(type, target_version, typeList, user_types, default_type_list,
       simpleType, userType, precision, scale, length, datatypeExplicitParams))
-      return false;
+      return 0;
   this->userType(userType);
   this->simpleType(simpleType);
   this->precision(precision);
@@ -226,7 +226,7 @@ grt::IntegerRef db_Column::setParseType(const std::string &type, const grt::List
 
   undo.end(_("Change Column Type"));
 
-  return true;
+  return 1;
 }
 
 
