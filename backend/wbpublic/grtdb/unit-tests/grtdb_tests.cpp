@@ -89,7 +89,7 @@ TEST_FUNCTION(10)
 
 // Helper macros for column base types parser tests.
 #define ensure_parse_ok(str) ensure(str, column->setParseType(str, tester.get_rdbms()->simpleDatatypes()) != 0);
-#define ensure_parse_fail(str) ensure(str, !column->setParseType(str, tester.get_rdbms()->simpleDatatypes()));
+#define ensure_parse_fail(str) ensure(str, column->setParseType(str, tester.get_rdbms()->simpleDatatypes()) == 0);
 
 TEST_FUNCTION(15)
 {
@@ -178,18 +178,58 @@ TEST_FUNCTION(20)
 
     // Depending on the server version a data type is defined for we need to set the
     // correct version or parsing will fail where it should succeed.
-    GrtVersionRef version(grtm->get_grt());
-    version->majorNumber(5);
     std::string validity = types[i]->validity();
-    if (validity == "<5.6")
-      version->minorNumber(5);
-    else
-      if (validity == ">=5.6")
-        version->minorNumber(6);
+    ensure("Invalid data type validity", validity.empty() || validity.size() > 2);
+
+    if (validity.empty())
+      validity = "<5.7.9"; // Default is latest GA server at this time.
+
+    size_t offset = 1;
+    if (validity[1] == '=')
+      ++offset;
+
+    GrtVersionRef version = bec::parse_version(grtm->get_grt(), validity.substr(offset));
+
+    // Convert the version so that we get one that matches the validity.
+    switch (validity[0])
+    {
+    case '<':
+      if (version->buildNumber() > 0)
+        version->buildNumber(version->buildNumber() - 1);
       else
-        version->minorNumber(7);
-    version->releaseNumber(-1);
-    version->buildNumber(-1);
+      {
+        if (version->buildNumber() > -1)
+          version->buildNumber(99);
+        if (version->releaseNumber() > 0)
+          version->releaseNumber(version->releaseNumber() - 1);
+        else
+        {
+          version->releaseNumber(99);
+          if (version->minorNumber() > 0)
+            version->minorNumber(version->minorNumber() - 1);
+          else
+          {
+            version->minorNumber(99);
+            version->majorNumber(version->majorNumber() - 1); // There's always a valid major number.
+          }
+        }
+      }
+      break;
+    case '>':
+      if (version->buildNumber() > 0)
+        version->buildNumber(version->buildNumber() + 1);
+      else
+      {
+        if (version->releaseNumber() > 0)
+          version->releaseNumber(version->releaseNumber() + 1);
+        else
+          if (version->minorNumber() > -1)
+            version->minorNumber(version->minorNumber() + 1);
+          else
+            version->majorNumber(version->majorNumber() + 1);
+      }
+      break;
+    }
     catalog->version(version);
 
     // The parameter format type tells us which combination is valid.
