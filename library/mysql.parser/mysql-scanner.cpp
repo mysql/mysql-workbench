@@ -328,7 +328,7 @@ uint32_t MySQLScanner::look_around(int offset, bool ignore_hidden)
   }
   else
   {
-    ssize_t count = (ssize_t)d->_tokens.size();
+    ssize_t count = (ssize_t)d->_tokens.size() - 1; // -1 because the last node is always EOF.
     while (index < count && offset > 0)
     {
       --offset;
