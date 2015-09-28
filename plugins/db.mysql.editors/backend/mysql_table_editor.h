@@ -37,8 +37,11 @@ class MYSQLWBMYSQLSUPPORTBACKEND_PUBLIC_FUNC MySQLTableColumnsListBE : public ::
 public:
   enum MySQLColumnListColumns
   {
-    IsAutoIncrement= bec::TableColumnsListBE::LastColumn,
+    IsAutoIncrement = bec::TableColumnsListBE::LastColumn,
     IsAutoIncrementable,
+    IsGenerated,
+    GeneratedStorageType,
+    GeneratedExpression
   };
 
   virtual bool set_field(const ::bec::NodeId &node, ColumnId column, const std::string &value);
