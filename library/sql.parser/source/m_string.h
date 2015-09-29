@@ -56,8 +56,8 @@
 #include <strings.h>
 #endif
 
-/*  This is needed for the definitions of memcpy... on solaris */
-#if defined(HAVE_MEMORY_H) && !defined(__cplusplus)
+/*  This is needed for the definitions of memcpy... */
+#if defined(HAVE_MEMMOVE) || defined(HAVE_MEMCPY)
 #include <memory.h>
 #endif
 
