@@ -32,7 +32,7 @@ namespace mysql_parser
 
 struct st_remember {
   int number;
-  sig_handler (*func)(int number);
+  void (*func)(int number);
 };
 
 /*
