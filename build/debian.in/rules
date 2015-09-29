@@ -31,19 +31,19 @@ INSTALL_PREFIX=/usr
 LINUXRES_HOME=$(HOME)/linux-res
 LINUXRES_BINARIES=$(LINUXRES_HOME)/builds
 
-ODBC_HOME=$(LINUXRES_BINARIES)/odbc
+ODBC_HOME=$(LINUXRES_BINARIES)/odbc/usr/local
+VSQLITE_HOME=$(LINUXRES_BINARIES)/vsqlite/usr/local
 SQLITE_HOME=$(LINUXRES_BINARIES)/sqlite
-VSQLITE_HOME=$(LINUXRES_BINARIES)/vsqlite
 PYSQLITE2_HOME=$(LINUXRES_BINARIES)/pysqlite2
 
 @ifdef community
-CPPCONN_HOME=$(LINUXRES_BINARIES)/cppconn-gpl
+CPPCONN_HOME=$(LINUXRES_BINARIES)/cppconn-gpl/usr/local
+GDAL_HOME=$(LINUXRES_BINARIES)/gdal-gpl/usr/local
 MYSQL_HOME=$(HOME)/mysql-server/
-GDAL_HOME=$(LINUXRES_BINARIES)/gdal-gpl
 @else
-CPPCONN_HOME=$(LINUXRES_BINARIES)/cppconn-com
+CPPCONN_HOME=$(LINUXRES_BINARIES)/cppconn-com/usr/local
+GDAL_HOME=$(LINUXRES_BINARIES)/gdal-com/usr/local
 MYSQL_HOME=$(HOME)/mysql-server-advanced/
-GDAL_HOME=$(LINUXRES_BINARIES)/gdal-com
 @endif
 
 WBDIRNAME=mysql-workbench-@edition@
