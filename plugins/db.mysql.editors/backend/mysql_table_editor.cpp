@@ -56,28 +56,56 @@ bool MySQLTableColumnsListBE::set_field(const NodeId &node, ColumnId column, con
     if (!col.is_valid())
       return false;
 
-    switch ((ColumnListColumns)column)
+    switch (column)
     {
     case Type:
       // Remove auto increment for non integer types
       if (is_int_datatype(value) == false)
         col->autoIncrement(false);
       break;
+    case GeneratedStorageType:
+      {
+        std::string tmpValue = base::toupper(value);
+        if (tmpValue == "VIRTUAL" || tmpValue == "STORED")
+        {
+          AutoUndoEdit undo(_owner);
+          col->generatedStorage(tmpValue);
+          undo.end(strfmt(_("Change Generated Column Storage Type of '%s.%s' to %s"), _owner->get_name().c_str(), col->name().c_str(), value.c_str()));
+          return true;
+        }
+        else
+          break;
+      }
+    case GeneratedExpression:
+    {
+      AutoUndoEdit undo(_owner);
+      col->expression(value);
+      undo.end(strfmt(_("Change Generated Column Storage Type of '%s.%s'"), _owner->get_name().c_str(), col->name().c_str()));
+      return true;
+    }
     case Default:
       // If a default value is set then auto increment for a column doesn't make sense.
       if (!base::trim(value).empty())
       {
         AutoUndoEdit undo(_owner);
-
-        bool result = TableColumnsListBE::set_field(node, column, value);
         col->autoIncrement(false);
-        undo.end(
-          strfmt(_("Set Default Value and Unset Auto Increment '%s.%s'"), _owner->get_name().c_str(),
-            col->name().c_str()
-          )
-        );
+        if (col->generated()) // TODO: this is a temporary solution, it will be split into default and expression in the future
+        {
+          col->expression(value);
+          undo.end(strfmt(_("Set Generated Column Expression of '%s.%s'"), _owner->get_name().c_str(), col->name().c_str()));
+          return true;
+        }
+        else
+        {
+          bool result = TableColumnsListBE::set_field(node, column, value);
+          undo.end(
+            strfmt(_("Set Default Value and Unset Auto Increment '%s.%s'"), _owner->get_name().c_str(),
+              col->name().c_str()
+            )
+          );
 
-        return result;
+          return result;
+        }
       }
       break;
     default:
@@ -144,6 +172,8 @@ bool MySQLTableColumnsListBE::set_field(const ::bec::NodeId &node, ColumnId colu
           }
                     
           col->autoIncrement(value != 0);
+          if (value != 0)
+            col->generated(false);
 
           // If auto increment is enabled then reset any default value.
           if (col->autoIncrement() && !(*col->defaultValue()).empty())
@@ -159,7 +189,22 @@ bool MySQLTableColumnsListBE::set_field(const ::bec::NodeId &node, ColumnId colu
           col->autoIncrement(false);
       }
       return true;
+    case IsGenerated:
+    {
+      AutoUndoEdit undo(_owner);
+      if (value != 0)
+        col->autoIncrement(false);
+      col->generated(value != 0);
+      undo.end(value ?
+                  strfmt(_("Set Generated Column '%s.%s'"), _owner->get_name().c_str(), col->name().c_str()) :
+                  strfmt(_("Unset Generated Column '%s.%s'"), _owner->get_name().c_str(), col->name().c_str()));
+      return true;
+    }
     case IsAutoIncrementable:
+      return false;
+    case GeneratedStorageType:
+      return false;
+    case GeneratedExpression:
       return false;
     }
   }
@@ -178,6 +223,22 @@ bool MySQLTableColumnsListBE::get_field_grt(const ::bec::NodeId &node, ColumnId 
     {
       switch (column)
       {
+      case IsGenerated:
+        value = col->generated();
+        return true;
+      case GeneratedStorageType:
+        value = col->generatedStorage();
+        return true;
+      case GeneratedExpression:
+        value = col->expression();
+        return true;
+      case Default:
+        if (col->generated()) // TODO: this is a temporary solution, it will be split into default and expression in the future
+        {
+          value = col->expression();
+          return true;
+        }
+        break;
       case IsAutoIncrement:
         value= col->autoIncrement();
         return true;
