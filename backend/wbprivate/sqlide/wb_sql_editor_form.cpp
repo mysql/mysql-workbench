@@ -1190,7 +1190,7 @@ bool SqlEditorForm::connect(boost::shared_ptr<sql::TunnelConnection> tunnel)
         return false;
       }
     }
-    catch (grt::grt_runtime_error &err)
+    catch (grt::grt_runtime_error &)
     {
       if (error_ptr.serverException != NULL)
         throw grt::server_denied(*error_ptr.serverException);
