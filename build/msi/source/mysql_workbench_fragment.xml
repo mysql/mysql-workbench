@@ -1622,6 +1622,30 @@
                       <File Id="file68720" Name="transport.py"/>
                       <File Id="file68722" Name="util.py"/>
                       <File Id="file68724" Name="win_pageant.py"/>
+                      <File Id="file68729" Name="ssh_gss.py"/>
+                      <File Id="file68730" Name="py3compat.py"/>
+                      <File Id="file68731" Name="proxy.py"/>
+                      <File Id="file68732" Name="kex_gss.py"/>
+                      <File Id="file68733" Name="kex_group14.py"/>
+                      <File Id="file68734" Name="ecdsakey.py"/>
+                      <File Id="file68735" Name="_winapi.py"/>
+                      <File Id="file68736" Name="_version.py"/>
+                    </Component>
+                  </Directory>
+                  <Directory Id="python_site_packages_ecdsa" Name="ecdsa">
+                    <Component DiskId="1" Guid="2baa2da0-0d38-41e6-9f51-ee88b5d1efe8" Id="python_site_packages_ecdsa" Location="either">
+                      <File Id="file68737" Name="util.py"/>
+                      <File Id="file68738" Name="six.py"/>
+                      <File Id="file68739" Name="test_pyecdsa.py"/>
+                      <File Id="file68740" Name="rfc6979.py"/>
+                      <File Id="file68741" Name="keys.py"/>
+                      <File Id="file68742" Name="numbertheory.py"/>
+                      <File Id="file68743" Name="ellipticcurve.py"/>
+                      <File Id="file68744" Name="der.py"/>
+                      <File Id="file68745" Name="ecdsa.py"/>
+                      <File Id="file68746" Name="curves.py"/>
+                      <File Id="file68747" Name="__init__.py"/>
+                      <File Id="file68748" Name="_version.py"/>
                     </Component>
                   </Directory>
                   <?if $(var.SETUP_TYPE) = "commercial" ?>
