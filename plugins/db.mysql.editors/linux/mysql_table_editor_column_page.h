@@ -3,6 +3,7 @@
 
 #include "grt/tree_model.h"
 #include <gtkmm/builder.h>
+#include <gtkmm/radiobutton.h>
 
 class MySQLTableEditorBE;
 class ListModelWrapper;
@@ -41,6 +42,8 @@ class DbMySQLTableEditorColumnPage : public sigc::trackable
     void set_comment(const std::string& comment);
     void set_collation();
     void update_collation();
+    void update_gc_storage_type();
+    void set_gc_storage_type();
 
     void check_resize(Gtk::Allocation& r);
     bool do_on_visible(GdkEventVisibility*);
@@ -61,6 +64,9 @@ class DbMySQLTableEditorColumnPage : public sigc::trackable
     Gtk::ScrolledWindow                      *_tv_holder;
 
     Gtk::ComboBox                            *_collation_combo;
+
+    Gtk::RadioButton                         *_radioStored;
+    Gtk::RadioButton                         *_radioVirtual;
 
     gulong                                    _edit_conn;
     GtkCellEditable                          *_ce;
