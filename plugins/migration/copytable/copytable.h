@@ -273,9 +273,9 @@ class MySQLCopyDataSource : public CopyDataSource
 
 public:
   MySQLCopyDataSource(const std::string &hostname, int port,
-                    const std::string &username, const std::string &password,
-                    const std::string &socket, bool use_cleartext_plugin,
-                    const unsigned int connection_timeout);
+                      const std::string &username, const std::string &password,
+                      const std::string &socket, bool use_cleartext_plugin,
+                      const unsigned int connection_timeout);
   virtual ~MySQLCopyDataSource();
 
   virtual size_t count_rows(const std::string &schema, const std::string &table, const std::vector<std::string> &pk_columns,
@@ -293,12 +293,13 @@ class MySQLCopyDataTarget
   struct InsertBuffer
   {
     MYSQL *_mysql;
+    MySQLCopyDataTarget *_target;
     char *buffer;
     size_t length;
     size_t size;
     size_t last_insert_length;
 
-    InsertBuffer() : buffer(NULL), length(0), size(0), last_insert_length(0) {}
+    InsertBuffer(MySQLCopyDataTarget *target) : _target(target), buffer(NULL), length(0), size(0), last_insert_length(0) {}
     ~InsertBuffer() { if (buffer) free(buffer); }
     void reset(size_t size);
     void end_insert();
