@@ -21,6 +21,8 @@
 
 #include "stdarg.h"
 
+#include <limits.h>
+
 namespace mysql_parser
 {
 
