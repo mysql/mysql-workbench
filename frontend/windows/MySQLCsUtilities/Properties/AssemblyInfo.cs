@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("MySQLUtilities")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Oracle")]
+[assembly: AssemblyCompany("Oracle Corporation")]
 [assembly: AssemblyProduct("MySQLUtilities")]
-[assembly: AssemblyCopyright("Copyright © Oracle 2007, 2014")]
+[assembly: AssemblyCopyright("Copyright (c) 2007, 2015, Oracle and/or its affiliates")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
