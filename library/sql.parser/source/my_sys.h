@@ -683,7 +683,7 @@ extern my_bool init_tmpdir(MY_TMPDIR *tmpdir, const char *pathlist);
 extern char *my_tmpdir(MY_TMPDIR *tmpdir);
 extern void free_tmpdir(MY_TMPDIR *tmpdir);
 
-extern void my_remember_signal(int signal_number,sig_handler (*func)(int));
+extern void my_remember_signal(int signal_number, void (*func)(int));
 extern uint dirname_part(my_string to,const char *name);
 extern uint dirname_length(const char *name);
 #define base_name(A) (A+dirname_length(A))
@@ -724,14 +724,14 @@ extern int write_cache_record(RECORD_CACHE *info,my_off_t filepos,
 			      const byte *record,uint length);
 extern int flush_write_cache(RECORD_CACHE *info);
 extern long my_clock(void);
-extern sig_handler sigtstp_handler(int signal_number);
+extern void sigtstp_handler(int signal_number);
 extern void handle_recived_signals(void);
 
-extern sig_handler my_set_alarm_variable(int signo);
+extern void my_set_alarm_variable(int signo);
 extern void my_string_ptr_sort(void *base,uint items,size_s size);
 extern void radixsort_for_str_ptr(uchar* base[], uint number_of_elements,
 				  size_s size_of_element,uchar *buffer[]);
-extern qsort_t qsort2(void *base_ptr, size_t total_elems, size_t size,
+extern void qsort2(void *base_ptr, size_t total_elems, size_t size,
 		      qsort2_cmp cmp, void *cmp_argument);
 extern qsort2_cmp get_ptr_compare(uint);
 void my_store_ptr(byte *buff, uint pack_length, my_off_t pos);
