@@ -391,7 +391,7 @@ std::string sanitize_file_name(const std::string &s)
   for (std::string::const_iterator c = s.begin(); c != s.end(); ++c)
   {
     // utf-8 has the high-bit = 1, so we just copy those verbatim
-    if ((unsigned char)*c >= 128 || isalnum(*c) || (ispunct(*c) && !is_invalid_filesystem_char(*c)))
+    if (isalnum(*c) || (unsigned char)*c >= 128 || (ispunct(*c) && !is_invalid_filesystem_char(*c)))
       out.push_back(*c);
     else
       out.push_back('_');
@@ -597,7 +597,7 @@ std::vector<std::string> split_token_list(const std::string &s, int sep)
           if (p < end)
           {
             if (s[p] != sep)
-              log_debug("Error splitting string list\n");
+              logDebug("Error splitting string list\n");
             else
               p++;
           }
@@ -630,7 +630,7 @@ std::vector<std::string> split_token_list(const std::string &s, int sep)
           if (p < end)
           {
             if (s[p] != sep)
-              log_debug("Error splitting string list\n");
+              logDebug("Error splitting string list\n");
             else
               p++;
           }
@@ -1142,7 +1142,7 @@ std::string right(const std::string& s, size_t len)
 /**
  * Tests if s begins with part.
  */
-bool starts_with(const std::string& s, const std::string& part)
+bool hasPrefix(const std::string& s, const std::string& part)
 {
   return s.compare(0, part.length(), part) == 0;
 }
@@ -1152,7 +1152,7 @@ bool starts_with(const std::string& s, const std::string& part)
 /**
  * Tests if s ends with part.
  */
-bool ends_with(const std::string& s, const std::string& part)
+bool hasSuffix(const std::string& s, const std::string& part)
 {
   int start_at = (int)s.length() - (int)part.length();
   
@@ -1341,10 +1341,10 @@ std::string escape_json_string(const std::string &s)
 {
   std::string result;
   result.reserve(s.size());
-  for (std::string::const_iterator ch= s.begin(); ch != s.end(); ++ch)
+  for (auto ch : s)
   {
     char escape = 0;
-    switch (*ch)
+    switch (ch)
     {
     case '"':
       escape = '"';
@@ -1376,10 +1376,9 @@ std::string escape_json_string(const std::string &s)
       result.push_back(escape);
     }
     else
-      result.push_back(*ch);
+      result.push_back(ch);
   }
   return result;
-
 }
 
 /**
@@ -1621,25 +1620,7 @@ std::string unquote_identifier(const std::string& identifier)
 }
 
 //--------------------------------------------------------------------------------------------------
-
-/**
- * @brief Remove outer quotes from any text.
- *
- * @param text Text to unquote
- * @return Return unqoted text.
- */
-std::string unquote(const std::string &text)
-{
-  if (text.size() < 2)
-    return text;
-
-  if ((text[0] == '"' || text[0] == '`' || text[0] == '\'') && text[0] == text[text.size() - 1])
-    return text.substr(1, text.size() - 2);
-  return text;
-}
-
-//--------------------------------------------------------------------------------------------------
-
+  
 std::string quote_identifier(const std::string& identifier, const char quote_char)
 {
   return quote_char + identifier + quote_char;
@@ -1695,23 +1676,24 @@ bool is_number(const std::string &word)
 }
 
 //--------------------------------------------------------------------------------------------------
-
+    
 /**
- * @brief Determine if a string is a boolean.
- *
- * @param text Text to check
- * @return Return true if given string is a boolean.
- */
+* @brief Determine if a string is a boolean.
+*
+* @param text Text to check
+* @return Return true if given string is a boolean.
+**/
 bool isBool(const std::string &text)
 {
-  std::string lower = tolower(text);
-  if (lower.compare("true") != 0 && lower.compare("false") != 0)
+  std::string transformed;
+  std::transform(text.begin(), text.end(), std::back_inserter(transformed), ::tolower);
+  if (transformed.compare("true") != 0 && transformed.compare("false") != 0)
     return false;
   return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-  
+    
 /**
  * Function : stl_string_compare
  * Description : comparison function to be used on the sorting process
