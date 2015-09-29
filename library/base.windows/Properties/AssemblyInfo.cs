@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Windows Base Library")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Oracle")]
+[assembly: AssemblyCompany("Oracle Corporation")]
 [assembly: AssemblyProduct("base-windows")]
-[assembly: AssemblyCopyright("Copyright (c) Oracle 2010, 2014")]
+[assembly: AssemblyCopyright("Copyright (c) 2010, 2015, Oracle and/or its affiliates")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
