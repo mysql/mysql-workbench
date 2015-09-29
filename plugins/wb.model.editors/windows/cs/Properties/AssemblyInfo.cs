@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("WBPluginModelEditors")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("-")]
+[assembly: AssemblyCompany("Oracle Corporation")]
 [assembly: AssemblyProduct("WBPluginModelEditors")]
-[assembly: AssemblyCopyright("Copyright © - 2007")]
+[assembly: AssemblyCopyright("Copyright (c) 2007, 2015, Oracle and/or its affiliates")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
