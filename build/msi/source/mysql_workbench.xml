@@ -120,6 +120,7 @@
             <?if $(var.SETUP_TYPE) = "commercial" ?>
               <RemoveFile Id="pyc_cleanup22" Name="*.pyc" On="both" Directory="python_site_packages_pysqlite2" />
             <?endif?>
+			<RemoveFile Id="pyc_cleanup41" Name="*.pyc" On="both" Directory="python_site_packages_ecdsa" />
             <RemoveFile Id="pyc_cleanup25" Name="*.pyc" On="both" Property="LEFTOVERDIR1" />			
             <RemoveFile Id="pyc_cleanup26" Name="*.pyc" On="both" Property="LEFTOVERDIR2" />			
             <RemoveFile Id="pyc_cleanup27" Name="pyodbc*.pyd" On="both" Directory="python_site_packages" />
@@ -189,6 +190,7 @@
 			<ComponentRef Id="python_site_packages_crypto_signature" />
 			<ComponentRef Id="python_site_packages_crypto_util" />
 			<ComponentRef Id="python_site_packages_paramiko" />
+			<ComponentRef Id="python_site_packages_ecdsa" />
           <?if $(var.SETUP_TYPE) = "commercial" ?>
             <ComponentRef Id="python_site_packages_pysqlite2" />
             <ComponentRef Id="reporting_HTML_Basic_Frames" />
