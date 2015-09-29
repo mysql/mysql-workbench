@@ -29,9 +29,9 @@
 %define linuxres_home     $HOME/linux-res
 %define linuxres_binaries $linuxres_home/builds
 
-%define odbc_home         $linuxres_binaries/odbc
-%define vsqlite_dir       $linuxres_binaries/vsqlite
-%define ctemplate_dir     $linuxres_binaries/ctemplate
+%define odbc_home         $linuxres_binaries/odbc/usr/local
+%define vsqlite_dir       $linuxres_binaries/vsqlite/usr/local
+%define ctemplate_dir     $linuxres_binaries/ctemplate/usr/local
 %define sqlite_dir       $linuxres_binaries/sqlite
 %define pysqlite_dir     $linuxres_binaries/pysqlite
 %define python_dir       $linuxres_binaries/python
@@ -40,8 +40,8 @@
 
 %if "%{edition}" == "commercial"
 %define commercial       1
-%define mysqlcppconn_dir $linuxres_binaries/cppconn-com
-%define gdal_dir         $linuxres_binaries/gdal-com
+%define mysqlcppconn_dir $linuxres_binaries/cppconn-com/usr/local
+%define gdal_dir         $linuxres_binaries/gdal-com/usr/local
 %define mysql_home       $HOME/mysql-server-advanced
 
 %define edition          commercial
@@ -49,8 +49,8 @@
 %define license_file     LICENSE.mysql
 %else
 %define community        1
-%define mysqlcppconn_dir $linuxres_binaries/cppconn-gpl
-%define gdal_dir         $linuxres_binaries/gdal-gpl
+%define mysqlcppconn_dir $linuxres_binaries/cppconn-gpl/usr/local
+%define gdal_dir         $linuxres_binaries/gdal-gpl/usr/local
 %define mysql_home       $HOME/mysql-server
 
 %define edition          community
