@@ -4,6 +4,10 @@ if (UNIX)
 	include_directories(./linux)
 endif ()
 
+if (UNIX)
+  add_definitions(-DHAVE_MEMCPY=1 -DHAVE_MEMMOVE=1 -DUSE_MB=1 -DUSE_MB_IDENT=1 -DHAVE_STRTOUL=1)
+endif()
+
 #TODO: Set other compiler flags - doesn't work in gcc 4.6
 #if(CMAKE_COMPILER_IS_GNUCXX)
 #    set(CMAKE_CXX_FLAGS  ${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas)
