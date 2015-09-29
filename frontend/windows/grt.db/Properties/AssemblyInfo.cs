@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("grt.db.fe")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Oracle")]
+[assembly: AssemblyCompany("Oracle Corporation")]
 [assembly: AssemblyProduct("grt.db.fe")]
-[assembly: AssemblyCopyright("Copyright © 2010, 2014, Oracle")]
+[assembly: AssemblyCopyright("Copyright (c) 2010, 2015, Oracle and/or its affiliates")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
