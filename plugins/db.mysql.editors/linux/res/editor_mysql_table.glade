@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <!-- interface-requires gtk+ 3.0 -->
+  <requires lib="gtk+" version="2.16"/>
   <object class="GtkListStore" id="liststore1">
     <columns>
       <!-- column-name text -->
