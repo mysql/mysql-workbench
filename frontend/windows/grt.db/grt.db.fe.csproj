@@ -86,16 +86,22 @@
     <Compile Include="DbObjectEditorPages.Designer.cs">
       <DependentUpon>DbObjectEditorPages.cs</DependentUpon>
     </Compile>
-    <Compile Include="ObjectEditorPlugin.cs" />
+    <Compile Include="ObjectEditorPlugin.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="ObjectEditorPlugin.Designer.cs">
       <DependentUpon>ObjectEditorPlugin.cs</DependentUpon>
     </Compile>
-    <Compile Include="ObjectEditorView.cs" />
+    <Compile Include="ObjectEditorView.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="ObjectEditorView.Designer.cs">
       <DependentUpon>ObjectEditorView.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StandaloneWindowPlugin.cs" />
+    <Compile Include="StandaloneWindowPlugin.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="StandaloneWindowPlugin.Designer.cs">
       <DependentUpon>StandaloneWindowPlugin.cs</DependentUpon>
     </Compile>
