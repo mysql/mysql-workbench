@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk+" version="2.16"/>
+  <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkListStore" id="liststore1">
     <columns>
       <!-- column-name text -->
@@ -32,7 +33,7 @@
     </columns>
   </object>
   <object class="GtkListStore" id="liststore14">
-   <columns>
+    <columns>
       <!-- column-name text -->
       <column type="gchararray"/>
     </columns>
@@ -138,7 +139,7 @@
                 <property name="right_attach">2</property>
                 <property name="top_attach">1</property>
                 <property name="bottom_attach">2</property>
-                <property name="y_options"></property>
+                <property name="y_options"/>
               </packing>
             </child>
             <child>
@@ -152,7 +153,7 @@
                 <property name="right_attach">2</property>
                 <property name="top_attach">2</property>
                 <property name="bottom_attach">3</property>
-                <property name="y_options"></property>
+                <property name="y_options"/>
               </packing>
             </child>
             <child>
@@ -165,8 +166,8 @@
               <packing>
                 <property name="top_attach">2</property>
                 <property name="bottom_attach">3</property>
-                <property name="x_options"></property>
-                <property name="y_options"></property>
+                <property name="x_options"/>
+                <property name="y_options"/>
               </packing>
             </child>
             <child>
@@ -179,8 +180,8 @@
               <packing>
                 <property name="top_attach">1</property>
                 <property name="bottom_attach">2</property>
-                <property name="x_options"></property>
-                <property name="y_options"></property>
+                <property name="x_options"/>
+                <property name="y_options"/>
               </packing>
             </child>
             <child>
@@ -191,8 +192,8 @@
                 <property name="label" translatable="yes">Name:</property>
               </object>
               <packing>
-                <property name="x_options"></property>
-                <property name="y_options"></property>
+                <property name="x_options"/>
+                <property name="y_options"/>
               </packing>
             </child>
             <child>
@@ -208,7 +209,7 @@ characters. Spaces should be avoided and be replaced by _&lt;/small&gt;</propert
               <packing>
                 <property name="left_attach">2</property>
                 <property name="right_attach">3</property>
-                <property name="y_options"></property>
+                <property name="y_options"/>
               </packing>
             </child>
             <child>
@@ -226,7 +227,7 @@ performance, data consistency and more&lt;/small&gt;</property>
                 <property name="right_attach">3</property>
                 <property name="top_attach">2</property>
                 <property name="bottom_attach">3</property>
-                <property name="y_options"></property>
+                <property name="y_options"/>
               </packing>
             </child>
             <child>
@@ -237,11 +238,13 @@ performance, data consistency and more&lt;/small&gt;</property>
                 <property name="invisible_char_set">True</property>
                 <property name="primary_icon_activatable">False</property>
                 <property name="secondary_icon_activatable">False</property>
+                <property name="primary_icon_sensitive">True</property>
+                <property name="secondary_icon_sensitive">True</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="y_options"></property>
+                <property name="y_options"/>
               </packing>
             </child>
             <child>
@@ -260,7 +263,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                 <property name="right_attach">3</property>
                 <property name="top_attach">1</property>
                 <property name="bottom_attach">2</property>
-                <property name="y_options"></property>
+                <property name="y_options"/>
               </packing>
             </child>
             <child>
@@ -275,7 +278,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
               <packing>
                 <property name="top_attach">3</property>
                 <property name="bottom_attach">4</property>
-                <property name="x_options"></property>
+                <property name="x_options"/>
                 <property name="y_options">GTK_FILL</property>
               </packing>
             </child>
@@ -319,7 +322,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
       </packing>
     </child>
     <child>
-      <object class="GtkPaned" id="paned1">
+      <object class="GtkHPaned" id="paned1">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <child>
@@ -341,7 +344,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="border_width">8</property>
-            <property name="n_rows">3</property>
+            <property name="n_rows">4</property>
             <property name="n_columns">2</property>
             <property name="column_spacing">8</property>
             <property name="row_spacing">4</property>
@@ -354,9 +357,9 @@ are Latin1 or UTF8&lt;/small&gt;</property>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-                <property name="y_options"></property>
+                <property name="top_attach">2</property>
+                <property name="bottom_attach">3</property>
+                <property name="y_options"/>
               </packing>
             </child>
             <child>
@@ -382,7 +385,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
               </object>
               <packing>
                 <property name="right_attach">2</property>
-                <property name="y_options"></property>
+                <property name="y_options"/>
               </packing>
             </child>
             <child>
@@ -393,10 +396,10 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                 <property name="label" translatable="yes">Collation:</property>
               </object>
               <packing>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-                <property name="x_options"></property>
-                <property name="y_options"></property>
+                <property name="top_attach">2</property>
+                <property name="bottom_attach">3</property>
+                <property name="x_options"/>
+                <property name="y_options"/>
               </packing>
             </child>
             <child>
@@ -408,9 +411,9 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                 <property name="label" translatable="yes">Comment:</property>
               </object>
               <packing>
-                <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
-                <property name="x_options"></property>
+                <property name="top_attach">3</property>
+                <property name="bottom_attach">4</property>
+                <property name="x_options"/>
               </packing>
             </child>
             <child>
@@ -428,9 +431,88 @@ are Latin1 or UTF8&lt;/small&gt;</property>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
+                <property name="top_attach">3</property>
+                <property name="bottom_attach">4</property>
                 <property name="y_options">GTK_FILL</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkVBox" id="column_options_box">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkVBox" id="gc_storage_type_box">
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkLabel" id="gc_storage_lbl">
+                        <property name="can_focus">False</property>
+                        <property name="xalign">0</property>
+                        <property name="label" translatable="yes">Generated Column Storage Type</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkHBox" id="hbox1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child>
+                          <object class="GtkRadioButton" id="gc_virtual_radio">
+                            <property name="label" translatable="yes">VIRTUAL</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="use_action_appearance">False</property>
+                            <property name="draw_indicator">True</property>
+                            <property name="group">gc_stored_radio</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkRadioButton" id="gc_stored_radio">
+                            <property name="label" translatable="yes">STORED</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="use_action_appearance">False</property>
+                            <property name="draw_indicator">True</property>
+                            <property name="group">gc_virtual_radio</property>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+              <packing>
+                <property name="right_attach">2</property>
+                <property name="top_attach">1</property>
+                <property name="bottom_attach">2</property>
               </packing>
             </child>
           </object>
@@ -595,6 +677,8 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                     <property name="invisible_char_set">True</property>
                     <property name="primary_icon_activatable">False</property>
                     <property name="secondary_icon_activatable">False</property>
+                    <property name="primary_icon_sensitive">True</property>
+                    <property name="secondary_icon_sensitive">True</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -611,6 +695,8 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                     <property name="invisible_char_set">True</property>
                     <property name="primary_icon_activatable">False</property>
                     <property name="secondary_icon_activatable">False</property>
+                    <property name="primary_icon_sensitive">True</property>
+                    <property name="secondary_icon_sensitive">True</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -629,8 +715,8 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                   <packing>
                     <property name="top_attach">2</property>
                     <property name="bottom_attach">3</property>
-                    <property name="x_options"></property>
-                    <property name="y_options"></property>
+                    <property name="x_options"/>
+                    <property name="y_options"/>
                   </packing>
                 </child>
                 <child>
@@ -643,8 +729,8 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                   <packing>
                     <property name="top_attach">1</property>
                     <property name="bottom_attach">2</property>
-                    <property name="x_options"></property>
-                    <property name="y_options"></property>
+                    <property name="x_options"/>
+                    <property name="y_options"/>
                   </packing>
                 </child>
                 <child>
@@ -655,8 +741,8 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                     <property name="label" translatable="yes">Storage Type:</property>
                   </object>
                   <packing>
-                    <property name="x_options"></property>
-                    <property name="y_options"></property>
+                    <property name="x_options"/>
+                    <property name="y_options"/>
                   </packing>
                 </child>
                 <child>
@@ -669,7 +755,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                     <property name="left_attach">1</property>
                     <property name="right_attach">2</property>
                     <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
+                    <property name="y_options"/>
                   </packing>
                 </child>
               </object>
@@ -903,7 +989,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                         <property name="right_attach">2</property>
                         <property name="top_attach">1</property>
                         <property name="bottom_attach">2</property>
-                        <property name="y_options"></property>
+                        <property name="y_options"/>
                       </packing>
                     </child>
                     <child>
@@ -917,8 +1003,8 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                       <packing>
                         <property name="top_attach">1</property>
                         <property name="bottom_attach">2</property>
-                        <property name="x_options"></property>
-                        <property name="y_options"></property>
+                        <property name="x_options"/>
+                        <property name="y_options"/>
                       </packing>
                     </child>
                     <child>
@@ -929,8 +1015,8 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                         <property name="label" translatable="yes">On Update:</property>
                       </object>
                       <packing>
-                        <property name="x_options"></property>
-                        <property name="y_options"></property>
+                        <property name="x_options"/>
+                        <property name="y_options"/>
                       </packing>
                     </child>
                     <child>
@@ -942,7 +1028,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                       <packing>
                         <property name="left_attach">1</property>
                         <property name="right_attach">2</property>
-                        <property name="y_options"></property>
+                        <property name="y_options"/>
                       </packing>
                     </child>
                     <child>
@@ -957,7 +1043,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                         <property name="top_attach">2</property>
                         <property name="bottom_attach">3</property>
                         <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"></property>
+                        <property name="y_options"/>
                       </packing>
                     </child>
                     <child>
@@ -972,7 +1058,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                         <property name="top_attach">2</property>
                         <property name="bottom_attach">3</property>
                         <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"></property>
+                        <property name="y_options"/>
                       </packing>
                     </child>
                   </object>
@@ -1040,12 +1126,10 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                 <child>
                   <object class="GtkCheckButton" id="fk_model_only">
                     <property name="label" translatable="yes">Skip in SQL generation</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_action_appearance">False</property>
-                    <property name="xalign">0.5</property>
                     <property name="draw_indicator">True</property>
                   </object>
                   <packing>
@@ -1128,13 +1212,11 @@ are Latin1 or UTF8&lt;/small&gt;</property>
             <child>
               <object class="GtkCheckButton" id="enable_part_checkbutton">
                 <property name="label" translatable="yes">Enable Partitioning</property>
-                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
                 <property name="use_action_appearance">False</property>
                 <property name="use_underline">True</property>
-                <property name="xalign">0.5</property>
                 <property name="draw_indicator">True</property>
               </object>
               <packing>
@@ -1172,6 +1254,10 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                 <property name="width_request">96</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="primary_icon_activatable">False</property>
+                <property name="secondary_icon_activatable">False</property>
+                <property name="primary_icon_sensitive">True</property>
+                <property name="secondary_icon_sensitive">True</property>
               </object>
               <packing>
                 <property name="left_attach">5</property>
@@ -1179,7 +1265,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                 <property name="top_attach">1</property>
                 <property name="bottom_attach">2</property>
                 <property name="x_options">GTK_FILL</property>
-                <property name="y_options"></property>
+                <property name="y_options"/>
               </packing>
             </child>
             <child>
@@ -1187,12 +1273,16 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                 <property name="width_request">96</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="primary_icon_activatable">False</property>
+                <property name="secondary_icon_activatable">False</property>
+                <property name="primary_icon_sensitive">True</property>
+                <property name="secondary_icon_sensitive">True</property>
               </object>
               <packing>
                 <property name="left_attach">5</property>
                 <property name="right_attach">6</property>
                 <property name="x_options">GTK_FILL</property>
-                <property name="y_options"></property>
+                <property name="y_options"/>
               </packing>
             </child>
             <child>
@@ -1216,7 +1306,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
               <packing>
                 <property name="top_attach">1</property>
                 <property name="bottom_attach">2</property>
-                <property name="x_options"></property>
+                <property name="x_options"/>
               </packing>
             </child>
             <child>
@@ -1228,7 +1318,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
               <packing>
                 <property name="left_attach">2</property>
                 <property name="right_attach">3</property>
-                <property name="x_options"></property>
+                <property name="x_options"/>
               </packing>
             </child>
             <child>
@@ -1242,7 +1332,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                 <property name="right_attach">3</property>
                 <property name="top_attach">1</property>
                 <property name="bottom_attach">2</property>
-                <property name="x_options"></property>
+                <property name="x_options"/>
               </packing>
             </child>
             <child>
@@ -1253,6 +1343,8 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                 <property name="invisible_char_set">True</property>
                 <property name="primary_icon_activatable">False</property>
                 <property name="secondary_icon_activatable">False</property>
+                <property name="primary_icon_sensitive">True</property>
+                <property name="secondary_icon_sensitive">True</property>
               </object>
               <packing>
                 <property name="left_attach">3</property>
@@ -1267,6 +1359,8 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                 <property name="invisible_char_set">True</property>
                 <property name="primary_icon_activatable">False</property>
                 <property name="secondary_icon_activatable">False</property>
+                <property name="primary_icon_sensitive">True</property>
+                <property name="secondary_icon_sensitive">True</property>
               </object>
               <packing>
                 <property name="left_attach">3</property>
@@ -1300,38 +1394,34 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                 <property name="right_attach">5</property>
                 <property name="top_attach">1</property>
                 <property name="bottom_attach">2</property>
-                <property name="x_options"></property>
+                <property name="x_options"/>
               </packing>
             </child>
             <child>
               <object class="GtkCheckButton" id="part_manual_checkbtn">
                 <property name="label" translatable="yes">Manual</property>
-                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
                 <property name="use_action_appearance">False</property>
                 <property name="use_underline">True</property>
-                <property name="xalign">0.5</property>
                 <property name="draw_indicator">True</property>
               </object>
               <packing>
                 <property name="left_attach">6</property>
                 <property name="right_attach">7</property>
-                <property name="x_options"></property>
+                <property name="x_options"/>
                 <property name="x_padding">4</property>
               </packing>
             </child>
             <child>
               <object class="GtkCheckButton" id="subpart_manual_checkbtn">
                 <property name="label" translatable="yes">Manual</property>
-                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
                 <property name="use_action_appearance">False</property>
                 <property name="use_underline">True</property>
-                <property name="xalign">0.5</property>
                 <property name="draw_indicator">True</property>
               </object>
               <packing>
@@ -1339,7 +1429,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                 <property name="right_attach">7</property>
                 <property name="top_attach">1</property>
                 <property name="bottom_attach">2</property>
-                <property name="x_options"></property>
+                <property name="x_options"/>
                 <property name="x_padding">4</property>
               </packing>
             </child>
@@ -1354,7 +1444,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
                 <property name="x_options">GTK_FILL</property>
-                <property name="y_options"></property>
+                <property name="y_options"/>
               </packing>
             </child>
             <child>
@@ -1370,7 +1460,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                 <property name="top_attach">1</property>
                 <property name="bottom_attach">2</property>
                 <property name="x_options">GTK_FILL</property>
-                <property name="y_options"></property>
+                <property name="y_options"/>
               </packing>
             </child>
           </object>
@@ -1440,7 +1530,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                   <packing>
                     <property name="top_attach">6</property>
                     <property name="bottom_attach">7</property>
-                    <property name="x_options"></property>
+                    <property name="x_options"/>
                   </packing>
                 </child>
                 <child>
@@ -1496,6 +1586,8 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                     <property name="invisible_char_set">True</property>
                     <property name="primary_icon_activatable">False</property>
                     <property name="secondary_icon_activatable">False</property>
+                    <property name="primary_icon_sensitive">True</property>
+                    <property name="secondary_icon_sensitive">True</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -1514,7 +1606,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                   <packing>
                     <property name="top_attach">17</property>
                     <property name="bottom_attach">18</property>
-                    <property name="x_options"></property>
+                    <property name="x_options"/>
                   </packing>
                 </child>
                 <child>
@@ -1527,7 +1619,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                   <packing>
                     <property name="top_attach">16</property>
                     <property name="bottom_attach">17</property>
-                    <property name="x_options"></property>
+                    <property name="x_options"/>
                   </packing>
                 </child>
                 <child>
@@ -1538,8 +1630,8 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                     <property name="label" translatable="yes">General Options</property>
                   </object>
                   <packing>
-                    <property name="x_options"></property>
-                    <property name="y_options"></property>
+                    <property name="x_options"/>
+                    <property name="y_options"/>
                   </packing>
                 </child>
                 <child>
@@ -1550,7 +1642,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                   <packing>
                     <property name="left_attach">1</property>
                     <property name="right_attach">2</property>
-                    <property name="y_options"></property>
+                    <property name="y_options"/>
                   </packing>
                 </child>
                 <child>
@@ -1561,7 +1653,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                   <packing>
                     <property name="left_attach">2</property>
                     <property name="right_attach">3</property>
-                    <property name="y_options"></property>
+                    <property name="y_options"/>
                   </packing>
                 </child>
                 <child>
@@ -1574,7 +1666,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                   <packing>
                     <property name="top_attach">1</property>
                     <property name="bottom_attach">2</property>
-                    <property name="x_options"></property>
+                    <property name="x_options"/>
                   </packing>
                 </child>
                 <child>
@@ -1589,7 +1681,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
                     <property name="top_attach">1</property>
                     <property name="bottom_attach">2</property>
                     <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
+                    <property name="y_options"/>
                   </packing>
                 </child>
                 <child>
@@ -1619,7 +1711,7 @@ Setting it to DEFAULT tells the storage engine to only pack long CHAR/VARCHAR co
                   <packing>
                     <property name="top_attach">2</property>
                     <property name="bottom_attach">3</property>
-                    <property name="x_options"></property>
+                    <property name="x_options"/>
                   </packing>
                 </child>
                 <child>
@@ -1631,6 +1723,8 @@ Setting it to DEFAULT tells the storage engine to only pack long CHAR/VARCHAR co
                     <property name="invisible_char_set">True</property>
                     <property name="primary_icon_activatable">False</property>
                     <property name="secondary_icon_activatable">False</property>
+                    <property name="primary_icon_sensitive">True</property>
+                    <property name="secondary_icon_sensitive">True</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -1666,7 +1760,7 @@ MySQL version.&lt;/small&gt;</property>
                   <packing>
                     <property name="top_attach">3</property>
                     <property name="bottom_attach">4</property>
-                    <property name="x_options"></property>
+                    <property name="x_options"/>
                   </packing>
                 </child>
                 <child>
@@ -1677,6 +1771,8 @@ MySQL version.&lt;/small&gt;</property>
                     <property name="invisible_char_set">True</property>
                     <property name="primary_icon_activatable">False</property>
                     <property name="secondary_icon_activatable">False</property>
+                    <property name="primary_icon_sensitive">True</property>
+                    <property name="secondary_icon_sensitive">True</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -1730,13 +1826,11 @@ MySQL version.&lt;/small&gt;</property>
                 <child>
                   <object class="GtkCheckButton" id="delay_key_updates_toggle">
                     <property name="label" translatable="yes">Delay Key Updates</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_action_appearance">False</property>
                     <property name="use_underline">True</property>
-                    <property name="xalign">0.5</property>
                     <property name="draw_indicator">True</property>
                   </object>
                   <packing>
@@ -1792,7 +1886,7 @@ MySQL version.&lt;/small&gt;</property>
                   <packing>
                     <property name="top_attach">8</property>
                     <property name="bottom_attach">9</property>
-                    <property name="x_options"></property>
+                    <property name="x_options"/>
                   </packing>
                 </child>
                 <child>
@@ -1805,7 +1899,7 @@ MySQL version.&lt;/small&gt;</property>
                   <packing>
                     <property name="top_attach">9</property>
                     <property name="bottom_attach">10</property>
-                    <property name="x_options"></property>
+                    <property name="x_options"/>
                   </packing>
                 </child>
                 <child>
@@ -1818,7 +1912,7 @@ MySQL version.&lt;/small&gt;</property>
                   <packing>
                     <property name="top_attach">10</property>
                     <property name="bottom_attach">11</property>
-                    <property name="x_options"></property>
+                    <property name="x_options"/>
                   </packing>
                 </child>
                 <child>
@@ -1883,6 +1977,8 @@ to set the type to COMPRESSED.&lt;/small&gt;</property>
                     <property name="invisible_char_set">True</property>
                     <property name="primary_icon_activatable">False</property>
                     <property name="secondary_icon_activatable">False</property>
+                    <property name="primary_icon_sensitive">True</property>
+                    <property name="secondary_icon_sensitive">True</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -1899,6 +1995,8 @@ to set the type to COMPRESSED.&lt;/small&gt;</property>
                     <property name="invisible_char_set">True</property>
                     <property name="primary_icon_activatable">False</property>
                     <property name="secondary_icon_activatable">False</property>
+                    <property name="primary_icon_sensitive">True</property>
+                    <property name="secondary_icon_sensitive">True</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -1915,6 +2013,8 @@ to set the type to COMPRESSED.&lt;/small&gt;</property>
                     <property name="invisible_char_set">True</property>
                     <property name="primary_icon_activatable">False</property>
                     <property name="secondary_icon_activatable">False</property>
+                    <property name="primary_icon_sensitive">True</property>
+                    <property name="secondary_icon_sensitive">True</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -1985,13 +2085,11 @@ tables with variable-size records.&lt;/small&gt;</property>
                 <child>
                   <object class="GtkCheckButton" id="use_checksum_toggle">
                     <property name="label" translatable="yes">Use checksum</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_action_appearance">False</property>
                     <property name="use_underline">True</property>
-                    <property name="xalign">0.5</property>
                     <property name="draw_indicator">True</property>
                   </object>
                   <packing>
@@ -2064,7 +2162,7 @@ the table a little slower to update, but also makes it easier to find corrupted 
                   <packing>
                     <property name="top_attach">13</property>
                     <property name="bottom_attach">14</property>
-                    <property name="x_options"></property>
+                    <property name="x_options"/>
                   </packing>
                 </child>
                 <child>
@@ -2077,7 +2175,7 @@ the table a little slower to update, but also makes it easier to find corrupted 
                   <packing>
                     <property name="top_attach">14</property>
                     <property name="bottom_attach">15</property>
-                    <property name="x_options"></property>
+                    <property name="x_options"/>
                   </packing>
                 </child>
                 <child>
@@ -2088,6 +2186,8 @@ the table a little slower to update, but also makes it easier to find corrupted 
                     <property name="invisible_char_set">True</property>
                     <property name="primary_icon_activatable">False</property>
                     <property name="secondary_icon_activatable">False</property>
+                    <property name="primary_icon_sensitive">True</property>
+                    <property name="secondary_icon_sensitive">True</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -2104,6 +2204,8 @@ the table a little slower to update, but also makes it easier to find corrupted 
                     <property name="invisible_char_set">True</property>
                     <property name="primary_icon_activatable">False</property>
                     <property name="secondary_icon_activatable">False</property>
+                    <property name="primary_icon_sensitive">True</property>
+                    <property name="secondary_icon_sensitive">True</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
