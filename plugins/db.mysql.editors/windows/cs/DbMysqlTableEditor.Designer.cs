@@ -420,15 +420,16 @@ namespace MySQL.GUI.Workbench.Plugins
       // 
       // indexContextMenuStrip
       // 
+      this.indexContextMenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
       this.indexContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.deleteSelectedIndicesToolStripMenuItem});
       this.indexContextMenuStrip.Name = "indexContextMenuStrip";
-      this.indexContextMenuStrip.Size = new System.Drawing.Size(197, 26);
+      this.indexContextMenuStrip.Size = new System.Drawing.Size(238, 28);
       // 
       // deleteSelectedIndicesToolStripMenuItem
       // 
       this.deleteSelectedIndicesToolStripMenuItem.Name = "deleteSelectedIndicesToolStripMenuItem";
-      this.deleteSelectedIndicesToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
+      this.deleteSelectedIndicesToolStripMenuItem.Size = new System.Drawing.Size(237, 24);
       this.deleteSelectedIndicesToolStripMenuItem.Text = "Delete Selected Indexes";
       this.deleteSelectedIndicesToolStripMenuItem.Click += new System.EventHandler(this.deleteSelectedIndicesToolStripMenuItem_Click);
       // 
@@ -514,15 +515,16 @@ namespace MySQL.GUI.Workbench.Plugins
       // 
       // fksContextMenuStrip
       // 
+      this.fksContextMenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
       this.fksContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.deleteSelectedFKsToolStripMenuItem});
       this.fksContextMenuStrip.Name = "fksContextMenuStrip";
-      this.fksContextMenuStrip.Size = new System.Drawing.Size(176, 26);
+      this.fksContextMenuStrip.Size = new System.Drawing.Size(210, 28);
       // 
       // deleteSelectedFKsToolStripMenuItem
       // 
       this.deleteSelectedFKsToolStripMenuItem.Name = "deleteSelectedFKsToolStripMenuItem";
-      this.deleteSelectedFKsToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
+      this.deleteSelectedFKsToolStripMenuItem.Size = new System.Drawing.Size(209, 24);
       this.deleteSelectedFKsToolStripMenuItem.Text = "Delete Selected FKs";
       this.deleteSelectedFKsToolStripMenuItem.Click += new System.EventHandler(this.deleteSelectedFKsToolStripMenuItem_Click);
       // 
@@ -759,9 +761,9 @@ namespace MySQL.GUI.Workbench.Plugins
             "LINEAR HASH",
             "KEY",
             "LINEAR KEY"});
-      this.subpartFunction.Location = new System.Drawing.Point(113, 52);
+      this.subpartFunction.Location = new System.Drawing.Point(113, 60);
       this.subpartFunction.Name = "subpartFunction";
-      this.subpartFunction.Size = new System.Drawing.Size(114, 21);
+      this.subpartFunction.Size = new System.Drawing.Size(114, 25);
       this.subpartFunction.TabIndex = 5;
       this.toolTip.SetToolTip(this.subpartFunction, "Function that is used to determine the partition.");
       this.subpartFunction.SelectedIndexChanged += new System.EventHandler(this.subpartFunction_SelectedIndexChanged);
@@ -771,9 +773,9 @@ namespace MySQL.GUI.Workbench.Plugins
       this.partParams.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
       this.partParams.Enabled = false;
-      this.partParams.Location = new System.Drawing.Point(309, 25);
+      this.partParams.Location = new System.Drawing.Point(309, 29);
       this.partParams.Name = "partParams";
-      this.partParams.Size = new System.Drawing.Size(184, 21);
+      this.partParams.Size = new System.Drawing.Size(172, 24);
       this.partParams.TabIndex = 2;
       this.toolTip.SetToolTip(this.partParams, "The expression or column list used by the function to determine the partition.");
       this.partParams.TextChanged += new System.EventHandler(this.partParams_TextChanged);
@@ -783,9 +785,9 @@ namespace MySQL.GUI.Workbench.Plugins
       this.subpartParams.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
       this.subpartParams.Enabled = false;
-      this.subpartParams.Location = new System.Drawing.Point(309, 52);
+      this.subpartParams.Location = new System.Drawing.Point(309, 60);
       this.subpartParams.Name = "subpartParams";
-      this.subpartParams.Size = new System.Drawing.Size(184, 21);
+      this.subpartParams.Size = new System.Drawing.Size(172, 24);
       this.subpartParams.TabIndex = 7;
       this.toolTip.SetToolTip(this.subpartParams, "The expression or column list used by the function to determine the partition.");
       this.subpartParams.TextChanged += new System.EventHandler(this.subpartParams_TextChanged);
@@ -802,9 +804,9 @@ namespace MySQL.GUI.Workbench.Plugins
             "LINEAR KEY",
             "RANGE",
             "LIST"});
-      this.partFunction.Location = new System.Drawing.Point(113, 25);
+      this.partFunction.Location = new System.Drawing.Point(113, 29);
       this.partFunction.Name = "partFunction";
-      this.partFunction.Size = new System.Drawing.Size(114, 21);
+      this.partFunction.Size = new System.Drawing.Size(114, 25);
       this.partFunction.TabIndex = 1;
       this.toolTip.SetToolTip(this.partFunction, "Function that is used to determine the partition.");
       this.partFunction.SelectedIndexChanged += new System.EventHandler(this.partFunction_SelectedIndexChanged);
@@ -814,9 +816,9 @@ namespace MySQL.GUI.Workbench.Plugins
       this.subpartManual.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.subpartManual.AutoSize = true;
       this.subpartManual.Enabled = false;
-      this.subpartManual.Location = new System.Drawing.Point(661, 54);
+      this.subpartManual.Location = new System.Drawing.Point(649, 62);
       this.subpartManual.Name = "subpartManual";
-      this.subpartManual.Size = new System.Drawing.Size(60, 17);
+      this.subpartManual.Size = new System.Drawing.Size(72, 21);
       this.subpartManual.TabIndex = 9;
       this.subpartManual.Text = "Manual";
       this.toolTip.SetToolTip(this.subpartManual, "Check to manually specify partitioning ranges/values.");
@@ -828,9 +830,9 @@ namespace MySQL.GUI.Workbench.Plugins
       this.partManual.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.partManual.AutoSize = true;
       this.partManual.Enabled = false;
-      this.partManual.Location = new System.Drawing.Point(661, 27);
+      this.partManual.Location = new System.Drawing.Point(649, 31);
       this.partManual.Name = "partManual";
-      this.partManual.Size = new System.Drawing.Size(60, 17);
+      this.partManual.Size = new System.Drawing.Size(72, 21);
       this.partManual.TabIndex = 4;
       this.partManual.Text = "Manual";
       this.toolTip.SetToolTip(this.partManual, "Check to manually specify partitioning ranges/values.");
@@ -842,7 +844,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.fkModelOnlyCheck.AutoSize = true;
       this.fkModelOnlyCheck.Location = new System.Drawing.Point(45, 90);
       this.fkModelOnlyCheck.Name = "fkModelOnlyCheck";
-      this.fkModelOnlyCheck.Size = new System.Drawing.Size(133, 17);
+      this.fkModelOnlyCheck.Size = new System.Drawing.Size(167, 21);
       this.fkModelOnlyCheck.TabIndex = 22;
       this.fkModelOnlyCheck.Text = "Skip in SQL generation";
       this.toolTip.SetToolTip(this.fkModelOnlyCheck, resources.GetString("fkModelOnlyCheck.ToolTip"));
@@ -867,8 +869,10 @@ namespace MySQL.GUI.Workbench.Plugins
       this.indicesTreeView.Name = "indicesTreeView";
       this.indicesTreeView.NodeControls.Add(this.indexNameNodeControl);
       this.indicesTreeView.NodeControls.Add(this.indexTypeNodeControl);
+      this.indicesTreeView.ScrollPosition = new System.Drawing.Point(0, 0);
       this.indicesTreeView.SelectedNode = null;
       this.indicesTreeView.SelectionMode = Aga.Controls.Tree.TreeSelectionMode.Multi;
+      this.indicesTreeView.ShowHeader = true;
       this.indicesTreeView.ShowLines = false;
       this.indicesTreeView.ShowPlusMinus = false;
       this.indicesTreeView.Size = new System.Drawing.Size(241, 303);
@@ -897,35 +901,36 @@ namespace MySQL.GUI.Workbench.Plugins
       // 
       // partitionTreeMenuStrip
       // 
+      this.partitionTreeMenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
       this.partitionTreeMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.showClusterSettingsToolStripMenuItem,
             this.toolStripMenuItem2,
             this.createSubpartitionToolStripMenuItem,
             this.deleteRowToolStripMenuItem});
       this.partitionTreeMenuStrip.Name = "partitionTreeMenuStrip";
-      this.partitionTreeMenuStrip.Size = new System.Drawing.Size(189, 76);
+      this.partitionTreeMenuStrip.Size = new System.Drawing.Size(221, 82);
       // 
       // showClusterSettingsToolStripMenuItem
       // 
       this.showClusterSettingsToolStripMenuItem.Name = "showClusterSettingsToolStripMenuItem";
-      this.showClusterSettingsToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
+      this.showClusterSettingsToolStripMenuItem.Size = new System.Drawing.Size(220, 24);
       this.showClusterSettingsToolStripMenuItem.Text = "Show Cluster Settings";
       // 
       // toolStripMenuItem2
       // 
       this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-      this.toolStripMenuItem2.Size = new System.Drawing.Size(185, 6);
+      this.toolStripMenuItem2.Size = new System.Drawing.Size(217, 6);
       // 
       // createSubpartitionToolStripMenuItem
       // 
       this.createSubpartitionToolStripMenuItem.Name = "createSubpartitionToolStripMenuItem";
-      this.createSubpartitionToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
+      this.createSubpartitionToolStripMenuItem.Size = new System.Drawing.Size(220, 24);
       this.createSubpartitionToolStripMenuItem.Text = "Add Sub-Partition";
       // 
       // deleteRowToolStripMenuItem
       // 
       this.deleteRowToolStripMenuItem.Name = "deleteRowToolStripMenuItem";
-      this.deleteRowToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
+      this.deleteRowToolStripMenuItem.Size = new System.Drawing.Size(220, 24);
       this.deleteRowToolStripMenuItem.Text = "Delete Row";
       // 
       // insertsTabPage
@@ -967,7 +972,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.panel8.Dock = System.Windows.Forms.DockStyle.Top;
       this.panel8.Location = new System.Drawing.Point(3, 429);
       this.panel8.Name = "panel8";
-      this.panel8.Size = new System.Drawing.Size(707, 90);
+      this.panel8.Size = new System.Drawing.Size(703, 90);
       this.panel8.TabIndex = 5;
       // 
       // optMergeMethod
@@ -980,7 +985,7 @@ namespace MySQL.GUI.Workbench.Plugins
             "Last Table"});
       this.optMergeMethod.Location = new System.Drawing.Point(119, 46);
       this.optMergeMethod.Name = "optMergeMethod";
-      this.optMergeMethod.Size = new System.Drawing.Size(204, 21);
+      this.optMergeMethod.Size = new System.Drawing.Size(204, 25);
       this.optMergeMethod.TabIndex = 1;
       this.optMergeMethod.SelectedIndexChanged += new System.EventHandler(this.tableOptChanged);
       // 
@@ -1031,7 +1036,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // 
       this.optUnionTables.Location = new System.Drawing.Point(119, 19);
       this.optUnionTables.Name = "optUnionTables";
-      this.optUnionTables.Size = new System.Drawing.Size(204, 21);
+      this.optUnionTables.Size = new System.Drawing.Size(204, 24);
       this.optUnionTables.TabIndex = 0;
       this.optUnionTables.TextChanged += new System.EventHandler(this.tableOptChanged);
       // 
@@ -1040,7 +1045,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label45.AutoSize = true;
       this.label45.Location = new System.Drawing.Point(0, 0);
       this.label45.Name = "label45";
-      this.label45.Size = new System.Drawing.Size(106, 13);
+      this.label45.Size = new System.Drawing.Size(132, 17);
       this.label45.TabIndex = 6;
       this.label45.Text = "Merge Table Options";
       // 
@@ -1051,7 +1056,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.bevel11.Dock = System.Windows.Forms.DockStyle.Top;
       this.bevel11.Location = new System.Drawing.Point(0, 0);
       this.bevel11.Name = "bevel11";
-      this.bevel11.Size = new System.Drawing.Size(707, 13);
+      this.bevel11.Size = new System.Drawing.Size(703, 13);
       this.bevel11.TabIndex = 5;
       this.bevel11.Text = "bevel11";
       // 
@@ -1068,7 +1073,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.panel7.Dock = System.Windows.Forms.DockStyle.Top;
       this.panel7.Location = new System.Drawing.Point(3, 345);
       this.panel7.Name = "panel7";
-      this.panel7.Size = new System.Drawing.Size(707, 84);
+      this.panel7.Size = new System.Drawing.Size(703, 84);
       this.panel7.TabIndex = 4;
       // 
       // label41
@@ -1088,7 +1093,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // 
       this.optIndexDirectory.Location = new System.Drawing.Point(119, 46);
       this.optIndexDirectory.Name = "optIndexDirectory";
-      this.optIndexDirectory.Size = new System.Drawing.Size(204, 21);
+      this.optIndexDirectory.Size = new System.Drawing.Size(204, 24);
       this.optIndexDirectory.TabIndex = 1;
       this.optIndexDirectory.TextChanged += new System.EventHandler(this.tableOptChanged);
       // 
@@ -1127,7 +1132,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // 
       this.optDataDirectory.Location = new System.Drawing.Point(119, 19);
       this.optDataDirectory.Name = "optDataDirectory";
-      this.optDataDirectory.Size = new System.Drawing.Size(204, 21);
+      this.optDataDirectory.Size = new System.Drawing.Size(204, 24);
       this.optDataDirectory.TabIndex = 0;
       this.optDataDirectory.TextChanged += new System.EventHandler(this.tableOptChanged);
       // 
@@ -1136,7 +1141,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label40.AutoSize = true;
       this.label40.Location = new System.Drawing.Point(0, 0);
       this.label40.Name = "label40";
-      this.label40.Size = new System.Drawing.Size(85, 13);
+      this.label40.Size = new System.Drawing.Size(107, 17);
       this.label40.TabIndex = 4;
       this.label40.Text = "Storage Options";
       // 
@@ -1147,7 +1152,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.bevel10.Dock = System.Windows.Forms.DockStyle.Top;
       this.bevel10.Location = new System.Drawing.Point(0, 0);
       this.bevel10.Name = "bevel10";
-      this.bevel10.Size = new System.Drawing.Size(707, 13);
+      this.bevel10.Size = new System.Drawing.Size(703, 13);
       this.bevel10.TabIndex = 3;
       this.bevel10.Text = "bevel10";
       // 
@@ -1175,7 +1180,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.panel6.Dock = System.Windows.Forms.DockStyle.Top;
       this.panel6.Location = new System.Drawing.Point(3, 136);
       this.panel6.Name = "panel6";
-      this.panel6.Size = new System.Drawing.Size(707, 209);
+      this.panel6.Size = new System.Drawing.Size(703, 209);
       this.panel6.TabIndex = 3;
       // 
       // optKeyBlockSize
@@ -1191,7 +1196,7 @@ namespace MySQL.GUI.Workbench.Plugins
             "16 KB"});
       this.optKeyBlockSize.Location = new System.Drawing.Point(119, 52);
       this.optKeyBlockSize.Name = "optKeyBlockSize";
-      this.optKeyBlockSize.Size = new System.Drawing.Size(204, 21);
+      this.optKeyBlockSize.Size = new System.Drawing.Size(204, 25);
       this.optKeyBlockSize.TabIndex = 20;
       this.optKeyBlockSize.SelectedIndexChanged += new System.EventHandler(this.tableOptChanged);
       // 
@@ -1235,7 +1240,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label39.AutoSize = true;
       this.label39.Location = new System.Drawing.Point(0, 0);
       this.label39.Name = "label39";
-      this.label39.Size = new System.Drawing.Size(68, 13);
+      this.label39.Size = new System.Drawing.Size(86, 17);
       this.label39.TabIndex = 2;
       this.label39.Text = "Row Options";
       // 
@@ -1244,7 +1249,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.optUseChecksum.AutoSize = true;
       this.optUseChecksum.Location = new System.Drawing.Point(119, 170);
       this.optUseChecksum.Name = "optUseChecksum";
-      this.optUseChecksum.Size = new System.Drawing.Size(98, 17);
+      this.optUseChecksum.Size = new System.Drawing.Size(120, 21);
       this.optUseChecksum.TabIndex = 4;
       this.optUseChecksum.Text = "Use Checksum";
       this.optUseChecksum.UseVisualStyleBackColor = true;
@@ -1257,7 +1262,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.bevel9.Dock = System.Windows.Forms.DockStyle.Top;
       this.bevel9.Location = new System.Drawing.Point(0, 0);
       this.bevel9.Name = "bevel9";
-      this.bevel9.Size = new System.Drawing.Size(707, 13);
+      this.bevel9.Size = new System.Drawing.Size(703, 13);
       this.bevel9.TabIndex = 1;
       this.bevel9.Text = "bevel9";
       // 
@@ -1308,7 +1313,7 @@ namespace MySQL.GUI.Workbench.Plugins
             "Compact"});
       this.optRowFormat.Location = new System.Drawing.Point(119, 19);
       this.optRowFormat.Name = "optRowFormat";
-      this.optRowFormat.Size = new System.Drawing.Size(204, 21);
+      this.optRowFormat.Size = new System.Drawing.Size(204, 25);
       this.optRowFormat.TabIndex = 0;
       this.optRowFormat.SelectedIndexChanged += new System.EventHandler(this.tableOptChanged);
       // 
@@ -1316,7 +1321,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // 
       this.optMaxRows.Location = new System.Drawing.Point(119, 139);
       this.optMaxRows.Name = "optMaxRows";
-      this.optMaxRows.Size = new System.Drawing.Size(204, 21);
+      this.optMaxRows.Size = new System.Drawing.Size(204, 24);
       this.optMaxRows.TabIndex = 3;
       this.optMaxRows.TextChanged += new System.EventHandler(this.tableOptChanged);
       // 
@@ -1354,7 +1359,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // 
       this.optMinRows.Location = new System.Drawing.Point(119, 112);
       this.optMinRows.Name = "optMinRows";
-      this.optMinRows.Size = new System.Drawing.Size(204, 21);
+      this.optMinRows.Size = new System.Drawing.Size(204, 24);
       this.optMinRows.TabIndex = 2;
       this.optMinRows.TextChanged += new System.EventHandler(this.tableOptChanged);
       // 
@@ -1362,7 +1367,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // 
       this.optAvgRowLength.Location = new System.Drawing.Point(119, 85);
       this.optAvgRowLength.Name = "optAvgRowLength";
-      this.optAvgRowLength.Size = new System.Drawing.Size(204, 21);
+      this.optAvgRowLength.Size = new System.Drawing.Size(204, 24);
       this.optAvgRowLength.TabIndex = 1;
       this.optAvgRowLength.TextChanged += new System.EventHandler(this.tableOptChanged);
       // 
@@ -1406,7 +1411,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.panel5.Dock = System.Windows.Forms.DockStyle.Top;
       this.panel5.Location = new System.Drawing.Point(3, 3);
       this.panel5.Name = "panel5";
-      this.panel5.Size = new System.Drawing.Size(707, 133);
+      this.panel5.Size = new System.Drawing.Size(703, 133);
       this.panel5.TabIndex = 2;
       // 
       // label28
@@ -1427,7 +1432,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label38.AutoSize = true;
       this.label38.Location = new System.Drawing.Point(0, 0);
       this.label38.Name = "label38";
-      this.label38.Size = new System.Drawing.Size(84, 13);
+      this.label38.Size = new System.Drawing.Size(104, 17);
       this.label38.TabIndex = 1;
       this.label38.Text = "General Options";
       // 
@@ -1436,7 +1441,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.optDelayKeyUpdates.AutoSize = true;
       this.optDelayKeyUpdates.Location = new System.Drawing.Point(119, 104);
       this.optDelayKeyUpdates.Name = "optDelayKeyUpdates";
-      this.optDelayKeyUpdates.Size = new System.Drawing.Size(117, 17);
+      this.optDelayKeyUpdates.Size = new System.Drawing.Size(145, 21);
       this.optDelayKeyUpdates.TabIndex = 3;
       this.optDelayKeyUpdates.Text = "Delay Key Updates";
       this.optDelayKeyUpdates.UseVisualStyleBackColor = true;
@@ -1449,7 +1454,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.bevel8.Dock = System.Windows.Forms.DockStyle.Top;
       this.bevel8.Location = new System.Drawing.Point(0, 0);
       this.bevel8.Name = "bevel8";
-      this.bevel8.Size = new System.Drawing.Size(707, 13);
+      this.bevel8.Size = new System.Drawing.Size(703, 13);
       this.bevel8.TabIndex = 0;
       this.bevel8.Text = "bevel8";
       // 
@@ -1478,7 +1483,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // 
       this.optAutoIncrement.Location = new System.Drawing.Point(119, 70);
       this.optAutoIncrement.Name = "optAutoIncrement";
-      this.optAutoIncrement.Size = new System.Drawing.Size(204, 21);
+      this.optAutoIncrement.Size = new System.Drawing.Size(204, 24);
       this.optAutoIncrement.TabIndex = 2;
       this.optAutoIncrement.TextChanged += new System.EventHandler(this.tableOptChanged);
       // 
@@ -1493,7 +1498,7 @@ namespace MySQL.GUI.Workbench.Plugins
             "Pack All"});
       this.optPackKeys.Location = new System.Drawing.Point(119, 16);
       this.optPackKeys.Name = "optPackKeys";
-      this.optPackKeys.Size = new System.Drawing.Size(204, 21);
+      this.optPackKeys.Size = new System.Drawing.Size(204, 25);
       this.optPackKeys.TabIndex = 0;
       this.optPackKeys.SelectedIndexChanged += new System.EventHandler(this.tableOptChanged);
       // 
@@ -1546,7 +1551,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // 
       this.optTablePassword.Location = new System.Drawing.Point(119, 43);
       this.optTablePassword.Name = "optTablePassword";
-      this.optTablePassword.Size = new System.Drawing.Size(204, 21);
+      this.optTablePassword.Size = new System.Drawing.Size(204, 24);
       this.optTablePassword.TabIndex = 1;
       this.optTablePassword.TextChanged += new System.EventHandler(this.tableOptChanged);
       // 
@@ -1610,7 +1615,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.panel4.Location = new System.Drawing.Point(3, 3);
       this.panel4.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
       this.panel4.Name = "panel4";
-      this.panel4.Size = new System.Drawing.Size(718, 19);
+      this.panel4.Size = new System.Drawing.Size(718, 23);
       this.panel4.TabIndex = 44;
       // 
       // partEnable
@@ -1618,7 +1623,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.partEnable.AutoSize = true;
       this.partEnable.Location = new System.Drawing.Point(0, -1);
       this.partEnable.Name = "partEnable";
-      this.partEnable.Size = new System.Drawing.Size(114, 17);
+      this.partEnable.Size = new System.Drawing.Size(142, 21);
       this.partEnable.TabIndex = 0;
       this.partEnable.Text = "Enable Partitioning";
       this.partEnable.UseVisualStyleBackColor = true;
@@ -1638,7 +1643,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // label50
       // 
       this.label50.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.label50.Location = new System.Drawing.Point(3, 25);
+      this.label50.Location = new System.Drawing.Point(3, 31);
       this.label50.Name = "label50";
       this.label50.Size = new System.Drawing.Size(104, 21);
       this.label50.TabIndex = 31;
@@ -1648,7 +1653,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // label54
       // 
       this.label54.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.label54.Location = new System.Drawing.Point(233, 25);
+      this.label54.Location = new System.Drawing.Point(233, 31);
       this.label54.Name = "label54";
       this.label54.Size = new System.Drawing.Size(70, 21);
       this.label54.TabIndex = 38;
@@ -1658,7 +1663,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // label55
       // 
       this.label55.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.label55.Location = new System.Drawing.Point(499, 25);
+      this.label55.Location = new System.Drawing.Point(487, 31);
       this.label55.Name = "label55";
       this.label55.Size = new System.Drawing.Size(104, 21);
       this.label55.TabIndex = 34;
@@ -1668,16 +1673,16 @@ namespace MySQL.GUI.Workbench.Plugins
       // partCount
       // 
       this.partCount.Enabled = false;
-      this.partCount.Location = new System.Drawing.Point(609, 25);
+      this.partCount.Location = new System.Drawing.Point(597, 29);
       this.partCount.Name = "partCount";
-      this.partCount.Size = new System.Drawing.Size(46, 21);
+      this.partCount.Size = new System.Drawing.Size(46, 24);
       this.partCount.TabIndex = 3;
       this.partCount.TextChanged += new System.EventHandler(this.partCount_Changed);
       // 
       // label52
       // 
       this.label52.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.label52.Location = new System.Drawing.Point(3, 52);
+      this.label52.Location = new System.Drawing.Point(3, 62);
       this.label52.Name = "label52";
       this.label52.Size = new System.Drawing.Size(104, 21);
       this.label52.TabIndex = 37;
@@ -1687,7 +1692,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // label51
       // 
       this.label51.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.label51.Location = new System.Drawing.Point(499, 52);
+      this.label51.Location = new System.Drawing.Point(487, 62);
       this.label51.Name = "label51";
       this.label51.Size = new System.Drawing.Size(104, 21);
       this.label51.TabIndex = 40;
@@ -1697,7 +1702,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // label53
       // 
       this.label53.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.label53.Location = new System.Drawing.Point(233, 52);
+      this.label53.Location = new System.Drawing.Point(233, 62);
       this.label53.Name = "label53";
       this.label53.Size = new System.Drawing.Size(70, 21);
       this.label53.TabIndex = 6;
@@ -1707,9 +1712,9 @@ namespace MySQL.GUI.Workbench.Plugins
       // subpartCount
       // 
       this.subpartCount.Enabled = false;
-      this.subpartCount.Location = new System.Drawing.Point(609, 52);
+      this.subpartCount.Location = new System.Drawing.Point(597, 60);
       this.subpartCount.Name = "subpartCount";
-      this.subpartCount.Size = new System.Drawing.Size(46, 21);
+      this.subpartCount.Size = new System.Drawing.Size(46, 24);
       this.subpartCount.TabIndex = 8;
       this.subpartCount.TextChanged += new System.EventHandler(this.subpartCount_Changed);
       // 
@@ -1735,7 +1740,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.partitionTreeView.GridLineStyle = Aga.Controls.Tree.GridLineStyle.Horizontal;
       this.partitionTreeView.LineColor = System.Drawing.SystemColors.ControlDark;
       this.partitionTreeView.LoadOnDemand = true;
-      this.partitionTreeView.Location = new System.Drawing.Point(3, 79);
+      this.partitionTreeView.Location = new System.Drawing.Point(3, 91);
       this.partitionTreeView.Model = null;
       this.partitionTreeView.Name = "partitionTreeView";
       this.partitionTreeView.NodeControls.Add(this.partNodeStateIcon);
@@ -1749,7 +1754,9 @@ namespace MySQL.GUI.Workbench.Plugins
       this.partitionTreeView.NodeControls.Add(this.partEngineNodeControl);
       this.partitionTreeView.NodeControls.Add(this.partTablespaceNodeControl);
       this.partitionTreeView.NodeControls.Add(this.partNodegroupNodeControl);
+      this.partitionTreeView.ScrollPosition = new System.Drawing.Point(0, 0);
       this.partitionTreeView.SelectedNode = null;
+      this.partitionTreeView.ShowHeader = true;
       this.partitionTreeView.ShowLines = false;
       this.partitionTreeView.ShowPlusMinus = false;
       this.partitionTreeView.Size = new System.Drawing.Size(718, 221);
@@ -1834,8 +1841,10 @@ namespace MySQL.GUI.Workbench.Plugins
       this.fkTreeView.Name = "fkTreeView";
       this.fkTreeView.NodeControls.Add(this.nameFkNodeControl);
       this.fkTreeView.NodeControls.Add(this.targetFkNodeControl);
+      this.fkTreeView.ScrollPosition = new System.Drawing.Point(0, 0);
       this.fkTreeView.SelectedNode = null;
       this.fkTreeView.SelectionMode = Aga.Controls.Tree.TreeSelectionMode.Multi;
+      this.fkTreeView.ShowHeader = true;
       this.fkTreeView.ShowLines = false;
       this.fkTreeView.ShowNodeToolTips = true;
       this.fkTreeView.ShowPlusMinus = false;
@@ -1865,7 +1874,9 @@ namespace MySQL.GUI.Workbench.Plugins
       this.fkColumnsTreeView.NodeControls.Add(this.columnEnabledFkNodeControl);
       this.fkColumnsTreeView.NodeControls.Add(this.columnFkNodeControl);
       this.fkColumnsTreeView.NodeControls.Add(this.targetColumnFkNodeControl);
+      this.fkColumnsTreeView.ScrollPosition = new System.Drawing.Point(0, 0);
       this.fkColumnsTreeView.SelectedNode = null;
+      this.fkColumnsTreeView.ShowHeader = true;
       this.fkColumnsTreeView.ShowLines = false;
       this.fkColumnsTreeView.ShowNodeToolTips = true;
       this.fkColumnsTreeView.ShowPlusMinus = false;
@@ -1917,7 +1928,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label21.AutoSize = true;
       this.label21.Location = new System.Drawing.Point(3, 139);
       this.label21.Name = "label21";
-      this.label21.Size = new System.Drawing.Size(112, 13);
+      this.label21.Size = new System.Drawing.Size(145, 17);
       this.label21.TabIndex = 20;
       this.label21.Text = "Foreign Key Comment";
       this.label21.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -1927,7 +1938,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label10.AutoSize = true;
       this.label10.Location = new System.Drawing.Point(45, 72);
       this.label10.Name = "label10";
-      this.label10.Size = new System.Drawing.Size(0, 13);
+      this.label10.Size = new System.Drawing.Size(0, 17);
       this.label10.TabIndex = 21;
       // 
       // bevel7
@@ -1955,7 +1966,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label18.AutoSize = true;
       this.label18.Location = new System.Drawing.Point(0, 0);
       this.label18.Name = "label18";
-      this.label18.Size = new System.Drawing.Size(104, 13);
+      this.label18.Size = new System.Drawing.Size(131, 17);
       this.label18.TabIndex = 12;
       this.label18.Text = "Foreign Key Options";
       // 
@@ -1966,7 +1977,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.onDeleteActionComboBox.FormattingEnabled = true;
       this.onDeleteActionComboBox.Location = new System.Drawing.Point(90, 44);
       this.onDeleteActionComboBox.Name = "onDeleteActionComboBox";
-      this.onDeleteActionComboBox.Size = new System.Drawing.Size(118, 21);
+      this.onDeleteActionComboBox.Size = new System.Drawing.Size(118, 25);
       this.onDeleteActionComboBox.TabIndex = 1;
       this.onDeleteActionComboBox.SelectedIndexChanged += new System.EventHandler(this.onDeleteActionComboBox_SelectedIndexChanged);
       // 
@@ -1977,7 +1988,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.onUpdateActionComboBox.FormattingEnabled = true;
       this.onUpdateActionComboBox.Location = new System.Drawing.Point(90, 17);
       this.onUpdateActionComboBox.Name = "onUpdateActionComboBox";
-      this.onUpdateActionComboBox.Size = new System.Drawing.Size(118, 21);
+      this.onUpdateActionComboBox.Size = new System.Drawing.Size(118, 25);
       this.onUpdateActionComboBox.TabIndex = 0;
       this.onUpdateActionComboBox.SelectedIndexChanged += new System.EventHandler(this.onUpdateActionComboBox_SelectedIndexChanged);
       // 
@@ -2079,7 +2090,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label8.AutoSize = true;
       this.label8.Location = new System.Drawing.Point(0, 0);
       this.label8.Name = "label8";
-      this.label8.Size = new System.Drawing.Size(78, 13);
+      this.label8.Size = new System.Drawing.Size(100, 17);
       this.label8.TabIndex = 12;
       this.label8.Text = "Index Columns";
       // 
@@ -2117,7 +2128,9 @@ namespace MySQL.GUI.Workbench.Plugins
       this.indexColumnsTreeView.NodeControls.Add(this.indexColumnOrderNodeControl);
       this.indexColumnsTreeView.NodeControls.Add(this.indexColumnStorageNodeControl);
       this.indexColumnsTreeView.NodeControls.Add(this.indexColumnLengthNodeControl);
+      this.indexColumnsTreeView.ScrollPosition = new System.Drawing.Point(0, 0);
       this.indexColumnsTreeView.SelectedNode = null;
+      this.indexColumnsTreeView.ShowHeader = true;
       this.indexColumnsTreeView.ShowLines = false;
       this.indexColumnsTreeView.ShowPlusMinus = false;
       this.indexColumnsTreeView.Size = new System.Drawing.Size(268, 274);
@@ -2170,7 +2183,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // 
       this.indexParserText.Location = new System.Drawing.Point(96, 73);
       this.indexParserText.Name = "indexParserText";
-      this.indexParserText.Size = new System.Drawing.Size(111, 21);
+      this.indexParserText.Size = new System.Drawing.Size(111, 24);
       this.indexParserText.TabIndex = 2;
       this.indexParserText.TextChanged += new System.EventHandler(this.indexParserText_TextChanged);
       // 
@@ -2196,7 +2209,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // 
       this.indexRowBlockSizeText.Location = new System.Drawing.Point(96, 46);
       this.indexRowBlockSizeText.Name = "indexRowBlockSizeText";
-      this.indexRowBlockSizeText.Size = new System.Drawing.Size(111, 21);
+      this.indexRowBlockSizeText.Size = new System.Drawing.Size(111, 24);
       this.indexRowBlockSizeText.TabIndex = 1;
       this.indexRowBlockSizeText.TextChanged += new System.EventHandler(this.indexRowBlockSizeText_TextChanged);
       // 
@@ -2205,7 +2218,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label13.AutoSize = true;
       this.label13.Location = new System.Drawing.Point(0, 0);
       this.label13.Name = "label13";
-      this.label13.Size = new System.Drawing.Size(75, 13);
+      this.label13.Size = new System.Drawing.Size(94, 17);
       this.label13.TabIndex = 8;
       this.label13.Text = "Index Options";
       // 
@@ -2226,7 +2239,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label14.AutoSize = true;
       this.label14.Location = new System.Drawing.Point(0, 106);
       this.label14.Name = "label14";
-      this.label14.Size = new System.Drawing.Size(83, 13);
+      this.label14.Size = new System.Drawing.Size(108, 17);
       this.label14.TabIndex = 9;
       this.label14.Text = "Index Comment";
       this.label14.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -2238,7 +2251,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.indexStorageTypeComboBox.FormattingEnabled = true;
       this.indexStorageTypeComboBox.Location = new System.Drawing.Point(96, 19);
       this.indexStorageTypeComboBox.Name = "indexStorageTypeComboBox";
-      this.indexStorageTypeComboBox.Size = new System.Drawing.Size(111, 21);
+      this.indexStorageTypeComboBox.Size = new System.Drawing.Size(111, 25);
       this.indexStorageTypeComboBox.TabIndex = 0;
       this.indexStorageTypeComboBox.SelectedIndexChanged += new System.EventHandler(this.indexStorageTypeComboBox_SelectedIndexChanged);
       // 
@@ -2304,7 +2317,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.columnListSplitContainer.Panel2.Controls.Add(this.oldTableLayoutPanel);
       this.columnListSplitContainer.Panel2.Padding = new System.Windows.Forms.Padding(5);
       this.columnListSplitContainer.Panel2Collapsed = true;
-      this.columnListSplitContainer.Size = new System.Drawing.Size(714, 158);
+      this.columnListSplitContainer.Size = new System.Drawing.Size(714, 139);
       this.columnListSplitContainer.SplitterDistance = 421;
       this.columnListSplitContainer.TabIndex = 18;
       // 
@@ -2346,11 +2359,13 @@ namespace MySQL.GUI.Workbench.Plugins
       this.columnsTreeView.NodeControls.Add(this.zfNodeControl);
       this.columnsTreeView.NodeControls.Add(this.aiNodeControl);
       this.columnsTreeView.NodeControls.Add(this.defaultNodeControl);
+      this.columnsTreeView.ScrollPosition = new System.Drawing.Point(0, 0);
       this.columnsTreeView.SelectedNode = null;
       this.columnsTreeView.SelectionMode = Aga.Controls.Tree.TreeSelectionMode.Multi;
+      this.columnsTreeView.ShowHeader = true;
       this.columnsTreeView.ShowLines = false;
       this.columnsTreeView.ShowPlusMinus = false;
-      this.columnsTreeView.Size = new System.Drawing.Size(714, 158);
+      this.columnsTreeView.Size = new System.Drawing.Size(714, 139);
       this.columnsTreeView.TabIndex = 4;
       this.columnsTreeView.Text = "columnTreeViewAdv";
       this.columnsTreeView.UseColumns = true;
@@ -2437,7 +2452,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.oldTableLayoutPanel.RowCount = 2;
       this.oldTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.oldTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.oldTableLayoutPanel.Size = new System.Drawing.Size(86, 90);
+      this.oldTableLayoutPanel.Size = new System.Drawing.Size(-10, -10);
       this.oldTableLayoutPanel.TabIndex = 0;
       // 
       // bevel2
@@ -2446,7 +2461,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.bevel2.BevelStyle = MySQL.Utilities.BevelStyleType.White;
       this.bevel2.BorderSide = System.Windows.Forms.Border3DSide.Bottom;
       this.bevel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-      this.bevel2.Location = new System.Drawing.Point(8, 158);
+      this.bevel2.Location = new System.Drawing.Point(8, 139);
       this.bevel2.Margin = new System.Windows.Forms.Padding(0);
       this.bevel2.Name = "bevel2";
       this.bevel2.Size = new System.Drawing.Size(714, 10);
@@ -2483,7 +2498,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.tableLayoutPanel1.Controls.Add(this.aiCheckBox, 3, 4);
       this.tableLayoutPanel1.Controls.Add(this.columnCommentTextBox, 1, 2);
       this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-      this.tableLayoutPanel1.Location = new System.Drawing.Point(8, 168);
+      this.tableLayoutPanel1.Location = new System.Drawing.Point(8, 149);
       this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
       this.tableLayoutPanel1.Name = "tableLayoutPanel1";
       this.tableLayoutPanel1.Padding = new System.Windows.Forms.Padding(0, 5, 8, 8);
@@ -2494,7 +2509,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-      this.tableLayoutPanel1.Size = new System.Drawing.Size(714, 136);
+      this.tableLayoutPanel1.Size = new System.Drawing.Size(714, 155);
       this.tableLayoutPanel1.TabIndex = 15;
       // 
       // columnCollationComboBox
@@ -2505,9 +2520,9 @@ namespace MySQL.GUI.Workbench.Plugins
       this.columnCollationComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.columnCollationComboBox.Enabled = false;
       this.columnCollationComboBox.FormattingEnabled = true;
-      this.columnCollationComboBox.Location = new System.Drawing.Point(85, 35);
+      this.columnCollationComboBox.Location = new System.Drawing.Point(108, 38);
       this.columnCollationComboBox.Name = "columnCollationComboBox";
-      this.columnCollationComboBox.Size = new System.Drawing.Size(266, 21);
+      this.columnCollationComboBox.Size = new System.Drawing.Size(247, 25);
       this.columnCollationComboBox.TabIndex = 7;
       this.columnCollationComboBox.SelectedIndexChanged += new System.EventHandler(this.columnCollationComboBox_SelectedIndexChanged);
       // 
@@ -2517,9 +2532,9 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
       this.label12.AutoSize = true;
-      this.label12.Location = new System.Drawing.Point(3, 59);
+      this.label12.Location = new System.Drawing.Point(3, 66);
       this.label12.Name = "label12";
-      this.label12.Size = new System.Drawing.Size(76, 23);
+      this.label12.Size = new System.Drawing.Size(99, 27);
       this.label12.TabIndex = 9;
       this.label12.Text = "Comments:";
       this.label12.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -2530,9 +2545,9 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
       this.label9.AutoSize = true;
-      this.label9.Location = new System.Drawing.Point(3, 32);
+      this.label9.Location = new System.Drawing.Point(3, 35);
       this.label9.Name = "label9";
-      this.label9.Size = new System.Drawing.Size(76, 27);
+      this.label9.Size = new System.Drawing.Size(99, 31);
       this.label9.TabIndex = 6;
       this.label9.Text = "Collation:";
       this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -2545,7 +2560,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label6.AutoSize = true;
       this.label6.Location = new System.Drawing.Point(3, 5);
       this.label6.Name = "label6";
-      this.label6.Size = new System.Drawing.Size(76, 27);
+      this.label6.Size = new System.Drawing.Size(99, 30);
       this.label6.TabIndex = 10;
       this.label6.Text = "Column Name:";
       this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -2556,10 +2571,10 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
       this.label57.AutoSize = true;
-      this.label57.Location = new System.Drawing.Point(374, 5);
+      this.label57.Location = new System.Drawing.Point(378, 5);
       this.label57.Margin = new System.Windows.Forms.Padding(20, 0, 3, 0);
       this.label57.Name = "label57";
-      this.label57.Size = new System.Drawing.Size(61, 27);
+      this.label57.Size = new System.Drawing.Size(77, 30);
       this.label57.TabIndex = 11;
       this.label57.Text = "Data Type:";
       this.label57.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -2570,9 +2585,9 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
       this.label58.AutoSize = true;
-      this.label58.Location = new System.Drawing.Point(357, 32);
+      this.label58.Location = new System.Drawing.Point(361, 35);
       this.label58.Name = "label58";
-      this.label58.Size = new System.Drawing.Size(78, 27);
+      this.label58.Size = new System.Drawing.Size(94, 31);
       this.label58.TabIndex = 12;
       this.label58.Text = "Default:";
       this.label58.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -2583,9 +2598,9 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
       this.columnNameTextBox.Enabled = false;
-      this.columnNameTextBox.Location = new System.Drawing.Point(85, 8);
+      this.columnNameTextBox.Location = new System.Drawing.Point(108, 8);
       this.columnNameTextBox.Name = "columnNameTextBox";
-      this.columnNameTextBox.Size = new System.Drawing.Size(266, 21);
+      this.columnNameTextBox.Size = new System.Drawing.Size(247, 24);
       this.columnNameTextBox.TabIndex = 5;
       this.columnNameTextBox.Tag = "0";
       this.columnNameTextBox.Leave += new System.EventHandler(this.columnTextBox_Leave);
@@ -2597,9 +2612,9 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Right)));
       this.tableLayoutPanel1.SetColumnSpan(this.columnDataTypeTextBox, 3);
       this.columnDataTypeTextBox.Enabled = false;
-      this.columnDataTypeTextBox.Location = new System.Drawing.Point(441, 8);
+      this.columnDataTypeTextBox.Location = new System.Drawing.Point(461, 8);
       this.columnDataTypeTextBox.Name = "columnDataTypeTextBox";
-      this.columnDataTypeTextBox.Size = new System.Drawing.Size(262, 21);
+      this.columnDataTypeTextBox.Size = new System.Drawing.Size(242, 24);
       this.columnDataTypeTextBox.TabIndex = 6;
       this.columnDataTypeTextBox.Tag = "2";
       this.columnDataTypeTextBox.Leave += new System.EventHandler(this.columnTextBox_Leave);
@@ -2611,9 +2626,9 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Right)));
       this.tableLayoutPanel1.SetColumnSpan(this.columnDefaultTextBox, 3);
       this.columnDefaultTextBox.Enabled = false;
-      this.columnDefaultTextBox.Location = new System.Drawing.Point(441, 35);
+      this.columnDefaultTextBox.Location = new System.Drawing.Point(461, 38);
       this.columnDefaultTextBox.Name = "columnDefaultTextBox";
-      this.columnDefaultTextBox.Size = new System.Drawing.Size(262, 21);
+      this.columnDefaultTextBox.Size = new System.Drawing.Size(242, 24);
       this.columnDefaultTextBox.TabIndex = 8;
       this.columnDefaultTextBox.Tag = "3";
       this.columnDefaultTextBox.Leave += new System.EventHandler(this.columnTextBox_Leave);
@@ -2625,9 +2640,9 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Right)));
       this.pkCheckBox.AutoSize = true;
       this.pkCheckBox.Enabled = false;
-      this.pkCheckBox.Location = new System.Drawing.Point(441, 62);
+      this.pkCheckBox.Location = new System.Drawing.Point(461, 69);
       this.pkCheckBox.Name = "pkCheckBox";
-      this.pkCheckBox.Size = new System.Drawing.Size(83, 17);
+      this.pkCheckBox.Size = new System.Drawing.Size(76, 21);
       this.pkCheckBox.TabIndex = 10;
       this.pkCheckBox.Tag = "0";
       this.pkCheckBox.Text = "Primary Key";
@@ -2641,9 +2656,9 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Right)));
       this.nnCheckBox.AutoSize = true;
       this.nnCheckBox.Enabled = false;
-      this.nnCheckBox.Location = new System.Drawing.Point(530, 62);
+      this.nnCheckBox.Location = new System.Drawing.Point(543, 69);
       this.nnCheckBox.Name = "nnCheckBox";
-      this.nnCheckBox.Size = new System.Drawing.Size(83, 17);
+      this.nnCheckBox.Size = new System.Drawing.Size(76, 21);
       this.nnCheckBox.TabIndex = 11;
       this.nnCheckBox.Tag = "1";
       this.nnCheckBox.Text = "Not Null";
@@ -2657,9 +2672,9 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Right)));
       this.uniqueCheckBox.AutoSize = true;
       this.uniqueCheckBox.Enabled = false;
-      this.uniqueCheckBox.Location = new System.Drawing.Point(619, 62);
+      this.uniqueCheckBox.Location = new System.Drawing.Point(625, 69);
       this.uniqueCheckBox.Name = "uniqueCheckBox";
-      this.uniqueCheckBox.Size = new System.Drawing.Size(84, 17);
+      this.uniqueCheckBox.Size = new System.Drawing.Size(78, 21);
       this.uniqueCheckBox.TabIndex = 12;
       this.uniqueCheckBox.Tag = "2";
       this.uniqueCheckBox.Text = "Unique";
@@ -2673,9 +2688,9 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Right)));
       this.binaryCheckBox.AutoSize = true;
       this.binaryCheckBox.Enabled = false;
-      this.binaryCheckBox.Location = new System.Drawing.Point(441, 85);
+      this.binaryCheckBox.Location = new System.Drawing.Point(461, 96);
       this.binaryCheckBox.Name = "binaryCheckBox";
-      this.binaryCheckBox.Size = new System.Drawing.Size(83, 17);
+      this.binaryCheckBox.Size = new System.Drawing.Size(76, 21);
       this.binaryCheckBox.TabIndex = 13;
       this.binaryCheckBox.Tag = "3";
       this.binaryCheckBox.Text = "Binary";
@@ -2689,9 +2704,9 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Right)));
       this.unsignedCheckBox.AutoSize = true;
       this.unsignedCheckBox.Enabled = false;
-      this.unsignedCheckBox.Location = new System.Drawing.Point(530, 85);
+      this.unsignedCheckBox.Location = new System.Drawing.Point(543, 96);
       this.unsignedCheckBox.Name = "unsignedCheckBox";
-      this.unsignedCheckBox.Size = new System.Drawing.Size(83, 17);
+      this.unsignedCheckBox.Size = new System.Drawing.Size(76, 21);
       this.unsignedCheckBox.TabIndex = 14;
       this.unsignedCheckBox.Tag = "4";
       this.unsignedCheckBox.Text = "Unsigned";
@@ -2705,9 +2720,9 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Right)));
       this.zeroFillCheckBox.AutoSize = true;
       this.zeroFillCheckBox.Enabled = false;
-      this.zeroFillCheckBox.Location = new System.Drawing.Point(619, 85);
+      this.zeroFillCheckBox.Location = new System.Drawing.Point(625, 96);
       this.zeroFillCheckBox.Name = "zeroFillCheckBox";
-      this.zeroFillCheckBox.Size = new System.Drawing.Size(84, 17);
+      this.zeroFillCheckBox.Size = new System.Drawing.Size(78, 21);
       this.zeroFillCheckBox.TabIndex = 15;
       this.zeroFillCheckBox.Tag = "5";
       this.zeroFillCheckBox.Text = "Zero Fill";
@@ -2722,9 +2737,9 @@ namespace MySQL.GUI.Workbench.Plugins
       this.aiCheckBox.AutoSize = true;
       this.tableLayoutPanel1.SetColumnSpan(this.aiCheckBox, 2);
       this.aiCheckBox.Enabled = false;
-      this.aiCheckBox.Location = new System.Drawing.Point(441, 108);
+      this.aiCheckBox.Location = new System.Drawing.Point(461, 123);
       this.aiCheckBox.Name = "aiCheckBox";
-      this.aiCheckBox.Size = new System.Drawing.Size(172, 17);
+      this.aiCheckBox.Size = new System.Drawing.Size(158, 21);
       this.aiCheckBox.TabIndex = 16;
       this.aiCheckBox.Tag = "6";
       this.aiCheckBox.Text = "Auto Increment";
@@ -2736,11 +2751,11 @@ namespace MySQL.GUI.Workbench.Plugins
       this.columnCommentTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-      this.columnCommentTextBox.Location = new System.Drawing.Point(85, 62);
+      this.columnCommentTextBox.Location = new System.Drawing.Point(108, 69);
       this.columnCommentTextBox.Multiline = true;
       this.columnCommentTextBox.Name = "columnCommentTextBox";
       this.tableLayoutPanel1.SetRowSpan(this.columnCommentTextBox, 3);
-      this.columnCommentTextBox.Size = new System.Drawing.Size(266, 63);
+      this.columnCommentTextBox.Size = new System.Drawing.Size(247, 75);
       this.columnCommentTextBox.TabIndex = 17;
       this.columnCommentTextBox.Tag = "1";
       this.columnCommentTextBox.Leave += new System.EventHandler(this.columnTextBox_Leave);
@@ -2799,9 +2814,9 @@ namespace MySQL.GUI.Workbench.Plugins
       this.optEngine.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.optEngine.Enabled = false;
       this.optEngine.FormattingEnabled = true;
-      this.optEngine.Location = new System.Drawing.Point(456, 42);
+      this.optEngine.Location = new System.Drawing.Point(472, 40);
       this.optEngine.Name = "optEngine";
-      this.optEngine.Size = new System.Drawing.Size(225, 21);
+      this.optEngine.Size = new System.Drawing.Size(209, 25);
       this.optEngine.TabIndex = 2;
       this.optEngine.SelectedIndexChanged += new System.EventHandler(this.tableOptChanged);
       // 
@@ -2810,10 +2825,10 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
       this.label3.AutoSize = true;
-      this.label3.Location = new System.Drawing.Point(397, 37);
+      this.label3.Location = new System.Drawing.Point(399, 37);
       this.label3.Name = "label3";
       this.label3.Padding = new System.Windows.Forms.Padding(5, 0, 0, 0);
-      this.label3.Size = new System.Drawing.Size(48, 32);
+      this.label3.Size = new System.Drawing.Size(59, 32);
       this.label3.TabIndex = 12;
       this.label3.Text = "Engine:";
       this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -2823,10 +2838,10 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
       this.label4.AutoSize = true;
-      this.label4.Location = new System.Drawing.Point(397, 5);
+      this.label4.Location = new System.Drawing.Point(399, 5);
       this.label4.Name = "label4";
       this.label4.Padding = new System.Windows.Forms.Padding(5, 0, 0, 0);
-      this.label4.Size = new System.Drawing.Size(53, 32);
+      this.label4.Size = new System.Drawing.Size(67, 32);
       this.label4.TabIndex = 14;
       this.label4.Text = "Schema:";
       this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -2837,9 +2852,9 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Left)));
       this.schemaLabel.AutoSize = true;
       this.schemaLabel.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      this.schemaLabel.Location = new System.Drawing.Point(456, 5);
+      this.schemaLabel.Location = new System.Drawing.Point(472, 5);
       this.schemaLabel.Name = "schemaLabel";
-      this.schemaLabel.Size = new System.Drawing.Size(51, 32);
+      this.schemaLabel.Size = new System.Drawing.Size(60, 32);
       this.schemaLabel.TabIndex = 15;
       this.schemaLabel.Text = "schema";
       this.schemaLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -2849,9 +2864,9 @@ namespace MySQL.GUI.Workbench.Plugins
       this.optCollation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
       this.optCollation.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.optCollation.FormattingEnabled = true;
-      this.optCollation.Location = new System.Drawing.Point(166, 42);
+      this.optCollation.Location = new System.Drawing.Point(184, 40);
       this.optCollation.Name = "optCollation";
-      this.optCollation.Size = new System.Drawing.Size(225, 21);
+      this.optCollation.Size = new System.Drawing.Size(209, 25);
       this.optCollation.TabIndex = 1;
       this.optCollation.SelectedIndexChanged += new System.EventHandler(this.tableOptChanged);
       // 
@@ -2860,9 +2875,9 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
       this.label2.AutoSize = true;
-      this.label2.Location = new System.Drawing.Point(108, 37);
+      this.label2.Location = new System.Drawing.Point(114, 37);
       this.label2.Name = "label2";
-      this.label2.Size = new System.Drawing.Size(52, 32);
+      this.label2.Size = new System.Drawing.Size(64, 32);
       this.label2.TabIndex = 9;
       this.label2.Text = "Collation:";
       this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -2872,9 +2887,9 @@ namespace MySQL.GUI.Workbench.Plugins
       this.nameTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
       this.nameTextBox.BackColor = System.Drawing.SystemColors.Window;
       this.nameTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-      this.nameTextBox.Location = new System.Drawing.Point(166, 10);
+      this.nameTextBox.Location = new System.Drawing.Point(184, 9);
       this.nameTextBox.Name = "nameTextBox";
-      this.nameTextBox.Size = new System.Drawing.Size(225, 21);
+      this.nameTextBox.Size = new System.Drawing.Size(209, 24);
       this.nameTextBox.TabIndex = 0;
       this.nameTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.nameTextBox_KeyPress);
       this.nameTextBox.Leave += new System.EventHandler(this.nameTextBox_Leave);
@@ -2884,9 +2899,9 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
       this.label1.AutoSize = true;
-      this.label1.Location = new System.Drawing.Point(93, 5);
+      this.label1.Location = new System.Drawing.Point(94, 5);
       this.label1.Name = "label1";
-      this.label1.Size = new System.Drawing.Size(67, 32);
+      this.label1.Size = new System.Drawing.Size(84, 32);
       this.label1.TabIndex = 1;
       this.label1.Text = "Table Name:";
       this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -2900,7 +2915,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label7.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
       this.label7.Name = "label7";
       this.label7.Padding = new System.Windows.Forms.Padding(5, 0, 0, 0);
-      this.label7.Size = new System.Drawing.Size(66, 52);
+      this.label7.Size = new System.Drawing.Size(85, 52);
       this.label7.TabIndex = 13;
       this.label7.Text = "Comments:";
       this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -2913,17 +2928,18 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
       this.headingLayoutPanel.SetColumnSpan(this.optComments, 3);
-      this.optComments.Location = new System.Drawing.Point(166, 72);
+      this.optComments.Location = new System.Drawing.Point(184, 72);
       this.optComments.Multiline = true;
       this.optComments.Name = "optComments";
       this.optComments.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-      this.optComments.Size = new System.Drawing.Size(515, 49);
+      this.optComments.Size = new System.Drawing.Size(497, 49);
       this.optComments.TabIndex = 3;
       this.optComments.TextChanged += new System.EventHandler(this.commentsTextBox_TextChanged);
       // 
       // mainTabControl
       // 
       this.mainTabControl.Alignment = System.Windows.Forms.TabAlignment.Bottom;
+      this.mainTabControl.AuxControl = null;
       this.mainTabControl.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(73)))), ((int)(((byte)(97)))), ((int)(((byte)(132)))));
       this.mainTabControl.CanCloseLastTab = false;
       this.mainTabControl.CanReorderTabs = false;
@@ -2968,7 +2984,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // 
       // DbMysqlTableEditor
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 17F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.BackColor = System.Drawing.Color.White;
       this.ClientSize = new System.Drawing.Size(730, 459);
