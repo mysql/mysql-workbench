@@ -1707,7 +1707,7 @@ class FileOpsRemoteWindows(object):
             total = float(tokens[2].replace(",",""))
             index = 0
             while index < len(measures) and total > 1024:
-                total = total / 1024
+                total = float(total / 1024)
                 index = index + 1
 
 
