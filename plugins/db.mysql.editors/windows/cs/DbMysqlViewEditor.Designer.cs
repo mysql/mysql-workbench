@@ -39,9 +39,9 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label4 = new System.Windows.Forms.Label();
       this.nameTextBox = new System.Windows.Forms.TextBox();
       this.commentsTabpage = new System.Windows.Forms.TabPage();
-      this.label7 = new System.Windows.Forms.Label();
       this.commentTextBox = new System.Windows.Forms.TextBox();
       this.pictureBox2 = new System.Windows.Forms.PictureBox();
+      this.label7 = new System.Windows.Forms.Label();
       this.label1 = new System.Windows.Forms.Label();
       this.labelTooltip = new System.Windows.Forms.ToolTip(this.components);
       this.mainTabControl.SuspendLayout();
@@ -54,6 +54,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // mainTabControl
       // 
       this.mainTabControl.Alignment = System.Windows.Forms.TabAlignment.Bottom;
+      this.mainTabControl.AuxControl = null;
       this.mainTabControl.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(73)))), ((int)(((byte)(97)))), ((int)(((byte)(132)))));
       this.mainTabControl.CanCloseLastTab = false;
       this.mainTabControl.CanReorderTabs = false;
@@ -88,7 +89,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.tabPage1.Location = new System.Drawing.Point(0, 0);
       this.tabPage1.Name = "tabPage1";
       this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-      this.tabPage1.Size = new System.Drawing.Size(747, 207);
+      this.tabPage1.Size = new System.Drawing.Size(747, 203);
       this.tabPage1.TabIndex = 0;
       this.tabPage1.Text = "View";
       // 
@@ -101,7 +102,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.panel1.Location = new System.Drawing.Point(134, 38);
       this.panel1.Name = "panel1";
       this.panel1.Padding = new System.Windows.Forms.Padding(1);
-      this.panel1.Size = new System.Drawing.Size(601, 163);
+      this.panel1.Size = new System.Drawing.Size(607, 159);
       this.panel1.TabIndex = 25;
       // 
       // label3
@@ -149,7 +150,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.nameTextBox.Location = new System.Drawing.Point(134, 5);
       this.nameTextBox.Name = "nameTextBox";
       this.nameTextBox.ReadOnly = true;
-      this.nameTextBox.Size = new System.Drawing.Size(185, 21);
+      this.nameTextBox.Size = new System.Drawing.Size(185, 24);
       this.nameTextBox.TabIndex = 14;
       this.nameTextBox.TextChanged += new System.EventHandler(this.nameTextBox_TextChanged);
       // 
@@ -162,18 +163,9 @@ namespace MySQL.GUI.Workbench.Plugins
       this.commentsTabpage.Location = new System.Drawing.Point(0, 0);
       this.commentsTabpage.Name = "commentsTabpage";
       this.commentsTabpage.Padding = new System.Windows.Forms.Padding(3);
-      this.commentsTabpage.Size = new System.Drawing.Size(747, 207);
+      this.commentsTabpage.Size = new System.Drawing.Size(747, 203);
       this.commentsTabpage.TabIndex = 1;
       this.commentsTabpage.Text = "Comments";
-      // 
-      // label7
-      // 
-      this.label7.Location = new System.Drawing.Point(73, 10);
-      this.label7.Name = "label7";
-      this.label7.Size = new System.Drawing.Size(66, 21);
-      this.label7.TabIndex = 20;
-      this.label7.Text = "Comment:";
-      this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
       // 
       // commentTextBox
       // 
@@ -186,7 +178,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.commentTextBox.Multiline = true;
       this.commentTextBox.Name = "commentTextBox";
       this.commentTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-      this.commentTextBox.Size = new System.Drawing.Size(653, 164);
+      this.commentTextBox.Size = new System.Drawing.Size(100, 26);
       this.commentTextBox.TabIndex = 19;
       this.commentTextBox.TextChanged += new System.EventHandler(this.commentTextBox_TextChanged);
       // 
@@ -198,6 +190,15 @@ namespace MySQL.GUI.Workbench.Plugins
       this.pictureBox2.Size = new System.Drawing.Size(48, 48);
       this.pictureBox2.TabIndex = 17;
       this.pictureBox2.TabStop = false;
+      // 
+      // label7
+      // 
+      this.label7.Location = new System.Drawing.Point(73, 10);
+      this.label7.Name = "label7";
+      this.label7.Size = new System.Drawing.Size(66, 21);
+      this.label7.TabIndex = 20;
+      this.label7.Text = "Comment:";
+      this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
       // 
       // label1
       // 
@@ -216,7 +217,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // 
       // DbMysqlViewEditor
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 17F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.BackColor = System.Drawing.Color.White;
       this.ClientSize = new System.Drawing.Size(747, 228);
