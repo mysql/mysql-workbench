@@ -97,6 +97,10 @@
     </Compile>
     <Compile Include="DbMysqlRoleEditor.Designer.cs">
       <DependentUpon>DbMysqlRoleEditor.cs</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DbMysqlRoutineEditor.cs">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="DbMysqlRoutineEditor.cs">
       <SubType>Form</SubType>
