@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6254" systemVersion="14B25" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="8191" systemVersion="14F27" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6254"/>
+        <development version="6300" identifier="xcode"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="8191"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="DbMysqlTableEditor">
             <connections>
                 <outlet property="mApplyButton" destination="659" id="664"/>
+                <outlet property="mButtonGCStored" destination="HGE-yC-LkF" id="cbk-v1-Uyn"/>
+                <outlet property="mButtonGCVirtual" destination="Sn6-l7-dXN" id="q99-Sh-yqJ"/>
                 <outlet property="mColumnsCollation" destination="56" id="184"/>
                 <outlet property="mColumnsCollation2" destination="759" id="806"/>
                 <outlet property="mColumnsComment" destination="819" id="820"/>
@@ -17,6 +20,7 @@
                 <outlet property="mColumnsDetailsBox2" destination="756" id="808"/>
                 <outlet property="mColumnsFlagAI" destination="717" id="745"/>
                 <outlet property="mColumnsFlagBIN" destination="715" id="742"/>
+                <outlet property="mColumnsFlagG" destination="2Az-jc-J95" id="Ilu-01-i8v"/>
                 <outlet property="mColumnsFlagNN" destination="719" id="740"/>
                 <outlet property="mColumnsFlagPK" destination="711" id="739"/>
                 <outlet property="mColumnsFlagUN" destination="725" id="743"/>
@@ -26,6 +30,7 @@
                 <outlet property="mColumnsSplitter" destination="620" id="809"/>
                 <outlet property="mColumnsTable" destination="32" id="216"/>
                 <outlet property="mColumnsType" destination="705" id="748"/>
+                <outlet property="mDefaultLabel" destination="707" id="IsJ-be-LwF"/>
                 <outlet property="mEditorColumns" destination="28" id="161"/>
                 <outlet property="mEditorForeignKeys" destination="109" id="163"/>
                 <outlet property="mEditorIndices" destination="68" id="162"/>
@@ -290,9 +295,10 @@
                     </connections>
                 </tabView>
             </subviews>
+            <point key="canvasLocation" x="623" y="346.5"/>
         </customView>
         <customView id="28" userLabel="Columns" customClass="WBCustomTabItemView">
-            <rect key="frame" x="0.0" y="0.0" width="699" height="188"/>
+            <rect key="frame" x="0.0" y="0.0" width="700" height="188"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <splitView autosaveName="MySQLTableEditorColumnsSplitter" id="620">
@@ -304,13 +310,13 @@
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <clipView key="contentView" id="fox-vb-11i">
                                 <rect key="frame" x="1" y="17" width="681" height="154"/>
-                                <autoresizingMask key="autoresizingMask"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView focusRingType="exterior" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" emptySelection="NO" rowHeight="16" headerView="33" id="32" customClass="MTableView">
-                                        <rect key="frame" x="0.0" y="0.0" width="681" height="18"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="709" height="18"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <size key="intercellSpacing" width="3" height="2"/>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                         <tableColumns>
                                             <tableColumn identifier="name" width="101" minWidth="40" maxWidth="1000" id="34">
@@ -419,8 +425,19 @@
                                                     <font key="font" metaFont="smallSystem"/>
                                                 </buttonCell>
                                             </tableColumn>
+                                            <tableColumn identifier="generated" width="25" minWidth="10" maxWidth="3.4028229999999999e+38" headerToolTip="Mark column as AUTO_INCREMENT" id="Pii-GS-Al3" userLabel="G">
+                                                <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="G">
+                                                    <font key="font" metaFont="smallSystem"/>
+                                                    <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                    <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
+                                                </tableHeaderCell>
+                                                <buttonCell key="dataCell" type="check" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="9il-3A-GzQ">
+                                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                    <font key="font" metaFont="smallSystem"/>
+                                                </buttonCell>
+                                            </tableColumn>
                                             <tableColumn identifier="default" width="263" minWidth="10" maxWidth="3.4028229999999999e+38" id="42">
-                                                <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Default">
+                                                <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Default / Expression">
                                                     <font key="font" metaFont="smallSystem"/>
                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
@@ -441,8 +458,8 @@
                                 </subviews>
                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                             </clipView>
-                            <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="0.60493827160493829" controlSize="small" horizontal="YES" id="31">
-                                <rect key="frame" x="1" y="176" width="343" height="11"/>
+                            <scroller key="horizontalScroller" verticalHuggingPriority="750" controlSize="small" horizontal="YES" id="31">
+                                <rect key="frame" x="1" y="157" width="681" height="14"/>
                                 <autoresizingMask key="autoresizingMask"/>
                             </scroller>
                             <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" controlSize="small" horizontal="NO" id="30">
@@ -450,7 +467,7 @@
                                 <autoresizingMask key="autoresizingMask"/>
                             </scroller>
                             <tableHeaderView key="headerView" toolTip="Mark column as part of the Primary Key" id="33">
-                                <rect key="frame" x="0.0" y="0.0" width="681" height="17"/>
+                                <rect key="frame" x="0.0" y="0.0" width="709" height="17"/>
                                 <autoresizingMask key="autoresizingMask"/>
                             </tableHeaderView>
                         </scrollView>
@@ -463,6 +480,7 @@
                     </connections>
                 </splitView>
             </subviews>
+            <point key="canvasLocation" x="590" y="60"/>
         </customView>
         <customView id="68" userLabel="Indices" customClass="WBCustomTabItemView">
             <rect key="frame" x="0.0" y="0.0" width="837" height="199"/>
@@ -473,17 +491,17 @@
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     <subviews>
                         <scrollView horizontalLineScroll="18" horizontalPageScroll="10" verticalLineScroll="18" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="69">
-                            <rect key="frame" x="0.0" y="0.0" width="216" height="183"/>
+                            <rect key="frame" x="0.0" y="0.0" width="218" height="183"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <clipView key="contentView" id="4GD-vO-wjA">
-                                <rect key="frame" x="1" y="17" width="203" height="151"/>
-                                <autoresizingMask key="autoresizingMask"/>
+                                <rect key="frame" x="1" y="17" width="216" height="165"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" emptySelection="NO" autosaveColumns="NO" rowHeight="16" headerView="73" id="72" customClass="MTableView">
-                                        <rect key="frame" x="0.0" y="0.0" width="203" height="18"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="216" height="18"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <size key="intercellSpacing" width="3" height="2"/>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                         <tableColumns>
                                             <tableColumn identifier="name" width="101" minWidth="40" maxWidth="1000" id="74">
@@ -526,27 +544,27 @@
                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                             </clipView>
                             <scroller key="horizontalScroller" verticalHuggingPriority="750" controlSize="small" horizontal="YES" id="71">
-                                <rect key="frame" x="1" y="168" width="203" height="14"/>
+                                <rect key="frame" x="1" y="168" width="216" height="14"/>
                                 <autoresizingMask key="autoresizingMask"/>
                             </scroller>
                             <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" controlSize="small" horizontal="NO" id="70">
-                                <rect key="frame" x="204" y="17" width="11" height="151"/>
+                                <rect key="frame" x="203" y="17" width="14" height="165"/>
                                 <autoresizingMask key="autoresizingMask"/>
                             </scroller>
                             <tableHeaderView key="headerView" id="73">
-                                <rect key="frame" x="0.0" y="0.0" width="203" height="17"/>
+                                <rect key="frame" x="0.0" y="0.0" width="216" height="17"/>
                                 <autoresizingMask key="autoresizingMask"/>
                             </tableHeaderView>
                         </scrollView>
                         <box autoresizesSubviews="NO" title="&lt;this title is created in the code&gt;" borderType="line" id="234">
-                            <rect key="frame" x="225" y="0.0" width="596" height="183"/>
+                            <rect key="frame" x="224" y="0.0" width="600" height="187"/>
                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" heightSizable="YES"/>
                             <view key="contentView">
                                 <rect key="frame" x="1" y="1" width="594" height="167"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <textField verticalHuggingPriority="750" id="99">
-                                        <rect key="frame" x="293" y="115" width="84" height="14"/>
+                                        <rect key="frame" x="293" y="119" width="84" height="14"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Key Block Size:" id="100">
                                             <font key="font" metaFont="smallSystem"/>
@@ -555,7 +573,7 @@
                                         </textFieldCell>
                                     </textField>
                                     <textField verticalHuggingPriority="750" id="101">
-                                        <rect key="frame" x="293" y="88" width="84" height="14"/>
+                                        <rect key="frame" x="293" y="92" width="84" height="14"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Parser:" id="102">
                                             <font key="font" metaFont="smallSystem"/>
@@ -564,7 +582,7 @@
                                         </textFieldCell>
                                     </textField>
                                     <textField verticalHuggingPriority="750" id="107">
-                                        <rect key="frame" x="293" y="64" width="84" height="14"/>
+                                        <rect key="frame" x="293" y="68" width="84" height="14"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Comments:" id="108">
                                             <font key="font" metaFont="smallSystem"/>
@@ -573,7 +591,7 @@
                                         </textFieldCell>
                                     </textField>
                                     <textField verticalHuggingPriority="750" id="97">
-                                        <rect key="frame" x="382" y="86" width="96" height="19"/>
+                                        <rect key="frame" x="382" y="90" width="96" height="19"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="98">
                                             <font key="font" metaFont="smallSystem"/>
@@ -585,17 +603,17 @@
                                         </connections>
                                     </textField>
                                     <scrollView horizontalLineScroll="18" horizontalPageScroll="10" verticalLineScroll="18" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="78">
-                                        <rect key="frame" x="13" y="14" width="268" height="143"/>
+                                        <rect key="frame" x="13" y="14" width="268" height="147"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" heightSizable="YES"/>
                                         <clipView key="contentView" id="G29-Qf-3P9">
-                                            <rect key="frame" x="1" y="17" width="266" height="125"/>
-                                            <autoresizingMask key="autoresizingMask"/>
+                                            <rect key="frame" x="1" y="17" width="266" height="129"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
                                                 <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" rowHeight="16" headerView="79" id="80" customClass="MTableView">
                                                     <rect key="frame" x="0.0" y="0.0" width="266" height="18"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <size key="intercellSpacing" width="3" height="2"/>
-                                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                    <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                                     <tableColumns>
                                                         <tableColumn identifier="name" width="131" minWidth="40" maxWidth="1000" id="84">
@@ -665,11 +683,11 @@
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </clipView>
                                         <scroller key="horizontalScroller" verticalHuggingPriority="750" controlSize="small" horizontal="YES" id="81">
-                                            <rect key="frame" x="1" y="128" width="266" height="14"/>
+                                            <rect key="frame" x="1" y="132" width="266" height="14"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </scroller>
                                         <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" controlSize="small" horizontal="NO" id="82">
-                                            <rect key="frame" x="253" y="17" width="14" height="125"/>
+                                            <rect key="frame" x="253" y="17" width="14" height="129"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </scroller>
                                         <tableHeaderView key="headerView" id="79">
@@ -678,7 +696,7 @@
                                         </tableHeaderView>
                                     </scrollView>
                                     <textField verticalHuggingPriority="750" id="95">
-                                        <rect key="frame" x="382" y="113" width="96" height="19"/>
+                                        <rect key="frame" x="382" y="117" width="96" height="19"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMinY="YES"/>
                                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="96">
                                             <font key="font" metaFont="smallSystem"/>
@@ -690,14 +708,14 @@
                                         </connections>
                                     </textField>
                                     <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" id="103">
-                                        <rect key="frame" x="382" y="14" width="194" height="64"/>
+                                        <rect key="frame" x="382" y="14" width="198" height="68"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <clipView key="contentView" id="OiL-yu-aAs">
-                                            <rect key="frame" x="1" y="1" width="192" height="62"/>
-                                            <autoresizingMask key="autoresizingMask"/>
+                                            <rect key="frame" x="1" y="1" width="196" height="66"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
                                                 <textView importsGraphics="NO" richText="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" verticallyResizable="YES" smartInsertDelete="YES" id="106">
-                                                    <rect key="frame" x="0.0" y="0.0" width="192" height="62"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="196" height="66"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                     <size key="minSize" width="192" height="62"/>
@@ -717,12 +735,12 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                         </scroller>
                                         <scroller key="verticalScroller" verticalHuggingPriority="750" controlSize="small" horizontal="NO" id="104">
-                                            <rect key="frame" x="179" y="1" width="14" height="62"/>
+                                            <rect key="frame" x="183" y="1" width="14" height="66"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </scroller>
                                     </scrollView>
                                     <popUpButton verticalHuggingPriority="750" id="89">
-                                        <rect key="frame" x="379" y="136" width="102" height="22"/>
+                                        <rect key="frame" x="379" y="140" width="102" height="22"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="92" id="90">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -740,7 +758,7 @@
                                         </connections>
                                     </popUpButton>
                                     <textField verticalHuggingPriority="750" id="87">
-                                        <rect key="frame" x="299" y="141" width="78" height="14"/>
+                                        <rect key="frame" x="299" y="145" width="78" height="14"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Storage Type:" id="88">
                                             <font key="font" metaFont="smallSystem"/>
@@ -780,7 +798,7 @@
                                         <rect key="frame" x="0.0" y="0.0" width="301" height="19"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <size key="intercellSpacing" width="3" height="2"/>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                         <tableColumns>
                                             <tableColumn identifier="name" width="155" minWidth="40" maxWidth="1000" id="115">
@@ -1214,7 +1232,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                             <rect key="frame" x="0.0" y="0.0" width="751" height="18"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
-                                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                            <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                             <tableColumns>
                                                 <tableColumn identifier="0" width="113" minWidth="16" maxWidth="1000" id="558">
@@ -1867,28 +1885,19 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
         </customView>
         <box autoresizesSubviews="NO" title="&lt;this title and checkboxes are created in the code&gt;" borderType="line" id="192" userLabel="Columns Box (&lt;this title and checkboxes are created in the code&gt;)">
-            <rect key="frame" x="0.0" y="0.0" width="699" height="150"/>
+            <rect key="frame" x="0.0" y="0.0" width="699" height="182"/>
             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" heightSizable="YES"/>
             <userGuides>
-                <userLayoutGuide location="349" affinity="minX"/>
+                <userLayoutGuide location="350" affinity="minX"/>
                 <userLayoutGuide location="349" affinity="minX"/>
                 <userLayoutGuide location="349" affinity="minX"/>
             </userGuides>
             <view key="contentView">
-                <rect key="frame" x="1" y="1" width="697" height="134"/>
+                <rect key="frame" x="1" y="1" width="697" height="166"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
-                    <textField verticalHuggingPriority="750" tag="12" id="54">
-                        <rect key="frame" x="41" y="61" width="66" height="14"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Comments:" id="55">
-                            <font key="font" metaFont="smallSystem"/>
-                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
                     <textField verticalHuggingPriority="750" tag="11" id="50">
-                        <rect key="frame" x="51" y="86" width="56" height="14"/>
+                        <rect key="frame" x="51" y="115" width="56" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Collation:" id="51">
                             <font key="font" metaFont="smallSystem"/>
@@ -1897,7 +1906,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         </textFieldCell>
                     </textField>
                     <textField verticalHuggingPriority="750" tag="10" id="697">
-                        <rect key="frame" x="23" y="111" width="84" height="14"/>
+                        <rect key="frame" x="23" y="141" width="84" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Column Name:" id="698">
                             <font key="font" metaFont="smallSystem"/>
@@ -1906,7 +1915,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         </textFieldCell>
                     </textField>
                     <textField verticalHuggingPriority="750" tag="30" id="701">
-                        <rect key="frame" x="342" y="110" width="56" height="14"/>
+                        <rect key="frame" x="356" y="141" width="56" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Datatype:" id="702">
                             <font key="font" metaFont="smallSystem"/>
@@ -1915,7 +1924,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         </textFieldCell>
                     </textField>
                     <textField verticalHuggingPriority="750" tag="31" id="707">
-                        <rect key="frame" x="342" y="84" width="56" height="14"/>
+                        <rect key="frame" x="346" y="115" width="66" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Default:" id="708">
                             <font key="font" metaFont="smallSystem"/>
@@ -1924,7 +1933,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         </textFieldCell>
                     </textField>
                     <popUpButton verticalHuggingPriority="750" tag="21" id="56">
-                        <rect key="frame" x="109" y="81" width="225" height="22"/>
+                        <rect key="frame" x="109" y="109" width="225" height="22"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                         <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="59" id="57">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -1942,7 +1951,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         </connections>
                     </popUpButton>
                     <textField verticalHuggingPriority="750" tag="20" id="699">
-                        <rect key="frame" x="112" y="109" width="219" height="19"/>
+                        <rect key="frame" x="112" y="138" width="219" height="19"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="700">
                             <font key="font" metaFont="smallSystem"/>
@@ -1954,7 +1963,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         </connections>
                     </textField>
                     <textField verticalHuggingPriority="750" tag="41" id="709">
-                        <rect key="frame" x="403" y="82" width="269" height="19"/>
+                        <rect key="frame" x="415" y="112" width="259" height="19"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="710">
                             <font key="font" metaFont="smallSystem"/>
@@ -1966,7 +1975,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         </connections>
                     </textField>
                     <comboBox verticalHuggingPriority="750" tag="40" id="705">
-                        <rect key="frame" x="403" y="105" width="272" height="22"/>
+                        <rect key="frame" x="415" y="135" width="262" height="22"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                         <comboBoxCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" usesDataSource="YES" numberOfVisibleItems="5" id="706">
                             <font key="font" metaFont="smallSystem"/>
@@ -1981,8 +1990,8 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         </connections>
                     </comboBox>
                     <button tag="50" id="711">
-                        <rect key="frame" x="400" y="50" width="85" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                        <rect key="frame" x="412" y="50" width="85" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="check" title="Primary Key" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="712">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="smallSystem"/>
@@ -1992,8 +2001,8 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         </connections>
                     </button>
                     <button tag="51" id="715">
-                        <rect key="frame" x="400" y="30" width="63" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                        <rect key="frame" x="412" y="30" width="63" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="check" title="Binary" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="716">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="smallSystem"/>
@@ -2003,8 +2012,8 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         </connections>
                     </button>
                     <button tag="52" id="717">
-                        <rect key="frame" x="400" y="10" width="105" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                        <rect key="frame" x="412" y="10" width="105" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="check" title="Auto Increment" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="718">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="smallSystem"/>
@@ -2013,9 +2022,20 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <action selector="userClickButton:" target="-2" id="755"/>
                         </connections>
                     </button>
+                    <button tag="55" id="2Az-jc-J95" userLabel="MColumns FlagG">
+                        <rect key="frame" x="518" y="11" width="86" height="17"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                        <buttonCell key="cell" type="check" title="Generated" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="LNF-nT-sev">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="smallSystem"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="userClickButton:" target="-2" id="70U-PV-73C"/>
+                        </connections>
+                    </button>
                     <button tag="53" id="719">
-                        <rect key="frame" x="506" y="50" width="72" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                        <rect key="frame" x="518" y="50" width="72" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="check" title="Not NULL" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="720">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="smallSystem"/>
@@ -2024,9 +2044,9 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <action selector="userClickButton:" target="-2" id="750"/>
                         </connections>
                     </button>
-                    <button tag="55" id="721">
-                        <rect key="frame" x="601" y="50" width="63" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                    <button tag="56" id="721">
+                        <rect key="frame" x="613" y="50" width="63" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="check" title="Unique" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="722">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="smallSystem"/>
@@ -2035,9 +2055,9 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <action selector="userClickButton:" target="-2" id="751"/>
                         </connections>
                     </button>
-                    <button tag="56" id="723">
-                        <rect key="frame" x="601" y="30" width="63" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                    <button tag="57" id="723">
+                        <rect key="frame" x="613" y="30" width="63" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="check" title="ZeroFill" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="724">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="smallSystem"/>
@@ -2047,8 +2067,8 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         </connections>
                     </button>
                     <button tag="54" id="725">
-                        <rect key="frame" x="506" y="30" width="72" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                        <rect key="frame" x="518" y="30" width="72" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="check" title="Unsigned" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="726">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="smallSystem"/>
@@ -2058,20 +2078,20 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         </connections>
                     </button>
                     <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" id="816">
-                        <rect key="frame" x="112" y="10" width="219" height="65"/>
+                        <rect key="frame" x="112" y="10" width="219" height="94"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <clipView key="contentView" id="Iur-yw-mZf">
-                            <rect key="frame" x="1" y="1" width="217" height="63"/>
-                            <autoresizingMask key="autoresizingMask"/>
+                            <rect key="frame" x="1" y="1" width="217" height="92"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <textView importsGraphics="NO" richText="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" smartInsertDelete="YES" id="819">
-                                    <rect key="frame" x="0.0" y="0.0" width="217" height="63"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="217" height="92"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                    <size key="minSize" width="217" height="63"/>
+                                    <size key="minSize" width="217" height="92"/>
                                     <size key="maxSize" width="463" height="10000000"/>
                                     <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                    <size key="minSize" width="217" height="63"/>
+                                    <size key="minSize" width="217" height="92"/>
                                     <size key="maxSize" width="463" height="10000000"/>
                                     <connections>
                                         <outlet property="delegate" destination="-2" id="821"/>
@@ -2085,14 +2105,67 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                         <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" controlSize="small" horizontal="NO" id="817">
-                            <rect key="frame" x="204" y="1" width="14" height="63"/>
+                            <rect key="frame" x="204" y="1" width="14" height="92"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                     </scrollView>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" tag="32" id="tvQ-IU-IX5">
+                        <rect key="frame" x="363" y="87" width="49" height="14"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Storage:" id="9rv-G0-SpE">
+                            <font key="font" metaFont="smallSystem"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField verticalHuggingPriority="750" tag="12" id="54">
+                        <rect key="frame" x="41" y="92" width="66" height="14"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Comments:" id="55">
+                            <font key="font" metaFont="smallSystem"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <box transparent="YES" title="Box" borderType="line" titlePosition="noTitle" id="TL3-Rp-gbi">
+                        <rect key="frame" x="412" y="80" width="265" height="26"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                        <view key="contentView">
+                            <rect key="frame" x="1" y="1" width="263" height="24"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <subviews>
+                                <button toolTip="column will be calculated on the fly when a record is read from a table" id="Sn6-l7-dXN" userLabel="MColumns RadioGCVirtual">
+                                    <rect key="frame" x="10" y="3" width="84" height="20"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <buttonCell key="cell" type="radio" title="VIRTUAL" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="nD3-CD-r1h">
+                                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                        <font key="font" metaFont="smallSystem"/>
+                                    </buttonCell>
+                                    <connections>
+                                        <action selector="userClickRadioButton:" target="-2" id="4gj-w5-kaV"/>
+                                    </connections>
+                                </button>
+                                <button toolTip="column will be calculated when a new record is written in the table, and after that it will be treated as a regular field" id="HGE-yC-LkF" userLabel="MColumns RadioGCStored">
+                                    <rect key="frame" x="89" y="3" width="87" height="20"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <buttonCell key="cell" type="radio" title="STORED" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="drL-BG-emz">
+                                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                        <font key="font" metaFont="smallSystem"/>
+                                    </buttonCell>
+                                    <connections>
+                                        <action selector="userClickRadioButton:" target="-2" id="eK4-Xj-lKg"/>
+                                    </connections>
+                                </button>
+                            </subviews>
+                        </view>
+                        <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                        <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    </box>
                 </subviews>
             </view>
             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
             <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+            <point key="canvasLocation" x="521.5" y="-190"/>
         </box>
         <box autoresizesSubviews="NO" title="&lt;this title and checkboxes are created in the code&gt;" borderType="line" id="756" userLabel="Columns Box Compact (&lt;this title and checkboxes are created in the code&gt;)">
             <rect key="frame" x="0.0" y="0.0" width="365" height="154"/>
