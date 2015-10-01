@@ -87,9 +87,9 @@ namespace MySQL.GUI.Workbench.Plugins
       this.tabPage1.Controls.Add(this.nameTextBox);
       this.tabPage1.Controls.Add(this.label1);
       this.tabPage1.Location = new System.Drawing.Point(0, 0);
-      this.tabPage1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.tabPage1.Margin = new System.Windows.Forms.Padding(4);
       this.tabPage1.Name = "tabPage1";
-      this.tabPage1.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.tabPage1.Padding = new System.Windows.Forms.Padding(4);
       this.tabPage1.Size = new System.Drawing.Size(1041, 245);
       this.tabPage1.TabIndex = 0;
       this.tabPage1.Text = "Schema";
@@ -112,7 +112,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // refactorButton
       // 
       this.refactorButton.Location = new System.Drawing.Point(276, 37);
-      this.refactorButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.refactorButton.Margin = new System.Windows.Forms.Padding(4);
       this.refactorButton.Name = "refactorButton";
       this.refactorButton.Size = new System.Drawing.Size(173, 28);
       this.refactorButton.TabIndex = 22;
@@ -128,7 +128,7 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
       this.optComments.Location = new System.Drawing.Point(177, 119);
-      this.optComments.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.optComments.Margin = new System.Windows.Forms.Padding(4);
       this.optComments.Multiline = true;
       this.optComments.Name = "optComments";
       this.optComments.ScrollBars = System.Windows.Forms.ScrollBars.Both;
@@ -150,7 +150,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // 
       this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
       this.pictureBox1.Location = new System.Drawing.Point(13, 14);
-      this.pictureBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.pictureBox1.Margin = new System.Windows.Forms.Padding(4);
       this.pictureBox1.Name = "pictureBox1";
       this.pictureBox1.Size = new System.Drawing.Size(64, 59);
       this.pictureBox1.TabIndex = 19;
@@ -201,7 +201,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.optCollation.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.optCollation.FormattingEnabled = true;
       this.optCollation.Location = new System.Drawing.Point(177, 82);
-      this.optCollation.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.optCollation.Margin = new System.Windows.Forms.Padding(4);
       this.optCollation.Name = "optCollation";
       this.optCollation.Size = new System.Drawing.Size(271, 24);
       this.optCollation.TabIndex = 15;
@@ -212,7 +212,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.nameTextBox.BackColor = System.Drawing.SystemColors.Window;
       this.nameTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
       this.nameTextBox.Location = new System.Drawing.Point(177, 6);
-      this.nameTextBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.nameTextBox.Margin = new System.Windows.Forms.Padding(4);
       this.nameTextBox.Name = "nameTextBox";
       this.nameTextBox.Size = new System.Drawing.Size(271, 22);
       this.nameTextBox.TabIndex = 14;
@@ -235,9 +235,9 @@ namespace MySQL.GUI.Workbench.Plugins
       this.BackColor = System.Drawing.Color.White;
       this.ClientSize = new System.Drawing.Size(1049, 278);
       this.Controls.Add(this.mainTabControl);
-      this.Margin = new System.Windows.Forms.Padding(5, 5, 5, 5);
+      this.Margin = new System.Windows.Forms.Padding(5);
       this.Name = "DbMysqlSchemaEditor";
-      this.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.Padding = new System.Windows.Forms.Padding(4);
       this.TabText = "MySQL Schema Editor";
       this.Text = "DbMysqlSchemaEditor";
       this.Shown += new System.EventHandler(this.DbMysqlSchemaEditor_Shown);
