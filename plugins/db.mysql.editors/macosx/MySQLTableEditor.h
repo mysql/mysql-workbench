@@ -53,6 +53,9 @@ class MySQLTablePartitionTreeBE;
   IBOutlet NSSplitView* mColumnsSplitter;
   IBOutlet NSTableView* mColumnsTable;
   IBOutlet NSTextField* mColumnsName;
+  IBOutlet NSTextField* mDefaultLabel;
+  IBOutlet NSButton* mButtonGCVirtual;
+  IBOutlet NSButton* mButtonGCStored;
   
   IBOutlet NSBox* mColumnsDetailsBox;
   IBOutlet NSPopUpButton* mColumnsCollation;
@@ -66,6 +69,7 @@ class MySQLTablePartitionTreeBE;
   IBOutlet NSButton* mColumnsFlagUN;
   IBOutlet NSButton* mColumnsFlagZF;
   IBOutlet NSButton* mColumnsFlagAI;
+  IBOutlet NSButton* mColumnsFlagG;
   
   // for compact mode
   IBOutlet NSBox* mColumnsDetailsBox2;
@@ -148,6 +152,7 @@ class MySQLTablePartitionTreeBE;
 
 - (IBAction) userPickPopup: (id) sender;
 - (IBAction) userClickButton: (id) sender;
+- (IBAction) userClickRadioButton: (id) sender;
 
 - (NSInteger) numberOfRowsInTableView: (NSTableView*) aTableView;
 
