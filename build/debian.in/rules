@@ -33,8 +33,10 @@ LINUXRES_BINARIES=$(LINUXRES_HOME)/builds
 
 ODBC_HOME=$(LINUXRES_BINARIES)/odbc/usr/local
 VSQLITE_HOME=$(LINUXRES_BINARIES)/vsqlite/usr/local
+
 SQLITE_HOME=$(LINUXRES_BINARIES)/sqlite
 PYSQLITE2_HOME=$(LINUXRES_BINARIES)/pysqlite2
+PYODBC_HOME=$(LINUXRES_BINARIES)/pyodbc
 
 @ifdef community
 CPPCONN_HOME=$(LINUXRES_BINARIES)/cppconn-gpl/usr/local
@@ -107,7 +109,7 @@ install: build
 	# Bundle pyodbc and iodbc
 	cp -a $(ODBC_HOME)/bin/iodbcadm-gtk $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(ODBC_HOME)/lib/libiodbc*.so.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
-	cp -a $(LINUXRES_HOME)/pyodbc.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+	cp -a $(PYODBC_HOME)/pyodbc.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	# Bundle other unpackaged libs
 	cp -a $(VSQLITE_HOME)/lib/libvsqlitepp.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(CPPCONN_HOME)/lib/libmysqlcppconn.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
