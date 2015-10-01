@@ -32,10 +32,10 @@
 %define odbc_home         $linuxres_binaries/odbc/usr/local
 %define vsqlite_dir       $linuxres_binaries/vsqlite/usr/local
 %define ctemplate_dir     $linuxres_binaries/ctemplate/usr/local
-%define sqlite_dir       $linuxres_binaries/sqlite
-%define pysqlite_dir     $linuxres_binaries/pysqlite
-%define python_dir       $linuxres_binaries/python
-
+%define sqlite_dir        $linuxres_binaries/sqlite
+%define pysqlite_dir      $linuxres_binaries/pysqlite
+%define python_dir        $linuxres_binaries/python
+%define pyodbc_dir        $linuxres_binaries/pyodbc
 
 
 %if "%{edition}" == "commercial"
@@ -264,8 +264,8 @@ find %{buildroot}%{_libdir}/mysql-workbench -name \*.la -exec rm {} \; -print
   cp -a %{odbc_home}/bin/iodbcadm-gtk %{buildroot}%{_libexecdir}/mysql-workbench/
 %endif
 
-if [ %{linuxres_binaries} ]; then
-  cp -a %{linuxres_binaries}/pyodbc.so %{buildroot}%{_libdir}/mysql-workbench/modules
+if [ %{pyodbc_dir} ]; then
+  cp -a %{pyodbc_dir}/pyodbc.so %{buildroot}%{_libdir}/mysql-workbench/modules
 %if 0%{?commercial}
   # Bundle libs only needed in commercial edition
   cp -a %{sqlite_dir}/libsqlite3.so %{buildroot}%{_libdir}/mysql-workbench/
