@@ -194,9 +194,9 @@ static void call_partial_refresh(int what, DbMysqlTableEditor* theEditor)
         std::string storageType;
         mBackEnd->get_columns()->get_field(rowIndex, MySQLTableColumnsListBE::GeneratedStorageType, storageType);
         if (base::toupper(storageType) != "STORED")
-          mButtonGCVirtual.state = 1;
+          mButtonGCVirtual.state = NSOnState;
         else
-          mButtonGCStored.state = 1;
+          mButtonGCStored.state = NSOnState;
       }
     }
   }
