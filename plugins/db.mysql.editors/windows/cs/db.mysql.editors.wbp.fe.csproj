@@ -102,9 +102,6 @@
     <Compile Include="DbMysqlRoutineEditor.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DbMysqlRoutineEditor.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="DbMysqlRoutineEditor.Designer.cs">
       <DependentUpon>DbMysqlRoutineEditor.cs</DependentUpon>
     </Compile>
