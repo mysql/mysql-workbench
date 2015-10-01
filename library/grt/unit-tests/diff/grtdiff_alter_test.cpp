@@ -1,16 +1,16 @@
-/* 
+/*
  * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -66,12 +66,12 @@ protected:
       sql_parser= SqlFacade::instance_for_rdbms_name(tester.grt, "Mysql");
       ensure("failed to get sqlparser module", (NULL != sql_parser));
   }
-  
+
   TEST_DATA_DESTRUCTOR(grtdiff_alter_test)
   {
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());
     std::string sql_string = "DROP DATABASE IF EXISTS grtdiff_alter_test;";
-    
+
     execute_script(stmt.get(), sql_string, tester.wb->get_grt_manager());
   }
 
@@ -91,7 +91,7 @@ TEST_FUNCTION(3)
   tester.wb->close_document_finish();
 }
 
-  static struct 
+  static struct
   {
     const char *description;
     const char *object_name;
@@ -119,19 +119,19 @@ TEST_FUNCTION(3)
     //  "alter CHARACTER SET",
     //  "grtdiff_alter_test",
     //  "DROP DATABASE IF EXISTS grtdiff_alter_test",
-    //  "CREATE DATABASE grtdiff_alter_test DEFAULT CHARACTER SET 'utf8'", 
+    //  "CREATE DATABASE grtdiff_alter_test DEFAULT CHARACTER SET 'utf8'",
     //  "CREATE DATABASE grtdiff_alter_test DEFAULT CHARACTER SET 'latin1'"
     //}, {
     //  "alter COLLATE",
     //  "grtdiff_alter_test",
     //  "DROP DATABASE IF EXISTS grtdiff_alter_test",
-    //  "CREATE DATABASE grtdiff_alter_test DEFAULT COLLATE 'utf8_general_ci'", 
+    //  "CREATE DATABASE grtdiff_alter_test DEFAULT COLLATE 'utf8_general_ci'",
     //  "CREATE DATABASE grtdiff_alter_test DEFAULT COLLATE 'utf8_general_cs'"
     //}, {
     //  "alter CHARACTER SET and COLLATE",
     //  "grtdiff_alter_test",
     //  "DROP DATABASE IF EXISTS grtdiff_alter_test",
-    //  "CREATE DATABASE grtdiff_alter_test DEFAULT CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'", 
+    //  "CREATE DATABASE grtdiff_alter_test DEFAULT CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'",
     //  "CREATE DATABASE grtdiff_alter_test DEFAULT CHARACTER SET 'latin1' COLLATE 'utf8_general_cs'"
     //},
 #endif
@@ -150,7 +150,7 @@ TEST_FUNCTION(3)
       "C C C+",
       "grtdiff_alter_test.t1",
       "DROP TABLE IF EXISTS grtdiff_alter_test.t1",
-      "CREATE TABLE grtdiff_alter_test.t1 (`id` int(11) DEFAULT NULL, `id2` int(11) DEFAULT NULL) ENGINE=InnoDB DEFAULT CHARSET=latin1", 
+      "CREATE TABLE grtdiff_alter_test.t1 (`id` int(11) DEFAULT NULL, `id2` int(11) DEFAULT NULL) ENGINE=InnoDB DEFAULT CHARSET=latin1",
       "CREATE TABLE grtdiff_alter_test.t1 (`id` int(11) DEFAULT NULL, `id2` int(11) DEFAULT NULL, t TEXT) ENGINE=InnoDB DEFAULT CHARSET=latin1"
     }, {
       "C C C+ C+",
@@ -256,7 +256,7 @@ TEST_FUNCTION(3)
       "DROP TABLE IF EXISTS grtdiff_alter_test.t1",
       "CREATE TABLE grtdiff_alter_test.t1 (t TEXT, t2 TEXT, `id` int(11) DEFAULT NULL, t3 TEXT, t4 TEXT, `id2` int(11) DEFAULT NULL, t5 TEXT, t6 TEXT) ENGINE=InnoDB DEFAULT CHARSET=latin1",
       "CREATE TABLE grtdiff_alter_test.t1 (`id` int(11) DEFAULT NULL, `id2` int(11) DEFAULT NULL) ENGINE=InnoDB DEFAULT CHARSET=latin1"
-    }, 
+    },
     // ALTER TABLE tests (ADD/DROP COLUMN  mix)
 #if 0 // crash due to server bug #31145
     {
@@ -345,7 +345,7 @@ TEST_FUNCTION(3)
       "DROP TABLE IF EXISTS grtdiff_alter_test.t1",
       "CREATE TABLE grtdiff_alter_test.t1 (`id` int(11) DEFAULT NULL, `id2` int(11) DEFAULT NULL, t2 TEXT, `id3` int(11) DEFAULT NULL) ENGINE=InnoDB DEFAULT CHARSET=latin1",
       "CREATE TABLE grtdiff_alter_test.t1 (`id` int(11) DEFAULT NULL, t TEXT, `id2` int(11) DEFAULT NULL, `id3` int(11) DEFAULT NULL) ENGINE=InnoDB DEFAULT CHARSET=latin1"
-    }, 
+    },
 #if 0 // crash due to server bug #31145
     {
       "C C C- C+",
@@ -361,7 +361,7 @@ TEST_FUNCTION(3)
       "DROP TABLE IF EXISTS grtdiff_alter_test.t1",
       "CREATE TABLE grtdiff_alter_test.t1 (`id` int(11) DEFAULT NULL, `id2` int(11) DEFAULT NULL, t TEXT, t2 TEXT) ENGINE=InnoDB DEFAULT CHARSET=latin1",
       "CREATE TABLE grtdiff_alter_test.t1 (`id` int(11) DEFAULT NULL, `id2` int(11) DEFAULT NULL, t3 TEXT) ENGINE=InnoDB DEFAULT CHARSET=latin1"
-    }, 
+    },
     // ALTER TABLE tests (CHANGE COLUMN position change, content change)
     {
       "C> C C",
@@ -385,7 +385,7 @@ TEST_FUNCTION(3)
       "C*", // a test for presicion/scale
       "grtdiff_alter_test.t1",
       "DROP TABLE IF EXISTS grtdiff_alter_test.t1",
-      "CREATE TABLE grtdiff_alter_test.t1 (`id` DECIMAL) ENGINE=InnoDB DEFAULT CHARSET=latin1", 
+      "CREATE TABLE grtdiff_alter_test.t1 (`id` DECIMAL) ENGINE=InnoDB DEFAULT CHARSET=latin1",
       "CREATE TABLE grtdiff_alter_test.t1 (`id` DECIMAL(8,2)) ENGINE=InnoDB DEFAULT CHARSET=latin1"
     }, {
       "C C*> C",
@@ -471,7 +471,7 @@ TEST_FUNCTION(3)
       "DROP TABLE IF EXISTS grtdiff_alter_test.t1",
       "CREATE TABLE grtdiff_alter_test.t1 (`id` int(11) DEFAULT NULL, `id2` int(11) DEFAULT NULL, t TEXT) ENGINE=InnoDB DEFAULT CHARSET=latin1",
       "CREATE TABLE grtdiff_alter_test.t1 (t TEXT, `id` int(11) DEFAULT NULL) ENGINE=InnoDB DEFAULT CHARSET=latin1"
-    }, 
+    },
     // TODO: test USING HASH and other indexKind values
     {
       "I(1)+",
@@ -577,21 +577,21 @@ TEST_FUNCTION(3)
       "F+",
       "grtdiff_alter_test.t1",
       "DROP TABLE IF EXISTS grtdiff_alter_test.t1; DROP TABLE IF EXISTS grtdiff_alter_test.ref_t1;",
-      
+
       "CREATE TABLE grtdiff_alter_test.ref_t1 (`id` int(11) NOT NULL DEFAULT '0', PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=latin1;"
       "CREATE TABLE grtdiff_alter_test.t1 (`id` int(11) NOT NULL DEFAULT '0', PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=latin1;",
-      
+
       "CREATE TABLE grtdiff_alter_test.ref_t1 (`id` int(11) NOT NULL DEFAULT '0', PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=latin1;"
       "CREATE TABLE grtdiff_alter_test.t1 (`id` int(11) NOT NULL DEFAULT '0', PRIMARY KEY (`id`), CONSTRAINT `c1` FOREIGN KEY (`id`) REFERENCES `grtdiff_alter_test`.`ref_t1` (`id`) ) ENGINE=InnoDB DEFAULT CHARSET=latin1"
     }, {
       "F+ F+",
       "grtdiff_alter_test.t1",
       "DROP TABLE IF EXISTS grtdiff_alter_test.t1; DROP TABLE IF EXISTS grtdiff_alter_test.ref_t1; DROP TABLE IF EXISTS grtdiff_alter_test.ref_t2;",
-      
+
       "CREATE TABLE grtdiff_alter_test.ref_t1 (`id` int(11) NOT NULL DEFAULT '0', PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=latin1;"
       "CREATE TABLE grtdiff_alter_test.ref_t2 (`id` int(11) NOT NULL DEFAULT '0', PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=latin1;"
       "CREATE TABLE grtdiff_alter_test.t1 (`id` int(11) NOT NULL DEFAULT '0', PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=latin1;",
-      
+
       "CREATE TABLE grtdiff_alter_test.ref_t1 (`id` int(11) NOT NULL DEFAULT '0', PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=latin1;"
       "CREATE TABLE grtdiff_alter_test.ref_t2 (`id` int(11) NOT NULL DEFAULT '0', PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=latin1;"
       "CREATE TABLE grtdiff_alter_test.t1 (`id` int(11) NOT NULL DEFAULT '0', PRIMARY KEY (`id`), CONSTRAINT `c1` FOREIGN KEY (`id`) REFERENCES `grtdiff_alter_test`.`ref_t1` (`id`), CONSTRAINT `c2` FOREIGN KEY (`id`) REFERENCES `grtdiff_alter_test`.`ref_t2` (`id`) ) ENGINE=InnoDB DEFAULT CHARSET=latin1"
@@ -599,12 +599,12 @@ TEST_FUNCTION(3)
       "F-",
       "grtdiff_alter_test.t1",
       "DROP TABLE IF EXISTS grtdiff_alter_test.t1; DROP TABLE IF EXISTS grtdiff_alter_test.ref_t1;",
-            
+
       "CREATE TABLE grtdiff_alter_test.ref_t1 (`id` int(11) NOT NULL DEFAULT '0', PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=latin1;"
       "CREATE TABLE grtdiff_alter_test.t1 (`id` int(11) NOT NULL DEFAULT '0', PRIMARY KEY (`id`), CONSTRAINT `c1` FOREIGN KEY (`id`) REFERENCES `grtdiff_alter_test`.`ref_t1` (`id`) ) ENGINE=InnoDB DEFAULT CHARSET=latin1",
 
       "CREATE TABLE grtdiff_alter_test.ref_t1 (`id` int(11) NOT NULL DEFAULT '0', PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=latin1;"
-      "CREATE TABLE grtdiff_alter_test.t1 (`id` int(11) NOT NULL DEFAULT '0', PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=latin1;" 
+      "CREATE TABLE grtdiff_alter_test.t1 (`id` int(11) NOT NULL DEFAULT '0', PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=latin1;"
     }, {
       "F- F-",
       "grtdiff_alter_test.t1",
@@ -708,7 +708,7 @@ TEST_FUNCTION(3)
       "DROP TABLE IF EXISTS grtdiff_alter_test.t1;",
       "CREATE TABLE grtdiff_alter_test.t1 (`id` int(11) NOT NULL DEFAULT '0') ENGINE=InnoDB DEFAULT CHARSET=latin1",
       "CREATE TABLE grtdiff_alter_test.t1 (`id` int(11) NOT NULL DEFAULT '0') ENGINE=InnoDB DEFAULT CHARSET=latin1 DELAY_KEY_WRITE = 1"
-    }, { 
+    }, {
 #if 0  // TODO: need a fix from rev-eng
 
       "Change UNION, INSERT_METHOD attribute",
@@ -877,10 +877,10 @@ TEST_FUNCTION(3)
       "Add range partitioning ",
       "grtdiff_alter_test.t1",
       "DROP TABLE IF EXISTS grtdiff_alter_test.t1;",
-      
+
       "CREATE TABLE grtdiff_alter_test.t1 (id int(11) NOT NULL DEFAULT '0', hired DATE NOT NULL)"
       " ENGINE=InnoDB DEFAULT CHARSET=latin1",
-      
+
       "CREATE TABLE grtdiff_alter_test.t1 (id int(11) NOT NULL DEFAULT '0', hired DATE NOT NULL)"
       " ENGINE=InnoDB DEFAULT CHARSET=latin1"
       " PARTITION BY RANGE(YEAR(hired)) ("
@@ -893,7 +893,7 @@ TEST_FUNCTION(3)
       "Remove range partitioning ",
       "grtdiff_alter_test.t1",
       "DROP TABLE IF EXISTS grtdiff_alter_test.t1;",
-      
+
       "CREATE TABLE grtdiff_alter_test.t1 (id int(11) NOT NULL DEFAULT '0', hired DATE NOT NULL)"
       " ENGINE=InnoDB DEFAULT CHARSET=latin1"
       " PARTITION BY RANGE(YEAR(hired)) ("
@@ -908,7 +908,7 @@ TEST_FUNCTION(3)
       "Range partitioning: change expression, partition LESS THAN values ",
       "grtdiff_alter_test.t1",
       "DROP TABLE IF EXISTS grtdiff_alter_test.t1;",
-      
+
       "CREATE TABLE grtdiff_alter_test.t1 (id int(11) NOT NULL DEFAULT '0', hired DATE NOT NULL)"
       " ENGINE=InnoDB DEFAULT CHARSET=latin1"
       " PARTITION BY RANGE(YEAR(hired)) ("
@@ -928,7 +928,7 @@ TEST_FUNCTION(3)
       "Range partitioning: add partition",
       "grtdiff_alter_test.t1",
       "DROP TABLE IF EXISTS grtdiff_alter_test.t1;",
-      
+
       "CREATE TABLE grtdiff_alter_test.t1 (id int(11) NOT NULL DEFAULT '0', hired DATE NOT NULL)"
       " ENGINE=InnoDB DEFAULT CHARSET=latin1"
       " PARTITION BY RANGE(YEAR(hired)) ("
@@ -945,7 +945,7 @@ TEST_FUNCTION(3)
       "Range partitioning: drop 2 partitions",
       "grtdiff_alter_test.t1",
       "DROP TABLE IF EXISTS grtdiff_alter_test.t1;",
-      
+
       "CREATE TABLE grtdiff_alter_test.t1 (id int(11) NOT NULL DEFAULT '0', hired DATE NOT NULL)"
       " ENGINE=InnoDB DEFAULT CHARSET=latin1"
       " PARTITION BY RANGE(YEAR(hired)) ("
@@ -963,7 +963,7 @@ TEST_FUNCTION(3)
       "Range partitioning: reorganize partitions",
       "grtdiff_alter_test.t1",
       "DROP TABLE IF EXISTS grtdiff_alter_test.t1;",
-      
+
       "CREATE TABLE grtdiff_alter_test.t1 (id int(11) NOT NULL DEFAULT '0', hired DATE NOT NULL)"
       " ENGINE=InnoDB DEFAULT CHARSET=latin1"
       " PARTITION BY RANGE(YEAR(hired)) ("
@@ -983,7 +983,7 @@ TEST_FUNCTION(3)
       "List partitioning: reorganize partitions",
       "grtdiff_alter_test.t1",
       "DROP TABLE IF EXISTS grtdiff_alter_test.t1;",
-      
+
       "CREATE TABLE grtdiff_alter_test.t1 (id int(11) NOT NULL DEFAULT '0', hired DATE NOT NULL)"
       " ENGINE=InnoDB DEFAULT CHARSET=latin1"
       " PARTITION BY LIST(id) ("
@@ -1003,7 +1003,7 @@ TEST_FUNCTION(3)
       "List partitioning: add, remove, change partitions",
       "grtdiff_alter_test.t1",
       "DROP TABLE IF EXISTS grtdiff_alter_test.t1;",
-      
+
       "CREATE TABLE grtdiff_alter_test.t1 (id int(11) NOT NULL DEFAULT '0', hired DATE NOT NULL)"
       " ENGINE=InnoDB DEFAULT CHARSET=latin1"
       " PARTITION BY LIST(id) ("
@@ -1058,13 +1058,13 @@ TEST_FUNCTION(3)
       "DROP PROCEDURE IF EXISTS grtdiff_alter_test.p1;",
       "CREATE DATABASE IF NOT EXISTS grtdiff_alter_test;",
       "DELIMITER //\nCREATE DEFINER=`root`@`localhost` PROCEDURE `grtdiff_alter_test`.`p1`()\nBEGIN SELECT 1; SELECT 2; END//"
-    }, {  
+    }, {
       "Drop procedure",
       "grtdiff_alter_test.p1",
       "DROP PROCEDURE IF EXISTS grtdiff_alter_test.p1;",
       "DELIMITER //\nCREATE DEFINER=`root`@`localhost` PROCEDURE `grtdiff_alter_test`.`p1`()\nBEGIN SELECT 1; SELECT 2; END//",
       "CREATE DATABASE IF NOT EXISTS grtdiff_alter_test;"
-    }, {  
+    }, {
       "Change procedure",
       "grtdiff_alter_test.p1",
       "DROP PROCEDURE IF EXISTS grtdiff_alter_test.p1;",
@@ -1076,7 +1076,7 @@ TEST_FUNCTION(3)
     {
       "Create trigger",
       "grtdiff_alter_test.tr1",
-      
+
       "DROP TRIGGER IF EXISTS grtdiff_alter_test.tr1;DROP TABLE IF EXISTS grtdiff_alter_test.t1;",
 
       "CREATE TABLE grtdiff_alter_test.t1 (`id` int(11) NOT NULL DEFAULT '0') ENGINE=MyISAM DEFAULT CHARSET=latin1;\n",
@@ -1087,7 +1087,7 @@ TEST_FUNCTION(3)
     }, {
       "Drop trigger",
       "grtdiff_alter_test.tr1",
-      
+
       "DROP TRIGGER IF EXISTS grtdiff_alter_test.tr1;DROP TABLE IF EXISTS grtdiff_alter_test.t1;",
 
       "CREATE TABLE grtdiff_alter_test.t1 (`id` int(11) NOT NULL DEFAULT '0') ENGINE=MyISAM DEFAULT CHARSET=latin1;\n"
@@ -1098,7 +1098,7 @@ TEST_FUNCTION(3)
     }, {
       "Change trigger",
       "grtdiff_alter_test.tr1",
-      
+
       "DROP TRIGGER IF EXISTS grtdiff_alter_test.tr1;DROP TABLE IF EXISTS grtdiff_alter_test.t1;",
 
       "CREATE TABLE grtdiff_alter_test.t1 (`id` int(11) NOT NULL DEFAULT '0') ENGINE=MyISAM DEFAULT CHARSET=latin1;\n"
@@ -1108,7 +1108,7 @@ TEST_FUNCTION(3)
       "CREATE TABLE grtdiff_alter_test.t1 (`id` int(11) NOT NULL DEFAULT '0') ENGINE=MyISAM DEFAULT CHARSET=latin1;\n"
       "USE grtdiff_alter_test;\n"
       "DELIMITER //\nCREATE\nDEFINER=`root`@`localhost`\nTRIGGER `grtdiff_alter_test`.`tr1`\nBEFORE INSERT ON `grtdiff_alter_test`.`t1`\nFOR EACH ROW\nBEGIN DELETE FROM t2; END//"
-    }, 
+    },
 #endif  // TRIGGER_TESTS
 #ifdef CREATE_TESTS
     {
@@ -1196,7 +1196,7 @@ TEST_FUNCTION(6)
   boost::shared_ptr<DiffChange> empty_change;
 
   // column insertion
-  
+
   ensure("connection is NULL", connection.get() != NULL);
 
   {
@@ -1280,7 +1280,7 @@ TEST_FUNCTION(6)
     // 2. apply it to server
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());
 
-    try 
+    try
     {
       execute_script(stmt.get(), data[i].cleanup,tester.wb->get_grt_manager());
       execute_script(stmt.get(), data[i].org,tester.wb->get_grt_manager());
@@ -1357,7 +1357,7 @@ TEST_FUNCTION(7)
   // column insertion
 
 
-  
+
   ensure("connection is NULL", connection.get() != NULL);
 
   {
@@ -1437,23 +1437,31 @@ TEST_FUNCTION(7)
     options.set("TemplateFile", grt::StringRef(TemplateFile));
     options.set("UseShortNames", grt::IntegerRef(j));
     options.set("SeparateForeignKeys", grt::IntegerRef(0));
- 
-    grt::StringRef report = diffsql_module->generateReport(org_cat, options, alter_change);
+
+    std::string report = diffsql_module->generateReport(org_cat, options, alter_change);
 
     char buf1[1000];
-    
+
     g_snprintf(buf1, sizeof(buf1), "data/reporting/Basic_Text.tpl/reports/testres%s%d.txt",j?"_longname":"_shortname", i);
 
     std::ifstream rep;
     rep.open(buf1);
     std::string str((std::istreambuf_iterator<char>(rep)), std::istreambuf_iterator<char>());
 
-#ifndef _WIN32
-    // Reports are stored with Windows line endings, hence replace that by just \n for comparison.
-    str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
-#endif
-    ensure_equals("Reports differ", *report, str);
+    #ifndef _WIN32
+      // Reports are stored with Windows line endings, hence replace that by just \n for comparison.
+      str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
+    #endif
 
+    if (report != str)
+    {
+        alter_change->dump_log(0);
+//         int pp = strcmp(report.c_str(),str.c_str());
+        std::cout<<report.c_str()<<std::endl;
+        std::cout<<"=======================================================================================================================\n";
+        std::cout<<str<<std::endl;
+        fail(buf1);
+    }
 // Test Data generation
 /*
 	sprintf(buf1, "testres%s%d.txt",j?"_longname":"_shortname", i);
@@ -1466,7 +1474,7 @@ TEST_FUNCTION(7)
 }
 
 
-static struct 
+static struct
 {
   const char *description;
   const char *object_name;
@@ -1528,7 +1536,7 @@ TEST_FUNCTION(5)
   boost::shared_ptr<DiffChange> empty_change;
 
   // column insertion
-  
+
   ensure("connection is NULL", connection.get() != NULL);
 
   {
@@ -1624,4 +1632,3 @@ TEST_FUNCTION(5)
 
 
 END_TESTS
-
