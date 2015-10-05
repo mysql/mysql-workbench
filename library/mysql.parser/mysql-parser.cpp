@@ -291,7 +291,7 @@ extern "C" {
   /**
    * Error report function which is set in the parser (see MySQL.g where this is done).
    */
-  void on_parse_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_UINT8 *tokenNames)
+  void onMySQLParseError(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_UINT8 *tokenNames)
   {
     pANTLR3_EXCEPTION exception = recognizer->state->exception;
 
