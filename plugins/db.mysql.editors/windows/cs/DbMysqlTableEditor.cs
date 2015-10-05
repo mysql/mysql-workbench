@@ -72,10 +72,11 @@ namespace MySQL.GUI.Workbench.Plugins
       InitializeComponent();
       ReinitWithArguments(value);
 
-      //if (IsEditingLiveObject)
+      if (IsEditingLiveObject)
         AdjustEditModeControls(mainTabControl);
-      //else
-      //  AdjustToSmallerLayout();
+      else
+        collapsePictureBox_Click(null, null); // Start with a collapsed header section.
+      //  AdjustToSmallerLayout(); TODO: can go
 
       topPanel.Parent = mainTabControl.Parent;
     }
@@ -154,7 +155,7 @@ namespace MySQL.GUI.Workbench.Plugins
       columnsListModel = new DbMysqlTableColumnsListModel(this, columnsTreeView, tableEditorBE.get_columns(),
         columnIconNodeControl, nameNodeControl, datatypeComboBoxNodeControl, pkNodeControl,
         nnNodeControl, uqNodeControl, binNodeControl, unNodeControl, zfNodeControl, aiNodeControl,
-        defaultNodeControl, tableEditorBE);
+        gNodeControl, defaultNodeControl, tableEditorBE);
       
       nameNodeControl.IsEditEnabledValueNeeded += new EventHandler<Aga.Controls.Tree.NodeControls.NodeControlValueEventArgs>(canEdit);
       datatypeComboBoxNodeControl.IsEditEnabledValueNeeded += new EventHandler<Aga.Controls.Tree.NodeControls.NodeControlValueEventArgs>(canEdit);
@@ -517,6 +518,8 @@ namespace MySQL.GUI.Workbench.Plugins
         }
 
         refreshPartitioningList();
+
+        columnsTreeView_SelectionChanged(null, null);
       }
       finally
       {
@@ -722,16 +725,23 @@ namespace MySQL.GUI.Workbench.Plugins
           columnDataTypeTextBox.Enabled = false;
         }
 
-        if (columnsListModel.GrtList.get_field(nodeId,
-          (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.Default, out stringValue))
+        // Until this is refactored we use the default text field also for the expression
+        // in generated columns.
+        int isGenerated;
+        bool enableGenerated = columnsListModel.GrtList.get_field(nodeId, (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.IsGenerated, out isGenerated);
+        bool enableDefault = false;
+
+        if (isGenerated == 0)
         {
-          columnDefaultTextBox.Text = stringValue;
-          columnDefaultTextBox.Enabled = true;
-        }
-        else
-        {
-          columnDefaultTextBox.Text = "";
-          columnDefaultTextBox.Enabled = false;
+          defaultLabel.Text = "Default:";
+          if (columnsListModel.GrtList.get_field(nodeId,
+            (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.Default, out stringValue))
+          {
+            columnDefaultTextBox.Text = stringValue;
+            enableDefault = true;
+          }
+          else
+            columnDefaultTextBox.Text = "";
         }
 
         int flag;
@@ -807,16 +817,63 @@ namespace MySQL.GUI.Workbench.Plugins
           zeroFillCheckBox.Enabled = false;
         }
 
-        if (columnsListModel.GrtList.get_field(nodeId,
-          (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.IsAutoIncrement, out flag))
+        int canAutoIncrement;
+        if (!columnsListModel.GrtList.get_field(nodeId,
+          (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.IsAutoIncrement, out canAutoIncrement))
+          canAutoIncrement = 0;
+
+        if (canAutoIncrement != 0)
         {
-          aiCheckBox.Checked = flag != 0;
-          aiCheckBox.Enabled = true;
+          if (columnsListModel.GrtList.get_field(nodeId,
+            (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.IsAutoIncrement, out flag))
+          {
+            aiCheckBox.Checked = flag != 0;
+            aiCheckBox.Enabled = true;
+          }
+          else
+          {
+            aiCheckBox.Checked = false;
+            aiCheckBox.Enabled = false;
+          }
         }
         else
         {
           aiCheckBox.Checked = false;
           aiCheckBox.Enabled = false;
+        }
+
+        generatedCheckbox.Enabled = enableGenerated;
+        virtualRadioButton.Enabled = enableGenerated && (isGenerated != 0);
+        storedRadioButton.Enabled = enableGenerated && (isGenerated != 0);
+        columnDefaultTextBox.Enabled = enableDefault || enableGenerated;
+        generatedCheckbox.Checked = isGenerated != 0;
+        if (isGenerated != 0)
+        {
+          defaultLabel.Text = "Expression:";
+          
+          if (columnsListModel.GrtList.get_field(nodeId,
+            (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.GeneratedStorageType, out stringValue))
+          {
+            if (stringValue.ToLower() == "stored")
+              storedRadioButton.Checked = true;
+            else
+              virtualRadioButton.Checked = true; // Auto switches off the other button.
+          }
+          else
+          {
+            virtualRadioButton.Checked = false;
+            virtualRadioButton.Enabled = false;
+            storedRadioButton.Checked = false;
+            storedRadioButton.Enabled = false;
+          }
+
+          if (columnsListModel.GrtList.get_field(nodeId,
+            (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.GeneratedExpression, out stringValue))
+          {
+            columnDefaultTextBox.Text = stringValue;
+          }
+          else
+            columnDefaultTextBox.Text = "";
         }
       }
       else
@@ -844,6 +901,13 @@ namespace MySQL.GUI.Workbench.Plugins
         zeroFillCheckBox.Enabled = false;
         aiCheckBox.Checked = false;
         aiCheckBox.Enabled = false;
+
+        generatedCheckbox.Checked = false;
+        generatedCheckbox.Enabled = false;
+        virtualRadioButton.Checked = false;
+        virtualRadioButton.Enabled = false;
+        storedRadioButton.Checked = false;
+        storedRadioButton.Enabled = false;
       }
     }
 
@@ -953,6 +1017,9 @@ namespace MySQL.GUI.Workbench.Plugins
         case "6":
           columnValue = MySQLTableColumnsListWrapper.MySQLColumnListColumns.IsAutoIncrement;
           break;
+        case "7":
+          columnValue = MySQLTableColumnsListWrapper.MySQLColumnListColumns.IsGenerated;
+          break;
       }
 
       if (columnValue != MySQLTableColumnsListWrapper.MySQLColumnListColumns.Name)
@@ -965,8 +1032,53 @@ namespace MySQL.GUI.Workbench.Plugins
         }
       }
 
-      columnsTreeView.SelectedNode = columnsTreeView.Root.Children[nodeId.get_by_index(0)];
-      box.Focus();
+      if (columnValue == MySQLTableColumnsListWrapper.MySQLColumnListColumns.IsGenerated)
+      {
+        virtualRadioButton.Enabled = box.Checked;
+        storedRadioButton.Enabled = box.Checked;
+        String stringValue;
+        if (box.Checked)
+        {
+          if (!virtualRadioButton.Checked && !storedRadioButton.Checked)
+            virtualRadioButton.Checked = true; // Default value.
+
+          defaultLabel.Text = "Expression:";
+          if (columnsListModel.GrtList.get_field(nodeId,
+            (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.GeneratedExpression, out stringValue))
+          {
+            columnDefaultTextBox.Text = stringValue;
+          }
+          else
+            columnDefaultTextBox.Text = "";
+        }
+        else
+        {
+          defaultLabel.Text = "Default:";
+          if (columnsListModel.GrtList.get_field(nodeId,
+            (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.Default, out stringValue))
+          {
+            columnDefaultTextBox.Text = stringValue;
+          }
+          else
+            columnDefaultTextBox.Text = "";
+        }
+      } 
+      
+      columnsListModel.RefreshModel();
+    }
+
+    private void storageRadioButton_CheckedChanged(object sender, EventArgs e)
+    {
+      if (columnsTreeView.SelectedNode == null)
+        return;
+
+      NodeIdWrapper nodeId = new NodeIdWrapper(columnsTreeView.SelectedNode.Index);
+      RadioButton button = sender as RadioButton;
+      if (button.Checked)
+      {
+        columnsListModel.GrtList.set_field(nodeId, (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.GeneratedStorageType,
+          sender == virtualRadioButton ? "VIRTUAL" : "STORED");
+      }
     }
 
     #endregion
@@ -1878,6 +1990,9 @@ namespace MySQL.GUI.Workbench.Plugins
                 else
                   if (control == aiNodeControl)
                     aiCheckBox.Checked = boolValue;
+                  else
+                    if (control == gNodeControl)
+                      generatedCheckbox.Checked = boolValue;
     }
 
     #endregion
