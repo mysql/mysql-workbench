@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -539,28 +539,36 @@ std::string ActionGenerateSQL::generate_create(db_mysql_ColumnRef column)
         .append("' ");
     }
 
-  if (column->simpleType().is_valid())
+  if (column->generated())
   {
-    grt::StringListRef flags= column->flags();
-    size_t flags_count= flags.count();
-    for(size_t j= 0; j < flags_count; j++)
-      sql.append(flags.get(j).c_str()).append(" ");
-  }else if (column->userType().is_valid() && !column->userType()->flags().empty())
-    sql.append(column->userType()->flags()).append(" ");
-
-  if(column->isNotNull())
-    sql.append("NOT NULL ");
+    sql += "GENERATED ALWAYS AS (" + *column->expression() + ") " + *column->generatedStorage();
+  }
   else
-    sql.append("NULL ");
-
-  if(column->defaultValueIsNull())
-    sql.append("DEFAULT NULL ");
-  else if(column->defaultValue().is_valid() && column->defaultValue().c_str() && (strlen(column->defaultValue().c_str()) > 0))
   {
-    std::string default_value = toupper (column->defaultValue());
-    if (!((column->simpleType().is_valid())&&(column->simpleType()->name() == "TIMESTAMP")&&(default_value.find("ON UPDATE") == 0)))
-      sql.append("DEFAULT ");
-    sql.append(column->defaultValue().c_str()).append(" ");
+    if (column->simpleType().is_valid())
+    {
+      grt::StringListRef flags = column->flags();
+      size_t flags_count = flags.count();
+      for (size_t j = 0; j < flags_count; j++)
+        sql.append(flags.get(j).c_str()).append(" ");
+    }
+    else if (column->userType().is_valid() && !column->userType()->flags().empty())
+      sql.append(column->userType()->flags()).append(" ");
+
+    if (column->isNotNull())
+      sql.append("NOT NULL ");
+    else
+      sql.append("NULL ");
+
+    if (column->defaultValueIsNull())
+      sql.append("DEFAULT NULL ");
+    else if (column->defaultValue().is_valid() && column->defaultValue().c_str() && (strlen(column->defaultValue().c_str()) > 0))
+    {
+      std::string default_value = toupper(column->defaultValue());
+      if (!((column->simpleType().is_valid()) && (column->simpleType()->name() == "TIMESTAMP") && (default_value.find("ON UPDATE") == 0)))
+        sql.append("DEFAULT ");
+      sql.append(column->defaultValue().c_str()).append(" ");
+    }
   }
 
   if (column->autoIncrement())
