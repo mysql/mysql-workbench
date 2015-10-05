@@ -713,10 +713,10 @@ public:
     GRTLIST_FOREACH(db_mysql_Trigger, triggers, trigger)
       insert_trigger_in_tree(*trigger);
 
-    _trigger_list.select_node(_trigger_list.node_at_row(old_selected));
-
     _refreshing = false;
     _trigger_list.thaw_refresh();
+
+    _trigger_list.select_node(_trigger_list.node_at_row(old_selected));
   }
   
   //------------------------------------------------------------------------------------------------
