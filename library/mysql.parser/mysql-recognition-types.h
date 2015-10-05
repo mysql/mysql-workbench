@@ -254,5 +254,5 @@ struct MySQLParserErrorInfo
 
 namespace parser {
   typedef std::pair<std::string, std::string> Identifier;
-  typedef std::tuple<std::string, std::string, std::string> ColumnIdentifier;
+  typedef struct { std::string schema; std::string table; std::string column; } ColumnIdentifier;
 }
