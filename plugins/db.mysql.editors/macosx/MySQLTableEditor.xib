@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="8191" systemVersion="14F27" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="8191" systemVersion="15B17c" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment identifier="macosx"/>
         <development version="6300" identifier="xcode"/>
@@ -106,6 +106,7 @@
                             <imageView tag="1" id="583">
                                 <rect key="frame" x="9" y="71" width="48" height="48"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageAlignment="top" imageScaling="proportionallyDown" image="db.Table.editor.48x48" id="584"/>
                             </imageView>
                             <scrollView toolTip="Comments are stored in the database up to the 1st empty line or at 60 characters, whatever is shorter. " horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" id="24">
@@ -118,6 +119,7 @@
                                         <textView importsGraphics="NO" richText="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" verticallyResizable="YES" smartInsertDelete="YES" id="27">
                                             <rect key="frame" x="0.0" y="0.0" width="631" height="57"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                            <animations/>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             <size key="minSize" width="631" height="57"/>
                                             <size key="maxSize" width="1161" height="10000000"/>
@@ -129,20 +131,25 @@
                                             </connections>
                                         </textView>
                                     </subviews>
+                                    <animations/>
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </clipView>
+                                <animations/>
                                 <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="26">
                                     <rect key="frame" x="-100" y="-100" width="441" height="15"/>
                                     <autoresizingMask key="autoresizingMask"/>
+                                    <animations/>
                                 </scroller>
                                 <scroller key="verticalScroller" verticalHuggingPriority="750" controlSize="small" horizontal="NO" id="25">
                                     <rect key="frame" x="618" y="1" width="14" height="57"/>
                                     <autoresizingMask key="autoresizingMask"/>
+                                    <animations/>
                                 </scroller>
                             </scrollView>
                             <popUpButton toolTip="The database engine that is used for the table. This option affects performance, data consistency and much more." verticalHuggingPriority="750" tag="103" id="18">
                                 <rect key="frame" x="504" y="71" width="281" height="22"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="23" id="19">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="smallSystem"/>
@@ -162,6 +169,7 @@
                                 <rect key="frame" x="146" y="71" width="299" height="22"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <string key="toolTip">The charset/collation specifies which language-specific characters can be stored in the table and their sort order. Common choices are Latin1 or UTF8.</string>
+                                <animations/>
                                 <popUpButtonCell key="cell" type="push" title="utf8mb4 - utf8mb4_lithuanian_ci" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="15" id="13">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="smallSystem"/>
@@ -180,6 +188,7 @@
                             <textField verticalHuggingPriority="750" tag="104" id="10">
                                 <rect key="frame" x="78" y="52" width="66" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Comments:" id="11">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -189,6 +198,7 @@
                             <textField verticalHuggingPriority="750" tag="102" id="8">
                                 <rect key="frame" x="458" y="76" width="44" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Engine:" id="9">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -198,6 +208,7 @@
                             <textField verticalHuggingPriority="750" tag="100" id="6">
                                 <rect key="frame" x="88" y="76" width="56" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Collation:" id="7">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -207,6 +218,7 @@
                             <textField verticalHuggingPriority="750" id="4">
                                 <rect key="frame" x="105" y="103" width="39" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Name:" id="5">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -216,6 +228,7 @@
                             <textField verticalHuggingPriority="750" id="2">
                                 <rect key="frame" x="149" y="100" width="293" height="19"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="Table Name" drawsBackground="YES" id="3">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -228,6 +241,7 @@
                             <textField verticalHuggingPriority="750" id="639">
                                 <rect key="frame" x="453" y="103" width="49" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Schema:" id="640">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -237,6 +251,7 @@
                             <button toolTip="Click to expand or collapse table details." id="665">
                                 <rect key="frame" x="800" y="93" width="19" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <buttonCell key="cell" type="bevel" title="Button" bezelStyle="rounded" image="EditorCollapsed" imagePosition="only" alignment="center" alternateImage="EditorExpanded" state="on" imageScaling="proportionallyDown" inset="2" id="666">
                                     <behavior key="behavior" pushIn="YES" changeContents="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -248,6 +263,7 @@
                             <textField verticalHuggingPriority="750" id="902">
                                 <rect key="frame" x="504" y="103" width="281" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Schema:" id="903">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -255,7 +271,9 @@
                                 </textFieldCell>
                             </textField>
                         </subviews>
+                        <animations/>
                     </view>
+                    <animations/>
                     <color key="borderColor" red="0.73333334920000004" green="0.73333334920000004" blue="0.73333334920000004" alpha="1" colorSpace="deviceRGB"/>
                     <color key="fillColor" red="0.90196084980000002" green="0.90196084980000002" blue="0.90196084980000002" alpha="1" colorSpace="deviceRGB"/>
                 </box>
@@ -266,6 +284,7 @@
                         <button hidden="YES" verticalHuggingPriority="750" id="659">
                             <rect key="frame" x="670" y="7" width="70" height="17"/>
                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                            <animations/>
                             <buttonCell key="cell" type="roundRect" title="Apply" bezelStyle="roundedRect" alignment="center" controlSize="small" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="660">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                 <font key="font" metaFont="smallSystem"/>
@@ -274,12 +293,14 @@
                         <button hidden="YES" verticalHuggingPriority="750" id="661">
                             <rect key="frame" x="748" y="7" width="70" height="17"/>
                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                            <animations/>
                             <buttonCell key="cell" type="roundRect" title="Revert" bezelStyle="roundedRect" alignment="center" controlSize="small" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="662">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                 <font key="font" metaFont="smallSystem"/>
                             </buttonCell>
                         </button>
                     </subviews>
+                    <animations/>
                     <connections>
                         <outlet property="mDelegate" destination="-2" id="655"/>
                         <outlet property="mTabView" destination="164" id="653"/>
@@ -288,6 +309,7 @@
                 <tabView controlSize="mini" type="noTabsNoBorder" id="164" userLabel="Tab View">
                     <rect key="frame" x="0.0" y="30" width="838" height="80"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    <animations/>
                     <font key="font" metaFont="miniSystem"/>
                     <tabViewItems/>
                     <connections>
@@ -295,6 +317,7 @@
                     </connections>
                 </tabView>
             </subviews>
+            <animations/>
             <point key="canvasLocation" x="623" y="346.5"/>
         </customView>
         <customView id="28" userLabel="Columns" customClass="WBCustomTabItemView">
@@ -315,6 +338,7 @@
                                     <tableView focusRingType="exterior" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" emptySelection="NO" rowHeight="16" headerView="33" id="32" customClass="MTableView">
                                         <rect key="frame" x="0.0" y="0.0" width="709" height="18"/>
                                         <autoresizingMask key="autoresizingMask"/>
+                                        <animations/>
                                         <size key="intercellSpacing" width="3" height="2"/>
                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
@@ -456,22 +480,28 @@
                                         </connections>
                                     </tableView>
                                 </subviews>
+                                <animations/>
                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                             </clipView>
+                            <animations/>
                             <scroller key="horizontalScroller" verticalHuggingPriority="750" controlSize="small" horizontal="YES" id="31">
                                 <rect key="frame" x="1" y="157" width="681" height="14"/>
                                 <autoresizingMask key="autoresizingMask"/>
+                                <animations/>
                             </scroller>
-                            <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" controlSize="small" horizontal="NO" id="30">
+                            <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" controlSize="small" horizontal="NO" id="30">
                                 <rect key="frame" x="687" y="17" width="11" height="13"/>
                                 <autoresizingMask key="autoresizingMask"/>
+                                <animations/>
                             </scroller>
                             <tableHeaderView key="headerView" toolTip="Mark column as part of the Primary Key" id="33">
                                 <rect key="frame" x="0.0" y="0.0" width="709" height="17"/>
                                 <autoresizingMask key="autoresizingMask"/>
+                                <animations/>
                             </tableHeaderView>
                         </scrollView>
                     </subviews>
+                    <animations/>
                     <holdingPriorities>
                         <real value="250"/>
                     </holdingPriorities>
@@ -480,6 +510,7 @@
                     </connections>
                 </splitView>
             </subviews>
+            <animations/>
             <point key="canvasLocation" x="590" y="60"/>
         </customView>
         <customView id="68" userLabel="Indices" customClass="WBCustomTabItemView">
@@ -498,8 +529,9 @@
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" emptySelection="NO" autosaveColumns="NO" rowHeight="16" headerView="73" id="72" customClass="MTableView">
-                                        <rect key="frame" x="0.0" y="0.0" width="216" height="18"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="203" height="18"/>
                                         <autoresizingMask key="autoresizingMask"/>
+                                        <animations/>
                                         <size key="intercellSpacing" width="3" height="2"/>
                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
@@ -541,19 +573,24 @@
                                         </connections>
                                     </tableView>
                                 </subviews>
+                                <animations/>
                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                             </clipView>
+                            <animations/>
                             <scroller key="horizontalScroller" verticalHuggingPriority="750" controlSize="small" horizontal="YES" id="71">
                                 <rect key="frame" x="1" y="168" width="216" height="14"/>
                                 <autoresizingMask key="autoresizingMask"/>
+                                <animations/>
                             </scroller>
                             <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" controlSize="small" horizontal="NO" id="70">
                                 <rect key="frame" x="203" y="17" width="14" height="165"/>
                                 <autoresizingMask key="autoresizingMask"/>
+                                <animations/>
                             </scroller>
                             <tableHeaderView key="headerView" id="73">
                                 <rect key="frame" x="0.0" y="0.0" width="216" height="17"/>
                                 <autoresizingMask key="autoresizingMask"/>
+                                <animations/>
                             </tableHeaderView>
                         </scrollView>
                         <box autoresizesSubviews="NO" title="&lt;this title is created in the code&gt;" borderType="line" id="234">
@@ -566,6 +603,7 @@
                                     <textField verticalHuggingPriority="750" id="99">
                                         <rect key="frame" x="293" y="119" width="84" height="14"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <animations/>
                                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Key Block Size:" id="100">
                                             <font key="font" metaFont="smallSystem"/>
                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -575,6 +613,7 @@
                                     <textField verticalHuggingPriority="750" id="101">
                                         <rect key="frame" x="293" y="92" width="84" height="14"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <animations/>
                                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Parser:" id="102">
                                             <font key="font" metaFont="smallSystem"/>
                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -584,6 +623,7 @@
                                     <textField verticalHuggingPriority="750" id="107">
                                         <rect key="frame" x="293" y="68" width="84" height="14"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <animations/>
                                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Comments:" id="108">
                                             <font key="font" metaFont="smallSystem"/>
                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -593,6 +633,7 @@
                                     <textField verticalHuggingPriority="750" id="97">
                                         <rect key="frame" x="382" y="90" width="96" height="19"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <animations/>
                                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="98">
                                             <font key="font" metaFont="smallSystem"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -612,6 +653,7 @@
                                                 <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" rowHeight="16" headerView="79" id="80" customClass="MTableView">
                                                     <rect key="frame" x="0.0" y="0.0" width="266" height="18"/>
                                                     <autoresizingMask key="autoresizingMask"/>
+                                                    <animations/>
                                                     <size key="intercellSpacing" width="3" height="2"/>
                                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
@@ -680,24 +722,30 @@
                                                     </connections>
                                                 </tableView>
                                             </subviews>
+                                            <animations/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </clipView>
+                                        <animations/>
                                         <scroller key="horizontalScroller" verticalHuggingPriority="750" controlSize="small" horizontal="YES" id="81">
                                             <rect key="frame" x="1" y="132" width="266" height="14"/>
                                             <autoresizingMask key="autoresizingMask"/>
+                                            <animations/>
                                         </scroller>
                                         <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" controlSize="small" horizontal="NO" id="82">
                                             <rect key="frame" x="253" y="17" width="14" height="129"/>
                                             <autoresizingMask key="autoresizingMask"/>
+                                            <animations/>
                                         </scroller>
                                         <tableHeaderView key="headerView" id="79">
                                             <rect key="frame" x="0.0" y="0.0" width="266" height="17"/>
                                             <autoresizingMask key="autoresizingMask"/>
+                                            <animations/>
                                         </tableHeaderView>
                                     </scrollView>
                                     <textField verticalHuggingPriority="750" id="95">
                                         <rect key="frame" x="382" y="117" width="96" height="19"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMinY="YES"/>
+                                        <animations/>
                                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="96">
                                             <font key="font" metaFont="smallSystem"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -717,31 +765,37 @@
                                                 <textView importsGraphics="NO" richText="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" verticallyResizable="YES" smartInsertDelete="YES" id="106">
                                                     <rect key="frame" x="0.0" y="0.0" width="196" height="66"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                    <animations/>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                    <size key="minSize" width="192" height="62"/>
+                                                    <size key="minSize" width="196" height="66"/>
                                                     <size key="maxSize" width="463" height="10000000"/>
                                                     <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                    <size key="minSize" width="192" height="62"/>
+                                                    <size key="minSize" width="196" height="66"/>
                                                     <size key="maxSize" width="463" height="10000000"/>
                                                     <connections>
                                                         <outlet property="delegate" destination="-2" id="215"/>
                                                     </connections>
                                                 </textView>
                                             </subviews>
+                                            <animations/>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         </clipView>
+                                        <animations/>
                                         <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="105">
                                             <rect key="frame" x="-100" y="-100" width="87" height="18"/>
                                             <autoresizingMask key="autoresizingMask"/>
+                                            <animations/>
                                         </scroller>
                                         <scroller key="verticalScroller" verticalHuggingPriority="750" controlSize="small" horizontal="NO" id="104">
                                             <rect key="frame" x="183" y="1" width="14" height="66"/>
                                             <autoresizingMask key="autoresizingMask"/>
+                                            <animations/>
                                         </scroller>
                                     </scrollView>
                                     <popUpButton verticalHuggingPriority="750" id="89">
                                         <rect key="frame" x="379" y="140" width="102" height="22"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <animations/>
                                         <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="92" id="90">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="smallSystem"/>
@@ -760,6 +814,7 @@
                                     <textField verticalHuggingPriority="750" id="87">
                                         <rect key="frame" x="299" y="145" width="78" height="14"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <animations/>
                                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Storage Type:" id="88">
                                             <font key="font" metaFont="smallSystem"/>
                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -767,17 +822,21 @@
                                         </textFieldCell>
                                     </textField>
                                 </subviews>
+                                <animations/>
                             </view>
+                            <animations/>
                             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                             <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                         </box>
                     </subviews>
+                    <animations/>
                     <holdingPriorities>
                         <real value="250"/>
                         <real value="250"/>
                     </holdingPriorities>
                 </splitView>
             </subviews>
+            <animations/>
         </customView>
         <customView focusRingType="none" id="109" userLabel="Foreign Keys" customClass="WBCustomTabItemView">
             <rect key="frame" x="0.0" y="0.0" width="844" height="241"/>
@@ -797,6 +856,7 @@
                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" emptySelection="NO" autosaveColumns="NO" headerView="114" id="113" customClass="MTableView">
                                         <rect key="frame" x="0.0" y="0.0" width="301" height="19"/>
                                         <autoresizingMask key="autoresizingMask"/>
+                                        <animations/>
                                         <size key="intercellSpacing" width="3" height="2"/>
                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
@@ -838,19 +898,24 @@
                                         </connections>
                                     </tableView>
                                 </subviews>
+                                <animations/>
                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                             </clipView>
+                            <animations/>
                             <scroller key="horizontalScroller" verticalHuggingPriority="750" controlSize="small" horizontal="YES" id="112">
                                 <rect key="frame" x="1" y="210" width="301" height="14"/>
                                 <autoresizingMask key="autoresizingMask"/>
+                                <animations/>
                             </scroller>
                             <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" controlSize="small" horizontal="NO" id="111">
                                 <rect key="frame" x="302" y="17" width="11" height="193"/>
                                 <autoresizingMask key="autoresizingMask"/>
+                                <animations/>
                             </scroller>
                             <tableHeaderView key="headerView" id="114">
                                 <rect key="frame" x="0.0" y="0.0" width="301" height="17"/>
                                 <autoresizingMask key="autoresizingMask"/>
+                                <animations/>
                             </tableHeaderView>
                         </scrollView>
                         <box autoresizesSubviews="NO" title="&lt;this title is created in the code&gt;" borderType="line" id="260">
@@ -870,6 +935,7 @@
                                                 <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" headerView="120" id="121" customClass="MTableView">
                                                     <rect key="frame" x="0.0" y="0.0" width="257" height="19"/>
                                                     <autoresizingMask key="autoresizingMask"/>
+                                                    <animations/>
                                                     <size key="intercellSpacing" width="3" height="2"/>
                                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
@@ -910,24 +976,30 @@
                                                     </connections>
                                                 </tableView>
                                             </subviews>
+                                            <animations/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </clipView>
+                                        <animations/>
                                         <scroller key="horizontalScroller" verticalHuggingPriority="750" controlSize="small" horizontal="YES" id="122">
                                             <rect key="frame" x="1" y="170" width="257" height="14"/>
                                             <autoresizingMask key="autoresizingMask"/>
+                                            <animations/>
                                         </scroller>
                                         <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" controlSize="small" horizontal="NO" id="123">
                                             <rect key="frame" x="244" y="17" width="14" height="167"/>
                                             <autoresizingMask key="autoresizingMask"/>
+                                            <animations/>
                                         </scroller>
                                         <tableHeaderView key="headerView" id="120">
                                             <rect key="frame" x="0.0" y="0.0" width="257" height="17"/>
                                             <autoresizingMask key="autoresizingMask"/>
+                                            <animations/>
                                         </tableHeaderView>
                                     </scrollView>
                                     <textField verticalHuggingPriority="750" id="129">
                                         <rect key="frame" x="287" y="183" width="65" height="14"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <animations/>
                                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="On Update:" id="130">
                                             <font key="font" metaFont="smallSystem"/>
                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -937,6 +1009,7 @@
                                     <textField verticalHuggingPriority="750" id="131">
                                         <rect key="frame" x="287" y="158" width="65" height="14"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <animations/>
                                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="On Delete:" id="132">
                                             <font key="font" metaFont="smallSystem"/>
                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -946,6 +1019,7 @@
                                     <textField verticalHuggingPriority="750" id="145">
                                         <rect key="frame" x="282" y="136" width="65" height="14"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <animations/>
                                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Comment:" id="146">
                                             <font key="font" metaFont="smallSystem"/>
                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -955,6 +1029,7 @@
                                     <popUpButton verticalHuggingPriority="750" id="139">
                                         <rect key="frame" x="354" y="153" width="135" height="22"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <animations/>
                                         <popUpButtonCell key="cell" type="push" title="Item 2" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="143" id="140">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="smallSystem"/>
@@ -979,6 +1054,7 @@
                                                 <textView importsGraphics="NO" richText="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" verticallyResizable="YES" smartInsertDelete="YES" id="150">
                                                     <rect key="frame" x="0.0" y="0.0" width="203" height="97"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                    <animations/>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                     <size key="minSize" width="203" height="97"/>
                                                     <size key="maxSize" width="463" height="10000000"/>
@@ -990,20 +1066,25 @@
                                                     </connections>
                                                 </textView>
                                             </subviews>
+                                            <animations/>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         </clipView>
+                                        <animations/>
                                         <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="149">
                                             <rect key="frame" x="-100" y="-100" width="87" height="18"/>
                                             <autoresizingMask key="autoresizingMask"/>
+                                            <animations/>
                                         </scroller>
                                         <scroller key="verticalScroller" verticalHuggingPriority="750" controlSize="small" horizontal="NO" id="148">
                                             <rect key="frame" x="190" y="1" width="14" height="97"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES"/>
+                                            <animations/>
                                         </scroller>
                                     </scrollView>
                                     <popUpButton verticalHuggingPriority="750" id="133">
                                         <rect key="frame" x="354" y="178" width="135" height="22"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <animations/>
                                         <popUpButtonCell key="cell" type="push" title="Item 2" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="137" id="134">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="smallSystem"/>
@@ -1022,6 +1103,7 @@
                                         <rect key="frame" x="277" y="12" width="168" height="18"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <string key="toolTip">Causes this foreign key and associated index to be ignored during SQL generation, forward engineering and synchronization operations. Note that foreign keys are always ignored for tables using storage engines that do not support them, such as MyISAM.</string>
+                                        <animations/>
                                         <buttonCell key="cell" type="check" title="Skip on SQL generation" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="617">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="smallSystem"/>
@@ -1031,11 +1113,14 @@
                                         </buttonCell>
                                     </button>
                                 </subviews>
+                                <animations/>
                             </view>
+                            <animations/>
                             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                             <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                         </box>
                     </subviews>
+                    <animations/>
                     <holdingPriorities>
                         <real value="250"/>
                         <real value="250"/>
@@ -1044,6 +1129,7 @@
                 <textField focusRingType="none" verticalHuggingPriority="750" id="634">
                     <rect key="frame" x="1" y="1" width="844" height="241"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    <animations/>
                     <textFieldCell key="cell" refusesFirstResponder="YES" allowsUndo="NO" sendsActionOnEndEditing="YES" focusRingType="none" alignment="center" drawsBackground="YES" id="635">
                         <font key="font" metaFont="system"/>
                         <string key="title">
@@ -1053,10 +1139,12 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                     </textFieldCell>
                 </textField>
             </subviews>
+            <animations/>
         </customView>
         <customView id="198" userLabel="Triggers" customClass="WBCustomTabItemView">
             <rect key="frame" x="0.0" y="0.0" width="635" height="199"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <animations/>
         </customView>
         <customView id="262" userLabel="Partitioning" customClass="WBCustomTabItemView">
             <rect key="frame" x="0.0" y="0.0" width="801" height="246"/>
@@ -1072,6 +1160,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <button id="267">
                                 <rect key="frame" x="690" y="182" width="61" height="18"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <buttonCell key="cell" type="check" title="Manual" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="268">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="smallSystem"/>
@@ -1083,6 +1172,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <button id="269">
                                 <rect key="frame" x="690" y="154" width="61" height="18"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <buttonCell key="cell" type="check" title="Manual" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="270">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="smallSystem"/>
@@ -1094,6 +1184,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="271">
                                 <rect key="frame" x="35" y="184" width="69" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Partition by:" id="272">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1103,6 +1194,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="273">
                                 <rect key="frame" x="15" y="156" width="89" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Subpartition by:" id="274">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1112,6 +1204,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="275">
                                 <rect key="frame" x="542" y="184" width="88" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Partition Count:" id="278">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1121,6 +1214,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="276">
                                 <rect key="frame" x="521" y="156" width="109" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Subpartition Count:" id="277">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1130,6 +1224,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="279">
                                 <rect key="frame" x="252" y="184" width="67" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Parameters:" id="282">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1139,6 +1234,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="283">
                                 <rect key="frame" x="252" y="156" width="67" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Parameters:" id="284">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1148,6 +1244,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <popUpButton verticalHuggingPriority="750" id="285">
                                 <rect key="frame" x="106" y="179" width="130" height="22"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <popUpButtonCell key="cell" type="push" title="HASH" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="288" id="286">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="smallSystem"/>
@@ -1175,6 +1272,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <popUpButton verticalHuggingPriority="750" id="314">
                                 <rect key="frame" x="106" y="151" width="130" height="22"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <popUpButtonCell key="cell" type="push" title="Disabled" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="370" id="315">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="smallSystem"/>
@@ -1200,6 +1298,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="320">
                                 <rect key="frame" x="324" y="182" width="192" height="19"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="321">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1212,6 +1311,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="322">
                                 <rect key="frame" x="324" y="154" width="192" height="19"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="323">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1231,6 +1331,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                         <outlineView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" multipleSelection="NO" autosaveColumns="NO" typeSelect="NO" rowHeight="16" headerView="557" indentationPerLevel="16" autoresizesOutlineColumn="YES" outlineTableColumn="558" id="556">
                                             <rect key="frame" x="0.0" y="0.0" width="751" height="18"/>
                                             <autoresizingMask key="autoresizingMask"/>
+                                            <animations/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
@@ -1329,24 +1430,30 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                             </tableColumns>
                                         </outlineView>
                                     </subviews>
+                                    <animations/>
                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </clipView>
+                                <animations/>
                                 <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" controlSize="small" horizontal="YES" id="555">
                                     <rect key="frame" x="1" y="140" width="723" height="11"/>
                                     <autoresizingMask key="autoresizingMask"/>
+                                    <animations/>
                                 </scroller>
-                                <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" controlSize="small" horizontal="NO" id="554">
+                                <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" controlSize="small" horizontal="NO" id="554">
                                     <rect key="frame" x="713" y="17" width="11" height="123"/>
                                     <autoresizingMask key="autoresizingMask"/>
+                                    <animations/>
                                 </scroller>
                                 <tableHeaderView key="headerView" id="557">
                                     <rect key="frame" x="0.0" y="0.0" width="751" height="17"/>
                                     <autoresizingMask key="autoresizingMask"/>
+                                    <animations/>
                                 </tableHeaderView>
                             </scrollView>
                             <textField verticalHuggingPriority="750" id="884">
                                 <rect key="frame" x="635" y="182" width="43" height="19"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="885">
                                     <numberFormatter key="formatter" formatterBehavior="default10_4" localizesFormat="NO" usesGroupingSeparator="NO" groupingSize="0" minimumIntegerDigits="0" maximumIntegerDigits="42" id="886"/>
                                     <font key="font" metaFont="smallSystem"/>
@@ -1360,6 +1467,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="887">
                                 <rect key="frame" x="635" y="154" width="43" height="19"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="888">
                                     <numberFormatter key="formatter" formatterBehavior="default10_4" localizesFormat="NO" usesGroupingSeparator="NO" groupingSize="0" minimumIntegerDigits="0" maximumIntegerDigits="42" id="889"/>
                                     <font key="font" metaFont="smallSystem"/>
@@ -1371,13 +1479,16 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 </connections>
                             </textField>
                         </subviews>
+                        <animations/>
                     </view>
+                    <animations/>
                     <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                     <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                 </box>
                 <button id="263">
                     <rect key="frame" x="13" y="222" width="123" height="18"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <animations/>
                     <buttonCell key="cell" type="check" title="Enable Partitioning" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="264">
                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                         <font key="font" metaFont="smallSystem"/>
@@ -1387,6 +1498,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                     </connections>
                 </button>
             </subviews>
+            <animations/>
         </customView>
         <customView id="380" userLabel="Options" customClass="WBCustomTabItemView">
             <rect key="frame" x="0.0" y="0.0" width="763" height="525"/>
@@ -1402,6 +1514,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="441">
                                 <rect key="frame" x="34" y="41" width="78" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Union Tables:" id="442">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1411,6 +1524,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="443">
                                 <rect key="frame" x="27" y="15" width="85" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Merge Method:" id="444">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1420,6 +1534,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <popUpButton verticalHuggingPriority="750" id="413">
                                 <rect key="frame" x="114" y="10" width="115" height="22"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <popUpButtonCell key="cell" type="push" title="No Inserts" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="418" id="414">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="smallSystem"/>
@@ -1439,6 +1554,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="401">
                                 <rect key="frame" x="117" y="39" width="200" height="19"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="402">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1451,6 +1567,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="537">
                                 <rect key="frame" x="322" y="43" width="410" height="11"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="mini" selectable="YES" sendsActionOnEndEditing="YES" title="List of MyISAM tables that should be used by the MERGE table." id="538">
                                     <font key="font" metaFont="miniSystem"/>
                                     <color key="textColor" red="0.29803922999999999" green="0.29803922999999999" blue="0.29803922999999999" alpha="1" colorSpace="calibratedRGB"/>
@@ -1460,6 +1577,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="539">
                                 <rect key="frame" x="322" y="17" width="410" height="11"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="mini" selectable="YES" sendsActionOnEndEditing="YES" title="Specify where (in which of the tables) to insert new records, if at all." id="540">
                                     <font key="font" metaFont="miniSystem"/>
                                     <color key="textColor" red="0.29803922999999999" green="0.29803922999999999" blue="0.29803922999999999" alpha="1" colorSpace="calibratedRGB"/>
@@ -1467,7 +1585,9 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 </textFieldCell>
                             </textField>
                         </subviews>
+                        <animations/>
                     </view>
+                    <animations/>
                     <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                     <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                 </box>
@@ -1481,6 +1601,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="397">
                                 <rect key="frame" x="117" y="41" width="200" height="19"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="398">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1493,6 +1614,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="439">
                                 <rect key="frame" x="22" y="16" width="90" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Index Directory:" id="440">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1502,6 +1624,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="399">
                                 <rect key="frame" x="117" y="14" width="200" height="19"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="400">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1514,6 +1637,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="437">
                                 <rect key="frame" x="27" y="43" width="85" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Data Directory:" id="438">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1523,6 +1647,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="533">
                                 <rect key="frame" x="322" y="45" width="404" height="11"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="mini" selectable="YES" sendsActionOnEndEditing="YES" title="Directory where the table's data file is stored. (Only for MyISAM. Not available on Windows.)" id="534">
                                     <font key="font" metaFont="miniSystem"/>
                                     <color key="textColor" red="0.29803922999999999" green="0.29803922999999999" blue="0.29803922999999999" alpha="1" colorSpace="calibratedRGB"/>
@@ -1532,6 +1657,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="535">
                                 <rect key="frame" x="322" y="18" width="410" height="11"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="mini" selectable="YES" sendsActionOnEndEditing="YES" title="Directory where the table's index file is stored. (Only for MyISAM. Not available on Windows.)" id="536">
                                     <font key="font" metaFont="miniSystem"/>
                                     <color key="textColor" red="0.29803922999999999" green="0.29803922999999999" blue="0.29803922999999999" alpha="1" colorSpace="calibratedRGB"/>
@@ -1539,7 +1665,9 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 </textFieldCell>
                             </textField>
                         </subviews>
+                        <animations/>
                     </view>
+                    <animations/>
                     <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                     <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                 </box>
@@ -1553,6 +1681,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="435">
                                 <rect key="frame" x="47" y="42" width="65" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Max. Rows:" id="436">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1562,6 +1691,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="395">
                                 <rect key="frame" x="117" y="40" width="200" height="19"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="396">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1574,6 +1704,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="429">
                                 <rect key="frame" x="41" y="154" width="71" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Row Format:" id="430">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1583,6 +1714,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="905">
                                 <rect key="frame" x="28" y="126" width="84" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Key Block Size:" id="906">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1592,6 +1724,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="431">
                                 <rect key="frame" x="15" y="96" width="97" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Avg. Row Length:" id="432">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1601,6 +1734,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="391">
                                 <rect key="frame" x="117" y="94" width="200" height="19"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="392">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1613,6 +1747,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="433">
                                 <rect key="frame" x="50" y="69" width="62" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Min. Rows:" id="434">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1622,6 +1757,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <popUpButton verticalHuggingPriority="750" id="403">
                                 <rect key="frame" x="114" y="149" width="126" height="22"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <popUpButtonCell key="cell" type="push" title="Default" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="408" id="404">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="smallSystem"/>
@@ -1644,6 +1780,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <popUpButton verticalHuggingPriority="750" id="907">
                                 <rect key="frame" x="114" y="118" width="126" height="22"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <popUpButtonCell key="cell" type="push" title="Default" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="913" id="908">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="smallSystem"/>
@@ -1666,6 +1803,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <button id="445">
                                 <rect key="frame" x="114" y="16" width="205" height="18"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <buttonCell key="cell" type="check" title="Use Checksum" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="446">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="smallSystem"/>
@@ -1677,6 +1815,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="393">
                                 <rect key="frame" x="117" y="67" width="200" height="19"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="394">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1689,6 +1828,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="523">
                                 <rect key="frame" x="322" y="150" width="424" height="22"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="mini" selectable="YES" sendsActionOnEndEditing="YES" id="524">
                                     <font key="font" metaFont="miniSystem"/>
                                     <string key="title">Defines how the rows in MyISAM tables should be stored. The option value can be FIXED or DYNAMIC for static or variable-length row format. myisampack sets the type to COMPRESSED.</string>
@@ -1699,6 +1839,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="918">
                                 <rect key="frame" x="322" y="119" width="424" height="22"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="mini" selectable="YES" sendsActionOnEndEditing="YES" title="Block size for COMPRESSED row format." id="919">
                                     <font key="font" metaFont="miniSystem"/>
                                     <color key="textColor" red="0.29803922999999999" green="0.29803922999999999" blue="0.29803922999999999" alpha="1" colorSpace="calibratedRGB"/>
@@ -1708,6 +1849,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="525">
                                 <rect key="frame" x="322" y="92" width="424" height="22"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="mini" selectable="YES" sendsActionOnEndEditing="YES" id="526">
                                     <font key="font" metaFont="miniSystem"/>
                                     <string key="title">An approximation of the average row length for your table. You need to set this only for large tables with variable-size records.</string>
@@ -1718,6 +1860,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="531">
                                 <rect key="frame" x="323" y="14" width="424" height="22"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="mini" selectable="YES" sendsActionOnEndEditing="YES" id="532">
                                     <font key="font" metaFont="miniSystem"/>
                                     <string key="title">Activate this option if you want MySQL to maintain a live checksum for all rows. This makes the table a little slower to update, but also makes it easier to find corrupted tables.</string>
@@ -1728,6 +1871,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="527">
                                 <rect key="frame" x="323" y="71" width="413" height="11"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="mini" selectable="YES" sendsActionOnEndEditing="YES" title="The minimum number of rows you plan to store in the table." id="528">
                                     <font key="font" metaFont="miniSystem"/>
                                     <color key="textColor" red="0.29803922999999999" green="0.29803922999999999" blue="0.29803922999999999" alpha="1" colorSpace="calibratedRGB"/>
@@ -1737,6 +1881,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="529">
                                 <rect key="frame" x="322" y="44" width="414" height="11"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="mini" selectable="YES" sendsActionOnEndEditing="YES" title="The maximum number of rows you plan to store in the table." id="530">
                                     <font key="font" metaFont="miniSystem"/>
                                     <color key="textColor" red="0.29803922999999999" green="0.29803922999999999" blue="0.29803922999999999" alpha="1" colorSpace="calibratedRGB"/>
@@ -1744,7 +1889,9 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 </textFieldCell>
                             </textField>
                         </subviews>
+                        <animations/>
                     </view>
+                    <animations/>
                     <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                     <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                 </box>
@@ -1758,6 +1905,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="389">
                                 <rect key="frame" x="117" y="36" width="200" height="19"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="390">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1770,6 +1918,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="425">
                                 <rect key="frame" x="21" y="65" width="91" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Table Password:" id="426">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1779,6 +1928,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <button id="419">
                                 <rect key="frame" x="114" y="12" width="121" height="18"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <buttonCell key="cell" type="check" title="Delay Key Updates" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="420">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="smallSystem"/>
@@ -1790,6 +1940,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="423">
                                 <rect key="frame" x="52" y="91" width="60" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Pack Keys:" id="424">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1799,6 +1950,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="387">
                                 <rect key="frame" x="117" y="63" width="200" height="19"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="388">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1811,6 +1963,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <popUpButton verticalHuggingPriority="750" id="381">
                                 <rect key="frame" x="114" y="86" width="115" height="22"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <popUpButtonCell key="cell" type="push" title="Default" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="384" id="382">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="smallSystem"/>
@@ -1830,6 +1983,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="427">
                                 <rect key="frame" x="22" y="38" width="90" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Auto Increment:" id="428">
                                     <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1839,6 +1993,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="451">
                                 <rect key="frame" x="322" y="87" width="424" height="22"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="mini" selectable="YES" sendsActionOnEndEditing="YES" id="452">
                                     <font key="font" metaFont="miniSystem"/>
                                     <string key="title">Use this option to generate smaller files. This usually makes updates slower and reads faster. The setting "Default" tells the storage engine to only pack long CHAR/VARCHAR columns.</string>
@@ -1849,6 +2004,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="453">
                                 <rect key="frame" x="322" y="61" width="424" height="22"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="mini" selectable="YES" sendsActionOnEndEditing="YES" title="Password to encrypt the table definition file. This option has no effect in the standard version of MySQL." id="454">
                                     <font key="font" metaFont="miniSystem"/>
                                     <color key="textColor" red="0.29803922999999999" green="0.29803922999999999" blue="0.29803922999999999" alpha="1" colorSpace="calibratedRGB"/>
@@ -1858,6 +2014,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="455">
                                 <rect key="frame" x="322" y="40" width="414" height="11"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="mini" selectable="YES" sendsActionOnEndEditing="YES" title="The initial AUTO_INCREMENT value for the table." id="456">
                                     <font key="font" metaFont="miniSystem"/>
                                     <color key="textColor" red="0.29803922999999999" green="0.29803922999999999" blue="0.29803922999999999" alpha="1" colorSpace="calibratedRGB"/>
@@ -1867,6 +2024,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                             <textField verticalHuggingPriority="750" id="457">
                                 <rect key="frame" x="322" y="15" width="414" height="11"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <animations/>
                                 <textFieldCell key="cell" controlSize="mini" selectable="YES" sendsActionOnEndEditing="YES" title="Use this option to delay the key updates until the table is closed. (Only for MyISAM.)" id="458">
                                     <font key="font" metaFont="miniSystem"/>
                                     <color key="textColor" red="0.29803922999999999" green="0.29803922999999999" blue="0.29803922999999999" alpha="1" colorSpace="calibratedRGB"/>
@@ -1874,15 +2032,19 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 </textFieldCell>
                             </textField>
                         </subviews>
+                        <animations/>
                     </view>
+                    <animations/>
                     <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                     <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                 </box>
             </subviews>
+            <animations/>
         </customView>
         <customView id="657" userLabel="Inserts" customClass="MVerticalLayoutView">
             <rect key="frame" x="41" y="154" width="163" height="96"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <animations/>
         </customView>
         <box autoresizesSubviews="NO" title="&lt;this title and checkboxes are created in the code&gt;" borderType="line" id="192" userLabel="Columns Box (&lt;this title and checkboxes are created in the code&gt;)">
             <rect key="frame" x="0.0" y="0.0" width="699" height="182"/>
@@ -1899,6 +2061,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                     <textField verticalHuggingPriority="750" tag="11" id="50">
                         <rect key="frame" x="51" y="115" width="56" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <animations/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Collation:" id="51">
                             <font key="font" metaFont="smallSystem"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1908,6 +2071,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                     <textField verticalHuggingPriority="750" tag="10" id="697">
                         <rect key="frame" x="23" y="141" width="84" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <animations/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Column Name:" id="698">
                             <font key="font" metaFont="smallSystem"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1917,6 +2081,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                     <textField verticalHuggingPriority="750" tag="30" id="701">
                         <rect key="frame" x="356" y="141" width="56" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                        <animations/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Datatype:" id="702">
                             <font key="font" metaFont="smallSystem"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1926,6 +2091,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                     <textField verticalHuggingPriority="750" tag="31" id="707">
                         <rect key="frame" x="346" y="115" width="66" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                        <animations/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Default:" id="708">
                             <font key="font" metaFont="smallSystem"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1935,6 +2101,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                     <popUpButton verticalHuggingPriority="750" tag="21" id="56">
                         <rect key="frame" x="109" y="109" width="225" height="22"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                        <animations/>
                         <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="59" id="57">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="smallSystem"/>
@@ -1953,6 +2120,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                     <textField verticalHuggingPriority="750" tag="20" id="699">
                         <rect key="frame" x="112" y="138" width="219" height="19"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                        <animations/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="700">
                             <font key="font" metaFont="smallSystem"/>
                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1965,6 +2133,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                     <textField verticalHuggingPriority="750" tag="41" id="709">
                         <rect key="frame" x="415" y="112" width="259" height="19"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                        <animations/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="710">
                             <font key="font" metaFont="smallSystem"/>
                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1977,6 +2146,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                     <comboBox verticalHuggingPriority="750" tag="40" id="705">
                         <rect key="frame" x="415" y="135" width="262" height="22"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                        <animations/>
                         <comboBoxCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" usesDataSource="YES" numberOfVisibleItems="5" id="706">
                             <font key="font" metaFont="smallSystem"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1990,8 +2160,9 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         </connections>
                     </comboBox>
                     <button tag="50" id="711">
-                        <rect key="frame" x="412" y="50" width="85" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                        <rect key="frame" x="412" y="61" width="85" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                        <animations/>
                         <buttonCell key="cell" type="check" title="Primary Key" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="712">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="smallSystem"/>
@@ -2001,8 +2172,9 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         </connections>
                     </button>
                     <button tag="51" id="715">
-                        <rect key="frame" x="412" y="30" width="63" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                        <rect key="frame" x="412" y="41" width="63" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                        <animations/>
                         <buttonCell key="cell" type="check" title="Binary" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="716">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="smallSystem"/>
@@ -2012,8 +2184,9 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         </connections>
                     </button>
                     <button tag="52" id="717">
-                        <rect key="frame" x="412" y="10" width="105" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                        <rect key="frame" x="412" y="21" width="105" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                        <animations/>
                         <buttonCell key="cell" type="check" title="Auto Increment" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="718">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="smallSystem"/>
@@ -2023,8 +2196,9 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         </connections>
                     </button>
                     <button tag="55" id="2Az-jc-J95" userLabel="MColumns FlagG">
-                        <rect key="frame" x="518" y="11" width="86" height="17"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                        <rect key="frame" x="518" y="22" width="86" height="17"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                        <animations/>
                         <buttonCell key="cell" type="check" title="Generated" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="LNF-nT-sev">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="smallSystem"/>
@@ -2034,8 +2208,9 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         </connections>
                     </button>
                     <button tag="53" id="719">
-                        <rect key="frame" x="518" y="50" width="72" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                        <rect key="frame" x="518" y="61" width="72" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                        <animations/>
                         <buttonCell key="cell" type="check" title="Not NULL" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="720">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="smallSystem"/>
@@ -2045,8 +2220,9 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         </connections>
                     </button>
                     <button tag="56" id="721">
-                        <rect key="frame" x="613" y="50" width="63" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                        <rect key="frame" x="613" y="61" width="63" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                        <animations/>
                         <buttonCell key="cell" type="check" title="Unique" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="722">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="smallSystem"/>
@@ -2056,8 +2232,9 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         </connections>
                     </button>
                     <button tag="57" id="723">
-                        <rect key="frame" x="613" y="30" width="63" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                        <rect key="frame" x="613" y="41" width="63" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                        <animations/>
                         <buttonCell key="cell" type="check" title="ZeroFill" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="724">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="smallSystem"/>
@@ -2067,8 +2244,9 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         </connections>
                     </button>
                     <button tag="54" id="725">
-                        <rect key="frame" x="518" y="30" width="72" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                        <rect key="frame" x="518" y="41" width="72" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                        <animations/>
                         <buttonCell key="cell" type="check" title="Unsigned" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" state="on" inset="2" id="726">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="smallSystem"/>
@@ -2087,6 +2265,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <textView importsGraphics="NO" richText="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" smartInsertDelete="YES" id="819">
                                     <rect key="frame" x="0.0" y="0.0" width="217" height="92"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <animations/>
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                     <size key="minSize" width="217" height="92"/>
                                     <size key="maxSize" width="463" height="10000000"/>
@@ -2098,20 +2277,25 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                     </connections>
                                 </textView>
                             </subviews>
+                            <animations/>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         </clipView>
+                        <animations/>
                         <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="818">
                             <rect key="frame" x="-100" y="-100" width="87" height="18"/>
                             <autoresizingMask key="autoresizingMask"/>
+                            <animations/>
                         </scroller>
                         <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" controlSize="small" horizontal="NO" id="817">
                             <rect key="frame" x="204" y="1" width="14" height="92"/>
                             <autoresizingMask key="autoresizingMask"/>
+                            <animations/>
                         </scroller>
                     </scrollView>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" tag="32" id="tvQ-IU-IX5">
                         <rect key="frame" x="363" y="87" width="49" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                        <animations/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Storage:" id="9rv-G0-SpE">
                             <font key="font" metaFont="smallSystem"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -2121,6 +2305,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                     <textField verticalHuggingPriority="750" tag="12" id="54">
                         <rect key="frame" x="41" y="92" width="66" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <animations/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Comments:" id="55">
                             <font key="font" metaFont="smallSystem"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -2137,6 +2322,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <button toolTip="column will be calculated on the fly when a record is read from a table" id="Sn6-l7-dXN" userLabel="MColumns RadioGCVirtual">
                                     <rect key="frame" x="10" y="3" width="84" height="20"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <animations/>
                                     <buttonCell key="cell" type="radio" title="VIRTUAL" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="nD3-CD-r1h">
                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                         <font key="font" metaFont="smallSystem"/>
@@ -2148,6 +2334,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <button toolTip="column will be calculated when a new record is written in the table, and after that it will be treated as a regular field" id="HGE-yC-LkF" userLabel="MColumns RadioGCStored">
                                     <rect key="frame" x="89" y="3" width="87" height="20"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <animations/>
                                     <buttonCell key="cell" type="radio" title="STORED" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="drL-BG-emz">
                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                         <font key="font" metaFont="smallSystem"/>
@@ -2157,12 +2344,16 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                     </connections>
                                 </button>
                             </subviews>
+                            <animations/>
                         </view>
+                        <animations/>
                         <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                         <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     </box>
                 </subviews>
+                <animations/>
             </view>
+            <animations/>
             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
             <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
             <point key="canvasLocation" x="521.5" y="-190"/>
@@ -2182,6 +2373,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                     <textField verticalHuggingPriority="750" tag="12" id="773">
                         <rect key="frame" x="15" y="89" width="66" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <animations/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Comments:" id="774">
                             <font key="font" metaFont="smallSystem"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -2191,6 +2383,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                     <textField verticalHuggingPriority="750" tag="11" id="762">
                         <rect key="frame" x="25" y="112" width="56" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <animations/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Collation:" id="787">
                             <font key="font" metaFont="smallSystem"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -2200,6 +2393,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                     <popUpButton verticalHuggingPriority="750" tag="21" id="759">
                         <rect key="frame" x="83" y="107" width="268" height="22"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                        <animations/>
                         <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="792" id="790">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="smallSystem"/>
@@ -2225,6 +2419,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                 <textView importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" smartInsertDelete="YES" id="823">
                                     <rect key="frame" x="0.0" y="0.0" width="260" height="92"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <animations/>
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                     <size key="minSize" width="260" height="92"/>
                                     <size key="maxSize" width="463" height="10000000"/>
@@ -2236,19 +2431,25 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                                     </connections>
                                 </textView>
                             </subviews>
+                            <animations/>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         </clipView>
+                        <animations/>
                         <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="824">
                             <rect key="frame" x="-100" y="-100" width="87" height="18"/>
                             <autoresizingMask key="autoresizingMask"/>
+                            <animations/>
                         </scroller>
                         <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" controlSize="small" horizontal="NO" id="825">
                             <rect key="frame" x="247" y="1" width="14" height="92"/>
                             <autoresizingMask key="autoresizingMask"/>
+                            <animations/>
                         </scroller>
                     </scrollView>
                 </subviews>
+                <animations/>
             </view>
+            <animations/>
             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
             <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
         </box>
