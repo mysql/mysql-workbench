@@ -427,7 +427,7 @@ class ConfigurationPage(WizardPage):
             sel.add_items(cols)
             for i, c in enumerate(cols):
                 if c == row['dest_col']:
-                    sel.set_selected(i)
+                    sel.set_selected(cols.index(c))
                     break
             sel.add_changed_callback(lambda output = row: operator.setitem(output, 'dest_col', sel.get_string_value()))
             return sel
@@ -454,6 +454,12 @@ class ConfigurationPage(WizardPage):
             for row in self.column_mapping:
                 row['active'] = active
         
+        def find_column(col_name, index):
+            if col_name in self.dest_cols:
+                return col_name
+            else:
+                return self.dest_cols[index] if i < len(self.dest_cols) else None
+        
         chk = mforms.newCheckBox()
         chk.set_active(True)
         chk.add_clicked_callback(lambda checkbox = chk, columns = self.active_module._columns: sell_all(columns, checkbox.get_active()))
@@ -466,7 +472,7 @@ class ConfigurationPage(WizardPage):
             self.preview_table.add(mforms.newLabel("Field Type"), 3, 4, 0, 1, mforms.HFillFlag)
         self.column_mapping = []
         for i, col in enumerate(self.active_module._columns):
-            row = {'active': True, 'name': col['name'], 'type' : None, 'col_no': i, 'dest_col': self.dest_cols[i] if i < len(self.dest_cols) else None}
+            row = {'active': True, 'name': col['name'], 'type' : None, 'col_no': i, 'dest_col': find_column(col['name'], i)}
             for c in col:
                 if c.startswith('is_') and col[c]:
                     row['type'] = type_items[c]
