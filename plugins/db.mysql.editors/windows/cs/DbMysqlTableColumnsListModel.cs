@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,6 +40,7 @@ namespace MySQL.Grt.Db
     private NodeCheckBox unNodeControl;
     private NodeCheckBox zfNodeControl;
     private NodeCheckBox aiNodeControl;
+    private NodeCheckBox gNodeControl;
     private AdvNodeTextBox defaultNodeControl;
     private MySQLTableEditorWrapper mySQLTableEditorWrapper;
 
@@ -56,7 +57,7 @@ namespace MySQL.Grt.Db
 			NodeIcon columnIconNodeControl, AdvNodeTextBox nameNodeControl, AdvNodeComboBox datatypeComboBoxNodeControl,
       NodeCheckBox pkNodeControl, NodeCheckBox nnNodeControl, NodeCheckBox uqNodeControl, NodeCheckBox binNodeControl, 
       NodeCheckBox unNodeControl, NodeCheckBox zfNodeControl, NodeCheckBox aiNodeControl,
-      AdvNodeTextBox defaultNodeControl, MySQLTableEditorWrapper wrapper)
+      NodeCheckBox gNodeControl, AdvNodeTextBox defaultNodeControl, MySQLTableEditorWrapper wrapper)
 			: base(tree, grtList, columnIconNodeControl, true)
 		{
       this.listener = listener;
@@ -70,6 +71,7 @@ namespace MySQL.Grt.Db
       this.unNodeControl = unNodeControl;
       this.zfNodeControl = zfNodeControl;
       this.aiNodeControl = aiNodeControl;
+      this.gNodeControl = gNodeControl;
       this.defaultNodeControl = defaultNodeControl;
       this.mySQLTableEditorWrapper = wrapper;
 
@@ -95,6 +97,8 @@ namespace MySQL.Grt.Db
       zfNodeControl.ValuePushed += new EventHandler<NodeControlValueEventArgs>(ValuePushed);
       aiNodeControl.ValueNeeded += new EventHandler<NodeControlValueEventArgs>(ValueNeeded);
 			aiNodeControl.ValuePushed += new EventHandler<NodeControlValueEventArgs>(ValuePushed);
+      gNodeControl.ValueNeeded += new EventHandler<NodeControlValueEventArgs>(ValueNeeded);
+      gNodeControl.ValuePushed += new EventHandler<NodeControlValueEventArgs>(ValuePushed);
       
       defaultNodeControl.EditorInitialize += new EditorInitializeEventHandler(EditorInitialize);
 			defaultNodeControl.ValueNeeded += new EventHandler<NodeControlValueEventArgs>(ValueNeeded);
@@ -128,6 +132,8 @@ namespace MySQL.Grt.Db
       zfNodeControl.ValuePushed -= ValuePushed;
       aiNodeControl.ValueNeeded -= ValueNeeded;
 			aiNodeControl.ValuePushed -= ValuePushed;
+      gNodeControl.ValueNeeded -= ValueNeeded;
+      gNodeControl.ValuePushed -= ValuePushed;
 
       defaultNodeControl.EditorInitialize -= EditorInitialize;
 			defaultNodeControl.ValueNeeded -= ValueNeeded;
@@ -240,7 +246,13 @@ namespace MySQL.Grt.Db
             if (grtList.get_field(node.NodeId, (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.IsAutoIncrement, out autoInc))
               e.Value = (autoInc == 1);
 					}
-					else if (sender == defaultNodeControl)
+          else if (sender == gNodeControl)
+          {
+            int generated;
+            if (grtList.get_field(node.NodeId, (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.IsGenerated, out generated))
+              e.Value = (generated == 1);
+          }
+          else if (sender == defaultNodeControl)
 					{
 						string caption;
 
@@ -345,7 +357,12 @@ namespace MySQL.Grt.Db
 						int intValue = Convert.ToInt16(e.Value);
 						grtList.set_field(node.NodeId, (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.IsAutoIncrement, intValue);
 					}
-					else if (sender == defaultNodeControl)
+          else if (sender == gNodeControl)
+          {
+            int intValue = Convert.ToInt16(e.Value);
+            grtList.set_field(node.NodeId, (int)MySQLTableColumnsListWrapper.MySQLColumnListColumns.IsGenerated, intValue);
+          }
+          else if (sender == defaultNodeControl)
 					{
 						String value = e.Value as String;
 						if (value != null)
