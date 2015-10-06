@@ -3078,7 +3078,6 @@ void JsonGridView::generateArrayInTree(JsonParser::JsonValue &value, TreeNodeRef
   if (_useFilter && _filterGuard.count(&value) == 0)
     return;
   JsonParser::JsonArray &arrayType = value.getArray();
-  JsonArray::SizeType size = arrayType.size();
   node->set_icon_path(0, "JS_Datatype_Array.png");
   node->set_string(1, "");
   node->set_string(2, "Array");
