@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,7 +47,7 @@ public:
   virtual bool set_field(const ::bec::NodeId &node, ColumnId column, const std::string &value);
   virtual bool set_field(const ::bec::NodeId &node, ColumnId column, ssize_t value);
 
-  MySQLTableColumnsListBE(MySQLTableEditorBE *owner, db_mysql_TableRef table);
+  MySQLTableColumnsListBE(MySQLTableEditorBE *owner);
   
   virtual bool activate_popup_item_for_nodes(const std::string &name, const std::vector<bec::NodeId> &orig_nodes);
   virtual bec::MenuItemList get_popup_items_for_nodes(const std::vector<bec::NodeId> &nodes);
@@ -55,8 +55,6 @@ protected:
   // for internal use only
   virtual bool get_field_grt(const ::bec::NodeId &node, ColumnId column, ::grt::ValueRef &value);
 
-protected:
-  db_mysql_TableRef _table;
 };
 
 
@@ -96,7 +94,7 @@ public:
     Comment
   };
 
-  MySQLTablePartitionTreeBE(MySQLTableEditorBE *owner, const db_mysql_TableRef &table);
+  MySQLTablePartitionTreeBE(MySQLTableEditorBE *owner);
 
   virtual void refresh() {};
 
@@ -111,8 +109,6 @@ protected:
 
   db_mysql_PartitionDefinitionRef get_definition(const ::bec::NodeId &node);
 
-private:
-  db_mysql_TableRef _table;
 };
 
 
@@ -184,7 +180,6 @@ public:
   virtual db_TableRef create_stub_table(const std::string &schema, const std::string &table);
   
 protected:
-  db_mysql_TableRef _table;
   MySQLTableColumnsListBE _columns;
   MySQLTablePartitionTreeBE _partitions;
   MySQLTableIndexListBE _indexes;
