@@ -111,6 +111,17 @@ void BaseEditor::thaw_refresh_on_object_change(bool discard_pending)
 
 //--------------------------------------------------------------------------------------------------
 
+/**
+ * Replaces the current object (e.g. on re-parse/reset).
+ */
+void BaseEditor::set_object(GrtObjectRef value)
+{
+  _object = value;
+  on_object_changed();
+};
+
+//--------------------------------------------------------------------------------------------------
+
 void BaseEditor::apply_changes_to_live_object()
 {
   commit_changes();
