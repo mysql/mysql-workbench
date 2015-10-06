@@ -433,7 +433,7 @@ class csv_module(base_module):
                             break
                         val = row[col_order[col]]
                         if col_type[col] == 'double':
-                            val = row[col_order[col]].replace(self._decimal_separator, ',')
+                            val = row[col_order[col]].replace(self._decimal_separator, '.')
                         elif col_type[col] == 'datetime':
                             val = datetime.datetime.strptime(row[col_order[col]], self._date_format).strftime("%Y-%m-%d %H:%M:%S")
                         self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val.replace("\\", "\\\\").replace('"', '\\"')), 0)
@@ -617,10 +617,10 @@ class json_module(base_module):
                             break
                         val = row[col_order[col]]
                         if col_type[col] == 'double':
-                            val = row[col_order[col]].replace(self._decimal_separator, ',')
+                            val = row[col_order[col]].replace(self._decimal_separator, '.')
                         elif col_type[col] == 'datetime':
                             val = datetime.datetime.strptime(row[col_order[col]], self._date_format).strftime("%Y-%m-%d %H:%M:%S")
-                            
+
                         self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val.replace("\\", "\\\\").replace('"', '\\"')), 0)
                     else:
                         try:
