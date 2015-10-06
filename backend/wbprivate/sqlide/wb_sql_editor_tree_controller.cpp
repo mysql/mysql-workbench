@@ -2151,25 +2151,54 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
     }
   }
 
+  // Settings dict here only to copy it to the new db object.
+  grt::DictRef dbSettings = grt::DictRef::cast_from(db_object->customData().get("DBSettings"));
+  switch (db_object_type)
+  {
+  case wb::LiveSchemaTree::Table:
+    if ((client_state_catalog->schemata()->count() > 0) && (client_state_catalog->schemata()[0]->tables()->count() > 0))
+      db_object = client_state_catalog->schemata()[0]->tables()[0];
+    break;
+  case wb::LiveSchemaTree::View:
+    if ((client_state_catalog->schemata()->count() > 0) && (client_state_catalog->schemata()[0]->views()->count() > 0))
+      db_object = client_state_catalog->schemata()[0]->views()[0];
+    break;
+  case wb::LiveSchemaTree::Procedure:
+  case wb::LiveSchemaTree::Function:
+    if ((client_state_catalog->schemata()->count() > 0) && (client_state_catalog->schemata()[0]->routines()->count() > 0))
+      db_object = client_state_catalog->schemata()[0]->routines()[0];
+    break;
+  default: // wb::LiveSchemaTree::Schema, there are more cases, but we only use those listed here.
+    if (client_state_catalog->schemata()->count() > 0)
+      db_object = client_state_catalog->schemata()[0];
+    break;
+  }
+
   {
     db_CatalogRef server_state_catalog(db_CatalogRef::cast_from(grt::copy_object(client_state_catalog)));
     db_object->customData().set("serverStateCatalog", server_state_catalog);
+    db_object->customData().set("clientStateCatalog", client_state_catalog);
   }
   db_object->customData().set("originalObjectDDL", grt::StringRef(ddl_script));
   db_object->customData().set("sqlMode", grt::StringRef(sql_mode));
 
+  db_object->customData().set("DBSettings", dbSettings);
+  db_object->customData().set("liveRdbms", _owner->rdbms());
+  db_object->customData().set("ownerSqlEditor", _owner->wbsql()->get_grt_editor_object(_owner));
+
   obj_editor->thaw_refresh_on_object_change();
+
+  // Update the editor's grt object (the one it is managing), as this has now been
+  // recreated. Will cause a UI refresh as well. If there was a parse error (which can only be
+  // an internal error, since we start freshly) stay with the old object.
+  obj_editor->set_object(db_object);
 
   // Enable refresh of sql editor contents.
   MySQLEditor::Ref active_sql_editor;
   if (obj_editor->has_editor())
     active_sql_editor = obj_editor->get_sql_editor();
   if (active_sql_editor)
-  {
     active_sql_editor->set_refresh_enabled(true);
-    // provoke database object to refresh FE control contents
-    (*db_object->signal_changed())("", grt::ValueRef());
-  }
 }
 
 //--------------------------------------------------------------------------------------------------
