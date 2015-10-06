@@ -37,6 +37,8 @@ namespace MySQL.GUI.Workbench.Plugins
       this.defaultTreeColumn = new Aga.Controls.Tree.TreeColumn();
       this.nnNodeControl = new Aga.Controls.Tree.NodeControls.NodeCheckBox();
       this.aiNodeControl = new Aga.Controls.Tree.NodeControls.NodeCheckBox();
+      this.gNodeControl = new Aga.Controls.Tree.NodeControls.NodeCheckBox();
+      this.gTreeColumn = new Aga.Controls.Tree.TreeColumn();
       this.indexNameColumn = new Aga.Controls.Tree.TreeColumn();
       this.indexTypeColumn = new Aga.Controls.Tree.TreeColumn();
       this.indexColumnNameTreeColumn = new Aga.Controls.Tree.TreeColumn();
@@ -99,6 +101,8 @@ namespace MySQL.GUI.Workbench.Plugins
       this.fkModelOnlyCheck = new System.Windows.Forms.CheckBox();
       this.indicesTreeView = new Aga.Controls.Tree.TreeViewAdv();
       this.collapsePictureBox = new System.Windows.Forms.PictureBox();
+      this.virtualRadioButton = new System.Windows.Forms.RadioButton();
+      this.storedRadioButton = new System.Windows.Forms.RadioButton();
       this.partitionTreeMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
       this.showClusterSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
@@ -232,7 +236,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label9 = new System.Windows.Forms.Label();
       this.label6 = new System.Windows.Forms.Label();
       this.label57 = new System.Windows.Forms.Label();
-      this.label58 = new System.Windows.Forms.Label();
+      this.defaultLabel = new System.Windows.Forms.Label();
       this.columnNameTextBox = new System.Windows.Forms.TextBox();
       this.columnDataTypeTextBox = new System.Windows.Forms.TextBox();
       this.columnDefaultTextBox = new System.Windows.Forms.TextBox();
@@ -244,6 +248,8 @@ namespace MySQL.GUI.Workbench.Plugins
       this.zeroFillCheckBox = new System.Windows.Forms.CheckBox();
       this.aiCheckBox = new System.Windows.Forms.CheckBox();
       this.columnCommentTextBox = new System.Windows.Forms.TextBox();
+      this.storageLabel = new System.Windows.Forms.Label();
+      this.generatedCheckbox = new System.Windows.Forms.CheckBox();
       this.headingLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
       this.pictureBox1 = new System.Windows.Forms.PictureBox();
       this.optEngine = new System.Windows.Forms.ComboBox();
@@ -326,21 +332,21 @@ namespace MySQL.GUI.Workbench.Plugins
       this.nnTreeColumn.Header = "NN";
       this.nnTreeColumn.SortOrder = System.Windows.Forms.SortOrder.None;
       this.nnTreeColumn.TooltipText = "Not Null";
-      this.nnTreeColumn.Width = 24;
+      this.nnTreeColumn.Width = 30;
       // 
       // aiTreeColumn
       // 
       this.aiTreeColumn.Header = "AI";
       this.aiTreeColumn.SortOrder = System.Windows.Forms.SortOrder.None;
       this.aiTreeColumn.TooltipText = "Auto Incremental";
-      this.aiTreeColumn.Width = 24;
+      this.aiTreeColumn.Width = 30;
       // 
       // defaultTreeColumn
       // 
-      this.defaultTreeColumn.Header = "Default";
+      this.defaultTreeColumn.Header = "Default/Expression";
       this.defaultTreeColumn.SortOrder = System.Windows.Forms.SortOrder.None;
-      this.defaultTreeColumn.TooltipText = null;
-      this.defaultTreeColumn.Width = 120;
+      this.defaultTreeColumn.TooltipText = "The expression for generated columns, otherwise the default value";
+      this.defaultTreeColumn.Width = 150;
       // 
       // nnNodeControl
       // 
@@ -353,6 +359,19 @@ namespace MySQL.GUI.Workbench.Plugins
       this.aiNodeControl.LeftMargin = 3;
       this.aiNodeControl.ParentColumn = this.aiTreeColumn;
       this.aiNodeControl.VirtualMode = true;
+      // 
+      // gNodeControl
+      // 
+      this.gNodeControl.LeftMargin = 3;
+      this.gNodeControl.ParentColumn = this.gTreeColumn;
+      this.gNodeControl.VirtualMode = true;
+      // 
+      // gTreeColumn
+      // 
+      this.gTreeColumn.Header = "G";
+      this.gTreeColumn.SortOrder = System.Windows.Forms.SortOrder.None;
+      this.gTreeColumn.TooltipText = "Generated Column";
+      this.gTreeColumn.Width = 30;
       // 
       // indexNameColumn
       // 
@@ -898,6 +917,38 @@ namespace MySQL.GUI.Workbench.Plugins
       this.collapsePictureBox.TabStop = false;
       this.toolTip.SetToolTip(this.collapsePictureBox, "Click to change the number of displayed available table options");
       this.collapsePictureBox.Click += new System.EventHandler(this.collapsePictureBox_Click);
+      // 
+      // virtualRadioButton
+      // 
+      this.virtualRadioButton.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+      this.virtualRadioButton.AutoSize = true;
+      this.virtualRadioButton.Enabled = false;
+      this.virtualRadioButton.Location = new System.Drawing.Point(397, 69);
+      this.virtualRadioButton.Name = "virtualRadioButton";
+      this.virtualRadioButton.Size = new System.Drawing.Size(126, 21);
+      this.virtualRadioButton.TabIndex = 20;
+      this.virtualRadioButton.TabStop = true;
+      this.virtualRadioButton.Text = "Virtual";
+      this.toolTip.SetToolTip(this.virtualRadioButton, "Only valid for generated columns. Determines that the column is  computed on dema" +
+        "nd.");
+      this.virtualRadioButton.UseVisualStyleBackColor = true;
+      this.virtualRadioButton.CheckedChanged += new System.EventHandler(this.storageRadioButton_CheckedChanged);
+      // 
+      // storedRadioButton
+      // 
+      this.storedRadioButton.AutoSize = true;
+      this.storedRadioButton.Enabled = false;
+      this.storedRadioButton.Location = new System.Drawing.Point(529, 69);
+      this.storedRadioButton.Name = "storedRadioButton";
+      this.storedRadioButton.Size = new System.Drawing.Size(70, 21);
+      this.storedRadioButton.TabIndex = 21;
+      this.storedRadioButton.TabStop = true;
+      this.storedRadioButton.Text = "Stored";
+      this.toolTip.SetToolTip(this.storedRadioButton, "Only valid for generated columns. Determines that the column is actually stored.");
+      this.storedRadioButton.UseVisualStyleBackColor = true;
+      this.storedRadioButton.CheckedChanged += new System.EventHandler(this.storageRadioButton_CheckedChanged);
       // 
       // partitionTreeMenuStrip
       // 
@@ -2317,7 +2368,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.columnListSplitContainer.Panel2.Controls.Add(this.oldTableLayoutPanel);
       this.columnListSplitContainer.Panel2.Padding = new System.Windows.Forms.Padding(5);
       this.columnListSplitContainer.Panel2Collapsed = true;
-      this.columnListSplitContainer.Size = new System.Drawing.Size(714, 139);
+      this.columnListSplitContainer.Size = new System.Drawing.Size(714, 112);
       this.columnListSplitContainer.SplitterDistance = 421;
       this.columnListSplitContainer.TabIndex = 18;
       // 
@@ -2336,6 +2387,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.columnsTreeView.Columns.Add(this.unTreeColumn);
       this.columnsTreeView.Columns.Add(this.zfTreeColumn);
       this.columnsTreeView.Columns.Add(this.aiTreeColumn);
+      this.columnsTreeView.Columns.Add(this.gTreeColumn);
       this.columnsTreeView.Columns.Add(this.defaultTreeColumn);
       this.columnsTreeView.DefaultToolTipProvider = null;
       this.columnsTreeView.DisplayDraggingNodes = true;
@@ -2358,6 +2410,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.columnsTreeView.NodeControls.Add(this.uqNodeControl);
       this.columnsTreeView.NodeControls.Add(this.zfNodeControl);
       this.columnsTreeView.NodeControls.Add(this.aiNodeControl);
+      this.columnsTreeView.NodeControls.Add(this.gNodeControl);
       this.columnsTreeView.NodeControls.Add(this.defaultNodeControl);
       this.columnsTreeView.ScrollPosition = new System.Drawing.Point(0, 0);
       this.columnsTreeView.SelectedNode = null;
@@ -2365,7 +2418,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.columnsTreeView.ShowHeader = true;
       this.columnsTreeView.ShowLines = false;
       this.columnsTreeView.ShowPlusMinus = false;
-      this.columnsTreeView.Size = new System.Drawing.Size(714, 139);
+      this.columnsTreeView.Size = new System.Drawing.Size(714, 112);
       this.columnsTreeView.TabIndex = 4;
       this.columnsTreeView.Text = "columnTreeViewAdv";
       this.columnsTreeView.UseColumns = true;
@@ -2381,35 +2434,35 @@ namespace MySQL.GUI.Workbench.Plugins
       this.pkTreeColumn.Header = "PK";
       this.pkTreeColumn.SortOrder = System.Windows.Forms.SortOrder.None;
       this.pkTreeColumn.TooltipText = "Belongs to primary key";
-      this.pkTreeColumn.Width = 24;
+      this.pkTreeColumn.Width = 30;
       // 
       // uqTreeColumn
       // 
       this.uqTreeColumn.Header = "UQ";
       this.uqTreeColumn.SortOrder = System.Windows.Forms.SortOrder.None;
       this.uqTreeColumn.TooltipText = "Unique index";
-      this.uqTreeColumn.Width = 27;
+      this.uqTreeColumn.Width = 30;
       // 
       // binTreeColumn
       // 
-      this.binTreeColumn.Header = "BIN";
+      this.binTreeColumn.Header = "B";
       this.binTreeColumn.SortOrder = System.Windows.Forms.SortOrder.None;
       this.binTreeColumn.TooltipText = "Is binary column";
-      this.binTreeColumn.Width = 27;
+      this.binTreeColumn.Width = 30;
       // 
       // unTreeColumn
       // 
       this.unTreeColumn.Header = "UN";
       this.unTreeColumn.SortOrder = System.Windows.Forms.SortOrder.None;
       this.unTreeColumn.TooltipText = "Unsigned data type";
-      this.unTreeColumn.Width = 24;
+      this.unTreeColumn.Width = 30;
       // 
       // zfTreeColumn
       // 
       this.zfTreeColumn.Header = "ZF";
       this.zfTreeColumn.SortOrder = System.Windows.Forms.SortOrder.None;
       this.zfTreeColumn.TooltipText = "Fill up values for that column with 0\'s if it is numeric";
-      this.zfTreeColumn.Width = 24;
+      this.zfTreeColumn.Width = 30;
       // 
       // pkNodeControl
       // 
@@ -2461,7 +2514,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.bevel2.BevelStyle = MySQL.Utilities.BevelStyleType.White;
       this.bevel2.BorderSide = System.Windows.Forms.Border3DSide.Bottom;
       this.bevel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-      this.bevel2.Location = new System.Drawing.Point(8, 139);
+      this.bevel2.Location = new System.Drawing.Point(8, 112);
       this.bevel2.Margin = new System.Windows.Forms.Padding(0);
       this.bevel2.Name = "bevel2";
       this.bevel2.Size = new System.Drawing.Size(714, 10);
@@ -2477,39 +2530,44 @@ namespace MySQL.GUI.Workbench.Plugins
       this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.51546F));
       this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 16.49484F));
-      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 16.49484F));
-      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 16.49484F));
+      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       this.tableLayoutPanel1.Controls.Add(this.columnCollationComboBox, 1, 1);
       this.tableLayoutPanel1.Controls.Add(this.label12, 0, 2);
       this.tableLayoutPanel1.Controls.Add(this.label9, 0, 1);
       this.tableLayoutPanel1.Controls.Add(this.label6, 0, 0);
       this.tableLayoutPanel1.Controls.Add(this.label57, 2, 0);
-      this.tableLayoutPanel1.Controls.Add(this.label58, 2, 1);
+      this.tableLayoutPanel1.Controls.Add(this.defaultLabel, 2, 1);
       this.tableLayoutPanel1.Controls.Add(this.columnNameTextBox, 1, 0);
       this.tableLayoutPanel1.Controls.Add(this.columnDataTypeTextBox, 3, 0);
       this.tableLayoutPanel1.Controls.Add(this.columnDefaultTextBox, 3, 1);
-      this.tableLayoutPanel1.Controls.Add(this.pkCheckBox, 3, 2);
-      this.tableLayoutPanel1.Controls.Add(this.nnCheckBox, 4, 2);
-      this.tableLayoutPanel1.Controls.Add(this.uniqueCheckBox, 5, 2);
-      this.tableLayoutPanel1.Controls.Add(this.binaryCheckBox, 3, 3);
-      this.tableLayoutPanel1.Controls.Add(this.unsignedCheckBox, 4, 3);
-      this.tableLayoutPanel1.Controls.Add(this.zeroFillCheckBox, 5, 3);
-      this.tableLayoutPanel1.Controls.Add(this.aiCheckBox, 3, 4);
+      this.tableLayoutPanel1.Controls.Add(this.pkCheckBox, 3, 3);
+      this.tableLayoutPanel1.Controls.Add(this.nnCheckBox, 4, 3);
+      this.tableLayoutPanel1.Controls.Add(this.uniqueCheckBox, 5, 3);
+      this.tableLayoutPanel1.Controls.Add(this.binaryCheckBox, 3, 4);
+      this.tableLayoutPanel1.Controls.Add(this.unsignedCheckBox, 4, 4);
+      this.tableLayoutPanel1.Controls.Add(this.zeroFillCheckBox, 5, 4);
+      this.tableLayoutPanel1.Controls.Add(this.aiCheckBox, 3, 5);
       this.tableLayoutPanel1.Controls.Add(this.columnCommentTextBox, 1, 2);
+      this.tableLayoutPanel1.Controls.Add(this.storageLabel, 2, 2);
+      this.tableLayoutPanel1.Controls.Add(this.generatedCheckbox, 4, 5);
+      this.tableLayoutPanel1.Controls.Add(this.virtualRadioButton, 3, 2);
+      this.tableLayoutPanel1.Controls.Add(this.storedRadioButton, 4, 2);
       this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-      this.tableLayoutPanel1.Location = new System.Drawing.Point(8, 149);
+      this.tableLayoutPanel1.Location = new System.Drawing.Point(8, 122);
       this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
       this.tableLayoutPanel1.Name = "tableLayoutPanel1";
       this.tableLayoutPanel1.Padding = new System.Windows.Forms.Padding(0, 5, 8, 8);
-      this.tableLayoutPanel1.RowCount = 5;
+      this.tableLayoutPanel1.RowCount = 6;
+      this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-      this.tableLayoutPanel1.Size = new System.Drawing.Size(714, 155);
+      this.tableLayoutPanel1.Size = new System.Drawing.Size(714, 182);
       this.tableLayoutPanel1.TabIndex = 15;
       // 
       // columnCollationComboBox
@@ -2522,7 +2580,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.columnCollationComboBox.FormattingEnabled = true;
       this.columnCollationComboBox.Location = new System.Drawing.Point(108, 38);
       this.columnCollationComboBox.Name = "columnCollationComboBox";
-      this.columnCollationComboBox.Size = new System.Drawing.Size(247, 25);
+      this.columnCollationComboBox.Size = new System.Drawing.Size(183, 25);
       this.columnCollationComboBox.TabIndex = 7;
       this.columnCollationComboBox.SelectedIndexChanged += new System.EventHandler(this.columnCollationComboBox_SelectedIndexChanged);
       // 
@@ -2571,7 +2629,7 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
       this.label57.AutoSize = true;
-      this.label57.Location = new System.Drawing.Point(378, 5);
+      this.label57.Location = new System.Drawing.Point(314, 5);
       this.label57.Margin = new System.Windows.Forms.Padding(20, 0, 3, 0);
       this.label57.Name = "label57";
       this.label57.Size = new System.Drawing.Size(77, 30);
@@ -2579,18 +2637,18 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label57.Text = "Data Type:";
       this.label57.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
       // 
-      // label58
+      // defaultLabel
       // 
-      this.label58.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+      this.defaultLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-      this.label58.AutoSize = true;
-      this.label58.Location = new System.Drawing.Point(361, 35);
-      this.label58.Name = "label58";
-      this.label58.Size = new System.Drawing.Size(94, 31);
-      this.label58.TabIndex = 12;
-      this.label58.Text = "Default:";
-      this.label58.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+      this.defaultLabel.AutoSize = true;
+      this.defaultLabel.Location = new System.Drawing.Point(297, 35);
+      this.defaultLabel.Name = "defaultLabel";
+      this.defaultLabel.Size = new System.Drawing.Size(94, 31);
+      this.defaultLabel.TabIndex = 12;
+      this.defaultLabel.Text = "Default:";
+      this.defaultLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
       // 
       // columnNameTextBox
       // 
@@ -2600,7 +2658,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.columnNameTextBox.Enabled = false;
       this.columnNameTextBox.Location = new System.Drawing.Point(108, 8);
       this.columnNameTextBox.Name = "columnNameTextBox";
-      this.columnNameTextBox.Size = new System.Drawing.Size(247, 24);
+      this.columnNameTextBox.Size = new System.Drawing.Size(183, 24);
       this.columnNameTextBox.TabIndex = 5;
       this.columnNameTextBox.Tag = "0";
       this.columnNameTextBox.Leave += new System.EventHandler(this.columnTextBox_Leave);
@@ -2612,9 +2670,9 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Right)));
       this.tableLayoutPanel1.SetColumnSpan(this.columnDataTypeTextBox, 3);
       this.columnDataTypeTextBox.Enabled = false;
-      this.columnDataTypeTextBox.Location = new System.Drawing.Point(461, 8);
+      this.columnDataTypeTextBox.Location = new System.Drawing.Point(397, 8);
       this.columnDataTypeTextBox.Name = "columnDataTypeTextBox";
-      this.columnDataTypeTextBox.Size = new System.Drawing.Size(242, 24);
+      this.columnDataTypeTextBox.Size = new System.Drawing.Size(306, 24);
       this.columnDataTypeTextBox.TabIndex = 6;
       this.columnDataTypeTextBox.Tag = "2";
       this.columnDataTypeTextBox.Leave += new System.EventHandler(this.columnTextBox_Leave);
@@ -2626,9 +2684,9 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Right)));
       this.tableLayoutPanel1.SetColumnSpan(this.columnDefaultTextBox, 3);
       this.columnDefaultTextBox.Enabled = false;
-      this.columnDefaultTextBox.Location = new System.Drawing.Point(461, 38);
+      this.columnDefaultTextBox.Location = new System.Drawing.Point(397, 38);
       this.columnDefaultTextBox.Name = "columnDefaultTextBox";
-      this.columnDefaultTextBox.Size = new System.Drawing.Size(242, 24);
+      this.columnDefaultTextBox.Size = new System.Drawing.Size(306, 24);
       this.columnDefaultTextBox.TabIndex = 8;
       this.columnDefaultTextBox.Tag = "3";
       this.columnDefaultTextBox.Leave += new System.EventHandler(this.columnTextBox_Leave);
@@ -2640,9 +2698,9 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Right)));
       this.pkCheckBox.AutoSize = true;
       this.pkCheckBox.Enabled = false;
-      this.pkCheckBox.Location = new System.Drawing.Point(461, 69);
+      this.pkCheckBox.Location = new System.Drawing.Point(397, 96);
       this.pkCheckBox.Name = "pkCheckBox";
-      this.pkCheckBox.Size = new System.Drawing.Size(76, 21);
+      this.pkCheckBox.Size = new System.Drawing.Size(126, 21);
       this.pkCheckBox.TabIndex = 10;
       this.pkCheckBox.Tag = "0";
       this.pkCheckBox.Text = "Primary Key";
@@ -2656,9 +2714,9 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Right)));
       this.nnCheckBox.AutoSize = true;
       this.nnCheckBox.Enabled = false;
-      this.nnCheckBox.Location = new System.Drawing.Point(543, 69);
+      this.nnCheckBox.Location = new System.Drawing.Point(529, 96);
       this.nnCheckBox.Name = "nnCheckBox";
-      this.nnCheckBox.Size = new System.Drawing.Size(76, 21);
+      this.nnCheckBox.Size = new System.Drawing.Size(93, 21);
       this.nnCheckBox.TabIndex = 11;
       this.nnCheckBox.Tag = "1";
       this.nnCheckBox.Text = "Not Null";
@@ -2672,9 +2730,9 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Right)));
       this.uniqueCheckBox.AutoSize = true;
       this.uniqueCheckBox.Enabled = false;
-      this.uniqueCheckBox.Location = new System.Drawing.Point(625, 69);
+      this.uniqueCheckBox.Location = new System.Drawing.Point(628, 96);
       this.uniqueCheckBox.Name = "uniqueCheckBox";
-      this.uniqueCheckBox.Size = new System.Drawing.Size(78, 21);
+      this.uniqueCheckBox.Size = new System.Drawing.Size(75, 21);
       this.uniqueCheckBox.TabIndex = 12;
       this.uniqueCheckBox.Tag = "2";
       this.uniqueCheckBox.Text = "Unique";
@@ -2688,9 +2746,9 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Right)));
       this.binaryCheckBox.AutoSize = true;
       this.binaryCheckBox.Enabled = false;
-      this.binaryCheckBox.Location = new System.Drawing.Point(461, 96);
+      this.binaryCheckBox.Location = new System.Drawing.Point(397, 123);
       this.binaryCheckBox.Name = "binaryCheckBox";
-      this.binaryCheckBox.Size = new System.Drawing.Size(76, 21);
+      this.binaryCheckBox.Size = new System.Drawing.Size(126, 21);
       this.binaryCheckBox.TabIndex = 13;
       this.binaryCheckBox.Tag = "3";
       this.binaryCheckBox.Text = "Binary";
@@ -2704,9 +2762,9 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Right)));
       this.unsignedCheckBox.AutoSize = true;
       this.unsignedCheckBox.Enabled = false;
-      this.unsignedCheckBox.Location = new System.Drawing.Point(543, 96);
+      this.unsignedCheckBox.Location = new System.Drawing.Point(529, 123);
       this.unsignedCheckBox.Name = "unsignedCheckBox";
-      this.unsignedCheckBox.Size = new System.Drawing.Size(76, 21);
+      this.unsignedCheckBox.Size = new System.Drawing.Size(93, 21);
       this.unsignedCheckBox.TabIndex = 14;
       this.unsignedCheckBox.Tag = "4";
       this.unsignedCheckBox.Text = "Unsigned";
@@ -2720,9 +2778,9 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Right)));
       this.zeroFillCheckBox.AutoSize = true;
       this.zeroFillCheckBox.Enabled = false;
-      this.zeroFillCheckBox.Location = new System.Drawing.Point(625, 96);
+      this.zeroFillCheckBox.Location = new System.Drawing.Point(628, 123);
       this.zeroFillCheckBox.Name = "zeroFillCheckBox";
-      this.zeroFillCheckBox.Size = new System.Drawing.Size(78, 21);
+      this.zeroFillCheckBox.Size = new System.Drawing.Size(75, 21);
       this.zeroFillCheckBox.TabIndex = 15;
       this.zeroFillCheckBox.Tag = "5";
       this.zeroFillCheckBox.Text = "Zero Fill";
@@ -2735,11 +2793,10 @@ namespace MySQL.GUI.Workbench.Plugins
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
       this.aiCheckBox.AutoSize = true;
-      this.tableLayoutPanel1.SetColumnSpan(this.aiCheckBox, 2);
       this.aiCheckBox.Enabled = false;
-      this.aiCheckBox.Location = new System.Drawing.Point(461, 123);
+      this.aiCheckBox.Location = new System.Drawing.Point(397, 150);
       this.aiCheckBox.Name = "aiCheckBox";
-      this.aiCheckBox.Size = new System.Drawing.Size(158, 21);
+      this.aiCheckBox.Size = new System.Drawing.Size(126, 21);
       this.aiCheckBox.TabIndex = 16;
       this.aiCheckBox.Tag = "6";
       this.aiCheckBox.Text = "Auto Increment";
@@ -2754,11 +2811,40 @@ namespace MySQL.GUI.Workbench.Plugins
       this.columnCommentTextBox.Location = new System.Drawing.Point(108, 69);
       this.columnCommentTextBox.Multiline = true;
       this.columnCommentTextBox.Name = "columnCommentTextBox";
-      this.tableLayoutPanel1.SetRowSpan(this.columnCommentTextBox, 3);
-      this.columnCommentTextBox.Size = new System.Drawing.Size(247, 75);
+      this.tableLayoutPanel1.SetRowSpan(this.columnCommentTextBox, 4);
+      this.columnCommentTextBox.Size = new System.Drawing.Size(183, 102);
       this.columnCommentTextBox.TabIndex = 17;
       this.columnCommentTextBox.Tag = "1";
       this.columnCommentTextBox.Leave += new System.EventHandler(this.columnTextBox_Leave);
+      // 
+      // storageLabel
+      // 
+      this.storageLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+      this.storageLabel.AutoSize = true;
+      this.storageLabel.Location = new System.Drawing.Point(297, 66);
+      this.storageLabel.Name = "storageLabel";
+      this.storageLabel.Size = new System.Drawing.Size(94, 27);
+      this.storageLabel.TabIndex = 18;
+      this.storageLabel.Text = "Storage:";
+      this.storageLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+      // 
+      // generatedCheckbox
+      // 
+      this.generatedCheckbox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+      this.generatedCheckbox.AutoSize = true;
+      this.generatedCheckbox.Enabled = false;
+      this.generatedCheckbox.Location = new System.Drawing.Point(529, 150);
+      this.generatedCheckbox.Name = "generatedCheckbox";
+      this.generatedCheckbox.Size = new System.Drawing.Size(93, 21);
+      this.generatedCheckbox.TabIndex = 19;
+      this.generatedCheckbox.Tag = "7";
+      this.generatedCheckbox.Text = "Generated";
+      this.generatedCheckbox.UseVisualStyleBackColor = true;
+      this.generatedCheckbox.CheckStateChanged += new System.EventHandler(this.columnFlagsChanged);
       // 
       // headingLayoutPanel
       // 
@@ -3077,6 +3163,7 @@ namespace MySQL.GUI.Workbench.Plugins
     private MySQL.Utilities.AdvNodeTextBox nameNodeControl;
 		private Aga.Controls.Tree.NodeControls.NodeCheckBox nnNodeControl;
 		private Aga.Controls.Tree.NodeControls.NodeCheckBox aiNodeControl;
+    private Aga.Controls.Tree.NodeControls.NodeCheckBox gNodeControl;
     private MySQL.Utilities.AdvNodeTextBox defaultNodeControl;
 		private Aga.Controls.Tree.TreeColumn indexNameColumn;
 		private Aga.Controls.Tree.TreeColumn indexTypeColumn;
@@ -3280,7 +3367,7 @@ namespace MySQL.GUI.Workbench.Plugins
     private System.Windows.Forms.Label label6;
     private Utilities.Bevel bevel2;
     private System.Windows.Forms.Label label57;
-    private System.Windows.Forms.Label label58;
+    private System.Windows.Forms.Label defaultLabel;
     private System.Windows.Forms.TextBox columnNameTextBox;
     private System.Windows.Forms.TextBox columnDataTypeTextBox;
     private System.Windows.Forms.TextBox columnDefaultTextBox;
@@ -3298,5 +3385,10 @@ namespace MySQL.GUI.Workbench.Plugins
     private System.Windows.Forms.ComboBox optKeyBlockSize;
     private System.Windows.Forms.Label label5;
     private System.Windows.Forms.Label label56;
+    private System.Windows.Forms.Label storageLabel;
+    private Aga.Controls.Tree.TreeColumn gTreeColumn;
+    private System.Windows.Forms.CheckBox generatedCheckbox;
+    private System.Windows.Forms.RadioButton virtualRadioButton;
+    private System.Windows.Forms.RadioButton storedRadioButton;
 	}
 }
