@@ -3586,14 +3586,23 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
   log_debug2("Parse sql into catalog\n");
 
   bool caseSensitive = context->case_sensitive();
+
+  std::string startSchema = options.get_string("schema");
+  db_mysql_SchemaRef currentSchema;
+  if (!startSchema.empty())
+    currentSchema = ensureSchemaExists(catalog, startSchema, caseSensitive);
+
   bool defaultSchemaCreated = catalog->schemata().count() == 0;
 
   bool autoGenerateFkNames = options.get_int("gen_fk_names_when_empty") != 0;
   //bool reuseExistingObjects = options.get_int("reuse_existing_objects") != 0;
 
-  db_mysql_SchemaRef currentSchema = db_mysql_SchemaRef::cast_from(catalog->defaultSchema());
-  if (defaultSchemaCreated || !currentSchema.is_valid())
-    currentSchema = ensureSchemaExists(catalog, "default_schema", caseSensitive);
+  if (!currentSchema.is_valid())
+  {
+    currentSchema = db_mysql_SchemaRef::cast_from(catalog->defaultSchema());
+    if (defaultSchemaCreated || !currentSchema.is_valid())
+      currentSchema = ensureSchemaExists(catalog, "default_schema", caseSensitive);
+  }
 
   size_t errorCount = 0;
   MySQLRecognizer *recognizer = context->recognizer();
