@@ -1504,7 +1504,8 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
         }
       }
 
-      if (!parse_ddl_into_catalog(client_state_catalog, strfmt("`%s`.`%s`", schema_name.c_str(), obj_name.c_str()), ddl_script, sql_mode))
+      if (!parse_ddl_into_catalog(client_state_catalog, strfmt("`%s`.`%s`", schema_name.c_str(), obj_name.c_str()),
+        ddl_script, sql_mode, schema_name))
       {
         log_warning("Error parsing DDL for %s.%s: %s", schema_name.c_str(), obj_name.c_str(), ddl_script.c_str());
         return;
@@ -2082,17 +2083,6 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
       bec::TableEditorBE *table_editor= dynamic_cast <bec::TableEditorBE *> (obj_editor);
       table_editor->get_fks()->select_fk(NodeId());
       table_editor->get_indexes()->select_index(NodeId());
-
-      obj_editor->freeze_refresh_on_object_change();
-
-      db_TableRef table= db_TableRef::cast_from(db_object);
-      table->isStub(1);
-      table->triggers().remove_all();
-      table->foreignKeys().remove_all();
-      table->indices().remove_all();
-      table->columns().remove_all();
-
-      obj_editor->thaw_refresh_on_object_change(true);
     }
     else if (db_ViewRef::can_wrap(db_object))
     {
@@ -2111,6 +2101,7 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
   }
 
   obj_editor->freeze_refresh_on_object_change();
+  client_state_catalog->schemata().remove_all(); // Clean up. We only want the single object in it, which we edit.
 
   // reparse object's DDL
   std::string ddl_script;
@@ -2147,7 +2138,7 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
 
       parse_ddl_into_catalog(client_state_catalog,
                              strfmt("`%s`.`%s`", schema_name.c_str(), obj_name.c_str()),
-                             ddl_script, sql_mode);
+                             ddl_script, sql_mode, schema_name);
     }
   }
 
@@ -2204,11 +2195,14 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
 //--------------------------------------------------------------------------------------------------
 
 bool SqlEditorTreeController::parse_ddl_into_catalog(db_mysql_CatalogRef catalog,
-  const std::string &objectDescription, const std::string &sql, std::string sqlMode)
+  const std::string &objectDescription, const std::string &sql, std::string sqlMode, const std::string &schema)
 {
   std::string currentSqlMode = _owner->work_parser_context()->get_sql_mode();
+
   grt::DictRef options(_grtm->get_grt());
   options.set("reuse_existing_objects", grt::IntegerRef(1));
+  options.set("schema", grt::StringRef(schema));
+
   if (!sqlMode.empty())
     _owner->work_parser_context()->use_sql_mode(sqlMode);
 

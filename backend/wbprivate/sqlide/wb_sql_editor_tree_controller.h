@@ -152,7 +152,7 @@ private:
   std::vector<std::string> get_trigger_sql_for_table(const std::string &schema_name, const std::string &table_name);
   
   bool parse_ddl_into_catalog(db_mysql_CatalogRef catalog, const std::string &objectDescription,
-    const std::string &sql, std::string sqlMode);
+    const std::string &sql, std::string sqlMode, const std::string &schema);
   
 public:
   void schema_object_activated(const std::string &action, wb::LiveSchemaTree::ObjectType type, const std::string &schema, const std::string &name);
