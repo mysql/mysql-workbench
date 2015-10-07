@@ -2457,17 +2457,13 @@ field_spec:
 ;
 
 field_def:
-	data_type
-	(
-		attribute*
-		| {SERVER_VERSION >= 50707}? => field_def_collation (GENERATED_SYMBOL ALWAYS_SYMBOL)? AS_SYMBOL
-			OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL (VIRTUAL_SYMBOL | STORED_SYMBOL)? gcol_attribute*
-	)
+	data_type field_def_tail
 ;
 
-field_def_collation:
-	{SERVER_VERSION >= 50709}? => COLLATE_SYMBOL collation_name
-	| /* empty */
+field_def_tail options { k = 3; }:
+	attribute*
+	| {SERVER_VERSION >= 50707}? => (COLLATE_SYMBOL collation_name)? (GENERATED_SYMBOL ALWAYS_SYMBOL)? AS_SYMBOL
+		OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL (VIRTUAL_SYMBOL | STORED_SYMBOL)? gcol_attribute*
 ;
 
 attribute:
@@ -2480,7 +2476,7 @@ attribute:
 	| (PRIMARY_SYMBOL | UNIQUE_SYMBOL) KEY_SYMBOL
 	| KEY_SYMBOL
 	| COMMENT_SYMBOL string_literal
-	| COLLATE_SYMBOL text_or_identifier
+	| COLLATE_SYMBOL collation_name
 	| COLUMN_FORMAT_SYMBOL (FIXED_SYMBOL | DYNAMIC_SYMBOL | DEFAULT_SYMBOL)
 	| STORAGE_SYMBOL (DISK_SYMBOL | MEMORY_SYMBOL | DEFAULT_SYMBOL)
 ;

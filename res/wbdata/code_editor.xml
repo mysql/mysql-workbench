@@ -552,13 +552,13 @@
     </keywords>
 
     <keywords name="Keywords">
-      accessible action add adddate after against aggregate algorithm all analyse and any as asc ascii asensitive at
-        authors autoextend_size auto_increment avg_row_length avg
+      accessible account action add adddate after against aggregate algorithm all always analyse and any as asc ascii asensitive at
+        autoextend_size auto_increment avg_row_length avg
       backup before between bigint binary bin_num bit_and bit_or bit bit_xor blob block boolean bool both btree by byte
-      cascade cascaded case cast catalog_name chain changed charset character char cipher class_origin client close
+      cascade cascaded case cast catalog_name chain changed channel charset character char cipher class_origin client close
         coalesce code collate collation columns column column_name column_format comment committed compact completion
-        compressed concurrent condition connection consistent constraint constraint_catalog constraint_name constraint_schema
-        contains context continue contributors convert count cpu cross cube curdate current current_timestamp current_user
+        compressed compression concurrent condition connection consistent constraint constraint_catalog constraint_name constraint_schema
+        contains context continue convert count cpu cross cube curdate current current_timestamp current_user
         cursor cursor_name curtime 
       database databases datafile data datetime date_add date_add_interval date_sub date_sub_interval date dayofmonth day_hour
         day_microsecond day_minute day_second day dec decimal_num decimal declare default default_auth definer delayed
@@ -566,13 +566,13 @@
         double dual dumpfile duplicate dynamic
       each else elseif enable enclosed end ends end_of_input engines engine enum error errors escaped escape events event
         every exchange exists exit expansion expire explain export extended extent_size extract
-      false fast faults fetch fields file filter first fixed float4 float8 float follows force foreign for format found
+      false fast faults fetch fields file file_block_size filter first fixed float4 float8 float follows force foreign for format found
         frac_second from full fulltext function
-      get general geometrycollection geometry get_format global grants group group_concat
+      get general generated geometrycollection geometry get_format global grants group group_concat group_replication
       hash having high_priority host hosts hour_microsecond hour_minute hour_second hour
       identified if ignore ignore_server_ids import indexes index infile initial_size inner innodb inout insensitive
         insert_method integer interval into int int1 int2 int3 int4 int8 invoker in io_after_gtids io_before_gtids io_thread io ipc is isolation issuer iterate
-      join
+      join json
       keys key_block_size key
       language last leading leaves leave left less level like limit linear lines linestring list localtime localtimestamp
         local locator locks logfile logs longblob longtext long_num long loop low_priority
@@ -585,7 +585,7 @@
         multilinestring multipoint multipolygon mutex mysql_errno
       names name national natural nchar_string nchar ndb ndbcluster neg never new next nodegroup none nonblocking not now no no_wait
         no_write_to_binlog null number numeric nvarchar
-      offline offset old_password on one_shot one online only open options option optionally order or outer outfile out owner
+      offline offset on one_shot one online only open optimizer_costs options option optionally order or outer outfile out owner
       pack_keys page param_marker parser partial partitioning partitions password phase plugins plugin_dir plugin point
         polygon port position precedes precision preserve prev primary privileges procedure process processlist profile profiles proxy
       quarter query quick
@@ -600,13 +600,13 @@
         sql_before_gtids sql_big_result sql_buffer_result sql_cache sql_calc_found_rows sql_no_cache sql_small_result
         sql sql_thread sql_tsi_frac_second sql_tsi_second sql_tsi_minute sql_tsi_hour sql_tsi_day sql_tsi_week sql_tsi_month
         sql_tsi_quarter sql_tsi_year ssl stacked starting starts stats_auto_recalc stats_persistent stats_sample_pages status
-        stddev_samp stddev stddev_pop std storage straight_join string subclass_origin subdate subject subpartitions subpartition
+        stddev_samp stddev stddev_pop std storage stored straight_join string subclass_origin subdate subject subpartitions subpartition
         substr substring sum super suspend swaps switches sysdate system_user
       tables tablespace table_ref_priority table table_checksum table_name temporary temptable terminated text than then timestamp
         timestamp_add timestamp_diff time tinyblob tinyint tinytext to trailing transaction triggers trigger trim true types type
       udf_returns ulonglong_num uncommitted undefined undofile undo_buffer_size undo unicode union unique unknown unsigned until
         upgrade usage user_resources user use_frm using utc_date utc_timestamp utc_time
-      values value varbinary varchar varcharacter variables variance varying var_pop var_samp view
+      validation values value varbinary varchar varcharacter variables variance varying var_pop var_samp view virtual
       wait warnings week weight_string when where while with with_cube with_rollup work wrapper write
       x509 xid xml xor
       year_month year
