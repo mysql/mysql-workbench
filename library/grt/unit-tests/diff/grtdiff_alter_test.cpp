@@ -1448,11 +1448,6 @@ TEST_FUNCTION(7)
     rep.open(buf1);
     std::string str((std::istreambuf_iterator<char>(rep)), std::istreambuf_iterator<char>());
 
-    #ifndef _WIN32
-      // Reports are stored with Windows line endings, hence replace that by just \n for comparison.
-      str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
-    #endif
-
     if (report != str)
     {
         alter_change->dump_log(0);
