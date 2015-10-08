@@ -24,6 +24,7 @@
 
 #include <boost/assign.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/date_time.hpp>
 
 #include "mforms/form.h"
 #include "mforms/jsonview.h"
@@ -41,6 +42,7 @@
 
 using namespace mforms;
 using namespace JsonParser;
+namespace bt = boost::posix_time;
 
 
 // JSON Data structures implementation
@@ -2023,6 +2025,40 @@ JsonBaseView::JsonBaseView()
 
 //--------------------------------------------------------------------------------------------------
 
+bool JsonBaseView::isDateTime(const std::string &text)
+{
+  bt::time_input_facet *isoFacet = new bt::time_input_facet();
+  isoFacet->set_iso_format();
+  bt::time_input_facet *extendedIsoFacet = new bt::time_input_facet();
+  isoFacet->set_iso_extended_format();
+  static const std::locale formats[] = {
+    std::locale(std::locale::classic(), isoFacet),
+    std::locale(std::locale::classic(), extendedIsoFacet),
+    std::locale(std::locale::classic(), new bt::time_input_facet("%Y-%m-%d %H:%M:%S")),
+    std::locale(std::locale::classic(), new bt::time_input_facet("%Y/%m/%d %H:%M:%S")),
+    std::locale(std::locale::classic(), new bt::time_input_facet("%d.%m.%Y %H:%M:%S")),
+    std::locale(std::locale::classic(), new bt::time_input_facet("%Y-%m-%d"))
+  };
+  static const size_t formatCounts = sizeof(formats) / sizeof(formats[0]);
+
+  bt::ptime pt;
+  bool ret = false;
+  for (size_t i = 0; i < formatCounts; ++i)
+  {
+    std::istringstream is(text);
+    is.imbue(formats[i]);
+    is >> pt;
+    if (pt != bt::ptime())
+    {
+      ret = true;
+      break;
+    }
+  }
+  return ret;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 JsonBaseView::~JsonBaseView()
 {
 }
@@ -2241,14 +2277,24 @@ void JsonTreeBaseView::generateArrayInTree(JsonParser::JsonValue &/*value*/, Tre
 
 //--------------------------------------------------------------------------------------------------
 
+void JsonTreeBaseView::setStringData(TreeNodeRef /*node*/, const std::string &/*text*/)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * @brief Insert string value to the tree.
  *
  * @param value JsonValue to put in tree.
  * @param node Tree node reference.
  */
-void JsonTreeBaseView::generateStringInTree(JsonParser::JsonValue &/*value*/, TreeNodeRef /*node*/)
+void JsonTreeBaseView::generateStringInTree(JsonParser::JsonValue &value, TreeNodeRef node)
 {
+  const std::string &text = value.getString();
+  setStringData(node, text);
+  node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
+  node->expand();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2520,6 +2566,7 @@ void JsonTreeBaseView::setCellValue(mforms::TreeNodeRef node, int column, const 
       break;
     case VString:
       storedValue.setString(value);
+      setStringData(node, value);
       setData = true;
       break;
     default:
@@ -2861,23 +2908,6 @@ void JsonTreeView::generateBoolInTree(JsonParser::JsonValue &value, TreeNodeRef 
 //--------------------------------------------------------------------------------------------------
 
 /**
- * @brief Insert string value to the tree.
- *
- * @param value JsonValue to put in tree.
- * @param node Tree node reference.
- */
-void JsonTreeView::generateStringInTree(JsonParser::JsonValue &value, TreeNodeRef node)
-{
-  node->set_icon_path(0, "JS_Datatype_String.png");
-  node->set_attributes(1, mforms::TextAttributes("#cc9966", false, false));
-  node->set_string(1, value.getString());
-  node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
-  node->expand();
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
  * @brief Insert number value to the tree.
  *
  * @param value JsonValue to put in tree.
@@ -2922,6 +2952,23 @@ void JsonTreeView::generateNullInTree(JsonParser::JsonValue &value, TreeNodeRef 
   node->set_string(1, "");
   node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
   node->expand();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void JsonTreeView::setStringData(TreeNodeRef node, const std::string &text)
+{
+  if (isDateTime(text))
+  {
+    node->set_icon_path(0, "JS_Datatype_Date.png");
+    node->set_attributes(1, mforms::TextAttributes("#4b4a4c", false, false));
+  }
+  else
+  {
+    node->set_icon_path(0, "JS_Datatype_String.png");
+    node->set_attributes(1, mforms::TextAttributes("#cc9966", false, false));
+  }
+  node->set_string(1, text.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -3120,24 +3167,6 @@ void JsonGridView::generateBoolInTree(JsonParser::JsonValue &value, TreeNodeRef 
 //--------------------------------------------------------------------------------------------------
 
 /**
- * @brief Insert string value to the tree
- *
- * @param value JsonValue to put in tree
- * @param node Tree node reference
- */
-void JsonGridView::generateStringInTree(JsonParser::JsonValue &value, TreeNodeRef node)
-{
-  node->set_icon_path(0, "JS_Datatype_String.png");
-  node->set_attributes(1, mforms::TextAttributes("#cc9966", false, false));
-  node->set_string(1, value.getString());
-  node->set_string(2, "String");
-  node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
-  node->expand();
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
  * @brief Insert double value to the tree
  *
  * @param value JsonValue to put in tree
@@ -3187,6 +3216,25 @@ void JsonGridView::generateNullInTree(JsonParser::JsonValue &value, TreeNodeRef 
   node->set_string(2, "null");
   node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
   node->expand();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void JsonGridView::setStringData(TreeNodeRef node, const std::string &text)
+{
+  if (isDateTime(text))
+  {
+    node->set_icon_path(0, "JS_Datatype_Date.png");
+    node->set_attributes(1, mforms::TextAttributes("#4b4a4c", false, false));
+    node->set_string(2, "Date/Time");
+  }
+  else
+  {
+    node->set_icon_path(0, "JS_Datatype_String.png");
+    node->set_attributes(1, mforms::TextAttributes("#cc9966", false, false));
+    node->set_string(2, "String");
+  }
+  node->set_string(1, text.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------
