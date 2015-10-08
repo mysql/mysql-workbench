@@ -348,7 +348,7 @@ class MEBHelperVersion
     private current
     
     private sub Class_Initialize()
-        current = "8"
+        current = "9"
     end sub
 
     public function execute()
