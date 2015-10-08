@@ -309,6 +309,7 @@ namespace mforms {
   protected:
     virtual void clear() = 0;
     boost::signals2::signal<void(bool)> _dataChanged;
+    bool isDateTime(const std::string &text);
   };
 
   /**
@@ -397,8 +398,9 @@ namespace mforms {
     virtual void generateObjectInTree(JsonParser::JsonValue &value, TreeNodeRef node, bool addNew);
     virtual void generateNumberInTree(JsonParser::JsonValue &value, TreeNodeRef node);
     virtual void generateBoolInTree(JsonParser::JsonValue &value, TreeNodeRef node);
-    virtual void generateStringInTree(JsonParser::JsonValue &value, TreeNodeRef node);
     virtual void generateNullInTree(JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void setStringData(TreeNodeRef node, const std::string &text);
+    void generateStringInTree(JsonParser::JsonValue &value, TreeNodeRef node);
     void collectParents(TreeNodeRef node, TreeNodeList &parents);
     static std::string getNodeIconPath(JsonNodeIcons icon);
     TreeNodeVectorMap _viewFindResult;
@@ -433,8 +435,8 @@ namespace mforms {
     virtual void generateObjectInTree(JsonParser::JsonValue &value, TreeNodeRef node, bool addNew);
     virtual void generateNumberInTree(JsonParser::JsonValue &value, TreeNodeRef node);
     virtual void generateBoolInTree(JsonParser::JsonValue &value, TreeNodeRef node);
-    virtual void generateStringInTree(JsonParser::JsonValue &value, TreeNodeRef node);
     virtual void generateNullInTree(JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void setStringData(TreeNodeRef node, const std::string &text);
   };
 
   /**
@@ -455,8 +457,8 @@ namespace mforms {
     virtual void generateObjectInTree(JsonParser::JsonValue &value, TreeNodeRef node, bool addNew);
     virtual void generateNumberInTree(JsonParser::JsonValue &value, TreeNodeRef node);
     virtual void generateBoolInTree(JsonParser::JsonValue &value, TreeNodeRef node);
-    virtual void generateStringInTree(JsonParser::JsonValue &value, TreeNodeRef node);
     virtual void generateNullInTree(JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void setStringData(TreeNodeRef node, const std::string &text);
     boost::shared_ptr<TreeNodeView> _gridView;
   };
 
