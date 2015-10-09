@@ -2414,7 +2414,7 @@ Note: foreign keys can only be defined for certain storage engines (like InnoDB)
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <clipView key="contentView" id="HGt-CT-ZJp">
                             <rect key="frame" x="1" y="1" width="260" height="92"/>
-                            <autoresizingMask key="autoresizingMask"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <textView importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" smartInsertDelete="YES" id="823">
                                     <rect key="frame" x="0.0" y="0.0" width="260" height="92"/>
