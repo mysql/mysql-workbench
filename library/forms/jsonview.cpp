@@ -26,7 +26,6 @@
 #include <boost/make_shared.hpp>
 #include <boost/date_time.hpp>
 
-#include "mforms/form.h"
 #include "mforms/jsonview.h"
 #include "mforms/panel.h"
 #include "mforms/code_editor.h"
@@ -2619,6 +2618,13 @@ const JsonValue &JsonTextView::getJson() const
 
 //--------------------------------------------------------------------------------------------------
 
+const std::string &JsonTextView::getText() const
+{
+  return _text;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 JsonTextView::~JsonTextView()
 {
 }
@@ -2679,7 +2685,7 @@ void JsonTextView::init()
  * @inserted True if text was inserted.
  */
 void JsonTextView::editorContentChanged(int position, int length, int numberOfLines, bool inserted)
-{                    \
+{
   _modified = true;
   _validationResult->set_text("Content changed.");
   _validationResult->set_tooltip("");
@@ -2692,10 +2698,9 @@ void JsonTextView::validate()
 {
   if (_modified)
   {
-    std::string content = _textEditor->get_text(false);
-    JsonValue value;
     try
     {
+      std::string content = _textEditor->get_text(false);
       JsonParser::JsonValue value;
       JsonParser::JsonReader::read(content, value);
       _json = value;
@@ -2845,10 +2850,12 @@ void JsonTreeView::generateObjectInTree(JsonParser::JsonValue &value, TreeNodeRe
     }
     mforms::TreeNodeRef node2 = (addNew) ? node->add_child() : node;
     if (addNew)
+    {
+      node->set_string(0, "<object>");
       node->set_icon_path(0, "JS_Datatype_Object.png");
+    }
     node2->set_string(0, text);
     node2->set_tag(it->first);
-    node2->set_string(1, "");
     generateTree(it->second, node2);
     node2->expand();
   }
@@ -2869,7 +2876,7 @@ void JsonTreeView::generateArrayInTree(JsonParser::JsonValue &value, TreeNodeRef
     return;
   JsonArray &arrayType = value.getArray();
   node->set_icon_path(0, "JS_Datatype_Array.png");
-  node->set_string(1, "");
+  node->set_string(0, "<array>");
   node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
   JsonArray::Iterator end = arrayType.end();
   int idx = 0;
@@ -2899,7 +2906,7 @@ void JsonTreeView::generateArrayInTree(JsonParser::JsonValue &value, TreeNodeRef
 void JsonTreeView::generateBoolInTree(JsonParser::JsonValue &value, TreeNodeRef node)
 {
   node->set_icon_path(0, "JS_Datatype_Bool.png");
-  node->set_attributes(1, mforms::TextAttributes("#0099ff", true, true));
+  node->set_attributes(1, mforms::TextAttributes("#4b4a4c", false, false));
   node->set_bool(1, value.getBool());
   node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
   node->expand();
@@ -2916,7 +2923,7 @@ void JsonTreeView::generateBoolInTree(JsonParser::JsonValue &value, TreeNodeRef 
 void JsonTreeView::generateNumberInTree(JsonParser::JsonValue &value, TreeNodeRef node)
 {
   node->set_icon_path(0, "JS_Datatype_Number.png");
-  node->set_attributes(1, mforms::TextAttributes("#99cc66", false, true));
+  node->set_attributes(1, mforms::TextAttributes("#4b4a4c", false, false));
   switch (value.getType())
   {
   case VInt :
@@ -2959,15 +2966,10 @@ void JsonTreeView::generateNullInTree(JsonParser::JsonValue &value, TreeNodeRef 
 void JsonTreeView::setStringData(TreeNodeRef node, const std::string &text)
 {
   if (isDateTime(text))
-  {
     node->set_icon_path(0, "JS_Datatype_Date.png");
-    node->set_attributes(1, mforms::TextAttributes("#4b4a4c", false, false));
-  }
   else
-  {
     node->set_icon_path(0, "JS_Datatype_String.png");
-    node->set_attributes(1, mforms::TextAttributes("#cc9966", false, false));
-  }
+  node->set_attributes(1, mforms::TextAttributes("#4b4a4c", false, false));
   node->set_string(1, text.c_str());
 }
 
@@ -3101,6 +3103,7 @@ void JsonGridView::generateObjectInTree(JsonParser::JsonValue &value, TreeNodeRe
     if (addNew)
     {
       node->set_icon_path(0, "JS_Datatype_Object.png");
+      node->set_string(0, "<object>");
       node->set_string(1, "");
       node->set_string(2, "Object");
     }
@@ -3126,6 +3129,7 @@ void JsonGridView::generateArrayInTree(JsonParser::JsonValue &value, TreeNodeRef
     return;
   JsonParser::JsonArray &arrayType = value.getArray();
   node->set_icon_path(0, "JS_Datatype_Array.png");
+  node->set_string(0, "<array>");
   node->set_string(1, "");
   node->set_string(2, "Array");
   node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
@@ -3157,7 +3161,7 @@ void JsonGridView::generateArrayInTree(JsonParser::JsonValue &value, TreeNodeRef
 void JsonGridView::generateBoolInTree(JsonParser::JsonValue &value, TreeNodeRef node)
 {
   node->set_icon_path(0, "JS_Datatype_Bool.png");
-  node->set_attributes(1, mforms::TextAttributes("#0099ff", true, true));
+  node->set_attributes(1, mforms::TextAttributes("#4b4a4c", false, false));
   node->set_bool(1, value.getBool());
   node->set_string(2, "Boolean");
   node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
@@ -3175,7 +3179,7 @@ void JsonGridView::generateBoolInTree(JsonParser::JsonValue &value, TreeNodeRef 
 void JsonGridView::generateNumberInTree(JsonParser::JsonValue &value, TreeNodeRef node)
 {
   node->set_icon_path(0, "JS_Datatype_Number.png");
-  node->set_attributes(1, mforms::TextAttributes("#99cc66", false, true));
+  node->set_attributes(1, mforms::TextAttributes("#4b4a4c", false, false));
   switch (value.getType())
   {
   case VInt:
@@ -3225,15 +3229,14 @@ void JsonGridView::setStringData(TreeNodeRef node, const std::string &text)
   if (isDateTime(text))
   {
     node->set_icon_path(0, "JS_Datatype_Date.png");
-    node->set_attributes(1, mforms::TextAttributes("#4b4a4c", false, false));
     node->set_string(2, "Date/Time");
   }
   else
   {
     node->set_icon_path(0, "JS_Datatype_String.png");
-    node->set_attributes(1, mforms::TextAttributes("#cc9966", false, false));
     node->set_string(2, "String");
   }
+  node->set_attributes(1, mforms::TextAttributes("#4b4a4c", false, false));
   node->set_string(1, text.c_str());
 }
 
@@ -3338,11 +3341,20 @@ void JsonTabView::dataChanged(bool forceUpdate)
     JsonWriter::write(_jsonText, *_json);
     _textView->setText(_jsonText);
   }
+  else
+    _jsonText = _textView->getText();
   if (tabId != boost::get<1>(_tabId))
-      _treeView->clear();
-  _treeView->reCreateTree(*_json);
+    _treeView->reCreateTree(*_json);
   if (tabId != boost::get<2>(_tabId))
     _gridView->reCreateTree(*_json);
+  _dataChanged(_jsonText);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+boost::signals2::signal<void(const std::string &text)> *JsonTabView::editorDataChanged()
+{
+  return &_dataChanged;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -3480,3 +3492,18 @@ void JsonTabView::restoreOrginalResult()
   }
 }
 
+//--------------------------------------------------------------------------------------------------
+
+const std::string &JsonTabView::text() const
+{
+  return _jsonText;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+const JsonParser::JsonValue &JsonTabView::json() const
+{
+  return *_json;
+}
+
+//--------------------------------------------------------------------------------------------------
