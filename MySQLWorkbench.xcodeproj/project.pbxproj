@@ -16959,7 +16959,7 @@
 					"\"$(SRCROOT)\"/generated",
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				OTHER_CFLAGS = "-DMYSQLCPPCONN_VERSION_1_1_5";
+				OTHER_CFLAGS = "-DMYSQLCPPCONN_VERSION_1_1_6";
 				PRODUCT_NAME = cdbc;
 				SKIP_INSTALL = YES;
 			};
@@ -16983,7 +16983,7 @@
 					"\"$(SRCROOT)\"/generated",
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				OTHER_CFLAGS = "-DMYSQLCPPCONN_VERSION_1_1_5";
+				OTHER_CFLAGS = "-DMYSQLCPPCONN_VERSION_1_1_6";
 				PRODUCT_NAME = cdbc;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
