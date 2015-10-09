@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "mforms/form.h"
 #include "mforms/panel.h"
 #include "mforms/treenodeview.h"
 #include <algorithm>
@@ -357,6 +358,7 @@ namespace mforms {
     virtual void clear();
     void findAndHighlightText(const std::string &text, bool backward = false);
     const JsonParser::JsonValue &getJson() const;
+    const std::string &getText() const;
 
   private:
     void init();
@@ -485,6 +487,9 @@ namespace mforms {
     void highlightPreviousMatch();
     bool filterView(const std::string &text);
     void restoreOrginalResult();
+    boost::signals2::signal<void(const std::string &text)> *editorDataChanged();
+    const std::string &text() const;
+    const JsonParser::JsonValue &json() const;
 
   private:
     boost::shared_ptr<JsonTextView> _textView;
@@ -496,5 +501,6 @@ namespace mforms {
     int _ident;
     boost::tuple<int, int, int> _tabId;
     std::string _matchText;
+    boost::signals2::signal<void(const std::string &text)> _dataChanged;
   };
 };
