@@ -68,6 +68,7 @@ public:
   void notify_edit();
   
   bool read_only() { return _read_only; }
+  bool isJson() { return _type == "JSON"; }
 
 protected:
   bec::GRTManager *_grtm;
