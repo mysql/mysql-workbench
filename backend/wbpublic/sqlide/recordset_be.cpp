@@ -1738,14 +1738,17 @@ public:
 
 void Recordset::set_field_value(RowId row, ColumnId column, BinaryDataEditor *data_editor)
 {
-  set_field_raw_data(row, column, data_editor->data(), data_editor->length());
+  if (!data_editor)
+    return;
+  set_field_raw_data(row, column, data_editor->data(), data_editor->length(), data_editor->isJson());
 }
 
 
-void Recordset::set_field_raw_data(RowId row, ColumnId column, const char *data, size_t data_length)
+void Recordset::set_field_raw_data(RowId row, ColumnId column, const char *data, size_t data_length, bool isJson /*= false*/)
 {
   DataValueConv data_value_conv(data, data_length);
-  sqlite::variant_t value= boost::apply_visitor(data_value_conv, _real_column_types[column]);
+  sqlite::variant_t valueString = std::string("");
+  sqlite::variant_t value = boost::apply_visitor(data_value_conv, isJson ? valueString : _real_column_types[column]);
   if (sqlide::is_var_unknown(value))
     throw std::logic_error("Can't save value of this data type.");
   bec::NodeId node(row);
