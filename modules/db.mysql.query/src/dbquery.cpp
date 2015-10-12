@@ -558,7 +558,8 @@ size_t DbMySQLQueryImpl::resultNumRows(int result)
   if (_resultsets.find(result) == _resultsets.end())
     throw std::invalid_argument("Invalid resultset");
   sql::ResultSet *res = _resultsets[result];
-
+  if (res == NULL)
+    throw std::invalid_argument("Invalid resultset");
   return res->rowsCount();
 }
 
@@ -569,7 +570,8 @@ int DbMySQLQueryImpl::resultNumFields(int result)
   if (_resultsets.find(result) == _resultsets.end())
     throw std::invalid_argument("Invalid resultset");
   sql::ResultSet *res = _resultsets[result];
-  
+  if (res == NULL)
+    throw std::invalid_argument("Invalid resultset");
   return res->getMetaData()->getColumnCount();
 }
 
@@ -580,7 +582,8 @@ std::string DbMySQLQueryImpl::resultFieldType(int result, int field)
   if (_resultsets.find(result) == _resultsets.end())
     throw std::invalid_argument("Invalid resultset");
   sql::ResultSet *res = _resultsets[result];
-  
+  if (res == NULL)
+    throw std::invalid_argument("Invalid resultset");
   return res->getMetaData()->getColumnTypeName(field);  
 }
 
@@ -591,7 +594,8 @@ std::string DbMySQLQueryImpl::resultFieldName(int result, int field)
   if (_resultsets.find(result) == _resultsets.end())
     throw std::invalid_argument("Invalid resultset");
   sql::ResultSet *res = _resultsets[result];
-
+  if (res == NULL)
+    throw std::invalid_argument("Invalid resultset");
   return res->getMetaData()->getColumnLabel(field);
 }
 
@@ -602,6 +606,8 @@ int DbMySQLQueryImpl::resultFirstRow(int result)
   if (_resultsets.find(result) == _resultsets.end())
     throw std::invalid_argument("Invalid resultset");
   sql::ResultSet *res = _resultsets[result];  
+  if (res == NULL)
+    throw std::invalid_argument("Invalid resultset");
   return res->first() ? 1 : 0;
 }
 
@@ -611,7 +617,9 @@ int DbMySQLQueryImpl::resultNextRow(int result)
   base::MutexLock lock(_mutex);
   if (_resultsets.find(result) == _resultsets.end())
     throw std::invalid_argument("Invalid resultset");
-  sql::ResultSet *res = _resultsets[result];  
+  sql::ResultSet *res = _resultsets[result];
+  if (res == NULL)
+    throw std::invalid_argument("Invalid resultset");
   return res->next() ? 1 : 0;
 }
 
@@ -622,7 +630,8 @@ grt::IntegerRef DbMySQLQueryImpl::resultFieldIntValue(int result, int field)
   if (_resultsets.find(result) == _resultsets.end())
     throw std::invalid_argument("Invalid resultset");
   sql::ResultSet *res = _resultsets[result];
-
+  if (res == NULL)
+      throw std::invalid_argument("Invalid resultset");
   if (res->isNull(field))
     return grt::IntegerRef(0);
   else
@@ -636,7 +645,8 @@ double DbMySQLQueryImpl::resultFieldDoubleValue(int result, int field)
   if (_resultsets.find(result) == _resultsets.end())
     throw std::invalid_argument("Invalid resultset");
   sql::ResultSet *res = _resultsets[result];
-  
+  if (res == NULL)
+    throw std::invalid_argument("Invalid resultset");
   return (double)res->getDouble(field);
 }
 
@@ -647,6 +657,8 @@ grt::StringRef DbMySQLQueryImpl::resultFieldStringValue(int result, int field)
   if (_resultsets.find(result) == _resultsets.end())
     throw std::invalid_argument("Invalid resultset");
   sql::ResultSet *res = _resultsets[result];
+  if (res == NULL)
+    throw std::invalid_argument("Invalid resultset");
 
   if (res->isNull(field))
     return grt::StringRef();
@@ -661,6 +673,8 @@ grt::IntegerRef  DbMySQLQueryImpl::resultFieldIntValueByName(int result, const s
   if (_resultsets.find(result) == _resultsets.end())
     throw std::invalid_argument("Invalid resultset");
   sql::ResultSet *res = _resultsets[result];
+  if (res == NULL)
+    throw std::invalid_argument("Invalid resultset");
 
   if (res->isNull(field))
     return grt::IntegerRef(0);
@@ -675,7 +689,9 @@ double DbMySQLQueryImpl::resultFieldDoubleValueByName(int result, const std::str
   if (_resultsets.find(result) == _resultsets.end())
     throw std::invalid_argument("Invalid resultset");
   sql::ResultSet *res = _resultsets[result];
-  
+  if (res == NULL)
+    throw std::invalid_argument("Invalid resultset");
+
   return (double)res->getDouble(field);
 }
 
@@ -686,7 +702,9 @@ grt::StringRef DbMySQLQueryImpl::resultFieldStringValueByName(int result, const 
   if (_resultsets.find(result) == _resultsets.end())
     throw std::invalid_argument("Invalid resultset");
   sql::ResultSet *res = _resultsets[result];
-  
+  if (res == NULL)
+    throw std::invalid_argument("Invalid resultset");
+
   if (res->isNull(field))
     return grt::StringRef();
   else
