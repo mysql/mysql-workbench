@@ -18070,6 +18070,7 @@
 				WARNING_CFLAGS = (
 					"-Wall",
 					"-Wno-overloaded-virtual",
+					"-Wno-unused-local-typedef",
 				);
 			};
 			name = Debug;
@@ -18110,6 +18111,7 @@
 				WARNING_CFLAGS = (
 					"-Wall",
 					"-Wno-overloaded-virtual",
+					"-Wno-unused-local-typedef",
 				);
 			};
 			name = Release;
