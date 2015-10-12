@@ -90,7 +90,7 @@ void Sql_import::parse_sql_script(parser::MySQLParserServices::Ref sql_parser, p
 {
   grt::AutoUndo undo(_doc.get_grt());
   options.set("sql_script_codeset", grt::StringRef(_sql_script_codeset));
-  size_t errorCount = sql_parser->parseSQLIntoCatalog(context, catalog, sql_script, options);
+  sql_parser->parseSQLIntoCatalog(context, catalog, sql_script, options);
   undo.end(_("Reverse Engineer from SQL Script"));
 }
 
