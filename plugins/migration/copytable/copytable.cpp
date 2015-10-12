@@ -79,6 +79,7 @@ static const char *mysql_field_type_to_name(enum enum_field_types type)
     case MYSQL_TYPE_VAR_STRING: return "MYSQL_TYPE_VAR_STRING";
     case MYSQL_TYPE_STRING: return "MYSQL_TYPE_STRING";
     case MYSQL_TYPE_GEOMETRY: return "MYSQL_TYPE_GEOMETRY";
+    case MYSQL_TYPE_JSON: return "MYSQL_TYPE_JSON";
     default:
       return "UNKNOWN";
   }
@@ -240,6 +241,7 @@ RowBuffer::RowBuffer(boost::shared_ptr<std::vector<ColumnInfo> > columns,
       case MYSQL_TYPE_STRING:
       case MYSQL_TYPE_VAR_STRING:
       case MYSQL_TYPE_BIT:
+      case MYSQL_TYPE_JSON:
         if (!col->is_long_data)
           bind.buffer_length = (unsigned)col->source_length+1;
 
@@ -2369,6 +2371,7 @@ bool MySQLCopyDataTarget::append_bulk_column(size_t col_index)
     case MYSQL_TYPE_STRING:
     case MYSQL_TYPE_ENUM:
     case MYSQL_TYPE_SET:
+    case MYSQL_TYPE_JSON:
       _bulk_insert_record.append("'", 1);
       ret_val = _bulk_insert_record.append_escaped((char*)(*_row_buffer)[col_index].buffer, *(*_row_buffer)[col_index].length);
       _bulk_insert_record.append("'", 1);
