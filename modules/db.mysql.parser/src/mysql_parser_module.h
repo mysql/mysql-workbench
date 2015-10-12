@@ -90,6 +90,13 @@ public:
     "group an instantiated routine group object to fill with routine objects\n"
     "sql the SQL script to be parsed"),
 
+    DECLARE_MODULE_FUNCTION_DOC(MySQLParserServicesImpl::parseSQLIntoCatalogSql,
+      "Parses an SQL script into a grt catalog structure.",
+      "context_ref a previously created parser context reference\n"
+      "catalog the Catalog where processed sql will be stored\n"
+      "sql the SQL script to be parsed\n"
+      "options Options for processing"),
+
     DECLARE_MODULE_FUNCTION_DOC(MySQLParserServicesImpl::doSyntaxCheck,
   "Parses the given sql to see if there's any syntax error.",
     "context_ref a previously created parser context reference\n"
@@ -171,6 +178,8 @@ public:
   virtual size_t parseTablespace(parser::ParserContext::Ref context, db_mysql_TablespaceRef tablespace,
     const std::string &sql);
 
+  size_t parseSQLIntoCatalogSql(parser_ContextReferenceRef context_ref, db_mysql_CatalogRef catalog,
+    const std::string &sql, grt::DictRef options);
   virtual size_t parseSQLIntoCatalog(parser::ParserContext::Ref context, db_mysql_CatalogRef catalog,
     const std::string &sql, grt::DictRef options);
 
