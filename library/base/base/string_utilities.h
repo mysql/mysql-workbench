@@ -56,14 +56,14 @@ namespace base
 {
   #define SPACES " \t\r\n"
 
-#ifdef _WIN32
-  // use this to convert utf8 string to WCHAR* in windows
   BASELIBRARY_PUBLIC_FUNC std::wstring string_to_wstring(const std::string &s);
   BASELIBRARY_PUBLIC_FUNC std::string wstring_to_string(const std::wstring &s);
+#ifdef _WIN32
   BASELIBRARY_PUBLIC_FUNC std::wstring path_from_utf8(const std::string &s);
 #else
   BASELIBRARY_PUBLIC_FUNC std::string path_from_utf8(const std::string &s);
 #endif
+  
   // use this to convert a utf8 std::string to a std::string that can be used to open files in windows (noop elsewhere)
   BASELIBRARY_PUBLIC_FUNC std::string string_to_path_for_open(const std::string &s);
 
