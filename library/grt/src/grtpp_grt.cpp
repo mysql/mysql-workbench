@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -432,14 +432,14 @@ void GRT::end_loading_metaclasses(bool check_class_binding)
     if (iter->second->placeholder())
     {
       undefined= true;
-      g_warning("MetaClass '%s' is undefined but was referred in '%s'",
+      log_warning("MetaClass '%s' is undefined but was referred in '%s'\n",
                 iter->second->name().c_str(), iter->second->source().c_str());
     }
     if (!iter->second->validate())
       validate_error= true;
   }
   if (undefined)
-    throw std::runtime_error("One or more undefined metaclass were referred by other structs");
+    throw std::runtime_error("One or more undefined meta classes were referred by other structs");
   if (validate_error)
     throw std::runtime_error("Validation error in loaded metaclasses");
 

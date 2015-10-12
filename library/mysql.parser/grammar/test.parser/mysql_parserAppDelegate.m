@@ -19,7 +19,7 @@ static std::string last_error;
 
 extern "C" {
   
-  void on_parse_error(struct ANTLR3_BASE_RECOGNIZER_struct * recognizer, pANTLR3_UINT8 * tokenNames)
+  void onMySQLParseError(struct ANTLR3_BASE_RECOGNIZER_struct * recognizer, pANTLR3_UINT8 * tokenNames)
   {
     std::ostringstream error;
     

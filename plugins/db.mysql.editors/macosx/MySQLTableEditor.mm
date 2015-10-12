@@ -183,6 +183,21 @@ static void call_partial_refresh(int what, DbMysqlTableEditor* theEditor)
       [mColumnsFlagAI setEnabled: flag];
       mBackEnd->get_columns()->get_field(rowIndex, MySQLTableColumnsListBE::IsAutoIncrement, flag);
       [mColumnsFlagAI setState: flag ? NSOnState : NSOffState];
+      mBackEnd->get_columns()->get_field(rowIndex, MySQLTableColumnsListBE::IsGenerated, flag);
+      [mColumnsFlagG setState: flag ? NSOnState : NSOffState];
+      mDefaultLabel.stringValue = flag ? @"Expression" : @"Default";
+      
+      mButtonGCStored.enabled = flag;
+      mButtonGCVirtual.enabled = flag;
+      if (flag)
+      {
+        std::string storageType;
+        mBackEnd->get_columns()->get_field(rowIndex, MySQLTableColumnsListBE::GeneratedStorageType, storageType);
+        if (base::toupper(storageType) != "STORED")
+          mButtonGCVirtual.state = NSOnState;
+        else
+          mButtonGCStored.state = NSOnState;
+      }
     }
   }
 }
@@ -297,13 +312,6 @@ static void call_partial_refresh(int what, DbMysqlTableEditor* theEditor)
   BOOL subEnabled = enabled && ( [partitionType isEqualToString: @"RANGE"] || [partitionType isEqualToString: @"LIST"] );
   [mSubpartitionPopup setEnabled: subEnabled];
 
-  // Enable or disable the rest of the second row of controls.
-  NSString* subpartitionType = [mSubpartitionPopup titleOfSelectedItem];
-  subEnabled = subEnabled && (! [subpartitionType isEqualToString: @"Disabled"]);
-  [mSubPartitionParametersTextField setEnabled: subEnabled];
-  [mSubpartitionCountTextField setEnabled: subEnabled];
-  [mSubpartitionManualCheckbox setEnabled: subEnabled && ([mPartitionManualCheckbox state] == NSOnState)];
-  
   {
     // Set up partitioning controls.
     [mPartitionPopup selectItemWithTitle: partitionType];
@@ -328,6 +336,12 @@ static void call_partial_refresh(int what, DbMysqlTableEditor* theEditor)
       partType = @"Disabled";
     }
     [mSubpartitionPopup selectItemWithTitle: partType];
+    
+    // Enable or disable the rest of the second row of controls.
+    subEnabled = subEnabled && (!s.empty());
+    [mSubPartitionParametersTextField setEnabled: subEnabled];
+    [mSubpartitionCountTextField setEnabled: subEnabled];
+    [mSubpartitionManualCheckbox setEnabled: subEnabled && ([mPartitionManualCheckbox state] == NSOnState)];
     
     s = mBackEnd->get_subpartition_expression();
     NSString* partExpr = @(s.c_str());
@@ -557,6 +571,9 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
     else if ([identifier isEqual: @"autoincrement"]) {
       valueIndex = MySQLTableColumnsListBE::IsAutoIncrement;
     }
+    else if ([identifier isEqual: @"generated"]) {
+      valueIndex = MySQLTableColumnsListBE::IsGenerated;
+    }
     else if ([identifier isEqual: @"default"]) {
       valueIndex = bec::TableColumnsListBE::Default;
     }
@@ -767,6 +784,11 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
     }    
     else if ([identifier isEqual: @"autoincrement"]) {
       valueIndex = MySQLTableColumnsListBE::IsAutoIncrement;
+      value = ([anObject boolValue] ? @"1" : @"0");
+      isflag= true;
+    }
+    else if ([identifier isEqual: @"generated"]) {
+      valueIndex = MySQLTableColumnsListBE::IsGenerated;
       value = ([anObject boolValue] ? @"1" : @"0");
       isflag= true;
     }
@@ -1270,6 +1292,8 @@ objectValueForItemAtIndex: (NSInteger) index
     mBackEnd->get_columns()->set_field([mColumnsTable selectedRow], bec::TableColumnsListBE::IsZerofill, [sender state] == NSOnState);
   else if (sender == mColumnsFlagAI)
     mBackEnd->get_columns()->set_field([mColumnsTable selectedRow], MySQLTableColumnsListBE::IsAutoIncrement, [sender state] == NSOnState);
+  else if (sender == mColumnsFlagG)
+    mBackEnd->get_columns()->set_field([mColumnsTable selectedRow], MySQLTableColumnsListBE::IsGenerated, [sender state] == NSOnState);
   else if (sender == mPartitionEnabledCheckbox) {
     mBackEnd->set_partition_type( ([mPartitionEnabledCheckbox state] == NSOnState ? "HASH" : "") );
     [self refreshTableEditorGUIPartitioningTab];
@@ -1306,6 +1330,15 @@ objectValueForItemAtIndex: (NSInteger) index
   }
   [mColumnsTable setNeedsDisplay];
 }
+
+- (IBAction) userClickRadioButton:(id)sender
+{
+  if (sender == mButtonGCStored)
+    mBackEnd->get_columns()->set_field([mColumnsTable selectedRow], MySQLTableColumnsListBE::GeneratedStorageType, "STORED");
+  else
+    mBackEnd->get_columns()->set_field([mColumnsTable selectedRow], MySQLTableColumnsListBE::GeneratedStorageType, "VIRTUAL");
+}
+
 
 /**
  * Called by Cocoa after every keystroke in a text field. This is used to update parts of

@@ -21,46 +21,48 @@ class db_mysql_StorageEngine;
 typedef grt::Ref<db_mysql_StorageEngine> db_mysql_StorageEngineRef;
 class db_mysql_StorageEngineOption;
 typedef grt::Ref<db_mysql_StorageEngineOption> db_mysql_StorageEngineOptionRef;
+class db_mysql_Sequence;
+typedef grt::Ref<db_mysql_Sequence> db_mysql_SequenceRef;
+class db_mysql_Synonym;
+typedef grt::Ref<db_mysql_Synonym> db_mysql_SynonymRef;
 class db_mysql_RoutineParam;
 typedef grt::Ref<db_mysql_RoutineParam> db_mysql_RoutineParamRef;
-class db_mysql_PartitionDefinition;
-typedef grt::Ref<db_mysql_PartitionDefinition> db_mysql_PartitionDefinitionRef;
+class db_mysql_Routine;
+typedef grt::Ref<db_mysql_Routine> db_mysql_RoutineRef;
+class db_mysql_RoutineGroup;
+typedef grt::Ref<db_mysql_RoutineGroup> db_mysql_RoutineGroupRef;
+class db_mysql_View;
+typedef grt::Ref<db_mysql_View> db_mysql_ViewRef;
+class db_mysql_Event;
+typedef grt::Ref<db_mysql_Event> db_mysql_EventRef;
+class db_mysql_Trigger;
+typedef grt::Ref<db_mysql_Trigger> db_mysql_TriggerRef;
 class db_mysql_ForeignKey;
 typedef grt::Ref<db_mysql_ForeignKey> db_mysql_ForeignKeyRef;
 class db_mysql_IndexColumn;
 typedef grt::Ref<db_mysql_IndexColumn> db_mysql_IndexColumnRef;
 class db_mysql_Index;
 typedef grt::Ref<db_mysql_Index> db_mysql_IndexRef;
+class db_mysql_StructuredDatatype;
+typedef grt::Ref<db_mysql_StructuredDatatype> db_mysql_StructuredDatatypeRef;
 class db_mysql_SimpleDatatype;
 typedef grt::Ref<db_mysql_SimpleDatatype> db_mysql_SimpleDatatypeRef;
 class db_mysql_Column;
 typedef grt::Ref<db_mysql_Column> db_mysql_ColumnRef;
+class db_mysql_Table;
+typedef grt::Ref<db_mysql_Table> db_mysql_TableRef;
+class db_mysql_PartitionDefinition;
+typedef grt::Ref<db_mysql_PartitionDefinition> db_mysql_PartitionDefinitionRef;
+class db_mysql_ServerLink;
+typedef grt::Ref<db_mysql_ServerLink> db_mysql_ServerLinkRef;
 class db_mysql_Tablespace;
 typedef grt::Ref<db_mysql_Tablespace> db_mysql_TablespaceRef;
 class db_mysql_LogFileGroup;
 typedef grt::Ref<db_mysql_LogFileGroup> db_mysql_LogFileGroupRef;
-class db_mysql_Catalog;
-typedef grt::Ref<db_mysql_Catalog> db_mysql_CatalogRef;
-class db_mysql_Sequence;
-typedef grt::Ref<db_mysql_Sequence> db_mysql_SequenceRef;
-class db_mysql_Synonym;
-typedef grt::Ref<db_mysql_Synonym> db_mysql_SynonymRef;
-class db_mysql_RoutineGroup;
-typedef grt::Ref<db_mysql_RoutineGroup> db_mysql_RoutineGroupRef;
-class db_mysql_StructuredDatatype;
-typedef grt::Ref<db_mysql_StructuredDatatype> db_mysql_StructuredDatatypeRef;
-class db_mysql_Table;
-typedef grt::Ref<db_mysql_Table> db_mysql_TableRef;
-class db_mysql_ServerLink;
-typedef grt::Ref<db_mysql_ServerLink> db_mysql_ServerLinkRef;
 class db_mysql_Schema;
 typedef grt::Ref<db_mysql_Schema> db_mysql_SchemaRef;
-class db_mysql_Trigger;
-typedef grt::Ref<db_mysql_Trigger> db_mysql_TriggerRef;
-class db_mysql_Routine;
-typedef grt::Ref<db_mysql_Routine> db_mysql_RoutineRef;
-class db_mysql_View;
-typedef grt::Ref<db_mysql_View> db_mysql_ViewRef;
+class db_mysql_Catalog;
+typedef grt::Ref<db_mysql_Catalog> db_mysql_CatalogRef;
 
 
 namespace mforms { 
@@ -322,6 +324,70 @@ public:
 };
 
 
+  /** a MySQL database sequence object */
+class  db_mysql_Sequence : public db_Sequence
+{
+  typedef db_Sequence super;
+public:
+  db_mysql_Sequence(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_Sequence(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.mysql.Sequence"; }
+
+protected:
+
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_mysql_Sequence(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_mysql_Sequence::create);
+  }
+};
+
+
+  /** a MySQL synonym object */
+class  db_mysql_Synonym : public db_Synonym
+{
+  typedef db_Synonym super;
+public:
+  db_mysql_Synonym(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_Synonym(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.mysql.Synonym"; }
+
+protected:
+
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_mysql_Synonym(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_mysql_Synonym::create);
+  }
+};
+
+
 class  db_mysql_RoutineParam : public GrtObject
 {
   typedef GrtObject super;
@@ -407,176 +473,88 @@ public:
 };
 
 
-class  db_mysql_PartitionDefinition : public GrtObject
+class  db_mysql_Routine : public db_Routine
 {
-  typedef GrtObject super;
+  typedef db_Routine super;
 public:
-  db_mysql_PartitionDefinition(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-     _comment(""),
-     _dataDirectory(""),
-     _indexDirectory(""),
-     _maxRows(""),
-     _minRows(""),
-    _subpartitionDefinitions(grt, this, false),
-     _value("")
+  db_mysql_Routine(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_Routine(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+    _params(grt, this, false),
+     _returnDatatype(""),
+     _security("")
 
   {
   }
 
-  static std::string static_class_name() { return "db.mysql.PartitionDefinition"; }
+  static std::string static_class_name() { return "db.mysql.Routine"; }
 
-  /** Getter for attribute comment
+  // params is owned by db_mysql_Routine
+  /** Getter for attribute params (read-only)
    
     
    \par In Python:
-value = obj.comment
+value = obj.params
    */
-  grt::StringRef comment() const { return _comment; }
-  /** Setter for attribute comment
-   
-    
-    \par In Python:
-obj.comment = value
-   */
-  virtual void comment(const grt::StringRef &value)
-  {
-    grt::ValueRef ovalue(_comment);
-   _comment= value;
-    member_changed("comment", ovalue, value);
-  }
-
-  /** Getter for attribute dataDirectory
-   
-    
-   \par In Python:
-value = obj.dataDirectory
-   */
-  grt::StringRef dataDirectory() const { return _dataDirectory; }
-  /** Setter for attribute dataDirectory
-   
-    
-    \par In Python:
-obj.dataDirectory = value
-   */
-  virtual void dataDirectory(const grt::StringRef &value)
-  {
-    grt::ValueRef ovalue(_dataDirectory);
-   _dataDirectory= value;
-    member_changed("dataDirectory", ovalue, value);
-  }
-
-  /** Getter for attribute indexDirectory
-   
-    
-   \par In Python:
-value = obj.indexDirectory
-   */
-  grt::StringRef indexDirectory() const { return _indexDirectory; }
-  /** Setter for attribute indexDirectory
-   
-    
-    \par In Python:
-obj.indexDirectory = value
-   */
-  virtual void indexDirectory(const grt::StringRef &value)
-  {
-    grt::ValueRef ovalue(_indexDirectory);
-   _indexDirectory= value;
-    member_changed("indexDirectory", ovalue, value);
-  }
-
-  /** Getter for attribute maxRows
-   
-    
-   \par In Python:
-value = obj.maxRows
-   */
-  grt::StringRef maxRows() const { return _maxRows; }
-  /** Setter for attribute maxRows
-   
-    
-    \par In Python:
-obj.maxRows = value
-   */
-  virtual void maxRows(const grt::StringRef &value)
-  {
-    grt::ValueRef ovalue(_maxRows);
-   _maxRows= value;
-    member_changed("maxRows", ovalue, value);
-  }
-
-  /** Getter for attribute minRows
-   
-    
-   \par In Python:
-value = obj.minRows
-   */
-  grt::StringRef minRows() const { return _minRows; }
-  /** Setter for attribute minRows
-   
-    
-    \par In Python:
-obj.minRows = value
-   */
-  virtual void minRows(const grt::StringRef &value)
-  {
-    grt::ValueRef ovalue(_minRows);
-   _minRows= value;
-    member_changed("minRows", ovalue, value);
-  }
-
-  // subpartitionDefinitions is owned by db_mysql_PartitionDefinition
-  /** Getter for attribute subpartitionDefinitions (read-only)
-   
-    
-   \par In Python:
-value = obj.subpartitionDefinitions
-   */
-  grt::ListRef<db_mysql_PartitionDefinition> subpartitionDefinitions() const { return _subpartitionDefinitions; }
+  grt::ListRef<db_mysql_RoutineParam> params() const { return _params; }
 private: // the next attribute is read-only
-  virtual void subpartitionDefinitions(const grt::ListRef<db_mysql_PartitionDefinition> &value)
+  virtual void params(const grt::ListRef<db_mysql_RoutineParam> &value)
   {
-    grt::ValueRef ovalue(_subpartitionDefinitions);
+    grt::ValueRef ovalue(_params);
 
-    _subpartitionDefinitions= value;
-    owned_member_changed("subpartitionDefinitions", ovalue, value);
+    _params= value;
+    owned_member_changed("params", ovalue, value);
   }
 public:
 
-  /** Getter for attribute value
+  /** Getter for attribute returnDatatype
    
     
    \par In Python:
-value = obj.value
+value = obj.returnDatatype
    */
-  grt::StringRef value() const { return _value; }
-  /** Setter for attribute value
+  grt::StringRef returnDatatype() const { return _returnDatatype; }
+  /** Setter for attribute returnDatatype
    
     
     \par In Python:
-obj.value = value
+obj.returnDatatype = value
    */
-  virtual void value(const grt::StringRef &value)
+  virtual void returnDatatype(const grt::StringRef &value)
   {
-    grt::ValueRef ovalue(_value);
-   _value= value;
-    member_changed("value", ovalue, value);
+    grt::ValueRef ovalue(_returnDatatype);
+   _returnDatatype= value;
+    member_changed("returnDatatype", ovalue, value);
+  }
+
+  /** Getter for attribute security
+   
+    
+   \par In Python:
+value = obj.security
+   */
+  grt::StringRef security() const { return _security; }
+  /** Setter for attribute security
+   
+    
+    \par In Python:
+obj.security = value
+   */
+  virtual void security(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_security);
+   _security= value;
+    member_changed("security", ovalue, value);
   }
 
 protected:
 
-  grt::StringRef _comment;
-  grt::StringRef _dataDirectory;
-  grt::StringRef _indexDirectory;
-  grt::StringRef _maxRows;
-  grt::StringRef _minRows;
-  grt::ListRef<db_mysql_PartitionDefinition> _subpartitionDefinitions;// owned
-  grt::StringRef _value;
+  grt::ListRef<db_mysql_RoutineParam> _params;// owned
+  grt::StringRef _returnDatatype;
+  grt::StringRef _security;
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
-    return grt::ObjectRef(new db_mysql_PartitionDefinition(grt));
+    return grt::ObjectRef(new db_mysql_Routine(grt));
   }
 
 
@@ -585,42 +563,146 @@ public:
   {
     grt::MetaClass *meta= grt->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_mysql_PartitionDefinition::create);
+    meta->bind_allocator(&db_mysql_Routine::create);
     {
-      void (db_mysql_PartitionDefinition::*setter)(const grt::StringRef &)= &db_mysql_PartitionDefinition::comment;
-      grt::StringRef (db_mysql_PartitionDefinition::*getter)() const= &db_mysql_PartitionDefinition::comment;
-      meta->bind_member("comment", new grt::MetaClass::Property<db_mysql_PartitionDefinition,grt::StringRef >(getter,setter));
+      void (db_mysql_Routine::*setter)(const grt::ListRef<db_mysql_RoutineParam> &)= &db_mysql_Routine::params;
+      grt::ListRef<db_mysql_RoutineParam> (db_mysql_Routine::*getter)() const= &db_mysql_Routine::params;
+      meta->bind_member("params", new grt::MetaClass::Property<db_mysql_Routine,grt::ListRef<db_mysql_RoutineParam> >(getter,setter));
     }
     {
-      void (db_mysql_PartitionDefinition::*setter)(const grt::StringRef &)= &db_mysql_PartitionDefinition::dataDirectory;
-      grt::StringRef (db_mysql_PartitionDefinition::*getter)() const= &db_mysql_PartitionDefinition::dataDirectory;
-      meta->bind_member("dataDirectory", new grt::MetaClass::Property<db_mysql_PartitionDefinition,grt::StringRef >(getter,setter));
+      void (db_mysql_Routine::*setter)(const grt::StringRef &)= &db_mysql_Routine::returnDatatype;
+      grt::StringRef (db_mysql_Routine::*getter)() const= &db_mysql_Routine::returnDatatype;
+      meta->bind_member("returnDatatype", new grt::MetaClass::Property<db_mysql_Routine,grt::StringRef >(getter,setter));
     }
     {
-      void (db_mysql_PartitionDefinition::*setter)(const grt::StringRef &)= &db_mysql_PartitionDefinition::indexDirectory;
-      grt::StringRef (db_mysql_PartitionDefinition::*getter)() const= &db_mysql_PartitionDefinition::indexDirectory;
-      meta->bind_member("indexDirectory", new grt::MetaClass::Property<db_mysql_PartitionDefinition,grt::StringRef >(getter,setter));
+      void (db_mysql_Routine::*setter)(const grt::StringRef &)= &db_mysql_Routine::security;
+      grt::StringRef (db_mysql_Routine::*getter)() const= &db_mysql_Routine::security;
+      meta->bind_member("security", new grt::MetaClass::Property<db_mysql_Routine,grt::StringRef >(getter,setter));
     }
-    {
-      void (db_mysql_PartitionDefinition::*setter)(const grt::StringRef &)= &db_mysql_PartitionDefinition::maxRows;
-      grt::StringRef (db_mysql_PartitionDefinition::*getter)() const= &db_mysql_PartitionDefinition::maxRows;
-      meta->bind_member("maxRows", new grt::MetaClass::Property<db_mysql_PartitionDefinition,grt::StringRef >(getter,setter));
-    }
-    {
-      void (db_mysql_PartitionDefinition::*setter)(const grt::StringRef &)= &db_mysql_PartitionDefinition::minRows;
-      grt::StringRef (db_mysql_PartitionDefinition::*getter)() const= &db_mysql_PartitionDefinition::minRows;
-      meta->bind_member("minRows", new grt::MetaClass::Property<db_mysql_PartitionDefinition,grt::StringRef >(getter,setter));
-    }
-    {
-      void (db_mysql_PartitionDefinition::*setter)(const grt::ListRef<db_mysql_PartitionDefinition> &)= &db_mysql_PartitionDefinition::subpartitionDefinitions;
-      grt::ListRef<db_mysql_PartitionDefinition> (db_mysql_PartitionDefinition::*getter)() const= &db_mysql_PartitionDefinition::subpartitionDefinitions;
-      meta->bind_member("subpartitionDefinitions", new grt::MetaClass::Property<db_mysql_PartitionDefinition,grt::ListRef<db_mysql_PartitionDefinition> >(getter,setter));
-    }
-    {
-      void (db_mysql_PartitionDefinition::*setter)(const grt::StringRef &)= &db_mysql_PartitionDefinition::value;
-      grt::StringRef (db_mysql_PartitionDefinition::*getter)() const= &db_mysql_PartitionDefinition::value;
-      meta->bind_member("value", new grt::MetaClass::Property<db_mysql_PartitionDefinition,grt::StringRef >(getter,setter));
-    }
+  }
+};
+
+
+class  db_mysql_RoutineGroup : public db_RoutineGroup
+{
+  typedef db_RoutineGroup super;
+public:
+  db_mysql_RoutineGroup(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_RoutineGroup(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.mysql.RoutineGroup"; }
+
+protected:
+
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_mysql_RoutineGroup(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_mysql_RoutineGroup::create);
+  }
+};
+
+
+class  db_mysql_View : public db_View
+{
+  typedef db_View super;
+public:
+  db_mysql_View(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_View(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.mysql.View"; }
+
+protected:
+
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_mysql_View(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_mysql_View::create);
+  }
+};
+
+
+class  db_mysql_Event : public db_Event
+{
+  typedef db_Event super;
+public:
+  db_mysql_Event(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_Event(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.mysql.Event"; }
+
+protected:
+
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_mysql_Event(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_mysql_Event::create);
+  }
+};
+
+
+class  db_mysql_Trigger : public db_Trigger
+{
+  typedef db_Trigger super;
+public:
+  db_mysql_Trigger(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_Trigger(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.mysql.Trigger"; }
+
+protected:
+
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_mysql_Trigger(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_mysql_Trigger::create);
   }
 };
 
@@ -713,8 +795,10 @@ class  db_mysql_Index : public db_Index
 public:
   db_mysql_Index(grt::GRT *grt, grt::MetaClass *meta=0)
   : db_Index(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+     _algorithm(""),
      _indexKind(""),
      _keyBlockSize(0),
+     _lockOption(""),
      _withParser("")
 
   {
@@ -722,6 +806,26 @@ public:
   }
 
   static std::string static_class_name() { return "db.mysql.Index"; }
+
+  /** Getter for attribute algorithm
+   
+    one of DEFAULT, INPLACE and COPY
+   \par In Python:
+value = obj.algorithm
+   */
+  grt::StringRef algorithm() const { return _algorithm; }
+  /** Setter for attribute algorithm
+   
+    one of DEFAULT, INPLACE and COPY
+    \par In Python:
+obj.algorithm = value
+   */
+  virtual void algorithm(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_algorithm);
+   _algorithm= value;
+    member_changed("algorithm", ovalue, value);
+  }
 
   // columns is owned by db_mysql_Index
   /** Getter for attribute columns (read-only)
@@ -736,14 +840,14 @@ public:
 
   /** Getter for attribute indexKind
    
-    
+    one of BTREE, RTREE and HASH
    \par In Python:
 value = obj.indexKind
    */
   grt::StringRef indexKind() const { return _indexKind; }
   /** Setter for attribute indexKind
    
-    
+    one of BTREE, RTREE and HASH
     \par In Python:
 obj.indexKind = value
    */
@@ -774,6 +878,26 @@ obj.keyBlockSize = value
     member_changed("keyBlockSize", ovalue, value);
   }
 
+  /** Getter for attribute lockOption
+   
+    one of DEFAULT, NONE, SHARED and EXCLUSIVE
+   \par In Python:
+value = obj.lockOption
+   */
+  grt::StringRef lockOption() const { return _lockOption; }
+  /** Setter for attribute lockOption
+   
+    one of DEFAULT, NONE, SHARED and EXCLUSIVE
+    \par In Python:
+obj.lockOption = value
+   */
+  virtual void lockOption(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_lockOption);
+   _lockOption= value;
+    member_changed("lockOption", ovalue, value);
+  }
+
   /** Getter for attribute withParser
    
     
@@ -796,8 +920,10 @@ obj.withParser = value
 
 protected:
 
+  grt::StringRef _algorithm;
   grt::StringRef _indexKind;
   grt::IntegerRef _keyBlockSize;
+  grt::StringRef _lockOption;
   grt::StringRef _withParser;
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
@@ -812,6 +938,11 @@ public:
     grt::MetaClass *meta= grt->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_Index::create);
+    {
+      void (db_mysql_Index::*setter)(const grt::StringRef &)= &db_mysql_Index::algorithm;
+      grt::StringRef (db_mysql_Index::*getter)() const= &db_mysql_Index::algorithm;
+      meta->bind_member("algorithm", new grt::MetaClass::Property<db_mysql_Index,grt::StringRef >(getter,setter));
+    }
     {
       void (db_mysql_Index::*setter)(const grt::ListRef<db_mysql_IndexColumn> &)= 0;
       grt::ListRef<db_mysql_IndexColumn> (db_mysql_Index::*getter)() const= 0;
@@ -828,10 +959,46 @@ public:
       meta->bind_member("keyBlockSize", new grt::MetaClass::Property<db_mysql_Index,grt::IntegerRef >(getter,setter));
     }
     {
+      void (db_mysql_Index::*setter)(const grt::StringRef &)= &db_mysql_Index::lockOption;
+      grt::StringRef (db_mysql_Index::*getter)() const= &db_mysql_Index::lockOption;
+      meta->bind_member("lockOption", new grt::MetaClass::Property<db_mysql_Index,grt::StringRef >(getter,setter));
+    }
+    {
       void (db_mysql_Index::*setter)(const grt::StringRef &)= &db_mysql_Index::withParser;
       grt::StringRef (db_mysql_Index::*getter)() const= &db_mysql_Index::withParser;
       meta->bind_member("withParser", new grt::MetaClass::Property<db_mysql_Index,grt::StringRef >(getter,setter));
     }
+  }
+};
+
+
+class  db_mysql_StructuredDatatype : public db_StructuredDatatype
+{
+  typedef db_StructuredDatatype super;
+public:
+  db_mysql_StructuredDatatype(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_StructuredDatatype(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.mysql.StructuredDatatype"; }
+
+protected:
+
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_mysql_StructuredDatatype(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_mysql_StructuredDatatype::create);
   }
 };
 
@@ -875,7 +1042,8 @@ public:
   : db_Column(grt, meta ? meta : grt->get_metaclass(static_class_name())),
      _autoIncrement(0),
      _expression(""),
-     _generated(0)
+     _generated(0),
+     _generatedStorage("")
 
   {
   }
@@ -904,14 +1072,14 @@ obj.autoIncrement = value
 
   /** Getter for attribute expression
    
-    
+    The full expression for a generated column as text
    \par In Python:
 value = obj.expression
    */
   grt::StringRef expression() const { return _expression; }
   /** Setter for attribute expression
    
-    
+    The full expression for a generated column as text
     \par In Python:
 obj.expression = value
    */
@@ -924,14 +1092,14 @@ obj.expression = value
 
   /** Getter for attribute generated
    
-    
+    0 or 1, 1 if generated column
    \par In Python:
 value = obj.generated
    */
   grt::IntegerRef generated() const { return _generated; }
   /** Setter for attribute generated
    
-    
+    0 or 1, 1 if generated column
     \par In Python:
 obj.generated = value
    */
@@ -942,11 +1110,32 @@ obj.generated = value
     member_changed("generated", ovalue, value);
   }
 
+  /** Getter for attribute generatedStorage
+   
+    VIRTUAL or STORED, for generated columns only
+   \par In Python:
+value = obj.generatedStorage
+   */
+  grt::StringRef generatedStorage() const { return _generatedStorage; }
+  /** Setter for attribute generatedStorage
+   
+    VIRTUAL or STORED, for generated columns only
+    \par In Python:
+obj.generatedStorage = value
+   */
+  virtual void generatedStorage(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_generatedStorage);
+   _generatedStorage= value;
+    member_changed("generatedStorage", ovalue, value);
+  }
+
 protected:
 
   grt::IntegerRef _autoIncrement;
   grt::StringRef _expression;
   grt::IntegerRef _generated;
+  grt::StringRef _generatedStorage;
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
@@ -975,347 +1164,11 @@ public:
       grt::IntegerRef (db_mysql_Column::*getter)() const= &db_mysql_Column::generated;
       meta->bind_member("generated", new grt::MetaClass::Property<db_mysql_Column,grt::IntegerRef >(getter,setter));
     }
-  }
-};
-
-
-class  db_mysql_Tablespace : public db_Tablespace
-{
-  typedef db_Tablespace super;
-public:
-  db_mysql_Tablespace(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Tablespace(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-     _engine("")
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.mysql.Tablespace"; }
-
-  /** Getter for attribute engine
-   
-    
-   \par In Python:
-value = obj.engine
-   */
-  grt::StringRef engine() const { return _engine; }
-  /** Setter for attribute engine
-   
-    
-    \par In Python:
-obj.engine = value
-   */
-  virtual void engine(const grt::StringRef &value)
-  {
-    grt::ValueRef ovalue(_engine);
-   _engine= value;
-    member_changed("engine", ovalue, value);
-  }
-
-protected:
-
-  grt::StringRef _engine;
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_mysql_Tablespace(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_mysql_Tablespace::create);
     {
-      void (db_mysql_Tablespace::*setter)(const grt::StringRef &)= &db_mysql_Tablespace::engine;
-      grt::StringRef (db_mysql_Tablespace::*getter)() const= &db_mysql_Tablespace::engine;
-      meta->bind_member("engine", new grt::MetaClass::Property<db_mysql_Tablespace,grt::StringRef >(getter,setter));
+      void (db_mysql_Column::*setter)(const grt::StringRef &)= &db_mysql_Column::generatedStorage;
+      grt::StringRef (db_mysql_Column::*getter)() const= &db_mysql_Column::generatedStorage;
+      meta->bind_member("generatedStorage", new grt::MetaClass::Property<db_mysql_Column,grt::StringRef >(getter,setter));
     }
-  }
-};
-
-
-class  db_mysql_LogFileGroup : public db_LogFileGroup
-{
-  typedef db_LogFileGroup super;
-public:
-  db_mysql_LogFileGroup(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_LogFileGroup(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-     _engine("")
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.mysql.LogFileGroup"; }
-
-  /** Getter for attribute engine
-   
-    
-   \par In Python:
-value = obj.engine
-   */
-  grt::StringRef engine() const { return _engine; }
-  /** Setter for attribute engine
-   
-    
-    \par In Python:
-obj.engine = value
-   */
-  virtual void engine(const grt::StringRef &value)
-  {
-    grt::ValueRef ovalue(_engine);
-   _engine= value;
-    member_changed("engine", ovalue, value);
-  }
-
-protected:
-
-  grt::StringRef _engine;
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_mysql_LogFileGroup(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_mysql_LogFileGroup::create);
-    {
-      void (db_mysql_LogFileGroup::*setter)(const grt::StringRef &)= &db_mysql_LogFileGroup::engine;
-      grt::StringRef (db_mysql_LogFileGroup::*getter)() const= &db_mysql_LogFileGroup::engine;
-      meta->bind_member("engine", new grt::MetaClass::Property<db_mysql_LogFileGroup,grt::StringRef >(getter,setter));
-    }
-  }
-};
-
-
-class  db_mysql_Catalog : public db_Catalog
-{
-  typedef db_Catalog super;
-public:
-  db_mysql_Catalog(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Catalog(grt, meta ? meta : grt->get_metaclass(static_class_name()))
-
-  {
-    _logFileGroups.content().__retype(grt::ObjectType, "db.mysql.LogFileGroup");
-    _schemata.content().__retype(grt::ObjectType, "db.mysql.Schema");
-    _serverLinks.content().__retype(grt::ObjectType, "db.mysql.ServerLink");
-    _tablespaces.content().__retype(grt::ObjectType, "db.mysql.Tablespace");
-  }
-
-  static std::string static_class_name() { return "db.mysql.Catalog"; }
-
-  // logFileGroups is owned by db_mysql_Catalog
-  /** Getter for attribute logFileGroups (read-only)
-   
-    
-   \par In Python:
-value = obj.logFileGroups
-   */
-  grt::ListRef<db_mysql_LogFileGroup> logFileGroups() const { return grt::ListRef<db_mysql_LogFileGroup>::cast_from(_logFileGroups); }
-private: // the next attribute is read-only
-public:
-
-  // schemata is owned by db_mysql_Catalog
-  /** Getter for attribute schemata (read-only)
-   
-    
-   \par In Python:
-value = obj.schemata
-   */
-  grt::ListRef<db_mysql_Schema> schemata() const { return grt::ListRef<db_mysql_Schema>::cast_from(_schemata); }
-private: // the next attribute is read-only
-public:
-
-  // serverLinks is owned by db_mysql_Catalog
-  /** Getter for attribute serverLinks (read-only)
-   
-    
-   \par In Python:
-value = obj.serverLinks
-   */
-  grt::ListRef<db_mysql_ServerLink> serverLinks() const { return grt::ListRef<db_mysql_ServerLink>::cast_from(_serverLinks); }
-private: // the next attribute is read-only
-public:
-
-  // tablespaces is owned by db_mysql_Catalog
-  /** Getter for attribute tablespaces (read-only)
-   
-    
-   \par In Python:
-value = obj.tablespaces
-   */
-  grt::ListRef<db_mysql_Tablespace> tablespaces() const { return grt::ListRef<db_mysql_Tablespace>::cast_from(_tablespaces); }
-private: // the next attribute is read-only
-public:
-
-protected:
-
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_mysql_Catalog(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_mysql_Catalog::create);
-    {
-      void (db_mysql_Catalog::*setter)(const grt::ListRef<db_mysql_LogFileGroup> &)= 0;
-      grt::ListRef<db_mysql_LogFileGroup> (db_mysql_Catalog::*getter)() const= 0;
-      meta->bind_member("logFileGroups", new grt::MetaClass::Property<db_mysql_Catalog,grt::ListRef<db_mysql_LogFileGroup> >(getter,setter));
-    }
-    {
-      void (db_mysql_Catalog::*setter)(const grt::ListRef<db_mysql_Schema> &)= 0;
-      grt::ListRef<db_mysql_Schema> (db_mysql_Catalog::*getter)() const= 0;
-      meta->bind_member("schemata", new grt::MetaClass::Property<db_mysql_Catalog,grt::ListRef<db_mysql_Schema> >(getter,setter));
-    }
-    {
-      void (db_mysql_Catalog::*setter)(const grt::ListRef<db_mysql_ServerLink> &)= 0;
-      grt::ListRef<db_mysql_ServerLink> (db_mysql_Catalog::*getter)() const= 0;
-      meta->bind_member("serverLinks", new grt::MetaClass::Property<db_mysql_Catalog,grt::ListRef<db_mysql_ServerLink> >(getter,setter));
-    }
-    {
-      void (db_mysql_Catalog::*setter)(const grt::ListRef<db_mysql_Tablespace> &)= 0;
-      grt::ListRef<db_mysql_Tablespace> (db_mysql_Catalog::*getter)() const= 0;
-      meta->bind_member("tablespaces", new grt::MetaClass::Property<db_mysql_Catalog,grt::ListRef<db_mysql_Tablespace> >(getter,setter));
-    }
-  }
-};
-
-
-  /** a MySQL database sequence object */
-class  db_mysql_Sequence : public db_Sequence
-{
-  typedef db_Sequence super;
-public:
-  db_mysql_Sequence(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Sequence(grt, meta ? meta : grt->get_metaclass(static_class_name()))
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.mysql.Sequence"; }
-
-protected:
-
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_mysql_Sequence(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_mysql_Sequence::create);
-  }
-};
-
-
-  /** a MySQL synonym object */
-class  db_mysql_Synonym : public db_Synonym
-{
-  typedef db_Synonym super;
-public:
-  db_mysql_Synonym(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Synonym(grt, meta ? meta : grt->get_metaclass(static_class_name()))
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.mysql.Synonym"; }
-
-protected:
-
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_mysql_Synonym(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_mysql_Synonym::create);
-  }
-};
-
-
-class  db_mysql_RoutineGroup : public db_RoutineGroup
-{
-  typedef db_RoutineGroup super;
-public:
-  db_mysql_RoutineGroup(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_RoutineGroup(grt, meta ? meta : grt->get_metaclass(static_class_name()))
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.mysql.RoutineGroup"; }
-
-protected:
-
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_mysql_RoutineGroup(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_mysql_RoutineGroup::create);
-  }
-};
-
-
-class  db_mysql_StructuredDatatype : public db_StructuredDatatype
-{
-  typedef db_StructuredDatatype super;
-public:
-  db_mysql_StructuredDatatype(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_StructuredDatatype(grt, meta ? meta : grt->get_metaclass(static_class_name()))
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.mysql.StructuredDatatype"; }
-
-protected:
-
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_mysql_StructuredDatatype(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_mysql_StructuredDatatype::create);
   }
 };
 
@@ -1342,18 +1195,24 @@ public:
      _partitionCount(0),
     _partitionDefinitions(grt, this, false),
      _partitionExpression(""),
+     _partitionKeyAlgorithm(0),
      _partitionType(""),
      _password(""),
      _raidChunkSize(""),
      _raidChunks(""),
      _raidType(""),
      _rowFormat(""),
+     _statsAutoRecalc(""),
+     _statsPersistent(""),
+     _statsSamplePages(0),
      _subpartitionCount(0),
      _subpartitionExpression(""),
+     _subpartitionKeyAlgorithm(0),
      _subpartitionType(""),
      _tableDataDir(""),
      _tableEngine(""),
-     _tableIndexDir("")
+     _tableIndexDir(""),
+     _tableSpace("")
 
   {
     _columns.content().__retype(grt::ObjectType, "db.mysql.Column");
@@ -1661,14 +1520,14 @@ obj.nextAutoInc = value
 
   /** Getter for attribute packKeys
    
-    
+    DEFAULT, 0 or 1
    \par In Python:
 value = obj.packKeys
    */
   grt::StringRef packKeys() const { return _packKeys; }
   /** Setter for attribute packKeys
    
-    
+    DEFAULT, 0 or 1
     \par In Python:
 obj.packKeys = value
    */
@@ -1719,14 +1578,14 @@ public:
 
   /** Getter for attribute partitionExpression
    
-    
+    a generic expression or a column list
    \par In Python:
 value = obj.partitionExpression
    */
   grt::StringRef partitionExpression() const { return _partitionExpression; }
   /** Setter for attribute partitionExpression
    
-    
+    a generic expression or a column list
     \par In Python:
 obj.partitionExpression = value
    */
@@ -1735,6 +1594,26 @@ obj.partitionExpression = value
     grt::ValueRef ovalue(_partitionExpression);
    _partitionExpression= value;
     member_changed("partitionExpression", ovalue, value);
+  }
+
+  /** Getter for attribute partitionKeyAlgorithm
+   
+    algorithm used for KEY partition type, can be 1 or 2
+   \par In Python:
+value = obj.partitionKeyAlgorithm
+   */
+  grt::IntegerRef partitionKeyAlgorithm() const { return _partitionKeyAlgorithm; }
+  /** Setter for attribute partitionKeyAlgorithm
+   
+    algorithm used for KEY partition type, can be 1 or 2
+    \par In Python:
+obj.partitionKeyAlgorithm = value
+   */
+  virtual void partitionKeyAlgorithm(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_partitionKeyAlgorithm);
+   _partitionKeyAlgorithm= value;
+    member_changed("partitionKeyAlgorithm", ovalue, value);
   }
 
   /** Getter for attribute partitionType
@@ -1872,6 +1751,66 @@ obj.rowFormat = value
     member_changed("rowFormat", ovalue, value);
   }
 
+  /** Getter for attribute statsAutoRecalc
+   
+    DEFAULT, 0 or 1
+   \par In Python:
+value = obj.statsAutoRecalc
+   */
+  grt::StringRef statsAutoRecalc() const { return _statsAutoRecalc; }
+  /** Setter for attribute statsAutoRecalc
+   
+    DEFAULT, 0 or 1
+    \par In Python:
+obj.statsAutoRecalc = value
+   */
+  virtual void statsAutoRecalc(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_statsAutoRecalc);
+   _statsAutoRecalc= value;
+    member_changed("statsAutoRecalc", ovalue, value);
+  }
+
+  /** Getter for attribute statsPersistent
+   
+    DEFAULT, 0 or 1
+   \par In Python:
+value = obj.statsPersistent
+   */
+  grt::StringRef statsPersistent() const { return _statsPersistent; }
+  /** Setter for attribute statsPersistent
+   
+    DEFAULT, 0 or 1
+    \par In Python:
+obj.statsPersistent = value
+   */
+  virtual void statsPersistent(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_statsPersistent);
+   _statsPersistent= value;
+    member_changed("statsPersistent", ovalue, value);
+  }
+
+  /** Getter for attribute statsSamplePages
+   
+    
+   \par In Python:
+value = obj.statsSamplePages
+   */
+  grt::IntegerRef statsSamplePages() const { return _statsSamplePages; }
+  /** Setter for attribute statsSamplePages
+   
+    
+    \par In Python:
+obj.statsSamplePages = value
+   */
+  virtual void statsSamplePages(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_statsSamplePages);
+   _statsSamplePages= value;
+    member_changed("statsSamplePages", ovalue, value);
+  }
+
   /** Getter for attribute subpartitionCount
    
     
@@ -1910,6 +1849,26 @@ obj.subpartitionExpression = value
     grt::ValueRef ovalue(_subpartitionExpression);
    _subpartitionExpression= value;
     member_changed("subpartitionExpression", ovalue, value);
+  }
+
+  /** Getter for attribute subpartitionKeyAlgorithm
+   
+    algorithm used for KEY partition type, can be 1 or 2
+   \par In Python:
+value = obj.subpartitionKeyAlgorithm
+   */
+  grt::IntegerRef subpartitionKeyAlgorithm() const { return _subpartitionKeyAlgorithm; }
+  /** Setter for attribute subpartitionKeyAlgorithm
+   
+    algorithm used for KEY partition type, can be 1 or 2
+    \par In Python:
+obj.subpartitionKeyAlgorithm = value
+   */
+  virtual void subpartitionKeyAlgorithm(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_subpartitionKeyAlgorithm);
+   _subpartitionKeyAlgorithm= value;
+    member_changed("subpartitionKeyAlgorithm", ovalue, value);
   }
 
   /** Getter for attribute subpartitionType
@@ -1992,6 +1951,26 @@ obj.tableIndexDir = value
     member_changed("tableIndexDir", ovalue, value);
   }
 
+  /** Getter for attribute tableSpace
+   
+    
+   \par In Python:
+value = obj.tableSpace
+   */
+  grt::StringRef tableSpace() const { return _tableSpace; }
+  /** Setter for attribute tableSpace
+   
+    
+    \par In Python:
+obj.tableSpace = value
+   */
+  virtual void tableSpace(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_tableSpace);
+   _tableSpace= value;
+    member_changed("tableSpace", ovalue, value);
+  }
+
   // triggers is owned by db_mysql_Table
   /** Getter for attribute triggers (read-only)
    
@@ -2022,18 +2001,24 @@ protected:
   grt::IntegerRef _partitionCount;
   grt::ListRef<db_mysql_PartitionDefinition> _partitionDefinitions;// owned
   grt::StringRef _partitionExpression;
+  grt::IntegerRef _partitionKeyAlgorithm;
   grt::StringRef _partitionType;
   grt::StringRef _password;
   grt::StringRef _raidChunkSize;
   grt::StringRef _raidChunks;
   grt::StringRef _raidType;
   grt::StringRef _rowFormat;
+  grt::StringRef _statsAutoRecalc;
+  grt::StringRef _statsPersistent;
+  grt::IntegerRef _statsSamplePages;
   grt::IntegerRef _subpartitionCount;
   grt::StringRef _subpartitionExpression;
+  grt::IntegerRef _subpartitionKeyAlgorithm;
   grt::StringRef _subpartitionType;
   grt::StringRef _tableDataDir;
   grt::StringRef _tableEngine;
   grt::StringRef _tableIndexDir;
+  grt::StringRef _tableSpace;
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
@@ -2148,6 +2133,11 @@ public:
       meta->bind_member("partitionExpression", new grt::MetaClass::Property<db_mysql_Table,grt::StringRef >(getter,setter));
     }
     {
+      void (db_mysql_Table::*setter)(const grt::IntegerRef &)= &db_mysql_Table::partitionKeyAlgorithm;
+      grt::IntegerRef (db_mysql_Table::*getter)() const= &db_mysql_Table::partitionKeyAlgorithm;
+      meta->bind_member("partitionKeyAlgorithm", new grt::MetaClass::Property<db_mysql_Table,grt::IntegerRef >(getter,setter));
+    }
+    {
       void (db_mysql_Table::*setter)(const grt::StringRef &)= &db_mysql_Table::partitionType;
       grt::StringRef (db_mysql_Table::*getter)() const= &db_mysql_Table::partitionType;
       meta->bind_member("partitionType", new grt::MetaClass::Property<db_mysql_Table,grt::StringRef >(getter,setter));
@@ -2183,6 +2173,21 @@ public:
       meta->bind_member("rowFormat", new grt::MetaClass::Property<db_mysql_Table,grt::StringRef >(getter,setter));
     }
     {
+      void (db_mysql_Table::*setter)(const grt::StringRef &)= &db_mysql_Table::statsAutoRecalc;
+      grt::StringRef (db_mysql_Table::*getter)() const= &db_mysql_Table::statsAutoRecalc;
+      meta->bind_member("statsAutoRecalc", new grt::MetaClass::Property<db_mysql_Table,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_mysql_Table::*setter)(const grt::StringRef &)= &db_mysql_Table::statsPersistent;
+      grt::StringRef (db_mysql_Table::*getter)() const= &db_mysql_Table::statsPersistent;
+      meta->bind_member("statsPersistent", new grt::MetaClass::Property<db_mysql_Table,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_mysql_Table::*setter)(const grt::IntegerRef &)= &db_mysql_Table::statsSamplePages;
+      grt::IntegerRef (db_mysql_Table::*getter)() const= &db_mysql_Table::statsSamplePages;
+      meta->bind_member("statsSamplePages", new grt::MetaClass::Property<db_mysql_Table,grt::IntegerRef >(getter,setter));
+    }
+    {
       void (db_mysql_Table::*setter)(const grt::IntegerRef &)= &db_mysql_Table::subpartitionCount;
       grt::IntegerRef (db_mysql_Table::*getter)() const= &db_mysql_Table::subpartitionCount;
       meta->bind_member("subpartitionCount", new grt::MetaClass::Property<db_mysql_Table,grt::IntegerRef >(getter,setter));
@@ -2191,6 +2196,11 @@ public:
       void (db_mysql_Table::*setter)(const grt::StringRef &)= &db_mysql_Table::subpartitionExpression;
       grt::StringRef (db_mysql_Table::*getter)() const= &db_mysql_Table::subpartitionExpression;
       meta->bind_member("subpartitionExpression", new grt::MetaClass::Property<db_mysql_Table,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_mysql_Table::*setter)(const grt::IntegerRef &)= &db_mysql_Table::subpartitionKeyAlgorithm;
+      grt::IntegerRef (db_mysql_Table::*getter)() const= &db_mysql_Table::subpartitionKeyAlgorithm;
+      meta->bind_member("subpartitionKeyAlgorithm", new grt::MetaClass::Property<db_mysql_Table,grt::IntegerRef >(getter,setter));
     }
     {
       void (db_mysql_Table::*setter)(const grt::StringRef &)= &db_mysql_Table::subpartitionType;
@@ -2213,9 +2223,313 @@ public:
       meta->bind_member("tableIndexDir", new grt::MetaClass::Property<db_mysql_Table,grt::StringRef >(getter,setter));
     }
     {
+      void (db_mysql_Table::*setter)(const grt::StringRef &)= &db_mysql_Table::tableSpace;
+      grt::StringRef (db_mysql_Table::*getter)() const= &db_mysql_Table::tableSpace;
+      meta->bind_member("tableSpace", new grt::MetaClass::Property<db_mysql_Table,grt::StringRef >(getter,setter));
+    }
+    {
       void (db_mysql_Table::*setter)(const grt::ListRef<db_mysql_Trigger> &)= 0;
       grt::ListRef<db_mysql_Trigger> (db_mysql_Table::*getter)() const= 0;
       meta->bind_member("triggers", new grt::MetaClass::Property<db_mysql_Table,grt::ListRef<db_mysql_Trigger> >(getter,setter));
+    }
+  }
+};
+
+
+class  db_mysql_PartitionDefinition : public GrtObject
+{
+  typedef GrtObject super;
+public:
+  db_mysql_PartitionDefinition(grt::GRT *grt, grt::MetaClass *meta=0)
+  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+     _comment(""),
+     _dataDirectory(""),
+     _engine(""),
+     _indexDirectory(""),
+     _maxRows(""),
+     _minRows(""),
+     _nodeGroupId(0),
+    _subpartitionDefinitions(grt, this, false),
+     _tableSpace(""),
+     _value("")
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.mysql.PartitionDefinition"; }
+
+  /** Getter for attribute comment
+   
+    
+   \par In Python:
+value = obj.comment
+   */
+  grt::StringRef comment() const { return _comment; }
+  /** Setter for attribute comment
+   
+    
+    \par In Python:
+obj.comment = value
+   */
+  virtual void comment(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_comment);
+   _comment= value;
+    member_changed("comment", ovalue, value);
+  }
+
+  /** Getter for attribute dataDirectory
+   
+    
+   \par In Python:
+value = obj.dataDirectory
+   */
+  grt::StringRef dataDirectory() const { return _dataDirectory; }
+  /** Setter for attribute dataDirectory
+   
+    
+    \par In Python:
+obj.dataDirectory = value
+   */
+  virtual void dataDirectory(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_dataDirectory);
+   _dataDirectory= value;
+    member_changed("dataDirectory", ovalue, value);
+  }
+
+  /** Getter for attribute engine
+   
+    
+   \par In Python:
+value = obj.engine
+   */
+  grt::StringRef engine() const { return _engine; }
+  /** Setter for attribute engine
+   
+    
+    \par In Python:
+obj.engine = value
+   */
+  virtual void engine(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_engine);
+   _engine= value;
+    member_changed("engine", ovalue, value);
+  }
+
+  /** Getter for attribute indexDirectory
+   
+    
+   \par In Python:
+value = obj.indexDirectory
+   */
+  grt::StringRef indexDirectory() const { return _indexDirectory; }
+  /** Setter for attribute indexDirectory
+   
+    
+    \par In Python:
+obj.indexDirectory = value
+   */
+  virtual void indexDirectory(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_indexDirectory);
+   _indexDirectory= value;
+    member_changed("indexDirectory", ovalue, value);
+  }
+
+  /** Getter for attribute maxRows
+   
+    
+   \par In Python:
+value = obj.maxRows
+   */
+  grt::StringRef maxRows() const { return _maxRows; }
+  /** Setter for attribute maxRows
+   
+    
+    \par In Python:
+obj.maxRows = value
+   */
+  virtual void maxRows(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_maxRows);
+   _maxRows= value;
+    member_changed("maxRows", ovalue, value);
+  }
+
+  /** Getter for attribute minRows
+   
+    
+   \par In Python:
+value = obj.minRows
+   */
+  grt::StringRef minRows() const { return _minRows; }
+  /** Setter for attribute minRows
+   
+    
+    \par In Python:
+obj.minRows = value
+   */
+  virtual void minRows(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_minRows);
+   _minRows= value;
+    member_changed("minRows", ovalue, value);
+  }
+
+  /** Getter for attribute nodeGroupId
+   
+    
+   \par In Python:
+value = obj.nodeGroupId
+   */
+  grt::IntegerRef nodeGroupId() const { return _nodeGroupId; }
+  /** Setter for attribute nodeGroupId
+   
+    
+    \par In Python:
+obj.nodeGroupId = value
+   */
+  virtual void nodeGroupId(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_nodeGroupId);
+   _nodeGroupId= value;
+    member_changed("nodeGroupId", ovalue, value);
+  }
+
+  // subpartitionDefinitions is owned by db_mysql_PartitionDefinition
+  /** Getter for attribute subpartitionDefinitions (read-only)
+   
+    
+   \par In Python:
+value = obj.subpartitionDefinitions
+   */
+  grt::ListRef<db_mysql_PartitionDefinition> subpartitionDefinitions() const { return _subpartitionDefinitions; }
+private: // the next attribute is read-only
+  virtual void subpartitionDefinitions(const grt::ListRef<db_mysql_PartitionDefinition> &value)
+  {
+    grt::ValueRef ovalue(_subpartitionDefinitions);
+
+    _subpartitionDefinitions= value;
+    owned_member_changed("subpartitionDefinitions", ovalue, value);
+  }
+public:
+
+  /** Getter for attribute tableSpace
+   
+    
+   \par In Python:
+value = obj.tableSpace
+   */
+  grt::StringRef tableSpace() const { return _tableSpace; }
+  /** Setter for attribute tableSpace
+   
+    
+    \par In Python:
+obj.tableSpace = value
+   */
+  virtual void tableSpace(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_tableSpace);
+   _tableSpace= value;
+    member_changed("tableSpace", ovalue, value);
+  }
+
+  /** Getter for attribute value
+   
+    
+   \par In Python:
+value = obj.value
+   */
+  grt::StringRef value() const { return _value; }
+  /** Setter for attribute value
+   
+    
+    \par In Python:
+obj.value = value
+   */
+  virtual void value(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_value);
+   _value= value;
+    member_changed("value", ovalue, value);
+  }
+
+protected:
+
+  grt::StringRef _comment;
+  grt::StringRef _dataDirectory;
+  grt::StringRef _engine;
+  grt::StringRef _indexDirectory;
+  grt::StringRef _maxRows;
+  grt::StringRef _minRows;
+  grt::IntegerRef _nodeGroupId;
+  grt::ListRef<db_mysql_PartitionDefinition> _subpartitionDefinitions;// owned
+  grt::StringRef _tableSpace;
+  grt::StringRef _value;
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_mysql_PartitionDefinition(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_mysql_PartitionDefinition::create);
+    {
+      void (db_mysql_PartitionDefinition::*setter)(const grt::StringRef &)= &db_mysql_PartitionDefinition::comment;
+      grt::StringRef (db_mysql_PartitionDefinition::*getter)() const= &db_mysql_PartitionDefinition::comment;
+      meta->bind_member("comment", new grt::MetaClass::Property<db_mysql_PartitionDefinition,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_mysql_PartitionDefinition::*setter)(const grt::StringRef &)= &db_mysql_PartitionDefinition::dataDirectory;
+      grt::StringRef (db_mysql_PartitionDefinition::*getter)() const= &db_mysql_PartitionDefinition::dataDirectory;
+      meta->bind_member("dataDirectory", new grt::MetaClass::Property<db_mysql_PartitionDefinition,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_mysql_PartitionDefinition::*setter)(const grt::StringRef &)= &db_mysql_PartitionDefinition::engine;
+      grt::StringRef (db_mysql_PartitionDefinition::*getter)() const= &db_mysql_PartitionDefinition::engine;
+      meta->bind_member("engine", new grt::MetaClass::Property<db_mysql_PartitionDefinition,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_mysql_PartitionDefinition::*setter)(const grt::StringRef &)= &db_mysql_PartitionDefinition::indexDirectory;
+      grt::StringRef (db_mysql_PartitionDefinition::*getter)() const= &db_mysql_PartitionDefinition::indexDirectory;
+      meta->bind_member("indexDirectory", new grt::MetaClass::Property<db_mysql_PartitionDefinition,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_mysql_PartitionDefinition::*setter)(const grt::StringRef &)= &db_mysql_PartitionDefinition::maxRows;
+      grt::StringRef (db_mysql_PartitionDefinition::*getter)() const= &db_mysql_PartitionDefinition::maxRows;
+      meta->bind_member("maxRows", new grt::MetaClass::Property<db_mysql_PartitionDefinition,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_mysql_PartitionDefinition::*setter)(const grt::StringRef &)= &db_mysql_PartitionDefinition::minRows;
+      grt::StringRef (db_mysql_PartitionDefinition::*getter)() const= &db_mysql_PartitionDefinition::minRows;
+      meta->bind_member("minRows", new grt::MetaClass::Property<db_mysql_PartitionDefinition,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_mysql_PartitionDefinition::*setter)(const grt::IntegerRef &)= &db_mysql_PartitionDefinition::nodeGroupId;
+      grt::IntegerRef (db_mysql_PartitionDefinition::*getter)() const= &db_mysql_PartitionDefinition::nodeGroupId;
+      meta->bind_member("nodeGroupId", new grt::MetaClass::Property<db_mysql_PartitionDefinition,grt::IntegerRef >(getter,setter));
+    }
+    {
+      void (db_mysql_PartitionDefinition::*setter)(const grt::ListRef<db_mysql_PartitionDefinition> &)= &db_mysql_PartitionDefinition::subpartitionDefinitions;
+      grt::ListRef<db_mysql_PartitionDefinition> (db_mysql_PartitionDefinition::*getter)() const= &db_mysql_PartitionDefinition::subpartitionDefinitions;
+      meta->bind_member("subpartitionDefinitions", new grt::MetaClass::Property<db_mysql_PartitionDefinition,grt::ListRef<db_mysql_PartitionDefinition> >(getter,setter));
+    }
+    {
+      void (db_mysql_PartitionDefinition::*setter)(const grt::StringRef &)= &db_mysql_PartitionDefinition::tableSpace;
+      grt::StringRef (db_mysql_PartitionDefinition::*getter)() const= &db_mysql_PartitionDefinition::tableSpace;
+      meta->bind_member("tableSpace", new grt::MetaClass::Property<db_mysql_PartitionDefinition,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_mysql_PartitionDefinition::*setter)(const grt::StringRef &)= &db_mysql_PartitionDefinition::value;
+      grt::StringRef (db_mysql_PartitionDefinition::*getter)() const= &db_mysql_PartitionDefinition::value;
+      meta->bind_member("value", new grt::MetaClass::Property<db_mysql_PartitionDefinition,grt::StringRef >(getter,setter));
     }
   }
 };
@@ -2248,6 +2562,230 @@ public:
     grt::MetaClass *meta= grt->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_ServerLink::create);
+  }
+};
+
+
+class  db_mysql_Tablespace : public db_Tablespace
+{
+  typedef db_Tablespace super;
+public:
+  db_mysql_Tablespace(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_Tablespace(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+     _engine(""),
+     _nodeGroupId(0),
+     _wait(0)
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.mysql.Tablespace"; }
+
+  /** Getter for attribute engine
+   
+    NDB and InnoDB are supported
+   \par In Python:
+value = obj.engine
+   */
+  grt::StringRef engine() const { return _engine; }
+  /** Setter for attribute engine
+   
+    NDB and InnoDB are supported
+    \par In Python:
+obj.engine = value
+   */
+  virtual void engine(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_engine);
+   _engine= value;
+    member_changed("engine", ovalue, value);
+  }
+
+  /** Getter for attribute nodeGroupId
+   
+    the same id as used for a logfile group
+   \par In Python:
+value = obj.nodeGroupId
+   */
+  grt::IntegerRef nodeGroupId() const { return _nodeGroupId; }
+  /** Setter for attribute nodeGroupId
+   
+    the same id as used for a logfile group
+    \par In Python:
+obj.nodeGroupId = value
+   */
+  virtual void nodeGroupId(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_nodeGroupId);
+   _nodeGroupId= value;
+    member_changed("nodeGroupId", ovalue, value);
+  }
+
+  /** Getter for attribute wait
+   
+    no documentation yet
+   \par In Python:
+value = obj.wait
+   */
+  grt::IntegerRef wait() const { return _wait; }
+  /** Setter for attribute wait
+   
+    no documentation yet
+    \par In Python:
+obj.wait = value
+   */
+  virtual void wait(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_wait);
+   _wait= value;
+    member_changed("wait", ovalue, value);
+  }
+
+protected:
+
+  grt::StringRef _engine;
+  grt::IntegerRef _nodeGroupId;
+  grt::IntegerRef _wait;
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_mysql_Tablespace(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_mysql_Tablespace::create);
+    {
+      void (db_mysql_Tablespace::*setter)(const grt::StringRef &)= &db_mysql_Tablespace::engine;
+      grt::StringRef (db_mysql_Tablespace::*getter)() const= &db_mysql_Tablespace::engine;
+      meta->bind_member("engine", new grt::MetaClass::Property<db_mysql_Tablespace,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_mysql_Tablespace::*setter)(const grt::IntegerRef &)= &db_mysql_Tablespace::nodeGroupId;
+      grt::IntegerRef (db_mysql_Tablespace::*getter)() const= &db_mysql_Tablespace::nodeGroupId;
+      meta->bind_member("nodeGroupId", new grt::MetaClass::Property<db_mysql_Tablespace,grt::IntegerRef >(getter,setter));
+    }
+    {
+      void (db_mysql_Tablespace::*setter)(const grt::IntegerRef &)= &db_mysql_Tablespace::wait;
+      grt::IntegerRef (db_mysql_Tablespace::*getter)() const= &db_mysql_Tablespace::wait;
+      meta->bind_member("wait", new grt::MetaClass::Property<db_mysql_Tablespace,grt::IntegerRef >(getter,setter));
+    }
+  }
+};
+
+
+class  db_mysql_LogFileGroup : public db_LogFileGroup
+{
+  typedef db_LogFileGroup super;
+public:
+  db_mysql_LogFileGroup(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_LogFileGroup(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+     _engine(""),
+     _nodeGroupId(0),
+     _wait(0)
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.mysql.LogFileGroup"; }
+
+  /** Getter for attribute engine
+   
+    usually only NDB makes sense
+   \par In Python:
+value = obj.engine
+   */
+  grt::StringRef engine() const { return _engine; }
+  /** Setter for attribute engine
+   
+    usually only NDB makes sense
+    \par In Python:
+obj.engine = value
+   */
+  virtual void engine(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_engine);
+   _engine= value;
+    member_changed("engine", ovalue, value);
+  }
+
+  /** Getter for attribute nodeGroupId
+   
+    a unique id for the group, used in a tablespace
+   \par In Python:
+value = obj.nodeGroupId
+   */
+  grt::IntegerRef nodeGroupId() const { return _nodeGroupId; }
+  /** Setter for attribute nodeGroupId
+   
+    a unique id for the group, used in a tablespace
+    \par In Python:
+obj.nodeGroupId = value
+   */
+  virtual void nodeGroupId(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_nodeGroupId);
+   _nodeGroupId= value;
+    member_changed("nodeGroupId", ovalue, value);
+  }
+
+  /** Getter for attribute wait
+   
+    no documentation yet
+   \par In Python:
+value = obj.wait
+   */
+  grt::IntegerRef wait() const { return _wait; }
+  /** Setter for attribute wait
+   
+    no documentation yet
+    \par In Python:
+obj.wait = value
+   */
+  virtual void wait(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_wait);
+   _wait= value;
+    member_changed("wait", ovalue, value);
+  }
+
+protected:
+
+  grt::StringRef _engine;
+  grt::IntegerRef _nodeGroupId;
+  grt::IntegerRef _wait;
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_mysql_LogFileGroup(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_mysql_LogFileGroup::create);
+    {
+      void (db_mysql_LogFileGroup::*setter)(const grt::StringRef &)= &db_mysql_LogFileGroup::engine;
+      grt::StringRef (db_mysql_LogFileGroup::*getter)() const= &db_mysql_LogFileGroup::engine;
+      meta->bind_member("engine", new grt::MetaClass::Property<db_mysql_LogFileGroup,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_mysql_LogFileGroup::*setter)(const grt::IntegerRef &)= &db_mysql_LogFileGroup::nodeGroupId;
+      grt::IntegerRef (db_mysql_LogFileGroup::*getter)() const= &db_mysql_LogFileGroup::nodeGroupId;
+      meta->bind_member("nodeGroupId", new grt::MetaClass::Property<db_mysql_LogFileGroup,grt::IntegerRef >(getter,setter));
+    }
+    {
+      void (db_mysql_LogFileGroup::*setter)(const grt::IntegerRef &)= &db_mysql_LogFileGroup::wait;
+      grt::IntegerRef (db_mysql_LogFileGroup::*getter)() const= &db_mysql_LogFileGroup::wait;
+      meta->bind_member("wait", new grt::MetaClass::Property<db_mysql_LogFileGroup,grt::IntegerRef >(getter,setter));
+    }
   }
 };
 
@@ -2402,119 +2940,72 @@ public:
 };
 
 
-class  db_mysql_Trigger : public db_Trigger
+class  db_mysql_Catalog : public db_Catalog
 {
-  typedef db_Trigger super;
+  typedef db_Catalog super;
 public:
-  db_mysql_Trigger(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Trigger(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+  db_mysql_Catalog(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_Catalog(grt, meta ? meta : grt->get_metaclass(static_class_name()))
 
   {
+    _logFileGroups.content().__retype(grt::ObjectType, "db.mysql.LogFileGroup");
+    _schemata.content().__retype(grt::ObjectType, "db.mysql.Schema");
+    _serverLinks.content().__retype(grt::ObjectType, "db.mysql.ServerLink");
+    _tablespaces.content().__retype(grt::ObjectType, "db.mysql.Tablespace");
   }
 
-  static std::string static_class_name() { return "db.mysql.Trigger"; }
+  static std::string static_class_name() { return "db.mysql.Catalog"; }
 
-protected:
-
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_mysql_Trigger(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_mysql_Trigger::create);
-  }
-};
-
-
-class  db_mysql_Routine : public db_Routine
-{
-  typedef db_Routine super;
-public:
-  db_mysql_Routine(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Routine(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-    _params(grt, this, false),
-     _returnDatatype(""),
-     _security("")
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.mysql.Routine"; }
-
-  // params is owned by db_mysql_Routine
-  /** Getter for attribute params (read-only)
+  // logFileGroups is owned by db_mysql_Catalog
+  /** Getter for attribute logFileGroups (read-only)
    
     
    \par In Python:
-value = obj.params
+value = obj.logFileGroups
    */
-  grt::ListRef<db_mysql_RoutineParam> params() const { return _params; }
+  grt::ListRef<db_mysql_LogFileGroup> logFileGroups() const { return grt::ListRef<db_mysql_LogFileGroup>::cast_from(_logFileGroups); }
 private: // the next attribute is read-only
-  virtual void params(const grt::ListRef<db_mysql_RoutineParam> &value)
-  {
-    grt::ValueRef ovalue(_params);
-
-    _params= value;
-    owned_member_changed("params", ovalue, value);
-  }
 public:
 
-  /** Getter for attribute returnDatatype
+  // schemata is owned by db_mysql_Catalog
+  /** Getter for attribute schemata (read-only)
    
     
    \par In Python:
-value = obj.returnDatatype
+value = obj.schemata
    */
-  grt::StringRef returnDatatype() const { return _returnDatatype; }
-  /** Setter for attribute returnDatatype
-   
-    
-    \par In Python:
-obj.returnDatatype = value
-   */
-  virtual void returnDatatype(const grt::StringRef &value)
-  {
-    grt::ValueRef ovalue(_returnDatatype);
-   _returnDatatype= value;
-    member_changed("returnDatatype", ovalue, value);
-  }
+  grt::ListRef<db_mysql_Schema> schemata() const { return grt::ListRef<db_mysql_Schema>::cast_from(_schemata); }
+private: // the next attribute is read-only
+public:
 
-  /** Getter for attribute security
+  // serverLinks is owned by db_mysql_Catalog
+  /** Getter for attribute serverLinks (read-only)
    
     
    \par In Python:
-value = obj.security
+value = obj.serverLinks
    */
-  grt::StringRef security() const { return _security; }
-  /** Setter for attribute security
+  grt::ListRef<db_mysql_ServerLink> serverLinks() const { return grt::ListRef<db_mysql_ServerLink>::cast_from(_serverLinks); }
+private: // the next attribute is read-only
+public:
+
+  // tablespaces is owned by db_mysql_Catalog
+  /** Getter for attribute tablespaces (read-only)
    
     
-    \par In Python:
-obj.security = value
+   \par In Python:
+value = obj.tablespaces
    */
-  virtual void security(const grt::StringRef &value)
-  {
-    grt::ValueRef ovalue(_security);
-   _security= value;
-    member_changed("security", ovalue, value);
-  }
+  grt::ListRef<db_mysql_Tablespace> tablespaces() const { return grt::ListRef<db_mysql_Tablespace>::cast_from(_tablespaces); }
+private: // the next attribute is read-only
+public:
 
 protected:
 
-  grt::ListRef<db_mysql_RoutineParam> _params;// owned
-  grt::StringRef _returnDatatype;
-  grt::StringRef _security;
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
-    return grt::ObjectRef(new db_mysql_Routine(grt));
+    return grt::ObjectRef(new db_mysql_Catalog(grt));
   }
 
 
@@ -2523,53 +3014,27 @@ public:
   {
     grt::MetaClass *meta= grt->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_mysql_Routine::create);
+    meta->bind_allocator(&db_mysql_Catalog::create);
     {
-      void (db_mysql_Routine::*setter)(const grt::ListRef<db_mysql_RoutineParam> &)= &db_mysql_Routine::params;
-      grt::ListRef<db_mysql_RoutineParam> (db_mysql_Routine::*getter)() const= &db_mysql_Routine::params;
-      meta->bind_member("params", new grt::MetaClass::Property<db_mysql_Routine,grt::ListRef<db_mysql_RoutineParam> >(getter,setter));
+      void (db_mysql_Catalog::*setter)(const grt::ListRef<db_mysql_LogFileGroup> &)= 0;
+      grt::ListRef<db_mysql_LogFileGroup> (db_mysql_Catalog::*getter)() const= 0;
+      meta->bind_member("logFileGroups", new grt::MetaClass::Property<db_mysql_Catalog,grt::ListRef<db_mysql_LogFileGroup> >(getter,setter));
     }
     {
-      void (db_mysql_Routine::*setter)(const grt::StringRef &)= &db_mysql_Routine::returnDatatype;
-      grt::StringRef (db_mysql_Routine::*getter)() const= &db_mysql_Routine::returnDatatype;
-      meta->bind_member("returnDatatype", new grt::MetaClass::Property<db_mysql_Routine,grt::StringRef >(getter,setter));
+      void (db_mysql_Catalog::*setter)(const grt::ListRef<db_mysql_Schema> &)= 0;
+      grt::ListRef<db_mysql_Schema> (db_mysql_Catalog::*getter)() const= 0;
+      meta->bind_member("schemata", new grt::MetaClass::Property<db_mysql_Catalog,grt::ListRef<db_mysql_Schema> >(getter,setter));
     }
     {
-      void (db_mysql_Routine::*setter)(const grt::StringRef &)= &db_mysql_Routine::security;
-      grt::StringRef (db_mysql_Routine::*getter)() const= &db_mysql_Routine::security;
-      meta->bind_member("security", new grt::MetaClass::Property<db_mysql_Routine,grt::StringRef >(getter,setter));
+      void (db_mysql_Catalog::*setter)(const grt::ListRef<db_mysql_ServerLink> &)= 0;
+      grt::ListRef<db_mysql_ServerLink> (db_mysql_Catalog::*getter)() const= 0;
+      meta->bind_member("serverLinks", new grt::MetaClass::Property<db_mysql_Catalog,grt::ListRef<db_mysql_ServerLink> >(getter,setter));
     }
-  }
-};
-
-
-class  db_mysql_View : public db_View
-{
-  typedef db_View super;
-public:
-  db_mysql_View(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_View(grt, meta ? meta : grt->get_metaclass(static_class_name()))
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.mysql.View"; }
-
-protected:
-
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_mysql_View(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_mysql_View::create);
+    {
+      void (db_mysql_Catalog::*setter)(const grt::ListRef<db_mysql_Tablespace> &)= 0;
+      grt::ListRef<db_mysql_Tablespace> (db_mysql_Catalog::*getter)() const= 0;
+      meta->bind_member("tablespaces", new grt::MetaClass::Property<db_mysql_Catalog,grt::ListRef<db_mysql_Tablespace> >(getter,setter));
+    }
   }
 };
 
@@ -2580,26 +3045,27 @@ inline void register_structs_db_mysql_xml()
 {
   grt::internal::ClassRegistry::register_class<db_mysql_StorageEngine>();
   grt::internal::ClassRegistry::register_class<db_mysql_StorageEngineOption>();
+  grt::internal::ClassRegistry::register_class<db_mysql_Sequence>();
+  grt::internal::ClassRegistry::register_class<db_mysql_Synonym>();
   grt::internal::ClassRegistry::register_class<db_mysql_RoutineParam>();
-  grt::internal::ClassRegistry::register_class<db_mysql_PartitionDefinition>();
+  grt::internal::ClassRegistry::register_class<db_mysql_Routine>();
+  grt::internal::ClassRegistry::register_class<db_mysql_RoutineGroup>();
+  grt::internal::ClassRegistry::register_class<db_mysql_View>();
+  grt::internal::ClassRegistry::register_class<db_mysql_Event>();
+  grt::internal::ClassRegistry::register_class<db_mysql_Trigger>();
   grt::internal::ClassRegistry::register_class<db_mysql_ForeignKey>();
   grt::internal::ClassRegistry::register_class<db_mysql_IndexColumn>();
   grt::internal::ClassRegistry::register_class<db_mysql_Index>();
+  grt::internal::ClassRegistry::register_class<db_mysql_StructuredDatatype>();
   grt::internal::ClassRegistry::register_class<db_mysql_SimpleDatatype>();
   grt::internal::ClassRegistry::register_class<db_mysql_Column>();
+  grt::internal::ClassRegistry::register_class<db_mysql_Table>();
+  grt::internal::ClassRegistry::register_class<db_mysql_PartitionDefinition>();
+  grt::internal::ClassRegistry::register_class<db_mysql_ServerLink>();
   grt::internal::ClassRegistry::register_class<db_mysql_Tablespace>();
   grt::internal::ClassRegistry::register_class<db_mysql_LogFileGroup>();
-  grt::internal::ClassRegistry::register_class<db_mysql_Catalog>();
-  grt::internal::ClassRegistry::register_class<db_mysql_Sequence>();
-  grt::internal::ClassRegistry::register_class<db_mysql_Synonym>();
-  grt::internal::ClassRegistry::register_class<db_mysql_RoutineGroup>();
-  grt::internal::ClassRegistry::register_class<db_mysql_StructuredDatatype>();
-  grt::internal::ClassRegistry::register_class<db_mysql_Table>();
-  grt::internal::ClassRegistry::register_class<db_mysql_ServerLink>();
   grt::internal::ClassRegistry::register_class<db_mysql_Schema>();
-  grt::internal::ClassRegistry::register_class<db_mysql_Trigger>();
-  grt::internal::ClassRegistry::register_class<db_mysql_Routine>();
-  grt::internal::ClassRegistry::register_class<db_mysql_View>();
+  grt::internal::ClassRegistry::register_class<db_mysql_Catalog>();
 }
 
 #ifdef AUTO_REGISTER_GRT_CLASSES

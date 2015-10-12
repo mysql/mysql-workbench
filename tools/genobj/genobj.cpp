@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,10 +25,10 @@
   #include <windows.h>
 #endif // _WIN32
 
+#include <glib.h>
+
 #include "grtpp.h"
 #include "grtpp_helper.h"
-
-#include <glib.h>
 
 using namespace grt;
 

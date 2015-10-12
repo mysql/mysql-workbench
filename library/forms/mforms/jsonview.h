@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "mforms/form.h"
 #include "mforms/panel.h"
 #include "mforms/treenodeview.h"
 #include <algorithm>
@@ -175,6 +176,8 @@ namespace JsonParser {
 
     void setType(DataType type);
     DataType getType() const;
+    void setDeleted(bool flag);
+    bool isDeleted() const;
 
   private:
     double _double;
@@ -185,14 +188,18 @@ namespace JsonParser {
     JsonObject _object;
     JsonArray _array;
     DataType _type;
+    bool _deleted;
   };
 
 #if defined(_WIN32) || defined(__APPLE__)
   #define NOEXCEPT _NOEXCEPT
 #else
-  #define NOEXCEPT _GLIBCXX_USE_NOEXCEPT
+  #ifndef _GLIBCXX_USE_NOEXCEPT
+    #define NOEXCEPT throw()
+  #else  
+    #define NOEXCEPT _GLIBCXX_USE_NOEXCEPT
+  #endif
 #endif
-
   class MFORMS_EXPORT ParserException : public std::exception
   {
   public:
@@ -297,19 +304,51 @@ namespace mforms {
   public:
     JsonBaseView();
     virtual ~JsonBaseView();
-     bool getNeedRepaint() const;
-    void setNeedRepaint(bool value);
     void highlightMatch(const std::string &text);
+    boost::signals2::signal<void(bool)>* dataChanged();
 
   protected:
     virtual void clear() = 0;
-    bool _needRepaint;
+    boost::signals2::signal<void(bool)> _dataChanged;
+    bool isDateTime(const std::string &text);
+  };
+
+  /**
+  * @brief Dialog for adding JSON.
+  */
+  class CodeEditor;
+  class TextEntry;
+  class JsonInputDlg : public mforms::Form
+  {
+  public:
+    JsonInputDlg(mforms::Form *owner, bool showTextEntry);
+    virtual ~JsonInputDlg();
+    const std::string &text() const;
+    const JsonParser::JsonValue &data() const;
+    std::string objectName() const;
+    void setText(const std::string &text, bool readonly);
+    void setJson(const JsonParser::JsonValue &json);
+    bool run();
+
+  private:
+    JsonParser::JsonValue _value;
+    std::string _text;
+    boost::shared_ptr<CodeEditor> _textEditor;
+    Button *_save;
+    Button *_cancel;
+    TextEntry *_textEntry;
+    bool _validated;
+
+    void setup(bool showTextEntry);
+    void validate();
+    void save();
+    void editorContentChanged(int position, int length, int numberOfLines, bool inserted);
   };
 
   /**
    * @brief Json text view control class definition.
    */
-  class CodeEditor;
+  class Label;
   class JsonTextView : public JsonBaseView
   {
   public:
@@ -318,13 +357,22 @@ namespace mforms {
     void setText(const std::string &jsonText);
     virtual void clear();
     void findAndHighlightText(const std::string &text, bool backward = false);
+    const JsonParser::JsonValue &getJson() const;
+    const std::string &getText() const;
 
   private:
     void init();
+    void editorContentChanged(int position, int length, int numberOfLines, bool inserted);
+    virtual void validate();
+
     boost::shared_ptr<CodeEditor> _textEditor;
+    boost::shared_ptr<Label> _validationResult;
+    bool _modified;
+    std::string _text;
+    JsonParser::JsonValue _json;
   };
 
-  class JsonTreeBaseView
+  class JsonTreeBaseView : public JsonBaseView
   {
   public:
     typedef std::list<TreeNodeRef> TreeNodeList;
@@ -334,6 +382,7 @@ namespace mforms {
     {
       JsonValueNodeData(JsonParser::JsonValue &value) : _jsonValue(value) {}
       JsonParser::JsonValue &getData() { return _jsonValue; }
+      ~JsonValueNodeData() {}
     private:
       JsonParser::JsonValue &_jsonValue;
     };
@@ -343,7 +392,7 @@ namespace mforms {
     void setCellValue(mforms::TreeNodeRef node, int column, const std::string &value);
     void highlightMatchNode(const std::string &text, bool bacward = false);
     bool filterView(const std::string &text, JsonParser::JsonValue &value);
-    void restoreOrygilanResult(JsonParser::JsonValue &value);
+    void reCreateTree(JsonParser::JsonValue &value);
 
   protected:
     void generateTree(JsonParser::JsonValue &value, mforms::TreeNodeRef node, bool addNew = true);
@@ -351,8 +400,9 @@ namespace mforms {
     virtual void generateObjectInTree(JsonParser::JsonValue &value, TreeNodeRef node, bool addNew);
     virtual void generateNumberInTree(JsonParser::JsonValue &value, TreeNodeRef node);
     virtual void generateBoolInTree(JsonParser::JsonValue &value, TreeNodeRef node);
-    virtual void generateStringInTree(JsonParser::JsonValue &value, TreeNodeRef node);
     virtual void generateNullInTree(JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void setStringData(TreeNodeRef node, const std::string &text);
+    void generateStringInTree(JsonParser::JsonValue &value, TreeNodeRef node);
     void collectParents(TreeNodeRef node, TreeNodeList &parents);
     static std::string getNodeIconPath(JsonNodeIcons icon);
     TreeNodeVectorMap _viewFindResult;
@@ -361,12 +411,18 @@ namespace mforms {
     std::string _textToFind;
     size_t _searchIdx;
     boost::shared_ptr<TreeNodeView> _treeView;
+    mforms::ContextMenu *_contextMenu;
+
+  private:
+    void prepareMenu();
+    void handleMenuCommand(const std::string &command);
+    void openInputJsonWindow(TreeNodeRef node, bool updateMode = false);
   };
 
   /**
    * @brief Json tree view control class definition.
    */
-  class JsonTreeView : public JsonBaseView, public JsonTreeBaseView
+  class JsonTreeView : public JsonTreeBaseView
   {
   public:
     JsonTreeView();
@@ -381,14 +437,14 @@ namespace mforms {
     virtual void generateObjectInTree(JsonParser::JsonValue &value, TreeNodeRef node, bool addNew);
     virtual void generateNumberInTree(JsonParser::JsonValue &value, TreeNodeRef node);
     virtual void generateBoolInTree(JsonParser::JsonValue &value, TreeNodeRef node);
-    virtual void generateStringInTree(JsonParser::JsonValue &value, TreeNodeRef node);
     virtual void generateNullInTree(JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void setStringData(TreeNodeRef node, const std::string &text);
   };
 
   /**
    * @brief Json grid view control class definition.
    */
-  class JsonGridView : public JsonBaseView, public JsonTreeBaseView
+  class JsonGridView : public JsonTreeBaseView
   {
   public:
     JsonGridView();
@@ -403,8 +459,8 @@ namespace mforms {
     virtual void generateObjectInTree(JsonParser::JsonValue &value, TreeNodeRef node, bool addNew);
     virtual void generateNumberInTree(JsonParser::JsonValue &value, TreeNodeRef node);
     virtual void generateBoolInTree(JsonParser::JsonValue &value, TreeNodeRef node);
-    virtual void generateStringInTree(JsonParser::JsonValue &value, TreeNodeRef node);
     virtual void generateNullInTree(JsonParser::JsonValue &value, TreeNodeRef node);
+    virtual void setStringData(TreeNodeRef node, const std::string &text);
     boost::shared_ptr<TreeNodeView> _gridView;
   };
 
@@ -415,7 +471,7 @@ namespace mforms {
   class MFORMS_EXPORT JsonTabView : public Panel
   {
   public:
-    typedef boost::shared_ptr<JsonParser::JsonValue> JsonValue;
+    typedef boost::shared_ptr<JsonParser::JsonValue> JsonValuePtr;
     void Setup();
     JsonTabView();
     ~JsonTabView();
@@ -424,12 +480,16 @@ namespace mforms {
     void setText(const std::string &text);
     void append(const std::string &text);
     void tabChanged();
+    void dataChanged(bool forceUpdate);
     void clear();
     void highlightMatch(const std::string &text);
     void highlightNextMatch();
     void highlightPreviousMatch();
     bool filterView(const std::string &text);
     void restoreOrginalResult();
+    boost::signals2::signal<void(const std::string &text)> *editorDataChanged();
+    const std::string &text() const;
+    const JsonParser::JsonValue &json() const;
 
   private:
     boost::shared_ptr<JsonTextView> _textView;
@@ -437,9 +497,10 @@ namespace mforms {
     boost::shared_ptr<JsonGridView> _gridView;
     boost::shared_ptr<TabView> _tabView;
     std::string _jsonText;
-    JsonValue _json;
+    JsonValuePtr _json;
     int _ident;
     boost::tuple<int, int, int> _tabId;
     std::string _matchText;
+    boost::signals2::signal<void(const std::string &text)> _dataChanged;
   };
 };

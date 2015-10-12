@@ -48,6 +48,19 @@ DbMySQLTableEditorColumnPage::DbMySQLTableEditorColumnPage(DbMySQLTableEditor *o
   collations.insert(collations.begin(), "*Table Default*");
   fill_combo_from_string_list(_collation_combo, collations);
   _collation_combo->signal_changed().connect(sigc::mem_fun(this, &DbMySQLTableEditorColumnPage::set_collation));
+
+  Gtk::Box *box;
+  _xml->get_widget("gc_storage_type_box", box);
+  if (box)
+    box->set_sensitive(false);
+
+  _xml->get_widget("gc_stored_radio", _radioStored);
+  _xml->get_widget("gc_virtual_radio", _radioVirtual);
+  if (_radioStored == 0 || _radioVirtual == 0)
+    throw std::logic_error("Glade file is missing gc_stored_radio or gc_virtual_radio");
+
+  _radioStored->signal_toggled().connect(sigc::mem_fun(this, &DbMySQLTableEditorColumnPage::set_gc_storage_type));
+  _radioVirtual->signal_toggled().connect(sigc::mem_fun(this, &DbMySQLTableEditorColumnPage::set_gc_storage_type));
 }
 
 //------------------------------------------------------------------------------
@@ -116,7 +129,8 @@ void DbMySQLTableEditorColumnPage::refill_columns_tv()
   model->model().append_check_column(MySQLTableColumnsListBE::IsUnsigned, "UN", EDITABLE);
   model->model().append_check_column(MySQLTableColumnsListBE::IsZerofill, "ZF", EDITABLE);
   model->model().append_check_column(MySQLTableColumnsListBE::IsAutoIncrement, "AI", EDITABLE);
-  model->model().append_string_column(MySQLTableColumnsListBE::Default, "Default", EDITABLE);
+  model->model().append_check_column(MySQLTableColumnsListBE::IsGenerated, "G", EDITABLE);
+  model->model().append_string_column(MySQLTableColumnsListBE::Default, "Default / Expression", EDITABLE);
   
   _model = model;
   new_tv.release();
@@ -389,12 +403,12 @@ grt::StringListRef DbMySQLTableEditorColumnPage::get_types_for_table(const db_Ta
 //------------------------------------------------------------------------------
 void DbMySQLTableEditorColumnPage::check_resize(Gtk::Allocation& r)
 {
-  //   0       1        2  3  4   5   6   7   8       9
-  // name    type      PK  NN UQ BIN  UN  ZF  AI      Default
+  //   0       1        2  3  4   5   6   7   8   9    10
+  // name    type      PK  NN UQ BIN  UN  ZF  AI  G    Default
   const int step = r.get_width() / 10;
   _tv->get_column(0)->set_min_width(4 * step);
   _tv->get_column(1)->set_min_width(2 * step);
-  _tv->get_column(9)->set_min_width(2 * step);
+  _tv->get_column(10)->set_min_width(2 * step);
 }
 
 //------------------------------------------------------------------------------
@@ -481,6 +495,7 @@ void DbMySQLTableEditorColumnPage::update_column_details(const ::bec::NodeId& no
   }
   
   update_collation();
+  update_gc_storage_type();
 }
 
 //------------------------------------------------------------------------------
@@ -542,6 +557,48 @@ void DbMySQLTableEditorColumnPage::update_collation()
   {
     set_selected_combo_item(collation_combo, "*Table Default*");
     collation_combo->set_sensitive(false);
+  }
+}
+//--------------------------------------------------------------------------------
+void DbMySQLTableEditorColumnPage::update_gc_storage_type()
+{
+  const bec::NodeId node = get_selected();
+  if (node.is_valid())
+  {
+    std::string has_charset;
+    MySQLTableColumnsListBE* columns = _be->get_columns();
+    ssize_t isGenerated;
+    columns->get_field(node, MySQLTableColumnsListBE::IsGenerated, isGenerated);
+    Gtk::Box *box;
+    _xml->get_widget("gc_storage_type_box", box);
+    if (box)
+      box->set_sensitive(isGenerated != 0);
+
+    if (isGenerated != 0)
+    {
+      std::string storageType;
+      columns->get_field(node, MySQLTableColumnsListBE::GeneratedStorageType, storageType);
+
+      if (base::toupper(storageType) != "STORED")
+        _radioVirtual->activate();
+      else
+        _radioStored->activate();
+    }
+  }
+}
+
+//--------------------------------------------------------------------------------
+
+void DbMySQLTableEditorColumnPage::set_gc_storage_type()
+{
+  const bec::NodeId node = get_selected();
+  if (node.is_valid())
+  {
+    MySQLTableColumnsListBE* columns = _be->get_columns();
+    if (_radioVirtual->get_active())
+      columns->set_field(node, MySQLTableColumnsListBE::GeneratedStorageType, "VIRTUAL");
+    else
+      columns->set_field(node, MySQLTableColumnsListBE::GeneratedStorageType, "STORED");
   }
 }
 

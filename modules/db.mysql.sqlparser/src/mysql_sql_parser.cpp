@@ -2196,7 +2196,7 @@ Mysql_sql_parser::process_create_tablespace_statement(const SqlAstNode *tree)
           if ((aux_item= item->subitem(sql::_opt_ts_initial_size)))
             SET_INT_SI(obj->initialSize, aux_item, sql::_size_number)
           else if ((aux_item= item->subitem(sql::_opt_ts_extent_size)))
-            SET_INT_SI(obj->extendSize, aux_item, sql::_size_number)
+            SET_INT_SI(obj->extentSize, aux_item, sql::_size_number)
           else if ((aux_item= item->subitem(sql::_opt_ts_engine)))
             SET_STR_SI(obj->engine, aux_item, sql::_storage_engines)
         }

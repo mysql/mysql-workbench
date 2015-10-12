@@ -423,7 +423,7 @@ class csv_module(base_module):
                         is_header = False
                         continue
 
-                    self.item_count = self.item_count + 1
+                    
                     self.update_progress(round(self._current_row / self._max_rows, 2), "Data import")
 
                     for i, col in enumerate(col_order):
@@ -433,13 +433,17 @@ class csv_module(base_module):
                             break
                         val = row[col_order[col]]
                         if col_type[col] == 'double':
-                            val = row[col_order[col]].replace(self._decimal_separator, ',')
+                            val = row[col_order[col]].replace(self._decimal_separator, '.')
                         elif col_type[col] == 'datetime':
                             val = datetime.datetime.strptime(row[col_order[col]], self._date_format).strftime("%Y-%m-%d %H:%M:%S")
-                        self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val.replace("\\", "\\\\").replace('"', '\\"')), 0)
+                            
+                        if hasattr(val, "replace"):
+                            val = val.replace("\\", "\\\\").replace('"', '\\"')
+                        self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val), 0)
                     else:
                         try:
                             self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 0)
+                            self.item_count = self.item_count + 1
                         except Exception, e:
                             log_error("Row import failed with error: %s" % e)
                 self.update_progress(1.0, "Import finished")
@@ -609,7 +613,6 @@ class json_module(base_module):
                         return False
 
                     self._current_row = self._current_row + 1
-                    self.item_count = self.item_count + 1
                     for i, col in enumerate(col_order):
                         if col_order[col] not in row:
                             log_error("Can't find col: %s in row: %s" % (col_order[col], row))
@@ -617,14 +620,18 @@ class json_module(base_module):
                             break
                         val = row[col_order[col]]
                         if col_type[col] == 'double':
-                            val = row[col_order[col]].replace(self._decimal_separator, ',')
+                            val = row[col_order[col]].replace(self._decimal_separator, '.')
                         elif col_type[col] == 'datetime':
                             val = datetime.datetime.strptime(row[col_order[col]], self._date_format).strftime("%Y-%m-%d %H:%M:%S")
-                            
-                        self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val.replace("\\", "\\\\").replace('"', '\\"')), 0)
+                        
+                        if hasattr(val, "replace"):
+                            val = val.replace("\\", "\\\\").replace('"', '\\"')
+                        self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val), 0)
+                        
                     else:
                         try:
                             self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 0)
+                            self.item_count = self.item_count + 1
                         except Exception, e:
                             log_error("Row import failed with error: %s" % e)
                         
