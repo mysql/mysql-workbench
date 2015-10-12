@@ -475,7 +475,7 @@ WHERE is_user_defined = 1"""
             datatype.isNullable = is_nullable
             actual_type_found = False
             for simple_type in mssql_rdbms_instance.simpleDatatypes:
-                if simple_type.name == base_type.upper():
+                if base_type and simple_type.name == base_type.upper():
                     datatype.actualType = simple_type
                     actual_type_found = True
                     break

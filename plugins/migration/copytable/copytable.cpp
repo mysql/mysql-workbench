@@ -602,10 +602,6 @@ ODBCCopyDataSource::ODBCCopyDataSource(SQLHENV env,
   _utf8_blob_buffer = NULL;
   _force_utf8_input = force_utf8_input;
 
-  _iconv = iconv_open("UTF-8", "UCS-2LE");
-  if (_iconv == (iconv_t)-1)
-    throw std::runtime_error("Could not create UCS-2 to UTF-8 conversion context");
-
   SQLAllocHandle(SQL_HANDLE_DBC, env, &_dbc);
 
   // 5s timeout
@@ -635,7 +631,6 @@ ODBCCopyDataSource::~ODBCCopyDataSource()
     free(_blob_buffer);
   if (_utf8_blob_buffer)
     free(_utf8_blob_buffer);
-  iconv_close(_iconv);
 
   if (_stmt_ok)
     SQLFreeHandle(SQL_HANDLE_ENV, _stmt);
@@ -645,8 +640,6 @@ ODBCCopyDataSource::~ODBCCopyDataSource()
 
 void ODBCCopyDataSource::ucs2_to_utf8(char *inbuf, size_t inbuf_len, char *&utf8buf, size_t &utf8buf_len)
 {
-  size_t converted;
-  char *outbuf = (char*)_utf8_blob_buffer;
   size_t outbuf_len = _max_blob_chunk_size;
 
   // outside Windows, SQLWCHAR is wchar_t, which is not always 2 bytes
@@ -664,17 +657,15 @@ void ODBCCopyDataSource::ucs2_to_utf8(char *inbuf, size_t inbuf_len, char *&utf8
   //log_debug3("Convert string with %i chars to buffer size %i\n", inbuf_len, outbuf_len);
 
   // convert data from UCS-2 to utf-8
-#ifdef _WIN32
-  converted = iconv(_iconv,
-                    (const char**)&inbuf, &inbuf_len,
-                    (char**)&outbuf, &outbuf_len);
-#else
-  converted = iconv(_iconv,
-                    (char**)&inbuf, &inbuf_len,
-                    (char**)&outbuf, &outbuf_len);
-#endif
-  if (converted == (size_t)-1)
+  std::string s_outbuf = base::wstring_to_string((wchar_t*)inbuf);
+  outbuf_len = s_outbuf.size();
+  if (outbuf_len > _max_blob_chunk_size - 1)
+	  throw std::logic_error("Output buffer size is greater than max blob chunk size.");
+
+  if (s_outbuf.empty())
     throw std::logic_error(base::strfmt("Error during charset conversion of wstring: %s", strerror(errno)));
+
+  std::strcpy(_utf8_blob_buffer, s_outbuf.c_str());
 
   if (inbuf_len > 0)
     log_warning("%li characters could not be converted to UTF-8 during copy\n",
@@ -708,9 +699,7 @@ SQLRETURN ODBCCopyDataSource::get_wchar_buffer_data(RowBuffer &rowbuffer, int co
     {
       char *inbuf = (char*)tmpbuf;
       size_t inbuf_len = len_or_indicator;
-      char *outbuf = (char*)out_buffer;
       size_t outbuf_len = out_buffer_len;
-      size_t converted;
 
       if (sizeof(SQLWCHAR) > sizeof(unsigned short))
       {
@@ -726,17 +715,15 @@ SQLRETURN ODBCCopyDataSource::get_wchar_buffer_data(RowBuffer &rowbuffer, int co
       //log_debug3("Convert string with %i chars to buffer size %i\n", inbuf_len, outbuf_len);
 
       // convert data from UCS-2 to utf-8
-#ifdef _WIN32
-      converted = iconv(_iconv,
-                        (const char**)&inbuf, &inbuf_len,
-                        (char**)&outbuf, &outbuf_len);
-#else
-      converted = iconv(_iconv,
-                        (char**)&inbuf, &inbuf_len,
-                        (char**)&outbuf, &outbuf_len);
-#endif
-      if (converted == (size_t)-1)
+      std::string s_outbuf = base::wstring_to_string(tmpbuf);
+      outbuf_len = s_outbuf.size();
+      if (outbuf_len > _max_blob_chunk_size - 1)
+      	  throw std::logic_error("Output buffer size is greater than max blob chunk size.");
+
+      if (s_outbuf.empty())
         throw std::logic_error(base::strfmt("Error during charset conversion of wstring: %s", strerror(errno)));
+
+	  std::strcpy(out_buffer, s_outbuf.c_str());
 
       if (inbuf_len > 0)
         log_warning("%li characters could not be converted to UTF-8 from column %s during copy\n",
@@ -823,9 +810,7 @@ SQLRETURN ODBCCopyDataSource::get_geometry_buffer_data(RowBuffer &rowbuffer, int
     {
       char *inbuf = (char*)tmpbuf;
       size_t inbuf_len = len_or_indicator;
-      char *outbuf = out_buffer;
       size_t outbuf_len = out_buffer_len;
-      size_t converted;
 
       if (sizeof(SQLWCHAR) > sizeof(unsigned short))
       {
@@ -839,17 +824,15 @@ SQLRETURN ODBCCopyDataSource::get_geometry_buffer_data(RowBuffer &rowbuffer, int
         throw std::logic_error("Unexpected architecture. sizeof(SQLWCHAR) < sizeof(unsigned short)!");
 
       // convert data from UCS-2 to utf-8
-#ifdef _WIN32
-      converted = iconv(_iconv,
-                        (const char**)&inbuf, &inbuf_len,
-                        (char**)&outbuf, &outbuf_len);
-#else
-      converted = iconv(_iconv,
-                        (char**)&inbuf, &inbuf_len,
-                        (char**)&outbuf, &outbuf_len);
-#endif
-      if (converted == (size_t)-1)
+      std::string s_outbuf = base::wstring_to_string(tmpbuf);
+      outbuf_len = s_outbuf.size();
+      if (outbuf_len > _max_blob_chunk_size - 1)
+      	  throw std::logic_error("Output buffer size is greater than max blob chunk size.");
+
+      if (s_outbuf.empty())
         throw std::logic_error(base::strfmt("Error during charset conversion of wstring: %s", strerror(errno)));
+
+      std::strcpy(out_buffer, s_outbuf.c_str());
 
       if (inbuf_len > 0)
         log_warning("%lu characters could not be converted to UTF-8 from column %s during copy\n",
