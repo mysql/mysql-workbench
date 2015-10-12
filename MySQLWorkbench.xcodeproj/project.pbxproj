@@ -367,7 +367,6 @@
 		27B3E24812E05C1C00FFF572 /* advanced_sidebar.h in Headers */ = {isa = PBXBuildFile; fileRef = 27B3E24612E05C1C00FFF572 /* advanced_sidebar.h */; };
 		27B3E25C12E05FBE00FFF572 /* log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27B3E25B12E05FBE00FFF572 /* log.cpp */; };
 		27B3E26012E05FC700FFF572 /* log.h in Headers */ = {isa = PBXBuildFile; fileRef = 27B3E25E12E05FC700FFF572 /* log.h */; };
-		27B4571A1A67DB860074CDAC /* libiconv.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27B457191A67DB860074CDAC /* libiconv.2.dylib */; };
 		27B7FB7911B6A07A00F58910 /* MFMenu.h in Headers */ = {isa = PBXBuildFile; fileRef = 27B7FB7711B6A07A00F58910 /* MFMenu.h */; };
 		27B7FB7A11B6A07A00F58910 /* MFMenu.mm in Sources */ = {isa = PBXBuildFile; fileRef = 27B7FB7811B6A07A00F58910 /* MFMenu.mm */; };
 		27B923B8196EC71700D98D18 /* item_overlay_add.png in Resources */ = {isa = PBXBuildFile; fileRef = 27B923B4196EC71700D98D18 /* item_overlay_add.png */; };
@@ -4230,7 +4229,6 @@
 		27B3E24612E05C1C00FFF572 /* advanced_sidebar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = advanced_sidebar.h; path = frontend/common/advanced_sidebar.h; sourceTree = "<group>"; };
 		27B3E25B12E05FBE00FFF572 /* log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = log.cpp; path = library/base/log.cpp; sourceTree = "<group>"; };
 		27B3E25E12E05FC700FFF572 /* log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = log.h; path = library/base/base/log.h; sourceTree = "<group>"; };
-		27B457191A67DB860074CDAC /* libiconv.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.2.dylib; path = "../mysql-mac-res/lib/libiconv.2.dylib"; sourceTree = "<group>"; };
 		27B7FB7711B6A07A00F58910 /* MFMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MFMenu.h; path = library/forms/cocoa/MFMenu.h; sourceTree = "<group>"; };
 		27B7FB7811B6A07A00F58910 /* MFMenu.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MFMenu.mm; path = library/forms/cocoa/MFMenu.mm; sourceTree = "<group>"; };
 		27B923B4196EC71700D98D18 /* item_overlay_add.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = item_overlay_add.png; sourceTree = "<group>"; };
@@ -6659,7 +6657,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				27B4571A1A67DB860074CDAC /* libiconv.2.dylib in Frameworks */,
 				2BECA53918BD2F3000E12F8B /* Python in Frameworks */,
 				2B2E92F21589991B0078D08A /* libwbbase.dylib in Frameworks */,
 				2B2E92FE158999890078D08A /* libiodbc.dylib in Frameworks */,
@@ -9210,7 +9207,6 @@
 				2B774FA515CEC32900923448 /* libglib-2.0.0.dylib */,
 				2B15AE9712D6C6B5006567D6 /* libgmodule-2.0.0.dylib */,
 				2B774FA615CEC32900923448 /* libgthread-2.0.0.dylib */,
-				27B457191A67DB860074CDAC /* libiconv.2.dylib */,
 				2BCBAE4415E7D749009571DE /* libintl.8.dylib */,
 				2B2E92FD158999890078D08A /* libiodbc.dylib */,
 				2BC7896717D7BE24005E03D5 /* libmysqlclient.dylib */,

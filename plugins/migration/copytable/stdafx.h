@@ -35,7 +35,6 @@ typedef int ssize_t;
 
 #include <errno.h>
 #include <stdlib.h>
-#include <iconv.h>
 
 #include <vector>
 #include <set>
