@@ -798,7 +798,7 @@ static void getPartitionDefinition(MySQLRecognizerTreeWalker &walker, db_mysql_P
     case ENGINE_SYMBOL:
       walker.next(walker.is(STORAGE_SYMBOL) ? 2 : 1);
       walker.skip_if(EQUAL_OPERATOR);
-      walker.next(); // Skip ENGIN_REF_TOKEN.
+      walker.next(); // Skip ENGINE_REF_TOKEN.
       definition->engine(walker.token_text());
       walker.next();
       break;
@@ -884,7 +884,7 @@ static void fillTablePartitioning(MySQLRecognizerTreeWalker &walker, db_mysql_Ta
   case KEY_SYMBOL:
     if (walker.is(ALGORITHM_SYMBOL))
     {
-      walker.next(2); // Skip ALGORTIHM EQUAL.
+      walker.next(2); // Skip ALGORITHM EQUAL.
       table->partitionKeyAlgorithm(base::atoi<size_t>(walker.token_text()));
       walker.next();
     }
