@@ -3538,6 +3538,13 @@ size_t MySQLParserServicesImpl::parseTablespace(parser::ParserContext::Ref conte
   return error_count;
 }
 
+size_t MySQLParserServicesImpl::parseSQLIntoCatalogSql(parser_ContextReferenceRef context_ref, db_mysql_CatalogRef catalog,
+          const std::string &sql, grt::DictRef options)
+{
+  ParserContext::Ref context = parser_context_from_grt(context_ref);
+  return parseSQLIntoCatalog( context, catalog, sql, options);
+}
+
 /**
 *	Expects the sql to be a single or multi-statement text in utf-8 encoding which is parsed and
 *	the details are used to build a grt tree. Existing objects are replaced unless the SQL has
@@ -3605,16 +3612,20 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
   if (!startSchema.empty())
     currentSchema = ensureSchemaExists(catalog, startSchema, caseSensitive);
 
-  bool defaultSchemaCreated = catalog->schemata().count() == 0;
-
+  bool defaultSchemaCreated = false;
   bool autoGenerateFkNames = options.get_int("gen_fk_names_when_empty") != 0;
   //bool reuseExistingObjects = options.get_int("reuse_existing_objects") != 0;
 
   if (!currentSchema.is_valid())
   {
     currentSchema = db_mysql_SchemaRef::cast_from(catalog->defaultSchema());
-    if (defaultSchemaCreated || !currentSchema.is_valid())
+    if (!currentSchema.is_valid())
+    {
+      db_SchemaRef df = find_named_object_in_list(catalog->schemata(), "default_schema", caseSensitive);
+      if (!df.is_valid())
+        defaultSchemaCreated = true;
       currentSchema = ensureSchemaExists(catalog, "default_schema", caseSensitive);
+    }
   }
 
   size_t errorCount = 0;
