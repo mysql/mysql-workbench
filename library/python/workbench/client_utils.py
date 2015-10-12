@@ -186,6 +186,8 @@ class MySQLScriptImporter(object):
             # in !Windows feed password to client after it's started (otherwise the fifo would block on open for writing)
             pwdfile = open(pwdfilename, 'w')
             pwdfile.write('[client]\npassword=')
+            if self._password is None:
+                self._password = ''
             pwdfile.write(self._password.replace("\\", "\\\\"))
             pwdfile.write('\n')
             pwdfile.close()

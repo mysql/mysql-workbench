@@ -17,8 +17,20 @@
  * 02110-1301  USA
  */
 
+#import "MFView.h"
 #import "MFTextEntry.h"
 #import "MFMForms.h"
+#include "mforms/textentry.h"
+
+/**
+ * A special formatter to implement text length limits.
+ */
+@interface LimitedTextFieldFormatter : NSFormatter {
+  int maxLength;
+}
+@property  int maximumLength;
+
+@end
 
 @implementation LimitedTextFieldFormatter
 
@@ -72,193 +84,202 @@
 
 //--------------------------------------------------------------------------------------------------
 
-@interface NSSearchFieldCell(Workbench)
+// In order to avoid duplicate code (as all these functions must be in all text entry controls)
+// this part is defined using a macro. However this is not well readable nor debuggable, so we might
+// have to decompose this later.
+#define STANDARD_TEXT_ENTRY_HANDLING \
+- (mforms::Object*)mformsObject { return mOwner; } \
+\
+- (NSSize)minimumSize { return NSMakeSize(mMinHeight, mMinHeight); } \
+\
+- (BOOL)heightIsFixed { return YES; } \
+\
+- (void)controlTextDidChange:(NSNotification *)aNotification { mOwner->callback(); } \
+\
+-(BOOL)textView: (NSTextView *)aTextView doCommandBySelector: (SEL)aSelector {\
+  struct { \
+    SEL selector; \
+    mforms::TextEntryAction action; \
+  } events[] = { \
+    { @selector(insertNewline:), mforms::EntryActivate }, \
+    { @selector(moveUp:), mforms::EntryKeyUp }, \
+    { @selector(moveDown:), mforms::EntryKeyDown }, \
+    { @selector(moveToBeginningOfDocument:), mforms::EntryCKeyUp }, \
+    { @selector(moveToEndOfDocument:), mforms::EntryCKeyDown }, \
+    { @selector(cancelOperation:), mforms::EntryEscape }, \
+    { 0 } \
+  }; \
+ \
+  for (int i = 0; events[i].selector != 0; i++) \
+  { \
+    if (aSelector == events[i].selector) \
+    { \
+      mOwner->action(events[i].action); \
+      break;  /* let it fall-through so that keys like Return generate normal stuff like commit changes */ \
+    } \
+  } \
+  return NO; \
+}
 
-@end
-
-@implementation NSSearchFieldCell(Workbench)
-
-- (void)drawInteriorWithFrame: (NSRect)cellFrame inView: (NSView *)controlView
-{
-  // We cannot set drawsBackground to true on a search field cell (it's ignored and reset to false).
-  // So instead we check if the normal text color is set and don't draw the background in that case
-  // is this drawing overwrites the border drawn before we came here.
-  if (self.backgroundColor != nil && self.backgroundColor != [NSColor textBackgroundColor])
-  {
-    [self.backgroundColor setFill];
-    double radius = MIN(NSWidth(cellFrame), NSHeight(cellFrame)) / 2.0;
-    [[NSBezierPath bezierPathWithRoundedRect: cellFrame
-                                     xRadius: radius
-                                     yRadius: radius]
-     fill];
-  }
-
-  [super drawInteriorWithFrame: cellFrame inView: controlView];
-  [[self searchButtonCell] setTransparent: NO];
-  [[self searchButtonCell] drawInteriorWithFrame: [self searchButtonRectForBounds:cellFrame] inView: controlView];
-  if (self.stringValue.length > 0)
-    [[self cancelButtonCell] drawInteriorWithFrame: [self cancelButtonRectForBounds:cellFrame] inView: controlView];
+@interface SecureTextField : NSSecureTextField  <NSTextFieldDelegate> {
+  mforms::TextEntry *mOwner;
+  float mMinHeight;
 }
 
 @end
 
-//--------------------------------------------------------------------------------------------------
+@implementation SecureTextField
 
-@implementation MFTextEntryImpl
-
-- (instancetype)initWithObject:(mforms::TextEntry*)aEntry type: (mforms::TextEntryType)type
+- (instancetype)initWithObject: (mforms::TextEntry*)owner type: (mforms::TextEntryType)type
 {
   self = [super initWithFrame: NSMakeRect(0, 0, 30, 0)];
   if (self)
   {
-    if (type == mforms::PasswordEntry)
-    {
-      NSSecureTextField *secureField= [[NSSecureTextField alloc] initWithFrame: NSMakeRect(0, 0, 30, 0)];
-      [self setCell: [secureField cell]];
-      [secureField release];
-    }
-    else if (type == mforms::SearchEntry || type == mforms::SmallSearchEntry)
-    {
-      NSSearchField *searchField = [[NSSearchField alloc] initWithFrame: NSMakeRect(0, 0, 30, 0)];
-      self.cell = searchField.cell;
-
-      if (type == mforms::SmallSearchEntry)
-      {
-        [[self cell] setControlSize: NSSmallControlSize];
-        [self setFont: [NSFont systemFontOfSize: [NSFont systemFontSizeForControlSize: NSSmallControlSize]]];
-      }
-      [searchField release];
-    }
-    mOwner= aEntry;
+    mOwner = owner;
     mOwner->set_data(self);
 
     [self sizeToFit];
-    mMinHeight= NSHeight([self frame]);
-    
-    [self setDelegate: self];
-    
-    [[self cell] setLineBreakMode: NSLineBreakByClipping];
-    [[self cell] setScrollable: YES];
-    [self setSelectable: YES];
-    
-    LimitedTextFieldFormatter* formatter = [[LimitedTextFieldFormatter alloc] init];
-    [[self cell] setFormatter: formatter];
-    [formatter release];
+    mMinHeight = NSHeight([self frame]);
   }
   return self;
 }
 
 STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
+STANDARD_TEXT_ENTRY_HANDLING
 
-- (mforms::Object*)mformsObject
-{
-  return mOwner;
+@end
+
+//--------------------------------------------------------------------------------------------------
+
+@interface SearchTextField : NSSearchField  <NSSearchFieldDelegate> {
+  mforms::TextEntry *mOwner;
+  float mMinHeight;
 }
 
+@end
 
-- (NSSize)minimumSize
+@implementation SearchTextField
+
+- (instancetype)initWithObject: (mforms::TextEntry*)owner type: (mforms::TextEntryType)type
 {
-  NSSize size= [[self cell] cellSize];
-  
-  size.height= mMinHeight;
-  size.width= size.height;
-  
-  return size;
-}
-
-- (BOOL)heightIsFixed
-{
-  return YES;
-}
-
-- (void)setFixedFrameSize:(NSSize)size
-{
-  mFixedSize = size;
-  [super setFixedFrameSize: size];
-}
-
-- (NSSize)fixedFrameSize
-{
-  return mFixedSize;
-}
-
-- (void)controlTextDidChange:(NSNotification *)aNotification
-{
-  mOwner->callback();
-}
-
-
--(BOOL)textView:(NSTextView *)aTextView doCommandBySelector: (SEL)aSelector
-{
-  struct {
-    SEL selector;
-    mforms::TextEntryAction action;
-  } events[] = {
-    { @selector(insertNewline:), mforms::EntryActivate },
-    { @selector(moveUp:), mforms::EntryKeyUp }, 
-    { @selector(moveDown:), mforms::EntryKeyDown },
-    { @selector(moveToBeginningOfDocument:), mforms::EntryCKeyUp },
-    { @selector(moveToEndOfDocument:), mforms::EntryCKeyDown },
-    { @selector(cancelOperation:), mforms::EntryEscape },
-    { 0 }
-  };
-  
-  for (int i = 0; events[i].selector != 0; i++)
+  self = [super initWithFrame: NSMakeRect(0, 0, 30, 0)];
+  if (self)
   {
-    if (aSelector == events[i].selector)
+    mOwner = owner;
+    mOwner->set_data(self);
+
+    [self sizeToFit];
+    mMinHeight = NSHeight([self frame]);
+
+    if (type == mforms::SmallSearchEntry)
     {
-      mOwner->action(events[i].action);
-      break; // let it fall-through so that keys like Return generate normal stuff like commit changes
+      [[self cell] setControlSize: NSSmallControlSize];
+      [self setFont: [NSFont systemFontOfSize: [NSFont systemFontSizeForControlSize: NSSmallControlSize]]];
     }
   }
-  return NO;
+  return self;
 }
 
-- (void)setBackgroundColor: (NSColor *)color
-{
-  [super setBackgroundColor: color];
-  [self.cell setBackgroundColor: color];
+STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
+STANDARD_TEXT_ENTRY_HANDLING
+
+@end
+
+//--------------------------------------------------------------------------------------------------
+
+@interface StandardTextField : NSTextField  <NSTextFieldDelegate> {
+  mforms::TextEntry *mOwner;
+  float mMinHeight;
 }
 
-- (void)setDrawsBackground: (BOOL)flag
+@end
+
+@implementation StandardTextField
+
+- (instancetype)initWithObject: (mforms::TextEntry*)owner type: (mforms::TextEntryType)type
 {
-  [super setDrawsBackground: flag];
-  [self.cell setDrawsBackground: flag];
+  self = [super initWithFrame: NSMakeRect(0, 0, 30, 0)];
+  if (self)
+  {
+    mOwner = owner;
+    mOwner->set_data(self);
+
+    [self sizeToFit];
+    mMinHeight = NSHeight([self frame]);
+  }
+  return self;
 }
+
+STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
+STANDARD_TEXT_ENTRY_HANDLING
+
+@end
+
+//--------------------------------------------------------------------------------------------------
+
+@interface MFTextEntryImpl ()
+{
+}
+
+@end
+
+@implementation MFTextEntryImpl
 
 @end
 
 
 static bool entry_create(mforms::TextEntry *self, mforms::TextEntryType type)
 {
-  MFTextEntryImpl *entry= [[[MFTextEntryImpl alloc] initWithObject:self type:type] autorelease];
-    
-  return entry != nil;
-}
+  NSTextField<NSTextFieldDelegate> *field;
+  switch (type)
+  {
+    case mforms::PasswordEntry:
+      field = [[[SecureTextField alloc] initWithObject: self type: type] autorelease];
+      break;
+    case mforms::SearchEntry:
+    case mforms::SmallSearchEntry:
+      field = [[[SearchTextField alloc] initWithObject: self type: type] autorelease];
+      break;
+    default: // mforms::NormalEntry
+      field = [[[StandardTextField alloc] initWithObject: self type: type] autorelease];
+      break;
+  }
 
+  field.delegate = field;
+
+  [field.cell setLineBreakMode: NSLineBreakByClipping];
+  [field.cell setScrollable: YES];
+  field.selectable = YES;
+
+  LimitedTextFieldFormatter* formatter = [LimitedTextFieldFormatter new];
+  [field.cell setFormatter: formatter];
+  [formatter release];
+
+  return true;
+}
 
 static void entry_set_text(mforms::TextEntry *self, const std::string &text)
 {
-  MFTextEntryImpl* entry = self->get_data();
+  NSTextField* entry = self->get_data();
   [entry setStringValue:wrap_nsstring(text)];
 }
 
 static void entry_set_placeholder_text(mforms::TextEntry *self, const std::string &text)
 {
-  MFTextEntryImpl* entry = self->get_data();
+  NSTextField* entry = self->get_data();
   [[entry cell] setPlaceholderString: wrap_nsstring(text)];
 }
 
 static void entry_set_max_length(mforms::TextEntry *self, int maxlen)
 {
-  MFTextEntryImpl* entry = self->get_data();
+  NSTextField* entry = self->get_data();
   [[[entry cell] formatter] setMaximumLength: maxlen];
 }
 
 
 static std::string entry_get_text(mforms::TextEntry *self)
 {
-  MFTextEntryImpl* entry = self->get_data();
+  NSTextField* entry = self->get_data();
 
   if (entry)
     return [[entry stringValue] UTF8String];
@@ -268,7 +289,7 @@ static std::string entry_get_text(mforms::TextEntry *self)
 
 static void entry_set_read_only(mforms::TextEntry *self, bool flag)
 {
-  MFTextEntryImpl* entry = self->get_data();
+  NSTextField* entry = self->get_data();
   [entry setEditable: flag ? NO : YES];
 }
 
@@ -285,36 +306,36 @@ static void entry_set_bordered(mforms::TextEntry *self, bool flag)
 
 static void entry_cut(mforms::TextEntry *self)
 {
-  MFTextEntryImpl* entry = self->get_data();
-  NSText *editor = [[entry window] fieldEditor:NO forObject:entry];
+  NSTextField* entry = self->get_data();
+  NSText *editor = [entry.window fieldEditor: NO forObject: entry];
   [editor cut: nil];
 }
 
 static void entry_copy(mforms::TextEntry *self)
 {
-  MFTextEntryImpl* entry = self->get_data();
-  NSText *editor = [[entry window] fieldEditor:NO forObject:entry];
+  NSTextField* entry = self->get_data();
+  NSText *editor = [entry.window fieldEditor: NO forObject: entry];
   [editor copy: nil];
 }
 
 static void entry_paste(mforms::TextEntry *self)
 {
-  MFTextEntryImpl* entry = self->get_data();
-  NSText *editor = [[entry window] fieldEditor:NO forObject:entry];
+  NSTextField* entry = self->get_data();
+  NSText *editor = [entry.window fieldEditor: NO forObject: entry];
   [editor paste: nil];
 }
 
 static void entry_select(mforms::TextEntry *self, const base::Range &range)
 {
-  MFTextEntryImpl* entry = self->get_data();
-  NSText *editor = [[entry window] fieldEditor:YES forObject:entry];
+  NSTextField* entry = self->get_data();
+  NSText *editor = [entry.window fieldEditor: YES forObject: entry];
   [editor setSelectedRange: NSMakeRange(range.position, range.size)];
 }
 
 static base::Range entry_get_selection(mforms::TextEntry *self)
 {
-  MFTextEntryImpl* entry = self->get_data();
-  NSText *editor = [[entry window] fieldEditor:NO forObject:entry];
+  NSTextField* entry = self->get_data();
+  NSText *editor = [entry.window fieldEditor: NO forObject: entry];
   NSRange r = [editor selectedRange];
   return base::Range(r.location, r.length);
 }
@@ -324,12 +345,12 @@ void cf_textentry_init()
 {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
   
-  f->_textentry_impl.create= &entry_create;
-  f->_textentry_impl.set_text= &entry_set_text;
-  f->_textentry_impl.get_text= &entry_get_text;
-  f->_textentry_impl.set_max_length= &entry_set_max_length;
-  f->_textentry_impl.set_read_only= &entry_set_read_only;
-  f->_textentry_impl.set_placeholder_text= &entry_set_placeholder_text;
+  f->_textentry_impl.create = &entry_create;
+  f->_textentry_impl.set_text = &entry_set_text;
+  f->_textentry_impl.get_text = &entry_get_text;
+  f->_textentry_impl.set_max_length = &entry_set_max_length;
+  f->_textentry_impl.set_read_only = &entry_set_read_only;
+  f->_textentry_impl.set_placeholder_text = &entry_set_placeholder_text;
   f->_textentry_impl.set_placeholder_color = &entry_set_placeholder_color;
   f->_textentry_impl.set_bordered = &entry_set_bordered;
   f->_textentry_impl.cut = &entry_cut;
