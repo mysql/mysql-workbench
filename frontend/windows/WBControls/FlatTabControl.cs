@@ -1530,6 +1530,8 @@ namespace MySQL.Controls
     /// </summary>
     public bool CloseTabPage(TabPage page)
     {
+      if (page == null)
+        return false;
       if (TabCount > 1 || CanCloseLastTab)
       {
         TabClosingEventArgs args = new TabClosingEventArgs(page, true, TabPages.IndexOf(page));

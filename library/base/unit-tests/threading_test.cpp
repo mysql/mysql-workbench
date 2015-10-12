@@ -72,7 +72,10 @@ TEST_FUNCTION(10)
   GError *error = NULL;
   GThread *thread = create_thread(thread_function1, &semaphore, &error);
   if (thread == NULL)
-    fail("Thread creation failed: " + (error != NULL) ? error->message : "out of mem?");
+  {
+    const gchar * tmp = (error != NULL) ? error->message : "out of mem?";
+    fail(std::string("Thread creation failed: ") + tmp);
+  }
 
   // Thread runs. Now wait for a moment. The thread does so too (via the semaphore).
   g_usleep(100 * BASE_TIME);
@@ -126,7 +129,10 @@ TEST_FUNCTION(20)
     GError *error = NULL;
     threads[i] = create_thread(thread_function2, &semaphore, &error);
     if (threads[i] == NULL)
-      fail("Thread creation failed: " + (error != NULL) ? error->message : "out of mem?");
+    {
+      const gchar* tmp = (error != NULL) ? error->message : "out of mem?";
+      fail(std::string("Thread creation failed: ") + tmp);
+    }
   }
 
   try

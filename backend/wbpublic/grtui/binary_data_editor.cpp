@@ -358,21 +358,64 @@ private:
 class JsonDataViewer : public BinaryDataViewer
 {
 public:
-  JsonDataViewer(BinaryDataEditor *owner, JsonParser::JsonValue &value)
-  : BinaryDataViewer(owner)
+  JsonDataViewer(BinaryDataEditor *owner, JsonParser::JsonValue &value, const std::string &encoding)
+    : BinaryDataViewer(owner), _encoding(encoding)
   {
     set_spacing(8);
     _jsonView.setJson(value);
     add(&_jsonView, true, true);
-    //scoped_connect(_jsonView.textViewTextChanged(), boost::bind(&JsonDataViewer::edited, this));
+    scoped_connect(_jsonView.editorDataChanged(), boost::bind(&JsonDataViewer::edited, this, _1));
   }
 
   virtual void data_changed()
   {
+    if (!_owner->data())
+    {
+      _jsonView.clear();
+      return;
+    }
+    GError *error = NULL;
+    gsize bread = 0, bwritten = 0;
+    char *converted = g_convert(_owner->data(), static_cast<gssize>(_owner->length()), "UTF-8", _encoding.c_str(), &bread, &bwritten, &error);
+    if (!converted || _owner->length() != bread)
+    {
+      _jsonView.clear();
+      return;
+    }
+    std::string dataToTest = converted;
+    size_t pos = dataToTest.find_first_not_of(" \t\r\n");
+    if (pos != std::string::npos && dataToTest.at(pos) != '{')
+    {
+      _jsonView.clear();
+      return;
+    }
+
+    bool isJson = true;
+    JsonParser::JsonValue value;
+    try
+    {
+      JsonParser::JsonReader::read(converted, value);
+    }
+    catch (JsonParser::ParserException &)
+    {
+      isJson = false;
+    }
+    if (isJson)
+    {
+      if (_jsonView.text() != converted)
+        _jsonView.setJson(value);
+    }
   }
 
 private:
-  mforms::JsonTabView  _jsonView;
+
+  void edited(const std::string &text)
+  {
+     _owner->assign_data(text.data(), text.length());
+  }
+
+  mforms::JsonTabView _jsonView;
+  std::string _encoding;
 };
 
 //--------------------------------------------------------------------------------
@@ -650,7 +693,10 @@ void BinaryDataEditor::add_json_viewer(bool read_only, const std::string& text_e
     isJson = false;
   }
   if (isJson)
-    add_viewer(new JsonDataViewer(this, value), title.c_str());
+  {
+    add_viewer(new JsonDataViewer(this, value, text_encoding), title.c_str());
+    _type = "JSON";
+  }
 }
 
 void BinaryDataEditor::save()

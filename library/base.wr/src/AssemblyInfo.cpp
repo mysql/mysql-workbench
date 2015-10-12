@@ -14,7 +14,7 @@ using namespace System::Security::Permissions;
 [assembly:AssemblyConfigurationAttribute("")];
 [assembly:AssemblyCompanyAttribute("Oracle")];
 [assembly:AssemblyProductAttribute("base-wrapper")];
-[assembly:AssemblyCopyrightAttribute("Copyright (c) Oracle 2013")];
+[assembly:AssemblyCopyrightAttribute("Copyright (c) 2013, 2015, Oracle and/or its affiliates")];
 [assembly:AssemblyTrademarkAttribute("")];
 [assembly:AssemblyCultureAttribute("")];
 

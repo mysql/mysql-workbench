@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,69 +44,6 @@ void TableColumnsListWrapper::reorder_many(List<int> ^rows, int nindex)
     nlist.push_back(rows[i]);
 
   get_unmanaged_object()->reorder_many(nlist, nindex);
-}
-
-bool TableColumnsListWrapper::get_row(NodeIdWrapper^ node,
-             [Out] String^ %name,
-             [Out] String^ %type,
-             [Out] bool^ %ispk,
-             [Out] bool^ %notnull,
-             [Out] bool^ %unique,
-             [Out] bool^ %isbinary,
-             [Out] bool^ %isunsigned,
-             [Out] bool^ %iszerofill,
-             [Out] String^ %flags,
-             [Out] String^ %defvalue,
-             [Out] String^ %charset,
-             [Out] String^ %collation,
-             [Out] String^ %comment)
-{
-  std::string name_str= NativeToCppString(name);
-  std::string type_str= NativeToCppString(type);
-  std::string flags_str= NativeToCppString(flags);
-  std::string defvalue_str= NativeToCppString(defvalue);
-  std::string charset_str= NativeToCppString(charset);
-  std::string collation_str= NativeToCppString(collation);
-  std::string comment_str= NativeToCppString(comment);
-
-  bool local_ispk;
-  bool local_notnull;
-  bool local_unique;
-  bool local_isbinary;
-  bool local_isunsigned;
-  bool local_iszerofill;
-
-  bool retval= get_unmanaged_object()->get_row(*node->get_unmanaged_object(), 
-    name_str, 
-    type_str, 
-    local_ispk, 
-    local_notnull, 
-    local_unique, 
-    local_isbinary,
-    local_isunsigned,
-    local_iszerofill,
-    flags_str, 
-    defvalue_str, 
-    charset_str, 
-    collation_str,
-    comment_str);
-
-  *ispk= local_ispk;
-  *notnull= local_notnull;
-  *unique= local_unique;
-  *isbinary= local_isbinary;
-  *isunsigned= local_isunsigned;
-  *iszerofill= local_iszerofill;
-
-  name= CppStringToNative(name_str);
-  type= CppStringToNative(type_str);
-  flags= CppStringToNative(flags_str);
-  defvalue= CppStringToNative(defvalue_str);
-  charset= CppStringToNative(charset_str);
-  collation= CppStringToNative(collation_str);
-  comment= CppStringToNative(comment_str);
-
-  return retval;
 }
 
 IndexColumnsListWrapper::IndexColumnsListWrapper(IndexListWrapper^ owner)
