@@ -198,6 +198,14 @@ def getOS(connection):
     return None
 
 
+@ModuleInfo.export(grt.STRING, grt.classes.db_mgmt_Connection)
+def getServerMode(connection):
+    result = execute_query(connection, "SELECT @@SESSION.sql_mode")
+    if result and result.nextRow():
+        return result.stringByIndex(1)
+    return None
+
+
 #########  Reverse Engineering functions #########
 
 
@@ -279,6 +287,8 @@ def reverseEngineer(connection, catalog_name, schemata_list, context):
         schema.owner = catalog
         schema.name = schema_name
         catalog.schemata.append(schema)
+        context = grt.modules.MySQLParserServices.createParserContext(catalog.characterSets, getServerVersion(connection), getServerMode(connection), 1)
+        options = {}
 
         if get_tables or get_views:
             grt.send_info("Reverse engineering tables from %s" % schema_name)
@@ -292,7 +302,7 @@ def reverseEngineer(connection, catalog_name, schemata_list, context):
                     sql = result.stringByIndex(2)
                     grt.push_message_handler(filter_warnings)
                     grt.begin_progress_step(0.1 + 0.9 * (i / total), 0.1 + 0.9 * ((i+0.5) / total))
-                    grt.modules.MysqlSqlFacade.parseSqlScriptString(catalog, wrap_sql(sql, schema_name))
+                    grt.modules.MySQLParserServices.parseSQLIntoCatalogSql(context, catalog, wrap_sql(sql, schema_name), options)
                     grt.end_progress_step()
                     grt.pop_message_handler()
                     i += 0.5
@@ -310,7 +320,7 @@ def reverseEngineer(connection, catalog_name, schemata_list, context):
                 if result and result.nextRow():
                     sql = result.stringByName("SQL Original Statement")
                     grt.begin_progress_step(0.1 + 0.9 * (i / total), 0.1 + 0.9 * ((i+0.5) / total))
-                    grt.modules.MysqlSqlFacade.parseSqlScriptString(catalog, wrap_sql(wrap_routine_sql(sql), schema_name))
+                    grt.modules.MySQLParserServices.parseSQLIntoCatalogSql(context, catalog, wrap_sql(wrap_routine_sql(sql), schema_name), options)
                     grt.end_progress_step()
                     i += 0.5
                 else:
@@ -328,7 +338,7 @@ def reverseEngineer(connection, catalog_name, schemata_list, context):
                 if result and result.nextRow():
                     sql = result.stringByName("Create Procedure")
                     grt.begin_progress_step(0.1 + 0.9 * (i / total), 0.1 + 0.9 * ((i+0.5) / total))
-                    grt.modules.MysqlSqlFacade.parseSqlScriptString(catalog, wrap_sql(wrap_routine_sql(sql), schema_name))
+                    grt.modules.MySQLParserServices.parseSQLIntoCatalogSql(context, catalog, wrap_sql(wrap_routine_sql(sql), schema_name), options)
                     grt.end_progress_step()
                     i += 0.5
                 else:
@@ -344,7 +354,7 @@ def reverseEngineer(connection, catalog_name, schemata_list, context):
                 if result and result.nextRow():
                     sql = result.stringByName("Create Function")
                     grt.begin_progress_step(0.1 + 0.9 * (i / total), 0.1 + 0.9 * ((i+0.5) / total))
-                    grt.modules.MysqlSqlFacade.parseSqlScriptString(catalog, wrap_sql(wrap_routine_sql(sql), schema_name))
+                    grt.modules.MySQLParserServices.parseSQLIntoCatalogSql(context, catalog, wrap_sql(wrap_routine_sql(sql), schema_name), options)
                     grt.end_progress_step()
                     i += 0.5
                 else:
@@ -380,7 +390,9 @@ def reverseEngineerTable(connection, schema_name, table_name):
     result = execute_query(connection, "SHOW CREATE TABLE `%s`.`%s`" % (escape_sql_identifier(schema_name), escape_sql_identifier(table_name)))
     if result and result.nextRow():
         sql = result.stringByIndex(2)
-        grt.modules.MysqlSqlFacade.parseSqlScriptString(catalog, ("USE `%s`;\n" % escape_sql_identifier(schema_name))+sql)
+        context = grt.modules.MySQLParserServices.createParserContext(catalog.characterSets, getServerVersion(connection), getServerMode(connection), 1)
+        options = {}
+        grt.modules.MySQLParserServices.parseSQLIntoCatalogSql(context, catalog, ("USE `%s`;\n" % escape_sql_identifier(schema_name)) + sql, options)
     else:
         raise Exception("Could not fetch table information for %s" % table_name)
 
@@ -406,7 +418,9 @@ def reverseEngineerTableToCatalog(connection, catalog, schema_name, table_name):
     result = execute_query(connection, "SHOW CREATE TABLE `%s`.`%s`" % (escape_sql_identifier(schema_name), escape_sql_identifier(table_name)))
     if result and result.nextRow():
         sql = result.stringByIndex(2)
-        grt.modules.MysqlSqlFacade.parseSqlScriptString(catalog, ("USE `%s`;\n" % escape_sql_identifier(schema_name))+sql)
+        context = grt.modules.MySQLParserServices.createParserContext(catalog.characterSets, getServerVersion(connection), getServerMode(connection), 1)
+        options = {}
+        grt.modules.MySQLParserServices.parseSQLIntoCatalogSql(context, catalog, ("USE `%s`;\n" % escape_sql_identifier(schema_name))+sql, options)
     else:
         raise Exception("Could not fetch table information for %s" % table_name)
 

@@ -17,6 +17,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/plugins/db/backend
     ${PROJECT_SOURCE_DIR}/plugins/db.mysql.sync/backend
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
+    ${PROJECT_SOURCE_DIR}/library/mysql.parser/
     backend
     ${VSQLITE_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
