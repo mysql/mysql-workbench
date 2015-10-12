@@ -7,12 +7,14 @@
 #include "grt/grt_manager.h"
 #include "grtpp_undo_manager.h"
 #include "db_mysql_public_interface.h"
-#include "grtsqlparser/sql_facade.h"
+#include "grtsqlparser/mysql_parser_services.h"
+#include "grtdb/db_helpers.h"
 
 
 class WBPLUGINDBMYSQLBE_PUBLIC_FUNC Sql_import
 {
 public:
+  virtual ~Sql_import() {};
   void grtm(bec::GRTManager *grtm);
 
   boost::function<grt::ValueRef (grt::GRT*)> get_task_slot();
@@ -21,8 +23,9 @@ public:
   
 private:
   grt::StringRef parse_sql_script(grt::GRT *grt, db_CatalogRef catalog, const std::string &sql_script);
-  virtual void parse_sql_script(SqlFacade::Ref sql_parser, db_CatalogRef &catalog, const std::string &sql_scrtipt, grt::DictRef &options);
+  virtual void parse_sql_script(parser::MySQLParserServices::Ref sql_parser, parser::ParserContext::Ref context, db_CatalogRef &catalog, const std::string &sql_scrtipt, grt::DictRef &options);
   virtual db_CatalogRef target_catalog();
+  virtual GrtVersionRef getVersion(grt::GRT *grt);
 
 public:
   virtual std::string sql_script() { return _sql_script; }
