@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
@@ -383,8 +383,8 @@ public:
       return;
     }
     std::string dataToTest = converted;
-    size_t pos = dataToTest.find_first_not_of(" \t\r\n");
-    if (pos != std::string::npos && dataToTest.at(pos) != '{')
+    size_t pos = dataToTest.find_first_not_of(SPACES);
+    if (pos != std::string::npos && dataToTest.at(pos) != '{' &&  dataToTest.at(pos) != '[')
     {
       _jsonView.clear();
       return;
@@ -678,8 +678,8 @@ void BinaryDataEditor::add_json_viewer(bool read_only, const std::string& text_e
     return;
   }
   std::string dataToTest = converted;
-  size_t pos = dataToTest.find_first_not_of(" \t\r\n");
-  if (pos != std::string::npos && dataToTest.at(pos) != '{')
+  size_t pos = dataToTest.find_first_not_of(SPACES);
+  if (pos != std::string::npos && dataToTest.at(pos) != '{' && dataToTest.at(pos) != '[')
     return;
 
   bool isJson = true;
