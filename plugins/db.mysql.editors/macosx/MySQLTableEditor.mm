@@ -312,13 +312,6 @@ static void call_partial_refresh(int what, DbMysqlTableEditor* theEditor)
   BOOL subEnabled = enabled && ( [partitionType isEqualToString: @"RANGE"] || [partitionType isEqualToString: @"LIST"] );
   [mSubpartitionPopup setEnabled: subEnabled];
 
-  // Enable or disable the rest of the second row of controls.
-  NSString* subpartitionType = [mSubpartitionPopup titleOfSelectedItem];
-  subEnabled = subEnabled && (! [subpartitionType isEqualToString: @"Disabled"]);
-  [mSubPartitionParametersTextField setEnabled: subEnabled];
-  [mSubpartitionCountTextField setEnabled: subEnabled];
-  [mSubpartitionManualCheckbox setEnabled: subEnabled && ([mPartitionManualCheckbox state] == NSOnState)];
-  
   {
     // Set up partitioning controls.
     [mPartitionPopup selectItemWithTitle: partitionType];
@@ -343,6 +336,12 @@ static void call_partial_refresh(int what, DbMysqlTableEditor* theEditor)
       partType = @"Disabled";
     }
     [mSubpartitionPopup selectItemWithTitle: partType];
+    
+    // Enable or disable the rest of the second row of controls.
+    subEnabled = subEnabled && (!s.empty());
+    [mSubPartitionParametersTextField setEnabled: subEnabled];
+    [mSubpartitionCountTextField setEnabled: subEnabled];
+    [mSubpartitionManualCheckbox setEnabled: subEnabled && ([mPartitionManualCheckbox state] == NSOnState)];
     
     s = mBackEnd->get_subpartition_expression();
     NSString* partExpr = @(s.c_str());
