@@ -50,7 +50,7 @@ std::string Db_rev_eng::sql_script()
 void Db_rev_eng::parse_sql_script(parser::MySQLParserServices::Ref sql_parser, parser::ParserContext::Ref context, db_CatalogRef &catalog, const std::string &sql_script, grt::DictRef &options)
 {
   grt::AutoUndo undo(_grtm->get_grt());
-  size_t errorCount = sql_parser->parseSQLIntoCatalog(context, catalog, sql_script, options);
+  sql_parser->parseSQLIntoCatalog(context, db_mysql_CatalogRef::cast_from(catalog), sql_script, options);
   undo.end(_("Reverse Engineer Database"));
 }
 
