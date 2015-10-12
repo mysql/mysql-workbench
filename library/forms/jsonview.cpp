@@ -2931,8 +2931,8 @@ void JsonTreeView::setStringData(int /*columnId*/, TreeNodeRef node, const std::
 //--------------------------------------------------------------------------------------------------
 
 JsonGridView::JsonGridView()
-  : _level(0), _headerAdded(false), _noNameColId(-1), _actualParent(20),
-  _columnIndex(0), _rowNum(1)
+  : _level(0), _headerAdded(false), _noNameColId(-1),
+  _columnIndex(0), _rowNum(1), _actualParent(20)
 {
   init();
 }
