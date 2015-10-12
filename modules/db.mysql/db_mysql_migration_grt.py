@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -77,7 +77,7 @@ class MySQLMigration(GenericMigration):
     def migrateTableColumnToMySQL(self, state, source_column, targetTable):
         target_column = GenericMigration.migrateTableColumnToMySQL(self, state, source_column, targetTable)
         # MySQL specific
-        for attr in ["autoIncrement"]:
+        for attr in ["autoIncrement", "expression", "generated", "generatedStorage"]:
             setattr(target_column, attr, getattr(source_column, attr))
 
         return target_column

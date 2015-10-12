@@ -640,7 +640,7 @@ C_MODE_END
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
-typedef SOCKET_SIZE_TYPE size_socket;
+//typedef SOCKET_SIZE_TYPE size_socket;
 #endif
 
 #ifndef SOCKOPT_OPTLEN_TYPE

@@ -1618,6 +1618,33 @@ bool WBComponentPhysical::can_paste_object(const grt::ObjectRef &object)
   return false;
 }
 
+static void updateConnectionState(workbench_physical_TableFigureRef src, workbench_physical_TableFigureRef dst)
+{
+  workbench_physical_DiagramRef dstView = workbench_physical_DiagramRef::cast_from(dst->owner());
+  workbench_physical_DiagramRef srcView = workbench_physical_DiagramRef::cast_from(src->owner());
+
+  grt::ListRef<db_ForeignKey> dstKeys = dst->table()->foreignKeys();
+  grt::ListRef<db_ForeignKey> srcKeys = src->table()->foreignKeys();
+  for (grt::ListRef<db_ForeignKey>::const_iterator dstIt = dstKeys.begin(); dstIt != dstKeys.end(); ++dstIt)
+  {
+    workbench_physical_ConnectionRef dstConn = dstView->getConnectionForForeignKey(*dstIt);
+    if (dstConn.is_valid()) // If there's a connection we need to find out state of the src conn and copy it.
+    {
+      for (grt::ListRef<db_ForeignKey>::const_iterator srcIt = srcKeys.begin(); srcIt != srcKeys.end(); ++srcIt)
+      {
+        if (*srcIt == *dstIt)
+        {
+          workbench_physical_ConnectionRef srcConn = srcView->getConnectionForForeignKey(*srcIt);
+          if (srcConn.is_valid())
+          {
+            dstConn->visible(srcConn->visible());
+            dstConn->drawSplit(srcConn->drawSplit());
+          }
+        }
+      }
+    }
+  }
+}
 
 model_ObjectRef WBComponentPhysical::paste_object(ModelDiagramForm *view, const grt::ObjectRef &object, grt::CopyContext &copy_context)
 {
@@ -1645,6 +1672,7 @@ model_ObjectRef WBComponentPhysical::paste_object(ModelDiagramForm *view, const 
     if (model_FigureRef::can_wrap(object))
     {
       model_FigureRef figure(figures.back());
+
       if (figure.is_valid())
       {
         model_FigureRef original(model_FigureRef::cast_from(object));
@@ -1662,7 +1690,12 @@ model_ObjectRef WBComponentPhysical::paste_object(ModelDiagramForm *view, const 
           workbench_physical_TableFigureRef src(workbench_physical_TableFigureRef::cast_from(original));
           workbench_physical_TableFigureRef dst(workbench_physical_TableFigureRef::cast_from(figure));
           dst->indicesExpanded(src->indicesExpanded());
+          dst->triggersExpanded(src->triggersExpanded());
+          dst->foreignKeysExpanded(src->foreignKeysExpanded());
           dst->height(src->height()); // Height needs to be recopied after we changed indicesExpanded property.
+
+          updateConnectionState(src, dst);
+
         }
 
         return figure;

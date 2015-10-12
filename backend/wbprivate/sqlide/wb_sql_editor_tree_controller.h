@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-
 #include "workbench/wb_backend_public_interface.h"
 #include "sqlide/wb_live_schema_tree.h"
 #include "sqlide/db_sql_editor_log.h" // for RowId
@@ -25,6 +24,7 @@
 
 #include "grts/structs.db.h"
 #include "grts/structs.db.mgmt.h"
+#include "grts/structs.db.mysql.h"
 
 #include "grtpp_notifications.h"
 
@@ -146,13 +146,13 @@ private:
   void do_alter_live_object(wb::LiveSchemaTree::ObjectType type, const std::string &schema_name, const std::string &obj_name);
   std::string run_execute_routine_wizard(wb::LiveSchemaTree::ObjectType type, const std::string &schema_name, const std::string &obj_name);
 
-  // Deprecated.
   std::string get_object_ddl_script(wb::LiveSchemaTree::ObjectType type, const std::string &schema_name, const std::string &obj_name);
   std::pair<std::string, std::string> get_object_create_script(wb::LiveSchemaTree::ObjectType type,
     const std::string &schema_name, const std::string &obj_name);
   std::vector<std::string> get_trigger_sql_for_table(const std::string &schema_name, const std::string &table_name);
   
-  bool parse_ddl_into_catalog(db_mgmt_RdbmsRef rdbms, db_CatalogRef client_state_catalog, const std::string &obj_descr, const std::string &ddl_script, std::string sql_mode);
+  bool parse_ddl_into_catalog(db_mysql_CatalogRef catalog, const std::string &objectDescription,
+    const std::string &sql, std::string sqlMode, const std::string &schema);
   
 public:
   void schema_object_activated(const std::string &action, wb::LiveSchemaTree::ObjectType type, const std::string &schema, const std::string &name);

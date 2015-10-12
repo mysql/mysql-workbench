@@ -23,6 +23,7 @@
 #include "m_ctype.h"
 #include <errno.h>
 
+#include <limits.h>
 
 #ifdef HAVE_CHARSET_ucs2
 
