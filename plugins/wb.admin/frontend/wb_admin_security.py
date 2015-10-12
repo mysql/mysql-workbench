@@ -743,8 +743,17 @@ class FirewallCommands:
         
         result = multi_result[len(multi_result) - 1]
         
-        if result.nextRow():
-            return result.stringByIndex(1) == "OK"
+        
+        try:
+            if result.nextRow():
+                if self.owner.ctrl_be.target_version and self.owner.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 6, 27):
+                    return False
+                else:
+                    return result.stringByIndex(1) == "OK"
+                
+        except: # sp_set_firewall_mode return resultset only on error, but nextRow will throw exception if result is missing resultset. 
+            return True
+        
           
         return False
 
