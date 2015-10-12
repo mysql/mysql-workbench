@@ -31,6 +31,7 @@
 #include <string.h>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
+#include <boost/locale/encoding_utf.hpp>
 #endif
 
 DEFAULT_LOG_DOMAIN(DOMAIN_BASE);
@@ -276,6 +277,8 @@ namespace base {
 
 #ifdef _WIN32
 
+// Win uses C++11 with support for wstring_convert. Other platforms use boost for now.
+
 //--------------------------------------------------------------------------------------------------
 
 static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
@@ -307,11 +310,27 @@ std::wstring path_from_utf8(const std::string &s)
 
 #else
 
+using boost::locale::conv::utf_to_utf;
+
+std::wstring string_to_wstring(const std::string &str)
+{
+  return utf_to_utf<wchar_t>(str.c_str(), str.c_str() + str.size());
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::string wstring_to_string(const std::wstring &str)
+{
+  return utf_to_utf<char>(str.c_str(), str.c_str() + str.size());
+}
+
+//--------------------------------------------------------------------------------------------------
+  
 std::string path_from_utf8(const std::string &s)
 {
   return s;
 }
-
+  
 #endif
 
 //--------------------------------------------------------------------------------------------------
