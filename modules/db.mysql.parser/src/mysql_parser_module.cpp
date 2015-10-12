@@ -315,17 +315,19 @@ static std::vector<std::string> getNamesList(MySQLRecognizerTreeWalker &walker)
 //--------------------------------------------------------------------------------------------------
 
 /**
-*	Returns the text for an expression within parentheses.
+*	Returns the text for an expression (optionally within parentheses).
 */
 static std::string getExpression(MySQLRecognizerTreeWalker &walker)
 {
-  if (!walker.is(OPEN_PAR_SYMBOL))
-    return "";
+  bool skipParens = walker.is(OPEN_PAR_SYMBOL);
 
-  walker.next();
+  if (skipParens)
+    walker.next();
   std::string text = walker.text_for_tree();
   walker.skip_subtree();
-  walker.next(); // Skip CLOSE_PAR.
+
+  if (skipParens)
+    walker.next(); // Skip CLOSE_PAR.
 
   return text;
 }
@@ -765,6 +767,7 @@ static void getPartitionDefinition(MySQLRecognizerTreeWalker &walker, db_mysql_P
   walker.next();
   if (walker.is(VALUES_SYMBOL)) // Appears only for main partitions.
   {
+    walker.next();
     if (walker.is(LESS_SYMBOL))
     {
       walker.next(2); // Skip LESS THAN.
@@ -789,42 +792,51 @@ static void getPartitionDefinition(MySQLRecognizerTreeWalker &walker, db_mysql_P
       walker.next();
       walker.skip_if(EQUAL_OPERATOR);
       definition->tableSpace(walker.token_text());
+      walker.next();
       break;
     case STORAGE_SYMBOL:
     case ENGINE_SYMBOL:
       walker.next(walker.is(STORAGE_SYMBOL) ? 2 : 1);
       walker.skip_if(EQUAL_OPERATOR);
+      walker.next(); // Skip ENGINE_REF_TOKEN.
       definition->engine(walker.token_text());
+      walker.next();
       break;
     case NODEGROUP_SYMBOL:
       walker.next();
       walker.skip_if(EQUAL_OPERATOR);
       definition->nodeGroupId(base::atoi<size_t>(walker.token_text()));
+      walker.next();
       break;
     case MAX_ROWS_SYMBOL:
       walker.next();
       walker.skip_if(EQUAL_OPERATOR);
       definition->maxRows(walker.token_text());
+      walker.next();
       break;
     case MIN_ROWS_SYMBOL:
       walker.next();
       walker.skip_if(EQUAL_OPERATOR);
       definition->minRows(walker.token_text());
+      walker.next();
       break;
     case DATA_SYMBOL:
       walker.next(2);
       walker.skip_if(EQUAL_OPERATOR);
       definition->dataDirectory(walker.token_text());
+      walker.next();
       break;
     case INDEX_SYMBOL:
       walker.next(2);
       walker.skip_if(EQUAL_OPERATOR);
       definition->indexDirectory(walker.token_text());
+      walker.next();
       break;
     case COMMENT_SYMBOL:
       walker.next();
       walker.skip_if(EQUAL_OPERATOR);
       definition->comment(walker.token_text());
+      walker.next();
       break;
     default:
       done = true;
@@ -862,7 +874,7 @@ static void fillTablePartitioning(MySQLRecognizerTreeWalker &walker, db_mysql_Ta
   walker.next(2); // Skip PARTITION BY.
   bool linear = walker.skip_if(LINEAR_SYMBOL);
   unsigned type = walker.token_type();
-  table->partitionType((linear ? "LINEAR" : "") + base::toupper(walker.token_text())); // HASH, KEY, RANGE, LIST.
+  table->partitionType((linear ? "LINEAR " : "") + base::toupper(walker.token_text())); // HASH, KEY, RANGE, LIST.
   walker.next();
   switch (type)
   {
@@ -870,10 +882,9 @@ static void fillTablePartitioning(MySQLRecognizerTreeWalker &walker, db_mysql_Ta
     table->partitionExpression(getExpression(walker));
     break;
   case KEY_SYMBOL:
-    walker.next();
     if (walker.is(ALGORITHM_SYMBOL))
     {
-      walker.next(2); // Skip ALGORTIHM EQUAL.
+      walker.next(2); // Skip ALGORITHM EQUAL.
       table->partitionKeyAlgorithm(base::atoi<size_t>(walker.token_text()));
       walker.next();
     }
@@ -881,7 +892,6 @@ static void fillTablePartitioning(MySQLRecognizerTreeWalker &walker, db_mysql_Ta
     break;
   case RANGE_SYMBOL:
   case LIST_SYMBOL:
-    walker.next();
     if (walker.is(OPEN_PAR_SYMBOL))
       table->partitionExpression(getExpression(walker));
     else
@@ -903,7 +913,10 @@ static void fillTablePartitioning(MySQLRecognizerTreeWalker &walker, db_mysql_Ta
   linear = walker.skip_if(LINEAR_SYMBOL);
   table->subpartitionType((linear ? "LINEAR " : "") + base::toupper(walker.token_text()));
   if (walker.is(HASH_SYMBOL))
-    table->partitionExpression(getExpression(walker));
+  {
+    walker.next();
+    table->subpartitionExpression(getExpression(walker));
+  }
   else
   {
     // Otherwise KEY type.
