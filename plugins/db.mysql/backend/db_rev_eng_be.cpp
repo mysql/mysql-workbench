@@ -58,7 +58,8 @@ void Db_rev_eng::parse_sql_script(parser::MySQLParserServices::Ref sql_parser, p
 GrtVersionRef Db_rev_eng::getVersion(grt::GRT *grt)
 {
   std::string value;
-  std::auto_ptr<sql::Statement> stmt(Db_plugin::_db_conn->get_dbc_connection()->createStatement());
+  sql::ConnectionWrapper dbc_conn = Db_plugin::_db_conn->get_dbc_connection();
+  std::auto_ptr<sql::Statement> stmt(dbc_conn->createStatement());
   std::auto_ptr<sql::ResultSet> result(stmt->executeQuery("SELECT version()"));
   if (result->next())
     value = result->getString(1);
