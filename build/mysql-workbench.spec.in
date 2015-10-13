@@ -34,7 +34,7 @@
 %define ctemplate_dir     %{linuxres_binaries}/ctemplate/usr/local
 %define sqlite_dir        %{linuxres_binaries}/sqlite
 %define pysqlite_dir      %{linuxres_binaries}/pysqlite2
-%define python_dir        %{linuxres_binaries}/python
+%define python_dir        %{linuxres_home}/python
 %define pyodbc_dir        %{linuxres_binaries}/pyodbc
 
 
