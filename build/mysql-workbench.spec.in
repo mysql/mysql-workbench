@@ -33,7 +33,7 @@
 %define vsqlite_dir       %{linuxres_binaries}/vsqlite/usr/local
 %define ctemplate_dir     %{linuxres_binaries}/ctemplate/usr/local
 %define sqlite_dir        %{linuxres_binaries}/sqlite
-%define pysqlite_dir      %{linuxres_binaries}/pysqlite
+%define pysqlite_dir      %{linuxres_binaries}/pysqlite2
 %define python_dir        %{linuxres_binaries}/python
 %define pyodbc_dir        %{linuxres_binaries}/pyodbc
 
@@ -278,8 +278,8 @@ if [ %{pyodbc_dir} ]; then
 fi
 
 %if %{with paramiko}
-  cp -a %{pysqlite_dir}/paramiko %{buildroot}%{_libdir}/mysql-workbench/modules/
-  cp -a %{pysqlite_dir}/ecdsa %{buildroot}%{_libdir}/mysql-workbench/modules/
+  cp -a %{python_dir}/paramiko %{buildroot}%{_libdir}/mysql-workbench/modules/
+  cp -a %{python_dir}/ecdsa %{buildroot}%{_libdir}/mysql-workbench/modules/
 %endif
 
 cp -a %{gdal_dir}/lib/libgdal.so.* %{buildroot}%{_libdir}/mysql-workbench/
