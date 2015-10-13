@@ -76,7 +76,11 @@ BuildRequires: mysql-devel >= 5.1
 BuildRequires: cmake >= 2.8
 BuildRequires: libzip-devel libxml2-devel
 BuildRequires: python-devel >= 2.5
-BuildRequires: boost-devel || boost148-devel
+%if 0%{?rhel} == 6
+BuildRequires: boost148-devel
+%else
+BuildRequires: boost-devel
+%endif
 BuildRequires: gtk2-devel >= 2.20
 BuildRequires: gtkmm24-devel
 BuildRequires: mesa-libGL-devel
