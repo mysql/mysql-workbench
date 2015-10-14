@@ -715,7 +715,7 @@ SQLRETURN ODBCCopyDataSource::get_wchar_buffer_data(RowBuffer &rowbuffer, int co
       //log_debug3("Convert string with %i chars to buffer size %i\n", inbuf_len, outbuf_len);
 
       // convert data from UCS-2 to utf-8
-      std::string s_outbuf = base::wstring_to_string(tmpbuf);
+      std::string s_outbuf = base::wstring_to_string((wchar_t*)tmpbuf);
       outbuf_len = s_outbuf.size();
       if (outbuf_len > _max_blob_chunk_size - 1)
       	  throw std::logic_error("Output buffer size is greater than max blob chunk size.");
@@ -824,7 +824,7 @@ SQLRETURN ODBCCopyDataSource::get_geometry_buffer_data(RowBuffer &rowbuffer, int
         throw std::logic_error("Unexpected architecture. sizeof(SQLWCHAR) < sizeof(unsigned short)!");
 
       // convert data from UCS-2 to utf-8
-      std::string s_outbuf = base::wstring_to_string(tmpbuf);
+      std::string s_outbuf = base::wstring_to_string((wchar_t*)tmpbuf);
       outbuf_len = s_outbuf.size();
       if (outbuf_len > _max_blob_chunk_size - 1)
       	  throw std::logic_error("Output buffer size is greater than max blob chunk size.");
