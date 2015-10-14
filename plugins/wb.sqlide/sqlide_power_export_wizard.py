@@ -546,7 +546,7 @@ class DataInputPage(WizardPage):
                 col['type'] = rset.stringFieldValueByName("Type")
                 col['is_number'] = any(x in col['type'] for x in ['int', 'integer'])
                 col['is_float'] = any(x in col['type'] for x in ['decimal', 'float', 'double'])  
-                col['is_string'] = any(x in col['type'] for x in ['char', 'text', 'set', 'enum'])
+                col['is_string'] = any(x in col['type'] for x in ['char', 'text', 'set', 'enum', 'json'])
                 col['is_bin'] = any(x in col['type'] for x in ['blob', 'binary'])  
                 col['is_date_or_time'] = any(x in col['type'] for x in ['timestamp', 'datetime', 'date', 'time'])
                 cols.append(col)
