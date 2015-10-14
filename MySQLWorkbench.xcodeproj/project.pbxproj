@@ -166,6 +166,8 @@
 		27467FDB154AC8B500021708 /* mysql-parser.h in Headers */ = {isa = PBXBuildFile; fileRef = 27467FD9154AC8B500021708 /* mysql-parser.h */; };
 		27467FDC154AC8B500021708 /* mysql-parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27467FDA154AC8B500021708 /* mysql-parser.cpp */; };
 		27468002154ACDCC00021708 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
+		274989E91BCE53CF00F911B9 /* libiconv.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 274989E81BCE53CF00F911B9 /* libiconv.2.dylib */; settings = {ASSET_TAGS = (); }; };
+		274989EA1BCE53E200F911B9 /* libiconv.2.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 274989E81BCE53CF00F911B9 /* libiconv.2.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		274E897F1313BFC1000459A0 /* drawing.h in Headers */ = {isa = PBXBuildFile; fileRef = 274E897E1313BFC1000459A0 /* drawing.h */; };
 		274E89811313BFCF000459A0 /* drawing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 274E89801313BFCF000459A0 /* drawing.cpp */; };
 		274E89DC1313EAF4000459A0 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
@@ -3850,6 +3852,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				274989EA1BCE53E200F911B9 /* libiconv.2.dylib in Copy Files (dylibs) */,
 				270C500117329E9D00CD33BB /* libpixman-1.0.dylib in Copy Files (dylibs) */,
 				2B856537183AB58E0081D52E /* libcairo.2.dylib in Copy Files (dylibs) */,
 				270C500317329F6200CD33BB /* libzip.1.0.0.dylib in Copy Files (dylibs) */,
@@ -4136,6 +4139,7 @@
 		274710F30FCC3A99003414DD /* editor_current_pos.xpm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = editor_current_pos.xpm; sourceTree = "<group>"; };
 		274710F40FCC3A99003414DD /* editor_error.xpm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = editor_error.xpm; sourceTree = "<group>"; };
 		274710F50FCC3A99003414DD /* editor_statement.xpm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = editor_statement.xpm; sourceTree = "<group>"; };
+		274989E81BCE53CF00F911B9 /* libiconv.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.2.dylib; path = "../mysql-mac-res/lib/libiconv.2.dylib"; sourceTree = "<group>"; };
 		274E897E1313BFC1000459A0 /* drawing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = drawing.h; path = library/base/base/drawing.h; sourceTree = "<group>"; };
 		274E89801313BFCF000459A0 /* drawing.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = drawing.cpp; path = library/base/drawing.cpp; sourceTree = "<group>"; };
 		274E9B9A107C9FF100551AC4 /* options-horizontal-separator.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "options-horizontal-separator.png"; sourceTree = "<group>"; };
@@ -7058,6 +7062,7 @@
 				2B263B4D0E94031D00933149 /* libcdbc.dylib in Frameworks */,
 				2B263B520E94031D00933149 /* libwbpublic.be.dylib in Frameworks */,
 				2B263B530E94031D00933149 /* libwbprivate.be.dylib in Frameworks */,
+				274989E91BCE53CF00F911B9 /* libiconv.2.dylib in Frameworks */,
 				169E610D0EF116D600D821E7 /* QuartzCore.framework in Frameworks */,
 				2B9617B50F277C3800F0B599 /* libmforms.dylib in Frameworks */,
 				2BD1FB170F33D2B000FFC762 /* WBExtras.framework in Frameworks */,
@@ -9207,6 +9212,7 @@
 				2B774FA515CEC32900923448 /* libglib-2.0.0.dylib */,
 				2B15AE9712D6C6B5006567D6 /* libgmodule-2.0.0.dylib */,
 				2B774FA615CEC32900923448 /* libgthread-2.0.0.dylib */,
+				274989E81BCE53CF00F911B9 /* libiconv.2.dylib */,
 				2BCBAE4415E7D749009571DE /* libintl.8.dylib */,
 				2B2E92FD158999890078D08A /* libiodbc.dylib */,
 				2BC7896717D7BE24005E03D5 /* libmysqlclient.dylib */,
