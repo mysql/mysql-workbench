@@ -36,6 +36,14 @@ public:
 TEST_DATA_CONSTRUCTOR(autocompletion_cache_test)
   : _conn(new sql::Dbc_connection_handler()), _cache(0)
 {
+  // We want to print this out only once, not for every test, so we put it here
+  // as this is the first test that runs usually.
+#ifdef _WIN32
+  TCHAR path[MAX_PATH];
+  GetCurrentDirectory(MAX_PATH, path);
+  printf("\nTests running in: %s\n\n", base::wstring_to_string(path).c_str());
+#endif
+
   _grt.scan_metaclasses_in("../../res/grt/");
   _grt.end_loading_metaclasses();
 
