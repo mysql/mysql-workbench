@@ -34,7 +34,10 @@ class GenericMigration(object):
     def findMatchingTargetObject(self, state, sourceObject):
         """Finds the matching target object for a given source object, by searching in the migrationLog"""
         for log in state.migrationLog:
-            if log.logObject == sourceObject:
+            if type(log.logObject) == type(sourceObject)\
+               and type(log.logObject.owner) == type(sourceObject.owner)\
+               and log.logObject.owner.name == sourceObject.owner.name\
+               and log.logObject.name == sourceObject.name:
                 return log.refObject
         return None
         
@@ -193,7 +196,6 @@ class GenericMigration(object):
             for sourceSchema in source_catalog.schemata:
                 global key_names
                 key_names[sourceSchema.name] = set()
-                targetSchema = self.findMatchingTargetObject(state, sourceSchema)
                 for sourceTable in sourceSchema.tables:
                     if not self.shouldMigrate(state, 'tables', sourceTable):
                         continue
