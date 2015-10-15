@@ -20,6 +20,7 @@ include_directories(.
     ${SIGC++_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
     ${MYSQLCPPCONN_INCLUDE_DIRS}
+    ${VSQLITE_INCLUDE_DIRS}
 )
 
 add_library(wb.model.snippets.wbp MODULE
