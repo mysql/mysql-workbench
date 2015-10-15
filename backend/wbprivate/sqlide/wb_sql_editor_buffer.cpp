@@ -703,24 +703,27 @@ SqlEditorPanel *SqlEditorForm::new_sql_scratch_area(bool start_collapsed)
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorForm::open_file(const std::string &path, bool in_new_tab)
+void SqlEditorForm::open_file(const std::string &path, bool in_new_tab, bool askForFile)
 {
   std::string file_path = path;
 
   _grtm->replace_status_text(base::strfmt(_("Opening %s..."), path.c_str()));
 
-  if (file_path.empty())
+  if (askForFile)
   {
-    mforms::FileChooser opendlg(mforms::OpenFile);
-    opendlg.set_title(_("Open SQL Script"));
-    opendlg.set_extensions("SQL Files (*.sql)|*.sql|Query Browser Files (*.qbquery)|*.qbquery", "sql");
-    if (opendlg.run_modal())
-      file_path = opendlg.get_path();
-  }
-  if (file_path.empty())
-  {
-    _grtm->replace_status_text(_("Cancelled open file"));
-    return;
+    if (file_path.empty())
+    {
+      mforms::FileChooser opendlg(mforms::OpenFile);
+      opendlg.set_title(_("Open SQL Script"));
+      opendlg.set_extensions("SQL Files (*.sql)|*.sql|Query Browser Files (*.qbquery)|*.qbquery", "sql");
+      if (opendlg.run_modal())
+        file_path = opendlg.get_path();
+    }
+    if (file_path.empty())
+    {
+      _grtm->replace_status_text(_("Cancelled open file"));
+      return;
+    }
   }
 
   SqlEditorPanel *panel = NULL;
@@ -745,7 +748,7 @@ void SqlEditorForm::open_file(const std::string &path, bool in_new_tab)
 
   try
   {
-    if (panel->load_from(file_path) == SqlEditorPanel::RunInstead)
+    if (askForFile && panel->load_from(file_path) == SqlEditorPanel::RunInstead)
     {
       if (in_new_tab)
         remove_sql_editor(panel);
