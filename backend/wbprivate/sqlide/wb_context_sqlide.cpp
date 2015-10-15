@@ -502,6 +502,13 @@ static void call_open_script(wb::WBContextSQLIDE *sqlide)
   }
 }
 
+static void call_no_connection_empty_tab(wb::WBContextSQLIDE *sqlide)
+{
+  boost::shared_ptr<SqlEditorForm> form = sqlide->get_wbui()->get_wb()->add_new_query_window();
+  if (form)
+    form->open_file();
+}
+
 
 static void call_exec_sql(wb::WBContextSQLIDE *sqlide, bool current_statement_only)
 {
@@ -797,8 +804,10 @@ void WBContextSQLIDE::init()
   cmdui->add_builtin_command("query.new_connection", boost::bind(call_new_connection, this),
                              boost::bind(validate_has_connection, this));
 
+
   cmdui->add_builtin_command("query.openScriptNoConnection", boost::bind(call_open_script, this));
 
+  cmdui->add_builtin_command("query.newQueryNoconnection", boost::bind(call_no_connection_empty_tab, this));
   cmdui->add_builtin_command("query.newQuery", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::new_scratch_area));
   //cmdui->add_builtin_command("query.newFile", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::new_sql_script_file));
   cmdui->add_builtin_command("query.newFile", boost::bind(new_script_tab, this));
