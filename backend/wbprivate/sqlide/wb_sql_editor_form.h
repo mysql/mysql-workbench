@@ -412,8 +412,8 @@ public:
   SqlEditorPanel *new_sql_script_file();
   SqlEditorPanel *new_sql_scratch_area(bool start_collapsed = false);
   void new_scratch_area() { new_sql_scratch_area(false); }
-  void open_file(const std::string &path, bool in_new_tab);
-  void open_file(const std::string &path = "") { open_file(path, true); }
+  void open_file(const std::string &path, bool in_new_tab, bool askForFile = true);
+  void open_file(const std::string &path = "") { open_file(path, true, !path.empty()); }
 
 public:
   void active_schema(const std::string &value);
