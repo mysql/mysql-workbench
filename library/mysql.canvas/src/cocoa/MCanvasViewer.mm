@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,11 +26,9 @@
 - (instancetype)initWithFrame:(NSRect)frame 
 {
   self = [super initWithFrame:frame];
-  if (self) 
+  if (self != NULL)
   {
-    _view= 0;
-    
-    _needsContextReset= YES;
+    _view = 0;
   }
   return self;
 }
@@ -80,11 +78,8 @@
   if (_view)
   {
     [super drawRect:rect];
-    if (_needsContextReset)
-    {
-      _needsContextReset= NO;
-      [self setupQuartz];
-    }
+
+    _view->set_target_context((CGContextRef)NSGraphicsContext.currentContext.graphicsPort);
     _view->repaint(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
     
     if (_firstResponder)
@@ -129,18 +124,8 @@ static void canvas_view_needs_repaint(int x, int y, int w, int h, MCanvasViewer 
 
 - (void)setupQuartz
 {
-  if (_view)
-  {
-    _view->reset_context((CGContextRef)[[NSGraphicsContext currentContext] graphicsPort]);
-  }
-  else
-  {
-    NSRect frame= [self frame];
-    
-    _view= new mdc::QuartzCanvasView((CGContextRef)[[NSGraphicsContext currentContext] graphicsPort], 
-                                     NSWidth(frame), NSHeight(frame));
-    _view->signal_repaint()->connect(boost::bind(canvas_view_needs_repaint, _1, _2, _3, _4, self));
-  }
+  _view = new mdc::QuartzCanvasView(NSWidth(self.frame), NSHeight(self.frame));
+  _view->signal_repaint()->connect(boost::bind(canvas_view_needs_repaint, _1, _2, _3, _4, self));
 }
 
 
