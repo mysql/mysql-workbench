@@ -1,12 +1,23 @@
 /*
- *  mdc_canvas_view_macosx.cpp
- *  mdcanvas
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
- *  Created by Alfredo Kojima on 07/Mar/5.
- *  Copyright 2007 MySQL AB. All rights reserved.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
  *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
  */
 
+#include "base/log.h"
 #include "mdc_canvas_view_macosx.h"
 
 namespace mdc
@@ -17,47 +28,60 @@ namespace mdc
   }  
 };
 
+DEFAULT_LOG_DOMAIN(DOMAIN_CANVAS_BE)
+
 using namespace mdc;
 
+//--------------------------------------------------------------------------------------------------
 
-QuartzCanvasView::QuartzCanvasView(CGContextRef cgContext, int width, int height)
-  : CanvasView(width, height), _cgContext(cgContext)
+QuartzCanvasView::QuartzCanvasView(int width, int height)
+  : CanvasView(width, height)
 {
-  _crsurface= cairo_quartz_surface_create_for_cg_context(_cgContext, _view_width, _view_height);
-  _cairo= new CairoCtx(_crsurface);
+  log_debug("Creating quartz canvas view\n");
+
+  // A surface used to get a cairo context outside of a paint cycle (usually for font measurement).
+  _offlineSurface = cairo_quartz_surface_create(CAIRO_FORMAT_RGB24, 1, 1);
+  _crsurface = NULL;
+  _context = NULL;
+  _cairo = new CairoCtx(_offlineSurface);
 }
 
+//--------------------------------------------------------------------------------------------------
 
 QuartzCanvasView::~QuartzCanvasView()
 {
+  log_debug("Destroying quartz canvas view\n");
+
+  if (_offlineSurface != NULL)
+    cairo_surface_destroy(_offlineSurface);
+
+  if (_crsurface != NULL)
+    cairo_surface_destroy(_crsurface);
+
+  // _cairo is deleted in the ancestor's d-tor.
 }
 
+//--------------------------------------------------------------------------------------------------
 
-void QuartzCanvasView::reset_context(CGContextRef cgContext)
+/**
+ * For drawing we need the current core graphics context (which might change between calls).
+ * As the base class does not allow to pass it in the repaint() function an additional call is needed
+ * to set the context for the next paint cycle.
+ */
+void QuartzCanvasView::set_target_context(CGContextRef cgContext)
 {
-  delete _cairo;
-  cairo_surface_destroy(_crsurface);
-  
-  _cgContext= cgContext;
-  
-  _crsurface= cairo_quartz_surface_create_for_cg_context(_cgContext, _view_width, _view_height);
-  _cairo= new CairoCtx(_crsurface);
+  _context = cgContext;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void QuartzCanvasView::update_view_size(int width, int height)
 {
   if (_view_width != width || _view_height != height)
   {
-    _view_width= width;
-    _view_height= height;
-    
-    delete _cairo;
-    cairo_surface_destroy(_crsurface);
-    
-    _crsurface= cairo_quartz_surface_create_for_cg_context(_cgContext, width, height);
-    _cairo= new CairoCtx(_crsurface);
-    
+    _view_width = width;
+    _view_height = height;
+
     update_offsets();
     queue_repaint();
     
@@ -65,13 +89,24 @@ void QuartzCanvasView::update_view_size(int width, int height)
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void QuartzCanvasView::begin_repaint(int, int, int, int)
 {
+  _crsurface = cairo_quartz_surface_create_for_cg_context(_context, _view_width, _view_height);
+  _cairo->update_cairo_backend(_crsurface);
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void QuartzCanvasView::end_repaint()
 {
+  _context = NULL;
+
+  cairo_surface_destroy(_crsurface);
+  _crsurface = NULL;
+
+  _cairo->update_cairo_backend(_offlineSurface);
 }
 
+//--------------------------------------------------------------------------------------------------
