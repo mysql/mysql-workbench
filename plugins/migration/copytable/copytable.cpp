@@ -716,6 +716,8 @@ SQLRETURN ODBCCopyDataSource::get_wchar_buffer_data(RowBuffer &rowbuffer, int co
 
       // convert data from UCS-2 to utf-8
       std::string s_outbuf = base::wstring_to_string((wchar_t*)tmpbuf);
+      //log_debug3("get_wchar_buffer_data wstring_to_string i<%S> o<%s>\n", (wchar_t*)tmpbuf, s_outbuf.c_str());
+
       outbuf_len = s_outbuf.size();
       if (outbuf_len > _max_blob_chunk_size - 1)
       	  throw std::logic_error("Output buffer size is greater than max blob chunk size.");
@@ -1549,7 +1551,8 @@ bool MySQLCopyDataSource::fetch_row(RowBuffer &rowbuffer)
             rowbuffer[index].buffer_type == MYSQL_TYPE_LONG_BLOB ||
             rowbuffer[index].buffer_type == MYSQL_TYPE_BLOB ||
             rowbuffer[index].buffer_type == MYSQL_TYPE_STRING ||
-            rowbuffer[index].buffer_type == MYSQL_TYPE_GEOMETRY)
+            rowbuffer[index].buffer_type == MYSQL_TYPE_GEOMETRY ||
+            rowbuffer[index].buffer_type == MYSQL_TYPE_JSON)
           {
             if (rowbuffer[index].buffer_length)
               free(rowbuffer[index].buffer);
@@ -2857,16 +2860,17 @@ bool MySQLCopyDataTarget::InsertBuffer::append_escaped(const char *data, size_t 
 
   // This function is used to create a legal SQL string that you can use in an SQL statement
   // This is needed because the escaping depends on the character set in use by the server
-  #if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
-  #if MYSQL_CHECK_VERSION(5, 7, 6)
-    if (_target->is_mysql_version_at_least(5, 7, 6))
-      length += mysql_real_escape_string_quote(_mysql, buffer + length, data, (unsigned long)dlength, '`');
-    else
-      length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
-  #else
-    length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
-  #endif
-  #endif
+  length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
+//  #if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
+//  #if MYSQL_CHECK_VERSION(5, 7, 6)
+//    if (_target->is_mysql_version_at_least(5, 7, 6))
+//      length += mysql_real_escape_string_quote(_mysql, buffer + length, data, (unsigned long)dlength, '`');
+//    else
+//      length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
+//  #else
+//    length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
+//  #endif
+//  #endif
 
   return true;
 }
