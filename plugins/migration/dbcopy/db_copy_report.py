@@ -49,7 +49,7 @@ class ReportMainView(WizardPage):
         self._report.set_value('%s transfered.\n' % ('1 schema' if len(self._schema_list)== 1 else
                                                      str(len(self._schema_list)) + ' schemas') )
         for schema in self._schema_list:
-            self._report.append_text('\n' + 30*'=' + '\n' + ('Schema: ' + schema).center(30) + '\n' + 30*'=' + '\n')
+            self._report.append_text(str('\n' + 30*'=' + '\n' + ('Schema: ' + schema).center(30) + '\n' + 30*'=' + '\n'))
             try:
                 idx = [log.logObject.owner.name for log in grt.root.wb.migration.dataTransferLog].index(schema)
             except ValueError:

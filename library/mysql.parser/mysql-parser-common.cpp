@@ -262,7 +262,7 @@ std::string MySQLRecognitionBase::token_text(pANTLR3_BASE_TREE node, bool keepQu
 
   // Need to unquote even if keepQuotes is true to avoid trouble with replacing the outer quotes.
   // Add them back below.
-  chars = base::unquote_identifier(chars);
+  chars = base::unquote(chars);
 
   if ((d->_sql_mode & SQL_MODE_NO_BACKSLASH_ESCAPES) == 0)
     chars = base::unescape_sql_string(chars, quote_char[0]);
