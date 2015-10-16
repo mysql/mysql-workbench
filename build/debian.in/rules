@@ -32,7 +32,6 @@ LINUXRES_HOME=$(HOME)/linux-res
 LINUXRES_BINARIES=$(LINUXRES_HOME)/builds
 
 ODBC_HOME=$(LINUXRES_BINARIES)/odbc/usr/local
-VSQLITE_HOME=$(LINUXRES_BINARIES)/vsqlite/usr/local
 
 SQLITE_HOME=$(LINUXRES_BINARIES)/sqlite
 PYSQLITE2_HOME=$(LINUXRES_BINARIES)/pysqlite2
@@ -41,10 +40,12 @@ PYODBC_HOME=$(LINUXRES_BINARIES)/pyodbc
 @ifdef community
 CPPCONN_HOME=$(LINUXRES_BINARIES)/cppconn-gpl/usr/local
 GDAL_HOME=$(LINUXRES_BINARIES)/gdal-gpl/usr/local
+VSQLITE_HOME=$(LINUXRES_BINARIES)/vsqlite-gpl/usr/local
 MYSQL_HOME=$(HOME)/mysql-server/
 @else
 CPPCONN_HOME=$(LINUXRES_BINARIES)/cppconn-com/usr/local
 GDAL_HOME=$(LINUXRES_BINARIES)/gdal-com/usr/local
+VSQLITE_HOME=$(LINUXRES_BINARIES)/vsqlite-com/usr/local
 MYSQL_HOME=$(HOME)/mysql-server-advanced/
 @endif
 
