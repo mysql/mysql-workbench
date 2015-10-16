@@ -1925,7 +1925,7 @@ void JsonInputDlg::setup(bool showTextEntry)
   scoped_connect(check->signal_clicked(), boost::bind(&JsonInputDlg::validate, this));
   scoped_connect(_save->signal_clicked(), boost::bind(&JsonInputDlg::save, this));
   scoped_connect(_textEditor->signal_changed(), boost::bind(&JsonInputDlg::editorContentChanged, this, _1, _2, _3, _4));
-  set_size(500, 400);
+  set_size(800, 500);
   center();
 }
 
@@ -2603,7 +2603,6 @@ void JsonTextView::init()
   scoped_connect(validate->signal_clicked(), boost::bind(&JsonTextView::validate, this));
 
   _validationResult->set_text("JSON valid");
-  _validationResult->set_size(-1, 30);
 
   Box *box = manage(new Box(false));
   box->set_padding(5);
@@ -2611,10 +2610,11 @@ void JsonTextView::init()
   box->add(_textEditor, true, true);
 
   Box *hbox = manage(new Box(true));
-  hbox->add(_validationResult, true, false);
-  hbox->add_end(validate, false, false);
-  box->add(hbox, false, false);
+  hbox->add(_validationResult, true, true);
+  hbox->add_end(validate, false, true);
+  box->add(hbox, false, true);
   add(box);
+  set_size(800, 500); // Golden ratio.
 }
 
 //--------------------------------------------------------------------------------------------------
