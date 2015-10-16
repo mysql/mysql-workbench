@@ -2762,11 +2762,11 @@ void JsonTreeView::generateObjectInTree(JsonParser::JsonValue &value, int /*colu
     return;
   JsonObject &object = value.getObject();
   size_t size = 0;
-  std::stringstream textSize;
   JsonObject::Iterator end = object.end();
   node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
   for (JsonObject::Iterator it = object.begin(); it != end; ++it)
   {
+    std::stringstream textSize;
     std::string text = it->first;
     switch (it->second.getType())
     {
@@ -2774,6 +2774,7 @@ void JsonTreeView::generateObjectInTree(JsonParser::JsonValue &value, int /*colu
     {
       JsonArray &arrayVal = it->second.getArray();
       size = arrayVal.size();
+      node->set_tag(it->first);
       textSize << size;
       text += "[";
       text += textSize.str();
@@ -2797,7 +2798,9 @@ void JsonTreeView::generateObjectInTree(JsonParser::JsonValue &value, int /*colu
     if (addNew)
     {
       node->set_icon_path(0, "JS_Datatype_Object.png");
-      node->set_string(0, "<object>");
+      std::string name = node->get_string(0);
+      if (name.empty())
+        node->set_string(0, "<unnamed>");
       node->set_string(1, "");
       node->set_string(2, "Object");
     }
@@ -2823,9 +2826,12 @@ void JsonTreeView::generateArrayInTree(JsonParser::JsonValue &value, int /*colum
     return;
   JsonParser::JsonArray &arrayType = value.getArray();
   node->set_icon_path(0, "JS_Datatype_Array.png");
-  node->set_string(0, "<array>");
+  std::string name = node->get_string(0);
+  if (name.empty())
+    node->set_string(0, "<unnamed>");
   node->set_string(1, "");
   node->set_string(2, "Array");
+  std::string tagName = node->get_tag();
   node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
   JsonArray::Iterator end = arrayType.end();
   int index = 0;
@@ -2837,7 +2843,8 @@ void JsonTreeView::generateArrayInTree(JsonParser::JsonValue &value, int /*colum
     bool addNew = false;
     if (it->getType() == VArray || it->getType() == VObject)
       addNew = true;
-    arrrayNode->set_string(0, base::strfmt("[%d]", index));
+    std::string keyName = tagName.empty() ? "key[%d]" : tagName + "[%d]";
+    arrrayNode->set_string(0, base::strfmt(keyName.c_str(), index));
     arrrayNode->set_string(1, "");
     generateTree(*it, 1, arrrayNode, addNew);
   }
@@ -2909,9 +2916,9 @@ void JsonTreeView::generateNumberInTree(JsonParser::JsonValue &value, int /*colu
 void JsonTreeView::generateNullInTree(JsonParser::JsonValue &value, int /*columnId*/, TreeNodeRef node)
 {
   node->set_icon_path(0, "JS_Datatype_Null.png");
-  node->set_string(0, "<<null>>");
+  node->set_string(0, "null");
   node->set_string(1, "");
-  node->set_string(2, "null");
+  node->set_string(2, "Null");
   node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
   node->expand();
 }
@@ -3217,7 +3224,6 @@ void JsonGridView::handleMenuCommand(const std::string &command)
     if (!node.is_valid())
       return;
     JsonValueNodeData *data = dynamic_cast<JsonValueNodeData*>(node->get_data());
-
     if (data != NULL)
     {
       JsonParser::JsonValue &jv = data->getData();
@@ -3469,7 +3475,7 @@ void JsonGridView::generateNumberInTree(JsonParser::JsonValue &value, int column
  */
 void JsonGridView::generateNullInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node)
 {
-  node->set_string(columnId, "<<null>>");
+  node->set_string(columnId, "null");
 }
 
 //--------------------------------------------------------------------------------------------------
