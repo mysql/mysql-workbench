@@ -1678,6 +1678,8 @@ void JsonWriter::generate(std::string &output)
  */
 void JsonWriter::write(const JsonValue &value)
 {
+  if (value.isDeleted())
+    return;
   switch(value.getType())
   {
   case VInt:
@@ -1732,6 +1734,8 @@ void JsonWriter::write(const JsonObject &value)
   }
   for (JsonObject::ConstIterator it = value.begin();  it != end; ++it)
   {
+    if (it->second.isDeleted())
+      continue;
     _output += std::string(_depth, '\t');
     write(it->first);
     _output += " : ";
@@ -1765,6 +1769,8 @@ void JsonWriter::write(const JsonArray &value)
   }
   for (JsonArray::ConstIterator it = value.cbegin(); it != end; ++it)
   {
+    if (it->isDeleted())
+      continue;
     _output += std::string(_depth, '\t');
     write(*it);
     if (it != finalIter)
@@ -2161,6 +2167,7 @@ void JsonTreeBaseView::handleMenuCommand(const std::string &command)
       delete data;
       data = NULL;
     }
+    _dataChanged(false);
     return;
   }
   if (command == "modify_doc")
@@ -3219,6 +3226,7 @@ void JsonGridView::handleMenuCommand(const std::string &command)
       delete data;
       data = NULL;
     }
+    _dataChanged(false);
   }
 }
 
