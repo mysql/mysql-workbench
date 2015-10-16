@@ -2159,14 +2159,13 @@ void JsonTreeBaseView::handleMenuCommand(const std::string &command)
   if (command == "delete_doc")
   {
     JsonValueNodeData *data = dynamic_cast<JsonValueNodeData*>(node->get_data());
-    node->remove_from_parent();
     if (data != NULL)
     {
       JsonParser::JsonValue &jv = data->getData();
       jv.setDeleted(true);
-      delete data;
-      data = NULL;
+      node->set_data(NULL); // This will explicitly delete the data.
     }
+    node->remove_from_parent();
     _dataChanged(false);
     return;
   }
@@ -3218,14 +3217,14 @@ void JsonGridView::handleMenuCommand(const std::string &command)
     if (!node.is_valid())
       return;
     JsonValueNodeData *data = dynamic_cast<JsonValueNodeData*>(node->get_data());
-    node->remove_from_parent();
+
     if (data != NULL)
     {
       JsonParser::JsonValue &jv = data->getData();
       jv.setDeleted(true);
-      delete data;
-      data = NULL;
+      node->set_data(NULL); // This will explicitly delete the data.
     }
+    node->remove_from_parent();
     _dataChanged(false);
   }
 }
