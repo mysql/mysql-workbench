@@ -1621,7 +1621,25 @@ std::string unquote_identifier(const std::string& identifier)
 }
 
 //--------------------------------------------------------------------------------------------------
-  
+
+/**
+ * @brief Remove outer quotes from any text.
+ *
+ * @param text Text to unquote
+ * @return Return unqoted text.
+ */
+std::string unquote(const std::string &text)
+{
+  if (text.size() < 2)
+    return text;
+
+  if ((text[0] == '"' || text[0] == '`' || text[0] == '\'') && text[0] == text[text.size() - 1])
+    return text.substr(1, text.size() - 2);
+  return text;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 std::string quote_identifier(const std::string& identifier, const char quote_char)
 {
   return quote_char + identifier + quote_char;
