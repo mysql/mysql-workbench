@@ -3635,6 +3635,8 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
   std::vector<std::pair<size_t, size_t> > ranges;
   determineStatementRanges(sql.c_str(), sql.size(), ";", ranges, "\n");
 
+  grt::ListRef<GrtObject> createdObjects = grt::ListRef<GrtObject>::cast_from(options.get("created_objects"));
+
   // Collect textual FK references into a local cache. At the end this is used
   // to find actual ref tables + columns, when all tables have been parsed.
   DbObjectsRefsCache refCache;
@@ -3689,10 +3691,14 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
           {
             schema->tables()->remove(existingTable);
             schema->tables().insert(table);
+            createdObjects.insert(table);
           }
         }
         else
+        {
           schema->tables().insert(table);
+          createdObjects.insert(table);
+        }
       }
 
       break;
@@ -3717,6 +3723,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
         if (existing.is_valid())
           table->indices()->remove(existing);
         table->indices().insert(index);
+        createdObjects.insert(index);
       }
 
       break;
@@ -3743,10 +3750,14 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
         {
           catalog->schemata()->remove(existing);
           catalog->schemata().insert(schema);
+          createdObjects.insert(schema);
         }
       }
       else
+      {
         catalog->schemata().insert(schema);
+        createdObjects.insert(schema);
+      }
 
       break;
     }
@@ -3779,10 +3790,14 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
         {
           schema->events()->remove(existing);
           schema->events().insert(event);
+          createdObjects.insert(event);
         }
       }
       else
+      {
         schema->events().insert(event);
+        createdObjects.insert(event);
+      }
 
       break;
     }
@@ -3811,10 +3826,14 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
           {
             schema->views()->remove(existingView);
             schema->views().insert(view);
+            createdObjects.insert(view);
           }
         }
         else
+        {
           schema->views().insert(view);
+          createdObjects.insert(view);
+        }
       }
 
       break;
@@ -3839,6 +3858,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
       if (existing.is_valid())
         schema->routines()->remove(existing);
       schema->routines().insert(routine);
+      createdObjects.insert(routine);
 
       break;
     }
@@ -3868,6 +3888,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
         table->name(tableName.second);
         table->oldName(tableName.second);
         schema->tables().insert(table);
+        createdObjects.insert(table);
       }
 
       trigger->owner(table);
@@ -3876,6 +3897,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
       if (existing.is_valid())
         table->triggers()->remove(existing);
       table->triggers().insert(trigger);
+      createdObjects.insert(trigger);
 
       break;
     }
@@ -3893,6 +3915,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
       if (existing.is_valid())
         catalog->logFileGroups()->remove(existing);
       catalog->logFileGroups().insert(group);
+      createdObjects.insert(group);
 
       break;
     }
@@ -3910,6 +3933,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
       if (existing.is_valid())
         catalog->serverLinks()->remove(existing);
       catalog->serverLinks().insert(server);
+      createdObjects.insert(server);
 
       break;
     }
@@ -3927,6 +3951,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
       if (existing.is_valid())
         catalog->tablespaces()->remove(existing);
       catalog->tablespaces().insert(tablespace);
+      createdObjects.insert(tablespace);
 
       break;
     }
@@ -4133,6 +4158,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
             {
               sourceSchema->tables()->remove(table);
               targetSchema->tables().insert(table);
+              createdObjects.insert(table);
             }
             table->name(target.second);
           }
