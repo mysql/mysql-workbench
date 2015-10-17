@@ -1678,6 +1678,8 @@ void JsonWriter::generate(std::string &output)
  */
 void JsonWriter::write(const JsonValue &value)
 {
+  if (value.isDeleted())
+    return;
   switch(value.getType())
   {
   case VInt:
@@ -1732,6 +1734,8 @@ void JsonWriter::write(const JsonObject &value)
   }
   for (JsonObject::ConstIterator it = value.begin();  it != end; ++it)
   {
+    if (it->second.isDeleted())
+      continue;
     _output += std::string(_depth, '\t');
     write(it->first);
     _output += " : ";
@@ -1765,6 +1769,8 @@ void JsonWriter::write(const JsonArray &value)
   }
   for (JsonArray::ConstIterator it = value.cbegin(); it != end; ++it)
   {
+    if (it->isDeleted())
+      continue;
     _output += std::string(_depth, '\t');
     write(*it);
     if (it != finalIter)
@@ -1919,7 +1925,7 @@ void JsonInputDlg::setup(bool showTextEntry)
   scoped_connect(check->signal_clicked(), boost::bind(&JsonInputDlg::validate, this));
   scoped_connect(_save->signal_clicked(), boost::bind(&JsonInputDlg::save, this));
   scoped_connect(_textEditor->signal_changed(), boost::bind(&JsonInputDlg::editorContentChanged, this, _1, _2, _3, _4));
-  set_size(500, 400);
+  set_size(800, 500);
   center();
 }
 
@@ -2153,14 +2159,14 @@ void JsonTreeBaseView::handleMenuCommand(const std::string &command)
   if (command == "delete_doc")
   {
     JsonValueNodeData *data = dynamic_cast<JsonValueNodeData*>(node->get_data());
-    node->remove_from_parent();
     if (data != NULL)
     {
       JsonParser::JsonValue &jv = data->getData();
       jv.setDeleted(true);
-      delete data;
-      data = NULL;
+      node->set_data(NULL); // This will explicitly delete the data.
     }
+    node->remove_from_parent();
+    _dataChanged(false);
     return;
   }
   if (command == "modify_doc")
@@ -2596,7 +2602,6 @@ void JsonTextView::init()
   scoped_connect(validate->signal_clicked(), boost::bind(&JsonTextView::validate, this));
 
   _validationResult->set_text("JSON valid");
-  _validationResult->set_size(-1, 30);
 
   Box *box = manage(new Box(false));
   box->set_padding(5);
@@ -2604,10 +2609,11 @@ void JsonTextView::init()
   box->add(_textEditor, true, true);
 
   Box *hbox = manage(new Box(true));
-  hbox->add(_validationResult, true, false);
-  hbox->add_end(validate, false, false);
-  box->add(hbox, false, false);
+  hbox->add(_validationResult, true, true);
+  hbox->add_end(validate, false, true);
+  box->add(hbox, false, true);
   add(box);
+  set_size(800, 500); // Golden ratio.
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2756,11 +2762,11 @@ void JsonTreeView::generateObjectInTree(JsonParser::JsonValue &value, int /*colu
     return;
   JsonObject &object = value.getObject();
   size_t size = 0;
-  std::stringstream textSize;
   JsonObject::Iterator end = object.end();
   node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
   for (JsonObject::Iterator it = object.begin(); it != end; ++it)
   {
+    std::stringstream textSize;
     std::string text = it->first;
     switch (it->second.getType())
     {
@@ -2768,6 +2774,7 @@ void JsonTreeView::generateObjectInTree(JsonParser::JsonValue &value, int /*colu
     {
       JsonArray &arrayVal = it->second.getArray();
       size = arrayVal.size();
+      node->set_tag(it->first);
       textSize << size;
       text += "[";
       text += textSize.str();
@@ -2791,7 +2798,9 @@ void JsonTreeView::generateObjectInTree(JsonParser::JsonValue &value, int /*colu
     if (addNew)
     {
       node->set_icon_path(0, "JS_Datatype_Object.png");
-      node->set_string(0, "<object>");
+      std::string name = node->get_string(0);
+      if (name.empty())
+        node->set_string(0, "<unnamed>");
       node->set_string(1, "");
       node->set_string(2, "Object");
     }
@@ -2817,9 +2826,12 @@ void JsonTreeView::generateArrayInTree(JsonParser::JsonValue &value, int /*colum
     return;
   JsonParser::JsonArray &arrayType = value.getArray();
   node->set_icon_path(0, "JS_Datatype_Array.png");
-  node->set_string(0, "<array>");
+  std::string name = node->get_string(0);
+  if (name.empty())
+    node->set_string(0, "<unnamed>");
   node->set_string(1, "");
   node->set_string(2, "Array");
+  std::string tagName = node->get_tag();
   node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
   JsonArray::Iterator end = arrayType.end();
   int index = 0;
@@ -2831,7 +2843,8 @@ void JsonTreeView::generateArrayInTree(JsonParser::JsonValue &value, int /*colum
     bool addNew = false;
     if (it->getType() == VArray || it->getType() == VObject)
       addNew = true;
-    arrrayNode->set_string(0, base::strfmt("[%d]", index));
+    std::string keyName = tagName.empty() ? "key[%d]" : tagName + "[%d]";
+    arrrayNode->set_string(0, base::strfmt(keyName.c_str(), index));
     arrrayNode->set_string(1, "");
     generateTree(*it, 1, arrrayNode, addNew);
   }
@@ -2903,9 +2916,9 @@ void JsonTreeView::generateNumberInTree(JsonParser::JsonValue &value, int /*colu
 void JsonTreeView::generateNullInTree(JsonParser::JsonValue &value, int /*columnId*/, TreeNodeRef node)
 {
   node->set_icon_path(0, "JS_Datatype_Null.png");
-  node->set_string(0, "<<null>>");
+  node->set_string(0, "null");
   node->set_string(1, "");
-  node->set_string(2, "null");
+  node->set_string(2, "Null");
   node->set_data(new JsonTreeBaseView::JsonValueNodeData(value));
   node->expand();
 }
@@ -3211,14 +3224,14 @@ void JsonGridView::handleMenuCommand(const std::string &command)
     if (!node.is_valid())
       return;
     JsonValueNodeData *data = dynamic_cast<JsonValueNodeData*>(node->get_data());
-    node->remove_from_parent();
     if (data != NULL)
     {
       JsonParser::JsonValue &jv = data->getData();
       jv.setDeleted(true);
-      delete data;
-      data = NULL;
+      node->set_data(NULL); // This will explicitly delete the data.
     }
+    node->remove_from_parent();
+    _dataChanged(false);
   }
 }
 
@@ -3462,7 +3475,7 @@ void JsonGridView::generateNumberInTree(JsonParser::JsonValue &value, int column
  */
 void JsonGridView::generateNullInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node)
 {
-  node->set_string(columnId, "<<null>>");
+  node->set_string(columnId, "null");
 }
 
 //--------------------------------------------------------------------------------------------------

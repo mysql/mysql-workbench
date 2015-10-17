@@ -169,6 +169,7 @@ namespace base
 
   BASELIBRARY_PUBLIC_FUNC std::string quote_identifier(const std::string& identifier, const char quote_char);
   BASELIBRARY_PUBLIC_FUNC std::string unquote_identifier(const std::string& identifier);
+  BASELIBRARY_PUBLIC_FUNC std::string unquote(const std::string& text);
   BASELIBRARY_PUBLIC_FUNC std::string quote_identifier_if_needed(const std::string &ident, const char quote_char);
 
   BASELIBRARY_PUBLIC_FUNC bool stl_string_compare(const std::string &first, const std::string &second, bool case_sensitive = true);
