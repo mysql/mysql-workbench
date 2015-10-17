@@ -1505,7 +1505,7 @@ static void fillDataTypeAndAttributes(MySQLRecognizerTreeWalker &walker, db_Cata
   column->length(length);
   column->datatypeExplicitParams(explicitParams);
 
-  if (base::same_string(column->simpleType()->name(), "TIMESTAMP", false))
+  if (simpleType.is_valid() && base::same_string(simpleType->name(), "TIMESTAMP", false))
   {
     if (!explicitNullValue)
       column->isNotNull(1);
