@@ -3636,6 +3636,11 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
   determineStatementRanges(sql.c_str(), sql.size(), ";", ranges, "\n");
 
   grt::ListRef<GrtObject> createdObjects = grt::ListRef<GrtObject>::cast_from(options.get("created_objects"));
+  if (!createdObjects.is_valid())
+  {
+    createdObjects = grt::ListRef<GrtObject>(catalog->get_grt());
+    options.set("created_objects", createdObjects);
+  }
 
   // Collect textual FK references into a local cache. At the end this is used
   // to find actual ref tables + columns, when all tables have been parsed.
