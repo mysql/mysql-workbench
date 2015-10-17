@@ -1824,6 +1824,7 @@
                 <value type="list" content-type="string" key="synonyms">
                     <value type="string">FIXED</value>
                     <value type="string">NUMERIC</value>
+                    <value type="string">DEC</value>
                 </value>
             </value>
             <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.char">
@@ -1844,9 +1845,7 @@
                 <value type="int" key="parameterFormatType">2</value>
                 <link type="object" key="owner">com.mysql.rdbms.mysql</link>
                 <value type="list" content-type="string" key="synonyms">
-                    <value type="string">NCHAR</value>
-                    <!-- nchar is char with utf8 charset -->
-                    <value type="string">NATIONAL CHAR</value>
+                    <value type="string">CHARACTER</value>
                 </value>
             </value>
             <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.nchar">
@@ -1859,7 +1858,7 @@
                     <value type="string">ASCII</value>
                 </value>
                 <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
-                <value type="string" key="name">CHAR</value>
+                <value type="string" key="name">NCHAR</value>
                 <value type="int" key="numericPrecision">0</value>
                 <value type="int" key="numericPrecisionRadix">0</value>
                 <value type="int" key="numericScale">0</value>
@@ -1868,6 +1867,7 @@
                 <link type="object" key="owner">com.mysql.rdbms.mysql</link>
                 <value type="list" content-type="string" key="synonyms">
                     <value type="string">NATIONAL CHAR</value>
+                    <value type="string">NATIONAL CHARACTER</value>
                 </value>
             </value>
             <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.varchar">
@@ -1889,7 +1889,8 @@
                 <link type="object" key="owner">com.mysql.rdbms.mysql</link>
                 <value type="list" content-type="string" key="synonyms">
                     <value type="string">CHAR VARYING</value>
-                    <!-- CHARACTER is automatically mapped to CHAR -->
+                    <value type="string">CHARACTER VARYING</value>
+                    <value type="string">VARCHARACTER</value>
                 </value>
             </value>
             <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.nvarchar">
@@ -1911,8 +1912,11 @@
                 <link type="object" key="owner">com.mysql.rdbms.mysql</link>
                 <value type="list" content-type="string" key="synonyms">
                     <value type="string">NATIONAL VARCHAR</value>
+                    <value type="string">NATIONAL VARCHARACTER</value>
                     <value type="string">NCHAR VARCHAR</value>
+                    <value type="string">NCHAR VARCHARACTER</value>
                     <value type="string">NATIONAL CHAR VARYING</value>
+                    <value type="string">NATIONAL CHARACTER VARYING</value>
                     <value type="string">NCHAR VARYING</value>
                 </value>
             </value>
