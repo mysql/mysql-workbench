@@ -87,7 +87,7 @@ void Sql_import::parse_sql_script(parser::MySQLParserServices::Ref sql_parser, p
 
   // XXX: we need a way to convert the encoding. Currently we assume it's always utf-8 here.
   //_options.set("sql_script_codeset", grt::StringRef(_sql_script_codeset));
-  const std::string sql = base::get_text_file_contents(sql_script);
+  const std::string sql = base::getTextFileContent(sql_script);
   sql_parser->parseSQLIntoCatalog(context, db_mysql_CatalogRef::cast_from(catalog), sql, options);
   undo.end(_("Reverse Engineer from SQL Script"));
 }
