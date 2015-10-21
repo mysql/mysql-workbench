@@ -243,7 +243,7 @@ public:
   void set_connection_properties(grt::GRT *grt, db_mgmt_ConnectionRef& connection)
 {
   grt::DictRef conn_params(grt);
-  conn_params.set("host", grt::StringRef(test_params->get_host_name()));
+  conn_params.set("hostName", grt::StringRef(test_params->get_host_name()));
   conn_params.set("port", grt::IntegerRef(test_params->get_port()));
   conn_params.set("userName", grt::StringRef(test_params->get_user_name()));
   conn_params.set("password", grt::StringRef(test_params->get_password()));
