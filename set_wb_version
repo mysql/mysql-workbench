@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 version=$1
 major=`echo $version|cut -d. -f1`
 minor=`echo $version|cut -d. -f2`
@@ -10,13 +11,22 @@ release_type=$2
 edition_name=$3
 license_type=$4
 
+echo "----------------------------------------------------"
+echo "Setting workbench version"
+echo "Version       : $1"
+echo "Release Type  : $2"
+echo "Edition       : $3"
+echo "License       : $4"
+echo "Parsed Version: $major.$minor.$release.$build"
+echo "----------------------------------------------------"
+
 if test "$build" = ""; then
-  build=0
+    build=0
 fi
 
 if test "$version" = ""; then
-  echo "$0 <major.minor.release[.build]> [<release-type>]"
-  exit 1
+    echo "$0 <major.minor.release[.build]> [<release-type>]"
+    exit 1
 fi
 
 if test x$release_type != x; then
@@ -29,27 +39,27 @@ fi
 
 echo "Updating wb_version.h"
 sed -e "s/#define APP_MAJOR_NUMBER.*/#define APP_MAJOR_NUMBER $major/" \
-   -e "s/#define APP_MINOR_NUMBER.*/#define APP_MINOR_NUMBER $minor/" \
-   -e "s/#define APP_RELEASE_NUMBER.*/#define APP_RELEASE_NUMBER $release_number/" \
-   -e "s/#define APP_RELEASE_TYPE.*/#define APP_RELEASE_TYPE \"$release_type\"/" \
-   -e "s/#define APP_BUILD_NUMBER.*/#define APP_BUILD_NUMBER $build/" \
-       -i.bak backend/wbprivate/workbench/wb_version.h 
+    -e "s/#define APP_MINOR_NUMBER.*/#define APP_MINOR_NUMBER $minor/" \
+    -e "s/#define APP_RELEASE_NUMBER.*/#define APP_RELEASE_NUMBER $release_number/" \
+    -e "s/#define APP_RELEASE_TYPE.*/#define APP_RELEASE_TYPE \"$release_type\"/" \
+    -e "s/#define APP_BUILD_NUMBER.*/#define APP_BUILD_NUMBER $build/" \
+    -i.bak backend/wbprivate/workbench/wb_version.h 
 
 if test "$edition_name" != "" -a "$license_type" != ""; then
 sed -e "s/#define APP_LICENSE_TYPE.*/#define APP_LICENSE_TYPE \"$license_type\"/" \
-   -e "s/#define APP_EDITION_NAME.*/#define APP_EDITION_NAME \"$edition_name\"/" \
-       -i.bak backend/wbprivate/workbench/wb_version.h 
+    -e "s/#define APP_EDITION_NAME.*/#define APP_EDITION_NAME \"$edition_name\"/" \
+    -i.bak backend/wbprivate/workbench/wb_version.h 
 fi
 
 echo "Updating AssemblyInfo.cs"
 sed -e "s/\[assembly: AssemblyVersion(.*)\]/[assembly: AssemblyVersion(\"$major.$minor.$release_number\")]/"\
-        -e "s/\[assembly: AssemblyFileVersion(.*)\]/[assembly: AssemblyFileVersion(\"$major.$minor.$release_number\")]/" \
-        -e "s/\[assembly: AssemblyReleaseType(.*)\]/[assembly: AssemblyReleaseType(\"$release_type\")]/" \
-  -i.bak frontend/windows/MySQLWorkbench/Properties/AssemblyInfo.cs
+    -e "s/\[assembly: AssemblyFileVersion(.*)\]/[assembly: AssemblyFileVersion(\"$major.$minor.$release_number\")]/" \
+    -e "s/\[assembly: AssemblyReleaseType(.*)\]/[assembly: AssemblyReleaseType(\"$release_type\")]/" \
+    -i.bak frontend/windows/MySQLWorkbench/Properties/AssemblyInfo.cs
 
 if test "$edition_type" != ""; then
 sed -e "s/\[assembly: AssemblyConfiguration(.*)\]/[assembly: AssemblyConfiguration(\"$edition_type\")]/"\
-  -i.bak frontend/windows/MySQLWorkbench/Properties/AssemblyInfo.cs
+    -i.bak frontend/windows/MySQLWorkbench/Properties/AssemblyInfo.cs
 fi
 
 echo "Updating Info.plist"
@@ -58,8 +68,8 @@ sed -e "/<key>CFBundleShortVersionString<\/key>/N;s/.*\n.*<\/string>/	<key>CFBun
 # check if build/debian.in/changelog needs update
 echo "Checking if build/debian.in/changelog needs updating"
 if ! grep $major.$minor.$release- build/debian.in/changelog; then
-	echo "build/debian.in/changelog needs update, adding a new entry"
-	cat <<EOF > build/debian.in/changelog.new
+    echo "build/debian.in/changelog needs update, adding a new entry"
+    cat <<EOF > build/debian.in/changelog.new
 mysql-workbench-@edition@ ($major.$minor.$release$dot_release_type-1@distrov@) @distro@; urgency=low
 
   * New release
@@ -67,7 +77,7 @@ mysql-workbench-@edition@ ($major.$minor.$release$dot_release_type-1@distrov@) @
  -- `bzr whoami`  `date +"%a, %d %b %Y %T %z"`
 
 EOF
-	cat build/debian.in/changelog >> build/debian.in/changelog.new
-	mv -f build/debian.in/changelog.new build/debian.in/changelog
-	head -10 build/debian.in/changelog
+    cat build/debian.in/changelog >> build/debian.in/changelog.new
+    mv -f build/debian.in/changelog.new build/debian.in/changelog
+    head -10 build/debian.in/changelog
 fi
