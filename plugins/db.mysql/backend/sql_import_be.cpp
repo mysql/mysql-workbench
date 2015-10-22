@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -68,32 +68,34 @@ boost::function<grt::ValueRef (grt::GRT*)> Sql_import::get_autoplace_task_slot()
 
 grt::StringRef Sql_import::parse_sql_script(grt::GRT *grt, db_CatalogRef catalog, const std::string &sql_script)
 {
-  SqlFacade::Ref sql_parser= SqlFacade::instance_for_rdbms(
-    db_mgmt_RdbmsRef::cast_from(catalog->owner().get_member("rdbms")));
-
   grt::ListRef<GrtObject> created_objects(grt);
   _options.set("created_objects", created_objects);
 
-  parse_sql_script(sql_parser, catalog, sql_script, _options);
+  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grt);
+  db_mgmt_RdbmsRef rdbms = db_mgmt_RdbmsRef::cast_from(grt->get("/wb/rdbmsMgmt/rdbms/0/"));
+  parser::ParserContext::Ref context = services->createParserContext(rdbms->characterSets(), getVersion(grt), /*_lower_case_table_names != 0*/ 0);
+
+  parse_sql_script(services, context, catalog, sql_script, _options);
 
   return grt::StringRef("The SQL script was parsed");
 }
 
+void Sql_import::parse_sql_script(parser::MySQLParserServices::Ref sql_parser, parser::ParserContext::Ref context,
+  db_CatalogRef &catalog, const std::string &sql_script, grt::DictRef &options)
+{
+  grt::AutoUndo undo(_doc.get_grt());
+
+  // XXX: we need a way to convert the encoding. Currently we assume it's always utf-8 here.
+  //_options.set("sql_script_codeset", grt::StringRef(_sql_script_codeset));
+  const std::string sql = base::get_text_file_contents(sql_script);
+  sql_parser->parseSQLIntoCatalog(context, db_mysql_CatalogRef::cast_from(catalog), sql, options);
+  undo.end(_("Reverse Engineer from SQL Script"));
+}
 
 grt::ListRef<GrtObject> Sql_import::get_created_objects()
 {
   return grt::ListRef<GrtObject>::cast_from(_options.get("created_objects"));
 }
-
-
-void Sql_import::parse_sql_script(SqlFacade::Ref sql_parser, db_CatalogRef &catalog, const std::string &sql_script, grt::DictRef &options)
-{
-  grt::AutoUndo undo(_doc.get_grt());
-  options.set("sql_script_codeset", grt::StringRef(_sql_script_codeset));
-  sql_parser->parseSqlScriptFileEx(catalog, sql_script, options);
-  undo.end(_("Reverse Engineer from SQL Script"));
-}
-
 
 grt::ValueRef Sql_import::autoplace_grt(grt::GRT *grt)
 {
@@ -124,4 +126,10 @@ grt::ValueRef Sql_import::autoplace_grt(grt::GRT *grt)
   }
 
   return grt::ValueRef();
+}
+
+GrtVersionRef Sql_import::getVersion(grt::GRT *grt)
+{
+  GrtVersionRef version;
+  return version;
 }

@@ -103,12 +103,15 @@ class base_module:
         self._encoding = 'utf-8' #default encoding
         self._force_drop_table = False
         self._truncate_table = False
-        self._type_map = {'text':'is_string', 'int': 'is_number', 'double':'is_float'}
+        self._type_map = {'text':'is_string', 'int': 'is_number', 'double':'is_float', 'json': 'is_json'}
         self.is_running = False
         self.progress_info = None
         self.item_count = 0
 
     def guess_type(self, vals):
+        def is_json(v):
+            return True if type(v) in [dict, list] else False
+        
         def is_float(v):
             v = str(v)
             try:
@@ -129,6 +132,8 @@ class base_module:
         
         cur_type = None
         for v in vals:
+            if is_json(v):
+                return "json" # If JSON then we can return immediately. 
             if is_int(v):
                 if not cur_type:
                     cur_type = "int"
@@ -209,17 +214,18 @@ class base_module:
         self._columns = []
         for c in result.columns:
             self._columns.append({'name': c.name, 'type': c.columnType, 
-                   'is_string': True if c.columnType == "string" else False, 
-                   'is_number': True if c.columnType == "int" else False, 
-                   'is_date_or_time': any(x in c.columnType for x in ['time', 'datetime', 'date']), 
-                   'is_bin': any(x in c.columnType for x in ['geo', 'blob']),
-                   'is_float': True if c.columnType == "real" else False,
+                   'is_string': any(x in c.columnType for x in ['char', 'text', 'set', 'enum']),
+                   'is_json': any(x in c.columnType for x in ['json']), 
+                   'is_number': any(x in c.columnType for x in ['int', 'integer']), 
+                   'is_date_or_time': any(x in c.columnType for x in ['timestamp', 'time', 'datetime', 'date']), 
+                   'is_bin': any(x in c.columnType for x in ['geo', 'blob', 'binary']),
+                   'is_float': any(x in c.columnType for x in ['decimal', 'float', 'double', 'real']),
                    'value': None})
     
     def prepare_new_table(self):
         try:
             
-            self._editor.executeManagementCommand(""" CREATE TABLE %s (%s)""" % (self._table_w_prefix, ", ".join(["`%s` %s" % (col['name'], col['type']) for col in self._mapping])), 1)
+            self._editor.executeManagementCommand(""" CREATE TABLE %s (%s)""" % (self._table_w_prefix, ", ".join(["`%s` %s" % (col['name'], col["type"]) for col in self._mapping])), 1)
             self.update_progress(0.0, "Prepared new table")
             # wee need to setup dest_col for each row, as the mapping is empty if we're creating new table
             for col in self._mapping:
@@ -297,7 +303,7 @@ class csv_module(base_module):
         base_module.__init__(self, editor, is_import)
         self.name = "csv"
         self.title = self.name
-        self.options = {'filedseparator': {'description':'Field Separator', 'type':'select', 'opts':{'TAB':'\t',';':';', ':':':'}, 'value':';', 'entry': None}, 
+        self.options = {'filedseparator': {'description':'Field Separator', 'type':'select', 'opts':{'TAB':'\t',';':';', ':':':', ',':','}, 'value':';', 'entry': None},
                 'lineseparator': {'description':'Line Separator', 'type':'select','opts':{"CR":'\r', "CR LF":'\r\n', "LF":'\n'}, 'value':'\n', 'entry': None}, 
                 'encolsestring': {'description':'Enclose Strings in', 'type':'text', 'value':'"', 'entry': None}};
         
@@ -423,7 +429,7 @@ class csv_module(base_module):
                         is_header = False
                         continue
 
-                    self.item_count = self.item_count + 1
+                    
                     self.update_progress(round(self._current_row / self._max_rows, 2), "Data import")
 
                     for i, col in enumerate(col_order):
@@ -432,15 +438,19 @@ class csv_module(base_module):
                             result = False
                             break
                         val = row[col_order[col]]
+                        col_name = col_order[col]
                         if col_type[col] == 'double':
-                            val = row[col_order[col]].replace(self._decimal_separator, ',')
+                            val = row[col_name].replace(self._decimal_separator, '.')
                         elif col_type[col] == 'datetime':
-                            val = datetime.datetime.strptime(row[col_order[col]], self._date_format).strftime("%Y-%m-%d %H:%M:%S")
-
+                            val = datetime.datetime.strptime(row[col_name], self._date_format).strftime("%Y-%m-%d %H:%M:%S")
+                            
+                        if hasattr(val, "replace"):
+                            val = val.replace("\\", "\\\\").replace('"', '\\"')
                         self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val), 0)
                     else:
                         try:
                             self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 0)
+                            self.item_count = self.item_count + 1
                         except Exception, e:
                             log_error("Row import failed with error: %s" % e)
                 self.update_progress(1.0, "Import finished")
@@ -463,10 +473,14 @@ class csv_module(base_module):
                 self.dialect = csv.Sniffer().sniff(csvsample)
                 self.has_header = csv.Sniffer().has_header(csvsample)
                 csvfile.seek(0)
+                self.options['filedseparator']['value'] = self.dialect.delimiter 
+                self.options['lineseparator']['value'] = self.dialect.lineterminator 
+                self.options['encolsestring']['value'] = self.dialect.quotechar 
             else:
                 self.dialect.delimiter = self.options['filedseparator']['value']
                 self.dialect.lineterminator = self.options['lineseparator']['value']
                 self.dialect.quotechar = self.options['encolsestring']['value']
+                csvfile.seek(0)
                 
             try:
                 reader = UniReader(csvfile, self.dialect, encoding=self._encoding)
@@ -479,12 +493,18 @@ class csv_module(base_module):
                 
                 if row:
                     for col_value in row:
-                        self._columns.append({'name': col_value, 'type': 'text', 'is_string': True, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'value': []})
+                        self._columns.append({'name': col_value, 'type': 'text', 'is_string': True, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'is_json':False,'value': []})
 
                     for i, row in enumerate(reader): #we will read only first few rows
                         if i < 5:
                             for j, col_value in enumerate(row):
-                                self._columns[j]['value'].append(col_value)
+                                try:
+                                    json_value = json.loads(col_value)
+                                    self._columns[j]['is_string'] = False
+                                    self._columns[j]['is_json'] = True
+                                    self._columns[j]['value'].append(json_value)
+                                except Exception as e:
+                                    self._columns[j]['value'].append(col_value)
                         else:
                             break
                     for col in self._columns:
@@ -564,12 +584,15 @@ class json_module(base_module):
                     self._current_row = rset.currentRow + 1
                     row = []
                     for col in self._columns:
-                        if col['is_string'] or col['is_bin']:
-                            row.append("\"%s\":%s" % (col['name'], json.dumps(rset.stringFieldValueByName(col['name']))))
-                        elif col['is_number']:
+                        if col['is_number']:
                             row.append("\"%s\":%s" % (col['name'], json.dumps(rset.intFieldValueByName(col['name']))))
                         elif col['is_float']:
                             row.append("\"%s\":%s" % (col['name'], json.dumps(rset.floatFieldValueByName(col['name']))))
+                        else:
+                            if col['type'] == "json":
+                                row.append("\"%s\":%s" % (col['name'], rset.stringFieldValueByName(col['name'])))
+                            else:
+                                row.append("\"%s\":%s" % (col['name'], json.dumps(rset.stringFieldValueByName(col['name']))))
                     ok = rset.nextRow()
                     jsonfile.write("{%s}%s" % (', '.join(row), ",\n " if ok else ""))
                     jsonfile.flush()
@@ -604,28 +627,42 @@ class json_module(base_module):
                         log_debug2("Worker thread was stopped by user")
                         self._editor.executeManagementCommand("DEALLOCATE PREPARE stmt", 1)
                         return False
-
                     self._current_row = self._current_row + 1
-                    self.item_count = self.item_count + 1
                     for i, col in enumerate(col_order):
                         if col_order[col] not in row:
                             log_error("Can't find col: %s in row: %s" % (col_order[col], row))
                             result = False
                             break
+
                         val = row[col_order[col]]
-                        if col_type[col] == 'double':
-                            val = row[col_order[col]].replace(self._decimal_separator, ',')
-                        elif col_type[col] == 'datetime':
-                            val = datetime.datetime.strptime(row[col_order[col]], self._date_format).strftime("%Y-%m-%d %H:%M:%S")
+                        col_name = col_order[col]
+                        if col_type[col_name] != "json" and hasattr(val, "replace"):
+                            val = val.replace("\\", "\\\\").replace('"', '\\"')
                             
-                        self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val), 0)
+                        if col_type[col_name] == 'double':
+                            val = val(str).replace(self._decimal_separator, '.')
+                        elif col_type[col_name] == 'datetime':
+                            val = datetime.datetime.strptime(val, self._date_format).strftime("%Y-%m-%d %H:%M:%S")
+                        elif col_type[col_name] == "json":
+                            val = json.dumps(val).replace("\\", "\\\\").replace("'", "\\'")
+
+                        if col_type[col_name] == "int":
+                            self._editor.executeManagementCommand("""SET @a%d = %d """ % (i, val), 0)
+                        elif col_type[col_name] == "json":
+                            self._editor.executeManagementCommand("""SET @a%d = '%s' """ % (i, val), 0)
+                        else:
+                            self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val), 0)
+                        
                     else:
                         try:
                             self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 0)
+                            self.item_count = self.item_count + 1
                         except Exception, e:
                             log_error("Row import failed with error: %s" % e)
                         
             except Exception, e:
+                import traceback
+                log_debug3("Import failed traceback: %s" % traceback.format_exc())
                 log_error("Import failed: %s" % e)
             self._editor.executeManagementCommand("DEALLOCATE PREPARE stmt", 1)
             
@@ -677,10 +714,13 @@ class json_module(base_module):
         
         self._columns = []
         for elem in data[0]:
-            self._columns.append({'name': elem, 'type': 'text', 'is_string': True, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'value': []})
+            self._columns.append({'name': elem, 'type': 'text', 'is_string': True, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'is_json':False, 'value': []})
 
         for row in data:
             for i, elem in enumerate(row):
+                if type(row[elem]) in [dict, list]:
+                    self._columns[i]['is_string'] = False
+                    self._columns[i]['is_json'] = True
                 self._columns[i]['value'].append(row[elem])
                 
         for col in self._columns:

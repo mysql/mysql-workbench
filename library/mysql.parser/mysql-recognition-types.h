@@ -252,3 +252,7 @@ struct MySQLParserErrorInfo
   size_t length;
 };
 
+namespace parser {
+  typedef std::pair<std::string, std::string> Identifier;
+  typedef struct { std::string schema; std::string table; std::string column; } ColumnIdentifier;
+}

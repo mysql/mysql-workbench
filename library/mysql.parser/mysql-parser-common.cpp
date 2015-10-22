@@ -59,18 +59,6 @@ extern "C" {
     return IDENTIFIER;
   }
   
-  /**
-   * Checks the given text if it is equal to "\N" (w/o quotes and in uppercase). We need this extra
-   * check as our lexer is case insensitive.
-   */
-  ANTLR3_UINT32 check_null(pANTLR3_STRING text)
-  {
-    std::string token_text((const char*)text->chars, text->len - 1);
-    if (token_text == "\\N")
-      return NULL2_SYMBOL;
-    return ANTLR3_TOKEN_INVALID;
-  }
-
 } // extern "C"
 
 //----------------- MySQLRecognitionBase ---------------------------------------------------------------
@@ -95,8 +83,8 @@ MySQLRecognitionBase::MySQLRecognitionBase(const std::set<std::string> &charsets
 void MySQLRecognitionBase::add_error(const std::string &message, ANTLR3_UINT32 token,
   ANTLR3_MARKER token_start, ANTLR3_UINT32 line, ANTLR3_UINT32 offset_in_line, ANTLR3_MARKER length)
 {
-  MySQLParserErrorInfo info = { message, token, (size_t)(token_start - (ANTLR3_MARKER)text()),
-    line, offset_in_line, (size_t)length};
+  MySQLParserErrorInfo info = { message, token, (size_t)(token_start - (ANTLR3_MARKER)lineStart()),
+    line, offset_in_line, (size_t)length };
   d->_error_info.push_back(info);
 };
 
@@ -181,7 +169,6 @@ bool MySQLRecognitionBase::is_identifier(ANTLR3_UINT32 type)
       // Symbols are sorted so that keywords allowed as identifiers are in a continuous range
       // making this check easy (and reduce the parser size significantly compared to generated token ids).
       result = (type >= ASCII_SYMBOL && type <= YEAR_SYMBOL);
-      
     }
   }
   return result;
@@ -220,6 +207,80 @@ uint32_t MySQLRecognitionBase::get_keyword_token(const std::string &keyword)
 
 //--------------------------------------------------------------------------------------------------
 
+/**
+* Returns the text of the given node. The result depends on the type of the node. If it represents
+* a quoted text entity then two consecutive quote chars are replaced by a single one and if
+* escape sequence parsing is not switched off (as per sql mode) then such sequences are handled too.
+*/
+std::string MySQLRecognitionBase::token_text(pANTLR3_BASE_TREE node, bool keepQuotes)
+{
+  pANTLR3_STRING text = node->getText(node);
+  if (text == NULL)
+    return "";
+
+  std::string chars;
+  pANTLR3_COMMON_TOKEN token = node->getToken(node);
+  ANTLR3_UINT32 type = (token != NULL) ? token->type : ANTLR3_TOKEN_INVALID;
+
+  if (type == STRING_TOKEN)
+  {
+    // STRING is the grouping subtree for multiple consecutive string literals, which
+    // must be concatenated.
+    for (ANTLR3_UINT32 index = 0; index < node->getChildCount(node); index++)
+    {
+      pANTLR3_BASE_TREE child = (pANTLR3_BASE_TREE)node->getChild(node, index);
+      chars += token_text(child, keepQuotes);
+    }
+
+    return chars;
+  }
+
+  chars = (const char*)text->chars;
+  std::string quote_char;
+  switch (type)
+  {
+  case BACK_TICK_QUOTED_ID:
+    quote_char = "`";
+    break;
+  case SINGLE_QUOTED_TEXT:
+    quote_char = "'";
+    break;
+  case DOUBLE_QUOTED_TEXT:
+    quote_char = "\"";
+    break;
+  default:
+    return chars;
+  }
+
+  // First unquote then handle escape squences and double quotes.
+  if (chars.size() < 3)
+  {
+    if (keepQuotes)
+      return chars;
+    return ""; // Also handles an invalid single quote char gracefully.
+  }
+
+  // Need to unquote even if keepQuotes is true to avoid trouble with replacing the outer quotes.
+  // Add them back below.
+  chars = base::unquote(chars);
+
+  if ((d->_sql_mode & SQL_MODE_NO_BACKSLASH_ESCAPES) == 0)
+    chars = base::unescape_sql_string(chars, quote_char[0]);
+  else
+    if (token->user1 > 0)
+    {
+      // The field user1 is set by the parser to the number of quote char pairs it found.
+      // So we can use it to shortcut our handling here.
+      base::replace(chars, quote_char + quote_char, quote_char);
+    }
+
+  if (keepQuotes)
+    return quote_char + chars + quote_char;
+  return chars;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 char** MySQLRecognitionBase::get_token_list()
 {
   return (char**)&MySQLParserTokenNames;
@@ -241,8 +302,7 @@ bool MySQLRecognitionBase::is_keyword(ANTLR3_UINT32 type)
   case AT_AT_SIGN_SYMBOL:
   case BACK_TICK:
   case BACK_TICK_QUOTED_ID:
-  case BITNUMBER:
-  case BITSTRING:
+  case BIN_NUMBER:
   case BITWISE_AND_OPERATOR:
   case BITWISE_NOT_OPERATOR:
   case BITWISE_OR_OPERATOR:
@@ -261,16 +321,15 @@ bool MySQLRecognitionBase::is_keyword(ANTLR3_UINT32 type)
   case ESCAPE_OPERATOR:
   case EXPRESSION_TOKEN:
   case COLUMN_NAME_TOKEN:
-  case FLOAT:
+  case FLOAT_NUMBER:
   case FUNCTION_CALL_TOKEN:
   case GREATER_OR_EQUAL_OPERATOR:
   case GREATER_THAN_OPERATOR:
   case HEXDIGIT:
-  case HEXNUMBER:
-  case HEXSTRING:
+  case HEX_NUMBER:
   case IDENTIFIER:
   case INDEX_HINT_LIST_TOKEN:
-  case INTEGER:
+  case NUMBER:
   case JOIN_EXPR_TOKEN:
   case LESS_OR_EQUAL_OPERATOR:
   case LESS_THAN_OPERATOR:
@@ -377,12 +436,10 @@ bool MySQLRecognitionBase::is_number(ANTLR3_UINT32 type)
 {
   switch (type)
   {
-    case INTEGER:
-    case FLOAT:
-    case HEXNUMBER:
-    case HEXSTRING:
-    case BITNUMBER:
-    case BITSTRING:
+    case NUMBER:
+    case FLOAT_NUMBER:
+    case HEX_NUMBER:
+    case BIN_NUMBER:
       return true;
 
   default:

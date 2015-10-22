@@ -300,7 +300,9 @@ public:
         case sql::DataType::SET:
           type= "string";
           break;
-
+        case sql::DataType::JSON:
+          type = "json";
+          break;
         case sql::DataType::SQLNULL:
           type = "null";
           break;          

@@ -2416,6 +2416,32 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
           <value type="string" key="command">plugin:wb.admin.open_into:admin_option_file</value>
           <value type="string" key="itemType">action</value>
         </value>
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.performance">
+          <value type="string" key="itemType">separator</value>
+        </value>
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.server.dashboard">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.server</link>
+          <value type="string" key="caption">Dashboard</value>
+          <value type="string" key="name">admin_dashboard</value>
+          <value type="string" key="command">plugin:wb.admin.open_into:admin_dashboard</value>
+          <value type="string" key="itemType">action</value>
+        </value>
+        
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.server.pf.reports">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.server</link>
+          <value type="string" key="caption">Performance Reports</value>
+          <value type="string" key="name">admin_performance_reports</value>
+          <value type="string" key="command">plugin:wb.admin.open_into:admin_performance_reports</value>
+          <value type="string" key="itemType">action</value>
+        </value>
+        
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.server.pf.reports.setup">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.server</link>
+          <value type="string" key="caption">Performance Schema Setup</value>
+          <value type="string" key="name">admin_instrumentation_setup</value>
+          <value type="string" key="command">plugin:wb.admin.open_into:admin_instrumentation_setup</value>
+          <value type="string" key="itemType">action</value>
+        </value>
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.se/SE">
           <value type="string" key="itemType">separator</value>
         </value>
@@ -2424,6 +2450,13 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
           <value type="string" key="caption">Audit Log Inspector</value>
           <value type="string" key="name">admin_audit_inspector</value>
           <value type="string" key="command">plugin:wb.admin.open_into_se:admin_audit_inspector</value>
+          <value type="string" key="itemType">action</value>
+        </value>
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.server.firewall/SE">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.server</link>
+          <value type="string" key="caption">Firewall</value>
+          <value type="string" key="name">admin_firewall</value>
+          <value type="string" key="command">plugin:wb.admin.open_into_se:admin_firewall</value>
           <value type="string" key="itemType">action</value>
         </value>
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.server.meb/SE">

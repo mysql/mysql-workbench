@@ -60,6 +60,8 @@ ImportInputPage::ImportInputPage(WizardPlugin *form)
   _table.add(&_file_codeset_caption, 0, 1, 2, 3, mforms::HFillFlag);
   _table.add(&_file_codeset_sel, 1, 2, 2, 3, mforms::HExpandFlag | mforms::HFillFlag);
 
+  _file_codeset_sel.set_enabled(false); // Temporary stick this to the default (utf-8). We cannot convert encodings.
+
   // Fill the encoding selector with a useful list of encodings.
   fill_encodings_list();
 

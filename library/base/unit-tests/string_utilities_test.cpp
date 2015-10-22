@@ -279,7 +279,7 @@ TEST_DATA_CONSTRUCTOR(string_utilities_test)
     if (i == 500)
       long_random_string += "\xE3\x8A\xA8"; // Ensure it is there at least once.
   }
-  std::remove(long_random_string.begin(), long_random_string.end(), 0x7f); // 0x7F is a special character that we use for tests
+  long_random_string.erase(std::remove(long_random_string.begin(), long_random_string.end(), 0x7f), long_random_string.end()); // 0x7F is a special character that we use for tests
 }
 
 END_TEST_DATA_CLASS;

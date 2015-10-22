@@ -3,6 +3,7 @@
     <requires file="structs.xml"/>
     <requires file="structs.db.mgmt.xml"/>
     <requires file="structs.model.xml"/>
+	<requires file="structs.wrapper.xml"/>
 
     <gstruct name="ui.ModelPanel" parent="TransientObject">
         <members>

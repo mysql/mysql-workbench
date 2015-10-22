@@ -377,31 +377,12 @@ void WBContextUI::add_backend_builtin_commands()
     boost::bind(add_script_file, this));
   _command_ui->add_builtin_command("add_note_file", 
     boost::bind(add_note_file, this));
-/*
-  // handle some url opening stuff ourselves through mforms
-  _command_ui->add_builtin_command("community_blog",
-    boost::bind(&WBContextUI::show_web_page, this, "http://wb.mysql.com/", true));
-  _command_ui->add_builtin_command("community_faq",
-    boost::bind(&WBContextUI::show_web_page, this, "http://wb.mysql.com/?page_id=7", true));
-  _command_ui->add_builtin_command("community_learn",
-    boost::bind(&WBContextUI::show_web_page, this, "http://wb.mysql.com/?page_id=10", true));
-  _command_ui->add_builtin_command("community_discuss",
-    boost::bind(&WBContextUI::show_web_page, this, "http://wb.mysql.com/?page_id=16", true));
-  _command_ui->add_builtin_command("community_contribute",
-    boost::bind(&WBContextUI::show_web_page, this, "http://wb.mysql.com/?page_id=17", true));
- */
   _command_ui->add_builtin_command("web_mysql_home",
     boost::bind(&WBContextUI::show_web_page, this, "http://mysql.com/", true));
   _command_ui->add_builtin_command("web_home",
     boost::bind(&WBContextUI::show_web_page, this, "http://mysql.com/products/tools/workbench/", true));
   _command_ui->add_builtin_command("list_bugs",
     boost::bind(&WBContextUI::show_web_page, this, "http://bugs.mysql.com/saved/WBBugs", true));
- // _command_ui->add_builtin_command("plugin_site",
- //   boost::bind(&WBContextUI::show_web_page, this, "http://wb.mysql.com/addons/", true));
-//  _command_ui->add_builtin_command("check_update",
-//    boost::bind(&WBContextUI::show_web_page, this, 
-//               base::strfmt("http://wb.mysql.com/workbench/version-check.php?version=%i.%i.%i&revision=%i", 
-//                            APP_MAJOR_NUMBER, APP_MINOR_NUMBER, APP_RELEASE_NUMBER, APP_REVISION_NUMBER), false));
   _command_ui->add_builtin_command("help_index", boost::bind(&WBContextUI::show_help_index, this));
   _command_ui->add_builtin_command("locate_log_file", boost::bind(&WBContextUI::locate_log_file, this));
   _command_ui->add_builtin_command("show_log_file", boost::bind(&WBContextUI::show_log_file, this));

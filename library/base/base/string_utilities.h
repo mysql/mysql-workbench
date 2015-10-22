@@ -56,14 +56,14 @@ namespace base
 {
   #define SPACES " \t\r\n"
 
-#ifdef _WIN32
-  // use this to convert utf8 string to WCHAR* in windows
   BASELIBRARY_PUBLIC_FUNC std::wstring string_to_wstring(const std::string &s);
   BASELIBRARY_PUBLIC_FUNC std::string wstring_to_string(const std::wstring &s);
+#ifdef _WIN32
   BASELIBRARY_PUBLIC_FUNC std::wstring path_from_utf8(const std::string &s);
 #else
   BASELIBRARY_PUBLIC_FUNC std::string path_from_utf8(const std::string &s);
 #endif
+  
   // use this to convert a utf8 std::string to a std::string that can be used to open files in windows (noop elsewhere)
   BASELIBRARY_PUBLIC_FUNC std::string string_to_path_for_open(const std::string &s);
 
@@ -94,6 +94,7 @@ namespace base
   BASELIBRARY_PUBLIC_FUNC std::string make_valid_filename(const std::string &name);
   
   BASELIBRARY_PUBLIC_FUNC std::string escape_sql_string(const std::string &string, bool wildcards = false); // "strings" or 'strings'
+  BASELIBRARY_PUBLIC_FUNC std::string escape_json_string(const std::string &string);
   BASELIBRARY_PUBLIC_FUNC std::string unescape_sql_string(const std::string &string, char escape_char);
   BASELIBRARY_PUBLIC_FUNC std::string escape_backticks(const std::string &string);  // `identifier`
   BASELIBRARY_PUBLIC_FUNC std::string extract_option_from_command_line(const std::string& option,
@@ -163,6 +164,7 @@ namespace base
 
   BASELIBRARY_PUBLIC_FUNC std::string quote_identifier(const std::string& identifier, const char quote_char);
   BASELIBRARY_PUBLIC_FUNC std::string unquote_identifier(const std::string& identifier);
+  BASELIBRARY_PUBLIC_FUNC std::string unquote(const std::string& text);
   BASELIBRARY_PUBLIC_FUNC std::string quote_identifier_if_needed(const std::string &ident, const char quote_char);
 
   BASELIBRARY_PUBLIC_FUNC bool stl_string_compare(const std::string &first, const std::string &second, bool case_sensitive = true);
@@ -171,6 +173,7 @@ namespace base
   BASELIBRARY_PUBLIC_FUNC bool contains_string(const std::string &text, const std::string &candidate, bool case_sensitive = true);
 
   BASELIBRARY_PUBLIC_FUNC bool is_number(const std::string &word);
+  BASELIBRARY_PUBLIC_FUNC bool isBool(const std::string &text);
 
 
   /**
@@ -314,6 +317,7 @@ template<typename T> T inline atof(const std::string &val, boost::optional<T> de
   return ConvertHelper::string_to_number<T>(val, def_val);
 }
   
-typedef boost::shared_ptr<std::list<std::string> > StringListPtr;
+typedef std::list<std::string> StringList;
+typedef boost::shared_ptr<StringList> StringListPtr;
 
 } // namespace base

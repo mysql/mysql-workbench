@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -63,21 +63,6 @@ public:
 
   inline bec::TableColumnsListBE *get_unmanaged_object()
   { return static_cast<bec::TableColumnsListBE *>(inner); }
-
-  bool get_row(NodeIdWrapper^ node,
-               [Out] String^ %name,
-               [Out] String^ %type,
-               [Out] bool^ %ispk,
-               [Out] bool^ %notnull,
-               [Out] bool^ %unique,
-               [Out] bool^ %isbinary,
-               [Out] bool^ %isunsigned,
-               [Out] bool^ %iszerofill,
-               [Out] String^ %flags,
-               [Out] String^ %defvalue,
-               [Out] String^ %charset,
-               [Out] String^ %collation,
-               [Out] String^ %comment);
 
   void reorder_many(List<int> ^rows, int nindex);
 };

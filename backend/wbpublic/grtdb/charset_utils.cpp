@@ -26,7 +26,7 @@
 
 #define ARR_CAPACITY(arr) (sizeof(arr)/sizeof(arr[0]))
 
-const std::string & get_cs_def_collation(std::string cs_name)
+const std::string & defaultCollationForCharset(const std::string &charsetName)
 {
   static std::string empty_cs_collation_name;
   static std::map<std::string, std::string> def_collations;
@@ -75,8 +75,8 @@ const std::string & get_cs_def_collation(std::string cs_name)
       def_collations[def_collations_arr[n][0]]= def_collations_arr[n][1];
   }
 
-  cs_name = base::tolower(cs_name);
-  std::map<std::string, std::string>::iterator i= def_collations.find(cs_name);
+  std::string name = base::tolower(charsetName);
+  std::map<std::string, std::string>::iterator i= def_collations.find(name);
   if (def_collations.end() != i)
     return i->second;
 
@@ -84,7 +84,7 @@ const std::string & get_cs_def_collation(std::string cs_name)
 }
 
 
-const std::string & get_collation_cs(std::string collation_name)
+const std::string & charsetForCollation(const std::string &collationName)
 {
   static std::string empty_cs_name;
   static std::map<std::string, std::string> collations;
@@ -224,8 +224,8 @@ const std::string & get_collation_cs(std::string collation_name)
       collations[collations_arr[n][0]]= collations_arr[n][1];
   }
 
-  collation_name = base::tolower(collation_name);
-  std::map<std::string, std::string>::iterator i= collations.find(collation_name);
+  std::string name = base::tolower(collationName);
+  std::map<std::string, std::string>::iterator i= collations.find(name);
   if (collations.end() != i)
     return i->second;
 

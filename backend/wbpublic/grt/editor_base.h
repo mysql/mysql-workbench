@@ -64,7 +64,8 @@ namespace bec {
 
     virtual bool should_close_on_delete_of(const std::string &oid) { return get_object().id() == oid; }
 
-    grt::Ref<GrtObject> get_object() { return _object; };
+    GrtObjectRef get_object() { return _object; };
+    void set_object(GrtObjectRef value);
 
     virtual bool has_editor() { return false; }
     virtual bool is_editing_live_object() { return false; }
