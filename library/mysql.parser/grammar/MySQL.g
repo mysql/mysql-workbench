@@ -20,9 +20,9 @@ grammar MySQL;
  */
 
 /*
- * Merged in all changes up to mysql-trunk revision 8894.
+ * Merged in all changes up to mysql-5.7 git revision [2405334] (04 Sep 2015).
  *
- * MySQL grammar for ANTLR 3.4 with language features from MySQL 4.0 up to MySQL 5.7 (except for
+ * MySQL grammar for ANTLR 3.4 with language features from MySQL 4.0 up to MySQL 5.7.9 (except for
  * internal function names which were reduced significantly in 5.1, we only use the reduced set).
  * The server version in the generated parser can be switched at runtime, making it so possible
  * to switch the supported feature set dynamically.
@@ -36,8 +36,7 @@ grammar MySQL;
  * and requires a number of functions to be implemented by the user of the parser. These are:
  * 
  *  ANTLR3_UINT32 check_charset(void *payload, pANTLR3_STRING text);
- *  ANTLR3_UINT32 check_null(pANTLR3_STRING text);
- *  void on_parse_error(struct ANTLR3_BASE_RECOGNIZER_struct *recognizer, pANTLR3_UINT8 *tokenNames);
+ *  void onMySQLParseError(struct ANTLR3_BASE_RECOGNIZER_struct *recognizer, pANTLR3_UINT8 *tokenNames);
  *
  * See descriptions below for their meaning. Here's a typical setup and run of lexer and parser:
  *
@@ -91,6 +90,9 @@ tokens {
 	COLUMN_INTERNAL_REF_TOKEN; // A column ref in the same table (e.g. in ALTER TABLE .. DROP COLUMN a).
 	COLUMN_REF_TOKEN;
 	
+	INDEX_NAME_TOKEN;
+	INDEX_REF_TOKEN;
+
 	VIEW_NAME_TOKEN;
 	VIEW_REF_TOKEN;
 	
@@ -112,14 +114,18 @@ tokens {
 	EVENT_NAME_TOKEN;
 	EVENT_REF_TOKEN;
 	
-	UDF_NAME_TOKEN;
-	UDF_REF_TOKEN;
+	UDF_NAME_TOKEN; // UDFs are referenced at the same places as any other function. So, no dedicated *_ref here.
+	ENGINE_REF_TOKEN; // No manipulation, just references.
+	
+	SERVER_NAME_TOKEN;
+	SERVER_REF_TOKEN;
 	
 	// Subparts of more complex statements.
 	ALTER_TABLE_ITEM_TOKEN;
 	CREATE_ITEM_TOKEN;
 	COLUMN_ASSIGNMENT_LIST_TOKEN;
 	LOGFILE_GROUP_OPTIONS_TOKEN;
+	TABLESPACE_OPTIONS_TOKEN;
 	CHANGE_MASTER_OPTIONS_TOKEN;
 	SLAVE_THREAD_OPTIONS_TOKEN;
 	PRIVILEGE_TARGET_TOKEN;
@@ -148,9 +154,11 @@ tokens {
 // provide context information. The code which creates parser and lexer must set a reference to such a structure
 // initialized to the proper values in the shared lexer/parser state userp member.
 typedef struct {
-	long version;
-	unsigned sql_mode; // A collection of flags indicating which of relevant SQL modes are active.
-	void *payload;     // Since we use the usercp for this struct we need another way to pass around other arbitrary data.
+  int versionMatched;    // True if a given version number is less or equal compare to that of the server.
+  int inVersionComment;  // True if we are in a version comment (/*!12345 ... */).
+  long version;
+  unsigned sqlMode;      // A collection of flags indicating which of relevant SQL modes are active.
+  void *payload;         // Since we use the usercp for this struct we need another way to pass around other arbitrary data.
 } RecognitionContext;
 
 // SQL modes that control parsing behavior.
@@ -160,12 +168,16 @@ typedef struct {
 #define SQL_MODE_IGNORE_SPACE           8
 #define SQL_MODE_NO_BACKSLASH_ESCAPES  16
 
+// 2 vars stored in state pointer (otherwise we would have to create global vars).
+#define VERSION_MATCHED ((RecognitionContext*)RECOGNIZER->state->userp)->versionMatched
+#define IN_VERSION_COMMENT ((RecognitionContext*)RECOGNIZER->state->userp)->inVersionComment
+
 #define PAYLOAD ((RecognitionContext*)RECOGNIZER->state->userp)->payload
 #define SERVER_VERSION ((RecognitionContext*)RECOGNIZER->state->userp)->version
 #define TYPE_FROM_VERSION(version, type) (SERVER_VERSION >= version ? type : IDENTIFIER)
 #define DEPRECATED_TYPE_FROM_VERSION(version, type) (SERVER_VERSION < version ? type : IDENTIFIER)
 #define TYPE_IN_VERSION_RANGE(small_version, large_version, type) ((SERVER_VERSION >= small_version && SERVER_VERSION < large_version) ? type : IDENTIFIER)
-#define SQL_MODE_ACTIVE(mode) (((RecognitionContext*)RECOGNIZER->state->userp)->sql_mode & mode) != 0
+#define SQL_MODE_ACTIVE(mode) (((RecognitionContext*)RECOGNIZER->state->userp)->sqlMode & mode) != 0
 
 }
 
@@ -216,15 +228,11 @@ extern "C" {
 #endif
 
   // Custom error reporting function.
-  void on_parse_error(struct ANTLR3_BASE_RECOGNIZER_struct *recognizer, pANTLR3_UINT8 *tokenNames); 
+  void onMySQLParseError(struct ANTLR3_BASE_RECOGNIZER_struct *recognizer, pANTLR3_UINT8 *tokenNames); 
 
   // Checks if the given text corresponds to a charset defined in the server (text is preceded by an underscore).
   // Returns UNDERSCORE_CHARSET if so, otherwise IDENTIFIER.
   ANTLR3_UINT32 check_charset(void *payload, pANTLR3_STRING text);
-  
-  // Checks the given text if it is equal to "\N" (w/o quotes and in uppercase). We need this extra
-  // check as our lexer is case insensitive.
-  ANTLR3_UINT32 check_null(pANTLR3_STRING text);
   
 #ifdef __cplusplus
 };
@@ -232,9 +240,6 @@ extern "C" {
 }
 
 @lexer::members {
-  ANTLR3_BOOLEAN matched_version = ANTLR3_FALSE; // True if a given version number is less than that of the server.
-  ANTLR3_BOOLEAN in_version_comment = ANTLR3_FALSE; // True if we are in a version comment (/*!12345 ... */).
-
   // Checks if the version number, given by the token, is less than or equal to the current server version.
   // Returns ANTRL3_TRUE if so, otherwise ANTLR3_FALSE.
   ANTLR3_BOOLEAN check_version_token(long server_version, pANTLR3_COMMON_TOKEN token)
@@ -266,12 +271,115 @@ extern "C" {
     
     return LA(1) == '(' ? proposed : IDENTIFIER;
   }
+  
+  // Checks the given text if it is equal to "\N" (w/o quotes and in uppercase). We need this extra
+  // check as our lexer is case insensitive.
+  ANTLR3_UINT32 check_null(pANTLR3_STRING text)
+  {
+    if (strncmp((const char*)text->chars, "\\N", text->len - 1))
+      return NULL2_SYMBOL;
+    return ANTLR3_TOKEN_INVALID;
+  }
+  
+  // Checks the given text and determines the smallest number type from it. Code has been taken from sql_lex.cc.
+  ANTLR3_UINT32 determine_num_type(pANTLR3_STRING text)
+  {
+    static const char *long_str                 = "2147483647";
+    static const unsigned long_len              = 10;
+    static const char *signed_long_str          = "-2147483648";
+    static const char *longlong_str             = "9223372036854775807";
+    static const unsigned longlong_len          = 19;
+    static const char *signed_longlong_str      = "-9223372036854775808";
+    static const unsigned signed_longlong_len   = 19;
+    static const char *unsigned_longlong_str    = "18446744073709551615";
+    static const unsigned unsigned_longlong_len = 20;
+
+    // The original code checks for leading +/- but actually that can never happen, neither in the
+    // server parser (as a digit is used to trigger processing in the lexer) nor in our parser
+    // as our rules are defined without signs. But we do it anyway for maximum compatibility.
+    unsigned length = text->len - 1;
+    const char *str = (const char *)text->chars;
+    if (length < long_len)			// quick normal case
+      return INT_NUMBER;
+    unsigned negative = 0;
+
+    if (*str == '+')				// Remove sign and pre-zeros
+    {
+      str++; length--;
+    }
+    else if (*str == '-')
+    {
+      str++; length--;
+      negative = 1;
+    }
+
+    while (*str == '0' && length)
+    {
+      str++; length --;
+    }
+
+    if (length < long_len)
+      return INT_NUMBER;
+
+    unsigned smaller, bigger;
+    const char *cmp;
+    if (negative)
+    {
+      if (length == long_len)
+      {
+        cmp = signed_long_str+1;
+        smaller = INT_NUMBER; // If <= signed_long_str
+        bigger = LONG_NUMBER; // If >= signed_long_str
+      }
+      else if (length < signed_longlong_len)
+        return LONG_NUMBER;
+      else if (length > signed_longlong_len)
+        return DECIMAL_NUMBER;
+      else
+      {
+        cmp = signed_longlong_str+1;
+        smaller = LONG_NUMBER; // If <= signed_longlong_str
+        bigger = DECIMAL_NUMBER;
+      }
+    }
+    else
+    {
+      if (length == long_len)
+      {
+        cmp = long_str;
+        smaller = INT_NUMBER;
+        bigger = LONG_NUMBER;
+      }
+      else if (length < longlong_len)
+        return LONG_NUMBER;
+      else if (length > longlong_len)
+      {
+        if (length > unsigned_longlong_len)
+          return DECIMAL_NUMBER;
+        cmp = unsigned_longlong_str;
+        smaller = ULONGLONG_NUMBER;
+        bigger = DECIMAL_NUMBER;
+      }
+      else
+      {
+        cmp = longlong_str;
+        smaller = LONG_NUMBER;
+        bigger = ULONGLONG_NUMBER;
+      }
+    }
+
+    while (*cmp && *cmp++ == *str++)
+      ;
+
+    return ((unsigned char)str[-1] <= (unsigned char)cmp[-1]) ? smaller : bigger;
+  }
+  
 }
 
 @lexer::apifuncs
 {
 	// Install custom error collector for the front end.
-	RECOGNIZER->displayRecognitionError = on_parse_error;
+	RECOGNIZER->displayRecognitionError = onMySQLParseError;
 }
 
 @parser::postinclude {
@@ -280,7 +388,7 @@ extern "C" {
 #endif
 
   // Custom error reporting function.
-  void on_parse_error(struct ANTLR3_BASE_RECOGNIZER_struct *recognizer, pANTLR3_UINT8 *tokenNames); 
+  void onMySQLParseError(struct ANTLR3_BASE_RECOGNIZER_struct *recognizer, pANTLR3_UINT8 *tokenNames); 
 
 #ifdef __cplusplus
 };
@@ -293,7 +401,7 @@ extern "C" {
 @parser::apifuncs
 {
 	// Install custom error collector for the front end.
-	RECOGNIZER->displayRecognitionError = on_parse_error;
+	RECOGNIZER->displayRecognitionError = onMySQLParseError;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -321,7 +429,9 @@ statement:
 	| select_statement
 	| update_statement
 
-	| partitioning // Cannot be used standalone.
+	// Rules that cannot be used standalone, but are here for more complexer statements.
+	| partitioning
+	//| parse_gcol_expression
 		
 	| transaction_or_locking_statement
 	
@@ -335,7 +445,7 @@ statement:
 	| install_uninstall_statment
 	| {LA(1) == SET_SYMBOL && LA(2) != PASSWORD_SYMBOL}? set_statement // SET PASSWORD is handled in account_management_statement.
 	| show_statement
-	| miscellaneous_statement
+	| other_administrative_statement
 	
 	// MySQL utilitity statements
 	| utility_statement
@@ -383,7 +493,7 @@ alter_log_file_group:
 ;
 
 alter_server:
-	SERVER_SYMBOL text_or_identifier server_options
+	SERVER_SYMBOL server_ref server_options
 ;
 
 alter_table:
@@ -410,26 +520,18 @@ alter_table_list_entry:
 			column_definition (FIRST_SYMBOL | AFTER_SYMBOL identifier)?
 			| OPEN_PAR_SYMBOL column_definition (COMMA_SYMBOL column_definition)* CLOSE_PAR_SYMBOL
 		)
-	| ADD_SYMBOL (INDEX_SYMBOL | KEY_SYMBOL) identifier? index_type? index_columns index_option*
-	| ADD_SYMBOL (CONSTRAINT_SYMBOL identifier?)?
-		(
-			PRIMARY_SYMBOL KEY_SYMBOL index_type? index_columns index_option*
-			| UNIQUE_SYMBOL (INDEX_SYMBOL | KEY_SYMBOL)? identifier? index_type? index_columns index_option*
-			| FOREIGN_SYMBOL KEY_SYMBOL identifier? index_columns reference_definition
-		)
-	| ADD_SYMBOL FULLTEXT_SYMBOL (INDEX_SYMBOL | KEY_SYMBOL)? identifier? index_columns index_option*
-	| ADD_SYMBOL SPATIAL_SYMBOL (INDEX_SYMBOL | KEY_SYMBOL)? identifier? index_columns index_option*
+	| ADD_SYMBOL key_def
 	| ALTER_SYMBOL COLUMN_SYMBOL? column_internal_ref (SET_SYMBOL DEFAULT_SYMBOL signed_literal | DROP_SYMBOL DEFAULT_SYMBOL)
 	| CHANGE_SYMBOL COLUMN_SYMBOL? column_internal_ref field_spec (FIRST_SYMBOL | AFTER_SYMBOL identifier)?
-	| MODIFY_SYMBOL COLUMN_SYMBOL? column_internal_ref field_spec (FIRST_SYMBOL | AFTER_SYMBOL identifier)?
+	| MODIFY_SYMBOL COLUMN_SYMBOL? column_internal_ref data_type attribute* (FIRST_SYMBOL | AFTER_SYMBOL identifier)?
 	| DROP_SYMBOL
 		(
-			(INDEX_SYMBOL | KEY_SYMBOL) identifier
+			(INDEX_SYMBOL | KEY_SYMBOL) column_ref
 			| COLUMN_SYMBOL? column_internal_ref
 			| PRIMARY_SYMBOL KEY_SYMBOL
 			| FOREIGN_SYMBOL KEY_SYMBOL
 				(
-					// This part no longer is optional starting with 5.7.
+					// This part is no longer optional starting with 5.7.
 					{SERVER_VERSION >= 50700}? => column_ref
 					| {SERVER_VERSION < 50700}? => column_ref?
 				)
@@ -437,12 +539,25 @@ alter_table_list_entry:
 	| DISABLE_SYMBOL KEYS_SYMBOL
 	| ENABLE_SYMBOL KEYS_SYMBOL
 	| RENAME_SYMBOL (TO_SYMBOL | AS_SYMBOL)? table_ref
-	| {SERVER_VERSION >= 50700}? => RENAME_SYMBOL (INDEX_SYMBOL | KEY_SYMBOL) identifier TO_SYMBOL identifier
+	| {SERVER_VERSION >= 50700}? => RENAME_SYMBOL (INDEX_SYMBOL | KEY_SYMBOL) column_ref TO_SYMBOL column_ref
 	| alter_order_by
 	| CONVERT_SYMBOL TO_SYMBOL CHAR_SYMBOL SET_SYMBOL charset_name_or_default (COLLATE_SYMBOL collation_name_or_default)?
 	| FORCE_SYMBOL
 	| {SERVER_VERSION >= 50600}? => alter_algorithm_option
 	| {SERVER_VERSION >= 50600}? => alter_lock_option
+	| {SERVER_VERSION >= 50708}? => UPGRADE_SYMBOL PARTITIONING_SYMBOL
+;
+
+key_def:
+	(CONSTRAINT_SYMBOL column_ref?)?
+		(
+			PRIMARY_SYMBOL KEY_SYMBOL column_ref? index_type? index_columns normal_index_option*
+			| FOREIGN_SYMBOL KEY_SYMBOL column_ref? index_columns reference_definition
+			| UNIQUE_SYMBOL (INDEX_SYMBOL | KEY_SYMBOL)? column_ref? index_type? index_columns normal_index_option*
+			| CHECK_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
+		)
+	| (INDEX_SYMBOL | KEY_SYMBOL) column_ref? index_type? index_columns normal_index_option*
+	| (FULLTEXT_SYMBOL | SPATIAL_SYMBOL) (INDEX_SYMBOL | KEY_SYMBOL)? column_ref? index_columns normal_index_option*
 ;
 
 alter_order_by:
@@ -469,7 +584,7 @@ alter_partition:
 	{LA(1) == ADD_SYMBOL && LA(2) == PARTITION_SYMBOL}? => ADD_SYMBOL PARTITION_SYMBOL no_write_to_bin_log?
 		(
 			OPEN_PAR_SYMBOL partition_definition CLOSE_PAR_SYMBOL
-			| PARTITIONS_SYMBOL INTEGER
+			| PARTITIONS_SYMBOL real_ulong_number
 		)
 	| DROP_SYMBOL PARTITION_SYMBOL identifier_list
 	| REBUILD_SYMBOL PARTITION_SYMBOL no_write_to_bin_log? all_or_partition_name_list
@@ -477,7 +592,7 @@ alter_partition:
 	| ANALYZE_SYMBOL PARTITION_SYMBOL no_write_to_bin_log? all_or_partition_name_list
 	| CHECK_SYMBOL PARTITION_SYMBOL all_or_partition_name_list check_option*
 	| REPAIR_SYMBOL PARTITION_SYMBOL no_write_to_bin_log? all_or_partition_name_list repair_option*
-	| COALESCE_SYMBOL PARTITION_SYMBOL no_write_to_bin_log? INTEGER
+	| COALESCE_SYMBOL PARTITION_SYMBOL no_write_to_bin_log? real_ulong_number
 	| {SERVER_VERSION >= 50500}? => TRUNCATE_SYMBOL PARTITION_SYMBOL all_or_partition_name_list
 	| EXCHANGE_SYMBOL PARTITION_SYMBOL identifier WITH_SYMBOL TABLE_SYMBOL table_ref validation?
 	| REORGANIZE_SYMBOL PARTITION_SYMBOL no_write_to_bin_log? (identifier_list INTO_SYMBOL partition_definitions)?
@@ -647,9 +762,9 @@ create_index: // For external use only. Don't reference this in the normal gramm
 create_index_tail:
 	online_option?
 	(
-		UNIQUE_SYMBOL? INDEX_SYMBOL identifier index_type? create_index_target index_option* index_lock_algorithm?
-		| FULLTEXT_SYMBOL INDEX_SYMBOL identifier create_index_target fulltext_index_option* index_lock_algorithm?
-		| SPATIAL_SYMBOL INDEX_SYMBOL identifier create_index_target spatial_index_option* index_lock_algorithm?
+		UNIQUE_SYMBOL? INDEX_SYMBOL index_name index_type? create_index_target normal_index_option* index_lock_algorithm?
+		| FULLTEXT_SYMBOL INDEX_SYMBOL index_name create_index_target fulltext_index_option* index_lock_algorithm?
+		| SPATIAL_SYMBOL INDEX_SYMBOL index_name create_index_target spatial_index_option* index_lock_algorithm?
 	)
 ;
 
@@ -674,7 +789,7 @@ logfile_group_options:
 logfile_group_option:
 	INITIAL_SIZE_SYMBOL EQUAL_OPERATOR? size_number
 	| (UNDO_BUFFER_SIZE_SYMBOL | REDO_BUFFER_SIZE_SYMBOL) EQUAL_OPERATOR? size_number
-	| NODEGROUP_SYMBOL EQUAL_OPERATOR? (INTEGER | HEXNUMBER)
+	| NODEGROUP_SYMBOL EQUAL_OPERATOR? real_ulong_number
 	| (WAIT_SYMBOL | NO_WAIT_SYMBOL)
 	| COMMENT_SYMBOL EQUAL_OPERATOR? string_literal
 	| STORAGE_SYMBOL? ENGINE_SYMBOL EQUAL_OPERATOR? engine_ref
@@ -685,7 +800,7 @@ create_server: // For external use only. Don't reference this in the normal gram
 ;
 
 create_server_tail:
-	SERVER_SYMBOL text_or_identifier
+	SERVER_SYMBOL server_name
 		FOREIGN_SYMBOL DATA_SYMBOL WRAPPER_SYMBOL text_or_identifier server_options
 ;
 
@@ -701,7 +816,7 @@ server_option:
 	| PASSWORD_SYMBOL string_literal
 	| SOCKET_SYMBOL string_literal
 	| OWNER_SYMBOL string_literal
-	| PORT_SYMBOL INTEGER
+	| PORT_SYMBOL ulong_number
 ;
 
 create_table: // For external use only. Don't reference this in the normal grammar.
@@ -732,15 +847,7 @@ create_item:
 
 create_field_list_item:
 	column_definition
-	| (CONSTRAINT_SYMBOL identifier?)?
-		(
-			PRIMARY_SYMBOL KEY_SYMBOL index_type? index_columns index_option*
-			| FOREIGN_SYMBOL KEY_SYMBOL pure_identifier? index_columns reference_definition
-			| UNIQUE_SYMBOL (INDEX_SYMBOL | KEY_SYMBOL)? identifier? index_type? index_columns index_option*
-		)
-	| (INDEX_SYMBOL | KEY_SYMBOL) identifier? index_type? index_columns index_option*
-	| (FULLTEXT_SYMBOL | SPATIAL_SYMBOL) (INDEX_SYMBOL | KEY_SYMBOL)? identifier? index_columns index_option*
-	| CHECK_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
+	| key_def
 ;
 
 table_creation_source: // create3 in sql_yacc.yy
@@ -762,18 +869,24 @@ create_tablespace: // For external use only. Don't reference this in the normal 
 
 create_tablespace_tail:
 	TABLESPACE_SYMBOL tablespace_name ADD_SYMBOL DATAFILE_SYMBOL string_literal
-		(USE_SYMBOL LOGFILE_SYMBOL GROUP_SYMBOL logfile_group_ref)? (create_tablespace_option (COMMA_SYMBOL? create_tablespace_option)*)?
+		(USE_SYMBOL LOGFILE_SYMBOL GROUP_SYMBOL logfile_group_ref)? tablespace_options?
 ;
 
-create_tablespace_option:
+tablespace_options:
+	(tablespace_option (COMMA_SYMBOL? tablespace_option)*)
+		-> ^(TABLESPACE_OPTIONS_TOKEN tablespace_option (COMMA_SYMBOL? tablespace_option)*)
+;
+
+tablespace_option:
 	INITIAL_SIZE_SYMBOL EQUAL_OPERATOR? size_number
 	| AUTOEXTEND_SIZE_SYMBOL EQUAL_OPERATOR? size_number
 	| MAX_SIZE_SYMBOL EQUAL_OPERATOR? size_number
 	| EXTENT_SIZE_SYMBOL EQUAL_OPERATOR? size_number
-	| NODEGROUP_SYMBOL EQUAL_OPERATOR? (INTEGER | HEXNUMBER)
+	| NODEGROUP_SYMBOL EQUAL_OPERATOR? real_ulong_number
 	| STORAGE_SYMBOL? ENGINE_SYMBOL EQUAL_OPERATOR? engine_ref
 	| (WAIT_SYMBOL | NO_WAIT_SYMBOL)
 	| COMMENT_SYMBOL EQUAL_OPERATOR? string_literal
+	| {SERVER_VERSION >= 50707}? => FILE_BLOCK_SIZE_SYMBOL EQUAL_OPERATOR? size_number
 ;
 
 create_trigger: // For external use only. Don't reference this in the normal grammar.
@@ -821,10 +934,10 @@ drop_statement:
 				FUNCTION_SYMBOL if_exists? function_ref // Including UDFs.
 				| PROCEDURE_SYMBOL if_exists? procedure_ref
 			)
-		| online_option? INDEX_SYMBOL identifier ON_SYMBOL table_ref index_lock_algorithm?
+		| online_option? INDEX_SYMBOL index_ref ON_SYMBOL table_ref index_lock_algorithm?
 		| LOGFILE_SYMBOL GROUP_SYMBOL logfile_group_ref (drop_logfile_group_option (COMMA_SYMBOL? drop_logfile_group_option)*)?
-		| SERVER_SYMBOL if_exists? text_or_identifier
-		| TEMPORARY_SYMBOL? (TABLE_SYMBOL | TABLES_SYMBOL) if_exists? table_identifier_list (RESTRICT_SYMBOL | CASCADE_SYMBOL)?
+		| SERVER_SYMBOL if_exists? server_ref
+		| TEMPORARY_SYMBOL? (TABLE_SYMBOL | TABLES_SYMBOL) if_exists? table_ref_list (RESTRICT_SYMBOL | CASCADE_SYMBOL)?
 		| TABLESPACE_SYMBOL tablespace_ref (drop_logfile_group_option (COMMA_SYMBOL? drop_logfile_group_option)*)?
 		| TRIGGER_SYMBOL if_exists? trigger_ref
 		| VIEW_SYMBOL if_exists? view_identifier_list (RESTRICT_SYMBOL | CASCADE_SYMBOL)?
@@ -858,13 +971,12 @@ delete_statement:
 	DELETE_SYMBOL^ ( options { greedy = true; }: delete_option)*
 		(
 			FROM_SYMBOL
-				// Both alternatives can start with identifier DOT, so we either need a predicate (which adds backtracking) or,
-				// as we actually do, an extended lookahead.
+				// Both alternatives can start with identifier DOT.
 				( options { k = 4; }:
-					 table_ref_list USING_SYMBOL table_reference_list where_clause? // Multi table variant 1.
-					| table_ref partition_delete? where_clause? order_by_clause? (LIMIT_SYMBOL limit_option)? // Single table delete.
+					 table_ref_list_with_wildcard USING_SYMBOL join_table_list where_clause? // Multi table variant 1.
+					| table_ref partition_delete? where_clause? order_by_clause? simple_limit_clause? // Single table delete.
 				)
-			|  table_ref_list FROM_SYMBOL table_reference_list where_clause? // Multi table variant 2.
+			|  table_ref_list_with_wildcard FROM_SYMBOL join_table_list where_clause? // Multi table variant 2.
 		)
 ;
 
@@ -876,12 +988,12 @@ delete_option:
 	LOW_PRIORITY_SYMBOL | QUICK_SYMBOL | IGNORE_SYMBOL
 ;
 
-table_ref_list:
-	table_ref_with_wildcard (COMMA_SYMBOL table_ref_with_wildcard)*
-;
-
 do_statement:
-	DO_SYMBOL^ expression_list
+	DO_SYMBOL^ 
+	(
+		{SERVER_VERSION < 50709}? => expression_list
+		| {SERVER_VERSION >= 50709}? => select_item_list
+	)
 ;
 
 handler_statement:
@@ -912,7 +1024,8 @@ handler_read_or_scan:
 //--------------------------------------------------------------------------------------------------
 
 insert_statement:
-	INSERT_SYMBOL^ insert_lock_option? IGNORE_SYMBOL? INTO_SYMBOL? table_ref use_partition? insert_field_spec duplicate_key_update?
+	INSERT_SYMBOL^ insert_lock_option? IGNORE_SYMBOL? INTO_SYMBOL? table_ref use_partition?
+		insert_field_spec duplicate_key_update?
 ;
 
 insert_lock_option:
@@ -922,7 +1035,11 @@ insert_lock_option:
 ;
 
 insert_field_spec:
-	(OPEN_PAR_SYMBOL fields? CLOSE_PAR_SYMBOL)? insert_values
+	(OPEN_PAR_SYMBOL fields? CLOSE_PAR_SYMBOL)? 
+		(
+			insert_values
+			| insert_query_expression
+		)
 	| SET_SYMBOL column_assignment_list_with_default
 ;
 
@@ -936,7 +1053,10 @@ insert_identifier:
 
 insert_values:
 	(VALUES_SYMBOL | VALUE_SYMBOL) insert_value_list
-	| create_select union_clause?
+;
+
+insert_query_expression:
+	create_select union_clause?
 	| OPEN_PAR_SYMBOL create_select CLOSE_PAR_SYMBOL union_or_order_by_or_limit?
 ;
 
@@ -973,7 +1093,7 @@ xml_rows_identified_by:
 ;
 
 load_data_file_tail:
-	(IGNORE_SYMBOL INTEGER (LINES_SYMBOL | ROWS_SYMBOL))? load_data_file_target_list? (SET_SYMBOL column_assignment_list_with_default)?
+	(IGNORE_SYMBOL INT_NUMBER (LINES_SYMBOL | ROWS_SYMBOL))? load_data_file_target_list? (SET_SYMBOL column_assignment_list_with_default)?
 ;
 
 load_data_file_target_list:
@@ -1048,7 +1168,7 @@ select_option:
 	query_spec_option
 	| SQL_NO_CACHE_SYMBOL
 	| SQL_CACHE_SYMBOL
-	| {SERVER_VERSION >= 50704}? => MAX_STATEMENT_TIME_SYMBOL EQUAL_OPERATOR number
+	| {SERVER_VERSION >= 50704 && SERVER_VERSION < 50708}? => MAX_STATEMENT_TIME_SYMBOL EQUAL_OPERATOR real_ulong_number
 ;
 
 query_spec_option:
@@ -1071,11 +1191,15 @@ select_item options { k = 5; }:
 ;
 
 select_alias:
-	AS_SYMBOL? text_or_identifier
+	AS_SYMBOL? (identifier | text_string )
 ;         
 
 limit_clause:
 	LIMIT_SYMBOL limit_options
+;
+
+simple_limit_clause:
+	LIMIT_SYMBOL limit_option
 ;
 
 limit_options:
@@ -1083,9 +1207,11 @@ limit_options:
 ;
 
 limit_option:
-	PARAM_MARKER
-	| INTEGER
-	| identifier // Used in stored programs.
+	identifier
+	| PARAM_MARKER
+	| ULONGLONG_NUMBER
+	| LONG_NUMBER
+	| INT_NUMBER
 ;
 
 into_clause:
@@ -1093,13 +1219,12 @@ into_clause:
 	(
 		OUTFILE_SYMBOL string_literal charset_clause? fields_clause? lines_clause?
 		| DUMPFILE_SYMBOL string_literal
-		| AT_SIGN_SYMBOL? text_or_identifier (COMMA_SYMBOL AT_SIGN_SYMBOL? text_or_identifier)*
-		| AT_TEXT_SUFFIX (COMMA_SYMBOL AT_TEXT_SUFFIX)*
+		| AT_SIGN_SYMBOL? (text_or_identifier | AT_TEXT_SUFFIX) (COMMA_SYMBOL AT_SIGN_SYMBOL? (text_or_identifier | AT_TEXT_SUFFIX))*
 	)
 ;
 
 procedure_analyse_clause:
-	PROCEDURE_SYMBOL^ ANALYSE_SYMBOL OPEN_PAR_SYMBOL (INTEGER (COMMA_SYMBOL INTEGER)?)? CLOSE_PAR_SYMBOL
+	PROCEDURE_SYMBOL^ ANALYSE_SYMBOL OPEN_PAR_SYMBOL (INT_NUMBER (COMMA_SYMBOL INT_NUMBER)?)? CLOSE_PAR_SYMBOL
 ;
 
 having_clause:
@@ -1250,8 +1375,8 @@ index_list_element:
 //--------------------------------------------------------------------------------------------------
 
 update_statement:
-	UPDATE_SYMBOL^ LOW_PRIORITY_SYMBOL? IGNORE_SYMBOL? table_reference_list
-		SET_SYMBOL column_assignment_list_with_default where_clause? order_by_clause? limit_clause?
+	UPDATE_SYMBOL^ LOW_PRIORITY_SYMBOL? IGNORE_SYMBOL? join_table_list
+		SET_SYMBOL column_assignment_list_with_default where_clause? order_by_clause? simple_limit_clause?
 ;
 
 //--------------------------------------------------------------------------------------------------
@@ -1320,17 +1445,18 @@ xa_statement:
 			| PREPARE_SYMBOL xid
 			| COMMIT_SYMBOL xid (ONE_SYMBOL PHASE_SYMBOL)?
 			| ROLLBACK_SYMBOL xid
-			| RECOVER_SYMBOL xa_convert?
+			| RECOVER_SYMBOL xa_convert
 		)
 ;
 
 xa_convert:
-	{SERVER_VERSION >= 50704}? => CONVERT_SYMBOL XID_SYMBOL
+	{SERVER_VERSION >= 50704}? => (CONVERT_SYMBOL XID_SYMBOL)?
+	| /* empty */
 ;
 
 xid:
-	text_string (COMMA_SYMBOL text_string (COMMA_SYMBOL INTEGER)?)?
-		-> ^(XA_ID_TOKEN text_string (COMMA_SYMBOL text_string (COMMA_SYMBOL INTEGER)?)?)
+	text_string (COMMA_SYMBOL text_string (COMMA_SYMBOL ulong_number)?)?
+		-> ^(XA_ID_TOKEN text_string (COMMA_SYMBOL text_string (COMMA_SYMBOL ulong_number)?)?)
 ;
 
 //--------------------------------------------------------------------------------------------------
@@ -1343,9 +1469,9 @@ replication_statement:
 	| RESET_SYMBOL MASTER_SYMBOL
 	| RESET_SYMBOL SLAVE_SYMBOL ALL_SYMBOL
 	*/
-	| start_slave
-	| stop_slave
+	| slave
 	| {SERVER_VERSION < 50500}? => replication_load
+	| {SERVER_VERSION > 50706}? => group_replication
 ;
 
 replication_load:
@@ -1361,34 +1487,38 @@ change_master_options:
 ;
 
 master_option:
-	MASTER_BIND_SYMBOL EQUAL_OPERATOR string_literal
-	| MASTER_HOST_SYMBOL EQUAL_OPERATOR string_literal
-	| MASTER_USER_SYMBOL EQUAL_OPERATOR string_literal
-	| MASTER_PASSWORD_SYMBOL EQUAL_OPERATOR string_literal
-	| MASTER_PORT_SYMBOL EQUAL_OPERATOR INTEGER
-	| MASTER_CONNECT_RETRY_SYMBOL EQUAL_OPERATOR INTEGER
-	| MASTER_RETRY_COUNT_SYMBOL EQUAL_OPERATOR INTEGER
-	| MASTER_DELAY_SYMBOL EQUAL_OPERATOR INTEGER
-	| MASTER_HEARTBEAT_PERIOD_SYMBOL EQUAL_OPERATOR INTEGER
-	| MASTER_LOG_FILE_SYMBOL EQUAL_OPERATOR string_literal
-	| MASTER_LOG_POS_SYMBOL EQUAL_OPERATOR INTEGER
-	| MASTER_AUTO_POSITION_SYMBOL EQUAL_OPERATOR INTEGER
-	| RELAY_LOG_FILE_SYMBOL EQUAL_OPERATOR string_literal
-	| RELAY_LOG_POS_SYMBOL EQUAL_OPERATOR INTEGER
-	| MASTER_SSL_SYMBOL EQUAL_OPERATOR INTEGER
-	| MASTER_SSL_CA_SYMBOL EQUAL_OPERATOR string_literal
-	| MASTER_SSL_CAPATH_SYMBOL EQUAL_OPERATOR string_literal
-	| MASTER_SSL_CERT_SYMBOL EQUAL_OPERATOR string_literal
+	MASTER_HOST_SYMBOL EQUAL_OPERATOR text_string_no_linebreak
+	| MASTER_BIND_SYMBOL EQUAL_OPERATOR text_string_no_linebreak
+	| MASTER_USER_SYMBOL EQUAL_OPERATOR text_string_no_linebreak
+	| MASTER_PASSWORD_SYMBOL EQUAL_OPERATOR text_string_no_linebreak
+	| MASTER_PORT_SYMBOL EQUAL_OPERATOR ulong_number
+	| MASTER_CONNECT_RETRY_SYMBOL EQUAL_OPERATOR ulong_number
+	| MASTER_RETRY_COUNT_SYMBOL EQUAL_OPERATOR ulong_number
+	| MASTER_DELAY_SYMBOL EQUAL_OPERATOR ulong_number
+	| MASTER_SSL_SYMBOL EQUAL_OPERATOR ulong_number
+	| MASTER_SSL_CA_SYMBOL EQUAL_OPERATOR text_string_no_linebreak
+	| MASTER_SSL_CAPATH_SYMBOL EQUAL_OPERATOR text_string_no_linebreak
+	| MASTER_SSL_CERT_SYMBOL EQUAL_OPERATOR text_string_no_linebreak
+	| MASTER_SSL_CIPHER_SYMBOL EQUAL_OPERATOR text_string_no_linebreak
+	| MASTER_SSL_KEY_SYMBOL EQUAL_OPERATOR text_string_no_linebreak
+	| MASTER_SSL_VERIFY_SERVER_CERT_SYMBOL EQUAL_OPERATOR ulong_number
 	| MASTER_SSL_CRL_SYMBOL EQUAL_OPERATOR string_literal
-	| MASTER_SSL_CRLPATH_SYMBOL EQUAL_OPERATOR string_literal
-	| MASTER_SSL_KEY_SYMBOL EQUAL_OPERATOR string_literal
-	| MASTER_SSL_CIPHER_SYMBOL EQUAL_OPERATOR string_literal
-	| MASTER_SSL_VERIFY_SERVER_CERT_SYMBOL EQUAL_OPERATOR INTEGER
+	| MASTER_SSL_CRLPATH_SYMBOL EQUAL_OPERATOR text_string_no_linebreak
+	| MASTER_HEARTBEAT_PERIOD_SYMBOL EQUAL_OPERATOR ulong_number
 	| IGNORE_SERVER_IDS_SYMBOL EQUAL_OPERATOR server_id_list
+	| MASTER_AUTO_POSITION_SYMBOL EQUAL_OPERATOR ulong_number
+	| master_file_def
+;
+
+master_file_def:
+	MASTER_LOG_FILE_SYMBOL EQUAL_OPERATOR text_string_no_linebreak
+	| MASTER_LOG_POS_SYMBOL EQUAL_OPERATOR ulonglong_number
+	| RELAY_LOG_FILE_SYMBOL EQUAL_OPERATOR text_string_no_linebreak
+	| RELAY_LOG_POS_SYMBOL EQUAL_OPERATOR ulong_number
 ;
 
 server_id_list:
-	OPEN_PAR_SYMBOL integer_list? CLOSE_PAR_SYMBOL
+	OPEN_PAR_SYMBOL (ulong_number (COMMA_SYMBOL ulong_number)*)? CLOSE_PAR_SYMBOL
 ;
 
 change_replication:
@@ -1418,42 +1548,31 @@ filter_string_list:
 ;
 
 filter_wild_db_table_string:
-	string_literal_no_linebreak // sql_yacc.yy checks for the existance of at least one dot char in the string.
+	text_string_no_linebreak // sql_yacc.yy checks for the existance of at least one dot char in the string.
 ;
 
 filter_db_pair_list:
 	schema_identifier_pair (COMMA_SYMBOL schema_identifier_pair)*
 ;
 
-start_slave:
+slave:
 	START_SYMBOL^ SLAVE_SYMBOL slave_thread_options? (UNTIL_SYMBOL slave_until_options)? slave_connection_options channel?
+	| STOP_SYMBOL^ SLAVE_SYMBOL slave_thread_options? channel?
 ;
 
 slave_until_options:
 	(
 		master_file_def
-		| {SERVER_VERSION >= 50606}? => (SQL_BEFORE_GTIDS_SYMBOL | SQL_AFTER_GTIDS_SYMBOL) EQUAL_OPERATOR gtid_set
+		| {SERVER_VERSION >= 50606}? => (SQL_BEFORE_GTIDS_SYMBOL | SQL_AFTER_GTIDS_SYMBOL) EQUAL_OPERATOR text_string
 		| {SERVER_VERSION >= 50606}? => SQL_AFTER_MTS_GAPS_SYMBOL
 	)
 	(COMMA_SYMBOL master_file_def)*
 ;
 
-master_file_def:
-	MASTER_LOG_FILE_SYMBOL EQUAL_OPERATOR string_literal
-	| MASTER_LOG_POS_SYMBOL EQUAL_OPERATOR INTEGER
-	| RELAY_LOG_FILE_SYMBOL EQUAL_OPERATOR string_literal
-	| RELAY_LOG_POS_SYMBOL EQUAL_OPERATOR INTEGER
-;
-
 slave_connection_options:
-	{SERVER_VERSION >= 50604}? => (USER_SYMBOL EQUAL_OPERATOR string_literal)? (PASSWORD_SYMBOL EQUAL_OPERATOR string_literal)?
-		(DEFAULT_AUTH_SYMBOL EQUAL_OPERATOR string_literal)? (PLUGIN_DIR_SYMBOL EQUAL_OPERATOR string_literal)?
+	{SERVER_VERSION >= 50604}? => (USER_SYMBOL EQUAL_OPERATOR text_string)? (PASSWORD_SYMBOL EQUAL_OPERATOR text_string)?
+		(DEFAULT_AUTH_SYMBOL EQUAL_OPERATOR text_string)? (PLUGIN_DIR_SYMBOL EQUAL_OPERATOR text_string)?
 	| // Intentionally left empty for the gated predicate.
-	// TODO: check if that empty alt is still needed. We use gated predicates many times here without an empty alt.
-;
-
-stop_slave:
-	STOP_SYMBOL^ SLAVE_SYMBOL slave_thread_options? channel?
 ;
 
 slave_thread_options:
@@ -1464,8 +1583,8 @@ slave_thread_option:
 	RELAY_THREAD_SYMBOL | SQL_THREAD_SYMBOL
 ;
 
-gtid_set:
-	string_literal // uuid:first_transaction_id[-last_transaction_id]
+group_replication:
+	(START_SYMBOL | STOP_SYMBOL) GROUP_REPLICATION_SYMBOL
 ;
 
 //--------------------------------------------------------------------------------------------------
@@ -1487,7 +1606,7 @@ execute_var_list:
 //--------------------------------------------------------------------------------------------------
 
 account_management_statement:
-	{SERVER_VERSION >= 50606}? => alter_user_list
+	{SERVER_VERSION >= 50606}? => alter_user
 	| create_user
 	| drop_user
 	| {SERVER_VERSION >= 50500}? => grant_proxy
@@ -1497,28 +1616,56 @@ account_management_statement:
 	| set_password
 ;
 
-alter_user_list:
-	ALTER_SYMBOL^ USER_SYMBOL alter_user (COMMA_SYMBOL alter_user)*
-;
-
 alter_user:
-	user PASSWORD_SYMBOL EXPIRE_SYMBOL alter_user_expire_interval?
-;
-
-alter_user_expire_interval:
-	{SERVER_VERSION >= 50704}? => (
-		INTERVAL_SYMBOL number DAY_SYMBOL
-		| NEVER_SYMBOL
-		| DEFAULT_SYMBOL
+	ALTER_SYMBOL^ USER_SYMBOL
+	(
+		// Instead of using our usual gated semantic predicate for the conditional part we do it here a bit differently,
+		// because otherwise ANTLR crashs with a stack overflow error (because of the 2 consecutive gated sempreds).
+		alter_user_tail
+		| {SERVER_VERSION >= 50708}? => if_exists alter_user_tail
 	)
 ;
 
+alter_user_tail:
+	grant_list create_user_tail
+	| {SERVER_VERSION >= 50706}? => USER_SYMBOL parentheses IDENTIFIED_SYMBOL BY_SYMBOL text_string
+;
+
 create_user:
-	CREATE_SYMBOL^ USER_SYMBOL user_specification
+	CREATE_SYMBOL^ USER_SYMBOL ({SERVER_VERSION >= 50708}? => if_not_exists? | /* empty */) grant_list create_user_tail
+;
+
+create_user_tail:
+	{SERVER_VERSION >= 50704}? => require_clause? connect_options? account_lock_password_expire_options?
+	| // Intentionally left empty to make the gated semantic predicate work.
+;
+
+require_clause:
+	REQUIRE_SYMBOL (require_list | SSL_SYMBOL | X509_SYMBOL | NONE_SYMBOL)
+;
+
+connect_options:
+	WITH_SYMBOL
+	(
+		MAX_QUERIES_PER_HOUR_SYMBOL ulong_number
+		| MAX_UPDATES_PER_HOUR_SYMBOL ulong_number
+		| MAX_CONNECTIONS_PER_HOUR_SYMBOL ulong_number
+		| MAX_USER_CONNECTIONS_SYMBOL ulong_number
+	)+
+;
+
+account_lock_password_expire_options:
+	ACCOUNT_SYMBOL (LOCK_SYMBOL | UNLOCK_SYMBOL)
+	| PASSWORD_SYMBOL EXPIRE_SYMBOL
+		(
+			INTERVAL_SYMBOL real_ulong_number DAY_SYMBOL
+			| NEVER_SYMBOL
+			| DEFAULT_SYMBOL
+		)	
 ;
 
 drop_user:
-	DROP_SYMBOL^ USER_SYMBOL user_list
+	DROP_SYMBOL^ USER_SYMBOL ({SERVER_VERSION >= 50708}? => if_exists? | /* empty */) user_list
 ;
 
 parse_grant: // For external use only. Don't reference this in the normal grammar.
@@ -1527,20 +1674,11 @@ parse_grant: // For external use only. Don't reference this in the normal gramma
 
 grant:
 	GRANT_SYMBOL^ grant_privileges privilege_target
-		TO_SYMBOL user_specification (COMMA_SYMBOL user_specification)*
-		(REQUIRE_SYMBOL
-			(
-				NONE_SYMBOL
-				| SSL_SYMBOL
-				| X509_SYMBOL
-				| require_list (AND_SYMBOL? require_list)*
-			)
-		)?
-		(WITH_SYMBOL grant_option+)?
+		TO_SYMBOL grant_list require_clause? (WITH_SYMBOL grant_option+)?
 ;
 
 grant_proxy:
-	GRANT_SYMBOL^ PROXY_SYMBOL ON_SYMBOL user_specification TO_SYMBOL user_specification (COMMA_SYMBOL user_specification)*
+	GRANT_SYMBOL^ PROXY_SYMBOL ON_SYMBOL grant_user TO_SYMBOL grant_user (COMMA_SYMBOL grant_user)*
 		(WITH_SYMBOL GRANT_SYMBOL OPTION_SYMBOL)?
 ;
 
@@ -1564,9 +1702,9 @@ privilege_target:
 set_password:
 	SET_SYMBOL^ PASSWORD_SYMBOL (FOR_SYMBOL user)? equal
 	(
-		PASSWORD_SYMBOL OPEN_PAR_SYMBOL string_literal CLOSE_PAR_SYMBOL
-		| {SERVER_VERSION < 50706}? => OLD_PASSWORD_SYMBOL OPEN_PAR_SYMBOL string_literal CLOSE_PAR_SYMBOL
-		| string_literal
+		PASSWORD_SYMBOL OPEN_PAR_SYMBOL text_string CLOSE_PAR_SYMBOL
+		| {SERVER_VERSION < 50706}? => OLD_PASSWORD_SYMBOL OPEN_PAR_SYMBOL text_string CLOSE_PAR_SYMBOL
+		| text_string
 	)
 ;
 
@@ -1612,29 +1750,33 @@ privilege_level:
 ;
 
 require_list:
-	CIPHER_SYMBOL string_literal
-	| ISSUER_SYMBOL string_literal
-	| SUBJECT_SYMBOL string_literal
+	require_list_element (AND_SYMBOL? require_list_element)*
+;
+
+require_list_element:
+	CIPHER_SYMBOL text_string
+	| ISSUER_SYMBOL text_string
+	| SUBJECT_SYMBOL text_string
 ;
 
 grant_option:
 	GRANT_SYMBOL OPTION_SYMBOL
-	| MAX_QUERIES_PER_HOUR_SYMBOL INTEGER
-	| MAX_UPDATES_PER_HOUR_SYMBOL INTEGER
-	| MAX_CONNECTIONS_PER_HOUR_SYMBOL INTEGER
-	| MAX_USER_CONNECTIONS_SYMBOL INTEGER
+	| MAX_QUERIES_PER_HOUR_SYMBOL ulong_number
+	| MAX_UPDATES_PER_HOUR_SYMBOL ulong_number
+	| MAX_CONNECTIONS_PER_HOUR_SYMBOL ulong_number
+	| MAX_USER_CONNECTIONS_SYMBOL ulong_number
 ;
 
 //--------------------------------------------------------------------------------------------------
 
 table_administration_statement:
-	ANALYZE_SYMBOL^ no_write_to_bin_log? TABLE_SYMBOL qualified_identifier_list
-	| CHECK_SYMBOL^ TABLE_SYMBOL qualified_identifier_list check_option*
-	| CHECKSUM_SYMBOL^ TABLE_SYMBOL qualified_identifier_list (QUICK_SYMBOL | EXTENDED_SYMBOL)?
-	| OPTIMIZE_SYMBOL^ no_write_to_bin_log? TABLE_SYMBOL qualified_identifier_list
-	| REPAIR_SYMBOL^ no_write_to_bin_log? TABLE_SYMBOL qualified_identifier_list repair_option*
-	| {SERVER_VERSION < 50500}? => BACKUP_SYMBOL^ TABLE_SYMBOL table_identifier_list TO_SYMBOL string_literal
-	| {SERVER_VERSION < 50500}? => RESTORE_SYMBOL^ TABLE_SYMBOL table_identifier_list FROM_SYMBOL string_literal
+	ANALYZE_SYMBOL^ no_write_to_bin_log? TABLE_SYMBOL table_ref_list
+	| CHECK_SYMBOL^ TABLE_SYMBOL table_ref_list check_option*
+	| CHECKSUM_SYMBOL^ TABLE_SYMBOL table_ref_list (QUICK_SYMBOL | EXTENDED_SYMBOL)?
+	| OPTIMIZE_SYMBOL^ no_write_to_bin_log? TABLE_SYMBOL table_ref_list
+	| REPAIR_SYMBOL^ no_write_to_bin_log? TABLE_SYMBOL table_ref_list repair_option*
+	| {SERVER_VERSION < 50500}? => BACKUP_SYMBOL^ TABLE_SYMBOL table_ref_list TO_SYMBOL string_literal
+	| {SERVER_VERSION < 50500}? => RESTORE_SYMBOL^ TABLE_SYMBOL table_ref_list FROM_SYMBOL string_literal
 ;
 
 check_option:
@@ -1658,8 +1800,8 @@ set_statement:
 	SET_SYMBOL^
 		( options { k = 3; }:
 			 option_type? TRANSACTION_SYMBOL set_transaction_characteristic
-			| ONE_SHOT_SYMBOL? option_value_no_option_type (COMMA_SYMBOL option_value_list)?
 			// ONE_SHOT is available only until 5.6. We don't need a predicate here, however. Handling it in the lexer is enough.
+			| ONE_SHOT_SYMBOL? option_value_no_option_type (COMMA_SYMBOL option_value_list)?
 			| option_type option_value_following_option_type (COMMA_SYMBOL option_value_list)?
 			
 			// SET PASSWORD is handled in an own rule.
@@ -1705,58 +1847,60 @@ show_statement:
 	SHOW_SYMBOL^
 	(
 		{SERVER_VERSION < 50700}? => AUTHORS_SYMBOL
-		| BINARY_SYMBOL LOGS_SYMBOL
-		| (BINLOG_SYMBOL | RELAYLOG_SYMBOL) EVENTS_SYMBOL (IN_SYMBOL string_literal)? (FROM_SYMBOL INTEGER)? limit_clause? channel?
+		| DATABASES_SYMBOL like_or_where?
+		| FULL_SYMBOL? TABLES_SYMBOL in_db? like_or_where?
+		| FULL_SYMBOL? TRIGGERS_SYMBOL in_db? like_or_where?
+		| EVENTS_SYMBOL in_db? like_or_where?
+		| TABLE_SYMBOL STATUS_SYMBOL in_db? like_or_where?
+		| OPEN_SYMBOL TABLES_SYMBOL in_db? like_or_where?
+		| {(SERVER_VERSION >= 50105) && (SERVER_VERSION < 50500)}? => PLUGIN_SYMBOL // Supported between 5.1.5 and 5.5.0.
+		| {SERVER_VERSION >= 50500}? => PLUGINS_SYMBOL
+		| ENGINE_SYMBOL engine_ref (STATUS_SYMBOL | MUTEX_SYMBOL)
+		| FULL_SYMBOL? COLUMNS_SYMBOL (FROM_SYMBOL | IN_SYMBOL) table_ref in_db? like_or_where?
+		| (BINARY_SYMBOL | MASTER_SYMBOL) LOGS_SYMBOL
+		| SLAVE_SYMBOL
+			(
+				HOSTS_SYMBOL
+				| STATUS_SYMBOL non_blocking channel?
+			)
+		| (BINLOG_SYMBOL | RELAYLOG_SYMBOL) EVENTS_SYMBOL (IN_SYMBOL text_string)? (FROM_SYMBOL ulonglong_number)? limit_clause? channel?
+		| (INDEX_SYMBOL | INDEXES_SYMBOL | KEYS_SYMBOL) from_or_in table_ref in_db? where_clause?
+		| STORAGE_SYMBOL? ENGINES_SYMBOL
+		| PRIVILEGES_SYMBOL
+		| COUNT_SYMBOL OPEN_PAR_SYMBOL MULT_OPERATOR CLOSE_PAR_SYMBOL (WARNINGS_SYMBOL | ERRORS_SYMBOL)
+		| WARNINGS_SYMBOL limit_clause?
+		| ERRORS_SYMBOL limit_clause?
+		| PROFILES_SYMBOL
+		| PROFILE_SYMBOL (profile_type (COMMA_SYMBOL profile_type)*)? (FOR_SYMBOL QUERY_SYMBOL INT_NUMBER)? limit_clause?
+		| option_type? (STATUS_SYMBOL | VARIABLES_SYMBOL) like_or_where?
+		| FULL_SYMBOL? PROCESSLIST_SYMBOL
 		| (CHAR_SYMBOL SET_SYMBOL | CHARSET_SYMBOL) like_or_where?
 		| COLLATION_SYMBOL like_or_where?
-		| FULL_SYMBOL? COLUMNS_SYMBOL (FROM_SYMBOL | IN_SYMBOL) table_ref in_db? like_or_where?
 		| {SERVER_VERSION < 50700}? => CONTRIBUTORS_SYMBOL
-		| COUNT_SYMBOL OPEN_PAR_SYMBOL MULT_OPERATOR CLOSE_PAR_SYMBOL (WARNINGS_SYMBOL | ERRORS_SYMBOL)
+		| GRANTS_SYMBOL (FOR_SYMBOL user)?
+		| MASTER_SYMBOL STATUS_SYMBOL
 		| CREATE_SYMBOL
 			(
-				DATABASE_SYMBOL schema_ref
+				DATABASE_SYMBOL if_not_exists? schema_ref
 				| EVENT_SYMBOL event_ref
 				| FUNCTION_SYMBOL function_ref
 				| PROCEDURE_SYMBOL procedure_ref
 				| TABLE_SYMBOL table_ref
 				| TRIGGER_SYMBOL trigger_ref
 				| VIEW_SYMBOL view_ref
+				| {SERVER_VERSION >= 50704}? => USER_SYMBOL user
 			)
-		| DATABASES_SYMBOL like_clause?
-		| ENGINE_SYMBOL engine_ref (STATUS_SYMBOL | MUTEX_SYMBOL)
-		| STORAGE_SYMBOL? ENGINES_SYMBOL
-		| ERRORS_SYMBOL limit_clause?
-		| EVENTS_SYMBOL
-		| FUNCTION_SYMBOL CODE_SYMBOL function_ref
-		| FUNCTION_SYMBOL STATUS_SYMBOL like_or_where?
-		| GRANTS_SYMBOL FOR_SYMBOL user
-		| (INDEX_SYMBOL | INDEXES_SYMBOL | KEYS_SYMBOL) from_or_in table_ref in_db? where_clause?
-		| {SERVER_VERSION < 50500}? => INNODB_SYMBOL STATUS_SYMBOL // Deprecated in 5.5.
-		| MASTER_SYMBOL STATUS_SYMBOL
-		| OPEN_SYMBOL TABLES_SYMBOL in_db? like_or_where?
-		| {(SERVER_VERSION >= 50105) && (SERVER_VERSION < 50500)}? => PLUGIN_SYMBOL // Supported between 5.1.5 and 5.5.
-		| {SERVER_VERSION >= 50500}? => PLUGINS_SYMBOL
 		| PROCEDURE_SYMBOL STATUS_SYMBOL like_or_where?
+		| FUNCTION_SYMBOL STATUS_SYMBOL like_or_where?
 		| PROCEDURE_SYMBOL CODE_SYMBOL procedure_ref
-		| PRIVILEGES_SYMBOL
-		| FULL_SYMBOL? PROCESSLIST_SYMBOL
-		| PROFILE_SYMBOL (profile_type (COMMA_SYMBOL profile_type)*)? (FOR_SYMBOL QUERY_SYMBOL INTEGER)? limit_clause?
-		| PROFILES_SYMBOL
-		| SLAVE_SYMBOL
-			(
-				HOSTS_SYMBOL
-				| STATUS_SYMBOL non_blocking? channel?
-			)
-		| option_type? (STATUS_SYMBOL | VARIABLES_SYMBOL) like_or_where?
-		| TABLE_SYMBOL STATUS_SYMBOL in_db? like_or_where?
-		| FULL_SYMBOL? TABLES_SYMBOL in_db? like_or_where?
-		| FULL_SYMBOL? TRIGGERS_SYMBOL in_db? like_or_where?
-		| WARNINGS_SYMBOL limit_clause?
+		| FUNCTION_SYMBOL CODE_SYMBOL function_ref
+		| {SERVER_VERSION < 50500}? => INNODB_SYMBOL STATUS_SYMBOL // Deprecated in 5.5.
 	)
 ;
 
 non_blocking:
-	{SERVER_VERSION >= 50700 && SERVER_VERSION < 50706}? => NONBLOCKING_SYMBOL
+	{SERVER_VERSION >= 50700 && SERVER_VERSION < 50706}? => NONBLOCKING_SYMBOL?
+	| // Intentionally left empty to make the gated semantic predicate work.
 ;
 
 from_or_in:
@@ -1781,13 +1925,18 @@ profile_type:
 
 //--------------------------------------------------------------------------------------------------
 
-miscellaneous_statement:
+other_administrative_statement:
 	BINLOG_SYMBOL^ string_literal
 	| CACHE_SYMBOL^ INDEX_SYMBOL key_cache_list_or_parts IN_SYMBOL (identifier | DEFAULT_SYMBOL)
-	| FLUSH_SYMBOL^ no_write_to_bin_log? flush_option (COMMA_SYMBOL flush_option)*
-	| KILL_SYMBOL^ (CONNECTION_SYMBOL | QUERY_SYMBOL)? INTEGER
+	| FLUSH_SYMBOL^ no_write_to_bin_log?
+		(
+			flush_tables
+			| flush_option (COMMA_SYMBOL flush_option)*
+		)
+	| KILL_SYMBOL^  (options { greedy = true; }: (CONNECTION_SYMBOL | QUERY_SYMBOL))? expression
 	| LOAD_SYMBOL^ INDEX_SYMBOL INTO_SYMBOL CACHE_SYMBOL load_table_index_list
 	| RESET_SYMBOL^ reset_option (COMMA_SYMBOL reset_option)*
+	| {SERVER_VERSION >= 50709}? => SHUTDOWN_SYMBOL
 ;
 
 key_cache_list_or_parts options { k = 4; }:
@@ -1824,7 +1973,6 @@ flush_option:
 	| PRIVILEGES_SYMBOL
 	| QUERY_SYMBOL CACHE_SYMBOL
 	| STATUS_SYMBOL
-	| flush_tables
 	| USER_RESOURCES_SYMBOL
 	| {SERVER_VERSION >= 50706}? => OPTIMIZER_COSTS_SYMBOL
 ;
@@ -1881,7 +2029,7 @@ utility_statement:
 				)? explainable_statement
 		)
 	| HELP_SYMBOL^ text_or_identifier
-	| USE_SYMBOL^ identifier
+	| use_command
 ;
 
 describe_command:
@@ -1898,7 +2046,11 @@ explainable_statement:
 			| replace_statement
 			| update_statement
 		)
-	| {SERVER_VERSION >= 50700}? => FOR_SYMBOL CONNECTION_SYMBOL INTEGER
+	| {SERVER_VERSION >= 50700}? => FOR_SYMBOL CONNECTION_SYMBOL real_ulong_number
+;
+
+use_command:
+	USE_SYMBOL identifier -> ^(USE_SYMBOL SCHEMA_REF_TOKEN identifier)
 ;
 
 //----------------- Expression support -------------------------------------------------------------
@@ -1929,10 +2081,10 @@ logical_not_expression:
 
 boolean_primary_expression:
 	predicate
-		( options { greedy = true; }: 
+		( options { greedy = true; }:
 			comparison_operator^
 			(
-				{LA(1) == ALL_SYMBOL || LA(1) == ANY_SYMBOL}? (ALL_SYMBOL | ANY_SYMBOL) subquery
+				{LA(2) == OPEN_PAR_SYMBOL}? (ALL_SYMBOL | ANY_SYMBOL) subquery
 				| predicate
 			)
 	    	| ( options { greedy = true; }: IS_SYMBOL^ NOT_SYMBOL? ( null_literal | FALSE_SYMBOL | TRUE_SYMBOL | UNKNOWN_SYMBOL))+
@@ -1953,7 +2105,7 @@ predicate:
 		)?
 ;
 
-// One of the 2 rules were 2 sub rules with unlimited nesting come together (and we need backtracking)
+// One of the 2 rules were 2 sub rules with unlimited nesting come together (and we need a predicate).
 predicate_in:
 	{LA(1) == OPEN_PAR_SYMBOL && LA(2) == SELECT_SYMBOL}? => subquery
 	| expression_list_with_parentheses
@@ -2024,7 +2176,7 @@ primary:
 		| runtime_function_call // Complete functions defined in the grammar.
 		| udf_call
 		| (stored_function_call) => stored_function_call
-		| column_ref
+		| column_ref ( {SERVER_VERSION >= 50708}? => (JSON_SEPARATOR_SYMBOL text_string)? | /* empty*/ )
 		| PARAM_MARKER
 		| variable
 		| EXISTS_SYMBOL subquery
@@ -2035,20 +2187,26 @@ primary:
 		| cast_expression
 	)
 	// Consume any collation expression locally to avoid ambiguities with the recursive cast_expression.
-	( options { greedy = true; }: COLLATE_SYMBOL text_or_identifier)*
+	( options { greedy = true; }: COLLATE_SYMBOL collation_name)*
 ;
 
 // This part is tricky, because all alternatives can have an unlimited nesting within parentheses.
 // Best results by using a custom semantic predicate.
 expression_with_nested_parentheses:
-	{LA(1) == OPEN_PAR_SYMBOL && LA(2) == SELECT_SYMBOL}? => subquery
+	{LA(1) == OPEN_PAR_SYMBOL && LA(2) == SELECT_SYMBOL}? subquery
 	| expression_list_with_parentheses
 	| ROW_SYMBOL OPEN_PAR_SYMBOL expression (COMMA_SYMBOL expression)+ CLOSE_PAR_SYMBOL
 ;
 
 comparison_operator:
-	EQUAL_OPERATOR | GREATER_OR_EQUAL_OPERATOR | GREATER_THAN_OPERATOR | LESS_OR_EQUAL_OPERATOR | LESS_THAN_OPERATOR | NOT_EQUAL_OPERATOR | NOT_EQUAL2_OPERATOR
-		| NULL_SAFE_EQUAL_OPERATOR
+	EQUAL_OPERATOR
+	| GREATER_OR_EQUAL_OPERATOR
+	| GREATER_THAN_OPERATOR
+	| LESS_OR_EQUAL_OPERATOR
+	| LESS_THAN_OPERATOR
+	| NOT_EQUAL_OPERATOR
+	| NOT_EQUAL2_OPERATOR
+	| NULL_SAFE_EQUAL_OPERATOR
 ;
 
 multiplication_operator:
@@ -2119,7 +2277,7 @@ runtime_function_call_expression:
 		(
 			(AS_SYMBOL CHAR_SYMBOL field_length)? weight_string_levels?
 			| AS_SYMBOL BINARY_SYMBOL field_length
-			| COMMA_SYMBOL INTEGER COMMA_SYMBOL INTEGER COMMA_SYMBOL INTEGER
+			| COMMA_SYMBOL ulong_number COMMA_SYMBOL ulong_number COMMA_SYMBOL ulong_number
 		)
 		CLOSE_PAR_SYMBOL
 	| geometry_function
@@ -2131,23 +2289,23 @@ time_function_parameters:
 ;
 
 fractional_precision:
-	{SERVER_VERSION >= 50604}? => INTEGER
+	{SERVER_VERSION >= 50604}? => INT_NUMBER
 ;
 
 weight_string_levels:
 	LEVEL_SYMBOL
-		(
-			INTEGER MINUS_OPERATOR INTEGER
-			| weight_string_level_list_item (COMMA_SYMBOL weight_string_level_list_item)*
-		)
+	(
+		real_ulong_number MINUS_OPERATOR real_ulong_number
+		| weight_string_level_list_item (COMMA_SYMBOL weight_string_level_list_item)*
+	)
 ;
 
 weight_string_level_list_item:
-	INTEGER
-		(
-			(ASC_SYMBOL	| DESC_SYMBOL) REVERSE_SYMBOL?
-			| REVERSE_SYMBOL
-		)?
+	real_ulong_number
+	(
+		(ASC_SYMBOL	| DESC_SYMBOL) REVERSE_SYMBOL?
+		| REVERSE_SYMBOL
+	)?
 ;
 
 date_time_type:
@@ -2178,14 +2336,14 @@ substring_function:
 ;
 	
 geometry_function:
-	CONTAINS_SYMBOL OPEN_PAR_SYMBOL expression COMMA_SYMBOL expression CLOSE_PAR_SYMBOL
-	| GEOMETRYCOLLECTION_SYMBOL expression_list_with_parentheses
+	GEOMETRYCOLLECTION_SYMBOL optional_expression_list_with_parentheses
 	| LINESTRING_SYMBOL expression_list_with_parentheses
 	| MULTILINESTRING_SYMBOL expression_list_with_parentheses
 	| MULTIPOINT_SYMBOL expression_list_with_parentheses
 	| MULTIPOLYGON_SYMBOL expression_list_with_parentheses
 	| POINT_SYMBOL OPEN_PAR_SYMBOL expression COMMA_SYMBOL expression CLOSE_PAR_SYMBOL
 	| POLYGON_SYMBOL expression_list_with_parentheses
+	| {SERVER_VERSION < 50706}? => CONTAINS_SYMBOL OPEN_PAR_SYMBOL expression COMMA_SYMBOL expression CLOSE_PAR_SYMBOL
 ;
 
 aggregate_function:
@@ -2304,6 +2462,7 @@ cast_type:
 	| TIME_SYMBOL type_datetime_precision?
 	| DATETIME_SYMBOL type_datetime_precision?
 	| DECIMAL_SYMBOL float_options?
+	| {SERVER_VERSION >= 50708}? => JSON_SYMBOL
 ;
 
 encoding:
@@ -2381,6 +2540,10 @@ expression_list_with_parentheses:
 	OPEN_PAR_SYMBOL expression_list CLOSE_PAR_SYMBOL -> ^(PAR_EXPRESSION_TOKEN OPEN_PAR_SYMBOL expression_list CLOSE_PAR_SYMBOL)
 ;
 
+optional_expression_list_with_parentheses:
+	OPEN_PAR_SYMBOL expression_list? CLOSE_PAR_SYMBOL -> ^(PAR_EXPRESSION_TOKEN OPEN_PAR_SYMBOL expression_list? CLOSE_PAR_SYMBOL)
+;
+
 expression_list:
 	expression (COMMA_SYMBOL expression)*
 ;
@@ -2390,7 +2553,7 @@ expression_list_with_direction:
 ;
 
 channel:
-	{SERVER_VERSION >= 50706}? => FROM_SYMBOL CHANNEL_SYMBOL string_literal_no_linebreak
+	{SERVER_VERSION >= 50706}? => FOR_SYMBOL CHANNEL_SYMBOL text_string_no_linebreak
 ;
 
 //----------------- Stored program rules -----------------------------------------------------------
@@ -2415,7 +2578,7 @@ compound_statement:
 	| cursor_close
 	
 	| statement
-	| {SERVER_VERSION >= 50600}? => get_diagnostics
+	| {SERVER_VERSION >= 50604}? => get_diagnostics
 	| {SERVER_VERSION >= 50500}? => signal_statement
 	| {SERVER_VERSION >= 50500}? => resignal_statement
 ;
@@ -2459,7 +2622,16 @@ variable_declaration:
 ;
 
 condition_declaration:
-	CONDITION_SYMBOL FOR_SYMBOL (INTEGER | SQLSTATE_SYMBOL VALUE_SYMBOL? string_literal) SEMICOLON_SYMBOL
+	CONDITION_SYMBOL FOR_SYMBOL sp_condition SEMICOLON_SYMBOL
+;
+
+sp_condition:
+	ulong_number
+	| sqlstate
+;
+
+sqlstate:
+	SQLSTATE_SYMBOL VALUE_SYMBOL? string_literal
 ;
 
 cursor_declaration:
@@ -2472,8 +2644,7 @@ handler_declaration:
 ;
 
 handler_condition:
-	INTEGER
-	| SQLSTATE_SYMBOL VALUE_SYMBOL? string_literal
+	sp_condition
 	| identifier
 	| SQLWARNING_SYMBOL
 	| NOT_SYMBOL FOUND_SYMBOL
@@ -2521,8 +2692,15 @@ get_diagnostics:
 	)? DIAGNOSTICS_SYMBOL
 	(
 		statement_information_item (COMMA_SYMBOL statement_information_item)*
-		| CONDITION_SYMBOL INTEGER condition_information_item (COMMA_SYMBOL condition_information_item)*
+		| CONDITION_SYMBOL signal_allowed_expression condition_information_item (COMMA_SYMBOL condition_information_item)*
 	)
+;
+
+// Only a limited subset of expression is allowed in SIGNAL/RESIGNAL/CONDITIONS.
+signal_allowed_expression:
+	literal
+	| variable
+	| qualified_identifier
 ;
 
 statement_information_item:
@@ -2549,12 +2727,7 @@ signal_information_item_name:
 ;
 
 signal_statement:
-	SIGNAL_SYMBOL
-		(
-			identifier
-			| SQLSTATE_SYMBOL VALUE_SYMBOL? text_or_identifier
-		)
-		(SET_SYMBOL signal_information_item (COMMA_SYMBOL signal_information_item)*)?
+	SIGNAL_SYMBOL (identifier | sqlstate) (SET_SYMBOL signal_information_item (COMMA_SYMBOL signal_information_item)*)?
 ;
 
 resignal_statement:
@@ -2563,7 +2736,7 @@ resignal_statement:
 ;
 
 signal_information_item:
-	signal_information_item_name EQUAL_OPERATOR (literal | variable | identifier)
+	signal_information_item_name EQUAL_OPERATOR signal_allowed_expression
 ;
 
 cursor_close:
@@ -2599,7 +2772,17 @@ column_definition:
 ;
 
 field_spec:
-	column_name data_type attribute* ( options { greedy = true; }: reference_definition)?
+	column_ref field_def
+;
+
+field_def:
+	data_type field_def_tail
+;
+
+field_def_tail options { k = 3; }:
+	attribute*
+	| {SERVER_VERSION >= 50707}? => (COLLATE_SYMBOL collation_name)? (GENERATED_SYMBOL ALWAYS_SYMBOL)? AS_SYMBOL
+		OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL (VIRTUAL_SYMBOL | STORED_SYMBOL)? gcol_attribute*
 ;
 
 attribute:
@@ -2612,16 +2795,34 @@ attribute:
 	| (PRIMARY_SYMBOL | UNIQUE_SYMBOL) KEY_SYMBOL
 	| KEY_SYMBOL
 	| COMMENT_SYMBOL string_literal
-	| COLLATE_SYMBOL text_or_identifier
+	| COLLATE_SYMBOL collation_name
 	| COLUMN_FORMAT_SYMBOL (FIXED_SYMBOL | DYNAMIC_SYMBOL | DEFAULT_SYMBOL)
 	| STORAGE_SYMBOL (DISK_SYMBOL | MEMORY_SYMBOL | DEFAULT_SYMBOL)
 ;
 
+// gcol_attribute is used in a loop, so we have an ambiquity between the 2 KEY_SYMBOLs.
+gcol_attribute:
+	UNIQUE_SYMBOL (options { greedy = true; }: KEY_SYMBOL)?	
+	| COMMENT_SYMBOL text_string
+	| not_rule? NULL_SYMBOL
+	| PRIMARY_SYMBOL? KEY_SYMBOL
+;
+
+/* Internal to server.
+parse_gcol_expression:
+	PARSE_GCOL_EXPR_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
+;
+*/
+
 reference_definition:
 	REFERENCES_SYMBOL^ table_ref index_columns?
+		// The MATCH part (from the SQL standard) is discouraged to be used in MySQL.
+		// Using it will also cause the ON DELETE/UPDATE part to be ignored.
 		(MATCH_SYMBOL (FULL_SYMBOL | PARTIAL_SYMBOL | SIMPLE_SYMBOL))?
-		(ON_SYMBOL DELETE_SYMBOL reference_option)?
-		(ON_SYMBOL UPDATE_SYMBOL reference_option)?
+		(
+			ON_SYMBOL DELETE_SYMBOL reference_option (ON_SYMBOL UPDATE_SYMBOL reference_option)?
+			| ON_SYMBOL UPDATE_SYMBOL reference_option (ON_SYMBOL DELETE_SYMBOL reference_option)?
+		)?
 ;
 
 index_columns:
@@ -2636,18 +2837,22 @@ index_type:
 	(USING_SYMBOL | TYPE_SYMBOL) (BTREE_SYMBOL | RTREE_SYMBOL | HASH_SYMBOL)
 ;
 
-index_option:
+normal_index_option:
 	index_type
-	| spatial_index_option
+	| all_key_option
 ;
 
 fulltext_index_option:
 	WITH_SYMBOL PARSER_SYMBOL identifier
-	| spatial_index_option
+	| all_key_option
 ;
 
 spatial_index_option:
-	KEY_BLOCK_SIZE_SYMBOL EQUAL_OPERATOR? INTEGER
+	all_key_option
+;
+
+all_key_option:
+	KEY_BLOCK_SIZE_SYMBOL EQUAL_OPERATOR? ulong_number
 	| {SERVER_VERSION >= 50600}? => COMMENT_SYMBOL string_literal
 ;
 
@@ -2706,11 +2911,12 @@ data_type_elements:
 	| ENUM_SYMBOL string_list string_binary?
 	| SET_SYMBOL string_list string_binary?
 	| SERIAL_SYMBOL
+	| {SERVER_VERSION >= 50707}? => JSON_SYMBOL
 	| spatial_type
 ;
 
 field_length:
-	OPEN_PAR_SYMBOL INTEGER CLOSE_PAR_SYMBOL
+	OPEN_PAR_SYMBOL (real_ulonglong_number | DECIMAL_NUMBER) CLOSE_PAR_SYMBOL
 ;
 
 field_options:
@@ -2736,7 +2942,7 @@ unicode:
 ;
 
 type_datetime_precision:
-	{SERVER_VERSION >= 50600}? => OPEN_PAR_SYMBOL INTEGER CLOSE_PAR_SYMBOL
+	{SERVER_VERSION >= 50600}? => OPEN_PAR_SYMBOL INT_NUMBER CLOSE_PAR_SYMBOL
 ;
 
 charset_name:
@@ -2747,6 +2953,10 @@ charset_name:
 charset_name_or_default:
 	charset_name
 	| DEFAULT_SYMBOL
+;
+
+collation_name:
+	text_or_identifier
 ;
 
 collation_name_or_default:
@@ -2775,19 +2985,20 @@ create_table_options:
 
 create_table_option: // In the order as they appear in the server grammar.
 	(ENGINE_SYMBOL | {SERVER_VERSION < 50500}? => TYPE_SYMBOL) EQUAL_OPERATOR? engine_ref
-	| MAX_ROWS_SYMBOL EQUAL_OPERATOR? int_or_param_marker
-	| MIN_ROWS_SYMBOL EQUAL_OPERATOR? int_or_param_marker
-	| AVG_ROW_LENGTH_SYMBOL EQUAL_OPERATOR? int_or_param_marker
-	| PASSWORD_SYMBOL EQUAL_OPERATOR? text_or_param_marker
-	| COMMENT_SYMBOL EQUAL_OPERATOR? text_or_param_marker
-	| AUTO_INCREMENT_SYMBOL EQUAL_OPERATOR? int_or_param_marker
-	| PACK_KEYS_SYMBOL EQUAL_OPERATOR? (INTEGER | DEFAULT_SYMBOL)
+	| MAX_ROWS_SYMBOL EQUAL_OPERATOR? ulonglong_number
+	| MIN_ROWS_SYMBOL EQUAL_OPERATOR? ulonglong_number
+	| AVG_ROW_LENGTH_SYMBOL EQUAL_OPERATOR? ulong_number
+	| PASSWORD_SYMBOL EQUAL_OPERATOR? text_string
+	| COMMENT_SYMBOL EQUAL_OPERATOR? text_string
+	| COMPRESSION_SYMBOL EQUAL_OPERATOR? text_string
+	| AUTO_INCREMENT_SYMBOL EQUAL_OPERATOR? ulonglong_number
+	| PACK_KEYS_SYMBOL EQUAL_OPERATOR? (ulong_number | DEFAULT_SYMBOL)
 	| {SERVER_VERSION >= 50600}? =>	(STATS_AUTO_RECALC_SYMBOL | STATS_PERSISTENT_SYMBOL | STATS_SAMPLE_PAGES_SYMBOL)
-		EQUAL_OPERATOR? (int_or_param_marker | DEFAULT_SYMBOL)
-	| (CHECKSUM_SYMBOL | TABLE_CHECKSUM_SYMBOL) EQUAL_OPERATOR? INTEGER // Actually only 0 and 1. Same is true for the other INTEGER refs in this rule.
-	| DELAY_KEY_WRITE_SYMBOL EQUAL_OPERATOR? INTEGER
+		EQUAL_OPERATOR? (ulong_number | DEFAULT_SYMBOL)
+	| (CHECKSUM_SYMBOL | TABLE_CHECKSUM_SYMBOL) EQUAL_OPERATOR? ulong_number
+	| DELAY_KEY_WRITE_SYMBOL EQUAL_OPERATOR? ulong_number
 	| ROW_FORMAT_SYMBOL EQUAL_OPERATOR? (DEFAULT_SYMBOL | DYNAMIC_SYMBOL | FIXED_SYMBOL | COMPRESSED_SYMBOL | REDUNDANT_SYMBOL | COMPACT_SYMBOL)
-	| UNION_SYMBOL^ EQUAL_OPERATOR? OPEN_PAR_SYMBOL qualified_identifier_list CLOSE_PAR_SYMBOL
+	| UNION_SYMBOL^ EQUAL_OPERATOR? OPEN_PAR_SYMBOL table_ref_list CLOSE_PAR_SYMBOL
 	| DEFAULT_SYMBOL?
 		(
 			COLLATE_SYMBOL EQUAL_OPERATOR? collation_name_or_default
@@ -2795,12 +3006,12 @@ create_table_option: // In the order as they appear in the server grammar.
 		)
 
 	| INSERT_METHOD_SYMBOL EQUAL_OPERATOR? (NO_SYMBOL | FIRST_SYMBOL | LAST_SYMBOL)
-	| DATA_SYMBOL DIRECTORY_SYMBOL EQUAL_OPERATOR? text_or_param_marker
-	| INDEX_SYMBOL DIRECTORY_SYMBOL EQUAL_OPERATOR? text_or_param_marker
-	| TABLESPACE_SYMBOL identifier
+	| DATA_SYMBOL DIRECTORY_SYMBOL EQUAL_OPERATOR? text_string
+	| INDEX_SYMBOL DIRECTORY_SYMBOL EQUAL_OPERATOR? text_string
+	| TABLESPACE_SYMBOL ({SERVER_VERSION >= 50707}? => EQUAL_OPERATOR? | /* empty by intention */ ) identifier
 	| STORAGE_SYMBOL (DISK_SYMBOL | MEMORY_SYMBOL)
-	| CONNECTION_SYMBOL EQUAL_OPERATOR? text_or_param_marker
-	| KEY_BLOCK_SIZE_SYMBOL EQUAL_OPERATOR? int_or_param_marker
+	| CONNECTION_SYMBOL EQUAL_OPERATOR? text_string
+	| KEY_BLOCK_SIZE_SYMBOL EQUAL_OPERATOR? ulong_number
 ;
 
 // Partition rules for CREATE/ALTER TABLE.
@@ -2815,22 +3026,22 @@ partitioning:
 				| {SERVER_VERSION >= 50500}? => COLUMNS_SYMBOL identifier_list_with_parentheses
 			)
 	)
-	(PARTITIONS_SYMBOL INTEGER)?
+	(PARTITIONS_SYMBOL real_ulong_number)?
 	(
 		SUBPARTITION_SYMBOL BY_SYMBOL LINEAR_SYMBOL?
 		(
 			(
-				 HASH_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
+				 HASH_SYMBOL OPEN_PAR_SYMBOL bitwise_or_expression CLOSE_PAR_SYMBOL
 				| KEY_SYMBOL partition_key_algorithm? identifier_list_with_parentheses
 			)
-			(SUBPARTITIONS_SYMBOL INTEGER)?
+			(SUBPARTITIONS_SYMBOL real_ulong_number)?
 		)?
     )?
     partition_definitions?
 ;
 
 partition_key_algorithm: // Actually only 1 and 2 are allowed. Needs a semantic check.
-	{SERVER_VERSION >= 50700}? => ALGORITHM_SYMBOL EQUAL_OPERATOR INTEGER
+	{SERVER_VERSION >= 50700}? => ALGORITHM_SYMBOL EQUAL_OPERATOR real_ulong_number
 ;
 
 partition_definitions:
@@ -2851,24 +3062,16 @@ partition_definition:
 ;
 
 partition_option:
-	TABLESPACE_SYMBOL EQUAL_OPERATOR? text_or_identifier
+	TABLESPACE_SYMBOL EQUAL_OPERATOR? identifier
 	| STORAGE_SYMBOL? ENGINE_SYMBOL EQUAL_OPERATOR? engine_ref
-	| NODEGROUP_SYMBOL EQUAL_OPERATOR? number
-	| (MAX_ROWS_SYMBOL | MIN_ROWS_SYMBOL) EQUAL_OPERATOR? number
+	| NODEGROUP_SYMBOL EQUAL_OPERATOR? real_ulong_number
+	| (MAX_ROWS_SYMBOL | MIN_ROWS_SYMBOL) EQUAL_OPERATOR? real_ulong_number
 	| (DATA_SYMBOL | INDEX_SYMBOL) DIRECTORY_SYMBOL EQUAL_OPERATOR? string_literal
 	| COMMENT_SYMBOL EQUAL_OPERATOR? string_literal
 ;
 
 subpartition_definition:
-	SUBPARTITION_SYMBOL identifier
-		(STORAGE_SYMBOL? ENGINE_SYMBOL EQUAL_OPERATOR? IDENTIFIER)?
-		(COMMENT_SYMBOL EQUAL_OPERATOR? string_literal)?
-		(DATA_SYMBOL DIRECTORY_SYMBOL EQUAL_OPERATOR? string_literal)?
-		(INDEX_SYMBOL DIRECTORY_SYMBOL EQUAL_OPERATOR? string_literal)?
-		(MAX_ROWS_SYMBOL EQUAL_OPERATOR? INTEGER)?
-		(MIN_ROWS_SYMBOL EQUAL_OPERATOR? INTEGER)?
-		(TABLESPACE_SYMBOL EQUAL_OPERATOR? identifier)?
-		(NODEGROUP_SYMBOL EQUAL_OPERATOR? identifier)?
+	SUBPARTITION_SYMBOL identifier (partition_option)*
 ;
 
 partition_value_list:
@@ -2884,7 +3087,7 @@ if_exists:
 ;
 
 if_not_exists:
-	IF_SYMBOL NOT_SYMBOL EXISTS_SYMBOL
+	IF_SYMBOL not_rule EXISTS_SYMBOL
 ;
 
 procedure_parameter:
@@ -2898,10 +3101,6 @@ function_parameter:
 schema_identifier_pair:
 	OPEN_PAR_SYMBOL schema_ref COMMA_SYMBOL schema_ref CLOSE_PAR_SYMBOL
 ;
-
-table_identifier_list:
-	table_ref (COMMA_SYMBOL table_ref)*
-;       
 
 view_identifier_list:
 	view_ref (COMMA_SYMBOL view_ref)*
@@ -2946,13 +3145,17 @@ user_list:
 	user (COMMA_SYMBOL user)*
 ;
 
-user_specification:
+grant_list:
+	grant_user (COMMA_SYMBOL grant_user)*
+;
+
+grant_user:
 	user
 	(
 		IDENTIFIED_SYMBOL
 		(
-			BY_SYMBOL PASSWORD_SYMBOL? string_literal
-			| WITH_SYMBOL pure_identifier (AS_SYMBOL string_literal)?
+			BY_SYMBOL PASSWORD_SYMBOL? text_string
+			| WITH_SYMBOL text_or_identifier ((AS_SYMBOL | {SERVER_VERSION < 50704}? => BY_SYMBOL) text_string)?
 		)
 	)?
 ;
@@ -2963,7 +3166,7 @@ user:
 ;
 
 like_clause:
-	LIKE_SYMBOL text_or_param_marker
+	LIKE_SYMBOL text_string
 ;
 
 like_or_where:
@@ -2989,18 +3192,24 @@ use_partition:
 // 1) The name when creating that object.
 // 2) The name when used to reference it from other rules.
 //
-// Sometimes we need additional reference rules with different form, depending on the placed such a reference is used.
+// Sometimes we need additional reference rules with different form, depending on the place such a reference is used.
 
 column_name:
 	identifier -> ^(COLUMN_NAME_TOKEN identifier)
 ;
 
 column_ref:
-	qualified_identifier (DOT_SYMBOL identifier)? -> ^(COLUMN_REF_TOKEN qualified_identifier (DOT_SYMBOL identifier)?)
+	column_ref_variants -> ^(COLUMN_REF_TOKEN column_ref_variants)
+;
+
+// field_ident rule in the server parser.
+column_ref_variants:
+	DOT_SYMBOL identifier
+	| qualified_identifier (options { greedy = true; }: DOT_SYMBOL identifier)?
 ;
 
 column_internal_ref:
-	identifier -> ^(COLUMN_INTERNAL_REF_TOKEN identifier)
+	column_ref_variants -> ^(COLUMN_INTERNAL_REF_TOKEN column_ref_variants)
 ;
 
 column_ref_with_wildcard:
@@ -3013,7 +3222,15 @@ column_ref_with_wildcard2:
 	qualified_identifier (DOT_SYMBOL (identifier | MULT_OPERATOR))?
 ;
 
-table_wild: // Name as in sql_yacc.yy. Actually a column ref with non-optional wildcard.
+index_name:
+	identifier -> ^(INDEX_NAME_TOKEN identifier)
+;
+
+index_ref:
+	identifier -> ^(INDEX_REF_TOKEN identifier)
+;
+
+table_wild:
 	qualified_identifier DOT_SYMBOL MULT_OPERATOR
 ;       
 
@@ -3085,8 +3302,16 @@ udf_name: // UDFs are referenced at the same places as any other function. So, n
 	identifier -> ^(UDF_NAME_TOKEN identifier)
 ;
 
+server_name:
+	text_or_identifier -> ^(SERVER_NAME_TOKEN text_or_identifier)
+;
+
+server_ref:
+	text_or_identifier -> ^(SERVER_REF_TOKEN text_or_identifier)
+;
+
 engine_ref:
-	text_or_identifier
+	text_or_identifier -> ^(ENGINE_REF_TOKEN text_or_identifier)
 ;
 
 table_name:
@@ -3110,10 +3335,16 @@ table_ref_no_db:
 ;
 
 table_name_variants:
-	// In order to avoid ambiguities with following identifiers (which could be starting with a dot) we match
-	// any (DOT identifier) sequence as part of this table identifier.
-	identifier ( options { greedy = true; }: DOT_SYMBOL identifier)?
+	qualified_identifier
 	| DOT_SYMBOL identifier
+;
+
+table_ref_list:
+	table_ref (COMMA_SYMBOL table_ref)*
+;       
+
+table_ref_list_with_wildcard:
+	table_ref_with_wildcard (COMMA_SYMBOL table_ref_with_wildcard)*
 ;
 
 //----------------- Common basic rules -------------------------------------------------------------
@@ -3139,16 +3370,38 @@ identifier_list_with_parentheses:
 	OPEN_PAR_SYMBOL identifier_list CLOSE_PAR_SYMBOL
 ;
 
-qualified_identifier_list:
-	qualified_identifier (COMMA_SYMBOL qualified_identifier)*
-;       
-
 qualified_identifier:
 	identifier ( options { greedy = true; }: DOT_SYMBOL identifier)?
 ;
 
-integer_list:
-	INTEGER (COMMA_SYMBOL INTEGER)*
+ulong_number:
+	INT_NUMBER
+	| HEX_NUMBER
+	| LONG_NUMBER
+	| ULONGLONG_NUMBER
+	| DECIMAL_NUMBER
+	| FLOAT_NUMBER
+;
+
+real_ulong_number:
+	INT_NUMBER
+	| HEX_NUMBER
+	| LONG_NUMBER
+	| ULONGLONG_NUMBER
+;
+
+ulonglong_number:
+	INT_NUMBER
+	| ULONGLONG_NUMBER
+	| LONG_NUMBER
+	| DECIMAL_NUMBER
+	| FLOAT_NUMBER
+;
+
+real_ulonglong_number:
+	INT_NUMBER
+	| ULONGLONG_NUMBER
+	| LONG_NUMBER
 ;
 
 string_list:
@@ -3157,25 +3410,31 @@ string_list:
 
 text_string:
 	SINGLE_QUOTED_TEXT
-	| HEXNUMBER
-	| BITNUMBER
+	| HEX_NUMBER
+	| BIN_NUMBER
+;
+
+// A special variant of a text string that must not contain a linebreak (TEXT_STRING_sys_nonewline in sql_yacc.yy).
+// Check validity in semantic phase.
+text_string_no_linebreak:
+	text_string -> ^(STRING_NO_LINEBREAK_TOKEN text_string)
 ;
 
 literal:
 	string_literal
-	| number_literal
-	| hex_literal
-	| bool_literal
-	| {SERVER_VERSION >= 50003}? => bit_literal
-	| null_literal
+	| num_literal
    	// Date, time and timestamp can be both a temporal literal or a field name, so we need a predicate.
 	| {LA(1) == DATE_SYMBOL || LA(1) == TIME_SYMBOL || LA(1) == TIMESTAMP_SYMBOL}? temporal_literal
-;
+	| null_literal
+	| bool_literal
+	| UNDERSCORE_CHARSET? HEX_NUMBER
+	| {SERVER_VERSION >= 50003}? => UNDERSCORE_CHARSET? BIN_NUMBER
+	;
 
 signed_literal:
 	literal
-	| PLUS_OPERATOR number_literal
-	| MINUS_OPERATOR number_literal
+	| PLUS_OPERATOR ulong_number
+	| MINUS_OPERATOR ulong_number
 ;
 
 // To ease post processing strings (for automatic concatenation) we use an own subtree for each string.
@@ -3184,24 +3443,17 @@ string_literal:
 	string -> ^(STRING_TOKEN string)
 ;
 
-// A special variant of a text string that must not contain a linebreak (TEXT_STRING_sys_nonewline in sql_yacc.yy).
-// Check validity in semantic phase.
-string_literal_no_linebreak:
-	string -> ^(STRING_NO_LINEBREAK_TOKEN string)
-;
-
 string:
 	NCHAR_TEXT
 	| UNDERSCORE_CHARSET? ( options { greedy = true; }: SINGLE_QUOTED_TEXT | {!SQL_MODE_ACTIVE(SQL_MODE_ANSI_QUOTES)}? => DOUBLE_QUOTED_TEXT)+
 ;
 
-number_literal:
-	INTEGER
-	| FLOAT
-;
-
-hex_literal:
-	UNDERSCORE_CHARSET? (HEXNUMBER | HEXSTRING)
+num_literal:
+	INT_NUMBER
+	| LONG_NUMBER
+	| ULONGLONG_NUMBER
+	| DECIMAL_NUMBER
+	| FLOAT_NUMBER
 ;
 
 bool_literal:
@@ -3209,11 +3461,7 @@ bool_literal:
 	| FALSE_SYMBOL
 ;
 
-bit_literal:
-	UNDERSCORE_CHARSET? (BITNUMBER | BITSTRING)
-;
-
-null_literal:
+null_literal: // In sql_yacc.cc both 'NULL' and '\N' are mapped to NULL_SYM (which is our null_literal).
 	NULL_SYMBOL
 	| NULL2_SYMBOL
 ;
@@ -3240,11 +3488,11 @@ real_literal:
 
 float_options:
 	// Another way to write (field_length | precision), but without ambiguity.
-	OPEN_PAR_SYMBOL INTEGER (COMMA_SYMBOL INTEGER)? CLOSE_PAR_SYMBOL
+	OPEN_PAR_SYMBOL INT_NUMBER (COMMA_SYMBOL INT_NUMBER)? CLOSE_PAR_SYMBOL
 ;
 
 precision:
-	OPEN_PAR_SYMBOL INTEGER COMMA_SYMBOL INTEGER CLOSE_PAR_SYMBOL
+	OPEN_PAR_SYMBOL INT_NUMBER COMMA_SYMBOL INT_NUMBER CLOSE_PAR_SYMBOL
 ;
 
 nchar_literal:
@@ -3265,34 +3513,15 @@ nvarchar_literal:
 	| NCHAR_SYMBOL VARYING_SYMBOL
 ;
 
-int_or_param_marker:
-	INTEGER | PARAM_MARKER
-;
-
-text_or_param_marker:
-	string_literal | PARAM_MARKER
-;
-
 text_or_identifier:
 	SINGLE_QUOTED_TEXT
 	| identifier
-	//| USER_VARIABLE // LEX_HOSTNAME in the server grammar.
-;
-
-float_or_param:
-	FLOAT | PARAM_MARKER
-;
-
-// Any integer number (no float) up to 64bits (real_ulong_num in sql_yacc.yy).
-number:
-	INTEGER
-	| HEXNUMBER
+	//| AT_TEXT_SUFFIX // LEX_HOSTNAME in the server grammar. Handled differently.
 ;
 
 size_number:
-	INTEGER
-	| HEXNUMBER
-	| IDENTIFIER // Something like 10G. Semantic check needed for validity.
+	real_ulonglong_number
+	| pure_identifier // Something like 10G. Semantic check needed for validity.
 ;
 
 parentheses:
@@ -3314,7 +3543,9 @@ keyword:
 	keyword_sp
 	| ( // Leave this list in parentheses, as this makes a difference of several MB in the resulting parser.
 	    // (at least in the C target).
-		ASCII_SYMBOL
+		ACCOUNT_SYMBOL // Conditionally set in the lexer.
+		| ASCII_SYMBOL
+		| ALWAYS_SYMBOL // Conditionally set in the lexer.
 		| BACKUP_SYMBOL
 		| BEGIN_SYMBOL
 		| BYTE_SYMBOL
@@ -3332,6 +3563,7 @@ keyword:
 		| FLUSH_SYMBOL
 		| FOLLOWS_SYMBOL
 		| FORMAT_SYMBOL
+		| GROUP_REPLICATION_SYMBOL // Conditionally set in the lexer.
 		| HANDLER_SYMBOL
 		| HELP_SYMBOL
 		| HOST_SYMBOL
@@ -3354,6 +3586,8 @@ keyword:
 		| SAVEPOINT_SYMBOL
 		| SECURITY_SYMBOL
 		| SERVER_SYMBOL
+		| /*{SERVER_VERSION >= 50709}? =>*/ SHUTDOWN_SYMBOL // Moved here from keyword_sp.
+			// Cannot make this alt using a sempred as ANTLR crashs on that (Out Of Mem).
 		| SIGNED_SYMBOL
 		| SLAVE_SYMBOL
 		| SOCKET_SYMBOL
@@ -3405,6 +3639,7 @@ keyword_sp:
 	| CATALOG_NAME_SYMBOL
 	| CHAIN_SYMBOL
 	| CHANGED_SYMBOL
+	| CHANNEL_SYMBOL // Conditionally set in the lexer.
 	| CIPHER_SYMBOL
 	| CLIENT_SYMBOL
 	| CLASS_ORIGIN_SYMBOL
@@ -3418,6 +3653,7 @@ keyword_sp:
 	| COMPACT_SYMBOL
 	| COMPLETION_SYMBOL
 	| COMPRESSED_SYMBOL
+	| COMPRESSION_SYMBOL // Conditionally set in the lexer.
 	| CONCURRENT_SYMBOL
 	| CONNECTION_SYMBOL
 	| CONSISTENT_SYMBOL
@@ -3467,6 +3703,7 @@ keyword_sp:
 	| ENABLE_SYMBOL
 	| FULL_SYMBOL
 	| FILE_SYMBOL
+	| FILE_BLOCK_SIZE_SYMBOL // Conditionally set in the lexer.
 	| FILTER_SYMBOL
 	| FIRST_SYMBOL
 	| FIXED_SYMBOL
@@ -3491,6 +3728,7 @@ keyword_sp:
 	| ISOLATION_SYMBOL
 	| ISSUER_SYMBOL
 	| INSERT_METHOD_SYMBOL
+	| JSON_SYMBOL // Conditionally set in the lexer.
 	| KEY_BLOCK_SIZE_SYMBOL
 	| LAST_SYMBOL
 	| LEAVES_SYMBOL
@@ -3526,7 +3764,7 @@ keyword_sp:
 	| MASTER_AUTO_POSITION_SYMBOL
 	| MAX_CONNECTIONS_PER_HOUR_SYMBOL
 	| MAX_QUERIES_PER_HOUR_SYMBOL
-	| MAX_STATEMENT_TIME_SYMBOL
+	| MAX_STATEMENT_TIME_SYMBOL // Conditionally deprecated in the lexer rule.
 	| MAX_SIZE_SYMBOL
 	| MAX_UPDATES_PER_HOUR_SYMBOL
 	| MAX_USER_CONNECTIONS_SYMBOL
@@ -3627,7 +3865,7 @@ keyword_sp:
 	| SESSION_SYMBOL
 	| SIMPLE_SYMBOL
 	| SHARE_SYMBOL
-	| SHUTDOWN_SYMBOL
+	//| {SERVER_VERSION < 50709}? => SHUTDOWN_SYMBOL // Moved to keyword rule. We cannot keep this here however, as ANTLR crashs on that.
 	| SLOW_SYMBOL
 	| SNAPSHOT_SYMBOL
 	| SOUNDS_SYMBOL
@@ -3745,6 +3983,8 @@ OPEN_CURLY_SYMBOL:			'{';
 CLOSE_CURLY_SYMBOL:			'}';
 UNDERLINE_SYMBOL:			'_';
 
+JSON_SEPARATOR_SYMBOL:		'->'	{ $type = TYPE_FROM_VERSION(50708, $type); };
+
 // The MySQL parser uses custom code in its lexer to allow base alphanum chars (and ._$) as variable name.
 // For this it handles user variables in 2 different ways and we have to model this to match that behavior.
 AT_SIGN_SYMBOL:				'@' ((SIMPLE_IDENTIFIER) => SIMPLE_IDENTIFIER { $type = AT_TEXT_SUFFIX; } )?;
@@ -3779,6 +4019,7 @@ ESCAPE_OPERATOR:			'\\';
 
 //ABORT_SYMBOL:	'ABORT';                     // INTERNAL (used in lex)
 ACCESSIBLE_SYMBOL:						'ACCESSIBLE'						{ $type = TYPE_FROM_VERSION(50100, $type); };
+ACCOUNT_SYMBOL:							'ACCOUNT'							{ $type = TYPE_FROM_VERSION(50707, $type); };
 ACTION_SYMBOL:							'ACTION';							// SQL-2003-N
 ADD_SYMBOL:								'ADD';								// SQL-2003-R
 ADDDATE_SYMBOL:							'ADDDATE'							{ $type = determine_function(ctx, $type); }; // MYSQL-FUNC
@@ -3788,6 +4029,7 @@ AGGREGATE_SYMBOL:						'AGGREGATE';
 ALGORITHM_SYMBOL:						'ALGORITHM';
 ALL_SYMBOL:								'ALL';								// SQL-2003-R
 ALTER_SYMBOL:							'ALTER';							// SQL-2003-R
+ALWAYS_SYMBOL:							'ALWAYS'							{ $type = TYPE_FROM_VERSION(50707, $type); };
 ANALYSE_SYMBOL:							'ANALYSE';
 ANALYZE_SYMBOL:							'ANALYZE';
 AND_SYMBOL:								'AND';								// SQL-2003-R
@@ -3856,6 +4098,7 @@ COMMIT_SYMBOL:							'COMMIT';							// SQL-2003-R
 COMPACT_SYMBOL:							'COMPACT';
 COMPLETION_SYMBOL:						'COMPLETION';
 COMPRESSED_SYMBOL:						'COMPRESSED';
+COMPRESSION_SYMBOL:						'COMPRESSION'						{ $type = TYPE_FROM_VERSION(50707, $type); };
 CONCURRENT_SYMBOL:						'CONCURRENT';
 CONDITION_SYMBOL:						'CONDITION'							{ $type = TYPE_FROM_VERSION(50000, $type); }; // SQL-2003-R, SQL-2008-R
 CONNECTION_SYMBOL:						'CONNECTION'						{ $type = TYPE_FROM_VERSION(50000, $type); };
@@ -3962,6 +4205,7 @@ FAULTS_SYMBOL:							'FAULTS';
 FETCH_SYMBOL:							'FETCH'								{ $type = TYPE_FROM_VERSION(50000, $type); }; // SQL-2003-R
 FIELDS_SYMBOL:							'FIELDS'							{ $type = COLUMNS_SYMBOL; };	// Synonym
 FILE_SYMBOL:							'FILE';
+FILE_BLOCK_SIZE_SYMBOL:					'FILE_BLOCK_SIZE'					{ $type = TYPE_FROM_VERSION(50707, $type); };
 FILTER_SYMBOL:							'FILTER'							{ $type = TYPE_FROM_VERSION(50700, $type); };
 FIRST_SYMBOL:							'FIRST';							// SQL-2003-N
 FIXED_SYMBOL:							'FIXED';
@@ -3980,8 +4224,10 @@ FROM_SYMBOL:							'FROM';
 FULL_SYMBOL:							'FULL';								// SQL-2003-R
 FULLTEXT_SYMBOL:						'FULLTEXT';
 FUNCTION_SYMBOL:						'FUNCTION';							// SQL-2003-R
-GET_SYMBOL:								'GET'								{ $type = TYPE_FROM_VERSION(50600, $type); };
+GET_SYMBOL:								'GET'								{ $type = TYPE_FROM_VERSION(50604, $type); };
 GENERAL_SYMBOL:							'GENERAL'							{ $type = TYPE_FROM_VERSION(50500, $type); };
+GENERATED_SYMBOL:						'GENERATED'							{ $type = TYPE_FROM_VERSION(50707, $type); };
+GROUP_REPLICATION_SYMBOL:				'GROUP_REPLICATION'					{ $type = TYPE_FROM_VERSION(50707, $type); };
 GEOMETRYCOLLECTION_SYMBOL:				'GEOMETRYCOLLECTION';
 GEOMETRY_SYMBOL:						'GEOMETRY';
 GET_FORMAT_SYMBOL:						'GET_FORMAT';						// MYSQL-FUNC
@@ -4033,6 +4279,7 @@ ISOLATION_SYMBOL:						'ISOLATION';						// SQL-2003-R
 ISSUER_SYMBOL:							'ISSUER';
 ITERATE_SYMBOL:							'ITERATE'							{ $type = TYPE_FROM_VERSION(50000, $type); };
 JOIN_SYMBOL:							'JOIN';								// SQL-2003-R
+JSON_SYMBOL:							'JSON'								{ $type = TYPE_FROM_VERSION(50708, $type); };
 KEYS_SYMBOL:							'KEYS';
 KEY_BLOCK_SIZE_SYMBOL:					'KEY_BLOCK_SIZE';
 KEY_SYMBOL:								'KEY';								// SQL-2003-N
@@ -4094,7 +4341,7 @@ MAX_CONNECTIONS_PER_HOUR_SYMBOL:		'MAX_CONNECTIONS_PER_HOUR';
 MAX_QUERIES_PER_HOUR_SYMBOL:			'MAX_QUERIES_PER_HOUR';
 MAX_ROWS_SYMBOL:						'MAX_ROWS';
 MAX_SIZE_SYMBOL:						'MAX_SIZE';
-MAX_STATEMENT_TIME_SYMBOL:				'MAX_STATEMENT_TIME'				{ $type = TYPE_FROM_VERSION(50704, $type); };
+MAX_STATEMENT_TIME_SYMBOL:				'MAX_STATEMENT_TIME'				{ $type = TYPE_IN_VERSION_RANGE(50704, 50708, $type); };
 MAX_SYMBOL:								'MAX'								{ $type = determine_function(ctx, $type); }; // SQL-2003-N
 MAX_UPDATES_PER_HOUR_SYMBOL:			'MAX_UPDATES_PER_HOUR';
 MAX_USER_CONNECTIONS_SYMBOL:			'MAX_USER_CONNECTIONS';
@@ -4171,8 +4418,8 @@ OUT_SYMBOL:								'OUT'								{ $type = TYPE_FROM_VERSION(50000, $type); }; //
 OWNER_SYMBOL:							'OWNER';
 PACK_KEYS_SYMBOL:						'PACK_KEYS';
 PAGE_SYMBOL:							'PAGE';
-PARAM_MARKER_SYMBOL:					'PARAM_MARKER';
 PARSER_SYMBOL:							'PARSER';
+// PARSE_GCOL_EXPR_SYMBOL:					'PARSE_GCOL_EXPR'					{ $type = TYPE_FROM_VERSION(50707, $type); };
 PARTIAL_SYMBOL:							'PARTIAL';							// SQL-2003-N
 PARTITIONING_SYMBOL:					'PARTITIONING';
 PARTITIONS_SYMBOL:						'PARTITIONS';
@@ -4323,6 +4570,7 @@ STDDEV_POP_SYMBOL:						'STDDEV_POP'						{ $type = determine_function(ctx, STD_
 STD_SYMBOL:								'STD'								{ $type = determine_function(ctx, $type); }; 
 STOP_SYMBOL:							'STOP';
 STORAGE_SYMBOL:							'STORAGE';
+STORED_SYMBOL:							'STORED'							{ $type = TYPE_FROM_VERSION(50707, $type); };
 STRAIGHT_JOIN_SYMBOL:					'STRAIGHT_JOIN';
 STRING_SYMBOL:							'STRING';
 SUBCLASS_ORIGIN_SYMBOL:					'SUBCLASS_ORIGIN';					// SQL-2003-N
@@ -4369,7 +4617,6 @@ TRUNCATE_SYMBOL:						'TRUNCATE';
 TYPES_SYMBOL:							'TYPES';
 TYPE_SYMBOL:							'TYPE';								// SQL-2003-N
 UDF_RETURNS_SYMBOL:						'UDF_RETURNS';
-ULONGLONG_NUM_SYMBOL:					'ULONGLONG_NUM';
 UNCOMMITTED_SYMBOL:						'UNCOMMITTED';						// SQL-2003-N
 UNDEFINED_SYMBOL:						'UNDEFINED';
 UNDOFILE_SYMBOL:						'UNDOFILE';
@@ -4406,6 +4653,7 @@ VARYING_SYMBOL:							'VARYING';							// SQL-2003-R
 VAR_POP_SYMBOL:							'VAR_POP'							{ $type = determine_function(ctx, VARIANCE_SYMBOL); }; // Synonym
 VAR_SAMP_SYMBOL:						'VAR_SAMP'							{ $type = determine_function(ctx, $type); }; 
 VIEW_SYMBOL:							'VIEW';								// SQL-2003-N
+VIRTUAL_SYMBOL:							'VIRTUAL'							{ $type = TYPE_FROM_VERSION(50707, $type); };
 WAIT_SYMBOL:							'WAIT';
 WARNINGS_SYMBOL:						'WARNINGS';
 WEEK_SYMBOL:							'WEEK';
@@ -4462,26 +4710,25 @@ INVALID_INPUT:
 ;
 
 // Basic tokens. Tokens used in parser rules must not be fragments!
-// INTEGER includes all the integral types defined in the server parser. These have different lengths, but
-// mostly appear together anyway. So these are: NUM, LONG_NUM, DECIMAL_NUM and ULONGLONG_NUM.
-// We'd need platform specific code to separate them.
-INTEGER:				DIGITS;
-FLOAT:					DIGITS? DOT_SYMBOL DIGITS ('E' (MINUS_OPERATOR | PLUS_OPERATOR)? DIGITS)?;
 
-HEXNUMBER:				'0X' HEXDIGIT+;
-HEXSTRING:				'X' '\'' HEXDIGIT+ '\'';
+// Number types.
+NUMBER:			DIGITS { $type = determine_num_type($text); };
 
-BITNUMBER:				'0B' ('0' | '1')+;
-BITSTRING:				'B' '\'' ('0' | '1')+ '\'';
+DECIMAL_NUMBER:	DIGITS? DOT_SYMBOL DIGITS; // Also set in the determine_num_type() function if the number is > ULONGLONG.
+FLOAT_NUMBER:	DECIMAL_NUMBER 'E' (MINUS_OPERATOR | PLUS_OPERATOR)? DIGITS;
+HEX_NUMBER:		('0X' HEXDIGIT+) | ('X' '\'' HEXDIGIT+ '\'');
+BIN_NUMBER: 	('0B' ('0' | '1')+) | ('B' '\'' ('0' | '1')+ '\'');
 
-NCHAR_TEXT:				'N' SINGLE_QUOTED_TEXT;
+NCHAR_TEXT:		'N' SINGLE_QUOTED_TEXT;
+
+// String and text types.
 
 // The underscore charset token is used to defined the repertoire of a string, though it conflicts
 // with normal identifiers, which also can start with an underscore.
-UNDERSCORE_CHARSET:		UNDERLINE_SYMBOL LETTER_WHEN_UNQUOTED+ { $type = check_charset(PAYLOAD, $text); };
+UNDERSCORE_CHARSET:	UNDERLINE_SYMBOL IDENTIFIER { $type = check_charset(PAYLOAD, $text); };
 
 // Identifiers might start with a digit, even tho it is discouraged.
-IDENTIFIER: 			LETTER_WHEN_UNQUOTED+; // All keywords above are automatically excluded.
+IDENTIFIER: 		LETTER_WHEN_UNQUOTED+; // All keywords above are automatically excluded.
 
 // For all 3 quoted types:
 // MySQL supports automatic concatenation if multiple quoted strings follow each other. There's a twist, though.
@@ -4549,30 +4796,30 @@ COMMENT_RULE:
 // /*!12345 ... */ - Same as the previous one except code is only used when the given number is a lower value
 //                   than the current server version (specifying so the minimum server version the code can run with).
 fragment BLOCK_COMMENT options { greedy = false; }:
-	{in_version_comment == ANTLR3_FALSE}? => VERSION_COMMENT
+	{IN_VERSION_COMMENT == ANTLR3_FALSE}? => VERSION_COMMENT
 	| MULTILINE_COMMENT
 ;
 
 fragment VERSION_COMMENT
-@init { matched_version = ANTLR3_TRUE; }
+@init { VERSION_MATCHED = ANTLR3_TRUE; }
 :
 	VERSION_COMMENT_INTRODUCER
 		(
-			v = INTEGER { matched_version = check_version_token(SERVER_VERSION, $v); } VERSION_COMMENT_TAIL
+			v = NUMBER { VERSION_MATCHED = check_version_token(SERVER_VERSION, $v); } VERSION_COMMENT_TAIL
 			| VERSION_COMMENT_TAIL
 		)
 ;
 
 fragment VERSION_COMMENT_TAIL:
-	{ matched_version == ANTLR3_FALSE }? => // One level of block comment nesting is allowed for version comments.
+	{ VERSION_MATCHED == ANTLR3_FALSE }? => // One level of block comment nesting is allowed for version comments.
 		( options { greedy = false; }: (ML_COMMENT_HEAD MULTILINE_COMMENT) | . )* ML_COMMENT_END { $type = MULTILINE_COMMENT; $channel = HIDDEN; }
-	| { $type = VERSION_COMMENT; $channel = HIDDEN; in_version_comment = ANTLR3_TRUE; }
+	| { $type = VERSION_COMMENT; $channel = HIDDEN; IN_VERSION_COMMENT = ANTLR3_TRUE; }
 ;
 
 fragment MULTILINE_COMMENT:	( options { greedy = false; }: . )* ML_COMMENT_END { $channel = HIDDEN; };
 
 fragment VERSION_COMMENT_END:
-	{in_version_comment == ANTLR3_TRUE}? => ML_COMMENT_END { $channel = HIDDEN; in_version_comment = ANTLR3_FALSE; }
+	{IN_VERSION_COMMENT == ANTLR3_TRUE}? => ML_COMMENT_END { $channel = HIDDEN; IN_VERSION_COMMENT = ANTLR3_FALSE; }
 	| // Intentionally left empty to make the gated semantic predicate work.
 ;
 
@@ -4612,3 +4859,8 @@ fragment LETTER_WHEN_UNQUOTED:
 fragment NOT2_SYMBOL: ;
 fragment CONCAT_PIPES_SYMBOL: ;
 fragment AT_TEXT_SUFFIX: ; // See AT_SYMBOL for more information.
+
+// Tokens assigned in NUMBER rule.
+fragment INT_NUMBER: ; // NUM in sql_yacc.yy
+fragment LONG_NUMBER: ;
+fragment ULONGLONG_NUMBER: ;

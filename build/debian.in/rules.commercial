@@ -80,6 +80,13 @@ install: build
 	# Bundle libs only needed for SE edition
 	cp -a $(LINUXRES_HOME)/sqlite3/libsqlite3.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(LINUXRES_HOME)/pysqlite2 $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)/modules/
+	
+@ifdef paramiko
+	#bundle paramiko based on the param
+	cp -a $(LINUXRES_HOME)/python/paramiko  $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)/modules/
+	cp -a $(LINUXRES_HOME)/python/ecdsa $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)/modules/
+@endif
+
 	# Bundle client programs and lib
 	cp -a $(MYSQL_HOME)/lib/libmysqlclient.so.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(MYSQL_HOME)/bin/mysql $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)

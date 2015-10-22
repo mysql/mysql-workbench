@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+﻿# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -167,9 +167,10 @@ Use cases for the server logs
    session or until the user clicks on the tab's *Close* button.
 """
 
-from mforms import newBox, newLabel, newTreeNodeView, newTabView, newButton
+import grt
+from mforms import newBox, newLabel, newTreeView, newTabView, newButton
 import mforms
-from wb_admin_utils import not_running_warning_label, make_panel_header
+from wb_admin_utils import not_running_warning_label, make_panel_header, show_error_page, remove_error_page_if_exists
 from wb_log_reader import GeneralQueryLogReader, SlowQueryLogReader, GeneralLogFileReader, SlowLogFileReader, ErrorLogFileReader
 import wb_admin_config_file_be
 
@@ -223,14 +224,14 @@ class LogView(mforms.Box):
         try_again_button.add_clicked_callback(self.try_again)
         self.add(self.error_box, False, True)
 
-
     def try_again(self):
         self.update_ui()
         self.refresh()
 
+    def create_filter_box(self):
+        pass
 
     def update_ui(self):
-        # Clean up:
         if self.error_box:
             self.remove(self.error_box)
             self.error_box = None
@@ -249,7 +250,11 @@ class LogView(mforms.Box):
 
         self.set_padding(8)
         self.set_spacing(8)
-
+        
+        filter_box = self.create_filter_box()
+        if filter_box:
+            self.add(filter_box, False, False)
+        
         try:
             self.log_reader = self.BackendLogReaderClass(*self.args)
         except Exception, error:
@@ -265,7 +270,7 @@ class LogView(mforms.Box):
             self.warning_box.add(warning_label, False, False)
             self.add(self.warning_box, False, True)
 
-        self.tree = newTreeNodeView(mforms.TreeFlatList)
+        self.tree = newTreeView(mforms.TreeFlatList)
         self.tree.set_selection_mode(mforms.TreeSelectMultiple)
 
         for colspec in self.log_reader.column_specs:
@@ -285,7 +290,14 @@ class LogView(mforms.Box):
 
         table.add(newLabel("Log File Location:"), 0, 1, 0, 1, mforms.HFillFlag)
         if self.log_reader.log_file:
-            label = newLabel(self.log_reader.log_file.path)
+            if self.log_reader.log_file.path == "stderr":
+                self.query = """<QueryList><Query Id = "0" Path = "Application">
+                                <Select Path = "Application">*[System[Provider[@Name = 'MySQL'] and TimeCreated[timediff(@SystemTime) &lt;= 604800000]]]</Select>
+                                </Query></QueryList>"""
+                grt.setEventlogCallback(self.printResults)
+                label = newLabel("Windows Event viewer")
+            else:
+                label = newLabel(self.log_reader.log_file.path)
         else:
             label = newLabel("TABLE")
         label.set_style(mforms.BoldStyle)
@@ -338,6 +350,17 @@ class LogView(mforms.Box):
         self.bbox.add(self.refresh_button, False, True)
         self.refresh_button.add_clicked_callback(self.refresh)
 
+        if self.log_reader.log_file.path == "stderr":
+            self.actual_position = 0
+            grt.getEventLogEntry(0, self.query)
+
+    def printResults(self, text, args):
+        self.actual_position = self.actual_position + 1
+        row = self.tree.add_node()
+        self.size_label.set_text(str(self.actual_position))
+        for idx, key in enumerate(self.log_reader.column_keys):
+            row.set_string(idx, args[key])
+
     def read_data_worker(self, out):
         out(self.log_reader.current())
 
@@ -351,6 +374,13 @@ class LogView(mforms.Box):
         self.worker = None
 
     def refresh(self, records=None):
+        if self.log_reader.log_file.path == "stderr":
+            grt.getEventLogEntry(self.actual_position, self.query)
+            self.bof_button.set_enabled(False)
+            self.back_button.set_enabled(False)
+            self.eof_button.set_enabled(False)
+            self.next_button.set_enabled(False)
+            return
         if self.log_reader:
             try:
                 self.log_reader.refresh()
@@ -427,6 +457,46 @@ class LogView(mforms.Box):
         except (ServerIOError, RuntimeError, LogFileAccessError, OperationCancelledError, InvalidPasswordError, IOError, ValueError), error:
             self._show_error(error)
 
+
+class LogViewGeneric(LogView):
+
+    def __init__(self, owner, BackendLogReaderClass, *args):
+        self.filter_list = {}
+        self.filter_box = mforms.newBox(True)
+        self.filter_text = ""
+
+        super(LogViewGeneric, self).__init__(owner, BackendLogReaderClass, *args)
+
+    def add_filter_option(self, text):
+        filter = mforms.newRadioButton(1)
+        filter.set_text(text)
+        filter.add_clicked_callback(self.filter_handler)
+        
+        self.filter_list[text] = filter
+        self.filter_box.add(filter, False, False)
+        
+    def create_filter_box(self):
+        self.add_filter_option("All")
+        self.add_filter_option("InnoDB")
+        self.add_filter_option("Firewall")
+        return self.filter_box
+    
+    def filter_handler(self):
+        for text, filter in self.filter_list.iteritems():
+            if filter.get_active():
+                self.filter_text = text
+
+        self.refresh(None)
+
+    def refresh(self, records=None):
+        filtered_records = None
+        if records:
+            filtered_records = []
+            for record in records:
+                text = record[3]
+                if self.filter_text == "All" or text.lower().find(self.filter_text.lower()) >= 0:
+                    filtered_records.append(record)
+        super(LogViewGeneric, self).refresh(filtered_records)
 
 class WbAdminLogs(mforms.Box):
     ui_created = False
@@ -571,7 +641,7 @@ class WbAdminLogs(mforms.Box):
 
         if 'error_file_tab' in source and self.server_profile.error_log_file_path and not self.error_file_log_tab:
             try:
-                self.error_file_log_tab = LogView(self, ErrorLogFileReader, self.ctrl_be, self.server_profile.error_log_file_path)
+                self.error_file_log_tab = LogViewGeneric(self, ErrorLogFileReader, self.ctrl_be, self.server_profile.error_log_file_path)
                 self.tabView.add_page(self.error_file_log_tab, "Error Log File")
             except IOError:
                 self.show_message_panel('There was a problem reading %s. Please verify that you have read permissions on that file' % self.server_profile.error_log_file_path)
@@ -606,7 +676,7 @@ class WbAdminLogs(mforms.Box):
         dest = self.get_log_destination()
 
         self._add_tabs('error_file_tab')
-
+        
         if not self.server_profile.log_output:
             self.server_profile.log_output = 'TABLE,FILE'
 
@@ -643,6 +713,13 @@ http://dev.mysql.com/doc/refman/5.1/en/log-destinations.html""" % self.server_pr
         self.tabView.show(True)
 
     def page_activated(self):
+
+        if not self.server_profile.config_file_path:
+            show_error_page(self, "Location of MySQL configuration file (ie: my.cnf) not specified")
+            return
+        else:
+            remove_error_page_if_exists(self)
+
         if not self.ui_created:
             self.detect_paths()
             self.create_ui()

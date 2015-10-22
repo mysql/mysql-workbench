@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -175,6 +175,8 @@ namespace grt {
     PyObject *db_not_connected() { return _grt_db_not_connected; }
 
     void set_grt_observer_callable(PyObject *obj);
+    void setEventlogCallback(PyObject *obj);
+    void printResult(std::map<std::string, std::string> &output);
     
   protected:
     GRT *_grt;    
@@ -198,7 +200,9 @@ namespace grt {
     AutoPyObject _grt_db_not_connected;
 
     AutoPyObject _grt_notification_observer;
-    
+
+    AutoPyObject _grtEventLogNotification;
+
     std::map<std::string, AutoPyObject> _grt_class_wrappers;
 
   private:
@@ -217,7 +221,7 @@ namespace grt {
     
     virtual void handle_grt_notification(const std::string &name, ObjectRef sender, DictRef info);
     virtual void handle_notification(const std::string &name, void *sender, base::NotificationInfo &info);
-    
+
   };
 
   class python_error : public std::runtime_error

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -105,9 +105,9 @@ std::string WorkbenchImpl::getSystemInfo(bool indent)
   app_InfoRef info(app_InfoRef::cast_from(_wb->get_grt()->get("/wb/info")));
 
   const char* tab = indent ? "\t" : "";
-  std::string result = strfmt("%s%s %s (%s) for " PLATFORM_NAME " version %i.%i.%i %s revision %i build %i (%s)\n",
+  std::string result = strfmt("%s%s %s (%s) for " PLATFORM_NAME " version %i.%i.%i %s build %i (%s)\n",
     tab, info->name().c_str(), APP_EDITION_NAME, APP_LICENSE_TYPE, APP_MAJOR_NUMBER, APP_MINOR_NUMBER, APP_RELEASE_NUMBER,
-                              APP_RELEASE_TYPE, APP_REVISION_NUMBER, APP_BUILD_NUMBER, ARCHITECTURE);
+                              APP_RELEASE_TYPE, APP_BUILD_NUMBER, ARCHITECTURE);
   result += strfmt("%sConfiguration Directory: %s\n", tab, _wb->get_grt_manager()->get_user_datadir().c_str());
   result += strfmt("%sData Directory: %s\n", tab, _wb->get_grt_manager()->get_basedir().c_str());
 
@@ -1857,7 +1857,12 @@ grt::DictListRef WorkbenchImpl::getLocalServerList()
     char *ster = NULL;
     int rc=0;
     GError *err = NULL;
-    if (g_spawn_command_line_sync("/bin/sh -c \"ps -ec | grep \\\"mysqld\\b\\\" | awk '{ print $1 }' | xargs -r ps -ww -o args= -p \"", &stdo, &ster, &rc, &err) && stdo)
+#ifdef __APPLE__
+    std::string cmd = "/bin/sh -c \"ps -ec | grep \\\"mysqld\\b\\\" | awk '{ print $1 }' | xargs ps -ww -o args= -p \"";
+#else
+    std::string cmd = "/bin/sh -c \"ps -ec | grep \\\"mysqld\\b\\\" | awk '{ print $1 }' | xargs -r ps -ww -o args= -p \"";
+#endif
+    if (g_spawn_command_line_sync(cmd.c_str(), &stdo, &ster, &rc, &err) && stdo)
     {
       std::string processes(stdo);
       

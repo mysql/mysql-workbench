@@ -416,14 +416,16 @@ class WbAdminServerStatus(mforms.Box):
                                ("SSL Key:", lambda info, plugins, status: info.get("ssl_key") or "n/a")],
                               params)
 
+        log_error("mysql_firewall_trace: %s\n" % info.get("mysql_firewall_trace"))
         log_error("Firewall_access_denied: %s\n" % status.get("Firewall_access_denied"))
         log_error("Firewall_access_granted: %s\n" % status.get("Firewall_access_granted"))
         log_error("Firewall_cached_entries: %s\n" % status.get("Firewall_cached_entries"))
 
-        if info.get("mysql_firewall_trace"):
+        if info.get("mysql_firewall_mode") == "ON":
             self.add_info_section("Firewall",
                                   [("Access denied:", lambda info, plugins, status: str(status.get("Firewall_access_denied")) or "n/a"),
                                   ("Access granted:", lambda info, plugins, status: str(status.get("Firewall_access_granted")) or "n/a"),
+                                  ("Access suspicious:", lambda info, plugins, status: str(status.get("Firewall_access_suspicious")) or "n/a"),
                                   ("Cached entries:", lambda info, plugins, status: str(status.get("Firewall_cached_entries")) or "n/a")],
                                   params)
 

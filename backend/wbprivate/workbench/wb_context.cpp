@@ -416,12 +416,11 @@ bool WBOptions::parse_args(char **argv, int argc, int *retval)
       if (strcmp(APP_EDITION_NAME, "Community") == 0)
         type = "CE";
 
-      printf("MySQL Workbench %s (%s) %i.%i.%i %i %s build %i\n"
+      printf("MySQL Workbench %s (%s) %i.%i.%i %s build %i\n"
              , type, APP_LICENSE_TYPE
              , APP_MAJOR_NUMBER
              , APP_MINOR_NUMBER
              , APP_RELEASE_NUMBER
-             , APP_REVISION_NUMBER
              , APP_RELEASE_TYPE
              , APP_BUILD_NUMBER
             );
@@ -1427,7 +1426,7 @@ void WBContext::init_grt_tree(grt::GRT *grt, WBOptions *options, boost::shared_p
     version->majorNumber(APP_MAJOR_NUMBER);
     version->minorNumber(APP_MINOR_NUMBER);
     version->releaseNumber(APP_RELEASE_NUMBER);
-    version->buildNumber(APP_REVISION_NUMBER);
+    version->buildNumber(APP_BUILD_NUMBER);
     version->status(1);
 
     info->name("MySQL Workbench");
@@ -1840,6 +1839,7 @@ void WBContext::set_default_options(grt::DictRef options)
 
   //Advanced options
   set_default(options, "sshkeepalive", 0); // by default turned off
+  set_default(options, "sshtimeout", 10);
 
   // Other options
   set_default(options, "workbench.physical.Connection:ShowCaptions", 0);

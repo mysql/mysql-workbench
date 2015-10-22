@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2004, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2004, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -204,6 +204,9 @@ void parse_table_options(db_mysql_TableRef &table, const std::string &optionsstr
   {
     std::vector<std::string> option_pair;
     split_string(*i, "=", option_pair);
+    if (option_pair.size() < 2)
+      continue; // Not a valid entry.
+
     const std::string &option_name= option_pair[0];
     const char *option_val= option_pair[1].c_str();
 

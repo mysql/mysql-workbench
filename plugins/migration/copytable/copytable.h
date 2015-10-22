@@ -26,7 +26,6 @@
 
 #include <errno.h>
 #include <stdlib.h>
-#include <iconv.h>
 
 #include <vector>
 #include <set>
@@ -230,7 +229,6 @@ class ODBCCopyDataSource : public CopyDataSource
 
   char *_blob_buffer;
   char *_utf8_blob_buffer;
-  iconv_t _iconv;
 
   bool _stmt_ok;
   bool _force_utf8_input;
@@ -293,12 +291,13 @@ class MySQLCopyDataTarget
   struct InsertBuffer
   {
     MYSQL *_mysql;
+    MySQLCopyDataTarget *_target;
     char *buffer;
     size_t length;
     size_t size;
     size_t last_insert_length;
 
-    InsertBuffer() : buffer(NULL), length(0), size(0), last_insert_length(0) {}
+    InsertBuffer(MySQLCopyDataTarget *target) : _target(target), buffer(NULL), length(0), size(0), last_insert_length(0) {}
     ~InsertBuffer() { if (buffer) free(buffer); }
     void reset(size_t size);
     void end_insert();

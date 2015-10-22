@@ -270,6 +270,10 @@ Please edit your connection settings and try again."""
         return grt.root.wb.options.options['sshkeepalive'] if grt.root.wb.options.options['sshkeepalive'] is not None else 0
 
     @property
+    def ssh_timeout(self):
+        return grt.root.wb.options.options['sshtimeout'] if grt.root.wb.options.options['sshtimeout'] is not None else 10
+
+    @property
     def wmi_hostname(self):
         return self._str_login_info("wmi.hostName")
 
