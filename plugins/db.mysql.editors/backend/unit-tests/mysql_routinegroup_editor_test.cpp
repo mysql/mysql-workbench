@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -107,7 +107,7 @@ const char* routine_sql =
   model.routineGroup->name("rg");
   MySQLRoutineGroupEditorBE rg(wbt.wb->get_grt_manager(), model.routineGroup);
 
-  // Note: use_sql is a special functions only for tests like this. The normal access function
+  // Note: use_sql is a special function only for tests like this. The normal access function
   //       set_sql() is interacting with the associated code editor. We don't have a working editor
   //       in unit tests, however.
   rg.use_sql(routine_sql);
@@ -197,7 +197,7 @@ const char* routine_sql =
 
   rg.use_sql(routine_sql);
 
-  std::string names[] = {"get_count_SYNTAX_ERROR", "get_count1", "rg_SYNTAX_ERROR_1"};
+  std::string names[] = { "rg_SYNTAX_ERROR_1", "get_count1", "get_count2_SYNTAX_ERROR" };
   assure_equal(model.routineGroup->routines().count(), sizeof(names) / sizeof(names[0]));
   for (size_t i = 0, size = model.routineGroup->routines().count(); i < size; i++)
   {

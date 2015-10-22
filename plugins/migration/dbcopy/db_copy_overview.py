@@ -42,6 +42,7 @@ class MainView(WizardPage):
         box = mforms.newBox(True)
         box.add(mforms.newLabel(''), True, True)
         button_start = mforms.newButton()
+        button_start.set_size(150, -1)
         button_start.set_text('Start the Wizard')
         button_start.add_clicked_callback(self.main.go_next_page)
         box.add(button_start, False, False)

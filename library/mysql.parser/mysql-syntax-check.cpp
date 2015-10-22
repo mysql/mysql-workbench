@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -149,7 +149,7 @@ void MySQLSyntaxChecker::parse(const char *text, size_t length, bool is_utf8, My
 void MySQLSyntaxChecker::set_sql_mode(const std::string &new_mode)
 {
   MySQLRecognitionBase::set_sql_mode(new_mode);
-  d->_context.sql_mode = sql_mode();
+  d->_context.sqlMode = sql_mode();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,9 +168,17 @@ long MySQLSyntaxChecker::server_version()
 
 //--------------------------------------------------------------------------------------------------
 
-const char* MySQLSyntaxChecker::text()
+std::string MySQLSyntaxChecker::text()
+{
+  return std::string(d->_text, d->_text_length);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+const char* MySQLSyntaxChecker::lineStart()
 {
   return d->_text;
 }
 
 //--------------------------------------------------------------------------------------------------
+

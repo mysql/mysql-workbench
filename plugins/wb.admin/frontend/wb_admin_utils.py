@@ -79,6 +79,25 @@ def make_panel_header(icon, title, subtitle, button=None):
         table.add(button, 2, 3, 0, 2, mforms.HFillFlag)
     return table
 
+def show_error_page(parent, text):
+
+    if not hasattr(parent, '_error_label'):
+        parent._error_label = None
+
+    if parent._error_label is None:
+        parent._error_label = mforms.newLabel(text)
+        parent._error_label.set_style(mforms.BoldStyle)
+        parent._error_label.set_text_align(mforms.MiddleCenter)
+        parent.add(parent._error_label, True, True)
+
+def remove_error_page_if_exists(parent):
+
+    if not hasattr(parent, '_error_label'):
+        parent._error_label = None
+
+    if parent._error_label:
+        parent.remove(parent._error_label)
+
 
 
 class WbAdminBaseTab(mforms.Box):

@@ -109,7 +109,7 @@
 
   { "category" : "problems",
     "view" : "x$statements_with_runtimes_in_95th_percentile",
-    "description" : "List all statements who's average runtime, in microseconds is in highest 5 percent",
+    "description" : "List all statements whose average runtime, in microseconds is in highest 5 percent",
     "caption" : "Statements in Highest 5 Percent by Runtime",
     "columns" : [["Query", "query", "String", 300],
                  ["Full Table Scan", "full_scan", "String", 50],

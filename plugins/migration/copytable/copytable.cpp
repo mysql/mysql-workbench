@@ -79,6 +79,7 @@ static const char *mysql_field_type_to_name(enum enum_field_types type)
     case MYSQL_TYPE_VAR_STRING: return "MYSQL_TYPE_VAR_STRING";
     case MYSQL_TYPE_STRING: return "MYSQL_TYPE_STRING";
     case MYSQL_TYPE_GEOMETRY: return "MYSQL_TYPE_GEOMETRY";
+    case MYSQL_TYPE_JSON: return "MYSQL_TYPE_JSON";
     default:
       return "UNKNOWN";
   }
@@ -240,6 +241,7 @@ RowBuffer::RowBuffer(boost::shared_ptr<std::vector<ColumnInfo> > columns,
       case MYSQL_TYPE_STRING:
       case MYSQL_TYPE_VAR_STRING:
       case MYSQL_TYPE_BIT:
+      case MYSQL_TYPE_JSON:
         if (!col->is_long_data)
           bind.buffer_length = (unsigned)col->source_length+1;
 
@@ -600,10 +602,6 @@ ODBCCopyDataSource::ODBCCopyDataSource(SQLHENV env,
   _utf8_blob_buffer = NULL;
   _force_utf8_input = force_utf8_input;
 
-  _iconv = iconv_open("UTF-8", "UCS-2LE");
-  if (_iconv == (iconv_t)-1)
-    throw std::runtime_error("Could not create UCS-2 to UTF-8 conversion context");
-
   SQLAllocHandle(SQL_HANDLE_DBC, env, &_dbc);
 
   // 5s timeout
@@ -633,7 +631,6 @@ ODBCCopyDataSource::~ODBCCopyDataSource()
     free(_blob_buffer);
   if (_utf8_blob_buffer)
     free(_utf8_blob_buffer);
-  iconv_close(_iconv);
 
   if (_stmt_ok)
     SQLFreeHandle(SQL_HANDLE_ENV, _stmt);
@@ -643,8 +640,6 @@ ODBCCopyDataSource::~ODBCCopyDataSource()
 
 void ODBCCopyDataSource::ucs2_to_utf8(char *inbuf, size_t inbuf_len, char *&utf8buf, size_t &utf8buf_len)
 {
-  size_t converted;
-  char *outbuf = (char*)_utf8_blob_buffer;
   size_t outbuf_len = _max_blob_chunk_size;
 
   // outside Windows, SQLWCHAR is wchar_t, which is not always 2 bytes
@@ -662,17 +657,15 @@ void ODBCCopyDataSource::ucs2_to_utf8(char *inbuf, size_t inbuf_len, char *&utf8
   //log_debug3("Convert string with %i chars to buffer size %i\n", inbuf_len, outbuf_len);
 
   // convert data from UCS-2 to utf-8
-#ifdef _WIN32
-  converted = iconv(_iconv,
-                    (const char**)&inbuf, &inbuf_len,
-                    (char**)&outbuf, &outbuf_len);
-#else
-  converted = iconv(_iconv,
-                    (char**)&inbuf, &inbuf_len,
-                    (char**)&outbuf, &outbuf_len);
-#endif
-  if (converted == (size_t)-1)
+  std::string s_outbuf = base::wstring_to_string((wchar_t*)inbuf);
+  outbuf_len = s_outbuf.size();
+  if (outbuf_len > _max_blob_chunk_size - 1)
+	  throw std::logic_error("Output buffer size is greater than max blob chunk size.");
+
+  if (s_outbuf.empty())
     throw std::logic_error(base::strfmt("Error during charset conversion of wstring: %s", strerror(errno)));
+
+  std::strcpy(_utf8_blob_buffer, s_outbuf.c_str());
 
   if (inbuf_len > 0)
     log_warning("%li characters could not be converted to UTF-8 during copy\n",
@@ -706,9 +699,7 @@ SQLRETURN ODBCCopyDataSource::get_wchar_buffer_data(RowBuffer &rowbuffer, int co
     {
       char *inbuf = (char*)tmpbuf;
       size_t inbuf_len = len_or_indicator;
-      char *outbuf = (char*)out_buffer;
       size_t outbuf_len = out_buffer_len;
-      size_t converted;
 
       if (sizeof(SQLWCHAR) > sizeof(unsigned short))
       {
@@ -724,17 +715,17 @@ SQLRETURN ODBCCopyDataSource::get_wchar_buffer_data(RowBuffer &rowbuffer, int co
       //log_debug3("Convert string with %i chars to buffer size %i\n", inbuf_len, outbuf_len);
 
       // convert data from UCS-2 to utf-8
-#ifdef _WIN32
-      converted = iconv(_iconv,
-                        (const char**)&inbuf, &inbuf_len,
-                        (char**)&outbuf, &outbuf_len);
-#else
-      converted = iconv(_iconv,
-                        (char**)&inbuf, &inbuf_len,
-                        (char**)&outbuf, &outbuf_len);
-#endif
-      if (converted == (size_t)-1)
+      std::string s_outbuf = base::wstring_to_string((wchar_t*)tmpbuf);
+      //log_debug3("get_wchar_buffer_data wstring_to_string i<%S> o<%s>\n", (wchar_t*)tmpbuf, s_outbuf.c_str());
+
+      outbuf_len = s_outbuf.size();
+      if (outbuf_len > _max_blob_chunk_size - 1)
+      	  throw std::logic_error("Output buffer size is greater than max blob chunk size.");
+
+      if (s_outbuf.empty())
         throw std::logic_error(base::strfmt("Error during charset conversion of wstring: %s", strerror(errno)));
+
+	  std::strcpy(out_buffer, s_outbuf.c_str());
 
       if (inbuf_len > 0)
         log_warning("%li characters could not be converted to UTF-8 from column %s during copy\n",
@@ -821,9 +812,7 @@ SQLRETURN ODBCCopyDataSource::get_geometry_buffer_data(RowBuffer &rowbuffer, int
     {
       char *inbuf = (char*)tmpbuf;
       size_t inbuf_len = len_or_indicator;
-      char *outbuf = out_buffer;
       size_t outbuf_len = out_buffer_len;
-      size_t converted;
 
       if (sizeof(SQLWCHAR) > sizeof(unsigned short))
       {
@@ -837,17 +826,15 @@ SQLRETURN ODBCCopyDataSource::get_geometry_buffer_data(RowBuffer &rowbuffer, int
         throw std::logic_error("Unexpected architecture. sizeof(SQLWCHAR) < sizeof(unsigned short)!");
 
       // convert data from UCS-2 to utf-8
-#ifdef _WIN32
-      converted = iconv(_iconv,
-                        (const char**)&inbuf, &inbuf_len,
-                        (char**)&outbuf, &outbuf_len);
-#else
-      converted = iconv(_iconv,
-                        (char**)&inbuf, &inbuf_len,
-                        (char**)&outbuf, &outbuf_len);
-#endif
-      if (converted == (size_t)-1)
+      std::string s_outbuf = base::wstring_to_string((wchar_t*)tmpbuf);
+      outbuf_len = s_outbuf.size();
+      if (outbuf_len > _max_blob_chunk_size - 1)
+      	  throw std::logic_error("Output buffer size is greater than max blob chunk size.");
+
+      if (s_outbuf.empty())
         throw std::logic_error(base::strfmt("Error during charset conversion of wstring: %s", strerror(errno)));
+
+      std::strcpy(out_buffer, s_outbuf.c_str());
 
       if (inbuf_len > 0)
         log_warning("%lu characters could not be converted to UTF-8 from column %s during copy\n",
@@ -1564,7 +1551,8 @@ bool MySQLCopyDataSource::fetch_row(RowBuffer &rowbuffer)
             rowbuffer[index].buffer_type == MYSQL_TYPE_LONG_BLOB ||
             rowbuffer[index].buffer_type == MYSQL_TYPE_BLOB ||
             rowbuffer[index].buffer_type == MYSQL_TYPE_STRING ||
-            rowbuffer[index].buffer_type == MYSQL_TYPE_GEOMETRY)
+            rowbuffer[index].buffer_type == MYSQL_TYPE_GEOMETRY ||
+            rowbuffer[index].buffer_type == MYSQL_TYPE_JSON)
           {
             if (rowbuffer[index].buffer_length)
               free(rowbuffer[index].buffer);
@@ -1909,7 +1897,8 @@ MySQLCopyDataTarget::MySQLCopyDataTarget(const std::string &hostname, int port,
                     const std::string &socket, bool use_cleartext_plugin, const std::string &app_name,
                     const std::string &incoming_charset, const std::string &source_rdbms_type)
 : _insert_stmt(NULL), _max_allowed_packet(1000000), _max_long_data_size(1000000),// 1M default
-  _row_buffer(NULL), _major_version(0), _minor_version(0), _build_version(0), _use_bulk_inserts(true),
+_row_buffer(NULL), _major_version(0), _minor_version(0), _build_version(0),
+_use_bulk_inserts(true), _bulk_insert_buffer(this), _bulk_insert_record(this),
   _bulk_insert_batch(0), _source_rdbms_type(source_rdbms_type)
 {
   std::string host = hostname;
@@ -2368,6 +2357,7 @@ bool MySQLCopyDataTarget::append_bulk_column(size_t col_index)
     case MYSQL_TYPE_STRING:
     case MYSQL_TYPE_ENUM:
     case MYSQL_TYPE_SET:
+    case MYSQL_TYPE_JSON:
       _bulk_insert_record.append("'", 1);
       ret_val = _bulk_insert_record.append_escaped((char*)(*_row_buffer)[col_index].buffer, *(*_row_buffer)[col_index].length);
       _bulk_insert_record.append("'", 1);
@@ -2870,16 +2860,17 @@ bool MySQLCopyDataTarget::InsertBuffer::append_escaped(const char *data, size_t 
 
   // This function is used to create a legal SQL string that you can use in an SQL statement
   // This is needed because the escaping depends on the character set in use by the server
-  #if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
-  #if MYSQL_CHECK_VERSION(5,7,6)
-    if (is_mysql_version_at_least(5,7,6))
-      length += mysql_real_escape_string_quote(_mysql, buffer + length, data, (unsigned long)dlength);
-    else
-      length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
-  #else
-    length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
-  #endif
-  #endif
+  length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
+//  #if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
+//  #if MYSQL_CHECK_VERSION(5, 7, 6)
+//    if (_target->is_mysql_version_at_least(5, 7, 6))
+//      length += mysql_real_escape_string_quote(_mysql, buffer + length, data, (unsigned long)dlength, '`');
+//    else
+//      length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
+//  #else
+//    length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
+//  #endif
+//  #endif
 
   return true;
 }

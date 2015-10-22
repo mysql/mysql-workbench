@@ -31,6 +31,7 @@
 #include <string.h>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
+#include <boost/locale/encoding_utf.hpp>
 #endif
 
 DEFAULT_LOG_DOMAIN(DOMAIN_BASE);
@@ -276,6 +277,8 @@ namespace base {
 
 #ifdef _WIN32
 
+// Win uses C++11 with support for wstring_convert. Other platforms use boost for now.
+
 //--------------------------------------------------------------------------------------------------
 
 static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
@@ -307,11 +310,27 @@ std::wstring path_from_utf8(const std::string &s)
 
 #else
 
+using boost::locale::conv::utf_to_utf;
+
+std::wstring string_to_wstring(const std::string &str)
+{
+  return utf_to_utf<wchar_t>(str.c_str(), str.c_str() + str.size());
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::string wstring_to_string(const std::wstring &str)
+{
+  return utf_to_utf<char>(str.c_str(), str.c_str() + str.size());
+}
+
+//--------------------------------------------------------------------------------------------------
+  
 std::string path_from_utf8(const std::string &s)
 {
   return s;
 }
-
+  
 #endif
 
 //--------------------------------------------------------------------------------------------------
@@ -1212,6 +1231,54 @@ std::string escape_sql_string(const std::string &s, bool wildcards)
 }
 
 /**
+ * Escape a string to be used in a JSON
+ */
+std::string escape_json_string(const std::string &s)
+{
+  std::string result;
+  result.reserve(s.size());
+  for (std::string::const_iterator ch= s.begin(); ch != s.end(); ++ch)
+  {
+    char escape = 0;
+    switch (*ch)
+    {
+    case '"':
+      escape = '"';
+      break;
+    case '\\':
+      escape = '\\';
+      break;
+    case '\b':
+      escape = 'b';
+      break;
+    case '\f':
+      escape = 'f';
+      break;
+    case '\n':
+      escape = 'n';
+      break;
+    case '\r':
+      escape = 'r';
+      break;
+    case '\t':
+      escape = 't';
+      break;
+    default:
+      break;
+    }
+    if (escape)
+    {
+      result.push_back('\\');
+      result.push_back(escape);
+    }
+    else
+      result.push_back(*ch);
+  }
+  return result;
+
+}
+
+/**
  * Removes repeated quote chars and supported escape sequences from the given string.
  * Invalid escape sequences are handled like in the server, by dropping the backslash and
  * using the wrong char as normal char.
@@ -1422,7 +1489,25 @@ std::string unquote_identifier(const std::string& identifier)
 }
 
 //--------------------------------------------------------------------------------------------------
-  
+
+/**
+ * @brief Remove outer quotes from any text.
+ *
+ * @param text Text to unquote
+ * @return Return unqoted text.
+ */
+std::string unquote(const std::string &text)
+{
+  if (text.size() < 2)
+    return text;
+
+  if ((text[0] == '"' || text[0] == '`' || text[0] == '\'') && text[0] == text[text.size() - 1])
+    return text.substr(1, text.size() - 2);
+  return text;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 std::string quote_identifier(const std::string& identifier, const char quote_char)
 {
   return quote_char + identifier + quote_char;
@@ -1474,6 +1559,22 @@ bool is_number(const std::string &word)
   for (; i < word.size(); i++)
     if (!isdigit(word[i]))
       return false;
+  return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * @brief Determine if a string is a boolean.
+ *
+ * @param text Text to check
+ * @return Return true if given string is a boolean.
+ */
+bool isBool(const std::string &text)
+{
+  std::string lower = tolower(text);
+  if (lower.compare("true") != 0 && lower.compare("false") != 0)
+    return false;
   return true;
 }
 

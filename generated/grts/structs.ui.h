@@ -16,7 +16,8 @@
 #include <grts/structs.h>
 #include <grts/structs.db.mgmt.h>
 #include <grts/structs.model.h>
-#include "grts/structs.wrapper.h"
+#include <grts/structs.wrapper.h>
+
 
 class ui_db_ConnectPanel;
 typedef grt::Ref<ui_db_ConnectPanel> ui_db_ConnectPanelRef;
@@ -24,10 +25,6 @@ class ui_ObjectEditor;
 typedef grt::Ref<ui_ObjectEditor> ui_ObjectEditorRef;
 class ui_ModelPanel;
 typedef grt::Ref<ui_ModelPanel> ui_ModelPanelRef;
-
-
-class mforms_ObjectReference;
-typedef grt::Ref<mforms_ObjectReference> mforms_ObjectReferenceRef;
 
 
 namespace mforms { 

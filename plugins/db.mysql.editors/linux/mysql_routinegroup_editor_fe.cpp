@@ -21,6 +21,7 @@
 #include "gtk/mforms_gtk.h"
 #include <sstream>
 #include "text_list_columns_model.h"
+#include "workbench/wb_context.h"
 
 //==============================================================================
 //
@@ -98,8 +99,9 @@ DbMySQLRoutineGroupEditor::DbMySQLRoutineGroupEditor(grt::Module *m, bec::GRTMan
   _rg_list->signal_row_activated().connect(sigc::mem_fun(this, &DbMySQLRoutineGroupEditor::activate_row));
 
   // Setup DnD
-  std::vector<Gtk::TargetEntry> targets;  
-  targets.push_back(Gtk::TargetEntry("x-mysql-wb/db.DatabaseObject", Gtk::TARGET_SAME_APP));
+  std::vector<Gtk::TargetEntry> targets;
+
+  targets.push_back(Gtk::TargetEntry(WB_DBOBJECT_DRAG_TYPE, Gtk::TARGET_SAME_APP));
   _rg_list->drag_dest_set(targets, Gtk::DEST_DEFAULT_ALL,Gdk::ACTION_COPY);
   _rg_list->signal_drag_data_received().connect(sigc::mem_fun(this, &DbMySQLRoutineGroupEditor::on_routine_drop));
   _rg_list->signal_event().connect(sigc::mem_fun(*this, &DbMySQLRoutineGroupEditor::process_event));
@@ -215,7 +217,7 @@ void DbMySQLRoutineGroupEditor::on_routine_drop(const Glib::RefPtr<Gdk::DragCont
 {
   bool dnd_status = false;
   
-  if ( selection_data.get_target() == "x-mysql-wb/db.DatabaseObject" )
+  if ( selection_data.get_target() == WB_DBOBJECT_DRAG_TYPE)
   {
     std::list<db_DatabaseObjectRef> objects;
 

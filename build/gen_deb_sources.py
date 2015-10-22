@@ -4,7 +4,7 @@
 # from the input debian.in directory contents
 
 
-output_distros = [("vivid", "ubu1504"), ("utopic", "ubu1410"), ("trusty", "ubu1404"), ("precise", "ubu1204")]
+output_distros = [("vivid", "ubu1504", ""), ("utopic", "ubu1410", 'paramiko'), ("trusty", "ubu1404",'paramiko'), ("precise", "ubu1204", 'paramiko')]
 
 editions = ["community", "commercial"]
 
@@ -18,8 +18,8 @@ def preprocess(inpath, inf, outf, vars):
         # @endif
         # Where variable is the name of the distro or of the edition
 
-        def evaluate(options, distro, edition):
-                return distro in options or edition in options
+        def evaluate(options, distro, edition, bundle):
+                return distro in options or edition in options or bundle in options
 
         conditions = [True]
 
@@ -32,10 +32,10 @@ def preprocess(inpath, inf, outf, vars):
                         d, _, args = line.strip().partition(" ")
                         conds = [s.strip() for s in args.split()]
                         if d == "@ifdef":
-                                conditions.append(evaluate(conds, vars['distro'], vars['edition']))
+                                conditions.append(evaluate(conds, vars['distro'], vars['edition'], vars['bundle']))
                                 continue
                         elif d == "@ifndef":
-                                conditions.append(not evaluate(conds, vars['distro'], vars['edition']))
+                                conditions.append(not evaluate(conds, vars['distro'], vars['edition'], vars['bundle']))
                                 continue
                         elif d == "@else":
                                 conditions[-1] = not conditions[-1]
@@ -79,11 +79,12 @@ def generate_distro(source_dir, vars):
 
         print target_dir, "generated"
 
-for distro, distro_version in output_distros:
+for distro, distro_version, bundle in output_distros:
         for edition in editions:
                 vars = {}
                 vars['distro'] = distro
                 vars['distrov'] = distro_version
                 vars['edition'] = edition
+                vars['bundle'] = bundle
                 generate_distro("debian.in", vars)
 

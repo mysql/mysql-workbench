@@ -1,10 +1,9 @@
-#ifndef __grts_structs_meta_h__
-#define __grts_structs_meta_h__
+#pragma once
 
 #include <grtpp.h>
 
 #ifdef _WIN32
-  #pragma warning(disable: 4355) // 'this' : used in base member initizalizer list
+  #pragma warning(disable: 4355) // 'this' : used in base member initializer list
   #ifdef GRT_STRUCTS_META_EXPORT
   #define GRT_STRUCTS_META_PUBLIC __declspec(dllexport)
 #else
@@ -23,6 +22,14 @@ typedef grt::Ref<meta_TaggedObject> meta_TaggedObjectRef;
 class meta_Tag;
 typedef grt::Ref<meta_Tag> meta_TagRef;
 
+
+namespace mforms { 
+  class Object;
+}; 
+
+namespace grt { 
+  class AutoPyObject;
+}; 
 
 class  meta_TaggedObject : public GrtObject
 {
@@ -63,14 +70,14 @@ obj.description = value
    \par In Python:
 value = obj.object
    */
-  grt::Ref<db_DatabaseObject> object() const { return _object; }
+  db_DatabaseObjectRef object() const { return _object; }
   /** Setter for attribute object
    
     
     \par In Python:
 obj.object = value
    */
-  virtual void object(const grt::Ref<db_DatabaseObject> &value)
+  virtual void object(const db_DatabaseObjectRef &value)
   {
     grt::ValueRef ovalue(_object);
    _object= value;
@@ -80,7 +87,7 @@ obj.object = value
 protected:
 
   grt::StringRef _description;
-  grt::Ref<db_DatabaseObject> _object;
+  db_DatabaseObjectRef _object;
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
@@ -100,9 +107,9 @@ public:
       meta->bind_member("description", new grt::MetaClass::Property<meta_TaggedObject,grt::StringRef >(getter,setter));
     }
     {
-      void (meta_TaggedObject::*setter)(const grt::Ref<db_DatabaseObject> &)= &meta_TaggedObject::object;
-      grt::Ref<db_DatabaseObject> (meta_TaggedObject::*getter)() const= &meta_TaggedObject::object;
-      meta->bind_member("object", new grt::MetaClass::Property<meta_TaggedObject,grt::Ref<db_DatabaseObject> >(getter,setter));
+      void (meta_TaggedObject::*setter)(const db_DatabaseObjectRef &)= &meta_TaggedObject::object;
+      db_DatabaseObjectRef (meta_TaggedObject::*getter)() const= &meta_TaggedObject::object;
+      meta->bind_member("object", new grt::MetaClass::Property<meta_TaggedObject,db_DatabaseObjectRef >(getter,setter));
     }
   }
 };
@@ -130,14 +137,14 @@ public:
    \par In Python:
 value = obj.category
    */
-  grt::Ref<GrtObject> category() const { return _category; }
+  GrtObjectRef category() const { return _category; }
   /** Setter for attribute category
    
     
     \par In Python:
 obj.category = value
    */
-  virtual void category(const grt::Ref<GrtObject> &value)
+  virtual void category(const GrtObjectRef &value)
   {
     grt::ValueRef ovalue(_category);
    _category= value;
@@ -222,7 +229,7 @@ public:
 
 protected:
 
-  grt::Ref<GrtObject> _category;
+  GrtObjectRef _category;
   grt::StringRef _color;
   grt::StringRef _description;
   grt::StringRef _label;
@@ -241,9 +248,9 @@ public:
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&meta_Tag::create);
     {
-      void (meta_Tag::*setter)(const grt::Ref<GrtObject> &)= &meta_Tag::category;
-      grt::Ref<GrtObject> (meta_Tag::*getter)() const= &meta_Tag::category;
-      meta->bind_member("category", new grt::MetaClass::Property<meta_Tag,grt::Ref<GrtObject> >(getter,setter));
+      void (meta_Tag::*setter)(const GrtObjectRef &)= &meta_Tag::category;
+      GrtObjectRef (meta_Tag::*getter)() const= &meta_Tag::category;
+      meta->bind_member("category", new grt::MetaClass::Property<meta_Tag,GrtObjectRef >(getter,setter));
     }
     {
       void (meta_Tag::*setter)(const grt::StringRef &)= &meta_Tag::color;
@@ -281,4 +288,3 @@ inline void register_structs_meta_xml()
 static struct _autoreg__structs_meta_xml { _autoreg__structs_meta_xml() { register_structs_meta_xml(); } } __autoreg__structs_meta_xml;
 #endif
 
-#endif

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,19 +32,12 @@ namespace MySQL.GUI.Workbench.Plugins
     {
       get { return editorPlugin; }
     }
-    protected void SetEditorPlugin(ObjectEditorPlugin value)
-    {
-      editorPlugin = value;
-      Controls.Clear();
 
-      if (editorPlugin != null)
-      {
-        // That's quite an ugly hack. Relocate all controls from one DockablePlugin to the other.
-        while (editorPlugin.Controls.Count > 0)
-          editorPlugin.Controls[0].Parent = this;
-      }
-    }
-
+    protected ObjectEditorView()
+      : base()
+		{
+		}
+    
     public ObjectEditorView(ObjectEditorPlugin plugin)
       : base(plugin.GrtManager)
     {
@@ -62,6 +55,19 @@ namespace MySQL.GUI.Workbench.Plugins
       {
         editorPlugin.Dispose();
         editorPlugin = null;
+      }
+    }
+
+    protected void SetEditorPlugin(ObjectEditorPlugin value)
+    {
+      editorPlugin = value;
+      Controls.Clear();
+
+      if (editorPlugin != null)
+      {
+        // That's quite an ugly hack. Relocate all controls from one DockablePlugin to the other.
+        while (editorPlugin.Controls.Count > 0)
+          editorPlugin.Controls[0].Parent = this;
       }
     }
 

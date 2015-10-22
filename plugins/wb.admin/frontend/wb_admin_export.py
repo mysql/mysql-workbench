@@ -1020,8 +1020,14 @@ class WbAdminImportTab(WbAdminSchemaListTab):
                     schema = line.partition("Database: ")[-1].strip()
                     if table:
                         break
-                elif line.startswith("CREATE TABLE"):
-                    table = line.rstrip("\n\r (").partition("CREATE TABLE")[-1].strip()
+                elif not table and line.startswith("-- Table structure for table"):
+                    table = line.partition("-- Table structure for table")[-1].strip()
+                    if table[0] == '`':
+                        table = table[1:-1]
+                    if schema:
+                        break
+                elif not table and line.startswith("-- Dumping data for table"):
+                    table = line.partition("-- Dumping data for table")[-1].strip()
                     if table[0] == '`':
                         table = table[1:-1]
                     if schema:

@@ -16,7 +16,10 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
+#ifndef _WIN32
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Winvalid-source-encoding"
+#endif
 #include "test.h"
 #include "mforms/utilities.h"
 #include "stub/stub_mforms.h"
@@ -46,3 +49,6 @@ TEST_FUNCTION(1)
 }
 
 END_TESTS
+#ifndef _WIN32
+#pragma GCC diagnostic pop
+#endif

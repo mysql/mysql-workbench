@@ -178,8 +178,9 @@ class AdministratorTab(mforms.AppView):
 
     #---------------------------------------------------------------------------
     def remove_page(self, page):
-        self.tabs.remove(page)
-        self.tabview.remove_page(page)
+        if page in self.tabs:
+            self.tabs.remove(page)
+            self.tabview.remove_page(page)
 
     #---------------------------------------------------------------------------
     def select_page(self, page):

@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("WBControls.Design")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Oracle Corporation")]
 [assembly: AssemblyProduct("WBControls.Design")]
-[assembly: AssemblyCopyright("Copyright © Oracle and/or its affiliates 2014")]
+[assembly: AssemblyCopyright("Copyright (c) 2014, 2015, Oracle and/or its affiliates")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

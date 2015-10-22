@@ -137,9 +137,8 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>glib\glib-2.0.lib;glib\gthread-2.0.lib;pcre\$(Configuration)\pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -157,9 +156,8 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>glib\glib-2.0.lib;glib\gthread-2.0.lib;pcre\$(Configuration)\pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -182,9 +180,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>glib\glib-2.0.lib;glib\gthread-2.0.lib;pcre\$(Configuration)\pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -204,9 +201,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>glib\glib-2.0.lib;glib\gthread-2.0.lib;pcre\$(Configuration)\pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">
@@ -226,9 +222,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>glib\glib-2.0.lib;glib\gthread-2.0.lib;pcre\$(Configuration)\pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
@@ -248,12 +243,12 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\gthread-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>glib\glib-2.0.lib;glib\gthread-2.0.lib;pcre\$(Configuration)\pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="base\event_log.cpp" />
     <ClCompile Include="config_file.cpp" />
     <ClCompile Include="debugging.cpp" />
     <ClCompile Include="drawing.cpp" />
@@ -285,6 +280,7 @@
     <ClInclude Include="base\debugging.h" />
     <ClInclude Include="base\drawing.h" />
     <ClInclude Include="base\entities.h" />
+    <ClInclude Include="base\event_log.h" />
     <ClInclude Include="base\file_functions.h" />
     <ClInclude Include="base\file_utilities.h" />
     <ClInclude Include="base\geometry.h" />

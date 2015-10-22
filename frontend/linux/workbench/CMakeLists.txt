@@ -49,6 +49,7 @@ include_directories(.
     ${MYSQLCPPCONN_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
     ${GNOME_KEYRING_INCLUDE_DIRS}
+    ${VSQLITE_INCLUDE_DIRS}
 )
 
 #link_directories(${PROJECT_BINARY_DIR}/mysqlcppconnector/lib ${PROJECT_BINARY_DIR}/antlr-wb)

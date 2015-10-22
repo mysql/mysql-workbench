@@ -28,7 +28,7 @@ class UtilitiesWrapper
 {
   static boost::function<void (std::string)> open_url_slot;
   static boost::function<mforms::DialogResult (void)> message_callback;
-  static std::map<const std::string, std::string> passwords;
+  static std::map<const std::string, std::string>& passwords();
 
   static int show_message(const std::string &title, const std::string &text,
                           const std::string &ok, const std::string &cancel,

@@ -135,6 +135,7 @@ class WbAdminConfigurationStartup(mforms.Box):
 
         button_box = newBox(True)
         self.refresh_button = newButton()
+        self.refresh_button.set_size(150, -1)
         self.refresh_button.set_text("Refresh Status")
         self.refresh_button.add_clicked_callback(lambda:self.refresh(True))
         button_box.add(self.refresh_button, False, False)
