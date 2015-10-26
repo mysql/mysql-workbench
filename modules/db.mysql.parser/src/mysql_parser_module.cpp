@@ -344,6 +344,7 @@ static std::string getCharsetName(MySQLRecognizerTreeWalker &walker)
 
   walker.next();
   walker.skip_if(SET_SYMBOL); // From CHAR SET.
+  walker.skip_if(EQUAL_OPERATOR);
 
   if (walker.is(BINARY_SYMBOL))
   {
@@ -909,31 +910,34 @@ static void fillTablePartitioning(MySQLRecognizerTreeWalker &walker, db_mysql_Ta
     walker.next();
   }
 
-  walker.next(2); // Skip SUBPARTITION BY.
-  linear = walker.skip_if(LINEAR_SYMBOL);
-  table->subpartitionType((linear ? "LINEAR " : "") + base::toupper(walker.token_text()));
-  if (walker.is(HASH_SYMBOL))
-  {
-    walker.next();
-    table->subpartitionExpression(getExpression(walker));
-  }
-  else
-  {
-    // Otherwise KEY type.
-    if (walker.is(ALGORITHM_SYMBOL))
-    {
-      walker.next(2); // Skip ALGORTIHM EQUAL.
-      table->subpartitionKeyAlgorithm(base::atoi<size_t>(walker.token_text()));
-      walker.next();
-    }
-    table->subpartitionExpression(getValueList(walker));
-  }
-
   if (walker.is(SUBPARTITIONS_SYMBOL))
   {
-    walker.next();
-    table->subpartitionCount(base::atoi<size_t>(walker.token_text()));
-    walker.next();
+    walker.next(2); // Skip SUBPARTITION BY.
+    linear = walker.skip_if(LINEAR_SYMBOL);
+    table->subpartitionType((linear ? "LINEAR " : "") + base::toupper(walker.token_text()));
+    if (walker.is(HASH_SYMBOL))
+    {
+      walker.next();
+      table->subpartitionExpression(getExpression(walker));
+    }
+    else
+    {
+      // Otherwise KEY type.
+      if (walker.is(ALGORITHM_SYMBOL))
+      {
+        walker.next(2); // Skip ALGORTIHM EQUAL.
+        table->subpartitionKeyAlgorithm(base::atoi<size_t>(walker.token_text()));
+        walker.next();
+      }
+      table->subpartitionExpression(getValueList(walker));
+    }
+
+    if (walker.is(SUBPARTITIONS_SYMBOL))
+    {
+      walker.next();
+      table->subpartitionCount(base::atoi<size_t>(walker.token_text()));
+      walker.next();
+    }
   }
 
   // Finally the partition definitions.
@@ -2844,11 +2848,9 @@ static void fillSchemaOptions(MySQLRecognizerTreeWalker &walker, db_mysql_Catalo
     switch (walker.token_type())
     {
     case CHAR_SYMBOL: // CHARACTER is mapped to CHAR.
+    case CHARSET_SYMBOL:
     {
-      walker.next(2); // Skip CHARACTER SET.
-      walker.skip_if(EQUAL_OPERATOR);
-
-      std::pair<std::string, std::string> info = detailsForCharset(walker.token_text(),
+      std::pair<std::string, std::string> info = detailsForCharset(getCharsetName(walker),
         defaultCollation, defaultCharset);
       schema->defaultCharacterSetName(info.first);
       schema->defaultCollationName(info.second);
@@ -2858,7 +2860,8 @@ static void fillSchemaOptions(MySQLRecognizerTreeWalker &walker, db_mysql_Catalo
 
     case COLLATE_SYMBOL:
     {
-      walker.next(); // Skip COLLATE.
+      walker.next();
+      walker.skip_if(EQUAL_OPERATOR);
 
       std::pair<std::string, std::string> info = detailsForCollation(walker.token_text(), defaultCollation);
       schema->defaultCharacterSetName(info.first);
