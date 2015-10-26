@@ -18,16 +18,9 @@
  */
 #pragma once
 
-#ifdef _WIN32
+#ifdef _WIN32 
 
 #include "common.h"
-#include <string>
-#include <functional>
-#include <map>
-#include <windows.h>
-#include <sddl.h>
-#include <stdio.h>
-#include <winevt.h>
 
 struct BASELIBRARY_PUBLIC_FUNC EventLogReader
 {
