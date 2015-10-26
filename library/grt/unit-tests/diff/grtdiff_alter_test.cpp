@@ -1211,7 +1211,7 @@ TEST_FUNCTION(10)
     tester.get_rdbms()->version(), false);
 
   grt::DictRef options(tester.grt);
-  for (int i = 95; data[i].description != NULL; i++)
+  for (int i = 0; data[i].description != NULL; i++)
   {
     std::cout << ".";
     if (i > 0 && (i % 30 == 0))
