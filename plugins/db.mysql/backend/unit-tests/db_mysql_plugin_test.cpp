@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,7 +33,6 @@
 #include "cppdbc.h"
 #include "backend/db_rev_eng_be.h"
 
-#include "grtsqlparser/sql_facade.h"
 #include "db_mysql_diffsqlgen.h"
 
 #include "diff/diffchange.h"
@@ -54,8 +53,10 @@
 /*
   We override get_model_catalog() method of the original plugin,
   to make testing setup easier, in real life the model catalog
-  is taken from the GRT tree, and this is not tested here
+  is taken from the GRT tree, and this is not tested here.
 */
+
+using namespace parser;
 
 class DbMySQLScriptSyncTest : public DbMySQLScriptSync {
 protected:
@@ -100,12 +101,10 @@ protected:
   WBTester tester;
   std::auto_ptr<DbMySQLScriptSync> sync_plugin;
   std::auto_ptr<DbMySQLSQLExport> fwdeng_plugin;
-  SqlFacade::Ref sql_parser;
   sql::ConnectionWrapper connection;
   grt::DbObjectMatchAlterOmf omf;
 
   db_mysql_CatalogRef create_catalog_from_script(const std::string& sql);
-  db_mysql_CatalogRef create_catalog_from_script(const std::string& sql, grt::GRT *grt);
 
   std::string run_sync_plugin_generate_script(
     const std::vector<std::string>&,
@@ -134,27 +133,12 @@ TEST_DATA_CONSTRUCTOR(db_mysql_plugin_test)
   // init database connection
   connection = tester.create_connection_for_import();
   
-  /*
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-
-  sql::ResultSet *res = stmt->executeQuery("SELECT VERSION() as VERSION");
-  if (res && res->next())
-  {
-    std::string version = res->getString("VERSION");
-    tester.get_rdbms()->version(CatalogHelper::parse_version(tester.grt, version));
-  }
-  delete res;
-  */
-
   // Modeling uses a default server version, which is not related to any server it might have
   // reverse engineered content from, nor where it was sync'ed to. So we have to mimic this here.
   std::string target_version = tester.wb->get_grt_manager()->get_app_option_string("DefaultTargetMySQLVersion");
   if (target_version.empty())
     target_version = "5.5";
   tester.get_rdbms()->version(parse_version(tester.grt, target_version));
-
-  sql_parser= SqlFacade::instance_for_rdbms_name(tester.grt, "Mysql");
-  ensure("failed to get sqlparser module", (NULL != sql_parser));
 }
 
 END_TEST_DATA_CLASS
@@ -164,14 +148,14 @@ TEST_MODULE(db_mysql_plugin_test, "db.mysql plugin test");
 db_mysql_CatalogRef tut::Test_object_base<db_mysql_plugin_test>::create_catalog_from_script(
   const std::string& sql)
 {
-  return create_catalog_from_script(sql, tester.grt);
-}
+  db_mysql_CatalogRef cat = create_empty_catalog_for_import(tester.grt);
+  MySQLParserServices::Ref services = MySQLParserServices::get(tester.grt);
+  ParserContext::Ref context = services->createParserContext(tester.get_rdbms()->characterSets(),
+    tester.get_rdbms()->version(), false);
 
-db_mysql_CatalogRef tut::Test_object_base<db_mysql_plugin_test>::create_catalog_from_script(
-  const std::string& sql, grt::GRT *grt)
-{
-  db_mysql_CatalogRef cat= create_empty_catalog_for_import(tester.grt);
-  sql_parser->parseSqlScriptString(cat, sql);
+  grt::DictRef options(tester.grt);
+  if (services->parseSQLIntoCatalog(context, cat, sql, options) != 0)
+    fail("SQL failed to parse: " + sql);
   return cat;
 }
 
@@ -238,7 +222,7 @@ boost::shared_ptr<DiffChange> tut::Test_object_base<db_mysql_plugin_test>::compa
 void tut::Test_object_base<db_mysql_plugin_test>::apply_sql_to_model(const std::string& sql)
 {
 
-  db_mysql_CatalogRef org_cat= create_catalog_from_script(sql, tester.grt);
+  db_mysql_CatalogRef org_cat= create_catalog_from_script(sql);
 
   std::vector<std::string> schemata;
   schemata.push_back("mydb");
@@ -727,11 +711,9 @@ TEST_FUNCTION(55)
   db_mgmt_ManagementRef mgmt(db_mgmt_ManagementRef::cast_from(tester.grt->get("/wb/rdbmsMgmt")));
 
   ListRef<db_DatatypeGroup> grouplist= ListRef<db_DatatypeGroup>::cast_from(tester.grt->unserialize(tester.wboptions.basedir + "/data/db_datatype_groups.xml"));
-//     ListRef<db_DatatypeGroup>::cast_from(tester.grt->unserialize("../../wb-build/data/db_datatype_groups.xml"));
   grt::replace_contents(mgmt->datatypeGroups(), grouplist);
 
   db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(tester.grt->unserialize(tester.wboptions.basedir + "/modules/data/mysql_rdbms_info.xml"));
-//     db_mgmt_RdbmsRef::cast_from(tester.grt->unserialize("../../wb-build/modules/data/mysql_rdbms_info.xml"));
   ensure("db_mgmt_Rdbms initialization", rdbms.is_valid());
   tester.grt->set("/rdbms", rdbms);
 
@@ -748,7 +730,7 @@ TEST_FUNCTION(55)
     tester.grt->get("/wb/doc/physicalModels/0/diagrams/1/figures/0/table")
     == t1);
 
-  db_mysql_CatalogRef org_cat= create_catalog_from_script(sql1, tester.grt);
+  db_mysql_CatalogRef org_cat= create_catalog_from_script(sql1);
 
   std::vector<std::string> schemata;
   schemata.push_back("mydb");

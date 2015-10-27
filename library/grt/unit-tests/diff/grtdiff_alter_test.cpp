@@ -1257,13 +1257,13 @@ TEST_FUNCTION(10)
     normalizer.init_omf(&omf);
     grt::ValueRef default_engine = tester.wb->get_grt_manager()->get_app_option("db.mysql.Table:tableEngine");
     std::string default_engine_name;
-    if(grt::StringRef::can_wrap(default_engine))
-        default_engine_name = grt::StringRef::cast_from(default_engine);
+    if (grt::StringRef::can_wrap(default_engine))
+      default_engine_name = grt::StringRef::cast_from(default_engine);
 
     bec::CatalogHelper::apply_defaults(mod_cat, default_engine_name);
     bec::CatalogHelper::apply_defaults(org_cat, default_engine_name);
 
-    alter_change= diff_make(org_cat, mod_cat, &omf);
+    alter_change = diff_make(org_cat, mod_cat, &omf);
     ensure("Empty alter:", (bool)alter_change);
 
 #if VERBOSE_TESTING
@@ -1329,8 +1329,6 @@ TEST_FUNCTION(10)
 
     normalizer.init_omf(&omf);
     empty_change= diff_make(cat, mod_cat, &omf);
-    tester.wb->close_document();
-    tester.wb->close_document_finish();
 
     if (empty_change)
     {
@@ -1352,6 +1350,8 @@ TEST_FUNCTION(10)
           fail(data[i].description);
       }
     }
+    tester.wb->close_document();
+    tester.wb->close_document_finish();
   }
   std::cout << std::endl;
 }
