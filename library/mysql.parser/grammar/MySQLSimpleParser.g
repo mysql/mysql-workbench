@@ -147,10 +147,10 @@ alter_statement:
 ;
 
 alter_database:
-	DATABASE_SYMBOL
+	DATABASE_SYMBOL schema_ref
 	(
-		schema_ref? database_option+
-		| schema_ref UPGRADE_SYMBOL DATA_SYMBOL DIRECTORY_SYMBOL NAME_SYMBOL
+		database_option+
+		| UPGRADE_SYMBOL DATA_SYMBOL DIRECTORY_SYMBOL NAME_SYMBOL
 	)
 ;
 
@@ -219,7 +219,7 @@ alter_table_list_entry:
 	| RENAME_SYMBOL (TO_SYMBOL | AS_SYMBOL)? table_ref
 	| {SERVER_VERSION >= 50700}? => RENAME_SYMBOL (INDEX_SYMBOL | KEY_SYMBOL) column_ref TO_SYMBOL column_ref
 	| alter_order_by
-	| CONVERT_SYMBOL TO_SYMBOL CHAR_SYMBOL SET_SYMBOL charset_name_or_default (COLLATE_SYMBOL collation_name_or_default)?
+	| CONVERT_SYMBOL TO_SYMBOL charset charset_name_or_default (COLLATE_SYMBOL collation_name_or_default)?
 	| FORCE_SYMBOL
 	| {SERVER_VERSION >= 50600}? => alter_algorithm_option
 	| {SERVER_VERSION >= 50600}? => alter_lock_option
@@ -1548,7 +1548,7 @@ show_statement:
 		| PROFILE_SYMBOL (profile_type (COMMA_SYMBOL profile_type)*)? (FOR_SYMBOL QUERY_SYMBOL INT_NUMBER)? limit_clause?
 		| option_type? (STATUS_SYMBOL | VARIABLES_SYMBOL) like_or_where?
 		| FULL_SYMBOL? PROCESSLIST_SYMBOL
-		| (CHAR_SYMBOL SET_SYMBOL | CHARSET_SYMBOL) like_or_where?
+		| charset like_or_where?
 		| COLLATION_SYMBOL like_or_where?
 		| {SERVER_VERSION < 50700}? => CONTRIBUTORS_SYMBOL
 		| GRANTS_SYMBOL (FOR_SYMBOL user)?
@@ -2435,7 +2435,7 @@ schedule:
 database_option:
 	DEFAULT_SYMBOL?
 		(
-			CHAR_SYMBOL SET_SYMBOL EQUAL_OPERATOR? charset_name_or_default
+			charset EQUAL_OPERATOR? charset_name_or_default
 			| COLLATE_SYMBOL EQUAL_OPERATOR? collation_name_or_default
 		)
 ;
