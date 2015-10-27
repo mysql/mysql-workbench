@@ -910,7 +910,7 @@ static void fillTablePartitioning(MySQLRecognizerTreeWalker &walker, db_mysql_Ta
     walker.next();
   }
 
-  if (walker.is(SUBPARTITIONS_SYMBOL))
+  if (walker.is(SUBPARTITION_SYMBOL))
   {
     walker.next(2); // Skip SUBPARTITION BY.
     linear = walker.skip_if(LINEAR_SYMBOL);
