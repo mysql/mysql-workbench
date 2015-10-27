@@ -737,6 +737,9 @@ static void fillTableCreateOptions(MySQLRecognizerTreeWalker &walker, db_Catalog
 
 //--------------------------------------------------------------------------------------------------
 
+/**
+ * Returns a normalized list of comma separated values within parentheses.
+ */
 static std::string getPartitionValueList(MySQLRecognizerTreeWalker &walker)
 {
   std::string value;
@@ -751,6 +754,7 @@ static std::string getPartitionValueList(MySQLRecognizerTreeWalker &walker)
       value += getExpression(walker);
     if (!walker.is(COMMA_SYMBOL))
       break;
+    walker.next();
   }
   walker.next();
   return value;
@@ -780,6 +784,7 @@ static void getPartitionDefinition(MySQLRecognizerTreeWalker &walker, db_mysql_P
     else
     {
       // Otherwise IN.
+      walker.next();
       definition->value(getPartitionValueList(walker));
     }
   }
