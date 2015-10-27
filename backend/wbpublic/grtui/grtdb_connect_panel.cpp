@@ -341,10 +341,10 @@ void DbConnectPanel::set_default_host_name(const std::string &host, bool update)
 }
 
 
-void DbConnectPanel::param_value_changed(mforms::View *sender)
+void DbConnectPanel::param_value_changed(mforms::View *sender, bool trim_whitespace)
 {
   std::string param_name= sender->get_name();
-  
+
   if (!_allow_edit_connections && !_updating)
   {
     // if stored connections combo is shown, copy the current connection params to the
@@ -357,10 +357,13 @@ void DbConnectPanel::param_value_changed(mforms::View *sender)
 
   DbDriverParam *param= _connection->get_db_driver_param_handles()->get(param_name);
 
-  param->set_value(grt::StringRef(sender->get_string_value()));
-  
+  if (trim_whitespace)
+    param->set_value(grt::StringRef(base::trim(sender->get_string_value())));
+  else
+    param->set_value(grt::StringRef(sender->get_string_value()));
+
   _connection->save_changes();
-  
+
   std::string error = _connection->validate_driver_params();
   if (error != _last_validation)
     _signal_validation_state_changed(error, error.empty());
@@ -1129,7 +1132,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
           ctrl->set_active(*value != "" && *value != "0" && *value != "NULL");
       }
 
-      scoped_connect(ctrl->signal_clicked(),boost::bind(&DbConnectPanel::param_value_changed, this, ctrl));
+      scoped_connect(ctrl->signal_clicked(),boost::bind(&DbConnectPanel::param_value_changed, this, ctrl, false));
 
       box->add(mforms::manage(ctrl), false, true);
       _views.push_back(ctrl);
@@ -1182,11 +1185,11 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
 
       ctrl->set_size(bounds.width, -1);
 
-      scoped_connect(ctrl->signal_changed(),boost::bind(&DbConnectPanel::param_value_changed, this, ctrl));
+      scoped_connect(ctrl->signal_changed(),boost::bind(&DbConnectPanel::param_value_changed, this, ctrl, true));
 
       box->add(mforms::manage(ctrl), true, true);
       _views.push_back(ctrl);
-      
+
       break;
     }
     case ::ctText:
@@ -1203,11 +1206,11 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
 
       ctrl->set_size(bounds.width, -1);
 
-      scoped_connect(ctrl->signal_changed(),boost::bind(&DbConnectPanel::param_value_changed, this, ctrl));
+      scoped_connect(ctrl->signal_changed(),boost::bind(&DbConnectPanel::param_value_changed, this, ctrl, false));
 
       box->add(mforms::manage(ctrl), true, true);
       _views.push_back(ctrl);
-      
+
       break;
     }
     case ::ctFileSelector:
@@ -1223,7 +1226,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
       ctrl->set_size(bounds.width, -1);
 
       ctrl->initialize(initial_value, mforms::OpenFile, "", true,
-        boost::bind(&DbConnectPanel::param_value_changed, this, ctrl));
+        boost::bind(&DbConnectPanel::param_value_changed, this, ctrl, true));
       box->add(mforms::manage(ctrl), true, true);
       _views.push_back(ctrl);
       break;
