@@ -1065,7 +1065,7 @@ grt::DictRef ServerInstanceEditor::get_preset(const std::string& system, const s
 
 void ServerInstanceEditor::entry_changed(mforms::TextEntry *sender)
 {
-  const std::string value= sender->get_string_value();
+  const std::string value = base::trim(sender->get_string_value());
   db_mgmt_ConnectionRef connection(selected_connection());
   db_mgmt_ServerInstanceRef instance(selected_instance());
 
