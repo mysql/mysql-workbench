@@ -157,14 +157,14 @@ private:
 
   void change_active_rdbms();
   void change_active_driver();
-  
+
   void set_keychain_password(DbDriverParam *param, bool clear);
-  
-  void param_value_changed(mforms::View *sender);
+
+  void param_value_changed(mforms::View *sender, bool trim_whitespace);
   void enum_param_value_changed(mforms::Selector *sender, std::vector<std::string> options);
-  
+
   void refresh_stored_connections();
-  
+
   void change_active_stored_conn();
   void reset_stored_conn_list();
   void change_connection_name();
@@ -173,11 +173,11 @@ private:
   void open_ssl_wizard_directory();
 
   grt::ListRef<db_mgmt_Connection> connection_list();
-  
+
   db_mgmt_ConnectionRef open_editor();
-  
+
   grt::StringListRef get_enum_values(db_mgmt_DriverParameterRef param);
-  
+
   boost::function<void (const db_mgmt_DriverRef &)> _driver_changed_cb;
 };
 
