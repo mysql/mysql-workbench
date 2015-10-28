@@ -603,7 +603,7 @@ void BinaryDataEditor::setup()
   scoped_connect(_import.signal_clicked(),boost::bind(&BinaryDataEditor::import_value, this));
   scoped_connect(_export.signal_clicked(),boost::bind(&BinaryDataEditor::export_value, this));
 
-  set_size(640, 500);
+  set_size(800, 500); // Golden ratio.
   center();
 }
 
