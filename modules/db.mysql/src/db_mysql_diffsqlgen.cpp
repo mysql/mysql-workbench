@@ -311,11 +311,15 @@ void DiffSQLGeneratorBE::generate_create_stmt(db_mysql_TableRef table)
     if(table->checksum() != 0)
       callback->create_table_checksum(table->checksum());
 
-    if(table->defaultCollationName().is_valid() && strlen(table->defaultCollationName().c_str())&&
-        (charsetForCollation(table->defaultCollationName()) == (table->defaultCharacterSetName().c_str())) )
-      callback->create_table_collate(table->defaultCollationName());
+    // Set a collation only if it differs from the default collation for that charset.
+    if (table->defaultCollationName().is_valid())
+    {
+      std::string collation = table->defaultCollationName();
+      if (!collation.empty() && (defaultCollationForCharset(table->defaultCharacterSetName()) != collation))
+        callback->create_table_collate(collation);
+    }
 
-    if(strlen(table->comment().c_str()))
+    if (strlen(table->comment().c_str()))
       callback->create_table_comment(table->comment());
     
     // CONNECTION [=] 'connect_string'
