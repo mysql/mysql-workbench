@@ -2007,6 +2007,11 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
               is_result_set_first= dbc_statement->execute(statement);
             }
             updated_rows_count= dbc_statement->getUpdateCount();
+
+            // XXX: coalesce all the special queries here and act on them *after* all queries have run.
+            // Especially the drop command is redirected twice to idle tasks, kicking so in totally asynchronously
+            // and killing any intermittent USE commands.
+            // Updating the UI during a run of many commands is not useful either.
             if (Sql_syntax_check::sql_use == statement_type)
               cache_active_schema_name();
             if (Sql_syntax_check::sql_set == statement_type && statement.find("@sql_mode") != std::string::npos)
