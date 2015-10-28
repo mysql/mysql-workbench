@@ -155,7 +155,7 @@ TEST_FUNCTION(30)
 {
 const char* routine_sql =
   "DELIMITER //" NL
-  "CREATE FUNCTION get_count(less_than INT, greather_than INT) RETURNS ..." NL
+  "CR!!! FUNCTION get_count(less_than INT, greather_than INT) RETURNS ..." NL
   "    DETERMINISTIC" NL
   "    READS SQL DATA" NL
   "BEGIN" NL
@@ -177,7 +177,7 @@ const char* routine_sql =
   "    WHERE id > less_than AND id < greather_than;" NL
   "  RETURN res;" NL
   "END //" NL
-  "CREATE TABLE get_count2(less_than INT, greather_than INT) RETURNS INT" NL
+  "CREATE FUNCTION get_count2(less_than INT, greather_than INT) RETURNS INT" NL
   "    DETERMINISTIC" NL
   "    READS SQL DATA" NL
   "-- BEGIN" NL
