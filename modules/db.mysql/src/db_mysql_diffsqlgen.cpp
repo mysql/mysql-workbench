@@ -305,18 +305,27 @@ void DiffSQLGeneratorBE::generate_create_stmt(db_mysql_TableRef table)
     if(strlen(table->avgRowLength().c_str()))
       callback->create_table_avg_row_length(table->avgRowLength());
 
-    if(table->defaultCharacterSetName().is_valid() && strlen(table->defaultCharacterSetName().c_str()))
-      callback->create_table_charset(table->defaultCharacterSetName());
-
     if(table->checksum() != 0)
       callback->create_table_checksum(table->checksum());
 
     // Set a collation only if it differs from the default collation for that charset.
-    if (table->defaultCollationName().is_valid())
+    // Ignore the collation if it doesn't match the charset, however.
+    if (table->defaultCharacterSetName().is_valid())
     {
-      std::string collation = table->defaultCollationName();
-      if (!collation.empty() && (defaultCollationForCharset(table->defaultCharacterSetName()) != collation))
-        callback->create_table_collate(collation);
+      std::string charset = table->defaultCharacterSetName();
+      if (!charset.empty())
+      {
+        callback->create_table_charset(charset);
+
+        if (table->defaultCollationName().is_valid())
+        {
+          std::string collation = table->defaultCollationName();
+          if (!collation.empty()
+            && (charsetForCollation(collation) == charset)
+            && (defaultCollationForCharset(table->defaultCharacterSetName()) != collation))
+            callback->create_table_collate(collation);
+        }
+      }
     }
 
     if (strlen(table->comment().c_str()))

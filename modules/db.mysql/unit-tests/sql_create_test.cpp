@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -184,9 +184,9 @@ TEST_FUNCTION(30)
     execute_script(stmt.get(), export_sql_script,tester.wb->get_grt_manager());
 }
 
-//Test case for Bug #14278043 DB SYNCRONIZE MODEL GENERATES INCORRECT COLLATION
-//If somehow collation doesn't correspond to charset it should be skipped during 
-//sql generation to create valid DDL
+// Test case for Bug #14278043 DB SYNCRONIZE MODEL GENERATES INCORRECT COLLATION
+// If somehow the collation doesn't correspond to the charset it should be skipped during 
+// sql generation to avoid creating invalid DDL.
 TEST_FUNCTION(40)
 {
     grt::ValueRef e;
@@ -197,18 +197,18 @@ TEST_FUNCTION(40)
     SynteticMySQLModel model(tester.grt);
     
     model.schema->defaultCharacterSetName("utf8");
-    model.schema->defaultCollationName("latin_1_sweidish_ci");
+    model.schema->defaultCollationName("latin_1_swedish_ci");
     model.table->defaultCharacterSetName("utf8");
-    model.table->defaultCollationName("latin_1_sweidish_ci");
+    model.table->defaultCollationName("latin_1_swedish_ci");
     model.columnText->characterSetName("utf8");
-    model.columnText->collationName("latin_1_sweidish_ci");
+    model.columnText->collationName("latin_1_swedish_ci");
 
     db_mysql_CatalogRef catalog = model.catalog;
     
     cmp.init_omf(&omf);
 
-    boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
-    boost::shared_ptr<DiffChange> drop_change= diff_make(catalog, e, &omf);
+    boost::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
+    boost::shared_ptr<DiffChange> drop_change = diff_make(catalog, e, &omf);
 
     DictRef create_map(tester.grt);
     DictRef drop_map(tester.grt);
