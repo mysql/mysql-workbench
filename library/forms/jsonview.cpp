@@ -2613,7 +2613,6 @@ void JsonTextView::init()
   hbox->add_end(validate, false, true);
   box->add(hbox, false, true);
   add(box);
-  set_size(800, 500); // Golden ratio.
 }
 
 //--------------------------------------------------------------------------------------------------
