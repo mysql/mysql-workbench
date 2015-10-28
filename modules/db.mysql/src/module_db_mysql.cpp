@@ -837,12 +837,22 @@ void ActionGenerateSQL::create_schema(db_mysql_SchemaRef schema)
     schema_sql.append("IF NOT EXISTS ");
   schema_sql.append("`").append(schema->name().c_str()).append("` ");
 
-  if(schema->defaultCollationName().is_valid() && strlen(schema->defaultCharacterSetName().c_str()))
-    schema_sql.append("DEFAULT CHARACTER SET ").append(schema->defaultCharacterSetName().c_str()).append(" ");
-
-  if(schema->defaultCollationName().is_valid() && !schema->defaultCollationName().empty() && 
-    (defaultCollationForCharset(schema->defaultCollationName()) == (schema->defaultCharacterSetName().c_str())))
-    schema_sql.append("COLLATE ").append(schema->defaultCollationName().c_str()).append(" ");
+  if (schema->defaultCharacterSetName().is_valid())
+  {
+    std::string charset = schema->defaultCharacterSetName();
+    if (!charset.empty())
+    {
+      schema_sql += "DEFAULT CHARACTER SET " + charset + " ";
+      if (schema->defaultCollationName().is_valid())
+      {
+        std::string collation = schema->defaultCollationName();
+        if (!collation.empty()
+          && (charsetForCollation(collation) == charset)
+          && (defaultCollationForCharset(charset) != collation))
+          schema_sql += "COLLATE " + collation + " ";
+      }
+    }
+  }
 
   remember(schema, schema_sql);
 }
