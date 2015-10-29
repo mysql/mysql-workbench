@@ -208,6 +208,8 @@ Windows, Linux and Mac OS X.
        -DMYSQLCPPCONN_INCLUDE_DIR=%{mysqlcppconn_dir}/include \
        -DIODBC_CONFIG_PATH=%{odbc_home}/bin/iodbc-config \
        -DGDAL_INCLUDE_DIR=%{gdal_dir}/include -DGDAL_LIBRARY=%{gdal_dir}/lib/libgdal.so \
+       -DCTEMPLATE_INCLUDE_DIR=%{ctemplate_dir}/include \
+  	   -DCTEMPLATE_LIBRARIES=%{ctemplate_dir}/lib \
 %if 0%{?rhel} == 6
        -DVSQLITE_INCLUDE_DIR=%{vsqlite_dir}/include \
        -DVSQLITE_LIBRARIES="-L%{vsqlite_dir}/lib -lvsqlitepp" \
