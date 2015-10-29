@@ -1453,7 +1453,7 @@ TEST_FUNCTION(20)
         (j != 0) ? "_longname" : "_shortname", i);
 
       std::ifstream rep;
-      rep.open(reportFile);
+      rep.open(reportFile.c_str());
       std::string expected((std::istreambuf_iterator<char>(rep)), std::istreambuf_iterator<char>());
 
       if (report != expected)
