@@ -250,10 +250,10 @@ fi
 %if 0%{?fedora} 
   cp -a /usr/lib64/libctemplate.so* %{buildroot}%{_libdir}/mysql-workbench
 %else
-%if 0%{?rhel} < 7
+%if 0%{?rhel} <= 7
     cp -a %{ctemplate_dir}/lib/libctemplate.so* %{buildroot}%{_libdir}/mysql-workbench
 %endif
-%if 0%{?rhel} >= 7
+%if 0%{?rhel} > 7
     cp -a /usr/lib64/libctemplate.so* %{buildroot}%{_libdir}/mysql-workbench
 %endif
 %endif
