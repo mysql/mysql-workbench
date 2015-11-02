@@ -377,7 +377,7 @@ public:
 
   virtual grt::IntegerRef intFieldValue(ssize_t column)
   {
-    if (column >= 0 && column < column_by_name.size())
+    if (column >= 0 && column < (ssize_t)column_by_name.size())
     {
 #ifdef ENVIRONMENT_64
       return grt::IntegerRef(recordset->getInt64((uint32_t)column + 1));
@@ -423,7 +423,7 @@ public:
 
   virtual grt::StringRef stringFieldValue(ssize_t column)
   {
-    if (column >= 0 && column < (long)column_by_name.size())
+    if (column >= 0 && column < (ssize_t)column_by_name.size())
       return grt::StringRef(recordset->getString((uint32_t)column + 1));
     throw std::invalid_argument(base::strfmt("invalid column %li for resultset", (long)column).c_str());
     return grt::StringRef(); // NULL
