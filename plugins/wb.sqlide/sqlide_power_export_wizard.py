@@ -541,10 +541,11 @@ class DataInputPage(WizardPage):
         if rset:
             ok = rset.goToFirstRow()
             while ok:
-                col = {'name': None, 'type': None, 'is_string': None, 'is_number': None, 'is_date_or_time': None, 'is_bin': None, 'value': None}
+                col = {'name': None, 'type': None, 'is_string': None, 'is_bignumber':None, 'is_number': None, 'is_date_or_time': None, 'is_bin': None, 'value': None}
                 col['name'] = rset.stringFieldValueByName("Field")
                 col['type'] = rset.stringFieldValueByName("Type")
                 col['is_number'] = any(x in col['type'] for x in ['int', 'integer'])
+                col['is_bignumber'] = any(x in col['type'] for x in ['bigint'])
                 col['is_float'] = any(x in col['type'] for x in ['decimal', 'float', 'double'])  
                 col['is_string'] = any(x in col['type'] for x in ['char', 'text', 'set', 'enum', 'json'])
                 col['is_bin'] = any(x in col['type'] for x in ['blob', 'binary'])  
