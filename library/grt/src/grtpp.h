@@ -563,11 +563,11 @@ namespace grt {
   #define DEFINE_SSIZE_T_FUNCTIONS
 
   #ifdef __LP64__
-  #define DEFINE_INT_FUNCTIONS
+    #define DEFINE_INT_FUNCTIONS
   #endif
 
   #ifdef __APPLE__
-    // Probably also depending on 32bit vs 64bit, but for now we compile only 32bit on Mac.
+    // On OSX we only support the 64bit arch.
     #define DEFINE_UINT64_T_FUNCTIONS
     #define DEFINE_INT_FUNCTIONS
 
@@ -653,6 +653,18 @@ namespace grt {
       : ValueRef(internal::Integer::get(value))
     {
     }
+
+#ifdef DEFINE_UINT64_T_FUNCTIONS
+    Ref(int64_t value)
+      : ValueRef(internal::Integer::get(value))
+    {
+    }
+
+    Ref(uint64_t value)
+      : ValueRef(internal::Integer::get(value))
+    {
+    }
+#endif
 
     inline operator storage_type () const { return *content(); }
     inline storage_type operator *() const { return *content(); }

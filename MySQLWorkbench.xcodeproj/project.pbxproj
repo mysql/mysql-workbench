@@ -166,7 +166,7 @@
 		27467FDB154AC8B500021708 /* mysql-parser.h in Headers */ = {isa = PBXBuildFile; fileRef = 27467FD9154AC8B500021708 /* mysql-parser.h */; };
 		27467FDC154AC8B500021708 /* mysql-parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27467FDA154AC8B500021708 /* mysql-parser.cpp */; };
 		27468002154ACDCC00021708 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
-		274989E91BCE53CF00F911B9 /* libiconv.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 274989E81BCE53CF00F911B9 /* libiconv.2.dylib */; settings = {ASSET_TAGS = (); }; };
+		274989E91BCE53CF00F911B9 /* libiconv.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 274989E81BCE53CF00F911B9 /* libiconv.2.dylib */; };
 		274989EA1BCE53E200F911B9 /* libiconv.2.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 274989E81BCE53CF00F911B9 /* libiconv.2.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		274E897F1313BFC1000459A0 /* drawing.h in Headers */ = {isa = PBXBuildFile; fileRef = 274E897E1313BFC1000459A0 /* drawing.h */; };
 		274E89811313BFCF000459A0 /* drawing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 274E89801313BFCF000459A0 /* drawing.cpp */; };
@@ -405,8 +405,8 @@
 		27C79EF016E0A8220092958E /* mysql-parser-common.h in Headers */ = {isa = PBXBuildFile; fileRef = 27C79EEC16E0A8210092958E /* mysql-parser-common.h */; };
 		27C79EF116E0A8220092958E /* mysql-scanner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27C79EED16E0A8210092958E /* mysql-scanner.cpp */; };
 		27C79EF216E0A8220092958E /* mysql-scanner.h in Headers */ = {isa = PBXBuildFile; fileRef = 27C79EEE16E0A8220092958E /* mysql-scanner.h */; };
-		27C8F4111BB2AF57009EC958 /* jsonview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27C8F40F1BB2AF4D009EC958 /* jsonview.cpp */; settings = {ASSET_TAGS = (); }; };
-		27C8F4121BB2AF6A009EC958 /* canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B83E5AF1992B1F600781432 /* canvas.cpp */; settings = {ASSET_TAGS = (); }; };
+		27C8F4111BB2AF57009EC958 /* jsonview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27C8F40F1BB2AF4D009EC958 /* jsonview.cpp */; };
+		27C8F4121BB2AF6A009EC958 /* canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B83E5AF1992B1F600781432 /* canvas.cpp */; };
 		27C9C9E71095DEA900C0004C /* home_screen.h in Headers */ = {isa = PBXBuildFile; fileRef = 27C9C9E51095DEA900C0004C /* home_screen.h */; };
 		27C9C9E81095DEA900C0004C /* home_screen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27C9C9E61095DEA900C0004C /* home_screen.cpp */; };
 		27CAD24D16C24A9A00A4FA02 /* wb_sql_editor_help.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAD24B16C24A9A00A4FA02 /* wb_sql_editor_help.cpp */; };
@@ -498,6 +498,25 @@
 		27F2E9A91A65CE7D00BD2996 /* ac_view.png in Resources */ = {isa = PBXBuildFile; fileRef = 27F2E9831A65CE7D00BD2996 /* ac_view.png */; };
 		27F2E9AA1A65CE7D00BD2996 /* ac_view@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27F2E9841A65CE7D00BD2996 /* ac_view@2x.png */; };
 		27F855461B5E5004000DAD41 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
+		27FE2ED51BC7A44C00DE6744 /* libmysqlcppconn.7.1.1.6.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 44F46C281BC6760D007A8D57 /* libmysqlcppconn.7.1.1.6.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		27FE2EE71BC7ABEE00DE6744 /* JS_Datatype_Array@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FE2ED61BC7ABEE00DE6744 /* JS_Datatype_Array@2x.png */; };
+		27FE2EE81BC7ABEE00DE6744 /* JS_Datatype_Bin.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FE2ED71BC7ABEE00DE6744 /* JS_Datatype_Bin.png */; };
+		27FE2EE91BC7ABEE00DE6744 /* JS_Datatype_Bin@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FE2ED81BC7ABEE00DE6744 /* JS_Datatype_Bin@2x.png */; };
+		27FE2EEA1BC7ABEE00DE6744 /* JS_Datatype_Bool.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FE2ED91BC7ABEE00DE6744 /* JS_Datatype_Bool.png */; };
+		27FE2EEB1BC7ABEE00DE6744 /* JS_Datatype_Bool@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FE2EDA1BC7ABEE00DE6744 /* JS_Datatype_Bool@2x.png */; };
+		27FE2EEC1BC7ABEE00DE6744 /* JS_Datatype_Date.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FE2EDB1BC7ABEE00DE6744 /* JS_Datatype_Date.png */; };
+		27FE2EED1BC7ABEE00DE6744 /* JS_Datatype_Date@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FE2EDC1BC7ABEE00DE6744 /* JS_Datatype_Date@2x.png */; };
+		27FE2EEE1BC7ABEE00DE6744 /* JS_Datatype_Null.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FE2EDD1BC7ABEE00DE6744 /* JS_Datatype_Null.png */; };
+		27FE2EEF1BC7ABEE00DE6744 /* JS_Datatype_Null@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FE2EDE1BC7ABEE00DE6744 /* JS_Datatype_Null@2x.png */; };
+		27FE2EF01BC7ABEE00DE6744 /* JS_Datatype_Number.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FE2EDF1BC7ABEE00DE6744 /* JS_Datatype_Number.png */; };
+		27FE2EF11BC7ABEE00DE6744 /* JS_Datatype_Number@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FE2EE01BC7ABEE00DE6744 /* JS_Datatype_Number@2x.png */; };
+		27FE2EF21BC7ABEE00DE6744 /* JS_Datatype_Object.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FE2EE11BC7ABEE00DE6744 /* JS_Datatype_Object.png */; };
+		27FE2EF31BC7ABEE00DE6744 /* JS_Datatype_Object@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FE2EE21BC7ABEE00DE6744 /* JS_Datatype_Object@2x.png */; };
+		27FE2EF41BC7ABEE00DE6744 /* JS_Datatype_ObjectId.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FE2EE31BC7ABEE00DE6744 /* JS_Datatype_ObjectId.png */; };
+		27FE2EF51BC7ABEE00DE6744 /* JS_Datatype_ObjectId@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FE2EE41BC7ABEE00DE6744 /* JS_Datatype_ObjectId@2x.png */; };
+		27FE2EF61BC7ABEE00DE6744 /* JS_Datatype_String.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FE2EE51BC7ABEE00DE6744 /* JS_Datatype_String.png */; };
+		27FE2EF71BC7ABEE00DE6744 /* JS_Datatype_String@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FE2EE61BC7ABEE00DE6744 /* JS_Datatype_String@2x.png */; };
+		27FE2EF91BC7AD4600DE6744 /* JS_Datatype_Array.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FE2EF81BC7AD4600DE6744 /* JS_Datatype_Array.png */; };
 		2B00E5150EB40439006B9A7C /* mdc_canvas_view_opengl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B00E5130EB40438006B9A7C /* mdc_canvas_view_opengl.cpp */; };
 		2B00E5160EB40439006B9A7C /* mdc_canvas_view_opengl.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B00E5140EB40438006B9A7C /* mdc_canvas_view_opengl.h */; };
 		2B0123E81090B617009B2112 /* WBPluginPanelController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B0123E71090B617009B2112 /* WBPluginPanelController.mm */; };
@@ -12744,7 +12763,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 0700;
+				LastUpgradeCheck = 0710;
 				ORGANIZATIONNAME = "Oracle and/or its affiliates";
 				TargetAttributes = {
 					27D8079D1A3F262D00EDCA8F = {
@@ -18046,6 +18065,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				COPY_PHASE_STRIP = NO;
+				ENABLE_TESTABILITY = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.h";
 				GCC_PREPROCESSOR_DEFINITIONS = ENABLE_DEBUG;
