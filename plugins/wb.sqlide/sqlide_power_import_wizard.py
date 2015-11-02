@@ -378,7 +378,7 @@ class ConfigurationPage(WizardPage):
             chk.add_clicked_callback(lambda checkbox = chk, output = row: operator.setitem(output, 'active', True if checkbox.get_active() else False))
             return chk
         
-        type_items = {'is_string':'text', 'is_number':'int', 'is_float':'double', 'is_bin':'binary', 'is_date_or_time': 'datetime', 'is_json':'json'}
+        type_items = {'is_string':'text','is_bignumber':'bigint', 'is_number':'int', 'is_float':'double', 'is_bin':'binary', 'is_date_or_time': 'datetime', 'is_json':'json'}
         def create_select_type(row):
             def sel_changed(sel, output):
                 selection = sel.get_string_value()
@@ -404,7 +404,7 @@ class ConfigurationPage(WizardPage):
             
             sel.add_items(type_items.values())
             for i, v in enumerate(type_items.values()):
-                if row['type'] in v:
+                if row['type'] == v:
                     sel.set_selected(i)
                     break
             
