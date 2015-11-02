@@ -22,6 +22,10 @@
 #include "sqlide/recordset_be.h"
 #include "db_query_Resultset.h"
 
+#if defined(_WIN64) || defined(__LP64__) || defined(__APPLE__) // For OSX we always built in 64bit. 
+#define ENVIRONMENT_64
+#endif
+
 //================================================================================
 // db_query_Resultset
 db_query_Resultset::ImplData::ImplData(db_query_ResultsetRef aself)
@@ -373,18 +377,27 @@ public:
 
   virtual grt::IntegerRef intFieldValue(ssize_t column)
   {
-    if (column >= 0 && column < (long)column_by_name.size())
+    if (column >= 0 && column < column_by_name.size())
+    {
+#ifdef ENVIRONMENT_64
+      return grt::IntegerRef(recordset->getInt64((uint32_t)column + 1));
+#else
       return grt::IntegerRef(recordset->getInt((uint32_t)column + 1));
+#endif
+    }
     throw std::invalid_argument(base::strfmt("invalid column %li for resultset", (long)column).c_str());
     return grt::IntegerRef(0);
   }
-
 
   virtual grt::IntegerRef intFieldValueByName(const std::string &column)
   {
     if (column_by_name.find(column) != column_by_name.end())
     {
+#ifdef ENVIRONMENT_64
+      return grt::IntegerRef(recordset->getInt64((uint32_t)column_by_name[column]));
+#else
       return grt::IntegerRef(recordset->getInt((uint32_t)column_by_name[column]));
+#endif
     }
     throw std::invalid_argument(base::strfmt("invalid column %s for resultset", column.c_str()).c_str());
     return grt::IntegerRef(0);
