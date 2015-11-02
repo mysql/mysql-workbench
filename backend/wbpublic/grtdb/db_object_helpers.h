@@ -56,7 +56,12 @@ namespace bec {
   struct WBPUBLICBACKEND_PUBLIC_FUNC CatalogHelper 
   {
     static void apply_defaults(db_mysql_CatalogRef catalog, std::string default_engine);
-    static db_SimpleDatatypeRef get_datatype(grt::ListRef<db_SimpleDatatype> types, const std::string &name);
+
+    // XXX: factor out a common routine for these 2 and the findType function in mysql_parser_module.cpp.
+    static db_SimpleDatatypeRef get_datatype(grt::ListRef<db_SimpleDatatype> types,
+      const std::string &name);
+    static db_SimpleDatatypeRef findType(const grt::ListRef<db_SimpleDatatype> &types,
+      const GrtVersionRef &target_version, const std::string &name);
 
     static bool is_type_valid_for_version(const db_SimpleDatatypeRef &type, const GrtVersionRef &target_version);
 

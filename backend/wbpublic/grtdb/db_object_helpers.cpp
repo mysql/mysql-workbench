@@ -1145,6 +1145,8 @@ void CatalogHelper::apply_defaults(db_mysql_ColumnRef column)
 
 };
 
+//--------------------------------------------------------------------------------------------------
+
 void CatalogHelper::apply_defaults(db_mysql_CatalogRef cat, std::string default_engine)
 {
   cat->defaultCharacterSetName("utf8");
@@ -1207,7 +1209,7 @@ void CatalogHelper::apply_defaults(db_mysql_CatalogRef cat, std::string default_
  *	Compares the given typename with what is in the type list, including the synonyms and returns
  *	the type whose name or synonym matches.
  */
-static db_SimpleDatatypeRef findType(const grt::ListRef<db_SimpleDatatype> &types,
+db_SimpleDatatypeRef CatalogHelper::findType(const grt::ListRef<db_SimpleDatatype> &types,
   const GrtVersionRef &target_version, const std::string &name)
 {
   for (size_t c = types.count(), i = 0; i < c; ++i)
@@ -1325,7 +1327,7 @@ static bool parse_type(const std::string &type,
     walker.next();
   }
 
-  simpleType = findType(typeList, targetVersion, type_name);
+  simpleType = CatalogHelper::findType(typeList, targetVersion, type_name);
 
   if (!simpleType.is_valid()) // Should always be valid at this point or we have messed up our type list.
     return false;
