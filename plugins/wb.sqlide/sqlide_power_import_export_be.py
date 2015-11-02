@@ -103,7 +103,7 @@ class base_module:
         self._encoding = 'utf-8' #default encoding
         self._force_drop_table = False
         self._truncate_table = False
-        self._type_map = {'text':'is_string', 'int': 'is_number', 'double':'is_float', 'json': 'is_json'}
+        self._type_map = {'text':'is_string', 'bigint': 'is_bignumber', 'int': 'is_number', 'double':'is_float', 'json': 'is_json'}
         self.is_running = False
         self.progress_info = None
         self.item_count = 0
@@ -136,7 +136,12 @@ class base_module:
                 return "json" # If JSON then we can return immediately. 
             if is_int(v):
                 if not cur_type:
-                    cur_type = "int"
+                    #We know that it's int, but let's see if it's maybe big int
+                    val = int(v)
+                    if val > 2147483647 or val < -2147483647:
+                        cur_type = "bigint"
+                    else:
+                        cur_type = "int"
                 continue
     
             if is_float(v):
@@ -216,7 +221,8 @@ class base_module:
             self._columns.append({'name': c.name, 'type': c.columnType, 
                    'is_string': any(x in c.columnType for x in ['char', 'text', 'set', 'enum']),
                    'is_json': any(x in c.columnType for x in ['json']), 
-                   'is_number': any(x in c.columnType for x in ['int', 'integer']), 
+                   'is_number': any(x in c.columnType for x in ['int', 'integer']),
+                   'is_bignumber':  any(x in c.columnType for x in ['bigint']),
                    'is_date_or_time': any(x in c.columnType for x in ['timestamp', 'time', 'datetime', 'date']), 
                    'is_bin': any(x in c.columnType for x in ['geo', 'blob', 'binary']),
                    'is_float': any(x in c.columnType for x in ['decimal', 'float', 'double', 'real']),
@@ -317,7 +323,7 @@ class csv_module(base_module):
                 limit = "LIMIT %d" % int(self._limit)
                 if self._offset:
                     limit = "LIMIT %d,%d" % (int(self._offset), int(self._limit))
-            return """SELECT %s FROM %s %s""" % (",".join([value['name'] for value in self._columns]), self._table_w_prefix, limit)
+            return """SELECT %s FROM %s %s""" % (",".join(["`%s`" % value['name'] for value in self._columns]), self._table_w_prefix, limit)
         else:
             limit = ""
             if self._limit:
@@ -331,7 +337,7 @@ class csv_module(base_module):
             return """SELECT %s FROM %s INTO OUTFILE '%s' 
                         FIELDS TERMINATED BY '%s' 
                         ENCLOSED BY '%s' 
-                        LINES TERMINATED BY %s %s""" % (",".join([value['name'] for value in self._columns]), self._table_w_prefix, fpath,
+                        LINES TERMINATED BY %s %s""" % (",".join(["`%s`" % value['name'] for value in self._columns]), self._table_w_prefix, fpath,
                                                        self.options['filedseparator']['value'], self.options['encolsestring']['value'], repr(self.options['lineseparator']['value']), limit)
 
     def start_export(self):
@@ -374,7 +380,7 @@ class csv_module(base_module):
                         self.update_progress(round(self._current_row / self._max_rows, 2), "Data export")
                         row = []
                         for col in self._columns:
-                            if col['is_number']:
+                            if col['is_number'] or col['is_bignumber']:
                                 row.append(rset.intFieldValueByName(col['name']))
                             elif col['is_float']:
                                 row.append(rset.floatFieldValueByName(col['name']))
@@ -493,7 +499,7 @@ class csv_module(base_module):
                 
                 if row:
                     for col_value in row:
-                        self._columns.append({'name': col_value, 'type': 'text', 'is_string': True, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'is_json':False,'value': []})
+                        self._columns.append({'name': col_value, 'type': 'text', 'is_string': True, 'is_bignumber': False, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'is_json':False,'value': []})
 
                     for i, row in enumerate(reader): #we will read only first few rows
                         if i < 5:
@@ -523,7 +529,6 @@ class csv_module(base_module):
                                         col[attrib] = True
                                     else:
                                         col[attrib] = False
-
             except (UnicodeError, UnicodeDecodeError), e:
                 import traceback
                 log_error("Error analyzing file, probably encoding issue: %s\n Traceback is: %s" % (e, traceback.format_exc()))
@@ -584,7 +589,7 @@ class json_module(base_module):
                     self._current_row = rset.currentRow + 1
                     row = []
                     for col in self._columns:
-                        if col['is_number']:
+                        if col['is_number'] or col['is_bignumber']:
                             row.append("\"%s\":%s" % (col['name'], json.dumps(rset.intFieldValueByName(col['name']))))
                         elif col['is_float']:
                             row.append("\"%s\":%s" % (col['name'], json.dumps(rset.floatFieldValueByName(col['name']))))
@@ -714,7 +719,7 @@ class json_module(base_module):
         
         self._columns = []
         for elem in data[0]:
-            self._columns.append({'name': elem, 'type': 'text', 'is_string': True, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'is_json':False, 'value': []})
+            self._columns.append({'name': elem, 'type': 'text', 'is_string': True, 'is_bignumber': False, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'is_json':False, 'value': []})
 
         for row in data:
             for i, elem in enumerate(row):
@@ -735,7 +740,6 @@ class json_module(base_module):
                             col[attrib] = True
                         else:
                             col[attrib] = False
-        
         self._last_analyze = True
         return True
         
