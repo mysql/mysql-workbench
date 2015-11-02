@@ -773,7 +773,7 @@ private:
 
           TableReference reference;
           scanner->previous(true);
-          reference.alias = scanner->token_text();
+          reference.alias = base::unquote(scanner->token_text());
           scanner->previous(true);
           if (scanner->token_type() == AS_SYMBOL || scanner->token_type() == EQUAL_OPERATOR)
             scanner->previous(true); // Skip AS and = operators if they exist.
@@ -794,14 +794,14 @@ private:
           }
 
           // Finally arrived at the table reference.
-          reference.table = scanner->token_text();
+          reference.table = base::unquote(scanner->token_text());
           scanner->previous(true);
           if (scanner->token_type() == DOT_SYMBOL)
           {
             // Might have a schema part (or just a leading dot).
             scanner->previous(true);
             if (scanner->token_type() == IDENTIFIER)
-              reference.schema = scanner->token_text();
+              reference.schema = base::unquote(scanner->token_text());
           }
 
 
