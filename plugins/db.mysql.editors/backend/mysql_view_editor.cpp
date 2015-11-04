@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,12 +31,10 @@ using namespace bec;
 MySQLViewEditorBE::MySQLViewEditorBE(bec::GRTManager *grtm, const db_mysql_ViewRef &view)
   : bec::ViewEditorBE(grtm, view)
 {
-  _view = view;
-  
   // In modeling we apply the text on focus change. For live editing however we don't.
   // The user has to explicitly commit his changes.
   if (!is_editing_live_object())
-    scoped_connect(get_sql_editor()->get_editor_control()->signal_lost_focus(),boost::bind(&MySQLViewEditorBE::commit_changes, this));
+    scoped_connect(get_sql_editor()->get_editor_control()->signal_lost_focus(), boost::bind(&MySQLViewEditorBE::commit_changes, this));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,13 +59,14 @@ void MySQLViewEditorBE::commit_changes()
     const std::string sql = editor->get_text(false);
     if (sql != get_sql())
     {
-      AutoUndoEdit undo(this, _view, "sql");
+      db_mysql_ViewRef view = db_mysql_ViewRef::cast_from(get_view());
+      AutoUndoEdit undo(this, view, "sql");
 
       freeze_refresh_on_object_change();
-      _parser_services->parseView(_parser_context, _view, sql);
+      _parser_services->parseView(_parser_context, view, sql);
       thaw_refresh_on_object_change();
 
-      undo.end(base::strfmt(_("Edit view `%s` of `%s`.`%s`"), _view->name().c_str(), get_schema_name().c_str(), get_name().c_str()));
+      undo.end(base::strfmt(_("Edit view `%s` of `%s`.`%s`"), view->name().c_str(), get_schema_name().c_str(), get_name().c_str()));
     }
   }
 }
