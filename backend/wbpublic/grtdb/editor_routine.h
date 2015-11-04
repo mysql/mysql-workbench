@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,7 +29,7 @@ public:
   RoutineEditorBE(GRTManager *grtm, const db_RoutineRef &routine); 
 
   virtual std::string get_title();
-  virtual db_RoutineRef get_routine() = 0;
+  db_RoutineRef get_routine() { return db_RoutineRef::cast_from(get_dbobject()); }
   virtual std::string get_sql();
 };
 
