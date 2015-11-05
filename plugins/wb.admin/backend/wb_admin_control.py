@@ -41,6 +41,7 @@ from workbench.log import log_info, log_warning, log_error, log_debug
 
 MYSQL_ERR_ACCESS_DENIED = 1045
 MYSQL_ERR_PASSWORD_EXPIRED = 1820
+MYSQL_ERR_OFFLINE_MODE = 3032
 
 #===============================================================================
 #
@@ -48,7 +49,7 @@ MYSQL_ERR_PASSWORD_EXPIRED = 1820
 # Handling object should have corresponding method if the object wants to receive
 # events. For event shutdown method name must be shutdown_event
 class EventManager(object):
-    valid_events = ['server_started_event', 'server_stopped_event', 'shutdown_event']
+    valid_events = ['server_offline_event', 'server_started_event', 'server_stopped_event', 'shutdown_event']
 
     def __init__(self):
         self.events = {}
@@ -69,7 +70,6 @@ class EventManager(object):
             handlers_list.append(handler)
             log_debug("Added " + handler.__class__.__name__ + " for event " + event_name + '\n')
         else:
-            print "Error! ", handler.__class__, " does not have method", event_name
             log_error(handler.__class__.__name__ + " does not have method " + event_name + '\n')
 
     def defer_events(self):
@@ -85,10 +85,8 @@ class EventManager(object):
         if self.defer:
             self.deferred_events.append(name)
             return
-
         name += "_event"
         if name not in self.valid_events:
-            print "EventManager: invalid event", name
             log_error('EventManager: invalid event: ' + name + '\n')
         elif name in self.events:
             log_debug("Found event " + name + " in list" + '\n')
@@ -194,10 +192,16 @@ class WbAdminControl(object):
 
         self.add_me_for_event("server_started", self)
         self.add_me_for_event("server_stopped", self)
+        self.add_me_for_event("server_offline", self)
 
         self.editor = editor
         if editor:
-            self.last_known_server_running_status = ("running" if editor.isConnected else "stopped", None) # (status, timestamp)
+            if editor.isConnected == 1:
+                self.last_known_server_running_status = ("running", None) # (status, timestamp)
+            elif editor.isConnected == -1:
+                self.last_known_server_running_status = ("offline", None) # (status, timestamp)
+            else:
+                self.last_known_server_running_status = ("stopped", None) # (status, timestamp)
         else:
             self.last_known_server_running_status = ("unknown", None)
 
@@ -346,16 +350,22 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
     def force_check_server_state(self, verbose = False):
         # Check the current state of the server and cause the SQL Editor to reconnect/update if the state
         # changed. Returns None if no state change was detected or the new state if it did change.
-        
         new_state = self.is_server_running(verbose=verbose, force_hard_check=True)
         log_debug("Force check server state returned %s\n" % new_state)
         if new_state != self.last_known_server_running_status[0]:
-            info = { "state" : 1 if new_state == "running" else 0, "connection" : self.server_profile.db_connection_params }
+            info = { "state" : -1, "connection" : self.server_profile.db_connection_params }
+            if new_state == "running":
+                info['state'] = 1 
+            elif new_state == "offline":
+                info['state'] = -1;
+            else:
+                info['state'] = 0;
+            
             # this will notify the rest of the App that the server state has changed, giving them a chance
             # to reconnect or formally disconnect
             nc.send("GRNServerStateChanged", self.editor, info)
             
-            if new_state == "stopped":
+            if new_state == "stopped" or new_state == "offline":
                 self.server_variables = {}
                 self.status_variables_time = None
                 self.status_variables = {}
@@ -369,7 +379,6 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
         # Check recent information from query runs. If last query (not older than 4 secs)
         # was performed successfully, then we imply that server is up.
         ret = "unknown"
-
         status, stime = self.last_known_server_running_status
         if not force_hard_check:
             ret = status
@@ -379,7 +388,9 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
                 # do a ping on the connection to make sure it's still up
                 if self.sql_ping():
                     self.log_cb("MySQL server is currently running")
-                    ret = "running"
+                    self.query_server_info() #query_server_info do update server status
+                    status, stime = self.last_known_server_running_status
+                    ret = status
             if ret != "running":
                 self.log_cb("Trying to connect to MySQL...")
 
@@ -393,10 +404,15 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
                     self.log_cb("Connection succeeded")
                 else:
                     self.log_cb("%s (%i)" % (err, code))
+
                 if code in (2002, 2003, 2013):
                     ret = "stopped"
                     self.log_cb("Assuming server is not running")
+                elif code == MYSQL_ERR_OFFLINE_MODE:
+                    ret = "offline"
+                    self.log_cb("Server is in offline mode")
                 else:
+                    self.query_server_info()
                     ret = "running"
                     self.log_cb("Assuming server is running")
 
@@ -474,6 +490,10 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
     def server_stopped_event(self):
         self.disconnect_sql()
         self.last_known_server_running_status = ("stopped", time.time())
+        
+    #---------------------------------------------------------------------------
+    def server_offline_event(self):
+        self.last_known_server_running_status = ("offline", time.time())
 
     #---------------------------------------------------------------------------
     """
@@ -483,7 +503,10 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
     """
     def sql_status_callback(self, code, error, connect_info):
         if code == 0:
-            self.last_known_server_running_status = ("running", time.time())
+            if "offline_mode" in self.server_variables and self.server_variables["offline_mode"] == "ON":
+                self.last_known_server_running_status = ("offline", time.time()) 
+            else:
+                self.last_known_server_running_status = ("running", time.time())
 
 
     #---------------------------------------------------------------------------
@@ -702,6 +725,11 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
                 plugin_type = result.stringByName("Type")
                 if status == "ACTIVE":
                     self.server_active_plugins.add((name, plugin_type))
+        if self.server_variables["offline_mode"] == "ON":
+            #We're in offline mode, need to change server status
+            self.last_known_server_running_status = ("offline", time.time())
+        else:
+            self.last_known_server_running_status = ("running", time.time())
 
 
     def query_server_installation_info(self):

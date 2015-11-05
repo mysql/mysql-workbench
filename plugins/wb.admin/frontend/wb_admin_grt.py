@@ -401,7 +401,7 @@ def attachToSQLEditor(name, sender, args):
         # attach our WBA related things to it
         context = AdministratorContext(sender)
         sender.customData["adminContext"] = grt.togrt(context)
-        if not sender.isConnected:
+        if sender.isConnected <= 0:
             ignore = mforms.Utilities.add_timeout(0.1, lambda:context.open_into_section("admin_server_status", True))
             del ignore
 
@@ -697,7 +697,6 @@ def testInstanceSettingByName(what, connection, server_instance):
             log_debug2("Backtrace was: " % traceback.format_stack())
             return "ERROR "+str(exc)
         except:
-            print "Unknown error"
             return "ERROR"
 
         try:
