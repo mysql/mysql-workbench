@@ -857,14 +857,15 @@ size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::stri
     throw ConnectionError("SQLAllocHandle", ret, SQL_HANDLE_DBC, _dbc);
 
   std::string q;
+  std::string countStr = _source_rdbms_type == "Mssql" ? "count_big" : "count";
 
   switch (spec.type)
   {
     case CopyAll:
       if (spec.resume && last_pkeys.size())
-        q = base::strfmt("SELECT count(*) FROM %s.%s WHERE %s", schema.c_str(), table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str());
+        q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s", countStr.c_str(), schema.c_str(), table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str());
       else
-        q = base::strfmt("SELECT count(*) FROM %s.%s", schema.c_str(), table.c_str());
+        q = base::strfmt("SELECT %s(*) FROM %s.%s", countStr.c_str(), schema.c_str(), table.c_str());
       break;
     case CopyRange:
     {
@@ -875,22 +876,22 @@ size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::stri
         end_expr = base::strfmt("%s <= %lli", spec.range_key.c_str(), spec.range_end);
       start_expr = base::strfmt("%s >= %lli", spec.range_key.c_str(), spec.range_start);
       if (!end_expr.empty())
-        q = base::strfmt("SELECT count(*) FROM %s.%s WHERE %s AND %s", schema.c_str(), table.c_str(), start_expr.c_str(), end_expr.c_str());
+        q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s AND %s", countStr.c_str(), schema.c_str(), table.c_str(), start_expr.c_str(), end_expr.c_str());
       else
-        q = base::strfmt("SELECT count(*) FROM %s.%s WHERE %s", schema.c_str(), table.c_str(), start_expr.c_str());
+        q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s", countStr.c_str(), schema.c_str(), table.c_str(), start_expr.c_str());
       break;
     }
     case CopyCount:
     {
       if (spec.resume && last_pkeys.size())
-        q = base::strfmt("SELECT count(*) FROM %s.%s WHERE %s", schema.c_str(), table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str());
+        q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s", countStr.c_str(), schema.c_str(), table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str());
       else
-        q = base::strfmt("SELECT count(*) FROM %s.%s", schema.c_str(), table.c_str());
+        q = base::strfmt("SELECT %s(*) FROM %s.%s", countStr.c_str(), schema.c_str(), table.c_str());
       break;
     }
     case CopyWhere:
     {
-      q = base::strfmt("SELECT count(*) FROM %s.%s WHERE %s", schema.c_str(), table.c_str(), spec.where_expression.c_str());
+      q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s", countStr.c_str(), schema.c_str(), table.c_str(), spec.where_expression.c_str());
       break;
     }
   }

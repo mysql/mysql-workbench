@@ -188,6 +188,25 @@ WHERE st.table_name='%s' AND su.user_name='%s'""" % (table.name, table.owner.nam
 
         query = """SELECT UPPER(st.type_name), UPPER(base_type_str), UPPER(sd.domain_name )
         FROM SYSUSERTYPE st LEFT JOIN SYSDOMAIN sd ON st.domain_id=sd.domain_id"""
+
+        if cls.serverVersion().majorNumber < 12:
+            query = """SELECT
+            UPPER(st.type_name),
+            CASE
+                WHEN st.type_name = 'money' THEN UPPER(sd.domain_name+'(19,4)')
+                WHEN st.type_name = 'smallmoney' THEN UPPER(sd.domain_name+'(10,4)')
+                WHEN st.type_name = 'sysname' THEN UPPER(sd.domain_name+'(30)')
+                WHEN st.type_name = 'uniqueidentifierstr' THEN 'CHAR(36)'
+                WHEN st.type_name = 'uniqueidentifier' THEN 'BINARY(16)'
+            ELSE
+                UPPER(sd.domain_name)
+            END AS base_type_str,
+            UPPER(sd.domain_name )
+            FROM
+                SYSUSERTYPE st
+                    LEFT JOIN
+                SYSDOMAIN sd ON st.domain_id=sd.domain_id"""
+
         simple_datatypes = set()
         for datatype in cls._rdbms.simpleDatatypes:
             simple_datatypes.update([datatype.name] + list(datatype.synonyms))
