@@ -203,7 +203,7 @@ grt::IntegerRef db_Column::setParseType(const std::string &type, const grt::List
     GrtVersionRef catalogVersion = catalog->version();
     targetVersion->majorNumber(catalogVersion->majorNumber());
     targetVersion->minorNumber(catalogVersion->minorNumber());
-    targetVersion->releaseNumber(catalogVersion->releaseNumber() > 0 ? catalogVersion->releaseNumber() : 999);
+    targetVersion->releaseNumber(catalogVersion->releaseNumber() > 0 ? catalogVersion->releaseNumber() : grt::IntegerRef(999));
     targetVersion->buildNumber(catalogVersion->buildNumber());
     targetVersion->status(catalogVersion->status());
   }
