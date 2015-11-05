@@ -391,7 +391,7 @@ std::string sanitize_file_name(const std::string &s)
   for (std::string::const_iterator c = s.begin(); c != s.end(); ++c)
   {
     // utf-8 has the high-bit = 1, so we just copy those verbatim
-    if (isalnum(*c) || (unsigned char)*c >= 128 || (ispunct(*c) && !is_invalid_filesystem_char(*c)))
+    if ((unsigned char)*c >= 128 || isalnum(*c) || (ispunct(*c) && !is_invalid_filesystem_char(*c)))
       out.push_back(*c);
     else
       out.push_back('_');
