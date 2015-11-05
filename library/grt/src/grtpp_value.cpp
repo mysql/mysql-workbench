@@ -1626,7 +1626,6 @@ const char* fixed_strins[] = {
 "sslCipher",
 "getSchemata",
 "useAnsiQuotes",
-"useLegacyAuth",
 "sslCert",
 "Path to Certificate file for SSL.",
 "mysqlcppconn",
