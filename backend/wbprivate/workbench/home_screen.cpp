@@ -1981,6 +1981,12 @@ void HomeScreen::add_connection(db_mgmt_ConnectionRef connection, const std::str
   _connection_section->add_connection(connection, title, description, user, schema);
 }
 
+
+void HomeScreen::oldAuthConnections(const std::vector<db_mgmt_ConnectionRef> &list)
+{
+  _oldAuthList.assign(list.begin(), list.end());
+}
+
 //--------------------------------------------------------------------------------------------------
 
 void HomeScreen::add_document(const grt::StringRef& path, const time_t &time,
@@ -2041,6 +2047,43 @@ void HomeScreen::on_resize()
 void HomeScreen::setup_done()
 {
   _connection_section->focus_search_box();
+  if (!_oldAuthList.empty())
+  {
+    std::string tmp;
+    std::vector<db_mgmt_ConnectionRef>::const_iterator it;
+    for (it = _oldAuthList.begin(); it != _oldAuthList.end(); ++it)
+    {
+      tmp.append("\n");
+      tmp.append((*it)->name());
+      tmp.append(" user name:");
+      tmp.append((*it)->parameterValues().get_string("userName"));
+    }
+
+    int rc = mforms::Utilities::show_warning("Connections using old authentication protocol found",
+              "While loading the stored connections some were found to use the old authentication protocol. "
+              "This is no longer supported by MySQL Workbench and the MySQL client library. Click on the \"More Info\" button for a more detailed explanation.\n\n"
+              "With this change it is essential that user accounts are converted to the new password storage or you can no longer connect with MySQL Workbench using these accounts.\n\n"
+              "The following connections are affected:\n"
+              +tmp,
+              "Change", "Ignore", "More Info");
+    if (rc == mforms::ResultOther)
+    {
+      mforms::Utilities::open_url("http://mysqlworkbench.org/2014/03/mysql-workbench-6-1-updating-accounts-using-the-old-pre-4-1-1-authentication-protocol/");
+    }
+    else if (rc == mforms::ResultOk)
+    {
+      std::vector<db_mgmt_ConnectionRef>::const_iterator it;
+      for (it = _oldAuthList.begin(); it != _oldAuthList.end(); ++it)
+      {
+        if((*it).is_valid())
+        {
+          if ((*it)->parameterValues().has_key("useLegacyAuth"))
+            (*it)->parameterValues().remove("useLegacyAuth");
+        }
+      }
+      _oldAuthList.clear();
+    }
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
