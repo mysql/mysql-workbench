@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2BDC26290E85671D0018CE34"
-               BuildableName = "libsql.parser.dylib"
+               BuildableName = "sql.parser.dylib"
                BlueprintName = "sql.parser"
                ReferencedContainer = "container:MySQLWorkbench.xcodeproj">
             </BuildableReference>
@@ -46,7 +46,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2BDC26290E85671D0018CE34"
-            BuildableName = "libsql.parser.dylib"
+            BuildableName = "sql.parser.dylib"
             BlueprintName = "sql.parser"
             ReferencedContainer = "container:MySQLWorkbench.xcodeproj">
          </BuildableReference>
@@ -64,7 +64,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2BDC26290E85671D0018CE34"
-            BuildableName = "libsql.parser.dylib"
+            BuildableName = "sql.parser.dylib"
             BlueprintName = "sql.parser"
             ReferencedContainer = "container:MySQLWorkbench.xcodeproj">
          </BuildableReference>
