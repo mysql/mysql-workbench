@@ -246,9 +246,9 @@ bool NewPluginDialog::run(std::string& filename, std::string& code, bool& is_scr
   {
     filename= _module_file.get_string_value();
     code= PYTHON_MODULE_TEMPLATE;
-    bec::replace_string_inplace(code, "%modulename%",
+    base::replaceStringInplace(code, "%modulename%",
                                 _module_name.get_string_value());
-    bec::replace_string_inplace(code, "%functionname%",
+    base::replaceStringInplace(code, "%functionname%",
                                 _function_name.get_string_value());
     is_script= false;
     language = "python";
@@ -259,17 +259,17 @@ bool NewPluginDialog::run(std::string& filename, std::string& code, bool& is_scr
     filename= _plugin_file.get_string_value();
     if (index < 0) index= 0;
     code= _plugin_template_list[index].code;
-    bec::replace_string_inplace(code, "%modulename%",
+    base::replaceStringInplace(code, "%modulename%",
                                 _plugin_name.get_string_value());
-    bec::replace_string_inplace(code, "%functionname%",
+    base::replaceStringInplace(code, "%functionname%",
                                 _plugin_name.get_string_value());
-    bec::replace_string_inplace(code, "%pluginname%",
+    base::replaceStringInplace(code, "%pluginname%",
                                 _plugin_name.get_string_value());
     is_script= false;
     language = "python";
   }
 
-  bec::replace_string_inplace(code, "%wbversion%", base::strfmt("%i.%i.%i", APP_MAJOR_NUMBER, APP_MINOR_NUMBER, APP_RELEASE_NUMBER));
+  base::replaceStringInplace(code, "%wbversion%", base::strfmt("%i.%i.%i", APP_MAJOR_NUMBER, APP_MINOR_NUMBER, APP_RELEASE_NUMBER));
 
   return true;
 }

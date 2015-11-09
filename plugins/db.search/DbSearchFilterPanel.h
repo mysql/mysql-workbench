@@ -30,7 +30,7 @@ private:
   mforms::CheckBox _exclude_check;
   mforms::CheckBox _search_all_type_check;
   mforms::Selector _filter_selector;
-  mforms::TreeNodeView _filter_tree;
+  mforms::TreeView _filter_tree;
   mforms::Label _hint_label;
   mforms::Box _limits_box;
   mforms::Label _limit_table_hint;

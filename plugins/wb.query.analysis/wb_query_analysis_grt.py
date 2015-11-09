@@ -28,9 +28,9 @@ from explain_renderer import ExplainContext, decode_json
 ModuleInfo = DefineModule(name= "SQLIDEQueryAnalysis", author= "Oracle Corp.", version= "1.0")
 
 
-class JSONTreeViewer(mforms.TreeNodeView):
+class JSONTreeViewer(mforms.TreeView):
     def __init__(self):
-        mforms.TreeNodeView.__init__(self, mforms.TreeAltRowColors|mforms.TreeShowColumnLines|mforms.TreeShowRowLines)
+        mforms.TreeView.__init__(self, mforms.TreeAltRowColors|mforms.TreeShowColumnLines|mforms.TreeShowRowLines)
         self.add_column(mforms.StringColumnType, "Key", 200)
         self.add_column(mforms.StringColumnType, "Value", 300)
         self.end_columns()
@@ -342,7 +342,7 @@ class TabularExplainTab(mforms.Box):
 
         self.add(self.toolbar, False, False)
 
-        self.explain_tree = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeShowColumnLines|mforms.TreeShowRowLines|mforms.TreeAltRowColors)
+        self.explain_tree = mforms.newTreeView(mforms.TreeFlatList|mforms.TreeShowColumnLines|mforms.TreeShowRowLines|mforms.TreeAltRowColors)
         self.explain_tree.add_column_resized_callback(self.column_resized)
         c = len(explain.columns)
         rows_column = None
@@ -492,7 +492,7 @@ class ExplainTab(mforms.AppView):
 
 
     def fill_costs_tree(self, json):
-        tree = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeShowColumnLines|mforms.TreeShowRowLines|mforms.TreeAltRowColors)
+        tree = mforms.newTreeView(mforms.TreeFlatList|mforms.TreeShowColumnLines|mforms.TreeShowRowLines|mforms.TreeAltRowColors)
         return tree
 
 

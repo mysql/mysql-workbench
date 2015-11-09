@@ -47,7 +47,7 @@ AutoCompleteCache::AutoCompleteCache(const std::string &connection_id,
     _get_connection(get_connection), _shutdown(false)
 {
   _feedback = feedback;
-  std::string path = make_path(cache_dir, _connection_id) + ".cache";
+  std::string path = base::makePath(cache_dir, _connection_id) + ".cache";
   bool newDb = !base::file_exists(path);
   if (!newDb)
     newDb = base::tryRemove(path);
@@ -61,7 +61,7 @@ AutoCompleteCache::AutoCompleteCache(const std::string &connection_id,
   if (newDb)
     init_db();
 
-  log_debug2("Using autocompletion cache file %s\n", (make_path(cache_dir, _connection_id) + ".cache").c_str());
+  log_debug2("Using autocompletion cache file %s\n", (base::makePath(cache_dir, _connection_id) + ".cache").c_str());
 
 
   // Top level objects (aka. schemas).

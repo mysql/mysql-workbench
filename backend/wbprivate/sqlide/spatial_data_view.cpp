@@ -32,7 +32,7 @@
 #include "mforms/toolbar.h"
 #include "mforms/menubar.h"
 #include "mforms/checkbox.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/label.h"
 #include "mforms/textbox.h"
 #include "mforms/filechooser.h"
@@ -270,7 +270,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 
   _layer_menu->signal_will_show()->connect(boost::bind(&SpatialDataView::layer_menu_will_show, this));
 
-  _layer_tree = mforms::manage(new mforms::TreeNodeView(mforms::TreeFlatList));
+  _layer_tree = mforms::manage(new mforms::TreeView(mforms::TreeFlatList));
   _layer_tree->add_column(mforms::CheckColumnType, "", 25, true);
   _layer_tree->add_column(mforms::IconStringColumnType, "Layer", 120, false, true);
   _layer_tree->add_column(mforms::StringColumnType, "Source", 200, false, true);

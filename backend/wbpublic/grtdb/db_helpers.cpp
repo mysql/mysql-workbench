@@ -32,7 +32,7 @@ std::string bec::get_host_identifier_for_connection(const db_mgmt_ConnectionRef 
     std::string host_identifier = *connection->driver()->hostIdentifierTemplate();
     for (grt::DictRef::const_iterator par = params.begin(); par != params.end(); ++par)
     {
-      base::replace(host_identifier, "%"+par->first+"%", par->second.repr());
+      base::replaceStringInplace(host_identifier, "%"+par->first+"%", par->second.repr());
     }
     return host_identifier;
   }

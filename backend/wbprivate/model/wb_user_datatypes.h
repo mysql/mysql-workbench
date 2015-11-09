@@ -25,14 +25,14 @@
 
 #include <grtpp_undo_manager.h>
 
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 
 #include "workbench/wb_backend_public_interface.h"
 
 namespace wb {
   class WBContext;
 
-  class MYSQLWBBACKEND_PUBLIC_FUNC UserDatatypeList : public mforms::TreeNodeView
+  class MYSQLWBBACKEND_PUBLIC_FUNC UserDatatypeList : public mforms::TreeView
   {
   public:
     UserDatatypeList(WBContext *wb);

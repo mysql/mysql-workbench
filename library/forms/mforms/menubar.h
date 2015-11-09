@@ -111,6 +111,8 @@ namespace mforms {
   class MFORMS_EXPORT MenuItem : public MenuBase
   {
   public:
+    typedef boost::function<bool ()> validator_function;
+
     /** Constructor
      
      @param title - passing an empty title in the constructor will make the item be a separator
@@ -134,7 +136,8 @@ namespace mforms {
 
     MenuItemType get_type() { return _type; }
     
-    void set_validator(const boost::function<bool ()> &slot);
+    void add_validator(const validator_function &slot);
+    void clear_validators();
     
   public:
     void callback();
@@ -143,7 +146,7 @@ namespace mforms {
   private:
     std::string _name;
     std::string _shortcut;
-    boost::function<bool ()> _validate;
+    std::vector<validator_function> _validators;
     boost::signals2::signal<void ()> _clicked_signal;
     MenuItemType _type;
   };

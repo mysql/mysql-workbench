@@ -162,7 +162,7 @@ public:
       else
       {
         // We are done. Do the final replace and go out of the loop.
-        base::replace(_shortened_description, single_placeholder, " ");
+        base::replaceStringInplace(_shortened_description, single_placeholder, " ");
         break;
       }
     } while (true);

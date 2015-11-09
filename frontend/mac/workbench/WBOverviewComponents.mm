@@ -727,7 +727,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 {
   if (_descriptionLabel)
   {
-    [self lockFocus];
+    //[self lockFocus];
     
     NSImage *bar= [NSImage imageNamed:@"header_bar_gray.png"];
    
@@ -738,7 +738,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
            operation:NSCompositeSourceOver
             fraction:0.4];
     
-    [self unlockFocus];
+    //[self unlockFocus];
   }
 }
 
@@ -902,7 +902,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
 - (void)drawRect:(NSRect)rect
 {
-  [self lockFocus];
+  //[self lockFocus];
   
   NSImage *bar= [NSImage imageNamed:@"header_bar_gray.png"];
   
@@ -924,7 +924,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
          operation:NSCompositeSourceOver
           fraction:0.4];
   
-  [self unlockFocus];
+  //[self unlockFocus];
 }
 
 

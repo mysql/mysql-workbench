@@ -670,10 +670,10 @@ mforms::MenuBar *PhysicalOverviewBE::get_menubar()
     
     mforms::MenuItem *item = _menu->find_item("wb.edit.editObject");
     if (item)
-      item->set_validator(boost::bind(has_selection, this));
+      item->add_validator(boost::bind(has_selection, this));
     item = _menu->find_item("wb.edit.editObjectInNewWindow");
     if (item)
-      item->set_validator(boost::bind(has_selection, this));    
+      item->add_validator(boost::bind(has_selection, this));    
   }
   return _menu;
 }

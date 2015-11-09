@@ -259,6 +259,7 @@ class MEBBackup(MEBCommand):
         self.file_name=''
         self.time_format = '%Y-%m-%d_%H-%M-%S'
         self.time_format_re = re.compile("\\b[1-9]\\d\\d\\d\\b-[0-1]\\d-[0-3]\\d_[0-2]\\d-[0-5]\\d-[0-5]\\d")
+        self.backup_ok_re   = re.compile("^mysqlbackup completed OK!$")  # according to http://dev.mysql.com/doc/mysql-enterprise-backup/3.10/en/mysqlbackup.html, we can rely on this appearing at the end of the backup log when the backup succeeds
 
     def print_usage(self):
         self.write_output("BACKUP <profile> <compress> <incremental> <to_single_file> <report_progress> <command>")
@@ -445,16 +446,29 @@ class MEBBackup(MEBCommand):
     def find_lastest_backup(self, path, base_time):
 
         sub_folders = [name for name in os.listdir(path) if os.path.isdir(os.path.join(path, name))]
+        sub_folders.sort(reverse=True)    # sort backups in newest-to-oldest order
         lastest_time = base_time
 
+        # find the most-recent valid backup
         for folder in sub_folders:
             if self.time_format_re.match(folder):
-                folder_time=strptime(folder, self.time_format)
 
-                if folder_time > lastest_time:
-                    lastest_time = folder_time
+                if self.is_backup_dir_valid(os.path.join(path,folder)):
+                    lastest_time = strptime(folder, self.time_format)
+                    break
 
         return lastest_time
+
+    def is_backup_dir_valid(self, folder):
+
+        log_filename = folder + '.log'  # each /path/to/backup/dir has a corresponding /path/to/backup/dir.log
+
+        # grep log file for the flag message
+        f = open(log_filename, 'r')
+        for line in f:
+            if self.backup_ok_re.match(line):
+                return True
+        return False
 
 class MEBUpdateScheduling(MEBCommand):
     def __init__(self, params = None, output_handler = None):
@@ -538,9 +552,9 @@ class MEBUpdateScheduling(MEBCommand):
         cron_file = "%s/wb_cron_file" % os.path.dirname(__file__)
 
         if backup_type == 'full':
-            command = "crontab -l | grep -v '%s.*%s\.cnf\s\d\s0' > '%s'; crontab '%s';rm '%s'" % (__file__, self.uuid, cron_file, cron_file, cron_file)
+            command = "crontab -l | grep -P -v '%s.*%s\.cnf\s\d\s0' > '%s'; crontab '%s';rm '%s'" % (__file__, self.uuid, cron_file, cron_file, cron_file)
         else:
-            command = "crontab -l | grep -v '%s.*%s\.cnf\s\d\s1' > '%s'; crontab '%s';rm '%s'" % (__file__, self.uuid, cron_file, cron_file, cron_file)
+            command = "crontab -l | grep -P -v '%s.*%s\.cnf\s\d\s1' > '%s'; crontab '%s';rm '%s'" % (__file__, self.uuid, cron_file, cron_file, cron_file)
             
         return command
 

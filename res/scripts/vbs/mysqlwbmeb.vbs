@@ -16,6 +16,37 @@
 ' Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 ' 02110-1301  USA
 
+' VBS doesn't provide sorting out of the box
+function qsort(arr, first, last)
+    if first < last then
+        p = qsort_partition(arr, first, last)
+        call qsort(arr, first, p - 1)
+        call qsort(arr, p + 1, last)
+    end if
+end function
+function qsort_partition(arr, first, last)
+    pivot = arr(last)
+
+    i = first
+    for j = first to last - 1
+        if arr(j) <= pivot then
+            ' swap
+            tmp = arr(i)
+            arr(i) = arr(j)
+            arr(j) = tmp
+
+            i = i + 1
+        end if
+    next
+
+    ' swap
+    tmp = arr(i)
+    arr(i) = arr(last)
+    arr(last) = tmp
+
+    qsort_partition = i
+end function
+
 ' These variables will be retrieved from the backup profile
 class JSONDumper
     public function json_object(element)
@@ -317,7 +348,7 @@ class MEBHelperVersion
     private current
     
     private sub Class_Initialize()
-        current = "8"
+        current = "10"
     end sub
 
     public function execute()
@@ -474,45 +505,101 @@ class MEBBackup
         get_incremental_base_folder = base_folder
     end function
 
-    private function find_lastest_backup(path, basetstamp)
+    private function get_folders_in_newest_to_oldest_order(path)
+
         ' Gets the folders on the target path
         set tgt_folder = fso.GetFolder(path)
         set folder_list = tgt_folder.SubFolders
-        
+
+        ' copy folder_list to a native array
+        arr = Array()
+        for each folder in folder_list
+            last = UBound(arr)
+            redim preserve arr(last + 1)
+            arr(last + 1) = folder.path
+        next
+
+        ' sort folder names in reverse order
+        arr_ub = UBound(arr)
+        call qsort(arr, 0, arr_ub)
+        redim sorted_folder_list(arr_ub + 1)
+        for i = 0 to arr_ub
+            sorted_folder_list(arr_ub - i) = arr(i)
+        next
+
+        get_folders_in_newest_to_oldest_order = sorted_folder_list
+
+    end function
+
+    private function find_lastest_backup(path, basetstamp)
+
         lastest = basetstamp
-        
+
         ' Creates the regular expression to match the timestamo
         ' folder names used un meb
         set regExp = CreateObject("VBScript.RegExp")
         regExp.Global = true
         regExp.Pattern = "(\b[1-9]\d\d\d\b)-([0-1]\d)-([0-3]\d)_([0-2]\d)-([0-5]\d)-([0-5]\d)"
-        
-        for each folder in folder_list
-            set matches = regExp.Execute(folder.name)
-            if matches.Count = 1 then
-                dim match, year, month, day, hour, minute, second, newtstamp
-                set match = matches(0).SubMatches
-                
-                ' Gets the data for the matched folder
-                year = match(0)
-                month = match(1)
-                day = match(2)
-                hour = match(3)
-                minute = match(4)
-                second = match(5)
 
-                ' Compares the new tstamp with the base and if greather (more recent)
-                ' then replaces it
-                newtstamp = CDate(year & "-" & month & "-" & day & " " & hour & ":" & minute & ":" & second)
-                if newtstamp > lastest then
-                    lastest = newtstamp
+        folder_list = get_folders_in_newest_to_oldest_order(path)
+
+        for each folder in folder_list
+            set matches = regExp.Execute(folder)
+            if matches.Count = 1 then
+                if is_backup_dir_valid(folder) then
+
+                    dim match, year, month, day, hour, minute, second
+                    set match = matches(0).SubMatches
+
+                    ' Gets the data for the matched folder
+                    year = match(0)
+                    month = match(1)
+                    day = match(2)
+                    hour = match(3)
+                    minute = match(4)
+                    second = match(5)
+
+                    ' Compares the new tstamp with the base and if greather (more recent)
+                    ' then replaces it
+                    lastest = CDate(year & "-" & month & "-" & day & " " & hour & ":" & minute & ":" & second)
+
+                    exit for
                 end if
             end if
         next
-        
+
         find_lastest_backup = lastest
     end function
-    
+
+    private function is_backup_dir_valid(folder)
+
+        ' create regex for detecting backup success
+        set backup_ok_flag_re = CreateObject("VBScript.RegExp")
+        backup_ok_flag_re.Pattern = "^mysqlbackup completed OK!$"  ' according to http://dev.mysql.com/doc/mysql-enterprise-backup/3.10/en/mysqlbackup.html, we can rely on this appearing at the end of the backup log when the backup succeeds
+
+        log_filename = folder & ".log"          ' each /path/to/backup/dir has a corresponding /path/to/backup/dir.log
+
+        ' open log file
+        on error resume next                    ' ensure the errors aren't fatal
+        err.Clear
+        set f = fso.OpenTextFile(log_filename)  ' on Windows, this may fail when opening the current log file due to file locking
+
+        ' grep log file for the flag message
+        is_backup_dir_valid = false
+        if err.Number = 0 then                  ' if (opening file succeded)
+            do until f.AtEndOfStream
+                line = f.ReadLine
+                if backup_ok_flag_re.Test(line) then
+                    is_backup_dir_valid = true
+                    exit do
+                end if
+            loop
+            f.close
+        else
+            err.Clear
+        end if
+    end function
+
     private function prepare_command
         set my_utils = new Utilities
         ret_val = True
@@ -548,7 +635,7 @@ class MEBBackup
             base_folder = get_incremental_base_folder()
 
             if base_folder <> "" then
-                command_call = command_call & " --incremental --incremental-base=dir:" &  base_folder
+                command_call = command_call & " --incremental --incremental-base=dir:" & """" & base_folder & """"
                 backup_dir = inc_backup_dir
                 path_param = "  --incremental-backup-dir"
             else

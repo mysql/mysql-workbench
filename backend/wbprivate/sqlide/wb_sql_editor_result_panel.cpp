@@ -40,7 +40,7 @@
 #include "base/boost_smart_ptr_helpers.h"
 
 #include "mforms/utilities.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/label.h"
 #include "mforms/box.h"
 #include "mforms/table.h"
@@ -753,7 +753,7 @@ void SqlEditorResult::create_spatial_view_panel_if_needed()
       if (!spatial::Projection::get_instance().check_libproj_availability())
       {
         mforms::Utilities::show_message_and_remember("Unable to initialize Spatial Viewer",
-                                                     "Spatial support requires the PROJ.4 library (libproj). If you already have it installed, please set the PROJSO environment variable to its location before starting Worbench.",
+                                                     "Spatial support requires the PROJ.4 library (libproj). If you already have it installed, please set the PROJSO environment variable to its location before starting Workbench.",
                                                      "Ok", "", "",
                                                      "SqlEditorResult.libprojcheck", "");
         return;
@@ -791,7 +791,7 @@ static mforms::Label *bold_label(const std::string text)
 }
 
 
-void SqlEditorResult::copy_column_info(mforms::TreeNodeView *tree)
+void SqlEditorResult::copy_column_info(mforms::TreeView *tree)
 {
   std::list<mforms::TreeNodeRef> nodes(tree->get_selection());
   std::string text;
@@ -812,7 +812,7 @@ void SqlEditorResult::copy_column_info(mforms::TreeNodeView *tree)
 }
 
 
-void SqlEditorResult::copy_column_info_name(mforms::TreeNodeView *tree)
+void SqlEditorResult::copy_column_info_name(mforms::TreeView *tree)
 {
   std::list<mforms::TreeNodeRef> nodes(tree->get_selection());
   std::string text;
@@ -845,7 +845,7 @@ void SqlEditorResult::create_column_info_panel()
 
     if (_owner->owner()->collect_field_info())
     {
-      mforms::TreeNodeView *tree = mforms::manage(new mforms::TreeNodeView(mforms::TreeFlatList|mforms::TreeAltRowColors|mforms::TreeShowRowLines|mforms::TreeShowColumnLines|mforms::TreeNoBorder));
+      mforms::TreeView *tree = mforms::manage(new mforms::TreeView(mforms::TreeFlatList|mforms::TreeAltRowColors|mforms::TreeShowRowLines|mforms::TreeShowColumnLines|mforms::TreeNoBorder));
       tree->add_column(mforms::IntegerColumnType, "#", 50);
       tree->add_column(mforms::StringColumnType, "Field", 130);
       tree->add_column(mforms::StringColumnType, "Schema", 130);

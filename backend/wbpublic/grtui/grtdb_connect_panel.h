@@ -82,6 +82,8 @@ public:
   void set_driver_changed_cb(const boost::function<void (db_mgmt_DriverRef)> &cb) {_driver_changed_cb = cb;};
   
   bool test_connection();
+
+  void connection_user_input(std::string &text_entry, bool &create_group, bool new_entry = true);
   
   db_mgmt_RdbmsRef selected_rdbms();
   db_mgmt_DriverRef selected_driver();
@@ -135,6 +137,7 @@ private:
   boost::signals2::signal<void (std::string,bool)> _signal_validation_state_changed;
   
   bool _initialized;
+  bool _create_group;
   bool _delete_connection_be;
   bool _show_connection_combo;
   bool _show_manage_connections;
@@ -154,26 +157,27 @@ private:
 
   void change_active_rdbms();
   void change_active_driver();
-  
+
   void set_keychain_password(DbDriverParam *param, bool clear);
-  
-  void param_value_changed(mforms::View *sender);
+
+  void param_value_changed(mforms::View *sender, bool trim_whitespace);
   void enum_param_value_changed(mforms::Selector *sender, std::vector<std::string> options);
-  
+
   void refresh_stored_connections();
-  
+
   void change_active_stored_conn();
   void reset_stored_conn_list();
-  
+  void change_connection_name();
+
   void launch_ssl_wizard();
   void open_ssl_wizard_directory();
 
   grt::ListRef<db_mgmt_Connection> connection_list();
-  
+
   db_mgmt_ConnectionRef open_editor();
-  
+
   grt::StringListRef get_enum_values(db_mgmt_DriverParameterRef param);
-  
+
   boost::function<void (const db_mgmt_DriverRef &)> _driver_changed_cb;
 };
 

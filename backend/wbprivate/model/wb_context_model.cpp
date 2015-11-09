@@ -48,7 +48,6 @@
 #include "grtdb/db_helpers.h"
 #include "grtdb/db_object_helpers.h"
 #include "grt/clipboard.h"
-#include "grt/common.h"
 
 #include "grtpp_notifications.h"
 
@@ -185,7 +184,7 @@ void WBContextModel::refill_catalog_tree()
 }
 
 
-mforms::TreeNodeView *WBContextModel::create_user_type_list()
+mforms::TreeView *WBContextModel::create_user_type_list()
 {
   UserDatatypeList *type_list;
 
@@ -200,7 +199,7 @@ mforms::TreeNodeView *WBContextModel::create_user_type_list()
 
 //--------------------------------------------------------------------------------------------------
 
-mforms::TreeNodeView* WBContextModel::create_history_tree()
+mforms::TreeView* WBContextModel::create_history_tree()
 {
   HistoryTree *history_tree = new HistoryTree(_wbui->get_wb()->get_grt_manager(), _wbui->get_wb()->get_grt()->get_undo_manager());
   history_tree->refresh();
@@ -275,7 +274,7 @@ void WBContextModel::detect_auto_save_files(const std::string &autosave_dir)
   
   try
   {
-    autosaves = base::scan_for_files_matching(bec::make_path(autosave_dir, "*.mwbd*"));
+    autosaves = base::scan_for_files_matching(base::makePath(autosave_dir, "*.mwbd*"));
   }
   catch (const std::runtime_error &)
   {
@@ -287,12 +286,12 @@ void WBContextModel::detect_auto_save_files(const std::string &autosave_dir)
     if (!g_file_test(d->c_str(), G_FILE_TEST_IS_DIR))
       continue;
 
-    if (base::LockFile::check(bec::make_path(*d, ModelFile::lock_filename.c_str())) != base::LockFile::NotLocked)
+    if (base::LockFile::check(base::makePath(*d, ModelFile::lock_filename.c_str())) != base::LockFile::NotLocked)
       continue;
     
-    if (g_file_test(bec::make_path(*d, MAIN_DOCUMENT_AUTOSAVE_NAME).c_str(), G_FILE_TEST_EXISTS))
+    if (g_file_test(base::makePath(*d, MAIN_DOCUMENT_AUTOSAVE_NAME).c_str(), G_FILE_TEST_EXISTS))
     {
-      std::string path = bec::make_path(*d, "real_path");
+      std::string path = base::makePath(*d, "real_path");
       gchar *orig_path;
       gsize length;
       if (g_file_test(path.c_str(), (GFileTest)(G_FILE_TEST_IS_REGULAR|G_FILE_TEST_EXISTS))

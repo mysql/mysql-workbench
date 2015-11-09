@@ -71,12 +71,13 @@ class ModelDiagramPanel : public Gtk::Paned, public FormViewBase
   Glib::RefPtr<Gdk::Cursor> _cursor;
   InlineEditor _inline_editor;
   Gtk::Paned *_editor_paned;
-  Gtk::Widget *_sidebar;
+  Gtk::Paned *_sidebar;
+  Gtk::Paned *_side_model_pane2;
 
   NavigatorBox                *_navigator_box;
-  mforms::TreeNodeView        *_catalog_tree;
-  mforms::TreeNodeView        *_usertypes_list;
-  mforms::TreeNodeView        *_history_list;
+  mforms::TreeView        *_catalog_tree;
+  mforms::TreeView        *_usertypes_list;
+  mforms::TreeView        *_history_list;
   DocumentationBox            *_documentation_box;
   PropertiesTree              *_properties_tree;
 #ifdef COMMERCIAL_CODE
@@ -94,14 +95,14 @@ class ModelDiagramPanel : public Gtk::Paned, public FormViewBase
 
   void view_realized();
 
-  void post_construct(wb::WBContextUI *wb, Glib::RefPtr<Gtk::Builder> xml);
+  void post_construct(wb::WBContextUI *wb);
 
   sigc::connection    _sig_restore_sidebar;
 
 public:
   static ModelDiagramPanel *create(wb::WBContextUI *wb);
 
-  ModelDiagramPanel(GtkPaned *paned, Glib::RefPtr<Gtk::Builder> xml);
+  ModelDiagramPanel(GtkPaned *paned, const Glib::RefPtr<Gtk::Builder> &xml);
 
   ~ModelDiagramPanel();
 

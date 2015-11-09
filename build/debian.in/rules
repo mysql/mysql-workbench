@@ -28,24 +28,31 @@
 
 INSTALL_PREFIX=/usr
 
-ODBC_HOME=$(HOME)/linux-res-6.3/usr/
-LINUXRES_HOME=$(HOME)/linux-res-6.3/
+LINUXRES_HOME=$(HOME)/linux-res
+LINUXRES_BINARIES=$(LINUXRES_HOME)/builds
+
+ODBC_HOME=$(LINUXRES_BINARIES)/odbc/usr/local
+
+SQLITE_HOME=$(LINUXRES_BINARIES)/sqlite
+PYSQLITE2_HOME=$(LINUXRES_BINARIES)/pysqlite2
+PYODBC_HOME=$(LINUXRES_BINARIES)/pyodbc
 
 @ifdef community
-CPPCONN_HOME=$(LINUXRES_HOME)/cppconn-gpl
+CPPCONN_HOME=$(LINUXRES_BINARIES)/cppconn-gpl/usr/local
+GDAL_HOME=$(LINUXRES_BINARIES)/gdal-gpl/usr/local
+VSQLITE_HOME=$(LINUXRES_BINARIES)/vsqlite-gpl/usr/local
 MYSQL_HOME=$(HOME)/mysql-server/
 @else
-CPPCONN_HOME=$(LINUXRES_HOME)/cppconn-com
+CPPCONN_HOME=$(LINUXRES_BINARIES)/cppconn-com/usr/local
+GDAL_HOME=$(LINUXRES_BINARIES)/gdal-com/usr/local
+VSQLITE_HOME=$(LINUXRES_BINARIES)/vsqlite-com/usr/local
 MYSQL_HOME=$(HOME)/mysql-server-advanced/
 @endif
-
-VSQLITE_HOME=$(LINUXRES_HOME)/vsqlite
-
-GDAL_HOME=$(LINUXRES_HOME)/gdal
 
 WBDIRNAME=mysql-workbench-@edition@
 
 WBLIBPATH=$(INSTALL_PREFIX)/lib/mysql-workbench
+WBDATADIRPATH=$(INSTALL_PREFIX)/share/mysql-workbench
 WBDOCPATH=$(INSTALL_PREFIX)/share/doc/mysql-workbench-@edition@
 
 configure: configure-stamp
@@ -103,16 +110,23 @@ install: build
 	# Bundle pyodbc and iodbc
 	cp -a $(ODBC_HOME)/bin/iodbcadm-gtk $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(ODBC_HOME)/lib/libiodbc*.so.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
-	cp -a $(LINUXRES_HOME)/pyodbc.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+	cp -a $(PYODBC_HOME)/pyodbc.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	# Bundle other unpackaged libs
 	cp -a $(VSQLITE_HOME)/lib/libvsqlitepp.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(CPPCONN_HOME)/lib/libmysqlcppconn.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(GDAL_HOME)/lib/libgdal* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 @ifdef commercial
 	# Bundle libs only needed for SE edition
-	cp -a $(LINUXRES_HOME)/sqlite3/libsqlite3.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
-	cp -a $(LINUXRES_HOME)/pysqlite2 $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)/modules/
+	cp -a $(SQLITE_HOME)/libsqlite3.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+	cp -a $(PYSQLITE2_HOME) $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)/modules/
 @endif
+
+@ifdef paramiko
+	#bundle paramiko based on the param
+	cp -a $(LINUXRES_HOME)/python/paramiko  $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)/modules/
+	cp -a $(LINUXRES_HOME)/python/ecdsa $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)/modules/
+@endif
+
 	# Bundle client programs and lib
 	cp -a $(MYSQL_HOME)/lib/libmysqlclient.so.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(MYSQL_HOME)/bin/mysql $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)

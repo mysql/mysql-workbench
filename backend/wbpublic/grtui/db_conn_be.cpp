@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,6 +37,7 @@ using namespace base;
 #include <memory>
 #include <set>
 #include <boost/assign/list_of.hpp>
+#include <string>
 
 #undef max
 
@@ -245,6 +246,31 @@ std::vector<std::pair<std::string, std::string> > DbDriverParam::get_enum_option
   return options;
 }
 
+grt::StringRef DbDriverParam::getValue()
+{
+  grt::StringRef value = "";
+  if (!(*_inner->lookupValueModule()).empty() && (*_inner->lookupValueModule()) == "Options")
+  {
+    grt::DictRef wb_options = grt::DictRef::cast_from(_inner.get_grt()->get("/wb/options/options"));
+    switch (this->_type)
+    {
+      case ParamType::ptInt:
+        value = std::to_string(wb_options.get_int(*_inner->lookupValueMethod(), 0));
+        break;
+      case ParamType::ptString:
+        value = wb_options.get_string(*_inner->lookupValueMethod(), this->get_value_repr());
+        break;
+      default:
+        value = this->get_value_repr();
+        break;
+    }
+
+  }
+  else
+    value = this->get_value_repr();
+
+  return value;
+}
 //----------------------------------------------------------------------
 
 

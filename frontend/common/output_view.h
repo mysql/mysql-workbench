@@ -22,7 +22,7 @@
 
 #include "grt/grt_message_list.h"
 
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/splitter.h"
 #include "mforms/menubar.h"
 #include "mforms/appview.h"
@@ -46,7 +46,7 @@ private:
   bec::MessageListBE *_messages;
 
   mforms::Splitter _splitter;
-  mforms::TreeNodeView _message_list;
+  mforms::TreeView _message_list;
   mforms::TextBox _output_text;
   mforms::ContextMenu _context_menu;
   bool _can_track_changes;

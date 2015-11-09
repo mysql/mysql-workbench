@@ -358,7 +358,7 @@ const CGFloat paddingHighlightY = 2;
   [notificationQueue enqueueNotification: notification
                             postingStyle: NSPostWhenIdle
                             coalesceMask: (NSNotificationCoalescingOnName | NSNotificationCoalescingOnSender)
-                                forModes: nil];
+                                forModes: @[NSModalPanelRunLoopMode, NSDefaultRunLoopMode]];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -946,6 +946,7 @@ void ScintillaCocoa::FineTickerStart(TickReason reason, int millis, int toleranc
                                                       selector: @selector(timerFired:)
                                                       userInfo: nil
                                                        repeats: YES];
+  [NSRunLoop.currentRunLoop addTimer: fineTimer forMode: NSModalPanelRunLoopMode];
   if (tolerance && [fineTimer respondsToSelector: @selector(setTolerance:)])
   {
     [fineTimer setTolerance: tolerance / 1000.0];
@@ -982,6 +983,7 @@ bool ScintillaCocoa::SetIdle(bool on)
 						 selector: @selector(idleTimerFired:)
 						 userInfo: nil
 						  repeats: YES];
+      [NSRunLoop.currentRunLoop addTimer: idleTimer forMode: NSModalPanelRunLoopMode];
       idler.idlerID = reinterpret_cast<IdlerID>(idleTimer);
     }
     else

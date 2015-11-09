@@ -73,7 +73,7 @@ static std::string showFileDialog(const std::string &type, const std::string &ti
     if (iter->find('|') != std::string::npos)
     {
       std::string ext= iter->substr(iter->find('|')+1);
-      ext= bec::replace_string(ext, "*.", "");
+      ext= base::replaceString(ext, "*.", "");
       [fileTypes addObject:@(ext.c_str())];
     }
     else

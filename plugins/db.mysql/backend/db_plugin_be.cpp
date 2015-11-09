@@ -552,7 +552,7 @@ int Db_plugin::process_sql_script_error(long long err_no, const std::string &err
   std::ostringstream oss;
   std::string stmt = base::trim(statement, "\n");
 
-  base::replace(stmt, "\n", "\n        ");
+  base::replaceStringInplace(stmt, "\n", "\n        ");
   stmt = "        " + stmt;
 
   oss << _("Error ") << err_no << ": " << err_msg << std::endl << _("SQL Code:") << std::endl << stmt << std::endl;

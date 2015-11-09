@@ -231,8 +231,11 @@ inline bool can_convert(const Glib::ustring& str, std::string &val)
 }
 
 //==============================================================================
-
-#if GLIB_CHECK_VERSION(2, 42, 0)
+#if GLIB_CHECK_VERSION(2, 44, 1)
+class ListModelWrapper : public Gtk::TreeModel, public Gtk::TreeDragDest, public Gtk::TreeDragSource,
+                         public Glib::Object,
+                         public base::trackable
+#elif GLIB_CHECK_VERSION(2, 42, 0)
 class ListModelWrapper : public Gtk::TreeModel, public Glib::Object,
                          public Gtk::TreeDragDest, public Gtk::TreeDragSource,
                          public base::trackable

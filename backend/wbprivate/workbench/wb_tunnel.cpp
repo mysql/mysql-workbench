@@ -21,6 +21,7 @@
 #include "wb_context.h"
 
 #include "base/string_utilities.h"
+#include "base/file_utilities.h"
 
 #include <errno.h>
 #ifdef _WIN32
@@ -136,7 +137,7 @@ TunnelManager::TunnelManager(wb::WBContext *wb)
 
 void TunnelManager::start()
 {
-  std::string progpath = bec::make_path(_wb->get_grt_manager()->get_basedir(), "sshtunnel.py");
+  std::string progpath = base::makePath(_wb->get_grt_manager()->get_basedir(), "sshtunnel.py");
 
   WillEnterPython lock;
   grt::PythonContext *py = grt::PythonContext::get();

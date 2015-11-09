@@ -23,7 +23,7 @@
 #include "grt/grt_manager.h"
 
 #include "mforms/form.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/imagebox.h"
 #include "mforms/label.h"
 #include "mforms/checkbox.h"
@@ -44,7 +44,7 @@ public:
 private:
   wb::WBContext *_wb;
   bec::GRTManager *_grtm;
-  mforms::TreeNodeView plugin_list;
+  mforms::TreeView plugin_list;
   mforms::ImageBox plugin_icon;
   mforms::Label plugin_caption;
   mforms::Label plugin_version;

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,7 +29,6 @@
 #include "model/wb_context_model.h"
 #include "model/wb_layer_tree.h"
 
-#include "grt/common.h"
 #include "grt/clipboard.h"
 
 #include "wbcanvas/model_figure_impl.h"
@@ -41,6 +40,7 @@
 
 #include "wb_physical_model_diagram_features.h"
 #include "base/string_utilities.h"
+#include "base/file_utilities.h"
 #include "base/log.h"
 #include <boost/lambda/bind.hpp>
 
@@ -74,8 +74,8 @@ static const double zoom_steps[]= {
 };
 
 ModelDiagramForm::ModelDiagramForm(WBComponent *owner, const model_DiagramRef &view)
-: _catalog_tree(NULL), _view(0), _owner(owner), _model_diagram(view), _mini_view(0), _menu(0),
-_toolbar(0), _tools_toolbar(0), _options_toolbar(0)
+  : _catalog_tree(NULL), _view(NULL), _owner(owner), _model_diagram(view), _mini_view(NULL), _menu(NULL),
+  _toolbar(NULL), _tools_toolbar(NULL), _options_toolbar(NULL)
 {
   _drag_panning= false;
   _space_panning= false;
@@ -166,6 +166,9 @@ extern std::string find_icon_name(std::string icon_name, bool use_win8);
 
 void ModelDiagramForm::update_toolbar_icons()
 {
+  if (_toolbar == NULL)
+    return; // Can happen if the diagram hasn't shown yet.
+
   bool use_win8;
 
   switch (base::Color::get_active_scheme())
@@ -196,7 +199,7 @@ void ModelDiagramForm::update_toolbar_icons()
 
 //--------------------------------------------------------------------------------------------------
 
-mforms::TreeNodeView *ModelDiagramForm::get_layer_tree()
+mforms::TreeView *ModelDiagramForm::get_layer_tree()
 {
   if (!_layer_tree)
   {
@@ -215,7 +218,7 @@ mforms::ToolBar *ModelDiagramForm::get_tools_toolbar()
     _tools_toolbar = new mforms::ToolBar(mforms::ToolPickerToolBar);
     app_ToolbarRef toolbar[3];
     
-    toolbar[0]= app_ToolbarRef::cast_from(get_wb()->get_grt()->unserialize(make_path(get_wb()->get_datadir(),
+    toolbar[0]= app_ToolbarRef::cast_from(get_wb()->get_grt()->unserialize(base::makePath(get_wb()->get_datadir(),
                                                                                      "data/tools_toolbar.xml")));
     toolbar[1]= get_wb()->get_component_named("basic")->get_tools_toolbar();
     toolbar[2]= get_wb()->get_component_named("physical")->get_tools_toolbar();
@@ -280,10 +283,10 @@ mforms::MenuBar *ModelDiagramForm::get_menubar()
     
     mforms::MenuItem *item = _menu->find_item("wb.edit.editSelectedFigure");
     if (item)
-      item->set_validator(boost::bind(&ModelDiagramForm::has_selection, this));
+      item->add_validator(boost::bind(&ModelDiagramForm::has_selection, this));
     item = _menu->find_item("wb.edit.editSelectedFigureInNewWindow");
     if (item)
-      item->set_validator(boost::bind(&ModelDiagramForm::has_selection, this));
+      item->add_validator(boost::bind(&ModelDiagramForm::has_selection, this));
   }
   revalidate_menu();
   return _menu;

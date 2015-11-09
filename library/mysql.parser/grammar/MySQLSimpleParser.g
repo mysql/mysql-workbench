@@ -20,7 +20,7 @@ parser grammar MySQLSimpleParser;
  */
 
 /*
- * Merged in all changes up to mysql-trunk git revision [94e53ac] (07 May 2015).
+ * Merged in all changes up to mysql-trunk git revision [2405334] (04 Sep 2015).
  *
  * This is a duplicate of the main MySQL grammar, but without any tree output/rewriting.
  * Without that the parser is around 3 times faster and hence better suited for tasks like syntax
@@ -66,7 +66,7 @@ extern "C" {
 #endif
 
   // Custom error reporting function.
-  void on_parse_error(struct ANTLR3_BASE_RECOGNIZER_struct *recognizer, pANTLR3_UINT8 *tokenNames); 
+  void onMySQLParseError(struct ANTLR3_BASE_RECOGNIZER_struct *recognizer, pANTLR3_UINT8 *tokenNames); 
 
 #ifdef __cplusplus
 };
@@ -79,7 +79,7 @@ extern "C" {
 @parser::apifuncs
 {
 	// Install custom error collector for the front end.
-	RECOGNIZER->displayRecognitionError = on_parse_error;
+	RECOGNIZER->displayRecognitionError = onMySQLParseError;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -123,7 +123,7 @@ statement:
 	| install_uninstall_statment
 	| {LA(1) == SET_SYMBOL && LA(2) != PASSWORD_SYMBOL}? set_statement // SET PASSWORD is handled in account_management_statement.
 	| show_statement
-	| miscellaneous_statement
+	| other_administrative_statement
 	
 	// MySQL utilitity statements
 	| utility_statement
@@ -147,10 +147,10 @@ alter_statement:
 ;
 
 alter_database:
-	DATABASE_SYMBOL
+	DATABASE_SYMBOL schema_ref
 	(
-		schema_ref? database_option+
-		| schema_ref UPGRADE_SYMBOL DATA_SYMBOL DIRECTORY_SYMBOL NAME_SYMBOL
+		database_option+
+		| UPGRADE_SYMBOL DATA_SYMBOL DIRECTORY_SYMBOL NAME_SYMBOL
 	)
 ;
 
@@ -219,10 +219,11 @@ alter_table_list_entry:
 	| RENAME_SYMBOL (TO_SYMBOL | AS_SYMBOL)? table_ref
 	| {SERVER_VERSION >= 50700}? => RENAME_SYMBOL (INDEX_SYMBOL | KEY_SYMBOL) column_ref TO_SYMBOL column_ref
 	| alter_order_by
-	| CONVERT_SYMBOL TO_SYMBOL CHAR_SYMBOL SET_SYMBOL charset_name_or_default (COLLATE_SYMBOL collation_name_or_default)?
+	| CONVERT_SYMBOL TO_SYMBOL charset charset_name_or_default (COLLATE_SYMBOL collation_name_or_default)?
 	| FORCE_SYMBOL
 	| {SERVER_VERSION >= 50600}? => alter_algorithm_option
 	| {SERVER_VERSION >= 50600}? => alter_lock_option
+	| {SERVER_VERSION >= 50708}? => UPGRADE_SYMBOL PARTITIONING_SYMBOL
 ;
 
 key_def:
@@ -518,7 +519,7 @@ create_field_list:
 ;
 
 create_item:
-	create_field_list_item // Uses tree rewriting in the main grammar, hence in an own rule.
+	create_field_list_item
 ;
 
 create_field_list_item:
@@ -664,7 +665,11 @@ delete_option:
 ;
 
 do_statement:
-	DO_SYMBOL expression_list
+	DO_SYMBOL 
+	(
+		{SERVER_VERSION < 50709}? => expression_list
+		| {SERVER_VERSION >= 50709}? => select_item_list
+	)
 ;
 
 handler_statement:
@@ -838,7 +843,7 @@ select_option:
 	query_spec_option
 	| SQL_NO_CACHE_SYMBOL
 	| SQL_CACHE_SYMBOL
-	| {SERVER_VERSION >= 50704}? => MAX_STATEMENT_TIME_SYMBOL EQUAL_OPERATOR real_ulong_number
+	| {SERVER_VERSION >= 50704 && SERVER_VERSION < 50708}? => MAX_STATEMENT_TIME_SYMBOL EQUAL_OPERATOR real_ulong_number
 ;
 
 query_spec_option:
@@ -1115,12 +1120,13 @@ xa_statement:
 			| PREPARE_SYMBOL xid
 			| COMMIT_SYMBOL xid (ONE_SYMBOL PHASE_SYMBOL)?
 			| ROLLBACK_SYMBOL xid
-			| RECOVER_SYMBOL xa_convert?
+			| RECOVER_SYMBOL xa_convert
 		)
 ;
 
 xa_convert:
-	{SERVER_VERSION >= 50704}? => CONVERT_SYMBOL XID_SYMBOL
+	{SERVER_VERSION >= 50704}? => (CONVERT_SYMBOL XID_SYMBOL)?
+	| /* empty */
 ;
 
 xid:
@@ -1287,13 +1293,20 @@ account_management_statement:
 alter_user:
 	ALTER_SYMBOL USER_SYMBOL
 	(
-		grant_list create_user_tail
-		| {SERVER_VERSION >= 50706}? => USER_SYMBOL parentheses IDENTIFIED_SYMBOL BY_SYMBOL text_string
+		// Instead of using our usual gated semantic predicate for the conditional part we do it here a bit differently,
+		// because otherwise ANTLR crashs with a stack overflow error (because of the 2 consecutive gated sempreds).
+		alter_user_tail
+		| {SERVER_VERSION >= 50708}? => if_exists alter_user_tail
 	)
 ;
 
+alter_user_tail:
+	grant_list create_user_tail
+	| {SERVER_VERSION >= 50706}? => USER_SYMBOL parentheses IDENTIFIED_SYMBOL BY_SYMBOL text_string
+;
+
 create_user:
-	CREATE_SYMBOL USER_SYMBOL grant_list create_user_tail
+	CREATE_SYMBOL USER_SYMBOL ({SERVER_VERSION >= 50708}? => if_not_exists? | /* empty */) grant_list create_user_tail
 ;
 
 create_user_tail:
@@ -1320,13 +1333,13 @@ account_lock_password_expire_options:
 	| PASSWORD_SYMBOL EXPIRE_SYMBOL
 		(
 			INTERVAL_SYMBOL real_ulong_number DAY_SYMBOL
-		| NEVER_SYMBOL
-		| DEFAULT_SYMBOL
+			| NEVER_SYMBOL
+			| DEFAULT_SYMBOL
 		)	
 ;
 
 drop_user:
-	DROP_SYMBOL USER_SYMBOL user_list
+	DROP_SYMBOL USER_SYMBOL ({SERVER_VERSION >= 50708}? => if_exists? | /* empty */) user_list
 ;
 
 parse_grant: // For external use only. Don't reference this in the normal grammar.
@@ -1535,7 +1548,7 @@ show_statement:
 		| PROFILE_SYMBOL (profile_type (COMMA_SYMBOL profile_type)*)? (FOR_SYMBOL QUERY_SYMBOL INT_NUMBER)? limit_clause?
 		| option_type? (STATUS_SYMBOL | VARIABLES_SYMBOL) like_or_where?
 		| FULL_SYMBOL? PROCESSLIST_SYMBOL
-		| (CHAR_SYMBOL SET_SYMBOL | CHARSET_SYMBOL) like_or_where?
+		| charset like_or_where?
 		| COLLATION_SYMBOL like_or_where?
 		| {SERVER_VERSION < 50700}? => CONTRIBUTORS_SYMBOL
 		| GRANTS_SYMBOL (FOR_SYMBOL user)?
@@ -1560,7 +1573,8 @@ show_statement:
 ;
 
 non_blocking:
-	{SERVER_VERSION >= 50700 && SERVER_VERSION < 50706}? => NONBLOCKING_SYMBOL
+	{SERVER_VERSION >= 50700 && SERVER_VERSION < 50706}? => NONBLOCKING_SYMBOL?
+	| // Intentionally left empty to make the gated semantic predicate work.
 ;
 
 from_or_in:
@@ -1585,7 +1599,7 @@ profile_type:
 
 //--------------------------------------------------------------------------------------------------
 
-miscellaneous_statement:
+other_administrative_statement:
 	BINLOG_SYMBOL string_literal
 	| CACHE_SYMBOL INDEX_SYMBOL key_cache_list_or_parts IN_SYMBOL (identifier | DEFAULT_SYMBOL)
 	| FLUSH_SYMBOL no_write_to_bin_log?
@@ -1596,6 +1610,7 @@ miscellaneous_statement:
 	| KILL_SYMBOL  (options { greedy = true; }: (CONNECTION_SYMBOL | QUERY_SYMBOL))? expression
 	| LOAD_SYMBOL INDEX_SYMBOL INTO_SYMBOL CACHE_SYMBOL load_table_index_list
 	| RESET_SYMBOL reset_option (COMMA_SYMBOL reset_option)*
+	| {SERVER_VERSION >= 50709}? => SHUTDOWN_SYMBOL
 ;
 
 key_cache_list_or_parts options { k = 4; }:
@@ -1740,7 +1755,7 @@ logical_not_expression:
 
 boolean_primary_expression:
 	predicate
-		( options { greedy = true; }: 
+		( options { greedy = true; }:
 			comparison_operator
 			(
 				{LA(2) == OPEN_PAR_SYMBOL}? (ALL_SYMBOL | ANY_SYMBOL) subquery
@@ -1834,7 +1849,7 @@ primary:
 		| runtime_function_call // Complete functions defined in the grammar.
 		| udf_call
 		| (stored_function_call) => stored_function_call
-		| column_ref
+		| column_ref ( {SERVER_VERSION >= 50708}? => (JSON_SEPARATOR_SYMBOL text_string)? | /* empty*/ )
 		| PARAM_MARKER
 		| variable
 		| EXISTS_SYMBOL subquery
@@ -1845,7 +1860,7 @@ primary:
 		| cast_expression
 	)
 	// Consume any collation expression locally to avoid ambiguities with the recursive cast_expression.
-	( options { greedy = true; }: COLLATE_SYMBOL text_or_identifier)*
+	( options { greedy = true; }: COLLATE_SYMBOL collation_name)*
 ;
 
 // This part is tricky, because all alternatives can have an unlimited nesting within parentheses.
@@ -1864,7 +1879,7 @@ comparison_operator:
 	| LESS_THAN_OPERATOR
 	| NOT_EQUAL_OPERATOR
 	| NOT_EQUAL2_OPERATOR
-	| {SERVER_VERSION < 50704}? => NULL_SAFE_EQUAL_OPERATOR
+	| NULL_SAFE_EQUAL_OPERATOR
 ;
 
 multiplication_operator:
@@ -1952,18 +1967,18 @@ fractional_precision:
 
 weight_string_levels:
 	LEVEL_SYMBOL
-		(
+	(
 		real_ulong_number MINUS_OPERATOR real_ulong_number
-			| weight_string_level_list_item (COMMA_SYMBOL weight_string_level_list_item)*
-		)
+		| weight_string_level_list_item (COMMA_SYMBOL weight_string_level_list_item)*
+	)
 ;
 
 weight_string_level_list_item:
 	real_ulong_number
-		(
-			(ASC_SYMBOL	| DESC_SYMBOL) REVERSE_SYMBOL?
-			| REVERSE_SYMBOL
-		)?
+	(
+		(ASC_SYMBOL	| DESC_SYMBOL) REVERSE_SYMBOL?
+		| REVERSE_SYMBOL
+	)?
 ;
 
 date_time_type:
@@ -1994,7 +2009,7 @@ substring_function:
 ;
 	
 geometry_function:
-	GEOMETRYCOLLECTION_SYMBOL expression_list_with_parentheses
+	GEOMETRYCOLLECTION_SYMBOL optional_expression_list_with_parentheses
 	| LINESTRING_SYMBOL expression_list_with_parentheses
 	| MULTILINESTRING_SYMBOL expression_list_with_parentheses
 	| MULTIPOINT_SYMBOL expression_list_with_parentheses
@@ -2120,6 +2135,7 @@ cast_type:
 	| TIME_SYMBOL type_datetime_precision?
 	| DATETIME_SYMBOL type_datetime_precision?
 	| DECIMAL_SYMBOL float_options?
+	| {SERVER_VERSION >= 50708}? => JSON_SYMBOL
 ;
 
 encoding:
@@ -2197,6 +2213,10 @@ expression_list_with_parentheses:
 	OPEN_PAR_SYMBOL expression_list CLOSE_PAR_SYMBOL
 ;
 
+optional_expression_list_with_parentheses:
+	OPEN_PAR_SYMBOL expression_list? CLOSE_PAR_SYMBOL
+;
+
 expression_list:
 	expression (COMMA_SYMBOL expression)*
 ;
@@ -2231,7 +2251,7 @@ compound_statement:
 	| cursor_close
 	
 	| statement
-	| {SERVER_VERSION >= 50600}? => get_diagnostics
+	| {SERVER_VERSION >= 50604}? => get_diagnostics
 	| {SERVER_VERSION >= 50500}? => signal_statement
 	| {SERVER_VERSION >= 50500}? => resignal_statement
 ;
@@ -2415,7 +2435,7 @@ schedule:
 database_option:
 	DEFAULT_SYMBOL?
 		(
-			CHAR_SYMBOL SET_SYMBOL EQUAL_OPERATOR? charset_name_or_default
+			charset EQUAL_OPERATOR? charset_name_or_default
 			| COLLATE_SYMBOL EQUAL_OPERATOR? collation_name_or_default
 		)
 ;
@@ -2429,12 +2449,13 @@ field_spec:
 ;
 
 field_def:
-	data_type
-	(
-		attribute*
-		| {SERVER_VERSION >= 50707}? => (GENERATED_SYMBOL ALWAYS_SYMBOL)? AS_SYMBOL
-			OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL (VIRTUAL_SYMBOL | STORED_SYMBOL)? gcol_attribute*
-	)
+	data_type field_def_tail
+;
+
+field_def_tail options { k = 3; }:
+	attribute*
+	| {SERVER_VERSION >= 50707}? => (COLLATE_SYMBOL collation_name)? (GENERATED_SYMBOL ALWAYS_SYMBOL)? AS_SYMBOL
+		OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL (VIRTUAL_SYMBOL | STORED_SYMBOL)? gcol_attribute*
 ;
 
 attribute:
@@ -2447,7 +2468,7 @@ attribute:
 	| (PRIMARY_SYMBOL | UNIQUE_SYMBOL) KEY_SYMBOL
 	| KEY_SYMBOL
 	| COMMENT_SYMBOL string_literal
-	| COLLATE_SYMBOL text_or_identifier
+	| COLLATE_SYMBOL collation_name
 	| COLUMN_FORMAT_SYMBOL (FIXED_SYMBOL | DYNAMIC_SYMBOL | DEFAULT_SYMBOL)
 	| STORAGE_SYMBOL (DISK_SYMBOL | MEMORY_SYMBOL | DEFAULT_SYMBOL)
 ;
@@ -2563,6 +2584,7 @@ data_type_elements:
 	| ENUM_SYMBOL string_list string_binary?
 	| SET_SYMBOL string_list string_binary?
 	| SERIAL_SYMBOL
+	| {SERVER_VERSION >= 50707}? => JSON_SYMBOL
 	| spatial_type
 ;
 
@@ -2604,6 +2626,10 @@ charset_name:
 charset_name_or_default:
 	charset_name
 	| DEFAULT_SYMBOL
+;
+
+collation_name:
+	text_or_identifier
 ;
 
 collation_name_or_default:
@@ -2889,7 +2915,7 @@ schema_ref:
 ;
 
 procedure_name:
-	qualified_identifier 
+	qualified_identifier
 ;
 
 procedure_ref:
@@ -3055,7 +3081,7 @@ string_list:
 ;
 
 text_string:
-	SINGLE_QUOTED_TEXT // ANTLR requires the predicate. Even though it doesn't matter.
+	SINGLE_QUOTED_TEXT
 	| HEX_NUMBER
 	| BIN_NUMBER
 ;
@@ -3232,6 +3258,8 @@ keyword:
 		| SAVEPOINT_SYMBOL
 		| SECURITY_SYMBOL
 		| SERVER_SYMBOL
+		| /*{SERVER_VERSION >= 50709}? =>*/ SHUTDOWN_SYMBOL // Moved here from keyword_sp.
+			// Cannot make this alt using a sempred as ANTLR crashs on that (Out Of Mem).
 		| SIGNED_SYMBOL
 		| SLAVE_SYMBOL
 		| SOCKET_SYMBOL
@@ -3366,6 +3394,7 @@ keyword_sp:
 	| ISOLATION_SYMBOL
 	| ISSUER_SYMBOL
 	| INSERT_METHOD_SYMBOL
+	| JSON_SYMBOL // Conditionally set in the lexer.
 	| KEY_BLOCK_SIZE_SYMBOL
 	| LAST_SYMBOL
 	| LEAVES_SYMBOL
@@ -3401,7 +3430,7 @@ keyword_sp:
 	| MASTER_AUTO_POSITION_SYMBOL
 	| MAX_CONNECTIONS_PER_HOUR_SYMBOL
 	| MAX_QUERIES_PER_HOUR_SYMBOL
-	| MAX_STATEMENT_TIME_SYMBOL
+	| MAX_STATEMENT_TIME_SYMBOL // Conditionally deprecated in the lexer rule.
 	| MAX_SIZE_SYMBOL
 	| MAX_UPDATES_PER_HOUR_SYMBOL
 	| MAX_USER_CONNECTIONS_SYMBOL
@@ -3502,7 +3531,7 @@ keyword_sp:
 	| SESSION_SYMBOL
 	| SIMPLE_SYMBOL
 	| SHARE_SYMBOL
-	| SHUTDOWN_SYMBOL
+	//| {SERVER_VERSION < 50709}? => SHUTDOWN_SYMBOL // Moved to keyword rule. We cannot keep this here however, as ANTLR crashs on that.
 	| SLOW_SYMBOL
 	| SNAPSHOT_SYMBOL
 	| SOUNDS_SYMBOL
@@ -3570,4 +3599,4 @@ keyword_sp:
 	| XID_SYMBOL
 	| XML_SYMBOL
 	| YEAR_SYMBOL
-	;
+;

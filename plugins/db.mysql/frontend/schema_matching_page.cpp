@@ -61,7 +61,7 @@ private:
   mforms::Button _button;
 };
 
-static void select_all(mforms::TreeNodeView *tree, SchemaMatchingPage *page)
+static void select_all(mforms::TreeView *tree, SchemaMatchingPage *page)
 {
   for (int i= 0; i < tree->count(); i++)
     tree->node_at_row(i)->set_bool(0, true);
@@ -69,7 +69,7 @@ static void select_all(mforms::TreeNodeView *tree, SchemaMatchingPage *page)
 }
 
 
-static void unselect_all(mforms::TreeNodeView *tree, SchemaMatchingPage *page)
+static void unselect_all(mforms::TreeView *tree, SchemaMatchingPage *page)
 {
   for (int i= 0; i < tree->count(); i++)
     tree->node_at_row(i)->set_bool(0, false);

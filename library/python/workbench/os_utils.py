@@ -1,4 +1,4 @@
-# Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+﻿# Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -69,7 +69,7 @@ class FileUtils(object):
             measures = ['B', 'KB', 'MB', 'GB', 'TB']
             index = 0
             while index < len(measures) and total > 1024:
-                total = total / 1024
+                total = float(total / 1024)
                 index = index + 1
                 
             return "%.2f %s" % (total, measures[index])

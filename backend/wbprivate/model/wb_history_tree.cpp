@@ -27,7 +27,7 @@ using namespace grt;
 
 
 HistoryTree::HistoryTree(bec::GRTManager *grtm, UndoManager *undom)
-: mforms::TreeNodeView(mforms::TreeFlatList|mforms::TreeSidebar|mforms::TreeNoHeader), _grtm(grtm), _undom(undom), _refresh_pending(false)
+: mforms::TreeView(mforms::TreeFlatList|mforms::TreeSidebar|mforms::TreeNoHeader), _grtm(grtm), _undom(undom), _refresh_pending(false)
 {
   add_column(mforms::IconStringColumnType, "Action", 200);
   end_columns();

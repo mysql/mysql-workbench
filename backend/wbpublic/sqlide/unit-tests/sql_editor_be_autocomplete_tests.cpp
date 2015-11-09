@@ -48,32 +48,6 @@ struct ac_test_entry
   int parts;
 };
 
-class AutoCompleteCacheTest : public AutoCompleteCache
-{
-public:
-  AutoCompleteCacheTest(const std::string &connection_id,
-                      boost::function<base::RecMutexLock (sql::Dbc_connection_handler::Ref &)> get_connection,
-                      const std::string &cache_dir,
-                      boost::function<void (bool)> feedback) : AutoCompleteCache(connection_id, get_connection, cache_dir, feedback) {};
-  bool check_pending_refresh()
-  {
-    {
-      base::RecMutexLock lock(_pending_mutex);
-      if (!_pending_tasks.empty())
-        return true;
-    }
-
-     //we need to wait for previous thread to finish before we create new thread
-     if (_refresh_thread != NULL)
-     {
-       g_thread_join(_refresh_thread);
-       _refresh_thread = NULL;
-     }
-
-     return false;
-  }
-};
-
 BEGIN_TEST_DATA_CLASS(sql_editor_be_autocomplete_tests)
 protected:
   WBTester _tester;
@@ -82,7 +56,7 @@ protected:
 
   base::RecMutex _connection_mutex;
   sql::Dbc_connection_handler::Ref _conn;
-  AutoCompleteCacheTest *_cache;
+  AutoCompleteCache *_cache;
   parser::ParserContext::Ref _autocomplete_context;
   int version;
 
@@ -125,38 +99,20 @@ TEST_FUNCTION(5)
   sql::DriverManager *dm = sql::DriverManager::getDriverManager();
   _conn->ref = dm->getConnection(connectionProperties);
 
-  std::auto_ptr<sql::Statement> stmt(_conn->ref->createStatement());
-
-  sql::ResultSet *res = stmt->executeQuery("SHOW DATABASES LIKE 'sakila'");
-  if (!(res != NULL && res->next()))
-    ensure("Sakila schema is missing, setup_db not called?", false);
-
-  if (res != NULL)
-    delete res;
-
   base::remove("testconn.cache");
-  _cache = new AutoCompleteCacheTest("testconn", boost::bind(&Test_object_base<sql_editor_be_autocomplete_tests>::get_connection, this, _1),
+  _cache = new AutoCompleteCache("testconn", boost::bind(&Test_object_base<sql_editor_be_autocomplete_tests>::get_connection, this, _1),
     ".", NULL);
 
-  //we need to wait for cache to finish:
-  int i = 1;
-  while (_cache->check_pending_refresh())
-  {
-    g_usleep(1000000);
-    fprintf(stdout, "Cache still not full, waiting...[%d]\n", i);
-    i++;
-    if (i > 100)
-      ensure("Cache still not full, wait timeout", false);
-  }
+  std::auto_ptr<sql::Statement> stmt(_conn->ref->createStatement());
 
-  res = stmt->executeQuery("SELECT VERSION() as VERSION");
+  g_usleep(1000);
+  sql::ResultSet *res = stmt->executeQuery("SELECT VERSION() as VERSION");
   if (res && res->next())
   {
     std::string version_string = res->getString("VERSION");
     _version = parse_version(_tester.grt, version_string);
   }
   delete res;
-
 
   ensure("Server version is invalid", _version.is_valid());
 
@@ -187,20 +143,14 @@ TEST_FUNCTION(5)
   _sql_editor->set_current_schema("sakila");
   _sql_editor->set_auto_completion_cache(_cache);
 
-
-
   // We don't set up the sakila schema. This is needed in so many places, it should simply exist.
-  // After creation a first data retrieval starts automatically in the background.
-  // Wait a moment to have that finished.
-  g_usleep(2000000);
-
-  // Retrieve db objects in the sakila schema. So they are available when we ask for them
-  // in the following tests.
-  _cache->refresh_schema_cache_if_needed("sakila");
-  g_usleep(2000000);
-
   std::vector<std::string> list = _cache->get_matching_schema_names("sakila");
-
+  if (list.empty())
+  {
+    // Sakila not yet fetched. Give it a moment and try again.
+    g_usleep(1000000);
+    list = _cache->get_matching_schema_names("sakila");
+  }
   ensure("Could not get the schema list from the cache", !list.empty());
 
   bool found = false;
@@ -213,6 +163,53 @@ TEST_FUNCTION(5)
     }
   }
   ensure("Sakila could not be found", found); 
+}
+
+/**
+ * Another prerequisites test. See that the cache contains needed objects.
+ */
+TEST_FUNCTION(10)
+{
+  std::vector<std::string> list = _cache->get_matching_schema_names("sakila");
+  int found = 0;
+  for (std::vector<std::string>::const_iterator i = list.begin(); i != list.end(); ++i)
+  {
+    if (*i == "sakila" || *i == "mysql")
+      found++;
+  }
+  ensure_equals("Sakila schema missing. Is the DB set up properly?", found, 1);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Collecting AC info for each position in a simple but typical statement.
+ */
+TEST_FUNCTION(15)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Testing 1-2 examples for each possible query type (i.e. major keywords with a typical case).
+ * Possibilities are endless so we can only peek for possible problems.
+ * Note: for now no language parts are included that are introduced in 5.6 or later.
+ * Add more test cases for specific bugs.
+ */
+TEST_FUNCTION(20)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Collecting AC info for the same statement as in TC 15, but this time as if we were writing
+ * each letter. This usually causes various parse errors to appear, but we want essentially the same
+ * output as for the valid statement (except for not-yet-written references).
+ */
+TEST_FUNCTION(90)
+{
 }
 
 END_TESTS

@@ -46,7 +46,6 @@
 #include "sqlide/wb_sql_editor_help.h"
 #include "sqlide/wb_sql_editor_result_panel.h"
 #include "sqlide/wb_sql_editor_tree_controller.h"
-#include "grt/common.h"
 
 #include "objimpl/db.query/db_query_Editor.h"
 #include "objimpl/db.query/db_query_Resultset.h"
@@ -503,6 +502,13 @@ static void call_open_script(wb::WBContextSQLIDE *sqlide)
   }
 }
 
+static void call_no_connection_empty_tab(wb::WBContextSQLIDE *sqlide)
+{
+  boost::shared_ptr<SqlEditorForm> form = sqlide->get_wbui()->get_wb()->add_new_query_window();
+  if (form)
+    form->open_file();
+}
+
 
 static void call_exec_sql(wb::WBContextSQLIDE *sqlide, bool current_statement_only)
 {
@@ -625,9 +631,9 @@ static bool validate_toolbar_alias_toggle(wb::WBContextSQLIDE *sqlide, const std
     {
       std::string title = mitem->get_title();
       if (item->get_checked())
-        base::replace(title, "Show", "Hide");
+        base::replaceStringInplace(title, "Show", "Hide");
       else
-        base::replace(title, "Hide", "Show");
+        base::replaceStringInplace(title, "Hide", "Show");
       mitem->set_title(title);
     }
   }
@@ -711,7 +717,7 @@ void WBContextSQLIDE::detect_auto_save_files(const std::string &autosave_dir)
   std::list<std::string> autosaves;
   try
   {
-    autosaves = base::scan_for_files_matching(bec::make_path(autosave_dir, "sql_workspaces/*.autosave"));
+    autosaves = base::scan_for_files_matching(base::makePath(autosave_dir, "sql_workspaces/*.autosave"));
   }
   catch (const std::runtime_error& e)
   {
@@ -722,7 +728,7 @@ void WBContextSQLIDE::detect_auto_save_files(const std::string &autosave_dir)
   {
     gchar *conn_id;
     gsize length;
-    if (g_file_get_contents(bec::make_path(*d, "connection_id").c_str(),
+    if (g_file_get_contents(base::makePath(*d, "connection_id").c_str(),
                             &conn_id, &length, NULL))
     {
       ::auto_save_sessions[std::string(conn_id, length)] = *d;
@@ -763,7 +769,7 @@ void WBContextSQLIDE::handle_notification(const std::string &name, void *sender,
 
 void WBContextSQLIDE::init()
 {
-  DbSqlEditorSnippets::setup(this, bec::make_path(get_grt_manager()->get_user_datadir(), "snippets"));
+  DbSqlEditorSnippets::setup(this, base::makePath(get_grt_manager()->get_user_datadir(), "snippets"));
   
   //scoped_connect(_wbui->get_wb()->signal_app_closing(),boost::bind(&WBContextSQLIDE::finalize, this));
   base::NotificationCenter::get()->add_observer(this, "GNAppClosing");
@@ -798,8 +804,10 @@ void WBContextSQLIDE::init()
   cmdui->add_builtin_command("query.new_connection", boost::bind(call_new_connection, this),
                              boost::bind(validate_has_connection, this));
 
+
   cmdui->add_builtin_command("query.openScriptNoConnection", boost::bind(call_open_script, this));
 
+  cmdui->add_builtin_command("query.newQueryNoconnection", boost::bind(call_no_connection_empty_tab, this));
   cmdui->add_builtin_command("query.newQuery", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::new_scratch_area));
   //cmdui->add_builtin_command("query.newFile", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::new_sql_script_file));
   cmdui->add_builtin_command("query.newFile", boost::bind(new_script_tab, this));
@@ -911,6 +919,13 @@ static void *connect_editor(SqlEditorForm::Ref editor, boost::shared_ptr<sql::Tu
     log_error("Got an authentication error during connection: %s\n", exc.what());
     return new std::string(exc.what());
   }
+  catch (grt::server_denied &sd)
+  {
+    if (sd.errNo == 3159)
+      return new std::string(":SSL_ONLY");
+    if (sd.errNo == 3032)
+      return new std::string(":OFFLINE_MODE");
+  }
   catch (grt::user_cancelled &)
   {
     log_info("User cancelled connection\n");
@@ -986,6 +1001,14 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
       else if (tmp == ":CANCELLED")
       {
         throw grt::user_cancelled("Cancelled");
+      }
+      else if (tmp == ":SSL_ONLY")
+      {
+        throw grt::server_denied("Connections using insecure transport are prohibited while --require_secure_transport=ON.", 3159);
+      }
+      else if (tmp == ":OFFLINE_MODE")
+      {
+        throw grt::server_denied("The server is currently in offline mode.", 3032);
       }
       
       throw std::runtime_error(tmp);

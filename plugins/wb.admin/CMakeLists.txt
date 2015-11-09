@@ -59,6 +59,9 @@ if (IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/internal)
     set(PY_WBA_FIREWALL_FILES 
         internal/wba_firewall/__init__.py
         internal/wba_firewall/wb_admin_firewall.py
+        internal/wba_firewall/wb_admin_firewall_utils.py
+        internal/wba_firewall/wb_admin_firewall_install.py
+        internal/wba_firewall/wb_admin_firewall_manager.py
     )
     install(FILES ${PY_WBA_FIREWALL_FILES} DESTINATION ${WB_PYTHON_MODULES_DIR}/wba_firewall)
 endif ()

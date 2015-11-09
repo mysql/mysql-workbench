@@ -279,7 +279,7 @@ TEST_DATA_CONSTRUCTOR(string_utilities_test)
     if (i == 500)
       long_random_string += "\xE3\x8A\xA8"; // Ensure it is there at least once.
   }
-  std::remove(long_random_string.begin(), long_random_string.end(), 0x7f); // 0x7F is a special character that we use for tests
+  long_random_string.erase(std::remove(long_random_string.begin(), long_random_string.end(), 0x7f), long_random_string.end()); // 0x7F is a special character that we use for tests
 }
 
 END_TEST_DATA_CLASS;
@@ -967,5 +967,20 @@ TEST_FUNCTION(43)
   assure_false(italic);
 }
 
+TEST_FUNCTION(50)
+{
+  std::string separator(1, G_DIR_SEPARATOR);
+
+  ensure_equals("Path normalization", normalize_path(""), "");
+  ensure_equals("Path normalization", normalize_path("/"), separator);
+  ensure_equals("Path normalization", normalize_path("\\"), separator);
+  ensure_equals("Path normalization", normalize_path("/////////"), separator);
+  ensure_equals("Path normalization", normalize_path("../../../"), "");
+  ensure_equals("Path normalization", normalize_path("abc/././../def"), "def");
+  ensure_equals("Path normalization", normalize_path("a/./b/.././d/./.."), "a");
+  ensure_equals("Path normalization", normalize_path("a/b/c/../d/../"), base::replaceString("a/b/", "/", separator));
+  ensure_equals("Path normalization", normalize_path("/path///to/my//////dir"), base::replaceString("/path/to/my/dir", "/", separator));
+  ensure_equals("Path normalization", normalize_path("D:\\files\\to//scan"), base::replaceString("D:/files/to/scan", "/", separator));
+}
 
 END_TESTS

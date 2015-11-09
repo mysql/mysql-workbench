@@ -681,7 +681,7 @@ void SqlEditorPanel::auto_save(const std::string &path)
 {
   // save info about the file
   {
-    std::ofstream f(bec::make_path(path, _autosave_file_suffix+".info").c_str());
+    std::ofstream f(base::makePath(path, _autosave_file_suffix+".info").c_str());
 
     if (_is_scratch)
       f << "type=scratch\n";
@@ -714,7 +714,7 @@ void SqlEditorPanel::auto_save(const std::string &path)
     f.close();
   }
 
-  std::string fn = bec::make_path(path, _autosave_file_suffix+".scratch");
+  std::string fn = base::makePath(path, _autosave_file_suffix+".scratch");
 
   // only save editor contents for scratch areas and unsaved editors
   if (_is_scratch || _filename.empty() || (!_filename.empty() && is_dirty()))
@@ -753,11 +753,11 @@ void SqlEditorPanel::delete_auto_save(const std::string &path)
   // delete the autosave related files
   try
   {
-    base::remove(bec::make_path(path, _autosave_file_suffix+".autosave"));
+    base::remove(base::makePath(path, _autosave_file_suffix+".autosave"));
   } catch (std::exception &exc) { log_warning("Could not delete auto-save file: %s\n", exc.what()); }
   try
   {
-    base::remove(bec::make_path(path, _autosave_file_suffix+".info"));
+    base::remove(base::makePath(path, _autosave_file_suffix+".info"));
   } catch (std::exception &exc) { log_warning("Could not delete auto-save file: %s\n", exc.what()); }
 }
 
@@ -794,7 +794,7 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
   item->set_name("query.openFile");
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_open.png"));
   item->set_tooltip(_("Open a script file in this editor"));
-  bec::UIForm::scoped_connect(item->signal_activated(),boost::bind((void (SqlEditorForm::*)(const std::string&,bool))&SqlEditorForm::open_file, _form, "", false));
+  bec::UIForm::scoped_connect(item->signal_activated(),boost::bind((void (SqlEditorForm::*)(const std::string&, bool, bool))&SqlEditorForm::open_file, _form, "", false, true));
   tbar->add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));

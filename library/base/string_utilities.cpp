@@ -391,7 +391,7 @@ std::string sanitize_file_name(const std::string &s)
   for (std::string::const_iterator c = s.begin(); c != s.end(); ++c)
   {
     // utf-8 has the high-bit = 1, so we just copy those verbatim
-    if (isalnum(*c) || (unsigned char)*c >= 128 || (ispunct(*c) && !is_invalid_filesystem_char(*c)))
+    if ((unsigned char)*c >= 128 || isalnum(*c) || (ispunct(*c) && !is_invalid_filesystem_char(*c)))
       out.push_back(*c);
     else
       out.push_back('_');
@@ -912,6 +912,91 @@ std::string strip_text(const std::string &text, bool left, bool right)
 //--------------------------------------------------------------------------------------------------
 
 /**
+ * replaces a variable from a string in format %variable%
+ * a filter can be passed to the variable as in %variable|filter%
+ * supported filters are upper, lower and capitalize
+ */
+std::string replaceVariable(const std::string &format, const std::string &variable, const std::string &value)
+{
+
+  std::string result = format;
+  std::string::size_type pos;
+
+  for (;;)
+  {
+    std::string s;
+    std::string::size_type end;
+
+    pos = result.find(variable.substr(0, variable.size() - 1));
+    if (pos == std::string::npos)
+      break;
+
+    end = result.find('%', pos + 1);
+    if (end == std::string::npos) // bad format
+      break;
+
+    s = result.substr(pos + 1, end - pos - 1);
+
+    std::string::size_type filter_pos = s.find("|");
+    std::string filtered_value = value;
+
+    if (filter_pos == std::string::npos)
+    {
+      if (s.length() != variable.length() - 2)
+        break;
+    }
+    else if (filter_pos != variable.length() - 2)
+      break;
+    else
+    {
+      std::string filter = s.substr(filter_pos + 1, s.size() - filter_pos);
+
+      if (filter.compare("capitalize") == 0)
+      {
+        gunichar ch = g_utf8_get_char(value.data());
+
+        ch = g_unichar_toupper(ch);
+
+        gchar *rest = g_utf8_find_next_char(value.data(), value.data() + value.size());
+        char utf8[10];
+        utf8[g_unichar_to_utf8(ch, utf8)] = 0;
+        filtered_value = std::string(utf8).append(rest);
+      }
+      else if (filter.compare("uncapitalize") == 0)
+      {
+        gunichar ch = g_utf8_get_char(value.data());
+
+        ch = g_unichar_tolower(ch);
+
+        gchar *rest = g_utf8_find_next_char(value.data(), value.data() + value.size());
+        char utf8[10];
+        utf8[g_unichar_to_utf8(ch, utf8)] = 0;
+        filtered_value = std::string(utf8).append(rest);
+      }
+      else if (filter.compare("lower") == 0)
+      {
+        gchar *l = g_utf8_strdown(value.data(), (gssize)value.size());
+        if (l)
+          filtered_value = l;
+        g_free(l);
+      }
+      else if (filter.compare("upper") == 0)
+      {
+        gchar *l = g_utf8_strup(value.data(), (gssize)value.size());
+        if (l)
+          filtered_value = l;
+        g_free(l);
+      }
+    }
+    result = result.substr(0, pos).append(filtered_value).append(result.substr(end + 1));
+  }
+
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
  * Add the given extension to the filename, if necessary.
  * 
  */
@@ -950,15 +1035,15 @@ std::string normalize_path(const std::string path)
   // and ease so at the same time further processing here.
   std::string result;
   std::string separator(1, G_DIR_SEPARATOR);
-  
+
   result= path;
-  replace(result, "\\", separator);
-  replace(result, "/", separator);
-  
+  replaceStringInplace(result, "\\", separator);
+  replaceStringInplace(result, "/", separator);
+
   std::string double_separator = separator + separator;
   while (result.find(double_separator) != std::string::npos)
-    replace(result, double_separator, separator);
-  
+    replaceStringInplace(result, double_separator, separator);
+
   // Sanity check. Return *after* we have converted the slashs. This is part of the normalization.
   if (result.size() < 2)
     return result;
@@ -1080,7 +1165,7 @@ bool ends_with(const std::string& s, const std::string& part)
 }
 //--------------------------------------------------------------------------------------------------
 
-void replace(std::string& value, const std::string& search, const std::string& replacement)
+void replaceStringInplace(std::string& value, const std::string& search, const std::string& replacement)
 {
   std::string::size_type next;
 
@@ -1089,6 +1174,29 @@ void replace(std::string& value, const std::string& search, const std::string& r
     value.replace(next,search.length(), replacement);
     next += replacement.length();
   }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::string replaceString(const std::string &s, const std::string &from, const std::string &to)
+{
+  std::string::size_type p;
+  std::string ss, res;
+
+  ss = s;
+  p = ss.find(from);
+  while (p != std::string::npos)
+  {
+    if (p > 0)
+      res.append(ss.substr(0, p)).append(to);
+    else
+      res.append(to);
+    ss = ss.substr(p + from.size());
+    p = ss.find(from);
+  }
+  res.append(ss);
+
+  return res;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1227,7 +1335,55 @@ std::string escape_sql_string(const std::string &s, bool wildcards)
 }
 
 /**
- * Removes repeated quote chars and replaces supported escape sequences in the given string.
+ * Escape a string to be used in a JSON
+ */
+std::string escape_json_string(const std::string &s)
+{
+  std::string result;
+  result.reserve(s.size());
+  for (std::string::const_iterator ch= s.begin(); ch != s.end(); ++ch)
+  {
+    char escape = 0;
+    switch (*ch)
+    {
+    case '"':
+      escape = '"';
+      break;
+    case '\\':
+      escape = '\\';
+      break;
+    case '\b':
+      escape = 'b';
+      break;
+    case '\f':
+      escape = 'f';
+      break;
+    case '\n':
+      escape = 'n';
+      break;
+    case '\r':
+      escape = 'r';
+      break;
+    case '\t':
+      escape = 't';
+      break;
+    default:
+      break;
+    }
+    if (escape)
+    {
+      result.push_back('\\');
+      result.push_back(escape);
+    }
+    else
+      result.push_back(*ch);
+  }
+  return result;
+
+}
+
+/**
+ * Removes repeated quote chars and supported escape sequences from the given string.
  * Invalid escape sequences are handled like in the server, by dropping the backslash and
  * using the wrong char as normal char.
  * The outer quoting stays intact and is not removed.
@@ -1465,7 +1621,25 @@ std::string unquote_identifier(const std::string& identifier)
 }
 
 //--------------------------------------------------------------------------------------------------
-  
+
+/**
+ * @brief Remove outer quotes from any text.
+ *
+ * @param text Text to unquote
+ * @return Return unqoted text.
+ */
+std::string unquote(const std::string &text)
+{
+  if (text.size() < 2)
+    return text;
+
+  if ((text[0] == '"' || text[0] == '`' || text[0] == '\'') && text[0] == text[text.size() - 1])
+    return text.substr(1, text.size() - 2);
+  return text;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 std::string quote_identifier(const std::string& identifier, const char quote_char)
 {
   return quote_char + identifier + quote_char;
@@ -1517,6 +1691,22 @@ bool is_number(const std::string &word)
   for (; i < word.size(); i++)
     if (!isdigit(word[i]))
       return false;
+  return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * @brief Determine if a string is a boolean.
+ *
+ * @param text Text to check
+ * @return Return true if given string is a boolean.
+ */
+bool isBool(const std::string &text)
+{
+  std::string lower = tolower(text);
+  if (lower.compare("true") != 0 && lower.compare("false") != 0)
+    return false;
   return true;
 }
 

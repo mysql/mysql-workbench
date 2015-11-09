@@ -24,6 +24,7 @@
 #include "workbench/wb_context.h"
 #include "grts/structs.workbench.model.h"
 #include "base/string_utilities.h"
+#include "base/file_utilities.h"
 #include "base/file_functions.h"
 #include "grt/clipboard.h"
 
@@ -69,22 +70,22 @@ void WBComponentBasic::load_app_options(bool update)
     app_ToolbarRef options_toolbar;
 
     options_toolbar= app_ToolbarRef::cast_from(
-      grt->unserialize(make_path(_wb->get_datadir(), "data/model_option_toolbar_layer.xml")));
+      grt->unserialize(base::makePath(_wb->get_datadir(), "data/model_option_toolbar_layer.xml")));
     _toolbars[options_toolbar->name()]= options_toolbar;
 
     options_toolbar= app_ToolbarRef::cast_from(
-      grt->unserialize(make_path(_wb->get_datadir(), "data/model_option_toolbar_note.xml")));
+      grt->unserialize(base::makePath(_wb->get_datadir(), "data/model_option_toolbar_note.xml")));
     _toolbars[options_toolbar->name()]= options_toolbar;
 
     _shortcuts= grt::ListRef<app_ShortcutItem>::cast_from(
-      grt->unserialize(make_path(_wb->get_datadir(),"data/shortcuts_basic.xml")));
+      grt->unserialize(base::makePath(_wb->get_datadir(),"data/shortcuts_basic.xml")));
   }
 }
 
 
 app_ToolbarRef WBComponentBasic::get_tools_toolbar()
 {
-  return app_ToolbarRef::cast_from(_wb->get_grt()->unserialize(make_path(_wb->get_datadir(),
+  return app_ToolbarRef::cast_from(_wb->get_grt()->unserialize(base::makePath(_wb->get_datadir(),
                                                                          "data/tools_toolbar_basic.xml")));
 }
 
@@ -155,7 +156,7 @@ void WBComponentBasic::setup_canvas_tool(ModelDiagramForm *view, const std::stri
 std::vector<std::string> WBComponentBasic::get_command_dropdown_items(const std::string &option)
 {
   std::vector<std::string> items;
-  if (has_suffix(option, ":Color"))
+  if (base::hasSuffix(option, ":Color"))
   {
     std::string colors= _wb->get_wb_options().get_string("workbench.model.Figure:ColorList");
     std::vector<std::string> colorList;

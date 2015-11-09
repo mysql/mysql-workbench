@@ -418,7 +418,7 @@ static int onRefresh(MResultsetViewer *self)
     {
       std::string text;
       (*mData)->get_field_repr(rowIndex, columnIndex, text);
-      text = bec::replace_string(text, "\n", " ");
+      text = base::replaceString(text, "\n", " ");
       return [NSString stringWithCPPString: text];
     }
     return @"";

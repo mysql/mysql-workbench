@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -292,6 +292,8 @@ int main(int argc, char **argv)
 
   std::set<std::string> trigger_schemas;
   std::string source_rdbms_type = "unknown";
+  unsigned int target_connection_timeout = 60;
+  unsigned int source_connection_timeout = 60;
 
   bool log_level_set = false;
   int i = 1;
@@ -385,13 +387,12 @@ int main(int argc, char **argv)
       if (strcmp(APP_EDITION_NAME, "Community") == 0)
         type = "CE";
 
-      printf("%s %s (%s) %i.%i.%i %i %s build %i\n"
+      printf("%s %s (%s) %i.%i.%i %s build %i\n"
              , base::basename(argv[0]).c_str()
              , type, APP_LICENSE_TYPE
              , APP_MAJOR_NUMBER
              , APP_MINOR_NUMBER
              , APP_RELEASE_NUMBER
-             , APP_REVISION_NUMBER
              , APP_RELEASE_TYPE
              , APP_BUILD_NUMBER
             );
@@ -532,6 +533,10 @@ int main(int argc, char **argv)
       source_use_cleartext_plugin = true;
     else if (strcmp(argv[i], "--target-use-cleartext") == 0)
       target_use_cleartext_plugin = true;
+    else if (check_arg_with_value(argv, i, "--target-timeout", argval, true))
+      target_connection_timeout = base::atoi<int>(argval, 0);
+    else if (check_arg_with_value(argv, i, "--source-timeout", argval, true))
+      source_connection_timeout = base::atoi<int>(argval, 0);
     else
     {
       fprintf(stderr, "%s: Invalid option %s\n", argv[0], argv[i]);
@@ -690,7 +695,7 @@ int main(int argc, char **argv)
         psource.reset(new ODBCCopyDataSource(odbc_env, source_connstring, source_password, source_is_utf8, source_rdbms_type));
       }
       else if (source_type == ST_MYSQL)
-        psource.reset(new MySQLCopyDataSource(source_host, source_port, source_user, source_password, source_socket, source_use_cleartext_plugin));
+        psource.reset(new MySQLCopyDataSource(source_host, source_port, source_user, source_password, source_socket, source_use_cleartext_plugin, source_connection_timeout));
       else
         psource.reset(new PythonCopyDataSource(source_connstring, source_password));
 
@@ -702,7 +707,7 @@ int main(int argc, char **argv)
         if (task.copy_spec.resume)
         {
           if(!ptarget.get())
-            ptarget.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset, source_rdbms_type));
+            ptarget.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset, source_rdbms_type, target_connection_timeout));
           last_pkeys = ptarget->get_last_pkeys(task.target_pk_columns, task.target_schema, task.target_table);
         }
         count_rows(psource, task.source_schema, task.source_table, task.source_pk_columns, task.copy_spec, last_pkeys);
@@ -711,7 +716,7 @@ int main(int argc, char **argv)
     else if (reenable_triggers || disable_triggers)
     {
       boost::scoped_ptr<MySQLCopyDataTarget> ptarget;
-      ptarget.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset, source_rdbms_type));
+      ptarget.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset, source_rdbms_type, target_connection_timeout));
 
       if (disable_triggers)
         ptarget->backup_triggers(trigger_schemas);
@@ -728,7 +733,7 @@ int main(int argc, char **argv)
 
       if (disable_triggers_on_copy)
       {
-        ptarget_conn.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset, source_rdbms_type));
+        ptarget_conn.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset, source_rdbms_type, target_connection_timeout));
         ptarget_conn->backup_triggers(trigger_schemas);
       }
 
@@ -742,11 +747,11 @@ int main(int argc, char **argv)
           psource = new ODBCCopyDataSource(odbc_env, source_connstring, source_password, source_is_utf8, source_rdbms_type);
         }
         else if (source_type == ST_MYSQL)
-          psource = new MySQLCopyDataSource(source_host, source_port, source_user, source_password, source_socket, source_use_cleartext_plugin);
+          psource = new MySQLCopyDataSource(source_host, source_port, source_user, source_password, source_socket, source_use_cleartext_plugin, source_connection_timeout);
         else
           psource = new PythonCopyDataSource(source_connstring, source_password);
 
-        ptarget = new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset, source_rdbms_type);
+        ptarget = new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset, source_rdbms_type, target_connection_timeout);
 
         psource->set_max_blob_chunk_size(ptarget->get_max_allowed_packet());
         psource->set_max_parameter_size((unsigned long)ptarget->get_max_long_data_size());

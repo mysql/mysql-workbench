@@ -176,7 +176,7 @@ void PluginManagerWindow::refresh_plugin_list()
         if (icon_path.empty() || !g_file_test(icon_path.c_str(), G_FILE_TEST_IS_REGULAR))
           icon_path = bec::IconManager::get_instance()->get_icon_path("MySQLPlugin-48.png");
         
-          //disabled for now b/c TreeNodeView in windows doesn't scale down images to fit the row
+          //disabled for now b/c TreeView in windows doesn't scale down images to fit the row
           //node->set_icon_path(0, icon_path);
         node->set_string(1, (*p)->caption());
         node->set_tag((*p)->name());

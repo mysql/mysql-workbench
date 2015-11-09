@@ -852,6 +852,9 @@ class FileOpsNope(object):
 
     def get_owner(self, path): # base operation to build file_exists and remote file selector
         return []
+      
+    def join_paths(self, path, *paths):
+        pass
 _file_ops_classes.append(FileOpsNope)
 
 class FileOpsLinuxBase(object):
@@ -1204,6 +1207,10 @@ class FileOpsLinuxBase(object):
                     
         else:
             raise PermissionDeniedError("Cannot write to target folder: %s" % target_dir)
+
+    def join_paths(self, path, *paths):
+        result = posixpath.join(path, *paths)
+        return result
         
         
             
@@ -1311,6 +1318,10 @@ class FileOpsLocalUnix(FileOpsLinuxBase):
             file_list = FileOpsLinuxBase.listdir(self, path, as_user, user_password, include_size)
                     
         return file_list
+
+    def join_paths(self, path, *paths):
+        result = posixpath.join(path, *paths)
+        return result
 
 _file_ops_classes.append(FileOpsLocalUnix)
 
@@ -1524,6 +1535,9 @@ class FileOpsLocalWindows(object): # Used for remote as well, if not using sftp
 
         return file_list
 
+    def join_paths(self, path, *paths):
+        result = ntpath.join(path, *paths)
+        return result
 
 
 _file_ops_classes.append(FileOpsLocalWindows)
@@ -1642,6 +1656,9 @@ class FileOpsRemoteUnix(FileOpsLinuxBase):
 
         return tmpfilename
         
+    def join_paths(self, path, *paths):
+        result = posixpath.join(path, *paths)
+        return result
 
 _file_ops_classes.append(FileOpsRemoteUnix)
 
@@ -1690,7 +1707,7 @@ class FileOpsRemoteWindows(object):
             total = float(tokens[2].replace(",",""))
             index = 0
             while index < len(measures) and total > 1024:
-                total = total / 1024
+                total = float(total / 1024)
                 index = index + 1
 
 
@@ -1856,6 +1873,10 @@ class FileOpsRemoteWindows(object):
         for d in dirs:
             ret.append((d[0] + "/", d[1]) if include_size else d + "/")
         return ret + list(files)
+
+    def join_paths(self, path, *paths):
+        result = os.path.join(path, *paths)
+        return result
         
 _file_ops_classes.append(FileOpsRemoteWindows)
 
@@ -2000,6 +2021,9 @@ class ServerManagementHelper(object):
         return self.shell.list2cmdline(args)
 
 
+    def join_paths(self, path, *paths):
+        result = self.file.join_paths(path, *paths)
+        return result
 #===============================================================================
 
 class LocalInputFile(object):

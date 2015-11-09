@@ -22,7 +22,6 @@
 #include "base/string_utilities.h"
 #include "base/file_functions.h"
 
-#include "grt/common.h"
 #include "grt/icon_manager.h"
 #include "grt/grt_manager.h"
 
@@ -88,7 +87,7 @@ AddOnDownloadWindow::DownloadItem::DownloadItem(AddOnDownloadWindow *owner, cons
   else
     name++;
   
-  _dest_path = bec::make_path(_grtm->get_tmp_dir(), name);
+  _dest_path = base::makePath(_grtm->get_tmp_dir(), name);
   _caption.set_text(base::strfmt("Downloading %s", name));  
   _info.set_text("Preparing...");
   _progress.set_value(0.0);

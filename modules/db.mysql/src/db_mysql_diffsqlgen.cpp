@@ -305,17 +305,30 @@ void DiffSQLGeneratorBE::generate_create_stmt(db_mysql_TableRef table)
     if(strlen(table->avgRowLength().c_str()))
       callback->create_table_avg_row_length(table->avgRowLength());
 
-    if(table->defaultCharacterSetName().is_valid() && strlen(table->defaultCharacterSetName().c_str()))
-      callback->create_table_charset(table->defaultCharacterSetName());
-
     if(table->checksum() != 0)
       callback->create_table_checksum(table->checksum());
 
-    if(table->defaultCollationName().is_valid() && strlen(table->defaultCollationName().c_str())&&
-        (charsetForCollation(table->defaultCollationName()) == (table->defaultCharacterSetName().c_str())) )
-      callback->create_table_collate(table->defaultCollationName());
+    // Set a collation only if it differs from the default collation for that charset.
+    // Ignore the collation if it doesn't match the charset, however.
+    if (table->defaultCharacterSetName().is_valid())
+    {
+      std::string charset = table->defaultCharacterSetName();
+      if (!charset.empty())
+      {
+        callback->create_table_charset(charset);
 
-    if(strlen(table->comment().c_str()))
+        if (table->defaultCollationName().is_valid())
+        {
+          std::string collation = table->defaultCollationName();
+          if (!collation.empty()
+            && (charsetForCollation(collation) == charset)
+            && (defaultCollationForCharset(table->defaultCharacterSetName()) != collation))
+            callback->create_table_collate(collation);
+        }
+      }
+    }
+
+    if (strlen(table->comment().c_str()))
       callback->create_table_comment(table->comment());
     
     // CONNECTION [=] 'connect_string'

@@ -33,6 +33,7 @@
 #include "text_list_columns_model.h"
 
 #include "treemodel_wrapper.h"
+#include "base/string_utilities.h"
 
 // This list_model is used for all functions which operate on GTKListStore
 static TextListColumnsModel _wb_list_model;
@@ -330,7 +331,7 @@ static void populate_popup_menu(const bec::MenuItemList &items, const int time,
 
   for ( ; last_item != cur_item; cur_item++ )
   {
-    Gtk::MenuItem *item = Gtk::manage(new Gtk::MenuItem(bec::replace_string(cur_item->caption, "_", "__"), true));
+    Gtk::MenuItem *item = Gtk::manage(new Gtk::MenuItem(base::replaceString(cur_item->caption, "_", "__"), true));
     item->set_name(cur_item->name);
     item->set_sensitive(cur_item->enabled);
     // not support in Gtk from Ubuntu 8.04

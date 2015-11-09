@@ -25,7 +25,7 @@
 #include "grt/tree_model.h"
 #include "workbench/wb_backend_public_interface.h"
 #include "base/string_utilities.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "base/trackable.h"
 
 namespace wb
@@ -334,7 +334,7 @@ namespace wb
     boost::weak_ptr<Delegate> _delegate;
     grt::GRT* _grt;
     std::string _active_schema;
-    mforms::TreeNodeView* _model_view;
+    mforms::TreeView* _model_view;
 
     bool _case_sensitive_identifiers;
 
@@ -364,7 +364,7 @@ namespace wb
     LiveSchemaTree(grt::GRT* grtm);
     virtual ~LiveSchemaTree();
 
-    void set_model_view(mforms::TreeNodeView* target);
+    void set_model_view(mforms::TreeView* target);
     void set_delegate(boost::shared_ptr<Delegate> delegate);
     void set_fetch_delegate(boost::shared_ptr<FetchDelegate> delegate);
 
@@ -380,6 +380,8 @@ namespace wb
     void set_active_schema(const std::string &schema);
 
     void set_no_connection();
+    
+    void set_enabled(bool enabled);
 
     void update_live_object_state(ObjectType type, const std::string &schema_name, const std::string &old_obj_name, const std::string &new_obj_name);
 

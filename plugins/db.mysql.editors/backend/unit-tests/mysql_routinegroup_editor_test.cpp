@@ -107,7 +107,7 @@ const char* routine_sql =
   model.routineGroup->name("rg");
   MySQLRoutineGroupEditorBE rg(wbt.wb->get_grt_manager(), model.routineGroup);
 
-  // Note: use_sql is a special functions only for tests like this. The normal access function
+  // Note: use_sql is a special function only for tests like this. The normal access function
   //       set_sql() is interacting with the associated code editor. We don't have a working editor
   //       in unit tests, however.
   rg.use_sql(routine_sql);
@@ -155,7 +155,7 @@ TEST_FUNCTION(30)
 {
 const char* routine_sql =
   "DELIMITER //" NL
-  "CREATE FUNCTION get_count(less_than INT, greather_than INT) RETURNS ..." NL
+  "CR!!! FUNCTION get_count(less_than INT, greather_than INT) RETURNS ..." NL
   "    DETERMINISTIC" NL
   "    READS SQL DATA" NL
   "BEGIN" NL
@@ -177,7 +177,7 @@ const char* routine_sql =
   "    WHERE id > less_than AND id < greather_than;" NL
   "  RETURN res;" NL
   "END //" NL
-  "CREATE TABLE get_count2(less_than INT, greather_than INT) RETURNS INT" NL
+  "CREATE FUNCTION get_count2(less_than INT, greather_than INT) RETURNS INT" NL
   "    DETERMINISTIC" NL
   "    READS SQL DATA" NL
   "-- BEGIN" NL
@@ -197,7 +197,7 @@ const char* routine_sql =
 
   rg.use_sql(routine_sql);
 
-  std::string names[] = {"get_count_SYNTAX_ERROR", "get_count1", "rg_SYNTAX_ERROR_1"};
+  std::string names[] = { "rg_SYNTAX_ERROR_1", "get_count1", "get_count2_SYNTAX_ERROR" };
   assure_equal(model.routineGroup->routines().count(), sizeof(names) / sizeof(names[0]));
 
   size_t i = 0;

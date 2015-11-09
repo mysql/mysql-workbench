@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -194,13 +194,18 @@ grt::IntegerRef db_Column::setParseType(const std::string &type, const grt::List
 {
   grt::ListRef<db_UserDatatype> user_types;
   grt::ListRef<db_SimpleDatatype> default_type_list;
-  GrtVersionRef target_version;
+  GrtVersionRef targetVersion(get_grt());
   if (owner().is_valid() && owner()->owner().is_valid() && owner()->owner()->owner().is_valid())
   {
     db_CatalogRef catalog= db_CatalogRef::cast_from(owner()->owner()->owner());
     user_types= catalog->userDatatypes();
     default_type_list = catalog->simpleDatatypes();
-    target_version = catalog->version();
+    GrtVersionRef catalogVersion = catalog->version();
+    targetVersion->majorNumber(catalogVersion->majorNumber());
+    targetVersion->minorNumber(catalogVersion->minorNumber());
+    targetVersion->releaseNumber(catalogVersion->releaseNumber() > 0 ? catalogVersion->releaseNumber() : grt::IntegerRef(999));
+    targetVersion->buildNumber(catalogVersion->buildNumber());
+    targetVersion->status(catalogVersion->status());
   }
 
   db_UserDatatypeRef userType;
@@ -211,9 +216,10 @@ grt::IntegerRef db_Column::setParseType(const std::string &type, const grt::List
   std::string datatypeExplicitParams;
   grt::AutoUndo undo(get_grt(), !is_global());
 
-  if (!bec::parse_type_definition(type, target_version, typeList, user_types, default_type_list,
+  // if the available release number is negative, that's meant to signify "any release number",
+  if (!bec::parse_type_definition(type, targetVersion, typeList, user_types, default_type_list,
       simpleType, userType, precision, scale, length, datatypeExplicitParams))
-      return false;
+      return 0;
   this->userType(userType);
   this->simpleType(simpleType);
   this->precision(precision);
@@ -226,7 +232,7 @@ grt::IntegerRef db_Column::setParseType(const std::string &type, const grt::List
 
   undo.end(_("Change Column Type"));
 
-  return true;
+  return 1;
 }
 
 

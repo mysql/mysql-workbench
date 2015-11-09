@@ -153,7 +153,7 @@ All tables are copied by default.""")
         l.set_style(mforms.SmallHelpTextStyle)
         box.add(l, False, True)
 
-        self._tree = mforms.newTreeNodeView(mforms.TreeDefault)
+        self._tree = mforms.newTreeView(mforms.TreeDefault)
         self._tree.add_column(mforms.IconStringColumnType, "Table", 200, False)
         self._tree.add_column(mforms.StringColumnType, "Limit Copy", 100, True)
         self._tree.add_column(mforms.StringColumnType, "Referencing Tables", 500, False)
@@ -435,6 +435,10 @@ class TransferMainView(WizardProgressPage):
 
         source_db_module = self.main.plan.migrationSource.module_db()
         target_db_module = self.main.plan.migrationTarget.module_db()
+        ttimeout = str(self.main.plan.migrationTarget.connection.parameterValues['timeout'])
+        stimeout = ''
+        if self.main.plan.migrationSource.connection.parameterValues.has_key('timeout'):
+            stimeout = str(self.main.plan.migrationSource.connection.parameterValues['timeout'])
 
         self._working_set = {}
         for table in tables:
@@ -474,7 +478,7 @@ class TransferMainView(WizardProgressPage):
             self._working_set[schema_name+"."+table_name] = {"table" : table,
                         "source_schema":schema_name, "source_table":table_name,
                         "target_schema":targ_schema_name, "target_table":targ_table_name,
-                        "target_table_object":table}
+                        "target_table_object":table, "ttimeout":ttimeout, "stimeout":stimeout}
             select_expression = []
             source_pk_list = []
             target_pk_list = []
