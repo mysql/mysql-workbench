@@ -260,6 +260,7 @@
 		27512ED31240F50200EF37DD /* code_editor.h in Headers */ = {isa = PBXBuildFile; fileRef = 27512ED21240F50200EF37DD /* code_editor.h */; };
 		2753E59918E95FBC0079DAA8 /* sshtunnel.py in Resources */ = {isa = PBXBuildFile; fileRef = 2753E59818E95FBC0079DAA8 /* sshtunnel.py */; };
 		2754DF60142CAA9800D1D419 /* snippet_clipboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 2754DF5F142CAA9800D1D419 /* snippet_clipboard.png */; };
+		2757EE9D1BF0DA47007E2BAE /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		27597A0114192ED100641E30 /* container.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27597A0014192ED100641E30 /* container.cpp */; };
 		27597A0314192EE900641E30 /* container.h in Headers */ = {isa = PBXBuildFile; fileRef = 27597A0214192EE900641E30 /* container.h */; };
 		275E55CE11AD35F100B3886E /* popup.h in Headers */ = {isa = PBXBuildFile; fileRef = 275E55CD11AD35F100B3886E /* popup.h */; };
@@ -6771,6 +6772,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2757EE9D1BF0DA47007E2BAE /* libwbbase.dylib in Frameworks */,
 				2B774FC815CEC55200923448 /* libglib-2.0.0.dylib in Frameworks */,
 				2B3D5D4D0F43DCF9009238A7 /* libmforms.dylib in Frameworks */,
 				2B3D5D4E0F43DCF9009238A7 /* libwbpublic.be.dylib in Frameworks */,
