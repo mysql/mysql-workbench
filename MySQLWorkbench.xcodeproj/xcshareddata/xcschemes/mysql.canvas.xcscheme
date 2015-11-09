@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2B825E210E0B662200BE52DF"
-               BuildableName = "libmysql.canvas.dylib"
+               BuildableName = "mysql.canvas.dylib"
                BlueprintName = "mysql.canvas"
                ReferencedContainer = "container:MySQLWorkbench.xcodeproj">
             </BuildableReference>
@@ -46,7 +46,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2B825E210E0B662200BE52DF"
-            BuildableName = "libmysql.canvas.dylib"
+            BuildableName = "mysql.canvas.dylib"
             BlueprintName = "mysql.canvas"
             ReferencedContainer = "container:MySQLWorkbench.xcodeproj">
          </BuildableReference>
@@ -64,7 +64,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2B825E210E0B662200BE52DF"
-            BuildableName = "libmysql.canvas.dylib"
+            BuildableName = "mysql.canvas.dylib"
             BlueprintName = "mysql.canvas"
             ReferencedContainer = "container:MySQLWorkbench.xcodeproj">
          </BuildableReference>
