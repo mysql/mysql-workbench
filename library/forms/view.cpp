@@ -512,7 +512,7 @@ DropPosition View::get_drop_position()
 bool View::mouse_leave()
 {
   if (_signal_mouse_leave.num_slots() > 0)
-    return _signal_mouse_leave();
+    return *_signal_mouse_leave();
   return false;
 }
 
