@@ -416,6 +416,8 @@ std::string get_local_os_name()
   *dot_position = 0;
   int version = base::atoi<int>(info.release, 0);
   switch (version) {
+    case 15:
+      return std::string("OS X 10.11.x El Capitan ") + info.machine;
     case 14:
       return std::string("OS X 10.10.x Yosemite ") + info.machine;
     case 13:
@@ -424,18 +426,6 @@ std::string get_local_os_name()
       return std::string("OS X 10.8.x Mountain Lion ") + info.machine;
     case 11:
       return std::string("OS X 10.7.x Lion ") + info.machine;
-    case 10:
-      return std::string("OS X 10.6.x Snow Leopard ") + info.machine; // For completeness. Not that WB would actually run on this or lower :-)
-    case 9:
-      return std::string("OS X 10.5.x Leopard ") + info.machine;
-    case 8:
-      return std::string("OS X 10.4.x Tiger ") + info.machine;
-    case 7:
-      return std::string("OS X 10.3.x Panther ") + info.machine;
-    case 6:
-      return std::string("OS X 10.2.x Jaguar ") + info.machine;
-    case 5:
-      return std::string("OS X 10.1.x Puma ") + info.machine;
   }
   return "unknown";
 }
