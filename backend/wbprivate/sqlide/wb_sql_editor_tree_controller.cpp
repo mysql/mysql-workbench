@@ -718,7 +718,7 @@ void SqlEditorTreeController::fetch_column_data(const std::string& schema_name, 
       std::string default_value = rs->getString(6);
       std::string extra = rs->getString(7);
 
-      base::replace(type, "unsigned", "UN");
+      base::replaceStringInplace(type, "unsigned", "UN");
 
       if (extra == "auto_increment")
         type += " AI";
@@ -1232,11 +1232,17 @@ wb::LiveSchemaTree::ObjectType SqlEditorTreeController::fetch_object_type(const 
 void SqlEditorTreeController::tree_refresh()
 {
   if (_owner->connected())
+  {
     live_schemata_refresh_task->exec(false,
                                    boost::bind((grt::StringRef(SqlEditorTreeController::*)(grt::GRT *, SqlEditorForm::Ptr))&SqlEditorTreeController::do_refresh_schema_tree_safe, this, _1,
                                                weak_ptr_from(_owner)));
+    _schema_tree->set_enabled(true);
+  }
   else
+  {
     _schema_tree->set_no_connection();
+    _schema_tree->set_enabled(false);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1498,7 +1504,8 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
         }
       }
 
-      if (!parse_ddl_into_catalog(client_state_catalog, strfmt("`%s`.`%s`", schema_name.c_str(), obj_name.c_str()), ddl_script, sql_mode))
+      if (!parse_ddl_into_catalog(client_state_catalog, strfmt("`%s`.`%s`", schema_name.c_str(), obj_name.c_str()),
+        ddl_script, sql_mode, schema_name))
       {
         log_warning("Error parsing DDL for %s.%s: %s", schema_name.c_str(), obj_name.c_str(), ddl_script.c_str());
         return;
@@ -1518,23 +1525,23 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
     switch (type)
     {
       case wb::LiveSchemaTree::Schema:
-        db_object= is_object_new ?
+        db_object = is_object_new ?
           create_new_schema(client_state_catalog) :
           db_SchemaRef::cast_from(find_named_object_in_list(client_state_catalog->schemata(), obj_name));
         break;
       case wb::LiveSchemaTree::Table:
-        db_object= is_object_new ?
+        db_object = is_object_new ?
           create_new_table(schema) :
           db_TableRef::cast_from(find_named_object_in_list(schema->tables(), obj_name));
         break;
       case wb::LiveSchemaTree::View:
-        db_object= is_object_new ?
+        db_object = is_object_new ?
           create_new_view(schema) :
           db_ViewRef::cast_from(find_named_object_in_list(schema->views(), obj_name));
         break;
       case wb::LiveSchemaTree::Procedure:
       case wb::LiveSchemaTree::Function:
-        db_object= is_object_new ?
+        db_object = is_object_new ?
           create_new_routine(schema, type) :
           db_RoutineRef::cast_from(find_named_object_in_list(schema->routines(), obj_name));
         break;
@@ -2076,17 +2083,6 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
       bec::TableEditorBE *table_editor= dynamic_cast <bec::TableEditorBE *> (obj_editor);
       table_editor->get_fks()->select_fk(NodeId());
       table_editor->get_indexes()->select_index(NodeId());
-
-      obj_editor->freeze_refresh_on_object_change();
-
-      db_TableRef table= db_TableRef::cast_from(db_object);
-      table->isStub(1);
-      table->triggers().remove_all();
-      table->foreignKeys().remove_all();
-      table->indices().remove_all();
-      table->columns().remove_all();
-
-      obj_editor->thaw_refresh_on_object_change(true);
     }
     else if (db_ViewRef::can_wrap(db_object))
     {
@@ -2105,6 +2101,7 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
   }
 
   obj_editor->freeze_refresh_on_object_change();
+  client_state_catalog->schemata().remove_all(); // Clean up. We only want the single object in it, which we edit.
 
   // reparse object's DDL
   std::string ddl_script;
@@ -2141,39 +2138,71 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
 
       parse_ddl_into_catalog(client_state_catalog,
                              strfmt("`%s`.`%s`", schema_name.c_str(), obj_name.c_str()),
-                             ddl_script, sql_mode);
+                             ddl_script, sql_mode, schema_name);
     }
+  }
+
+  // Settings dict here only to copy it to the new db object.
+  grt::DictRef dbSettings = grt::DictRef::cast_from(db_object->customData().get("DBSettings"));
+  switch (db_object_type)
+  {
+  case wb::LiveSchemaTree::Table:
+    if ((client_state_catalog->schemata()->count() > 0) && (client_state_catalog->schemata()[0]->tables()->count() > 0))
+      db_object = client_state_catalog->schemata()[0]->tables()[0];
+    break;
+  case wb::LiveSchemaTree::View:
+    if ((client_state_catalog->schemata()->count() > 0) && (client_state_catalog->schemata()[0]->views()->count() > 0))
+      db_object = client_state_catalog->schemata()[0]->views()[0];
+    break;
+  case wb::LiveSchemaTree::Procedure:
+  case wb::LiveSchemaTree::Function:
+    if ((client_state_catalog->schemata()->count() > 0) && (client_state_catalog->schemata()[0]->routines()->count() > 0))
+      db_object = client_state_catalog->schemata()[0]->routines()[0];
+    break;
+  default: // wb::LiveSchemaTree::Schema, there are more cases, but we only use those listed here.
+    if (client_state_catalog->schemata()->count() > 0)
+      db_object = client_state_catalog->schemata()[0];
+    break;
   }
 
   {
     db_CatalogRef server_state_catalog(db_CatalogRef::cast_from(grt::copy_object(client_state_catalog)));
     db_object->customData().set("serverStateCatalog", server_state_catalog);
+    db_object->customData().set("clientStateCatalog", client_state_catalog);
   }
   db_object->customData().set("originalObjectDDL", grt::StringRef(ddl_script));
   db_object->customData().set("sqlMode", grt::StringRef(sql_mode));
 
+  db_object->customData().set("DBSettings", dbSettings);
+  db_object->customData().set("liveRdbms", _owner->rdbms());
+  db_object->customData().set("ownerSqlEditor", _owner->wbsql()->get_grt_editor_object(_owner));
+
   obj_editor->thaw_refresh_on_object_change();
+
+  // Update the editor's grt object (the one it is managing), as this has now been
+  // recreated. Will cause a UI refresh as well. If there was a parse error (which can only be
+  // an internal error, since we start freshly) stay with the old object.
+  obj_editor->set_object(db_object);
 
   // Enable refresh of sql editor contents.
   MySQLEditor::Ref active_sql_editor;
   if (obj_editor->has_editor())
     active_sql_editor = obj_editor->get_sql_editor();
   if (active_sql_editor)
-  {
     active_sql_editor->set_refresh_enabled(true);
-    // provoke database object to refresh FE control contents
-    (*db_object->signal_changed())("", grt::ValueRef());
-  }
 }
 
 //--------------------------------------------------------------------------------------------------
 
 bool SqlEditorTreeController::parse_ddl_into_catalog(db_mysql_CatalogRef catalog,
-  const std::string &objectDescription, const std::string &sql, std::string sqlMode)
+  const std::string &objectDescription, const std::string &sql, std::string sqlMode, const std::string &schema)
 {
   std::string currentSqlMode = _owner->work_parser_context()->get_sql_mode();
+
   grt::DictRef options(_grtm->get_grt());
   options.set("reuse_existing_objects", grt::IntegerRef(1));
+  options.set("schema", grt::StringRef(schema));
+
   if (!sqlMode.empty())
     _owner->work_parser_context()->use_sql_mode(sqlMode);
 
@@ -2185,7 +2214,7 @@ bool SqlEditorTreeController::parse_ddl_into_catalog(db_mysql_CatalogRef catalog
   if (options.has_key("sql_mode") && (errorCount > 0))
   {
     if (sqlMode.find("ANSI_QUOTES") != std::string::npos)
-      sqlMode = replace_string(sqlMode, "ANSI_QUOTES", "");
+      sqlMode = base::replaceString(sqlMode, "ANSI_QUOTES", "");
     else
       sqlMode += ", ANSI_QUOTES";
     _owner->work_parser_context()->use_sql_mode(sqlMode);

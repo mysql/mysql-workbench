@@ -50,14 +50,12 @@ namespace mforms {
 
     virtual void update_columns() = 0;
 
-    virtual void set_column_header_indicator(int column, ColumnHeaderIndicator order) = 0; //TODO Windows
+    virtual void set_column_header_indicator(int column, ColumnHeaderIndicator order) = 0;
 
     virtual bool current_cell(size_t &row, int &column) = 0;
     virtual void set_current_cell(size_t row, int column) = 0;
 
-    virtual void set_font(const std::string &font) = 0; // TODO Windows
-
-    virtual void set_header_menu(ContextMenu *menu); // TODO Windows
+    virtual void set_header_menu(ContextMenu *menu);
     int get_clicked_header_column() { return _clicked_header_column; }
 
 #ifndef SWIG

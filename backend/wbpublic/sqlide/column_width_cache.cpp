@@ -39,11 +39,11 @@ DEFAULT_LOG_DOMAIN("column_widths");
 ColumnWidthCache::ColumnWidthCache(const std::string &connection_id, const std::string &cache_dir)
 : _connection_id(connection_id)
 {
-  _sqconn = new sqlite::connection(make_path(cache_dir, connection_id)+".column_widths");
+  _sqconn = new sqlite::connection(base::makePath(cache_dir, connection_id)+".column_widths");
   sqlite::execute(*_sqconn, "PRAGMA temp_store=MEMORY", true);
   sqlite::execute(*_sqconn, "PRAGMA synchronous=NORMAL", true);
 
-  log_debug2("Using column width cache file %s\n", (make_path(cache_dir, connection_id)+".column_widths").c_str());
+  log_debug2("Using column width cache file %s\n", (base::makePath(cache_dir, connection_id)+".column_widths").c_str());
 
   // check if the DB is already initialized
   sqlite::query q(*_sqconn, "select name from sqlite_master where type='table'");

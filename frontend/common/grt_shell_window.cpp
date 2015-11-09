@@ -232,9 +232,9 @@ _lower_tab(mforms::TabViewDocument),
   mforms::Box *files_box= mforms::manage(new mforms::Box(false));
   
 #ifdef _WIN32
-  _files_tree = mforms::manage(new mforms::TreeNodeView(mforms::TreeNoBorder|mforms::TreeNoHeader));
+  _files_tree = mforms::manage(new mforms::TreeView(mforms::TreeNoBorder|mforms::TreeNoHeader));
 #else
-  _files_tree = mforms::manage(new mforms::TreeNodeView(mforms::TreeDefault|mforms::TreeNoHeader));
+  _files_tree = mforms::manage(new mforms::TreeView(mforms::TreeDefault|mforms::TreeNoHeader));
 #endif
 
   _files_menu.add_item_with_title("Add New File", boost::bind(&GRTShellWindow::file_menu_activate, this, "file-from-template"));
@@ -361,9 +361,9 @@ _lower_tab(mforms::TabViewDocument),
  
   // setup shell
 #ifdef _WIN32
-  _snippet_list = mforms::manage(new TreeNodeView(mforms::TreeNoBorder|mforms::TreeFlatList));
+  _snippet_list = mforms::manage(new TreeView(mforms::TreeNoBorder|mforms::TreeFlatList));
 #else
-  _snippet_list = mforms::manage(new TreeNodeView(mforms::TreeDefault|mforms::TreeFlatList));
+  _snippet_list = mforms::manage(new TreeView(mforms::TreeDefault|mforms::TreeFlatList));
 #endif
 
   _shell_box.add(&_shell_text, true, true);
@@ -880,7 +880,7 @@ void GRTShellWindow::handle_global_menu(const std::string &action)
 
 void GRTShellWindow::save_snippets()
 {
-  std::string path = make_path(grtm()->get_user_datadir(), "shell_snippets"+_script_extension);
+  std::string path = base::makePath(grtm()->get_user_datadir(), "shell_snippets"+_script_extension);
   FILE *f = base_fopen(path.c_str(), "w+");
   if (!f)
   {
@@ -950,7 +950,7 @@ void GRTShellWindow::refresh_snippets()
 
   load_snippets_from(grtm()->get_data_file_path("shell_snippets"+_script_extension+".txt"));
   _global_snippet_count = _snippet_list->root_node()->count();
-  load_snippets_from(make_path(grtm()->get_user_datadir(), "shell_snippets"+_script_extension));
+  load_snippets_from(base::makePath(grtm()->get_user_datadir(), "shell_snippets"+_script_extension));
 
   snippet_selected();
 }
@@ -1263,7 +1263,7 @@ void GRTShellWindow::add_new_script()
   {
     GRTCodeEditor *editor= add_editor(is_script, language);
     if (!path.empty() && base::basename(path) == path)
-      path= make_path(grtm()->get_user_script_path(), path);
+      path= base::makePath(grtm()->get_user_script_path(), path);
     editor->set_path(path);
     editor->set_text(code);
   }

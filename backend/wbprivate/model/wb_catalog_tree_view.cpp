@@ -184,20 +184,25 @@ mforms::TreeNodeRef CatalogTreeView::create_new_node(const ObjectType &otype, mf
 }
 
 CatalogTreeView::CatalogTreeView(ModelDiagramForm *owner)
-: mforms::TreeNodeView(mforms::TreeNoBorder | mforms::TreeNoHeader | mforms::TreeSizeSmall | mforms::TreeCanBeDragSource | mforms::TreeIndexOnTag)
+  : mforms::TreeView(mforms::TreeNoBorder | mforms::TreeSizeSmall | mforms::TreeCanBeDragSource | mforms::TreeIndexOnTag
+#ifndef _WIN32
+  | mforms::TreeNoHeader
+#endif
+)
 , _owner(owner)
 
 {
   _initialized = false;
-
+  bool showHeaderText = true;
   set_selection_mode(mforms::TreeSelectMultiple);
 #ifdef _WIN32
   set_row_height(19);
+  showHeaderText = false;
 #else
   set_row_height(17);
 #endif
-  add_column(mforms::IconStringColumnType, "Name", 200);
-  add_column(mforms::StringColumnType, "Presence", 20);
+  add_column(mforms::IconStringColumnType, showHeaderText ? "Name" : "", 200);
+  add_column(mforms::StringColumnType, showHeaderText ? "Presence" : "", 20);
   end_columns();
 
   _menu = new mforms::ContextMenu();

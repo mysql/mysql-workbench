@@ -20,6 +20,7 @@
 #include "db_mysql_params.h"
 #include "grtpp_util.h"
 #include "grt/grt_manager.h"
+#include "base/file_utilities.h"
 
 namespace dbmysql
 {
@@ -98,7 +99,7 @@ db_mysql_StorageEngineRef engine_by_id(EngineId id, grt::GRT* grt)
 grt::ListRef<db_mysql_StorageEngine> get_known_engines(grt::GRT *grt)
 {
   return grt::ListRef<db_mysql_StorageEngine>::cast_from(
-    grt->unserialize(bec::make_path(bec::GRTManager::get_instance_for(grt)->get_basedir(), "modules/data/mysql_engines.xml")));
+    grt->unserialize(base::makePath(bec::GRTManager::get_instance_for(grt)->get_basedir(), "modules/data/mysql_engines.xml")));
 }
 
 bool check_valid_characters(const char* str)

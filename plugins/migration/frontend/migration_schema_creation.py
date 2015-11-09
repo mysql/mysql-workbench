@@ -241,7 +241,7 @@ the schema creation or return to the Manual Editing page to correct them there a
         hbox = mforms.newBox(True)
         hbox.set_spacing(12)
         hbox.set_homogeneous(True)
-        self._tree = mforms.newTreeNodeView(mforms.TreeFlatList)
+        self._tree = mforms.newTreeView(mforms.TreeFlatList)
         self._tree.add_column(mforms.IconStringColumnType, "Object", 200, False)
         self._tree.add_column(mforms.IconStringColumnType, "Result", 600, False)
         self._tree.end_columns()

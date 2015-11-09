@@ -27,6 +27,11 @@ if (MYSQL_DEFINITIONS)
 	add_definitions(${MYSQL_DEFINITIONS})
 endif()
 
+if (UNIX)
+    add_definitions(-DHAVE_MEMCPY=1 -DHAVE_MEMMOVE=1 -DUSE_MB=1 -DUSE_MB_IDENT=1 -DHAVE_STRTOUL=1)
+endif()
+    
+
 add_library(db.mysql.sqlparser.grt
     src/db.mysql.sqlparser.cpp
     src/mysql_invalid_sql_parser.cpp

@@ -15,7 +15,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from mforms import newTreeNodeView, newButton, newBox, newSelector, newCheckBox, newLabel, Utilities
+from mforms import newTreeView, newButton, newBox, newSelector, newCheckBox, newLabel, Utilities
 import mforms
 import grt
 
@@ -45,7 +45,7 @@ class WBThreadStack(mforms.Form):
 
         splitter = mforms.newSplitter(True, False)
 
-        self.tree = mforms.newTreeNodeView(mforms.TreeDefault)
+        self.tree = mforms.newTreeView(mforms.TreeDefault)
         self.tree.add_column(mforms.IntegerColumnType, "Event Id", 50, False)
         self.tree.add_column(mforms.StringColumnType, "Event info", 200, False)
         self.tree.add_column(mforms.StringColumnType, "Type", 100, False)
@@ -339,7 +339,7 @@ class WbAdminConnections(WbAdminBaseTab):
 
         self.connection_box = mforms.newBox(True)
         self.connection_box.set_spacing(8)
-        self.connection_list = newTreeNodeView(mforms.TreeDefault|mforms.TreeFlatList|mforms.TreeAltRowColors)
+        self.connection_list = newTreeView(mforms.TreeDefault|mforms.TreeFlatList|mforms.TreeAltRowColors)
         self.connection_list.set_selection_mode(mforms.TreeSelectMultiple)
         self.connection_list.add_column_resized_callback(self.column_resized)
         for i, (field, type, caption, width) in enumerate(self.columns):
@@ -477,7 +477,7 @@ class WbAdminConnections(WbAdminBaseTab):
                 label.set_style(mforms.SmallHelpTextStyle)
                 self.mdl_list_box.add(label, False, True)
 
-                self.mdl_list_held = mforms.newTreeNodeView(mforms.TreeAltRowColors)
+                self.mdl_list_held = mforms.newTreeView(mforms.TreeAltRowColors)
                 self.mdl_list_held.add_column(mforms.IconStringColumnType, "Object", 130, False)
                 self.mdl_list_held.add_column(mforms.StringColumnType, "Type", 100, False)
                 self.mdl_list_held.add_column(mforms.StringColumnType, "Duration", 100, False)
@@ -499,7 +499,7 @@ class WbAdminConnections(WbAdminBaseTab):
                 self.mdl_locks_page = self.extra_info_tab.add_page(self.mdl_list_box_scrollarea, "Locks")
 
             if self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 6, 0):
-                self.attributes_list = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeAltRowColors)
+                self.attributes_list = mforms.newTreeView(mforms.TreeFlatList|mforms.TreeAltRowColors)
                 self.attributes_list.add_column(mforms.StringColumnType, "Attribute", 150, False)
                 self.attributes_list.add_column(mforms.StringColumnType, "Value", 200, False)
                 self.attributes_list.end_columns()

@@ -32,7 +32,7 @@
 using namespace wb;
 
 LayerTree::LayerTree(WBContextUI *wbui, ModelDiagramForm *form, const model_DiagramRef &diagram)
-: mforms::TreeNodeView(mforms::TreeSidebar|mforms::TreeNoHeader|mforms::TreeIndexOnTag),
+: mforms::TreeView(mforms::TreeSidebar|mforms::TreeNoHeader|mforms::TreeIndexOnTag),
   _form(form), _diagram(diagram), _updating_selection(false)
 {
   add_column(mforms::IconStringColumnType, "Object", 200, false);

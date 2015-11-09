@@ -254,6 +254,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="base\event_log.cpp" />
     <ClCompile Include="config_file.cpp" />
     <ClCompile Include="debugging.cpp" />
     <ClCompile Include="drawing.cpp" />
@@ -285,6 +286,7 @@
     <ClInclude Include="base\debugging.h" />
     <ClInclude Include="base\drawing.h" />
     <ClInclude Include="base\entities.h" />
+    <ClInclude Include="base\event_log.h" />
     <ClInclude Include="base\file_functions.h" />
     <ClInclude Include="base\file_utilities.h" />
     <ClInclude Include="base\generic_templates.h" />
@@ -292,6 +294,7 @@
     <ClInclude Include="base\log.h" />
     <ClInclude Include="base\notifications.h" />
     <ClInclude Include="base\profiling.h" />
+    <ClInclude Include="base\scope_exit_trigger.h" />
     <ClInclude Include="base\sqlstring.h" />
     <ClInclude Include="base\string_utilities.h" />
     <ClInclude Include="base\threaded_timer.h" />

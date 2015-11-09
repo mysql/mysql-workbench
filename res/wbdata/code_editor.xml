@@ -176,7 +176,7 @@
 			des_encrypt dimension disjoint
 		elt encode encrypt endpoint envelope equals exp export_set exteriorring extract
 		field find_in_set floor format found_rows from_days from_unixtime
-		geomcollfromtext geomcollfromwkb geometrycollection geometryn geometrytype geomfromtext geomfromwkb get_format get_lock glength
+		geomcollfromtext geomcollfromwkb geometrycollection geometryn geometrytype geomfromtext JSgeomfromwkb get_format get_lock glength
 			greatest group_concat
 		hex hour
 		if ifnull in inet_aton inet_ntoa insert instr interiorringn intersects interval is_free_lock is_used_lock isclosed isempty isnull
@@ -552,13 +552,13 @@
     </keywords>
 
     <keywords name="Keywords">
-      accessible action add adddate after against aggregate algorithm all analyse and any as asc ascii asensitive at
-        authors autoextend_size auto_increment avg_row_length avg
+      accessible account action add adddate after against aggregate algorithm all always analyse and any as asc ascii asensitive at
+        autoextend_size auto_increment avg_row_length avg
       backup before between bigint binary bin_num bit_and bit_or bit bit_xor blob block boolean bool both btree by byte
-      cascade cascaded case cast catalog_name chain changed charset character char cipher class_origin client close
+      cascade cascaded case cast catalog_name chain changed channel charset character char cipher class_origin client close
         coalesce code collate collation columns column column_name column_format comment committed compact completion
-        compressed concurrent condition connection consistent constraint constraint_catalog constraint_name constraint_schema
-        contains context continue contributors convert count cpu cross cube curdate current current_timestamp current_user
+        compressed compression concurrent condition connection consistent constraint constraint_catalog constraint_name constraint_schema
+        contains context continue convert count cpu cross cube curdate current current_timestamp current_user
         cursor cursor_name curtime 
       database databases datafile data datetime date_add date_add_interval date_sub date_sub_interval date dayofmonth day_hour
         day_microsecond day_minute day_second day dec decimal_num decimal declare default default_auth definer delayed
@@ -566,13 +566,13 @@
         double dual dumpfile duplicate dynamic
       each else elseif enable enclosed end ends end_of_input engines engine enum error errors escaped escape events event
         every exchange exists exit expansion expire explain export extended extent_size extract
-      false fast faults fetch fields file filter first fixed float4 float8 float follows force foreign for format found
+      false fast faults fetch fields file file_block_size filter first fixed float4 float8 float follows force foreign for format found
         frac_second from full fulltext function
-      get general geometrycollection geometry get_format global grants group group_concat
+      get general generated geometrycollection geometry get_format global grants group group_concat group_replication
       hash having high_priority host hosts hour_microsecond hour_minute hour_second hour
       identified if ignore ignore_server_ids import indexes index infile initial_size inner innodb inout insensitive
         insert_method integer interval into int int1 int2 int3 int4 int8 invoker in io_after_gtids io_before_gtids io_thread io ipc is isolation issuer iterate
-      join
+      join json
       keys key_block_size key
       language last leading leaves leave left less level like limit linear lines linestring list localtime localtimestamp
         local locator locks logfile logs longblob longtext long_num long loop low_priority
@@ -585,7 +585,7 @@
         multilinestring multipoint multipolygon mutex mysql_errno
       names name national natural nchar_string nchar ndb ndbcluster neg never new next nodegroup none nonblocking not now no no_wait
         no_write_to_binlog null number numeric nvarchar
-      offline offset old_password on one_shot one online only open options option optionally order or outer outfile out owner
+      offline offset on one_shot one online only open optimizer_costs options option optionally order or outer outfile out owner
       pack_keys page param_marker parser partial partitioning partitions password phase plugins plugin_dir plugin point
         polygon port position precedes precision preserve prev primary privileges procedure process processlist profile profiles proxy
       quarter query quick
@@ -600,13 +600,13 @@
         sql_before_gtids sql_big_result sql_buffer_result sql_cache sql_calc_found_rows sql_no_cache sql_small_result
         sql sql_thread sql_tsi_frac_second sql_tsi_second sql_tsi_minute sql_tsi_hour sql_tsi_day sql_tsi_week sql_tsi_month
         sql_tsi_quarter sql_tsi_year ssl stacked starting starts stats_auto_recalc stats_persistent stats_sample_pages status
-        stddev_samp stddev stddev_pop std storage straight_join string subclass_origin subdate subject subpartitions subpartition
+        stddev_samp stddev stddev_pop std storage stored straight_join string subclass_origin subdate subject subpartitions subpartition
         substr substring sum super suspend swaps switches sysdate system_user
       tables tablespace table_ref_priority table table_checksum table_name temporary temptable terminated text than then timestamp
         timestamp_add timestamp_diff time tinyblob tinyint tinytext to trailing transaction triggers trigger trim true types type
       udf_returns ulonglong_num uncommitted undefined undofile undo_buffer_size undo unicode union unique unknown unsigned until
         upgrade usage user_resources user use_frm using utc_date utc_timestamp utc_time
-      values value varbinary varchar varcharacter variables variance varying var_pop var_samp view
+      validation values value varbinary varchar varcharacter variables variance varying var_pop var_samp view virtual
       wait warnings week weight_string when where while with with_cube with_rollup work wrapper write
       x509 xid xml xor
       year_month year
@@ -801,7 +801,7 @@
     <style id="1" fore-color="#097BF7" /> <!-- SCE_C_COMMENT -->
     <style id="2" fore-color="#097BF7" /> <!-- SCE_C_COMMENTLINE -->
     <style id="3" fore-color="#097BF7" /> <!-- SCE_C_COMMENTDOC -->
-    <style id="4" fore-color="#3EAAFF" /> <!-- SCE_C_NUMBER -->
+    <style id="4" fore-color="#FF0000" /> <!-- SCE_C_NUMBER -->
     <style id="5" fore-color="#000000"  bold="Yes"/> <!-- SCE_C_WORD -->
     <style id="6" fore-color="#3EAAFF" /> <!-- SCE_C_STRING -->
     <style id="7" fore-color="#3EAAFF" /> <!-- SCE_C_CHARACTER -->
@@ -822,6 +822,108 @@
     <style id="22" fore-color="#000000" /> <!-- SCE_C_HASHQUOTEDSTRING -->
     <style id="23" fore-color="#000000" /> <!-- SCE_C_PREPROCESSORCOMMENT -->
     <style id="24" fore-color="#000000" /> <!-- SCE_C_PREPROCESSORCOMMENTDOC -->
+
+  </language>
+	
+	<language name="SCLEX_CPP_JS">
+
+    <!-- Editor settings -->
+    <property name="fold" value="1" />
+    <property name="fold.compact" value="0" />
+    <property name="fold.comment" value="1" />
+    <property name="fold.at.else" value="1" />
+
+    <setting name="usetabs" value="0" />
+    <setting name="tabwidth" value="2" />
+    <setting name="indentation" value="2" />
+
+    <keywords name="Primary keywords and identifiers"> <!-- SCE_C_WORD -->
+       abstract arguments
+       boolean break byte
+       case catch char class const continue
+       debugger default delete do double
+       else enum eval export extends
+       false final finally float for function
+       goto
+       if implements import in instanceof int interface
+       let long
+       native new null
+       package private protected public
+       return
+       short static super switch synchronized
+       this throw throws transient true try typeof
+       var void volatile
+       while with
+       yield
+    </keywords>
+
+    <keywords name="Secondary keywords and identifiers">
+    </keywords>
+
+    <keywords name="Documentation comment keywords">
+    </keywords>
+
+    <keywords name="Global classes and typedefs"> <!-- SCE_C_GLOBALCLASS -->
+        mysqlx
+    </keywords>
+
+    <keywords name="Preprocessor definitions">
+    </keywords>
+
+    <style id="0" fore-color="#000000" /> <!-- SCE_C_DEFAULT -->
+    <style id="1" fore-color="#3e7bd1" /> <!-- SCE_C_COMMENT -->
+    <style id="2" fore-color="#3e7bd1" /> <!-- SCE_C_COMMENTLINE -->
+    <style id="3" fore-color="#3e7bd1" /> <!-- SCE_C_COMMENTDOC -->
+    <style id="4" fore-color="#a35f00" /> <!-- SCE_C_NUMBER -->
+    <style id="5" fore-color="#000000" bold="Yes" /> <!-- SCE_C_WORD -->
+    <style id="6" fore-color="#a35f00" /> <!-- SCE_C_STRING -->
+    <style id="7" fore-color="#a35f00" /> <!-- SCE_C_CHARACTER -->
+    <style id="8" fore-color="#a35f00" /> <!-- SCE_C_UUID -->
+    <style id="9" fore-color="#000000" /> <!-- SCE_C_PREPROCESSOR -->
+    <style id="10" fore-color="#000000" /> <!-- SCE_C_OPERATOR -->
+    <style id="11" fore-color="#000000" /> <!-- SCE_C_IDENTIFIER -->
+    <style id="12" fore-color="#000000" /> <!-- SCE_C_STRINGEOL -->
+    <style id="13" fore-color="#000000" /> <!-- SCE_C_VERBATIM -->
+    <style id="14" fore-color="#000000" /> <!-- SCE_C_REGEX -->
+    <style id="15" fore-color="#3e7bd1" /> <!-- SCE_C_COMMENTLINEDOC -->
+    <style id="16" fore-color="#6b298b"  bold="Yes" /> <!-- SCE_C_WORD2 -->
+    <style id="17" fore-color="#000000" /> <!-- SCE_C_COMMENTDOCKEYWORD -->
+    <style id="18" fore-color="#000000" /> <!-- SCE_C_COMMENTDOCKEYWORDERROR -->
+    <style id="19" fore-color="#A0A0A0"  bold="Yes" /> <!-- SCE_C_GLOBALCLASS -->
+    <style id="20" fore-color="#3EAAFF" /> <!-- SCE_C_STRINGRAW -->
+    <style id="21" fore-color="#000000" /> <!-- SCE_C_TRIPLEVERBATIM -->
+    <style id="22" fore-color="#000000" /> <!-- SCE_C_HASHQUOTEDSTRING -->
+    <style id="23" fore-color="#000000" /> <!-- SCE_C_PREPROCESSORCOMMENT -->
+    <style id="24" fore-color="#000000" /> <!-- SCE_C_PREPROCESSORCOMMENTDOC -->
+
+  </language>
+
+  <language name="SCLEX_CPP_JSON">
+    <!-- Editor settings -->
+    <setting name="usetabs" value="1" />
+    <setting name="tabwidth" value="4" />
+    <setting name="indentation" value="4" />
+
+    <keywords name="Primary keywords and identifiers">
+    </keywords>
+
+    <keywords name="Secondary keywords and identifiers">
+    </keywords>
+
+    <keywords name="Documentation comment keywords">
+    </keywords>
+
+    <keywords name="Global classes and typedefs">
+    </keywords>
+
+    <keywords name="Preprocessor definitions">
+    </keywords>
+
+    <style id="4" fore-color="#FF0000" /> <!-- SCE_C_NUMBER -->
+    <style id="6" fore-color="#ff9933" /> <!-- SCE_C_STRING -->
+    <style id="10" fore-color="#000000" bold="YES" /> <!-- SCE_C_OPERATOR -->
+    <style id="11" fore-color="#0000ff" /> <!-- SCE_C_IDENTIFIER -->
+    <style id="20" fore-color="#ff9933" /> <!-- SCE_C_STRINGRAW -->
 
   </language>
 

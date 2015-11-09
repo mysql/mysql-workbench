@@ -34,7 +34,7 @@
 
 namespace mforms { 
   class ToolBarItem; 
-  class TreeNodeView; 
+  class TreeView; 
 };
 
 namespace wb {
@@ -161,7 +161,7 @@ namespace wb {
     inline const std::string &get_cursor() { return _cursor; }
     
     // sidebar
-    mforms::TreeNodeView *get_layer_tree();
+    mforms::TreeView *get_layer_tree();
     MiniView *get_mini_view() { return _mini_view; }
     
     void setup_mini_view(mdc::CanvasView *view);

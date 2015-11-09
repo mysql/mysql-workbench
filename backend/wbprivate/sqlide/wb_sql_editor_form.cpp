@@ -48,6 +48,7 @@
 #include "base/log.h"
 #include "base/boost_smart_ptr_helpers.h"
 #include "base/util_functions.h"
+#include "base/scope_exit_trigger.h"
 
 #include "workbench/wb_command_ui.h"
 #include "workbench/wb_context_names.h"
@@ -58,7 +59,6 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2/connection.hpp>
-#include "grt/common.h"
 
 #include "query_side_palette.h"
 
@@ -209,16 +209,41 @@ void SqlEditorForm::report_connection_failure(const std::string &error, const db
   "3 Check the %user% has rights to connect to %server% from your address (mysql rights define what clients can connect to the server and from which machines) \n"\
   "4 Make sure you are both providing a password if needed and using the correct password for %server% connecting from the host address you're connecting from";
 
-  message = bec::replace_string(message, "%user%", target->parameterValues().get_string("userName"));
-  message = bec::replace_string(message, "%port%", target->parameterValues().get("port").repr());
-  message = bec::replace_string(message, "%server%", target->parameterValues().get_string("hostName", "localhost"));
-  message = bec::replace_string(message, "%error%", error);
+  message = base::replaceString(message, "%user%", target->parameterValues().get_string("userName"));
+  message = base::replaceString(message, "%port%", target->parameterValues().get("port").repr());
+  message = base::replaceString(message, "%server%", target->parameterValues().get_string("hostName", "localhost"));
+  message = base::replaceString(message, "%error%", error);
 
   log_error("%s", (message + '\n').c_str());
   mforms::Utilities::show_error(_("Cannot Connect to Database Server"), message, _("Close"));
 }
 
+void SqlEditorForm::report_connection_failure(const grt::server_denied &info, const db_mgmt_ConnectionRef &target)
+{
+  std::string message;
 
+  log_error("Server is alive, but has login restrictions: %d, %s\n", info.errNo, info.what());
+
+  mforms::App::get()->set_status_text(_("Connection restricted"));
+
+  message = "Your connection attempt failed for user '";
+  message += target->parameterValues().get_string("userName");
+  message += "' from your host to server at ";//%server%:%port%\n";
+  message += target->parameterValues().get_string("hostName", "localhost");
+  message += ":";
+  message += target->parameterValues().get("port").repr() + "\n";
+  if (info.errNo == 3159)
+    message += "Only connections with enabled SSL support are accepted.\n";
+  else if (info.errNo == 3032)
+    message += "The server is in super-user mode and does not accept any other connection.\n";
+
+  message += "\nThe server response was:\n";
+  message += info.what();
+
+  mforms::Utilities::show_error(_("Cannot Connect to Database Server"), message, _("Close"));
+}
+
+//--------------------------------------------------------------------------------------------------
 SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
   :
   _wbsql(wbsql),
@@ -233,7 +258,7 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
   _closing(false),
   _sql_editors_serial(0),
   _scratch_editors_serial(0),
-  _keep_alive_thread(NULL),
+  _keep_alive_task_id(0),
   _aux_dbc_conn(new sql::Dbc_connection_handler()),
   _usr_dbc_conn(new sql::Dbc_connection_handler()),
   _last_server_running_state(UnknownState),
@@ -263,8 +288,7 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
   int keep_alive_interval= _grtm->get_app_option_int("DbSqlEditor:KeepAliveInterval", 600);
   if (keep_alive_interval != 0)
   {
-    _keep_alive_thread= TimerActionThread::create(boost::bind(&SqlEditorForm::send_message_keep_alive, this), keep_alive_interval*1000);
-    _keep_alive_thread->on_exit.connect(boost::bind(&SqlEditorForm::reset_keep_alive_thread, this));
+    _keep_alive_task_id = ThreadedTimer::add_task(TimerTimeSpan, keep_alive_interval, false, boost::bind(&SqlEditorForm::send_message_keep_alive_bool_wrapper, this));
   }
 
   _lower_case_table_names = 0;
@@ -274,6 +298,49 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
   // set initial autocommit mode value
   _usr_dbc_conn->autocommit_mode= (_grtm->get_app_option_int("DbSqlEditor:AutocommitMode", 1) != 0);
 }
+
+//--------------------------------------------------------------------------------------------------
+
+SqlEditorForm::~SqlEditorForm()
+{
+  if (_refreshPending.connected())
+    _refreshPending.disconnect();
+
+  // We need to remove it from cache, if not someone will be able to login without providing PW
+  if (_connection.is_valid())
+    mforms::Utilities::forget_cached_password(_connection->hostIdentifier(), _connection->parameterValues().get_string("userName"));
+
+
+  if (_auto_completion_cache)
+    _auto_completion_cache->shutdown();
+
+  delete _column_width_cache;
+
+  // debug: ensure that close() was called when the tab is closed
+  if (_toolbar != NULL)
+    log_fatal("SqlEditorForm::close() was not called\n");
+
+  NotificationCenter::get()->remove_observer(this);
+  GRTNotificationCenter::get()->remove_grt_observer(this);
+
+  delete _auto_completion_cache;
+  delete _autosave_lock;
+  _autosave_lock = 0;
+
+  // Destructor can be called before the startup was finished.
+  // On Windows the side palette is a child of the palette host and hence gets freed when we
+  // free the host. On other platforms both are the same. In any case, double freeing it is
+  // not a good idea.
+  if (_side_palette_host != NULL)
+    _side_palette_host->release();
+
+  delete _toolbar;
+  delete _menu;
+
+  reset_keep_alive_thread();
+}
+
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::cancel_connect()
 {
@@ -401,43 +468,6 @@ void SqlEditorForm::title_changed()
 }
 
 
-SqlEditorForm::~SqlEditorForm()
-{
-  // We need to remove it from cache, if not someone will be able to login without providing PW
-  if (_connection.is_valid())
-    mforms::Utilities::forget_cached_password(_connection->hostIdentifier(), _connection->parameterValues().get_string("userName"));
-
-
-  if (_auto_completion_cache)
-    _auto_completion_cache->shutdown();
-
-  delete _column_width_cache;
-
-  // debug: ensure that close() was called when the tab is closed
-  if (_toolbar != NULL)
-    log_fatal("SqlEditorForm::close() was not called\n");
-
-  NotificationCenter::get()->remove_observer(this);
-  GRTNotificationCenter::get()->remove_grt_observer(this);
-
-  delete _auto_completion_cache;
-  delete _autosave_lock;
-  _autosave_lock = 0;
-  
-  // Destructor can be called before the startup was finished.
-  // On Windows the side palette is a child of the palette host and hence gets freed when we
-  // free the host. On other platforms both are the same. In any case, double freeing it is
-  // not a good idea.
-  if (_side_palette_host != NULL)
-    _side_palette_host->release();
-
-  delete _toolbar;
-  delete _menu;
-
-  reset_keep_alive_thread();
-}
-
-
 void SqlEditorForm::handle_grt_notification(const std::string &name, grt::ObjectRef sender, grt::DictRef info)
 {
   if (name == "GRNServerStateChanged")
@@ -496,10 +526,10 @@ void SqlEditorForm::handle_notification(const std::string &name, void *sender, b
 void SqlEditorForm::reset_keep_alive_thread()
 {
   MutexLock keep_alive_thread_lock(_keep_alive_thread_mutex);
-  if (_keep_alive_thread)
+  if (_keep_alive_task_id)
   {
-    _keep_alive_thread->stop(true);
-    _keep_alive_thread= NULL;
+    ThreadedTimer::remove_task(_keep_alive_task_id);
+    _keep_alive_task_id = 0;
   }
 }
 
@@ -561,7 +591,7 @@ void SqlEditorForm::close()
             do
             {
               ++try_count;
-              new_name = make_path(path, sanitize_file_name(get_session_name()).append(strfmt("-%i.workspace", try_count)));
+              new_name = base::makePath(path, sanitize_file_name(get_session_name()).append(strfmt("-%i.workspace", try_count)));
             } while (file_exists(new_name));
 
             if (err.code() == base::already_exists)
@@ -1084,11 +1114,13 @@ struct ConnectionErrorInfo
   sql::AuthenticationError *auth_error;
   bool password_expired;
   bool server_probably_down;
+  grt::server_denied *serverException;
 
-  ConnectionErrorInfo() : auth_error(0), password_expired(false), server_probably_down(false) {}
+  ConnectionErrorInfo() : auth_error(NULL), password_expired(false), server_probably_down(false), serverException(NULL) {}
   ~ConnectionErrorInfo()
   {
     delete auth_error;
+    delete serverException;
   }
 };
 
@@ -1158,8 +1190,11 @@ bool SqlEditorForm::connect(boost::shared_ptr<sql::TunnelConnection> tunnel)
         return false;
       }
     }
-    catch (grt::grt_runtime_error)
+    catch (grt::grt_runtime_error &)
     {
+      if (error_ptr.serverException != NULL)
+        throw grt::server_denied(*error_ptr.serverException);
+
       if (error_ptr.password_expired)
         throw std::runtime_error(":PASSWORD_EXPIRED");
 
@@ -1350,9 +1385,9 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
     }
     CATCH_ANY_EXCEPTION_AND_DISPATCH(_("Get connection information"));
   }
-  catch (sql::AuthenticationError &exc)
+  catch (sql::AuthenticationError &authException)
   {
-    err_ptr->auth_error = new sql::AuthenticationError(exc);
+    err_ptr->auth_error = new sql::AuthenticationError(authException);
     throw;
   }
   catch (sql::SQLException &exc)
@@ -1396,6 +1431,12 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
 
       return grt::StringRef();
     }
+    else if (exc.getErrorCode() == 3159 || exc.getErrorCode() == 3032) //require SSL, offline mode
+    {
+      err_ptr->serverException = new grt::server_denied(exc.what(), exc.getErrorCode()); // we need to change exception type so we can properly handle it in
+    }
+                                                                // wb_context_sqlide::connect_editor
+
     _connection_info.append("</body></html>");
     throw;
   }
@@ -1617,7 +1658,7 @@ void SqlEditorForm::cancel_query()
       RecMutexLock aux_dbc_conn_mutex(ensure_valid_aux_connection());
       std::auto_ptr<sql::Statement> stmt(_aux_dbc_conn->ref->createStatement());
       {
-        ScopeExitTrigger schedule_timer_stop(boost::bind(&Timer::stop, &timer));
+        base::ScopeExitTrigger schedule_timer_stop(boost::bind(&Timer::stop, &timer));
         timer.run();
         stmt->execute(query_kill_query);
         
@@ -1850,7 +1891,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
     update_menu_and_toolbar();
 
     _has_pending_log_messages= false;
-    ScopeExitTrigger schedule_log_messages_refresh(boost::bind(
+    base::ScopeExitTrigger schedule_log_messages_refresh(boost::bind(
       &SqlEditorForm::refresh_log_messages, this, true));
 
     SqlFacade::Ref sql_facade= SqlFacade::instance_for_rdbms(rdbms());
@@ -1972,11 +2013,16 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
           try
           {
             {
-              ScopeExitTrigger schedule_statement_exec_timer_stop(boost::bind(&Timer::stop, &statement_exec_timer));
+              base::ScopeExitTrigger schedule_statement_exec_timer_stop(boost::bind(&Timer::stop, &statement_exec_timer));
               statement_exec_timer.run();
               is_result_set_first= dbc_statement->execute(statement);
             }
             updated_rows_count= dbc_statement->getUpdateCount();
+
+            // XXX: coalesce all the special queries here and act on them *after* all queries have run.
+            // Especially the drop command is redirected twice to idle tasks, kicking so in totally asynchronously
+            // and killing any intermittent USE commands.
+            // Updating the UI during a run of many commands is not useful either.
             if (Sql_syntax_check::sql_use == statement_type)
               cache_active_schema_name();
             if (Sql_syntax_check::sql_set == statement_type && statement.find("@sql_mode") != std::string::npos)
@@ -2086,7 +2132,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                   reuse_log_msg= false;
                   boost::shared_ptr<sql::ResultSet> dbc_resultset;
                   {
-                    ScopeExitTrigger schedule_statement_fetch_timer_stop(boost::bind(&Timer::stop, &statement_fetch_timer));
+                    base::ScopeExitTrigger schedule_statement_fetch_timer_stop(boost::bind(&Timer::stop, &statement_fetch_timer));
                     statement_fetch_timer.run();
                     
                     // need a separate exception catcher here, because sometimes a query error
@@ -2463,7 +2509,7 @@ void SqlEditorForm::apply_changes_to_recordset(Recordset::Ptr rs_ptr)
     // we need transaction to enforce atomicity of change set
     // so if autocommit is currently enabled disable it temporarily
     bool auto_commit= _usr_dbc_conn->ref->getAutoCommit();
-    ScopeExitTrigger autocommit_mode_keeper;
+    base::ScopeExitTrigger autocommit_mode_keeper;
     int res= -2;
 
     if (!auto_commit)
@@ -2662,10 +2708,21 @@ void SqlEditorForm::apply_object_alter_script(const std::string &alter_script, b
           db_object_type= wb::LiveSchemaTree::Procedure;
       }
       
-      _live_tree->refresh_live_object_in_overview(db_object_type, schema_name, db_object->oldName(), db_object->name());
+      //_live_tree->refresh_live_object_in_overview(db_object_type, schema_name, db_object->oldName(), db_object->name());
+      // Run refresh on main thread, but only if there's not another refresh pending already.
+      if (!_refreshPending.connected())
+      {
+        _refreshPending = _grtm->run_once_when_idle(this, boost::bind(&SqlEditorTreeController::refresh_live_object_in_overview,
+          _live_tree, db_object_type, schema_name, db_object->oldName(), db_object->name()));
+      }
     }
     
-    _live_tree->refresh_live_object_in_editor(obj_editor, false);
+    //_live_tree->refresh_live_object_in_editor(obj_editor, false);
+    if (!_refreshPending.connected())
+    {
+      _refreshPending = _grtm->run_once_when_idle(this, boost::bind(&SqlEditorTreeController::refresh_live_object_in_editor,
+        _live_tree, obj_editor, false));
+    }
   }
 }
 

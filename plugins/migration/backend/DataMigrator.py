@@ -235,6 +235,10 @@ class DataMigrator(object):
 
         args = self.helper_basic_arglist(self._resume)
 
+        if 'stimeout' in task:
+            args.append('--source-timeout=%s' % task['stimeout'])
+        if 'ttimeout' in task:
+            args.append('--target-timeout=%s' % task['ttimeout'])
         if self._resume:
             args.append("--resume")
 
@@ -316,6 +320,10 @@ class DataMigrator(object):
 
         args.append("--thread-count=" + str(num_processes));
         args.append('--source-rdbms-type=%s' % self._src_conn_object.driver.owner.name)
+        if 'stimeout' in task:
+            args.append('--source-timeout=%s' % task['stimeout'])
+        if 'ttimeout' in task:
+            args.append('--target-timeout=%s' % task['ttimeout'])
 
         if 'defaultCharSet' in self._src_conn_object.parameterValues.keys():
             default_charset = self._src_conn_object.parameterValues.get("defaultCharSet")

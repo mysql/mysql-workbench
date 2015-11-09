@@ -3,10 +3,8 @@
 //  mysql.parser
 //
 //  Created by Mike on 03.04.12.
-//  Copyright 2012, 2015 Oracle Corporation. All rights reserved.
+//  Copyright 2012, 2015, Oracle Corporation. All rights reserved.
 //
-
-// These are redefined by the parser.
 
 #import "mysql_parserAppDelegate.h"
 
@@ -20,7 +18,7 @@ static std::string last_error;
 
 extern "C" {
   
-  void on_parse_error(struct ANTLR3_BASE_RECOGNIZER_struct * recognizer, pANTLR3_UINT8 * tokenNames)
+  void onMySQLParseError(struct ANTLR3_BASE_RECOGNIZER_struct * recognizer, pANTLR3_UINT8 * tokenNames)
   {
     std::ostringstream error;
     

@@ -11,6 +11,7 @@
 #                                   --define='version 7.0.0' \
 #                                   --define='release 1' 
 ####################################################################
+%bcond_with paramiko
 
 # Allow to continue when a binary with no build-id was found
 %undefine _missing_build_ids_terminate_build
@@ -25,17 +26,22 @@
 
 # Directory where iodbc and pyodbc binaries are located. Build both using the build_iodbc.sh script
 # If using distribution provided ODBC manager lib and pyodbc, then comment out this
-%define odbc_home        $HOME/linux-res-6.3/usr
-%define linuxres_home    $HOME/linux-res-6.3
+%define linuxres_home     $HOME/linux-res
+%define linuxres_binaries %{linuxres_home}/builds
 
-%define vsqlite_dir      $HOME/linux-res-6.3/vsqlite
-%define ctemplate_dir    $HOME/linux-res-6.3
+%define odbc_home         %{linuxres_binaries}/odbc/usr/local
+%define ctemplate_dir     %{linuxres_binaries}/ctemplate/usr/local
+%define sqlite_dir        %{linuxres_binaries}/sqlite
+%define pysqlite_dir      %{linuxres_binaries}/pysqlite2
+%define python_dir        %{linuxres_home}/python
+%define pyodbc_dir        %{linuxres_binaries}/pyodbc
 
-%define gdal_dir         $HOME/linux-res-6.3/gdal
 
 %if "%{edition}" == "commercial"
 %define commercial       1
-%define mysqlcppconn_dir $HOME/linux-res-6.3/cppconn-com
+%define mysqlcppconn_dir %{linuxres_binaries}/cppconn-com/usr/local
+%define gdal_dir         %{linuxres_binaries}/gdal-com/usr/local
+%define vsqlite_dir       %{linuxres_binaries}/vsqlite-com/usr/local
 %define mysql_home       $HOME/mysql-server-advanced
 
 %define edition          commercial
@@ -43,7 +49,9 @@
 %define license_file     LICENSE.mysql
 %else
 %define community        1
-%define mysqlcppconn_dir $HOME/linux-res-6.3/cppconn-gpl
+%define mysqlcppconn_dir %{linuxres_binaries}/cppconn-gpl/usr/local
+%define gdal_dir         %{linuxres_binaries}/gdal-gpl/usr/local
+%define vsqlite_dir       %{linuxres_binaries}/vsqlite-gpl/usr/local
 %define mysql_home       $HOME/mysql-server
 
 %define edition          community
@@ -69,7 +77,11 @@ BuildRequires: mysql-devel >= 5.1
 BuildRequires: cmake >= 2.8
 BuildRequires: libzip-devel libxml2-devel
 BuildRequires: python-devel >= 2.5
+%if 0%{?rhel} == 6
+BuildRequires: boost148-devel
+%else
 BuildRequires: boost-devel
+%endif
 BuildRequires: gtk2-devel >= 2.20
 BuildRequires: gtkmm24-devel
 BuildRequires: mesa-libGL-devel
@@ -93,7 +105,9 @@ Provides: mysql-workbench = %{version}-%{release}
 Provides: mysql-workbench%{?_isa} = %{version}-%{release}
 Requires: tinyxml
 Requires: libzip
-Requires: python-paramiko
+%if %{without paramiko}
+Requires: python-paramiko >= 1.15.1
+%endif
 Requires: gnome-keyring
 Requires: proj
 Requires: glib2 >= 2.28
@@ -194,6 +208,8 @@ Windows, Linux and Mac OS X.
        -DMYSQLCPPCONN_INCLUDE_DIR=%{mysqlcppconn_dir}/include \
        -DIODBC_CONFIG_PATH=%{odbc_home}/bin/iodbc-config \
        -DGDAL_INCLUDE_DIR=%{gdal_dir}/include -DGDAL_LIBRARY=%{gdal_dir}/lib/libgdal.so \
+       -DCTEMPLATE_INCLUDE_DIR=%{ctemplate_dir}/include \
+  	   -DCTEMPLATE_LIBRARIES=%{ctemplate_dir}/lib \
 %if 0%{?rhel} == 6
        -DVSQLITE_INCLUDE_DIR=%{vsqlite_dir}/include \
        -DVSQLITE_LIBRARIES="-L%{vsqlite_dir}/lib -lvsqlitepp" \
@@ -234,10 +250,10 @@ fi
 %if 0%{?fedora} 
   cp -a /usr/lib64/libctemplate.so* %{buildroot}%{_libdir}/mysql-workbench
 %else
-%if 0%{?rhel} < 7
+%if 0%{?rhel} <= 7
     cp -a %{ctemplate_dir}/lib/libctemplate.so* %{buildroot}%{_libdir}/mysql-workbench
 %endif
-%if 0%{?rhel} >= 7
+%if 0%{?rhel} > 7
     cp -a /usr/lib64/libctemplate.so* %{buildroot}%{_libdir}/mysql-workbench
 %endif
 %endif
@@ -255,14 +271,19 @@ find %{buildroot}%{_libdir}/mysql-workbench -name \*.la -exec rm {} \; -print
   cp -a %{odbc_home}/bin/iodbcadm-gtk %{buildroot}%{_libexecdir}/mysql-workbench/
 %endif
 
-if [ %{linuxres_home} ]; then
-  cp -a %{linuxres_home}/pyodbc.so %{buildroot}%{_libdir}/mysql-workbench/modules
+if [ %{pyodbc_dir} ]; then
+  cp -a %{pyodbc_dir}/pyodbc.so %{buildroot}%{_libdir}/mysql-workbench/modules
 %if 0%{?commercial}
   # Bundle libs only needed in commercial edition
-  cp -a %{linuxres_home}/sqlite3/libsqlite3.so %{buildroot}%{_libdir}/mysql-workbench/
-  cp -a %{linuxres_home}/pysqlite2 %{buildroot}%{_libdir}/mysql-workbench/modules
+  cp -a %{sqlite_dir}/libsqlite3.so %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a %{pysqlite_dir} %{buildroot}%{_libdir}/mysql-workbench/modules
 %endif
 fi
+
+%if %{with paramiko}
+  cp -a %{python_dir}/paramiko %{buildroot}%{_libdir}/mysql-workbench/modules/
+  cp -a %{python_dir}/ecdsa %{buildroot}%{_libdir}/mysql-workbench/modules/
+%endif
 
 cp -a %{gdal_dir}/lib/libgdal.so.* %{buildroot}%{_libdir}/mysql-workbench/
 

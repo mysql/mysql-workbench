@@ -127,7 +127,7 @@ public:
     _form->get_live_tree()->_schema_tree->update_schemata(schema_list);
   }
 
-  void set_lst_model_view(mforms::TreeNodeView * pmodel_view)
+  void set_lst_model_view(mforms::TreeView * pmodel_view)
   {
     _form->get_live_tree()->_schema_tree->set_model_view(pmodel_view);
     _form->get_live_tree()->_schema_tree->enable_events(true);
@@ -236,14 +236,14 @@ public:
   sql::ConnectionWrapper connection;
   SqlEditorForm::Ref form;
   EditorFormTester form_tester;
-  mforms::TreeNodeView *pmodel_view;
+  mforms::TreeView *pmodel_view;
   GRT grt;
 
 
   void set_connection_properties(grt::GRT *grt, db_mgmt_ConnectionRef& connection)
 {
   grt::DictRef conn_params(grt);
-  conn_params.set("host", grt::StringRef(test_params->get_host_name()));
+  conn_params.set("hostName", grt::StringRef(test_params->get_host_name()));
   conn_params.set("port", grt::IntegerRef(test_params->get_port()));
   conn_params.set("userName", grt::StringRef(test_params->get_user_name()));
   conn_params.set("password", grt::StringRef(test_params->get_password()));
@@ -276,7 +276,7 @@ TEST_DATA_CONSTRUCTOR(wb_sql_editor_form_test):wb_context_sqlide(tester.wbui)
   form = SqlEditorForm::create(&wb_context_sqlide, my_connection);
   form->connect(boost::shared_ptr<sql::TunnelConnection>());
 
-  pmodel_view = new mforms::TreeNodeView(mforms::TreeNoColumns | mforms::TreeNoBorder | mforms::TreeSidebar | mforms::TreeNoHeader);
+  pmodel_view = new mforms::TreeView(mforms::TreeNoColumns | mforms::TreeNoBorder | mforms::TreeSidebar | mforms::TreeNoHeader);
 
   form_tester.set_target(form);
   form_tester.set_lst_model_view(pmodel_view);

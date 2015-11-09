@@ -40,6 +40,7 @@
   #include <vector>
   #include <sstream>
   #include <typeinfo>
+  #include <string.h>
 
   #include <boost/optional.hpp>
   #include <boost/cstdint.hpp>
@@ -87,6 +88,7 @@ namespace base
   BASELIBRARY_PUBLIC_FUNC std::string pop_path_front(std::string &path);
   BASELIBRARY_PUBLIC_FUNC std::string pop_path_back(std::string &path);
   BASELIBRARY_PUBLIC_FUNC std::string strip_text(const std::string &text, bool left= true, bool right= true);
+  BASELIBRARY_PUBLIC_FUNC std::string replaceVariable(const std::string &format, const std::string &variable, const std::string &value);
 
   BASELIBRARY_PUBLIC_FUNC std::string normalize_path_extension(std::string filename, std::string extension);
   BASELIBRARY_PUBLIC_FUNC std::string normalize_path(const std::string path);
@@ -94,6 +96,7 @@ namespace base
   BASELIBRARY_PUBLIC_FUNC std::string make_valid_filename(const std::string &name);
   
   BASELIBRARY_PUBLIC_FUNC std::string escape_sql_string(const std::string &string, bool wildcards = false); // "strings" or 'strings'
+  BASELIBRARY_PUBLIC_FUNC std::string escape_json_string(const std::string &string);
   BASELIBRARY_PUBLIC_FUNC std::string unescape_sql_string(const std::string &string, char escape_char);
   BASELIBRARY_PUBLIC_FUNC std::string escape_backticks(const std::string &string);  // `identifier`
   BASELIBRARY_PUBLIC_FUNC std::string extract_option_from_command_line(const std::string& option,
@@ -107,7 +110,11 @@ namespace base
   BASELIBRARY_PUBLIC_FUNC std::string right(const std::string& s, size_t len);
   BASELIBRARY_PUBLIC_FUNC bool starts_with(const std::string& s, const std::string& part);
   BASELIBRARY_PUBLIC_FUNC bool ends_with(const std::string& s, const std::string& part);
-  BASELIBRARY_PUBLIC_FUNC void replace(std::string& value, const std::string& search, const std::string& replacement);
+  BASELIBRARY_PUBLIC_FUNC void replaceStringInplace(std::string& value, const std::string& search, const std::string& replacement);
+  BASELIBRARY_PUBLIC_FUNC std::string replaceString(const std::string &s, const std::string &from, const std::string &to);
+  inline bool hasPrefix(const std::string &str, const std::string &pref) { return (strncmp(str.c_str(), pref.c_str(), pref.length())==0); }
+  inline bool hasSuffix(const std::string &str, const std::string &suf) { return (suf.length() < str.length() && strncmp(str.c_str()+str.length()-suf.length(), suf.c_str(), suf.length())==0); }
+
   /**
    * @brief Split the a string into a vector, using @a sep as a separator
    * 
@@ -162,6 +169,7 @@ namespace base
 
   BASELIBRARY_PUBLIC_FUNC std::string quote_identifier(const std::string& identifier, const char quote_char);
   BASELIBRARY_PUBLIC_FUNC std::string unquote_identifier(const std::string& identifier);
+  BASELIBRARY_PUBLIC_FUNC std::string unquote(const std::string& text);
   BASELIBRARY_PUBLIC_FUNC std::string quote_identifier_if_needed(const std::string &ident, const char quote_char);
 
   BASELIBRARY_PUBLIC_FUNC bool stl_string_compare(const std::string &first, const std::string &second, bool case_sensitive = true);
@@ -170,6 +178,7 @@ namespace base
   BASELIBRARY_PUBLIC_FUNC bool contains_string(const std::string &text, const std::string &candidate, bool case_sensitive = true);
 
   BASELIBRARY_PUBLIC_FUNC bool is_number(const std::string &word);
+  BASELIBRARY_PUBLIC_FUNC bool isBool(const std::string &text);
 
 
   /**
@@ -313,6 +322,7 @@ template<typename T> T inline atof(const std::string &val, boost::optional<T> de
   return ConvertHelper::string_to_number<T>(val, def_val);
 }
   
-typedef boost::shared_ptr<std::list<std::string> > StringListPtr;
+typedef std::list<std::string> StringList;
+typedef boost::shared_ptr<StringList> StringListPtr;
 
 } // namespace base

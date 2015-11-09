@@ -42,10 +42,10 @@ DEFAULT_LOG_DOMAIN("copytable");
 #define TMP_TRIGGER_TABLE "wb_tmp_triggers"
 
 #if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
-#define MYSQL_CHECK_VERSION(major,minor,micro) \
-    (MYSQL_VERSION_MAJOR > (major) || \
-    (MYSQL_VERSION_MAJOR == (major) && MYSQL_VERSION_MINOR > (minor)) || \
-    (MYSQL_VERSION_MAJOR == (major) && MYSQL_VERSION_MINOR == (minor) && MYSQL_VERSION_PATCH >= (micro)))
+  #define MYSQL_CHECK_VERSION(major,minor,micro) \
+  (MYSQL_VERSION_MAJOR > (major) || \
+  (MYSQL_VERSION_MAJOR == (major) && MYSQL_VERSION_MINOR > (minor)) || \
+  (MYSQL_VERSION_MAJOR == (major) && MYSQL_VERSION_MINOR == (minor) && MYSQL_VERSION_PATCH >= (micro)))
 #endif
 
 static const char *mysql_field_type_to_name(enum enum_field_types type)
@@ -79,6 +79,7 @@ static const char *mysql_field_type_to_name(enum enum_field_types type)
     case MYSQL_TYPE_VAR_STRING: return "MYSQL_TYPE_VAR_STRING";
     case MYSQL_TYPE_STRING: return "MYSQL_TYPE_STRING";
     case MYSQL_TYPE_GEOMETRY: return "MYSQL_TYPE_GEOMETRY";
+    case MYSQL_TYPE_JSON: return "MYSQL_TYPE_JSON";
     default:
       return "UNKNOWN";
   }
@@ -240,6 +241,7 @@ RowBuffer::RowBuffer(boost::shared_ptr<std::vector<ColumnInfo> > columns,
       case MYSQL_TYPE_STRING:
       case MYSQL_TYPE_VAR_STRING:
       case MYSQL_TYPE_BIT:
+      case MYSQL_TYPE_JSON:
         if (!col->is_long_data)
           bind.buffer_length = (unsigned)col->source_length+1;
 
@@ -461,7 +463,7 @@ void RowBuffer::send_blob_data(const char *data, size_t length)
 // -------------------------------------------------------------------------------------------------
 
 CopyDataSource::CopyDataSource()
-: _block_size(0), _max_blob_chunk_size(64*1024), _max_parameter_size(0), _abort_on_oversized_blobs(false),
+  : _block_size(0), _max_blob_chunk_size(64*1024), _max_parameter_size(0), _abort_on_oversized_blobs(false),
   _get_field_lengths_from_target(false)
 {
 }
@@ -477,21 +479,21 @@ void CopyDataSource::set_block_size(int bsize)
 }
 
 /*
-* get_where_condition : creates where condition for --resume parameter.
-* Parameters:
-* - pk_columns : vector of PK columns
-* - last_pk : vector of last PK value for each of PK column
-*
-* Remarks : For these columns and values ​​creates a condition to the WHERE clause
-*           to skip the rows that have already been copied.
-*           For one columns will produce:
-*             col1 > val1
-*           For two columns:
-*             col1 > val1 or (col1 = val1 and col2 > val2)
-*           For three columns:
-*             col1 > val1 or (col1 = val1 and col2 > val2) or (col1 = val1 and col2 = val2 and col3 > val3)
-*           And so on...
-*/
+ * get_where_condition : creates where condition for --resume parameter.
+ * Parameters:
+ * - pk_columns : vector of PK columns
+ * - last_pk : vector of last PK value for each of PK column
+ *
+ * Remarks : For these columns and values ​​creates a condition to the WHERE clause
+ *           to skip the rows that have already been copied.
+ *           For one columns will produce:
+ *             col1 > val1
+ *           For two columns:
+ *             col1 > val1 or (col1 = val1 and col2 > val2)
+ *           For three columns:
+ *             col1 > val1 or (col1 = val1 and col2 > val2) or (col1 = val1 and col2 = val2 and col3 > val3)
+ *           And so on...
+ */
 std::string CopyDataSource::get_where_condition(const std::vector<std::string> &pk_columns, const std::vector<std::string> &last_pk)
 {
   std::string where_cond;
@@ -516,7 +518,7 @@ std::string CopyDataSource::get_where_condition(const std::vector<std::string> &
       where_cond += ")";
   }
 
-    return where_cond;
+  return where_cond;
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -658,7 +660,7 @@ void ODBCCopyDataSource::ucs2_to_utf8(char *inbuf, size_t inbuf_len, char *&utf8
   std::string s_outbuf = base::wstring_to_string((wchar_t*)inbuf);
   outbuf_len = s_outbuf.size();
   if (outbuf_len > _max_blob_chunk_size - 1)
-	  throw std::logic_error("Output buffer size is greater than max blob chunk size.");
+    throw std::logic_error("Output buffer size is greater than max blob chunk size.");
 
   if (s_outbuf.empty())
     throw std::logic_error(base::strfmt("Error during charset conversion of wstring: %s", strerror(errno)));
@@ -714,14 +716,16 @@ SQLRETURN ODBCCopyDataSource::get_wchar_buffer_data(RowBuffer &rowbuffer, int co
 
       // convert data from UCS-2 to utf-8
       std::string s_outbuf = base::wstring_to_string((wchar_t*)tmpbuf);
+      //log_debug3("get_wchar_buffer_data wstring_to_string i<%S> o<%s>\n", (wchar_t*)tmpbuf, s_outbuf.c_str());
+
       outbuf_len = s_outbuf.size();
       if (outbuf_len > _max_blob_chunk_size - 1)
-      	  throw std::logic_error("Output buffer size is greater than max blob chunk size.");
+        throw std::logic_error("Output buffer size is greater than max blob chunk size.");
 
       if (s_outbuf.empty())
         throw std::logic_error(base::strfmt("Error during charset conversion of wstring: %s", strerror(errno)));
 
-	  std::strcpy(out_buffer, s_outbuf.c_str());
+      std::strcpy(out_buffer, s_outbuf.c_str());
 
       if (inbuf_len > 0)
         log_warning("%li characters could not be converted to UTF-8 from column %s during copy\n",
@@ -825,7 +829,7 @@ SQLRETURN ODBCCopyDataSource::get_geometry_buffer_data(RowBuffer &rowbuffer, int
       std::string s_outbuf = base::wstring_to_string((wchar_t*)tmpbuf);
       outbuf_len = s_outbuf.size();
       if (outbuf_len > _max_blob_chunk_size - 1)
-      	  throw std::logic_error("Output buffer size is greater than max blob chunk size.");
+        throw std::logic_error("Output buffer size is greater than max blob chunk size.");
 
       if (s_outbuf.empty())
         throw std::logic_error(base::strfmt("Error during charset conversion of wstring: %s", strerror(errno)));
@@ -853,14 +857,15 @@ size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::stri
     throw ConnectionError("SQLAllocHandle", ret, SQL_HANDLE_DBC, _dbc);
 
   std::string q;
+  std::string countStr = _source_rdbms_type == "Mssql" ? "count_big" : "count";
 
   switch (spec.type)
   {
     case CopyAll:
       if (spec.resume && last_pkeys.size())
-        q = base::strfmt("SELECT count(*) FROM %s.%s WHERE %s", schema.c_str(), table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str());
+        q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s", countStr.c_str(), schema.c_str(), table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str());
       else
-        q = base::strfmt("SELECT count(*) FROM %s.%s", schema.c_str(), table.c_str());
+        q = base::strfmt("SELECT %s(*) FROM %s.%s", countStr.c_str(), schema.c_str(), table.c_str());
       break;
     case CopyRange:
     {
@@ -871,22 +876,22 @@ size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::stri
         end_expr = base::strfmt("%s <= %lli", spec.range_key.c_str(), spec.range_end);
       start_expr = base::strfmt("%s >= %lli", spec.range_key.c_str(), spec.range_start);
       if (!end_expr.empty())
-        q = base::strfmt("SELECT count(*) FROM %s.%s WHERE %s AND %s", schema.c_str(), table.c_str(), start_expr.c_str(), end_expr.c_str());
+        q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s AND %s", countStr.c_str(), schema.c_str(), table.c_str(), start_expr.c_str(), end_expr.c_str());
       else
-        q = base::strfmt("SELECT count(*) FROM %s.%s WHERE %s", schema.c_str(), table.c_str(), start_expr.c_str());
+        q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s", countStr.c_str(), schema.c_str(), table.c_str(), start_expr.c_str());
       break;
     }
     case CopyCount:
     {
       if (spec.resume && last_pkeys.size())
-        q = base::strfmt("SELECT count(*) FROM %s.%s WHERE %s", schema.c_str(), table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str());
+        q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s", countStr.c_str(), schema.c_str(), table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str());
       else
-        q = base::strfmt("SELECT count(*) FROM %s.%s", schema.c_str(), table.c_str());
+        q = base::strfmt("SELECT %s(*) FROM %s.%s", countStr.c_str(), schema.c_str(), table.c_str());
       break;
     }
     case CopyWhere:
     {
-      q = base::strfmt("SELECT count(*) FROM %s.%s WHERE %s", schema.c_str(), table.c_str(), spec.where_expression.c_str());
+      q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s", countStr.c_str(), schema.c_str(), table.c_str(), spec.where_expression.c_str());
       break;
     }
   }
@@ -1034,8 +1039,8 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
       size_t out_buffer_len;
 
       //log_debug3("Copy %i from type %i to %i\n", i,
-//                 _column_types[i-1],
-//                 rowbuffer[i-1].buffer_type);
+      //                 _column_types[i-1],
+      //                 rowbuffer[i-1].buffer_type);
 
       // if this column is a blob, handle it as such
       if (rowbuffer.check_if_blob() || (*_columns)[i-1].is_long_data)
@@ -1118,9 +1123,9 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
                 catch (std::logic_error &)
                 {
                   const std::string msg = base::strfmt("ERROR: Could not successfully convert UCS-2 string to UTF-8 "
-                      "in table %s.%s (column %s). Original string: \"%s\"",
-                      _schema_name.c_str(), _table_name.c_str(), (*_columns)[i-1].source_name.c_str(), std::string(_blob_buffer, len_or_indicator).c_str()
-                      );
+                    "in table %s.%s (column %s). Original string: \"%s\"",
+                    _schema_name.c_str(), _table_name.c_str(), (*_columns)[i-1].source_name.c_str(), std::string(_blob_buffer, len_or_indicator).c_str()
+                  );
                   log_error("%s", msg.c_str());
                   throw std::invalid_argument(msg);
                 }
@@ -1196,37 +1201,37 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
           break;
         case SQL_C_ULONG:
         case SQL_C_SLONG:
+        {
+          long tmp_buffer;
+          bool unsig;
+          enum enum_field_types target_type;
+          ret = SQLGetData(_stmt, i, _column_types[i-1], &tmp_buffer, sizeof(tmp_buffer), &len_or_indicator);
+          if (SQL_SUCCEEDED(ret))
           {
-            long tmp_buffer;
-            bool unsig;
-            enum enum_field_types target_type;
-            ret = SQLGetData(_stmt, i, _column_types[i-1], &tmp_buffer, sizeof(tmp_buffer), &len_or_indicator);
-            if (SQL_SUCCEEDED(ret))
+            switch ((target_type = rowbuffer.target_type(unsig)))
             {
-              switch ((target_type = rowbuffer.target_type(unsig)))
-              {
               case MYSQL_TYPE_SHORT:
                 rowbuffer.prepare_add_short(out_buffer, out_buffer_len);
                 if ((unsig && (tmp_buffer < 0 || tmp_buffer > UINT16_MAX)) || (!unsig && (tmp_buffer > INT16_MAX || tmp_buffer < INT16_MIN)))
                   throw std::logic_error(base::strfmt("Range error fetching field %i (value %li, target is %s)",
-                                        i, tmp_buffer, mysql_field_type_to_name(target_type)));
+                    i, tmp_buffer, mysql_field_type_to_name(target_type)));
                 *(short*)out_buffer = (short)tmp_buffer;
                 break;
               case MYSQL_TYPE_TINY:
                 rowbuffer.prepare_add_tiny(out_buffer, out_buffer_len);
                 if ((unsig && (tmp_buffer < 0 || tmp_buffer > UINT8_MAX)) || (!unsig && (tmp_buffer > INT8_MAX || tmp_buffer < INT8_MIN)))
                   throw std::logic_error(base::strfmt("Range error fetching field %i (value %li, target is %s)",
-                                        i, tmp_buffer, mysql_field_type_to_name(target_type)));
+                    i, tmp_buffer, mysql_field_type_to_name(target_type)));
                 *(char*)out_buffer = (char)tmp_buffer;
                 break;
               default:
                 rowbuffer.prepare_add_long(out_buffer, out_buffer_len);
                 *(long*)out_buffer = tmp_buffer;
                 break;
-              }
-              rowbuffer.finish_field(len_or_indicator == SQL_NULL_DATA);}
             }
-            break;
+            rowbuffer.finish_field(len_or_indicator == SQL_NULL_DATA);}
+          break;
+        }
         case SQL_C_USHORT:
         case SQL_C_SSHORT:
           rowbuffer.prepare_add_short(out_buffer, out_buffer_len);
@@ -1243,39 +1248,41 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
           break;
         case SQL_C_WCHAR:
         case SQL_C_CHAR:
+        {
           switch (rowbuffer[i-1].buffer_type)
           {
-          case MYSQL_TYPE_TIME:
-          case MYSQL_TYPE_DATE:
-          case MYSQL_TYPE_DATETIME:
-          case MYSQL_TYPE_NEWDATE:
-            ret = get_date_time_data(rowbuffer, i, rowbuffer[i-1].buffer_type);
-            break;
-          case MYSQL_TYPE_GEOMETRY:
-            ret = get_geometry_buffer_data(rowbuffer, i);
-            break;
-          default:
-            if (_column_types[i-1] == SQL_C_WCHAR)
-              ret = get_wchar_buffer_data(rowbuffer, i);
-            else
-              ret = get_char_buffer_data(rowbuffer, i);
-            break;
+            case MYSQL_TYPE_TIME:
+            case MYSQL_TYPE_DATE:
+            case MYSQL_TYPE_DATETIME:
+            case MYSQL_TYPE_NEWDATE:
+              ret = get_date_time_data(rowbuffer, i, rowbuffer[i-1].buffer_type);
+              break;
+            case MYSQL_TYPE_GEOMETRY:
+              ret = get_geometry_buffer_data(rowbuffer, i);
+              break;
+            default:
+              if (_column_types[i-1] == SQL_C_WCHAR)
+                ret = get_wchar_buffer_data(rowbuffer, i);
+              else
+                ret = get_char_buffer_data(rowbuffer, i);
+              break;
           }
           break;
+        }
         case SQL_C_BINARY:
+        {
+          bool was_null = true;
+
+          // During the migration process some non standard data types are migrated as strings
+          // Those will come as SQL_C_BINARY but will be migrated as NULL for now
+          if (rowbuffer[i-1].buffer_type != MYSQL_TYPE_STRING)
           {
-            bool was_null = true;
-
-            // During the migration process some non standard data types are migrated as strings
-            // Those will come as SQL_C_BINARY but will be migrated as NULL for now
-            if (rowbuffer[i-1].buffer_type != MYSQL_TYPE_STRING)
-            {
-              was_null = false;
-              ret = get_char_buffer_data(rowbuffer, i);
-            }
-
-            rowbuffer.finish_field(was_null);
+            was_null = false;
+            ret = get_char_buffer_data(rowbuffer, i);
           }
+
+          rowbuffer.finish_field(was_null);
+        }
           break;
 
         default:
@@ -1294,10 +1301,12 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
 
 
 MySQLCopyDataSource::MySQLCopyDataSource(const std::string &hostname, int port,
-                    const std::string &username, const std::string &password,
-                    const std::string &socket, bool use_cleartext_plugin)
-  : _select_stmt(NULL), _has_long_data(false)
+                                         const std::string &username, const std::string &password,
+                                         const std::string &socket, bool use_cleartext_plugin,
+                                         unsigned int connection_timeout)
+: _select_stmt(NULL), _has_long_data(false)
 {
+  this->_connection_timeout = connection_timeout;
   std::string host = hostname;
   mysql_init(&_mysql);
 
@@ -1309,25 +1318,26 @@ MySQLCopyDataSource::MySQLCopyDataSource(const std::string &hostname, int port,
     mysql_options(&_mysql, MYSQL_OPT_PROTOCOL, &proto);
 
     log_info("Connecting to MySQL server at %s:%i with user %s\n",
-           hostname.c_str(), port, username.c_str());
+             hostname.c_str(), port, username.c_str());
   }
   else
   {
     // Socket file/Named pipe connections
 
     #if defined(WIN32)
-    // Default local host connection in windows are done through shared memory
-    // using "." forces using named pipe
-    host=".";
+      // Default local host connection in windows are done through shared memory
+      // using "." forces using named pipe
+      host=".";
     #else
-    // Default local host connections in Linux are done through socket files
-    host="localhost";
+      // Default local host connections in Linux are done through socket files
+      host="localhost";
     #endif
 
     log_info("Connecting to MySQL server using socket %s with user %s\n",
-           socket.c_str(), username.c_str());
+             socket.c_str(), username.c_str());
   }
 
+  mysql_options(&_mysql, MYSQL_OPT_CONNECT_TIMEOUT, &_connection_timeout);
 
 #if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
 #if MYSQL_CHECK_VERSION(5,5,27)
@@ -1415,7 +1425,7 @@ size_t MySQLCopyDataSource::count_rows(const std::string &schema, const std::str
   mysql_free_result(result);
 
   if ((spec.type == CopyAll || spec.type == CopyWhere) && spec.max_count > 0 && spec.max_count < count)
-      count = spec.max_count;
+    count = spec.max_count;
 
   return (size_t)count;
 }
@@ -1484,8 +1494,7 @@ boost::shared_ptr<std::vector<ColumnInfo> > MySQLCopyDataSource::begin_select_ta
           info.is_long_data = false;
 
           info.is_long_data = fields[i].type == MYSQL_TYPE_TINY_BLOB ||
-                              fields[i].type == MYSQL_TYPE_MEDIUM_BLOB ||
-                              fields[i].type == MYSQL_TYPE_BLOB;
+            fields[i].type == MYSQL_TYPE_MEDIUM_BLOB || fields[i].type == MYSQL_TYPE_BLOB;
 
           if(info.is_long_data)
             _has_long_data = true;
@@ -1547,7 +1556,8 @@ bool MySQLCopyDataSource::fetch_row(RowBuffer &rowbuffer)
             rowbuffer[index].buffer_type == MYSQL_TYPE_LONG_BLOB ||
             rowbuffer[index].buffer_type == MYSQL_TYPE_BLOB ||
             rowbuffer[index].buffer_type == MYSQL_TYPE_STRING ||
-            rowbuffer[index].buffer_type == MYSQL_TYPE_GEOMETRY)
+            rowbuffer[index].buffer_type == MYSQL_TYPE_GEOMETRY ||
+            rowbuffer[index].buffer_type == MYSQL_TYPE_JSON)
           {
             if (rowbuffer[index].buffer_length)
               free(rowbuffer[index].buffer);
@@ -1558,13 +1568,11 @@ bool MySQLCopyDataSource::fetch_row(RowBuffer &rowbuffer)
             {
               if (_abort_on_oversized_blobs)
                 throw std::runtime_error(base::strfmt("oversized blob found in table %s.%s, size: %lli",
-                _schema_name.c_str(), _table_name.c_str(),
-                (long long)rowbuffer[index].buffer_length));
+                  _schema_name.c_str(), _table_name.c_str(), (long long)rowbuffer[index].buffer_length));
               else
               {
                 printf("oversized blob found in table %s.%s, size: %lli",
-                  _schema_name.c_str(), _table_name.c_str(),
-                  (long long)rowbuffer[index].buffer_length);
+                  _schema_name.c_str(), _table_name.c_str(), (long long)rowbuffer[index].buffer_length);
                 *rowbuffer[index].is_null = true;
                 continue;
               }
@@ -1623,18 +1631,18 @@ void MySQLCopyDataTarget::init()
   get_server_version();
 
   // find out the max packet size taken by the connection
-   get_server_value("max_allowed_packet", _max_allowed_packet);
-   log_debug("Detected max_allowed_packet=%lu\n", _max_allowed_packet);
+  get_server_value("max_allowed_packet", _max_allowed_packet);
+  log_debug("Detected max_allowed_packet=%lu\n", _max_allowed_packet);
 
-   if (_major_version == 5 &&
+  if (_major_version == 5 &&
       ((_minor_version > 1 && _minor_version < 6) || (_minor_version == 1 && _build_version >= 57)))
-   {
-     // find out the max parameter size on a prepared statement
-      get_server_value("max_long_data_size", _max_long_data_size);
-      log_debug("Detected max_long_data_size=%lu\n", _max_long_data_size);
-   }
-   else
-     _max_long_data_size = _max_allowed_packet;
+  {
+    // find out the max parameter size on a prepared statement
+    get_server_value("max_long_data_size", _max_long_data_size);
+    log_debug("Detected max_long_data_size=%lu\n", _max_long_data_size);
+  }
+  else
+    _max_long_data_size = _max_allowed_packet;
 
   std::string q = "SET NAMES 'utf8'";
   if (mysql_real_query(&_mysql, q.data(), (unsigned long)q.length()) != 0)
@@ -1675,7 +1683,7 @@ std::vector<std::string> MySQLCopyDataTarget::get_last_pkeys(const std::vector<s
 
   const std::string q = base::strfmt("SELECT %s FROM %s.%s ORDER BY %s LIMIT 0,1", boost::algorithm::join(pk_columns, ", ").c_str(), schema.c_str(), table.c_str(), order_by_cond.c_str());
   if (mysql_query(&_mysql, q.data()) != 0)
-      throw ConnectionError("mysql_query(" + q + ")", &_mysql);
+    throw ConnectionError("mysql_query(" + q + ")", &_mysql);
 
   MYSQL_RES *result;
   if ((result = mysql_use_result(&_mysql)) == NULL)
@@ -1765,8 +1773,8 @@ void MySQLCopyDataTarget::get_server_version()
 bool MySQLCopyDataTarget::is_mysql_version_at_least(const int _major, const int _minor, const int _build)
 {
   return _major_version > _major
-           || (_major_version == _major && _minor_version > _minor)
-           || (_major_version == _major && _minor_version == _minor && _build_version >= _build);
+    || (_major_version == _major && _minor_version > _minor)
+    || (_major_version == _major && _minor_version == _minor && _build_version >= _build);
 }
 
 std::string MySQLCopyDataTarget::ps_query()
@@ -1888,12 +1896,13 @@ enum enum_field_types MySQLCopyDataTarget::field_type_to_ps_param_type(enum enum
 }
 
 MySQLCopyDataTarget::MySQLCopyDataTarget(const std::string &hostname, int port,
-                    const std::string &username, const std::string &password,
-                    const std::string &socket, bool use_cleartext_plugin, const std::string &app_name,
-                    const std::string &incoming_charset, const std::string &source_rdbms_type)
-: _insert_stmt(NULL), _max_allowed_packet(1000000), _max_long_data_size(1000000),// 1M default
-  _row_buffer(NULL), _major_version(0), _minor_version(0), _build_version(0), _use_bulk_inserts(true),
-  _bulk_insert_batch(0), _source_rdbms_type(source_rdbms_type)
+                                         const std::string &username, const std::string &password,
+                                         const std::string &socket, bool use_cleartext_plugin, const std::string &app_name,
+                                         const std::string &incoming_charset, const std::string &source_rdbms_type,
+                                         const unsigned int connection_timeout)
+  : _insert_stmt(NULL), _max_allowed_packet(1000000), _max_long_data_size(1000000),// 1M default
+  _row_buffer(NULL), _major_version(0), _minor_version(0), _build_version(0), _use_bulk_inserts(true), _bulk_insert_buffer(this), _bulk_insert_record(this),
+  _bulk_insert_batch(0), _source_rdbms_type(source_rdbms_type), _connection_timeout(connection_timeout)
 {
   std::string host = hostname;
   _truncate = false;
@@ -1905,7 +1914,7 @@ MySQLCopyDataTarget::MySQLCopyDataTarget(const std::string &hostname, int port,
   mysql_init(&_mysql);
 #if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
 #if MYSQL_CHECK_VERSION(5,6,6)
-  if (MySQLCopyDataTarget::is_mysql_version_at_least(5,6,6))
+  if (is_mysql_version_at_least(5,6,6))
     mysql_options4(&_mysql, MYSQL_OPT_CONNECT_ATTR_ADD, "program_name", app_name.c_str());
 #endif
 #endif
@@ -1922,24 +1931,26 @@ MySQLCopyDataTarget::MySQLCopyDataTarget(const std::string &hostname, int port,
     mysql_options(&_mysql, MYSQL_OPT_PROTOCOL, &proto);
 
     log_info("Connecting to MySQL server at %s:%i with user %s\n",
-           hostname.c_str(), port, username.c_str());
+             hostname.c_str(), port, username.c_str());
   }
   else
   {
     // Socket file/Named pipe connections
 
-    #if defined(WIN32)
+#if defined(WIN32)
     // Default local host connection in windows are done through shared memory
     // using "." forces using named pipe
     host=".";
-    #else
+#else
     // Default local host connections in Linux are done through socket files
     host="localhost";
-    #endif
+#endif
 
     log_info("Connecting to MySQL server using socket %s with user %s\n",
-           socket.c_str(), username.c_str());
+             socket.c_str(), username.c_str());
   }
+
+  mysql_options(&_mysql, MYSQL_OPT_CONNECT_TIMEOUT, &_connection_timeout);
 
 #if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
 #if MYSQL_CHECK_VERSION(5,5,27)
@@ -2007,7 +2018,7 @@ void MySQLCopyDataTarget::set_target_table(const std::string &schema, const std:
             // We can't trust source drivers to report signed/unsigned values, so we take that from the target MySQL table:
             (*columns)[i].is_unsigned = (fields[i].flags & UNSIGNED_FLAG) != 0;
             if (_get_field_lengths_from_target)
-                (*columns)[i].source_length = fields[i].length;
+              (*columns)[i].source_length = fields[i].length;
             log_debug2("%i - %s: %s\n", i + 1, (*columns)[i].target_name.c_str(),
                        mysql_field_type_to_name((*columns)[i].target_type));
           }
@@ -2248,165 +2259,166 @@ bool MySQLCopyDataTarget::append_bulk_column(size_t col_index)
   {
     switch((*_row_buffer)[col_index].buffer_type)
     {
-    case MYSQL_TYPE_NULL:
-      ret_val = _bulk_insert_record.append("NULL", 4);
-      break;
-    case MYSQL_TYPE_TINY:
-      if ((*_row_buffer)[col_index].is_unsigned)
-      {
-        unsigned char *val_char = (unsigned char *)(*_row_buffer)[col_index].buffer;
-        data = base::strfmt("%u", *val_char);
-      }
-      else
-      {
-        char *val_char = (char *)(*_row_buffer)[col_index].buffer;
-        data = base::strfmt("%d", *val_char);
-      }
-      ret_val = _bulk_insert_record.append(data.data(), data.length());
-      break;
-    case MYSQL_TYPE_SHORT:
-    case MYSQL_TYPE_YEAR:
-      if ((*_row_buffer)[col_index].is_unsigned)
-      {
-        unsigned short *val_short = (unsigned short *)(*_row_buffer)[col_index].buffer;
-        data = base::strfmt("%u", *val_short);
-      }
-      else
-      {
-        short *val_short = (short *)(*_row_buffer)[col_index].buffer;
-        data = base::strfmt("%d", *val_short);
-      }
-      ret_val = _bulk_insert_record.append(data.data(), data.length());
-      break;
-    case MYSQL_TYPE_INT24:
-    case MYSQL_TYPE_LONG:
-      if ((*_row_buffer)[col_index].is_unsigned)
-      {
-        unsigned int *val_int = (unsigned int *)(*_row_buffer)[col_index].buffer;
-        data = base::strfmt("%u", *val_int);
-      }
-      else
-      {
-        int *val_int = (int *)(*_row_buffer)[col_index].buffer;
-        data = base::strfmt("%i", *val_int);
-      }
-      ret_val = _bulk_insert_record.append(data.data(), data.length());
-      break;
-    case MYSQL_TYPE_LONGLONG:
-      if ((*_row_buffer)[col_index].is_unsigned)
-      {
-        unsigned long long int *val_llint = (unsigned long long int*)(*_row_buffer)[col_index].buffer;
-        data = base::strfmt("%llu", *val_llint);
-      }
-      else
-      {
-        long long int *val_llint = (long long int *)(*_row_buffer)[col_index].buffer;
-        data = base::strfmt("%lli", *val_llint);
-      }
-      ret_val = _bulk_insert_record.append(data.data(), data.length());
-      break;
-    case MYSQL_TYPE_FLOAT:
+      case MYSQL_TYPE_NULL:
+        ret_val = _bulk_insert_record.append("NULL", 4);
+        break;
+      case MYSQL_TYPE_TINY:
+        if ((*_row_buffer)[col_index].is_unsigned)
+        {
+          unsigned char *val_char = (unsigned char *)(*_row_buffer)[col_index].buffer;
+          data = base::strfmt("%u", *val_char);
+        }
+        else
+        {
+          char *val_char = (char *)(*_row_buffer)[col_index].buffer;
+          data = base::strfmt("%d", *val_char);
+        }
+        ret_val = _bulk_insert_record.append(data.data(), data.length());
+        break;
+      case MYSQL_TYPE_SHORT:
+      case MYSQL_TYPE_YEAR:
+        if ((*_row_buffer)[col_index].is_unsigned)
+        {
+          unsigned short *val_short = (unsigned short *)(*_row_buffer)[col_index].buffer;
+          data = base::strfmt("%u", *val_short);
+        }
+        else
+        {
+          short *val_short = (short *)(*_row_buffer)[col_index].buffer;
+          data = base::strfmt("%d", *val_short);
+        }
+        ret_val = _bulk_insert_record.append(data.data(), data.length());
+        break;
+      case MYSQL_TYPE_INT24:
+      case MYSQL_TYPE_LONG:
+        if ((*_row_buffer)[col_index].is_unsigned)
+        {
+          unsigned int *val_int = (unsigned int *)(*_row_buffer)[col_index].buffer;
+          data = base::strfmt("%u", *val_int);
+        }
+        else
+        {
+          int *val_int = (int *)(*_row_buffer)[col_index].buffer;
+          data = base::strfmt("%i", *val_int);
+        }
+        ret_val = _bulk_insert_record.append(data.data(), data.length());
+        break;
+      case MYSQL_TYPE_LONGLONG:
+        if ((*_row_buffer)[col_index].is_unsigned)
+        {
+          unsigned long long int *val_llint = (unsigned long long int*)(*_row_buffer)[col_index].buffer;
+          data = base::strfmt("%llu", *val_llint);
+        }
+        else
+        {
+          long long int *val_llint = (long long int *)(*_row_buffer)[col_index].buffer;
+          data = base::strfmt("%lli", *val_llint);
+        }
+        ret_val = _bulk_insert_record.append(data.data(), data.length());
+        break;
+      case MYSQL_TYPE_FLOAT:
       {
         float *val_float = (float*)(*_row_buffer)[col_index].buffer;
         data = base::strfmt("%f", *val_float);
         ret_val = _bulk_insert_record.append(data.data(), data.length());
       }
-      break;
-    case MYSQL_TYPE_DOUBLE:
+        break;
+      case MYSQL_TYPE_DOUBLE:
       {
         double *val_double = (double*)(*_row_buffer)[col_index].buffer;
         data = base::strfmt("%f", *val_double);
         ret_val = _bulk_insert_record.append(data.data(), data.length());
       }
-      break;
-    case MYSQL_TYPE_BIT:
-    {
-      // As managed as string, an additional byte is added to the length, so
-      // we remove that here to know the real legth in bytes
-      std::div_t length= std::div((*_row_buffer)[col_index].buffer_length - 1, 8);
-
-      if (length.rem)
-        ++length.quot;
-
-      unsigned long long uval = 0;
-      unsigned int shift = 0;
-
-      for (int index = 1; index <= length.quot; index++ )
+        break;
+      case MYSQL_TYPE_BIT:
       {
-        uval += (((unsigned char*)(*_row_buffer)[col_index].buffer)[length.quot - index]) << shift;
-        shift += 8;
+        // As managed as string, an additional byte is added to the length, so
+        // we remove that here to know the real legth in bytes
+        std::div_t length= std::div((*_row_buffer)[col_index].buffer_length - 1, 8);
+
+        if (length.rem)
+          ++length.quot;
+
+        unsigned long long uval = 0;
+        unsigned int shift = 0;
+
+        for (int index = 1; index <= length.quot; index++ )
+        {
+          uval += (((unsigned char*)(*_row_buffer)[col_index].buffer)[length.quot - index]) << shift;
+          shift += 8;
+        }
+
+        std::string numeric_value = base::strfmt("%llu", uval);
+
+        ret_val = _bulk_insert_record.append(numeric_value.data(), numeric_value.length());
+        break;
       }
-
-      std::string numeric_value = base::strfmt("%llu", uval);
-
-      ret_val = _bulk_insert_record.append(numeric_value.data(), numeric_value.length());
-      break;
-    }
-    case MYSQL_TYPE_DECIMAL:
-    case MYSQL_TYPE_NEWDECIMAL:
-      ret_val = _bulk_insert_record.append_escaped((char*)(*_row_buffer)[col_index].buffer, *(*_row_buffer)[col_index].length);
-      break;
-    case MYSQL_TYPE_VAR_STRING:
-    case MYSQL_TYPE_VARCHAR:
-    case MYSQL_TYPE_STRING:
-    case MYSQL_TYPE_ENUM:
-    case MYSQL_TYPE_SET:
-      _bulk_insert_record.append("'", 1);
-      ret_val = _bulk_insert_record.append_escaped((char*)(*_row_buffer)[col_index].buffer, *(*_row_buffer)[col_index].length);
-      _bulk_insert_record.append("'", 1);
-      break;
-    case MYSQL_TYPE_TIME:
-    case MYSQL_TYPE_DATE:
-    case MYSQL_TYPE_NEWDATE:
-    case MYSQL_TYPE_DATETIME:
-    case MYSQL_TYPE_TIMESTAMP:
+      case MYSQL_TYPE_DECIMAL:
+      case MYSQL_TYPE_NEWDECIMAL:
+        ret_val = _bulk_insert_record.append_escaped((char*)(*_row_buffer)[col_index].buffer, *(*_row_buffer)[col_index].length);
+        break;
+      case MYSQL_TYPE_VAR_STRING:
+      case MYSQL_TYPE_VARCHAR:
+      case MYSQL_TYPE_STRING:
+      case MYSQL_TYPE_ENUM:
+      case MYSQL_TYPE_SET:
+      case MYSQL_TYPE_JSON:
+        _bulk_insert_record.append("'", 1);
+        ret_val = _bulk_insert_record.append_escaped((char*)(*_row_buffer)[col_index].buffer, *(*_row_buffer)[col_index].length);
+        _bulk_insert_record.append("'", 1);
+        break;
+      case MYSQL_TYPE_TIME:
+      case MYSQL_TYPE_DATE:
+      case MYSQL_TYPE_NEWDATE:
+      case MYSQL_TYPE_DATETIME:
+      case MYSQL_TYPE_TIMESTAMP:
       {
         MYSQL_TIME *ts = (MYSQL_TIME*)(*_row_buffer)[col_index].buffer;
         switch(ts->time_type)
         {
-        case MYSQL_TIMESTAMP_DATETIME:
-          if (_major_version >= 6
-              || (_major_version == 5 && _minor_version >= 7)
-              || (_major_version == 5 && _minor_version == 6 && _build_version >= 4))
-            data = base::strfmt("'%04d-%02d-%02d %02d:%02d:%02d.%06lu'",
-                         ts->year, ts->month, ts->day,
-                         ts->hour, ts->minute, ts->second,
-                         ts->second_part);
-          else
-            data = base::strfmt("'%04d-%02d-%02d %02d:%02d:%02d'",
-                                   ts->year, ts->month, ts->day,
-                                   ts->hour, ts->minute, ts->second);
-          break;
-        case MYSQL_TIMESTAMP_DATE:
-          data = base::strfmt("'%04d-%02d-%02d'",
-                         ts->year, ts->month, ts->day);
-          break;
-        case MYSQL_TIMESTAMP_TIME:
-          if (_major_version >= 6
-                        || (_major_version == 5 && _minor_version >= 7)
-                        || (_major_version == 5 && _minor_version == 6 && _build_version >= 4))
-            data = base::strfmt("'%02d:%02d:%02d.%06lu'",
-                                ts->hour, ts->minute, ts->second, ts->second_part);
-          else
-            data = base::strfmt("'%02d:%02d:%02d'",
-                                            ts->hour, ts->minute, ts->second);
-          break;
-        default:
-          data = "''";
-          break;
+          case MYSQL_TIMESTAMP_DATETIME:
+            if (_major_version >= 6
+                || (_major_version == 5 && _minor_version >= 7)
+                || (_major_version == 5 && _minor_version == 6 && _build_version >= 4))
+              data = base::strfmt("'%04d-%02d-%02d %02d:%02d:%02d.%06lu'",
+                                  ts->year, ts->month, ts->day,
+                                  ts->hour, ts->minute, ts->second,
+                                  ts->second_part);
+            else
+              data = base::strfmt("'%04d-%02d-%02d %02d:%02d:%02d'",
+                                  ts->year, ts->month, ts->day,
+                                  ts->hour, ts->minute, ts->second);
+            break;
+          case MYSQL_TIMESTAMP_DATE:
+            data = base::strfmt("'%04d-%02d-%02d'",
+                                ts->year, ts->month, ts->day);
+            break;
+          case MYSQL_TIMESTAMP_TIME:
+            if (_major_version >= 6
+                || (_major_version == 5 && _minor_version >= 7)
+                || (_major_version == 5 && _minor_version == 6 && _build_version >= 4))
+              data = base::strfmt("'%02d:%02d:%02d.%06lu'",
+                                  ts->hour, ts->minute, ts->second, ts->second_part);
+            else
+              data = base::strfmt("'%02d:%02d:%02d'",
+                                  ts->hour, ts->minute, ts->second);
+            break;
+          default:
+            data = "''";
+            break;
         }
 
         ret_val = _bulk_insert_record.append(data.data(), data.length());
       }
-      break;
-    case MYSQL_TYPE_BLOB:
-    case MYSQL_TYPE_TINY_BLOB:
-    case MYSQL_TYPE_MEDIUM_BLOB:
-    case MYSQL_TYPE_LONG_BLOB:
-      _bulk_insert_record.append("'", 1);
-      ret_val = _bulk_insert_record.append_escaped((char*)(*_row_buffer)[col_index].buffer, *(*_row_buffer)[col_index].length);
-      _bulk_insert_record.append("'", 1);
-      break;
+        break;
+      case MYSQL_TYPE_BLOB:
+      case MYSQL_TYPE_TINY_BLOB:
+      case MYSQL_TYPE_MEDIUM_BLOB:
+      case MYSQL_TYPE_LONG_BLOB:
+        _bulk_insert_record.append("'", 1);
+        ret_val = _bulk_insert_record.append_escaped((char*)(*_row_buffer)[col_index].buffer, *(*_row_buffer)[col_index].length);
+        _bulk_insert_record.append("'", 1);
+        break;
 
 #if MYSQL_VERSION_ID > 50600
       case MYSQL_TYPE_TIMESTAMP2:
@@ -2789,7 +2801,7 @@ void CopyDataTask::copy_table(const TableParam &task)
   time_t end = time(NULL);
   if (i != total)
     printf("ERROR:%s.%s:Failed copying %lli rows\n",
-               task.target_schema.c_str(), task.target_table.c_str(), total-i);
+           task.target_schema.c_str(), task.target_table.c_str(), total-i);
   else
     printf("END:%s.%s:Finished copying %lli rows in %im%02is\n",
            task.target_schema.c_str(), task.target_table.c_str(), i,
@@ -2853,16 +2865,17 @@ bool MySQLCopyDataTarget::InsertBuffer::append_escaped(const char *data, size_t 
 
   // This function is used to create a legal SQL string that you can use in an SQL statement
   // This is needed because the escaping depends on the character set in use by the server
-  #if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
-  #if MYSQL_CHECK_VERSION(5,7,6)
-    if (MySQLCopyDataTarget::is_mysql_version_at_least(5,7,6))
-      length += mysql_real_escape_string_quote(_mysql, buffer + length, data, (unsigned long)dlength);
-    else
-      length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
-  #else
-    length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
-  #endif
-  #endif
+  length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
+//  #if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
+//  #if MYSQL_CHECK_VERSION(5, 7, 6)
+//    if (_target->is_mysql_version_at_least(5, 7, 6))
+//      length += mysql_real_escape_string_quote(_mysql, buffer + length, data, (unsigned long)dlength, '`');
+//    else
+//      length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
+//  #else
+//    length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
+//  #endif
+//  #endif
 
   return true;
 }

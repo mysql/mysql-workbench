@@ -17,7 +17,7 @@
  * 02110-1301  USA
  */
 
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 
 #include "workbench/wb_context.h"
 #include "model/wb_model_diagram_form.h"
@@ -300,7 +300,7 @@ ToolStrip^ ModelDiagramFormWrapper::get_options_toolbar()
 
 TreeViewAdv^ ModelDiagramFormWrapper::get_layer_tree()
 {
-  mforms::TreeNodeView *tree = get_unmanaged_object()->get_layer_tree();
+  mforms::TreeView *tree = get_unmanaged_object()->get_layer_tree();
 
   return dynamic_cast<TreeViewAdv ^>(ObjectMapper::GetManagedComponent(tree));
 }

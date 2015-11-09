@@ -70,6 +70,7 @@ HyperTextImpl::HyperTextImpl(HyperText* self)
   _win.set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_AUTOMATIC);
   _text.show();
   _text.set_editable(false);
+  _text.set_wrap_mode(Gtk::WRAP_WORD);
 }
 
 //------------------------------------------------------------------------------

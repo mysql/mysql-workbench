@@ -45,7 +45,7 @@ from workbench.utils import Version
 from workbench.log import log_warning, log_error, log_debug
 
 
-from mforms import newBox, newButton, newPanel, newTextBox, newRadioButton, newLabel, newTreeNodeView, newProgressBar, newTextEntry, newCheckBox, newScrollPanel, newTabView, newSelector
+from mforms import newBox, newButton, newPanel, newTextBox, newRadioButton, newLabel, newTreeView, newProgressBar, newTextEntry, newCheckBox, newScrollPanel, newTabView, newSelector
 from mforms import Utilities, FileChooser
 import mforms
 
@@ -404,7 +404,7 @@ class WbAdminSchemaListTab(mforms.Box):
         if self.savefile_path is None:
             self.savefile_path = os.path.join(self.savefolder_path, "export.sql")
 
-        self.schema_list = newTreeNodeView(mforms.TreeFlatList)
+        self.schema_list = newTreeView(mforms.TreeFlatList)
         self.schema_list.add_column(mforms.CheckColumnType, is_importing and "Import" or "Export", 40, True)
         self.schema_list.add_column(mforms.IconColumnType, "Schema", 300, False)
 
@@ -412,7 +412,7 @@ class WbAdminSchemaListTab(mforms.Box):
         self.schema_list.end_columns()
         self.schema_list.set_allow_sorting(True)
 
-        self.table_list = newTreeNodeView(mforms.TreeFlatList)
+        self.table_list = newTreeView(mforms.TreeFlatList)
         self.table_list.add_column(mforms.CheckColumnType, is_importing and "Import" or "Export", 40, True)
         self.table_list.add_column(mforms.IconColumnType, "Schema Objects", 300, False)
         self.table_list.end_columns()
@@ -1020,8 +1020,14 @@ class WbAdminImportTab(WbAdminSchemaListTab):
                     schema = line.partition("Database: ")[-1].strip()
                     if table:
                         break
-                elif line.startswith("CREATE TABLE"):
-                    table = line.rstrip("\n\r (").partition("CREATE TABLE")[-1].strip()
+                elif not table and line.startswith("-- Table structure for table"):
+                    table = line.partition("-- Table structure for table")[-1].strip()
+                    if table[0] == '`':
+                        table = table[1:-1]
+                    if schema:
+                        break
+                elif not table and line.startswith("-- Dumping data for table"):
+                    table = line.partition("-- Dumping data for table")[-1].strip()
                     if table[0] == '`':
                         table = table[1:-1]
                     if schema:
@@ -1127,7 +1133,13 @@ class WbAdminImportTab(WbAdminSchemaListTab):
         self.progress_tab.did_start()
         self.progress_tab.set_status("Import is running...")
 
+        connection_params = self.server_profile.db_connection_params
+        tunnel = ConnectionTunnel(connection_params)
+
+        conn = connection_params.parameterValues
+
         from_folder = not self.fileradio.get_active()
+        old_auth = self.owner.ctrl_be.is_old_authentication_protocol(conn["userName"], conn["hostName"])
 
         operations = []
         if from_folder:
@@ -1145,15 +1157,17 @@ class WbAdminImportTab(WbAdminSchemaListTab):
             for schema, table in selection:
                 logmsg = "Restoring %s (%s)" % (schema, table)
                 path = self.tables_paths.get((schema, table))
-                extra_args = "--database=%s" % schema
+                extra_args = ["--database=%s" % schema]
+                if old_auth:
+                    extra_args.append('--skip-secure-auth')
                 # description, object_count, extra_args, objects, pipe_factory
                 if path != None:
-                    task = DumpThread.TaskData(logmsg, 1, [extra_args], [path], None, lambda:None)
+                    task = DumpThread.TaskData(logmsg, 1, extra_args, [path], None, lambda:None)
                     #operations.insert(0,task)
                     operations.append(task)
                 else:
                     path = self.views_paths.get((schema, table))
-                    task = DumpThread.TaskData(logmsg, 1, [extra_args], [path], None, lambda:None)
+                    task = DumpThread.TaskData(logmsg, 1, extra_args, [path], None, lambda:None)
                     if path != None:
                         operations.append(task)
         else:
@@ -1163,16 +1177,12 @@ class WbAdminImportTab(WbAdminSchemaListTab):
                 return
             logmsg = "Restoring " + self.path
             # description, object_count, pipe_factory, extra_args, objects
-            task = DumpThread.TaskData(logmsg, 1, [], [self.path], None, lambda:None)
+            extra_args = []
+            if old_auth:
+                extra_args.append('--skip-secure-auth')
+            task = DumpThread.TaskData(logmsg, 1, extra_args, [self.path], None, lambda:None)
             operations.append(task)
 #            operations.append((logmsg, 1, lambda:None, [], [self.path]))
-
-
-        connection_params = self.server_profile.db_connection_params
-        tunnel = ConnectionTunnel(connection_params)
-
-        conn = connection_params.parameterValues
-
 
         if connection_params.driver.name == "MysqlNativeSocket":
             host_option = "--protocol="+("pipe" if sys.platform == "win32" else "socket")
@@ -1665,6 +1675,14 @@ class WbAdminExportTab(WbAdminSchemaListTab):
         if not self.validate_single_transaction(True):
             self.progress_tab.set_start_enabled(True)
             return
+        
+        connection_params = self.server_profile.db_connection_params
+        tunnel = ConnectionTunnel(connection_params)
+
+        conn = connection_params.parameterValues
+
+        old_auth = self.owner.ctrl_be.is_old_authentication_protocol(conn["userName"], conn["hostName"])
+
         single_transaction = self.single_transaction_check.get_active()
         #dump_views = self.dump_view_check.get_active()
         sel_index = self.dump_type_selector.get_selected_index()
@@ -1718,6 +1736,9 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                             
                         if skip_table_structure:
                             args.append('--no-create-info')
+                        
+                        if old_auth:
+                            args.append('--skip-secure-auth')
 
                         if skip_data:
                             task = self.TableDumpNoData(schema,table, args, lambda schema=schema,table=table:self.dump_to_folder(schema, table))
@@ -1784,6 +1805,9 @@ class WbAdminExportTab(WbAdminSchemaListTab):
 
                     if not tables or not dump_triggers:
                         params.append("--skip-triggers")
+                    
+                    if old_auth:
+                        params.append('--skip-secure-auth')
 
                     # description, object_count, pipe_factory, extra_args, objects
                     task = DumpThread.TaskData(title, len(tables), params, objects, tables_to_ignore, lambda schema=schema:self.dump_to_file([schema]))
@@ -1805,16 +1829,14 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                     params += ["--single-transaction=TRUE", "--databases"]
                 else:
                     params += ["--databases"]
+                
+                if old_auth:
+                    params.append('--skip-secure-auth')
                 # --databases includes CREATE DATABASE info, so it's not needed for dump_to_file()
                 # description, object_count, pipe_factory, extra_args, objects
                 task = DumpThread.TaskData(title, count, params, schema_names, tables_to_ignore, lambda:self.dump_to_file([]))
                 operations.append(task)
 #                operations.append((title, count, lambda:self.dump_to_file([]), params, schema_names))
-
-        connection_params = self.server_profile.db_connection_params
-        tunnel = ConnectionTunnel(connection_params)
-
-        conn = connection_params.parameterValues
 
         if connection_params.driver.name == "MysqlNativeSocket":
             params = {

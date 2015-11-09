@@ -26,7 +26,7 @@
 #include "mforms/box.h"
 #include "mforms/utilities.h"
 #include "mforms/splitter.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 
 #include <deque>
 
@@ -35,7 +35,7 @@ namespace mforms
   class ToolBar;
   class ToolBarItem;
   class Selector;
-  class TreeNodeView;
+  class TreeView;
   struct TreeNodeRef;
   class Label;
   class ContextMenu;
@@ -72,7 +72,7 @@ private:
   mforms::Splitter *_splitter;
 
   mforms::ToolBarItem *_projection_picker;
-  mforms::TreeNodeView *_layer_tree;
+  mforms::TreeView *_layer_tree;
   mforms::ContextMenu *_layer_menu;
   mforms::ContextMenu *_map_menu;
 

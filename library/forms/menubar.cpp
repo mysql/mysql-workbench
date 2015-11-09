@@ -215,16 +215,27 @@ void MenuItem::callback()
 
 void MenuItem::validate()
 {
-  if (_validate)
-    set_enabled(_validate());
+  bool result = true;
+  for (validator_function val : _validators)
+  {
+    if (!val())
+      result = false;
+  }
+  
+  set_enabled(result);
   
   if (!_items.empty())
     MenuBase::validate();
 }
 
-void MenuItem::set_validator(const boost::function<bool ()> &slot)
+void MenuItem::add_validator(const validator_function &slot)
 {
-  _validate = slot;
+  _validators.push_back(slot);
+}
+
+void MenuItem::clear_validators() 
+{
+  _validators.clear();
 }
 
 void MenuItem::set_name(const std::string &name)
@@ -299,3 +310,4 @@ void ContextMenu::popup_at(View *owner, base::Point location)
 {
   _impl->popup_at(this, owner, location);
 }
+

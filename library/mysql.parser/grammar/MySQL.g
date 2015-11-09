@@ -20,9 +20,9 @@ grammar MySQL;
  */
 
 /*
- * Merged in all changes up to mysql-trunk git revision [94e53ac] (07 May 2015).
+ * Merged in all changes up to mysql-5.7 git revision [2405334] (04 Sep 2015).
  *
- * MySQL grammar for ANTLR 3.4 with language features from MySQL 4.0 up to MySQL 5.7.7 (except for
+ * MySQL grammar for ANTLR 3.4 with language features from MySQL 4.0 up to MySQL 5.7.9 (except for
  * internal function names which were reduced significantly in 5.1, we only use the reduced set).
  * The server version in the generated parser can be switched at runtime, making it so possible
  * to switch the supported feature set dynamically.
@@ -36,8 +36,7 @@ grammar MySQL;
  * and requires a number of functions to be implemented by the user of the parser. These are:
  * 
  *  ANTLR3_UINT32 check_charset(void *payload, pANTLR3_STRING text);
- *  ANTLR3_UINT32 check_null(pANTLR3_STRING text);
- *  void on_parse_error(struct ANTLR3_BASE_RECOGNIZER_struct *recognizer, pANTLR3_UINT8 *tokenNames);
+ *  void onMySQLParseError(struct ANTLR3_BASE_RECOGNIZER_struct *recognizer, pANTLR3_UINT8 *tokenNames);
  *
  * See descriptions below for their meaning. Here's a typical setup and run of lexer and parser:
  *
@@ -155,11 +154,11 @@ tokens {
 // provide context information. The code which creates parser and lexer must set a reference to such a structure
 // initialized to the proper values in the shared lexer/parser state userp member.
 typedef struct {
-    int versionMatched;    // True if a given version number is less or equal compare to that of the server.
-	int inVersionComment;  // True if we are in a version comment (/*!12345 ... */).
-	long version;
-	unsigned sqlMode;      // A collection of flags indicating which of relevant SQL modes are active.
-	void *payload;         // Since we use the usercp for this struct we need another way to pass around other arbitrary data.
+  int versionMatched;    // True if a given version number is less or equal compare to that of the server.
+  int inVersionComment;  // True if we are in a version comment (/*!12345 ... */).
+  long version;
+  unsigned sqlMode;      // A collection of flags indicating which of relevant SQL modes are active.
+  void *payload;         // Since we use the usercp for this struct we need another way to pass around other arbitrary data.
 } RecognitionContext;
 
 // SQL modes that control parsing behavior.
@@ -190,7 +189,7 @@ typedef struct {
 // so it's ok for this specific case.
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wparentheses"
-#ifdef __APPLE__
+#ifdef __clang__
 // Comparison of unsigned expression >= 0 is always true.
 #pragma GCC diagnostic ignored "-Wtautological-compare"
 #else
@@ -210,7 +209,7 @@ typedef struct {
 #ifndef _WIN32
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wparentheses"
-#ifdef __APPLE__
+#ifdef __clang___
 // Comparison of unsigned expression >= 0 is always true.
 #pragma GCC diagnostic ignored "-Wtautological-compare"
 #else
@@ -229,7 +228,7 @@ extern "C" {
 #endif
 
   // Custom error reporting function.
-  void on_parse_error(struct ANTLR3_BASE_RECOGNIZER_struct *recognizer, pANTLR3_UINT8 *tokenNames); 
+  void onMySQLParseError(struct ANTLR3_BASE_RECOGNIZER_struct *recognizer, pANTLR3_UINT8 *tokenNames); 
 
   // Checks if the given text corresponds to a charset defined in the server (text is preceded by an underscore).
   // Returns UNDERSCORE_CHARSET if so, otherwise IDENTIFIER.
@@ -374,12 +373,13 @@ extern "C" {
 
     return ((unsigned char)str[-1] <= (unsigned char)cmp[-1]) ? smaller : bigger;
   }
+  
 }
 
 @lexer::apifuncs
 {
 	// Install custom error collector for the front end.
-	RECOGNIZER->displayRecognitionError = on_parse_error;
+	RECOGNIZER->displayRecognitionError = onMySQLParseError;
 }
 
 @parser::postinclude {
@@ -388,7 +388,7 @@ extern "C" {
 #endif
 
   // Custom error reporting function.
-  void on_parse_error(struct ANTLR3_BASE_RECOGNIZER_struct *recognizer, pANTLR3_UINT8 *tokenNames); 
+  void onMySQLParseError(struct ANTLR3_BASE_RECOGNIZER_struct *recognizer, pANTLR3_UINT8 *tokenNames); 
 
 #ifdef __cplusplus
 };
@@ -401,7 +401,7 @@ extern "C" {
 @parser::apifuncs
 {
 	// Install custom error collector for the front end.
-	RECOGNIZER->displayRecognitionError = on_parse_error;
+	RECOGNIZER->displayRecognitionError = onMySQLParseError;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -445,7 +445,7 @@ statement:
 	| install_uninstall_statment
 	| {LA(1) == SET_SYMBOL && LA(2) != PASSWORD_SYMBOL}? set_statement // SET PASSWORD is handled in account_management_statement.
 	| show_statement
-	| miscellaneous_statement
+	| other_administrative_statement
 	
 	// MySQL utilitity statements
 	| utility_statement
@@ -469,10 +469,10 @@ alter_statement:
 ;
 
 alter_database:
-	DATABASE_SYMBOL
+	DATABASE_SYMBOL schema_ref
 	(
-		schema_ref? database_option+
-		| schema_ref UPGRADE_SYMBOL DATA_SYMBOL DIRECTORY_SYMBOL NAME_SYMBOL
+		 database_option+
+		| UPGRADE_SYMBOL DATA_SYMBOL DIRECTORY_SYMBOL NAME_SYMBOL
 	)
 ;
 
@@ -541,10 +541,11 @@ alter_table_list_entry:
 	| RENAME_SYMBOL (TO_SYMBOL | AS_SYMBOL)? table_ref
 	| {SERVER_VERSION >= 50700}? => RENAME_SYMBOL (INDEX_SYMBOL | KEY_SYMBOL) column_ref TO_SYMBOL column_ref
 	| alter_order_by
-	| CONVERT_SYMBOL TO_SYMBOL CHAR_SYMBOL SET_SYMBOL charset_name_or_default (COLLATE_SYMBOL collation_name_or_default)?
+	| CONVERT_SYMBOL TO_SYMBOL charset charset_name_or_default (COLLATE_SYMBOL collation_name_or_default)?
 	| FORCE_SYMBOL
 	| {SERVER_VERSION >= 50600}? => alter_algorithm_option
 	| {SERVER_VERSION >= 50600}? => alter_lock_option
+	| {SERVER_VERSION >= 50708}? => UPGRADE_SYMBOL PARTITIONING_SYMBOL
 ;
 
 key_def:
@@ -988,7 +989,11 @@ delete_option:
 ;
 
 do_statement:
-	DO_SYMBOL^ expression_list
+	DO_SYMBOL^ 
+	(
+		{SERVER_VERSION < 50709}? => expression_list
+		| {SERVER_VERSION >= 50709}? => select_item_list
+	)
 ;
 
 handler_statement:
@@ -1163,7 +1168,7 @@ select_option:
 	query_spec_option
 	| SQL_NO_CACHE_SYMBOL
 	| SQL_CACHE_SYMBOL
-	| {SERVER_VERSION >= 50704}? => MAX_STATEMENT_TIME_SYMBOL EQUAL_OPERATOR real_ulong_number
+	| {SERVER_VERSION >= 50704 && SERVER_VERSION < 50708}? => MAX_STATEMENT_TIME_SYMBOL EQUAL_OPERATOR real_ulong_number
 ;
 
 query_spec_option:
@@ -1440,12 +1445,13 @@ xa_statement:
 			| PREPARE_SYMBOL xid
 			| COMMIT_SYMBOL xid (ONE_SYMBOL PHASE_SYMBOL)?
 			| ROLLBACK_SYMBOL xid
-			| RECOVER_SYMBOL xa_convert?
+			| RECOVER_SYMBOL xa_convert
 		)
 ;
 
 xa_convert:
-	{SERVER_VERSION >= 50704}? => CONVERT_SYMBOL XID_SYMBOL
+	{SERVER_VERSION >= 50704}? => (CONVERT_SYMBOL XID_SYMBOL)?
+	| /* empty */
 ;
 
 xid:
@@ -1613,13 +1619,20 @@ account_management_statement:
 alter_user:
 	ALTER_SYMBOL^ USER_SYMBOL
 	(
-		grant_list create_user_tail
-		| {SERVER_VERSION >= 50706}? => USER_SYMBOL parentheses IDENTIFIED_SYMBOL BY_SYMBOL text_string
+		// Instead of using our usual gated semantic predicate for the conditional part we do it here a bit differently,
+		// because otherwise ANTLR crashs with a stack overflow error (because of the 2 consecutive gated sempreds).
+		alter_user_tail
+		| {SERVER_VERSION >= 50708}? => if_exists alter_user_tail
 	)
 ;
 
+alter_user_tail:
+	grant_list create_user_tail
+	| {SERVER_VERSION >= 50706}? => USER_SYMBOL parentheses IDENTIFIED_SYMBOL BY_SYMBOL text_string
+;
+
 create_user:
-	CREATE_SYMBOL^ USER_SYMBOL grant_list create_user_tail
+	CREATE_SYMBOL^ USER_SYMBOL ({SERVER_VERSION >= 50708}? => if_not_exists? | /* empty */) grant_list create_user_tail
 ;
 
 create_user_tail:
@@ -1652,7 +1665,7 @@ account_lock_password_expire_options:
 ;
 
 drop_user:
-	DROP_SYMBOL^ USER_SYMBOL user_list
+	DROP_SYMBOL^ USER_SYMBOL ({SERVER_VERSION >= 50708}? => if_exists? | /* empty */) user_list
 ;
 
 parse_grant: // For external use only. Don't reference this in the normal grammar.
@@ -1861,7 +1874,7 @@ show_statement:
 		| PROFILE_SYMBOL (profile_type (COMMA_SYMBOL profile_type)*)? (FOR_SYMBOL QUERY_SYMBOL INT_NUMBER)? limit_clause?
 		| option_type? (STATUS_SYMBOL | VARIABLES_SYMBOL) like_or_where?
 		| FULL_SYMBOL? PROCESSLIST_SYMBOL
-		| (CHAR_SYMBOL SET_SYMBOL | CHARSET_SYMBOL) like_or_where?
+		| charset like_or_where?
 		| COLLATION_SYMBOL like_or_where?
 		| {SERVER_VERSION < 50700}? => CONTRIBUTORS_SYMBOL
 		| GRANTS_SYMBOL (FOR_SYMBOL user)?
@@ -1912,7 +1925,7 @@ profile_type:
 
 //--------------------------------------------------------------------------------------------------
 
-miscellaneous_statement:
+other_administrative_statement:
 	BINLOG_SYMBOL^ string_literal
 	| CACHE_SYMBOL^ INDEX_SYMBOL key_cache_list_or_parts IN_SYMBOL (identifier | DEFAULT_SYMBOL)
 	| FLUSH_SYMBOL^ no_write_to_bin_log?
@@ -1923,6 +1936,7 @@ miscellaneous_statement:
 	| KILL_SYMBOL^  (options { greedy = true; }: (CONNECTION_SYMBOL | QUERY_SYMBOL))? expression
 	| LOAD_SYMBOL^ INDEX_SYMBOL INTO_SYMBOL CACHE_SYMBOL load_table_index_list
 	| RESET_SYMBOL^ reset_option (COMMA_SYMBOL reset_option)*
+	| {SERVER_VERSION >= 50709}? => SHUTDOWN_SYMBOL
 ;
 
 key_cache_list_or_parts options { k = 4; }:
@@ -2162,7 +2176,7 @@ primary:
 		| runtime_function_call // Complete functions defined in the grammar.
 		| udf_call
 		| (stored_function_call) => stored_function_call
-		| column_ref
+		| column_ref ( {SERVER_VERSION >= 50708}? => (JSON_SEPARATOR_SYMBOL text_string)? | /* empty*/ )
 		| PARAM_MARKER
 		| variable
 		| EXISTS_SYMBOL subquery
@@ -2173,7 +2187,7 @@ primary:
 		| cast_expression
 	)
 	// Consume any collation expression locally to avoid ambiguities with the recursive cast_expression.
-	( options { greedy = true; }: COLLATE_SYMBOL text_or_identifier)*
+	( options { greedy = true; }: COLLATE_SYMBOL collation_name)*
 ;
 
 // This part is tricky, because all alternatives can have an unlimited nesting within parentheses.
@@ -2192,7 +2206,7 @@ comparison_operator:
 	| LESS_THAN_OPERATOR
 	| NOT_EQUAL_OPERATOR
 	| NOT_EQUAL2_OPERATOR
-	| {SERVER_VERSION < 50704}? => NULL_SAFE_EQUAL_OPERATOR
+	| NULL_SAFE_EQUAL_OPERATOR
 ;
 
 multiplication_operator:
@@ -2322,7 +2336,7 @@ substring_function:
 ;
 	
 geometry_function:
-	GEOMETRYCOLLECTION_SYMBOL expression_list_with_parentheses
+	GEOMETRYCOLLECTION_SYMBOL optional_expression_list_with_parentheses
 	| LINESTRING_SYMBOL expression_list_with_parentheses
 	| MULTILINESTRING_SYMBOL expression_list_with_parentheses
 	| MULTIPOINT_SYMBOL expression_list_with_parentheses
@@ -2448,6 +2462,7 @@ cast_type:
 	| TIME_SYMBOL type_datetime_precision?
 	| DATETIME_SYMBOL type_datetime_precision?
 	| DECIMAL_SYMBOL float_options?
+	| {SERVER_VERSION >= 50708}? => JSON_SYMBOL
 ;
 
 encoding:
@@ -2523,6 +2538,10 @@ interval_timestamp_unit:
 
 expression_list_with_parentheses:
 	OPEN_PAR_SYMBOL expression_list CLOSE_PAR_SYMBOL -> ^(PAR_EXPRESSION_TOKEN OPEN_PAR_SYMBOL expression_list CLOSE_PAR_SYMBOL)
+;
+
+optional_expression_list_with_parentheses:
+	OPEN_PAR_SYMBOL expression_list? CLOSE_PAR_SYMBOL -> ^(PAR_EXPRESSION_TOKEN OPEN_PAR_SYMBOL expression_list? CLOSE_PAR_SYMBOL)
 ;
 
 expression_list:
@@ -2743,7 +2762,7 @@ schedule:
 database_option:
 	DEFAULT_SYMBOL?
 		(
-			CHAR_SYMBOL SET_SYMBOL EQUAL_OPERATOR? charset_name_or_default
+			charset EQUAL_OPERATOR? charset_name_or_default
 			| COLLATE_SYMBOL EQUAL_OPERATOR? collation_name_or_default
 		)
 ;
@@ -2757,12 +2776,13 @@ field_spec:
 ;
 
 field_def:
-	data_type
-	(
-		attribute*
-		| {SERVER_VERSION >= 50707}? => (GENERATED_SYMBOL ALWAYS_SYMBOL)? AS_SYMBOL
-			OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL (VIRTUAL_SYMBOL | STORED_SYMBOL)? gcol_attribute*
-	)
+	data_type field_def_tail
+;
+
+field_def_tail options { k = 3; }:
+	attribute*
+	| {SERVER_VERSION >= 50707}? => (COLLATE_SYMBOL collation_name)? (GENERATED_SYMBOL ALWAYS_SYMBOL)? AS_SYMBOL
+		OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL (VIRTUAL_SYMBOL | STORED_SYMBOL)? gcol_attribute*
 ;
 
 attribute:
@@ -2775,7 +2795,7 @@ attribute:
 	| (PRIMARY_SYMBOL | UNIQUE_SYMBOL) KEY_SYMBOL
 	| KEY_SYMBOL
 	| COMMENT_SYMBOL string_literal
-	| COLLATE_SYMBOL text_or_identifier
+	| COLLATE_SYMBOL collation_name
 	| COLUMN_FORMAT_SYMBOL (FIXED_SYMBOL | DYNAMIC_SYMBOL | DEFAULT_SYMBOL)
 	| STORAGE_SYMBOL (DISK_SYMBOL | MEMORY_SYMBOL | DEFAULT_SYMBOL)
 ;
@@ -2891,6 +2911,7 @@ data_type_elements:
 	| ENUM_SYMBOL string_list string_binary?
 	| SET_SYMBOL string_list string_binary?
 	| SERIAL_SYMBOL
+	| {SERVER_VERSION >= 50707}? => JSON_SYMBOL
 	| spatial_type
 ;
 
@@ -2932,6 +2953,10 @@ charset_name:
 charset_name_or_default:
 	charset_name
 	| DEFAULT_SYMBOL
+;
+
+collation_name:
+	text_or_identifier
 ;
 
 collation_name_or_default:
@@ -3384,7 +3409,7 @@ string_list:
 ;
 
 text_string:
-	SINGLE_QUOTED_TEXT // ANTLR requires the predicate. Even though it doesn't matter.
+	SINGLE_QUOTED_TEXT
 	| HEX_NUMBER
 	| BIN_NUMBER
 ;
@@ -3561,6 +3586,8 @@ keyword:
 		| SAVEPOINT_SYMBOL
 		| SECURITY_SYMBOL
 		| SERVER_SYMBOL
+		| /*{SERVER_VERSION >= 50709}? =>*/ SHUTDOWN_SYMBOL // Moved here from keyword_sp.
+			// Cannot make this alt using a sempred as ANTLR crashs on that (Out Of Mem).
 		| SIGNED_SYMBOL
 		| SLAVE_SYMBOL
 		| SOCKET_SYMBOL
@@ -3701,6 +3728,7 @@ keyword_sp:
 	| ISOLATION_SYMBOL
 	| ISSUER_SYMBOL
 	| INSERT_METHOD_SYMBOL
+	| JSON_SYMBOL // Conditionally set in the lexer.
 	| KEY_BLOCK_SIZE_SYMBOL
 	| LAST_SYMBOL
 	| LEAVES_SYMBOL
@@ -3736,7 +3764,7 @@ keyword_sp:
 	| MASTER_AUTO_POSITION_SYMBOL
 	| MAX_CONNECTIONS_PER_HOUR_SYMBOL
 	| MAX_QUERIES_PER_HOUR_SYMBOL
-	| MAX_STATEMENT_TIME_SYMBOL
+	| MAX_STATEMENT_TIME_SYMBOL // Conditionally deprecated in the lexer rule.
 	| MAX_SIZE_SYMBOL
 	| MAX_UPDATES_PER_HOUR_SYMBOL
 	| MAX_USER_CONNECTIONS_SYMBOL
@@ -3837,7 +3865,7 @@ keyword_sp:
 	| SESSION_SYMBOL
 	| SIMPLE_SYMBOL
 	| SHARE_SYMBOL
-	| SHUTDOWN_SYMBOL
+	//| {SERVER_VERSION < 50709}? => SHUTDOWN_SYMBOL // Moved to keyword rule. We cannot keep this here however, as ANTLR crashs on that.
 	| SLOW_SYMBOL
 	| SNAPSHOT_SYMBOL
 	| SOUNDS_SYMBOL
@@ -3954,6 +3982,8 @@ CLOSE_PAR_SYMBOL:			')';
 OPEN_CURLY_SYMBOL:			'{';
 CLOSE_CURLY_SYMBOL:			'}';
 UNDERLINE_SYMBOL:			'_';
+
+JSON_SEPARATOR_SYMBOL:		'->'	{ $type = TYPE_FROM_VERSION(50708, $type); };
 
 // The MySQL parser uses custom code in its lexer to allow base alphanum chars (and ._$) as variable name.
 // For this it handles user variables in 2 different ways and we have to model this to match that behavior.
@@ -4249,6 +4279,7 @@ ISOLATION_SYMBOL:						'ISOLATION';						// SQL-2003-R
 ISSUER_SYMBOL:							'ISSUER';
 ITERATE_SYMBOL:							'ITERATE'							{ $type = TYPE_FROM_VERSION(50000, $type); };
 JOIN_SYMBOL:							'JOIN';								// SQL-2003-R
+JSON_SYMBOL:							'JSON'								{ $type = TYPE_FROM_VERSION(50708, $type); };
 KEYS_SYMBOL:							'KEYS';
 KEY_BLOCK_SIZE_SYMBOL:					'KEY_BLOCK_SIZE';
 KEY_SYMBOL:								'KEY';								// SQL-2003-N
@@ -4310,7 +4341,7 @@ MAX_CONNECTIONS_PER_HOUR_SYMBOL:		'MAX_CONNECTIONS_PER_HOUR';
 MAX_QUERIES_PER_HOUR_SYMBOL:			'MAX_QUERIES_PER_HOUR';
 MAX_ROWS_SYMBOL:						'MAX_ROWS';
 MAX_SIZE_SYMBOL:						'MAX_SIZE';
-MAX_STATEMENT_TIME_SYMBOL:				'MAX_STATEMENT_TIME'				{ $type = TYPE_FROM_VERSION(50704, $type); };
+MAX_STATEMENT_TIME_SYMBOL:				'MAX_STATEMENT_TIME'				{ $type = TYPE_IN_VERSION_RANGE(50704, 50708, $type); };
 MAX_SYMBOL:								'MAX'								{ $type = determine_function(ctx, $type); }; // SQL-2003-N
 MAX_UPDATES_PER_HOUR_SYMBOL:			'MAX_UPDATES_PER_HOUR';
 MAX_USER_CONNECTIONS_SYMBOL:			'MAX_USER_CONNECTIONS';
@@ -4683,7 +4714,7 @@ INVALID_INPUT:
 // Number types.
 NUMBER:			DIGITS { $type = determine_num_type($text); };
 
-DECIMAL_NUMBER:	DIGITS? DOT_SYMBOL DIGITS; // Also set determine_num_type() function if the number is > ULONGLONG.
+DECIMAL_NUMBER:	DIGITS? DOT_SYMBOL DIGITS; // Also set in the determine_num_type() function if the number is > ULONGLONG.
 FLOAT_NUMBER:	DECIMAL_NUMBER 'E' (MINUS_OPERATOR | PLUS_OPERATOR)? DIGITS;
 HEX_NUMBER:		('0X' HEXDIGIT+) | ('X' '\'' HEXDIGIT+ '\'');
 BIN_NUMBER: 	('0B' ('0' | '1')+) | ('B' '\'' ('0' | '1')+ '\'');
@@ -4694,7 +4725,7 @@ NCHAR_TEXT:		'N' SINGLE_QUOTED_TEXT;
 
 // The underscore charset token is used to defined the repertoire of a string, though it conflicts
 // with normal identifiers, which also can start with an underscore.
-UNDERSCORE_CHARSET:	UNDERLINE_SYMBOL LETTER_WHEN_UNQUOTED+ { $type = check_charset(PAYLOAD, $text); };
+UNDERSCORE_CHARSET:	UNDERLINE_SYMBOL IDENTIFIER { $type = check_charset(PAYLOAD, $text); };
 
 // Identifiers might start with a digit, even tho it is discouraged.
 IDENTIFIER: 		LETTER_WHEN_UNQUOTED+; // All keywords above are automatically excluded.

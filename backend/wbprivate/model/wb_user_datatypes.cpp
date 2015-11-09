@@ -26,7 +26,7 @@ using namespace wb;
 using namespace base;
 
 UserDatatypeList::UserDatatypeList(WBContext *wb)
-: mforms::TreeNodeView(mforms::TreeFlatList|mforms::TreeSidebar), _wb(wb)
+: mforms::TreeView(mforms::TreeFlatList|mforms::TreeSidebar), _wb(wb)
 {
   add_column(mforms::IconStringColumnType, "Type", 100);
   add_column(mforms::StringColumnType, "Definition", 80);

@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -35,8 +35,7 @@ export_options = {
     "SQL":{
     "create-options":["Include all MySQL-specific table options in CREATE TABLE statements.","TRUE"],
     "quote-names":["Quote identifiers within backtick characters.","TRUE"],
-    "allow-keywords":["Allow creation of column names that are keywords.","FALSE"],
-    "comments":["Add comments to the dump file.","TRUE"]
+    "allow-keywords":["Allow creation of column names that are keywords.","FALSE"]
     },
     "Other":{
 #    "routines":["Dump stored routines (procedures and functions) from the dumped databases.","FALSE"],

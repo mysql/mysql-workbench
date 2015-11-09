@@ -111,7 +111,10 @@ std::vector<std::string> TableColumnsListBE::get_datatype_names()
   for (grt::ListRef<db_SimpleDatatype>::const_iterator iter= stypes.begin(); iter != stypes.end(); ++iter)
   {
     if (target_version.is_valid() && !bec::CatalogHelper::is_type_valid_for_version(*iter, target_version))
-      continue;
+    {
+      if(!base::same_string((*iter)->name(), "json", false))
+        continue;
+    }
     
     sorted_types.push_back(*iter);
   }
@@ -635,8 +638,8 @@ bool TableColumnsListBE::set_field(const NodeId &node, ColumnId column, const st
         }
         else
         {
+          result = _owner->showErrorMessage(value);
           undo.cancel();
-          result = false;
         }
 
         _owner->do_partial_ui_refresh(::bec::TableEditorBE::RefreshColumnCollation);
@@ -914,12 +917,12 @@ bool TableColumnsListBE::get_field_grt(const NodeId &node, ColumnId column, grt:
     {
       if (node[0] == 0)
       {
-        value= grt::StringRef(replace_variable(_owner->get_grt_manager()->get_app_option_string("PkColumnNameTemplate"),
+        value= grt::StringRef(base::replaceVariable(_owner->get_grt_manager()->get_app_option_string("PkColumnNameTemplate"),
                                              "%table%", _owner->get_name().c_str()));
       }
       else
       {
-        std::string templ= replace_variable(_owner->get_grt_manager()->get_app_option_string("ColumnNameTemplate"),
+        std::string templ= base::replaceVariable(_owner->get_grt_manager()->get_app_option_string("ColumnNameTemplate"),
                                           "%table%", _owner->get_name().c_str());
         
         value= grt::StringRef(grt::get_name_suggestion_for_list_object(_owner->get_table()->columns(), templ, false));
@@ -2779,10 +2782,10 @@ bool FKConstraintListBE::get_field_grt(const NodeId &node, ColumnId column, grt:
       value= fk->name();
     else if (_editing_placeholder_row == node[0])
     {
-      std::string temp = replace_string(_owner->get_grt_manager()->get_app_option_string("FKNameTemplate"),
+      std::string temp = base::replaceString(_owner->get_grt_manager()->get_app_option_string("FKNameTemplate"),
                                                     "%stable%", _owner->get_name().c_str());
 
-      value = grt::StringRef(get_name_suggestion_for_list_object(_owner->get_table()->foreignKeys(), replace_string(temp, "%dtable%", ""), true));
+      value = grt::StringRef(get_name_suggestion_for_list_object(_owner->get_table()->foreignKeys(), base::replaceString(temp, "%dtable%", ""), true));
     }
     else 
       value= grt::StringRef("");
@@ -2908,6 +2911,8 @@ TableEditorBE::TableEditorBE(GRTManager *grtm, const db_TableRef &table)
 
   if (table.class_name() == "db.Table")
     throw std::logic_error("table object is abstract");
+
+  scoped_connect(get_catalog()->signal_changed(), boost::bind(&TableEditorBE::catalogChanged, this, _1, _2));
 }
 
 #ifdef _WIN32
@@ -3214,6 +3219,82 @@ void TableEditorBE::undo_called(grt::UndoAction *action, grt::UndoAction *expect
 }
 
 
+bool TableEditorBE::showErrorMessage(const std::string &type)
+{
+  bool ret = false;
+  std::string key = base::tolower(type);
+  if (key == "json")
+  {
+    GrtVersionRef version = get_catalog()->version();
+    bool versionCheck = bec::is_supported_mysql_version_at_least(version, 5, 7, 7);
+    if (!versionCheck)
+    {
+      mforms::Utilities::show_message(_("Type not supported"),
+        "The JSON data is available not before MySQL version 5.7.7. In order to use it you have first to set this or a higher version for your model (see Model -> Model Options ...).",
+        _("Ok"));
+      ret = true;
+    }
+  }
+  //else if
+  return ret;
+}
+
+
+void TableEditorBE::catalogChanged(const std::string& member, const grt::ValueRef& value)
+{
+  if (member == "version")
+  {
+    GrtVersionRef version = GrtVersionRef::cast_from(value);
+    GrtVersionRef actualVersion = get_catalog()->version();
+    if (!bec::version_greater(version, actualVersion))
+      return;
+    if (bec::is_supported_mysql_version_at_least(actualVersion, 5, 7, 7))
+      return;
+
+    bool messageShown = false;
+    int ret = mforms::ResultOther;
+    grt::ListRef<db_Schema> schemas = get_catalog()->schemata();
+    for (ssize_t i = schemas.count() - 1; i >= 0; --i)
+    {
+      if (!schemas[i].is_valid())
+        continue;
+      grt::ListRef<db_Table> tables = schemas[i]->tables();
+      for (ssize_t j = tables.count() - 1; j >= 0; --j)
+      {
+        grt::ListRef<db_Column> columns = tables[j]->columns();
+        for (ssize_t k = columns.count() - 1; k >= 0; --k)
+        {
+          if (!(columns[k].is_valid() && columns[k]->simpleType().is_valid()))
+            continue;
+          if (!base::same_string(columns[k]->simpleType()->name(), "json", false))
+            continue;
+          if (!messageShown)
+          {
+            ret = mforms::Utilities::show_message(_("Model downgrade"),
+              "You have at least one column definition with a data type that is not supported by this server version (JSON)."
+              "If you continue this data type will be converted to TEXT. Do you want to apply this change, ignore the incompatibility or cancel the version change?",
+              _("Apply"), _("Cancel"), _("Ignore"));
+            messageShown = true;
+            if (ret == mforms::ResultCancel)
+            {
+              grt::UndoManager *um = get_grt()->get_undo_manager();
+              assert(um != NULL);
+              UndoAction* action = um->get_latest_undo_action();
+              if (action != NULL && action->description() == "version")
+                action->undo(um);
+              return;
+            }
+            else if (ret == mforms::ResultOther)
+              return;
+          }
+          columns[k]->setParseType("text", get_catalog()->simpleDatatypes());
+        }
+      }
+    }
+  }
+}
+
+
 bool TableEditorBE::parse_column_type(const std::string &str, db_ColumnRef &column)
 {
   db_CatalogRef catalog(get_catalog());
@@ -3221,12 +3302,12 @@ bool TableEditorBE::parse_column_type(const std::string &str, db_ColumnRef &colu
   bool flag= column->setParseType(str, catalog->simpleDatatypes()) == 1;
   if (flag)
   {
-    grt::UndoManager *um= get_grt()->get_undo_manager();
+    grt::UndoManager *um = get_grt()->get_undo_manager();
 
     // call _refresh_ui when this parse column type action is undone
     // XXX: everytime we parse a column type 2 new connections are added without removing the old ones!
-    scoped_connect(um->signal_undo(),boost::bind(&TableEditorBE::undo_called, this, _1, um->get_latest_undo_action()));
-    scoped_connect(um->signal_redo(),boost::bind(&TableEditorBE::undo_called, this, _1, um->get_latest_undo_action()));
+    scoped_connect(um->signal_undo(), boost::bind(&TableEditorBE::undo_called, this, _1, um->get_latest_undo_action()));
+    scoped_connect(um->signal_redo(), boost::bind(&TableEditorBE::undo_called, this, _1, um->get_latest_undo_action()));
   }
   return flag;
 }
@@ -3383,7 +3464,7 @@ void TableEditorBE::show_export_wizard(mforms::Form *owner)
     exporter.set_title(strfmt(_("Export Inserts for %s"), get_name().c_str()));
     if (!path.empty())
     {
-      path = bec::make_path(path, get_name());
+      path = base::makePath(path, get_name());
       exporter.set_path(path);
     }
     path = exporter.run();

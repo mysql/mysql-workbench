@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 
 namespace MySQL {
   namespace Forms {

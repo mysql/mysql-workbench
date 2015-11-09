@@ -250,7 +250,6 @@
 }
 
 
-
 #pragma mark Private API called from public API
 
 
@@ -1131,7 +1130,7 @@
   NSTabView* theContainerTabView = [[[NSTabView alloc] initWithFrame: contentFrame] autorelease];
   [theContainerTabView setTabViewType: NSNoTabsNoBorder];
   [theContainerTabView setAutoresizingMask: (NSViewWidthSizable | NSViewHeightSizable)];
-  
+
   // Set up the view that will contain the custom tabs.
   NSRect tabRowFrame = [self bounds];
   tabRowFrame.size.height = [self tabAreaHeight];
@@ -1391,8 +1390,9 @@
 
 - (void) createTabRow;
 {
-  CALayer* shadowLayer = [self shadowLayer];
-  [mTabRowLayer addSublayer: shadowLayer];
+  // TODO: obsolete, remove creation code.
+  //CALayer* shadowLayer = [self shadowLayer];
+  //[mTabRowLayer addSublayer: shadowLayer];
   
   //	{
   //		CALayer* debugLayer = [CALayer layer];
@@ -1409,11 +1409,13 @@
   //		[mTabRowLayer addSublayer: debugLayer];
   //	}
   
-  CALayer* plaqueLayer = [self plaqueLayer];
-  [mTabRowLayer addSublayer: plaqueLayer];
+  // TODO: obsolete, remove creation code.
+  //CALayer* plaqueLayer = [self plaqueLayer];
+  //[mTabRowLayer addSublayer: plaqueLayer];
   
-  CALayer* lineLayer = [self lineLayer];
-  [mTabRowLayer addSublayer: lineLayer];
+  // TODO: obsolete, remove creation code.
+  //CALayer* lineLayer = [self lineLayer];
+  //[mTabRowLayer addSublayer: lineLayer];
   
   // Create left and right arrows, and tab menu icon.
   CGColorRef tabRowBackgroundColor = [self tabRowActiveBackgroundColorCreate];

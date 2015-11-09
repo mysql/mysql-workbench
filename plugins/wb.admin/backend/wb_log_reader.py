@@ -1,4 +1,4 @@
-# Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+﻿# Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -92,6 +92,7 @@ Current limitations:
 """
 
 import re
+import grt
 
 from workbench.log import log_info, log_error, log_warning
 
@@ -252,6 +253,30 @@ class SlowQueryLogReader(BaseQueryLogReader):
 
 #========================= File Based Readers =================================
 
+class EventLogInput(object):
+    def __init__(self, ctrl_be, path):
+        self.ctrl_be = ctrl_be
+        self.path = "stderr"
+
+    def tell(self):
+        return 0
+
+    @property
+    def size(self):
+        return 0
+
+    def get_range(self, start, end):
+        return ""
+
+    def start_read_from(self, offset):
+        return ""
+
+    def read(self, count):
+        return ""
+
+    def readline(self):
+        return ""
+
 
 class BaseLogFileReader(object):
     '''
@@ -259,13 +284,13 @@ class BaseLogFileReader(object):
 
         **This is not intended for direct instantiation.**
         '''
-    def __init__(self, ctrl_be, log_file, pat, chunk_size, truncate_long_lines, append_gaps=True):
+    def __init__(self, ctrl_be, log_file_param, pat, chunk_size, truncate_long_lines, append_gaps=True):
         """Constructor
 
             :param ctrl_be:  Control backend instance to retrieve root password if needed
-            :param log_file: The path to the log file to read from or a file like instance to
+            :param log_file_param: The path to the log file to read from or a file like instance to
             read log entries from
-            :type log_file: str/file
+            :type log_file_param: str/file
             :param pat: A regular expression pattern that matches a log entry
             :type pat: regular expression object
             :param chunk_size: The size in bytes of the chunks that are read from the log file
@@ -287,18 +312,21 @@ class BaseLogFileReader(object):
         self.partial_support = False
 
         # If there isn't a directory component in the path, use @@datadir as the directory for the log file:
-        log_file = log_file.strip(' "')
+        log_file_param = log_file_param.strip(' "')
         ospath = server_os_path(self.ctrl_be.server_profile)
         datadir = self.ctrl_be.server_profile.datadir
         if not datadir and ctrl_be.is_sql_connected():
             datadir = self.ctrl_be.get_server_variable('datadir')
-        self.log_file_name = log_file if ospath.isabs(log_file) else ospath.join(datadir, log_file)
+        self.log_file_name = log_file_param if ospath.isabs(log_file_param) else ospath.join(datadir, log_file_param)
 
         use_sftp = False
+        use_event_viewer = False
         if self.ctrl_be.server_profile.target_is_windows:
             use_sudo = False
             # In Windows we can either access the file locally as a plain file or remotely with sftp
             # Ther is no upport for reading log files that are only readable by the admin
+            if log_file_param.lower() == "stderr":
+                use_event_viewer = True
             if not self.ctrl_be.server_profile.is_local:
                 if not self.ctrl_be.server_profile.remote_admin_enabled:
                     raise LogFileAccessError('''You have not enabled remote administration for this server. Without it this log file cannot be shown.
@@ -344,6 +372,12 @@ class BaseLogFileReader(object):
                     log_error("Invalid password to sudo %s\n" % error)
                     ctrl_be.password_handler.reset_password_for('file')
                     raise
+        elif use_event_viewer:
+            if not self.ctrl_be.server_profile.is_local:
+                raise LogFileAccessError('''An attempt to rread events from the remote server failed. Events can only be read from the local machine, 
+                    hence installed MySQL Workbench on the remote machine to allow showing the server's event log.''')
+            self.log_file = EventLogInput(self.ctrl_be, self.log_file_name)
+            self.file_size = self.log_file.size
         elif use_sftp:
             log_info("Will use sftp to get contents of log file %s\n" % self.log_file_name)
             self.log_file = SFTPInputFile(self.ctrl_be, self.log_file_name)
@@ -509,11 +543,14 @@ class BaseLogFileReader(object):
             reopen the file again to keep going with the changes.
             Warning: this function only supports appending to the log file.
             '''
-        new_size = self.log_file.size
-        if new_size != self.file_size:
-            self.file_size = new_size
-            self.chunk_start = max(0, self.file_size - self.chunk_size)
-            self.chunk_end = self.file_size
+        if self.log_file.path == "stderr":
+            return
+        else:
+            new_size = self.log_file.size
+            if new_size != self.file_size:
+                self.file_size = new_size
+                self.chunk_start = max(0, self.file_size - self.chunk_size)
+                self.chunk_end = self.file_size
 
 
 #==============================================================================
@@ -535,12 +572,21 @@ class ErrorLogFileReader(BaseLogFileReader):
 
         pat = re.compile(partial_re, re.M)
         super(ErrorLogFileReader, self).__init__(ctrl_be, file_name, pat, chunk_size, truncate_long_lines, append_gaps=False)
-        self.column_specs = (
+        if self.log_file.path == "stderr":
+            self.column_specs = (
                 ('Timestamp', 150),
                 ('Thread', 100),
-                ('Type', 100),
-                ('Details', 500),
+                ('Level', 100),
+                ('Event message', 500),
                             )
+            self.column_keys = ('timecreated', 'threadid', 'level', 'message')
+        else:
+            self.column_specs = (
+                    ('Timestamp', 150),
+                    ('Thread', 100),
+                    ('Type', 100),
+                    ('Details', 500),
+                                )
         # regex that matches all known entry formats + anything else
         self.pat2 = re.compile(partial_re + r'|^(?P<any>.+)$', re.M)
 

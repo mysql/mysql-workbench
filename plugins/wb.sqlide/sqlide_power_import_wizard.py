@@ -24,7 +24,7 @@ import threading
 
 import sys, os, csv
 
-from mforms import newTreeNodeView
+from mforms import newTreeView
 from mforms import FileChooser
 from sqlide_power_import_export_be import create_module
 from workbench.ui import WizardForm, WizardPage, WizardProgressPage
@@ -88,7 +88,9 @@ class ResultsPage(WizardPage):
             self.content.add(mforms.newLabel(str("File %s was imported in %.3f s" % (self.get_path(), itime))), False, True)
         
         
-        self.content.add(mforms.newLabel(str("Table %s.%s was created" % (self.main.destination_table['schema'], self.main.destination_table['table']))), False, True)
+        self.content.add(mforms.newLabel(str("Table %s.%s %s" % (self.main.destination_table['schema'], 
+                                                                 self.main.destination_table['table'], 
+                                                                 "has been used" if self.main.destination_page.existing_table_radio.get_active() else "was created"))), False, True)
         self.content.add(mforms.newLabel(str("%d records imported" % self.main.import_progress_page.module.item_count)), False, True)
 
 class ImportProgressPage(WizardProgressPage):
@@ -136,7 +138,7 @@ class ImportProgressPage(WizardProgressPage):
                 
     def on_close(self):
         if self.module and self.module.is_running:
-            if mforms.ResultOk == mforms.Utilities.show_message("Confirmation", "Do you wish to stop import process?", "Yes", "No"):
+            if mforms.ResultOk == mforms.Utilities.show_message("Confirmation", "Do you wish to stop import process?", "Yes", "No",""):
                 self.stop.set()
                 return True
             return False
@@ -158,6 +160,7 @@ class ConfigurationPage(WizardPage):
         self.column_mapping = []
         self.ds_show_count = 0
         self.df_show_count = 0
+        self.opts_mapping = {}
 
     def go_cancel(self):
         self.main.close()
@@ -220,12 +223,14 @@ class ConfigurationPage(WizardPage):
                     opt_val.set_value(opts['value'])
                     opt_val.add_changed_callback(lambda field = opt_val, output = opts: set_text_entry(field, output))
                     label_box.add_end(opt_val, False, False)
+                    self.opts_mapping[name] = lambda val: opt_val.set_value(val)
                 if opts['type'] == 'select':
                     opt_val = mforms.newSelector()
                     opt_val.set_size(75, -1)
                     opt_val.add_items([v for v in opts['opts']])
                     opt_val.set_selected(opts['opts'].values().index(opts['value']))
                     opt_val.add_changed_callback(lambda selector = opt_val, output = opts: set_selector_entry(selector, output))
+                    self.opts_mapping[name] = lambda input, values =  opts['opts'].values(): opt_val.set_selected(values.index(input) if input in values else 0)
                     label_box.add_end(opt_val, False, False)
                 box.add(label_box, False, False)
             self.optpanel.add(box)
@@ -327,7 +332,9 @@ class ConfigurationPage(WizardPage):
         self.df_show_count = 0
         
         self.create_preview_table(self.call_analyze())
-        
+        if self.input_file_type == 'csv' and self.active_module.dialect:
+            for name, opts in self.active_module.options.items():
+                self.opts_mapping[name](opts['value'])
     
     def call_analyze(self):
         self.active_module.set_filepath(self.main.select_file_page.importfile_path.get_string_value())
@@ -371,7 +378,7 @@ class ConfigurationPage(WizardPage):
             chk.add_clicked_callback(lambda checkbox = chk, output = row: operator.setitem(output, 'active', True if checkbox.get_active() else False))
             return chk
         
-        type_items = {'is_string':'text', 'is_number':'int', 'is_float':'double', 'is_bin':'binary', 'is_date_or_time': 'datetime'}
+        type_items = {'is_string':'text','is_bignumber':'bigint', 'is_number':'int', 'is_float':'double', 'is_bin':'binary', 'is_date_or_time': 'datetime', 'is_json':'json'}
         def create_select_type(row):
             def sel_changed(sel, output):
                 selection = sel.get_string_value()
@@ -397,7 +404,7 @@ class ConfigurationPage(WizardPage):
             
             sel.add_items(type_items.values())
             for i, v in enumerate(type_items.values()):
-                if row['type'] in v:
+                if row['type'] == v:
                     sel.set_selected(i)
                     break
             
@@ -420,7 +427,7 @@ class ConfigurationPage(WizardPage):
             sel.add_items(cols)
             for i, c in enumerate(cols):
                 if c == row['dest_col']:
-                    sel.set_selected(i)
+                    sel.set_selected(cols.index(c))
                     break
             sel.add_changed_callback(lambda output = row: operator.setitem(output, 'dest_col', sel.get_string_value()))
             return sel
@@ -447,6 +454,12 @@ class ConfigurationPage(WizardPage):
             for row in self.column_mapping:
                 row['active'] = active
         
+        def find_column(col_name, index):
+            if col_name in self.dest_cols:
+                return col_name
+            else:
+                return self.dest_cols[index] if i < len(self.dest_cols) else None
+        
         chk = mforms.newCheckBox()
         chk.set_active(True)
         chk.add_clicked_callback(lambda checkbox = chk, columns = self.active_module._columns: sell_all(columns, checkbox.get_active()))
@@ -459,7 +472,7 @@ class ConfigurationPage(WizardPage):
             self.preview_table.add(mforms.newLabel("Field Type"), 3, 4, 0, 1, mforms.HFillFlag)
         self.column_mapping = []
         for i, col in enumerate(self.active_module._columns):
-            row = {'active': True, 'name': col['name'], 'type' : None, 'col_no': i, 'dest_col': self.dest_cols[i] if i < len(self.dest_cols) else None}
+            row = {'active': True, 'name': col['name'], 'type' : None, 'col_no': i, 'dest_col': find_column(col['name'], i)}
             for c in col:
                 if c.startswith('is_') and col[c]:
                     row['type'] = type_items[c]
@@ -474,7 +487,7 @@ class ConfigurationPage(WizardPage):
                 self.preview_table.add(create_select_type(row), 3, 4, i+1, i+2, mforms.HFillFlag)
             self.column_mapping.append(row)
             
-        self.treeview_preview = newTreeNodeView(mforms.TreeFlatList)
+        self.treeview_preview = newTreeView(mforms.TreeFlatList)
         for i, col in enumerate(self.active_module._columns):
             self.treeview_preview.add_column(mforms.StringColumnType, str(col['name']), 75, True)
         self.treeview_preview.end_columns()

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,23 +39,27 @@ public ref class MySQLTableColumnsListWrapper : public Db::TableColumnsListWrapp
 public:
   enum class MySQLColumnListColumns
   {
-    Name= bec::TableColumnsListBE::Name,
-    Type= bec::TableColumnsListBE::Type,
-    IsPK= bec::TableColumnsListBE::IsPK,
-    IsNotNull= bec::TableColumnsListBE::IsNotNull,
-    IsUnique= bec::TableColumnsListBE::IsUnique,
+    Name = bec::TableColumnsListBE::Name,
+    Type = bec::TableColumnsListBE::Type,
+    IsPK = bec::TableColumnsListBE::IsPK,
+    IsNotNull = bec::TableColumnsListBE::IsNotNull,
+    IsUnique = bec::TableColumnsListBE::IsUnique,
     IsBinary = bec::TableColumnsListBE::IsBinary,
     IsUnsigned = bec::TableColumnsListBE::IsUnsigned,
     IsZerofill = bec::TableColumnsListBE::IsZerofill,
-    Flags= bec::TableColumnsListBE::Flags,
-    Default= bec::TableColumnsListBE::Default,
-    CharsetCollation= bec::TableColumnsListBE::CharsetCollation,
-    Charset= bec::TableColumnsListBE::Charset,
-    Collation= bec::TableColumnsListBE::Collation,
-    HasCharset= bec::TableColumnsListBE::HasCharset,
-    Comment= bec::TableColumnsListBE::Comment,
-    IsAutoIncrement= ::MySQLTableColumnsListBE::IsAutoIncrement,
-    IsAutoIncrementable= ::MySQLTableColumnsListBE::IsAutoIncrementable
+    Flags = bec::TableColumnsListBE::Flags,
+    Default = bec::TableColumnsListBE::Default,
+    CharsetCollation = bec::TableColumnsListBE::CharsetCollation,
+    Charset = bec::TableColumnsListBE::Charset,
+    Collation = bec::TableColumnsListBE::Collation,
+    HasCharset = bec::TableColumnsListBE::HasCharset,
+    Comment = bec::TableColumnsListBE::Comment,
+    IsAutoIncrement = ::MySQLTableColumnsListBE::IsAutoIncrement,
+    IsAutoIncrementable = ::MySQLTableColumnsListBE::IsAutoIncrementable,
+
+    IsGenerated = MySQLTableColumnsListBE::IsGenerated,
+    GeneratedExpression = MySQLTableColumnsListBE::GeneratedExpression,
+    GeneratedStorageType = MySQLTableColumnsListBE::GeneratedStorageType,
   };
 
   MySQLTableColumnsListWrapper(::MySQLTableColumnsListBE *inn);

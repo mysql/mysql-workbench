@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -106,7 +106,11 @@ int ThreadedTimer::add_task(TimerUnit unit, double value, bool single_shot, Time
   {
     ThreadedTimer* timer= ThreadedTimer::get();
     base::MutexLock lock(timer->_timer_lock);
-    
+
+    // in theory, it is possible to wrap around to 0 again.  Not a very likely scenario, but better safe than sorry
+    if( timer->_next_id == 0 )  // 0 is special, skip it over
+      timer->_next_id++;
+
     // We have the lock acquired so it is save to increment the id counter.
     task.task_id= timer->_next_id++;
     timer->_tasks.push_back(task);

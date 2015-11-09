@@ -24,6 +24,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <winevt.h>
 
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>

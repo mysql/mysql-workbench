@@ -20,7 +20,7 @@
 #ifndef _WB_HISTORY_TREE_H_
 #define _WB_HISTORY_TREE_H_
 
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include <grtpp_undo_manager.h>
 
 namespace bec
@@ -29,7 +29,7 @@ namespace bec
 };
 
 namespace wb {
-  class HistoryTree : public mforms::TreeNodeView
+  class HistoryTree : public mforms::TreeView
   {
     bec::GRTManager *_grtm;
     grt::UndoManager *_undom;

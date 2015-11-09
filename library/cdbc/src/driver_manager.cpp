@@ -310,8 +310,6 @@ ConnectionWrapper DriverManager::getConnection(const db_mgmt_ConnectionRef &conn
     param_types["CLIENT_LOCAL_FILES"] = "boolean";
     param_types["CLIENT_MULTI_STATEMENTS"] = "boolean";
     param_types["CLIENT_NO_SCHEMA"] = "boolean";
-
-    param_types["useLegacyAuth"] = "boolean";
   }
   ConnectOptionsMap properties;
   parameter_values.foreach(boost::bind(&conv_to_dbc_value, _1, _2, boost::ref(properties), param_types));
@@ -432,7 +430,7 @@ retry:
       ConnectOptionsMap::iterator prop_iter= properties.find(prop_name);
       if (properties.end() != prop_iter)
       {
-#ifdef MYSQLCPPCONN_VERSION_1_1_5
+#ifdef MYSQLCPPCONN_VERSION_1_1_6
         sql::SQLString *val= prop_iter->second.get<sql::SQLString>();
         if (val->compare("") == 0)
           properties.erase(prop_iter);

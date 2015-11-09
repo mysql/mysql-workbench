@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2004, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2004, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -204,6 +204,9 @@ void parse_table_options(db_mysql_TableRef &table, const std::string &optionsstr
   {
     std::vector<std::string> option_pair;
     split_string(*i, "=", option_pair);
+    if (option_pair.size() < 2)
+      continue; // Not a valid entry.
+
     const std::string &option_name= option_pair[0];
     const char *option_val= option_pair[1].c_str();
 
@@ -372,7 +375,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
       }
 
       std::string name_prefix= "DBD4 Model";
-      /// std::string view_class_name= bec::replace_string(model.class_name(), ".Model", ".View");
+      /// std::string view_class_name= base::replaceString(model.class_name(), ".Model", ".View");
       std::string name= grt::get_name_suggestion_for_list_object(
         grt::ObjectListRef::cast_from(model->diagrams()),
         name_prefix, false);

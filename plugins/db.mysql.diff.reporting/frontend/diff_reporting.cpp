@@ -23,7 +23,7 @@
 #include "db_mysql_diff_reporting.h"
 #include "backend/db_plugin_be.h"
 #include "base/string_utilities.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 
 using namespace grtui;
 using namespace mforms;
@@ -110,8 +110,8 @@ public:
 
 protected:
   mforms::Box _body;
-  mforms::TreeNodeView _left;
-  mforms::TreeNodeView _right;
+  mforms::TreeView _left;
+  mforms::TreeView _right;
 };
 
 

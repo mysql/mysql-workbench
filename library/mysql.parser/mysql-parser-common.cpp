@@ -252,6 +252,18 @@ std::string MySQLRecognitionBase::token_text(pANTLR3_BASE_TREE node, bool keepQu
     return chars;
   }
 
+  // First unquote then handle escape squences and double quotes.
+  if (chars.size() < 3)
+  {
+    if (keepQuotes)
+      return chars;
+    return ""; // Also handles an invalid single quote char gracefully.
+  }
+
+  // Need to unquote even if keepQuotes is true to avoid trouble with replacing the outer quotes.
+  // Add them back below.
+  chars = base::unquote(chars);
+
   if ((d->_sql_mode & SQL_MODE_NO_BACKSLASH_ESCAPES) == 0)
     chars = base::unescape_sql_string(chars, quote_char[0]);
   else
@@ -259,12 +271,12 @@ std::string MySQLRecognitionBase::token_text(pANTLR3_BASE_TREE node, bool keepQu
     {
       // The field user1 is set by the parser to the number of quote char pairs it found.
       // So we can use it to shortcut our handling here.
-      base::replace(chars, quote_char + quote_char, quote_char);
+      base::replaceStringInplace(chars, quote_char + quote_char, quote_char);
     }
 
   if (keepQuotes)
-    return chars;
-  return chars.substr(1, chars.size() - 2);
+    return quote_char + chars + quote_char;
+  return chars;
 }
 
 //--------------------------------------------------------------------------------------------------

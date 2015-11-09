@@ -30,7 +30,7 @@
 #include "mforms/form.h"
 #include "mforms/box.h"
 #include "mforms/textentry.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/selector.h"
 #include "mforms/button.h"
 #include "mforms/tabview.h"
@@ -61,7 +61,7 @@ class MYSQLWBBACKEND_PUBLIC_FUNC ServerInstanceEditor : public mforms::Form
   mforms::Button _dup_inst_button;
   mforms::Button _move_up_button;
   mforms::Button _move_down_button;
-  mforms::TreeNodeView _stored_connection_list;
+  mforms::TreeView _stored_connection_list;
   
   mforms::TabView _tabview;
 
@@ -101,13 +101,15 @@ class MYSQLWBBACKEND_PUBLIC_FUNC ServerInstanceEditor : public mforms::Form
   mforms::TextEntry _sudo_prefix;
   
   grtui::DbConnectPanel *_connect_panel;
+
+  bool _contains_group;
   
 //  mforms::Button _save_preset_button;
 //  mforms::Button _delete_preset_button;
   
   mforms::Box _bottom_hbox;
   mforms::Box _remote_admin_box;
-  mforms::Button _ok_button;
+  mforms::Button _close_button;
   mforms::Button _test_button;
   
   std::map<std::string, std::vector<std::pair<std::string,grt::DictRef> > > _presets;
