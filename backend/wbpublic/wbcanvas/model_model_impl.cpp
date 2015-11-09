@@ -65,7 +65,7 @@ void model_Model::ImplData::option_changed(grt::internal::OwnedDict *dict,
     if (!_options_changed_signal.empty())
         _options_changed_signal(option);
   if (!_reset_pending && 
-      (bec::has_suffix(option, "Font") 
+      (base::hasSuffix(option, "Font") 
        || option == "workbench.physical.Connection:ShowCaptions"
        || option == "workbench.physical.Diagram:DrawLineCrossings"))
   {

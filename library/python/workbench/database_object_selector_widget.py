@@ -145,7 +145,7 @@ class DatabaseObjectSelector(mforms.Box):
                 filter_container = mforms.newBox(True)
                 filter_container.set_spacing(8)
 
-                available_list = mforms.newTreeNodeView(mforms.TreeFlatList)
+                available_list = mforms.newTreeView(mforms.TreeFlatList)
                 available_list.add_column(mforms.IconColumnType, 'Available Objects', 300, False)
                 available_list.end_columns()
                 available_list.set_selection_mode(mforms.TreeSelectMultiple)
@@ -178,7 +178,7 @@ class DatabaseObjectSelector(mforms.Box):
                 filter_container.add(control_box, False, False)
 
 
-                selected_list = mforms.newTreeNodeView(mforms.TreeFlatList)
+                selected_list = mforms.newTreeView(mforms.TreeFlatList)
                 selected_list.add_column(mforms.IconColumnType, 'Objects to Migrate', 300, False)
                 selected_list.end_columns()
                 selected_list.set_selection_mode(mforms.TreeSelectMultiple)

@@ -71,7 +71,7 @@ add_library(mforms
     gtk/src/lf_textentry.cpp
     gtk/src/lf_table.cpp
     gtk/src/lf_toolbar.cpp
-    gtk/src/lf_treenodeview.cpp
+    gtk/src/lf_treeview.cpp
     gtk/src/lf_utilities.cpp
     gtk/src/lf_view.cpp
     gtk/src/lf_wizard.cpp
@@ -103,10 +103,11 @@ add_library(mforms
     textbox.cpp
     textentry.cpp
     toolbar.cpp
-    treenodeview.cpp
+    treeview.cpp
     utilities.cpp
     view.cpp
     webbrowser.cpp
+    jsonview.cpp
     widgets.cpp
     wizard.cpp
 )

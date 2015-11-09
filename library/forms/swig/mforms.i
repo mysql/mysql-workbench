@@ -46,7 +46,7 @@
 #include <mforms/popover.h>
 #include <mforms/fs_object_selector.h>
 #include <mforms/simpleform.h>
-#include <mforms/treenodeview.h>
+#include <mforms/treeview.h>
 #include <mforms/dockingpoint.h>
 
 #include "mforms_grt.h"
@@ -762,10 +762,10 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
     void *argp;
     int r = SWIG_ConvertPtr($input, &argp, SWIGTYPE_p_mforms__TreeNodeRef,  0  | 0);
     if (!SWIG_IsOK(r)) {
-      SWIG_exception_fail(SWIG_ArgError(r), "in method '" "TreeNodeView_select_node" "', argument of type '" "mforms::TreeNodeRef""'");
+      SWIG_exception_fail(SWIG_ArgError(r), "in method '" "TreeView_select_node" "', argument of type '" "mforms::TreeNodeRef""'");
     }
     if (!argp) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TreeNodeView_select_node" "', argument " "2"" of type '" "mforms::TreeNodeRef""'");
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TreeView_select_node" "', argument " "2"" of type '" "mforms::TreeNodeRef""'");
     } else {
       mforms::TreeNodeRef * temp = reinterpret_cast< mforms::TreeNodeRef * >(argp);
       $1 = *temp;
@@ -919,8 +919,8 @@ def newScrollPanel(*args):
     c.set_release_on_add()
     return c
 
-def newTreeNodeView(*args):
-    c = TreeNodeView(*args)
+def newTreeView(*args):
+    c = TreeView(*args)
     c.set_managed()
     c.set_release_on_add()
     return c
@@ -1076,7 +1076,7 @@ def newToolBarItem(*args):
 %include "../mforms/code_editor.h"
 %include "../mforms/task_sidebar.h"
 %include "../mforms/hypertext.h"
-%include "../mforms/treenodeview.h"
+%include "../mforms/treeview.h"
 
 %include "../../base/base/common.h"
 %include "../../base/base/drawing.h"
@@ -1100,7 +1100,7 @@ SWIG_ADD_SIGNAL_VOID_CALLBACK(changed_callback, self->signal_changed());
 SWIG_ADD_SIGNAL_VOID_INT_INT_INT_BOOL_CALLBACK(changed_callback, self->signal_changed());
 }
 
-%extend mforms::TreeNodeView {
+%extend mforms::TreeView {
 SWIG_ADD_SIGNAL_VOID_NODE_INT_CALLBACK(activated_callback, self->signal_node_activated());
 SWIG_ADD_SIGNAL_VOID_CALLBACK(changed_callback, self->signal_changed());
 SWIG_ADD_SIGNAL_VOID_INT_CALLBACK(column_resized_callback, self->signal_column_resized());
@@ -1129,7 +1129,7 @@ SWIG_ADD_SIGNAL_VOID_CALLBACK(deactivated_callback, self->signal_deactivated());
 
 %extend mforms::TextBox {
 SWIG_ADD_SIGNAL_VOID_CALLBACK(changed_callback, self->signal_changed());
-#if SWIG_VERSION >= 0x030003  // SWIG v3.0.3 changed its behaviour and broke compatibility (https://github.com/swig/swig/pull/201).  This is a workaround to make it work again.
+#if SWIG_VERSION >= 0x030003 && SWIG_VERSION < 0x030008  // SWIG v3.0.3 changed its behaviour and broke compatibility (https://github.com/swig/swig/pull/201).  This is a workaround to make it work again.
  void append_text_and_scroll(const std::string &text, bool scroll_to_end)
  {
    self->append_text(text, scroll_to_end);
@@ -1216,4 +1216,3 @@ SWIG_ADD_SIGNAL_VOID_TOOLBARITEM_CALLBACK(activated_callback, self->signal_activ
 SWIG_ADD_SIGNAL_VOID_CALLBACK(close_callback, self->signal_close());
 }
 
-%include mforms_extras.i

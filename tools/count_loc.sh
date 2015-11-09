@@ -1,7 +1,7 @@
 #!/bin/bash
 
-dirs="backend frontend modules library plugins res generated/grts"
-exts="c cpp mm m py cs h"
+dirs="backend frontend  generated/grts library modules plugins prefix res"
+exts="c cpp cxx mm m py cs h"
 
 headers=0
 total_files=0

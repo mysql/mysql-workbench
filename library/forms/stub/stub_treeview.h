@@ -31,7 +31,7 @@ class TreeViewWrapper : public ViewWrapper
 private:
   TreeNodeWrapper *_root;
 
-  TreeViewWrapper(TreeNodeView *self, mforms::TreeOptions opts)
+  TreeViewWrapper(TreeView *self, mforms::TreeOptions opts)
       : ViewWrapper(self)
   {
     _root = new TreeNodeWrapper();
@@ -46,45 +46,45 @@ private:
   {
   }
 
-  static bool create(TreeNodeView *self, mforms::TreeOptions opt)
+  static bool create(TreeView *self, mforms::TreeOptions opt)
   {
     new TreeViewWrapper(self, opt);
     return true;
   }
 
-  static int add_column(TreeNodeView *self, TreeColumnType type, const std::string &name, int width, bool editable)
+  static int add_column(TreeView *self, TreeColumnType type, const std::string &name, int width, bool editable)
   {
     return 0;
   }
 
-  static int add_column(TreeNodeView *self, TreeColumnType type, const std::string &name, int width, bool editable, bool a)
+  static int add_column(TreeView *self, TreeColumnType type, const std::string &name, int width, bool editable, bool a)
   {
     return 0;
   }
 
-  static void end_columns(TreeNodeView *self)
+  static void end_columns(TreeView *self)
   {
   }
 
-  static void clear(TreeNodeView *self)
+  static void clear(TreeView *self)
   {
   }
 
-  static TreeSelectionMode get_selection_mode(TreeNodeView *self)
+  static TreeSelectionMode get_selection_mode(TreeView *self)
   {
     return TreeSelectSingle;
   }
 
-  static void set_selection_mode(TreeNodeView *self, TreeSelectionMode mode)
+  static void set_selection_mode(TreeView *self, TreeSelectionMode mode)
   {
   }
 
-  static TreeNodeRef get_selected_node(TreeNodeView *self)
+  static TreeNodeRef get_selected_node(TreeView *self)
   {
     return TreeNodeRef();
   }
 
-  static TreeNodeRef root_node(TreeNodeView *self)
+  static TreeNodeRef root_node(TreeView *self)
   {
     TreeViewWrapper *ptree_node_view = self->get_data<TreeViewWrapper>();
     return ptree_node_view->root_node();
@@ -95,42 +95,42 @@ private:
     return mforms::TreeNodeRef(_root);
   }
 
-  static std::list<TreeNodeRef> get_selection(TreeNodeView *self)
+  static std::list<TreeNodeRef> get_selection(TreeView *self)
   {
     return std::list<TreeNodeRef>();
   }
 
-  static void set_selected(TreeNodeView* self, TreeNodeRef node, bool flag)
+  static void set_selected(TreeView* self, TreeNodeRef node, bool flag)
   {
   }
 
-  static void set_allow_sorting(TreeNodeView *self, bool)
+  static void set_allow_sorting(TreeView *self, bool)
   {
   }
 
-  static void freeze_refresh(TreeNodeView *self, bool)
+  static void freeze_refresh(TreeView *self, bool)
   {
   }
 
-  static int row_for_node(TreeNodeView *self, TreeNodeRef node)
+  static int row_for_node(TreeView *self, TreeNodeRef node)
   {
     return 0;
   }
 
-  static TreeNodeRef node_at_row(TreeNodeView *self, int row)
+  static TreeNodeRef node_at_row(TreeView *self, int row)
   {
     return self->root_node();
   }
 
-  static void set_row_height(TreeNodeView *self, int height)
+  static void set_row_height(TreeView *self, int height)
   {
   }
 
-  static void clear_selection(TreeNodeView *self)
+  static void clear_selection(TreeView *self)
   {
   }
 
-  static TreeNodeRef  node_with_tag(TreeNodeView *self, const std::string &tag)
+  static TreeNodeRef  node_with_tag(TreeView *self, const std::string &tag)
   {
       return TreeNodeRef();
   }
@@ -140,23 +140,23 @@ public:
   {
     ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
 
-    f->_treenodeview_impl.create= &TreeViewWrapper::create;
-    f->_treenodeview_impl.add_column= &TreeViewWrapper::add_column;
-    f->_treenodeview_impl.end_columns= &TreeViewWrapper::end_columns;
-    f->_treenodeview_impl.clear= &TreeViewWrapper::clear;
-    f->_treenodeview_impl.get_selected_node= &TreeViewWrapper::get_selected_node;
-    f->_treenodeview_impl.set_selected= &TreeViewWrapper::set_selected;
-    f->_treenodeview_impl.get_selection= &TreeViewWrapper::get_selection;
-    f->_treenodeview_impl.set_allow_sorting = &TreeViewWrapper::set_allow_sorting;
-    f->_treenodeview_impl.freeze_refresh = &TreeViewWrapper::freeze_refresh;
-    f->_treenodeview_impl.set_selection_mode = &TreeViewWrapper::set_selection_mode;
-    f->_treenodeview_impl.get_selection_mode = &TreeViewWrapper::get_selection_mode;
-    f->_treenodeview_impl.root_node = &TreeViewWrapper::root_node;
-    f->_treenodeview_impl.node_at_row = &TreeViewWrapper::node_at_row;
-    f->_treenodeview_impl.row_for_node = &TreeViewWrapper::row_for_node;
-    f->_treenodeview_impl.set_row_height = &TreeViewWrapper::set_row_height;
-    f->_treenodeview_impl.clear_selection = &TreeViewWrapper::clear_selection;
-    f->_treenodeview_impl.node_with_tag = &TreeViewWrapper::node_with_tag;
+    f->_treeview_impl.create= &TreeViewWrapper::create;
+    f->_treeview_impl.add_column= &TreeViewWrapper::add_column;
+    f->_treeview_impl.end_columns= &TreeViewWrapper::end_columns;
+    f->_treeview_impl.clear= &TreeViewWrapper::clear;
+    f->_treeview_impl.get_selected_node= &TreeViewWrapper::get_selected_node;
+    f->_treeview_impl.set_selected= &TreeViewWrapper::set_selected;
+    f->_treeview_impl.get_selection= &TreeViewWrapper::get_selection;
+    f->_treeview_impl.set_allow_sorting = &TreeViewWrapper::set_allow_sorting;
+    f->_treeview_impl.freeze_refresh = &TreeViewWrapper::freeze_refresh;
+    f->_treeview_impl.set_selection_mode = &TreeViewWrapper::set_selection_mode;
+    f->_treeview_impl.get_selection_mode = &TreeViewWrapper::get_selection_mode;
+    f->_treeview_impl.root_node = &TreeViewWrapper::root_node;
+    f->_treeview_impl.node_at_row = &TreeViewWrapper::node_at_row;
+    f->_treeview_impl.row_for_node = &TreeViewWrapper::row_for_node;
+    f->_treeview_impl.set_row_height = &TreeViewWrapper::set_row_height;
+    f->_treeview_impl.clear_selection = &TreeViewWrapper::clear_selection;
+    f->_treeview_impl.node_with_tag = &TreeViewWrapper::node_with_tag;
   }
 };
 

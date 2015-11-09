@@ -89,11 +89,11 @@ static void scan_templates(GRTManager *grtm)
 {
   if (_templates.empty())
   {
-    std::string template_dir = bec::make_path(grtm->get_basedir(), "modules/data/sqlide");
+    std::string template_dir = base::makePath(grtm->get_basedir(), "modules/data/sqlide");
     std::list<std::string> files = base::scan_for_files_matching(template_dir+"/*.tpli");
     process_templates(files);
     
-    template_dir = bec::make_path(grtm->get_user_datadir(), "recordset_export_templates");
+    template_dir = base::makePath(grtm->get_user_datadir(), "recordset_export_templates");
     files = base::scan_for_files_matching(template_dir+"/*.tpli");
     process_templates(files);        
   }
@@ -172,6 +172,11 @@ static std::string escape_sql_string_(const std::string &s)
   return base::escape_sql_string(s, false);
 }
 
+static std::string escape_json_string_(const std::string &s)
+{
+  return base::escape_json_string(s);
+}
+
 void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::connection *data_swap_db)
 {
   const TemplateInfo &info(template_info(_data_format));
@@ -237,7 +242,10 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
   {
     if (info.quote != "")
       qv.quote = info.quote;
-    qv.escape_string= std::ptr_fun(escape_sql_string_);
+    if (_data_format == "JSON")
+      qv.escape_string= std::ptr_fun(escape_json_string_);
+    else
+      qv.escape_string= std::ptr_fun(escape_sql_string_);
     // swap db (sqlite) stores unknown values as quoted strings
     qv.store_unknown_as_string= true;
     qv.allow_func_escaping= false;

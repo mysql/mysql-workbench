@@ -33,6 +33,7 @@
 #include "base/util_functions.h"
 #include "base/log.h"
 #include "base/file_utilities.h"
+#include "base/scope_exit_trigger.h"
 
 #include "mforms/utilities.h"
 
@@ -156,7 +157,7 @@ void DbSqlEditorHistory::EntriesModel::reset()
 
 void DbSqlEditorHistory::EntriesModel::load()
 {
-  std::string sql_history_dir= make_path(_grtm->get_user_datadir(), SQL_HISTORY_DIR_NAME);
+  std::string sql_history_dir= base::makePath(_grtm->get_user_datadir(), SQL_HISTORY_DIR_NAME);
   g_mkdir_with_parents(sql_history_dir.c_str(), 0700);
   {
     GError *error= NULL;
@@ -168,7 +169,7 @@ void DbSqlEditorHistory::EntriesModel::load()
     }
     // files are not read in alpha-order, so we need to sort them before inserting
     std::set<std::string> entries;
-    ScopeExitTrigger on_scope_exit(boost::bind(&g_dir_close, dir));
+    base::ScopeExitTrigger on_scope_exit(boost::bind(&g_dir_close, dir));
     while (const char *name_= g_dir_read_name(dir))
     {
       // file name is expected in "YYYY-MM-DD" format
@@ -328,8 +329,8 @@ std::string DbSqlEditorHistory::EntriesModel::entry_path(size_t index)
 {
   std::string name;
   get_field(index, 0, name);
-  std::string storage_file_path= make_path(_grtm->get_user_datadir(), SQL_HISTORY_DIR_NAME);
-  storage_file_path= make_path(storage_file_path, name);
+  std::string storage_file_path= base::makePath(_grtm->get_user_datadir(), SQL_HISTORY_DIR_NAME);
+  storage_file_path= base::makePath(storage_file_path, name);
   return storage_file_path;
 }
 
@@ -471,8 +472,8 @@ void DbSqlEditorHistory::DetailsModel::load(const std::string &storage_file_path
 
 std::string DbSqlEditorHistory::DetailsModel::storage_file_path() const
 {
-  std::string storage_file_path= make_path(_grtm->get_user_datadir(), SQL_HISTORY_DIR_NAME);
-  storage_file_path= make_path(storage_file_path, format_time(_datestamp, "%Y-%m-%d"));
+  std::string storage_file_path= base::makePath(_grtm->get_user_datadir(), SQL_HISTORY_DIR_NAME);
+  storage_file_path= base::makePath(storage_file_path, format_time(_datestamp, "%Y-%m-%d"));
   return storage_file_path;
 }
 
@@ -481,7 +482,7 @@ void DbSqlEditorHistory::DetailsModel::save()
   std::string storage_file_path= this->storage_file_path();
   std::ofstream ofs;
   {
-    std::string storage_file_dir= make_path(_grtm->get_user_datadir(), SQL_HISTORY_DIR_NAME);
+    std::string storage_file_dir= base::makePath(_grtm->get_user_datadir(), SQL_HISTORY_DIR_NAME);
     if (g_mkdir_with_parents(storage_file_dir.c_str(), 0700) != -1)
     {
       bool is_file_new= (g_file_test(storage_file_path.c_str(), G_FILE_TEST_EXISTS) == 0);

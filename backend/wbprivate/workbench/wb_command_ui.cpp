@@ -30,7 +30,6 @@
 #include "wb_context_ui.h"
 
 #include "wb_module.h"
-#include "grt/common.h"
 #include "grt/clipboard.h"
 #include "grt/plugin_manager.h"
 
@@ -101,7 +100,7 @@ void CommandUI::load_data()
   _include_se = _wb->is_commercial();
 
   _shortcuts= grt::ListRef<app_ShortcutItem>::cast_from(
-                   grt->unserialize(make_path(_wb->get_datadir(), "data/shortcuts.xml")));
+                   grt->unserialize(base::makePath(_wb->get_datadir(), "data/shortcuts.xml")));
 }
 
 
@@ -471,21 +470,21 @@ void CommandUI::add_recent_menu(mforms::MenuItem *parent)
       caption= strfmt("%li %s", (long)i+1, strlist.get(i).c_str());
 
 #if !defined(_WIN32) && !defined(__APPLE__)
-      caption= "_"+replace_string(caption, "_", "__");
+      caption= "_"+base::replaceString(caption, "_", "__");
 #endif
     }
     else if (i == 9)
     {
       caption= strfmt("0 %s", strlist.get(i).c_str());
 #if !defined(_WIN32) && !defined(__APPLE__)
-      caption= "_"+replace_string(caption, "_", "__");
+      caption= "_"+base::replaceString(caption, "_", "__");
 #endif
     }
     else
     {
       caption= strfmt(" %s", strlist.get(i).c_str());
 #if !defined(_WIN32) && !defined(__APPLE__)
-      caption= replace_string(caption, "_", "__");
+      caption= base::replaceString(caption, "_", "__");
 #endif
     }
     
@@ -506,7 +505,7 @@ void CommandUI::add_plugins_menu_items(mforms::MenuItem *parent, const std::stri
   {
     mforms::MenuItem *item = mforms::manage(new mforms::MenuItem((*iter)->caption()));
     item->set_name(std::string("plugin:").append(*(*iter)->name()));
-    item->set_validator(boost::bind(&CommandUI::validate_plugin_command, this, *iter));
+    item->add_validator(boost::bind(&CommandUI::validate_plugin_command, this, *iter));
     item->validate();
     scoped_connect(item->signal_clicked(),boost::bind((void(CommandUI::*)(const std::string&))&CommandUI::activate_command, this, item->get_name()));
     parent->add_item(item);
@@ -559,7 +558,7 @@ void CommandUI::add_scripts_menu(mforms::MenuItem *parent)
 {
   try
   {
-    std::list<std::string> pyfiles = base::scan_for_files_matching(bec::make_path(_wb->get_grt_manager()->get_user_script_path(), "*.py"));
+    std::list<std::string> pyfiles = base::scan_for_files_matching(base::makePath(_wb->get_grt_manager()->get_user_script_path(), "*.py"));
     std::vector<std::string> files;
 
     std::copy(pyfiles.begin(), pyfiles.end(), std::back_inserter(files));
@@ -644,7 +643,7 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
       // care itself to properly handle this. All other cases are handled here.
       if (mitem->itemType() == "cascade")
       {
-        if (bec::has_suffix(mitem.id(), "/SE") && !_include_se)
+        if (base::hasSuffix(mitem.id(), "/SE") && !_include_se)
           continue;
         item = mforms::manage(new mforms::MenuItem(mitem->caption(), type));
         item->set_name(mitem->name());
@@ -655,7 +654,7 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
       }
       else if (mitem->itemType() == "separator")
       {
-        if (bec::has_suffix(mitem.id(), "/SE") && !_include_se)
+        if (base::hasSuffix(mitem.id(), "/SE") && !_include_se)
           continue;
         item = mforms::manage(new mforms::MenuItem("", mforms::SeparatorMenuItem));
         item->set_name(mitem->name());
@@ -678,10 +677,10 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
           // skip if the plugin is invalid
           if (!plugin.is_valid())
           {
-            if (!bec::has_suffix(mitem.id(), "/SE") || _include_se)
+            if (!base::hasSuffix(mitem.id(), "/SE") || _include_se)
               log_warning("Plugin item %s was not found\n", cmd.name.c_str());
             // if plugin is missing, check if it's supposed to be there
-            if (!_include_se || !bec::has_suffix(mitem.id(), "/SE"))
+            if (!_include_se || !base::hasSuffix(mitem.id(), "/SE"))
               continue;
             enabled= false;
 #ifdef ENABLE_DEBUG
@@ -701,10 +700,10 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
               enabled = true;
             else
             {
-              if (!bec::has_suffix(mitem.id(), "/SE") || _include_se)
+              if (!base::hasSuffix(mitem.id(), "/SE") || _include_se)
                 log_warning("Module function %s was not found\n", cmd.name.c_str());
               // if plugin is missing, check if it's supposed to be there
-              if (!_include_se || !bec::has_suffix(mitem.id(), "/SE"))
+              if (!_include_se || !base::hasSuffix(mitem.id(), "/SE"))
                 continue;
 
               enabled = false;
@@ -741,15 +740,15 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
         {
           item->set_enabled(true);
           if (validator)
-            item->set_validator(validator);
+            item->add_validator(validator);
         }
       }
             
 #ifdef _WIN32
-      item->set_title(replace_string(item->get_title(), "_", "&"));
+      item->set_title(base::replaceString(item->get_title(), "_", "&"));
 #elif defined(__APPLE__)
       // remove _ in osx
-      item->set_title(replace_string(item->get_title(), "_", ""));
+      item->set_title(base::replaceString(item->get_title(), "_", ""));
 #endif
       
       added_menu_items.insert(mitem->name());
@@ -791,7 +790,7 @@ mforms::MenuBar *CommandUI::create_menubar_for_context(const std::string &contex
  
   menubar->signal_will_show()->connect(boost::bind(&CommandUI::menu_will_show, this, _1));
   
-  grt::ListRef<app_MenuItem> main_menu(grt::ListRef<app_MenuItem>::cast_from(_wb->get_grt()->unserialize(make_path(_wb->get_datadir(), "data/main_menu.xml"))));
+  grt::ListRef<app_MenuItem> main_menu(grt::ListRef<app_MenuItem>::cast_from(_wb->get_grt()->unserialize(base::makePath(_wb->get_datadir(), "data/main_menu.xml"))));
 
   for (size_t c= main_menu.count(), i= 0; i < c; i++)
   {
@@ -807,10 +806,10 @@ mforms::MenuBar *CommandUI::create_menubar_for_context(const std::string &contex
     std::string caption(mitem->caption());
 #ifdef _WIN32
     // turn mnemonic indicator from _ into & for windows
-    caption= replace_string(caption, "_", "&");
+    caption= base::replaceString(caption, "_", "&");
 #elif defined(__APPLE__)
     // remove _ in osx
-    caption= replace_string(caption, "_", "");
+    caption= base::replaceString(caption, "_", "");
 #endif
 
     mforms::MenuItem *item = mforms::manage(new mforms::MenuItem(caption));

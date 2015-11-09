@@ -23,7 +23,6 @@
 #include "grtui/grtdb_connection_editor.h"
 
 #include "grtpp_util.h"
-#include <grt/common.h>
 #include "base/string_utilities.h"
 
 #include "mforms/uistyle.h"
@@ -120,6 +119,7 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
 , _details_panel(mforms::TitledBoxPanel)
 , _custom_sudo_box(true)
 , _connect_panel(new grtui::DbConnectPanel(grtui::DbConnectPanelHideConnectionName))
+, _contains_group(false)
 , _bottom_hbox(true)
 , _remote_admin_box(false)
 {
@@ -409,11 +409,11 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
   _bottom_hbox.add(&_move_up_button, false, true);
   _bottom_hbox.add(&_move_down_button, false, true);
   
-  _bottom_hbox.add_end(&_ok_button, false, true);
+  _bottom_hbox.add_end(&_close_button, false, true);
   _bottom_hbox.add_end(&_test_button, false, true);
   //  _bottom_hbox.add_end(&_cancel_button, false, true);
   
-  _ok_button.set_text(_("Close"));
+  _close_button.set_text(_("Close"));
 
   _test_button.set_text(_("Test Connection"));
 //  _test_button.set_enabled(_grtm->get_grt()->get_module("WbAdmin")!=0);
@@ -421,7 +421,7 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
   
   _add_inst_button.enable_internal_padding(true);
   _del_inst_button.enable_internal_padding(true);
-  _ok_button.enable_internal_padding(true);
+  _close_button.enable_internal_padding(true);
   _test_button.enable_internal_padding(true);
 
   _stored_connection_list.set_size(180, -1);
@@ -449,7 +449,7 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
       if (g_str_has_suffix(file, ".xml"))
       {
         std::string fname= std::string(file, strlen(file)-4);
-        std::string label= bec::replace_string(fname, "_", " ");
+        std::string label= base::replaceString(fname, "_", " ");
         grt::DictRef dict;
         try
         {
@@ -561,7 +561,7 @@ db_mgmt_ServerInstanceRef ServerInstanceEditor::run(db_mgmt_ConnectionRef select
     _tabview.set_active_tab(2);
 
   _top_vbox.resume_layout();
-  run_modal(&_ok_button, NULL);
+  run_modal(NULL, &_close_button);
 
   _grtm->get_grt()->call_module_function("Workbench", "saveConnections", grt::BaseListRef());
   _grtm->get_grt()->call_module_function("Workbench", "saveInstances", grt::BaseListRef());
@@ -1067,7 +1067,7 @@ grt::DictRef ServerInstanceEditor::get_preset(const std::string& system, const s
 
 void ServerInstanceEditor::entry_changed(mforms::TextEntry *sender)
 {
-  const std::string value= sender->get_string_value();
+  const std::string value = base::trim(sender->get_string_value());
   db_mgmt_ConnectionRef connection(selected_connection());
   db_mgmt_ServerInstanceRef instance(selected_instance());
 
@@ -1075,11 +1075,16 @@ void ServerInstanceEditor::entry_changed(mforms::TextEntry *sender)
   {
     if (&_name_entry == sender)
     {
-      connection->name(value);
-
+      std::string text = value;
+      if (!_contains_group)
+      {
+        _connect_panel->connection_user_input(text, _contains_group, false);
+        _name_entry.set_value(text);
+      }
+      connection->name(text);
       mforms::TreeNodeRef node(_stored_connection_list.get_selected_node());
       if (node)
-        node->set_string(0, value);
+        node->set_string(0, text);
     }
   }
   
@@ -1314,6 +1319,14 @@ void ServerInstanceEditor::show_connection()
   _del_inst_button.set_enabled(valid_connection && !is_managed);
   _dup_inst_button.set_enabled(valid_connection);
 
+  _contains_group = false;
+  if (valid_connection)
+  {
+    std::string text = connection->name();
+    std::size_t pos = text.find_first_of("/");
+    if (pos != std::string::npos)
+      _contains_group = true;
+  }
   _name_entry.set_value(valid_connection ? connection->name() : "");
 
   show_instance_info(connection, instance);

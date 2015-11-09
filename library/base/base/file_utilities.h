@@ -124,10 +124,10 @@ namespace base
   BASELIBRARY_PUBLIC_FUNC bool file_exists(const std::string &path);
   BASELIBRARY_PUBLIC_FUNC bool is_directory(const std::string &path);
 
-  //BASELIBRARY_PUBLIC_FUNC std::string make_path(const std::string &path, const std::string &filename);
-  
   // file.ext -> .ext
   BASELIBRARY_PUBLIC_FUNC std::string extension(const std::string &path);
+  // returns path.ext (if path has no ext, it will add it)
+  BASELIBRARY_PUBLIC_FUNC std::string appendExtensionIfNeeded(const std::string &path, const std::string &ext);
   // returns . if no dirname in path
   BASELIBRARY_PUBLIC_FUNC std::string dirname(const std::string &path);
   // returns . if no filename in path
@@ -138,7 +138,12 @@ namespace base
 
   BASELIBRARY_PUBLIC_FUNC bool file_mtime(const std::string &path, time_t &mtime);
 
-  BASELIBRARY_PUBLIC_FUNC std::string join_path(const char *prefix, ...);
+  BASELIBRARY_PUBLIC_FUNC std::string joinPath(const char *prefix, ...);
+  BASELIBRARY_PUBLIC_FUNC std::string makePath(const std::string &prefix, const std::string &file);
+
+  BASELIBRARY_PUBLIC_FUNC std::string pathlistAppend(const std::string &l, const std::string &s);
+  BASELIBRARY_PUBLIC_FUNC std::string pathlistPrepend(const std::string &l, const std::string &s);
+
 };
 
 #endif

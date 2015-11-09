@@ -42,7 +42,7 @@ namespace mforms
 {
   class View;
   class TabView;
-  class TreeNodeView;
+  class TreeView;
   class DockingPoint;
 };
 
@@ -81,12 +81,12 @@ namespace wb
     PhysicalOverviewBE *get_overview() { return _overview; }
     grt::GRT *get_grt();
 
-    mforms::TreeNodeView *create_user_type_list();
+    mforms::TreeView *create_user_type_list();
     void show_user_type_editor(workbench_physical_ModelRef model);
 
     GrtVersionRef get_target_version();
 
-    mforms::TreeNodeView *create_history_tree();
+    mforms::TreeView *create_history_tree();
 
     model_DiagramRef get_active_model_diagram(bool main_form);
     model_ModelRef get_active_model(bool main_form);

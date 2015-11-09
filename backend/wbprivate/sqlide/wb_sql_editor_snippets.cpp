@@ -446,7 +446,7 @@ DbSqlEditorSnippets::DbSqlEditorSnippets(wb::WBContextSQLIDE *sqlide, const std:
 void DbSqlEditorSnippets::copy_original_file(const std::string& name, bool overwrite)
 {
   std::string datadir = _sqlide->get_grt_manager()->get_data_file_path("snippets");
-  std::string dest = bec::make_path(_path, name);
+  std::string dest = base::makePath(_path, name);
   bool target_exists = g_file_test(dest.c_str(), G_FILE_TEST_EXISTS) == TRUE;
   if (!target_exists || overwrite)
   {

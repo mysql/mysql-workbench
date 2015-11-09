@@ -401,7 +401,7 @@ PreferencesForm::PreferencesForm(wb::WBContextUI *wbui, const workbench_physical
 
   _switcher.select_node(_switcher.node_at_row(0));
 
-  set_size(900, 700);
+  set_size(800, 600);
   center();
   
   show_values();
@@ -1357,26 +1357,55 @@ mforms::View *PreferencesForm::create_others_page()
   timeouts_table = mforms::manage(new OptionTable(this, _("Timeouts"), true));
   content->add(timeouts_table, false, true);
   {
-    mforms::TextEntry *entry = new_numeric_entry_option("sshkeepalive", 0, 500);
-    entry->set_max_length(5);
-    entry->set_size(50, -1);
-    entry->set_tooltip(_(
-      "The interval in seconds without sending any data over the connection, a \"keepalive\" packet will be sent.\nThis option will apply to both SSH tunnel connections and remote management via SSH."));
 
-    timeouts_table->add_option(entry, _("SSH KeepAlive:"),
-      _("SSH keep-alive interval in seconds.\nUse 0 to disable."));
+    // SSH keepalive
+    {
+      mforms::TextEntry *entry = new_numeric_entry_option("sshkeepalive", 0, 500);
+      entry->set_max_length(5);
+      entry->set_size(50, -1);
 
+      entry->set_tooltip(_(
+        "The interval in seconds without sending any data over the connection, a \"keepalive\" packet will be sent.\nThis option will apply to both SSH tunnel connections and remote management via SSH."));
 
+      timeouts_table->add_option(entry, _("SSH KeepAlive:"),
+        _("SSH keep-alive interval in seconds.\nUse 0 to disable."));
+    }
 
-    // Using arbitrary max value of 1 Hour for connection timeout.
-    entry = new_numeric_entry_option("Fabric:ConnectionTimeOut", 0, 3600);
-    entry->set_max_length(5);
-    entry->set_size(50, -1);
-    entry->set_tooltip(_(
-      "The interval in seconds without sending any data over the connection, a \"keepalive\" packet will be sent.\nThis option will apply to both SSH tunnel connections and remote management via SSH."));
+    // SSH timeout
+    {
+      mforms::TextEntry *entry = new_numeric_entry_option("sshtimeout", 0, 500);
+      entry->set_max_length(5);
+      entry->set_size(50, -1);
+      entry->set_tooltip(_(
+        "Determines how long the process waits for a result."));
 
-    timeouts_table->add_option(entry, _("Fabric Connection Timeout:"),
-      _("Maximum time to wait before a connection\nattempt is aborted."));
+      timeouts_table->add_option(entry, _("SSH Timeout:"),
+        _("SSH timeout in seconds.\nUsed only in Online Backup/Restore"));
+    }
+
+    // Fabric timeout
+    {
+      // Using arbitrary max value of 1 Hour for connection timeout.
+      mforms::TextEntry *entry = new_numeric_entry_option("Fabric:ConnectionTimeOut", 0, 3600);
+      entry->set_max_length(5);
+      entry->set_size(50, -1);
+      entry->set_tooltip(_(
+        "The interval in seconds without sending any data over the connection, a \"keepalive\" packet will be sent.\nThis option will apply to both SSH tunnel connections and remote management via SSH."));
+
+      timeouts_table->add_option(entry, _("Fabric Connection Timeout:"),
+        _("Maximum time to wait before a connection\nattempt is aborted."));
+    }
+
+    // migration connection timeout
+    {
+      mforms::TextEntry *entry = new_numeric_entry_option("Migration:ConnectionTimeOut", 0, 3600);
+      entry->set_max_length(5);
+      entry->set_size(50, -1);
+      entry->set_tooltip(_("The interval in seconds before connection is aborted."));
+
+      timeouts_table->add_option(entry, _("Migration Connection Timeout:"),
+        _("Maximum time to wait before a connection is aborted."));
+    }
 
   }
 
@@ -2003,7 +2032,7 @@ void PreferencesForm::show_colors_and_fonts()
         base::starts_with(*iter, "workbench.scripting"))
       continue;
 
-    if (bec::has_suffix(*iter, "Font") && bec::has_prefix(*iter, "workbench."))
+    if (base::hasSuffix(*iter, "Font") && base::hasPrefix(*iter, "workbench."))
     {
       std::string::size_type pos= iter->find(':');
       
@@ -2018,7 +2047,7 @@ void PreferencesForm::show_colors_and_fonts()
           part= part.substr(0, part.length() - 4);
 
           // substitute some figure names
-          figure= bec::replace_string(figure, "NoteFigure", "TextFigure");
+          figure= base::replaceString(figure, "NoteFigure", "TextFigure");
           
           caption= separate_camel_word(figure) + " " + part;
           

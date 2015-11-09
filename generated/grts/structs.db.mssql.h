@@ -1023,6 +1023,6 @@ inline void register_structs_db_mssql_xml()
 static struct _autoreg__structs_db_mssql_xml { _autoreg__structs_db_mssql_xml() { register_structs_db_mssql_xml(); } } __autoreg__structs_db_mssql_xml;
 #endif
 
-#ifdef _WIN32
+#ifndef _WIN32
   #pragma GCC diagnostic pop
 #endif

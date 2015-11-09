@@ -24,7 +24,7 @@ import threading
 
 import sys, os, csv
 
-from mforms import newTreeNodeView
+from mforms import newTreeView
 from mforms import FileChooser
 from sqlide_power_import_export_be import create_module
 from workbench.ui import WizardForm, WizardPage, WizardProgressPage
@@ -90,7 +90,7 @@ class SimpleTabExport(mforms.Box):
         colbox.set_spacing(8)
         colbox.add(mforms.newLabel("Select columns you'd like to export"), False, True)
         
-        self.column_list = newTreeNodeView(mforms.TreeFlatList)
+        self.column_list = newTreeView(mforms.TreeFlatList)
         self.column_list.add_column(mforms.CheckColumnType, "Export", 50, True)
         self.column_list.add_column(mforms.StringColumnType, "Column name", self.owner.main.get_width(), False)
         self.column_list.end_columns()
@@ -541,13 +541,15 @@ class DataInputPage(WizardPage):
         if rset:
             ok = rset.goToFirstRow()
             while ok:
-                col = {'name': None, 'type': None, 'is_string': None, 'is_number': None, 'is_date_or_time': None, 'is_bin': None, 'value': None}
+                col = {'name': None, 'type': None, 'is_string': None, 'is_bignumber':None, 'is_number': None, 'is_date_or_time': None, 'is_bin': None, 'value': None}
                 col['name'] = rset.stringFieldValueByName("Field")
                 col['type'] = rset.stringFieldValueByName("Type")
                 col['is_number'] = any(x in col['type'] for x in ['int', 'integer'])
+                col['is_bignumber'] = any(x in col['type'] for x in ['bigint'])
                 col['is_float'] = any(x in col['type'] for x in ['decimal', 'float', 'double'])  
-                col['is_string'] = any(x in col['type'] for x in ['char', 'text', 'set', 'enum'])
-                col['is_bin'] = any(x in col['type'] for x in ['blob', 'binary'])              
+                col['is_string'] = any(x in col['type'] for x in ['char', 'text', 'set', 'enum', 'json'])
+                col['is_bin'] = any(x in col['type'] for x in ['blob', 'binary'])  
+                col['is_date_or_time'] = any(x in col['type'] for x in ['timestamp', 'datetime', 'date', 'time'])
                 cols.append(col)
                 ok = rset.nextRow()
         return cols

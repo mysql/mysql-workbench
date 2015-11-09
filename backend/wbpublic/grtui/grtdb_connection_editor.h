@@ -22,7 +22,7 @@
 #include "mforms/form.h"
 #include "mforms/box.h"
 #include "mforms/button.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 
 #include "db_conn_be.h"
 #include "grtdb_connect_panel.h"
@@ -55,7 +55,7 @@ protected:
   mforms::Button _dup_conn_button;
   mforms::Button _move_up_button;
   mforms::Button _move_down_button;
-  mforms::TreeNodeView _stored_connection_list;
+  mforms::TreeView _stored_connection_list;
   mforms::TextEntry *_conn_name;
 
   mforms::Box _bottom_hbox;

@@ -38,6 +38,7 @@
 #include "base/string_utilities.h"
 #include "base/sqlstring.h"
 #include "base/util_functions.h"
+#include "base/file_utilities.h"
 
 #include "grtsqlparser/sql_specifics.h"
 #include "sqlide/recordset_table_inserts_storage.h"
@@ -539,28 +540,36 @@ std::string ActionGenerateSQL::generate_create(db_mysql_ColumnRef column)
         .append("' ");
     }
 
-  if (column->simpleType().is_valid())
+  if (column->generated())
   {
-    grt::StringListRef flags= column->flags();
-    size_t flags_count= flags.count();
-    for(size_t j= 0; j < flags_count; j++)
-      sql.append(flags.get(j).c_str()).append(" ");
-  }else if (column->userType().is_valid() && !column->userType()->flags().empty())
-    sql.append(column->userType()->flags()).append(" ");
-
-  if(column->isNotNull())
-    sql.append("NOT NULL ");
+    sql += "GENERATED ALWAYS AS (" + *column->expression() + ") " + *column->generatedStorage();
+  }
   else
-    sql.append("NULL ");
-
-  if(column->defaultValueIsNull())
-    sql.append("DEFAULT NULL ");
-  else if(column->defaultValue().is_valid() && column->defaultValue().c_str() && (strlen(column->defaultValue().c_str()) > 0))
   {
-    std::string default_value = toupper (column->defaultValue());
-    if (!((column->simpleType().is_valid())&&(column->simpleType()->name() == "TIMESTAMP")&&(default_value.find("ON UPDATE") == 0)))
-      sql.append("DEFAULT ");
-    sql.append(column->defaultValue().c_str()).append(" ");
+    if (column->simpleType().is_valid())
+    {
+      grt::StringListRef flags = column->flags();
+      size_t flags_count = flags.count();
+      for (size_t j = 0; j < flags_count; j++)
+        sql.append(flags.get(j).c_str()).append(" ");
+    }
+    else if (column->userType().is_valid() && !column->userType()->flags().empty())
+      sql.append(column->userType()->flags()).append(" ");
+
+    if (column->isNotNull())
+      sql.append("NOT NULL ");
+    else
+      sql.append("NULL ");
+
+    if (column->defaultValueIsNull())
+      sql.append("DEFAULT NULL ");
+    else if (column->defaultValue().is_valid() && column->defaultValue().c_str() && (strlen(column->defaultValue().c_str()) > 0))
+    {
+      std::string default_value = toupper(column->defaultValue());
+      if (!((column->simpleType().is_valid()) && (column->simpleType()->name() == "TIMESTAMP") && (default_value.find("ON UPDATE") == 0)))
+        sql.append("DEFAULT ");
+      sql.append(column->defaultValue().c_str()).append(" ");
+    }
   }
 
   if (column->autoIncrement())
@@ -829,12 +838,22 @@ void ActionGenerateSQL::create_schema(db_mysql_SchemaRef schema)
     schema_sql.append("IF NOT EXISTS ");
   schema_sql.append("`").append(schema->name().c_str()).append("` ");
 
-  if(schema->defaultCollationName().is_valid() && strlen(schema->defaultCharacterSetName().c_str()))
-    schema_sql.append("DEFAULT CHARACTER SET ").append(schema->defaultCharacterSetName().c_str()).append(" ");
-
-  if(schema->defaultCollationName().is_valid() && !schema->defaultCollationName().empty() && 
-      (charsetForCollation(schema->defaultCollationName()) == (schema->defaultCharacterSetName().c_str())))
-    schema_sql.append("COLLATE ").append(schema->defaultCollationName().c_str()).append(" ");
+  if (schema->defaultCharacterSetName().is_valid())
+  {
+    std::string charset = schema->defaultCharacterSetName();
+    if (!charset.empty())
+    {
+      schema_sql += "DEFAULT CHARACTER SET " + charset + " ";
+      if (schema->defaultCollationName().is_valid())
+      {
+        std::string collation = schema->defaultCollationName();
+        if (!collation.empty()
+          && (charsetForCollation(collation) == charset)
+          && (defaultCollationForCharset(charset) != collation))
+          schema_sql += "COLLATE " + collation + " ";
+      }
+    }
+  }
 
   remember(schema, schema_sql);
 }
@@ -1860,7 +1879,7 @@ static std::string reformat_text_for_comment(const std::string &text)
   if (text.empty())
     return "";
   std::string comment = text;
-  base::replace(comment, "\n", "\n-- ");
+  base::replaceStringInplace(comment, "\n", "\n-- ");
   return "-- "+comment+"\n";
 }
 
@@ -2062,7 +2081,7 @@ protected:
             else
                 sql.append(create_view);
 
-          if (!bec::has_suffix(base::trim_right(create_view, "\n"), ";"))
+          if (!base::hasSuffix(base::trim_right(create_view, "\n"), ";"))
               sql.append(";");
             sql.append("\n");
         }
@@ -2138,7 +2157,7 @@ protected:
                 if (!comment.empty())
                 {
                   result.append("--\n");
-                  base::replace(comment, "\n", "\n-- ");
+                  base::replaceStringInplace(comment, "\n", "\n-- ");
                   result.append("-- ").append(comment).append("\n");
                 }
                 result.append("-- -----------------------------------------------------\n");
@@ -2338,7 +2357,7 @@ public:
           if (strlen(doc->info()->description().c_str()))
           {
             std::string description = doc->info()->description();
-            base::replace(description, "\n", "\n --");
+            base::replaceStringInplace(description, "\n", "\n --");
             out_sql.append("-- ").append(description).append("\n");
           }
         }
@@ -2576,7 +2595,7 @@ public:
           if (strlen(doc->info()->description().c_str()))
           {
             std::string description = doc->info()->description();
-            base::replace(description, "\n", "\n --");
+            base::replaceStringInplace(description, "\n", "\n --");
             out_sql.append("-- ").append(description).append("\n");
           }
         }
@@ -2917,7 +2936,7 @@ std::string DbMySQLImpl::makeCreateScriptForObject(GrtNamedObjectRef object)
 db_mgmt_RdbmsRef DbMySQLImpl::initializeDBMSInfo()
 {
   bec::GRTManager *grtm(bec::GRTManager::get_instance_for(get_grt()));
-  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(get_grt()->unserialize(make_path(grtm->get_basedir(), "modules/data/mysql_rdbms_info.xml")));
+  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(get_grt()->unserialize(base::makePath(grtm->get_basedir(), "modules/data/mysql_rdbms_info.xml")));
 
   workbench_WorkbenchRef::cast_from(get_grt()->get("/wb"))->rdbmsMgmt()->rdbms().insert(rdbms);
   return rdbms;

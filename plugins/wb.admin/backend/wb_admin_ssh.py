@@ -278,6 +278,7 @@ class WbAdminSSH(object):
                    # it will be retrived later
         port = settings.ssh_port#loginInfo['ssh.port']
         self.keepalive = settings.ssh_keepalive
+        self.ssh_timeout = settings.ssh_timeout
         if usekey == 1:
             # We need to check if keyfile needs password. For some reason paramiko does not always
             # throw exception to request password
@@ -381,21 +382,20 @@ class WbAdminSSH(object):
         
 
         client = paramiko.SSHClient()
-        if usekey:
-            ssh_known_hosts_file = None
-            if "userknownhostsfile" in opts:
-                ssh_known_hosts_file = opts["userknownhostsfile"]
-            else:
-                client.get_host_keys().clear()
-                ssh_known_hosts_file = '~/.ssh/known_hosts'
+        ssh_known_hosts_file = None
+        if "userknownhostsfile" in opts:
+            ssh_known_hosts_file = opts["userknownhostsfile"]
+        else:
+            client.get_host_keys().clear()
+            ssh_known_hosts_file = '~/.ssh/known_hosts'
+            
+            if platform.system().lower() == "windows":
+                ssh_known_hosts_file = '%s\ssh\known_hosts' % mforms.App.get().get_user_data_folder()
                 
-                if platform.system().lower() == "windows":
-                    ssh_known_hosts_file = '%s\ssh\known_hosts' % mforms.App.get().get_user_data_folder()
-                    
-            try:
-                client.load_host_keys(os.path.expanduser(ssh_known_hosts_file))
-            except IOError, e:
-                log_warning("IOError, probably caused by file %s not found, the message was: %s\n" % (ssh_known_hosts_file, e))
+        try:
+            client.load_host_keys(os.path.expanduser(ssh_known_hosts_file))
+        except IOError, e:
+            log_warning("IOError, probably caused by file %s not found, the message was: %s\n" % (ssh_known_hosts_file, e))
         
         if "stricthostkeychecking" in opts and opts["stricthostkeychecking"].lower() == "no":
             client.set_missing_host_key_policy(WarningPolicy())
@@ -664,13 +664,13 @@ class WbAdminSSH(object):
             while chan.recv_ready() and len(data) < read_size:
                 data += stdout.read(1)
             if data:
-                log_debug2("ssh session stdout: %s\n" % data)
+                log_debug2("ssh session stdout [%d]: plain>>>%s<<<   hex>>>%s<<<x\n" % (len(data), data, ' '.join(x.encode('hex') for x in data)))
 
             # Reads from the stderr if available
             while chan.recv_stderr_ready() and len(error) < read_size:
                 error += stderr.read(1)
             if error:
-                log_debug2("ssh session stderr: %s\n" % error)
+                log_debug2("ssh session stderr [%d]: plain>>>%s<<<   hex>>>%s<<<x\n" % (len(error), error, ' '.join(x.encode('hex') for x in error)))
 
             # Appends any read data on stdout and stderr
             if data or error:
@@ -684,7 +684,8 @@ class WbAdminSSH(object):
                     cmd_ret = chan.recv_exit_status()
                 
                 # No need to read output...
-                if all_data or all_error or wait_output == CmdOutput.WAIT_NEVER or\
+                if ((all_data or all_error) and chan.closed) or\
+                   (wait_output == CmdOutput.WAIT_NEVER) or\
                    (wait_output == CmdOutput.WAIT_IF_OK and cmd_ret != 0) or\
                    (wait_output == CmdOutput.WAIT_IF_FAIL and cmd_ret == 0):
                    read_done = True
@@ -750,10 +751,10 @@ class WbAdminSSH(object):
 
         if type(user_password) is not str:
             user_password = None
-            
+
         expect_sudo_failure = False
 
-        read_timeout = 10
+        read_timeout = self.ssh_timeout
 
         if self.client is not None:
             transport = self.client.get_transport()

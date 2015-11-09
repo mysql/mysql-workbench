@@ -45,6 +45,11 @@
 #include <sstream>
 #include <unordered_set>
 #include <list>
+#include <string>
+#include <map>
+#include <sddl.h>
+#include <stdio.h>
+#include <winevt.h>
 
 #include <VersionHelpers.h>
 

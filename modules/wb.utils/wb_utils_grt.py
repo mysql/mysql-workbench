@@ -36,7 +36,7 @@ from workbench.log import log_info, log_error, log_debug, log_debug2
 import traceback
 
 from workbench.ui import WizardForm, WizardPage, WizardProgressPage
-from mforms import newButton, newCheckBox, newTreeNodeView
+from mforms import newButton, newCheckBox, newTreeView
 from mforms import FileChooser
 
 # define this Python module as a GRT module
@@ -456,8 +456,11 @@ def startCommandLineClientForConnection(conn):
 
         # call mysql client in a loop until either: 1. it exits with no error, or 2. user exits with Ctrl+C.
         # This is necessary because if the user enters wrong password, the window closes too quick for the user to see what's going on.
-        subprocess.call(["/bin/sh", "-c", "%s -e \"while :; do %s && break || ( echo 'Press Enter to retry or Ctrl+C to quit'; read; ); done\" &" % (get_linux_terminal_program(), command)])
-
+        subprocess.call([ "/bin/sh", "-c",  # <--- having extra /bin/sh wrapper allows GUI terminal to be launched in background (thus run parallel with workbench)
+            get_linux_terminal_program() + " -e '" +
+                "sh -c \"while :; do %s && break || read -p \\\"Press Enter to retry or Ctrl+C to quit\\\" DUMMY_VAR; done\" " % command
+            + "' &"   # <--- launch GUI terminal and exit (returns to Workbench immediately rather than blocking)
+        ])
 
 if sys.platform == "linux2":
     @ModuleInfo.export(grt.INT)

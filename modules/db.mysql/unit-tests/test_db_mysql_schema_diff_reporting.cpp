@@ -73,6 +73,7 @@ struct TestCase
 };
 
 //-----------------------------------------------------------------------------
+#if 0 // warning: unused variable 'testCases' [-Wunused-const-variable]
 static const TestCase testCases[] =
 {
   {
@@ -262,6 +263,7 @@ static const TestCase testCases[] =
     0
   }
 };
+#endif
 
 #if 0
 

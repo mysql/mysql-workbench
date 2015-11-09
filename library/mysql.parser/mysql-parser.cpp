@@ -70,7 +70,7 @@ std::string get_token_name(pANTLR3_UINT8 *tokenNames, ANTLR3_UINT32 token)
     if (position != std::string::npos)
       result = result.substr(0, position);
 
-    base::replace(result, "_", " ");
+    base::replaceStringInplace(result, "_", " ");
     return result;
   }
 }
@@ -291,7 +291,7 @@ extern "C" {
   /**
    * Error report function which is set in the parser (see MySQL.g where this is done).
    */
-  void on_parse_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_UINT8 *tokenNames)
+  void onMySQLParseError(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_UINT8 *tokenNames)
   {
     pANTLR3_EXCEPTION exception = recognizer->state->exception;
 
@@ -1279,6 +1279,8 @@ void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQL
   }
   else
   {
+    // TODO: looks like there's still a problem with reusing a parser in certain circumstances.
+    //       mysql_parser_test consumes endless memory with at least one query when reusing the recognizer.
     d->_input->reuse(d->_input, (pANTLR3_UINT8)d->_text, (ANTLR3_UINT32)d->_text_length, (pANTLR3_UINT8)"");
     d->_tokens->reset(d->_tokens);
     d->_lexer->reset(d->_lexer);

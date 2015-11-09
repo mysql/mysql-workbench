@@ -720,7 +720,7 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
       if (grt::StringRef::can_wrap(object))
       {
         grt::StringRef arg(grt::StringRef::cast_from(object));
-        if (has_suffix(arg, ".mwb"))
+        if (base::hasSuffix(arg, ".mwb"))
           argument_pool.add_simple_value("selectedModelFile", arg); // assume a model file
         else
           argument_pool.add_simple_value("selectedGroupName", arg); // assume a connection group name
@@ -1052,6 +1052,7 @@ void WBContextUI::refresh_home_connections(bool clear_state)
   std::vector<db_mgmt_ConnectionRef> invalid_connections;
   std::map<std::string, std::string> invalid_connection_ids;
 
+  std::vector<db_mgmt_ConnectionRef> oldAuthList;
   for (grt::ListRef<db_mgmt_Connection>::const_iterator end = connections.end(),
       inst = connections.begin(); inst != end; ++inst)
   {
@@ -1064,6 +1065,13 @@ void WBContextUI::refresh_home_connections(bool clear_state)
     else
     {
       grt::DictRef dict((*inst)->parameterValues());
+      if (dict.has_key("useLegacyAuth"))
+      {
+        if ((size_t)dict.get_int("useLegacyAuth", 0) == 0)
+          (*inst)->parameterValues().remove("useLegacyAuth"); // If it's not used (old val), we silently remove it.
+        else
+          oldAuthList.push_back(*inst);
+      }
 
       // Any fabric managed connection referencing a 
       if (dict.has_key("fabric_managed") && invalid_connection_ids.count(dict.get_string("fabric_managed")))
@@ -1094,6 +1102,7 @@ void WBContextUI::refresh_home_connections(bool clear_state)
     }
   }
 
+  _home_screen->oldAuthConnections(oldAuthList);
 
   // Deletes the fabric managed connections
   for (std::vector<db_mgmt_ConnectionRef>::const_iterator iterator = invalid_connections.begin();
@@ -1174,7 +1183,7 @@ void WBContextUI::refresh_home_documents()
       {
         if (g_file_test(path_iterator->c_str(), G_FILE_TEST_IS_DIR))
         {
-          std::string pattern = make_path(*path_iterator, "*.mwb");
+          std::string pattern = base::makePath(*path_iterator, "*.mwb");
           std::list<std::string> sample_model_files = base::scan_for_files_matching(pattern, true);
           for (std::list<std::string>::const_iterator iterator = sample_model_files.begin();
             iterator != sample_model_files.end(); iterator++)

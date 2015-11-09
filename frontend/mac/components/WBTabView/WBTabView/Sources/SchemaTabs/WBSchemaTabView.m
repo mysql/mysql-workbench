@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,7 +33,6 @@
 - (CGColorRef) tabRowActiveBackgroundColorCreate;
 {
   return WB_CGColorCreateCalibratedRGB(0.925, 0.949, 0.973, 1);
-  //	return WB_CGColorCreateCalibratedRGB(0.91, 0.91, 0.91, 1);
 }
 
 

@@ -24,7 +24,7 @@
 #include "workbench/wb_backend_public_interface.h"
 #include "grts/structs.workbench.physical.h"
 
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/table.h"
 #include "mforms/box.h"
 #include "mforms/label.h"
@@ -49,7 +49,7 @@ class MYSQLWBBACKEND_PUBLIC_FUNC UserDefinedTypeEditor : public mforms::Form
   workbench_physical_ModelRef _model;
 
   mforms::Box _vbox;
-  mforms::TreeNodeView _type_list;
+  mforms::TreeView _type_list;
   
   mforms::Table _table;
   mforms::Label _namel;

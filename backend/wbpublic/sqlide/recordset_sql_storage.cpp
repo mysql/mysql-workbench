@@ -27,7 +27,7 @@
 #include <boost/foreach.hpp>
 #include <algorithm>
 #include <sstream>
-
+#include "mforms/jsonview.h"
 
 using namespace bec;
 using namespace grt;
@@ -68,6 +68,34 @@ std::string PrimaryKeyPredicate::operator()(std::vector<boost::shared_ptr<sqlite
 
 //------------------------------------------------------------------------------
 
+class JsonTypeFinder : public boost::static_visitor<bool>
+{
+public:
+  result_type operator()(const sqlite::unknown_t&, const std::string &text) const
+  {
+    bool ret = false;
+    try
+    {
+      JsonParser::JsonValue value;
+      JsonParser::JsonReader::read(text, value);
+      ret = true;
+    }
+    catch (JsonParser::ParserException &)
+    {
+      ret = false;
+    }
+    return ret; 
+  }
+
+  template<typename T, typename V>
+  result_type operator()(const T &t, const V &v) const
+  {
+    return false;
+  }
+};
+
+
+//------------------------------------------------------------------------------
 
 std::string Recordset_sql_storage::statements_as_sql_script(const Sql_script::Statements &statements)
 {
@@ -370,6 +398,8 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
 
   std::string full_table_name= this->full_table_name();
 
+  JsonTypeFinder jsonTypeFinder;
+  bool unknownAsStringOrginal = qv.store_unknown_as_string;
   if (0 == editable_col_count)
     return;
 
@@ -465,9 +495,12 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
                 boost::shared_ptr<sqlite::result> &data_row_rs= data_row_results[partition];
 
                 v = data_row_rs->get_variant((int)partition_column);
-
+                if (!qv.store_unknown_as_string && boost::apply_visitor(jsonTypeFinder, column_types[column], v))
+                  qv.store_unknown_as_string = true;
                 values+= strfmt("%s, ",
                     boost::apply_visitor(qv, column_types[column], v).c_str());
+                if (unknownAsStringOrginal != qv.store_unknown_as_string)
+                  qv.store_unknown_as_string = unknownAsStringOrginal;
                 if (blob_columns[column])
                   sql_bindings.push_back(v);
               }
@@ -508,9 +541,14 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
                 boost::shared_ptr<sqlite::result> &data_row_rs= data_row_results[partition];
 
                 v = data_row_rs->get_variant((int)partition_column);
+                
+                if (!qv.store_unknown_as_string && boost::apply_visitor(jsonTypeFinder, column_types[column], v))
+                  qv.store_unknown_as_string = true;
                 values+= strfmt("`%s`=%s, ",
                   column_names[column].c_str(),
                   boost::apply_visitor(qv, column_types[column], v).c_str());
+                if (unknownAsStringOrginal != qv.store_unknown_as_string)
+                  qv.store_unknown_as_string = unknownAsStringOrginal;
                 if (blob_columns[column] && _binding_blobs)
                   sql_bindings.push_back(v);
               }

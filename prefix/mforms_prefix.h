@@ -18,7 +18,8 @@
  */
 
 #ifdef __OBJC__
-    #import <Cocoa/Cocoa.h>
+  #import <Cocoa/Cocoa.h>
+  #import <WebKit/WebKit.h>
 #endif
 
 #ifdef __cplusplus

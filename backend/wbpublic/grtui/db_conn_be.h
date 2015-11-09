@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -92,6 +92,7 @@ public:
   const grt::StringRef get_value_repr() const { return _value.repr(); }
   void set_value(const grt::ValueRef &value);
   std::vector<std::pair<std::string, std::string> > get_enum_options();
+  grt::StringRef getValue();
 };
 
 

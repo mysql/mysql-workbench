@@ -21,7 +21,7 @@ class ValidationPanel;
 
 namespace mforms
 {
-  class TreeNodeView;
+  class TreeView;
 };
 
 class ModelPanel : public Gtk::Box, public FormViewBase
@@ -52,19 +52,19 @@ private:
   Gtk::Frame  *_secondary_sidebar;
   bec::NodeId                  _last_found_node;
 
-  mforms::TreeNodeView        *_history_tree;
-  mforms::TreeNodeView        *_usertypes_box;
+  mforms::TreeView        *_history_tree;
+  mforms::TreeView        *_usertypes_box;
   DocumentationBox            *_documentation_box;
   #ifdef COMMERCIAL_CODE
   ValidationPanel             *_validation_panel;
   #endif
+  Glib::RefPtr<Gtk::Builder>   _builder;
   bool                         _pending_rebuild_overview;
 
   friend class Gtk::Builder;
-  ModelPanel(GtkBox *vb, Glib::RefPtr<Gtk::Builder> xml);
-  void post_construct(wb::WBContextUI *wb, wb::OverviewBE *overview, Glib::RefPtr<Gtk::Builder> xml);
+  ModelPanel(GtkBox *cobject, const Glib::RefPtr<Gtk::Builder> &xml);
+  void post_construct(wb::WBContextUI *wb, wb::OverviewBE *overview);
 
-  bool restore_state(Glib::RefPtr<Gtk::Builder> xml);
   void resize_overview();
   bool do_resize_overview();
 

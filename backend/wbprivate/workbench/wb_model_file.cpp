@@ -39,7 +39,6 @@
 #include "mforms/utilities.h"
 #include "mdc_image.h"
 
-#include "grt/common.h"
 #include "grt/grt_manager.h"
 
 #include "grts/structs.workbench.h"
@@ -178,7 +177,7 @@ std::string ModelFile::create_document_dir(const std::string &dir, const std::st
     
     try 
     {
-      _temp_dir_lock = new base::LockFile(bec::make_path(path, lock_filename.c_str()));
+      _temp_dir_lock = new base::LockFile(base::makePath(path, lock_filename.c_str()));
       break;
     }
     catch (const base::file_locked_error)
@@ -261,7 +260,7 @@ void ModelFile::open(const std::string &path, GRTManager *grtm)
     throw std::runtime_error("Invalid path "+path);
   }
 
-  std::string auto_save_dir = file_is_autosave ? path : bec::make_path(_temp_dir, basename).append("d"); // default
+  std::string auto_save_dir = file_is_autosave ? path : base::makePath(_temp_dir, basename).append("d"); // default
   std::list<std::string> possible_autosaves = base::scan_for_files_matching(auto_save_dir+"*");
   for (std::list<std::string>::const_iterator d = possible_autosaves.begin(); d != possible_autosaves.end(); ++d)
   {
@@ -269,10 +268,10 @@ void ModelFile::open(const std::string &path, GRTManager *grtm)
     gsize length;
 
     // check if this autosave is active/in use
-    if (base::LockFile::check(bec::make_path(*d, lock_filename.c_str())) != base::LockFile::NotLocked)
+    if (base::LockFile::check(base::makePath(*d, lock_filename.c_str())) != base::LockFile::NotLocked)
       continue;
 
-    if (g_file_get_contents(bec::make_path(*d, "real_path").c_str(), &path, &length, NULL))
+    if (g_file_get_contents(base::makePath(*d, "real_path").c_str(), &path, &length, NULL))
     {
       // ensure this autosave is for the model being opened
       if (std::string(path, length) == path)
@@ -294,7 +293,7 @@ void ModelFile::open(const std::string &path, GRTManager *grtm)
     // so we don't do anything with this file.
     try
     {
-      base::LockFile test_lock(bec::make_path(auto_save_dir, lock_filename.c_str()));
+      base::LockFile test_lock(base::makePath(auto_save_dir, lock_filename.c_str()));
     }
     catch (const base::file_locked_error)
     {
@@ -309,7 +308,7 @@ void ModelFile::open(const std::string &path, GRTManager *grtm)
     time_t file_ts;
     base::file_mtime(path, file_ts);
     time_t autosave_ts;
-    base::file_mtime(bec::make_path(auto_save_dir, MAIN_DOCUMENT_NAME), autosave_ts);
+    base::file_mtime(base::makePath(auto_save_dir, MAIN_DOCUMENT_NAME), autosave_ts);
     if (autosave_ts == 0)
       base::file_mtime(auto_save_dir, autosave_ts);
     
@@ -388,7 +387,7 @@ void ModelFile::open(const std::string &path, GRTManager *grtm)
     _dirty= true;
 
     // re-lock it for ourselves
-    _temp_dir_lock = new base::LockFile(bec::make_path(_content_dir, lock_filename.c_str()));
+    _temp_dir_lock = new base::LockFile(base::makePath(_content_dir, lock_filename.c_str()));
   }
 }
 

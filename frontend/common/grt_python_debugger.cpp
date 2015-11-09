@@ -242,7 +242,7 @@ PythonDebugger *PythonDebugger::from_cobject(PyObject *cobj)
 PythonDebugger::PythonDebugger(GRTShellWindow *shell, mforms::TabView *tabview)
 : _shell(shell), _lower_tabs(tabview), _stack_position_editor(0), _stack_position_line(0)
 {
-  _breakpoint_list= manage(new TreeNodeView(TreeDefault|TreeFlatList));
+  _breakpoint_list= manage(new TreeView(TreeDefault|TreeFlatList));
 //  _breakpoint_list->add_column(CheckColumnType, " ", 30, true);
   _breakpoint_list->add_column(StringColumnType, "Breakpoint", 200, false);
   _breakpoint_list->add_column(StringColumnType, "Location", 200, false);
@@ -255,7 +255,7 @@ PythonDebugger::PythonDebugger(GRTShellWindow *shell, mforms::TabView *tabview)
   
   _lower_tabs->add_page(spl, _("Debug Info"));
 
-  _stack_list= manage(new TreeNodeView(TreeDefault|TreeFlatList));
+  _stack_list= manage(new TreeView(TreeDefault|TreeFlatList));
   _stack_list->add_column(StringColumnType, "#", 30, false);
   _stack_list->add_column(StringColumnType, "Stack Location", 300, false);
   _stack_list->add_column(StringColumnType, "File", 300, false);
@@ -264,7 +264,7 @@ PythonDebugger::PythonDebugger(GRTShellWindow *shell, mforms::TabView *tabview)
   scoped_connect(_stack_list->signal_changed(),boost::bind(&PythonDebugger::stack_selected, this));
   //_stack_list->signal_row_activated().connect();
   
-  _variable_list= manage(new TreeNodeView(TreeDefault|TreeFlatList));
+  _variable_list= manage(new TreeView(TreeDefault|TreeFlatList));
   _variable_list->add_column(StringColumnType, "Variable", 200, false);
   _variable_list->add_column(StringColumnType, "Value", 400, false);
   _variable_list->end_columns();

@@ -1,20 +1,22 @@
 MySQL Workbench has been developed by a small team of great developers 
 in the MySQL group at Oracle Corporation, starting from a personal project 
-of project/team lead Mike Zinner (DBDesigner 4).
+of Development Director Mike Zinner (DBDesigner 4).
 --
 
-Alfredo Kojima		<alfredo.kengi.kojima@oracle.com> - backend, Linux, Mac OS X, lead developer
-Mike Lischke		<mike.lischke@oracle.com> - backend, Windows, Mac OS X, UI, testing
-Rene Ramirez        <j.rene.ramirez@oracle.com> - backend, Windows, Linux
-Miguel Tadeu        <miguel.tadeu@oracle.com>  - backend, Linux
-Milosz Bodzek       <milosz.bodzek@oracle.com> - Migration
-Marcin Szalowicz    <marcin.szalowicz@oracle.com> - backend, Linux
-Johannes Taxacher	<johannes.taxacher@oracle.com> - QA, building, testing
-Armando Lopez Valencia <armando.lopezv@oracle.com> - QA
-Rafael Bedoy        <rafael.bedoy@oracle.com> - QA
-Mike Zinner		    <mike.zinner@oracle.com> - team lead, UI design
+Mike Zinner      <mike.zinner@oracle.com> - development director, UI design
 
-Sergio de la Cruz   <sergio.delacruz@oracle.com> - Administration, Python development
-Alexander Musienko	<alex.musienko@oracle.com> - Windows, synchronization, backup/restore, testing
-Sergei Tkachenko	<sergei.tkachenko@sun.com> - Windows, parser, SQL IDE
-Maksym Yehorov		<maksym.yehorov@oracle.com> - Linux, Administration
+Mike Lischke     <mike.lischke@oracle.com> - team lead, Windows, Mac OS X, UI architecture, frontend/backend, parsers, usability, testing
+Miguel Tadeu     <miguel.tadeu@oracle.com>  - Linux, Windows, backend, packaging, admin part, python
+Milosz Bodzek    <milosz.bodzek@oracle.com> - migration, sync/diff, forward/reverse engineering, backend, python
+Marcin Szalowicz <marcin.szalowicz@oracle.com> - Linux, Mac OS X, frontend/backend, SQL IDE, python
+Marcin Marek     <marcin.marek@oracle.com> - Windows, Linux, frontend/backend, JSON support
+
+QA:
+Johannes Taxacher      <johannes.taxacher@oracle.com>
+Armando Lopez Valencia <armando.lopezv@oracle.com>
+Rafael Bedoy           <rafael.bedoy@oracle.com>
+
+
+Former team members:
+
+Alfredo Kojima, Rene Ramirez, Sergio de la Cruz, Alexander Musienko, Sergei Tkachenko, Maksym Yehorov

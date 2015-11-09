@@ -490,7 +490,10 @@ void mforms::gtk::ToolBarImpl::set_item_enabled(mforms::ToolBarItem *item, bool 
 {
   Gtk::Widget* w = cast<Gtk::Widget*>(item->get_data_ptr());
   if (w)
+  {
     w->set_sensitive(is_on);
+    if( w->get_sensitive() != is_on) throw new std::runtime_error("Failed to change sensivity");
+  }
 }
 
 //------------------------------------------------------------------------------

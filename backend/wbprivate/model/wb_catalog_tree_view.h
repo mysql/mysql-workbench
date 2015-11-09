@@ -22,7 +22,7 @@
 
 #include "workbench/wb_backend_public_interface.h"
 
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "grtpp_value.h"
 
 namespace mforms {
@@ -50,7 +50,7 @@ namespace wb {
 
 
 
-  class MYSQLWBBACKEND_PUBLIC_FUNC CatalogTreeView : public mforms::TreeNodeView
+  class MYSQLWBBACKEND_PUBLIC_FUNC CatalogTreeView : public mforms::TreeView
   {
   private:
     class ObjectNodeData : public mforms::TreeNodeData

@@ -84,23 +84,6 @@ public:
     _view->set_current_cell((int)row, column);
   }
 
-  virtual void set_font(const std::string &font)
-  {
-    std::string family;
-    float size;
-    bool bold;
-    bool italic;
-    base::parse_font_description(font, family, size, bold, italic);
-
-    FontStyle style = FontStyle::Regular;
-    if (bold)
-      style = (FontStyle)(style | FontStyle::Bold);
-    if (italic)
-      style = (FontStyle)(style | FontStyle::Italic);
-
-    _view->set_font(MySQL::CppStringToNative(family), size, style);
-  }
-
   virtual void set_column_header_indicator(int column, mforms::ColumnHeaderIndicator order)
   {
     _view->set_column_header_indicator(column, (IRecordsetView::ColumnHeaderIndicator)order);

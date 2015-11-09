@@ -28,7 +28,9 @@ from workbench.client_utils import MySQLScriptImporter
 
 from wb_admin_utils import make_panel_header, MessageButtonPanel
 
-from workbench.log import log_info, log_error
+from workbench.utils import Version
+
+from workbench.log import log_info, log_error, log_warning
 
 
 
@@ -36,19 +38,63 @@ from workbench.log import log_info, log_error
 #===============================================================================
 # WB SYS Schema Deployment
 
-def get_current_sys_version(server_version):
+def download_server_install_script(ctrl_be):
+    server_helper = ctrl_be.server_helper
+    profile = server_helper.profile
+    install_script_path = server_helper.join_paths(profile.basedir, "share", "mysql_sys_schema.sql")
+
+    try:
+
+        if not server_helper.file_exists(install_script_path):
+            log_warning("The server does not supply the sys schema install script\n")
+            return None
+          
+        if not server_helper.check_file_readable(install_script_path):
+            log_warning("The server supplies the sys schema install script, but it's not readable\n")
+            return None
+
+        install_script_content = server_helper.get_file_content(install_script_path)
+
+    except Exception:
+        import traceback
+        log_error("There was an exception when making validations:\n%s\n" % traceback.format_exc())
+        return None
+
+    # Import the file to the local user space
+    local_install_script_path = os.path.join(mforms.App.get().get_user_data_folder(), "install_sys_script.sql")
+    f = open(local_install_script_path, "w")
+    
+    for line in install_script_content.split('\n'):
+        content = ""
+        if line.startswith("CREATE DEFINER='root'@'localhost'"):
+            # Set delimiters for functions/procedures/triggers, so that we can run them on the server properly
+            line = re.sub(r'(.*);', r'\1$$', line)
+            content = "\nDELIMITER $$\n%s\nDELIMITER ;\n" % line
+        else:
+            content = line
+        f.write("%s\n" % content)
+    f.close()
+    
+    return local_install_script_path
+
+
+def get_sys_version_from_script(file_path):
     """Gets the version of the sys schema that's shipped with Workbench."""
-    syspath = mforms.App.get().get_resource_path("sys")
-    path = os.path.join(syspath, "before_setup.sql")
-    if not os.path.exists(path):
+    if not os.path.exists(file_path):
         log_info("No sys script found\n")
         return None
-    for line in open(path):
+    for line in open(file_path):
         if line.startswith("CREATE OR REPLACE ALGORITHM"):
             m = re.findall("SELECT '(.*)' AS sys_version", line)
             if m:
                 return m[0]
     return None
+
+def get_current_sys_version(server_version):
+    """Gets the version of the sys schema that's shipped with Workbench."""
+    syspath = mforms.App.get().get_resource_path("sys")
+    path = os.path.join(syspath, "before_setup.sql")
+    return get_sys_version_from_script(path)
 
 
 def get_installed_sys_version(sql_editor):
@@ -64,9 +110,8 @@ def get_installed_sys_version(sql_editor):
         raise
 
 
-
 class HelperInstallPanel(mforms.Table):
-    def __init__(self, owner, editor):
+    def __init__(self, owner, editor, ctrl_be):
         mforms.Table.__init__(self)
         self.set_managed()
         self.set_release_on_add()
@@ -85,6 +130,7 @@ class HelperInstallPanel(mforms.Table):
         self.progress.set_size(400, -1)
         
         self.owner = owner
+        self.ctrl_be = ctrl_be
         
         self.importer = MySQLScriptImporter(editor.connection)
         self.importer.report_progress = self.report_progress
@@ -148,13 +194,11 @@ class HelperInstallPanel(mforms.Table):
         self.progress.set_value(self._progress_value)
 
         return True
-            
-            
-    def work(self, files):
+
+    def install_scripts(self, files, message):
         try:
             for f, db in files:
-                log_info("Installing %s...\n" % f)
-                self._progress_status = "Installing %s..." % f
+                self._progress_status = "%s %s..." % (message, f)
                 self._progress_value = 0
                 self.importer.import_script(f, db)
 
@@ -170,7 +214,31 @@ class HelperInstallPanel(mforms.Table):
             log_error("Unexpected exception installing sys schema: %s\n%s\n" % (e, traceback.format_exc()))
             self._worker_queue.put(e)
         self._worker_queue.put(None)
+            
+            
+    def work(self, files):
+        location = download_server_install_script(self.ctrl_be)
+      
+        if location:
+            workbench_version_string = get_current_sys_version(None)
+            server_version_string = get_sys_version_from_script(location)
+            
+            maj, min, rel = [int(i) for i in workbench_version_string.split(".")]
+            workbench_version = Version(maj, min, rel)
+            maj, min, rel = [int(i) for i in server_version_string.split(".")]
+            server_version = Version(maj, min, rel)
 
+            
+            if server_version >= workbench_version:
+                log_info("Installing sys schema supplied by the server\n")
+                self.install_scripts([(location, None)], "Installing server script")
+                return
+            else:
+                log_info("Server sys schema install script exists but it's outdated compared to the one supplied by Workbench...\n")
+                
+                
+        log_info("Installing sys schema supplied by workbench\n")
+        self.install_scripts(files, "Installing Workbench script")
 
     def start(self):
         server_profile = self.owner.ctrl_be.server_profile
@@ -238,6 +306,7 @@ class WbAdminPSBaseTab(mforms.Box):
 
     def ps_helper_needs_installation(self):
         try:
+            self.ctrl_be.acquire_admin_access()
             installed_version = get_installed_sys_version(self.main_view.editor)
             if not installed_version:
                 return "The Performance Schema helper schema (sys) is not installed", \
@@ -340,7 +409,7 @@ class WbAdminPSBaseTab(mforms.Box):
         self.remove(self.warning_panel)
         self.warning_panel = None
 
-        self.installer_panel = HelperInstallPanel(self, self.main_view.editor)
+        self.installer_panel = HelperInstallPanel(self, self.main_view.editor, self.ctrl_be)
         self.add(self.installer_panel, True, True)
         self.relayout() # needed b/c of layout bug in Mac
 

@@ -136,7 +136,7 @@ void PythonCopyDataSource::_init()  // This has to be executed from the same thr
   }
 
   std::string full_connection_string(_connstring);
-  base::replace(full_connection_string, "%password%", _password);
+  base::replaceStringInplace(full_connection_string, "%password%", _password);
   PyObject *pAstModule = PyImport_ImportModule("ast");
   PyObject *pLiteralEvalFunction = PyObject_GetAttrString(pAstModule, "literal_eval");
   PyObject *pLiteralEvalArgs = Py_BuildValue("(s)", full_connection_string.c_str());

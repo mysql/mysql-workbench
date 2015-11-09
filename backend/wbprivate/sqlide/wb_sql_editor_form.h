@@ -23,6 +23,7 @@
 
 #include "base/file_utilities.h"
 #include "base/ui_form.h"
+#include "base/threaded_timer.h"
 
 #include "grts/structs.workbench.h"
 #include "grts/structs.db.mgmt.h"
@@ -115,6 +116,7 @@ public:
   typedef boost::weak_ptr<SqlEditorForm> Ptr;
   static SqlEditorForm::Ref create(wb::WBContextSQLIDE *wbsql, const db_mgmt_ConnectionRef &conn);
   static void report_connection_failure(const std::string &error, const db_mgmt_ConnectionRef &target);
+  static void report_connection_failure(const grt::server_denied &info, const db_mgmt_ConnectionRef &target);
 
   void set_tab_dock(mforms::DockingPoint *dp);
 
@@ -168,6 +170,8 @@ private:
   std::string _autosave_path;
 
   mforms::DockingPoint *_tabdock;
+
+  boost::signals2::connection _refreshPending; // Set when we triggered a refresh asynchronously.
 
   bool _autosave_disabled;
   bool _loading_workspace;
@@ -301,12 +305,13 @@ public:
   parser::ParserContext::Ref work_parser_context() { return _work_parser_context;  };
 
 private:
-  bec::TimerActionThread *_keep_alive_thread;
+  int         _keep_alive_task_id;
   base::Mutex _keep_alive_thread_mutex;
 private:
   void send_message_keep_alive();
+  bool send_message_keep_alive_bool_wrapper() { send_message_keep_alive(); return false; } // need it for ThreadedTimer, which expects callbacks to return bool
   void reset_keep_alive_thread();
-  
+
   db_mgmt_ConnectionRef _connection;
   // connection for maintenance operations, fetching schema contents & live editors (DDL only)
   sql::Dbc_connection_handler::Ref _aux_dbc_conn;
@@ -407,8 +412,8 @@ public:
   SqlEditorPanel *new_sql_script_file();
   SqlEditorPanel *new_sql_scratch_area(bool start_collapsed = false);
   void new_scratch_area() { new_sql_scratch_area(false); }
-  void open_file(const std::string &path, bool in_new_tab);
-  void open_file(const std::string &path = "") { open_file(path, true); }
+  void open_file(const std::string &path, bool in_new_tab, bool askForFile = true);
+  void open_file(const std::string &path = "") { open_file(path, true, !path.empty()); }
 
 public:
   void active_schema(const std::string &value);

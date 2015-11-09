@@ -301,7 +301,15 @@ class MySQLConnection:
         self.executeQuery("SELECT 1")
         return True
 
-    
+    def try_ping(self):
+        if not self.is_connected():
+            return False
+        try:
+            self.sql.exec_query("select 1")
+        except QueryError, e:
+            return False
+        return True
+      
     def disconnect(self):
         if self.connection:
             modules.DbMySQLQuery.closeConnection(self.connection)

@@ -281,7 +281,7 @@
     <ClInclude Include="src\wf_textentry.h" />
     <ClInclude Include="src\wf_toolbar.h" />
     <ClInclude Include="src\wf_treenode.h" />
-    <ClInclude Include="src\wf_treenodeview.h" />
+    <ClInclude Include="src\wf_treeview.h" />
     <ClInclude Include="src\wf_utilities.h" />
     <ClInclude Include="src\wf_view.h" />
     <ClInclude Include="src\wf_webbrowser.h" />
@@ -337,7 +337,7 @@
     <ClCompile Include="src\wf_textentry.cpp" />
     <ClCompile Include="src\wf_toolbar.cpp" />
     <ClCompile Include="src\wf_treenode.cpp" />
-    <ClCompile Include="src\wf_treenodeview.cpp" />
+    <ClCompile Include="src\wf_treeview.cpp" />
     <ClCompile Include="src\wf_utilities.cpp" />
     <ClCompile Include="src\wf_view.cpp" />
     <ClCompile Include="src\wf_webbrowser.cpp" />

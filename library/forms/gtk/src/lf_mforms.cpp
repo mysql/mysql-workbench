@@ -37,7 +37,7 @@
 #include "../lf_progressbar.h"
 #include "../lf_filechooser.h"
 #include "../lf_scrollpanel.h"
-#include "../lf_treenodeview.h"
+#include "../lf_treeview.h"
 #include "../lf_wizard.h"
 #include "../lf_utilities.h"
 #include "../lf_drawbox.h"
@@ -82,7 +82,7 @@ void ::mforms::gtk::init(bool force_sys_colors_)
   ProgressBarImpl::init();
   TableImpl::init();
   ScrollPanelImpl::init();
-  TreeNodeViewImpl::init();
+  TreeViewImpl::init();
   WizardImpl::init();
   UtilitiesImpl::init();
   DrawBoxImpl::init();

@@ -36,7 +36,7 @@ class DatatypeMappingEditor(mforms.Form):
         content.add(hbox, True, True)
         hbox.set_spacing(12)
         
-        self._type_list = mforms.newTreeNodeView(mforms.TreeFlatList)#|mforms.TreeAllowReorderRows)
+        self._type_list = mforms.newTreeView(mforms.TreeFlatList)#|mforms.TreeAllowReorderRows)
         self._type_list.set_size(200, -1)
         self._type_list.add_column(mforms.StringColumnType, "Type", 100, False)
         self._type_list.add_column(mforms.StringColumnType, "Target Type", 100, False)

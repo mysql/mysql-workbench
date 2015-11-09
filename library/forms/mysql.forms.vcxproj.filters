@@ -138,7 +138,7 @@
     <ClCompile Include="toolbar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="treenodeview.cpp">
+    <ClCompile Include="treeview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="utilities.cpp">
@@ -161,6 +161,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gridview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jsonview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -289,7 +292,7 @@
     <ClInclude Include="mforms\toolbar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="mforms\treenodeview.h">
+    <ClInclude Include="mforms\treeview.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="mforms\uistyle.h">
@@ -314,6 +317,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="mforms\gridview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mforms\jsonview.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

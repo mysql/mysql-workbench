@@ -23,7 +23,7 @@
 
 #include "grtui/grt_wizard_form.h"
 #include "mforms/label.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/imagebox.h"
 #include "mforms/menubar.h"
 #include "mforms/checkbox.h"
@@ -54,7 +54,7 @@ private:
   mforms::Box _header;
   mforms::ImageBox _image;
   mforms::Label _label;
-  mforms::TreeNodeView _tree;
+  mforms::TreeView _tree;
   OverridePanel *_override;
 
   bool _unselect_by_default;

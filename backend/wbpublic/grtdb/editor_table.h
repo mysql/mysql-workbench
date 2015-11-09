@@ -395,6 +395,8 @@ namespace bec {
 
 
     void column_count_changed();
+    bool showErrorMessage(const std::string& type);
+
   protected:
     FKConstraintListBE _fk_list;
 
@@ -408,6 +410,7 @@ namespace bec {
 
     void inserts_column_resized(int);
     void restore_inserts_columns();
+    void catalogChanged(const std::string &member, const grt::ValueRef &value);
 
     void update_selection_for_menu_extra(mforms::ContextMenu *menu, const std::vector<int> &rows, int column);
     void open_field_editor(int row, int column);

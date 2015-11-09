@@ -28,7 +28,7 @@
 #include "mforms/box.h"
 #include "mforms/button.h"
 #include "mforms/checkbox.h"
-#include "mforms/treenodeview.h"
+#include "mforms/treeview.h"
 #include "mforms/selector.h"
 #include "mforms/fs_object_selector.h"
 
@@ -50,7 +50,7 @@ private:
   friend class OptionTable;
   std::list<Option*> _options;
 
-  mforms::TreeNodeView _switcher;
+  mforms::TreeView _switcher;
 
   mforms::Box _hbox;
   mforms::Box _top_box;
@@ -64,7 +64,7 @@ private:
   mforms::CheckBox _use_global;
 
   mforms::Selector _font_preset;
-  mforms::TreeNodeView _font_list;
+  mforms::TreeView _font_list;
   std::vector<std::string> _font_options;
 
   workbench_physical_ModelRef _model; // nil unless we're showing model specific options

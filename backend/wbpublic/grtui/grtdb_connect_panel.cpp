@@ -22,7 +22,6 @@
 #include "mforms/fs_object_selector.h"
 #include "grtdb/db_helpers.h"
 
-#include "grt/common.h"
 #include "base/string_utilities.h"
 #include "base/log.h"
 #include "base/file_utilities.h"
@@ -65,6 +64,7 @@ _params_panel(mforms::TransparentPanel), _params_table(0),
 _ssl_panel(mforms::TransparentPanel), _ssl_table(0),
 _advanced_panel(mforms::TransparentPanel), _advanced_table(0),
 _options_panel(mforms::TransparentPanel), _options_table(0),
+_create_group(false),
 _show_connection_combo((flags & DbConnectPanelShowConnectionCombo) != 0),
 _show_manage_connections((flags & DbConnectPanelShowManageConnections) != 0),
 _dont_set_default_connection((flags & DbConnectPanelDontSetDefaultConnection) != 0),
@@ -113,6 +113,7 @@ _last_active_tab(-1)
     scoped_connect(_stored_connection_sel.signal_changed(),boost::bind(&DbConnectPanel::change_active_stored_conn, this));
   scoped_connect(_rdbms_sel.signal_changed(),boost::bind(&DbConnectPanel::change_active_rdbms, this));
   scoped_connect(_driver_sel.signal_changed(),boost::bind(&DbConnectPanel::change_active_driver, this));
+  scoped_connect(_name_entry.signal_changed(), boost::bind(&DbConnectPanel::change_connection_name, this));
 
   _table.set_name("connect_panel:table");
   _table.set_row_count(flags & DbConnectPanelShowRDBMSCombo ? 4 : 2);
@@ -177,6 +178,40 @@ DbConnectPanel::~DbConnectPanel()
 }
 
 
+void DbConnectPanel::connection_user_input(std::string &text_entry, bool &create_group, bool new_entry /*= true*/)
+{
+  std::size_t pos = text_entry.find_first_of("/");
+  if (pos == std::string::npos)
+    return;
+  create_group = false;
+  std::string group = text_entry.substr(0, pos);
+  std::string message = (new_entry) ? "Do you want to create connection inside the group" : "Do you want to split the name and move the connection to the group";
+  int ret = mforms::Utilities::show_message("Place Connection in a Group.",
+                                            base::strfmt("You have used a forward slash in your connection name, which is used to separate a group from the real connection name.\n"
+                                            "%s '%s'? If you select 'No' all forward slashes in the name will be replaced by underscores.", 
+                                            message.c_str(), group.c_str()), _("Yes"), _("No"));
+  if (ret == mforms::ResultOk)
+  {
+    create_group = true;
+    return;
+  }
+  while (pos != std::string::npos)
+  {
+    text_entry[pos] = '_';
+    pos = text_entry.find_first_of("/", pos + 1);
+  }
+}
+
+void DbConnectPanel::change_connection_name()
+{
+  if (_create_group)
+    return;
+  std::string text = _name_entry.get_string_value();
+  connection_user_input(text, _create_group);
+  _name_entry.set_value(text);
+}
+
+
 void DbConnectPanel::set_skip_schema_name(bool flag)
 {
   _skip_schema_name= flag;
@@ -228,10 +263,13 @@ void DbConnectPanel::init(DbConnection *conn, const db_mgmt_ConnectionRef &defau
   if (!_anonymous_connection->driver().is_valid())
     _anonymous_connection->driver(selected_driver());
   
-  if (default_conn.is_valid())
-    _connection->set_connection_and_update(_anonymous_connection);
-  else
-    _connection->set_connection_keeping_parameters(_anonymous_connection);
+  if (_stored_connection_sel.get_selected_index() == 0)
+  {
+    if (default_conn.is_valid())
+      _connection->set_connection_and_update(_anonymous_connection);
+    else
+      _connection->set_connection_keeping_parameters(_anonymous_connection);
+  }
 }
 
 
@@ -340,10 +378,10 @@ void DbConnectPanel::set_default_host_name(const std::string &host, bool update)
 }
 
 
-void DbConnectPanel::param_value_changed(mforms::View *sender)
+void DbConnectPanel::param_value_changed(mforms::View *sender, bool trim_whitespace)
 {
   std::string param_name= sender->get_name();
-  
+
   if (!_allow_edit_connections && !_updating)
   {
     // if stored connections combo is shown, copy the current connection params to the
@@ -356,10 +394,13 @@ void DbConnectPanel::param_value_changed(mforms::View *sender)
 
   DbDriverParam *param= _connection->get_db_driver_param_handles()->get(param_name);
 
-  param->set_value(grt::StringRef(sender->get_string_value()));
-  
+  if (trim_whitespace)
+    param->set_value(grt::StringRef(base::trim(sender->get_string_value())));
+  else
+    param->set_value(grt::StringRef(sender->get_string_value()));
+
   _connection->save_changes();
-  
+
   std::string error = _connection->validate_driver_params();
   if (error != _last_validation)
     _signal_validation_state_changed(error, error.empty());
@@ -837,7 +878,7 @@ void DbConnectPanel::launch_ssl_wizard()
 
 void DbConnectPanel::open_ssl_wizard_directory()
 {
-  std::string path = base::join_path(mforms::App::get()->get_user_data_folder().c_str(), "certificates", get_connection()->id().c_str(), "");
+  std::string path = base::joinPath(mforms::App::get()->get_user_data_folder().c_str(), "certificates", get_connection()->id().c_str(), "");
   
   if (base::is_directory(path))
     Utilities::open_url(path);
@@ -967,8 +1008,8 @@ void DbConnectPanel::set_keychain_password(DbDriverParam *param, bool clear)
   }
   for (grt::DictRef::const_iterator iter = paramValues.begin(); iter != paramValues.end(); ++iter)
   {
-    storage_key = bec::replace_string(storage_key, "%"+iter->first+"%", iter->second.repr());
-    username = bec::replace_string(username, "%"+iter->first+"%", iter->second.repr());
+    storage_key = base::replaceString(storage_key, "%"+iter->first+"%", iter->second.repr());
+    username = base::replaceString(username, "%"+iter->first+"%", iter->second.repr());
   }
 
   if (username.empty())
@@ -1128,7 +1169,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
           ctrl->set_active(*value != "" && *value != "0" && *value != "NULL");
       }
 
-      scoped_connect(ctrl->signal_clicked(),boost::bind(&DbConnectPanel::param_value_changed, this, ctrl));
+      scoped_connect(ctrl->signal_clicked(),boost::bind(&DbConnectPanel::param_value_changed, this, ctrl, false));
 
       box->add(mforms::manage(ctrl), false, true);
       _views.push_back(ctrl);
@@ -1174,18 +1215,18 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
       
       // value
       {
-        grt::StringRef value= driver_param->get_value_repr();
+        grt::StringRef value = driver_param->getValue();
         if (value.is_valid())
           ctrl->set_value(*value);
       }
 
       ctrl->set_size(bounds.width, -1);
 
-      scoped_connect(ctrl->signal_changed(),boost::bind(&DbConnectPanel::param_value_changed, this, ctrl));
+      scoped_connect(ctrl->signal_changed(),boost::bind(&DbConnectPanel::param_value_changed, this, ctrl, true));
 
       box->add(mforms::manage(ctrl), true, true);
       _views.push_back(ctrl);
-      
+
       break;
     }
     case ::ctText:
@@ -1202,11 +1243,11 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
 
       ctrl->set_size(bounds.width, -1);
 
-      scoped_connect(ctrl->signal_changed(),boost::bind(&DbConnectPanel::param_value_changed, this, ctrl));
+      scoped_connect(ctrl->signal_changed(),boost::bind(&DbConnectPanel::param_value_changed, this, ctrl, false));
 
       box->add(mforms::manage(ctrl), true, true);
       _views.push_back(ctrl);
-      
+
       break;
     }
     case ::ctFileSelector:
@@ -1222,7 +1263,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
       ctrl->set_size(bounds.width, -1);
 
       ctrl->initialize(initial_value, mforms::OpenFile, "", true,
-        boost::bind(&DbConnectPanel::param_value_changed, this, ctrl));
+        boost::bind(&DbConnectPanel::param_value_changed, this, ctrl, true));
       box->add(mforms::manage(ctrl), true, true);
       _views.push_back(ctrl);
       break;
