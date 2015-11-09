@@ -123,7 +123,7 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 	)
 endif()
 
-target_link_libraries(mforms linux_utilities mdcanvasgtk mdcanvas ${CAIRO_LIBRARIES} ${GTK3_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${TINYXML_LIBRARY})
+target_link_libraries(mforms linux_utilities mdcanvasgtk mdcanvas wbscintilla ${CAIRO_LIBRARIES} ${GTK3_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${TINYXML_LIBRARY})
 
 set_target_properties(mforms
                       PROPERTIES VERSION   ${WB_VERSION}
