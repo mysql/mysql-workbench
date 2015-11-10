@@ -1526,7 +1526,9 @@ void ConnectionsSection::update_colors()
   _back_tile_bk_color_hl = base::Color::parse("#d97457");
 
   bool high_contrast = base::Color::is_high_contrast_scheme();
+#ifndef __APPLE__
   _search_text.set_front_color(high_contrast ? "#000000" : "#FFFFFF");
+#endif
   _search_text.set_placeholder_color(high_contrast ? "#303030" : "#A0A0A0");
   _search_text.set_back_color(high_contrast ? "#ffffff" : "#474747");
 }
