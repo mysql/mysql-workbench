@@ -463,7 +463,7 @@ alter_statement:
 	| alter_server
 	| alter_table
 	| alter_tablespace
-	| {SERVER_VERSION >= 50100}? => alter_event
+	| {SERVER_VERSION >= 50100}? alter_event
 	| alter_view
   )
 ;
@@ -506,7 +506,7 @@ alter_table_commands:
 	| alter_table_list_item (COMMA_SYMBOL alter_table_list_item)* (partitioning? | remove_partitioning)
 	| remove_partitioning
 	| partitioning
-	| {SERVER_VERSION >= 50100}? => alter_partition
+	| {SERVER_VERSION >= 50100}? alter_partition
 ;
 
 alter_table_list_item:
@@ -539,13 +539,13 @@ alter_table_list_entry:
 	| DISABLE_SYMBOL KEYS_SYMBOL
 	| ENABLE_SYMBOL KEYS_SYMBOL
 	| RENAME_SYMBOL (TO_SYMBOL | AS_SYMBOL)? table_ref
-	| {SERVER_VERSION >= 50700}? => RENAME_SYMBOL (INDEX_SYMBOL | KEY_SYMBOL) column_ref TO_SYMBOL column_ref
+	| {SERVER_VERSION >= 50700}? RENAME_SYMBOL (INDEX_SYMBOL | KEY_SYMBOL) column_ref TO_SYMBOL column_ref
 	| alter_order_by
 	| CONVERT_SYMBOL TO_SYMBOL charset charset_name_or_default (COLLATE_SYMBOL collation_name_or_default)?
 	| FORCE_SYMBOL
-	| {SERVER_VERSION >= 50600}? => alter_algorithm_option
-	| {SERVER_VERSION >= 50600}? => alter_lock_option
-	| {SERVER_VERSION >= 50708}? => UPGRADE_SYMBOL PARTITIONING_SYMBOL
+	| {SERVER_VERSION >= 50600}? alter_algorithm_option
+	| {SERVER_VERSION >= 50600}? alter_lock_option
+	| {SERVER_VERSION >= 50708}? UPGRADE_SYMBOL PARTITIONING_SYMBOL
 ;
 
 key_def:
@@ -593,11 +593,11 @@ alter_partition:
 	| CHECK_SYMBOL PARTITION_SYMBOL all_or_partition_name_list check_option*
 	| REPAIR_SYMBOL PARTITION_SYMBOL no_write_to_bin_log? all_or_partition_name_list repair_option*
 	| COALESCE_SYMBOL PARTITION_SYMBOL no_write_to_bin_log? real_ulong_number
-	| {SERVER_VERSION >= 50500}? => TRUNCATE_SYMBOL PARTITION_SYMBOL all_or_partition_name_list
+	| {SERVER_VERSION >= 50500}? TRUNCATE_SYMBOL PARTITION_SYMBOL all_or_partition_name_list
 	| EXCHANGE_SYMBOL PARTITION_SYMBOL identifier WITH_SYMBOL TABLE_SYMBOL table_ref validation?
 	| REORGANIZE_SYMBOL PARTITION_SYMBOL no_write_to_bin_log? (identifier_list INTO_SYMBOL partition_definitions)?
-	| {SERVER_VERSION >= 50704}? => DISCARD_SYMBOL PARTITION_SYMBOL all_or_partition_name_list TABLESPACE_SYMBOL
-	| {SERVER_VERSION >= 50704}? => IMPORT_SYMBOL PARTITION_SYMBOL all_or_partition_name_list TABLESPACE_SYMBOL
+	| {SERVER_VERSION >= 50704}? DISCARD_SYMBOL PARTITION_SYMBOL all_or_partition_name_list TABLESPACE_SYMBOL
+	| {SERVER_VERSION >= 50704}? IMPORT_SYMBOL PARTITION_SYMBOL all_or_partition_name_list TABLESPACE_SYMBOL
 ;
 
 validation:
@@ -660,7 +660,7 @@ create_statement:
 		| create_database_tail
 		| definer_clause?
 			(
-				{SERVER_VERSION >= 50100}? => create_event_tail
+				{SERVER_VERSION >= 50100}? create_event_tail
 				| create_view_tail
 				| create_routine_or_udf
 				| create_trigger_tail
@@ -886,7 +886,7 @@ tablespace_option:
 	| STORAGE_SYMBOL? ENGINE_SYMBOL EQUAL_OPERATOR? engine_ref
 	| (WAIT_SYMBOL | NO_WAIT_SYMBOL)
 	| COMMENT_SYMBOL EQUAL_OPERATOR? string_literal
-	| {SERVER_VERSION >= 50707}? => FILE_BLOCK_SIZE_SYMBOL EQUAL_OPERATOR? size_number
+	| {SERVER_VERSION >= 50707}? FILE_BLOCK_SIZE_SYMBOL EQUAL_OPERATOR? size_number
 ;
 
 create_trigger: // For external use only. Don't reference this in the normal grammar.
@@ -899,7 +899,7 @@ create_trigger_tail:
 ;
 
 trigger_follows_precedes_clause:
-	{SERVER_VERSION >= 50700}? => (FOLLOWS_SYMBOL | PRECEDES_SYMBOL) text_or_identifier // not a trigger reference!
+	{SERVER_VERSION >= 50700}? (FOLLOWS_SYMBOL | PRECEDES_SYMBOL) text_or_identifier // not a trigger reference!
 ;
 	
 create_view: // For external use only. Don't reference this in the normal grammar.
@@ -928,7 +928,7 @@ drop_statement:
 	DROP_SYMBOL^
 	(
 		DATABASE_SYMBOL if_exists? schema_ref
-		| {SERVER_VERSION >= 50100}? => EVENT_SYMBOL if_exists? event_ref
+		| {SERVER_VERSION >= 50100}? EVENT_SYMBOL if_exists? event_ref
 		|
 			(
 				FUNCTION_SYMBOL if_exists? function_ref // Including UDFs.
@@ -1085,7 +1085,7 @@ load_statement:
 
 data_or_xml:
 	DATA_SYMBOL
-	| {SERVER_VERSION >= 50500}? => XML_SYMBOL
+	| {SERVER_VERSION >= 50500}? XML_SYMBOL
 ;
 
 xml_rows_identified_by:
@@ -1160,7 +1160,7 @@ query_expression_body:
 select_part2_derived: // select_part2 equivalent for sub queries.
 	( options { greedy = true; }:
 		query_spec_option
-		| {SERVER_VERSION <= 50100}? => (SQL_NO_CACHE_SYMBOL | SQL_CACHE_SYMBOL)
+		| {SERVER_VERSION <= 50100}? (SQL_NO_CACHE_SYMBOL | SQL_CACHE_SYMBOL)
 	)* select_item_list
 ;
 
@@ -1168,7 +1168,7 @@ select_option:
 	query_spec_option
 	| SQL_NO_CACHE_SYMBOL
 	| SQL_CACHE_SYMBOL
-	| {SERVER_VERSION >= 50704 && SERVER_VERSION < 50708}? => MAX_STATEMENT_TIME_SYMBOL EQUAL_OPERATOR real_ulong_number
+	| {SERVER_VERSION >= 50704 && SERVER_VERSION < 50708}? MAX_STATEMENT_TIME_SYMBOL EQUAL_OPERATOR real_ulong_number
 ;
 
 query_spec_option:
@@ -1407,12 +1407,12 @@ transaction_statement:
 
 transaction_characteristic:
 	WITH_SYMBOL CONSISTENT_SYMBOL SNAPSHOT_SYMBOL
-	| {SERVER_VERSION >= 50605}? => READ_SYMBOL (WRITE_SYMBOL | ONLY_SYMBOL)
+	| {SERVER_VERSION >= 50605}? READ_SYMBOL (WRITE_SYMBOL | ONLY_SYMBOL)
 ;
 
 set_transaction_characteristic:
 	ISOLATION_SYMBOL LEVEL_SYMBOL isolation_level
-	| {SERVER_VERSION >= 50605}? => READ_SYMBOL (WRITE_SYMBOL | ONLY_SYMBOL)
+	| {SERVER_VERSION >= 50605}? READ_SYMBOL (WRITE_SYMBOL | ONLY_SYMBOL)
 ;
 
 isolation_level:
@@ -1453,7 +1453,7 @@ xa_statement:
 ;
 
 xa_convert:
-	{SERVER_VERSION >= 50704}? => (CONVERT_SYMBOL XID_SYMBOL)?
+	{SERVER_VERSION >= 50704}? (CONVERT_SYMBOL XID_SYMBOL)?
 	| /* empty */
 ;
 
@@ -1467,14 +1467,14 @@ xid:
 replication_statement:
 	PURGE_SYMBOL^ (BINARY_SYMBOL | MASTER_SYMBOL) LOGS_SYMBOL (TO_SYMBOL string_literal | BEFORE_SYMBOL expression)
 	| change_master
-	| {SERVER_VERSION >= 50700}? => change_replication
+	| {SERVER_VERSION >= 50700}? change_replication
 	/* Defined in the miscellaneous statement to avoid ambiguities.
 	| RESET_SYMBOL MASTER_SYMBOL
 	| RESET_SYMBOL SLAVE_SYMBOL ALL_SYMBOL
 	*/
 	| slave
-	| {SERVER_VERSION < 50500}? => replication_load
-	| {SERVER_VERSION > 50706}? => group_replication
+	| {SERVER_VERSION < 50500}? replication_load
+	| {SERVER_VERSION > 50706}? group_replication
 ;
 
 replication_load:
@@ -1566,16 +1566,16 @@ slave:
 slave_until_options:
 	(
 		master_file_def
-		| {SERVER_VERSION >= 50606}? => (SQL_BEFORE_GTIDS_SYMBOL | SQL_AFTER_GTIDS_SYMBOL) EQUAL_OPERATOR text_string
-		| {SERVER_VERSION >= 50606}? => SQL_AFTER_MTS_GAPS_SYMBOL
+		| {SERVER_VERSION >= 50606}? (SQL_BEFORE_GTIDS_SYMBOL | SQL_AFTER_GTIDS_SYMBOL) EQUAL_OPERATOR text_string
+		| {SERVER_VERSION >= 50606}? SQL_AFTER_MTS_GAPS_SYMBOL
 	)
 	(COMMA_SYMBOL master_file_def)*
 ;
 
 slave_connection_options:
-	{SERVER_VERSION >= 50604}? => (USER_SYMBOL EQUAL_OPERATOR text_string)? (PASSWORD_SYMBOL EQUAL_OPERATOR text_string)?
+	{SERVER_VERSION >= 50604}? (USER_SYMBOL EQUAL_OPERATOR text_string)? (PASSWORD_SYMBOL EQUAL_OPERATOR text_string)?
 		(DEFAULT_AUTH_SYMBOL EQUAL_OPERATOR text_string)? (PLUGIN_DIR_SYMBOL EQUAL_OPERATOR text_string)?
-	| // Intentionally left empty for the gated predicate.
+	| /* empty */
 ;
 
 slave_thread_options:
@@ -1609,10 +1609,10 @@ execute_var_list:
 //--------------------------------------------------------------------------------------------------
 
 account_management_statement:
-	{SERVER_VERSION >= 50606}? => alter_user
+	{SERVER_VERSION >= 50606}? alter_user
 	| create_user
 	| drop_user
-	| {SERVER_VERSION >= 50500}? => grant_proxy
+	| {SERVER_VERSION >= 50500}? grant_proxy
 	| grant
 	| rename_user
 	| revoke_statement
@@ -1620,27 +1620,21 @@ account_management_statement:
 ;
 
 alter_user:
-	ALTER_SYMBOL^ USER_SYMBOL
-	(
-		// Instead of using our usual gated semantic predicate for the conditional part we do it here a bit differently,
-		// because otherwise ANTLR crashs with a stack overflow error (because of the 2 consecutive gated sempreds).
-		alter_user_tail
-		| {SERVER_VERSION >= 50708}? => if_exists alter_user_tail
-	)
+	ALTER_SYMBOL^ USER_SYMBOL ({SERVER_VERSION >= 50706}? if_exists | /* empty */) alter_user_tail
 ;
 
 alter_user_tail:
 	grant_list create_user_tail
-	| {SERVER_VERSION >= 50706}? => USER_SYMBOL parentheses IDENTIFIED_SYMBOL BY_SYMBOL text_string
+	| {SERVER_VERSION >= 50706}? USER_SYMBOL parentheses IDENTIFIED_SYMBOL BY_SYMBOL text_string
 ;
 
 create_user:
-	CREATE_SYMBOL^ USER_SYMBOL ({SERVER_VERSION >= 50708}? => if_not_exists? | /* empty */) grant_list create_user_tail
+	CREATE_SYMBOL^ USER_SYMBOL ({SERVER_VERSION >= 50706}? if_not_exists | /* empty */) grant_list create_user_tail
 ;
 
 create_user_tail:
-	{SERVER_VERSION >= 50704}? => require_clause? connect_options? account_lock_password_expire_options?
-	| // Intentionally left empty to make the gated semantic predicate work.
+	{SERVER_VERSION >= 50706}? require_clause? connect_options? account_lock_password_expire_options?
+	| /* empty */
 ;
 
 require_clause:
@@ -1668,7 +1662,7 @@ account_lock_password_expire_options:
 ;
 
 drop_user:
-	DROP_SYMBOL^ USER_SYMBOL ({SERVER_VERSION >= 50708}? => if_exists? | /* empty */) user_list
+	DROP_SYMBOL^ USER_SYMBOL ({SERVER_VERSION >= 50706}? if_exists | /* empty */) user_list
 ;
 
 parse_grant: // For external use only. Don't reference this in the normal grammar.
@@ -1694,7 +1688,7 @@ revoke_statement:
 	(
 		{LA(1) == ALL_SYMBOL}? => ALL_SYMBOL PRIVILEGES_SYMBOL? COMMA_SYMBOL GRANT_SYMBOL OPTION_SYMBOL FROM_SYMBOL user_list
 		| grant_privileges privilege_target FROM_SYMBOL user_list
-		| {SERVER_VERSION >= 50500}? => PROXY_SYMBOL ON_SYMBOL user FROM_SYMBOL user_list
+		| {SERVER_VERSION >= 50500}? PROXY_SYMBOL ON_SYMBOL user FROM_SYMBOL user_list
 	)
 ;
 
@@ -1706,7 +1700,7 @@ set_password:
 	SET_SYMBOL^ PASSWORD_SYMBOL (FOR_SYMBOL user)? equal
 	(
 		PASSWORD_SYMBOL OPEN_PAR_SYMBOL text_string CLOSE_PAR_SYMBOL
-		| {SERVER_VERSION < 50706}? => OLD_PASSWORD_SYMBOL OPEN_PAR_SYMBOL text_string CLOSE_PAR_SYMBOL
+		| {SERVER_VERSION < 50706}? OLD_PASSWORD_SYMBOL OPEN_PAR_SYMBOL text_string CLOSE_PAR_SYMBOL
 		| text_string
 	)
 ;
@@ -1778,8 +1772,8 @@ table_administration_statement:
 	| CHECKSUM_SYMBOL^ TABLE_SYMBOL table_ref_list (QUICK_SYMBOL | EXTENDED_SYMBOL)?
 	| OPTIMIZE_SYMBOL^ no_write_to_bin_log? TABLE_SYMBOL table_ref_list
 	| REPAIR_SYMBOL^ no_write_to_bin_log? TABLE_SYMBOL table_ref_list repair_option*
-	| {SERVER_VERSION < 50500}? => BACKUP_SYMBOL^ TABLE_SYMBOL table_ref_list TO_SYMBOL string_literal
-	| {SERVER_VERSION < 50500}? => RESTORE_SYMBOL^ TABLE_SYMBOL table_ref_list FROM_SYMBOL string_literal
+	| {SERVER_VERSION < 50500}? BACKUP_SYMBOL^ TABLE_SYMBOL table_ref_list TO_SYMBOL string_literal
+	| {SERVER_VERSION < 50500}? RESTORE_SYMBOL^ TABLE_SYMBOL table_ref_list FROM_SYMBOL string_literal
 ;
 
 check_option:
@@ -1849,15 +1843,15 @@ option_value:
 show_statement:
 	SHOW_SYMBOL^
 	(
-		{SERVER_VERSION < 50700}? => AUTHORS_SYMBOL
+		{SERVER_VERSION < 50700}? AUTHORS_SYMBOL
 		| DATABASES_SYMBOL like_or_where?
 		| FULL_SYMBOL? TABLES_SYMBOL in_db? like_or_where?
 		| FULL_SYMBOL? TRIGGERS_SYMBOL in_db? like_or_where?
 		| EVENTS_SYMBOL in_db? like_or_where?
 		| TABLE_SYMBOL STATUS_SYMBOL in_db? like_or_where?
 		| OPEN_SYMBOL TABLES_SYMBOL in_db? like_or_where?
-		| {(SERVER_VERSION >= 50105) && (SERVER_VERSION < 50500)}? => PLUGIN_SYMBOL // Supported between 5.1.5 and 5.5.0.
-		| {SERVER_VERSION >= 50500}? => PLUGINS_SYMBOL
+		| {(SERVER_VERSION >= 50105) && (SERVER_VERSION < 50500)}? PLUGIN_SYMBOL // Supported between 5.1.5 and 5.5.0.
+		| {SERVER_VERSION >= 50500}? PLUGINS_SYMBOL
 		| ENGINE_SYMBOL engine_ref (STATUS_SYMBOL | MUTEX_SYMBOL)
 		| FULL_SYMBOL? COLUMNS_SYMBOL (FROM_SYMBOL | IN_SYMBOL) table_ref in_db? like_or_where?
 		| (BINARY_SYMBOL | MASTER_SYMBOL) LOGS_SYMBOL
@@ -1879,7 +1873,7 @@ show_statement:
 		| FULL_SYMBOL? PROCESSLIST_SYMBOL
 		| charset like_or_where?
 		| COLLATION_SYMBOL like_or_where?
-		| {SERVER_VERSION < 50700}? => CONTRIBUTORS_SYMBOL
+		| {SERVER_VERSION < 50700}? CONTRIBUTORS_SYMBOL
 		| GRANTS_SYMBOL (FOR_SYMBOL user)?
 		| MASTER_SYMBOL STATUS_SYMBOL
 		| CREATE_SYMBOL
@@ -1891,19 +1885,19 @@ show_statement:
 				| TABLE_SYMBOL table_ref
 				| TRIGGER_SYMBOL trigger_ref
 				| VIEW_SYMBOL view_ref
-				| {SERVER_VERSION >= 50704}? => USER_SYMBOL user
+				| {SERVER_VERSION >= 50704}? USER_SYMBOL user
 			)
 		| PROCEDURE_SYMBOL STATUS_SYMBOL like_or_where?
 		| FUNCTION_SYMBOL STATUS_SYMBOL like_or_where?
 		| PROCEDURE_SYMBOL CODE_SYMBOL procedure_ref
 		| FUNCTION_SYMBOL CODE_SYMBOL function_ref
-		| {SERVER_VERSION < 50500}? => INNODB_SYMBOL STATUS_SYMBOL // Deprecated in 5.5.
+		| {SERVER_VERSION < 50500}? INNODB_SYMBOL STATUS_SYMBOL // Deprecated in 5.5.
 	)
 ;
 
 non_blocking:
-	{SERVER_VERSION >= 50700 && SERVER_VERSION < 50706}? => NONBLOCKING_SYMBOL?
-	| // Intentionally left empty to make the gated semantic predicate work.
+	{SERVER_VERSION >= 50700 && SERVER_VERSION < 50706}? NONBLOCKING_SYMBOL?
+	| /* empty */
 ;
 
 from_or_in:
@@ -1939,7 +1933,7 @@ other_administrative_statement:
 	| KILL_SYMBOL^  (options { greedy = true; }: (CONNECTION_SYMBOL | QUERY_SYMBOL))? expression
 	| LOAD_SYMBOL^ INDEX_SYMBOL INTO_SYMBOL CACHE_SYMBOL load_table_index_list
 	| RESET_SYMBOL^ reset_option (COMMA_SYMBOL reset_option)*
-	| {SERVER_VERSION >= 50709}? => SHUTDOWN_SYMBOL
+	| {SERVER_VERSION >= 50709}? SHUTDOWN_SYMBOL
 ;
 
 key_cache_list_or_parts options { k = 4; }:
@@ -1977,7 +1971,7 @@ flush_option:
 	| QUERY_SYMBOL CACHE_SYMBOL
 	| STATUS_SYMBOL
 	| USER_RESOURCES_SYMBOL
-	| {SERVER_VERSION >= 50706}? => OPTIMIZER_COSTS_SYMBOL
+	| {SERVER_VERSION >= 50706}? OPTIMIZER_COSTS_SYMBOL
 ;
 
 log_type:
@@ -1997,7 +1991,7 @@ flush_tables:
 ;
 
 flush_tables_options:
-	{SERVER_VERSION >= 50606}? => FOR_SYMBOL EXPORT_SYMBOL
+	{SERVER_VERSION >= 50606}? FOR_SYMBOL EXPORT_SYMBOL
 	| WITH_SYMBOL READ_SYMBOL LOCK_SYMBOL
 ;
 
@@ -2027,8 +2021,8 @@ utility_statement:
 					// The format specifier is defined here like in the server grammar but actually defined are only
 					// traditional and json, anything else results in a server error.
 					EXTENDED_SYMBOL // deprecated since 5.7
-					| {SERVER_VERSION >= 50105}? => PARTITIONS_SYMBOL // deprecated since 5.7
-					| {SERVER_VERSION >= 50605}? => FORMAT_SYMBOL EQUAL_OPERATOR text_or_identifier
+					| {SERVER_VERSION >= 50105}? PARTITIONS_SYMBOL // deprecated since 5.7
+					| {SERVER_VERSION >= 50605}? FORMAT_SYMBOL EQUAL_OPERATOR text_or_identifier
 				)? explainable_statement
 		)
 	| HELP_SYMBOL^ text_or_identifier
@@ -2042,14 +2036,14 @@ describe_command:
 // Before server version 5.6 only select statements were explainable.
 explainable_statement:
 	select_statement
-	| {SERVER_VERSION >= 50603}? =>
+	| {SERVER_VERSION >= 50603}?
 		(
 			delete_statement
 			| insert_statement
 			| replace_statement
 			| update_statement
 		)
-	| {SERVER_VERSION >= 50700}? => FOR_SYMBOL CONNECTION_SYMBOL real_ulong_number
+	| {SERVER_VERSION >= 50700}? FOR_SYMBOL CONNECTION_SYMBOL real_ulong_number
 ;
 
 use_command:
@@ -2179,7 +2173,7 @@ primary:
 		| runtime_function_call // Complete functions defined in the grammar.
 		| udf_call
 		| (stored_function_call) => stored_function_call
-		| column_ref ( {SERVER_VERSION >= 50708}? => (JSON_SEPARATOR_SYMBOL text_string)? | /* empty*/ )
+		| column_ref ( {SERVER_VERSION >= 50708}? (JSON_SEPARATOR_SYMBOL text_string)? | /* empty*/ )
 		| PARAM_MARKER
 		| variable
 		| EXISTS_SYMBOL subquery
@@ -2267,7 +2261,7 @@ runtime_function_call_expression:
 	| FORMAT_SYMBOL OPEN_PAR_SYMBOL expression COMMA_SYMBOL expression (COMMA_SYMBOL expression)? CLOSE_PAR_SYMBOL
 	| MICROSECOND_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
 	| MOD_SYMBOL OPEN_PAR_SYMBOL expression COMMA_SYMBOL expression CLOSE_PAR_SYMBOL
-	| {SERVER_VERSION < 50607}? => OLD_PASSWORD_SYMBOL OPEN_PAR_SYMBOL string_literal CLOSE_PAR_SYMBOL
+	| {SERVER_VERSION < 50607}? OLD_PASSWORD_SYMBOL OPEN_PAR_SYMBOL string_literal CLOSE_PAR_SYMBOL
 	| PASSWORD_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
 	| QUARTER_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
 	| REPEAT_SYMBOL OPEN_PAR_SYMBOL expression COMMA_SYMBOL expression CLOSE_PAR_SYMBOL
@@ -2276,7 +2270,7 @@ runtime_function_call_expression:
 	| ROW_COUNT_SYMBOL parentheses
 	| TRUNCATE_SYMBOL OPEN_PAR_SYMBOL expression COMMA_SYMBOL expression CLOSE_PAR_SYMBOL
 	| WEEK_SYMBOL OPEN_PAR_SYMBOL expression (COMMA_SYMBOL expression)? CLOSE_PAR_SYMBOL
-	| {SERVER_VERSION >= 50600}? => WEIGHT_STRING_SYMBOL OPEN_PAR_SYMBOL expression
+	| {SERVER_VERSION >= 50600}? WEIGHT_STRING_SYMBOL OPEN_PAR_SYMBOL expression
 		(
 			(AS_SYMBOL CHAR_SYMBOL field_length)? weight_string_levels?
 			| AS_SYMBOL BINARY_SYMBOL field_length
@@ -2346,7 +2340,7 @@ geometry_function:
 	| MULTIPOLYGON_SYMBOL expression_list_with_parentheses
 	| POINT_SYMBOL OPEN_PAR_SYMBOL expression COMMA_SYMBOL expression CLOSE_PAR_SYMBOL
 	| POLYGON_SYMBOL expression_list_with_parentheses
-	| {SERVER_VERSION < 50706}? => CONTAINS_SYMBOL OPEN_PAR_SYMBOL expression COMMA_SYMBOL expression CLOSE_PAR_SYMBOL
+	| {SERVER_VERSION < 50706}? CONTAINS_SYMBOL OPEN_PAR_SYMBOL expression COMMA_SYMBOL expression CLOSE_PAR_SYMBOL
 ;
 
 aggregate_function:
@@ -2465,7 +2459,7 @@ cast_type:
 	| TIME_SYMBOL type_datetime_precision?
 	| DATETIME_SYMBOL type_datetime_precision?
 	| DECIMAL_SYMBOL float_options?
-	| {SERVER_VERSION >= 50708}? => JSON_SYMBOL
+	| {SERVER_VERSION >= 50708}? JSON_SYMBOL
 ;
 
 encoding:
@@ -2528,7 +2522,7 @@ interval_unit:
 // Support for SQL_TSI_* units is added by mapping those to tokens without SQL_TSI_ prefix.
 interval_timestamp_unit:
 	MICROSECOND_SYMBOL
-	| {SERVER_VERSION < 50503}? => FRAC_SECOND_SYMBOL
+	| {SERVER_VERSION < 50503}? FRAC_SECOND_SYMBOL
 	| SECOND_SYMBOL
 	| MINUTE_SYMBOL
 	| HOUR_SYMBOL
@@ -2581,9 +2575,9 @@ compound_statement:
 	| cursor_close
 	
 	| statement
-	| {SERVER_VERSION >= 50604}? => get_diagnostics
-	| {SERVER_VERSION >= 50500}? => signal_statement
-	| {SERVER_VERSION >= 50500}? => resignal_statement
+	| {SERVER_VERSION >= 50604}? get_diagnostics
+	| {SERVER_VERSION >= 50500}? signal_statement
+	| {SERVER_VERSION >= 50500}? resignal_statement
 ;
 
 compound_statement_list:
@@ -2691,7 +2685,7 @@ get_diagnostics:
 	GET_SYMBOL
 	(
 		CURRENT_SYMBOL
-		| {SERVER_VERSION >= 50700}? => STACKED_SYMBOL
+		| {SERVER_VERSION >= 50700}? STACKED_SYMBOL
 	)? DIAGNOSTICS_SYMBOL
 	(
 		statement_information_item (COMMA_SYMBOL statement_information_item)*
@@ -2784,7 +2778,7 @@ field_def:
 
 field_def_tail options { k = 3; }:
 	attribute*
-	| {SERVER_VERSION >= 50707}? => (COLLATE_SYMBOL collation_name)? (GENERATED_SYMBOL ALWAYS_SYMBOL)? AS_SYMBOL
+	| {SERVER_VERSION >= 50707}? (COLLATE_SYMBOL collation_name)? (GENERATED_SYMBOL ALWAYS_SYMBOL)? AS_SYMBOL
 		OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL (VIRTUAL_SYMBOL | STORED_SYMBOL)? gcol_attribute*
 ;
 
@@ -2856,7 +2850,7 @@ spatial_index_option:
 
 all_key_option:
 	KEY_BLOCK_SIZE_SYMBOL EQUAL_OPERATOR? ulong_number
-	| {SERVER_VERSION >= 50600}? => COMMENT_SYMBOL string_literal
+	| {SERVER_VERSION >= 50600}? COMMENT_SYMBOL string_literal
 ;
 
 reference_option:
@@ -2914,7 +2908,7 @@ data_type_elements:
 	| ENUM_SYMBOL string_list string_binary?
 	| SET_SYMBOL string_list string_binary?
 	| SERIAL_SYMBOL
-	| {SERVER_VERSION >= 50707}? => JSON_SYMBOL
+	| {SERVER_VERSION >= 50707}? JSON_SYMBOL
 	| spatial_type
 ;
 
@@ -2936,16 +2930,16 @@ string_binary:
 
 ascii:
 	ASCII_SYMBOL BINARY_SYMBOL?
-	| {SERVER_VERSION >= 50500}? => BINARY_SYMBOL ASCII_SYMBOL
+	| {SERVER_VERSION >= 50500}? BINARY_SYMBOL ASCII_SYMBOL
 ;
 
 unicode:
 	UNICODE_SYMBOL BINARY_SYMBOL?
-	| {SERVER_VERSION >= 50500}? => BINARY_SYMBOL UNICODE_SYMBOL
+	| {SERVER_VERSION >= 50500}? BINARY_SYMBOL UNICODE_SYMBOL
 ;
 
 type_datetime_precision:
-	{SERVER_VERSION >= 50600}? => OPEN_PAR_SYMBOL INT_NUMBER CLOSE_PAR_SYMBOL
+	{SERVER_VERSION >= 50600}? OPEN_PAR_SYMBOL INT_NUMBER CLOSE_PAR_SYMBOL
 ;
 
 charset_name:
@@ -2987,7 +2981,7 @@ create_table_options:
 ;
 
 create_table_option: // In the order as they appear in the server grammar.
-	(ENGINE_SYMBOL | {SERVER_VERSION < 50500}? => TYPE_SYMBOL) EQUAL_OPERATOR? engine_ref
+	(ENGINE_SYMBOL | {SERVER_VERSION < 50500}? TYPE_SYMBOL) EQUAL_OPERATOR? engine_ref
 	| MAX_ROWS_SYMBOL EQUAL_OPERATOR? ulonglong_number
 	| MIN_ROWS_SYMBOL EQUAL_OPERATOR? ulonglong_number
 	| AVG_ROW_LENGTH_SYMBOL EQUAL_OPERATOR? ulong_number
@@ -2996,7 +2990,7 @@ create_table_option: // In the order as they appear in the server grammar.
 	| COMPRESSION_SYMBOL EQUAL_OPERATOR? text_string
 	| AUTO_INCREMENT_SYMBOL EQUAL_OPERATOR? ulonglong_number
 	| PACK_KEYS_SYMBOL EQUAL_OPERATOR? (ulong_number | DEFAULT_SYMBOL)
-	| {SERVER_VERSION >= 50600}? =>	(STATS_AUTO_RECALC_SYMBOL | STATS_PERSISTENT_SYMBOL | STATS_SAMPLE_PAGES_SYMBOL)
+	| {SERVER_VERSION >= 50600}? (STATS_AUTO_RECALC_SYMBOL | STATS_PERSISTENT_SYMBOL | STATS_SAMPLE_PAGES_SYMBOL)
 		EQUAL_OPERATOR? (ulong_number | DEFAULT_SYMBOL)
 	| (CHECKSUM_SYMBOL | TABLE_CHECKSUM_SYMBOL) EQUAL_OPERATOR? ulong_number
 	| DELAY_KEY_WRITE_SYMBOL EQUAL_OPERATOR? ulong_number
@@ -3011,7 +3005,7 @@ create_table_option: // In the order as they appear in the server grammar.
 	| INSERT_METHOD_SYMBOL EQUAL_OPERATOR? (NO_SYMBOL | FIRST_SYMBOL | LAST_SYMBOL)
 	| DATA_SYMBOL DIRECTORY_SYMBOL EQUAL_OPERATOR? text_string
 	| INDEX_SYMBOL DIRECTORY_SYMBOL EQUAL_OPERATOR? text_string
-	| TABLESPACE_SYMBOL ({SERVER_VERSION >= 50707}? => EQUAL_OPERATOR? | /* empty by intention */ ) identifier
+	| TABLESPACE_SYMBOL ({SERVER_VERSION >= 50707}? EQUAL_OPERATOR? | /* empty */ ) identifier
 	| STORAGE_SYMBOL (DISK_SYMBOL | MEMORY_SYMBOL)
 	| CONNECTION_SYMBOL EQUAL_OPERATOR? text_string
 	| KEY_BLOCK_SIZE_SYMBOL EQUAL_OPERATOR? ulong_number
@@ -3019,14 +3013,14 @@ create_table_option: // In the order as they appear in the server grammar.
 
 // Partition rules for CREATE/ALTER TABLE.
 partitioning:
-	{SERVER_VERSION >= 50100}? => PARTITION_SYMBOL^ BY_SYMBOL
+	{SERVER_VERSION >= 50100}? PARTITION_SYMBOL^ BY_SYMBOL
 	(
 		LINEAR_SYMBOL? HASH_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
 		| LINEAR_SYMBOL? KEY_SYMBOL partition_key_algorithm? identifier_list_with_parentheses
 		| (RANGE_SYMBOL | LIST_SYMBOL)
 			( 
 				OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
-				| {SERVER_VERSION >= 50500}? => COLUMNS_SYMBOL identifier_list_with_parentheses
+				| {SERVER_VERSION >= 50500}? COLUMNS_SYMBOL identifier_list_with_parentheses
 			)
 	)
 	(PARTITIONS_SYMBOL real_ulong_number)?
@@ -3044,7 +3038,7 @@ partitioning:
 ;
 
 partition_key_algorithm: // Actually only 1 and 2 are allowed. Needs a semantic check.
-	{SERVER_VERSION >= 50700}? => ALGORITHM_SYMBOL EQUAL_OPERATOR real_ulong_number
+	{SERVER_VERSION >= 50700}? ALGORITHM_SYMBOL EQUAL_OPERATOR real_ulong_number
 ;
 
 partition_definitions:
@@ -3155,12 +3149,13 @@ grant_list:
 grant_user:
 	user
 	(
-		IDENTIFIED_SYMBOL
+		{SERVER_VERSION >= 50706}? IDENTIFIED_SYMBOL
 		(
 			BY_SYMBOL PASSWORD_SYMBOL? text_string
-			| WITH_SYMBOL text_or_identifier ((AS_SYMBOL | {SERVER_VERSION < 50704}? => BY_SYMBOL) text_string)?
+			| WITH_SYMBOL text_or_identifier ((AS_SYMBOL | BY_SYMBOL) text_string)?
 		)
-	)?
+		| /* empty */
+	)
 ;
 
 user:
@@ -3177,7 +3172,7 @@ like_or_where:
 ;
 
 online_option:
-	{SERVER_VERSION < 50600}? => (ONLINE_SYMBOL | OFFLINE_SYMBOL)
+	{SERVER_VERSION < 50600}? (ONLINE_SYMBOL | OFFLINE_SYMBOL)
 ;
 
 no_write_to_bin_log:
@@ -3431,7 +3426,7 @@ literal:
 	| null_literal
 	| bool_literal
 	| UNDERSCORE_CHARSET? HEX_NUMBER
-	| {SERVER_VERSION >= 50003}? => UNDERSCORE_CHARSET? BIN_NUMBER
+	| {SERVER_VERSION >= 50003}? UNDERSCORE_CHARSET? BIN_NUMBER
 	;
 
 signed_literal:
@@ -3589,7 +3584,7 @@ keyword:
 		| SAVEPOINT_SYMBOL
 		| SECURITY_SYMBOL
 		| SERVER_SYMBOL
-		| /*{SERVER_VERSION >= 50709}? =>*/ SHUTDOWN_SYMBOL // Moved here from keyword_sp.
+		| /*{SERVER_VERSION >= 50709}? */ SHUTDOWN_SYMBOL // Moved here from keyword_sp.
 			// Cannot make this alt using a sempred as ANTLR crashs on that (Out Of Mem).
 		| SIGNED_SYMBOL
 		| SLAVE_SYMBOL
@@ -3868,7 +3863,7 @@ keyword_sp:
 	| SESSION_SYMBOL
 	| SIMPLE_SYMBOL
 	| SHARE_SYMBOL
-	//| {SERVER_VERSION < 50709}? => SHUTDOWN_SYMBOL // Moved to keyword rule. We cannot keep this here however, as ANTLR crashs on that.
+	//| {SERVER_VERSION < 50709}? SHUTDOWN_SYMBOL // Moved to keyword rule. We cannot keep this here however, as ANTLR crashs on that.
 	| SLOW_SYMBOL
 	| SNAPSHOT_SYMBOL
 	| SOUNDS_SYMBOL
