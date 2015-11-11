@@ -99,13 +99,8 @@ TEST_FUNCTION(5)
   sql::DriverManager *dm = sql::DriverManager::getDriverManager();
   _conn->ref = dm->getConnection(connectionProperties);
 
-  base::remove("testconn.cache");
-  _cache = new AutoCompleteCache("testconn", boost::bind(&Test_object_base<sql_editor_be_autocomplete_tests>::get_connection, this, _1),
-    ".", NULL);
-
   std::auto_ptr<sql::Statement> stmt(_conn->ref->createStatement());
 
-  g_usleep(1000);
   sql::ResultSet *res = stmt->executeQuery("SELECT VERSION() as VERSION");
   if (res && res->next())
   {
@@ -118,7 +113,11 @@ TEST_FUNCTION(5)
 
   _tester.get_rdbms()->version(_version);
   version = (int)(_version->majorNumber() * 10000 + _version->minorNumber() * 100 + _version->releaseNumber());
-  
+
+  base::remove("testconn.cache");
+  _cache = new AutoCompleteCache("testconn", boost::bind(&Test_object_base<sql_editor_be_autocomplete_tests>::get_connection, this, _1),
+    ".", NULL);
+
   // Copy a current version of the code editor configuration file to the test data folder.
   gchar *contents;
   gsize length;
