@@ -350,7 +350,7 @@ NSString *sql10 = @"CREATE TABLE total (\n"
   "  ENGINE=MERGE UNION=(t1,t2) INSERT_METHOD=LAST;\n";
 NSString *sql11 = @"SELECT a FROM tick t WHERE timestamp > (((((((SELECT 1)  + 1))))))";
 NSString *sql12 = @"select * from (select 1 from dual)";
-NSString *sql13 = @"create user mike identified by 'blah' password expire never";
+NSString *sql13 = @"ALTER USER u@localhost IDENTIFIED WITH sha256_password BY 'test';";
 
 @implementation mysql_parserAppDelegate
 
