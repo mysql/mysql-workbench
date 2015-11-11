@@ -361,6 +361,7 @@ NSString *sql10 = @"CREATE TABLE total (\n"
   "  ENGINE=MERGE UNION=(t1,t2) INSERT_METHOD=LAST;\n";
 NSString *sql11 = @"SELECT a FROM tick t WHERE timestamp > (((((((SELECT 1)  + 1))))))";
 NSString *sql12 = @"select * from (select 1 from dual)";
+NSString *sql13 = @"ALTER USER u@localhost IDENTIFIED WITH sha256_password BY 'test';";
 
 @implementation mysql_parserAppDelegate
 
@@ -371,7 +372,7 @@ NSString *sql12 = @"select * from (select 1 from dual)";
   // Make the SQL edit control scroll horizontally too.
   [[text textContainer] setContainerSize: NSMakeSize(FLT_MAX, FLT_MAX)];
   [[text textContainer] setWidthTracksTextView: NO];
-  [text setString: sql12];
+  [text setString: sql13];
 }
 
 - (NSString*)dumpTree: (pANTLR3_BASE_TREE)tree state: (pANTLR3_RECOGNIZER_SHARED_STATE)state indentation: (NSString*)indentation
