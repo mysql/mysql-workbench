@@ -3028,7 +3028,7 @@ table_ref_list_with_wildcard:
 pure_identifier:
 	IDENTIFIER
 	| BACK_TICK_QUOTED_ID
-	| {SQL_MODE_ACTIVE(SQL_MODE_ANSI_QUOTES)}? => DOUBLE_QUOTED_TEXT
+	| {SQL_MODE_ACTIVE(SQL_MODE_ANSI_QUOTES)}? DOUBLE_QUOTED_TEXT
 ;
 
 // Identifiers including a certain set of keywords, which are allowed also if not quoted.
@@ -3120,7 +3120,8 @@ string_literal:
 
 string:
 	NCHAR_TEXT
-	| UNDERSCORE_CHARSET? ( options { greedy = true; }: SINGLE_QUOTED_TEXT | {!SQL_MODE_ACTIVE(SQL_MODE_ANSI_QUOTES)}? => DOUBLE_QUOTED_TEXT)+
+	| UNDERSCORE_CHARSET? ( options { greedy = true; }: SINGLE_QUOTED_TEXT
+	| {!SQL_MODE_ACTIVE(SQL_MODE_ANSI_QUOTES)}? DOUBLE_QUOTED_TEXT)+
 ;
 
 num_literal:
