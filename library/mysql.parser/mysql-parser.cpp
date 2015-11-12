@@ -22,6 +22,7 @@
 #include <string>
 #include <stack>
 #include <set>
+#include <map>
 
 #include <antlr3.h>
 #include <glib.h>
@@ -72,6 +73,108 @@ std::string get_token_name(pANTLR3_UINT8 *tokenNames, ANTLR3_UINT32 token)
 
     base::replaceStringInplace(result, "_", " ");
     return result;
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::string formatVersion(long version)
+{
+  long major = version / 10000, minor = (version / 100) % 100, release = version % 100;
+  return base::strfmt("%ld.%ld.%ld", major, minor, release);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Parses a server version predicate to get out the version + a word for the error message
+ * that describes the version relationship.
+ */
+std::string handleServerVersion(const std::vector<std::string> parts, bool withPrefix)
+{
+  bool includesEquality = parts[1].size() == 2;
+  std::string version = formatVersion(atoi(parts[2].c_str()));
+  switch (parts[1][0])
+  {
+    case '<': // A max version.
+      if (!includesEquality)
+        return withPrefix ? "server versions before " + version : "before " + version;
+      return withPrefix ? "server versions up to " + version : "up to " + version;
+    case '=': // An exact version.
+      return "the server version " + version;
+    case '>': // A min version.
+      if (!includesEquality)
+        withPrefix ? "server versions after " + version : "after " + version;
+      return withPrefix ? "server versions starting with " + version : "starting with " + version;
+
+    default:
+      return "specific versions"; // Unexpected operator found. Return a generic message part.
+  }
+}
+
+//------------------------------------------------------------------------------------------------
+
+/**
+ * Parses the given predicate and constructs an error message that tells why there is that error.
+ */
+std::string createErrorFromPredicate(std::string predicate, long version)
+{
+  // Parsable predicates have one of these forms:
+  // - "SERVER_VERSION >= 50100"
+  // - "(SERVER_VERSION >= 50105) && (SERVER_VERSION < 50500)"
+  // - "SQL_MODE_ACTIVE(SQL_MODE_ANSI_QUOTES)"
+  // - "!SQL_MODE_ACTIVE(SQL_MODE_ANSI_QUOTES)"
+  //
+  // We don't do full expression parsing here. Only what is given above.
+  predicate = base::trim(predicate);
+  std::vector<std::string> parts = base::split(predicate, "&&");
+  std::string message = "\nThis syntax is only allowed for %s. The current version is " + formatVersion(version);
+  switch (parts.size())
+  {
+    case 2:
+    {
+      // Min and max values for server versions.
+      std::string messagePart = "unknown conditions";
+      std::string expression = base::trim(parts[0]);
+      if (base::starts_with(expression, "(") && base::ends_with(expression, ")"))
+        expression = expression.substr(1, expression.size() - 2);
+      std::vector<std::string> expressionParts = base::split(expression, " ");
+      if ((expressionParts[0] == "SERVER_VERSION") && (expressionParts.size() == 3))
+        messagePart = handleServerVersion(expressionParts, true);
+
+      expression = base::trim(parts[1]);
+      if (base::starts_with(expression, "(") && base::ends_with(expression, ")"))
+        expression = expression.substr(1, expression.size() - 2);
+      expressionParts = base::split(expression, " ");
+      if ((expressionParts[0] == "SERVER_VERSION") && (expressionParts.size() == 3))
+        messagePart += " and " + handleServerVersion(expressionParts, false);
+
+      return base::strfmt(message.c_str(), messagePart.c_str());
+    }
+
+    case 1:
+    {
+      // A single expression.
+      std::string messagePart = "unknown conditions";
+      std::vector<std::string> expressionParts = base::split(predicate, " ");
+      if (expressionParts.size() == 1)
+      {
+        message = "\nThis syntax is only allowed if ";
+        if (base::starts_with(predicate, "SQL_MODE_ACTIVE("))
+          message += predicate.substr(16, predicate.size() - 17) + " is active.";
+        else if (base::starts_with(predicate, "!SQL_MODE_ACTIVE("))
+          message += predicate.substr(17, predicate.size() - 18) + " is not active.";
+      }
+      else
+      {
+        if ((expressionParts[0] == "SERVER_VERSION") && (expressionParts.size() == 3))
+          messagePart = handleServerVersion(expressionParts, true);
+      }
+
+      return base::strfmt(message.c_str(), messagePart.c_str());
+    }
+    default:
+      return "";
   }
 }
 
@@ -208,13 +311,14 @@ bool handle_parser_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION e
     break;
 
   case ANTLR3_FAILED_PREDICATE_EXCEPTION:
-    // Appears when a gated semantic predicate is used in the grammar, but not for predicting an alternative,
-    // e.g. ... some_rule {condition}? => some_rule.
-    // If the condition does not match we get a failed predicate error. So it's more like a grammar error
-    // unless this is by intention (which is never the case in the MySQL grammar where predicates are only used
-    // to guide the parser).
-    error << "failed predicate";
-    break;
+    {
+      // One of the semantic predicates failed. Since most of those are our version check predicates
+      // we can use that to give the user a hint about this.
+      std::string predicate = (const char*)exception->message;
+      RecognitionContext *context = (RecognitionContext*)recognizer->state->userp;
+      error << token_text << " (" << token_name << ") is not valid input here." << createErrorFromPredicate(predicate, context->version);
+      break;
+    }
 
   case ANTLR3_MISMATCHED_TREE_NODE_EXCEPTION:
     // This is very likely a tree parser error and hence not relevant here (no info in ANTLR docs).
