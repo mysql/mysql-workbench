@@ -83,7 +83,7 @@ extern "C" {
           }
           else
           {
-            error << "(end of input).\n\t This indicates a poorly specified lexer RULE\n\t or unterminated input element such as: \"STRING[\"]\n";
+            error << "(end of input).\n";
             width = ANTLR3_UINT32_CAST(((pANTLR3_UINT8)(lexer->input->data)+(lexer->input->size(lexer->input))) - (pANTLR3_UINT8)(lexer->rec->state->tokenStartCharIndex));
           }
         }
@@ -359,9 +359,17 @@ NSString *sql13 = @"ALTER USER u@localhost IDENTIFIED WITH sha256_password BY 't
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 
   // Make the SQL edit control scroll horizontally too.
-  [[text textContainer] setContainerSize: NSMakeSize(FLT_MAX, FLT_MAX)];
-  [[text textContainer] setWidthTracksTextView: NO];
-  [text setString: sql13];
+  [singleQueryText.textContainer setContainerSize: NSMakeSize(FLT_MAX, FLT_MAX)];
+  [singleQueryText.textContainer setWidthTracksTextView: NO];
+  singleQueryText.string = sql13;
+
+  NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
+  NSString *text = [defaults objectForKey: @"statements-file"];
+  if (text != nil)
+    pathEdit.stringValue = text;
+  text = [defaults objectForKey: @"single-query"];
+  if (text != nil)
+    singleQueryText.string = text;
 }
 
 - (NSString*)dumpTree: (pANTLR3_BASE_TREE)tree state: (pANTLR3_RECOGNIZER_SHARED_STATE)state indentation: (NSString*)indentation
@@ -457,13 +465,16 @@ NSString *sql13 = @"ALTER USER u@localhost IDENTIFIED WITH sha256_password BY 't
 
 - (IBAction)parseFromClipboard: (id)sender
 {
-  [text selectAll: sender];
-  [text pasteAsPlainText: sender];
+  [singleQueryText selectAll: sender];
+  [singleQueryText pasteAsPlainText: sender];
   [self parse: sender];
 }
 
 - (IBAction)parse: (id)sender
 {
+  NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
+  [defaults setObject: singleQueryText.string forKey: @"single-query"];
+
   last_error = "";
   [errorText setString: @""];
   
@@ -474,7 +485,7 @@ NSString *sql13 = @"ALTER USER u@localhost IDENTIFIED WITH sha256_password BY 't
 
   RecognitionContext context = { 0, 0, [self getServerVersion], [self getSqlModes], nil };
 
-  NSString *sql = [text string];
+  NSString *sql = singleQueryText.string;
   std::string utf8 = [sql UTF8String];
   input = antlr3StringStreamNew((pANTLR3_UINT8)utf8.c_str(), ANTLR3_ENC_UTF8, utf8.size(), (pANTLR3_UINT8)"sql-script");
   input->setUcaseLA(input, ANTLR3_TRUE); // Make input case-insensitive. String literals must all be upper case in the grammar!
@@ -608,9 +619,12 @@ bool parse_and_compare(const std::string query, pANTLR3_BASE_TREE tree, unsigned
     [alert runModal];
     return;
   }
-  
+
+  NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
+  [defaults setObject: fileName forKey: @"statements-file"];
+
   stopTests = NO;
-  queryText.string = @"";
+  errorQueryText.string = @"";
   last_error = "";
 
   statusText.stringValue = @"Counting queries...";
@@ -664,9 +678,11 @@ bool parse_and_compare(const std::string query, pANTLR3_BASE_TREE tree, unsigned
 {
   try {
     // 1. Part: parse example queries from file.
-    statusText.stringValue = @"Running tests from file...";
-    [self appendStepText: @"Running tests from file\n"];
-    
+    dispatch_async(dispatch_get_main_queue(), ^{
+      statusText.stringValue = @"Running tests from file...";
+      [self appendStepText: @"Running tests from file\n"];
+    });
+
     NSUInteger count = 0;
     BOOL gotError = NO;
     NSArray *queries = [data componentsSeparatedByString: @"$$\n"];
@@ -677,12 +693,15 @@ bool parse_and_compare(const std::string query, pANTLR3_BASE_TREE tree, unsigned
         break;
       
       if (query.length > 0) {
+        // The progress label is updated in the worker thread, otherwise it would not show changes in realtime.
         progressLabel.stringValue = [NSString stringWithFormat: @"%lu of %lu", ++count, queryCount];
         [progressLabel setNeedsDisplay];
         if (![self parseQuery: query version: serverVersion modes: sqlModes])
         {
-          statusText.stringValue = @"Error encountered, offending query below:";
-          queryText.string = query;
+          dispatch_async(dispatch_get_main_queue(), ^{
+            statusText.stringValue = @"Error encountered, offending query below:";
+            errorQueryText.string = query;
+          });
           gotError = YES;
           break;
         }
@@ -692,26 +711,22 @@ bool parse_and_compare(const std::string query, pANTLR3_BASE_TREE tree, unsigned
     // 2. Part: parse queries with function names for foreign keys.
     if (!gotError && !stopTests)
     {
-      [self appendStepText: [NSString stringWithFormat: @"Parsed %lu queries in file successfully.\n", (unsigned long)queryCount]];
-      
-      [self appendStepText: @"Running function name tests\n"];
-      statusText.stringValue = @"Running function name tests...";
+      dispatch_async(dispatch_get_main_queue(), ^{
+        [self appendStepText: [NSString stringWithFormat: @"Parsed %lu queries in file successfully.\n", (unsigned long)queryCount]];
+
+        [self appendStepText: @"Running function name tests\n"];
+        statusText.stringValue = @"Running function name tests...";
+      });
       gotError = ![self runFunctionNamesTest];
     }
     
-    // 3. Part: parse queries for correct operator precedence.
-    if (!gotError && !stopTests)
-    {
-      [self appendStepText: @"Running operator precedence tests\n"];
-      statusText.stringValue = @"Running operator precedence tests...";
-      gotError = ![self runOperatorPrecedenceTests];
-    }
-    
-    if (stopTests)
-      statusText.stringValue = @"Execution stopped by user.";
-    else
-      if (!gotError)
-        statusText.stringValue = @"All queries parsed fine. Great!";
+    dispatch_async(dispatch_get_main_queue(), ^{
+      if (stopTests)
+        statusText.stringValue = @"Execution stopped by user.";
+      else
+        if (!gotError)
+          statusText.stringValue = @"All queries parsed fine. Great!";
+    });
     running = NO;
   } catch (std::exception& e) {
     running = NO;
@@ -963,7 +978,7 @@ bool parse_and_compare(const std::string query, pANTLR3_BASE_TREE tree, unsigned
       if (![self parseQuery: query version: serverVersion modes: sqlModes])
       {
         statusText.stringValue = @"Error encountered, offending query below:";
-        queryText.string = query;
+        errorQueryText.string = query;
         return NO;
       }
     }
@@ -973,8 +988,10 @@ bool parse_and_compare(const std::string query, pANTLR3_BASE_TREE tree, unsigned
       [progressLabel setNeedsDisplay];
       if (![self parseQuery: query version: serverVersion modes: sqlModes])
       {
-        statusText.stringValue = @"Error encountered, offending query below:";
-        queryText.string = query;
+        dispatch_async(dispatch_get_main_queue(), ^{
+          statusText.stringValue = @"Error encountered, offending query below:";
+          errorQueryText.string = query;
+        });
         return NO;
       }
     }
@@ -982,540 +999,7 @@ bool parse_and_compare(const std::string query, pANTLR3_BASE_TREE tree, unsigned
   return YES;
 }
 
-- (BOOL)runOperatorPrecedenceTests
-{
-#define TEST_ERROR \
-{\
-  statusText.stringValue = @"Error encountered, offending query below:";\
-  queryText.string = [NSString stringWithUTF8String: query.c_str()];\
-  return NO;\
-}
-
-  unsigned sql_modes = [self getSqlModes];
-  unsigned server_version = [self getServerVersion];
-
-  // Testing OR, XOR, AND
-  std::string query = "select A, B, A OR B, A XOR B, A AND B from t1_30237_bool where C is null order by A, B";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that OR is associative
-  query = "select A, B, C, (A OR B) OR C, A OR (B OR C), A OR B OR C from t1_30237_bool order by A, B, C";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  query = "select count(*) from t1_30237_bool where ((A OR B) OR C) != (A OR (B OR C))";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that XOR is associative
-  query = "select A, B, C, (A XOR B) XOR C, A XOR (B XOR C), A XOR B XOR C from t1_30237_bool order by A, B, C";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  query = "select count(*) from t1_30237_bool where ((A XOR B) XOR C) != (A XOR (B XOR C))";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that AND is associative
-  query = "select A, B, C, (A AND B) AND C, A AND (B AND C), A AND B AND C from t1_30237_bool order by A, B, C";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  query = "select count(*) from t1_30237_bool where ((A AND B) AND C) != (A AND (B AND C))";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that AND has precedence over OR
-  query = "select A, B, C, (A OR B) AND C, A OR (B AND C), A OR B AND C from t1_30237_bool order by A, B, C";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select count(*) from t1_30237_bool where (A OR (B AND C)) != (A OR B AND C)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select A, B, C, (A AND B) OR C, A AND (B OR C), A AND B OR C from t1_30237_bool order by A, B, C";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select count(*) from t1_30237_bool where ((A AND B) OR C) != (A AND B OR C)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that AND has precedence over XOR
-  query = "select A, B, C, (A XOR B) AND C, A XOR (B AND C), A XOR B AND C from t1_30237_bool order by A, B, C";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select count(*) from t1_30237_bool where (A XOR (B AND C)) != (A XOR B AND C)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select A, B, C, (A AND B) XOR C, A AND (B XOR C), A AND B XOR C from t1_30237_bool order by A, B, C";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select count(*) from t1_30237_bool where ((A AND B) XOR C) != (A AND B XOR C)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that XOR has precedence over OR
-  query = "select A, B, C, (A XOR B) OR C, A XOR (B OR C), A XOR B OR C from t1_30237_bool order by A, B, C";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select count(*) from t1_30237_bool where ((A XOR B) OR C) != (A XOR B OR C)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select A, B, C, (A OR B) XOR C, A OR (B XOR C), A OR B XOR C from t1_30237_bool order by A, B, C";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select count(*) from t1_30237_bool where (A OR (B XOR C)) != (A OR B XOR C)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that NOT has precedence over OR
-  query = "select (NOT FALSE) OR TRUE, NOT (FALSE OR TRUE), NOT FALSE OR TRUE";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that NOT has precedence over XOR
-  query = "select (NOT FALSE) XOR FALSE, NOT (FALSE XOR FALSE), NOT FALSE XOR FALSE";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that NOT has precedence over AND
-  query = "select (NOT FALSE) AND FALSE, NOT (FALSE AND FALSE), NOT FALSE AND FALSE";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that NOT is associative
-  query = "select NOT NOT TRUE, NOT NOT NOT FALSE";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that IS has precedence over NOT
-  query = "select (NOT NULL) IS TRUE, NOT (NULL IS TRUE), NOT NULL IS TRUE";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select (NOT NULL) IS NOT TRUE, NOT (NULL IS NOT TRUE), NOT NULL IS NOT TRUE";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select (NOT NULL) IS FALSE, NOT (NULL IS FALSE), NOT NULL IS FALSE";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select (NOT NULL) IS NOT FALSE, NOT (NULL IS NOT FALSE), NOT NULL IS NOT FALSE";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select (NOT TRUE) IS UNKNOWN, NOT (TRUE IS UNKNOWN), NOT TRUE IS UNKNOWN";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select (NOT TRUE) IS NOT UNKNOWN, NOT (TRUE IS NOT UNKNOWN), NOT TRUE IS NOT UNKNOWN";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select (NOT TRUE) IS NULL, NOT (TRUE IS NULL), NOT TRUE IS NULL";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select (NOT TRUE) IS NOT NULL, NOT (TRUE IS NOT NULL), NOT TRUE IS NOT NULL";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that IS [NOT] NULL predicates are associative
-  // Documenting existing behavior in 5.0.48
-  query = "select FALSE IS NULL IS NULL IS NULL";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select TRUE IS NOT NULL IS NOT NULL IS NOT NULL";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that comparison operators are left associative
-  query = "select 1 <=> 2 <=> 2, (1 <=> 2) <=> 2, 1 <=> (2 <=> 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 1 = 2 = 2, (1 = 2) = 2, 1 = (2 = 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 1 != 2 != 3, (1 != 2) != 3, 1 != (2 != 3)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 1 <> 2 <> 3, (1 <> 2) <> 3, 1 <> (2 <> 3)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 1 < 2 < 3, (1 < 2) < 3, 1 < (2 < 3)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 3 <= 2 <= 1, (3 <= 2) <= 1, 3 <= (2 <= 1)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 1 > 2 > 3, (1 > 2) > 3, 1 > (2 > 3)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 1 >= 2 >= 3, (1 >= 2) >= 3, 1 >= (2 >= 3)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that | is associative
-  query = "select 0xF0 | 0x0F | 0x55, (0xF0 | 0x0F) | 0x55, 0xF0 | (0x0F | 0x55)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that & is associative
-  query = "select 0xF5 & 0x5F & 0x55, (0xF5 & 0x5F) & 0x55, 0xF5 & (0x5F & 0x55)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that << is left associative
-  query = "select 4 << 3 << 2, (4 << 3) << 2, 4 << (3 << 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that >> is left associative
-  query = "select 256 >> 3 >> 2, (256 >> 3) >> 2, 256 >> (3 >> 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that & has precedence over |
-  query = "select 0xF0 & 0x0F | 0x55, (0xF0 & 0x0F) | 0x55, 0xF0 & (0x0F | 0x55)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0x55 | 0xF0 & 0x0F, (0x55 | 0xF0) & 0x0F, 0x55 | (0xF0 & 0x0F)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that << has precedence over |
-  query = "select 0x0F << 4 | 0x0F, (0x0F << 4) | 0x0F, 0x0F << (4 | 0x0F)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0x0F | 0x0F << 4, (0x0F | 0x0F) << 4, 0x0F | (0x0F << 4)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that >> has precedence over |
-  query = "select 0xF0 >> 4 | 0xFF, (0xF0 >> 4) | 0xFF, 0xF0 >> (4 | 0xFF)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0xFF | 0xF0 >> 4, (0xFF | 0xF0) >> 4, 0xFF | (0xF0 >> 4)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that << has precedence over &
-  query = "select 0x0F << 4 & 0xF0, (0x0F << 4) & 0xF0, 0x0F << (4 & 0xF0)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0xF0 & 0x0F << 4, (0xF0 & 0x0F) << 4, 0xF0 & (0x0F << 4)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that >> has precedence over &
-  query = "select 0xF0 >> 4 & 0x55, (0xF0 >> 4) & 0x55, 0xF0 >> (4 & 0x55)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0x0F & 0xF0 >> 4, (0x0F & 0xF0) >> 4, 0x0F & (0xF0 >> 4)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that >> and << have the same precedence
-  query = "select 0xFF >> 4 << 2, (0xFF >> 4) << 2, 0xFF >> (4 << 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0x0F << 4 >> 2, (0x0F << 4) >> 2, 0x0F << (4 >> 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that binary + is associative
-  query = "select 1 + 2 + 3, (1 + 2) + 3, 1 + (2 + 3)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that binary - is left associative
-  query = "select 1 - 2 - 3, (1 - 2) - 3, 1 - (2 - 3)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that binary + and binary - have the same precedence
-  // and are evaluated left to right
-  query = "select 1 + 2 - 3, (1 + 2) - 3, 1 + (2 - 3)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 1 - 2 + 3, (1 - 2) + 3, 1 - (2 + 3)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that binary + has precedence over |
-  query = "select 0xF0 + 0x0F | 0x55, (0xF0 + 0x0F) | 0x55, 0xF0 + (0x0F | 0x55)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0x55 | 0xF0 + 0x0F, (0x55 | 0xF0) + 0x0F, 0x55 | (0xF0 + 0x0F)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that binary + has precedence over &
-  query = "select 0xF0 + 0x0F & 0x55, (0xF0 + 0x0F) & 0x55, 0xF0 + (0x0F & 0x55)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0x55 & 0xF0 + 0x0F, (0x55 & 0xF0) + 0x0F, 0x55 & (0xF0 + 0x0F)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that binary + has precedence over <<
-  query = "select 2 + 3 << 4, (2 + 3) << 4, 2 + (3 << 4)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 3 << 4 + 2, (3 << 4) + 2, 3 << (4 + 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that binary + has precedence over >>
-  query = "select 4 + 3 >> 2, (4 + 3) >> 2, 4 + (3 >> 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 3 >> 2 + 1, (3 >> 2) + 1, 3 >> (2 + 1)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that binary - has precedence over |
-  query = "select 0xFF - 0x0F | 0x55, (0xFF - 0x0F) | 0x55, 0xFF - (0x0F | 0x55)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0x55 | 0xFF - 0xF0, (0x55 | 0xFF) - 0xF0, 0x55 | (0xFF - 0xF0)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that binary - has precedence over &
-  query = "select 0xFF - 0xF0 & 0x55, (0xFF - 0xF0) & 0x55, 0xFF - (0xF0 & 0x55)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0x55 & 0xFF - 0xF0, (0x55 & 0xFF) - 0xF0, 0x55 & (0xFF - 0xF0)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that binary - has precedence over <<
-  query = "select 16 - 3 << 2, (16 - 3) << 2, 16 - (3 << 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 4 << 3 - 2, (4 << 3) - 2, 4 << (3 - 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that binary - has precedence over >>
-  query = "select 16 - 3 >> 2, (16 - 3) >> 2, 16 - (3 >> 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 16 >> 3 - 2, (16 >> 3) - 2, 16 >> (3 - 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that * is associative
-  query = "select 2 * 3 * 4, (2 * 3) * 4, 2 * (3 * 4)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that * has precedence over |
-  query = "select 2 * 0x40 | 0x0F, (2 * 0x40) | 0x0F, 2 * (0x40 | 0x0F)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0x0F | 2 * 0x40, (0x0F | 2) * 0x40, 0x0F | (2 * 0x40)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that * has precedence over &
-  query = "select 2 * 0x40 & 0x55, (2 * 0x40) & 0x55, 2 * (0x40 & 0x55)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0xF0 & 2 * 0x40, (0xF0 & 2) * 0x40, 0xF0 & (2 * 0x40)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that * has precedence over <<
-  // Actually, can't prove it for the first case,
-  // since << is a multiplication by a power of 2,
-  // and * is associative
-  query = "select 5 * 3 << 4, (5 * 3) << 4, 5 * (3 << 4)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 2 << 3 * 4, (2 << 3) * 4, 2 << (3 * 4)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that * has precedence over >>
-  // >> is a multiplication by a (negative) power of 2,
-  // see above.
-  query = "select 3 * 4 >> 2, (3 * 4) >> 2, 3 * (4 >> 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 4 >> 2 * 3, (4 >> 2) * 3, 4 >> (2 * 3)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that * has precedence over binary +
-  query = "select 2 * 3 + 4, (2 * 3) + 4, 2 * (3 + 4)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 2 + 3 * 4, (2 + 3) * 4, 2 + (3 * 4)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that * has precedence over binary -
-  query = "select 4 * 3 - 2, (4 * 3) - 2, 4 * (3 - 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 4 - 3 * 2, (4 - 3) * 2, 4 - (3 * 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that / is left associative
-  query = "select 15 / 5 / 3, (15 / 5) / 3, 15 / (5 / 3)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that / has precedence over |
-  query = "select 105 / 5 | 2, (105 / 5) | 2, 105 / (5 | 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 105 | 2 / 5, (105 | 2) / 5, 105 | (2 / 5)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that / has precedence over &
-  query = "select 105 / 5 & 0x0F, (105 / 5) & 0x0F, 105 / (5 & 0x0F)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0x0F & 105 / 5, (0x0F & 105) / 5, 0x0F & (105 / 5)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that / has precedence over <<
-  query = "select 0x80 / 4 << 2, (0x80 / 4) << 2, 0x80 / (4 << 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0x80 << 4 / 2, (0x80 << 4) / 2, 0x80 << (4 / 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that / has precedence over >>
-  query = "select 0x80 / 4 >> 2, (0x80 / 4) >> 2, 0x80 / (4 >> 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0x80 >> 4 / 2, (0x80 >> 4) / 2, 0x80 >> (4 / 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that / has precedence over binary +
-  query = "select 0x80 / 2 + 2, (0x80 / 2) + 2, 0x80 / (2 + 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0x80 + 2 / 2, (0x80 + 2) / 2, 0x80 + (2 / 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that / has precedence over binary -
-  query = "select 0x80 / 4 - 2, (0x80 / 4) - 2, 0x80 / (4 - 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0x80 - 4 / 2, (0x80 - 4) / 2, 0x80 - (4 / 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // TODO: %, DIV, MOD
-  
-  // Testing that ^ is associative
-  query = "select 0xFF ^ 0xF0 ^ 0x0F, (0xFF ^ 0xF0) ^ 0x0F, 0xFF ^ (0xF0 ^ 0x0F)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0xFF ^ 0xF0 ^ 0x55, (0xFF ^ 0xF0) ^ 0x55, 0xFF ^ (0xF0 ^ 0x55)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that ^ has precedence over |
-  query = "select 0xFF ^ 0xF0 | 0x0F, (0xFF ^ 0xF0) | 0x0F, 0xFF ^ (0xF0 | 0x0F)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0xF0 | 0xFF ^ 0xF0, (0xF0 | 0xFF) ^ 0xF0, 0xF0 | (0xFF ^ 0xF0)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that ^ has precedence over &
-  query = "select 0xFF ^ 0xF0 & 0x0F, (0xFF ^ 0xF0) & 0x0F, 0xFF ^ (0xF0 & 0x0F)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0x0F & 0xFF ^ 0xF0, (0x0F & 0xFF) ^ 0xF0, 0x0F & (0xFF ^ 0xF0)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that ^ has precedence over <<
-  query = "select 0xFF ^ 0xF0 << 2, (0xFF ^ 0xF0) << 2, 0xFF ^ (0xF0 << 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0x0F << 2 ^ 0xFF, (0x0F << 2) ^ 0xFF, 0x0F << (2 ^ 0xFF)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that ^ has precedence over >>
-  query = "select 0xFF ^ 0xF0 >> 2, (0xFF ^ 0xF0) >> 2, 0xFF ^ (0xF0 >> 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0xFF >> 2 ^ 0xF0, (0xFF >> 2) ^ 0xF0, 0xFF >> (2 ^ 0xF0)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that ^ has precedence over binary +
-  query = "select 0xFF ^ 0xF0 + 0x0F, (0xFF ^ 0xF0) + 0x0F, 0xFF ^ (0xF0 + 0x0F)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0x0F + 0xFF ^ 0xF0, (0x0F + 0xFF) ^ 0xF0, 0x0F + (0xFF ^ 0xF0)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that ^ has precedence over binary -
-  query = "select 0xFF ^ 0xF0 - 1, (0xFF ^ 0xF0) - 1, 0xFF ^ (0xF0 - 1)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0x55 - 0x0F ^ 0x55, (0x55 - 0x0F) ^ 0x55, 0x55 - (0x0F ^ 0x55)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that ^ has precedence over *
-  query = "select 0xFF ^ 0xF0 * 2, (0xFF ^ 0xF0) * 2, 0xFF ^ (0xF0 * 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 2 * 0xFF ^ 0xF0, (2 * 0xFF) ^ 0xF0, 2 * (0xFF ^ 0xF0)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that ^ has precedence over /
-  query = "select 0xFF ^ 0xF0 / 2, (0xFF ^ 0xF0) / 2, 0xFF ^ (0xF0 / 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0xF2 / 2 ^ 0xF0, (0xF2 / 2) ^ 0xF0, 0xF2 / (2 ^ 0xF0)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that ^ has precedence over %
-  query = "select 0xFF ^ 0xF0 % 0x20, (0xFF ^ 0xF0) % 0x20, 0xFF ^ (0xF0 % 0x20)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0xFF % 0x20 ^ 0xF0, (0xFF % 0x20) ^ 0xF0, 0xFF % (0x20 ^ 0xF0)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that ^ has precedence over DIV
-  query = "select 0xFF ^ 0xF0 DIV 2, (0xFF ^ 0xF0) DIV 2, 0xFF ^ (0xF0 DIV 2)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query = "select 0xF2 DIV 2 ^ 0xF0, (0xF2 DIV 2) ^ 0xF0, 0xF2 DIV (2 ^ 0xF0)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  
-  // Testing that ^ has precedence over MOD
-  query = "select 0xFF ^ 0xF0 MOD 0x20, (0xFF ^ 0xF0) MOD 0x20, 0xFF ^ (0xF0 MOD 0x20)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-  query =  "select 0xFF MOD 0x20 ^ 0xF0, (0xFF MOD 0x20) ^ 0xF0, 0xFF MOD (0x20 ^ 0xF0)";
-  if (!parse_and_compare(query, NULL, sql_modes, server_version))
-    TEST_ERROR
-    
-#undef TEST_ERROR
-    
-    return YES;
-}
-
-#pragma mark -
-#pragma mark Action handling
+#pragma mark - Action handling
 
 - (IBAction)startConversion: (id)sender
 {
