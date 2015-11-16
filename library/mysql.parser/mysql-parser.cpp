@@ -180,50 +180,83 @@ std::string createErrorFromPredicate(std::string predicate, long version)
 
 //--------------------------------------------------------------------------------------------------
 
-bool handle_lexer_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION exception,
+bool handleLexerError(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION exception,
   ANTLR3_MARKER &start, ANTLR3_MARKER &length, std::string &message)
 {
+  std::ostringstream error;
   pANTLR3_LEXER lexer = (pANTLR3_LEXER)(recognizer->super);
   start = recognizer->state->tokenStartCharIndex;
 
-  // For debugging use the native error message that contains the grammar line.
-  // std::string native = (pANTLR3_UINT8)(exception->message);
-  length = ANTLR3_UINT32_CAST(((pANTLR3_UINT8)(lexer->input->data) + (lexer->input->size(lexer->input))) - (pANTLR3_UINT8)(exception->index));
+  length = exception->index - start;
 
-  if (length <= 0)
+  std::string tokenText((char*)start, length);
+  switch (exception->type)
   {
-    message = "unexpected end of input (unfinished string or quoted identifier)";
-    length = ANTLR3_UINT32_CAST(((pANTLR3_UINT8)(lexer->input->data) + (lexer->input->size(lexer->input))) - (pANTLR3_UINT8)(lexer->rec->state->tokenStartCharIndex));
-  }
-  else
-  {
-    switch (exception->type)
-    {
     case ANTLR3_RECOGNITION_EXCEPTION:
-      // Invalid character. Can currently never appear because any input from the Unicode BMP
-      // is acceptable input for our parser. We cannot parse input beyond the BMP.
-      message += "'";
-      if (isprint(exception->c))
-        message += (char)exception->c;
-      else
-        message += (ANTLR3_UINT8)(exception->c);
-
-      message += "' is not valid input";
-      break;
-
-    case ANTLR3_NO_VIABLE_ALT_EXCEPTION:
-      message += (ANTLR3_UINT8)(exception->c);
-      message += " is not valid input";
+    {
+      switch (tokenText[0])
+      {
+        case '/':
+          error << "unfinished multiline comment";
+          break;
+        case 'x':
+        case 'X':
+          error << "unfinished hex string literal";
+          break;
+        case 'b':
+        case 'B':
+          error << "unfinished binary string literal";
+          break;
+        default:
+          error << "unexpected input";
+          break;
+      }
       break;
     }
+
+    case ANTLR3_NO_VIABLE_ALT_EXCEPTION:
+    {
+      switch (recognizer->state->type) {
+        case DOUBLE_QUOTE:
+          error << "unfinished double quote string";
+          break;
+
+        case SINGLE_QUOTE:
+          error << "unfinished single quote string";
+          break;
+
+        case BACK_TICK:
+          error << "unfinished back tick quote string";
+          break;
+
+        default:
+          error << "unexpected input";
+          break;
+      }
+      break;
+    }
+
+    case ANTLR3_FAILED_PREDICATE_EXCEPTION:
+    {
+      // One of the semantic predicates failed. Since most of those are our version check predicates
+      // we can use that to give the user a hint about this.
+      std::string predicate = (const char*)exception->message;
+      RecognitionContext *context = (RecognitionContext*)recognizer->state->userp;
+      error << "'" << tokenText << "' is not a valid keyword" << createErrorFromPredicate(predicate, context->version);
+      break;
+    }
+
+    default:
+      return false;
   }
 
+  message = error.str();
   return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool handle_parser_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION exception,
+bool handleParserError(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION exception,
   pANTLR3_UINT8 *tokenNames, ANTLR3_MARKER &start, ANTLR3_MARKER &length, std::string &message)
 {
   std::ostringstream error;
@@ -254,7 +287,10 @@ bool handle_parser_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION e
   {
   case ANTLR3_RECOGNITION_EXCEPTION:
     // Unpredicted input.
-    error << token_text << " (" << token_name << ") is not valid input at this position";
+    if (error_token->type == INVALID_INPUT) // Our catch all rule for any char not allowed in MySQL.
+      error << token_text << " is not allowed at all";
+    else
+      error << token_text << " (" << token_name << ") is not valid input at this position";
     break;
 
   case ANTLR3_MISMATCHED_TOKEN_EXCEPTION:
@@ -410,21 +446,19 @@ extern "C" {
       switch (recognizer->type)
       {
       case ANTLR3_TYPE_LEXER:
-        if (!handle_lexer_error(recognizer, exception, start, length, message))
+        if (!handleLexerError(recognizer, exception, start, length, message))
           return;
         break;
 
       case ANTLR3_TYPE_PARSER:
-        if (!handle_parser_error(recognizer, exception, tokenNames, start, length, message))
+        if (!handleParserError(recognizer, exception, tokenNames, start, length, message))
           return;
         break;
       }
 
-      pANTLR3_COMMON_TOKEN error_token = (pANTLR3_COMMON_TOKEN)(exception->token);
       MySQLRecognitionBase *our_recognizer = (MySQLRecognitionBase*)((RecognitionContext*)recognizer->state->userp)->payload;
-      our_recognizer->add_error("Syntax error: " + message,
-        (error_token == NULL) ? 0 : error_token->type, start,
-        exception->line, exception->charPositionInLine, length);
+      our_recognizer->add_error("Syntax error: " + message, recognizer->state->type, start, exception->line,
+        exception->charPositionInLine, length);
     }
   }
 
