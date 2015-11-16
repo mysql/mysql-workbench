@@ -2522,7 +2522,7 @@ interval_unit:
 // Support for SQL_TSI_* units is added by mapping those to tokens without SQL_TSI_ prefix.
 interval_timestamp_unit:
 	MICROSECOND_SYMBOL
-	| {SERVER_VERSION < 50503}? FRAC_SECOND_SYMBOL
+	| FRAC_SECOND_SYMBOL // Conditionally set in the lexer.
 	| SECOND_SYMBOL
 	| MINUTE_SYMBOL
 	| HOUR_SYMBOL
@@ -3721,7 +3721,7 @@ keyword_sp:
 	| IMPORT_SYMBOL
 	| INDEXES_SYMBOL
 	| INITIAL_SIZE_SYMBOL
-	| INNODB_SYMBOL // Conditionally deprecated in the lexer rule.
+	| INNODB_SYMBOL // Conditionally deprecated in the lexer.
 	| IO_SYMBOL
 	| IPC_SYMBOL
 	| ISOLATION_SYMBOL
@@ -3763,7 +3763,7 @@ keyword_sp:
 	| MASTER_AUTO_POSITION_SYMBOL
 	| MAX_CONNECTIONS_PER_HOUR_SYMBOL
 	| MAX_QUERIES_PER_HOUR_SYMBOL
-	| MAX_STATEMENT_TIME_SYMBOL // Conditionally deprecated in the lexer rule.
+	| MAX_STATEMENT_TIME_SYMBOL // Conditionally deprecated in the lexer.
 	| MAX_SIZE_SYMBOL
 	| MAX_UPDATES_PER_HOUR_SYMBOL
 	| MAX_USER_CONNECTIONS_SYMBOL
