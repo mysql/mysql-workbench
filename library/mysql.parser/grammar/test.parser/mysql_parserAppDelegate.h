@@ -9,18 +9,16 @@
 #include "MySQLLexer.h"
 #include "MySQLParser.h"
 
-extern "C" void on_parse_error(struct ANTLR3_BASE_RECOGNIZER_struct * recognizer, pANTLR3_UINT8 * tokenNames);
-
 #import <Cocoa/Cocoa.h>
 
 @interface mysql_parserAppDelegate : NSObject <NSApplicationDelegate, NSTextViewDelegate> {
-  IBOutlet NSTextView *text;
+  IBOutlet NSTextView *singleQueryText;
   IBOutlet NSTextView *errorText;
   IBOutlet NSTextView *output;
   IBOutlet NSTextField *pathEdit;
   
   IBOutlet NSTextField *statusText;
-  IBOutlet NSTextView *queryText;
+  IBOutlet NSTextView *errorQueryText;
   IBOutlet NSButton *startStopButton;
   IBOutlet NSTextField *progressLabel;
   IBOutlet NSTextView *stepsList;
