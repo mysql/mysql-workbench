@@ -281,6 +281,28 @@ extern "C" {
     return ANTLR3_TOKEN_INVALID;
   }
   
+  // Checks if the following input only consists of digits until the next separator.
+  // Returns ANTRL3_TRUE if so, otherwise ANTLR3_FALSE.
+  ANTLR3_BOOLEAN isAllDigits(pMySQLLexer ctx)
+  {
+    int i = 1;
+    while (1)
+    {
+      int input = LA(i++);
+      if (input == EOF || input == ' ' || input == '\t' || input == '\n' || input == '\r' || input == '\f')
+        return ANTLR3_TRUE;
+        
+      // Need to check if any of the valid identifier chars comes here (which would make the entire string to an identifier).
+      // For the used values look up the IDENTIFIER lexer rule.
+      if ((input >= 'A' && input <= 'Z') || input == '$' || input == '_' || (input >= 0x80 && input <= 0xffff))
+        return ANTLR3_FALSE;
+      
+      // Everything else but digits is considered valid input for a new token.
+      if (input < '0' && input > '9')
+        return ANTLR3_TRUE;
+    }
+  }
+
   // Checks the given text and determines the smallest number type from it. Code has been taken from sql_lex.cc.
   ANTLR3_UINT32 determine_num_type(pANTLR3_STRING text)
   {
@@ -3586,7 +3608,7 @@ keyword:
 		| SECURITY_SYMBOL
 		| SERVER_SYMBOL
 		| /*{SERVER_VERSION >= 50709}? */ SHUTDOWN_SYMBOL // Moved here from keyword_sp.
-			// Cannot make this alt using a sempred as ANTLR crashs on that (Out Of Mem).
+			// Cannot make this alt using a sempred as ANTLR crashs on that (stack overflow).
 		| SIGNED_SYMBOL
 		| SLAVE_SYMBOL
 		| SOCKET_SYMBOL
@@ -4710,15 +4732,8 @@ INVALID_INPUT:
 
 // Basic tokens. Tokens used in parser rules must not be fragments!
 
-// Number types.
-NUMBER:			DIGITS { $type = determine_num_type($text); };
-
-DECIMAL_NUMBER:	DIGITS? DOT_SYMBOL DIGITS; // Also set in the determine_num_type() function if the number is > ULONGLONG.
-FLOAT_NUMBER:	DECIMAL_NUMBER 'E' (MINUS_OPERATOR | PLUS_OPERATOR)? DIGITS;
 HEX_NUMBER:		('0X' HEXDIGIT+) | ('X' '\'' HEXDIGIT+ '\'');
 BIN_NUMBER: 	('0B' ('0' | '1')+) | ('B' '\'' ('0' | '1')+ '\'');
-
-NCHAR_TEXT:		'N' SINGLE_QUOTED_TEXT;
 
 // String and text types.
 
@@ -4726,8 +4741,23 @@ NCHAR_TEXT:		'N' SINGLE_QUOTED_TEXT;
 // with normal identifiers, which also can start with an underscore.
 UNDERSCORE_CHARSET:	UNDERLINE_SYMBOL IDENTIFIER { $type = check_charset(PAYLOAD, $text); };
 
-// Identifiers might start with a digit, even tho it is discouraged.
-IDENTIFIER: 		LETTER_WHEN_UNQUOTED+; // All keywords above are automatically excluded.
+// Identifiers might start with a digit, even tho it is discouraged, and may not consist entirely of digits only.
+IDENTIFIER: DIGIT* LETTER_WHEN_UNQUOTED_NO_DIGIT LETTER_WHEN_UNQUOTED*; // All keywords above are automatically excluded.
+NCHAR_TEXT: 'N' SINGLE_QUOTED_TEXT;
+
+// Number types.
+NUMBER: DIGITS { $type = determine_num_type($text); };
+
+// Decimal numbers are special in that they must not be matched if followed directly by one of the identifier chars.
+// In such a case the input must be considered as separate dot + an identifier (with leading digits).
+// Well, except for one ambiquous case (e.g. select .0u) which the server handles as decimal number + alias.
+// Here however it's still qualified identifier (dot and 0u).
+DECIMAL_NUMBER:
+	DIGITS DOT_SYMBOL DIGITS
+	| DOT_SYMBOL {if (!isAllDigits(ctx)) {FAILEDFLAG = ANTLR3_TRUE; return; }} DIGITS
+;
+
+FLOAT_NUMBER:	DECIMAL_NUMBER 'E' (MINUS_OPERATOR | PLUS_OPERATOR)? DIGITS;
 
 // For all 3 quoted types:
 // MySQL supports automatic concatenation if multiple quoted strings follow each other. There's a twist, though.
@@ -4846,8 +4876,12 @@ fragment VERSION_COMMENT_INTRODUCER: 	'!';
 
 // As defined in http://dev.mysql.com/doc/refman/5.6/en/identifiers.html.
 fragment LETTER_WHEN_UNQUOTED:
-	'0'..'9'
-	| 'A'..'Z' // Only upper case, as we use a case insensitive parser (insensitive only for ASCII).
+	DIGIT
+	| LETTER_WHEN_UNQUOTED_NO_DIGIT
+;
+
+fragment LETTER_WHEN_UNQUOTED_NO_DIGIT:
+	'A'..'Z' // Only upper case, as we use a case insensitive parser (insensitive only for ASCII).
 	| '$'
 	| '_'
 	| '\u0080'..'\uffff'
