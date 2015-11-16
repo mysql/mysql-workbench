@@ -115,7 +115,14 @@ class FileUtils(object):
         Function Type : Boolean
         """
         return os.path.exists(path)
-        
+      
+    @classmethod
+    def check_file_readable(self, path):
+        """
+        Function Type : Boolean
+        """
+        return os.access(path, os.R_OK)
+      
     @classmethod
     def create_directory(self, path):
         """

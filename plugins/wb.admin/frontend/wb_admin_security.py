@@ -694,9 +694,15 @@ class FirewallCommands:
         result.nextRow()
         return result.stringByIndex(1)
 
+    def reload_rules(self, userhost):
+        self.execute_multiresult_command("CALL mysql.sp_reload_firewall_rules('%s')" % userhost)
+
     def delete_user_rule(self, userhost, rule):
         result, cnt = self.execute_command("DELETE FROM mysql.firewall_whitelist WHERE USERHOST='%s' AND RULE='%s'" % (userhost, db_utils.escape_sql_string(rule)))
-        return cnt > 0
+        deleted_something = cnt > 0
+        if deleted_something:
+            self.reload_rules(userhost)
+        return deleted_something
 
     def add_user_rule(self, userhost, rule, normalized = False):
         if not normalized:
@@ -705,7 +711,9 @@ class FirewallCommands:
             firewall_rule = rule
             
         if firewall_rule:
-            self.execute_command("INSERT INTO mysql.firewall_whitelist (USERHOST, RULE) VALUES ('%s', '%s')" % (userhost, db_utils.escape_sql_string(firewall_rule)))
+            result = self.execute_command("INSERT INTO mysql.firewall_whitelist (USERHOST, RULE) VALUES ('%s', '%s')" % (userhost, db_utils.escape_sql_string(firewall_rule)))
+            if result:
+                self.reload_rules(userhost)
             return True
         log_error("Adding a firewall user rule failed to normalize the query. Probably, the inserted query does not translate to a firewall rule.\n")
         return False
