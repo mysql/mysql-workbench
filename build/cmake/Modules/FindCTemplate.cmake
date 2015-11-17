@@ -72,6 +72,9 @@ find_program(CTemplate_VARNAMES NAMES make_tpl_varnames_h ctemplate-make_tpl_var
             )
 find_program(CTemplate_VARNAMES NAMES make_tpl_varnames_h ctemplate-make_tpl_varnames_h)
 
+# Allow cmake to use the supplied ctemplate libraries
+set(ENV{LD_LIBRARY_PATH} ${CTemplate_LIB_DIRECTORY})
+
 # Get CTemplate version
 execute_process(COMMAND ${CTemplate_VARNAMES} --version
                 COMMAND grep ctemplate
