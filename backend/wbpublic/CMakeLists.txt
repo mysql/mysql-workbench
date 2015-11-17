@@ -6,7 +6,7 @@ include_directories(.
     ${PCRE_INCLUDE_DIRS}
     ${MYSQL_INCLUDE_DIRS}
     ${SQLITE3_INCLUDE_DIRS}
-    ${CTEMPLATE_INCLUDE_DIRS}
+    ${CTemplate_INCLUDE_DIRS}
     ${OPENGL_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
     ${VSQLITE_INCLUDE_DIR}
@@ -189,7 +189,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 endif()
 
 
-target_link_libraries(wbpublic wbbase mdcanvas mforms cdbc grt ${VSQLITE_LIBRARIES} wbscintilla mysqlparser ${CAIRO_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${CTEMPLATE_LIBRARIES} ${OPENGL_LIBRARIES} ${PCRE_LIBRARIES} ${GDAL_LIBRARIES})
+target_link_libraries(wbpublic wbbase mdcanvas mforms cdbc grt ${VSQLITE_LIBRARIES} wbscintilla mysqlparser ${CAIRO_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${CTemplate_LIBRARIES} ${OPENGL_LIBRARIES} ${PCRE_LIBRARIES} ${GDAL_LIBRARIES})
 
 set_target_properties(wbpublic
                       PROPERTIES VERSION   ${WB_VERSION}
