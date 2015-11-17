@@ -73,7 +73,7 @@ include_directories(.
     ${GTK3_INCLUDE_DIRS}
     ${PCRE_INCLUDE_DIRS}
     ${MYSQL_INCLUDE_DIRS}
-    ${CTEMPLATE_INCLUDE_DIRS}
+    ${CTemplate_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
 )
@@ -83,7 +83,7 @@ add_library(wb.model.grt
     src/wb_model.cpp
 )
 
-target_link_libraries(wb.model.grt grt ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${PCRE_LIBRARIES} ${MYSQL_LIBRARIES} ${CTEMPLATE_LIBRARIES})
+target_link_libraries(wb.model.grt grt ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${PCRE_LIBRARIES} ${MYSQL_LIBRARIES} ${CTemplate_LIBRARIES})
 
 set_target_properties(wb.model.grt
                       PROPERTIES PREFIX    ""

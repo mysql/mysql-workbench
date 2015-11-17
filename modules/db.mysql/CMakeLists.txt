@@ -23,7 +23,7 @@ include_directories(.
     ${PCRE_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
     ${SIGC++_INCLUDE_DIRS}
-    ${CTEMPLATE_INCLUDE_DIRS}
+    ${CTemplate_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
     ${VSQLITE_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/generated
@@ -44,7 +44,7 @@ add_library(db.mysql.grt
     src/module_db_mysql.cpp
 )
 
-target_link_libraries(db.mysql.grt wbpublic ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${PCRE_LIBRARIES} ${SIGC++_LIBRARIES} ${CTEMPLATE_LIBRARIES})
+target_link_libraries(db.mysql.grt wbpublic ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${PCRE_LIBRARIES} ${SIGC++_LIBRARIES} ${CTemplate_LIBRARIES})
 
 set_target_properties(db.mysql.grt
                       PROPERTIES PREFIX    ""
