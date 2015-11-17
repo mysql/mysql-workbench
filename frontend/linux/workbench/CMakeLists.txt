@@ -99,7 +99,7 @@ target_link_libraries(mysql-workbench-bin
     mdcanvas
     mysqlparser
     ${MYSQLCPPCONN_LIBRARIES}
-    ${CTEMPLATE_LIBRARIES}
+    ${CTemplate_LIBRARIES}
     ${X11_LIBRARIES}
     ${GTK2_LIBRARIES}
     ${SIGC++_LIBRARIES}
