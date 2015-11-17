@@ -16,43 +16,68 @@
 # 02110-1301  USA
 
 # - Find ctemplate
-# Find the native CTEMPLATE includes and library
+# Find the native CTemplate includes and library
 #
-#  CTEMPLATE_INCLUDE_DIRS - where to find template_annotator.h, etc.
-#  CTEMPLATE_LIBRARIES    - List of libraries when using ctemplate.
-#  CTEMPLATE_FOUND        - True if ctemplate found.
+#  CTemplate_INCLUDE_DIRS - where to find template_annotator.h, etc.
+#  CTemplate_LIBRARIES    - List of libraries when using ctemplate.
+#  CTemplate_FOUND        - True if ctemplate found.
 
 
-IF (CTEMPLATE_INCLUDE_DIRS)
+if(CTemplate_INCLUDE_DIRS)
   # Already in cache, be silent
-  SET(CTEMPLATE_FIND_QUIETLY TRUE)
-ENDIF (CTEMPLATE_INCLUDE_DIRS)
+  set(CTemplate_FIND_QUIETLY TRUE)
+endif(CTemplate_INCLUDE_DIRS)
 
-FIND_PATH(CTEMPLATE_INCLUDE_DIR template_annotator.h
-	PATHS ${CMAKE_SYSTEM_INCLUDE_PATH}/ctemplate
-	      /usr/include/ctemplate
-	      /usr/local/include/ctemplate
+find_path(CTemplate_INCLUDE_DIR template_annotator.h
+          PATHS ${CMAKE_SYSTEM_INCLUDE_PATH}/ctemplate
+                /usr/include/ctemplate
+                /usr/local/include/ctemplate
 )
 
 
-SET(CTEMPLATE_NAMES ctemplate)
-IF (CTEMPLATE_LIBRARIES)
-  FIND_LIBRARY(CTEMPLATE_LIBRARY NAMES ${CTEMPLATE_NAMES} HINTS ${CTEMPLATE_LIBRARIES})
-ELSE()
-  FIND_LIBRARY(CTEMPLATE_LIBRARY NAMES ${CTEMPLATE_NAMES} )
-ENDIF()
+set(CTemplate_NAMES ctemplate)
+if(CTemplate_LIBRARIES)
+  find_library(CTemplate_LIBRARY NAMES ${CTemplate_NAMES} HINTS ${CTemplate_LIBRARIES})
+else()
+  find_library(CTemplate_LIBRARY NAMES ${CTemplate_NAMES})
+endif()
 
-# handle the QUIETLY and REQUIRED arguments and set CTEMPLATE_FOUND to TRUE if 
+get_filename_component(CTemplate_LIB_FILENAME ${CTemplate_LIBRARY} NAME_WE)
+get_filename_component(CTemplate_LIB_DIRECTORY ${CTemplate_LIBRARY} DIRECTORY)
+get_filename_component(CTemplate_LIB_BASE_DIRECTORY ${CTemplate_LIB_DIRECTORY} DIRECTORY)
+
+set(CTemplate_BIN_DIR "${CTemplate_LIB_BASE_DIRECTORY}/bin")
+
+find_program(CTemplate_VARNAMES NAMES make_tpl_varnames_h ctemplate-make_tpl_varnames_h
+                                PATHS CTemplate_BIN_DIR
+            )
+
+# Get CTemplate version
+execute_process(COMMAND ${CTemplate_VARNAMES} --version
+                COMMAND grep ctemplate
+                COMMAND awk "{print $5}"
+                COMMAND awk -F ")" "{print $1}"
+                RESULT_VARIABLE CTemplate_RUN_RESULT
+                OUTPUT_VARIABLE CTemplate_RUN_OUTPUT
+                ERROR_VARIABLE  CTemplate_RUN_ERROR)
+
+string(STRIP ${CTemplate_RUN_OUTPUT} CTemplate_VERSION_STRING)
+
+# handle the QUIETLY and REQUIRED arguments and set CTemplate_FOUND to TRUE if 
 # all listed variables are TRUE
-INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(CTEMPLATE DEFAULT_MSG CTEMPLATE_LIBRARY CTEMPLATE_INCLUDE_DIR)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(CTemplate 
+                                  FOUND_VAR CTemplate_FOUND
+                                  REQUIRED_VARS CTemplate_LIBRARY CTemplate_INCLUDE_DIR
+                                  VERSION_VAR CTemplate_VERSION_STRING)
 
-IF(CTEMPLATE_FOUND)
-  SET( CTEMPLATE_LIBRARIES ${CTEMPLATE_LIBRARY} )
-  SET( CTEMPLATE_INCLUDE_DIRS ${CTEMPLATE_INCLUDE_DIR} )
-ELSE(CTEMPLATE_FOUND)
-  SET( CTEMPLATE_LIBRARIES )
-  SET( CTEMPLATE_INCLUDE_DIRS )
-ENDIF(CTEMPLATE_FOUND)
+if(CTemplate_FOUND)
+  set(CTemplate_LIBRARIES "-L${CTemplate_LIB_DIRECTORY} -l${CTemplate_NAMES}")
+  set(CTemplate_INCLUDE_DIRS ${CTemplate_INCLUDE_DIR})
+else(CTemplate_FOUND)
+  unset(CTemplate_LIBRARIES)
+  unset(CTemplate_INCLUDE_DIRS)
+endif(CTemplate_FOUND)
 
-MARK_AS_ADVANCED( CTEMPLATE_LIBRARIES CTEMPLATE_INCLUDE_DIRS )
+
+mark_as_advanced(CTemplate_LIBRARIES CTemplate_INCLUDE_DIRS CTemplate_LIB_FILENAME CTemplate_LIB_DIRECTORY CTemplate_LIB_BASE_DIRECTORY)
