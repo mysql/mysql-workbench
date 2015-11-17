@@ -124,7 +124,8 @@ find_package(LibXml2 REQUIRED)
 
 find_package(OpenGL REQUIRED)
 
-find_package(CTemplate)
+
+find_package(CTemplate 2.2 REQUIRED)
 find_package(MySQLCppConn REQUIRED)
 find_package(VSqlite REQUIRED)
 find_package(TinyXML REQUIRED)
