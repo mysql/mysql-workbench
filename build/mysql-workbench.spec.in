@@ -201,6 +201,9 @@ Windows, Linux and Mac OS X.
 
 
 %build
+%if 0%{?fedora} > 22
+CXXFLAGS="-std=c++11" \
+%endif
 %cmake -DCMAKE_BUILD_TYPE=Release \
        -DREAL_EXECUTABLE_DIR=%{_libexecdir}/mysql-workbench \
        -DMYSQL_CONFIG_PATH=%{mysql_home}/bin/mysql_config \
