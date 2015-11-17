@@ -165,7 +165,9 @@ void SqlEditorResult::copy_all_column_names()
   if (rset)
   {
     std::string text;
-    for (Recordset::Column_names::const_iterator col = rset->column_names()->begin(); col != rset->column_names()->end(); ++col)
+    size_t visibleColumnCount = rset->get_column_count();
+    Recordset::Column_names::const_iterator end = rset->column_names()->end();
+    for (Recordset::Column_names::const_iterator col = rset->column_names()->begin(); col != end && visibleColumnCount > 0; ++col, --visibleColumnCount)
       text.append(", ").append(*col);
     if (!text.empty())
       text = text.substr(2);
