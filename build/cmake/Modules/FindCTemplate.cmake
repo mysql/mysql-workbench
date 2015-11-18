@@ -36,21 +36,44 @@ find_path(CTemplate_INCLUDE_DIR template_annotator.h
 
 
 set(CTemplate_NAMES ctemplate)
+
+
 if(CTemplate_LIBRARIES)
-  find_library(CTemplate_LIBRARY NAMES ${CTemplate_NAMES} HINTS ${CTemplate_LIBRARIES})
+  # Converto to a list of library argments
+  string(REPLACE " " ";" CTemplate_LIB_ARGS ${CTemplate_LIBRARIES})
+
+  # Parse the list in order to find the library path
+  foreach(CTemplate_LIB_ARG ${CTemplate_LIB_ARGS})
+    string(REPLACE "-L" "" CTemplate_LIB_ARG_CLEAR ${CTemplate_LIB_ARG})
+    if(NOT ${CTemplate_LIB_ARG_CLEAR} STREQUAL ${CTemplate_LIB_ARG})
+      set(CTemplate_SUPPLIED_LIB_DIR ${CTemplate_LIB_ARG_CLEAR})
+    endif()
+  endforeach(CTemplate_LIB_ARG)
+  find_library(CTemplate_LIBRARY NAMES ${CTemplate_NAMES} HINTS ${CTemplate_SUPPLIED_LIB_DIR})
+  
+  unset(CTemplate_LIB_ARG_CLEAR)
+  unset(CTemplate_LIB_ARG)
+  unset(CTemplate_LIB_ARGS)
 else()
   find_library(CTemplate_LIBRARY NAMES ${CTemplate_NAMES})
 endif()
 
 get_filename_component(CTemplate_LIB_FILENAME ${CTemplate_LIBRARY} NAME_WE)
-get_filename_component(CTemplate_LIB_DIRECTORY ${CTemplate_LIBRARY} DIRECTORY)
-get_filename_component(CTemplate_LIB_BASE_DIRECTORY ${CTemplate_LIB_DIRECTORY} DIRECTORY)
+get_filename_component(CTemplate_LIB_DIRECTORY ${CTemplate_LIBRARY} PATH)
+get_filename_component(CTemplate_LIB_BASE_DIRECTORY ${CTemplate_LIB_DIRECTORY} PATH)
 
 set(CTemplate_BIN_DIR "${CTemplate_LIB_BASE_DIRECTORY}/bin")
 
+# Allow to call find_program twice in order to find wothout the default paths and then with them.
+# If it finds on the first call, it will use the cached one.
 find_program(CTemplate_VARNAMES NAMES make_tpl_varnames_h ctemplate-make_tpl_varnames_h
-                                PATHS CTemplate_BIN_DIR
+                                PATHS ${CTemplate_BIN_DIR}
+                                NO_DEFAULT_PATH
             )
+find_program(CTemplate_VARNAMES NAMES make_tpl_varnames_h ctemplate-make_tpl_varnames_h)
+
+# Allow cmake to use the supplied ctemplate libraries
+set(ENV{LD_LIBRARY_PATH} ${CTemplate_LIB_DIRECTORY})
 
 # Get CTemplate version
 execute_process(COMMAND ${CTemplate_VARNAMES} --version
