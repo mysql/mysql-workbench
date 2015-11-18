@@ -228,7 +228,7 @@ static struct
       return;
     }
 
-    log_debug("Parsing grammar...");
+    log_debug("Parsing grammar...\n");
 
     std::string text((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
 
@@ -241,7 +241,7 @@ static struct
     pANTLR3_BASE_TREE tree = parser->grammarDef(parser).tree;
 
     if (parser->pParser->rec->state->errorCount > 0)
-      log_error("Found grammar errors. No code completion data available.");
+      log_error("Found grammar errors. No code completion data available.\n");
     else
     {
       //std::string dump = dumpTree(tree, parser->pParser->rec->state, "");
