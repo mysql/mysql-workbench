@@ -937,6 +937,6 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
             raise Exception("Error querying security information: %s" % e)
 
         if not result.nextRow():
-            raise Exception("Could not load account information for %s@%s"%(user,host))
+            return False
 
         return len(result.stringByName(PASSWORD_COLUMN)) == 16
