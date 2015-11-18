@@ -59,8 +59,8 @@ else()
 endif()
 
 get_filename_component(CTemplate_LIB_FILENAME ${CTemplate_LIBRARY} NAME_WE)
-get_filename_component(CTemplate_LIB_DIRECTORY ${CTemplate_LIBRARY} DIRECTORY)
-get_filename_component(CTemplate_LIB_BASE_DIRECTORY ${CTemplate_LIB_DIRECTORY} DIRECTORY)
+get_filename_component(CTemplate_LIB_DIRECTORY ${CTemplate_LIBRARY} PATH)
+get_filename_component(CTemplate_LIB_BASE_DIRECTORY ${CTemplate_LIB_DIRECTORY} PATH)
 
 set(CTemplate_BIN_DIR "${CTemplate_LIB_BASE_DIRECTORY}/bin")
 
