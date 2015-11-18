@@ -36,6 +36,7 @@ ODBC_HOME=$(LINUXRES_BINARIES)/odbc/usr/local
 SQLITE_HOME=$(LINUXRES_BINARIES)/sqlite
 PYSQLITE2_HOME=$(LINUXRES_BINARIES)/pysqlite2
 PYODBC_HOME=$(LINUXRES_BINARIES)/pyodbc
+CTEMPLATE_HOME=$(LINUXRES_BINARIES)/ctemplate/usr/local
 
 @ifdef community
 CPPCONN_HOME=$(LINUXRES_BINARIES)/cppconn-gpl/usr/local
@@ -69,7 +70,9 @@ configure-stamp:
 @else
 	-DIODBC_CONFIG_PATH=$(ODBC_HOME)/bin/iodbc-config \
 	-DVSQLITE_INCLUDE_DIR=$(VSQLITE_HOME)/include \
-	-DVSQLITE_LIBRARIES="-L$(VSQLITE_HOME)/lib -lvsqlitepp"
+	-DVSQLITE_LIBRARIES="-L$(VSQLITE_HOME)/lib -lvsqlitepp" \
+	-DCTemplate_INCLUDE_DIR=${CTEMPLATE_HOME}/include \
+  	-DCTemplate_LIBRARIES="-L${CTEMPLATE_HOME}/lib -lctemplate"
 
 @endif
 
