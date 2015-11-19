@@ -79,6 +79,8 @@ add_executable(mysql-workbench-bin
     ../../common/grt_plugin_wizard.cpp
 )
 
+SET_TARGET_PROPERTIES(mysql-workbench-bin PROPERTIES COMPILE_FLAGS -fPIC)
+
 if (KEYRING_DEFINITION)
 	set_target_properties(mysql-workbench-bin PROPERTIES
 		COMPILE_DEFINITIONS "${KEYRING_DEFINITION}"
