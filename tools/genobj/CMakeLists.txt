@@ -13,5 +13,6 @@ add_executable(genobj
     genobj.cpp
 )
 
+SET_TARGET_PROPERTIES(genobj PROPERTIES COMPILE_FLAGS -fPIC)
 target_link_libraries(genobj grt wbbase ${GRT_LIBRARIES} ${PCRE_LIBRARIES})
 
