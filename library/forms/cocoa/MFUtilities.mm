@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,6 @@
 
 #import "MFMForms.h"
 #import "MFBase.h"
-#include <stdexcept>
 
 #include "base/log.h"
 #include "base/string_utilities.h"
@@ -349,16 +348,13 @@ static bool util_hide_wait_message()
 
 static bool util_move_to_trash(const std::string &path)
 {
-  FSRef ref;
-  if (FSPathMakeRefWithOptions((const UInt8 *)[wrap_nsstring(path) fileSystemRepresentation], 
-                               kFSPathMakeRefDoNotFollowLeafSymlink,
-                               &ref,
-                               NULL) != 0)
-    return false;
-  
-  if (FSMoveObjectToTrashSync(&ref, NULL, kFSFileOperationDefaultOptions) != 0)
-    return false;
-  return true;
+  NSFileManager *manager = NSFileManager.defaultManager;
+  NSString *nativePath = [NSString stringWithUTF8String: path.c_str()];
+  NSURL *url = [NSURL fileURLWithPath: nativePath];
+
+  NSError *error = nil;
+  [manager trashItemAtURL: url resultingItemURL: nil error: &error];
+  return error == nil;
 }
 
 //--------------------------------------------------------------------------------------------------
