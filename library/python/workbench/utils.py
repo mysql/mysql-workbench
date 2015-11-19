@@ -144,13 +144,11 @@ class Version:
         self.minorNumber = minor
         self.releaseNumber = release
 
-
     def __str__(self):
         if self.releaseNumber >= 0:
             return "%i.%i.%i" % (self.majorNumber, self.minorNumber, self.releaseNumber)
         else:
             return "%i.%i" % (self.majorNumber, self.minorNumber)
-
 
     @classmethod
     def fromgrt(cls, v):
@@ -173,20 +171,22 @@ class Version:
         else:
             raise ValueError("Invalid version string %s" % s)
 
-
     def __cmp__(self, v):
-        if not isinstance(v, Version):
+        comp_version = None
+        if isinstance(v, Version):
+            comp_version = v
+        elif isinstance(v, basestring):
+            comp_version = Version.fromstr(v)
+        else:
             raise TypeError("Unexpected type")
         
         return cmp(self.majorNumber * 10000 + self.minorNumber * 100 + max(0, self.releaseNumber),
-                   v.majorNumber * 10000 + v.minorNumber * 100 + max(0, v.releaseNumber))
-
+                   comp_version.majorNumber * 10000 + comp_version.minorNumber * 100 + max(0, comp_version.releaseNumber))
 
     def is_supported_mysql_version(self):
         if self.majorNumber == 5 and self.minorNumber in (1, 5, 6, 7):
             return True
         return False
-
 
     def is_supported_mysql_version_at_least(self, major, minor = None, release=-1):
         assert type(major) == int or isinstance(major, Version)
