@@ -11,4 +11,5 @@ add_executable(genwrap
     genwrap.cpp
 )
 
+SET_TARGET_PROPERTIES(genwrap PROPERTIES COMPILE_FLAGS -fPIC)
 target_link_libraries(genwrap grt wbbase wbpublic ${X11_LIBRARIES} ${PCRE_LIBRARIES} ${MYSQL_LIBRARIES} ${CTemplate_LIBRARIES})
