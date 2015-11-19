@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1229,7 +1229,7 @@
   NSString* path = [b pathForResource: @"TabMenuIcon"
                                ofType: @"png"];
   mTabMenuIconImage = [[NSImage alloc] initWithContentsOfFile: path];
-  CGImageRef img = [[mTabMenuIconImage representations][0] CGImage];
+  CGImageRef img = [(id)[mTabMenuIconImage representations][0] CGImage];
   CGRect r = CGRectZero;
   r.size = NSSizeToCGSize([mTabMenuIconImage size]);
   r.size.height = [mTabRowView frame].size.height;
@@ -1262,7 +1262,7 @@
   NSString* path = [b pathForResource: @"TabDragIcon"
                                ofType: @"png"];
   mDraggerIconImage = [[NSImage alloc] initWithContentsOfFile: path];
-  CGImageRef img = [[mDraggerIconImage representations][0] CGImage];
+  CGImageRef img = [(id)[mDraggerIconImage representations][0] CGImage];
   CGRect r = CGRectZero;
   r.size = NSSizeToCGSize([mDraggerIconImage size]);
   r.size.height = [mTabRowView frame].size.height;
@@ -1295,7 +1295,7 @@
   NSString* path = [b pathForResource: @"LeftArrowIcon"
                                ofType: @"png"];
   mLeftArrowIconImage = [[NSImage alloc] initWithContentsOfFile: path];
-  CGImageRef img = [[mLeftArrowIconImage representations][0] CGImage];
+  CGImageRef img = [(id)[mLeftArrowIconImage representations][0] CGImage];
   CGRect r = CGRectZero;
   r.size = NSSizeToCGSize([mLeftArrowIconImage size]);
   r.size.height = [mTabRowView frame].size.height;
@@ -1329,7 +1329,7 @@
   NSString* path = [b pathForResource: @"RightArrowIcon"
                                ofType: @"png"];
   mRightArrowIconImage = [[NSImage alloc] initWithContentsOfFile: path];
-  CGImageRef img = [[mRightArrowIconImage representations][0] CGImage];
+  CGImageRef img = [(id)[mRightArrowIconImage representations][0] CGImage];
   CGRect r = CGRectZero;
   r.size = NSSizeToCGSize([mRightArrowIconImage size]);
   r.size.height = [mTabRowView frame].size.height;

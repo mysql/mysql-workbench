@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -520,7 +520,7 @@ void setup_mforms_app(WBMainWindow *mwin);
   {
     // look in the subviews of the tabView for the topone one that can become firstResponder
     // and then make it 
-    id view= [tabViewItem view];
+    NSView *view= [tabViewItem view];
     NSMutableArray *viewStack= [NSMutableArray array];
     NSView *topMostView= nil; // the editable view that's at the topmost position
     CGFloat topMostViewY= MAXFLOAT;
@@ -530,12 +530,13 @@ void setup_mforms_app(WBMainWindow *mwin);
     
     while ([viewStack count] > 0)
     {
-      view= viewStack[0];
+      view = viewStack[0];
       [viewStack removeObjectAtIndex: 0];
       
-      if ([view acceptsFirstResponder] && [view class] != [NSView class] && [view respondsToSelector:@selector(isEditable)] && [view isEditable])
+      if ([view acceptsFirstResponder] && [view class] != [NSView class] &&
+          [view respondsToSelector: @selector(isEditable)] && [(id)view isEditable])
       {
-        NSPoint pos= [view convertPointToBase: [view frame].origin];
+        NSPoint pos= [view convertPointToBacking: view.frame.origin];
         if (!topMostView || pos.y < topMostViewY)
         {
           topMostView= view;
@@ -545,13 +546,13 @@ void setup_mforms_app(WBMainWindow *mwin);
       else if ([view canBecomeKeyView] && !firstView)
         firstView= view;
       
-      for (id subview in [view subviews])
+      for (NSView *subview in [view subviews])
       {
         if ([subview acceptsFirstResponder] && 
             [subview class] != [NSView class] && 
-            [subview respondsToSelector:@selector(isEditable)] && [subview isEditable])
+            [subview respondsToSelector: @selector(isEditable)] && [(id)subview isEditable])
         {
-          NSPoint pos= [subview convertPointToBase: [subview frame].origin];
+          NSPoint pos= [subview convertPointToBacking: subview.frame.origin];
           if (!topMostView || pos.y < topMostViewY)
           {
             topMostView= subview;

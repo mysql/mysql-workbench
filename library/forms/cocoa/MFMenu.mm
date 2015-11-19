@@ -145,9 +145,13 @@ static void menu_set_item_enabled(mforms::Menu *self, int i, bool flag)
 static void menu_popup_at(mforms::Menu *self, mforms::Object *control, int x, int y)
 {
   MFMenuImpl* menu = self->get_data();
-  
+
   if (!control)
-    [NSMenu popUpContextMenu: menu withEvent: [NSApp currentEvent] forView: nil];
+  {
+    mforms::Form *activeForm = mforms::Form::active_form();
+    if (activeForm != NULL)
+      [NSMenu popUpContextMenu: menu withEvent: [NSApp currentEvent] forView: activeForm->get_data()];
+  }
   else
   {
     id view = control->get_data();
