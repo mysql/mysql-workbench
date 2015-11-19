@@ -118,6 +118,7 @@ install: build
 	cp -a $(VSQLITE_HOME)/lib/libvsqlitepp.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(CPPCONN_HOME)/lib/libmysqlcppconn.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(GDAL_HOME)/lib/libgdal* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+	cp -a $(CTEMPLATE_HOME)/lib/libctemplate* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 @ifdef commercial
 	# Bundle libs only needed for SE edition
 	cp -a $(SQLITE_HOME)/libsqlite3.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)

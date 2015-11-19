@@ -17,7 +17,7 @@ if (UNIX)
       copytable/main.cpp
       copytable/converter.cpp
   )
-  
+  SET_TARGET_PROPERTIES(wbcopytables-bin PROPERTIES COMPILE_FLAGS -fPIC)  
   target_link_libraries(wbcopytables-bin wbbase ${MYSQL_LIBRARIES} ${ODBC_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES})
   
   install(TARGETS wbcopytables-bin DESTINATION ${WB_INSTALL_DIR_EXECUTABLE})
@@ -28,8 +28,9 @@ else()
       copytable/main.cpp
       copytable/converter.cpp
   )
-  
-  target_link_libraries(wbcopytables wbbase ${MYSQL_LIBRARIES} ${ODBC_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES})
+
+   SET_TARGET_PROPERTIES(wbcopytables PROPERTIES COMPILE_FLAGS -fPIC)  
+   target_link_libraries(wbcopytables wbbase ${MYSQL_LIBRARIES} ${ODBC_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES})
   
   install(TARGETS wbcopytables DESTINATION ${WB_INSTALL_BIN_DIR})
 endif()
