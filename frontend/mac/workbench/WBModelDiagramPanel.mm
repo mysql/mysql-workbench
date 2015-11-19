@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -63,78 +63,85 @@ static void *backend_destroyed(void *ptr)
   self = [super init];
   if (self != nil)
   {
-    _formBE= be;
-    _formBE->set_frontend_data(self);
-    grtm = be->get_wb()->get_grt_manager();
-    
-    _formBE->add_destroy_notify_callback(self, backend_destroyed);
-
-    [NSBundle loadNibNamed:@"WBModelDiagram" owner:self];
-    _identifier= [oid retain];
-    _viewer= [[[MCanvasViewer alloc] initWithFrame:NSMakeRect(0, 0, 300, 300)] autorelease];
-    
-    [descriptionController setWBContext: _formBE->get_wb()->get_ui()];
-    [mPropertiesController setWBContext: _formBE->get_wb()->get_ui()];
-    
-    [topView setDividerThickness: 1];
-    [topView setBackgroundColor: [NSColor colorWithDeviceWhite:128/255.0 alpha:1.0]];
-     
-    // setup layer tree
-    [layerTab setView: nsviewForView(_formBE->get_layer_tree())];
-
-    // setup navigator
-    for (int i= 0; i < (int)(sizeof(zoom_levels)/sizeof(int)); i++)
-      [zoomCombo addItemWithObjectValue:@((float)zoom_levels[i])];
-    [navigatorViewer setupQuartz];
-    [navigatorViewer setPostsFrameChangedNotifications:YES];
-    
-    [[NSNotificationCenter defaultCenter] addObserver: self
-                                             selector: @selector(navigatorFrameChanged:)
-                                                 name: NSViewFrameDidChangeNotification
-                                               object: navigatorViewer];    
-    [_viewer setupQuartz];
-    [_viewer setDelegate: self];
-    [scrollView setContentCanvas: _viewer];
-    
-    [sidebarController setupWithDiagramForm: _formBE];
-    
-    [_viewer canvas]->set_user_data(self);
-    
-    [_viewer registerForDraggedTypes: @[@WB_DBOBJECT_DRAG_TYPE]];
-
-    [self setRightSidebar: be->get_wb()->get_wb_options().get_int("Sidebar:RightAligned", 0)];
-
-    [topView setAutosaveName: @"diagramSplitPosition"];
-
-    [mSwitcherT setTabStyle: MPaletteTabSwitcherSmallText];
-    [mSwitcherM setTabStyle: MPaletteTabSwitcherSmallText];
-    [mSwitcherB setTabStyle: MPaletteTabSwitcherSmallText];
-
-    // setup tools toolbar
-    mforms::ToolBar *tbar = _formBE->get_tools_toolbar();
-    if (tbar)
+    _formBE = be;
+    if (_formBE != NULL)
     {
-      NSView *view = tbar->get_data();
-      [toolbar addSubview: view];
-      [view setAutoresizingMask: NSViewHeightSizable|NSViewMinXMargin|NSViewMaxYMargin];
-      [view setFrame: [toolbar bounds]];
-    }
+      _formBE->set_frontend_data(self);
+      grtm = be->get_wb()->get_grt_manager();
 
-    // setup options toolbar
-    tbar = _formBE->get_options_toolbar();
-    if (tbar)
-    {
-      NSView *view = tbar->get_data();
-      [optionsToolbar addSubview: view];
-      [view setAutoresizingMask: NSViewWidthSizable|NSViewMinXMargin|NSViewMaxYMargin];
-      [view setFrame: [optionsToolbar bounds]];
-    }
+      _formBE->add_destroy_notify_callback(self, backend_destroyed);
 
-    [self restoreSidebarsFor: "ModelDiagram" toolbar: _formBE->get_toolbar()];
+      [NSBundle loadNibNamed:@"WBModelDiagram" owner:self];
+      _identifier= [oid retain];
+      _viewer= [[[MCanvasViewer alloc] initWithFrame:NSMakeRect(0, 0, 300, 300)] autorelease];
+
+      [descriptionController setWBContext: _formBE->get_wb()->get_ui()];
+      [mPropertiesController setWBContext: _formBE->get_wb()->get_ui()];
+
+      [topView setDividerThickness: 1];
+      [topView setBackgroundColor: [NSColor colorWithDeviceWhite:128/255.0 alpha:1.0]];
+
+      // setup layer tree
+      [layerTab setView: nsviewForView(_formBE->get_layer_tree())];
+
+      // setup navigator
+      for (int i= 0; i < (int)(sizeof(zoom_levels)/sizeof(int)); i++)
+        [zoomCombo addItemWithObjectValue:@((float)zoom_levels[i])];
+      [navigatorViewer setupQuartz];
+      [navigatorViewer setPostsFrameChangedNotifications:YES];
+
+      [[NSNotificationCenter defaultCenter] addObserver: self
+                                               selector: @selector(navigatorFrameChanged:)
+                                                   name: NSViewFrameDidChangeNotification
+                                                 object: navigatorViewer];
+      [_viewer setupQuartz];
+      [_viewer setDelegate: self];
+      [scrollView setContentCanvas: _viewer];
+
+      [sidebarController setupWithDiagramForm: _formBE];
+
+      [_viewer canvas]->set_user_data(self);
+
+      [_viewer registerForDraggedTypes: @[@WB_DBOBJECT_DRAG_TYPE]];
+
+      [self setRightSidebar: be->get_wb()->get_wb_options().get_int("Sidebar:RightAligned", 0)];
+
+      [topView setAutosaveName: @"diagramSplitPosition"];
+
+      [mSwitcherT setTabStyle: MPaletteTabSwitcherSmallText];
+      [mSwitcherM setTabStyle: MPaletteTabSwitcherSmallText];
+      [mSwitcherB setTabStyle: MPaletteTabSwitcherSmallText];
+
+      // setup tools toolbar
+      mforms::ToolBar *tbar = _formBE->get_tools_toolbar();
+      if (tbar)
+      {
+        NSView *view = tbar->get_data();
+        [toolbar addSubview: view];
+        [view setAutoresizingMask: NSViewHeightSizable|NSViewMinXMargin|NSViewMaxYMargin];
+        [view setFrame: [toolbar bounds]];
+      }
+
+      // setup options toolbar
+      tbar = _formBE->get_options_toolbar();
+      if (tbar)
+      {
+        NSView *view = tbar->get_data();
+        [optionsToolbar addSubview: view];
+        [view setAutoresizingMask: NSViewWidthSizable|NSViewMinXMargin|NSViewMaxYMargin];
+        [view setFrame: [optionsToolbar bounds]];
+      }
+      
+      [self restoreSidebarsFor: "ModelDiagram" toolbar: _formBE->get_toolbar()];
+    }
   }
   return self;
 }
 
+- (instancetype)init
+{
+  return [self initWithId: nil formBE: NULL];
+}
 
 - (void)dealloc
 {

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,11 +25,10 @@
 @implementation WBMFormsPluginPanel
 
 
-+ (WBMFormsPluginPanel*)panelOfAppView:(mforms::AppView*)view
++ (WBMFormsPluginPanel*)panelOfAppView: (mforms::AppView*)view
 {
   return (WBMFormsPluginPanel*)view->get_frontend_data();
 }
-
 
 - (instancetype)initWithAppView:(mforms::AppView*)view
 {
@@ -37,14 +36,22 @@
   if (self)
   {
     _owner = view;
-    view->retain();
-    view->set_frontend_data(self);
-    [[NSNotificationCenter defaultCenter] addObserver: self
-                                             selector: @selector(windowDidUpdate:)
-                                                 name: NSWindowDidUpdateNotification
-                                               object: nil];
+    if (view != NULL)
+    {
+      view->retain();
+      view->set_frontend_data(self);
+      [[NSNotificationCenter defaultCenter] addObserver: self
+                                               selector: @selector(windowDidUpdate:)
+                                                   name: NSWindowDidUpdateNotification
+                                                 object: nil];
+    }
   }
   return self;
+}
+
+-(instancetype)init
+{
+  return [self initWithAppView: NULL];
 }
 
 - (void) dealloc
