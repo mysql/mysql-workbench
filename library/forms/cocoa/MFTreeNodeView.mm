@@ -637,15 +637,20 @@ inline TreeNodeImpl *from_ref(mforms::TreeNodeRef node)
 
 @implementation MFTreeNodeImpl
 
-- (instancetype)initWithOwner:(MFTreeNodeViewImpl*)owner
+- (instancetype)initWithOwner: (MFTreeNodeViewImpl*)owner
 {
   self = [super init];
   if (self)
   {
-    mData = [[NSMutableDictionary alloc] init];
+    mData = [NSMutableDictionary new];
     mTree = owner;
   }
   return self;
+}
+
+- (instancetype)init
+{
+  return [self initWithOwner: nil];
 }
 
 - (void)dealloc
@@ -954,9 +959,9 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
     CGFloat x = NSMaxX([self visibleRect]) - OVERLAY_ICON_RIGHT_PADDING;
     for (id icon in mOverlayIcons)
     {
-      if ([icon isKindOfClass: [NSImage class]])
+      if ([icon isKindOfClass: NSImage.class])
       {
-        NSSize size = [icon size];
+        NSSize size = [(NSImage *)icon size];
         x -= size.width + OVERLAY_ICON_SPACING;
       }
     }
@@ -965,7 +970,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
     {
       if ([icon isKindOfClass: [NSImage class]])
       {
-        NSSize size = [icon size];
+        NSSize size = [(NSImage *)icon size];
         [(NSImage*)icon drawInRect: NSMakeRect(floorf(x), floorf(NSMinY(rowRect) + (NSHeight(rowRect) - size.height) / 2),
                                                size.width, size.height)
                           fromRect: NSZeroRect
@@ -1714,12 +1719,12 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
   if (mOwner != nil && !mOwner->is_destroying())
   {
     [super resizeSubviewsWithOldSize: oldSize];
-    NSArray *columns = [mOutline tableColumns];
-    if ([columns count] == 1)
+    NSArray<NSTableColumn *> *columns = [mOutline tableColumns];
+    if (columns.count == 1)
     {
-      float w = NSWidth([mOutline frame]);
-      if ([[columns lastObject] width] < w)
-        [[columns lastObject] setWidth: w];
+      float w = NSWidth(mOutline.frame);
+      if (columns.lastObject.width < w)
+        columns.lastObject.width = w;
     }
   }
 }

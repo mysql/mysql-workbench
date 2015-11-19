@@ -161,6 +161,11 @@ static base::Mutex timeout_lock;
   return self;
 }
 
+-(instancetype)init
+{
+  return [self initWithSlot: boost::function<bool ()>()];
+}
+
 - (void)dealloc
 {
   delete callback;

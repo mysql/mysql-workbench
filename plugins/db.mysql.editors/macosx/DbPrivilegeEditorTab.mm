@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,30 +29,36 @@
 
 @implementation DbPrivilegeEditorTab
 
-- (instancetype)initWithObjectEditor:(bec::DBObjectEditorBE*)be
+- (instancetype)initWithObjectEditor: (bec::DBObjectEditorBE*)be
 {
   self= [super init];
   if (self)
   {
-    _be= be;
-    
-    [NSBundle loadNibNamed:@"PrivilegesTab" owner:self];
-    
-    _rolesListBE= new bec::ObjectRoleListBE(be, get_rdbms_for_db_object(be->get_dbobject()));
-    _roleTreeBE= new bec::RoleTreeBE(be->get_catalog());
-    _privilegeListBE= _rolesListBE->get_privilege_list();
-    
-    _roleTreeBE->refresh();
-    
-    [allRolesDS setTreeModel:_roleTreeBE];
-    [assignedRolesDS setListModel:_rolesListBE];
-    
-    [allRolesOutline reloadData];
-    [assignedRolesTable reloadData];
+    _be = be;
+    if (_be != NULL)
+    {
+      [NSBundle loadNibNamed:@"PrivilegesTab" owner:self];
+
+      _rolesListBE = new bec::ObjectRoleListBE(be, get_rdbms_for_db_object(be->get_dbobject()));
+      _roleTreeBE = new bec::RoleTreeBE(be->get_catalog());
+      _privilegeListBE = _rolesListBE->get_privilege_list();
+
+      _roleTreeBE->refresh();
+
+      [allRolesDS setTreeModel:_roleTreeBE];
+      [assignedRolesDS setListModel:_rolesListBE];
+
+      [allRolesOutline reloadData];
+      [assignedRolesTable reloadData];
+    }
   }
   return self;
 }
 
+- (instancetype)init
+{
+  return [self initWithObjectEditor: NULL];
+}
 
 - (void)dealloc
 {

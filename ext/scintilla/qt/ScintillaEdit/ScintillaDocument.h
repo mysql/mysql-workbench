@@ -9,6 +9,10 @@
 
 class WatcherHelper;
 
+#ifdef SCI_NAMESPACE
+namespace Scintilla {
+#endif
+
 #ifndef EXPORT_IMPORT_API
 #ifdef WIN32
 #ifdef MAKING_LIBRARY
@@ -73,6 +77,8 @@ public:
     int get_eol_mode();
     void set_eol_mode(int eol_mode);
     int move_position_outside_char(int pos, int move_dir, bool check_line_end);
+    
+    int get_character(int pos); // Calls GetCharacterAndWidth(pos, NULL)
 
 private:
     void emit_modify_attempt();
@@ -92,8 +98,12 @@ signals:
     void lexer_changed();
     void error_occurred(int status);
 
-    friend class WatcherHelper;
+    friend class ::WatcherHelper;
 
 };
+
+#ifdef SCI_NAMESPACE
+}
+#endif
 
 #endif // SCINTILLADOCUMENT_H

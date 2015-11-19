@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,18 +43,18 @@ static void update_size_entries(WBDiagramSizeController *self)
 }
 
 
-- (instancetype)initWithWBContext:(wb::WBContextUI*)wbui
+- (instancetype)initWithWBContext: (wb::WBContextUI*)wbui
 {
-  self= [super init];
-  if (self)
-  {    
-    [NSBundle loadNibNamed:@"DiagramOptions" owner:self];
+  self = [super init];
+  if (self != nil && wbui != NULL)
+  {
+    [NSBundle loadNibNamed:@"DiagramOptions" owner: self];
 
     [canvas lockFocus];
     [canvas setupQuartz];
     [canvas unlockFocus];
     
-    _be= wbui->create_diagram_options_be([canvas canvas]);
+    _be = wbui->create_diagram_options_be([canvas canvas]);
     _be->update_size();
     _be->signal_changed()->connect(boost::bind(update_size_entries, self));
     
@@ -65,6 +65,10 @@ static void update_size_entries(WBDiagramSizeController *self)
   return self;
 }
 
+- (instancetype)init
+{
+  return [self initWithWBContext: NULL];
+}
 
 - (IBAction)okClicked:(id)sender
 {

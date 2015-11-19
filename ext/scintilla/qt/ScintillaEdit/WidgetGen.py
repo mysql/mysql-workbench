@@ -94,6 +94,8 @@ def printPyFile(f, options):
 				out.append(name + "=" + v["Value"])
 			if feat in ["evt"]:
 				out.append("SCN_" + name.upper() + "=" + v["Value"])
+			if feat in ["fun"]:
+				out.append("SCI_" + name.upper() + "=" + v["Value"])
 	return out
 
 def printHFile(f, options):

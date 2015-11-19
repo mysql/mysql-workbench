@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1232,7 +1232,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
       item.representedObject = tabItem;
     }
 
-    [NSMenu popUpContextMenu: menu withEvent: theEvent forView: nil];
+    [NSMenu popUpContextMenu: menu withEvent: theEvent forView: self];
     return;
   }
 

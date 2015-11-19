@@ -828,10 +828,10 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
 
 #pragma mark Create + destroy
 
-- (instancetype)initWithBE:(const SqlEditorForm::Ref&)be
+- (instancetype)initWithBE: (const SqlEditorForm::Ref&)be
 {
-  self= [super init];
-  if (self)
+  self = [super init];
+  if (self != nil && be)
   {
     BOOL outputAreaHidden;
     
@@ -946,6 +946,10 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
   return self;
 }
 
+- (instancetype)init
+{
+  return [self initWithBE: SqlEditorForm::Ref()];
+}
 
 - (SqlEditorForm::Ref)backEnd
 {

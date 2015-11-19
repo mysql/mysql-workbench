@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,32 +36,38 @@
   self = [super init];
   if (self)
   {
-    _wbui= wbui;
+    _wbui = wbui;
+    if (_wbui != NULL)
+    {
+      [NSBundle loadNibNamed: @"WBModelOverview" owner: self];
+      [(id)editorTabView createDragger];
 
-    [NSBundle loadNibNamed: @"WBModelOverview" owner: self];
-    [(id)editorTabView createDragger];
+      [overview setupWithOverviewBE: wbui->get_physical_overview()];
+      [sidebarController setupWithContext: wbui->get_wb()->get_model_context()];
+      [mSwitcherT setTabStyle: MPaletteTabSwitcherSmallText];
+      [mSwitcherB setTabStyle: MPaletteTabSwitcherSmallText];
+      [descriptionController setWBContext: wbui];
 
-    [overview setupWithOverviewBE: wbui->get_physical_overview()];
-    [sidebarController setupWithContext: wbui->get_wb()->get_model_context()];
-    [mSwitcherT setTabStyle: MPaletteTabSwitcherSmallText];
-    [mSwitcherB setTabStyle: MPaletteTabSwitcherSmallText];
-    [descriptionController setWBContext: wbui];
+      [topView setDividerThickness: 1];
+      [topView setBackgroundColor: [NSColor colorWithDeviceWhite:128/255.0 alpha:1.0]];
 
-    [topView setDividerThickness: 1];
-    [topView setBackgroundColor: [NSColor colorWithDeviceWhite:128/255.0 alpha:1.0]];
+      // [overview rebuildAll];
+      [overview performSelector:@selector(rebuildAll) withObject:nil afterDelay:0.1];
 
-   // [overview rebuildAll];
-    [overview performSelector:@selector(rebuildAll) withObject:nil afterDelay:0.1];
+      grtm = _wbui->get_wb()->get_grt_manager();
 
-    grtm = _wbui->get_wb()->get_grt_manager();
+      [topView setAutosaveName: @"modelSplitPosition"];
 
-    [topView setAutosaveName: @"modelSplitPosition"];
-
-    [self restoreSidebarsFor: "ModelOverview" toolbar: wbui->get_physical_overview()->get_toolbar()];
+      [self restoreSidebarsFor: "ModelOverview" toolbar: wbui->get_physical_overview()->get_toolbar()];
+    }
   }
   return self;
 }
 
+- (instancetype)init
+{
+  return [self initWithWBContextUI: NULL];
+}
 
 - (void)dealloc
 {
