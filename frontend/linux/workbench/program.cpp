@@ -48,7 +48,7 @@ static void flush_main_thread()
 }
 
 //------------------------------------------------------------------------------
-Program::Program(wb::WBOptions wboptions)
+Program::Program(wb::WBOptions &wboptions)
 {
   _instance = this;
   // Setup backend stuff
