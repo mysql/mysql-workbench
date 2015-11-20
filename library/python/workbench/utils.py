@@ -170,18 +170,42 @@ class Version:
             return Version(v[0], v[1], v[2])
         else:
             raise ValueError("Invalid version string %s" % s)
-
-    def __cmp__(self, v):
-        comp_version = None
-        if isinstance(v, Version):
-            comp_version = v
-        elif isinstance(v, basestring):
-            comp_version = Version.fromstr(v)
+    
+    def compare(self, other):
+        other_version = None
+        if isinstance(other, Version):
+            other_version = other
+        elif isinstance(other, basestring):
+            other_version = Version.fromstr(other)
         else:
             raise TypeError("Unexpected type")
+
+        this_version_number = self.majorNumber * 10000 + self.minorNumber * 100 + max(0, self.releaseNumber)
+        other_version_number = other_version.majorNumber * 10000 + other_version.minorNumber * 100 + max(0, other_version.releaseNumber)
         
-        return cmp(self.majorNumber * 10000 + self.minorNumber * 100 + max(0, self.releaseNumber),
-                   comp_version.majorNumber * 10000 + comp_version.minorNumber * 100 + max(0, comp_version.releaseNumber))
+        if this_version_number < other_version_number:
+            return -1
+        elif this_version_number > other_version_number:
+            return 1
+        return 0
+    
+    def __lt__(self, other):
+        return self.compare(other) < 0
+
+    def __eq__(self, other):
+        return self.compare(other) == 0
+
+    def __ne__(self, other):
+        return self.compare(other) != 0
+
+    def __gt__(self, other):
+        return self.compare(other) > 0
+
+    def __ge__(self, other):
+        return self.compare(other) >= 0
+
+    def __le__(self, other):
+        return self.compare(other) <= 0
 
     def is_supported_mysql_version(self):
         if self.majorNumber == 5 and self.minorNumber in (1, 5, 6, 7):
