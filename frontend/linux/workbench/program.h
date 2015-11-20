@@ -36,7 +36,7 @@ class MainForm;
 class Program
 {
   public:
-    Program(wb::WBOptions options);
+    Program(wb::WBOptions &options);
     ~Program();
   
     void shutdown();
