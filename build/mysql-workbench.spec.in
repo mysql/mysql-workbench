@@ -202,7 +202,8 @@ Windows, Linux and Mac OS X.
 
 %build
 %if 0%{?fedora} > 22
-CXXFLAGS="-std=c++11 -fPIC $CXXFLAGS" \
+CXXFLAGS="-std=c++11 $CXXFLAGS" \
+%undefine _hardened_build #need to undefine because of some memory problems
 %endif
 %cmake -DCMAKE_BUILD_TYPE=Release \
        -DREAL_EXECUTABLE_DIR=%{_libexecdir}/mysql-workbench \
