@@ -223,6 +223,7 @@ class WbAdminServerStatus(mforms.Box):
 
         self.currently_started = None
         self.ctrl_be.add_me_for_event("server_started", self)
+        self.ctrl_be.add_me_for_event("server_offline", self)
         self.ctrl_be.add_me_for_event("server_stopped", self)
 
         self.connection_info.update(self.ctrl_be)
@@ -235,6 +236,12 @@ class WbAdminServerStatus(mforms.Box):
             if not self._update_timeout:
                 self._update_timeout = mforms.Utilities.add_timeout(0.5, self.update)
 
+    def server_offline_event(self):
+        if self.currently_started != True:
+            self.refresh("offline")
+            self.currently_started = True
+            if not self._update_timeout:
+                self._update_timeout = mforms.Utilities.add_timeout(0.5, self.update)
     #---------------------------------------------------------------------------
     def server_stopped_event(self):
         if self.currently_started != False:
@@ -252,12 +259,12 @@ class WbAdminServerStatus(mforms.Box):
     def refresh_status(self):
         if not self._update_timeout:
             status = self.ctrl_be.force_check_server_state()
-            if status == "running" or not status and self.currently_started:
+            if (status == "running" or not status  or status == "offline" ) and self.currently_started:
                 self.ctrl_be.query_server_info()
 
             self._update_timeout = mforms.Utilities.add_timeout(0.5, self.update)
 
-    
+
     #---------------------------------------------------------------------------
     def page_activated(self):
         self.suspend_layout()
@@ -274,8 +281,14 @@ class WbAdminServerStatus(mforms.Box):
         if self.currently_started is None:
             if self.ctrl_be.is_server_running() == "running":
                 self.server_started_event()
+            elif self.ctrl_be.is_server_running() == "offline":
+                self.server_offline_event()
             else:
                 self.server_stopped_event()
+        else:
+            self.ctrl_be.query_server_info()
+
+        self.refresh(self.ctrl_be.is_server_running())
 
     def update(self):
         self._update_timeout = None

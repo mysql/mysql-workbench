@@ -250,6 +250,7 @@ public:
   bool connectionIsValid() const {
     return _connection.is_valid();
   }
+  bool offline();
   bool ping() const;
   void finish_startup();
   void cancel_query();
@@ -448,6 +449,7 @@ public:
 protected:
   DbSqlEditorLog::Ref _log;
   DbSqlEditorHistory::Ref _history;
+  bool _serverIsOffline;
 
 public:
   // Result should be RowId but that requires to change the task callback type (at least for 64bit builds).
