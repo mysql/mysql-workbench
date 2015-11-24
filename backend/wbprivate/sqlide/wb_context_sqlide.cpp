@@ -125,7 +125,17 @@ public:
   {
     boost::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)
-      return grt::IntegerRef(_editor->connected() ? 1 : 0);
+    {
+      if (_editor->offline())
+        return grt::IntegerRef(-1);
+      else
+      {
+        if (_editor->connected())
+          return grt::IntegerRef(1);
+        else
+          return grt::IntegerRef(0);
+      }
+    }
     return grt::IntegerRef(0);
   }
 

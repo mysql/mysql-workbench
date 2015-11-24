@@ -371,6 +371,7 @@ class WBAdminMonitorBE(object):
         self.interval  = interval
 
         self.ctrl_be.add_me_for_event("server_started", self)
+        self.ctrl_be.add_me_for_event("server_offline", self)
         self.ctrl_be.add_me_for_event("server_stopped", self)
 
         if server_profile.target_os != wbaOS.windows:
@@ -378,7 +379,7 @@ class WBAdminMonitorBE(object):
                 cmd = ShellDataSource("host_stats", server_profile.detected_os_name, self, cpu_widget)
                 self.sources.append(cmd)
             else:
-                print "WBAMonBE: Data sources were not added. Profile set to non-local or remote admin is disabled."
+                log_info("WBAMonBE: Data sources were not added. Profile set to non-local or remote admin is disabled.")
         else:
             if server_profile.uses_wmi: # Force WMI for local boxes - pointless to force WMI, if it was not setup earlier (throws exc)
                 self.wmimon = WMIStats(ctrl_be, server_profile, cpu_widget)
@@ -434,6 +435,9 @@ class WBAdminMonitorBE(object):
         self.poll_thread = threading.Thread(target = self.poll_sources)
         self.poll_thread.start()
         log_debug3('Leave\n')
+        
+    def server_offline_event(self):
+        self.server_started_event() #offline even can be sent only if server is running
 
     def server_stopped_event(self):
         log_debug3('Enter\n')

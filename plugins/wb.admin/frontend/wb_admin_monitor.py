@@ -294,6 +294,10 @@ class WbAdminMonitor(mforms.Box):
             self.mon_be.note_server_running()
             self.status_icon.set_server_status(1)
             self.status_label.set_text("Running\n")
+        elif status == "offline":
+            self.mon_be.note_server_running()
+            self.status_icon.set_server_status(2)
+            self.status_label.set_text("Offline\n")
         elif status == "stopped":
             self.status_icon.set_server_status(0)
             self.status_label.set_text("Stopped\n")
