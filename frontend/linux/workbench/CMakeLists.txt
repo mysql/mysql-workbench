@@ -79,7 +79,12 @@ add_executable(mysql-workbench-bin
     ../../common/grt_plugin_wizard.cpp
 )
 
-SET_TARGET_PROPERTIES(mysql-workbench-bin PROPERTIES COMPILE_FLAGS "-fPIE -pie")
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  set_target_properties(mysql-workbench-bin PROPERTIES COMPILE_FLAGS "-fPIE")
+else()
+  set_target_properties(mysql-workbench-bin PROPERTIES COMPILE_FLAGS "-fPIE -pie")
+endif()
 
 if (KEYRING_DEFINITION)
 	set_target_properties(mysql-workbench-bin PROPERTIES
