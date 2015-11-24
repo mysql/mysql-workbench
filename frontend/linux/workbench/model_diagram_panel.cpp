@@ -354,35 +354,58 @@ void ModelDiagramPanel::init(const std::string &view_id)
 
     _xml->get_widget("side_model_note1", note);
 
+    GValue g_value = G_VALUE_INIT;
+    g_value_init(&g_value, G_TYPE_BOOLEAN);
+    g_value_set_boolean(&g_value, TRUE);
+
     _catalog_tree = _be->get_catalog_tree();
     label = Gtk::manage(new Gtk::Label(_("<small>Catalog</small>")));
     note->append_page(*mforms::widget_for_view(_catalog_tree), *label);
     label->set_use_markup(true);
+    label->set_ellipsize(Pango::ELLIPSIZE_END);
+    gtk_container_child_set_property(GTK_CONTAINER(note->gobj()), GTK_WIDGET(note->get_nth_page(0)->gobj()), "tab-expand", &g_value);
+    gtk_container_child_set_property(GTK_CONTAINER(note->gobj()), GTK_WIDGET(note->get_nth_page(0)->gobj()), "tab-fill", &g_value);
 
     label = Gtk::manage(new Gtk::Label(_("<small>Layers</small>")));
     note->append_page(*mforms::widget_for_view(_be->get_layer_tree()), *label);
     label->set_use_markup(true);
+    label->set_ellipsize(Pango::ELLIPSIZE_END);
+    gtk_container_child_set_property(GTK_CONTAINER(note->gobj()), GTK_WIDGET(note->get_nth_page(1)->gobj()), "tab-expand", &g_value);
+    gtk_container_child_set_property(GTK_CONTAINER(note->gobj()), GTK_WIDGET(note->get_nth_page(1)->gobj()), "tab-fill", &g_value);
 
     _usertypes_list= _wb->get_wb()->get_model_context()->create_user_type_list();
     label = Gtk::manage(new Gtk::Label(_("<small>User Types</small>")));
     note->append_page(*mforms::widget_for_view(_usertypes_list), *label);
     label->set_use_markup(true);
+    label->set_ellipsize(Pango::ELLIPSIZE_END);
+    gtk_container_child_set_property(GTK_CONTAINER(note->gobj()), GTK_WIDGET(note->get_nth_page(2)->gobj()), "tab-expand", &g_value);
+    gtk_container_child_set_property(GTK_CONTAINER(note->gobj()), GTK_WIDGET(note->get_nth_page(2)->gobj()), "tab-fill", &g_value);
 
     _xml->get_widget("side_model_note2", note);
     _documentation_box= Gtk::manage(new DocumentationBox(_wb));
     label = Gtk::manage(new Gtk::Label(_("<small>Description</small>")));
     note->append_page(*_documentation_box, *label);
     label->set_use_markup(true);
+    label->set_ellipsize(Pango::ELLIPSIZE_END);
+    gtk_container_child_set_property(GTK_CONTAINER(note->gobj()), GTK_WIDGET(note->get_nth_page(0)->gobj()), "tab-expand", &g_value);
+    gtk_container_child_set_property(GTK_CONTAINER(note->gobj()), GTK_WIDGET(note->get_nth_page(0)->gobj()), "tab-fill", &g_value);
 
     _properties_tree= Gtk::manage(new PropertiesTree(_wb));
     label = Gtk::manage(new Gtk::Label(_("<small>Properties</small>")));
     note->append_page(*_properties_tree, *label);
     label->set_use_markup(true);
+    label->set_ellipsize(Pango::ELLIPSIZE_END);
+    gtk_container_child_set_property(GTK_CONTAINER(note->gobj()), GTK_WIDGET(note->get_nth_page(1)->gobj()), "tab-expand", &g_value);
+    gtk_container_child_set_property(GTK_CONTAINER(note->gobj()), GTK_WIDGET(note->get_nth_page(1)->gobj()), "tab-fill", &g_value);
 
     _history_list = _wb->get_wb()->get_model_context()->create_history_tree();
     label = Gtk::manage(new Gtk::Label(_("<small>History</small>")));
     note->append_page(*mforms::widget_for_view(_history_list), *label);
     label->set_use_markup(true);
+    label->set_ellipsize(Pango::ELLIPSIZE_END);
+    gtk_container_child_set_property(GTK_CONTAINER(note->gobj()), GTK_WIDGET(note->get_nth_page(2)->gobj()), "tab-expand", &g_value);
+    gtk_container_child_set_property(GTK_CONTAINER(note->gobj()), GTK_WIDGET(note->get_nth_page(2)->gobj()), "tab-fill", &g_value);
+
   }
 
   {
