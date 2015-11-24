@@ -482,6 +482,7 @@
                     <File Id="file6076" Name="user_datatypes.png"/>
                     <File Id="file60007" Name="admin_info_stopped.png"/>
                     <File Id="file60008" Name="admin_info_running.png"/>
+                    <File Id="file60009" Name="admin_info_offline.png"/>
                     <File Id="file60015" Name="admin_meb_backup.png"/>
                     <File Id="file60016" Name="admin_meb_restore.png"/>
                     <File Id="file60018" Name="admin_info_unknown.png"/>

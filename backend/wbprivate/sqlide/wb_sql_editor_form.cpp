@@ -269,7 +269,8 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
   _live_tree(SqlEditorTreeController::create(this)),
   _side_palette_host(NULL),
   _side_palette(NULL),
-  _history(DbSqlEditorHistory::create(_grtm))
+  _history(DbSqlEditorHistory::create(_grtm)),
+  _serverIsOffline(false)
 {
   _startup_done = false;
   _log = DbSqlEditorLog::create(this, _grtm, 500);
@@ -1114,9 +1115,10 @@ struct ConnectionErrorInfo
   sql::AuthenticationError *auth_error;
   bool password_expired;
   bool server_probably_down;
+  bool serverIsOffline;
   grt::server_denied *serverException;
 
-  ConnectionErrorInfo() : auth_error(NULL), password_expired(false), server_probably_down(false), serverException(NULL) {}
+  ConnectionErrorInfo() : auth_error(NULL), password_expired(false), server_probably_down(false), serverIsOffline(false), serverException(NULL) {}
   ~ConnectionErrorInfo()
   {
     delete auth_error;
@@ -1200,7 +1202,7 @@ bool SqlEditorForm::connect(boost::shared_ptr<sql::TunnelConnection> tunnel)
 
       if (!error_ptr.auth_error)
         throw;
-      else if (error_ptr.server_probably_down)
+      else if (error_ptr.server_probably_down or error_ptr.serverIsOffline)
         return false;
 
       //check if user cancelled
@@ -1332,7 +1334,7 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
     // open connections
     create_connection(_aux_dbc_conn, _connection, tunnel, auth, _aux_dbc_conn->autocommit_mode, false);
     create_connection(_usr_dbc_conn, _connection, tunnel, auth, _usr_dbc_conn->autocommit_mode, true);
-
+    _serverIsOffline = false;
     cache_sql_mode();
 
     try
@@ -1431,7 +1433,33 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
 
       return grt::StringRef();
     }
-    else if (exc.getErrorCode() == 3159 || exc.getErrorCode() == 3032) //require SSL, offline mode
+    else if (exc.getErrorCode() == 3032)
+    {
+      err_ptr->serverIsOffline = true;
+      _serverIsOffline = true;
+      add_log_message(WarningMsg, exc.what(), "Could not connect, server is in offline mode.", "");
+
+      if (_connection.is_valid())
+      {
+        // if there's no connection, then we continue anyway if this is a local connection or
+        // a remote connection with remote admin enabled..
+        grt::Module *m = _grtm->get_grt()->get_module("WbAdmin");
+        grt::BaseListRef args(_grtm->get_grt());
+        args.ginsert(_connection);
+      }
+
+      log_info("Error %i connecting to server, server is in offline mode. Only superuser connection are allowed. Opening editor with no connection\n",
+              exc.getErrorCode());
+
+      // Create a parser with some sensible defaults if we cannot connect.
+      // We specify no charsets here, disabling parsing of repertoires.
+      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grt);
+      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(grt), bec::int_to_version(grt, 50503), true);
+      _work_parser_context->use_sql_mode(_sql_mode);
+
+      return grt::StringRef();
+    }
+    else if (exc.getErrorCode() == 3159) //require SSL, offline mode
     {
       err_ptr->serverException = new grt::server_denied(exc.what(), exc.getErrorCode()); // we need to change exception type so we can properly handle it in
     }
@@ -1479,6 +1507,49 @@ bool SqlEditorForm::connected() const
   return false;
 }
 
+
+bool SqlEditorForm::offline()
+{
+  if (_serverIsOffline)
+      return true;
+
+  if (!connected())
+    return false;
+  {
+    base::RecMutexTryLock tmp(_usr_dbc_conn_mutex);
+    int counter = 1;
+    while(!tmp.locked())
+    {
+      if (counter >= 30)
+        throw std::exception("Can't lock conn mutex after 30 seconds, abort");
+
+      log_debug3("Can't lock conn mutex, trying again in one sec.");
+      sleep(1);
+      counter++;
+      tmp.retry_lock(_usr_dbc_conn_mutex);
+    }
+
+    if (_usr_dbc_conn && _usr_dbc_conn->ref.get_ptr())
+    {
+      std::auto_ptr<sql::Statement> stmt(_usr_dbc_conn->ref->createStatement());
+      try
+      {
+        std::auto_ptr<sql::ResultSet> result(stmt->executeQuery("show variables like 'offline_mode'"));
+        if (result->next())
+        {
+          if (base::string_compare(result->getString(2), "ON") == 0)
+            _serverIsOffline = true;
+        }
+      }
+      catch (...)
+      {
+        log_error("Unable to detect offline mode.\n");
+      }
+    }
+  }
+
+  return _serverIsOffline;
+}
 
 bool SqlEditorForm::ping() const
 {
