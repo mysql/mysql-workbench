@@ -139,8 +139,10 @@ class AdministratorTab(mforms.AppView):
         self.timeout()
 
         # check initial state
-        if editor.isConnected:
+        if editor.isConnected == 1:
             self.ctrl_be.event_from_main("server_started")
+        elif editor.isConnected == -1:
+            self.ctrl_be.event_from_main("server_offline")
 
         self.ctrl_be.continue_events() # Process events which are queue during init
         log_debug("WBA init complete\n")
@@ -231,8 +233,10 @@ class AdministratorTab(mforms.AppView):
     def handle_server_state_changed(self, name, sender, info):
         # called from outside when running state of the server changes
         log_info("received notification that server state changed to %s\n" % info["state"])
-        if info["state"]:
+        if info["state"] == 1:
             self.ctrl_be.event_from_main("server_started")
+        elif info["state"] == -1:
+            self.ctrl_be.event_from_main("server_offline")
         else:
             self.ctrl_be.event_from_main("server_stopped")
 
@@ -242,6 +246,12 @@ class AdministratorTab(mforms.AppView):
         if len(self.tabs) > 0 and hasattr(self.tabs[0], 'print_output'):
             self.ctrl_be.uitask(self.tabs[0].print_output, "Server is running")
         dprint_ex(1, "Done handling start event")
+
+    def server_offline_event(self):
+        dprint_ex(1, "Handling offline event")
+        if len(self.tabs) > 0 and hasattr(self.tabs[0], 'print_output'):
+            self.ctrl_be.uitask(self.tabs[0].print_output, "Server is running in offline mode")
+        dprint_ex(1, "Done handling offline event")
 
     #---------------------------------------------------------------------------
     def server_stopped_event(self):
