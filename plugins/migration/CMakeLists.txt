@@ -17,8 +17,11 @@ if (UNIX)
       copytable/main.cpp
       copytable/converter.cpp
   )
-  SET_TARGET_PROPERTIES(wbcopytables-bin PROPERTIES COMPILE_FLAGS "-fPIE -pie")  
-
+  if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    set_target_properties(wbcopytables-bin PROPERTIES COMPILE_FLAGS "-fPIE")
+  else()
+    set_target_properties(wbcopytables-bin PROPERTIES COMPILE_FLAGS "-fPIE -pie")
+  endif()
   target_link_libraries(wbcopytables-bin wbbase ${MYSQL_LIBRARIES} ${ODBC_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES})
   
   install(TARGETS wbcopytables-bin DESTINATION ${WB_INSTALL_DIR_EXECUTABLE})
@@ -29,8 +32,11 @@ else()
       copytable/main.cpp
       copytable/converter.cpp
   )
-
-   SET_TARGET_PROPERTIES(wbcopytables PROPERTIES COMPILE_FLAGS "-fPIE -pie")  
+  if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    set_target_properties(wbcopytables PROPERTIES COMPILE_FLAGS "-fPIE")
+  else()
+    set_target_properties(wbcopytables PROPERTIES COMPILE_FLAGS "-fPIE -pie")
+  endif()
 
    target_link_libraries(wbcopytables wbbase ${MYSQL_LIBRARIES} ${ODBC_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES})
   
