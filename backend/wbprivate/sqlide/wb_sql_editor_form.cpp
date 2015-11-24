@@ -1521,7 +1521,10 @@ bool SqlEditorForm::offline()
     while(!tmp.locked())
     {
       if (counter >= 30)
-        throw std::exception("Can't lock conn mutex after 30 seconds, abort");
+      {
+        log_error("Can't lock conn mutex for 30 seconds, assuming server is not offline.");
+        return false;
+      }
 
       log_debug3("Can't lock conn mutex, trying again in one sec.");
       sleep(1);
