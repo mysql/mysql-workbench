@@ -57,7 +57,7 @@ db_mgmt_ConnectionRef db_query_Editor::connection() const
 grt::IntegerRef db_query_Editor::isConnected() const
 {
   if (_data)
-    return grt::IntegerRef(_data->isConnected() ? 1 : 0);
+    return _data->isConnected();
   return grt::IntegerRef(0);
 }
 
