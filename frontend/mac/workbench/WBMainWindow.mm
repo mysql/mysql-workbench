@@ -29,7 +29,6 @@
 #import "WBTabView.h"
 #import "WBTabItem.h"
 #import "WBSplitView.h"
-#import "WBSplitViewUnbrokenizerDelegate.h"
 #import "WBSQLQueryPanel.h"
 #import "WBPluginEditorBase.h"
 #import "MCPPUtilities.h"
@@ -91,7 +90,8 @@ public:
   }
 };
 
-
+@interface WBWindow()
+@end
 
 @implementation WBWindow
 
@@ -105,8 +105,6 @@ public:
     mforms::Form::main_form()->set_data(self);
     if ((int)[self retainCount] > rc) // don't let the mforms placeholder retain us
       [self release];
-    
-    //[self setBackgroundColor: [NSColor whiteColor]];
   }
   return self;
 }
@@ -145,18 +143,83 @@ public:
 // mforms integration
 void setup_mforms_app(WBMainWindow *mwin);
 
+@interface WBMainWindow()
+{
+  IBOutlet NSTextField *statusBarText;
+  IBOutlet NSTabView *topTabView;
+  IBOutlet MTabSwitcher *tabSwitcher;
+
+  NSMutableDictionary *_panels;
+
+  NSTimer *_backendTimer;
+
+  NSMutableArray *_closedTopTabs;
+  NSMutableArray *_closedBottomTabs;
+
+  NSMenu *_defaultMainMenu;
+
+  int _eventLoopRetCode;
+
+  NSTimeInterval _lastClick;
+
+  MacNotificationObserver *_backendObserver;
+
+  NSMutableArray *nibObjects;
+}
+
+@end
+
 @implementation WBMainWindow
 
+@synthesize owner;
 
-- (void)setOwner:(WBMainController*)owner
+- (instancetype)init
 {
-  _mainController= owner;
+  self = [super init];
+  if (self != nil)
+  {
+    if ([NSBundle.mainBundle loadNibNamed: @"MainWindow" owner: self topLevelObjects: &nibObjects])
+    {
+      [nibObjects retain];
+      _panels = [[NSMutableDictionary alloc] init];
+      _closedTopTabs = [[NSMutableArray alloc] init];
+      _closedBottomTabs = [[NSMutableArray alloc] init];
+
+      _defaultMainMenu = [[NSApp mainMenu] retain];
+    }
+  }
+  return self;
 }
 
-- (WBMainController*)owner
+//--------------------------------------------------------------------------------------------------
+
+- (void)dealloc
 {
-  return _mainController;
+  [NSObject cancelPreviousPerformRequestsWithTarget: self];
+  delete _backendObserver;
+
+  [_closedTopTabs release];
+  [_closedBottomTabs release];
+
+  [_panels release];
+  [_physicalOverview release];
+
+  [nibObjects release];
+  [super dealloc];
 }
+
+//--------------------------------------------------------------------------------------------------
+
+- (void)awakeFromNib
+{
+  [tabSwitcher setTabStyle: MMainTabSwitcher];
+  if (NSAppKitVersionNumber > NSAppKitVersionNumber10_6)
+    [self.window setCollectionBehavior: NSWindowCollectionBehaviorFullScreenPrimary];
+
+  [statusBarText setStringValue: @""];
+}
+
+//--------------------------------------------------------------------------------------------------
 
 - (void)setWBContext:(wb::WBContextUI*)wbui
 {
@@ -165,10 +228,6 @@ void setup_mforms_app(WBMainWindow *mwin);
   _wbui= wbui;
   
   setup_mforms_app(self);
-    
-//  [(WBToolbarTabView*)topTabView setAllowsTabReordering:NO];
-    
-//  _wbui->get_wb()->get_grt()->get_undo_manager()->signal_changed().connect(sigc::bind(sigc::ptr_fun(history_changed), self));
 }
 
 
@@ -183,8 +242,10 @@ void setup_mforms_app(WBMainWindow *mwin);
  * relayouting.
  */
 - (void)setupReady
-{  
-  [[self window] setTitle:@(_wbui->get_title().c_str())];
+{
+  log_debug("Setup done\n");
+
+  [[self window] setTitle: @(_wbui->get_title().c_str())];
 
   [self setupModel];
 }
@@ -192,6 +253,8 @@ void setup_mforms_app(WBMainWindow *mwin);
 
 - (NSTabViewItem*)addTopPanel:(WBBasePanel*)panel
 {
+  log_debug2("Adding new top panel\n");
+
   id tabItem= [[[NSTabViewItem alloc] initWithIdentifier:[panel identifier]] autorelease];
 
   if ([panel title])
@@ -206,10 +269,6 @@ void setup_mforms_app(WBMainWindow *mwin);
   
   [topTabView addTabViewItem:tabItem];
 
-//  NSImage *icon= [panel tabIcon];
-//  if (icon)
-//    [(id)topTabView setIcon:icon forTabViewItem:[panel identifier]];
-    
   return tabItem;
 }
 
@@ -309,7 +368,7 @@ void setup_mforms_app(WBMainWindow *mwin);
   switch (type)
   {
     case wb::RefreshNeeded:
-      [_mainController requestRefresh];
+      [owner requestRefresh];
       break;
       
     case wb::RefreshDocument:
@@ -751,16 +810,6 @@ void setup_mforms_app(WBMainWindow *mwin);
   [[panel retain] autorelease];
   [_panels removeObjectForKey: identifier];
   _panels[[panel identifier]] = panel;
-
-  /*XXX
-  NSUInteger index= [bottomTabView indexOfTabViewItemWithIdentifier: identifier];
-  if (index != NSNotFound)
-  {
-    id item= [bottomTabView tabViewItemAtIndex: index];
-    [bottomTabView removeTabViewItem: item]; // needed to workaround WBTabView bug
-    [item setIdentifier: [panel identifier]];
-    [bottomTabView insertTabViewItem: item atIndex: index]; // needed to workaround WBTabView bug
-  }*/
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1055,44 +1104,6 @@ void setup_mforms_app(WBMainWindow *mwin);
 
 //--------------------------------------------------------------------------------------------------
 
-#pragma mark Creation, Destruction
-
-- (instancetype)init
-{
-  self = [super init];
-  if (self != nil) 
-  {
-    _panels= [[NSMutableDictionary alloc] init];
-    _closedTopTabs= [[NSMutableArray alloc] init];
-    _closedBottomTabs= [[NSMutableArray alloc] init];
-    
-    _defaultMainMenu = [[NSApp mainMenu] retain];
-  }
-  return self;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-- (void)load
-{
-  log_info("Loading main window\n");
-  if (![NSBundle loadNibNamed: @"MainWindow" owner: self])
-    log_error("Failed loading MainWindow.nib");
-}
-
-//--------------------------------------------------------------------------------------------------
-
-- (void)awakeFromNib
-{
-  [tabSwitcher setTabStyle: MMainTabSwitcher];
-  if (NSAppKitVersionNumber > NSAppKitVersionNumber10_6)
-    [self.window setCollectionBehavior: NSWindowCollectionBehaviorFullScreenPrimary];
-
-  [statusBarText setStringValue: @""];
-}
-
-//--------------------------------------------------------------------------------------------------
-
 - (BOOL)closeAllPanels
 {
   id panelsCopy = [[_panels copy] autorelease];
@@ -1109,22 +1120,6 @@ void setup_mforms_app(WBMainWindow *mwin);
   [_panels removeAllObjects];
 
   return YES;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-- (void)dealloc
-{
-  [NSObject cancelPreviousPerformRequestsWithTarget: self];
-  delete _backendObserver;
-  
-  [_closedTopTabs release];
-  [_closedBottomTabs release];
-  
-  [_panels release];
-  [_physicalOverview release];
-  
-  [super dealloc];
 }
 
 //--------------------------------------------------------------------------------------------------

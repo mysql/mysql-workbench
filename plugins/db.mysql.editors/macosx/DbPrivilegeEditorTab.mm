@@ -26,8 +26,32 @@
 #import "GRTTreeDataSource.h"
 
 #include "grtdb/db_object_helpers.h"
+#include "grtdb/dbobject_roles.h"
+#include "grtdb/role_tree_model.h"
+
+@interface DbPrivilegeEditorTab()
+{
+  bec::DBObjectEditorBE *_be;
+
+  bec::ObjectRoleListBE *_rolesListBE;
+  bec::RoleTreeBE *_roleTreeBE;
+  bec::ObjectPrivilegeListBE *_privilegeListBE;
+
+  IBOutlet NSTableView *assignedRolesTable;
+  IBOutlet NSTableView *privilegesTable;
+  IBOutlet NSOutlineView *allRolesOutline;
+
+  IBOutlet GRTListDataSource *assignedRolesDS;
+  IBOutlet GRTTreeDataSource *allRolesDS;
+
+  NSMutableArray *nibObjects;
+}
+
+@end
 
 @implementation DbPrivilegeEditorTab
+
+@synthesize view;
 
 - (instancetype)initWithObjectEditor: (bec::DBObjectEditorBE*)be
 {
@@ -37,19 +61,22 @@
     _be = be;
     if (_be != NULL)
     {
-      [NSBundle loadNibNamed:@"PrivilegesTab" owner:self];
+      NSBundle *bundle = [NSBundle bundleForClass: self.class];
+      if ([bundle loadNibNamed: @"PrivilegesTab" owner: self topLevelObjects: &nibObjects])
+      {
+        [nibObjects retain];
+        _rolesListBE = new bec::ObjectRoleListBE(be, get_rdbms_for_db_object(be->get_dbobject()));
+        _roleTreeBE = new bec::RoleTreeBE(be->get_catalog());
+        _privilegeListBE = _rolesListBE->get_privilege_list();
 
-      _rolesListBE = new bec::ObjectRoleListBE(be, get_rdbms_for_db_object(be->get_dbobject()));
-      _roleTreeBE = new bec::RoleTreeBE(be->get_catalog());
-      _privilegeListBE = _rolesListBE->get_privilege_list();
+        _roleTreeBE->refresh();
 
-      _roleTreeBE->refresh();
+        [allRolesDS setTreeModel:_roleTreeBE];
+        [assignedRolesDS setListModel:_rolesListBE];
 
-      [allRolesDS setTreeModel:_roleTreeBE];
-      [assignedRolesDS setListModel:_rolesListBE];
-
-      [allRolesOutline reloadData];
-      [assignedRolesTable reloadData];
+        [allRolesOutline reloadData];
+        [assignedRolesTable reloadData];
+      }
     }
   }
   return self;
@@ -62,6 +89,7 @@
 
 - (void)dealloc
 {
+  [nibObjects release];
   delete _rolesListBE;
   delete _roleTreeBE;
 
@@ -171,12 +199,6 @@
       return _privilegeListBE->count();
   }
   return 0;
-}
-
-
-- (NSView*)view
-{
-  return view;
 }
 
 @end

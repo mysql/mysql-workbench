@@ -17,6 +17,7 @@
  * 02110-1301  USA
  */
 
+#import "MGridView.h"
 #import "MResultsetViewer.h"
 #include "sqlide/recordset_be.h"
 #import "MQResultSetCell.h"
@@ -31,9 +32,84 @@ static int onRefresh(MResultsetViewer *self);
 static NSImage *ascendingSortIndicator= nil;
 static NSImage *descendingSortIndicator= nil;
 
+@interface MResultsetViewer()
+{
+  NSMutableArray *nibObjects;
+  NSFont *mFont;
+
+  std::list<boost::signals2::connection> mSigConns;
+  boost::shared_ptr<Recordset> *mData;
+
+  int mWarnedManyColumns;
+  BOOL mPendingRefresh;
+}
+
+@end
+
 @implementation MResultsetViewer
 
+@synthesize view;
+@synthesize gridView;
 
+- (instancetype)initWithRecordset:(Recordset::Ref)rset
+{
+  if (!ascendingSortIndicator)
+  {
+    ascendingSortIndicator= [[NSImage imageNamed:@"NSAscendingSortIndicator"] retain];
+    descendingSortIndicator= [[NSImage imageNamed:@"NSDescendingSortIndicator"] retain];
+  }
+
+  self = [super init];
+  if (self)
+  {
+    NSBundle *bundle = [NSBundle bundleForClass: self.class];
+    BOOL loaded = [bundle loadNibNamed: @"WbResultsetView" owner: self topLevelObjects: &nibObjects];
+    if (loaded)
+    {
+      [nibObjects retain];
+      mData= new Recordset::Ref();
+      *mData= rset;
+
+      [gridView setRecordset: mData->get()];
+
+      (*mData)->update_edited_field = boost::bind(selected_record_changed, self);
+      (*mData)->tree_changed_signal()->connect(boost::bind(onRefreshWhenIdle, self));
+
+      (*mData)->refresh_ui_signal.connect(boost::bind(onRefresh, self));
+      (*mData)->rows_changed = boost::bind(onRefresh, self);
+
+      gridView.intercellSpacing = NSMakeSize(0, 1);
+      [gridView selectionChangedActionTarget: self];
+      [gridView setSelectionChangedAction: @selector(handleNSTableViewSelectionIsChangingNotification:)];
+      gridView.allowsMultipleSelection = YES;
+
+      [gridView.enclosingScrollView setBorderType: NSNoBorder];
+
+      mforms::ToolBar *tbar = (*mData)->get_toolbar();
+      if (tbar->find_item("record_edit"))
+      {
+        tbar->find_item("record_edit")->signal_activated()->connect(boost::bind(record_edit, self));
+        tbar->find_item("record_add")->signal_activated()->connect(boost::bind(record_add, self));
+        tbar->find_item("record_del")->signal_activated()->connect(boost::bind(record_del, self));
+      }
+      [self rebuildColumns];
+    }
+  }
+  return self;
+}
+
+- (void)dealloc
+{
+  [nibObjects release];
+  [NSObject cancelPreviousPerformRequestsWithTarget: self];
+  (*mData)->refresh_ui_signal.disconnect_all_slots();
+
+  std::for_each(mSigConns.begin(), mSigConns.end(), boost::bind(&boost::signals2::connection::disconnect, _1));
+  delete mData;
+
+  [mFont release];
+  [super dealloc];
+}
 
 // for use by mforms
 static const char *viewFlagsKey = "viewFlagsKey";
@@ -53,17 +129,17 @@ static const char *viewFlagsKey = "viewFlagsKey";
 
 - (void)setHeaderIndicator:(int)indicator forColumn:(int)column
 {
-  NSTableColumn *tableColumn= [mTableView tableColumnWithIdentifier:[NSString stringWithFormat:@"%i", column]];
+  NSTableColumn *tableColumn= [gridView tableColumnWithIdentifier:[NSString stringWithFormat:@"%i", column]];
   switch (indicator)
   {
     case 0:
-      [mTableView setIndicatorImage: nil inTableColumn:tableColumn];
+      [gridView setIndicatorImage: nil inTableColumn:tableColumn];
       break;
     case 1:
-      [mTableView setIndicatorImage: ascendingSortIndicator inTableColumn:tableColumn];
+      [gridView setIndicatorImage: ascendingSortIndicator inTableColumn:tableColumn];
       break;
     case -1:
-      [mTableView setIndicatorImage: descendingSortIndicator inTableColumn:tableColumn];
+      [gridView setIndicatorImage: descendingSortIndicator inTableColumn:tableColumn];
       break;
   }
 }
@@ -71,10 +147,10 @@ static const char *viewFlagsKey = "viewFlagsKey";
 
 - (void)rebuildColumns
 {
-  for (id column in [[mTableView tableColumns] reverseObjectEnumerator])
+  for (id column in [gridView.tableColumns reverseObjectEnumerator])
   {
     if ([column identifier])
-      [mTableView removeTableColumn: column];
+      [gridView removeTableColumn: column];
   }
 
   if (mWarnedManyColumns == 0 && (*mData)->get_column_count() > 300)
@@ -109,25 +185,11 @@ static const char *viewFlagsKey = "viewFlagsKey";
     if (mWarnedManyColumns == 1)
       [column setResizingMask: 0];
     
-    [mTableView addTableColumn: column];
+    [gridView addTableColumn: column];
   }
   if (rowHeight > 0)
-    [mTableView setRowHeight: rowHeight];
+    [gridView setRowHeight: rowHeight];
 }
-
-
-- (void)dealloc
-{
-  [NSObject cancelPreviousPerformRequestsWithTarget: self];
-  (*mData)->refresh_ui_signal.disconnect_all_slots();
-  
-  std::for_each(mSigConns.begin(), mSigConns.end(), boost::bind(&boost::signals2::connection::disconnect, _1));
-  delete mData;
-  [mView release];
-  [mFont release];
-  [super dealloc];
-}
-
 
 - (void)setFont:(NSFont*)font
 {
@@ -137,50 +199,28 @@ static const char *viewFlagsKey = "viewFlagsKey";
   float rowHeight = 0;
   for (int index= 0, count= (*mData)->get_column_count(); index <= count; ++index)
   {
-    NSTableColumn *column= [mTableView tableColumns][index];
+    NSTableColumn *column= gridView.tableColumns[index];
     if (mFont)
     {
-      [[column dataCell] setFont: mFont];
+      [column.dataCell setFont: mFont];
       rowHeight = MAX(rowHeight, [[column dataCell] cellSize].height + 1);
     }
   }
   if (rowHeight > 0)
-    [mTableView setRowHeight: rowHeight];
+    [gridView setRowHeight: rowHeight];
 }
-
-/*
-static int processTaskMessage(int msgType, const std::string &message, const std::string &detail,
-                              MResultsetViewer *self)
-{
-  if (msgType == grt::ErrorMsg)
-    self->mGotError = YES;
-  
-  if (!message.empty())
-  {
-    if (self->mErrorMessage)
-    {
-      [self->mErrorMessage autorelease];
-      self->mErrorMessage = [[NSString stringWithFormat:@"%@\n%@", self->mErrorMessage, [NSString stringWithUTF8String:message.c_str()]] retain];
-    }
-    else
-      self->mErrorMessage = [[NSString stringWithUTF8String: message.c_str()] retain];
-  }
-//  (*self->mData)->grtm()->replace_status_text(message);
-  
-  return 0;
-}*/
 
 - (void)refreshGrid
 {
   mPendingRefresh = NO;
-  [mTableView reloadData];
+  [gridView reloadData];
 }
 
 static int onRefreshWhenIdle(MResultsetViewer *self)
 {
   // Do table refresh only if it isn't currently in edit mode or this will
   // stop any ongoing edit action (and has other side effects like a misplaced selection).
-  if (!self->mPendingRefresh && [self->mTableView editedRow] == -1)
+  if (!self->mPendingRefresh && self.gridView.editedRow == -1)
   {
     self->mPendingRefresh = YES;
     [self performSelector: @selector(refreshGrid) withObject:nil afterDelay: 0];
@@ -190,12 +230,12 @@ static int onRefreshWhenIdle(MResultsetViewer *self)
 
 - (void)clickedTable:(id)sender
 {
-  (*self->mData)->set_edited_field([mTableView clickedRow], [mTableView clickedColumn]);
+  (*self->mData)->set_edited_field(gridView.clickedRow, gridView.clickedColumn);
   
-  [mTableView editColumn:[mTableView clickedColumn]
-                     row:[mTableView clickedRow]
-               withEvent:[NSApp currentEvent]
-                  select:YES];
+  [gridView editColumn: gridView.clickedColumn
+                   row: gridView.clickedRow
+             withEvent: [NSApp currentEvent]
+                select: YES];
 }
 
 
@@ -209,84 +249,39 @@ static int onRefreshWhenIdle(MResultsetViewer *self)
   
 static void record_edit(MResultsetViewer *self)
 {
-  [self->mTableView editColumn: [self->mTableView selectedColumnIndex]
-                           row: [self->mTableView selectedRowIndex]
+  [self.gridView editColumn: self.gridView.selectedColumnIndex
+                           row: self.gridView.selectedRowIndex
                      withEvent: nil
                         select: NO];
 }
 
 static void record_add(MResultsetViewer *self)
 {
-  [self->mTableView scrollRowToVisible: (*self->mData)->count()-1];
-  [self->mTableView selectCellAtRow: (*self->mData)->count()-1 column: 1];
+  [self.gridView scrollRowToVisible: (*self->mData)->count()-1];
+  [self.gridView selectCellAtRow: (*self->mData)->count()-1 column: 1];
   
-  [self->mTableView editColumn: [self->mTableView selectedColumnIndex]
-                           row: [self->mTableView selectedRowIndex]
-                     withEvent: nil
-                        select: NO];
+  [self.gridView editColumn: self.gridView.selectedColumnIndex
+                        row: self.gridView.selectedRowIndex
+                  withEvent: nil
+                     select: NO];
 }
-  
-  
+
+
 static void record_del(MResultsetViewer *self)
 {
-  [self->mTableView deleteBackward:nil];
+  [self.gridView deleteBackward: nil];
 }
 
 static void selected_record_changed(MResultsetViewer *self)
 {
-  [self->mTableView scrollRowToVisible: (*self->mData)->edited_field_row()-1];
-  [self->mTableView deselectAll: nil];
-  [self->mTableView selectCellAtRow: (*self->mData)->edited_field_row() column: (*self->mData)->edited_field_column()];
-}
-  
-- (instancetype)initWithRecordset:(Recordset::Ref)rset
-{
-  if (!ascendingSortIndicator)
-  {
-    ascendingSortIndicator= [[NSImage imageNamed:@"NSAscendingSortIndicator"] retain];
-    descendingSortIndicator= [[NSImage imageNamed:@"NSDescendingSortIndicator"] retain];
-  }
-  
-  self= [super init];
-  if (self)
-  {
-    [NSBundle loadNibNamed:@"WbResultsetView" owner:self];
-    
-    mData= new Recordset::Ref();
-    *mData= rset;
-    
-    [mTableView setRecordset: mData->get()];
-
-    (*mData)->update_edited_field = boost::bind(selected_record_changed, self);
-    (*mData)->tree_changed_signal()->connect(boost::bind(onRefreshWhenIdle, self));
-    
-    (*mData)->refresh_ui_signal.connect(boost::bind(onRefresh, self));
-    (*mData)->rows_changed = boost::bind(onRefresh, self);
-    //(*mData)->task->msg_cb(boost::bind(processTaskMessage, _1, _2, _3, self));
-    
-    [mTableView setIntercellSpacing: NSMakeSize(0, 1)];
-    [mTableView selectionChangedActionTarget:self];
-    [mTableView setSelectionChangedAction:@selector(handleNSTableViewSelectionIsChangingNotification:)];
-    [mTableView setAllowsMultipleSelection: YES];
-
-    [[mTableView enclosingScrollView] setBorderType: NSNoBorder];
-    
-    mforms::ToolBar *tbar = (*mData)->get_toolbar();
-    if (tbar->find_item("record_edit"))
-    {
-      tbar->find_item("record_edit")->signal_activated()->connect(boost::bind(record_edit, self));
-      tbar->find_item("record_add")->signal_activated()->connect(boost::bind(record_add, self));
-      tbar->find_item("record_del")->signal_activated()->connect(boost::bind(record_del, self));
-    }
-    [self rebuildColumns];
-    //onRefresh(self);
-  }
-  return self;
+  [self.gridView scrollRowToVisible: (*self->mData)->edited_field_row()-1];
+  [self.gridView deselectAll: nil];
+  [self.gridView selectCellAtRow: (*self->mData)->edited_field_row() column: (*self->mData)->edited_field_column()];
 }
 
 - (void)handleNSTableViewSelectionIsChangingNotification:(NSNotification*)note
 {
-  (*self->mData)->set_edited_field([mTableView selectedRowIndex], [mTableView selectedColumnIndex]-1) ;
+  (*self->mData)->set_edited_field(gridView.selectedRowIndex, gridView.selectedColumnIndex - 1) ;
 }
 
 - (boost::shared_ptr<Recordset>)recordset
@@ -294,23 +289,14 @@ static void selected_record_changed(MResultsetViewer *self)
   return *mData;
 }
 
-- (NSView*)view
-{
-  return mView;
-}
-
-- (MGridView*)gridView
-{
-  return mTableView;
-}
-
 - (void)activateToolbarItem:(id)sender
-{ // leftover toolbar item handlers, these should be added back to the toolbar maybe
+{
+  // TODO: leftover toolbar item handlers, these should be added back to the toolbar maybe.
   {
     std::string action = [[[sender cell] representedObject] UTF8String];
 
-    int selectedColumnIndex = [(MGridView*)mTableView selectedColumnIndex];
-    int selectedRowIndex = [(MGridView*)mTableView selectedRowIndex];
+    int selectedColumnIndex = gridView.selectedColumnIndex;
+    int selectedRowIndex = gridView.selectedRowIndex;
 
     std::vector<int> rows; 
     rows.push_back(selectedRowIndex);
@@ -320,36 +306,36 @@ static void selected_record_changed(MResultsetViewer *self)
     {
       if (action == "record_first")
       {
-        [mTableView scrollRowToVisible: 0];
-        [mTableView selectCellAtRow: 0 column: 1];
+        [gridView scrollRowToVisible: 0];
+        [gridView selectCellAtRow: 0 column: 1];
       }
       else if (action == "record_back")
       {
-        int row = [mTableView selectedRowIndex] - 1;
+        int row = gridView.selectedRowIndex - 1;
         if (row < 0)
           row = 0;
-        [mTableView scrollRowToVisible: row];
-        [mTableView selectCellAtRow: row column: 1];
+        [gridView scrollRowToVisible: row];
+        [gridView selectCellAtRow: row column: 1];
       }
       else if (action == "record_next")
       {
-        int row = [mTableView selectedRowIndex] + 1;
+        int row = gridView.selectedRowIndex + 1;
         if (row >= (int)(*mData)->count()-1)
           row = (*mData)->count()-1;
-        [mTableView scrollRowToVisible: row];
-        [mTableView selectCellAtRow: row column: 1];
+        [gridView scrollRowToVisible: row];
+        [gridView selectCellAtRow: row column: 1];
       }
       else if (action == "record_last")
       {
-        [mTableView scrollRowToVisible: (*mData)->count()-1];
-        [mTableView selectCellAtRow: (*mData)->count()-1 column: 1];
+        [gridView scrollRowToVisible: (*mData)->count()-1];
+        [gridView selectCellAtRow: (*mData)->count()-1 column: 1];
       }
       else if (action == "record_wrap_vertical")
       {
       }
       else if (action == "record_sort_asc")
       {
-        int column = [mTableView selectedColumnIndex]-1;
+        int column = gridView.selectedColumnIndex - 1;
         if (column >= 0)
         {
           (*mData)->sort_by(column, 1, false);
@@ -357,7 +343,7 @@ static void selected_record_changed(MResultsetViewer *self)
       }
       else if (action == "record_sort_desc")
       {
-        int column = [mTableView selectedColumnIndex]-1;
+        int column = gridView.selectedColumnIndex - 1;
         if (column >= 0)
         {
           (*mData)->sort_by(column, -1, false);
@@ -367,23 +353,12 @@ static void selected_record_changed(MResultsetViewer *self)
         NSLog(@"unhandled toolbar action %s", action.c_str());
     }
   }
-/*  
-  if (mErrorMessage)
-  {
-    NSRunAlertPanel(@"Error", @"%@", @"OK", nil, nil, mErrorMessage);
-    [mErrorMessage release];
-    mErrorMessage= nil;
-    mGotError= NO;
-  }*/
 }
-
 
 - (void)refresh
 {
-//  [self rebuildColumns];
-  [mTableView reloadData];
+  [gridView reloadData];
 }
-
 
 - (void)refreshFull
 {
@@ -399,12 +374,12 @@ static int onRefresh(MResultsetViewer *self)
 
 - (void)fixupLayout
 {
-  NSRect rect= [[mTableView enclosingScrollView] frame];
+  NSRect rect = gridView.enclosingScrollView.frame;
   
-  if (NSHeight(rect) + 20 != NSHeight([mView frame]))
+  if (NSHeight(rect) + 20 != NSHeight(view.frame))
   {
-    rect.size.height= NSHeight([mView frame]) - 20;
-    [[mTableView enclosingScrollView] setFrame: rect];
+    rect.size.height= NSHeight(view.frame) - 20;
+    gridView.enclosingScrollView.frame = rect;
   }
 }
 

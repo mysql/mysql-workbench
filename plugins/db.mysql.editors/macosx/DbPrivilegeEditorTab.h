@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -14,40 +14,17 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
 
-#import <Cocoa/Cocoa.h>
-
-#import "WBPluginEditorBase.h"
-
-@class GRTListDataSource;
-@class GRTTreeDataSource;
-
-#include "grtdb/editor_dbobject.h"
-#include "grtdb/dbobject_roles.h"
-#include "grtdb/role_tree_model.h"
-
-@interface DbPrivilegeEditorTab : NSObject 
-{
-  bec::DBObjectEditorBE *_be;
-
-  bec::ObjectRoleListBE *_rolesListBE;
-  bec::RoleTreeBE *_roleTreeBE;
-  bec::ObjectPrivilegeListBE *_privilegeListBE;
-
-  IBOutlet NSView *view;
-
-  IBOutlet NSTableView *assignedRolesTable;
-  IBOutlet NSTableView *privilegesTable;
-  IBOutlet NSOutlineView *allRolesOutline;
-
-  IBOutlet GRTListDataSource *assignedRolesDS;
-  IBOutlet GRTTreeDataSource *allRolesDS;
+namespace bec {
+  class DBObjectEditorBE;
 }
 
-- (instancetype)initWithObjectEditor:(bec::DBObjectEditorBE*)be NS_DESIGNATED_INITIALIZER;
+@interface DbPrivilegeEditorTab : NSObject
+
+@property (assign) IBOutlet NSView *view;
+
+- (instancetype)initWithObjectEditor: (bec::DBObjectEditorBE*)be NS_DESIGNATED_INITIALIZER;
 
 - (IBAction)addRole:(id)sender;
 - (IBAction)deleteRole:(id)sender;
-
-@property (readonly, strong) NSView *view;
 
 @end

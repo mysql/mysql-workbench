@@ -882,8 +882,6 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options)
   // Copy callbacks
   this->show_file_dialog= callbacks->show_file_dialog;
 
-  this->request_input= callbacks->request_input;
-
   this->create_diagram= callbacks->create_diagram;
   this->destroy_view= callbacks->destroy_view;
   this->switched_view= callbacks->switched_view;

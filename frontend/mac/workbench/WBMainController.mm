@@ -59,8 +59,31 @@ static GThread *mainthread= 0;
 
 DEFAULT_LOG_DOMAIN("Workbench")
 
-@implementation WBMainController
+@interface WBMainController()
+{
+  wb::WBContextUI *_wbui;
+  wb::WBContext *_wb;
+  wb::WBOptions *_options;
+  std::map<std::string, FormPanelFactory> *_formPanelFactories;
 
+  NSMutableArray *_editorWindows;
+
+  BOOL _initFinished;
+  BOOL _showingUnhandledException;
+
+  WBMainWindow *mainWindow;
+  NSMutableArray *pageSetupNibObjects;
+
+  IBOutlet NSPanel *pageSetup;
+  IBOutlet NSPopUpButton *paperSize;
+  IBOutlet NSTextField *paperSizeLabel;
+  IBOutlet NSButton *landscapeButton;
+  IBOutlet NSButton *portraitButton;
+}
+
+@end
+
+@implementation WBMainController
 
 static std::string showFileDialog(const std::string &type, const std::string &title, const std::string &extensions)
 {   
@@ -109,42 +132,6 @@ static std::string showFileDialog(const std::string &type, const std::string &ti
 {
   [NSApp stopModalWithCode: [sender tag]];
 }
-
-static bool requestInput(const std::string &message, int flags, std::string &ret_text, WBMainController *self)
-{
-  if (!self->inputDialog)
-    [NSBundle loadNibNamed:@"InputDialog" owner:self];
-
-  [self->inputDialogMessage setStringValue: [NSString stringWithCPPString: message]];
-  [self->inputDialogMessage sizeToFit];
-  
-  if (flags & wb::InputPassword)
-  {
-    [self->inputDialogSecureText setStringValue: [NSString stringWithCPPString: ret_text]];
-    [self->inputDialogSecureText setHidden: NO];
-    [self->inputDialogText setHidden: YES];
-  }
-  else
-  {
-    [self->inputDialogText setStringValue: [NSString stringWithCPPString: ret_text]];
-    [self->inputDialogSecureText setHidden: YES];
-    [self->inputDialogText setHidden: NO];
-  }
-  NSInteger inputDialogResult= [NSApp runModalForWindow: self->inputDialog];
-  [self->inputDialog orderOut:nil];
-  
-  if (flags & wb::InputPassword)
-    ret_text= [[self->inputDialogSecureText stringValue] UTF8String];
-  else
-    ret_text= [[self->inputDialogText stringValue] UTF8String];
-  
-  [self->inputDialogSecureText setStringValue: @""];
-  [self->inputDialogText setStringValue: @""];
-
-  return inputDialogResult > 0;
-}
-
-
 
 static void windowShowStatusText(const std::string &text, WBMainWindow *window)
 {
@@ -390,19 +377,27 @@ static bool quitApplication(WBMainWindow *mainWindow)
   if (![mainWindow closeAllPanels])
     return false;
 
-  [NSApp terminate:nil];
+  [NSApp terminate: nil];
+
   return true;
 }
 
 
-- (void)applicationWillTerminate:(NSNotification *)aNotification
+- (void)applicationWillTerminate: (NSNotification *)aNotification
 {
-  [[mainWindow window] orderOut: nil];
+  log_info("Shutting down Workbench\n");
 
+  [NSObject cancelPreviousPerformRequestsWithTarget: self];
+  [[NSNotificationCenter defaultCenter] removeObserver: self];
+
+  [_editorWindows release];
+  [mainWindow release];
+  
   _wbui->get_wb()->finalize();
-  // is crashing delete _wbui;
-}
+  delete _wbui;
 
+  log_info("Workbench shutdown done\n");
+}
 
 static void call_copy(wb::WBContextUI *wbui)
 {
@@ -914,7 +909,6 @@ static NSString *applicationSupportFolder()
     // Assign those callback methods
     wbcallbacks.show_file_dialog= boost::bind(showFileDialog, _1, _2, _3);
     wbcallbacks.show_status_text= boost::bind(windowShowStatusText, _1, mainWindow);
-    wbcallbacks.request_input= boost::bind(requestInput, _1, _2, _3, self);
     wbcallbacks.open_editor= boost::bind(windowOpenPlugin, _1, _2, _3, _4, _5, _6, mainWindow);
     wbcallbacks.show_editor= boost::bind(windowShowPlugin, _1, mainWindow);
     wbcallbacks.hide_editor= boost::bind(windowHidePlugin, _1, mainWindow);
@@ -929,8 +923,7 @@ static NSString *applicationSupportFolder()
     wbcallbacks.lock_gui= boost::bind(windowLockGui, _1, mainWindow);
     wbcallbacks.quit_application= boost::bind(quitApplication, mainWindow);
       
-    // add shipped python module search path to PYTHONPATH
-    // also include mysql utilities module zip
+    // Add shipped python module search path to PYTHONPATH.
     {
       char *path = getenv("PYTHONPATH");
       if (path)
@@ -943,9 +936,6 @@ static NSString *applicationSupportFolder()
         path = g_strdup_printf("PYTHONPATH=%s", _options->library_search_path.c_str());
         putenv(path); // path should not be freed
       }
-      
-      // we ship 32bit binary python modules, so python needs to be started as 32bit as well
-      //putenv((char*)"VERSIONER_PYTHON_PREFER_32_BIT=yes");
     }
 
     _wbui->init(&wbcallbacks, _options);
@@ -986,10 +976,8 @@ static NSString *applicationSupportFolder()
   }
 
   // no dock icon when the app will quit when finished running script 
-  /* supported in 10.6+ only
-  if (_options->quit_when_done && [NSApp respondsToSelector: @selector(setActivationPolicy:)])
+  if (_options->quit_when_done)
     [NSApp setActivationPolicy: NSApplicationActivationPolicyAccessory];
-   */
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -998,13 +986,14 @@ extern "C" {
   extern void mforms_cocoa_init();
   extern void mforms_cocoa_check();
 };
+
 static void init_mforms()
 {
   log_debug("Initializing mforms\n");
 
   extern void cf_tabview_init();
   extern void cf_record_grid_init();
-  static BOOL inited= NO;
+  static BOOL inited = NO;
   
   if (!inited)
   {
@@ -1016,27 +1005,11 @@ static void init_mforms()
   }
 }
 
-#if 0 // for debugging
-
-- (void)bundleLoaded:(NSNotification*)notification
-{
-  NSLog(@"LOADED %@", [notification object]);
-  NSLog(@"Classes: %@", [[notification userInfo] objectForKey: NSLoadedClasses]);
-}
-#endif
-
 - (instancetype)init
 {
-  self= [super init];
-  if (self)
+  self = [super init];
+  if (self != nil)
   {
-#if 0
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(bundleLoaded:)
-                                                 name:NSBundleDidLoadNotification
-                                               object:nil];
-#endif
-    
     [[NSNotificationCenter defaultCenter] addObserver: self
                                              selector: @selector(textSelectionChanged:)
                                                  name: NSTextViewDidChangeSelectionNotification
@@ -1048,15 +1021,10 @@ static void init_mforms()
   return self;
 }
 
-
 - (void)dealloc
 {
-  log_info("Shutting down Workbench\n");
-
-  [NSObject cancelPreviousPerformRequestsWithTarget: self];
-  [[NSNotificationCenter defaultCenter] removeObserver: self];
-  
-  [_editorWindows release];
+  // This dealloc is actually never called, so we cannot use it to clean up.
+  // Doing that in applicationWillTerminate instead.
   [super dealloc];
 }
 
@@ -1068,16 +1036,17 @@ static void init_mforms()
 
 
 - (void)awakeFromNib
-{ 
-  // Prepare the logger to be ready as first part.
-  base::Logger([[applicationSupportFolder() stringByAppendingString: @"/MySQL/Workbench"] fileSystemRepresentation]);
-  
-  [self setupOptionsAndParseCommandline];
-  
-  log_info("Starting up Workbench\n");
-  
-  if (!mainWindow)
+{
+  // Since we use this controller to load multiple xibs the awakeFromNib function is called each time of such a load
+  // (include the own loading). We can use the mainWindow as indicator (which is set up here).
+  if (mainWindow == nil)
   {
+    // Prepare the logger to be ready as first part.
+    base::Logger([[applicationSupportFolder() stringByAppendingString: @"/MySQL/Workbench"] fileSystemRepresentation]);
+    log_info("Starting up Workbench\n");
+
+    [self setupOptionsAndParseCommandline];
+
     init_mforms();
     
     NSApplication.sharedApplication.delegate = self;
@@ -1086,9 +1055,8 @@ static void init_mforms()
     [[NSExceptionHandler defaultExceptionHandler] setExceptionHandlingMask: NSLogUncaughtExceptionMask | NSLogUncaughtSystemExceptionMask | NSLogUncaughtRuntimeErrorMask | NSLogTopLevelExceptionMask | NSLogOtherExceptionMask];
     [[NSExceptionHandler defaultExceptionHandler] setDelegate: [WBExceptionHandlerDelegate new]];
     
-    mainWindow = [[WBMainWindow alloc] init];
-    [mainWindow load];
-    
+    mainWindow = [[WBMainWindow new] retain];
+
     [self setupBackend];
     
     NSTimer *timer= [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(idleTasks:)
@@ -1106,7 +1074,7 @@ static void init_mforms()
     if ((_options->quit_when_done && !_options->run_at_startup.empty()))
       [[mainWindow window] orderOut: nil];
     else
-      [mainWindow showWindow:nil];
+      [mainWindow showWindow: nil];
 
     // do the final setup for after the window is shown
     [mainWindow setupReady];    
@@ -1243,8 +1211,10 @@ static void init_mforms()
 }
 
 
-- (void)showPageSetup:(id)sender
+- (void)showPageSetup: (id)sender
 {
+  log_debug("Showing page setup dialog\n");
+
   app_PageSettingsRef settings(_wbui->get_page_settings());
   
   if (!settings.is_valid())
@@ -1252,7 +1222,12 @@ static void init_mforms()
   
   if (!pageSetup)
   {
-    [NSBundle loadNibNamed:@"PageSetup" owner:self];
+    // We use no owner for the page setup otherwise awakeFromNib is again called when loading this nib.
+    // We have no bindings in the xib, so it doesn't matter anyway.
+    if (![NSBundle.mainBundle loadNibNamed: @"PageSetup" owner: self topLevelObjects: &pageSetupNibObjects])
+      return;
+
+    [pageSetupNibObjects retain];
     
     if ([[NSFileManager defaultManager] fileExistsAtPath: @"/System/Library/PrivateFrameworks/PrintingPrivate.framework/Versions/A/Plugins/PrintingCocoaPDEs.bundle/Contents/Resources/Landscape.tiff"])
     {
@@ -1294,6 +1269,7 @@ static void init_mforms()
   
   if ([NSApp runModalForWindow: pageSetup] == NSOKButton)
   {
+    log_debug("Page settings accepted. Updating model...\n");
     std::string type= [[paperSize titleOfSelectedItem] UTF8String];
     app_PaperTypeRef paperType(grt::find_named_object_in_list(_wb->get_root()->options()->paperTypes(), 
                                                               type));
@@ -1310,6 +1286,8 @@ static void init_mforms()
     
     _wb->get_model_context()->update_page_settings();
   }
+
+  log_debug("Page setup dialog done\n");
 }
 
 @end

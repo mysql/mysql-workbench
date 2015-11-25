@@ -24,7 +24,9 @@
 #import "GRTIconCache.h"
 #import "GRTTreeDataSource.h"
 #import "MTabSwitcher.h"
+#import "WBSplitView.h"
 #import "WBObjectDescriptionController.h"
+#import "WBObjectPropertiesController.h"
 #import "WBModelSidebarController.h"
 #import "MCPPUtilities.h"
 
@@ -49,6 +51,40 @@ static int zoom_levels[]= {
   10
 };
 
+@interface WBModelDiagramPanel()
+{
+  NSString *_identifier;
+  IBOutlet NSView *toolbar;
+  IBOutlet NSView *optionsToolbar;
+  IBOutlet MCanvasScrollView *scrollView;
+  IBOutlet NSTabViewItem *layerTab;
+
+  IBOutlet NSSplitView *sideSplitview;
+
+  IBOutlet WBModelSidebarController *sidebarController;
+
+  IBOutlet MCanvasViewer *navigatorViewer;
+  IBOutlet NSSlider *zoomSlider;
+  IBOutlet NSComboBox *zoomCombo;
+
+  IBOutlet WBObjectDescriptionController *descriptionController;
+
+  IBOutlet WBObjectPropertiesController* propertiesController;
+
+  IBOutlet MTabSwitcher *mSwitcherT;
+  IBOutlet MTabSwitcher *mSwitcherM;
+  IBOutlet MTabSwitcher *mSwitcherB;
+
+  NSMutableArray *nibObjects;
+
+  MCanvasViewer *_viewer;
+
+  wb::ModelDiagramForm *_formBE;
+
+  BOOL _miniViewReady;
+}
+
+@end
 
 @implementation WBModelDiagramPanel
 
@@ -64,19 +100,20 @@ static void *backend_destroyed(void *ptr)
   if (self != nil)
   {
     _formBE = be;
-    if (_formBE != NULL)
+    if (_formBE != NULL && [NSBundle.mainBundle loadNibNamed: @"WBModelDiagram" owner: self topLevelObjects: &nibObjects])
     {
+      [nibObjects retain];
+
       _formBE->set_frontend_data(self);
       grtm = be->get_wb()->get_grt_manager();
 
       _formBE->add_destroy_notify_callback(self, backend_destroyed);
 
-      [NSBundle loadNibNamed:@"WBModelDiagram" owner:self];
-      _identifier= [oid retain];
-      _viewer= [[[MCanvasViewer alloc] initWithFrame:NSMakeRect(0, 0, 300, 300)] autorelease];
+      _identifier = [oid retain];
+      _viewer = [[[MCanvasViewer alloc] initWithFrame:NSMakeRect(0, 0, 300, 300)] autorelease];
 
       [descriptionController setWBContext: _formBE->get_wb()->get_ui()];
-      [mPropertiesController setWBContext: _formBE->get_wb()->get_ui()];
+      [propertiesController setWBContext: _formBE->get_wb()->get_ui()];
 
       [topView setDividerThickness: 1];
       [topView setBackgroundColor: [NSColor colorWithDeviceWhite:128/255.0 alpha:1.0]];
@@ -152,12 +189,8 @@ static void *backend_destroyed(void *ptr)
   [sidebarController invalidate];
   
   [_viewer setDelegate: nil];
-  [topView release];
-  [sidebarController release];
-  [descriptionController release];
-  [mPropertiesController release];
-  [mainSplitViewDelegate release];
-  
+  [nibObjects release];
+
   [super dealloc];
 }
 
@@ -179,14 +212,7 @@ static void *backend_destroyed(void *ptr)
     [parent addSubview: optionsToolbar];
     [optionsToolbar release];
     [optionsToolbar setNeedsDisplay:YES];
-/*  
-    NSRect rect= [scrollView frame];
-    if (flag)
-      rect.size.height-= NSHeight([optionsToolbar frame]);
-    else
-      rect.size.height+= NSHeight([optionsToolbar frame]);
-    [scrollView setFrame: rect];
-*/
+
   }
   else
     [optionsToolbar setNeedsDisplay: YES];
@@ -298,7 +324,7 @@ static NSPoint loadCursorHotspot(const std::string &path)
 
 - (void)selectionChanged
 {
-  [mPropertiesController updateForForm: _formBE];
+  [propertiesController updateForForm: _formBE];
   [descriptionController updateForForm: _formBE];
 }
 
