@@ -792,18 +792,14 @@ int GRTManager::do_scan_modules(const std::string &path, const std::list<std::st
   int c;
 
   if (!g_file_test(path.c_str(), G_FILE_TEST_IS_DIR))
-  {
- //   if (_verbose)
-//      _grt->send_output(strfmt(_("Skipping non-existent module directory '%s'.\n"), path.c_str()));
     return 0;
-  }
 
   if (_verbose)
     _grt->send_output(strfmt(_("Looking for modules in '%s'.\n"), path.c_str()));
   
   try
   {
-    c= _grt->scan_modules_in(path, extensions.empty() ? _module_extensions : extensions, refresh);
+    c= _grt->scan_modules_in(path, _basedir, extensions.empty() ? _module_extensions : extensions, refresh);
   }
   catch (std::exception &exc)
   {
