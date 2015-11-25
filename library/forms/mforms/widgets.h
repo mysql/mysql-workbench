@@ -144,11 +144,12 @@ namespace mforms {
   protected:
     virtual bool layout(cairo_t *cr);
   private:
-    int _status; // -1 for unknown, 0 for not-running, 1 for running.
+    int _status; // -1 for unknown, 0 for not-running, 1 for running, 2 offline
 
     cairo_surface_t* _image_unknown;
     cairo_surface_t* _image_running;
     cairo_surface_t* _image_stopped;
+    cairo_surface_t* _image_offline;
   };
   
   /**
