@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -135,9 +135,6 @@ namespace wb {
 
     // Show some text in the application's status bar: must be thread-safe
     boost::function<void (std::string)> show_status_text;
-
-    // ok/cancel, title, flags, returnval
-    boost::function<bool (std::string, int, std::string&)> request_input;
 
     // Open an editor
     // Args: grtmanager, module containing plugin, editor dll, editor class, edited object
@@ -501,11 +498,7 @@ namespace wb {
 
   public: // front end callbacks
     boost::function<std::string (std::string,std::string,std::string)> show_file_dialog;
-
     boost::function<void (std::string)> show_status_text;
-
-    boost::function<bool (std::string,int,std::string&)> request_input;
-
     boost::function<void (std::string,void*)> show_gui_plugin;
 
     boost::function<mdc::CanvasView* (const model_DiagramRef&)> create_diagram;

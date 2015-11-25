@@ -56,6 +56,10 @@ public:
     set_allowed_resizing(false, false);
   }
 
+  ~SizerFigure()
+  {
+  }
+
   virtual void draw_contents(mdc::CairoCtx *cr)
   {
     double pw= _paper_size.width;

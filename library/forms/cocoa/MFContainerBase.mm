@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,6 +20,17 @@
 #import "MFContainerBase.h"
 #include "mforms/app.h"
 
+@interface MFContainerBase()
+{
+  int mFreezeRelayout;
+  NSColor* mBackColor;
+  NSColor* mDefaultBackColor;
+  NSImage* mBackImage;
+  mforms::Alignment mBackImageAlignment;
+}
+
+@end
+
 @implementation MFContainerBase
 
 - (BOOL)mouseDownCanMoveWindow
@@ -32,8 +43,6 @@
 - (instancetype)initWithFrame:(NSRect)frameRect
 {
   self = [super initWithFrame: frameRect];
-  //  if (self != nil)
-  //  mDefaultBackColor = [[NSColor colorWithDeviceWhite:232/255.0 alpha:1.0] retain];
   return self;
 }
 
@@ -48,6 +57,12 @@
   [super dealloc];
 }
 
+//--------------------------------------------------------------------------------------------------
+
+- (void)destroy
+{
+  mOwner = NULL; // Keeps async processes (e.g. layout) from accessing an invalid owner.
+}
 
 //--------------------------------------------------------------------------------------------------
 

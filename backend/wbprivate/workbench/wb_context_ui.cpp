@@ -70,8 +70,6 @@ DEFAULT_LOG_DOMAIN(DOMAIN_WB_CONTEXT_UI)
 WBContextUI::WBContextUI(bool verbose)
   : _wb(new WBContext(this, verbose)), _command_ui(new CommandUI(_wb))
 {
-  NodeId n; // workaround a bug causing crash when output tab is shown with GLib-ERROR **: The thread system is not yet initialized.
-
   base::NotificationCenter::get()->add_observer(this, "GNAppClosing");
   
   _shell_window= 0;
@@ -108,28 +106,14 @@ WBContextUI::~WBContextUI()
   
   _wb->do_close_document(true);
 
-  // TODO: is it really necessary to set all member variables to NULL in a dtor?
   delete _addon_download_window;
-  _addon_download_window = 0;
   delete _plugin_install_window;
-  _plugin_install_window = 0;
-  if (_home_screen != NULL)
-  {
-    _home_screen->release();
-    _home_screen = NULL;
-  }
+  assert(_home_screen == NULL); // managed view
 
   delete _output_view;
-  _output_view = 0;
-
   delete _shell_window;
-  _shell_window = NULL;
-
   delete _wb;
-  _wb = NULL;
-
   delete _command_ui;
-  _command_ui = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------

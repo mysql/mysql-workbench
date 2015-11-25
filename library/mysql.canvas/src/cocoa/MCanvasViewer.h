@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#import <Cocoa/Cocoa.h>
 #include "mdc_canvas_view_macosx.h"
 
 @protocol CanvasViewerDelegate
@@ -54,7 +53,6 @@
   BOOL _firstResponder;
 }
 
-//- (void)setupOpenGL;
 - (void)setupQuartz;
 
 @property (readonly) mdc::CanvasView *canvas;

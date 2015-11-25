@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,39 +24,68 @@
 
 #import "MFTable.h"
 
+@interface MFWizardBox : NSBox
+
+@end
+
 @implementation MFWizardBox
 
 - (void)subviewMinimumSizeChanged
 {
-  NSView *content= [[self subviews] lastObject];
-  [content resizeSubviewsWithOldSize: [content frame].size];
+  NSView *content = [self.subviews lastObject];
+  [content resizeSubviewsWithOldSize: content.frame.size];
 }
-
 
 @end
 
+
+@interface MFWizardImpl()
+{
+  mforms::Wizard *mOwner;
+  IBOutlet NSButton *nextButton;
+  IBOutlet NSButton *backButton;
+  IBOutlet NSButton *extraButton;
+  IBOutlet NSBox *contentBox;
+  IBOutlet NSTextField *headingText;
+  IBOutlet NSView *stepList;
+
+  float mOriginalButtonWidth;
+  BOOL mAllowCancel;
+
+  NSMutableArray *nibObjects;
+}
+
+@end
 
 @implementation MFWizardImpl
 
 - (instancetype)initWithObject:(::mforms::Wizard*)aWizard
 {
-  self= [super init];
-  if (self)
+  self = [super init];
+  if (self != nil)
   {
-    [NSBundle loadNibNamed:@"WizardWindow" owner:self];
-    [[self window] setContentSize: NSMakeSize(900, 620)];
-    [[self window] setMinSize: [[self window] frame].size];
-    [[self window] center];
-    
-    mOriginalButtonWidth = NSWidth([nextButton frame]);
-    
-    mAllowCancel= YES;
-    mOwner= aWizard;
-    mOwner->set_data(self);
+    if ([NSBundle.mainBundle loadNibNamed: @"WizardWindow" owner: self topLevelObjects: &nibObjects])
+    {
+      [nibObjects retain];
+      self.window.contentSize = NSMakeSize(900, 620);
+      self.window.minSize = self.window.frame.size;
+      [self.window center];
+
+      mOriginalButtonWidth = NSWidth([nextButton frame]);
+
+      mAllowCancel = YES;
+      mOwner = aWizard;
+      mOwner->set_data(self);
+    }
   }
   return self;
 }
 
+- (void)dealloc
+{
+  [nibObjects release];
+  [super dealloc];
+}
 
 - (mforms::Object*)mformsObject
 {
@@ -221,7 +250,7 @@
 
 static bool wizard_create(::mforms::Wizard *self, mforms::Form *owner)
 {
-  /*MFWizardImpl *wizard = */[[[MFWizardImpl alloc] initWithObject:self] autorelease];
+  [[[MFWizardImpl alloc] initWithObject: self] autorelease];
     
   return true;
 }

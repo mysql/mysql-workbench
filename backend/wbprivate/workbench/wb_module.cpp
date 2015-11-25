@@ -95,7 +95,7 @@ std::string WorkbenchImpl::getSystemInfo(bool indent)
       #endif
   #elif defined(__APPLE__)
     #define PLATFORM_NAME "Mac OS X"
-    #define ARCHITECTURE "32 bit"
+    #define ARCHITECTURE "64 bit"
   #else
     #define PLATFORM_NAME "Linux/Unix"
     #define ARCHITECTURE "64 bit"
@@ -1337,23 +1337,6 @@ int WorkbenchImpl::refreshHomeConnections()
 
 //--------------------------------------------------------------------------------------------------
 
-std::string WorkbenchImpl::request_input_m(const std::string &caption)
-{
-  std::string result;
-
-  if (_wb->request_input(caption, 0, result))
-    return result;
-  return "";
-}
-
-
-std::string WorkbenchImpl::input(const std::string &caption)
-{
-  return _wb->get_grt_manager()->get_dispatcher()->call_from_main_thread<std::string>(
-    boost::bind(&WorkbenchImpl::request_input_m, this, caption), true, false);
-}
-
-
 int WorkbenchImpl::confirm(const std::string &title, const std::string &caption)
 {
   return _wb->get_grt_manager()->get_dispatcher()->call_from_main_thread<int>(
@@ -1364,14 +1347,14 @@ int WorkbenchImpl::confirm(const std::string &title, const std::string &caption)
 std::string WorkbenchImpl::requestFileOpen(const std::string &caption, const std::string &extensions)
 {
   return _wb->get_grt_manager()->get_dispatcher()->
-  call_from_main_thread<std::string>(boost::bind(_wb->show_file_dialog, "open", caption, extensions), true, false);
+    call_from_main_thread<std::string>(boost::bind(_wb->show_file_dialog, "open", caption, extensions), true, false);
 }
 
 
 std::string WorkbenchImpl::requestFileSave(const std::string &caption, const std::string &extensions)
 {
   return _wb->get_grt_manager()->get_dispatcher()->
-  call_from_main_thread<std::string>(boost::bind(_wb->show_file_dialog, "save", caption, extensions), true, false);
+    call_from_main_thread<std::string>(boost::bind(_wb->show_file_dialog, "save", caption, extensions), true, false);
 }
 
 //--------------------------------------------------------------------------------------------------

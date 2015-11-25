@@ -2319,7 +2319,6 @@
 		2BE67F550F8E265300E00A97 /* workbench.Document.16x16.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BE67F4F0F8E265300E00A97 /* workbench.Document.16x16.png */; };
 		2BE67F560F8E265300E00A97 /* workbench.Document.32x32.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BE67F500F8E265300E00A97 /* workbench.Document.32x32.png */; };
 		2BE67F570F8E265300E00A97 /* workbench.Document.48x48.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BE67F510F8E265300E00A97 /* workbench.Document.48x48.png */; };
-		2BE6802C0F8E3E9E00E00A97 /* InputDialog.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2BE6802A0F8E3E9E00E00A97 /* InputDialog.xib */; };
 		2BE6805D0F8E47FD00E00A97 /* data.db in Copy Files (data) */ = {isa = PBXBuildFile; fileRef = 2BE6805C0F8E47FD00E00A97 /* data.db */; };
 		2BE6806F0F8E487F00E00A97 /* CSV.tpl in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2BE6805E0F8E482100E00A97 /* CSV.tpl */; };
 		2BE680700F8E487F00E00A97 /* HTML.tpl in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2BE6805F0F8E482100E00A97 /* HTML.tpl */; };
@@ -6128,7 +6127,6 @@
 		2BE67F4F0F8E265300E00A97 /* workbench.Document.16x16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = workbench.Document.16x16.png; path = structs/workbench.Document.16x16.png; sourceTree = "<group>"; };
 		2BE67F500F8E265300E00A97 /* workbench.Document.32x32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = workbench.Document.32x32.png; path = structs/workbench.Document.32x32.png; sourceTree = "<group>"; };
 		2BE67F510F8E265300E00A97 /* workbench.Document.48x48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = workbench.Document.48x48.png; path = structs/workbench.Document.48x48.png; sourceTree = "<group>"; };
-		2BE6802B0F8E3E9E00E00A97 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = frontend/mac/English.lproj/InputDialog.xib; sourceTree = "<group>"; };
 		2BE6805C0F8E47FD00E00A97 /* data.db */ = {isa = PBXFileReference; lastKnownFileType = file; name = data.db; path = res/wbdata/data.db; sourceTree = "<group>"; };
 		2BE6805E0F8E482100E00A97 /* CSV.tpl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = CSV.tpl; path = res/sqlidedata/templates/CSV.tpl; sourceTree = "<group>"; };
 		2BE6805F0F8E482100E00A97 /* HTML.tpl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = HTML.tpl; path = res/sqlidedata/templates/HTML.tpl; sourceTree = "<group>"; };
@@ -7552,7 +7550,6 @@
 			isa = PBXGroup;
 			children = (
 				2B96EA3110F43226004E6875 /* PageSetup.xib */,
-				2BE6802A0F8E3E9E00E00A97 /* InputDialog.xib */,
 				2B825D1D0E0B578600BE52DF /* InfoPlist.strings */,
 				8D1107310486CEB800E47090 /* Info.plist */,
 			);
@@ -12665,7 +12662,6 @@
 				2BE67F560F8E265300E00A97 /* workbench.Document.32x32.png in Resources */,
 				2BD4206D198034C10061895B /* db.Schema.selected.32x32.png in Resources */,
 				2BE67F570F8E265300E00A97 /* workbench.Document.48x48.png in Resources */,
-				2BE6802C0F8E3E9E00E00A97 /* InputDialog.xib in Resources */,
 				1617BA250F8E4CF400F5249C /* WBSQLQueryPanel.xib in Resources */,
 				2BD4206A198034C10061895B /* db.Routine.many.side.16x16@2x.png in Resources */,
 				2B07487C0F93FAEA00D7E4E3 /* db.mgmt.Connection.add.16x16.png in Resources */,
@@ -13716,6 +13712,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\n# scheme.prop is created on the scheme pre-actions script\n# and contains the definition of the environment variable\n# that identifies the schema that is being built\nexport `cat ${PROJECT_DIR}/scheme.prop`\n\nRES_SOURCE_PATH=${SRCROOT}/../mysql-mac-res\n\n# Removes whatever library present on the source folder\nrm -f ${PROJECT_DIR}/libmysqlclient.dylib\n\n# Copies the library that corresponds to the scheme being built\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/lib/${SCHEME_BUILD_TYPE}/libmysqlclient.*.dylib ${PROJECT_DIR}/libmysqlclient.dylib\n\nif [ $? -ne 0 ]; then exit 1; fi";
+			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -15296,14 +15293,6 @@
 				2B96EA3210F43226004E6875 /* English */,
 			);
 			name = PageSetup.xib;
-			sourceTree = "<group>";
-		};
-		2BE6802A0F8E3E9E00E00A97 /* InputDialog.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				2BE6802B0F8E3E9E00E00A97 /* English */,
-			);
-			name = InputDialog.xib;
 			sourceTree = "<group>";
 		};
 		2BFBEFE80F50941C0016F9D1 /* DiagramOptions.xib */ = {

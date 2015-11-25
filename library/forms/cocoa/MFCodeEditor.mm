@@ -85,6 +85,13 @@ using namespace mforms;
   return self;
 }
 
+- (void)destroy
+{
+  mOwner = NULL; // Keeps async processes (e.g. layout) from accessing an invalid owner.
+}
+
+//--------------------------------------------------------------------------------------------------
+
 // standard focus handling is not enough
 //STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
 
@@ -116,7 +123,7 @@ using namespace mforms;
 - (void)notification: (Scintilla::SCNotification*)notification
 {
   [super notification: notification];
-  if (!mOwner->is_destroying())
+  if (mOwner != NULL && !mOwner->is_destroying())
     mOwner->on_notify(notification);
 }
 
@@ -124,7 +131,7 @@ using namespace mforms;
 
 - (void)command: (int)code
 {
-  if (!mOwner->is_destroying())
+  if (mOwner != NULL && !mOwner->is_destroying())
     mOwner->on_command(code);
 }
 
