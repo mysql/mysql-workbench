@@ -20,6 +20,7 @@
 #include "base/string_utilities.h"
 #include "base/threading.h"
 #include "base/log.h"
+#include "base/file_utilities.h"
 
 #include "grtpp.h"
 #include "grtpp_util.h"
@@ -654,14 +655,15 @@ void GRT::add_module_loader(ModuleLoader *loader)
   loader->refresh();
 }
 
-bool GRT::load_module(const std::string &path, bool refresh)
+bool GRT::load_module(const std::string &path, const std::string &basePath, bool refresh)
 {
+  std::string shortendPath = "<base dir>/" + base::relativePath(basePath, path);
   for (std::list<ModuleLoader*>::iterator loader= _loaders.begin();
        loader != _loaders.end(); ++loader)
   {
     if ((*loader)->check_file_extension(path))
     {
-      log_debug2("Trying to load module '%s' (%s)\n", path.c_str(), (*loader)->get_loader_name().c_str());
+      log_debug2("Trying to load module '%s' (%s)\n", shortendPath.c_str(), (*loader)->get_loader_name().c_str());
       
       // Problems, if any, are logged in init_module.
       Module *module = (*loader)->init_module(path);
@@ -712,7 +714,7 @@ ModuleLoader *GRT::get_module_loader_for_file(const std::string &path)
 }
 
 
-int GRT::scan_modules_in(const std::string &path, const std::list<std::string> &exts,
+int GRT::scan_modules_in(const std::string &path, const std::string &basePath, const std::list<std::string> &exts,
                          bool reload)
 {
   GDir *dir;
@@ -778,7 +780,7 @@ int GRT::scan_modules_in(const std::string &path, const std::list<std::string> &
 
     try
     {
-      if (load_module(module_path, reload))
+      if (load_module(module_path, basePath, reload))
       {
         count++;
       }

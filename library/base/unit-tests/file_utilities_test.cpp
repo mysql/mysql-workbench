@@ -51,19 +51,17 @@ using namespace base;
 #define FILE_PATTERN "__test_"
 #define EMPTY_NAME ""
 
-/*
- * Some tests on Windows specific behavior (like reserved file names, file sharing violation exceptions, etc)
- * are desabled in other platforms
- * */
+// Some tests on Windows specific behavior (like reserved file names, file sharing violation exceptions, etc)
+// are desabled in other platforms.
 
 BEGIN_TEST_DATA_CLASS(file_utilities_test)
 
 protected:
-std::string too_long_name;
-std::string too_long_basename;
-std::string dir_unicode_name;
-std::string file_unicode_name;
-std::string file_unicode_basename;
+  std::string too_long_name;
+  std::string too_long_basename;
+  std::string dir_unicode_name;
+  std::string file_unicode_name;
+  std::string file_unicode_basename;
 
 TEST_DATA_CONSTRUCTOR(file_utilities_test)
 {
@@ -100,7 +98,7 @@ TEST_DATA_CONSTRUCTOR(file_utilities_test)
   remove(file_unicode_name);
 
   // Initialize the thread system
-  if (!g_thread_supported ())
+  if (!g_thread_supported())
     base::threading_init();
 }
 
@@ -136,7 +134,7 @@ TEST_FUNCTION(5)
     if (base::remove(TEST_DIR_NAME01))
     {
       // return true means dir already exists
-      fail(strfmt("TEST 5.1: Directory \"%s\" already exists",TEST_DIR_NAME01));
+      fail(strfmt("TEST 5.1: Directory \"%s\" already exists", TEST_DIR_NAME01));
     }
   }
   catch (base::file_error &exc)
@@ -150,7 +148,7 @@ TEST_FUNCTION(5)
     if (!(base::create_directory(TEST_DIR_NAME01, 0700)))
     {
       // return false means dir already exists
-      fail(strfmt("TEST 5.2: Directory \"%s\" already exists",TEST_DIR_NAME01));
+      fail(strfmt("TEST 5.2: Directory \"%s\" already exists", TEST_DIR_NAME01));
     }
   }
   catch (base::file_error &exc)
@@ -164,7 +162,7 @@ TEST_FUNCTION(5)
     if (base::create_directory(TEST_DIR_NAME01, 0700))
     {
       // return true means dir does not exist
-      fail(strfmt("TEST 5.3: Directory \"%s\" does not exist",TEST_DIR_NAME01));
+      fail(strfmt("TEST 5.3: Directory \"%s\" does not exist", TEST_DIR_NAME01));
     }
   }
   catch (base::file_error &exc)
@@ -178,7 +176,7 @@ TEST_FUNCTION(5)
     if (!base::remove(TEST_DIR_NAME01))
     {
       // return false means dir does not exist
-      fail(strfmt("TEST 5.4: Directory \"%s\" does not exist",TEST_DIR_NAME01));
+      fail(strfmt("TEST 5.4: Directory \"%s\" does not exist", TEST_DIR_NAME01));
     }
   }
   catch (base::file_error &exc)
@@ -192,7 +190,7 @@ TEST_FUNCTION(5)
     if (base::remove(TEST_FILE_NAME01))
     {
       // return true means file already exists
-      fail(strfmt("TEST 5.5: File \"%s\" already exists",TEST_FILE_NAME01));
+      fail(strfmt("TEST 5.5: File \"%s\" already exists", TEST_FILE_NAME01));
     }
   }
   catch (base::file_error &exc)
@@ -209,7 +207,7 @@ TEST_FUNCTION(5)
     if (!base::remove(TEST_FILE_NAME01))
     {
       // return false means file does not exist
-      fail(strfmt("TEST 5.6: File \"%s\" does not exist",TEST_FILE_NAME01));
+      fail(strfmt("TEST 5.6: File \"%s\" does not exist", TEST_FILE_NAME01));
     }
   }
   catch (base::file_error &exc)
@@ -555,7 +553,7 @@ TEST_FUNCTION(25)
     test_file04 = test_file03;
     test_result = test_file04.file();
 
-    ensure_equals("TEST 25.4: Unexpected result calling operator =(FileHandle &fh)",test_result,expected_result);
+    ensure_equals("TEST 25.4: Unexpected result calling operator =(FileHandle &fh)", test_result,expected_result);
   }
   catch (base::file_error &exc)
   {
@@ -590,7 +588,7 @@ TEST_FUNCTION(30)
     test_file01.swap(test_file02);
     test_result = test_file01.file();
 
-    ensure_equals("TEST 30.1: Unexpected result calling function swap(FileHandle &fh)",test_result,expected_result);
+    ensure_equals("TEST 30.1: Unexpected result calling function swap(FileHandle &fh)", test_result,expected_result);
 
     // Testing file()
     ensure("TEST 30.2: Unexpected result calling function file()", test_file01.file() != NULL);
@@ -600,7 +598,7 @@ TEST_FUNCTION(30)
     test_result = test_file01.file();
     expected_result = NULL;
 
-    ensure_equals("TEST 30.3: Unexpected result calling function dispose()",test_result,expected_result);
+    ensure_equals("TEST 30.3: Unexpected result calling function dispose()", test_result,expected_result);
 
     // Testing open_file(const char *filename, const char *mode, bool throw_on_fail= true)
 
@@ -624,7 +622,7 @@ TEST_FUNCTION(30)
       test_result = test_file03.file();
       expected_result = NULL;
 
-      ensure_equals("TEST 30.5: Unexpected result calling open_file()",test_result,expected_result);
+      ensure_equals("TEST 30.5: Unexpected result calling open_file()", test_result,expected_result);
     }
     catch(...)
     {
@@ -704,7 +702,7 @@ TEST_FUNCTION(33)
     test_file01.swap(test_file02);
     test_result = test_file01.file();
 
-    ensure_equals("TEST 33.1: Unexpected result calling function swap(FileHandle &fh)",test_result,expected_result);
+    ensure_equals("TEST 33.1: Unexpected result calling function swap(FileHandle &fh)", test_result,expected_result);
 
     // Testing file()
     ensure("TEST 33.2: Unexpected result calling function file()", test_file01.file() != NULL);
@@ -714,7 +712,7 @@ TEST_FUNCTION(33)
     test_result = test_file01.file();
     expected_result = NULL;
 
-    ensure_equals("TEST 33.3: Unexpected result calling function dispose()",test_result,expected_result);
+    ensure_equals("TEST 33.3: Unexpected result calling function dispose()", test_result,expected_result);
 
     // Testing open_file(const char *filename, const char *mode, bool throw_on_fail= true)
 
@@ -723,7 +721,7 @@ TEST_FUNCTION(33)
     {
       // throw error (file is read-only)
       base::FileHandle test_file_scoped(TEST_FILE_NAME01, "w");
-      fail(strfmt("TEST 33.4: Read-only file \"%s\" did not throw an error",TEST_FILE_NAME01));
+      fail(strfmt("TEST 33.4: Read-only file \"%s\" did not throw an error", TEST_FILE_NAME01));
     }
     catch (const base::file_error &exc)
     {
@@ -997,7 +995,7 @@ TEST_FUNCTION(40)
     FILE* test_result = c_tor_no_name.file();
     FILE* expected_result = NULL;
 
-    ensure_equals("TEST 40.1: Unexpected result calling FileHandle constructor",test_result,expected_result);
+    ensure_equals("TEST 40.1: Unexpected result calling FileHandle constructor", test_result,expected_result);
 
     // test case for 'throw_on_fail' default value (i.e. TRUE)
     try
@@ -1019,7 +1017,7 @@ TEST_FUNCTION(40)
       test_result = c_tor_throw_on_fail.file();
       expected_result = NULL;
 
-      ensure_equals("TEST 40.3: Unexpected result calling FileHandle constructor",test_result,expected_result);
+      ensure_equals("TEST 40.3: Unexpected result calling FileHandle constructor", test_result,expected_result);
     }
     catch(...)
     {
@@ -1030,14 +1028,14 @@ TEST_FUNCTION(40)
     test_result = c_tor_FileHandle_ref.file();
     expected_result = original_c_tor_temp_ptr;
 
-    ensure_equals("TEST 40.5: Unexpected result calling FileHandle constructor",test_result,expected_result);
+    ensure_equals("TEST 40.5: Unexpected result calling FileHandle constructor", test_result,expected_result);
 
     // test case for d-tor
     c_tor_FileHandle_ref.~FileHandle();
     test_result = c_tor_FileHandle_ref.file();
     expected_result = NULL;
 
-    ensure_equals("TEST 40.6: Unexpected result calling FileHandle destructor",test_result,expected_result);
+    ensure_equals("TEST 40.6: Unexpected result calling FileHandle destructor", test_result,expected_result);
   }
   catch (base::file_error &exc)
   {
@@ -1290,21 +1288,21 @@ TEST_FUNCTION(50)
     if (!base::file_exists(TEST_DIR_NAME01))
     {
       // return false means dir does not exist
-      fail(strfmt("TEST 50.1: Directory \"%s\" does not exist",TEST_DIR_NAME01));
+      fail(strfmt("TEST 50.1: Directory \"%s\" does not exist", TEST_DIR_NAME01));
     }
 
     // Testing file_exists(const std::string &path) with a file
     if (!base::file_exists(TEST_FILE_NAME01))
     {
       // return false means file does not exist
-      fail(strfmt("TEST 50.2: File \"%s\" does not exist",TEST_FILE_NAME01));
+      fail(strfmt("TEST 50.2: File \"%s\" does not exist", TEST_FILE_NAME01));
     }
 
     // Testing is_directory(const std::string &path)
     if (!base::is_directory(TEST_DIR_NAME01))
     {
       // return false means TEST_DIR_NAME01 is not a directory
-      fail(strfmt("TEST 50.3: \"%s\" is not a directory",TEST_DIR_NAME01));
+      fail(strfmt("TEST 50.3: \"%s\" is not a directory", TEST_DIR_NAME01));
     }
 
     // Testing dirname(const std::string &path)
@@ -1322,13 +1320,13 @@ TEST_FUNCTION(50)
     if (base::file_exists(TEST_FILE_NAME01))
     {
       // return true means old file still exists
-      fail(strfmt("TEST 50.6: File \"%s\" still exists",TEST_FILE_NAME01));
+      fail(strfmt("TEST 50.6: File \"%s\" still exists", TEST_FILE_NAME01));
     }
 
     if (!base::file_exists(TEST_FILE_NAME02))
     {
       // return false means new file does not exist
-      fail(strfmt("TEST 50.7: File \"%s\" does not exist",TEST_FILE_NAME02));
+      fail(strfmt("TEST 50.7: File \"%s\" does not exist", TEST_FILE_NAME02));
     }
 
     // Testing extension(const std::string &path)
@@ -1350,7 +1348,7 @@ TEST_FUNCTION(50)
     if (!base::remove_recursive(TEST_DIR_NAME01))
     {
       // return false means dir does not exist
-      fail(strfmt("TEST 50.11: Directory \"%s\" does not exist",TEST_DIR_NAME01));
+      fail(strfmt("TEST 50.11: Directory \"%s\" does not exist", TEST_DIR_NAME01));
     }
   }
   catch (base::file_error &exc)
@@ -1753,7 +1751,7 @@ TEST_FUNCTION(53)
     if (base::file_exists(TEST_FILE_NAME01))
     {
       // return true means old file still exists
-      fail(strfmt("TEST 53.27: File \"%s\" still exists",TEST_FILE_NAME01));
+      fail(strfmt("TEST 53.27: File \"%s\" still exists", TEST_FILE_NAME01));
     }
 
     if (!base::file_exists(file_unicode_name.c_str()))
@@ -1774,14 +1772,14 @@ TEST_FUNCTION(53)
     if (!base::file_exists(TEST_FILE_NAME01))
     {
       // return false means new file does not exist
-      fail(strfmt("TEST 53.30: File \"%s\" does not exist",TEST_FILE_NAME01));
+      fail(strfmt("TEST 53.30: File \"%s\" does not exist", TEST_FILE_NAME01));
     }
 
     // -- Source File does not exist
     try
     {
       base::rename(TEST_FILE_NAME03, TEST_FILE_NAME02);
-      fail(strfmt("TEST 53.31: Non-existing file \"%s\" did not throw an error",TEST_FILE_NAME03));
+      fail(strfmt("TEST 53.31: Non-existing file \"%s\" did not throw an error", TEST_FILE_NAME03));
     }
     catch (const base::file_error &exc)
     {
@@ -1804,7 +1802,7 @@ TEST_FUNCTION(53)
       base::FileHandle test_file_scoped(TEST_FILE_NAME03, "w+");
 
       base::rename(TEST_FILE_NAME01, TEST_FILE_NAME03);
-      fail(strfmt("TEST 53.32: Already-existing file \"%s\" did not throw an error",TEST_FILE_NAME03));
+      fail(strfmt("TEST 53.32: Already-existing file \"%s\" did not throw an error", TEST_FILE_NAME03));
     }
     catch (const base::file_error &exc)
     {
@@ -1824,7 +1822,7 @@ TEST_FUNCTION(53)
     try
     {
       base::rename(TEST_FILE_NAME02, TEST_FILE_NAME02);
-      fail(strfmt("TEST 53.33: Non-existing files \"%s\" did not throw an error",TEST_FILE_NAME02));
+      fail(strfmt("TEST 53.33: Non-existing files \"%s\" did not throw an error", TEST_FILE_NAME02));
     }
     catch (const base::file_error &exc)
     {
@@ -1846,7 +1844,7 @@ TEST_FUNCTION(53)
     if (!base::file_exists(TEST_FILE_NAME01))
     {
       // return false means new file does not exist
-      fail(strfmt("TEST 53.34: File \"%s\" does not exist",TEST_FILE_NAME01));
+      fail(strfmt("TEST 53.34: File \"%s\" does not exist", TEST_FILE_NAME01));
     }
 
     // Testing extension(const std::string &path)
@@ -1972,7 +1970,7 @@ TEST_FUNCTION(53)
     if (base::remove_recursive(too_long_name.c_str()))
     {
       // return true means dir exists
-      fail(strfmt("TEST 53.55: Directory \"%s\" exists",too_long_name.c_str()));
+      fail(strfmt("TEST 53.55: Directory \"%s\" exists", too_long_name.c_str()));
     }
 
     // -- Unicode name
@@ -2078,20 +2076,20 @@ TEST_FUNCTION(54)
     if (base::file_exists(TEST_FILE_NAME01))
     {
       // return true means old file still exists
-      fail(strfmt("TEST 54.1: File \"%s\" still exists",TEST_FILE_NAME01));
+      fail(strfmt("TEST 54.1: File \"%s\" still exists", TEST_FILE_NAME01));
     }
 
     if (!base::file_exists(TEST_FILE_NAME02))
     {
       // return false means new file does not exist
-      fail(strfmt("TEST 54.1: File \"%s\" does not exist",TEST_FILE_NAME02));
+      fail(strfmt("TEST 54.1: File \"%s\" does not exist", TEST_FILE_NAME02));
     }
 
     // Remove a read-only directory
     try
     {
       bool result = base::remove(TEST_DIR_NAME02);
-      fail(strfmt("TEST 54.2: Read-only directory \"%s\" did not throw an error",TEST_DIR_NAME02));
+      fail(strfmt("TEST 54.2: Read-only directory \"%s\" did not throw an error", TEST_DIR_NAME02));
     }
     catch (const base::file_error &exc)
     {
@@ -2111,7 +2109,7 @@ TEST_FUNCTION(54)
     try
     {
       base::remove(TEST_FILE_NAME02);
-      fail(strfmt("TEST 54.3: Read-only file \"%s\" did not throw an error",TEST_FILE_NAME02));
+      fail(strfmt("TEST 54.3: Read-only file \"%s\" did not throw an error", TEST_FILE_NAME02));
     }
     catch (const base::file_error &exc)
     {
@@ -2131,7 +2129,7 @@ TEST_FUNCTION(54)
     if (!base::remove_recursive(TEST_DIR_NAME01))
     {
       // return false means dir does not exist
-      fail(strfmt("TEST 54.4: Directory \"%s\" does not exist",TEST_DIR_NAME01));
+      fail(strfmt("TEST 54.4: Directory \"%s\" does not exist", TEST_DIR_NAME01));
     }
   }
   catch (base::file_error &exc)
@@ -2243,7 +2241,7 @@ TEST_FUNCTION(55)
   try
   {
     std::string search_pattern = "." FILE_SEPARATOR FILE_PATTERN "*";
-    std::list<std::string> test_result = base::scan_for_files_matching(search_pattern,true);
+    std::list<std::string> test_result = base::scan_for_files_matching(search_pattern, true);
 
     ensure("TEST 55.1: File matching returned an empty list",!test_result.empty());
     ensure_equals("TEST 55.2: Invalid list size", test_result.size(), 5U);
@@ -2329,13 +2327,13 @@ TEST_FUNCTION(65)
         base::FileHandle test_file02(TEST_FILE_NAME02, "w+");
 
         if (LockFile::check(TEST_FILE_NAME01) != LockFile::LockedSelf)
-          fail(strfmt("TEST 65.1: File \"%s\" not locked",TEST_FILE_NAME01));
+          fail(strfmt("TEST 65.1: File \"%s\" not locked", TEST_FILE_NAME01));
 
 #ifndef _WIN32
         // Semantic issue with NotLocked for a plain file without content.
         // TODO: rework lock detection with other than base::LockFile instances.
         if (LockFile::check(TEST_FILE_NAME02) != LockFile::NotLocked)
-          fail(strfmt("TEST 65.2: File \"%s\" locked",TEST_FILE_NAME02));
+          fail(strfmt("TEST 65.2: File \"%s\" locked", TEST_FILE_NAME02));
 #endif
       }
       ensure("TEST 65.3: Failed d-tor call", !base::file_exists(TEST_FILE_NAME01));
@@ -2382,7 +2380,7 @@ gpointer _child_thread_func(gpointer data)
     try
     {
       base::rename(TEST_FILE_NAME01, TEST_FILE_NAME02);
-      fail(strfmt("TEST 70.1: Locked file \"%s\" did not throw an error",TEST_FILE_NAME01));
+      fail(strfmt("TEST 70.1: Locked file \"%s\" did not throw an error", TEST_FILE_NAME01));
     }
     catch (const base::file_error &exc)
     {
@@ -2402,7 +2400,7 @@ gpointer _child_thread_func(gpointer data)
     try
     {
       base::remove(TEST_FILE_NAME01);
-      fail(strfmt("TEST 70.2: Locked file \"%s\" did not throw an error",TEST_FILE_NAME01));
+      fail(strfmt("TEST 70.2: Locked file \"%s\" did not throw an error", TEST_FILE_NAME01));
     }
     catch (const base::file_error &exc)
     {
@@ -2425,7 +2423,7 @@ gpointer _child_thread_func(gpointer data)
     {
       // throw error (file is locked)
       base::FileHandle test_file_scoped(TEST_FILE_NAME01, "w");
-      fail(strfmt("TEST 70.3: Locked file \"%s\" did not throw an error",TEST_FILE_NAME01));
+      fail(strfmt("TEST 70.3: Locked file \"%s\" did not throw an error", TEST_FILE_NAME01));
     }
     catch (const base::file_error &exc)
     {
@@ -2449,7 +2447,7 @@ gpointer _child_thread_func(gpointer data)
       test_result = test_file.file();
       expected_result = NULL;
 
-      ensure_equals("TEST 70.4: Unexpected result calling FileHandle c-tor",test_result,expected_result);
+      ensure_equals("TEST 70.4: Unexpected result calling FileHandle c-tor", Test_result,expected_result);
     }
     catch(std::exception &exc)
     {
@@ -2461,7 +2459,7 @@ gpointer _child_thread_func(gpointer data)
     try
     {
       base::FileHandle c_tor_test_filename(TEST_FILE_NAME01, "w+");
-      fail(strfmt("TEST 70.5: Locked file \"%s\" did not throw an error",TEST_FILE_NAME01));
+      fail(strfmt("TEST 70.5: Locked file \"%s\" did not throw an error", TEST_FILE_NAME01));
     }
     catch (const base::file_error &exc)
     {
@@ -2481,7 +2479,7 @@ gpointer _child_thread_func(gpointer data)
     try
     {
       base::LockFile lock_file(TEST_FILE_NAME01);
-      fail(strfmt("TEST 70.6: Locked file \"%s\" did not throw an error",TEST_FILE_NAME01));
+      fail(strfmt("TEST 70.6: Locked file \"%s\" did not throw an error", TEST_FILE_NAME01));
     }
     catch (const base::file_locked_error)
     {
@@ -2497,7 +2495,7 @@ gpointer _child_thread_func(gpointer data)
     try
     {
       if (LockFile::check(TEST_FILE_NAME01) != LockFile::LockedSelf)
-        fail(strfmt("TEST 70.7: File \"%s\" not locked",TEST_FILE_NAME01));
+        fail(strfmt("TEST 70.7: File \"%s\" not locked", TEST_FILE_NAME01));
     }
     catch (base::file_error &exc)
     {
@@ -2550,7 +2548,7 @@ TEST_FUNCTION(70)
   try
   {
     if (LockFile::check(TEST_FILE_NAME01) != LockFile::LockedSelf)
-      fail(strfmt("TEST 70.8: File \"%s\" not locked",TEST_FILE_NAME01));
+      fail(strfmt("TEST 70.8: File \"%s\" not locked", TEST_FILE_NAME01));
   }
   catch (base::file_error &exc)
   {
@@ -2572,5 +2570,53 @@ TEST_FUNCTION(70)
 }
 #endif
 
+TEST_FUNCTION(75)
+{
+  // Tests for relativePath.
+  ensure_equals("TEST 75.1", base::relativePath("", ""), "");
+  ensure_equals("TEST 75.2", base::relativePath("/", ""), "");
+  ensure_equals("TEST 75.3", base::relativePath("", "/"), "/");
+  ensure_equals("TEST 75.4", base::relativePath("", "\\"), "\\");
+  ensure_equals("TEST 75.5", base::relativePath("/////////////////////////", "\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"), "../../../../../../../../../../");
+  ensure_equals("TEST 75.6", base::relativePath("/abc/def", "\\abc\\def"), "");
+  ensure_equals("TEST 75.7", base::relativePath("/abc/def", "/abc/def/ghi"), "ghi");
+  ensure_equals("TEST 75.7", base::relativePath("/abc/def/ghi", "/abc/def/"), "../");
+
+  // Long names without sub paths.
+  std::string basePath(50000, 'x');
+  std::string pathToMakeRelative = "y";
+  ensure_equals("TEST 75.8", base::relativePath(basePath, pathToMakeRelative), pathToMakeRelative);
+  ensure_equals("TEST 75.9", base::relativePath(pathToMakeRelative, basePath), basePath);
+
+  // Many (short) subpaths.
+  basePath = "";
+  for (size_t i = 0; i < 30000; ++i)
+    basePath += "/abc";
+  ensure_equals("TEST 75.10", base::relativePath(basePath, ""), "");
+  ensure_equals("TEST 75.11", base::relativePath(basePath, "abc"), "abc");
+  ensure_equals("TEST 75.12", base::relativePath(basePath, basePath), "");
+
+  pathToMakeRelative = "";
+  for (size_t i = 0; i < 29999; ++i)
+    pathToMakeRelative += "../";
+  ensure_equals("TEST 75.13", base::relativePath(basePath, "/abc"), pathToMakeRelative);
+
+  ensure_equals("TEST 75.14", base::relativePath("🍏🍎🍐/ЀЁЂ/ᚋᚌᚍ/last", "/last"), "/last");
+  ensure_equals("TEST 75.15", base::relativePath("/🍏🍎🍐/ЀЁЂ\\ᚋᚌᚍ\\last", "\\last"), "../../../../last");
+  ensure_equals("TEST 75.16", base::relativePath("🍏🍎🍐/ЀЁЂ\\ᚋᚌᚍ/last", "🍏🍎🍐"), "../../../");
+
+  // Case sensitivity.
+#ifdef _WIN32
+  ensure_equals("TEST 75.17", base::relativePath("/🍏🍎🍐/ЀЁЂ\\ᚋᚌᚍ\\last", "\\Last"), "../../../../Last");
+  ensure_equals("TEST 75.18", base::relativePath("/XYZ/🍏🍎🍐/ЀЁЂ\\ᚋᚌᚍ\\last", "\\xyz\\Last"), "../../../../XYZ/Last");
+#else
+  ensure_equals("TEST 75.17", base::relativePath("/🍏🍎🍐/ЀЁЂ\\ᚋᚌᚍ\\last", "\\Last"), "../../../../Last");
+  ensure_equals("TEST 75.18", base::relativePath("/XYZ/🍏🍎🍐/ЀЁЂ\\ᚋᚌᚍ\\last", "\\xyz\\Last"), "../../../../../xyz/Last");
+#endif
+
+  // Win specific, but nontheless working on any platform.
+  ensure_equals("TEST 75.19", base::relativePath("C:\\abc/def/ghi", "C:/abc/def/"), "../");
+  ensure_equals("TEST 75.20", base::relativePath("C:\\abc/def/ghi", "D:/abc/def/"), "D:/abc/def/");
+}
 
 END_TESTS
