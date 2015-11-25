@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,42 +16,11 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-//
-//  MFWizard.h
-//  MySQLWorkbench
-//
-//  Created by Alfredo Kojima on 7/Feb/09.
-//  Copyright 2009 Sun Microsystems Inc. All rights reserved.
-//
 
-#import <Cocoa/Cocoa.h>
+@interface MFWizardImpl : NSWindowController
 
-#include "mforms/wizard.h"
-
-@interface MFWizardBox : NSBox
-{
-}
-
-@end
-
-
-@interface MFWizardImpl : NSWindowController {
-  mforms::Wizard *mOwner;
-  IBOutlet NSButton *nextButton;
-  IBOutlet NSButton *backButton;
-  IBOutlet NSButton *extraButton;
-  IBOutlet NSBox *contentBox;
-  IBOutlet NSTextField *headingText;
-  IBOutlet NSImage *backImage;
-  IBOutlet NSView *stepList;
-  
-  float mOriginalButtonWidth;
-  
-  BOOL mAllowCancel;
-}
-
-- (IBAction)performNext:(id)sender;
-- (IBAction)performBack:(id)sender;
-- (IBAction)performExtra:(id)sender;
+- (IBAction)performNext: (id)sender;
+- (IBAction)performBack: (id)sender;
+- (IBAction)performExtra: (id)sender;
 
 @end

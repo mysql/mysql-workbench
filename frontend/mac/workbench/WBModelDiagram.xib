@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6254" systemVersion="14B25" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9060" systemVersion="15B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6254"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9060"/>
+        <capability name="box content view" minToolsVersion="7.0"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="WBModelDiagramPanel">
@@ -11,7 +12,6 @@
                 <outlet property="descriptionController" destination="148" id="156"/>
                 <outlet property="editorTabView" destination="170" id="181"/>
                 <outlet property="layerTab" destination="23" id="191"/>
-                <outlet property="mPropertiesController" destination="162" id="166"/>
                 <outlet property="mSwitcherB" destination="200" id="205"/>
                 <outlet property="mSwitcherM" destination="196" id="204"/>
                 <outlet property="mSwitcherT" destination="193" id="203"/>
@@ -19,6 +19,7 @@
                 <outlet property="mainSplitViewDelegate" destination="175" id="177"/>
                 <outlet property="navigatorViewer" destination="93" id="121"/>
                 <outlet property="optionsToolbar" destination="4" id="10"/>
+                <outlet property="propertiesController" destination="162" id="oXg-c4-ZWm"/>
                 <outlet property="scrollView" destination="8" id="9"/>
                 <outlet property="secondarySidebar" destination="208" id="209"/>
                 <outlet property="sideSplitview" destination="19" id="207"/>
@@ -52,6 +53,7 @@
                                         <tabView controlSize="small" type="noTabsNoBorder" initialItem="88" id="20">
                                             <rect key="frame" x="0.0" y="0.0" width="225" height="200"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                            <animations/>
                                             <tabViewItems>
                                                 <tabViewItem label="Navigator" identifier="1" id="88">
                                                     <view key="view" id="89">
@@ -61,20 +63,20 @@
                                                             <box autoresizesSubviews="NO" title="Box" boxType="custom" borderType="line" titlePosition="noTitle" id="90">
                                                                 <rect key="frame" x="0.0" y="0.0" width="225" height="278"/>
                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                                <view key="contentView">
+                                                                <view key="contentView" id="LuY-f1-NYc">
                                                                     <rect key="frame" x="1" y="1" width="223" height="276"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <subviews>
                                                                         <customView id="93" customClass="MCanvasViewer">
                                                                             <rect key="frame" x="4" y="31" width="215" height="165"/>
                                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                                            <animations/>
                                                                         </customView>
                                                                         <slider verticalHuggingPriority="750" id="94">
-                                                                            <rect key="frame" x="23" y="9" width="115" height="12"/>
+                                                                            <rect key="frame" x="23" y="8" width="115" height="15"/>
                                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                                                                            <sliderCell key="cell" controlSize="mini" continuous="YES" state="on" alignment="left" minValue="10" maxValue="200" doubleValue="72.560980000000001" tickMarkPosition="above" sliderType="linear" id="97">
-                                                                                <font key="font" metaFont="miniSystem"/>
-                                                                            </sliderCell>
+                                                                            <animations/>
+                                                                            <sliderCell key="cell" controlSize="mini" continuous="YES" state="on" alignment="left" minValue="10" maxValue="200" doubleValue="72.560980000000001" tickMarkPosition="above" sliderType="linear" id="97"/>
                                                                             <connections>
                                                                                 <action selector="setZoom:" target="-2" id="125"/>
                                                                             </connections>
@@ -82,6 +84,7 @@
                                                                         <comboBox verticalHuggingPriority="750" id="95">
                                                                             <rect key="frame" x="171" y="3" width="51" height="22"/>
                                                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                                                                            <animations/>
                                                                             <comboBoxCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" buttonBordered="NO" completes="NO" numberOfVisibleItems="12" id="96">
                                                                                 <font key="font" metaFont="smallSystem"/>
                                                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -94,6 +97,7 @@
                                                                         <button id="92">
                                                                             <rect key="frame" x="144" y="0.0" width="21" height="32"/>
                                                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                                                                            <animations/>
                                                                             <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="navigator_zoom_in" imagePosition="only" alignment="center" state="on" inset="2" id="98">
                                                                                 <behavior key="behavior" lightByContents="YES"/>
                                                                                 <font key="font" metaFont="system"/>
@@ -105,6 +109,7 @@
                                                                         <button id="91">
                                                                             <rect key="frame" x="2" y="0.0" width="21" height="32"/>
                                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                                            <animations/>
                                                                             <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="navigator_zoom_out" imagePosition="only" alignment="center" inset="2" id="99">
                                                                                 <behavior key="behavior" lightByContents="YES"/>
                                                                                 <font key="font" metaFont="system"/>
@@ -114,12 +119,15 @@
                                                                             </connections>
                                                                         </button>
                                                                     </subviews>
+                                                                    <animations/>
                                                                 </view>
+                                                                <animations/>
                                                                 <color key="borderColor" white="0.0" alpha="0.050000001000000002" colorSpace="calibratedWhite"/>
                                                                 <color key="fillColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                                                 <font key="titleFont" size="11" name="LucidaGrande"/>
                                                             </box>
                                                         </subviews>
+                                                        <animations/>
                                                     </view>
                                                 </tabViewItem>
                                             </tabViewItems>
@@ -127,11 +135,13 @@
                                         <customView id="193" customClass="MTabSwitcher">
                                             <rect key="frame" x="0.0" y="200" width="225" height="23"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                            <animations/>
                                             <connections>
                                                 <outlet property="mTabView" destination="20" id="194"/>
                                             </connections>
                                         </customView>
                                     </subviews>
+                                    <animations/>
                                 </customView>
                                 <customView id="195">
                                     <rect key="frame" x="0.0" y="224" width="225" height="256"/>
@@ -140,23 +150,27 @@
                                         <tabView controlSize="small" type="noTabsNoBorder" initialItem="24" id="22">
                                             <rect key="frame" x="0.0" y="0.0" width="225" height="233"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                            <animations/>
                                             <tabViewItems>
                                                 <tabViewItem label="Catalog" identifier="1" id="24">
                                                     <view key="view" id="38">
                                                         <rect key="frame" x="0.0" y="0.0" width="225" height="236"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                        <animations/>
                                                     </view>
                                                 </tabViewItem>
                                                 <tabViewItem label="Layers" identifier="2" id="23">
                                                     <view key="view" id="47">
                                                         <rect key="frame" x="0.0" y="0.0" width="225" height="236"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                        <animations/>
                                                     </view>
                                                 </tabViewItem>
                                                 <tabViewItem label="User Types" identifier="udts" id="1oW-Vh-uAi">
                                                     <view key="view" id="fEI-uM-7Vj">
                                                         <rect key="frame" x="0.0" y="0.0" width="225" height="233"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                        <animations/>
                                                     </view>
                                                 </tabViewItem>
                                             </tabViewItems>
@@ -164,11 +178,13 @@
                                         <customView id="196" customClass="MTabSwitcher">
                                             <rect key="frame" x="0.0" y="233" width="225" height="23"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                            <animations/>
                                             <connections>
                                                 <outlet property="mTabView" destination="22" id="198"/>
                                             </connections>
                                         </customView>
                                     </subviews>
+                                    <animations/>
                                 </customView>
                                 <customView id="199">
                                     <rect key="frame" x="0.0" y="481" width="225" height="225"/>
@@ -177,6 +193,7 @@
                                         <tabView controlSize="small" type="noTabsNoBorder" id="21">
                                             <rect key="frame" x="0.0" y="0.0" width="225" height="203"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                            <animations/>
                                             <tabViewItems>
                                                 <tabViewItem label="Description" identifier="1" id="54">
                                                     <view key="view" id="74" customClass="MColoredView">
@@ -193,6 +210,7 @@
                                                                         <textView importsGraphics="NO" richText="NO" findStyle="panel" continuousSpellChecking="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" smartInsertDelete="YES" id="84">
                                                                             <rect key="frame" x="0.0" y="0.0" width="223" height="172"/>
                                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                                            <animations/>
                                                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                                             <size key="minSize" width="223" height="172"/>
                                                                             <size key="maxSize" width="463" height="10000000"/>
@@ -204,20 +222,25 @@
                                                                             </connections>
                                                                         </textView>
                                                                     </subviews>
+                                                                    <animations/>
                                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                                 </clipView>
+                                                                <animations/>
                                                                 <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="85">
                                                                     <rect key="frame" x="-100" y="-100" width="87" height="18"/>
                                                                     <autoresizingMask key="autoresizingMask"/>
+                                                                    <animations/>
                                                                 </scroller>
                                                                 <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" controlSize="small" horizontal="NO" id="86">
                                                                     <rect key="frame" x="232" y="1" width="14" height="155"/>
                                                                     <autoresizingMask key="autoresizingMask"/>
+                                                                    <animations/>
                                                                 </scroller>
                                                             </scrollView>
                                                             <popUpButton verticalHuggingPriority="750" id="77">
                                                                 <rect key="frame" x="2" y="176" width="221" height="22"/>
                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                                                <animations/>
                                                                 <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="82" id="78">
                                                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                                                     <font key="font" metaFont="smallSystem"/>
@@ -236,6 +259,7 @@
                                                             <button hidden="YES" id="76">
                                                                 <rect key="frame" x="1" y="2" width="223" height="22"/>
                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                                                                <animations/>
                                                                 <buttonCell key="cell" type="square" title="Click to Change All Objects" bezelStyle="shadowlessSquare" imagePosition="overlaps" alignment="center" controlSize="small" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="83">
                                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                                     <font key="font" metaFont="smallSystem"/>
@@ -245,6 +269,7 @@
                                                                 </connections>
                                                             </button>
                                                         </subviews>
+                                                        <animations/>
                                                     </view>
                                                 </tabViewItem>
                                                 <tabViewItem label="Properties" identifier="2" id="55">
@@ -260,10 +285,11 @@
                                                                     <autoresizingMask key="autoresizingMask"/>
                                                                     <subviews>
                                                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" multipleSelection="NO" autosaveColumns="NO" rowHeight="13" headerView="69" id="68">
-                                                                            <rect key="frame" x="0.0" y="0.0" width="238" height="15"/>
+                                                                            <rect key="frame" x="0.0" y="0.0" width="238" height="148"/>
                                                                             <autoresizingMask key="autoresizingMask"/>
+                                                                            <animations/>
                                                                             <size key="intercellSpacing" width="3" height="2"/>
-                                                                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                                            <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                                             <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                                                             <tableColumns>
                                                                                 <tableColumn identifier="name" editable="NO" width="115" minWidth="40" maxWidth="1000" id="70">
@@ -299,28 +325,35 @@
                                                                             </connections>
                                                                         </tableView>
                                                                     </subviews>
+                                                                    <animations/>
                                                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                                 </clipView>
+                                                                <animations/>
                                                                 <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" controlSize="small" horizontal="YES" id="67">
                                                                     <rect key="frame" x="1" y="193" width="196" height="11"/>
                                                                     <autoresizingMask key="autoresizingMask"/>
+                                                                    <animations/>
                                                                 </scroller>
-                                                                <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" controlSize="small" horizontal="NO" id="66">
+                                                                <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" controlSize="small" horizontal="NO" id="66">
                                                                     <rect key="frame" x="186" y="17" width="11" height="176"/>
                                                                     <autoresizingMask key="autoresizingMask"/>
+                                                                    <animations/>
                                                                 </scroller>
                                                                 <tableHeaderView key="headerView" id="69">
                                                                     <rect key="frame" x="0.0" y="0.0" width="238" height="17"/>
                                                                     <autoresizingMask key="autoresizingMask"/>
+                                                                    <animations/>
                                                                 </tableHeaderView>
                                                             </scrollView>
                                                         </subviews>
+                                                        <animations/>
                                                     </view>
                                                 </tabViewItem>
                                                 <tabViewItem label="History" identifier="Item 2" id="56">
                                                     <view key="view" id="57">
                                                         <rect key="frame" x="10" y="25" width="240" height="166"/>
                                                         <autoresizingMask key="autoresizingMask"/>
+                                                        <animations/>
                                                     </view>
                                                 </tabViewItem>
                                             </tabViewItems>
@@ -328,13 +361,16 @@
                                         <customView id="200" customClass="MTabSwitcher">
                                             <rect key="frame" x="0.0" y="202" width="225" height="23"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                            <animations/>
                                             <connections>
                                                 <outlet property="mTabView" destination="21" id="202"/>
                                             </connections>
                                         </customView>
                                     </subviews>
+                                    <animations/>
                                 </customView>
                             </subviews>
+                            <animations/>
                             <holdingPriorities>
                                 <real value="250"/>
                                 <real value="250"/>
@@ -345,6 +381,7 @@
                             </connections>
                         </splitView>
                     </subviews>
+                    <animations/>
                 </customView>
                 <splitView autosaveName="diagramEditorSplitter" dividerStyle="thin" id="167" customClass="WBSplitView">
                     <rect key="frame" x="226" y="0.0" width="645" height="706"/>
@@ -357,10 +394,12 @@
                                 <customView hidden="YES" id="4">
                                     <rect key="frame" x="31" y="494" width="614" height="20"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                    <animations/>
                                 </customView>
                                 <box horizontalHuggingPriority="750" title="Box" boxType="separator" titlePosition="noTitle" id="13">
                                     <rect key="frame" x="28" y="0.0" width="5" height="514"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" heightSizable="YES"/>
+                                    <animations/>
                                     <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                                     <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                     <font key="titleFont" metaFont="system"/>
@@ -368,12 +407,15 @@
                                 <customView id="3" customClass="MColoredView">
                                     <rect key="frame" x="0.0" y="0.0" width="30" height="514"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" heightSizable="YES"/>
+                                    <animations/>
                                 </customView>
                                 <customView id="8" customClass="MCanvasScrollView">
                                     <rect key="frame" x="31" y="0.0" width="614" height="514"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <animations/>
                                 </customView>
                             </subviews>
+                            <animations/>
                         </customView>
                         <customView id="169" customClass="MContainerView">
                             <rect key="frame" x="0.0" y="515" width="645" height="191"/>
@@ -382,6 +424,7 @@
                                 <tabView id="170" customClass="WBGrayTabView">
                                     <rect key="frame" x="-8" y="-8" width="797" height="205"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <animations/>
                                     <font key="font" metaFont="system"/>
                                     <tabViewItems/>
                                     <connections>
@@ -389,8 +432,10 @@
                                     </connections>
                                 </tabView>
                             </subviews>
+                            <animations/>
                         </customView>
                     </subviews>
+                    <animations/>
                     <holdingPriorities>
                         <real value="250"/>
                         <real value="250"/>
@@ -402,8 +447,10 @@
                 <customView id="208">
                     <rect key="frame" x="872" y="0.0" width="140" height="706"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <animations/>
                 </customView>
             </subviews>
+            <animations/>
             <holdingPriorities>
                 <real value="250"/>
                 <real value="250"/>
@@ -429,7 +476,7 @@
                 <outlet property="text" destination="84" id="152"/>
             </connections>
         </customObject>
-        <customObject id="162" customClass="WBObjectPropertiesController">
+        <customObject id="162" userLabel="Properties Controller" customClass="WBObjectPropertiesController">
             <connections>
                 <outlet property="mTableView" destination="68" id="163"/>
             </connections>

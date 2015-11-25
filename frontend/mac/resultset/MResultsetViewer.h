@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,32 +17,18 @@
  * 02110-1301  USA
  */
 
-#import <Cocoa/Cocoa.h>
-#import "MGridView.h"
-#include <boost/shared_ptr.hpp>
-#include <boost/signals2.hpp>
-
 class Recordset;
 
+@class MGridView;
+
 @interface MResultsetViewer : NSObject
-{
-  IBOutlet NSView *mView;
-  IBOutlet MGridView *mTableView;
 
-  NSFont *mFont;
-  
-  std::list<boost::signals2::connection> mSigConns;
-  boost::shared_ptr<Recordset> *mData;
+- (instancetype)initWithRecordset: (boost::shared_ptr<Recordset>)rset;
 
-  int mWarnedManyColumns;
-  BOOL mPendingRefresh;
-}
+@property (readonly, assign) IBOutlet NSScrollView *view;
+@property (readonly, assign) IBOutlet MGridView *gridView;
 
-- (instancetype)initWithRecordset:(boost::shared_ptr<Recordset>)rset;
 @property (readonly) boost::shared_ptr<Recordset> recordset;
-@property (readonly, strong) NSView *view;
-@property (readonly, strong) MGridView *gridView;
-
 @property (readonly) BOOL hasPendingChanges;
 
 - (void)rebuildColumns;
@@ -52,5 +38,5 @@ class Recordset;
 
 - (void)setFont: (NSFont*)font;
 
-- (void)setHeaderIndicator:(int)indicator forColumn:(int)column;
+- (void)setHeaderIndicator: (int)indicator forColumn: (int)column;
 @end

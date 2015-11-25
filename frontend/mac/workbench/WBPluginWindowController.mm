@@ -24,6 +24,18 @@
 
 #include "grt_manager.h"
 
+@interface WBPluginWindowController()
+{
+  NSMutableArray *nibObjects;
+
+  WBPluginEditorBase *mPluginEditor;
+
+  __weak IBOutlet NSWindow *window;
+  __weak IBOutlet NSView *contentView;
+}
+
+@end
+
 @implementation WBPluginWindowController
 
 - (instancetype)initWithPlugin: (WBPluginEditorBase*)plugin
@@ -32,31 +44,34 @@
   if (self != nil && plugin != nil)
   {
     mPluginEditor = [plugin retain];
-    
-    [NSBundle loadNibNamed:@"PluginEditorWindow" owner:self];
 
-    float yextra;
-    NSSize size = [mPluginEditor minimumSize];
+    if ([NSBundle.mainBundle loadNibNamed: @"PluginEditorWindow" owner: self topLevelObjects: &nibObjects])
     {
-      NSSize wsize = [window contentRectForFrameRect: [window frame]].size;
-      NSSize csize = [contentView frame].size;
-      yextra = wsize.height - csize.height;
+      [nibObjects retain];
+
+      float yextra;
+      NSSize size = mPluginEditor.minimumSize;
+      {
+        NSSize wsize = [window contentRectForFrameRect: window.frame].size;
+        NSSize csize = contentView.frame.size;
+        yextra = wsize.height - csize.height;
+      }
+      size.width += 100;
+      size.height += 80;
+      NSRect rect = NSZeroRect;
+      rect.size = size;
+
+      size.height += yextra;
+      [window setContentSize: size];
+
+      NSView *view = mPluginEditor.view;
+      [contentView addSubview: view];
+      view.frame = rect;
+
+      window.title = mPluginEditor.title;
+
+      [window makeKeyAndOrderFront: nil];
     }
-    size.width += 100;
-    size.height += 80;
-    NSRect rect = NSZeroRect;
-    rect.size = size;
-    
-    size.height += yextra;
-    [window setContentSize: size];
-    
-    id view = [mPluginEditor view];
-    [contentView addSubview: view];
-    [view setFrame: rect];
-    
-    [window setTitle: [mPluginEditor title]];
-    
-    [window makeKeyAndOrderFront: nil];
   }
   return self;
 }
@@ -71,6 +86,8 @@
   [mPluginEditor grtManager]->get_plugin_manager()->forget_gui_plugin_handle(self);
   
   [mPluginEditor release];
+  [nibObjects release];
+
   [super dealloc];
 }
 

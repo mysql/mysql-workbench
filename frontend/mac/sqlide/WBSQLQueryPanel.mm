@@ -77,6 +77,47 @@
 
 @end
 
+@interface WBSQLQueryPanel()
+{
+  __weak IBOutlet WBSplitView* mView;
+  __weak IBOutlet WBSplitView* mWorkView;
+
+  __weak IBOutlet WBMiniToolbar* mOutputToolbar;
+  __weak IBOutlet NSTabView* mOutputTabView;
+  __weak IBOutlet NSPopUpButton* mOutputSelector;
+  __weak IBOutlet NSTextView* mTextOutput;
+
+  __weak IBOutlet NSTableView* mMessagesTable;
+  __weak IBOutlet NSTableView* mHistoryTable;
+  __weak IBOutlet NSTableView* mHistoryDetailsTable;
+
+  __weak IBOutlet NSTabView* mUpperTabView;
+  __weak IBOutlet MTabSwitcher* mUpperTabSwitcher;
+
+  NSTimeInterval mLastClick;
+
+  BOOL mQueryAreaOpen;
+  BOOL mResultsAreaOpen;
+
+  BOOL mExpandedMode;
+  BOOL mRightPaneWasExpanded;
+  BOOL mBottomPaneWasExpanded;
+
+  NSMutableDictionary *mEditors;
+
+  SqlEditorForm::Ref mBackEnd;
+
+  mforms::DockingPoint *mDockingPoint;
+
+  NSLock *mTextOutputLock;
+  std::string mTextOutputBuffer;
+
+  CGFloat lastOutputAreaHeight;
+
+  NSMutableArray *nibObjects;
+}
+
+@end
 
 @implementation WBSQLQueryPanel
 
@@ -105,10 +146,10 @@
   return 0;
 }
 
-- (void)tableView:(NSTableView *)tableView
-willDisplayCell:(id)cell
- forTableColumn:(NSTableColumn *)tableColumn
-            row:(NSInteger)row
+- (void)tableView: (NSTableView *)tableView
+  willDisplayCell: (id)cell
+   forTableColumn: (NSTableColumn *)tableColumn
+              row: (NSInteger)row
 {
   if (tableView == mMessagesTable)
   {
@@ -834,114 +875,117 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
   if (self != nil && be)
   {
     BOOL outputAreaHidden;
-    
-    // restore state of toolbar
+
+    if ([NSBundle.mainBundle loadNibNamed: @"WBSQLQueryPanel" owner: self topLevelObjects: &nibObjects])
     {
-      mforms::ToolBar *toolbar = be->get_toolbar();      
-      toolbar->set_item_checked("wb.toggleOutputArea", !(outputAreaHidden = be->grt_manager()->get_app_option_int("DbSqlEditor:OutputAreaHidden", 0)));
-    }
-    lastOutputAreaHeight = MAX(be->grt_manager()->get_app_option_int("DbSqlEditor:OutputAreaHeight", 135), MIN_OUTPUT_AREA_HEIGHT);
+      [nibObjects retain];
 
-    [NSBundle loadNibNamed: @"WBSQLQueryPanel"
-                     owner: self];
-
-    // setup docking point for mUpperTabView
-    {
-      mDockingPoint = mforms::manage(new mforms::DockingPoint(new TabViewDockingPointDelegate(mUpperTabView, MAIN_DOCKING_POINT), true));
-      be->set_tab_dock(mDockingPoint);
-    }
-
-    grtm = be->grt_manager();
-    mBackEnd= be;
-    mBackEnd->log()->refresh_ui_signal.connect(boost::bind(reloadTable, mMessagesTable, self));
-    mBackEnd->history()->entries_model()->refresh_ui_signal.connect(boost::bind(reloadTable, mHistoryTable, self));
-    mBackEnd->history()->details_model()->refresh_ui_signal.connect(boost::bind(reloadTable, mHistoryDetailsTable, self));
-
-    mBackEnd->output_text_slot= boost::bind(addTextToOutput, _1, _2, self);//XXX
-    
-    mBackEnd->post_query_slot = boost::bind(processTaskFinish, self);
-
-    mBackEnd->set_busy_tab = boost::bind(set_busy_tab, _1, self);
-
-    mBackEnd->set_frontend_data(self);
-    [mUpperTabSwitcher setTabStyle: MEditorTabSwitcher];
-    [mUpperTabSwitcher setAllowTabReordering: YES];
-    
-    [mOutputToolbar setGradient: [[[NSGradient alloc] initWithColorsAndLocations: 
-                                   [NSColor colorWithCalibratedWhite:0xd9/255.0 alpha: 1.0], (CGFloat)0.0,
-                                   [NSColor colorWithCalibratedWhite:0xe2/255.0 alpha: 1.0], (CGFloat)0.5,
-                                   [NSColor colorWithCalibratedWhite:0xef/255.0 alpha: 1.0], (CGFloat)0.87,
-                                   [NSColor colorWithCalibratedWhite:0xe6/255.0 alpha: 1.0], (CGFloat)0.91,
-                                   [NSColor colorWithCalibratedWhite:0xa9/255.0 alpha: 1.0], (CGFloat)1.0,
-                                   nil] autorelease]];
-    mTextOutputLock= [[NSLock alloc] init];
-    
-    NSFont *font = [NSFont fontWithName: @"AndaleMono"
-                                   size: [NSFont smallSystemFontSize]];
-    if (!font)
-      font = [NSFont fontWithName: @"Monaco" size: [NSFont smallSystemFontSize]];
-    if (font)
-      [mTextOutput setFont: font];
-    
-    [mView setBackgroundColor: [NSColor colorWithDeviceWhite:128/255.0 alpha:1.0]];
-    
-    [mWorkView setDividerThickness: 0];
-    [mView setDividerThickness: 1];
-    
-    [mMessagesTable setMenu: nsmenuForMenu(mBackEnd->log()->get_context_menu())];
-    
-    [mHistoryDetailsTable setTarget: self];
-    [mHistoryDetailsTable setDoubleAction: @selector(activateHistoryDetailEntry:)];
-    if ([mHistoryTable numberOfRows] > 0)
-    {
-      [mHistoryTable selectRowIndexes: [NSIndexSet indexSetWithIndex: 0]
-                 byExtendingSelection: NO];
-    }
-    
-    // dock the backend provided schema sidebar and restore its width
-    {
-      mforms::View *sidebar_ = mBackEnd->get_sidebar();
-      sidebar = nsviewForView(sidebar_);
-      if (mSidebarAtRight)
-        [mView addSubview: sidebar];
-      else
-        [mView addSubview: sidebar positioned: NSWindowBelow relativeTo: [[mView subviews] lastObject]];
-      [mView adjustSubviews];
-    }
-    
-    // dock the other sidebar
-    {    
-      mforms::View *view = mBackEnd->get_side_palette();
-      secondarySidebar = nsviewForView(view);
-      if (view)
+      // restore state of toolbar
       {
-        if (mSidebarAtRight)
-          [topView addSubview: secondarySidebar positioned: NSWindowBelow relativeTo: [[topView subviews] lastObject]];
-        else
-          [topView addSubview: secondarySidebar];
+        mforms::ToolBar *toolbar = be->get_toolbar();
+        toolbar->set_item_checked("wb.toggleOutputArea", !(outputAreaHidden = be->grt_manager()->get_app_option_int("DbSqlEditor:OutputAreaHidden", 0)));
       }
-      [topView adjustSubviews];
+      lastOutputAreaHeight = MAX(be->grt_manager()->get_app_option_int("DbSqlEditor:OutputAreaHeight", 135), MIN_OUTPUT_AREA_HEIGHT);
+
+
+      // setup docking point for mUpperTabView
+      {
+        mDockingPoint = mforms::manage(new mforms::DockingPoint(new TabViewDockingPointDelegate(mUpperTabView, MAIN_DOCKING_POINT), true));
+        be->set_tab_dock(mDockingPoint);
+      }
+
+      grtm = be->grt_manager();
+      mBackEnd= be;
+      mBackEnd->log()->refresh_ui_signal.connect(boost::bind(reloadTable, mMessagesTable, self));
+      mBackEnd->history()->entries_model()->refresh_ui_signal.connect(boost::bind(reloadTable, mHistoryTable, self));
+      mBackEnd->history()->details_model()->refresh_ui_signal.connect(boost::bind(reloadTable, mHistoryDetailsTable, self));
+
+      mBackEnd->output_text_slot= boost::bind(addTextToOutput, _1, _2, self);//XXX
+
+      mBackEnd->post_query_slot = boost::bind(processTaskFinish, self);
+
+      mBackEnd->set_busy_tab = boost::bind(set_busy_tab, _1, self);
+
+      mBackEnd->set_frontend_data(self);
+      [mUpperTabSwitcher setTabStyle: MEditorTabSwitcher];
+      [mUpperTabSwitcher setAllowTabReordering: YES];
+
+      [mOutputToolbar setGradient: [[[NSGradient alloc] initWithColorsAndLocations:
+                                     [NSColor colorWithCalibratedWhite:0xd9/255.0 alpha: 1.0], (CGFloat)0.0,
+                                     [NSColor colorWithCalibratedWhite:0xe2/255.0 alpha: 1.0], (CGFloat)0.5,
+                                     [NSColor colorWithCalibratedWhite:0xef/255.0 alpha: 1.0], (CGFloat)0.87,
+                                     [NSColor colorWithCalibratedWhite:0xe6/255.0 alpha: 1.0], (CGFloat)0.91,
+                                     [NSColor colorWithCalibratedWhite:0xa9/255.0 alpha: 1.0], (CGFloat)1.0,
+                                     nil] autorelease]];
+      mTextOutputLock= [[NSLock alloc] init];
+
+      NSFont *font = [NSFont fontWithName: @"AndaleMono"
+                                     size: [NSFont smallSystemFontSize]];
+      if (!font)
+        font = [NSFont fontWithName: @"Monaco" size: [NSFont smallSystemFontSize]];
+      if (font)
+        [mTextOutput setFont: font];
+
+      [mView setBackgroundColor: [NSColor colorWithDeviceWhite:128/255.0 alpha:1.0]];
+
+      [mWorkView setDividerThickness: 0];
+      [mView setDividerThickness: 1];
+
+      [mMessagesTable setMenu: nsmenuForMenu(mBackEnd->log()->get_context_menu())];
+
+      [mHistoryDetailsTable setTarget: self];
+      [mHistoryDetailsTable setDoubleAction: @selector(activateHistoryDetailEntry:)];
+      if ([mHistoryTable numberOfRows] > 0)
+      {
+        [mHistoryTable selectRowIndexes: [NSIndexSet indexSetWithIndex: 0]
+                   byExtendingSelection: NO];
+      }
+
+      // dock the backend provided schema sidebar and restore its width
+      {
+        mforms::View *sidebar_ = mBackEnd->get_sidebar();
+        sidebar = nsviewForView(sidebar_);
+        if (mSidebarAtRight)
+          [mView addSubview: sidebar];
+        else
+          [mView addSubview: sidebar positioned: NSWindowBelow relativeTo: [[mView subviews] lastObject]];
+        [mView adjustSubviews];
+      }
+
+      // dock the other sidebar
+      {
+        mforms::View *view = mBackEnd->get_side_palette();
+        secondarySidebar = nsviewForView(view);
+        if (view)
+        {
+          if (mSidebarAtRight)
+            [topView addSubview: secondarySidebar positioned: NSWindowBelow relativeTo: [[topView subviews] lastObject]];
+          else
+            [topView addSubview: secondarySidebar];
+        }
+        [topView adjustSubviews];
+      }
+
+      [self restoreSidebarsFor: "DbSqlEditor" toolbar: be->get_toolbar()];
+
+      // restore height of the output area
+      if (outputAreaHidden)
+        [mWorkView setPosition: NSHeight([mWorkView frame]) ofDividerAtIndex: 0];
+      else
+        [mWorkView setPosition: NSHeight([mWorkView frame]) - lastOutputAreaHeight ofDividerAtIndex: 0];
+
+      mEditors = [[NSMutableDictionary alloc] init];
+
+      mQueryAreaOpen = YES;
+      mResultsAreaOpen = YES;
+
+      NSProgressIndicator *indicator = [[NSProgressIndicator alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)];
+      [indicator setControlSize: NSSmallControlSize];
+      [indicator setStyle: NSProgressIndicatorSpinningStyle];
+      [indicator setIndeterminate: YES];
+      [((MSpinProgressCell*)[[mMessagesTable tableColumnWithIdentifier: @"0"] dataCell]) setProgressIndicator: indicator];
+      [indicator release];
     }
-
-    [self restoreSidebarsFor: "DbSqlEditor" toolbar: be->get_toolbar()];
-    
-    // restore height of the output area
-    if (outputAreaHidden)
-      [mWorkView setPosition: NSHeight([mWorkView frame]) ofDividerAtIndex: 0];
-    else
-      [mWorkView setPosition: NSHeight([mWorkView frame]) - lastOutputAreaHeight ofDividerAtIndex: 0];
-
-    mEditors = [[NSMutableDictionary alloc] init];
-    
-    mQueryAreaOpen = YES;
-    mResultsAreaOpen = YES;
-
-    NSProgressIndicator *indicator = [[NSProgressIndicator alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)];
-    [indicator setControlSize: NSSmallControlSize];
-    [indicator setStyle: NSProgressIndicatorSpinningStyle];
-    [indicator setIndeterminate: YES];
-    [((MSpinProgressCell*)[[mMessagesTable tableColumnWithIdentifier: @"0"] dataCell]) setProgressIndicator: indicator];
-    [indicator release];
   }
   return self;
 }
@@ -995,7 +1039,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
   return mBackEnd->can_close();
 }
 
-- (void) dealloc
+- (void)dealloc
 {
   mBackEnd->close();
 
@@ -1004,9 +1048,8 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
   [mTextOutputLock release];
   
   [mEditors release];
-  [[mMessagesTable menu] release];
-  [[mUpperTabSwitcher menu] release];
-  [mView release];
+  [nibObjects release];
+
   [super dealloc]; 
 }
 
