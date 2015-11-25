@@ -1203,7 +1203,7 @@ bool SqlEditorForm::connect(boost::shared_ptr<sql::TunnelConnection> tunnel)
 
       if (!error_ptr.auth_error)
         throw;
-      else if (error_ptr.server_probably_down or error_ptr.serverIsOffline)
+      else if (error_ptr.server_probably_down || error_ptr.serverIsOffline)
         return false;
 
       //check if user cancelled
