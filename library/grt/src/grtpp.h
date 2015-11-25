@@ -2646,7 +2646,7 @@ namespace grt {
     std::string document_module_data_path() { return _document_module_options_path; }
 
     void add_module_loader(ModuleLoader *loader);
-    bool load_module(const std::string &path, bool refresh);
+    bool load_module(const std::string &path, const std::string &basePath, bool refresh);
     void end_loading_modules();
      
     ModuleLoader *get_module_loader(const std::string &name);
@@ -2661,7 +2661,7 @@ namespace grt {
     const std::map<std::string,Interface*> &get_interfaces() const { return _interfaces; }
     const Interface *get_interface(const std::string &name);
     
-    int scan_modules_in(const std::string &path, const std::list<std::string> &exts,
+    int scan_modules_in(const std::string &path, const std::string &basePath, const std::list<std::string> &exts,
                         bool reload);
     
     const std::vector<Module*> &get_modules() const { return _modules; }
