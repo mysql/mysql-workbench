@@ -595,4 +595,48 @@ std::string join_path(const char *prefix, ...)
   return path;
 }
 
+  //----------------------------------------------------------------------------------------------------
+
+  /**
+   * Returns the second path relative to the given base path, provided both have a common ancestor.
+   * If not then the second path is return unchanged.
+   * Paths can contain both forward and backward slash separators. The result only uses backslashes.
+   * Folder names are compared case insensitively on Windows, otherwise case matters.
+   */
+  std::string relativePath(const std::string &basePath, const std::string &pathToMakeRelative)
+  {
+    std::vector<std::string> basePathList = split_by_set(basePath, "/\\");
+    std::vector<std::string> otherPathList = split_by_set(pathToMakeRelative, "/\\");
+
+#ifdef _WIN32
+    bool caseSensitive = false;
+#else
+    bool caseSensitive = true;
+#endif
+
+    size_t totalDepth = std::min(basePathList.size(), otherPathList.size());
+    size_t commonDepth = 0;
+    for (size_t i = 0; i < totalDepth; ++i, ++commonDepth)
+    {
+      if (!same_string(basePathList[i], otherPathList[i], caseSensitive))
+        break;
+    }
+
+    if (commonDepth == 0)
+      return pathToMakeRelative;
+
+    std::string result;
+    for (size_t i = 0; i < basePathList.size() - commonDepth; ++i)
+      result += "../";
+
+    for (size_t i = commonDepth; i < otherPathList.size() ; ++i)
+    {
+      result += otherPathList[i];
+      if (i < otherPathList.size() - 1)
+        result += "/";
+    }
+
+    return result;
+  }
+
 };

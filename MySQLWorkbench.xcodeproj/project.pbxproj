@@ -2545,6 +2545,10 @@
 		2BFBF09E0F51BEB10016F9D1 /* MySQLViewEditor.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2BFBF09D0F51BEB10016F9D1 /* MySQLViewEditor.xib */; };
 		2BFBF0A10F51BF2D0016F9D1 /* MySQLViewEditor.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BFBF0A00F51BF2D0016F9D1 /* MySQLViewEditor.mm */; };
 		2BFDB83516C00F6A00D0C5A8 /* libvsqlitepp.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BFDB83416C00F6500D0C5A8 /* libvsqlitepp.0.dylib */; };
+		44DD9A671C04AA0800D86DC5 /* admin_firewall.png in Resources */ = {isa = PBXBuildFile; fileRef = 44DD9A631C04AA0800D86DC5 /* admin_firewall.png */; settings = {ASSET_TAGS = (); }; };
+		44DD9A681C04AA0800D86DC5 /* admin_firewall@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 44DD9A641C04AA0800D86DC5 /* admin_firewall@2x.png */; settings = {ASSET_TAGS = (); }; };
+		44DD9A691C04AA0800D86DC5 /* admin_info_offline.png in Resources */ = {isa = PBXBuildFile; fileRef = 44DD9A651C04AA0800D86DC5 /* admin_info_offline.png */; settings = {ASSET_TAGS = (); }; };
+		44DD9A6A1C04AA0800D86DC5 /* admin_info_offline@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 44DD9A661C04AA0800D86DC5 /* admin_info_offline@2x.png */; settings = {ASSET_TAGS = (); }; };
 		44F46C291BC6760D007A8D57 /* libmysqlcppconn.7.1.1.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44F46C281BC6760D007A8D57 /* libmysqlcppconn.7.1.1.6.dylib */; };
 		44F46C2A1BC67687007A8D57 /* libmysqlcppconn.7.1.1.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44F46C281BC6760D007A8D57 /* libmysqlcppconn.7.1.1.6.dylib */; };
 		44FFC3D51AA0BA1F00950A48 /* sqlide_power_export_wizard.py in Resources */ = {isa = PBXBuildFile; fileRef = 44FFC3D21AA0BA1F00950A48 /* sqlide_power_export_wizard.py */; };
@@ -6370,6 +6374,10 @@
 		2BFC2E9916D3C6A500C73F61 /* wba_audit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = wba_audit; path = plugins/wb.admin/internal/wba_audit; sourceTree = "<group>"; };
 		2BFDB83416C00F6500D0C5A8 /* libvsqlitepp.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvsqlitepp.0.dylib; path = "../mysql-mac-res/lib/libvsqlitepp.0.dylib"; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* MySQLWorkbench_Prefix.pch */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; path = MySQLWorkbench_Prefix.pch; sourceTree = "<group>"; };
+		44DD9A631C04AA0800D86DC5 /* admin_firewall.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = admin_firewall.png; path = images/admin/admin_firewall.png; sourceTree = "<group>"; };
+		44DD9A641C04AA0800D86DC5 /* admin_firewall@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_firewall@2x.png"; path = "images/admin/admin_firewall@2x.png"; sourceTree = "<group>"; };
+		44DD9A651C04AA0800D86DC5 /* admin_info_offline.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = admin_info_offline.png; path = images/admin/admin_info_offline.png; sourceTree = "<group>"; };
+		44DD9A661C04AA0800D86DC5 /* admin_info_offline@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_info_offline@2x.png"; path = "images/admin/admin_info_offline@2x.png"; sourceTree = "<group>"; };
 		44F46C281BC6760D007A8D57 /* libmysqlcppconn.7.1.1.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlcppconn.7.1.1.6.dylib; path = "../mysql-mac-res/lib-com/libmysqlcppconn.7.1.1.6.dylib"; sourceTree = "<group>"; };
 		44FFC3D21AA0BA1F00950A48 /* sqlide_power_export_wizard.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = sqlide_power_export_wizard.py; path = plugins/wb.sqlide/sqlide_power_export_wizard.py; sourceTree = "<group>"; };
 		44FFC3D31AA0BA1F00950A48 /* sqlide_power_import_export_be.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = sqlide_power_import_export_be.py; path = plugins/wb.sqlide/sqlide_power_import_export_be.py; sourceTree = "<group>"; };
@@ -8249,6 +8257,10 @@
 		2B2DEFDD1056069F00F267F9 /* Admin Icons */ = {
 			isa = PBXGroup;
 			children = (
+				44DD9A631C04AA0800D86DC5 /* admin_firewall.png */,
+				44DD9A641C04AA0800D86DC5 /* admin_firewall@2x.png */,
+				44DD9A651C04AA0800D86DC5 /* admin_info_offline.png */,
+				44DD9A661C04AA0800D86DC5 /* admin_info_offline@2x.png */,
 				2BD4201E198034A60061895B /* admin_add_user.png */,
 				2BD4201F198034A60061895B /* admin_add_user@2x.png */,
 				2BD42020198034A60061895B /* admin_config_wizard@2x.png */,
@@ -12743,6 +12755,7 @@
 				2B263A750E9402DD00933149 /* db.Role.add.16x16.png in Resources */,
 				27FE2EF41BC7ABEE00DE6744 /* JS_Datatype_ObjectId.png in Resources */,
 				2BE5BCEF19C778F5002EF0BC /* qe_sql-editor-resultset-tb-pin.png in Resources */,
+				44DD9A6A1C04AA0800D86DC5 /* admin_info_offline@2x.png in Resources */,
 				2B263A760E9402DD00933149 /* db.Role.add.48x48.png in Resources */,
 				2B263A770E9402DD00933149 /* db.Role.editor.48x48.png in Resources */,
 				2B263A780E9402DD00933149 /* db.Routine.16x16.png in Resources */,
@@ -12853,6 +12866,7 @@
 				2B263AE20E9402DD00933149 /* statusbar_output.png in Resources */,
 				2BD9E790185FFF6E00A7252B /* output_type-toggle-on.png in Resources */,
 				2BD42069198034C10061895B /* db.Index.side.16x16@2x.png in Resources */,
+				44DD9A691C04AA0800D86DC5 /* admin_info_offline.png in Resources */,
 				2BD42066198034C10061895B /* db.ForeignKey.many.side.16x16@2x.png in Resources */,
 				2B263AE30E9402DD00933149 /* statusbar_separator.png in Resources */,
 				2B263AE40E9402DD00933149 /* statusbar_shell.png in Resources */,
@@ -12863,6 +12877,7 @@
 				2B263B220E9402DD00933149 /* workbench.logical.Diagram.16x16.png in Resources */,
 				27FE2EEE1BC7ABEE00DE6744 /* JS_Datatype_Null.png in Resources */,
 				2B263B230E9402DD00933149 /* workbench.logical.Diagram.48x48.png in Resources */,
+				44DD9A681C04AA0800D86DC5 /* admin_firewall@2x.png in Resources */,
 				2B263B240E9402DD00933149 /* workbench.logical.Diagram.add.48x48.png in Resources */,
 				2B263B250E9402DD00933149 /* workbench.model.ImageFigure.16x16.png in Resources */,
 				2B263B260E9402DD00933149 /* workbench.model.NoteFigure.16x16.png in Resources */,
@@ -12880,6 +12895,7 @@
 				2B263B2E0E9402DD00933149 /* workbench.physical.mysql.Model.16x16.png in Resources */,
 				2B263B2F0E9402DD00933149 /* workbench.physical.mysql.Model.48x48.png in Resources */,
 				2BD9E788185FFF6E00A7252B /* output_type-querystats.png in Resources */,
+				44DD9A671C04AA0800D86DC5 /* admin_firewall.png in Resources */,
 				2B263B300E9402DD00933149 /* workbench.physical.oracle.Model.48x48.png in Resources */,
 				27F2E9901A65CE7D00BD2996 /* ac_function@2x.png in Resources */,
 				2B263B310E9402DD00933149 /* workbench.physical.RoutineGroupFigure.16x16.png in Resources */,
