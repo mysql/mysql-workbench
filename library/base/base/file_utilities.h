@@ -17,8 +17,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef _FILE_UTILITIES_H_
-#define _FILE_UTILITIES_H_
+#pragma once
 
 #include "common.h"
 #include <list>
@@ -99,15 +98,6 @@ namespace base
     //  NOTE: Never close this handle, because it's managed by the FileHandle class.
     FILE * file() { return _file; }
     void dispose();
-
-//  Removed because it's dangerous to use. If this object received a FILE * that is
-//  controled by another object one of them will crash when disposing. So, this class
-//  will contain the FILE * management within itself.
-//     FileHandle(FILE *file) : _file(file) {}
-//     operator FILE *() { return _file; }
-//     FILE * operator ->() { return _file; }
-//     static FILE * open_file(const char *filename, const char *mode, bool throw_on_fail= true);
-//     static void close_file(FILE *f);
   };
 
 
@@ -135,15 +125,13 @@ namespace base
   
   // file.ext -> file
   BASELIBRARY_PUBLIC_FUNC std::string strip_extension(const std::string &path);
-
   BASELIBRARY_PUBLIC_FUNC bool file_mtime(const std::string &path, time_t &mtime);
 
   BASELIBRARY_PUBLIC_FUNC std::string joinPath(const char *prefix, ...);
   BASELIBRARY_PUBLIC_FUNC std::string makePath(const std::string &prefix, const std::string &file);
+  BASELIBRARY_PUBLIC_FUNC std::string relativePath(const std::string &basePath, const std::string &pathToMakeRelative);
 
   BASELIBRARY_PUBLIC_FUNC std::string pathlistAppend(const std::string &l, const std::string &s);
   BASELIBRARY_PUBLIC_FUNC std::string pathlistPrepend(const std::string &l, const std::string &s);
 
 };
-
-#endif
