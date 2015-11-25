@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -210,6 +210,7 @@ class MSSQLMigration(GenericMigration):
         if source_type:
             # Decide which mysql datatype corresponds to the column datatype:
             source_datatype = source_type.name.upper()
+            grt.log_debug3("Migration", "Migrating source column '%s' - type: %s, length: %s\n" % (source_column.name, source_datatype,source_column.length))
             # string data types:
             target_datatype = ''
             if source_datatype in ['VARCHAR', 'NVARCHAR']:
@@ -272,17 +273,7 @@ class MSSQLMigration(GenericMigration):
                 target_column.scale = source_column.simpleType.numericScale
             # binary datatypes:
             elif source_datatype == 'IMAGE':
-                if source_column.length == -1:  # VARBINARY(MAX)
-                   target_datatype = 'LONGBLOB'  #TODO: Give the user the choice for this target datatype
-                elif 0 <= source_column.length < 256:
-                    if source_datatype == 'IMAGE':
-                        target_datatype = 'TINYBLOB'
-                    else:
-                        target_datatype = source_datatype
-                elif 0 <= source_column.length < 65536:
-                    target_datatype = 'MEDIUMBLOB'
-                else:
-                    target_datatype = 'LONGBLOB'
+                target_datatype = 'LONGBLOB'
             elif source_datatype == 'VARBINARY' and source_column.length == -1:  # VARBINARY(MAX):
                 target_datatype = 'LONGBLOB'
             # datetime datatypes:
@@ -333,7 +324,7 @@ class MSSQLMigration(GenericMigration):
             if mysql_simpleTypes.has_key(target_datatype):
                 target_column.simpleType = mysql_simpleTypes[target_datatype]
             else:
-                grt.log_warning("MSSQL migrateTableColumnsToMySQL", "Can't find datatype %s for type %s\n" % (target_datatype, source_datatype))
+                grt.log_warning("Migration", "MSSQL migrateTableColumnsToMySQL", "Can't find datatype %s for type %s\n" % (target_datatype, source_datatype))
                 state.addMigrationLogEntry(2, source_column, target_column, 
                     'Could not migrate column "%s" in "%s": Unknown datatype "%s"' % (target_column.name, source_column.owner.name, source_datatype) )
                 return False

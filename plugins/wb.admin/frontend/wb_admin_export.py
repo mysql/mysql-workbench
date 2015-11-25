@@ -49,6 +49,7 @@ from mforms import newBox, newButton, newPanel, newTextBox, newRadioButton, newL
 from mforms import Utilities, FileChooser
 import mforms
 
+
 def local_quote_shell_token(s):
     if sys.platform.lower() == "win32":
         t = '"%s"' % s.replace('\\', '\\\\').replace('"', '\\"')
@@ -59,21 +60,77 @@ def local_quote_shell_token(s):
         t = '\"' + t
     return t
 
+
 def normalize_filename(s):
     s = s.replace(":", "_").replace("/", "_").replace("\\", "_")
     return s
 
 
+def get_path_to_mysqldump():
+    """get path to mysqldump from options"""
+    try:
+        path = grt.root.wb.options.options["mysqldump"]
+        if path:
+            if os.path.exists(path):
+                return path
+            if any(os.path.exists(os.path.join(p, path)) for p in os.getenv("PATH").split(os.pathsep)):
+                return path
+            if path != "mysqldump":
+                self.print_log_message("mysqldump path specified in configurations is invalid: %s" % path)
+                return None
+    except:
+        return None
+
+    if sys.platform == "darwin":
+        # if path is not specified, use bundled one
+        return mforms.App.get().get_executable_path("mysqldump").encode("utf8")
+    elif sys.platform == "win32":
+        return mforms.App.get().get_executable_path("mysqldump.exe").encode("utf8")
+    else:
+        # if path is not specified, use bundled one
+        path = mforms.App.get().get_executable_path("mysqldump").encode("utf8")
+        if path:
+            return path
+        # just pick default
+        if any(os.path.exists(os.path.join(p,"mysqldump")) for p in os.getenv("PATH").split(os.pathsep)):
+            return "mysqldump"
+        return None
+
+
+def get_mysqldump_version():
+    path = get_path_to_mysqldump()
+    if not path:
+        self.print_log_message("mysqldump command was not found, please install it or configure it in Edit -> Preferences -> MySQL")
+        return None
+      
+    output = StringIO.StringIO()
+    rc = local_run_cmd('"%s" --version' % path, output_handler=output.write)
+    output = output.getvalue()
+    msg = None
+    error = False
+    
+    if rc or not output:
+        self.print_log_message("Error retrieving version from %s:\n%s (exit %s)"%(path, output, rc))
+        return None
+      
+    s = re.match(".*Distrib ([\d.a-z]+).*", output)
+    
+    if not s:
+        self.print_log_message("Could not parse version number from %s:\n%s"%(path, output))
+        return None
+    
+    version_group = s.groups()[0]
+    major, minor, revision = [int(i) for i in version_group.split(".")[:3]]
+    return Version(major, minor, revision)
 
 ####################################################################################################
 
+
 class DumpThread(threading.Thread):
-
-
-    # description, object_count, pipe_factory, extra_args, objects
-    #operations.append((title, len(tables), lambda schema=schema:self.dump_to_file([schema]), params, objects))
     class TaskData:
         def __init__(self, title, table_count, extra_arguments, objec_names, tables_to_ignore, make_pipe = lambda:None):
+            """description, object_count, pipe_factory, extra_args, objects
+            operations.append((title, len(tables), lambda schema=schema:self.dump_to_file([schema]), params, objects))"""
             self.title = title
             self.table_count = table_count
             self.extra_arguments = extra_arguments
@@ -283,6 +340,7 @@ class DumpThread(threading.Thread):
         if not self.abort_requested:
             self.progress = 1
         self.done = True
+
 
 class TableListModel(object):
     def __init__(self):
@@ -1334,7 +1392,6 @@ class WbAdminExportTab(WbAdminSchemaListTab):
         def validate_single_transaction(self, schemas_to_dump):
             return True
 
-
     class TableRefreshThread(threading.Thread):
         def __init__(self, owner):
             self.owner = owner
@@ -1369,7 +1426,6 @@ class WbAdminExportTab(WbAdminSchemaListTab):
 
         self.show_internal_schemas = False
 
-
     def close(self):
         if self._update_refresh_tm:
             Utilities.cancel_timeout(self._update_refresh_tm)
@@ -1378,7 +1434,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
             Utilities.cancel_timeout(self._update_progress_tm)
             self._update_progress_tm = None
 
-    def load_schema_tables(self,schema):
+    def load_schema_tables(self, schema):
         schematables_and_views = []
         viewlist = []
         dbsql = ""
@@ -1407,7 +1463,6 @@ class WbAdminExportTab(WbAdminSchemaListTab):
             print "Error retrieving table list form schema '",schema,"'"
             self.progress_tab.print_log_message("Error Fetching Table List From %s (%s)" % (schema, str(exc)) )
         return schema,schematables_and_views,viewlist,dbsql
-
 
     def refresh_table_list_thread(self):
         self.table_list_model.reset()
@@ -1481,7 +1536,6 @@ class WbAdminExportTab(WbAdminSchemaListTab):
         self._update_refresh_tm = None
         return False
 
-
     def update_paths(self):
         pathcntr = 1
         while os.path.exists(self.savefolder_path):
@@ -1492,97 +1546,36 @@ class WbAdminExportTab(WbAdminSchemaListTab):
             self.savefile_path = self.basepath + "-" + str(pathcntr) + ".sql"
             pathcntr += 1
 
-
-    def get_path_to_mysqldump(self):
-        # get path to mysqldump from options
-        try:
-            path = grt.root.wb.options.options["mysqldump"]
-            if path:
-                if os.path.exists(path):
-                    return path
-                if any(os.path.exists(os.path.join(p,path)) for p in os.getenv("PATH").split(os.pathsep)):
-                    return path
-                if path != "mysqldump":
-                  self.print_log_message("mysqldump path specified in configurations is invalid: %s"%path)
-                  return None
-        except:
-            return None
-
-        if sys.platform == "darwin":
-            # if path is not specified, use bundled one
-            return mforms.App.get().get_executable_path("mysqldump").encode("utf8")
-        elif sys.platform == "win32":
-            return mforms.App.get().get_executable_path("mysqldump.exe").encode("utf8")
-        else:
-            # if path is not specified, use bundled one
-            path = mforms.App.get().get_executable_path("mysqldump").encode("utf8")
-            if path:
-                return path
-            # just pick default
-            if any(os.path.exists(os.path.join(p,"mysqldump")) for p in os.getenv("PATH").split(os.pathsep)):
-                return "mysqldump"
-            return None
-
     def check_mysqldump_version(self, about_to_run=False):
-        path = self.get_path_to_mysqldump()
-        if not path:
-            self.print_log_message("mysqldump command was not found, please install it or configure it in Edit -> Preferences -> MySQL")
-            return False
-        output = StringIO.StringIO()
-        rc = local_run_cmd('"%s" --version' % path, output_handler=output.write)
-        output = output.getvalue()
-        msg = None
-        error = False
-
-        server_version = self.owner.ctrl_be.raw_version
-        if self.owner.ctrl_be.target_version:
-            server_major = self.owner.ctrl_be.target_version.majorNumber
-            server_minor = self.owner.ctrl_be.target_version.minorNumber
-        else:
-            server_major = 5
-            server_minor = 1
-        if rc or not output:
-            msg = "Error retrieving version from %s:\n%s (exit %s)"%(path, output, rc)
-            error = True
-        else:
-            s = re.match(".*Distrib ([\d.a-z]+).*", output)
-            if not s:
-                msg = "Could not parse version number from %s:\n%s"%(path, output)
-                error = True
-            else:
-                version = s.groups()[0]
-                major, minor = [int(i) for i in version.split(".")[:2]]
-                if major < server_major or (major == server_major and minor < server_minor):
-                    msg = "%s is version %s, but the MySQL Server to be dumped has version %s.\nBecause the version of mysqldump is older than the server, some features may not be backed up properly.\nIt is recommended you upgrade your local MySQL client programs, including mysqldump to a version equal to or newer than that of the target server.\nThe path to the dump tool must then be set in Preferences -> Administrator -> Path to mysqldump Tool:"%(path, version, server_version)
-
-                # When using mysqldump >=5.6 and a server < 5.6, an additional parameter needs to be added
-                # for backwards compatibility
-                if (major > 5 or (major == 5 and minor >= 6)) and \
-                   (server_major < 5 or (server_major == 5 and server_minor < 6)):
-                     self._compatibility_params = True
-        if msg:
+        mysqldump_version = get_mysqldump_version()
+        
+        if not mysqldump_version:
             if about_to_run:
-                if error:
-                    mforms.Utilities.show_error("Error Checking mysqldump Version", msg, "OK", "", "")
-                    return False
-                else:
-                    r = mforms.Utilities.show_warning("mysqldump Version Mismatch", msg, "Continue Anyway", "Cancel", "")
-                    return r == mforms.ResultOk
+                mforms.Utilities.show_error("Could not get mysqldump version", "Workbench was unable to get musqldump version. Please verify the log for more information.", "OK", "", "")
             else:
-                self.print_log_message("WARNING")
-                if error:
-                    self.print_log_message("Error checking mysqldump version")
-                    self.print_log_message(msg)
-                else:
-                    self.print_log_message(msg)
-
+                self.print_log_message("Workbench was unable to get musqldump version")
+              
+            return False
+        
+        if mysqldump_version < self.owner.ctrl_be.target_version:
+            msg = "%s is version %s, but the MySQL Server to be dumped has version %s.\nBecause the version of mysqldump is older than the server, some features may not be backed up properly.\nIt is recommended you upgrade your local MySQL client programs, including mysqldump to a version equal to or newer than that of the target server.\nThe path to the dump tool must then be set in Preferences -> Administrator -> Path to mysqldump Tool:" % (get_path_to_mysqldump(), mysqldump_version, self.owner.ctrl_be.target_version)
+            if about_to_run:
+                if not mforms.Utilities.show_warning("mysqldump Version Mismatch", msg, "Continue Anyway", "Cancel", ""):
+                    return False
+            else:
+                self.print_log_message(msg)
+                
+        # When using mysqldump >=5.6 and a server < 5.6, an additional parameter needs to be added
+        # for backwards compatibility
+        if (mysqldump_version >= Version(5, 6) and self.owner.ctrl_be.target_version < Version(5, 6)):
+            self._compatibility_params = True
+          
         return True
-
-
+      
     def check_mysqldump_defaults(self):
         defaults = {}
         # check mysqldump default values
-        path = self.get_path_to_mysqldump()
+        path = get_path_to_mysqldump()
         if path:
             output = []
             local_run_cmd('"%s" --help' % path, output_handler= lambda line,l=output: l.append(line))
@@ -1600,7 +1593,6 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                             defaults[k] = v
         return defaults
 
-
     def validate_single_transaction(self, starting):
         if self.single_transaction_check.get_active() and self.owner.get_lock_tables() == {'lock-tables': 'TRUE'}:
             r = mforms.Utilities.show_warning("Export to Disk",
@@ -1614,7 +1606,6 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                 return False
 
         return True
-
 
     def single_transaction_clicked(self):
         self.validate_single_transaction(False)
@@ -1663,7 +1654,6 @@ class WbAdminExportTab(WbAdminSchemaListTab):
             self.out_pipe.write(data)
             self.out_pipe.flush()
         return self.out_pipe
-
 
     def start(self):
         self.progress_tab.set_start_enabled(False)
@@ -1864,7 +1854,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
             if not key.upper().startswith('$INTERNAL$'):
                 options[key] = value
         params.update(options)
-        cmd = self.get_path_to_mysqldump()
+        cmd = get_path_to_mysqldump()
         if cmd == None:
             self.failed("mysqldump command was not found, please install it or configure it in Edit -> Preferences -> MySQL")
             return
@@ -1940,7 +1930,6 @@ class WbAdminExportTab(WbAdminSchemaListTab):
 
         self.cancelled(time.strftime('%X ') + "Aborted by User")
 
-
     def tasks_completed(self):
         self.update_paths()
         self.file_te.set_value(self.savefile_path)
@@ -2000,12 +1989,12 @@ class WbAdminExportOptionsTab(mforms.Box):
         def set_option(self, value):
             self.entry.set_value(value)
 
-
     def __init__(self, target_version, defaults_from_mysqldump):
         mforms.Box.__init__(self, False)
         self.set_managed()
-        self.set_release_on_add()                           
+        self.set_release_on_add()
 
+        mysqldump_version = get_mysqldump_version()
         self.options = {}
         button_box = newBox(True)
         button_box.set_padding(8)
@@ -2038,6 +2027,12 @@ class WbAdminExportOptionsTab(mforms.Box):
                     if max_version and target_version:
                         if target_version.is_supported_mysql_version_at_least(Version.fromstr(max_version)):
                             log_debug("Skip option %s becasue it's deprecated in version %s\n" % (optname, max_version))
+                            continue
+                    if min_version and mysqldump_version < min_version:
+                            log_debug("Skip option %s because it's for mysqldump %s\n" % (optname, min_version))
+                            continue
+                    if max_version and mysqldump_version > max_version:
+                            log_debug("Skip option %s becasue it's deprecated in mysqldump %s\n" % (optname, max_version))
                             continue
 
                 # get the default value from mysqldump --help, if we don't have that data, use the stored default
@@ -2103,13 +2098,13 @@ class WbAdminExportOptionsTab(mforms.Box):
         for option in self.options.values():
             option.set_option(option.default)
 
-
     def add_clicked_callback_to_checkbox(self, optname, callback_function):
         opt = self.options[optname]
         if opt:
           opt.checkbox.add_clicked_callback(callback_function)
 
 ####################################################################################################
+
 
 class WbAdminProgressTab(mforms.Box):
     def __init__(self, owner_tab, is_export):
@@ -2169,28 +2164,23 @@ class WbAdminProgressTab(mforms.Box):
         self.stop_button.add_clicked_callback(self.stop)
         box.add_end(self.stop_button, False, True)
 
-
     def set_progress(self, progress, progress_text):
         self.statlabel.set_text(progress_text)
         self.dump_progressbar.set_value(progress)
-
 
     def set_start_enabled(self, flag):
         self.export_button.set_enabled(bool(flag))
         self.operation_tab.export_button.set_enabled(bool(flag))
 
-
     def set_status(self, text):
         self.hintlabel.set_text(text)
         self.operation_tab.statlabel.set_text(text)
-
 
     def flush_queued_logs(self):
         self.logging_lock.acquire()
         while len(self.log_queue) > 0:
             self.progress_log.append_text_and_scroll(self.log_queue.popleft()+"\n", True)
         self.logging_lock.release()
-
 
     def print_log_message(self, message):
         if mforms.Utilities.in_main_thread():
@@ -2199,7 +2189,6 @@ class WbAdminProgressTab(mforms.Box):
             self.logging_lock.acquire()
             self.log_queue.append(message+"\n")
             self.logging_lock.release()
-
 
     def start(self):
         self.operation_tab.start()
@@ -2260,7 +2249,6 @@ class WbAdminExport(mforms.Box):
         self.server_profile = server_profile
         self.main_view = main_view
 
-
     def page_activated(self):
         if not self.ui_created:
             self.suspend_layout()
@@ -2279,10 +2267,8 @@ class WbAdminExport(mforms.Box):
             self.warning.show(True)
             self.tabview.show(False)
 
-
     def switch_to_progress(self):
         self.tabview.set_active_tab(1)
-
 
     def show_options(self):
         self.showing_options = not self.showing_options
@@ -2328,7 +2314,6 @@ class WbAdminExport(mforms.Box):
         self.resume_layout()
         self.recall_options()
 
-
     def shutdown(self): # called when admin tab is closed
         self.remember_options()
         if self.ui_created:
@@ -2341,11 +2326,9 @@ class WbAdminExport(mforms.Box):
     def set_lock_tables(self, value):
         return self.options_tab.set_lock_tables(value)
 
-
     def get_export_options(self, defaults):
         options = self.options_tab.get_options(defaults)
         return options
-
 
     def remember_options(self):
         if self.ui_created:
@@ -2360,8 +2343,6 @@ class WbAdminExport(mforms.Box):
             dic["wb.admin.export:skipData"] = self.export_tab.dump_type_selector.get_selected_index()
             for key, value in self.get_export_options({}).items():
                 dic["wb.admin.export.option:"+key] = value
-
-
 
     def recall_options(self):
         dic = grt.root.wb.options.options
@@ -2390,7 +2371,6 @@ class WbAdminExport(mforms.Box):
             if dic.has_key("wb.admin.export.option:"+key):
                 values[key] = dic["wb.admin.export.option:"+key]
         self.options_tab.set_options(values)
-
 
     def show_internal_schemas_changed(self):
         self.export_tab.set_show_internal_schemas(self.get_export_options({})['$internal$show-internal-schemas'] == 'TRUE')
