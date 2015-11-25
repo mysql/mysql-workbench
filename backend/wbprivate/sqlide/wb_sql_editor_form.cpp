@@ -1527,7 +1527,11 @@ bool SqlEditorForm::offline()
       }
 
       log_debug3("Can't lock conn mutex, trying again in one sec.");
+#if _WIN32
+      Sleep(1);
+#else
       sleep(1);
+#endif
       counter++;
       tmp.retry_lock(_usr_dbc_conn_mutex);
     }
