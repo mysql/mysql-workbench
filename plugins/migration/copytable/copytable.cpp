@@ -678,18 +678,18 @@ void ODBCCopyDataSource::ucs2_to_utf8(char *inbuf, size_t inbuf_len, char *&utf8
 
 SQLRETURN ODBCCopyDataSource::get_wchar_buffer_data(RowBuffer &rowbuffer, int column)
 {
-  unsigned long *out_length;
-  SQLRETURN ret;
-  SQLLEN len_or_indicator;
-  char* out_buffer;
-  size_t out_buffer_len;
-  SQLWCHAR tmpbuf[64*1024];
+  unsigned long *out_length = NULL;
+  SQLLEN len_or_indicator = 0;
+  char* out_buffer = NULL;
+  size_t out_buffer_len = 0;
+  SQLWCHAR tmpbuf[64 * 1024] = { 0 };
 
-  ret = SQLGetData(_stmt, column, _column_types[column-1], tmpbuf, sizeof(tmpbuf), &len_or_indicator);
+  SQLRETURN ret = SQLGetData(_stmt, column, _column_types[column - 1], tmpbuf, sizeof(tmpbuf), &len_or_indicator);
   // check if the data fits
   //if (len_or_indicator > out_buffer_len)
   //  ;
   rowbuffer.prepare_add_string(out_buffer, out_buffer_len, out_length);
+  memset(out_buffer, 0, out_buffer_len);
   if (SQL_SUCCEEDED(ret))
   {
     if (len_or_indicator == SQL_NO_TOTAL)
@@ -698,11 +698,12 @@ SQLRETURN ODBCCopyDataSource::get_wchar_buffer_data(RowBuffer &rowbuffer, int co
     if (len_or_indicator != SQL_NULL_DATA)
     {
       char *inbuf = (char*)tmpbuf;
-      size_t inbuf_len = len_or_indicator;
+      size_t inbuf_len = 0;
       size_t outbuf_len = out_buffer_len;
 
       if (sizeof(SQLWCHAR) > sizeof(unsigned short))
       {
+        inbuf_len = len_or_indicator;
         SQLWCHAR *in = (SQLWCHAR*)inbuf;
         unsigned short *out = (unsigned short*)inbuf;
         for (size_t i = 0; i < inbuf_len/sizeof(SQLWCHAR); i++)
@@ -730,8 +731,10 @@ SQLRETURN ODBCCopyDataSource::get_wchar_buffer_data(RowBuffer &rowbuffer, int co
       if (inbuf_len > 0)
         log_warning("%li characters could not be converted to UTF-8 from column %s during copy\n",
                     (long)inbuf_len, (*_columns)[column-1].source_name.c_str());
-
-      *out_length = (unsigned long)(out_buffer_len - outbuf_len);
+      if (len_or_indicator != SQL_NULL_DATA)
+        *out_length = (unsigned long)(len_or_indicator);
+      else
+        *out_length = (unsigned long)(out_buffer_len - outbuf_len);
     }
     rowbuffer.finish_field(len_or_indicator == SQL_NULL_DATA);
   }
