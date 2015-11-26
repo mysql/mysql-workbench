@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -292,6 +292,8 @@ CodeEditor::CodeEditor(void *host)
 
 CodeEditor::~CodeEditor()
 {
+  delete _find_panel;
+  
   auto_completion_cancel();
   for (std::map<int, void*>::iterator iterator = _images.begin(); iterator != _images.end(); ++iterator)
     free(iterator->second);

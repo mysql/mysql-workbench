@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -93,7 +93,6 @@ namespace MySQL {
 
       void set_show_file_dialog(StrStrStrStrDelegate^ dt);
       void set_show_status_text(VoidStrDelegate^ dt);
-      void set_request_input(BoolStrIntStrPtrDelegate^ dt);
       void set_create_diagram(CanvasViewStringStringDelegate^ dt);
       void set_destroy_view(VoidCanvasViewDelegate^ dt);
       void set_switched_view(VoidCanvasViewDelegate^ dt);
@@ -185,10 +184,6 @@ namespace MySQL {
       // Variables used to store the C# delegates and the C++.Net wrapper delegates
       // Intermediate callback that is called from C++ and calls the C# delegate
 
-      BoolStrIntStrPtrDelegate^ request_input_delegate;
-      BoolStrIntStrPtrWrapperDelegate^ request_input_wrapper_delegate;
-      bool request_input_wrapper(const std::string &title, int flags, std::string& res);
-
       StrStrStrStrDelegate^ show_file_dialog_delegate;
       StrStrStrStrWrapperDelegate^ show_file_dialog_wrapper_delegate;
       std::string show_file_dialog_wrapper(const std::string& str1, const std::string& str2,
@@ -260,7 +255,6 @@ namespace MySQL {
         StrStrStrStrDelegate^ show_file_dialog,
         VoidStrDelegate^ show_status_text,
         BoolStrStrFloatDelegate^ show_progress,
-        BoolStrIntStrPtrDelegate^ request_input,
         CanvasViewStringStringDelegate^ create_diagram,
         VoidCanvasViewDelegate^ destroy_view,
         VoidCanvasViewDelegate^ switched_view,

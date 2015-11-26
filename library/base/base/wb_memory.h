@@ -49,6 +49,7 @@ namespace base
 //     } // After this brace fp goes out of scope and gets fclosed, also 
 //       // no need to worry about exceptions
 
+// XXX: remove that and use std::unique_ptr instead.
 template <typename T, void FreeRoutine(T*)>
 class scope_ptr
 {
@@ -66,8 +67,6 @@ class scope_ptr
 
     scope_ptr(const scope_ptr& r)
     {
-      if (_ptr)
-        FreeRoutine(_ptr);
       _ptr = r._ptr;
       const_cast<scope_ptr&>(r)._ptr = 0;
     }
