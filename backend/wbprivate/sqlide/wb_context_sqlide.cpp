@@ -357,12 +357,18 @@ void WBContextSQLIDE::call_in_editor_panel(void (SqlEditorPanel::*method)())
   }
 }
 
-
 void WBContextSQLIDE::call_in_editor_str(void (SqlEditorForm::*method)(const std::string &arg), const std::string &arg)
 {
   SqlEditorForm *form= get_active_sql_editor();
   if (form)
     (form->*method)(arg);
+}
+
+void WBContextSQLIDE::call_in_editor_str2(void (SqlEditorForm::*method)(const std::string &arg1, bool arg2, bool arg3), const std::string &arg1, bool arg2, bool arg3)
+{
+  SqlEditorForm *form= get_active_sql_editor();
+  if (form)
+    (form->*method)(arg1, arg2, arg3);
 }
 
 
@@ -822,7 +828,7 @@ void WBContextSQLIDE::init()
   cmdui->add_builtin_command("query.newQuery", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::new_scratch_area));
   //cmdui->add_builtin_command("query.newFile", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::new_sql_script_file));
   cmdui->add_builtin_command("query.newFile", boost::bind(new_script_tab, this));
-  cmdui->add_builtin_command("query.openFile", boost::bind(&WBContextSQLIDE::call_in_editor_str, this, (void(SqlEditorForm::*)(const std::string&))&SqlEditorForm::open_file, ""));
+  cmdui->add_builtin_command("query.openFile", boost::bind(&WBContextSQLIDE::call_in_editor_str2, this, (void(SqlEditorForm::*)(const std::string&, bool, bool))&SqlEditorForm::open_file, "", true, true));
   cmdui->add_builtin_command("query.saveFile", boost::bind(call_save_file, this));
   cmdui->add_builtin_command("query.saveFileAs", boost::bind(call_save_file_as, this));
   cmdui->add_builtin_command("query.revert", boost::bind(call_revert, this), boost::bind(validate_revert, this));

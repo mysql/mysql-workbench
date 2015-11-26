@@ -1956,7 +1956,7 @@ TEST_FUNCTION(53)
     if (base::remove_recursive(INVALID_NAME))
     {
       // return true means dir exists
-      fail(strfmt("TEST 53.53: Directory \"%s\" exists",INVALID_NAME));
+      fail(strfmt("TEST 53.53: Directory \"%s\" exists", INVALID_NAME));
     }
 
     // -- Empty name
@@ -1986,7 +1986,7 @@ TEST_FUNCTION(53)
     if (base::remove_recursive(RESERVED_NAME))
     {
       // return true means dir exists
-      fail(strfmt("TEST 53.57: Directory \"%s\" exists",RESERVED_NAME));
+      fail(strfmt("TEST 53.57: Directory \"%s\" exists", RESERVED_NAME));
     }
 #endif
   }
@@ -2447,7 +2447,7 @@ gpointer _child_thread_func(gpointer data)
       test_result = test_file.file();
       expected_result = NULL;
 
-      ensure_equals("TEST 70.4: Unexpected result calling FileHandle c-tor", Test_result,expected_result);
+      ensure_equals("TEST 70.4: Unexpected result calling FileHandle c-tor", test_result,expected_result);
     }
     catch(std::exception &exc)
     {
@@ -2608,13 +2608,13 @@ TEST_FUNCTION(75)
   // Case sensitivity.
 #ifdef _WIN32
   ensure_equals("TEST 75.17", base::relativePath("/🍏🍎🍐/ЀЁЂ\\ᚋᚌᚍ\\last", "\\Last"), "../../../../Last");
-  ensure_equals("TEST 75.18", base::relativePath("/XYZ/🍏🍎🍐/ЀЁЂ\\ᚋᚌᚍ\\last", "\\xyz\\Last"), "../../../../XYZ/Last");
+  ensure_equals("TEST 75.18", base::relativePath("/XYZ/🍏🍎🍐/ЀЁЂ\\ᚋᚌᚍ\\last", "\\xyz\\Last"), "../../../../Last");
 #else
   ensure_equals("TEST 75.17", base::relativePath("/🍏🍎🍐/ЀЁЂ\\ᚋᚌᚍ\\last", "\\Last"), "../../../../Last");
   ensure_equals("TEST 75.18", base::relativePath("/XYZ/🍏🍎🍐/ЀЁЂ\\ᚋᚌᚍ\\last", "\\xyz\\Last"), "../../../../../xyz/Last");
 #endif
 
-  // Win specific, but nontheless working on any platform.
+  // Win specific, but nonetheless working on any platform.
   ensure_equals("TEST 75.19", base::relativePath("C:\\abc/def/ghi", "C:/abc/def/"), "../");
   ensure_equals("TEST 75.20", base::relativePath("C:\\abc/def/ghi", "D:/abc/def/"), "D:/abc/def/");
 }
