@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,12 +22,20 @@
 
 #import "WBPluginPanelController.h"
 
+@interface WBPluginPanelController()
+{
+  NSPanel *_panel;
+  WBPluginPanel *_editor;
+}
+
+@end
+
 @implementation WBPluginPanelController
 
-- (instancetype)initWithEditor:(WBPluginPanel*)editor
+- (instancetype)initWithEditor: (WBPluginPanel*)editor
 {
   self = [super init];
-  if (self)
+  if (self != nil && editor != nil)
   {
     NSRect rect = NSZeroRect;
     rect.size = [editor minimumSize];
@@ -43,6 +51,10 @@
   return self;
 }
 
+- (instancetype)init
+{
+  return [self initWithEditor: nil];
+}
 
 - (void)show:(id)sender
 {

@@ -136,9 +136,6 @@ namespace wb {
     // Show some text in the application's status bar: must be thread-safe
     boost::function<void (std::string)> show_status_text;
 
-    // ok/cancel, title, flags, returnval
-    boost::function<bool (std::string, int, std::string&)> request_input;
-
     // Open an editor
     // Args: grtmanager, module containing plugin, editor dll, editor class, edited object
     boost::function<NativeHandle (bec::GRTManager*, grt::Module*, std::string, std::string, grt::BaseListRef, bec::GUIPluginFlags)> open_editor;
@@ -503,11 +500,7 @@ namespace wb {
 
   public: // front end callbacks
     boost::function<std::string (std::string,std::string,std::string)> show_file_dialog;
-
     boost::function<void (std::string)> show_status_text;
-
-    boost::function<bool (std::string,int,std::string&)> request_input;
-
     boost::function<void (std::string,void*)> show_gui_plugin;
 
     boost::function<mdc::CanvasView* (const model_DiagramRef&)> create_diagram;

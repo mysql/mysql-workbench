@@ -165,14 +165,11 @@
 
 //--------------------------------------------------------------------------------------------------
 
-- (void) rightMouseDown: (NSEvent*) event
+- (void)rightMouseDown: (NSEvent*) event
 {
-  //[self cancelPendingInlineEdit];
-  
-  //[self setSelected: YES];
   [self mouseDown: event]; // same handling as left mouse click.
 
-  // this will popup the context menu
+  // This will popup the context menu.
   [super rightMouseDown: event];
 }
 
