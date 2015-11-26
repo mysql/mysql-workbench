@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,33 +17,18 @@
  * 02110-1301  USA
  */
 
-#import <AppKit/AppKit.h>
 #include "mforms/find_panel.h"
 
 @interface MFFindPanel : NSView
-{
-@public
-  mforms::FindPanel *mOwner;
-  
-  IBOutlet NSView *mFindPanelPlaceholder;
-  IBOutlet NSSegmentedControl *mFindTypeSegmented;
-  IBOutlet NSSearchField *mFindText;
-  IBOutlet NSTextField *mReplaceText;
-  IBOutlet NSTextField *mFindLabel;
-  IBOutlet NSSegmentedControl *mFindSegmented;
-  IBOutlet NSMenu *mSearchMenu;
 
-  BOOL mMatchCase;
-  BOOL mMatchWhole;
-  BOOL mWrapAround;
-  BOOL mUseRegex;
-}
-
-- (instancetype)initWithOwner:(mforms::FindPanel*)owner NS_DESIGNATED_INITIALIZER;
-- (IBAction)findActionClicked:(id)sender;
-- (void)enableReplaceInFindPanel: (BOOL)flag;
-@property (readonly, strong) NSView *topView;
-- (BOOL)findNext:(BOOL)backwards;
 @property (readonly) int replaceAll;
+
+- (instancetype)initWithOwner: (mforms::FindPanel*)owner NS_DESIGNATED_INITIALIZER;
+
+- (IBAction)findActionClicked: (id)sender;
+- (void)enableReplaceInFindPanel: (BOOL)flag;
+
+- (BOOL)findNext: (BOOL)backwards;
 - (void)focusFindPanel;
+
 @end

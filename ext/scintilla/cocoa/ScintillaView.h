@@ -4,7 +4,7 @@
  *
  * Created by Mike Lischke.
  *
- * Copyright 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2011, 2013, Oracle and/or its affiliates. All rights reserved.
  * Copyright 2009, 2011 Sun Microsystems, Inc. All rights reserved.
  * This file is dual licensed under LGPL v2.1 and the Scintilla license (http://www.scintilla.org/License.txt).
  */
@@ -62,7 +62,7 @@ extern NSString *const SCIUpdateUINotification;
 @property (assign) int marginWidth;
 @property (assign) ScintillaView *owner;
 
-- (instancetype)initWithScrollView:(NSScrollView *)aScrollView;
+- (id)initWithScrollView:(NSScrollView *)aScrollView;
 
 @end
 
@@ -75,20 +75,18 @@ extern NSString *const SCIUpdateUINotification;
 @private
   ScintillaView* mOwner;
   NSCursor* mCurrentCursor;
-  NSTrackingRectTag mCurrentTrackingRect;
+  NSTrackingArea *trackingArea;
 
   // Set when we are in composition mode and partial input is displayed.
   NSRange mMarkedTextRange;
-  BOOL undoCollectionWasActive;
 }
 
 @property (nonatomic, assign) ScintillaView* owner;
 
-- (void) removeMarkedText;
 - (void) setCursor: (int) cursor;
 
-@property (readonly) BOOL canUndo;
-@property (readonly) BOOL canRedo;
+- (BOOL) canUndo;
+- (BOOL) canRedo;
 
 @end
 
@@ -120,9 +118,6 @@ extern NSString *const SCIUpdateUINotification;
 
 + (Class) contentViewClass;
 
-- (void) positionSubViews;
-
-- (void) sendNotification: (NSString*) notificationName;
 - (void) notify: (NotificationType) type message: (NSString*) message location: (NSPoint) location
           value: (float) value;
 - (void) setCallback: (id <InfoBarCommunicator>) callback;
@@ -132,19 +127,18 @@ extern NSString *const SCIUpdateUINotification;
 
 // Scroller handling
 - (void) setMarginWidth: (int) width;
-- (void) scrollerAction: (id) sender;
-@property (readonly, strong) SCIContentView *content;
+- (SCIContentView*) content;
 - (void) updateMarginCursors;
 
 // NSTextView compatibility layer.
-@property (copy) NSString *string;
+- (NSString*) string;
+- (void) setString: (NSString*) aString;
+- (void) insertText: (id) aString;
+- (void) setEditable: (BOOL) editable;
+- (BOOL) isEditable;
+- (NSRange) selectedRange;
 
-- (void) insertText: (NSString*) aString;
-
-@property (getter=isEditable) BOOL editable;
-@property (readonly) NSRange selectedRange;
-
-@property (readonly, copy) NSString *selectedString;
+- (NSString*) selectedString;
 
 - (void) deleteRange: (NSRange) range;
 
@@ -172,14 +166,14 @@ extern NSString *const SCIUpdateUINotification;
 - (void) setColorProperty: (int) property parameter: (long) parameter fromHTML: (NSString*) fromHTML;
 - (NSColor*) getColorProperty: (int) property parameter: (long) parameter;
 - (void) setReferenceProperty: (int) property parameter: (long) parameter value: (const void*) value;
-- (const void*) getReferenceProperty: (int) property parameter: (long) parameter NS_RETURNS_INNER_POINTER;
+- (const void*) getReferenceProperty: (int) property parameter: (long) parameter;
 - (void) setStringProperty: (int) property parameter: (long) parameter value: (NSString*) value;
 - (NSString*) getStringProperty: (int) property parameter: (long) parameter;
 - (void) setLexerProperty: (NSString*) name value: (NSString*) value;
 - (NSString*) getLexerProperty: (NSString*) name;
 
-// The delegate property should be used instead of registerNotifyCallback which will be deprecated.
-- (void) registerNotifyCallback: (intptr_t) windowid value: (Scintilla::SciNotifyFunc) callback;
+// The delegate property should be used instead of registerNotifyCallback which is deprecated.
+- (void) registerNotifyCallback: (intptr_t) windowid value: (Scintilla::SciNotifyFunc) callback __attribute__((deprecated));
 
 - (void) setInfoBar: (NSView <InfoBarCommunicator>*) aView top: (BOOL) top;
 - (void) setStatusText: (NSString*) text;

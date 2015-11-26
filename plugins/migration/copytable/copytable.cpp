@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-
 #include <errno.h>
 #define __STDC_LIMIT_MACROS
 #include <stdint.h>
@@ -38,7 +37,13 @@
 #include <boost/bind.hpp>
 #include <boost/algorithm/string.hpp>
 
+#ifdef __APPLE__
+// All the functions in sql.h are deprecated, but we have no replacement atm.
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 DEFAULT_LOG_DOMAIN("copytable");
+
 #define TMP_TRIGGER_TABLE "wb_tmp_triggers"
 
 #if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)

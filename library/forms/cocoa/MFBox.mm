@@ -276,7 +276,7 @@
 
 - (void)resizeSubviewsWithOldSize:(NSSize)oldBoundsSize
 {
-  if (!mOwner->is_destroying())
+  if (mOwner != NULL && !mOwner->is_destroying())
   {
     if (mHorizontal)
       [self resizeSubviewsWithOldSizeH:oldBoundsSize];
@@ -362,20 +362,15 @@
 {
   // mark the subview so that it's not accounted when relayouting
   subview.viewFlags = (subview.viewFlags & ~BoxFlagMask) | RemovingFlag;
-  if (!mOwner->is_destroying())
+  if (mOwner != NULL && !mOwner->is_destroying())
     [self subviewMinimumSizeChanged];
 }
 
 - (void)setFrame: (NSRect)frame
 {
   [super setFrame: frame];
-  if (!mOwner->is_destroying())
+  if (mOwner != NULL && !mOwner->is_destroying())
       (*mOwner->signal_resized())();
-}
-
-- (void)destroy
-{
-  [self removeFromSuperview];
 }
 
 #if 0

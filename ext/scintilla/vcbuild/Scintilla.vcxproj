@@ -294,12 +294,15 @@
     <ClInclude Include="..\src\ContractionState.h" />
     <ClInclude Include="..\src\Decoration.h" />
     <ClInclude Include="..\src\Document.h" />
+    <ClInclude Include="..\src\EditModel.h" />
     <ClInclude Include="..\src\Editor.h" />
+    <ClInclude Include="..\src\EditView.h" />
     <ClInclude Include="..\src\ExternalLexer.h" />
     <ClInclude Include="..\src\FontQuality.h" />
     <ClInclude Include="..\src\Indicator.h" />
     <ClInclude Include="..\src\KeyMap.h" />
     <ClInclude Include="..\src\LineMarker.h" />
+    <ClInclude Include="..\src\MarginView.h" />
     <ClInclude Include="..\src\Partitioning.h" />
     <ClInclude Include="..\src\PerLine.h" />
     <ClInclude Include="..\src\PositionCache.h" />
@@ -313,6 +316,7 @@
     <ClInclude Include="..\src\UniConversion.h" />
     <ClInclude Include="..\src\ViewStyle.h" />
     <ClInclude Include="..\src\XPM.h" />
+    <ClInclude Include="..\win32\HanjaDic.h" />
     <ClInclude Include="..\win32\PlatWin.h" />
     <ClInclude Include="..\win32\ScintillaWR.h" />
   </ItemGroup>
@@ -343,11 +347,14 @@
     <ClCompile Include="..\src\ContractionState.cxx" />
     <ClCompile Include="..\src\Decoration.cxx" />
     <ClCompile Include="..\src\Document.cxx" />
+    <ClCompile Include="..\src\EditModel.cxx" />
     <ClCompile Include="..\src\Editor.cxx" />
+    <ClCompile Include="..\src\EditView.cxx" />
     <ClCompile Include="..\src\ExternalLexer.cxx" />
     <ClCompile Include="..\src\Indicator.cxx" />
     <ClCompile Include="..\src\KeyMap.cxx" />
     <ClCompile Include="..\src\LineMarker.cxx" />
+    <ClCompile Include="..\src\MarginView.cxx" />
     <ClCompile Include="..\src\PerLine.cxx" />
     <ClCompile Include="..\src\PositionCache.cxx" />
     <ClCompile Include="..\src\RESearch.cxx" />
@@ -359,6 +366,7 @@
     <ClCompile Include="..\src\ViewStyle.cxx" />
     <ClCompile Include="..\src\XPM.cxx" />
     <ClCompile Include="..\win32\CheckD2D.cxx" />
+    <ClCompile Include="..\win32\HanjaDic.cxx" />
     <ClCompile Include="..\win32\PlatWin.cxx" />
     <ClCompile Include="..\win32\ScintillaWin.cxx" />
     <ClCompile Include="..\win32\ScintillaWR.cpp" />

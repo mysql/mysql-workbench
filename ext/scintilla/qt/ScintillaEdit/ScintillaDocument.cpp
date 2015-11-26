@@ -2,6 +2,7 @@
 // Wrapper for Scintilla document object so it can be manipulated independently.
 // Copyright (c) 2011 Archaeopteryx Software, Inc. d/b/a Wingware
 
+#include <stdexcept>
 #include <vector>
 #include <map>
 
@@ -27,6 +28,10 @@
 #include "Decoration.h"
 #include "CaseFolder.h"
 #include "Document.h"
+
+#ifdef SCI_NAMESPACE
+using namespace Scintilla;
+#endif
 
 class WatcherHelper : public DocWatcher {
 	ScintillaDocument *owner;
@@ -263,6 +268,10 @@ void ScintillaDocument::set_eol_mode(int eol_mode) {
 
 int ScintillaDocument::move_position_outside_char(int pos, int move_dir, bool check_line_end) {
     return ((Document *)pdoc)->MovePositionOutsideChar(pos, move_dir, check_line_end);
+}
+
+int ScintillaDocument::get_character(int pos) {
+    return ((Document *)pdoc)->GetCharacterAndWidth(pos, NULL);
 }
 
 // Signal emitters
