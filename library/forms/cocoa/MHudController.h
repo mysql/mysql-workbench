@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,20 +21,11 @@
 #include <boost/function.hpp>
 
 @interface MHudController : NSObject
-{
-  IBOutlet NSPanel* hudPanel;
-  IBOutlet NSTextField* shortHudDescription;
-  IBOutlet NSTextField* longHudDescription;
-  IBOutlet NSButton* cancelButton;
-  
-  NSModalSession modalSession;
-  BOOL stopped;
-  
-  boost::function<bool ()> cancelAction;
-}
 
-+ (void) showHudWithTitle: (NSString*) title andDescription: (NSString*) description;
-+ (BOOL) hideHud;
+@property (readonly, strong) NSPanel *hud;
+
++ (void)showHudWithTitle: (NSString*) title andDescription: (NSString*) description;
++ (BOOL)hideHud;
 
 + (BOOL)runModalHudWithTitle: (NSString*) title andDescription: (NSString*) description
                  notifyReady: (boost::function<void ()>)signalReady
@@ -43,10 +34,9 @@
 
 - (IBAction)cancelClicked:(id)sender;
 
-- (instancetype) init NS_DESIGNATED_INITIALIZER;
-@property (readonly, strong) NSPanel *hud;
+- (instancetype)init NS_DESIGNATED_INITIALIZER;
 
-- (void) showAnimatedWithFrame: (NSRect) frame title: (NSString*) title andDescription: (NSString*) description;
-- (void) hideAnimated;
+- (void)showAnimatedWithFrame: (NSRect) frame title: (NSString*) title andDescription: (NSString*) description;
+- (void)hideAnimated;
 
 @end

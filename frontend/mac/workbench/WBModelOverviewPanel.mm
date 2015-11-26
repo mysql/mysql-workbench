@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -27,54 +27,75 @@
 #import "GRTTreeDataSource.h"
 #import "MTabSwitcher.h"
 #import "WBTabView.h"
+#import "WBSplitView.h"
 #import "MFView.h"
+
+@interface WBModelOverviewPanel()
+{
+  __weak IBOutlet WBOverviewPanel *overview;
+  __weak IBOutlet NSSplitView *sideSplitview;
+  __weak IBOutlet WBModelSidebarController *sidebarController;
+  __weak IBOutlet WBObjectDescriptionController *descriptionController;
+  __weak IBOutlet MTabSwitcher *mSwitcherT;
+  __weak IBOutlet MTabSwitcher *mSwitcherB;
+
+  wb::WBContextUI *_wbui;
+  NSMutableArray *nibObjects;
+}
+
+@end;
 
 @implementation WBModelOverviewPanel
 
-- (instancetype)initWithWBContextUI:(wb::WBContextUI*)wbui
+- (instancetype)initWithWBContextUI: (wb::WBContextUI*)wbui
 {
   self = [super init];
   if (self)
   {
-    _wbui= wbui;
+    _wbui = wbui;
+    if (_wbui != NULL)
+    {
+      if ([NSBundle.mainBundle loadNibNamed: @"WBModelOverview" owner: self topLevelObjects: &nibObjects])
+      {
+        [nibObjects retain];
 
-    [NSBundle loadNibNamed: @"WBModelOverview" owner: self];
-    [(id)editorTabView createDragger];
+        [editorTabView createDragger];
 
-    [overview setupWithOverviewBE: wbui->get_physical_overview()];
-    [sidebarController setupWithContext: wbui->get_wb()->get_model_context()];
-    [mSwitcherT setTabStyle: MPaletteTabSwitcherSmallText];
-    [mSwitcherB setTabStyle: MPaletteTabSwitcherSmallText];
-    [descriptionController setWBContext: wbui];
+        [overview setupWithOverviewBE: wbui->get_physical_overview()];
+        [sidebarController setupWithContext: wbui->get_wb()->get_model_context()];
+        [mSwitcherT setTabStyle: MPaletteTabSwitcherSmallText];
+        [mSwitcherB setTabStyle: MPaletteTabSwitcherSmallText];
+        [descriptionController setWBContext: wbui];
 
-    [topView setDividerThickness: 1];
-    [topView setBackgroundColor: [NSColor colorWithDeviceWhite:128/255.0 alpha:1.0]];
+        [topView setDividerThickness: 1];
+        [topView setBackgroundColor: [NSColor colorWithDeviceWhite: 128/255.0 alpha: 1.0]];
 
-   // [overview rebuildAll];
-    [overview performSelector:@selector(rebuildAll) withObject:nil afterDelay:0.1];
+        [overview performSelector: @selector(rebuildAll) withObject: nil afterDelay: 0.1];
 
-    grtm = _wbui->get_wb()->get_grt_manager();
+        grtm = _wbui->get_wb()->get_grt_manager();
 
-    [topView setAutosaveName: @"modelSplitPosition"];
+        [topView setAutosaveName: @"modelSplitPosition"];
 
-    [self restoreSidebarsFor: "ModelOverview" toolbar: wbui->get_physical_overview()->get_toolbar()];
+        [self restoreSidebarsFor: "ModelOverview" toolbar: wbui->get_physical_overview()->get_toolbar()];
+      }
+    }
   }
   return self;
 }
 
+- (instancetype)init
+{
+  return [self initWithWBContextUI: NULL];
+}
 
 - (void)dealloc
 {
-  // make sure scheduled rebuildAll won't blow up if it didn't exec yet
+  // Make sure scheduled rebuildAll won't blow up if it didn't exec yet.
   [NSObject cancelPreviousPerformRequestsWithTarget: overview];
 
   [sidebarController invalidate];
+  [nibObjects release];
   
-  [topView release];
-  [sidebarController release];
-  [descriptionController release];
-  [mainSplitViewDelegate release];
-
   [super dealloc];
 }
 

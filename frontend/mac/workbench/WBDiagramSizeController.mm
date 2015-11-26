@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,42 +27,71 @@
 #include "workbench/wb_context_ui.h"
 #include "model/wb_diagram_options.h"
 
+@interface TestPanel : NSPanel
+
+@end
+
+@interface WBDiagramSizeController()
+{
+  __weak IBOutlet TestPanel *panel;
+  __weak IBOutlet MCanvasViewer *canvas;
+  __weak IBOutlet NSTextField *nameField;
+  __weak IBOutlet NSTextField *widthField;
+  __weak IBOutlet NSTextField *heightField;
+
+  wb::DiagramOptionsBE *_be;
+
+  NSMutableArray *nibObjects;
+}
+
+@end
+
 @implementation WBDiagramSizeController
+
+- (instancetype)initWithWBContext: (wb::WBContextUI*)wbui
+{
+  self = [super init];
+  if (self != nil && wbui != NULL)
+  {
+    // The diagram size controller is a panel (window) which can be set to auto release on close.
+    // However, in order to keep the pattern with all our nib loading this setting is off and we do it manually.
+    if ([NSBundle.mainBundle loadNibNamed: @"DiagramOptions" owner: self topLevelObjects: &nibObjects])
+    {
+      [nibObjects retain];
+
+      [canvas lockFocus];
+      [canvas setupQuartz];
+      [canvas unlockFocus];
+
+      _be = wbui->create_diagram_options_be([canvas canvas]);
+      _be->update_size();
+      _be->signal_changed()->connect(boost::bind(update_size_entries, self));
+
+      [nameField setStringValue: [NSString stringWithCPPString: _be->get_name()]];
+
+      update_size_entries(self);
+    }
+  }
+  return self;
+}
+
+- (instancetype)init
+{
+  return [self initWithWBContext: NULL];
+}
 
 - (void)dealloc
 {
   delete _be;
+  [nibObjects release];
+  
   [super dealloc];
 }
-
 
 static void update_size_entries(WBDiagramSizeController *self)
 {
   [self->widthField setIntegerValue: self->_be->get_xpages()];
   [self->heightField setIntegerValue: self->_be->get_ypages()];
-}
-
-
-- (instancetype)initWithWBContext:(wb::WBContextUI*)wbui
-{
-  self= [super init];
-  if (self)
-  {    
-    [NSBundle loadNibNamed:@"DiagramOptions" owner:self];
-
-    [canvas lockFocus];
-    [canvas setupQuartz];
-    [canvas unlockFocus];
-    
-    _be= wbui->create_diagram_options_be([canvas canvas]);
-    _be->update_size();
-    _be->signal_changed()->connect(boost::bind(update_size_entries, self));
-    
-    [nameField setStringValue: [NSString stringWithCPPString:_be->get_name()]];
-    
-    update_size_entries(self);
-  }
-  return self;
 }
 
 
