@@ -1956,7 +1956,7 @@ TEST_FUNCTION(53)
     if (base::remove_recursive(INVALID_NAME))
     {
       // return true means dir exists
-      fail(strfmt("TEST 53.53: Directory \"%s\" exists",INVALID_NAME));
+      fail(strfmt("TEST 53.53: Directory \"%s\" exists", INVALID_NAME));
     }
 
     // -- Empty name
@@ -1986,7 +1986,7 @@ TEST_FUNCTION(53)
     if (base::remove_recursive(RESERVED_NAME))
     {
       // return true means dir exists
-      fail(strfmt("TEST 53.57: Directory \"%s\" exists",RESERVED_NAME));
+      fail(strfmt("TEST 53.57: Directory \"%s\" exists", RESERVED_NAME));
     }
 #endif
   }
@@ -2447,7 +2447,7 @@ gpointer _child_thread_func(gpointer data)
       test_result = test_file.file();
       expected_result = NULL;
 
-      ensure_equals("TEST 70.4: Unexpected result calling FileHandle c-tor", Test_result,expected_result);
+      ensure_equals("TEST 70.4: Unexpected result calling FileHandle c-tor", test_result,expected_result);
     }
     catch(std::exception &exc)
     {
