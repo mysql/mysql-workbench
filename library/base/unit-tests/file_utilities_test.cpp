@@ -2608,13 +2608,13 @@ TEST_FUNCTION(75)
   // Case sensitivity.
 #ifdef _WIN32
   ensure_equals("TEST 75.17", base::relativePath("/🍏🍎🍐/ЀЁЂ\\ᚋᚌᚍ\\last", "\\Last"), "../../../../Last");
-  ensure_equals("TEST 75.18", base::relativePath("/XYZ/🍏🍎🍐/ЀЁЂ\\ᚋᚌᚍ\\last", "\\xyz\\Last"), "../../../../XYZ/Last");
+  ensure_equals("TEST 75.18", base::relativePath("/XYZ/🍏🍎🍐/ЀЁЂ\\ᚋᚌᚍ\\last", "\\xyz\\Last"), "../../../../Last");
 #else
   ensure_equals("TEST 75.17", base::relativePath("/🍏🍎🍐/ЀЁЂ\\ᚋᚌᚍ\\last", "\\Last"), "../../../../Last");
   ensure_equals("TEST 75.18", base::relativePath("/XYZ/🍏🍎🍐/ЀЁЂ\\ᚋᚌᚍ\\last", "\\xyz\\Last"), "../../../../../xyz/Last");
 #endif
 
-  // Win specific, but nontheless working on any platform.
+  // Win specific, but nonetheless working on any platform.
   ensure_equals("TEST 75.19", base::relativePath("C:\\abc/def/ghi", "C:/abc/def/"), "../");
   ensure_equals("TEST 75.20", base::relativePath("C:\\abc/def/ghi", "D:/abc/def/"), "D:/abc/def/");
 }
