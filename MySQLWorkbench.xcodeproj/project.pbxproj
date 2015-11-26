@@ -133,7 +133,6 @@
 		27050B2C1B34457900D6135D /* wb_sql_editor_help_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050B291B34457900D6135D /* wb_sql_editor_help_test.cpp */; };
 		27050B2E1B34459300D6135D /* test_utilities_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050B2D1B34459300D6135D /* test_utilities_test.cpp */; };
 		270C4FF4173293BC00CD33BB /* libtinyxml.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 270C4FF3173293BC00CD33BB /* libtinyxml.dylib */; };
-		270C4FF6173293EA00CD33BB /* libtinyxml.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 270C4FF3173293BC00CD33BB /* libtinyxml.dylib */; };
 		270C4FF7173293F600CD33BB /* libtinyxml.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 270C4FF3173293BC00CD33BB /* libtinyxml.dylib */; };
 		270C4FF8173293FC00CD33BB /* libtinyxml.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 270C4FF3173293BC00CD33BB /* libtinyxml.dylib */; };
 		270C4FF9173293FC00CD33BB /* libtinyxml.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 270C4FF3173293BC00CD33BB /* libtinyxml.dylib */; };
@@ -2421,7 +2420,6 @@
 		2BE67F550F8E265300E00A97 /* workbench.Document.16x16.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BE67F4F0F8E265300E00A97 /* workbench.Document.16x16.png */; };
 		2BE67F560F8E265300E00A97 /* workbench.Document.32x32.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BE67F500F8E265300E00A97 /* workbench.Document.32x32.png */; };
 		2BE67F570F8E265300E00A97 /* workbench.Document.48x48.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BE67F510F8E265300E00A97 /* workbench.Document.48x48.png */; };
-		2BE6802C0F8E3E9E00E00A97 /* InputDialog.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2BE6802A0F8E3E9E00E00A97 /* InputDialog.xib */; };
 		2BE6805D0F8E47FD00E00A97 /* data.db in Copy Files (data) */ = {isa = PBXBuildFile; fileRef = 2BE6805C0F8E47FD00E00A97 /* data.db */; };
 		2BE6806F0F8E487F00E00A97 /* CSV.tpl in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2BE6805E0F8E482100E00A97 /* CSV.tpl */; };
 		2BE680700F8E487F00E00A97 /* HTML.tpl in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2BE6805F0F8E482100E00A97 /* HTML.tpl */; };
@@ -6369,7 +6367,6 @@
 		2BE67F4F0F8E265300E00A97 /* workbench.Document.16x16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = workbench.Document.16x16.png; path = structs/workbench.Document.16x16.png; sourceTree = "<group>"; };
 		2BE67F500F8E265300E00A97 /* workbench.Document.32x32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = workbench.Document.32x32.png; path = structs/workbench.Document.32x32.png; sourceTree = "<group>"; };
 		2BE67F510F8E265300E00A97 /* workbench.Document.48x48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = workbench.Document.48x48.png; path = structs/workbench.Document.48x48.png; sourceTree = "<group>"; };
-		2BE6802B0F8E3E9E00E00A97 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = frontend/mac/English.lproj/InputDialog.xib; sourceTree = "<group>"; };
 		2BE6805C0F8E47FD00E00A97 /* data.db */ = {isa = PBXFileReference; lastKnownFileType = file; name = data.db; path = res/wbdata/data.db; sourceTree = "<group>"; };
 		2BE6805E0F8E482100E00A97 /* CSV.tpl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = CSV.tpl; path = res/sqlidedata/templates/CSV.tpl; sourceTree = "<group>"; };
 		2BE6805F0F8E482100E00A97 /* HTML.tpl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = HTML.tpl; path = res/sqlidedata/templates/HTML.tpl; sourceTree = "<group>"; };
@@ -8095,7 +8092,6 @@
 			isa = PBXGroup;
 			children = (
 				2B96EA3110F43226004E6875 /* PageSetup.xib */,
-				2BE6802A0F8E3E9E00E00A97 /* InputDialog.xib */,
 				2B825D1D0E0B578600BE52DF /* InfoPlist.strings */,
 				8D1107310486CEB800E47090 /* Info.plist */,
 			);
@@ -13205,7 +13201,6 @@
 				2BE67F560F8E265300E00A97 /* workbench.Document.32x32.png in Resources */,
 				2BD4206D198034C10061895B /* db.Schema.selected.32x32.png in Resources */,
 				2BE67F570F8E265300E00A97 /* workbench.Document.48x48.png in Resources */,
-				2BE6802C0F8E3E9E00E00A97 /* InputDialog.xib in Resources */,
 				1617BA250F8E4CF400F5249C /* WBSQLQueryPanel.xib in Resources */,
 				2BD4206A198034C10061895B /* db.Routine.many.side.16x16@2x.png in Resources */,
 				2B07487C0F93FAEA00D7E4E3 /* db.mgmt.Connection.add.16x16.png in Resources */,
@@ -14238,6 +14233,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\n# scheme.prop is created on the scheme pre-actions script\n# and contains the definition of the environment variable\n# that identifies the schema that is being built\nexport `cat ${PROJECT_DIR}/scheme.prop`\n\nRES_SOURCE_PATH=${SRCROOT}/../mysql-mac-res\n\n# Removes whatever library present on the source folder\nrm -f ${PROJECT_DIR}/libmysqlclient.dylib\n\n# Copies the library that corresponds to the scheme being built\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/lib/${SCHEME_BUILD_TYPE}/libmysqlclient.*.dylib ${PROJECT_DIR}/libmysqlclient.dylib\n\nif [ $? -ne 0 ]; then exit 1; fi";
+			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -15918,14 +15914,6 @@
 			name = PageSetup.xib;
 			sourceTree = "<group>";
 		};
-		2BE6802A0F8E3E9E00E00A97 /* InputDialog.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				2BE6802B0F8E3E9E00E00A97 /* English */,
-			);
-			name = InputDialog.xib;
-			sourceTree = "<group>";
-		};
 		2BFBEFE80F50941C0016F9D1 /* DiagramOptions.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -17570,6 +17558,7 @@
 					"-Wno-overloaded-virtual",
 					"-Wno-self-assign",
 					"-Wno-dangling-else",
+					"-Wno-unused-local-typedef",
 				);
 			};
 			name = Debug;
@@ -17606,6 +17595,7 @@
 					"-Wno-overloaded-virtual",
 					"-Wno-self-assign",
 					"-Wno-dangling-else",
+					"-Wno-unused-local-typedef",
 				);
 				ZERO_LINK = NO;
 			};
@@ -18239,7 +18229,7 @@
 					"$(SRCROOT)",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-headerpad_max_install_names";
 				SDKROOT = macosx;
@@ -18285,7 +18275,7 @@
 					"$(SRCROOT)",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = "-headerpad_max_install_names";
 				SDKROOT = macosx;
 				VALID_ARCHS = "i386 x86_64";

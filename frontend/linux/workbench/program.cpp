@@ -103,7 +103,6 @@ Program::Program(wb::WBOptions &wboptions)
   // Assign those callback methods
   wbcallbacks.show_file_dialog= sigc::mem_fun(this, &Program::show_file_dialog_becb);
   wbcallbacks.show_status_text= sigc::mem_fun(_main_form, &MainForm::show_status_text_becb);
-  wbcallbacks.request_input= sigc::mem_fun(this, &Program::request_input_becb);
   wbcallbacks.open_editor= sigc::mem_fun(_main_form, &MainForm::open_plugin_becb);
   wbcallbacks.show_editor= sigc::mem_fun(_main_form, &MainForm::show_plugin_becb);
   wbcallbacks.hide_editor= sigc::mem_fun(_main_form, &MainForm::hide_plugin_becb);
@@ -359,46 +358,6 @@ std::string Program::show_file_dialog_becb(const std::string& type
   }
   
   return file;
-}
-
-//------------------------------------------------------------------------------
-bool Program::request_input_becb( const std::string& title, int flags, std::string& text)
-{
-  Glib::RefPtr<Gtk::Builder> ui= Gtk::Builder::create_from_file(_grt_manager->get_data_file_path("input_dialog.glade"));
-  Gtk::Dialog *win;
-  
-  ui->get_widget("input_dialog", win);
-  
-  Gtk::Label *label;
-  ui->get_widget("label", label);
-  label->set_text(title);
-  
-  Gtk::Entry *entry;
-  ui->get_widget("entry", entry);
-  entry->set_text(text);
-  
-  Gtk::Button *btn;
-  ui->get_widget("ok", btn);
-  btn->signal_clicked().connect(sigc::bind(sigc::mem_fun(win, &Gtk::Dialog::response), 1));
-  
-  ui->get_widget("cancel", btn);
-  btn->signal_clicked().connect(sigc::bind(sigc::mem_fun(win, &Gtk::Dialog::response), 0));
-  
-  if (flags & wb::InputPassword)
-    entry->set_visibility(false);
-  
-  win->show();
-  
-  bool ret = false;
-  if (win->run() == 1)
-  {
-    text = entry->get_text();
-    ret = true;
-  }
-  
-  win->hide();
-  
-  return ret;
 }
 
 //------------------------------------------------------------------------------

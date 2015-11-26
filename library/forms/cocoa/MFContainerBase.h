@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,7 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#import <Cocoa/Cocoa.h>
 
 #import "MFView.h"
 #include "mforms/view.h"
@@ -27,16 +26,9 @@
   float mTopPadding;
   float mBottomPadding;
   float mRightPadding;
-  int mFreezeRelayout;
-  NSColor* mBackColor;
-  NSColor* mDefaultBackColor;
-  NSImage* mBackImage;
-  mforms::Alignment mBackImageAlignment;
+  mforms::View *mOwner;
 
   NSTrackingArea *mTrackingArea;
-
-@protected
-  mforms::View *mOwner;
 }
 
 - (void)setPaddingLeft:(float)lpad right:(float)rpad top:(float)tpad bottom:(float)bpad;
@@ -44,4 +36,5 @@
 - (BOOL)setFreezeRelayout:(BOOL)flag;
 - (void)setBackgroundColor: (NSColor*) color;
 - (void)setBackgroundImage: (NSString*) path withAlignment: (mforms::Alignment) align;
+
 @end
