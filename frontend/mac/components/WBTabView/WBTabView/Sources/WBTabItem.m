@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -247,7 +247,7 @@
     mCloseButtonImage = [[NSImage alloc] initWithContentsOfFile: path];
     
     //		NSImage* buttonImage = [NSImage imageNamed: @"TabClose_Pressed"];
-    CGImageRef img = [[mCloseButtonImage representations][0] CGImage];
+    CGImageRef img = [(id)[mCloseButtonImage representations][0] CGImage];
     [mCloseButton setContents: (id)img];
   }
   else if (state == NSOffState) {
@@ -258,7 +258,7 @@
     mCloseButtonImage = [[NSImage alloc] initWithContentsOfFile: path];
     
     //		NSImage* buttonImage = [NSImage imageNamed: @"TabClose_Unpressed"];
-    CGImageRef img = [[mCloseButtonImage representations][0] CGImage];
+    CGImageRef img = [(id)[mCloseButtonImage representations][0] CGImage];
     [mCloseButton setContents: (id)img];
   }
 }
@@ -294,7 +294,7 @@
     if (!mIcon)
     {
       //			NSImage* iconImage = [NSImage imageNamed: @"TabDocument"];
-      CGImageRef img = [[mDocumentIconImage representations][0] CGImage];
+      CGImageRef img = [(id)[mDocumentIconImage representations][0] CGImage];
       mIcon = [CALayer layer];
       CGRect rect= mIcon.frame;
       [mIcon setContents: (id)img];
@@ -308,7 +308,7 @@
     }
     else
     {
-      CGImageRef img = [[mDocumentIconImage representations][0] CGImage];
+      CGImageRef img = [(id)[mDocumentIconImage representations][0] CGImage];
       CGRect rect= mIcon.frame;
       [mIcon setContents: (id)img];
       rect.size= NSSizeToCGSize([image size]);
@@ -482,7 +482,7 @@
       mCloseButtonImage = [[NSImage alloc] initWithContentsOfFile: path];
       
       //			NSImage* buttonImage = [NSImage imageNamed: @"TabClose_Unpressed"];
-      CGImageRef img = [[mCloseButtonImage representations][0] CGImage];
+      CGImageRef img = [(id)[mCloseButtonImage representations][0] CGImage];
       mCloseButton = [CALayer layer];
       CGRect r = CGRectZero;
       r.size = NSSizeToCGSize([mCloseButtonImage size]);
@@ -505,7 +505,7 @@
       mDocumentIconImage = [[NSImage alloc] initWithContentsOfFile: path];
       
       //			NSImage* iconImage = [NSImage imageNamed: @"TabDocument"];
-      CGImageRef img = [[mDocumentIconImage representations][0] CGImage];
+      CGImageRef img = [(id)[mDocumentIconImage representations][0] CGImage];
       mIcon = [CALayer layer];
       CGRect r = CGRectZero;
       r.size = NSSizeToCGSize([mDocumentIconImage size]);

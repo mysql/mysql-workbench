@@ -4,6 +4,10 @@
 
 #include "ScintillaEdit.h"
 
+#ifdef SCI_NAMESPACE
+using namespace Scintilla;
+#endif
+
 ScintillaEdit::ScintillaEdit(QWidget *parent) : ScintillaEditBase(parent) {
 }
 

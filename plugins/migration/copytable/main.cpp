@@ -21,6 +21,11 @@
 #define HAVE_ROUND
 #endif
 
+#ifdef __APPLE__
+// All the functions in sql.h are deprecated, but we have no replacement atm.
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 #include "python_copy_data_source.h" // python stuff need to be 1st #include
 #include "copytable.h"
 

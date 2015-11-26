@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -155,7 +155,6 @@ public:
     DECLARE_MODULE_FUNCTION(WorkbenchImpl::reportBug),
 
     // Utilities
-    DECLARE_MODULE_FUNCTION(WorkbenchImpl::input),
     DECLARE_MODULE_FUNCTION(WorkbenchImpl::confirm),
     DECLARE_MODULE_FUNCTION(WorkbenchImpl::requestFileOpen),
     DECLARE_MODULE_FUNCTION(WorkbenchImpl::requestFileSave),
@@ -309,9 +308,6 @@ private:
 
   // UI
   int refreshHomeConnections();
-  std::string request_input_m(const std::string &caption);
-
-  std::string input(const std::string &caption);
   int confirm(const std::string &title, const std::string &caption);
 
   std::string requestFileOpen(const std::string &caption, const std::string &extensions);

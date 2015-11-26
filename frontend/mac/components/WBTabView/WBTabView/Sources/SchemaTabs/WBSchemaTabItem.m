@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -78,32 +78,6 @@
 	return preferredWidth;
 }
 
-
-
-//- (void) mouseDraggedToPoint: (CGPoint) mouse;
-//{
-//	[super mouseDraggedToPoint: mouse];
-//	
-//	[[NSAnimationContext currentContext] setDuration: 0];
-//	[self setShadowOffset: CGSizeMake(0, -5)];
-//
-//	[[NSAnimationContext currentContext] setDuration: 1];
-//	[self setShadowOpacity: 0.3];
-//	[self setShadowRadius: 4.0];
-//}
-
-
-
-//- (void) mouseUp;
-//{
-//	[super mouseUp];
-//	
-//	[[NSAnimationContext currentContext] setDuration: 1];
-//	[self setShadowOpacity: 0];
-//}
-
-
-
 - (WBSchemaTabItem*) initWithIdentifier: (id) identifier
                                   label: (NSString*) label;
 {
@@ -137,16 +111,20 @@
       NSString* path = [b pathForResource: @"SchemaTabIcon"
                                    ofType: @"png"];
 			mIconImage = [[NSImage alloc] initWithContentsOfFile: path];
-      
-			CGImageRef img = [[mIconImage representations][0] CGImage];
-			mIcon = [CALayer layer];
-			CGRect r = CGRectZero;
-			r.size = NSSizeToCGSize([mIconImage size]);
-			r.origin.x = 9;
-			r.origin.y = floor(horizon + (horizon / 2) - (r.size.height / 2));
-			[mIcon setFrame: r];
-			[mIcon setContents: (id)img];
-			[self addSublayer: mIcon];
+
+      if ([mIconImage.representations[0] isKindOfClass: NSBitmapImageRep.class])
+      {
+        NSBitmapImageRep *imageRepresentation = (id)mIconImage.representations[0];
+        CGImageRef img = imageRepresentation.CGImage;
+        mIcon = [CALayer layer];
+        CGRect r = CGRectZero;
+        r.size = NSSizeToCGSize([mIconImage size]);
+        r.origin.x = 9;
+        r.origin.y = floor(horizon + (horizon / 2) - (r.size.height / 2));
+        [mIcon setFrame: r];
+        [mIcon setContents: (id)img];
+        [self addSublayer: mIcon];
+      }
 		}
 		
 		{
@@ -194,7 +172,7 @@
 			mSideLineImage = [[NSImage alloc] initWithContentsOfFile: path];
       
 //			NSImage* iconImage = [NSImage imageNamed: @"SchemaTabSideLine"];
-			CGImageRef img = [[mSideLineImage representations][0] CGImage];
+			CGImageRef img = [(id)[mSideLineImage representations][0] CGImage];
 			CGRect r = CGRectMake(0, horizon, 1, frame.size.height / 2);
 			mSideLeft = [CALayer layer];
 			[mSideLeft setFrame: r];
@@ -216,7 +194,7 @@
       NSString* path = [b pathForResource: @"SchemaTabGradientBackground"
                                    ofType: @"png"];
 			mAlphaGradientImage = [[NSImage alloc] initWithContentsOfFile: path];
-			CGImageRef img = [[mAlphaGradientImage representations][0] CGImage];
+			CGImageRef img = [(id)[mAlphaGradientImage representations][0] CGImage];
       mBackgroundGradient = [CALayer layer];
       [mBackgroundGradient setContents: (id)img];
 			CGRect r = CGRectMake(0, horizon, frame.size.width, frame.size.height / 2);
