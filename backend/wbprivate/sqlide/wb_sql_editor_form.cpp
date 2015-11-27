@@ -1443,7 +1443,7 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
       {
         // if there's no connection, then we continue anyway if this is a local connection or
         // a remote connection with remote admin enabled..
-        grt::Module *m = _grtm->get_grt()->get_module("WbAdmin");
+        _grtm->get_grt()->get_module("WbAdmin");
         grt::BaseListRef args(_grtm->get_grt());
         args.ginsert(_connection);
       }
