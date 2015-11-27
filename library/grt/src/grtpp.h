@@ -557,7 +557,7 @@ namespace grt {
   #ifdef _WIN64
     #define DEFINE_SSIZE_T_FUNCTIONS
   #else
-    #define DEFINE_UINT64_T_FUNCTIONS
+    //#define DEFINE_UINT64_T_FUNCTIONS
   #endif
 #else
   #define DEFINE_SSIZE_T_FUNCTIONS
