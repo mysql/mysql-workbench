@@ -380,6 +380,7 @@ class LogView(mforms.Box):
             self.back_button.set_enabled(False)
             self.eof_button.set_enabled(False)
             self.next_button.set_enabled(False)
+            self.range_label.set_text('Records read: %d' % self.actual_position)
             return
         if self.log_reader:
             try:
