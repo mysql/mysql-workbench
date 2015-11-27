@@ -210,11 +210,16 @@ class WbAdminConfigurationStartup(mforms.Box):
     #---------------------------------------------------------------------------
     def update_ui(self, server_status):
         dprint_ex(3, "server_status on enter is %s" % str(server_status))
-
+        
         if not self.server_profile.admin_enabled:
             return
 
         self.is_server_running_prev_check = server_status
+        if self.ctrl_be.target_version and self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 5):
+            self.offline_mode_btn.show(True)
+        else:
+            self.offline_mode_btn.show(False)
+                
         if server_status in ("running", "starting", "offline"):
             if server_status == "starting":
                 self.long_status_msg.set_text("The database server is starting...")
@@ -229,10 +234,8 @@ class WbAdminConfigurationStartup(mforms.Box):
                 self.short_status_msg.set_color("#0000FF")
                 self.long_status_msg.set_text("The database server is in offline mode. To put it back into online mode, use the \"Online mode\" button")
             else:
-                if self.ctrl_be.target_version and self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 5):
-                    self.offline_mode_btn.show(True)
-                self.offline_mode_btn.set_text("Bring Offline")
                 self.offline_mode_btn.set_enabled(True)
+                self.offline_mode_btn.set_text("Bring Offline")
                 self.start_stop_btn.set_enabled(True)
                 self.short_status_msg.set_color("#00DD00")
                 self.long_status_msg.set_text("The database server is started and ready for client connections. To shut the Server down, use the \"Stop Server\" button")
@@ -306,16 +309,21 @@ class WbAdminConfigurationStartup(mforms.Box):
             if status == "running" or status == "offline":
                 if status == "offline":
                     self.print_output("Server is in offline mode.")
-
                 self.start_stop_btn.set_enabled(False)
                 self.refresh_button.set_enabled(False)
 
                 try:
                     if self.server_control and not self.server_control.stop_async(self.async_stop_callback, True):
+                        if self.ctrl_be.target_version and self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 5):
+                            self.offline_mode_btn.show(True)
+
                         self.start_stop_btn.set_enabled(True)
                         self.refresh_button.set_enabled(True)
                         return
                 except Exception, exc:
+                    if self.ctrl_be.target_version and self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 5):
+                        self.offline_mode_btn.show(True)
+
                     self.start_stop_btn.set_enabled(True)
                     self.refresh_button.set_enabled(True)
                     Utilities.show_error("Stop Server",
@@ -325,6 +333,7 @@ class WbAdminConfigurationStartup(mforms.Box):
             elif status == "stopped":
                 self.start_stop_btn.set_enabled(False)
                 self.refresh_button.set_enabled(False)
+                self.offline_mode_btn.set_enabled(False)
 
                 try:
                     if self.server_control and not self.server_control.start_async(self.async_start_callback, True):
@@ -346,6 +355,9 @@ class WbAdminConfigurationStartup(mforms.Box):
             else:
                 self.print_output("Unable to detect server status.")
             self.refresh()
+
+            if self.ctrl_be.target_version and self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 5):
+                self.offline_mode_btn.show(True)
 
     def offline_mode_clicked(self):
         
@@ -396,6 +408,7 @@ class WbAdminConfigurationStartup(mforms.Box):
     #---------------------------------------------------------------------------
     def async_start_finished(self, status):
         if status == "success":
+            self.ctrl_be.event_from_main("server_started")
             self.print_output("Server start done.")
         elif status == "bad_password":
             r = Utilities.show_error("Start Server",

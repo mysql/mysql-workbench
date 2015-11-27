@@ -709,7 +709,7 @@ ServerStatusWidget::~ServerStatusWidget()
 void ServerStatusWidget::set_server_status(int status)
 {
   // Sanity check.
-  if (status < -1 || status > 1)
+  if (status < -1 || status > 2)
     status= -1;
 
   lock();

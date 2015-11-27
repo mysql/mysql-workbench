@@ -701,7 +701,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
         result = self.exec_query("SHOW GLOBAL STATUS")
         while result and result.nextRow():
             self.status_variables[result.stringByName("Variable_name")] = result.stringByName("Value")
-
+            
         # check version
         if self.server_variables:
             self.raw_version = self.server_variables["version"]
@@ -725,7 +725,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
                 plugin_type = result.stringByName("Type")
                 if status == "ACTIVE":
                     self.server_active_plugins.add((name, plugin_type))
-        if self.server_variables["offline_mode"] == "ON":
+        if "offline_mode" in self.server_variables and self.server_variables["offline_mode"] == "ON":
             #We're in offline mode, need to change server status
             self.last_known_server_running_status = ("offline", time.time())
         else:
