@@ -108,7 +108,8 @@ WBContextUI::~WBContextUI()
 
   delete _addon_download_window;
   delete _plugin_install_window;
-  assert(_home_screen == NULL); // managed view
+  if (_home_screen != NULL)
+    _home_screen->release();
 
   delete _output_view;
   delete _shell_window;
