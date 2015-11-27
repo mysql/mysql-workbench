@@ -57,3 +57,25 @@
 #define MF_PANEL_SMALL_PADDING 6
 
 #endif
+
+#include "base/drawing.h"
+
+namespace mforms
+{
+
+//typedef enum   state_t State;
+//typedef struct style_t Style;
+
+enum State
+{
+    STATE_NORMAL,
+    STATE_ACTIVE,
+
+    STATE_LENGTH
+};
+struct Style
+{
+    ::base::Color bg[STATE_LENGTH];
+};
+
+}

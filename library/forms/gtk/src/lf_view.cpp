@@ -36,7 +36,9 @@ Gtk::Widget *ViewImpl::get_inner() const
 
 ViewImpl::ViewImpl(::mforms::View *view)
   : ObjectImpl(view), _back_image_alignment(mforms::NoAlign),  _last_btn_down(NULL), _target(NULL), _drag_image(NULL)
-{}
+{
+    _style = 0;
+}
 
 
 void ViewImpl::destroy(::mforms::View *self)
@@ -549,6 +551,32 @@ void ViewImpl::set_padding(::mforms::View *self, int left, int top, int right, i
 void ViewImpl::set_padding_impl(int left, int top, int right, int bottom)
 {}
 
+
+mforms::Style *ViewImpl::get_style(::mforms::View *self)
+{
+  ViewImpl *view = self->get_data<ViewImpl>();
+  if (!view->_style) {
+      view->_style = new mforms::Style();
+
+      Gtk::Widget *widget = view->get_inner();
+      Glib::RefPtr<const Gtk::Style> gtk_style = widget->get_style();
+      Gdk::Color bg_normal = gtk_style->get_background(Gtk::STATE_NORMAL);
+      Gdk::Color bg_active = gtk_style->get_background(Gtk::STATE_SELECTED);
+      //Gdk::Color bg_active = gtk_style->get_background(Gtk::STATE_ACTIVE);
+
+      view->_style->bg[mforms::STATE_NORMAL] = base::Color(bg_normal.get_red_p(), bg_normal.get_green_p(), bg_normal.get_blue_p());
+      view->_style->bg[mforms::STATE_ACTIVE] = base::Color(bg_active.get_red_p(), bg_active.get_green_p(), bg_active.get_blue_p());
+  }
+
+  return view->_style;
+}
+
+mforms::Style *ViewImpl::get_style_impl()
+{
+    return 0;
+}
+
+
 //------------------------------------------------------------------------------
 void ViewImpl::set_allow_drag(::mforms::View* self, const bool flag)
 {
@@ -1011,6 +1039,7 @@ void ViewImpl::init()
   f->_view_impl.set_back_image        = &ViewImpl::set_back_image;
   f->_view_impl.flush_events          = &ViewImpl::flush_events;
   f->_view_impl.set_padding           = &ViewImpl::set_padding;
+  f->_view_impl.get_style             = &ViewImpl::get_style;
   f->_view_impl.drag_data             = &ViewImpl::drag_data;
   f->_view_impl.drag_text             = &ViewImpl::drag_text;
 

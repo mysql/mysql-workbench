@@ -27,11 +27,14 @@
 
 #include "mforms/utilities.h"
 #include "mforms/menu.h"
+#include "mforms/uistyle.h"
 
 #include "grt/tree_model.h"
 
 using namespace mforms;
 using namespace base;
+
+
 
 #ifdef __APPLE__
 #define SNIPPET_DETAILS_FONT "Lucida Grande"
@@ -72,6 +75,8 @@ static int image_height(cairo_surface_t* image)
 
 class Snippet: public mforms::Accessible
 {
+public:
+    ::mforms::Style *style;
 private:
   cairo_surface_t* _icon;
   std::string _title;
@@ -198,14 +203,14 @@ public:
     // Fill a blue background if the item is active.
     if (active && _enabled)
     {
-      cairo_set_source_rgb(cr, 0x5a / 255.0, 0x85 / 255.0, 0xdc / 255.0);
+      cairo_set_source_rgb(cr, style->bg[STATE_ACTIVE].red, style->bg[STATE_ACTIVE].green, style->bg[STATE_ACTIVE].blue);
       cairo_rectangle(cr, bounds.left(), bounds.top(), bounds.size.width, bounds.size.height);
       cairo_fill(cr);
     }
     else
     {
       // If not selected fill with the default background and draw a white separator line.
-      cairo_set_source_rgb(cr, 0xf2 / 255.0, 0xf2 / 255.0, 0xf2 / 255.0);
+      cairo_set_source_rgb(cr, style->bg[STATE_NORMAL].red, style->bg[STATE_NORMAL].green, style->bg[STATE_NORMAL].blue);
       cairo_rectangle(cr, bounds.left(), bounds.top(), bounds.size.width, bounds.size.height);
       cairo_fill(cr);
 
@@ -425,7 +430,10 @@ void BaseSnippetList::repaint(cairo_t *cr, int areax, int areay, int areaw, int 
 
   for (std::vector<Snippet*>::const_iterator iterator= _snippets.begin(); iterator != _snippets.end(); iterator++)
   {
-    (*iterator)->paint(cr, snippet_bounds, *iterator == _hot_snippet, *iterator == _selected_snippet);
+    Snippet *snippet = *iterator;
+    snippet->style = this->get_style();
+
+    snippet->paint(cr, snippet_bounds, *iterator == _hot_snippet, *iterator == _selected_snippet);
     snippet_bounds.pos.y += snippet_bounds.size.height + SNIPPET_SPACING;
   }
 }
