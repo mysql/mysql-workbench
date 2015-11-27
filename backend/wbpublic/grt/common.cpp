@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -285,7 +285,7 @@ namespace bec {
    * This position must be local to the enclosing group.
    */
   template <class T>
-  void move_list_ref_item(grt::ListRef<T> items, const grt::ValueRef &object, int to)
+  void move_list_ref_item(grt::ListRef<T> items, const grt::ValueRef &object, size_t to)
   {
     grt::Type object_type = object.type();
 
@@ -489,7 +489,7 @@ namespace bec {
 
   // Template instantiation to avoid having all this code in the header file.
   template WBPUBLICBACKEND_PUBLIC_FUNC void move_list_ref_item<db_mgmt_Connection>(grt::ListRef<db_mgmt_Connection> items,
-                                                       const grt::ValueRef &object, int to);
+                                                       const grt::ValueRef &object, size_t to);
   
   //------------------------------------------------------------------------------------------------
 
