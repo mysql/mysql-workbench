@@ -1547,6 +1547,7 @@ are Latin1 or UTF8&lt;/small&gt;</property>
           <object class="GtkViewport" id="viewport1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="shadow_type">none</property>
             <child>
               <object class="GtkTable" id="table7">
                 <property name="visible">True</property>
