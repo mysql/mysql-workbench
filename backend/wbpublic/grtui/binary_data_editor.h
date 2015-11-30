@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef __BINARY_DATA_EDITOR_H__
-#define __BINARY_DATA_EDITOR_H__
+#pragma once
 
 #include "wbpublic_public_interface.h"
 
@@ -76,8 +75,9 @@ protected:
   size_t _length;
   std::string _type;
 
-  // editor, needs-update
-  std::vector<std::pair<BinaryDataViewer*, bool> > _viewers;
+  std::vector<BinaryDataViewer*> _viewers;
+  std::set<BinaryDataViewer*> _pendingUpdates;
+  bool _updating;
 
   mforms::Box _box;
   mforms::Box _hbox;
@@ -97,6 +97,3 @@ protected:
   void import_value();
   void export_value();
 };
-
-
-#endif /* __BINARY_DATA_EDITOR_H__ */
