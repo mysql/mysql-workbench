@@ -1328,18 +1328,15 @@ query_specification:
 ;
 
 join_table: // Like the same named rule in sql_yacc.yy but with removed left recursion.
-	(INNER_SYMBOL | CROSS_SYMBOL)? JOIN_SYMBOL table_reference
-		( options { greedy = true; }:
-			ON_SYMBOL expression
-			| USING_SYMBOL identifier_list_with_parentheses
-		)?
+	(INNER_SYMBOL | CROSS_SYMBOL)? JOIN_SYMBOL table_reference ( options {greedy = true;}: join_condition)?
 	| STRAIGHT_JOIN_SYMBOL table_factor ( options {greedy = true;}: ON_SYMBOL expression)?
-	| (LEFT_SYMBOL | RIGHT_SYMBOL) OUTER_SYMBOL? JOIN_SYMBOL table_factor
-		(
-			join* ON_SYMBOL expression
-			| USING_SYMBOL identifier_list_with_parentheses
-		)
+	| (LEFT_SYMBOL | RIGHT_SYMBOL) OUTER_SYMBOL? JOIN_SYMBOL table_reference join_condition
 	| NATURAL_SYMBOL ((LEFT_SYMBOL | RIGHT_SYMBOL) OUTER_SYMBOL?)? JOIN_SYMBOL table_factor
+;
+
+join_condition:
+	ON_SYMBOL expression
+	| USING_SYMBOL identifier_list_with_parentheses
 ;
 
 union_clause:
