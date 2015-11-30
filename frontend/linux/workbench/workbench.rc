@@ -1,6 +1,8 @@
 style "content-default" {
   font_name = "Bitstream Vera Sans 9"
 }
+style "tab" = "content-default" {
+}
 
 style "overview-header" {
   font_name= "helvetica bold 10"
@@ -106,4 +108,5 @@ widget "*.wbcentral*.*GtkLinkButton*" style "central-link"
 widget "*.tools_toolbar.*" style "toolbar-button"
 widget "*.options_toolbar.*" style "toolbar-button"
 widget "*.wbtab-close-button" style "wbtab-close-button-style"
+widget "*.tab" style "tab"
 

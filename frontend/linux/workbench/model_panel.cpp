@@ -116,20 +116,23 @@ void ModelPanel::post_construct(wb::WBContextUI *wb, wb::OverviewBE *overview, G
 
   xml->get_widget("side_model_note0", note);
   _documentation_box= Gtk::manage(new DocumentationBox(wb));
-  label = Gtk::manage(new Gtk::Label(_("<small>Description</small>")));
+  label = Gtk::manage(new Gtk::Label(_("Description")));
   note->append_page(*_documentation_box, *label);
   label->set_use_markup(true);
+  label->set_name("tab");
 
   xml->get_widget("side_model_note1", note);
   _usertypes_box= wb->get_wb()->get_model_context()->create_user_type_list();
-  label = Gtk::manage(new Gtk::Label(_("<small>User Types</small>")));
+  label = Gtk::manage(new Gtk::Label(_("User Types")));
   note->append_page(*mforms::widget_for_view(_usertypes_box), *label);
   label->set_use_markup(true);
+  label->set_name("tab");
 
   _history_tree= wb->get_wb()->get_model_context()->create_history_tree();
-  label = Gtk::manage(new Gtk::Label(_("<small>History</small>")));
+  label = Gtk::manage(new Gtk::Label(_("History")));
   note->append_page(*mforms::widget_for_view(_history_tree), *label);
   label->set_use_markup(true);
+  label->set_name("tab");
 
   #ifdef COMMERCIAL_CODE
   _validation_panel = Gtk::manage(new ValidationPanel());
