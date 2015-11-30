@@ -268,6 +268,30 @@ public:
 
    */
   virtual grt::DoubleRef floatFieldValueByName(const std::string &column);
+  /** Method. returns the contents of the field at the given column index and current geometry row as a geoJson. If the column type is not geometry or it's empty, it will return empty json
+  \param column 
+  \return value stored in cell (can be null)
+
+   */
+  virtual grt::StringRef geoJsonFieldValue(ssize_t column);
+  /** Method. returns the contents of the field at the given column name and current geometry row as a geoJson. If the column type is not geometry or it's empty, it will return empty json
+  \param column 
+  \return value stored in cell (can be null)
+
+   */
+  virtual grt::StringRef geoJsonFieldValueByName(const std::string &column);
+  /** Method. returns the contents of the field at the given column index and current geometry row as a string. If the column type is not geometry or it's empty, it will return empty string
+  \param column 
+  \return value stored in cell (can be null)
+
+   */
+  virtual grt::StringRef geoStringFieldValue(ssize_t column);
+  /** Method. returns the contents of the field at the given column name and current geometry row as a string. If the column type is not geometry or it's empty, it will return empty string
+  \param column 
+  \return value stored in cell (can be null)
+
+   */
+  virtual grt::StringRef geoStringFieldValueByName(const std::string &column);
   /** Method. sets the current row index to the 1st
   \return (boolean) 1 on success or 0 if the row number is out of bounds
 
@@ -352,6 +376,14 @@ private: // wrapper methods for use by grt
 
   static grt::ValueRef call_floatFieldValueByName(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_query_Resultset*>(self)->floatFieldValueByName(grt::StringRef::cast_from(args[0])); }
 
+  static grt::ValueRef call_geoJsonFieldValue(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_query_Resultset*>(self)->geoJsonFieldValue(grt::IntegerRef::cast_from(args[0])); }
+
+  static grt::ValueRef call_geoJsonFieldValueByName(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_query_Resultset*>(self)->geoJsonFieldValueByName(grt::StringRef::cast_from(args[0])); }
+
+  static grt::ValueRef call_geoStringFieldValue(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_query_Resultset*>(self)->geoStringFieldValue(grt::IntegerRef::cast_from(args[0])); }
+
+  static grt::ValueRef call_geoStringFieldValueByName(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_query_Resultset*>(self)->geoStringFieldValueByName(grt::StringRef::cast_from(args[0])); }
+
   static grt::ValueRef call_goToFirstRow(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_query_Resultset*>(self)->goToFirstRow(); }
 
   static grt::ValueRef call_goToLastRow(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_query_Resultset*>(self)->goToLastRow(); }
@@ -391,6 +423,10 @@ public:
     meta->bind_member("sql", new grt::MetaClass::Property<db_query_Resultset,grt::StringRef >(&db_query_Resultset::sql));
     meta->bind_method("floatFieldValue", &db_query_Resultset::call_floatFieldValue);
     meta->bind_method("floatFieldValueByName", &db_query_Resultset::call_floatFieldValueByName);
+    meta->bind_method("geoJsonFieldValue", &db_query_Resultset::call_geoJsonFieldValue);
+    meta->bind_method("geoJsonFieldValueByName", &db_query_Resultset::call_geoJsonFieldValueByName);
+    meta->bind_method("geoStringFieldValue", &db_query_Resultset::call_geoStringFieldValue);
+    meta->bind_method("geoStringFieldValueByName", &db_query_Resultset::call_geoStringFieldValueByName);
     meta->bind_method("goToFirstRow", &db_query_Resultset::call_goToFirstRow);
     meta->bind_method("goToLastRow", &db_query_Resultset::call_goToLastRow);
     meta->bind_method("goToRow", &db_query_Resultset::call_goToRow);
