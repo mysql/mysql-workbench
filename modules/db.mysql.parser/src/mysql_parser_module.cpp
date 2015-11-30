@@ -2619,13 +2619,13 @@ std::pair<std::string, std::string> getRoutineNameAndType(ParserContext::Ref con
 
   if (scanner->is_identifier())
   {
-    result.first = scanner->token_text();
+    result.first = base::unquote(scanner->token_text());
     scanner->next();
     if (scanner->skipIf(DOT_SYMBOL))
     {
       // Qualified identifier.
       if (scanner->is_identifier())
-        result.first = scanner->token_text();
+        result.first = base::unquote(scanner->token_text());
     }
   }
 
