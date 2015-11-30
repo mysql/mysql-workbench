@@ -29,7 +29,7 @@ from mforms import FileChooser
 import datetime
 import operator
 import json
-
+from workbench.utils import Version
 
 from workbench.log import log_debug3, log_debug2, log_error
 
@@ -89,6 +89,7 @@ class base_module:
         self._extension = None
         self._allow_remote = False
         self._editor = editor
+        self._targetVersion = Version.fromgrt(editor.serverVersion)
         self._local = True
         self._mapping = []
         self._new_table = False
@@ -103,7 +104,7 @@ class base_module:
         self._encoding = 'utf-8' #default encoding
         self._force_drop_table = False
         self._truncate_table = False
-        self._type_map = {'text':'is_string', 'bigint': 'is_bignumber', 'int': 'is_number', 'double':'is_float', 'json': 'is_json'}
+        self._type_map = {'text':'is_string', 'bigint': 'is_bignumber', 'geometry': 'is_geometry', 'int': 'is_number', 'double':'is_float', 'json': 'is_json'}
         self.is_running = False
         self.progress_info = None
         self.item_count = 0
@@ -223,6 +224,7 @@ class base_module:
                    'is_json': any(x in c.columnType for x in ['json']), 
                    'is_number': any(x in c.columnType for x in ['int', 'integer']),
                    'is_bignumber':  any(x in c.columnType for x in ['bigint']),
+                   'is_geometry':  any(x in c.columnType for x in ['geometry','geometrycollection', 'linestring', 'multilinestring', 'multipoint', 'multipolygon', 'point' , 'polygon']),
                    'is_date_or_time': any(x in c.columnType for x in ['timestamp', 'time', 'datetime', 'date']), 
                    'is_bin': any(x in c.columnType for x in ['geo', 'blob', 'binary']),
                    'is_float': any(x in c.columnType for x in ['decimal', 'float', 'double', 'real']),
@@ -384,6 +386,8 @@ class csv_module(base_module):
                                 row.append(rset.intFieldValueByName(col['name']))
                             elif col['is_float']:
                                 row.append(rset.floatFieldValueByName(col['name']))
+                            elif col['is_geometry']:
+                                row.append(rset.geoStringFieldValueByName(col['name']))
                             else:
                                 row.append(rset.stringFieldValueByName(col['name']))
                         output.writerow(row)
@@ -416,6 +420,8 @@ class csv_module(base_module):
             col_order = dict([(i['dest_col'], i['col_no']) for i in self._mapping if i['active']])
             col_type = dict([(i['dest_col'], i['type']) for i in self._mapping if i['active']])
 
+            is_server_5_7 = self._targetVersion.is_supported_mysql_version_at_least(Version.fromstr("5.7.5"))
+            
             self._editor.executeManagementCommand(query, 1)
             try:
                 is_header = self.has_header
@@ -445,14 +451,22 @@ class csv_module(base_module):
                             break
                         val = row[col_order[col]]
                         col_name = col_order[col]
-                        if col_type[col] == 'double':
-                            val = row[col_name].replace(self._decimal_separator, '.')
-                        elif col_type[col] == 'datetime':
-                            val = datetime.datetime.strptime(row[col_name], self._date_format).strftime("%Y-%m-%d %H:%M:%S")
-                            
-                        if hasattr(val, "replace"):
-                            val = val.replace("\\", "\\\\").replace('"', '\\"')
-                        self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val), 0)
+
+                        if col_type[col] == "geometry":
+                            if is_server_5_7:
+                                val = """ST_GeomFromText("%s")""" % row[col_name]
+                            else:
+                                val = """GeomFromText("%s")""" % row[col_name]
+                                
+                            self._editor.executeManagementCommand("""SET @a%d = %s """ % (i, val), 0)
+                        else:
+                            if col_type[col] == 'double':
+                                val = row[col_name].replace(self._decimal_separator, '.')
+                            elif col_type[col] == 'datetime':
+                                val = datetime.datetime.strptime(row[col_name], self._date_format).strftime("%Y-%m-%d %H:%M:%S")
+                            if hasattr(val, "replace"):
+                                val = val.replace("\\", "\\\\").replace('"', '\\"')
+                            self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val), 0)
                     else:
                         try:
                             self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 0)
@@ -499,7 +513,7 @@ class csv_module(base_module):
                 
                 if row:
                     for col_value in row:
-                        self._columns.append({'name': col_value, 'type': 'text', 'is_string': True, 'is_bignumber': False, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'is_json':False,'value': []})
+                        self._columns.append({'name': col_value, 'type': 'text', 'is_string': True, 'is_geometry': False, 'is_bignumber': False, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'is_json':False,'value': []})
 
                     for i, row in enumerate(reader): #we will read only first few rows
                         if i < 5:
@@ -593,6 +607,8 @@ class json_module(base_module):
                             row.append("\"%s\":%s" % (col['name'], json.dumps(rset.intFieldValueByName(col['name']))))
                         elif col['is_float']:
                             row.append("\"%s\":%s" % (col['name'], json.dumps(rset.floatFieldValueByName(col['name']))))
+                        elif col['is_geometry']:
+                            row.append("\"%s\":%s" % (col['name'], rset.geoJsonFieldValueByName(col['name'])))
                         else:
                             if col['type'] == "json":
                                 row.append("\"%s\":%s" % (col['name'], rset.stringFieldValueByName(col['name'])))
@@ -624,6 +640,7 @@ class json_module(base_module):
             query = """PREPARE stmt FROM 'INSERT INTO %s (%s) VALUES(%s)'""" % (self._table_w_prefix, ",".join(dest_col_order), ",".join(["?" for i in dest_col_order]))
             col_order = dict([(i['dest_col'], i['name']) for i in self._mapping if i['active']])
             col_type = dict([(i['name'], i['type']) for i in self._mapping if i['active']])
+            
             self._editor.executeManagementCommand(query, 1)
             try:
                 self._max_rows = len(data)
@@ -641,23 +658,29 @@ class json_module(base_module):
 
                         val = row[col_order[col]]
                         col_name = col_order[col]
-                        if col_type[col_name] != "json" and hasattr(val, "replace"):
-                            val = val.replace("\\", "\\\\").replace('"', '\\"')
-                            
-                        if col_type[col_name] == 'double':
-                            val = val(str).replace(self._decimal_separator, '.')
-                        elif col_type[col_name] == 'datetime':
-                            val = datetime.datetime.strptime(val, self._date_format).strftime("%Y-%m-%d %H:%M:%S")
-                        elif col_type[col_name] == "json":
-                            val = json.dumps(val).replace("\\", "\\\\").replace("'", "\\'")
 
-                        if col_type[col_name] == "int":
-                            self._editor.executeManagementCommand("""SET @a%d = %d """ % (i, val), 0)
-                        elif col_type[col_name] == "json":
-                            self._editor.executeManagementCommand("""SET @a%d = '%s' """ % (i, val), 0)
+                        if col_type[col] == "geometry":
+                            val = """ ST_GeomFromGeoJSON('%s')""" % json.dumps(val).replace("\\", "\\\\").replace("'", "\\'")
+                                 
+                            self._editor.executeManagementCommand("""SET @a%d = %s """ % (i, val), 0)
                         else:
-                            self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val), 0)
-                        
+                            if col_type[col_name] != "json" and hasattr(val, "replace"):
+                                val = val.replace("\\", "\\\\").replace('"', '\\"')
+                                
+                            if col_type[col_name] == 'double':
+                                val = val(str).replace(self._decimal_separator, '.')
+                            elif col_type[col_name] == 'datetime':
+                                val = datetime.datetime.strptime(val, self._date_format).strftime("%Y-%m-%d %H:%M:%S")
+                            elif col_type[col_name] == "json":
+                                val = json.dumps(val).replace("\\", "\\\\").replace("'", "\\'")
+    
+                            if col_type[col_name] == "int":
+                                self._editor.executeManagementCommand("""SET @a%d = %d """ % (i, int(val)), 0)
+                            elif col_type[col_name] == "json":
+                                self._editor.executeManagementCommand("""SET @a%d = '%s' """ % (i, val), 0)
+                            else:
+                                self._editor.executeManagementCommand("""SET @a%d = "%s" """ % (i, val), 0)
+                            
                     else:
                         try:
                             self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 0)
@@ -682,7 +705,7 @@ class json_module(base_module):
             datachunk = []
             rowcount = 0 
             while True:
-                if f.tell() >= 4096:
+                if f.tell() >= 20480:
                     log_error("Json file contains data that's in unknown structure: %s" % (self._filepath))
                     return False
                 c = f.read(1)
@@ -719,7 +742,7 @@ class json_module(base_module):
         
         self._columns = []
         for elem in data[0]:
-            self._columns.append({'name': elem, 'type': 'text', 'is_string': True, 'is_bignumber': False, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'is_json':False, 'value': []})
+            self._columns.append({'name': elem, 'type': 'text', 'is_string': True, 'is_geometry': False, 'is_bignumber': False, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'is_json':False, 'value': []})
 
         for row in data:
             for i, elem in enumerate(row):
