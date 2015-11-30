@@ -1,7 +1,7 @@
 include_directories(
     ${ODBC_INCLUDE_DIRS} 
     ${PYTHON_INCLUDE_DIRS} 
-    ${MYSQL_INCLUDE_DIRS} 
+    ${MySQL_INCLUDE_DIRS} 
     ${PROJECT_SOURCE_DIR}/backend/wbprivate
 )
 
@@ -17,6 +17,7 @@ if (UNIX)
       copytable/main.cpp
       copytable/converter.cpp
   )
+
   if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set_target_properties(wbcopytables-bin PROPERTIES COMPILE_FLAGS "-fPIE")
   else()
@@ -38,7 +39,7 @@ else()
     set_target_properties(wbcopytables PROPERTIES COMPILE_FLAGS "-fPIE -pie")
   endif()
 
-   target_link_libraries(wbcopytables wbbase ${MYSQL_LIBRARIES} ${ODBC_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES})
+   target_link_libraries(wbcopytables wbbase ${MySQL_LIBRARIES} ${ODBC_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES})
   
   install(TARGETS wbcopytables DESTINATION ${WB_INSTALL_BIN_DIR})
 endif()
