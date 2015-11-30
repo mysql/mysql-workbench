@@ -445,6 +445,12 @@ spatial::Importer::Importer() : _geometry(NULL), _interrupt(false)
 {
 }
 
+spatial::Importer::~Importer()
+{
+  if (_geometry != NULL)
+    OGRFree(_geometry);
+}
+
 OGRGeometry *spatial::Importer::steal_data()
 {
   OGRGeometry *tmp = _geometry;
