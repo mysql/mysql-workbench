@@ -72,7 +72,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/modules/db.mysql.sqlide/src
     ${GTK3_INCLUDE_DIRS}
     ${PCRE_INCLUDE_DIRS}
-    ${MYSQL_INCLUDE_DIRS}
+    ${MySQL_INCLUDE_DIRS}
     ${CTemplate_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}

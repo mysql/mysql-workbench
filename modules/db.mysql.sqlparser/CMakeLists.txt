@@ -20,7 +20,7 @@ include_directories(.
     ${GRT_INCLUDE_DIRS}
     ${PCRE_INCLUDE_DIR}
     ${PROJECT_SOURCE_DIR}
-    ${MYSQL_INCLUDE_DIRS}
+    ${MySQL_INCLUDE_DIRS}
 )
 
 if (MYSQL_DEFINITIONS)
