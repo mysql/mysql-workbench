@@ -207,7 +207,7 @@ CXXFLAGS="-std=c++11 $CXXFLAGS" \
 %endif
 %cmake -DCMAKE_BUILD_TYPE=Release \
        -DREAL_EXECUTABLE_DIR=%{_libexecdir}/mysql-workbench \
-       -DMYSQL_CONFIG_PATH=%{mysql_home}/bin/mysql_config \
+       -DMySQL_CONFIG_PATH=%{mysql_home}/bin/mysql_config \
        -DMYSQLCPPCONN_LIBRARY="-L%{mysqlcppconn_dir}/lib -lmysqlcppconn" \
        -DMYSQLCPPCONN_INCLUDE_DIR=%{mysqlcppconn_dir}/include \
        -DIODBC_CONFIG_PATH=%{odbc_home}/bin/iodbc-config \
