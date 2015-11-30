@@ -4,7 +4,7 @@ include_directories(.
     ${SIGC++_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
     ${PCRE_INCLUDE_DIRS}
-    ${MYSQL_INCLUDE_DIRS}
+    ${MySQL_INCLUDE_DIRS}
     ${SQLITE3_INCLUDE_DIRS}
     ${CTemplate_INCLUDE_DIRS}
     ${OPENGL_INCLUDE_DIRS}

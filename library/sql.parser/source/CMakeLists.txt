@@ -1,4 +1,4 @@
-include_directories(. ../include ${PROJECT_SOURCE_DIR}/modules/db.mysql.sqlparser/src ${MYSQL_INCLUDE_DIRS})
+include_directories(. ../include ${PROJECT_SOURCE_DIR}/modules/db.mysql.sqlparser/src ${MySQL_INCLUDE_DIRS})
 
 if (UNIX)
 	include_directories(./linux)
