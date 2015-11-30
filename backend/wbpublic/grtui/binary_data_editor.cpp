@@ -390,20 +390,16 @@ public:
       return;
     }
 
-    bool isJson = true;
     JsonParser::JsonValue value;
     try
     {
       JsonParser::JsonReader::read(converted, value);
+      if (_jsonView.text() != converted)
+        _jsonView.setJson(value);
     }
     catch (JsonParser::ParserException &)
     {
-      isJson = false;
-    }
-    if (isJson)
-    {
-      if (_jsonView.text() != converted)
-        _jsonView.setJson(value);
+      _jsonView.setText(converted);
     }
   }
 
@@ -532,6 +528,7 @@ BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size
   set_name("blob_editor");
   _data = 0;
   _length = 0;
+  _updating = false;
 
   grt::IntegerRef tab = grt::IntegerRef::cast_from(_grtm->get_app_option("BlobViewer:DefaultTab"));
 
@@ -614,6 +611,9 @@ void BinaryDataEditor::notify_edit()
 
 void BinaryDataEditor::assign_data(const char *data, size_t length, bool steal_pointer)
 {
+  if (_updating)
+    return;
+
   if (data != _data)
   {
     g_free(_data);
@@ -623,7 +623,7 @@ void BinaryDataEditor::assign_data(const char *data, size_t length, bool steal_p
       _data = (char*)g_memdup(data, (guint)length);
 
     for (size_t i = 0; i < _viewers.size(); i++)
-      _viewers[i].second = true;
+      _pendingUpdates.insert(_viewers[i]);
   }
   _length = length;
 
@@ -634,7 +634,7 @@ void BinaryDataEditor::tab_changed()
 {
   int i = _tab_view.get_active_tab();
   if (i < 0)
-    i= 0;
+    i = 0;
 
   grt::DictRef dict(grt::DictRef::cast_from(_grtm->get_app_option("")));
   if (dict.is_valid())
@@ -648,9 +648,11 @@ void BinaryDataEditor::tab_changed()
   }
   try
   {
-    if (_viewers[i].second && _data)
-      _viewers[i].first->data_changed();
-    _viewers[i].second = false;
+    _updating = true;
+    if (_pendingUpdates.count(_viewers[i]) > 0 && _data != NULL)
+      _viewers[i]->data_changed();
+    _pendingUpdates.erase(_viewers[i]);
+    _updating = false;
   }
   catch (std::exception &exc)
   {
@@ -660,7 +662,8 @@ void BinaryDataEditor::tab_changed()
 
 void BinaryDataEditor::add_viewer(BinaryDataViewer *viewer, const std::string &title)
 {
-  _viewers.push_back(std::make_pair(viewer, true));
+  _viewers.push_back(viewer);
+  _pendingUpdates.insert(viewer);
   
   _tab_view.add_page(mforms::manage(viewer), title);
 }
