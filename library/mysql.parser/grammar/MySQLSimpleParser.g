@@ -575,7 +575,7 @@ create_trigger_tail:
 ;
 
 trigger_follows_precedes_clause:
-	{SERVER_VERSION >= 50700}? => (FOLLOWS_SYMBOL | PRECEDES_SYMBOL) text_or_identifier // not a trigger reference!
+	{SERVER_VERSION >= 50700}? (FOLLOWS_SYMBOL | PRECEDES_SYMBOL) text_or_identifier // not a trigger reference!
 ;
 	
 create_view: // For external use only. Don't reference this in the normal grammar.
@@ -765,7 +765,7 @@ data_or_xml:
 ;
 
 xml_rows_identified_by:
-	{SERVER_VERSION >= 50500}? ROWS_SYMBOL IDENTIFIED_SYMBOL BY_SYMBOL text_string
+	{SERVER_VERSION >= 50500}? => ROWS_SYMBOL IDENTIFIED_SYMBOL BY_SYMBOL text_string
 ;
 
 load_data_file_tail:
@@ -981,17 +981,9 @@ query_specification:
 ;
 
 join_table: // Like the same named rule in sql_yacc.yy but with removed left recursion.
-	(INNER_SYMBOL | CROSS_SYMBOL)? JOIN_SYMBOL table_reference
-		( options { greedy = true; }:
-			ON_SYMBOL expression
-			| USING_SYMBOL identifier_list_with_parentheses
-		)?
+	(INNER_SYMBOL | CROSS_SYMBOL)? JOIN_SYMBOL table_reference ( options {greedy = true;}: join_condition)?
 	| STRAIGHT_JOIN_SYMBOL table_factor ( options {greedy = true;}: ON_SYMBOL expression)?
-	| (LEFT_SYMBOL | RIGHT_SYMBOL) OUTER_SYMBOL? JOIN_SYMBOL table_factor
-		(
-			join* ON_SYMBOL expression
-			| USING_SYMBOL identifier_list_with_parentheses
-		)
+	| (LEFT_SYMBOL | RIGHT_SYMBOL) OUTER_SYMBOL? JOIN_SYMBOL table_reference join_condition
 	| NATURAL_SYMBOL ((LEFT_SYMBOL | RIGHT_SYMBOL) OUTER_SYMBOL?)? JOIN_SYMBOL table_factor
 ;
 
@@ -1365,7 +1357,7 @@ rename_user:
 revoke_statement:
 	REVOKE_SYMBOL
 	(
-		{LA(1) == ALL_SYMBOL}? ALL_SYMBOL PRIVILEGES_SYMBOL? COMMA_SYMBOL GRANT_SYMBOL OPTION_SYMBOL FROM_SYMBOL user_list
+		{LA(1) == ALL_SYMBOL}? => ALL_SYMBOL PRIVILEGES_SYMBOL? COMMA_SYMBOL GRANT_SYMBOL OPTION_SYMBOL FROM_SYMBOL user_list
 		| grant_privileges privilege_target FROM_SYMBOL user_list
 		| {SERVER_VERSION >= 50500}? PROXY_SYMBOL ON_SYMBOL user FROM_SYMBOL user_list
 	)
@@ -1680,7 +1672,7 @@ load_table_index_list:
 ;
 
 load_table_index_partion:
-	{SERVER_VERSION >= 50500}? (PARTITION_SYMBOL OPEN_PAR_SYMBOL (identifier_list | ALL_SYMBOL) CLOSE_PAR_SYMBOL)
+	{SERVER_VERSION >= 50500}? => (PARTITION_SYMBOL OPEN_PAR_SYMBOL (identifier_list | ALL_SYMBOL) CLOSE_PAR_SYMBOL)
 ;
 
 reset_option:
@@ -2716,7 +2708,7 @@ partitioning:
 ;
 
 partition_key_algorithm: // Actually only 1 and 2 are allowed. Needs a semantic check.
-	{SERVER_VERSION >= 50700}? => ALGORITHM_SYMBOL EQUAL_OPERATOR real_ulong_number
+	{SERVER_VERSION >= 50700}? ALGORITHM_SYMBOL EQUAL_OPERATOR real_ulong_number
 ;
 
 partition_definitions:
@@ -2849,7 +2841,7 @@ like_or_where:
 ;
 
 online_option:
-	{SERVER_VERSION < 50600}? => (ONLINE_SYMBOL | OFFLINE_SYMBOL)
+	{SERVER_VERSION < 50600}? (ONLINE_SYMBOL | OFFLINE_SYMBOL)
 ;
 
 no_write_to_bin_log:
@@ -3263,7 +3255,7 @@ keyword:
 		| SECURITY_SYMBOL
 		| SERVER_SYMBOL
 		| /*{SERVER_VERSION >= 50709}? */ SHUTDOWN_SYMBOL // Moved here from keyword_sp.
-			// Cannot make this alt using a sempred as ANTLR crashs on that (Out Of Mem).
+			// Cannot make this alt using a sempred as ANTLR crashs on that (stack overflow).
 		| SIGNED_SYMBOL
 		| SLAVE_SYMBOL
 		| SOCKET_SYMBOL
