@@ -2536,14 +2536,15 @@ JsonTextView::JsonTextView() :
 /**
  * @brief Fill text in control
  *
- * @param jsonText A string that contains the JSON text data to set..
+ * @param jsonText A string that contains the JSON text data to set.
  */
 void JsonTextView::setText(const std::string &jsonText)
 {
   _textEditor->set_value(jsonText.c_str());
-  _validationResult->set_text("Document valid.");
+  _validationResult->set_text("Document changed.");
   _validationResult->set_tooltip("");
   _text = jsonText;
+  validate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2630,9 +2631,12 @@ void JsonTextView::editorContentChanged(int position, int length, int numberOfLi
   _modified = true;
   _validationResult->set_text("Content changed.");
   _validationResult->set_tooltip("");
+
+  _text = _textEditor->get_text(false);
+  _dataChanged(true);
 }
 
-/** 
+/**
  * @brief Signal emitted when the validate was clicked.
  */
 void JsonTextView::validate()
@@ -2641,12 +2645,10 @@ void JsonTextView::validate()
   {
     try
     {
-      std::string content = _textEditor->get_text(false);
       JsonParser::JsonValue value;
-      JsonParser::JsonReader::read(content, value);
+      JsonParser::JsonReader::read(_text, value);
       _json = value;
-      _text = content;
-      _dataChanged(true);
+
       _modified = false;
       _validationResult->set_text("Document valid.");
       _validationResult->set_tooltip("");
@@ -2793,6 +2795,7 @@ void JsonTreeView::generateObjectInTree(JsonParser::JsonValue &value, int /*colu
     default:
       break;
     }
+
     mforms::TreeNodeRef node2 = (addNew) ? node->add_child() : node;
     if (addNew)
     {
@@ -3548,6 +3551,8 @@ void JsonTabView::setJson(const JsonParser::JsonValue &value)
 void JsonTabView::setText(const std::string &text)
 {
   _jsonText = text;
+  _textView->setText(text);
+  dataChanged(true);
 }
 
 //--------------------------------------------------------------------------------------------------
