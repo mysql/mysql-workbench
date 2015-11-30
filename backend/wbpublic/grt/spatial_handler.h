@@ -139,6 +139,7 @@ namespace spatial
     void extract_points(OGRGeometry *shape, std::deque<ShapeContainer> &shapes_container);
   public:
     Importer();
+    ~Importer();
     int import_from_mysql(const std::string &data);
     int import_from_wkt(std::string data);
     void get_points(std::deque<ShapeContainer> &shapes_container);
