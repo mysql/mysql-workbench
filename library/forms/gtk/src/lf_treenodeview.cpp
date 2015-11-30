@@ -1138,7 +1138,7 @@ int TreeNodeViewImpl::ColumnRecord::add_integer(Gtk::TreeView *tree, const std::
     column_attr_index.push_back(-1);
 
   if (editable)
-    tree->get_column(idx)->get_first_cell_renderer()->signal_editing_started().connect(sigc::mem_fun(this, &ColumnRecord::on_cell_editing_started));
+    tree->get_column(idx-1)->get_first_cell_renderer()->signal_editing_started().connect(sigc::mem_fun(this, &ColumnRecord::on_cell_editing_started));
   return idx-1;
 }
 
@@ -1163,7 +1163,7 @@ int TreeNodeViewImpl::ColumnRecord::add_long_integer(Gtk::TreeView *tree, const 
     column_attr_index.push_back(-1);
 
   if (editable)
-    tree->get_column(idx)->get_first_cell_renderer()->signal_editing_started().connect(sigc::mem_fun(this, &ColumnRecord::on_cell_editing_started));
+    tree->get_column(idx-1)->get_first_cell_renderer()->signal_editing_started().connect(sigc::mem_fun(this, &ColumnRecord::on_cell_editing_started));
 
   return idx-1;
 }
@@ -1187,7 +1187,7 @@ int TreeNodeViewImpl::ColumnRecord::add_float(Gtk::TreeView *tree, const std::st
       column_attr_index.push_back(-1);
 
     if (editable)
-      tree->get_column(idx)->get_first_cell_renderer()->signal_editing_started().connect(sigc::mem_fun(this, &ColumnRecord::on_cell_editing_started));
+      tree->get_column(idx-1)->get_first_cell_renderer()->signal_editing_started().connect(sigc::mem_fun(this, &ColumnRecord::on_cell_editing_started));
 
     return idx-1;
 }
