@@ -336,7 +336,10 @@ static void set_busy_tab(int tab, WBSQLQueryPanel *self)
 static void processTaskFinish(WBSQLQueryPanel *self)
 {
   [self->mMessagesTable reloadData];
-  [self->mMessagesTable scrollRowToVisible: [self->mMessagesTable numberOfRows]-1];
+
+  // This will scroll the selection into view.
+  [self->mMessagesTable selectRowIndexes: [NSIndexSet indexSetWithIndex: self->mMessagesTable.numberOfRows - 1]
+                    byExtendingSelection: NO];
 
   if (self->mBackEnd->exec_sql_error_count() > 0)
   {
