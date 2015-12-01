@@ -27,8 +27,6 @@
 #include "base/log.h"
 #include "base/string_utilities.h"
 
-#define NO_INT64_COLUMNS
-
 DEFAULT_LOG_DOMAIN("mforms.linux");
 
 namespace mforms {
@@ -746,7 +744,7 @@ void TreeNodeImpl::set_long(int column, boost::int64_t value)
   if (is_valid() && !is_root())
   {
     Gtk::TreeRow row = *iter();
-    row.set_value(_treeview->index_for_column(column), base::strfmt("%" PRId64, value));
+    row.set_value(_treeview->index_for_column(column), value);
   }
 }
 
@@ -807,9 +805,9 @@ boost::int64_t TreeNodeImpl::get_long(int column) const
   if (is_valid() && !is_root())
   {
     Gtk::TreeRow row = *iter();
-    std::string value;
+    boost::int64_t value;
     row.get_value(_treeview->index_for_column(column), value);
-    return strtoll(value.c_str(), NULL, 0);
+    return value;
   }
   return 0;
 }
@@ -1144,11 +1142,8 @@ int TreeNodeViewImpl::ColumnRecord::add_integer(Gtk::TreeView *tree, const std::
 
 int TreeNodeViewImpl::ColumnRecord::add_long_integer(Gtk::TreeView *tree, const std::string &title, bool editable, bool attr)
 {
-#ifdef NO_INT64_COLUMNS
-  Gtk::TreeModelColumn<Glib::ustring> *column= add_model_column<Glib::ustring>();
-#else
   Gtk::TreeModelColumn<boost::int64_t> *column= add_model_column<boost::int64_t>();
-#endif
+
   int idx;
   column_value_index.push_back(size()-1);
 
