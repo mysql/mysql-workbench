@@ -22,6 +22,7 @@
 #include <mforms/mforms.h>
 
 #include "lf_view.h"
+#include "base/string_utilities.h"
 
 namespace mforms {
 namespace gtk {
@@ -306,7 +307,11 @@ private:
     int add_float(Gtk::TreeView *tree, const std::string &title, bool editable, bool attr);
     int add_check(Gtk::TreeView *tree, const std::string &title, bool editable, bool attr);
     int add_tri_check(Gtk::TreeView *tree, const std::string &title, bool editable, bool attr);
+    template <typename T>
+      std::pair<Gtk::TreeViewColumn*,int> create_column(Gtk::TreeView *tree, const std::string &title, bool editable, bool attr, bool with_icon,
+                                                      bool align_right = false );
     void format_tri_check(Gtk::CellRenderer* cell, const Gtk::TreeIter& iter, const Gtk::TreeModelColumn<int>& column);
+
   };
 
   bool _is_drag_source;
