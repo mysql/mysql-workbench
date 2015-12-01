@@ -2269,13 +2269,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                     }
 
                     rs->data_storage(data_storage);
-
-                    {
-                      //We need this mutex, because reset(bool) is using aux_connection
-                      //to query bestrowidentifier.
-                      RecMutexLock aux_mtx(ensure_valid_aux_connection(_aux_dbc_conn));
-                      rs->reset(true);
-                    }
+                    rs->reset(true);
 
                     if (data_storage->valid()) // query statement
                     {
@@ -2294,8 +2288,6 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
 
                       set_log_message(log_message_index, DbSqlEditorLog::OKMsg, statement_res_msg, statement, exec_and_fetch_durations);
                     }
-                    //! else failed to fetch data
-                    //added_recordsets.push_back(rs);
                     ++resultset_count;
                     ++total_result_count;
                   }

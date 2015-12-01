@@ -184,9 +184,9 @@ bool Recordset::reset(Recordset_data_storage::Ptr data_storage_ptr, bool rethrow
     CATCH_AND_DISPATCH_EXCEPTION(rethrow, "Reset recordset")
   }
 
-  data_edited();
-  //refresh_ui(); This is the wrong place for a GUI refresh. Reset is called from many places, including the c-tor.
-
+  // Don't use refresh() to send update requests for the UI. It's regularly called from a background thread.
+  // Instead the caller should schedule refresh calls (and coalesce them).
+  
   return res;
 }
 
@@ -279,7 +279,7 @@ void Recordset::data_edited()
   if (_grtm->in_main_thread())
     data_edited_signal();
   else
-    log_debug2("data_edited called from thread\n");
+    log_error("data_edited called from thread\n");
 }
 
 
