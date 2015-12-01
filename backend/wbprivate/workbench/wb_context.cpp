@@ -322,6 +322,12 @@ bool WBOptions::parse_args(char **argv, int argc, int *retval)
       force_opengl_rendering= true;
     else 
 #endif
+    if (strcmp(argv[i], "--g-") == 0 || strcmp(argv[i], "--gtk-"))
+    {
+        // GTK+ Applications Common commandline options
+        // @see https://developer.gnome.org/gtk2/stable/gtk-running.html
+    }
+    else
     if (strcmp(argv[i], OPPREFIX"help") == 0 || strcmp(argv[i], "-h") == 0)
     {
       show_help(argv[0]);

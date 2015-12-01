@@ -27,6 +27,7 @@
 #include "mforms/drawbox.h"
 #include "mforms/textentry.h"
 #include "mforms/imagebox.h"
+#include "mforms/uistyle.h"
 
 #include "home_screen.h"
 #include "home_screen_connections.h"
@@ -296,16 +297,25 @@ public:
   void draw_icon_with_text(cairo_t *cr, int x, int y, cairo_surface_t *icon,
     const std::string &text, bool high_contrast)
   {
-    mforms::Utilities::paint_icon(cr, icon, x, y);
+      base::Color fg;
+#if defined(__APPLE__) || defined(_WIN32)
+    if (high_contrast)
+      fg = base::Color(0, 0, 0);
+    else
+      fg = base::Color(0xF9 / 255.0, 0xF9 / 255.0, 0xF9 / 255.0, 0.5);
+#else
+    mforms::Style *style = this->get_style();
+    fg = base::Color(style->text[mforms::STATE_NORMAL].red, style->text[mforms::STATE_NORMAL].green, style->text[mforms::STATE_NORMAL].blue);
+#endif
+
+    cairo_set_source_rgb(cr, fg.red, fg.green, fg.blue);
+    mforms::Utilities::paint_icon(cr, icon, x, y, 1.0, true);
     x += image_width(icon) + 3;
 
     cairo_text_extents_t extents;
     cairo_text_extents(cr, text.c_str(), &extents);
 
-    if (high_contrast)
-      cairo_set_source_rgb(cr, 0, 0, 0);
-    else
-      cairo_set_source_rgba(cr, 0xF9 / 255.0, 0xF9 / 255.0, 0xF9 / 255.0, 0.5);
+    cairo_set_source_rgb(cr, fg.red, fg.green, fg.blue);
     cairo_move_to(cr, x , (int)(y + image_height(icon) / 2.0 + extents.height / 2.0));
     cairo_show_text(cr, text.c_str());
     cairo_stroke(cr);
@@ -346,11 +356,17 @@ public:
 
     y -= 6;
 
+#if defined(__APPLE__) || defined(_WIN32)
     double component = 0x5E / 255.0;
     if (high_contrast)
       component = 0;
 
     cairo_set_source_rgb(cr, component, component, component);
+#else
+    mforms::Style *style = this->get_style();
+    cairo_set_source_rgb(cr, style->fg[mforms::STATE_NORMAL].red, style->fg[mforms::STATE_NORMAL].green, style->fg[mforms::STATE_NORMAL].blue);
+#endif
+
     cairo_move_to(cr, x, y);
     cairo_show_text(cr, page_string.c_str());
     cairo_stroke(cr);
@@ -384,10 +400,16 @@ public:
     int icon_width, icon_height;
     mforms::Utilities::get_icon_size(_model_icon, icon_width, icon_height);
 
+#if defined(__APPLE__) || defined(_WIN32)
     if (high_contrast)
       cairo_set_source_rgb(cr, 0, 0, 0);
     else
       cairo_set_source_rgb(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0);
+#else
+    mforms::Style *style = this->get_style();
+    cairo_set_source_rgb(cr, style->fg[mforms::STATE_NORMAL].red, style->fg[mforms::STATE_NORMAL].green, style->fg[mforms::STATE_NORMAL].blue);
+#endif
+
     cairo_select_font_face(cr, HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, HOME_SUBTITLE_FONT_SIZE);
     int x = (int)entry.bounds.left();
@@ -400,10 +422,16 @@ public:
       width = ceil(extents.width);
 
       cairo_save(cr);
+#if defined(__APPLE__) || defined(_WIN32)
       if (high_contrast)
         cairo_set_source_rgb(cr, 1, 1, 1);
       else
         cairo_set_source_rgb(cr, 0, 0, 0);
+#else
+    mforms::Style *style = this->get_style();
+    cairo_set_source_rgb(cr, style->base[mforms::STATE_NORMAL].red, style->base[mforms::STATE_NORMAL].green, style->base[mforms::STATE_NORMAL].blue);
+#endif
+
       text_with_decoration(cr, x-1, y, entry.title.c_str(), true, width);
       text_with_decoration(cr, x+1, y, entry.title.c_str(), true, width);
       text_with_decoration(cr, x, y-1, entry.title.c_str(), true, width);
@@ -703,24 +731,33 @@ public:
 
     bool high_contrast = base::Color::is_high_contrast_scheme();
     // Heading for switching display mode. Draw heading hot only when we support more sections.
+    base::Color fg;
+#if defined(__APPLE__) || defined(_WIN32)
     if (high_contrast)
-      cairo_set_source_rgb(cr, 0, 0, 0);
+      fg = base::Color(0, 0, 0);
     else
-      cairo_set_source_rgba(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0, _display_mode == ModelsOnly ? 1 : 0.2);
+      fg = base::Color(0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0, _display_mode == ModelsOnly ? 1 : 0.2);
+#else
+    mforms::Style *style = this->get_style();
+    fg = base::Color(style->fg[mforms::STATE_NORMAL].red, style->fg[mforms::STATE_NORMAL].green, style->fg[mforms::STATE_NORMAL].blue);
+#endif
+
+    cairo_set_source_rgba(cr, fg.red, fg.green, fg.blue, fg.alpha);
     text_with_decoration(cr, _model_heading_rect.left(), _model_heading_rect.top(), _("Models"),
       false /*_hot_heading == ModelsOnly*/, _model_heading_rect.width());
 
-    if (high_contrast)
-      cairo_set_operator(cr, CAIRO_OPERATOR_XOR);
+//    if (high_contrast)
+//      cairo_set_operator(cr, CAIRO_OPERATOR_XOR);
 
-    cairo_set_source_surface(cr, _plus_icon, _add_button.bounds.left(), _add_button.bounds.top());
-    cairo_paint(cr);
+    cairo_set_source_rgb(cr, fg.red, fg.green, fg.blue);
+    mforms::Utilities::paint_icon(cr, _plus_icon, _add_button.bounds.left(), _add_button.bounds.top(), 1.0, true);
 
-    cairo_set_source_surface(cr, _open_icon, _open_button.bounds.left(), _open_button.bounds.top());
-    cairo_paint(cr);
+    cairo_set_source_rgb(cr, fg.red, fg.green, fg.blue);
+    mforms::Utilities::paint_icon(cr, _open_icon, _open_button.bounds.left(), _open_button.bounds.top(), 1.0, true);
 
-    cairo_set_source_surface(cr, _action_icon, _action_button.bounds.left(), _action_button.bounds.top());
-    cairo_paint(cr);
+    cairo_set_source_rgb(cr, fg.red, fg.green, fg.blue);
+    mforms::Utilities::paint_icon(cr, _action_icon, _action_button.bounds.left(), _action_button.bounds.top(), 1.0, true);
+
 
     /* Disabled for now.
     if (high_contrast)
@@ -751,6 +788,7 @@ public:
     
     if (high_contrast)
       cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+
 
     int row = 0;
     base::Rect bounds(0, DOCUMENTS_TOP_PADDING, DOCUMENTS_ENTRY_WIDTH, DOCUMENTS_ENTRY_HEIGHT);
@@ -809,6 +847,7 @@ public:
 
     if (_show_selection_message)
       draw_selection_message(cr, high_contrast);
+
   }
 
   //------------------------------------------------------------------------------------------------
@@ -1472,10 +1511,16 @@ public:
 
     y -= 6;
 
+#if defined(__APPLE__) || defined(_WIN32)
     if (high_contrast)
       cairo_set_source_rgb(cr, 0, 0, 0);
     else
       cairo_set_source_rgb(cr, 0x5E / 255.0, 0x5E / 255.0, 0x5E / 255.0);
+#else
+    mforms::Style *style = this->get_style();
+    cairo_set_source_rgb(cr, style->fg[mforms::STATE_NORMAL].red, style->fg[mforms::STATE_NORMAL].green, style->fg[mforms::STATE_NORMAL].blue);
+#endif
+
     cairo_move_to(cr, x, y);
     cairo_show_text(cr, page_string.c_str());
     cairo_stroke(cr);
@@ -1519,10 +1564,22 @@ public:
     cairo_set_font_size(cr, HOME_TITLE_FONT_SIZE);
 
     bool high_contrast = base::Color::is_high_contrast_scheme();
-    if (high_contrast)
-      cairo_set_source_rgb(cr, 0, 0, 0);
-    else
-      cairo_set_source_rgb(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0);
+    base::Color fg;// Headline
+    base::Color text;
+#if defined(__APPLE__) || defined(_WIN32)
+    if (high_contrast) {
+      fg = base::Color(0, 0, 0);
+      text = base::Color(0, 0, 0);
+    } else {
+      fg = base::Color(0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0);
+      text = base::Color(0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0);
+    }
+#else
+    mforms::Style *style = this->get_style();
+    fg = base::Color(style->fg[mforms::STATE_NORMAL].red, style->fg[mforms::STATE_NORMAL].green, style->fg[mforms::STATE_NORMAL].blue);
+    text = base::Color(style->text[mforms::STATE_NORMAL].red, style->text[mforms::STATE_NORMAL].green, style->text[mforms::STATE_NORMAL].blue);
+#endif
+    cairo_set_source_rgb(cr, fg.red, fg.green, fg.blue);
     cairo_move_to(cr, SHORTCUTS_LEFT_PADDING, 45);
     cairo_show_text(cr, _("Shortcuts"));
     cairo_stroke(cr);
@@ -1548,10 +1605,8 @@ public:
 
         if (!iterator->title.empty())
         {
-          if (high_contrast)
-            cairo_set_source_rgba(cr, 0, 0, 0, alpha);
-          else
-            cairo_set_source_rgba(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0, alpha);
+          cairo_set_source_rgb(cr, text.red, text.green, text.blue);
+
           text_with_decoration(cr, iterator->title_bounds.left(), iterator->title_bounds.top() + yoffset,
             iterator->title.c_str(), iterator->shortcut == _hot_shortcut, iterator->title_bounds.width());
         }
@@ -1896,12 +1951,15 @@ void HomeScreen::update_colors()
   _connection_section->set_back_color("#323232");
   _document_section->set_back_color("#343434");
   _shortcut_section->set_back_color("#373737");
-#else
-  bool high_contrast = base::Color::is_high_contrast_scheme();
 
-  _connection_section->set_back_color(high_contrast ? "#f0f0f0" : "#1d1d1d");
-  _document_section->set_back_color(high_contrast ? "#f8f8f8" : "#242424");
-  _shortcut_section->set_back_color(high_contrast ? "#ffffff" : "#303030");
+#elif defined(_WIN32)
+    bool high_contrast = base::Color::is_high_contrast_scheme();
+
+    _connection_section->set_back_color(high_contrast ? "#f0f0f0" : "#1d1d1d");
+    _document_section->set_back_color(high_contrast ? "#f8f8f8" : "#242424");
+    _shortcut_section->set_back_color(high_contrast ? "#ffffff" : "#303030");
+#else
+  // on Linux (Gtk) use the theme systeme
 #endif
 }
 

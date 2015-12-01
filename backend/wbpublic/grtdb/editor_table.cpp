@@ -39,6 +39,7 @@
 #include "mforms/record_grid.h"
 #include "mforms/toolbar.h"
 #include "mforms/utilities.h"
+#include "mforms/scrollpanel.h"
 
 #include <algorithm>
 #undef min
@@ -3362,9 +3363,11 @@ mforms::View *TableEditorBE::get_inserts_panel()
     restore_inserts_columns();
     _inserts_grid->signal_column_resized()->connect(boost::bind(&TableEditorBE::inserts_column_resized, this, _1));
 
-    _inserts_panel = mforms::manage(new mforms::Box(false));
-    _inserts_panel->add(mforms::manage(tbar), false, true);
-    _inserts_panel->add(mforms::manage(_inserts_grid), true, true);
+    mforms::Box *box = mforms::manage(new mforms::Box(false));
+    _inserts_panel = mforms::manage(new mforms::ScrollPanel());
+    box->add(mforms::manage(tbar), false, true);
+    box->add(mforms::manage(_inserts_grid), true, true);
+    _inserts_panel->add(box);
   }
   return _inserts_panel;
 }

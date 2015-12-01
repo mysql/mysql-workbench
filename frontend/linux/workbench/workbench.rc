@@ -1,6 +1,43 @@
+# the folowing commented line are for ligth theme
+#gtk-color-scheme = "base_color:#ffffff\nfg_color:#202020\ntooltip_fg_color:#ffffff\nselected_bg_color:#f07746\nselected_fg_color:#FFFFFF\ntext_color:#3C3C3C\nbg_color:#F2F1F0\ntooltip_bg_color:#000000\nlink_color:#DD4814"
+gtk-color-scheme = "base_color:#ffffff\nfg_color:#FCFCFC\ntooltip_fg_color:#ffffff\nselected_bg_color:#f07746\nselected_fg_color:#FFFFFF\ntext_color:#ECECEC\nbg_color:#303030\ntooltip_bg_color:#000000\nlink_color:#DD4814"
+
 style "content-default" {
   font_name = "Bitstream Vera Sans 9"
 }
+style "tab" = "content-default" {
+  font_name = "Bitstream Vera Sans 8"
+}
+
+style "content-default" {
+  font_name = "Bitstream Vera Sans 9"
+}
+style "tab" = "content-default" {
+}
+style "home-connections-section-style" {
+  bg[NORMAL]= shade (0.7, @bg_color)
+#  bg[NORMAL]= shade (1.03, @bg_color)
+
+  fg[NORMAL]= @fg_color
+  text[NORMAL]= @text_color
+  base[NORMAL]= "#666666" # shade(1.0, @base_color)
+  base[ACTIVE]= "#838383" # shade(1.0, @base_color)
+}
+style "home-models-section-style" {
+  bg[NORMAL]= @bg_color
+#  bg[NORMAL]= @bg_color
+
+  fg[NORMAL]= @fg_color
+  text[NORMAL]= @text_color
+}
+style "home-shortcuts-section-style" {
+  bg[NORMAL]= shade (0.95, @bg_color)
+#  bg[NORMAL]= shade (0.95, @bg_color)
+
+  fg[NORMAL]= @fg_color
+  text[NORMAL]= @text_color
+}
+
 
 style "overview-header" {
   font_name= "helvetica bold 10"
@@ -106,4 +143,7 @@ widget "*.wbcentral*.*GtkLinkButton*" style "central-link"
 widget "*.tools_toolbar.*" style "toolbar-button"
 widget "*.options_toolbar.*" style "toolbar-button"
 widget "*.wbtab-close-button" style "wbtab-close-button-style"
-
+widget "*.tab" style "tab"
+widget "*.home-connections-section" style "home-connections-section-style"
+widget "*.home-models-section" style "home-models-section-style"
+widget "*.home-shortcuts-section" style "home-shortcuts-section-style"

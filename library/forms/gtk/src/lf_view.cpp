@@ -36,7 +36,9 @@ Gtk::Widget *ViewImpl::get_inner() const
 
 ViewImpl::ViewImpl(::mforms::View *view)
   : ObjectImpl(view), _back_image_alignment(mforms::NoAlign),  _last_btn_down(NULL), _target(NULL), _drag_image(NULL)
-{}
+{
+    _style = 0;
+}
 
 
 void ViewImpl::destroy(::mforms::View *self)
@@ -281,7 +283,29 @@ void ViewImpl::set_name(::mforms::View *self, const std::string &name)
 
 void ViewImpl::set_name(const std::string &name)
 {
+    Gtk::Widget *widget = this->get_outer();
+    if (widget)
+    {
 
+        Glib::ustring str = name;
+        // Transform to canonical name
+        {
+            str = str.lowercase();
+
+            std::string::size_type pos = 0;
+            std::string fromStr = " ";
+            std::string toStr = "-";
+            // Loop while finding substrings
+            while ((pos = str.find(fromStr, pos)) < std::string::npos)
+              {
+                str.replace(pos, fromStr.length(), toStr);
+                pos+=toStr.size(); // add the replacement substring size
+                                   // to pos to avoid infinite loops
+              }
+        }
+
+      widget->set_name(str);
+    }
 }
 
 void ViewImpl::relayout(::mforms::View *view)
@@ -425,6 +449,58 @@ void ViewImpl::set_back_color(::mforms::View *self, const std::string &color)
     view->set_back_color(color);
 }
 
+mforms::Style *ViewImpl::get_style(::mforms::View *self)
+{
+    ViewImpl *view= self->get_data<ViewImpl>();
+    if (view)
+      view->get_style_impl();
+
+  return view->_style;
+}
+
+mforms::Style *ViewImpl::get_style_impl()
+{
+    this->_style = new mforms::Style();
+
+    Gtk::Widget *widget = this->get_inner();
+    Glib::RefPtr<const Gtk::Style> gtk_style = widget->get_style();
+
+    // background
+    Gdk::Color bg_normal = gtk_style->get_background(Gtk::STATE_NORMAL);
+    Gdk::Color bg_selected = gtk_style->get_background(Gtk::STATE_SELECTED);
+    Gdk::Color bg_insensitive = gtk_style->get_background(Gtk::STATE_INSENSITIVE);
+    //Gdk::Color bg_active = gtk_style->get_background(Gtk::STATE_ACTIVE);
+
+    this->_style->bg[mforms::STATE_NORMAL] = base::Color(bg_normal.get_red_p(), bg_normal.get_green_p(), bg_normal.get_blue_p());
+    this->_style->bg[mforms::STATE_ACTIVE] = base::Color(bg_selected.get_red_p(), bg_selected.get_green_p(), bg_selected.get_blue_p());
+    this->_style->bg[mforms::STATE_INSENSITIVE] = base::Color(bg_insensitive.get_red_p(), bg_insensitive.get_green_p(), bg_insensitive.get_blue_p());
+
+    // foreground
+    Gdk::Color fg_normal = gtk_style->get_fg(Gtk::STATE_NORMAL);
+    Gdk::Color fg_selected = gtk_style->get_fg(Gtk::STATE_SELECTED);
+    Gdk::Color fg_insensitive = gtk_style->get_fg(Gtk::STATE_INSENSITIVE);
+
+    this->_style->fg[mforms::STATE_NORMAL] = base::Color(fg_normal.get_red_p(), fg_normal.get_green_p(), fg_normal.get_blue_p());
+    this->_style->fg[mforms::STATE_ACTIVE] = base::Color(fg_selected.get_red_p(), fg_selected.get_green_p(), fg_selected.get_blue_p());
+    this->_style->fg[mforms::STATE_INSENSITIVE] = base::Color(fg_insensitive.get_red_p(), fg_insensitive.get_green_p(), fg_insensitive.get_blue_p());
+
+    // base
+    Gdk::Color base_normal = gtk_style->get_base(Gtk::STATE_NORMAL);
+    Gdk::Color base_active = gtk_style->get_base(Gtk::STATE_ACTIVE);
+
+    this->_style->base[mforms::STATE_NORMAL] = base::Color(base_normal.get_red_p(), base_normal.get_green_p(), base_normal.get_blue_p());
+    this->_style->base[mforms::STATE_ACTIVE] = base::Color(base_active.get_red_p(), base_active.get_green_p(), base_active.get_blue_p());
+
+    // link
+    Gdk::Color text_normal = gtk_style->get_text(Gtk::STATE_NORMAL);
+    Gdk::Color text_selected = gtk_style->get_text(Gtk::STATE_SELECTED);
+
+    this->_style->text[mforms::STATE_NORMAL] = base::Color(text_normal.get_red_p(), text_normal.get_green_p(), text_normal.get_blue_p());
+    this->_style->text[mforms::STATE_ACTIVE] = base::Color(text_selected.get_red_p(), text_selected.get_green_p(), text_selected.get_blue_p());
+
+    return 0;
+}
+
 std::string ViewImpl::get_front_color(::mforms::View *self)
 {
  // ViewImpl *view= self->get_data<ViewImpl>();
@@ -548,6 +624,7 @@ void ViewImpl::set_padding(::mforms::View *self, int left, int top, int right, i
 
 void ViewImpl::set_padding_impl(int left, int top, int right, int bottom)
 {}
+
 
 //------------------------------------------------------------------------------
 void ViewImpl::set_allow_drag(::mforms::View* self, const bool flag)
@@ -1011,6 +1088,7 @@ void ViewImpl::init()
   f->_view_impl.set_back_image        = &ViewImpl::set_back_image;
   f->_view_impl.flush_events          = &ViewImpl::flush_events;
   f->_view_impl.set_padding           = &ViewImpl::set_padding;
+  f->_view_impl.get_style             = &ViewImpl::get_style;
   f->_view_impl.drag_data             = &ViewImpl::drag_data;
   f->_view_impl.drag_text             = &ViewImpl::drag_text;
 

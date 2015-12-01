@@ -87,6 +87,8 @@ protected:
   static std::string get_front_color(::mforms::View *self);
   static std::string get_back_color(::mforms::View *self);
   virtual void set_back_color(const std::string &color);
+  static mforms::Style *get_style(::mforms::View *self);
+  virtual mforms::Style *get_style_impl();
   static void set_back_image(::mforms::View *self, const std::string &path, mforms::Alignment alig);
   static void flush_events(::mforms::View *self);
   static void set_padding(::mforms::View *self, int left, int top, int right, int bottom);
@@ -113,6 +115,7 @@ protected:
 
   std::map<std::string,DataWrapper> _drop_data;
 
+  mforms::Style *_style;
   //can be null
   cairo_surface_t *_drag_image;
 //

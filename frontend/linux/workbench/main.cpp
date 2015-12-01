@@ -122,6 +122,7 @@ int main(int argc, char **argv)
   Gtk::RC::add_default_file(wboptions.basedir+"/workbench.rc");
 
   gdk_threads_enter();
+  gtk_init(&argc, &argv);
   Gtk::Main app(argc, argv);
 
   if (getenv("XSYNC"))

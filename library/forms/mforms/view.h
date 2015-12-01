@@ -35,6 +35,7 @@ namespace mforms {
   const std::string DragFormatFileName = "com.mysql.workbench.file"; // A plain file name (UTF-8 encoded).
 
   class View;
+  class Style;
 
   enum Alignment
   {
@@ -188,6 +189,7 @@ namespace mforms {
     int (*get_preferred_height)(View *self);
     void (*set_size)(View *self, int, int);
     void (*set_padding)(View *self, int, int, int, int); // left, top, right, bottom
+    mforms::Style* (*get_style)(View *self);
 
     int (*get_x)(View *self);
     int (*get_y)(View *self);
@@ -283,6 +285,8 @@ namespace mforms {
     virtual int get_y();
     virtual void set_position(int x, int y);
     virtual void set_size(int width, int height);
+    mforms::Style *get_style();
+    mforms::Style *_style;
 
     std::pair<int, int>client_to_screen(int x, int y);
     std::pair<int, int>screen_to_client(int x, int y);

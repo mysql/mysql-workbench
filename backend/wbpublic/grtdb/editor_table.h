@@ -42,6 +42,7 @@ namespace mforms {
   class Form;
   class View;
   class Box;
+  class ScrollPanel;
   class ContextMenu;
   class RecordGrid;
 }
@@ -401,7 +402,7 @@ namespace bec {
     void undo_called(grt::UndoAction *action, grt::UndoAction *expected);
 
   private:
-    mforms::Box *_inserts_panel;
+    mforms::ScrollPanel *_inserts_panel;
     mforms::RecordGrid *_inserts_grid;
     RecordsetRef _inserts_model;
     RecordsetTableInsertsStorageRef _inserts_storage;

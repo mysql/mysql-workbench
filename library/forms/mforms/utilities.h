@@ -322,7 +322,7 @@ namespace mforms {
     static bool is_hidpi_icon(cairo_surface_t *s);
     static bool icon_needs_reload(cairo_surface_t *s);
 
-    static void paint_icon(cairo_t *cr, cairo_surface_t *icon, double x, double y, float alpha = 1.0);
+    static void paint_icon(cairo_t *cr, cairo_surface_t *icon, double x, double y, float alpha = 1.0, bool is_pattern=false);
     static void get_icon_size(cairo_surface_t *icon, int &w, int &h);
 
     static std::string shorten_string(cairo_t* cr, const std::string& text, double width);

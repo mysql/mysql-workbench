@@ -134,7 +134,7 @@
             <property name="shadow_type">none</property>
           </object>
           <packing>
-            <property name="resize">True</property>
+            <property name="resize">False</property>
             <property name="shrink">True</property>
           </packing>
         </child>

@@ -824,7 +824,7 @@ bool Utilities::icon_needs_reload(cairo_surface_t *s)
 
 //--------------------------------------------------------------------------------------------------
 
-void Utilities::paint_icon(cairo_t *cr, cairo_surface_t *image, double x, double y, float alpha)
+void Utilities::paint_icon(cairo_t *cr, cairo_surface_t *image, double x, double y, float alpha, bool is_pattern)
 {
   float backing_scale_factor = mforms::App::get()->backing_scale_factor();
 
@@ -857,12 +857,44 @@ void Utilities::paint_icon(cairo_t *cr, cairo_surface_t *image, double x, double
   }
   else
   {
-    cairo_set_source_surface(cr, image, x, y);
-    if (alpha == 1.0)
-      cairo_paint(cr);
-    else
-      cairo_paint_with_alpha(cr, alpha);
+    if (is_pattern) {
+        int width = cairo_image_surface_get_width(image);
+        int height = cairo_image_surface_get_height(image);
+        cairo_t *cairo;
+
+        cairo_surface_t *bg = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+        cairo_pattern_t *rgb = cairo_get_source(cr);
+        cairo = cairo_create(bg);
+        cairo_rectangle(cairo, 0, 0, width, height);
+        cairo_set_source(cairo, rgb);
+        cairo_fill(cairo);
+        cairo_destroy(cairo);
+
+        cairo_surface_t *icon = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+        cairo = cairo_create(icon);
+        cairo_set_source_surface(cairo, bg, 0, 0);
+        cairo_mask_surface(cairo, image, 0, 0);
+        cairo_destroy(cairo);
+
+        cairo_set_source_surface(cr, icon, x, y);
+
+        if (alpha == 1.0)
+            cairo_paint(cr);
+        else
+          cairo_paint_with_alpha(cr, alpha);
+
+        cairo_surface_destroy(bg);
+        cairo_surface_destroy(icon);
+    } else {
+        cairo_set_source_surface(cr, image, x, y);
+        if (alpha == 1.0)
+          cairo_paint(cr);
+        else
+          cairo_paint_with_alpha(cr, alpha);
+    }
+
   }
+
 }
 
 //--------------------------------------------------------------------------------------------------

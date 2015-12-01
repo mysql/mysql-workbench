@@ -21,6 +21,8 @@
 #include <grtpp_util.h>
 #include "sqlide/recordset_be.h"
 #include "db_query_Resultset.h"
+#include <my_config.h>
+#include "copytable.h"
 
 //================================================================================
 // db_query_Resultset
@@ -300,9 +302,11 @@ public:
         case sql::DataType::SET:
           type= "string";
           break;
+#if MYSQL_CHECK_VERSION(5, 7, 0)
         case sql::DataType::JSON:
           type = "json";
           break;
+#endif
         case sql::DataType::SQLNULL:
           type = "null";
           break;          

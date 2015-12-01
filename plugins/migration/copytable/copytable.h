@@ -43,6 +43,21 @@
 
 #endif
 
+
+#if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
+#define MYSQL_CHECK_VERSION(major,minor,micro) \
+    (MYSQL_VERSION_MAJOR > (major) || \
+    (MYSQL_VERSION_MAJOR == (major) && MYSQL_VERSION_MINOR > (minor)) || \
+    (MYSQL_VERSION_MAJOR == (major) && MYSQL_VERSION_MINOR == (minor) && MYSQL_VERSION_PATCH >= (micro)))
+#elif defined(MYSQL_MAJOR_VERSION) && defined(MYSQL_MINOR_VERSION)
+#define MYSQL_CHECK_VERSION(major,minor,micro) \
+    (MYSQL_MAJOR_VERSION > (major) || \
+    (MYSQL_MAJOR_VERSION == (major) && MYSQL_MINOR_VERSION > (minor)) )
+#else
+#define MYSQL_CHECK_VERSION(major,minor,micro) 1
+#endif
+
+
 #include "converter.h"
 #include "glib.h"
 #include "base/threading.h"

@@ -41,12 +41,6 @@
 DEFAULT_LOG_DOMAIN("copytable");
 #define TMP_TRIGGER_TABLE "wb_tmp_triggers"
 
-#if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
-#define MYSQL_CHECK_VERSION(major,minor,micro) \
-    (MYSQL_VERSION_MAJOR > (major) || \
-    (MYSQL_VERSION_MAJOR == (major) && MYSQL_VERSION_MINOR > (minor)) || \
-    (MYSQL_VERSION_MAJOR == (major) && MYSQL_VERSION_MINOR == (minor) && MYSQL_VERSION_PATCH >= (micro)))
-#endif
 
 static const char *mysql_field_type_to_name(enum enum_field_types type)
 {
@@ -79,7 +73,9 @@ static const char *mysql_field_type_to_name(enum enum_field_types type)
     case MYSQL_TYPE_VAR_STRING: return "MYSQL_TYPE_VAR_STRING";
     case MYSQL_TYPE_STRING: return "MYSQL_TYPE_STRING";
     case MYSQL_TYPE_GEOMETRY: return "MYSQL_TYPE_GEOMETRY";
+#if MYSQL_CHECK_VERSION(5, 7, 0)
     case MYSQL_TYPE_JSON: return "MYSQL_TYPE_JSON";
+#endif
     default:
       return "UNKNOWN";
   }
@@ -241,7 +237,9 @@ RowBuffer::RowBuffer(boost::shared_ptr<std::vector<ColumnInfo> > columns,
       case MYSQL_TYPE_STRING:
       case MYSQL_TYPE_VAR_STRING:
       case MYSQL_TYPE_BIT:
-      case MYSQL_TYPE_JSON:
+#if MYSQL_CHECK_VERSION(5, 7, 0)
+    case MYSQL_TYPE_JSON:
+#endif
         if (!col->is_long_data)
           bind.buffer_length = (unsigned)col->source_length+1;
 
@@ -1551,8 +1549,11 @@ bool MySQLCopyDataSource::fetch_row(RowBuffer &rowbuffer)
             rowbuffer[index].buffer_type == MYSQL_TYPE_LONG_BLOB ||
             rowbuffer[index].buffer_type == MYSQL_TYPE_BLOB ||
             rowbuffer[index].buffer_type == MYSQL_TYPE_STRING ||
-            rowbuffer[index].buffer_type == MYSQL_TYPE_GEOMETRY ||
-            rowbuffer[index].buffer_type == MYSQL_TYPE_JSON)
+            rowbuffer[index].buffer_type == MYSQL_TYPE_GEOMETRY
+#if MYSQL_CHECK_VERSION(5, 7, 0)
+           || rowbuffer[index].buffer_type == MYSQL_TYPE_JSON
+#endif
+             )
           {
             if (rowbuffer[index].buffer_length)
               free(rowbuffer[index].buffer);
@@ -2357,7 +2358,9 @@ bool MySQLCopyDataTarget::append_bulk_column(size_t col_index)
     case MYSQL_TYPE_STRING:
     case MYSQL_TYPE_ENUM:
     case MYSQL_TYPE_SET:
+#if MYSQL_CHECK_VERSION(5, 7, 0)
     case MYSQL_TYPE_JSON:
+#endif
       _bulk_insert_record.append("'", 1);
       ret_val = _bulk_insert_record.append_escaped((char*)(*_row_buffer)[col_index].buffer, *(*_row_buffer)[col_index].length);
       _bulk_insert_record.append("'", 1);
