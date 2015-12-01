@@ -21,6 +21,7 @@
 #include "mforms/menu.h"
 #include "mforms/popup.h"
 #include "mforms/imagebox.h"
+#include "mforms/uistyle.h"
 
 #include "base/string_utilities.h"
 #include "base/file_utilities.h"
@@ -818,7 +819,8 @@ public:
     cairo_stroke(cr);
 
     float image_alpha = 0.3;
-#else
+#elif defined(_WIN32)
+
     bounds.use_inter_pixel = false;
     cairo_rectangle(cr, bounds.left(), bounds.top(), bounds.width(), bounds.height());
     cairo_set_source_rgba(cr, current_color.red, current_color.green, current_color.blue, alpha);
@@ -832,6 +834,28 @@ public:
     cairo_stroke(cr);
 
     float image_alpha = 1;
+#else
+    mforms::Style *style = this->owner->get_style();
+    if (hot) {
+        current_color = base::Color(style->base[mforms::STATE_ACTIVE].red, style->base[mforms::STATE_ACTIVE].green, style->base[mforms::STATE_ACTIVE].blue);
+    } else {
+        current_color = base::Color(style->base[mforms::STATE_NORMAL].red, style->base[mforms::STATE_NORMAL].green, style->base[mforms::STATE_NORMAL].blue);
+    }
+
+    bounds.use_inter_pixel = false;
+    cairo_rectangle(cr, bounds.left(), bounds.top(), bounds.width(), bounds.height());
+    cairo_set_source_rgba(cr, current_color.red, current_color.green, current_color.blue, alpha);
+    cairo_fill(cr);
+
+    // Border.
+    bounds.use_inter_pixel = true;
+    cairo_rectangle(cr, bounds.left(), bounds.top(), bounds.width() - 1, bounds.height() - 1);
+    cairo_set_source_rgba(cr, style->text[mforms::STATE_NORMAL].red, style->text[mforms::STATE_NORMAL].green, style->text[mforms::STATE_NORMAL].blue, 0.125 * alpha);
+    cairo_set_line_width(cr, 1);
+    cairo_stroke(cr);
+
+    float image_alpha = 1;
+
 #endif
 
     // Background icon.
@@ -1490,44 +1514,50 @@ ConnectionsSection::~ConnectionsSection()
 void ConnectionsSection::update_colors()
 {
 #ifdef __APPLE__
-  _tile_bk_color1 = base::Color::parse("#1e1e1e");
-  _tile_bk_color1_hl = base::Color::parse("#3f3f3f");
+    _tile_bk_color1 = base::Color::parse("#1e1e1e");
+    _tile_bk_color1_hl = base::Color::parse("#3f3f3f");
+
+    _folder_tile_bk_color = base::Color::parse("#3477a6");
+    _folder_tile_bk_color_hl = base::Color::parse("#4699b8");
+#elif defined(_WIN32)
+    _tile_bk_color1 = base::Color::parse("#666666");
+    _tile_bk_color1_hl = base::Color::parse("#838383");
+
+    _folder_tile_bk_color = base::Color::parse("#178ec5");
+    _folder_tile_bk_color_hl = base::Color::parse("#63a6c5");
 #else
-  _tile_bk_color1 = base::Color::parse("#666666");
-  _tile_bk_color1_hl = base::Color::parse("#838383");
+  // on Linux (Gtk) use the theme systeme
 #endif
 
-  _tile_bk_color2 = base::Color::parse("#868686");
-  _tile_bk_color2_hl = base::Color::parse("#9b9b9b");
 
-#ifdef __APPLE__
-  _folder_tile_bk_color = base::Color::parse("#3477a6");
-  _folder_tile_bk_color_hl = base::Color::parse("#4699b8");
+#if defined(__APPLE__) || defined(_WIN32)
+    _tile_bk_color2 = base::Color::parse("#868686");
+    _tile_bk_color2_hl = base::Color::parse("#9b9b9b");
+
+    _fabric_tile_bk_color = base::Color::parse("#349667");
+    _fabric_tile_bk_color_hl = base::Color::parse("#46a889");
+
+    _managed_primary_tile_bk_color = base::Color::parse("#13ae9e");
+    _managed_primary_tile_bk_color_hl = base::Color::parse("#33cebe");
+    _managed_secondary_tile_bk_color = base::Color::parse("#13b094");
+    _managed_secondary_tile_bk_color_hl = base::Color::parse("#33d0b4");
+
+    _managed_faulty_tile_bk_color = base::Color::parse("#e73414");
+    _managed_faulty_tile_bk_color_hl = base::Color::parse("#ee5a40");
+    _managed_spare_tile_bk_color = base::Color::parse("#8a8a8a");
+    _managed_spare_tile_bk_color_hl = base::Color::parse("#9a9a9a");
+
+    _back_tile_bk_color = base::Color::parse("#d9532c");
+    _back_tile_bk_color_hl = base::Color::parse("#d97457");
+
+    bool high_contrast = base::Color::is_high_contrast_scheme();
+    _search_text.set_front_color(high_contrast ? "#000000" : "#FFFFFF");
+    _search_text.set_placeholder_color(high_contrast ? "#303030" : "#A0A0A0");
+    _search_text.set_back_color(high_contrast ? "#ffffff" : "#474747");
 #else
-  _folder_tile_bk_color = base::Color::parse("#178ec5");
-  _folder_tile_bk_color_hl = base::Color::parse("#63a6c5");
+  // on Linux (Gtk) use the theme systeme
 #endif
 
-  _fabric_tile_bk_color = base::Color::parse("#349667");
-  _fabric_tile_bk_color_hl = base::Color::parse("#46a889");
-
-  _managed_primary_tile_bk_color = base::Color::parse("#13ae9e");
-  _managed_primary_tile_bk_color_hl = base::Color::parse("#33cebe");
-  _managed_secondary_tile_bk_color = base::Color::parse("#13b094");
-  _managed_secondary_tile_bk_color_hl = base::Color::parse("#33d0b4");
-
-  _managed_faulty_tile_bk_color = base::Color::parse("#e73414");
-  _managed_faulty_tile_bk_color_hl = base::Color::parse("#ee5a40");
-  _managed_spare_tile_bk_color = base::Color::parse("#8a8a8a");
-  _managed_spare_tile_bk_color_hl = base::Color::parse("#9a9a9a");
-
-  _back_tile_bk_color = base::Color::parse("#d9532c");
-  _back_tile_bk_color_hl = base::Color::parse("#d97457");
-
-  bool high_contrast = base::Color::is_high_contrast_scheme();
-  _search_text.set_front_color(high_contrast ? "#000000" : "#FFFFFF");
-  _search_text.set_placeholder_color(high_contrast ? "#303030" : "#A0A0A0");
-  _search_text.set_back_color(high_contrast ? "#ffffff" : "#474747");
 }
 
 //------------------------------------------------------------------------------------------------
@@ -1829,10 +1859,22 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
   cairo_set_font_size(cr, HOME_TITLE_FONT_SIZE);
 
   bool high_contrast = base::Color::is_high_contrast_scheme();
-  if (high_contrast)
-    cairo_set_source_rgb(cr, 0, 0, 0);
-  else
-    cairo_set_source_rgb(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0);
+  base::Color fg;
+  base::Color text;
+#if defined(__APPLE__) || defined(_WIN32)
+  if (high_contrast) {
+      fg = base::Color(0, 0, 0);
+      text = base::Color(0, 0, 0);
+  } else {
+      fg = base::Color(0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0);
+      text = base::Color(0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0);
+  }
+#else
+    mforms::Style *style = this->get_style();
+    fg = base::Color(style->fg[mforms::STATE_NORMAL].red, style->fg[mforms::STATE_NORMAL].green, style->fg[mforms::STATE_NORMAL].blue);
+    text = base::Color(style->text[mforms::STATE_NORMAL].red, style->text[mforms::STATE_NORMAL].green, style->text[mforms::STATE_NORMAL].blue);
+#endif
+  cairo_set_source_rgb(cr, fg.red, fg.green, fg.blue);
   cairo_move_to(cr, CONNECTIONS_LEFT_PADDING, 45);
 
   ConnectionVector *connections;
@@ -1862,19 +1904,13 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
 
   _add_button.bounds = base::Rect(CONNECTIONS_LEFT_PADDING + text_width + 10, 45 - image_height(_plus_icon),
                                   image_width(_plus_icon), image_height(_plus_icon));
-
-  cairo_set_source_surface(cr, _plus_icon, _add_button.bounds.left(), _add_button.bounds.top());
-  if (high_contrast)
-    cairo_set_operator(cr, CAIRO_OPERATOR_XOR);
-  cairo_paint(cr);
+  cairo_set_source_rgb(cr, fg.red, fg.green, fg.blue);
+  mforms::Utilities::paint_icon(cr, _plus_icon, _add_button.bounds.left(), _add_button.bounds.top(), 1.0, true);
 
   _manage_button.bounds = base::Rect(_add_button.bounds.right() + 10, 45 - image_height(_manage_icon),
                                      image_width(_manage_icon), image_height(_manage_icon));
-  cairo_set_source_surface(cr, _manage_icon, _manage_button.bounds.left(), _manage_button.bounds.top());
-  cairo_paint(cr);
-
-  if (high_contrast)
-    cairo_set_operator(cr, CAIRO_OPERATOR_OVER); // Restore default operator.
+  cairo_set_source_rgb(cr, fg.red, fg.green, fg.blue);
+  mforms::Utilities::paint_icon(cr, _manage_icon, _manage_button.bounds.left(), _manage_button.bounds.top(), 1.0, true);
 
   int row = 0;
   // number of tiles that act as a filler, which are used by the fabric server title tile and also in

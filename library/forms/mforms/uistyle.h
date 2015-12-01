@@ -70,12 +70,16 @@ enum State
 {
     STATE_NORMAL,
     STATE_ACTIVE,
+    STATE_INSENSITIVE,
 
     STATE_LENGTH
 };
 struct Style
 {
     ::base::Color bg[STATE_LENGTH];
+    ::base::Color fg[STATE_LENGTH];
+    ::base::Color base[STATE_LENGTH];
+    ::base::Color text[STATE_LENGTH];
 };
 
 }

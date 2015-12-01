@@ -316,6 +316,7 @@ mforms::Style *View::get_style()
     if (this->_view_impl && this->_view_impl->get_style) {
         this->_style = (*_view_impl->get_style)(this);
     } else if (!this->_style) {
+        // Use setStyle ...
         this->_style = new ::mforms::Style();
         this->_style->bg[STATE_ACTIVE] = ::base::Color(0x5a / 255.0, 0x85 / 255.0, 0xdc / 255.0);
         this->_style->bg[STATE_NORMAL] = ::base::Color(0xf2 / 255.0, 0xf2 / 255.0, 0xf2 / 255.0);
