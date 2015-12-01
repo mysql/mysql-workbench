@@ -2886,19 +2886,19 @@ void JsonTreeView::generateNumberInTree(JsonParser::JsonValue &value, int /*colu
   switch (value.getType())
   {
   case VInt:
-    node->set_int(1, (int)value.getDouble());
+    node->set_string(1, base::to_string(value.getInt()));
     node->set_string(2, "Integer");
     break;
   case VDouble:
-    node->set_float(1, value.getDouble());
+    node->set_string(1, base::to_string(value.getDouble()));
     node->set_string(2, "Double");
     break;
   case VInt64:
-    node->set_long(1, value.getInt64());
+    node->set_string(1, base::to_string(value.getInt64()));
     node->set_string(2, "Long Integer");
     break;
   case VUint64:
-    node->set_float(1, (float)value.getUint64());
+    node->set_string(1, base::to_string(value.getUint64()));
     node->set_string(2, "Unsigned Long Integer");
     break;
   default:
@@ -3059,6 +3059,35 @@ void JsonGridView::reCreateTree(JsonParser::JsonValue &value)
 
 //--------------------------------------------------------------------------------------------------
 
+void JsonGridView::addColumn(int size, JsonParser::DataType type, const std::string &name)
+{
+  switch (type)
+  {
+  case VArray:
+  case VObject:
+    _treeView->add_column(IconStringColumnType, name, size, false, true);
+    break;
+  case VInt:
+    _treeView->add_column(IntegerColumnType, name, size, true, true);
+    break;
+  case VInt64:
+    _treeView->add_column(LongIntegerColumnType, name, size, true, true);
+    break;
+  case VUint64:
+  case VDouble:
+    _treeView->add_column(FloatColumnType, name, size, true, true);
+    break;
+  case VBoolean:
+  case VString:
+  case VEmpty:
+  default:
+    _treeView->add_column(StringColumnType, name, size, true, true);
+    break;
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void JsonGridView::generateColumnNames(JsonParser::JsonValue &value)
 {
   if(_level != 0)
@@ -3073,7 +3102,7 @@ void JsonGridView::generateColumnNames(JsonParser::JsonValue &value)
     {
       if (_colNameToColId.count(it->first) == 1)
         continue;
-      _treeView->add_column(IconStringColumnType, it->first, 100, true, false);
+      addColumn(100, it->second.getType(), it->first);
       _colNameToColId[it->first] = _columnIndex++;
       if (it->second.getType() == VObject || it->second.getType() == VArray)
         generateColumnNames(it->second);
@@ -3095,7 +3124,7 @@ void JsonGridView::generateColumnNames(JsonParser::JsonValue &value)
         {
           if (_colNameToColId.count(it->first) == 1)
             continue;
-          _treeView->add_column(IconStringColumnType, it->first, 100, true, false);
+          addColumn(100, it->second.getType(), it->first);
           _colNameToColId[it->first] = _columnIndex++;
           if (it->second.getType() == VObject || it->second.getType() == VArray)
             generateColumnNames(it->second);
@@ -3105,7 +3134,7 @@ void JsonGridView::generateColumnNames(JsonParser::JsonValue &value)
       {
         if (_noNameColId > 0)
           continue;
-        _treeView->add_column(IconStringColumnType, "", 100, true, false);
+        addColumn(100, VString, "");
         _noNameColId = _columnIndex++;
       }
       if (it->getType() == VObject || it->getType() == VArray)
@@ -3133,7 +3162,6 @@ void JsonGridView::setCellValue(mforms::TreeNodeRef node, int column, const std:
   if (it != _colNameToColId.end())
     key = it->first;
   JsonParser::JsonValue &storedValue = (!key.empty()) ? data->getData().getObject()[key] : data->getData();
-  bool setData = false;
   if (data != NULL)
   {
     std::stringstream buffer;
@@ -3144,13 +3172,21 @@ void JsonGridView::setCellValue(mforms::TreeNodeRef node, int column, const std:
     switch (storedValue.getType())
     {
     case VDouble:
+      if (!base::is_number(value))
+        break;
+      buffer << value;
+      buffer >> number;
+      storedValue.setNumber(number);
+      node->set_float(column, number);
+      _dataChanged(false);
     case VInt:
       if (!base::is_number(value))
         break;
       buffer << value;
       buffer >> number;
       storedValue.setNumber(number);
-      setData = true;
+      node->set_int(column, (int)number);
+      _dataChanged(false);
       break;
     case VInt64:
       if (!base::is_number(value))
@@ -3158,7 +3194,8 @@ void JsonGridView::setCellValue(mforms::TreeNodeRef node, int column, const std:
       buffer << value;
       buffer >> number2;
       storedValue.setInt64(number2);
-      setData = true;
+      node->set_long(column, number2);
+      _dataChanged(false);
       break;
     case VUint64:
       if (!base::is_number(value))
@@ -3166,7 +3203,8 @@ void JsonGridView::setCellValue(mforms::TreeNodeRef node, int column, const std:
       buffer << value;
       buffer >> number3;
       storedValue.setUint64(number3);
-      setData = true;
+      node->set_float(column, (double)number3);
+      _dataChanged(false);
       break;
     case VBoolean:
       if (!base::isBool(value))
@@ -3174,21 +3212,18 @@ void JsonGridView::setCellValue(mforms::TreeNodeRef node, int column, const std:
       buffer << value;
       buffer >> std::boolalpha >> retBool;
       storedValue.setBool(retBool);
-      setData = true;
+      node->set_bool(column, retBool);
+      _dataChanged(false);
       break;
     case VString:
       storedValue.setString(value);
       setStringData(column, node, value);
-      setData = true;
+      node->set_string(column, value);
+      _dataChanged(false);
       break;
     default:
       break;
     }
-  }
-  if (setData)
-  {
-    node->set_string(column, value);
-    _dataChanged(false);
   }
 }
 
@@ -3461,7 +3496,7 @@ void JsonGridView::generateNumberInTree(JsonParser::JsonValue &value, int column
     node->set_long(columnId, value.getInt64());
     break;
   case VUint64:
-    node->set_float(columnId, (float)value.getUint64());
+    node->set_long(columnId, value.getUint64());
     break;
   default:
     break;
