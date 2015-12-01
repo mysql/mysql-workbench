@@ -462,6 +462,7 @@ namespace mforms {
     private:
       void init();
       void generateColumnNames(JsonParser::JsonValue &value);
+      void addColumn(int size, JsonParser::DataType type, const std::string &name);
       void nodeActivated(TreeNodeRef row, int column);
       void setCellValue(mforms::TreeNodeRef node, int column, const std::string &value);
       void goUp();
