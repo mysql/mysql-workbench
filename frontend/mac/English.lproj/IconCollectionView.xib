@@ -53,6 +53,7 @@
                 <outlet property="delegate" destination="36" id="80"/>
                 <outlet property="menu" destination="134" id="142"/>
             </connections>
+            <point key="canvasLocation" x="137" y="-96"/>
         </view>
         <customObject id="36" userLabel="Controller" customClass="WBOverviewListController">
             <connections>
@@ -95,8 +96,9 @@
                 <outlet property="delegate" destination="36" id="104"/>
                 <outlet property="menu" destination="134" id="141"/>
             </connections>
+            <point key="canvasLocation" x="167" y="-200"/>
         </view>
-        <collectionView selectable="YES" allowsMultipleSelection="YES" id="72" userLabel="Collection View">
+        <collectionView selectable="YES" id="72" userLabel="Collection View">
             <rect key="frame" x="0.0" y="0.0" width="233" height="143"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <animations/>
@@ -106,6 +108,7 @@
                 <binding destination="36" name="selectionIndexes" keyPath="selectedIndexes" previousBinding="74" id="83"/>
                 <outlet property="menu" destination="134" id="145"/>
             </connections>
+            <point key="canvasLocation" x="-118.5" y="-150.5"/>
         </collectionView>
         <collectionViewItem id="101" userLabel="SmallCollectionViewItem" customClass="MCollectionViewItem">
             <connections>
