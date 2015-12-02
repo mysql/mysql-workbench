@@ -1021,15 +1021,15 @@ class SSLWizard_ResultsPage(WizardPage):
 
     def create_ui(self):
       
-        message = "The wizard was sucessful. "
+        message = "The wizard was successful. "
         
         if self.update_connection:
             message += "Click on the finish button to update the connection. "
             
         message += "To setup the server, you should \ncopy the following files to a <directory> inside %s:\n\n" % self.main.conn.parameterValues['hostName']
-        message += " - %s\n" % str(os.path.join(self.main.results_path, "ca_cert"))
-        message += " - %s\n" % str(os.path.join(self.main.results_path, "server_cert"))
-        message += " - %s\n" % str(os.path.join(self.main.results_path, "server_key"))
+        message += " - %s\n" % str(os.path.join(self.main.results_path, "ca-cert.pem"))
+        message += " - %s\n" % str(os.path.join(self.main.results_path, "server-cert.pem"))
+        message += " - %s\n" % str(os.path.join(self.main.results_path, "server-key.pem"))
         message += "\n\nand edit the config file to use the following parameters:"
         
         label = mforms.newLabel(message)
