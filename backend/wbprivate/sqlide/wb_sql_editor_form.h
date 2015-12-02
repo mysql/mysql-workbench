@@ -171,7 +171,9 @@ private:
 
   mforms::DockingPoint *_tabdock;
 
-  boost::signals2::connection _refreshPending; // Set when we triggered a refresh asynchronously.
+  // Set when we triggered a refresh asynchronously.
+  boost::signals2::connection _overviewRefreshPending;
+  boost::signals2::connection _editorRefreshPending;
 
   bool _autosave_disabled;
   bool _loading_workspace;
