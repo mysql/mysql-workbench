@@ -1936,7 +1936,7 @@ void JsonInputDlg::save()
   if (_textEntry)
   {
     std::string text = _textEntry->get_string_value();
-    if (text.empty())
+    if (text.empty() && _textEntry->is_enabled())
     {
       mforms::Utilities::show_error("JSON Editor.", "The field 'name' can not be empty", "Ok");
       return;
@@ -2211,13 +2211,16 @@ void JsonTreeBaseView::openInputJsonWindow(TreeNodeRef node, bool updateMode /*=
           JsonObject &obj = jv.getObject();
           if (updateMode)
           {
-            obj[objectName] = value;
+            if (objectName.empty())
+              jv = value;
+            else
+              obj[objectName] = value;
             node->remove_children();
           }
           else 
             obj.insert(objectName, value);
           TreeNodeRef newNode = (updateMode) ? node : node->add_child();
-          generateTree(obj[objectName], 0, newNode);
+          generateTree(objectName.empty() ? jv : obj[objectName], 0, newNode);
           newNode->set_string(0, objectName + "{" + base::to_string(obj.size()) + "}");
           newNode->set_tag(objectName);
           _dataChanged(false);
@@ -2541,10 +2544,10 @@ JsonTextView::JsonTextView() :
 void JsonTextView::setText(const std::string &jsonText)
 {
   _textEditor->set_value(jsonText.c_str());
+  validate();
   _validationResult->set_text("Document changed.");
   _validationResult->set_tooltip("");
   _text = jsonText;
-  validate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2639,8 +2642,9 @@ void JsonTextView::editorContentChanged(int position, int length, int numberOfLi
 /**
  * @brief Signal emitted when the validate was clicked.
  */
-void JsonTextView::validate()
+bool JsonTextView::validate()
 {
+  bool ret = true;
   if (_modified)
   {
     try
@@ -2657,8 +2661,10 @@ void JsonTextView::validate()
     {
       _validationResult->set_text(ex.what());
       _validationResult->set_tooltip(ex.what());
+      ret = false;
     }
   }
+  return ret;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -3540,6 +3546,8 @@ void JsonTabView::Setup()
   scoped_connect(_textView->dataChanged(), boost::bind(&JsonTabView::dataChanged, this, _1));
   scoped_connect(_treeView->dataChanged(), boost::bind(&JsonTabView::dataChanged, this, _1));
   scoped_connect(_gridView->dataChanged(), boost::bind(&JsonTabView::dataChanged, this, _1));
+  scoped_connect(_tabView->signal_tab_changed(), boost::bind(&JsonTabView::tabChanged, this));
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -3548,7 +3556,8 @@ JsonTabView::JsonTabView() : Panel(TransparentPanel),
   _textView(manage(new JsonTextView())),
   _treeView(manage(new JsonTreeView())),
   _gridView(manage(new JsonGridView())),
-  _tabView(manage(new TabView(TabViewPalette)))
+  _tabView(manage(new TabView(TabViewPalette))),
+  _updating(false)
 {
   Setup();
 }
@@ -3570,10 +3579,12 @@ void JsonTabView::setJson(const JsonParser::JsonValue &value)
 {
   _json = boost::make_shared<JsonParser::JsonValue>(value);
   _ident = 0;
+  _updating = true;
   JsonWriter::write(_jsonText, value);
   _textView->setText(_jsonText);
   _treeView->setJson(*_json);
   _gridView->setJson(*_json);
+  _updating = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -3611,32 +3622,58 @@ void JsonTabView::append(const std::string &text)
 
 //--------------------------------------------------------------------------------------------------
 
+void JsonTabView::tabChanged()
+{
+  int tabId = _tabView->get_active_tab();
+  if (tabId == _tabId.textTabId && _updateView.textViewUpdate)
+  {
+    _updating = true;
+    _textView->setText(_jsonText);
+    _updateView.textViewUpdate = false;
+    _updating = false;
+    _dataChanged(_jsonText);
+  }
+  else if (tabId == _tabId.treeViewTabId && _updateView.treeViewUpdate)
+  {
+    _treeView->reCreateTree(*_json);
+    _updateView.treeViewUpdate = false;
+    _dataChanged(_jsonText);
+  }
+  else  if (tabId == _tabId.gridViewTabId && _updateView.gridViewUpdate)
+  {
+    _gridView->reCreateTree(*_json);
+    _updateView.gridViewUpdate = false;
+    _dataChanged(_jsonText);
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * @brief Signal emitted when the tab is switched by user.
  *
  */
 void JsonTabView::dataChanged(bool forceUpdate)
 {
+  if (_updating)
+    return;
   int tabId = _tabView->get_active_tab();
-  if (forceUpdate)
-  {
-    _treeView->clear();
-    _gridView->clear();
-    _json.reset(new JsonValue(_textView->getJson()));
-  }
   if (tabId != _tabId.textTabId)
-  {
-    _jsonText.clear();
-    _textView->clear();
     JsonWriter::write(_jsonText, *_json);
-    _textView->setText(_jsonText);
-  }
   else
-    _jsonText = _textView->getText();
-  if (tabId != _tabId.treeViewTabId)
-    _treeView->reCreateTree(*_json);
-  if (tabId != _tabId.gridViewTabId)
-    _gridView->reCreateTree(*_json);
+  {
+    if (_textView->validate())
+    {
+      _jsonText = _textView->getText();
+      _json.reset(new JsonValue(_textView->getJson()));
+    }
+    else
+      return;
+  }
+  _updateView.textViewUpdate = tabId != _tabId.textTabId;
+  _updateView.treeViewUpdate = tabId != _tabId.treeViewTabId;
+  _updateView.gridViewUpdate = tabId != _tabId.gridViewTabId;
+
   _dataChanged(_jsonText);
 }
 
