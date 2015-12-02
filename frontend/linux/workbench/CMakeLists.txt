@@ -114,7 +114,7 @@ target_link_libraries(mysql-workbench-bin
     ${PCRE_LIBRARIES}
     ${CAIRO_LIBRARIES}
     ${LIBZIP_LIBRARIES}
-    ${MYSQL_LIBRARIES}
+    ${MySQL_LIBRARIES}
     ${SQLITE3_LIBRARIES}
     ${GNOME_KEYRING_LIBRARIES}
 )
