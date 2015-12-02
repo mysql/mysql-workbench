@@ -304,8 +304,11 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
 
 SqlEditorForm::~SqlEditorForm()
 {
-  if (_refreshPending.connected())
-    _refreshPending.disconnect();
+  if (_editorRefreshPending.connected())
+    _editorRefreshPending.disconnect();
+
+  if (_overviewRefreshPending.connected())
+    _overviewRefreshPending.disconnect();
 
   // We need to remove it from cache, if not someone will be able to login without providing PW
   if (_connection.is_valid())
@@ -2699,17 +2702,17 @@ void SqlEditorForm::apply_object_alter_script(const std::string &alter_script, b
       
       //_live_tree->refresh_live_object_in_overview(db_object_type, schema_name, db_object->oldName(), db_object->name());
       // Run refresh on main thread, but only if there's not another refresh pending already.
-      if (!_refreshPending.connected())
+      if (!_overviewRefreshPending.connected())
       {
-        _refreshPending = _grtm->run_once_when_idle(this, boost::bind(&SqlEditorTreeController::refresh_live_object_in_overview,
+        _overviewRefreshPending = _grtm->run_once_when_idle(this, boost::bind(&SqlEditorTreeController::refresh_live_object_in_overview,
           _live_tree, db_object_type, schema_name, db_object->oldName(), db_object->name()));
       }
     }
     
     //_live_tree->refresh_live_object_in_editor(obj_editor, false);
-    if (!_refreshPending.connected())
+    if (!_editorRefreshPending.connected())
     {
-      _refreshPending = _grtm->run_once_when_idle(this, boost::bind(&SqlEditorTreeController::refresh_live_object_in_editor,
+      _editorRefreshPending = _grtm->run_once_when_idle(this, boost::bind(&SqlEditorTreeController::refresh_live_object_in_editor,
         _live_tree, obj_editor, false));
     }
   }
