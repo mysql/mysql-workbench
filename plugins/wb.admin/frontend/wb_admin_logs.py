@@ -413,7 +413,7 @@ class LogView(mforms.Box):
             except (ServerIOError, RuntimeError, LogFileAccessError, OperationCancelledError, InvalidPasswordError, IOError, ValueError), error:
                 self._show_error(error)
 
-    def copy_record(self):
+    def copy_details(self):
         selection = self.tree.get_selection()
         text = []
         for node in selection:
@@ -421,7 +421,7 @@ class LogView(mforms.Box):
         if text:
             mforms.Utilities.set_clipboard_text("\n".join(text))
 
-    def copy_details(self):
+    def copy_record(self):
         selection = self.tree.get_selection()
         text = [", ".join([r[0] for r in self.log_reader.column_specs])]
         for node in selection:
@@ -479,7 +479,9 @@ class LogViewGeneric(LogView):
     def create_filter_box(self):
         self.add_filter_option("All")
         self.add_filter_option("InnoDB")
-        self.add_filter_option("Firewall")
+        # so that it shows up in 'development' and 'Commercial'
+        if not grt.root.wb.info.edition == "Community":
+            self.add_filter_option("Firewall")
         return self.filter_box
     
     def filter_handler(self):
