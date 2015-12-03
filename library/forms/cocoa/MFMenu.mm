@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,11 +32,10 @@
   
   if (pullsDown)
     [popup insertItemWithTitle: @"" action: NULL keyEquivalent: @"" atIndex: 0];
-  
-  NSPopUpButtonCell* popUpButtonCell = [[[NSPopUpButtonCell alloc] initTextCell: @""
-                                                                      pullsDown: pullsDown]
-                                        autorelease];
-  [popUpButtonCell setMenu: [popup autorelease]];
+
+  NSPopUpButtonCell* popUpButtonCell = [[NSPopUpButtonCell alloc] initTextCell: @""
+                                                                     pullsDown: pullsDown];
+  [popUpButtonCell setMenu: popup];
   if (!pullsDown)
     [popUpButtonCell selectItem: nil];
   [popUpButtonCell performClickWithFrame: frame inView: view];
@@ -71,7 +70,7 @@
 
 static bool menu_create(mforms::Menu *self)
 {
-  MFMenuImpl* menu = [[[MFMenuImpl alloc] initWithObject:self] autorelease];
+  MFMenuImpl* menu = [[MFMenuImpl alloc] initWithObject: self];
   return menu != nil;
 }
 
@@ -121,7 +120,7 @@ static int menu_add_submenu(mforms::Menu *self, const std::string &caption, mfor
   MFMenuImpl* menu = self->get_data();
   
   NSMenuItem* item;
-  item = [[[NSMenuItem alloc] init] autorelease];
+  item = [[NSMenuItem alloc] init];
   [item setTitle: @(caption.c_str())];
   [item setEnabled: true];
 

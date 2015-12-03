@@ -36,12 +36,9 @@
 
 - (void)dealloc
 {
-  [_trackingArea release];
-  [_cursor release];
   if (_view)
     _view->pre_destroy();
   delete _view;
-  [super dealloc];
 }
 
 
@@ -62,7 +59,6 @@
     if (_trackingArea)
       [self removeTrackingArea: _trackingArea];
     
-    [_trackingArea release];
     _trackingArea = 
       [[NSTrackingArea alloc] initWithRect:NSMakeRect(0, 0, NSWidth(frame), NSHeight(frame))
                                  options:NSTrackingMouseEnteredAndExited|NSTrackingMouseMoved|NSTrackingActiveAlways|NSTrackingInVisibleRect|NSTrackingEnabledDuringMouseDrag
@@ -95,16 +91,14 @@
 }
 
 
-static void canvas_view_needs_repaint(int x, int y, int w, int h, MCanvasViewer *self)
+static void canvas_view_needs_repaint(int x, int y, int w, int h, void *viewer)
 {
-  [self setNeedsDisplayInRect:NSMakeRect(x, y, w, h)];
+  [(__bridge id)viewer setNeedsDisplayInRect: NSMakeRect(x, y, w, h)];
 }
 
 
 - (void)setCursor:(NSCursor*)cursor
 {
-  [cursor retain];
-  [_cursor release];
   _cursor= cursor;
   
   [[self window] resetCursorRects];
@@ -125,7 +119,7 @@ static void canvas_view_needs_repaint(int x, int y, int w, int h, MCanvasViewer 
 - (void)setupQuartz
 {
   _view = new mdc::QuartzCanvasView(NSWidth(self.frame), NSHeight(self.frame));
-  _view->signal_repaint()->connect(boost::bind(canvas_view_needs_repaint, _1, _2, _3, _4, self));
+  _view->signal_repaint()->connect(boost::bind(canvas_view_needs_repaint, _1, _2, _3, _4, (__bridge void *)self));
 }
 
 

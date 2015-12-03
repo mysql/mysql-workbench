@@ -98,9 +98,9 @@ Object::Object()
 
 void Object::set_data(id data)
 {
-  objc_msgSend(_data, sel_getUid("release")); // [_data release]
+  //objc_msgSend(_data, sel_getUid("release")); // [_data release]
   _data = data;
-  objc_msgSend(data, sel_getUid("retain")); // [_data retain]
+  //objc_msgSend(data, sel_getUid("retain")); // [_data retain]
 }
 
 //--------------------------------------------------------------------------------------------------
