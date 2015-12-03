@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,7 +40,6 @@
 - (void) dealloc
 {
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
-  [super dealloc];
 }
 
 - (mforms::Object*)mformsObject
@@ -57,8 +56,7 @@
 {
   if (mBackgroundColor != value)
   {
-    [mBackgroundColor release];
-    mBackgroundColor = [value retain];
+    mBackgroundColor = value;
     [self setNeedsDisplay: YES];
   }
 }
@@ -242,9 +240,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 static bool drawbox_create(mforms::DrawBox *self)
 {
-  [[[MFDrawBoxImpl alloc] initWithObject: self] autorelease];
-  
-  return true;  
+  return [[MFDrawBoxImpl alloc] initWithObject: self] != nil;
 }
 
 //--------------------------------------------------------------------------------------------------

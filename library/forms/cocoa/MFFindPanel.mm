@@ -60,9 +60,10 @@ using namespace mforms;
   self = [super initWithFrame: NSMakeRect(0, 0, 100, 100)];
   if (self)
   {
-    if ([NSBundle.mainBundle loadNibNamed: @"EmbedableFindPane" owner: self topLevelObjects: &nibObjects])
+    NSMutableArray *temp;
+    if ([NSBundle.mainBundle loadNibNamed: @"EmbedableFindPane" owner: self topLevelObjects: &temp])
     {
-      [nibObjects retain];
+      nibObjects = temp;
 
       mOwner = owner;
       mOwner->set_data(self);
@@ -84,11 +85,9 @@ using namespace mforms;
       for (id subview in [[holder subviews] reverseObjectEnumerator])
       {
         NSRect r = [subview frame];
-        [subview retain];
         [subview removeFromSuperview];
         [self addSubview: subview];
         [subview setFrame: r];
-        [subview release];
       }
 
       mMatchCase = NO;
@@ -117,11 +116,6 @@ using namespace mforms;
   return [self initWithOwner: nil];
 }
 
-- (void)dealloc
-{
-  [nibObjects release];
-  [super dealloc];
-}
 
 - (BOOL)expandsOnLayoutVertically:(BOOL)flag
 {
@@ -350,8 +344,7 @@ using namespace mforms;
 
 static bool find_create(FindPanel *fp)
 {
-  [[[MFFindPanel alloc] initWithOwner: fp] autorelease];
-  return true;  
+  return [[MFFindPanel alloc] initWithOwner: fp] != nil;
 }
 
 static size_t find_perform_action(FindPanel *fp, FindPanelAction action)

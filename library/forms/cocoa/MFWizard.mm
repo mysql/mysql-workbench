@@ -64,9 +64,10 @@
   self = [super init];
   if (self != nil)
   {
-    if ([NSBundle.mainBundle loadNibNamed: @"WizardWindow" owner: self topLevelObjects: &nibObjects])
+    NSMutableArray *temp;
+    if ([NSBundle.mainBundle loadNibNamed: @"WizardWindow" owner: self topLevelObjects: &temp])
     {
-      [nibObjects retain];
+      nibObjects = temp;
       self.window.contentSize = NSMakeSize(900, 620);
       self.window.minSize = self.window.frame.size;
       [self.window center];
@@ -81,11 +82,6 @@
   return self;
 }
 
-- (void)dealloc
-{
-  [nibObjects release];
-  [super dealloc];
-}
 
 - (mforms::Object*)mformsObject
 {
@@ -181,7 +177,7 @@
     text= [stepList viewWithTag: row*2+1];
     if (!image)
     {
-      image= [[[NSImageView alloc] initWithFrame:NSMakeRect(0, y-1, 16, 16)] autorelease];
+      image = [[NSImageView alloc] initWithFrame: NSMakeRect(0, y - 1, 16, 16)];
       [image setTag: row*2];
       [stepList addSubview: image];
       [image setAutoresizingMask: NSViewMinXMargin|NSViewMaxYMargin];
@@ -203,7 +199,7 @@
     }
     if (!text)
     {
-      text= [[[NSTextField alloc] initWithFrame:NSMakeRect(16, y, width, 16)] autorelease];
+      text = [[NSTextField alloc] initWithFrame: NSMakeRect(16, y, width, 16)];
       [text setTag: row*2+1];
       [text setEditable: NO];
       [text setBordered: NO];
@@ -250,7 +246,7 @@
 
 static bool wizard_create(::mforms::Wizard *self, mforms::Form *owner)
 {
-  [[[MFWizardImpl alloc] initWithObject: self] autorelease];
+  return [[MFWizardImpl alloc] initWithObject: self] != nil;
     
   return true;
 }
