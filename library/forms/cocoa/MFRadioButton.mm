@@ -69,9 +69,7 @@
 
 static bool radiobutton_create(::mforms::RadioButton *self, int)
 {
-  [[[MFRadioButtonImpl alloc] initWithObject:self] autorelease];
-  
-  return true;  
+  return [[MFRadioButtonImpl alloc] initWithObject: self] != nil;
 }
 
 

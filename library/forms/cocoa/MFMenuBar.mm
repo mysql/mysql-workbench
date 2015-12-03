@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -101,8 +101,8 @@ using namespace mforms;
 
 static bool create_menu_bar(MenuBar *aitem)
 {
-  NSMenu *menu = [[[NSMenu alloc] initWithTitle: @"main"] autorelease];
-  [menu addItem: [[applicationMenuTemplate copy] autorelease]];
+  NSMenu *menu = [[NSMenu alloc] initWithTitle: @"main"];
+  [menu addItem: [applicationMenuTemplate copy]];
   aitem->set_data(menu);
   return true;
 }
@@ -110,7 +110,7 @@ static bool create_menu_bar(MenuBar *aitem)
 
 static bool create_context_menu(ContextMenu *aitem)
 {
-  MFContextMenu *menu = [[[MFContextMenu alloc] initWithTitle: @"context"] autorelease];
+  MFContextMenu *menu = [[MFContextMenu alloc] initWithTitle: @"context"];
   menu->cmenu = aitem;
   [menu setAutoenablesItems: NO];
   aitem->set_data(menu);
@@ -126,7 +126,7 @@ static bool create_menu_item(MenuItem *aitem, const std::string &title, MenuItem
   }
   else
   {
-    MFMenuItem *item = [[[MFMenuItem alloc] initWithTitle: wrap_nsstring(title) slot: boost::bind(&MenuItem::callback, aitem)] autorelease];
+    MFMenuItem *item = [[MFMenuItem alloc] initWithTitle: wrap_nsstring(title) slot: boost::bind(&MenuItem::callback, aitem)];
     item->item = aitem;
     aitem->set_data(item);
   }
@@ -297,7 +297,7 @@ static void insert_item(MenuBase *aitem, int index, MenuItem *asubitem)
     submenu = [parItem submenu];
     if (!submenu)
     {
-      submenu = [[[NSMenu alloc] initWithTitle: [parItem title]] autorelease];
+      submenu = [[NSMenu alloc] initWithTitle: [parItem title]];
       [submenu setAutoenablesItems: NO];
       [parItem setSubmenu: submenu];
       [submenu setDelegate: parItem];
@@ -344,9 +344,9 @@ void cf_swap_edit_menu()
   NSMenuItem *editMenu = [[NSApp mainMenu] itemAtIndex: 2];  
   if ([editMenu tag] != 424242)
   {
-    swappedEditMenu = [editMenu retain];
+    swappedEditMenu = editMenu;
     [[NSApp mainMenu] removeItem: swappedEditMenu];
-    [[NSApp mainMenu] insertItem: [[defaultEditMenu copy] autorelease] atIndex: 2];
+    [[NSApp mainMenu] insertItem: [defaultEditMenu copy] atIndex: 2];
   }
 }
 
@@ -359,7 +359,6 @@ void cf_unswap_edit_menu()
     {
       [[NSApp mainMenu] removeItem: editMenu];
       [[NSApp mainMenu] insertItem: swappedEditMenu atIndex: 2];
-      [swappedEditMenu release];
       swappedEditMenu = nil;
     }
   }  
@@ -370,14 +369,14 @@ void cf_menubar_init()
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
 
   // get default app menu and make a template from it
-  applicationMenuTemplate = [[[NSApp mainMenu] itemAtIndex: 0] retain];
+  applicationMenuTemplate = [[NSApp mainMenu] itemAtIndex: 0];
   
   // hack
   // the way to create a Edit menu that works just like the one you get in IB is a mistery
   // so we create it in IB, keep a reference to it and only display it when we need,
   // which is in modal windows. Once the modal window is gone, the normal WB 
   // created menu can be used
-  defaultEditMenu = [[[NSApp mainMenu] itemAtIndex: 1] retain];
+  defaultEditMenu = [[NSApp mainMenu] itemAtIndex: 1];
   [[NSApp mainMenu] removeItem: defaultEditMenu];
   
   [defaultEditMenu setTag: 424242];

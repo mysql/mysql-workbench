@@ -2544,13 +2544,13 @@
 		2BFBF09E0F51BEB10016F9D1 /* MySQLViewEditor.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2BFBF09D0F51BEB10016F9D1 /* MySQLViewEditor.xib */; };
 		2BFBF0A10F51BF2D0016F9D1 /* MySQLViewEditor.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BFBF0A00F51BF2D0016F9D1 /* MySQLViewEditor.mm */; };
 		2BFDB83516C00F6A00D0C5A8 /* libvsqlitepp.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BFDB83416C00F6500D0C5A8 /* libvsqlitepp.0.dylib */; };
-		44B7DC8D1C0C78C4000D608D /* wba_firewall in CopyFiles */ = {isa = PBXBuildFile; fileRef = 44B7DC8C1C0C78C4000D608D /* wba_firewall */; settings = {ASSET_TAGS = (); }; };
-		44B7DC901C0C78E6000D608D /* firewall-header.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC8E1C0C78E6000D608D /* firewall-header.png */; settings = {ASSET_TAGS = (); }; };
-		44B7DC911C0C78E6000D608D /* firewall-header@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC8F1C0C78E6000D608D /* firewall-header@2x.png */; settings = {ASSET_TAGS = (); }; };
-		44DD9A671C04AA0800D86DC5 /* admin_firewall.png in Resources */ = {isa = PBXBuildFile; fileRef = 44DD9A631C04AA0800D86DC5 /* admin_firewall.png */; settings = {ASSET_TAGS = (); }; };
-		44DD9A681C04AA0800D86DC5 /* admin_firewall@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 44DD9A641C04AA0800D86DC5 /* admin_firewall@2x.png */; settings = {ASSET_TAGS = (); }; };
-		44DD9A691C04AA0800D86DC5 /* admin_info_offline.png in Resources */ = {isa = PBXBuildFile; fileRef = 44DD9A651C04AA0800D86DC5 /* admin_info_offline.png */; settings = {ASSET_TAGS = (); }; };
-		44DD9A6A1C04AA0800D86DC5 /* admin_info_offline@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 44DD9A661C04AA0800D86DC5 /* admin_info_offline@2x.png */; settings = {ASSET_TAGS = (); }; };
+		44B7DC8D1C0C78C4000D608D /* wba_firewall in CopyFiles */ = {isa = PBXBuildFile; fileRef = 44B7DC8C1C0C78C4000D608D /* wba_firewall */; };
+		44B7DC901C0C78E6000D608D /* firewall-header.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC8E1C0C78E6000D608D /* firewall-header.png */; };
+		44B7DC911C0C78E6000D608D /* firewall-header@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC8F1C0C78E6000D608D /* firewall-header@2x.png */; };
+		44DD9A671C04AA0800D86DC5 /* admin_firewall.png in Resources */ = {isa = PBXBuildFile; fileRef = 44DD9A631C04AA0800D86DC5 /* admin_firewall.png */; };
+		44DD9A681C04AA0800D86DC5 /* admin_firewall@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 44DD9A641C04AA0800D86DC5 /* admin_firewall@2x.png */; };
+		44DD9A691C04AA0800D86DC5 /* admin_info_offline.png in Resources */ = {isa = PBXBuildFile; fileRef = 44DD9A651C04AA0800D86DC5 /* admin_info_offline.png */; };
+		44DD9A6A1C04AA0800D86DC5 /* admin_info_offline@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 44DD9A661C04AA0800D86DC5 /* admin_info_offline@2x.png */; };
 		44F46C291BC6760D007A8D57 /* libmysqlcppconn.7.1.1.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44F46C281BC6760D007A8D57 /* libmysqlcppconn.7.1.1.6.dylib */; };
 		44F46C2A1BC67687007A8D57 /* libmysqlcppconn.7.1.1.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44F46C281BC6760D007A8D57 /* libmysqlcppconn.7.1.1.6.dylib */; };
 		44FFC3D51AA0BA1F00950A48 /* sqlide_power_export_wizard.py in Resources */ = {isa = PBXBuildFile; fileRef = 44FFC3D21AA0BA1F00950A48 /* sqlide_power_export_wizard.py */; };
@@ -4070,7 +4070,7 @@
 		2767F92A11635C2500931E27 /* geometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = geometry.h; path = library/base/base/geometry.h; sourceTree = "<group>"; };
 		27694814142A4FAA009DE637 /* snippet_popover.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = snippet_popover.cpp; path = frontend/common/snippet_popover.cpp; sourceTree = "<group>"; };
 		27694815142A4FAA009DE637 /* snippet_popover.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = snippet_popover.h; path = frontend/common/snippet_popover.h; sourceTree = "<group>"; };
-		276948B215B5BC4D0011172A /* base.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = base.cpp; path = library/forms/base.cpp; sourceTree = "<group>"; };
+		276948B215B5BC4D0011172A /* base.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = base.cpp; path = library/forms/base.cpp; sourceTree = "<group>"; };
 		2769C87E1726761F0096ACF5 /* ui_ObjectEditor_impl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ui_ObjectEditor_impl.cpp; path = backend/wbpublic/objimpl/ui/ui_ObjectEditor_impl.cpp; sourceTree = "<group>"; };
 		2769C87F1726761F0096ACF5 /* ui_ObjectEditor_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ui_ObjectEditor_impl.h; path = backend/wbpublic/objimpl/ui/ui_ObjectEditor_impl.h; sourceTree = "<group>"; };
 		2769C8801726761F0096ACF5 /* ui_ObjectEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ui_ObjectEditor.cpp; path = backend/wbpublic/objimpl/ui/ui_ObjectEditor.cpp; sourceTree = "<group>"; };
@@ -16695,6 +16695,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -16738,6 +16739,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";

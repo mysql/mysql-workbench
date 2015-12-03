@@ -72,19 +72,19 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
                                           borderType: NSBezelBorder
                                          controlSize: NSRegularControlSize
                                        scrollerStyle: NSScrollerStyleOverlay];
-    mTable = [[[DraggingTableView alloc] initWithFrame: rect owner: aListBox] autorelease];
-    mHeader= [[mTable headerView] retain];
+    mTable = [[DraggingTableView alloc] initWithFrame: rect owner: aListBox];
+    mHeader= [mTable headerView];
     [mTable setHeaderView: nil];
     [mTable setAllowsMultipleSelection: YES];
     [self setBorderType: NSBezelBorder];
     [self setDocumentView: mTable];
     
-    mContents= [[NSMutableArray array] retain];
+    mContents= [NSMutableArray array];
     [mTable setDataSource: self];
     [mTable setDelegate: self];
     [mTable setColumnAutoresizingStyle: NSTableViewLastColumnOnlyAutoresizingStyle];
     {
-      NSTableColumn *column= [[[NSTableColumn alloc] initWithIdentifier: @"0"] autorelease];
+      NSTableColumn *column= [[NSTableColumn alloc] initWithIdentifier: @"0"];
     
       [mTable addTableColumn: column];
       [column setResizingMask: NSTableColumnAutoresizingMask|NSTableColumnUserResizingMask];
@@ -96,12 +96,6 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 }
 
 
-- (void) dealloc
-{
-  [mHeader release];
-  [mContents release];
-  [super dealloc];
-}
 
 
 - (void)setEnabled:(BOOL)flag
@@ -156,9 +150,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 static bool listbox_create(::mforms::ListBox *self, bool multi_select)
 {
-  [[[MFListBoxImpl alloc] initWithObject:self] autorelease];
-  
-  return true;  
+  return [[MFListBoxImpl alloc] initWithObject: self] != nil;
 }
 
 
@@ -351,7 +343,6 @@ static void listbox_set_heading(::mforms::ListBox *self, const std::string &text
     if (listbox->mHeader)
     {
       [listbox->mTable setHeaderView:listbox->mHeader];
-      [listbox->mHeader release];
       listbox->mHeader= nil;
     }
     [[[[listbox->mTable tableColumns] lastObject] headerCell] setStringValue: wrap_nsstring(text)];

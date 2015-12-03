@@ -51,10 +51,6 @@
 - (void) dealloc
 {
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
-  [mBackImage release];
-  [mDefaultBackColor release];
-  [mBackColor release];
-  [super dealloc];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -143,8 +139,7 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
 
 - (void)setBackgroundColor: (NSColor*) color
 {
-  [mBackColor autorelease];
-  mBackColor = [color retain];
+  mBackColor = color;
   [self setNeedsDisplay: YES];
 }
 
@@ -268,7 +263,6 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
   }
   else
   {
-    [mBackImage release];
     mBackImage = nil;
   }
 }

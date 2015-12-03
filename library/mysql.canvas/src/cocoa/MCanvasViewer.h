@@ -59,7 +59,7 @@
 
 - (void)setCursor:(NSCursor*)cursor;
 
-@property (assign) id delegate;
+@property (unsafe_unretained) id delegate;
 
 - (void)scrollToPoint:(NSPoint)offset;
 @property (readonly) NSRect documentRect;

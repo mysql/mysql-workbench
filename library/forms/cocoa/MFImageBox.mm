@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,9 +55,7 @@
 
 static bool imagebox_create(mforms::ImageBox *image)
 {
-  [[[MFImageBoxImpl alloc] initWithObject:image] autorelease];
-  
-  return true;
+  return [[MFImageBoxImpl alloc] initWithObject: image] != nil;
 }
 
 
@@ -69,7 +67,7 @@ static void imagebox_set_image(mforms::ImageBox *self, const std::string &file)
     NSSize oldSize= [impl frame].size;
     
     std::string full_path= mforms::App::get()->get_resource_path(file);
-    NSImage *image= [[[NSImage alloc] initWithContentsOfFile:wrap_nsstring(full_path)] autorelease];
+    NSImage *image= [[NSImage alloc] initWithContentsOfFile: wrap_nsstring(full_path)];
     [impl setImage: image];
 
     if (!NSEqualSizes([image size], oldSize))
