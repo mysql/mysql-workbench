@@ -129,13 +129,6 @@ bool FormImpl::on_key_release(GdkEventKey* event, bool *status, const bool is_ru
     if (cancel)
       cancel->callback();
   }
-  else if (accept && (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_Return))
-  {
-    *status = true;
-    accept_clicked(status, is_run);
-    if (accept)
-      accept->callback();
-  }
   return false;
 }
 
