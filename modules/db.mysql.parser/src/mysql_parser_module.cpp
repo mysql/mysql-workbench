@@ -5014,7 +5014,7 @@ grt::DictRef MySQLParserServicesImpl::parseStatement(parser::ParserContext::Ref 
   if (recognizer->has_errors())
     return grt::DictRef(); // No further processing if there's a syntax error.
 
-  boost::shared_ptr<MySQLQueryIdentifier> queryIdentifier = context->createQueryIdentifier();
+  std::shared_ptr<MySQLQueryIdentifier> queryIdentifier = context->createQueryIdentifier();
   MySQLQueryType queryType = queryIdentifier->getQueryType(sql.c_str(), sql.size(), true);
 
   switch (queryType) {
