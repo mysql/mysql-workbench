@@ -17,10 +17,7 @@
  * 02110-1301  USA
  */
 
-
-#ifndef _MYSQL_SQL_FACADE_H_
-#define _MYSQL_SQL_FACADE_H_
-
+#pragma once
 
 #include "mysql_sql_parser_public_interface.h"
 #include "grtsqlparser/sql_facade.h"
@@ -29,15 +26,6 @@
 #include "grtpp_module_cpp.h"
 
 #include "mysql-parser.h"
-
-#if defined(_WIN32) || defined(__APPLE__)
-  #include <unordered_set>
-#else
-  #include <tr1/unordered_set>
-  namespace std {
-    using tr1::unordered_set;
-  };
-#endif
 
 #define MysqlSqlFacade_VERSION "2.0"
  
@@ -104,7 +92,6 @@ public:
     DECLARE_MODULE_FUNCTION(MysqlSqlFacadeImpl::checkViewSyntax),
     DECLARE_MODULE_FUNCTION(MysqlSqlFacadeImpl::checkRoutineSyntax),
     DECLARE_MODULE_FUNCTION(MysqlSqlFacadeImpl::renameSchemaReferences),
-	  DECLARE_MODULE_FUNCTION(MysqlSqlFacadeImpl::parseStatement),
     DECLARE_MODULE_FUNCTION_DOC(MysqlSqlFacadeImpl::splitSqlStatements,
                                 "Splits the given SQL script into separate statements, returning a list of strings. For large scripts, getSqlStatementRanges() is preferred, as it will not create a copy of each statement.",
                                 "sql a SQL script, with one or more statements, separated by ;"),
@@ -175,18 +162,8 @@ public:
   virtual bool parseRoutineDetails(const std::string &sql, std::string &type, std::string &name, String_tuple_list &parameters, std::string& return_value, std::string& comments);
   virtual bool parseDropStatement(const std::string &sql, std::string &object_type, std::vector<std::pair<std::string, std::string> > &object_names);
 
-  grt::DictRef parseStatement(const std::string &sql_statement, int server_version, int utf, const std::string &sql_mode);
-
   void stop_processing();
 private:
   bool _stop;
-
-
-  grt::DictRef parseUserDefinition(MySQLRecognizerTreeWalker &walker);
-  grt::StringListRef createList(MySQLRecognizerTreeWalker &walker, int separator_symbol, std::unordered_set<int> &stop_symbols);
-  grt::StringRef concatenateTokens(MySQLRecognizerTreeWalker &walker, std::unordered_set<int> &stop_symbols, const std::string &separator = " ");
-  grt::DictRef parseGrantStatement(MySQLRecognizer &recognizer);
 };
 
-
-#endif // _MYSQL_SQL_FACADE_H_
