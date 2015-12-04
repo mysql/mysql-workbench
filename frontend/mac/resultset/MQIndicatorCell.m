@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2005, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,32 +24,26 @@
 
 - (instancetype)initWithCoder:(NSCoder*)coder
 {
-  self= [super initWithCoder:coder];
-  if (self)
+  self = [super initWithCoder:coder];
+  if (self != nil)
   {
-    _attribs= [[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSFont systemFontOfSize:11], NSFontAttributeName, 
+    _attribs = [NSMutableDictionary dictionaryWithObjectsAndKeys:[NSFont systemFontOfSize:11], NSFontAttributeName,
                 [NSColor blackColor], NSForegroundColorAttributeName,
-                nil] retain];
+                nil];
     
-    _arrow= [@"\xe2\x96\xb6" retain];
+    _arrow = @"\xe2\x96\xb6";
   }
   return self;
 }
 
 
-- (void)dealloc
-{
-  [_arrow release];
-  [_attribs release];
-  [super dealloc];
-}
 
 
 - (id)copyWithZone:(NSZone*)zone 
 {
-  MQIndicatorCell *copy = (MQIndicatorCell*)[super copyWithZone:zone];
-  copy->_attribs = [_attribs retain];
-  copy->_arrow= [_arrow retain];
+  MQIndicatorCell *copy = (MQIndicatorCell*)[super copyWithZone: zone];
+  copy->_attribs = _attribs;
+  copy->_arrow= _arrow;
   return copy;
 }
 

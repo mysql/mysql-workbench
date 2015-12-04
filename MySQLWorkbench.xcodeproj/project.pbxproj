@@ -839,8 +839,6 @@
 		2B1D6E61179DCF590073C062 /* wb-toolbar_nav-forward@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1D6E5D179DCF590073C062 /* wb-toolbar_nav-forward@2x.png */; };
 		2B1E188E19C20CB600842E12 /* wb_item_overlay_autozoom.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1E188C19C20CB600842E12 /* wb_item_overlay_autozoom.png */; };
 		2B1E188F19C20CB600842E12 /* wb_item_overlay_autozoom@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1E188D19C20CB600842E12 /* wb_item_overlay_autozoom@2x.png */; };
-		2B1E28181163D5B100A22E91 /* NSArray_extras.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B1E28161163D5B100A22E91 /* NSArray_extras.h */; };
-		2B1E28191163D5B100A22E91 /* NSArray_extras.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B1E28171163D5B100A22E91 /* NSArray_extras.mm */; };
 		2B1E28451163DEB900A22E91 /* SQL DDL Statements.txt in Copy Files (snippets) */ = {isa = PBXBuildFile; fileRef = 2B1E28431163DEB900A22E91 /* SQL DDL Statements.txt */; };
 		2B1E28461163DEB900A22E91 /* SQL DML Statements.txt in Copy Files (snippets) */ = {isa = PBXBuildFile; fileRef = 2B1E28441163DEB900A22E91 /* SQL DML Statements.txt */; };
 		2B1E2FD4173040850037D3DD /* admin_audit_inspector.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1E2FD3173040850037D3DD /* admin_audit_inspector.png */; };
@@ -1577,7 +1575,6 @@
 		2B7CE9BE0FB891B100DCC700 /* tab.sqlquery.16x16.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B7CE9BA0FB891B100DCC700 /* tab.sqlquery.16x16.png */; };
 		2B7CE9D40FB893A300DCC700 /* tab.overview.home.16x16.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B7CE9D20FB893A300DCC700 /* tab.overview.home.16x16.png */; };
 		2B7CE9D50FB893A300DCC700 /* tab.overview.physical.16x16.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B7CE9D30FB893A300DCC700 /* tab.overview.physical.16x16.png */; };
-		2B7CEA7E0FB8B3B700DCC700 /* tab_header_background2.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B7CEA7D0FB8B3B700DCC700 /* tab_header_background2.png */; };
 		2B7CED900FBA588B00DCC700 /* WBSplitViewUnbrokenizerDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7CED8E0FBA588B00DCC700 /* WBSplitViewUnbrokenizerDelegate.h */; };
 		2B7CED910FBA588B00DCC700 /* WBSplitViewUnbrokenizerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B7CED8F0FBA588B00DCC700 /* WBSplitViewUnbrokenizerDelegate.m */; };
 		2B7CEDE30FBA6C7500DCC700 /* MContainerView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7CEDE10FBA6C7500DCC700 /* MContainerView.h */; };
@@ -2136,7 +2133,6 @@
 		2BD1FB2D0F33D2F200FFC762 /* TabClose_Pressed.png in Resources */ = {isa = PBXBuildFile; fileRef = 169E60B60EF115EA00D821E7 /* TabClose_Pressed.png */; };
 		2BD1FB2E0F33D2F200FFC762 /* TabClose_Unpressed.png in Resources */ = {isa = PBXBuildFile; fileRef = 169E60B70EF115EA00D821E7 /* TabClose_Unpressed.png */; };
 		2BD1FB2F0F33D2F200FFC762 /* TabDocument.png in Resources */ = {isa = PBXBuildFile; fileRef = 169E60B80EF115EA00D821E7 /* TabDocument.png */; };
-		2BD1FB300F33D2F200FFC762 /* TabRowGradient.png in Resources */ = {isa = PBXBuildFile; fileRef = 169E60B90EF115EA00D821E7 /* TabRowGradient.png */; };
 		2BD1FB310F33D2F200FFC762 /* SchemaTabGradientBackground.png in Resources */ = {isa = PBXBuildFile; fileRef = 16F705360F125F81005C0D21 /* SchemaTabGradientBackground.png */; };
 		2BD1FB320F33D2F200FFC762 /* CGColorUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 169E60BB0EF115EA00D821E7 /* CGColorUtilities.h */; };
 		2BD1FB330F33D2F200FFC762 /* CGColorUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 169E60BC0EF115EA00D821E7 /* CGColorUtilities.m */; };
@@ -3902,7 +3898,6 @@
 		169E60B60EF115EA00D821E7 /* TabClose_Pressed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TabClose_Pressed.png; sourceTree = "<group>"; };
 		169E60B70EF115EA00D821E7 /* TabClose_Unpressed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TabClose_Unpressed.png; sourceTree = "<group>"; };
 		169E60B80EF115EA00D821E7 /* TabDocument.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TabDocument.png; sourceTree = "<group>"; };
-		169E60B90EF115EA00D821E7 /* TabRowGradient.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TabRowGradient.png; sourceTree = "<group>"; };
 		169E60BB0EF115EA00D821E7 /* CGColorUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGColorUtilities.h; sourceTree = "<group>"; };
 		169E60BC0EF115EA00D821E7 /* CGColorUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CGColorUtilities.m; sourceTree = "<group>"; };
 		169E60BE0EF115EA00D821E7 /* WBGrayTabItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WBGrayTabItem.h; sourceTree = "<group>"; };
@@ -4620,8 +4615,6 @@
 		2B1D6E5D179DCF590073C062 /* wb-toolbar_nav-forward@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "wb-toolbar_nav-forward@2x.png"; path = "images/toolbar/wb-toolbar_nav-forward@2x.png"; sourceTree = "<group>"; };
 		2B1E188C19C20CB600842E12 /* wb_item_overlay_autozoom.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_item_overlay_autozoom.png; path = images/sql/wb_item_overlay_autozoom.png; sourceTree = "<group>"; };
 		2B1E188D19C20CB600842E12 /* wb_item_overlay_autozoom@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "wb_item_overlay_autozoom@2x.png"; path = "images/sql/wb_item_overlay_autozoom@2x.png"; sourceTree = "<group>"; };
-		2B1E28161163D5B100A22E91 /* NSArray_extras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSArray_extras.h; path = frontend/mac/utilities/NSArray_extras.h; sourceTree = "<group>"; };
-		2B1E28171163D5B100A22E91 /* NSArray_extras.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = NSArray_extras.mm; path = frontend/mac/utilities/NSArray_extras.mm; sourceTree = "<group>"; };
 		2B1E28431163DEB900A22E91 /* SQL DDL Statements.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "SQL DDL Statements.txt"; path = "res/snippets/SQL DDL Statements.txt"; sourceTree = "<group>"; };
 		2B1E28441163DEB900A22E91 /* SQL DML Statements.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "SQL DML Statements.txt"; path = "res/snippets/SQL DML Statements.txt"; sourceTree = "<group>"; };
 		2B1E2FD3173040850037D3DD /* admin_audit_inspector.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = admin_audit_inspector.png; path = images/admin/admin_audit_inspector.png; sourceTree = "<group>"; };
@@ -5456,7 +5449,6 @@
 		2B7CE9BA0FB891B100DCC700 /* tab.sqlquery.16x16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tab.sqlquery.16x16.png; sourceTree = "<group>"; };
 		2B7CE9D20FB893A300DCC700 /* tab.overview.home.16x16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tab.overview.home.16x16.png; sourceTree = "<group>"; };
 		2B7CE9D30FB893A300DCC700 /* tab.overview.physical.16x16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tab.overview.physical.16x16.png; sourceTree = "<group>"; };
-		2B7CEA7D0FB8B3B700DCC700 /* tab_header_background2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tab_header_background2.png; sourceTree = "<group>"; };
 		2B7CED8E0FBA588B00DCC700 /* WBSplitViewUnbrokenizerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WBSplitViewUnbrokenizerDelegate.h; sourceTree = "<group>"; };
 		2B7CED8F0FBA588B00DCC700 /* WBSplitViewUnbrokenizerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WBSplitViewUnbrokenizerDelegate.m; sourceTree = "<group>"; };
 		2B7CEDE10FBA6C7500DCC700 /* MContainerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MContainerView.h; path = frontend/mac/components/MContainerView.h; sourceTree = "<group>"; };
@@ -7009,7 +7001,6 @@
 		169E60B30EF115EA00D821E7 /* Graphics */ = {
 			isa = PBXGroup;
 			children = (
-				2B7CEA7D0FB8B3B700DCC700 /* tab_header_background2.png */,
 				16764CA60F82DC590099223D /* RightArrowIcon.png */,
 				16764CA70F82DC590099223D /* LeftArrowIcon.png */,
 				1671A3860F83A46900F7767F /* TabMenuIcon.png */,
@@ -7019,7 +7010,6 @@
 				169E60B60EF115EA00D821E7 /* TabClose_Pressed.png */,
 				169E60B70EF115EA00D821E7 /* TabClose_Unpressed.png */,
 				169E60B80EF115EA00D821E7 /* TabDocument.png */,
-				169E60B90EF115EA00D821E7 /* TabRowGradient.png */,
 				16F705360F125F81005C0D21 /* SchemaTabGradientBackground.png */,
 			);
 			name = Graphics;
@@ -9732,8 +9722,6 @@
 				2B3D48980F3E3A4A009238A7 /* NSString_extras.h */,
 				2BB9A1850FB1476F001F9968 /* NSColor_extras.h */,
 				2BB9A1860FB1476F001F9968 /* NSColor_extras.m */,
-				2B1E28161163D5B100A22E91 /* NSArray_extras.h */,
-				2B1E28171163D5B100A22E91 /* NSArray_extras.mm */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -11594,7 +11582,6 @@
 				2B5DE7940FFEBF6900701821 /* WBPluginWindowBase.h in Headers */,
 				2B29F9141140B1CD009DA9B0 /* WBSplitPanel.h in Headers */,
 				2B29F9181140B20D009DA9B0 /* WBBasePanel.h in Headers */,
-				2B1E28181163D5B100A22E91 /* NSArray_extras.h in Headers */,
 				2B5C142B11FA381300F1237A /* NSMenu_extras.h in Headers */,
 				2B83661A12300D6C00A73961 /* MFTabView.h in Headers */,
 				2B15BF0F12E3C3E3006567D6 /* MColoredView.h in Headers */,
@@ -12567,7 +12554,6 @@
 				2BD1FB2E0F33D2F200FFC762 /* TabClose_Unpressed.png in Resources */,
 				2B83E5FD1992EA6C00781432 /* qe_sql-editor-resultset-tb-pin.png in Resources */,
 				2BD1FB2F0F33D2F200FFC762 /* TabDocument.png in Resources */,
-				2BD1FB300F33D2F200FFC762 /* TabRowGradient.png in Resources */,
 				2BD1FB310F33D2F200FFC762 /* SchemaTabGradientBackground.png in Resources */,
 				16764CA80F82DC590099223D /* RightArrowIcon.png in Resources */,
 				16764CA90F82DC590099223D /* LeftArrowIcon.png in Resources */,
@@ -12575,7 +12561,6 @@
 				2BB9A2DA0FB20B3D001F9968 /* separator-dots.png in Resources */,
 				2BE5BCED19C778EF002EF0BC /* qe_sql-editor-resultset-tb-pinned@2x.png in Resources */,
 				2BB9A44E0FB28BD6001F9968 /* TabDragIcon.png in Resources */,
-				2B7CEA7E0FB8B3B700DCC700 /* tab_header_background2.png in Resources */,
 				2B1D6CAC177C6BDD0073C062 /* maintab_home_background@2x.png in Resources */,
 				2B83E5FE1992EA6C00781432 /* qe_sql-editor-resultset-tb-pin@2x.png in Resources */,
 				2B1D6CAD177C6BDD0073C062 /* maintab_home_home.png in Resources */,
@@ -14462,7 +14447,6 @@
 				2B5DE7950FFEBF6900701821 /* WBPluginWindowBase.mm in Sources */,
 				2B29F9151140B1CD009DA9B0 /* WBSplitPanel.mm in Sources */,
 				2B29F9191140B20D009DA9B0 /* WBBasePanel.mm in Sources */,
-				2B1E28191163D5B100A22E91 /* NSArray_extras.mm in Sources */,
 				2B5C142C11FA381300F1237A /* NSMenu_extras.mm in Sources */,
 				2B83661B12300D6C00A73961 /* MFTabView.mm in Sources */,
 				2B15BF1012E3C3E3006567D6 /* MColoredView.m in Sources */,
@@ -17131,6 +17115,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -17184,6 +17169,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";

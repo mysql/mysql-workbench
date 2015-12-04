@@ -42,7 +42,7 @@ static std::map<std::string, GRTNodeId*> node_cache;
 
     return node;
   }*/
-  return [[[GRTNodeId alloc] initWithNodeId:nodeId] autorelease];
+  return [[GRTNodeId alloc] initWithNodeId:nodeId];
 }
 
 
@@ -70,7 +70,6 @@ static std::map<std::string, GRTNodeId*> node_cache;
 {
   delete _nodeId;
   
-  [super dealloc];
 }
 
 
