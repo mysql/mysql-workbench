@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,23 +30,14 @@ static const float DEFAULT_HEIGHT = 24;
   self = [super initWithFrame: frame];
   if (self)
   {
-    mOptionInfoList= [[NSMutableArray array] retain];
+    mOptionInfoList = [NSMutableArray array];
   }
   return self;
 }
 
-
-- (void) dealloc
-{
-  [mGradient release];
-  [mOptionInfoList release];
-  [super dealloc];
-}
-
 - (void)setGradient: (NSGradient*)gradient
 {
-  [mGradient autorelease];
-  mGradient = [gradient retain];
+  mGradient = gradient;
 }
 
 - (NSSize)minimumSize
@@ -152,7 +143,7 @@ static const float DEFAULT_HEIGHT = 24;
                          action:(SEL)action
                             tag:(int)tag
 {
-  NSButton *button= [[[NSButton alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)] autorelease];
+  NSButton *button = [[NSButton alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)];
   
   [button setButtonType: NSMomentaryLightButton];
   [button setTitle: title];
@@ -176,7 +167,7 @@ static const float DEFAULT_HEIGHT = 24;
                         action:(SEL)action
                            tag:(int)tag
 {
-  NSButton *button= [[[NSButton alloc] initWithFrame: NSMakeRect(0, 0, 18, 18)] autorelease];
+  NSButton *button = [[NSButton alloc] initWithFrame: NSMakeRect(0, 0, 18, 18)];
   
   [button setButtonType: NSMomentaryLightButton];
   [button setBordered: NO];
@@ -187,11 +178,7 @@ static const float DEFAULT_HEIGHT = 24;
   [button setAction: action];
   [button setBordered: NO];
   
-  //[button setBezelStyle: NSRoundedBezelStyle];
-  
   [self addSubview: button];
-  
-//  [button sizeToFit];
   [self tile];
   
   return button;
@@ -202,7 +189,7 @@ static const float DEFAULT_HEIGHT = 24;
                                                     target:(id)target
                                                     action:(SEL)action
 {
-  NSSegmentedControl *seg = [[[NSSegmentedControl alloc] initWithFrame: NSMakeRect(0, 0, 30 * ([iconsAndTags count]/2), 24)] autorelease];
+  NSSegmentedControl *seg = [[NSSegmentedControl alloc] initWithFrame: NSMakeRect(0, 0, 30 * ([iconsAndTags count]/2), 24)];
   [seg setSegmentCount: [iconsAndTags count] / 2];
   [seg setSegmentStyle: NSSegmentStyleTexturedSquare];
   [[seg cell] setTrackingMode: NSSegmentSwitchTrackingSelectAny];
@@ -220,7 +207,7 @@ static const float DEFAULT_HEIGHT = 24;
 
 - (NSTextField*)addLabelWithTitle:(NSString*)title
 {
-  NSTextField *label= [[[NSTextField alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)] autorelease];
+  NSTextField *label = [[NSTextField alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)];
   
   [label setStringValue: title];
   [label setEditable: NO];
@@ -239,13 +226,12 @@ static const float DEFAULT_HEIGHT = 24;
 {
   NSView *view = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
   [self addSubview: view];
-  [view release];
   [view setHidden: YES];
 }
 
 - (void)addSeparator
 {
-  NSBox *box= [[[NSBox alloc] initWithFrame: NSMakeRect(0, 2, 1, 18)] autorelease];
+  NSBox *box= [[NSBox alloc] initWithFrame: NSMakeRect(0, 2, 1, 18)];
   [box setTitlePosition: NSNoTitle];
   [box setBoxType: NSBoxSeparator];
   [self addSubview: box];
@@ -258,7 +244,7 @@ static const float DEFAULT_HEIGHT = 24;
                             action:(SEL)action
                       defaultValue: (NSString*)defaultValue
 {
-  NSPopUpButton *popup= [[[NSPopUpButton alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)] autorelease];
+  NSPopUpButton *popup= [[NSPopUpButton alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)];
   for (NSString *title in items)
   {
     if ([title length] == 0)
@@ -308,8 +294,8 @@ static const float DEFAULT_HEIGHT = 24;
                              option: (NSString*)option
                        defaultValue: (NSString*)defaultValue
 {
-  NSPopUpButton *popup= [[[NSPopUpButton alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)] autorelease];
-  NSMenu *menu= [[[NSMenu alloc] initWithTitle: @""] autorelease];
+  NSPopUpButton *popup= [[NSPopUpButton alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)];
+  NSMenu *menu= [[NSMenu alloc] initWithTitle: @""];
   NSMenuItem *selected= nil;
   [[popup cell] setControlSize: NSSmallControlSize];
   for (NSColor *color in colors)
@@ -325,9 +311,7 @@ static const float DEFAULT_HEIGHT = 24;
     [item setImage: image];
     [item setTitle: @""];
     [item setRepresentedObject: [color hexString]];
-    [image release];
     [menu addItem: item];
-    [item release];
     
     if ([defaultValue isEqual: [item representedObject]])
       selected= item;

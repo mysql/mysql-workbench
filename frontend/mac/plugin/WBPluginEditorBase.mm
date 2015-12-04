@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,7 +48,6 @@
   if (mDockingPoint)
     mDockingPoint->release();
   [[NSNotificationCenter defaultCenter] removeObserver: self];
-  [super dealloc];
 }
 
 
@@ -222,13 +221,14 @@
 
 //--------------------------------------------------------------------------------------------------
 
-static void text_changed(int line, int linesAdded, WBPluginEditorBase* self)
+static void text_changed(int line, int linesAdded, void *editor_)
 {
-  bool dirty = [self editorBE]->get_sql_editor()->get_editor_control()->is_dirty();
-  if ([self->mApplyButton isEnabled] != dirty)
-    [self updateTitle: [self title]];
-  [self->mApplyButton setEnabled: dirty];
-  [self->mRevertButton setEnabled: dirty];
+  WBPluginEditorBase *editor = (__bridge WBPluginEditorBase*)editor_;
+  bool dirty = [editor editorBE]->get_sql_editor()->get_editor_control()->is_dirty();
+  if ([editor->mApplyButton isEnabled] != dirty)
+    [editor updateTitle: [editor title]];
+  [editor->mApplyButton setEnabled: dirty];
+  [editor->mRevertButton setEnabled: dirty];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -250,7 +250,7 @@ static void text_changed(int line, int linesAdded, WBPluginEditorBase* self)
   std::string font = grt::StringRef::cast_from([self editorBE]->get_grt_manager()->get_app_option("workbench.general.Editor:Font"));
   mforms_editor->set_font(font); 
 
-  mforms_editor->signal_changed()->connect(boost::bind(text_changed, _1, _2, self));
+  mforms_editor->signal_changed()->connect(boost::bind(text_changed, _1, _2, (__bridge void *)self));
 
   for (id subview in [[host subviews] reverseObjectEnumerator])
   {

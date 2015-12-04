@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -96,7 +96,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
   if (self)
   {
     BOOL tabSwitcherBelow = NO;
-    mTabView = [[[DraggingTabView alloc] initWithFrame: NSMakeRect(0, 0, 100, 100) owner: aTabView] autorelease];
+    mTabView = [[DraggingTabView alloc] initWithFrame: NSMakeRect(0, 0, 100, 100) owner: aTabView];
 
     switch (tabType)
     {
@@ -316,9 +316,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 static bool tabview_create(::mforms::TabView *self, ::mforms::TabViewType tabType)
 {
-  [[[MFTabViewImpl alloc] initWithObject:self tabType:tabType] autorelease];
-    
-  return true;  
+  return [[MFTabViewImpl alloc] initWithObject:self tabType:tabType] != nil;
 }
 
 
@@ -374,7 +372,7 @@ static int tabview_add_page(::mforms::TabView *self, mforms::View *tab, const st
     
     if ( tabView )
     {
-      NSTabViewItem *item= [[[NSTabViewItem alloc] initWithIdentifier: [NSString stringWithFormat:@"%p", tab]] autorelease];
+      NSTabViewItem *item= [[NSTabViewItem alloc] initWithIdentifier: [NSString stringWithFormat: @"%p", tab]];
       MFTabViewItemView *view= [[MFTabViewItemView alloc] init];
 
       view->mOwner = tab;
@@ -413,7 +411,6 @@ static void tabview_remove_page(::mforms::TabView *self, mforms::View *tab)
         {
           MFTabViewItemView *view = (MFTabViewItemView *)item.view;
           [[[view subviews] lastObject] removeFromSuperview];
-          [view release];
           
           [tabView->mTabView removeTabViewItem: item];
         }      

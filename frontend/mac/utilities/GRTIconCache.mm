@@ -36,7 +36,7 @@ static GRTIconCache *instance = NULL;
   {
     _cache= new std::map<bec::IconId, NSImage*>();
 
-    _folderIcon16= [[[[NSWorkspace sharedWorkspace] iconForFile:@"/usr"] copy] retain];
+    _folderIcon16= [[[NSWorkspace sharedWorkspace] iconForFile:@"/usr"] copy];
     [_folderIcon16 setSize:NSMakeSize(15, 15)];
   }
   return self;
@@ -45,16 +45,14 @@ static GRTIconCache *instance = NULL;
 
 - (void)dealloc
 {
-  [_folderIcon16 release];
   
   for (std::map<bec::IconId, NSImage*>::const_iterator iter= _cache->begin();
        iter != _cache->end(); ++iter)
   {
-    [iter->second release];
+    iter->second;
   }
   delete _cache;
   
-  [super dealloc];
 }
 
 
@@ -68,7 +66,7 @@ static GRTIconCache *instance = NULL;
 {
   std::string path= bec::IconManager::get_instance()->get_icon_path([fname UTF8String]);
 
-  return [[[NSImage alloc] initWithContentsOfFile:@(path.c_str())] autorelease];
+  return [[NSImage alloc] initWithContentsOfFile:@(path.c_str())];
 }
 
 
@@ -78,7 +76,7 @@ static GRTIconCache *instance = NULL;
   if ((iter= _cache->find(icon)) == _cache->end())
   {
     NSImage *image= [self uncachedImageForIconId:icon];
-    (*_cache)[icon]= [image retain];
+    (*_cache)[icon]= image;
     return image;
   }
   return iter->second;
@@ -91,7 +89,7 @@ static GRTIconCache *instance = NULL;
   if (path.empty())
     return nil;
 
-  NSImage *image = [[[NSImage alloc] initWithContentsOfFile:@(path.c_str())] autorelease];
+  NSImage *image = [[NSImage alloc] initWithContentsOfFile:@(path.c_str())];
   return image;
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 
 @implementation WBGrayTabItem
 
-- (CGFloat) preferredWidth;
+- (CGFloat)preferredWidth;
 {
   CGFloat preferredWidth = 0;
   
@@ -31,11 +31,7 @@
   CGFloat labelWidth = ceil([mLabel sizeWithAttributes:attributes].width);
   preferredWidth = 25 + [mDocumentIconImage size].width + labelWidth + [mCloseButtonImage size].width;
   
-  //  if (preferredWidth < 150)
-  //    preferredWidth = 150;
-  
   return preferredWidth;
-  //	return 150;
 }
 
 
@@ -81,18 +77,16 @@
 	return self;
 }
 
-
-
 + (WBTabItem*) tabItemWithIdentifier: (id) identifier
 															 label: (NSString*) label;
 {
-	return [[[self alloc] initWithIdentifier: identifier
-																		 label: label
-																 direction: WBTabDirectionUp
-																 placement: WBTabPlacementTop
-																			size: WBTabSizeLarge
-																	 hasIcon: YES
-																	canClose: YES] autorelease];
+  return [[self alloc] initWithIdentifier: identifier
+                                    label: label
+                                direction: WBTabDirectionUp
+                                placement: WBTabPlacementTop
+                                     size: WBTabSizeLarge
+                                  hasIcon: YES
+                                 canClose: YES];
 }
 
 
