@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -93,8 +93,7 @@ public:
   virtual bool parseRoutineDetails(const std::string &sql, std::string &type, std::string &name, String_tuple_list &parameters, std::string& return_value, std::string& comments)= 0;
   virtual bool parseSelectStatementForEdit(const std::string &sql, std::string &schema_name, std::string &table_name, String_tuple_list &column_names)= 0;
   virtual bool parseDropStatement(const std::string &sql, std::string &object_type, std::vector<std::pair<std::string, std::string> > &object_names) = 0;
-  virtual grt::DictRef parseStatement(const std::string &sql_statement, int server_version, int utf, const std::string &sql_mode) = 0;
-  
+
   virtual void stop_processing() = 0;
 };
 
