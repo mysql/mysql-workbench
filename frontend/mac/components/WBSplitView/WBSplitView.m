@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,11 +38,6 @@
 - (CGFloat) dividerThickness;
 {
   return mDividerThickness;
-	
-  /*if ([self isVertical])
-    return mDividerThickness;
-  else
-    return [super dividerThickness];*/
 }
 
 
@@ -157,8 +152,7 @@
 
 - (void)setBackgroundColor: (NSColor*)color
 {
-  [mBackColor autorelease];
-  mBackColor = [color retain];
+  mBackColor = color;
 }
 
 #pragma mark Create and Destroy
@@ -182,18 +176,11 @@
            object: [self window]];
 }
 
-
-
 - (void) dealloc
 {
   NSNotificationCenter* dc = [NSNotificationCenter defaultCenter];
   [dc removeObserver: self];
-  
-  [mBackColor release];
-  [super dealloc];
 }
-
-
 
 @end
 

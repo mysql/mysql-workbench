@@ -28,13 +28,13 @@
   IBOutlet id delegate;
 }
 
-@property (assign) NSCollectionViewItem *owner;
+@property (weak) NSCollectionViewItem *owner;
 
 @property (readonly, strong) NSCollectionView *activeCollectionView;
 
 @property  BOOL selected;
 
-@property (assign) id delegate;
+@property (unsafe_unretained) id delegate;
 
 // Inline editing.
 - (void) beginInlineEditing;

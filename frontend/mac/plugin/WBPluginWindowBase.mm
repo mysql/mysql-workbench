@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,8 +45,6 @@
 {
   // should be removed once it's made sure that whatever adds an observer, removes it
   [[NSNotificationCenter defaultCenter] removeObserver: self];
-  
-  [super dealloc];
 }
 
 
