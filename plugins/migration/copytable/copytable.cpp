@@ -705,7 +705,6 @@ SQLRETURN ODBCCopyDataSource::get_wchar_buffer_data(RowBuffer &rowbuffer, int co
 
     if (len_or_indicator != SQL_NULL_DATA)
     {
-      char *inbuf = (char*)tmpbuf;
       size_t outbuf_len = out_buffer_len;
 
       //log_debug3("Convert string with %i chars to buffer size %i\n", inbuf_len, outbuf_len);
@@ -806,7 +805,6 @@ SQLRETURN ODBCCopyDataSource::get_geometry_buffer_data(RowBuffer &rowbuffer, int
 
     if (len_or_indicator != SQL_NULL_DATA)
     {
-      char *inbuf = (char*)tmpbuf;
       size_t outbuf_len = out_buffer_len;
 
       // convert data from UCS-2 to utf-8
