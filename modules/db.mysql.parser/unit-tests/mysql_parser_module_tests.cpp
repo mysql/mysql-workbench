@@ -17,8 +17,9 @@
  * 02110-1301  USA
  */
 
-#include "grtpp.h"
+#include "wb_helpers.h"
 
+#include "grtpp.h"
 #include "grtsqlparser/mysql_parser_services.h"
 
 using namespace parser;
