@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "tut_stdafx.h"
-
 #include "grts/structs.db.query.h"
 #include "sqlide/wb_context_sqlide.h"
 #include "sqlide/wb_live_schema_tree.h"
