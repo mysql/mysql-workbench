@@ -145,7 +145,7 @@ TEST_FUNCTION(95)
   user = grt::DictRef::cast_from(users["me"]);
   ensure("95.36", user.is_valid());
   ensure_equals("95.37", *grt::StringRef::cast_from(user["user"]), "me");
-  ensure_equals("95.38", user.count(), 1);
+  ensure_equals("95.38", user.count(), 1UL);
 
   // Everything possible in a grant statements.
   std::string sql = base::wstring_to_string(L"grant insert (a), insert (b), insert(c), update(a), "
@@ -172,24 +172,24 @@ TEST_FUNCTION(95)
 
   users = grt::DictRef::cast_from(result["users"]);
   ensure("95.48", users.is_valid());
-  ensure_equals("95.49", users.count(), 3);
+  ensure_equals("95.49", users.count(), 3UL);
   ensure("95.40", users["current_user"].is_valid());
   ensure("95.50", users["CURRENT_USER"].is_valid());
   ensure("95.51", users["mike"].is_valid());
 
   user = grt::DictRef::cast_from(users["CURRENT_USER"]);
   ensure_equals("95.52", *grt::StringRef::cast_from(user["user"]), "CURRENT_USER");
-  ensure_equals("95.53", user.count(), 3);
+  ensure_equals("95.53", user.count(), 3UL);
 
   grt::DictRef options = grt::DictRef::cast_from(result["options"]);
   ensure("95.54", options.is_valid());
-  ensure_equals("95.55", options.count(), 5);
+  ensure_equals("95.55", options.count(), 5UL);
   ensure_equals("95.56", *grt::StringRef::cast_from(options["grant"]), "");
   ensure_equals("95.57", *grt::StringRef::cast_from(options["max_queries_per_hour"]), "222");
 
   grt::DictRef requirements = grt::DictRef::cast_from(result["requirements"]);
   ensure("95.58", requirements.is_valid());
-  ensure_equals("95.59", requirements.count(), 3);
+  ensure_equals("95.59", requirements.count(), 3UL);
   ensure_equals("95.60", *grt::StringRef::cast_from(requirements["cipher"]), "xyz");
   ensure_equals("95.61", *grt::StringRef::cast_from(requirements["issuer"]), base::wstring_to_string(L"⌚️"));
 
