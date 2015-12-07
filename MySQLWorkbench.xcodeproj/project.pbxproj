@@ -46,7 +46,6 @@
 		27050A2E1B343A3300D6135D /* regression_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050A261B343A3300D6135D /* regression_test.cpp */; };
 		27050A2F1B343A3300D6135D /* synthetic_mysql_model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050A271B343A3300D6135D /* synthetic_mysql_model.cpp */; };
 		27050A301B343A3300D6135D /* test_helpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050A281B343A3300D6135D /* test_helpers.cpp */; };
-		27050A311B343A3300D6135D /* tut_stdafx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050A291B343A3300D6135D /* tut_stdafx.cpp */; };
 		27050A321B343A3300D6135D /* wb_helpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050A2A1B343A3300D6135D /* wb_helpers.cpp */; };
 		27050A3A1B343A8B00D6135D /* common_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050A331B343A8B00D6135D /* common_test.cpp */; };
 		27050A3B1B343A8B00D6135D /* grt_dispatcher_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050A341B343A8B00D6135D /* grt_dispatcher_test.cpp */; };
@@ -298,6 +297,7 @@
 		27751DDF17422A060025DEAE /* about_box.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CC86041741348D00AAA267 /* about_box.cpp */; };
 		27751DE017422A0F0025DEAE /* about_box.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CC86051741348D00AAA267 /* about_box.h */; };
 		2777A7E41A30A36400A5441E /* cdbc_prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 2777A7E31A30A36400A5441E /* cdbc_prefix.h */; };
+		277A7B961C15E2E6003C009D /* mysql_parser_module_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 277A7B951C15E2E6003C009D /* mysql_parser_module_tests.cpp */; };
 		278874861189DA8500E477EF /* webbrowser.h in Headers */ = {isa = PBXBuildFile; fileRef = 278874851189DA8500E477EF /* webbrowser.h */; };
 		278874881189DA9300E477EF /* webbrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 278874871189DA9300E477EF /* webbrowser.cpp */; };
 		278874961189DEA500E477EF /* webbrowser_view.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 278874951189DEA500E477EF /* webbrowser_view.cpp */; };
@@ -2646,14 +2646,14 @@
 		2BFBF0A10F51BF2D0016F9D1 /* MySQLViewEditor.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BFBF0A00F51BF2D0016F9D1 /* MySQLViewEditor.mm */; };
 		2BFDB83516C00F6A00D0C5A8 /* libvsqlitepp.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BFDB83416C00F6500D0C5A8 /* libvsqlitepp.0.dylib */; };
 		44683E4C1AC9A41700C516C5 /* generic_templates.h in Headers */ = {isa = PBXBuildFile; fileRef = 44683E4B1AC9A40B00C516C5 /* generic_templates.h */; };
-		44B7DC961C0C7A39000D608D /* wba_firewall in CopyFiles */ = {isa = PBXBuildFile; fileRef = 44B7DC951C0C7A39000D608D /* wba_firewall */; settings = {ASSET_TAGS = (); }; };
-		44B7DC9C1C0C7A72000D608D /* admin_firewall_reports.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC971C0C7A72000D608D /* admin_firewall_reports.png */; settings = {ASSET_TAGS = (); }; };
-		44B7DC9D1C0C7A72000D608D /* admin_firewall.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC981C0C7A72000D608D /* admin_firewall.png */; settings = {ASSET_TAGS = (); }; };
-		44B7DC9E1C0C7A72000D608D /* admin_firewall@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC991C0C7A72000D608D /* admin_firewall@2x.png */; settings = {ASSET_TAGS = (); }; };
-		44B7DC9F1C0C7A72000D608D /* admin_info_offline.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC9A1C0C7A72000D608D /* admin_info_offline.png */; settings = {ASSET_TAGS = (); }; };
-		44B7DCA01C0C7A72000D608D /* admin_info_offline@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC9B1C0C7A72000D608D /* admin_info_offline@2x.png */; settings = {ASSET_TAGS = (); }; };
-		44B7DCA31C0C7A97000D608D /* firewall-header.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DCA11C0C7A97000D608D /* firewall-header.png */; settings = {ASSET_TAGS = (); }; };
-		44B7DCA41C0C7A97000D608D /* firewall-header@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DCA21C0C7A97000D608D /* firewall-header@2x.png */; settings = {ASSET_TAGS = (); }; };
+		44B7DC961C0C7A39000D608D /* wba_firewall in CopyFiles */ = {isa = PBXBuildFile; fileRef = 44B7DC951C0C7A39000D608D /* wba_firewall */; };
+		44B7DC9C1C0C7A72000D608D /* admin_firewall_reports.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC971C0C7A72000D608D /* admin_firewall_reports.png */; };
+		44B7DC9D1C0C7A72000D608D /* admin_firewall.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC981C0C7A72000D608D /* admin_firewall.png */; };
+		44B7DC9E1C0C7A72000D608D /* admin_firewall@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC991C0C7A72000D608D /* admin_firewall@2x.png */; };
+		44B7DC9F1C0C7A72000D608D /* admin_info_offline.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC9A1C0C7A72000D608D /* admin_info_offline.png */; };
+		44B7DCA01C0C7A72000D608D /* admin_info_offline@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC9B1C0C7A72000D608D /* admin_info_offline@2x.png */; };
+		44B7DCA31C0C7A97000D608D /* firewall-header.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DCA11C0C7A97000D608D /* firewall-header.png */; };
+		44B7DCA41C0C7A97000D608D /* firewall-header@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DCA21C0C7A97000D608D /* firewall-header@2x.png */; };
 		44FFC3D51AA0BA1F00950A48 /* sqlide_power_export_wizard.py in Resources */ = {isa = PBXBuildFile; fileRef = 44FFC3D21AA0BA1F00950A48 /* sqlide_power_export_wizard.py */; };
 		44FFC3D61AA0BA1F00950A48 /* sqlide_power_import_export_be.py in Resources */ = {isa = PBXBuildFile; fileRef = 44FFC3D31AA0BA1F00950A48 /* sqlide_power_import_export_be.py */; };
 		44FFC3D71AA0BA1F00950A48 /* sqlide_power_import_wizard.py in Resources */ = {isa = PBXBuildFile; fileRef = 44FFC3D41AA0BA1F00950A48 /* sqlide_power_import_wizard.py */; };
@@ -4065,7 +4065,6 @@
 		27050A261B343A3300D6135D /* regression_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = regression_test.cpp; path = testing/tut/source/regression_test.cpp; sourceTree = "<group>"; };
 		27050A271B343A3300D6135D /* synthetic_mysql_model.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = synthetic_mysql_model.cpp; path = testing/tut/source/synthetic_mysql_model.cpp; sourceTree = "<group>"; };
 		27050A281B343A3300D6135D /* test_helpers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_helpers.cpp; path = testing/tut/source/test_helpers.cpp; sourceTree = "<group>"; };
-		27050A291B343A3300D6135D /* tut_stdafx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tut_stdafx.cpp; path = testing/tut/source/tut_stdafx.cpp; sourceTree = "<group>"; };
 		27050A2A1B343A3300D6135D /* wb_helpers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wb_helpers.cpp; path = testing/tut/source/wb_helpers.cpp; sourceTree = "<group>"; };
 		27050A331B343A8B00D6135D /* common_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = common_test.cpp; path = "backend/wbpublic/grt/unit-tests/common_test.cpp"; sourceTree = "<group>"; };
 		27050A341B343A8B00D6135D /* grt_dispatcher_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grt_dispatcher_test.cpp; path = "backend/wbpublic/grt/unit-tests/grt_dispatcher_test.cpp"; sourceTree = "<group>"; };
@@ -4345,6 +4344,7 @@
 		2773B88411006B53000CA2F9 /* MFSplitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MFSplitter.h; path = library/forms/cocoa/MFSplitter.h; sourceTree = "<group>"; };
 		2773B88611006B58000CA2F9 /* MFSplitter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MFSplitter.mm; path = library/forms/cocoa/MFSplitter.mm; sourceTree = "<group>"; };
 		2777A7E31A30A36400A5441E /* cdbc_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cdbc_prefix.h; path = prefix/cdbc_prefix.h; sourceTree = SOURCE_ROOT; };
+		277A7B951C15E2E6003C009D /* mysql_parser_module_tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mysql_parser_module_tests.cpp; path = "modules/db.mysql.parser/unit-tests/mysql_parser_module_tests.cpp"; sourceTree = "<group>"; };
 		277F196B1A1507DB00E816F6 /* wb.fabric.interface.grt_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb.fabric.interface.grt_prefix.h; path = prefix/wb.fabric.interface.grt_prefix.h; sourceTree = "<group>"; };
 		278874851189DA8500E477EF /* webbrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = webbrowser.h; path = library/forms/mforms/webbrowser.h; sourceTree = "<group>"; };
 		278874871189DA9300E477EF /* webbrowser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = webbrowser.cpp; path = library/forms/webbrowser.cpp; sourceTree = "<group>"; };
@@ -7461,7 +7461,7 @@
 				27050A191B34393E00D6135D /* mforms_stub_impl */,
 				27050A181B34393500D6135D /* modules_grt */,
 				27050B1C1B3444B700D6135D /* sql_generator */,
-				27050A171B34392E00D6135D /* sql_parser */,
+				27050A171B34392E00D6135D /* Parser tests */,
 				27050A161B34392900D6135D /* sqlide */,
 				27050A151B34392100D6135D /* utilities */,
 				27D32F381B346AFA00284242 /* connection_helpers.cpp */,
@@ -7471,7 +7471,6 @@
 				27050A261B343A3300D6135D /* regression_test.cpp */,
 				27050A271B343A3300D6135D /* synthetic_mysql_model.cpp */,
 				27050A281B343A3300D6135D /* test_helpers.cpp */,
-				27050A291B343A3300D6135D /* tut_stdafx.cpp */,
 				27050A2A1B343A3300D6135D /* wb_helpers.cpp */,
 			);
 			name = "Source Files";
@@ -7533,13 +7532,14 @@
 			name = sqlide;
 			sourceTree = "<group>";
 		};
-		27050A171B34392E00D6135D /* sql_parser */ = {
+		27050A171B34392E00D6135D /* Parser tests */ = {
 			isa = PBXGroup;
 			children = (
 				27050B1D1B34450500D6135D /* mysql_parser_test.cpp */,
 				27050B1F1B34451D00D6135D /* sql_parser_test.cpp */,
+				277A7B951C15E2E6003C009D /* mysql_parser_module_tests.cpp */,
 			);
-			name = sql_parser;
+			name = "Parser tests";
 			sourceTree = "<group>";
 		};
 		27050A181B34393500D6135D /* modules_grt */ = {
@@ -14391,6 +14391,7 @@
 				27050A581B343ADF00D6135D /* wb_module_test.cpp in Sources */,
 				27050ABF1B3443C100D6135D /* stub_menu.cpp in Sources */,
 				27050A6A1B343F7600D6135D /* db_mysql_sql_export_test.cpp in Sources */,
+				277A7B961C15E2E6003C009D /* mysql_parser_module_tests.cpp in Sources */,
 				27050A691B343F7600D6135D /* db_mysql_plugin_test.cpp in Sources */,
 				27050AA81B34434B00D6135D /* struct_test.cpp in Sources */,
 				27050A531B343ADF00D6135D /* overview_test.cpp in Sources */,
@@ -14410,7 +14411,6 @@
 				27050A2D1B343A3300D6135D /* python_tests.cpp in Sources */,
 				27050A621B343EBC00D6135D /* dbc_general_test.cpp in Sources */,
 				27050A6F1B343F9700D6135D /* mysql_table_editor_test.cpp in Sources */,
-				27050A311B343A3300D6135D /* tut_stdafx.cpp in Sources */,
 				27050A301B343A3300D6135D /* test_helpers.cpp in Sources */,
 				27050A2B1B343A3300D6135D /* grt_test_utility.cpp in Sources */,
 				27050AC11B3443C100D6135D /* stub_selector.cpp in Sources */,
