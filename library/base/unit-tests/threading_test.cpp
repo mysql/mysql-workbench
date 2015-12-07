@@ -145,14 +145,14 @@ TEST_FUNCTION(20)
     // The threads did not release their allocation. We do this here to see if now the other
     // 2 threads get their share.
     semaphore.post();
-    g_usleep(10 * BASE_TIME);
+    g_usleep(50 * BASE_TIME);
     ensure_equals("Wrong counter value", counter, 6);
 
     g_usleep(100 * BASE_TIME); // Nothing must happen to the counter during that wait time.
     ensure_equals("Wrong counter value", counter, 6);
 
     semaphore.post();
-    g_usleep(10 * BASE_TIME);
+    g_usleep(50 * BASE_TIME);
     ensure_equals("Wrong counter value", counter, 7);
 
     for (int i = 0; i < 7; ++i)
