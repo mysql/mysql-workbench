@@ -277,7 +277,7 @@ namespace grt {
       return _value->less_than(other._value);
     }
 
-    std::string repr() const { return _value ? _value->repr() : "NULL"; }
+    std::string repr(const std::string &indentation = "") const { return _value ? _value->repr(indentation) : "NULL"; }
 
     inline internal::Value *valueptr() const { return _value; }
 
