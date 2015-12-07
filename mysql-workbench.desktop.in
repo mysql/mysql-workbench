@@ -7,3 +7,4 @@ Type=Application
 Icon=mysql-workbench
 MimeType=application/vnd.mysql-workbench-model;application/sql;
 Categories=GTK;Database;Development;
+StartupWMClass=mysql-workbench-bin
