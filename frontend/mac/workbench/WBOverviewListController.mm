@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -115,7 +115,7 @@
     
     [items addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:
                       @(name.c_str()), @"name",
-                      [NSString stringWithCPPString: child.repr().c_str()], @"path",
+                      [NSString stringWithCPPString: child.toString().c_str()], @"path",
                       icon, @"image", // put image as last because it can be nil if the image doesnt exist
                       nil]];
   }
