@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -240,7 +240,7 @@ void ActionGenerateReport::create_table_password(grt::StringRef value)
 void ActionGenerateReport::create_table_delay_key_write(grt::IntegerRef value)
 {
   TemplateDictionary *e= curr_table->AddSectionDictionary(kbtr_TABLE_ATTR_DELAY_KEY_WRITE);
-  e->SetValue(kbtr_TABLE_DELAY_KEY_WRITE, value.repr().c_str());
+  e->SetValue(kbtr_TABLE_DELAY_KEY_WRITE, value.toString().c_str());
   has_attributes= true;
 }
 
@@ -282,7 +282,7 @@ void ActionGenerateReport::create_table_pack_keys(grt::StringRef value)
 void ActionGenerateReport::create_table_checksum(grt::IntegerRef value)
 {
   TemplateDictionary *e= curr_table->AddSectionDictionary(kbtr_TABLE_ATTR_CHECKSUM);
-  e->SetValue(kbtr_TABLE_CHECKSUM, value.repr().c_str());
+  e->SetValue(kbtr_TABLE_CHECKSUM, value.toString().c_str());
   has_attributes= true;
 }
 
@@ -394,8 +394,8 @@ void ActionGenerateReport::alter_table_password(db_mysql_TableRef table, grt::St
 void ActionGenerateReport::alter_table_delay_key_write(db_mysql_TableRef table, grt::IntegerRef value)
 {
   TemplateDictionary *e= curr_table->AddSectionDictionary(kbtr_TABLE_ATTR_DELAY_KEY_WRITE);
-  e->SetValue(kbtr_NEW_TABLE_DELAY_KEY_WRITE, value.repr().c_str());
-  e->SetValue(kbtr_OLD_TABLE_DELAY_KEY_WRITE, table->delayKeyWrite().repr().c_str());
+  e->SetValue(kbtr_NEW_TABLE_DELAY_KEY_WRITE, value.toString().c_str());
+  e->SetValue(kbtr_OLD_TABLE_DELAY_KEY_WRITE, table->delayKeyWrite().toString().c_str());
   has_attributes= true;
 }
 
@@ -442,8 +442,8 @@ void ActionGenerateReport::alter_table_pack_keys(db_mysql_TableRef table, grt::S
 void ActionGenerateReport::alter_table_checksum(db_mysql_TableRef table, grt::IntegerRef value)
 {
   TemplateDictionary *e= curr_table->AddSectionDictionary(kbtr_TABLE_ATTR_CHECKSUM);
-  e->SetValue(kbtr_NEW_TABLE_CHECKSUM, value.repr().c_str());
-  e->SetValue(kbtr_OLD_TABLE_CHECKSUM, table->checksum().repr().c_str());
+  e->SetValue(kbtr_NEW_TABLE_CHECKSUM, value.toString().c_str());
+  e->SetValue(kbtr_OLD_TABLE_CHECKSUM, table->checksum().toString().c_str());
   has_attributes= true;
 }
 

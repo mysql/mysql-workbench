@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -598,7 +598,7 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
   }
   else if (action == "delete_connection_group" || action == "internal_delete_connection_group")
   {
-    std::string group = object.repr();
+    std::string group = object.toString();
     int answer = mforms::ResultOk;
     
 
