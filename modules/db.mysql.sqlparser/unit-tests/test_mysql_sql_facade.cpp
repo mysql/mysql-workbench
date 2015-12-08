@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -144,7 +144,7 @@ TEST_FUNCTION(7)
   
   std::string query = "select * from `sakila`.`address`";
 
-  ensure("Unexpexted failure parsing test", sql_facade->parseSelectStatementForEdit(query, schema_name, table_name, columns));
+  ensure("Unexpected failure parsing test", sql_facade->parseSelectStatementForEdit(query, schema_name, table_name, columns));
   ensure_equals("Unexpected Schema Name", schema_name, "sakila");
   ensure_equals("Unexpected Table Name", table_name, "address");
   ensure_equals("Unexpected Column Count", columns.size(), 1U);
