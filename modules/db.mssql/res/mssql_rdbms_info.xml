@@ -195,7 +195,7 @@ odbc_ftds_dsn.param4">
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.
 odbc_ftds_dsn.aparam2">
             <value type="string" key="caption">Driver sends Unicode data as UTF-8</value>
-            <value type="string" key="defaultValue">1</value>
+            <value type="string" key="defaultValue">0</value>
             <value type="string" key="description">Enable if ODBC driver returns Unicode data as UTF-8 instead of UCS-2.
 Required for FreeTDS.</value>
             <value type="int" key="layoutAdvanced">1</value>
