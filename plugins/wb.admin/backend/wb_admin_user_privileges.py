@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2014 Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2015 Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -114,6 +114,8 @@ class UserHostPrivileges(object):
         # on that target.
         self._granted_privileges = {}
 
+        self._character_sets = self.context.ctrl_be.editor.connection.driver.owner.characterSets
+        self._target_version = self.context.ctrl_be.editor.serverVersion
         # Sets the server version as needed for the parser
         version = self.context.ctrl_be.target_version
         if version:
@@ -227,12 +229,13 @@ class UserHostPrivileges(object):
           # On the indicated host
           result = self.context.ctrl_be.exec_query("SHOW GRANTS FOR `%s`@`%s`" % (self.user, host))
 
+          context = grt.modules.MySQLParserServices.createParserContext(self._character_sets, self._target_version, 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION', 1)
+
           if result:
               while result.nextRow():
                   statement = result.stringByIndex(1)
 
-                  grant_data = grt.modules.MysqlSqlFacade.parseStatement(statement, self._server_version, 1, 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION')
-
+                  grant_data = grt.modules.MySQLParserServices.parseStatementDetails(context, statement)
                   if grant_data:
                       # Gets the target scope for the privileges
                       target_string = grant_data['target']
