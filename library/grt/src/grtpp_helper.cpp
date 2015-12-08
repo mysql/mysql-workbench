@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -791,14 +791,8 @@ struct ClassImplGenerator
         if (iter->second.owned_object)
         {
           fprintf(f, "  // this member is owned by this object\n");
-          //fprintf(f, "  if (_is_global && _%s.is_valid()) _%s.unmark_global();\n",
-          //        iter->second.name.c_str(), iter->second.name.c_str());
-
           fprintf(f, "// add code here\n");
           fprintf(f, "  _%s= value;\n", iter->second.name.c_str());
-
-          //fprintf(f, "  if (_is_global && _%s.is_valid()) _%s.mark_global();\n",
-          //        iter->second.name.c_str(), iter->second.name.c_str());
           fprintf(f, "  owned_member_changed(\"%s\", ovalue, value);\n", iter->second.name.c_str());
         }
         else
@@ -1195,12 +1189,6 @@ static const char *module_function_template_int=
   "    grt::BaseListRef args(get_grt(), AnyType);\n"
   "%make_args%\n"
   "    grt::ValueRef ret= _module->call_function(\"%function_name%\", args);\n"
-/*
-  "    if (ret.is_valid())\n"
-  "       throw module_error(static_get_name(), \"%function_name%\", \"Attempt to call invalid module function\");\n"
-  "    if (!IntegerRef::can_take(ret))\n"
-  "       throw module_error exc(static_get_name(), \"%function_name%\", \"Module function returned unexpected result: \"+grt::ValueRef(ret).repr());\n"
-*/
   "    return *grt::IntegerRef::cast_from(ret);\n"
   "  }\n";
 
@@ -1210,12 +1198,6 @@ static const char *module_function_template_double=
   "    grt::BaseListRef args(get_grt(), AnyType);\n"
   "%make_args%\n"
   "    grt::ValueRef ret= _module->call_function(\"%function_name%\", args);\n"
-/*
-  "    if (ret.is_valid())\n"
-  "       throw module_error(static_get_name(), \"%function_name%\", \"Attempt to call invalid module function\");\n"
-  "    if (!DoubleRef::can_take(ret))\n"
-  "       throw module_error exc(static_get_name(), \"%function_name%\", \"Module function returned unexpected result: \"+grt::ValueRef(ret).repr());\n"
-*/
   "    return (double)DoubleRef::cast_from(ret);\n"
   "  }\n";
 
@@ -1225,12 +1207,6 @@ static const char *module_function_template_string=
   "    grt::BaseListRef args(get_grt(), AnyType);\n"
   "%make_args%\n"
   "    grt::ValueRef ret= _module->call_function(\"%function_name%\", args);\n"
-/*
-  "    if (ret.is_valid())\n"
-  "       throw module_error(static_get_name(), \"%function_name%\", \"Attempt to call invalid module function\");\n"
-  "    if (!StringRef::can_take(ret))\n"
-  "       throw module_error exc(static_get_name(), \"%function_name%\", \"Module function returned unexpected result: \"+grt::ValueRef(ret).repr());\n"
-*/
   "    return (std::string)StringRef::cast_from(ret);\n"
   "  }\n";
 
@@ -1240,12 +1216,6 @@ static const char *module_function_template=
   "    grt::BaseListRef args(get_grt(), AnyType);\n"
   "%make_args%\n"
   "    grt::ValueRef ret= _module->call_function(\"%function_name%\", args);\n"
-  /*
-  "    if (ret.is_valid())\n"
-  "       throw module_error(static_get_name(), \"%function_name%\", \"Attempt to call invalid module function\");\n"
-  "    if (!%return_type%::can_take(ret))\n"
-  "       throw module_error exc(static_get_name(), \"%function_name%\", \"Module function returned unexpected result: \"+grt::ValueRef(ret).repr());\n"
-   */
   "    return %return_type%::cast_from(ret);\n"
   "  }\n";
 
