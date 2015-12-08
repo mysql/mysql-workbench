@@ -28,7 +28,7 @@
 
 static NSString *stringFromNodeId(const bec::NodeId &node)
 {
-  return [NSString stringWithCPPString: node.repr()];
+  return [NSString stringWithCPPString: node.toString()];
 }
 
 @implementation WBOverviewGroup
@@ -115,10 +115,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     _be->get_field(child, wb::OverviewBE::Label, title);
     [section setTitle:@(title.c_str())];
 
-    [_owner registerContainer:section forItem:[NSString stringWithCPPString: child.repr().c_str()]];
-
-    // NSContainerView doens't like being refreshed here
-    //   [section refreshChildren];
+    [_owner registerContainer:section forItem:[NSString stringWithCPPString: child.toString().c_str()]];
   }
 }
 
@@ -468,7 +465,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   
   if (!menuitems.empty())
   {
-    NSMenu *menu = [[[NSMenu alloc] initWithTitle: [NSString stringWithCPPString: node.repr()]] autorelease];
+    NSMenu *menu = [[[NSMenu alloc] initWithTitle: [NSString stringWithCPPString: node.toString()]] autorelease];
 
     [WBMenuManager fillMenu:menu withItems:menuitems selector:@selector(activateContextMenu:) target:self];
   
@@ -504,7 +501,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     }
     catch (std::exception &exc)
     {
-      NSLog(@"Can't focus node %s: %s", node.repr().c_str(), exc.what());
+      NSLog(@"Can't focus node %s: %s", node.toString().c_str(), exc.what());
     }
   }
 }

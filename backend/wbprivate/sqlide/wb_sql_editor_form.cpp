@@ -210,7 +210,7 @@ void SqlEditorForm::report_connection_failure(const std::string &error, const db
   "4 Make sure you are both providing a password if needed and using the correct password for %server% connecting from the host address you're connecting from";
 
   message = bec::replace_string(message, "%user%", target->parameterValues().get_string("userName"));
-  message = bec::replace_string(message, "%port%", target->parameterValues().get("port").repr());
+  message = bec::replace_string(message, "%port%", target->parameterValues().get("port").toString());
   message = bec::replace_string(message, "%server%", target->parameterValues().get_string("hostName", "localhost"));
   message = bec::replace_string(message, "%error%", error);
 
@@ -231,7 +231,7 @@ void SqlEditorForm::report_connection_failure(const grt::server_denied &info, co
   message += "' from your host to server at ";//%server%:%port%\n";
   message += target->parameterValues().get_string("hostName", "localhost");
   message += ":";
-  message += target->parameterValues().get("port").repr() + "\n";
+  message += target->parameterValues().get("port").toString() + "\n";
   if (info.errNo == 3159)
     message += "Only connections with enabled SSL support are accepted.\n";
   else if (info.errNo == 3032)
@@ -305,8 +305,11 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
 
 SqlEditorForm::~SqlEditorForm()
 {
-  if (_refreshPending.connected())
-    _refreshPending.disconnect();
+  if (_editorRefreshPending.connected())
+    _editorRefreshPending.disconnect();
+
+  if (_overviewRefreshPending.connected())
+    _overviewRefreshPending.disconnect();
 
   // We need to remove it from cache, if not someone will be able to login without providing PW
   if (_connection.is_valid())
@@ -2769,17 +2772,17 @@ void SqlEditorForm::apply_object_alter_script(const std::string &alter_script, b
       
       //_live_tree->refresh_live_object_in_overview(db_object_type, schema_name, db_object->oldName(), db_object->name());
       // Run refresh on main thread, but only if there's not another refresh pending already.
-      if (!_refreshPending.connected())
+      if (!_overviewRefreshPending.connected())
       {
-        _refreshPending = _grtm->run_once_when_idle(this, boost::bind(&SqlEditorTreeController::refresh_live_object_in_overview,
+        _overviewRefreshPending = _grtm->run_once_when_idle(this, boost::bind(&SqlEditorTreeController::refresh_live_object_in_overview,
           _live_tree, db_object_type, schema_name, db_object->oldName(), db_object->name()));
       }
     }
     
     //_live_tree->refresh_live_object_in_editor(obj_editor, false);
-    if (!_refreshPending.connected())
+    if (!_editorRefreshPending.connected())
     {
-      _refreshPending = _grtm->run_once_when_idle(this, boost::bind(&SqlEditorTreeController::refresh_live_object_in_editor,
+      _editorRefreshPending = _grtm->run_once_when_idle(this, boost::bind(&SqlEditorTreeController::refresh_live_object_in_editor,
         _live_tree, obj_editor, false));
     }
   }

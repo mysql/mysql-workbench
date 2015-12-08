@@ -17,6 +17,15 @@
  * 02110-1301  USA
  */
 
+#if defined(_WIN32) || defined(__APPLE__)
+  #include <unordered_set>
+#else
+  #include <tr1/unordered_set>
+  namespace std {
+    using tr1::unordered_set;
+  };
+#endif
+
 #include "base/string_utilities.h"
 #include "base/util_functions.h"
 #include "base/log.h"
@@ -4776,6 +4785,245 @@ size_t MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t
     ranges.push_back(std::make_pair<size_t, size_t>(head - (unsigned char *)sql, tail - head));
 
   return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/*
+ * Provides a dictionary with the definition of a user.
+ * The walker must be at the starting point of a user definition.
+ * returned dictionary:
+ *                      user : the username or CURRENT_USER
+ *           (optional) host : the host name if available
+ *           (optional) id_method : the authentication method if available
+ *           (optional) id_password: the authentication string if available
+ */
+grt::DictRef parseUserDefinition(MySQLRecognizerTreeWalker &walker, grt::GRT *grt)
+{
+  grt::DictRef result(grt);
+
+  result.gset("user", walker.token_text());
+
+  if (walker.is(CURRENT_USER_SYMBOL) && walker.look_ahead(false) == OPEN_PAR_SYMBOL)
+    walker.next(3);
+  else
+    walker.next();
+
+  if (walker.is(COMMA_SYMBOL) || walker.is(EOF))
+    return result; // Most simple case. No further options.
+
+  if (walker.is(AT_SIGN_SYMBOL) || walker.is(AT_TEXT_SUFFIX))
+  {
+    std::string host;
+    if (walker.skip_if(AT_SIGN_SYMBOL))
+      host = walker.token_text();
+    else
+      host = walker.token_text().substr(1); // Skip leading @.
+    result.gset("host", host);
+    walker.next();
+  }
+
+  if (walker.is(IDENTIFIED_SYMBOL))
+  {
+    walker.next();
+    if (walker.is(BY_SYMBOL))
+    {
+      walker.next();
+      walker.skip_if(PASSWORD_SYMBOL);
+
+      result.gset("id_method", "PASSWORD");
+      result.gset("id_string", walker.token_text());
+      walker.next();
+    }
+    else // Must be WITH then.
+    {
+      walker.next();
+      result.gset("id_method", walker.token_text());
+      walker.next();
+
+      if (walker.is(AS_SYMBOL) || walker.is(BY_SYMBOL))
+      {
+        walker.next();
+        result.gset("id_string", walker.token_text());
+        walker.next();
+      }
+    }
+  }
+
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+grt::DictRef collectGrantDetails(MySQLRecognizer *recognizer, grt::GRT *grt)
+{
+  grt::DictRef data = grt::DictRef(grt);
+
+  MySQLRecognizerTreeWalker walker = recognizer->tree_walker();
+
+  walker.next(); // Skip GRANT.
+
+  // Collect all privileges.
+  grt::StringListRef list = grt::StringListRef(grt);
+  while (true)
+  {
+    std::string privileges = walker.token_text();
+    walker.next();
+    if (walker.is(OPEN_PAR_SYMBOL))
+    {
+      privileges += " (";
+      walker.next();
+      std::string list;
+      while (true)
+      {
+        if (!list.empty())
+          list += ", ";
+        list += walker.token_text();
+        walker.next();
+        if (!walker.is(COMMA_SYMBOL))
+          break;
+        walker.next();
+      }
+
+      privileges += list + ")";
+      walker.next();
+    }
+    else
+    {
+      // Just a list of identifiers or certain keywords not allowed as identifiers.
+      while (walker.is_identifier() || walker.is(OPTION_SYMBOL) || walker.is(DATABASES_SYMBOL))
+      {
+        privileges += " " + walker.token_text();
+        walker.next();
+      }
+    }
+
+    list.insert(privileges);
+    if (!walker.is(COMMA_SYMBOL))
+      break;
+    walker.next();
+  }
+
+  data.set("privileges", list);
+
+  // The subtree for the target details includes the ON keyword at the beginning, which we have to remove.
+  data.gset("target", base::trim(walker.text_for_tree().substr(2)));
+  walker.skip_subtree();
+  walker.next(); // Skip TO.
+
+  // Now the user definitions.
+  grt::DictRef users = grt::DictRef(grt);
+  data.set("users", users);
+
+  while (true)
+  {
+    grt::DictRef user = parseUserDefinition(walker, grt);
+    users.set(user.get_string("user"), user);
+    if (!walker.is(COMMA_SYMBOL))
+      break;
+    walker.next();
+  }
+
+  if (walker.is(REQUIRE_SYMBOL))
+  {
+    grt::DictRef requirements(grt);
+    walker.next();
+    switch (walker.token_type())
+    {
+    case SSL_SYMBOL:
+    case X509_SYMBOL:
+    case NONE_SYMBOL:
+      requirements.gset(walker.token_text(), "");
+      walker.next();
+      break;
+
+    default:
+      while (walker.is(CIPHER_SYMBOL) || walker.is(ISSUER_SYMBOL) || walker.is(SUBJECT_SYMBOL))
+      {
+        std::string option = walker.token_text();
+        walker.next();
+        requirements.gset(option, walker.token_text());
+        walker.next();
+        walker.skip_if(AND_SYMBOL);
+      }
+      break;
+    }
+    data.set("requirements", requirements);
+  }
+
+  if (walker.is(WITH_SYMBOL))
+  {
+    grt::DictRef options(grt);
+    walker.next();
+    bool done = false;
+    while (!done)
+    {
+      switch (walker.token_type())
+      {
+      case GRANT_SYMBOL:
+        options.gset("grant", "");
+        walker.next(2);
+        break;
+
+      case MAX_QUERIES_PER_HOUR_SYMBOL:
+      case MAX_UPDATES_PER_HOUR_SYMBOL:
+      case MAX_CONNECTIONS_PER_HOUR_SYMBOL:
+      case MAX_USER_CONNECTIONS_SYMBOL:
+      {
+        std::string option = walker.token_text();
+        walker.next();
+        options.gset(option, walker.token_text());
+        walker.next();
+        break;
+      }
+
+      default:
+        done = true;
+        break;
+      }
+    }
+
+    data.set("options", options);
+  }
+
+  return data;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+grt::DictRef MySQLParserServicesImpl::parseStatementDetails(parser_ContextReferenceRef context_ref, const std::string &sql)
+{
+  ParserContext::Ref context = parser_context_from_grt(context_ref);
+  return parseStatement(context, context_ref->get_grt(), sql);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+grt::DictRef MySQLParserServicesImpl::parseStatement(parser::ParserContext::Ref context, grt::GRT *grt, const std::string &sql)
+{
+  // This part can potentially grow very large because of the sheer amount of possible query types.
+  // So it should be moved into an own file if it grows beyond a few 100 lines.
+  MySQLRecognizer *recognizer = context->recognizer();
+  recognizer->parse(sql.c_str(), sql.size(), true, PuGeneric);
+  if (recognizer->has_errors())
+  {
+    // Return the error message in case of syntax errors.
+    grt::DictRef result(grt);
+    result.gset("error", recognizer->error_info()[0].message);
+    return result;
+  }
+
+  boost::shared_ptr<MySQLQueryIdentifier> queryIdentifier = context->createQueryIdentifier();
+  MySQLQueryType queryType = queryIdentifier->getQueryType(sql.c_str(), sql.size(), true);
+
+  switch (queryType) {
+    case QtGrant:
+    case QtGrantProxy:
+      return collectGrantDetails(recognizer, grt);
+
+    default:
+      return grt::DictRef();
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
