@@ -45,7 +45,7 @@ class MYSQL_PARSER_PUBLIC_FUNC MySQLRecognitionBase
 {
 public:
   MySQLRecognitionBase(const std::set<std::string> &charsets);
-  virtual ~MySQLRecognitionBase() {};
+  virtual ~MySQLRecognitionBase();
 
   // Internal function called by static callback.
   void add_error(const std::string &message, ANTLR3_UINT32 token, ANTLR3_MARKER token_start,
