@@ -353,9 +353,9 @@ namespace MySQL.GUI.Workbench
           case Overview.NodeType.Item:
             // find the object in its container
             NodeIdWrapper parent = wbOverview.get_parent(node);
-            if (listsByNode.ContainsKey(parent.repr()))
+            if (listsByNode.ContainsKey(parent.toString()))
             {
-              ListView list = listsByNode[parent.repr()];
+              ListView list = listsByNode[parent.toString()];
               UpdateListViewNode(node, list);
             }
             break;
@@ -368,9 +368,9 @@ namespace MySQL.GUI.Workbench
           case Overview.NodeType.Group:
           {
             // schema tabs
-            if (panelsByNode.ContainsKey(wbOverview.get_parent(node).repr()))
+            if (panelsByNode.ContainsKey(wbOverview.get_parent(node).toString()))
             {
-              CollapsingPanel panel = panelsByNode[wbOverview.get_parent(node).repr()];
+              CollapsingPanel panel = panelsByNode[wbOverview.get_parent(node).toString()];
 
               panel.Refresh();
               panel.Update();
@@ -408,7 +408,7 @@ namespace MySQL.GUI.Workbench
         }
         else if (nodeType == (int)Overview.NodeType.Group)
         {
-          CollapsingPanel panel = panelsByNode[node.repr()];
+          CollapsingPanel panel = panelsByNode[node.toString()];
         }
         else if (nodeType == (int)Overview.NodeType.Division)
         {
@@ -436,9 +436,9 @@ namespace MySQL.GUI.Workbench
 
     private void RefreshGroupTabs(NodeIdWrapper node)
     {
-      if (panelsByNode.ContainsKey(node.repr()))
+      if (panelsByNode.ContainsKey(node.toString()))
       {
-        CollapsingPanel panel = panelsByNode[node.repr()];
+        CollapsingPanel panel = panelsByNode[node.toString()];
 
         panel.SuspendLayout();
 
@@ -453,9 +453,9 @@ namespace MySQL.GUI.Workbench
 
     private void RefreshItemList(NodeIdWrapper node, Overview.NodeType nodeType)
     {
-      if (listsByNode.ContainsKey(node.repr()))
+      if (listsByNode.ContainsKey(node.toString()))
       {
-        ListView list = listsByNode[node.repr()];
+        ListView list = listsByNode[node.toString()];
 
         if (nodeType == Overview.NodeType.Section)
         {
@@ -525,7 +525,7 @@ namespace MySQL.GUI.Workbench
           overviewPanel.Padding = new Padding(12, 4, 0, 0);
           overviewPanel.BackColor = Color.White;
 
-          panelsByNode[panelNodeId.repr()] = overviewPanel;
+          panelsByNode[panelNodeId.toString()] = overviewPanel;
 
           overviewPanel.Tag = CreateIdentifier(panelNodeId);
 
@@ -691,9 +691,9 @@ namespace MySQL.GUI.Workbench
       NodeIdWrapper parent = wbOverview.get_parent(node);
       int index = node.end();
 
-      if (listsByNode.ContainsKey(parent.repr()))
+      if (listsByNode.ContainsKey(parent.toString()))
       {
-        ListView list = listsByNode[parent.repr()];
+        ListView list = listsByNode[parent.toString()];
 
         list.Focus();
         list.SelectedIndices.Clear();
@@ -766,7 +766,7 @@ namespace MySQL.GUI.Workbench
           {
             // If the child entry is an item thean we don't have any intermediate structure.
             ListView sectionListview = GetSectionListview(panelNodeId, overviewPanel, false, displayMode, "", "");
-            cacheListview(panelNodeId.repr(), sectionListview);
+            cacheListview(panelNodeId.toString(), sectionListview);
             PopulateListView(panelNodeId, sectionListview);
             break;
           }
@@ -1130,7 +1130,7 @@ namespace MySQL.GUI.Workbench
                   String info = "(" + childCount + ((childCount == 1) ? " item" : " items") + ")";
                   ListView sectionListview = GetSectionListview(sectionNodeId, overviewPanel, true, displayMode, caption, info);
 
-                  cacheListview(sectionNodeId.repr(), sectionListview);
+                  cacheListview(sectionNodeId.toString(), sectionListview);
 
                   PopulateListViewColumns(sectionNodeId, sectionListview, displayMode);
 
@@ -1144,7 +1144,7 @@ namespace MySQL.GUI.Workbench
               {
                 // If there are no sections, simple add the items.
                 ListView sectionListview = GetSectionListview(parentNodeId, overviewPanel, false, displayMode, "", "");
-                cacheListview(parentNodeId.repr(), sectionListview);
+                cacheListview(parentNodeId.toString(), sectionListview);
                 PopulateListView(parentNodeId, sectionListview);
               }
             }
