@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -117,7 +117,7 @@ static void DrawTiledImage(NSImage *image, NSRect rect, BOOL composite)
 
 static NSString *stringFromNodeId(const bec::NodeId &node)
 {
-  return @(node.repr().c_str());
+  return @(node.toString().c_str());
 }
 
 - (void)setupWithOverviewBE:(wb::OverviewBE*)overview
@@ -327,7 +327,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
 - (id)itemContainerForNode:(const bec::NodeId&)node
 {
-  return _itemContainers[@(node.repr().c_str())];
+  return _itemContainers[@(node.toString().c_str())];
 }
 
 
@@ -357,7 +357,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     if ([container respondsToSelector:@selector(refreshChildInfo:)])
       [container refreshChildInfo:node];
     else
-      NSLog(@"node %s does not handle refreshing", node.repr().c_str());
+      NSLog(@"node %s does not handle refreshing", node.toString().c_str());
   }
 }
 
@@ -448,7 +448,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
          withAction:@selector(performGroupDelete:)
              target:groups];
     
-    _itemContainers[@(node.repr().c_str())] = groups;
+    _itemContainers[@(node.toString().c_str())] = groups;
     
     [groups buildChildren];
     
@@ -459,7 +459,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     WBOverviewItemContainer *itemList= [[[WBOverviewItemContainer alloc] initWithOverview:self
                                                                                    nodeId:node] autorelease];
     
-    _itemContainers[@(node.repr().c_str())] = itemList;
+    _itemContainers[@(node.toString().c_str())] = itemList;
     
     [pane setContentView: itemList];
     
@@ -469,7 +469,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   {
     WBOverviewGroup *group= [[[WBOverviewGroup alloc] initWithOverview:self nodeId:node tabItem:nil] autorelease];
     
-    _itemContainers[@(node.repr().c_str())] = group;
+    _itemContainers[@(node.toString().c_str())] = group;
     
     [group buildChildren];
     

@@ -1,5 +1,5 @@
 /* 
-* Copyright (c) 2012, 2014 Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2012, 2015 Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -788,7 +788,6 @@ void DBSearchPanel::load_model(mforms::TreeNodeRef tnode)
     table_node->set_string(1, _searcher->search_results()[i].table);
     table_node->set_string(4, base::strfmt("%i rows matched", (int)rows.size()).c_str());
     table_node->set_tag(_searcher->search_results()[i].query);
-//    _key_columns.push_back(_searcher->search_results()[i].keys);
     _key_columns.insert(std::make_pair(table_node->get_tag(), _searcher->search_results()[i].keys));
 
     for(DBSearch::column_data_t::const_iterator It_rows = rows.begin(); It_rows != rows.end(); ++It_rows)
@@ -802,14 +801,6 @@ void DBSearchPanel::load_model(mforms::TreeNodeRef tnode)
       {
         if (It_cols->second.empty())
           continue;
-        /*
-         //This will add node for each col
-         mforms::TreeNodeRef data_node = table_node->add_child();
-         bec::NodeId tmp(bec::NodeId(node).append(table_node->count()));
-         data_node->set_string(2, It_cols->first);//col
-         data_node->set_string(3, It_cols->second);//data
-         data_node->set_tag(tmp.repr());
-         */
         if (!cols.empty())
           cols.append(", ");
         cols.append(It_cols->first);
