@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -89,11 +89,13 @@ ClassRegistry *ClassRegistry::get_instance()
 
 //--------------------------------------------------------------------------------------------------
 
-std::string Integer::repr(const std::string &indentation) const
+std::string Integer::repr() const
 {
-  // Simple values don't use indentation as they are always on a RHS.
-  return base::to_string(_value);
+  char s[100];
+  g_snprintf(s, sizeof(s), "%li", (long int)_value);
+  return s;
 }
+
 
 Integer::Integer(storage_type value)
 : _value(value)
@@ -129,9 +131,11 @@ bool Integer::less_than(const Value *o) const
 
 //--------------------------------------------------------------------------------------------------
 
-std::string Double::repr(const std::string &indentation) const
+std::string Double::repr() const
 {
-  return base::to_string(_value);
+  char s[100];
+  g_snprintf(s, sizeof(s), "%g", _value);
+  return s;
 }
 
 Double::Double(storage_type value)
@@ -166,9 +170,9 @@ bool Double::less_than(const Value *o) const
 //--------------------------------------------------------------------------------------------------
 
 
-std::string String::repr(const std::string &indentation) const
+std::string String::repr() const
 {
-  return "'" + _value + "'";
+  return _value;
 }
 
 
@@ -201,15 +205,21 @@ bool String::less_than(const Value *o) const
 //--------------------------------------------------------------------------------------------------
 
 
-std::string List::repr(const std::string &indentation) const
+std::string List::repr() const
 {
   std::string s;
+  bool first= true;
 
-  s.append("[\n"); // Not indented (RHS value).
+  s.append("[");
   for (raw_const_iterator iter= raw_begin(); iter != raw_end(); ++iter)
-    s.append(indentation + "  " + iter->repr(indentation + "  ") + "\n");
+  {
+    if (!first)
+      s.append(", ");
+    first= false;
+    s.append(iter->repr());
+  }
 
-  s.append(indentation + "]");
+  s.append("]");
   return s;
 }
 
@@ -534,18 +544,22 @@ void OwnedList::remove(size_t index)
 
 //--------------------------------------------------------------------------------------------------
 
-std::string Dict::repr(const std::string &indentation) const
+std::string Dict::repr() const
 {
   std::string s;
+  bool first= true;
 
-  s.append("{\n");
-  for (const_iterator iter = begin(); iter != end(); ++iter)
+  s.append("{");
+  for (const_iterator iter= begin(); iter != end(); ++iter)
   {
-    s.append(indentation + "  " + iter->first);
+    if (!first)
+      s.append(", ");
+    first= false;
+    s.append(iter->first);
     s.append(" = ");
-    s.append(iter->second.repr(indentation + "  ") + "\n");
+    s.append(iter->second.repr());
   }
-  s.append(indentation + "}");
+  s.append("}");
   return s;
 }
 
@@ -947,12 +961,12 @@ const std::string &Object::class_name() const
   return _metaclass->name();
 }
 
-std::string Object::repr(const std::string &indentation) const
+std::string Object::repr() const
 {
   std::string s;
   bool first= true;
 
-  s = strfmt("{<%s> (%s)\n", _metaclass->name().c_str(), id().c_str());
+  s= strfmt("{<%s> (%s)\n", _metaclass->name().c_str(), id().c_str());
 
   MetaClass *mc= _metaclass;
 
@@ -976,28 +990,28 @@ std::string Object::repr(const std::string &indentation) const
         if (obj.is_valid())
         {
           if (obj.has_member("name"))
-            s.append(indentation + strfmt("  %s: %s  (%s)",
+            s.append(strfmt("%s: %s  (%s)",
                             obj.get_string_member("name").c_str(),
                             obj.get_metaclass()->name().c_str(),
                             obj.id().c_str()));
           else
-            s.append(indentation + strfmt("  %s (%s)",
+            s.append(strfmt("%s (%s)",
                             obj.get_metaclass()->name().c_str(),
                             obj.id().c_str()));
         }
         else
-          s.append(indentation + strfmt("  %s: null",
+          s.append(strfmt("%s: null",
             iter->first.c_str()));
       }
       else
-        s.append(get_member(iter->first).repr(indentation + "  "));
+        s.append(get_member(iter->first).repr());
     }
 
     mc= mc->parent();
   }
   while (mc != 0);
 
-  s.append(indentation + "}\n");
+  s.append("}");
 
   return s;
 }
@@ -1341,7 +1355,9 @@ public:
 
     std::string repr(const TypeHandle& handle) const
     {
-      return base::to_string(handle.double_value);
+        char s[100];
+        g_snprintf(s, sizeof(s), "%g", handle.double_value);
+        return s;
     };
 };
 
@@ -1377,7 +1393,9 @@ public:
 
     std::string repr(const TypeHandle& handle) const
     {
-      return base::to_string(handle.int_value);
+        char s[100];
+        g_snprintf(s, sizeof(s), "%i", handle.int_value);
+        return s;
     };
 };
 
