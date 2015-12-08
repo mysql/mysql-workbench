@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,7 +34,7 @@ static std::string rep(const grt::ValueRef &value)
     case grt::ObjectType:
       return grt::ObjectRef::cast_from(value)->get_string_member("name");
     default:
-      return value.repr();
+      return value.description();
   }
 }
 #endif
@@ -70,7 +70,8 @@ boost::shared_ptr<DiffChange> ChangeFactory::create_object_attr_modified_change(
 #ifdef DEBUG_DIFF
     log_info("attr_change %s\n", attr.c_str());
     if (attr == "flags")
-      log_info("%s.%s) %s // %s\n", ObjectRef::cast_from(source.get_member("owner")).get_string_member("name").c_str(), source.get_string_member("name").c_str(), source.get_member(attr).repr().c_str(), target.get_member(attr).repr().c_str());
+      log_info("%s.%s) %s // %s\n", ObjectRef::cast_from(source.get_member("owner")).get_string_member("name").c_str(),
+               source.get_string_member("name").c_str(), source.get_member(attr).description().c_str(), target.get_member(attr).description().c_str());
 #endif
     return boost::shared_ptr<DiffChange>(new ObjectAttrModifiedChange(attr, change));
   }
