@@ -361,7 +361,14 @@ int GRT::scan_metaclasses_in(const std::string &directory, std::multimap<std::st
       std::list<std::string> reqs;
 
       reqs.clear();
-      load_metaclasses(path, &reqs);
+      try
+      {
+        load_metaclasses(path, &reqs);
+      } catch (...)
+      {
+        g_free(path);
+        throw;
+      }
       
       if (requires)
       {

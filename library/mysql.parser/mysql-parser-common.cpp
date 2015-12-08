@@ -80,6 +80,13 @@ MySQLRecognitionBase::MySQLRecognitionBase(const std::set<std::string> &charsets
 
 //--------------------------------------------------------------------------------------------------
 
+MySQLRecognitionBase::~MySQLRecognitionBase()
+{
+  delete d;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void MySQLRecognitionBase::add_error(const std::string &message, ANTLR3_UINT32 token,
   ANTLR3_MARKER token_start, ANTLR3_UINT32 line, ANTLR3_UINT32 offset_in_line, ANTLR3_MARKER length)
 {

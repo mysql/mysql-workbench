@@ -66,6 +66,11 @@ ColumnWidthCache::ColumnWidthCache(const std::string &connection_id, const std::
   }
 }
 
+ColumnWidthCache::~ColumnWidthCache()
+{
+  delete _sqconn;
+}
+
 
 void ColumnWidthCache::init_db()
 {

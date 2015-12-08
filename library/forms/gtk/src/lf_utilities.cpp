@@ -98,9 +98,12 @@ GtkWindow *get_current_window()
     GtkWindow *wnd = (GtkWindow *)window_list->data;
     
     if (gtk_window_is_active(wnd))
+    {
+      g_list_free(window_list);
       return wnd;
+    }
   } while((window_list = g_list_next(window_list)) != NULL);
-
+  g_list_free(window_list);
   return NULL;
 }
 

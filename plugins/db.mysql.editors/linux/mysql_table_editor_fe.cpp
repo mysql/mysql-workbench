@@ -107,6 +107,10 @@ DbMySQLTableEditor::DbMySQLTableEditor(grt::Module *m, bec::GRTManager *grtm, co
 //------------------------------------------------------------------------------
 DbMySQLTableEditor::~DbMySQLTableEditor()
 {
+  // Notebook is not attached to any widget, we need to release it manualy
+  if (_editor_notebook->is_managed_())
+    _editor_notebook->unreference();
+
   delete _columns_page;
   delete _indexes_page;
   delete _fks_page;
