@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -141,7 +141,7 @@ TEST_FUNCTION(6)
 
   n1= n1.parent();
   ensure("NodeId::parent() test1", n1.depth() == 2);
-  ensure("NodeId::parent() test2", n1.repr() ==  "1.2");
+  ensure("NodeId::parent() test2", n1.toString() == "1.2");
 }
 
 TEST_FUNCTION(7)

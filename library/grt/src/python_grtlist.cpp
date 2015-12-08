@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -228,7 +228,7 @@ static PyObject *list_inplace_concat(PyGRTListObject *self, PyObject *other)
 
 static PyObject *list_printable(PyGRTListObject *self)
 {
-  return PyString_FromString(self->list->repr().c_str());
+  return PyString_FromString(self->list->toString().c_str());
 }
 
 

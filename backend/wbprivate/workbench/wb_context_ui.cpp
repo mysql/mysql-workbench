@@ -883,10 +883,10 @@ bool WBContextUI::get_wb_options_value(const std::string &model, const std::stri
   case grt::StringType: 
   case grt::DoubleType:
   case grt::IntegerType:
-      value= val.repr();
-      return true;
-    default: 
-      return false;
+    value = val.toString();
+    return true;
+  default:
+    return false;
   }
 }
 
