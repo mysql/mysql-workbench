@@ -210,7 +210,7 @@ void SqlEditorForm::report_connection_failure(const std::string &error, const db
   "4 Make sure you are both providing a password if needed and using the correct password for %server% connecting from the host address you're connecting from";
 
   message = bec::replace_string(message, "%user%", target->parameterValues().get_string("userName"));
-  message = bec::replace_string(message, "%port%", target->parameterValues().get("port").repr());
+  message = bec::replace_string(message, "%port%", target->parameterValues().get("port").toString());
   message = bec::replace_string(message, "%server%", target->parameterValues().get_string("hostName", "localhost"));
   message = bec::replace_string(message, "%error%", error);
 
@@ -231,7 +231,7 @@ void SqlEditorForm::report_connection_failure(const grt::server_denied &info, co
   message += "' from your host to server at ";//%server%:%port%\n";
   message += target->parameterValues().get_string("hostName", "localhost");
   message += ":";
-  message += target->parameterValues().get("port").repr() + "\n";
+  message += target->parameterValues().get("port").toString() + "\n";
   if (info.errNo == 3159)
     message += "Only connections with enabled SSL support are accepted.\n";
   else if (info.errNo == 3032)
