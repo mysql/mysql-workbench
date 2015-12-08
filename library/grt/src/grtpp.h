@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -277,7 +277,8 @@ namespace grt {
       return _value->less_than(other._value);
     }
 
-    std::string repr() const { return _value ? _value->repr() : "NULL"; }
+    std::string description(const std::string &indentation = "") const { return _value ? _value->description(indentation) : "NULL"; }
+    std::string toString() const { return _value ? _value->toString() : "NULL"; }
 
     inline internal::Value *valueptr() const { return _value; }
 
