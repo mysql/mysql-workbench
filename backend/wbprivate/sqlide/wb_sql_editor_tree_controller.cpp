@@ -497,16 +497,17 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
     StringListPtr functions(new std::list<std::string>());
 
     MutexLock schema_contents_mutex(_schema_contents_mutex);
-
     if (arrived_slot.empty())
       return grt::StringRef("");
 
     {
       sql::Dbc_connection_handler::Ref conn;
       RecMutexLock aux_dbc_conn_mutex(_owner->ensure_valid_aux_connection(conn));
+      std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
 
       {
-        std::auto_ptr<sql::ResultSet> rs(conn->ref->createStatement()->executeQuery(std::string(sqlstring("SHOW FULL TABLES FROM !", 0) << schema_name)));
+        std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
+        std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(std::string(sqlstring("SHOW FULL TABLES FROM !", 0) << schema_name)));
         while (rs->next())
         {
           std::string name = rs->getString(1);
@@ -527,7 +528,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
         // will become unnecessary then
         try
         {
-          std::auto_ptr<sql::ResultSet> rs(conn->ref->createStatement()->executeQuery(std::string(sqlstring("SELECT name, type FROM mysql.proc WHERE Db=?", 0) << schema_name)));
+          std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(std::string(sqlstring("SELECT name, type FROM mysql.proc WHERE Db=?", 0) << schema_name)));
 
           while (rs->next())
           {
@@ -549,7 +550,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
       if (_use_show_procedure)
       {
         {
-          std::auto_ptr<sql::ResultSet> rs(conn->ref->createStatement()->executeQuery(std::string(sqlstring("SHOW PROCEDURE STATUS WHERE Db=?", 0) << schema_name)));
+          std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(std::string(sqlstring("SHOW PROCEDURE STATUS WHERE Db=?", 0) << schema_name)));
 
           while (rs->next())
           {
@@ -558,7 +559,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
           }
         }
         {
-          std::auto_ptr<sql::ResultSet> rs(conn->ref->createStatement()->executeQuery(std::string(sqlstring("SHOW FUNCTION STATUS WHERE Db=?", 0) << schema_name)));
+          std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(std::string(sqlstring("SHOW FUNCTION STATUS WHERE Db=?", 0) << schema_name)));
           while (rs->next())
           {
             std::string name = rs->getString(2);

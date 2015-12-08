@@ -784,7 +784,7 @@ static void toggle_continue_on_error(SqlEditorForm *sql_editor_form)
 
 mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
 {
-  mforms::ToolBar *tbar(new mforms::ToolBar(mforms::SecondaryToolBar));
+  mforms::ToolBar *tbar(mforms::manage(new mforms::ToolBar(mforms::SecondaryToolBar)));
 #ifdef _WIN32
   tbar->set_size(-1, 27);
 #endif
