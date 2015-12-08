@@ -283,8 +283,8 @@ MySQLEditor::~MySQLEditor()
   if (d->_editor_text_submenu != NULL)
     delete d->_editor_text_submenu;
   delete d->_editor_context_menu;
-  if (d->_owns_toolbar)
-    delete d->_toolbar;
+  if (d->_owns_toolbar && d->_toolbar != NULL)
+    d->_toolbar->release();
 
   delete _editor_config;
   delete _code_editor;
@@ -494,7 +494,7 @@ mforms::ToolBar* MySQLEditor::get_toolbar(bool include_file_actions)
   if (!d->_toolbar)
   {
     d->_owns_toolbar = true;
-    d->_toolbar = new mforms::ToolBar(mforms::SecondaryToolBar);
+    d->_toolbar = mforms::manage(new mforms::ToolBar(mforms::SecondaryToolBar));
 #ifdef _WIN32
     d->_toolbar->set_size(-1, 27);
 #endif
