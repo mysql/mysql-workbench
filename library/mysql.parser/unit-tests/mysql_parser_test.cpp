@@ -36,7 +36,7 @@ using namespace boost::assign;
 
 //--------------------------------------------------------------------------------------------------
 
-BEGIN_TEST_DATA_CLASS(mysql_parser_test)
+BEGIN_TEST_DATA_CLASS(mysql_parser_tests)
 protected:
   WBTester _tester;
   std::set<std::string> _charsets;
@@ -44,7 +44,7 @@ protected:
 
   bool parse(const char *sql, size_t size, bool is_utf8, long server_version, const std::string &sql_mode);
 
-TEST_DATA_CONSTRUCTOR(mysql_parser_test)
+TEST_DATA_CONSTRUCTOR(mysql_parser_tests)
 {
   // init datatypes
   populate_grt(_tester.grt, _tester);
@@ -59,14 +59,14 @@ TEST_DATA_CONSTRUCTOR(mysql_parser_test)
 
 END_TEST_DATA_CLASS
 
-TEST_MODULE(mysql_parser_test, "MySQL parser test suite (ANTLR)");
+TEST_MODULE(mysql_parser_tests, "MySQL parser test suite (ANTLR)");
 
 //--------------------------------------------------------------------------------------------------
 
 /**
  * Parses the given string and returns true if no error occurred, otherwise false.
  */
-bool Test_object_base<mysql_parser_test>::parse(const char *sql, size_t size, bool is_utf8, long server_version, const std::string &sql_mode)
+bool Test_object_base<mysql_parser_tests>::parse(const char *sql, size_t size, bool is_utf8, long server_version, const std::string &sql_mode)
 {
   // When reusing the recognizer at least one query consumes endless memory (until system crawls to hold).
   // So stay for now with a fresh parser on each test (which makes them slower than they need to be).
@@ -840,9 +840,57 @@ TEST_FUNCTION(35)
   ensure_equals("35.3 String concatenation", walker.token_text(), "abcdefghi'\nz");
 }
 
-// TODO: create tests for all server version dependent features.
+struct VersionTestData
+{
+  long version;
+  std::string sql;
+  size_t errorCount;
+  VersionTestData(long version_, const std::string &sql_, size_t errors_)
+  {
+    version = version_;
+    sql = sql_;
+    errorCount = errors_;
+  }
 
-// TODO: create tests for restricted content parsing.
+};
+
+const std::vector<VersionTestData> versionTestResults = list_of
+  (VersionTestData(50100, "grant all privileges on a to mike", 0U))
+  (VersionTestData(50100, "grant all privileges on a to mike identified by 'blah'", 0U))
+  (VersionTestData(50100, "grant all privileges on a to mike identified by password 'blah'", 0U))
+  (VersionTestData(50100, "grant all privileges on a to mike identified by password 'blah'", 0U))
+  (VersionTestData(50500, "grant all privileges on a to mike identified by password 'blah'", 0U))
+  (VersionTestData(50710, "grant all privileges on a to mike identified by password 'blah'", 0U))
+  (VersionTestData(50100, "grant select on *.* to mike identified with 'blah'", 1U))
+  (VersionTestData(50600, "grant select on *.* to mike identified with 'blah'", 0U))
+  (VersionTestData(50100, "grant select on *.* to mike identified with blah as 'blubb'", 1U))
+  (VersionTestData(50600, "grant select on *.* to mike identified with blah as 'blubb'", 0U))
+  (VersionTestData(50100, "grant select on *.* to mike identified with blah by 'blubb'", 1U))
+  (VersionTestData(50600, "grant select on *.* to mike identified with blah by 'blubb'", 1U))
+  (VersionTestData(50706, "grant select on *.* to mike identified with blah by 'blubb'", 0U))
+;
+
+// TODO: create tests for all server version dependent features.
+// Will be obsolete if we support versions in the statements test file (or similar file).
+
+TEST_FUNCTION(40)
+{
+  // Version dependent parts of GRANT.
+  MySQLRecognizer recognizer(50100, "", _charsets);
+  for (size_t i = 0; i < versionTestResults.size(); ++i)
+  {
+    recognizer.set_server_version(versionTestResults[i].version);
+    recognizer.parse(versionTestResults[i].sql.c_str(), versionTestResults[i].sql.size(), true, PuGeneric);
+    if (versionTestResults[i].errorCount != recognizer.error_info().size())
+    {
+      std::stringstream ss;
+      ss << "40." << i << " grant";
+      ensure_equals(ss.str(), recognizer.error_info().size(), versionTestResults[i].errorCount);
+    }
+  }
+}
+
+// TODO: create tests for restricted content parsing (e.g. routines only, views only etc.).
 
 END_TESTS;
 
