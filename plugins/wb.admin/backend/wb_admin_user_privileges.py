@@ -225,43 +225,42 @@ class UserHostPrivileges(object):
         self._granted_privileges = {}
         
         if host in self.applicant_hosts:
-          # If there are hosts it means there are privileges applicable for the user
-          # On the indicated host
-          result = self.context.ctrl_be.exec_query("SHOW GRANTS FOR `%s`@`%s`" % (self.user, host))
-
-          context = grt.modules.MySQLParserServices.createParserContext(self._character_sets, self._target_version, 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION', 1)
-
-          if result:
-              while result.nextRow():
-                  statement = result.stringByIndex(1)
-
-                  grant_data = grt.modules.MySQLParserServices.parseStatementDetails(context, statement)
-                  if grant_data:
-                      # Gets the target scope for the privileges
-                      target_string = grant_data['target']
-
-                      target = None
-
-                      # Search for an already existing target
-                      for tgt in self._granted_privileges.keys():
-                          if tgt.identical(target_string):
-                              target = tgt
-
-                      # If not found, creates one
-                      if not target:
-                          target = PrivilegeTarget()
-                          target.set_from_string(target_string)
-
-                      # Gets the privilege list
-                      priv_list = grant_data['privileges']
-
-                      # Adds the privileges to the granted list
-                      self.add_privileges(target, priv_list)
-
-                  else:
-                      log_error('An error occurred parsing GRANT statement : %s\n' % statement)
-          else:
-              log_warning('There are no grants defined for %s@%s\n' % (self.user, self.host))
+            # If there are hosts it means there are privileges applicable for the user
+            # On the indicated host
+            result = self.context.ctrl_be.exec_query("SHOW GRANTS FOR `%s`@`%s`" % (self.user, host))
+            
+            context = grt.modules.MySQLParserServices.createParserContext(self._character_sets, self._target_version, 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION', 1)
+            
+            if result:
+                while result.nextRow():
+                    statement = result.stringByIndex(1)
+            
+                    grant_data = grt.modules.MySQLParserServices.parseStatementDetails(context, statement)
+                    if not grant_data['error']:
+                        # Gets the target scope for the privileges
+                        target_string = grant_data['target']
+        
+                        target = None
+        
+                        # Search for an already existing target
+                        for tgt in self._granted_privileges.keys():
+                            if tgt.identical(target_string):
+                                target = tgt
+        
+                        # If not found, creates one
+                        if not target:
+                            target = PrivilegeTarget()
+                            target.set_from_string(target_string)
+        
+                        # Gets the privilege list
+                        priv_list = grant_data['privileges']
+        
+                        # Adds the privileges to the granted list
+                        self.add_privileges(target, priv_list)
+                    else:
+                        log_error('An error occurred parsing GRANT statement: %s\n -> %s\n' % (statement, grant_data['error']))
+            else:
+                log_warning('There are no grants defined for %s@%s\n' % (self.user, self.host))
 
 
     def includes_privileges(self, target_str, privileges):
