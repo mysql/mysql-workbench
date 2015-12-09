@@ -52,6 +52,7 @@ class Program
 
     bool idle_stuff();
   private:
+    std::deque<sigc::connection> _idleConnections;
     wb::WBContextUI     *_wb_context_ui; //!< 
     wb::WBContext       *_wb_context;
     bec::GRTManager     *_grt_manager;
