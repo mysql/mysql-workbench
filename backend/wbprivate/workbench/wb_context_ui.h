@@ -67,7 +67,7 @@ namespace wb {
   // this class contains functionality that the UI needs,
   // like menu/toolbar access, special form backends etc
 
-  class MYSQLWBBACKEND_PUBLIC_FUNC WBContextUI : public base::trackable, base::Observer
+  class MYSQLWBBACKEND_PUBLIC_FUNC WBContextUI : public base::trackable
   {
   public:
     WBContextUI(bool verbose);
@@ -152,7 +152,6 @@ namespace wb {
     void refresh_home_connections(bool clear_state = true);
     void refresh_home_documents();
     void refresh_home_starters();
-    bool home_screen_closing();
 
     bool start_plugin_install(const std::string &path);
     void start_plugin_net_install(const std::string &url);
@@ -190,8 +189,6 @@ namespace wb {
     void handle_home_context_menu(const grt::ValueRef &object, const std::string &action);
 
     void start_plugin(const std::string& title, const std::string& command, bool force_external= false);
-
-    virtual void handle_notification(const std::string &name, void *sender, base::NotificationInfo &info);
     
     static void home_action_callback(HomeScreenAction action, const grt::ValueRef &object, WBContextUI *self);
     
