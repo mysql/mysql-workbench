@@ -5022,7 +5022,11 @@ grt::DictRef MySQLParserServicesImpl::parseStatement(parser::ParserContext::Ref 
       return collectGrantDetails(recognizer, grt);
 
     default:
-      return grt::DictRef();
+    {
+      grt::DictRef result(grt);
+      result.gset("error", "Unsupported query type (" + base::to_string(queryType) + ")");
+      return result;
+    }
   }
 }
 
