@@ -44,10 +44,11 @@ db_query_Resultset::ImplData::~ImplData()
 
 //================================================================================
 
-static grt::StringRef getGeoRepresentation(const std::string &data, bool outputAsJson = false)
+static grt::StringRef getGeoRepresentation(grt::StringRef data, bool outputAsJson = false)
 {
+
    OGRGeometry *geometry = NULL;
-   OGRErr ret_val = OGRGeometryFactory::createFromWkb((unsigned char*)const_cast<char*>(&(*(data.begin() + 4))), NULL, &geometry);
+   OGRErr ret_val = OGRGeometryFactory::createFromWkb((unsigned char*)const_cast<char*>(&(*((*data).begin() + 4))), NULL, &geometry);
    if (ret_val != OGRERR_NONE)
    {
      if (geometry)
@@ -260,22 +261,22 @@ grt::StringRef WBRecordsetResultset::stringFieldValueByName(const std::string &c
 
 grt::StringRef WBRecordsetResultset::geoStringFieldValue(ssize_t column)
 {
-  return getGeoRepresentation(stringFieldValue(column).c_str(), false);
+  return getGeoRepresentation(stringFieldValue(column), false);
 }
 
 grt::StringRef WBRecordsetResultset::geoStringFieldValueByName(const std::string &column)
 {
-  return getGeoRepresentation(stringFieldValueByName(column).c_str(), false);
+  return getGeoRepresentation(stringFieldValueByName(column), false);
 }
 
 grt::StringRef WBRecordsetResultset::geoJsonFieldValue(ssize_t column)
 {
-  return getGeoRepresentation(stringFieldValue(column).c_str(), false);
+  return getGeoRepresentation(stringFieldValue(column), false);
 }
 
 grt::StringRef WBRecordsetResultset::geoJsonFieldValueByName(const std::string &column)
 {
-  return getGeoRepresentation(stringFieldValueByName(column).c_str(), false);
+  return getGeoRepresentation(stringFieldValueByName(column), false);
 }
 
 grt::IntegerRef WBRecordsetResultset::saveFieldValueToFile(ssize_t column, const std::string &file)
@@ -503,7 +504,7 @@ public:
       grt::StringRef data(recordset->getString((uint32_t)column + 1));
 
       try {
-        return getGeoRepresentation(data.c_str(), false);
+        return getGeoRepresentation(data, false);
       }
       catch (std::exception &exc)
       {
@@ -519,7 +520,7 @@ public:
     {
       grt::StringRef data(recordset->getString((uint32_t)column_by_name[column]));
       try {
-        return getGeoRepresentation(data.c_str(), false);
+        return getGeoRepresentation(data, false);
       }
       catch (std::exception &exc)
       {
@@ -535,7 +536,7 @@ public:
     {
       grt::StringRef data(recordset->getString((uint32_t)column + 1));
       try {
-        return getGeoRepresentation(data.c_str(), true);
+        return getGeoRepresentation(data, true);
       }
       catch (std::exception &exc)
       {
@@ -552,7 +553,7 @@ public:
     {
       grt::StringRef data(recordset->getString((uint32_t)column_by_name[column]));
       try {
-        return getGeoRepresentation(data.c_str(), true);
+        return getGeoRepresentation(data, true);
       }
       catch (std::exception &exc)
       {
