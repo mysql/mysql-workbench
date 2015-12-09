@@ -3168,13 +3168,13 @@ grant_list:
 grant_user:
 	user
 	(
-		{SERVER_VERSION >= 50706}? IDENTIFIED_SYMBOL
+		IDENTIFIED_SYMBOL
 		(
 			BY_SYMBOL PASSWORD_SYMBOL? text_string
-			| WITH_SYMBOL text_or_identifier ((AS_SYMBOL | BY_SYMBOL) text_string)?
+			| {SERVER_VERSION >= 50600}? WITH_SYMBOL text_or_identifier (
+				(AS_SYMBOL | {SERVER_VERSION >= 50706}? BY_SYMBOL) text_string)?
 		)
-		| /* empty */
-	)
+	)?
 ;
 
 user:
