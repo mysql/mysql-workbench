@@ -300,7 +300,6 @@ void WBContextUI::show_home_screen()
   if (_home_screen == NULL)
   {    
     _home_screen = mforms::manage(new HomeScreen(_command_ui, _wb->get_root()->rdbmsMgmt()));
-    _home_screen->set_on_close(boost::bind(&WBContextUI::home_screen_closing, this));
     _home_screen->set_callback((home_screen_action_callback)&WBContextUI::home_action_callback, this);
     _home_screen->handle_context_menu = boost::bind(&WBContextUI::handle_home_context_menu, this, _1, _2);
 
@@ -462,14 +461,6 @@ void WBContextUI::show_home_screen()
 
   _home_screen->setup_done();
   _initializing_home_screen = false;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-bool WBContextUI::home_screen_closing()
-{  
-  _home_screen = NULL;
-  return true;
 }
 
 //--------------------------------------------------------------------------------------------------
