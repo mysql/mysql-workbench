@@ -31,6 +31,8 @@ namespace grt {
     virtual void handle_grt_notification(const std::string &name, ObjectRef sender, DictRef info) = 0;
 
     virtual void handle_notification(const std::string &name, void *sender, base::NotificationInfo &info) {}
+  public:
+    virtual ~GRTObserver() {}
   };
   
   class MYSQLGRT_PUBLIC GRTNotificationCenter : public base::NotificationCenter
