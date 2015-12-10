@@ -36,10 +36,11 @@ namespace base
 {
   typedef std::map<std::string, std::string> NotificationInfo;
 
-  struct BASELIBRARY_PUBLIC_FUNC Observer
+  class BASELIBRARY_PUBLIC_FUNC Observer
   {
+  public:
     virtual void handle_notification(const std::string &name, void *sender, NotificationInfo &info) = 0;
-    ~Observer();
+    virtual ~Observer();
   };
 
   class BASELIBRARY_PUBLIC_FUNC NotificationCenter
