@@ -430,7 +430,7 @@ retry:
       ConnectOptionsMap::iterator prop_iter= properties.find(prop_name);
       if (properties.end() != prop_iter)
       {
-#ifdef MYSQLCPPCONN_VERSION_1_1_6
+#ifdef MYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER
         sql::SQLString *val= prop_iter->second.get<sql::SQLString>();
         if (val->compare("") == 0)
           properties.erase(prop_iter);
