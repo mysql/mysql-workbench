@@ -102,13 +102,15 @@ namespace grt {
   };
   
   // Helper class to allow cleaning up the python context after its instance vars are finished.
-  class PythonContextHelper
+  class MYSQLGRT_PUBLIC PythonContextHelper
   {
   private:
     PyThreadState*  _main_thread_state;
 
   protected:
     PythonContextHelper(const std::string &module_path);
+
+  public:
     virtual ~PythonContextHelper();
   };
 
