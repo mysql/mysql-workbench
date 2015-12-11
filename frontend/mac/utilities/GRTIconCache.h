@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,19 +17,18 @@
  * 02110-1301  USA
  */
 
-#import <Cocoa/Cocoa.h>
 #include "grt/icon_manager.h"
 
 @interface GRTIconCache : NSObject {
-  std::map<bec::IconId, NSImage*> *_cache;
+  std::map<bec::IconId, NSImage *> _cache;
   NSImage *_folderIcon16;
 }
 
 + (GRTIconCache*)sharedIconCache;
 
-- (NSImage*)imageForFolder:(bec::IconSize)size;
-- (NSImage*)imageForFileName:(NSString*)fname;
-- (NSImage*)imageForIconId:(bec::IconId)icon;
-- (NSImage*)uncachedImageForIconId:(bec::IconId)icon;
+- (NSImage*)imageForFolder: (bec::IconSize)size;
+- (NSImage*)imageForFileName: (NSString *)fname;
+- (NSImage*)imageForIconId: (bec::IconId)icon;
+- (NSImage*)uncachedImageForIconId: (bec::IconId)icon;
 
 @end

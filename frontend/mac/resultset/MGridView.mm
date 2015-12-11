@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,9 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
 
 @implementation MGridView
 
+@synthesize selectionChangedActionTarget;
+@synthesize selectionChangedAction;
+
 - (void)setRecordset:(Recordset*)rset
 {
   mRecordset = rset;
@@ -48,7 +51,7 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
 }
 
 
-- (void) mouseDown: (NSEvent*) event;
+- (void)mouseDown: (NSEvent*) event;
 {
   NSPoint localPoint = [self convertPoint: [event locationInWindow]
                                  fromView: nil];
@@ -71,8 +74,8 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
   if (mSelectedRowIndex < 0)
     [self deselectAll: nil];
   
-  if (selectionChangedActionTarget)
-    [selectionChangedActionTarget performSelector:selectionChangedAction];
+  if (selectionChangedActionTarget != nil)
+    [selectionChangedActionTarget performSelector: selectionChangedAction];
 
   [self setNeedsDisplay: YES];
   
@@ -146,8 +149,8 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
       mSelectedColumnIndex = column;
   }
   
-  if (selectionChangedActionTarget)
-    [selectionChangedActionTarget performSelector:selectionChangedAction];
+  if (selectionChangedActionTarget != nil)
+    [selectionChangedActionTarget performSelector: selectionChangedAction];
 }
 
 
@@ -165,40 +168,6 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
   }
   [super rightMouseDown: event];
 }
-
-/* unneeded
-- (void) mouseUp: (NSEvent*) event;
-{
-  NSPoint localPoint = [self convertPoint: [event locationInWindow]
-                                 fromView: nil];
-  NSInteger column= [self columnAtPoint: localPoint];
-  if (column < 0)
-    mSelectedColumnIndex = [self numberOfColumns] - 1;
-  else
-    mSelectedColumnIndex= column;
-  mSelectedRowIndex = [self rowAtPoint: localPoint];
-  
-  if (selectionChangedActionTarget)
-    [selectionChangedActionTarget performSelector:selectionChangedAction];
-  
-  [self setNeedsDisplay: YES];
-  
-  if (column >= 0 && mSelectedRowIndex == mOSelectedRowIndex && mSelectedColumnIndex == mOSelectedColumnIndex)
-  {
-    if (mSelectedRowIndex >= 0 && mSelectedColumnIndex >= 0 &&
-        [[self delegate] respondsToSelector: @selector(tableView:shouldEditTableColumn:row:)] &&      
-        [[self delegate] tableView: self
-             shouldEditTableColumn: [[self tableColumns] objectAtIndex: mSelectedColumnIndex]
-                               row: mSelectedRowIndex])
-      [self editColumn: mSelectedColumnIndex
-                   row: mSelectedRowIndex
-             withEvent: event
-                select: YES];
-  }
-  
-  [super mouseUp: event];
-}*/
-
 
 - (void)selectCellAtRow:(int)row column:(int)column
 {
@@ -272,32 +241,32 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
         mSelectedColumnIndex = MIN(mSelectedColumnIndex, [self numberOfColumns] - 1);
       }
       
-      if (selectionChangedActionTarget)
-        [selectionChangedActionTarget performSelector:selectionChangedAction];
+      if (selectionChangedActionTarget != nil)
+        [selectionChangedActionTarget performSelector: selectionChangedAction];
       
       break;
     }
     case 123: // Left
       mSelectedColumnIndex -= 1;
       mSelectedColumnIndex = MAX(mSelectedColumnIndex, 1);
-      if (selectionChangedActionTarget)
-        [selectionChangedActionTarget performSelector:selectionChangedAction];
+      if (selectionChangedActionTarget != nil)
+        [selectionChangedActionTarget performSelector: selectionChangedAction];
       break;
     case 124: // Right
       mSelectedColumnIndex += 1;
       mSelectedColumnIndex = MIN(mSelectedColumnIndex, [self numberOfColumns] - 1);
-      if (selectionChangedActionTarget)
-        [selectionChangedActionTarget performSelector:selectionChangedAction];
+      if (selectionChangedActionTarget != nil)
+        [selectionChangedActionTarget performSelector: selectionChangedAction];
       break;
     case 125: // Down
       [self selectRowIndexes: [NSIndexSet indexSetWithIndex: MIN(mSelectedRowIndex+1, [self numberOfRows]-1)]
         byExtendingSelection: NO];
-      if (selectionChangedActionTarget)
-        [selectionChangedActionTarget performSelector:selectionChangedAction];
+      if (selectionChangedActionTarget != nil)
+        [selectionChangedActionTarget performSelector: selectionChangedAction];
       break;
     case 121: // PgDown
-      if (selectionChangedActionTarget)
-        [selectionChangedActionTarget performSelector:selectionChangedAction];
+      if (selectionChangedActionTarget != nil)
+        [selectionChangedActionTarget performSelector: selectionChangedAction];
       [super keyDown: event]; // let original handler do the page down
       mSelectedRowIndex = [self rowAtPoint: NSMakePoint(0, NSMaxY([self visibleRect])-[self rowHeight]/3)];
       if (mSelectedRowIndex < 0)
@@ -306,14 +275,14 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
         byExtendingSelection: NO];
       break;
     case 126: // Up
-      if (selectionChangedActionTarget)
-        [selectionChangedActionTarget performSelector:selectionChangedAction];
+      if (selectionChangedActionTarget != nil)
+        [selectionChangedActionTarget performSelector: selectionChangedAction];
       [self selectRowIndexes: [NSIndexSet indexSetWithIndex: MAX(mSelectedRowIndex-1, 0)]
         byExtendingSelection: NO];
       break;
     case 116: // PgUp
-      if (selectionChangedActionTarget)
-        [selectionChangedActionTarget performSelector:selectionChangedAction];
+      if (selectionChangedActionTarget != nil)
+        [selectionChangedActionTarget performSelector: selectionChangedAction];
       [super keyDown: event]; // let original handler do the page up
       mSelectedRowIndex = [self rowAtPoint: NSMakePoint(0, NSMinY([self visibleRect])+[self rowHeight]/3)];
       [self selectRowIndexes: [NSIndexSet indexSetWithIndex: mSelectedRowIndex]
@@ -430,34 +399,19 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
                            row: mSelectedRowIndex];
 }
 
-
 - (int) selectedColumnIndex;
 {
   return mSelectedColumnIndex;
 }
-
-
 
 - (int) selectedRowIndex;
 {
   return mSelectedRowIndex;
 }
 
-
-- (void)highlightSelectionInClipRect:(NSRect)clipRect
+- (void)highlightSelectionInClipRect: (NSRect)clipRect
 {
-  // don't highlight the entire row
-}
-
-
-- (void)setSelectionChangedAction:(SEL)aSelector
-{
-  selectionChangedAction= aSelector;
-}
-
-- (void)selectionChangedActionTarget:(id)target;
-{
-  selectionChangedActionTarget = target;
+  // Don't highlight the entire row.
 }
 
 
@@ -470,8 +424,7 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow)
     indexes.push_back(index);
     index = [iset indexGreaterThanIndex: index];
   }
-//  std::reverse(indexes.begin(), indexes.end());
-  
+
   if (indexes.empty() && clickedRow >= 0)
     indexes.push_back(clickedRow);
   

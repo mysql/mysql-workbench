@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,9 +26,10 @@
 
 @implementation DbMysqlSchemaEditor
 
-static void call_refresh(DbMysqlSchemaEditor *self)
+static void call_refresh(void *theEditor)
 {
-  [self performSelectorOnMainThread:@selector(refresh) withObject:nil waitUntilDone:YES];
+  DbMysqlSchemaEditor *editor = (__bridge DbMysqlSchemaEditor *)theEditor;
+  [editor performSelectorOnMainThread: @selector(refresh) withObject:nil waitUntilDone: YES];
 }
 
 
@@ -62,7 +63,7 @@ static void call_refresh(DbMysqlSchemaEditor *self)
     // register a callback that will make [self refresh] get called
     // whenever the backend thinks its needed to refresh the UI from the backend data (ie, the
     // edited object was changed from somewhere else in the application)
-    mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, self));
+    mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, (__bridge void *)self));
     
     if (mBackEnd->is_editing_live_object())
     {
@@ -106,7 +107,7 @@ static void call_refresh(DbMysqlSchemaEditor *self)
   
   MFillPopupButtonWithStrings(collationPopup, mBackEnd->get_charset_collation_list());
   
-  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, self));
+  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, (__bridge void *)self));
   
   if (mBackEnd->is_editing_live_object())
   {
@@ -131,7 +132,6 @@ static void call_refresh(DbMysqlSchemaEditor *self)
 - (void) dealloc
 {
   delete mBackEnd;
-  [super dealloc];
 }
 
 

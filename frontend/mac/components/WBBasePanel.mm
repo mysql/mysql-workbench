@@ -53,10 +53,9 @@
 
 @end
 
-
-
-
 @implementation WBBasePanel
+
+@synthesize topView;
 
 - (NSView*)decoratedTopView
 {
@@ -84,9 +83,6 @@
   return [self topView];
 }
 
-
-
-
 - (NSMenu*)menuBar
 {
   bec::UIForm *form = [self formBE];
@@ -99,13 +95,6 @@
   return nil;
 }
 
-
-- (NSView*)topView
-{
-  return nil;
-}
-
-
 - (NSString*)title
 {
   bec::UIForm *form = [self formBE];
@@ -114,24 +103,20 @@
   return @"";
 }
 
-
 - (NSString*)identifier
 {
   return nil;
 }
 
-
-- (bec::UIForm*)formBE
+- (bec::UIForm *)formBE
 {
-  return 0;
+  return NULL;
 }
-
 
 - (NSImage*)tabIcon
 {
   return nil;
 }
-
 
 - (NSSize)minimumSize
 {

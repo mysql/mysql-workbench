@@ -91,7 +91,6 @@ static void call_refresh(PhysicalLayerEditor *self)
   [mColorCommitTimer invalidate];
   
   delete mBackEnd;
-  [super dealloc];
 }
 
 

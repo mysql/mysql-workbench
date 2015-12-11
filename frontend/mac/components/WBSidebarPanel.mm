@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +26,13 @@
 
 @implementation WBSidebarPanel
 
+- (WBSplitView *)splitView
+{
+  if ([self.topView isKindOfClass: WBSplitView.class])
+    return (WBSplitView *)self.topView;
+  return nil;
+}
+
 - (void)restoreSidebarsFor:(const char*)name
                    toolbar:(mforms::ToolBar*)toolbar
 {
@@ -44,25 +51,25 @@
   if (mSidebarHidden)
   {
     if (mSidebarAtRight)
-      [topView setPosition: NSWidth([topView frame]) ofDividerAtIndex: 1];
+      [self.splitView setPosition: NSWidth(self.topView.frame) ofDividerAtIndex: 1];
     else
-      [topView setPosition: 0 ofDividerAtIndex: 0];
+      [self.splitView setPosition: 0 ofDividerAtIndex: 0];
   }
   else
   {
     if (mSidebarAtRight)
-      [topView setPosition: NSWidth([topView frame]) - mLastSidebarWidth ofDividerAtIndex: 1];
+      [self.splitView setPosition: NSWidth(self.splitView.frame) - mLastSidebarWidth ofDividerAtIndex: 1];
     else
-      [topView setPosition: mLastSidebarWidth ofDividerAtIndex: 0];
+      [self.splitView setPosition: mLastSidebarWidth ofDividerAtIndex: 0];
 
     // ugly hack to force the splitter position where we want it.. somehow, without this "adjustment"
     // the splitter would make the sidebar sized 10px narrower
     if (NSWidth([sidebar frame]) < mLastSidebarWidth)
     {
       if (mSidebarAtRight)
-        [topView setPosition: NSWidth([topView frame]) - (mLastSidebarWidth - NSWidth([sidebar frame])) ofDividerAtIndex: 1];
+        [self.splitView setPosition: NSWidth(self.splitView.frame) - (mLastSidebarWidth - NSWidth([sidebar frame])) ofDividerAtIndex: 1];
       else
-        [topView setPosition: mLastSidebarWidth + (mLastSidebarWidth - NSWidth([sidebar frame])) ofDividerAtIndex: 0];
+        [self.splitView setPosition: mLastSidebarWidth + (mLastSidebarWidth - NSWidth([sidebar frame])) ofDividerAtIndex: 0];
     }
   }
 
@@ -71,16 +78,16 @@
     if (mSecondarySidebarHidden)
     {
       if (mSidebarAtRight)
-        [topView setPosition: 0 ofDividerAtIndex: 0];
+        [self.splitView setPosition: 0 ofDividerAtIndex: 0];
       else
-        [topView setPosition: NSWidth([topView frame]) ofDividerAtIndex: 1];
+        [self.splitView setPosition: NSWidth(self.splitView.frame) ofDividerAtIndex: 1];
     }
     else
     {
       if (mSidebarAtRight)
-        [topView setPosition: mLastSecondarySidebarWidth ofDividerAtIndex: 0];
+        [self.splitView setPosition: mLastSecondarySidebarWidth ofDividerAtIndex: 0];
       else
-        [topView setPosition: NSWidth([topView frame]) - mLastSecondarySidebarWidth ofDividerAtIndex: 1];
+        [self.splitView setPosition: NSWidth(self.splitView.frame) - mLastSecondarySidebarWidth ofDividerAtIndex: 1];
     }
   }
 
@@ -90,7 +97,7 @@
 
 - (void)splitViewDidResizeSubviews:(NSNotification *)notification
 {
-  if ([notification object] != topView || mHidingSidebar || mRestoringSidebars)
+  if ([notification object] != self.topView || mHidingSidebar || mRestoringSidebars)
     return;
   if (![notification userInfo]) // for when the splitview get resized, instead of dragged
     return;
@@ -98,7 +105,7 @@
   if (!mSidebarHidden)
     grtm->set_app_option(mOptionName+":SidebarWidth", grt::IntegerRef((int)NSWidth([sidebar frame])));
   {
-    BOOL newCollapseState = [topView isSubviewCollapsed: sidebar];
+    BOOL newCollapseState = [self.splitView isSubviewCollapsed: sidebar];
     BOOL hidden = !mToolbar->get_item_checked("wb.toggleSidebar");
 
     if (newCollapseState != hidden)
@@ -123,11 +130,11 @@
       if (mSidebarAtRight)
         width = NSWidth([secondarySidebar frame]);
       else
-        width = NSWidth([topView frame]) - NSWidth([secondarySidebar frame]);
+        width = NSWidth(self.splitView.frame) - NSWidth([secondarySidebar frame]);
       grtm->set_app_option(mOptionName+":SecondarySidebarWidth", grt::IntegerRef((int)width));
     }
     {
-      BOOL newCollapseState = [topView isSubviewCollapsed: secondarySidebar];
+      BOOL newCollapseState = [self.splitView isSubviewCollapsed: secondarySidebar];
       BOOL hidden = !mToolbar->get_item_checked("wb.toggleSecondarySidebar");
 
       if (newCollapseState != hidden)
@@ -150,7 +157,7 @@
 
 - (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview
 {
-  if (splitView == topView && (subview == sidebar || subview == secondarySidebar))
+  if (splitView == self.splitView && (subview == sidebar || subview == secondarySidebar))
     return NO;
   return YES;
 }
@@ -164,7 +171,7 @@
 
 - (CGFloat)splitView:(NSSplitView *)splitView constrainMaxCoordinate:(CGFloat)proposedMax ofSubviewAt:(NSInteger)dividerIndex
 {
-  if (splitView == topView)
+  if (splitView == self.splitView)
   {
     return proposedMax > NSWidth([splitView frame]) - MIN_SIDEBAR_WIDTH ? NSWidth([splitView frame]) - MIN_SIDEBAR_WIDTH : proposedMax;
   }
@@ -174,7 +181,7 @@
 
 - (BOOL)splitView:(NSSplitView *)splitView canCollapseSubview:(NSView *)subview
 {
-  if (splitView == topView && (subview == sidebar || subview == secondarySidebar))
+  if (splitView == self.splitView && (subview == sidebar || subview == secondarySidebar))
     return YES;
   return NO;
 }
@@ -190,17 +197,17 @@
     if (!hidden)
     {
       if (!mSidebarAtRight)
-        [topView setPosition: NSWidth([topView frame])-mLastSecondarySidebarWidth-[topView dividerThickness] ofDividerAtIndex: 1];
+        [self.splitView setPosition: NSWidth(self.splitView.frame) - mLastSecondarySidebarWidth - [self.splitView dividerThickness] ofDividerAtIndex: 1];
       else
-        [topView setPosition: mLastSecondarySidebarWidth ofDividerAtIndex: 0];
+        [self.splitView setPosition: mLastSecondarySidebarWidth ofDividerAtIndex: 0];
     }
     else
     {
       mLastSecondarySidebarWidth = NSWidth([secondarySidebar frame]);
       if (!mSidebarAtRight)
-        [topView setPosition: NSWidth([topView frame]) ofDividerAtIndex: 1];
+        [self.splitView setPosition: NSWidth(self.splitView.frame) ofDividerAtIndex: 1];
       else
-        [topView setPosition: 0 ofDividerAtIndex: 0];
+        [self.splitView setPosition: 0 ofDividerAtIndex: 0];
     }
   }
   else
@@ -209,17 +216,17 @@
     if (!hidden)
     {
       if (!mSidebarAtRight)
-        [topView setPosition: mLastSidebarWidth ofDividerAtIndex: 0];
+        [self.splitView setPosition: mLastSidebarWidth ofDividerAtIndex: 0];
       else
-        [topView setPosition: NSWidth([topView frame])-mLastSidebarWidth-[topView dividerThickness] ofDividerAtIndex: 1];
+        [self.splitView setPosition: NSWidth(self.splitView.frame) - mLastSidebarWidth - [self.splitView dividerThickness] ofDividerAtIndex: 1];
     }
     else
     {
       mLastSidebarWidth = NSWidth([sidebar frame]);
       if (!mSidebarAtRight)
-        [topView setPosition: 0 ofDividerAtIndex: 0];
+        [self.splitView setPosition: 0 ofDividerAtIndex: 0];
       else
-        [topView setPosition: NSWidth([topView frame]) ofDividerAtIndex: 1];
+        [self.splitView setPosition: NSWidth(self.splitView.frame) ofDividerAtIndex: 1];
     }
   }
   mHidingSidebar = NO;

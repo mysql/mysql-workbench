@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,96 +17,22 @@
  * 02110-1301  USA
  */
 
-
 #import "WBSplitView.h"
 
-@interface NSObject(NSSplitViewDelegateExtras)
-// This was introduced in 10.6
-- (BOOL)splitView:(NSSplitView*)splitView shouldAdjustSizeOfSubview:(NSView*)subview;
-@end
+@interface WBSplitView()
+{
+  CGFloat dividerWidth;
+  BOOL mEnabled;
+}
 
+@end
 
 @implementation WBSplitView
 
+@synthesize backgroundColor;
+@synthesize dividerThickness = dividerWidth;
 
-- (void)setDividerThickness:(float)f
-{
-  mDividerThickness= f;
-}
-
-
-- (CGFloat) dividerThickness;
-{
-  return mDividerThickness;
-}
-
-
-- (void)adjustSubviews
-{
-#ifndef NSAppKitVersionNumber10_5
-#define NSAppKitVersionNumber10_5 949
-#endif
-  // 10.6 has support for splitView:shouldAdjustSizeOfSubview:, but 10.5 doesn't
-  if ((int)NSAppKitVersionNumber > (int)NSAppKitVersionNumber10_5 || ![[self delegate] respondsToSelector: @selector(splitView:shouldAdjustSizeOfSubview:)])
-    [super adjustSubviews];
-  else
-  {
-    int subviewCount = 0;
-    int adjustableCount = 0;
-    float fixedSubviewsSize = 0.0;
-    float spaceForAdjustableDistribution = 0.0;
-    BOOL vertical = [self isVertical];
-
-    for (NSView *subview in [self subviews])
-    {
-      subviewCount++;
-      if ([[self delegate] splitView: self shouldAdjustSizeOfSubview: subview])
-        adjustableCount++;
-      else
-        fixedSubviewsSize += vertical ? NSWidth([subview frame]) : NSHeight([subview frame]);
-    }
-    
-    if (adjustableCount == 0)
-    {
-      NSLog(@"Inconsistency Error: all subviews of splitter %@ are not adjustable", self);
-      [super adjustSubviews];
-      return;
-    }  
-
-    NSRect rect = [self bounds];
-    // will only work for 2 subviews, for more subviews the space should be divided proportionally
-    if (vertical)
-      spaceForAdjustableDistribution = (NSWidth(rect) - fixedSubviewsSize - (subviewCount-1)*[self dividerThickness]) / adjustableCount;
-    else
-      spaceForAdjustableDistribution = (NSHeight(rect) - fixedSubviewsSize - (subviewCount-1)*[self dividerThickness]) / adjustableCount;
-
-    for (NSView *subview in [self subviews])
-    {
-      if ([[self delegate] splitView: self shouldAdjustSizeOfSubview: subview])
-      {
-        if (vertical)
-          rect.size.width = spaceForAdjustableDistribution;
-        else
-          rect.size.height = spaceForAdjustableDistribution;
-      }
-      else
-      {
-        if (vertical)
-          rect.size.width = NSWidth([subview frame]);
-        else
-          rect.size.height = NSHeight([subview frame]);
-      }  
-      [subview setFrame: rect];
-      if (vertical)
-        rect.origin.x += rect.size.width;
-      else
-        rect.origin.y += rect.size.height;
-    }
-  }
-}
-
-
-- (void) drawDividerInRect: (NSRect) aRect;
+- (void)drawDividerInRect: (NSRect) aRect;
 {
   NSColor* color;
   
@@ -124,11 +50,11 @@
   [NSBezierPath fillRect: aRect];
 }
 
-- (void)drawRect:(NSRect)rect
+- (void)drawRect: (NSRect)rect
 {
-  if (mBackColor)
+  if (backgroundColor != nil)
   {
-    [mBackColor set];
+    [backgroundColor set];
     NSRectFill(rect);
   }
   else
@@ -141,28 +67,18 @@
   [self setNeedsDisplay: YES];
 }
 
-
-
-- (void) handleDidResignMain: (id) aNotification;
+- (void)handleDidResignMain: (id) aNotification;
 {
   mEnabled = NO;
   [self setNeedsDisplay: YES];
 }
 
-
-- (void)setBackgroundColor: (NSColor*)color
-{
-  mBackColor = color;
-}
-
 #pragma mark Create and Destroy
 
-
-
-- (void) awakeFromNib;
+- (void)awakeFromNib;
 {
   mEnabled = YES;
-  mDividerThickness = 1;
+  self.dividerThickness = 1;
   
   // Set up notifications.
   NSNotificationCenter* dc = [NSNotificationCenter defaultCenter];
@@ -176,7 +92,7 @@
            object: [self window]];
 }
 
-- (void) dealloc
+- (void)dealloc
 {
   NSNotificationCenter* dc = [NSNotificationCenter defaultCenter];
   [dc removeObserver: self];

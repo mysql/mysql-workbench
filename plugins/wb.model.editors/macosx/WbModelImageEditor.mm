@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,15 +19,33 @@
 
 #include "base/geometry.h"
 #include "base/string_utilities.h"
+#include "wb_editor_image.h"
 
 #import "WBModelImageEditor.h"
 #import "MCPPUtilities.h"
 
+@interface ImageEditor()
+{
+  IBOutlet NSTabView *tabView;
+
+  IBOutlet NSImageView *imageView;
+  IBOutlet NSButton *browseButton;
+  IBOutlet NSTextField *widthField;
+  IBOutlet NSTextField *heightField;
+  IBOutlet NSButton *resetSizeButton;
+  IBOutlet NSButton *keepAspectRatio;
+
+  ImageEditorBE *mBackEnd;
+}
+
+@end
+
 @implementation ImageEditor
 
-static void call_refresh(ImageEditor *self)
+static void call_refresh(void *theEditor)
 {
-  [self refresh];
+  ImageEditor *editor = (__bridge ImageEditor *)theEditor;
+  [editor refresh];
 }
 
 
@@ -59,12 +77,12 @@ static void call_refresh(ImageEditor *self)
   delete mBackEnd;
   
     // setup the editor backend with the image object (args[0])
-  mBackEnd= new ImageEditorBE(_grtm, workbench_model_ImageFigureRef::cast_from(args[0]));
+  mBackEnd = new ImageEditorBE(_grtm, workbench_model_ImageFigureRef::cast_from(args[0]));
     
   // register a callback that will make [self refresh] get called
   // whenever the backend thinks its needed to refresh the UI from the backend data (ie, the
   // edited object was changed from somewhere else in the application)
-  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, self));
+  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, (__bridge void *)self));
   
   // update the UI
   [self refresh];
@@ -74,7 +92,6 @@ static void call_refresh(ImageEditor *self)
 - (void) dealloc
 {
   delete mBackEnd;
-  [super dealloc];
 }
 
 
@@ -84,8 +101,8 @@ static void call_refresh(ImageEditor *self)
 {
   if (mBackEnd)
   {
-    NSImage *image= [[[NSImage alloc] initWithContentsOfFile: 
-                      [NSString stringWithCPPString: mBackEnd->get_attached_image_path()]] autorelease];
+    NSImage *image= [[NSImage alloc] initWithContentsOfFile: 
+                      [NSString stringWithCPPString: mBackEnd->get_attached_image_path()]];
     [imageView setImage: image];
     
     int w, h;
@@ -150,7 +167,7 @@ static void call_refresh(ImageEditor *self)
   if ([panel runModal] == NSOKButton)
   {
     NSString *path= panel.URL.path;
-    NSImage *image= [[[NSImage alloc] initWithContentsOfFile: path] autorelease];
+    NSImage *image= [[NSImage alloc] initWithContentsOfFile: path];
     if (!image)
     {
       NSRunAlertPanel(NSLocalizedString(@"Invalid Image", nil),

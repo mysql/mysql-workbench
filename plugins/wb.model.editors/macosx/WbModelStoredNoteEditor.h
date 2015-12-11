@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,30 +17,7 @@
  * 02110-1301  USA
  */
 
-#import <Cocoa/Cocoa.h>
-
 #import "WBPluginEditorBase.h"
 
-#include "wb_editor_storednote.h"
-
-@class MFCodeEditor;
-
-@interface StoredNoteEditor : WBPluginEditorBase {
-  IBOutlet NSTabView *tabView; // this editor has a single Tab, but we put in a TabView for homegeneity
-  
-  IBOutlet NSView* editorHost;
-
-  @private
-  StoredNoteEditorBE *mBackEnd;
-}
-
-- (instancetype)initWithModule: (grt::Module*)module
-                    grtManager: (bec::GRTManager *)grtm
-                     arguments: (const grt::BaseListRef &)args NS_DESIGNATED_INITIALIZER;
-
-- (IBAction)applyChanges: (id)sender;
-- (IBAction)revertChanges: (id)sender;
-
-@property (readonly) bec::BaseEditor *editorBE;
-
+@interface StoredNoteEditor : WBPluginEditorBase
 @end

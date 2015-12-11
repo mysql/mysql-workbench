@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,6 +19,7 @@
 
 #include "base/geometry.h"
 #include "base/string_utilities.h"
+#include "mysql_routine_editor.h"
 
 #import "MySQLRoutineEditor.h"
 #import "MCPPUtilities.h"
@@ -26,11 +27,24 @@
 
 #include "ScintillaView.h"
 
+@interface DbMysqlRoutineEditor ()
+{
+  IBOutlet NSTabView *tabView;
+  IBOutlet NSTextField *nameText;
+  IBOutlet NSTextView *commentText;
+  IBOutlet NSView *editorHost;
+
+  MySQLRoutineEditorBE *mBackEnd;
+}
+
+@end
+
 @implementation DbMysqlRoutineEditor
 
-static void call_refresh(DbMysqlRoutineEditor *self)
+static void call_refresh(void *theEditor)
 {
-  [self performSelectorOnMainThread:@selector(refresh) withObject:nil waitUntilDone:YES];
+  DbMysqlRoutineEditor *editor = (__bridge DbMysqlRoutineEditor *)theEditor;
+  [editor performSelectorOnMainThread: @selector(refresh) withObject: nil waitUntilDone: YES];
 }
 
 
@@ -67,7 +81,7 @@ static void call_refresh(DbMysqlRoutineEditor *self)
   // register a callback that will make [self refresh] get called
   // whenever the backend thinks its needed to refresh the UI from the backend data (ie, the
   // edited object was changed from somewhere else in the application)
-  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, self));
+  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, (__bridge void *)self));
   
   [self setupEditorOnHost: editorHost];
   mBackEnd->load_routine_sql();
@@ -88,7 +102,6 @@ static void call_refresh(DbMysqlRoutineEditor *self)
 - (void) dealloc
 {
   delete mBackEnd;
-  [super dealloc];
 }
 
 

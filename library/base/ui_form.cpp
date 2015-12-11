@@ -59,17 +59,31 @@ std::string UIForm::form_id()
   return base::strfmt("<UIForm %p>", this);
 }
 
+#ifdef __APPLE__
+
+void UIForm::set_frontend_data(id data)
+{
+  _frontend_data = data;
+}
+
+id UIForm::get_frontend_data()
+{
+  return _frontend_data;
+}
+
+#else
+
 void UIForm::set_frontend_data(void *data)
 {
   _frontend_data= data;
 }
-
 
 void *UIForm::get_frontend_data()
 {
   return _frontend_data;
 }
 
+#endif
 
 void UIForm::set_owner_data(void *data) { _owner_data= data; }
 void *UIForm::get_owner_data() { return _owner_data; }
@@ -79,23 +93,21 @@ bool UIForm::is_main_form() { return false; }
 // target description for cuy/copy/delete menu items and for paste, after a copy is made
 std::string UIForm::get_edit_target_name() { return ""; }
 
-bool UIForm::can_undo(/*Clipboard *clip*/) { return false; }
-bool UIForm::can_redo(/*Clipboard *clip*/) { return false; }
-bool UIForm::can_cut(/*Clipboard *clip*/) { return can_copy() && can_delete(); }
-bool UIForm::can_copy(/*Clipboard *clip*/) { return false; }
-bool UIForm::can_paste(/*Clipboard *clip*/) { return false; }
+bool UIForm::can_undo() { return false; }
+bool UIForm::can_redo() { return false; }
+bool UIForm::can_cut() { return can_copy() && can_delete(); }
+bool UIForm::can_copy() { return false; }
+bool UIForm::can_paste() { return false; }
 bool UIForm::can_delete() { return false; }
 bool UIForm::can_select_all() { return false; }
 
 void UIForm::undo() {}
 void UIForm::redo() {}
-void UIForm::cut(/*Clipboard *clip*/) {}
-void UIForm::copy(/*Clipboard *clip*/) {}
-void UIForm::paste(/*Clipboard *clip*/) {}
+void UIForm::cut() {}
+void UIForm::copy() {}
+void UIForm::paste() {}
 void UIForm::delete_selection() {}
 void UIForm::select_all() {}
-
-
 
 //--------------------------------------------------------------------------------------------------
 

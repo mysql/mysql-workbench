@@ -438,7 +438,7 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
 
 - (void)subviewMinimumSizeChanged
 {
-  if (!mOwner->is_destroying())
+  if (mOwner != NULL && !mOwner->is_destroying())
     [super subviewMinimumSizeChanged];
 }
 
