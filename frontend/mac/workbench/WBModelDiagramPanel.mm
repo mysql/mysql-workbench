@@ -90,8 +90,8 @@ static int zoom_levels[]= {
 
 static void *backend_destroyed(void *ptr)
 {
-  ((WBModelDiagramPanel*)ptr)->_formBE = 0;
-  return 0;
+  ((WBModelDiagramPanel*)ptr)->_formBE = NULL;
+  return NULL;
 }
 
 - (instancetype)initWithId: (NSString *)oid formBE: (wb::ModelDiagramForm *)be
@@ -115,8 +115,8 @@ static void *backend_destroyed(void *ptr)
       [descriptionController setWBContext: _formBE->get_wb()->get_ui()];
       [propertiesController setWBContext: _formBE->get_wb()->get_ui()];
 
-      [topView setDividerThickness: 1];
-      [topView setBackgroundColor: [NSColor colorWithDeviceWhite:128/255.0 alpha:1.0]];
+      [self.splitView setDividerThickness: 1];
+      [self.splitView setBackgroundColor: [NSColor colorWithDeviceWhite: 128 / 255.0 alpha : 1.0]];
 
       // setup layer tree
       [layerTab setView: nsviewForView(_formBE->get_layer_tree())];
@@ -143,7 +143,7 @@ static void *backend_destroyed(void *ptr)
 
       [self setRightSidebar: be->get_wb()->get_wb_options().get_int("Sidebar:RightAligned", 0)];
 
-      [topView setAutosaveName: @"diagramSplitPosition"];
+      [self.splitView setAutosaveName: @"diagramSplitPosition"];
 
       [mSwitcherT setTabStyle: MPaletteTabSwitcherSmallText];
       [mSwitcherM setTabStyle: MPaletteTabSwitcherSmallText];
@@ -194,13 +194,6 @@ static void *backend_destroyed(void *ptr)
   [super dealloc];
 }
 
-
-- (NSView*)topView
-{
-  return topView;
-}
-
-
 - (void)showOptionsToolbar:(BOOL)flag
 {
   if ([optionsToolbar isHidden] != !flag)
@@ -218,18 +211,15 @@ static void *backend_destroyed(void *ptr)
     [optionsToolbar setNeedsDisplay: YES];
 }
 
-
 - (MCanvasViewer*)canvasViewer
 {
   return _viewer;
 }
 
-
 - (mdc::CanvasView*)canvas
 {
   return [_viewer canvas];
 }
-
 
 - (NSString*)identifier
 {
@@ -242,20 +232,15 @@ static void *backend_destroyed(void *ptr)
   return @(_formBE->get_title().c_str());
 }
 
-
-- (void)searchString:(NSString*)text
+- (void)searchString: (NSString*)text
 {
-  if (!_formBE->search_and_focus_object([text UTF8String]))
-    ;
-    //NSBeep();
+  _formBE->search_and_focus_object([text UTF8String]);
 }
-
 
 - (NSImage*)tabIcon
 {
   return [NSImage imageNamed:@"tab.diagram.16x16.png"];
 }
-
 
 static NSPoint loadCursorHotspot(const std::string &path)
 {
@@ -277,7 +262,6 @@ static NSPoint loadCursorHotspot(const std::string &path)
   return NSMakePoint(0.0, 0.0);
 }
 
-
 - (void)updateCursor
 {
   std::string cursorName= _formBE->get_cursor();
@@ -297,12 +281,10 @@ static NSPoint loadCursorHotspot(const std::string &path)
   [cursor release];
 }
 
-
 - (bec::UIForm*)formBE
 {
   return _formBE;
 }
-
 
 - (NSView*)initialFirstResponder
 {
@@ -313,7 +295,6 @@ static NSPoint loadCursorHotspot(const std::string &path)
 {
   return _formBE->is_closed();
 }
-
 
 - (BOOL)willClose
 {
@@ -334,7 +315,7 @@ static NSPoint loadCursorHotspot(const std::string &path)
   [navigatorViewer setNeedsDisplay:YES];
 }
 
-- (IBAction)setZoom:(id)sender
+- (IBAction)setZoom: (id)sender
 {
   if (sender == zoomSlider || sender == zoomCombo)
   {
@@ -356,13 +337,11 @@ static NSPoint loadCursorHotspot(const std::string &path)
   }
 }
 
-
 - (void)refreshZoom
 {
   [zoomSlider setIntegerValue:_formBE->get_zoom()*100];
   [zoomCombo setIntegerValue:_formBE->get_zoom()*100];
 }
-
 
 - (void)didActivate
 {
@@ -378,7 +357,7 @@ static NSPoint loadCursorHotspot(const std::string &path)
 
 
   [self refreshZoom];
-  [[topView window] makeFirstResponder: _viewer];
+  [[self.topView window] makeFirstResponder: _viewer];
   
   if (!_miniViewReady)
   {
@@ -388,12 +367,10 @@ static NSPoint loadCursorHotspot(const std::string &path)
   }
 }
 
-
 - (void)didOpen
 {
   _formBE->set_closed(false);
 }
-
 
 - (void)canvasToolChanged:(mdc::CanvasView*)canvas
 {
@@ -403,7 +380,6 @@ static NSPoint loadCursorHotspot(const std::string &path)
   
   [self updateCursor];
 }
-
 
 - (BOOL)canvasMouseDown:(mdc::MouseButton)button
                location:(NSPoint)pos
@@ -437,20 +413,17 @@ static NSPoint loadCursorHotspot(const std::string &path)
   return YES;
 }
 
-
 - (BOOL)canvasKeyDown:(mdc::KeyInfo)key state:(mdc::EventState)state
 {
   _formBE->handle_key(key, true, state);
   return YES;
 }
 
-
 - (BOOL)canvasKeyUp:(mdc::KeyInfo)key state:(mdc::EventState)state
 {
   _formBE->handle_key(key, false, state);
   return YES;
 }
-
 
 
 // drag drop
@@ -498,7 +471,6 @@ static NSPoint loadCursorHotspot(const std::string &path)
   return [super splitView: splitView shouldAdjustSizeOfSubview: subview];
 }
 
-
 - (CGFloat)splitView:(NSSplitView *)splitView constrainMinCoordinate:(CGFloat)proposedMin ofSubviewAt:(NSInteger)dividerIndex
 {
   if (splitView == sideSplitview)
@@ -508,7 +480,7 @@ static NSPoint loadCursorHotspot(const std::string &path)
     else if (dividerIndex == 1)
       return proposedMin + 30;
   }
-  else if (splitView == topView)
+  else if (splitView == self.splitView)
     return proposedMin + 120;
   return [super splitView: splitView constrainMinCoordinate: proposedMin ofSubviewAt: dividerIndex];
 }
@@ -523,7 +495,7 @@ static NSPoint loadCursorHotspot(const std::string &path)
     else if (dividerIndex == 1)
       return proposedMax - 80;
   }
-  else if (splitView == topView)
+  else if (splitView == self.splitView)
     return proposedMax - 120;
 
   return [super splitView: splitView constrainMaxCoordinate: proposedMax ofSubviewAt: dividerIndex];
@@ -536,8 +508,8 @@ static NSPoint loadCursorHotspot(const std::string &path)
 {
   mSidebarAtRight = flag;
   
-  id view1 = [topView subviews][0];
-  id view2 = [topView subviews][1];
+  id view1 = [self.topView subviews][0];
+  id view2 = [self.topView subviews][1];
   
   if (mSidebarAtRight)
   {
@@ -545,7 +517,7 @@ static NSPoint loadCursorHotspot(const std::string &path)
     {
       [[view1 retain] autorelease];
       [view1 removeFromSuperview];
-      [topView addSubview: view1];
+      [self.topView addSubview: view1];
     }    
   }
   else
@@ -554,7 +526,7 @@ static NSPoint loadCursorHotspot(const std::string &path)
     {
       [[view1 retain] autorelease];
       [view1 removeFromSuperview];
-      [topView addSubview: view1];
+      [self.topView addSubview: view1];
     }
   }
 }

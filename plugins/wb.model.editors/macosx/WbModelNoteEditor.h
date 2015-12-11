@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,27 +17,7 @@
  * 02110-1301  USA
  */
 
-#import <Cocoa/Cocoa.h>
 #import "WBPluginEditorBase.h"
 
-#include "wb_editor_note.h"
-
-
-
-@interface NoteEditor : WBPluginEditorBase {
-  IBOutlet NSTabView *tabView; // this editor has a single Tab, but we put in a TabView for homegeneity
-  
-  IBOutlet NSTextField *nameText;
-  
-  IBOutlet NSTextView *noteText;
-  
-  NoteEditorBE *mBackEnd; //!< note editor backend
-  
-  BOOL mEditing;
-}
-
-- (instancetype)initWithModule: (grt::Module*)module
-                    grtManager: (bec::GRTManager *)grtm
-                     arguments: (const grt::BaseListRef &)args NS_DESIGNATED_INITIALIZER;
-
+@interface NoteEditor : WBPluginEditorBase
 @end

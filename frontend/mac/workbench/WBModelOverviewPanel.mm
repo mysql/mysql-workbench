@@ -67,14 +67,14 @@
         [mSwitcherB setTabStyle: MPaletteTabSwitcherSmallText];
         [descriptionController setWBContext: wbui];
 
-        [topView setDividerThickness: 1];
-        [topView setBackgroundColor: [NSColor colorWithDeviceWhite: 128/255.0 alpha: 1.0]];
+        [self.splitView setDividerThickness: 1];
+        [self.splitView setBackgroundColor: [NSColor colorWithDeviceWhite: 128 / 255.0 alpha: 1.0]];
 
         [overview performSelector: @selector(rebuildAll) withObject: nil afterDelay: 0.1];
 
         grtm = _wbui->get_wb()->get_grt_manager();
 
-        [topView setAutosaveName: @"modelSplitPosition"];
+        [self.splitView setAutosaveName: @"modelSplitPosition"];
 
         [self restoreSidebarsFor: "ModelOverview" toolbar: wbui->get_physical_overview()->get_toolbar()];
       }
@@ -110,13 +110,6 @@
 {
   return overview;
 }
-
-
-- (NSView*)topView
-{
-  return topView;
-}
-
 
 - (NSString*)title
 {  

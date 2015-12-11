@@ -79,7 +79,6 @@
 
 @interface WBSQLQueryPanel()
 {
-  __weak IBOutlet WBSplitView* mView;
   __weak IBOutlet WBSplitView* mWorkView;
 
   __weak IBOutlet WBMiniToolbar* mOutputToolbar;
@@ -525,12 +524,6 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
 
 #pragma mark Public getters + setters
 
-- (NSView*) topView;
-{
-  return mView;
-}
-
-
 - (id)identifier
 {
   return [NSString stringWithFormat:@"dbquery%p", mBackEnd.get()];
@@ -929,10 +922,10 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
       if (font)
         [mTextOutput setFont: font];
 
-      [mView setBackgroundColor: [NSColor colorWithDeviceWhite:128/255.0 alpha:1.0]];
+      [self.splitView setBackgroundColor: [NSColor colorWithDeviceWhite: 128 / 255.0 alpha: 1.0]];
 
       [mWorkView setDividerThickness: 0];
-      [mView setDividerThickness: 1];
+      [self.splitView setDividerThickness: 1];
 
       [mMessagesTable setMenu: nsmenuForMenu(mBackEnd->log()->get_context_menu())];
 
@@ -949,10 +942,10 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
         mforms::View *sidebar_ = mBackEnd->get_sidebar();
         sidebar = nsviewForView(sidebar_);
         if (mSidebarAtRight)
-          [mView addSubview: sidebar];
+          [self.topView addSubview: sidebar];
         else
-          [mView addSubview: sidebar positioned: NSWindowBelow relativeTo: [[mView subviews] lastObject]];
-        [mView adjustSubviews];
+          [self.topView addSubview: sidebar positioned: NSWindowBelow relativeTo: [[self.topView subviews] lastObject]];
+        [self.splitView adjustSubviews];
       }
 
       // dock the other sidebar
@@ -962,11 +955,11 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
         if (view)
         {
           if (mSidebarAtRight)
-            [topView addSubview: secondarySidebar positioned: NSWindowBelow relativeTo: [[topView subviews] lastObject]];
+            [self.topView addSubview: secondarySidebar positioned: NSWindowBelow relativeTo: [[self.topView subviews] lastObject]];
           else
-            [topView addSubview: secondarySidebar];
+            [self.topView addSubview: secondarySidebar];
         }
-        [topView adjustSubviews];
+        [self.splitView adjustSubviews];
       }
 
       [self restoreSidebarsFor: "DbSqlEditor" toolbar: be->get_toolbar()];
@@ -1007,8 +1000,8 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
 {
   mSidebarAtRight = flag;
 
-  id view1 = [mView subviews][0];
-  id view2 = [mView subviews][1];
+  id view1 = [self.topView subviews][0];
+  id view2 = [self.topView subviews][1];
   
   if (mSidebarAtRight)
   {
@@ -1016,7 +1009,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
     {
       [[view1 retain] autorelease];
       [view1 removeFromSuperview];
-      [mView addSubview: view1];
+      [self.topView addSubview: view1];
     }    
   }
   else
@@ -1025,7 +1018,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
     {
       [[view1 retain] autorelease];
       [view1 removeFromSuperview];
-      [mView addSubview: view1];
+      [self.topView addSubview: view1];
     }
   }
 }

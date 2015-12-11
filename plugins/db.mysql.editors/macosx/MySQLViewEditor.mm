@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,12 +27,30 @@
 #include "ScintillaView.h"
 
 #import "DbPrivilegeEditorTab.h"
+#include "mysql_view_editor.h"
+
+@interface DbMysqlViewEditor()
+{
+  IBOutlet NSTabView *tabView;
+
+  IBOutlet NSTextField *nameText;
+
+  IBOutlet MVerticalLayoutView *editorHost;
+  IBOutlet NSTextView *commentText;
+
+  MySQLViewEditorBE *mBackEnd;
+  DbPrivilegeEditorTab *mPrivileges;
+
+}
+
+@end
 
 @implementation DbMysqlViewEditor
 
-static void call_refresh(DbMysqlViewEditor *self)
+static void call_refresh(void *theEditor)
 {
-  [self performSelectorOnMainThread:@selector(refresh) withObject:nil waitUntilDone:YES];
+  DbMysqlViewEditor *editor = (__bridge DbMysqlViewEditor *)theEditor;
+  [editor performSelectorOnMainThread: @selector(refresh) withObject: nil waitUntilDone: YES];
 }
 
 - (instancetype)initWithModule: (grt::Module*)module
@@ -67,21 +85,20 @@ static void call_refresh(DbMysqlViewEditor *self)
   delete mBackEnd;
   
   // setup the editor backend with the schema object (args[0])
-  mBackEnd= new MySQLViewEditorBE(_grtm, db_mysql_ViewRef::cast_from(args[0]));
+  mBackEnd = new MySQLViewEditorBE(_grtm, db_mysql_ViewRef::cast_from(args[0]));
   
   // register a callback that will make [self refresh] get called
   // whenever the backend thinks its needed to refresh the UI from the backend data (ie, the
   // edited object was changed from somewhere else in the application)
-  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, self));
+  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, (__bridge void*)self));
   
   NSUInteger index= [tabView indexOfTabViewItemWithIdentifier: @"privileges"];
   if (index != NSNotFound)
     [tabView removeTabViewItem: [tabView tabViewItemAtIndex: index]];
-  [mPrivileges release];
   
   if (!mBackEnd->is_editing_live_object())
   {
-    NSTabViewItem *tabItem= [[[NSTabViewItem alloc] initWithIdentifier:@"privileges"] autorelease];
+    NSTabViewItem *tabItem= [[NSTabViewItem alloc] initWithIdentifier:@"privileges"];
     mPrivileges= [[DbPrivilegeEditorTab alloc] initWithObjectEditor: mBackEnd];
     [tabItem setView: [mPrivileges view]];
     [tabItem setLabel: @"Privileges"];
@@ -96,15 +113,12 @@ static void call_refresh(DbMysqlViewEditor *self)
 }
 
 
-- (void) dealloc
+- (void)dealloc
 {
-  [mPrivileges release];
-  
   delete mBackEnd;
-  [super dealloc];
 }
 
-- (void) refresh
+- (void)refresh
 {
   if (mBackEnd)
   {

@@ -79,8 +79,8 @@ static NSImage *descendingSortIndicator= nil;
       (*mData)->rows_changed = boost::bind(onRefresh, (__bridge void *)self);
 
       gridView.intercellSpacing = NSMakeSize(0, 1);
-      [gridView selectionChangedActionTarget: self];
-      [gridView setSelectionChangedAction: @selector(handleNSTableViewSelectionIsChangingNotification:)];
+      gridView.selectionChangedActionTarget = self;
+      gridView.selectionChangedAction = @selector(handleNSTableViewSelectionIsChangingNotification:);
       gridView.allowsMultipleSelection = YES;
 
       [gridView.enclosingScrollView setBorderType: NSNoBorder];

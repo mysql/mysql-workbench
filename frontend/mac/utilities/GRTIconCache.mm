@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,6 +18,7 @@
  */
 
 #import "WBExtras/GRTIconCache.h"
+#import "NSString_extras.h"
 
 @implementation GRTIconCache
 
@@ -26,7 +27,7 @@ static GRTIconCache *instance = NULL;
 + (GRTIconCache*)sharedIconCache
 {
   if (!instance)
-    instance= [[GRTIconCache alloc] init];
+    instance = [[GRTIconCache alloc] init];
   return instance;
 }
 
@@ -34,63 +35,46 @@ static GRTIconCache *instance = NULL;
 {
   if ((self= [super init]) != nil)
   {
-    _cache= new std::map<bec::IconId, NSImage*>();
-
-    _folderIcon16= [[[NSWorkspace sharedWorkspace] iconForFile:@"/usr"] copy];
+    _folderIcon16 = [[[NSWorkspace sharedWorkspace] iconForFile: @"/usr"] copy];
     [_folderIcon16 setSize:NSMakeSize(15, 15)];
   }
   return self;
 }
 
-
-- (void)dealloc
-{
-  
-  for (std::map<bec::IconId, NSImage*>::const_iterator iter= _cache->begin();
-       iter != _cache->end(); ++iter)
-  {
-    iter->second;
-  }
-  delete _cache;
-  
-}
-
-
-- (NSImage*)imageForFolder:(bec::IconSize)size
+- (NSImage*)imageForFolder: (bec::IconSize)size
 {
   return _folderIcon16;
 }
 
 
-- (NSImage*)imageForFileName:(NSString*)fname
+- (NSImage*)imageForFileName: (NSString *)fname
 {
-  std::string path= bec::IconManager::get_instance()->get_icon_path([fname UTF8String]);
+  std::string path = bec::IconManager::get_instance()->get_icon_path([fname UTF8String]);
 
   return [[NSImage alloc] initWithContentsOfFile:@(path.c_str())];
 }
 
 
-- (NSImage*)imageForIconId:(bec::IconId)icon
+- (NSImage*)imageForIconId: (bec::IconId)icon
 {
   std::map<bec::IconId, NSImage*>::const_iterator iter;
-  if ((iter= _cache->find(icon)) == _cache->end())
+  if ((iter = _cache.find(icon)) == _cache.end())
   {
-    NSImage *image= [self uncachedImageForIconId:icon];
-    (*_cache)[icon]= image;
+    NSImage *image = [self uncachedImageForIconId: icon];
+    _cache[icon] = image;
     return image;
   }
   return iter->second;
 }
 
 
-- (NSImage*)uncachedImageForIconId:(bec::IconId)icon
+- (NSImage *)uncachedImageForIconId: (bec::IconId)icon
 {
-  std::string path= bec::IconManager::get_instance()->get_icon_path(icon);
+  std::string path = bec::IconManager::get_instance()->get_icon_path(icon);
   if (path.empty())
     return nil;
 
-  NSImage *image = [[NSImage alloc] initWithContentsOfFile:@(path.c_str())];
-  return image;
+  return [[NSImage alloc] initWithContentsOfFile: [NSString stringWithCPPString: path]];
 }
 
 @end

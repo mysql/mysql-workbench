@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,12 +18,8 @@
  */
 
 /**
- * @abstract
  * The main controller for the MySQL Table Editor.
- *
- * @ingroup
- * MySQL Table Editor
-*/
+ */
 
 #include "base/geometry.h"
 #include "base/string_utilities.h"
@@ -53,49 +49,353 @@
 #import "DbPrivilegeEditorTab.h"
 #include <mforms/view.h>
 
-static NSString* shouldRaiseException = @"should raise exception";
+static NSString *shouldRaiseException = @"should raise exception";
+static NSString *columnDragUTI = @"com.mysql.workbench.column";
 
+@interface DbMysqlTableEditor()
+{
+  IBOutlet __weak NSTabView* mEditorsTabView;
+  IBOutlet __weak MTabSwitcher* mTabSwitcher;
+
+  IBOutlet __weak NSView* mHeaderView;
+  IBOutlet __weak NSButton *mHeaderExpander;
+
+  // Table
+  IBOutlet __weak NSTextField* mTableName;
+  IBOutlet __weak NSTextField* mSchemaName;
+  IBOutlet __weak NSPopUpButton* mTableCollation;
+  IBOutlet __weak NSPopUpButton* mTableEngine;
+  IBOutlet NSTextView* mTableComment;
+
+  // Columns
+  IBOutlet __weak WBCustomTabItemView* mEditorColumns;
+  IBOutlet __weak NSSplitView* mColumnsSplitter;
+  IBOutlet __weak NSTableView* mColumnsTable;
+  IBOutlet __weak NSTextField* mColumnsName;
+  IBOutlet __weak NSTextField* mDefaultLabel;
+  IBOutlet __weak NSButton* mButtonGCVirtual;
+  IBOutlet __weak NSButton* mButtonGCStored;
+
+  IBOutlet __weak NSBox* mColumnsDetailsBox;
+  IBOutlet __weak NSPopUpButton* mColumnsCollation;
+  IBOutlet NSTextView* mColumnsComment;
+  IBOutlet __weak NSComboBox* mColumnsType;
+  IBOutlet __weak NSTextField* mColumnsDefault;
+  IBOutlet __weak NSButton* mColumnsFlagPK;
+  IBOutlet __weak NSButton* mColumnsFlagNN;
+  IBOutlet __weak NSButton* mColumnsFlagUNQ;
+  IBOutlet __weak NSButton* mColumnsFlagBIN;
+  IBOutlet __weak NSButton* mColumnsFlagUN;
+  IBOutlet __weak NSButton* mColumnsFlagZF;
+  IBOutlet __weak NSButton* mColumnsFlagAI;
+  IBOutlet __weak NSButton* mColumnsFlagG;
+
+  // for compact mode
+  IBOutlet __weak NSBox* mColumnsDetailsBox2;
+  IBOutlet __weak NSPopUpButton* mColumnsCollation2;
+  IBOutlet NSTextView* mColumnsComment2;
+
+  // Indices
+  IBOutlet __weak WBCustomTabItemView* mEditorIndices;
+  IBOutlet __weak NSTableView* mIndicesTable;
+  IBOutlet __weak NSTableView* mIndexColumnsTable;
+  IBOutlet __weak NSPopUpButton* mIndicesStorageTypes;
+  IBOutlet __weak NSTextField* mIndicesBlockSize;
+  IBOutlet __weak NSTextField* mIndicesParser;
+  IBOutlet NSTextView* mIndicesComment;
+  IBOutlet __weak NSBox* mIndicesDetailsBox;
+
+  // Foreigh Keys
+  IBOutlet __weak WBCustomTabItemView* mEditorForeignKeys;
+  IBOutlet __weak NSTableView* mFKTable;
+  IBOutlet __weak NSTableView* mFKColumnsTable;
+  IBOutlet __weak NSPopUpButton* mFKOnUpdate;
+  IBOutlet __weak NSPopUpButton* mFKOnDelete;
+  IBOutlet NSTextView* mFKComment;
+  IBOutlet __weak NSBox* mFKDetailsBox;
+  IBOutlet __weak NSButton* mFKModelOnly;
+  IBOutlet __weak NSView* mFKWarningPanel;
+
+  // Triggers
+  IBOutlet __weak WBCustomTabItemView* mTriggerTabItem;
+
+  // Partitioning
+  IBOutlet __weak WBCustomTabItemView* mEditorPartitioning;
+  IBOutlet __weak NSButton* mPartitionEnabledCheckbox;
+  IBOutlet __weak NSPopUpButton* mPartitionPopup;
+  IBOutlet __weak NSPopUpButton* mSubpartitionPopup;
+  IBOutlet __weak NSTextField* mPartitionParametersTextField;
+  IBOutlet __weak NSTextField* mSubPartitionParametersTextField;
+  IBOutlet __weak NSTextField* mPartitionCountTextField;
+  IBOutlet __weak NSTextField* mSubpartitionCountTextField;
+  IBOutlet __weak NSButton* mPartitionManualCheckbox;
+  IBOutlet __weak NSButton* mSubpartitionManualCheckbox;
+  IBOutlet __weak NSOutlineView* mPartitionTable;
+
+  // Options
+  IBOutlet __weak WBCustomTabItemView* mEditorOptions;
+  IBOutlet __weak NSPopUpButton* mOptionsPackKeys;
+  IBOutlet __weak NSTextField* mOptionsTablePassword;
+  IBOutlet __weak NSTextField* mOptionsAutoIncrement;
+  IBOutlet __weak NSButton* mOptionsDelayKeyUpdates;
+  IBOutlet __weak NSPopUpButton* mOptionsRowFormat;
+  IBOutlet __weak NSPopUpButton* mOptionsBlockSize;
+  IBOutlet __weak NSTextField* mOptionsAvgRowLength;
+  IBOutlet __weak NSTextField* mOptionsMinRows;
+  IBOutlet __weak NSTextField* mOptionsMaxRows;
+  IBOutlet __weak NSButton* mOptionsUseChecksum;
+  IBOutlet __weak NSTextField* mOptionsDataDirectory;
+  IBOutlet __weak NSTextField* mOptionsIndexDirectory;
+  IBOutlet __weak NSTextField* mOptionsUnionTables;
+  IBOutlet __weak NSPopUpButton* mOptionsMergeMethod;
+
+  // Inserts
+  IBOutlet __weak NSView* mEditorInserts;
+
+@private
+  MySQLTableEditorBE* mBackEnd;
+  MacTableEditorColumnsInformationSource* mColumnsDataSource;
+  NSArray* mColumnTypes;
+  MacTableEditorInformationSource* mIndicesDataSource;
+  MacTableEditorIndexColumnsInformationSource* mIndexColumnsDataSource;
+  MacTableEditorInformationSource* mFKDataSource;
+  MacTableEditorFKColumnsInformationSource* mFKColumnsDataSource;
+  GRTTreeDataSource* mPartitionsTreeDataSource;
+
+  NSView *mUnusedColumnsDetailsBox;
+
+  DbPrivilegeEditorTab *mPrivilegesTab;
+
+  BOOL mDidAwakeFromNib;
+}
+
+@end
 
 @implementation DbMysqlTableEditor
 
-
-// Callback to update the editor GUI to reflect changes in the backend.
-static void call_refresh(DbMysqlTableEditor* theEditor)
+- (instancetype)initWithModule: (grt::Module *) module
+                    grtManager: (bec::GRTManager *) grtm
+                     arguments: (const grt::BaseListRef &) args
 {
-  // As it turns out, this call-back can be called from non-main threads.
-  [theEditor performSelectorOnMainThread: @selector(refreshTableEditorGUI)
-                              withObject: nil
-                           waitUntilDone: YES];
-}
+  self = [super initWithNibName: @"MySQLTableEditor" bundle: [NSBundle bundleForClass: self.class]];
+  if (self != nil) {
+    _grtm = grtm;
 
+    [self loadView];
+    [self enablePluginDocking: mEditorsTabView];
 
-static void call_partial_refresh(int what, DbMysqlTableEditor* theEditor)
-{
-  switch (what)
-  {
-    case bec::TableEditorBE::RefreshColumnMoveUp:
-    {
-      NSTableView *columns = theEditor->mColumnsTable;
-      NSInteger i = [columns selectedRow];
-      [columns reloadData];
-      [columns selectRowIndexes: [NSIndexSet indexSetWithIndex: i-1]
-           byExtendingSelection: NO];
-      break;
-    }
-    case bec::TableEditorBE::RefreshColumnMoveDown:
-    {
-      NSTableView *columns = theEditor->mColumnsTable;
-      NSInteger i = [columns selectedRow];
-      [columns reloadData];
-      [columns selectRowIndexes: [NSIndexSet indexSetWithIndex: i+1]
-           byExtendingSelection: NO];
-      break;
-    }
-    default:
-      call_refresh(theEditor);
-      break;
+    [self reinitWithArguments: args];
   }
+
+  return self;
 }
+
+- (void)reinitWithArguments:(const grt::BaseListRef&)args
+{
+  BOOL isReinit = mBackEnd != 0;
+
+  [super reinitWithArguments: args];
+
+  [[[mEditorInserts subviews] lastObject] removeFromSuperview];
+  delete mBackEnd;
+
+  db_mysql_TableRef table = db_mysql_TableRef::cast_from(args[0]);
+  mBackEnd = new MySQLTableEditorBE(_grtm, table);
+
+  if (!isReinit)
+  {
+    if (!mBackEnd->is_editing_live_object())
+    {
+      mUnusedColumnsDetailsBox = mColumnsDetailsBox;
+      mColumnsDetailsBox = mColumnsDetailsBox2;
+      mColumnsCollation = mColumnsCollation2;
+      mColumnsComment = mColumnsComment2;
+      [mColumnsSplitter setVertical: YES];
+    }
+    else
+    {
+      mUnusedColumnsDetailsBox = mColumnsDetailsBox2;
+      [mColumnsSplitter setVertical: NO];
+
+      GrtVersionRef version = mBackEnd->get_catalog()->version();
+      [mIndicesComment setEditable: bec::is_supported_mysql_version_at_least(version, 5, 5)];
+    }
+    [mColumnsSplitter addSubview: mColumnsDetailsBox];
+  }
+
+  mColumnsDataSource = [[MacTableEditorColumnsInformationSource alloc] initWithListModel: mBackEnd->get_columns()
+                                                                            tableBackEnd: mBackEnd];
+  mIndicesDataSource = [[MacTableEditorInformationSource alloc] initWithListModel: mBackEnd->get_indexes()];
+
+  mIndexColumnsDataSource = [[MacTableEditorIndexColumnsInformationSource alloc] initWithListModel: mBackEnd->get_indexes()->get_columns()
+                                                                                      tableBackEnd: mBackEnd];
+
+  mFKDataSource = [[MacTableEditorInformationSource alloc] initWithListModel: mBackEnd->get_fks()];
+
+  mFKColumnsDataSource = [[MacTableEditorFKColumnsInformationSource alloc] initWithListModel: mBackEnd->get_fks()->get_columns()
+                                                                                tableBackEnd: mBackEnd];
+
+  if (!mBackEnd->is_editing_live_object())
+  {
+    NSInteger i;
+
+    mEditorInserts = nsviewForView(mBackEnd->get_inserts_panel());
+
+    if ((i = [mEditorsTabView indexOfTabViewItemWithIdentifier: @"inserts"]) == NSNotFound)
+    {
+      id item = [[NSTabViewItem alloc] initWithIdentifier: @"inserts"];
+      [item setView: mEditorInserts];
+      [item setLabel: @"Inserts"];
+      [mEditorsTabView addTabViewItem: item];
+      [mEditorInserts setAutoresizesSubviews: YES];
+    }
+    else
+    {
+      [[mEditorsTabView tabViewItemAtIndex: i] setView: mEditorInserts];
+    }
+  }
+
+  // Populate popup menus.
+  MFillPopupButtonWithStrings(mTableCollation, mBackEnd->get_charset_collation_list());
+  [[mTableCollation menu] insertItem: [NSMenuItem separatorItem]
+                             atIndex: 0];
+  [mTableCollation insertItemWithTitle: @"Schema Default"
+                               atIndex: 0];
+
+  MFillPopupButtonWithStrings(mTableEngine, mBackEnd->get_engines_list());
+
+  MFillPopupButtonWithStrings(mColumnsCollation, mBackEnd->get_charset_collation_list());
+  [[mColumnsCollation menu] insertItem: [NSMenuItem separatorItem]
+                               atIndex: 0];
+  [mColumnsCollation insertItemWithTitle: @"Table Default"
+                                 atIndex: 0];
+
+  MFillPopupButtonWithStrings(mFKOnUpdate, mBackEnd->get_fk_action_options());
+  MFillPopupButtonWithStrings(mFKOnDelete, mBackEnd->get_fk_action_options());
+
+  // Create column type list.
+  mColumnTypes = MArrayFromStringVector(((MySQLTableColumnsListBE*)mBackEnd->get_columns())->get_datatype_names());
+
+  // Set up combo boxes in Partitioning tab.
+  mPartitionsTreeDataSource = [[GRTTreeDataSource alloc] initWithTreeModel: mBackEnd->get_partitions()];
+  [mPartitionTable setDataSource: mPartitionsTreeDataSource];
+  [mPartitionTable setDelegate: mPartitionsTreeDataSource];
+  NSTableColumn* column = [mPartitionTable tableColumnWithIdentifier: @"0"];
+  MTextImageCell* imageTextCell2 = [MTextImageCell new];
+  [column setDataCell: imageTextCell2];
+
+  if (!mBackEnd->is_editing_live_object())
+  {
+    NSUInteger index= [mEditorsTabView indexOfTabViewItemWithIdentifier: @"privileges"];
+    if (index != NSNotFound)
+      [mEditorsTabView removeTabViewItem: [mEditorsTabView tabViewItemAtIndex: index]];
+
+    mPrivilegesTab= [[DbPrivilegeEditorTab alloc] initWithObjectEditor: mBackEnd];
+
+    NSTabViewItem* item = [[NSTabViewItem alloc] initWithIdentifier: @"privileges"];
+    [item setView: [mPrivilegesTab view]];
+    [item setLabel: @"Privileges"];
+    [mEditorsTabView addTabViewItem: item];
+    [(MColoredView*)[mPrivilegesTab view] setBackgroundColor: [NSColor whiteColor]];
+  }
+  // Register a callback that will call [self refresh] when the edited object is
+  // changed from somewhere else in the application.
+  // Note: with ARC we need to bridge via void*. Otherwise we'd get a ref cycle.
+  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, (__bridge void *)self));
+  mBackEnd->set_partial_refresh_ui_slot(boost::bind(call_partial_refresh, _1, (__bridge void *)self));
+
+  [self updateFKPlaceholder];
+  {
+    id view = mBackEnd->get_trigger_panel()->get_data();
+    [mTriggerTabItem addSubview: view];
+    [mTriggerTabItem setBackgroundColor: [NSColor whiteColor]];
+    [view setFrame: [mTriggerTabItem bounds]];
+    [view setAutoresizesSubviews: YES];
+    [(NSView *)view setAutoresizingMask: NSViewWidthSizable|NSViewHeightSizable|NSMinXEdge|NSMinYEdge|NSMaxXEdge|NSMaxYEdge];
+  }
+
+  // Update the GUI.
+  [self refreshTableEditorGUI];
+
+  //  mBackEnd->load_trigger_sql();
+  mBackEnd->reset_editor_undo_stack();
+
+  [self notifyObjectSwitched];
+}
+
+
+- (void)awakeFromNib;
+{
+  [mTabSwitcher setTabStyle: MEditorBottomTabSwitcher];
+
+  // collapse header by default
+  [mHeaderExpander setState: NSOffState];
+  [self toggleHeader: NO];
+
+  // Store the min size specified in the .xib file.
+  NSSize size = [[self view] frame].size;
+  [self setMinimumSize: size];
+
+  // Assemle all the separate editor views into the tab view.
+  NSTabViewItem* item;
+
+  item = [[NSTabViewItem alloc] initWithIdentifier: @"columns"];
+  [item setView: mEditorColumns];
+  [item setLabel: @"Columns"];
+  [mEditorsTabView addTabViewItem: item];
+  [mEditorColumns setBackgroundColor: [NSColor whiteColor]];
+
+  item = [[NSTabViewItem alloc] initWithIdentifier: @"indices"];
+  [item setView: mEditorIndices];
+  [item setLabel: @"Indexes"];
+  [mEditorsTabView addTabViewItem: item];
+  [mEditorIndices setBackgroundColor: [NSColor whiteColor]];
+
+  item = [[NSTabViewItem alloc] initWithIdentifier: @"foreignkeys"];
+  [item setView: mEditorForeignKeys];
+  [item setLabel: @"Foreign Keys"];
+  [mEditorsTabView addTabViewItem: item];
+  [mEditorForeignKeys setBackgroundColor: [NSColor whiteColor]];
+
+  item = [[NSTabViewItem alloc] initWithIdentifier: @"triggers"];
+  [item setView: mTriggerTabItem];
+  [item setLabel: @"Triggers"];
+  [mEditorsTabView addTabViewItem: item];
+
+  item = [[NSTabViewItem alloc] initWithIdentifier: @"partitioning"];
+  [item setView: mEditorPartitioning];
+  [item setLabel: @"Partitioning"];
+  [mEditorsTabView addTabViewItem: item];
+  [mEditorPartitioning setBackgroundColor: [NSColor whiteColor]];
+
+  item = [[NSTabViewItem alloc] initWithIdentifier: @"options"];
+  NSScrollView* sv = [[NSScrollView alloc] initWithFrame: [mEditorColumns frame]];
+  [sv setDocumentView: mEditorOptions];
+  [sv setHasHorizontalScroller: YES];
+  [sv setHasVerticalScroller: YES];
+  [[sv horizontalScroller] setControlSize: NSSmallControlSize];
+  [[sv verticalScroller] setControlSize: NSSmallControlSize];
+  [sv setAutohidesScrollers: YES];
+  [mEditorOptions scrollRectToVisible: NSMakeRect(0, [mEditorOptions frame].size.height, 1, 1)];
+  [item setView: sv];
+  [item setLabel: @"Options"];
+  [mEditorsTabView addTabViewItem: item];
+  [mEditorOptions setBackgroundColor: [NSColor whiteColor]];
+
+  [mColumnsTable registerForDraggedTypes: @[columnDragUTI]];
+
+  mDidAwakeFromNib = YES;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+- (void)dealloc;
+{
+  [NSRunLoop cancelPreviousPerformRequestsWithTarget: self];
+  delete mBackEnd;
+}
+
+//--------------------------------------------------------------------------------------------------
 
 #pragma mark Refreshing of views
 
@@ -635,7 +935,7 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
     obj = @"foo";
   }
   
-  NSAssert( obj != shouldRaiseException, @"No match for tableview.");
+  NSAssert(obj != shouldRaiseException, @"No match for tableview.");
   
   return obj;
 }
@@ -1025,10 +1325,8 @@ writeRowsWithIndexes: (NSIndexSet*) rowIndices
   dict[@"rowIndex"] = @((int)rowIndex);
   
   if (aTableView == mColumnsTable) {
-    [pboard declareTypes: @[@"com.sun.mysql.workbench.column"]
-                   owner: self];
-    [pboard setPropertyList: dict
-                    forType: @"com.sun.mysql.workbench.column"];
+    [pboard declareTypes: @[columnDragUTI] owner: self];
+    [pboard setPropertyList: dict forType: columnDragUTI];
     
     shouldStartDrag = YES;
   }
@@ -1053,7 +1351,7 @@ writeRowsWithIndexes: (NSIndexSet*) rowIndices
   NSPasteboard* pb = [info draggingPasteboard];
   NSDictionary* dict = nil;
   if (aTableView == mColumnsTable) {
-    dict = [pb propertyListForType: @"com.sun.mysql.workbench.column"];
+    dict = [pb propertyListForType: columnDragUTI];
   }
   
   NSAssert( (dict != nil), @"Drag flavour was not found.");
@@ -1082,7 +1380,7 @@ writeRowsWithIndexes: (NSIndexSet*) rowIndices
   NSInteger originatingRow = NSNotFound;
   
   if (aTableView == mColumnsTable) {
-    NSDictionary* dict = [pb propertyListForType: @"com.sun.mysql.workbench.column"];
+    NSDictionary* dict = [pb propertyListForType: columnDragUTI];
     NSAssert( (dict != nil), @"Drag flavour was not found.");
 
     originatingRow = [dict[@"rowIndex"] intValue];
@@ -1550,261 +1848,52 @@ objectValueForItemAtIndex: (NSInteger) index
   return [super pluginWillClose: sender];
 }
 
-#pragma mark - Creation + Destruction
-
-- (instancetype) initWithModule: (grt::Module *) module
-                     grtManager: (bec::GRTManager *) grtm
-                      arguments: (const grt::BaseListRef &) args;
-{
-  self = [super initWithNibName: @"MySQLTableEditor" bundle: [NSBundle bundleForClass: [self class]]];
-  if (self != nil) {
-    _grtm = grtm;
-    
-    [self loadView];
-
-    [self enablePluginDocking: mEditorsTabView];
-
-    [self reinitWithArguments: args];
-  }
-  
-  return self;
-}
-
-
-- (void)reinitWithArguments:(const grt::BaseListRef&)args
-{
-  BOOL isReinit = mBackEnd != 0;
-  
-  [super reinitWithArguments: args];
-  
-  [[[mEditorInserts subviews] lastObject] removeFromSuperview];
-  delete mBackEnd;
-
-  db_mysql_TableRef table = db_mysql_TableRef::cast_from(args[0]);
-  mBackEnd = new MySQLTableEditorBE(_grtm, table);
-
-  if (!isReinit)
-  {
-    if (!mBackEnd->is_editing_live_object())
-    {
-      mUnusedColumnsDetailsBox = mColumnsDetailsBox;
-      mColumnsDetailsBox = mColumnsDetailsBox2;
-      mColumnsCollation = mColumnsCollation2;
-      mColumnsComment = mColumnsComment2;
-      [mColumnsSplitter setVertical: YES];
-    }
-    else
-    {
-      mUnusedColumnsDetailsBox = mColumnsDetailsBox2;
-      [mColumnsSplitter setVertical: NO];
-
-      GrtVersionRef version = mBackEnd->get_catalog()->version();
-      [mIndicesComment setEditable: bec::is_supported_mysql_version_at_least(version, 5, 5)];
-    }
-    [mColumnsSplitter addSubview: mColumnsDetailsBox];
-  }
-
-  [mColumnsDataSource release];
-  mColumnsDataSource = [[MacTableEditorColumnsInformationSource alloc] initWithListModel: mBackEnd->get_columns()
-                                                                            tableBackEnd: mBackEnd];
-  [mIndicesDataSource release];
-  mIndicesDataSource = [[MacTableEditorInformationSource alloc] initWithListModel: mBackEnd->get_indexes()];
-  
-  [mIndexColumnsDataSource release];
-  mIndexColumnsDataSource = [[MacTableEditorIndexColumnsInformationSource alloc] initWithListModel: mBackEnd->get_indexes()->get_columns()
-                              tableBackEnd: mBackEnd];
-  
-  [mFKDataSource release];
-  mFKDataSource = [[MacTableEditorInformationSource alloc] initWithListModel: mBackEnd->get_fks()];
-    
-  [mFKColumnsDataSource release];
-  mFKColumnsDataSource = [[MacTableEditorFKColumnsInformationSource alloc] initWithListModel: mBackEnd->get_fks()->get_columns()
-                                                                                  tableBackEnd: mBackEnd];
-  
-  if (!mBackEnd->is_editing_live_object())
-  {
-    NSInteger i;
-
-    mEditorInserts = nsviewForView(mBackEnd->get_inserts_panel());
-
-    if ((i = [mEditorsTabView indexOfTabViewItemWithIdentifier: @"inserts"]) == NSNotFound)
-    {
-      id item = [[[NSTabViewItem alloc] initWithIdentifier: @"inserts"] autorelease];
-      [item setView: mEditorInserts];
-      [item setLabel: @"Inserts"];
-      [mEditorsTabView addTabViewItem: item];
-      [mEditorInserts setAutoresizesSubviews: YES];
-    }
-    else
-    {
-      [[mEditorsTabView tabViewItemAtIndex: i] setView: mEditorInserts];
-    }
-  }
-  
-  // Populate popup menus.
-  MFillPopupButtonWithStrings(mTableCollation, mBackEnd->get_charset_collation_list());
-  [[mTableCollation menu] insertItem: [NSMenuItem separatorItem]
-                             atIndex: 0];
-  [mTableCollation insertItemWithTitle: @"Schema Default"
-                               atIndex: 0];
-  
-  MFillPopupButtonWithStrings(mTableEngine, mBackEnd->get_engines_list());
-
-  MFillPopupButtonWithStrings(mColumnsCollation, mBackEnd->get_charset_collation_list());
-  [[mColumnsCollation menu] insertItem: [NSMenuItem separatorItem]
-                               atIndex: 0];
-  [mColumnsCollation insertItemWithTitle: @"Table Default"
-                                 atIndex: 0];
-
-  MFillPopupButtonWithStrings(mFKOnUpdate, mBackEnd->get_fk_action_options());
-  MFillPopupButtonWithStrings(mFKOnDelete, mBackEnd->get_fk_action_options());
-  
-  // Create column type list.
-  [mColumnTypes release];
-  mColumnTypes = [MArrayFromStringVector(((MySQLTableColumnsListBE*)mBackEnd->get_columns())->get_datatype_names()) retain];
-  
-  // Set up combo boxes in Partitioning tab.  
-  [mPartitionsTreeDataSource release];
-  mPartitionsTreeDataSource = [[GRTTreeDataSource alloc] initWithTreeModel: mBackEnd->get_partitions()];
-  [mPartitionTable setDataSource: mPartitionsTreeDataSource];
-  [mPartitionTable setDelegate: mPartitionsTreeDataSource];
-  NSTableColumn* column = [mPartitionTable tableColumnWithIdentifier: @"0"];
-  MTextImageCell* imageTextCell2 = [[MTextImageCell new] autorelease];
-  [column setDataCell: imageTextCell2];
-    
-  if (!mBackEnd->is_editing_live_object())
-  {
-    NSUInteger index= [mEditorsTabView indexOfTabViewItemWithIdentifier: @"privileges"];
-    if (index != NSNotFound)
-      [mEditorsTabView removeTabViewItem: [mEditorsTabView tabViewItemAtIndex: index]];
-  
-    [mPrivilegesTab release];
-    mPrivilegesTab= [[DbPrivilegeEditorTab alloc] initWithObjectEditor: mBackEnd];
-  
-    NSTabViewItem* item = [[[NSTabViewItem alloc] initWithIdentifier: @"privileges"] autorelease];
-    [item setView: [mPrivilegesTab view]];
-    [item setLabel: @"Privileges"];
-    [mEditorsTabView addTabViewItem: item];
-    [(MColoredView*)[mPrivilegesTab view] setBackgroundColor: [NSColor whiteColor]];
-  }
-  // Register a callback that will call [self refresh] when the edited object is
-  // changed from somewhere else in the application.
-  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, self));
-  mBackEnd->set_partial_refresh_ui_slot(boost::bind(call_partial_refresh, _1, self));
-  
-  [self updateFKPlaceholder];
-  {
-    id view = mBackEnd->get_trigger_panel()->get_data();
-    [mTriggerTabItem addSubview: view];
-    [mTriggerTabItem setBackgroundColor: [NSColor whiteColor]];
-    [view setFrame: [mTriggerTabItem bounds]];
-    [view setAutoresizesSubviews: YES];
-    [(NSView *)view setAutoresizingMask: NSViewWidthSizable|NSViewHeightSizable|NSMinXEdge|NSMinYEdge|NSMaxXEdge|NSMaxYEdge];
-  }
-
-  // Update the GUI.
-  [self refreshTableEditorGUI];
-
-  //  mBackEnd->load_trigger_sql();
-  mBackEnd->reset_editor_undo_stack();
-
-  [self notifyObjectSwitched];
-}
-
-
-- (void)awakeFromNib;
-{
-  [mTabSwitcher setTabStyle: MEditorBottomTabSwitcher];
-  
-  // collapse header by default
-  [mHeaderExpander setState: NSOffState];
-  [self toggleHeader: NO];
-    
-  // Store the min size specified in the .xib file.
-  NSSize size = [[self view] frame].size;
-  [self setMinimumSize: size];
- 
-  // Assemle all the separate editor views into the tab view.
-  NSTabViewItem* item;
-  
-  item = [[[NSTabViewItem alloc] initWithIdentifier: @"columns"] autorelease];
-  [item setView: mEditorColumns];
-  [item setLabel: @"Columns"];
-  [mEditorsTabView addTabViewItem: item];
-  [mEditorColumns setBackgroundColor: [NSColor whiteColor]];
-  
-  item = [[[NSTabViewItem alloc] initWithIdentifier: @"indices"] autorelease];
-  [item setView: mEditorIndices];
-  [item setLabel: @"Indexes"];
-  [mEditorsTabView addTabViewItem: item];
-  [mEditorIndices setBackgroundColor: [NSColor whiteColor]];
-  
-  item = [[[NSTabViewItem alloc] initWithIdentifier: @"foreignkeys"] autorelease];
-  [item setView: mEditorForeignKeys];
-  [item setLabel: @"Foreign Keys"];
-  [mEditorsTabView addTabViewItem: item];
-  [mEditorForeignKeys setBackgroundColor: [NSColor whiteColor]];
-  
-  item = [[[NSTabViewItem alloc] initWithIdentifier: @"triggers"] autorelease];
-  [item setView: mTriggerTabItem];
-  [item setLabel: @"Triggers"];
-  [mEditorsTabView addTabViewItem: item];
-  
-  item = [[[NSTabViewItem alloc] initWithIdentifier: @"partitioning"] autorelease];
-  [item setView: mEditorPartitioning];
-  [item setLabel: @"Partitioning"];
-  [mEditorsTabView addTabViewItem: item];
-  [mEditorPartitioning setBackgroundColor: [NSColor whiteColor]];
-  
-  item = [[[NSTabViewItem alloc] initWithIdentifier: @"options"] autorelease];
-  NSScrollView* sv = [[[NSScrollView alloc] initWithFrame: [mEditorColumns frame]] autorelease];
-  [sv setDocumentView: mEditorOptions];
-  [sv setHasHorizontalScroller: YES];
-  [sv setHasVerticalScroller: YES];
-  [[sv horizontalScroller] setControlSize: NSSmallControlSize];
-  [[sv verticalScroller] setControlSize: NSSmallControlSize];
-  [sv setAutohidesScrollers: YES];
-  [mEditorOptions scrollRectToVisible: NSMakeRect(0, [mEditorOptions frame].size.height, 1, 1)];
-  [item setView: sv];
-  [item setLabel: @"Options"];
-  [mEditorsTabView addTabViewItem: item];
-  [mEditorOptions setBackgroundColor: [NSColor whiteColor]];
-  
-  [mColumnsTable registerForDraggedTypes: @[@"com.sun.mysql.workbench.column"]];
-    
-  mDidAwakeFromNib = YES;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-- (void) dealloc;
-{
-  [[NSNotificationCenter defaultCenter] removeObserver: self];
-  [NSRunLoop cancelPreviousPerformRequestsWithTarget: self];
-  
-  [mPrivilegesTab release];
-  [mColumnsDataSource release];
-  [mColumnTypes release];
-  [mIndicesDataSource release];
-  [mIndexColumnsDataSource release];
-  [mFKDataSource release];
-  [mPartitionsTreeDataSource release];
-  [mFKColumnsDataSource release];
-  // don't release this because NSViewController will release all possible assiedn values for this
-  //[mUnusedColumnsDetailsBox release];
-  
-  delete mBackEnd;
-  
-  [super dealloc];
-}
-
-//--------------------------------------------------------------------------------------------------
-
 - (bec::BaseEditor*)editorBE
 {
   return mBackEnd;
 }
 
+#pragma mark - static methods
+
+// Callback to update the editor GUI to reflect changes in the backend.
+static void call_refresh(void *theEditor)
+{
+  DbMysqlTableEditor *editor = (__bridge DbMysqlTableEditor *)theEditor;
+
+  // As it turns out, this call-back can be called from non-main threads.
+  [editor performSelectorOnMainThread: @selector(refreshTableEditorGUI)
+                           withObject: nil
+                        waitUntilDone: YES];
+}
+
+static void call_partial_refresh(int what, void* theEditor)
+{
+  DbMysqlTableEditor *editor = (__bridge DbMysqlTableEditor *)theEditor;
+
+  switch (what)
+  {
+    case bec::TableEditorBE::RefreshColumnMoveUp:
+    {
+      NSTableView *columns = editor->mColumnsTable;
+      NSInteger i = [columns selectedRow];
+      [columns reloadData];
+      [columns selectRowIndexes: [NSIndexSet indexSetWithIndex: i-1]
+           byExtendingSelection: NO];
+      break;
+    }
+    case bec::TableEditorBE::RefreshColumnMoveDown:
+    {
+      NSTableView *columns = editor->mColumnsTable;
+      NSInteger i = [columns selectedRow];
+      [columns reloadData];
+      [columns selectRowIndexes: [NSIndexSet indexSetWithIndex: i+1]
+           byExtendingSelection: NO];
+      break;
+    }
+    default:
+      call_refresh(theEditor);
+      break;
+  }
+}
+
 @end
-
-

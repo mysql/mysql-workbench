@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +17,10 @@
  * 02110-1301  USA
  */
 
+#include "sqlide_generics_private.h"
+
 #include "var_grid_model_be.h"
 #include "base/string_utilities.h"
-#include "sqlide_generics_private.h"
 #include <sqlite/execute.hpp>
 #include <sqlite/query.hpp>
 #include <boost/foreach.hpp>
