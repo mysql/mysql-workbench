@@ -30,8 +30,6 @@ namespace wb
 
 - (instancetype)initWithId: (NSString *)oid formBE: (wb::ModelDiagramForm *)be NS_DESIGNATED_INITIALIZER;
 
-@property (readonly, assign) NSView *topView;
-
 @property (readonly, copy) NSString *identifier;
 @property (readonly) bec::UIForm *formBE;
 

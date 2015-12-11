@@ -110,7 +110,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
       case mforms::TabViewMainClosable:
         [mTabView setTabViewType: NSNoTabsNoBorder];
         mTabSwitcher = [[MTabSwitcher alloc] initWithFrame: NSMakeRect(0, 0, 100, 26)];
-        [mTabSwitcher setTabStyle: MMainTabSwitcher];
+        mTabSwitcher.tabStyle = MMainTabSwitcher;
         [mTabSwitcher setTabView: mTabView];
         break;
 
@@ -118,7 +118,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
       case mforms::TabViewDocumentClosable:
         [mTabView setTabViewType: NSNoTabsNoBorder];
         mTabSwitcher = [[MTabSwitcher alloc] initWithFrame: NSMakeRect(0, 0, 100, 26)];
-        [mTabSwitcher setTabStyle: MEditorTabSwitcher];
+        mTabSwitcher.tabStyle = MEditorTabSwitcher;
         [mTabSwitcher setTabView: mTabView];
         break;
 
@@ -130,14 +130,14 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
       case mforms::TabViewSelectorSecondary:
         [mTabView setTabViewType: NSNoTabsNoBorder];
         mTabSwitcher = [[MTabSwitcher alloc] initWithFrame: NSMakeRect(0, 0, 100, 26)];
-        [mTabSwitcher setTabStyle: MPaletteTabSwitcherSmallText];
+        mTabSwitcher.tabStyle = MPaletteTabSwitcherSmallText;
         [mTabSwitcher setTabView: mTabView];
         break;
 
       case mforms::TabViewEditorBottom:
         [mTabView setTabViewType: NSNoTabsNoBorder];
         mTabSwitcher = [[MTabSwitcher alloc] initWithFrame: NSMakeRect(0, 0, 100, 26)];
-        [mTabSwitcher setTabStyle: MEditorBottomTabSwitcher];
+        mTabSwitcher.tabStyle = MEditorBottomTabSwitcher;
         tabSwitcherBelow = YES;
         [mTabSwitcher setTabView: mTabView];
         break;
@@ -145,7 +145,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
       case mforms::TabViewEditorBottomPinnable:
         [mTabView setTabViewType: NSNoTabsNoBorder];
         mTabSwitcher = [[MTabSwitcher alloc] initWithFrame: NSMakeRect(0, 0, 100, 26)];
-        [mTabSwitcher setTabStyle: MEditorBottomTabSwitcherPinnable];
+        mTabSwitcher.tabStyle = MEditorBottomTabSwitcherPinnable;
         tabSwitcherBelow = YES;
         [mTabSwitcher setTabView: mTabView];
         break;
@@ -442,11 +442,9 @@ static void tabview_set_allow_reordering(::mforms::TabView *self, bool flag)
   if (self->get_type() != mforms::TabViewEditorBottom && self->get_type() != mforms::TabViewEditorBottomPinnable && self->get_type() == mforms::TabViewDocumentClosable)
     throw std::invalid_argument("TabView is not of a reorderable type\n");
 
-  MFTabViewImpl* tabView = self->get_data();
-  if (tabView)
-  {
-    [tabView->mTabSwitcher setAllowTabReordering: flag];
-  }
+  MFTabViewImpl *tabView = self->get_data();
+  if (tabView != nil)
+    tabView->mTabSwitcher.allowTabReordering = flag;
 }
 
 

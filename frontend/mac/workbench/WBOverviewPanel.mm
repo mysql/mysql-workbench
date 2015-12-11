@@ -122,7 +122,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
 - (void)setupWithOverviewBE:(wb::OverviewBE*)overview
 {
-  _overview= overview;
+  _overview = overview;
   _overview->set_frontend_data(self);
   
   _identifier= [@(_overview->identifier().c_str()) retain];

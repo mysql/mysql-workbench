@@ -185,7 +185,7 @@
 {  
   if (mSelectedIndexes != indexes)
   {    
-    [mSelectedIndexes autorelease];
+    [mSelectedIndexes release];
     if ([indexes isKindOfClass: [NSMutableIndexSet class]])
       mSelectedIndexes= (NSMutableIndexSet*)[indexes retain];
     else
@@ -219,7 +219,7 @@
 {
   if (mSelectedIndexes)
   {
-    [mSelectedIndexes autorelease];
+    [mSelectedIndexes release];
     mSelectedIndexes = nil;
     
     mOverview->begin_selection_marking(); // This call clears the selection in the backend.
