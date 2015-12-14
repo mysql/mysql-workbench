@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -94,7 +94,6 @@
 {
   
   delete _printer;
-  [super dealloc];
 }
 
 
@@ -119,7 +118,7 @@
   CGContextTranslateCTM(cgContext, 0.0, _paperSize.height);
   CGContextScaleCTM(cgContext, 1.0, -1.0);
   
-  cairo_surface_t *surface= 
+  cairo_surface_t *surface =
       cairo_quartz_surface_create_for_cg_context(cgContext,
                                                  _paperSize.width,
                                                  _paperSize.height);
@@ -137,7 +136,12 @@
 
 @end
 
+@interface PrintDialog()
+{
+  bec::GRTManager * _grtm;
+}
 
+@end
 
 @implementation PrintDialog
 
@@ -146,11 +150,12 @@
                      arguments: (const grt::BaseListRef &)args
 {
   self = [super initWithModule: module grtManager: grtm arguments: args];
-  if (self)
+  if (self != nil)
   {
+    _grtm = grtm;
     model_DiagramRef diagram(model_DiagramRef::cast_from(args[0]));
     
-    NSRect rect= NSMakeRect(0, 0, diagram->width(), diagram->height());
+    NSRect rect = NSMakeRect(0, 0, diagram->width(), diagram->height());
         
     int xpages, ypages;
     
@@ -175,27 +180,17 @@
   return self;
 }
 
-
 - (void) dealloc
 {
-  _grtm->get_plugin_manager()->forget_gui_plugin_handle(self);
+  _grtm->get_plugin_manager()->forget_gui_plugin_handle((__bridge void *)self);
 
-  [printInfo release];
-  [printView release];
-  [super dealloc];
 }
 
-
-
-- (void)show
+- (void)showModal
 {
   NSPrintOperation *op = [NSPrintOperation printOperationWithView: printView];
-  
   [op setPrintInfo: printInfo];
-
   [op runOperation];
-  
-  [self autorelease];
 }
 
 @end
