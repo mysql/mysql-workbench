@@ -41,7 +41,6 @@ namespace mdc {
   class CanvasView;
 }
 
-class GUIPluginBase;
 class GRTShellWindow;
 class OutputView;
 class PluginInstallWindow;

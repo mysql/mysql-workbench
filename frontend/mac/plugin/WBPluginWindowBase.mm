@@ -19,7 +19,6 @@
 
 #import "WBPluginWindowBase.h"
 
-
 @implementation WBPluginWindowBase
 
 - (instancetype)initWithModule: (grt::Module*)module
@@ -27,28 +26,13 @@
                      arguments: (const grt::BaseListRef &)args
 {
   self = [super init];
-  if (self)
+  if (self != nil)
   {
-    _module= module;
-    _grtm= grtm;
   }
   return self;
 }
 
-
-- (bec::GRTManager*)grtManager
-{
-  return _grtm;
-}
-
-- (void)dealloc
-{
-  // should be removed once it's made sure that whatever adds an observer, removes it
-  [[NSNotificationCenter defaultCenter] removeObserver: self];
-}
-
-
-- (void)show
+- (void)showModal
 {
 }
 

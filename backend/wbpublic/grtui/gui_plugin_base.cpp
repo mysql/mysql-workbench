@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,5 +32,7 @@ GUIPluginBase::GUIPluginBase(grt::GRT *grt)
 
 GUIPluginBase::~GUIPluginBase()
 {
-  grtm()->get_plugin_manager()->forget_gui_plugin_handle(reinterpret_cast<NativeHandle>(this));
+  // XXX: GUIPluginBase descentants don't register a gui plugin.
+  // Only very specific platform plugins do register them and use their own register/forget handling.
+  //grtm()->get_plugin_manager()->forget_gui_plugin_handle(reinterpret_cast<NativeHandle>(this));
 }

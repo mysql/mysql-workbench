@@ -34,7 +34,7 @@
   #include <glib.h>
 #endif
 
-#ifndef HAVE_PREDEFINED_HEADERS
+#ifndef HAVE_PRECOMPILED_HEADERS
   #include <string>
   #include <list>
   #include <vector>
