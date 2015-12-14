@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _PLUGIN_MANAGER_H_
-#define _PLUGIN_MANAGER_H_
+
+#pragma once
 
 #include <grtpp.h>
 #include <grtpp_module_cpp.h>
@@ -26,11 +26,11 @@
 #include "grts/structs.app.h"
 #include "wbpublic_public_interface.h"
 
-
-#ifdef __GNUC__ 
-typedef void* NativeHandle;
+#ifdef _WIN32
+  typedef uintptr_t NativeHandle;
 #else
-typedef uintptr_t NativeHandle;
+// Don't make this "id" on OSX or we risk a strong reference cycle.
+  typedef void* NativeHandle;
 #endif
 
 // GUI plugins with native code that are loaded and managed by the Workbench process
@@ -191,8 +191,3 @@ namespace bec {
   typedef ::bec::PluginManagerImpl PluginManager;
   
 };
-
-
-
-
-#endif /* _PLUGIN_MANAGER_H_ */

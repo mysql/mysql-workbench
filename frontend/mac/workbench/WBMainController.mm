@@ -175,12 +175,6 @@ static NativeHandle windowOpenPlugin(bec::GRTManager *grtm,
                       nil, nil, nil, shlib.c_str());
       return 0;
     }
-    /* debug msg
-    if (![pluginBundle isLoaded])
-      NSLog(@"plugin bundle is not yet loaded");
-    else
-      NSLog(@"plugin bundle is supposed to be already loaded");
-        */
     Class pclass= [pluginBundle classNamed:@(class_name.c_str())];
     if (!pclass)
     {
@@ -258,10 +252,11 @@ static NativeHandle windowOpenPlugin(bec::GRTManager *grtm,
         return panel;
       }
     }
-    else if ([plugin isKindOfClass: [WBPluginWindowBase class]])
+    else if ([plugin isKindOfClass: WBPluginWindowBase.class])
     {
-      [plugin show];
-      return plugin;
+      [plugin showModal];
+      [plugin release];
+      return nil;
     }
     else
     {
