@@ -579,31 +579,26 @@ class CheckForUpdateThread(threading.Thread):
         
         self.is_running = True
         try:
-            import xml.dom.minidom
             import urllib2
-            
-            self.dom = xml.dom.minidom.parse(urllib2.urlopen('http://wb.mysql.com/installer/products.xml'))
+            import json
+            self.json = json.load(urllib2.urlopen("http://workbench.mysql.com/current-release")) 
         except Exception, error:
-            self.dom = None
+
+            self.json = None
             self.error = "%s\n\nPlease verify your internet connection is available." % str(error)        
     
     def checkForUpdatesCallback(self):
         if self.isAlive():
             return True  # Don't do anything until the dom is built
         
-        if not self.dom:
+        if not self.json:
             if hasattr(self, 'error'):
                 mforms.Utilities.show_error("Check for updates failed", str(self.error), "OK", "", "")
         else:
             try:
                 current_version = (grt.root.wb.info.version.majorNumber, grt.root.wb.info.version.minorNumber, grt.root.wb.info.version.releaseNumber)
-                edition = '' if grt.root.wb.info.license == 'GPL' else '-commercial'
-                filename=u'mysql-workbench' + (edition or '-community')
-                packages = ( package for package in self.dom.getElementsByTagName('Package') if package.parentNode.parentNode.attributes['name'].nodeValue == u'workbench-win32' + edition)
-                version_strings = (node.attributes['thisVersion'].nodeValue for node in packages if node.attributes['filename'].nodeValue.startswith(filename) and node.attributes['filename'].nodeValue.endswith(u'msi'))
-                versions = tuple( tuple( int(num) for num in version_string.split('.') ) for version_string in version_strings )
-                version_list = [v for v in versions]
-                newest_version = max( version_list ) if version_list else current_version
+                newest_version = tuple(int(i) for i in self.json['fullversion'].split("."))
+
                 if newest_version > current_version:
                     if mforms.Utilities.show_message('New Version Available', 'The new MySQL Workbench %s has been released.\nYou can download the latest version from\nhttp://www.mysql.com/downloads/workbench.' % '.'.join( [str(num) for num in newest_version] ),
                                                   'Get it Now', 'Maybe Later', "") == mforms.ResultOk:
