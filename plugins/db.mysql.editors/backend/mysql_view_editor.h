@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,11 +28,7 @@ class MYSQLWBMYSQLSUPPORTBACKEND_PUBLIC_FUNC MySQLViewEditorBE : public bec::Vie
 public:
   MySQLViewEditorBE(bec::GRTManager *grtm, const db_mysql_ViewRef &view);
 
-  virtual db_ViewRef get_view() { return _view; };
-
   void load_view_sql();
   virtual void commit_changes();
   virtual bool can_close();
-private:
-  db_mysql_ViewRef _view;
 };

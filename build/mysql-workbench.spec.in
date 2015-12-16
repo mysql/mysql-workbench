@@ -8,7 +8,7 @@
 # Here's a usage example:
 # rpmbuild -ba mysql-workbench.spec --target=`arch` \
 #                                   --define='edition community' \
-#                                   --define='version 6.3.5' \
+#                                   --define='version 6.3.6' \
 #                                   --define='release 1' 
 ####################################################################
 %bcond_with paramiko
@@ -201,13 +201,19 @@ Windows, Linux and Mac OS X.
 
 
 %build
+%if 0%{?fedora} > 22
+CXXFLAGS="-std=c++11 $CXXFLAGS" \
+%undefine _hardened_build #need to undefine because of some memory problems
+%endif
 %cmake -DCMAKE_BUILD_TYPE=Release \
        -DREAL_EXECUTABLE_DIR=%{_libexecdir}/mysql-workbench \
-       -DMYSQL_CONFIG_PATH=%{mysql_home}/bin/mysql_config \
+       -DMySQL_CONFIG_PATH=%{mysql_home}/bin/mysql_config \
        -DMYSQLCPPCONN_LIBRARY="-L%{mysqlcppconn_dir}/lib -lmysqlcppconn" \
        -DMYSQLCPPCONN_INCLUDE_DIR=%{mysqlcppconn_dir}/include \
        -DIODBC_CONFIG_PATH=%{odbc_home}/bin/iodbc-config \
        -DGDAL_INCLUDE_DIR=%{gdal_dir}/include -DGDAL_LIBRARY=%{gdal_dir}/lib/libgdal.so \
+       -DCTemplate_INCLUDE_DIR=%{ctemplate_dir}/include \
+  	   -DCTemplate_LIBRARIES="-L%{ctemplate_dir}/lib -lctemplate" \
 %if 0%{?rhel} == 6
        -DVSQLITE_INCLUDE_DIR=%{vsqlite_dir}/include \
        -DVSQLITE_LIBRARIES="-L%{vsqlite_dir}/lib -lvsqlitepp" \
@@ -248,10 +254,10 @@ fi
 %if 0%{?fedora} 
   cp -a /usr/lib64/libctemplate.so* %{buildroot}%{_libdir}/mysql-workbench
 %else
-%if 0%{?rhel} < 7
+%if 0%{?rhel} <= 7
     cp -a %{ctemplate_dir}/lib/libctemplate.so* %{buildroot}%{_libdir}/mysql-workbench
 %endif
-%if 0%{?rhel} >= 7
+%if 0%{?rhel} > 7
     cp -a /usr/lib64/libctemplate.so* %{buildroot}%{_libdir}/mysql-workbench
 %endif
 %endif

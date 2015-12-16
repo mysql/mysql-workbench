@@ -158,6 +158,8 @@ namespace wb
     void* _user_data;
 
     void update_colors();
+
+    std::vector<db_mgmt_ConnectionRef> _oldAuthList;
   public:
     HomeScreen(CommandUI *cmdui, db_mgmt_ManagementRef rdbms);
     ~HomeScreen();
@@ -177,6 +179,8 @@ namespace wb
     void clear_connections(bool clear_state = true);
     void add_connection(db_mgmt_ConnectionRef connection, const std::string &title,
       const std::string &description, const std::string &user, const std::string &schema);
+
+    void oldAuthConnections(const std::vector<db_mgmt_ConnectionRef> &list);
 
     void clear_documents();
     void add_document(const grt::StringRef &path, const time_t &time, const std::string schemas,

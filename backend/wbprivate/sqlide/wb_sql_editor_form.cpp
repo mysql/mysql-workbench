@@ -218,8 +218,32 @@ void SqlEditorForm::report_connection_failure(const std::string &error, const db
   mforms::Utilities::show_error(_("Cannot Connect to Database Server"), message, _("Close"));
 }
 
-//--------------------------------------------------------------------------------------------------
+void SqlEditorForm::report_connection_failure(const grt::server_denied &info, const db_mgmt_ConnectionRef &target)
+{
+  std::string message;
 
+  log_error("Server is alive, but has login restrictions: %d, %s\n", info.errNo, info.what());
+
+  mforms::App::get()->set_status_text(_("Connection restricted"));
+
+  message = "Your connection attempt failed for user '";
+  message += target->parameterValues().get_string("userName");
+  message += "' from your host to server at ";//%server%:%port%\n";
+  message += target->parameterValues().get_string("hostName", "localhost");
+  message += ":";
+  message += target->parameterValues().get("port").repr() + "\n";
+  if (info.errNo == 3159)
+    message += "Only connections with enabled SSL support are accepted.\n";
+  else if (info.errNo == 3032)
+    message += "The server is in super-user mode and does not accept any other connection.\n";
+
+  message += "\nThe server response was:\n";
+  message += info.what();
+
+  mforms::Utilities::show_error(_("Cannot Connect to Database Server"), message, _("Close"));
+}
+
+//--------------------------------------------------------------------------------------------------
 SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
   :
   _wbsql(wbsql),
@@ -280,8 +304,11 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
 
 SqlEditorForm::~SqlEditorForm()
 {
-  if (_refreshPending.connected())
-    _refreshPending.disconnect();
+  if (_editorRefreshPending.connected())
+    _editorRefreshPending.disconnect();
+
+  if (_overviewRefreshPending.connected())
+    _overviewRefreshPending.disconnect();
 
   // We need to remove it from cache, if not someone will be able to login without providing PW
   if (_connection.is_valid())
@@ -1091,11 +1118,13 @@ struct ConnectionErrorInfo
   sql::AuthenticationError *auth_error;
   bool password_expired;
   bool server_probably_down;
+  grt::server_denied *serverException;
 
-  ConnectionErrorInfo() : auth_error(0), password_expired(false), server_probably_down(false) {}
+  ConnectionErrorInfo() : auth_error(NULL), password_expired(false), server_probably_down(false), serverException(NULL) {}
   ~ConnectionErrorInfo()
   {
     delete auth_error;
+    delete serverException;
   }
 };
 
@@ -1165,8 +1194,11 @@ bool SqlEditorForm::connect(boost::shared_ptr<sql::TunnelConnection> tunnel)
         return false;
       }
     }
-    catch (grt::grt_runtime_error)
+    catch (grt::grt_runtime_error &err)
     {
+      if (error_ptr.serverException != NULL)
+        throw grt::server_denied(*error_ptr.serverException);
+
       if (error_ptr.password_expired)
         throw std::runtime_error(":PASSWORD_EXPIRED");
 
@@ -1345,9 +1377,9 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
     }
     CATCH_ANY_EXCEPTION_AND_DISPATCH(_("Get connection information"));
   }
-  catch (sql::AuthenticationError &exc)
+  catch (sql::AuthenticationError &authException)
   {
-    err_ptr->auth_error = new sql::AuthenticationError(exc);
+    err_ptr->auth_error = new sql::AuthenticationError(authException);
     throw;
   }
   catch (sql::SQLException &exc)
@@ -1391,6 +1423,12 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
 
       return grt::StringRef();
     }
+    else if (exc.getErrorCode() == 3159 || exc.getErrorCode() == 3032) //require SSL, offline mode
+    {
+      err_ptr->serverException = new grt::server_denied(exc.what(), exc.getErrorCode()); // we need to change exception type so we can properly handle it in
+    }
+                                                                // wb_context_sqlide::connect_editor
+
     _connection_info.append("</body></html>");
     throw;
   }
@@ -1972,6 +2010,11 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
               is_result_set_first= dbc_statement->execute(statement);
             }
             updated_rows_count= dbc_statement->getUpdateCount();
+
+            // XXX: coalesce all the special queries here and act on them *after* all queries have run.
+            // Especially the drop command is redirected twice to idle tasks, kicking so in totally asynchronously
+            // and killing any intermittent USE commands.
+            // Updating the UI during a run of many commands is not useful either.
             if (Sql_syntax_check::sql_use == statement_type)
               cache_active_schema_name();
             if (Sql_syntax_check::sql_set == statement_type && statement.find("@sql_mode") != std::string::npos)
@@ -2659,17 +2702,17 @@ void SqlEditorForm::apply_object_alter_script(const std::string &alter_script, b
       
       //_live_tree->refresh_live_object_in_overview(db_object_type, schema_name, db_object->oldName(), db_object->name());
       // Run refresh on main thread, but only if there's not another refresh pending already.
-      if (!_refreshPending.connected())
+      if (!_overviewRefreshPending.connected())
       {
-        _refreshPending = _grtm->run_once_when_idle(this, boost::bind(&SqlEditorTreeController::refresh_live_object_in_overview,
+        _overviewRefreshPending = _grtm->run_once_when_idle(this, boost::bind(&SqlEditorTreeController::refresh_live_object_in_overview,
           _live_tree, db_object_type, schema_name, db_object->oldName(), db_object->name()));
       }
     }
     
     //_live_tree->refresh_live_object_in_editor(obj_editor, false);
-    if (!_refreshPending.connected())
+    if (!_editorRefreshPending.connected())
     {
-      _refreshPending = _grtm->run_once_when_idle(this, boost::bind(&SqlEditorTreeController::refresh_live_object_in_editor,
+      _editorRefreshPending = _grtm->run_once_when_idle(this, boost::bind(&SqlEditorTreeController::refresh_live_object_in_editor,
         _live_tree, obj_editor, false));
     }
   }

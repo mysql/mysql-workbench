@@ -79,6 +79,13 @@ add_executable(mysql-workbench-bin
     ../../common/grt_plugin_wizard.cpp
 )
 
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  set_target_properties(mysql-workbench-bin PROPERTIES COMPILE_FLAGS "-fPIE")
+else()
+  set_target_properties(mysql-workbench-bin PROPERTIES COMPILE_FLAGS "-fPIE -pie")
+endif()
+
 if (KEYRING_DEFINITION)
 	set_target_properties(mysql-workbench-bin PROPERTIES
 		COMPILE_DEFINITIONS "${KEYRING_DEFINITION}"
@@ -99,7 +106,7 @@ target_link_libraries(mysql-workbench-bin
     mdcanvas
     mysqlparser
     ${MYSQLCPPCONN_LIBRARIES}
-    ${CTEMPLATE_LIBRARIES}
+    ${CTemplate_LIBRARIES}
     ${X11_LIBRARIES}
     ${GTK2_LIBRARIES}
     ${SIGC++_LIBRARIES}
@@ -107,7 +114,7 @@ target_link_libraries(mysql-workbench-bin
     ${PCRE_LIBRARIES}
     ${CAIRO_LIBRARIES}
     ${LIBZIP_LIBRARIES}
-    ${MYSQL_LIBRARIES}
+    ${MySQL_LIBRARIES}
     ${SQLITE3_LIBRARIES}
     ${GNOME_KEYRING_LIBRARIES}
 )

@@ -151,11 +151,18 @@
                   <argument name="column" type="int"/>
                   <return type="string" attr:desc="value stored in cell (can be null)"/>
               </method>
+              <method name="geoStringFieldValue" attr:desc="returns the contents of the field at the given column index and current geometry row as a string. If the column type is not geometry or it's empty, it will return empty string">
+                  <argument name="column" type="int"/>
+                  <return type="string" attr:desc="value stored in cell (can be null)"/>
+              </method>
+              <method name="geoJsonFieldValue" attr:desc="returns the contents of the field at the given column index and current geometry row as a geoJson string. If the column type is not geometry or it's empty, it will return empty string">
+                  <argument name="column" type="int"/>
+                  <return type="string" attr:desc="value stored in cell (can be null)"/>
+              </method>
               <method name="floatFieldValue" attr:desc="returns the float contents of the field at the given column index and current row">
                   <argument name="column" type="int"/>
                   <return type="double" attr:desc="value stored in cell (can be null)"/>
               </method>
-
               <method name="intFieldValueByName" attr:desc="returns the integer contents of the field at the given column name and current row">
                   <argument name="column" type="string"/>
                   <return type="int" attr:desc="value stored in cell (can be null)"/>
@@ -164,11 +171,18 @@
                   <argument name="column" type="string"/>
                   <return type="string" attr:desc="value stored in cell (can be null)"/>
               </method>
+              <method name="geoStringFieldValueByName" attr:desc="returns the contents of the field at the given column name and current geometry row as a string. If the column type is not geometry or it's empty, it will return empty string">
+                  <argument name="column" type="string"/>
+                  <return type="string" attr:desc="value stored in cell (can be null)"/>
+              </method>
+              <method name="geoJsonFieldValueByName" attr:desc="returns the contents of the field at the given column name and current geometry row as a geoJson string. If the column type is not geometry or it's empty, it will return empty string">
+                  <argument name="column" type="string"/>
+                  <return type="string" attr:desc="value stored in cell (can be null)"/>
+              </method>
               <method name="floatFieldValueByName" attr:desc="returns the float contents of the field at the given column name and current row">
                   <argument name="column" type="string"/>
                   <return type="double" attr:desc="value stored in cell (can be null)"/>
               </method>
-
               <method name="refresh" attr:desc="refreshes the resultset, re-executing the originator query">
                   <return type="int"/>
               </method>

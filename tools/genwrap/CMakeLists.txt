@@ -11,5 +11,10 @@ add_executable(genwrap
     genwrap.cpp
 )
 
-target_link_libraries(genwrap grt wbbase wbpublic ${PCRE_LIBRARIES} ${MYSQL_LIBRARIES} ${CTEMPLATE_LIBRARIES})
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  set_target_properties(genwrap PROPERTIES COMPILE_FLAGS "-fPIE")
+else()
+  set_target_properties(genwrap PROPERTIES COMPILE_FLAGS "-fPIE -pie")
+endif()
 
+target_link_libraries(genwrap grt wbbase wbpublic ${X11_LIBRARIES} ${PCRE_LIBRARIES} ${MySQL_LIBRARIES} ${CTemplate_LIBRARIES})

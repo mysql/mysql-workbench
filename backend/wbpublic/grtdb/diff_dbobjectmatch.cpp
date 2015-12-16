@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -235,8 +235,9 @@ bool grt::DbObjectMatchAlterOmf::equal(const ValueRef& l, const ValueRef& r) con
   return std::equal_to<grt::ValueRef>()(l, r);
 }
 
+//--------------------------------------------------------------------------------------------------
 
-bool sqlBody_compare(const ValueRef obj1, const ValueRef obj2, const std::string& name, grt::GRT* grt)
+bool sqlCompare(const ValueRef obj1, const ValueRef obj2, const std::string& name, grt::GRT* grt)
 {
   // views are compared by sqlDefinition
   if (!db_ViewRef::can_wrap(obj1))
@@ -265,6 +266,8 @@ bool sqlBody_compare(const ValueRef obj1, const ValueRef obj2, const std::string
   else
     return true; // consider it as always matching
 }
+
+//--------------------------------------------------------------------------------------------------
 
 bool caseless_compare(const ValueRef obj1, const ValueRef obj2, const std::string& name, const std::string& default_name)
 {
@@ -465,10 +468,14 @@ bool sql_definition_compare(const ValueRef obj1, const ValueRef obj2, const std:
     db_DatabaseDdlObjectRef dbobj1 = db_DatabaseDdlObjectRef::cast_from(obj1);
     db_DatabaseDdlObjectRef dbobj2 = db_DatabaseDdlObjectRef::cast_from(obj2);
     size_t alg1 = dbobj1.has_member("algorithm") ? dbobj1.get_integer_member("algorithm"):0;
-    size_t alg2 = dbobj2.has_member("algorithm") ? dbobj2.get_integer_member("algorithm"):0;
-    return sqlBody_compare(obj1, obj2, "sqlBody", grt) && (alg1 == alg2) && (caseless_compare (obj1 , obj2, "definer","ROOT`@`LOCALHOST"));
+    size_t alg2 = dbobj2.has_member("algorithm") ? dbobj2.get_integer_member("algorithm") : 0;
+    return sqlCompare(obj1, obj2, "sqlDefinition", grt)
+      && (alg1 == alg2)
+      && (caseless_compare(obj1 , obj2, "definer","ROOT`@`LOCALHOST"));
   }
 }
+
+//--------------------------------------------------------------------------------------------------
 
 bool ignore_index_col_name(const ValueRef obj1, const ValueRef obj2, const std::string& name)
 {
@@ -847,11 +854,9 @@ void grt::NormalizedComparer::load_rules()
   rules["sqlDefinition"].push_back(boost::bind(&sql_definition_compare, _1 ,_2, _3, _4));
   rules["precision"].push_back(boost::bind(&default_int_compare, _1 ,_2, _3));
   rules["length"].push_back(boost::bind(&default_int_compare, _1 ,_2, _3));
-  //    rules["sqlDefinition"].push_back(boost::bind(boost::function<bool ()> (boost::lambda::constant(true))));
   rules["definer"].push_back(boost::bind(&caseless_compare, _1 ,_2, _3,"ROOT`@`LOCALHOST"));
   rules["defaultValue"].push_back(boost::bind(&default_value_compare, _1 ,_2, _3));
   rules["autoIncrement"].push_back(boost::bind(&autoincrement_compare, _1 ,_2, _3));
-  rules["sqlBody"].push_back(boost::bind(&sqlBody_compare, _1 ,_2, _3, _4));
   rules["returnDatatype"].push_back(boost::bind(&returnDatatype_compare, _1 ,_2, _3));
   rules["datatypeExplicitParams"].push_back(boost::bind(&datatypeExplicitParams_compare, _1 ,_2, _3));
 

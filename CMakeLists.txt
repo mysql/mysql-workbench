@@ -101,7 +101,7 @@ find_python_module(paramiko 1.15.1 QUIET)
 if(NOT PY_PARAMIKO)
   message(WARNING "Paramiko wasn't found, you can still build Workbench, but may not work properly.")
 endif()
-find_package(MySQL REQUIRED)
+find_package(MySQL 5.6.0 REQUIRED)
 if (UNIX)
 	set(MYSQL_DEFINITIONS "-DBIG_JOINS=1"  "-fno-strict-aliasing")
 endif()
@@ -110,7 +110,8 @@ find_package(LibXml2 REQUIRED)
 
 find_package(OpenGL REQUIRED)
 
-find_package(CTemplate)
+
+find_package(CTemplate 2.2 REQUIRED)
 find_package(MySQLCppConn REQUIRED)
 find_package(VSqlite REQUIRED)
 find_package(TinyXML REQUIRED)
@@ -120,10 +121,9 @@ if (MYSQLCPPCONN_VERSION_1_1_4)
   add_definitions(-DMYSQLCPPCONN_VERSION_1_1_4)
 endif ()
 
-if (MYSQLCPPCONN_VERSION_1_1_6)
-  add_definitions(-DMYSQLCPPCONN_VERSION_1_1_6)
-endif (MYSQLCPPCONN_VERSION_1_1_6)
-
+if (MYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER)
+  add_definitions(-DMYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER)
+endif (MYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER)
 
 if (UNIX)
   option(USE_UNIXODBC "Use unixODBC instead of iODBC" OFF)

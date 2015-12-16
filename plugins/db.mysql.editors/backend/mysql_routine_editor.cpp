@@ -29,8 +29,6 @@ using namespace bec;
 MySQLRoutineEditorBE::MySQLRoutineEditorBE(bec::GRTManager *grtm, const db_mysql_RoutineRef &routine)
   : RoutineEditorBE(grtm, routine)
 {
-  _routine = routine;
-  
   // In modeling we apply the text on focus change. For live editing however we don't.
   // The user has to explicitly commit his changes.
   if (!is_editing_live_object())
@@ -59,13 +57,14 @@ void MySQLRoutineEditorBE::commit_changes()
     const std::string sql = editor->get_text(false);
     if (sql != get_sql())
     {
-      AutoUndoEdit undo(this, _routine, "sql");
+      db_mysql_RoutineRef routine = db_mysql_RoutineRef::cast_from(get_routine());
+      AutoUndoEdit undo(this, routine, "sql");
 
       freeze_refresh_on_object_change();
-      _parser_services->parseRoutine(_parser_context, _routine, sql);
+      _parser_services->parseRoutine(_parser_context, routine, sql);
       thaw_refresh_on_object_change();
 
-      undo.end(base::strfmt(_("Edit routine `%s` of `%s`.`%s`"), _routine->name().c_str(), get_schema_name().c_str(), get_name().c_str()));
+      undo.end(base::strfmt(_("Edit routine `%s` of `%s`.`%s`"), routine->name().c_str(), get_schema_name().c_str(), get_name().c_str()));
     }
   }
 }

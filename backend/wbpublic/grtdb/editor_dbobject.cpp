@@ -121,7 +121,8 @@ void DBObjectEditorBE::apply_changes_to_live_object()
 {
   BaseEditor::apply_changes_to_live_object();
 
-  on_apply_changes_to_live_object(this, false);
+  if (on_apply_changes_to_live_object(this, false))
+    refresh_live_object();
 }
 
 //--------------------------------------------------------------------------------------------------

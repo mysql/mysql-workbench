@@ -22,6 +22,8 @@
 
 @implementation MCollectionViewItemView
 
+@synthesize owner;
+
 /**
  * Make this view accepting events as first responder to allow it to respond to key events.
  */
@@ -65,27 +67,13 @@
 {
   MCollectionViewItemView *copy = (MCollectionViewItemView *)[super copy];
   if (copy)
-    copy->mOwner = mOwner;
+    copy->owner = owner;
   return copy;
 }
 
-
-- (void) setOwner: (NSCollectionViewItem*) owner
-{
-  mOwner= owner;
-  mIsEditing = NO;
-}
-
 //--------------------------------------------------------------------------------------------------
 
-- (NSCollectionViewItem*) owner
-{
-  return mOwner;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-- (NSView*) hitTest: (NSPoint) aPoint 
+- (NSView*)hitTest: (NSPoint) aPoint
 {
   if (NSPointInRect(aPoint, [self convertRect: [self bounds] toView: [self superview]])) 
     return self;
@@ -97,7 +85,7 @@
 /**
  * Removes any requests for starting delayed inline editing if there are any.
  */
-- (void) cancelPendingInlineEdit
+- (void)cancelPendingInlineEdit
 {
   [NSObject cancelPreviousPerformRequestsWithTarget: self selector: @selector(beginInlineEditing) object: nil];
 }
@@ -107,7 +95,7 @@
 /**
  * Returns the currently active collection view or nil if no one is active (is first responder).
  */
-- (NSCollectionView*) activeCollectionView
+- (NSCollectionView*)activeCollectionView
 {
   NSResponder* currentFirstResponder = [[self window] firstResponder];
   if ([currentFirstResponder isKindOfClass: [NSCollectionView class]])
@@ -124,7 +112,7 @@
 
 //--------------------------------------------------------------------------------------------------
 
-- (void) mouseDown: (NSEvent*) theEvent 
+- (void)mouseDown: (NSEvent*) theEvent
 {
   mMouseDownLocation= [self convertPoint: [theEvent locationInWindow] fromView: nil];
   
@@ -140,7 +128,7 @@
   BOOL shift = (modifiers & NSShiftKeyMask) != 0;
   BOOL command = (modifiers & NSCommandKeyMask) != 0;
   
-  if (!control && !shift && !command)
+  if (!owner.collectionView.allowsMultipleSelection || (!control && !shift && !command))
   {
     if ([[self delegate] respondsToSelector: @selector(clearSelection)]) 
       [[self delegate] clearSelection];

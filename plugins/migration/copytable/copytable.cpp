@@ -678,18 +678,21 @@ void ODBCCopyDataSource::ucs2_to_utf8(char *inbuf, size_t inbuf_len, char *&utf8
 
 SQLRETURN ODBCCopyDataSource::get_wchar_buffer_data(RowBuffer &rowbuffer, int column)
 {
-  unsigned long *out_length;
-  SQLRETURN ret;
-  SQLLEN len_or_indicator;
-  char* out_buffer;
-  size_t out_buffer_len;
-  SQLWCHAR tmpbuf[64*1024];
+  unsigned long *out_length = NULL;
+  SQLLEN len_or_indicator = 0;
+  char* out_buffer = NULL;
+  size_t out_buffer_len = 0;
+  wchar_t tmpbuf[64 * 1024] = { 0 };
 
-  ret = SQLGetData(_stmt, column, _column_types[column-1], tmpbuf, sizeof(tmpbuf), &len_or_indicator);
+  if(typeid(wchar_t*) != typeid(SQLWCHAR*))
+    log_warning("Forcing wchar_t but SQLWCHAR is of different type which shouldn't happen. Potential problems during migration may occur.\n");
+
+  SQLRETURN ret = SQLGetData(_stmt, column, _column_types[column - 1], tmpbuf, sizeof(tmpbuf), &len_or_indicator);
   // check if the data fits
   //if (len_or_indicator > out_buffer_len)
   //  ;
   rowbuffer.prepare_add_string(out_buffer, out_buffer_len, out_length);
+  memset(out_buffer, 0, out_buffer_len);
   if (SQL_SUCCEEDED(ret))
   {
     if (len_or_indicator == SQL_NO_TOTAL)
@@ -697,25 +700,12 @@ SQLRETURN ODBCCopyDataSource::get_wchar_buffer_data(RowBuffer &rowbuffer, int co
 
     if (len_or_indicator != SQL_NULL_DATA)
     {
-      char *inbuf = (char*)tmpbuf;
-      size_t inbuf_len = len_or_indicator;
       size_t outbuf_len = out_buffer_len;
-
-      if (sizeof(SQLWCHAR) > sizeof(unsigned short))
-      {
-        SQLWCHAR *in = (SQLWCHAR*)inbuf;
-        unsigned short *out = (unsigned short*)inbuf;
-        for (size_t i = 0; i < inbuf_len/sizeof(SQLWCHAR); i++)
-          out[i] = in[i];
-        inbuf_len = (inbuf_len/sizeof(SQLWCHAR)) * sizeof(unsigned short);
-      }
-      else if (sizeof(SQLWCHAR) < sizeof(unsigned short))
-        throw std::logic_error("Unexpected architecture. sizeof(SQLWCHAR) < sizeof(unsigned short)!");
 
       //log_debug3("Convert string with %i chars to buffer size %i\n", inbuf_len, outbuf_len);
 
       // convert data from UCS-2 to utf-8
-      std::string s_outbuf = base::wstring_to_string((wchar_t*)tmpbuf);
+      std::string s_outbuf = base::wstring_to_string(tmpbuf);
       //log_debug3("get_wchar_buffer_data wstring_to_string i<%S> o<%s>\n", (wchar_t*)tmpbuf, s_outbuf.c_str());
 
       outbuf_len = s_outbuf.size();
@@ -725,13 +715,9 @@ SQLRETURN ODBCCopyDataSource::get_wchar_buffer_data(RowBuffer &rowbuffer, int co
       if (s_outbuf.empty())
         throw std::logic_error(base::strfmt("Error during charset conversion of wstring: %s", strerror(errno)));
 
-	  std::strcpy(out_buffer, s_outbuf.c_str());
+      std::strcpy(out_buffer, s_outbuf.c_str());
 
-      if (inbuf_len > 0)
-        log_warning("%li characters could not be converted to UTF-8 from column %s during copy\n",
-                    (long)inbuf_len, (*_columns)[column-1].source_name.c_str());
-
-      *out_length = (unsigned long)(out_buffer_len - outbuf_len);
+      *out_length = outbuf_len;
     }
     rowbuffer.finish_field(len_or_indicator == SQL_NULL_DATA);
   }
@@ -794,15 +780,19 @@ SQLRETURN ODBCCopyDataSource::get_char_buffer_data(RowBuffer &rowbuffer, int col
 
 SQLRETURN ODBCCopyDataSource::get_geometry_buffer_data(RowBuffer &rowbuffer, int column)
 {
-  unsigned long *out_length;
-  SQLRETURN ret;
-  SQLLEN len_or_indicator;
-  char* out_buffer;
-  size_t out_buffer_len;
-  SQLWCHAR tmpbuf[64*1024];
-  ret = SQLGetData(_stmt, column, SQL_C_WCHAR, tmpbuf, sizeof(tmpbuf), &len_or_indicator);
+  unsigned long *out_length = NULL;
+  SQLLEN len_or_indicator = 0;
+  char* out_buffer = NULL;
+  size_t out_buffer_len = 0;
+  wchar_t tmpbuf[64 * 1024] = { 0 };
+
+  if(typeid(wchar_t*) != typeid(SQLWCHAR*))
+    log_warning("Forcing wchar_t but SQLWCHAR is of different type which shouldn't happen. Potential problems during migration may occur.\n");
+
+  SQLRETURN ret = SQLGetData(_stmt, column, SQL_C_WCHAR, tmpbuf, sizeof(tmpbuf), &len_or_indicator);
 
   rowbuffer.prepare_add_geometry(out_buffer, out_buffer_len, out_length);
+  memset(out_buffer, 0, out_buffer_len);
   if (SQL_SUCCEEDED(ret))
   {
     if (len_or_indicator == SQL_NO_TOTAL)
@@ -810,23 +800,10 @@ SQLRETURN ODBCCopyDataSource::get_geometry_buffer_data(RowBuffer &rowbuffer, int
 
     if (len_or_indicator != SQL_NULL_DATA)
     {
-      char *inbuf = (char*)tmpbuf;
-      size_t inbuf_len = len_or_indicator;
       size_t outbuf_len = out_buffer_len;
 
-      if (sizeof(SQLWCHAR) > sizeof(unsigned short))
-      {
-        SQLWCHAR *in = (SQLWCHAR*)inbuf;
-        unsigned short *out = (unsigned short*)inbuf;
-        for (size_t i = 0; i < inbuf_len/sizeof(SQLWCHAR); i++)
-          out[i] = in[i];
-        inbuf_len = (inbuf_len/sizeof(SQLWCHAR)) * sizeof(unsigned short);
-      }
-      else if (sizeof(SQLWCHAR) < sizeof(unsigned short))
-        throw std::logic_error("Unexpected architecture. sizeof(SQLWCHAR) < sizeof(unsigned short)!");
-
       // convert data from UCS-2 to utf-8
-      std::string s_outbuf = base::wstring_to_string((wchar_t*)tmpbuf);
+      std::string s_outbuf = base::wstring_to_string(tmpbuf);
       outbuf_len = s_outbuf.size();
       if (outbuf_len > _max_blob_chunk_size - 1)
       	  throw std::logic_error("Output buffer size is greater than max blob chunk size.");
@@ -836,11 +813,7 @@ SQLRETURN ODBCCopyDataSource::get_geometry_buffer_data(RowBuffer &rowbuffer, int
 
       std::strcpy(out_buffer, s_outbuf.c_str());
 
-      if (inbuf_len > 0)
-        log_warning("%lu characters could not be converted to UTF-8 from column %s during copy\n",
-                    (unsigned long)inbuf_len, (*_columns)[column-1].source_name.c_str());
-
-      *out_length = (unsigned long)(out_buffer_len - outbuf_len);
+      *out_length = outbuf_len;
     }
     rowbuffer.finish_field(len_or_indicator == SQL_NULL_DATA);
   }
@@ -857,14 +830,15 @@ size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::stri
     throw ConnectionError("SQLAllocHandle", ret, SQL_HANDLE_DBC, _dbc);
 
   std::string q;
+  std::string countStr = _source_rdbms_type == "Mssql" ? "count_big" : "count";
 
   switch (spec.type)
   {
     case CopyAll:
       if (spec.resume && last_pkeys.size())
-        q = base::strfmt("SELECT count(*) FROM %s.%s WHERE %s", schema.c_str(), table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str());
+        q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s", countStr.c_str(), schema.c_str(), table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str());
       else
-        q = base::strfmt("SELECT count(*) FROM %s.%s", schema.c_str(), table.c_str());
+        q = base::strfmt("SELECT %s(*) FROM %s.%s", countStr.c_str(), schema.c_str(), table.c_str());
       break;
     case CopyRange:
     {
@@ -875,22 +849,22 @@ size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::stri
         end_expr = base::strfmt("%s <= %lli", spec.range_key.c_str(), spec.range_end);
       start_expr = base::strfmt("%s >= %lli", spec.range_key.c_str(), spec.range_start);
       if (!end_expr.empty())
-        q = base::strfmt("SELECT count(*) FROM %s.%s WHERE %s AND %s", schema.c_str(), table.c_str(), start_expr.c_str(), end_expr.c_str());
+        q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s AND %s", countStr.c_str(), schema.c_str(), table.c_str(), start_expr.c_str(), end_expr.c_str());
       else
-        q = base::strfmt("SELECT count(*) FROM %s.%s WHERE %s", schema.c_str(), table.c_str(), start_expr.c_str());
+        q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s", countStr.c_str(), schema.c_str(), table.c_str(), start_expr.c_str());
       break;
     }
     case CopyCount:
     {
       if (spec.resume && last_pkeys.size())
-        q = base::strfmt("SELECT count(*) FROM %s.%s WHERE %s", schema.c_str(), table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str());
+        q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s", countStr.c_str(), schema.c_str(), table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str());
       else
-        q = base::strfmt("SELECT count(*) FROM %s.%s", schema.c_str(), table.c_str());
+        q = base::strfmt("SELECT %s(*) FROM %s.%s", countStr.c_str(), schema.c_str(), table.c_str());
       break;
     }
     case CopyWhere:
     {
-      q = base::strfmt("SELECT count(*) FROM %s.%s WHERE %s", schema.c_str(), table.c_str(), spec.where_expression.c_str());
+      q = base::strfmt("SELECT %s(*) FROM %s.%s WHERE %s", countStr.c_str(), schema.c_str(), table.c_str(), spec.where_expression.c_str());
       break;
     }
   }

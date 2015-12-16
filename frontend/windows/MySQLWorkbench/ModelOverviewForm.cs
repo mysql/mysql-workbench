@@ -1683,7 +1683,7 @@ namespace MySQL.GUI.Workbench
 
         contentSplitContainer.Panel2Collapsed = true;
         contentSplitContainer.SplitterWidth = 6; 
-        contentSplitContainer.Panel2MinSize = 300;
+        contentSplitContainer.Panel2MinSize = 370;
       }
       finally
       {
