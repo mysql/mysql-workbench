@@ -194,5 +194,11 @@ target_link_libraries(wbpublic wbbase mdcanvas mforms cdbc grt ${VSQLITE_LIBRARI
 set_target_properties(wbpublic
                       PROPERTIES VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})
+if(COMMAND cotire)
+    set_target_properties(wbpublic PROPERTIES
+        COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS}")
+
+  cotire(wbpublic)
+endif()
 
 install(TARGETS wbpublic DESTINATION ${WB_INSTALL_LIB_DIR})

@@ -90,4 +90,11 @@ set_target_properties(wb.model.grt
                                  VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})
 
+if(COMMAND cotire)
+    set_target_properties(wb.model.grt PROPERTIES
+        COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS}")
+
+  cotire(wb.model.grt)
+endif()
+
 install(TARGETS wb.model.grt DESTINATION ${WB_INSTALL_LIB_DIR}/modules)

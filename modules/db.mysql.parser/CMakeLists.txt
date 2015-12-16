@@ -25,5 +25,11 @@ set_target_properties(db.mysql.parser.grt PROPERTIES
 
 
 # target_link_libraries(db.mysql.parser.grt ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${SIGC++_LIBRARIES} ${PCRE_LIBRARIES})
+if(COMMAND cotire)
+    set_target_properties(db.mysql.parser.grt PROPERTIES
+        COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS}")
+
+  cotire(db.mysql.parser.grt)
+endif()
 
 install(TARGETS db.mysql.parser.grt DESTINATION ${WB_PYTHON_MODULES_DIR})

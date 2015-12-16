@@ -58,5 +58,10 @@ add_library(wbscintilla
 )
 
 target_link_libraries(wbscintilla ${GTK3_LIBRARIES})
-
+if(COMMAND cotire)
+    set_target_properties(wbscintilla PROPERTIES
+        COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS}")
+    
+  cotire(wbscintilla)
+endif()
 install(TARGETS wbscintilla DESTINATION ${WB_INSTALL_LIB_DIR})
