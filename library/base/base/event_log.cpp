@@ -31,16 +31,16 @@ EventLogReader::EventLogReader(const std::string &query, const std::function<voi
 }
 
 /**
-* @brief Set last view position.
-*/
+ * @brief Set last view position.
+ */
 void EventLogReader::SetPosition(long position)
 {
   _position = position;
 }
 
 /**
-* @brief Get the list of events.
-*/
+ * @brief Get the list of events.
+ */
 void EventLogReader::ReadEvents()
 {
   DWORD status = ERROR_SUCCESS;
@@ -60,15 +60,15 @@ void EventLogReader::ReadEvents()
 }
 
 /**
-* @brief Get the list of paths in the query and the status for each path. Return
-*        the sum of the statuses, so the caller can decide whether to enumerate 
-         the results.
+ * @brief Get the list of paths in the query and the status for each path. Return
+ *        the sum of the statuses, so the caller can decide whether to enumerate 
+          the results.
 
-* @param results The handle to a query or subscription result set that 
-*                the EvtQuery function or the EvtSubscribe function returns.
-*
-* @return returns Status code.
-*/
+ * @param results The handle to a query or subscription result set that 
+ *                the EvtQuery function or the EvtSubscribe function returns.
+ *
+ * @return returns Status code.
+ */
 DWORD EventLogReader::PrintQueryStatuses(EVT_HANDLE results)
 {
   DWORD status = ERROR_SUCCESS;
@@ -91,13 +91,13 @@ DWORD EventLogReader::PrintQueryStatuses(EVT_HANDLE results)
 }
 
 /**
-* @brief Enumerate all the events in the result set.
+ * @brief Enumerate all the events in the result set.
 
-* @param results The handle to a query or subscription result set that
-*                the EvtQuery function or the EvtSubscribe function returns.
-*
-* @return returns Status code.
-*/
+ * @param results The handle to a query or subscription result set that
+ *                the EvtQuery function or the EvtSubscribe function returns.
+ *
+ * @return returns Status code.
+ */
 DWORD EventLogReader::PrintResults(EVT_HANDLE results)
 {
   DWORD status = ERROR_SUCCESS;
@@ -137,18 +137,16 @@ DWORD EventLogReader::PrintResults(EVT_HANDLE results)
   return status;
 }
 
-// 
-// 
 /**
-* @brief Get the list of paths specified in the query or the list of status values 
-*        for each path.
-* @param id The identifier of the query information to retrieve.
-* @param results The handle to a query or subscription result set.
-* @param property A caller-allocated buffer that will receive the query information.
-*                 The buffer contains an EVT_VARIANT object.
-*
-* @return returns Print event status.
-*/
+ * @brief Get the list of paths specified in the query or the list of status values 
+ *        for each path.
+ * @param id The identifier of the query information to retrieve.
+ * @param results The handle to a query or subscription result set.
+ * @param property A caller-allocated buffer that will receive the query information.
+ *                 The buffer contains an EVT_VARIANT object.
+ *
+ * @return returns Print event status.
+ */
 DWORD EventLogReader::GetQueryStatusProperty(EVT_QUERY_PROPERTY_ID id, EVT_HANDLE results, PEVT_VARIANT& property)
 {
   DWORD status = ERROR_SUCCESS;
@@ -177,11 +175,11 @@ DWORD EventLogReader::GetQueryStatusProperty(EVT_QUERY_PROPERTY_ID id, EVT_HANDL
 }
 
 /**
-* @brief Enumerate all the events in the result set.
-* @param eventHandle A handle to an event.
-*
-* @return returns Print event status.
-*/
+ * @brief Enumerate all the events in the result set.
+ * @param eventHandle A handle to an event.
+ *
+ * @return returns Print event status.
+ */
 DWORD EventLogReader::PrintEvent(EVT_HANDLE eventHandle)
 {
   EVT_HANDLE context = nullptr;
@@ -323,14 +321,14 @@ DWORD EventLogReader::PrintEvent(EVT_HANDLE eventHandle)
 }
 
 /**
-* @brief Gets the specified message string from the event. If the event does not
-*        contain the specified message, the function returns empty string.
-* @param metadata A handle to the provider's metadata that the EvtOpenPublisherMetadata function returns. 
-*                 The handle acts as a formatting context for the event or message identifier
-* @param eventHandle A handle to an event.
-*
-* @return returns message string from the event.
-*/
+ * @brief Gets the specified message string from the event. If the event does not
+ *        contain the specified message, the function returns empty string.
+ * @param metadata A handle to the provider's metadata that the EvtOpenPublisherMetadata function returns. 
+ *                 The handle acts as a formatting context for the event or message identifier
+ * @param eventHandle A handle to an event.
+ *
+ * @return returns message string from the event.
+ */
 std::string EventLogReader::GetMessageString(EVT_HANDLE metadata, EVT_HANDLE eventHandle)
 {
   DWORD bufferSize = 0;

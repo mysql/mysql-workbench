@@ -30,9 +30,10 @@ from sqlide_power_import_export_be import create_module
 from workbench.ui import WizardForm, WizardPage, WizardProgressPage
 from datetime import datetime
 import operator
+from workbench.utils import Version
 
 
-from workbench.log import log_debug3, log_debug2, log_error
+from workbench.log import log_debug3, log_debug2, log_error, log_info
 
 last_location = ""
 drop_table = False
@@ -161,6 +162,8 @@ class ConfigurationPage(WizardPage):
         self.ds_show_count = 0
         self.df_show_count = 0
         self.opts_mapping = {}
+        self.is_server_5_7 = Version.fromgrt(self.main.editor.serverVersion).is_supported_mysql_version_at_least(Version.fromstr("5.7.5"))
+
 
     def go_cancel(self):
         self.main.close()
@@ -378,7 +381,7 @@ class ConfigurationPage(WizardPage):
             chk.add_clicked_callback(lambda checkbox = chk, output = row: operator.setitem(output, 'active', True if checkbox.get_active() else False))
             return chk
         
-        type_items = {'is_string':'text', 'is_number':'int', 'is_float':'double', 'is_bin':'binary', 'is_date_or_time': 'datetime', 'is_json':'json'}
+        type_items = {'is_string':'text','is_bignumber':'bigint', "is_geometry":'geometry', 'is_number':'int', 'is_float':'double', 'is_bin':'binary', 'is_date_or_time': 'datetime', 'is_json':'json'}
         def create_select_type(row):
             def sel_changed(sel, output):
                 selection = sel.get_string_value()
@@ -401,10 +404,15 @@ class ConfigurationPage(WizardPage):
                 
             sel = mforms.newSelector()
             sel.set_size(120, -1)
-            
-            sel.add_items(type_items.values())
-            for i, v in enumerate(type_items.values()):
-                if row['type'] in v:
+
+            items = [type for type in type_items.values() if not ((type == "geometry" or type == "json") and self.input_file_type == "json" and not self.is_server_5_7) ]
+            sel.add_items(items)
+            if not self.is_server_5_7 and (row['type'] == "geometry" or row["type"] == "json") and self.input_file_type == "json":
+                row['type'] = "text" # If it's server older than 5.7 we don't have support for geojson so we can't properly import this file, instead we fallback to text
+                log_info("Column %s is of type GeoJso but server doesn't support this, importing as text instead." % row['name'])
+                
+            for i, v in enumerate(items):
+                if row['type'] == v:
                     sel.set_selected(i)
                     break
             

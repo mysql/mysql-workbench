@@ -30,7 +30,7 @@ from mforms import newBox, newLabel, newButton, newTextEntry, newTreeNodeView, n
 from wb_admin_utils import not_running_warning_label, make_panel_header
 from wb_admin_security_be import AdminSecurity, PrivilegeInfo, PrivilegeReverseDict, SecurityAdminRoles, WBSecurityValidationError
 from wb_common import PermissionDeniedError
-from workbench.log import log_error
+from workbench.log import log_error, log_debug3
 
 import grt
 from workbench import db_utils
@@ -694,9 +694,15 @@ class FirewallCommands:
         result.nextRow()
         return result.stringByIndex(1)
 
+    def reload_rules(self, userhost):
+        self.execute_multiresult_command("CALL mysql.sp_reload_firewall_rules('%s')" % userhost)
+
     def delete_user_rule(self, userhost, rule):
         result, cnt = self.execute_command("DELETE FROM mysql.firewall_whitelist WHERE USERHOST='%s' AND RULE='%s'" % (userhost, db_utils.escape_sql_string(rule)))
-        return cnt > 0
+        deleted_something = cnt > 0
+        if deleted_something:
+            self.reload_rules(userhost)
+        return deleted_something
 
     def add_user_rule(self, userhost, rule, normalized = False):
         if not normalized:
@@ -705,7 +711,9 @@ class FirewallCommands:
             firewall_rule = rule
             
         if firewall_rule:
-            self.execute_command("INSERT INTO mysql.firewall_whitelist (USERHOST, RULE) VALUES ('%s', '%s')" % (userhost, db_utils.escape_sql_string(firewall_rule)))
+            result = self.execute_command("INSERT INTO mysql.firewall_whitelist (USERHOST, RULE) VALUES ('%s', '%s')" % (userhost, db_utils.escape_sql_string(firewall_rule)))
+            if result:
+                self.reload_rules(userhost)
             return True
         log_error("Adding a firewall user rule failed to normalize the query. Probably, the inserted query does not translate to a firewall rule.\n")
         return False
@@ -743,18 +751,24 @@ class FirewallCommands:
         
         result = multi_result[len(multi_result) - 1]
         
-        
         try:
             if result.nextRow():
-                if self.owner.ctrl_be.target_version and self.owner.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 6, 27):
+                if result.stringByIndex(1).startswith("ERROR"):
+                    log_error("Firewall: Failed to set user mode (user=%s, mode=%s): %s\n" % (userhost, mode, result.stringByIndex(1)))
                     return False
-                else:
-                    return result.stringByIndex(1) == "OK"
-                
-        except: # sp_set_firewall_mode return resultset only on error, but nextRow will throw exception if result is missing resultset. 
+            log_debug3("Firewall: Returning 'True' due to lack of 'ERROR' records\n")
             return True
-        
+        except SystemError, err:  # sp_set_firewall_mode return resultset only on error, but nextRow will throw exception if result is missing resultset.
+            if self.owner.ctrl_be.target_version and self.owner.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 6, 27):
+                log_debug3("Firewall: Returning 'True' due to server ('%s') not responding with the 'OK' record any more\n" % self.owner.ctrl_be.target_version)
+                return True
+            import traceback
+            log_error("Exception while setting firewall user mode: Expecting 'OK' record for this version ('%s')\n" % str(self.owner.ctrl_be.target_version))
+        except Exception, exc:
+            import traceback
+            log_error("Exception while setting firewall user mode: %s\n" % (traceback.format_exc()))
           
+        log_error("Firewall: Failed to set user mode (user=%s, mode=%s): Unknow error\n" % (userhost, mode))
         return False
 
     def reset_user(self, userhost):
@@ -1080,7 +1094,8 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
                 self.owner.refresh()
         
     def save(self):
-        self.commands.set_user_mode(self.current_userhost, self.state.get_string_value())
+        if not self.commands.set_user_mode(self.current_userhost, self.state.get_string_value()):
+            Utilities.show_error("Setting user mode", "There was a problem setting the user mode. Please check the log for more details.", "OK", "", "")
 
 #############################
 
@@ -1192,7 +1207,10 @@ class SecurityAccount(mforms.Box):
         self.username = newTextEntry()
         self.username.set_size(180, -1)
         self.username.add_changed_callback(self.set_dirty)
-        self.username.set_max_length(16) # max username length for mysql
+        if self.owner.ctrl_be.target_version and self.owner.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 8):
+            self.username.set_max_length(32) # max username length for mysql since 5.7.8
+        else:
+            self.username.set_max_length(16) # max username length for mysql before 5.7.8
         self.password = newTextEntry(mforms.PasswordEntry)
         self.password.set_size(180, -1)
         self.password_advice = 'Consider using a password with 8 or more characters with\nmixed case letters, numbers and punctuation marks.'

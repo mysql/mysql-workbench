@@ -3560,6 +3560,11 @@ boost::shared_ptr<SqlEditorForm> WBContext::add_new_query_window(const db_mgmt_C
     show_status_text(_("Connection cancelled"));
     return SqlEditorForm::Ref();
   }
+  catch (grt::server_denied &sd)
+  {
+    SqlEditorForm::report_connection_failure(sd, target);
+    return SqlEditorForm::Ref();
+  }
   catch (std::exception &exc)
   {
     SqlEditorForm::report_connection_failure(exc.what(), target);

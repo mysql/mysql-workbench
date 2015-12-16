@@ -728,21 +728,6 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.legacyauth">
-                        <value type="string" key="caption">Use the old authentication protocol</value>
-                        <value type="string" key="defaultValue"></value>
-                        <value type="string" key="description">This option disables Connector/C++'s secure_auth option.</value>
-                        <value type="int" key="layoutAdvanced">1</value>
-                        <value type="int" key="layoutRow">-1</value>
-                        <value type="int" key="layoutWidth">318</value>
-                        <value type="string" key="lookupValueMethod"></value>
-                        <value type="string" key="lookupValueModule"></value>
-                        <value type="string" key="name">useLegacyAuth</value>
-                        <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-                        <value type="string" key="paramType">boolean</value>
-                        <value type="dict" content-type="string" key="paramTypeDetails"/>
-                        <value type="int" key="required">0</value>
-                    </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.sqlmode">
                         <value type="string" key="caption">SQL_MODE:</value>
                         <value type="string" key="defaultValue"></value>
@@ -984,21 +969,6 @@
                         <value type="string" key="lookupValueModule"></value>
                         <value type="string" key="name">OPT_ENABLE_CLEARTEXT_PLUGIN</value>
                         <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-                        <value type="string" key="paramType">boolean</value>
-                        <value type="dict" content-type="string" key="paramTypeDetails"/>
-                        <value type="int" key="required">0</value>
-                    </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.legacyauth">
-                        <value type="string" key="caption">Use the old authentication protocol</value>
-                        <value type="string" key="defaultValue"></value>
-                        <value type="string" key="description">This option disables Connector/C++'s secure_auth option.</value>
-                        <value type="int" key="layoutAdvanced">1</value>
-                        <value type="int" key="layoutRow">-1</value>
-                        <value type="int" key="layoutWidth">318</value>
-                        <value type="string" key="lookupValueMethod"></value>
-                        <value type="string" key="lookupValueModule"></value>
-                        <value type="string" key="name">useLegacyAuth</value>
-                        <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_socket</link>
                         <value type="string" key="paramType">boolean</value>
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
@@ -1339,21 +1309,6 @@
                         <value type="string" key="lookupValueModule"></value>
                         <value type="string" key="name">OPT_ENABLE_CLEARTEXT_PLUGIN</value>
                         <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-                        <value type="string" key="paramType">boolean</value>
-                        <value type="dict" content-type="string" key="paramTypeDetails"/>
-                        <value type="int" key="required">0</value>
-                    </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.legacyauth">
-                        <value type="string" key="caption">Use the old authentication protocol</value>
-                        <value type="string" key="defaultValue"></value>
-                        <value type="string" key="description">This option disables Connector/C++'s secure_auth option.</value>
-                        <value type="int" key="layoutAdvanced">1</value>
-                        <value type="int" key="layoutRow">-1</value>
-                        <value type="int" key="layoutWidth">318</value>
-                        <value type="string" key="lookupValueMethod"></value>
-                        <value type="string" key="lookupValueModule"></value>
-                        <value type="string" key="name">useLegacyAuth</value>
-                        <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
                         <value type="string" key="paramType">boolean</value>
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>

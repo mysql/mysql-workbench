@@ -55,6 +55,10 @@ public:
   virtual grt::IntegerRef saveFieldValueToFile(ssize_t column, const std::string &file) = 0;
   virtual grt::StringRef stringFieldValue(ssize_t column) = 0;
   virtual grt::StringRef stringFieldValueByName(const std::string &column) = 0;
+  virtual grt::StringRef geoStringFieldValue(ssize_t column) = 0;
+  virtual grt::StringRef geoStringFieldValueByName(const std::string &column) = 0;
+  virtual grt::StringRef geoJsonFieldValue(ssize_t column) = 0;
+  virtual grt::StringRef geoJsonFieldValueByName(const std::string &column) = 0;
 };
 
 
@@ -81,6 +85,10 @@ public:
   virtual void refresh();
   virtual grt::StringRef stringFieldValue(ssize_t column);
   virtual grt::StringRef stringFieldValueByName(const std::string &column);
+  virtual grt::StringRef geoStringFieldValue(ssize_t column);
+  virtual grt::StringRef geoStringFieldValueByName(const std::string &column);
+  virtual grt::StringRef geoJsonFieldValue(ssize_t column);
+  virtual grt::StringRef geoJsonFieldValueByName(const std::string &column);
   virtual grt::IntegerRef saveFieldValueToFile(ssize_t column, const std::string &file);
 };
 #endif

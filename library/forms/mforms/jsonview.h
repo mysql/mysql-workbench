@@ -359,11 +359,11 @@ namespace mforms {
     void findAndHighlightText(const std::string &text, bool backward = false);
     const JsonParser::JsonValue &getJson() const;
     const std::string &getText() const;
+    bool validate();
 
   private:
     void init();
     void editorContentChanged(int position, int length, int numberOfLines, bool inserted);
-    virtual void validate();
 
     CodeEditor *_textEditor;
     Label *_validationResult;
@@ -462,6 +462,7 @@ namespace mforms {
     private:
       void init();
       void generateColumnNames(JsonParser::JsonValue &value);
+      void addColumn(int size, JsonParser::DataType type, const std::string &name);
       void nodeActivated(TreeNodeRef row, int column);
       void setCellValue(mforms::TreeNodeRef node, int column, const std::string &value);
       void goUp();
@@ -523,6 +524,8 @@ namespace mforms {
     JsonValuePtr _json;
     int _ident;
     struct { int textTabId; int treeViewTabId; int gridViewTabId; } _tabId;
+    struct { bool textViewUpdate; bool treeViewUpdate; bool gridViewUpdate; } _updateView;
+    bool _updating;
     std::string _matchText;
     boost::signals2::signal<void(const std::string &text)> _dataChanged;
   };

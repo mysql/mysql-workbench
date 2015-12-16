@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -119,11 +119,6 @@ sqlstring &sqlstring::operator <<(const std::string& v)
   int esc = next_escape();
   if (esc == '!')
   {
-    if(v.empty())
-    {
-        throw std::invalid_argument("Error formatting SQL query: empty string given as argument for ! character");
-    }
-
     std::string escaped = escape_backticks(v);
     if ((_format._flags & QuoteOnlyIfNeeded) != 0)
       append(base::quote_identifier_if_needed(escaped, '`'));

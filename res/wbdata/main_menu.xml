@@ -10,13 +10,24 @@
       <value type="string" key="caption">_File</value>
       <value type="string" key="itemType">cascade</value>
       <value type="list" key="subItems" content-type="object" content-struct-name="app.MenuItem">
-
+		
+        
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.file.new1">
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.file</link>
           <value type="string" key="name">new_document</value>
           <value type="string" key="command">plugin:wb.file.newDocument</value>
           <value type="string" key="itemType">action</value>
           <value type="string" key="shortcut">Modifier+N</value>
+        </value>
+        
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.file.file_new">
+          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.file</link>
+          <value type="string" key="caption">_New Query Tab...</value>
+          <value type="string" key="context">home</value>
+          <value type="string" key="name">new_query_tab</value>
+          <value type="string" key="command">builtin:query.newQueryNoconnection</value>
+          <value type="string" key="itemType">action</value>
+          <value type="string" key="shortcut">Modifier+T</value>
         </value>
 
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.file.new_sql">

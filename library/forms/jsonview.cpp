@@ -1936,7 +1936,7 @@ void JsonInputDlg::save()
   if (_textEntry)
   {
     std::string text = _textEntry->get_string_value();
-    if (text.empty())
+    if (text.empty() && _textEntry->is_enabled())
     {
       mforms::Utilities::show_error("JSON Editor.", "The field 'name' can not be empty", "Ok");
       return;
@@ -2211,13 +2211,16 @@ void JsonTreeBaseView::openInputJsonWindow(TreeNodeRef node, bool updateMode /*=
           JsonObject &obj = jv.getObject();
           if (updateMode)
           {
-            obj[objectName] = value;
+            if (objectName.empty())
+              jv = value;
+            else
+              obj[objectName] = value;
             node->remove_children();
           }
           else 
             obj.insert(objectName, value);
           TreeNodeRef newNode = (updateMode) ? node : node->add_child();
-          generateTree(obj[objectName], 0, newNode);
+          generateTree(objectName.empty() ? jv : obj[objectName], 0, newNode);
           newNode->set_string(0, objectName + "{" + base::to_string(obj.size()) + "}");
           newNode->set_tag(objectName);
           _dataChanged(false);
@@ -2536,12 +2539,13 @@ JsonTextView::JsonTextView() :
 /**
  * @brief Fill text in control
  *
- * @param jsonText A string that contains the JSON text data to set..
+ * @param jsonText A string that contains the JSON text data to set.
  */
 void JsonTextView::setText(const std::string &jsonText)
 {
   _textEditor->set_value(jsonText.c_str());
-  _validationResult->set_text("Document valid.");
+  validate();
+  _validationResult->set_text("Document changed.");
   _validationResult->set_tooltip("");
   _text = jsonText;
 }
@@ -2613,7 +2617,6 @@ void JsonTextView::init()
   hbox->add_end(validate, false, true);
   box->add(hbox, false, true);
   add(box);
-  set_size(800, 500); // Golden ratio.
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2631,23 +2634,25 @@ void JsonTextView::editorContentChanged(int position, int length, int numberOfLi
   _modified = true;
   _validationResult->set_text("Content changed.");
   _validationResult->set_tooltip("");
+
+  _text = _textEditor->get_text(false);
+  _dataChanged(true);
 }
 
-/** 
+/**
  * @brief Signal emitted when the validate was clicked.
  */
-void JsonTextView::validate()
+bool JsonTextView::validate()
 {
+  bool ret = true;
   if (_modified)
   {
     try
     {
-      std::string content = _textEditor->get_text(false);
       JsonParser::JsonValue value;
-      JsonParser::JsonReader::read(content, value);
+      JsonParser::JsonReader::read(_text, value);
       _json = value;
-      _text = content;
-      _dataChanged(true);
+
       _modified = false;
       _validationResult->set_text("Document valid.");
       _validationResult->set_tooltip("");
@@ -2656,8 +2661,10 @@ void JsonTextView::validate()
     {
       _validationResult->set_text(ex.what());
       _validationResult->set_tooltip(ex.what());
+      ret = false;
     }
   }
+  return ret;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2794,6 +2801,7 @@ void JsonTreeView::generateObjectInTree(JsonParser::JsonValue &value, int /*colu
     default:
       break;
     }
+
     mforms::TreeNodeRef node2 = (addNew) ? node->add_child() : node;
     if (addNew)
     {
@@ -2884,19 +2892,19 @@ void JsonTreeView::generateNumberInTree(JsonParser::JsonValue &value, int /*colu
   switch (value.getType())
   {
   case VInt:
-    node->set_int(1, (int)value.getDouble());
+    node->set_string(1, base::to_string(value.getInt()));
     node->set_string(2, "Integer");
     break;
   case VDouble:
-    node->set_float(1, value.getDouble());
+    node->set_string(1, base::to_string(value.getDouble()));
     node->set_string(2, "Double");
     break;
   case VInt64:
-    node->set_long(1, value.getInt64());
+    node->set_string(1, base::to_string(value.getInt64()));
     node->set_string(2, "Long Integer");
     break;
   case VUint64:
-    node->set_float(1, (float)value.getUint64());
+    node->set_string(1, base::to_string(value.getUint64()));
     node->set_string(2, "Unsigned Long Integer");
     break;
   default:
@@ -3057,6 +3065,35 @@ void JsonGridView::reCreateTree(JsonParser::JsonValue &value)
 
 //--------------------------------------------------------------------------------------------------
 
+void JsonGridView::addColumn(int size, JsonParser::DataType type, const std::string &name)
+{
+  switch (type)
+  {
+  case VArray:
+  case VObject:
+    _treeView->add_column(IconStringColumnType, name, size, false, true);
+    break;
+  case VInt:
+    _treeView->add_column(IntegerColumnType, name, size, true, true);
+    break;
+  case VInt64:
+    _treeView->add_column(LongIntegerColumnType, name, size, true, true);
+    break;
+  case VUint64:
+  case VDouble:
+    _treeView->add_column(FloatColumnType, name, size, true, true);
+    break;
+  case VBoolean:
+  case VString:
+  case VEmpty:
+  default:
+    _treeView->add_column(StringColumnType, name, size, true, true);
+    break;
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void JsonGridView::generateColumnNames(JsonParser::JsonValue &value)
 {
   if(_level != 0)
@@ -3071,7 +3108,7 @@ void JsonGridView::generateColumnNames(JsonParser::JsonValue &value)
     {
       if (_colNameToColId.count(it->first) == 1)
         continue;
-      _treeView->add_column(IconStringColumnType, it->first, 100, true, false);
+      addColumn(100, it->second.getType(), it->first);
       _colNameToColId[it->first] = _columnIndex++;
       if (it->second.getType() == VObject || it->second.getType() == VArray)
         generateColumnNames(it->second);
@@ -3093,7 +3130,7 @@ void JsonGridView::generateColumnNames(JsonParser::JsonValue &value)
         {
           if (_colNameToColId.count(it->first) == 1)
             continue;
-          _treeView->add_column(IconStringColumnType, it->first, 100, true, false);
+          addColumn(100, it->second.getType(), it->first);
           _colNameToColId[it->first] = _columnIndex++;
           if (it->second.getType() == VObject || it->second.getType() == VArray)
             generateColumnNames(it->second);
@@ -3103,7 +3140,7 @@ void JsonGridView::generateColumnNames(JsonParser::JsonValue &value)
       {
         if (_noNameColId > 0)
           continue;
-        _treeView->add_column(IconStringColumnType, "", 100, true, false);
+        addColumn(100, VString, "");
         _noNameColId = _columnIndex++;
       }
       if (it->getType() == VObject || it->getType() == VArray)
@@ -3131,7 +3168,6 @@ void JsonGridView::setCellValue(mforms::TreeNodeRef node, int column, const std:
   if (it != _colNameToColId.end())
     key = it->first;
   JsonParser::JsonValue &storedValue = (!key.empty()) ? data->getData().getObject()[key] : data->getData();
-  bool setData = false;
   if (data != NULL)
   {
     std::stringstream buffer;
@@ -3142,13 +3178,21 @@ void JsonGridView::setCellValue(mforms::TreeNodeRef node, int column, const std:
     switch (storedValue.getType())
     {
     case VDouble:
+      if (!base::is_number(value))
+        break;
+      buffer << value;
+      buffer >> number;
+      storedValue.setNumber(number);
+      node->set_float(column, number);
+      _dataChanged(false);
     case VInt:
       if (!base::is_number(value))
         break;
       buffer << value;
       buffer >> number;
       storedValue.setNumber(number);
-      setData = true;
+      node->set_int(column, (int)number);
+      _dataChanged(false);
       break;
     case VInt64:
       if (!base::is_number(value))
@@ -3156,7 +3200,8 @@ void JsonGridView::setCellValue(mforms::TreeNodeRef node, int column, const std:
       buffer << value;
       buffer >> number2;
       storedValue.setInt64(number2);
-      setData = true;
+      node->set_long(column, number2);
+      _dataChanged(false);
       break;
     case VUint64:
       if (!base::is_number(value))
@@ -3164,7 +3209,8 @@ void JsonGridView::setCellValue(mforms::TreeNodeRef node, int column, const std:
       buffer << value;
       buffer >> number3;
       storedValue.setUint64(number3);
-      setData = true;
+      node->set_float(column, (double)number3);
+      _dataChanged(false);
       break;
     case VBoolean:
       if (!base::isBool(value))
@@ -3172,21 +3218,18 @@ void JsonGridView::setCellValue(mforms::TreeNodeRef node, int column, const std:
       buffer << value;
       buffer >> std::boolalpha >> retBool;
       storedValue.setBool(retBool);
-      setData = true;
+      node->set_bool(column, retBool);
+      _dataChanged(false);
       break;
     case VString:
       storedValue.setString(value);
       setStringData(column, node, value);
-      setData = true;
+      node->set_string(column, value);
+      _dataChanged(false);
       break;
     default:
       break;
     }
-  }
-  if (setData)
-  {
-    node->set_string(column, value);
-    _dataChanged(false);
   }
 }
 
@@ -3459,7 +3502,7 @@ void JsonGridView::generateNumberInTree(JsonParser::JsonValue &value, int column
     node->set_long(columnId, value.getInt64());
     break;
   case VUint64:
-    node->set_float(columnId, (float)value.getUint64());
+    node->set_long(columnId, value.getUint64());
     break;
   default:
     break;
@@ -3503,6 +3546,8 @@ void JsonTabView::Setup()
   scoped_connect(_textView->dataChanged(), boost::bind(&JsonTabView::dataChanged, this, _1));
   scoped_connect(_treeView->dataChanged(), boost::bind(&JsonTabView::dataChanged, this, _1));
   scoped_connect(_gridView->dataChanged(), boost::bind(&JsonTabView::dataChanged, this, _1));
+  scoped_connect(_tabView->signal_tab_changed(), boost::bind(&JsonTabView::tabChanged, this));
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -3511,7 +3556,8 @@ JsonTabView::JsonTabView() : Panel(TransparentPanel),
   _textView(manage(new JsonTextView())),
   _treeView(manage(new JsonTreeView())),
   _gridView(manage(new JsonGridView())),
-  _tabView(manage(new TabView(TabViewPalette)))
+  _tabView(manage(new TabView(TabViewPalette))),
+  _updating(false)
 {
   Setup();
 }
@@ -3533,10 +3579,12 @@ void JsonTabView::setJson(const JsonParser::JsonValue &value)
 {
   _json = boost::make_shared<JsonParser::JsonValue>(value);
   _ident = 0;
+  _updating = true;
   JsonWriter::write(_jsonText, value);
   _textView->setText(_jsonText);
   _treeView->setJson(*_json);
   _gridView->setJson(*_json);
+  _updating = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -3549,6 +3597,8 @@ void JsonTabView::setJson(const JsonParser::JsonValue &value)
 void JsonTabView::setText(const std::string &text)
 {
   _jsonText = text;
+  _textView->setText(text);
+  dataChanged(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -3572,32 +3622,58 @@ void JsonTabView::append(const std::string &text)
 
 //--------------------------------------------------------------------------------------------------
 
+void JsonTabView::tabChanged()
+{
+  int tabId = _tabView->get_active_tab();
+  if (tabId == _tabId.textTabId && _updateView.textViewUpdate)
+  {
+    _updating = true;
+    _textView->setText(_jsonText);
+    _updateView.textViewUpdate = false;
+    _updating = false;
+    _dataChanged(_jsonText);
+  }
+  else if (tabId == _tabId.treeViewTabId && _updateView.treeViewUpdate)
+  {
+    _treeView->reCreateTree(*_json);
+    _updateView.treeViewUpdate = false;
+    _dataChanged(_jsonText);
+  }
+  else  if (tabId == _tabId.gridViewTabId && _updateView.gridViewUpdate)
+  {
+    _gridView->reCreateTree(*_json);
+    _updateView.gridViewUpdate = false;
+    _dataChanged(_jsonText);
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * @brief Signal emitted when the tab is switched by user.
  *
  */
 void JsonTabView::dataChanged(bool forceUpdate)
 {
+  if (_updating)
+    return;
   int tabId = _tabView->get_active_tab();
-  if (forceUpdate)
-  {
-    _treeView->clear();
-    _gridView->clear();
-    _json.reset(new JsonValue(_textView->getJson()));
-  }
   if (tabId != _tabId.textTabId)
-  {
-    _jsonText.clear();
-    _textView->clear();
     JsonWriter::write(_jsonText, *_json);
-    _textView->setText(_jsonText);
-  }
   else
-    _jsonText = _textView->getText();
-  if (tabId != _tabId.treeViewTabId)
-    _treeView->reCreateTree(*_json);
-  if (tabId != _tabId.gridViewTabId)
-    _gridView->reCreateTree(*_json);
+  {
+    if (_textView->validate())
+    {
+      _jsonText = _textView->getText();
+      _json.reset(new JsonValue(_textView->getJson()));
+    }
+    else
+      return;
+  }
+  _updateView.textViewUpdate = tabId != _tabId.textTabId;
+  _updateView.treeViewUpdate = tabId != _tabId.treeViewTabId;
+  _updateView.gridViewUpdate = tabId != _tabId.gridViewTabId;
+
   _dataChanged(_jsonText);
 }
 
