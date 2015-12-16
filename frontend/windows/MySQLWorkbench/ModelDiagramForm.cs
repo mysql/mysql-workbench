@@ -415,7 +415,7 @@ namespace MySQL.GUI.Workbench
         DockSideDocument(modelPropertiesForm, false, false);
         DockSideDocument(historyForm, false, false);
 
-        contentSplitContainer.Panel2MinSize = 300;
+        contentSplitContainer.Panel2MinSize = 370;
         mainContentSplitContainer.Panel2MinSize = 200;
       }
       finally

@@ -794,7 +794,7 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
   item->set_name("query.openFile");
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_open.png"));
   item->set_tooltip(_("Open a script file in this editor"));
-  bec::UIForm::scoped_connect(item->signal_activated(),boost::bind((void (SqlEditorForm::*)(const std::string&,bool))&SqlEditorForm::open_file, _form, "", false));
+  bec::UIForm::scoped_connect(item->signal_activated(),boost::bind((void (SqlEditorForm::*)(const std::string&, bool, bool))&SqlEditorForm::open_file, _form, "", false, true));
   tbar->add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));

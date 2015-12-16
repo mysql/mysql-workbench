@@ -85,6 +85,7 @@ namespace wb
   private:
     void call_in_editor(void (SqlEditorForm::*method)());    
     void call_in_editor_str(void (SqlEditorForm::*method)(const std::string &arg), const std::string &arg);
+    void call_in_editor_str2(void (SqlEditorForm::*method)(const std::string &arg1, bool arg2, bool arg3), const std::string &arg1, bool arg2, bool arg3);
     void call_in_editor_bool(void (SqlEditorForm::*method)(bool arg), bool arg);
 
     void call_in_editor_panel(void (SqlEditorPanel::*method)());

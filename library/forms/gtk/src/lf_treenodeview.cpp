@@ -25,9 +25,7 @@
 
 #include <glib.h>
 #include "base/log.h"
-#include "base/string_utilities.h"
 
-#define NO_INT64_COLUMNS
 
 DEFAULT_LOG_DOMAIN("mforms.linux");
 
@@ -746,7 +744,7 @@ void TreeNodeImpl::set_long(int column, boost::int64_t value)
   if (is_valid() && !is_root())
   {
     Gtk::TreeRow row = *iter();
-    row.set_value(_treeview->index_for_column(column), base::strfmt("%" PRId64, value));
+    row.set_value(_treeview->index_for_column(column), value);
   }
 }
 
@@ -807,9 +805,9 @@ boost::int64_t TreeNodeImpl::get_long(int column) const
   if (is_valid() && !is_root())
   {
     Gtk::TreeRow row = *iter();
-    std::string value;
+    boost::int64_t value;
     row.get_value(_treeview->index_for_column(column), value);
-    return strtoll(value.c_str(), NULL, 0);
+    return value;
   }
   return 0;
 }
@@ -1073,7 +1071,9 @@ Gtk::TreeModelColumn<TreeNodeDataRef>& TreeNodeViewImpl::ColumnRecord::data_colu
   return _data_column;
 }
 
-int TreeNodeViewImpl::ColumnRecord::add_string(Gtk::TreeView *tree, const std::string &title, bool editable, bool attr, bool with_icon, bool align_right)
+template <typename T>
+      std::pair<Gtk::TreeViewColumn*,int> TreeNodeViewImpl::ColumnRecord::create_column(Gtk::TreeView *tree, const std::string &title, bool editable, bool attr, bool with_icon,
+                                                      bool align_right)
 {
   Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> > *icon= 0;
   std::string tmp = title;
@@ -1090,13 +1090,12 @@ int TreeNodeViewImpl::ColumnRecord::add_string(Gtk::TreeView *tree, const std::s
   }
 
 
-  Gtk::TreeModelColumn<Glib::ustring> *col = add_model_column<Glib::ustring>();
+  Gtk::TreeModelColumn<T> *col = add_model_column<T>();
   column_value_index.push_back(size()-1);
 
   Gtk::CellRendererText *cell = Gtk::manage(new Gtk::CellRendererText());
-
   if (align_right)
-    cell->set_alignment(1.0, 0.5);
+    cell->set_alignment(1.0, 0.5); //always align right, it's number!
 
   column->pack_start(*cell);
   column->add_attribute(cell->property_text(), *col);
@@ -1116,80 +1115,42 @@ int TreeNodeViewImpl::ColumnRecord::add_string(Gtk::TreeView *tree, const std::s
 
   idx= tree->append_column(*column);
   tree->get_column(idx-1)->set_resizable(true);
-  return idx-1;
+  return std::make_pair(column, idx-1);
+}
+
+template std::pair<Gtk::TreeViewColumn*,int> TreeNodeViewImpl::ColumnRecord::create_column<Glib::ustring>(Gtk::TreeView *tree, const std::string &title, bool editable, bool attr, bool with_icon,
+                                                      bool align_right = false );
+template std::pair<Gtk::TreeViewColumn*,int> TreeNodeViewImpl::ColumnRecord::create_column<int>(Gtk::TreeView *tree, const std::string &title, bool editable, bool attr, bool with_icon,
+                                                      bool align_right = true );
+template std::pair<Gtk::TreeViewColumn*,int> TreeNodeViewImpl::ColumnRecord::create_column<boost::int64_t>(Gtk::TreeView *tree, const std::string &title, bool editable, bool attr, bool with_icon,
+                                                      bool align_right = true );
+template std::pair<Gtk::TreeViewColumn*,int> TreeNodeViewImpl::ColumnRecord::create_column<double>(Gtk::TreeView *tree, const std::string &title, bool editable, bool attr, bool with_icon,
+                                                      bool align_right = true );
+
+
+int TreeNodeViewImpl::ColumnRecord::add_string(Gtk::TreeView *tree, const std::string &title, bool editable, bool attr, bool with_icon, bool align_right)
+{
+  std::pair<Gtk::TreeViewColumn*, int> ret = create_column<Glib::ustring>(tree, title, editable, attr, with_icon, align_right);
+  return ret.second;
 }
 
 
 int TreeNodeViewImpl::ColumnRecord::add_integer(Gtk::TreeView *tree, const std::string &title, bool editable, bool attr)
 {
-  Gtk::TreeModelColumn<int> *column= add_model_column<int>();
-  int idx;
-  column_value_index.push_back(size()-1);
-
-  if (editable)
-    idx = tree->append_column_editable(title, *column);
-  else
-    idx = tree->append_column(title, *column);
-
-  if (attr)
-  {
-  }
-  else
-    column_attr_index.push_back(-1);
-
-  if (editable)
-    tree->get_column(idx)->get_first_cell_renderer()->signal_editing_started().connect(sigc::mem_fun(this, &ColumnRecord::on_cell_editing_started));
-  return idx-1;
+  std::pair<Gtk::TreeViewColumn*, int> ret = create_column<int>(tree, title, editable, attr, false, true);
+  return ret.second;
 }
 
 int TreeNodeViewImpl::ColumnRecord::add_long_integer(Gtk::TreeView *tree, const std::string &title, bool editable, bool attr)
 {
-#ifdef NO_INT64_COLUMNS
-  Gtk::TreeModelColumn<Glib::ustring> *column= add_model_column<Glib::ustring>();
-#else
-  Gtk::TreeModelColumn<boost::int64_t> *column= add_model_column<boost::int64_t>();
-#endif
-  int idx;
-  column_value_index.push_back(size()-1);
-
-  if (editable)
-    idx = tree->append_column_editable(title, *column);
-  else
-    idx = tree->append_column(title, *column);
-  if (attr)
-  {
-  }
-  else
-    column_attr_index.push_back(-1);
-
-  if (editable)
-    tree->get_column(idx)->get_first_cell_renderer()->signal_editing_started().connect(sigc::mem_fun(this, &ColumnRecord::on_cell_editing_started));
-
-  return idx-1;
+  std::pair<Gtk::TreeViewColumn*, int> ret = create_column<boost::int64_t>(tree, title, editable, attr, false, true);
+  return ret.second;
 }
 
 int TreeNodeViewImpl::ColumnRecord::add_float(Gtk::TreeView *tree, const std::string &title, bool editable, bool attr)
 {
-
-  Gtk::TreeModelColumn<double> *column= add_model_column<double>();
-    int idx;
-    column_value_index.push_back(size()-1);
-
-    if (editable)
-      idx = tree->append_column_editable(title, *column);
-    else
-      idx = tree->append_column(title, *column);
-
-    if (attr)
-    {
-    }
-    else
-      column_attr_index.push_back(-1);
-
-    if (editable)
-      tree->get_column(idx)->get_first_cell_renderer()->signal_editing_started().connect(sigc::mem_fun(this, &ColumnRecord::on_cell_editing_started));
-
-    return idx-1;
+  std::pair<Gtk::TreeViewColumn*, int> ret = create_column<double>(tree, title, editable, attr, false, true);
+  return ret.second;
 }
 
 int TreeNodeViewImpl::ColumnRecord::add_check(Gtk::TreeView *tree, const std::string &title, bool editable, bool attr)

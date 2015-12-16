@@ -348,7 +348,7 @@ class MEBHelperVersion
     private current
     
     private sub Class_Initialize()
-        current = "9"
+        current = "10"
     end sub
 
     public function execute()
@@ -635,7 +635,7 @@ class MEBBackup
             base_folder = get_incremental_base_folder()
 
             if base_folder <> "" then
-                command_call = command_call & " --incremental --incremental-base=dir:" &  base_folder
+                command_call = command_call & " --incremental --incremental-base=dir:" & """" & base_folder & """"
                 backup_dir = inc_backup_dir
                 path_param = "  --incremental-backup-dir"
             else

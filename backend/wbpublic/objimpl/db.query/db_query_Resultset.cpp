@@ -17,10 +17,18 @@
  * 02110-1301  USA
  */
 
+#include <gdal/ogrsf_frmts.h>
+#include <gdal/ogr_api.h>
+#include <gdal/gdal.h>
+
 #include <grts/structs.db.query.h>
 #include <grtpp_util.h>
 #include "sqlide/recordset_be.h"
 #include "db_query_Resultset.h"
+
+#if defined(_WIN64) || defined(__LP64__) || defined(__APPLE__) // For OSX we always built in 64bit. 
+#define ENVIRONMENT_64
+#endif
 
 //================================================================================
 // db_query_Resultset
@@ -36,6 +44,39 @@ db_query_Resultset::ImplData::~ImplData()
 
 //================================================================================
 
+static grt::StringRef getGeoRepresentation(grt::StringRef data, bool outputAsJson = false)
+{
+
+   OGRGeometry *geometry = NULL;
+   OGRErr ret_val = OGRGeometryFactory::createFromWkb((unsigned char*)const_cast<char*>(&(*((*data).begin() + 4))), NULL, &geometry);
+   if (ret_val != OGRERR_NONE)
+   {
+     if (geometry)
+       OGRFree(geometry);
+     throw std::exception();
+   }
+
+   if (geometry != NULL)
+   {
+     char *data = NULL;
+     OGRErr err = OGRERR_NONE;
+     if (outputAsJson)
+       data = geometry->exportToJson();
+     else
+       err = geometry->exportToWkt(&data);
+
+     if (err == OGRERR_NONE && data != NULL)
+     {
+       grt::StringRef tmp(data);
+       OGRFree(data);
+       OGRFree(geometry);
+       return tmp;
+     }
+     else
+       throw std::runtime_error("Conversion of OGR geometry data failed");
+   }
+   return grt::StringRef();
+}
 
 WBRecordsetResultset::WBRecordsetResultset(db_query_ResultsetRef aself, boost::shared_ptr<Recordset> rset)
 : db_query_Resultset::ImplData(aself), cursor(0), recordset(rset)
@@ -218,6 +259,26 @@ grt::StringRef WBRecordsetResultset::stringFieldValueByName(const std::string &c
   return grt::StringRef(); // NULL
 }
 
+grt::StringRef WBRecordsetResultset::geoStringFieldValue(ssize_t column)
+{
+  return getGeoRepresentation(stringFieldValue(column), false);
+}
+
+grt::StringRef WBRecordsetResultset::geoStringFieldValueByName(const std::string &column)
+{
+  return getGeoRepresentation(stringFieldValueByName(column), false);
+}
+
+grt::StringRef WBRecordsetResultset::geoJsonFieldValue(ssize_t column)
+{
+  return getGeoRepresentation(stringFieldValue(column), false);
+}
+
+grt::StringRef WBRecordsetResultset::geoJsonFieldValueByName(const std::string &column)
+{
+  return getGeoRepresentation(stringFieldValueByName(column), false);
+}
+
 grt::IntegerRef WBRecordsetResultset::saveFieldValueToFile(ssize_t column, const std::string &file)
 {
   if (column >= 0 && (size_t)column < recordset->get_column_count())
@@ -373,18 +434,27 @@ public:
 
   virtual grt::IntegerRef intFieldValue(ssize_t column)
   {
-    if (column >= 0 && column < (long)column_by_name.size())
+    if (column >= 0 && column < (ssize_t)column_by_name.size())
+    {
+#ifdef ENVIRONMENT_64
+      return grt::IntegerRef(recordset->getInt64((uint32_t)column + 1));
+#else
       return grt::IntegerRef(recordset->getInt((uint32_t)column + 1));
+#endif
+    }
     throw std::invalid_argument(base::strfmt("invalid column %li for resultset", (long)column).c_str());
     return grt::IntegerRef(0);
   }
-
 
   virtual grt::IntegerRef intFieldValueByName(const std::string &column)
   {
     if (column_by_name.find(column) != column_by_name.end())
     {
+#ifdef ENVIRONMENT_64
+      return grt::IntegerRef(recordset->getInt64((uint32_t)column_by_name[column]));
+#else
       return grt::IntegerRef(recordset->getInt((uint32_t)column_by_name[column]));
+#endif
     }
     throw std::invalid_argument(base::strfmt("invalid column %s for resultset", column.c_str()).c_str());
     return grt::IntegerRef(0);
@@ -410,7 +480,7 @@ public:
 
   virtual grt::StringRef stringFieldValue(ssize_t column)
   {
-    if (column >= 0 && column < (long)column_by_name.size())
+    if (column >= 0 && column < (ssize_t)column_by_name.size())
       return grt::StringRef(recordset->getString((uint32_t)column + 1));
     throw std::invalid_argument(base::strfmt("invalid column %li for resultset", (long)column).c_str());
     return grt::StringRef(); // NULL
@@ -427,6 +497,74 @@ public:
     return grt::StringRef(); // NULL
   }
   
+  virtual grt::StringRef geoStringFieldValue(ssize_t column)
+  {
+    if (column >= 0 && column < (ssize_t)column_by_name.size())
+    {
+      grt::StringRef data(recordset->getString((uint32_t)column + 1));
+
+      try {
+        return getGeoRepresentation(data, false);
+      }
+      catch (std::exception &exc)
+      {
+        throw std::invalid_argument(base::strfmt("unable to convert geometry data to WKT for column %li", (long)column).c_str());
+      }
+    }
+    throw std::invalid_argument(base::strfmt("invalid column %li for resultset", (long)column).c_str());
+  }
+
+  virtual grt::StringRef geoStringFieldValueByName(const std::string &column)
+  {
+    if (column_by_name.find(column) != column_by_name.end())
+    {
+      grt::StringRef data(recordset->getString((uint32_t)column_by_name[column]));
+      try {
+        return getGeoRepresentation(data, false);
+      }
+      catch (std::exception &exc)
+      {
+        throw std::invalid_argument(base::strfmt("unable to convert geometry data to WKT for column %s", column.c_str()).c_str());
+      }
+    }
+    throw std::invalid_argument(base::strfmt("invalid column %s for resultset", column.c_str()).c_str());
+  }
+
+  virtual grt::StringRef geoJsonFieldValue(ssize_t column)
+  {
+    if (column >= 0 && column < (ssize_t)column_by_name.size())
+    {
+      grt::StringRef data(recordset->getString((uint32_t)column + 1));
+      try {
+        return getGeoRepresentation(data, true);
+      }
+      catch (std::exception &exc)
+      {
+        throw std::invalid_argument(base::strfmt("unable to convert geometry data to WKT for column %li", (long)column).c_str());
+      }
+    }
+    throw std::invalid_argument(base::strfmt("invalid column %li for resultset", (long)column).c_str());
+    return grt::StringRef(); // NULL
+  }
+
+  virtual grt::StringRef geoJsonFieldValueByName(const std::string &column)
+  {
+    if (column_by_name.find(column) != column_by_name.end())
+    {
+      grt::StringRef data(recordset->getString((uint32_t)column_by_name[column]));
+      try {
+        return getGeoRepresentation(data, true);
+      }
+      catch (std::exception &exc)
+      {
+        throw std::invalid_argument(base::strfmt("unable to convert geometry data to WKT for column %s", column.c_str()).c_str());
+      }
+    }
+    throw std::invalid_argument(base::strfmt("invalid column %s for resultset", column.c_str()).c_str());
+    return grt::StringRef(); // NULL
+  }
+
+
   virtual grt::IntegerRef saveFieldValueToFile(ssize_t column, const std::string &file)
   {
     return grt::IntegerRef(0);
@@ -563,13 +701,35 @@ grt::IntegerRef db_query_Resultset::refresh()
 
 grt::StringRef db_query_Resultset::stringFieldValue(ssize_t column)
 {
-  return _data ? _data->stringFieldValue(column) : grt::StringRef(); // NULL
+  return _data ? _data->stringFieldValue(column) : grt::StringRef();
 }
 
 
 grt::StringRef db_query_Resultset::stringFieldValueByName(const std::string &column)
 {
-  return _data ? _data->stringFieldValueByName(column) : grt::StringRef(); // NULL
+  return _data ? _data->stringFieldValueByName(column) : grt::StringRef();
+}
+
+grt::StringRef db_query_Resultset::geoStringFieldValue(ssize_t column)
+{
+  return _data ? _data->geoStringFieldValue(column) : grt::StringRef();
+}
+
+
+grt::StringRef db_query_Resultset::geoStringFieldValueByName(const std::string &column)
+{
+  return _data ? _data->geoStringFieldValueByName(column) : grt::StringRef();
+}
+
+grt::StringRef db_query_Resultset::geoJsonFieldValue(ssize_t column)
+{
+  return _data ? _data->geoJsonFieldValue(column) : grt::StringRef();
+}
+
+
+grt::StringRef db_query_Resultset::geoJsonFieldValueByName(const std::string &column)
+{
+  return _data ? _data->geoJsonFieldValueByName(column) : grt::StringRef();
 }
 
 

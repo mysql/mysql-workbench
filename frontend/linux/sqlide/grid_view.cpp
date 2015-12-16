@@ -434,7 +434,12 @@ bool GridView::on_focus_out(GdkEventFocus *event, Gtk::CellRenderer *cell, Gtk::
   // Emulate pressing Enter on the text entry so that a focus out will save ongoing changes
   // instead of discarding them
   if (!event->in)
+  {
+    if (_cell_editable != 0)
+      _cell_editable->editing_done();
+
     this->on_cell_edited("",e->get_text());
+  }
   return false;
 }
 

@@ -25,7 +25,7 @@
 #include "grtdb/db_helpers.h"
 #include "wb_helpers.h"
 
-using namespace std;
+using namespace parser;
 using namespace tut;
 
 #define VERBOSE_TESTING 0
@@ -1190,7 +1190,7 @@ TEST_FUNCTION(3)
   };
 
 
-TEST_FUNCTION(6)
+TEST_FUNCTION(10)
 {
   boost::shared_ptr<DiffChange> alter_change;
   boost::shared_ptr<DiffChange> empty_change;
@@ -1202,18 +1202,23 @@ TEST_FUNCTION(6)
   {
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());
     execute_script(stmt.get(), "DROP DATABASE IF EXISTS grtdiff_alter_test;"
-                               "DROP DATABASE IF EXISTS grtdiff_alter_test2",tester.wb->get_grt_manager());
+                               "DROP DATABASE IF EXISTS grtdiff_alter_test2", tester.wb->get_grt_manager());
     execute_script(stmt.get(), "CREATE DATABASE IF NOT EXISTS grtdiff_alter_test /*!40100 DEFAULT CHARACTER SET latin1 */",tester.wb->get_grt_manager());
   }
 
-  for(int i= 0; data[i].description != NULL; i++)
-  {
-#if VERBOSE_TESTING
-    std::cout << "iteration " << i << std::endl;
-#endif
+  MySQLParserServices::Ref services = MySQLParserServices::get(tester.grt);
+  ParserContext::Ref context = services->createParserContext(tester.get_rdbms()->characterSets(),
+    tester.get_rdbms()->version(), false);
 
-    db_mysql_CatalogRef org_cat= create_empty_catalog_for_import(tester.grt);
-    db_mysql_CatalogRef mod_cat= create_empty_catalog_for_import(tester.grt);
+  grt::DictRef options(tester.grt);
+  for (int i = 0; data[i].description != NULL; i++)
+  {
+    std::cout << ".";
+    if ((i + 1) % 30 == 0)
+      std::cout << std::endl;
+
+    db_mysql_CatalogRef org_cat = create_empty_catalog_for_import(tester.grt);
+    db_mysql_CatalogRef mod_cat = create_empty_catalog_for_import(tester.grt);
 
     {
       std::string org_script;
@@ -1221,7 +1226,8 @@ TEST_FUNCTION(6)
         .append("CREATE DATABASE IF NOT EXISTS grtdiff_alter_test /*!40100 DEFAULT CHARACTER SET latin1 */;\n")
         .append(data[i].org)
         .append(";");
-      sql_parser->parseSqlScriptString(org_cat, org_script);
+      services->parseSQLIntoCatalog(context, org_cat, org_script, options);
+
     }
     {
       std::string mod_script;
@@ -1229,7 +1235,7 @@ TEST_FUNCTION(6)
         .append("CREATE DATABASE IF NOT EXISTS grtdiff_alter_test /*!40100 DEFAULT CHARACTER SET latin1 */;\n")
         .append(data[i].mod)
         .append(";");
-      sql_parser->parseSqlScriptString(mod_cat, mod_script);
+      services->parseSQLIntoCatalog(context, mod_cat, mod_script, options);
     }
 
     if(strcmp(data[i].description, "C CR C") == 0)
@@ -1251,13 +1257,13 @@ TEST_FUNCTION(6)
     normalizer.init_omf(&omf);
     grt::ValueRef default_engine = tester.wb->get_grt_manager()->get_app_option("db.mysql.Table:tableEngine");
     std::string default_engine_name;
-    if(grt::StringRef::can_wrap(default_engine))
-        default_engine_name = grt::StringRef::cast_from(default_engine);
+    if (grt::StringRef::can_wrap(default_engine))
+      default_engine_name = grt::StringRef::cast_from(default_engine);
 
     bec::CatalogHelper::apply_defaults(mod_cat, default_engine_name);
     bec::CatalogHelper::apply_defaults(org_cat, default_engine_name);
 
-    alter_change= diff_make(org_cat, mod_cat, &omf);
+    alter_change = diff_make(org_cat, mod_cat, &omf);
     ensure("Empty alter:", (bool)alter_change);
 
 #if VERBOSE_TESTING
@@ -1323,8 +1329,6 @@ TEST_FUNCTION(6)
 
     normalizer.init_omf(&omf);
     empty_change= diff_make(cat, mod_cat, &omf);
-    tester.wb->close_document();
-    tester.wb->close_document_finish();
 
     if (empty_change)
     {
@@ -1346,18 +1350,18 @@ TEST_FUNCTION(6)
           fail(data[i].description);
       }
     }
+    tester.wb->close_document();
+    tester.wb->close_document_finish();
   }
+  std::cout << std::endl;
 }
 
-TEST_FUNCTION(7)
+TEST_FUNCTION(20)
 {
   boost::shared_ptr<DiffChange> alter_change;
   boost::shared_ptr<DiffChange> empty_change;
 
   // column insertion
-
-
-
   ensure("connection is NULL", connection.get() != NULL);
 
   {
@@ -1367,105 +1371,112 @@ TEST_FUNCTION(7)
     execute_script(stmt.get(), "CREATE DATABASE IF NOT EXISTS grtdiff_alter_test /*!40100 DEFAULT CHARACTER SET latin1 */",tester.wb->get_grt_manager());
   }
 
-  for(int i= 2; data[i].description != NULL; i++)
-	  for (int j = 0; j <= 1; ++j)
+  MySQLParserServices::Ref services = MySQLParserServices::get(tester.grt);
+  ParserContext::Ref context = services->createParserContext(tester.get_rdbms()->characterSets(),
+    tester.get_rdbms()->version(), false);
+
+  grt::DictRef options(tester.grt);
+  for (int i = 0; data[i].description != NULL; i++)
   {
-#if VERBOSE_TESTING
-    std::cout << "iteration " << i << std::endl;
-#endif
+    std::cout << ".";
+    if ((i + 1) % 30 == 0)
+      std::cout << std::endl;
 
-    db_mysql_CatalogRef org_cat= create_empty_catalog_for_import(tester.grt);
-    db_mysql_CatalogRef mod_cat= create_empty_catalog_for_import(tester.grt);
-
+    for (int j = 0; j <= 1; ++j)
     {
-      std::string org_script;
-      org_script
-        .append("CREATE DATABASE IF NOT EXISTS grtdiff_alter_test /*!40100 DEFAULT CHARACTER SET latin1 */;\n")
-        .append(data[i].org)
-        .append(";");
-      sql_parser->parseSqlScriptString(org_cat, org_script);
-    }
-    {
-      std::string mod_script;
-      mod_script
-        .append("CREATE DATABASE IF NOT EXISTS grtdiff_alter_test /*!40100 DEFAULT CHARACTER SET latin1 */;\n")
-        .append(data[i].mod)
-        .append(";");
-      sql_parser->parseSqlScriptString(mod_cat, mod_script);
-    }
+      db_mysql_CatalogRef org_cat = create_empty_catalog_for_import(tester.grt);
+      db_mysql_CatalogRef mod_cat = create_empty_catalog_for_import(tester.grt);
 
-    if(strcmp(data[i].description, "C CR C") == 0)
-      mod_cat->schemata().get(0)->tables().get(0)->columns().get(1)->oldName("t");
-    else if(strcmp(data[i].description, "C CR> C") == 0)
-      mod_cat->schemata().get(0)->tables().get(0)->columns().get(2)->oldName("t");
-    else if(strcmp(data[i].description, "C CR< C") == 0)
-      mod_cat->schemata().get(0)->tables().get(0)->columns().get(0)->oldName("t");
-    else if(strcmp(data[i].description, "C CR*> C") == 0)
-      mod_cat->schemata().get(0)->tables().get(0)->columns().get(2)->oldName("t");
-    else if(strcmp(data[i].description, "C CR*< C") == 0)
-      mod_cat->schemata().get(0)->tables().get(0)->columns().get(0)->oldName("t");
-    else if(strcmp(data[i].description, "Rename table") == 0)
-      mod_cat->schemata().get(0)->tables().get(0)->oldName("t1");
-    else if(strcmp(data[i].description, "Rename view") == 0)
-      mod_cat->schemata().get(0)->views().get(0)->oldName("v1");
+      {
+        std::string org_script;
+        org_script
+          .append("CREATE DATABASE IF NOT EXISTS grtdiff_alter_test /*!40100 DEFAULT CHARACTER SET latin1 */;\n")
+          .append(data[i].org)
+          .append(";");
+        services->parseSQLIntoCatalog(context, org_cat, org_script, options);
+      }
+      {
+        std::string mod_script;
+        mod_script
+          .append("CREATE DATABASE IF NOT EXISTS grtdiff_alter_test /*!40100 DEFAULT CHARACTER SET latin1 */;\n")
+          .append(data[i].mod)
+          .append(";");
+        services->parseSQLIntoCatalog(context, mod_cat, mod_script, options);
+      }
 
-    grt::NormalizedComparer normalizer(tester.grt);
-    normalizer.init_omf(&omf);
-        grt::ValueRef default_engine = tester.wb->get_grt_manager()->get_app_option("db.mysql.Table:tableEngine");
-    std::string default_engine_name;
-    if(grt::StringRef::can_wrap(default_engine))
+      if (strcmp(data[i].description, "C CR C") == 0)
+        mod_cat->schemata().get(0)->tables().get(0)->columns().get(1)->oldName("t");
+      else if (strcmp(data[i].description, "C CR> C") == 0)
+        mod_cat->schemata().get(0)->tables().get(0)->columns().get(2)->oldName("t");
+      else if (strcmp(data[i].description, "C CR< C") == 0)
+        mod_cat->schemata().get(0)->tables().get(0)->columns().get(0)->oldName("t");
+      else if (strcmp(data[i].description, "C CR*> C") == 0)
+        mod_cat->schemata().get(0)->tables().get(0)->columns().get(2)->oldName("t");
+      else if (strcmp(data[i].description, "C CR*< C") == 0)
+        mod_cat->schemata().get(0)->tables().get(0)->columns().get(0)->oldName("t");
+      else if (strcmp(data[i].description, "Rename table") == 0)
+        mod_cat->schemata().get(0)->tables().get(0)->oldName("t1");
+      else if (strcmp(data[i].description, "Rename view") == 0)
+        mod_cat->schemata().get(0)->views().get(0)->oldName("v1");
+
+      grt::NormalizedComparer normalizer(tester.grt);
+      normalizer.init_omf(&omf);
+      grt::ValueRef default_engine = tester.wb->get_grt_manager()->get_app_option("db.mysql.Table:tableEngine");
+      std::string default_engine_name;
+      if (grt::StringRef::can_wrap(default_engine))
         default_engine_name = grt::StringRef::cast_from(default_engine);
 
-    bec::CatalogHelper::apply_defaults(mod_cat, default_engine_name);
-    bec::CatalogHelper::apply_defaults(org_cat, default_engine_name);
+      bec::CatalogHelper::apply_defaults(mod_cat, default_engine_name);
+      bec::CatalogHelper::apply_defaults(org_cat, default_engine_name);
 
 
-    alter_change= diff_make(org_cat, mod_cat, &omf);
-    ensure("Empty alter:", (bool)alter_change);
+      alter_change = diff_make(org_cat, mod_cat, &omf);
+      ensure("Empty alter:", (bool)alter_change);
 
 #if VERBOSE_TESTING
-    alter_change->dump_log(0);
+      alter_change->dump_log(0);
 #endif
+      
+      const char TemplateFile[] = "data/reporting/Basic_Text.tpl/basic_text_report.txt.tpl";
 
-    const char TemplateFile[] = "data/reporting/Basic_Text.tpl/basic_text_report.txt.tpl";
+      // 1. generate alter
+      grt::StringListRef alter_map(tester.grt);
+      grt::DictRef options(tester.grt);
+      options.set("UseFilteredLists", grt::IntegerRef(0));
+      options.set("OutputContainer", alter_map);
+      options.set("TemplateFile", grt::StringRef(TemplateFile));
+      options.set("UseShortNames", grt::IntegerRef(j));
+      options.set("SeparateForeignKeys", grt::IntegerRef(0));
 
-    // 1. generate alter
-    grt::StringListRef alter_map(tester.grt);
-    grt::DictRef options(tester.grt);
-    options.set("UseFilteredLists", grt::IntegerRef(0));
-    options.set("OutputContainer", alter_map);
-    options.set("TemplateFile", grt::StringRef(TemplateFile));
-    options.set("UseShortNames", grt::IntegerRef(j));
-    options.set("SeparateForeignKeys", grt::IntegerRef(0));
+      std::string report = diffsql_module->generateReport(org_cat, options, alter_change);
+      std::string reportFile = base::strfmt("data/reporting/Basic_Text.tpl/reports/testres%s%d.txt",
+        (j != 0) ? "_longname" : "_shortname", i);
 
-    std::string report = diffsql_module->generateReport(org_cat, options, alter_change);
+      std::ifstream rep;
+      rep.open(reportFile.c_str());
+      std::string expected((std::istreambuf_iterator<char>(rep)), std::istreambuf_iterator<char>());
 
-    char buf1[1000];
+      if (report != expected)
+      {
+        std::cout << std::endl << std::endl << "Reports differ, expected:" << std::endl;
+        //alter_change->dump_log(0);
+        std::cout << expected << std::endl << std::endl;
+        std::cout << "==================================================" << std::endl << std::endl << "actual: " << std::endl;
+        std::cout << report << std::endl << std::endl;
+        fail(reportFile);
+      }
 
-    g_snprintf(buf1, sizeof(buf1), "data/reporting/Basic_Text.tpl/reports/testres%s%d.txt",j?"_longname":"_shortname", i);
-
-    std::ifstream rep;
-    rep.open(buf1);
-    std::string str((std::istreambuf_iterator<char>(rep)), std::istreambuf_iterator<char>());
-
-    if (report != str)
-    {
-        alter_change->dump_log(0);
-//         int pp = strcmp(report.c_str(),str.c_str());
-        std::cout<<report.c_str()<<std::endl;
-        std::cout<<"=======================================================================================================================\n";
-        std::cout<<str<<std::endl;
-        fail(buf1);
+      // Test Data generation
+      /*
+        sprintf(buf1, "testres%s%d.txt",j?"_longname":"_shortname", i);
+        std::ofstream out;
+        out.open(buf1);
+        out<<(*report).c_str();
+        out.close();
+      */
     }
-// Test Data generation
-/*
-	sprintf(buf1, "testres%s%d.txt",j?"_longname":"_shortname", i);
-	std::ofstream out;
-	out.open(buf1);
-	out<<(*report).c_str();
-	out.close();
-*/
   }
+  std::cout << std::endl;
 }
 
 
@@ -1523,10 +1534,7 @@ static struct
     {NULL, NULL, NULL, NULL, NULL}
 };
 
-
-
-
-TEST_FUNCTION(5)
+TEST_FUNCTION(30)
 {
   boost::shared_ptr<DiffChange> empty_change;
 
@@ -1541,11 +1549,16 @@ TEST_FUNCTION(5)
     execute_script(stmt.get(), "CREATE DATABASE IF NOT EXISTS grtdiff_alter_test /*!40100 DEFAULT CHARACTER SET latin1 */",tester.wb->get_grt_manager());
   }
 
-  for(int i= 0; neg_data[i].description != NULL; i++)
+  MySQLParserServices::Ref services = MySQLParserServices::get(tester.grt);
+  ParserContext::Ref context = services->createParserContext(tester.get_rdbms()->characterSets(),
+    tester.get_rdbms()->version(), false);
+
+  grt::DictRef options(tester.grt);
+  for (int i = 0; neg_data[i].description != NULL; i++)
   {
-#if VERBOSE_TESTING
-    std::cout << "iteration " << i << std::endl;
-#endif
+    std::cout << ".";
+    if ((i + 1) % 30 == 0)
+      std::cout << std::endl;
 
     db_mysql_CatalogRef org_cat= create_empty_catalog_for_import(tester.grt);
     db_mysql_CatalogRef mod_cat= create_empty_catalog_for_import(tester.grt);
@@ -1556,7 +1569,7 @@ TEST_FUNCTION(5)
         .append("CREATE DATABASE IF NOT EXISTS grtdiff_alter_test /*!40100 DEFAULT CHARACTER SET latin1 */;\n")
         .append(neg_data[i].org)
         .append(";");
-      sql_parser->parseSqlScriptString(org_cat, org_script);
+      services->parseSQLIntoCatalog(context, org_cat, org_script, options);
     }
     {
       std::string mod_script;
@@ -1564,7 +1577,7 @@ TEST_FUNCTION(5)
         .append("CREATE DATABASE IF NOT EXISTS grtdiff_alter_test /*!40100 DEFAULT CHARACTER SET latin1 */;\n")
         .append(neg_data[i].mod)
         .append(";");
-      sql_parser->parseSqlScriptString(mod_cat, mod_script);
+      services->parseSQLIntoCatalog(context, mod_cat, mod_script, options);
     }
 
     if(strcmp(neg_data[i].description, "C CR C") == 0)
@@ -1623,6 +1636,7 @@ TEST_FUNCTION(5)
       }
     }
   }
+  std::cout << std::endl;
 }
 
 

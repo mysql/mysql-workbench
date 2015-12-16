@@ -41,7 +41,13 @@
 #include <wchar.h>
 #include <codecvt>
 #include <fcntl.h>
+
 #include <list>
+#include <string>
+#include <map>
+#include <sddl.h>
+#include <stdio.h>
+#include <winevt.h>
 
 #include <VersionHelpers.h>
 

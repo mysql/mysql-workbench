@@ -347,12 +347,18 @@ void WBContextSQLIDE::call_in_editor_panel(void (SqlEditorPanel::*method)())
   }
 }
 
-
 void WBContextSQLIDE::call_in_editor_str(void (SqlEditorForm::*method)(const std::string &arg), const std::string &arg)
 {
   SqlEditorForm *form= get_active_sql_editor();
   if (form)
     (form->*method)(arg);
+}
+
+void WBContextSQLIDE::call_in_editor_str2(void (SqlEditorForm::*method)(const std::string &arg1, bool arg2, bool arg3), const std::string &arg1, bool arg2, bool arg3)
+{
+  SqlEditorForm *form= get_active_sql_editor();
+  if (form)
+    (form->*method)(arg1, arg2, arg3);
 }
 
 
@@ -501,6 +507,13 @@ static void call_open_script(wb::WBContextSQLIDE *sqlide)
       form->open_file(chooser.get_path());
     }
   }
+}
+
+static void call_no_connection_empty_tab(wb::WBContextSQLIDE *sqlide)
+{
+  boost::shared_ptr<SqlEditorForm> form = sqlide->get_wbui()->get_wb()->add_new_query_window();
+  if (form)
+    form->open_file();
 }
 
 
@@ -798,12 +811,14 @@ void WBContextSQLIDE::init()
   cmdui->add_builtin_command("query.new_connection", boost::bind(call_new_connection, this),
                              boost::bind(validate_has_connection, this));
 
+
   cmdui->add_builtin_command("query.openScriptNoConnection", boost::bind(call_open_script, this));
 
+  cmdui->add_builtin_command("query.newQueryNoconnection", boost::bind(call_no_connection_empty_tab, this));
   cmdui->add_builtin_command("query.newQuery", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::new_scratch_area));
   //cmdui->add_builtin_command("query.newFile", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::new_sql_script_file));
   cmdui->add_builtin_command("query.newFile", boost::bind(new_script_tab, this));
-  cmdui->add_builtin_command("query.openFile", boost::bind(&WBContextSQLIDE::call_in_editor_str, this, (void(SqlEditorForm::*)(const std::string&))&SqlEditorForm::open_file, ""));
+  cmdui->add_builtin_command("query.openFile", boost::bind(&WBContextSQLIDE::call_in_editor_str2, this, (void(SqlEditorForm::*)(const std::string&, bool, bool))&SqlEditorForm::open_file, "", true, true));
   cmdui->add_builtin_command("query.saveFile", boost::bind(call_save_file, this));
   cmdui->add_builtin_command("query.saveFileAs", boost::bind(call_save_file_as, this));
   cmdui->add_builtin_command("query.revert", boost::bind(call_revert, this), boost::bind(validate_revert, this));
@@ -911,6 +926,13 @@ static void *connect_editor(SqlEditorForm::Ref editor, boost::shared_ptr<sql::Tu
     log_error("Got an authentication error during connection: %s\n", exc.what());
     return new std::string(exc.what());
   }
+  catch (grt::server_denied &sd)
+  {
+    if (sd.errNo == 3159)
+      return new std::string(":SSL_ONLY");
+    if (sd.errNo == 3032)
+      return new std::string(":OFFLINE_MODE");
+  }
   catch (grt::user_cancelled &)
   {
     log_info("User cancelled connection\n");
@@ -986,6 +1008,14 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
       else if (tmp == ":CANCELLED")
       {
         throw grt::user_cancelled("Cancelled");
+      }
+      else if (tmp == ":SSL_ONLY")
+      {
+        throw grt::server_denied("Connections using insecure transport are prohibited while --require_secure_transport=ON.", 3159);
+      }
+      else if (tmp == ":OFFLINE_MODE")
+      {
+        throw grt::server_denied("The server is currently in offline mode.", 3032);
       }
       
       throw std::runtime_error(tmp);
