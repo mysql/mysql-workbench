@@ -74,7 +74,7 @@ endif ()
 
 # We need to be able to detect python module versions and packages hence this function
 
-FIND_PROGRAM(PYTHON_EXEC "python")
+FIND_PROGRAM(PYTHON_EXEC "python2")
 include(FindPackageHandleStandardArgs)
 function(find_python_module module minver)
         string(TOUPPER ${module} module_upper)
