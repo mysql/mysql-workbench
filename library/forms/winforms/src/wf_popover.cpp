@@ -170,12 +170,12 @@ protected:
         newLocation.Y = hotSpot.Y - actualSize.Height / 3;
         Padding = System::Windows::Forms::Padding(DEFAULT_PADDING + ARROW_SIZE, DEFAULT_PADDING, DEFAULT_PADDING, DEFAULT_PADDING);
         break;
-      case mforms::Above:
+      case mforms::StartAbove:
         newLocation.X = hotSpot.X - actualSize.Width / 3;
         newLocation.Y = hotSpot.Y - actualSize.Height;
         Padding = System::Windows::Forms::Padding(DEFAULT_PADDING, DEFAULT_PADDING, DEFAULT_PADDING, DEFAULT_PADDING + ARROW_SIZE);
         break;
-      case mforms::Below:
+      case mforms::StartBelow:
         newLocation.X = hotSpot.X - actualSize.Width / 3;
         newLocation.Y = hotSpot.Y;
         Padding = System::Windows::Forms::Padding(DEFAULT_PADDING, DEFAULT_PADDING + ARROW_SIZE, DEFAULT_PADDING, DEFAULT_PADDING);
@@ -214,8 +214,8 @@ protected:
       if ((hotSpot.Y + ARROW_BASE / 2) > (newLocation.Y + actualSize.Height - cornerSize))
         hotSpot.Y = newLocation.Y + actualSize.Height - cornerSize - ARROW_BASE / 2;
       break;
-    case mforms::Above:
-    case mforms::Below:
+    case mforms::StartAbove:
+    case mforms::StartBelow:
       if ((hotSpot.X - ARROW_BASE / 2) < (newLocation.X + cornerSize))
         hotSpot.X = newLocation.X + cornerSize + ARROW_BASE / 2;
       if ((hotSpot.X + ARROW_BASE / 2) > (newLocation.X + actualSize.Width - cornerSize))
@@ -287,7 +287,7 @@ protected:
 
           break;
         }
-      case mforms::Above:
+      case mforms::StartAbove:
         {
           outline->AddArc(bounds.Left, bounds.Top, cornerSize, cornerSize, 180, 90);
           outline->AddArc(bounds.Right - cornerSize, bounds.Top, cornerSize, cornerSize, -90, 90);
@@ -307,7 +307,7 @@ protected:
           outline->AddArc(bounds.Left, bounds.Bottom - cornerSize - ARROW_SIZE, cornerSize, cornerSize, 90, 90);
           break;
         }
-      case mforms::Below:
+      case mforms::StartBelow:
         {
           outline->AddArc(bounds.Left, bounds.Top + ARROW_SIZE, cornerSize, cornerSize, 180, 90);
 

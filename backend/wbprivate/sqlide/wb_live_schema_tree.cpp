@@ -1515,7 +1515,7 @@ grt::BaseListRef LiveSchemaTree::get_selected_objects()
       switch (current_type)
       {
         case Any:
-        case None:
+        case NoneType:
           break;
         case Schema:
           obj->type("db.Schema");
