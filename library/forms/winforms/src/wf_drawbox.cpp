@@ -55,12 +55,12 @@ static int convert_mouse_button(MouseButtons button)
 
 static System::Windows::Forms::AccessibleRole convert_accessible_role(mforms::Accessible::Role be_role)
 {
-  System::Windows::Forms::AccessibleRole role = System::Windows::Forms::AccessibleRole::RoleNone;
+  System::Windows::Forms::AccessibleRole role = System::Windows::Forms::AccessibleRole::None;
 
   switch (be_role)
   {
       case mforms::Accessible::RoleNone:
-        role = System::Windows::Forms::AccessibleRole::RoleNone;
+        role = System::Windows::Forms::AccessibleRole::None;
         break;
         
       case mforms::Accessible::Client:
