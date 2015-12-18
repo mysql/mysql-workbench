@@ -427,6 +427,15 @@ void Utilities::add_end_ok_cancel_buttons(mforms::Box *box, mforms::Button *ok, 
 
 //--------------------------------------------------------------------------------------------------
 
+static void on_request_action(mforms::TextEntryAction action, mforms::Button *btn)
+{
+  if (action == mforms::EntryActivate)
+    btn->signal_clicked()->operator ()();
+
+}
+
+//--------------------------------------------------------------------------------------------------
+
 bool Utilities::request_input(const std::string &title, const std::string &description,
                               const std::string &default_value, std::string &ret_value)
 {
@@ -459,6 +468,8 @@ bool Utilities::request_input(const std::string &title, const std::string &descr
 
   edit.set_size(150, -1);
   edit.set_value(default_value);
+  edit.signal_action()->connect(boost::bind(&on_request_action, _1, &ok_button));
+
   content.add(&description_label, 1, 2, 0, 1, HFillFlag | VFillFlag);
   content.add(&edit, 2, 3, 0, 1, HFillFlag | VFillFlag);
 
@@ -645,6 +656,7 @@ static void *_ask_for_password_main(const std::string &title, const std::string 
   password_form.center();
   
   password_edit.focus();
+  password_edit.signal_action()->connect(boost::bind(&on_request_action, _1, &ok_button));
   
   bool result= password_form.run_modal(&ok_button, &cancel_button);
   if (result)
