@@ -24,7 +24,7 @@ from mforms import App
 from wb_server_management import wbaOS
 from wb_common import Users
 
-from workbench.log import log_error, log_debug, log_debug2, log_debug3
+from workbench.log import log_info, log_error, log_debug, log_debug2, log_debug3
 
 
 #===============================================================================
