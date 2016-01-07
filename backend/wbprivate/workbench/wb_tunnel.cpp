@@ -117,7 +117,6 @@ public:
 
   virtual void disconnect()
   {
-    _tm->close_tunnel(_port);
   }
 
   virtual bool get_message(std::string &type, std::string &message)
@@ -328,19 +327,6 @@ bool TunnelManager::get_message_for(int port, std::string &type, std::string &me
   Py_XDECREF(ret);
 
   return true;
-}
-
-
-void TunnelManager::close_tunnel(int port)
-{
-  WillEnterPython lock;
-  PyObject *ret = PyObject_CallMethod(_tunnel, (char*) "close", (char*) "i", port);
-  if (!ret)
-  {
-    PyErr_Print();
-    return;
-  }
-  Py_XDECREF(ret);
 }
 
 void TunnelManager::set_keepalive(int port, int keepalive)
