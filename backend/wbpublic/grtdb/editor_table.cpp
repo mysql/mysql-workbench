@@ -803,7 +803,7 @@ bool TableColumnsListBE::set_field(const NodeId &node, ColumnId column, ssize_t 
 
       // When setting the not-null flag then having a default value of NULL is meaningless.
       // Remove that if it is set.
-      if (col->defaultValueIsNull())
+      if (col->defaultValueIsNull() && col->isNotNull())
         bec::ColumnHelper::set_default_value(col, "");
       
       TableHelper::update_foreign_keys_from_column_notnull(_owner->get_table(), col);
