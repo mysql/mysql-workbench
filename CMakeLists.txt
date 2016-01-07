@@ -97,7 +97,7 @@ function(find_python_module module minver)
         find_package_handle_standard_args(PY_${module} DEFAULT_MSG PY_${module_upper})
 endfunction(find_python_module)
 
-find_python_module(paramiko 1.15.1 QUIET)
+find_python_module(paramiko 1.16.0 QUIET)
 if(NOT PY_PARAMIKO)
   message(WARNING "Paramiko wasn't found, you can still build Workbench, but may not work properly.")
 endif()
