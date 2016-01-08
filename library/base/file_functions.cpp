@@ -248,3 +248,28 @@ long base_get_file_size(const char *filename)
 
 //--------------------------------------------------------------------------------------------------
 
+/**
+ * On Windows, wchar_t is UTF - 16, but there's no direct support for UTF-8 filenames
+ * in the standard library (the char datatype is not Unicode on Windows)
+ */
+void openStream(const std::string& fileName, std::wifstream& stream)
+{
+#ifdef WIN32
+  stream.open(base::string_to_wstring(fileName));
+#else
+  stream.open(fileName.c_str());
+#endif
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void openStream(const std::string& fileName, std::wofstream& stream)
+{
+#ifdef WIN32
+  stream.open(base::string_to_wstring(fileName));
+#else
+  stream.open(fileName.c_str());
+#endif
+}
+
+//--------------------------------------------------------------------------------------------------

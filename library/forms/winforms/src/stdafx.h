@@ -56,6 +56,9 @@ typedef int ssize_t;
 
 #include <glib.h>
 
+#include <iosfwd>
+#include <fstream>
+
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
 

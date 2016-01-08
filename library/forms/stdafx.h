@@ -43,6 +43,8 @@ typedef int ssize_t;
 #include <sstream>
 #include <vector>
 #include <stack>
+#include <iosfwd>
+#include <fstream>
 
 #include <errno.h>
 #include <cstdlib>
