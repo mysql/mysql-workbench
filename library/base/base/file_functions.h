@@ -26,6 +26,8 @@
 
 #ifndef HAVE_PRECOMPILED_HEADERS
   #include <glib.h>
+  #include <iosfwd>
+  #include <fstream>
 #endif
 
 #ifndef _WIN32
@@ -45,3 +47,6 @@ BASELIBRARY_PUBLIC_FUNC int base_rename(const char *oldname, const char *newname
 
 BASELIBRARY_PUBLIC_FUNC int base_rmdir_recursively(const char *dirname);
 BASELIBRARY_PUBLIC_FUNC long base_get_file_size(const char *filename);
+
+BASELIBRARY_PUBLIC_FUNC void openStream(const std::string& fileName, std::wifstream& stream);
+BASELIBRARY_PUBLIC_FUNC void openStream(const std::string& fileName, std::wofstream& stream);

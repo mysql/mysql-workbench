@@ -32,3 +32,6 @@
 #include <glib.h>
 
 #include "grts/structs.h"
+
+#include <iosfwd>
+#include <fstream>
