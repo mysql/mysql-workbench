@@ -27,6 +27,8 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <iosfwd>
+#include <fstream>
 
 #include <string>
 #include <stdexcept>

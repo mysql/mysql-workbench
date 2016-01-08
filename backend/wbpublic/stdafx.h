@@ -43,6 +43,8 @@
 #include <iterator>
 #include <stack>
 #include <set>
+#include <iosfwd>
+#include <fstream>
 
 #define HAVE_ROUND
 #include <Python/Python.h>
