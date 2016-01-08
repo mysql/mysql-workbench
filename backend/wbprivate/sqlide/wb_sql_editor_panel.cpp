@@ -386,12 +386,13 @@ static bool check_if_file_too_big_to_restore(const std::string &path, const std:
 SqlEditorPanel::AutoSaveInfo::AutoSaveInfo(const std::string &info_file)
 : word_wrap(false), show_special(false)
 {
-  char buffer[4098];
-  std::ifstream f(info_file.c_str());
+  wchar_t buffer[4098] = {0};
+  std::wifstream f;
+  openStream(info_file, f);
   while (f.getline(buffer, sizeof(buffer)))
   {
     std::string key, value;
-    base::partition(buffer, "=", key, value);
+    base::partition(base::wstring_to_string(buffer), "=", key, value);
     if (key == "orig_encoding")
       orig_encoding = value;
     else if (key == "type")
@@ -681,36 +682,39 @@ void SqlEditorPanel::auto_save(const std::string &path)
 {
   // save info about the file
   {
-    std::ofstream f(base::makePath(path, _autosave_file_suffix+".info").c_str());
-
+    std::wofstream f;
+    openStream(base::makePath(path, _autosave_file_suffix + ".info"), f);
+    std::string content;
     if (_is_scratch)
-      f << "type=scratch\n";
+      content += "type=scratch\n";
     else
-      f << "type=file\n";
+      content += "type=file\n";
 
     if (!_is_scratch && !_filename.empty())
     {
-      f << "filename=" << _filename << "\n";
+      content += "filename=" + _filename + "\n";
     }
-    f << "orig_encoding=" << _orig_encoding << "\n";
+    content += "orig_encoding=" + _orig_encoding + "\n";
 
-    f << "title="<<_title<<"\n";
+    content += "title=" + _title + "\n";
 
     if (get_toolbar()->get_item_checked("query.toggleInvisible"))
-      f << "show_special=1\n";
+      content += "show_special=1\n";
     else
-      f << "show_special=0\n";
+      content += "show_special=0\n";
     if (get_toolbar()->get_item_checked("query.toggleWordWrap"))
-      f << "word_wrap=1\n";
+      content += "word_wrap=1\n";
     else
-      f << "word_wrap=0\n";
+      content += "word_wrap=0\n";
 
     size_t caret_pos = _editor->get_editor_control()->get_caret_pos();
-    f << "caret_pos=" << caret_pos << "\n";
+    content += "caret_pos=" + base::to_string(caret_pos) + "\n";
 
     size_t first_line = _editor->get_editor_control()->send_editor(SCI_GETFIRSTVISIBLELINE, 0, 0);
-    f << "first_visible_line=" << first_line << "\n";
+    content += "first_visible_line=" + base::to_string(first_line) + "\n";
 
+    if (f.good())
+      f << base::string_to_wstring(content);
     f.close();
   }
 
