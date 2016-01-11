@@ -74,7 +74,7 @@ endif ()
 
 # We need to be able to detect python module versions and packages hence this function
 
-FIND_PROGRAM(PYTHON_EXEC "python")
+FIND_PROGRAM(PYTHON_EXEC "python2")
 include(FindPackageHandleStandardArgs)
 function(find_python_module module minver)
         string(TOUPPER ${module} module_upper)
@@ -121,10 +121,9 @@ if (MYSQLCPPCONN_VERSION_1_1_4)
   add_definitions(-DMYSQLCPPCONN_VERSION_1_1_4)
 endif ()
 
-if (MYSQLCPPCONN_VERSION_1_1_6)
-  add_definitions(-DMYSQLCPPCONN_VERSION_1_1_6)
-endif (MYSQLCPPCONN_VERSION_1_1_6)
-
+if (MYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER)
+  add_definitions(-DMYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER)
+endif (MYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER)
 
 if (UNIX)
   option(USE_UNIXODBC "Use unixODBC instead of iODBC" OFF)

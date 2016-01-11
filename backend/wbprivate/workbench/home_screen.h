@@ -162,7 +162,7 @@ namespace wb
     std::vector<db_mgmt_ConnectionRef> _oldAuthList;
   public:
     HomeScreen(CommandUI *cmdui, db_mgmt_ManagementRef rdbms);
-    ~HomeScreen();
+    virtual ~HomeScreen();
     
     db_mgmt_ManagementRef rdbms() { return _rdbms; };
     
