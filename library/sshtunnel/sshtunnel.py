@@ -37,7 +37,7 @@ SSH_PORT = 22
 REMOTE_PORT = 3306
 
 # timeout for closing an unused tunnel
-TUNNEL_TIMEOUT = 60
+TUNNEL_TIMEOUT = 3
 
 # paramiko 1.6 didn't have this class
 if hasattr(paramiko, "WarningPolicy"):
@@ -99,7 +99,6 @@ class Tunnel(threading.Thread):
     def is_connecting(self):
         with self.lock:
             return self.connecting
-
 
     def run(self):
         try:
@@ -528,10 +527,11 @@ class TunnelManager:
         else:
             self.outpipe.write(code + '\n')
         self.outpipe.flush()
-
+    
     def shutdown(self):
         for tunnel in self.tunnel_by_port.itervalues():
             tunnel.close()
+            tunnel.join()
 
     # FIXME: It seems that this function is never called. Should we remove it?
     def wait_requests(self):
