@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -247,6 +247,7 @@ private:
 public:
   bool connect(boost::shared_ptr<sql::TunnelConnection> tunnel);
   bool connected() const;
+  void checkIfOffline();
   bool offline();
   bool ping() const;
   void finish_startup();
