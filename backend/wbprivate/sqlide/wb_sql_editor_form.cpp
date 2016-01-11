@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -410,6 +410,11 @@ void SqlEditorForm::finish_startup()
   _grtm->run_once_when_idle(this, boost::bind(&SqlEditorForm::update_menu_and_toolbar, this));
 
   this->check_server_problems();
+
+
+  // We need to check this before sending GRNSQLEditorOpened cause offline() function that's called
+  // from python which is connected to this notification will deadlock on PythonLock.
+  checkIfOffline();
 
   // refresh snippets again, in case the initial load from DB is pending for shared snippets
   _side_palette->refresh_snippets();
@@ -1500,52 +1505,45 @@ bool SqlEditorForm::connected() const
 }
 
 
+void SqlEditorForm::checkIfOffline()
+{
+  base::RecMutexTryLock tmp(_usr_dbc_conn_mutex);
+  int counter = 1;
+  while(!tmp.locked())
+  {
+    if (counter >= 30)
+    {
+      log_error("Can't lock conn mutex for 30 seconds, assuming server is not offline.");
+      return;
+    }
+
+    log_debug3("Can't lock conn mutex, trying again in one sec.");
+#if _WIN32
+    Sleep(1);
+#else
+    sleep(1);
+#endif
+    counter++;
+    tmp.retry_lock(_usr_dbc_conn_mutex);
+  }
+
+
+  std::string result;
+  if (_usr_dbc_conn && get_session_variable(_usr_dbc_conn->ref.get(), "offline_mode", result))
+  {
+    if (base::string_compare(result, "ON") == 0)
+      _serverIsOffline = true;
+  }
+}
+
 bool SqlEditorForm::offline()
 {
+
   if (_serverIsOffline)
       return true;
 
   if (!connected())
     return false;
-  {
-    base::RecMutexTryLock tmp(_usr_dbc_conn_mutex);
-    int counter = 1;
-    while(!tmp.locked())
-    {
-      if (counter >= 30)
-      {
-        log_error("Can't lock conn mutex for 30 seconds, assuming server is not offline.");
-        return false;
-      }
-
-      log_debug3("Can't lock conn mutex, trying again in one sec.");
-#if _WIN32
-      Sleep(1);
-#else
-      sleep(1);
-#endif
-      counter++;
-      tmp.retry_lock(_usr_dbc_conn_mutex);
-    }
-
-    if (_usr_dbc_conn && _usr_dbc_conn->ref.get_ptr())
-    {
-      std::auto_ptr<sql::Statement> stmt(_usr_dbc_conn->ref->createStatement());
-      try
-      {
-        std::auto_ptr<sql::ResultSet> result(stmt->executeQuery("show variables like 'offline_mode'"));
-        if (result->next())
-        {
-          if (base::string_compare(result->getString(2), "ON") == 0)
-            _serverIsOffline = true;
-        }
-      }
-      catch (...)
-      {
-        log_error("Unable to detect offline mode.\n");
-      }
-    }
-  }
 
   return _serverIsOffline;
 }
