@@ -56,3 +56,6 @@
 
 #include <glib/glib.h>
 #include <glib/gstdio.h>
+
+#include <iosfwd>
+#include <fstream>
