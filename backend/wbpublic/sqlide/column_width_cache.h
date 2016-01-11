@@ -31,6 +31,7 @@ class WBPUBLICBACKEND_PUBLIC_FUNC ColumnWidthCache
   void init_db();
 public:
   ColumnWidthCache(const std::string &connection_id, const std::string &cache_dir);
+  virtual ~ColumnWidthCache();
 
   void save_column_width(const std::string &column_id, int width);
   void save_columns_width(const std::map<std::string, int> &columns);

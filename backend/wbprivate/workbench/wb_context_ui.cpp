@@ -70,8 +70,6 @@ DEFAULT_LOG_DOMAIN(DOMAIN_WB_CONTEXT_UI)
 WBContextUI::WBContextUI(bool verbose)
   : _wb(new WBContext(this, verbose)), _command_ui(new CommandUI(_wb))
 {
-  base::NotificationCenter::get()->add_observer(this, "GNAppClosing");
-  
   _shell_window= 0;
   
   _output_view = NULL;
@@ -102,12 +100,11 @@ WBContextUI::WBContextUI(bool verbose)
 
 WBContextUI::~WBContextUI()
 {
-  base::NotificationCenter::get()->remove_observer(this);
-  
   _wb->do_close_document(true);
 
   delete _addon_download_window;
   delete _plugin_install_window;
+
   if (_home_screen != NULL)
     _home_screen->release();
 
@@ -115,14 +112,6 @@ WBContextUI::~WBContextUI()
   delete _shell_window;
   delete _wb;
   delete _command_ui;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void WBContextUI::handle_notification(const std::string &name, void *sender, base::NotificationInfo &info)
-{
-  if (name == "GNAppClosing")
-    home_screen_closing();
 }
 
 //--------------------------------------------------------------------------------------------------

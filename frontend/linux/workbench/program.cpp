@@ -153,6 +153,9 @@ Program::Program(wb::WBOptions &wboptions)
 //------------------------------------------------------------------------------
 Program::~Program()
 { 
+  delete _wb_context_ui;
+  _wb_context = NULL;
+  _grt_manager = NULL;
 }
 
 
@@ -169,9 +172,7 @@ bool Program::idle_stuff()
 {
   // if there are tasks to be executed, schedule it to be done when idle so that the timer
   // doesn't get blocked during its execution
-  Glib::signal_idle().connect(sigc::bind_return(sigc::mem_fun(_wb_context, &wb::WBContext::flush_idle_tasks), false));
-
-  //_wb_context->flush_idle_tasks();
+  _idleConnections.push_back(Glib::signal_idle().connect(sigc::bind_return(sigc::mem_fun(_wb_context, &wb::WBContext::flush_idle_tasks), false)));
   return true;
 }
 
@@ -190,12 +191,13 @@ void Program::shutdown()
 
   _grt_manager->get_dispatcher()->shutdown();
 
+  for (std::deque<sigc::connection>::iterator it = _idleConnections.begin(); it != _idleConnections.end(); it++)
+    (*it).disconnect();
+
+  _idleConnections.clear();
+
   delete _main_form;
   _main_form= 0;
-
-// is not working well
- // delete _wb_context_ui;
-  _wb_context_ui= 0;
 }
 
 
