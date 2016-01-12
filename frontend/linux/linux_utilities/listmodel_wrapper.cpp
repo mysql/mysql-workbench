@@ -61,7 +61,7 @@ Index::Index(GtkTreeIter* it, const bec::NodeId& node)
 
   if (m == External)
   {
-    const std::string nrepr = node.repr();
+    const std::string nrepr = node.toString();
     std::pair<ExternalMap::iterator, bool> res = _ext_map.insert(nrepr);
     _ext = const_cast<std::string*>(&(*(res.first)));
     it->user_data = (void*)_ext;
