@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
 
 #include "model/wb_model_diagram_form.h"
 #include "model/wb_layer_tree.h"
+#include "wb_context.h"
+#include "wb_context_model.h"
 
 #import "mforms/../cocoa/MFView.h"
 #import "NSString_extras.h"
@@ -29,9 +31,7 @@
 #import "WBObjectPropertiesController.h"
 #import "WBModelSidebarController.h"
 #import "MCPPUtilities.h"
-
-#include "wb_context.h"
-#include "wb_context_model.h"
+#import "MContainerView.h"
 
 static int zoom_levels[]= {
   200,
@@ -90,7 +90,7 @@ static int zoom_levels[]= {
 
 static void *backend_destroyed(void *ptr)
 {
-  ((WBModelDiagramPanel*)ptr)->_formBE = NULL;
+  ((__bridge WBModelDiagramPanel*)ptr)->_formBE = NULL;
   return NULL;
 }
 
@@ -100,17 +100,18 @@ static void *backend_destroyed(void *ptr)
   if (self != nil)
   {
     _formBE = be;
-    if (_formBE != NULL && [NSBundle.mainBundle loadNibNamed: @"WBModelDiagram" owner: self topLevelObjects: &nibObjects])
+    NSMutableArray *temp;
+    if (_formBE != NULL && [NSBundle.mainBundle loadNibNamed: @"WBModelDiagram" owner: self topLevelObjects: &temp])
     {
-      [nibObjects retain];
+      nibObjects = temp;
 
-      _formBE->set_frontend_data(self);
+      _formBE->set_frontend_data((__bridge void *)self);
       grtm = be->get_wb()->get_grt_manager();
 
-      _formBE->add_destroy_notify_callback(self, backend_destroyed);
+      _formBE->add_destroy_notify_callback((__bridge void *)self, backend_destroyed);
 
-      _identifier = [oid retain];
-      _viewer = [[[MCanvasViewer alloc] initWithFrame:NSMakeRect(0, 0, 300, 300)] autorelease];
+      _identifier = oid;
+      _viewer = [[MCanvasViewer alloc] initWithFrame:NSMakeRect(0, 0, 300, 300)];
 
       [descriptionController setWBContext: _formBE->get_wb()->get_ui()];
       [propertiesController setWBContext: _formBE->get_wb()->get_ui()];
@@ -137,7 +138,7 @@ static void *backend_destroyed(void *ptr)
 
       [sidebarController setupWithDiagramForm: _formBE];
 
-      [_viewer canvas]->set_user_data(self);
+      [_viewer canvas]->set_user_data((__bridge void *)self);
 
       [_viewer registerForDraggedTypes: @[@WB_DBOBJECT_DRAG_TYPE]];
 
@@ -183,15 +184,12 @@ static void *backend_destroyed(void *ptr)
 - (void)dealloc
 {
   if (_formBE)
-    _formBE->remove_destroy_notify_callback(self);
-  [_identifier release];
+    _formBE->remove_destroy_notify_callback((__bridge void *)self);
   [[NSNotificationCenter defaultCenter] removeObserver: self];
   [sidebarController invalidate];
   
   [_viewer setDelegate: nil];
-  [nibObjects release];
 
-  [super dealloc];
 }
 
 - (void)showOptionsToolbar:(BOOL)flag
@@ -200,10 +198,8 @@ static void *backend_destroyed(void *ptr)
   {
     id parent = [optionsToolbar superview];
     [optionsToolbar setHidden: !flag];
-    [optionsToolbar retain];
     [optionsToolbar removeFromSuperview];
     [parent addSubview: optionsToolbar];
-    [optionsToolbar release];
     [optionsToolbar setNeedsDisplay:YES];
 
   }
@@ -278,7 +274,6 @@ static NSPoint loadCursorHotspot(const std::string &path)
       cursor= [[NSCursor alloc] initWithImage:image hotSpot:loadCursorHotspot([path fileSystemRepresentation])];
   }
   [_viewer setCursor:cursor];
-  [cursor release];
 }
 
 - (bec::UIForm*)formBE
@@ -348,7 +343,6 @@ static NSPoint loadCursorHotspot(const std::string &path)
   NSView *view = nsviewForView(_formBE->get_wb()->get_model_context()->shared_secondary_sidebar());
   if ([view superview])
   {
-    [view retain];
     [view removeFromSuperview];
   }
   [secondarySidebar addSubview: view];
@@ -515,7 +509,6 @@ static NSPoint loadCursorHotspot(const std::string &path)
   {
     if (view2 != sidebar)
     {
-      [[view1 retain] autorelease];
       [view1 removeFromSuperview];
       [self.topView addSubview: view1];
     }    
@@ -524,7 +517,6 @@ static NSPoint loadCursorHotspot(const std::string &path)
   {
     if (view1 != sidebar)
     {
-      [[view1 retain] autorelease];
       [view1 removeFromSuperview];
       [self.topView addSubview: view1];
     }

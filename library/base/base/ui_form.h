@@ -30,10 +30,6 @@
 #include <vector>
 #include <string>
 
-#ifdef __APPLE__
-  #include <objc/objc-runtime.h>
-#endif
-
 namespace mforms 
 {
   class MenuBar;
@@ -138,13 +134,8 @@ public:
   void set_owner_data(void *data);
   void *get_owner_data();
 
-#ifdef __APPLE__
-  void set_frontend_data(id data);
-  id get_frontend_data();
-#else
   void set_frontend_data(void *data);
   void *get_frontend_data();
-#endif
 
   virtual bool is_main_form();
   virtual std::string get_form_context_name() const= 0;
@@ -177,11 +168,7 @@ public:
   
 protected:
   void *_owner_data;
-#ifdef __APPLE__
-  id _frontend_data;
-#else
-  void *_frontend_data;
-#endif
+  void *_frontend_data; // No strong reference for OSX!
 
 public:
   static bec::UIForm *form_with_id(const std::string &id);

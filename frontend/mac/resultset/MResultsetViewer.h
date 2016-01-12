@@ -17,11 +17,11 @@
  * 02110-1301  USA
  */
 
+#import "MGridView.h"
+
 class Recordset;
 
-@class MGridView;
-
-@interface MResultsetViewer : NSObject
+@interface MResultsetViewer : NSObject <GridViewDelegate>
 
 - (instancetype)initWithRecordset: (boost::shared_ptr<Recordset>)rset;
 

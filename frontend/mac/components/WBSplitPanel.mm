@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,8 +20,22 @@
 #import "WBSplitPanel.h"
 #import "WBTabView.h"
 #import "WBSplitView.h"
+#import "WBSplitViewUnbrokenizerDelegate.h"
+#import "MContainerView.h"
 
 #define MODEL_SPLIT_MIN_HEIGHT 28
+
+@interface WBSplitPanel ()
+{
+  IBOutlet __weak WBSplitView *mainSplitView;
+  IBOutlet __weak WBSplitViewUnbrokenizerDelegate *mainSplitViewDelegate;
+  IBOutlet __weak NSView *topContainer;
+
+  NSMutableDictionary *_editorById;
+  float _lastEditorTabHeight;
+  NSTimeInterval _lastClick;
+}
+@end
 
 @implementation WBSplitPanel
 

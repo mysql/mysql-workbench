@@ -28,9 +28,9 @@
 - (instancetype)initWithPlugin: (WBPluginEditorBase *)plugin
 {
   self = [super init];
-  if (self)
+  if (self != nil)
   {
-    mPluginEditor= [plugin retain];
+    mPluginEditor = plugin;
   }
   return self;
 }
@@ -40,20 +40,16 @@
   return [self initWithPlugin: nil];
 }
 
-- (void) dealloc
+- (void)dealloc
 {
-  [mPluginEditor grtManager]->get_plugin_manager()->forget_gui_plugin_handle(self);
+  [mPluginEditor grtManager]->get_plugin_manager()->forget_gui_plugin_handle((__bridge void *)self);
   
-  [mPluginEditor release];
-  [super dealloc];
 }
-
 
 - (WBPluginEditorBase*)pluginEditor
 {
   return mPluginEditor;
 }
-
 
 - (NSView*)topView
 {

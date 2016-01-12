@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -14,9 +14,22 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
 
+#include "base/string_utilities.h"
+#include "base/log.h"
+#include "base/notifications.h"
+
+#include "mforms/toolbar.h"
+#include "mforms/form.h"
+
 #include "wb_context.h"
 
-#import "WBMainWindow.h"
+#include "workbench/wb_context_ui.h"
+
+#include "model/wb_context_model.h"
+#include "model/wb_model_diagram_form.h"
+#include "model/wb_overview_physical.h"
+
+#import "MainWindowController.h"
 #import "WBMainController.h"
 #import "WBOverviewPanel.h"
 #import "WBModelOverviewPanel.h"
@@ -33,42 +46,17 @@
 #import "WBPluginEditorBase.h"
 #import "MCPPUtilities.h"
 #import "MTabSwitcher.h"
-#include "workbench/wb_context_ui.h"
-#include "model/wb_context_model.h"
-#include "model/wb_model_diagram_form.h"
-#include "model/wb_overview_physical.h"
 
-#import "WBMainWindow_Model.h"
-#include "base/string_utilities.h"
-#include "base/log.h"
-#include "base/notifications.h"
-
-#include "mforms/toolbar.h"
-#include "mforms/form.h"
+#import "MainWindowController+Model.h"
 
 DEFAULT_LOG_DOMAIN("Workbench")
 
-@interface MyAutoreleasePool : NSAutoreleasePool
-{
-}
-@end
-
-@implementation MyAutoreleasePool
-// avoid NSInvalidArgumentException -- *** -[NSAutoreleasePool retain]: Cannot retain an autorelease pool
-- (id)retain
-{
-  return self;
-}
-@end
-
-
-
 class MacNotificationObserver : base::Observer
 {
-  WBMainWindow *mainWindow;
+  MainWindowController *controller;
 public:
-  MacNotificationObserver(WBMainWindow *window)
-  : mainWindow(window)
+  MacNotificationObserver(MainWindowController *aController)
+  : controller(aController)
   {
     base::NotificationCenter::get()->add_observer(this, "GNFormTitleDidChange");
   }
@@ -82,15 +70,16 @@ public:
   {
     if (name == "GNFormTitleDidChange")
     {
-      WBBasePanel *panel = [mainWindow findMainPanelForUIForm: bec::UIForm::form_with_id(info["form"])];
+      WBBasePanel *panel = [controller findMainPanelForUIForm: bec::UIForm::form_with_id(info["form"])];
       if (panel)
-        [mainWindow setTitle: [NSString stringWithCPPString: info["title"]]
+        [controller setTitle: [NSString stringWithCPPString: info["title"]]
                     forPanel: panel];
     }
   }
 };
 
-@interface WBWindow()
+// Subclass of NSWindow to override makeFirstResponder: and detect key view changes
+@interface WBWindow : NSWindow
 @end
 
 @implementation WBWindow
@@ -98,13 +87,9 @@ public:
 - (instancetype)initWithContentRect:(NSRect)contentRect styleMask:(NSUInteger)aStyle backing:(NSBackingStoreType)bufferingType defer:(BOOL)flag
 {
   self = [super initWithContentRect: contentRect styleMask: aStyle backing: bufferingType defer: flag];
-  if (self)
+  if (self != nil)
   {
-    // setup pointer to main window in mforms
-    NSInteger rc = [self retainCount];
     mforms::Form::main_form()->set_data(self);
-    if ((int)[self retainCount] > rc) // don't let the mforms placeholder retain us
-      [self release];
   }
   return self;
 }
@@ -141,9 +126,9 @@ public:
 
 
 // mforms integration
-void setup_mforms_app(WBMainWindow *mwin);
+void setup_mforms_app(MainWindowController *mwin);
 
-@interface WBMainWindow()
+@interface MainWindowController()
 {
   IBOutlet NSTextField *statusBarText;
   IBOutlet NSTabView *topTabView;
@@ -169,7 +154,7 @@ void setup_mforms_app(WBMainWindow *mwin);
 
 @end
 
-@implementation WBMainWindow
+@implementation MainWindowController
 
 @synthesize owner;
 
@@ -178,14 +163,15 @@ void setup_mforms_app(WBMainWindow *mwin);
   self = [super init];
   if (self != nil)
   {
-    if ([NSBundle.mainBundle loadNibNamed: @"MainWindow" owner: self topLevelObjects: &nibObjects])
+    NSMutableArray *temp;
+    if ([NSBundle.mainBundle loadNibNamed: @"MainWindow" owner: self topLevelObjects: &temp])
     {
-      [nibObjects retain];
+      nibObjects = temp;
       _panels = [[NSMutableDictionary alloc] init];
       _closedTopTabs = [[NSMutableArray alloc] init];
       _closedBottomTabs = [[NSMutableArray alloc] init];
 
-      _defaultMainMenu = [[NSApp mainMenu] retain];
+      _defaultMainMenu = [NSApp mainMenu];
     }
   }
   return self;
@@ -197,15 +183,6 @@ void setup_mforms_app(WBMainWindow *mwin);
 {
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
   delete _backendObserver;
-
-  [_closedTopTabs release];
-  [_closedBottomTabs release];
-
-  [_panels release];
-  [_physicalOverview release];
-
-  [nibObjects release];
-  [super dealloc];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -255,7 +232,7 @@ void setup_mforms_app(WBMainWindow *mwin);
 {
   log_debug2("Adding new top panel\n");
 
-  id tabItem= [[[NSTabViewItem alloc] initWithIdentifier:[panel identifier]] autorelease];
+  id tabItem = [[NSTabViewItem alloc] initWithIdentifier: [panel identifier]];
 
   if ([panel title])
     [tabItem setView:[panel decoratedTopView]];
@@ -486,21 +463,15 @@ void setup_mforms_app(WBMainWindow *mwin);
   }
 }
 
-
 - (void)setStatusText:(NSString*)text
 {  
   [statusBarText setStringValue:text];
-//  [statusBarText sizeToFit];
   [statusBarText display];
-  
-  [text release];
 }
-
 
 - (void)blockGUI:(BOOL)lock
 {
 }
-
 
 - (mdc::CanvasView*)createView:(const char*)oid
                           name:(const char*)name
@@ -510,7 +481,6 @@ void setup_mforms_app(WBMainWindow *mwin);
                                                                formBE: dform];
 
   NSTabViewItem* item= [self addTopPanel:panel];
-  [panel release];
   
   if (dform->is_closed())
   {
@@ -691,9 +661,9 @@ void setup_mforms_app(WBMainWindow *mwin);
 
 //--------------------------------------------------------------------------------------------------
 
-- (BOOL)closePanel:(WBBasePanel*)panel
+- (BOOL)closePanel: (WBBasePanel*)panel
 {
-  id identifier = [[[panel identifier] retain] autorelease];
+  id identifier = [panel identifier];
 
   // Remove first responder status from current first responder to trigger any pending processing
   // done on end-editing. Necessary for instance to make code editors store their content in their backend.
@@ -726,20 +696,12 @@ void setup_mforms_app(WBMainWindow *mwin);
   if (index != NSNotFound)
   {
     NSTabViewItem *item= [topTabView tabViewItemAtIndex: index];
-    id form= _panels[[item identifier]];
-    
-    [form retain];
-    
     if (hideOnly)
       [_closedTopTabs addObject: item];
     else
       [_panels removeObjectForKey: [item identifier]];
     
     [topTabView removeTabViewItem: item];
-    
-    // need to release now instead of autoreleasing because plugins should be released synchronously
-    // now, and not in runloop
-    [form release];
   }
 }
 
@@ -807,7 +769,6 @@ void setup_mforms_app(WBMainWindow *mwin);
 - (void)changedIdentifierOfPanel: (WBBasePanel*)panel
                   fromIdentifier: (id)identifier
 {
-  [[panel retain] autorelease];
   [_panels removeObjectForKey: identifier];
   _panels[[panel identifier]] = panel;
 }
@@ -843,8 +804,6 @@ void setup_mforms_app(WBMainWindow *mwin);
     WBSplitPanel *spanel = (WBSplitPanel*)panel;
     if (![spanel hasEditor: editor])
     {
-      [[editor retain] autorelease];
-
       // remove the editor from the current tab
       for (NSTabViewItem *item in [topTabView tabViewItems])
       {
@@ -920,7 +879,7 @@ void setup_mforms_app(WBMainWindow *mwin);
     mforms::ToolBarItem *item = main_form->get_toolbar()->find_item("find");
     if (item)
     {
-      id form= reinterpret_cast<id>(main_form->get_frontend_data());
+      id form = (__bridge id)(main_form->get_frontend_data());
       [self focusSearchField: nil];
       if ([form respondsToSelector:@selector(searchString:)])
         [form searchString: [NSString stringWithCPPString: item->get_text()]];
@@ -1106,7 +1065,7 @@ void setup_mforms_app(WBMainWindow *mwin);
 
 - (BOOL)closeAllPanels
 {
-  id panelsCopy = [[_panels copy] autorelease];
+  id panelsCopy = [_panels copy];
   id homeTabId = [[topTabView tabViewItemAtIndex: 0] identifier];
   for (id panel in [panelsCopy objectEnumerator])
   {
@@ -1138,19 +1097,20 @@ void setup_mforms_app(WBMainWindow *mwin);
 
 //--------------------------------------------------------------------------------------------------
 
-// mforms integration
-#import <mforms/../cocoa/MFMForms.h>
+#pragma mark - mforms integration
+
+#import "mforms/../cocoa/MFMForms.h"
 
 class MainWindowDockingPoint : public mforms::DockingPointDelegate
 {
-  WBMainWindow *self;
+  MainWindowController *controller;
   
 public:
-  MainWindowDockingPoint(WBMainWindow *mainWindow) : self(mainWindow) {}
+  MainWindowDockingPoint(MainWindowController *aController) : controller(aController) {}
   
   virtual std::string get_type()
   {
-    return "MainWindow";
+    return "MainWindowController";
   }
   
   virtual void dock_view(mforms::AppView *view, const std::string &arg1, int arg2)
@@ -1161,15 +1121,14 @@ public:
     if (arg1 == "maintab" || arg1.empty())
     {
       if (panel)
-        [self->topTabView selectTabViewItemWithIdentifier: [panel identifier]]; 
+        [controller->topTabView selectTabViewItemWithIdentifier: [panel identifier]];
       else
       {
         panel = [[WBMFormsPluginPanel alloc] initWithAppView: view];
         if (!view->get_menubar())
-          [panel setDefaultMenuBar: [self context]->get_command_ui()->create_menubar_for_context(view->is_main_form() ?
-                                                                                                 view->get_form_context_name()
-                                                                                                 : "")];
-        [self addTopPanelAndSwitch: [panel autorelease]];
+          [panel setDefaultMenuBar: controller.context->get_command_ui()->create_menubar_for_context(
+            view->is_main_form() ? view->get_form_context_name() : "")];
+        [controller addTopPanelAndSwitch: panel];
       }
     }    
   }
@@ -1178,9 +1137,9 @@ public:
   {
     NSString *ident = @(view->identifier().c_str());
     
-    if ([self->topTabView indexOfTabViewItemWithIdentifier: ident] < 0)
+    if ([controller->topTabView indexOfTabViewItemWithIdentifier: ident] < 0)
       return false;
-    [self->topTabView selectTabViewItemWithIdentifier: ident];
+    [controller->topTabView selectTabViewItemWithIdentifier: ident];
     return false;
   }
   
@@ -1191,12 +1150,12 @@ public:
     if (panel)
     {
       // close the panel bypassing the willClose handler (that should've already been called much earlier)
-      id identifier = [[[panel identifier] retain] autorelease];
+      id identifier = [panel identifier];
 
-      if ([self->topTabView indexOfTabViewItemWithIdentifier: identifier] != NSNotFound)
-        [self closeTopPanelWithIdentifier: identifier];
+      if ([controller->topTabView indexOfTabViewItemWithIdentifier: identifier] != NSNotFound)
+        [controller closeTopPanelWithIdentifier: identifier];
       else
-        [self closeBottomPanelWithIdentifier: identifier];
+        [controller closeBottomPanelWithIdentifier: identifier];
     }
   }
   
@@ -1206,29 +1165,29 @@ public:
     if (panel)
     {
       [panel setTitle: [NSString stringWithCPPString: title]];
-      [self setTitle: [panel title] forPanel: panel];
+      [controller setTitle: [panel title] forPanel: panel];
     }
     else
-      NSLog(@"set_view_title called for undocked view");
+      log_warning("set_view_title called for undocked view\n");
   }
   
   virtual std::pair<int, int> get_size()
   {
-    NSRect rect = [[self window] frame];
+    NSRect rect = controller.window.frame;
     return std::make_pair(NSWidth(rect), NSHeight(rect));
   }
 
   virtual int view_count()
   {
-    return [self->topTabView numberOfTabViewItems];
+    return [controller->topTabView numberOfTabViewItems];
   }
 
   virtual mforms::AppView *selected_view()
   {
-    id view = [[self->topTabView selectedTabViewItem] view];
-    id panel = [self findPanelForView:view inTabView: self->topTabView];
+    id view = [[controller->topTabView selectedTabViewItem] view];
+    id panel = [controller findPanelForView:view inTabView: controller->topTabView];
 
-    if ([panel isKindOfClass: [WBMFormsPluginPanel class]])
+    if ([panel isKindOfClass: WBMFormsPluginPanel.class])
     {
       return [(WBMFormsPluginPanel*)panel appView];
     }
@@ -1237,8 +1196,8 @@ public:
 
   virtual mforms::AppView *view_at_index(int index)
   {
-    id view = [[self->topTabView tabViewItemAtIndex: index] view];
-    id panel = [self findPanelForView:view inTabView: self->topTabView];
+    id view = [[controller->topTabView tabViewItemAtIndex: index] view];
+    id panel = [controller findPanelForView:view inTabView: controller->topTabView];
 
     if ([panel isKindOfClass: [WBMFormsPluginPanel class]])
     {
@@ -1252,17 +1211,16 @@ public:
 
 static void set_status_text(mforms::App *app, const std::string &text)
 {
-  WBMainWindow *mwin = app->get_data();
+  MainWindowController *controller = app->get_data();
 
-  NSString *string= [[NSString alloc] initWithUTF8String:text.c_str()];
+  NSString *string = [[NSString alloc] initWithUTF8String: text.c_str()];
   
-  // setStatusText must release the param
-  if ([NSThread isMainThread])
-    [mwin setStatusText:string];
+  if (NSThread.isMainThread)
+    [controller setStatusText: string];
   else    
-    [mwin performSelectorOnMainThread:@selector(setStatusText:)
-                           withObject:string
-                        waitUntilDone:NO];  
+    [controller performSelectorOnMainThread: @selector(setStatusText:)
+                                 withObject: string
+                              waitUntilDone: NO];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1327,37 +1285,23 @@ static std::string get_executable_path(mforms::App *app, const std::string &file
 
 static base::Rect get_main_window_bounds(mforms::App *app)
 {
-  WBMainWindow *mwin = app->get_data();
+  MainWindowController *controller = app->get_data();
 
-  NSRect r = [[mwin window] frame];
+  NSRect r = controller.window.frame;
   return base::Rect(NSMinX(r), NSMaxY(r), NSWidth(r), NSHeight(r));
-}
-
-//--------------------------------------------------------------------------------------------------
-
-static void alloc_ar_pool()
-{
-  NSAutoreleasePool *pool = [[MyAutoreleasePool alloc] init];
-  [[NSThread currentThread] threadDictionary][@"MFormsAutoReleasePool"] = pool;
-}
-
-
-static void free_ar_pool()
-{  
-  [[[NSThread currentThread] threadDictionary] removeObjectForKey:@"MFormsAutoReleasePool"];
 }
 
 //--------------------------------------------------------------------------------------------------
 
 static int enter_event_loop(mforms::App *app, float timeout)
 {
-  WBMainWindow *mwin = app->get_data();
-  if (mwin)
+  MainWindowController *controller = app->get_data();
+  if (controller != nil)
   {
     NSDate *later = timeout > 0.0 ? [NSDate dateWithTimeIntervalSinceNow: timeout] : [NSDate distantFuture];
-    mwin->_eventLoopRetCode = -0xdead1009;
+    controller->_eventLoopRetCode = -0xdead1009;
 
-    while (mwin->_eventLoopRetCode == -0xdead1009)
+    while (controller->_eventLoopRetCode == -0xdead1009)
     {
       NSEvent *e = [NSApp nextEventMatchingMask: NSAnyEventMask
                                       untilDate: later
@@ -1369,12 +1313,12 @@ static int enter_event_loop(mforms::App *app, float timeout)
       else
         if ([[NSDate date] earlierDate: later] == later)
         {
-          mwin->_eventLoopRetCode = -1;
+          controller->_eventLoopRetCode = -1;
           break;
         }
     }
     
-    return mwin->_eventLoopRetCode;
+    return controller->_eventLoopRetCode;
   }
   return -1;
 }
@@ -1382,11 +1326,9 @@ static int enter_event_loop(mforms::App *app, float timeout)
 
 static void exit_event_loop(mforms::App *app, int retcode)
 {
-  WBMainWindow *mwin = app->get_data();
-  if (mwin)
-  {
-    mwin->_eventLoopRetCode = retcode;
-  }
+  MainWindowController *controller = app->get_data();
+  if (controller != nil)
+    controller->_eventLoopRetCode = retcode;
 }
 
 static base::Color get_system_color(mforms::SystemColor color)
@@ -1419,27 +1361,25 @@ static base::Color get_system_color(mforms::SystemColor color)
 
 static float backing_scale_factor(mforms::App *app)
 {
-  WBMainWindow *controller = app->get_data();
+  MainWindowController *controller = app->get_data();
   if ([controller.window respondsToSelector: @selector(backingScaleFactor)])
     return [controller.window backingScaleFactor]; // Available since 10.7.
   return 1.0;
 }
 
 
-void setup_mforms_app(WBMainWindow *mwin)
+void setup_mforms_app(MainWindowController *controller)
 {
   mforms::ControlFactory *cf = mforms::ControlFactory::get_instance();
   g_assert(cf);
   
-  mforms::App::instantiate(new MainWindowDockingPoint(mwin), true);
-  mforms::App::get()->set_data(mwin);
+  mforms::App::instantiate(new MainWindowDockingPoint(controller), true);
+  mforms::App::get()->set_data(controller);
   
   cf->_app_impl.get_resource_path = get_resource_path;
   cf->_app_impl.get_executable_path = get_executable_path;
   cf->_app_impl.set_status_text = set_status_text;
   cf->_app_impl.get_application_bounds = get_main_window_bounds;
-  cf->_app_impl.begin_thread_loop = alloc_ar_pool;
-  cf->_app_impl.end_thread_loop = free_ar_pool;
   cf->_app_impl.enter_event_loop = enter_event_loop;
   cf->_app_impl.exit_event_loop = exit_event_loop;
   cf->_app_impl.get_system_color = get_system_color;

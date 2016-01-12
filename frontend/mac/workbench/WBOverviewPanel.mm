@@ -64,8 +64,8 @@ static void DrawTiledImage(NSImage *image, NSRect rect, BOOL composite)
 {
   if ((self= [super initWithFrame:rect]) != nil)
   {
-    bgImage= [[NSImage imageNamed:@"background.png"] retain];
-    shadowImage= [[NSImage imageNamed:@"background_top_shadow.png"] retain];
+    bgImage = [NSImage imageNamed:@"background.png"];
+    shadowImage = [NSImage imageNamed:@"background_top_shadow.png"];
     [self setExpandSubviewsByDefault: NO];
   }
   return self;
@@ -73,19 +73,9 @@ static void DrawTiledImage(NSImage *image, NSRect rect, BOOL composite)
 
 - (void)setNoBackground
 {
-  [bgImage release];
-  [shadowImage release];
   bgImage = nil;
   shadowImage = nil;    
 }
-
-- (void)dealloc
-{
-  [bgImage release];
-  [shadowImage release];
-  [super dealloc];
-}
-
 
 - (void)drawRect:(NSRect)rect
 {
@@ -123,17 +113,16 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 - (void)setupWithOverviewBE:(wb::OverviewBE*)overview
 {
   _overview = overview;
-  _overview->set_frontend_data(self);
+  _overview->set_frontend_data((__bridge void *)self);
   
-  _identifier= [@(_overview->identifier().c_str()) retain];
+  _identifier = @(_overview->identifier().c_str());
   
   [self setHasVerticalScroller:YES];
   [self setHasHorizontalScroller:NO];
   [self setBorderType:NSNoBorder];
   
-  _backgroundView= [[[WBOverviewBackgroundView alloc] initWithFrame: NSMakeRect(0, 0, 
-                                                                               [self contentSize].width,
-                                                                               [self contentSize].height)] autorelease];
+  _backgroundView = [[WBOverviewBackgroundView alloc] initWithFrame:
+                     NSMakeRect(0, 0, [self contentSize].width, [self contentSize].height)];
   [_backgroundView setAutoresizingMask:NSViewWidthSizable||NSViewMaxYMargin|NSViewMinXMargin|NSViewMaxXMargin];
   [self setDocumentView:_backgroundView];
   
@@ -153,13 +142,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 - (void)dealloc
 {
   delete _lastFoundNode;
-
-  [_identifier release];
-  [_searchText release];
-  [_itemContainers release];
-  [super dealloc];
 }
-
 
 - (BOOL)willClose
 {
@@ -191,8 +174,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     _lastFoundNode= 0;
   }
   
-  [_searchText release];
-  _searchText= [text retain];
+  _searchText = text;
   
   bec::NodeId node= _overview->search_child_item_node_matching(bec::NodeId(), 
                                                              _lastFoundNode ? *_lastFoundNode : bec::NodeId(),
@@ -411,19 +393,6 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   [self rebuildAll];
 }
 
-
-//static int first_child_type(wb::OverviewBE *overview, const bec::NodeId &node)
-//{
-//  if (overview->count_children(node) > 0)
-//  {
-//    int type= -1;
-//    overview->get_field(overview->get_child(node, 0), wb::OverviewBE::NodeType, type);
-//    return type;
-//  }
-//  return -1;
-//}
-
-
 - (NSView*)buildDivision:(const bec::NodeId&)node
                   inPane:(MTogglePane*)pane
 {
@@ -437,8 +406,8 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   
   if (child_type == wb::OverviewBE::OGroup)
   {
-    WBOverviewGroupContainer *groups= [[[WBOverviewGroupContainer alloc] initWithOverview:self
-                                                                                   nodeId:node] autorelease];
+    WBOverviewGroupContainer *groups = [[WBOverviewGroupContainer alloc] initWithOverview:self
+                                                                                   nodeId:node];
     [pane setContentView: groups];
     
     [pane addButton:[NSImage imageNamed:@"collapsing_panel_header_tab_add.png"]
@@ -456,8 +425,8 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   }
   else if (child_type == wb::OverviewBE::OItem)
   {
-    WBOverviewItemContainer *itemList= [[[WBOverviewItemContainer alloc] initWithOverview:self
-                                                                                   nodeId:node] autorelease];
+    WBOverviewItemContainer *itemList = [[WBOverviewItemContainer alloc] initWithOverview:self
+                                                                                   nodeId:node];
     
     _itemContainers[@(node.toString().c_str())] = itemList;
     
@@ -467,7 +436,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   }
   else if (child_type == wb::OverviewBE::OSection)
   {
-    WBOverviewGroup *group= [[[WBOverviewGroup alloc] initWithOverview:self nodeId:node tabItem:nil] autorelease];
+    WBOverviewGroup *group = [[WBOverviewGroup alloc] initWithOverview:self nodeId:node tabItem:nil];
     
     _itemContainers[@(node.toString().c_str())] = group;
     
@@ -480,7 +449,6 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   
   return nil;
 }
-
 
 - (void)buildMainSections
 {
@@ -509,21 +477,16 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
       
       if (nodeType == wb::OverviewBE::ODivision)
       {
-        MTogglePane *pane= [[[MTogglePane alloc] initWithFrame:NSMakeRect(0, 0, width, 100)
-                                                 includeHeader:!_noHeaders] autorelease];
+        MTogglePane *pane = [[MTogglePane alloc] initWithFrame:NSMakeRect(0, 0, width, 100)
+                                                 includeHeader:!_noHeaders];
         [pane setLabel:@(label.c_str())];
         [pane setAutoresizingMask:NSViewWidthSizable|NSViewMaxYMargin];
         [_backgroundView addSubview:pane];
         
         id view= [self buildDivision:node
                               inPane:pane];
-        if (view)
-        { 
-          [pane setExpanded:expanded!=0];
-          
-          // if ([view respondsToSelector:@selector(refreshChildren)])
-          //  [view refreshChildren];
-        }
+        if (view != nil)
+          [pane setExpanded: expanded != 0];
       }
       else
       {

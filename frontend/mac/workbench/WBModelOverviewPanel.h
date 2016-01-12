@@ -24,8 +24,8 @@
 - (instancetype)initWithWBContextUI: (wb::WBContextUI *)wbui NS_DESIGNATED_INITIALIZER;
 
 @property (readonly, copy) NSString *identifier;
-@property (readonly) WBOverviewPanel *overview;
-@property (readonly) WBModelSidebarController *sidebarController;
+@property (weak, readonly) WBOverviewPanel *overview;
+@property (weak, readonly) WBModelSidebarController *sidebarController;
 
 - (void)selectionChanged;
 

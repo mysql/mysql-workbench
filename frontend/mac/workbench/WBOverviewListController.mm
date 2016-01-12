@@ -40,11 +40,6 @@
 - (void)dealloc
 {
   [[NSNotificationCenter defaultCenter] removeObserver:self];
-  
-  [mSelectedIndexes release];
-  [mItems release];
-  
-  [super dealloc];
 }
 
 
@@ -57,7 +52,6 @@
                                                name:NSViewFrameDidChangeNotification
                                              object:view];
 }
-
 
 - (void)relayoutCollectionView:(NSCollectionView*)collection
 {
@@ -137,13 +131,9 @@
 
 //--------------------------------------------------------------------------------------------------
 
-- (void)setItems:(NSMutableArray*)items
+- (void)setItems: (NSMutableArray *)items
 {
-  if (mItems != items)
-  {
-    [mItems autorelease];
-    mItems= [items retain];
-  }
+  mItems = items;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -161,7 +151,7 @@
 - (void) selectIndex: (NSUInteger) index
 {
   if (mSelectedIndexes == nil)
-    mSelectedIndexes = [[NSMutableIndexSet indexSetWithIndex: index] retain];
+    mSelectedIndexes = [NSMutableIndexSet indexSetWithIndex: index];
   else
     [mSelectedIndexes addIndex: index];
   
@@ -181,18 +171,14 @@
 /**
  * Add a range of selected indices to the current selection.
  */
-- (void) setSelectedIndexes: (NSIndexSet*) indexes
+- (void)setSelectedIndexes: (NSIndexSet*) indexes
 {  
   if (mSelectedIndexes != indexes)
   {    
-    [mSelectedIndexes release];
     if ([indexes isKindOfClass: [NSMutableIndexSet class]])
-      mSelectedIndexes= (NSMutableIndexSet*)[indexes retain];
+      mSelectedIndexes = (NSMutableIndexSet*)indexes;
     else
-    {
-      mSelectedIndexes = [[NSMutableIndexSet indexSet] retain];
-      [mSelectedIndexes initWithIndexSet: indexes];
-    }
+      mSelectedIndexes = [[NSMutableIndexSet alloc] initWithIndexSet: indexes];
     
     if (mSelectedIndexes)
     {
@@ -219,7 +205,6 @@
 {
   if (mSelectedIndexes)
   {
-    [mSelectedIndexes release];
     mSelectedIndexes = nil;
     
     mOverview->begin_selection_marking(); // This call clears the selection in the backend.

@@ -59,38 +59,22 @@ std::string UIForm::form_id()
   return base::strfmt("<UIForm %p>", this);
 }
 
-#ifdef __APPLE__
-
-void UIForm::set_frontend_data(id data)
-{
-  _frontend_data = data;
-}
-
-id UIForm::get_frontend_data()
-{
-  return _frontend_data;
-}
-
-#else
-
 void UIForm::set_frontend_data(void *data)
 {
   _frontend_data= data;
 }
 
-void *UIForm::get_frontend_data()
+void* UIForm::get_frontend_data()
 {
   return _frontend_data;
 }
-
-#endif
 
 void UIForm::set_owner_data(void *data) { _owner_data= data; }
 void *UIForm::get_owner_data() { return _owner_data; }
 
 bool UIForm::is_main_form() { return false; }
 
-// target description for cuy/copy/delete menu items and for paste, after a copy is made
+// Target description for cut/copy/delete menu items and for paste, after a copy is made.
 std::string UIForm::get_edit_target_name() { return ""; }
 
 bool UIForm::can_undo() { return false; }

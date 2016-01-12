@@ -19,25 +19,21 @@
 
 class Recordset;
 
+@protocol GridViewDelegate
+
+- (void)actionTriggered;
+
+@end
+
 @interface MGridView : NSTableView
-{
-  int mSelectedColumnIndex;
-  int mSelectedRowIndex;
-  int mOSelectedColumnIndex;
-  int mOSelectedRowIndex;
 
-  Recordset *mRecordset;
-}
-
-- (void)setRecordset:(Recordset*)rset;
-
-@property (unsafe_unretained) id selectionChangedActionTarget;
-@property SEL selectionChangedAction;
+@property (weak) id<GridViewDelegate> actionDelegate;
 
 @property (readonly) int selectedColumnIndex;
 @property (readonly) int selectedRowIndex;
 
-- (void)selectCellAtRow:(int)row column:(int)column;
+- (void)setRecordset: (Recordset*)rset;
+- (void)selectCellAtRow: (int)row column: (int)column;
 
 @end
 
