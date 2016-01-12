@@ -98,9 +98,7 @@ Object::Object()
 
 void Object::set_data(id data)
 {
-  objc_msgSend(_data, sel_getUid("release")); // [_data release]
   _data = data;
-  objc_msgSend(data, sel_getUid("retain")); // [_data retain]
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,7 +112,6 @@ id Object::get_data() const
 
 Object::~Object()
 {
-  /*objc_msgSend(_data, sel_getUid("release"));*/ /* calls [_data release] */
   ControlFactory::get_instance()->instance_destroyed();
 }
 

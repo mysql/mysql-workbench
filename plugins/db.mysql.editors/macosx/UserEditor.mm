@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,19 +19,45 @@
 
 #include "base/geometry.h"
 #include "base/string_utilities.h"
+#include "grtdb/editor_user.h"
 
 #import "UserEditor.h"
 
 #import "MCPPUtilities.h"
 #import "GRTTreeDataSource.h"
 
-@implementation DbMysqlUserEditor
-
-static void call_refresh(DbMysqlUserEditor *self)
+@interface DbMysqlUserEditor()
 {
-  [self performSelectorOnMainThread:@selector(refresh) withObject:nil waitUntilDone:YES];
+  IBOutlet NSTabView *tabView;
+
+  IBOutlet NSTextField *nameText;
+  IBOutlet NSSecureTextField *passwordText;
+
+  IBOutlet NSTableView *assignedRoleTable;
+  IBOutlet NSOutlineView *roleOutline;
+
+  IBOutlet NSButton *addButton;
+  IBOutlet NSButton *removeButton;
+
+  IBOutlet NSTextView *commentText;
+
+  IBOutlet GRTTreeDataSource *roleTreeDS;
+  NSMutableArray *mAssignedRoles;
+
+  NSTimer *mTimer;
+  bec::UserEditorBE *mBackEnd;
 }
 
+@end
+
+
+@implementation DbMysqlUserEditor
+
+static void call_refresh(void *theEditor)
+{
+  DbMysqlUserEditor *editor = (__bridge DbMysqlUserEditor *)theEditor;
+  [editor performSelectorOnMainThread: @selector(refresh) withObject: nil waitUntilDone: YES];
+}
 
 - (instancetype)initWithModule: (grt::Module*)module
                     grtManager: (bec::GRTManager *)grtm
@@ -57,7 +83,7 @@ static void call_refresh(DbMysqlUserEditor *self)
   return self;
 }
 
-- (void)reinitWithArguments:(const grt::BaseListRef&)args
+- (void)reinitWithArguments: (const grt::BaseListRef&)args
 {
   [super reinitWithArguments: args];
   
@@ -66,10 +92,9 @@ static void call_refresh(DbMysqlUserEditor *self)
   delete mBackEnd;
   mBackEnd= new bec::UserEditorBE(grtm, db_UserRef::cast_from(args[0]));
     
-  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, self));
+  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, (__bridge void *)self));
     
-  [mAssignedRoles release];
-  mAssignedRoles= [[NSMutableArray array] retain];
+  mAssignedRoles= [NSMutableArray array];
   
   [roleTreeDS setTreeModel: mBackEnd->get_role_tree()];
   
@@ -80,9 +105,7 @@ static void call_refresh(DbMysqlUserEditor *self)
 
 - (void) dealloc
 {
-  [mAssignedRoles release];
   delete mBackEnd;
-  [super dealloc];
 }
 
 

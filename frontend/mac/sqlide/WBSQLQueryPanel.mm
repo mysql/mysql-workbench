@@ -79,13 +79,12 @@
 
 @interface WBSQLQueryPanel()
 {
-  __weak IBOutlet WBSplitView* mView;
   __weak IBOutlet WBSplitView* mWorkView;
 
   __weak IBOutlet WBMiniToolbar* mOutputToolbar;
   __weak IBOutlet NSTabView* mOutputTabView;
   __weak IBOutlet NSPopUpButton* mOutputSelector;
-  __weak IBOutlet NSTextView* mTextOutput;
+  IBOutlet NSTextView* mTextOutput;
 
   __weak IBOutlet NSTableView* mMessagesTable;
   __weak IBOutlet NSTableView* mHistoryTable;
@@ -326,31 +325,33 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
     editor->editor_be()->append_text(query);
 }
 
-static void set_busy_tab(int tab, WBSQLQueryPanel *self)
+static void set_busy_tab(int tab, void *thePanel)
 {
+  WBSQLQueryPanel *panel = (__bridge WBSQLQueryPanel *)thePanel;
   if (tab < 0)
-    [self->mUpperTabSwitcher setBusyTab: nil];
+    [panel->mUpperTabSwitcher setBusyTab: nil];
   else
-    [self->mUpperTabSwitcher setBusyTab: [self->mUpperTabView tabViewItemAtIndex: tab]];
+    [panel->mUpperTabSwitcher setBusyTab: [panel->mUpperTabView tabViewItemAtIndex: tab]];
 }
 
-static void processTaskFinish(WBSQLQueryPanel *self)
+static void processTaskFinish(void *thePanel)
 {
-  [self->mMessagesTable reloadData];
+  WBSQLQueryPanel *panel = (__bridge WBSQLQueryPanel *)thePanel;
+  [panel->mMessagesTable reloadData];
 
   // This will scroll the selection into view.
-  [self->mMessagesTable selectRowIndexes: [NSIndexSet indexSetWithIndex: self->mMessagesTable.numberOfRows - 1]
-                    byExtendingSelection: NO];
+  [panel->mMessagesTable selectRowIndexes: [NSIndexSet indexSetWithIndex: panel->mMessagesTable.numberOfRows - 1]
+                     byExtendingSelection: NO];
 
-  if (self->mBackEnd->exec_sql_error_count() > 0)
+  if (panel->mBackEnd->exec_sql_error_count() > 0)
   {
-    [self->mOutputTabView selectTabViewItemWithIdentifier: @"actions"];
-    [self->mOutputSelector selectItemAtIndex: 0];
-    self->mBackEnd->show_output_area();
+    [panel->mOutputTabView selectTabViewItemWithIdentifier: @"actions"];
+    [panel->mOutputSelector selectItemAtIndex: 0];
+    panel->mBackEnd->show_output_area();
   }
 }
 
-- (void)refreshTable:(NSTableView*)table
+- (void)refreshTable: (NSTableView*)table
 {
   [table reloadData];
   [[table delegate] tableViewSelectionDidChange:[NSNotification notificationWithName: NSTableViewSelectionDidChangeNotification
@@ -359,46 +360,48 @@ static void processTaskFinish(WBSQLQueryPanel *self)
     [table scrollRowToVisible: [table selectedRow]];
 }
 
-
-static int reloadTable(NSTableView *table, WBSQLQueryPanel *self)
+static int reloadTable(void *table, void *thePanel)
 {
+  WBSQLQueryPanel *panel = (__bridge WBSQLQueryPanel *)thePanel;
   if ([NSThread mainThread] == [NSThread currentThread])
-  {
-    [self refreshTable: table];
-  }
+    [panel refreshTable: (__bridge NSTableView *)table];
   else
   {
-    [self performSelectorOnMainThread: @selector(refreshTable:)
-                           withObject: table
-                        waitUntilDone: NO];
+    [panel performSelectorOnMainThread: @selector(refreshTable:)
+                            withObject: (__bridge NSTableView *)table
+                         waitUntilDone: NO];
   }
   return 0;
 }
 
-
-static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQueryPanel *self)
+static void addTextToOutput(const std::string &text, bool bring_to_front, void *thePanel)
 {
-  [self->mTextOutputLock lock];
-  self->mTextOutputBuffer.append(text);
-  [self->mTextOutputLock unlock];
+  WBSQLQueryPanel *panel = (__bridge WBSQLQueryPanel *)thePanel;
+  [panel->mTextOutputLock lock];
+  panel->mTextOutputBuffer.append(text);
+  [panel->mTextOutputLock unlock];
 
   if ([NSThread isMainThread])
   {
-    [self flushOutputBuffer];
+    [panel flushOutputBuffer];
     if (bring_to_front)
     {
-      [self->mOutputSelector selectItemAtIndex: 1];
-      [self->mOutputTabView selectTabViewItemWithIdentifier: @"text"];
+      [panel->mOutputSelector selectItemAtIndex: 1];
+      [panel->mOutputTabView selectTabViewItemWithIdentifier: @"text"];
     }
   }
   else
   {
     if (bring_to_front)
     {
-      [self->mOutputSelector performSelectorOnMainThread:@selector(selectItemWithTitle:) withObject:[self->mOutputSelector itemTitleAtIndex: 1] waitUntilDone:NO];
-      [self->mOutputTabView performSelectorOnMainThread:@selector(selectTabViewItemWithIdentifier:) withObject:@"text" waitUntilDone:NO];
+      [panel->mOutputSelector performSelectorOnMainThread: @selector(selectItemWithTitle:)
+                                               withObject: [panel->mOutputSelector itemTitleAtIndex: 1]
+                                            waitUntilDone: NO];
+      [panel->mOutputTabView performSelectorOnMainThread: @selector(selectTabViewItemWithIdentifier:)
+                                              withObject:@"text"
+                                           waitUntilDone: NO];
     }
-    [self performSelectorOnMainThread:@selector(flushOutputBuffer) withObject:nil waitUntilDone:NO];
+    [panel performSelectorOnMainThread: @selector(flushOutputBuffer) withObject: nil waitUntilDone: NO];
   }
 }
 
@@ -418,7 +421,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
   }
 
   mEditors[identifier] = editor;
-  NSTabViewItem *item = [[[NSTabViewItem alloc] initWithIdentifier: identifier] autorelease];
+  NSTabViewItem *item = [[NSTabViewItem alloc] initWithIdentifier: identifier];
   [item setView: [editor topView]];
   [item setLabel: [editor title]];
   [mUpperTabView addTabViewItem: item];
@@ -524,12 +527,6 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
 }
 
 #pragma mark Public getters + setters
-
-- (NSView*) topView;
-{
-  return mView;
-}
-
 
 - (id)identifier
 {
@@ -869,7 +866,6 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
   }
 }
 
-
 #pragma mark Create + destroy
 
 - (instancetype)initWithBE: (const SqlEditorForm::Ref&)be
@@ -879,9 +875,10 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
   {
     BOOL outputAreaHidden;
 
-    if ([NSBundle.mainBundle loadNibNamed: @"WBSQLQueryPanel" owner: self topLevelObjects: &nibObjects])
+    NSMutableArray *temp;
+    if ([NSBundle.mainBundle loadNibNamed: @"WBSQLQueryPanel" owner: self topLevelObjects: &temp])
     {
-      [nibObjects retain];
+      nibObjects = temp;
 
       // restore state of toolbar
       {
@@ -890,8 +887,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
       }
       lastOutputAreaHeight = MAX(be->grt_manager()->get_app_option_int("DbSqlEditor:OutputAreaHeight", 135), MIN_OUTPUT_AREA_HEIGHT);
 
-
-      // setup docking point for mUpperTabView
+      // Setup docking point for mUpperTabView.
       {
         mDockingPoint = mforms::manage(new mforms::DockingPoint(new TabViewDockingPointDelegate(mUpperTabView, MAIN_DOCKING_POINT), true));
         be->set_tab_dock(mDockingPoint);
@@ -899,28 +895,28 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
 
       grtm = be->grt_manager();
       mBackEnd= be;
-      mBackEnd->log()->refresh_ui_signal.connect(boost::bind(reloadTable, mMessagesTable, self));
-      mBackEnd->history()->entries_model()->refresh_ui_signal.connect(boost::bind(reloadTable, mHistoryTable, self));
-      mBackEnd->history()->details_model()->refresh_ui_signal.connect(boost::bind(reloadTable, mHistoryDetailsTable, self));
+      mBackEnd->log()->refresh_ui_signal.connect(boost::bind(reloadTable, (__bridge void *)mMessagesTable, (__bridge void *)self));
+      mBackEnd->history()->entries_model()->refresh_ui_signal.connect(boost::bind(reloadTable, (__bridge void *)mHistoryTable, (__bridge void *)self));
+      mBackEnd->history()->details_model()->refresh_ui_signal.connect(boost::bind(reloadTable, (__bridge void *)mHistoryDetailsTable, (__bridge void *)self));
 
-      mBackEnd->output_text_slot= boost::bind(addTextToOutput, _1, _2, self);//XXX
+      mBackEnd->output_text_slot = boost::bind(addTextToOutput, _1, _2, (__bridge void *)self);
 
-      mBackEnd->post_query_slot = boost::bind(processTaskFinish, self);
+      mBackEnd->post_query_slot = boost::bind(processTaskFinish, (__bridge void *)self);
 
-      mBackEnd->set_busy_tab = boost::bind(set_busy_tab, _1, self);
+      mBackEnd->set_busy_tab = boost::bind(set_busy_tab, _1, (__bridge void *)self);
 
-      mBackEnd->set_frontend_data(self);
+      mBackEnd->set_frontend_data((__bridge void *)self);
       [mUpperTabSwitcher setTabStyle: MEditorTabSwitcher];
       [mUpperTabSwitcher setAllowTabReordering: YES];
 
-      [mOutputToolbar setGradient: [[[NSGradient alloc] initWithColorsAndLocations:
-                                     [NSColor colorWithCalibratedWhite:0xd9/255.0 alpha: 1.0], (CGFloat)0.0,
-                                     [NSColor colorWithCalibratedWhite:0xe2/255.0 alpha: 1.0], (CGFloat)0.5,
-                                     [NSColor colorWithCalibratedWhite:0xef/255.0 alpha: 1.0], (CGFloat)0.87,
-                                     [NSColor colorWithCalibratedWhite:0xe6/255.0 alpha: 1.0], (CGFloat)0.91,
-                                     [NSColor colorWithCalibratedWhite:0xa9/255.0 alpha: 1.0], (CGFloat)1.0,
-                                     nil] autorelease]];
-      mTextOutputLock= [[NSLock alloc] init];
+      [mOutputToolbar setGradient: [[NSGradient alloc] initWithColorsAndLocations:
+                                    [NSColor colorWithCalibratedWhite:0xd9/255.0 alpha: 1.0], (CGFloat)0.0,
+                                    [NSColor colorWithCalibratedWhite:0xe2/255.0 alpha: 1.0], (CGFloat)0.5,
+                                    [NSColor colorWithCalibratedWhite:0xef/255.0 alpha: 1.0], (CGFloat)0.87,
+                                    [NSColor colorWithCalibratedWhite:0xe6/255.0 alpha: 1.0], (CGFloat)0.91,
+                                    [NSColor colorWithCalibratedWhite:0xa9/255.0 alpha: 1.0], (CGFloat)1.0,
+                                    nil]];
+      mTextOutputLock = [[NSLock alloc] init];
 
       NSFont *font = [NSFont fontWithName: @"AndaleMono"
                                      size: [NSFont smallSystemFontSize]];
@@ -929,10 +925,10 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
       if (font)
         [mTextOutput setFont: font];
 
-      [mView setBackgroundColor: [NSColor colorWithDeviceWhite:128/255.0 alpha:1.0]];
+      [self.splitView setBackgroundColor: [NSColor colorWithDeviceWhite: 128 / 255.0 alpha: 1.0]];
 
       [mWorkView setDividerThickness: 0];
-      [mView setDividerThickness: 1];
+      [self.splitView setDividerThickness: 1];
 
       [mMessagesTable setMenu: nsmenuForMenu(mBackEnd->log()->get_context_menu())];
 
@@ -949,10 +945,10 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
         mforms::View *sidebar_ = mBackEnd->get_sidebar();
         sidebar = nsviewForView(sidebar_);
         if (mSidebarAtRight)
-          [mView addSubview: sidebar];
+          [self.topView addSubview: sidebar];
         else
-          [mView addSubview: sidebar positioned: NSWindowBelow relativeTo: [[mView subviews] lastObject]];
-        [mView adjustSubviews];
+          [self.topView addSubview: sidebar positioned: NSWindowBelow relativeTo: [[self.topView subviews] lastObject]];
+        [self.splitView adjustSubviews];
       }
 
       // dock the other sidebar
@@ -962,11 +958,11 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
         if (view)
         {
           if (mSidebarAtRight)
-            [topView addSubview: secondarySidebar positioned: NSWindowBelow relativeTo: [[topView subviews] lastObject]];
+            [self.topView addSubview: secondarySidebar positioned: NSWindowBelow relativeTo: [[self.topView subviews] lastObject]];
           else
-            [topView addSubview: secondarySidebar];
+            [self.topView addSubview: secondarySidebar];
         }
-        [topView adjustSubviews];
+        [self.splitView adjustSubviews];
       }
 
       [self restoreSidebarsFor: "DbSqlEditor" toolbar: be->get_toolbar()];
@@ -987,7 +983,6 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
       [indicator setStyle: NSProgressIndicatorSpinningStyle];
       [indicator setIndeterminate: YES];
       [((MSpinProgressCell*)[[mMessagesTable tableColumnWithIdentifier: @"0"] dataCell]) setProgressIndicator: indicator];
-      [indicator release];
     }
   }
   return self;
@@ -1007,25 +1002,23 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
 {
   mSidebarAtRight = flag;
 
-  id view1 = [mView subviews][0];
-  id view2 = [mView subviews][1];
+  id view1 = [self.topView subviews][0];
+  id view2 = [self.topView subviews][1];
   
   if (mSidebarAtRight)
   {
     if (view2 != sidebar)
     {
-      [[view1 retain] autorelease];
       [view1 removeFromSuperview];
-      [mView addSubview: view1];
+      [self.topView addSubview: view1];
     }    
   }
   else
   {
     if (view1 != sidebar)
     {
-      [[view1 retain] autorelease];
       [view1 removeFromSuperview];
-      [mView addSubview: view1];
+      [self.topView addSubview: view1];
     }
   }
 }
@@ -1045,17 +1038,8 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
 - (void)dealloc
 {
   mBackEnd->close();
-
   mDockingPoint->release();
-
-  [mTextOutputLock release];
-  
-  [mEditors release];
-  [nibObjects release];
-
-  [super dealloc]; 
 }
-
 
 /**
  * Executes commands sent by the main form that should be handled here.

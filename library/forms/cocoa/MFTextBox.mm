@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -107,8 +107,8 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
       [[self horizontalScroller] setControlSize: NSSmallControlSize];
     }
 
-    frame.size= [self minimumSize];
-    mContentView= [[[InternalTextView alloc] initWithFrame: frame backend: mOwner] autorelease];
+    frame.size = [self minimumSize];
+    mContentView = [[InternalTextView alloc] initWithFrame: frame backend: mOwner];
     [self setDocumentView:mContentView];
 
     [[mContentView textContainer] setContainerSize: NSMakeSize(1000000000, 1000000000)];
@@ -201,8 +201,8 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 static bool textbox_create(::mforms::TextBox *self, mforms::ScrollBars scrolls)
 {
-  MFTextBoxImpl *textbox= [[[MFTextBoxImpl alloc] initWithObject : self 
-                                                       scrollers : scrolls] autorelease];
+  MFTextBoxImpl *textbox = [[MFTextBoxImpl alloc] initWithObject : self
+                                                       scrollers : scrolls];
   
   return textbox != nil;
 }

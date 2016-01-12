@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,9 +55,10 @@
   {
     // The diagram size controller is a panel (window) which can be set to auto release on close.
     // However, in order to keep the pattern with all our nib loading this setting is off and we do it manually.
-    if ([NSBundle.mainBundle loadNibNamed: @"DiagramOptions" owner: self topLevelObjects: &nibObjects])
+    NSMutableArray *temp;
+    if ([NSBundle.mainBundle loadNibNamed: @"DiagramOptions" owner: self topLevelObjects: &temp])
     {
-      [nibObjects retain];
+      nibObjects = temp;
 
       [canvas lockFocus];
       [canvas setupQuartz];
@@ -65,11 +66,11 @@
 
       _be = wbui->create_diagram_options_be([canvas canvas]);
       _be->update_size();
-      _be->signal_changed()->connect(boost::bind(update_size_entries, self));
+      _be->signal_changed()->connect(boost::bind(update_size_entries, (__bridge void *)self));
 
       [nameField setStringValue: [NSString stringWithCPPString: _be->get_name()]];
 
-      update_size_entries(self);
+      update_size_entries((__bridge void *)self);
     }
   }
   return self;
@@ -83,15 +84,13 @@
 - (void)dealloc
 {
   delete _be;
-  [nibObjects release];
-  
-  [super dealloc];
 }
 
-static void update_size_entries(WBDiagramSizeController *self)
+static void update_size_entries(void *theController)
 {
-  [self->widthField setIntegerValue: self->_be->get_xpages()];
-  [self->heightField setIntegerValue: self->_be->get_ypages()];
+  WBDiagramSizeController *controller = (__bridge WBDiagramSizeController *)theController;
+  [controller->widthField setIntegerValue: controller->_be->get_xpages()];
+  [controller->heightField setIntegerValue: controller->_be->get_ypages()];
 }
 
 

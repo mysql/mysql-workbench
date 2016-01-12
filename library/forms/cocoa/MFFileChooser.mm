@@ -38,7 +38,7 @@
     {
       case mforms::OpenFile:
       {
-        NSOpenPanel *panel= [[NSOpenPanel openPanel] retain];
+        NSOpenPanel *panel= [NSOpenPanel openPanel];
         mPanel= panel;
         [panel setCanChooseDirectories:NO];
         [panel setCanChooseFiles:YES];
@@ -50,7 +50,7 @@
       }
       
       case mforms::SaveFile:
-        mPanel= [[NSSavePanel savePanel] retain];
+        mPanel= [NSSavePanel savePanel];
         [mPanel setCanCreateDirectories: YES];
         [mPanel setExtensionHidden: NO];
         [mPanel setDelegate: self];
@@ -58,7 +58,7 @@
 
       case mforms::OpenDirectory:
       {
-        NSOpenPanel *panel= [[NSOpenPanel openPanel] retain];
+        NSOpenPanel *panel= [NSOpenPanel openPanel];
         mPanel= panel;
         [panel setCanChooseDirectories:YES];
         [panel setCanChooseFiles:NO];
@@ -80,7 +80,7 @@
   if (!mOptionsView)
     mOptionsView = [[NSView alloc] initWithFrame: NSMakeRect(0, 0, 420, 30)];
   
-  NSPopUpButton *pop = [[[NSPopUpButton alloc] initWithFrame: NSMakeRect(0, 0, 250, 20)] autorelease];
+  NSPopUpButton *pop = [[NSPopUpButton alloc] initWithFrame: NSMakeRect(0, 0, 250, 20)];
   for (int c = [values count], i = 0; i < c; i+= 2)
   {
     [pop addItemWithTitle: values[i]];
@@ -88,7 +88,7 @@
   }
   [pop sizeToFit];
   
-  NSTextField *text = [[[NSTextField alloc] initWithFrame: NSMakeRect(0, 0, 150, 20)] autorelease];
+  NSTextField *text = [[NSTextField alloc] initWithFrame: NSMakeRect(0, 0, 150, 20)];
   [text setStringValue: label];
   [text setEditable: NO];
   [text setDrawsBackground: NO];
@@ -115,13 +115,6 @@
 }
 
 
-- (void)dealloc
-{
-  [mOptionsView release];
-  [mOptionControls release];
-  [mPanel release];
-  [super dealloc];
-}
 
 
 - (NSString *)panel:(id)sender userEnteredFilename:(NSString *)filename confirmed:(BOOL)okFlag
@@ -139,7 +132,7 @@
 
 static bool filechooser_create(mforms::FileChooser *self, mforms::Form *owner, mforms::FileChooserType type, bool show_hidden)
 {
-  MFFileChooserImpl *chooser = [[[MFFileChooserImpl alloc] initWithObject:self type:type showHidden: show_hidden] autorelease];
+  MFFileChooserImpl *chooser = [[MFFileChooserImpl alloc] initWithObject: self type: type showHidden: show_hidden];
   chooser->mParent = owner;
   return true;
 }
@@ -231,7 +224,7 @@ static void filechooser_set_path(mforms::FileChooser *self, const std::string &p
     NSString *directory = [fpath stringByDeletingLastPathComponent];
     if (directory)
       [chooser->mPanel setDirectoryURL: [NSURL fileURLWithPath: directory isDirectory: YES]];
-    chooser->mDefaultFileName = [[fpath lastPathComponent] retain];
+    chooser->mDefaultFileName = [fpath lastPathComponent];
     
     NSPopUpButton *popup = chooser->mOptionControls[@"format"];
     if (popup)

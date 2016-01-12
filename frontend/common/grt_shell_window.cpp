@@ -840,7 +840,7 @@ void GRTShellWindow::handle_global_menu(const std::string &action)
     if (action == "copy_value")
     {
       grt::ValueRef value(get_global_at_node(selected));
-      mforms::Utilities::set_clipboard_text(value.repr());      
+      mforms::Utilities::set_clipboard_text(value.description());      
     }
     else if (action == "copy_path")
     {

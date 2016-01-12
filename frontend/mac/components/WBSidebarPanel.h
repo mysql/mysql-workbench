@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,9 +35,8 @@ namespace mforms
 
 @interface WBSidebarPanel : WBBasePanel
 {
-  IBOutlet WBSplitView *topView;
-  IBOutlet NSView *sidebar;
-  IBOutlet NSView *secondarySidebar;
+  IBOutlet __weak NSView *sidebar;
+  IBOutlet __weak NSView *secondarySidebar;
 
   std::string mOptionName;
 
@@ -55,6 +54,8 @@ namespace mforms
   BOOL mRestoringSidebars;
 }
 
+@property (nonatomic, readonly, weak) WBSplitView *splitView; // Returns the top level view if that is a split panel actually.
+
 - (void)restoreSidebarsFor:(const char*)name
                    toolbar:(mforms::ToolBar*)toolbar;
 - (void)hideSideBar:(BOOL)hidden secondary:(BOOL)flag;
@@ -66,4 +67,5 @@ namespace mforms
 - (CGFloat)splitView:(NSSplitView *)splitView constrainMaxCoordinate:(CGFloat)proposedMax ofSubviewAt:(NSInteger)dividerIndex;
 - (BOOL)splitView:(NSSplitView *)splitView canCollapseSubview:(NSView *)subview;
 - (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview;
+
 @end

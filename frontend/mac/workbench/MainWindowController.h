@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -30,17 +30,11 @@
 @class WBSplitView;
 @class MContainerView;
 @class MTabSwitcher;
-
 @class WBPluginEditorBase;
-
-
-// Subclass of NSWindow to override makeFirstResponder: and detect key view changes
-@interface WBWindow : NSWindow
-@end
 
 class MacNotificationObserver;
 
-@interface WBMainWindow : NSWindowController
+@interface MainWindowController : NSWindowController
 {
   WBModelOverviewPanel *_physicalOverview;
   wb::WBContextUI *_wbui;
@@ -48,7 +42,7 @@ class MacNotificationObserver;
 
 @property (readonly) wb::WBContextUI *context;
 @property (readonly) BOOL closeAllPanels;
-@property (assign) WBMainController *owner;
+@property (weak) WBMainController *owner;
 @property (readonly, strong) WBBasePanel *selectedTopPanel;
 @property (readonly, strong) WBBasePanel *activePanel;
 @property (readonly, strong) WBBasePanel *selectedMainPanel;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2004, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,16 +24,11 @@
 
 @implementation MTextImageCell
 
-- (void)dealloc 
-{
-  [_image release];
-  [super dealloc];
-}
 
 - (id)copyWithZone:(NSZone*)zone 
 {
   MTextImageCell *copy = (MTextImageCell*)[super copyWithZone:zone];
-  copy->_image = [_image retain];
+  copy->_image = _image;
   [copy setFont: [self font]];
   return copy;
 }
@@ -42,8 +37,7 @@
 {
   if (image != _image) 
   {
-    [_image release];
-    _image = [image retain];
+    _image = image;
   }
 }
 

@@ -20,7 +20,7 @@ namespace bec {
 
 @interface DbPrivilegeEditorTab : NSObject
 
-@property (assign) IBOutlet NSView *view;
+@property (weak) IBOutlet NSView *view;
 
 - (instancetype)initWithObjectEditor: (bec::DBObjectEditorBE*)be NS_DESIGNATED_INITIALIZER;
 

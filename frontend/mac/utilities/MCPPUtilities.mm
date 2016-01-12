@@ -1,10 +1,21 @@
-//
-//  MCPPUtilities.mm
-//  MySQLWorkbench
-//
-//  Created by Alfredo Kojima on 2/Oct/08.
-//  Copyright 2008 Sun Microsystems Inc. All rights reserved.
-//
+/*
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
 
 #import "MCPPUtilities.h"
 
@@ -15,7 +26,6 @@ void MShowCPPException(const std::exception &exc)
                       "Exception Details:\n%s", 
                       @"Ignore", @"Abort", nil, exc.what()) == NSAlertAlternateReturn)
   {
-//    abort();
     [NSApp terminate:nil];
   }
 }
@@ -33,33 +43,25 @@ void MFillPopupButtonWithStrings(NSPopUpButton *popup, const std::vector<std::st
 }
 
 
-NSArray *MArrayFromStringVector(const std::vector<std::string> &items)
+NSArray<NSString *> *MArrayFromStringVector(const std::vector<std::string> &items)
 {
-  NSString **strings;
-  NSArray *array;
+  NSMutableArray<NSString*> *result = [NSMutableArray arrayWithCapacity: items.size()];
   
   int j= 0;
-  strings= new NSString*[items.size()];
   for (std::vector<std::string>::const_iterator i= items.begin(); i != items.end(); ++i, j++)
-    strings[j]= [NSString stringWithCPPString: *i];
-  array= [NSArray arrayWithObjects:strings count:j];
-  delete []strings;
-  
-  return array;
+    result[j] = [NSString stringWithCPPString: *i];
+
+  return result;
 }
 
 
-NSArray *MArrayFromStringList(const std::list<std::string> &items)
+NSArray<NSString *> *MArrayFromStringList(const std::list<std::string> &items)
 {
-  NSString **strings;
-  NSArray *array;
-  
+  NSMutableArray<NSString*> *result = [NSMutableArray arrayWithCapacity: items.size()];
+
   int j= 0;
-  strings= new NSString*[items.size()];
   for (std::list<std::string>::const_iterator i= items.begin(); i != items.end(); ++i, j++)
-    strings[j]= [NSString stringWithCPPString: *i];
-  array= [NSArray arrayWithObjects:strings count:j];
-  delete []strings;
-  
-  return array;
+    result[j] = [NSString stringWithCPPString: *i];
+
+  return result;
 }

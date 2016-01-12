@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -220,8 +220,8 @@ boost::shared_ptr<DiffChange> GrtDiff::on_object(boost::shared_ptr<DiffChange> p
         if (changes.empty())
           log_info("\nObject: %s <%s>  [%s]\n", source.get_string_member("name").c_str(), source.class_name().c_str(), source.id().c_str());
 
-        std::string s1 = v1.repr();
-        std::string s2 = v2.repr();
+        std::string s1 = v1.description();
+        std::string s2 = v2.description();
         if (s1 == s2)
           log_info("field %s came as different, but looks the same?\n", name.c_str());
         else

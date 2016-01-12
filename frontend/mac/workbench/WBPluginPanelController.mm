@@ -41,7 +41,7 @@
     rect.size = [editor minimumSize];
 
     _panel = [[NSPanel alloc] initWithContentRect:rect styleMask:0 backing:NSBackingStoreNonretained defer:NO];
-    _editor = [editor retain];
+    _editor = editor;
     
     [_panel setTitle: [_editor title]];
     [_panel setContentView: [_editor topView]];
@@ -60,7 +60,6 @@
 {
   [_panel makeKeyAndOrderFront: nil];
 }
-
 
 - (void)hide:(id)sender
 {
