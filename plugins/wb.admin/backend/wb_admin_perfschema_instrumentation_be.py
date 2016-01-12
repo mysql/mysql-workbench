@@ -392,7 +392,7 @@ class PSVariables(dict, ChangeCounter):
 
     def load(self):
         try:
-            result = self.ctrl_be.exec_query('SHOW variables LIKE "performance_schema%"')
+            result = self.ctrl_be.exec_query("SHOW variables LIKE 'performance_schema%'")
 
             if result is not None:
                 while result.nextRow():
