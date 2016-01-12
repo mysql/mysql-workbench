@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
 #import "WBTabView.h"
 #import "WBSplitView.h"
 #import "MFView.h"
+#import "MContainerView.h"
 
 @interface WBModelOverviewPanel()
 {
@@ -55,9 +56,10 @@
     _wbui = wbui;
     if (_wbui != NULL)
     {
-      if ([NSBundle.mainBundle loadNibNamed: @"WBModelOverview" owner: self topLevelObjects: &nibObjects])
+      NSMutableArray *temp;
+      if ([NSBundle.mainBundle loadNibNamed: @"WBModelOverview" owner: self topLevelObjects: &temp])
       {
-        [nibObjects retain];
+        nibObjects = temp;
 
         [editorTabView createDragger];
 
@@ -94,17 +96,13 @@
   [NSObject cancelPreviousPerformRequestsWithTarget: overview];
 
   [sidebarController invalidate];
-  [nibObjects release];
   
-  [super dealloc];
 }
-
 
 - (NSString*)identifier
 {
   return [overview identifier];
 }
-
 
 - (WBOverviewPanel*)overview
 {
@@ -116,7 +114,6 @@
   return [overview title];
 }
 
-
 - (bec::UIForm*)formBE
 {
   return [overview formBE];
@@ -126,10 +123,8 @@
 {
   NSView *view = nsviewForView(_wbui->get_wb()->get_model_context()->shared_secondary_sidebar());
   if ([view superview])
-  {
-    [view retain];
     [view removeFromSuperview];
-  }
+
   [secondarySidebar addSubview: view];
   [view setAutoresizingMask: NSViewWidthSizable|NSViewHeightSizable|NSViewMinXMargin|NSViewMinYMargin|NSViewMaxXMargin|NSViewMaxYMargin];
   [view setFrame: [secondarySidebar bounds]];
@@ -144,7 +139,6 @@
 {
   [descriptionController updateForForm: [self formBE]];
 }
-
 
 - (WBModelSidebarController*)sidebarController
 {
@@ -162,32 +156,6 @@
 }
 
 //--------------------------------------------------------------------------------------------------
-/*
-- (void)setRightSidebar:(BOOL)flag
-{
-  sidebarAtRight = flag;
-  
-  id view1 = [[topView subviews] objectAtIndex: 0];
-  id view2 = [[topView subviews] objectAtIndex: 1];
 
-  if (sidebarAtRight)
-  {
-    if (view2 != sidebar)
-    {
-      [[view1 retain] autorelease];
-      [view1 removeFromSuperview];
-      [topView addSubview: view1];
-    }
-  }
-  else
-  {
-    if (view1 != sidebar)
-    {
-      [[view1 retain] autorelease];
-      [view1 removeFromSuperview];
-      [topView addSubview: view1];
-    }
-  }
-}*/
 
 @end

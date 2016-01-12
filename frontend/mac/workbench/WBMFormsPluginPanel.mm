@@ -27,7 +27,7 @@
 
 + (WBMFormsPluginPanel*)panelOfAppView: (mforms::AppView*)view
 {
-  return (WBMFormsPluginPanel*)view->get_frontend_data();
+  return (__bridge WBMFormsPluginPanel*)view->get_frontend_data();
 }
 
 - (instancetype)initWithAppView:(mforms::AppView*)view
@@ -39,7 +39,7 @@
     if (view != NULL)
     {
       view->retain();
-      view->set_frontend_data(self);
+      view->set_frontend_data((__bridge void *)self);
       [[NSNotificationCenter defaultCenter] addObserver: self
                                                selector: @selector(windowDidUpdate:)
                                                    name: NSWindowDidUpdateNotification
@@ -61,8 +61,6 @@
   _owner->release();
   if (_defaultMenuBar)
     _defaultMenuBar->release();
-  
-  [super dealloc];
 }
 
 
@@ -94,10 +92,9 @@
 }
 
 
-- (void)setTitle:(NSString*)title
+- (void)setTitle: (NSString*)title
 {
-  [_title autorelease];
-  _title = [title retain];
+  _title = title;
 }
 
 

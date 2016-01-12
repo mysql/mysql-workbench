@@ -864,7 +864,7 @@
 		2B23975F103B64AB00D9023B /* MFDrawBox.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B23975D103B64AB00D9023B /* MFDrawBox.mm */; };
 		2B2397AA103B6C3800D9023B /* drawbox.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2396CF103B502800D9023B /* drawbox.h */; };
 		2B2397B7103B6DF200D9023B /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCC405A0EFFC06E008A66D4 /* libcairo.2.dylib */; };
-		2B240460101C980E00079580 /* WBMainWindow_Model.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B24045F101C980E00079580 /* WBMainWindow_Model.mm */; };
+		2B240460101C980E00079580 /* MainWindowController+Model.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B24045F101C980E00079580 /* MainWindowController+Model.mm */; };
 		2B2405751020A1BC00079580 /* app.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2405731020A1BC00079580 /* app.h */; };
 		2B2405761020A1BC00079580 /* appview.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2405741020A1BC00079580 /* appview.h */; };
 		2B2405781020A1CA00079580 /* app.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2405771020A1CA00079580 /* app.cpp */; };
@@ -1061,7 +1061,7 @@
 		2B263B4D0E94031D00933149 /* libcdbc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B750DAF0E877D030003120A /* libcdbc.dylib */; };
 		2B263B520E94031D00933149 /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
 		2B263B530E94031D00933149 /* libwbprivate.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCB31550E8845D0005C8ED2 /* libwbprivate.be.dylib */; };
-		2B263B680E9407A700933149 /* WBMainWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B263B670E9407A700933149 /* WBMainWindow.mm */; };
+		2B263B680E9407A700933149 /* MainWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B263B670E9407A700933149 /* MainWindowController.mm */; };
 		2B263B9B0E94210A00933149 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2B263B990E94210A00933149 /* MainWindow.xib */; };
 		2B263BCB0E9463FB00933149 /* WBMainController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B263BCA0E9463FB00933149 /* WBMainController.mm */; };
 		2B2909D2159A0C7200708C09 /* db.ForeignKey.16x16.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B2909CF159A0C7200708C09 /* db.ForeignKey.16x16.png */; };
@@ -2539,16 +2539,16 @@
 		2BFBF09E0F51BEB10016F9D1 /* MySQLViewEditor.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2BFBF09D0F51BEB10016F9D1 /* MySQLViewEditor.xib */; };
 		2BFBF0A10F51BF2D0016F9D1 /* MySQLViewEditor.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BFBF0A00F51BF2D0016F9D1 /* MySQLViewEditor.mm */; };
 		2BFDB83516C00F6A00D0C5A8 /* libvsqlitepp.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BFDB83416C00F6500D0C5A8 /* libvsqlitepp.0.dylib */; };
-		44B7DC8D1C0C78C4000D608D /* wba_firewall in CopyFiles */ = {isa = PBXBuildFile; fileRef = 44B7DC8C1C0C78C4000D608D /* wba_firewall */; settings = {ASSET_TAGS = (); }; };
-		44B7DC901C0C78E6000D608D /* firewall-header.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC8E1C0C78E6000D608D /* firewall-header.png */; settings = {ASSET_TAGS = (); }; };
-		44B7DC911C0C78E6000D608D /* firewall-header@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC8F1C0C78E6000D608D /* firewall-header@2x.png */; settings = {ASSET_TAGS = (); }; };
+		44B7DC8D1C0C78C4000D608D /* wba_firewall in CopyFiles */ = {isa = PBXBuildFile; fileRef = 44B7DC8C1C0C78C4000D608D /* wba_firewall */; };
+		44B7DC901C0C78E6000D608D /* firewall-header.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC8E1C0C78E6000D608D /* firewall-header.png */; };
+		44B7DC911C0C78E6000D608D /* firewall-header@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC8F1C0C78E6000D608D /* firewall-header@2x.png */; };
 		44BA04901C19B2410047BAE6 /* libmysqlcppconn.7.1.1.7.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 44BA048F1C19B2410047BAE6 /* libmysqlcppconn.7.1.1.7.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		44BA04911C19B2610047BAE6 /* libmysqlcppconn.7.1.1.7.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44BA048F1C19B2410047BAE6 /* libmysqlcppconn.7.1.1.7.dylib */; };
 		44BA04921C19B2990047BAE6 /* libmysqlcppconn.7.1.1.7.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44BA048F1C19B2410047BAE6 /* libmysqlcppconn.7.1.1.7.dylib */; };
-		44DD9A671C04AA0800D86DC5 /* admin_firewall.png in Resources */ = {isa = PBXBuildFile; fileRef = 44DD9A631C04AA0800D86DC5 /* admin_firewall.png */; settings = {ASSET_TAGS = (); }; };
-		44DD9A681C04AA0800D86DC5 /* admin_firewall@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 44DD9A641C04AA0800D86DC5 /* admin_firewall@2x.png */; settings = {ASSET_TAGS = (); }; };
-		44DD9A691C04AA0800D86DC5 /* admin_info_offline.png in Resources */ = {isa = PBXBuildFile; fileRef = 44DD9A651C04AA0800D86DC5 /* admin_info_offline.png */; settings = {ASSET_TAGS = (); }; };
-		44DD9A6A1C04AA0800D86DC5 /* admin_info_offline@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 44DD9A661C04AA0800D86DC5 /* admin_info_offline@2x.png */; settings = {ASSET_TAGS = (); }; };
+		44DD9A671C04AA0800D86DC5 /* admin_firewall.png in Resources */ = {isa = PBXBuildFile; fileRef = 44DD9A631C04AA0800D86DC5 /* admin_firewall.png */; };
+		44DD9A681C04AA0800D86DC5 /* admin_firewall@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 44DD9A641C04AA0800D86DC5 /* admin_firewall@2x.png */; };
+		44DD9A691C04AA0800D86DC5 /* admin_info_offline.png in Resources */ = {isa = PBXBuildFile; fileRef = 44DD9A651C04AA0800D86DC5 /* admin_info_offline.png */; };
+		44DD9A6A1C04AA0800D86DC5 /* admin_info_offline@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 44DD9A661C04AA0800D86DC5 /* admin_info_offline@2x.png */; };
 		44FFC3D51AA0BA1F00950A48 /* sqlide_power_export_wizard.py in Resources */ = {isa = PBXBuildFile; fileRef = 44FFC3D21AA0BA1F00950A48 /* sqlide_power_export_wizard.py */; };
 		44FFC3D61AA0BA1F00950A48 /* sqlide_power_import_export_be.py in Resources */ = {isa = PBXBuildFile; fileRef = 44FFC3D31AA0BA1F00950A48 /* sqlide_power_import_export_be.py */; };
 		44FFC3D71AA0BA1F00950A48 /* sqlide_power_import_wizard.py in Resources */ = {isa = PBXBuildFile; fileRef = 44FFC3D41AA0BA1F00950A48 /* sqlide_power_import_wizard.py */; };
@@ -4646,8 +4646,8 @@
 		2B2396CF103B502800D9023B /* drawbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = drawbox.h; path = library/forms/mforms/drawbox.h; sourceTree = "<group>"; };
 		2B23975C103B64AB00D9023B /* MFDrawBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MFDrawBox.h; path = library/forms/cocoa/MFDrawBox.h; sourceTree = "<group>"; };
 		2B23975D103B64AB00D9023B /* MFDrawBox.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MFDrawBox.mm; path = library/forms/cocoa/MFDrawBox.mm; sourceTree = "<group>"; wrapsLines = 0; };
-		2B24045E101C980E00079580 /* WBMainWindow_Model.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WBMainWindow_Model.h; path = frontend/mac/workbench/WBMainWindow_Model.h; sourceTree = "<group>"; };
-		2B24045F101C980E00079580 /* WBMainWindow_Model.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WBMainWindow_Model.mm; path = frontend/mac/workbench/WBMainWindow_Model.mm; sourceTree = "<group>"; };
+		2B24045E101C980E00079580 /* MainWindowController+Model.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "MainWindowController+Model.h"; path = "frontend/mac/workbench/MainWindowController+Model.h"; sourceTree = "<group>"; };
+		2B24045F101C980E00079580 /* MainWindowController+Model.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "MainWindowController+Model.mm"; path = "frontend/mac/workbench/MainWindowController+Model.mm"; sourceTree = "<group>"; };
 		2B2405731020A1BC00079580 /* app.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = app.h; path = library/forms/mforms/app.h; sourceTree = "<group>"; };
 		2B2405741020A1BC00079580 /* appview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = appview.h; path = library/forms/mforms/appview.h; sourceTree = "<group>"; };
 		2B2405771020A1CA00079580 /* app.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = app.cpp; path = library/forms/app.cpp; sourceTree = "<group>"; };
@@ -4844,8 +4844,8 @@
 		2B26390A0E93B0F800933149 /* workbench.physical.Diagram.48x48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = workbench.physical.Diagram.48x48.png; sourceTree = "<group>"; };
 		2B26390B0E93B0F800933149 /* workbench.physical.Diagram.add.48x48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = workbench.physical.Diagram.add.48x48.png; sourceTree = "<group>"; };
 		2B26390C0E93B0F800933149 /* workbench.physical.ViewFigure.16x16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = workbench.physical.ViewFigure.16x16.png; sourceTree = "<group>"; };
-		2B263B660E9407A700933149 /* WBMainWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WBMainWindow.h; path = frontend/mac/workbench/WBMainWindow.h; sourceTree = "<group>"; };
-		2B263B670E9407A700933149 /* WBMainWindow.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WBMainWindow.mm; path = frontend/mac/workbench/WBMainWindow.mm; sourceTree = "<group>"; };
+		2B263B660E9407A700933149 /* MainWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MainWindowController.h; path = frontend/mac/workbench/MainWindowController.h; sourceTree = "<group>"; };
+		2B263B670E9407A700933149 /* MainWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MainWindowController.mm; path = frontend/mac/workbench/MainWindowController.mm; sourceTree = "<group>"; };
 		2B263B9A0E94210A00933149 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = frontend/mac/English.lproj/MainWindow.xib; sourceTree = "<group>"; };
 		2B263BC90E9463FB00933149 /* WBMainController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WBMainController.h; path = frontend/mac/workbench/WBMainController.h; sourceTree = "<group>"; };
 		2B263BCA0E9463FB00933149 /* WBMainController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WBMainController.mm; path = frontend/mac/workbench/WBMainController.mm; sourceTree = "<group>"; wrapsLines = 0; };
@@ -5142,7 +5142,7 @@
 		2B4BD6CF0ED202DE003E44F2 /* wb_command_ui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wb_command_ui.h; sourceTree = "<group>"; };
 		2B4BD7770ED2E3A6003E44F2 /* WBOverviewComponents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WBOverviewComponents.h; path = frontend/mac/workbench/WBOverviewComponents.h; sourceTree = "<group>"; };
 		2B4BD7780ED2E3A6003E44F2 /* WBOverviewComponents.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WBOverviewComponents.mm; path = frontend/mac/workbench/WBOverviewComponents.mm; sourceTree = "<group>"; };
-		2B4C9E0610A29CDF00D5F19E /* ui_form.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = ui_form.cpp; path = library/base/ui_form.cpp; sourceTree = "<group>"; };
+		2B4C9E0610A29CDF00D5F19E /* ui_form.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ui_form.cpp; path = library/base/ui_form.cpp; sourceTree = "<group>"; };
 		2B4C9E0710A29CDF00D5F19E /* ui_form.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ui_form.h; path = library/base/base/ui_form.h; sourceTree = "<group>"; };
 		2B4CAAF610AB14F300D5F19E /* WBPluginWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WBPluginWindowController.h; path = frontend/mac/workbench/WBPluginWindowController.h; sourceTree = "<group>"; };
 		2B4CAAF710AB14F300D5F19E /* WBPluginWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WBPluginWindowController.mm; path = frontend/mac/workbench/WBPluginWindowController.mm; sourceTree = "<group>"; };
@@ -10136,8 +10136,8 @@
 			isa = PBXGroup;
 			children = (
 				2B263B990E94210A00933149 /* MainWindow.xib */,
-				2B263B660E9407A700933149 /* WBMainWindow.h */,
-				2B263B670E9407A700933149 /* WBMainWindow.mm */,
+				2B263B660E9407A700933149 /* MainWindowController.h */,
+				2B263B670E9407A700933149 /* MainWindowController.mm */,
 				2B15C26A12E523C9006567D6 /* WBMenuManager.h */,
 				2B15C26B12E523C9006567D6 /* WBMenuManager.mm */,
 			);
@@ -10866,8 +10866,8 @@
 				2B263BBE0E9423E100933149 /* Model View */,
 				2BFBF0BD0F51C3070016F9D1 /* Diagram Panel */,
 				2B263BBF0E9423F500933149 /* Side Panes */,
-				2B24045E101C980E00079580 /* WBMainWindow_Model.h */,
-				2B24045F101C980E00079580 /* WBMainWindow_Model.mm */,
+				2B24045E101C980E00079580 /* MainWindowController+Model.h */,
+				2B24045F101C980E00079580 /* MainWindowController+Model.mm */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -14567,7 +14567,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D11072D0486CEB800E47090 /* main.m in Sources */,
-				2B263B680E9407A700933149 /* WBMainWindow.mm in Sources */,
+				2B263B680E9407A700933149 /* MainWindowController.mm in Sources */,
 				2B263BCB0E9463FB00933149 /* WBMainController.mm in Sources */,
 				2B3009C20E99B09A002C5BBA /* WBOverviewPanel.mm in Sources */,
 				2B1CA1FC0EA24FF30062C916 /* WBOverviewListController.mm in Sources */,
@@ -14581,7 +14581,7 @@
 				1617BA200F8E4CCE00F5249C /* WBSQLQueryPanel.mm in Sources */,
 				2B1CA04D0F9442EF001443CA /* MGridView.mm in Sources */,
 				2BF87A9E0FA7EECC0012EADA /* WBSQLQueryUI.mm in Sources */,
-				2B240460101C980E00079580 /* WBMainWindow_Model.mm in Sources */,
+				2B240460101C980E00079580 /* MainWindowController+Model.mm in Sources */,
 				2B92AEEC104E0C5F0063A35B /* WBMFormsPluginPanel.mm in Sources */,
 				2B0123E81090B617009B2112 /* WBPluginPanelController.mm in Sources */,
 				2B4CAAF810AB14F300D5F19E /* WBPluginWindowController.mm in Sources */,
@@ -17624,6 +17624,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = NO;
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -17677,6 +17678,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (

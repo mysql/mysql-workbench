@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,9 +35,8 @@ namespace mforms
 
 @interface WBSidebarPanel : WBBasePanel
 {
-  //IBOutlet __weak WBSplitView *topView;
-  IBOutlet NSView *sidebar;
-  IBOutlet NSView *secondarySidebar;
+  IBOutlet __weak NSView *sidebar;
+  IBOutlet __weak NSView *secondarySidebar;
 
   std::string mOptionName;
 
@@ -55,7 +54,7 @@ namespace mforms
   BOOL mRestoringSidebars;
 }
 
-@property (nonatomic, readonly) WBSplitView *splitView; // Returns the top level view if that is a split panel actually.
+@property (nonatomic, readonly, weak) WBSplitView *splitView; // Returns the top level view if that is a split panel actually.
 
 - (void)restoreSidebarsFor:(const char*)name
                    toolbar:(mforms::ToolBar*)toolbar;

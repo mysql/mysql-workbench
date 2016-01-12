@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,7 +25,7 @@
   
   BOOL mBecameFirstResponder;
 @public
-  IBOutlet id delegate;
+  IBOutlet __weak id delegate;
 }
 
 @property (weak) NSCollectionViewItem *owner;
@@ -34,7 +34,7 @@
 
 @property  BOOL selected;
 
-@property (unsafe_unretained) id delegate;
+@property (weak) id delegate;
 
 // Inline editing.
 - (void) beginInlineEditing;

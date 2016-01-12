@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,21 +17,31 @@
  * 02110-1301  USA
  */
 
+#include "recordset_be.h"
+#include "mforms/menubar.h"
 
 #import "MGridView.h"
-#include "recordset_be.h"
-
 #import "MCPPUtilities.h"
-#include "mforms/menubar.h"
 
 static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
 
+@interface MGridView()
+{
+  int mSelectedColumnIndex;
+  int mSelectedRowIndex;
+  int mOSelectedColumnIndex;
+  int mOSelectedRowIndex;
+
+  Recordset *mRecordset;
+}
+
+@end
+
 @implementation MGridView
 
-@synthesize selectionChangedActionTarget;
-@synthesize selectionChangedAction;
+@synthesize actionDelegate;
 
-- (void)setRecordset:(Recordset*)rset
+- (void)setRecordset: (Recordset*)rset
 {
   mRecordset = rset;
 }
@@ -74,8 +84,8 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
   if (mSelectedRowIndex < 0)
     [self deselectAll: nil];
   
-  if (selectionChangedActionTarget != nil)
-    [selectionChangedActionTarget performSelector: selectionChangedAction];
+  if (actionDelegate != nil)
+    [actionDelegate actionTriggered];
 
   [self setNeedsDisplay: YES];
   
@@ -149,8 +159,8 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
       mSelectedColumnIndex = column;
   }
   
-  if (selectionChangedActionTarget != nil)
-    [selectionChangedActionTarget performSelector: selectionChangedAction];
+  if (actionDelegate != nil)
+    [actionDelegate actionTriggered];
 }
 
 
@@ -241,32 +251,32 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
         mSelectedColumnIndex = MIN(mSelectedColumnIndex, [self numberOfColumns] - 1);
       }
       
-      if (selectionChangedActionTarget != nil)
-        [selectionChangedActionTarget performSelector: selectionChangedAction];
+      if (actionDelegate != nil)
+        [actionDelegate actionTriggered];
       
       break;
     }
     case 123: // Left
       mSelectedColumnIndex -= 1;
       mSelectedColumnIndex = MAX(mSelectedColumnIndex, 1);
-      if (selectionChangedActionTarget != nil)
-        [selectionChangedActionTarget performSelector: selectionChangedAction];
+      if (actionDelegate != nil)
+        [actionDelegate actionTriggered];
       break;
     case 124: // Right
       mSelectedColumnIndex += 1;
       mSelectedColumnIndex = MIN(mSelectedColumnIndex, [self numberOfColumns] - 1);
-      if (selectionChangedActionTarget != nil)
-        [selectionChangedActionTarget performSelector: selectionChangedAction];
+      if (actionDelegate != nil)
+        [actionDelegate actionTriggered];
       break;
     case 125: // Down
       [self selectRowIndexes: [NSIndexSet indexSetWithIndex: MIN(mSelectedRowIndex+1, [self numberOfRows]-1)]
         byExtendingSelection: NO];
-      if (selectionChangedActionTarget != nil)
-        [selectionChangedActionTarget performSelector: selectionChangedAction];
+      if (actionDelegate != nil)
+        [actionDelegate actionTriggered];
       break;
     case 121: // PgDown
-      if (selectionChangedActionTarget != nil)
-        [selectionChangedActionTarget performSelector: selectionChangedAction];
+      if (actionDelegate != nil)
+        [actionDelegate actionTriggered];
       [super keyDown: event]; // let original handler do the page down
       mSelectedRowIndex = [self rowAtPoint: NSMakePoint(0, NSMaxY([self visibleRect])-[self rowHeight]/3)];
       if (mSelectedRowIndex < 0)
@@ -275,14 +285,14 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
         byExtendingSelection: NO];
       break;
     case 126: // Up
-      if (selectionChangedActionTarget != nil)
-        [selectionChangedActionTarget performSelector: selectionChangedAction];
+      if (actionDelegate != nil)
+        [actionDelegate actionTriggered];
       [self selectRowIndexes: [NSIndexSet indexSetWithIndex: MAX(mSelectedRowIndex-1, 0)]
         byExtendingSelection: NO];
       break;
     case 116: // PgUp
-      if (selectionChangedActionTarget != nil)
-        [selectionChangedActionTarget performSelector: selectionChangedAction];
+      if (actionDelegate != nil)
+        [actionDelegate actionTriggered];
       [super keyDown: event]; // let original handler do the page up
       mSelectedRowIndex = [self rowAtPoint: NSMakePoint(0, NSMinY([self visibleRect])+[self rowHeight]/3)];
       [self selectRowIndexes: [NSIndexSet indexSetWithIndex: mSelectedRowIndex]

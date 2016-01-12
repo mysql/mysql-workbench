@@ -61,9 +61,8 @@
 {
   bec::UIForm *form = [self formBE];
   mforms::ToolBar *tbar = form->get_toolbar();
-  if (form && tbar)
+  if (form != NULL && tbar != NULL)
   {
-    NSView *topView = [self topView];
     NSView *tbview = nsviewForView(tbar);
     if (tbview)
     {
@@ -73,14 +72,14 @@
         WBToolBarContainer *container = [[WBToolBarContainer alloc] initWithFrame: NSMakeRect(0, 0, NSWidth(r), NSHeight(r) + NSHeight([tbview frame]))];
         decoratorView = container;
         [container addSubview: tbview];
+        [topView removeFromSuperview];
         [container addSubview: topView];
         [container resizeSubviewsWithOldSize: NSZeroSize];
       }
       return decoratorView;
     }
-    return topView;
   }
-  return [self topView];
+  return topView;
 }
 
 - (NSMenu*)menuBar
