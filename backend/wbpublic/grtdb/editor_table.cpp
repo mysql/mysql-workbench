@@ -551,7 +551,7 @@ bool TableColumnsListBE::set_field(const NodeId &node, ColumnId column, const st
 {
   RefreshUI::Blocker __centry(*_owner);
 
-  db_ColumnRef col;
+
   std::string old;
 
   // either the row was edited or cancelled (sent "" as value)
@@ -611,7 +611,8 @@ bool TableColumnsListBE::set_field(const NodeId &node, ColumnId column, const st
   else if (node[0] >= real_count())
     return false;
 
-  col= _owner->get_table()->columns().get(node[0]);
+  db_ColumnRef col;
+  col = _owner->get_table()->columns().get(node[0]);
 
   get_field(node, column, old);
 
