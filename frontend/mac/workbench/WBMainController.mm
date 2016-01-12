@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #include "workbench/wb_context.h"
 
 #import "WBMainController.h"
-#import "WBMainWindow.h"
+#import "MainWindowController.h"
 #import "MCppUtilities.h"
 
 // for _NSGetArg*
@@ -64,14 +64,14 @@ DEFAULT_LOG_DOMAIN("Workbench")
   wb::WBContextUI *_wbui;
   wb::WBContext *_wb;
   wb::WBOptions *_options;
-  std::map<std::string, FormPanelFactory> *_formPanelFactories;
+  std::map<std::string, FormPanelFactory> _formPanelFactories;
 
   NSMutableArray *_editorWindows;
 
   BOOL _initFinished;
   BOOL _showingUnhandledException;
 
-  WBMainWindow *mainWindow;
+  MainWindowController *mainController;
   NSMutableArray *pageSetupNibObjects;
 
   IBOutlet NSPanel *pageSetup;
@@ -133,23 +133,23 @@ static std::string showFileDialog(const std::string &type, const std::string &ti
   [NSApp stopModalWithCode: [sender tag]];
 }
 
-static void windowShowStatusText(const std::string &text, WBMainWindow *window)
+static void windowShowStatusText(const std::string &text, MainWindowController *controller)
 {
   NSString *string= [[NSString alloc] initWithUTF8String:text.c_str()];
 
   // setStatusText must release the param
   if ([NSThread isMainThread])
-    [window setStatusText:string];
+    controller.statusText = string;
   else
-    [window performSelectorOnMainThread:@selector(setStatusText:)
-                             withObject:string
-                          waitUntilDone:NO];
+    [controller performSelectorOnMainThread: @selector(setStatusText:)
+                                 withObject: string
+                              waitUntilDone: NO];
 }
 
 
-static NativeHandle windowOpenPlugin(bec::GRTManager *grtm, 
+static NativeHandle windowOpenPlugin(bec::GRTManager *grtm,
                                      grt::Module *ownerModule, const std::string &shlib, const std::string &class_name,
-                                     const grt::BaseListRef &args, bec::GUIPluginFlags flags, WBMainWindow *window)
+                                     const grt::BaseListRef &args, bec::GUIPluginFlags flags, MainWindowController *controller)
 {
   std::string path= ownerModule->path();
   
@@ -194,7 +194,7 @@ static NativeHandle windowOpenPlugin(bec::GRTManager *grtm,
     else if (!(flags & bec::ForceNewWindowFlag))
     {
       // Check if there is already a panel with an editor for this plugin type.
-      id existingPanel = [window findPanelForPluginType: [pclass class]];
+      id existingPanel = [controller findPanelForPluginType: [pclass class]];
       if (existingPanel != nil)
       {
         // check if it can be closed
@@ -206,7 +206,7 @@ static NativeHandle windowOpenPlugin(bec::GRTManager *grtm,
         else
         {
           // drop the old plugin->handle mapping
-          grtm->get_plugin_manager()->forget_gui_plugin_handle(existingPanel);
+          grtm->get_plugin_manager()->forget_gui_plugin_handle((__bridge NativeHandle)existingPanel);
           
           if ([existingPanel respondsToSelector: @selector(pluginEditor)])
           {
@@ -214,18 +214,14 @@ static NativeHandle windowOpenPlugin(bec::GRTManager *grtm,
             
             if ([editor respondsToSelector: @selector(reinitWithArguments:)])
             {
-              id oldIdentifier= [editor identifier];
+              id oldIdentifier = [editor identifier];
               
-              [[existingPanel retain] autorelease];
-              
-              [window closeBottomPanelWithIdentifier: oldIdentifier];
-              
+              [controller closeBottomPanelWithIdentifier: oldIdentifier];
               [editor reinitWithArguments: args];
-              
-              [window addBottomPanel: existingPanel];
+              [controller addBottomPanel: existingPanel];
             }
           }
-          return existingPanel;
+          return (__bridge NativeHandle)existingPanel;
         }
       }
     }
@@ -237,29 +233,28 @@ static NativeHandle windowOpenPlugin(bec::GRTManager *grtm,
     {      
       if ((flags & bec::StandaloneWindowFlag))
       {
-        WBPluginWindowController *editor = [[[WBPluginWindowController alloc] initWithPlugin: [plugin autorelease]] autorelease];
+        WBPluginWindowController *editor = [[WBPluginWindowController alloc] initWithPlugin: plugin];
         
-        [[window owner]->_editorWindows addObject: editor];
+        [controller.owner->_editorWindows addObject: editor];
         
-        return editor;
+        return (__bridge NativeHandle)editor;
       }
       else
       {
-        WBPluginPanel *panel= [[[WBPluginPanel alloc] initWithPlugin: [plugin autorelease]] autorelease];
-        [window addBottomPanel: panel];
+        WBPluginPanel *panel = [[WBPluginPanel alloc] initWithPlugin: plugin];
+        [controller addBottomPanel: panel];
       
-        return panel;
+        return (__bridge NativeHandle)panel;
       }
     }
-    else if ([plugin isKindOfClass: [WBPluginWindowBase class]])
+    else if ([plugin isKindOfClass: WBPluginWindowBase.class])
     {
-      [plugin show];
-      return plugin;
+      [plugin showModal];
+      return nil;
     }
     else
     {
       NSLog(@"Plugin %@ is of unknown type", plugin);
-      [plugin release];
       return nil;
     }
   }
@@ -270,104 +265,95 @@ static NativeHandle windowOpenPlugin(bec::GRTManager *grtm,
   }
 }
 
-
-static void windowShowPlugin(NativeHandle handle, WBMainWindow *window)
+static void windowShowPlugin(NativeHandle handle, MainWindowController *controller)
 {
-  id plugin= (id)handle;
+  id plugin= (__bridge id)handle;
   
   if ([plugin respondsToSelector: @selector(setHidden:)])
     [plugin setHidden: NO];
   else if ([plugin respondsToSelector:@selector(topView)])
-    [window reopenEditor: plugin];
+    [controller reopenEditor: plugin];
 }
 
-
-static void windowHidePlugin(NativeHandle handle, WBMainWindow *window)
+static void windowHidePlugin(NativeHandle handle, MainWindowController *controller)
 {
-  id plugin= (id)handle;
+  id plugin = (__bridge id)handle;
 
   if ([plugin respondsToSelector: @selector(setHidden:)])
     [plugin setHidden: YES];
 }
 
-
-static void windowPerformCommand(const std::string &command, WBMainWindow *window, WBMainController *main)
+static void windowPerformCommand(const std::string &command, MainWindowController *controller, WBMainController *main)
 {  
   if (command == "reset_layout")
-    [window resetWindowLayout];
+    [controller resetWindowLayout];
   else if (command == "overview.mysql_model")
-    [window showMySQLOverview:nil];
+    [controller showMySQLOverview:nil];
   else if (command == "diagram_size")
     [main showDiagramProperties:nil];
   else if (command == "wb.page_setup")
     [main showPageSetup:nil];
   else
-    [window forwardCommandToPanels: command];
+    [controller forwardCommandToPanels: command];
 }
 
-
-static mdc::CanvasView* windowCreateView(const model_DiagramRef &diagram, WBMainWindow *window)
+static mdc::CanvasView* windowCreateView(const model_DiagramRef &diagram, MainWindowController *controller)
 {  
-  return [window createView:diagram.id().c_str()
-                       name:diagram->name().c_str()];
+  return [controller createView: diagram.id().c_str() name: diagram->name().c_str()];
+}
+
+static void windowDestroyView(mdc::CanvasView *view, MainWindowController *controller)
+{
+  [controller destroyView: view];
 }
 
 
-static void windowDestroyView(mdc::CanvasView *view, WBMainWindow *window)
+static void windowSwitchedView(mdc::CanvasView *cview, MainWindowController *controller)
 {
-  [window destroyView:view];
-}
-
-
-static void windowSwitchedView(mdc::CanvasView *cview, WBMainWindow *window)
-{
-  [window switchToDiagramWithIdentifier:cview->get_tag().c_str()];
+  [controller switchToDiagramWithIdentifier: cview->get_tag().c_str()];
 }
 
 static void windowCreateMainFormView(const std::string &type, boost::shared_ptr<bec::UIForm> form,
-                                     WBMainController *main, WBMainWindow *window)
+                                     WBMainController *main, MainWindowController *controller)
 {
-  if (main->_formPanelFactories->find(type) == main->_formPanelFactories->end())
+  if (main->_formPanelFactories.find(type) == main->_formPanelFactories.end())
   {
-    throw std::logic_error("Form type "+type+" not supported by frontend");
+    throw std::logic_error("Form type " + type + " not supported by frontend");
   }
   else
   {
-    WBBasePanel *panel= (*main->_formPanelFactories)[type](window, form);
+    WBBasePanel *panel = main->_formPanelFactories[type](controller, form);
     
-    [window addTopPanelAndSwitch: panel];
+    [controller addTopPanelAndSwitch: panel];
   }
 }
 
-static void windowDestroyMainFormView(bec::UIForm *form, WBMainWindow *window)
+static void windowDestroyMainFormView(bec::UIForm *form, MainWindowController *controller)
 {
-
 }
 
-static void windowToolChanged(mdc::CanvasView *canvas, WBMainWindow *window)
+static void windowToolChanged(mdc::CanvasView *canvas, MainWindowController *controller)
 {
-  if ([[window selectedMainPanel] isKindOfClass: [WBModelDiagramPanel class]])
+  if ([[controller selectedMainPanel] isKindOfClass: [WBModelDiagramPanel class]])
   {
-    [(WBModelDiagramPanel*)[window selectedMainPanel] canvasToolChanged:canvas];
+    [(WBModelDiagramPanel*)[controller selectedMainPanel] canvasToolChanged:canvas];
   }
 }
 
-
-static void windowRefreshGui(wb::RefreshType type, const std::string &arg1, NativeHandle arg2, WBMainWindow *window)
+static void windowRefreshGui(wb::RefreshType type, const std::string &arg1, NativeHandle arg2, MainWindowController *controller)
 {
-  [window refreshGUI:type argument1:arg1 argument2:arg2];
+  [controller refreshGUI: type argument1: arg1 argument2: arg2];
+}
+
+static void windowLockGui(bool lock, MainWindowController *controller)
+{
+  [controller blockGUI: lock];
 }
 
 
-static void windowLockGui(bool lock, WBMainWindow *window)
+static bool quitApplication(MainWindowController *controller)
 {
-  [window blockGUI:lock];
-}
-
-
-static bool quitApplication(WBMainWindow *mainWindow)
-{
-  if (![mainWindow closeAllPanels])
+  if (![controller closeAllPanels])
     return false;
 
   [NSApp terminate: nil];
@@ -383,8 +369,6 @@ static bool quitApplication(WBMainWindow *mainWindow)
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
   [[NSNotificationCenter defaultCenter] removeObserver: self];
 
-  [_editorWindows release];
-  [mainWindow release];
   
   _wbui->get_wb()->finalize();
   delete _wbui;
@@ -519,39 +503,39 @@ static bool validate_delete(wb::WBContextUI *wbui)
 //--------------------------------------------------------------------------------------------------
 
 // XXX deprecated, remove it eventually
-static void call_closetab_old(WBMainWindow *mainWindow)
+static void call_closetab_old(MainWindowController *controller)
 {
-  if ([[mainWindow window] isKeyWindow])
+  if (controller.window.isKeyWindow)
   {
-    id activePanel = [mainWindow activePanel];
+    id activePanel = controller.activePanel;
     bec::UIForm *form = [activePanel formBE];
     if (form && form->get_form_context_name() == "home")
       return;
     
     if (![activePanel respondsToSelector: @selector(closeActiveEditorTab)]
         || ![activePanel closeActiveEditorTab])
-      [mainWindow closePanel: activePanel];
+      [controller closePanel: activePanel];
   }
 }
 
-static void call_close_tab(WBMainWindow *mainWindow)
+static void call_close_tab(MainWindowController *controller)
 {
-  if ([[mainWindow window] isKeyWindow])
+  if (controller.window.isKeyWindow)
   {
-    id activePanel = [mainWindow activePanel];
+    id activePanel = controller.activePanel;
     bec::UIForm *form = [activePanel formBE];
     if (form && form->get_form_context_name() == "home")
       return;
     
-    [mainWindow closePanel: activePanel];
+    [controller closePanel: activePanel];
   }
 }
 
-static void call_close_editor(WBMainWindow *mainWindow)
+static void call_close_editor(MainWindowController *controller)
 {
-  if ([[mainWindow window] isKeyWindow])
+  if (controller.window.isKeyWindow)
   {
-    id activePanel = [mainWindow activePanel];
+    id activePanel = controller.activePanel;
     bec::UIForm *form = [activePanel formBE];
     if (form && form->get_form_context_name() == "home")
       return;
@@ -562,46 +546,46 @@ static void call_close_editor(WBMainWindow *mainWindow)
 
 //--------------------------------------------------------------------------------------------------
 
-static bool validate_closetab_old(WBMainWindow *mainWindow)
+static bool validate_closetab_old(MainWindowController *controller)
 {  
-  id activePanel = [mainWindow activePanel];
-  bec::UIForm *form = [activePanel formBE];
+  WBBasePanel *activePanel = controller.activePanel;
+  bec::UIForm *form = activePanel.formBE;
   if (form && form->get_form_context_name() == "home")
     return false;
   
   // find where this belongs to
-  return activePanel != nil && [[mainWindow window] isKeyWindow];
+  return activePanel != nil && controller.window.isKeyWindow;
 }
 
-static bool validate_close_tab(WBMainWindow *mainWindow)
+static bool validate_close_tab(MainWindowController *controller)
 {  
-  id activePanel = [mainWindow activePanel];
+  WBBasePanel *activePanel = controller.activePanel;
   bec::UIForm *form = [activePanel formBE];
   if (form && form->get_form_context_name() == "home")
     return false;
-  return activePanel != nil && [[mainWindow window] isKeyWindow];
+  return activePanel != nil && controller.window.isKeyWindow;
 }
 
-static bool validate_close_editor(WBMainWindow *mainWindow)
+static bool validate_close_editor(MainWindowController *controller)
 {  
-  id activePanel = [mainWindow activePanel];
+  WBBasePanel *activePanel = controller.activePanel;
   bec::UIForm *form = [activePanel formBE];
   if (form && form->get_form_context_name() == "home")
     return false;
   
-  return activePanel != nil && [[mainWindow window] isKeyWindow] && [activePanel respondsToSelector: @selector(closeActiveEditorTab)];
+  return activePanel != nil && controller.window.isKeyWindow && [activePanel respondsToSelector: @selector(closeActiveEditorTab)];
 }
 
 //--------------------------------------------------------------------------------------------------
 
-static void call_toggle_fullscreen(WBMainWindow *mainWindow)
+static void call_toggle_fullscreen(MainWindowController *controller)
 {
-  [mainWindow.window toggleFullScreen: mainWindow.window];
+  [controller.window toggleFullScreen: controller.window];
 }
 
 //--------------------------------------------------------------------------------------------------
 
-static bool validate_toggle_fullscreen(WBMainWindow *mainWindow)
+static bool validate_toggle_fullscreen(MainWindowController *controller)
 {
   return NSAppKitVersionNumber > NSAppKitVersionNumber10_6;
 }
@@ -638,7 +622,7 @@ static void call_find_replace(bool do_replace)
 
 //--------------------------------------------------------------------------------------------------
 
-static void call_find(WBMainWindow *mainWindow)
+static void call_find(MainWindowController *controller)
 {
   id firstResponder = [[NSApp keyWindow] firstResponder];
   if ([firstResponder isKindOfClass: [SCIContentView class]])
@@ -649,12 +633,12 @@ static void call_find(WBMainWindow *mainWindow)
   if ([firstResponder isKindOfClass: [MFCodeEditor class]])
     [firstResponder showFindPanel: NO];
   else
-    [mainWindow performSearchObject:nil];
+    [controller performSearchObject: nil];
 }
 
-static bool validate_find(WBMainWindow *mainWindow)
+static bool validate_find(MainWindowController *controller)
 {
-  bec::UIForm *form = [mainWindow context]->get_active_main_form();
+  bec::UIForm *form = controller.context->get_active_main_form();
   if (form && form->get_toolbar() && form->get_toolbar()->find_item("find"))
     return true;
   return validate_find_replace();
@@ -662,9 +646,9 @@ static bool validate_find(WBMainWindow *mainWindow)
 
 //--------------------------------------------------------------------------------------------------
 
-static void call_undo(WBMainWindow *mainWindow)
+static void call_undo(MainWindowController *controller)
 {
-  wb::WBContextUI *wbui = [mainWindow context];
+  wb::WBContextUI *wbui = controller.context;
   id firstResponder = [[NSApp keyWindow] firstResponder];
 
   if ([firstResponder respondsToSelector: @selector(undo:)])
@@ -676,9 +660,9 @@ static void call_undo(WBMainWindow *mainWindow)
       wbui->get_active_main_form()->undo();
 }
 
-static bool validate_undo(WBMainWindow *mainWindow)
+static bool validate_undo(MainWindowController *controller)
 {
-  wb::WBContextUI *wbui = [mainWindow context];
+  wb::WBContextUI *wbui = controller.context;
   id firstResponder = [[NSApp keyWindow] firstResponder];
 
   if ([firstResponder respondsToSelector: @selector(canUndo)])
@@ -693,9 +677,9 @@ static bool validate_undo(WBMainWindow *mainWindow)
   return false;
 }
 
-static void call_redo(WBMainWindow *mainWindow)
+static void call_redo(MainWindowController *controller)
 {
-  wb::WBContextUI *wbui = [mainWindow context];
+  wb::WBContextUI *wbui = controller.context;
   id firstResponder = [[NSApp keyWindow] firstResponder];
   
   if ([firstResponder respondsToSelector: @selector(redo:)])
@@ -707,9 +691,9 @@ static void call_redo(WBMainWindow *mainWindow)
       wbui->get_active_main_form()->redo();
 }
 
-static bool validate_redo(WBMainWindow *mainWindow)
+static bool validate_redo(MainWindowController *controller)
 {
-  wb::WBContextUI *wbui = [mainWindow context];
+  wb::WBContextUI *wbui = controller.context;
   id firstResponder = [[NSApp keyWindow] firstResponder];
   
   if ([firstResponder respondsToSelector: @selector(canRedo)])
@@ -733,7 +717,7 @@ static bool validate_redo(WBMainWindow *mainWindow)
        [notification object] == [firstResponder superview]))
   { 
     // refresh edit menu
-    wb::WBContextUI *wbui = [mainWindow context];
+    wb::WBContextUI *wbui = mainController.context;
     wbui->get_command_ui()->revalidate_edit_menu_items();
   }
 }
@@ -769,25 +753,25 @@ static bool validate_redo(WBMainWindow *mainWindow)
 
   _wbui->get_command_ui()->add_frontend_commands(commands);
 
-  _wbui->get_command_ui()->add_builtin_command("closetab", boost::bind(call_closetab_old, mainWindow), 
-                                               boost::bind(validate_closetab_old, mainWindow));
-  _wbui->get_command_ui()->add_builtin_command("close_tab", boost::bind(call_close_tab, mainWindow), 
-                                               boost::bind(validate_close_tab, mainWindow));
-  _wbui->get_command_ui()->add_builtin_command("close_editor", boost::bind(call_close_editor, mainWindow),
-                                               boost::bind(validate_close_editor, mainWindow));
+  _wbui->get_command_ui()->add_builtin_command("closetab", boost::bind(call_closetab_old, mainController),
+                                               boost::bind(validate_closetab_old, mainController));
+  _wbui->get_command_ui()->add_builtin_command("close_tab", boost::bind(call_close_tab, mainController),
+                                               boost::bind(validate_close_tab, mainController));
+  _wbui->get_command_ui()->add_builtin_command("close_editor", boost::bind(call_close_editor, mainController),
+                                               boost::bind(validate_close_editor, mainController));
 
-  _wbui->get_command_ui()->add_builtin_command("toggle_fullscreen", boost::bind(call_toggle_fullscreen, mainWindow),
-                                               boost::bind(validate_toggle_fullscreen, mainWindow));
+  _wbui->get_command_ui()->add_builtin_command("toggle_fullscreen", boost::bind(call_toggle_fullscreen, mainController),
+                                               boost::bind(validate_toggle_fullscreen, mainController));
 
-  _wbui->get_command_ui()->add_builtin_command("find", boost::bind(call_find, mainWindow),
-                                               boost::bind(validate_find, mainWindow));
+  _wbui->get_command_ui()->add_builtin_command("find", boost::bind(call_find, mainController),
+                                               boost::bind(validate_find, mainController));
   _wbui->get_command_ui()->add_builtin_command("find_replace", boost::bind(call_find_replace, true),
                                                boost::bind(validate_find_replace));
 
-  _wbui->get_command_ui()->add_builtin_command("undo", boost::bind(call_undo, mainWindow),
-                                               boost::bind(validate_undo, mainWindow));
-  _wbui->get_command_ui()->add_builtin_command("redo", boost::bind(call_redo, mainWindow),
-                                               boost::bind(validate_redo, mainWindow));
+  _wbui->get_command_ui()->add_builtin_command("undo", boost::bind(call_undo, mainController),
+                                               boost::bind(validate_undo, mainController));
+  _wbui->get_command_ui()->add_builtin_command("redo", boost::bind(call_redo, mainController),
+                                               boost::bind(validate_redo, mainController));
   _wbui->get_command_ui()->add_builtin_command("copy", boost::bind(call_copy, _wbui),
                                                boost::bind(validate_copy, _wbui));
   _wbui->get_command_ui()->add_builtin_command("cut", boost::bind(call_cut, _wbui), 
@@ -799,15 +783,6 @@ static bool validate_redo(WBMainWindow *mainWindow)
   _wbui->get_command_ui()->add_builtin_command("selectAll", boost::bind(call_select_all, _wbui), 
                                                boost::bind(validate_select_all, _wbui));
 }
-
-
-//static void set_clipboard_text(const std::string &text)
-//{
-//  [[NSPasteboard generalPasteboard] declareTypes:[NSArray arrayWithObject:NSStringPboardType] owner:nil];
-//  [[NSPasteboard generalPasteboard] setString:[NSString stringWithCPPString:text]
-//                                      forType:NSStringPboardType];
-//}
-
 
 static void flush_main_thread()
 {
@@ -847,9 +822,9 @@ static void flush_main_thread()
 
 #include "mforms/../cocoa/MFMenuBar.h"
 
-- (void)windowDidBecomeKey:(NSNotification*)notification
+- (void)windowDidBecomeKey: (NSNotification*)notification
 {
-  if ([notification object] != [mainWindow window])
+  if (notification.object != mainController.window)
   {
     cf_swap_edit_menu();
   }
@@ -893,28 +868,28 @@ static NSString *applicationSupportFolder()
     grtm = _wb->get_grt_manager();
     grtm->get_dispatcher()->set_main_thread_flush_and_wait(flush_main_thread);
     
-    [mainWindow setWBContext: _wbui];
-    [mainWindow setOwner:self];
+    mainController.wBContext = _wbui;
+    mainController.owner = self;
     
     // Define a set of methods which backend can call to interact with user and frontend
     wb::WBFrontendCallbacks wbcallbacks;
     
     // Assign those callback methods
     wbcallbacks.show_file_dialog= boost::bind(showFileDialog, _1, _2, _3);
-    wbcallbacks.show_status_text= boost::bind(windowShowStatusText, _1, mainWindow);
-    wbcallbacks.open_editor= boost::bind(windowOpenPlugin, _1, _2, _3, _4, _5, _6, mainWindow);
-    wbcallbacks.show_editor= boost::bind(windowShowPlugin, _1, mainWindow);
-    wbcallbacks.hide_editor= boost::bind(windowHidePlugin, _1, mainWindow);
-    wbcallbacks.perform_command= boost::bind(windowPerformCommand, _1, mainWindow, self);
-    wbcallbacks.create_diagram= boost::bind(windowCreateView, _1, mainWindow);
-    wbcallbacks.destroy_view= boost::bind(windowDestroyView, _1, mainWindow);
-    wbcallbacks.switched_view= boost::bind(windowSwitchedView, _1, mainWindow);
-    wbcallbacks.create_main_form_view= boost::bind(windowCreateMainFormView, _1, _2, self, mainWindow);
-    wbcallbacks.destroy_main_form_view= boost::bind(windowDestroyMainFormView, _1, mainWindow);
-    wbcallbacks.tool_changed= boost::bind(windowToolChanged, _1, mainWindow);
-    wbcallbacks.refresh_gui= boost::bind(windowRefreshGui, _1, _2, _3, mainWindow);
-    wbcallbacks.lock_gui= boost::bind(windowLockGui, _1, mainWindow);
-    wbcallbacks.quit_application= boost::bind(quitApplication, mainWindow);
+    wbcallbacks.show_status_text= boost::bind(windowShowStatusText, _1, mainController);
+    wbcallbacks.open_editor= boost::bind(windowOpenPlugin, _1, _2, _3, _4, _5, _6, mainController);
+    wbcallbacks.show_editor= boost::bind(windowShowPlugin, _1, mainController);
+    wbcallbacks.hide_editor= boost::bind(windowHidePlugin, _1, mainController);
+    wbcallbacks.perform_command= boost::bind(windowPerformCommand, _1, mainController, self);
+    wbcallbacks.create_diagram= boost::bind(windowCreateView, _1, mainController);
+    wbcallbacks.destroy_view= boost::bind(windowDestroyView, _1, mainController);
+    wbcallbacks.switched_view= boost::bind(windowSwitchedView, _1, mainController);
+    wbcallbacks.create_main_form_view= boost::bind(windowCreateMainFormView, _1, _2, self, mainController);
+    wbcallbacks.destroy_main_form_view= boost::bind(windowDestroyMainFormView, _1, mainController);
+    wbcallbacks.tool_changed= boost::bind(windowToolChanged, _1, mainController);
+    wbcallbacks.refresh_gui= boost::bind(windowRefreshGui, _1, _2, _3, mainController);
+    wbcallbacks.lock_gui= boost::bind(windowLockGui, _1, mainController);
+    wbcallbacks.quit_application= boost::bind(quitApplication, mainController);
       
     // Add shipped python module search path to PYTHONPATH.
     {
@@ -1008,31 +983,22 @@ static void init_mforms()
                                                  name: NSTextViewDidChangeSelectionNotification
                                                object: nil];
     
-    _editorWindows = [[NSMutableArray array] retain];
-    _formPanelFactories= new std::map<std::string, FormPanelFactory>();
+    _editorWindows = [NSMutableArray array];
   }
   return self;
 }
 
-- (void)dealloc
+- (void)registerFormPanelFactory: (FormPanelFactory)fac forFormType: (const std::string&)type
 {
-  // This dealloc is actually never called, so we cannot use it to clean up.
-  // Doing that in applicationWillTerminate instead.
-  [super dealloc];
+  _formPanelFactories[type] = fac;
 }
-
-
-- (void)registerFormPanelFactory:(FormPanelFactory)fac forFormType:(const std::string&)type
-{
-  (*_formPanelFactories)[type]= fac;
-}
-
 
 - (void)awakeFromNib
 {
   // Since we use this controller to load multiple xibs the awakeFromNib function is called each time of such a load
   // (include the own loading). We can use the mainWindow as indicator (which is set up here).
-  if (mainWindow == nil)
+  // TODO: refactor out classes with own xib files into own controller classes and use them here instead.
+  if (mainController == nil)
   {
     // Prepare the logger to be ready as first part.
     base::Logger([[applicationSupportFolder() stringByAppendingString: @"/MySQL/Workbench"] fileSystemRepresentation]);
@@ -1048,7 +1014,7 @@ static void init_mforms()
     [[NSExceptionHandler defaultExceptionHandler] setExceptionHandlingMask: NSLogUncaughtExceptionMask | NSLogUncaughtSystemExceptionMask | NSLogUncaughtRuntimeErrorMask | NSLogTopLevelExceptionMask | NSLogOtherExceptionMask];
     [[NSExceptionHandler defaultExceptionHandler] setDelegate: [WBExceptionHandlerDelegate new]];
     
-    mainWindow = [[WBMainWindow new] retain];
+    mainController = [MainWindowController new];
 
     [self setupBackend];
     
@@ -1056,21 +1022,21 @@ static void init_mforms()
                                                    userInfo:nil repeats:YES];
     [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSModalPanelRunLoopMode];
     
-    NSToolbar *toolbar= [[mainWindow window] toolbar];
+    NSToolbar *toolbar = mainController.window.toolbar;
     [toolbar setShowsBaselineSeparator: NO];
     
     [self registerCommandsWithBackend];
     
-    setupSQLQueryUI(self, mainWindow, _wbui);
+    setupSQLQueryUI(self, mainController, _wbui);
     
     // don't show the main window if we'll quit after running a script
     if ((_options->quit_when_done && !_options->run_at_startup.empty()))
-      [[mainWindow window] orderOut: nil];
+      [mainController.window orderOut: nil];
     else
-      [mainWindow showWindow: nil];
+      [mainController showWindow: nil];
 
     // do the final setup for after the window is shown
-    [mainWindow setupReady];    
+    [mainController setupReady];
 
     mforms_cocoa_check();
     
@@ -1116,7 +1082,7 @@ static void init_mforms()
 {
   static NSArray *modes= nil;
   if (!modes) 
-    modes= [@[NSDefaultRunLoopMode, NSModalPanelRunLoopMode] retain];
+    modes= @[NSDefaultRunLoopMode, NSModalPanelRunLoopMode];
   
   // if we call flush_idle_tasks() directly here, we could get blocked by a plugin with a
   // modal loop. In that case, the timer would not get fired again until the modal loop
@@ -1128,11 +1094,11 @@ static void init_mforms()
 
 - (void)requestRefresh
 {
-  NSAutoreleasePool *pool= [[NSAutoreleasePool alloc] init];
-  [self performSelector: @selector(idleTasks:)
-             withObject: nil
-             afterDelay: 0];
-  [pool release];
+  @autoreleasepool {
+    [self performSelector: @selector(idleTasks:)
+               withObject: nil
+               afterDelay: 0];
+  }
 }
 
 
@@ -1155,7 +1121,7 @@ static void init_mforms()
       break;
       
     case APP_MENU_QUIT:
-      quitApplication(mainWindow);
+      quitApplication(mainController);
       break;
   }
 }
@@ -1165,7 +1131,6 @@ static void init_mforms()
   WBDiagramSizeController *controller= [[WBDiagramSizeController alloc] initWithWBContext:_wbui];
   
   [controller showModal];
-  [controller release];
 }
 
 
@@ -1215,22 +1180,21 @@ static void init_mforms()
   
   if (!pageSetup)
   {
-    // We use no owner for the page setup otherwise awakeFromNib is again called when loading this nib.
-    // We have no bindings in the xib, so it doesn't matter anyway.
-    if (![NSBundle.mainBundle loadNibNamed: @"PageSetup" owner: self topLevelObjects: &pageSetupNibObjects])
+    NSMutableArray *temp;
+    if (![NSBundle.mainBundle loadNibNamed: @"PageSetup" owner: self topLevelObjects: &temp])
       return;
 
-    [pageSetupNibObjects retain];
+    pageSetupNibObjects = temp;
     
     if ([[NSFileManager defaultManager] fileExistsAtPath: @"/System/Library/PrivateFrameworks/PrintingPrivate.framework/Versions/A/Plugins/PrintingCocoaPDEs.bundle/Contents/Resources/Landscape.tiff"])
     {
-      [landscapeButton setImage: [[[NSImage alloc] initWithContentsOfFile: @"/System/Library/PrivateFrameworks/PrintingPrivate.framework/Versions/A/Plugins/PrintingCocoaPDEs.bundle/Contents/Resources/Landscape.tiff"] autorelease]];
-      [portraitButton setImage: [[[NSImage alloc] initWithContentsOfFile: @"/System/Library/PrivateFrameworks/PrintingPrivate.framework/Versions/A/Plugins/PrintingCocoaPDEs.bundle/Contents/Resources/Portrait.tiff"] autorelease]];
+      [landscapeButton setImage: [[NSImage alloc] initWithContentsOfFile: @"/System/Library/PrivateFrameworks/PrintingPrivate.framework/Versions/A/Plugins/PrintingCocoaPDEs.bundle/Contents/Resources/Landscape.tiff"]];
+      [portraitButton setImage: [[NSImage alloc] initWithContentsOfFile: @"/System/Library/PrivateFrameworks/PrintingPrivate.framework/Versions/A/Plugins/PrintingCocoaPDEs.bundle/Contents/Resources/Portrait.tiff"]];
     }
     else
     {
-      [landscapeButton setImage: [[[NSImage alloc] initWithContentsOfFile: @"/System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/Print.framework/Versions/A/Plugins/PrintingCocoaPDEs.bundle/Contents/Resources/Landscape.tiff"] autorelease]];
-      [portraitButton setImage: [[[NSImage alloc] initWithContentsOfFile: @"/System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/Print.framework/Versions/A/Plugins/PrintingCocoaPDEs.bundle/Contents/Resources/Portrait.tiff"] autorelease]];
+      [landscapeButton setImage: [[NSImage alloc] initWithContentsOfFile: @"/System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/Print.framework/Versions/A/Plugins/PrintingCocoaPDEs.bundle/Contents/Resources/Landscape.tiff"]];
+      [portraitButton setImage: [[NSImage alloc] initWithContentsOfFile: @"/System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/Print.framework/Versions/A/Plugins/PrintingCocoaPDEs.bundle/Contents/Resources/Portrait.tiff"]];
     }
   }
   

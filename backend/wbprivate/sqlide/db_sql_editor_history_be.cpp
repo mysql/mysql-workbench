@@ -442,10 +442,10 @@ void DbSqlEditorHistory::DetailsModel::load(const std::string &storage_file_path
           statement = sql_text.ValueStr();
 
           // decides whether to use or not the existing data
-          if (timestamp != _last_timestamp.repr() && timestamp != "~")
+          if (timestamp != _last_timestamp.toString() && timestamp != "~")
             _last_timestamp = timestamp;
 
-          if (statement != _last_statement.repr() && statement != "~")
+          if (statement != _last_statement.toString() && statement != "~")
             _last_statement = statement;
 
           _data.push_back(_last_statement);
@@ -554,14 +554,14 @@ void DbSqlEditorHistory::DetailsModel::add_entries(const std::list<std::string> 
         if (index % 2)
         {
           // decides whether to use or not the existing data
-          if (statement != _last_statement.repr())
+          if (statement != _last_statement.toString())
             _last_statement = statement;
         
           _data.push_back(_last_statement);
         }
         else
         {
-          if (statement != _last_timestamp.repr())
+          if (statement != _last_timestamp.toString())
             _last_timestamp = statement;
 
           _data.push_back(_last_timestamp);

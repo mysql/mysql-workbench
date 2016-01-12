@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,11 +17,8 @@
  * 02110-1301  USA
  */
 
-
-
 #import "MFTable.h"
 #import "MFMForms.h"
-
 
 @interface MFTableCell : NSObject
 {
@@ -41,9 +38,6 @@
 @implementation MFTableCell
 @end
 
-
-
-
 @implementation MFTableImpl
 
 - (instancetype)initWithObject:(::mforms::Table*)aTable
@@ -54,7 +48,7 @@
     mOwner = aTable;
     mOwner->set_data(self);
     
-    mTableCells= [[NSMutableArray array] retain];
+    mTableCells= [NSMutableArray array];
   }
   return self;
 }
@@ -67,9 +61,7 @@
 
 - (void)dealloc
 {
-  [mTableCells release];
   mTableCells= nil;
-  [super dealloc];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -446,7 +438,7 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
 
 - (void)subviewMinimumSizeChanged
 {
-  if (!mOwner->is_destroying())
+  if (mOwner != NULL && !mOwner->is_destroying())
     [super subviewMinimumSizeChanged];
 }
 
@@ -460,7 +452,7 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
   
   [self addSubview:view];
     
-  MFTableCell *cell= [[[MFTableCell alloc] init] autorelease];
+  MFTableCell *cell = [[MFTableCell alloc] init];
   
   cell->mView= view;
   cell->mLeftAttachment= MAX(left, 0);
@@ -516,9 +508,7 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
 
 static bool table_create(::mforms::Table *self)
 {
-  [[[MFTableImpl alloc] initWithObject:self] autorelease];
-    
-  return true;  
+  return [[MFTableImpl alloc] initWithObject: self] != nil;
 }
 
 

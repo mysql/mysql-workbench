@@ -18,16 +18,15 @@
  */
 
 #import "MFProgressBar.h"
-
 #import "MFMForms.h"
 
 @implementation MFProgressBarImpl
 
 
-- (instancetype)initWithObject:(::mforms::ProgressBar*)pbar
+- (instancetype)initWithObject: (::mforms::ProgressBar*)pbar
 {
-  self= [super initWithFrame:NSMakeRect(10,10,10,10)];
-  if (self)
+  self = [super initWithFrame:NSMakeRect(10,10,10,10)];
+  if (self != nil)
   {
     [self setMinValue: 0];
     [self setMaxValue: 1.0];
@@ -54,9 +53,7 @@
 
 static bool progressbar_create(mforms::ProgressBar *image)
 {
-  [[[MFProgressBarImpl alloc] initWithObject:image] autorelease];
-  
-  return true;
+  return [[MFProgressBarImpl alloc] initWithObject: image] != nil;
 }
 
 

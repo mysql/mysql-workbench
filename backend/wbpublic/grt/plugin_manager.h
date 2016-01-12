@@ -26,11 +26,11 @@
 #include "grts/structs.app.h"
 #include "wbpublic_public_interface.h"
 
-
-#ifdef __GNUC__ 
-typedef void* NativeHandle;
+#ifdef _WIN32
+  typedef uintptr_t NativeHandle;
 #else
-typedef uintptr_t NativeHandle;
+// Don't make this "id" on OSX or we risk a strong reference cycle.
+  typedef void* NativeHandle;
 #endif
 
 // GUI plugins with native code that are loaded and managed by the Workbench process

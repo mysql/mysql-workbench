@@ -1,25 +1,28 @@
-//
-//  MCPPUtilities.h
-//  MySQLWorkbench
-//
-//  Created by Alfredo Kojima on 2/Oct/08.
-//  Copyright 2008 Sun Microsystems Inc. All rights reserved.
-//
-
-#import <Cocoa/Cocoa.h>
-
-#include <exception>
-#include <string>
-#include <vector>
-#include <list>
+/*
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
 
 #import "NSString_extras.h"
-#import "NSArray_extras.h"
 #import "NSColor_extras.h"
 
 void MShowCPPException(const std::exception &exc);
 
 void MFillPopupButtonWithStrings(NSPopUpButton *popup, const std::vector<std::string> &items);
 
-NSArray *MArrayFromStringVector(const std::vector<std::string> &items);
-NSArray *MArrayFromStringList(const std::list<std::string> &items);
+NSArray<NSString *> *MArrayFromStringVector(const std::vector<std::string> &items);
+NSArray<NSString *> *MArrayFromStringList(const std::list<std::string> &items);

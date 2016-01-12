@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1053,8 +1053,8 @@ protected:
           value= iter->get_member(_items[node[0]].key);
 
           if (iter == _list.begin())
-            v= value.repr();
-          else if (v != value.repr())
+            v = value.toString();
+          else if (v != value.toString())
             ++item_count;
         }
 

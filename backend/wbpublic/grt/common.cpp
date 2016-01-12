@@ -245,8 +245,7 @@ namespace bec {
       }
     }
     else
-      item_name = object.repr();
-
+      item_name = object.toString();
 
     if (grouped)
     {

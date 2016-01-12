@@ -37,12 +37,12 @@
   bec::RoleTreeBE *_roleTreeBE;
   bec::ObjectPrivilegeListBE *_privilegeListBE;
 
-  IBOutlet NSTableView *assignedRolesTable;
-  IBOutlet NSTableView *privilegesTable;
-  IBOutlet NSOutlineView *allRolesOutline;
+  IBOutlet __weak NSTableView *assignedRolesTable;
+  IBOutlet __weak NSTableView *privilegesTable;
+  IBOutlet __weak NSOutlineView *allRolesOutline;
 
-  IBOutlet GRTListDataSource *assignedRolesDS;
-  IBOutlet GRTTreeDataSource *allRolesDS;
+  IBOutlet __weak GRTListDataSource *assignedRolesDS;
+  IBOutlet __weak GRTTreeDataSource *allRolesDS;
 
   NSMutableArray *nibObjects;
 }
@@ -62,9 +62,10 @@
     if (_be != NULL)
     {
       NSBundle *bundle = [NSBundle bundleForClass: self.class];
-      if ([bundle loadNibNamed: @"PrivilegesTab" owner: self topLevelObjects: &nibObjects])
+      NSMutableArray *temp;
+      if ([bundle loadNibNamed: @"PrivilegesTab" owner: self topLevelObjects: &temp])
       {
-        [nibObjects retain];
+        nibObjects = temp;
         _rolesListBE = new bec::ObjectRoleListBE(be, get_rdbms_for_db_object(be->get_dbobject()));
         _roleTreeBE = new bec::RoleTreeBE(be->get_catalog());
         _privilegeListBE = _rolesListBE->get_privilege_list();
@@ -89,11 +90,9 @@
 
 - (void)dealloc
 {
-  [nibObjects release];
   delete _rolesListBE;
   delete _roleTreeBE;
 
-  [super dealloc];
 }
 
 

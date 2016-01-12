@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,8 +26,8 @@
   self= [super init];
   if (self)
   {
-    _blobIcon = [[NSImage imageNamed: @"field_overlay_blob"] retain];
-    _nullIcon = [[NSImage imageNamed: @"field_overlay_null"] retain];
+    _blobIcon = [NSImage imageNamed: @"field_overlay_blob"];
+    _nullIcon = [NSImage imageNamed: @"field_overlay_null"];
   }
   return self;
 }
@@ -36,18 +36,12 @@
 - (id)copyWithZone:(NSZone*)zone 
 {
   MQResultSetCell *copy = (MQResultSetCell*)[super copyWithZone:zone];
-  copy->_blobIcon = [_blobIcon retain];
-  copy->_nullIcon = [_nullIcon retain];
+  copy->_blobIcon = _blobIcon;
+  copy->_nullIcon = _nullIcon;
   return copy;
 }
 
 
-- (void)dealloc
-{
-  [_blobIcon release];
-  [_nullIcon release];
-  [super dealloc];
-}
 
 
 - (void)editWithFrame:(NSRect)aRect inView:(NSView *)controlView editor:(NSText *)textObj delegate:(id)anObject event:(NSEvent *)theEvent

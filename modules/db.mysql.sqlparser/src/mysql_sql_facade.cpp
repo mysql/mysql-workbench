@@ -667,7 +667,7 @@ bool MysqlSqlFacadeImpl::parseSelectStatementForEdit(const std::string &sql, std
                     grt::BaseListRef next_column = grt::BaseListRef::cast_from(column_list->get(column_index++)); //Note column_index is being increased to skip the "," item
                     
                     // Validation occurs only on non * columns
-                    if(next_column[1].repr() == "*")
+                    if (next_column[1].toString() == "*")
                       column_names.push_back(std::make_pair("*", "*"));
                     else
                     {

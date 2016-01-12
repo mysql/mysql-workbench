@@ -447,7 +447,7 @@ void DbDriverParams::init(
       {
         unknown_options_text.append(*k);
         unknown_options_text.append("=");
-        unknown_options_text.append(stored_conn->parameterValues().get(*k).repr());
+        unknown_options_text.append(stored_conn->parameterValues().get(*k).toString());
         unknown_options_text.append("\n");
       }
     }
@@ -572,7 +572,7 @@ grt::DictRef DbDriverParams::get_params() const
       {
         if (param_handle->object()->name() == "$others")
         {
-          std::vector<std::string> options(base::split(param_handle->get_value().repr(), "\n"));
+          std::vector<std::string> options(base::split(param_handle->get_value().toString(), "\n"));
           for (std::vector<std::string>::const_iterator op = options.begin(); op != options.end(); ++op)
           {
             std::string name, value;

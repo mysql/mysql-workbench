@@ -84,7 +84,7 @@
 	self = [super init];
 	
 	if (self != nil) {
-		mIdentifier = [identifier retain];
+		mIdentifier = identifier;
 		
 		mHasIcon = YES;
 		mTabDirection = WBTabDirectionUp;
@@ -114,15 +114,16 @@
 
       if ([mIconImage.representations[0] isKindOfClass: NSBitmapImageRep.class])
       {
-        NSBitmapImageRep *imageRepresentation = (id)mIconImage.representations[0];
-        CGImageRef img = imageRepresentation.CGImage;
+        //NSBitmapImageRep *imageRepresentation = (id)mIconImage.representations[0];
+        //CGImageRef img = imageRepresentation.CGImage;
         mIcon = [CALayer layer];
         CGRect r = CGRectZero;
         r.size = NSSizeToCGSize([mIconImage size]);
         r.origin.x = 9;
         r.origin.y = floor(horizon + (horizon / 2) - (r.size.height / 2));
         [mIcon setFrame: r];
-        [mIcon setContents: (id)img];
+        //[mIcon setContents: img];
+        mIcon.contents = mIconImage; // Directly supported on 10.6+.
         [self addSublayer: mIcon];
       }
 		}
@@ -144,7 +145,7 @@
 			[mTitleLayer setForegroundColor: c];
 			CGColorRelease(c);
 			NSFont* font = [NSFont boldSystemFontOfSize: 0];
-			[mTitleLayer setFont: font];
+			[mTitleLayer setFont: (__bridge CFTypeRef _Nullable)(font)];
 			[mTitleLayer setFontSize: 11.5];
 			
 			[self addSublayer: mTitleLayer];
@@ -158,7 +159,7 @@
 			c = WB_CGColorCreateCalibratedRGB(0.3, 0.3, 0.3, 1.0);
 			[mTitleLayerB setForegroundColor: c];
 			CGColorRelease(c);
-			[mTitleLayerB setFont: font];
+			[mTitleLayerB setFont: (__bridge CFTypeRef _Nullable)(font)];
 			[mTitleLayerB setFontSize: 9];
 			[self addSublayer: mTitleLayerB];
 			[mTitleLayerB setString: @"MySQL Schema"];
@@ -171,19 +172,18 @@
                                    ofType: @"png"];
 			mSideLineImage = [[NSImage alloc] initWithContentsOfFile: path];
       
-//			NSImage* iconImage = [NSImage imageNamed: @"SchemaTabSideLine"];
-			CGImageRef img = [(id)[mSideLineImage representations][0] CGImage];
+      // CGImageRef img = [(id)[mSideLineImage representations][0] CGImage];
 			CGRect r = CGRectMake(0, horizon, 1, frame.size.height / 2);
 			mSideLeft = [CALayer layer];
 			[mSideLeft setFrame: r];
-			[mSideLeft setContents: (id)img];
+			mSideLeft.contents = mSideLineImage;
 			[mSideLeft setAutoresizingMask: (kCALayerMaxXMargin | kCALayerMinYMargin)];
 			[self addSublayer: mSideLeft];
 
 			r = CGRectMake(frame.size.width - 1, horizon, 1, frame.size.height / 2);
 			mSideRight = [CALayer layer];
 			[mSideRight setFrame: r];
-			[mSideRight setContents: (id)img];
+			mSideRight.contents = mSideLineImage;
 			[mSideRight setAutoresizingMask: (kCALayerMinXMargin | kCALayerMinYMargin)];
 			[self addSublayer: mSideRight];
 		}
@@ -194,9 +194,9 @@
       NSString* path = [b pathForResource: @"SchemaTabGradientBackground"
                                    ofType: @"png"];
 			mAlphaGradientImage = [[NSImage alloc] initWithContentsOfFile: path];
-			CGImageRef img = [(id)[mAlphaGradientImage representations][0] CGImage];
+      //CGImageRef img = [(id)[mAlphaGradientImage representations][0] CGImage];
       mBackgroundGradient = [CALayer layer];
-      [mBackgroundGradient setContents: (id)img];
+      mBackgroundGradient.contents = mAlphaGradientImage;
 			CGRect r = CGRectMake(0, horizon, frame.size.width, frame.size.height / 2);
       [mBackgroundGradient setFrame: r];
 			[mBackgroundGradient setAutoresizingMask: (kCALayerWidthSizable | kCALayerHeightSizable)];
@@ -219,20 +219,12 @@
 + (WBTabItem*) tabItemWithIdentifier: (id) identifier
                                label: (NSString*) label;
 {
-	return [[[WBSchemaTabItem alloc] initWithIdentifier: identifier
-                                                label: label] autorelease];
+	return [[WBSchemaTabItem alloc] initWithIdentifier: identifier
+                                                label: label];
 }
 
 
 
-- (void) dealloc
-{
-  [mIconImage release];
-  [mSideLineImage release];
-  [mAlphaGradientImage release];
-  
-	[super dealloc];
-}
 
 
 
