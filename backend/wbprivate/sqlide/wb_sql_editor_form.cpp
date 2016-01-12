@@ -209,10 +209,10 @@ void SqlEditorForm::report_connection_failure(const std::string &error, const db
   "3 Check the %user% has rights to connect to %server% from your address (mysql rights define what clients can connect to the server and from which machines) \n"\
   "4 Make sure you are both providing a password if needed and using the correct password for %server% connecting from the host address you're connecting from";
 
-  message = bec::replace_string(message, "%user%", target->parameterValues().get_string("userName"));
-  message = bec::replace_string(message, "%port%", target->parameterValues().get("port").toString());
-  message = bec::replace_string(message, "%server%", target->parameterValues().get_string("hostName", "localhost"));
-  message = bec::replace_string(message, "%error%", error);
+  message = base::replaceString(message, "%user%", target->parameterValues().get_string("userName"));
+  message = base::replaceString(message, "%port%", target->parameterValues().get("port").toString());
+  message = base::replaceString(message, "%server%", target->parameterValues().get_string("hostName", "localhost"));
+  message = base::replaceString(message, "%error%", error);
 
   log_error("%s", (message + '\n').c_str());
   mforms::Utilities::show_error(_("Cannot Connect to Database Server"), message, _("Close"));

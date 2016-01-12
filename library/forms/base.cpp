@@ -91,7 +91,6 @@ bool Object::is_destroying()
 Object::Object()
   : _data(nil), _refcount(1), _managed(false), _release_on_add(false), _destroying(false)
 {
-  ControlFactory::get_instance()->instance_created();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,7 +111,6 @@ id Object::get_data() const
 
 Object::~Object()
 {
-  ControlFactory::get_instance()->instance_destroyed();
 }
 
 #else // !__APPLE__
