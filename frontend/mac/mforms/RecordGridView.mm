@@ -95,12 +95,14 @@ RecordGridView::RecordGridView(Recordset::Ref rset)
   viewer = [[MResultsetViewer alloc] initWithRecordset: rset];
 
   [observer observeViewer: this];
-  set_data([[viewer gridView] enclosingScrollView]);
+  set_data(viewer.view);
 }
 
 RecordGridView::~RecordGridView()
 {
   [observer forgetViewer: this];
+  viewer = nil;
+  set_data(nil);
 }
 
 int RecordGridView::get_column_count()

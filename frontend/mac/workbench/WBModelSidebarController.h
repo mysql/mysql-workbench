@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#import <Cocoa/Cocoa.h>
-
 namespace wb {
   class ModelDiagramForm;
   class WBContextModel;
@@ -35,11 +33,11 @@ namespace mforms {
 
 @interface WBModelSidebarController : NSObject
 {
-  IBOutlet NSTabViewItem *historyTab;
-  IBOutlet NSTabViewItem *userTypesTab;
-  IBOutlet NSTabViewItem *catalogTreeTab;
+  IBOutlet __weak NSTabViewItem *historyTab;
+  IBOutlet __weak NSTabViewItem *userTypesTab;
+  IBOutlet __weak NSTabViewItem *catalogTreeTab;
 
-  IBOutlet NSTableView *propertiesTable;
+  IBOutlet __weak NSTableView *propertiesTable;
 
   mforms::View *_udtlist;
   mforms::View *_history;

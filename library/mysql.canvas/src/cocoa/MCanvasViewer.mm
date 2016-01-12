@@ -23,6 +23,8 @@
 
 @implementation MCanvasViewer
 
+@synthesize delegate;
+
 - (instancetype)initWithFrame:(NSRect)frame 
 {
   self = [super initWithFrame:frame];
@@ -148,17 +150,6 @@ static void canvas_view_needs_repaint(int x, int y, int w, int h, void *viewer)
   base::Rect rect(_view->get_viewport());
 
   return NSMakeRect(rect.pos.x, rect.pos.y, rect.size.width, rect.size.height);
-}
-
-
-- (id)delegate
-{
-  return _delegate;
-}
-
-- (void)setDelegate:(id)delegate
-{
-  _delegate= delegate;
 }
 
 

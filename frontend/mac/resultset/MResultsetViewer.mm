@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#import "MGridView.h"
 #import "MResultsetViewer.h"
 #include "sqlide/recordset_be.h"
 #import "MQResultSetCell.h"
@@ -72,15 +71,14 @@ static NSImage *descendingSortIndicator= nil;
 
       [gridView setRecordset: mData->get()];
 
-      (*mData)->update_edited_field = boost::bind(selected_record_changed, self);
+      (*mData)->update_edited_field = boost::bind(selected_record_changed, (__bridge void *)self);
       (*mData)->tree_changed_signal()->connect(boost::bind(onRefreshWhenIdle, (__bridge void *)self));
 
       (*mData)->refresh_ui_signal.connect(boost::bind(onRefresh, (__bridge void *)self));
       (*mData)->rows_changed = boost::bind(onRefresh, (__bridge void *)self);
 
       gridView.intercellSpacing = NSMakeSize(0, 1);
-      gridView.selectionChangedActionTarget = self;
-      gridView.selectionChangedAction = @selector(handleNSTableViewSelectionIsChangingNotification:);
+      gridView.actionDelegate = self;
       gridView.allowsMultipleSelection = YES;
 
       [gridView.enclosingScrollView setBorderType: NSNoBorder];
@@ -105,7 +103,6 @@ static NSImage *descendingSortIndicator= nil;
 
   std::for_each(mSigConns.begin(), mSigConns.end(), boost::bind(&boost::signals2::connection::disconnect, _1));
   delete mData;
-
 }
 
 // for use by mforms
@@ -272,14 +269,15 @@ static void record_del(void *view)
   [gridView deleteBackward: nil];
 }
 
-static void selected_record_changed(MResultsetViewer *self)
+static void selected_record_changed(void *theViewer)
 {
-  [self.gridView scrollRowToVisible: (*self->mData)->edited_field_row()-1];
-  [self.gridView deselectAll: nil];
-  [self.gridView selectCellAtRow: (*self->mData)->edited_field_row() column: (*self->mData)->edited_field_column()];
+  MResultsetViewer *viewer = (__bridge MResultsetViewer *)theViewer;
+  [viewer.gridView scrollRowToVisible: (*viewer->mData)->edited_field_row()-1];
+  [viewer.gridView deselectAll: nil];
+  [viewer.gridView selectCellAtRow: (*viewer->mData)->edited_field_row() column: (*viewer->mData)->edited_field_column()];
 }
 
-- (void)handleNSTableViewSelectionIsChangingNotification:(NSNotification*)note
+- (void)actionTriggered
 {
   (*self->mData)->set_edited_field(gridView.selectedRowIndex, gridView.selectedColumnIndex - 1) ;
 }

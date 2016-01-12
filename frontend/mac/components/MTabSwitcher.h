@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,7 +42,7 @@ typedef NS_ENUM(NSInteger, MTabSwitcherStyle)
 
 @interface MTabSwitcher : NSView <NSTabViewDelegate>
 
-@property (nullable, assign) IBOutlet id delegate;
+@property (nullable, weak) IBOutlet id delegate;
 @property float minTabWidth;
 @property (nullable, readonly) NSTabViewItem *clickedItem;
 @property (nonatomic) MTabSwitcherStyle tabStyle;

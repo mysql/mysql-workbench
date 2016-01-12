@@ -70,7 +70,6 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 - (void)dealloc
 {
   delete _nodeId;
-  [super dealloc];
 }
 
 - (void)updateNodeId:(const bec::NodeId&)node
@@ -105,8 +104,8 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   {
     bec::NodeId child(_be->get_child(*_nodeId, i));
 
-    WBOverviewSection *section= [[[WBOverviewSection alloc] initWithOverview:_owner
-                                                                      nodeId:child] autorelease];
+    WBOverviewSection *section= [[WBOverviewSection alloc] initWithOverview:_owner
+                                                                      nodeId:child];
     [section setFrameSize:NSMakeSize(100, 20)];
     [section setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
     [self addSubview:section];
@@ -225,7 +224,6 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 {
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
   delete _nodeId;
-  [super dealloc];
 }
 
 
@@ -238,9 +236,9 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   std::string label;
   _be->get_field(child, 0, label);
 
-  WBOverviewGroup *group= [[[WBOverviewGroup alloc] initWithOverview:_owner
+  WBOverviewGroup *group = [[WBOverviewGroup alloc] initWithOverview:_owner
                                                               nodeId:child
-                                                             tabItem:item] autorelease];
+                                                             tabItem:item];
 
   [item setLabel:@(label.c_str())];
   [item setView:group];
@@ -250,7 +248,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   
   [group buildChildren];
   
-  [self addTabViewItem:[item autorelease]];
+  [self addTabViewItem: item];
   
   return group;
 }
@@ -326,15 +324,11 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     if (existing_groups.find(_be->get_node_unique_id(child)) == existing_groups.end())
     {
       [self buildChildGroup:child];
-      // because of a bug in NSCollectionView, we need to make it visible on screen before refreshing
-      // otherwise we get a crash
-//      [self selectLastTabViewItem:nil]; 
-//      [group refreshChildren];
     }
   }
 
   // reorder
-  //MISSING CODE HERE
+  // TODO: MISSING CODE HERE
 
   // refresh everythng
   NSTabViewItem *tabItem;
@@ -465,7 +459,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   
   if (!menuitems.empty())
   {
-    NSMenu *menu = [[[NSMenu alloc] initWithTitle: [NSString stringWithCPPString: node.toString()]] autorelease];
+    NSMenu *menu = [[NSMenu alloc] initWithTitle: [NSString stringWithCPPString: node.toString()]];
 
     [WBMenuManager fillMenu:menu withItems:menuitems selector:@selector(activateContextMenu:) target:self];
   
@@ -540,9 +534,10 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   self = [super initWithFrame:NSMakeRect(0, 0, 100, 20)];
   if (self != nil)
   {
-    if ([NSBundle.mainBundle loadNibNamed: @"IconCollectionView" owner: self topLevelObjects: &nibObjects])
+    NSMutableArray *temp;
+    if ([NSBundle.mainBundle loadNibNamed: @"IconCollectionView" owner: self topLevelObjects: &temp])
     {
-      [nibObjects retain];
+      nibObjects = temp;
 
       _owner = owner;
       _be = [owner backend];
@@ -551,7 +546,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
       std::string label= _be->get_field_description(node, 0);
       if (!label.empty())
       {
-        _descriptionLabel= [[[NSTextField alloc] initWithFrame:NSZeroRect] autorelease];
+        _descriptionLabel= [[NSTextField alloc] initWithFrame:NSZeroRect];
         [_descriptionLabel setStringValue: [NSString stringWithCPPString: label]];
         [_descriptionLabel setEditable: NO];
         [_descriptionLabel setBordered: NO];
@@ -604,13 +599,8 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
 - (void)dealloc
 {
-  [nibObjects release];
-  
   [[NSNotificationCenter defaultCenter] removeObserver:self];
-  
   delete _nodeId;
-  
-  [super dealloc];
 }
 
 
@@ -783,14 +773,6 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   return self;
 }
 
-- (void) dealloc
-{
-  [_title release];
-  [_subTitle release];
-  [super dealloc];
-}
-
-
 - (void)subviewResized:(NSNotification*)notif
 {
   id sender= [notif object];
@@ -801,7 +783,6 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   
   [self setFrameSize:size];
 }
-
 
 - (void)resizeSubviewsWithOldSize: (NSSize)oldBoundsSize
 {
@@ -815,39 +796,31 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   collectionView.frame = frame;
 }
 
-
 - (void)setTitle:(NSString*)title
 {
   if (_title != title)
   {
-    [_title release];
-    _title= [title retain];
-    [self setNeedsDisplay:YES];
+    _title= title;
+    [self setNeedsDisplay: YES];
   }
 }
-
 
 - (void)setSubTitle:(NSString*)title
 {
   if (_subTitle != title)
   {
-    [_subTitle release];
-    _subTitle= [title retain];
-    [self setNeedsDisplay:YES];
+    _subTitle= title;
+    [self setNeedsDisplay: YES];
   }
 }
-
 
 - (NSString*)title
 {
   return _title;
 }
 
-
-- (void)drawRect:(NSRect)rect
+- (void)drawRect: (NSRect)rect
 {
-  //[self lockFocus];
-  
   NSImage *bar= [NSImage imageNamed:@"header_bar_gray.png"];
   
   [[NSColor darkGrayColor] set];
@@ -867,10 +840,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
           fromRect:NSMakeRect(0, 0, [bar size].width, [bar size].height)
          operation:NSCompositeSourceOver
           fraction:0.4];
-  
-  //[self unlockFocus];
 }
-
 
 - (void)refreshChildren
 {  

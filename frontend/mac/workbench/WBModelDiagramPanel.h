@@ -33,7 +33,7 @@ namespace wb
 @property (readonly, copy) NSString *identifier;
 @property (readonly) bec::UIForm *formBE;
 
-@property (readonly, assign) MCanvasViewer *canvasViewer;
+@property (readonly, weak) MCanvasViewer *canvasViewer;
 @property (readonly) mdc::CanvasView *canvas;
 
 @property (getter = isClosed, readonly) BOOL closed;
