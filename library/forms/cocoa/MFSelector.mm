@@ -153,14 +153,10 @@ static bool selector_create(::mforms::Selector *self, ::mforms::SelectorStyle st
   switch (style)
   {
     case ::mforms::SelectorPopup:
-      [[[PopupStyleSelector alloc] initWithObject:self] autorelease];
-      break;
+      return [[PopupStyleSelector alloc] initWithObject: self] != nil;
     default:
-      [[[ComboStyleSelector alloc] initWithObject:self] autorelease];
-      break;
+      return [[ComboStyleSelector alloc] initWithObject: self] != nil;
   }
-  
-  return true;  
 }
 
 //--------------------------------------------------------------------------------------------------

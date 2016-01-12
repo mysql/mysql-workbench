@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,10 +35,7 @@
 - (void) dealloc
 {
   delete _objectList;
-  [super dealloc];
 }
-
-
 
 - (void)updateForForm:(bec::UIForm*)form
 {
@@ -50,9 +47,7 @@
   std::vector<std::string> items;
   grt::ListRef<GrtObject> new_object_list;
   std::string description;
-  
-//  _selected_form= form;
-  
+
   if (form)
     description = _wbui->get_description_for_selection(form, new_object_list, items);
   else
@@ -100,16 +95,7 @@
       [text setEditable:NO];
       [forceEditButton setHidden:YES];
     }
-  }/* no change in selection, dont do anything
-  else
-  {
-    [popup removeAllItems];
-    [popup addItemWithTitle: @"No Selection"];
-    [popup selectItemAtIndex: 0];
-    
-    [text setString:@""];
-    [text setEditable:NO];
-  }*/
+  }
 
   _initializing= NO;
 }

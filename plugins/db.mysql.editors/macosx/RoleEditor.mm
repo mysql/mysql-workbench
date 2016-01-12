@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,11 +21,26 @@
 #include "base/string_utilities.h"
 
 #include "wb_context.h"
+#include "grtdb/editor_user_role.h"
+#include "grtdb/db_object_helpers.h" // get_rdbms_for_db_object()
 
 #import "RoleEditor.h"
 #import "MCPPUtilities.h"
 #import "GRTTreeDataSource.h"
-#include "grtdb/db_object_helpers.h" // get_rdbms_for_db_object()
+#import "GRTListDataSource.h"
+
+// Subclass of List data source to handle object drops
+@interface RolePrivilegeObjectListDataSource : GRTListDataSource
+{
+  DbMysqlRoleEditor *mOwner;
+  bec::RoleEditorBE *mBackEnd;
+}
+
+- (void)setRoleEditor:(DbMysqlRoleEditor*)owner;
+- (void)setBackEnd:(bec::RoleEditorBE*)be;
+
+@end
+
 
 @implementation RolePrivilegeObjectListDataSource
 
@@ -80,20 +95,32 @@
 
 // --------------------------------------------------------------------------------------------------
 
+@interface RolePrivilegeListDataSource : GRTListDataSource
+{
+  DbMysqlRoleEditor *mOwner;
+  bec::RolePrivilegeListBE *mList;
+}
+
+- (IBAction)checkAll: (id)sender;
+- (IBAction)uncheckAll: (id)sender;
+
+
+- (void)setRoleEditor:(DbMysqlRoleEditor*)owner;
+- (void)setListModel:(bec::RolePrivilegeListBE*)be;
+
+@end
 
 @implementation RolePrivilegeListDataSource
 
-- (void)setListModel:(bec::RolePrivilegeListBE*)be
+- (void)setListModel: (bec::RolePrivilegeListBE*)be
 {
   mList= be;
 }
-
 
 - (void)setRoleEditor:(DbMysqlRoleEditor*)owner
 {
   mOwner= owner;
 }
-
 
 - (IBAction)checkAll:(id)sender
 {
@@ -149,15 +176,34 @@
 
 @end
 
-// --------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+
+@interface DbMysqlRoleEditor()
+{
+  IBOutlet NSTabView *tabView;
+
+  IBOutlet NSTextField *nameText;
+  IBOutlet NSOutlineView *roleOutline;
+  IBOutlet NSTableView *objectTable;
+  IBOutlet NSTableView *privilegeTable;
+  IBOutlet NSPopUpButton *parentPopUp;
+
+  IBOutlet GRTTreeDataSource *roleTreeDS;
+  IBOutlet RolePrivilegeObjectListDataSource *objectListDS;
+  IBOutlet RolePrivilegeListDataSource *privilegeListDS;
+
+  bec::RoleEditorBE *mBackEnd;
+}
+
+@end
 
 @implementation DbMysqlRoleEditor
 
-static void call_refresh(DbMysqlRoleEditor *self)
+static void call_refresh(void *theEditor)
 {
-  [self performSelectorOnMainThread:@selector(refresh) withObject:nil waitUntilDone:YES];
+  DbMysqlRoleEditor *editor = (__bridge DbMysqlRoleEditor *)theEditor;
+  [editor performSelectorOnMainThread: @selector(refresh) withObject: nil waitUntilDone: YES];
 }
-
 
 - (instancetype)initWithModule: (grt::Module *)module
                     grtManager: (bec::GRTManager *)grtm
@@ -182,17 +228,16 @@ static void call_refresh(DbMysqlRoleEditor *self)
   return self;
 }
 
-
-- (void)reinitWithArguments:(const grt::BaseListRef&)args
+- (void)reinitWithArguments: (const grt::BaseListRef&)args
 {
   [super reinitWithArguments: args];
   
-  bec::GRTManager* grtm = [self grtManager];
+  bec::GRTManager *grtm = [self grtManager];
   delete mBackEnd;
   
-  mBackEnd= new bec::RoleEditorBE(grtm, db_RoleRef::cast_from(args[0]), get_rdbms_for_db_object(args[0]));
+  mBackEnd = new bec::RoleEditorBE(grtm, db_RoleRef::cast_from(args[0]), get_rdbms_for_db_object(args[0]));
   
-  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, self));
+  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, (__bridge void *)self));
   
   [objectListDS setBackEnd: mBackEnd];
   
@@ -218,7 +263,6 @@ static void call_refresh(DbMysqlRoleEditor *self)
 - (void)dealloc
 {
   delete mBackEnd;
-  [super dealloc];
 }
 
 

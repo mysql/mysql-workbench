@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,8 +20,22 @@
 #import "WBSplitPanel.h"
 #import "WBTabView.h"
 #import "WBSplitView.h"
+#import "WBSplitViewUnbrokenizerDelegate.h"
+#import "MContainerView.h"
 
 #define MODEL_SPLIT_MIN_HEIGHT 28
+
+@interface WBSplitPanel ()
+{
+  IBOutlet __weak WBSplitView *mainSplitView;
+  IBOutlet __weak WBSplitViewUnbrokenizerDelegate *mainSplitViewDelegate;
+  IBOutlet __weak NSView *topContainer;
+
+  NSMutableDictionary *_editorById;
+  float _lastEditorTabHeight;
+  NSTimeInterval _lastClick;
+}
+@end
 
 @implementation WBSplitPanel
 
@@ -34,14 +48,6 @@
   }
   return self;
 }
-
-
-- (void) dealloc
-{
-  [_editorById release];
-  [super dealloc];
-}
-
 
 - (void)awakeFromNib
 {
@@ -60,7 +66,7 @@
 
 - (void)addEditor:(WBBasePanel*)editor
 {
-  id tabItem= [[[NSTabViewItem alloc] initWithIdentifier:[editor identifier]] autorelease];
+  id tabItem= [[NSTabViewItem alloc] initWithIdentifier:[editor identifier]];
   
   _editorById[[editor identifier]] = editor;
   
@@ -97,7 +103,6 @@
 {
   for (id item in [editorTabView tabViewItems])
   {
-    //if ([[[[item identifier] performSelector:@selector(pluginEditor)] identifier] isEqualTo: ident])
     if ([[item identifier] isEqualTo: ident])
       return YES;
   }
@@ -111,7 +116,6 @@
 
 - (BOOL)closeEditor:(WBBasePanel*)editor
 {
-//  BOOL wasActive= [self activePanel] == panel;
   if (![editor willClose])
     return NO;
     
@@ -122,19 +126,11 @@
   {
     NSTabViewItem *item= [editorTabView tabViewItemAtIndex: index];
 
-    [editor retain];
     
     _lastEditorTabHeight = NSHeight([[editorTabView superview] frame]);
     [editorTabView removeTabViewItem: item];
 
-    [editor release];
   }
-  // auto-reselect the current toptabview item if bottom tabview is empty
-  // and was 1st responder
-/*  if (wasActive && [bottomTabView numberOfTabViewItems] == 0)
-  {
-    [self tabView: topTabView didSelectTabViewItem: [topTabView selectedTabViewItem]];
-  }*/
   [_editorById removeObjectForKey: [editor identifier]];
 
   return YES;
@@ -293,26 +289,6 @@
       [mainSplitView setPosition:[mainSplitView maxPossiblePositionOfDividerAtIndex:0] ofDividerAtIndex:0];
       _lastEditorTabHeight= 0;
     }
-/*    else if ([tabView numberOfTabViewItems] > 0 && [mainSplitView isSubviewCollapsed:tabView])
-    {
-      // tabview getting filled again, uncollapse the splitview
-      
-      CGFloat position= [self splitView:mainSplitView
-                 constrainMaxCoordinate:0
-                            ofSubviewAt:0];
-      
-      // if the min size is too small, make it a bit bigger so that it won't show up totally collapsed
-      // for views that allows small minsizes
-      
-      if (position > NSHeight([mainSplitView frame]) - [mainSplitView dividerThickness] - 250)
-        position= NSHeight([mainSplitView frame]) - [mainSplitView dividerThickness] - 250;
-      
-      [mainSplitView setPosition:position
-                ofDividerAtIndex:0];
-      
-    //  if ([tabView numberOfTabViewItems] == 1)
-    //    [mainSplitViewDelegate setBottomCollapsedMinHeight: MODEL_SPLIT_MIN_HEIGHT];
-    }*/
   }
 }
 
@@ -320,10 +296,7 @@
 - (BOOL)tabView:(NSTabView *)tabView willCloseTabViewItem:(NSTabViewItem*)tabViewItem
 {
   WBBasePanel *panel = _editorById[[tabViewItem identifier]];
-  
-  //if (![panel willClose])
-//    return NO;
-//  return YES;
+
   return [self closeEditor: panel];
 }
 

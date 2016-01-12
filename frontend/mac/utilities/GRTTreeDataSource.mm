@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -46,13 +46,6 @@
 }
 
 
-- (void)dealloc
-{
-  [_normalFont release];
-  [_boldFont release];
-  [_nodeCache release];
-  [super dealloc];
-}
 
 - (void)setTreeModel:(bec::TreeModel*)model
 {
@@ -95,11 +88,11 @@
 
 - (id)itemForNodeId:(const bec::NodeId&)nodeId
 {
-  NSString *key= @(nodeId.repr().c_str());
+  NSString *key= @(nodeId.toString().c_str());
   GRTNodeId *node;
   if (!(node= _nodeCache[key]))
   {
-    node= [[GRTNodeId nodeIdWithNodeId:nodeId] retain];
+    node= [GRTNodeId nodeIdWithNodeId:nodeId];
     _nodeCache[key] = node;
   }
   return node;
@@ -110,7 +103,7 @@
 {
   try
   {
-    return [[self itemForNodeId: _tree->get_child([self nodeIdForItem:item], index)] retain];
+    return [self itemForNodeId: _tree->get_child([self nodeIdForItem:item], index)];
   }
   catch (const std::exception &e)
   {
@@ -207,8 +200,8 @@
     {
       if (!_normalFont)
       {
-        _normalFont = [[NSFont systemFontOfSize: [[cell font] pointSize]] retain];
-        _boldFont = [[NSFont boldSystemFontOfSize: [_normalFont pointSize]] retain];
+        _normalFont = [NSFont systemFontOfSize: [[cell font] pointSize]];
+        _boldFont = [NSFont boldSystemFontOfSize: [_normalFont pointSize]];
       }
       
       if (_tree && _tree->is_highlighted(node_id))

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,9 +21,6 @@
 
 #include "workbench/wb_context_ui.h"
 
-
-
-
 typedef NS_ENUM(NSInteger, PropertyType) {
   PROPERTY_TYPE_UNDEFINED = 0,
   PROPERTY_TYPE_STRING = 1,
@@ -31,29 +28,16 @@ typedef NS_ENUM(NSInteger, PropertyType) {
   PROPERTY_TYPE_COLOR = 3
 } ;
 
-
-
 @interface WBObjectPropertiesController : NSObject
-{
-  IBOutlet NSTableView* mTableView;
-  
-  NSCell* mColorCell;
-  NSButtonCell * mCheckBoxCell;
-  
-  wb::WBContextUI *_wbui;
-  bec::ValueInspectorBE* mValueInspector;
-}
 
-
-- (void) updateForForm: (bec::UIForm*) form;
-- (void) setWBContext: (wb::WBContextUI*) be;
-
-- (PropertyType) propertyTypeForRowIndex: (NSInteger) rowIndex;
-
+- (void)updateForForm: (bec::UIForm*)form;
+- (void)setWBContext: (wb::WBContextUI*)be;
 
 @end
 
+// TODO: move to NSString extension file.
+@interface NSString (WBExtensions)
 
+@property (readonly, copy) NSString *stringBySplittingCamelCase;
 
-
-
+@end

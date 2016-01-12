@@ -25,10 +25,6 @@
 
 @property (readonly) SqlEditorForm::Ref backEnd;
 
-- (IBAction)clearOutput: (id)sender;
-- (IBAction)copyOutputEntry: (id)sender;
-- (IBAction)handleMenuAction: (id)sender;
-
 - (void)addEditor: (WBBasePanel*)editor;
 
 - (instancetype)initWithBE: (const SqlEditorForm::Ref&)be NS_DESIGNATED_INITIALIZER;

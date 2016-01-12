@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,9 @@
  * 02110-1301  USA
  */
 
-#include "recordset_data_storage.h"
 #include "sqlide_generics_private.h"
+
+#include "recordset_data_storage.h"
 #include "base/string_utilities.h"
 #include "base/boost_smart_ptr_helpers.h"
 #include <boost/foreach.hpp>

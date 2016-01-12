@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -123,19 +123,11 @@ void DBObjectMasterFilterBE::load_stored_filter_set_list(std::list<std::string> 
   std::string key;
   grt::DictRef stored_filter_sets;
 
-  //for (size_t n= 0, count= _stored_master_filter_sets.count(); n < count; ++n)
-  //{
-  //  _stored_master_filter_sets.get_by_index(n, key, stored_filter_sets);
-  //  names.push_back(key);
-  //}
-
   for (grt::DictRef::const_iterator it= _stored_master_filter_sets.begin();
     it != _stored_master_filter_sets.end(); it++)
   {
-    names.push_back(it->second.repr());
+    names.push_back(it->second.toString());
   }
 
   names.push_back(std::string()); // empty value, denoting empty filter set
-  //*/
-  //throw std::logic_error("needs update");
 }

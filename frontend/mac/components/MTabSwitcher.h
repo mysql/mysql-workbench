@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +17,7 @@
  * 02110-1301  USA
  */
 
-#import <Cocoa/Cocoa.h>
-
-typedef NS_ENUM(NSInteger, MTabSwitcherStyle) 
+typedef NS_ENUM(NSInteger, MTabSwitcherStyle)
 {
   MSectionTabSwitcher,
   MPaletteTabSwitcher, // Similar to SectionTabSwitcher, but with slight changes (darker and centered)
@@ -30,74 +28,31 @@ typedef NS_ENUM(NSInteger, MTabSwitcherStyle)
   MMainTabSwitcher
 };
 
-
-
 @interface NSObject(MTabSwitcherDelegateExtras)
-- (BOOL)tabView:(NSTabView*)tabView willCloseTabViewItem:(NSTabViewItem*)item;
-- (BOOL)tabView:(NSTabView*)tabView itemHasCloseButton:(NSTabViewItem*)item;
-- (BOOL)tabView:(NSTabView*)tabView itemIsPinned:(NSTabViewItem*)item;
-- (void)tabView:(NSTabView*)tabView itemPinClicked:(NSTabViewItem*)item;
-- (NSImage*)tabView:(NSTabView*)tabView iconForItem:(NSTabViewItem*)tabViewItem;
-- (void)tabView:(NSTabView*)tabView willDisplayMenu:(NSMenu*)menu forTabViewItem:(NSTabViewItem*)item;
-- (void)tabView:(NSTabView*)tabView didReorderTabViewItem:(NSTabViewItem*)item toIndex:(NSInteger)index;
-- (NSString*)tabView:(NSTabView*)tabView toolTipForItem:(NSTabViewItem*)item;
+- (BOOL)tabView: (NSTabView * _Nonnull)tabView willCloseTabViewItem: (NSTabViewItem * _Nonnull)item;
+- (BOOL)tabView: (NSTabView * _Nonnull)tabView itemHasCloseButton: (NSTabViewItem * _Nonnull)item;
+- (BOOL)tabView: (NSTabView * _Nonnull)tabView itemIsPinned: (NSTabViewItem * _Nonnull)item;
+- (void)tabView: (NSTabView * _Nonnull)tabView itemPinClicked: (NSTabViewItem * _Nonnull)item;
+- (NSImage * _Nonnull)tabView: (NSTabView * _Nonnull)tabView iconForItem: (NSTabViewItem * _Nonnull)tabViewItem;
+- (void)tabView: (NSTabView * _Nonnull)tabView willDisplayMenu: (NSMenu * _Nonnull)menu forTabViewItem:(NSTabViewItem * _Nonnull)item;
+- (void)tabView: (NSTabView * _Nonnull)tabView didReorderTabViewItem: (NSTabViewItem * _Nonnull)item toIndex:(NSInteger)index;
+- (NSString * _Nonnull)tabView: (NSTabView * _Nonnull)tabView toolTipForItem: (NSTabViewItem * _Nonnull)item;
 @end
 
 
 @interface MTabSwitcher : NSView <NSTabViewDelegate>
-{
-@private
-  IBOutlet NSTabView *mTabView;
-  id mSelectedItem;
-  id mDelegate;
-  NSMutableDictionary *mLabelAttributes;
-  NSMutableDictionary *mLabelDisabledAttributes;
-  NSMutableDictionary *mLabelShadowAttributes;
-  NSTabViewItem *mHoverItem;
-  NSTabViewItem *mClickedItem;
-  MTabSwitcherStyle mStyle;
-  NSMutableDictionary *mCloseButtonRects;
-  NSTrackingArea *mTrack;
-  float mReservedSpace;
-  float mDefaultMinTabWidth;
-  float mMinTabWidth;
-  NSPoint mTabDragPosition;
-  NSPoint mClickTabOffset;
-  NSRect mExternderButtonRect;
-  int mFirstVisibleTabIndex;
-  int mLastVisibleTabIndex;
-  NSProgressIndicator *mBusyTabIndicator;
-  NSTabViewItem *mBusyTab;
-  NSMutableArray *mToolTipTags;
 
-  BOOL mAllowTabReordering;
-  BOOL mInside;
-  BOOL mDraggingTab;
-  BOOL mUnselected;
-  BOOL mCloseHighlighted;
-  BOOL mClosePressed;
-  BOOL mPinPressed;
-  BOOL mReorderingTab;
+@property (nullable, weak) IBOutlet id delegate;
+@property float minTabWidth;
+@property (nullable, readonly) NSTabViewItem *clickedItem;
+@property (nonatomic) MTabSwitcherStyle tabStyle;
+@property BOOL allowTabReordering;
 
-  NSRect mPinRect;
-}
+- (void)setTabView: (NSTabView *_Nullable)tabView; // TODO the associated tabview is bound via an outlet. Why do we need a setter then?
 
-@property (assign) float minTabWidth;
-
-- (void)setBusyTab: (NSTabViewItem*)tab;
-
-- (IBAction)handleMenuAction:(id)sender;
-- (void)setTabStyle:(MTabSwitcherStyle)style;
-- (void)setTabView:(NSTabView*)tabView;
-- (void)setAllowTabReordering:(BOOL)flag;
-
-@property (readonly, strong) NSTabViewItem *clickedItem;
-- (void)closeTabViewItem: (NSTabViewItem*)item;
-
-@property (assign) id delegate;
-
+- (void)setBusyTab: (NSTabViewItem *_Nullable)tab;
+- (void)closeTabViewItem: (NSTabViewItem *_Nullable)item;
 - (void)tile;
-
 - (void)makeUnselected;
 
 @end

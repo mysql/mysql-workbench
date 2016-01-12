@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,7 +19,6 @@
 
 #import "WBPluginWindowBase.h"
 
-
 @implementation WBPluginWindowBase
 
 - (instancetype)initWithModule: (grt::Module*)module
@@ -27,30 +26,13 @@
                      arguments: (const grt::BaseListRef &)args
 {
   self = [super init];
-  if (self)
+  if (self != nil)
   {
-    _module= module;
-    _grtm= grtm;
   }
   return self;
 }
 
-
-- (bec::GRTManager*)grtManager
-{
-  return _grtm;
-}
-
-- (void)dealloc
-{
-  // should be removed once it's made sure that whatever adds an observer, removes it
-  [[NSNotificationCenter defaultCenter] removeObserver: self];
-  
-  [super dealloc];
-}
-
-
-- (void)show
+- (void)showModal
 {
 }
 
