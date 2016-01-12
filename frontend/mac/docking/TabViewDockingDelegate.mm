@@ -58,7 +58,7 @@ bool TabViewDockingPointDelegate::close_all()
 void TabViewDockingPointDelegate::dock_view(mforms::AppView *view, const std::string &arg1, int arg2)
 {
   id v = view->get_data();
-  NSTabViewItem *tabItem = [[[NSTabViewItem alloc] initWithIdentifier: [NSString stringWithFormat: @"appview:%p", view]] autorelease];
+  NSTabViewItem *tabItem = [[NSTabViewItem alloc] initWithIdentifier: [NSString stringWithFormat: @"appview:%p", view]];
   [tabItem setView: v];
 
   if (arg1 == "" || arg1 == "append")

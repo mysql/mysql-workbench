@@ -40,13 +40,13 @@ namespace mforms
 //! in dockableView.
 @interface WBPluginEditorBase : NSViewController {
   NSSize mMinumumSize;
-  bec::GRTManager *_grtm; // must be assigned by subnodes
+  bec::GRTManager *_grtm; // Must be assigned by subclasses.
 
   mforms::DockingPoint *mDockingPoint;
   ui_ObjectEditorRef mEditorGRTObject;
 
-  IBOutlet NSButton *mApplyButton;
-  IBOutlet NSButton *mRevertButton;
+  IBOutlet __weak NSButton *mApplyButton;
+  IBOutlet __weak NSButton *mRevertButton;
 }
 
 @property (readonly) BOOL enableLiveChangeButtons;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,32 +23,41 @@
 #import "WBObjectPropertiesController.h"
 #import "WBColorCell.h"
 
-@interface NSString (WBExtensions)
-@property (readonly, copy) NSString *stringBySplittingCamelCase;
-@end
-
 @implementation NSString (WBExtensions)
-- (NSString*) stringBySplittingCamelCase;
+
+- (NSString*)stringBySplittingCamelCase;
 {
-  // Insert spaces in a CamelCase string.
-  int i, c = [self length];
-  for (i = 1; i < c; i++) {
+  // Returns a copy of the receiver with spaces inserted before upper case letters.
+  NSString *result = [self copy];
+  for (NSUInteger i = 1; i < result.length; ++i) {
     NSRange r = NSMakeRange(i, 1);
-    NSString* one = [self substringWithRange: r];
+    NSString *one = [result substringWithRange: r];
     if ([one isEqualToString: [one uppercaseString]]) {
-      NSString* pre = [self substringToIndex: i];
-      NSString* post = [self substringFromIndex: i];
-      self = [NSString stringWithFormat: @"%@ %@", pre, post];
+      NSString* pre = [result substringToIndex: i];
+      NSString* post = [result substringFromIndex: i];
+      result = [NSString stringWithFormat: @"%@ %@", pre, post];
       i++;
-      c++;
     }
   }
   
-  return self;
+  return result;
 }
+
 @end
 
 
+@interface WBObjectPropertiesController()
+{
+  IBOutlet NSTableView* mTableView;
+
+  NSCell* mColorCell;
+  NSButtonCell * mCheckBoxCell;
+
+  wb::WBContextUI *_wbui;
+  bec::ValueInspectorBE* mValueInspector;
+}
+
+@end
 
 @implementation WBObjectPropertiesController
 
@@ -291,8 +300,6 @@ shouldEditTableColumn: (NSTableColumn*) aTableColumn
 
 #pragma mark Create + Destroy
 
-
-
 - (void) awakeFromNib;
 {
   mColorCell = [WBColorCell new];
@@ -307,16 +314,9 @@ shouldEditTableColumn: (NSTableColumn*) aTableColumn
   [mTableView setDoubleAction: @selector(userDoubleClick:)];
 }
 
-
-
 - (void) dealloc
 {
-  [mColorCell release];
-  [mCheckBoxCell release];
-  
   delete mValueInspector;
-  
-  [super dealloc];
 }
 
 

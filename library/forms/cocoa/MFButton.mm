@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -136,9 +136,7 @@
 
 static bool button_create(::mforms::Button *self, ::mforms::ButtonType type)
 {
-  [[[MFButtonImpl alloc] initWithObject:self buttonType:type] autorelease];
-  
-  return true;  
+  return [[MFButtonImpl alloc] initWithObject: self buttonType: type] != nil;
 }
 
 static void button_set_icon(::mforms::Button *self, const std::string &icon)
@@ -150,7 +148,7 @@ static void button_set_icon(::mforms::Button *self, const std::string &icon)
     if ( button )
     {
       std::string full_path= mforms::App::get()->get_resource_path(icon);
-      NSImage *image= [[[NSImage alloc] initWithContentsOfFile:wrap_nsstring(full_path)] autorelease];
+      NSImage *image= [[NSImage alloc] initWithContentsOfFile: wrap_nsstring(full_path)];
       [button setImage: image];
       [button sizeToFit];
     }

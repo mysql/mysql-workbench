@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-
 
 #import "MFScrollPanel.h"
 
@@ -67,7 +65,7 @@
     [self setHasVerticalScroller: YES];
     [self setHasHorizontalScroller: YES];
     
-    [self setContentView: [[[MFClipView alloc] initWithFrame: NSMakeRect(0, 0, 10, 20)] autorelease]];
+    [self setContentView: [[MFClipView alloc] initWithFrame: NSMakeRect(0, 0, 10, 20)]];
 
     [self setDrawsBackground: drawBG];
     if (bordered)
@@ -144,13 +142,10 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
 
 static bool scrollpanel_create(::mforms::ScrollPanel *self, mforms::ScrollPanelFlags flags)
 {
-  [[[MFScrollPanelImpl alloc] initWithObject:self 
-                                    bordered: flags & mforms::ScrollPanelBordered
-                             drawsBackground: flags & mforms::ScrollPanelDrawBackground] autorelease];
-  
-  return true;  
+  return [[MFScrollPanelImpl alloc] initWithObject: self
+                                          bordered: flags & mforms::ScrollPanelBordered
+                                   drawsBackground: flags & mforms::ScrollPanelDrawBackground] != nil;
 }
-
 
 static void scrollpanel_add(mforms::ScrollPanel *self, mforms::View *child)
 {

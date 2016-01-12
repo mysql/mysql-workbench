@@ -47,9 +47,10 @@ static MHudController* instance = nil;
   self = [super init];
   if (self != nil)
   {
-    if ([NSBundle.mainBundle loadNibNamed: @"HUDPanel" owner: self topLevelObjects: &nibObjects])
+    NSMutableArray *temp;
+    if ([NSBundle.mainBundle loadNibNamed: @"HUDPanel" owner: self topLevelObjects: &temp])
     {
-      [nibObjects retain];
+      nibObjects = temp;
       [hudPanel setBecomesKeyOnlyIfNeeded: YES];
     }
   }
@@ -60,9 +61,7 @@ static MHudController* instance = nil;
 
 - (void)dealloc
 {
-  [nibObjects release];
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
-  [super dealloc];
 }
 
 //--------------------------------------------------------------------------------------------------

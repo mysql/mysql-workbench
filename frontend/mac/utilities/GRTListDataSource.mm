@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,22 +27,8 @@ static std::map<std::string, GRTNodeId*> node_cache;
 
 
 + (GRTNodeId*)nodeIdWithNodeId:(const bec::NodeId&)nodeId
-{/*
-  if (nodeId.depth() <= 2)
-  {
-    std::string repr = nodeId.repr();
-    std::map<std::string, GRTNodeId*>::iterator iter = node_cache.find(repr);
-    GRTNodeId *node;
-
-    if (iter != node_cache.end())
-      return iter->second;
-
-    node = [[GRTNodeId alloc] initWithNodeId:nodeId];
-    node_cache[repr] = node;
-
-    return node;
-  }*/
-  return [[[GRTNodeId alloc] initWithNodeId:nodeId] autorelease];
+{
+  return [[GRTNodeId alloc] initWithNodeId:nodeId];
 }
 
 
@@ -70,7 +56,6 @@ static std::map<std::string, GRTNodeId*> node_cache;
 {
   delete _nodeId;
   
-  [super dealloc];
 }
 
 
@@ -82,7 +67,7 @@ static std::map<std::string, GRTNodeId*> node_cache;
 
 - (NSString*)description
 {
-  return [NSString stringWithFormat: @"<GRTNodeId %s>", _nodeId->repr().c_str()];
+  return [NSString stringWithFormat: @"<GRTNodeId %s>", _nodeId->description().c_str()];
 }
 
 

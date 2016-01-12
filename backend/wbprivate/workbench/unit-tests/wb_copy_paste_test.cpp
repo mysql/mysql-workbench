@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,7 +53,7 @@ static bool match_member(const grt::MetaClass::Member *member, const grt::Object
   value1= source.get_member(member->name);
   value2= copy.get_member(member->name);
 
-  ensure_equals(member->name, value1.repr(), value2.repr());
+  ensure_equals(member->name, value1.toString(), value2.toString());
   
   return true;
 }

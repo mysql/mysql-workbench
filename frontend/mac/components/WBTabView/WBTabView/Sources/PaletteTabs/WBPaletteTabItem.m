@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -87,18 +87,16 @@
 	return self;
 }
 
-
-
 + (WBTabItem*) tabItemWithIdentifier: (id) identifier
                                label: (NSString*) label;
 {
-	return [[[WBPaletteTabItem alloc] initWithIdentifier: identifier
-                                                 label: label
-                                             direction: WBTabDirectionUp
-                                             placement: WBTabPlacementTop
-                                                  size: WBTabSizeSmall
-                                               hasIcon: NO
-                                              canClose: NO] autorelease];
+  return [[WBPaletteTabItem alloc] initWithIdentifier: identifier
+                                                label: label
+                                            direction: WBTabDirectionUp
+                                            placement: WBTabPlacementTop
+                                                 size: WBTabSizeSmall
+                                              hasIcon: NO
+                                             canClose: NO];
 }
 
 

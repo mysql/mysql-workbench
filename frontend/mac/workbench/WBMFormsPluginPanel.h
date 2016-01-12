@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,7 +15,6 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import <Cocoa/Cocoa.h>
 #import "WBBasePanel.h"
 
 namespace mforms {
@@ -36,7 +35,6 @@ namespace mforms {
 
 - (void)setDefaultMenuBar:(mforms::MenuBar*)menu;
 
-@property (readonly, strong) NSView *topView;
 @property (copy) NSString *title;
 @property (readonly, copy) NSString *identifier;
 @property (readonly, copy) NSImage *tabIcon;

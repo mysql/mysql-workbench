@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,19 +17,16 @@
  * 02110-1301  USA
  */
 
-
-
 #import "MFProgressBar.h"
-
 #import "MFMForms.h"
 
 @implementation MFProgressBarImpl
 
 
-- (instancetype)initWithObject:(::mforms::ProgressBar*)pbar
+- (instancetype)initWithObject: (::mforms::ProgressBar*)pbar
 {
-  self= [super initWithFrame:NSMakeRect(10,10,10,10)];
-  if (self)
+  self = [super initWithFrame:NSMakeRect(10,10,10,10)];
+  if (self != nil)
   {
     [self setMinValue: 0];
     [self setMaxValue: 1.0];
@@ -56,9 +53,7 @@
 
 static bool progressbar_create(mforms::ProgressBar *image)
 {
-  [[[MFProgressBarImpl alloc] initWithObject:image] autorelease];
-  
-  return true;
+  return [[MFProgressBarImpl alloc] initWithObject: image] != nil;
 }
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,10 +21,10 @@
 
 @implementation NSException (WBExceptionExtensions)
 
-/*!
- Print the symbolic stack trace to console.
+/**
+ * Print the symbolic stack trace to console.
  */
-- (void) logStackTrace;
+- (void)logStackTrace;
 {
   NSMutableArray* stack = nil;
   
@@ -65,20 +65,13 @@
     NSLog(@"===================================");
     NSLog(@"=== Exception stack trace begin ===");
     [ls launch];
-//    [ls waitUntilExit];
-
-    [ls release];
   }
   else {
     NSLog(@"No stack trace available.");
   }
 }
 
-
-
 @end
-
-
 
 @implementation WBExceptionHandlerDelegate
 
@@ -93,7 +86,6 @@
   // defaults write com.sun.MySQLWorkbench ReportException YES
   // To disable exception reporting, write the following in terminal:
   // defaults write com.sun.MySQLWorkbench ReportException NO
-  
   if (reportException) {
     [exception logStackTrace];
     
@@ -108,16 +100,12 @@
   return YES;
 }
 
-
-
 - (BOOL) exceptionHandler: (NSExceptionHandler*) sender
     shouldHandleException: (NSException*) exception
                      mask: (NSUInteger) aMask;
 {
   return YES;
 }
-
-
 
 @end
 

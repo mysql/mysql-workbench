@@ -55,9 +55,7 @@
 
 - (void)dealloc
 {
-  [mOriginalMenu release];
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
-  [super dealloc];
 }
 
 - (mforms::Object*)mformsObject
@@ -207,7 +205,7 @@
 {
   if (mOwner->get_menubar())
   {
-    mOriginalMenu = [[NSApp mainMenu] retain];
+    mOriginalMenu = [NSApp mainMenu];
     [NSApp setMainMenu: mOwner->get_menubar()->get_data()];
   }
   if (mOwner)
@@ -220,7 +218,6 @@
   if (mOriginalMenu)
   {
     [NSApp setMainMenu: mOriginalMenu];
-    [mOriginalMenu release];
     mOriginalMenu = nil;
   }
   if (mOwner)
@@ -235,10 +232,7 @@
 
 static bool form_create(::mforms::Form *self, ::mforms::Form *owner, ::mforms::FormFlag flags)
 {
- /* MFFormImpl *form=*/ [[[MFFormImpl alloc] initWithObject:self
-                                                  owner:owner] autorelease];
-    
-  return true;
+  return [[MFFormImpl alloc] initWithObject: self owner:owner] != nil;
 }
 
 
@@ -252,11 +246,11 @@ static void form_set_title(::mforms::Form *self, const std::string &title)
 }
 
 
-static void show_modal_button_action(id form, ::mforms::Button *btn)
+static void show_modal_button_action(void *form, mforms::Button *btn)
 {
-  [form makeFirstResponder:nil];
-  if (form)
-    [form close];
+  [(__bridge id)form makeFirstResponder: nil];
+  if (form != NULL)
+    [(__bridge id)form close];
 }
 
 
@@ -268,12 +262,12 @@ static void form_show_modal(::mforms::Form *self, ::mforms::Button *accept, ::mf
     if (accept)
     {
       [form setDefaultButtonCell:[accept->get_data() cell]];
-      accept->signal_clicked()->connect(boost::bind(show_modal_button_action, form, accept));
+      accept->signal_clicked()->connect(boost::bind(show_modal_button_action, (__bridge void *)form, accept));
     }
     if (cancel)
-      cancel->signal_clicked()->connect(boost::bind(show_modal_button_action, form, cancel));
+      cancel->signal_clicked()->connect(boost::bind(show_modal_button_action, (__bridge void *)form, cancel));
     
-    [form makeKeyAndOrderFront:nil];
+    [form makeKeyAndOrderFront: nil];
     [form performSelectorOnMainThread: @selector(runModal) withObject: nil waitUntilDone: YES];
     ///XXX this should not block
   }

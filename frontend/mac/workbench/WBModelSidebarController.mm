@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,30 +17,15 @@
  * 02110-1301  USA
  */
 
-#import "WBModelSidebarController.h"
-#import "GRTListDataSource.h"
-#import "MCanvasViewer.h"
-#import "WBObjectPropertiesController.h"
-#import "MOutlineView.h"
-#import "MTextImageCell.h"
-#import "GRTIconCache.h"
-
 #include "wb_context.h"
-
-#include "model/wb_history_tree.h"
 #include "model/wb_model_diagram_form.h"
-#include "model/wb_user_datatypes.h"
-#include "model/wb_context_model.h"
 
+#import "WBModelSidebarController.h"
 #import "mforms/../cocoa/MFView.h"
-#import "MCPPUtilities.h"
-
-#include "grtdb/db_object_helpers.h"
-
 
 @implementation WBModelSidebarController
 
-- (void)setupWithDiagramForm:(wb::ModelDiagramForm*)form
+- (void)setupWithDiagramForm: (wb::ModelDiagramForm*)form
 {
   _catalog_tree = form->get_catalog_tree();
   [catalogTreeTab setView: nsviewForView(_catalog_tree)];
@@ -52,7 +37,6 @@
   [historyTab setView: nsviewForView(_history)];
 }
 
-
 - (void)setupWithContext:(wb::WBContextModel*)context
 {
   _udtlist = context->create_user_type_list();
@@ -62,16 +46,12 @@
   [historyTab setView: nsviewForView(_history)];
 }
 
-
 - (void)dealloc
 {
   delete _udtlist;
   delete _history;
   delete _catalog_tree;
-  
-  [super dealloc];
 }
-
 
 - (void)invalidate
 {

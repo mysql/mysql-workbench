@@ -1776,7 +1776,7 @@ std::string NewServerInstanceWizard::get_server_info(const std::string& key)
     return "";
   if (grt::StringRef::can_wrap(value))
     return grt::StringRef::cast_from(value);
-  return value.repr();
+  return value.description();
 }
 
 //--------------------------------------------------------------------------------------------------

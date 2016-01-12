@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -147,11 +147,10 @@ using namespace mforms;
 
 static bool ce_create(CodeEditor* self)
 {
-  [[[MFCodeEditor alloc] initWithFrame: NSMakeRect(0, 0, 100, 100)
-                            codeEditor: self] autorelease];
+  MFCodeEditor *editor = [[MFCodeEditor alloc] initWithFrame: NSMakeRect(0, 0, 100, 100)
+                                                  codeEditor: self];
   
-  ScintillaView *editor = self->get_data();
-  InfoBar* infoBar = [[[InfoBar alloc] initWithFrame: NSMakeRect(0, 0, 400, 0)] autorelease];
+  InfoBar* infoBar = [[InfoBar alloc] initWithFrame: NSMakeRect(0, 0, 400, 0)];
   [infoBar setDisplay: IBShowAll];
   [editor setInfoBar: infoBar top: NO];
 
