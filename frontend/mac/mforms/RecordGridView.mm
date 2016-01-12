@@ -95,13 +95,14 @@ RecordGridView::RecordGridView(Recordset::Ref rset)
   viewer = [[MResultsetViewer alloc] initWithRecordset: rset];
 
   [observer observeViewer: this];
-  set_data([[viewer gridView] enclosingScrollView]);
+  set_data(viewer.view);
 }
 
 RecordGridView::~RecordGridView()
 {
   [observer forgetViewer: this];
-  [viewer release];
+  viewer = nil;
+  set_data(nil);
 }
 
 int RecordGridView::get_column_count()
@@ -148,8 +149,9 @@ void RecordGridView::set_current_cell(size_t row, int column)
 }
 
 
-static void set_clicked_column(RecordGridView *grid, NSTableView *gridView)
+static void set_clicked_column(RecordGridView *grid, void *table)
 {
+  NSTableView *gridView = (__bridge NSTableView*)table;
   NSPoint point = [gridView convertPoint: [[gridView window] mouseLocationOutsideOfEventStream] fromView: nil];
   int column = [gridView columnAtPoint: NSMakePoint(point.x, 20)];
   grid->clicked_header_column(column - 1);
@@ -158,7 +160,7 @@ static void set_clicked_column(RecordGridView *grid, NSTableView *gridView)
 
 void RecordGridView::set_header_menu(ContextMenu *menu)
 {
-  menu->signal_will_show()->connect(boost::bind(set_clicked_column, this, [viewer gridView]));
+  menu->signal_will_show()->connect(boost::bind(set_clicked_column, this, (__bridge void *)viewer.gridView));
   [[[viewer gridView] headerView] setMenu: menu->get_data()];
 }
 

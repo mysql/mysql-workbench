@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,9 +32,9 @@ NSString* NSMenuActionNotification = @"NSMenuActionNotification";
 @implementation MOutlineView
 
 
-static void refresh_tree(const bec::NodeId &node, int ocount, NSOutlineView *self)
+static void refresh_tree(const bec::NodeId &node, int ocount, void *tree)
 {
-  [self reloadData];
+  [(__bridge id)tree reloadData];
 }
 
 
@@ -77,7 +77,7 @@ static void refresh_tree(const bec::NodeId &node, int ocount, NSOutlineView *sel
   {
     bec::TreeModel *model = [self getTreeModel];
     if (model)
-      model->tree_changed_signal()->connect(boost::bind(refresh_tree, _1, _2, self));
+      model->tree_changed_signal()->connect(boost::bind(refresh_tree, _1, _2, (__bridge void *)self));
     mConnectedRefresh= YES;
   }
 }
@@ -114,7 +114,7 @@ static void refresh_tree(const bec::NodeId &node, int ocount, NSOutlineView *sel
       {
         if (!iter->subitems.empty())
         {
-          NSMenu *submenu= [[[NSMenu alloc] initWithTitle: @""] autorelease];
+          NSMenu *submenu= [[NSMenu alloc] initWithTitle: @""];
           [self fillMenu: submenu withItems:iter->subitems selector:@selector(activateMenuItem:)];
           [item setSubmenu: submenu];
         }
@@ -131,7 +131,7 @@ static void refresh_tree(const bec::NodeId &node, int ocount, NSOutlineView *sel
   if (model)
   {      
     bec::MenuItemList items= model->get_popup_items_for_nodes([self selectedNodeIds]);
-    NSMenu *menu= [[[NSMenu alloc] initWithTitle: @""] autorelease];
+    NSMenu *menu= [[NSMenu alloc] initWithTitle: @""];
     if (!items.empty())
     {
       [self fillMenu: menu withItems:items selector:@selector(activateMenuItem:)];

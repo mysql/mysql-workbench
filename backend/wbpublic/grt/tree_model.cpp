@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -210,7 +210,14 @@ NodeId NodeId::parent() const
 
 //--------------------------------------------------------------------------------------------------
 
-std::string NodeId::repr(const char separator) const
+std::string NodeId::description() const
+{
+  return toString();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::string NodeId::toString(const char separator) const
 {
   std::stringstream out;
   for (size_t i = 0; i < index->size(); i++)
@@ -269,7 +276,7 @@ bool ListModel::get_field(const NodeId &node, ColumnId column, std::string &valu
   if (!get_field_grt(node, column, v))
     return false;
 
-  value= v.repr();
+  value = v.toString();
 
   return true;
 }

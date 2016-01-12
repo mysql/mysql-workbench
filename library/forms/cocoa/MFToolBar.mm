@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -76,7 +76,6 @@ static NSColor* colorFromHexString(const char* hexcolor)
     [self setImage: image];
     [self setTitle: @""];
     [self setRepresentedObject: color];
-    [image release];
   }
   return self;
 }
@@ -250,12 +249,17 @@ static NSColor* colorFromHexString(const char* hexcolor)
   return [self initWithItemObject: nil];
 }
 
+- (void)dealloc
+{
+  mOwner = NULL;
+}
+
 - (ToolBarItem*)toolBarItem
 {
   return mOwner;
 }
 
-- (void)perform:(id)sender
+- (void)perform: (id)sender
 {
   mOwner->callback();
   if (mToolPicker)
@@ -278,7 +282,13 @@ static NSColor* colorFromHexString(const char* hexcolor)
 
 - (void)viewDidMoveToSuperview
 {
+  if (mOwner == NULL)
+    return;
+
   MFToolBarImpl *toolbar = (MFToolBarImpl*)[self superview];
+  if (toolbar == nil)
+    return;
+
   if (![self alternateImage] && mOwner->get_type() == ToggleItem)
   {
     mToolPicker = YES;
@@ -691,8 +701,8 @@ static NSColor* colorFromHexString(const char* hexcolor)
 
 - (void) dealloc
 {
+  mOwner = NULL;
   [[NSNotificationCenter defaultCenter] removeObserver: self];
-  [super dealloc];
 }
 
 - (BOOL) isFlipped
@@ -866,7 +876,6 @@ static NSColor* colorFromHexString(const char* hexcolor)
                                                endingColor: [NSColor colorWithDeviceWhite: 216/255.0 alpha:1.0]];
       }
       [grad drawInRect: rect angle: 90.0];
-      [grad release];
       
       [[NSColor colorWithDeviceWhite: 202/255.0 alpha: 1.0] set];
       [NSBezierPath setDefaultLineWidth: 0.0];
@@ -909,8 +918,7 @@ static NSColor* colorFromHexString(const char* hexcolor)
 
 static bool create_tool_bar(ToolBar *tb, ToolBarType type)
 {
-  [[[MFToolBarImpl alloc] initWithObject: tb type:type] autorelease];
-  return true;
+  return [[MFToolBarImpl alloc] initWithObject: tb type: type] != nil;
 }
 
 static void insert_item(ToolBar *toolbar, int index, ToolBarItem *item)
@@ -931,43 +939,38 @@ static bool create_tool_item(ToolBarItem *item, ToolBarItemType type)
     case ToggleItem:
     case TextActionItem:
     case SegmentedToggleItem:
-      [[[MFToolBarActionItemImpl alloc] initWithItemObject: item] autorelease];
-      break;
-      
+      return [[MFToolBarActionItemImpl alloc] initWithItemObject: item] != nil;
+
     case SeparatorItem:
     case ExpanderItem:
-      [[[MFToolBarSeparatorImpl alloc] initWithItemObject: item] autorelease];
-      break;
+      return [[MFToolBarSeparatorImpl alloc] initWithItemObject: item] != nil;
 
     case SearchFieldItem:
-      [[[MFToolBarSearchItemImpl alloc] initWithItemObject: item] autorelease];
-      break;
+      return [[MFToolBarSearchItemImpl alloc] initWithItemObject: item] != nil;
 
     case SelectorItem:
-      [[[MFToolBarSelectorItemImpl alloc] initWithItemObject: item] autorelease];
-      break;
+      return [[MFToolBarSelectorItemImpl alloc] initWithItemObject: item] != nil;
 
     case ColorSelectorItem:
-      [[[MFToolBarSelectorItemImpl alloc] initWithItemObject: item] autorelease];
-      break;
+      return [[MFToolBarSelectorItemImpl alloc] initWithItemObject: item] != nil;
 
     case LabelItem:
     case TitleItem:
-      [[[MFToolBarLabelItemImpl alloc] initWithItemObject: item] autorelease];
-      break;
+      return [[MFToolBarLabelItemImpl alloc] initWithItemObject: item] != nil;
 
     case ImageBoxItem:
-      [[[MFToolBarImageItemImpl alloc] initWithItemObject: item] autorelease];
-      break;
+      return [[MFToolBarImageItemImpl alloc] initWithItemObject: item] != nil;
+
+    default:
+      return false;
   }
-  
-  return true;
+
 }
 
 static void set_item_icon(ToolBarItem *item, const std::string &image)
 {
   id tbitem = item->get_data();
-  NSImage *i = [[[NSImage alloc] initWithContentsOfFile: wrap_nsstring(image)] autorelease];
+  NSImage *i = [[NSImage alloc] initWithContentsOfFile: wrap_nsstring(image)];
   if (!i || ![i isValid])
     NSLog(@"invalid icon for toolbar %s", image.c_str());
   else
@@ -977,7 +980,7 @@ static void set_item_icon(ToolBarItem *item, const std::string &image)
 static void set_item_alt_icon(ToolBarItem *item, const std::string &image)
 {
   id tbitem = item->get_data();
-  NSImage *i = [[[NSImage alloc] initWithContentsOfFile: wrap_nsstring(image)] autorelease];
+  NSImage *i = [[NSImage alloc] initWithContentsOfFile: wrap_nsstring(image)];
   if (!i || ![i isValid])
     NSLog(@"invalid icon for toolbar %s", image.c_str());
   else
@@ -1035,11 +1038,11 @@ static void set_selector_items(ToolBarItem *item, const std::vector<std::string>
   {
     if (item->get_type() == ColorSelectorItem)
     {   
-      NSMenu *menu= [[[NSMenu alloc] initWithTitle: @""] autorelease];
+      NSMenu *menu= [[NSMenu alloc] initWithTitle: @""];
       [[tbitem cell] setControlSize: NSSmallControlSize];
       for (std::vector<std::string>::const_iterator color= items.begin(); color != items.end(); ++color)
       {
-        [menu addItem: [[[MFColorMenuItem alloc] initWithColorName: wrap_nsstring(*color)] autorelease]];
+        [menu addItem: [[MFColorMenuItem alloc] initWithColorName: wrap_nsstring(*color)]];
       }
       [tbitem setMenu: menu];
       [tbitem sizeToFit];

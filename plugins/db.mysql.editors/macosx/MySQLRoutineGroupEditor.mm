@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,12 +27,31 @@
 #include "grtdb/db_object_helpers.h"
 
 #include "ScintillaView.h"
+#include "mysql_routinegroup_editor.h"
+
+@interface DbMysqlRoutineGroupEditor()
+{
+  IBOutlet NSTabView *tabView;
+
+  IBOutlet NSTextField *nameText;
+  IBOutlet NSTableView *routineTable;
+  IBOutlet NSTextView *commentText;
+
+  IBOutlet MVerticalLayoutView *editorHost;
+
+  NSMutableArray *mRoutineArray;
+
+  MySQLRoutineGroupEditorBE *mBackEnd;
+}
+
+@end
 
 @implementation DbMysqlRoutineGroupEditor
 
-static void call_refresh(DbMysqlRoutineGroupEditor *self)
+static void call_refresh(void *theEditor)
 {
-  [self performSelectorOnMainThread:@selector(refresh) withObject:nil waitUntilDone:YES];
+  DbMysqlRoutineGroupEditor *editor = (__bridge DbMysqlRoutineGroupEditor *)theEditor;
+  [editor performSelectorOnMainThread: @selector(refresh) withObject: nil waitUntilDone: YES];
 }
 
 - (instancetype)initWithModule: (grt::Module*)module
@@ -70,10 +89,9 @@ static void call_refresh(DbMysqlRoutineGroupEditor *self)
   // register a callback that will make [self refresh] get called
   // whenever the backend thinks its needed to refresh the UI from the backend data (ie, the
   // edited object was changed from somewhere else in the application)
-  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, self));
+  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, (__bridge void *)self));
     
-  [mRoutineArray release];
-  mRoutineArray = [[NSMutableArray array] retain];
+  mRoutineArray = [NSMutableArray array];
     
   [self setupEditorOnHost: editorHost];
 
@@ -85,7 +103,6 @@ static void call_refresh(DbMysqlRoutineGroupEditor *self)
 - (void) dealloc
 {
   delete mBackEnd;
-  [super dealloc];
 }
 
 - (void)refresh

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,11 +26,12 @@ namespace wb
   struct WBOptions;
 };
 
-@class WBMainWindow;
+@class MainWindowController;
 @class WBBasePanel;
 
-typedef WBBasePanel *(*FormPanelFactory)(WBMainWindow *mainwin, boost::shared_ptr<bec::UIForm> form);
+typedef WBBasePanel *(*FormPanelFactory)(MainWindowController *controller, boost::shared_ptr<bec::UIForm> form);
 
+// TODO: merge this class with MainWindowController. It makes no sense to have 2 controller classes.
 @interface WBMainController : NSObject <NSApplicationDelegate, NSFileManagerDelegate>
 
 - (void)registerFormPanelFactory: (FormPanelFactory)fac forFormType: (const std::string&)type;

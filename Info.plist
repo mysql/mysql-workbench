@@ -87,8 +87,10 @@
 	<string>NSApplication</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-	    <key>NSAllowsArbitraryLoads</key>
-	    <true/>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
 	</dict>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.9.0</string>
 </dict>
 </plist>

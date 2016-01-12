@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#import "MGridView.h"
 #import "MResultsetViewer.h"
 #include "sqlide/recordset_be.h"
 #import "MQResultSetCell.h"
@@ -28,7 +27,6 @@
 
 #include "mforms/toolbar.h"
 
-static int onRefresh(MResultsetViewer *self);
 static NSImage *ascendingSortIndicator= nil;
 static NSImage *descendingSortIndicator= nil;
 
@@ -55,32 +53,32 @@ static NSImage *descendingSortIndicator= nil;
 {
   if (!ascendingSortIndicator)
   {
-    ascendingSortIndicator= [[NSImage imageNamed:@"NSAscendingSortIndicator"] retain];
-    descendingSortIndicator= [[NSImage imageNamed:@"NSDescendingSortIndicator"] retain];
+    ascendingSortIndicator = [NSImage imageNamed:@"NSAscendingSortIndicator"];
+    descendingSortIndicator = [NSImage imageNamed:@"NSDescendingSortIndicator"];
   }
 
   self = [super init];
   if (self)
   {
     NSBundle *bundle = [NSBundle bundleForClass: self.class];
-    BOOL loaded = [bundle loadNibNamed: @"WbResultsetView" owner: self topLevelObjects: &nibObjects];
+    NSMutableArray *temp;
+    BOOL loaded = [bundle loadNibNamed: @"WbResultsetView" owner: self topLevelObjects: &temp];
     if (loaded)
     {
-      [nibObjects retain];
-      mData= new Recordset::Ref();
-      *mData= rset;
+      nibObjects = temp;
+      mData = new Recordset::Ref();
+      *mData = rset;
 
       [gridView setRecordset: mData->get()];
 
-      (*mData)->update_edited_field = boost::bind(selected_record_changed, self);
-      (*mData)->tree_changed_signal()->connect(boost::bind(onRefreshWhenIdle, self));
+      (*mData)->update_edited_field = boost::bind(selected_record_changed, (__bridge void *)self);
+      (*mData)->tree_changed_signal()->connect(boost::bind(onRefreshWhenIdle, (__bridge void *)self));
 
-      (*mData)->refresh_ui_signal.connect(boost::bind(onRefresh, self));
-      (*mData)->rows_changed = boost::bind(onRefresh, self);
+      (*mData)->refresh_ui_signal.connect(boost::bind(onRefresh, (__bridge void *)self));
+      (*mData)->rows_changed = boost::bind(onRefresh, (__bridge void *)self);
 
       gridView.intercellSpacing = NSMakeSize(0, 1);
-      [gridView selectionChangedActionTarget: self];
-      [gridView setSelectionChangedAction: @selector(handleNSTableViewSelectionIsChangingNotification:)];
+      gridView.actionDelegate = self;
       gridView.allowsMultipleSelection = YES;
 
       [gridView.enclosingScrollView setBorderType: NSNoBorder];
@@ -88,9 +86,9 @@ static NSImage *descendingSortIndicator= nil;
       mforms::ToolBar *tbar = (*mData)->get_toolbar();
       if (tbar->find_item("record_edit"))
       {
-        tbar->find_item("record_edit")->signal_activated()->connect(boost::bind(record_edit, self));
-        tbar->find_item("record_add")->signal_activated()->connect(boost::bind(record_add, self));
-        tbar->find_item("record_del")->signal_activated()->connect(boost::bind(record_del, self));
+        tbar->find_item("record_edit")->signal_activated()->connect(boost::bind(record_edit, (__bridge void *)self));
+        tbar->find_item("record_add")->signal_activated()->connect(boost::bind(record_add, (__bridge void *)self));
+        tbar->find_item("record_del")->signal_activated()->connect(boost::bind(record_del, (__bridge void *)self));
       }
       [self rebuildColumns];
     }
@@ -100,15 +98,11 @@ static NSImage *descendingSortIndicator= nil;
 
 - (void)dealloc
 {
-  [nibObjects release];
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
   (*mData)->refresh_ui_signal.disconnect_all_slots();
 
   std::for_each(mSigConns.begin(), mSigConns.end(), boost::bind(&boost::signals2::connection::disconnect, _1));
   delete mData;
-
-  [mFont release];
-  [super dealloc];
 }
 
 // for use by mforms
@@ -168,13 +162,13 @@ static const char *viewFlagsKey = "viewFlagsKey";
   {
     std::string label= base::sanitize_utf8((*mData)->get_column_caption(index));
     //bec::GridModel::ColumnType type= (*mData)->get_column_type(index);
-    NSTableColumn *column= [[[NSTableColumn alloc] initWithIdentifier: [NSString stringWithFormat:@"%i", index]] autorelease];
+    NSTableColumn *column= [[NSTableColumn alloc] initWithIdentifier: [NSString stringWithFormat: @"%i", index]];
 
     [[column headerCell] setTitle: @(label.c_str())];
 
     [column setEditable: YES];
     
-    [column setDataCell: [[[MQResultSetCell alloc] init] autorelease]];
+    [column setDataCell: [[MQResultSetCell alloc] init]];
     [[column dataCell] setEditable: YES];
     [[column dataCell] setLineBreakMode: NSLineBreakByTruncatingTail];
     if (mFont)
@@ -193,8 +187,7 @@ static const char *viewFlagsKey = "viewFlagsKey";
 
 - (void)setFont:(NSFont*)font
 {
-  [mFont autorelease];
-  mFont = [font retain];
+  mFont = font;
 
   float rowHeight = 0;
   for (int index= 0, count= (*mData)->get_column_count(); index <= count; ++index)
@@ -216,14 +209,16 @@ static const char *viewFlagsKey = "viewFlagsKey";
   [gridView reloadData];
 }
 
-static int onRefreshWhenIdle(MResultsetViewer *self)
+static int onRefreshWhenIdle(void *viewer_)
 {
+  MResultsetViewer *viewer = (__bridge MResultsetViewer *)viewer_;
+
   // Do table refresh only if it isn't currently in edit mode or this will
   // stop any ongoing edit action (and has other side effects like a misplaced selection).
-  if (!self->mPendingRefresh && self.gridView.editedRow == -1)
+  if (!viewer->mPendingRefresh && viewer.gridView.editedRow == -1)
   {
-    self->mPendingRefresh = YES;
-    [self performSelector: @selector(refreshGrid) withObject:nil afterDelay: 0];
+    viewer->mPendingRefresh = YES;
+    [viewer performSelector: @selector(refreshGrid) withObject:nil afterDelay: 0];
   }
   return 0;
 }
@@ -247,39 +242,42 @@ static int onRefreshWhenIdle(MResultsetViewer *self)
 }
 
   
-static void record_edit(MResultsetViewer *self)
+static void record_edit(void *view)
 {
-  [self.gridView editColumn: self.gridView.selectedColumnIndex
-                           row: self.gridView.selectedRowIndex
-                     withEvent: nil
-                        select: NO];
+  MGridView *gridView = (__bridge MGridView *)view;
+  [gridView editColumn: gridView.selectedColumnIndex
+                   row: gridView.selectedRowIndex
+             withEvent: nil
+                select: NO];
 }
 
-static void record_add(MResultsetViewer *self)
+static void record_add(void *view)
 {
-  [self.gridView scrollRowToVisible: (*self->mData)->count()-1];
-  [self.gridView selectCellAtRow: (*self->mData)->count()-1 column: 1];
-  
-  [self.gridView editColumn: self.gridView.selectedColumnIndex
-                        row: self.gridView.selectedRowIndex
-                  withEvent: nil
-                     select: NO];
+  MResultsetViewer *viewer = (__bridge MResultsetViewer *)view;
+  [viewer.gridView scrollRowToVisible: (*viewer->mData)->count()-1];
+  [viewer.gridView selectCellAtRow: (*viewer->mData)->count()-1 column: 1];
+
+  [viewer.gridView editColumn: viewer.gridView.selectedColumnIndex
+                          row: viewer.gridView.selectedRowIndex
+                    withEvent: nil
+                       select: NO];
 }
 
-
-static void record_del(MResultsetViewer *self)
+static void record_del(void *view)
 {
-  [self.gridView deleteBackward: nil];
+  MGridView *gridView = (__bridge MGridView *)view;
+  [gridView deleteBackward: nil];
 }
 
-static void selected_record_changed(MResultsetViewer *self)
+static void selected_record_changed(void *theViewer)
 {
-  [self.gridView scrollRowToVisible: (*self->mData)->edited_field_row()-1];
-  [self.gridView deselectAll: nil];
-  [self.gridView selectCellAtRow: (*self->mData)->edited_field_row() column: (*self->mData)->edited_field_column()];
+  MResultsetViewer *viewer = (__bridge MResultsetViewer *)theViewer;
+  [viewer.gridView scrollRowToVisible: (*viewer->mData)->edited_field_row()-1];
+  [viewer.gridView deselectAll: nil];
+  [viewer.gridView selectCellAtRow: (*viewer->mData)->edited_field_row() column: (*viewer->mData)->edited_field_column()];
 }
 
-- (void)handleNSTableViewSelectionIsChangingNotification:(NSNotification*)note
+- (void)actionTriggered
 {
   (*self->mData)->set_edited_field(gridView.selectedRowIndex, gridView.selectedColumnIndex - 1) ;
 }
@@ -365,9 +363,9 @@ static void selected_record_changed(MResultsetViewer *self)
   (*mData)->refresh();
 }
 
-static int onRefresh(MResultsetViewer *self)
+static int onRefresh(void *viewer)
 {
-  [self refresh];
+  [(__bridge id)viewer refresh];
   return 0;
 }
 

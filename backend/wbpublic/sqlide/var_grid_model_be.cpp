@@ -17,9 +17,10 @@
  * 02110-1301  USA
  */
 
+#include "sqlide_generics_private.h"
+
 #include "var_grid_model_be.h"
 #include "base/string_utilities.h"
-#include "sqlide_generics_private.h"
 #include <sqlite/execute.hpp>
 #include <sqlite/query.hpp>
 #include <boost/foreach.hpp>

@@ -17,16 +17,16 @@
  * 02110-1301  USA
  */
 
+#import "MGridView.h"
+
 class Recordset;
 
-@class MGridView;
-
-@interface MResultsetViewer : NSObject
+@interface MResultsetViewer : NSObject <GridViewDelegate>
 
 - (instancetype)initWithRecordset: (boost::shared_ptr<Recordset>)rset;
 
-@property (readonly, assign) IBOutlet NSScrollView *view;
-@property (readonly, assign) IBOutlet MGridView *gridView;
+@property (readonly, weak) IBOutlet NSScrollView *view;
+@property (readonly, weak) IBOutlet MGridView *gridView;
 
 @property (readonly) boost::shared_ptr<Recordset> recordset;
 @property (readonly) BOOL hasPendingChanges;

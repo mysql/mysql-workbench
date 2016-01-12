@@ -937,8 +937,6 @@
 		2B1D6E61179DCF590073C062 /* wb-toolbar_nav-forward@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1D6E5D179DCF590073C062 /* wb-toolbar_nav-forward@2x.png */; };
 		2B1E188E19C20CB600842E12 /* wb_item_overlay_autozoom.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1E188C19C20CB600842E12 /* wb_item_overlay_autozoom.png */; };
 		2B1E188F19C20CB600842E12 /* wb_item_overlay_autozoom@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1E188D19C20CB600842E12 /* wb_item_overlay_autozoom@2x.png */; };
-		2B1E28181163D5B100A22E91 /* NSArray_extras.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B1E28161163D5B100A22E91 /* NSArray_extras.h */; };
-		2B1E28191163D5B100A22E91 /* NSArray_extras.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B1E28171163D5B100A22E91 /* NSArray_extras.mm */; };
 		2B1E28451163DEB900A22E91 /* SQL DDL Statements.txt in Copy Files (snippets) */ = {isa = PBXBuildFile; fileRef = 2B1E28431163DEB900A22E91 /* SQL DDL Statements.txt */; };
 		2B1E28461163DEB900A22E91 /* SQL DML Statements.txt in Copy Files (snippets) */ = {isa = PBXBuildFile; fileRef = 2B1E28441163DEB900A22E91 /* SQL DML Statements.txt */; };
 		2B1E2FD4173040850037D3DD /* admin_audit_inspector.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1E2FD3173040850037D3DD /* admin_audit_inspector.png */; };
@@ -965,7 +963,7 @@
 		2B23975F103B64AB00D9023B /* MFDrawBox.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B23975D103B64AB00D9023B /* MFDrawBox.mm */; };
 		2B2397AA103B6C3800D9023B /* drawbox.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2396CF103B502800D9023B /* drawbox.h */; };
 		2B2397B7103B6DF200D9023B /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCC405A0EFFC06E008A66D4 /* libcairo.2.dylib */; };
-		2B240460101C980E00079580 /* WBMainWindow_Model.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B24045F101C980E00079580 /* WBMainWindow_Model.mm */; };
+		2B240460101C980E00079580 /* MainWindowController+Model.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B24045F101C980E00079580 /* MainWindowController+Model.mm */; };
 		2B2405751020A1BC00079580 /* app.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2405731020A1BC00079580 /* app.h */; };
 		2B2405761020A1BC00079580 /* appview.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2405741020A1BC00079580 /* appview.h */; };
 		2B2405781020A1CA00079580 /* app.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2405771020A1CA00079580 /* app.cpp */; };
@@ -1162,7 +1160,7 @@
 		2B263B4D0E94031D00933149 /* libcdbc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B750DAF0E877D030003120A /* libcdbc.dylib */; };
 		2B263B520E94031D00933149 /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
 		2B263B530E94031D00933149 /* libwbprivate.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCB31550E8845D0005C8ED2 /* libwbprivate.be.dylib */; };
-		2B263B680E9407A700933149 /* WBMainWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B263B670E9407A700933149 /* WBMainWindow.mm */; };
+		2B263B680E9407A700933149 /* MainWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B263B670E9407A700933149 /* MainWindowController.mm */; };
 		2B263B9B0E94210A00933149 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2B263B990E94210A00933149 /* MainWindow.xib */; };
 		2B263BCB0E9463FB00933149 /* WBMainController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B263BCA0E9463FB00933149 /* WBMainController.mm */; };
 		2B2909D2159A0C7200708C09 /* db.ForeignKey.16x16.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B2909CF159A0C7200708C09 /* db.ForeignKey.16x16.png */; };
@@ -1675,7 +1673,6 @@
 		2B7CE9BE0FB891B100DCC700 /* tab.sqlquery.16x16.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B7CE9BA0FB891B100DCC700 /* tab.sqlquery.16x16.png */; };
 		2B7CE9D40FB893A300DCC700 /* tab.overview.home.16x16.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B7CE9D20FB893A300DCC700 /* tab.overview.home.16x16.png */; };
 		2B7CE9D50FB893A300DCC700 /* tab.overview.physical.16x16.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B7CE9D30FB893A300DCC700 /* tab.overview.physical.16x16.png */; };
-		2B7CEA7E0FB8B3B700DCC700 /* tab_header_background2.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B7CEA7D0FB8B3B700DCC700 /* tab_header_background2.png */; };
 		2B7CED900FBA588B00DCC700 /* WBSplitViewUnbrokenizerDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7CED8E0FBA588B00DCC700 /* WBSplitViewUnbrokenizerDelegate.h */; };
 		2B7CED910FBA588B00DCC700 /* WBSplitViewUnbrokenizerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B7CED8F0FBA588B00DCC700 /* WBSplitViewUnbrokenizerDelegate.m */; };
 		2B7CEDE30FBA6C7500DCC700 /* MContainerView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7CEDE10FBA6C7500DCC700 /* MContainerView.h */; };
@@ -2235,7 +2232,6 @@
 		2BD1FB2D0F33D2F200FFC762 /* TabClose_Pressed.png in Resources */ = {isa = PBXBuildFile; fileRef = 169E60B60EF115EA00D821E7 /* TabClose_Pressed.png */; };
 		2BD1FB2E0F33D2F200FFC762 /* TabClose_Unpressed.png in Resources */ = {isa = PBXBuildFile; fileRef = 169E60B70EF115EA00D821E7 /* TabClose_Unpressed.png */; };
 		2BD1FB2F0F33D2F200FFC762 /* TabDocument.png in Resources */ = {isa = PBXBuildFile; fileRef = 169E60B80EF115EA00D821E7 /* TabDocument.png */; };
-		2BD1FB300F33D2F200FFC762 /* TabRowGradient.png in Resources */ = {isa = PBXBuildFile; fileRef = 169E60B90EF115EA00D821E7 /* TabRowGradient.png */; };
 		2BD1FB310F33D2F200FFC762 /* SchemaTabGradientBackground.png in Resources */ = {isa = PBXBuildFile; fileRef = 16F705360F125F81005C0D21 /* SchemaTabGradientBackground.png */; };
 		2BD1FB320F33D2F200FFC762 /* CGColorUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 169E60BB0EF115EA00D821E7 /* CGColorUtilities.h */; };
 		2BD1FB330F33D2F200FFC762 /* CGColorUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 169E60BC0EF115EA00D821E7 /* CGColorUtilities.m */; };
@@ -4001,7 +3997,6 @@
 		169E60B60EF115EA00D821E7 /* TabClose_Pressed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TabClose_Pressed.png; sourceTree = "<group>"; };
 		169E60B70EF115EA00D821E7 /* TabClose_Unpressed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TabClose_Unpressed.png; sourceTree = "<group>"; };
 		169E60B80EF115EA00D821E7 /* TabDocument.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TabDocument.png; sourceTree = "<group>"; };
-		169E60B90EF115EA00D821E7 /* TabRowGradient.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TabRowGradient.png; sourceTree = "<group>"; };
 		169E60BB0EF115EA00D821E7 /* CGColorUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGColorUtilities.h; sourceTree = "<group>"; };
 		169E60BC0EF115EA00D821E7 /* CGColorUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CGColorUtilities.m; sourceTree = "<group>"; };
 		169E60BE0EF115EA00D821E7 /* WBGrayTabItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WBGrayTabItem.h; sourceTree = "<group>"; };
@@ -4206,7 +4201,6 @@
 		272A28F411905DBE00CA2A13 /* wb_starter_mysql_wb_blog_52.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_starter_mysql_wb_blog_52.png; path = images/home/wb_starter_mysql_wb_blog_52.png; sourceTree = "<group>"; };
 		272A28F611905DBE00CA2A13 /* wb_starter_mysql_wb_twitters_52.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_starter_mysql_wb_twitters_52.png; path = images/home/wb_starter_mysql_wb_twitters_52.png; sourceTree = "<group>"; };
 		272A28F811905DBE00CA2A13 /* wb_starter_planet_mysql_52.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_starter_planet_mysql_52.png; path = images/home/wb_starter_planet_mysql_52.png; sourceTree = "<group>"; };
-		27327B9D172FAF6800DE65D7 /* libpython.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpython.dylib; path = usr/lib/libpython.dylib; sourceTree = SDKROOT; };
 		27327B9F172FAFC800DE65D7 /* python_copy_data_source.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = python_copy_data_source.cpp; path = plugins/migration/copytable/python_copy_data_source.cpp; sourceTree = "<group>"; };
 		27327BA0172FAFC800DE65D7 /* python_copy_data_source.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = python_copy_data_source.h; path = plugins/migration/copytable/python_copy_data_source.h; sourceTree = "<group>"; };
 		27327BA2172FB2B300DE65D7 /* wb_tile_manage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_tile_manage.png; path = images/home/wb_tile_manage.png; sourceTree = "<group>"; };
@@ -4334,7 +4328,7 @@
 		2767F92A11635C2500931E27 /* geometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = geometry.h; path = library/base/base/geometry.h; sourceTree = "<group>"; };
 		27694814142A4FAA009DE637 /* snippet_popover.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = snippet_popover.cpp; path = frontend/common/snippet_popover.cpp; sourceTree = "<group>"; };
 		27694815142A4FAA009DE637 /* snippet_popover.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = snippet_popover.h; path = frontend/common/snippet_popover.h; sourceTree = "<group>"; };
-		276948B215B5BC4D0011172A /* base.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = base.cpp; path = library/forms/base.cpp; sourceTree = "<group>"; };
+		276948B215B5BC4D0011172A /* base.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = base.cpp; path = library/forms/base.cpp; sourceTree = "<group>"; };
 		2769C87E1726761F0096ACF5 /* ui_ObjectEditor_impl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ui_ObjectEditor_impl.cpp; path = backend/wbpublic/objimpl/ui/ui_ObjectEditor_impl.cpp; sourceTree = "<group>"; };
 		2769C87F1726761F0096ACF5 /* ui_ObjectEditor_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ui_ObjectEditor_impl.h; path = backend/wbpublic/objimpl/ui/ui_ObjectEditor_impl.h; sourceTree = "<group>"; };
 		2769C8801726761F0096ACF5 /* ui_ObjectEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ui_ObjectEditor.cpp; path = backend/wbpublic/objimpl/ui/ui_ObjectEditor.cpp; sourceTree = "<group>"; };
@@ -4864,8 +4858,6 @@
 		2B1D6E5D179DCF590073C062 /* wb-toolbar_nav-forward@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "wb-toolbar_nav-forward@2x.png"; path = "images/toolbar/wb-toolbar_nav-forward@2x.png"; sourceTree = "<group>"; };
 		2B1E188C19C20CB600842E12 /* wb_item_overlay_autozoom.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_item_overlay_autozoom.png; path = images/sql/wb_item_overlay_autozoom.png; sourceTree = "<group>"; };
 		2B1E188D19C20CB600842E12 /* wb_item_overlay_autozoom@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "wb_item_overlay_autozoom@2x.png"; path = "images/sql/wb_item_overlay_autozoom@2x.png"; sourceTree = "<group>"; };
-		2B1E28161163D5B100A22E91 /* NSArray_extras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSArray_extras.h; path = frontend/mac/utilities/NSArray_extras.h; sourceTree = "<group>"; };
-		2B1E28171163D5B100A22E91 /* NSArray_extras.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = NSArray_extras.mm; path = frontend/mac/utilities/NSArray_extras.mm; sourceTree = "<group>"; };
 		2B1E28431163DEB900A22E91 /* SQL DDL Statements.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "SQL DDL Statements.txt"; path = "res/snippets/SQL DDL Statements.txt"; sourceTree = "<group>"; };
 		2B1E28441163DEB900A22E91 /* SQL DML Statements.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "SQL DML Statements.txt"; path = "res/snippets/SQL DML Statements.txt"; sourceTree = "<group>"; };
 		2B1E2FD3173040850037D3DD /* admin_audit_inspector.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = admin_audit_inspector.png; path = images/admin/admin_audit_inspector.png; sourceTree = "<group>"; };
@@ -4898,8 +4890,8 @@
 		2B2396CF103B502800D9023B /* drawbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = drawbox.h; path = library/forms/mforms/drawbox.h; sourceTree = "<group>"; };
 		2B23975C103B64AB00D9023B /* MFDrawBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MFDrawBox.h; path = library/forms/cocoa/MFDrawBox.h; sourceTree = "<group>"; };
 		2B23975D103B64AB00D9023B /* MFDrawBox.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MFDrawBox.mm; path = library/forms/cocoa/MFDrawBox.mm; sourceTree = "<group>"; wrapsLines = 0; };
-		2B24045E101C980E00079580 /* WBMainWindow_Model.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WBMainWindow_Model.h; path = frontend/mac/workbench/WBMainWindow_Model.h; sourceTree = "<group>"; };
-		2B24045F101C980E00079580 /* WBMainWindow_Model.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WBMainWindow_Model.mm; path = frontend/mac/workbench/WBMainWindow_Model.mm; sourceTree = "<group>"; };
+		2B24045E101C980E00079580 /* MainWindowController+Model.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "MainWindowController+Model.h"; path = "frontend/mac/workbench/MainWindowController+Model.h"; sourceTree = "<group>"; };
+		2B24045F101C980E00079580 /* MainWindowController+Model.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "MainWindowController+Model.mm"; path = "frontend/mac/workbench/MainWindowController+Model.mm"; sourceTree = "<group>"; };
 		2B2405731020A1BC00079580 /* app.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = app.h; path = library/forms/mforms/app.h; sourceTree = "<group>"; };
 		2B2405741020A1BC00079580 /* appview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = appview.h; path = library/forms/mforms/appview.h; sourceTree = "<group>"; };
 		2B2405771020A1CA00079580 /* app.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = app.cpp; path = library/forms/app.cpp; sourceTree = "<group>"; };
@@ -5096,8 +5088,8 @@
 		2B26390A0E93B0F800933149 /* workbench.physical.Diagram.48x48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = workbench.physical.Diagram.48x48.png; sourceTree = "<group>"; };
 		2B26390B0E93B0F800933149 /* workbench.physical.Diagram.add.48x48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = workbench.physical.Diagram.add.48x48.png; sourceTree = "<group>"; };
 		2B26390C0E93B0F800933149 /* workbench.physical.ViewFigure.16x16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = workbench.physical.ViewFigure.16x16.png; sourceTree = "<group>"; };
-		2B263B660E9407A700933149 /* WBMainWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WBMainWindow.h; path = frontend/mac/workbench/WBMainWindow.h; sourceTree = "<group>"; };
-		2B263B670E9407A700933149 /* WBMainWindow.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WBMainWindow.mm; path = frontend/mac/workbench/WBMainWindow.mm; sourceTree = "<group>"; };
+		2B263B660E9407A700933149 /* MainWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MainWindowController.h; path = frontend/mac/workbench/MainWindowController.h; sourceTree = "<group>"; };
+		2B263B670E9407A700933149 /* MainWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MainWindowController.mm; path = frontend/mac/workbench/MainWindowController.mm; sourceTree = "<group>"; };
 		2B263B9A0E94210A00933149 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = frontend/mac/English.lproj/MainWindow.xib; sourceTree = "<group>"; };
 		2B263BC90E9463FB00933149 /* WBMainController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WBMainController.h; path = frontend/mac/workbench/WBMainController.h; sourceTree = "<group>"; };
 		2B263BCA0E9463FB00933149 /* WBMainController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WBMainController.mm; path = frontend/mac/workbench/WBMainController.mm; sourceTree = "<group>"; wrapsLines = 0; };
@@ -5332,7 +5324,6 @@
 		2B3EC799114833AA00BE2266 /* snippet_del.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = snippet_del.png; path = images/toolbar/snippet_del.png; sourceTree = "<group>"; };
 		2B3EC79A114833AA00BE2266 /* snippet_insert.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = snippet_insert.png; path = images/toolbar/snippet_insert.png; sourceTree = "<group>"; };
 		2B3EC79B114833AA00BE2266 /* snippet_use.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = snippet_use.png; path = images/toolbar/snippet_use.png; sourceTree = "<group>"; };
-		2B41EDFB0F8B819400F5EB1E /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		2B41EE070F8B837900F5EB1E /* recordset_cdbc_storage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = recordset_cdbc_storage.cpp; path = backend/wbpublic/sqlide/recordset_cdbc_storage.cpp; sourceTree = "<group>"; };
 		2B41EE080F8B837900F5EB1E /* recordset_cdbc_storage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = recordset_cdbc_storage.h; path = backend/wbpublic/sqlide/recordset_cdbc_storage.h; sourceTree = "<group>"; };
 		2B41EE090F8B837900F5EB1E /* recordset_data_storage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = recordset_data_storage.cpp; path = backend/wbpublic/sqlide/recordset_data_storage.cpp; sourceTree = "<group>"; };
@@ -5700,7 +5691,6 @@
 		2B7CE9BA0FB891B100DCC700 /* tab.sqlquery.16x16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tab.sqlquery.16x16.png; sourceTree = "<group>"; };
 		2B7CE9D20FB893A300DCC700 /* tab.overview.home.16x16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tab.overview.home.16x16.png; sourceTree = "<group>"; };
 		2B7CE9D30FB893A300DCC700 /* tab.overview.physical.16x16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tab.overview.physical.16x16.png; sourceTree = "<group>"; };
-		2B7CEA7D0FB8B3B700DCC700 /* tab_header_background2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tab_header_background2.png; sourceTree = "<group>"; };
 		2B7CED8E0FBA588B00DCC700 /* WBSplitViewUnbrokenizerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WBSplitViewUnbrokenizerDelegate.h; sourceTree = "<group>"; };
 		2B7CED8F0FBA588B00DCC700 /* WBSplitViewUnbrokenizerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WBSplitViewUnbrokenizerDelegate.m; sourceTree = "<group>"; };
 		2B7CEDE10FBA6C7500DCC700 /* MContainerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MContainerView.h; path = frontend/mac/components/MContainerView.h; sourceTree = "<group>"; };
@@ -6637,7 +6627,7 @@
 		75C847F21067E9C70067947D /* opts.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = opts.py; path = plugins/wb.admin/backend/opts.py; sourceTree = "<group>"; };
 		75C847F41067E9C70067947D /* wb_admin_config_file_be.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb_admin_config_file_be.py; path = plugins/wb.admin/backend/wb_admin_config_file_be.py; sourceTree = "<group>"; };
 		75C847F81067E9DF0067947D /* wb_admin_config_file_ui.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb_admin_config_file_ui.py; path = plugins/wb.admin/frontend/wb_admin_config_file_ui.py; sourceTree = "<group>"; };
-		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; explicitFileType = file; fileEncoding = 4; path = Info.plist; sourceTree = "<group>"; };
+		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* MySQLWorkbench.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MySQLWorkbench.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED08ADA71A14440E001DBE04 /* wb.fabric.interface.grt.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = wb.fabric.interface.grt.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED08ADA81A144435001DBE04 /* wb_fabric_interface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wb_fabric_interface.cpp; path = modules/wb.fabric.interface/wb_fabric_interface.cpp; sourceTree = "<group>"; };
@@ -7272,7 +7262,6 @@
 		169E60B30EF115EA00D821E7 /* Graphics */ = {
 			isa = PBXGroup;
 			children = (
-				2B7CEA7D0FB8B3B700DCC700 /* tab_header_background2.png */,
 				16764CA60F82DC590099223D /* RightArrowIcon.png */,
 				16764CA70F82DC590099223D /* LeftArrowIcon.png */,
 				1671A3860F83A46900F7767F /* TabMenuIcon.png */,
@@ -7282,7 +7271,6 @@
 				169E60B60EF115EA00D821E7 /* TabClose_Pressed.png */,
 				169E60B70EF115EA00D821E7 /* TabClose_Unpressed.png */,
 				169E60B80EF115EA00D821E7 /* TabDocument.png */,
-				169E60B90EF115EA00D821E7 /* TabRowGradient.png */,
 				16F705360F125F81005C0D21 /* SchemaTabGradientBackground.png */,
 			);
 			name = Graphics;
@@ -9451,8 +9439,6 @@
 				2720C53D16EA1B9200E57A8D /* libpcrecpp.0.dylib */,
 				270C500017329E9300CD33BB /* libpixman-1.0.dylib */,
 				2BDA3C3A1993FBE700AD54D9 /* libproj.0.dylib */,
-				27327B9D172FAF6800DE65D7 /* libpython.dylib */,
-				2B41EDFB0F8B819400F5EB1E /* libsqlite3.dylib */,
 				270C4FF3173293BC00CD33BB /* libtinyxml.dylib */,
 				2BFDB83416C00F6500D0C5A8 /* libvsqlitepp.0.dylib */,
 				2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */,
@@ -10285,8 +10271,6 @@
 				2B3D48980F3E3A4A009238A7 /* NSString_extras.h */,
 				2BB9A1850FB1476F001F9968 /* NSColor_extras.h */,
 				2BB9A1860FB1476F001F9968 /* NSColor_extras.m */,
-				2B1E28161163D5B100A22E91 /* NSArray_extras.h */,
-				2B1E28171163D5B100A22E91 /* NSArray_extras.mm */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -10708,8 +10692,8 @@
 			isa = PBXGroup;
 			children = (
 				2B263B990E94210A00933149 /* MainWindow.xib */,
-				2B263B660E9407A700933149 /* WBMainWindow.h */,
-				2B263B670E9407A700933149 /* WBMainWindow.mm */,
+				2B263B660E9407A700933149 /* MainWindowController.h */,
+				2B263B670E9407A700933149 /* MainWindowController.mm */,
 				2B15C26A12E523C9006567D6 /* WBMenuManager.h */,
 				2B15C26B12E523C9006567D6 /* WBMenuManager.mm */,
 			);
@@ -11443,8 +11427,8 @@
 				2B263BBE0E9423E100933149 /* Model View */,
 				2BFBF0BD0F51C3070016F9D1 /* Diagram Panel */,
 				2B263BBF0E9423F500933149 /* Side Panes */,
-				2B24045E101C980E00079580 /* WBMainWindow_Model.h */,
-				2B24045F101C980E00079580 /* WBMainWindow_Model.mm */,
+				2B24045E101C980E00079580 /* MainWindowController+Model.h */,
+				2B24045F101C980E00079580 /* MainWindowController+Model.mm */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -12157,7 +12141,6 @@
 				2B5DE7940FFEBF6900701821 /* WBPluginWindowBase.h in Headers */,
 				2B29F9141140B1CD009DA9B0 /* WBSplitPanel.h in Headers */,
 				2B29F9181140B20D009DA9B0 /* WBBasePanel.h in Headers */,
-				2B1E28181163D5B100A22E91 /* NSArray_extras.h in Headers */,
 				2B5C142B11FA381300F1237A /* NSMenu_extras.h in Headers */,
 				2B83661A12300D6C00A73961 /* MFTabView.h in Headers */,
 				2B15BF0F12E3C3E3006567D6 /* MColoredView.h in Headers */,
@@ -13005,7 +12988,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 0710;
+				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = "Oracle and/or its affiliates";
 				TargetAttributes = {
 					27D8079D1A3F262D00EDCA8F = {
@@ -13122,7 +13105,6 @@
 				2BD1FB2E0F33D2F200FFC762 /* TabClose_Unpressed.png in Resources */,
 				2B83E5FD1992EA6C00781432 /* qe_sql-editor-resultset-tb-pin.png in Resources */,
 				2BD1FB2F0F33D2F200FFC762 /* TabDocument.png in Resources */,
-				2BD1FB300F33D2F200FFC762 /* TabRowGradient.png in Resources */,
 				2BD1FB310F33D2F200FFC762 /* SchemaTabGradientBackground.png in Resources */,
 				16764CA80F82DC590099223D /* RightArrowIcon.png in Resources */,
 				16764CA90F82DC590099223D /* LeftArrowIcon.png in Resources */,
@@ -13130,7 +13112,6 @@
 				2BB9A2DA0FB20B3D001F9968 /* separator-dots.png in Resources */,
 				2BE5BCED19C778EF002EF0BC /* qe_sql-editor-resultset-tb-pinned@2x.png in Resources */,
 				2BB9A44E0FB28BD6001F9968 /* TabDragIcon.png in Resources */,
-				2B7CEA7E0FB8B3B700DCC700 /* tab_header_background2.png in Resources */,
 				2B1D6CAC177C6BDD0073C062 /* maintab_home_background@2x.png in Resources */,
 				2B83E5FE1992EA6C00781432 /* qe_sql-editor-resultset-tb-pin@2x.png in Resources */,
 				2B1D6CAD177C6BDD0073C062 /* maintab_home_home.png in Resources */,
@@ -15099,7 +15080,6 @@
 				2B5DE7950FFEBF6900701821 /* WBPluginWindowBase.mm in Sources */,
 				2B29F9151140B1CD009DA9B0 /* WBSplitPanel.mm in Sources */,
 				2B29F9191140B20D009DA9B0 /* WBBasePanel.mm in Sources */,
-				2B1E28191163D5B100A22E91 /* NSArray_extras.mm in Sources */,
 				2B5C142C11FA381300F1237A /* NSMenu_extras.mm in Sources */,
 				2B83661B12300D6C00A73961 /* MFTabView.mm in Sources */,
 				2B15BF1012E3C3E3006567D6 /* MColoredView.m in Sources */,
@@ -15224,7 +15204,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D11072D0486CEB800E47090 /* main.m in Sources */,
-				2B263B680E9407A700933149 /* WBMainWindow.mm in Sources */,
+				2B263B680E9407A700933149 /* MainWindowController.mm in Sources */,
 				2B263BCB0E9463FB00933149 /* WBMainController.mm in Sources */,
 				2B3009C20E99B09A002C5BBA /* WBOverviewPanel.mm in Sources */,
 				2B1CA1FC0EA24FF30062C916 /* WBOverviewListController.mm in Sources */,
@@ -15238,7 +15218,7 @@
 				1617BA200F8E4CCE00F5249C /* WBSQLQueryPanel.mm in Sources */,
 				2B1CA04D0F9442EF001443CA /* MGridView.mm in Sources */,
 				2BF87A9E0FA7EECC0012EADA /* WBSQLQueryUI.mm in Sources */,
-				2B240460101C980E00079580 /* WBMainWindow_Model.mm in Sources */,
+				2B240460101C980E00079580 /* MainWindowController+Model.mm in Sources */,
 				2B92AEEC104E0C5F0063A35B /* WBMFormsPluginPanel.mm in Sources */,
 				2B0123E81090B617009B2112 /* WBPluginPanelController.mm in Sources */,
 				2B4CAAF810AB14F300D5F19E /* WBPluginWindowController.mm in Sources */,
@@ -15960,6 +15940,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -15992,6 +15973,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -16024,7 +16006,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_LINK_OBJC_RUNTIME = NO;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
@@ -16064,7 +16046,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_LINK_OBJC_RUNTIME = NO;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
@@ -16121,6 +16103,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -16153,6 +16136,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -16184,6 +16168,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = "";
@@ -16226,6 +16211,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -16384,6 +16370,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -16406,6 +16393,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -16428,6 +16416,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
@@ -16450,6 +16439,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
@@ -16472,6 +16462,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				EXECUTABLE_EXTENSION = so;
@@ -16501,6 +16492,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -16529,6 +16521,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -16564,6 +16557,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -16598,6 +16592,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -16631,6 +16626,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -16663,6 +16659,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -16697,6 +16694,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -16730,6 +16728,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -16762,6 +16761,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -16794,6 +16794,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_OBJC_UNUSED_IVARS = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = "";
@@ -16839,6 +16840,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_OBJC_UNUSED_IVARS = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -16882,6 +16884,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -16913,6 +16916,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -16943,6 +16947,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -16966,6 +16971,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -16989,6 +16995,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -17012,6 +17019,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -17035,6 +17043,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -17061,6 +17070,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				GCC_MODEL_TUNING = G5;
@@ -17086,6 +17096,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				EXECUTABLE_PREFIX = lib;
@@ -17109,6 +17120,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -17132,6 +17144,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				EXECUTABLE_PREFIX = lib;
@@ -17168,6 +17181,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -17203,6 +17217,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = ".bzr *.nib *.lproj *.framework *.gch (*) CVS .svn *.xcodeproj *.xcode *.pbproj *.pbxproj";
@@ -17219,6 +17234,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -17233,6 +17249,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				EXECUTABLE_PREFIX = lib;
@@ -17253,6 +17270,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -17273,6 +17291,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -17288,6 +17307,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -17303,6 +17323,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -17344,6 +17365,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -17384,6 +17406,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -17407,6 +17430,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -17430,6 +17454,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -17461,6 +17486,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -17492,6 +17518,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -17526,6 +17553,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -17559,6 +17587,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				EXECUTABLE_EXTENSION = so;
@@ -17598,6 +17627,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -17636,6 +17666,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				EXECUTABLE_PREFIX = lib;
@@ -17676,6 +17707,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -17715,6 +17747,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -17765,6 +17798,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -17814,6 +17848,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -17835,6 +17870,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -17856,6 +17892,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -17881,6 +17918,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -17906,6 +17944,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -17930,6 +17969,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -17954,6 +17994,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -17980,6 +18021,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -18006,6 +18048,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -18039,6 +18082,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -18071,6 +18115,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -18102,6 +18147,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -18132,6 +18178,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = NO;
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -18181,6 +18228,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -18322,6 +18370,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -18345,6 +18394,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";

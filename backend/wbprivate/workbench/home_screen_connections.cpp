@@ -470,7 +470,7 @@ public:
       print_info_line(cr, line_bounds, _("Mode:"), parameter_values.get_string("fabric_mode"));
       line_bounds.pos.y += DETAILS_LINE_HEIGHT;
 
-      print_info_line(cr, line_bounds, _("Weight:"), parameter_values.get("fabric_weight").repr());
+      print_info_line(cr, line_bounds, _("Weight:"), parameter_values.get("fabric_weight").toString());
       line_bounds.pos.y += DETAILS_LINE_HEIGHT;
     }
     else
@@ -1045,7 +1045,7 @@ public:
 
   virtual base::Color get_current_color(bool hot)
   {
-    std::string status = base::strip_text(connection->parameterValues().get("fabric_status").repr());
+    std::string status = base::strip_text(connection->parameterValues().get("fabric_status").toString());
     if (status == "PRIMARY")
       return hot ? owner->_managed_primary_tile_bk_color_hl : owner->_managed_primary_tile_bk_color;
     else if (status == "SECONDARY")
@@ -1061,8 +1061,8 @@ public:
   {
     ConnectionEntry::draw_tile_text(cr, x, y, alpha, high_contrast);
 
-    std::string status = base::strip_text(connection->parameterValues().get("fabric_status").repr());
-    std::string mode = base::strip_text(connection->parameterValues().get("fabric_mode").repr());
+    std::string status = base::strip_text(connection->parameterValues().get("fabric_status").toString());
+    std::string mode = base::strip_text(connection->parameterValues().get("fabric_mode").toString());
 
     y = bounds.top() + 56 - image_height(owner->_managed_status_icon);
     draw_icon_with_text(cr, bounds.left() + bounds.width()*2/3, y, owner->_managed_status_icon, status, alpha, high_contrast);
@@ -1073,7 +1073,7 @@ public:
 
   virtual std::string section_name()
   {
-    return "Group "+base::strip_text(connection->parameterValues().get("fabric_group_id").repr());
+    return "Group " + base::strip_text(connection->parameterValues().get("fabric_group_id").toString());
   }
 };
 
@@ -1202,7 +1202,7 @@ public:
   {
     ConnectionEntry::draw_tile_text(cr, x, y, alpha, high_contrast);
     {
-      std::string ha_filter = base::strip_text(connection->parameterValues().get("haGroupFilter").repr());
+      std::string ha_filter = base::strip_text(connection->parameterValues().get("haGroupFilter").toString());
 
       std::string tile_groups;
       if (ha_filter.length())

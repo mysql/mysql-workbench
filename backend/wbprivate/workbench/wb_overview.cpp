@@ -319,16 +319,13 @@ OverviewBE::Node *OverviewBE::do_get_node(const NodeId &node) const
       n = n->get_child(node[i]);
     else
     {
-      g_warning("OverviewBE::get_node: invalid node %s", node.repr().c_str());
+      g_warning("OverviewBE::get_node: invalid node %s", node.toString().c_str());
       return 0;
     }
   }
 
   return n;
 }
-
-
-
 
 OverviewBE::Node *OverviewBE::get_deepest_focused()
 {
@@ -340,11 +337,9 @@ OverviewBE::Node *OverviewBE::get_deepest_focused()
   return parent;
 }
 
-
-
 /** Find an Item node in the subtree indicated by node that matches the given string by depth first search.
  * 
- * Search will beging at starting_node until the last node of the tree. If it's the nil node, it will
+ * Search will begin at starting_node until the last node of the tree. If it's the nil node, it will
  * start at the beginning of the tree.
  */
 bec::NodeId OverviewBE::search_child_item_node_matching(const bec::NodeId &node, const bec::NodeId &starting_node,
@@ -1149,7 +1144,7 @@ void OverviewBE::send_refresh_node(const bec::NodeId &node)
 {
   UIForm *frm = dynamic_cast<UIForm*>(this);
   if (frm && _wb)
-    _wb->request_refresh(RefreshOverviewNodeInfo, node.repr(), reinterpret_cast<NativeHandle>(frm));
+    _wb->request_refresh(RefreshOverviewNodeInfo, node.toString(), reinterpret_cast<NativeHandle>(frm));
 }
 
 
@@ -1157,6 +1152,6 @@ void OverviewBE::send_refresh_children(const bec::NodeId &node)
 {
   UIForm *frm = dynamic_cast<UIForm*>(this);
   if (frm && _wb)
-    _wb->request_refresh(RefreshOverviewNodeChildren, node.repr(), reinterpret_cast<NativeHandle>(frm));
+    _wb->request_refresh(RefreshOverviewNodeChildren, node.toString(), reinterpret_cast<NativeHandle>(frm));
 }
 

@@ -365,7 +365,7 @@ void PythonContext::handle_notification(const std::string &name, void *sender, b
           log_error("Error in Python notification handler: info dictionary contains an invalid item");
           continue;
         }
-        info[s]= v.repr();
+        info[s] = v.toString();
       }
     }
     Py_DECREF(infodict);

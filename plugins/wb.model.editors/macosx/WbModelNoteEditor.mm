@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,15 +19,29 @@
 
 #include "base/geometry.h"
 #include "base/string_utilities.h"
+#include "wb_editor_note.h"
 
 #import "WbModelNoteEditor.h"
 #import "MCPPUtilities.h"
 
+@interface NoteEditor()
+{
+  IBOutlet NSTabView *tabView;
+  IBOutlet NSTextField *nameText;
+  IBOutlet NSTextView *noteText;
+
+  NoteEditorBE *mBackEnd;
+  BOOL mEditing;
+}
+
+@end
+
 @implementation NoteEditor
 
-static void call_refresh(NoteEditor *self)
+static void call_refresh(void *theEditor)
 {
-  [self refresh];
+  NoteEditor *editor = (__bridge NoteEditor *)theEditor;
+  [editor refresh];
 }
 
 - (instancetype)initWithModule: (grt::Module*)module
@@ -75,7 +89,7 @@ static void call_refresh(NoteEditor *self)
   // register a callback that will make [self refresh] get called
   // whenever the backend thinks its needed to refresh the UI from the backend data (ie, the
   // edited object was changed from somewhere else in the application)
-  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, self));
+  mBackEnd->set_refresh_ui_slot(boost::bind(call_refresh, (__bridge void *)self));
   
   // update the UI
   [self refresh];
@@ -85,7 +99,6 @@ static void call_refresh(NoteEditor *self)
 - (void) dealloc
 {
   delete mBackEnd;
-  [super dealloc];
 }
 
 

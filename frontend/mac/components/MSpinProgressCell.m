@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,28 +19,20 @@
 
 #import "MSpinProgressCell.h"
 
-
 @implementation MSpinProgressCell
-
 
 - (void)setProgressIndicator:(NSProgressIndicator*)progress
 {
-  [indicator autorelease];
-  indicator = [progress retain];
+  indicator = progress;
 }
 
 - (id)copyWithZone:(NSZone *)zone
 {
   MSpinProgressCell *cell = (MSpinProgressCell*)[super copyWithZone: zone];
-  cell->indicator = [indicator retain];
+  cell->indicator = indicator;
   return cell;
 }
 
-- (void)dealloc
-{
-  [indicator release];
-  [super dealloc];
-}
 
 - (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
 {

@@ -17,9 +17,10 @@
  * 02110-1301  USA
  */
 
+#include "sqlide_generics_private.h"
+
 #include "recordset_be.h"
 #include "recordset_data_storage.h"
-#include "sqlide_generics_private.h"
 #include "grtpp.h"
 #include "cppdbc.h"
 #include "grtui/binary_data_editor.h"

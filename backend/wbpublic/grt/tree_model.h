@@ -192,7 +192,8 @@ namespace bec
     }
     
     NodeId parent() const;
-    std::string repr(const char separator = '.') const;
+    std::string description() const;
+    std::string toString(const char separator = '.') const;
 
     NodeId &append(size_t i);
     NodeId &prepend(size_t i);
@@ -231,7 +232,7 @@ namespace bec
       NodeId::uid map_node_id(const std::string& path_from_nodeid);
       NodeId::uid map_node_id(const NodeId& nid)
       {
-        return map_node_id(nid.repr());
+        return map_node_id(nid.toString());
       }
 
       //! Reverse mapping from 'uid' to a path
