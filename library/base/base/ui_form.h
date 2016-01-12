@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _UI_FORM_H_
-#define _UI_FORM_H_
+#pragma once
 
 /* Notice: This file and the matching cpp file should be completely free
  * of any dependencies to allow it to be compiled as part of mforms
@@ -31,7 +30,6 @@
 #include <vector>
 #include <string>
 
-
 namespace mforms 
 {
   class MenuBar;
@@ -39,9 +37,6 @@ namespace mforms
 };
 
 namespace bec {
-
-class Clipboard;
-
 
    //XXX deprecated
 enum MenuItemType 
@@ -136,32 +131,32 @@ public:
   
   virtual std::string get_title()= 0;
   
-  void set_owner_data(void *data);// { _owner_data= data; }
-  void *get_owner_data();// { return _owner_data; }
+  void set_owner_data(void *data);
+  void *get_owner_data();
 
   void set_frontend_data(void *data);
   void *get_frontend_data();
 
-  virtual bool is_main_form();// { return false; }
+  virtual bool is_main_form();
   virtual std::string get_form_context_name() const= 0;
 
-  // target description for cuy/copy/delete menu items and for paste, after a copy is made
-  virtual std::string get_edit_target_name();// { return ""; }
+  // Target description for cut/copy/delete menu items and for paste, after a copy is made.
+  virtual std::string get_edit_target_name();
 
   virtual bool can_undo();
   virtual bool can_redo();
-  virtual bool can_cut(/*Clipboard *clip*/);// { return can_copy() && can_delete(); }
-  virtual bool can_copy(/*Clipboard *clip*/);// { return false; }
-  virtual bool can_paste(/*Clipboard *clip*/);// { return false; }
-  virtual bool can_delete();// { return false; }
+  virtual bool can_cut();
+  virtual bool can_copy();
+  virtual bool can_paste();
+  virtual bool can_delete();
   virtual bool can_select_all();
 
   virtual void undo();
   virtual void redo();
-  virtual void cut(/*Clipboard *clip*/);// {}
-  virtual void copy(/*Clipboard *clip*/);// {}
-  virtual void paste(/*Clipboard *clip*/);// {}
-  virtual void delete_selection();// {}
+  virtual void cut();
+  virtual void copy();
+  virtual void paste();
+  virtual void delete_selection();
   virtual void select_all();
 
   virtual bool can_close() { return true; }
@@ -173,7 +168,7 @@ public:
   
 protected:
   void *_owner_data;
-  void *_frontend_data;
+  void *_frontend_data; // No strong reference for OSX!
 
 public:
   static bec::UIForm *form_with_id(const std::string &id);
@@ -181,5 +176,3 @@ public:
 
 
 };
-
-#endif /* _UI_FORM_H_ */

@@ -207,9 +207,9 @@ static NSSize initialSize = {10,10};
 
 static bool splitter_create(::mforms::Splitter *self, bool horiz, bool thin)
 {
-  MFSplitterImpl *splitter= [[[MFSplitterImpl alloc] initWithObject:self] autorelease];
+  MFSplitterImpl *splitter = [[MFSplitterImpl alloc] initWithObject: self];
   
-  [splitter setHorizontal:horiz ? YES : NO];
+  [splitter setHorizontal: horiz ? YES : NO];
   if (thin)
     [splitter setDividerStyle: NSSplitViewDividerStyleThin];
   

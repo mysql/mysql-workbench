@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,26 +17,7 @@
  * 02110-1301  USA
  */
 
-#import <Cocoa/Cocoa.h>
-
 #import "WBPluginEditorBase.h"
 
-#include "mysql_view_editor.h"
-
-@class DbPrivilegeEditorTab;
-@class MVerticalLayoutView;
-
-@interface DbMysqlViewEditor : WBPluginEditorBase {
-  IBOutlet NSTabView *tabView; // this editor has a single Tab, but we put in a TabView for homegeneity
-  
-  IBOutlet NSTextField *nameText;
-  
-  IBOutlet MVerticalLayoutView *editorHost;
-  IBOutlet NSTextView *commentText;
-  
-  MySQLViewEditorBE *mBackEnd;
-  DbPrivilegeEditorTab *mPrivileges;
-  
-}
-
+@interface DbMysqlViewEditor : WBPluginEditorBase
 @end

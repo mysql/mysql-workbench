@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,7 +29,7 @@
   BOOL readOnly;
 }
 
-@property (nonatomic, retain) NSBezierPath* outline;
+@property (nonatomic, strong) NSBezierPath* outline;
 
 @end
 
@@ -103,7 +103,6 @@
 - (void)dealloc
 {
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
-  [super dealloc];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -151,7 +150,7 @@
   PopoverFrameView* frameView = [super contentView];
   if (!frameView)
   {
-    frameView = [[[PopoverFrameView alloc] initWithFrame: bounds] autorelease];
+    frameView = [[PopoverFrameView alloc] initWithFrame: bounds];
     frameView->readOnly = mStyle == mforms::PopoverStyleTooltip;
     [super setContentView: frameView];
   }
@@ -432,7 +431,6 @@
 - (void)close
 {
   [mTrackedView removeTrackingArea: mOwnerTracking];
-  [mOwnerTracking release];
   mOwnerTracking = nil;
   mTrackedView = nil;
   [[NSAnimationContext currentContext] setDuration: 0.25];
@@ -447,12 +445,11 @@ using namespace mforms;
 
 static bool popover_create(Popover* popover, mforms::PopoverStyle style)
 {
-  MFPopover* popoverWindow = [[[MFPopover alloc] initWithContentRect: NSMakeRect(0, 0, 100, 100)
-                                                           styleMask: NSBorderlessWindowMask
-                                                             backing: NSBackingStoreBuffered
-                                                               defer: NO
-                                                               style: style]
-                              autorelease];
+  MFPopover* popoverWindow = [[MFPopover alloc] initWithContentRect: NSMakeRect(0, 0, 100, 100)
+                                                          styleMask: NSBorderlessWindowMask
+                                                            backing: NSBackingStoreBuffered
+                                                              defer: NO
+                                                              style: style];
   popoverWindow->mOwner = popover;
   [popoverWindow setHasShadow: YES];
   [popoverWindow setLevel: NSPopUpMenuWindowLevel];

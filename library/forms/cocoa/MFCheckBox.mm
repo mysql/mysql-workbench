@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,8 +55,7 @@
 
 static bool checkbox_create(::mforms::CheckBox *self, bool square)
 {
-  [[[MFCheckBoxImpl alloc] initWithObject:self square:square] autorelease];
-  return true;
+  return [[MFCheckBoxImpl alloc] initWithObject: self square: square] != nil;
 }
 
 static void checkbox_set_active(::mforms::CheckBox *self, bool flag)

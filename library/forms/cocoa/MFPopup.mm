@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,14 +17,12 @@
  * 02110-1301  USA
  */
 
-
 #import "MFPopup.h"
 #import "MFMForms.h"
 
 #include <cairo/cairo-quartz.h>
 
-#pragma mark -
-#pragma mark PopupContentView
+#pragma mark - PopupContentView
 
 @interface PopupContentView : NSView
 {
@@ -87,8 +85,7 @@
 
 @end
 
-#pragma mark -
-#pragma mark MFPopupImpl
+#pragma mark - MFPopupImpl
 
 @implementation MFPopupImpl
 
@@ -115,7 +112,7 @@
     [self setMovableByWindowBackground: NO];
     [self setOpaque: NO];
 
-    NSView* content = [[[PopupContentView alloc] initWithOwner: popup] autorelease];
+    NSView* content = [[PopupContentView alloc] initWithOwner: popup];
     [self setContentView: content];
 
     switch (aStyle)
@@ -147,7 +144,6 @@
 - (void)dealloc
 {
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
-  [super dealloc];
 }
 //--------------------------------------------------------------------------------------------------
 
@@ -413,9 +409,7 @@
 
 static bool popup_create(mforms::Popup *self, mforms::PopupStyle style)
 {
-  [[[MFPopupImpl alloc] initWithObject: self style: style] autorelease];
-  
-  return true;  
+  return [[MFPopupImpl alloc] initWithObject: self style: style] != nil;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,20 +35,7 @@
 
   // Set the shadow.
   [self setShadowOpacity: 0];
-
-//	if (mState == NSOnState) {
-////    [self setShadowOpacity: 0.2];
-////    [self setShadowRadius: 1.0];
-////    NSFont* font = [NSFont boldSystemFontOfSize: 0];
-//    NSFont* font = [NSFont systemFontOfSize: 0];
-//    [mTitleLayer setFont: font];
-//  }
-//  else {
-////    [self setShadowOpacity: 0];
-//    NSFont* font = [NSFont systemFontOfSize: 0];
-//    [mTitleLayer setFont: font];
-//  }    
-}	
+}
 
 
 
@@ -111,8 +98,7 @@
     [mTitleLayer setForegroundColor: c];
     CGColorRelease(c);
     NSFont* font = [NSFont systemFontOfSize: 0];
-    [mTitleLayer setFont: font];
-//    [mTitleLayer setShadowOpacity: 0];
+    [mTitleLayer setFont: (__bridge CFTypeRef _Nullable)(font)];
 
     // Center the title.
     CGRect f = [mTitleLayer frame];
@@ -131,13 +117,13 @@
 + (WBTabItem*) tabItemWithIdentifier: (id) identifier
                                label: (NSString*) label;
 {
-	return [[[WBEditorTabItem alloc] initWithIdentifier: identifier
-                                                label: label
-                                            direction: WBTabDirectionDown
-                                            placement: WBTabPlacementBottom
-                                                 size: WBTabSizeLarge
-                                              hasIcon: NO
-                                             canClose: NO] autorelease];
+  return [[WBEditorTabItem alloc] initWithIdentifier: identifier
+                                               label: label
+                                           direction: WBTabDirectionDown
+                                           placement: WBTabPlacementBottom
+                                                size: WBTabSizeLarge
+                                             hasIcon: NO
+                                            canClose: NO];
 }
 
 

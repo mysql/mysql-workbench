@@ -43,11 +43,12 @@
   self = [super init];
   if (self != nil && plugin != nil)
   {
-    mPluginEditor = [plugin retain];
+    mPluginEditor = plugin;
 
-    if ([NSBundle.mainBundle loadNibNamed: @"PluginEditorWindow" owner: self topLevelObjects: &nibObjects])
+    NSMutableArray *temp;
+    if ([NSBundle.mainBundle loadNibNamed: @"PluginEditorWindow" owner: self topLevelObjects: &temp])
     {
-      [nibObjects retain];
+      nibObjects = temp;
 
       float yextra;
       NSSize size = mPluginEditor.minimumSize;
@@ -83,14 +84,8 @@
 
 - (void)dealloc
 {
-  [mPluginEditor grtManager]->get_plugin_manager()->forget_gui_plugin_handle(self);
-  
-  [mPluginEditor release];
-  [nibObjects release];
-
-  [super dealloc];
+  [mPluginEditor grtManager]->get_plugin_manager()->forget_gui_plugin_handle((__bridge void *)self);
 }
-
 
 - (BOOL)windowShouldClose:(id)sender
 {
@@ -98,7 +93,6 @@
     return [mPluginEditor pluginWillClose:self];
   return YES;
 }
-
 
 - (IBAction)buttonClicked:(id)sender
 {
@@ -118,6 +112,5 @@
       break;
   }
 }
-
 
 @end

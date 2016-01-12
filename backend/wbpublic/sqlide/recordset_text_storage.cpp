@@ -17,6 +17,8 @@
  * 02110-1301  USA
  */
 
+#include <sqlite/query.hpp>
+
 #include "recordset_text_storage.h"
 #include "recordset_be.h"
 #include "base/string_utilities.h"
@@ -24,7 +26,6 @@
 #include "base/file_utilities.h"
 #include "base/config_file.h"
 
-#include <sqlite/query.hpp>
 #include <boost/foreach.hpp>
 #include <fstream>
 #include <memory>

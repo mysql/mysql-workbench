@@ -684,7 +684,7 @@ std::string ActionGenerateSQL::generate_create(db_mysql_IndexRef index, std::str
       index_sql.append("`").append(col->name().c_str()).append("`");
     
     if(ind_column->columnLength() > 0)
-      index_sql.append("(").append(ind_column->columnLength().repr()).append(")");
+      index_sql.append("(").append(ind_column->columnLength().toString()).append(")");
     
     if(!pk)
       index_sql.append((ind_column->descend() == 0 ? " ASC" : " DESC"));
@@ -692,7 +692,7 @@ std::string ActionGenerateSQL::generate_create(db_mysql_IndexRef index, std::str
   index_sql.append(") ");
 
   if (index->keyBlockSize())
-    index_sql.append(" KEY_BLOCK_SIZE=").append(index->keyBlockSize().repr());
+    index_sql.append(" KEY_BLOCK_SIZE=").append(index->keyBlockSize().toString());
 
   if (index->withParser().is_valid() && *index->withParser().c_str())
     index_sql.append(" WITH PARSER ").append(index->withParser());
@@ -743,7 +743,7 @@ void ActionGenerateSQL::create_table_password(grt::StringRef value)
 
 void ActionGenerateSQL::create_table_delay_key_write(grt::IntegerRef value)
 {
-  sql.append("\nDELAY_KEY_WRITE = ").append(value.repr());
+  sql.append("\nDELAY_KEY_WRITE = ").append(value.toString());
 }
 
 void ActionGenerateSQL::create_table_charset(grt::StringRef value)
@@ -777,7 +777,7 @@ void ActionGenerateSQL::create_table_pack_keys(grt::StringRef value)
 
 void ActionGenerateSQL::create_table_checksum(grt::IntegerRef value)
 {
-  sql.append("\nCHECKSUM = ").append(value.repr());
+  sql.append("\nCHECKSUM = ").append(value.toString());
 }
 
 void ActionGenerateSQL::create_table_row_format(grt::StringRef value)
@@ -958,7 +958,7 @@ void ActionGenerateSQL::alter_table_password(db_mysql_TableRef table, grt::Strin
 
 void ActionGenerateSQL::alter_table_delay_key_write(db_mysql_TableRef table, grt::IntegerRef n)
 {
-  alter_table_property(sql, "DELAY_KEY_WRITE  = ", n.repr());
+  alter_table_property(sql, "DELAY_KEY_WRITE  = ", n.toString());
 }
 
 void ActionGenerateSQL::alter_table_charset(db_mysql_TableRef table, grt::StringRef str)
@@ -1004,7 +1004,7 @@ void ActionGenerateSQL::alter_table_pack_keys(db_mysql_TableRef table, grt::Stri
 
 void ActionGenerateSQL::alter_table_checksum(db_mysql_TableRef table, grt::IntegerRef n)
 {
-  alter_table_property(sql, "CHECKSUM = ", n.repr());
+  alter_table_property(sql, "CHECKSUM = ", n.toString());
 }
 
 void ActionGenerateSQL::alter_table_row_format(db_mysql_TableRef table, grt::StringRef str)
@@ -1148,9 +1148,9 @@ void ActionGenerateSQL::alter_table_partition_count(db_mysql_TableRef table, grt
   std::string part_count_sql;
 
   if(oldcount > newcount) // merge
-    part_count_sql.append(" COALESCE PARTITION ").append(IntegerRef(oldcount - newcount).repr());
+    part_count_sql.append(" COALESCE PARTITION ").append(IntegerRef(oldcount - newcount).toString());
   else  // split
-    part_count_sql.append(" ADD PARTITION PARTITIONS ").append(IntegerRef(newcount - oldcount).repr());
+    part_count_sql.append(" ADD PARTITION PARTITIONS ").append(IntegerRef(newcount - oldcount).toString());
 
   // partition count alone can be changed only for HASH/KEY partitions
   // generate_change_partition_count() will return empty string otherwise

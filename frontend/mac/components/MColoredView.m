@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,15 +27,9 @@
   self = [super initWithFrame: frameRect];
   if (self)
   {
-    mColor = [[NSColor colorWithDeviceWhite: 232/255.0 alpha: 1.0] retain];
+    mColor = [NSColor colorWithDeviceWhite: 232 / 255.0 alpha: 1.0];
   }
   return self;
-}
-
-- (void) dealloc
-{
-  [mColor release];
-  [super dealloc];
 }
 
 - (NSColor*)backgroundColor
@@ -45,15 +39,14 @@
 
 - (void)setBackgroundColor:(NSColor*)color
 {
-  [mColor autorelease];
-  mColor = [color retain];
+  mColor = color;
 }
 
 - (void) drawRect:(NSRect)rect
 {
   if (!mColor)
   {
-    mColor = [[NSColor colorWithDeviceWhite: 232/255.0 alpha: 1.0] retain];
+    mColor = [NSColor colorWithDeviceWhite: 232 / 255.0 alpha: 1.0];
   }
   [mColor set];
   NSRectFill(rect);

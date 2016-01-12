@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -76,25 +76,25 @@ TEST_FUNCTION(3)
   NodeId node;
   std::string s;
 
-  s= node.repr();
-  ensure_equals("() repr", s, "");
+  s = node.toString();
+  ensure_equals("() toString", s, "");
   ensure("() parse", NodeId(s)==node);
 
   node.append(3);
-  s= node.repr();
+  s = node.toString();
   ensure("(3) check", node==NodeId(3));
-  ensure_equals("(3) repr", s, "3");
-  ensure_equals("(3) parse", NodeId(s).repr(), node.repr());
+  ensure_equals("(3) toString", s, "3");
+  ensure_equals("(3) parse", NodeId(s).toString(), node.toString());
 
   node.append(0);
-  s= node.repr();
-  ensure_equals("(3,0) repr", s, "3.0");
-  ensure_equals("(3,0) parse", NodeId(s).repr(), node.repr());
+  s = node.toString();
+  ensure_equals("(3,0) toString", s, "3.0");
+  ensure_equals("(3,0) parse", NodeId(s).toString(), node.toString());
   
   node.append(1);
-  s= node.repr();
-  ensure_equals("(3,0,1) repr", s, "3.0.1");
-  ensure_equals("(3,0,1) parse", NodeId(s).repr(), node.repr());
+  s = node.toString();
+  ensure_equals("(3,0,1) toString", s, "3.0.1");
+  ensure_equals("(3,0,1) parse", NodeId(s).toString(), node.toString());
 }
 
 // test common tree_model methods (get_parent etc)

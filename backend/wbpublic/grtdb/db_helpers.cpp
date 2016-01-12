@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,7 +32,7 @@ std::string bec::get_host_identifier_for_connection(const db_mgmt_ConnectionRef 
     std::string host_identifier = *connection->driver()->hostIdentifierTemplate();
     for (grt::DictRef::const_iterator par = params.begin(); par != params.end(); ++par)
     {
-      base::replaceStringInplace(host_identifier, "%"+par->first+"%", par->second.repr());
+      base::replaceStringInplace(host_identifier, "%"+par->first+"%", par->second.toString());
     }
     return host_identifier;
   }

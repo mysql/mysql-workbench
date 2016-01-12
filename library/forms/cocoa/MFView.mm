@@ -228,7 +228,6 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
   if (currentArea != nil)
   {
     [self removeTrackingArea: currentArea];
-    [currentArea release];
   }
 
   NSTrackingAreaOptions options = NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved |
@@ -511,7 +510,7 @@ static NSString *dragText = nil;
   [pasteboard clearContents];
   [pasteboard setString: text forType: NSStringPboardType];
 
-  NSImage *dragImage = [[[NSImage alloc] init] autorelease];
+  NSImage *dragImage = [[NSImage alloc] init];
   if (details.image == NULL)
   {
     NSDictionary *attributes = @{NSFontAttributeName: [NSFont labelFontOfSize: 12]};
@@ -535,19 +534,17 @@ static NSString *dragText = nil;
       data[i + 2] = temp;
       i += 4;
     }
-    NSBitmapImageRep *bitmap = [NSBitmapImageRep alloc];
-    [bitmap initWithBitmapDataPlanes: (unsigned char **) &data
-                          pixelsWide: width
-                          pixelsHigh: height
-                       bitsPerSample: 8
-                     samplesPerPixel: 4
-                            hasAlpha: YES
-                            isPlanar: NO
-                      colorSpaceName: NSCalibratedRGBColorSpace
-                         bytesPerRow: cairo_image_surface_get_stride(details.image)
-                        bitsPerPixel: 0
-     ];
-    [bitmap autorelease];
+    NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes: (unsigned char **) &data
+                                                                       pixelsWide: width
+                                                                       pixelsHigh: height
+                                                                    bitsPerSample: 8
+                                                                  samplesPerPixel: 4
+                                                                         hasAlpha: YES
+                                                                         isPlanar: NO
+                                                                   colorSpaceName: NSCalibratedRGBColorSpace
+                                                                      bytesPerRow: cairo_image_surface_get_stride(details.image)
+                                                                     bitsPerPixel: 0
+                                ];
     [dragImage addRepresentation: bitmap];
   }
 
@@ -595,7 +592,7 @@ static bool dragInProgress = NO;
   self.lastDropPosition = mforms::DropPositionUnknown;
   dragData = data;
 
-  NSImage *dragImage = [[[NSImage alloc] init] autorelease];
+  NSImage *dragImage = [[NSImage alloc] init];
   if (details.image != NULL)
   {
     unsigned char *data = cairo_image_surface_get_data(details.image);
@@ -611,19 +608,17 @@ static bool dragInProgress = NO;
       data[i + 2] = temp;
       i += 4;
     }
-    NSBitmapImageRep *bitmap = [NSBitmapImageRep alloc];
-    [bitmap initWithBitmapDataPlanes: (unsigned char **) &data
-                          pixelsWide: width
-                          pixelsHigh: height
-                       bitsPerSample: 8
-                     samplesPerPixel: 4
-                            hasAlpha: YES
-                            isPlanar: NO
-                      colorSpaceName: NSCalibratedRGBColorSpace
-                         bytesPerRow: cairo_image_surface_get_stride(details.image)
-                        bitsPerPixel: 0
-     ];
-    [bitmap autorelease];
+    NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes: (unsigned char **) &data
+                                                                       pixelsWide: width
+                                                                       pixelsHigh: height
+                                                                    bitsPerSample: 8
+                                                                  samplesPerPixel: 4
+                                                                         hasAlpha: YES
+                                                                         isPlanar: NO
+                                                                   colorSpaceName: NSCalibratedRGBColorSpace
+                                                                      bytesPerRow: cairo_image_surface_get_stride(details.image)
+                                                                     bitsPerPixel: 0
+                                ];
     [dragImage addRepresentation: bitmap];
   }
 
@@ -756,8 +751,6 @@ static void view_destroy(::mforms::View *self)
   id view = self->get_data();
   if (view && [view respondsToSelector: @selector(destroy)])
     [view performSelector: @selector(destroy)];
-  else
-    [view autorelease];
   if ([view respondsToSelector: @selector(superview)] && [view superview])
     [view removeFromSuperview];
 }
@@ -1069,7 +1062,7 @@ static bool view_has_focus(::mforms::View *self)
 
 static void register_drop_formats(mforms::View *self, mforms::DropDelegate *target, const std::vector<std::string> &formats)
 {
-  NSMutableArray *list = [[[NSMutableArray alloc] init] autorelease];
+  NSMutableArray *list = [[NSMutableArray alloc] init];
   for (size_t i = 0; i < formats.size(); ++i)
   {
     if (formats[i] == mforms::DragFormatText)

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2005, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -50,12 +50,6 @@
 }
 
 
-- (void)dealloc
-{
-  [_hScroller release];
-  [_vScroller release];
-  [super dealloc];
-}
 
 
 - (NSView*)documentView
@@ -159,9 +153,9 @@
 }
 
 
-static void canvas_view_viewport_changed(MCanvasScrollView *self)
+static void canvas_view_viewport_changed(void *self)
 {
-  [self reflectContentRect];
+  [(__bridge id)self reflectContentRect];
 }
 
 
@@ -169,7 +163,7 @@ static void canvas_view_viewport_changed(MCanvasScrollView *self)
 {
   _contentView= canvas;
 
-  [canvas canvas]->signal_viewport_changed()->connect(boost::bind(canvas_view_viewport_changed, self));
+  [canvas canvas]->signal_viewport_changed()->connect(boost::bind(canvas_view_viewport_changed, (__bridge void *)self));
   
   [self addSubview:canvas];
   [self tile];

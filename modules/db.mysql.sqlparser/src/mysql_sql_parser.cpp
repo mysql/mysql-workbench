@@ -21,12 +21,6 @@
 #include <boost/signals2.hpp>
 #include <cctype>
 
-#ifdef _WIN32
-#define NOMINMAX
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
-
 #include "base/util_functions.h"
 
 #include "mysql_sql_parser.h"
@@ -48,7 +42,7 @@ public:
   void init(GRT *grt)
   {
     grt::ListRef<db_mysql_StorageEngine> engines;
-    Module *module= grt->get_module("DbMySQL");
+    grt::Module *module= grt->get_module("DbMySQL");
     if (!module)
       throw std::logic_error("module DbMySQL not found");
     grt::BaseListRef args(grt);
@@ -79,7 +73,7 @@ Mysql_sql_parser::Null_state_keeper::~Null_state_keeper()
 {
   _sql_parser->_fk_refs.clear();
   boost::function<Parse_result ()> f = boost::lambda::constant(pr_irrelevant);
-  _sql_parser->_process_specific_create_statement.clear(); //= boost::bind(f);
+  _sql_parser->_process_specific_create_statement.clear();
   _sql_parser->_datatype_cache= grt::DictRef();
   _sql_parser->_created_objects= grt::ListRef<GrtObject>();
   _sql_parser->_processing_create_statements= true;

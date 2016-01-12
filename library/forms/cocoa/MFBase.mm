@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 
 NSString *wrap_nsstring(const std::string &str)
 {
-  NSString *ret = [[[NSString alloc] initWithBytes: str.data() length: str.length() encoding: NSUTF8StringEncoding] autorelease];
+  NSString *ret = [[NSString alloc] initWithBytes: str.data() length: str.length() encoding: NSUTF8StringEncoding];
   if (!ret)
     return @"UTF-8 Conversion Error";
   return ret;

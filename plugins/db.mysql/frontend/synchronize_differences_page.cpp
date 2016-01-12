@@ -328,7 +328,7 @@ void SynchronizeDifferencesPage::load_model(boost::shared_ptr<DiffTreeBE> model,
     child->set_string(0, value);
     model->get_field(tmp, DiffTreeBE::DbObjectName, value);
     child->set_string(2, value);
-    child->set_tag(tmp.repr());
+    child->set_tag(tmp.toString());
     refresh_node(child);
     load_model(model, tmp, child);
   }
