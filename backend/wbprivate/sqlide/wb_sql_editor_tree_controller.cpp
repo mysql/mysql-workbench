@@ -1609,6 +1609,22 @@ void SqlEditorTreeController::open_alter_object_editor(db_DatabaseObjectRef obje
     //TODO use DB_Plugin here somehow
     comparer.load_db_options(conn->ref->getMetaData());
   }
+
+  db_mgmt_RdbmsRef rdbms= _owner->rdbms();
+      //std::string database_package= *rdbms->databaseObjectPackage();
+
+  if (rdbms.is_valid())
+  {
+    rdbms = grt::shallow_copy_object(rdbms);
+    rdbms->version(grt::shallow_copy_object(_owner->rdbms_version()));
+    rdbms->version()->owner(rdbms);
+  }
+
+  if (!client_state_catalog->version().is_valid())
+    client_state_catalog->version(rdbms->version());
+  if (!server_state_catalog->version().is_valid())
+    server_state_catalog->version(rdbms->version());
+
   object->customData().set("DBSettings", comparer.get_options_dict());
   object->customData().set("liveRdbms", _owner->rdbms());
   object->customData().set("ownerSqlEditor", _owner->wbsql()->get_grt_editor_object(_owner));
