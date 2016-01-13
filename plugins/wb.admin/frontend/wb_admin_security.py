@@ -181,7 +181,7 @@ class ThreadedInputValidator(object):
             if passwd == '':
                 return 0
 
-            result = self.ctrl_be.exec_query("SELECT VALIDATE_PASSWORD_STRENGTH('%s')" % passwd)
+            result = self.ctrl_be.exec_query("SELECT VALIDATE_PASSWORD_STRENGTH('%s')" % db_utils.escape_sql_string(passwd))
             if result and result.nextRow():
                 estimate = result.intByIndex(1)
             else:
