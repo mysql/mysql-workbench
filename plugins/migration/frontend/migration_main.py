@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -109,6 +109,8 @@ class Migration(mforms.AppView):
     def close(self):
         # Restore default locale:
         locale.setlocale(locale.LC_NUMERIC, 'C')
+        if self.on_close:
+            self.on_close()
         super(Migration, self).close()
         
     
