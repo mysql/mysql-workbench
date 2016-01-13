@@ -126,9 +126,12 @@ class FileChooserImpl : public ViewImpl
     if (combo)
     {
       std::vector<std::string> &extensions(self->_selector_options["format"]);
-      std::vector<std::string>::const_iterator it = std::find(extensions.begin(), extensions.end(), ext.substr(1));
-      if (it != extensions.end())
-        combo->set_active(it - extensions.begin());
+      if (!ext.empty())
+      {
+        std::vector<std::string>::const_iterator it = std::find(extensions.begin(), extensions.end(), ext.substr(1));
+        if (it != extensions.end())
+          combo->set_active(it - extensions.begin());
+      }
     }
   }
 
