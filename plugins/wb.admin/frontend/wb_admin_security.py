@@ -718,10 +718,6 @@ class FirewallCommands:
         log_error("Adding a firewall user rule failed to normalize the query. Probably, the inserted query does not translate to a firewall rule.\n")
         return False
 
-    def add_normalized_rule(self, userhost, rule):
-        self.execute_command(rule)
-        return True
-
     def normalize_query(self, query):
         query_result = self.execute_result_command("SELECT normalize_statement('%s')" % db_utils.escape_sql_string(query))
         if not query_result:
@@ -990,7 +986,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         self.note.set_text(text)
         
     def refresh_row(self, current_row, user, host):
-        userhost = "%s@%s" % (user, host)
+        userhost = "%s@%s" % (db_utils.escape_sql_string(user), host)
         current_row.set_string(2, str(self.commands.get_user_mode(userhost)))
         current_row.set_string(3, str(self.commands.get_rule_count(userhost)))
         current_row.set_string(4, str(self.commands.get_cached_rule_count(userhost)))
@@ -998,7 +994,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
     def show_user(self, user, host, new_user):
         self.current_user = user
         self.current_host = host
-        self.current_userhost = "%s@%s" % (user, host)
+        self.current_userhost = "%s@%s" % (db_utils.escape_sql_string(user), host)
         self.new_user = new_user
         self.set_enabled(not new_user)
         self.update_rules()
