@@ -350,9 +350,10 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
     def force_check_server_state(self, verbose = False):
         # Check the current state of the server and cause the SQL Editor to reconnect/update if the state
         # changed. Returns None if no state change was detected or the new state if it did change.
+        old_state = self.last_known_server_running_status[0]
         new_state = self.is_server_running(verbose=verbose, force_hard_check=True)
         log_debug("Force check server state returned %s\n" % new_state)
-        if new_state != self.last_known_server_running_status[0]:
+        if new_state != old_state:
             info = { "state" : -1, "connection" : self.server_profile.db_connection_params }
             if new_state == "running":
                 info['state'] = 1 

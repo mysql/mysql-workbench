@@ -82,7 +82,8 @@ public:
   {
     UnknownState,
     RunningState,
-    PossiblyStoppedState
+    PossiblyStoppedState,
+    OfflineState
   };
 
 
