@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -61,6 +61,8 @@ typedef int ssize_t;
 
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
+#include <boost/optional.hpp>
+#include <boost/cstdint.hpp>
 
 using namespace System;
 
