@@ -110,7 +110,14 @@ Requires: python-paramiko >= 1.15.1
 %endif
 Requires: gnome-keyring
 Requires: proj
+%if 0%{?rhel} == 6
 Requires: glib2 >= 2.28
+%else
+Requires: glib2 >= 2.42
+Requires: glibmm24 >= 2.42
+Requires: cairo >= 1.14
+%endif
+
 Requires: gtk2 >= 2.20
 
 # our old package names
