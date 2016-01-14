@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,20 +19,29 @@
 
 #pragma once
 
-#define HAVE_ROUND
-#include <Python/Python.h>
+#ifdef _WIN64
+  typedef __int64 ssize_t;
+#else
+  typedef int ssize_t;
+#endif
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <winevt.h>
+#include <string>
+#include <vector>
+#include <fstream>
+#include <map>
+#include <set>
+#include <deque>
+#include <functional>
+#include <stdint.h>
+#include <stack>
+#include <vector>
+#include <list>
+#include <sstream>
 
-#include <boost/function.hpp>
-#include <boost/signals2.hpp>
+#include <boost/optional.hpp>
+#include <boost/cstdint.hpp>
+#include <boost/shared_ptr.hpp>
 
+#include "antlr3.h"
 #include <glib.h>
 
-#include "grts/structs.h"
-
-#include <iosfwd>
-#include <fstream>
-#include <sstream>
