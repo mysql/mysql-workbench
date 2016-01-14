@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,8 +30,13 @@
 #include <map>
 #include <list>
 #include <unordered_set>
+#include <sstream>
 
 #include <glib.h>
+
+#include <boost/optional.hpp>
+#include <boost/cstdint.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "grts/structs.db.mgmt.h"
 #include "grts/structs.db.mysql.h"

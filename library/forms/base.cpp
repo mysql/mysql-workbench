@@ -120,7 +120,6 @@ Object::~Object()
 Object::Object()
   : _data(0), _data_free_fn(0), _refcount(1), _managed(false), _release_on_add(false), _destroying(false)
 {
-  ControlFactory::get_instance()->instance_created();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -129,7 +128,6 @@ Object::~Object()
 {
   if (_data_free_fn && _data)
     (*_data_free_fn)(_data);
-  ControlFactory::get_instance()->instance_destroyed();
 }
 
 //--------------------------------------------------------------------------------------------------

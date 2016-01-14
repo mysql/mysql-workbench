@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,46 +25,23 @@
   typedef int ssize_t;
 #endif
 
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-
-#include <windows.h>
-
-#include <stdexcept>
-#include <functional>
-#include <locale>
-#include <algorithm>
-#include <math.h>
-#include <errno.h>
-#include <string.h>
-#include <iostream>
-#include <wchar.h>
-#include <codecvt>
-#include <fcntl.h>
-#include <fstream>
-#include <sstream>
-#include <unordered_set>
-#include <list>
 #include <string>
-#include <map>
 #include <vector>
+#include <fstream>
+#include <map>
+#include <set>
+#include <deque>
+#include <functional>
+#include <stdint.h>
+#include <stack>
+#include <vector>
+#include <list>
 #include <sstream>
-#include <sddl.h>
-#include <stdio.h>
-#include <winevt.h>
 
-#include <VersionHelpers.h>
-
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
-
-#include <boost/locale/encoding_utf.hpp>
 #include <boost/optional.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <glib/glib.h>
-#include <glib/gstdio.h>
+#include "antlr3.h"
+#include <glib.h>
 
-#include <iosfwd>
-#include <fstream>
