@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@ import datetime
 from wb_admin_utils import no_remote_admin_warning_label, make_panel_header
 
 from wb_log_reader import ErrorLogFileReader
-
+from workbench.notifications import nc
 
 class WbAdminConfigurationStartup(mforms.Box):
     long_status_msg = None
@@ -360,15 +360,19 @@ class WbAdminConfigurationStartup(mforms.Box):
                 self.offline_mode_btn.show(True)
 
     def offline_mode_clicked(self):
-        
+        info = { "state" : -1, "connection" : self.ctrl_be.server_profile.db_connection_params }
         if self.ctrl_be.is_server_running() == "offline":
             self.ctrl_be.exec_query("SET GLOBAL offline_mode = off")
-            self.ctrl_be.event_from_main("server_running")
-            self.update_ui("running")
+            self.ctrl_be.event_from_main("server_started")
+            info['state'] = 1
         else:
             self.ctrl_be.exec_query("SET GLOBAL offline_mode = on")
             self.ctrl_be.event_from_main("server_offline")
-            self.update_ui("offline")
+            info['state'] = -1
+            
+        #we need to send notification that server state has changed,
+        nc.send("GRNServerStateChanged", self.ctrl_be.editor, info)
+             
 
     #---------------------------------------------------------------------------
     def async_stop_callback(self, status):
