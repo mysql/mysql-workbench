@@ -1577,7 +1577,7 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
       open_alter_object_editor(db_object, server_state_catalog);
     }
     else
-      log_warning("Failed to create/alter `%s`.`%s`", used_schema_name.c_str(), obj_name.c_str());
+      logError("Failed to create/alter `%s`.`%s`", used_schema_name.c_str(), obj_name.c_str());
   }
   catch (const std::exception &e)
   {
