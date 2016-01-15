@@ -396,11 +396,24 @@ void SqlEditorForm::finish_startup()
               std::auto_ptr<sql::ResultSet> rs(statement->executeQuery(query));
               if (rs.get())
               {
-                return {{ rs->getString(0), rs->getString(1) }};
+                std::vector<std::pair<std::string, std::string>> result;
+                if (rs->getMetaData()->getColumnCount() > 1)
+                {
+                  while (rs->next())
+                    result.push_back({ rs->getString(1), rs->getString(2) });
+                }
+                else
+                if (rs->getMetaData()->getColumnCount() == 1)
+                {
+                  while (rs->next())
+                    result.push_back({ rs->getString(1), "" });
+                }
+                
+                return result;
               }
             }
 
-            return {};
+            return {{ "", ""}};
           },
           [this](bool active)
           {

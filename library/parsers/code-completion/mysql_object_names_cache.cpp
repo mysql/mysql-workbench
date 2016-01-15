@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -476,8 +476,9 @@ void MySQLObjectNamesCache::doRefreshSchemas()
   std::vector<std::pair<std::string, std::string>> result = _getValues("show databases");
   std::set<std::string> schemas;
 
-  for (auto entry : result)
-    schemas.insert(entry.first);
+  for (auto &entry : result)
+    if (!entry.first.empty())
+      schemas.insert(entry.first);
 
   if (!_shutdown)
   {
@@ -498,13 +499,13 @@ void MySQLObjectNamesCache::doRefreshTables(const std::string &schema)
   std::string sql = base::sqlstring("SHOW FULL TABLES FROM !", 0) << schema;
   std::vector<std::pair<std::string, std::string>> result = _getValues(sql);
 
-  // Using a StringListPtr here as this is what the public API uses (to avoid copying data when
+  // Using a StringListPtr here, as this is what the public API uses (to avoid copying data when
   // updating from outside).
   base::StringListPtr tables(new std::list<std::string>());
 
-  for (auto entry : result)
+  for (auto &entry : result)
   {
-    if (entry.second != "VIEW")
+    if (!entry.first.empty() && entry.second != "VIEW")
     {
       tables->push_back(entry.first);
 
@@ -534,9 +535,9 @@ void MySQLObjectNamesCache::doRefreshViews(const std::string &schema)
   std::vector<std::pair<std::string, std::string>> result = _getValues(sql);
   base::StringListPtr views(new std::list<std::string>());
 
-  for (auto entry : result)
+  for (auto &entry : result)
   {
-    if (entry.second == "VIEW")
+    if (!entry.first.empty() && entry.second == "VIEW")
     {
       views->push_back(entry.first);
       addPendingRefresh(RefreshTask::RefreshColumns, schema, entry.first);
@@ -547,7 +548,7 @@ void MySQLObjectNamesCache::doRefreshViews(const std::string &schema)
   {
     updateObjectNames("views", schema, views);
 
-    //TODO: this should be called in a way that this notification will be delivered on the main thread only.
+    // TODO: this should be called in a way that this notification will be delivered on the main thread only.
     base::NotificationInfo info;
     info["type"] = "views";
     info["path"] = "\0" + schema;
@@ -563,8 +564,9 @@ void MySQLObjectNamesCache::doRefreshFunctions(const std::string &schema)
   base::StringListPtr functions(new std::list<std::string>());
   std::vector<std::pair<std::string, std::string>> result = _getValues(sql);
 
-  for (auto entry : result)
-    functions->push_back(entry.second);
+  for (auto &entry : result)
+    if (!entry.first.empty())
+      functions->push_back(entry.second);
 
   if (!_shutdown)
   {
@@ -587,8 +589,9 @@ void MySQLObjectNamesCache::doRefreshProcedures(const std::string &schema)
 
   std::vector<std::pair<std::string, std::string>> result = _getValues(sql);
 
-  for (auto entry : result)
-    procedures->push_back(entry.second);
+  for (auto &entry : result)
+    if (!entry.first.empty())
+      procedures->push_back(entry.second);
 
   if (!_shutdown)
   {
@@ -610,8 +613,9 @@ void MySQLObjectNamesCache::doRefreshColumns(const std::string &schema, const st
   std::set<std::string> columns;
   std::vector<std::pair<std::string, std::string>> result = _getValues(sql);
 
-  for (auto entry : result)
-    columns.insert(entry.first);
+  for (auto &entry : result)
+    if (!entry.first.empty())
+      columns.insert(entry.first);
 
   if (!_shutdown)
   {
@@ -637,8 +641,9 @@ void MySQLObjectNamesCache::doRefreshTriggers(const std::string &schema, const s
   std::set<std::string> triggers;
   std::vector<std::pair<std::string, std::string>> result = _getValues(sql);
 
-  for (auto entry : result)
-    triggers.insert(entry.first);
+  for (auto &entry : result)
+    if (!entry.first.empty())
+      triggers.insert(entry.first);
 
   if (!_shutdown)
   {
@@ -659,8 +664,9 @@ void MySQLObjectNamesCache::doRefreshUdfs()
   std::set<std::string> udfs;
   std::vector<std::pair<std::string, std::string>> result = _getValues("SELECT NAME FROM mysql.func");
 
-  for (auto entry : result)
-    udfs.insert(entry.first);
+  for (auto &entry : result)
+    if (!entry.first.empty())
+      udfs.insert(entry.first);
 
   if (!_shutdown)
   {
@@ -680,8 +686,9 @@ void MySQLObjectNamesCache::doRefreshVariables()
   std::set<std::string> variables;
   std::vector<std::pair<std::string, std::string>> result = _getValues("SHOW GLOBAL VARIABLES");
 
-  for (auto entry : result)
-    variables.insert("@@" + entry.first);
+  for (auto &entry : result)
+    if (!entry.first.empty())
+      variables.insert("@@" + entry.first);
 
   if (!_shutdown)
   {
@@ -701,8 +708,9 @@ void MySQLObjectNamesCache::doRefreshEngines()
   std::set<std::string> engines;
   std::vector<std::pair<std::string, std::string>> result = _getValues("SHOW ENGINES");
 
-  for (auto entry : result)
-    engines.insert(entry.first);
+  for (auto &entry : result)
+    if (!entry.first.empty())
+      engines.insert(entry.first);
 
   if (!_shutdown)
     updateObjectNames("engines", engines);
@@ -719,8 +727,9 @@ void MySQLObjectNamesCache::doRefreshLogfileGroups()
   // For auto completion however we only need to support what the syntax supports.
   std::vector<std::pair<std::string, std::string>> result = _getValues("SELECT logfile_group_name FROM information_schema.FILES");
 
-  for (auto entry : result)
-    logfileGroups.insert(entry.first);
+  for (auto &entry : result)
+    if (!entry.first.empty())
+      logfileGroups.insert(entry.first);
 
   if (!_shutdown)
     updateObjectNames("logfile_groups", logfileGroups);
@@ -733,8 +742,9 @@ void MySQLObjectNamesCache::doRefreshTablespaces()
   std::set<std::string> tablespaces;
   std::vector<std::pair<std::string, std::string>> result = _getValues("SELECT tablespace_name FROM information_schema.FILES");
 
-  for (auto entry : result)
-    tablespaces.insert(entry.first);
+  for (auto &entry : result)
+    if (!entry.first.empty())
+      tablespaces.insert(entry.first);
 
   if (!_shutdown)
     updateObjectNames("tablespaces", tablespaces);
