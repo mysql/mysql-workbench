@@ -1108,20 +1108,20 @@ void SqlEditorResult::create_query_stats_panel()
       box->add(bold_label("Errors:"), false, true);
       info.clear();
       info.append(strfmt("Had Errors: %s\n", ps_stats["ERRORS"] ? "YES" : "NO"));
-      info.append(strfmt("Warnings: %" PRId64 "\n", ps_stats["WARNINGS"]));
+      info.append(strfmt("Warnings: %lli\n", ps_stats["WARNINGS"]));
       box->add(mforms::manage(new mforms::Label(info)), false, true);
 
       box->add(bold_label("Rows Processed:"), false, true);
       info.clear();
-      info.append(strfmt("Rows affected: %" PRId64 "\n", ps_stats["ROWS_AFFECTED"])),
-      info.append(strfmt("Rows sent to client: %" PRId64 "\n", ps_stats["ROWS_SENT"]));
-      info.append(strfmt("Rows examined: %" PRId64 "\n", ps_stats["ROWS_EXAMINED"]));
+      info.append(strfmt("Rows affected: %lli\n", ps_stats["ROWS_AFFECTED"])),
+      info.append(strfmt("Rows sent to client: %lli\n", ps_stats["ROWS_SENT"]));
+      info.append(strfmt("Rows examined: %lli\n", ps_stats["ROWS_EXAMINED"]));
       box->add(mforms::manage(new mforms::Label(info)), false, true);
 
       box->add(bold_label("Temporary Tables:"), false, true);
       info.clear();
-      info.append(strfmt("Temporary disk tables created: %" PRId64 "\n", ps_stats["CREATED_TMP_DISK_TABLES"]));
-      info.append(strfmt("Temporary tables created: %" PRId64 "\n", ps_stats["CREATED_TMP_TABLES"]));
+      info.append(strfmt("Temporary disk tables created: %lli\n", ps_stats["CREATED_TMP_DISK_TABLES"]));
+      info.append(strfmt("Temporary tables created: %lli\n", ps_stats["CREATED_TMP_TABLES"]));
       box->add(mforms::manage(new mforms::Label(info)), false, true);
       
       table->add(box, 0, 1, 1, 2, mforms::HFillFlag|mforms::HExpandFlag);
@@ -1131,19 +1131,19 @@ void SqlEditorResult::create_query_stats_panel()
 
       box->add(bold_label("Joins per Type:"), false, true);
       info.clear();
-      info.append(strfmt("Full table scans (Select_scan): %" PRId64 "\n", ps_stats["SELECT_SCAN"]));
-      info.append(strfmt("Joins using table scans (Select_full_join): %" PRId64 "\n", ps_stats["SELECT_FULL_JOIN"]));
-      info.append(strfmt("Joins using range search (Select_full_range_join): %" PRId64 "\n", ps_stats["SELECT_FULL_RANGE_JOIN"]));
-      info.append(strfmt("Joins with range checks (Select_range_check): %" PRId64 "\n", ps_stats["SELECT_RANGE_CHECK"]));
-      info.append(strfmt("Joins using range (Select_range): %" PRId64 "\n", ps_stats["SELECT_RANGE"]));
+      info.append(strfmt("Full table scans (Select_scan): %lli\n", ps_stats["SELECT_SCAN"]));
+      info.append(strfmt("Joins using table scans (Select_full_join): %lli\n", ps_stats["SELECT_FULL_JOIN"]));
+      info.append(strfmt("Joins using range search (Select_full_range_join): %lli\n", ps_stats["SELECT_FULL_RANGE_JOIN"]));
+      info.append(strfmt("Joins with range checks (Select_range_check): %lli\n", ps_stats["SELECT_RANGE_CHECK"]));
+      info.append(strfmt("Joins using range (Select_range): %lli\n", ps_stats["SELECT_RANGE"]));
       box->add(mforms::manage(new mforms::Label(info)), false, true);
 
       box->add(bold_label("Sorting:"), false, true);
       info.clear();
-      info.append(strfmt("Sorted rows (Sort_rows): %" PRId64 "\n", ps_stats["SORT_ROWS"]));
-      info.append(strfmt("Sort merge passes (Sort_merge_passes): %" PRId64 "\n", ps_stats["SORT_MERGE_PASSES"]));
-      info.append(strfmt("Sorts with ranges (Sort_range): %" PRId64 "\n", ps_stats["SORT_RANGE"]));
-      info.append(strfmt("Sorts with table scans (Sort_scan): %" PRId64 "\n", ps_stats["SORT_SCAN"]));
+      info.append(strfmt("Sorted rows (Sort_rows): %lli\n", ps_stats["SORT_ROWS"]));
+      info.append(strfmt("Sort merge passes (Sort_merge_passes): %lli\n", ps_stats["SORT_MERGE_PASSES"]));
+      info.append(strfmt("Sorts with ranges (Sort_range): %lli\n", ps_stats["SORT_RANGE"]));
+      info.append(strfmt("Sorts with table scans (Sort_scan): %lli\n", ps_stats["SORT_SCAN"]));
       box->add(mforms::manage(new mforms::Label(info)), false, true);
 
       box->add(bold_label("Index Usage:"), false, true);
@@ -1159,8 +1159,8 @@ void SqlEditorResult::create_query_stats_panel()
 
       box->add(bold_label("Other Info:"), false, true);
       info.clear();
-      info.append(strfmt("Event Id: %" PRId64 "\n", ps_stats["EVENT_ID"]));
-      info.append(strfmt("Thread Id: %" PRId64 "\n", ps_stats["THREAD_ID"]));
+      info.append(strfmt("Event Id: %lli\n", ps_stats["EVENT_ID"]));
+      info.append(strfmt("Thread Id: %lli\n", ps_stats["THREAD_ID"]));
       box->add(mforms::manage(new mforms::Label(info)), false, true);
 
       table->add(box, 1, 2, 1, 2, mforms::HFillFlag|mforms::HExpandFlag);
