@@ -3241,41 +3241,42 @@ void SqlEditorForm::update_editor_title_schema(const std::string& schema)
  */
 void SqlEditorForm::note_connection_open_outcome(int error)
 {
-  ServerState new_state;
+  ServerState newState;
   switch (error)
   {
     case 0:
-      new_state = RunningState; // success = running;
+      newState = RunningState; // success = running;
       break;
     case 2002: // CR_CONNECTION_ERROR
     case 2003: // CR_CONN_HOST_ERROR
-      new_state = PossiblyStoppedState;
+      newState = PossiblyStoppedState;
       break;
     case 2013: // Lost packet blabla, can happen on failure when using ssh tunnel
-      new_state = PossiblyStoppedState;
+      newState = PossiblyStoppedState;
       break;
     default:
       // there may be other errors that could indicate server stopped and maybe
       // some errors that can't tell anything about the server state
-      new_state = RunningState;
+      newState = RunningState;
       break;
   }
 
-  if (_last_server_running_state != new_state && new_state != UnknownState)
+  if (_last_server_running_state != newState && newState != UnknownState)
   {
     grt::DictRef info(_grtm->get_grt());
-    _last_server_running_state = new_state;
+    _last_server_running_state = newState;
 
-    if (new_state == RunningState)
+    if (newState == RunningState)
       info.gset("state", 1);
-    else if (new_state == OfflineState)
+    else if (newState == OfflineState)
       info.gset("state", -1);
     else
       info.gset("state", 0);
 
     info.set("connection", connection_descriptor());
 
-    log_debug("Notifying server state change of %s to %s\n", connection_descriptor()->hostIdentifier().c_str(), new_state == (RunningState || OfflineState) ? "running" : "not running");
+    log_debug("Notifying server state change of %s to %s\n", connection_descriptor()->hostIdentifier().c_str(),
+                        (newState == RunningState || newState == OfflineState) ? "running" : "not running");
     GRTNotificationCenter::get()->send_grt("GRNServerStateChanged",
                                            grtobj(),
                                            info);
