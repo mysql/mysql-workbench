@@ -47,8 +47,8 @@ inline std::string get_content(xmlNodePtr node)
 
 
 
-internal::Unserializer::Unserializer(bool check_crc)
-: _check_serialized_crc(check_crc)
+internal::Unserializer::Unserializer(GRT *grt, bool check_crc)
+: _grt(grt), _check_serialized_crc(check_crc)
 {
 }
 
@@ -218,7 +218,7 @@ ValueRef internal::Unserializer::traverse_xml_recreating_tree(xmlNodePtr node)
       std::string node_type= get_prop(node, "type");
       if (node_type.empty() || node_type != "object")
       {
-        log_warning("%s: link of type '%s' could not be resolved during unserialized", _source_name.c_str(), node_type.c_str());
+        logWarning("%s: link of type '%s' could not be resolved during unserialized", _source_name.c_str(), node_type.c_str());
         return ValueRef();
       }
       
@@ -226,7 +226,7 @@ ValueRef internal::Unserializer::traverse_xml_recreating_tree(xmlNodePtr node)
       // check if the object was loaded in the 1st step
       
       // if the linked object is not in the current tree, look for it in the global tree
-      ObjectRef object(grt::GRT::get()->find_object_by_id(link_id, "/"));
+      ObjectRef object(_grt->find_object_by_id(link_id, "/"));
 
       if (object.is_valid())
         _cache[object->id()]= object;
@@ -235,7 +235,7 @@ ValueRef internal::Unserializer::traverse_xml_recreating_tree(xmlNodePtr node)
       value= object;
 
       if (!value.is_valid() /*&& get_prop(node, "key") != "owner"*/)
-        log_warning("%s:%i: link '%s' <%s %s> key=%s could not be resolved\n", 
+        logWarning("%s:%i: link '%s' <%s %s> key=%s could not be resolved\n", 
                   _source_name.c_str(), node->line, link_id.c_str(),                 
                   get_prop(node, "type").c_str(), 
                   get_prop(node, "struct-name").c_str(),
@@ -310,13 +310,13 @@ ValueRef internal::Unserializer::traverse_xml_recreating_tree(xmlNodePtr node)
         {
           std::string content_class_name= get_prop(node, "content-struct-name");
           
-          value= dict= DictRef(content_type, content_class_name);
+          value= dict= DictRef(_grt, content_type, content_class_name);
         }
         else
           throw std::runtime_error("Error parsing XML. Invalid type "+prop);
       }
       else
-        value= dict= DictRef(true);
+        value= dict= DictRef(_grt);
       
       if (!ptr.empty())
         _cache[ptr]= value;
@@ -357,7 +357,7 @@ ValueRef internal::Unserializer::traverse_xml_recreating_tree(xmlNodePtr node)
       value= find_cached(prop);
       if (!value.is_valid())
       {
-        value= list= BaseListRef(content_type, cclass_name);
+        value= list= BaseListRef(_grt, content_type, cclass_name);
         
         _cache[prop]= value;
       }
@@ -365,7 +365,7 @@ ValueRef internal::Unserializer::traverse_xml_recreating_tree(xmlNodePtr node)
         list= BaseListRef::cast_from(value);
     }
     else
-      value= list= BaseListRef(content_type, cclass_name);
+      value= list= BaseListRef(_grt, content_type, cclass_name);
 
     child= node->children;
     while (child)
@@ -378,7 +378,7 @@ ValueRef internal::Unserializer::traverse_xml_recreating_tree(xmlNodePtr node)
         {
           if (!list->null_allowed())
           {
-            log_warning("%s: Attempt o add null value to %s list", _source_name.c_str(),
+            logWarning("%s: Attempt o add null value to %s list", _source_name.c_str(),
                       cclass_name.c_str());
           }
           list.ginsert(ValueRef());
@@ -395,16 +395,14 @@ ValueRef internal::Unserializer::traverse_xml_recreating_tree(xmlNodePtr node)
             }
             catch (const std::exception &exc)
             {
-              log_warning("%s: Error inserting %s to list: %s", _source_name.c_str(),
-              sub_value.debugDescription().c_str(), exc.what());
+              logWarning("%s: Error inserting %s to list: %s", _source_name.c_str(), sub_value.debugDescription().c_str(), exc.what());
               throw;
             }
           }
           else
           {
             //error!
-            log_warning("%s: skipping element '%s' in unserialized document, line %i",
-              _source_name.c_str(), child->name, child->line);
+            logWarning("%s: skipping element '%s' in unserialized document, line %i", _source_name.c_str(), child->name, child->line);
             value.clear();
             break;
           }
@@ -441,10 +439,10 @@ ObjectRef internal::Unserializer::unserialize_object_step1(xmlNodePtr node)
   if (prop.empty())
     throw std::runtime_error("error unserializing object (missing struct-name)");
   
-  gstruct= grt::GRT::get()->get_metaclass(prop);
+  gstruct= _grt->get_metaclass(prop);
   if (!gstruct)
   {
-    log_warning("%s:%i: error unserializing object: struct '%s' unknown",
+    logWarning("%s:%i: error unserializing object: struct '%s' unknown",
               _source_name.c_str(), node->line,
               prop.c_str());
     throw std::runtime_error(base::strfmt("error unserializing object (struct '%s' unknown)", prop.c_str()));
@@ -460,7 +458,7 @@ ObjectRef internal::Unserializer::unserialize_object_step1(xmlNodePtr node)
     unsigned int checksum= (unsigned int)strtol(prop.c_str(), NULL, 0);
     if (_check_serialized_crc && checksum != gstruct->crc32())
     {
-      log_warning("current checksum of struct of serialized object %s (%s) differs from the one when it was saved",
+      logWarning("current checksum of struct of serialized object %s (%s) differs from the one when it was saved",
                 id.c_str(), gstruct->name().c_str());
     }
   }
@@ -481,7 +479,7 @@ ObjectRef internal::Unserializer::unserialize_object_step2(xmlNodePtr node)
   
   ObjectRef value= ObjectRef::cast_from(find_cached(id));
   if (!value.is_valid())
-    log_warning("%s: Unknown object-id '%s' in unserialized file", _source_name.c_str(), id.c_str());
+    logWarning("%s: Unknown object-id '%s' in unserialized file", _source_name.c_str(), id.c_str());
   unserialize_object_contents(value, node);
   
   return value;
@@ -508,7 +506,7 @@ void internal::Unserializer::unserialize_object_contents(const ObjectRef &object
       {
         if (!object->has_member(key))
         {
-          log_warning("in %s: %s", object.id().c_str(),
+          logWarning("in %s: %s", object.id().c_str(),
                     std::string("unserialized XML contains invalid member "+object.class_name()+"::"+key).c_str());
           //throw std::runtime_error("unserialized XML contains invalid member "+object.class_name()+"::"+key);
         }
@@ -531,7 +529,7 @@ void internal::Unserializer::unserialize_object_contents(const ObjectRef &object
           }
           catch (grt::null_value &exc)
           {
-            log_warning("%s in %s:%s %s", exc.what(), object->class_name().c_str(), key.c_str(), object->id().c_str());
+            logWarning("%s in %s:%s %s", exc.what(), object->class_name().c_str(), key.c_str(), object->id().c_str());
             throw;
           }
           if (sub_value.is_valid())
@@ -542,8 +540,8 @@ void internal::Unserializer::unserialize_object_contents(const ObjectRef &object
             }
             catch (const std::exception &exc) 
             {
-              log_warning("exception setting %s<%s>:%s to %s %s", object.id().c_str(),
-              object.class_name().c_str(), key.c_str(), sub_value.debugDescription().c_str(), exc.what());
+              logWarning("exception setting %s<%s>:%s to %s %s", object.id().c_str(),
+                object.class_name().c_str(), key.c_str(), sub_value.debugDescription().c_str(), exc.what());
               throw;
             }
           }
