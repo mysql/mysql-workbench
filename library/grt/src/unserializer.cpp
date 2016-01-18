@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -396,7 +396,7 @@ ValueRef internal::Unserializer::traverse_xml_recreating_tree(xmlNodePtr node)
             catch (const std::exception &exc)
             {
               log_warning("%s: Error inserting %s to list: %s", _source_name.c_str(),
-                sub_value.description().c_str(), exc.what());
+                sub_value.debugDescription().c_str(), exc.what());
               throw;
             }
           }
@@ -543,7 +543,7 @@ void internal::Unserializer::unserialize_object_contents(const ObjectRef &object
             catch (const std::exception &exc) 
             {
               log_warning("exception setting %s<%s>:%s to %s %s", object.id().c_str(),
-                object.class_name().c_str(), key.c_str(), sub_value.description().c_str(), exc.what());
+                object.class_name().c_str(), key.c_str(), sub_value.debugDescription().c_str(), exc.what());
               throw;
             }
           }
