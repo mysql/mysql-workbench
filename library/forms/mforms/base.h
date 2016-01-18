@@ -21,6 +21,7 @@
 
 #include <string>
 #include <list>
+
 #include "base/threading.h"
 
 #ifdef _WIN32
@@ -68,30 +69,54 @@ namespace mforms {
     // make the mforms stub to work for unit and integration tests.
 
 #if defined(__APPLE__) && !defined(MFORMS_STUB)
-
-  public:
-    Object();
-    virtual ~Object();
-
-    void set_data(id data);
-    id get_data() const;
     
+  public:
+    Object() : _data(nil), _refcount(1), _managed(false), _release_on_add(false), _destroying(false)
+    {}
+
+    virtual ~Object()
+    {
+      /*objc_msgSend(_data, sel_getUid("release"));*/ /* calls [_data release] */
+    }
+
+    id get_data() const { return _data; };
+    void set_data(id data)
+    {
+      objc_msgSend(_data, sel_getUid("release")); // [_data release]
+      _data = data;
+      objc_msgSend(data, sel_getUid("retain")); // [_data retain]
+    }
+
   private:
     id _data;
 
 #else // !__APPLE__
 
   public:
-    Object();
-    virtual ~Object();
+    Object() : _data(NULL), _data_free_fn(NULL), _refcount(1), _managed(false), _release_on_add(false),
+      _destroying(false)
+    {}
+
+    virtual ~Object()
+    {
+      if (_data_free_fn && _data)
+        (*_data_free_fn)(_data);
+    }
 
     typedef void (*FreeDataFn)(void*);
-    void set_data(void *data, FreeDataFn free_fn = 0);
+    void set_data(void *data, FreeDataFn free_fn = 0)
+    {
+      _data = data;
+      _data_free_fn = free_fn;
+    }
 
     template<class C>
       C* get_data() const { return reinterpret_cast<C*>(_data); }
 
-    void *get_data_ptr() const;
+    void *get_data_ptr() const
+    {
+      return _data;
+    }
 
   private:
     void *_data;
@@ -111,6 +136,7 @@ namespace mforms {
   private:
     bool _destroying;
   };
+
   
   //! Makes the passed object be released when retain count reaches 0
   // Must be called for objects allocated with new that you won't delete manually
