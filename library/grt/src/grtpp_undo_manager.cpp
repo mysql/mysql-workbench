@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -168,7 +168,7 @@ void UndoObjectChangeAction::dump(std::ostream &out, int indent) const
   if (_object.get_metaclass()->get_member_info(_member)->type.base.type == ObjectType)
     new_value = ObjectRef::cast_from(_object.get_member(_member)).id();
   else
-    new_value = _object.get_member(_member).description().c_str();
+    new_value = _object.get_member(_member).debugDescription().c_str();
   
   out << strfmt("%*s change_object ", indent, "")
     << _object.class_name() << "::" << _member << " <" << _object.id() << "> ->"
