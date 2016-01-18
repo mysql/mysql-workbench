@@ -4177,12 +4177,6 @@
 		27CD25151A6A9807009DB982 /* migration_schema_mappings.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = migration_schema_mappings.py; sourceTree = "<group>"; };
 		27CD3E9A18E3253000CDBD39 /* myx_sql_parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = myx_sql_parser.cpp; path = library/sql.parser/source/linux/myx_sql_parser.cpp; sourceTree = SOURCE_ROOT; };
 		27CD3E9B18E3253000CDBD39 /* myx_sql_parser.tab.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = myx_sql_parser.tab.hh; path = library/sql.parser/source/linux/myx_sql_parser.tab.hh; sourceTree = SOURCE_ROOT; };
-		27CE5F85191798A7005574D4 /* Test-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Test-Prefix.pch"; sourceTree = "<group>"; };
-		27CE5F86191798A7005574D4 /* TestProj.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = TestProj.xcconfig; sourceTree = "<group>"; };
-		27CE5F87191798A7005574D4 /* TestTarget.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = TestTarget.xcconfig; sourceTree = "<group>"; };
-		27CE5F88191798A7005574D4 /* Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Test.h; sourceTree = "<group>"; };
-		27CE5F89191798A7005574D4 /* TestPriv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestPriv.h; sourceTree = "<group>"; };
-		27CE5F8A191798A7005574D4 /* Test.cp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Test.cp; sourceTree = "<group>"; };
 		27CE5F931917993B005574D4 /* db.mysql.parser.grt.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = db.mysql.parser.grt.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		27CE5FA019179DA5005574D4 /* mysql_parser_module.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mysql_parser_module.cpp; path = modules/db.mysql.parser/src/mysql_parser_module.cpp; sourceTree = "<group>"; };
 		27CE5FA119179DA5005574D4 /* mysql_parser_module.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mysql_parser_module.h; path = modules/db.mysql.parser/src/mysql_parser_module.h; sourceTree = "<group>"; };
@@ -4575,7 +4569,6 @@
 		2B1CA4200F965CB1001443CA /* MQIndicatorCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MQIndicatorCell.m; path = frontend/mac/resultset/MQIndicatorCell.m; sourceTree = "<group>"; };
 		2B1CA4210F965CB1001443CA /* MQResultSetCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MQResultSetCell.h; path = frontend/mac/resultset/MQResultSetCell.h; sourceTree = "<group>"; };
 		2B1CA4220F965CB1001443CA /* MQResultSetCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MQResultSetCell.m; path = frontend/mac/resultset/MQResultSetCell.m; sourceTree = "<group>"; };
-		2B1CA7350F96C0C2001443CA /* com.mysql.rdbms.mysql.sql.editor.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = com.mysql.rdbms.mysql.sql.editor.xml; path = modules/db.mysql.sqlide/res/com.mysql.rdbms.mysql.sql.editor.xml; sourceTree = "<group>"; };
 		2B1CF45311939DDE00D1410D /* DB Management.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "DB Management.txt"; path = "res/snippets/DB Management.txt"; sourceTree = "<group>"; };
 		2B1D6CA3177C6BDD0073C062 /* maintab_home_background@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "maintab_home_background@2x.png"; path = "images/ui/mac/maintab_home_background@2x.png"; sourceTree = "<group>"; };
 		2B1D6CA4177C6BDD0073C062 /* maintab_home_home.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = maintab_home_home.png; path = images/ui/mac/maintab_home_home.png; sourceTree = "<group>"; };
@@ -6365,7 +6358,6 @@
 		2BFBF0A00F51BF2D0016F9D1 /* MySQLViewEditor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MySQLViewEditor.mm; path = plugins/db.mysql.editors/macosx/MySQLViewEditor.mm; sourceTree = "<group>"; wrapsLines = 0; };
 		2BFC2E9916D3C6A500C73F61 /* wba_audit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = wba_audit; path = plugins/wb.admin/internal/wba_audit; sourceTree = "<group>"; };
 		2BFDB83416C00F6500D0C5A8 /* libvsqlitepp.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvsqlitepp.0.dylib; path = "../mysql-mac-res/lib/libvsqlitepp.0.dylib"; sourceTree = "<group>"; };
-		32CA4F630368D1EE00C91783 /* MySQLWorkbench_Prefix.pch */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; path = MySQLWorkbench_Prefix.pch; sourceTree = "<group>"; };
 		44B7DC8C1C0C78C4000D608D /* wba_firewall */ = {isa = PBXFileReference; lastKnownFileType = folder; name = wba_firewall; path = plugins/wb.admin/internal/wba_firewall; sourceTree = "<group>"; };
 		44B7DC8E1C0C78E6000D608D /* firewall-header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "firewall-header.png"; sourceTree = "<group>"; };
 		44B7DC8F1C0C78E6000D608D /* firewall-header@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "firewall-header@2x.png"; sourceTree = "<group>"; };
@@ -6906,13 +6898,13 @@
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				2798BEB9118AAAD50090590E /* WebKit.framework */,
-				2BB37A111108026800DA4577 /* Security.framework */,
 				2BD820110F4F0E7D009E485D /* Carbon.framework */,
-				2BB58C490F462A1E00089423 /* Python.framework */,
-				16E036BE0F3062AC004651CB /* ExceptionHandling.framework */,
-				169E610C0EF116D600D821E7 /* QuartzCore.framework */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
+				16E036BE0F3062AC004651CB /* ExceptionHandling.framework */,
+				2BB58C490F462A1E00089423 /* Python.framework */,
+				169E610C0EF116D600D821E7 /* QuartzCore.framework */,
+				2BB37A111108026800DA4577 /* Security.framework */,
+				2798BEB9118AAAD50090590E /* WebKit.framework */,
 			);
 			name = "Linked Frameworks";
 			sourceTree = "<group>";
@@ -6920,11 +6912,11 @@
 		1058C7A2FEA54F0111CA2CBB /* Other Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				2B6BBB940EB759EC00D71468 /* OpenGL.framework */,
-				2BDC26090E8561EB0018CE34 /* CoreFoundation.framework */,
 				29B97324FDCFA39411CA2CEA /* AppKit.framework */,
 				13E42FB307B3F0F600E4EEF1 /* CoreData.framework */,
+				2BDC26090E8561EB0018CE34 /* CoreFoundation.framework */,
 				29B97325FDCFA39411CA2CEA /* Foundation.framework */,
+				2B6BBB940EB759EC00D71468 /* OpenGL.framework */,
 			);
 			name = "Other Frameworks";
 			sourceTree = "<group>";
@@ -6932,11 +6924,11 @@
 		1617BA220F8E4CD200F5249C /* SQL Query */ = {
 			isa = PBXGroup;
 			children = (
+				1617BA1E0F8E4CCE00F5249C /* WBSQLQueryPanel.h */,
+				1617BA1F0F8E4CCE00F5249C /* WBSQLQueryPanel.mm */,
 				1617BA240F8E4CF400F5249C /* WBSQLQueryPanel.xib */,
 				2BF87A9C0FA7EECC0012EADA /* WBSQLQueryUI.h */,
 				2BF87A9D0FA7EECC0012EADA /* WBSQLQueryUI.mm */,
-				1617BA1E0F8E4CCE00F5249C /* WBSQLQueryPanel.h */,
-				1617BA1F0F8E4CCE00F5249C /* WBSQLQueryPanel.mm */,
 			);
 			name = "SQL Query";
 			sourceTree = "<group>";
@@ -6957,9 +6949,9 @@
 			children = (
 				2BFBF00F0F5199F90016F9D1 /* Common Additions */,
 				16B2EA650F54A41C00D583B1 /* Information Sources */,
-				2B3D49380F3E400B009238A7 /* MySQLTableEditor.xib */,
 				2B9EC6A815DF5B9500570C95 /* MySQLTableEditor.h */,
 				2B9EC6A915DF5BD700570C95 /* MySQLTableEditor.mm */,
+				2B3D49380F3E400B009238A7 /* MySQLTableEditor.xib */,
 			);
 			name = "MySQL Table Editor";
 			sourceTree = "<group>";
@@ -6967,9 +6959,9 @@
 		168C65B80F437A3900973922 /* MySQL Schema Editor */ = {
 			isa = PBXGroup;
 			children = (
-				2B5284740F1A8B52005FBF7C /* MySQLSchemaEditor.xib */,
 				2B52846D0F1A8A1C005FBF7C /* MySQLSchemaEditor.h */,
 				2B52846E0F1A8A1C005FBF7C /* MySQLSchemaEditor.mm */,
+				2B5284740F1A8B52005FBF7C /* MySQLSchemaEditor.xib */,
 			);
 			name = "MySQL Schema Editor";
 			sourceTree = "<group>";
@@ -6999,16 +6991,16 @@
 		169E60B30EF115EA00D821E7 /* Graphics */ = {
 			isa = PBXGroup;
 			children = (
-				16764CA60F82DC590099223D /* RightArrowIcon.png */,
 				16764CA70F82DC590099223D /* LeftArrowIcon.png */,
-				1671A3860F83A46900F7767F /* TabMenuIcon.png */,
+				16764CA60F82DC590099223D /* RightArrowIcon.png */,
+				16F705360F125F81005C0D21 /* SchemaTabGradientBackground.png */,
 				169E60B40EF115EA00D821E7 /* SchemaTabIcon.png */,
 				169E60B50EF115EA00D821E7 /* SchemaTabSideLine.png */,
-				2BB9A44D0FB28BD6001F9968 /* TabDragIcon.png */,
 				169E60B60EF115EA00D821E7 /* TabClose_Pressed.png */,
 				169E60B70EF115EA00D821E7 /* TabClose_Unpressed.png */,
 				169E60B80EF115EA00D821E7 /* TabDocument.png */,
-				16F705360F125F81005C0D21 /* SchemaTabGradientBackground.png */,
+				2BB9A44D0FB28BD6001F9968 /* TabDragIcon.png */,
+				1671A3860F83A46900F7767F /* TabMenuIcon.png */,
 			);
 			name = Graphics;
 			path = WBTabView/Graphics;
@@ -7017,14 +7009,14 @@
 		169E60BA0EF115EA00D821E7 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				169E60BB0EF115EA00D821E7 /* CGColorUtilities.h */,
-				169E60BC0EF115EA00D821E7 /* CGColorUtilities.m */,
 				165BD6060F27720C00951215 /* EditorTabs */,
 				169E60BD0EF115EA00D821E7 /* GrayTabs */,
 				169E60C20EF115EA00D821E7 /* PaletteTabs */,
+				169E60CB0EF115EA00D821E7 /* SchemaTabs */,
+				169E60BB0EF115EA00D821E7 /* CGColorUtilities.h */,
+				169E60BC0EF115EA00D821E7 /* CGColorUtilities.m */,
 				169E60C90EF115EA00D821E7 /* ResponderLayer.h */,
 				169E60CA0EF115EA00D821E7 /* ResponderLayer.m */,
-				169E60CB0EF115EA00D821E7 /* SchemaTabs */,
 				169E60D50EF115EA00D821E7 /* WBTabItem.h */,
 				169E60D60EF115EA00D821E7 /* WBTabItem.m */,
 				169E60D70EF115EA00D821E7 /* WBTabView.h */,
@@ -7070,14 +7062,14 @@
 		16B2EA650F54A41C00D583B1 /* Information Sources */ = {
 			isa = PBXGroup;
 			children = (
-				16B2EA5D0F54A3D200D583B1 /* MacTableEditorInformationSource.h */,
-				16B2EA5C0F54A3D200D583B1 /* MacTableEditorInformationSource.mm */,
+				16B2EA5F0F54A3D200D583B1 /* MacTableEditorColumnsInformationSource.h */,
+				16B2EA5E0F54A3D200D583B1 /* MacTableEditorColumnsInformationSource.mm */,
 				16B2EA5B0F54A3D200D583B1 /* MacTableEditorFKColumnsInformationSource.h */,
 				16B2EA580F54A3D200D583B1 /* MacTableEditorFKColumnsInformationSource.mm */,
 				16B2EA5A0F54A3D200D583B1 /* MacTableEditorIndexColumnsInformationSource.h */,
 				16B2EA590F54A3D200D583B1 /* MacTableEditorIndexColumnsInformationSource.mm */,
-				16B2EA5F0F54A3D200D583B1 /* MacTableEditorColumnsInformationSource.h */,
-				16B2EA5E0F54A3D200D583B1 /* MacTableEditorColumnsInformationSource.mm */,
+				16B2EA5D0F54A3D200D583B1 /* MacTableEditorInformationSource.h */,
+				16B2EA5C0F54A3D200D583B1 /* MacTableEditorInformationSource.mm */,
 			);
 			name = "Information Sources";
 			sourceTree = "<group>";
@@ -7149,9 +7141,9 @@
 		2730C7471917866D00A3BD0C /* db.mysql.parser */ = {
 			isa = PBXGroup;
 			children = (
+				27BFE4551924B80D0070B8FB /* db.mysql.parser.grt_prefix.pch */,
 				27CE5FA019179DA5005574D4 /* mysql_parser_module.cpp */,
 				27CE5FA119179DA5005574D4 /* mysql_parser_module.h */,
-				27BFE4551924B80D0070B8FB /* db.mysql.parser.grt_prefix.pch */,
 			);
 			name = db.mysql.parser;
 			sourceTree = "<group>";
@@ -7167,58 +7159,58 @@
 		27467ECD154A977A00021708 /* ANTLR runtime */ = {
 			isa = PBXGroup;
 			children = (
-				27467F0B154A97D200021708 /* antlr3baserecognizer.c */,
-				27467F0C154A97D200021708 /* antlr3basetree.c */,
-				27467F0D154A97D200021708 /* antlr3basetreeadaptor.c */,
-				27467F0E154A97D200021708 /* antlr3bitset.c */,
-				27467F0F154A97D200021708 /* antlr3collections.c */,
-				27467F10154A97D200021708 /* antlr3commontoken.c */,
-				27467F11154A97D200021708 /* antlr3commontree.c */,
-				27467F12154A97D200021708 /* antlr3commontreeadaptor.c */,
-				27467F13154A97D200021708 /* antlr3commontreenodestream.c */,
-				27467F14154A97D200021708 /* antlr3convertutf.c */,
-				27467F15154A97D200021708 /* antlr3cyclicdfa.c */,
-				27467F16154A97D200021708 /* antlr3debughandlers.c */,
-				27467F17154A97D200021708 /* antlr3encodings.c */,
-				27467F18154A97D200021708 /* antlr3exception.c */,
-				27467F19154A97D200021708 /* antlr3filestream.c */,
-				27467F1A154A97D200021708 /* antlr3inputstream.c */,
-				27467F1B154A97D200021708 /* antlr3intstream.c */,
-				27467F1C154A97D200021708 /* antlr3lexer.c */,
-				27467F1D154A97D200021708 /* antlr3parser.c */,
-				27467F1E154A97D200021708 /* antlr3rewritestreams.c */,
-				27467F1F154A97D200021708 /* antlr3string.c */,
-				27467F20154A97D200021708 /* antlr3tokenstream.c */,
-				27467F21154A97D200021708 /* antlr3treeparser.c */,
 				27467ECF154A97BC00021708 /* antlr3.h */,
+				27467F0B154A97D200021708 /* antlr3baserecognizer.c */,
 				27467ED0154A97BC00021708 /* antlr3baserecognizer.h */,
+				27467F0C154A97D200021708 /* antlr3basetree.c */,
 				27467ED1154A97BC00021708 /* antlr3basetree.h */,
+				27467F0D154A97D200021708 /* antlr3basetreeadaptor.c */,
 				27467ED2154A97BC00021708 /* antlr3basetreeadaptor.h */,
+				27467F0E154A97D200021708 /* antlr3bitset.c */,
 				27467ED3154A97BC00021708 /* antlr3bitset.h */,
+				27467F0F154A97D200021708 /* antlr3collections.c */,
 				27467ED4154A97BC00021708 /* antlr3collections.h */,
+				27467F10154A97D200021708 /* antlr3commontoken.c */,
 				27467ED5154A97BC00021708 /* antlr3commontoken.h */,
+				27467F11154A97D200021708 /* antlr3commontree.c */,
 				27467ED6154A97BC00021708 /* antlr3commontree.h */,
+				27467F12154A97D200021708 /* antlr3commontreeadaptor.c */,
 				27467ED7154A97BC00021708 /* antlr3commontreeadaptor.h */,
+				27467F13154A97D200021708 /* antlr3commontreenodestream.c */,
 				27467ED8154A97BC00021708 /* antlr3commontreenodestream.h */,
+				27467F14154A97D200021708 /* antlr3convertutf.c */,
 				27467ED9154A97BC00021708 /* antlr3convertutf.h */,
+				27467F15154A97D200021708 /* antlr3cyclicdfa.c */,
 				27467EDA154A97BC00021708 /* antlr3cyclicdfa.h */,
 				27467EDB154A97BC00021708 /* antlr3debugeventlistener.h */,
+				27467F16154A97D200021708 /* antlr3debughandlers.c */,
 				27467EDC154A97BC00021708 /* antlr3defs.h */,
+				27467F17154A97D200021708 /* antlr3encodings.c */,
 				27467EDD154A97BC00021708 /* antlr3encodings.h */,
 				27467EDE154A97BC00021708 /* antlr3errors.h */,
+				27467F18154A97D200021708 /* antlr3exception.c */,
 				27467EDF154A97BC00021708 /* antlr3exception.h */,
+				27467F19154A97D200021708 /* antlr3filestream.c */,
 				27467EE0154A97BC00021708 /* antlr3filestream.h */,
 				27467EE1154A97BC00021708 /* antlr3input.h */,
+				27467F1A154A97D200021708 /* antlr3inputstream.c */,
 				27467EE2154A97BC00021708 /* antlr3interfaces.h */,
+				27467F1B154A97D200021708 /* antlr3intstream.c */,
 				27467EE3154A97BC00021708 /* antlr3intstream.h */,
+				27467F1C154A97D200021708 /* antlr3lexer.c */,
 				27467EE4154A97BC00021708 /* antlr3lexer.h */,
 				27467EE5154A97BC00021708 /* antlr3memory.h */,
+				27467F1D154A97D200021708 /* antlr3parser.c */,
 				27467EE6154A97BC00021708 /* antlr3parser.h */,
 				27467EE7154A97BC00021708 /* antlr3parsetree.h */,
 				27467EE8154A97BC00021708 /* antlr3recognizersharedstate.h */,
+				27467F1E154A97D200021708 /* antlr3rewritestreams.c */,
 				27467EE9154A97BC00021708 /* antlr3rewritestreams.h */,
+				27467F1F154A97D200021708 /* antlr3string.c */,
 				27467EEA154A97BC00021708 /* antlr3string.h */,
+				27467F20154A97D200021708 /* antlr3tokenstream.c */,
 				27467EEB154A97BC00021708 /* antlr3tokenstream.h */,
+				27467F21154A97D200021708 /* antlr3treeparser.c */,
 				27467EEC154A97BC00021708 /* antlr3treeparser.h */,
 			);
 			name = "ANTLR runtime";
@@ -7227,18 +7219,18 @@
 		27467FBA154AC77A00021708 /* mysql.parser */ = {
 			isa = PBXGroup;
 			children = (
-				27C15E681A309CA000EB73F7 /* mysql.parser_prefix.pch */,
-				27B3B4CE19C714A4007D4A92 /* MySQL.g */,
-				27B3B4CD19C7148D007D4A92 /* MySQL.tokens */,
-				27467FD9154AC8B500021708 /* mysql-parser.h */,
-				27467FDA154AC8B500021708 /* mysql-parser.cpp */,
 				27C79EEB16E0A8210092958E /* mysql-parser-common.cpp */,
 				27C79EEC16E0A8210092958E /* mysql-parser-common.h */,
+				27467FDA154AC8B500021708 /* mysql-parser.cpp */,
+				27467FD9154AC8B500021708 /* mysql-parser.h */,
 				27B3B4C219C6EDA1007D4A92 /* mysql-recognition-types.h */,
 				27C79EED16E0A8210092958E /* mysql-scanner.cpp */,
 				27C79EEE16E0A8220092958E /* mysql-scanner.h */,
-				27B923BD196ED07200D98D18 /* mysql-syntax-check.h */,
 				27B923BC196ED07200D98D18 /* mysql-syntax-check.cpp */,
+				27B923BD196ED07200D98D18 /* mysql-syntax-check.h */,
+				27B3B4CE19C714A4007D4A92 /* MySQL.g */,
+				27C15E681A309CA000EB73F7 /* mysql.parser_prefix.pch */,
+				27B3B4CD19C7148D007D4A92 /* MySQL.tokens */,
 				27467FCF154AC7C300021708 /* MySQLLexer.c */,
 				27467FD0154AC7C300021708 /* MySQLLexer.h */,
 				27467FD1154AC7C300021708 /* MySQLParser.c */,
@@ -7252,11 +7244,11 @@
 		279EF96A10D6B02A00C1ED1B /* Scripts */ = {
 			isa = PBXGroup;
 			children = (
-				ED3F48EF19A17998001F3563 /* mysqlwbmeb.py */,
 				2BECA53518B3A13D00E12F8B /* sys */,
 				2B75735B12077FDC00CC60E4 /* db_utils.py */,
 				279EF97610D6B08D00C1ED1B /* mysql_system_status_rmt.vbs */,
 				279EF97710D6B08D00C1ED1B /* mysql_system_status.vbs */,
+				ED3F48EF19A17998001F3563 /* mysqlwbmeb.py */,
 				2B7F1ADD119C57E30051F062 /* shell_snippets.py.txt */,
 			);
 			name = Scripts;
@@ -7265,8 +7257,8 @@
 		27A5768C10FE078100A948A6 /* High Level Controls */ = {
 			isa = PBXGroup;
 			children = (
-				27A5769310FE08A800A948A6 /* Source */,
 				27A5769210FE089500A948A6 /* Headers */,
+				27A5769310FE08A800A948A6 /* Source */,
 			);
 			name = "High Level Controls";
 			sourceTree = "<group>";
@@ -7274,8 +7266,8 @@
 		27A5768D10FE07C300A948A6 /* Low level Controls */ = {
 			isa = PBXGroup;
 			children = (
-				27A5769110FE087500A948A6 /* Source */,
 				27A5769010FE086600A948A6 /* Headers */,
+				27A5769110FE087500A948A6 /* Source */,
 			);
 			name = "Low level Controls";
 			sourceTree = "<group>";
@@ -7433,79 +7425,58 @@
 			name = wrapper;
 			sourceTree = "<group>";
 		};
-		27CE5F83191798A7005574D4 /* Test */ = {
-			isa = PBXGroup;
-			children = (
-				27CE5F86191798A7005574D4 /* TestProj.xcconfig */,
-				27CE5F87191798A7005574D4 /* TestTarget.xcconfig */,
-				27CE5F88191798A7005574D4 /* Test.h */,
-				27CE5F89191798A7005574D4 /* TestPriv.h */,
-				27CE5F8A191798A7005574D4 /* Test.cp */,
-				27CE5F84191798A7005574D4 /* Supporting Files */,
-			);
-			path = Test;
-			sourceTree = "<group>";
-		};
-		27CE5F84191798A7005574D4 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				27CE5F85191798A7005574D4 /* Test-Prefix.pch */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
 		27F77A9E1096EE020060EBBF /* Home Screen Icons */ = {
 			isa = PBXGroup;
 			children = (
-				ED7D01F5195DAE0E001FE8E7 /* wb_tile_fabric.png */,
-				2B18EDC4196C8B0C004D7596 /* wb_tile_schema@2x.png */,
-				2B18EDC5196C8B0C004D7596 /* wb_tile_time@2x.png */,
-				2B18EDC9196C8B7D004D7596 /* wb_tile_folder_mini.png */,
-				2B18EDCA196C8B7D004D7596 /* wb_tile_folder_mini@2x.png */,
-				2B18EDAD196C8705004D7596 /* wb_doc_model@2x.png */,
-				2B18EDAE196C8705004D7596 /* wb_starter_edelivery_52@2x.png */,
-				2B18EDAF196C8705004D7596 /* wb_starter_grt_shell_52@2x.png */,
-				2B18EDB0196C8705004D7596 /* wb_starter_mysql_bug_reporter_52@2x.png */,
-				2B18EDB1196C8705004D7596 /* wb_starter_mysql_doc_lib_52@2x.png */,
-				2B18EDB2196C8705004D7596 /* wb_starter_mysql_forums_52@2x.png */,
-				2B18EDB3196C8705004D7596 /* wb_starter_mysql_migration_52@2x.png */,
-				2B18EDB4196C8705004D7596 /* wb_starter_mysql_utilities_52@2x.png */,
-				2B18EDB5196C8705004D7596 /* wb_starter_planet_mysql_52@2x.png */,
-				2B18EDB6196C8705004D7596 /* wb_starter_support_52@2x.png */,
-				2B18EDB7196C8705004D7596 /* wb_tile_fabric.png */,
-				27327BA2172FB2B300DE65D7 /* wb_tile_manage.png */,
-				27327BA3172FB2B300DE65D7 /* wb_tile_more.png */,
-				27327BA4172FB2B300DE65D7 /* wb_tile_open.png */,
 				270CE0891725409000BEDDDD /* wb_close.png */,
 				2B15CBE5171F2AB900EEF0EA /* wb_doc_model.png */,
+				2B18EDAD196C8705004D7596 /* wb_doc_model@2x.png */,
 				2B15CBE6171F2AB900EEF0EA /* wb_doc_sql.png */,
 				2B15CBE7171F2AB900EEF0EA /* WB_Home.png */,
+				2B883454176507B90099D927 /* wb_starter_edelivery_52.png */,
+				2B18EDAE196C8705004D7596 /* wb_starter_edelivery_52@2x.png */,
+				271F03DE11B8020F00E2D4B1 /* wb_starter_generic_52.png */,
+				152AB89D11B958370051E2FC /* wb_starter_grt_shell_52.png */,
+				2B18EDAF196C8705004D7596 /* wb_starter_grt_shell_52@2x.png */,
+				272A28EE11905DBE00CA2A13 /* wb_starter_mysql_bug_reporter_52.png */,
+				2B18EDB0196C8705004D7596 /* wb_starter_mysql_bug_reporter_52@2x.png */,
+				272A28F011905DBE00CA2A13 /* wb_starter_mysql_doc_lib_52.png */,
+				2B18EDB1196C8705004D7596 /* wb_starter_mysql_doc_lib_52@2x.png */,
+				152AB89F11B958370051E2FC /* wb_starter_mysql_forums_52.png */,
+				2B18EDB2196C8705004D7596 /* wb_starter_mysql_forums_52@2x.png */,
+				2B7A7714157585B7003D8549 /* wb_starter_mysql_migration_52.png */,
+				2B18EDB3196C8705004D7596 /* wb_starter_mysql_migration_52@2x.png */,
+				272A28F211905DBE00CA2A13 /* wb_starter_mysql_news_52.png */,
+				2B89B98012A6D6F8009D4A2C /* wb_starter_mysql_utilities_52.png */,
+				2B18EDB4196C8705004D7596 /* wb_starter_mysql_utilities_52@2x.png */,
+				272A28F411905DBE00CA2A13 /* wb_starter_mysql_wb_blog_52.png */,
+				272A28F611905DBE00CA2A13 /* wb_starter_mysql_wb_twitters_52.png */,
+				272A28F811905DBE00CA2A13 /* wb_starter_planet_mysql_52.png */,
+				2B18EDB5196C8705004D7596 /* wb_starter_planet_mysql_52@2x.png */,
+				2B883456176507B90099D927 /* wb_starter_support_52.png */,
+				2B18EDB6196C8705004D7596 /* wb_starter_support_52@2x.png */,
+				ED7D01F5195DAE0E001FE8E7 /* wb_tile_fabric.png */,
+				2B18EDC9196C8B7D004D7596 /* wb_tile_folder_mini.png */,
+				2B18EDCA196C8B7D004D7596 /* wb_tile_folder_mini@2x.png */,
 				2B15CBE8171F2AB900EEF0EA /* wb_tile_folder.png */,
-				2B241BD71868CC1C00AF6794 /* wb_tile_folder_mini.png */,
+				27327BA2172FB2B300DE65D7 /* wb_tile_manage.png */,
+				27327BA3172FB2B300DE65D7 /* wb_tile_more.png */,
 				2B15CBE9171F2AB900EEF0EA /* wb_tile_mouseover_2.png */,
 				2B15CBEA171F2AB900EEF0EA /* wb_tile_mouseover.png */,
 				2B15CBEB171F2AB900EEF0EA /* wb_tile_network.png */,
 				2B15CBEC171F2AB900EEF0EA /* wb_tile_number.png */,
+				27327BA4172FB2B300DE65D7 /* wb_tile_open.png */,
 				2B15CBED171F2AB900EEF0EA /* wb_tile_page-down.png */,
 				2B15CBEE171F2AB900EEF0EA /* wb_tile_page-up.png */,
 				2B15CBEF171F2AB900EEF0EA /* wb_tile_plus.png */,
 				2B15CBF0171F2AB900EEF0EA /* wb_tile_sakila.png */,
 				2B15CBF1171F2AB900EEF0EA /* wb_tile_schema.png */,
+				2B18EDC4196C8B0C004D7596 /* wb_tile_schema@2x.png */,
 				2B15CBF2171F2AB900EEF0EA /* wb_tile_time.png */,
+				2B18EDC5196C8B0C004D7596 /* wb_tile_time@2x.png */,
 				2B15CBF3171F2AB900EEF0EA /* wb_tile_user.png */,
-				2B7A7714157585B7003D8549 /* wb_starter_mysql_migration_52.png */,
-				2B89B98012A6D6F8009D4A2C /* wb_starter_mysql_utilities_52.png */,
-				152AB89D11B958370051E2FC /* wb_starter_grt_shell_52.png */,
-				152AB89F11B958370051E2FC /* wb_starter_mysql_forums_52.png */,
-				271F03DE11B8020F00E2D4B1 /* wb_starter_generic_52.png */,
-				272A28EE11905DBE00CA2A13 /* wb_starter_mysql_bug_reporter_52.png */,
-				272A28F011905DBE00CA2A13 /* wb_starter_mysql_doc_lib_52.png */,
-				272A28F211905DBE00CA2A13 /* wb_starter_mysql_news_52.png */,
-				272A28F411905DBE00CA2A13 /* wb_starter_mysql_wb_blog_52.png */,
-				272A28F611905DBE00CA2A13 /* wb_starter_mysql_wb_twitters_52.png */,
-				272A28F811905DBE00CA2A13 /* wb_starter_planet_mysql_52.png */,
-				2B883454176507B90099D927 /* wb_starter_edelivery_52.png */,
-				2B883456176507B90099D927 /* wb_starter_support_52.png */,
+				2B18EDB7196C8705004D7596 /* wb_tile_fabric.png */,
+				2B241BD71868CC1C00AF6794 /* wb_tile_folder_mini.png */,
 			);
 			name = "Home Screen Icons";
 			sourceTree = "<group>";
@@ -7514,19 +7485,18 @@
 			isa = PBXGroup;
 			children = (
 				2744E6780FC1831900E85C33 /* ScintillaFramework.xcodeproj */,
+				272135680F9783B3006BE49A /* Scintilla-Info.plist */,
+				2B825EBD0E0B68EC00BE52DF /* Backend */,
+				2B1E2FCC172F03670037D3DD /* Commercial Plugins */,
 				2B41EDC60F8B800C00F5EB1E /* External */,
 				2B825D2E0E0B59BB00BE52DF /* Libraries */,
-				2B825EBD0E0B68EC00BE52DF /* Backend */,
 				2B825EBE0E0B68F500BE52DF /* Modules */,
-				2B1E2FCC172F03670037D3DD /* Commercial Plugins */,
 				2B825EBF0E0B690400BE52DF /* Plugins */,
 				2BCFD7BA0E88BA6000D2A0CB /* WBExtras */,
 				2B825EBC0E0B68D900BE52DF /* Workbench */,
 				2B2637590E932F9300933149 /* Resource Files */,
-				27CE5F83191798A7005574D4 /* Test */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
-				272135680F9783B3006BE49A /* Scintilla-Info.plist */,
 			);
 			name = MySQLWorkbench;
 			sourceTree = "<group>";
@@ -7535,7 +7505,6 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
-				32CA4F630368D1EE00C91783 /* MySQLWorkbench_Prefix.pch */,
 				29B97316FDCFA39411CA2CEA /* main.m */,
 			);
 			name = "Other Sources";
@@ -7544,9 +7513,9 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				2B96EA3110F43226004E6875 /* PageSetup.xib */,
-				2B825D1D0E0B578600BE52DF /* InfoPlist.strings */,
 				8D1107310486CEB800E47090 /* Info.plist */,
+				2B825D1D0E0B578600BE52DF /* InfoPlist.strings */,
+				2B96EA3110F43226004E6875 /* PageSetup.xib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -7574,10 +7543,10 @@
 		2B03B5B7116CBFA5009987BE /* Blob Editor */ = {
 			isa = PBXGroup;
 			children = (
+				2B03B5B9116CC0B4009987BE /* binary_data_editor.cpp */,
+				2B03B5B8116CC0B4009987BE /* binary_data_editor.h */,
 				2B1BFF6319A0251F00022FD8 /* geom_draw_box.cpp */,
 				2B1BFF6419A0251F00022FD8 /* geom_draw_box.h */,
-				2B03B5B8116CC0B4009987BE /* binary_data_editor.h */,
-				2B03B5B9116CC0B4009987BE /* binary_data_editor.cpp */,
 			);
 			name = "Blob Editor";
 			sourceTree = "<group>";
@@ -7586,15 +7555,15 @@
 			isa = PBXGroup;
 			children = (
 				2BF2CBAF1911A7DC007B0BB9 /* mforms */,
-				2B241BD01864C88700AF6794 /* WbResultsetView.xib */,
+				2B1CA04B0F9442EF001443CA /* MGridView.h */,
+				2B1CA04C0F9442EF001443CA /* MGridView.mm */,
 				2B1CA41F0F965CB1001443CA /* MQIndicatorCell.h */,
 				2B1CA4200F965CB1001443CA /* MQIndicatorCell.m */,
 				2B1CA4210F965CB1001443CA /* MQResultSetCell.h */,
 				2B1CA4220F965CB1001443CA /* MQResultSetCell.m */,
 				2B07482C0F93EC1100D7E4E3 /* MResultsetViewer.h */,
 				2B07482D0F93EC1100D7E4E3 /* MResultsetViewer.mm */,
-				2B1CA04B0F9442EF001443CA /* MGridView.h */,
-				2B1CA04C0F9442EF001443CA /* MGridView.mm */,
+				2B241BD01864C88700AF6794 /* WbResultsetView.xib */,
 			);
 			name = "Resultset Viewer";
 			sourceTree = "<group>";
@@ -7602,14 +7571,14 @@
 		2B0DE77111E916B700989395 /* db.query */ = {
 			isa = PBXGroup;
 			children = (
+				2B0DE77311E916EF00989395 /* db_query_EditableResultset.cpp */,
+				2B0DE78411E919BA00989395 /* db_query_EditableResultset.h */,
 				2B0DE77411E916EF00989395 /* db_query_Editor.cpp */,
 				2B0DE77511E916EF00989395 /* db_query_Editor.h */,
-				2B0DE77611E916EF00989395 /* db_query_Resultset.cpp */,
-				2B0DE77711E916EF00989395 /* db_query_Resultset.h */,
-				2B0DE78411E919BA00989395 /* db_query_EditableResultset.h */,
-				2B0DE77311E916EF00989395 /* db_query_EditableResultset.cpp */,
 				2B0DE77811E916EF00989395 /* db_query_QueryBuffer.cpp */,
 				2B0DE77911E916EF00989395 /* db_query_QueryBuffer.h */,
+				2B0DE77611E916EF00989395 /* db_query_Resultset.cpp */,
+				2B0DE77711E916EF00989395 /* db_query_Resultset.h */,
 			);
 			name = db.query;
 			sourceTree = "<group>";
@@ -7617,10 +7586,10 @@
 		2B17B00F0F4D979B0087ED42 /* wb.model.editors */ = {
 			isa = PBXGroup;
 			children = (
-				2B17AFDB0F4D94590087ED42 /* wb.model.editors-Info.plist */,
-				2B17B0120F4D98310087ED42 /* register_plugin.cpp */,
 				2B17B0100F4D97AA0087ED42 /* Backend */,
 				2B17B0110F4D97B00087ED42 /* Frontend */,
+				2B17B0120F4D98310087ED42 /* register_plugin.cpp */,
+				2B17AFDB0F4D94590087ED42 /* wb.model.editors-Info.plist */,
 			);
 			name = wb.model.editors;
 			sourceTree = "<group>";
@@ -7628,15 +7597,15 @@
 		2B17B0100F4D97AA0087ED42 /* Backend */ = {
 			isa = PBXGroup;
 			children = (
-				27BFE45D1924BBB90070B8FB /* wb.model.editors.wbp_prefix.pch */,
-				2B025BF40FBB091F00EA1A57 /* wb_editor_layer.cpp */,
-				2B025BF50FBB091F00EA1A57 /* wb_editor_layer.h */,
 				2B17B0130F4D98310087ED42 /* wb_editor_image.cpp */,
 				2B17B0140F4D98310087ED42 /* wb_editor_image.h */,
+				2B025BF40FBB091F00EA1A57 /* wb_editor_layer.cpp */,
+				2B025BF50FBB091F00EA1A57 /* wb_editor_layer.h */,
 				2B17B0150F4D98310087ED42 /* wb_editor_note.cpp */,
 				2B17B0160F4D98310087ED42 /* wb_editor_note.h */,
 				2B17B0170F4D98310087ED42 /* wb_editor_storednote.cpp */,
 				2B17B0180F4D98310087ED42 /* wb_editor_storednote.h */,
+				27BFE45D1924BBB90070B8FB /* wb.model.editors.wbp_prefix.pch */,
 			);
 			name = Backend;
 			sourceTree = "<group>";
@@ -7644,11 +7613,11 @@
 		2B17B0110F4D97B00087ED42 /* Frontend */ = {
 			isa = PBXGroup;
 			children = (
-				27BFE4671924C3930070B8FB /* wb.model.editors_prefix.pch */,
+				2B17B0610F4D9B410087ED42 /* Image Editor */,
 				2B025BF80FBB092500EA1A57 /* Layer Editor */,
 				2B17B0600F4D9B3A0087ED42 /* Note Editor */,
-				2B17B0610F4D9B410087ED42 /* Image Editor */,
 				2B17B0620F4D9B490087ED42 /* Stored Note Editor */,
+				27BFE4671924C3930070B8FB /* wb.model.editors_prefix.pch */,
 			);
 			name = Frontend;
 			sourceTree = "<group>";
@@ -7686,9 +7655,9 @@
 		2B17B2B40F4E13CB0087ED42 /* MySQL Relationship Editor */ = {
 			isa = PBXGroup;
 			children = (
-				2B17B2B50F4E140E0087ED42 /* MySQLRelationshipEditor.xib */,
 				2B17B44E0F4E4FBC0087ED42 /* MySQLRelationshipEditor.h */,
 				2B17B44F0F4E4FBC0087ED42 /* MySQLRelationshipEditor.mm */,
+				2B17B2B50F4E140E0087ED42 /* MySQLRelationshipEditor.xib */,
 			);
 			name = "MySQL Relationship Editor";
 			sourceTree = "<group>";
@@ -7704,10 +7673,10 @@
 		2B1E2FCC172F03670037D3DD /* Commercial Plugins */ = {
 			isa = PBXGroup;
 			children = (
+				2BF049481741AC7A00A7EA35 /* wb.model.advfind */,
+				2B3D496E0F3E6FB5009238A7 /* wb.model.reporting */,
 				2B5285E70F1C1D8E005FBF7C /* wb.mysql.validation */,
 				2B5285E60F1C1D78005FBF7C /* wb.validation */,
-				2B3D496E0F3E6FB5009238A7 /* wb.model.reporting */,
-				2BF049481741AC7A00A7EA35 /* wb.model.advfind */,
 			);
 			name = "Commercial Plugins";
 			sourceTree = "<group>";
@@ -7715,13 +7684,13 @@
 		2B220ABF16A4E89600747448 /* dbcopy */ = {
 			isa = PBXGroup;
 			children = (
-				2BA8528B16A8A4CE0048015B /* db_copy_report.py */,
 				2B220AC016A4E8C400747448 /* db_copy_grt.py */,
 				2B220AC116A4E8C400747448 /* db_copy_main.py */,
 				2B220AC216A4E8C400747448 /* db_copy_overview.py */,
-				2B220AC516A4E8C400747448 /* db_copy_source_target.py */,
-				2B220AC416A4E8C400747448 /* db_copy_schema_selection.py */,
 				2B220AC316A4E8C400747448 /* db_copy_progress.py */,
+				2BA8528B16A8A4CE0048015B /* db_copy_report.py */,
+				2B220AC416A4E8C400747448 /* db_copy_schema_selection.py */,
+				2B220AC516A4E8C400747448 /* db_copy_source_target.py */,
 			);
 			name = dbcopy;
 			sourceTree = "<group>";
@@ -7729,25 +7698,25 @@
 		2B2637570E932F6800933149 /* GRT */ = {
 			isa = PBXGroup;
 			children = (
-				2BE9FD2A151A697100CC0894 /* structs.ui.xml */,
-				2B9239B90F827A3D008ED944 /* structs.meta.xml */,
-				2B26375B0E932FD100933149 /* structs.xml */,
-				2B26375C0E932FD100933149 /* structs.model.xml */,
-				2B26375D0E932FD100933149 /* structs.db.query.xml */,
-				2B26375E0E932FD100933149 /* structs.db.sybase.xml */,
+				2B2637670E932FD100933149 /* structs.app.xml */,
+				2B26376C0E932FD100933149 /* structs.db.mgmt.xml */,
 				2B26375F0E932FD100933149 /* structs.db.migration.xml */,
-				2B2637610E932FD100933149 /* structs.workbench.physical.xml */,
-				2B2637620E932FD100933149 /* structs.db.xml */,
+				2B2637650E932FD100933149 /* structs.db.mssql.xml */,
 				2B2637630E932FD100933149 /* structs.db.mysql.xml */,
 				2B2637640E932FD100933149 /* structs.db.oracle.xml */,
-				2B2637650E932FD100933149 /* structs.db.mssql.xml */,
-				2B2637660E932FD100933149 /* structs.workbench.logical.xml */,
-				2B2637670E932FD100933149 /* structs.app.xml */,
-				2B2637680E932FD100933149 /* structs.workbench.model.reporting.xml */,
+				2B26375D0E932FD100933149 /* structs.db.query.xml */,
+				2B26375E0E932FD100933149 /* structs.db.sybase.xml */,
+				2B2637620E932FD100933149 /* structs.db.xml */,
 				2B2637690E932FD100933149 /* structs.eer.xml */,
-				2B26376A0E932FD100933149 /* structs.workbench.xml */,
+				2B9239B90F827A3D008ED944 /* structs.meta.xml */,
+				2B26375C0E932FD100933149 /* structs.model.xml */,
+				2BE9FD2A151A697100CC0894 /* structs.ui.xml */,
+				2B2637660E932FD100933149 /* structs.workbench.logical.xml */,
+				2B2637680E932FD100933149 /* structs.workbench.model.reporting.xml */,
 				2B26376B0E932FD100933149 /* structs.workbench.model.xml */,
-				2B26376C0E932FD100933149 /* structs.db.mgmt.xml */,
+				2B2637610E932FD100933149 /* structs.workbench.physical.xml */,
+				2B26376A0E932FD100933149 /* structs.workbench.xml */,
+				2B26375B0E932FD100933149 /* structs.xml */,
 			);
 			name = GRT;
 			sourceTree = "<group>";
@@ -7811,20 +7780,20 @@
 		2B2637590E932F9300933149 /* Resource Files */ = {
 			isa = PBXGroup;
 			children = (
-				2B59A9F10E94F6430083C1C6 /* main_menu.xml */,
-				2BCD493F15BDD51E00F88A38 /* Extras */,
-				279EF96A10D6B02A00C1ED1B /* Scripts */,
-				27F77A9E1096EE020060EBBF /* Home Screen Icons */,
 				2B2DEFDD1056069F00F267F9 /* Admin Icons */,
+				2BCD493F15BDD51E00F88A38 /* Extras */,
+				2B2637570E932F6800933149 /* GRT */,
+				2B59AA010E94F6460083C1C6 /* GRT Data */,
+				27F77A9E1096EE020060EBBF /* Home Screen Icons */,
+				2B2637580E932F7C00933149 /* Icons */,
+				2B7A74C015743D13003D8549 /* Migration Icons */,
+				2B59AA240E94F7920083C1C6 /* Module Data */,
 				2B6C4FC218DE372D00869EBE /* mysql.profiles */,
+				279EF96A10D6B02A00C1ED1B /* Scripts */,
 				2BE680370F8E45DC00E00A97 /* SQLIDE Data */,
 				2BF510B912E8BBC500A6CCC3 /* SQLIDE Icons */,
-				2B7A74C015743D13003D8549 /* Migration Icons */,
-				2B59AA010E94F6460083C1C6 /* GRT Data */,
 				2B59A9F00E94F6250083C1C6 /* WB Data */,
-				2B59AA240E94F7920083C1C6 /* Module Data */,
-				2B2637580E932F7C00933149 /* Icons */,
-				2B2637570E932F6800933149 /* GRT */,
+				2B59A9F10E94F6430083C1C6 /* main_menu.xml */,
 			);
 			name = "Resource Files";
 			sourceTree = "<group>";
@@ -7832,30 +7801,30 @@
 		2B2637960E93324B00933149 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				2B1CA3880EA2CD100062C916 /* MCollectionViewItem.h */,
+				2B1CA3890EA2CD100062C916 /* MCollectionViewItem.m */,
+				2B1CA2FB0EA280650062C916 /* MCollectionViewItemView.h */,
+				2B1CA2FC0EA280650062C916 /* MCollectionViewItemView.m */,
+				2B15BF0D12E3C3E3006567D6 /* MColoredView.h */,
+				2B15BF0E12E3C3E3006567D6 /* MColoredView.m */,
+				2B7CEDE10FBA6C7500DCC700 /* MContainerView.h */,
+				2B7CEDE20FBA6C7500DCC700 /* MContainerView.m */,
 				2B5DE7780FFEBE5500701821 /* MOutlineView.h */,
 				2B5DE7790FFEBE5500701821 /* MOutlineView.mm */,
+				2BB9A3710FB21A56001F9968 /* MStatusBar.h */,
+				2BB9A3720FB21A56001F9968 /* MStatusBar.m */,
 				2B5DE77A0FFEBE5500701821 /* MTableView.h */,
 				2B5DE77B0FFEBE5500701821 /* MTableView.mm */,
 				2B6D772613BC22920098AA8E /* MTabSwitcher.h */,
 				2B6D772713BC22920098AA8E /* MTabSwitcher.m */,
 				2B300A340E99B6D0002C5BBA /* MTogglePane.h */,
 				2B300A350E99B6D0002C5BBA /* MTogglePane.m */,
-				2B1CA3880EA2CD100062C916 /* MCollectionViewItem.h */,
-				2B1CA3890EA2CD100062C916 /* MCollectionViewItem.m */,
-				2B1CA2FB0EA280650062C916 /* MCollectionViewItemView.h */,
-				2B1CA2FC0EA280650062C916 /* MCollectionViewItemView.m */,
 				2BB1D6590EF9254000D14ABE /* MVerticalLayoutView.h */,
 				2BB1D65A0EF9254000D14ABE /* MVerticalLayoutView.m */,
-				2BB9A3710FB21A56001F9968 /* MStatusBar.h */,
-				2BB9A3720FB21A56001F9968 /* MStatusBar.m */,
-				2B7A756115745641003D8549 /* WBMiniToolbar.h */,
-				2B7A75661574565D003D8549 /* WBMiniToolbar.m */,
-				2B7CEDE10FBA6C7500DCC700 /* MContainerView.h */,
-				2B7CEDE20FBA6C7500DCC700 /* MContainerView.m */,
 				2B5C142911FA381300F1237A /* NSMenu_extras.h */,
 				2B5C142A11FA381300F1237A /* NSMenu_extras.mm */,
-				2B15BF0D12E3C3E3006567D6 /* MColoredView.h */,
-				2B15BF0E12E3C3E3006567D6 /* MColoredView.m */,
+				2B7A756115745641003D8549 /* WBMiniToolbar.h */,
+				2B7A75661574565D003D8549 /* WBMiniToolbar.m */,
 			);
 			name = Components;
 			sourceTree = "<group>";
@@ -7863,20 +7832,20 @@
 		2B2637F40E93B0F700933149 /* icons */ = {
 			isa = PBXGroup;
 			children = (
-				2BBC385F1235C5A100CACF4C /* tiny_load.png */,
 				2B2637FC0E93B0F700933149 /* comment.png */,
 				2B2637FE0E93B0F700933149 /* grt.png */,
 				2B2638000E93B0F700933149 /* history.png */,
 				2B2638020E93B0F700933149 /* layers.png */,
 				2BCEBF9513DBD3F100A23E75 /* mini_edit.png */,
-				2BCEBF9613DBD3F100A23E75 /* mini_ok.png */,
 				2B2638040E93B0F700933149 /* mini_error.png */,
 				2B2638050E93B0F700933149 /* mini_notice.png */,
+				2BCEBF9613DBD3F100A23E75 /* mini_ok.png */,
 				2B2638060E93B0F700933149 /* mini_warning.png */,
 				169CCFF10F017969005152CD /* MySQLWorkbench.icns */,
 				169CCFFF0F017A2A005152CD /* MySQLWorkbenchDoc.icns */,
 				2B2638100E93B0F700933149 /* properties.png */,
 				2B2638120E93B0F700933149 /* schemata.png */,
+				2BBC385F1235C5A100CACF4C /* tiny_load.png */,
 				2B2638420E93B0F700933149 /* user_datatypes.png */,
 			);
 			name = icons;
@@ -7886,78 +7855,22 @@
 		2B2638430E93B0F700933149 /* ui */ = {
 			isa = PBXGroup;
 			children = (
-				44B7DC8E1C0C78E6000D608D /* firewall-header.png */,
-				44B7DC8F1C0C78E6000D608D /* firewall-header@2x.png */,
-				2B83E5F51992E9CF00781432 /* qe_sql-editor-resultset-tb-pin.png */,
-				2B83E5F61992E9CF00781432 /* qe_sql-editor-resultset-tb-pin@2x.png */,
-				2B83E5F71992E9CF00781432 /* qe_sql-editor-resultset-tb-pinned.png */,
-				2B83E5F81992E9CF00781432 /* qe_sql-editor-resultset-tb-pinned@2x.png */,
-				2B1434E6179E0E9A002217CF /* tab_icon_administrator.png */,
-				2B1434E7179E0E9A002217CF /* tab_icon_administrator@2x.png */,
-				2B1434E8179E0E9A002217CF /* tab_icon_db.query.QueryBuffer.png */,
-				2B1434E9179E0E9A002217CF /* tab_icon_db.query.QueryBuffer@2x.png */,
-				2B1434EA179E0E9A002217CF /* tab_icon_editor.png */,
-				2B1434EB179E0E9A002217CF /* tab_icon_editor@2x.png */,
-				2B1434EC179E0E9A002217CF /* tab_icon_plugin.png */,
-				2B1434ED179E0E9A002217CF /* tab_icon_plugin@2x.png */,
-				27CC86001741336B00AAA267 /* MySQL-WB-about-screen.png */,
-				27CC86011741336B00AAA267 /* MySQL-WB-about-screen@2x.png */,
+				2B0749C40F94344300D7E4E3 /* Apply_16x16.png */,
+				2B2638440E93B0F700933149 /* Apply.png */,
 				2B1E2FDE1733E23C0037D3DD /* audit_log.png */,
 				2B1E2FDF1733E23C0037D3DD /* audit_log@2x.png */,
-				2B15CCF6172ADF0D00EEF0EA /* wb_lock.png */,
-				2B15CCF7172ADF0D00EEF0EA /* wb_lock@2x.png */,
+				2B2638460E93B0F700933149 /* background_top_shadow.png */,
+				2B2638450E93B0F700933149 /* background.png */,
 				2BF7247015AFDA5B005948F0 /* busy_sidebar_mac.png */,
 				2BF7247115AFDA5B005948F0 /* busy_sidebar.png */,
-				279822FC118AFBC300406A84 /* message_wb_wait.png */,
-				2B7FC42D112D9BE5008C07BF /* change_alert_thin.png */,
+				2BF049A617511C4000A7EA35 /* change_alert_create.png */,
 				2B0F1DA71502DB560087D62A /* change_alert_drop.png */,
+				2B7FC42D112D9BE5008C07BF /* change_alert_thin.png */,
 				2B7FC42E112D9BE5008C07BF /* change_backward.png */,
 				2B7FC42F112D9BE5008C07BF /* change_forward.png */,
 				2B7FC430112D9BE5008C07BF /* change_ignore.png */,
 				2B7FC431112D9BE5008C07BF /* change_nothing.png */,
-				2BF049A617511C4000A7EA35 /* change_alert_create.png */,
 				2B7FC432112D9BE5008C07BF /* Close_18x18.png */,
-				2B7FC433112D9BE5008C07BF /* message_wb_bug.png */,
-				2720518D111847920013E88B /* message_wb_lock.png */,
-				274E9B9A107C9FF100551AC4 /* options-horizontal-separator.png */,
-				27D65909107625FE0030F627 /* section_expanded.png */,
-				27D6590A107625FE0030F627 /* section_unexpandable.png */,
-				27D6590B107625FE0030F627 /* section_unexpanded.png */,
-				274710F10FCC3A99003414DD /* editor_breakpoint_hit.xpm */,
-				274710F20FCC3A99003414DD /* editor_breakpoint.xpm */,
-				274710F30FCC3A99003414DD /* editor_current_pos.xpm */,
-				274710F40FCC3A99003414DD /* editor_error.xpm */,
-				274710F50FCC3A99003414DD /* editor_statement.xpm */,
-				2B7CE9D20FB893A300DCC700 /* tab.overview.home.16x16.png */,
-				2B7CE9D30FB893A300DCC700 /* tab.overview.physical.16x16.png */,
-				2B7CE9B70FB891B100DCC700 /* tab.diagram.16x16.png */,
-				2B7CE9BA0FB891B100DCC700 /* tab.sqlquery.16x16.png */,
-				2BB9A2D90FB20B3D001F9968 /* separator-dots.png */,
-				2B3384DD0F9C538400EF463C /* small_toolbar_bg.png */,
-				2B0749C40F94344300D7E4E3 /* Apply_16x16.png */,
-				2B0749C90F94344300D7E4E3 /* Discard_16x16.png */,
-				2B0749CC0F94344300D7E4E3 /* First_16x16.png */,
-				2B0749CD0F94344300D7E4E3 /* Last_16x16.png */,
-				2B0749CE0F94344300D7E4E3 /* Refresh_16x16.png */,
-				2B0749CF0F94344300D7E4E3 /* Refresh_18x18.png */,
-				2B0749D00F94344300D7E4E3 /* Refresh_disabled_18x18.png */,
-				2BE67F370F8E25C500E00A97 /* field_overlay_blob.png */,
-				2BE67F380F8E25C500E00A97 /* field_overlay_null.png */,
-				2BE67F3D0F8E25C500E00A97 /* sakila.png */,
-				2B3D59360F433BBE009238A7 /* task_disabled_mac.png */,
-				2B3D56660F425463009238A7 /* task_checked_mac.png */,
-				2B3D56670F425463009238A7 /* task_error_mac.png */,
-				2B3D56680F425463009238A7 /* task_executing_mac.png */,
-				2B3D56690F425463009238A7 /* task_unchecked_mac.png */,
-				2B3D566A0F425463009238A7 /* task_warning_mac.png */,
-				2B3D565E0F425362009238A7 /* DotBlue.png */,
-				2B3D565F0F425362009238A7 /* DotDisabled.png */,
-				2B3D56600F425362009238A7 /* DotGrey.png */,
-				2B3D56610F425362009238A7 /* DotRed.png */,
-				2B3D56170F4240C4009238A7 /* MacWizardBackground.png */,
-				2B2638440E93B0F700933149 /* Apply.png */,
-				2B2638450E93B0F700933149 /* background.png */,
-				2B2638460E93B0F700933149 /* background_top_shadow.png */,
 				2B2638470E93B0F700933149 /* collapsing_panel_bg.png */,
 				2B2638480E93B0F700933149 /* collapsing_panel_grid_bg.png */,
 				2B2638490E93B0F700933149 /* collapsing_panel_grid_details.png */,
@@ -7966,30 +7879,45 @@
 				2B26384C0E93B0F700933149 /* collapsing_panel_grid_large_icons2.png */,
 				2B26384D0E93B0F700933149 /* collapsing_panel_grid_small_icons.png */,
 				2B26384E0E93B0F700933149 /* collapsing_panel_grid_small_icons2.png */,
-				2B26384F0E93B0F700933149 /* collapsing_panel_header_bg.png */,
 				2B2638500E93B0F700933149 /* collapsing_panel_header_bg_flat.png */,
+				2B26384F0E93B0F700933149 /* collapsing_panel_header_bg.png */,
 				2B2638510E93B0F700933149 /* collapsing_panel_header_shadow.png */,
 				2B2638520E93B0F700933149 /* collapsing_panel_header_tab_add.png */,
 				2B2638530E93B0F700933149 /* collapsing_panel_header_tab_add2.png */,
 				2B2638540E93B0F700933149 /* collapsing_panel_header_tab_del.png */,
 				2B2638550E93B0F700933149 /* collapsing_panel_header_tab_del2.png */,
-				2B2638560E93B0F700933149 /* collapsing_panel_header_tab_left.png */,
 				2B2638570E93B0F700933149 /* collapsing_panel_header_tab_left_flat.png */,
-				2B2638580E93B0F700933149 /* collapsing_panel_header_tab_middle.png */,
+				2B2638560E93B0F700933149 /* collapsing_panel_header_tab_left.png */,
 				2B2638590E93B0F700933149 /* collapsing_panel_header_tab_middle_flat.png */,
-				2B26385A0E93B0F700933149 /* collapsing_panel_header_tab_right.png */,
+				2B2638580E93B0F700933149 /* collapsing_panel_header_tab_middle.png */,
 				2B26385B0E93B0F700933149 /* collapsing_panel_header_tab_right_flat.png */,
-				2B26385C0E93B0F700933149 /* collapsing_panel_header_tab_separator.png */,
+				2B26385A0E93B0F700933149 /* collapsing_panel_header_tab_right.png */,
 				2B26385D0E93B0F700933149 /* collapsing_panel_header_tab_separator_flat.png */,
-				2B26385E0E93B0F700933149 /* collapsing_panel_minus.png */,
+				2B26385C0E93B0F700933149 /* collapsing_panel_header_tab_separator.png */,
 				2B26385F0E93B0F700933149 /* collapsing_panel_minus_flat.png */,
-				2B2638600E93B0F700933149 /* collapsing_panel_plus.png */,
+				2B26385E0E93B0F700933149 /* collapsing_panel_minus.png */,
 				2B2638610E93B0F700933149 /* collapsing_panel_plus_flat.png */,
+				2B2638600E93B0F700933149 /* collapsing_panel_plus.png */,
 				2B2638620E93B0F700933149 /* collapsing_panel_tab_left.png */,
 				2B2638630E93B0F700933149 /* collapsing_panel_tab_middle.png */,
 				2B2638640E93B0F700933149 /* collapsing_panel_tab_right.png */,
 				2B2638650E93B0F700933149 /* dialog_input.png */,
+				2B0749C90F94344300D7E4E3 /* Discard_16x16.png */,
 				2B2638660E93B0F700933149 /* Discard.png */,
+				2B3D565E0F425362009238A7 /* DotBlue.png */,
+				2B3D565F0F425362009238A7 /* DotDisabled.png */,
+				2B3D56600F425362009238A7 /* DotGrey.png */,
+				2B3D56610F425362009238A7 /* DotRed.png */,
+				274710F10FCC3A99003414DD /* editor_breakpoint_hit.xpm */,
+				274710F20FCC3A99003414DD /* editor_breakpoint.xpm */,
+				274710F30FCC3A99003414DD /* editor_current_pos.xpm */,
+				274710F40FCC3A99003414DD /* editor_error.xpm */,
+				274710F50FCC3A99003414DD /* editor_statement.xpm */,
+				2BE67F370F8E25C500E00A97 /* field_overlay_blob.png */,
+				2BE67F380F8E25C500E00A97 /* field_overlay_null.png */,
+				44B7DC8E1C0C78E6000D608D /* firewall-header.png */,
+				44B7DC8F1C0C78E6000D608D /* firewall-header@2x.png */,
+				2B0749CC0F94344300D7E4E3 /* First_16x16.png */,
 				2B2638690E93B0F700933149 /* header_bar_blue.png */,
 				2B26386A0E93B0F700933149 /* header_bar_gray.png */,
 				2B26386B0E93B0F700933149 /* header_bar_orange.png */,
@@ -7997,21 +7925,62 @@
 				27B923B5196EC71700D98D18 /* item_overlay_add@2x.png */,
 				27B923B6196EC71700D98D18 /* item_overlay_delete.png */,
 				27B923B7196EC71700D98D18 /* item_overlay_delete@2x.png */,
+				2B0749CD0F94344300D7E4E3 /* Last_16x16.png */,
+				2B3D56170F4240C4009238A7 /* MacWizardBackground.png */,
 				2B26386E0E93B0F700933149 /* message_confirm.png */,
 				2B26386F0E93B0F700933149 /* message_edit.png */,
 				2B2638700E93B0F700933149 /* message_error.png */,
 				2B2638710E93B0F700933149 /* message_warning.png */,
+				2B7FC433112D9BE5008C07BF /* message_wb_bug.png */,
+				2720518D111847920013E88B /* message_wb_lock.png */,
+				279822FC118AFBC300406A84 /* message_wb_wait.png */,
+				27CC86001741336B00AAA267 /* MySQL-WB-about-screen.png */,
+				27CC86011741336B00AAA267 /* MySQL-WB-about-screen@2x.png */,
 				2B2638720E93B0F700933149 /* navigator_zoom_in.png */,
 				2B2638730E93B0F700933149 /* navigator_zoom_out.png */,
 				2B2638740E93B0F700933149 /* note.128x128.png */,
+				274E9B9A107C9FF100551AC4 /* options-horizontal-separator.png */,
+				2B83E5F51992E9CF00781432 /* qe_sql-editor-resultset-tb-pin.png */,
+				2B83E5F61992E9CF00781432 /* qe_sql-editor-resultset-tb-pin@2x.png */,
+				2B83E5F71992E9CF00781432 /* qe_sql-editor-resultset-tb-pinned.png */,
+				2B83E5F81992E9CF00781432 /* qe_sql-editor-resultset-tb-pinned@2x.png */,
+				2B0749CE0F94344300D7E4E3 /* Refresh_16x16.png */,
+				2B0749CF0F94344300D7E4E3 /* Refresh_18x18.png */,
+				2B0749D00F94344300D7E4E3 /* Refresh_disabled_18x18.png */,
+				2BE67F3D0F8E25C500E00A97 /* sakila.png */,
 				2B2638780E93B0F700933149 /* search_clear.png */,
 				2B2638790E93B0F700933149 /* search_doc_action.png */,
 				2B26387A0E93B0F700933149 /* search_icon.png */,
+				27D65909107625FE0030F627 /* section_expanded.png */,
+				27D6590A107625FE0030F627 /* section_unexpandable.png */,
+				27D6590B107625FE0030F627 /* section_unexpanded.png */,
+				2BB9A2D90FB20B3D001F9968 /* separator-dots.png */,
 				2B26387B0E93B0F700933149 /* show_eof.png */,
 				2B26387C0E93B0F700933149 /* show_whitespace.png */,
+				2B3384DD0F9C538400EF463C /* small_toolbar_bg.png */,
 				2B26387D0E93B0F700933149 /* statusbar_output.png */,
 				2B26387E0E93B0F700933149 /* statusbar_separator.png */,
 				2B26387F0E93B0F700933149 /* statusbar_shell.png */,
+				2B1434E6179E0E9A002217CF /* tab_icon_administrator.png */,
+				2B1434E7179E0E9A002217CF /* tab_icon_administrator@2x.png */,
+				2B1434E8179E0E9A002217CF /* tab_icon_db.query.QueryBuffer.png */,
+				2B1434E9179E0E9A002217CF /* tab_icon_db.query.QueryBuffer@2x.png */,
+				2B1434EA179E0E9A002217CF /* tab_icon_editor.png */,
+				2B1434EB179E0E9A002217CF /* tab_icon_editor@2x.png */,
+				2B1434EC179E0E9A002217CF /* tab_icon_plugin.png */,
+				2B1434ED179E0E9A002217CF /* tab_icon_plugin@2x.png */,
+				2B7CE9B70FB891B100DCC700 /* tab.diagram.16x16.png */,
+				2B7CE9D20FB893A300DCC700 /* tab.overview.home.16x16.png */,
+				2B7CE9D30FB893A300DCC700 /* tab.overview.physical.16x16.png */,
+				2B7CE9BA0FB891B100DCC700 /* tab.sqlquery.16x16.png */,
+				2B3D56660F425463009238A7 /* task_checked_mac.png */,
+				2B3D59360F433BBE009238A7 /* task_disabled_mac.png */,
+				2B3D56670F425463009238A7 /* task_error_mac.png */,
+				2B3D56680F425463009238A7 /* task_executing_mac.png */,
+				2B3D56690F425463009238A7 /* task_unchecked_mac.png */,
+				2B3D566A0F425463009238A7 /* task_warning_mac.png */,
+				2B15CCF6172ADF0D00EEF0EA /* wb_lock.png */,
+				2B15CCF7172ADF0D00EEF0EA /* wb_lock@2x.png */,
 				2B26388B0E93B0F700933149 /* zoom_in.png */,
 				2B26388C0E93B0F700933149 /* zoom_out.png */,
 				2B26388D0E93B0F700933149 /* zoom_reset.png */,
@@ -8043,69 +8012,66 @@
 		2B26389E0E93B0F800933149 /* grt */ = {
 			isa = PBXGroup;
 			children = (
+				2BCC4AFA12D36DAD0092AA6F /* db.Column.fk.side.16x16.png */,
 				2BD4204C198034C10061895B /* db.Column.fk.side.16x16@2x.png */,
-				2BD4204D198034C10061895B /* db.Column.many.side.16x16@2x.png */,
-				2BD4204E198034C10061895B /* db.Column.pk.side.16x16@2x.png */,
-				2BD4204F198034C10061895B /* db.Column.side.16x16@2x.png */,
-				2BD42050198034C10061895B /* db.ForeignKey.many.side.16x16@2x.png */,
-				2BD42051198034C10061895B /* db.ForeignKey.side.16x16@2x.png */,
-				2BD42052198034C10061895B /* db.Index.many.side.16x16@2x.png */,
-				2BD42053198034C10061895B /* db.Index.side.16x16@2x.png */,
-				2BD42054198034C10061895B /* db.Routine.many.side.16x16@2x.png */,
-				2BD42055198034C10061895B /* db.Routine.side.16x16@2x.png */,
-				2BD42056198034C10061895B /* db.Schema.loading.side.16x16@2x.png */,
-				2BD42057198034C10061895B /* db.Schema.selected.32x32.png */,
-				2BD42058198034C10061895B /* db.Schema.side.16x16@2x.png */,
-				2BD42059198034C10061895B /* db.Schema.unloaded.side.16x16@2x.png */,
-				2BD4205A198034C10061895B /* db.Table.editor.24x24.png */,
-				2BD4205B198034C10061895B /* db.Table.many.side.16x16@2x.png */,
-				2BD4205C198034C10061895B /* db.Table.side.16x16@2x.png */,
-				2BD4205D198034C10061895B /* db.Trigger.many.side.16x16@2x.png */,
-				2BD4205E198034C10061895B /* db.Trigger.side.16x16@2x.png */,
-				2BD4205F198034C10061895B /* db.View.broken.side.16x16@2x.png */,
-				2BD42060198034C10061895B /* db.View.many.side.16x16@2x.png */,
-				2BD42061198034C10061895B /* db.View.side.16x16@2x.png */,
-				2B0609F11952B2AA00022F40 /* db.Table.32x32.png */,
-				2B3B22F61860ECBB003FA474 /* db.Column.pkfk.11x11.png */,
-				2B3B22F71860ECBB003FA474 /* db.Column.pkfk.16x16.png */,
-				2B2909CF159A0C7200708C09 /* db.ForeignKey.16x16.png */,
-				2B2909D0159A0C7200708C09 /* db.Index.16x16.png */,
-				2B2909D1159A0C7200708C09 /* db.Trigger.16x16.png */,
-				2B262A5A1471F8D400D3D259 /* db.Schema.loading.side.16x16.png */,
-				2BC80A60144713C40072E632 /* db.View.broken.side.16x16.png */,
 				2B9BA9D913F436420090DBA9 /* db.Column.many.side.16x16.png */,
+				2BD4204D198034C10061895B /* db.Column.many.side.16x16@2x.png */,
+				2BCC4AFB12D36DAE0092AA6F /* db.Column.pk.side.16x16.png */,
+				2BD4204E198034C10061895B /* db.Column.pk.side.16x16@2x.png */,
 				2B9BA9DA13F436420090DBA9 /* db.Column.pkai.11x11.png */,
 				2B9BA9DB13F436420090DBA9 /* db.Column.pkai.16x16.png */,
-				2B9BA9DC13F436420090DBA9 /* db.ForeignKey.many.side.16x16.png */,
-				2B9BA9DD13F436420090DBA9 /* db.ForeignKey.side.16x16.png */,
-				2B9BA9DE13F436420090DBA9 /* db.Index.many.side.16x16.png */,
-				2B9BA9DF13F436420090DBA9 /* db.Index.side.16x16.png */,
-				2B9BA9E013F436420090DBA9 /* db.Trigger.many.side.16x16.png */,
-				2B9BA9E113F436420090DBA9 /* db.Trigger.side.16x16.png */,
-				2BCC4AFA12D36DAD0092AA6F /* db.Column.fk.side.16x16.png */,
-				2BCC4AFB12D36DAE0092AA6F /* db.Column.pk.side.16x16.png */,
+				2B3B22F61860ECBB003FA474 /* db.Column.pkfk.11x11.png */,
+				2B3B22F71860ECBB003FA474 /* db.Column.pkfk.16x16.png */,
 				2BCC4AFC12D36DAE0092AA6F /* db.Column.side.16x16.png */,
-				2BCC4ADF12D250410092AA6F /* db.Routine.many.side.16x16.png */,
-				2BCC4AE012D250410092AA6F /* db.Routine.side.16x16.png */,
-				2BCC4AC712D24F5B0092AA6F /* db.Schema.side.16x16.png */,
-				2BCC4AC812D24F5B0092AA6F /* db.Table.many.side.16x16.png */,
-				2BCC4AC912D24F5B0092AA6F /* db.Table.side.16x16.png */,
-				2BCC4ACA12D24F5B0092AA6F /* db.View.many.side.16x16.png */,
-				2BCC4ACB12D24F5B0092AA6F /* db.View.side.16x16.png */,
-				2B5F45FF103E0DEC00BEE04E /* db.mgmt.ServerInstance.manage.48x48.png */,
-				2B5F45D0103DFD4200BEE04E /* db.mgmt.ServerInstance.48x48.png */,
-				2B5F45D1103DFD4200BEE04E /* db.Routine.many.16x16.png */,
-				2B5F45D2103DFD4200BEE04E /* db.Table.many.16x16.png */,
-				2B5F45D3103DFD4200BEE04E /* db.View.many.16x16.png */,
-				2B7CE9990FB88BC900DCC700 /* db.mgmt.Connection.48x48.png */,
-				2B7CE99A0FB88BC900DCC700 /* db.mgmt.Connection.manage.48x48.png */,
-				2B07487A0F93FAEA00D7E4E3 /* db.mgmt.Connection.add.16x16.png */,
-				2B07487B0F93FAEA00D7E4E3 /* db.mgmt.Connection.add.48x48.png */,
+				2BD4204F198034C10061895B /* db.Column.side.16x16@2x.png */,
+				2B2909CF159A0C7200708C09 /* db.ForeignKey.16x16.png */,
+				2B9BA9DC13F436420090DBA9 /* db.ForeignKey.many.side.16x16.png */,
+				2BD42050198034C10061895B /* db.ForeignKey.many.side.16x16@2x.png */,
+				2B9BA9DD13F436420090DBA9 /* db.ForeignKey.side.16x16.png */,
+				2BD42051198034C10061895B /* db.ForeignKey.side.16x16@2x.png */,
+				2B2909D0159A0C7200708C09 /* db.Index.16x16.png */,
+				2B9BA9DE13F436420090DBA9 /* db.Index.many.side.16x16.png */,
+				2BD42052198034C10061895B /* db.Index.many.side.16x16@2x.png */,
+				2B9BA9DF13F436420090DBA9 /* db.Index.side.16x16.png */,
+				2BD42053198034C10061895B /* db.Index.side.16x16@2x.png */,
 				2BE67F4C0F8E265300E00A97 /* db.mgmt.Connection.16x16.png */,
 				2BE67F4D0F8E265300E00A97 /* db.mgmt.Connection.32x32.png */,
-				2BE67F4F0F8E265300E00A97 /* workbench.Document.16x16.png */,
-				2BE67F500F8E265300E00A97 /* workbench.Document.32x32.png */,
-				2BE67F510F8E265300E00A97 /* workbench.Document.48x48.png */,
+				2B7CE9990FB88BC900DCC700 /* db.mgmt.Connection.48x48.png */,
+				2B07487A0F93FAEA00D7E4E3 /* db.mgmt.Connection.add.16x16.png */,
+				2B07487B0F93FAEA00D7E4E3 /* db.mgmt.Connection.add.48x48.png */,
+				2B7CE99A0FB88BC900DCC700 /* db.mgmt.Connection.manage.48x48.png */,
+				2B5F45D0103DFD4200BEE04E /* db.mgmt.ServerInstance.48x48.png */,
+				2B5F45FF103E0DEC00BEE04E /* db.mgmt.ServerInstance.manage.48x48.png */,
+				2B5F45D1103DFD4200BEE04E /* db.Routine.many.16x16.png */,
+				2BCC4ADF12D250410092AA6F /* db.Routine.many.side.16x16.png */,
+				2BD42054198034C10061895B /* db.Routine.many.side.16x16@2x.png */,
+				2BCC4AE012D250410092AA6F /* db.Routine.side.16x16.png */,
+				2BD42055198034C10061895B /* db.Routine.side.16x16@2x.png */,
+				2B262A5A1471F8D400D3D259 /* db.Schema.loading.side.16x16.png */,
+				2BD42056198034C10061895B /* db.Schema.loading.side.16x16@2x.png */,
+				2BD42057198034C10061895B /* db.Schema.selected.32x32.png */,
+				2BCC4AC712D24F5B0092AA6F /* db.Schema.side.16x16.png */,
+				2BD42058198034C10061895B /* db.Schema.side.16x16@2x.png */,
+				2BD42059198034C10061895B /* db.Schema.unloaded.side.16x16@2x.png */,
+				2B0609F11952B2AA00022F40 /* db.Table.32x32.png */,
+				2BD4205A198034C10061895B /* db.Table.editor.24x24.png */,
+				2B5F45D2103DFD4200BEE04E /* db.Table.many.16x16.png */,
+				2BCC4AC812D24F5B0092AA6F /* db.Table.many.side.16x16.png */,
+				2BD4205B198034C10061895B /* db.Table.many.side.16x16@2x.png */,
+				2BCC4AC912D24F5B0092AA6F /* db.Table.side.16x16.png */,
+				2BD4205C198034C10061895B /* db.Table.side.16x16@2x.png */,
+				2B2909D1159A0C7200708C09 /* db.Trigger.16x16.png */,
+				2B9BA9E013F436420090DBA9 /* db.Trigger.many.side.16x16.png */,
+				2BD4205D198034C10061895B /* db.Trigger.many.side.16x16@2x.png */,
+				2B9BA9E113F436420090DBA9 /* db.Trigger.side.16x16.png */,
+				2BD4205E198034C10061895B /* db.Trigger.side.16x16@2x.png */,
+				2BC80A60144713C40072E632 /* db.View.broken.side.16x16.png */,
+				2BD4205F198034C10061895B /* db.View.broken.side.16x16@2x.png */,
+				2B5F45D3103DFD4200BEE04E /* db.View.many.16x16.png */,
+				2BCC4ACA12D24F5B0092AA6F /* db.View.many.side.16x16.png */,
+				2BD42060198034C10061895B /* db.View.many.side.16x16@2x.png */,
+				2BCC4ACB12D24F5B0092AA6F /* db.View.side.16x16.png */,
+				2BD42061198034C10061895B /* db.View.side.16x16@2x.png */,
 				2B26389F0E93B0F800933149 /* grt_dict.png */,
 				2B2638A00E93B0F800933149 /* grt_function.png */,
 				2B2638A10E93B0F800933149 /* grt_list.png */,
@@ -8114,6 +8080,9 @@
 				2B2638A60E93B0F800933149 /* grt_simple_type.png */,
 				2B2638A80E93B0F800933149 /* grt_struct.png */,
 				2B2638AA0E93B0F800933149 /* structs */,
+				2BE67F4F0F8E265300E00A97 /* workbench.Document.16x16.png */,
+				2BE67F500F8E265300E00A97 /* workbench.Document.32x32.png */,
+				2BE67F510F8E265300E00A97 /* workbench.Document.48x48.png */,
 			);
 			name = grt;
 			path = images/grt;
@@ -8228,9 +8197,9 @@
 		2B263BBE0E9423E100933149 /* Model View */ = {
 			isa = PBXGroup;
 			children = (
+				2B29F516114017F4009DA9B0 /* WBModelOverview.xib */,
 				2B29F4C4114010AA009DA9B0 /* WBModelOverviewPanel.h */,
 				2B29F4C5114010AA009DA9B0 /* WBModelOverviewPanel.mm */,
-				2B29F516114017F4009DA9B0 /* WBModelOverview.xib */,
 			);
 			name = "Model View";
 			sourceTree = "<group>";
@@ -8240,10 +8209,10 @@
 			children = (
 				2BB1D0780EF6D6FC00D14ABE /* WBModelSidebarController.h */,
 				2BB1D0790EF6D6FC00D14ABE /* WBModelSidebarController.mm */,
-				16F7A2450F1CFFDC0084C11D /* WBObjectPropertiesController.h */,
-				16F7A2440F1CFFDC0084C11D /* WBObjectPropertiesController.mm */,
 				2B16A3B00EFAE31800E900CB /* WBObjectDescriptionController.h */,
 				2B16A3B10EFAE31800E900CB /* WBObjectDescriptionController.mm */,
+				16F7A2450F1CFFDC0084C11D /* WBObjectPropertiesController.h */,
+				16F7A2440F1CFFDC0084C11D /* WBObjectPropertiesController.mm */,
 			);
 			name = "Side Panes";
 			sourceTree = "<group>";
@@ -8251,37 +8220,96 @@
 		2B2DEFDD1056069F00F267F9 /* Admin Icons */ = {
 			isa = PBXGroup;
 			children = (
+				2BD4201E198034A60061895B /* admin_add_user.png */,
+				2BD4201F198034A60061895B /* admin_add_user@2x.png */,
+				2B1E2FD3173040850037D3DD /* admin_audit_inspector.png */,
+				2B18EDD3196C9646004D7596 /* admin_audit_inspector@2x.png */,
+				2BF510BB12E8BBEF00A6CCC3 /* admin_config_wizard.png */,
+				2BD42020198034A60061895B /* admin_config_wizard@2x.png */,
+				2BF510BF12E8BBEF00A6CCC3 /* admin_connections.png */,
+				2B18EDD4196C9646004D7596 /* admin_connections@2x.png */,
+				2B4BCE221847745400865D37 /* admin_dashboard.png */,
+				2B18EDD5196C9646004D7596 /* admin_dashboard@2x.png */,
+				2BF510BC12E8BBEF00A6CCC3 /* admin_export.png */,
+				2BD42021198034A60061895B /* admin_export@2x.png */,
 				44DD9A631C04AA0800D86DC5 /* admin_firewall.png */,
 				44DD9A641C04AA0800D86DC5 /* admin_firewall@2x.png */,
 				44DD9A651C04AA0800D86DC5 /* admin_info_offline.png */,
 				44DD9A661C04AA0800D86DC5 /* admin_info_offline@2x.png */,
-				2BD4201E198034A60061895B /* admin_add_user.png */,
-				2BD4201F198034A60061895B /* admin_add_user@2x.png */,
-				2BD42020198034A60061895B /* admin_config_wizard@2x.png */,
-				2BD42021198034A60061895B /* admin_export@2x.png */,
+				27E59B84106B914400C2DA47 /* admin_info_running.png */,
 				2BD42022198034A60061895B /* admin_info_running@2x.png */,
+				27E59B85106B914400C2DA47 /* admin_info_stopped.png */,
 				2BD42023198034A60061895B /* admin_info_stopped@2x.png */,
+				2791E52E1087530400866B8E /* admin_info_unknown.png */,
 				2BD42024198034A60061895B /* admin_info_unknown@2x.png */,
+				2B4BCE241847745400865D37 /* admin_instrumentation_setup.png */,
+				2B18EDD9196C9650004D7596 /* admin_instrumentation_setup@2x.png */,
+				2BF510BD12E8BBEF00A6CCC3 /* admin_manage_exported.png */,
 				2BD42025198034A60061895B /* admin_manage_exported@2x.png */,
+				2BF510BE12E8BBEF00A6CCC3 /* admin_manage_privs.png */,
 				2BD42026198034A60061895B /* admin_manage_privs@2x.png */,
+				2B45FCD4165180EA008D1853 /* admin_meb_backup.png */,
 				2BD42027198034A60061895B /* admin_meb_backup@2x.png */,
+				2B45FCD5165180EA008D1853 /* admin_meb_restore.png */,
 				2BD42028198034A60061895B /* admin_meb_restore@2x.png */,
+				2BF510C012E8BBEF00A6CCC3 /* admin_option_file.png */,
 				2BD42029198034A60061895B /* admin_option_file@2x.png */,
+				2B4BCE261847745400865D37 /* admin_performance_reports.png */,
+				2B18EDDA196C9650004D7596 /* admin_performance_reports@2x.png */,
+				2BF510C112E8BBEF00A6CCC3 /* admin_restore_data.png */,
 				2BD4202A198034A60061895B /* admin_restore_data@2x.png */,
+				2BF510C212E8BBEF00A6CCC3 /* admin_schema_management.png */,
 				2BD4202B198034A60061895B /* admin_schema_management@2x.png */,
+				2BF510C312E8BBEF00A6CCC3 /* admin_scripts.png */,
 				2BD4202C198034A60061895B /* admin_scripts@2x.png */,
+				2BF510C412E8BBEF00A6CCC3 /* admin_server_logs.png */,
 				2BD4202D198034A60061895B /* admin_server_logs@2x.png */,
+				2BF510C512E8BBEF00A6CCC3 /* admin_server_status.png */,
 				2BD4202E198034A60061895B /* admin_server_status@2x.png */,
+				2BF510C612E8BBEF00A6CCC3 /* admin_start_stop.png */,
 				2BD4202F198034A60061895B /* admin_start_stop@2x.png */,
+				2BF510C712E8BBEF00A6CCC3 /* admin_status_vars.png */,
 				2BD42030198034A60061895B /* admin_status_vars@2x.png */,
+				2BF510C812E8BBEF00A6CCC3 /* admin_system_startup.png */,
 				2BD42031198034A60061895B /* admin_system_startup@2x.png */,
+				2B856538183ADE2D0081D52E /* dashboard_arrow_in_static.png */,
+				2B856539183ADE2D0081D52E /* dashboard_arrow_out_static.png */,
+				2B85653A183ADE2D0081D52E /* dashboard_header_innodb.png */,
+				2B5FE4D5187F39C700AEC55C /* dashboard_header_innodb@2x.png */,
+				2B85653B183ADE2D0081D52E /* dashboard_header_mysql.png */,
+				2B5FE4D6187F39C700AEC55C /* dashboard_header_mysql@2x.png */,
+				2B85653C183ADE2D0081D52E /* dashboard_header_network.png */,
+				2B5FE4D7187F39C700AEC55C /* dashboard_header_network@2x.png */,
+				2B5FE4DB187F39DC00AEC55C /* dashboard_separator.png */,
+				2B5FE4D3187F36A500AEC55C /* dashboard_separator@2x.png */,
+				2BF0490A1739925E00A7EA35 /* mysql-logo-00.png */,
+				2BF0490B1739925E00A7EA35 /* mysql-logo-00@2x.png */,
+				2BF0490C1739925E00A7EA35 /* mysql-logo-50.png */,
+				2BF0490D1739925E00A7EA35 /* mysql-logo-50@2x.png */,
+				2BF0490E1739925E00A7EA35 /* mysql-logo-51.png */,
+				2BF0490F1739925E00A7EA35 /* mysql-logo-51@2x.png */,
+				2BF049101739925E00A7EA35 /* mysql-logo-55.png */,
+				2BF049111739925E00A7EA35 /* mysql-logo-55@2x.png */,
+				2BF049121739925E00A7EA35 /* mysql-logo-56.png */,
+				2BF049131739925E00A7EA35 /* mysql-logo-56@2x.png */,
+				2BF049141739925E00A7EA35 /* mysql-logo-57.png */,
+				2BF049151739925E00A7EA35 /* mysql-logo-57@2x.png */,
+				2BF049161739925E00A7EA35 /* mysql-logo-58.png */,
+				2BF049171739925E00A7EA35 /* mysql-logo-58@2x.png */,
+				2BF049181739925E00A7EA35 /* mysql-status-off.png */,
+				2B1434E0179DEC03002217CF /* mysql-status-off@2x.png */,
+				2BF0491A1739925E00A7EA35 /* mysql-status-on.png */,
+				2B1434E1179DEC03002217CF /* mysql-status-on@2x.png */,
+				2BF049301739C18500A7EA35 /* mysql-status-separator.png */,
+				2BF049311739C18500A7EA35 /* mysql-status-separator@2x.png */,
+				ED0955DE177374690051CF28 /* page_restore.png */,
 				2BD42032198034A60061895B /* page_restore@2x.png */,
-				2BD42033198034A60061895B /* title_backup@2x.png */,
-				2BD42034198034A60061895B /* title_restore@2x.png */,
-				2B20DCBA188DA7C00095EA03 /* ps_easysetup_logo.png */,
-				2B20DCBB188DA7C00095EA03 /* ps_easysetup_logo@2x.png */,
 				2BF90EE41979C3230029E1F9 /* ps_easysetup_logo_enabled.png */,
 				2BF90EE51979C3230029E1F9 /* ps_easysetup_logo_enabled@2x.png */,
+				2B20DCBA188DA7C00095EA03 /* ps_easysetup_logo.png */,
+				2B20DCBB188DA7C00095EA03 /* ps_easysetup_logo@2x.png */,
+				2BCB3C1E183C18E1007D06F4 /* ps_overview.png */,
+				2B5CE235188D89B20034DD9E /* ps_overview@2x.png */,
 				2BF90EE81979C3310029E1F9 /* ps_switcher_custom_hoover.png */,
 				2BF90EE91979C3310029E1F9 /* ps_switcher_custom_hoover@2x.png */,
 				2BF90EEA1979C3310029E1F9 /* ps_switcher_custom_off.png */,
@@ -8310,59 +8338,8 @@
 				2BF90F171979C3410029E1F9 /* ps_switcher_legende@2x.png */,
 				2BF90F181979C3410029E1F9 /* ps_switcher_text.png */,
 				2BF90F191979C3410029E1F9 /* ps_switcher_text@2x.png */,
-				2B1E2FD3173040850037D3DD /* admin_audit_inspector.png */,
-				2BF510BB12E8BBEF00A6CCC3 /* admin_config_wizard.png */,
-				2BF510BF12E8BBEF00A6CCC3 /* admin_connections.png */,
-				2B4BCE221847745400865D37 /* admin_dashboard.png */,
-				2BF510BC12E8BBEF00A6CCC3 /* admin_export.png */,
-				27E59B84106B914400C2DA47 /* admin_info_running.png */,
-				27E59B85106B914400C2DA47 /* admin_info_stopped.png */,
-				2791E52E1087530400866B8E /* admin_info_unknown.png */,
-				2B4BCE241847745400865D37 /* admin_instrumentation_setup.png */,
-				2BF510BD12E8BBEF00A6CCC3 /* admin_manage_exported.png */,
-				2BF510BE12E8BBEF00A6CCC3 /* admin_manage_privs.png */,
-				2B45FCD4165180EA008D1853 /* admin_meb_backup.png */,
-				2B45FCD5165180EA008D1853 /* admin_meb_restore.png */,
-				2BF510C012E8BBEF00A6CCC3 /* admin_option_file.png */,
-				2B4BCE261847745400865D37 /* admin_performance_reports.png */,
-				2BF510C112E8BBEF00A6CCC3 /* admin_restore_data.png */,
-				2BF510C212E8BBEF00A6CCC3 /* admin_schema_management.png */,
-				2BF510C312E8BBEF00A6CCC3 /* admin_scripts.png */,
-				2BF510C412E8BBEF00A6CCC3 /* admin_server_logs.png */,
-				2BF510C512E8BBEF00A6CCC3 /* admin_server_status.png */,
-				2BF510C612E8BBEF00A6CCC3 /* admin_start_stop.png */,
-				2BF510C712E8BBEF00A6CCC3 /* admin_status_vars.png */,
-				2BF510C812E8BBEF00A6CCC3 /* admin_system_startup.png */,
-				2B856538183ADE2D0081D52E /* dashboard_arrow_in_static.png */,
-				2B856539183ADE2D0081D52E /* dashboard_arrow_out_static.png */,
-				2B85653A183ADE2D0081D52E /* dashboard_header_innodb.png */,
-				2B85653B183ADE2D0081D52E /* dashboard_header_mysql.png */,
-				2B85653C183ADE2D0081D52E /* dashboard_header_network.png */,
-				2B5FE4D5187F39C700AEC55C /* dashboard_header_innodb@2x.png */,
-				2B5FE4D6187F39C700AEC55C /* dashboard_header_mysql@2x.png */,
-				2B5FE4D7187F39C700AEC55C /* dashboard_header_network@2x.png */,
-				2B5FE4DB187F39DC00AEC55C /* dashboard_separator.png */,
-				2B5FE4D3187F36A500AEC55C /* dashboard_separator@2x.png */,
-				2BF0490A1739925E00A7EA35 /* mysql-logo-00.png */,
-				2BF0490B1739925E00A7EA35 /* mysql-logo-00@2x.png */,
-				2BF0490C1739925E00A7EA35 /* mysql-logo-50.png */,
-				2BF0490D1739925E00A7EA35 /* mysql-logo-50@2x.png */,
-				2BF0490E1739925E00A7EA35 /* mysql-logo-51.png */,
-				2BF0490F1739925E00A7EA35 /* mysql-logo-51@2x.png */,
-				2BF049101739925E00A7EA35 /* mysql-logo-55.png */,
-				2BF049111739925E00A7EA35 /* mysql-logo-55@2x.png */,
-				2BF049121739925E00A7EA35 /* mysql-logo-56.png */,
-				2BF049131739925E00A7EA35 /* mysql-logo-56@2x.png */,
-				2BF049141739925E00A7EA35 /* mysql-logo-57.png */,
-				2BF049151739925E00A7EA35 /* mysql-logo-57@2x.png */,
-				2BF049161739925E00A7EA35 /* mysql-logo-58.png */,
-				2BF049171739925E00A7EA35 /* mysql-logo-58@2x.png */,
-				2BF049181739925E00A7EA35 /* mysql-status-off.png */,
-				2B1434E0179DEC03002217CF /* mysql-status-off@2x.png */,
-				2BF0491A1739925E00A7EA35 /* mysql-status-on.png */,
-				2B1434E1179DEC03002217CF /* mysql-status-on@2x.png */,
-				2BCB3C1E183C18E1007D06F4 /* ps_overview.png */,
-				2B5CE235188D89B20034DD9E /* ps_overview@2x.png */,
+				ED0955DF177374690051CF28 /* title_backup.png */,
+				2BD42033198034A60061895B /* title_backup@2x.png */,
 				2BF0497D174E559C00A7EA35 /* title_connections.png */,
 				2BF0497E174E559C00A7EA35 /* title_connections@2x.png */,
 				2B4BCE2E18478FEE00865D37 /* title_dashboard.png */,
@@ -8379,27 +8356,19 @@
 				2BF04986174E559C00A7EA35 /* title_options@2x.png */,
 				2B4BCE3218478FEE00865D37 /* title_performance_reports.png */,
 				2B4BCE3318478FEE00865D37 /* title_performance_reports@2x.png */,
+				ED0955E0177374690051CF28 /* title_restore.png */,
+				2BD42034198034A60061895B /* title_restore@2x.png */,
 				2BF04987174E559C00A7EA35 /* title_startup.png */,
 				2BF04988174E559C00A7EA35 /* title_startup@2x.png */,
 				2BF04989174E559C00A7EA35 /* title_users.png */,
 				2BF0498A174E559C00A7EA35 /* title_users@2x.png */,
 				2BF0498B174E559C00A7EA35 /* title_variables.png */,
 				2BF0498C174E559C00A7EA35 /* title_variables@2x.png */,
-				2BF049301739C18500A7EA35 /* mysql-status-separator.png */,
 				2BF0492E1739926700A7EA35 /* wb_perform_config.png */,
-				2BF049311739C18500A7EA35 /* mysql-status-separator@2x.png */,
-				ED0955DE177374690051CF28 /* page_restore.png */,
-				ED0955DF177374690051CF28 /* title_backup.png */,
-				ED0955E0177374690051CF28 /* title_restore.png */,
 				2BF0493F173DF46800A7EA35 /* wb-backup-logo-small.png */,
 				2BF04940173DF46800A7EA35 /* wb-backup-logo-small@2x.png */,
 				2BF04941173DF46800A7EA35 /* wb-backup-logo.png */,
 				2BF04942173DF46800A7EA35 /* wb-backup-logo@2x.png */,
-				2B18EDD9196C9650004D7596 /* admin_instrumentation_setup@2x.png */,
-				2B18EDDA196C9650004D7596 /* admin_performance_reports@2x.png */,
-				2B18EDD3196C9646004D7596 /* admin_audit_inspector@2x.png */,
-				2B18EDD4196C9646004D7596 /* admin_connections@2x.png */,
-				2B18EDD5196C9646004D7596 /* admin_dashboard@2x.png */,
 			);
 			name = "Admin Icons";
 			sourceTree = "<group>";
@@ -8415,14 +8384,14 @@
 		2B2E91E8158916050078D08A /* copytable */ = {
 			isa = PBXGroup;
 			children = (
-				27C15E671A309C2000EB73F7 /* wbcopytables_prefix.pch */,
+				2B2E96B6158BC95E0078D08A /* converter.cpp */,
+				2B2E96B5158BC95E0078D08A /* converter.h */,
+				2B2E91ED1589165C0078D08A /* copytable.cpp */,
+				2B2E9697158BBE890078D08A /* copytable.h */,
+				2B2E9695158BBE7A0078D08A /* main.cpp */,
 				27327B9F172FAFC800DE65D7 /* python_copy_data_source.cpp */,
 				27327BA0172FAFC800DE65D7 /* python_copy_data_source.h */,
-				2B2E96B5158BC95E0078D08A /* converter.h */,
-				2B2E96B6158BC95E0078D08A /* converter.cpp */,
-				2B2E9697158BBE890078D08A /* copytable.h */,
-				2B2E91ED1589165C0078D08A /* copytable.cpp */,
-				2B2E9695158BBE7A0078D08A /* main.cpp */,
+				27C15E671A309C2000EB73F7 /* wbcopytables_prefix.pch */,
 			);
 			name = copytable;
 			sourceTree = "<group>";
@@ -8431,12 +8400,12 @@
 			isa = PBXGroup;
 			children = (
 				27A3EC8F164BA9AB001B6D8F /* IconCollectionView.xib */,
-				2B3009C00E99B09A002C5BBA /* WBOverviewPanel.h */,
-				2B3009C10E99B09A002C5BBA /* WBOverviewPanel.mm */,
-				2B1CA1FA0EA24FF30062C916 /* WBOverviewListController.h */,
-				2B1CA1FB0EA24FF30062C916 /* WBOverviewListController.mm */,
 				2B4BD7770ED2E3A6003E44F2 /* WBOverviewComponents.h */,
 				2B4BD7780ED2E3A6003E44F2 /* WBOverviewComponents.mm */,
+				2B1CA1FA0EA24FF30062C916 /* WBOverviewListController.h */,
+				2B1CA1FB0EA24FF30062C916 /* WBOverviewListController.mm */,
+				2B3009C00E99B09A002C5BBA /* WBOverviewPanel.h */,
+				2B3009C10E99B09A002C5BBA /* WBOverviewPanel.mm */,
 			);
 			name = Overview;
 			sourceTree = "<group>";
@@ -8445,28 +8414,28 @@
 			isa = PBXGroup;
 			children = (
 				2B3DBD0C1212ECB2001837A5 /* Scripting */,
-				27694814142A4FAA009DE637 /* snippet_popover.cpp */,
-				27694815142A4FAA009DE637 /* snippet_popover.h */,
-				2BC92993170BBEF000D5BCAD /* snippet_list.cpp */,
-				2BC92994170BBEF000D5BCAD /* snippet_list.h */,
 				27B3E24512E05C1C00FFF572 /* advanced_sidebar.cpp */,
 				27B3E24612E05C1C00FFF572 /* advanced_sidebar.h */,
-				2B7FC723113096E9008C07BF /* output_view.cpp */,
-				2B7FC724113096E9008C07BF /* output_view.h */,
-				2B39A3AA10AD98D200AD3447 /* new_connection_wizard.h */,
-				2B39A3AB10AD98D200AD3447 /* new_connection_wizard.cpp */,
-				2B30BD200F6EAA2900D3E2B1 /* user_defined_type_editor.cpp */,
-				2B30BD210F6EAA2900D3E2B1 /* user_defined_type_editor.h */,
-				2B4949541398092E006F0C3F /* select_option_dialog.cpp */,
-				2B4949551398092E006F0C3F /* select_option_dialog.h */,
 				2B3D49490F3E41C8009238A7 /* document_properties_form.cpp */,
 				2B3D494A0F3E41C8009238A7 /* document_properties_form.h */,
+				2B39A3AB10AD98D200AD3447 /* new_connection_wizard.cpp */,
+				2B39A3AA10AD98D200AD3447 /* new_connection_wizard.h */,
+				27C6887D10B58C9A00B8D810 /* new_server_instance_wizard.cpp */,
+				27C6887E10B58C9A00B8D810 /* new_server_instance_wizard.h */,
+				2B7FC723113096E9008C07BF /* output_view.cpp */,
+				2B7FC724113096E9008C07BF /* output_view.h */,
 				2B3D494B0F3E41C8009238A7 /* preferences_form.cpp */,
 				2B3D494C0F3E41C8009238A7 /* preferences_form.h */,
-				2B5F4642103E153500BEE04E /* server_instance_editor.h */,
+				2B4949541398092E006F0C3F /* select_option_dialog.cpp */,
+				2B4949551398092E006F0C3F /* select_option_dialog.h */,
 				2B5F4643103E153500BEE04E /* server_instance_editor.cpp */,
-				27C6887E10B58C9A00B8D810 /* new_server_instance_wizard.h */,
-				27C6887D10B58C9A00B8D810 /* new_server_instance_wizard.cpp */,
+				2B5F4642103E153500BEE04E /* server_instance_editor.h */,
+				2BC92993170BBEF000D5BCAD /* snippet_list.cpp */,
+				2BC92994170BBEF000D5BCAD /* snippet_list.h */,
+				27694814142A4FAA009DE637 /* snippet_popover.cpp */,
+				27694815142A4FAA009DE637 /* snippet_popover.h */,
+				2B30BD200F6EAA2900D3E2B1 /* user_defined_type_editor.cpp */,
+				2B30BD210F6EAA2900D3E2B1 /* user_defined_type_editor.h */,
 			);
 			name = "Common Panels";
 			sourceTree = "<group>";
@@ -8474,9 +8443,9 @@
 		2B3D496D0F3E6FAD009238A7 /* db.mysql */ = {
 			isa = PBXGroup;
 			children = (
-				2B3D4FB80F40C726009238A7 /* register_plugin.cpp */,
 				2B3D49A80F3E70C3009238A7 /* Backend */,
 				2B3D49A90F3E70CA009238A7 /* Frontend */,
+				2B3D4FB80F40C726009238A7 /* register_plugin.cpp */,
 			);
 			name = db.mysql;
 			sourceTree = "<group>";
@@ -8484,9 +8453,9 @@
 		2B3D496E0F3E6FB5009238A7 /* wb.model.reporting */ = {
 			isa = PBXGroup;
 			children = (
-				2B3D5D510F43DD43009238A7 /* register_plugin.cpp */,
 				2B3D5D570F43DD4D009238A7 /* Backend */,
 				2B3D5D580F43DD5D009238A7 /* Frontend */,
+				2B3D5D510F43DD43009238A7 /* register_plugin.cpp */,
 			);
 			name = wb.model.reporting;
 			sourceTree = "<group>";
@@ -8496,22 +8465,22 @@
 			children = (
 				2B91E048131EAF4700AD708D /* db_alter_script_be.cpp */,
 				2B91E049131EAF4700AD708D /* db_alter_script_be.h */,
-				2B3D4FB00F40C726009238A7 /* db_mysql_sql_script_sync.cpp */,
-				2B3D4FB10F40C726009238A7 /* db_mysql_sql_script_sync.h */,
+				2B3D49AA0F3E7100009238A7 /* db_frw_eng_be.cpp */,
+				2B3D49AB0F3E7100009238A7 /* db_frw_eng_be.h */,
 				2B3D4FAE0F40C725009238A7 /* db_mysql_sql_export.cpp */,
 				2B3D4FAF0F40C726009238A7 /* db_mysql_sql_export.h */,
+				2B3D4FB00F40C726009238A7 /* db_mysql_sql_script_sync.cpp */,
+				2B3D4FB10F40C726009238A7 /* db_mysql_sql_script_sync.h */,
 				2B3D4FB20F40C726009238A7 /* db_mysql_sql_sync.cpp */,
 				2B3D4FB30F40C726009238A7 /* db_mysql_sql_sync.h */,
 				2B3D4FB40F40C726009238A7 /* db_mysql_validation_page.cpp */,
 				2B3D4FB50F40C726009238A7 /* db_mysql_validation_page.h */,
-				2B3D4FB60F40C726009238A7 /* diff_tree.cpp */,
-				2B3D4FB70F40C726009238A7 /* diff_tree.h */,
-				2B3D49AA0F3E7100009238A7 /* db_frw_eng_be.cpp */,
-				2B3D49AB0F3E7100009238A7 /* db_frw_eng_be.h */,
 				2B3D49AC0F3E7100009238A7 /* db_plugin_be.cpp */,
 				2B3D49AD0F3E7100009238A7 /* db_plugin_be.h */,
 				2B3D49AE0F3E7100009238A7 /* db_rev_eng_be.cpp */,
 				2B3D49AF0F3E7100009238A7 /* db_rev_eng_be.h */,
+				2B3D4FB60F40C726009238A7 /* diff_tree.cpp */,
+				2B3D4FB70F40C726009238A7 /* diff_tree.h */,
 				2B3D49B20F3E7100009238A7 /* sql_import_be.cpp */,
 				2B3D49B30F3E7100009238A7 /* sql_import_be.h */,
 				2B3D49B40F3E7100009238A7 /* wb_plugin_be.cpp */,
@@ -8525,10 +8494,10 @@
 			children = (
 				2BF049AF1751A16C00A7EA35 /* Common Pages */,
 				2BF049AE17519F7000A7EA35 /* Synchronization */,
-				2B3D49C50F3E7123009238A7 /* db_reverse_engineer.cpp */,
-				2B3D49C60F3E7123009238A7 /* db_reverse_engineer_script.cpp */,
-				2B3D49C40F3E7123009238A7 /* db_forward_engineer.cpp */,
 				2B3D4FC50F40C73D009238A7 /* db_forward_engineer_script.cpp */,
+				2B3D49C40F3E7123009238A7 /* db_forward_engineer.cpp */,
+				2B3D49C60F3E7123009238A7 /* db_reverse_engineer_script.cpp */,
+				2B3D49C50F3E7123009238A7 /* db_reverse_engineer.cpp */,
 			);
 			name = Frontend;
 			sourceTree = "<group>";
@@ -8556,17 +8525,17 @@
 			children = (
 				2B6483DB122725ED00207149 /* grt_code_editor.cpp */,
 				2B6483DC122725ED00207149 /* grt_code_editor.h */,
-				2B84DEAD124A89A7009136B7 /* grt_python_debugger.h */,
-				2B84DEAE124A89A7009136B7 /* grt_python_debugger.cpp */,
-				2B648417122741FB00207149 /* grt_plugin_wizard.h */,
 				2BF02D051965B141008C9304 /* grt_plugin_wizard.cpp */,
+				2B648417122741FB00207149 /* grt_plugin_wizard.h */,
+				2B84DEAE124A89A7009136B7 /* grt_python_debugger.cpp */,
+				2B84DEAD124A89A7009136B7 /* grt_python_debugger.h */,
+				2B7A3A1B126E91870097DDA9 /* grt_python_debugger.py */,
 				2BB376BF1104898700DA4577 /* grt_shell_window.cpp */,
 				2BB376C01104898700DA4577 /* grt_shell_window.h */,
-				2B3DBD081212ECAB001837A5 /* plugin_manager_window.h */,
-				2B3DBD091212ECAB001837A5 /* plugin_manager_window.cpp */,
-				2B7A3A1B126E91870097DDA9 /* grt_python_debugger.py */,
-				2BAE52C4134429CA00076130 /* plugin_install_window.h */,
 				2BAE52C5134429CA00076130 /* plugin_install_window.cpp */,
+				2BAE52C4134429CA00076130 /* plugin_install_window.h */,
+				2B3DBD091212ECAB001837A5 /* plugin_manager_window.cpp */,
+				2B3DBD081212ECAB001837A5 /* plugin_manager_window.h */,
 			);
 			name = Scripting;
 			sourceTree = "<group>";
@@ -8587,10 +8556,8 @@
 				2B60B9C415114CAE00636FE2 /* autocomplete_object_name_cache.h */,
 				2B0609F9195A496700022F40 /* column_width_cache.cpp */,
 				2B0609FA195A496700022F40 /* column_width_cache.h */,
-				2B7F8BF0110DC5FC009D398E /* sql_script_run_wizard.cpp */,
-				2B7F8BF1110DC5FC009D398E /* sql_script_run_wizard.h */,
-				2BEC8E741035F77B00607CA4 /* sql_semantic_check.cpp */,
-				2BEC8E751035F77B00607CA4 /* sql_semantic_check.h */,
+				2B4BD6B10ED1F928003E44F2 /* recordset_be.cpp */,
+				2B1CA3210F957772001443CA /* recordset_be.h */,
 				2B41EE070F8B837900F5EB1E /* recordset_cdbc_storage.cpp */,
 				2B41EE080F8B837900F5EB1E /* recordset_cdbc_storage.h */,
 				2B41EE090F8B837900F5EB1E /* recordset_data_storage.cpp */,
@@ -8603,16 +8570,18 @@
 				2B41EE100F8B837900F5EB1E /* recordset_table_inserts_storage.h */,
 				2B41EE110F8B837900F5EB1E /* recordset_text_storage.cpp */,
 				2B41EE120F8B837900F5EB1E /* recordset_text_storage.h */,
+				27E0E14015515F3E0073FD6F /* sql_editor_be_autocomplete.cpp */,
+				2B4BD6B20ED1F928003E44F2 /* sql_editor_be.cpp */,
+				2B41EE130F8B837900F5EB1E /* sql_editor_be.h */,
+				2B7F8BF0110DC5FC009D398E /* sql_script_run_wizard.cpp */,
+				2B7F8BF1110DC5FC009D398E /* sql_script_run_wizard.h */,
+				2BEC8E741035F77B00607CA4 /* sql_semantic_check.cpp */,
+				2BEC8E751035F77B00607CA4 /* sql_semantic_check.h */,
 				2B41EE160F8B837900F5EB1E /* sqlide_generics.cpp */,
 				2B41EE170F8B837900F5EB1E /* table_inserts_loader_be.cpp */,
 				2B41EE180F8B837900F5EB1E /* table_inserts_loader_be.h */,
 				2B41EE190F8B837900F5EB1E /* var_grid_model_be.cpp */,
 				2B41EE1A0F8B837900F5EB1E /* var_grid_model_be.h */,
-				2B4BD6B10ED1F928003E44F2 /* recordset_be.cpp */,
-				2B1CA3210F957772001443CA /* recordset_be.h */,
-				2B41EE130F8B837900F5EB1E /* sql_editor_be.h */,
-				2B4BD6B20ED1F928003E44F2 /* sql_editor_be.cpp */,
-				27E0E14015515F3E0073FD6F /* sql_editor_be_autocomplete.cpp */,
 			);
 			name = "SQL IDE";
 			sourceTree = "<group>";
@@ -8630,10 +8599,10 @@
 		2B5284190F1A5812005FBF7C /* db.mysql.editors */ = {
 			isa = PBXGroup;
 			children = (
-				2B52845D0F1A8838005FBF7C /* db.mysql.editors-Info.plist */,
-				2B52844B0F1A87FA005FBF7C /* register_plugin.cpp */,
 				2B52841A0F1A581F005FBF7C /* Backend */,
 				2B52841B0F1A582B005FBF7C /* Frontend */,
+				2B52845D0F1A8838005FBF7C /* db.mysql.editors-Info.plist */,
+				2B52844B0F1A87FA005FBF7C /* register_plugin.cpp */,
 			);
 			name = db.mysql.editors;
 			sourceTree = "<group>";
@@ -8642,18 +8611,18 @@
 			isa = PBXGroup;
 			children = (
 				27BFE4621924BC670070B8FB /* db.mysql.editors.wbp_prefix.pch */,
-				2B3D482A0F3E38BD009238A7 /* mysql_view_editor.h */,
-				2B3D482B0F3E38BD009238A7 /* mysql_table_editor.h */,
-				2B3D482C0F3E38BD009238A7 /* mysql_schema_editor.h */,
-				2B3D482D0F3E38BD009238A7 /* mysql_routinegroup_editor.h */,
-				2B3D482E0F3E38BD009238A7 /* mysql_routine_editor.h */,
-				2B3D482F0F3E38BD009238A7 /* mysql_relationship_editor.h */,
 				2B5284450F1A87FA005FBF7C /* mysql_relationship_editor.cpp */,
+				2B3D482F0F3E38BD009238A7 /* mysql_relationship_editor.h */,
 				2B5284460F1A87FA005FBF7C /* mysql_routine_editor.cpp */,
+				2B3D482E0F3E38BD009238A7 /* mysql_routine_editor.h */,
 				2B5284470F1A87FA005FBF7C /* mysql_routinegroup_editor.cpp */,
+				2B3D482D0F3E38BD009238A7 /* mysql_routinegroup_editor.h */,
 				2B5284480F1A87FA005FBF7C /* mysql_schema_editor.cpp */,
+				2B3D482C0F3E38BD009238A7 /* mysql_schema_editor.h */,
 				2B5284490F1A87FA005FBF7C /* mysql_table_editor.cpp */,
+				2B3D482B0F3E38BD009238A7 /* mysql_table_editor.h */,
 				2B52844A0F1A87FA005FBF7C /* mysql_view_editor.cpp */,
+				2B3D482A0F3E38BD009238A7 /* mysql_view_editor.h */,
 			);
 			name = Backend;
 			sourceTree = "<group>";
@@ -8661,15 +8630,15 @@
 		2B52841B0F1A582B005FBF7C /* Frontend */ = {
 			isa = PBXGroup;
 			children = (
-				27BFE4651924C31C0070B8FB /* db.mysql.editors_prefix.pch */,
-				168C65B80F437A3900973922 /* MySQL Schema Editor */,
-				168C65B70F437A2A00973922 /* MySQL Table Editor */,
-				2BFBF09C0F51BE710016F9D1 /* MySQL View Editor */,
 				2B17B2B40F4E13CB0087ED42 /* MySQL Relationship Editor */,
 				2BFBEFFF0F518B940016F9D1 /* MySQL Routine Editor */,
 				2B8A8D8F0F52C9EC006B7A4E /* MySQL Routine Group Editor */,
-				2B8A8DD80F52DA53006B7A4E /* User Editor */,
+				168C65B80F437A3900973922 /* MySQL Schema Editor */,
+				168C65B70F437A2A00973922 /* MySQL Table Editor */,
+				2BFBF09C0F51BE710016F9D1 /* MySQL View Editor */,
 				2B8A8EA10F531109006B7A4E /* Role Editor */,
+				2B8A8DD80F52DA53006B7A4E /* User Editor */,
+				27BFE4651924C31C0070B8FB /* db.mysql.editors_prefix.pch */,
 			);
 			name = Frontend;
 			sourceTree = "<group>";
@@ -8677,10 +8646,10 @@
 		2B5285E50F1C1D5A005FBF7C /* wb.mysql.import */ = {
 			isa = PBXGroup;
 			children = (
-				2B52862B0F1C1EB6005FBF7C /* wb_mysql_import.cpp */,
-				2B52862C0F1C1EB6005FBF7C /* wb_mysql_import.h */,
 				2B52862D0F1C1EB6005FBF7C /* wb_mysql_import_dbd4.cpp */,
 				2B52862E0F1C1EB6005FBF7C /* wb_mysql_import_dbd4.h */,
+				2B52862B0F1C1EB6005FBF7C /* wb_mysql_import.cpp */,
+				2B52862C0F1C1EB6005FBF7C /* wb_mysql_import.h */,
 			);
 			name = wb.mysql.import;
 			sourceTree = "<group>";
@@ -8710,13 +8679,11 @@
 		2B59A9F00E94F6250083C1C6 /* WB Data */ = {
 			isa = PBXGroup;
 			children = (
-				2B1E2FDC173350B70037D3DD /* table_templates.xml */,
 				27C5903514C9755100FFC45E /* code_editor.xml */,
-				2B15B69A12E15273006567D6 /* model_diagram_toolbar.xml */,
-				2717A6831192E22900FED3E5 /* predefined_starters.xml */,
-				2BD99BB80FAE754C0074852E /* default_toolbar.xml */,
 				2BE6805C0F8E47FD00E00A97 /* data.db */,
 				2BF87BB70FA87CF60012EADA /* dbquery_toolbar.xml */,
+				2BD99BB80FAE754C0074852E /* default_toolbar.xml */,
+				2B15B69A12E15273006567D6 /* model_diagram_toolbar.xml */,
 				2BF87BB80FA87CF60012EADA /* model_option_toolbar_layer.xml */,
 				2BF87BB90FA87CF60012EADA /* model_option_toolbar_note.xml */,
 				2BF87BBA0FA87CF60012EADA /* model_option_toolbar_physical_relationship.xml */,
@@ -8726,12 +8693,14 @@
 				2BF87BBE0FA87CF60012EADA /* model_option_toolbar_selection.xml */,
 				2BF87BBF0FA87CF60012EADA /* model_toolbar.xml */,
 				2B59A9FA0E94F6430083C1C6 /* paper_types.xml */,
-				2B59A9FB0E94F6430083C1C6 /* shortcuts.xml */,
+				2717A6831192E22900FED3E5 /* predefined_starters.xml */,
 				2B59A9FC0E94F6430083C1C6 /* shortcuts_basic.xml */,
 				2B59A9FD0E94F6430083C1C6 /* shortcuts_physical.xml */,
-				2B59A9FE0E94F6430083C1C6 /* tools_toolbar.xml */,
+				2B59A9FB0E94F6430083C1C6 /* shortcuts.xml */,
+				2B1E2FDC173350B70037D3DD /* table_templates.xml */,
 				2B59A9FF0E94F6430083C1C6 /* tools_toolbar_basic.xml */,
 				2B59AA000E94F6430083C1C6 /* tools_toolbar_physical.xml */,
+				2B59A9FE0E94F6430083C1C6 /* tools_toolbar.xml */,
 			);
 			name = "WB Data";
 			sourceTree = "<group>";
@@ -8747,7 +8716,6 @@
 		2B59AA240E94F7920083C1C6 /* Module Data */ = {
 			isa = PBXGroup;
 			children = (
-				2B1CA7350F96C0C2001443CA /* com.mysql.rdbms.mysql.sql.editor.xml */,
 				2B59AA250E94F7C00083C1C6 /* mysql_engines.xml */,
 				2B59AA260E94F7C00083C1C6 /* mysql_rdbms_info.xml */,
 				2B59AA270E94F7C00083C1C6 /* mysql_reserved.xml */,
@@ -8770,18 +8738,18 @@
 		2B6C6FBB16C0BDD500C4CC98 /* wb.sqlide */ = {
 			isa = PBXGroup;
 			children = (
-				44FFC3D21AA0BA1F00950A48 /* sqlide_power_export_wizard.py */,
-				44FFC3D31AA0BA1F00950A48 /* sqlide_power_import_export_be.py */,
-				44FFC3D41AA0BA1F00950A48 /* sqlide_power_import_wizard.py */,
-				2B33A4711999B62A00412802 /* sqlide_import_spatial.py */,
-				2B6C6FC416C0BFB100C4CC98 /* text_output.py */,
-				2B6C6FBC16C0BE4B00C4CC98 /* sqlide_grt.py */,
 				2BD42093198C3B090061895B /* run_script.py */,
 				2B6C6FC216C0BF1D00C4CC98 /* sql_reformatter.py */,
 				2B6C6FC616C0C03700C4CC98 /* sqlide_catalogman_ext.py */,
-				2BF0497417491EFB00A7EA35 /* sqlide_tableman_ext.py */,
+				2B6C6FBC16C0BE4B00C4CC98 /* sqlide_grt.py */,
+				2B33A4711999B62A00412802 /* sqlide_import_spatial.py */,
+				44FFC3D21AA0BA1F00950A48 /* sqlide_power_export_wizard.py */,
+				44FFC3D31AA0BA1F00950A48 /* sqlide_power_import_export_be.py */,
+				44FFC3D41AA0BA1F00950A48 /* sqlide_power_import_wizard.py */,
 				2B6C6FBD16C0BE4B00C4CC98 /* sqlide_resultset_ext.py */,
 				2B6C6FBE16C0BE4B00C4CC98 /* sqlide_schematree_ext.py */,
+				2BF0497417491EFB00A7EA35 /* sqlide_tableman_ext.py */,
+				2B6C6FC416C0BFB100C4CC98 /* text_output.py */,
 			);
 			name = wb.sqlide;
 			sourceTree = "<group>";
@@ -8813,12 +8781,12 @@
 				2B39A4FA10ADE47E00AD3447 /* connection_page.h */,
 				2B750FF00E87966E0003120A /* db_conn_be.cpp */,
 				2B750FF10E87966E0003120A /* db_conn_be.h */,
-				2B738FFB0F5EB37F0084CA96 /* grtdb_connection_editor.cpp */,
-				2B738FFC0F5EB37F0084CA96 /* grtdb_connection_editor.h */,
+				2BD9968D0FAC02B00074852E /* grtdb_connect_dialog.cpp */,
+				2BD9968C0FAC02B00074852E /* grtdb_connect_dialog.h */,
 				2B750FF50E87966E0003120A /* grtdb_connect_panel.cpp */,
 				2B750FF60E87966E0003120A /* grtdb_connect_panel.h */,
-				2BD9968C0FAC02B00074852E /* grtdb_connect_dialog.h */,
-				2BD9968D0FAC02B00074852E /* grtdb_connect_dialog.cpp */,
+				2B738FFB0F5EB37F0084CA96 /* grtdb_connection_editor.cpp */,
+				2B738FFC0F5EB37F0084CA96 /* grtdb_connection_editor.h */,
 			);
 			name = Connection;
 			sourceTree = "<group>";
@@ -8827,13 +8795,13 @@
 			isa = PBXGroup;
 			children = (
 				2777A7E31A30A36400A5441E /* cdbc_prefix.pch */,
-				2753E59818E95FBC0079DAA8 /* sshtunnel.py */,
 				27EADE1618E5707100D3C85D /* cppdbc_public_interface.h */,
 				27EADE1718E5707100D3C85D /* cppdbc.h */,
 				27EADE1818E5707100D3C85D /* driver_manager.cpp */,
 				27EADE1918E5707100D3C85D /* driver_manager.h */,
 				27EADE1A18E5707100D3C85D /* sql_batch_exec.cpp */,
 				27EADE1B18E5707100D3C85D /* sql_batch_exec.h */,
+				2753E59818E95FBC0079DAA8 /* sshtunnel.py */,
 			);
 			name = cdbc;
 			path = library/dbc;
@@ -8842,11 +8810,7 @@
 		2B750F2E0E8793B50003120A /* grt */ = {
 			isa = PBXGroup;
 			children = (
-				2B1BFF5F19A00F2D00022FD8 /* spatial_handler.h */,
 				2B7CDDD8115A9D910010368F /* action_list.h */,
-				2B7CDDA7115A86A70010368F /* grt_threaded_task.h */,
-				2B41EEFE0F8BA63700F5EB1E /* validation_manager.h */,
-				2B7390B80F5F00BA0084CA96 /* refresh_ui.h */,
 				2B750F2F0E8793B50003120A /* clipboard.h */,
 				2B750F310E8793B50003120A /* common.h */,
 				2B750F340E8793B50003120A /* editor_base.h */,
@@ -8857,14 +8821,18 @@
 				2B750F410E8793B50003120A /* grt_reporter.h */,
 				2B750F430E8793B50003120A /* grt_shell.h */,
 				2B750F450E8793B50003120A /* grt_string_list_model.h */,
+				2B7CDDA7115A86A70010368F /* grt_threaded_task.h */,
 				2B750F490E8793B50003120A /* grt_value_inspector.h */,
 				2B750F4C0E8793B50003120A /* grt_walker.h */,
 				2B750F4E0E8793B50003120A /* icon_manager.h */,
+				2BE5B41A0EA5476200194EB2 /* incremental_list_updater.h */,
 				2B750F510E8793B50003120A /* parse_utils.h */,
 				2B750F530E8793B50003120A /* plugin_manager.h */,
-				2B750F580E8793B50003120A /* tree_model.h */,
-				2BE5B41A0EA5476200194EB2 /* incremental_list_updater.h */,
+				2B7390B80F5F00BA0084CA96 /* refresh_ui.h */,
 				2BE5B40C0EA5469500194EB2 /* Sources */,
+				2B1BFF5F19A00F2D00022FD8 /* spatial_handler.h */,
+				2B750F580E8793B50003120A /* tree_model.h */,
+				2B41EEFE0F8BA63700F5EB1E /* validation_manager.h */,
 			);
 			name = grt;
 			path = backend/wbpublic/grt;
@@ -8873,7 +8841,6 @@
 		2B750F9E0E8796310003120A /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				44BA048F1C19B2410047BAE6 /* libmysqlcppconn.7.1.1.7.dylib */,
 				2BCC405A0EFFC06E008A66D4 /* libcairo.2.dylib */,
 				27EE16C91A3236BB00F26303 /* libctemplate.2.dylib */,
 				2B83E5CE1992B5A100781432 /* libgdal.1.dylib */,
@@ -8884,6 +8851,7 @@
 				2BCBAE4415E7D749009571DE /* libintl.8.dylib */,
 				2B2E92FD158999890078D08A /* libiodbc.dylib */,
 				2BC7896717D7BE24005E03D5 /* libmysqlclient.dylib */,
+				44BA048F1C19B2410047BAE6 /* libmysqlcppconn.7.1.1.7.dylib */,
 				2720C53716EA18B500E57A8D /* libpcre.1.dylib */,
 				2720C53D16EA1B9200E57A8D /* libpcrecpp.0.dylib */,
 				270C500017329E9300CD33BB /* libpixman-1.0.dylib */,
@@ -8905,12 +8873,12 @@
 				2B750FA60E87966D0003120A /* charset_list.h */,
 				2B750FA70E87966D0003120A /* charset_utils.cpp */,
 				2B750FA80E87966D0003120A /* charset_utils.h */,
+				2B84F5551183201F00DD9B13 /* db_helpers.cpp */,
+				2B84F5541183201F00DD9B13 /* db_helpers.h */,
 				2B750FA90E87966D0003120A /* db_object_filter.cpp */,
 				2B750FAA0E87966D0003120A /* db_object_filter.h */,
 				2B750FAB0E87966D0003120A /* db_object_helpers.cpp */,
 				2B750FAC0E87966D0003120A /* db_object_helpers.h */,
-				2B84F5541183201F00DD9B13 /* db_helpers.h */,
-				2B84F5551183201F00DD9B13 /* db_helpers.cpp */,
 				2B750FAD0E87966D0003120A /* db_object_master_filter.cpp */,
 				2B750FAE0E87966D0003120A /* db_object_master_filter.h */,
 				2B750FAF0E87966D0003120A /* dbobject_roles.cpp */,
@@ -8927,10 +8895,10 @@
 				2B750FBA0E87966D0003120A /* editor_schema.h */,
 				2B750FBB0E87966D0003120A /* editor_table.cpp */,
 				2B750FBC0E87966D0003120A /* editor_table.h */,
-				2B750FBF0E87966D0003120A /* editor_user.cpp */,
-				2B750FC00E87966D0003120A /* editor_user.h */,
 				2B750FC10E87966D0003120A /* editor_user_role.cpp */,
 				2B750FC20E87966D0003120A /* editor_user_role.h */,
+				2B750FBF0E87966D0003120A /* editor_user.cpp */,
+				2B750FC00E87966D0003120A /* editor_user.h */,
 				2B750FC30E87966D0003120A /* editor_view.cpp */,
 				2B750FC40E87966D0003120A /* editor_view.h */,
 				2B750FC80E87966D0003120A /* role_tree_model.cpp */,
@@ -8945,26 +8913,26 @@
 		2B750FD10E87966E0003120A /* grtsqlparser */ = {
 			isa = PBXGroup;
 			children = (
-				27CE5FA41917A260005574D4 /* mysql_parser_services.h */,
-				27CE5FB11917B5A1005574D4 /* mysql_parser_services.cpp */,
-				2B5DE7240FFE9F7D00701821 /* sql_statement_decomposer.cpp */,
-				2B5DE7250FFE9F7D00701821 /* sql_statement_decomposer.h */,
-				2B41EF440F8BB07000F5EB1E /* sql_syntax_check.h */,
-				2B41EF450F8BB07000F5EB1E /* sql_specifics.h */,
-				2B41EF460F8BB07000F5EB1E /* sql_specifics.cpp */,
-				2B41EF470F8BB07000F5EB1E /* sql_normalizer.h */,
-				2B41EF480F8BB07000F5EB1E /* sql_normalizer.cpp */,
-				2B41EF490F8BB07000F5EB1E /* sql_inserts_loader.h */,
-				2B41EF4A0F8BB07000F5EB1E /* sql_inserts_loader.cpp */,
+				2B750FD20E87966E0003120A /* fk_ref.h */,
 				2B6A602E0EB0B85D008E6D11 /* invalid_sql_parser.h */,
 				2B6A602F0EB0B85D008E6D11 /* module_utils.cpp */,
 				2B6A60300EB0B85D008E6D11 /* module_utils.h */,
+				27CE5FB11917B5A1005574D4 /* mysql_parser_services.cpp */,
+				27CE5FA41917A260005574D4 /* mysql_parser_services.h */,
 				2B6A60310EB0B85D008E6D11 /* sql_facade.cpp */,
-				2B6A60320EB0B85D008E6D11 /* sql_parser.h */,
+				2B750FEE0E87966E0003120A /* sql_facade.h */,
+				2B41EF4A0F8BB07000F5EB1E /* sql_inserts_loader.cpp */,
+				2B41EF490F8BB07000F5EB1E /* sql_inserts_loader.h */,
+				2B41EF480F8BB07000F5EB1E /* sql_normalizer.cpp */,
+				2B41EF470F8BB07000F5EB1E /* sql_normalizer.h */,
 				2B6A60330EB0B85D008E6D11 /* sql_parser_base.cpp */,
 				2B6A60340EB0B85D008E6D11 /* sql_parser_base.h */,
-				2B750FD20E87966E0003120A /* fk_ref.h */,
-				2B750FEE0E87966E0003120A /* sql_facade.h */,
+				2B6A60320EB0B85D008E6D11 /* sql_parser.h */,
+				2B41EF460F8BB07000F5EB1E /* sql_specifics.cpp */,
+				2B41EF450F8BB07000F5EB1E /* sql_specifics.h */,
+				2B5DE7240FFE9F7D00701821 /* sql_statement_decomposer.cpp */,
+				2B5DE7250FFE9F7D00701821 /* sql_statement_decomposer.h */,
+				2B41EF440F8BB07000F5EB1E /* sql_syntax_check.h */,
 			);
 			name = grtsqlparser;
 			path = backend/wbpublic/grtsqlparser;
@@ -8973,25 +8941,25 @@
 		2B750FEF0E87966E0003120A /* grtui */ = {
 			isa = PBXGroup;
 			children = (
-				27DC56B4130ED5DE00E0200F /* inserts_export_form.cpp */,
-				27DC56B5130ED5DE00E0200F /* inserts_export_form.h */,
-				2BCE53DA122C6BE60019C95B /* confirm_save_dialog.h */,
-				2BCE53DB122C6BE60019C95B /* confirm_save_dialog.cpp */,
 				2B03B5B7116CBFA5009987BE /* Blob Editor */,
-				2B0CE62710C60EED00325F30 /* file_charset_dialog.cpp */,
-				2B0CE62810C60EED00325F30 /* file_charset_dialog.h */,
 				2B73900E0F5EECD30084CA96 /* Connection */,
-				2B73900D0F5EECCC0084CA96 /* Wizard */,
 				2B3D4FEB0F40CB3B009238A7 /* checkbox_list_control.cpp */,
 				2B3D4FEC0F40CB3B009238A7 /* checkbox_list_control.h */,
-				2B750FF90E87966E0003120A /* gui_plugin_base.cpp */,
-				2B750FFA0E87966E0003120A /* gui_plugin_base.h */,
-				2B750FFF0E87966E0003120A /* text_input_dialog.cpp */,
-				2B7510000E87966E0003120A /* text_input_dialog.h */,
+				2BCE53DB122C6BE60019C95B /* confirm_save_dialog.cpp */,
+				2BCE53DA122C6BE60019C95B /* confirm_save_dialog.h */,
+				2B0CE62710C60EED00325F30 /* file_charset_dialog.cpp */,
+				2B0CE62810C60EED00325F30 /* file_charset_dialog.h */,
 				2B750FF70E87966E0003120A /* grtdb_object_filter.cpp */,
 				2B750FF80E87966E0003120A /* grtdb_object_filter.h */,
+				2B750FF90E87966E0003120A /* gui_plugin_base.cpp */,
+				2B750FFA0E87966E0003120A /* gui_plugin_base.h */,
+				27DC56B4130ED5DE00E0200F /* inserts_export_form.cpp */,
+				27DC56B5130ED5DE00E0200F /* inserts_export_form.h */,
 				2B07485F0F93F9A100D7E4E3 /* string_list_editor.cpp */,
 				2B0748600F93F9A100D7E4E3 /* string_list_editor.h */,
+				2B750FFF0E87966E0003120A /* text_input_dialog.cpp */,
+				2B7510000E87966E0003120A /* text_input_dialog.h */,
+				2B73900D0F5EECCC0084CA96 /* Wizard */,
 			);
 			name = grtui;
 			path = backend/wbpublic/grtui;
@@ -9000,6 +8968,8 @@
 		2B7510050E87966E0003120A /* wbcanvas */ = {
 			isa = PBXGroup;
 			children = (
+				2B869C520F7E8DBF0005CB9B /* badge_figure.cpp */,
+				2B869C510F7E8DBF0005CB9B /* badge_figure.h */,
 				2B7510060E87966E0003120A /* base_bridge.cpp */,
 				2B7510070E87966E0003120A /* base_bridge.h */,
 				2B7510080E87966E0003120A /* connection_figure.cpp */,
@@ -9012,6 +8982,8 @@
 				2B75100F0E87966E0003120A /* layer_figure.h */,
 				2B7510110E87966E0003120A /* model_connection_impl.cpp */,
 				2B7510120E87966E0003120A /* model_connection_impl.h */,
+				2B75101B0E87966E0003120A /* model_diagram_impl.cpp */,
+				2B75101C0E87966E0003120A /* model_diagram_impl.h */,
 				2B7510130E87966E0003120A /* model_figure_impl.cpp */,
 				2B7510140E87966E0003120A /* model_figure_impl.h */,
 				2B7510150E87966E0003120A /* model_layer_impl.cpp */,
@@ -9020,20 +8992,18 @@
 				2B7510180E87966E0003120A /* model_model_impl.h */,
 				2B7510190E87966E0003120A /* model_object_impl.cpp */,
 				2B75101A0E87966E0003120A /* model_object_impl.h */,
-				2B75101B0E87966E0003120A /* model_diagram_impl.cpp */,
-				2B75101C0E87966E0003120A /* model_diagram_impl.h */,
 				2B75101D0E87966E0003120A /* note_figure.cpp */,
 				2B75101E0E87966E0003120A /* note_figure.h */,
 				2B75101F0E87966E0003120A /* routine_group_figure.cpp */,
 				2B7510200E87966E0003120A /* routine_group_figure.h */,
-				2B7510240E87966E0003120A /* table_figure.cpp */,
-				2B7510250E87966E0003120A /* table_figure.h */,
 				2B6BBB870EB7599F00D71468 /* table_figure_idef1x.cpp */,
 				2B6BBB880EB7599F00D71468 /* table_figure_idef1x.h */,
 				2B6BBB890EB7599F00D71468 /* table_figure_simple.cpp */,
 				2B6BBB8A0EB7599F00D71468 /* table_figure_simple.h */,
 				2B6BBB8B0EB7599F00D71468 /* table_figure_wb.cpp */,
 				2B6BBB8C0EB7599F00D71468 /* table_figure_wb.h */,
+				2B7510240E87966E0003120A /* table_figure.cpp */,
+				2B7510250E87966E0003120A /* table_figure.h */,
 				2B75102A0E87966E0003120A /* view_figure.cpp */,
 				2B75102B0E87966E0003120A /* view_figure.h */,
 				2B75102E0E87966E0003120A /* workbench_model_imagefigure_impl.cpp */,
@@ -9042,18 +9012,16 @@
 				2B7510310E87966E0003120A /* workbench_model_notefigure_impl.h */,
 				2B7510320E87966E0003120A /* workbench_physical_connection_impl.cpp */,
 				2B7510330E87966E0003120A /* workbench_physical_connection_impl.h */,
+				2B75103A0E87966E0003120A /* workbench_physical_diagram_impl.cpp */,
+				2B75103B0E87966E0003120A /* workbench_physical_diagram_impl.h */,
 				2B7510340E87966E0003120A /* workbench_physical_model_impl.cpp */,
 				2B7510350E87966E0003120A /* workbench_physical_model_impl.h */,
 				2B7510360E87966E0003120A /* workbench_physical_routinegroupfigure_impl.cpp */,
 				2B7510370E87966E0003120A /* workbench_physical_routinegroupfigure_impl.h */,
 				2B7510380E87966E0003120A /* workbench_physical_tablefigure_impl.cpp */,
 				2B7510390E87966E0003120A /* workbench_physical_tablefigure_impl.h */,
-				2B75103A0E87966E0003120A /* workbench_physical_diagram_impl.cpp */,
-				2B75103B0E87966E0003120A /* workbench_physical_diagram_impl.h */,
 				2B75103C0E87966E0003120A /* workbench_physical_viewfigure_impl.cpp */,
 				2B75103D0E87966E0003120A /* workbench_physical_viewfigure_impl.h */,
-				2B869C510F7E8DBF0005CB9B /* badge_figure.h */,
-				2B869C520F7E8DBF0005CB9B /* badge_figure.cpp */,
 			);
 			name = wbcanvas;
 			path = backend/wbpublic/wbcanvas;
@@ -9062,28 +9030,28 @@
 		2B75103E0E87966E0003120A /* Workbench */ = {
 			isa = PBXGroup;
 			children = (
-				2BF049671742CCF400A7EA35 /* wb_version.h */,
+				2BD4208B198ACC2D0061895B /* Home */,
 				2B8147D50F6940C400A5489C /* Model File */,
 				2BFBEFF30F50BF7F0016F9D1 /* Overview */,
 				27CC86041741348D00AAA267 /* about_box.cpp */,
 				27CC86051741348D00AAA267 /* about_box.h */,
-				2BD4208B198ACC2D0061895B /* Home */,
-				2B4BD6CF0ED202DE003E44F2 /* wb_command_ui.h */,
-				2B4BD6CE0ED202DE003E44F2 /* wb_command_ui.cpp */,
 				2B7510420E87966E0003120A /* metaclasses.cpp */,
+				2B4BD6CE0ED202DE003E44F2 /* wb_command_ui.cpp */,
+				2B4BD6CF0ED202DE003E44F2 /* wb_command_ui.h */,
 				2B1765B614599853003EFCF7 /* wb_context_names.h */,
-				2B75105F0E87966E0003120A /* wb_context.h */,
-				2B75105E0E87966E0003120A /* wb_context.cpp */,
 				2B7510640E87966E0003120A /* wb_context_ui.cpp */,
 				2B7510650E87966E0003120A /* wb_context_ui.h */,
-				2B7510750E87966E0003120A /* wb_module.cpp */,
-				2B7510760E87966E0003120A /* wb_module.h */,
-				2BC08B311064836C0069AB9A /* wb_tunnel.h */,
-				2BC08B321064836C0069AB9A /* wb_tunnel.cpp */,
-				278874971189DEAC00E477EF /* webbrowser_view.h */,
-				278874951189DEA500E477EF /* webbrowser_view.cpp */,
+				2B75105E0E87966E0003120A /* wb_context.cpp */,
+				2B75105F0E87966E0003120A /* wb_context.h */,
 				EDE7748914C50BD3005AFF52 /* wb_db_schema.cpp */,
 				EDE7748A14C50BD3005AFF52 /* wb_db_schema.h */,
+				2B7510750E87966E0003120A /* wb_module.cpp */,
+				2B7510760E87966E0003120A /* wb_module.h */,
+				2BC08B321064836C0069AB9A /* wb_tunnel.cpp */,
+				2BC08B311064836C0069AB9A /* wb_tunnel.h */,
+				2BF049671742CCF400A7EA35 /* wb_version.h */,
+				278874951189DEA500E477EF /* webbrowser_view.cpp */,
+				278874971189DEAC00E477EF /* webbrowser_view.h */,
 			);
 			name = Workbench;
 			path = backend/wbprivate/workbench;
@@ -9093,9 +9061,9 @@
 			isa = PBXGroup;
 			children = (
 				2B7A74C215743D31003D8549 /* migration_background.png */,
+				2B2909D5159A0C9300708C09 /* migration_check_current.png */,
 				2B7A74C415743D31003D8549 /* migration_check_done.png */,
 				2B7A74C615743D31003D8549 /* migration_check_open.png */,
-				2B2909D5159A0C9300708C09 /* migration_check_current.png */,
 				2B2909D6159A0C9300708C09 /* migration_check_point.png */,
 				2B7A74C715743D31003D8549 /* migration_icon_32x32.png */,
 				2B7A74C815743D31003D8549 /* migration_logo.png */,
@@ -9108,67 +9076,51 @@
 		2B7FC43B112D9C0D008C07BF /* toolbar */ = {
 			isa = PBXGroup;
 			children = (
-				2BB0D65C18C26CBA00B59458 /* record_back@2x.png */,
-				2BB0D65D18C26CBA00B59458 /* record_first@2x.png */,
-				2BB0D65E18C26CBA00B59458 /* record_last@2x.png */,
-				2BB0D65F18C26CBA00B59458 /* record_next@2x.png */,
-				279EC88B185214A6007D1252 /* wb-toolbar_automatic-help-off.png */,
-				279EC88C185214A6007D1252 /* wb-toolbar_automatic-help-off@2x.png */,
-				279EC88D185214A6007D1252 /* wb-toolbar_automatic-help-on.png */,
-				279EC88E185214A6007D1252 /* wb-toolbar_automatic-help-on@2x.png */,
-				279EC88F185214A6007D1252 /* wb-toolbar_manual-help.png */,
-				279EC890185214A7007D1252 /* wb-toolbar_manual-help@2x.png */,
-				2B1D6E5A179DCF590073C062 /* wb-toolbar_nav-back.png */,
-				2B1D6E5B179DCF590073C062 /* wb-toolbar_nav-back@2x.png */,
-				2B1D6E5C179DCF590073C062 /* wb-toolbar_nav-forward.png */,
-				2B1D6E5D179DCF590073C062 /* wb-toolbar_nav-forward@2x.png */,
-				2B1D6D54179D9FF70073C062 /* record_refresh.png */,
-				2B1D6D55179D9FF70073C062 /* record_refresh@2x.png */,
-				27635CED179968B300288DBE /* record_add@2x.png */,
-				27635CEE179968B300288DBE /* record_autosize@2x.png */,
-				27635CEF179968B300288DBE /* record_del@2x.png */,
-				27635CF1179968B300288DBE /* record_export@2x.png */,
-				27635CF2179968B300288DBE /* record_fetch_all@2x.png */,
-				27635CF3179968B300288DBE /* record_fetch_next@2x.png */,
-				27635CF4179968B300288DBE /* record_fetch_prev@2x.png */,
-				2B1D6D58179DA00D0073C062 /* record_edit@2x.png */,
-				27635D01179968B300288DBE /* tiny_hidesidebar.png */,
-				27635D04179968B300288DBE /* tiny_new.png */,
-				27635D05179968B300288DBE /* tiny_refresh@2x.png */,
-				27EF538117997C710028EC8C /* tiny_rollback.png */,
-				27EF538217997C710028EC8C /* tiny_rollback@2x.png */,
-				27635D07179968B300288DBE /* wb_toolbar_pages_18x18.png */,
-				2BC9299F170CD7B300D5BCAD /* edit_table_templates.png */,
-				2B98345A15FA2F080038D5ED /* record_import.png */,
-				273766AE17997E4600803099 /* record_import@2x.png */,
-				2754DF5F142CAA9800D1D419 /* snippet_clipboard.png */,
-				2BCEBFFF13DC565B00A23E75 /* record_autosize.png */,
-				2B1ACD9C128853B500AEC070 /* debug_pause.png */,
 				2B1AC76C127F99C800AEC070 /* debug_continue.png */,
-				2B1AC76D127F99C800AEC070 /* debug_step.png */,
+				2B1ACD9C128853B500AEC070 /* debug_pause.png */,
 				2B1AC76E127F99C800AEC070 /* debug_step_into.png */,
 				2B1AC76F127F99C800AEC070 /* debug_step_out.png */,
+				2B1AC76D127F99C800AEC070 /* debug_step.png */,
 				2B1AC770127F99C800AEC070 /* debug_stop.png */,
-				2B1C6DC911B4439100D5169A /* record_fetch_next.png */,
-				2B1C6DCA11B4439100D5169A /* record_fetch_prev.png */,
-				2B1C6DCB11B4439100D5169A /* record_sort_reset.png */,
+				2BC9299F170CD7B300D5BCAD /* edit_table_templates.png */,
 				2B3EC788114833AA00BE2266 /* query_continue_on_error.png */,
 				2B3EC789114833AA00BE2266 /* query_stop_on_error.png */,
 				2B3EC78A114833AA00BE2266 /* record_add.png */,
+				27635CED179968B300288DBE /* record_add@2x.png */,
+				2BCEBFFF13DC565B00A23E75 /* record_autosize.png */,
+				27635CEE179968B300288DBE /* record_autosize@2x.png */,
 				2B3EC78B114833AA00BE2266 /* record_back.png */,
+				2BB0D65C18C26CBA00B59458 /* record_back@2x.png */,
 				2B3EC78C114833AA00BE2266 /* record_del.png */,
+				27635CEF179968B300288DBE /* record_del@2x.png */,
 				2B3EC78D114833AA00BE2266 /* record_discard.png */,
 				2B3EC78E114833AA00BE2266 /* record_edit.png */,
+				2B1D6D58179DA00D0073C062 /* record_edit@2x.png */,
 				2B3EC78F114833AA00BE2266 /* record_export.png */,
+				27635CF1179968B300288DBE /* record_export@2x.png */,
 				2B3EC790114833AA00BE2266 /* record_fetch_all.png */,
+				27635CF2179968B300288DBE /* record_fetch_all@2x.png */,
+				2B1C6DC911B4439100D5169A /* record_fetch_next.png */,
+				27635CF3179968B300288DBE /* record_fetch_next@2x.png */,
+				2B1C6DCA11B4439100D5169A /* record_fetch_prev.png */,
+				27635CF4179968B300288DBE /* record_fetch_prev@2x.png */,
 				2B3EC791114833AA00BE2266 /* record_first.png */,
+				2BB0D65D18C26CBA00B59458 /* record_first@2x.png */,
+				2B98345A15FA2F080038D5ED /* record_import.png */,
+				273766AE17997E4600803099 /* record_import@2x.png */,
 				2B3EC792114833AA00BE2266 /* record_last.png */,
+				2BB0D65E18C26CBA00B59458 /* record_last@2x.png */,
 				2B3EC793114833AA00BE2266 /* record_next.png */,
+				2BB0D65F18C26CBA00B59458 /* record_next@2x.png */,
+				2B1D6D54179D9FF70073C062 /* record_refresh.png */,
+				2B1D6D55179D9FF70073C062 /* record_refresh@2x.png */,
 				2B3EC794114833AA00BE2266 /* record_save.png */,
 				2B3EC795114833AA00BE2266 /* record_sort_asc.png */,
 				2B3EC796114833AA00BE2266 /* record_sort_desc.png */,
+				2B1C6DCB11B4439100D5169A /* record_sort_reset.png */,
 				2B3EC797114833AA00BE2266 /* record_wrap_vertical.png */,
 				2B3EC798114833AA00BE2266 /* snippet_add.png */,
+				2754DF5F142CAA9800D1D419 /* snippet_clipboard.png */,
 				2B3EC799114833AA00BE2266 /* snippet_del.png */,
 				2B3EC79A114833AA00BE2266 /* snippet_insert.png */,
 				2B3EC79B114833AA00BE2266 /* snippet_use.png */,
@@ -9187,6 +9139,7 @@
 				2B7FC45E112D9C2A008C07BF /* tiny_grid.png */,
 				2B7FC45F112D9C2A008C07BF /* tiny_gridview.png */,
 				2B7FC460112D9C2A008C07BF /* tiny_grtshell.png */,
+				27635D01179968B300288DBE /* tiny_hidesidebar.png */,
 				2B7FC462112D9C2A008C07BF /* tiny_loadsql.png */,
 				2B7FC464112D9C2A008C07BF /* tiny_lock.png */,
 				2B7FC467112D9C2A008C07BF /* tiny_new_diagram.png */,
@@ -9196,11 +9149,15 @@
 				2B7FC46C112D9C2A008C07BF /* tiny_new_script.png */,
 				2B7FC46E112D9C2A008C07BF /* tiny_new_table.png */,
 				2B7FC46F112D9C2A008C07BF /* tiny_new_view.png */,
+				27635D04179968B300288DBE /* tiny_new.png */,
 				2B7FC470112D9C2A008C07BF /* tiny_open.png */,
 				2B7FC479112D9C2A008C07BF /* tiny_redo.png */,
-				2B7FC47B112D9C2A008C07BF /* tiny_refresh.png */,
 				2B7FC47D112D9C2A008C07BF /* tiny_refresh_plugins.png */,
+				2B7FC47B112D9C2A008C07BF /* tiny_refresh.png */,
+				27635D05179968B300288DBE /* tiny_refresh@2x.png */,
 				2B7FC47F112D9C2A008C07BF /* tiny_rollback_disabled.png */,
+				27EF538117997C710028EC8C /* tiny_rollback.png */,
+				27EF538217997C710028EC8C /* tiny_rollback@2x.png */,
 				2B7FC481112D9C2A008C07BF /* tiny_ruler.png */,
 				2B7FC482112D9C2A008C07BF /* tiny_save.png */,
 				2B7FC484112D9C2A008C07BF /* tiny_saveas.png */,
@@ -9221,13 +9178,24 @@
 				2B7FC498112D9C2B008C07BF /* wb_layer.png */,
 				2B7FC499112D9C2B008C07BF /* wb_magnifier.png */,
 				2B7FC49A112D9C2B008C07BF /* wb_note.png */,
-				2B7FC49B112D9C2B008C07BF /* wb_rel_1n.png */,
 				2B7FC49C112D9C2B008C07BF /* wb_rel_1n_nonid.png */,
 				2B7FC49D112D9C2B008C07BF /* wb_rel_1n_pick.png */,
-				2B7FC49E112D9C2B008C07BF /* wb_rel_11.png */,
+				2B7FC49B112D9C2B008C07BF /* wb_rel_1n.png */,
 				2B7FC49F112D9C2B008C07BF /* wb_rel_11_nonid.png */,
+				2B7FC49E112D9C2B008C07BF /* wb_rel_11.png */,
 				2B7FC4A0112D9C2B008C07BF /* wb_rel_nm.png */,
 				2B7FC4A1112D9C2B008C07BF /* wb_rubber.png */,
+				27635D07179968B300288DBE /* wb_toolbar_pages_18x18.png */,
+				279EC88B185214A6007D1252 /* wb-toolbar_automatic-help-off.png */,
+				279EC88C185214A6007D1252 /* wb-toolbar_automatic-help-off@2x.png */,
+				279EC88D185214A6007D1252 /* wb-toolbar_automatic-help-on.png */,
+				279EC88E185214A6007D1252 /* wb-toolbar_automatic-help-on@2x.png */,
+				279EC88F185214A6007D1252 /* wb-toolbar_manual-help.png */,
+				279EC890185214A7007D1252 /* wb-toolbar_manual-help@2x.png */,
+				2B1D6E5A179DCF590073C062 /* wb-toolbar_nav-back.png */,
+				2B1D6E5B179DCF590073C062 /* wb-toolbar_nav-back@2x.png */,
+				2B1D6E5C179DCF590073C062 /* wb-toolbar_nav-forward.png */,
+				2B1D6E5D179DCF590073C062 /* wb-toolbar_nav-forward@2x.png */,
 			);
 			name = toolbar;
 			sourceTree = "<group>";
@@ -9237,9 +9205,9 @@
 			children = (
 				2B7510500E87966E0003120A /* upgrade_helper.cpp */,
 				2B7510510E87966E0003120A /* upgrade_helper.h */,
+				2B7510700E87966E0003120A /* wb_model_file_upgrade.cpp */,
 				2B75106E0E87966E0003120A /* wb_model_file.cpp */,
 				2B75106F0E87966E0003120A /* wb_model_file.h */,
-				2B7510700E87966E0003120A /* wb_model_file_upgrade.cpp */,
 			);
 			name = "Model File";
 			sourceTree = "<group>";
@@ -9247,13 +9215,13 @@
 		2B825D2E0E0B59BB00BE52DF /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				2B9115AD1577237B00C82308 /* python */,
-				27467FBA154AC77A00021708 /* mysql.parser */,
 				2B825D2F0E0B59CC00BE52DF /* base */,
+				2B750DB40E877D7E0003120A /* cdbc */,
 				2B825D6A0E0B600000BE52DF /* grt */,
 				2B9616140F27594600F0B599 /* mforms */,
-				2B750DB40E877D7E0003120A /* cdbc */,
 				2B825E250E0B662E00BE52DF /* mysql.canvas */,
+				27467FBA154AC77A00021708 /* mysql.parser */,
+				2B9115AD1577237B00C82308 /* python */,
 				2BDC26230E8566CF0018CE34 /* sql.parser */,
 			);
 			name = Libraries;
@@ -9262,44 +9230,44 @@
 		2B825D2F0E0B59CC00BE52DF /* base */ = {
 			isa = PBXGroup;
 			children = (
-				27C15E651A30989000EB73F7 /* wbbase_prefix.pch */,
-				ED69F9E715DEC9F600FF2FE3 /* profiling.h */,
-				ED69F9E515DEC9DB00FF2FE3 /* profiling.cpp */,
-				273F6AFE17044B37002117F2 /* threading.h */,
-				2BAD7A72156C8A6E0025F13F /* threading.cpp */,
-				2B0F1CC01501D7630087D62A /* trackable.h */,
-				2B22CA9D146DF85100625F5C /* notifications.h */,
-				2B22CAC0146DF8C000625F5C /* notifications.cpp */,
-				274E89801313BFCF000459A0 /* drawing.cpp */,
-				274E897E1313BFC1000459A0 /* drawing.h */,
-				27B3E25E12E05FC700FFF572 /* log.h */,
-				27B3E25B12E05FBE00FFF572 /* log.cpp */,
-				2B15AEB212D74EFF006567D6 /* file_functions.cpp */,
 				2B299C4612CF8C3D008B57C9 /* boost_smart_ptr_helpers.h */,
+				27C3A1301070C3B200DD5717 /* common.h */,
+				2B60D7E7129C6B83000D5760 /* config_file.cpp */,
 				2B299C4712CF8C3D008B57C9 /* config_file.h */,
 				2B299C4812CF8C3D008B57C9 /* debugging.h */,
-				2B299C4912CF8C3D008B57C9 /* wb_iterators.h */,
-				2B299C4A12CF8C3D008B57C9 /* wb_memory.h */,
-				2B60D7E7129C6B83000D5760 /* config_file.cpp */,
+				274E89801313BFCF000459A0 /* drawing.cpp */,
+				274E897E1313BFC1000459A0 /* drawing.h */,
+				2B825D370E0B59EE00BE52DF /* entities.h */,
+				2B15AEB212D74EFF006567D6 /* file_functions.cpp */,
+				2BDAE46911139B3B00AC1D7A /* file_functions.h */,
+				2B89B54F12A2EF28009D4A2C /* file_utilities.cpp */,
+				2B89B54E12A2EF28009D4A2C /* file_utilities.h */,
 				2767F92911635C2500931E27 /* geometry.cpp */,
 				2767F92A11635C2500931E27 /* geometry.h */,
-				2BDAE46911139B3B00AC1D7A /* file_functions.h */,
-				2B89B54E12A2EF28009D4A2C /* file_utilities.h */,
-				2B89B54F12A2EF28009D4A2C /* file_utilities.cpp */,
-				2738042010AB272500EF15C0 /* string_utilities.cpp */,
-				2738042110AB272500EF15C0 /* string_utilities.h */,
-				2B497E6013D0DD5600F6AF47 /* sqlstring.h */,
-				2B497E5E13D0DD4600F6AF47 /* sqlstring.cpp */,
-				2B4C9E0610A29CDF00D5F19E /* ui_form.cpp */,
-				2B4C9E0710A29CDF00D5F19E /* ui_form.h */,
-				27ED05081071D0A000C62B57 /* threaded_timer.cpp */,
-				27ED05091071D0A000C62B57 /* threaded_timer.h */,
-				27C3A1301070C3B200DD5717 /* common.h */,
-				2B825D370E0B59EE00BE52DF /* entities.h */,
-				2B129A671443E39D00BC78DF /* util_functions.cpp */,
-				2B825D3A0E0B59EE00BE52DF /* util_functions.h */,
+				27B3E25B12E05FBE00FFF572 /* log.cpp */,
+				27B3E25E12E05FC700FFF572 /* log.h */,
+				2B22CAC0146DF8C000625F5C /* notifications.cpp */,
+				2B22CA9D146DF85100625F5C /* notifications.h */,
+				ED69F9E515DEC9DB00FF2FE3 /* profiling.cpp */,
+				ED69F9E715DEC9F600FF2FE3 /* profiling.h */,
 				2B6C4FB818DDD88F00869EBE /* python_utils.cpp */,
 				2B6C4FBC18DDD8C500869EBE /* python_utils.h */,
+				2B497E5E13D0DD4600F6AF47 /* sqlstring.cpp */,
+				2B497E6013D0DD5600F6AF47 /* sqlstring.h */,
+				2738042010AB272500EF15C0 /* string_utilities.cpp */,
+				2738042110AB272500EF15C0 /* string_utilities.h */,
+				27ED05081071D0A000C62B57 /* threaded_timer.cpp */,
+				27ED05091071D0A000C62B57 /* threaded_timer.h */,
+				2BAD7A72156C8A6E0025F13F /* threading.cpp */,
+				273F6AFE17044B37002117F2 /* threading.h */,
+				2B0F1CC01501D7630087D62A /* trackable.h */,
+				2B4C9E0610A29CDF00D5F19E /* ui_form.cpp */,
+				2B4C9E0710A29CDF00D5F19E /* ui_form.h */,
+				2B129A671443E39D00BC78DF /* util_functions.cpp */,
+				2B825D3A0E0B59EE00BE52DF /* util_functions.h */,
+				2B299C4912CF8C3D008B57C9 /* wb_iterators.h */,
+				2B299C4A12CF8C3D008B57C9 /* wb_memory.h */,
+				27C15E651A30989000EB73F7 /* wbbase_prefix.pch */,
 			);
 			name = base;
 			sourceTree = "<group>";
@@ -9308,6 +9276,7 @@
 			isa = PBXGroup;
 			children = (
 				2B825D950E0B604D00BE52DF /* diff */,
+				2BB58B1E0F45F0C300089423 /* python */,
 				27C15E6A1A30A2E000EB73F7 /* grt_prefix.pch */,
 				2B825DC80E0B605A00BE52DF /* grtpp_grt.cpp */,
 				2B825DBA0E0B605A00BE52DF /* grtpp_helper.cpp */,
@@ -9327,7 +9296,6 @@
 				2B825DC40E0B605A00BE52DF /* grtpp_value.cpp */,
 				2B825DC70E0B605A00BE52DF /* grtpp_value.h */,
 				2B825DB70E0B605A00BE52DF /* grtpp.h */,
-				2BB58B1E0F45F0C300089423 /* python */,
 				2B825DBF0E0B605A00BE52DF /* serializer.cpp */,
 				2B825DBE0E0B605A00BE52DF /* serializer.h */,
 				2B825DB60E0B605A00BE52DF /* unserializer.cpp */,
@@ -9359,41 +9327,41 @@
 			isa = PBXGroup;
 			children = (
 				2BE5B31C0EA52D8400194EB2 /* Headers */,
-				2B825E280E0B664E00BE52DF /* mdc_canvas_view_macosx.cpp */,
-				2BB37B421109507800DA4577 /* mdc_canvas_view_printing.cpp */,
-				2B00E5130EB40438006B9A7C /* mdc_canvas_view_opengl.cpp */,
-				2B825E290E0B664E00BE52DF /* mdc_icon_text.cpp */,
-				2B825E2C0E0B664E00BE52DF /* mdc_box_handle.cpp */,
-				2B825E2D0E0B664E00BE52DF /* mdc_item_handle.cpp */,
-				2B825E2E0E0B664E00BE52DF /* mdc_interaction_layer.cpp */,
-				2B825E300E0B664E00BE52DF /* mdc_button.cpp */,
-				2B825E310E0B664E00BE52DF /* mdc_box_side_magnet.cpp */,
-				2B825E350E0B664E00BE52DF /* mdc_layer.cpp */,
-				2B825E370E0B664E00BE52DF /* mdc_common.cpp */,
-				2B825E3B0E0B664E00BE52DF /* mdc_box.cpp */,
-				2B825E3D0E0B664E00BE52DF /* mdc_back_layer.cpp */,
-				2B825E3F0E0B664E00BE52DF /* mdc_bounds_magnet.cpp */,
 				2B825E400E0B664E00BE52DF /* mdc_algorithms.cpp */,
 				2B825E410E0B664E00BE52DF /* mdc_area_group.cpp */,
+				2B825E3D0E0B664E00BE52DF /* mdc_back_layer.cpp */,
+				2B825E3F0E0B664E00BE52DF /* mdc_bounds_magnet.cpp */,
+				2B825E2C0E0B664E00BE52DF /* mdc_box_handle.cpp */,
+				2B825E310E0B664E00BE52DF /* mdc_box_side_magnet.cpp */,
+				2B825E3B0E0B664E00BE52DF /* mdc_box.cpp */,
+				2B825E300E0B664E00BE52DF /* mdc_button.cpp */,
+				2B825E550E0B664E00BE52DF /* mdc_canvas_item.cpp */,
+				2B825E6F0E0B664E00BE52DF /* mdc_canvas_view_image.cpp */,
+				2B825E280E0B664E00BE52DF /* mdc_canvas_view_macosx.cpp */,
+				2B00E5130EB40438006B9A7C /* mdc_canvas_view_opengl.cpp */,
+				2BB37B421109507800DA4577 /* mdc_canvas_view_printing.cpp */,
+				2B825E560E0B664E00BE52DF /* mdc_canvas_view.cpp */,
+				2B825E370E0B664E00BE52DF /* mdc_common.cpp */,
+				2B825E4F0E0B664E00BE52DF /* mdc_connector.cpp */,
+				2B825E6A0E0B664E00BE52DF /* mdc_draw_util.cpp */,
+				2B825E6C0E0B664E00BE52DF /* mdc_figure.cpp */,
+				2B825E460E0B664E00BE52DF /* mdc_group.cpp */,
+				2B825E290E0B664E00BE52DF /* mdc_icon_text.cpp */,
 				2B825E420E0B664E00BE52DF /* mdc_image_manager.cpp */,
 				2B825E440E0B664E00BE52DF /* mdc_image.cpp */,
-				2B825E460E0B664E00BE52DF /* mdc_group.cpp */,
-				2B825E480E0B664E00BE52DF /* mdc_orthogonal_line_layouter.cpp */,
-				2B825E4A0E0B664E00BE52DF /* mdc_rectangle.cpp */,
-				2B825E4F0E0B664E00BE52DF /* mdc_connector.cpp */,
-				2B825E500E0B664E00BE52DF /* mdc_text.cpp */,
-				2B825E550E0B664E00BE52DF /* mdc_canvas_item.cpp */,
-				2B825E560E0B664E00BE52DF /* mdc_canvas_view.cpp */,
-				2B825E590E0B664E00BE52DF /* mdc_magnet.cpp */,
+				2B825E2E0E0B664E00BE52DF /* mdc_interaction_layer.cpp */,
+				2B825E2D0E0B664E00BE52DF /* mdc_item_handle.cpp */,
+				2B825E350E0B664E00BE52DF /* mdc_layer.cpp */,
+				2B825E670E0B664E00BE52DF /* mdc_layouter.cpp */,
 				2B825E600E0B664E00BE52DF /* mdc_line_segment_handle.cpp */,
 				2B825E610E0B664E00BE52DF /* mdc_line.cpp */,
-				2B825E670E0B664E00BE52DF /* mdc_layouter.cpp */,
-				2B825E680E0B664E00BE52DF /* mdc_straight_line_layouter.cpp */,
-				2B825E6A0E0B664E00BE52DF /* mdc_draw_util.cpp */,
-				2B825E6B0E0B664E00BE52DF /* mdc_vertex_handle.cpp */,
-				2B825E6C0E0B664E00BE52DF /* mdc_figure.cpp */,
-				2B825E6F0E0B664E00BE52DF /* mdc_canvas_view_image.cpp */,
+				2B825E590E0B664E00BE52DF /* mdc_magnet.cpp */,
+				2B825E480E0B664E00BE52DF /* mdc_orthogonal_line_layouter.cpp */,
+				2B825E4A0E0B664E00BE52DF /* mdc_rectangle.cpp */,
 				2B825E700E0B664E00BE52DF /* mdc_selection.cpp */,
+				2B825E680E0B664E00BE52DF /* mdc_straight_line_layouter.cpp */,
+				2B825E500E0B664E00BE52DF /* mdc_text.cpp */,
+				2B825E6B0E0B664E00BE52DF /* mdc_vertex_handle.cpp */,
 			);
 			name = mysql.canvas;
 			sourceTree = "<group>";
@@ -9401,19 +9369,19 @@
 		2B825EBC0E0B68D900BE52DF /* Workbench */ = {
 			isa = PBXGroup;
 			children = (
-				27BFE4691924C3DB0070B8FB /* MySQLWorkbench_prefix.pch */,
+				2BCFD7BB0E88BA8800D2A0CB /* Main Window */,
+				2BF87AA00FA7F6E30012EADA /* Model */,
+				29B97315FDCFA39411CA2CEA /* Other Sources */,
+				2B3009BF0E99B081002C5BBA /* Overview */,
+				2B8767C00F4B1745000B6DE1 /* Plugin View */,
+				29B97317FDCFA39411CA2CEA /* Resources */,
+				1617BA220F8E4CD200F5249C /* SQL Query */,
 				27A3EC8C164BA997001B6D8F /* MainMenu.xib */,
+				27BFE4691924C3DB0070B8FB /* MySQLWorkbench_prefix.pch */,
 				2B263BC90E9463FB00933149 /* WBMainController.h */,
 				2B263BCA0E9463FB00933149 /* WBMainController.mm */,
 				2B0123E61090B617009B2112 /* WBPluginPanelController.h */,
 				2B0123E71090B617009B2112 /* WBPluginPanelController.mm */,
-				2BCFD7BB0E88BA8800D2A0CB /* Main Window */,
-				2B3009BF0E99B081002C5BBA /* Overview */,
-				2BF87AA00FA7F6E30012EADA /* Model */,
-				1617BA220F8E4CD200F5249C /* SQL Query */,
-				2B8767C00F4B1745000B6DE1 /* Plugin View */,
-				29B97315FDCFA39411CA2CEA /* Other Sources */,
-				29B97317FDCFA39411CA2CEA /* Resources */,
 			);
 			name = Workbench;
 			sourceTree = "<group>";
@@ -9430,20 +9398,20 @@
 		2B825EBE0E0B68F500BE52DF /* Modules */ = {
 			isa = PBXGroup;
 			children = (
-				ED08AD921A144239001DBE04 /* wb.fabric.interface */,
-				EDD76C8719573E5100D3D54F /* wb.fabric */,
 				2BE732E90EFAFB4000287AE0 /* db */,
 				2BAD7C4C156D89640025F13F /* db.generic */,
 				2BAD7C45156D89270025F13F /* db.mssql */,
 				2BE732EA0EFAFB4600287AE0 /* db.mysql */,
-				2B9834EE1602593D0038D5ED /* db.postgresql */,
-				2B9834ED160259300038D5ED /* db.sql92 */,
-				2BCE49EA15F533E300FA0CDC /* db.sybase */,
-				2BB626C7176BAA320070885E /* db.sqlite */,
 				2730C7471917866D00A3BD0C /* db.mysql.parser */,
 				2B2DF847105E9A2800F267F9 /* db.mysql.query */,
 				2BE7336F0EFAFE9C00287AE0 /* db.mysql.sqlparser */,
+				2B9834EE1602593D0038D5ED /* db.postgresql */,
+				2B9834ED160259300038D5ED /* db.sql92 */,
 				2BB626C6176BAA270070885E /* db.sqlanywhere */,
+				2BB626C7176BAA320070885E /* db.sqlite */,
+				2BCE49EA15F533E300FA0CDC /* db.sybase */,
+				EDD76C8719573E5100D3D54F /* wb.fabric */,
+				ED08AD921A144239001DBE04 /* wb.fabric.interface */,
 				2B5283FC0F1A56E0005FBF7C /* wb.model */,
 				2B5285E50F1C1D5A005FBF7C /* wb.mysql.import */,
 				2BD04DF10F633EA600FD47B3 /* wb.utils */,
@@ -9454,17 +9422,17 @@
 		2B825EBF0E0B690400BE52DF /* Plugins */ = {
 			isa = PBXGroup;
 			children = (
+				2B3D496D0F3E6FAD009238A7 /* db.mysql */,
+				2BB588EC0F44D54300089423 /* db.mysql.diff.reporting */,
+				2B5284190F1A5812005FBF7C /* db.mysql.editors */,
+				2B6BBEBD16BAB13900F8A39E /* db.mysql.search */,
+				2B92ACD8104D95B30063A35B /* wb.admin */,
 				2B18EDE1196DA6DD004D7596 /* wb.docs */,
 				2BAD7C20156D88B10025F13F /* wb.migration */,
-				2BAD76FE1568465C0025F13F /* wb.query.analysis */,
-				2B3D496D0F3E6FAD009238A7 /* db.mysql */,
-				2B5284190F1A5812005FBF7C /* db.mysql.editors */,
-				2BB588EC0F44D54300089423 /* db.mysql.diff.reporting */,
-				2B6BBEBD16BAB13900F8A39E /* db.mysql.search */,
 				2B17B00F0F4D979B0087ED42 /* wb.model.editors */,
 				2BF7E09F133101CA002EBA46 /* wb.model.snippets */,
-				2B92ACD8104D95B30063A35B /* wb.admin */,
 				2BB37A6B11094A7000DA4577 /* wb.printing */,
+				2BAD76FE1568465C0025F13F /* wb.query.analysis */,
 				2B6C6FBB16C0BDD500C4CC98 /* wb.sqlide */,
 			);
 			name = Plugins;
@@ -9518,9 +9486,9 @@
 		2B8A8D8F0F52C9EC006B7A4E /* MySQL Routine Group Editor */ = {
 			isa = PBXGroup;
 			children = (
-				2B8A8D910F52CA18006B7A4E /* MySQLRoutineGroupEditor.xib */,
 				2B8A8D930F52CA57006B7A4E /* MySQLRoutineGroupEditor.h */,
 				2B8A8D940F52CA57006B7A4E /* MySQLRoutineGroupEditor.mm */,
+				2B8A8D910F52CA18006B7A4E /* MySQLRoutineGroupEditor.xib */,
 			);
 			name = "MySQL Routine Group Editor";
 			sourceTree = "<group>";
@@ -9528,9 +9496,9 @@
 		2B8A8DD80F52DA53006B7A4E /* User Editor */ = {
 			isa = PBXGroup;
 			children = (
-				2B8A8DD90F52DA90006B7A4E /* UserEditor.xib */,
 				2B8A8DDB0F52DAC4006B7A4E /* UserEditor.h */,
 				2B8A8DDC0F52DAC4006B7A4E /* UserEditor.mm */,
+				2B8A8DD90F52DA90006B7A4E /* UserEditor.xib */,
 			);
 			name = "User Editor";
 			sourceTree = "<group>";
@@ -9538,9 +9506,9 @@
 		2B8A8EA10F531109006B7A4E /* Role Editor */ = {
 			isa = PBXGroup;
 			children = (
-				2B8A8EA20F531122006B7A4E /* RoleEditor.xib */,
 				2B8A8EA50F531931006B7A4E /* RoleEditor.h */,
 				2B8A8EA60F531931006B7A4E /* RoleEditor.mm */,
+				2B8A8EA20F531122006B7A4E /* RoleEditor.xib */,
 			);
 			name = "Role Editor";
 			sourceTree = "<group>";
@@ -9549,19 +9517,19 @@
 			isa = PBXGroup;
 			children = (
 				2B2C003D1831214500543D46 /* graphics */,
+				2B9115AF1577239B00C82308 /* __init__.py */,
 				EDD13F3317C7B92000A57673 /* change_tracker.py */,
 				2B2C003E1831216300543D46 /* client_utils.py */,
-				ED8C845E174A9EF80036E6EF /* os_utils.py */,
-				ED8C845F174A9EF80036E6EF /* tcp_utils.py */,
-				2B9115AF1577239B00C82308 /* __init__.py */,
 				2B9115B01577239B00C82308 /* database_object_selector_widget.py */,
 				2B9115B11577239B00C82308 /* database_schema_selector_widget.py */,
 				2B9115B21577239B00C82308 /* db_driver.py */,
 				2B9115B31577239B00C82308 /* db_utils.py */,
 				2B9115B41577239B00C82308 /* exceptions.py */,
-				2B9120FB157ED9EB00C82308 /* template.py */,
 				2B5C241C16A26BA50023598F /* notifications.py */,
+				ED8C845E174A9EF80036E6EF /* os_utils.py */,
 				2BF04976174933E200A7EA35 /* plugins.py */,
+				ED8C845F174A9EF80036E6EF /* tcp_utils.py */,
+				2B9120FB157ED9EB00C82308 /* template.py */,
 				2B9115B51577239B00C82308 /* ui.py */,
 				2B9115B61577239B00C82308 /* utils.py */,
 				2B9115B71577239B00C82308 /* wizard_page_widget.py */,
@@ -9573,9 +9541,9 @@
 		2B92ACD8104D95B30063A35B /* wb.admin */ = {
 			isa = PBXGroup;
 			children = (
+				752740C2105FB82000E3E32F /* Backend */,
 				2BCD5524154C9A5F0035C81B /* Commercial */,
 				752740C3105FB82800E3E32F /* Frontend */,
-				752740C2105FB82000E3E32F /* Backend */,
 			);
 			name = wb.admin;
 			sourceTree = "<group>";
@@ -9583,12 +9551,12 @@
 		2B9616140F27594600F0B599 /* mforms */ = {
 			isa = PBXGroup;
 			children = (
-				27B37DC31A32001B00C73F1F /* mforms_prefix.pch */,
+				2B83E5C01992B3E200781432 /* Canvas */,
+				2B96168B0F275B4000F0B599 /* Cocoa Sources */,
 				27A5768C10FE078100A948A6 /* High Level Controls */,
 				27A5768D10FE07C300A948A6 /* Low level Controls */,
 				2BCAD0471006D07800D1772C /* python */,
-				2B83E5C01992B3E200781432 /* Canvas */,
-				2B96168B0F275B4000F0B599 /* Cocoa Sources */,
+				27B37DC31A32001B00C73F1F /* mforms_prefix.pch */,
 			);
 			name = mforms;
 			sourceTree = "<group>";
@@ -9675,9 +9643,9 @@
 				2B3D49160F3E3FCA009238A7 /* MFWizard.mm */,
 				2798BFA7118AF2BC0090590E /* MHudController.h */,
 				2798BFA8118AF2BC0090590E /* MHudController.mm */,
-				2798BFA9118AF2BC0090590E /* WizardWindow.xib */,
 				2B2C005018327DA800543D46 /* MTextImageCell.h */,
 				2B2C005118327DA900543D46 /* MTextImageCell.m */,
+				2798BFA9118AF2BC0090590E /* WizardWindow.xib */,
 			);
 			name = "Cocoa Sources";
 			sourceTree = "<group>";
@@ -9706,18 +9674,18 @@
 			isa = PBXGroup;
 			children = (
 				16E0369E0F306143004651CB /* Exception handling */,
+				2B1CA1FF0EA256660062C916 /* GRTIconCache.h */,
+				2B1CA2000EA256660062C916 /* GRTIconCache.mm */,
 				2B2636110E91A78700933149 /* GRTListDataSource.h */,
 				2B2636120E91A78700933149 /* GRTListDataSource.mm */,
 				2B26360D0E91A40800933149 /* GRTTreeDataSource.h */,
 				2B26360E0E91A40800933149 /* GRTTreeDataSource.mm */,
 				2B59A9C30E94EFAC0083C1C6 /* MCPPUtilities.h */,
 				2B59A9C40E94EFAC0083C1C6 /* MCPPUtilities.mm */,
-				2B1CA1FF0EA256660062C916 /* GRTIconCache.h */,
-				2B1CA2000EA256660062C916 /* GRTIconCache.mm */,
-				2B3D48970F3E3A4A009238A7 /* NSString_extras.mm */,
-				2B3D48980F3E3A4A009238A7 /* NSString_extras.h */,
 				2BB9A1850FB1476F001F9968 /* NSColor_extras.h */,
 				2BB9A1860FB1476F001F9968 /* NSColor_extras.m */,
+				2B3D48980F3E3A4A009238A7 /* NSString_extras.h */,
+				2B3D48970F3E3A4A009238A7 /* NSString_extras.mm */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -9733,13 +9701,6 @@
 			name = wb.query.analysis;
 			sourceTree = "<group>";
 		};
-		2BAD7A76156CA36E0025F13F /* db.mgmt */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = db.mgmt;
-			sourceTree = "<group>";
-		};
 		2BAD7A7C156CA45E0025F13F /* db.migration */ = {
 			isa = PBXGroup;
 			children = (
@@ -9751,11 +9712,11 @@
 		2BAD7C20156D88B10025F13F /* wb.migration */ = {
 			isa = PBXGroup;
 			children = (
-				2B220ABF16A4E89600747448 /* dbcopy */,
-				2B2E91E8158916050078D08A /* copytable */,
-				2BAD7C9B156D8E850025F13F /* migration_grt.py */,
 				2BAD7C21156D88DA0025F13F /* backend */,
+				2B2E91E8158916050078D08A /* copytable */,
+				2B220ABF16A4E89600747448 /* dbcopy */,
 				2BAD7C23156D88DA0025F13F /* frontend */,
+				2BAD7C9B156D8E850025F13F /* migration_grt.py */,
 			);
 			name = wb.migration;
 			sourceTree = "<group>";
@@ -9816,11 +9777,11 @@
 		2BAE1A650F368E3300BE725E /* Private */ = {
 			isa = PBXGroup;
 			children = (
-				27BFE4601924BC290070B8FB /* wbprivate.be_prefix.pch */,
 				2B3D49480F3E41A7009238A7 /* Common Panels */,
-				2B75103E0E87966E0003120A /* Workbench */,
 				2BF87A280FA7CED00012EADA /* Model */,
 				2BF879BA0FA7BDD40012EADA /* SQL IDE */,
+				2B75103E0E87966E0003120A /* Workbench */,
+				27BFE4601924BC290070B8FB /* wbprivate.be_prefix.pch */,
 			);
 			name = Private;
 			sourceTree = "<group>";
@@ -9828,16 +9789,14 @@
 		2BAE1A660F368E5A00BE725E /* objimpl */ = {
 			isa = PBXGroup;
 			children = (
-				2BF2786B1869FBAB0026215C /* GrtStoredNote.cpp */,
-				2BE9FD23151A692800CC0894 /* ui */,
-				2BAE1A670F368EB200BE725E /* workbench.physical */,
-				2BAE1A6E0F368EB200BE725E /* workbench.model */,
-				2BAE1A710F368EB200BE725E /* workbench.logical */,
-				2BAE1A740F368EB200BE725E /* model */,
-				2B0DE77111E916B700989395 /* db.query */,
 				2BAE1A7B0F368EB200BE725E /* db */,
 				2BAD7A7C156CA45E0025F13F /* db.migration */,
-				2BAD7A76156CA36E0025F13F /* db.mgmt */,
+				2B0DE77111E916B700989395 /* db.query */,
+				2BAE1A740F368EB200BE725E /* model */,
+				2BE9FD23151A692800CC0894 /* ui */,
+				2BAE1A710F368EB200BE725E /* workbench.logical */,
+				2BAE1A6E0F368EB200BE725E /* workbench.model */,
+				2BAE1A670F368EB200BE725E /* workbench.physical */,
 				27B923C4196ED1AD00D98D18 /* wrapper */,
 			);
 			name = objimpl;
@@ -9894,14 +9853,14 @@
 		2BAE1A7B0F368EB200BE725E /* db */ = {
 			isa = PBXGroup;
 			children = (
-				2B2AB0FD15A68107008E2C0B /* db_RoutineGroup.cpp */,
-				2B156B991291C1C8009F4D45 /* db_Trigger.cpp */,
-				2BEC8E6B1035F74400607CA4 /* db_Index.cpp */,
 				2BAE1A7C0F368EB200BE725E /* db_Column.cpp */,
 				2BAE1A7D0F368EB200BE725E /* db_DatabaseObject.cpp */,
 				2BAE1A7E0F368EB200BE725E /* db_ForeignKey.cpp */,
+				2BEC8E6B1035F74400607CA4 /* db_Index.cpp */,
+				2B2AB0FD15A68107008E2C0B /* db_RoutineGroup.cpp */,
 				2BAE1A7F0F368EB200BE725E /* db_Schema.cpp */,
 				2BAE1A800F368EB200BE725E /* db_Table.cpp */,
+				2B156B991291C1C8009F4D45 /* db_Trigger.cpp */,
 			);
 			name = db;
 			path = backend/wbpublic/objimpl/db;
@@ -9931,9 +9890,9 @@
 		2BB588EC0F44D54300089423 /* db.mysql.diff.reporting */ = {
 			isa = PBXGroup;
 			children = (
-				2BB589090F44D62900089423 /* register_plugin.cpp */,
 				2BB589040F44D5FC00089423 /* Backend */,
 				2BB589060F44D60600089423 /* Frontend */,
+				2BB589090F44D62900089423 /* register_plugin.cpp */,
 			);
 			name = db.mysql.diff.reporting;
 			sourceTree = "<group>";
@@ -9958,23 +9917,23 @@
 		2BB58B1E0F45F0C300089423 /* python */ = {
 			isa = PBXGroup;
 			children = (
-				2B87628E0F48AEF2000B6DE1 /* wb.py */,
-				2BB58B180F45ED0A00089423 /* python_context.h */,
-				2BB58B190F45ED0A00089423 /* python_context.cpp */,
-				2BB58CEB0F4664DA00089423 /* grtpp_shell_python.h */,
-				2BB58CEC0F4664DA00089423 /* grtpp_shell_python.cpp */,
-				2B7F19D8119B74730051F062 /* grtpp_shell_python_help.h */,
-				2B7F19D9119B74730051F062 /* grtpp_shell_python_help.cpp */,
-				2BB58B380F45F11C00089423 /* grtpp_module_python.h */,
 				2BB58B390F45F11C00089423 /* grtpp_module_python.cpp */,
-				2BB58BBF0F46027E00089423 /* python_grtlist.h */,
-				2BB58BC00F46027E00089423 /* python_grtlist.cpp */,
-				2B8760E40F47E568000B6DE1 /* python_grtdict.h */,
+				2BB58B380F45F11C00089423 /* grtpp_module_python.h */,
+				2B7F19D9119B74730051F062 /* grtpp_shell_python_help.cpp */,
+				2B7F19D8119B74730051F062 /* grtpp_shell_python_help.h */,
+				2BB58CEC0F4664DA00089423 /* grtpp_shell_python.cpp */,
+				2BB58CEB0F4664DA00089423 /* grtpp_shell_python.h */,
+				2BB58B190F45ED0A00089423 /* python_context.cpp */,
+				2BB58B180F45ED0A00089423 /* python_context.h */,
 				2B8760E50F47E568000B6DE1 /* python_grtdict.cpp */,
-				2BB58F270F471B3900089423 /* python_grtobject.h */,
+				2B8760E40F47E568000B6DE1 /* python_grtdict.h */,
+				2BB58BC00F46027E00089423 /* python_grtlist.cpp */,
+				2BB58BBF0F46027E00089423 /* python_grtlist.h */,
 				2BB58F280F471B3900089423 /* python_grtobject.cpp */,
-				2B8761260F47ECB5000B6DE1 /* python_module.h */,
+				2BB58F270F471B3900089423 /* python_grtobject.h */,
 				2B8761270F47ECB5000B6DE1 /* python_module.cpp */,
+				2B8761260F47ECB5000B6DE1 /* python_module.h */,
+				2B87628E0F48AEF2000B6DE1 /* wb.py */,
 			);
 			name = python;
 			sourceTree = "<group>";
@@ -9984,8 +9943,8 @@
 			children = (
 				2BB626CC176BAAAF0070885E /* db_sqlanywhere_migration_grt.py */,
 				2BB626CD176BAAAF0070885E /* db_sqlanywhere_re_grt.py */,
-				2BB626CE176BAAAF0070885E /* sqlanywhere_rdbms_info.xml */,
 				2BB626CF176BAAB00070885E /* sqlanydbwrapper.py */,
+				2BB626CE176BAAAF0070885E /* sqlanywhere_rdbms_info.xml */,
 			);
 			name = db.sqlanywhere;
 			sourceTree = "<group>";
@@ -10003,14 +9962,14 @@
 		2BCAD0471006D07800D1772C /* python */ = {
 			isa = PBXGroup;
 			children = (
-				2B9E86C416A28EEF00E5E0E5 /* mforms.i */,
-				2B856547183E648D0081D52E /* cairo.i */,
 				2B35003C152DEBBD00014C0D /* cairo_wrap.cxx */,
+				2B856547183E648D0081D52E /* cairo.i */,
 				2B35003D152DEBBD00014C0D /* cairo.py */,
-				2BE9FD21151A692000CC0894 /* mforms_grt.h */,
-				2BCAD0561006D11A00D1772C /* mforms.py */,
-				2BCAD0571006D11A00D1772C /* mforms_wrap.cxx */,
 				2BAD799E156C168E0025F13F /* mforms_drawbox.h */,
+				2BE9FD21151A692000CC0894 /* mforms_grt.h */,
+				2BCAD0571006D11A00D1772C /* mforms_wrap.cxx */,
+				2B9E86C416A28EEF00E5E0E5 /* mforms.i */,
+				2BCAD0561006D11A00D1772C /* mforms.py */,
 			);
 			name = python;
 			sourceTree = "<group>";
@@ -10027,8 +9986,8 @@
 		2BCD5524154C9A5F0035C81B /* Commercial */ = {
 			isa = PBXGroup;
 			children = (
-				44B7DC8C1C0C78C4000D608D /* wba_firewall */,
 				2BFC2E9916D3C6A500C73F61 /* wba_audit */,
+				44B7DC8C1C0C78C4000D608D /* wba_firewall */,
 				2B45FD701652F87D008D1853 /* wba_meb */,
 			);
 			name = Commercial;
@@ -10046,52 +10005,52 @@
 		2BCEB60813D6009800A23E75 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				2740C70D18AB6F9C008AFE78 /* tab_extender.png */,
-				2740C70E18AB6F9C008AFE78 /* tab_extender@2x.png */,
-				2BA2B5FC1796F57600673E8D /* maintab_background_inactive@2x.png */,
-				2BA2B5FD1796F57600673E8D /* maintab_center_inactive@2x.png */,
-				2BA2B5FE1796F57600673E8D /* maintab_home_inactive@2x.png */,
-				2BA2B5FF1796F57600673E8D /* maintab_left_inactive@2x.png */,
-				2BA2B6001796F57600673E8D /* maintab_right_inactive@2x.png */,
 				2BA2B6011796F57600673E8D /* maintab_background_inactive.png */,
-				2BA2B6021796F57600673E8D /* maintab_center_inactive.png */,
-				2BA2B6031796F57600673E8D /* maintab_home_inactive.png */,
-				2BA2B6041796F57600673E8D /* maintab_left_inactive.png */,
-				2BA2B6051796F57600673E8D /* maintab_right_inactive.png */,
-				2B1D6D111782F9E10073C062 /* wb_tab-close_down.png */,
-				2B1D6D121782F9E10073C062 /* wb_tab-close_down@2x.png */,
-				2B1D6D131782F9E10073C062 /* wb_tab-close_high.png */,
-				2B1D6D141782F9E10073C062 /* wb_tab-close_high@2x.png */,
-				2B1D6D061781D95E0073C062 /* wb_tab-close.png */,
-				2B1D6D071781D95E0073C062 /* wb_tab-close@2x.png */,
-				2B1D6CB9177C6BF30073C062 /* tab_left.png */,
-				2B1D6CBA177C6BF30073C062 /* tab_left@2x.png */,
-				2B1D6CBB177C6BF30073C062 /* tab_middle.png */,
-				2B1D6CBC177C6BF30073C062 /* tab_middle@2x.png */,
-				2B1D6CBD177C6BF30073C062 /* tab_right.png */,
-				2B1D6CBE177C6BF30073C062 /* tab_right@2x.png */,
-				2B1D6CB5177C6BE80073C062 /* tab_background.png */,
-				2B1D6CB6177C6BE80073C062 /* tab_background@2x.png */,
-				2BA2B5EB1794AE8C00673E8D /* tab_left_white.png */,
-				2BA2B5EC1794AE8C00673E8D /* tab_left_white@2x.png */,
-				2BA2B5ED1794AE8C00673E8D /* tab_middle_white.png */,
-				2BA2B5EE1794AE8C00673E8D /* tab_middle_white@2x.png */,
-				2BA2B5EF1794AE8C00673E8D /* tab_right_white.png */,
-				2BA2B5F01794AE8C00673E8D /* tab_right_white@2x.png */,
+				2BA2B5FC1796F57600673E8D /* maintab_background_inactive@2x.png */,
 				2B1D6CDF177DDD760073C062 /* maintab_background.png */,
 				2B1D6CE0177DDD760073C062 /* maintab_background@2x.png */,
+				2BA2B6021796F57600673E8D /* maintab_center_inactive.png */,
+				2BA2B5FD1796F57600673E8D /* maintab_center_inactive@2x.png */,
 				2B1D6CE1177DDD760073C062 /* maintab_center.png */,
 				2B1D6CE2177DDD760073C062 /* maintab_center@2x.png */,
 				2BA2B5E81794ACCB00673E8D /* maintab_home_background.png */,
 				2B1D6CA3177C6BDD0073C062 /* maintab_home_background@2x.png */,
 				2B1D6CA4177C6BDD0073C062 /* maintab_home_home.png */,
 				2B1D6CA5177C6BDD0073C062 /* maintab_home_home@2x.png */,
+				2BA2B6031796F57600673E8D /* maintab_home_inactive.png */,
+				2BA2B5FE1796F57600673E8D /* maintab_home_inactive@2x.png */,
 				2B1D6CA6177C6BDD0073C062 /* maintab_home.png */,
 				2B1D6CA7177C6BDD0073C062 /* maintab_home@2x.png */,
+				2BA2B6041796F57600673E8D /* maintab_left_inactive.png */,
+				2BA2B5FF1796F57600673E8D /* maintab_left_inactive@2x.png */,
 				2B1D6CA8177C6BDD0073C062 /* maintab_left.png */,
 				2B1D6CA9177C6BDD0073C062 /* maintab_left@2x.png */,
+				2BA2B6051796F57600673E8D /* maintab_right_inactive.png */,
+				2BA2B6001796F57600673E8D /* maintab_right_inactive@2x.png */,
 				2B1D6CAA177C6BDD0073C062 /* maintab_right.png */,
 				2B1D6CAB177C6BDD0073C062 /* maintab_right@2x.png */,
+				2B1D6CB5177C6BE80073C062 /* tab_background.png */,
+				2B1D6CB6177C6BE80073C062 /* tab_background@2x.png */,
+				2740C70D18AB6F9C008AFE78 /* tab_extender.png */,
+				2740C70E18AB6F9C008AFE78 /* tab_extender@2x.png */,
+				2BA2B5EB1794AE8C00673E8D /* tab_left_white.png */,
+				2BA2B5EC1794AE8C00673E8D /* tab_left_white@2x.png */,
+				2B1D6CB9177C6BF30073C062 /* tab_left.png */,
+				2B1D6CBA177C6BF30073C062 /* tab_left@2x.png */,
+				2BA2B5ED1794AE8C00673E8D /* tab_middle_white.png */,
+				2BA2B5EE1794AE8C00673E8D /* tab_middle_white@2x.png */,
+				2B1D6CBB177C6BF30073C062 /* tab_middle.png */,
+				2B1D6CBC177C6BF30073C062 /* tab_middle@2x.png */,
+				2BA2B5EF1794AE8C00673E8D /* tab_right_white.png */,
+				2BA2B5F01794AE8C00673E8D /* tab_right_white@2x.png */,
+				2B1D6CBD177C6BF30073C062 /* tab_right.png */,
+				2B1D6CBE177C6BF30073C062 /* tab_right@2x.png */,
+				2B1D6D111782F9E10073C062 /* wb_tab-close_down.png */,
+				2B1D6D121782F9E10073C062 /* wb_tab-close_down@2x.png */,
+				2B1D6D131782F9E10073C062 /* wb_tab-close_high.png */,
+				2B1D6D141782F9E10073C062 /* wb_tab-close_high@2x.png */,
+				2B1D6D061781D95E0073C062 /* wb_tab-close.png */,
+				2B1D6D071781D95E0073C062 /* wb_tab-close@2x.png */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -10110,24 +10069,24 @@
 		2BCFD7BA0E88BA6000D2A0CB /* WBExtras */ = {
 			isa = PBXGroup;
 			children = (
-				27BFE45A1924BB080070B8FB /* WBExtras_prefix.pch */,
+				2BCEBFB713DBDB0300A23E75 /* Cells */,
+				2B2637960E93324B00933149 /* Components */,
+				2B87B8C816B0CC87003C91C1 /* Docking */,
+				2BD1FAD60F33C6A200FFC762 /* Plugins */,
+				2BCEB60813D6009800A23E75 /* Resources */,
+				2B07482A0F93EBAD00D7E4E3 /* Resultset Viewer */,
+				2BAAF1FD0E891A1300B782B7 /* Utilities */,
+				16F7A3BB0F1F0D3D0084C11D /* WBColorCell */,
+				169CCB3A0EFFCD61005152CD /* WBSplitView */,
+				169E60B20EF115EA00D821E7 /* WBTabView */,
 				2B29F9161140B20D009DA9B0 /* WBBasePanel.h */,
 				2B29F9171140B20D009DA9B0 /* WBBasePanel.mm */,
+				27BFE45A1924BB080070B8FB /* WBExtras_prefix.pch */,
+				2BD1FB0F0F33D29400FFC762 /* WBExtras-Info.plist */,
 				2B843D4217090AEE004F08F2 /* WBSidebarPanel.h */,
 				2B843D4317090AEE004F08F2 /* WBSidebarPanel.mm */,
 				2B29F9121140B1CD009DA9B0 /* WBSplitPanel.h */,
 				2B29F9131140B1CD009DA9B0 /* WBSplitPanel.mm */,
-				2BD1FB0F0F33D29400FFC762 /* WBExtras-Info.plist */,
-				2B87B8C816B0CC87003C91C1 /* Docking */,
-				2BD1FAD60F33C6A200FFC762 /* Plugins */,
-				16F7A3BB0F1F0D3D0084C11D /* WBColorCell */,
-				2B07482A0F93EBAD00D7E4E3 /* Resultset Viewer */,
-				169CCB3A0EFFCD61005152CD /* WBSplitView */,
-				169E60B20EF115EA00D821E7 /* WBTabView */,
-				2BCEBFB713DBDB0300A23E75 /* Cells */,
-				2B2637960E93324B00933149 /* Components */,
-				2BAAF1FD0E891A1300B782B7 /* Utilities */,
-				2BCEB60813D6009800A23E75 /* Resources */,
 			);
 			name = WBExtras;
 			sourceTree = "<group>";
@@ -10148,11 +10107,11 @@
 			isa = PBXGroup;
 			children = (
 				2BBA5EDB1417E24100D47FA1 /* code_utils_grt.py */,
-				2B4945CB138F6A91006F0C3F /* table_utils_grt.py */,
-				2B7A73FC134652360047E0DD /* wb_dev_utils_grt.py */,
-				2B5C151E11FA59B800F1237A /* text_grt.py */,
 				2B87B86016AA089E003C91C1 /* table_templates.py */,
+				2B4945CB138F6A91006F0C3F /* table_utils_grt.py */,
+				2B5C151E11FA59B800F1237A /* text_grt.py */,
 				2BD04DFC0F63404A00FD47B3 /* wb_catalog_utils.py */,
+				2B7A73FC134652360047E0DD /* wb_dev_utils_grt.py */,
 				2B1D6D2E178C52950073C062 /* wb_model_utils.py */,
 				2BD04DFF0F63412800FD47B3 /* wb_utils_grt.py */,
 			);
@@ -10165,10 +10124,11 @@
 				2B750F2E0E8793B50003120A /* grt */,
 				2B750FA30E87966D0003120A /* grtdb */,
 				2B750FD10E87966E0003120A /* grtsqlparser */,
+				2B750FEF0E87966E0003120A /* grtui */,
 				2BAE1A660F368E5A00BE725E /* objimpl */,
 				2B4BD6AF0ED1F8F4003E44F2 /* SQL IDE */,
-				2B750FEF0E87966E0003120A /* grtui */,
 				2B7510050E87966E0003120A /* wbcanvas */,
+				2BF2786B1869FBAB0026215C /* GrtStoredNote.cpp */,
 				27BFE4571924B89E0070B8FB /* wbpublic.be_prefix.pch */,
 			);
 			name = Public;
@@ -10177,10 +10137,10 @@
 		2BD1FAD60F33C6A200FFC762 /* Plugins */ = {
 			isa = PBXGroup;
 			children = (
-				2B5DE7920FFEBF6900701821 /* WBPluginWindowBase.h */,
-				2B5DE7930FFEBF6900701821 /* WBPluginWindowBase.mm */,
 				2BD1FADD0F33C74D00FFC762 /* WBPluginEditorBase.h */,
 				2BD1FADE0F33C74D00FFC762 /* WBPluginEditorBase.mm */,
+				2B5DE7920FFEBF6900701821 /* WBPluginWindowBase.h */,
+				2B5DE7930FFEBF6900701821 /* WBPluginWindowBase.mm */,
 			);
 			name = Plugins;
 			sourceTree = "<group>";
@@ -10188,12 +10148,12 @@
 		2BD4208B198ACC2D0061895B /* Home */ = {
 			isa = PBXGroup;
 			children = (
-				27C9C9E51095DEA900C0004C /* home_screen.h */,
-				27C9C9E61095DEA900C0004C /* home_screen.cpp */,
 				2BD42087198ACC260061895B /* home_screen_connections.cpp */,
 				2BD42088198ACC260061895B /* home_screen_connections.h */,
-				2B4D1978124030D8004E6309 /* wb_context_ui_home.h */,
+				27C9C9E61095DEA900C0004C /* home_screen.cpp */,
+				27C9C9E51095DEA900C0004C /* home_screen.h */,
 				2B4D1979124030D8004E6309 /* wb_context_ui_home.cpp */,
+				2B4D1978124030D8004E6309 /* wb_context_ui_home.h */,
 			);
 			name = Home;
 			sourceTree = "<group>";
@@ -10201,6 +10161,7 @@
 		2BDC26230E8566CF0018CE34 /* sql.parser */ = {
 			isa = PBXGroup;
 			children = (
+				2BDC264A0E8567510018CE34 /* linux */,
 				2B2E92D00FC475F9001F9022 /* charset-def.cpp */,
 				2B2E92D10FC475F9001F9022 /* charset.cpp */,
 				2B2E92D20FC475F9001F9022 /* ctype-big5.cpp */,
@@ -10223,21 +10184,9 @@
 				2B2E92E30FC475F9001F9022 /* ctype-utf8.cpp */,
 				2B2E92E40FC475F9001F9022 /* ctype-win1250ch.cpp */,
 				2B2E92E50FC475F9001F9022 /* ctype.cpp */,
-				2B2E92E60FC475F9001F9022 /* int2str.cpp */,
-				2B2E92E70FC475F9001F9022 /* my_lib.cpp */,
-				2B2E92E80FC475F9001F9022 /* my_messnc.cpp */,
-				2B2E92E90FC475F9001F9022 /* my_static.cpp */,
-				2B2E92EA0FC475F9001F9022 /* my_strtoll10.cpp */,
-				2B2E92EB0FC475F9001F9022 /* my_vsnprintf.cpp */,
-				2B2E92EC0FC475F9001F9022 /* str_alloc.cpp */,
-				2B2E92ED0FC475F9001F9022 /* strmake.cpp */,
-				2B2E92EE0FC475F9001F9022 /* strnmov.cpp */,
-				2B2E92EF0FC475F9001F9022 /* strtod.cpp */,
-				2B2E92F00FC475F9001F9022 /* strxmov.cpp */,
-				2B2E92F10FC475F9001F9022 /* xml.cpp */,
 				2BDC26470E8567510018CE34 /* hash.h */,
+				2B2E92E60FC475F9001F9022 /* int2str.cpp */,
 				2BDC26490E8567510018CE34 /* lex_symbol.h */,
-				2BDC264A0E8567510018CE34 /* linux */,
 				2BDC264D0E8567510018CE34 /* m_ctype.h */,
 				2BDC264E0E8567510018CE34 /* m_string.h */,
 				2BDC26500E8567510018CE34 /* my_alarm.h */,
@@ -10245,12 +10194,17 @@
 				2BDC26520E8567510018CE34 /* my_dbug.h */,
 				2BDC26530E8567510018CE34 /* my_dir.h */,
 				2BDC26540E8567510018CE34 /* my_global.h */,
+				2B2E92E70FC475F9001F9022 /* my_lib.cpp */,
 				2BDC26560E8567510018CE34 /* my_list.h */,
+				2B2E92E80FC475F9001F9022 /* my_messnc.cpp */,
 				2BDC26580E8567510018CE34 /* my_no_pthread.h */,
 				2BDC26590E8567510018CE34 /* my_nosys.h */,
+				2B2E92E90FC475F9001F9022 /* my_static.cpp */,
 				2BDC265B0E8567510018CE34 /* my_static.h */,
+				2B2E92EA0FC475F9001F9022 /* my_strtoll10.cpp */,
 				2BDC265D0E8567510018CE34 /* my_sys.h */,
 				2BDC265E0E8567510018CE34 /* my_uctype.h */,
+				2B2E92EB0FC475F9001F9022 /* my_vsnprintf.cpp */,
 				2BDC26600E8567510018CE34 /* my_xml.h */,
 				2BDC26610E8567510018CE34 /* mysql_version.h */,
 				2BDC26620E8567510018CE34 /* mysqld_error.h */,
@@ -10264,10 +10218,16 @@
 				2BDC266C0E8567510018CE34 /* sql_parser_symbols.cpp */,
 				2BDC266D0E8567510018CE34 /* sql_parser_symbols.h */,
 				2BDC266E0E8567510018CE34 /* sql_string.h */,
+				2B2E92EC0FC475F9001F9022 /* str_alloc.cpp */,
+				2B2E92ED0FC475F9001F9022 /* strmake.cpp */,
+				2B2E92EE0FC475F9001F9022 /* strnmov.cpp */,
+				2B2E92EF0FC475F9001F9022 /* strtod.cpp */,
 				2BDC26730E8567510018CE34 /* structs.h */,
+				2B2E92F00FC475F9001F9022 /* strxmov.cpp */,
 				2BDC26750E8567510018CE34 /* t_ctype.h */,
 				2BDC26760E8567510018CE34 /* typelib.h */,
 				2BDC26770E8567510018CE34 /* unireg.h */,
+				2B2E92F10FC475F9001F9022 /* xml.cpp */,
 			);
 			name = sql.parser;
 			sourceTree = "<group>";
@@ -10285,12 +10245,12 @@
 		2BE0A258184CCCE00056AE11 /* Secondary Sidebar */ = {
 			isa = PBXGroup;
 			children = (
+				2B4973D313CA7D5600F6AF47 /* query_side_palette.cpp */,
+				2B4973D213CA7D5600F6AF47 /* query_side_palette.h */,
 				27CAD24B16C24A9A00A4FA02 /* wb_sql_editor_help.cpp */,
 				27CAD24C16C24A9A00A4FA02 /* wb_sql_editor_help.h */,
-				2B4973D213CA7D5600F6AF47 /* query_side_palette.h */,
-				2B4973D313CA7D5600F6AF47 /* query_side_palette.cpp */,
-				2BE92EFC1060147600FFD773 /* wb_sql_editor_snippets.h */,
 				2BE92EFD1060147600FFD773 /* wb_sql_editor_snippets.cpp */,
+				2BE92EFC1060147600FFD773 /* wb_sql_editor_snippets.h */,
 			);
 			name = "Secondary Sidebar";
 			sourceTree = "<group>";
@@ -10309,12 +10269,12 @@
 		2BE0A25A184CCF1A0056AE11 /* Main Sidebar */ = {
 			isa = PBXGroup;
 			children = (
-				27987707195C5253003E8E44 /* execute_routine_wizard.h */,
 				27987705195C5246003E8E44 /* execute_routine_wizard.cpp */,
-				2BF249E91404B07D003B3C0F /* wb_sql_editor_tree_controller.h */,
-				2BF249EA1404B07D003B3C0F /* wb_sql_editor_tree_controller.cpp */,
-				2BF879C10FA7BE730012EADA /* wb_live_schema_tree.h */,
+				27987707195C5253003E8E44 /* execute_routine_wizard.h */,
 				2BD99D310FAF43800074852E /* wb_live_schema_tree.cpp */,
+				2BF879C10FA7BE730012EADA /* wb_live_schema_tree.h */,
+				2BF249EA1404B07D003B3C0F /* wb_sql_editor_tree_controller.cpp */,
+				2BF249E91404B07D003B3C0F /* wb_sql_editor_tree_controller.h */,
 			);
 			name = "Main Sidebar";
 			sourceTree = "<group>";
@@ -10322,22 +10282,21 @@
 		2BE5B31C0EA52D8400194EB2 /* Headers */ = {
 			isa = PBXGroup;
 			children = (
-				2BB37B431109507800DA4577 /* mdc_canvas_view_printing.h */,
-				2B00E5140EB40438006B9A7C /* mdc_canvas_view_opengl.h */,
-				2B825E6E0E0B664E00BE52DF /* mdc.h */,
 				2B825E430E0B664E00BE52DF /* mdc_algorithms.h */,
 				2B825E490E0B664E00BE52DF /* mdc_area_group.h */,
 				2B825E3C0E0B664E00BE52DF /* mdc_back_layer.h */,
 				2B825E3A0E0B664E00BE52DF /* mdc_bounds_magnet.h */,
-				2B825E3E0E0B664E00BE52DF /* mdc_box.h */,
 				2B825E330E0B664E00BE52DF /* mdc_box_handle.h */,
 				2B825E2F0E0B664E00BE52DF /* mdc_box_side_magnet.h */,
+				2B825E3E0E0B664E00BE52DF /* mdc_box.h */,
 				2B825E6D0E0B664E00BE52DF /* mdc_button.h */,
 				2B825E570E0B664E00BE52DF /* mdc_canvas_item.h */,
 				2B825E540E0B664E00BE52DF /* mdc_canvas_public.h */,
-				2B825E5F0E0B664E00BE52DF /* mdc_canvas_view.h */,
 				2B825E270E0B664E00BE52DF /* mdc_canvas_view_image.h */,
 				2B825E5A0E0B664E00BE52DF /* mdc_canvas_view_macosx.h */,
+				2B00E5140EB40438006B9A7C /* mdc_canvas_view_opengl.h */,
+				2BB37B431109507800DA4577 /* mdc_canvas_view_printing.h */,
+				2B825E5F0E0B664E00BE52DF /* mdc_canvas_view.h */,
 				2B825E580E0B664E00BE52DF /* mdc_common.h */,
 				2B825E520E0B664E00BE52DF /* mdc_connector.h */,
 				2B825E510E0B664E00BE52DF /* mdc_draw_util.h */,
@@ -10346,14 +10305,14 @@
 				2B825E4C0E0B664E00BE52DF /* mdc_grid.h */,
 				2B825E4D0E0B664E00BE52DF /* mdc_group.h */,
 				2B825E320E0B664E00BE52DF /* mdc_icon_text.h */,
-				2B825E2A0E0B664E00BE52DF /* mdc_image.h */,
 				2B825E2B0E0B664E00BE52DF /* mdc_image_manager.h */,
+				2B825E2A0E0B664E00BE52DF /* mdc_image.h */,
 				2B825E390E0B664E00BE52DF /* mdc_interaction_layer.h */,
 				2B825E380E0B664E00BE52DF /* mdc_item_handle.h */,
 				2B825E340E0B664E00BE52DF /* mdc_layer.h */,
 				2B825E5E0E0B664E00BE52DF /* mdc_layouter.h */,
-				2B825E530E0B664E00BE52DF /* mdc_line.h */,
 				2B825E5C0E0B664E00BE52DF /* mdc_line_segment_handle.h */,
+				2B825E530E0B664E00BE52DF /* mdc_line.h */,
 				2B825E660E0B664E00BE52DF /* mdc_magnet.h */,
 				2B825E5B0E0B664E00BE52DF /* mdc_orthogonal_line_layouter.h */,
 				2B825E4B0E0B664E00BE52DF /* mdc_polygon.h */,
@@ -10362,6 +10321,7 @@
 				2B825E630E0B664E00BE52DF /* mdc_straight_line_layouter.h */,
 				2B825E450E0B664E00BE52DF /* mdc_text.h */,
 				2B825E360E0B664E00BE52DF /* mdc_vertex_handle.h */,
+				2B825E6E0E0B664E00BE52DF /* mdc.h */,
 			);
 			name = Headers;
 			sourceTree = "<group>";
@@ -10394,41 +10354,41 @@
 		2BE680370F8E45DC00E00A97 /* SQLIDE Data */ = {
 			isa = PBXGroup;
 			children = (
+				2BB27C631277DAE0009B1AC6 /* CSV_semicolon.pre.tpl */,
+				2B9BF3B1111B8A950039E901 /* CSV_semicolon.tpl */,
+				2B17603D14546B79003EFCF7 /* CSV_semicolon.tpli */,
+				2BB27C641277DAE0009B1AC6 /* CSV.pre.tpl */,
+				2BE6805E0F8E482100E00A97 /* CSV.tpl */,
+				2B17603E14546B79003EFCF7 /* CSV.tpli */,
+				2B1CF45311939DDE00D1410D /* DB Management.txt */,
+				2BB27C651277DAE0009B1AC6 /* HTML.post.tpl */,
+				2BB27C661277DAE0009B1AC6 /* HTML.pre.tpl */,
+				2BE6805F0F8E482100E00A97 /* HTML.tpl */,
+				2B17603F14546B79003EFCF7 /* HTML.tpli */,
 				2B17612414563CA1003EFCF7 /* JSON.post.tpl */,
 				2B17612514563CA1003EFCF7 /* JSON.pre.tpl */,
 				2B17612614563CA1003EFCF7 /* JSON.tpl */,
 				2B17612714563CA1003EFCF7 /* JSON.tpli */,
+				2B1E28431163DEB900A22E91 /* SQL DDL Statements.txt */,
+				2B1E28441163DEB900A22E91 /* SQL DML Statements.txt */,
+				2BB27C671277DAE0009B1AC6 /* SQL_inserts.pre.tpl */,
+				2B99364511E53C8E004C761B /* SQL_inserts.tpl */,
+				2B17604014546B79003EFCF7 /* SQL_inserts.tpli */,
+				2BB27C681277DAE0009B1AC6 /* tab.pre.tpl */,
+				2B77B0AD11C67230009B5103 /* tab.tpl */,
+				2B17604114546B79003EFCF7 /* tab.tpli */,
+				2B14E585140F0DBF00EB5C8E /* XLS.post.tpl */,
+				2B14E586140F0DBF00EB5C8E /* XLS.pre.tpl */,
+				2B14E587140F0DBF00EB5C8E /* XLS.tpl */,
+				2B17604214546B79003EFCF7 /* XLS.tpli */,
 				2B1760CC1455DB15003EFCF7 /* XML_mysql.post.tpl */,
 				2B1760CD1455DB15003EFCF7 /* XML_mysql.pre.tpl */,
 				2B1760CE1455DB15003EFCF7 /* XML_mysql.tpl */,
 				2B1760CF1455DB15003EFCF7 /* XML_mysql.tpli */,
-				2B17603D14546B79003EFCF7 /* CSV_semicolon.tpli */,
-				2B17603E14546B79003EFCF7 /* CSV.tpli */,
-				2B17603F14546B79003EFCF7 /* HTML.tpli */,
-				2B17604014546B79003EFCF7 /* SQL_inserts.tpli */,
-				2B17604114546B79003EFCF7 /* tab.tpli */,
-				2B17604214546B79003EFCF7 /* XLS.tpli */,
-				2B17604314546B79003EFCF7 /* XML.tpli */,
-				2B14E585140F0DBF00EB5C8E /* XLS.post.tpl */,
-				2B14E586140F0DBF00EB5C8E /* XLS.pre.tpl */,
-				2B14E587140F0DBF00EB5C8E /* XLS.tpl */,
-				2BB27C631277DAE0009B1AC6 /* CSV_semicolon.pre.tpl */,
-				2BB27C641277DAE0009B1AC6 /* CSV.pre.tpl */,
-				2BB27C651277DAE0009B1AC6 /* HTML.post.tpl */,
-				2BB27C661277DAE0009B1AC6 /* HTML.pre.tpl */,
-				2BB27C671277DAE0009B1AC6 /* SQL_inserts.pre.tpl */,
-				2BB27C681277DAE0009B1AC6 /* tab.pre.tpl */,
 				2BB27C691277DAE0009B1AC6 /* XML.post.tpl */,
 				2BB27C6A1277DAE0009B1AC6 /* XML.pre.tpl */,
-				2B99364511E53C8E004C761B /* SQL_inserts.tpl */,
-				2B1CF45311939DDE00D1410D /* DB Management.txt */,
-				2B1E28431163DEB900A22E91 /* SQL DDL Statements.txt */,
-				2B1E28441163DEB900A22E91 /* SQL DML Statements.txt */,
-				2B9BF3B1111B8A950039E901 /* CSV_semicolon.tpl */,
-				2BE6805E0F8E482100E00A97 /* CSV.tpl */,
-				2B77B0AD11C67230009B5103 /* tab.tpl */,
-				2BE6805F0F8E482100E00A97 /* HTML.tpl */,
 				2BE680600F8E482100E00A97 /* XML.tpl */,
+				2B17604314546B79003EFCF7 /* XML.tpli */,
 			);
 			name = "SQLIDE Data";
 			sourceTree = "<group>";
@@ -10444,18 +10404,18 @@
 		2BE732EA0EFAFB4600287AE0 /* db.mysql */ = {
 			isa = PBXGroup;
 			children = (
-				27B37DC51A32100E00C73F1F /* db.mysql.grt_prefix.pch */,
-				2BAD7C3F156D89220025F13F /* db_mysql_fe_grt.py */,
-				2BAD7C40156D89220025F13F /* db_mysql_migration_grt.py */,
-				2BAD7C41156D89220025F13F /* db_mysql_re_grt.py */,
-				2B262BD11472B58C00D3D259 /* module_db_mysql_shared_code.h */,
 				2BE733150EFAFBF600287AE0 /* db_mysql_catalog_report.cpp */,
 				2BE733160EFAFBF600287AE0 /* db_mysql_catalog_report.h */,
+				2BE733190EFAFBF600287AE0 /* db_mysql_diffsqlgen_grant.h */,
 				2BE733170EFAFBF600287AE0 /* db_mysql_diffsqlgen.cpp */,
 				2BE733180EFAFBF600287AE0 /* db_mysql_diffsqlgen.h */,
-				2BE733190EFAFBF600287AE0 /* db_mysql_diffsqlgen_grant.h */,
+				2BAD7C3F156D89220025F13F /* db_mysql_fe_grt.py */,
+				2BAD7C40156D89220025F13F /* db_mysql_migration_grt.py */,
 				2BE7331A0EFAFBF600287AE0 /* db_mysql_params.cpp */,
 				2BE7331B0EFAFBF600287AE0 /* db_mysql_params.h */,
+				2BAD7C41156D89220025F13F /* db_mysql_re_grt.py */,
+				27B37DC51A32100E00C73F1F /* db.mysql.grt_prefix.pch */,
+				2B262BD11472B58C00D3D259 /* module_db_mysql_shared_code.h */,
 				2BE7331D0EFAFBF600287AE0 /* module_db_mysql.cpp */,
 				2BE7331E0EFAFBF600287AE0 /* module_db_mysql.h */,
 			);
@@ -10465,23 +10425,15 @@
 		2BE7336F0EFAFE9C00287AE0 /* db.mysql.sqlparser */ = {
 			isa = PBXGroup;
 			children = (
-				2BEC8E7A1035F80900607CA4 /* mysql_sql_semantic_check.cpp */,
-				2BEC8E7B1035F80900607CA4 /* mysql_sql_semantic_check.h */,
-				2B5DE7320FFE9FA800701821 /* mysql_sql_statement_decomposer.cpp */,
-				2B5DE7330FFE9FA800701821 /* mysql_sql_statement_decomposer.h */,
-				2B41EF3B0F8BAFBA00F5EB1E /* mysql_sql_specifics.h */,
-				2B41EF3C0F8BAFBB00F5EB1E /* mysql_sql_specifics.cpp */,
-				2B3D53740F41B075009238A7 /* mysql_sql_inserts_loader.cpp */,
-				2B3D53750F41B075009238A7 /* mysql_sql_inserts_loader.h */,
 				2BE733900EFAFF3200287AE0 /* db.mysql.sqlparser.cpp */,
 				2BE733910EFAFF3200287AE0 /* mysql_invalid_sql_parser.cpp */,
 				2BE733920EFAFF3200287AE0 /* mysql_invalid_sql_parser.h */,
 				2BE733930EFAFF3200287AE0 /* mysql_sql_facade.cpp */,
 				2BE733940EFAFF3200287AE0 /* mysql_sql_facade.h */,
+				2B3D53740F41B075009238A7 /* mysql_sql_inserts_loader.cpp */,
+				2B3D53750F41B075009238A7 /* mysql_sql_inserts_loader.h */,
 				2BE733950EFAFF3200287AE0 /* mysql_sql_normalizer.cpp */,
 				2BE733960EFAFF3200287AE0 /* mysql_sql_normalizer.h */,
-				2BE733970EFAFF3200287AE0 /* mysql_sql_parser.cpp */,
-				2BE733980EFAFF3200287AE0 /* mysql_sql_parser.h */,
 				2BE733990EFAFF3200287AE0 /* mysql_sql_parser_base.cpp */,
 				2BE7339A0EFAFF3200287AE0 /* mysql_sql_parser_base.h */,
 				2BE7339B0EFAFF3200287AE0 /* mysql_sql_parser_fe.cpp */,
@@ -10489,10 +10441,18 @@
 				2BE7339D0EFAFF3200287AE0 /* mysql_sql_parser_public_interface.h */,
 				2BE7339E0EFAFF3200287AE0 /* mysql_sql_parser_utils.cpp */,
 				2BE7339F0EFAFF3200287AE0 /* mysql_sql_parser_utils.h */,
+				2BE733970EFAFF3200287AE0 /* mysql_sql_parser.cpp */,
+				2BE733980EFAFF3200287AE0 /* mysql_sql_parser.h */,
 				2BE733A00EFAFF3200287AE0 /* mysql_sql_schema_rename.cpp */,
 				2BE733A10EFAFF3200287AE0 /* mysql_sql_schema_rename.h */,
 				2BE733A20EFAFF3200287AE0 /* mysql_sql_script_splitter.cpp */,
 				2BE733A30EFAFF3200287AE0 /* mysql_sql_script_splitter.h */,
+				2BEC8E7A1035F80900607CA4 /* mysql_sql_semantic_check.cpp */,
+				2BEC8E7B1035F80900607CA4 /* mysql_sql_semantic_check.h */,
+				2B41EF3C0F8BAFBB00F5EB1E /* mysql_sql_specifics.cpp */,
+				2B41EF3B0F8BAFBA00F5EB1E /* mysql_sql_specifics.h */,
+				2B5DE7320FFE9FA800701821 /* mysql_sql_statement_decomposer.cpp */,
+				2B5DE7330FFE9FA800701821 /* mysql_sql_statement_decomposer.h */,
 				2BE733A40EFAFF3200287AE0 /* mysql_sql_syntax_check.cpp */,
 				2BE733A50EFAFF3200287AE0 /* mysql_sql_syntax_check.h */,
 			);
@@ -10502,10 +10462,10 @@
 		2BE9FD23151A692800CC0894 /* ui */ = {
 			isa = PBXGroup;
 			children = (
+				2BE9015D151D4D2300CC0894 /* ui_db_ConnectPanel.cpp */,
 				2769C87E1726761F0096ACF5 /* ui_ObjectEditor_impl.cpp */,
 				2769C87F1726761F0096ACF5 /* ui_ObjectEditor_impl.h */,
 				2769C8801726761F0096ACF5 /* ui_ObjectEditor.cpp */,
-				2BE9015D151D4D2300CC0894 /* ui_db_ConnectPanel.cpp */,
 			);
 			name = ui;
 			sourceTree = "<group>";
@@ -10532,19 +10492,19 @@
 		2BF049AF1751A16C00A7EA35 /* Common Pages */ = {
 			isa = PBXGroup;
 			children = (
+				2B3D49C20F3E7123009238A7 /* catalog_validation_page.h */,
 				2BF049B01751A18E00A7EA35 /* data_source_selector_page.h */,
+				2B88345D176752570099D927 /* fetch_schema_contents_multi_page.h */,
+				2B3D49C70F3E7123009238A7 /* fetch_schema_contents_page.h */,
+				2B88345E176752570099D927 /* fetch_schema_names_multi_page.h */,
+				2B3D49C80F3E7123009238A7 /* fetch_schema_names_page.h */,
 				2B8834611767574C0099D927 /* multi_source_selector_page.h */,
 				2B0F1D8315027E510087D62A /* name_mapping_editor.h */,
-				2B0F1C6D1501AA8E0087D62A /* schema_matching_page.h */,
 				2BF049B21751A2DD00A7EA35 /* schema_matching_page.cpp */,
-				2B3D4FC80F40C73D009238A7 /* synchronize_differences_page.h */,
-				2BF049B41751A55000A7EA35 /* synchronize_differences_page.cpp */,
-				2B3D49C20F3E7123009238A7 /* catalog_validation_page.h */,
-				2B3D49C70F3E7123009238A7 /* fetch_schema_contents_page.h */,
-				2B3D49C80F3E7123009238A7 /* fetch_schema_names_page.h */,
+				2B0F1C6D1501AA8E0087D62A /* schema_matching_page.h */,
 				2B3D49C90F3E7123009238A7 /* schema_selection_page.h */,
-				2B88345E176752570099D927 /* fetch_schema_names_multi_page.h */,
-				2B88345D176752570099D927 /* fetch_schema_contents_multi_page.h */,
+				2BF049B41751A55000A7EA35 /* synchronize_differences_page.cpp */,
+				2B3D4FC80F40C73D009238A7 /* synchronize_differences_page.h */,
 			);
 			name = "Common Pages";
 			sourceTree = "<group>";
@@ -10561,12 +10521,12 @@
 		2BF2CBB81911C707007B0BB9 /* Result Panel */ = {
 			isa = PBXGroup;
 			children = (
+				2BF2CBB41911C702007B0BB9 /* result_form_view.cpp */,
+				2BF2CBB51911C702007B0BB9 /* result_form_view.h */,
 				2BF2CBB91911E8A7007B0BB9 /* wb_sql_editor_panel.cpp */,
 				2BF2CBBA1911E8A7007B0BB9 /* wb_sql_editor_panel.h */,
 				2BE0A25B184D66620056AE11 /* wb_sql_editor_result_panel.cpp */,
 				2BE0A25C184D66620056AE11 /* wb_sql_editor_result_panel.h */,
-				2BF2CBB51911C702007B0BB9 /* result_form_view.h */,
-				2BF2CBB41911C702007B0BB9 /* result_form_view.cpp */,
 			);
 			name = "Result Panel";
 			sourceTree = "<group>";
@@ -10767,11 +10727,11 @@
 		2BF7E09F133101CA002EBA46 /* wb.model.snippets */ = {
 			isa = PBXGroup;
 			children = (
-				2BF7E0D0133102B1002EBA46 /* register_plugin.cpp */,
-				2BF7E112133141A4002EBA46 /* include_model_wizard.h */,
 				2BF7E113133141A4002EBA46 /* include_model_wizard.cpp */,
-				2BF7E11613314BF0002EBA46 /* merge_model.h */,
+				2BF7E112133141A4002EBA46 /* include_model_wizard.h */,
 				2BF7E11713314BF0002EBA46 /* merge_model.cpp */,
+				2BF7E11613314BF0002EBA46 /* merge_model.h */,
+				2BF7E0D0133102B1002EBA46 /* register_plugin.cpp */,
 			);
 			name = wb.model.snippets;
 			sourceTree = "<group>";
@@ -10779,19 +10739,19 @@
 		2BF879BA0FA7BDD40012EADA /* SQL IDE */ = {
 			isa = PBXGroup;
 			children = (
-				2BF87AAE0FA8011A0012EADA /* wb_context_sqlide.h */,
-				2BF87AAF0FA8011A0012EADA /* wb_context_sqlide.cpp */,
-				2BF879CC0FA7C13E0012EADA /* wb_sql_editor_form.h */,
-				2BF879CB0FA7C13E0012EADA /* wb_sql_editor_form.cpp */,
-				2B1FB816142C02780017A064 /* wb_sql_editor_buffer.h */,
-				2B1FB817142C02780017A064 /* wb_sql_editor_buffer.cpp */,
-				2B1FB7FC142C00070017A064 /* wb_sql_editor_form_ui.h */,
-				2B1FB7FD142C00070017A064 /* wb_sql_editor_form_ui.cpp */,
-				2B83E5CD1992B55100781432 /* Spatial */,
-				2BE0A259184CCF120056AE11 /* Output Area */,
 				2BE0A25A184CCF1A0056AE11 /* Main Sidebar */,
-				2BE0A258184CCCE00056AE11 /* Secondary Sidebar */,
+				2BE0A259184CCF120056AE11 /* Output Area */,
 				2BF2CBB81911C707007B0BB9 /* Result Panel */,
+				2BE0A258184CCCE00056AE11 /* Secondary Sidebar */,
+				2B83E5CD1992B55100781432 /* Spatial */,
+				2BF87AAF0FA8011A0012EADA /* wb_context_sqlide.cpp */,
+				2BF87AAE0FA8011A0012EADA /* wb_context_sqlide.h */,
+				2B1FB817142C02780017A064 /* wb_sql_editor_buffer.cpp */,
+				2B1FB816142C02780017A064 /* wb_sql_editor_buffer.h */,
+				2B1FB7FD142C00070017A064 /* wb_sql_editor_form_ui.cpp */,
+				2B1FB7FC142C00070017A064 /* wb_sql_editor_form_ui.h */,
+				2BF879CB0FA7C13E0012EADA /* wb_sql_editor_form.cpp */,
+				2BF879CC0FA7C13E0012EADA /* wb_sql_editor_form.h */,
 			);
 			name = "SQL IDE";
 			sourceTree = "<group>";
@@ -10801,25 +10761,25 @@
 			children = (
 				2BF87A730FA7CF010012EADA /* Diagram */,
 				2BF87A740FA7CF1E0012EADA /* Sidebar */,
-				2BF87B930FA8795D0012EADA /* wb_context_model.cpp */,
-				2BF87B940FA8795D0012EADA /* wb_context_model.h */,
-				2BF87A350FA7CEFB0012EADA /* wb_component.cpp */,
-				2BF87A360FA7CEFB0012EADA /* wb_component.h */,
 				2BF87A370FA7CEFB0012EADA /* wb_component_basic.cpp */,
 				2BF87A380FA7CEFB0012EADA /* wb_component_basic.h */,
 				2BF87A390FA7CEFB0012EADA /* wb_component_logical.cpp */,
 				2BF87A3A0FA7CEFB0012EADA /* wb_component_logical.h */,
+				2BF87A3D0FA7CEFB0012EADA /* wb_component_physical_relationship.cpp */,
 				2BF87A3B0FA7CEFB0012EADA /* wb_component_physical.cpp */,
 				2BF87A3C0FA7CEFB0012EADA /* wb_component_physical.h */,
-				2BF87A3D0FA7CEFB0012EADA /* wb_component_physical_relationship.cpp */,
+				2BF87A350FA7CEFB0012EADA /* wb_component.cpp */,
+				2BF87A360FA7CEFB0012EADA /* wb_component.h */,
+				2BF87B930FA8795D0012EADA /* wb_context_model.cpp */,
+				2BF87B940FA8795D0012EADA /* wb_context_model.h */,
 				2BF87A3E0FA7CEFB0012EADA /* wb_diagram_options.cpp */,
 				2BF87A3F0FA7CEFB0012EADA /* wb_diagram_options.h */,
 				2BF87A440FA7CEFB0012EADA /* wb_overview_diagram.cpp */,
 				2BF87A450FA7CEFB0012EADA /* wb_overview_diagram.h */,
-				2BF87A460FA7CEFB0012EADA /* wb_overview_physical.cpp */,
-				2BF87A470FA7CEFB0012EADA /* wb_overview_physical.h */,
 				2BF87A480FA7CEFB0012EADA /* wb_overview_physical_schema.cpp */,
 				2BF87A490FA7CEFB0012EADA /* wb_overview_physical_schema.h */,
+				2BF87A460FA7CEFB0012EADA /* wb_overview_physical.cpp */,
+				2BF87A470FA7CEFB0012EADA /* wb_overview_physical.h */,
 				2BF87A4A0FA7CEFB0012EADA /* wb_overview_privileges.cpp */,
 				2BF87A4B0FA7CEFB0012EADA /* wb_overview_privileges.h */,
 			);
@@ -10829,14 +10789,14 @@
 		2BF87A730FA7CF010012EADA /* Diagram */ = {
 			isa = PBXGroup;
 			children = (
-				2BF87A420FA7CEFB0012EADA /* wb_model_diagram_form.cpp */,
-				2BF87A430FA7CEFB0012EADA /* wb_model_diagram_form.h */,
-				2BF87A4C0FA7CEFB0012EADA /* wb_physical_model_diagram_features.cpp */,
-				2BF87A4D0FA7CEFB0012EADA /* wb_physical_model_diagram_features.h */,
 				2BF87A2D0FA7CEFB0012EADA /* canvas_floater.cpp */,
 				2BF87A2E0FA7CEFB0012EADA /* canvas_floater.h */,
 				2BF87A310FA7CEFB0012EADA /* relationship_canvas_floater.cpp */,
 				2BF87A320FA7CEFB0012EADA /* relationship_canvas_floater.h */,
+				2BF87A420FA7CEFB0012EADA /* wb_model_diagram_form.cpp */,
+				2BF87A430FA7CEFB0012EADA /* wb_model_diagram_form.h */,
+				2BF87A4C0FA7CEFB0012EADA /* wb_physical_model_diagram_features.cpp */,
+				2BF87A4D0FA7CEFB0012EADA /* wb_physical_model_diagram_features.h */,
 			);
 			name = Diagram;
 			sourceTree = "<group>";
@@ -10844,18 +10804,18 @@
 		2BF87A740FA7CF1E0012EADA /* Sidebar */ = {
 			isa = PBXGroup;
 			children = (
+				2BF87A2F0FA7CEFB0012EADA /* mini_view.cpp */,
+				2BF87A300FA7CEFB0012EADA /* mini_view.h */,
 				27ED97B61802AE2D00F15650 /* wb_catalog_tree_view.cpp */,
 				27ED97B71802AE2D00F15650 /* wb_catalog_tree_view.h */,
 				2BF42B4216862D82007C030C /* wb_history_tree.cpp */,
 				2BF42B4316862D82007C030C /* wb_history_tree.h */,
 				2BF87A400FA7CEFB0012EADA /* wb_layer_tree.cpp */,
 				2BF87A410FA7CEFB0012EADA /* wb_layer_tree.h */,
-				2BF87A4E0FA7CEFB0012EADA /* wb_user_datatypes.cpp */,
-				2BF87A4F0FA7CEFB0012EADA /* wb_user_datatypes.h */,
 				2BC92997170BC99700D5BCAD /* wb_template_list.cpp */,
 				2BC92998170BC99700D5BCAD /* wb_template_list.h */,
-				2BF87A2F0FA7CEFB0012EADA /* mini_view.cpp */,
-				2BF87A300FA7CEFB0012EADA /* mini_view.h */,
+				2BF87A4E0FA7CEFB0012EADA /* wb_user_datatypes.cpp */,
+				2BF87A4F0FA7CEFB0012EADA /* wb_user_datatypes.h */,
 			);
 			name = Sidebar;
 			sourceTree = "<group>";
@@ -10863,8 +10823,8 @@
 		2BF87AA00FA7F6E30012EADA /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				2B263BBE0E9423E100933149 /* Model View */,
 				2BFBF0BD0F51C3070016F9D1 /* Diagram Panel */,
+				2B263BBE0E9423E100933149 /* Model View */,
 				2B263BBF0E9423F500933149 /* Side Panes */,
 				2B24045E101C980E00079580 /* MainWindowController+Model.h */,
 				2B24045F101C980E00079580 /* MainWindowController+Model.mm */,
@@ -10884,9 +10844,9 @@
 		2BFBEFFF0F518B940016F9D1 /* MySQL Routine Editor */ = {
 			isa = PBXGroup;
 			children = (
-				2BFBF00C0F518C8A0016F9D1 /* MySQLRoutineEditor.xib */,
 				2BFBF0130F51A1830016F9D1 /* MySQLRoutineEditor.h */,
 				2BFBF0140F51A1830016F9D1 /* MySQLRoutineEditor.mm */,
+				2BFBF00C0F518C8A0016F9D1 /* MySQLRoutineEditor.xib */,
 			);
 			name = "MySQL Routine Editor";
 			sourceTree = "<group>";
@@ -10894,9 +10854,9 @@
 		2BFBF00F0F5199F90016F9D1 /* Common Additions */ = {
 			isa = PBXGroup;
 			children = (
-				2B869A130F7DD4BD0005CB9B /* PrivilegesTab.xib */,
 				2B869A160F7DE2BA0005CB9B /* DbPrivilegeEditorTab.h */,
 				2B869A170F7DE2BA0005CB9B /* DbPrivilegeEditorTab.mm */,
+				2B869A130F7DD4BD0005CB9B /* PrivilegesTab.xib */,
 			);
 			name = "Common Additions";
 			sourceTree = "<group>";
@@ -10914,12 +10874,12 @@
 		2BFBF0BD0F51C3070016F9D1 /* Diagram Panel */ = {
 			isa = PBXGroup;
 			children = (
-				2B655B030F19099E00A14051 /* WBModelDiagramPanel.h */,
-				2B655B040F19099E00A14051 /* WBModelDiagramPanel.mm */,
-				2BB9A0A50FB12A7C001F9968 /* WBModelDiagram.xib */,
+				2BFBEFE80F50941C0016F9D1 /* DiagramOptions.xib */,
 				2BFBEFEC0F5095E10016F9D1 /* WBDiagramSizeController.h */,
 				2BFBEFED0F5095E10016F9D1 /* WBDiagramSizeController.mm */,
-				2BFBEFE80F50941C0016F9D1 /* DiagramOptions.xib */,
+				2BB9A0A50FB12A7C001F9968 /* WBModelDiagram.xib */,
+				2B655B030F19099E00A14051 /* WBModelDiagramPanel.h */,
+				2B655B040F19099E00A14051 /* WBModelDiagramPanel.mm */,
 			);
 			name = "Diagram Panel";
 			sourceTree = "<group>";
@@ -10927,19 +10887,19 @@
 		752740C2105FB82000E3E32F /* Backend */ = {
 			isa = PBXGroup;
 			children = (
+				75C847F21067E9C70067947D /* opts.py */,
+				75C847F41067E9C70067947D /* wb_admin_config_file_be.py */,
+				2BBC38F812380E9000CACF4C /* wb_admin_control.py */,
 				EDC7588B1847A47B00936C9B /* wb_admin_perfschema_instrumentation_be.py */,
+				2BF4384F108778C300F04A6C /* wb_admin_security_be.py */,
+				75522B8D10877DD30077082A /* wb_admin_ssh.py */,
+				2B7775EB180F04EA007AF5B9 /* wb_admin_user_privileges.py */,
+				2B113C661073E1AF006BBE1B /* wb_admin_variable_list.py */,
+				2BF98AFF123A8892008DDCD0 /* wb_common.py */,
 				2B1FB9CA14313C870017A064 /* wb_log_reader.py */,
 				2BF98AAF123A098E008DDCD0 /* wb_server_control.py */,
 				2BF98AB0123A098E008DDCD0 /* wb_server_management.py */,
-				2BBC38F812380E9000CACF4C /* wb_admin_control.py */,
 				27A3E8891098CA7E0014F5B1 /* wba_monitor_be.py */,
-				2B113C661073E1AF006BBE1B /* wb_admin_variable_list.py */,
-				2BF4384F108778C300F04A6C /* wb_admin_security_be.py */,
-				2B7775EB180F04EA007AF5B9 /* wb_admin_user_privileges.py */,
-				75522B8D10877DD30077082A /* wb_admin_ssh.py */,
-				75C847F21067E9C70067947D /* opts.py */,
-				75C847F41067E9C70067947D /* wb_admin_config_file_be.py */,
-				2BF98AFF123A8892008DDCD0 /* wb_common.py */,
 			);
 			name = Backend;
 			sourceTree = "<group>";
@@ -10947,26 +10907,26 @@
 		752740C3105FB82800E3E32F /* Frontend */ = {
 			isa = PBXGroup;
 			children = (
-				2B92ACDA104D96010063A35B /* wb_admin_grt.py */,
-				2B7FEC0812EB9C0A007945E2 /* wb_admin_main.py */,
-				2BDAE47B11139E6B00AC1D7A /* wba_ssh_ui.py */,
-				2BF04900173989C600A7EA35 /* wb_admin_server_status.py */,
-				2B2DF9F6105F12FF00F267F9 /* wb_admin_monitor.py */,
-				2BE7639C1073A89700A1DF24 /* wb_admin_connections.py */,
-				2BF43850108778D600F04A6C /* wb_admin_security.py */,
-				2B113C2B1073CB4F006BBE1B /* wb_admin_variables.py */,
-				27364F4E109099C500C9EA70 /* wb_admin_export.py */,
-				27364F50109099E100C9EA70 /* wb_admin_export_options.py */,
 				75C847F81067E9DF0067947D /* wb_admin_config_file_ui.py */,
 				2B2DF9F4105F12FF00F267F9 /* wb_admin_configuration_startup.py */,
+				2BE7639C1073A89700A1DF24 /* wb_admin_connections.py */,
+				27364F50109099E100C9EA70 /* wb_admin_export_options.py */,
+				27364F4E109099C500C9EA70 /* wb_admin_export.py */,
+				2B92ACDA104D96010063A35B /* wb_admin_grt.py */,
 				2BF440BE108C90E500F04A6C /* wb_admin_logs.py */,
-				2B113D1E1074D5CD006BBE1B /* wb_admin_utils.py */,
-				7508826212F7240E00216C47 /* wb_admin_ui_profile.py */,
-				2B45FDAD165AE785008D1853 /* wb_execute_window.py */,
+				2B7FEC0812EB9C0A007945E2 /* wb_admin_main.py */,
+				2B2DF9F6105F12FF00F267F9 /* wb_admin_monitor.py */,
 				2B2C005618327FE800543D46 /* wb_admin_performance_dashboard.py */,
 				2B2C0040183121A400543D46 /* wb_admin_perfschema_instrumentation.py */,
 				2B2C0041183121A400543D46 /* wb_admin_perfschema_reports.py */,
 				2B2C0042183121A400543D46 /* wb_admin_perfschema.py */,
+				2BF43850108778D600F04A6C /* wb_admin_security.py */,
+				2BF04900173989C600A7EA35 /* wb_admin_server_status.py */,
+				7508826212F7240E00216C47 /* wb_admin_ui_profile.py */,
+				2B113D1E1074D5CD006BBE1B /* wb_admin_utils.py */,
+				2B113C2B1073CB4F006BBE1B /* wb_admin_variables.py */,
+				2B45FDAD165AE785008D1853 /* wb_execute_window.py */,
+				2BDAE47B11139E6B00AC1D7A /* wba_ssh_ui.py */,
 			);
 			name = Frontend;
 			sourceTree = "<group>";
