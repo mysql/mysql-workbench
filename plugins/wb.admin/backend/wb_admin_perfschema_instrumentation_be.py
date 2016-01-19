@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -70,7 +70,7 @@ class PSInstrumentGroup(ChangeNotifierDict):
 
     def update_parents_state(self, attr):
         """
-        Updates the paren's states based on the children
+        Updates the parent's states based on the children
         status on a line of the hierarchy tree.
         """
         parent = self.parent
@@ -83,7 +83,7 @@ class PSInstrumentGroup(ChangeNotifierDict):
         """
         Updates the status of an attribute in an element 
         of the hierarchy tree, including all the branch
-        below it and it's parents
+        below it and its parents
         """
         if attr == 'enabled':
             self.enabled = value
@@ -97,7 +97,7 @@ class PSInstrumentGroup(ChangeNotifierDict):
     def set_state_from_children(self, attr):
         """
         Sets the status of an element of the hierarchy based
-        on the status of it's immediate childrens
+        on the status of its immediate childrens
         """
         counter = 0
         for child in self.keys():
@@ -155,7 +155,7 @@ class PSInstrumentGroup(ChangeNotifierDict):
 
 class PSInstruments(ChangeCounter):
     """
-    Database manager for PS Instruments it's functions are loading/committing changes
+    Database manager for PS Instruments its functions are loading/committing changes
     to the database.
     """
     def __init__(self, ctrl_be):

@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -26,7 +26,7 @@ import os
 
 import mforms
 
-from mforms import newBox, newLabel, newButton, newTextEntry, newTreeNodeView, newTable, newRadioButton, newListBox, newSelector, newPanel, newTabView, Utilities, newCheckBox, newImageBox, App
+from mforms import newBox, newLabel, newButton, newTextEntry, newTreeNodeView, newTable, newRadioButton, newSelector, newPanel, newTabView, Utilities, newCheckBox, newImageBox, App
 from wb_admin_utils import not_running_warning_label, make_panel_header
 from wb_admin_security_be import AdminSecurity, PrivilegeInfo, PrivilegeReverseDict, SecurityAdminRoles, WBSecurityValidationError
 from wb_common import PermissionDeniedError
@@ -120,7 +120,7 @@ class ThreadedInputValidator(object):
     """This class validates the changes in the associated text entry widget displaying the result in a validation label
 
     Usage:
-        Instanciate this class and set is callback method to be the callback of the associated text entry.
+        Instantiate this class and set is callback method to be the callback of the associated text entry.
     """
     def __init__(self, owner, text_entry, validation_label, ctrl_be, delay=1, colors=('#33aa33', '#aa3333')):
         self.owner = owner
@@ -899,7 +899,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         firewall_rules_main_box.add(self.note, False, True)
 
         info_box = mforms.newBox(True)
-        info_label = mforms.newLabel("Manage the rules for the current user. Changing the mode to RECORDING will start collecting the SQL commands used by your application.\nWhen all the neccessary rules were collected, you should set the mode to PROTECTING. You can then fine-tune the set of rules by adding or deleting them.")
+        info_label = mforms.newLabel("Manage the rules for the current user. Changing the mode to RECORDING will start collecting the SQL commands used by your application.\nWhen all the necessary rules were collected, you should set the mode to PROTECTING. You can then fine-tune the set of rules by adding or deleting them.")
         info_box.add(info_label, True, True)
         self.add(info_box, False, False)
         
@@ -1857,7 +1857,7 @@ class SecurityAccount(mforms.Box):
     def revoke_all(self):
         if self._selected_user:
             if Utilities.show_message("Revoke All Privileges",
-                  "Please confirm revokation of all privileges for the account '%s'@'%s'.\nNote: the account itself will be maintained.\n\nAdd new privileges afterwards or the user will not be able to access any schema object."%(self._selected_user.username, self._selected_user.host),
+                  "Please confirm revocation of all privileges for the account '%s'@'%s'.\nNote: the account itself will be maintained.\n\nAdd new privileges afterwards or the user will not be able to access any schema object."%(self._selected_user.username, self._selected_user.host),
                   "Revoke", "Cancel", "") == mforms.ResultOk:
                 try:
                     self._selected_user.revoke_all()
@@ -1893,7 +1893,7 @@ class SecurityAccount(mforms.Box):
             is_new_user = not self._selected_user.is_commited
 
             password_unneeded = False
-            self.password_label.set_text("Password is expired. User must change password to use the account." if self._selected_user.password_expired else self.password_advice)
+            self.password_label.set_text("Password has expired. User must change password to use the account." if self._selected_user.password_expired else self.password_advice)
             plugin_info = AUTHENTICATION_PLUGIN_TYPES.get(self.selected_plugin_type(), {})
             if self.has_extra_plugins and not plugin_info.get("enable_password", True):
                 password_unneeded = True
@@ -2010,7 +2010,7 @@ Please click [Upgrade Account] to fix that.
 Either the account password must be provided to reset it
 or a new password must be supplied.'''
         elif user.password_expired:
-            caption = 'Password is expired. User must change password to use the account.'
+            caption = 'Password has expired. User must change password to use the account.'
         elif not user.username:
             caption = 'This is an anonymous account. It is usually advisable to delete this account.'
         elif user.blank_password :

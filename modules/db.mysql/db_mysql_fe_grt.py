@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -131,7 +131,7 @@ def connect(connection, password):
             grt.send_info("Reconnecting to %s..." % connection.hostIdentifier)
             con.disconnect()
             con.connect()
-            grt.send_info("Connection restablished")
+            grt.send_info("Connection reestablished")
     except NotConnectedError:
         con = db_utils.MySQLConnection(connection, password=password)
         grt.send_info("Connecting to %s..." % connection.hostIdentifier)
@@ -222,8 +222,8 @@ def getTableNames(connection, schema):
         names.append(result.stringByIndex(1))
 
     return names
-	
-	
+
+
 @ModuleInfo.export(grt.INT, grt.STRING, grt.classes.db_mysql_Catalog, grt.Dict)
 def createScriptForCatalogObjects(path, catalog, objectCreationParams):
     """Create a CREATE script with the catalog objects. The catalog must have been previously processed

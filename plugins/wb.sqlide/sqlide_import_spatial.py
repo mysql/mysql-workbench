@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -211,7 +211,7 @@ class SpatialImporter:
             raise
         except Exception, exc:
             import traceback
-            log_error("An error occured during execution of ogr2ogr file import: %s, stack: %s\n" % (exc, traceback.format_exc()))
+            log_error("An error occurred during execution of ogr2ogr file import: %s, stack: %s\n" % (exc, traceback.format_exc()))
             raise
         self.is_running = False
 
@@ -449,7 +449,7 @@ class ContentPreviewPage(WizardPage):
         self.cartesian_convert_chb.set_active(True)
 
         boxconvert.add(self.cartesian_convert_chb, False, True)
-        boxconvert.add(small_label("MySQL support only Cartesian format, leaving this checkbox in it's initial state will convert the data which may lead to data loss"), False, False)
+        boxconvert.add(small_label("MySQL supports only Cartesian format. Leaving this checkbox in its initial state will convert the data which may lead to data loss"), False, False)
         
         self.content.add(boxconvert, False, True)
         self.get_info()

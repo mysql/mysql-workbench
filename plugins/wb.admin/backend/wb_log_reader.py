@@ -1,4 +1,4 @@
-﻿# Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+﻿# Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -92,7 +92,6 @@ Current limitations:
 """
 
 import re
-import grt
 
 from workbench.log import log_info, log_error, log_warning
 
@@ -374,7 +373,7 @@ class BaseLogFileReader(object):
                     raise
         elif use_event_viewer:
             if not self.ctrl_be.server_profile.is_local:
-                raise LogFileAccessError('''An attempt to rread events from the remote server failed. Events can only be read from the local machine, 
+                raise LogFileAccessError('''An attempt to read events from the remote server failed. Events can only be read from the local machine, 
                     hence installed MySQL Workbench on the remote machine to allow showing the server's event log.''')
             self.log_file = EventLogInput(self.ctrl_be, self.log_file_name)
             self.file_size = self.log_file.size

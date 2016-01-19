@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -83,7 +83,7 @@ wba_page_modules = []
 class AdministratorContext:
     """
     An instance of the WBA, associated to a SQL Editor.
-    Thi is created when a GRNSQLEditorOpened notification is received.
+    This is created when a GRNSQLEditorOpened notification is received.
 
     Initially, only the different sections of the WBA are added to the sidebar
     and the GUI itself is not initialized until the user enters each section.
