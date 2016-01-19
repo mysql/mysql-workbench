@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -89,7 +89,7 @@ ClassRegistry *ClassRegistry::get_instance()
 
 //--------------------------------------------------------------------------------------------------
 
-std::string Integer::description(const std::string &indentation) const
+std::string Integer::debugDescription(const std::string &indentation) const
 {
   // Simple values don't use indentation as they are always on a RHS.
   return toString();
@@ -134,7 +134,7 @@ bool Integer::less_than(const Value *o) const
 
 //--------------------------------------------------------------------------------------------------
 
-std::string Double::description(const std::string &indentation) const
+std::string Double::debugDescription(const std::string &indentation) const
 {
   return toString();
 }
@@ -175,7 +175,7 @@ bool Double::less_than(const Value *o) const
 
 //--------------------------------------------------------------------------------------------------
 
-std::string String::description(const std::string &indentation) const
+std::string String::debugDescription(const std::string &indentation) const
 {
   return "'" + _value + "'";
 }
@@ -214,13 +214,13 @@ bool String::less_than(const Value *o) const
 
 //--------------------------------------------------------------------------------------------------
 
-std::string List::description(const std::string &indentation) const
+std::string List::debugDescription(const std::string &indentation) const
 {
   std::string s;
 
   s.append("[\n"); // Not indented (RHS value).
   for (raw_const_iterator iter= raw_begin(); iter != raw_end(); ++iter)
-    s.append(indentation + "  " + iter->description(indentation + "  ") + "\n");
+    s.append(indentation + "  " + iter->debugDescription(indentation + "  ") + "\n");
 
   s.append(indentation + "]");
   return s;
@@ -563,7 +563,7 @@ void OwnedList::remove(size_t index)
 
 //--------------------------------------------------------------------------------------------------
 
-std::string Dict::description(const std::string &indentation) const
+std::string Dict::debugDescription(const std::string &indentation) const
 {
   std::string s;
 
@@ -572,7 +572,7 @@ std::string Dict::description(const std::string &indentation) const
   {
     s.append(indentation + "  " + iter->first);
     s.append(" = ");
-    s.append(iter->second.description(indentation + "  ") + "\n");
+    s.append(iter->second.debugDescription(indentation + "  ") + "\n");
   }
   s.append(indentation + "}");
   return s;
@@ -994,7 +994,7 @@ const std::string &Object::class_name() const
   return _metaclass->name();
 }
 
-std::string Object::description(const std::string &indentation) const
+std::string Object::debugDescription(const std::string &indentation) const
 {
   std::string s;
   bool first = true;
@@ -1036,7 +1036,7 @@ std::string Object::description(const std::string &indentation) const
           s.append(indentation + strfmt("  %s: null", iter->first.c_str()));
       }
       else
-        s.append(get_member(iter->first).description(indentation + "  "));
+        s.append(get_member(iter->first).debugDescription(indentation + "  "));
     }
 
     mc= mc->parent();
@@ -1348,7 +1348,7 @@ class CountedTypeHandler : public TypeHandler
       virtual void clear(TypeHandle& handle)const {release(handle);};
       virtual inline bool is_same(const TypeHandle& handle, const ValueRef &value) const { return get_ptr(handle) == value.valueptr(); }
       virtual inline Type type(const TypeHandle& handle) const { return get_ptr(handle) ? get_ptr(handle)->get_type() : UnknownType; }
-      std::string description(const TypeHandle& handle) const {return get_ptr(handle)->description();};
+      std::string debugDescription(const TypeHandle& handle) const {return get_ptr(handle)->debugDescription();};
       std::string toString(const TypeHandle& handle) const { return get_ptr(handle)->toString(); };
       virtual void mark_global(const TypeHandle& handle) const{get_ptr(handle)->mark_global();};
       virtual void unmark_global(const TypeHandle& handle) const{get_ptr(handle)->unmark_global();};
@@ -1403,7 +1403,7 @@ public:
         return value.type() == UnknownType;
     }
 
-    std::string description(const TypeHandle& handle) const
+    std::string debugDescription(const TypeHandle& handle) const
     {
         return "NULL";
     };
@@ -1445,7 +1445,7 @@ public:
         return handle.double_value == value.get_data().double_value;
     }
 
-    std::string description(const TypeHandle& handle) const
+    std::string debugDescription(const TypeHandle& handle) const
     {
       return toString(handle);
     };
@@ -1486,7 +1486,7 @@ public:
         return handle.int_value == value.get_data().int_value;
     }
 
-    std::string description(const TypeHandle& handle) const
+    std::string debugDescription(const TypeHandle& handle) const
     {
       return toString(handle);
     };
@@ -1530,7 +1530,7 @@ public:
 
     virtual inline bool is_same(const TypeHandle& handle, const ValueRef &value) const { return get_ptr(handle) == value.get_data().string_ptr; }
     virtual inline Type type(const TypeHandle& handle) const { return StringType; }
-    std::string description(const TypeHandle& handle) const {return get_ptr(handle);};
+    std::string debugDescription(const TypeHandle& handle) const {return get_ptr(handle);};
     std::string toString(const TypeHandle& handle) const { return get_ptr(handle); };
     virtual void mark_global(const TypeHandle& handle) const{};
     virtual void unmark_global(const TypeHandle& handle) const{};

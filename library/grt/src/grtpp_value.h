@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -163,7 +163,7 @@ namespace grt {
           delete this;
       }
 
-      virtual std::string description(const std::string &indentation = "") const = 0;
+      virtual std::string debugDescription(const std::string &indentation = "") const = 0;
       virtual std::string toString() const = 0;
 
       inline base::refcount_t refcount() const
@@ -203,7 +203,7 @@ namespace grt {
 
       static Type static_type() { return IntegerType; }
       virtual Type get_type() const { return IntegerType; }
-      virtual std::string description(const std::string &indentation = "") const;
+      virtual std::string debugDescription(const std::string &indentation = "") const;
       virtual std::string toString() const;
       
       inline operator storage_type () const { return _value; }
@@ -229,7 +229,7 @@ namespace grt {
 
       static Type static_type() { return DoubleType; }
       virtual Type get_type() const { return DoubleType; }
-      virtual std::string description(const std::string &indentation = "") const;
+      virtual std::string debugDescription(const std::string &indentation = "") const;
       virtual std::string toString() const;
       
       inline operator storage_type () const { return _value; }
@@ -255,7 +255,7 @@ namespace grt {
 
       static Type static_type() { return StringType; }
       virtual Type get_type() const { return StringType; }
-      virtual std::string description(const std::string &indentation = "") const;
+      virtual std::string debugDescription(const std::string &indentation = "") const;
       virtual std::string toString() const;
       
       inline operator storage_type () const { return _value; }
@@ -291,7 +291,7 @@ namespace grt {
       inline const SimpleTypeSpec &content_type_spec() const { return _content_type; }
       inline Type content_type() const { return _content_type.type; }
       inline const std::string &content_class_name() const { return _content_type.object_class; }
-      virtual std::string description(const std::string &indentation = "") const;
+      virtual std::string debugDescription(const std::string &indentation = "") const;
       virtual std::string toString() const;
 
       inline const ValueRef &get(size_t index) const
@@ -396,7 +396,7 @@ namespace grt {
 
       static Type static_type() { return DictType; }
       virtual Type get_type() const { return DictType; }
-      virtual std::string description(const std::string &indentation = "") const;
+      virtual std::string debugDescription(const std::string &indentation = "") const;
       virtual std::string toString() const;
 
       Type content_type() const { return _content_type.type; }
@@ -471,7 +471,7 @@ namespace grt {
 
       static Type static_type() { return ObjectType; }
       virtual Type get_type() const { return ObjectType; }
-      virtual std::string description(const std::string &indentation = "") const;
+      virtual std::string debugDescription(const std::string &indentation = "") const;
       virtual std::string toString() const;
 
       bool is_instance(MetaClass *gclass) const;
