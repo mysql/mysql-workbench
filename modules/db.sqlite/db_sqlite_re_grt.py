@@ -1,4 +1,4 @@
-# Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -16,13 +16,12 @@
 # 02110-1301  USA
 
 import sqlite3
-import re
 import os.path
 
 from db_generic_re_grt import GenericReverseEngineering
 
 from wb import DefineModule
-from workbench.utils import find_object_with_name, server_version_str2tuple
+from workbench.utils import server_version_str2tuple
 from workbench.exceptions import NotConnectedError
 
 import grt
@@ -127,7 +126,6 @@ WHERE type='table' AND NOT name LIKE 'sqlite_%'"""
 
         # 10% of the progress is for preparation
         total = 1e-10  # total should not be zero to avoid DivisionByZero exceptions
-        accumulated_progress = 0.1
         total += len(cls.getTableNames(connection, catalog_name, '')) if get_tables else 0
 
         grt.send_progress(0.1, "Gathered stats")
@@ -141,7 +139,7 @@ WHERE type='table' AND NOT name LIKE 'sqlite_%'"""
 
                 sql = sql.replace('[', '').replace(']', '')
 
-                grt.log_debug('SQLiteReverseEngineering', 'Procesing this sql:\n%s;' % sql)
+                grt.log_debug('SQLiteReverseEngineering', 'Processing this sql:\n%s;' % sql)
 
                 MysqlSqlFacade.parseSqlScriptString(catalog, sql)
 

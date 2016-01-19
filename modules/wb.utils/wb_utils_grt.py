@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -32,12 +32,11 @@ import grt
 import mforms
 
 from grt import log_warning
-from workbench.log import log_info, log_error, log_debug, log_debug2
+from workbench.log import log_info, log_error, log_debug2
 import traceback
 
-from workbench.ui import WizardForm, WizardPage, WizardProgressPage
-from mforms import newButton, newCheckBox, newTreeNodeView
-from mforms import FileChooser
+from workbench.ui import WizardForm, WizardPage
+from mforms import newButton, newCheckBox
 
 # define this Python module as a GRT module
 ModuleInfo = DefineModule(name= "PyWbUtils", author= "Sun Microsystems Inc.", version="1.0")
@@ -276,7 +275,7 @@ def connectionFromString(connstr):
             try:
                 port = int(port)
             except:
-                log_warning("wb_utils", "Error parsing connstring, port value '%s' should be a number\n" % port)
+                log_warning("wb_utils", "Error parsing connstring; port value '%s' should be a number\n" % port)
                 port = None
         if not port:
             port = 3306
@@ -792,7 +791,7 @@ class SSLWizard_IntroPage(WizardPage):
         box.set_padding(20)
         box.set_spacing(20)
 
-        message = "This wizard will assist you generating a set of SSL certificates and self-signed keys that are required \n"
+        message = "This wizard will assist you to generate a set of SSL certificates and self-signed keys that are required \n"
         message += "by the MySQL server to enable SSL. Other files will also be generated so that you can check how to \n"
         message += "configure your server and clients as well as the attributes used to generate them."
 
@@ -858,9 +857,9 @@ class SSLWizard_OptionsPage(WizardPage):
         box.set_spacing(12)
         box.set_padding(12)
 
-        message = "These optons allow you to configure the process. You can use default parameters\n"
-        message += "instead providing your own, allow the generation of the certifcates and determine\n"
-        message += "whether to uptade the connection settings or not."
+        message = "These options allow you to configure the process. You can use default parameters\n"
+        message += "instead of providing your own, allow the generation of the certificates and determine\n"
+        message += "whether to update the connection settings or not."
 
         label = mforms.newLabel(message)
 
@@ -900,7 +899,7 @@ class SSLWizard_GeneratePage(WizardPage):
         row, self.common_name = self.add_label_row(row, "Common:", "eg, put the FQDN of the server\nto allow server address validation")
 
         message = "Now you must specify the parameters to use in the certificates and self-signed key generation.\n"
-        message += "This may include some data refering youself and/or the company you work for. All fields are optional."
+        message += "This may include some data refering to youself and/or the company you work for. All fields are optional."
         
         self.parameters_box = mforms.newBox(False)
         self.parameters_box.set_padding(20)
