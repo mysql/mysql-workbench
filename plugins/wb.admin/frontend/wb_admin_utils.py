@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -36,7 +36,7 @@ def weakcb(object, cbname):
     return lambda ref=weakref.ref(object): call(ref, cbname)
 
 
-not_running_warning_label_text = "There is no connection to the MySQL Server.\nThis functionality requires an established connection to a running MySQL server to work."
+not_running_warning_label_text = "There is no connection to the MySQL Server.\nThis functionality requires an established connection to a running MySQL server."
 def not_running_warning_label():
     warning = newLabel("\n\n\n\n"+not_running_warning_label_text)
     warning.set_style(mforms.BigStyle)
@@ -51,7 +51,7 @@ def no_remote_admin_warning_label(server_instance_settings):
         if server_instance_settings.uses_wmi:
             warning = newLabel("There is no WMI connection to the server.\nTo use this functionality, the server where MySQL is located must be configured to use WMI\nand you must provide its login information in the server profile.")
         else:
-            warning = newLabel("Remote Administration is disabled.\nTo use this functionality, the server where MySQL is located must either have an SSH server running\nor alternatively, if it is a Windows machine, must have WMI enabled.\nAdditionally you must enable remote administration in the server profile, providing login details for it.")
+            warning = newLabel("Remote Administration is disabled.\nTo use this functionality, the server where MySQL is located must either have an SSH server running,\nor if it is a Windows machine, must have WMI enabled.\nAdditionally you must enable remote administration in the server profile, providing login details for it.")
     warning.set_style(mforms.BigStyle)
     warning.set_text_align(mforms.MiddleCenter)
     return warning

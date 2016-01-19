@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -133,7 +133,7 @@ class MainView(WizardPage):
 class CreationProgressView(WizardProgressPage):
     def __init__(self, main):
         WizardProgressPage.__init__(self, main, "Create Schemas", description="""The SQL scripts generated for the migrated schema objects will now be executed
-in the target database. You can monitor execution in the logs and if there are errors 
+in the target database. You can monitor execution in the logs. If there are errors 
 you may correct them in the next step. Table data will be migrated at a later step.""")
 
         self._autostart = True

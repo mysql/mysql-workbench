@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014 Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016 Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -582,11 +582,11 @@ def reverseEngineerTableColumns(connection, table):
     catalog = schema.owner
     execute_query(connection, 'USE %s' % quoteIdentifier(catalog.name))
     query = """SELECT  ISNULL(C.name, '') AS COLUMN_NAME, T.name AS DATA_TYPE,
-		C.length AS CHARACTER_MAXIMUM_LENGTH, C.prec AS NUMERIC_PRECISION,
-		C.scale AS NUMERIC_SCALE, CONVERT(BIT, (C.status & 0x08)) AS IS_NULLABLE,
+        C.length AS CHARACTER_MAXIMUM_LENGTH, C.prec AS NUMERIC_PRECISION,
+        C.scale AS NUMERIC_SCALE, CONVERT(BIT, (C.status & 0x08)) AS IS_NULLABLE,
         CONVERT(BIT, (C.status & 0x80)) AS IS_IDENTITY_COLUMN, K.text AS COLUMN_DEFAULT
-		FROM syscolumns C, systypes T, sysobjects A, syscomments K
-	    WHERE USER_NAME(A.uid) = ? AND
+        FROM syscolumns C, systypes T, sysobjects A, syscomments K
+        WHERE USER_NAME(A.uid) = ? AND
         A.id = C.id AND C.id = OBJECT_ID(?) AND
         C.usertype *= T.usertype AND
         C.cdefault *= K.id
@@ -643,7 +643,7 @@ def reverseEngineerTableColumns(connection, table):
 
 @ModuleInfo.export(grt.INT, grt.classes.db_mgmt_Connection, grt.classes.db_sybase_Table)
 def reverseEngineerTablePK(connection, table):
-    """Reverse engineers the primary key(s) for the given table."""
+    """Reverse engineers the primary key for the given table."""
 
     schema = table.owner
     catalog = schema.owner
@@ -655,7 +655,7 @@ WHERE so.uid=USER_ID(?) AND sk.id=OBJECT_ID(?) AND sk.type=1"""
 
     if len(table.columns) == 0:
         grt.send_error('Sybase reverseEngineerTablePK', "Reverse engineer of table's %s.%s primary key was attempted but the table has no columns attribute" % (schema.name, table.name) )
-        return 1    # Table must have columns reverse engineered before we can rev eng its primary key(s)
+        return 1    # Table must have columns reverse engineered before we can rev eng its primary key
 
     pk_col_names = [ row[0] for row in execute_query(connection, query, schema.name, table.name) ]
 
