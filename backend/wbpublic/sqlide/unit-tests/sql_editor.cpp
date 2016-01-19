@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -57,7 +57,7 @@ TEST_FUNCTION(1)
 	{
 		db_mgmt_RdbmsRef rdbms= rdbms_list[n];
 		MySQLEditor::Ref sql_editor = MySQLEditor::create(tester.grt, parser, parser);
-		ensure(("failed to get sql editor for " + rdbms->name().repr() + " RDBMS").c_str(), (NULL != sql_editor.get()));
+		ensure(("failed to get sql editor for " + rdbms->name().toString() + " RDBMS").c_str(), (NULL != sql_editor.get()));
 	}
 }
 
