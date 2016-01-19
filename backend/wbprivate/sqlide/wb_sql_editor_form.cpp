@@ -834,7 +834,7 @@ void SqlEditorForm::query_ps_statistics(boost::int64_t conn_id, std::map<std::st
   {
     std::auto_ptr<sql::ResultSet> result(stmt->executeQuery(
       base::strfmt("SELECT st.* FROM performance_schema.events_statements_current st JOIN performance_schema.threads thr"
-        " ON thr.thread_id = st.thread_id WHERE thr.processlist_id = %lli", conn_id))
+        " ON thr.thread_id = st.thread_id WHERE thr.processlist_id = %lli", (long long int)conn_id))
     );
     while (result->next())
     {
@@ -860,7 +860,7 @@ std::vector<SqlEditorForm::PSStage> SqlEditorForm::query_ps_stages(boost::int64_
   try
   {
     std::auto_ptr<sql::ResultSet> result(stmt->executeQuery(
-      base::strfmt("SELECT st.* FROM performance_schema.events_stages_history_long st WHERE st.nesting_event_id = %lli", stmt_event_id))
+      base::strfmt("SELECT st.* FROM performance_schema.events_stages_history_long st WHERE st.nesting_event_id = %lli", (long long int)stmt_event_id))
     );
     while (result->next())
     {
@@ -909,7 +909,7 @@ std::vector<SqlEditorForm::PSWait> SqlEditorForm::query_ps_waits(boost::int64_t 
   try
   {
     std::auto_ptr<sql::ResultSet> result(stmt->executeQuery(
-      base::strfmt("SELECT st.* FROM performance_schema.events_waits_history_long st WHERE st.nesting_event_id = %lli", stmt_event_id))
+      base::strfmt("SELECT st.* FROM performance_schema.events_waits_history_long st WHERE st.nesting_event_id = %lli", (long long int)stmt_event_id))
     );
     while (result->next())
     {
