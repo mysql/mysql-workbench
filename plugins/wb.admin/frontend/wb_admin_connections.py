@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -165,7 +165,7 @@ class WBThreadStack(mforms.Form):
         r = self.load_data()
         if not r:
             if r is not None:
-                mforms.Utilities.show_error("Error Getting Thread Stack", "Thread stack is not available for thread %d, please enable Performance Schema instrumentation (Statement and Stage instrumentations and respective History consumers)." % self.thread_id, "OK",  "", "")
+                mforms.Utilities.show_error("Error Getting Thread Stack", "Thread stack is not available for thread %d. Please enable Performance Schema instrumentation (Statement and Stage instrumentations and respective History consumers)." % self.thread_id, "OK",  "", "")
             self.close()
         else:
             self.show()

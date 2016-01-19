@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -112,7 +112,7 @@ class FinalReportView(WizardPage):
         if advancing:
             self.generate_migration_report()
             if "GenerateBulkCopyScript" in self.main.plan.state.dataBulkTransferParams.keys():
-                self.advanced_button.set_text("Open folder that contain generated script")
+                self.advanced_button.set_text("Open folder that contains generated script")
                 self.advanced_button.show(True)
             else:
                 self.advanced_button.show(False)

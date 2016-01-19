@@ -1,9 +1,8 @@
-# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation; version 2 of the
-# License.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -113,7 +112,7 @@ def parse_version_str(version_str):
             else:
                 version = (int(tokens[3]), int(tokens[4]))
     except ValueError:
-        print "ERROR! incorrect version attribute value '" + version_str + "', ", type(version_str)
+        print "ERROR! Incorrect version attribute value '" + version_str + "', ", type(version_str)
 
     return version
 
@@ -603,7 +602,7 @@ class WbAdminConfigFileBE(object):
                 content = self.ctrl_be.server_helper.get_file_content(file_name, as_user=Users.CURRENT, user_password=None)
                 log_debug('%i bytes read from file\n' % len(content or []) )
             except PermissionDeniedError, e:
-                log_debug('Permissin denied, sudo needed to read config file: "%r"\n' % e)
+                log_debug('Permissin denied; sudo needed to read config file: "%r"\n' % e)
                 self.needs_root_for_file_read = True
 
         if self.needs_root_for_file_read:
@@ -884,7 +883,7 @@ class WbAdminConfigFileBE(object):
             if orig_opt is None:
                 if off_value == 'disabledby':
                     if disabledby is None:
-                        print "Error, option definition does not have disbledby"
+                        print "Error, option definition does not have disabledby"
                     else:
                         if disabledby not in self.original_opts:
                             ci = WbAdminConfigFileBE.ChangesetItem(ADD, section, disabledby, None)
@@ -1339,7 +1338,7 @@ def unit_test_5(ctx):
         value = val.val(0)
         if value != "disabledby":
             status = False
-            msg += "Broken parser. partition must have value 'disabledby' when skip-partition is used!"
+            msg += "Broken parser. Partition must have value 'disabledby' when skip-partition is used!"
 
     return (name, status, msg)
 
@@ -1631,7 +1630,7 @@ def unit_test_13_(ctx):
 
 #-------------------------------------------------------------------------------
 def unit_test_14(ctx):
-    name = (__name__, "Disabling innodb. File has bool innodb, WBA uses enum innodb")
+    name = (__name__, "Disabling innodb. File has bool innodb; WBA uses enum innodb")
     status = True
     msg = ""
     settings = ctx['settings']

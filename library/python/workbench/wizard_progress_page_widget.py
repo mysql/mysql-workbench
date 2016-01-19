@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -435,7 +435,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
 
     def _finished(self):
         if self._warnings > 0 or self._errors > 0:
-            self.send_info("Tasks finished with warnings and/or errors, view the logs for details")
+            self.send_info("Tasks finished with warnings and/or errors; view the logs for details")
         self.send_info(self.final_message())
         self._flush_messages()
         self.send_info("\n\n")
@@ -555,9 +555,9 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         """Subclass and override to change the text message to be shown when tasks finish successfully."""
         ret_val = ""
         if self._errors > 0:
-            ret_val = "There were errors during execution, please review log messages."
+            ret_val = "There were errors during execution; please review log messages."
         elif self._warnings > 0:
-            ret_val = "There were warnings during execution, please review log messages.\nClick [Next >] to continue if you think they are not important."
+            ret_val = "There were warnings during execution; please review log messages.\nClick [Next >] to continue if you think they are not important."
         else:
             ret_val = self.final_message() + "\nClick [Next >] to continue."
 
