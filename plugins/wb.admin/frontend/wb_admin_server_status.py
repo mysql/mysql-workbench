@@ -16,7 +16,7 @@
 # 02110-1301  USA
 
 from __future__ import with_statement
-from workbench.log import log_info, log_error, log_warning
+from workbench.log import log_info, log_error, log_warning, log_debug3
 
 from workbench.utils import format_duration, Version
 from workbench.db_utils import QueryError
@@ -429,10 +429,10 @@ class WbAdminServerStatus(mforms.Box):
                                ("SSL Key:", lambda info, plugins, status: info.get("ssl_key") or "n/a")],
                               params)
 
-        log_error("mysql_firewall_trace: %s\n" % info.get("mysql_firewall_trace"))
-        log_error("Firewall_access_denied: %s\n" % status.get("Firewall_access_denied"))
-        log_error("Firewall_access_granted: %s\n" % status.get("Firewall_access_granted"))
-        log_error("Firewall_cached_entries: %s\n" % status.get("Firewall_cached_entries"))
+        log_debug3("mysql_firewall_trace: %s\n" % info.get("mysql_firewall_trace"))
+        log_debug3("Firewall_access_denied: %s\n" % status.get("Firewall_access_denied"))
+        log_debug3("Firewall_access_granted: %s\n" % status.get("Firewall_access_granted"))
+        log_debug3("Firewall_cached_entries: %s\n" % status.get("Firewall_cached_entries"))
 
         if info.get("mysql_firewall_mode") == "ON":
             self.add_info_section("Firewall",
