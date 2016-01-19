@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -103,7 +103,7 @@ class SetupMainView(WizardPage):
         else:
             self._add_script_radiobutton_option(box, "copy_script", "Create a shell script to copy the data from outside Workbench", "Shell Script File:", "Save As", "You should edit this file to add the source and target server passwords before running it.", rid)
 
-        self._add_script_radiobutton_option(box, "bulk_copy_script", "Create a shell script to use native server dump and load abilities for fast migration", "Bulk Data Copy Script:", "Save As", "Edit the generated file and change passwords at the top of the generated script.\nRun it on the source server to create a zip package containing a data dump as well as a load script.\nCopy this to the target server, extract it and run the import script. See the script output for further details.", rid)
+        self._add_script_radiobutton_option(box, "bulk_copy_script", "Create a shell script to use native server dump and load abilities for fast migration", "Bulk Data Copy Script:", "Save As", "Edit the generated file and change passwords at the top of the generated script.\nRun it on the source server to create a zip package containing a data dump as well as a load script.\nCopy this to the target server, extract it, and run the import script. See the script output for further details.", rid)
 
         panel = mforms.newPanel(mforms.TitledBoxPanel)
         panel.set_title("Options")
@@ -115,7 +115,7 @@ class SetupMainView(WizardPage):
         panel.add(self.options_box)
 
         self._truncate_db = mforms.newCheckBox()
-        self._truncate_db.set_text("Truncate target tables (ie. delete contents) before copying data")
+        self._truncate_db.set_text("Truncate target tables (i.e. delete contents) before copying data")
         self.options_box.add(self._truncate_db, False, True)
 
         hbox = mforms.newBox(True)
@@ -128,7 +128,7 @@ class SetupMainView(WizardPage):
         l = mforms.newImageBox()
         l.set_image(mforms.App.get().get_resource_path("mini_notice.png"))
         l.set_tooltip("Number of tasks to use for data transfer. Each task will open a "+
-          "connection to both source and target RDBMSs to copy table rows.\nDefault value 2.")
+          "connection to both source and target RDBMSes to copy table rows.\nDefault value 2.")
         hbox.add(l, False, True)
         self.options_box.add(hbox, False, True)
 

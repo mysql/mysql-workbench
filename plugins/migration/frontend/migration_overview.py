@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -36,7 +36,7 @@ class MainView(WizardPage):
         self.content.set_padding(20)
 
         label = mforms.newLabel("This wizard will assist you in migrating tables and data from a supported database system to MySQL.\n"+
-              "You can also use this to copy databases from one MySQL instance to another.")
+              "You can also use this wizard to copy databases from one MySQL instance to another.")
         self.content.add(label, False, True)
         label = mforms.newLabel("Prerequisites")
         label.set_style(mforms.BoldStyle)

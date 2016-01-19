@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -191,7 +191,7 @@ class MsAccessReverseEngineering(GenericReverseEngineering):
 
     @classmethod
     def getCatalogNames(cls, connection):
-		return ["def"]
+        return ["def"]
 
     @classmethod
     def getSchemaNames(cls, connection, catalog_name):
@@ -487,9 +487,9 @@ class MsAccessReverseEngineering(GenericReverseEngineering):
 
     @classmethod
     def reverseEngineerTablePK(cls, connection, table):
-        """Reverse engineers the primary key(s) for the given table."""
+        """Reverse engineers the primary key for the given table."""
 
-        if len(table.columns) == 0:  # Table must have columns reverse engineered before we can rev eng its primary key(s)
+        if len(table.columns) == 0:  # Table must have columns reverse engineered before we can rev eng its primary key
             grt.send_error('Migration: reverseEngineerTablePKAndIndices: Reverse engineer of table %s was attempted but the table has no columns attribute' % table.name)
             return 1
         

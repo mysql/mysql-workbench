@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -69,9 +69,9 @@ REMOVE_USER = "DROP USER '%(user)s'@'%(host)s'"
 # It has the form { 'TableColumnPrivName': ('PrettyName', 'ADescriptionOfThePrivilege'), ... }
 PrivilegeInfo = {
 "Select_priv": ("SELECT", "The SELECT privilege enables you to select rows from tables in a database.\nSELECT statements require the SELECT privilege only if they actually retrieve rows from a table. Some SELECT statements do not access tables and can be executed without permission for any database"),
-"Insert_priv": ("INSERT", "The INSERT privilege enables rows to be inserted into tables in a database.\nINSERT is also required for the ANALYZE TABLE, OPTIMIZE TABLE, and REPAIR TABLE table-maintenance statements."),
-"Update_priv": ("UPDATE", "The UPDATE privilege enables rows to be updated in tables in a database."),
-"Delete_priv": ("DELETE", "The DELETE privilege enables rows to be deleted from tables in a database."),
+"Insert_priv": ("INSERT", "The INSERT privilege enables you to be inserted into tables in a database.\nINSERT is also required for the ANALYZE TABLE, OPTIMIZE TABLE, and REPAIR TABLE table-maintenance statements."),
+"Update_priv": ("UPDATE", "The UPDATE privilege enables you to be updated in tables in a database."),
+"Delete_priv": ("DELETE", "The DELETE privilege enables you to be deleted from tables in a database."),
 "Create_priv": ("CREATE", "The CREATE privilege enables creation of new databases and tables."),
 "Drop_priv": ("DROP", """The DROP privilege enables you to drop (remove) existing databases, tables, and views.
 Beginning with MySQL 5.1.10, the DROP privilege is also required in order to use the statement ALTER TABLE ... DROP PARTITION on a partitioned table.
