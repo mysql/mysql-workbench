@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1776,7 +1776,7 @@ std::string NewServerInstanceWizard::get_server_info(const std::string& key)
     return "";
   if (grt::StringRef::can_wrap(value))
     return grt::StringRef::cast_from(value);
-  return value.description();
+  return value.debugDescription();
 }
 
 //--------------------------------------------------------------------------------------------------
