@@ -122,7 +122,7 @@ class WbAdminConfigurationStartup(mforms.Box):
         self.add(self.long_status_msg, False, True)
         self.add(start_stop_hbox, False, False)
 
-        description = newLabel("If you stop the server, you and your applications will not be able to use the Database and all current connections will be closed\n")
+        description = newLabel("If you stop the server, you and your applications will not be able to use the database and all current connections will be closed\n")
         description.set_style(mforms.SmallStyle)
         self.add(description, False, False)
 
@@ -238,7 +238,7 @@ class WbAdminConfigurationStartup(mforms.Box):
                 self.offline_mode_btn.set_text("Bring Offline")
                 self.start_stop_btn.set_enabled(True)
                 self.short_status_msg.set_color("#00DD00")
-                self.long_status_msg.set_text("The database server is started and ready for client connections. To shut the Server down, use the \"Stop Server\" button")
+                self.long_status_msg.set_text("The database server is started and ready for client connections. To shut the server down, use the \"Stop Server\" button")
             self.short_status_msg.set_text(server_status)
             self.start_stop_btn.set_text("Stop Server")
         elif server_status in ("stopped", "stopping"):
@@ -255,7 +255,7 @@ class WbAdminConfigurationStartup(mforms.Box):
             self.short_status_msg.set_text(server_status)
             self.start_stop_btn.set_text("Start Server")
         else:
-            self.long_status_msg.set_text("The state of the database server could not be determined, please verify server profile settings.")
+            self.long_status_msg.set_text("The state of the database server could not be determined. Please verify server profile settings.")
             self.short_status_msg.set_text("unknown")
             self.short_status_msg.set_color("#FF0000")
             self.start_stop_btn.set_text("Start Server")
@@ -349,9 +349,9 @@ class WbAdminConfigurationStartup(mforms.Box):
                     return
 
             elif status == "stopping":
-                self.print_output("Server is stopping, please wait...")
+                self.print_output("Server is stopping; please wait...")
             elif status == "starting":
-                self.print_output("Server is starting, please wait...")
+                self.print_output("Server is starting; please wait...")
             else:
                 self.print_output("Unable to detect server status.")
             self.refresh()

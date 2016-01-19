@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -431,7 +431,7 @@ class VariablesGroupContainer:
     def add(self, name):
         name = name.strip().encode('utf-8')
         if name in self.content:
-            raise Exception("Already exists", "Category already exists, please specify different category name")
+            raise Exception("Already exists", "Category already exists, please specify a different category name")
 
         self.content[name] = []
 

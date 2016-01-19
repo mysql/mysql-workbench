@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -170,7 +170,7 @@ class MainView(WizardPage):
         self._menu.add_item_with_title("Find and Replace Target Collation...", self.replace_target_collation, "replace_target_collation")
         self._columns.set_context_menu(self._menu)
         
-        self.help_label = mforms.newLabel("You can rename target schemas and tables and change column definitions by clicking them once selected.")
+        self.help_label = mforms.newLabel("You can rename target schemas and tables, and change column definitions by clicking them once selected.")
         self.help_label.set_style(mforms.SmallStyle)
         self.content.add(self.help_label, False, True)
         
@@ -316,7 +316,7 @@ class MainView(WizardPage):
         object = self._object_dict.get(node.get_tag(), None)
         if object and isinstance(object, grt.classes.db_Column):
             if object.owner.customData.get("migration:lock_temp_sql", False):
-                if mforms.Utilities.show_message("Object is Locked", "The object was manually edited and is locked against updates. Would you like to unlock the object discarding your edits to apply this change?",
+                if mforms.Utilities.show_message("Object is Locked", "The object was manually edited and is locked against updates. Would you like to unlock the object discard your edits to apply this change?",
                                           "Unlock Object", "Cancel", "") == mforms.ResultCancel:
                     return
                 grt.log_info("Migration", "User unlocked object '%s' by changing columns tree" % object.name)
@@ -474,7 +474,7 @@ class MainView(WizardPage):
                     if tschema.oldName == schema.name:
                         if tschema.name == schema.name:
                             mforms.Utilities.show_error("Validation Error", 
-                                "The source and target are in the same server and a schema being migrated have identical names.\nPlease rename the target schema to allow the migration to continue.",
+                                "The source and target are in the same server and a schema being migrated has identical names.\nPlease rename the target schema to allow the migration to continue.",
                                 "OK", "", "")
                             idx = self._filter.index_of_item_with_title('All Objects')
                             if idx == -1:
@@ -886,7 +886,7 @@ class MainView(WizardPage):
 
     def replace_target_type(self):
         self.replace_target("Find and Replace Target Type", 
-                            "Target/migrated data type matching the search term will be replaced for all columns of all tables.", 
+                            "Target/migrated data types matching the search term will be replaced for all columns of all tables.", 
                             self.COL_TARGET_TYPE)
 
     def replace_target_flags(self):
@@ -896,10 +896,10 @@ class MainView(WizardPage):
 
     def replace_target_default_value(self):
         self.replace_target("Find and Replace Target Default Value", 
-                            "Target/migrated default value matching the search term will be replaced for all columns of all tables.", 
+                            "Target/migrated default values matching the search term will be replaced for all columns of all tables.", 
                             self.COL_TARGET_DEFAULT)
 
     def replace_target_collation(self):
         self.replace_target("Find and Replace Target Collation", 
-                            "Target/migrated collation matching the search term will be replaced for all columns of all tables.", 
+                            "Target/migrated collations matching the search term will be replaced for all columns of all tables.", 
                             self.COL_TARGET_COLLATION)

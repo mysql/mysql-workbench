@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -115,7 +115,7 @@ class SSHFingerprintNewError(Exception):
 
 def format_bad_host_exception(exc, known_hosts_filepath):
     import binascii
-    return "The host %s fingerprint missmatch.\nExpected key: %s\nServer sent: %s\nPlease verify if it's correct.\nTo continue, delete entries for the host from the %s file." % (exc.hostname, binascii.hexlify(exc.expected_key.get_fingerprint()), binascii.hexlify(exc.key.get_fingerprint()), known_hosts_filepath)
+    return "The host %s fingerprints mismatch.\nExpected key: %s\nServer sent: %s\nPlease verify if it's correct.\nTo continue, delete entries for the host from the %s file." % (exc.hostname, binascii.hexlify(exc.expected_key.get_fingerprint()), binascii.hexlify(exc.key.get_fingerprint()), known_hosts_filepath)
 
 # Decorator to log an exception
 def log_error_decorator(method):

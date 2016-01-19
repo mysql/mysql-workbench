@@ -106,8 +106,6 @@ def get_mysqldump_version():
     output = StringIO.StringIO()
     rc = local_run_cmd('"%s" --version' % path, output_handler=output.write)
     output = output.getvalue()
-    msg = None
-    error = False
     
     if rc or not output:
         self.print_log_message("Error retrieving version from %s:\n%s (exit %s)"%(path, output, rc))
@@ -1553,7 +1551,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
             return False
         
         if mysqldump_version < self.owner.ctrl_be.target_version:
-            msg = "%s is version %s, but the MySQL Server to be dumped has version %s.\nBecause the version of mysqldump is older than the server, some features may not be backed up properly.\nIt is recommended you upgrade your local MySQL client programs, including mysqldump to a version equal to or newer than that of the target server.\nThe path to the dump tool must then be set in Preferences -> Administrator -> Path to mysqldump Tool:" % (get_path_to_mysqldump(), mysqldump_version, self.owner.ctrl_be.target_version)
+            msg = "%s is version %s, but the MySQL Server to be dumped has version %s.\nBecause the version of mysqldump is older than the server, some features may not be backed up properly.\nIt is recommended you upgrade your local MySQL client programs, including mysqldump, to a version equal to or newer than that of the target server.\nThe path to the dump tool must then be set in Preferences -> Administrator -> Path to mysqldump Tool:" % (get_path_to_mysqldump(), mysqldump_version, self.owner.ctrl_be.target_version)
             if about_to_run:
                 if not mforms.Utilities.show_warning("mysqldump Version Mismatch", msg, "Continue Anyway", "Cancel", ""):
                     return False
@@ -2011,13 +2009,13 @@ class WbAdminExportOptionsTab(mforms.Box):
                             continue
                     if max_version and target_version:
                         if target_version.is_supported_mysql_version_at_least(Version.fromstr(max_version)):
-                            log_debug("Skip option %s becasue it's deprecated in version %s\n" % (optname, max_version))
+                            log_debug("Skip option %s because it's deprecated in version %s\n" % (optname, max_version))
                             continue
                     if min_version and mysqldump_version < min_version:
                             log_debug("Skip option %s because it's for mysqldump %s\n" % (optname, min_version))
                             continue
                     if max_version and mysqldump_version > max_version:
-                            log_debug("Skip option %s becasue it's deprecated in mysqldump %s\n" % (optname, max_version))
+                            log_debug("Skip option %s because it's deprecated in mysqldump %s\n" % (optname, max_version))
                             continue
 
                 # get the default value from mysqldump --help, if we don't have that data, use the stored default
