@@ -138,13 +138,15 @@ class EasySetupPage(mforms.Box):
         try:
             r = self.owner.get_select_int_result("SELECT COUNT(*) FROM performance_schema.setup_consumers WHERE enabled='NO'")
             if r == 0:
-                r = self.owner.get_select_int_result("SELECT COUNT(*) FROM performance_schema.setup_instruments WHERE enabled='NO' OR timed='NO'")
+                # Exclude results from 'memory/performance_schema/%' because they can't be disabled
+                r = self.owner.get_select_int_result("SELECT COUNT(*) FROM performance_schema.setup_instruments WHERE NAME NOT LIKE 'memory/performance_schema/%' AND (enabled='NO' OR timed='NO')")
                 if r == 0:
                     return "fully"
 
             r = self.owner.get_select_int_result("SELECT COUNT(*) FROM performance_schema.setup_consumers WHERE enabled='YES'")
             if r == 0:
-                r = self.owner.get_select_int_result("SELECT COUNT(*) FROM performance_schema.setup_instruments WHERE enabled='YES' OR timed='YES'")
+                # Exclude results from 'memory/performance_schema/%' because they can't be disabled
+                r = self.owner.get_select_int_result("SELECT COUNT(*) FROM performance_schema.setup_instruments WHERE NAME NOT LIKE 'memory/performance_schema/%' AND (enabled='YES' OR timed='YES')")
                 if r == 0:
                     return "disabled"
 
@@ -164,6 +166,8 @@ class EasySetupPage(mforms.Box):
                 nlikes = []
                 likes = []
                 ins = []
+                # Exclude results from 'memory/performance_schema/%' because they can't be disabled
+                nlikes.append("'memory/performance_schema/%'")
                 for i in instruments:
                    if '%' in i:
                        likes.append("NAME LIKE '%s'" % i)
