@@ -1,4 +1,3 @@
-import copy
 import option
 import wb_admin_config_file_be
 from wb_common import Users
