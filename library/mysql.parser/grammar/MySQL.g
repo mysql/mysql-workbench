@@ -1,7 +1,7 @@
 grammar MySQL;
 
 /*
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -62,7 +62,10 @@ grammar MySQL;
 //-------------------------------------------------------------------------------------------------
 
 options {
-  tokenVocab = predefined; // A set of tokens with ids that aid searching in ranges (e.g. for keywords allowed as identifier).
+  // The predefined token file contains all our keywords in a specific order to establish a fixed set of ranges
+  // for quick checks. Hence it needs to track any change that is made to the keywords in this grammar
+  // (e.g. reordering, additions).
+  tokenVocab = predefined;
   language = C;
   output = AST;
   ASTLabelType = pANTLR3_BASE_TREE;
@@ -1066,11 +1069,7 @@ insert_field_spec:
 ;
 
 fields:
-	insert_identifier (COMMA_SYMBOL insert_identifier)*
-;
-
-insert_identifier:
-	column_ref_with_wildcard -> ^(COLUMN_NAME_TOKEN column_ref_with_wildcard)
+	column_ref_with_wildcard (COMMA_SYMBOL column_ref_with_wildcard)*
 ;
 
 insert_values:
@@ -1207,8 +1206,8 @@ select_item_list:
 	(select_item | MULT_OPERATOR) ( options { greedy = true; }: COMMA_SYMBOL select_item)*
 ;
 
-select_item options { k = 5; }:
-	table_wild -> ^(COLUMN_REF_TOKEN table_wild)
+select_item:
+	(table_wild) => table_wild -> ^(COLUMN_REF_TOKEN table_wild)
 	| expression select_alias? -> ^(SELECT_EXPR_TOKEN expression select_alias?)
 ;
 
@@ -2432,8 +2431,8 @@ system_variable:
 ;
 
 variable_name:
-	identifier (DOT_SYMBOL identifier)?    // Check in semantic phase that the first id is not global/local/session/default.
-	| DEFAULT_SYMBOL DOT_SYMBOL identifier
+	identifier dot_identifier?    // Check in semantic phase that the first id is not global/local/session/default.
+	| DEFAULT_SYMBOL dot_identifier
 ;
 
 match_expression:
@@ -3221,8 +3220,8 @@ column_ref:
 
 // field_ident rule in the server parser.
 column_ref_variants:
-	DOT_SYMBOL identifier
-	| qualified_identifier (options { greedy = true; }: DOT_SYMBOL identifier)?
+	dot_identifier
+	| qualified_identifier (options { greedy = true; }: dot_identifier)?
 ;
 
 column_internal_ref:
@@ -3233,10 +3232,16 @@ column_ref_with_wildcard:
 	column_ref_with_wildcard2 -> ^(COLUMN_REF_TOKEN column_ref_with_wildcard2)
 ;
 
-// A separate rule for the actual definition (ANTLR throws an error when both definition and tree rewriting
-// are in the same rule.
 column_ref_with_wildcard2:
-	qualified_identifier (DOT_SYMBOL (identifier | MULT_OPERATOR))?
+	identifier
+	(
+		{LA(2) ==  MULT_OPERATOR}? DOT_SYMBOL MULT_OPERATOR
+		| dot_identifier
+		(
+			{LA(2) ==  MULT_OPERATOR}? DOT_SYMBOL MULT_OPERATOR
+			| dot_identifier
+		)?
+	)?
 ;
 
 index_name:
@@ -3248,7 +3253,11 @@ index_ref:
 ;
 
 table_wild:
-	qualified_identifier DOT_SYMBOL MULT_OPERATOR
+	identifier
+	(
+		{LA(2) ==  MULT_OPERATOR}? DOT_SYMBOL MULT_OPERATOR
+		| dot_identifier DOT_SYMBOL MULT_OPERATOR
+	)
 ;       
 
 schema_name:
@@ -3336,11 +3345,15 @@ table_name:
 ;
 
 filter_table_ref: // Always qualified.
-	identifier DOT_SYMBOL identifier -> ^(TABLE_NAME_TOKEN identifier DOT_SYMBOL identifier)
+	identifier dot_identifier -> ^(TABLE_NAME_TOKEN identifier dot_identifier)
 ;
 
 table_ref_with_wildcard:
-	qualified_identifier (DOT_SYMBOL MULT_OPERATOR)? -> ^(TABLE_NAME_TOKEN qualified_identifier (DOT_SYMBOL MULT_OPERATOR)?)
+	identifier
+	(
+		{LA(2) == MULT_OPERATOR}? DOT_SYMBOL MULT_OPERATOR
+		| dot_identifier (DOT_SYMBOL MULT_OPERATOR)?
+	)?
 ;
 
 table_ref:
@@ -3353,7 +3366,7 @@ table_ref_no_db:
 
 table_name_variants:
 	qualified_identifier
-	| DOT_SYMBOL identifier
+	| dot_identifier
 ;
 
 table_ref_list:
@@ -3388,7 +3401,18 @@ identifier_list_with_parentheses:
 ;
 
 qualified_identifier:
-	identifier ( options { greedy = true; }: DOT_SYMBOL identifier)?
+	identifier (options { greedy = true; }: dot_identifier)?
+;
+
+// This rule mimics the behavior of the server parser to allow any identifier, including any keyword,
+// unquoted when preceded by a dot in a qualified identifier.
+// The check here relies on the sorting in the predefined.tokens file.
+dot_identifier:
+	DOT_SYMBOL
+	(
+		(pure_identifier) => pure_identifier
+		| {LA(1) !=  MULT_OPERATOR}? t = . { ($t->type >= ACCOUNT_SYMBOL && $t->type <= ZEROFILL_SYMBOL) ? ANTLR3_TRUE : ANTLR3_FALSE }?
+	)
 ;
 
 ulong_number:
