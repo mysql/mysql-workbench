@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -722,7 +722,7 @@ SQLRETURN ODBCCopyDataSource::get_wchar_buffer_data(RowBuffer &rowbuffer, int co
 
       std::strcpy(out_buffer, s_outbuf.c_str());
 
-      *out_length = outbuf_len;
+      *out_length = (unsigned long)outbuf_len;
     }
     rowbuffer.finish_field(len_or_indicator == SQL_NULL_DATA);
   }
@@ -818,7 +818,7 @@ SQLRETURN ODBCCopyDataSource::get_geometry_buffer_data(RowBuffer &rowbuffer, int
 
       std::strcpy(out_buffer, s_outbuf.c_str());
 
-      *out_length = outbuf_len;
+      *out_length = (unsigned long)outbuf_len;
     }
     rowbuffer.finish_field(len_or_indicator == SQL_NULL_DATA);
   }
