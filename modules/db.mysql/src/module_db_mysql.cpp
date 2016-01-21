@@ -557,6 +557,8 @@ std::string ActionGenerateSQL::generate_create(db_mysql_ColumnRef column)
 
     if (column->isNotNull())
       sql.append("NOT NULL ");
+    else
+      sql.append("NULL ");
 
     if (column->defaultValueIsNull())
       sql.append("DEFAULT NULL ");
