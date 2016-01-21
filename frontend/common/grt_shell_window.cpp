@@ -126,6 +126,7 @@ _lower_tab(mforms::TabViewDocument),
     
     item = menu->add_item_with_title("Run", boost::bind(&GRTShellWindow::execute_file, this));
     item->set_shortcut("Modifier+R");
+    item->set_name("run");
   }
 
 #ifdef _WIN32
@@ -605,7 +606,15 @@ void GRTShellWindow::execute_file()
     _pause_button->set_enabled(false);
   }
   else
-    editor->execute();
+    try
+    {
+      editor->execute();
+    }
+    catch (const std::exception &exc)
+    {
+      log_error("Error during execution of script: %s\n", exc.what());
+      add_output("There were errors during execution. Please review log messages.\n");
+    }
 
   grtm()->get_grt()->pop_message_handler();
 }
@@ -1502,6 +1511,7 @@ bool GRTShellWindow::on_tab_closing(int index)
 void GRTShellWindow::on_tab_changed()
 {
   GRTCodeEditor *editor = get_active_editor();
+  mforms::MenuItem* _run = _menu.find_item("run");
   if (editor)
   {
     bool exec_enabled = (editor->get_language() == "python");
@@ -1509,6 +1519,8 @@ void GRTShellWindow::on_tab_changed()
     _save_button->set_enabled(true);
     _save_as_button->set_enabled(true);
     _run_button->set_enabled(exec_enabled);
+    if(_run)
+      _run->set_enabled(exec_enabled);
     _step_button->set_enabled(exec_enabled);
     _clear_script_output_button->set_enabled(true);
 
@@ -1523,6 +1535,8 @@ void GRTShellWindow::on_tab_changed()
     _save_button->set_enabled(false);
     _save_as_button->set_enabled(false);
     _run_button->set_enabled(false);
+    if(_run)
+      _run->set_enabled(false);
     _step_button->set_enabled(false);
     _clear_script_output_button->set_enabled(false);
 
