@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,29 +19,23 @@
 
 #pragma once
 
-#include <string>
-
 #include "mforms/mforms.h"
 
 namespace mforms {
+  class Object;
+  
 namespace stub {
+
   class ObjectWrapper
   {
   protected:
-    ::mforms::Object *owner;
+    mforms::Object *owner;
     
-    ObjectWrapper(::mforms::Object *object)
-      : owner(object)
-    {
-      object->set_data(this);
-    }
+    ObjectWrapper(mforms::Object *object);
+    virtual ~ObjectWrapper();
 
-    virtual ~ObjectWrapper()
-    {
-      puts("FREE OBJECT");
-      //TODO: Check if we need to free memory here?
-    }
-
+    static ObjectWrapper* getData(mforms::Object *backend);
   };
+  
 };
 };
