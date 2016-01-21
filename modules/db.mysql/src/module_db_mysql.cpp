@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -557,8 +557,6 @@ std::string ActionGenerateSQL::generate_create(db_mysql_ColumnRef column)
 
     if (column->isNotNull())
       sql.append("NOT NULL ");
-    else
-      sql.append("NULL ");
 
     if (column->defaultValueIsNull())
       sql.append("DEFAULT NULL ");
