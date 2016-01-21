@@ -34,7 +34,7 @@
 # define MFORMS_EXPORT
 #endif
 
-#if defined(__APPLE__) && !defined(MFORMS_STUB)
+#if defined(__APPLE__)
 #ifdef nil
 #undef nil
 #endif 
@@ -68,55 +68,28 @@ namespace mforms {
     // for each platform. Platform dependent code must stay in the header. Otherwise we cannot
     // make the mforms stub to work for unit and integration tests.
 
-#if defined(__APPLE__) && !defined(MFORMS_STUB)
-    
+#if defined(__APPLE__)
   public:
-    Object() : _data(nil), _refcount(1), _managed(false), _release_on_add(false), _destroying(false)
-    {}
+    Object();
+    virtual ~Object();
 
-    virtual ~Object()
-    {
-      /*objc_msgSend(_data, sel_getUid("release"));*/ /* calls [_data release] */
-    }
-
-    id get_data() const { return _data; };
-    void set_data(id data)
-    {
-      objc_msgSend(_data, sel_getUid("release")); // [_data release]
-      _data = data;
-      objc_msgSend(data, sel_getUid("retain")); // [_data retain]
-    }
-
+    void set_data(id data);
+    id get_data() const;
+    
   private:
     id _data;
-
 #else // !__APPLE__
-
   public:
-    Object() : _data(NULL), _data_free_fn(NULL), _refcount(1), _managed(false), _release_on_add(false),
-      _destroying(false)
-    {}
-
-    virtual ~Object()
-    {
-      if (_data_free_fn && _data)
-        (*_data_free_fn)(_data);
-    }
+    Object();
+    virtual ~Object();
 
     typedef void (*FreeDataFn)(void*);
-    void set_data(void *data, FreeDataFn free_fn = 0)
-    {
-      _data = data;
-      _data_free_fn = free_fn;
-    }
+    void set_data(void *data, FreeDataFn free_fn = 0);
 
     template<class C>
       C* get_data() const { return reinterpret_cast<C*>(_data); }
 
-    void *get_data_ptr() const
-    {
-      return _data;
-    }
+    void *get_data_ptr() const;
 
   private:
     void *_data;
@@ -125,14 +98,16 @@ namespace mforms {
 #endif // !__APPLE__
 
     volatile mutable base::refcount_t _refcount;
-
+    
     // We use only ptr's in mforms.
     Object(Object const& o) { throw std::logic_error("Copy c-tor unsupported in mforms::Object"); }
     Object& operator= (Object const& o) { throw std::logic_error("Assignment operator not supported in mforms::Object"); return *this; }
   protected:
     bool _managed;
     bool _release_on_add;
+
 #endif // !SWIG
+
   private:
     bool _destroying;
   };

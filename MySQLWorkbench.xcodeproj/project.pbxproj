@@ -432,6 +432,7 @@
 		279EC896185214A7007D1252 /* wb-toolbar_manual-help@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 279EC890185214A7007D1252 /* wb-toolbar_manual-help@2x.png */; };
 		279EF97810D6B08D00C1ED1B /* mysql_system_status_rmt.vbs in Resources */ = {isa = PBXBuildFile; fileRef = 279EF97610D6B08D00C1ED1B /* mysql_system_status_rmt.vbs */; };
 		279EF97910D6B08D00C1ED1B /* mysql_system_status.vbs in Resources */ = {isa = PBXBuildFile; fileRef = 279EF97710D6B08D00C1ED1B /* mysql_system_status.vbs */; };
+		279F1A7B1C5110DC0093B452 /* stub_base.mm in Sources */ = {isa = PBXBuildFile; fileRef = 279F1A7A1C5110DC0093B452 /* stub_base.mm */; };
 		27A00CDF1BF099E80087684B /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
 		27A00CE01BF09A0A0087684B /* mysql.parser.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27467EBD154A96CB00021708 /* mysql.parser.dylib */; };
 		27A00CE11BF0A3780087684B /* libwbprivate.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCB31550E8845D0005C8ED2 /* libwbprivate.be.dylib */; };
@@ -4370,6 +4371,7 @@
 		279EC890185214A7007D1252 /* wb-toolbar_manual-help@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "wb-toolbar_manual-help@2x.png"; path = "images/toolbar/wb-toolbar_manual-help@2x.png"; sourceTree = "<group>"; };
 		279EF97610D6B08D00C1ED1B /* mysql_system_status_rmt.vbs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mysql_system_status_rmt.vbs; path = res/scripts/shell/mysql_system_status_rmt.vbs; sourceTree = "<group>"; };
 		279EF97710D6B08D00C1ED1B /* mysql_system_status.vbs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mysql_system_status.vbs; path = res/scripts/shell/mysql_system_status.vbs; sourceTree = "<group>"; };
+		279F1A7A1C5110DC0093B452 /* stub_base.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = stub_base.mm; path = library/forms/stub/src/stub_base.mm; sourceTree = "<group>"; };
 		27A3E8891098CA7E0014F5B1 /* wba_monitor_be.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wba_monitor_be.py; path = plugins/wb.admin/backend/wba_monitor_be.py; sourceTree = "<group>"; };
 		27A3EC8D164BA997001B6D8F /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = frontend/mac/English.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		27A3EC90164BA9AB001B6D8F /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = frontend/mac/English.lproj/IconCollectionView.xib; sourceTree = "<group>"; };
@@ -7549,6 +7551,7 @@
 				27050AAE1B3443C100D6135D /* stub_app.cpp */,
 				27050AC81B3443C900D6135D /* stub_app.h */,
 				27050AC91B3443C900D6135D /* stub_base.h */,
+				279F1A7A1C5110DC0093B452 /* stub_base.mm */,
 				27050ACA1B3443C900D6135D /* stub_box.h */,
 				27050ACB1B3443C900D6135D /* stub_button.h */,
 				27050ACC1B3443C900D6135D /* stub_checkbox.h */,
@@ -14339,6 +14342,7 @@
 				27050A7B1B343FB300D6135D /* util_functions_test.cpp in Sources */,
 				27050AC21B3443C100D6135D /* stub_textbox.cpp in Sources */,
 				27050AA31B34434B00D6135D /* grtpp_serialization_test.cpp in Sources */,
+				279F1A7B1C5110DC0093B452 /* stub_base.mm in Sources */,
 				27FE9ED81B344A22008F6827 /* test_mysql_sql_parser.cpp in Sources */,
 				27FE9EDB1B344A32008F6827 /* test_db_mysql_gen_grant.cpp in Sources */,
 				27050AC61B3443C100D6135D /* stub_view.cpp in Sources */,
@@ -16243,6 +16247,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -16253,7 +16258,6 @@
 					SCI_LEXERS,
 					HAVE_PRECOMPILED_HEADERS,
 					ENABLE_TESTING,
-					MFORMS_STUB,
 					ENABLE_DEBUG,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
@@ -16302,6 +16306,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
@@ -16312,7 +16317,6 @@
 					SCI_LEXERS,
 					HAVE_PRECOMPILED_HEADERS,
 					ENABLE_TESTING,
-					MFORMS_STUB,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (

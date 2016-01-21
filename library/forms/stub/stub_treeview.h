@@ -1,5 +1,5 @@
-/* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -84,9 +84,9 @@ private:
     return TreeNodeRef();
   }
 
-  static TreeNodeRef root_node(TreeView *self)
+  static TreeNodeRef root_node(TreeView *tree)
   {
-    TreeViewWrapper *ptree_node_view = self->get_data<TreeViewWrapper>();
+    TreeViewWrapper *ptree_node_view = dynamic_cast<TreeViewWrapper*>(ObjectWrapper::getData(tree));
     return ptree_node_view->root_node();
   }
 
