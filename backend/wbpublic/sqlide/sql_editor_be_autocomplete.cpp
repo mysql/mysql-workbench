@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -244,7 +244,7 @@ static struct
       log_error("Found grammar errors. No code completion data available.\n");
     else
     {
-      //std::string dump = dumpTree(tree, parser->pParser->rec->state, "");
+      //std::string dump = MySQLRecognitionBase::dumpTree(parser->pParser->rec->state->tokenNames, tree);
       //std::cout << dump;
 
       // Walk the AST and put all the rules into our data structures.
@@ -381,7 +381,8 @@ private:
     pANTLR3_BASE_TREE child = (pANTLR3_BASE_TREE)alt->getChild(alt, index);
     switch (child->getType(child))
     {
-      case GATED_SEMPRED_V3TOK:
+      case GATED_SEMPRED_V3TOK: // A gated semantic predicate.
+      case SEMPRED_V3TOK:       // A normal semantic predicate.
       {
         // See if we can extract version info or SQL mode condition from that.
         ++index;
@@ -394,9 +395,8 @@ private:
         break;
       }
 
-      case SEMPRED_V3TOK:     // A normal semantic predicate.
       case SYN_SEMPRED_V3TOK: // A syntactic predicate converted to a semantic predicate.
-                        // Not needed for our work, so we can ignore it.
+                              // Not needed for our work, so we can ignore it.
         ++index;
         break;
 
@@ -511,6 +511,23 @@ private:
           node.rule_ref = block_name.str();
           break;
         }
+
+        case LABEL_ASSIGN_V3TOK:
+        {
+          // A variable assignment, instead of a token or rule reference.
+          // The reference is the second part of the assignment.
+          pANTLR3_BASE_TREE token = (pANTLR3_BASE_TREE)child->getChild(child, 1);
+          node.is_terminal = true;
+          pANTLR3_STRING token_text = token->getText(token);
+          node.token_ref = token_map[(char*)token_text->chars];
+          break;
+        }
+
+        case SEMPRED_V3TOK:
+          // A validating semantic predicate - ignore.
+          // Might be necessary to handle one day, when we use such a predicate to
+          // control parts with dynamic conditions.
+          break;
 
         default:
         {
