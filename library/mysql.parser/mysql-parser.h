@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -107,9 +107,8 @@ public:
   
   void parse(const char *text, size_t length, bool is_utf8, MySQLParseUnit parse_unit);
 
-  std::string dump_tree();
-  std::string dump_tree(pANTLR3_BASE_TREE tree, const std::string &indentation);
-  
+  std::string dumpTree();
+
   MySQLRecognizerTreeWalker tree_walker();
   
   virtual void set_sql_mode(const std::string &new_mode);
