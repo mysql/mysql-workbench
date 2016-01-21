@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -518,7 +518,7 @@ std::string fixDefalutString(const std::string& str)
   if (str == std::string("LOCALTIMESTAMP()")) return std::string("CURRENT_TIMESTAMP");
   if (str == std::string("TRUE")) return std::string("1");
   if (str == std::string("FALSE")) return std::string("");
-  if (strcasecmp(str.c_str(),"NULL") == 0) return std::string("");
+//  if (strcasecmp(str.c_str(),"NULL") == 0) return std::string("");
   return trim_zeros(str);
 };
 //if(name1 == "defaultValue")

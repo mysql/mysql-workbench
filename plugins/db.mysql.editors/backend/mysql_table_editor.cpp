@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -408,7 +408,8 @@ bool MySQLTableColumnsListBE::activate_popup_item_for_nodes(const std::string &n
         
         if (col.is_valid())
         {
-          col->defaultValue(value);
+          bec::ColumnHelper::set_default_value(col, value);
+          _owner->update_change_date();
           changed= true;
         }
       }
