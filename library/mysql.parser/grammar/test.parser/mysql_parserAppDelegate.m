@@ -3,7 +3,7 @@
 //  mysql.parser
 //
 //  Created by Mike on 03.04.12.
-//  Copyright 2012, 2015, Oracle Corporation. All rights reserved.
+//  Copyright 2012, 2016, Oracle Corporation. All rights reserved.
 //
 
 #import "mysql_parserAppDelegate.h"
@@ -309,18 +309,6 @@ extern "C" {
       if (charsets[i] == token_text)
         return UNDERSCORE_CHARSET;
     return IDENTIFIER;
-  }
-
-  /**
-   * Checks the given text if it is equal to "\N" (w/o quotes and in uppercase). We need this extra
-   * check as our lexer is case insensitive.
-   */
-  ANTLR3_UINT32 check_null(pANTLR3_STRING text)
-  {
-    std::string token_text((const char*)text->chars, text->len - 1);
-    if (token_text == "\\N")
-        return NULL2_SYMBOL;
-    return ANTLR3_TOKEN_INVALID;
   }
 
 }
