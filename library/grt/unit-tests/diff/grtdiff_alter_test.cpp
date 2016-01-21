@@ -87,6 +87,7 @@ TEST_FUNCTION(3)
   schemata.push_back("grtdiff_alter_test");
   tester.grt->get_undo_manager()->disable();
   db_mysql_CatalogRef cat= tester.db_rev_eng_schema(schemata);
+  tester.wb->flush_idle_tasks();
   tester.wb->close_document();
   tester.wb->close_document_finish();
 }
