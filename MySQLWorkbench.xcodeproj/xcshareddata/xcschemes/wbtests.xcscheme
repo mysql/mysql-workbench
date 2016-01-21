@@ -79,7 +79,7 @@
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "PATH"
-            value = "/Users/Mike/sandboxes/5.7.8/bin:$PATH"
+            value = "/Users/Mike/sandboxes/5.7.10/bin:$PATH"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
