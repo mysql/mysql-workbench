@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1476,59 +1476,11 @@ void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQL
 
 //--------------------------------------------------------------------------------------------------
 
-std::string MySQLRecognizer::dump_tree()
+std::string MySQLRecognizer::dumpTree()
 {
   log_debug2("Generating parse tree\n");
 
-  return dump_tree(d->_ast, "");
-}
-
-//--------------------------------------------------------------------------------------------------
-
-std::string MySQLRecognizer::dump_tree(pANTLR3_BASE_TREE tree, const std::string &indentation)
-{
-  std::string result;
-
-  pANTLR3_RECOGNIZER_SHARED_STATE state = d->_parser->pParser->rec->state;
-  ANTLR3_UINT32 char_pos = tree->getCharPositionInLine(tree);
-  ANTLR3_UINT32 line = tree->getLine(tree);
-  pANTLR3_STRING token_text = tree->getText(tree);
-
-  pANTLR3_COMMON_TOKEN token = tree->getToken(tree);
-  const char* utf8 = (const char*)token_text->chars;
-  if (token != NULL)
-  {
-    ANTLR3_UINT32 token_type = token->getType(token);
-
-    pANTLR3_UINT8 token_name;
-    if (token_type == EOF)
-      token_name = (pANTLR3_UINT8)"EOF";
-    else
-      token_name = state->tokenNames[token_type];
-
-#ifdef  ANTLR3_USE_64BIT
-    result = base::strfmt("%s(line: %i, offset: %i, length: %" PRId64 ", index: %" PRId64 ", %s[%i])    %s\n",
-                               indentation.c_str(), line, char_pos, token->stop - token->start + 1, token->index, token_name,
-                               token_type, utf8);
-#else
-    result = base::strfmt("%s(line: %i, offset: %i, length: %i, index: %i, %s[%i])    %s\n",
-                          indentation.c_str(), line, char_pos, token->stop - token->start + 1, token->index, token_name,
-                          token_type, utf8);
-#endif
-
-  }
-  else
-  {
-    result = base::strfmt("%s(line: %i, offset: %i, nil)    %s\n", indentation.c_str(), line, char_pos, utf8);
-  }
-
-  for (ANTLR3_UINT32 index = 0; index < tree->getChildCount(tree); index++)
-  {
-    pANTLR3_BASE_TREE child = (pANTLR3_BASE_TREE)tree->getChild(tree, index);
-    std::string child_text = dump_tree(child, indentation + "\t");
-    result += child_text;
-  }
-  return result;
+  return MySQLRecognitionBase::dumpTree(d->_parser->pParser->rec->state->tokenNames, d->_ast);
 }
 
 //--------------------------------------------------------------------------------------------------
