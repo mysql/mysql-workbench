@@ -607,7 +607,7 @@ void GRTShellWindow::execute_file()
     }
     catch (const std::exception &exc)
     {
-      log_error("Error during execution of script: %s\n", exc.what());
+      logError("Error during execution of script: %s\n", exc.what());
       add_output("There were errors during execution. Please review log messages.\n");
     }
 
