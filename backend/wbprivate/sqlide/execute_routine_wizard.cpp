@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -184,7 +184,7 @@ std::string ExecuteRoutineWizard::run()
 
   std::string schema_name = base::quote_identifier_if_needed(*_routine->owner()->name(), '`');
   std::string routine_name = base::quote_identifier_if_needed(*_routine->name(), '`');
-  if (_routine->routineType() == "procedure")
+  if (base::tolower(_routine->routineType()) == "procedure")
   {
     std::string parameters_list;
     std::string variables_list;
@@ -194,7 +194,7 @@ std::string ExecuteRoutineWizard::run()
     {
       db_mysql_RoutineParamRef parameter = parameters[i];
       bool quote = needs_quoting(parameter->datatype());
-      if (parameter->paramType() == "in")
+      if (base::tolower(parameter->paramType()) == "in")
       {
         // A pure input parameter. Just add it to the parameter list.
         if (!parameters_list.empty())
@@ -219,7 +219,7 @@ std::string ExecuteRoutineWizard::run()
         result += "set @" + parameter_name + " = ";
         
         std::string value = "0";
-        if (parameter->paramType() == "inout")
+        if (base::tolower(parameter->paramType()) == "inout")
           value = _edits[edit_index++]->get_string_value();
 
         if (quote && is_quoted(value))
