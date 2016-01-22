@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1896,8 +1896,8 @@ void Recordset::save_to_file(const bec::NodeId &node, ColumnId column, const std
 void Recordset::save_to_file(const bec::NodeId &node, ColumnId column)
 {
   mforms::FileChooser chooser(mforms::SaveFile);
-  
   chooser.set_title("Save Field Value");
+  chooser.set_extensions("Text files (*.txt)|*.txt|All Files (*.*)|*.*", "txt");
   
   if (chooser.run_modal())
   {
