@@ -931,7 +931,8 @@ static NSString *applicationSupportFolder()
   _options->module_search_path = std::string([[[NSBundle mainBundle] builtInPlugInsPath] fileSystemRepresentation]) + ":" + std::string([[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]) + "/plugins";
   _options->library_search_path = std::string([[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]) + "/libraries";
   _options->cdbc_driver_search_path = std::string([[[NSBundle mainBundle] privateFrameworksPath] fileSystemRepresentation]);
-  _options->user_data_dir= [[applicationSupportFolder() stringByAppendingString: @"/MySQL/Workbench"] fileSystemRepresentation];
+  if (_options->user_data_dir.empty())
+    _options->user_data_dir= [[applicationSupportFolder() stringByAppendingString: @"/MySQL/Workbench"] fileSystemRepresentation];
 
   int argc= *_NSGetArgc();
   char **argv= *_NSGetArgv();

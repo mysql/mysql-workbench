@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -251,6 +251,7 @@ static void show_help(const char *arg0)
   printf("  %sverbose, -v           Enable diagnostics output\n", OPPREFIX);
   printf("  %sversion               Show Workbench version number and exit\n", OPPREFIX);
   printf("  %sopen <file>           Open the given file at startup (deprecated, use script, model etc.)\n", OPPREFIX);
+  printf("  %sconfigdir <path>      Specify configuration directory location, default is platform specific.\n", OPPREFIX);
 }
 
 static bool parse_loglevel(const std::string& line)
@@ -463,6 +464,16 @@ bool WBOptions::parse_args(char **argv, int argc, int *retval)
     else if (!strncmp(argv[i], OPPREFIX"log-to-stderr", sizeof(OPPREFIX"log-to-stderr")))
     {
         Logger::log_to_stderr(true);
+    }
+    else if (check_arg_with_value(argv, i, "configdir", argval))
+    {
+      if (argval == NULL || !base::is_directory(argval))
+      {
+        printf("Invalid path specified as the configuration folder.\n");
+        return false;
+      }
+      user_data_dir = argval;
+      printf("Using %s as data directory.\n", argval);
     }
     else if (check_arg_with_value(argv, i, "open", argval))
     {
