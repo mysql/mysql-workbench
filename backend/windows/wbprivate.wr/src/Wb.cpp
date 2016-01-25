@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,7 +53,8 @@ WbOptions::WbOptions(String^ baseDir, String^ userDir, bool full_init)
   inner->module_search_path = inner->basedir + "/modules";
   inner->struct_search_path = "";
   inner->library_search_path = inner->basedir;
-  inner->user_data_dir = NativeToCppStringRaw(userDir);
+  if (inner->user_data_dir.empty())
+    inner->user_data_dir = NativeToCppStringRaw(userDir);
   inner->full_init = full_init;
 }
 

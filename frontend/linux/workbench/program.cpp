@@ -125,7 +125,8 @@ Program::Program(wb::WBOptions &wboptions)
   wboptions.cdbc_driver_search_path = getenv("DBC_DRIVER_PATH")?:"";
   if (wboptions.cdbc_driver_search_path.empty())
     wboptions.cdbc_driver_search_path= wboptions.library_search_path;
-  wboptions.user_data_dir = std::string(g_get_home_dir()).append("/.mysql/workbench");
+  if (wboptions.user_data_dir.empty())
+    wboptions.user_data_dir = std::string(g_get_home_dir()).append("/.mysql/workbench");
 
 
   _wb_context_ui->init(&wbcallbacks, &wboptions);
