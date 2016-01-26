@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1096,11 +1096,12 @@ void ActionGenerateSQL::alter_table_generate_partitioning(
   }
 
   sql.append(comma).append(partition_sql);  
+  sql.append(" ");
 }
 
 void ActionGenerateSQL::alter_table_drop_partitioning(db_mysql_TableRef table)
 {
-  sql.append(" REMOVE PARTITIONING");
+  sql.append(" REMOVE PARTITIONING ");
 }
 
 void ActionGenerateSQL::alter_table_reorganize_partition(
