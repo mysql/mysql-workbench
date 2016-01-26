@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -213,6 +213,9 @@ class MSSQLMigration(GenericMigration):
             grt.log_debug3("Migration", "Migrating source column '%s' - type: %s, length: %s\n" % (source_column.name, source_datatype,source_column.length))
             # string data types:
             target_datatype = ''
+            #NCHAR and NVARCHAR in Microsoft SQL Server is always encoded as UCS-2 (UTF-16)
+            if source_datatype in ['NCHAR', 'NVARCHAR']:
+                target_column.characterSetName = 'utf8mb4'
             if source_datatype in ['VARCHAR', 'NVARCHAR']:
                 if source_column.length == -1:  # VARCHAR(MAX) or NVARCHAR(MAX)
                     target_datatype = 'LONGTEXT'  #TODO: Give the user the choice for this target datatype
