@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -48,7 +48,7 @@ class WizardPage(mforms.Box):
             # Buttons at the bottom of the page:
             self.button_box = mforms.newBox(True)
             self.button_box.set_spacing(8)
-            self.button_box.set_padding(16)
+            self.button_box.set_padding(24)
 
             if hasattr(self, "go_advanced"):
                 self.advanced_button = mforms.newButton()
