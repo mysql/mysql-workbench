@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -160,7 +160,7 @@ void TextBoxImpl::set_monospaced(::mforms::TextBox *self, bool flag)
       font.set_family("Bitstream Vera Sans Mono");
       font.set_size(9 * Pango::SCALE);
     }
-    cb->_text->get_pango_context()->set_font_description(font);
+    cb->_text->override_font(font);
   }
 }
 
