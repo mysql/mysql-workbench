@@ -436,7 +436,6 @@
 		27A00CDF1BF099E80087684B /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
 		27A00CE01BF09A0A0087684B /* mysql.parser.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27467EBD154A96CB00021708 /* mysql.parser.dylib */; };
 		27A00CE11BF0A3780087684B /* libwbprivate.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCB31550E8845D0005C8ED2 /* libwbprivate.be.dylib */; };
-		27A00CE21BF0A3C40087684B /* db.grt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE732EF0EFAFB6500287AE0 /* db.grt.dylib */; };
 		27A00CE31BF0A3EC0087684B /* sql.parser.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BDC262A0E85671D0018CE34 /* sql.parser.dylib */; };
 		27A00CE41BF0A4190087684B /* mysql.canvas.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825E220E0B662200BE52DF /* mysql.canvas.dylib */; };
 		27A00CE51BF0A43F0087684B /* db.mysql.wbp.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B3D495B0F3E6E51009238A7 /* db.mysql.wbp.dylib */; };
@@ -1624,7 +1623,6 @@
 		2B774FAF15CEC40D00923448 /* libgthread-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B774FA615CEC32900923448 /* libgthread-2.0.0.dylib */; };
 		2B774FB015CEC41500923448 /* libgthread-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B774FA615CEC32900923448 /* libgthread-2.0.0.dylib */; };
 		2B774FB115CEC42200923448 /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B774FA515CEC32900923448 /* libglib-2.0.0.dylib */; };
-		2B774FB215CEC43200923448 /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B774FA515CEC32900923448 /* libglib-2.0.0.dylib */; };
 		2B774FB315CEC44100923448 /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B774FA515CEC32900923448 /* libglib-2.0.0.dylib */; };
 		2B774FB415CEC45500923448 /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B774FA515CEC32900923448 /* libglib-2.0.0.dylib */; };
 		2B774FB515CEC45500923448 /* libgthread-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B774FA615CEC32900923448 /* libgthread-2.0.0.dylib */; };
@@ -2418,14 +2416,11 @@
 		2BE6806F0F8E487F00E00A97 /* CSV.tpl in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2BE6805E0F8E482100E00A97 /* CSV.tpl */; };
 		2BE680700F8E487F00E00A97 /* HTML.tpl in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2BE6805F0F8E482100E00A97 /* HTML.tpl */; };
 		2BE680710F8E487F00E00A97 /* XML.tpl in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2BE680600F8E482100E00A97 /* XML.tpl */; };
-		2BE733140EFAFBCE00287AE0 /* dbutils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE733130EFAFBCE00287AE0 /* dbutils.cpp */; };
 		2BE733210EFAFBF600287AE0 /* db_mysql_catalog_report.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE733150EFAFBF600287AE0 /* db_mysql_catalog_report.cpp */; };
 		2BE733230EFAFBF600287AE0 /* db_mysql_diffsqlgen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE733170EFAFBF600287AE0 /* db_mysql_diffsqlgen.cpp */; };
 		2BE733260EFAFBF600287AE0 /* db_mysql_params.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE7331A0EFAFBF600287AE0 /* db_mysql_params.cpp */; };
 		2BE733290EFAFBF600287AE0 /* module_db_mysql.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE7331D0EFAFBF600287AE0 /* module_db_mysql.cpp */; };
-		2BE733320EFAFC7E00287AE0 /* libgrt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D920E0B604400BE52DF /* libgrt.dylib */; };
 		2BE733360EFAFCB500287AE0 /* libgrt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D920E0B604400BE52DF /* libgrt.dylib */; };
-		2BE733650EFAFE6300287AE0 /* db.grt.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BE732EF0EFAFB6500287AE0 /* db.grt.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		2BE733660EFAFE6300287AE0 /* db.mysql.grt.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BE733040EFAFB8B00287AE0 /* db.mysql.grt.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		2BE733860EFAFEDC00287AE0 /* libgrt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D920E0B604400BE52DF /* libgrt.dylib */; };
 		2BE733A60EFAFF3200287AE0 /* db.mysql.sqlparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE733900EFAFF3200287AE0 /* db.mysql.sqlparser.cpp */; };
@@ -2640,6 +2635,13 @@
 		2BFBF0A10F51BF2D0016F9D1 /* MySQLViewEditor.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BFBF0A00F51BF2D0016F9D1 /* MySQLViewEditor.mm */; };
 		2BFDB83516C00F6A00D0C5A8 /* libvsqlitepp.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BFDB83416C00F6500D0C5A8 /* libvsqlitepp.0.dylib */; };
 		44683E4C1AC9A41700C516C5 /* generic_templates.h in Headers */ = {isa = PBXBuildFile; fileRef = 44683E4B1AC9A40B00C516C5 /* generic_templates.h */; };
+		447271F51C58F170005F840F /* libgrt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D920E0B604400BE52DF /* libgrt.dylib */; };
+		447271F61C58F170005F840F /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B774FA515CEC32900923448 /* libglib-2.0.0.dylib */; };
+		447271FC1C58F1CC005F840F /* utilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 447271FB1C58F1CC005F840F /* utilities.cpp */; };
+		447272011C58F8FB005F840F /* libgdal.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B83E5CE1992B5A100781432 /* libgdal.1.dylib */; };
+		447272031C58F97D005F840F /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
+		447272041C58F991005F840F /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
+		447272051C59014A005F840F /* utilities.grt.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 447271FA1C58F170005F840F /* utilities.grt.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		44B7DC961C0C7A39000D608D /* wba_firewall in CopyFiles */ = {isa = PBXBuildFile; fileRef = 44B7DC951C0C7A39000D608D /* wba_firewall */; };
 		44B7DC9C1C0C7A72000D608D /* admin_firewall_reports.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC971C0C7A72000D608D /* admin_firewall_reports.png */; };
 		44B7DC9D1C0C7A72000D608D /* admin_firewall.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC981C0C7A72000D608D /* admin_firewall.png */; };
@@ -3498,20 +3500,6 @@
 			remoteGlobalIDString = 2B825D280E0B59A100BE52DF;
 			remoteInfo = base;
 		};
-		2BE732F20EFAFB6D00287AE0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 2B825D910E0B604400BE52DF;
-			remoteInfo = grt;
-		};
-		2BE7334E0EFAFE1500287AE0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 2BE732EE0EFAFB6500287AE0;
-			remoteInfo = db.grt;
-		};
 		2BE733500EFAFE1500287AE0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
@@ -3567,6 +3555,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 2BE733030EFAFB8B00287AE0;
 			remoteInfo = db.mysql.grt;
+		};
+		447271F11C58F170005F840F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2B825D910E0B604400BE52DF;
+			remoteInfo = grt;
+		};
+		447271FF1C58F857005F840F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 447271EF1C58F170005F840F;
+			remoteInfo = utilities.grt;
 		};
 		ED08AD951A14440E001DBE04 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -3791,9 +3793,9 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				447272051C59014A005F840F /* utilities.grt.dylib in Copy Files (plugins) */,
 				EDA1496B1A144DAE008053A8 /* wb.fabric.interface.grt.dylib in Copy Files (plugins) */,
 				27378CD31917D10000DE1AA6 /* db.mysql.parser.grt.dylib in Copy Files (plugins) */,
-				2BE733650EFAFE6300287AE0 /* db.grt.dylib in Copy Files (plugins) */,
 				2BE733660EFAFE6300287AE0 /* db.mysql.grt.dylib in Copy Files (plugins) */,
 				2B8699820F7BC86C0005CB9B /* db.mysql.sqlparser.grt.dylib in Copy Files (plugins) */,
 				2B3D4A0F0F3E73D2009238A7 /* wb.model.grt.dylib in Copy Files (plugins) */,
@@ -4299,7 +4301,6 @@
 		27504D7C1B3BF4B90007CAEA /* wb.printing_prefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wb.printing_prefix.h; path = prefix/wb.printing_prefix.h; sourceTree = "<group>"; };
 		27504D7D1B3BF5150007CAEA /* wb.printing.wbp_prefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wb.printing.wbp_prefix.h; path = prefix/wb.printing.wbp_prefix.h; sourceTree = "<group>"; };
 		27504D7E1B3BF5630007CAEA /* wbtests_prefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wbtests_prefix.h; path = prefix/wbtests_prefix.h; sourceTree = "<group>"; };
-		27504D7F1B3BF76A0007CAEA /* db.grt_prefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = db.grt_prefix.h; path = prefix/db.grt_prefix.h; sourceTree = "<group>"; };
 		27504D801B3BFABF0007CAEA /* db.mysql.diff.reporting.wbp_prefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = db.mysql.diff.reporting.wbp_prefix.h; path = prefix/db.mysql.diff.reporting.wbp_prefix.h; sourceTree = "<group>"; };
 		27512ED01240F4F600EF37DD /* code_editor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = code_editor.cpp; path = library/forms/code_editor.cpp; sourceTree = "<group>"; };
 		27512ED21240F50200EF37DD /* code_editor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = code_editor.h; path = library/forms/mforms/code_editor.h; sourceTree = "<group>"; };
@@ -6370,9 +6371,7 @@
 		2BE6805E0F8E482100E00A97 /* CSV.tpl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = CSV.tpl; path = res/sqlidedata/templates/CSV.tpl; sourceTree = "<group>"; };
 		2BE6805F0F8E482100E00A97 /* HTML.tpl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = HTML.tpl; path = res/sqlidedata/templates/HTML.tpl; sourceTree = "<group>"; };
 		2BE680600F8E482100E00A97 /* XML.tpl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = XML.tpl; path = res/sqlidedata/templates/XML.tpl; sourceTree = "<group>"; };
-		2BE732EF0EFAFB6500287AE0 /* db.grt.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = db.grt.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BE733040EFAFB8B00287AE0 /* db.mysql.grt.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = db.mysql.grt.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		2BE733130EFAFBCE00287AE0 /* dbutils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = dbutils.cpp; path = modules/db/src/dbutils.cpp; sourceTree = "<group>"; };
 		2BE733150EFAFBF600287AE0 /* db_mysql_catalog_report.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = db_mysql_catalog_report.cpp; path = modules/db.mysql/src/db_mysql_catalog_report.cpp; sourceTree = "<group>"; };
 		2BE733160EFAFBF600287AE0 /* db_mysql_catalog_report.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = db_mysql_catalog_report.h; path = modules/db.mysql/src/db_mysql_catalog_report.h; sourceTree = "<group>"; };
 		2BE733170EFAFBF600287AE0 /* db_mysql_diffsqlgen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = db_mysql_diffsqlgen.cpp; path = modules/db.mysql/src/db_mysql_diffsqlgen.cpp; sourceTree = "<group>"; wrapsLines = 0; };
@@ -6611,6 +6610,9 @@
 		2BFC2E9916D3C6A500C73F61 /* wba_audit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = wba_audit; path = plugins/wb.admin/internal/wba_audit; sourceTree = "<group>"; };
 		2BFDB83416C00F6500D0C5A8 /* libvsqlitepp.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvsqlitepp.0.dylib; path = "../mysql-mac-res/lib/libvsqlitepp.0.dylib"; sourceTree = "<group>"; };
 		44683E4B1AC9A40B00C516C5 /* generic_templates.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = generic_templates.h; path = library/base/base/generic_templates.h; sourceTree = "<group>"; };
+		447271FA1C58F170005F840F /* utilities.grt.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = utilities.grt.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		447271FB1C58F1CC005F840F /* utilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = utilities.cpp; path = modules/utilities/src/utilities.cpp; sourceTree = "<group>"; };
+		447271FE1C58F2BA005F840F /* utilities.grt_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = utilities.grt_prefix.h; path = prefix/utilities.grt_prefix.h; sourceTree = "<group>"; };
 		44B7DC951C0C7A39000D608D /* wba_firewall */ = {isa = PBXFileReference; lastKnownFileType = folder; name = wba_firewall; path = plugins/wb.admin/internal/wba_firewall; sourceTree = "<group>"; };
 		44B7DC971C0C7A72000D608D /* admin_firewall_reports.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = admin_firewall_reports.png; path = images/admin/admin_firewall_reports.png; sourceTree = "<group>"; };
 		44B7DC981C0C7A72000D608D /* admin_firewall.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = admin_firewall.png; path = images/admin/admin_firewall.png; sourceTree = "<group>"; };
@@ -6711,7 +6713,6 @@
 				27A00CE51BF0A43F0087684B /* db.mysql.wbp.dylib in Frameworks */,
 				27A00CE41BF0A4190087684B /* mysql.canvas.dylib in Frameworks */,
 				27A00CE31BF0A3EC0087684B /* sql.parser.dylib in Frameworks */,
-				27A00CE21BF0A3C40087684B /* db.grt.dylib in Frameworks */,
 				27A00CE11BF0A3780087684B /* libwbprivate.be.dylib in Frameworks */,
 				27A00CDF1BF099E80087684B /* libwbpublic.be.dylib in Frameworks */,
 				27A00CE01BF09A0A0087684B /* mysql.parser.dylib in Frameworks */,
@@ -7068,15 +7069,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		2BE732ED0EFAFB6500287AE0 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				2BE733320EFAFC7E00287AE0 /* libgrt.dylib in Frameworks */,
-				2B774FB215CEC43200923448 /* libglib-2.0.0.dylib in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		2BE733020EFAFB8B00287AE0 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -7125,6 +7117,18 @@
 				2BF7E1F013323DDD002EBA46 /* libwbpublic.be.dylib in Frameworks */,
 				2BA6AFF213676C2C008600AF /* libmforms.dylib in Frameworks */,
 				2B774FCB15CEC59E00923448 /* libglib-2.0.0.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		447271F41C58F170005F840F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				447272041C58F991005F840F /* libwbbase.dylib in Frameworks */,
+				447272031C58F97D005F840F /* libwbpublic.be.dylib in Frameworks */,
+				447272011C58F8FB005F840F /* libgdal.1.dylib in Frameworks */,
+				447271F51C58F170005F840F /* libgrt.dylib in Frameworks */,
+				447271F61C58F170005F840F /* libglib-2.0.0.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7379,7 +7383,6 @@
 				2B96161B0F2759A400F0B599 /* libmforms.dylib */,
 				2B7510D80E8799D00003120A /* libwbpublic.be.dylib */,
 				2BCB31550E8845D0005C8ED2 /* libwbprivate.be.dylib */,
-				2BE732EF0EFAFB6500287AE0 /* db.grt.dylib */,
 				2BE733040EFAFB8B00287AE0 /* db.mysql.grt.dylib */,
 				2BE7362A0EFB3CED00287AE0 /* db.mysql.sqlparser.grt.dylib */,
 				2B5284060F1A572C005FBF7C /* wb.model.grt.dylib */,
@@ -7406,6 +7409,7 @@
 				2BF0495D1741ACB900A7EA35 /* wb.model.advfind.wbp.dylib */,
 				27CE5F931917993B005574D4 /* db.mysql.parser.grt.dylib */,
 				ED08ADA71A14440E001DBE04 /* wb.fabric.interface.grt.dylib */,
+				447271FA1C58F170005F840F /* utilities.grt.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -9984,7 +9988,6 @@
 		2B825EBE0E0B68F500BE52DF /* Modules */ = {
 			isa = PBXGroup;
 			children = (
-				2BE732E90EFAFB4000287AE0 /* db */,
 				2BAD7C4C156D89640025F13F /* db.generic */,
 				2BAD7C45156D89270025F13F /* db.mssql */,
 				2BE732EA0EFAFB4600287AE0 /* db.mysql */,
@@ -9996,6 +9999,7 @@
 				2BB626C6176BAA270070885E /* db.sqlanywhere */,
 				2BB626C7176BAA320070885E /* db.sqlite */,
 				2BCE49EA15F533E300FA0CDC /* db.sybase */,
+				447271FD1C58F1DE005F840F /* utilities */,
 				EDD76C8719573E5100D3D54F /* wb.fabric */,
 				ED08AD921A144239001DBE04 /* wb.fabric.interface */,
 				2B5283FC0F1A56E0005FBF7C /* wb.model */,
@@ -10983,15 +10987,6 @@
 			name = "SQLIDE Data";
 			sourceTree = "<group>";
 		};
-		2BE732E90EFAFB4000287AE0 /* db */ = {
-			isa = PBXGroup;
-			children = (
-				27504D7F1B3BF76A0007CAEA /* db.grt_prefix.h */,
-				2BE733130EFAFBCE00287AE0 /* dbutils.cpp */,
-			);
-			name = db;
-			sourceTree = "<group>";
-		};
 		2BE732EA0EFAFB4600287AE0 /* db.mysql */ = {
 			isa = PBXGroup;
 			children = (
@@ -11476,6 +11471,15 @@
 				2B655B040F19099E00A14051 /* WBModelDiagramPanel.mm */,
 			);
 			name = "Diagram Panel";
+			sourceTree = "<group>";
+		};
+		447271FD1C58F1DE005F840F /* utilities */ = {
+			isa = PBXGroup;
+			children = (
+				447271FE1C58F2BA005F840F /* utilities.grt_prefix.h */,
+				447271FB1C58F1CC005F840F /* utilities.cpp */,
+			);
+			name = utilities;
 			sourceTree = "<group>";
 		};
 		752740C2105FB82000E3E32F /* Backend */ = {
@@ -12802,23 +12806,6 @@
 			productReference = 2BDC262A0E85671D0018CE34 /* sql.parser.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
-		2BE732EE0EFAFB6500287AE0 /* db.grt */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 2BE733110EFAFB9600287AE0 /* Build configuration list for PBXNativeTarget "db.grt" */;
-			buildPhases = (
-				2BE732EC0EFAFB6500287AE0 /* Sources */,
-				2BE732ED0EFAFB6500287AE0 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				2BE732F30EFAFB6D00287AE0 /* PBXTargetDependency */,
-			);
-			name = db.grt;
-			productName = db.grt;
-			productReference = 2BE732EF0EFAFB6500287AE0 /* db.grt.dylib */;
-			productType = "com.apple.product-type.library.dynamic";
-		};
 		2BE733030EFAFB8B00287AE0 /* db.mysql.grt */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2BE733120EFAFB9600287AE0 /* Build configuration list for PBXNativeTarget "db.mysql.grt" */;
@@ -12897,6 +12884,23 @@
 			productReference = 2BF7E0AB13310215002EBA46 /* wb.model.snippets.wbp.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
+		447271EF1C58F170005F840F /* utilities.grt */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 447271F71C58F170005F840F /* Build configuration list for PBXNativeTarget "utilities.grt" */;
+			buildPhases = (
+				447271F21C58F170005F840F /* Sources */,
+				447271F41C58F170005F840F /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				447271F01C58F170005F840F /* PBXTargetDependency */,
+			);
+			name = utilities.grt;
+			productName = db.grt;
+			productReference = 447271FA1C58F170005F840F /* utilities.grt.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
 		8D1107260486CEB800E47090 /* MySQLWorkbench */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "MySQLWorkbench" */;
@@ -12925,6 +12929,7 @@
 				2B02FED9183E65D400770CC0 /* PBXBuildRule */,
 			);
 			dependencies = (
+				447272001C58F857005F840F /* PBXTargetDependency */,
 				2B21D5E3100CC3BA0016A306 /* PBXTargetDependency */,
 				2B6BBEDE16BAC66400F8A39E /* PBXTargetDependency */,
 				2B263B410E94030000933149 /* PBXTargetDependency */,
@@ -12932,7 +12937,6 @@
 				2B9616900F275B9B00F0B599 /* PBXTargetDependency */,
 				2BD1FB160F33D2AC00FFC762 /* PBXTargetDependency */,
 				2B5284150F1A57D2005FBF7C /* PBXTargetDependency */,
-				2BE7334F0EFAFE1500287AE0 /* PBXTargetDependency */,
 				2BE733510EFAFE1500287AE0 /* PBXTargetDependency */,
 				2BD1FA9C0F337CF500FFC762 /* PBXTargetDependency */,
 				2B3D49DA0F3E7141009238A7 /* PBXTargetDependency */,
@@ -13021,7 +13025,6 @@
 				2BCB31540E8845D0005C8ED2 /* wbprivate.be */,
 				2B350058152DEC0000014C0D /* cairo.so */,
 				2BD1FB0D0F33D29400FFC762 /* WBExtras */,
-				2BE732EE0EFAFB6500287AE0 /* db.grt */,
 				2BE733030EFAFB8B00287AE0 /* db.mysql.grt */,
 				2B2DF86C105EA04400F267F9 /* db.mysql.query.grt */,
 				27CE5F921917993B005574D4 /* db.mysql.parser.grt */,
@@ -13045,6 +13048,7 @@
 				ED08AD931A14440E001DBE04 /* wb.fabric.interface.grt */,
 				27D8079D1A3F262D00EDCA8F /* commercial.extensions */,
 				2B240383101BC6CC00079580 /* wbtests */,
+				447271EF1C58F170005F840F /* utilities.grt */,
 			);
 		};
 /* End PBXProject section */
@@ -15133,14 +15137,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		2BE732EC0EFAFB6500287AE0 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				2BE733140EFAFBCE00287AE0 /* dbutils.cpp in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		2BE733010EFAFB8B00287AE0 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -15190,6 +15186,14 @@
 				2BF7E0D2133102B1002EBA46 /* register_plugin.cpp in Sources */,
 				2BF7E115133141A4002EBA46 /* include_model_wizard.cpp in Sources */,
 				2BF7E11913314BF0002EBA46 /* merge_model.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		447271F21C58F170005F840F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				447271FC1C58F1CC005F840F /* utilities.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -15799,16 +15803,6 @@
 			target = 2B825D280E0B59A100BE52DF /* base */;
 			targetProxy = 2BDAE45F11139A9600AC1D7A /* PBXContainerItemProxy */;
 		};
-		2BE732F30EFAFB6D00287AE0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 2B825D910E0B604400BE52DF /* grt */;
-			targetProxy = 2BE732F20EFAFB6D00287AE0 /* PBXContainerItemProxy */;
-		};
-		2BE7334F0EFAFE1500287AE0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 2BE732EE0EFAFB6500287AE0 /* db.grt */;
-			targetProxy = 2BE7334E0EFAFE1500287AE0 /* PBXContainerItemProxy */;
-		};
 		2BE733510EFAFE1500287AE0 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 2BE733030EFAFB8B00287AE0 /* db.mysql.grt */;
@@ -15848,6 +15842,16 @@
 			isa = PBXTargetDependency;
 			target = 2BE733030EFAFB8B00287AE0 /* db.mysql.grt */;
 			targetProxy = 2BF8791C0FA7430F0012EADA /* PBXContainerItemProxy */;
+		};
+		447271F01C58F170005F840F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2B825D910E0B604400BE52DF /* grt */;
+			targetProxy = 447271F11C58F170005F840F /* PBXContainerItemProxy */;
+		};
+		447272001C58F857005F840F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 447271EF1C58F170005F840F /* utilities.grt */;
+			targetProxy = 447271FF1C58F857005F840F /* PBXContainerItemProxy */;
 		};
 		ED08AD941A14440E001DBE04 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -17882,58 +17886,6 @@
 			};
 			name = Release;
 		};
-		2BE732F00EFAFB6600287AE0 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/library/forms",
-					"$(SRCROOT)/library/cppconn",
-					"$(SRCROOT)/generated",
-					"$(SRCROOT)/backend/wbpublic",
-					"$(SRCROOT)/modules",
-					"$(SRCROOT)/library/canvas/src",
-					"$(SRCROOT)/library/grt/src",
-				);
-				INSTALL_PATH = "@executable_path/../PlugIns";
-				PRODUCT_NAME = db.grt;
-				SKIP_INSTALL = YES;
-			};
-			name = Debug;
-		};
-		2BE732F10EFAFB6600287AE0 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_MODEL_TUNING = G5;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/library/forms",
-					"$(SRCROOT)/library/cppconn",
-					"$(SRCROOT)/generated",
-					"$(SRCROOT)/backend/wbpublic",
-					"$(SRCROOT)/modules",
-					"$(SRCROOT)/library/canvas/src",
-					"$(SRCROOT)/library/grt/src",
-				);
-				INSTALL_PATH = "@executable_path/../PlugIns";
-				PRODUCT_NAME = db.grt;
-				SKIP_INSTALL = YES;
-				ZERO_LINK = NO;
-			};
-			name = Release;
-		};
 		2BE733050EFAFB8B00287AE0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -18163,6 +18115,58 @@
 				);
 				INSTALL_PATH = "@loader_path/../Frameworks";
 				PRODUCT_NAME = wb.model.snippets.wbp;
+				SKIP_INSTALL = YES;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		447271F81C58F170005F840F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/library/forms",
+					"$(SRCROOT)/library/cppconn",
+					"$(SRCROOT)/generated",
+					"$(SRCROOT)/backend/wbpublic",
+					"$(SRCROOT)/modules",
+					"$(SRCROOT)/library/canvas/src",
+					"$(SRCROOT)/library/grt/src",
+				);
+				INSTALL_PATH = "@executable_path/../PlugIns";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		447271F91C58F170005F840F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_MODEL_TUNING = G5;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/library/forms",
+					"$(SRCROOT)/library/cppconn",
+					"$(SRCROOT)/generated",
+					"$(SRCROOT)/backend/wbpublic",
+					"$(SRCROOT)/modules",
+					"$(SRCROOT)/library/canvas/src",
+					"$(SRCROOT)/library/grt/src",
+				);
+				INSTALL_PATH = "@executable_path/../PlugIns";
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
 			};
@@ -18690,15 +18694,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2BE733110EFAFB9600287AE0 /* Build configuration list for PBXNativeTarget "db.grt" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				2BE732F00EFAFB6600287AE0 /* Debug */,
-				2BE732F10EFAFB6600287AE0 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		2BE733120EFAFB9600287AE0 /* Build configuration list for PBXNativeTarget "db.mysql.grt" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -18731,6 +18726,15 @@
 			buildConfigurations = (
 				2BF7E0AC13310215002EBA46 /* Debug */,
 				2BF7E0AD13310215002EBA46 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		447271F71C58F170005F840F /* Build configuration list for PBXNativeTarget "utilities.grt" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				447271F81C58F170005F840F /* Debug */,
+				447271F91C58F170005F840F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
