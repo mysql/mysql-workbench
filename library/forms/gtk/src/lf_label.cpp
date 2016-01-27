@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -68,46 +68,45 @@ void mforms::gtk::LabelImpl::realized()
     case ::mforms::BigStyle:
       {
         font.set_size(font.get_size()*4/3);
-        _label->get_pango_context()->set_font_description(font);
-
+        _label->override_font(font);
       }
       break;
     case ::mforms::VeryBigStyle:
       {
         font.set_size(font.get_size()*5/3);
-        _label->get_pango_context()->set_font_description(font);
+        _label->override_font(font);
       }
       break;
     case ::mforms::BigBoldStyle:
       {
         font.set_size(font.get_size()*4/3);
         font.set_weight(Pango::WEIGHT_BOLD);
-        _label->get_pango_context()->set_font_description(font);
+        _label->override_font(font);
       }
       break;
     case ::mforms::BoldStyle:
       {
         font.set_weight(Pango::WEIGHT_BOLD);
-        _label->get_pango_context()->set_font_description(font);
+        _label->override_font(font);
       }
       break;
     case ::mforms::SmallBoldStyle:
       {
         font.set_weight(Pango::WEIGHT_BOLD);
         font.set_size(font.get_size()*5/7);
-        _label->get_pango_context()->set_font_description(font);
+        _label->override_font(font);
       }
       break;
     case ::mforms::SmallStyle:
       {
         font.set_size(font.get_size()*5/6);
-        _label->get_pango_context()->set_font_description(font);
+        _label->override_font(font);
       }
       break;
     case ::mforms::VerySmallStyle:
       {
         font.set_size(font.get_size()*3/5);
-        _label->get_pango_context()->set_font_description(font);
+        _label->override_font(font);
       }
       break;
     case ::mforms::InfoCaptionStyle:
@@ -115,20 +114,20 @@ void mforms::gtk::LabelImpl::realized()
     case ::mforms::BoldInfoCaptionStyle:
       {
         font.set_weight(Pango::WEIGHT_BOLD);
-        _label->get_pango_context()->set_font_description(font);
+        _label->override_font(font);
       }
       break;
     case ::mforms::WizardHeadingStyle:
       {
         font.set_size(font.get_size()*1.2);
         font.set_weight(Pango::WEIGHT_BOLD);
-        _label->get_pango_context()->set_font_description(font);
+        _label->override_font(font);
       }
       break;
     case ::mforms::SmallHelpTextStyle:
       {
         font.set_size(font.get_size()*4/5);
-        _label->get_pango_context()->set_font_description(font);
+        _label->override_font(font);
       }
       break;
     }
