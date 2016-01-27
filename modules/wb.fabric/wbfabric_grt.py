@@ -114,7 +114,6 @@ def _execute_fabric_command(conn_id, fabric_command):
     return return_data
 
 
-
 def _get_managed_connections(conn):
     connections = {}
 
@@ -130,7 +129,6 @@ def _get_managed_connections(conn):
 
 
 def _update_fabric_connections(params):
-
     error = ''
     conn = params['conn']
     conn_id = params['conn_id']
@@ -159,7 +157,7 @@ def _update_fabric_connections(params):
 
     for group in groups:
         include_group = not group_filter or group['group_id'] in group_filter
-
+        
         if include_group:
             matched_groups.append(group['group_id'])
 
@@ -189,22 +187,27 @@ def _update_fabric_connections(params):
 
                 managed_connections += 1
 
+                managed_conn = None
+
                 if existing_connections.has_key(address):
-                    del existing_connections[address]
+                    managed_conn = existing_connections[address]
+                    del existing_connections[address]                    
                 else:
                     child_conn_name = '%s/%s:%s' % (conn.name, host, port)
 
                     server_user = conn.parameterValues["mysqlUserName"]
                     managed_conn = grt.modules.Workbench.create_connection(host, server_user, '', 1, 0, int(port), child_conn_name)
-                    managed_conn.parameterValues["fabric_managed"] = conn.__id__
-                    managed_conn.parameterValues["fabric_group_id"] = group["group_id"]
-
-                    # Includes the rest of the server parameters on the connection parameters
-                    for att in server.keys():
-                        if att != 'address':
-                            managed_conn.parameterValues['fabric_%s' % att] = server[att]
-
+                    
                     added_servers += 1
+
+                # Update connection settings
+                managed_conn.parameterValues["fabric_managed"] = conn.__id__
+                managed_conn.parameterValues["fabric_group_id"] = group["group_id"]
+
+                # Includes the rest of the server parameters on the connection parameters
+                for att in server.keys():
+                    if att != 'address':
+                        managed_conn.parameterValues['fabric_%s' % att] = server[att]
 
     # Removes the remaining connections (which no longer exist on the Fabric node)
     for connection in existing_connections.values():
@@ -223,7 +226,6 @@ def _update_fabric_connections(params):
             error = "There are no Managed Servers defined for the included groups in %s: %s." % (conn.name, ','.join(matched_groups))
 
     return error
-   
 
 
 @ModuleInfo.export(grt.STRING, grt.classes.db_mgmt_Connection)
