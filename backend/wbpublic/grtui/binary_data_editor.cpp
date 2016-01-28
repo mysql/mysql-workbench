@@ -38,6 +38,7 @@ DEFAULT_LOG_DOMAIN("BlobViewer");
 #include "mforms/code_editor.h"
 #include "mforms/find_panel.h"
 #include "mforms/filechooser.h"
+#include "mforms/label.h"
 
 BinaryDataViewer::BinaryDataViewer(BinaryDataEditor *owner)
 : mforms::Box(false), _owner(owner)
@@ -446,7 +447,8 @@ public:
   {
     set_spacing(8);
     add(&_selector, false, true);
-    add_end(&_text, true, true);
+    add(&_text, true, true);
+    add_end(&_srid, false, false);
     _text.set_read_only(read_only && false);
     //TODO: data editing (need to figure out a way to send WKT data to the server when saving)
 
@@ -479,11 +481,13 @@ public:
         break;
     }
     _text.set_value(text);
+    _srid.set_text("SRID: " + base::to_string(importer.getSrid()));
   }
 
 private:
   mforms::TextBox _text;
   mforms::Selector _selector;
+  mforms::Label _srid;
   std::string _encoding;
 };
 

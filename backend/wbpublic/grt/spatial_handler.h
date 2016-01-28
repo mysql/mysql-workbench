@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,6 +45,9 @@
 
 namespace spatial
 {
+
+  std::string WBPUBLICBACKEND_PUBLIC_FUNC stringFromErrorCode(const OGRErr &val);
+  std::string WBPUBLICBACKEND_PUBLIC_FUNC fetchAuthorityCode(const std::string &wkt);
 
   struct WBPUBLICBACKEND_PUBLIC_FUNC ProjectionView
   {
@@ -137,6 +140,7 @@ namespace spatial
     OGRGeometry *_geometry;
     bool _interrupt;
     void extract_points(OGRGeometry *shape, std::deque<ShapeContainer> &shapes_container);
+    int _srid;
   public:
     Importer();
     ~Importer();
@@ -146,6 +150,7 @@ namespace spatial
     void get_envelope(Envelope &env);
     void interrupt();
 
+    int getSrid() const;
     std::string as_wkt();
     std::string as_kml();
     std::string as_json();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -59,6 +59,60 @@ bool spatial::operator== (const Envelope &env1, const Envelope &env2)
 bool spatial::operator!= (const Envelope &env1, const Envelope &env2)
 {
   return !(env1==env2);
+}
+
+std::string spatial::stringFromErrorCode(const OGRErr &val)
+{
+  switch(val)
+  {
+  case OGRERR_NOT_ENOUGH_DATA:
+    return "Not enough data";
+  case OGRERR_NOT_ENOUGH_MEMORY:
+    return "Not enought memory";
+  case OGRERR_UNSUPPORTED_GEOMETRY_TYPE:
+    return "Unsupported geometry type";
+  case OGRERR_UNSUPPORTED_OPERATION:
+    return "Unsupported operation";
+  case OGRERR_CORRUPT_DATA:
+    return "Corrupt data";
+  case OGRERR_FAILURE:
+    return "Failure";
+  case OGRERR_UNSUPPORTED_SRS:
+    return "Unsupported SRS";
+  case OGRERR_INVALID_HANDLE:
+    return "Invalid handle";
+  case OGRERR_NONE:
+  default:
+    return "";
+
+  }
+  return "";
+}
+
+std::string spatial::fetchAuthorityCode(const std::string &wkt)
+{
+  if (wkt.empty())
+  {
+    log_error("Unable to fetch AuthorityCode, WKT was empty.");
+    return "";
+  }
+  OGRSpatialReference srs;
+  char* _wkt = (char*)const_cast<char*>(&(*(wkt.begin())));
+  OGRErr err = srs.importFromWkt(&_wkt);
+  if (err != OGRERR_NONE)
+  {
+    log_error("ImportWKT Error: %s", stringFromErrorCode(err).c_str());
+    return "";
+  }
+
+  err = srs.AutoIdentifyEPSG();
+  if (err != OGRERR_NONE)
+  {
+    log_error("AutoIdentifyEPSG Error: %s", stringFromErrorCode(err).c_str());
+    return "";
+  }
+  return srs.GetAuthorityCode("GEOGCS");
+
 }
 
 spatial::Envelope::Envelope() : converted(false)
@@ -196,7 +250,7 @@ double spatial::ShapeContainer::distance_point(const base::Point &p) const
   return sqrt(pow((p.x - points[0].x), 2) + pow((p.y - points[0].y), 2));
 }
 
-spatial::ShapeContainer::ShapeContainer()
+spatial::ShapeContainer::ShapeContainer() : type(ShapeUnknown)
 {
 
 }
@@ -441,7 +495,7 @@ void spatial::Importer::get_envelope(spatial::Envelope &env)
   }
 }
 
-spatial::Importer::Importer() : _geometry(NULL), _interrupt(false)
+spatial::Importer::Importer() : _geometry(NULL), _interrupt(false), _srid(0)
 {
 }
 
@@ -462,6 +516,10 @@ int spatial::Importer::import_from_mysql(const std::string &data)
 {
   if (data.size() > 4)
   {
+    //first 4 bytes is srid let's extract it:
+    std::string tmp = data.substr(0, 4);
+    _srid = tmp[3] << 24 | (tmp[2] & 0xff) << 16 | (tmp[1] & 0xff) << 8 | (tmp[0] & 0xff);
+
     OGRErr ret_val = OGRGeometryFactory::createFromWkb((unsigned char*)const_cast<char*>(&(*(data.begin() + 4))), NULL, &_geometry);
 
     if (_geometry)
@@ -485,6 +543,11 @@ int spatial::Importer::import_from_wkt(std::string data)
     return 0;
   else
     return 1;
+}
+
+int spatial::Importer::getSrid() const
+{
+  return _srid;
 }
 
 std::string spatial::Importer::as_wkt()
