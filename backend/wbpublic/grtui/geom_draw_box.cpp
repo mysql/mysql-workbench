@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -71,8 +71,14 @@ void GeomDrawBox::set_data(const std::string &text)
 {
   spatial::Importer importer;
   importer.import_from_mysql(text);
+  _srid = importer.getSrid();
   _geom = importer.steal_data();
   set_needs_repaint();
+}
+
+int GeomDrawBox::getSrid() const
+{
+  return _srid;
 }
 
 
