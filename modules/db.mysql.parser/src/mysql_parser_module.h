@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -49,7 +49,7 @@ class MYSQL_PARSER_PUBLIC MySQLParserServicesImpl : public parser::MySQLParserSe
 {
 public:
   MySQLParserServicesImpl(grt::CPPModuleLoader *loader)
-    : grt::ModuleImplBase(loader)
+    : grt::ModuleImplBase(loader), _stop(false)
   {
   }
   DEFINE_INIT_MODULE_DOC("1.0", "Oracle Corporation", DOC_MYSQLPARSERSERVICESIMPL, grt::ModuleImplBase,

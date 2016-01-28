@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,9 +28,10 @@
 class WBPUBLICBACKEND_PUBLIC_FUNC GeomDrawBox : public mforms::DrawBox
 {
   OGRGeometry *_geom;
+  int _srid;
 public:
   GeomDrawBox()
-  : _geom(NULL)
+  : _geom(NULL), _srid(0)
   {
   }
 
@@ -44,6 +45,8 @@ public:
   void set_data(const std::string &text);
 
   virtual void repaint(cairo_t *cr, int x, int y, int w, int h);
+
+  int getSrid() const;
 };
 
 #endif

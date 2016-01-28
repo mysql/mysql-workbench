@@ -89,7 +89,6 @@ std::string spatial::stringFromErrorCode(const OGRErr &val)
   return "";
 }
 
-
 std::string spatial::fetchAuthorityCode(const std::string &wkt)
 {
   if (wkt.empty())
@@ -115,7 +114,6 @@ std::string spatial::fetchAuthorityCode(const std::string &wkt)
   return srs.GetAuthorityCode("GEOGCS");
 
 }
-
 
 spatial::Envelope::Envelope() : converted(false)
 {
@@ -497,7 +495,7 @@ void spatial::Importer::get_envelope(spatial::Envelope &env)
   }
 }
 
-spatial::Importer::Importer() : _geometry(NULL), _interrupt(false)
+spatial::Importer::Importer() : _geometry(NULL), _interrupt(false), _srid(0)
 {
 }
 
@@ -518,6 +516,10 @@ int spatial::Importer::import_from_mysql(const std::string &data)
 {
   if (data.size() > 4)
   {
+    //first 4 bytes is srid let's extract it:
+    std::string tmp = data.substr(0, 4);
+    _srid = tmp[3] << 24 | (tmp[2] & 0xff) << 16 | (tmp[1] & 0xff) << 8 | (tmp[0] & 0xff);
+
     OGRErr ret_val = OGRGeometryFactory::createFromWkb((unsigned char*)const_cast<char*>(&(*(data.begin() + 4))), NULL, &_geometry);
 
     if (_geometry)
@@ -541,6 +543,11 @@ int spatial::Importer::import_from_wkt(std::string data)
     return 0;
   else
     return 1;
+}
+
+int spatial::Importer::getSrid() const
+{
+  return _srid;
 }
 
 std::string spatial::Importer::as_wkt()
