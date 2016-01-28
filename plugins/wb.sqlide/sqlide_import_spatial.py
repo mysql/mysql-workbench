@@ -21,6 +21,8 @@ from __future__ import with_statement
 import mforms
 import grt
 from workbench.utils import get_exe_path
+from workbench.utils import Version
+
 
 import sys, os, platform, subprocess
 os_icon_suffix = ""
@@ -71,11 +73,11 @@ def cmd_executor(cmd):
     p1 = None
     if platform.system() != "Windows":
         try:
-            p1 = subprocess.Popen("exec " + cmd, stdout = subprocess.PIPE, stderr=subprocess.PIPE, shell = True)
+            p1 = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr=subprocess.PIPE, shell = True)
         except OSError, exc:
             log_error("Error executing command %s\n%s\n" % (cmd, exc));
             import traceback
-            traceback.print_ext()
+            traceback.print_exc()
     else:
         try:
             info = subprocess.STARTUPINFO()
@@ -85,9 +87,14 @@ def cmd_executor(cmd):
             # Object names must be in utf-8 but filename must be encoded in the filesystem encoding,
             # which probably isn't utf-8 in windows.
             
-            cmd = cmd.encode("utf8") if isinstance(cmd,unicode) else cmd
-            log_debug("Executing command: %s\n" % cmd)
-            p1 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE,startupinfo=info,shell=True)
+            if isinstance(cmd, list):
+                for idx,item in enumerate(cmd):
+                    cmd[idx] = item.encode("utf8") if isinstance(item,unicode) else item 
+                log_debug("Executing command: %s\n" % "".join(cmd))
+            else:
+                cmd = cmd.encode("utf8") if isinstance(cmd,unicode) else cmd
+                log_debug("Executing command: %s\n" % cmd)
+            p1 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=info, shell = True)
         except OSError, exc:
             log_error("Error executing command %s\n%s\n" % (cmd, exc))
             import traceback
@@ -110,12 +117,14 @@ class SpatialImporter:
         self.filepath = None
         self.skipfailures = False
         self.features_per_transcation = 200
+        self.destination_EPSG = None
         
         self.my_geo_column = "shape"
         self.abort_requested = False
         
         self.is_running = False
         self.returncode = None
+        self.user_cancel = False
 
 
     def execute_cmd(self, cmd, progress_notify):
@@ -150,9 +159,15 @@ class SpatialImporter:
         sout, serr = p1.communicate()
         self.returncode = p1.returncode
         if self.returncode !=0:
-            if serr != "":
+            if self.user_cancel:
+                log_info("Execute command failed with error: %s, the exit code was: %d.\n" % (serr, self.returncode))
+                raise grt.UserInterrupt()
+            else:
+                log_error("Execute command failed with error: %s, the exit code was: %d.\n" % (serr, self.returncode))
                 raise Exception(serr)
-            raise grt.UserInterrupt()
+            
+        log_info("Execute command succeeed.\n")
+            
 
 
     def print_log_message(self, msg):
@@ -165,11 +180,13 @@ class SpatialImporter:
                 cmd = "taskkill /F /T /PID %i" % self.process_handle.pid
                 log_debug("Killing task: %s\n" % cmd)
                 subprocess.Popen(cmd , shell=True)
+                self.user_cancel = True
             else:
                 import signal
                 try:
                     log_debug("Sending SIGTERM to task %s\n" % self.process_handle.pid)
                     os.kill(self.process_handle.pid, signal.SIGTERM)
+                    self.user_cancel = True
                 except OSError, exc:
                     log_error("Exception sending SIGTERM to task: %s\n" % exc)
                     self.print_log_message("kill task: %s" % str(exc))
@@ -182,38 +199,58 @@ class SpatialImporter:
         cmd_args['user'] = self.my_user
         cmd_args['pwd'] = self.my_pwd
         cmd_args['port'] = self.my_port
-        cmd_args['features_per_transcation'] = self.features_per_transcation
-        if self.import_table:
-            cmd_args['table_name'] = " -nln %s" % self.import_table
-        else:
-            cmd_args['table_name'] = ""
+        
+        cmd = []
+        cmd.append("exec")
+        cmd.append(get_exe_path("ogr2ogr"))
+        cmd.append("-f")
+        cmd.append('"MySQL"')
+        cmd.append('MySQL:"%(schema)s,host=%(host)s,user=%(user)s,password=%(pwd)s,port=%(port)d"' % cmd_args)
+        cmd.append(self.filepath)
 
-        cmd_args['opts'] = "-lco GEOMETRY_NAME=%s" % self.my_geo_column
-        if self.skipfailures:
-            cmd_args['opts'] = cmd_args['opts'] + " -skipfailures"
+        if self.import_table:
+            cmd.append('-nln')
+            cmd.append('"%s"' % self.import_table)
             
+        if self.destination_EPSG:
+            cmd.append('-t_srs')
+            cmd.append('EPSG:' % self.destination_EPSG)
+
+        if self.skipfailures:
+            cmd.append('-skipfailures')
+
         if self.import_append:
-            cmd_args['opts'] = cmd_args['opts'] + " -append"
+            cmd.append('-append')
 
         if self.import_overwrite:
-            cmd_args['opts'] = cmd_args['opts'] + " -overwrite"
-        
-        if self.selected_fields:
-            cmd_args['opts'] = cmd_args['opts'] + " -select " + self.selected_fields
-        
-        cmd_args['filepath'] = self.filepath
-        
+            cmd.append('-overwrite')
 
-        cmd = """%(ogr2ogr)s -f "MySQL" MySQL:"%(schema)s,host=%(host)s,user=%(user)s,password=%(pwd)s,port=%(port)d" %(filepath)s %(table_name)s %(opts)s -progress -gt %(features_per_transcation)d -lco ENGINE=InnoDb -lco SPATIAL_INDEX=NO""" % cmd_args
+        if self.selected_fields:
+            cmd.append('-select')
+            cmd.append(self.selected_fields)
+        
+        cmd.append('-progress')
+        cmd.append('-gt')
+        cmd.append(str(self.features_per_transcation))
+        cmd.append('-lco')
+        cmd.append('GEOMETRY_NAME="%s"' % self.my_geo_column)
+        cmd.append('-lco')
+        cmd.append('ENGINE=InnoDb')
+        cmd.append('-lco')
+        if self.spatial_index:
+            cmd.append('SPATIAL_INDEX=YES')
+        else:
+            cmd.append('SPATIAL_INDEX=NO')
+
         self.is_running = True
         try:
-            self.execute_cmd(cmd, progress_notify)
+            self.execute_cmd(" ".join(cmd), progress_notify)
         except grt.UserInterrupt:
             log_info("User cancelled")
             raise
         except Exception, exc:
             import traceback
-            log_error("An error occurred during execution of ogr2ogr file import: %s, stack: %s\n" % (exc, traceback.format_exc()))
+            log_error("An error occured during execution of ogr2ogr file import: %s, stack: %s\n The command was: %s\n" % (exc, traceback.format_exc(), cmd))
             raise
         self.is_running = False
 
@@ -368,6 +405,7 @@ class ContentPreviewPage(WizardPage):
         WizardPage.__init__(self, owner, "Import Options", wide=True)
         self.layer_name = None
         self.column_list = []
+        self.support_spatial_index = Version.fromgrt(owner.editor.serverVersion).is_supported_mysql_version_at_least(5, 7, 5)
 
     def get_path(self):
         return self.main.select_file_page.shapefile_path.get_string_value()
@@ -392,10 +430,27 @@ class ContentPreviewPage(WizardPage):
                     row.set_bool(0, True)
                     row.set_string(1, m.group(1))
 
+        from grt.modules import Utilities
+        res = Utilities.fetchAuthorityCodeFromFile("%s.prj" % os.path.splitext(self.get_path())[0])
+        if res:
+            self.epsg_lbl.set_text(res)
+        else:
+            self.epsg_lbl.set_text(0)
+            log_info("Can't find EPSG fallback to 0")
+
     def go_cancel(self):
         self.main.cancel()
         
     def validate(self):
+        result = 0
+        try:
+            result = int(self.convert_to_epsg.get_string_value())
+        except:
+            pass
+        if len(self.convert_to_epsg.get_string_value()) and result == 0:
+            mforms.Utilities.show_error("Destination ESPG", "Incorrect destination EPSG. Value should be a number.", "OK", "", "")
+            return False
+        
         sfields = self.get_fields()
         if len(sfields) == 0:
             mforms.Utilities.show_error("Missing columns", "Please specify at least one column to import.", "OK", "", "")
@@ -420,13 +475,21 @@ class ContentPreviewPage(WizardPage):
     def create_ui(self):
         self.set_spacing(16)        
         layer_box = mforms.newBox(True)
-        layer_box.set_spacing(16)
+        layer_box.set_spacing(8)
         layer_heading = mforms.newLabel("Layer name:")
         layer_box.add(layer_heading, False, False)
         self.layer_name_lbl = mforms.newLabel("")
         layer_box.add(self.layer_name_lbl, False, False)
         self.content.add(layer_box, False, False)
 
+        epsg_box = mforms.newBox(True)
+        epsg_box.set_spacing(8)
+        epsg_box_heading = mforms.newLabel("EPSG:")
+        epsg_box.add(epsg_box_heading, False, False)
+        self.epsg_lbl = mforms.newLabel("")
+        epsg_box.add(self.epsg_lbl, False, False)
+        self.content.add(epsg_box, False, False)
+        
         entry_box = mforms.newBox(True)
         entry_box.set_spacing(12)
 
@@ -490,19 +553,28 @@ class ContentPreviewPage(WizardPage):
         boxoverwrite.add(small_label("Drop the selected table and recreate it."), False, False)
         options_box.add(boxoverwrite, False, False)
         
+        if self.support_spatial_index:
+            boxspatial = mforms.newBox(False)
+            self.spatial_index_chb = newCheckBox()
+            self.spatial_index_chb.set_text("Create spatial index")
+            self.spatial_index_chb.set_active(False)
+            boxspatial.add(self.spatial_index_chb, False, False)
+            boxspatial.add(small_label("import will make spatial index around geometry column"), False, False)
+            options_box.add(boxspatial, False, False)
+        
         options_layer.add(options_box)
         options_layer.show(True)
         
         self.content.add(options_layer, False, False)
 
         boxconvert = mforms.newBox(False)
-        boxconvert.set_spacing(4)
-        self.cartesian_convert_chb = newCheckBox()
-        self.cartesian_convert_chb.set_text("Convert data to Cartesian coordinate system");
-        self.cartesian_convert_chb.set_active(True)
-
-        boxconvert.add(self.cartesian_convert_chb, False, True)
-        boxconvert.add(small_label("MySQL supports only the Cartesian format. Leaving this checkbox in its initial state will convert the data, which may lead to data loss."), False, False)
+        entry_box = mforms.newBox(True)
+        entry_box.set_spacing(8)
+        entry_box.add(mforms.newLabel("Convert data to the following EPSG:"), False, True)
+        self.convert_to_epsg = mforms.newTextEntry()
+        entry_box.add(self.convert_to_epsg, False, False)
+        boxconvert.add(entry_box, True, True)
+        boxconvert.add(small_label("leave empty to import the data with no conversion"), False, False)
         
         self.content.add(boxconvert, False, True)
         self.get_info()
@@ -567,9 +639,16 @@ class ImportProgressPage(WizardProgressPage):
         self.importer.skipfailures = self.main.content_preview_page.skipfailures_chb.get_active()
         self.importer.import_overwrite = self.main.content_preview_page.overwrite_chb.get_active()
         self.importer.import_append = self.main.content_preview_page.append_chb.get_active()
+        if hasattr(self.main.content_preview_page, "spatial_index_chb"):
+            self.importer.spatial_index = self.main.content_preview_page.spatial_index_chb.get_active()
+        else:
+            self.importer.spatial_index = False
         
         if self.main.content_preview_page.table_name.get_string_value() != "":
             self.importer.import_table = self.main.content_preview_page.table_name.get_string_value()
+            
+        if self.main.content_preview_page.convert_to_epsg.get_string_value() != "":
+            self.importer.destination_EPSG = int(self.main.content_preview_page.convert_to_epsg.get_string_value())
 
         self.importer.selected_fields = ",".join(self.main.content_preview_page.get_fields())
         return True
@@ -591,6 +670,8 @@ class ImportProgressPage(WizardProgressPage):
             if mforms.ResultOk == mforms.Utilities.show_message("Confirmation", "Do you wish to stop import process?", "Yes", "No", "Cancel"):
                 if self.importer:
                     self.importer.kill()
+            else:
+                self.main.cancel()
 
 
 class ResultsPage(WizardPage):

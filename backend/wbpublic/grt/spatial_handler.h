@@ -140,6 +140,7 @@ namespace spatial
     OGRGeometry *_geometry;
     bool _interrupt;
     void extract_points(OGRGeometry *shape, std::deque<ShapeContainer> &shapes_container);
+    int _srid;
   public:
     Importer();
     ~Importer();
@@ -149,6 +150,7 @@ namespace spatial
     void get_envelope(Envelope &env);
     void interrupt();
 
+    int getSrid() const;
     std::string as_wkt();
     std::string as_kml();
     std::string as_json();
