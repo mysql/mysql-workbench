@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -214,6 +214,18 @@ TEST_FUNCTION(13)
   {
     ensure("NodeId::next", n2[i] == 1);
   }
+}
+
+TEST_FUNCTION(14)
+{
+  std::vector<bec::NodeId> test;
+  for (std::size_t i = 1; i < 20; i++)
+    test.push_back(bec::NodeId(i));
+  std::sort(test.begin(), test.end());
+
+  for (std::size_t i = 1, j = 0; i < test.size(); i++, j++)
+    ensure ("NodeId: equals", i == test[j][0]);
+
 }
 
 END_TESTS

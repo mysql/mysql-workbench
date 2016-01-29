@@ -444,14 +444,14 @@ bool Recordset::delete_nodes(std::vector<bec::NodeId> &nodes)
     }
     RowId processed_node_count= 0;
 
-    BOOST_FOREACH (const NodeId &node, nodes)
+    BOOST_FOREACH (NodeId &node, nodes)
     {
       RowId row= node[0] - processed_node_count;
       if (!node.is_valid() || (row >= _row_count))
         return false;
     }
 
-    BOOST_FOREACH (const NodeId &node, nodes)
+    BOOST_FOREACH (NodeId &node, nodes)
     {
       node[0] -= processed_node_count;
       RowId row= node[0];
