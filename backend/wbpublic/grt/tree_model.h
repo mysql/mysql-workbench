@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -58,75 +58,6 @@ namespace bec
    */ 
 
   /**
-  */  
-  // TODO: Add threshold so we do not accumulate megabytes of allocated index vectors
-  template <typename T>
-  class WBPUBLICBACKEND_PUBLIC_FUNC Pool
-  {
-    private:
-      Pool(const Pool&)
-      {
-        throw std::runtime_error("Copy of Pool forbidden");
-      }
-      Pool& operator=(const Pool&)
-      {
-        throw std::runtime_error("Assignment of Pool forbidden");
-      }
-    public:
-      static void delete_object(T* obj)
-      {
-        delete obj;
-      }
-  
-      Pool()
-          : _pool(4)
-      {}
-    
-      ~Pool()
-      {
-        {
-          base::MutexLock lock(_sync);
-          std::for_each(_pool.begin(), _pool.end(), Pool::delete_object);
-        }
-      }
-    
-      T* get()
-      {
-        T* item = 0;
-        try
-        {
-          base::MutexLock lock(_sync);
-          if ( _pool.size() > 0 )
-          { 
-            item = _pool.back();
-            _pool.pop_back();
-          }
-        }
-        catch (...)
-        {
-          //TODO: check when pop may throw
-        }
-      
-        if ( !item )
-        {
-          item = new T;
-        }
-      
-        return item;
-      }
-    
-      void put(T* item)
-      {
-        base::MutexLock lock(_sync);
-        _pool.push_back(item);
-      }
-  
-    private:
-      std::vector<T*>  _pool;
-      base::Mutex          _sync; //! Protect against concurrent access within threads
-  };
-
-  /**
     \class NodeId
     \brief descibes path to a node starting from root for a Tree or it will contain an index (single entry) for List
 
@@ -139,14 +70,7 @@ namespace bec
     typedef std::string*                uid;   //!< To map short-living NodeId path to a persistent value
                                                //!< This is needed for Gtk::TreeModel iterators
     typedef std::vector<size_t>        Index; 
-    static Pool<Index>                 *_pool; //!< Pool of allocated std::vectors (Index)
-    Index                              *index; //!< Path itself
-
-    static Pool<Index>* pool()
-    {
-      return _pool ? _pool : (_pool = new Pool<Index>);
-    }
-
+    Index                              index; //!< Path itself
 
     NodeId();
     NodeId(const NodeId &copy);
@@ -156,7 +80,7 @@ namespace bec
 
     inline NodeId &operator = (const NodeId &node)
     {
-      *index = *node.index;
+      index = node.index;
       
       return *this;
     }
@@ -172,10 +96,11 @@ namespace bec
 
     inline size_t depth() const
     {
-      return index->size();
+      return index.size();
     }
 
-    size_t& operator[] (size_t i) const;
+    size_t& operator[] (size_t i);
+    const size_t& operator[] (size_t i) const;
 
     size_t end() const;    
     inline size_t back() const
@@ -183,12 +108,12 @@ namespace bec
       return end();
     }
     
-    bool previous() const;
-    bool next() const;
+    bool previous();
+    bool next();
 
     inline bool is_valid() const
     {
-      return index->size() != 0;
+      return !index.empty();
     }
     
     NodeId parent() const;
