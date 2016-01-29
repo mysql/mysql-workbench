@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,7 +20,6 @@
 #include <grtpp.h>
 #include "wb_model.h"
 #include "grts/structs.workbench.physical.h"
-#include "graph_renderer.h"
 #include "grt/grt_manager.h"
 #include <grtpp_undo_manager.h>
 #include "base/string_utilities.h"
@@ -793,171 +792,6 @@ int WbModelImpl::do_autolayout(const model_LayerRef &layer, ListRef<model_Object
 
   return layout.do_layout();
 }
-
-#if 0
-int WbModelImpl::do_autolayout_old(const model_LayerRef &layer, ListRef<model_Object> &selection)
-{
-  int result= 0;
-
-  ListRef<model_Figure> figures= layer->figures();
-  ListRef<model_Connection> connections= layer->owner()->connections();
-  std::map<std::string, model_FigureRef> fkTables;
-  std::map<std::string, GraphNode*> nodes;
-  std::list<model_FigureRef> tableList, viewList, otherList;
-  bool selectedOnly= false; //! potential param
-
-  double width= layer->width();
-  double height= layer->height();
-  if ((0. == width) && (0. == height))
-  {
-    model_DiagramRef view= model_DiagramRef::cast_from(layer->owner());
-    width= view->width();
-    height= view->height();
-  }
-  GraphRenderer arranger(10, width, height);
-
-  // go through connections and remember all nodes that are connected
-  for (size_t i= 0, edgeCount= connections.count(); i < edgeCount; ++i)
-  {
-    model_ConnectionRef conn= connections.get(i);
-    model_FigureRef figure= conn->startFigure();
-    fkTables[figure->id()]= figure;
-    figure= conn->endFigure();
-    fkTables[figure->id()]= figure;
-  }
-
-  // Pass coordinates to arrange code.
-  size_t movableFiguresCount= 0;
-  for (size_t i= 0, nodeCount= figures.count(); i < nodeCount; ++i)
-  {
-    model_FigureRef figure= figures.get(i);
-    Rect rect= figure_coords(figure);
-
-    if (rect.width < 1.)
-      rect.width= 200.;
-
-    if (rect.height < 1.)
-      rect.height= 200.;
-
-    // do not move non-table figures
-    if (!workbench_physical_TableFigureRef::can_wrap(figure))
-    {
-      if (workbench_physical_ViewFigureRef::can_wrap(figure))
-        viewList.push_back(figure);
-      else
-        otherList.push_back(figure);
-      continue;
-    }
-    // do not move tables with no connections
-    if (fkTables.find(figure->id()) == fkTables.end())
-    {
-      tableList.push_back(figure);
-      continue;
-    }
-    GraphNode *node= arranger.add_node(rect.left, rect.top, rect.width, rect.height);
-    nodes[figure->id()]= node;
-    if (selectedOnly && find_object_in_list(selection, figure->id()).is_valid())
-      node->set_movable(false);
-    else
-      ++movableFiguresCount;
-  };
-/*//!
-  if (2 > movableFiguresCount)
-    return 0;
-*/
-  for (size_t i= 0, edgeCount= connections.count(); i < edgeCount; ++i)
-  {
-    model_ConnectionRef conn= connections.get(i);
-    GraphNode *node1 = nodes[conn->startFigure()->id()];
-    GraphNode *node2 = nodes[conn->endFigure()->id()];
-
-    if ((node1 != NULL) && (node2 != NULL))
-      arranger.add_edge(node1, node2);
-  }
-
-  // Do the magic.
-  if (figures.count() > 0)
-    arranger.recalc();
-
-  double bottom_y= 0.;
-  double right_x= 0.;
-  double left_x= 10000000000.;
-  
-  // update positions
-  for (std::map<std::string, GraphNode*>::iterator iter= nodes.begin();
-       iter != nodes.end(); ++iter)
-  {
-    GraphNode *node = iter->second;
-    if (node != NULL)
-    {
-      double newx= node->newleft();
-      double newy= node->newtop();
-
-      bottom_y= max(newy + node->height(), bottom_y);
-      left_x= min(newx, left_x);
-      right_x= max(newx + node->width(), right_x);
-
-      model_FigureRef figure= find_object_in_list(figures, iter->first);
-      figure->left(newx);
-      figure->top(newy);
-    }
-  };
-  
-  if (right_x < left_x)
-  {
-    left_x= 0;
-    right_x= 1000;
-  }
-  else if (right_x - left_x < 1000)
-    right_x= left_x + 1000;
-
-  // arrange non-moved objects below everything else
-  double x, y;
-  double spacing= 20.;
-  y= bottom_y + spacing;
-  double row_height;
-  for (size_t j= 0; j < 3; j++)
-  {
-    std::list<model_FigureRef> *figureList= NULL;
-    
-    switch (j)
-    {
-    case 0: figureList= &tableList; break;
-    case 1: figureList= &viewList; break;
-    case 2: figureList= &otherList; break;
-    }
-    row_height= 0;
-    x= left_x;
-    size_t i= 0;
-    for (std::list<model_FigureRef>::iterator iter= figureList->begin();
-         iter != figureList->end(); ++iter)
-    {
-      Rect rect= figure_coords(*iter);
-
-      (*iter)->left(x);
-      (*iter)->top(y);
-
-      x+= rect.width + spacing;
-      row_height= max(rect.height, row_height);
-      ++i;
-      if (x >= right_x)
-      {
-        i= 0;
-        x= left_x;
-        y+= row_height + spacing;
-        row_height= 0;
-      }
-    }
-    if (i > 0)
-    {
-      x= left_x;
-      y+= row_height + spacing;
-    }
-  }
-
-  return result;
-}
-#endif
 
 static bool calculate_view_size(const app_PageSettingsRef &page, double &width, double &height)
 {
