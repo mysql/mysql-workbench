@@ -63,7 +63,6 @@ add_executable(mysql-workbench-bin
     model_diagram_panel.cpp
     properties_tree.cpp
     navigator_box.cpp
-    info_box.cpp
     documentation_box.cpp
     diagram_size_form.cpp
     validation_panel.cpp
