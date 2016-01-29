@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,7 +35,6 @@
 #include "linux_utilities/form_view_base.h"
 
 #include "diagram_size_form.h"
-#include "info_box.h"
 
 #include "mdc.h"
 
