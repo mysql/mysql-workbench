@@ -120,7 +120,7 @@ static struct
 
   // Rules that must not be examined further when collecting candidates.
   std::set<std::string> special_rules;  // Rules with a special meaning (e.g. "table_ref").
-  std::set<std::string> ignored_rules;  // Rules we don't provide completion with (e.g. "literal").
+  std::set<std::string> ignored_rules;  // Rules we don't provide completion with (e.g. "label").
   std::set<std::string> ignored_tokens; // Tokens we don't want to show up (e.g. operators).
 
   //------------------------------------------------------------------------------------------------
@@ -161,7 +161,6 @@ static struct
     special_rules.insert("system_variable");
 
     ignored_rules.clear();
-    //ignored_rules.insert("literal");
     ignored_rules.insert("label"); // Includes certain keywords which would show up.
     ignored_rules.insert("label_identifier"); // ditto
     ignored_rules.insert("text_or_identifier");
@@ -558,8 +557,9 @@ private:
           // Could be a rule ref or a token ref. The problem is both not stored as RULE_REF/TOKEN_REF
           // but as a simple string.
           std::string token_text = (char*)token->getText(token)->chars;
-          if (token_map.count(token_text) > 0)
-            node.token_ref = token_map[token_text];
+          std::map<std::string, uint32_t>::const_iterator position = token_map.find(token_text);
+          if (position != token_map.end())
+            node.token_ref = position->second;
           else
           {
             // Assume it's a rule if we couldn't find it in the token list.
@@ -943,8 +943,15 @@ private:
     size_t marker = scanner->position();
     RuleAlternatives alts = rules_holder.rules[rule];
 
-    // An optimized alt set can never match more than a single token.
-    if (!alts.optimized)
+    if (alts.optimized)
+    {
+      if (alts.set.count(scanner->token_type()) > 0)
+      {
+        scanner->next();
+        return true;
+      }
+    }
+    else
     {
       for (std::vector<GrammarSequence>::const_iterator i = alts.sequence.begin(); i != alts.sequence.end(); ++i)
       {
@@ -1979,11 +1986,11 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
   CompletionSet tablespace_entries;
   CompletionSet system_var_entries;
   CompletionSet keyword_entries;
+  CompletionSet collation_entries;
+  CompletionSet charset_entries;
 
   // Handled but needs meat yet.
   CompletionSet user_var_entries;
-  CompletionSet collation_entries;
-  CompletionSet charset_entries;
 
   // To be done yet.
   CompletionSet user_entries;
@@ -2327,12 +2334,18 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
         else if (*i == "charset_name")
         {
           log_debug3("Adding charsets\n");
-          user_var_entries.insert(std::make_pair(AC_CHARSET_IMAGE, "<character set>"));
+
+          std::vector<std::string> charsets = _auto_completion_cache->get_matching_charsets(context.typed_part);
+          for (std::vector<std::string>::const_iterator charset = charsets.begin(); charset != charsets.end(); ++charset)
+            charset_entries.insert(std::make_pair(AC_CHARSET_IMAGE, *charset));
         }
         else if (*i == "collation_name")
         {
           log_debug3("Adding collations\n");
-          user_var_entries.insert(std::make_pair(AC_COLLATION_IMAGE, "<collation>"));
+
+          std::vector<std::string> collations = _auto_completion_cache->get_matching_collations(context.typed_part);
+          for (std::vector<std::string>::const_iterator collation = collations.begin(); collation != collations.end(); ++collation)
+            collation_entries.insert(std::make_pair(AC_COLLATION_IMAGE, *collation));
         }
         else
           keyword_entries.insert(std::make_pair(0, *i));
