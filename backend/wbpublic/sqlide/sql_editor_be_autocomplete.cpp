@@ -2000,7 +2000,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
 
   MySQLQueryType queryType;
   {
-    boost::shared_ptr<MySQLQueryIdentifier> queryIdentifier = parser_context->createQueryIdentifier();
+    std::shared_ptr<MySQLQueryIdentifier> queryIdentifier = parser_context->createQueryIdentifier();
     queryType = queryIdentifier->getQueryType(statement.c_str(), statement.size(), true);
   }
 
@@ -2278,7 +2278,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
         {
           log_debug3("Adding view names from cache\n");
 
-          // View refs only (no table refers), e.g. like in DROP VIEW ...
+          // View refs only (no table refs), e.g. like in DROP VIEW ...
           std::string qualifier;
           ObjectFlags flags = determine_qualifier(scanner, qualifier);
 
