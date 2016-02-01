@@ -250,7 +250,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\graph_renderer.cpp" />
     <ClCompile Include="src\reporting.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -263,7 +262,6 @@
     <ClCompile Include="src\wb_model.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\graph_renderer.h" />
     <ClInclude Include="src\reporting.h" />
     <ClInclude Include="src\reporting_template_variables.h" />
     <ClInclude Include="src\stdafx.h" />
