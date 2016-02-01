@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -485,29 +485,35 @@ void AutoCompleteCache::refresh_tables_w(const std::string &schema)
     // TODO: check if it is possible that the connection can be locked even it was already deleted.
     base::RecMutexLock lock(_get_connection(conn));
     {
-      std::string sql = base::sqlstring("SHOW FULL TABLES FROM !", 0) << schema;
+      // Avoid an exception for an unknown schema by checking in advance.
       std::auto_ptr<sql::Statement> statement(conn->ref->createStatement());
-      std::auto_ptr<sql::ResultSet> rs(statement->executeQuery(sql));
-      if (rs.get())
+      std::string sql = base::sqlstring("show schemas like ?", 0) << schema;
+      std::auto_ptr<sql::ResultSet> rs1(statement->executeQuery(sql));
+      if (rs1.get() && rs1->next())
       {
-        while (rs->next() && !_shutdown)
+        sql = base::sqlstring("SHOW FULL TABLES FROM !", 0) << schema;
+        std::auto_ptr<sql::ResultSet> rs2(statement->executeQuery(sql));
+        if (rs2.get())
         {
-          std::string type = rs->getString(2);
-          std::string table = rs->getString(1);
-          if (type != "VIEW")
+          while (rs2->next() && !_shutdown)
           {
-            tables->push_back(table);
+            std::string type = rs2->getString(2);
+            std::string table = rs2->getString(1);
+            if (type != "VIEW")
+            {
+              tables->push_back(table);
 
-            // Implicitly load table-local objects for each table/view.
-            add_pending_refresh(RefreshTask::RefreshColumns, schema, table);
-            add_pending_refresh(RefreshTask::RefreshTriggers, schema, table);
+              // Implicitly load table-local objects for each table/view.
+              add_pending_refresh(RefreshTask::RefreshColumns, schema, table);
+              add_pending_refresh(RefreshTask::RefreshTriggers, schema, table);
+            }
           }
-        }
 
-        log_debug2("Found %li tables\n", (long)tables->size());
+          log_debug2("Found %li tables\n", (long)tables->size());
+        }
+        else
+          log_debug2("No tables found for %s\n", schema.c_str());
       }
-      else
-        log_debug2("No tables found for %s\n", schema.c_str());
     }
   }
 
@@ -525,28 +531,34 @@ void AutoCompleteCache::refresh_views_w(const std::string &schema)
 
     base::RecMutexLock lock(_get_connection(conn));
     {
-      std::string sql = base::sqlstring("SHOW FULL TABLES FROM !", 0) << schema;
+      // Avoid an exception for an unknown schema by checking in advance.
       std::auto_ptr<sql::Statement> statement(conn->ref->createStatement());
-      std::auto_ptr<sql::ResultSet> rs(statement->executeQuery(sql));
-      if (rs.get())
+      std::string sql = base::sqlstring("show schemas like ?", 0) << schema;
+      std::auto_ptr<sql::ResultSet> rs1(statement->executeQuery(sql));
+      if (rs1.get() && rs1->next())
       {
-        while (rs->next() && !_shutdown)
+        sql = base::sqlstring("SHOW FULL TABLES FROM !", 0) << schema;
+        std::auto_ptr<sql::ResultSet> rs2(statement->executeQuery(sql));
+        if (rs2.get())
         {
-          std::string type = rs->getString(2);
-          std::string table = rs->getString(1);
-          if (type == "VIEW")
+          while (rs2->next() && !_shutdown)
           {
-            views->push_back(table);
+            std::string type = rs2->getString(2);
+            std::string table = rs2->getString(1);
+            if (type == "VIEW")
+            {
+              views->push_back(table);
 
-            // Implicitly load columns for each table/view.
-            add_pending_refresh(RefreshTask::RefreshColumns, schema, table);
+              // Implicitly load columns for each table/view.
+              add_pending_refresh(RefreshTask::RefreshColumns, schema, table);
+            }
           }
-        }
 
-        log_debug2("Found %li views\n", (long)views->size());
+          log_debug2("Found %li views\n", (long)views->size());
+        }
+        else
+          log_debug2("No views found for %s\n", schema.c_str());
       }
-      else
-        log_debug2("No views found for %s\n", schema.c_str());
     }
   }
 
@@ -757,7 +769,7 @@ void AutoCompleteCache::refresh_logfile_groups_w()
       // Logfile groups and tablespaces are referenced as single unqualified identifiers in MySQL syntax.
       // They are stored however together with a table schema and a table name.
       // For auto completion however we only need to support what the syntax supports.
-      std::auto_ptr<sql::ResultSet> rs(statement->executeQuery("SELECT logfile_group_name FROM information_schema.FILES"));
+      std::auto_ptr<sql::ResultSet> rs(statement->executeQuery("SELECT distinct logfile_group_name FROM information_schema.FILES"));
       if (rs.get())
       {
         while (rs->next() && !_shutdown)
@@ -784,11 +796,15 @@ void AutoCompleteCache::refresh_tablespaces_w()
     base::RecMutexLock lock(_get_connection(conn));
     {
       std::auto_ptr<sql::Statement> statement(conn->ref->createStatement());
-      std::auto_ptr<sql::ResultSet> rs(statement->executeQuery("SELECT tablespace_name FROM information_schema.FILES"));
+      std::auto_ptr<sql::ResultSet> rs(statement->executeQuery("SELECT distinct tablespace_name FROM information_schema.FILES"));
       if (rs.get())
       {
         while (rs->next() && !_shutdown)
-          tablespaces.push_back(rs->getString(1));
+        {
+          std::string entry = rs->getString(1);
+          if (!entry.empty())
+            tablespaces.push_back(entry);
+        }
 
         log_debug2("Found %li tablespaces.\n", (long)tablespaces.size());
       }
@@ -1010,7 +1026,7 @@ void AutoCompleteCache::update_schemas(const std::vector<std::string> &schemas)
   }
   catch (std::exception &exc)
   {
-    log_error("Exception caught while updating schema name cache: %s", exc.what());
+    log_error("Exception caught while updating schema name cache: %s\n", exc.what());
   }
 }
 
@@ -1071,7 +1087,7 @@ void AutoCompleteCache::update_object_names(const std::string &cache, const std:
   }
   catch (std::exception &exc)
   {
-    log_error("Exception caught while updating object name in cache %s: %s", cache.c_str(), exc.what());
+    log_error("Exception caught while updating object name in cache %s: %s\n", cache.c_str(), exc.what());
   }
 }
 

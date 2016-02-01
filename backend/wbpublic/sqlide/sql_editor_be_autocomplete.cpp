@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
@@ -95,7 +95,20 @@ struct GrammarSequence {
   
 };
 
-typedef std::vector<GrammarSequence> RuleAlternatives; // A list of alternatives for a given rule.
+// A list of alternatives for a given rule.
+struct RuleAlternatives {
+  bool optimized;
+
+  // We either have a list of grammar sequences or (in the optimized case) a set of tokens
+  // which form alternatives in a given block.
+  std::vector<GrammarSequence> sequence;
+  std::set<ANTLR3_UINT32> set;
+
+  RuleAlternatives()
+  {
+    optimized = true;
+  }
+};
 
 //--------------------------------------------------------------------------------------------------
 
@@ -127,6 +140,7 @@ static struct
     special_rules.insert("table_ref_no_db");
 
     special_rules.insert("column_ref");
+    special_rules.insert("column_internal_ref");
     special_rules.insert("column_ref_with_wildcard");
     special_rules.insert("table_wild");
 
@@ -137,18 +151,30 @@ static struct
     special_rules.insert("trigger_ref");
     special_rules.insert("view_ref");
     special_rules.insert("procedure_ref");
-
     special_rules.insert("logfile_group_ref");
     special_rules.insert("tablespace_ref");
     special_rules.insert("engine_ref");
+    special_rules.insert("collation_name");
+    special_rules.insert("charset_name");
 
     special_rules.insert("user_variable");
     special_rules.insert("system_variable");
 
     ignored_rules.clear();
-    ignored_rules.insert("literal");
+    //ignored_rules.insert("literal");
+    ignored_rules.insert("label"); // Includes certain keywords which would show up.
+    ignored_rules.insert("label_identifier"); // ditto
     ignored_rules.insert("text_or_identifier");
     ignored_rules.insert("identifier");
+    ignored_rules.insert("pure_identifier");
+    ignored_rules.insert("string_literal");
+    ignored_rules.insert("qualified_identifier");
+    ignored_rules.insert("dot_identifier");
+    ignored_rules.insert("num_literal");
+    ignored_rules.insert("ulong_number");
+    ignored_rules.insert("real_ulong_number");
+    ignored_rules.insert("ulonglong_number");
+    ignored_rules.insert("real_ulonglong_number");
 
     // We have to use strings for the ignored tokens, instead of their #defines because we would have
     // to include MySQLParser.h, which conflicts with ANTLRv3Parser.h.
@@ -197,9 +223,18 @@ static struct
     ignored_tokens.insert("ESCAPE_OPERATOR");
     ignored_tokens.insert("CONCAT_PIPES_SYMBOL");
     ignored_tokens.insert("AT_TEXT_SUFFIX");
+    ignored_tokens.insert("BACK_TICK_QUOTED_ID");
     ignored_tokens.insert("SINGLE_QUOTED_TEXT");
     ignored_tokens.insert("DOUBLE_QUOTED_TEXT");
     ignored_tokens.insert("NCHAR_TEXT");
+    ignored_tokens.insert("UNDERSCORE_CHARSET");
+    ignored_tokens.insert("IDENTIFIER");
+    ignored_tokens.insert("INT_NUMBER");
+    ignored_tokens.insert("LONG_NUMBER");
+    ignored_tokens.insert("ULONGLONG_NUMBER");
+    ignored_tokens.insert("DECIMAL_NUMBER");
+    ignored_tokens.insert("BIN_NUMBER");
+    ignored_tokens.insert("HEX_NUMBER");
 
     // Load token map first.
     std::string tokenFileName = base::strip_extension(name) + ".tokens";
@@ -518,8 +553,19 @@ private:
           // The reference is the second part of the assignment.
           pANTLR3_BASE_TREE token = (pANTLR3_BASE_TREE)child->getChild(child, 1);
           node.is_terminal = true;
-          pANTLR3_STRING token_text = token->getText(token);
-          node.token_ref = token_map[(char*)token_text->chars];
+
+          // The grammar is at this point not clear, about what we see here actually.
+          // Could be a rule ref or a token ref. The problem is both not stored as RULE_REF/TOKEN_REF
+          // but as a simple string.
+          std::string token_text = (char*)token->getText(token)->chars;
+          if (token_map.count(token_text) > 0)
+            node.token_ref = token_map[token_text];
+          else
+          {
+            // Assume it's a rule if we couldn't find it in the token list.
+            node.is_terminal = false;
+            node.rule_ref = token_text;
+          }
           break;
         }
 
@@ -527,7 +573,7 @@ private:
           // A validating semantic predicate - ignore.
           // Might be necessary to handle one day, when we use such a predicate to
           // control parts with dynamic conditions.
-          break;
+          continue;
 
         default:
         {
@@ -553,16 +599,58 @@ private:
 
     RuleAlternatives alternatives;
 
-    // One less child in the loop as the list is always ended by a EOB node.
-    for (ANTLR3_UINT32 index = 0; index < block->getChildCount(block) - 1; index++)
+    // Check if we can create an optimized alternatives variant which simply uses a set, so we can
+    // test a match with a single operation.
+    // To make this work the block must consist solely of single terminal token alternatives without
+    // any predicate.
+    for (ANTLR3_UINT32 index = 0; index < block->getChildCount(block) - 1; ++index)
     {
       pANTLR3_BASE_TREE alt = (pANTLR3_BASE_TREE)block->getChild(block, index);
-      if (alt->getType(alt) == ALT_V3TOK) // There can be REWRITE nodes (which we don't need).
+
+      // 2 nodes at most: the single terminal + EOA. Gated semantic predicates are child nodes of that
+      // alt node too, so they automatically get checked here too.
+      if (alt->getType(alt) == ALT_V3TOK && alt->getChildCount(alt) > 2)
       {
-        std::stringstream alt_name;
-        alt_name << name << "_alt" << index;
-        GrammarSequence sequence = traverse_alternative(alt, alt_name.str());
-        alternatives.push_back(sequence);
+        alternatives.optimized = false;
+        break;
+      }
+
+      // Check also the type of the first node. We only accept terminals (no rule ref or closures).
+      pANTLR3_BASE_TREE child = (pANTLR3_BASE_TREE)alt->getChild(alt, 0);
+      if (child->getType(child) != TOKEN_REF)
+      {
+        alternatives.optimized = false;
+        break;
+      }
+    }
+
+    if (alternatives.optimized)
+    {
+      for (ANTLR3_UINT32 index = 0; index < block->getChildCount(block) - 1; ++index)
+      {
+        pANTLR3_BASE_TREE alt = (pANTLR3_BASE_TREE)block->getChild(block, index);
+        if (alt->getType(alt) == ALT_V3TOK)
+        {
+          pANTLR3_BASE_TREE child = (pANTLR3_BASE_TREE)alt->getChild(alt, 0);
+          pANTLR3_STRING token_text = child->getText(child);
+          alternatives.set.insert(token_map[(char*)token_text->chars]);
+        }
+      }
+
+    }
+    else
+    {
+      // One less child in the loop as the list is always ended by a EOB node.
+      for (ANTLR3_UINT32 index = 0; index < block->getChildCount(block) - 1; index++)
+      {
+        pANTLR3_BASE_TREE alt = (pANTLR3_BASE_TREE)block->getChild(block, index);
+        if (alt->getType(alt) == ALT_V3TOK) // There can be REWRITE nodes (which we don't need).
+        {
+          std::stringstream alt_name;
+          alt_name << name << "_alt" << index;
+          GrammarSequence sequence = traverse_alternative(alt, alt_name.str());
+          alternatives.sequence.push_back(sequence);
+        }
       }
     }
     rules[name] = alternatives;
@@ -614,7 +702,7 @@ struct AutoCompletionContext
   std::deque<std::string> walk_stack; // The rules as they are being matched or collected from.
                                       // It's a deque instead of a stack as we need to iterate over it.
 
-  enum RunState { RunStateMatching, RunStateCollectionPending, RunStateCollectionDone } run_state;
+  enum RunState { RunStateMatching, RunStateCollectionPending } run_state;
 
   boost::shared_ptr<MySQLScanner> scanner;
   std::set<std::string> completion_candidates;
@@ -622,7 +710,14 @@ struct AutoCompletionContext
   size_t caret_line;
   size_t caret_offset;
 
-  std::vector<TableReference> references; // As in FROM, UPDATE etc.
+  // A hierarchical view of all table references in the code, updated constantly during the match process.
+  // Organized as stack to be able to easily remove sets of references when changing nesting level.
+  std::deque<std::vector<TableReference>> referencesStack;
+
+  // A flat list of possible references. Kinda snapshot of the references stack at the point when collection
+  // begins (the stack is cleaned up while bubbling up, after the collection process).
+  // Additionally, it gets also all references after the caret.
+  std::vector<TableReference> references;
 
   //------------------------------------------------------------------------------------------------
 
@@ -643,15 +738,15 @@ struct AutoCompletionContext
     sql_mode = scanner->get_sql_mode_flags();
 
     run_state = RunStateMatching;
-    completion_candidates.clear();
 
     if (scanner->token_channel() != 0)
       scanner->next(true);
 
+    referencesStack.push_back(std::vector<TableReference>()); // For the root level of table references.
     bool matched = match_rule("query");
 
     // Post processing some entries.
-    if (completion_candidates.find("NOT2_SYMBOL") != completion_candidates.end())
+    if (completion_candidates.count("NOT2_SYMBOL") > 0)
     {
       // NOT2 is a NOT with special meaning in the operator preceedence chain.
       // For code completion it's the same as NOT.
@@ -659,8 +754,93 @@ struct AutoCompletionContext
       completion_candidates.insert("NOT_SYMBOL");
     }
 
-    if (completion_candidates.find("column_ref") != completion_candidates.end())
-      collectTableReferences();
+    // Add synonyms.
+    if (completion_candidates.count("CHAR_SYMBOL") > 0)
+      completion_candidates.insert("CHARACTER_SYMBOL");
+    if (completion_candidates.count("NOW_SYMBOL") > 0)
+    {
+      completion_candidates.insert("CURRENT_TIMESTAMP_SYMBOL");
+      completion_candidates.insert("LOCALTIME_SYMBOL");
+      completion_candidates.insert("LOCALTIMESTAMP_SYMBOL");
+    }
+    if (completion_candidates.count("DAY_SYMBOL") > 0)
+      completion_candidates.insert("DAYOFMONTH_SYMBOL");
+    if (completion_candidates.count("DECIMAL_SYMBOL") > 0)
+      completion_candidates.insert("DEC_SYMBOL");
+    if (completion_candidates.count("DISTINCT_SYMBOL") > 0)
+      completion_candidates.insert("DISTINCTROW_SYMBOL");
+    if (completion_candidates.count("COLUMNS_SYMBOL") > 0)
+      completion_candidates.insert("FIELDS_SYMBOL");
+    if (completion_candidates.count("FLOAT_SYMBOL") > 0)
+      completion_candidates.insert("FLOAT4_SYMBOL");
+    if (completion_candidates.count("DOUBLE_SYMBOL") > 0)
+      completion_candidates.insert("FLOAT8_SYMBOL");
+    if (completion_candidates.count("INT_SYMBOL") > 0)
+    {
+      completion_candidates.insert("INTEGER_SYMBOL");
+      completion_candidates.insert("INT4_SYMBOL");
+    }
+    if (completion_candidates.count("RELAY_THREAD_SYMBOL") > 0)
+      completion_candidates.insert("IO_THREAD_SYMBOL");
+    if (completion_candidates.count("SUBSTRING_SYMBOL") > 0)
+      completion_candidates.insert("MID_SYMBOL");
+    if (completion_candidates.count("MEDIUMINT_SYMBOL") > 0)
+      completion_candidates.insert("MIDDLEINT_SYMBOL");
+    if (completion_candidates.count("NDBCLUSTER_SYMBOL") > 0)
+      completion_candidates.insert("NDB_SYMBOL");
+    if (completion_candidates.count("REGEXP_SYMBOL") > 0)
+      completion_candidates.insert("RLIKE_SYMBOL");
+    if (completion_candidates.count("DATABASE_SYMBOL") > 0)
+      completion_candidates.insert("SCHEMA_SYMBOL");
+    if (completion_candidates.count("DATABASES_SYMBOL") > 0)
+      completion_candidates.insert("SCHEMAS_SYMBOL");
+    if (completion_candidates.count("USER_SYMBOL") > 0)
+      completion_candidates.insert("SESSION_USER_SYMBOL");
+    if (completion_candidates.count("STD_SYMBOL") > 0)
+    {
+      completion_candidates.insert("STDDEV_SYMBOL");
+      completion_candidates.insert("STDDEV_POP_SYMBOL");
+    }
+    if (completion_candidates.count("SUBSTRING_SYMBOL") > 0)
+      completion_candidates.insert("SUBSTR_SYMBOL");
+    if (completion_candidates.count("VARCHAR_SYMBOL") > 0)
+      completion_candidates.insert("VARCHARACTER_SYMBOL");
+    if (completion_candidates.count("VARIANCE_SYMBOL") > 0)
+      completion_candidates.insert("VAR_POP_SYMBOL");
+
+    if (completion_candidates.count("TINYINT_SYMBOL") > 0)
+      completion_candidates.insert("INT1_SYMBOL");
+    if (completion_candidates.count("SMALLINT_SYMBOL") > 0)
+      completion_candidates.insert("INT2_SYMBOL");
+    if (completion_candidates.count("MEDIUMINT_SYMBOL") > 0)
+      completion_candidates.insert("INT3_SYMBOL");
+    if (completion_candidates.count("BIGINT_SYMBOL") > 0)
+      completion_candidates.insert("INT8_SYMBOL");
+    if (completion_candidates.count("FRAC_SECOND_SYMBOL") > 0)
+      completion_candidates.insert("SQL_TSI_FRAC_SECOND_SYMBOL");
+    if (completion_candidates.count("SECOND_SYMBOL") > 0)
+      completion_candidates.insert("SQL_TSI_SECOND_SYMBOL");
+    if (completion_candidates.count("MINUTE_SYMBOL") > 0)
+      completion_candidates.insert("SQL_TSI_MINUTE_SYMBOL");
+    if (completion_candidates.count("HOUR_SYMBOL") > 0)
+      completion_candidates.insert("SQL_TSI_HOUR_SYMBOL");
+    if (completion_candidates.count("DAY_SYMBOL") > 0)
+      completion_candidates.insert("SQL_TSI_DAY_SYMBOL");
+    if (completion_candidates.count("WEEK_SYMBOL") > 0)
+      completion_candidates.insert("SQL_TSI_WEEK_SYMBOL");
+    if (completion_candidates.count("MONTH_SYMBOL") > 0)
+      completion_candidates.insert("SQL_TSI_MONTH_SYMBOL");
+    if (completion_candidates.count("QUARTER_SYMBOL") > 0)
+      completion_candidates.insert("SQL_TSI_QUARTER_SYMBOL");
+    if (completion_candidates.count("YEAR_SYMBOL") > 0)
+      completion_candidates.insert("SQL_TSI_YEAR_SYMBOL");
+
+    // If a column reference is required then we have to continue scanning the query for table references.
+    if (completion_candidates.count("column_ref") > 0)
+    {
+      collectRemainingTableReferences();
+      takeReferencesSnapshot(); // Move references from stack to the ref map.
+    }
 
     return matched;
   }
@@ -719,7 +899,7 @@ private:
         // If the current grammar node can be matched multiple times try as often as you can.
         // This is the greedy approach and default in ANTLR. At the moment we don't support non-greedy matches
         // as we don't use them in MySQL parser rules.
-        if (scanner->token_type() != ANTLR3_TOKEN_EOF && node.multiple)
+        if (!scanner->is(ANTLR3_TOKEN_EOF) && node.multiple)
         {
           do
           {
@@ -732,7 +912,7 @@ private:
               matched = matchRuleAndCollectTableRefs(node.rule_ref);
           } while (matched);
 
-          if (scanner->token_type() == ANTLR3_TOKEN_EOF)
+          if (scanner->is(ANTLR3_TOKEN_EOF))
             break;
         }
       }
@@ -760,109 +940,107 @@ private:
    */
   bool matchRuleAndCollectTableRefs(const std::string &rule)
   {
-    walk_stack.push_back(rule);
-
     size_t marker = scanner->position();
     RuleAlternatives alts = rules_holder.rules[rule];
-    for (std::vector<GrammarSequence>::const_iterator i = alts.begin(); i != alts.end(); ++i)
+
+    // An optimized alt set can never match more than a single token.
+    if (!alts.optimized)
     {
-      // First run predicate checks if this alt can be considered at all.
-      if ((i->min_version > server_version) || (server_version > i->max_version))
-        continue;
-
-      if ((i->active_sql_modes > -1) && (i->active_sql_modes & sql_mode) != i->active_sql_modes)
-        continue;
-
-      if ((i->inactive_sql_modes > -1) && (i->inactive_sql_modes & sql_mode) != 0)
-        continue;
-
-      if (matchAltAndCollectTableRefs(*i))
+      for (std::vector<GrammarSequence>::const_iterator i = alts.sequence.begin(); i != alts.sequence.end(); ++i)
       {
-        walk_stack.pop_back();
+        // First run predicate checks if this alt can be considered at all.
+        if ((i->min_version > server_version) || (server_version > i->max_version))
+          continue;
 
-        // If that was the table_alias rule then we can look back for which table (or subquery)
-        // it was set and collect the values.
-        if (rule == "table_alias")
+        if ((i->active_sql_modes > -1) && (i->active_sql_modes & sql_mode) != i->active_sql_modes)
+          continue;
+
+        if ((i->inactive_sql_modes > -1) && (i->inactive_sql_modes & sql_mode) != 0)
+          continue;
+
+        if (matchAltAndCollectTableRefs(*i))
         {
-          // The current scanner position is after the alias, so we can seek back straight to the
-          // needed values. Need to hard code grammar knowledge here, for this to work however.
-          marker = scanner->position();
-
-          TableReference reference;
-          scanner->previous(true);
-          reference.alias = base::unquote(scanner->token_text());
-          scanner->previous(true);
-          if (scanner->token_type() == AS_SYMBOL || scanner->token_type() == EQUAL_OPERATOR)
-            scanner->previous(true); // Skip AS and = operators if they exist.
-
-          if (scanner->token_type() == CLOSE_PAR_SYMBOL)
+          if (rule == "table_ref")
           {
-            // There can be a partition list between table reference and alias, which we have
-            // to skip too. Since there can only be an identifier list and we have valid syntax
-            // to even arrive here, we can simply scan back to the open par and be done.
-            do
+            TableReference reference;
+            size_t position = scanner->position();
+
+            // At this point we are at the end of the table_ref token, so we need to scan back for the table
+            // and forward for the alias.
+            // Keep in mind we must have a valid table identifier here, as we just matched it in the above matchAltAndCollectTableRefs call.
+            scanner->previous();
+            reference.table = base::unquote(scanner->token_text());
+            scanner->previous();
+            if (scanner->is(DOT_SYMBOL))
             {
-              scanner->previous(true);
-            } while (scanner->token_type() != OPEN_PAR_SYMBOL);
-
-            // Skip open par and PARTITION.
-            scanner->previous(true);
-            scanner->previous(true);
-          }
-
-          // Finally arrived at the table reference.
-          reference.table = base::unquote(scanner->token_text());
-          scanner->previous(true);
-          if (scanner->token_type() == DOT_SYMBOL)
-          {
-            // Might have a schema part (or just a leading dot).
-            scanner->previous(true);
-            if (scanner->token_type() == IDENTIFIER)
+              scanner->previous();
               reference.schema = base::unquote(scanner->token_text());
+            }
+
+            // Now scan to the right (which might be errornous) for the alias.
+            scanner->seek(position);
+            if (scanner->skipIf(PARTITION_SYMBOL) && scanner->is(OPEN_PAR_SYMBOL))
+            {
+              // All partition info is between a pair of parentheses.
+              do
+              {
+                scanner->next();
+              } while (!scanner->is(CLOSE_PAR_SYMBOL) && !scanner->is(ANTLR3_TOKEN_EOF));
+              scanner->skipIf(CLOSE_PAR_SYMBOL);
+            }
+
+            if (scanner->is(AS_SYMBOL) || scanner->is(EQUAL_OPERATOR))
+              scanner->next();
+            if (scanner->is_identifier())
+              reference.alias = base::unquote(scanner->token_text());
+
+            referencesStack.front().push_back(reference);
+
+            scanner->seek(position);
           }
 
-
-          references.push_back(reference);
-          scanner->seek(marker);
+          return true;
         }
-        return true;
+        
+        scanner->seek(marker);
       }
-
-      scanner->seek(marker);
     }
 
-    walk_stack.pop_back();
     return false;
   }
 
   //------------------------------------------------------------------------------------------------
 
   /**
-   * Called if one of the candidates is a column_ref before a FROM keyword (i.e. a select item).
+   * Called if one of the candidates is a column_ref.
    * The function attempts to get table references together with aliases where possible.
-   * Since it is not required that the sql code must be valid after the caret we scan only as far
-   * as we can match the input to the grammar.
+   * Because inner queries can use table references from outer queries we can simply scan for any FROM clause
+   * provided we don't go deeper. This way the query doesn't need to be error free, just the FROM clauses must.
    */
-  void collectTableReferences()
+  void collectRemainingTableReferences()
   {
-    // First advance to the FROM keyword on the same level as we are (no subselects etc.).
+    // First advance to the FROM keyword on the same level as the caret is (no subselects etc.).
+    // With certain syntax errors this can lead to a wrong FROM clause (e.g. if parentheses don't match).
+    // But that is acceptable.
+
+    // Reset the scanner to the caret position and continue from there. We have already collected all
+    // table references before that position during normal matching.
+    scanner->reset();
+    scanner->seek(caret_line, caret_offset);
+
     size_t level = 0;
-    bool done = false;
-    while (!done)
+    while (true)
     {
       switch (scanner->token_type())
       {
         case FROM_SYMBOL:
-          if (level > 0)
-          {
-            scanner->next(true);
-            break;
-          }
-          // Fall through.
+          scanner->next(true);
+          if (level == 0 && !scanner->is(DUAL_SYMBOL))
+            matchRuleAndCollectTableRefs("join_table_list");
+          break;
 
         case ANTLR3_TOKEN_EOF:
-          done = true;
-          break;
+          return;
 
         case OPEN_PAR_SYMBOL:
           ++level;
@@ -870,10 +1048,8 @@ private:
           break;
 
         case CLOSE_PAR_SYMBOL:
-          // We can act relaxed here, even if the number of opening and closing
-          // parentheses doesn't match.
-          // Additionally, it can happen we are called with any number of opening pars before
-          // the caret position.
+          // No problem having more closing pars as we have opening ones. Could be there is a syntax error
+          // or we just started and the caret position is between some parentheses.
           if (level > 0)
             --level;
           scanner->next(true);
@@ -883,27 +1059,30 @@ private:
           scanner->next(true);
       }
     }
-
-    if (scanner->token_type() != FROM_SYMBOL)
-      return; // Something is wrong (but not critical), e.g. end of input .
-
-    scanner->next(true);
-
-    if (scanner->token_type() == DUAL_SYMBOL)
-      return; // Nothing to do.
-
-    walk_stack.clear();
-    references.clear();
-    matchRuleAndCollectTableRefs("join_table_list");
   }
 
   //------------------------------------------------------------------------------------------------
-  
+
+  /**
+   * Copies the current references stack into the references map.
+   */
+  void takeReferencesSnapshot()
+  {
+    // Don't clear the references map here. Can happen we have to take multiple snapshots.
+    // We automatically remove duplicates by using a map.
+    for (size_t level = 0; level < referencesStack.size(); ++level)
+    {
+      for (size_t entry = 0; entry < referencesStack[level].size(); ++entry)
+        references.push_back(referencesStack[level][entry]);
+    }
+
+  }
+
+  //------------------------------------------------------------------------------------------------
+
   bool is_token_end_after_caret()
   {
-    // The first time we found that the caret is before the current token we store the
-    // current position of the input stream to return to it after we collected all candidates.
-    if (scanner->token_type() == ANTLR3_TOKEN_EOF)
+    if (scanner->is(ANTLR3_TOKEN_EOF))
       return true;
 
     assert(scanner->token_line() > 0);
@@ -941,7 +1120,10 @@ private:
     {
       GrammarNode node = sequence.nodes[i];
       if (node.is_terminal && node.token_ref == ANTLR3_TOKEN_EOF)
+      {
+        run_state = RunStateMatching;
         break;
+      }
 
       if (node.is_terminal)
       {
@@ -955,7 +1137,6 @@ private:
         {
           // Also collect following tokens into this candidate, until we find the end of the sequence
           // or a token that is either not required or can appear multiple times.
-          // Don't do this however, if we have an ignored token here.
           std::string token_refs = token_ref;
           if (!ignored && !node.multiple)
           {
@@ -966,6 +1147,7 @@ private:
                 break;
               token_refs += std::string(" ") + token_names[node.token_ref];
             }
+
             if (token_refs.size() > token_ref.size())
             {
               if (!exists)
@@ -973,23 +1155,24 @@ private:
               completion_candidates.insert(token_refs);
             }
           }
-          run_state = RunStateCollectionDone;
+
+          // If we found a required token then we are done with this alternative.
+          // That doesn't mean that we cannot start another collection run somewhere else. Just not in this alt anymore
+          // (and those rules that include this alt).
+          run_state = RunStateMatching;
           return;
         }
       }
       else
       {
         collect_from_rule(node.rule_ref);
-        if (!node.is_required)
-          run_state = RunStateCollectionPending;
-        else
-          if (run_state != RunStateCollectionPending)
-            run_state = RunStateCollectionDone;
-        if (node.is_required && run_state == RunStateCollectionDone)
+        if (node.is_required && run_state != RunStateCollectionPending)
           return;
       }
     }
-    run_state = RunStateCollectionPending; // Parent needs to continue.
+
+    // If we reach this point then we have found only optional parts, so the parent must continue collecting.
+    run_state = RunStateCollectionPending;
   }
 
   //----------------------------------------------------------------------------------------------------------------------
@@ -1003,44 +1186,52 @@ private:
     if (rules_holder.special_rules.find(rule) != rules_holder.special_rules.end())
     {
       completion_candidates.insert(rule);
-      run_state = RunStateCollectionDone;
+      run_state = RunStateMatching;
       return;
     }
 
-    // If this is an ignored rule see if we are in a path that involves a special rule
-    // and use this if found.
-    if (rules_holder.ignored_rules.find(rule) != rules_holder.ignored_rules.end())
+    // Don't collect anything from an ignored rule.
+    if (rules_holder.ignored_rules.count(rule) > 0)
     {
-      for (std::deque<std::string>::const_reverse_iterator i = walk_stack.rbegin(); i != walk_stack.rend(); ++i)
-      {
-        if (rules_holder.special_rules.find(*i) != rules_holder.special_rules.end())
-        {
-          completion_candidates.insert(*i);
-          run_state = RunStateCollectionDone;
-          break;
-        }
-      }
+      run_state = RunStateMatching;
       return;
     }
 
     // Any other rule goes here.
-    RunState combined_state = RunStateCollectionDone;
+    RunState combined_state = RunStateMatching;
     RuleAlternatives alts = rules_holder.rules[rule];
-    for (std::vector<GrammarSequence>::const_iterator i = alts.begin(); i != alts.end(); ++i)
+    if (alts.optimized)
     {
-      // First run a predicate check if this alt can be considered at all.
-      if ((i->min_version > server_version) || (server_version > i->max_version))
-        continue;
+      // Insert only tokens we are interested in.
+      for (std::set<ANTLR3_UINT32>::const_iterator i = alts.set.begin(); i != alts.set.end(); ++i)
+      {
+        std::string token_ref = token_names[*i];
+        bool ignored = rules_holder.ignored_tokens.find(token_ref) != rules_holder.ignored_tokens.end();
+        if (!ignored)
+          completion_candidates.insert(token_ref);
+      }
 
-      if ((i->active_sql_modes > -1) && (i->active_sql_modes & sql_mode) != i->active_sql_modes)
-        continue;
+      run_state = RunStateMatching;
+      return;
+    }
+    else
+    {
+      for (std::vector<GrammarSequence>::const_iterator i = alts.sequence.begin(); i != alts.sequence.end(); ++i)
+      {
+        // First run a predicate check if this alt can be considered at all.
+        if ((i->min_version > server_version) || (server_version > i->max_version))
+          continue;
 
-      if ((i->inactive_sql_modes > -1) && (i->inactive_sql_modes & sql_mode) != 0)
-        continue;
+        if ((i->active_sql_modes > -1) && (i->active_sql_modes & sql_mode) != i->active_sql_modes)
+          continue;
 
-      collect_from_alternative(*i, 0);
-      if (run_state == RunStateCollectionPending)
-        combined_state = RunStateCollectionPending;
+        if ((i->inactive_sql_modes > -1) && (i->inactive_sql_modes & sql_mode) != 0)
+          continue;
+
+        collect_from_alternative(*i, 0);
+        if (run_state == RunStateCollectionPending)
+          combined_state = RunStateCollectionPending;
+      }
     }
     run_state = combined_state;
   }
@@ -1057,6 +1248,22 @@ private:
       return node.token_ref == token_type;
     else
       return match_rule(node.rule_ref);
+  }
+
+  //----------------------------------------------------------------------------------------------------------------------
+
+  /**
+   * Returns true if the given index is at the end of the sequence or at a point where only optional parts follow.
+   */
+  bool hasMatchedAllMandatoryTokens(const GrammarSequence &sequence, size_t index)
+  {
+    if (index + 1 == sequence.nodes.size())
+      return true;
+    for (size_t i = index + 1; i < sequence.nodes.size(); ++i)
+      if (sequence.nodes[i].is_required)
+        return false;
+
+    return true;
   }
 
   //----------------------------------------------------------------------------------------------------------------------
@@ -1086,18 +1293,16 @@ private:
         {
           if (run_state == RunStateCollectionPending)
           {
+            // We start collecting at the current node if it allows multiple matches (to include candidates from the
+            // current rule). However this can prematurely stop the collection, since it might contain mandatory nodes.
+            // But since we matched it already at least once we also have to include tokens directly following it.
+            // Hence two calls for collect_from_alternative. The second call might include again already added candidates
+            // but duplicates are sorted out automatically.
+            if (node.multiple)
+              collect_from_alternative(sequence, i);
             collect_from_alternative(sequence, i + 1);
-
-            /* This part looks suspicious as it inserts special rules even if they don't match.
-
-            // If we just started collecting it might be we are in a special rule.
-            // Check the end of the stack and if so push the rule name to the candidates.
-            // Duplicates will be handled automatically.
-            if (rules_holder.special_rules.find(walk_stack.back()) != rules_holder.special_rules.end())
-              completion_candidates.insert(walk_stack.back());
-             */
           }
-          return false;
+          return matched && hasMatchedAllMandatoryTokens(sequence, i);  // Return true only if we fully matched the sequence.
         }
 
         if (matched && node.multiple)
@@ -1113,45 +1318,106 @@ private:
 
       } while (true);
 
+      // Important note:
+      // We still have an unsolved problem here, which has to do with ignored rules that are part of special rules
+      // (e.g. a qualified identifier in an object reference).
+      // Normally we walk up the match stack to see if we can include the special rule in such a case. However, if that
+      // ignored rule ends with an optional part we cannot say currently if the current caret position is to be considered
+      // still as part of that ignored rule or must be seen as part of the following one:
+      // "qualifier. |" vs "identifier |" (with | being the caret).
+      // In the first case we have to include the special rule, while in the second case we must not.
+      //
+      // However this is a very special case and we solve this currently by testing for the DOT symbol, but this
+      // solution is not universal.
       if (matched)
       {
         // Load next token if the grammar node is a terminal node.
         // Otherwise the match() call will have advanced the input position already.
         if (node.is_terminal)
         {
+          ANTLR3_UINT32 lastToken = scanner->token_type();
           scanner->next(true);
           if (is_token_end_after_caret())
           {
-            collect_from_alternative(sequence, i + 1);
-            return false;
+            takeReferencesSnapshot();
+
+            // XXX: hack, need a better way to find out when we have to include the special rule from the stack.
+            //      Using a fixed token look-back might not be valid for all languages.
+            if (lastToken == DOT_SYMBOL)
+            {
+              for (std::deque<std::string>::const_iterator iterator = walk_stack.begin(); iterator != walk_stack.end(); ++iterator)
+              {
+                if (rules_holder.special_rules.find(*iterator) != rules_holder.special_rules.end())
+                {
+                  completion_candidates.insert(*iterator);
+                  break;
+                }
+              }
+            }
+
+            collect_from_alternative(sequence, node.multiple ? i : i + 1);
+
+            return hasMatchedAllMandatoryTokens(sequence, i);
+          }
+        }
+        else
+        {
+          // Similar here for non-terminals.
+          if (is_token_end_after_caret())
+          {
+            takeReferencesSnapshot();
+            collect_from_alternative(sequence, node.multiple ? i : i + 1);
+
+            return hasMatchedAllMandatoryTokens(sequence, i);
           }
         }
 
         // If the current grammar node can be matched multiple times try as often as you can.
         // This is the greedy approach and default in ANTLR. At the moment we don't support non-greedy matches
         // as we don't use them in MySQL parser rules.
-        if (scanner->token_type() != ANTLR3_TOKEN_EOF && node.multiple)
+        if (!scanner->is(ANTLR3_TOKEN_EOF) && node.multiple)
         {
-          while (match(node, scanner->token_type()))
+          while (true)
           {
-            if (run_state != RunStateMatching)
-            {
-              if (run_state == RunStateCollectionPending)
-                collect_from_alternative(sequence, i + 1);
-              return false;
-            }
+            matched = match(node, scanner->token_type());
 
-            if (node.is_terminal)
+            // If we get a pending collection state here then it means the match() call caused a candidate collection
+            // to start and reached the end of the node which contains at least one path that allows to match
+            // more tokens after itself.
+            // So, we have to continue collecting candidates after the current node.
+            if (run_state == RunStateCollectionPending)
             {
-              scanner->next(true);
-              if (is_token_end_after_caret())
-              {
-                collect_from_alternative(sequence, i + 1);
-                return false;
-              }
+              collect_from_alternative(sequence, i); // No check needed for multiple occurences (always the case here).
+              collect_from_alternative(sequence, i + 1); // Same double collection as above.
+
+              // If this collection run reached an end it means we are done here.
+              // Otherwise we might still need more candidates to collect because this node or its subnodes are all
+              // optional too.
+              if (run_state != RunStateCollectionPending)
+                return hasMatchedAllMandatoryTokens(sequence, i);
+
+              if (!matched)
+                break;
             }
-            if (scanner->token_type() == ANTLR3_TOKEN_EOF)
-              break;
+            else
+            {
+              if (!matched)
+                break;
+
+              if (node.is_terminal)
+              {
+                scanner->next(true);
+                if (is_token_end_after_caret())
+                {
+                  takeReferencesSnapshot();
+                  collect_from_alternative(sequence, i + 1);
+                  return hasMatchedAllMandatoryTokens(sequence, i);
+                }
+              }
+
+              if (scanner->is(ANTLR3_TOKEN_EOF))
+                break;
+            }
           }
         }
       }
@@ -1174,6 +1440,16 @@ private:
 
   bool match_rule(const std::string &rule)
   {
+    if (rule == "subquery")
+      referencesStack.push_front(std::vector<TableReference>()); // Starting a new level.
+    if (rule == "join_table_list" || rule == "table_ref")
+    {
+      // Collect table references as we come along them.
+      size_t lastPosition = scanner->position();
+      matchRuleAndCollectTableRefs(rule);
+      scanner->seek(lastPosition);
+    }
+
     if (run_state != RunStateMatching) // Sanity check - should never happen at this point.
       return false;
 
@@ -1183,52 +1459,74 @@ private:
       return false;
     }
 
-    walk_stack.push_back(rule);
-
-    // The first alternative that matches wins.
-    RuleAlternatives alts = rules_holder.rules[rule];
-    bool can_seek = false;
+    walk_stack.push_front(rule);
 
     size_t highest_token_index = 0;
-
     RunState result_state = run_state;
-    for (size_t i = 0; i < alts.size(); ++i)
+    bool matchedAtLeastOnce = false;
+
+    // The longest match wins.
+    RuleAlternatives alts = rules_holder.rules[rule];
+    if (alts.optimized)
     {
-      // First run a predicate check if this alt can be considered at all.
-      GrammarSequence alt = alts[i];
-      if ((alt.min_version > server_version) || (server_version > alt.max_version))
-        continue;
-
-      if ((alt.active_sql_modes > -1) && (alt.active_sql_modes & sql_mode) != alt.active_sql_modes)
-        continue;
-
-      if ((alt.inactive_sql_modes > -1) && (alt.inactive_sql_modes & sql_mode) != 0)
-        continue;
-
-      // When attempting to match one alt out of a list pick the one with the longest match.
-      // Reset the run state each time to have the base matching done first (in case a previous alt did collect).
-      size_t marker = scanner->position();
-      run_state = RunStateMatching;
-      if (match_alternative(alt) || run_state != RunStateMatching)
+      // In the optimized case we have neither predicates nor sequences.
+      // We match a single terminal only, out of a set of alternative terminals.
+      if (alts.set.count(scanner->token_type()) > 0)
       {
-        can_seek = true;
-        if (scanner->position() > highest_token_index)
+        matchedAtLeastOnce = true;
+        scanner->next(true);
+        if (is_token_end_after_caret())
+          result_state = RunStateCollectionPending;
+      }
+    }
+    else
+    {
+      bool can_seek = false;
+
+      for (size_t i = 0; i < alts.sequence.size(); ++i)
+      {
+        // First run a predicate check if this alt can be considered at all.
+        GrammarSequence alt = alts.sequence[i];
+        if ((alt.min_version > server_version) || (server_version > alt.max_version))
+          continue;
+
+        if ((alt.active_sql_modes > -1) && (alt.active_sql_modes & sql_mode) != alt.active_sql_modes)
+          continue;
+
+        if ((alt.inactive_sql_modes > -1) && (alt.inactive_sql_modes & sql_mode) != 0)
+          continue;
+
+        // When attempting to match one alt out of a list pick the one with the longest match.
+        // Reset the run state each time to have the base matching done first (in case a previous alt did collect).
+        size_t marker = scanner->position();
+        run_state = RunStateMatching;
+        bool matched = match_alternative(alt);
+        if (matched)
+          matchedAtLeastOnce = true;
+        if (matched || run_state != RunStateMatching)
         {
-          highest_token_index = scanner->position();
-          result_state = run_state;
+          can_seek = true;
+          if (scanner->position() > highest_token_index)
+          {
+            highest_token_index = scanner->position();
+            result_state = run_state;
+          }
         }
+        
+        scanner->seek(marker);
       }
 
-      scanner->seek(marker);
+      if (can_seek)
+        scanner->seek(highest_token_index); // Move to the end of the longest match.
     }
 
-    if (can_seek)
-      scanner->seek(highest_token_index); // Move to the end of the longest match.
-
     run_state = result_state;
+    walk_stack.pop_front();
 
-    walk_stack.pop_back();
-    return can_seek && result_state == RunStateMatching;
+    if (rule == "subquery")
+      referencesStack.pop_front(); // Subquery ended, no need for the nested references anymore.
+
+    return matchedAtLeastOnce;
   }
 
   //------------------------------------------------------------------------------------------------
@@ -1438,7 +1736,7 @@ ObjectFlags determine_qualifier(boost::shared_ptr<MySQLScanner> scanner, std::st
   if (scanner->token_channel() != 0)
     scanner->next(true); // First skip to the next non-hidden token.
 
-  if (scanner->token_type() != DOT_SYMBOL && !scanner->is_identifier())
+  if (!scanner->is(DOT_SYMBOL) && !scanner->is_identifier())
   {
     // We are at the end of an incomplete identifier spec. Jump back, so that the other tests succeed.
     scanner->previous(true);
@@ -1449,7 +1747,7 @@ ObjectFlags determine_qualifier(boost::shared_ptr<MySQLScanner> scanner, std::st
   {
     if (scanner->is_identifier() && scanner->look_around(-1, true) == DOT_SYMBOL)
       scanner->previous(true);
-    if (scanner->token_type() == DOT_SYMBOL && scanner->MySQLRecognitionBase::is_identifier(scanner->look_around(-1, true)))
+    if (scanner->is(DOT_SYMBOL) && scanner->MySQLRecognitionBase::is_identifier(scanner->look_around(-1, true)))
       scanner->previous(true);
   }
 
@@ -1458,12 +1756,12 @@ ObjectFlags determine_qualifier(boost::shared_ptr<MySQLScanner> scanner, std::st
   std::string temp;
   if (scanner->is_identifier())
   {
-    temp = scanner->token_text();
+    temp = base::unquote(scanner->token_text());
     scanner->next(true);
   }
 
   // Bail out if there is no more id parts or we are already behind the caret position.
-  if (scanner->token_type() != DOT_SYMBOL || position <= scanner->position())
+  if (!scanner->is(DOT_SYMBOL) || position <= scanner->position())
     return ObjectFlags(ShowFirst | ShowSecond);
 
   qualifier = temp;
@@ -1500,7 +1798,7 @@ ObjectFlags determine_schema_table_qualifier(boost::shared_ptr<MySQLScanner> sca
   {
     if (scanner->is_identifier() && scanner->look_around(-1, true) == DOT_SYMBOL)
       scanner->previous(true);
-    if (scanner->token_type() == DOT_SYMBOL && scanner->MySQLRecognitionBase::is_identifier(scanner->look_around(-1, true)))
+    if (scanner->is(DOT_SYMBOL) && scanner->MySQLRecognitionBase::is_identifier(scanner->look_around(-1, true)))
     {
       scanner->previous(true);
 
@@ -1521,12 +1819,12 @@ ObjectFlags determine_schema_table_qualifier(boost::shared_ptr<MySQLScanner> sca
   std::string temp;
   if (scanner->is_identifier())
   {
-    temp = scanner->token_text();
+    temp = base::unquote(scanner->token_text());
     scanner->next(true);
   }
 
   // Bail out if there is no more id parts or we are already behind the caret position.
-  if (scanner->token_type() != DOT_SYMBOL || position <= scanner->position())
+  if (!scanner->is(DOT_SYMBOL) || position <= scanner->position())
     return ObjectFlags(ShowSchemas | ShowTables | ShowColumns);
 
   scanner->next(true); // Skip dot.
@@ -1534,10 +1832,10 @@ ObjectFlags determine_schema_table_qualifier(boost::shared_ptr<MySQLScanner> sca
   schema = temp;
   if (scanner->is_identifier())
   {
-    temp = scanner->token_text();
+    temp = base::unquote(scanner->token_text());
     scanner->next(true);
 
-    if (scanner->token_type() != DOT_SYMBOL || position <= scanner->position())
+    if (!scanner->is(DOT_SYMBOL) || position <= scanner->position())
       return ObjectFlags(ShowTables | ShowColumns); // Schema only valid for tables. Columns must use default schema.
 
     table = temp;
@@ -1585,6 +1883,16 @@ void insert_views(AutoCompleteCache *cache, CompletionSet &set, const std::strin
   std::vector<std::string> views = cache->get_matching_view_names(schema, typed_part);
   for (std::vector<std::string>::const_iterator view = views.begin(); view != views.end(); ++view)
     set.insert(std::make_pair(AC_VIEW_IMAGE, *view));
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void insertColumns(AutoCompleteCache *cache, CompletionSet &set, const std::string &schema,
+  const std::string &table, const std::string &typedPart)
+{
+  std::vector<std::string> columns = cache->get_matching_column_names(schema, table, typedPart);
+  for (std::vector<std::string>::const_iterator column = columns.begin(); column != columns.end(); ++column)
+    set.insert(std::make_pair(AC_COLUMN_IMAGE, *column));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1669,13 +1977,15 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
   CompletionSet engine_entries;
   CompletionSet logfile_group_entries;
   CompletionSet tablespace_entries;
-  CompletionSet user_var_entries;
   CompletionSet system_var_entries;
   CompletionSet keyword_entries;
 
-  // To be done yet.
+  // Handled but needs meat yet.
+  CompletionSet user_var_entries;
   CompletionSet collation_entries;
   CompletionSet charset_entries;
+
+  // To be done yet.
   CompletionSet user_entries;
   CompletionSet index_entries;
   CompletionSet event_entries;
@@ -1687,6 +1997,12 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
   boost::shared_ptr<MySQLScanner> scanner = parser_context->createScanner(statement);
   context.server_version = scanner->get_server_version();
   context.collect_candiates(scanner);
+
+  MySQLQueryType queryType;
+  {
+    boost::shared_ptr<MySQLQueryIdentifier> queryIdentifier = parser_context->createQueryIdentifier();
+    queryType = queryIdentifier->getQueryType(statement.c_str(), statement.size(), true);
+  }
 
   // No sorting on the entries takes place. We group by type.
   for (std::set<std::string>::const_iterator i = context.completion_candidates.begin(); i != context.completion_candidates.end(); ++i)
@@ -1702,7 +2018,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
       std::string entry;
       for (std::vector<std::string>::const_iterator j = entries.begin(); j != entries.end(); ++j)
       {
-        if (ends_with(*j, "_SYMBOL"))
+        if (base::ends_with(*j, "_SYMBOL"))
         {
           // A single keyword or something in a keyword sequence. Convert the entry to a readable form.
           std::string token = j->substr(0, j->size() - 7);
@@ -1749,11 +2065,19 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
       if (_editor_config != NULL && _auto_completion_cache != NULL)
       {
         std::map<std::string, std::string> keyword_map = _editor_config->get_keywords();
-        if (*i == "udf_call")
+        if (*i == "runtime_function_call")
         {
-          log_debug3("Adding runtime function names to code completion list\n");
+          log_debug3("Adding runtime function names\n");
 
           std::vector<std::string> functions = base::split_by_set(keyword_map["Functions"], " \t\n");
+          for (std::vector<std::string>::const_iterator function = functions.begin(); function != functions.end(); ++function)
+            runtime_function_entries.insert(std::make_pair(AC_FUNCTION_IMAGE, *function + "()"));
+        }
+        else if (*i == "udf_call")
+        {
+          log_debug3("Adding user defined function names from cache\n");
+
+          std::vector<std::string> functions = _auto_completion_cache->get_matching_udf_names(context.typed_part);
           for (std::vector<std::string>::const_iterator function = functions.begin(); function != functions.end(); ++function)
             runtime_function_entries.insert(std::make_pair(AC_FUNCTION_IMAGE, *function + "()"));
         }
@@ -1849,7 +2173,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
             insert_views(_auto_completion_cache, view_entries, qualifier, context.typed_part);
           }
         }
-        else if (*i == "column_ref" || *i == "column_ref_with_wildcard" || *i == "table_wild")
+        else if (*i == "column_ref" || *i == "column_internal_ref" || *i == "column_ref_with_wildcard" || *i == "table_wild")
         {
           log_debug3("Adding column names from cache\n");
 
@@ -1858,54 +2182,75 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
           if ((flags & ShowSchemas) != 0)
             insert_schemas(_auto_completion_cache, schema_entries, context.typed_part);
 
-          if (schema.empty())
-            schema = _current_schema;
+          std::string used_schema = schema.empty() ? _current_schema : schema;
           if ((flags & ShowTables) != 0)
           {
-            insert_tables(_auto_completion_cache, table_entries, schema, context.typed_part);
+            insert_tables(_auto_completion_cache, table_entries, used_schema, context.typed_part);
             if (*i == "column_ref")
             {
               // Insert also views.
-              insert_views(_auto_completion_cache, view_entries, schema, context.typed_part);
+              insert_views(_auto_completion_cache, view_entries, used_schema, context.typed_part);
 
               // Insert also tables from our references list (which is a collection of table names
               // with aliases).
-              for (size_t i = 0; i < context.references.size(); ++i)
+              for (std::vector<TableReference>::const_iterator iterator = context.references.begin();
+                   iterator != context.references.end(); ++iterator)
               {
-                TableReference reference = context.references[i];
-                std::string used_schema = schema;
-                if (reference.schema.empty())
-                  used_schema = _current_schema;
-                if (reference.schema == used_schema)
-                  table_entries.insert(std::make_pair(AC_TABLE_IMAGE, reference.alias));
+                if ((iterator->schema.empty() && schema.empty()) || iterator->schema == used_schema)
+                  table_entries.insert(std::make_pair(AC_TABLE_IMAGE, iterator->alias.empty() ? iterator->table : iterator->alias));
               }
             }
           }
 
           if ((flags & ShowColumns) != 0)
           {
-            // If we only show columns then we can use the given schema.
-            // Otherwise we don't have an explicit schema and use the default one.
-            if (flags != ShowColumns)
-              schema = _current_schema;
-            std::vector<std::string> columns = _auto_completion_cache->get_matching_column_names(schema, table, context.typed_part);
-            for (std::vector<std::string>::const_iterator column = columns.begin(); column != columns.end(); ++column)
-              column_entries.insert(std::make_pair(AC_COLUMN_IMAGE, *column));
+            if (!table.empty())
+            {
+              // If we only show columns then we can use the given schema.
+              // Otherwise we don't have an explicit schema and use the default one.
+              if (flags != ShowColumns)
+                schema = _current_schema;
+              insertColumns(_auto_completion_cache, column_entries, schema, table, context.typed_part);
+            }
 
             if (*i == "column_ref")
             {
               // Insert also columns from matching tables from our references list.
-              for (size_t i = 0; i < context.references.size(); ++i)
+              // If a table is given use only this one. Otherwise list columns for all tables in the reference list.
+              if (!table.empty())
               {
-                TableReference reference = context.references[i];
-                if (!reference.schema.empty())
-                  schema = reference.schema;
-                if (reference.alias == table)
+                for (std::vector<TableReference>::const_iterator iterator = context.references.begin();
+                     iterator != context.references.end(); ++iterator)
                 {
-                  columns = _auto_completion_cache->get_matching_column_names(schema, reference.table, context.typed_part);
-                  for (std::vector<std::string>::const_iterator column = columns.begin(); column != columns.end(); ++column)
-                    column_entries.insert(std::make_pair(AC_COLUMN_IMAGE, *column));
+                  if (iterator->alias == table)
+                  {
+                    if (!iterator->schema.empty())
+                      schema = iterator->schema;
+                    insertColumns(_auto_completion_cache, column_entries, schema, iterator->table, context.typed_part);
+                  }
                 }
+              }
+              else
+              {
+                // No table given. If there is also no reference yet then list all columns from the current schema
+                // to have an easier start.
+                if (context.references.empty())
+                  insertColumns(_auto_completion_cache, column_entries, _current_schema, "", context.typed_part);
+                else
+                {
+                  for (std::vector<TableReference>::const_iterator iterator = context.references.begin();
+                       iterator != context.references.end(); ++ iterator)
+                  {
+                    schema = iterator->schema.empty() ? _current_schema : iterator->schema;
+                    insertColumns(_auto_completion_cache, column_entries, schema, iterator->table, context.typed_part);
+                  }
+                }
+              }
+
+              // Special deal here: triggers. Show columns for the "new" and "old" qualifiers too.
+              if (queryType == QtCreateTrigger && !context.references.empty() && (base::same_string(table, "old") || base::same_string(table, "new")))
+              {
+                insertColumns(_auto_completion_cache, column_entries, schema, context.references[0].table, context.typed_part);
               }
             }
           }
@@ -1979,6 +2324,18 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
           for (std::vector<std::string>::const_iterator variable = variables.begin(); variable != variables.end(); ++variable)
             system_var_entries.insert(std::make_pair(AC_SYSTEM_VAR_IMAGE, *variable));
         }
+        else if (*i == "charset_name")
+        {
+          log_debug3("Adding charsets\n");
+          user_var_entries.insert(std::make_pair(AC_CHARSET_IMAGE, "<character set>"));
+        }
+        else if (*i == "collation_name")
+        {
+          log_debug3("Adding collations\n");
+          user_var_entries.insert(std::make_pair(AC_COLLATION_IMAGE, "<collation>"));
+        }
+        else
+          keyword_entries.insert(std::make_pair(0, *i));
       }
     }
     else
