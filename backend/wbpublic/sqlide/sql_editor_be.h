@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -63,7 +63,7 @@ class MySQLRecognizer;
 #define AC_SCHEMA_IMAGE         2
 #define AC_TABLE_IMAGE          3
 #define AC_ROUTINE_IMAGE        4 // For SQL stored procedures + functions.
-#define AC_FUNCTION_IMAGE       5 // For MySQL library (runtime) functions.
+#define AC_FUNCTION_IMAGE       5 // For MySQL library (runtime) functions and UDFs.
 #define AC_VIEW_IMAGE           6
 #define AC_COLUMN_IMAGE         7
 #define AC_OPERATOR_IMAGE       8
