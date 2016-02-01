@@ -1986,11 +1986,11 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
   CompletionSet tablespace_entries;
   CompletionSet system_var_entries;
   CompletionSet keyword_entries;
+  CompletionSet collation_entries;
+  CompletionSet charset_entries;
 
   // Handled but needs meat yet.
   CompletionSet user_var_entries;
-  CompletionSet collation_entries;
-  CompletionSet charset_entries;
 
   // To be done yet.
   CompletionSet user_entries;
