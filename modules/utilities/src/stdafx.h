@@ -23,4 +23,29 @@
 #define WIN32_LEAN_AND_MEAN 
 #include <windows.h>
 
+#include <string>
+#include <list>
+#include <vector>
+#include <sstream>
+#include <typeinfo>
+#include <string.h>
+#include <string>
+#include <map>
+#include <set>
+#include <stdexcept>
+#include <assert.h>
+#include <algorithm>
+#include <typeinfo>
+#include <stdio.h>
+
+#include <boost/optional.hpp>
+#include <boost/cstdint.hpp>
+#include <boost/shared_ptr.hpp>
+
 #include <glib.h>
+
+#define _USE_MATH_DEFINES
+#include <math.h>
+
+#include "cairo/cairo.h"
+
