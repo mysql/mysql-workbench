@@ -64,7 +64,7 @@ AutoCompleteCache::AutoCompleteCache(const std::string &connection_id,
   log_debug2("Using autocompletion cache file %s\n", (make_path(cache_dir, _connection_id) + ".cache").c_str());
 
 
-  // Top level objects (aka. schemas).
+  // Top level objects.
   // They are retrieved automatically only once to limit traffic to the server.
   // The user can manually trigger a refresh when needed.
   add_pending_refresh(RefreshTask::RefreshSchemas);
@@ -72,6 +72,8 @@ AutoCompleteCache::AutoCompleteCache(const std::string &connection_id,
   // Objects that don't change while a server is running.
   add_pending_refresh(RefreshTask::RefreshVariables);
   add_pending_refresh(RefreshTask::RefreshEngines);
+  add_pending_refresh(RefreshTask::RefreshCharsets);
+  add_pending_refresh(RefreshTask::RefreshCollations);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -214,6 +216,20 @@ std::vector<std::string> AutoCompleteCache::get_matching_tablespaces(const std::
 
 //--------------------------------------------------------------------------------------------------
 
+std::vector<std::string> AutoCompleteCache::get_matching_charsets(const std::string &prefix)
+{
+  return get_matching_objects("charsets", "", "", prefix, RetrieveWithNoQualifier);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::vector<std::string> AutoCompleteCache::get_matching_collations(const std::string &prefix)
+{
+  return get_matching_objects("collations", "", "", prefix, RetrieveWithNoQualifier);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * Core object retrieval function.
  */
@@ -336,6 +352,13 @@ void AutoCompleteCache::refresh_triggers(const std::string &schema, const std::s
 
 //--------------------------------------------------------------------------------------------------
 
+void AutoCompleteCache::refresh_udfs()
+{
+  add_pending_refresh(RefreshTask::RefreshUDFs);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void AutoCompleteCache::refresh_tablespaces()
 {
   add_pending_refresh(RefreshTask::RefreshTableSpaces);
@@ -397,6 +420,14 @@ void AutoCompleteCache::refresh_cache_thread()
 
         case RefreshTask::RefreshUDFs:
           refresh_udfs_w();
+          break;
+
+        case RefreshTask::RefreshCharsets:
+          refreshCharsets_w();
+          break;
+
+        case RefreshTask::RefreshCollations:
+          refreshCollations_w();
           break;
 
         case RefreshTask::RefreshVariables:
@@ -703,6 +734,60 @@ void AutoCompleteCache::refresh_udfs_w()
 
 //--------------------------------------------------------------------------------------------------
 
+void AutoCompleteCache::refreshCharsets_w()
+{
+  std::vector<std::string> charsets;
+  {
+    sql::Dbc_connection_handler::Ref conn;
+    base::RecMutexLock lock(_get_connection(conn));
+    {
+      std::auto_ptr<sql::Statement> statement(conn->ref->createStatement());
+      std::auto_ptr<sql::ResultSet> rs(statement->executeQuery("show charset"));
+      if (rs.get())
+      {
+        while (rs->next() && !_shutdown)
+          charsets.push_back(rs->getString(1));
+
+        log_debug2("Found %li character sets.\n", (long)charsets.size());
+      }
+      else
+        log_debug2("No character sets found.\n");
+    }
+  }
+
+  if (!_shutdown)
+    update_object_names("charsets", charsets);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void AutoCompleteCache::refreshCollations_w()
+{
+  std::vector<std::string> collations;
+  {
+    sql::Dbc_connection_handler::Ref conn;
+    base::RecMutexLock lock(_get_connection(conn));
+    {
+      std::auto_ptr<sql::Statement> statement(conn->ref->createStatement());
+      std::auto_ptr<sql::ResultSet> rs(statement->executeQuery("show collation"));
+      if (rs.get())
+      {
+        while (rs->next() && !_shutdown)
+          collations.push_back(rs->getString(1));
+
+        log_debug2("Found %li collations.\n", (long)collations.size());
+      }
+      else
+        log_debug2("No collations found.\n");
+    }
+  }
+
+  if (!_shutdown)
+    update_object_names("collations", collations);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void AutoCompleteCache::refresh_variables_w()
 {
   std::vector<std::string> variables;
@@ -844,7 +929,7 @@ void AutoCompleteCache::init_db()
   }
 
   // Creation of cache tables that consist only of a single column (name).
-  std::string single_param_caches[] = {"variables", "engines", "tablespaces", "logfile_groups", "udfs"};
+  std::string single_param_caches[] = {"variables", "engines", "tablespaces", "logfile_groups", "udfs", "charsets", "collations"};
 
   for (size_t i = 0; i < sizeof(single_param_caches) / sizeof(single_param_caches[0]); ++i)
   {
@@ -1188,6 +1273,8 @@ void AutoCompleteCache::add_pending_refresh(RefreshTask::RefreshType type, const
       case RefreshTask::RefreshVariables:
       case RefreshTask::RefreshEngines:
       case RefreshTask::RefreshUDFs:
+      case RefreshTask::RefreshCharsets:
+      case RefreshTask::RefreshCollations:
         found = true;
         break;
 
