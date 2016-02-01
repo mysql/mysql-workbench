@@ -2015,12 +2015,6 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
     std::pair<size_t, size_t> statement_range;
     BOOST_FOREACH (statement_range, statement_ranges)
     {
-      if (total_result_count >= max_resultset_count)
-      {
-        results_left = true;
-        break;
-      }
-
       statement = sql->substr(statement_range.first, statement_range.second);
       std::list<std::string> sub_statements;
       sql_facade->splitSqlScript(statement, sub_statements);
@@ -2192,22 +2186,26 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
           {
             for (size_t processed_substatements_count= 0; processed_substatements_count < multiple_statement_count; ++processed_substatements_count)
             {
-              if (total_result_count >= max_resultset_count)
-              {
-                results_left = true;
-                break;
-              }
-
               do
               {
-                if (total_result_count >= max_resultset_count)
-                {
-                  results_left = true;
-                  break;
-                }
-
                 if (more_results)
                 {
+                  if (total_result_count == max_resultset_count)
+                  {
+                    int result = mforms::Utilities::show_warning(_("Maximum result count reached"),
+                                                  "No further result tabs will be displayed as the maximm number has been reached. \nYou may stop the operation, leaving the connection out of sync. You'll have to got o 'Query->Reconnect to server' menu item to reset the state.\n\n Do you want to cancel the operation?",
+                                                  "Yes", "No");
+                    if (result == mforms::ResultOk)
+                    {
+                      add_log_message(DbSqlEditorLog::ErrorMsg, "Not more results could be displayed. Operation cancelled by user", statement, "");
+                      dbc_statement->cancel();
+                      dbc_statement->close();
+                      return grt::StringRef("");
+                    }
+                    add_log_message(DbSqlEditorLog::WarningMsg, "Not more results will be displayed because the maximum number of result sets was reached.", statement, "");
+                  }
+                    
+                  
                   if (!reuse_log_msg && ((updated_rows_count >= 0) || (resultset_count)))
                     log_message_index= add_log_message(DbSqlEditorLog::BusyMsg, _("Fetching..."), statement, "- / ?");
                   else
@@ -2242,6 +2240,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                         err_msg= strfmt(_("Error Code: %i. %s"), e.getErrorCode(), e.what());
                         break;
                       }
+
                       set_log_message(log_message_index, DbSqlEditorLog::ErrorMsg, err_msg, statement, statement_exec_timer.duration_formatted());
                       
                       if (_continue_on_error)
@@ -2250,7 +2249,13 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                         goto stop_processing_sql_script;
                     }
                   }
-                  if (dbc_resultset)
+
+                  std::string exec_and_fetch_durations=
+                    (((updated_rows_count >= 0) || (resultset_count)) ? std::string("-") : statement_exec_timer.duration_formatted()) + " / " +
+                    statement_fetch_timer.duration_formatted();
+                  if (total_result_count >= max_resultset_count)
+                    set_log_message(log_message_index, DbSqlEditorLog::OKMsg, "Row count could not be verified", statement, exec_and_fetch_durations);
+                  else if (dbc_resultset)
                   {
                     if (!data_storage)
                     {
@@ -2298,35 +2303,25 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                       std::string statement_res_msg = base::to_string(rs->row_count()) + _(" row(s) returned");
                       if (!last_statement_info->empty())
                         statement_res_msg.append("\n").append(last_statement_info);
-                      std::string exec_and_fetch_durations=
-                        (((updated_rows_count >= 0) || (resultset_count)) ? std::string("-") : statement_exec_timer.duration_formatted()) + " / " +
-                        statement_fetch_timer.duration_formatted();
 
                       set_log_message(log_message_index, DbSqlEditorLog::OKMsg, statement_res_msg, statement, exec_and_fetch_durations);
                     }
                     ++resultset_count;
-                    ++total_result_count;
                   }
                   else
                   {
                     reuse_log_msg= true;
                   }
+                  ++total_result_count;
                   data_storage.reset();
                 }
               }
               while ((more_results = dbc_statement->getMoreResults()));
-
-              // If we stopped fetching before we got to the end of the result sets finish
-              // fetching here.
-              while (dbc_statement->getMoreResults())
-                ;
             }
           }
           
           if ((updated_rows_count < 0) && !(resultset_count))
-          {
             set_log_message(log_message_index, DbSqlEditorLog::OKMsg, _("OK"), statement, statement_exec_timer.duration_formatted());
-          }
         }
       }
     } // BOOST_FOREACH (statement, statements)
