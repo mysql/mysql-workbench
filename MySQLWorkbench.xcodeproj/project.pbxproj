@@ -1477,7 +1477,6 @@
 		2B4D197B124030D9004E6309 /* wb_context_ui_home.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4D1979124030D8004E6309 /* wb_context_ui_home.cpp */; };
 		2B4E0E9A103D715C00FA5E2E /* drawbox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4E0E99103D715C00FA5E2E /* drawbox.cpp */; };
 		2B52840B0F1A5744005FBF7C /* libgrt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D920E0B604400BE52DF /* libgrt.dylib */; };
-		2B52840D0F1A57C3005FBF7C /* graph_renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B5283FD0F1A5718005FBF7C /* graph_renderer.cpp */; };
 		2B52840E0F1A57C3005FBF7C /* reporting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B5283FE0F1A5718005FBF7C /* reporting.cpp */; };
 		2B52840F0F1A57C4005FBF7C /* wb_model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B5283FF0F1A5718005FBF7C /* wb_model.cpp */; };
 		2B5284520F1A87FA005FBF7C /* register_plugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B52844B0F1A87FA005FBF7C /* register_plugin.cpp */; };
@@ -5399,7 +5398,6 @@
 		2B4D1978124030D8004E6309 /* wb_context_ui_home.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wb_context_ui_home.h; sourceTree = "<group>"; };
 		2B4D1979124030D8004E6309 /* wb_context_ui_home.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wb_context_ui_home.cpp; sourceTree = "<group>"; wrapsLines = 0; };
 		2B4E0E99103D715C00FA5E2E /* drawbox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = drawbox.cpp; path = library/forms/drawbox.cpp; sourceTree = "<group>"; };
-		2B5283FD0F1A5718005FBF7C /* graph_renderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = graph_renderer.cpp; path = modules/wb.model/src/graph_renderer.cpp; sourceTree = "<group>"; };
 		2B5283FE0F1A5718005FBF7C /* reporting.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = reporting.cpp; path = modules/wb.model/src/reporting.cpp; sourceTree = "<group>"; };
 		2B5283FF0F1A5718005FBF7C /* wb_model.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wb_model.cpp; path = modules/wb.model/src/wb_model.cpp; sourceTree = "<group>"; };
 		2B5284060F1A572C005FBF7C /* wb.model.grt.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = wb.model.grt.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -9173,7 +9171,6 @@
 		2B5283FC0F1A56E0005FBF7C /* wb.model */ = {
 			isa = PBXGroup;
 			children = (
-				2B5283FD0F1A5718005FBF7C /* graph_renderer.cpp */,
 				2B5283FE0F1A5718005FBF7C /* reporting.cpp */,
 				2B5283FF0F1A5718005FBF7C /* wb_model.cpp */,
 				27504D771B3BF4120007CAEA /* wb.model.grt_prefix.h */,
@@ -14491,7 +14488,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2B52840D0F1A57C3005FBF7C /* graph_renderer.cpp in Sources */,
 				2B52840E0F1A57C3005FBF7C /* reporting.cpp in Sources */,
 				2B52840F0F1A57C4005FBF7C /* wb_model.cpp in Sources */,
 			);
