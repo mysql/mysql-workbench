@@ -167,7 +167,7 @@ alter_event:
 
 alter_log_file_group:
 	LOGFILE_SYMBOL GROUP_SYMBOL logfile_group_ref ADD_SYMBOL UNDOFILE_SYMBOL string_literal
-		(INITIAL_SIZE_SYMBOL EQUAL_OPERATOR? size_number)? WAIT_SYMBOL? ENGINE_SYMBOL EQUAL_OPERATOR? IDENTIFIER
+		(INITIAL_SIZE_SYMBOL EQUAL_OPERATOR? size_number)? WAIT_SYMBOL? ENGINE_SYMBOL EQUAL_OPERATOR? engine_ref
 ;
 
 alter_server:
@@ -2435,7 +2435,7 @@ column_definition:
 ;
 
 field_spec:
-	column_ref field_def
+	column_name field_def
 ;
 
 field_def:
@@ -2623,7 +2623,7 @@ collation_name:
 ;
 
 collation_name_or_default:
-	text_or_identifier
+	collation_name
 	| DEFAULT_SYMBOL
 ;
 
@@ -3133,8 +3133,7 @@ string_literal:
 
 string:
 	NCHAR_TEXT
-	| UNDERSCORE_CHARSET? ( options { greedy = true; }: SINGLE_QUOTED_TEXT
-	| {!SQL_MODE_ACTIVE(SQL_MODE_ANSI_QUOTES)}? DOUBLE_QUOTED_TEXT)+
+	| UNDERSCORE_CHARSET? ( options { greedy = true; }:	SINGLE_QUOTED_TEXT | {!SQL_MODE_ACTIVE(SQL_MODE_ANSI_QUOTES)}? DOUBLE_QUOTED_TEXT)+
 ;
 
 num_literal:

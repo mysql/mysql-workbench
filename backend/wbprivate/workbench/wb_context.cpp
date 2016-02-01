@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -2505,9 +2505,14 @@ void WBContext::request_refresh(RefreshType type, const std::string &str, Native
   refresh.str= str;
   refresh.ptr= ptr;
   refresh.timestamp= now;
+
+#if !defined(_WIN32) && !defined(__APPLE__)
+  // XXX: check this requirement. Probably already fixed since this hack was added.
+
   // Do not remove the following refresh! W/o it linux version hangs at times.
   if (refresh_gui && _pending_refreshes.empty())
     refresh_gui(RefreshNeeded, "", (NativeHandle)0);
+#endif
 
   _pending_refreshes.push_back(refresh);
 }
