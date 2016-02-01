@@ -514,8 +514,8 @@ alter_event:
 
 alter_log_file_group:
 	LOGFILE_SYMBOL GROUP_SYMBOL logfile_group_ref ADD_SYMBOL UNDOFILE_SYMBOL string_literal
-		(INITIAL_SIZE_SYMBOL EQUAL_OPERATOR? size_number)? WAIT_SYMBOL? ENGINE_SYMBOL EQUAL_OPERATOR? IDENTIFIER
-;
+		(INITIAL_SIZE_SYMBOL EQUAL_OPERATOR? size_number)? WAIT_SYMBOL? ENGINE_SYMBOL EQUAL_OPERATOR? engine_ref
+		;
 
 alter_server:
 	SERVER_SYMBOL server_ref server_options
@@ -2787,7 +2787,7 @@ column_definition:
 ;
 
 field_spec:
-	column_ref field_def
+	column_name field_def
 ;
 
 field_def:
@@ -2975,7 +2975,7 @@ collation_name:
 ;
 
 collation_name_or_default:
-	text_or_identifier
+	collation_name
 	| DEFAULT_SYMBOL
 ;
 
@@ -3486,8 +3486,7 @@ string_literal:
 
 string:
 	NCHAR_TEXT
-	| UNDERSCORE_CHARSET? ( options { greedy = true; }: SINGLE_QUOTED_TEXT
-	| {!SQL_MODE_ACTIVE(SQL_MODE_ANSI_QUOTES)}? DOUBLE_QUOTED_TEXT)+
+	| UNDERSCORE_CHARSET? ( options { greedy = true; }:	SINGLE_QUOTED_TEXT | {!SQL_MODE_ACTIVE(SQL_MODE_ANSI_QUOTES)}? DOUBLE_QUOTED_TEXT)+
 ;
 
 num_literal:
@@ -4720,21 +4719,21 @@ YEAR_SYMBOL:							'YEAR';								// SQL-2003-R
 ZEROFILL_SYMBOL:						'ZEROFILL';
 
 // Additional tokens which are mapped to existing tokens.
-INT1_SYMBOL:							'INT1'								{ $type = TINYINT_SYMBOL; };
-INT2_SYMBOL:							'INT2'								{ $type = SMALLINT_SYMBOL; };
-INT3_SYMBOL:							'INT3'								{ $type = MEDIUMINT_SYMBOL; };
-INT4_SYMBOL:							'INT4'								{ $type = INT_SYMBOL; };
-INT8_SYMBOL:							'INT8'								{ $type = BIGINT_SYMBOL; };
+INT1_SYMBOL:							'INT1'								{ $type = TINYINT_SYMBOL; }; // Synonym
+INT2_SYMBOL:							'INT2'								{ $type = SMALLINT_SYMBOL; }; // Synonym
+INT3_SYMBOL:							'INT3'								{ $type = MEDIUMINT_SYMBOL; }; // Synonym
+INT4_SYMBOL:							'INT4'								{ $type = INT_SYMBOL; }; // Synonym
+INT8_SYMBOL:							'INT8'								{ $type = BIGINT_SYMBOL; }; // Synonym
 
-SQL_TSI_FRAC_SECOND_SYMBOL:				'SQL_TSI_FRAC_SECOND'				{ $type = DEPRECATED_TYPE_FROM_VERSION(50503, FRAC_SECOND_SYMBOL); };
-SQL_TSI_SECOND_SYMBOL:					'SQL_TSI_SECOND'					{ $type = SECOND_SYMBOL; };
-SQL_TSI_MINUTE_SYMBOL:					'SQL_TSI_MINUTE'					{ $type = MINUTE_SYMBOL; };
-SQL_TSI_HOUR_SYMBOL:					'SQL_TSI_HOUR'						{ $type = HOUR_SYMBOL; };
-SQL_TSI_DAY_SYMBOL:						'SQL_TSI_DAY'						{ $type = DAY_SYMBOL; };
-SQL_TSI_WEEK_SYMBOL:					'SQL_TSI_WEEK'						{ $type = WEEK_SYMBOL; };
-SQL_TSI_MONTH_SYMBOL:					'SQL_TSI_MONTH'						{ $type = MONTH_SYMBOL; };
-SQL_TSI_QUARTER_SYMBOL:					'SQL_TSI_QUARTER'					{ $type = QUARTER_SYMBOL; };
-SQL_TSI_YEAR_SYMBOL:					'SQL_TSI_YEAR'						{ $type = YEAR_SYMBOL; };
+SQL_TSI_FRAC_SECOND_SYMBOL:				'SQL_TSI_FRAC_SECOND'				{ $type = DEPRECATED_TYPE_FROM_VERSION(50503, FRAC_SECOND_SYMBOL); }; // Synonym
+SQL_TSI_SECOND_SYMBOL:					'SQL_TSI_SECOND'					{ $type = SECOND_SYMBOL; }; // Synonym
+SQL_TSI_MINUTE_SYMBOL:					'SQL_TSI_MINUTE'					{ $type = MINUTE_SYMBOL; }; // Synonym
+SQL_TSI_HOUR_SYMBOL:					'SQL_TSI_HOUR'						{ $type = HOUR_SYMBOL; }; // Synonym
+SQL_TSI_DAY_SYMBOL:						'SQL_TSI_DAY'						{ $type = DAY_SYMBOL; }; // Synonym
+SQL_TSI_WEEK_SYMBOL:					'SQL_TSI_WEEK'						{ $type = WEEK_SYMBOL; }; // Synonym
+SQL_TSI_MONTH_SYMBOL:					'SQL_TSI_MONTH'						{ $type = MONTH_SYMBOL; }; // Synonym
+SQL_TSI_QUARTER_SYMBOL:					'SQL_TSI_QUARTER'					{ $type = QUARTER_SYMBOL; }; // Synonym
+SQL_TSI_YEAR_SYMBOL:					'SQL_TSI_YEAR'						{ $type = YEAR_SYMBOL; }; // Synonym
 
 // $> Keywords
 
