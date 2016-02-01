@@ -44,6 +44,11 @@ MySQLObjectNamesCache::MySQLObjectNamesCache(ObjectQueryCallback getValues, std:
   _feedback = feedback;
   _getValues = getValues;
 
+  base::NotificationCenter::get()->register_notification("GNObjectCache",
+                                                         "names cache",
+                                                         "Sent when particular cache finishes loading",
+                                                         "MySQLObjectNamesCache instance",
+                                                         "");
   // Start loading top level objects.
   addPendingRefresh(RefreshTask::RefreshSchemas);
   addPendingRefresh(RefreshTask::RefreshUDFs);
@@ -51,6 +56,8 @@ MySQLObjectNamesCache::MySQLObjectNamesCache(ObjectQueryCallback getValues, std:
   addPendingRefresh(RefreshTask::RefreshTableSpaces);
   addPendingRefresh(RefreshTask::RefreshVariables);
   addPendingRefresh(RefreshTask::RefreshEngines);
+  addPendingRefresh(RefreshTask::RefreshCharsets);
+  addPendingRefresh(RefreshTask::RefreshCollations);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,7 +76,7 @@ void MySQLObjectNamesCache::shutdown()
   {
     logDebug2("Waiting for worker thread to finish...\n");
     g_thread_join(_refreshThread);
-    _refreshThread = NULL;
+    _refreshThread = nullptr;
     logDebug2("Worker thread finished.\n");
   }
 }
@@ -185,6 +192,24 @@ std::vector<std::string> MySQLObjectNamesCache::getMatchingTablespaces(const std
   addPendingRefresh(RefreshTask::RefreshTableSpaces);
 
   return getMatchingObjects("tablespaces", "", "", prefix, RetrieveWithNoQualifier);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::vector<std::string> MySQLObjectNamesCache::getMatchingCharsets(const std::string &prefix)
+{
+  addPendingRefresh(RefreshTask::RefreshCharsets);
+
+  return getMatchingObjects("charsets", "", "", prefix, RetrieveWithNoQualifier);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::vector<std::string> MySQLObjectNamesCache::getMatchingCollations(const std::string &prefix)
+{
+  addPendingRefresh(RefreshTask::RefreshCollations);
+
+  return getMatchingObjects("collations", "", "", prefix, RetrieveWithNoQualifier);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -391,6 +416,14 @@ void MySQLObjectNamesCache::refreshThread()
           doRefreshUdfs();
           break;
 
+        case RefreshTask::RefreshCharsets:
+          doRefreshCharsets();
+          break;
+
+        case RefreshTask::RefreshCollations:
+          doRefreshCollations();
+          break;
+
         case RefreshTask::RefreshVariables:
           doRefreshVariables();
           break;
@@ -487,6 +520,7 @@ void MySQLObjectNamesCache::doRefreshSchemas()
     //TODO: this should be called in a way that this notification will be delivered on the main thread only.
     base::NotificationInfo info;
     info["type"] = "schemas";
+    info["path"] = "";
     base::NotificationCenter::get()->send("GNObjectCache", this, info);
 
   }
@@ -522,7 +556,7 @@ void MySQLObjectNamesCache::doRefreshTables(const std::string &schema)
     //TODO: this should be called in a way that this notification will be delivered on the main thread only.
     base::NotificationInfo info;
     info["type"] = "tables";
-    info["path"] = "\0" + schema;
+    info["path"] = schema;
     base::NotificationCenter::get()->send("GNObjectCache", this, info);
   }
 }
@@ -551,7 +585,7 @@ void MySQLObjectNamesCache::doRefreshViews(const std::string &schema)
     // TODO: this should be called in a way that this notification will be delivered on the main thread only.
     base::NotificationInfo info;
     info["type"] = "views";
-    info["path"] = "\0" + schema;
+    info["path"] = schema;
     base::NotificationCenter::get()->send("GNObjectCache", this, info);
   }
 }
@@ -575,7 +609,7 @@ void MySQLObjectNamesCache::doRefreshFunctions(const std::string &schema)
     //TODO: this should be called in a way that this notification will be delivered on the main thread only.
     base::NotificationInfo info;
     info["type"] = "functions";
-    info["path"] = "\0" + schema;
+    info["path"] = schema;
     base::NotificationCenter::get()->send("GNObjectCache", this, info);
   }
 }
@@ -600,7 +634,7 @@ void MySQLObjectNamesCache::doRefreshProcedures(const std::string &schema)
     //TODO: this should be called in a way that this notification will be delivered on the main thread only.
     base::NotificationInfo info;
     info["type"] = "procedures";
-    info["path"] = "\0" + schema;
+    info["path"] = schema;
     base::NotificationCenter::get()->send("GNObjectCache", this, info);
   }
 }
@@ -624,7 +658,7 @@ void MySQLObjectNamesCache::doRefreshColumns(const std::string &schema, const st
     //TODO: this should be called in a way that this notification will be delivered on the main thread only.
     base::NotificationInfo info;
     info["type"] = "columns";
-    info["path"] = "\0" + schema + "\0" + table;
+    info["path"] = schema + "\1" + table;
     base::NotificationCenter::get()->send("GNObjectCache", this, info);
   }
 }
@@ -652,7 +686,7 @@ void MySQLObjectNamesCache::doRefreshTriggers(const std::string &schema, const s
     //TODO: this should be called in a way that this notification will be delivered on the main thread only.
     base::NotificationInfo info;
     info["type"] = "triggers";
-    info["path"] = "\0" + schema + "\0" + table;
+    info["path"] =  schema + "\1" + table;
     base::NotificationCenter::get()->send("GNObjectCache", this, info);
   }
 }
@@ -675,6 +709,53 @@ void MySQLObjectNamesCache::doRefreshUdfs()
     //TODO: this should be called in a way that this notification will be delivered on the main thread only.
     base::NotificationInfo info;
     info["type"] = "udfs";
+    info["path"] = "";
+    base::NotificationCenter::get()->send("GNObjectCache", this, info);
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void MySQLObjectNamesCache::doRefreshCharsets()
+{
+  std::set<std::string> charsets;
+  std::vector<std::pair<std::string, std::string>> result = _getValues("show charset");
+
+  for (auto &entry : result)
+    if (!entry.first.empty())
+      charsets.insert(entry.first);
+
+  if (!_shutdown)
+  {
+    updateObjectNames("charsets", charsets);
+
+    //TODO: this should be called in a way that this notification will be delivered on the main thread only.
+    base::NotificationInfo info;
+    info["type"] = "charsets";
+    info["path"] = "";
+    base::NotificationCenter::get()->send("GNObjectCache", this, info);
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void MySQLObjectNamesCache::doRefreshCollations()
+{
+  std::set<std::string> collations;
+  std::vector<std::pair<std::string, std::string>> result = _getValues("show collation");
+
+  for (auto &entry : result)
+    if (!entry.first.empty())
+      collations.insert(entry.first);
+
+  if (!_shutdown)
+  {
+    updateObjectNames("collations", collations);
+
+    //TODO: this should be called in a way that this notification will be delivered on the main thread only.
+    base::NotificationInfo info;
+    info["type"] = "collations";
+    info["path"] = "";
     base::NotificationCenter::get()->send("GNObjectCache", this, info);
   }
 }
@@ -697,6 +778,7 @@ void MySQLObjectNamesCache::doRefreshVariables()
     //TODO: this should be called in a way that this notification will be delivered on the main thread only.
     base::NotificationInfo info;
     info["type"] = "variables";
+    info["path"] = "";
     base::NotificationCenter::get()->send("GNObjectCache", this, info);
   }
 }
@@ -782,11 +864,8 @@ void MySQLObjectNamesCache::updateSchemas(const std::set<std::string> &schemas)
   }
 
   // Next add all schemas to the cache that aren't there yet.
-  // Accessing a key that doesn't exist auto creates an entry so just touch all entries from schemas.
   for (auto schema : schemas)
-  {
     _topLevelCache["schemas"].insert(schema);
-  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -880,6 +959,8 @@ void MySQLObjectNamesCache::addPendingRefresh(RefreshTask::RefreshType type, con
       case RefreshTask::RefreshVariables:
       case RefreshTask::RefreshEngines:
       case RefreshTask::RefreshUDFs:
+      case RefreshTask::RefreshCharsets:
+      case RefreshTask::RefreshCollations:
         found = true;
         break;
 
