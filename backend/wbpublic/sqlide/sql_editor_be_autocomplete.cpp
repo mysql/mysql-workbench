@@ -712,7 +712,7 @@ struct AutoCompletionContext
 
   // A hierarchical view of all table references in the code, updated constantly during the match process.
   // Organized as stack to be able to easily remove sets of references when changing nesting level.
-  std::deque<std::vector<TableReference>> referencesStack;
+  std::deque< std::vector<TableReference> > referencesStack;
 
   // A flat list of possible references. Kinda snapshot of the references stack at the point when collection
   // begins (the stack is cleaned up while bubbling up, after the collection process).
