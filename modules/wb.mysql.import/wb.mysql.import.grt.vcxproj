@@ -278,9 +278,6 @@
     <ProjectReference Include="..\..\library\grt\grt.vcxproj">
       <Project>{dc1ddaad-7dc1-4bc4-b6c8-b7cec998c7ed}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\db\db.grt.vcxproj">
-      <Project>{b94b7613-cba5-4b30-834d-e16f414d1b1c}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

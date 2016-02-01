@@ -133,13 +133,14 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\generated;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\generated;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CPL_DISABLE_DLL</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27_d.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\gdal.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -150,14 +151,15 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\generated;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\generated;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <BrowseInformation>false</BrowseInformation>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CPL_DISABLE_DLL</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27_d.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\gdal.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib</AdditionalDependencies>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -172,15 +174,16 @@
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\generated;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\generated;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CPL_DISABLE_DLL</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\gdal.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -192,15 +195,16 @@
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\generated;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\generated;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CPL_DISABLE_DLL</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\gdal.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">
@@ -212,15 +216,16 @@
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\generated;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\generated;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CPL_DISABLE_DLL</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\gdal.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
@@ -232,15 +237,16 @@
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\generated;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\generated;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CPL_DISABLE_DLL</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\gdal.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -258,6 +264,12 @@
     <ClInclude Include="src\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\backend\wbpublic\wbpublic.be.vcxproj">
+      <Project>{55ee797d-2b76-474b-82d6-1f96f7788af8}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\library\base\base.vcxproj">
+      <Project>{c3b85913-b106-40c6-8dde-a7cf52a4ec80}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\library\grt\grt.vcxproj">
       <Project>{dc1ddaad-7dc1-4bc4-b6c8-b7cec998c7ed}</Project>
     </ProjectReference>
