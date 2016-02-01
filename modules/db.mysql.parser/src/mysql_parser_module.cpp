@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1802,7 +1802,7 @@ static void fillTableCreateItem(MySQLRecognizerTreeWalker &walker, db_CatalogRef
   walker.next();
   switch (walker.token_type())
   {
-  case COLUMN_REF_TOKEN: // A column definition.
+  case COLUMN_NAME_TOKEN: // A column definition.
   {
     walker.next();
     db_mysql_ColumnRef column(table->get_grt());
