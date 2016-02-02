@@ -181,7 +181,7 @@ static std::string generate_drop_partitions(const std::list<std::string>& part_n
   return sql;
 }
 
-static std::string generate_create(db_mysql_ForeignKeyRef fk, TextPadding& padding, bool use_short_names)
+static std::string global_generate_create(db_mysql_ForeignKeyRef fk, TextPadding& padding, bool use_short_names)
 {
   std::string sql;
 
@@ -716,7 +716,7 @@ void ActionGenerateSQL::create_table_fk(db_mysql_ForeignKeyRef fk)
       return;
 
   sql.append(",\n");
-  padding.pad(sql).append(::generate_create(fk, padding, _use_short_names));
+  padding.pad(sql).append(global_generate_create(fk, padding, _use_short_names));
 
 }
 
@@ -1384,7 +1384,7 @@ void ActionGenerateSQL::alter_table_add_fk(db_mysql_ForeignKeyRef fk)
         [reference_definition]
 */
   fk_add_sql += "ADD ";
-  fk_add_sql += ::generate_create(fk, padding, _use_short_names);
+  fk_add_sql += global_generate_create(fk, padding, _use_short_names);
 }
 
 void ActionGenerateSQL::alter_table_drop_fk(db_mysql_ForeignKeyRef fk)
