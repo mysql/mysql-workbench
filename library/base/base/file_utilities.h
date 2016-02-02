@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -103,6 +103,7 @@ namespace base
 
   // creates the directory, returns false if the directory exists.. throws exception on error
   BASELIBRARY_PUBLIC_FUNC bool create_directory(const std::string &path, int mode, bool with_parents=false);
+  BASELIBRARY_PUBLIC_FUNC bool copyDirectoryRecursive(const std::string &src, const std::string &dest, bool includeFiles = true);
   
   BASELIBRARY_PUBLIC_FUNC bool remove(const std::string &path);
   BASELIBRARY_PUBLIC_FUNC bool tryRemove(const std::string &path);

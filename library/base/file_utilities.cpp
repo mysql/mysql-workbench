@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -360,6 +360,53 @@ namespace base {
     return true;
   }
   
+  bool copyDirectoryRecursive(const std::string &src, const std::string &dst, bool includeFiles)
+  {
+    GError *error= NULL;
+    GDir *srcDir, *dstDir;
+    const char *dirEntry;
+    gchar *entryPathSrc, *entryPathDst;
+
+
+    srcDir= g_dir_open(src.c_str(), 0, &error);
+    if (!srcDir && error)
+      return false;
+
+    dstDir = g_dir_open(dst.c_str(), 0, &error);
+    if (!dstDir && error)
+      create_directory(dst, 0700);
+    else
+      g_dir_close(dstDir);
+
+    while ((dirEntry= g_dir_read_name(srcDir)))
+    {
+      entryPathDst = g_build_filename(dst.c_str(), dirEntry, NULL);
+      entryPathSrc = g_build_filename(src.c_str(), dirEntry, NULL);
+      try
+      {
+        if (g_file_test(entryPathSrc, G_FILE_TEST_IS_DIR))
+          copyDirectoryRecursive(entryPathSrc, entryPathDst, includeFiles);
+
+        if (g_file_test(entryPathSrc, G_FILE_TEST_IS_REGULAR) && includeFiles)
+        {
+          std::ifstream  src(entryPathSrc, std::ios::binary);
+          std::ofstream  dst(entryPathDst, std::ios::binary);
+          dst << src.rdbuf();
+        }
+      } catch (...)
+      {
+        g_free(entryPathSrc);
+        g_free(entryPathDst);
+        throw;
+      }
+      g_free(entryPathSrc);
+      g_free(entryPathDst);
+    }
+
+    g_dir_close(srcDir);
+    return true;
+  }
+
   void rename(const std::string &from, const std::string &to)
   {
 #ifdef _WIN32

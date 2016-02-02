@@ -467,7 +467,7 @@ bool WBOptions::parse_args(char **argv, int argc, int *retval)
     }
     else if (check_arg_with_value(argv, i, "configdir", argval))
     {
-      if (argval == NULL || !base::is_directory(argval))
+      if (argval == NULL || base::file_exists(argval))
       {
         printf("Invalid path specified as the configuration folder.\n");
         return false;
