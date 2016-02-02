@@ -34,10 +34,10 @@ namespace mforms {
 
   // Determines the initial position of the popover with respect to the reference point.
   enum StartPosition {
-    Left,  // The popover is initially left to the ref point, having its arrow pointing to the right.
-    Right, // Similar for the other positions.
-    Above,
-    Below
+    StartLeft,  // The popover is initially left to the ref point, having its arrow pointing to the right.
+    StartRight, // Similar for the other positions.
+    StartAbove,
+    StartBelow
   };
 
   enum PopoverStyle {

@@ -34,6 +34,12 @@ target_link_libraries(mysqlparser ${GTK2_LIBRARIES} ${ANTLR3C_LIBRARIES})
 set_target_properties(mysqlparser
                       PROPERTIES VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})
+if(COMMAND cotire)
+    set_target_properties(mysqlparser PROPERTIES
+        COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS}")
+
+  cotire(mysqlparser)
+endif()
 
 install(TARGETS mysqlparser DESTINATION ${WB_INSTALL_LIB_DIR})
 

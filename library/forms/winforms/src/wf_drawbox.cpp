@@ -59,7 +59,7 @@ static System::Windows::Forms::AccessibleRole convert_accessible_role(mforms::Ac
 
   switch (be_role)
   {
-      case mforms::Accessible::None:
+      case mforms::Accessible::RoleNone:
         role = System::Windows::Forms::AccessibleRole::None;
         break;
         

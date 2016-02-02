@@ -76,7 +76,7 @@ PopoverWidget::PopoverWidget(Gtk::Window* parent, mforms::PopoverStyle style)
         ,_style(style)
         , _old_parent_x(-1)
         , _old_parent_y(-1)
-        , _content_pos(mforms::Left)
+        , _content_pos(mforms::StartLeft)
         , _handle_x(-1)
         , _handle_y(-1)
         , _old_w(-1)
@@ -170,15 +170,15 @@ void PopoverWidget::create_shape_path(cairo_t* cr, const int offset)
 
   switch (_content_pos)
   {
-    case mforms::Left   : {W -= hh1; break;}
-    case mforms::Right  : {x += hh1; W -= hh1; break;}
-    case mforms::Above  : {H -= hh1; break;}
-    case mforms::Below  : {y += hh1; H -= hh1; break;}
+    case mforms::StartLeft   : {W -= hh1; break;}
+    case mforms::StartRight  : {x += hh1; W -= hh1; break;}
+    case mforms::StartAbove  : {H -= hh1; break;}
+    case mforms::StartBelow  : {y += hh1; H -= hh1; break;}
   }
 
   cairo_new_path(cr);
   cairo_move_to(cr, x + R, y);                    // 1
-  if (_content_pos == mforms::Below)
+  if (_content_pos == mforms::StartBelow)
   {
     cairo_line_to(cr, x + (W/4) - hh1/2, y);                // 2
     cairo_line_to(cr, x + (W/4),         y - hh1);          // 2
@@ -189,7 +189,7 @@ void PopoverWidget::create_shape_path(cairo_t* cr, const int offset)
     cairo_line_to(cr, x + (W-R), y);                // 2
   cairo_curve_to(cr, x+W, y, x+W, y, x+W, y+R);     // 3
 
-  if (_content_pos == mforms::Left)
+  if (_content_pos == mforms::StartLeft)
   {
     cairo_line_to(cr, x+W,       y + H/4 - hh1/2);          // 4
     cairo_line_to(cr, x+W + hh1, y + H/4);                  // 4
@@ -199,7 +199,7 @@ void PopoverWidget::create_shape_path(cairo_t* cr, const int offset)
   else
     cairo_line_to(cr, x+W, y+(H-R));                        // 4
   cairo_curve_to(cr, x+W, y+H, x+W, y+H, x+(W-R), y+H);   // 5
-  if (_content_pos == mforms::Above)
+  if (_content_pos == mforms::StartAbove)
   {
     cairo_line_to(cr, x + W/4 + hh1/2, y+H);                  // 6
     cairo_line_to(cr, x + W/4,         y+H + hh1);                  // 6
@@ -209,7 +209,7 @@ void PopoverWidget::create_shape_path(cairo_t* cr, const int offset)
   else
     cairo_line_to(cr, x+R, y+H);                  // 6
   cairo_curve_to(cr, x, y+H, x, y+H, x, y+(H-R));   // 7
-  if (_content_pos == mforms::Right)
+  if (_content_pos == mforms::StartRight)
   {
     cairo_line_to(cr, x      , y + H/4 + hh1/2);                  // 8
     cairo_line_to(cr, x - hh1, y + H/4);                  // 8
@@ -252,10 +252,10 @@ void PopoverWidget::set_content(Gtk::Widget* w, bool move_only)
 
     switch (_content_pos)
     {
-      case mforms::Left   : {W -= hh1; break;}
-      case mforms::Right  : {x += hh1; W -= hh1; break;}
-      case mforms::Above  : {H -= hh1; break;}
-      case mforms::Below  : {y += hh1; H -= hh1; break;}
+      case mforms::StartLeft   : {W -= hh1; break;}
+      case mforms::StartRight  : {x += hh1; W -= hh1; break;}
+      case mforms::StartAbove  : {H -= hh1; break;}
+      case mforms::StartBelow  : {y += hh1; H -= hh1; break;}
     }
 
     // clear existing content
@@ -317,18 +317,18 @@ void PopoverWidget::adjust_position()
 
     if ((x + w) > rect.get_width())
     {
-      _content_pos = mforms::Left;
+      _content_pos = mforms::StartLeft;
     }
 
     if ((y + h) > rect.get_height())
     {
-      _content_pos = mforms::Above;
+      _content_pos = mforms::StartAbove;
     }
   }
 
   switch (_content_pos)
   {
-    case mforms::Above:
+    case mforms::StartAbove:
     {
       x -= 3 * w / 4;
       if (_style == mforms::PopoverStyleTooltip)
@@ -337,8 +337,8 @@ void PopoverWidget::adjust_position()
         y -= h;
       break;
     }
-    case mforms::Below  : {x -= w / 4;                          break;}
-    case mforms::Right:
+    case mforms::StartBelow  : {x -= w / 4;                          break;}
+    case mforms::StartRight:
     {
       if (_style == mforms::PopoverStyleTooltip)
       {
@@ -349,7 +349,7 @@ void PopoverWidget::adjust_position()
         y -= 3 * h / 4;
       break;
     }
-    case mforms::Left:
+    case mforms::StartLeft:
     {
       x -= w;
       if (_style == mforms::PopoverStyleTooltip)
@@ -480,10 +480,10 @@ bool PopoverWidget::on_configure_event(GdkEventConfigure* ce)
 
         switch (_content_pos)
         {
-          case mforms::Left   :
-          case mforms::Right  : {W -= hh1; break;}
-          case mforms::Above  :
-          case mforms::Below  : {H -= hh1; break;}
+          case mforms::StartLeft   :
+          case mforms::StartRight  : {W -= hh1; break;}
+          case mforms::StartAbove  :
+          case mforms::StartBelow  : {H -= hh1; break;}
         }
 
         w->set_size_request(W-20, H-20);

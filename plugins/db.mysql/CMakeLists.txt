@@ -62,4 +62,10 @@ set_target_properties(db.mysql.wbp PROPERTIES
 
 #target_link_libraries(db.mysql.wbp linux_utilities wbscintilla)
 
+if(COMMAND cotire)
+    set_target_properties(db.mysql.wbp PROPERTIES
+        COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS}")
+
+  cotire(db.mysql.wbp)
+endif()
 install(TARGETS db.mysql.wbp DESTINATION ${WB_PACKAGE_PLUGINS_DIR})

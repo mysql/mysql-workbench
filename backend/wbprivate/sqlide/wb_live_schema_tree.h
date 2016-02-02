@@ -116,7 +116,7 @@ namespace wb
       ForeignKeyColumn,
       IndexColumn,
       Any,
-      None
+      NoneType
     };
 
     // This will be used on different object type validations

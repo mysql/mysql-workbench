@@ -46,4 +46,11 @@ set_target_properties(db.mysql.diff.reporting.wbp
                                  VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})
 
+if(COMMAND cotire)
+    set_target_properties(db.mysql.diff.reporting.wbp PROPERTIES
+        COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS}")
+
+  cotire(db.mysql.diff.reporting.wbp)
+endif()
+
 install(TARGETS db.mysql.diff.reporting.wbp DESTINATION ${WB_PACKAGE_PLUGINS_DIR})
