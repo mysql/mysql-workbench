@@ -940,7 +940,7 @@ static NSString *applicationSupportFolder()
   int rc = 0;
   if (!_options->parse_args(argv, argc, &rc))
   {
-    logInfo("Exiting with rc %i after parsing arguments\n", rc);
+    log_info("Exiting with rc %i after parsing arguments\n", rc);
     exit(rc);
   }
   
@@ -953,13 +953,13 @@ static NSString *applicationSupportFolder()
       {
         if (!base::copyDirectoryRecursive([[applicationSupportFolder() stringByAppendingString: @"/MySQL/Workbench"] fileSystemRepresentation], _options->user_data_dir))
         {
-          logError("Unable to prepare new config directory: %s\n", _options->user_data_dir.c_str());
+          log_error("Unable to prepare new config directory: %s\n", _options->user_data_dir.c_str());
           exit(1);
         }
       }
       catch (std::exception &exc)
       {
-        logError("There was a problem preparing new config directory. The error was: %s\n", exc.what());
+        log_error("There was a problem preparing new config directory. The error was: %s\n", exc.what());
         exit(1);
       }
     }
