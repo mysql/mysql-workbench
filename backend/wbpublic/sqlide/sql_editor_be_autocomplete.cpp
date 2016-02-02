@@ -731,7 +731,7 @@ struct AutoCompletionContext
    * Actual candidates are stored in the completion_candidates member set.
    *
    */
-  bool collect_candiates(boost::shared_ptr<MySQLScanner> aScanner)
+  bool collectCandidates(boost::shared_ptr<MySQLScanner> aScanner)
   {
     scanner = aScanner; // Has all the data necessary for scanning already.
     server_version = scanner->get_server_version();
@@ -1449,6 +1449,7 @@ private:
   {
     if (rule == "subquery")
       referencesStack.push_front(std::vector<TableReference>()); // Starting a new level.
+
     if (rule == "join_table_list" || rule == "table_ref")
     {
       // Collect table references as we come along them.
@@ -1696,11 +1697,13 @@ std::string MySQLEditor::get_written_part(size_t position)
     run++;
   }
   
-  // If we come here then we are outside any quoted text. Scan back for anything we consider
-  // to be a word stopper (for now anything below '0', char code wise).
+  // If we come here then we are outside any quoted text. Scan back for anything we consider to be a word stopper.
   while (head < run--)
   {
-    if (*run < '0')
+    gunichar *converted = g_utf8_to_ucs4_fast(run, 1, NULL);
+    bool isStopper = !g_unichar_isalnum(*converted);
+    g_free(converted);
+    if (isStopper)
       return run + 1;
   }
   return head;
@@ -2003,7 +2006,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
   bool uppercase_keywords = make_keywords_uppercase();
   boost::shared_ptr<MySQLScanner> scanner = parser_context->createScanner(statement);
   context.server_version = scanner->get_server_version();
-  context.collect_candiates(scanner);
+  context.collectCandidates(scanner);
 
   MySQLQueryType queryType;
   {
