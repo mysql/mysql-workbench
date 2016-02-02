@@ -144,7 +144,7 @@ protected:
     if (style == mforms::PopoverStyleNormal)
     {
       // Add the arrow size to either width or height, depending on the proposed relative position.
-      if (relativePosition == mforms::Left || relativePosition == mforms::Right)
+      if (relativePosition == mforms::StartLeft || relativePosition == mforms::StartRight)
         actualSize.Width += ARROW_SIZE;
       else
         actualSize.Height += ARROW_SIZE;
@@ -160,22 +160,22 @@ protected:
     {
       switch (relativePosition)
       {
-      case mforms::Left:
+      case mforms::StartLeft:
         newLocation.X = hotSpot.X - actualSize.Width;
         newLocation.Y = hotSpot.Y - actualSize.Height / 3;
         Padding = System::Windows::Forms::Padding(DEFAULT_PADDING, DEFAULT_PADDING, DEFAULT_PADDING + ARROW_SIZE, 7);
         break;
-      case mforms::Right:
+      case mforms::StartRight:
         newLocation.X = hotSpot.X;
         newLocation.Y = hotSpot.Y - actualSize.Height / 3;
         Padding = System::Windows::Forms::Padding(DEFAULT_PADDING + ARROW_SIZE, DEFAULT_PADDING, DEFAULT_PADDING, DEFAULT_PADDING);
         break;
-      case mforms::Above:
+      case mforms::StartAbove:
         newLocation.X = hotSpot.X - actualSize.Width / 3;
         newLocation.Y = hotSpot.Y - actualSize.Height;
         Padding = System::Windows::Forms::Padding(DEFAULT_PADDING, DEFAULT_PADDING, DEFAULT_PADDING, DEFAULT_PADDING + ARROW_SIZE);
         break;
-      case mforms::Below:
+      case mforms::StartBelow:
         newLocation.X = hotSpot.X - actualSize.Width / 3;
         newLocation.Y = hotSpot.Y;
         Padding = System::Windows::Forms::Padding(DEFAULT_PADDING, DEFAULT_PADDING + ARROW_SIZE, DEFAULT_PADDING, DEFAULT_PADDING);
@@ -206,16 +206,16 @@ protected:
     // Now that we have the final location check the arrow again.
     switch (relativePosition)
     {
-    case mforms::Left:
-    case mforms::Right:
+    case mforms::StartLeft:
+    case mforms::StartRight:
       hotSpot.X += deltaX;
       if ((hotSpot.Y - ARROW_BASE / 2) < (newLocation.Y + cornerSize))
         hotSpot.Y = newLocation.Y + cornerSize + ARROW_BASE / 2;
       if ((hotSpot.Y + ARROW_BASE / 2) > (newLocation.Y + actualSize.Height - cornerSize))
         hotSpot.Y = newLocation.Y + actualSize.Height - cornerSize - ARROW_BASE / 2;
       break;
-    case mforms::Above:
-    case mforms::Below:
+    case mforms::StartAbove:
+    case mforms::StartBelow:
       if ((hotSpot.X - ARROW_BASE / 2) < (newLocation.X + cornerSize))
         hotSpot.X = newLocation.X + cornerSize + ARROW_BASE / 2;
       if ((hotSpot.X + ARROW_BASE / 2) > (newLocation.X + actualSize.Width - cornerSize))
@@ -249,7 +249,7 @@ protected:
     default:
       switch (relativePosition)
       {
-      case mforms::Left:
+      case mforms::StartLeft:
         {
           outline->AddArc(bounds.Left, bounds.Top, cornerSize, cornerSize, 180, 90);
           outline->AddArc(bounds.Right - cornerSize - ARROW_SIZE, bounds.Top, cornerSize, cornerSize, -90, 90);
@@ -268,7 +268,7 @@ protected:
           outline->AddArc(bounds.Left, bounds.Bottom - cornerSize, cornerSize, cornerSize, 90, 90);
           break;
         }
-      case mforms::Right:
+      case mforms::StartRight:
         {
           outline->AddArc(bounds.Left + ARROW_SIZE, bounds.Top, cornerSize, cornerSize, 180, 90);
           outline->AddArc(bounds.Right - cornerSize, bounds.Top, cornerSize, cornerSize, -90, 90);
@@ -287,7 +287,7 @@ protected:
 
           break;
         }
-      case mforms::Above:
+      case mforms::StartAbove:
         {
           outline->AddArc(bounds.Left, bounds.Top, cornerSize, cornerSize, 180, 90);
           outline->AddArc(bounds.Right - cornerSize, bounds.Top, cornerSize, cornerSize, -90, 90);
@@ -307,7 +307,7 @@ protected:
           outline->AddArc(bounds.Left, bounds.Bottom - cornerSize - ARROW_SIZE, cornerSize, cornerSize, 90, 90);
           break;
         }
-      case mforms::Below:
+      case mforms::StartBelow:
         {
           outline->AddArc(bounds.Left, bounds.Top + ARROW_SIZE, cornerSize, cornerSize, 180, 90);
 
