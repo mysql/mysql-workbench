@@ -59,5 +59,11 @@ add_library(sqlparser
 set_target_properties(sqlparser
                       PROPERTIES VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})
-
+if(COMMAND cotire)
+  set_target_properties(sqlparser PROPERTIES 
+      COTIRE_ENABLE_PRECOMPILED_HEADER FALSE
+      COTIRE_ADD_UNITY_BUILD FALSE
+      COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS}")
+    cotire(sqlparser)
+endif()
 install(TARGETS sqlparser DESTINATION ${WB_INSTALL_LIB_DIR})

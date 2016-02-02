@@ -191,7 +191,7 @@
   actualSize.height += 2 * DEFAULT_PADDING;
 
   // Add the arrow size to either width or height, depending on the proposed relative position.
-  if (position == mforms::Left || position == mforms::Right)
+  if (position == mforms::StartLeft || position == mforms::StartRight)
     actualSize.width += mArrowSize;
   else
     actualSize.height += mArrowSize;
@@ -202,25 +202,25 @@
   NSPoint newLocation;
   switch (position)
   {
-    case mforms::Left:
+    case mforms::StartLeft:
       newLocation.x = mHotSpot.x - actualSize.width;
       newLocation.y = mHotSpot.y - actualSize.height / 3;
       mPadding = base::Padding(DEFAULT_PADDING, DEFAULT_PADDING,
                                           DEFAULT_PADDING + mArrowSize, DEFAULT_PADDING);
       break;
-    case mforms::Right:
+    case mforms::StartRight:
       newLocation.x = mHotSpot.x;
       newLocation.y = mHotSpot.y - actualSize.height / 3;
       mPadding = base::Padding(DEFAULT_PADDING + mArrowSize, DEFAULT_PADDING,
                                           DEFAULT_PADDING, DEFAULT_PADDING);
       break;
-    case mforms::Above:
+    case mforms::StartAbove:
       newLocation.x = mHotSpot.x - actualSize.width / 3;
       newLocation.y = mHotSpot.y;
       mPadding = base::Padding(DEFAULT_PADDING, DEFAULT_PADDING,
                                           DEFAULT_PADDING, DEFAULT_PADDING + mArrowSize);
       break;
-    case mforms::Below:
+    case mforms::StartBelow:
       newLocation.x = mHotSpot.x - actualSize.width / 3;
       newLocation.y = mHotSpot.y - actualSize.height;
       mPadding = base::Padding(DEFAULT_PADDING, DEFAULT_PADDING + mArrowSize,
@@ -252,16 +252,16 @@
   // Now that we have the final location check the arrow again.
   switch (position)
   {
-  case mforms::Left:
-  case mforms::Right:
+  case mforms::StartLeft:
+  case mforms::StartRight:
     mHotSpot.x += deltaX;
     if ((mHotSpot.y - mArrowBase / 2) < (newLocation.y + mCornerRadius))
       mHotSpot.y = newLocation.y + mCornerRadius + mArrowBase / 2;
     if ((mHotSpot.y + mArrowBase / 2) > (newLocation.y + actualSize.height - mCornerRadius))
       mHotSpot.y = newLocation.y + actualSize.height - mCornerRadius - mArrowBase / 2;
     break;
-  case mforms::Above:
-  case mforms::Below:
+  case mforms::StartAbove:
+  case mforms::StartBelow:
     if ((mHotSpot.x - mArrowBase / 2) < (newLocation.x + mCornerRadius))
       mHotSpot.x = newLocation.x + mCornerRadius + mArrowBase / 2;
     if ((mHotSpot.x + mArrowBase / 2) > (newLocation.x + actualSize.width - mCornerRadius))
@@ -294,22 +294,22 @@
 
   switch (mRelativePosition)
   {
-    case mforms::Left:
+    case mforms::StartLeft:
     {
       rightOffset = mArrowSize;
       break;
     }
-    case mforms::Right:
+    case mforms::StartRight:
     {
       leftOffset = mArrowSize;
       break;
     }
-    case mforms::Above:
+    case mforms::StartAbove:
     {
       bottomOffset = mArrowSize;
       break;
     }
-    case mforms::Below:
+    case mforms::StartBelow:
     {
       topOffset = mArrowSize;
       break;

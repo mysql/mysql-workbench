@@ -31,4 +31,11 @@ set_target_properties(wb.mysql.import.grt
                                  VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})
 
+if(COMMAND cotire)
+    set_target_properties(wb.mysql.import.grt PROPERTIES
+        COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS}")
+
+  cotire(wb.mysql.import.grt)
+endif()
+
 install(TARGETS wb.mysql.import.grt DESTINATION ${WB_PYTHON_MODULES_DIR})
