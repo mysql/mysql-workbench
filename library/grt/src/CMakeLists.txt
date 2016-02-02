@@ -40,4 +40,11 @@ set_target_properties(grt
                       PROPERTIES VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})
 
+if(COMMAND cotire)
+    set_target_properties(grt PROPERTIES
+        COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS}")
+
+  cotire(grt)
+endif()
+
 install(TARGETS grt DESTINATION ${WB_INSTALL_LIB_DIR})
