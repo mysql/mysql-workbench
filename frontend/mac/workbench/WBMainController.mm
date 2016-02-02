@@ -931,7 +931,26 @@ static NSString *applicationSupportFolder()
   _options->module_search_path = std::string([[[NSBundle mainBundle] builtInPlugInsPath] fileSystemRepresentation]) + ":" + std::string([[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]) + "/plugins";
   _options->library_search_path = std::string([[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]) + "/libraries";
   _options->cdbc_driver_search_path = std::string([[[NSBundle mainBundle] privateFrameworksPath] fileSystemRepresentation]);
-  if (_options->user_data_dir.empty())
+  if (!_options->user_data_dir.empty())
+  {
+    if (!base::is_directory(_options->user_data_dir))
+    {
+      try
+      {
+        if (!base::copyDirectoryRecursive([[applicationSupportFolder() stringByAppendingString: @"/MySQL/Workbench"], _options->user_data_dir))
+        {
+          log_error("Unable to prepare new config directory: %s\n", _options->user_data_dir.c_str());
+          exit(1);
+        }
+      }
+      catch (std::exception &exc)
+      {
+        log_error("There was a problem preparing new config directory. The error was: %s\n", exc.what());
+        exit(1);
+      }
+    }
+  }
+  else
     _options->user_data_dir= [[applicationSupportFolder() stringByAppendingString: @"/MySQL/Workbench"] fileSystemRepresentation];
 
   int argc= *_NSGetArgc();
