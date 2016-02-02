@@ -731,7 +731,7 @@ struct AutoCompletionContext
    * Actual candidates are stored in the completion_candidates member set.
    *
    */
-  bool collectCandiates(std::shared_ptr<MySQLScanner> aScanner)
+  bool collectCandidates(std::shared_ptr<MySQLScanner> aScanner)
   {
     scanner = aScanner; // Has all the data necessary for scanning already.
     server_version = scanner->get_server_version();
