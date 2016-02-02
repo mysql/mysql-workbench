@@ -487,7 +487,7 @@ class ConfigurationPage(WizardPage):
             chk_box = create_chkbox(row)
             self.checkbox_list.append(chk_box)
             self.preview_table.add(chk_box, 0, 1, i+1, i+2, mforms.HFillFlag)
-            self.preview_table.add(mforms.newLabel(str(col['name'])), 1, 2, i+1, i+2, mforms.HFillFlag)
+            self.preview_table.add(mforms.newLabel(str(col['name'].encode('utf8'))), 1, 2, i+1, i+2, mforms.HFillFlag)
             if not self.main.destination_page.new_table_radio.get_active():
                 self.preview_table.add(create_select_dest_col(row, self.dest_cols), 2, 3, i+1, i+2, mforms.HFillFlag)
             else:
@@ -496,7 +496,7 @@ class ConfigurationPage(WizardPage):
             
         self.treeview_preview = newTreeNodeView(mforms.TreeFlatList)
         for i, col in enumerate(self.active_module._columns):
-            self.treeview_preview.add_column(mforms.StringColumnType, str(col['name']), 75, True)
+            self.treeview_preview.add_column(mforms.StringColumnType, str(col['name'].encode('utf8')), 75, True)
         self.treeview_preview.end_columns()
         
         
@@ -520,7 +520,10 @@ class ConfigurationPage(WizardPage):
             for row in col_values:
                 node = self.treeview_preview.add_node()
                 for i, col in enumerate(row):
-                    node.set_string(i, str(col))
+                    if hasattr(col, 'encode'):
+                        node.set_string(i, str(col.encode('utf8')))
+                    else:
+                        node.set_string(i, str(col))
 
         self.treeview_preview.set_allow_sorting(True)
         self.treeview_preview.set_size(200, 100)

@@ -109,6 +109,9 @@ class base_module:
             return True if type(v) in [dict, list] else False
         
         def is_float(v):
+            if hasattr(v, 'encode'):
+                v = v.encode('utf8')
+
             v = str(v)
             try:
                 if "%s" % float(v) == v:
@@ -118,6 +121,9 @@ class base_module:
                 return False
         
         def is_int(v):
+            if hasattr(v, 'encode'):
+                v = v.encode('utf8')
+
             v = str(v)
             try:
                 if "%s" % int(v) == v:
