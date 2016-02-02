@@ -129,7 +129,7 @@ namespace wb
 
     virtual std::string get_acc_name() { return name; }
     virtual std::string get_acc_default_action() { return default_action;}
-    virtual Accessible::Role get_acc_role() { return Accessible::PushButton;}
+    virtual Accessible::Role get_acc_role() { return mforms::Accessible::PushButton;}
     virtual base::Rect get_acc_bounds() { return bounds;}
 
     virtual void do_default_action()

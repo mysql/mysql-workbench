@@ -46,7 +46,7 @@ namespace mforms
   public:
     enum Role
     {
-      None,
+      RoleNone,
       Client,
       Pane,
       Link,
@@ -113,7 +113,7 @@ namespace mforms
 
     virtual std::string get_acc_name() { return get_name(); }
     virtual base::Rect get_acc_bounds(){ return base::Rect(get_x(), get_y(), get_width(), get_height());}
-    virtual Role get_acc_role() { return mforms::Accessible::None; }
+    virtual Role get_acc_role() { return mforms::Accessible::RoleNone; }
 #endif
 #endif
   protected:

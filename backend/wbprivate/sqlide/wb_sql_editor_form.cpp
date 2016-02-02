@@ -2442,7 +2442,7 @@ static wb::LiveSchemaTree::ObjectType str_to_object_type(const std::string &obje
   else if (object_type == "db.Schema")
     return LiveSchemaTree::Schema;
 
-  return LiveSchemaTree::None;
+  return LiveSchemaTree::NoneType;
 }
 
 void SqlEditorForm::handle_command_side_effects(const std::string &sql)
@@ -2458,7 +2458,7 @@ void SqlEditorForm::handle_command_side_effects(const std::string &sql)
   {
 
     wb::LiveSchemaTree::ObjectType obj = str_to_object_type(object_type);
-    if (obj != wb::LiveSchemaTree::None)
+    if (obj != wb::LiveSchemaTree::NoneType)
     {
       std::vector<std::pair<std::string, std::string> >::reverse_iterator rit;
 
