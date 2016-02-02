@@ -129,7 +129,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>MYSQLMODULEDBMYSQL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>MYSQLMODULEDBMYSQL_EXPORTS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\generated;$(SolutionDir)\library\grt\src;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\ctemplate;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -148,7 +148,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>MYSQLMODULEDBMYSQL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>MYSQLMODULEDBMYSQL_EXPORTS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\generated;$(SolutionDir)\library\grt\src;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\ctemplate;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -173,7 +173,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>MYSQLMODULEDBMYSQL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>MYSQLMODULEDBMYSQL_EXPORTS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\generated;$(SolutionDir)\library\grt\src;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\ctemplate;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
@@ -195,7 +195,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>MYSQLMODULEDBMYSQL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>MYSQLMODULEDBMYSQL_EXPORTS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\generated;$(SolutionDir)\library\grt\src;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\ctemplate;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
@@ -217,7 +217,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>MYSQLMODULEDBMYSQL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>MYSQLMODULEDBMYSQL_EXPORTS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\generated;$(SolutionDir)\library\grt\src;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\ctemplate;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
@@ -239,7 +239,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>MYSQLMODULEDBMYSQL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>MYSQLMODULEDBMYSQL_EXPORTS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\generated;$(SolutionDir)\library\grt\src;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\ctemplate;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>

@@ -129,7 +129,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>BASELIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BASELIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <MinimalRebuild>false</MinimalRebuild>
@@ -148,7 +148,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>BASELIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BASELIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <MinimalRebuild>false</MinimalRebuild>
@@ -172,7 +172,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BASELIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BASELIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -194,7 +194,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BASELIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BASELIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -216,7 +216,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BASELIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BASELIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -238,7 +238,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BASELIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BASELIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

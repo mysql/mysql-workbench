@@ -136,7 +136,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\generated;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CPL_DISABLE_DLL</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;CPL_DISABLE_DLL</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -155,7 +155,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <BrowseInformation>false</BrowseInformation>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CPL_DISABLE_DLL</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;CPL_DISABLE_DLL</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -177,7 +177,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\generated;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CPL_DISABLE_DLL</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;CPL_DISABLE_DLL</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -198,7 +198,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\generated;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CPL_DISABLE_DLL</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;CPL_DISABLE_DLL</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -219,7 +219,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\generated;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CPL_DISABLE_DLL</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;CPL_DISABLE_DLL</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -240,7 +240,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\generated;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CPL_DISABLE_DLL</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;CPL_DISABLE_DLL</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
