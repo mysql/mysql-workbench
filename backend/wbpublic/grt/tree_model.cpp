@@ -132,14 +132,18 @@ bool NodeId::equals(const NodeId &node) const
 
 size_t& NodeId::operator[] (size_t i)
 {
-  return index[i];
+  if (i < index.size())
+    return index.at(i);
+  throw std::range_error("invalid index");
 }
 
 //--------------------------------------------------------------------------------------------------
 
 const size_t& NodeId::operator[] (size_t i) const
 {
-  return index[i];
+  if (i < index.size())
+    return index.at(i);
+  throw std::range_error("invalid index");
 }
 
 //--------------------------------------------------------------------------------------------------
