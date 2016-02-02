@@ -2008,7 +2008,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
   context.server_version = scanner->get_server_version();
   context.collectCandidates(scanner);
 
-  MySQLQueryType queryType;
+  MySQLQueryType queryType = QtUnknown;
   {
     boost::shared_ptr<MySQLQueryIdentifier> queryIdentifier = parser_context->createQueryIdentifier();
     queryType = queryIdentifier->getQueryType(statement.c_str(), statement.size(), true);
