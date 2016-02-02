@@ -52,6 +52,7 @@
 
 #include "workbench/wb_module.h"
 #include "base/log.h"
+#include "base/file_utilities.h"
 
 #include "wb_command_ui.h"
 
@@ -931,27 +932,7 @@ static NSString *applicationSupportFolder()
   _options->module_search_path = std::string([[[NSBundle mainBundle] builtInPlugInsPath] fileSystemRepresentation]) + ":" + std::string([[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]) + "/plugins";
   _options->library_search_path = std::string([[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]) + "/libraries";
   _options->cdbc_driver_search_path = std::string([[[NSBundle mainBundle] privateFrameworksPath] fileSystemRepresentation]);
-  if (!_options->user_data_dir.empty())
-  {
-    if (!base::is_directory(_options->user_data_dir))
-    {
-      try
-      {
-        if (!base::copyDirectoryRecursive([[applicationSupportFolder() stringByAppendingString: @"/MySQL/Workbench"], _options->user_data_dir))
-        {
-          log_error("Unable to prepare new config directory: %s\n", _options->user_data_dir.c_str());
-          exit(1);
-        }
-      }
-      catch (std::exception &exc)
-      {
-        log_error("There was a problem preparing new config directory. The error was: %s\n", exc.what());
-        exit(1);
-      }
-    }
-  }
-  else
-    _options->user_data_dir= [[applicationSupportFolder() stringByAppendingString: @"/MySQL/Workbench"] fileSystemRepresentation];
+
 
   int argc= *_NSGetArgc();
   char **argv= *_NSGetArgv();
@@ -959,9 +940,32 @@ static NSString *applicationSupportFolder()
   int rc = 0;
   if (!_options->parse_args(argv, argc, &rc))
   {
-    log_info("Exiting with rc %i after parsing arguments\n", rc);
+    logInfo("Exiting with rc %i after parsing arguments\n", rc);
     exit(rc);
   }
+  
+  if (!_options->user_data_dir.empty())
+  {
+    _options->user_data_dir = [[[NSString stringWithCPPString: _options->user_data_dir] stringByExpandingTildeInPath] UTF8String];
+    if (!base::is_directory(_options->user_data_dir))
+    {
+      try
+      {
+        if (!base::copyDirectoryRecursive([[applicationSupportFolder() stringByAppendingString: @"/MySQL/Workbench"] fileSystemRepresentation], _options->user_data_dir))
+        {
+          logError("Unable to prepare new config directory: %s\n", _options->user_data_dir.c_str());
+          exit(1);
+        }
+      }
+      catch (std::exception &exc)
+      {
+        logError("There was a problem preparing new config directory. The error was: %s\n", exc.what());
+        exit(1);
+      }
+    }
+  }
+  else
+    _options->user_data_dir= [[applicationSupportFolder() stringByAppendingString: @"/MySQL/Workbench"] fileSystemRepresentation];
 
   // no dock icon when the app will quit when finished running script 
   if (_options->quit_when_done)

@@ -55,7 +55,7 @@ WbOptions::WbOptions(String^ baseDir, String^ userDir, bool full_init)
   inner->struct_search_path = "";
   inner->library_search_path = inner->basedir;
 
-  if (!inner->user_data_dir.empty())
+ if (!inner->user_data_dir.empty())
   {
     if (!base::is_directory(inner->user_data_dir))
     {
@@ -63,12 +63,12 @@ WbOptions::WbOptions(String^ baseDir, String^ userDir, bool full_init)
       {
         if (!base::copyDirectoryRecursive(NativeToCppStringRaw(userDir), inner->user_data_dir))
         {
-          log_error("Unable to prepare new config directory: %s \n", inner->user_data_dir.c_str());
+          Logger::LogError("WBContext managed", String::Format("Unable to prepare new config directory: {0} \n", CppStringToNative(inner->user_data_dir)));
         }
       }
       catch (std::exception &exc)
       {
-        log_error("There was a problem preparing new config directory. Falling back to default one. The error was: %s\n", exc.what());
+        Logger::LogError("WBContext managed", String::Format("There was a problem preparing new config directory. Falling back to default one. The error was: {0}\n", CppStringToNative(exc.what())));
         inner->user_data_dir = NativeToCppStringRaw(userDir);
       }
     }
