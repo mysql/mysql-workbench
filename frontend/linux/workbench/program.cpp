@@ -25,6 +25,7 @@
 #include "sqlide_main.h"
 
 #include "base/string_utilities.h"
+#include "base/log.h"
 
 using base::strfmt;
 
@@ -47,6 +48,7 @@ static void flush_main_thread()
   }
 }
 
+DEFAULT_LOG_DOMAIN("Program")
 //------------------------------------------------------------------------------
 Program::Program(wb::WBOptions &wboptions)
 {
@@ -125,9 +127,28 @@ Program::Program(wb::WBOptions &wboptions)
   wboptions.cdbc_driver_search_path = getenv("DBC_DRIVER_PATH")?:"";
   if (wboptions.cdbc_driver_search_path.empty())
     wboptions.cdbc_driver_search_path= wboptions.library_search_path;
-  if (wboptions.user_data_dir.empty())
-    wboptions.user_data_dir = std::string(g_get_home_dir()).append("/.mysql/workbench");
 
+  if (!wboptions.user_data_dir.empty())
+  {
+    if (!base::is_directory(wboptions.user_data_dir))
+    {
+      try
+      {
+        if (!base::copyDirectoryRecursive(std::string(g_get_home_dir()).append("/.mysql/workbench"), wboptions.user_data_dir))
+        {
+          log_error("Unable to prepare new config directory: %s\n", wboptions.user_data_dir.c_str());
+          exit(1);
+        }
+      }
+      catch (std::exception &exc)
+      {
+        log_error("There was a problem preparing new config directory. The error was: %s\n", exc.what());
+        exit(1);
+      }
+    }
+  }
+  else
+    wboptions.user_data_dir = std::string(g_get_home_dir()).append("/.mysql/workbench");
 
   _wb_context_ui->init(&wbcallbacks, &wboptions);
 

@@ -20,6 +20,7 @@
 #include "sqlide/wb_sql_editor_form.h"
 
 #include "base/string_utilities.h"
+#include "base/file_utilities.h"
 #include "workbench/wb_overview.h"
 #include "ConvUtils.h"
 #include "GrtTemplates.h"
@@ -53,8 +54,28 @@ WbOptions::WbOptions(String^ baseDir, String^ userDir, bool full_init)
   inner->module_search_path = inner->basedir + "/modules";
   inner->struct_search_path = "";
   inner->library_search_path = inner->basedir;
-  if (inner->user_data_dir.empty())
+
+  if (!inner->user_data_dir.empty())
+  {
+    if (!base::is_directory(inner->user_data_dir))
+    {
+      try
+      {
+        if (!base::copyDirectoryRecursive(NativeToCppStringRaw(userDir), inner->user_data_dir))
+        {
+          log_error("Unable to prepare new config directory: %s \n", inner->user_data_dir.c_str());
+        }
+      }
+      catch (std::exception &exc)
+      {
+        log_error("There was a problem preparing new config directory. Falling back to default one. The error was: %s\n", exc.what());
+        inner->user_data_dir = NativeToCppStringRaw(userDir);
+      }
+    }
+  }
+  else
     inner->user_data_dir = NativeToCppStringRaw(userDir);
+
   inner->full_init = full_init;
 }
 
