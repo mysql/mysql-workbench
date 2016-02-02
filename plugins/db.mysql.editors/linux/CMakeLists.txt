@@ -76,4 +76,11 @@ set_target_properties(db.mysql.editors.wbp
                                  VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})
 
+if(COMMAND cotire)
+    set_target_properties(db.mysql.editors.wbp PROPERTIES
+        COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS}")
+
+  cotire(db.mysql.editors.wbp)
+endif()
+
 install(TARGETS db.mysql.editors.wbp DESTINATION ${WB_PACKAGE_PLUGINS_DIR})

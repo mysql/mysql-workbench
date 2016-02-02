@@ -32,4 +32,11 @@ set_target_properties(wb.printing.wbp
                                  VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})
 
+if(COMMAND cotire)
+    set_target_properties(wb.printing.wbp PROPERTIES
+        COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS}")
+
+  cotire(wb.printing.wbp)
+endif()
+
 install(TARGETS wb.printing.wbp DESTINATION ${WB_PACKAGE_PLUGINS_DIR})

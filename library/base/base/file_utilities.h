@@ -70,7 +70,7 @@ namespace base
 #endif
 
     std::string path;
-    enum Status
+    enum LockStatus
     {
       LockedSelf, // lock file exists and is the process itself
       LockedOther, // lock file exists and its owner is running
@@ -80,7 +80,7 @@ namespace base
     LockFile(const std::string &path) throw (std::invalid_argument, std::runtime_error, file_locked_error);
     ~LockFile();
 #undef check // there's a #define check in osx
-    static Status check(const std::string &path);
+    static LockStatus check(const std::string &path);
   };
 
 

@@ -56,6 +56,12 @@ target_link_libraries(mdcanvas ${CAIRO_LIBRARIES})
 set_target_properties(mdcanvas        
                       PROPERTIES VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})
+if(COMMAND cotire)
+   set_target_properties(mysql-workbench-bin PROPERTIES
+        COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS}")
+
+  cotire(mdcanvas)
+endif()
 
 include_directories(./gtk)
 
@@ -69,6 +75,12 @@ set_target_properties(mdcanvasgtk
                       PROPERTIES VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})
 
+if(COMMAND cotire)
+    set_target_properties(mdcanvasgtk PROPERTIES
+        COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS}")
+
+  cotire(mdcanvasgtk)
+endif()
 
 install(TARGETS mdcanvas DESTINATION ${WB_INSTALL_LIB_DIR})
 install(TARGETS mdcanvasgtk DESTINATION ${WB_INSTALL_LIB_DIR})

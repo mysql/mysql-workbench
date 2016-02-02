@@ -23,4 +23,11 @@ set_target_properties(db.mysql.query.grt
                                  VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})
 
+if(COMMAND cotire)
+    set_target_properties(db.mysql.query.grt PROPERTIES
+        COTIRE_PREFIX_HEADER_IGNORE_PATH "${PRECOMPILED_HEADERS_EXCLUDE_PATHS}")
+
+  cotire(db.mysql.query.grt)
+endif()
+
 install(TARGETS db.mysql.query.grt DESTINATION ${WB_PYTHON_MODULES_DIR})

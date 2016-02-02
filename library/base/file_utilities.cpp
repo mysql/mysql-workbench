@@ -171,7 +171,7 @@ namespace base {
     DeleteFileW(string_to_wstring(path).c_str());
   }
   
-  LockFile::Status LockFile::check(const std::string &path)
+  LockFile::LockStatus LockFile::check(const std::string &path)
   {
     // Can we open the file in exclusive mode?
     std::wstring wpath = string_to_wstring(path);
@@ -270,7 +270,7 @@ namespace base {
     unlink(path.c_str());
   }
   
-  LockFile::Status LockFile::check(const std::string &path)
+  LockFile::LockStatus LockFile::check(const std::string &path)
   {
     int fd = open(path.c_str(), O_RDONLY);
     if (fd < 0)
