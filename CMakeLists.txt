@@ -30,8 +30,10 @@ string(STRIP ${WB_VERSION} WB_VERSION)
 # Look for our custom modules in cmake/Modules:
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/build/cmake/Modules/")
 
-include(cotire)
-set_property(DIRECTORY PROPERTY COTIRE_UNITY_LINK_LIBRARIES_INIT "COPY_UNITY")
+if(ENABLE_COTIRE)
+  include(cotire)
+  set_property(DIRECTORY PROPERTY COTIRE_UNITY_LINK_LIBRARIES_INIT "COPY_UNITY")
+endif()
 find_package(PkgConfig REQUIRED)
 
 find_package(X11)
