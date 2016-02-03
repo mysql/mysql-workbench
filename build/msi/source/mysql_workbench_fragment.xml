@@ -89,7 +89,7 @@
               </Component>
 
               <Component DiskId="1" Guid="87543D9F-DCBF-41bd-89ED-42161A8DA2AA" Id="Libraries" Location="either">
-                <File Id="file101" Name="db.grt.dll"/>
+                <File Id="file101" Name="utilities.grt.dll"/>
                 <File Id="file102" Name="db.mysql.editors.wbp.be.dll"/>
                 <File Id="file103" Name="db.mysql.editors.wbp.fe.dll"/>
                 <File Id="file104" Name="db.mysql.editors.wbp.wr.dll"/>
@@ -103,7 +103,6 @@
                 <File Id="file116" Name="mysql.forms.dll"/>
                 <File Id="file117" Name="mysqlcppconn.dll"/>
                 <File Id="file118" Name="sqlide.fe.dll"/>
-                <File Id="file121" Name="wb.utils.native.grt.dll"/>
                 <File Id="file122" Name="WbPlugins.dll"/>
                 <File Id="file123" Name="wbprivate.be.dll"/>
                 <File Id="file124" Name="wbprivate.wr.dll"/>
@@ -168,7 +167,7 @@
 
                 <RegistryValue Action="write" Id="Reg.Extn.MWB" Key=".mwb" Root="HKCR" Type="string" Value="MWBfile"/>
 
-                <RegistryKey Action="createAndRemoveOnUninstall" Id="Reg.Class.MWB" Key="MWBfile" Root="HKCR">
+                <RegistryKey ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes" Id="Reg.Class.MWB" Key="MWBfile" Root="HKCR">
                   <RegistryValue Id="Reg.Class.MWB.Value" Type="string" Value="MySQL Workbench File"/>
                   <RegistryValue Id="Reg.Class.MWB.Icon" Key="DefaultIcon" Type="string" Value="[#MySQLWorkbenchDoc.ico],0"/>
                   <RegistryValue Action="write" Id="Reg.Class.MWB.Command" Key="Shell\Open\Command" Type="string" Value="&quot;[#file1056]&quot; &quot;%1&quot;"/>
@@ -176,7 +175,7 @@
 				
 				<RegistryValue Action="write" Id="Reg.Extn.SQL" Key=".sql" Root="HKCR" Type="string" Value="SQLFile"/>	
 				
-                <RegistryKey Action="create" Id="Reg.Class.SQL" Key="SQLfile" Root="HKCR">
+                <RegistryKey ForceCreateOnInstall="yes" Id="Reg.Class.SQL" Key="SQLfile" Root="HKCR">
                   <RegistryValue Id="Reg.Class.SQL.Value" Type="string" Value="SQL Text File"/>
                   <RegistryValue Id="Reg.Class.SQL.Icon" Key="DefaultIcon" Type="string" Value="[#MySQLWorkbenchDoc.ico],0"/>
                   <RegistryValue Action="write" Id="Reg.Class.SQL.Command" Key="Shell\Open\Command" Type="string" Value="&quot;[#file1056]&quot; &quot;%1&quot;"/>
@@ -185,7 +184,7 @@
               </Component>
 
               <Component DiskId="1" Guid="5EDFE6C6-57CB-44BB-97B9-CA7CAA96E0A0" Id="MySQLWorkbenchProgramLink" Location="either">
-                <RegistryKey Action="createAndRemoveOnUninstall" Key="SOFTWARE\MySQL AB\[ProductName] \Install" Root="HKCU">
+                <RegistryKey ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes" Key="SOFTWARE\MySQL AB\[ProductName] \Install" Root="HKCU">
                   <RegistryValue KeyPath="yes" Name="ProgramSC" Type="integer" Value="1"/>
                 </RegistryKey>
                 <Shortcut Advertise="no" Description="MySQL Workbench Visual Database Designer" Directory="MysqlProgramMenuFolder" Icon="WBIcon.exe" IconIndex="0" Id="WBProgramShortcut" Name="$(var.PRODUCT_NAME)" Show="normal" Target="[INSTALLDIR]MySQLWorkbench.exe" WorkingDirectory="INSTALLDIR"/>
