@@ -40,7 +40,7 @@ string(STRIP ${WB_VERSION} WB_VERSION)
 # Look for our custom modules in cmake/Modules:
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/build/cmake/Modules/")
 
-if(ENABLE_COTIRE AND CMAKE_VERSION VERSION_GREATER "2.8.11")
+if(ENABLE_COTIRE)
   include(cotire)
   set_property(DIRECTORY PROPERTY COTIRE_UNITY_LINK_LIBRARIES_INIT "COPY_UNITY")
 endif()
@@ -123,7 +123,6 @@ find_package(MySQL 5.6.0 REQUIRED)
 if (UNIX)
 	set(MYSQL_DEFINITIONS "-DBIG_JOINS=1"  "-fno-strict-aliasing")
 endif()
-set(PRECOMPILED_HEADERS_EXCLUDE_PATHS "/usr/include/gdal;/usr/include/arpa;${CMAKE_SOURCE_DIR};${PROJECT_SOURCE_DIR}/ext/antlr-runtime;${PROJECT_BINARY_DIR};${MySQL_INCLUDE_DIRS}")
 
 
 
@@ -137,6 +136,7 @@ find_package(MySQLCppConn REQUIRED)
 find_package(VSqlite REQUIRED)
 find_package(TinyXML REQUIRED)
 find_package(GDAL REQUIRED)
+find_package(MySQLNG REQUIRED)
 find_package(Boost REQUIRED)
 
 if (MYSQLCPPCONN_VERSION_1_1_4)
@@ -146,6 +146,8 @@ endif ()
 if (MYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER)
   add_definitions(-DMYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER)
 endif (MYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER)
+
+set(PRECOMPILED_HEADERS_EXCLUDE_PATHS "/usr/include/gdal;/usr/include/arpa;${CMAKE_SOURCE_DIR};${PROJECT_SOURCE_DIR}/ext/antlr-runtime;${PROJECT_BINARY_DIR};${MySQL_INCLUDE_DIRS};${MYSQLNG_INCLUDE_DIR};${Boost_INCLUDE_DIRS}")
 
 if (UNIX)
   option(USE_UNIXODBC "Use unixODBC instead of iODBC" OFF)
@@ -297,14 +299,14 @@ set(BUILD_SHARED_LIBS ON)  # By default all libs will be built as shared libs
 # we use supports each flag to allow for non-gcc compilers in Linux (as above)?
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set(MY_CXXFLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-deprecated -DTIXML_USE_STL=1 -std=c++11")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Werror -g ${MY_CXXFLAGS}")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g ${MY_CXXFLAGS}")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${MY_CXXFLAGS}") 
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.7")
     message(FATAL_ERROR "Insufficient gcc version. You need gcc v4.7 or newer to build this project")
   endif()
 	set(MY_CXXFLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-deprecated -DTIXML_USE_STL=1 -std=c++11")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Werror -ggdb3 ${MY_CXXFLAGS}")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb3 ${MY_CXXFLAGS}")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${MY_CXXFLAGS}") 
 endif()
 
