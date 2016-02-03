@@ -107,8 +107,7 @@
 
       <DirectoryRef Id="INSTALLDIR">
           <Component Id="RegKeys" Guid="$(var.COMPONENT_REG_GUID)" DiskId="1">
-            <RegistryKey Id="MysqlKey" Root="HKLM" Key="SOFTWARE\MySQL AB\[ProductName]" 
-                      Action="createAndRemoveOnUninstall"/>
+            <RegistryKey Id="MysqlKey" Root="HKLM" Key="SOFTWARE\MySQL AB\[ProductName]" ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes"/>
                       
             <RegistryValue Id="Version" Root="HKLM" Key="SOFTWARE\MySQL AB\[ProductName]" 
                       Name="Version" Type="string" 
