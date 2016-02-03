@@ -882,11 +882,11 @@ class SSLWizard_GeneratePage(WizardPage):
     def __init__(self, owner):
         WizardPage.__init__(self, owner, "Generate certificates and self-signed keys")
 
-        self.ca_cert = os.path.join(self.main.results_path, "ca-cert.pem")
-        self.server_cert = os.path.join(self.main.results_path, "server-cert.pem")
-        self.server_key = os.path.join(self.main.results_path, "server-key.pem")
-        self.client_cert = os.path.join(self.main.results_path, "client-cert.pem")
-        self.client_key = os.path.join(self.main.results_path, "client-key.pem")
+        self.ca_cert = os.path.join(self.main.results_path, "ca-cert.pem").replace('\\', '/')
+        self.server_cert = os.path.join(self.main.results_path, "server-cert.pem").replace('\\', '/')
+        self.server_key = os.path.join(self.main.results_path, "server-key.pem").replace('\\', '/')
+        self.client_cert = os.path.join(self.main.results_path, "client-cert.pem").replace('\\', '/')
+        self.client_key = os.path.join(self.main.results_path, "client-key.pem").replace('\\', '/')
 
         self.table = mforms.newTable()
         self.table.set_padding(12)
@@ -984,11 +984,11 @@ ssl-key=%(client_key)s
 ssl-ca=%(ca_cert)s
 ssl-cert=%(server_cert)s
 ssl-key=%(server_key)s
-        """ % {"ca_cert"     : os.path.join("<directory>", os.path.basename(self.ca_cert)), 
-               "server_cert" : os.path.join("<directory>", os.path.basename(self.server_cert)), 
-               "server_key"  : os.path.join("<directory>", os.path.basename(self.server_key)), 
-               "client_cert" : os.path.join("<directory>", os.path.basename(self.client_cert)), 
-               "client_key"  : os.path.join("<directory>", os.path.basename(self.client_key))
+        """ % {"ca_cert"     : os.path.join("<directory>", os.path.basename(self.ca_cert)).replace('\\', '/'), 
+               "server_cert" : os.path.join("<directory>", os.path.basename(self.server_cert)).replace('\\', '/'), 
+               "server_key"  : os.path.join("<directory>", os.path.basename(self.server_key)).replace('\\', '/'), 
+               "client_cert" : os.path.join("<directory>", os.path.basename(self.client_cert)).replace('\\', '/'), 
+               "client_key"  : os.path.join("<directory>", os.path.basename(self.client_key)).replace('\\', '/')
               })
         f.close()
         log_debug2("SSL Wizard generation task result: %s\n" % str(task.result))
@@ -1006,9 +1006,9 @@ class SSLWizard_ResultsPage(WizardPage):
 
     def go_next(self):
         if self.update_connection:
-            self.main.conn.parameterValues['sslCA'] = self.main.generate_page.ca_cert
-            self.main.conn.parameterValues['sslCert'] = self.main.generate_page.client_cert
-            self.main.conn.parameterValues['sslKey'] = self.main.generate_page.client_key
+            self.main.conn.parameterValues['sslCA'] = self.main.generate_page.ca_cert.replace('\\', '/')
+            self.main.conn.parameterValues['sslCert'] = self.main.generate_page.client_cert.replace('\\', '/')
+            self.main.conn.parameterValues['sslKey'] = self.main.generate_page.client_key.replace('\\', '/')
             self.main.conn.parameterValues['useSSL'] = 2
             
         self.main.go_next_page()
@@ -1021,9 +1021,9 @@ class SSLWizard_ResultsPage(WizardPage):
             message += "Click on the finish button to update the connection. "
             
         message += "To setup the server, you should \ncopy the following files to a <directory> inside %s:\n\n" % self.main.conn.parameterValues['hostName']
-        message += " - %s\n" % str(os.path.join(self.main.results_path, "ca-cert.pem"))
-        message += " - %s\n" % str(os.path.join(self.main.results_path, "server-cert.pem"))
-        message += " - %s\n" % str(os.path.join(self.main.results_path, "server-key.pem"))
+        message += " - %s\n" % str(os.path.join(self.main.results_path, "ca-cert.pem")).replace('\\', '/')
+        message += " - %s\n" % str(os.path.join(self.main.results_path, "server-cert.pem")).replace('\\', '/')
+        message += " - %s\n" % str(os.path.join(self.main.results_path, "server-key.pem")).replace('\\', '/')
         message += "\n\nand edit the config file to use the following parameters:"
         
         label = mforms.newLabel(message)
@@ -1036,7 +1036,7 @@ class SSLWizard_ResultsPage(WizardPage):
         self.content.add(config_file, False, True)
         f.close()
         
-        label = mforms.newLabel("A copy of this file can be found in:\n%s" % str(os.path.join(self.main.results_path, "my.cnf.sample")))
+        label = mforms.newLabel("A copy of this file can be found in:\n%s" % str(os.path.join(self.main.results_path, "my.cnf.sample").replace('\\', '/')))
         self.content.add(label, False, True)
         
         return
