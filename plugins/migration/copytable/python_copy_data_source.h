@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,7 +34,7 @@ class PythonCopyDataSource : public CopyDataSource
 
   PyObject *_connection;
   PyObject *_cursor;
-  boost::shared_ptr<std::vector<ColumnInfo> > _columns;
+  std::shared_ptr<std::vector<ColumnInfo> > _columns;
   std::vector<SQLSMALLINT> _column_types;
   size_t _column_count;
 
@@ -50,7 +50,7 @@ public:
 public:
   virtual size_t count_rows(const std::string &schema, const std::string &table, const std::vector<std::string> &pk_columns,
                             const CopySpec &spec, const std::vector<std::string> &last_pkeys);
-  virtual boost::shared_ptr<std::vector<ColumnInfo> > begin_select_table(const std::string &schema, const std::string &table,
+  virtual std::shared_ptr<std::vector<ColumnInfo> > begin_select_table(const std::string &schema, const std::string &table,
                                                                          const std::vector<std::string> &pk_columns,
                                                                          const std::string &select_expression,
                                                                          const CopySpec &spec, const std::vector<std::string> &last_pkeys);

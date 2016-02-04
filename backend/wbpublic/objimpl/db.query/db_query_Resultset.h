@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,7 +25,7 @@
 #include <cppconn/resultset.h>
 
 db_query_ResultsetRef WBPUBLICBACKEND_PUBLIC_FUNC grtwrap_recordset(GrtObjectRef owner, Recordset::Ref rset);
-db_query_ResultsetRef WBPUBLICBACKEND_PUBLIC_FUNC grtwrap_recordset(GrtObjectRef owner, boost::shared_ptr<sql::ResultSet> result);
+db_query_ResultsetRef WBPUBLICBACKEND_PUBLIC_FUNC grtwrap_recordset(GrtObjectRef owner, std::shared_ptr<sql::ResultSet> result);
 
 
 class WBPUBLICBACKEND_PUBLIC_FUNC db_query_Resultset::ImplData
@@ -66,9 +66,9 @@ class WBPUBLICBACKEND_PUBLIC_FUNC WBRecordsetResultset : public db_query_Results
 {
 public:
   size_t cursor;
-  boost::shared_ptr<Recordset> recordset;
+  std::shared_ptr<Recordset> recordset;
 
-  WBRecordsetResultset(db_query_ResultsetRef aself, boost::shared_ptr<Recordset> rset);
+  WBRecordsetResultset(db_query_ResultsetRef aself, std::shared_ptr<Recordset> rset);
   virtual grt::StringRef sql() const;
   virtual grt::IntegerRef currentRow() const;
   virtual grt::IntegerRef rowCount() const;

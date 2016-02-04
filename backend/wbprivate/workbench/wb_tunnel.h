@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,7 +51,7 @@ namespace wb
     void start();
     void shutdown();
 
-    boost::shared_ptr<sql::TunnelConnection> create_tunnel(db_mgmt_ConnectionRef connectionProperties);
+    std::shared_ptr<sql::TunnelConnection> create_tunnel(db_mgmt_ConnectionRef connectionProperties);
 
     bool get_message_for(int port, std::string &type, std::string &message);
   };

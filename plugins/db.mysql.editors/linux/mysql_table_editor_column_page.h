@@ -74,10 +74,10 @@ class DbMySQLTableEditorColumnPage : public sigc::trackable
     bool                                      _auto_edit_pending;
 
     // Auto completion of types and related functions
-    static boost::shared_ptr<AutoCompletable> _types_completion;
-    static boost::shared_ptr<AutoCompletable> _names_completion;
-    static boost::shared_ptr<AutoCompletable> types_completion();
-    static boost::shared_ptr<AutoCompletable> names_completion();
+    static std::shared_ptr<AutoCompletable> _types_completion;
+    static std::shared_ptr<AutoCompletable> _names_completion;
+    static std::shared_ptr<AutoCompletable> types_completion();
+    static std::shared_ptr<AutoCompletable> names_completion();
     static void type_cell_editing_started(GtkCellRenderer* cr, GtkCellEditable* ce, gchar* path, gpointer udata);
     static void cell_editing_done(GtkCellEditable* ce, gpointer udata);
     bool                                      _editing;

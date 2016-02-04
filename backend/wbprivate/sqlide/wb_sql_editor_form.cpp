@@ -55,9 +55,7 @@
 
 #include <mysql_connection.h>
 
-#include <boost/foreach.hpp>
 #include <boost/scoped_ptr.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/signals2/connection.hpp>
 
 #include "query_side_palette.h"
@@ -691,7 +689,7 @@ void SqlEditorForm::close()
   // are kept that prevent the correct deletion of the editor.
   if (_tabdock)
   {
-    for (size_t c = _tabdock->view_count(), i = 0; i < c; i++)
+    for (std::size_t c = _tabdock->view_count(), i = 0; i < c; i++)
     {
       SqlEditorPanel *p = sql_editor_panel((int)i);
       if (p)
@@ -769,7 +767,7 @@ void SqlEditorForm::schema_tree_did_populate()
   }
 }
 
-std::string SqlEditorForm::fetch_data_from_stored_procedure(std::string proc_call, boost::shared_ptr<sql::ResultSet> &rs)
+std::string SqlEditorForm::fetch_data_from_stored_procedure(std::string proc_call, std::shared_ptr<sql::ResultSet> &rs)
 {
   std::string ret_val("");
   try
@@ -1088,7 +1086,7 @@ void SqlEditorForm::init_connection(sql::Connection* dbc_conn_ref, const db_mgmt
     {
       std::auto_ptr<sql::Statement> stmt(dbc_conn_ref->createStatement());
       stmt->execute(query_connection_id);
-      boost::shared_ptr<sql::ResultSet> rs(stmt->getResultSet());
+      std::shared_ptr<sql::ResultSet> rs(stmt->getResultSet());
       rs->next();
       dbc_conn->id= rs->getInt(1);
     }
@@ -1103,7 +1101,7 @@ static void set_active_schema(SqlEditorForm::Ptr self, const std::string &schema
 }
 
 void SqlEditorForm::create_connection(sql::Dbc_connection_handler::Ref &dbc_conn, db_mgmt_ConnectionRef db_mgmt_conn, 
-                                      boost::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref auth,
+                                      std::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref auth,
                                       bool autocommit_mode, bool user_connection)
 {
   dbc_conn->is_stop_query_requested= false;
@@ -1231,7 +1229,7 @@ void SqlEditorForm::set_connection(db_mgmt_ConnectionRef conn)
 }
 
 
-bool SqlEditorForm::connect(boost::shared_ptr<sql::TunnelConnection> tunnel)
+bool SqlEditorForm::connect(std::shared_ptr<sql::TunnelConnection> tunnel)
 {
   sql::Authentication::Ref auth = _dbc_auth;//sql::Authentication::create(_connection, "");
   enum PasswordMethod {
@@ -1360,7 +1358,7 @@ std::string SqlEditorForm::get_client_lib_version()
 
 //--------------------------------------------------------------------------------------------------
 
-grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref &auth, ConnectionErrorInfo *err_ptr)
+grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, std::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref &auth, ConnectionErrorInfo *err_ptr)
 {
   try
   {
@@ -1690,7 +1688,7 @@ RecMutexLock SqlEditorForm::ensure_valid_dbc_connection(sql::Dbc_connection_hand
       if (dbc_conn->autocommit_mode)
       {
         sql::AuthenticationSet authset;
-        boost::shared_ptr<sql::TunnelConnection> tunnel = sql::DriverManager::getDriverManager()->getTunnel(_connection);
+        std::shared_ptr<sql::TunnelConnection> tunnel = sql::DriverManager::getDriverManager()->getTunnel(_connection);
         
         create_connection(dbc_conn, _connection, tunnel, sql::Authentication::Ref(), dbc_conn->autocommit_mode, user_connection);
         if (!dbc_conn->ref->isClosed())
@@ -1870,9 +1868,10 @@ void SqlEditorForm::exec_sql_retaining_editor_contents(const std::string &sql_sc
     exec_sql_task->fail_cb(boost::bind(&SqlEditorPanel::query_failed, editor, _1), true);
   }
 
+
   exec_sql_task->exec(sync,
     boost::bind(&SqlEditorForm::do_exec_sql, this, _1,
-               weak_ptr_from(this), boost::shared_ptr<std::string>(new std::string(sql_script)),
+               weak_ptr_from(this), std::shared_ptr<std::string>(new std::string(sql_script)),
                editor, (ExecFlags)(dont_add_limit_clause?DontAddLimitClause:0),
                RecordsetsRef()));
 }
@@ -1894,7 +1893,7 @@ RecordsetsRef SqlEditorForm::exec_sql_returning_results(const std::string &sql_s
 
   RecordsetsRef rsets(new Recordsets());
   
-  do_exec_sql(_grtm->get_grt(), weak_ptr_from(this), boost::shared_ptr<std::string>(new std::string(sql_script)),
+  do_exec_sql(_grtm->get_grt(), weak_ptr_from(this), std::shared_ptr<std::string>(new std::string(sql_script)),
     NULL, (ExecFlags)(dont_add_limit_clause?DontAddLimitClause:0), rsets);
 
   return rsets;
@@ -1922,7 +1921,7 @@ RecordsetsRef SqlEditorForm::exec_sql_returning_results(const std::string &sql_s
 bool SqlEditorForm::exec_editor_sql(SqlEditorPanel *editor, bool sync, bool current_statement_only,
   bool use_non_std_delimiter, bool dont_add_limit_clause, SqlEditorResult *into_result)
 {
-  boost::shared_ptr<std::string> shared_sql;
+  std::shared_ptr<std::string> shared_sql;
   if (current_statement_only)
     shared_sql.reset(new std::string(editor->editor_be()->current_statement()));
   else
@@ -1930,7 +1929,7 @@ bool SqlEditorForm::exec_editor_sql(SqlEditorPanel *editor, bool sync, bool curr
     std::string sql = editor->editor_be()->selected_text();
     if (sql.empty())
     {
-      std::pair<const char*, size_t> text = editor->text_data();
+      std::pair<const char*, std::size_t> text = editor->text_data();
       shared_sql.reset(new std::string(text.first, text.second));
     }
     else
@@ -1987,7 +1986,7 @@ void SqlEditorForm::update_live_schema_tree(const std::string &sql)
 }
 
 
-grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::shared_ptr<std::string> sql,
+grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, std::shared_ptr<std::string> sql,
   SqlEditorPanel *editor, ExecFlags flags, RecordsetsRef result_list)
 {
   bool use_non_std_delimiter = (flags & NeedNonStdDelimiter) != 0;
@@ -2005,7 +2004,12 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
 
   _grtm->replace_status_text(_("Executing Query..."));
 
-  RETVAL_IF_FAIL_TO_RETAIN_WEAK_PTR (SqlEditorForm, self_ptr, self, grt::StringRef(""))
+  std::shared_ptr<SqlEditorForm> self_ref= (self_ptr).lock();
+  SqlEditorForm *self= (self_ref).get();
+  {
+    if (!self)
+      return grt::StringRef("");
+  }
 
   // add_log_message() will increment this variable on errors or warnings
   _exec_sql_error_count = 0;
@@ -2033,7 +2037,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
 
     bool ran_set_sql_mode = false;
     bool logging_queries;
-    std::vector<std::pair<size_t, size_t> > statement_ranges;
+    std::vector<std::pair<std::size_t, std::size_t> > statement_ranges;
     sql_facade->splitSqlScript(sql->c_str(), sql->size(),
       use_non_std_delimiter ? sql_specifics->non_std_sql_delimiter() : ";", statement_ranges);
 
@@ -2062,13 +2066,12 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
     ssize_t total_result_count = (editor != NULL) ? editor->resultset_count() : 0; // Consider pinned result sets.
 
     bool results_left = false;
-    std::pair<size_t, size_t> statement_range;
-    BOOST_FOREACH (statement_range, statement_ranges)
+    for (auto &statement_range : statement_ranges)
     {
       statement = sql->substr(statement_range.first, statement_range.second);
       std::list<std::string> sub_statements;
       sql_facade->splitSqlScript(statement, sub_statements);
-      size_t multiple_statement_count = sub_statements.size();
+      std::size_t multiple_statement_count = sub_statements.size();
       bool is_multiple_statement = (1 < multiple_statement_count);
 
       {
@@ -2131,7 +2134,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
           long long updated_rows_count= -1;
           Timer statement_exec_timer(false);
           Timer statement_fetch_timer(false);
-          boost::shared_ptr<sql::Statement> dbc_statement(_usr_dbc_conn->ref->createStatement());
+          std::shared_ptr<sql::Statement> dbc_statement(_usr_dbc_conn->ref->createStatement());
           bool is_result_set_first= false;
 
           if (_usr_dbc_conn->is_stop_query_requested)
@@ -2261,7 +2264,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                   else
                     set_log_message(log_message_index, DbSqlEditorLog::BusyMsg, _("Fetching..."), statement, statement_exec_timer.duration_formatted() + " / ?");
                   reuse_log_msg= false;
-                  boost::shared_ptr<sql::ResultSet> dbc_resultset;
+                  std::shared_ptr<sql::ResultSet> dbc_resultset;
                   {
                     base::ScopeExitTrigger schedule_statement_fetch_timer_stop(boost::bind(&Timer::stop, &statement_fetch_timer));
                     statement_fetch_timer.run();
@@ -2537,7 +2540,7 @@ db_query_ResultsetRef SqlEditorForm::exec_management_query(const std::string &sq
     Timer statement_exec_timer(false);
     try
     {
-      boost::shared_ptr<sql::ResultSet> results(stmt->executeQuery(sql));
+      std::shared_ptr<sql::ResultSet> results(stmt->executeQuery(sql));
 
       if (log)
         set_log_message(rid, DbSqlEditorLog::OKMsg, _("OK"), sql, statement_exec_timer.duration_formatted());
@@ -2565,7 +2568,7 @@ db_query_ResultsetRef SqlEditorForm::exec_main_query(const std::string &sql, boo
     Timer statement_exec_timer(false);
     try
     {
-      boost::shared_ptr<sql::ResultSet> results(stmt->executeQuery(sql));
+      std::shared_ptr<sql::ResultSet> results(stmt->executeQuery(sql));
       
       if (log)
       set_log_message(rid, DbSqlEditorLog::OKMsg, _("OK"), sql, statement_exec_timer.duration_formatted());
@@ -2995,9 +2998,9 @@ db_mgmt_RdbmsRef SqlEditorForm::rdbms()
 int SqlEditorForm::count_connection_editors(const std::string &conn_name)
 {
   int count = 0;
-  boost::weak_ptr<SqlEditorForm> editor;
+  std::weak_ptr<SqlEditorForm> editor;
   
-  std::list<boost::weak_ptr<SqlEditorForm> >::iterator index, end;
+  std::list<std::weak_ptr<SqlEditorForm> >::iterator index, end;
   
   end = _wbsql->get_open_editors()->end();
   for(index = _wbsql->get_open_editors()->begin(); index != end; index++)
@@ -3186,7 +3189,7 @@ bool SqlEditorForm::can_close_(bool interactive)
       }
 
       std::list<SqlEditorResult*> rset(panel->dirty_result_panels());
-      BOOST_FOREACH(SqlEditorResult *r, rset)
+      for(auto *r : rset)
       {
         dialog.add_item("Resultset", r->caption());
       }

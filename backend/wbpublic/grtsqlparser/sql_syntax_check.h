@@ -30,7 +30,7 @@
 class WBPUBLICBACKEND_PUBLIC_FUNC Sql_syntax_check : virtual public Sql_parser_base
 {
 public:
-  typedef boost::shared_ptr<Sql_syntax_check> Ref;
+  typedef std::shared_ptr<Sql_syntax_check> Ref;
 protected:
   Sql_syntax_check() : _object_type(ot_none) {}
 

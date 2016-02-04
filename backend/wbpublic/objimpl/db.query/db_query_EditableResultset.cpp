@@ -24,7 +24,7 @@
 class WBPUBLICBACKEND_PUBLIC_FUNC db_query_EditableResultset::ImplData : public WBRecordsetResultset
 {
 public:
-  ImplData(db_query_EditableResultsetRef aself, boost::shared_ptr<Recordset> rset)
+  ImplData(db_query_EditableResultsetRef aself, std::shared_ptr<Recordset> rset)
   : WBRecordsetResultset(aself, rset)
   {
   }

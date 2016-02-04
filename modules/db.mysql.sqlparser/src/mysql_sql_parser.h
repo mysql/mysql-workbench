@@ -17,7 +17,10 @@
  * 02110-1301  USA
  */
 
-#pragma once 
+
+#ifndef _MYSQL_SQL_PARSER_H_
+#define _MYSQL_SQL_PARSER_H_
+
 
 #include "mysql_sql_parser_base.h"
 #include "grtsqlparser/sql_parser.h"
@@ -35,11 +38,11 @@ class MYSQL_SQL_PARSER_PUBLIC_FUNC Mysql_sql_parser
   : protected Mysql_sql_parser_base, public Sql_parser
 {
 public:
-  typedef boost::shared_ptr<Mysql_sql_parser> Ref;
-  static Ref create() { return Ref(new Mysql_sql_parser); }
+  typedef std::shared_ptr<Mysql_sql_parser> Ref;
+  static Ref create(grt::GRT *grt) { return Ref(new Mysql_sql_parser(grt)); }
   virtual ~Mysql_sql_parser() {}
 protected:
-  Mysql_sql_parser();
+  Mysql_sql_parser(grt::GRT *grt);
 
 public:
   virtual int parse_sql_script(db_CatalogRef catalog, const std::string &sql, grt::DictRef options);
@@ -186,3 +189,6 @@ protected:
   };
   friend class Null_state_keeper;
 };
+
+
+#endif // _MYSQL_SQL_PARSER_H_

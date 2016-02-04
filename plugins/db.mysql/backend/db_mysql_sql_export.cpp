@@ -58,17 +58,17 @@ DbMySQLSQLExport::DbMySQLSQLExport(db_mysql_CatalogRef catalog)
   if(!_catalog.is_valid())
     _catalog= get_model_catalog();  // call own version
 
-  _users_model= boost::shared_ptr<bec::GrtStringListModel>(new bec::GrtStringListModel());
-  _users_exc_model= boost::shared_ptr<bec::GrtStringListModel>(new bec::GrtStringListModel());
+  _users_model= std::shared_ptr<bec::GrtStringListModel>(new bec::GrtStringListModel());
+  _users_exc_model= std::shared_ptr<bec::GrtStringListModel>(new bec::GrtStringListModel());
  
-  _tables_model= boost::shared_ptr<bec::GrtStringListModel>(new bec::GrtStringListModel());
-  _tables_exc_model= boost::shared_ptr<bec::GrtStringListModel>(new bec::GrtStringListModel());
-  _views_model= boost::shared_ptr<bec::GrtStringListModel>(new bec::GrtStringListModel());
-  _views_exc_model= boost::shared_ptr<bec::GrtStringListModel>(new bec::GrtStringListModel());
-  _routines_model= boost::shared_ptr<bec::GrtStringListModel>(new bec::GrtStringListModel());
-  _routines_exc_model= boost::shared_ptr<bec::GrtStringListModel>(new bec::GrtStringListModel());
-  _triggers_model= boost::shared_ptr<bec::GrtStringListModel>(new bec::GrtStringListModel());
-  _triggers_exc_model= boost::shared_ptr<bec::GrtStringListModel>(new bec::GrtStringListModel());
+  _tables_model= std::shared_ptr<bec::GrtStringListModel>(new bec::GrtStringListModel());
+  _tables_exc_model= std::shared_ptr<bec::GrtStringListModel>(new bec::GrtStringListModel());
+  _views_model= std::shared_ptr<bec::GrtStringListModel>(new bec::GrtStringListModel());
+  _views_exc_model= std::shared_ptr<bec::GrtStringListModel>(new bec::GrtStringListModel());
+  _routines_model= std::shared_ptr<bec::GrtStringListModel>(new bec::GrtStringListModel());
+  _routines_exc_model= std::shared_ptr<bec::GrtStringListModel>(new bec::GrtStringListModel());
+  _triggers_model= std::shared_ptr<bec::GrtStringListModel>(new bec::GrtStringListModel());
+  _triggers_exc_model= std::shared_ptr<bec::GrtStringListModel>(new bec::GrtStringListModel());
 }
 
 db_mysql_CatalogRef DbMySQLSQLExport::get_model_catalog()

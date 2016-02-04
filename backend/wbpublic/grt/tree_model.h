@@ -33,7 +33,6 @@
 #include "base/threading.h"
 
 #include "wbpublic_public_interface.h"
-#include <boost/shared_ptr.hpp>
 #include <ctype.h>
 
 #include <set>
@@ -331,7 +330,7 @@ namespace bec
   class WBPUBLICBACKEND_PUBLIC_FUNC GridModel : public ListModel
   {
   public:
-    typedef boost::shared_ptr<GridModel> Ref;
+    typedef std::shared_ptr<GridModel> Ref;
 
     enum ColumnType
     {

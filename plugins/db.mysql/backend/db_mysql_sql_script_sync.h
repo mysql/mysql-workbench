@@ -11,7 +11,7 @@
 class SynchronizeDifferencesPageBEInterface
 {
 protected:
-    boost::shared_ptr<DiffTreeBE> _diff_tree;
+    std::shared_ptr<DiffTreeBE> _diff_tree;
     StringRef _sync_profile_name;
 public:
   SynchronizeDifferencesPageBEInterface() {};
@@ -27,7 +27,7 @@ public:
   virtual void get_compared_catalogs(db_CatalogRef &left, db_CatalogRef &right) = 0;
   virtual std::string get_col_name(const size_t col_id) = 0;
   virtual std::string get_sql_for_object(GrtNamedObjectRef obj) = 0;
-  virtual boost::shared_ptr<DiffTreeBE> init_diff_tree(const std::vector<std::string>& schemata, const grt::ValueRef &ext_cat, 
+  virtual std::shared_ptr<DiffTreeBE> init_diff_tree(const std::vector<std::string>& schemata, const grt::ValueRef &ext_cat, 
                                                        const grt::ValueRef &cat2, grt::StringListRef SchemaSkipList,
                                                        grt::DictRef options) = 0;
 };
@@ -55,7 +55,7 @@ class WBPLUGINDBMYSQLBE_PUBLIC_FUNC DbMySQLScriptSync : public DbMySQLValidation
   std::string _output_filename;
   std::vector<std::string> schemata_list;  // all schemata present on server (unfiltered)
 
-  boost::shared_ptr<DiffChange> _alter_change;
+  std::shared_ptr<DiffChange> _alter_change;
 
   void sync_finished(grt::ValueRef res);
   grt::ValueRef sync_task(grt::StringRef);
@@ -74,7 +74,7 @@ public:
 
   void set_option(const std::string& name, const std::string& value);
 
-  boost::shared_ptr<DiffTreeBE> init_diff_tree(const std::vector<std::string>& schemata, const ValueRef &left, const ValueRef &right, StringListRef SchemaSkipList = StringListRef(), grt::DictRef options = grt::DictRef());
+  std::shared_ptr<DiffTreeBE> init_diff_tree(const std::vector<std::string>& schemata, const ValueRef &left, const ValueRef &right, StringListRef SchemaSkipList = StringListRef(), grt::DictRef options = grt::DictRef());
 
 
   std::string get_sql_for_object(GrtNamedObjectRef obj);

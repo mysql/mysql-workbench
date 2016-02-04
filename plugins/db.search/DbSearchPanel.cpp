@@ -30,7 +30,7 @@
 
 DEFAULT_LOG_DOMAIN("db.search");
 
-grt::ValueRef call_search(boost::function<void ()> search, boost::function<void ()> fail_cb)
+grt::ValueRef call_search(grt::GRT*, boost::function<void ()> search, boost::function<void ()> fail_cb)
 {
     try {
       search();
@@ -128,7 +128,7 @@ public:
         const std::string cast_to) : 
     _db_conn(connection), _filter_list(filter_list), _search_keyword(search_keyword), _state("Starting"), 
         _progress(0), _search_mode(search_mode), _limit_total(limit_total), _limt_per_table(limt_per_table),
-        _limit_counter(0), _working(false), _stop(false), _starting(false), _paused(false), _invert(invert),
+        _working(false), _stop(false), _starting(false), _paused(false), _invert(invert), 
         _searched_tables(0), _matched_rows(0),
         _cast_to(cast_to), _search_data_type(search_data_type)
     {}
@@ -491,7 +491,7 @@ void DBSearch::run(select_func_t select_func)
         }
         catch (std::exception &exc)
         {
-          log_warning("Could not get columns list from %s.%s: %s\n", schema_name.c_str(), table_name.c_str(), exc.what());
+          logWarning("Could not get columns list from %s.%s: %s\n", schema_name.c_str(), table_name.c_str(), exc.what());
         }
         //Add PK col if there is at least one column matching pattern and it it wasn't added during col patterns search
         if (pk_columns.empty() && !select_columns.empty())
@@ -511,7 +511,7 @@ void DBSearch::run(select_func_t select_func)
           }
           catch (std::exception &exc)
           {
-            log_warning("Could not get columns list from %s.%s: %s\n", schema_name.c_str(), table_name.c_str(), exc.what());
+            logWarning("Could not get columns list from %s.%s: %s\n", schema_name.c_str(), table_name.c_str(), exc.what());
           }
         }
 
@@ -554,8 +554,8 @@ void DBSearch::run(select_func_t select_func)
     _working = false;
 }
 
-DBSearchPanel::DBSearchPanel(): Box(false),
-    _progress_box(true), _results_tree(mforms::TreeAltRowColors), _update_timer(NULL), _search_finished(true)
+DBSearchPanel::DBSearchPanel(bec::GRTManager* grtm): Box(false),
+    _progress_box(true), _results_tree(mforms::TreeAltRowColors), _update_timer(NULL), _grtm(grtm), _search_finished(true)
 {
     set_spacing(8);
 
@@ -590,7 +590,7 @@ DBSearchPanel::~DBSearchPanel()
 {
     stop_search_if_working();
     if (_update_timer)
-      bec::GRTManager::get().cancel_timer(_update_timer);
+        _grtm->cancel_timer(_update_timer);
 }
 
 
@@ -828,17 +828,17 @@ void DBSearchPanel::search(sql::ConnectionWrapper connection, const std::string&
     stop_search_if_working();
     _search_finished = false;
     if (_update_timer)
-      bec::GRTManager::get().cancel_timer(_update_timer);
-    _searcher = boost::shared_ptr<DBSearch>(new DBSearch(connection, search_keyword, filter_list, search_mode, limit_total, limt_per_table, invert, search_data_type, cast_to));
+        _grtm->cancel_timer(_update_timer);
+    _searcher = std::shared_ptr<DBSearch>(new DBSearch(connection, search_keyword, filter_list, search_mode, limit_total, limt_per_table, invert, search_data_type, cast_to));
     load_model(_results_tree.root_node());
     boost::function<void ()> fsearch = (boost::bind(&DBSearch::search, _searcher.get()));
     //fsearch = (boost::bind(&DBSearch::count, _searcher.get()));//COUNT test
     _searcher->prepare();
-    bec::GRTManager::get().execute_grt_task("Search",
-        boost::bind(call_search, fsearch, failed_callback),
+    _grtm->execute_grt_task("Search",
+        boost::bind(call_search, _1, fsearch, failed_callback),
         finished_callback);
     while (_searcher->is_starting());
-    _update_timer = bec::GRTManager::get().run_every(boost::bind(&DBSearchPanel::update, this), 1);
+    _update_timer = _grtm->run_every(boost::bind(&DBSearchPanel::update, this), 1);
 }
   
 bool DBSearchPanel::update()

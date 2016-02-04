@@ -90,8 +90,8 @@ TEST_FUNCTION(10)
     
     cmp.init_omf(&omf);
 
-    boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
-    boost::shared_ptr<DiffChange> drop_change= diff_make(catalog, e, &omf);
+    std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
+    std::shared_ptr<DiffChange> drop_change = diff_make(catalog, e, &omf);
 
     DictRef create_map(true);
     DictRef drop_map(true);
@@ -126,8 +126,8 @@ TEST_FUNCTION(20)
     
     cmp.init_omf(&omf);
 
-    boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
-    boost::shared_ptr<DiffChange> drop_change= diff_make(catalog, e, &omf);
+    std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
+    std::shared_ptr<DiffChange> drop_change = diff_make(catalog, e, &omf);
 
     DictRef create_map(true);
     DictRef drop_map(true);
@@ -162,8 +162,8 @@ TEST_FUNCTION(30)
     
     cmp.init_omf(&omf);
 
-    boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
-    boost::shared_ptr<DiffChange> drop_change= diff_make(catalog, e, &omf);
+    std::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
+    std::shared_ptr<DiffChange> drop_change= diff_make(catalog, e, &omf);
 
     DictRef create_map(true);
     DictRef drop_map(true);
@@ -208,8 +208,8 @@ TEST_FUNCTION(40)
     
     cmp.init_omf(&omf);
 
-    boost::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
-    boost::shared_ptr<DiffChange> drop_change = diff_make(catalog, e, &omf);
+    std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
+    std::shared_ptr<DiffChange> drop_change = diff_make(catalog, e, &omf);
 
     DictRef create_map(true);
     DictRef drop_map(true);
@@ -268,7 +268,7 @@ TEST_FUNCTION(50)
   {
     table->comment(comment_60);
     table->columns()[1]->comment(comment_255);
-    boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
+    std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
 
     DictRef create_map(true);
     DictRef drop_map(true);
@@ -289,7 +289,7 @@ TEST_FUNCTION(50)
   {
     table->comment(comment_60+"###");
     table->columns()[1]->comment(comment_255+"###");
-    boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
+    std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
 
     DictRef create_map(true);
     DictRef drop_map(true);
@@ -317,7 +317,7 @@ TEST_FUNCTION(50)
    {
     table->comment(comment_2048);
     table->columns()[1]->comment(comment_1024);
-    boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
+    std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
 
     DictRef create_map(true);
     DictRef drop_map(true);
@@ -338,7 +338,7 @@ TEST_FUNCTION(50)
   {
     table->comment(comment_2048+"###");
     table->columns()[1]->comment(comment_1024+"###");
-    boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
+    std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
 
     DictRef create_map(true);
     DictRef drop_map(true);
@@ -374,8 +374,8 @@ TEST_FUNCTION(60)
 
     cmp.init_omf(&omf);
 
-    boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
-    boost::shared_ptr<DiffChange> drop_change= diff_make(catalog, e, &omf);
+    std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
+    std::shared_ptr<DiffChange> drop_change = diff_make(catalog, e, &omf);
 
     DictRef create_map(true);
     DictRef drop_map(true);
@@ -436,8 +436,8 @@ TEST_FUNCTION(60)
 
       cmp.init_omf(&omf);
 
-      boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
-      boost::shared_ptr<DiffChange> drop_change= diff_make(catalog, e, &omf);
+      std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
+      std::shared_ptr<DiffChange> drop_change = diff_make(catalog, e, &omf);
 
       DictRef create_map(true);
       DictRef drop_map(true);
@@ -509,8 +509,8 @@ TEST_FUNCTION(70)
 
   cmp.init_omf(&omf);
 
-  boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
-  boost::shared_ptr<DiffChange> drop_change= diff_make(catalog, e, &omf);
+  std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
+  std::shared_ptr<DiffChange> drop_change = diff_make(catalog, e, &omf);
 
   DictRef create_map(true);
   DictRef drop_map(true);

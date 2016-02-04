@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,12 +23,12 @@ class Recordset;
 
 @interface MResultsetViewer : NSObject <GridViewDelegate>
 
-- (instancetype)initWithRecordset: (boost::shared_ptr<Recordset>)rset;
+- (instancetype)initWithRecordset: (std::shared_ptr<Recordset>)rset;
 
 @property (readonly, weak) IBOutlet NSScrollView *view;
 @property (readonly, weak) IBOutlet MGridView *gridView;
 
-@property (readonly) boost::shared_ptr<Recordset> recordset;
+@property (readonly) std::shared_ptr<Recordset> recordset;
 @property (readonly) BOOL hasPendingChanges;
 
 - (void)rebuildColumns;

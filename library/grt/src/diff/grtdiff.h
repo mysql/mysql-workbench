@@ -36,16 +36,16 @@ protected:
   const Omf* omf;
   bool _dont_clone_values;
 
-  virtual boost::shared_ptr<DiffChange> on_list(boost::shared_ptr<DiffChange> parent, const BaseListRef &source, const BaseListRef &target);
-  virtual boost::shared_ptr<DiffChange> on_dict(boost::shared_ptr<DiffChange> parent, const DictRef &source, const DictRef &target);
-  virtual boost::shared_ptr<DiffChange> on_object(boost::shared_ptr<DiffChange> parent, const ObjectRef &source, const ObjectRef &target);
+  virtual std::shared_ptr<DiffChange> on_list(std::shared_ptr<DiffChange> parent, const BaseListRef &source, const BaseListRef &target);
+  virtual std::shared_ptr<DiffChange> on_dict(std::shared_ptr<DiffChange> parent, const DictRef &source, const DictRef &target);
+  virtual std::shared_ptr<DiffChange> on_object(std::shared_ptr<DiffChange> parent, const ObjectRef &source, const ObjectRef &target);
 
-  virtual boost::shared_ptr<DiffChange> on_uncompatible(boost::shared_ptr<DiffChange> parent, const ValueRef &source, const ValueRef &target);
+  virtual std::shared_ptr<DiffChange> on_uncompatible(std::shared_ptr<DiffChange> parent, const ValueRef &source, const ValueRef &target);
 
-  boost::shared_ptr<DiffChange> on_value(boost::shared_ptr<DiffChange> parent, const ValueRef &source, const ValueRef &target);
+  std::shared_ptr<DiffChange> on_value(std::shared_ptr<DiffChange> parent, const ValueRef &source, const ValueRef &target);
 public:
   GrtDiff(const Omf* o, bool dont_clone_values = false) : omf(o), _dont_clone_values(dont_clone_values) {}
-  boost::shared_ptr<DiffChange> diff(const ValueRef &source, const ValueRef &target, const Omf* omf);
+  std::shared_ptr<DiffChange> diff(const ValueRef &source, const ValueRef &target, const Omf* omf);
   virtual ~GrtDiff() {}
 };
 

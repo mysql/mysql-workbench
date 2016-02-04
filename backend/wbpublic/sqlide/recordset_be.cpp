@@ -34,7 +34,6 @@
 #include "base/string_utilities.h"
 #include "base/boost_smart_ptr_helpers.h"
 #include "sqlite/command.hpp"
-#include <boost/foreach.hpp>
 #include <fstream>
 #include <sstream>
 
@@ -128,7 +127,7 @@ bool Recordset::reset(Recordset_data_storage::Ptr data_storage_ptr, bool rethrow
 {
   VarGridModel::reset();
 
-  boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+  std::shared_ptr<sqlite::connection> data_swap_db = this->data_swap_db();
 
   bool res= false;
 
@@ -165,7 +164,7 @@ bool Recordset::reset(Recordset_data_storage::Ptr data_storage_ptr, bool rethrow
         sqlite::query q(*data_swap_db, "select coalesce(max(id)+1, 0) from `data`");
         if (q.emit())
         {
-          boost::shared_ptr<sqlite::result> rs= q.get_result();
+          std::shared_ptr<sqlite::result> rs = BoostHelper::convertPointer(q.get_result());
           _min_new_rowid= rs->get_int(0);
         }
         else
@@ -297,7 +296,7 @@ void Recordset::recalc_row_count(sqlite::connection *data_swap_db)
     sqlite::query q(*data_swap_db, "select count(*) from `data_index`");
     if (q.emit())
     {
-      boost::shared_ptr<sqlite::result> rs= q.get_result();
+      std::shared_ptr<sqlite::result> rs = BoostHelper::convertPointer(q.get_result());
       _row_count= rs->get_int(0);
     }
     else
@@ -311,7 +310,7 @@ void Recordset::recalc_row_count(sqlite::connection *data_swap_db)
     sqlite::query q(*data_swap_db, "select count(*) from `data`");
     if (q.emit())
     {
-      boost::shared_ptr<sqlite::result> rs= q.get_result();
+      std::shared_ptr<sqlite::result> rs = BoostHelper::convertPointer(q.get_result());
       _real_row_count= rs->get_int(0);
     }
     else
@@ -328,7 +327,7 @@ Recordset::Cell Recordset::cell(RowId row, ColumnId column)
   {
     RowId rowid = _next_new_rowid++; // rowid of the new record
     {
-      boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+      std::shared_ptr<sqlite::connection> data_swap_db = this->data_swap_db();
       sqlide::Sqlite_transaction_guarder transaction_guarder(data_swap_db.get());
 
       // insert new empty data record
@@ -392,7 +391,7 @@ void Recordset::mark_dirty(RowId row, ColumnId column, const sqlite::variant_t &
   NodeId node(row);
   if (get_field_(node, _rowid_column, (ssize_t&)rowid))
   {
-    boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+    std::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
     sqlide::Sqlite_transaction_guarder transaction_guarder(data_swap_db.get());
 
     // update record
@@ -444,14 +443,14 @@ bool Recordset::delete_nodes(std::vector<bec::NodeId> &nodes)
     }
     RowId processed_node_count= 0;
 
-    BOOST_FOREACH (NodeId &node, nodes)
+    for (auto &node : nodes)
     {
       RowId row= node[0] - processed_node_count;
       if (!node.is_valid() || (row >= _row_count))
         return false;
     }
 
-    BOOST_FOREACH (NodeId &node, nodes)
+    for (auto &node : nodes)
     {
       node[0] -= processed_node_count;
       RowId row= node[0];
@@ -459,7 +458,7 @@ bool Recordset::delete_nodes(std::vector<bec::NodeId> &nodes)
       ssize_t rowid;
       if (get_field_(node, _rowid_column, rowid))
       {
-        boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+        std::shared_ptr<sqlite::connection> data_swap_db = this->data_swap_db();
         sqlide::Sqlite_transaction_guarder transaction_guarder(data_swap_db.get());
 
         // save copy of the record being deleted
@@ -525,11 +524,11 @@ bool Recordset::delete_nodes(std::vector<bec::NodeId> &nodes)
 
 bool Recordset::has_pending_changes()
 {
-  boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+  std::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
   if (data_swap_db)
   {
     sqlite::query check_pending_changes_statement(*data_swap_db, "select exists(select 1 from `changes`)");
-    boost::shared_ptr<sqlite::result> rs= check_pending_changes_statement.emit_result();
+    std::shared_ptr<sqlite::result> rs = BoostHelper::convertPointer(check_pending_changes_statement.emit_result());
     return (rs->get_int(0) == 1);
   }
   else
@@ -541,7 +540,7 @@ bool Recordset::has_pending_changes()
 
 void Recordset::pending_changes(int &upd_count, int &ins_count, int &del_count) const
 {
-  boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+  std::shared_ptr<sqlite::connection> data_swap_db = this->data_swap_db();
 
   std::string count_pending_changes_statement_sql=
     "select 1, (select count(*) from `data` where id>=?)\n"
@@ -556,7 +555,7 @@ void Recordset::pending_changes(int &upd_count, int &ins_count, int &del_count) 
   count_pending_changes_statement % (int)_min_new_rowid;
   count_pending_changes_statement % (int)_min_new_rowid;
   count_pending_changes_statement % (int)_min_new_rowid;
-  boost::shared_ptr<sqlite::result> rs= count_pending_changes_statement.emit_result();
+  std::shared_ptr<sqlite::result> rs = BoostHelper::convertPointer(count_pending_changes_statement.emit_result());
   do
   {
     switch (rs->get_int(0))
@@ -784,7 +783,7 @@ void Recordset::sort_by(ColumnId column, int direction, bool retaining)
     _sort_columns.clear();
     if (!(direction))
     {
-      boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+      std::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
       rebuild_data_index(data_swap_db.get(), true, true);
 
       refresh_ui(); // refresh the sort indicators in column headers
@@ -818,7 +817,7 @@ void Recordset::sort_by(ColumnId column, int direction, bool retaining)
   if (!is_resort_needed || _sort_columns.empty())
     return;
 
-  boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+  std::shared_ptr<sqlite::connection> data_swap_db = this->data_swap_db();
   rebuild_data_index(data_swap_db.get(), true, true);
 }
 
@@ -849,7 +848,7 @@ void Recordset::reset_column_filters()
 {
   _column_filter_expr_map.clear();
 
-  boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+  std::shared_ptr<sqlite::connection> data_swap_db = this->data_swap_db();
   rebuild_data_index(data_swap_db.get(), true, true);
 }
 
@@ -861,7 +860,7 @@ void Recordset::reset_column_filter(ColumnId column)
     return;
   _column_filter_expr_map.erase(i);
 
-  boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+  std::shared_ptr<sqlite::connection> data_swap_db = this->data_swap_db();
   rebuild_data_index(data_swap_db.get(), true, true);
 }
 
@@ -875,7 +874,7 @@ void Recordset::set_column_filter(ColumnId column, const std::string &filter_exp
     return;
   _column_filter_expr_map[column]= filter_expr;
 
-  boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+  std::shared_ptr<sqlite::connection> data_swap_db = this->data_swap_db();
   rebuild_data_index(data_swap_db.get(), true, true);
 }
 
@@ -899,7 +898,7 @@ void Recordset::set_data_search_string(const std::string &value)
     return;
   _data_search_string= value;
 
-  boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+  std::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
   rebuild_data_index(data_swap_db.get(), true, true);
 }
 
@@ -910,7 +909,7 @@ void Recordset::reset_data_search_string()
     return;
   _data_search_string.clear();
 
-  boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+  std::shared_ptr<sqlite::connection> data_swap_db = this->data_swap_db();
   rebuild_data_index(data_swap_db.get(), true, true);
 }
 
@@ -935,7 +934,7 @@ void Recordset::rebuild_data_index(sqlite::connection *data_swap_db, bool do_cac
       // column filters subclause
       std::string where_subclause1;
       {
-        BOOST_FOREACH (Column_filter_expr_map::value_type &column_filter_expr, _column_filter_expr_map)
+        for (auto &column_filter_expr : _column_filter_expr_map)
         {
           var_string= column_filter_expr.second;
           sql_string= boost::apply_visitor(qv, var_string_type, var_string);
@@ -976,7 +975,7 @@ void Recordset::rebuild_data_index(sqlite::connection *data_swap_db, bool do_cac
 
     std::string orderby_clause;
     {
-      BOOST_FOREACH (SortColumns::value_type &sort_column, _sort_columns)
+      for (auto &sort_column : _sort_columns)
       {
         std::string column_expr;
         switch (get_real_column_type(sort_column.first))
@@ -1394,7 +1393,7 @@ void Recordset::copy_rows_to_clipboard(const std::vector<int> &indeces, std::str
     text.append("\n");
   }
 
-  BOOST_FOREACH (RowId row, indeces)
+  for (auto row : indeces)
   {
     std::string line;
     for (ColumnId col= 0; editable_col_count > col; ++col)
@@ -1690,7 +1689,7 @@ void Recordset::open_field_data_editor(RowId row, ColumnId column, const std::st
       NodeId node(row);
       if (!get_field_(node, _rowid_column, (ssize_t&)rowid))
         return;
-      boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+      std::shared_ptr<sqlite::connection> data_swap_db = this->data_swap_db();
       _data_storage->fetch_blob_value(this, data_swap_db.get(), rowid, column, blob_value);
       value= &blob_value;
     }
@@ -1826,7 +1825,7 @@ bool Recordset::get_raw_field(const bec::NodeId &node, ColumnId column, std::str
     ssize_t rowid;
     if (!get_field_(node, _rowid_column, rowid))
       return false;
-    boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+    std::shared_ptr<sqlite::connection> data_swap_db = this->data_swap_db();
     _data_storage->fetch_blob_value(this, data_swap_db.get(), rowid, column, blob_value);
     value= &blob_value;
   }
@@ -1876,7 +1875,7 @@ void Recordset::save_to_file(const bec::NodeId &node, ColumnId column, const std
     ssize_t rowid;
     if (!get_field_(node, _rowid_column, rowid))
       return;
-    boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+    std::shared_ptr<sqlite::connection> data_swap_db = this->data_swap_db();
     _data_storage->fetch_blob_value(this, data_swap_db.get(), rowid, column, blob_value);
     value= &blob_value;
   }

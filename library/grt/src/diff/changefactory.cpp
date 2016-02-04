@@ -45,25 +45,25 @@ namespace grt
 bool is_any(ValueRef& s);
 
 
-boost::shared_ptr<DiffChange> ChangeFactory::create_value_added_change(boost::shared_ptr<DiffChange> parent, const ValueRef &source, const ValueRef &target, bool dupvalue)
+std::shared_ptr<DiffChange> ChangeFactory::create_value_added_change(std::shared_ptr<DiffChange> parent, const ValueRef &source, const ValueRef &target, bool dupvalue)
 {
 #ifdef DEBUG_DIFF
   log_info("value_added (%s)\n", rep(target).c_str());
 #endif
-  return boost::shared_ptr<DiffChange>(new ValueAddedChange(ValueAdded, target, dupvalue));
+  return std::shared_ptr<DiffChange>(new ValueAddedChange(ValueAdded, target, dupvalue));
 }
 
 
-boost::shared_ptr<DiffChange> ChangeFactory::create_value_removed_change(boost::shared_ptr<DiffChange> parent, const ValueRef &source, const ValueRef &target)
+std::shared_ptr<DiffChange> ChangeFactory::create_value_removed_change(std::shared_ptr<DiffChange> parent, const ValueRef &source, const ValueRef &target)
 {
 #ifdef DEBUG_DIFF
   log_info("value_remove (%s)\n", rep(target).c_str());
 #endif
-  return boost::shared_ptr<DiffChange>(new ValueRemovedChange);
+  return std::shared_ptr<DiffChange>(new ValueRemovedChange);
 }
 
 
-boost::shared_ptr<DiffChange> ChangeFactory::create_object_attr_modified_change(boost::shared_ptr<DiffChange> parent, const ObjectRef &source, const ObjectRef &target, const std::string &attr, boost::shared_ptr<DiffChange> change)
+std::shared_ptr<DiffChange> ChangeFactory::create_object_attr_modified_change(std::shared_ptr<DiffChange> parent, const ObjectRef &source, const ObjectRef &target, const std::string &attr, std::shared_ptr<DiffChange> change)
 {
   if (change)
   {
@@ -73,22 +73,22 @@ boost::shared_ptr<DiffChange> ChangeFactory::create_object_attr_modified_change(
       log_info("%s.%s) %s // %s\n", ObjectRef::cast_from(source.get_member("owner")).get_string_member("name").c_str(),
                source.get_string_member("name").c_str(), source.get_member(attr).description().c_str(), target.get_member(attr).description().c_str());
 #endif
-    return boost::shared_ptr<DiffChange>(new ObjectAttrModifiedChange(attr, change));
+    return std::shared_ptr<DiffChange>(new ObjectAttrModifiedChange(attr, change));
   }
-  return boost::shared_ptr<DiffChange>();
+  return std::shared_ptr<DiffChange>();
 }
 
 
-boost::shared_ptr<MultiChange> ChangeFactory::create_object_modified_change(boost::shared_ptr<DiffChange> parent, const ObjectRef &source, const ObjectRef &target, ChangeSet &changes)
+std::shared_ptr<MultiChange> ChangeFactory::create_object_modified_change(std::shared_ptr<DiffChange> parent, const ObjectRef &source, const ObjectRef &target, ChangeSet &changes)
 {
   if (!changes.empty())
   {
 #ifdef DEBUG_DIFF
     log_info("object_modified (%s)\n", rep(target).c_str());
 #endif
-    return boost::shared_ptr<MultiChange>(new MultiChange(ObjectModified, changes));
+    return std::shared_ptr<MultiChange>(new MultiChange(ObjectModified, changes));
   }
-  return boost::shared_ptr<MultiChange>();
+  return std::shared_ptr<MultiChange>();
 }
 
 template<class T> inline bool check(ValueRef source, ValueRef target)
@@ -96,7 +96,7 @@ template<class T> inline bool check(ValueRef source, ValueRef target)
   return T::cast_from(source) == T::cast_from(target);
 }
 
-boost::shared_ptr<DiffChange>  ChangeFactory::create_simple_value_change( boost::shared_ptr<DiffChange> parent, const ValueRef &source, const ValueRef &target )
+std::shared_ptr<DiffChange>  ChangeFactory::create_simple_value_change( std::shared_ptr<DiffChange> parent, const ValueRef &source, const ValueRef &target )
 {
   grt::Type t= UnknownType;
   if (source.is_valid())
@@ -108,15 +108,15 @@ boost::shared_ptr<DiffChange>  ChangeFactory::create_simple_value_change( boost:
   {
   case IntegerType:
     if(check<grt::IntegerRef>(source, target))
-      return boost::shared_ptr<DiffChange>();
+      return std::shared_ptr<DiffChange>();
     break;
   case DoubleType:
     if(check<grt::DoubleRef>(source, target))
-      return boost::shared_ptr<DiffChange>();
+      return std::shared_ptr<DiffChange>();
     break;
   case StringType:
       if(check<grt::StringRef>(source, target))
-        return boost::shared_ptr<DiffChange>();
+        return std::shared_ptr<DiffChange>();
     break;
 
   case ObjectType:
@@ -124,7 +124,7 @@ boost::shared_ptr<DiffChange>  ChangeFactory::create_simple_value_change( boost:
   case ListType:
   case DictType:
   case UnknownType:
-    return boost::shared_ptr<DiffChange>();
+    return std::shared_ptr<DiffChange>();
     break;
 
   default:
@@ -134,33 +134,33 @@ boost::shared_ptr<DiffChange>  ChangeFactory::create_simple_value_change( boost:
 #ifdef DEBUG_DIFF
   log_info("simple_value_change: %s -> %s\n", rep(source).c_str(), rep(target).c_str());
 #endif
-  return boost::shared_ptr<DiffChange>(new SimpleValueChange(source, target));
+  return std::shared_ptr<DiffChange>(new SimpleValueChange(source, target));
 }
 
 
-boost::shared_ptr<MultiChange> ChangeFactory::create_dict_change(boost::shared_ptr<DiffChange> parent, const DictRef &source, const DictRef &target, ChangeSet &changes)
+std::shared_ptr<MultiChange> ChangeFactory::create_dict_change(std::shared_ptr<DiffChange> parent, const DictRef &source, const DictRef &target, ChangeSet &changes)
 {
   if (changes.empty())
-    return boost::shared_ptr<MultiChange>();
+    return std::shared_ptr<MultiChange>();
 
-  return boost::shared_ptr<MultiChange>(new MultiChange(DictModified, changes));
+  return std::shared_ptr<MultiChange>(new MultiChange(DictModified, changes));
 }
 
-boost::shared_ptr<DiffChange> ChangeFactory::create_dict_item_added_change(boost::shared_ptr<DiffChange> parent, const DictRef &source, const DictRef &target, const std::string &key, ValueRef v, bool dupvalue)
+std::shared_ptr<DiffChange> ChangeFactory::create_dict_item_added_change(std::shared_ptr<DiffChange> parent, const DictRef &source, const DictRef &target, const std::string &key, ValueRef v, bool dupvalue)
 {
-  return boost::shared_ptr<DiffChange>(new DictItemAddedChange(key, v, dupvalue));
+  return std::shared_ptr<DiffChange>(new DictItemAddedChange(key, v, dupvalue));
 }
 
-boost::shared_ptr<DiffChange> ChangeFactory::create_dict_item_modified_change(boost::shared_ptr<DiffChange> parent, const DictRef &source, const DictRef &target, const std::string &key, boost::shared_ptr<DiffChange> change)
+std::shared_ptr<DiffChange> ChangeFactory::create_dict_item_modified_change(std::shared_ptr<DiffChange> parent, const DictRef &source, const DictRef &target, const std::string &key, std::shared_ptr<DiffChange> change)
 {
   if (change)
-    return boost::shared_ptr<DiffChange>(new DictItemModifiedChange(key, change));
-  return boost::shared_ptr<DiffChange>();
+    return std::shared_ptr<DiffChange>(new DictItemModifiedChange(key, change));
+  return std::shared_ptr<DiffChange>();
 }
 
-boost::shared_ptr<DiffChange> ChangeFactory::create_dict_item_removed_change(boost::shared_ptr<DiffChange> parent, const DictRef &source, const DictRef &target, const std::string &key)
+std::shared_ptr<DiffChange> ChangeFactory::create_dict_item_removed_change(std::shared_ptr<DiffChange> parent, const DictRef &source, const DictRef &target, const std::string &key)
 {
-  return boost::shared_ptr<DiffChange>(new DictItemRemovedChange(key));
+  return std::shared_ptr<DiffChange>(new DictItemRemovedChange(key));
 }
 
 }

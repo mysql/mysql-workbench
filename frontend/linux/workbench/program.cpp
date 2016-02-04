@@ -155,7 +155,7 @@ Program::Program(wb::WBOptions &wboptions)
 
   {
     std::string form_name;
-    sigc::slot<FormViewBase*, boost::shared_ptr<bec::UIForm> > form_creator;
+    sigc::slot<FormViewBase*, std::shared_ptr<bec::UIForm> > form_creator;
 
     setup_sqlide(_wb_context_ui, form_name, form_creator);
 

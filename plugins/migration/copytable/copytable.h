@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,7 +34,6 @@
 #include <stdexcept>
 
 #include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
 
 #ifdef __APPLE
@@ -123,7 +122,7 @@ class RowBuffer : public std::vector<MYSQL_BIND>
   RowBuffer(const RowBuffer &o) : std::vector<MYSQL_BIND>() {}
 
 public:
-  RowBuffer(boost::shared_ptr<std::vector<ColumnInfo> > columns,
+  RowBuffer(std::shared_ptr<std::vector<ColumnInfo> > columns,
             boost::function<void (int, const char*, size_t)> send_blob_data,
             size_t max_packet_size);
   ~RowBuffer();
@@ -210,7 +209,7 @@ public:
 
   virtual size_t count_rows(const std::string &schema, const std::string &table, const std::vector<std::string> &pk_columns,
                             const CopySpec &spec, const std::vector<std::string> &last_pkeys) = 0;
-  virtual boost::shared_ptr<std::vector<ColumnInfo> > begin_select_table(const std::string &schema, const std::string &table,
+  virtual std::shared_ptr<std::vector<ColumnInfo> > begin_select_table(const std::string &schema, const std::string &table,
                                                                          const std::vector<std::string> &pk_columns,
                                                                          const std::string &select_expression,
                                                                          const CopySpec &spec, const std::vector<std::string> &last_pkeys) = 0;
@@ -224,7 +223,7 @@ class ODBCCopyDataSource : public CopyDataSource
   std::string _connstring;
 
   SQLHSTMT _stmt;
-  boost::shared_ptr<std::vector<ColumnInfo> > _columns;
+  std::shared_ptr<std::vector<ColumnInfo> > _columns;
   std::vector<SQLSMALLINT> _column_types;
   int _column_count;
 
@@ -256,7 +255,7 @@ public:
 public:
   virtual size_t count_rows(const std::string &schema, const std::string &table, const std::vector<std::string> &pk_columns,
                             const CopySpec &spec, const std::vector<std::string> &last_pkeys);
-  virtual boost::shared_ptr<std::vector<ColumnInfo> > begin_select_table(const std::string &schema, const std::string &table,
+  virtual std::shared_ptr<std::vector<ColumnInfo> > begin_select_table(const std::string &schema, const std::string &table,
                                                                          const std::vector<std::string> &pk_columns,
                                                                          const std::string &select_expression,
                                                                          const CopySpec &spec, const std::vector<std::string> &last_pkeys);
@@ -280,7 +279,7 @@ public:
 
   virtual size_t count_rows(const std::string &schema, const std::string &table, const std::vector<std::string> &pk_columns,
                             const CopySpec &spec, const std::vector<std::string> &last_pkeys);
-  virtual boost::shared_ptr<std::vector<ColumnInfo> > begin_select_table(const std::string &schema, const std::string &table,
+  virtual std::shared_ptr<std::vector<ColumnInfo> > begin_select_table(const std::string &schema, const std::string &table,
                                                                          const std::vector<std::string> &pk_columns,
                                                                          const std::string &select_expression,
                                                                          const CopySpec &spec, const std::vector<std::string> &last_pkeys);
@@ -318,7 +317,7 @@ class MySQLCopyDataTarget
   unsigned long _max_long_data_size;
   std::string _schema;
   std::string _table;
-  boost::shared_ptr<std::vector<ColumnInfo> > _columns;
+  std::shared_ptr<std::vector<ColumnInfo> > _columns;
   RowBuffer *_row_buffer;
   bool _truncate;
   int _major_version;
@@ -366,7 +365,7 @@ public:
   void set_truncate(bool flag);
 
   void set_target_table(const std::string &schema, const std::string &table,
-                        boost::shared_ptr<std::vector<ColumnInfo> > columns);
+                        std::shared_ptr<std::vector<ColumnInfo> > columns);
   long long get_max_value(const std::string &key);
 
   bool bulk_inserts() { return _use_bulk_inserts; }

@@ -158,7 +158,7 @@ void test_diff(TTestData src, TTestData dest)
   default_omf omf;
   grt::NormalizedComparer normalizer;
   normalizer.init_omf(&omf);
-  boost::shared_ptr<DiffChange> change= diff_make(source, target, &omf);
+  std::shared_ptr<DiffChange> change = diff_make(source, target, &omf);
   apply_change_to_object(source,change.get());
   assure_grt_values_equal(source, target);
 }
@@ -260,7 +260,7 @@ TEST_FUNCTION(2)
   default_omf omf;
   grt::NormalizedComparer normalizer;
   normalizer.init_omf(&omf);
-  boost::shared_ptr<DiffChange> change= diff_make(source, target, &omf);
+  std::shared_ptr<DiffChange> change= diff_make(source, target, &omf);
   apply_change_to_object(source,change.get());
 
   assure_grt_values_equal(source, target);

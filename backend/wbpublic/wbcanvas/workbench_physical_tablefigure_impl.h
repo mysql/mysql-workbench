@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -54,9 +54,9 @@ protected:
   bool _pending_index_sync;
   bool _pending_trigger_sync;
   
-  boost::shared_ptr<boost::signals2::shared_connection_block> _table_fk_conn_block;
-  boost::shared_ptr<boost::signals2::shared_connection_block> _refresh_conn_block;
-  boost::shared_ptr<boost::signals2::shared_connection_block> _changed_conn_block;
+  std::shared_ptr<boost::signals2::shared_connection_block> _table_fk_conn_block;
+  std::shared_ptr<boost::signals2::shared_connection_block> _refresh_conn_block;
+  std::shared_ptr<boost::signals2::shared_connection_block> _changed_conn_block;
 
   boost::signals2::scoped_connection _table_fk_conn;
   boost::signals2::scoped_connection _refresh_conn;

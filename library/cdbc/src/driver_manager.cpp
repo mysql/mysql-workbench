@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -168,7 +168,7 @@ void DriverManager::set_driver_dir(const std::string &path)
   _driver_path= path;
 }
 
-boost::shared_ptr<TunnelConnection> DriverManager::getTunnel(const db_mgmt_ConnectionRef &connectionProperties)
+std::shared_ptr<TunnelConnection> DriverManager::getTunnel(const db_mgmt_ConnectionRef &connectionProperties)
 {
   db_mgmt_DriverRef drv = connectionProperties->driver();
   if (!drv.is_valid())
@@ -176,7 +176,7 @@ boost::shared_ptr<TunnelConnection> DriverManager::getTunnel(const db_mgmt_Conne
 
   if (_createTunnel)
     return _createTunnel(connectionProperties);
-  return boost::shared_ptr<TunnelConnection>();
+  return std::shared_ptr<TunnelConnection>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -189,7 +189,7 @@ ConnectionWrapper DriverManager::getConnection(const db_mgmt_ConnectionRef &conn
   if (!drv.is_valid())
     throw SQLException("Invalid connection settings: undefined connection driver");
 
-  boost::shared_ptr<TunnelConnection> tunnel;
+  std::shared_ptr<TunnelConnection> tunnel;
   if (_createTunnel)
   {
     tunnel = _createTunnel(connectionProperties);
@@ -233,7 +233,7 @@ const std::string& DriverManager::getClientLibVersion() const
 //--------------------------------------------------------------------------------------------------
 
 ConnectionWrapper DriverManager::getConnection(const db_mgmt_ConnectionRef &connectionProperties,
-  boost::shared_ptr<TunnelConnection> tunnel, Authentication::Ref password,
+  std::shared_ptr<TunnelConnection> tunnel, Authentication::Ref password,
   ConnectionInitSlot connection_init_slot)
 {
   grt::DictRef parameter_values = connectionProperties->parameterValues();
@@ -445,7 +445,7 @@ retry:
 
   try
   {
-    std::auto_ptr<Connection> conn(driver->connect(properties));
+    std::unique_ptr<Connection> conn(driver->connect(properties));
     std::string ssl_cipher;
 
     // make sure that SSL got enabled if it was requested to be required
@@ -504,7 +504,7 @@ retry:
     if (!def_schema.empty())
       conn->setSchema(def_schema);
 
-    return ConnectionWrapper(conn, tunnel);
+    return ConnectionWrapper(std::move(conn), tunnel);
   }
   catch (sql::SQLException &exc)
   {

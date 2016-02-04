@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,8 +23,8 @@
 
 
 #include "wbpublic_public_interface.h"
-#include <boost/shared_ptr.hpp>
 #include <string>
+#include <memory>
 
 
 /**
@@ -43,7 +43,7 @@
 class WBPUBLICBACKEND_PUBLIC_FUNC Sql_normalizer
 {
 public:
-  typedef boost::shared_ptr<Sql_normalizer> Ref;
+  typedef std::shared_ptr<Sql_normalizer> Ref;
   virtual ~Sql_normalizer() {}
 protected:
   Sql_normalizer() : _delimiter("\\") {}

@@ -53,16 +53,16 @@ class WBPLUGINDBMYSQLBE_PUBLIC_FUNC DbMySQLSQLExport : public DbMySQLValidationP
   bool _gen_doc_props;
   bool _gen_attached_scripts;
 
-  boost::shared_ptr<bec::GrtStringListModel> _users_model;
-  boost::shared_ptr<bec::GrtStringListModel> _users_exc_model;
-  boost::shared_ptr<bec::GrtStringListModel> _tables_model;
-  boost::shared_ptr<bec::GrtStringListModel> _tables_exc_model;
-  boost::shared_ptr<bec::GrtStringListModel> _views_model;
-  boost::shared_ptr<bec::GrtStringListModel> _views_exc_model;
-  boost::shared_ptr<bec::GrtStringListModel> _routines_model;
-  boost::shared_ptr<bec::GrtStringListModel> _routines_exc_model;
-  boost::shared_ptr<bec::GrtStringListModel> _triggers_model;
-  boost::shared_ptr<bec::GrtStringListModel> _triggers_exc_model;
+  std::shared_ptr<bec::GrtStringListModel> _users_model;
+  std::shared_ptr<bec::GrtStringListModel> _users_exc_model;
+  std::shared_ptr<bec::GrtStringListModel> _tables_model;
+  std::shared_ptr<bec::GrtStringListModel> _tables_exc_model;
+  std::shared_ptr<bec::GrtStringListModel> _views_model;
+  std::shared_ptr<bec::GrtStringListModel> _views_exc_model;
+  std::shared_ptr<bec::GrtStringListModel> _routines_model;
+  std::shared_ptr<bec::GrtStringListModel> _routines_exc_model;
+  std::shared_ptr<bec::GrtStringListModel> _triggers_model;
+  std::shared_ptr<bec::GrtStringListModel> _triggers_exc_model;
 
   std::map<std::string,GrtNamedObjectRef> _users_map;
   std::map<std::string,GrtNamedObjectRef> _tables_map;

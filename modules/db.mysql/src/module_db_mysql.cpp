@@ -1758,7 +1758,7 @@ DbMySQLImpl::DbMySQLImpl(grt::CPPModuleLoader *ldr) : grt::ModuleImplBase(ldr), 
 
 ssize_t DbMySQLImpl::generateSQL(GrtNamedObjectRef org_object,
                                  const grt::DictRef& options, 
-                                  boost::shared_ptr<DiffChange> changes)
+                                  std::shared_ptr<DiffChange> changes)
 {
   grt::ValueRef result= options.get("OutputContainer");
   grt::ListRef<GrtNamedObject> obj_list;
@@ -1786,7 +1786,7 @@ ssize_t DbMySQLImpl::generateSQL(GrtNamedObjectRef org_object,
 
 
 grt::StringRef DbMySQLImpl::generateReport(GrtNamedObjectRef org_object, const grt::DictRef& options,
-                                           boost::shared_ptr<DiffChange> changes)
+                                           std::shared_ptr<DiffChange> changes)
 {
   grt::StringRef tpl_file= grt::StringRef::cast_from(options.get("TemplateFile"));
   
@@ -1810,7 +1810,7 @@ grt::StringRef DbMySQLImpl::generateReportForDifferences(GrtNamedObjectRef org_o
   omf.dontdiff_mask = (unsigned int)options.get_int("OMFDontDiffMask", omf.dontdiff_mask);
   grt::NormalizedComparer normalizer;
   normalizer.init_omf(&omf);
-  boost::shared_ptr<DiffChange> alter_change= diff_make(org_object, oth_object, &omf);
+  std::shared_ptr<DiffChange> alter_change= diff_make(org_object, oth_object, &omf);
   
   grt::StringRef tpl_file= grt::StringRef::cast_from(options.get("TemplateFile"));
   
@@ -1837,7 +1837,7 @@ grt::DictRef DbMySQLImpl::generateSQLForDifferences(GrtNamedObjectRef srcobj, Gr
   default_omf omf;
   grt::NormalizedComparer normalizer;
   normalizer.init_omf(&omf);
-  boost::shared_ptr<DiffChange> changes= diff_make(srcobj, dstobj, &omf);
+  std::shared_ptr<DiffChange> changes= diff_make(srcobj, dstobj, &omf);
   
   options.set("DiffCaseSensitiveness", grt::IntegerRef(normalizer.is_case_sensitive()));
   
@@ -2704,7 +2704,7 @@ std::string DbMySQLImpl::makeAlterScript(GrtNamedObjectRef source, GrtNamedObjec
   grt::NormalizedComparer normalizer(grt::DictRef::cast_from(diff_options.get("DBSettings")));
   normalizer.init_omf(&omf);
 
-  boost::shared_ptr<DiffChange> diff = diff_make(source, target, &omf);
+  std::shared_ptr<DiffChange> diff = diff_make(source, target, &omf);
   if (!diff.get())
       return "";
 
@@ -2756,7 +2756,7 @@ std::string DbMySQLImpl::makeAlterScriptForObject(GrtNamedObjectRef source, GrtN
   grt::NormalizedComparer normalizer(grt::DictRef::cast_from(diff_options.get("DBSettings",getDefaultTraits())));
   normalizer.init_omf(&omf);
   bool case_sensitive = omf.case_sensitive;
-  boost::shared_ptr<DiffChange> diff = diff_make(source, target, &omf);
+  std::shared_ptr<DiffChange> diff = diff_make(source, target, &omf);
 
   std::string sql;
   std::string non_std_sql_delimiter("$$");
@@ -2914,7 +2914,7 @@ std::string DbMySQLImpl::makeCreateScriptForObject(GrtNamedObjectRef object)
   default_omf omf;
   grt::NormalizedComparer normalizer;
   normalizer.init_omf(&omf);
-  boost::shared_ptr<DiffChange> diff = diff_make(ValueRef(), parent, &omf, true); // do a diff without cloning the catalog
+  std::shared_ptr<DiffChange> diff = diff_make(ValueRef(), parent, &omf, true); // do a diff without cloning the catalog
 
   std::string sql;
 

@@ -33,8 +33,8 @@ namespace sqlite
 class WBPUBLICBACKEND_PUBLIC_FUNC Recordset_data_storage
 {
 public:
-  typedef boost::shared_ptr<Recordset_data_storage> Ref;
-  typedef boost::weak_ptr<Recordset_data_storage> Ptr;
+  typedef std::shared_ptr<Recordset_data_storage> Ref;
+  typedef std::weak_ptr<Recordset_data_storage> Ptr;
   virtual ~Recordset_data_storage();
 protected:
   Recordset_data_storage();
@@ -46,7 +46,7 @@ public:
   typedef std::vector<sqlite::variant_t> Var_vector;
 
 protected:
-  boost::shared_ptr<sqlite::connection> data_swap_db(const Recordset::Ref &recordset);
+  std::shared_ptr<sqlite::connection> data_swap_db(const Recordset::Ref &recordset);
 
 public:
   void apply_changes(Recordset::Ptr recordset, bool skip_commit);
@@ -78,8 +78,8 @@ public:
 public:
   static void create_data_swap_tables(sqlite::connection *data_swap_db, Recordset::Column_names &column_names, Recordset::Column_types &column_types);
 protected:
-  std::list<boost::shared_ptr<sqlite::command> > prepare_data_swap_record_add_statement(sqlite::connection *data_swap_db, Recordset::Column_names &column_names);
-  void add_data_swap_record(std::list<boost::shared_ptr<sqlite::command> > &insert_commands, const Var_vector &values);
+  std::list<std::shared_ptr<sqlite::command> > prepare_data_swap_record_add_statement(sqlite::connection *data_swap_db, Recordset::Column_names &column_names);
+  void add_data_swap_record(std::list<std::shared_ptr<sqlite::command> > &insert_commands, const Var_vector &values);
   void update_data_swap_record(sqlite::connection *data_swap_db, RowId rowid, ColumnId column, const sqlite::variant_t &value);
 
 protected:

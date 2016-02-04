@@ -25,9 +25,7 @@
 #include "grt/grt_threaded_task.h"
 #include "grt/tree_model.h"
 #include "grt/grt_manager.h"
-#include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <vector>
 
 class Recordset_data_storage;
@@ -38,10 +36,10 @@ namespace sqlite
   struct result;
 }
 
-class WBPUBLICBACKEND_PUBLIC_FUNC VarGridModel : public bec::GridModel, public boost::enable_shared_from_this<VarGridModel>
+class WBPUBLICBACKEND_PUBLIC_FUNC VarGridModel : public bec::GridModel, public std::enable_shared_from_this<VarGridModel>
 {
 public:
-  typedef boost::shared_ptr<VarGridModel> Ref;
+  typedef std::shared_ptr<VarGridModel> Ref;
   virtual ~VarGridModel();
 protected:
   VarGridModel();
@@ -141,11 +139,11 @@ protected:
   base::RecMutex _data_mutex;
 
 protected:
-  boost::shared_ptr<sqlite::connection> data_swap_db() const;
+  std::shared_ptr<sqlite::connection> data_swap_db() const;
 private:
-  boost::shared_ptr<sqlite::connection> create_data_swap_db_connection() const;
+  std::shared_ptr<sqlite::connection> create_data_swap_db_connection() const;
 private:
-  mutable boost::shared_ptr<sqlite::connection> _data_swap_db;
+  mutable std::shared_ptr<sqlite::connection> _data_swap_db;
   std::string _data_swap_db_path;
 public:
   static const int DATA_SWAP_DB_TABLE_MAX_COL_COUNT;
@@ -156,8 +154,8 @@ public:
   static std::string data_swap_db_partition_suffix(size_t partition);
   static size_t data_swap_db_column_partition(ColumnId column); // returns partition number containing passed column
   static bec::ListModel::ColumnId translate_data_swap_db_column(ListModel::ColumnId column, size_t *partition= NULL); // returns column number relative to containing partition
-  static void prepare_partition_queries(sqlite::connection *data_swap_db, const std::string &query_text_template, std::list<boost::shared_ptr<sqlite::query> > &queries);
-  static bool emit_partition_queries(sqlite::connection *data_swap_db, std::list<boost::shared_ptr<sqlite::query> > &queries, std::vector<boost::shared_ptr<sqlite::result> > &results, const std::list<sqlite::variant_t> &bind_vars= std::list<sqlite::variant_t>());
+  static void prepare_partition_queries(sqlite::connection *data_swap_db, const std::string &query_text_template, std::list<std::shared_ptr<sqlite::query> > &queries);
+  static bool emit_partition_queries(sqlite::connection *data_swap_db, std::list<std::shared_ptr<sqlite::query> > &queries, std::vector<std::shared_ptr<sqlite::result> > &results, const std::list<sqlite::variant_t> &bind_vars= std::list<sqlite::variant_t>());
   static void emit_partition_commands(sqlite::connection *data_swap_db, size_t partition_count, const std::string &command_text_template, const std::list<sqlite::variant_t> &bind_vars= std::list<sqlite::variant_t>());
 
 protected:

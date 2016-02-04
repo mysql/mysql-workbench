@@ -78,7 +78,7 @@ static grt::StringRef getGeoRepresentation(grt::StringRef data, bool outputAsJso
    return grt::StringRef();
 }
 
-WBRecordsetResultset::WBRecordsetResultset(db_query_ResultsetRef aself, boost::shared_ptr<Recordset> rset)
+WBRecordsetResultset::WBRecordsetResultset(db_query_ResultsetRef aself, std::shared_ptr<Recordset> rset)
 : db_query_Resultset::ImplData(aself), cursor(0), recordset(rset)
 {
   const size_t last_column = recordset->get_column_count();
@@ -293,9 +293,9 @@ grt::IntegerRef WBRecordsetResultset::saveFieldValueToFile(ssize_t column, const
 
 class WBPUBLICBACKEND_PUBLIC_FUNC CPPResultsetResultset : public db_query_Resultset::ImplData
 {
-  boost::shared_ptr<sql::ResultSet> recordset;
+  std::shared_ptr<sql::ResultSet> recordset;
 public:
-  CPPResultsetResultset(db_query_ResultsetRef aself, boost::shared_ptr<sql::ResultSet> rset)
+  CPPResultsetResultset(db_query_ResultsetRef aself, std::shared_ptr<sql::ResultSet> rset)
   : ImplData(aself), recordset(rset)
   {
     sql::ResultSetMetaData* meta(recordset->getMetaData());
@@ -588,7 +588,7 @@ db_query_ResultsetRef grtwrap_recordset(GrtObjectRef owner, Recordset::Ref rset)
 }
 
 
-db_query_ResultsetRef grtwrap_recordset(GrtObjectRef owner, boost::shared_ptr<sql::ResultSet> rset)
+db_query_ResultsetRef grtwrap_recordset(GrtObjectRef owner, std::shared_ptr<sql::ResultSet> rset)
 {
   db_query_ResultsetRef object(grt::Initialized);
 

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,6 @@
 #define _MYSQL_SQL_SCRIPT_SPLITTER_H_
 
 
-#include <boost/shared_ptr.hpp>
 #include <list>
 #include <string>
 
@@ -42,7 +41,7 @@ using namespace mysql_parser;
 class Mysql_sql_script_splitter
 {
 public:
-  typedef boost::shared_ptr<Mysql_sql_script_splitter> Ref;
+  typedef std::shared_ptr<Mysql_sql_script_splitter> Ref;
   static Ref create() { return Ref(new Mysql_sql_script_splitter()); }
   virtual ~Mysql_sql_script_splitter();
 protected:

@@ -29,7 +29,7 @@ namespace wb
 @class MainWindowController;
 @class WBBasePanel;
 
-typedef WBBasePanel *(*FormPanelFactory)(MainWindowController *controller, boost::shared_ptr<bec::UIForm> form);
+typedef WBBasePanel *(*FormPanelFactory)(MainWindowController *controller, std::shared_ptr<bec::UIForm> form);
 
 // TODO: merge this class with MainWindowController. It makes no sense to have 2 controller classes.
 @interface WBMainController : NSObject <NSApplicationDelegate, NSFileManagerDelegate>

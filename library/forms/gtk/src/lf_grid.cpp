@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,7 +21,6 @@
 #include "../lf_view.h"
 #include "mforms/grid.h"
 
-#include <boost/shared_ptr.hpp>
 #include <gtkmm/treeview.h>
 #include <gtkmm/treestore.h>
 #include <gtkmm/liststore.h>
@@ -64,7 +63,7 @@ class GridCell
   public:
     typedef Gtk::TreeModelColumn<GridCell*>   Column;
     typedef std::vector<std::string>      EnumDef;
-    typedef boost::shared_ptr<EnumDef>  EnumDefRef;
+    typedef std::shared_ptr<EnumDef>  EnumDefRef;
 
     ~GridCell();
     void reset();

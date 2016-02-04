@@ -42,7 +42,7 @@ namespace wb
   class MYSQLWBBACKEND_PUBLIC_FUNC WBContextSQLIDE : public base::trackable, base::Observer
   {
     WBContextUI *_wbui;
-    std::list<boost::weak_ptr<SqlEditorForm> > _open_editors;
+    std::list<std::weak_ptr<SqlEditorForm> > _open_editors;
     app_ToolbarRef _toolbar;
 
     mforms::TimeoutHandle _auto_save_handle;
@@ -59,7 +59,7 @@ namespace wb
     static void detect_auto_save_files(const std::string &autosave_dir);
     static std::map<std::string, std::string> auto_save_sessions();
     
-    boost::shared_ptr<SqlEditorForm> create_connected_editor(const db_mgmt_ConnectionRef &conn);
+    std::shared_ptr<SqlEditorForm> create_connected_editor(const db_mgmt_ConnectionRef &conn);
 
     WBContextUI *get_wbui() { return _wbui; }
     CommandUI *get_cmdui();
@@ -80,7 +80,7 @@ namespace wb
     void update_plugin_arguments_pool(bec::ArgumentPool &args);
 
     db_query_EditorRef get_grt_editor_object(SqlEditorForm *editor);
-    std::list<boost::weak_ptr<SqlEditorForm> >* get_open_editors() { return &_open_editors; }
+    std::list<std::weak_ptr<SqlEditorForm> >* get_open_editors() { return &_open_editors; }
   private:
     void call_in_editor(void (SqlEditorForm::*method)());    
     void call_in_editor_str(void (SqlEditorForm::*method)(const std::string &arg), const std::string &arg);

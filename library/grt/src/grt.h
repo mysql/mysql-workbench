@@ -2596,9 +2596,9 @@ namespace grt {
     void serialize(const ValueRef &value, const std::string &path, 
                    const std::string &doctype="", const std::string &version="",
                    bool list_objects_as_links= false);
-    ValueRef unserialize(const std::string &path, boost::shared_ptr<grt::internal::Unserializer> unserializer = boost::shared_ptr<grt::internal::Unserializer>());
+    ValueRef unserialize(const std::string &path, std::shared_ptr<grt::internal::Unserializer> unserializer = std::shared_ptr<grt::internal::Unserializer>());
     ValueRef unserialize(const std::string &path, std::string &doctype_ret, std::string &version_ret);
-    boost::shared_ptr<grt::internal::Unserializer> get_unserializer();
+    std::shared_ptr<grt::internal::Unserializer> get_unserializer();
 
     xmlDocPtr load_xml(const std::string &path);
     void get_xml_metainfo(xmlDocPtr doc, std::string &doctype_ret, std::string &version_ret);

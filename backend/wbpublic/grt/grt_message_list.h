@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,6 @@
 #include "tree_model.h"
 #include "refresh_ui.h"
 #include <set>
-#include <boost/shared_ptr.hpp>
 
 namespace bec {
 
@@ -42,7 +41,7 @@ namespace bec {
       std::string detail;
     };
     
-    typedef boost::shared_ptr<MessageEntry> MessageEntryRef;
+    typedef std::shared_ptr<MessageEntry> MessageEntryRef;
     
     MessageListStorage(GRTManager *grtm);
 

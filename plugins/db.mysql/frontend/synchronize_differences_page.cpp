@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -316,7 +316,7 @@ std::string SynchronizeDifferencesPage::get_icon_path(bec::IconId icon)
   return _icons[icon];
 }
 
-void SynchronizeDifferencesPage::load_model(boost::shared_ptr<DiffTreeBE> model, bec::NodeId node, mforms::TreeNodeRef tnode)
+void SynchronizeDifferencesPage::load_model(std::shared_ptr<DiffTreeBE> model, bec::NodeId node, mforms::TreeNodeRef tnode)
 {
   for (size_t c = model->count_children(node), i = 0; i < c; i++)
   {

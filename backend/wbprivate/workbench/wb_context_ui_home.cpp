@@ -802,7 +802,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
           db_mgmt_ConnectionRef connection = db_mgmt_ConnectionRef::cast_from(dict["connection"]);
           grt::StringListRef names = grt::StringListRef::cast_from(dict["files"]);
           _wb->show_status_text("Opening files in new SQL Editor ...");          
-          boost::shared_ptr<SqlEditorForm> form = _wb->add_new_query_window(connection, false);
+          std::shared_ptr<SqlEditorForm> form = _wb->add_new_query_window(connection, false);
           if (form)
           {
             for (size_t i = 0; i < names->count(); ++i)

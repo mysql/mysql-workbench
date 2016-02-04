@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,7 @@ using namespace System::Windows::Forms;
 
 namespace MySQL {
   namespace Forms {
-    public delegate MySQL::Base::IRecordsetView ^CreateGridViewDelegate(IntPtr  /* to a boost::shared_ptr<Recordset> ptr */ rset);
+    public delegate MySQL::Base::IRecordsetView ^CreateGridViewDelegate(IntPtr  /* to a std::shared_ptr<Recordset> ptr */ rset);
 
     ref class ColumnCallbackWrapper;
 
@@ -34,7 +34,7 @@ namespace MySQL {
       gcroot<ColumnCallbackWrapper^> column_callback_delegate;
 
     public:
-      static mforms::GridView* create(boost::shared_ptr<class ::Recordset> rset);
+      static mforms::GridView* create(std::shared_ptr<class ::Recordset> rset);
       static void init(CreateGridViewDelegate ^creator);
 
       GridViewWrapper(mforms::GridView* backend);

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,7 +36,7 @@ static NSImage *descendingSortIndicator= nil;
   NSFont *mFont;
 
   std::list<boost::signals2::connection> mSigConns;
-  boost::shared_ptr<Recordset> *mData;
+  std::shared_ptr<Recordset> *mData;
 
   int mWarnedManyColumns;
   BOOL mPendingRefresh;
@@ -282,7 +282,7 @@ static void selected_record_changed(void *theViewer)
   (*self->mData)->set_edited_field(gridView.selectedRowIndex, gridView.selectedColumnIndex - 1) ;
 }
 
-- (boost::shared_ptr<Recordset>)recordset
+- (std::shared_ptr<Recordset>)recordset
 {
   return *mData;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,7 +41,7 @@ class SpatialDrawBox : public mforms::DrawBox
   std::deque<spatial::Layer*> _layers;
   spatial::LayerId _last_autozoom_layer;
   spatial::ProjectionType _proj;
-  boost::shared_ptr<mdc::Surface> _cache;
+  std::shared_ptr<mdc::Surface> _cache;
   mdc::CairoCtx *_ctx_cache;
   base::Mutex _thread_mutex;
   spatial::Converter *_spatial_reprojector;

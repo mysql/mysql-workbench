@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1139,7 +1139,7 @@ void UtilitiesImpl::init()
 
 void MainThreadRequestQueue::from_main_thread()
 {
-  boost::shared_ptr<Request> req;
+  std::shared_ptr<Request> req;
   {
     Glib::Mutex::Lock lock(_mutex);
     if (_queue.empty())
@@ -1175,7 +1175,7 @@ void *MainThreadRequestQueue::perform(const boost::function<void* ()> &slot, boo
   {
     MainThreadRequestQueue *self = MainThreadRequestQueue::get();
 
-    boost::shared_ptr<Request> req(new Request());
+    std::shared_ptr<Request> req(new Request());
     req->slot = slot;
     req->done = false;
     req->result = 0;

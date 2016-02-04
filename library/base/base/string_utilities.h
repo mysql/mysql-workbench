@@ -44,7 +44,7 @@
 
   #include <boost/optional.hpp>
   #include <boost/cstdint.hpp>
-  #include <boost/shared_ptr.hpp>
+  #include <memory>
 
 #endif
 
@@ -323,6 +323,6 @@ template<typename T> T inline atof(const std::string &val, boost::optional<T> de
 }
   
 typedef std::list<std::string> StringList;
-typedef boost::shared_ptr<StringList> StringListPtr;
+typedef std::shared_ptr<StringList> StringListPtr;
 
 } // namespace base

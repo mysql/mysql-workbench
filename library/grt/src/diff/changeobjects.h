@@ -32,12 +32,12 @@ namespace grt
 class MYSQLGRT_PUBLIC ObjectAttrModifiedChange : public DiffChange
 {
   std::string _attr;
-  boost::shared_ptr<DiffChange> subchange;
+  std::shared_ptr<DiffChange> subchange;
 public:
-  ObjectAttrModifiedChange(const std::string& attr, boost::shared_ptr<DiffChange> change) : DiffChange(ObjectAttrModified), _attr(attr), subchange(change) {subchange->set_parent(this);}
+  ObjectAttrModifiedChange(const std::string& attr, std::shared_ptr<DiffChange> change) : DiffChange(ObjectAttrModified), _attr(attr), subchange(change) {subchange->set_parent(this);}
 
   const std::string& get_attr_name() const { return _attr; }
-  const boost::shared_ptr<DiffChange> get_subchange() const { return subchange; }
+  const std::shared_ptr<DiffChange> get_subchange() const { return subchange; }
 
   void dump_log(int level) const
   {
@@ -76,9 +76,9 @@ public:
 class MYSQLGRT_PUBLIC DictItemModifiedChange : public DiffChange
 {
   std::string key;
-  boost::shared_ptr<DiffChange> subchange;
+  std::shared_ptr<DiffChange> subchange;
 public:
-  DictItemModifiedChange(const std::string& i, boost::shared_ptr<DiffChange> change) : DiffChange(DictItemModified), key(i), subchange(change) {subchange->set_parent(this);}
+  DictItemModifiedChange(const std::string& i, std::shared_ptr<DiffChange> change) : DiffChange(DictItemModified), key(i), subchange(change) {subchange->set_parent(this);}
 
   void dump_log(int level) const
   {

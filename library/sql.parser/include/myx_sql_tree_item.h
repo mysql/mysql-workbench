@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 
 namespace mysql_parser
@@ -71,11 +71,11 @@ public:
 public:
   static bool is_ast_generation_enabled;
   
-  static boost::shared_ptr<SqlAstTerminalNode> first_terminal_node();
-  static boost::shared_ptr<SqlAstTerminalNode> last_terminal_node();
+  static std::shared_ptr<SqlAstTerminalNode> first_terminal_node();
+  static std::shared_ptr<SqlAstTerminalNode> last_terminal_node();
   
-  static void first_terminal_node(boost::shared_ptr<SqlAstTerminalNode> value);
-  static void last_terminal_node(boost::shared_ptr<SqlAstTerminalNode> value);
+  static void first_terminal_node(std::shared_ptr<SqlAstTerminalNode> value);
+  static void last_terminal_node(std::shared_ptr<SqlAstTerminalNode> value);
 private:
   static const char *_sql_statement;
 public:
@@ -91,7 +91,7 @@ public:
 
 private:
   sql::symbol _name;      // _name is sql::symbol
-  boost::shared_ptr<std::string> _value;
+  std::shared_ptr<std::string> _value;
   int _value_length;      // _value_length is in bytes
   int _stmt_lineno;
   int _stmt_boffset;

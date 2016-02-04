@@ -20,7 +20,7 @@ class DbMySQLDiffAlter : public SynchronizeDifferencesPageBEInterface
   grt::StringListRef _alter_list;
   grt::ListRef<GrtNamedObject> _alter_object_list;
   db_mysql_CatalogRef _left_catalog, _right_catalog;
-  boost::shared_ptr<DiffChange> _alter_change;
+  std::shared_ptr<DiffChange> _alter_change;
   db_mysql_CatalogRef _left_cat_copy;
   grt::DictRef _db_options;
 
@@ -44,7 +44,7 @@ public:
 
   std::string generate_alter();
 
-  virtual boost::shared_ptr<DiffTreeBE> init_diff_tree(const std::vector<std::string>& schemata, const grt::ValueRef &ext_cat, 
+  virtual std::shared_ptr<DiffTreeBE> init_diff_tree(const std::vector<std::string>& schemata, const grt::ValueRef &ext_cat, 
                                                        const grt::ValueRef &cat2, grt::StringListRef SchemaSkipList,
                                                        grt::DictRef options);
 

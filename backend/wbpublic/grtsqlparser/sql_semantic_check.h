@@ -30,7 +30,7 @@
 class WBPUBLICBACKEND_PUBLIC_FUNC Sql_semantic_check : virtual public Sql_syntax_check
 {
 public:
-  typedef boost::shared_ptr<Sql_semantic_check> Ref;
+  typedef std::shared_ptr<Sql_semantic_check> Ref;
 protected:
   Sql_semantic_check();
 

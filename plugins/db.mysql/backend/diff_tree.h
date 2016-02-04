@@ -17,14 +17,15 @@
  * 02110-1301  USA
  */
 
-#pragma once
+#ifndef _DB_MYSQL_SQL_EXPORT_DIFF_TREE_H_
+#define _DB_MYSQL_SQL_EXPORT_DIFF_TREE_H_
 
 #include <stack>
 
 #include "grt/tree_model.h"
 #include "grts/structs.db.h"
 #include "grts/structs.db.mysql.h"
-#include "grt.h"
+#include "grtpp.h"
 
 #include "grtdb/catalog_templates.h"
 
@@ -58,6 +59,17 @@ std::string get_catalog_map_key(Ref<T> t)
 
 template<>
 std::string get_catalog_map_key<db_mysql_Catalog>(db_mysql_CatalogRef cat);
+
+//std::string get_catalog_map_key(db_mysql_CatalogRef cat);
+//std::string get_catalog_map_key(db_mysql_SchemaRef schema);
+//std::string get_catalog_map_key(db_mysql_TableRef table);
+//std::string get_catalog_map_key(db_ColumnRef column);
+//std::string get_catalog_map_key(db_mysql_IndexRef index);
+//std::string get_catalog_map_key(db_mysql_IndexColumnRef index_col);
+//std::string get_catalog_map_key(db_mysql_ForeignKeyRef fk);
+//std::string get_catalog_map_key(db_mysql_ViewRef view);
+//std::string get_catalog_map_key(db_mysql_RoutineRef routine);
+//std::string get_catalog_map_key(db_mysql_TriggerRef trigger);
 
 class DiffNodePart
 {
@@ -96,14 +108,14 @@ private:
 
   DiffNodePart model_part;
   DiffNodePart db_part;
-  boost::shared_ptr<DiffChange> change;
+  std::shared_ptr<DiffChange> change;
   ApplicationDirection applyDirection;
   DiffNodeVector children;
   bool modified;
 
 public:
 
-  DiffNode(GrtNamedObjectRef model_object, GrtNamedObjectRef external_object, bool inverse, boost::shared_ptr<DiffChange>  c = boost::shared_ptr<DiffChange>())
+  DiffNode(GrtNamedObjectRef model_object, GrtNamedObjectRef external_object, bool inverse, std::shared_ptr<DiffChange>  c = std::shared_ptr<DiffChange>())
     : model_part(inverse ? external_object : model_object), 
       db_part(inverse ? model_object : external_object),
       change(c), modified(false)
@@ -119,7 +131,7 @@ public:
   
   void dump(int depth = 0);
 
-  boost::shared_ptr<DiffChange> get_change()const {return change;};
+  std::shared_ptr<DiffChange> get_change()const {return change;};
 
   void apply_direction(const ApplicationDirection& d)
   {
@@ -155,7 +167,7 @@ public:
         return true;
     return false;
   }
-  void set_modified_and_update_dir(bool m, boost::shared_ptr<DiffChange> c);
+  void set_modified_and_update_dir(bool m, std::shared_ptr<DiffChange> c);
 
   void get_object_list_for_script(std::vector<grt::ValueRef>& vec) const;
   void get_object_list_to_apply_to_model(std::vector<grt::ValueRef>& vec, std::vector<grt::ValueRef>& removal_vec) const;
@@ -204,8 +216,9 @@ private:
 
   std::vector<std::string> _schemata;
 
-  bool update_tree_with_changes(const boost::shared_ptr<DiffChange> diffchange);
-  void apply_change(GrtObjectRef obj, boost::shared_ptr<DiffChange> change);
+  //static void build_catalog_map(db_mysql_CatalogRef catalog, CatalogMap& map);
+  bool update_tree_with_changes(const std::shared_ptr<DiffChange> diffchange);
+  void apply_change(GrtObjectRef obj, std::shared_ptr<DiffChange> change);
 
   void fill_tree(DiffNode *root, db_mysql_CatalogRef catalog, const CatalogMap& map, bool inverse);
   void fill_tree(DiffNode *schema_node, db_mysql_SchemaRef schema, const CatalogMap& map, bool inverse);
@@ -216,7 +229,7 @@ private:
   DiffTreeBE(const std::vector<std::string>& schemata,
              db_mysql_CatalogRef model_catalogRef, 
              db_mysql_CatalogRef external_catalog, 
-             boost::shared_ptr<DiffChange> diffchange, DiffNodeController controller = DiffNodeController());
+             std::shared_ptr<DiffChange> diffchange, DiffNodeController controller = DiffNodeController());
   virtual ~DiffTreeBE() {delete _root; };
 
   virtual size_t count_children(const bec::NodeId &);
@@ -232,3 +245,5 @@ private:
   void get_object_list_for_script(std::vector<grt::ValueRef>& vec) const;
   void get_object_list_to_apply_to_model(std::vector<grt::ValueRef>& vec, std::vector<grt::ValueRef>& removal_vec) const;
 };
+
+#endif  // _DB_MYSQL_SQL_EXPORT_DIFF_TREE_H_

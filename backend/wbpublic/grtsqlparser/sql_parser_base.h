@@ -23,7 +23,6 @@
 #include "grt/grt_manager.h"
 #include "grt.h"
 #include "grts/structs.db.h"
-#include <boost/shared_ptr.hpp>
 
 /** Encapsulates generic DBMS agnostic functionality for processing of SQL statements/scripts:
  * <li>definition of enumeration types and callbacks

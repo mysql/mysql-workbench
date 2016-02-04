@@ -201,7 +201,7 @@ std::string ConnectionError::process(SQLRETURN retcode, SQLSMALLINT htype, SQLHA
 
 
 
-RowBuffer::RowBuffer(boost::shared_ptr<std::vector<ColumnInfo> > columns,
+RowBuffer::RowBuffer(std::shared_ptr<std::vector<ColumnInfo> > columns,
                      boost::function<void (int, const char*, size_t)> send_blob_data,
                      size_t max_packet_size)
 : _current_field(0), _send_blob_data(send_blob_data)
@@ -890,12 +890,12 @@ size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::stri
 }
 
 
-boost::shared_ptr<std::vector<ColumnInfo> > ODBCCopyDataSource::begin_select_table(const std::string &schema, const std::string &table,
+std::shared_ptr<std::vector<ColumnInfo> > ODBCCopyDataSource::begin_select_table(const std::string &schema, const std::string &table,
                                                                                    const std::vector<std::string> &pk_columns,
                                                                                    const std::string &select_expression,
                                                                                    const CopySpec &spec, const std::vector<std::string> &last_pkeys)
 {
-  boost::shared_ptr<std::vector<ColumnInfo> > columns(new std::vector<ColumnInfo>());
+  std::shared_ptr<std::vector<ColumnInfo> > columns(new std::vector<ColumnInfo>());
   _columns = columns;
   _schema_name = schema;
   _table_name = table;
@@ -1408,12 +1408,12 @@ size_t MySQLCopyDataSource::count_rows(const std::string &schema, const std::str
   return (size_t)count;
 }
 
-boost::shared_ptr<std::vector<ColumnInfo> > MySQLCopyDataSource::begin_select_table(const std::string &schema, const std::string &table,
+std::shared_ptr<std::vector<ColumnInfo> > MySQLCopyDataSource::begin_select_table(const std::string &schema, const std::string &table,
                                                                                     const std::vector<std::string> &pk_columns,
                                                                                     const std::string &select_expression,
                                                                                     const CopySpec &spec, const std::vector<std::string> &last_pkeys)
 {
-  boost::shared_ptr<std::vector<ColumnInfo> > columns(new std::vector<ColumnInfo>());
+  std::shared_ptr<std::vector<ColumnInfo> > columns(new std::vector<ColumnInfo>());
 
   _schema_name = schema;
   _table_name = table;
@@ -1967,7 +1967,7 @@ void MySQLCopyDataTarget::set_truncate(bool flag)
 }
 
 void MySQLCopyDataTarget::set_target_table(const std::string &schema, const std::string &table,
-                                           boost::shared_ptr<std::vector<ColumnInfo> > columns)
+                                           std::shared_ptr<std::vector<ColumnInfo> > columns)
 {
   _schema = schema;
   _table = table;
@@ -2715,7 +2715,7 @@ gpointer CopyDataTask::thread_func(gpointer data)
 
 void CopyDataTask::copy_table(const TableParam &task)
 {
-  boost::shared_ptr<std::vector<ColumnInfo> > columns;
+  std::shared_ptr<std::vector<ColumnInfo> > columns;
 
   long long i = 0, total = 0;
   int inserted_records;

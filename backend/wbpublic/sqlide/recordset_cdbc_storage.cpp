@@ -278,8 +278,8 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
   Recordset::Column_types &real_column_types= get_real_column_types(recordset);
   Recordset::Column_flags &column_flags= get_column_flags(recordset);
   
-  boost::shared_ptr<sql::Statement> stmt;
-  boost::shared_ptr<sql::ResultSet> rs;
+  std::shared_ptr<sql::Statement> stmt;
+  std::shared_ptr<sql::ResultSet> rs;
   if (_dbc_resultset)
   {
     rs= _dbc_resultset;
@@ -467,7 +467,7 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
     FetchVar fetch_var(rs.get());
     Var_vector row_values(editable_col_count + rowid_col_count);
 
-    std::list<boost::shared_ptr<sqlite::command> > insert_commands= prepare_data_swap_record_add_statement(data_swap_db, column_names);
+    std::list<std::shared_ptr<sqlite::command> > insert_commands= prepare_data_swap_record_add_statement(data_swap_db, column_names);
     // XXX this will fetch all records before displaying them, which will result in a huge unnecessary lag in the UI
     while (rs->next())
     {
@@ -526,9 +526,9 @@ void Recordset_cdbc_storage::do_fetch_blob_value(Recordset *recordset, sqlite::c
 
   if (!_reloadable)
     throw std::runtime_error("Recordset can't be reloaded, original statement must be reexecuted instead");
-  boost::shared_ptr<sql::Statement> stmt(dbms_conn->createStatement());
+  std::shared_ptr<sql::Statement> stmt(dbms_conn->createStatement());
   stmt->execute(sql_query);
-  boost::shared_ptr<sql::ResultSet> rs(stmt->getResultSet());
+  std::shared_ptr<sql::ResultSet> rs(stmt->getResultSet());
 
   _valid= (NULL != rs.get());
   if (!_valid)
@@ -554,7 +554,7 @@ void Recordset_cdbc_storage::do_fetch_blob_value(Recordset *recordset, sqlite::c
 }
 
 
-class BlobVarToStream : public boost::static_visitor<boost::shared_ptr<std::stringstream> >
+class BlobVarToStream : public boost::static_visitor<std::shared_ptr<std::stringstream> >
 {
 public:
   result_type operator()(const sqlite::blob_ref_t &v)
@@ -584,7 +584,7 @@ void Recordset_cdbc_storage::run_sql_script(const Sql_script &sql_script, bool s
     try
     {
       stmt.reset(dbms_conn->prepareStatement(sql));
-      std::list<boost::shared_ptr<std::stringstream> > blob_streams;
+      std::list<std::shared_ptr<std::stringstream> > blob_streams;
       if (sql_script.statements_bindings.end() != sql_bindings)
       {
         int bind_var_index= 1;
@@ -596,7 +596,7 @@ void Recordset_cdbc_storage::run_sql_script(const Sql_script &sql_script, bool s
           }
           else
           {
-            boost::shared_ptr<std::stringstream> blob_stream= boost::apply_visitor(blob_var_to_stream, bind_var);
+            std::shared_ptr<std::stringstream> blob_stream= boost::apply_visitor(blob_var_to_stream, bind_var);
             if (binding_blobs())
             {
               blob_streams.push_back(blob_stream);

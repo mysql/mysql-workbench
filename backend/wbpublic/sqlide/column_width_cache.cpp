@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +26,7 @@
 #include "base/log.h"
 #include "base/file_utilities.h"
 #include "base/sqlstring.h"
+#include "base/boost_smart_ptr_helpers.h"
 #include "grt/common.h"
 #include "sqlide_generics.h"
 
@@ -50,7 +51,7 @@ ColumnWidthCache::ColumnWidthCache(const std::string &connection_id, const std::
   int found = 0;
   if (q.emit())
   {
-    boost::shared_ptr<sqlite::result> res(q.get_result());
+    std::shared_ptr<sqlite::result> res(BoostHelper::convertPointer(q.get_result()));
     do
     {
       std::string name = res->get_string(0);
@@ -133,7 +134,7 @@ int ColumnWidthCache::get_column_width(const std::string &column_id)
   {
     if (q.emit())
     {
-      boost::shared_ptr<sqlite::result> res(q.get_result());
+      std::shared_ptr<sqlite::result> res(BoostHelper::convertPointer(q.get_result()));
       return res->get_int(0);
     }
   }

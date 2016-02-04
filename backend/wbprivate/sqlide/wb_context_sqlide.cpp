@@ -26,7 +26,7 @@
 #include "base/notifications.h"
 #include "base/ui_form.h"
 
-#include "grt.h"
+#include "grtpp.h"
 
 
 #include "grts/structs.h"
@@ -76,7 +76,7 @@ class MYSQLWBBACKEND_PUBLIC_FUNC db_query_EditorConcreteImplData : public db_que
 {
   void sql_editor_list_changed(MySQLEditor::Ref editor, bool added)
   {
-    boost::shared_ptr<SqlEditorForm> ref(_editor);
+    std::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)
     {
       if (added)
@@ -93,7 +93,7 @@ class MYSQLWBBACKEND_PUBLIC_FUNC db_query_EditorConcreteImplData : public db_que
   }
 
 public:
-  db_query_EditorConcreteImplData(boost::shared_ptr<SqlEditorForm> editor,
+  db_query_EditorConcreteImplData(std::shared_ptr<SqlEditorForm> editor,
                                   const db_query_EditorRef &self)
   : _self(dynamic_cast<db_query_Editor*>(self.valueptr())), _editor(editor)
   {
@@ -111,11 +111,11 @@ public:
     editor->sql_editor_list_changed.connect(boost::bind(&db_query_EditorConcreteImplData::sql_editor_list_changed, this, _1, _2));
   }
   
-  boost::shared_ptr<SqlEditorForm> editor_object() const { return _editor; }
+  std::shared_ptr<SqlEditorForm> editor_object() const { return _editor; }
   
   virtual db_mgmt_ConnectionRef connection() const
   {
-    boost::shared_ptr<SqlEditorForm> ref(_editor);
+    std::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)
       return _editor->connection_descriptor();
     return db_mgmt_ConnectionRef();
@@ -123,7 +123,7 @@ public:
 
   virtual grt::IntegerRef isConnected() const
   {
-    boost::shared_ptr<SqlEditorForm> ref(_editor);
+    std::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)
     {
       if (_editor->offline())
@@ -141,7 +141,7 @@ public:
 
   virtual db_query_QueryEditorRef addQueryEditor()
   {
-    boost::shared_ptr<SqlEditorForm> ref(_editor);
+    std::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)
     {
       _editor->new_sql_script_file();
@@ -153,7 +153,7 @@ public:
   
   virtual grt::IntegerRef addToOutput(const std::string &text, long bringToFront)
   {
-    boost::shared_ptr<SqlEditorForm> ref(_editor);
+    std::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)
       ref->output_text_slot(text, bringToFront != 0);
     
@@ -162,11 +162,11 @@ public:
   
   virtual grt::ListRef<db_query_Resultset> executeScript(const std::string &sql)
   {
-    grt::ListRef<db_query_Resultset> result(true);
-    boost::shared_ptr<SqlEditorForm> ref(_editor);
+    grt::ListRef<db_query_Resultset> result(_self->get_grt());
+    std::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)
     { 
-      bec::GRTManager::get().replace_status_text("Executing query...");
+      ref->grt_manager()->replace_status_text("Executing query...");
       
       try
       {
@@ -175,11 +175,11 @@ public:
         for (std::vector<Recordset::Ref>::const_iterator iter= rsets->begin(); iter != rsets->end(); ++iter)
           result.insert(grtwrap_recordset(_self, *iter));
       
-        bec::GRTManager::get().replace_status_text("Query finished.");
+        ref->grt_manager()->replace_status_text("Query finished.");
       }
       catch (sql::SQLException &exc)
       {
-        log_error("Exception executing SQL code from GRT interface: %s\n", exc.what());
+        logError("Exception executing SQL code from GRT interface: %s\n", exc.what());
       }
     }
     return result;
@@ -187,7 +187,7 @@ public:
   
   virtual grt::IntegerRef executeScriptAndOutputToGrid(const std::string &sql)
   {
-    boost::shared_ptr<SqlEditorForm> ref(_editor);
+    std::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)      
       ref->exec_sql_retaining_editor_contents(sql, NULL, true);
 
@@ -196,7 +196,7 @@ public:
 
   virtual db_query_ResultsetRef executeManagementQuery(const std::string &sql, bool log)
   {
-    boost::shared_ptr<SqlEditorForm> ref(_editor);
+    std::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)
     {
       return ref->exec_management_query(sql, log);
@@ -206,14 +206,14 @@ public:
 
   virtual void executeManagementCommand(const std::string &sql, bool log)
   {
-    boost::shared_ptr<SqlEditorForm> ref(_editor);
+    std::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)
       ref->exec_management_sql(sql, log);
   }
   
   virtual db_query_ResultsetRef executeQuery(const std::string &sql, bool log)
   {
-    boost::shared_ptr<SqlEditorForm> ref(_editor);
+    std::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)
     {
       return ref->exec_main_query(sql, log);
@@ -223,7 +223,7 @@ public:
   
   virtual void executeCommand(const std::string &sql, bool log, bool background)
   {
-    boost::shared_ptr<SqlEditorForm> ref(_editor);
+    std::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)
     {
       if (background)
@@ -235,7 +235,7 @@ public:
 
   virtual db_query_EditableResultsetRef createTableEditResultset(const std::string &schema, const std::string &table, const std::string &where, bool showGrid)
   {
-    boost::shared_ptr<SqlEditorForm> ref(_editor);
+    std::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)
     {      
       std::string query;
@@ -261,14 +261,14 @@ public:
   
   virtual void activeSchema(const std::string &schema)
   {
-    boost::shared_ptr<SqlEditorForm> ref(_editor);
+    std::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)      
       ref->active_schema(schema);
   }
   
   virtual std::string activeSchema()
   {
-    boost::shared_ptr<SqlEditorForm> ref(_editor);
+    std::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)      
       return ref->active_schema();
     return "";
@@ -276,7 +276,7 @@ public:
   
   virtual db_query_QueryEditorRef activeQueryEditor()
   {
-    boost::shared_ptr<SqlEditorForm> ref(_editor);
+    std::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)
     {
       SqlEditorPanel *panel = ref->active_sql_editor_panel();
@@ -288,7 +288,7 @@ public:
 
   virtual void editLiveObject(const db_DatabaseObjectRef &object, const db_CatalogRef &catalog)
   {
-    boost::shared_ptr<SqlEditorForm> ref(_editor);
+    std::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)
     {
       ref->get_live_tree()->open_alter_object_editor(object, catalog);
@@ -297,7 +297,7 @@ public:
 
   virtual void alterLiveObject(const std::string &type, const std::string &schemaName, const std::string &objectName)
   {
-    boost::shared_ptr<SqlEditorForm> ref(_editor);
+    std::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)
     {
       wb::LiveSchemaTree::ObjectType otype;
@@ -319,7 +319,7 @@ public:
 
   virtual grt::ListRef<db_query_LiveDBObject> schemaTreeSelection() const
   {
-    boost::shared_ptr<SqlEditorForm> ref(_editor);
+    std::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)
       return grt::ListRef<db_query_LiveDBObject>::cast_from(ref->get_live_tree()->get_schema_tree()->get_selected_objects());
     return grt::ListRef<db_query_LiveDBObject>();
@@ -332,7 +332,7 @@ public:
     
 protected:  
   db_query_Editor *_self;
-  boost::shared_ptr<SqlEditorForm> _editor;
+  std::shared_ptr<SqlEditorForm> _editor;
 };
 
 
@@ -510,7 +510,7 @@ static void call_open_script(wb::WBContextSQLIDE *sqlide)
   chooser.set_extensions("SQL Files (*.sql)|*.sql|Query Browser Files (*.qbquery)|*.qbquery", "sql");
   if (chooser.run_modal())
   {
-    boost::shared_ptr<SqlEditorForm> form = sqlide->get_wbui()->get_wb()->add_new_query_window();
+    std::shared_ptr<SqlEditorForm> form = sqlide->get_wbui()->get_wb()->add_new_query_window();
     if (form)
     {
       form->open_file(chooser.get_path());
@@ -520,7 +520,7 @@ static void call_open_script(wb::WBContextSQLIDE *sqlide)
 
 static void call_no_connection_empty_tab(wb::WBContextSQLIDE *sqlide)
 {
-  boost::shared_ptr<SqlEditorForm> form = sqlide->get_wbui()->get_wb()->add_new_query_window();
+  std::shared_ptr<SqlEditorForm> form = sqlide->get_wbui()->get_wb()->add_new_query_window();
   if (form)
     form->open_file();
 }
@@ -594,7 +594,7 @@ static bool validate_save_edits(wb::WBContextSQLIDE *sqlide)
 
 static bool validate_list_members(wb::WBContextSQLIDE *sqlide)
 {
-  return bec::GRTManager::get().get_app_option_int("DbSqlEditor:CodeCompletionEnabled") != 0;
+  return sqlide->get_grt_manager()->get_app_option_int("DbSqlEditor:CodeCompletionEnabled") != 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -604,7 +604,7 @@ static void new_script_tab(wb::WBContextSQLIDE *sqlide)
   SqlEditorForm *form= sqlide->get_active_sql_editor();
   if (form)
   {
-    if (bec::GRTManager::get().get_app_option_int("DbSqlEditor:DiscardUnsavedQueryTabs", 0))
+    if (sqlide->get_grt_manager()->get_app_option_int("DbSqlEditor:DiscardUnsavedQueryTabs", 0))
       form->new_sql_scratch_area();
     else
       form->new_sql_script_file();
@@ -660,7 +660,7 @@ static bool validate_toolbar_alias_toggle(wb::WBContextSQLIDE *sqlide, const std
 //--------------------------------------------------------------------------------------------------
 
 WBContextSQLIDE::WBContextSQLIDE(WBContextUI *wbui)
-: _wbui(wbui), _auto_save_handle(0), _auto_save_interval(0), _auto_save_active(false), _option_change_signal_connected(false)
+: _wbui(wbui), _auto_save_handle(0), _auto_save_active(false), _option_change_signal_connected(false)
 {
 }
 
@@ -695,7 +695,7 @@ bool WBContextSQLIDE::auto_save_workspaces()
     _auto_save_active = false;
     return false;
   }
-  for (std::list<boost::weak_ptr<SqlEditorForm> >::const_iterator iter = _open_editors.begin();
+  for (std::list<std::weak_ptr<SqlEditorForm>>::const_iterator iter = _open_editors.begin();
        iter != _open_editors.end(); ++iter)
   {
     SqlEditorForm::Ref editor((*iter).lock());
@@ -706,8 +706,8 @@ bool WBContextSQLIDE::auto_save_workspaces()
     }
     catch (const std::exception &exception)
     {
-      log_warning("Exception during auto-save of SQL Editors: %s\n", exception.what());
-      bec::GRTManager::get().replace_status_text(base::strfmt("Error during auto-save of SQL Editors: %s", exception.what()));
+      logWarning("Exception during auto-save of SQL Editors: %s\n", exception.what());
+      wb->get_grt_manager()->replace_status_text(base::strfmt("Error during auto-save of SQL Editors: %s", exception.what()));
     }
   }
   
@@ -737,7 +737,7 @@ void WBContextSQLIDE::detect_auto_save_files(const std::string &autosave_dir)
   }
   catch (const std::runtime_error& e)
   {
-    log_error("Error while scanning for sql workspaces: %s\n", e.what());
+    logError("Error while scanning for sql workspaces: %s\n", e.what());
   }
 
   for (std::list<std::string>::const_iterator d = autosaves.begin(); d != autosaves.end(); ++d)
@@ -749,10 +749,10 @@ void WBContextSQLIDE::detect_auto_save_files(const std::string &autosave_dir)
     {
       ::auto_save_sessions[std::string(conn_id, length)] = *d;
       g_free(conn_id);
-      log_info("Found auto-save workspace %s\n", d->c_str());
+      logInfo("Found auto-save workspace %s\n", d->c_str());
     }
     else
-      log_warning("Found incomplete auto-save workspace %s\n", d->c_str());
+      logWarning("Found incomplete auto-save workspace %s\n", d->c_str());
   }
 }
 
@@ -763,6 +763,12 @@ std::map<std::string, std::string> WBContextSQLIDE::auto_save_sessions()
 }
 
 //--------------------------------------------------------------------------------------------------
+
+bec::GRTManager *WBContextSQLIDE::get_grt_manager()
+{
+  return _wbui->get_wb()->get_grt_manager();
+}
+
 
 CommandUI *WBContextSQLIDE::get_cmdui()
 {
@@ -779,12 +785,12 @@ void WBContextSQLIDE::handle_notification(const std::string &name, void *sender,
 
 void WBContextSQLIDE::init()
 {
-  DbSqlEditorSnippets::setup(this, base::makePath(bec::GRTManager::get().get_user_datadir(), "snippets"));
+  DbSqlEditorSnippets::setup(this, base::makePath(get_grt_manager()->get_user_datadir(), "snippets"));
   
   //scoped_connect(_wbui->get_wb()->signal_app_closing(),boost::bind(&WBContextSQLIDE::finalize, this));
   base::NotificationCenter::get()->add_observer(this, "GNAppClosing");
   
-  // setup some builtin commands handled by ourselves for the SQL IDE
+  // Setup some builtin commands handled by ourselves for the SQL IDE.
   wb::CommandUI *cmdui = _wbui->get_command_ui();
 
   cmdui->add_builtin_command("alias.wb.toggleSidebar", boost::bind(call_toolbar_alias_toggle, this, "wb.toggleSidebar"), boost::bind(validate_toolbar_alias_toggle, this, "wb.toggleSidebar"));
@@ -832,7 +838,7 @@ void WBContextSQLIDE::init()
 
   cmdui->add_builtin_command("query.reconnect", boost::bind(call_reconnect, this));
 
-  cmdui->add_builtin_command("query.continueOnError", boost::bind(call_continue_on_error, this));
+  cmdui->add_builtin_command("query.stopOnError", boost::bind(call_continue_on_error, this));
 
   cmdui->add_builtin_command("query.jump_to_placeholder", boost::bind(&WBContextSQLIDE::call_in_editor_panel, this, &SqlEditorPanel::jump_to_placeholder));
   cmdui->add_builtin_command("list-members", boost::bind(&WBContextSQLIDE::call_in_editor_panel, this, &SqlEditorPanel::list_members),
@@ -863,12 +869,12 @@ void WBContextSQLIDE::finalize()
 
 void WBContextSQLIDE::reconnect_editor(SqlEditorForm *editor)
 {
-  boost::shared_ptr<sql::TunnelConnection> tunnel;
+  std::shared_ptr<sql::TunnelConnection> tunnel;
 
   if (!editor->connection_descriptor().is_valid())
   {
     grtui::DbConnectionDialog dialog(get_wbui()->get_wb()->get_root()->rdbmsMgmt());
-    log_debug("No connection associated with editor on reconnect, showing connection selection dialog...\n");
+    logDebug("No connection associated with editor on reconnect, showing connection selection dialog...\n");
     db_mgmt_ConnectionRef target= dialog.run();
     if (!target.is_valid())
       return;
@@ -883,26 +889,26 @@ void WBContextSQLIDE::reconnect_editor(SqlEditorForm *editor)
   }
   catch (grt::user_cancelled)
   {
-    bec::GRTManager::get().replace_status_text("Tunnel connection cancelled.");
+    editor->grt_manager()->replace_status_text("Tunnel connection cancelled.");
     return;
   }
   try
   {
     if (editor && !editor->is_running_query())
     {
-      bec::GRTManager::get().replace_status_text("Reconnecting...");
+      editor->grt_manager()->replace_status_text("Reconnecting...");
       if (editor->connect(tunnel))
-        bec::GRTManager::get().replace_status_text("Connection reopened.");
+        editor->grt_manager()->replace_status_text("Connection reopened.");
       else
       {
-        bec::GRTManager::get().replace_status_text("Could not reconnect.");
+        editor->grt_manager()->replace_status_text("Could not reconnect.");
         if (tunnel.get())
         {
           // check whether this was a tunnel related error
           std::string type, message;
           while (tunnel->get_message(type, message))
           {
-            log_debug("From tunnel %s: %s\n", type.c_str(), message.c_str());
+            logDebug("From tunnel %s: %s\n", type.c_str(), message.c_str());
             if (type == "ERROR")
               mforms::Utilities::show_error("Reconnect", "Tunnel error: "+message, "OK");
           }
@@ -917,16 +923,16 @@ void WBContextSQLIDE::reconnect_editor(SqlEditorForm *editor)
   }
 }
 
-static void *connect_editor(SqlEditorForm::Ref editor, boost::shared_ptr<sql::TunnelConnection> tunnel)
+static void *connect_editor(SqlEditorForm::Ref editor, std::shared_ptr<sql::TunnelConnection> tunnel)
 {
   try
   {
-    log_debug3("Connecting SQL editor...\n");
+    logDebug3("Connecting SQL editor...\n");
     editor->connect(tunnel);
   }
   catch (sql::AuthenticationError &exc)
   {
-    log_error("Got an authentication error during connection: %s\n", exc.what());
+    logError("Got an authentication error during connection: %s\n", exc.what());
     return new std::string(exc.what());
   }
   catch (grt::server_denied &sd)
@@ -938,7 +944,7 @@ static void *connect_editor(SqlEditorForm::Ref editor, boost::shared_ptr<sql::Tu
   }
   catch (grt::user_cancelled &)
   {
-    log_info("User cancelled connection\n");
+    logInfo("User cancelled connection\n");
     return new std::string(":CANCELLED");
   }
   catch (std::exception &exc)
@@ -949,21 +955,21 @@ static void *connect_editor(SqlEditorForm::Ref editor, boost::shared_ptr<sql::Tu
       std::string type, message;
       while (tunnel->get_message(type, message))
       {
-        log_debug("From tunnel %s: %s\n", type.c_str(), message.c_str());
+        logDebug("From tunnel %s: %s\n", type.c_str(), message.c_str());
         if (type == "ERROR")
           return new std::string("Tunnel error: "+message);
       }
     }
-    log_error("Got an exception during connection: %s\n", exc.what());
+    logError("Got an exception during connection: %s\n", exc.what());
     return new std::string(exc.what());
   }
-  log_debug3("Connection to SQL editor succeeded\n");
+  logDebug3("Connection to SQL editor succeeded\n");
   return new std::string();
 }
 
 static bool cancel_connect_editor(SqlEditorForm::Ref editor)
 {
-  log_debug3("Cancelling connection...\n");
+  logDebug3("Cancelling connection...\n");
   editor->cancel_connect();
   return true;
 }
@@ -971,7 +977,7 @@ static bool cancel_connect_editor(SqlEditorForm::Ref editor)
 SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_ConnectionRef &conn)
 {
   // start by opening the tunnel, if needed
-  boost::shared_ptr<sql::TunnelConnection> tunnel;
+  std::shared_ptr<sql::TunnelConnection> tunnel;
 
   if (conn.is_valid())
     tunnel = sql::DriverManager::getDriverManager()->getTunnel(conn);
@@ -1001,9 +1007,9 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
 
       if (tmp == ":PASSWORD_EXPIRED")
       {
-        grt::BaseListRef args(grt::AnyType);
+        grt::BaseListRef args(conn->get_grt(), grt::AnyType);
         args.ginsert(conn);
-        ssize_t result = *grt::IntegerRef::cast_from(grt::GRT::get()->call_module_function("WbAdmin", "handleExpiredPassword", args));
+        ssize_t result = *grt::IntegerRef::cast_from(conn->get_grt()->call_module_function("WbAdmin", "handleExpiredPassword", args));
         if (result != 0)
           return create_connected_editor(conn);
         throw grt::user_cancelled("password reset cancelled by user");
@@ -1027,7 +1033,7 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
 
   {
     // Create entry for grt tree and update volatile data in the connection.
-    db_query_EditorRef object(grt::Initialized);
+    db_query_EditorRef object(_wbui->get_wb()->get_grt());
     object->owner(_wbui->get_wb()->get_root());
     object->name(conn.is_valid() ? conn->name() : "unconnected");
     
@@ -1106,7 +1112,7 @@ void WBContextSQLIDE::open_document(const std::string &path)
   }
   else
   {
-    boost::shared_ptr<SqlEditorForm> editor(get_wbui()->get_wb()->add_new_query_window());
+    std::shared_ptr<SqlEditorForm> editor(get_wbui()->get_wb()->add_new_query_window());
     editor->open_file(path);
   }
 }

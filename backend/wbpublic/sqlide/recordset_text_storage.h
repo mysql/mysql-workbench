@@ -40,14 +40,14 @@ public:
     bool pre_quote_strings;
     std::string quote;
   };
-  static std::vector<Recordset_storage_info> storage_types();
+  static std::vector<Recordset_storage_info> storage_types(bec::GRTManager *grtm);
 
 public:
-  typedef boost::shared_ptr<Recordset_text_storage> Ref;
-  static Ref create() { return Ref(new Recordset_text_storage()); }
+  typedef std::shared_ptr<Recordset_text_storage> Ref;
+  static Ref create(bec::GRTManager *grtm) { return Ref(new Recordset_text_storage(grtm)); }
   virtual ~Recordset_text_storage();
 protected:
-  Recordset_text_storage();
+  Recordset_text_storage(bec::GRTManager *grtm);
 
 protected:
   virtual void do_apply_changes(const Recordset *recordset, sqlite::connection *data_swap_db, bool skip_commit);

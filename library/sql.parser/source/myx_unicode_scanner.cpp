@@ -108,8 +108,6 @@ inline int lex_casecmp(const char *s, const char *t, uint len)
 
 
 #include "lex.h"
-#include <algorithm>
-
 namespace mysql_parser
 {
 
@@ -356,7 +354,7 @@ inline SqlAstNode * new_ast_terminal_node(LEX *lex, const char* value, int value
   }
   else
   {
-    boost::shared_ptr<SqlAstTerminalNode> node(new SqlAstTerminalNode(
+    std::shared_ptr<SqlAstTerminalNode> node(new SqlAstTerminalNode(
         value,
         value_length,
         token_start_lineno,

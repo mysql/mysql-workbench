@@ -253,14 +253,14 @@ public:
   /**
    * generate sql (create or alter) internal only
    */
-  virtual ssize_t generateSQL(GrtNamedObjectRef, const grt::DictRef& options, boost::shared_ptr<grt::DiffChange>);
+  virtual ssize_t generateSQL(GrtNamedObjectRef, const grt::DictRef& options, std::shared_ptr<grt::DiffChange>);
 
   /**
    * generate report (create or alter) internal only
    */
   virtual grt::StringRef generateReport(GrtNamedObjectRef org_object,   
                                           const grt::DictRef& options, 
-                                          boost::shared_ptr<grt::DiffChange>);
+                                          std::shared_ptr<grt::DiffChange>);
 
   /** 
    * generate SQL export script (CREATE statements only)

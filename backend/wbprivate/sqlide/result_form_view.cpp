@@ -706,7 +706,7 @@ void ResultFormView::init_for_resultset(Recordset::Ptr rset_ptr, SqlEditorForm *
         rset->update_edited_field();
     }
 
-    Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rset->data_storage()));
+    Recordset_cdbc_storage::Ref storage(std::dynamic_pointer_cast<Recordset_cdbc_storage>(rset->data_storage()));
 
     std::vector<Recordset_cdbc_storage::FieldInfo> &field_info(storage->field_info());
     _table.set_row_count((int)field_info.size());

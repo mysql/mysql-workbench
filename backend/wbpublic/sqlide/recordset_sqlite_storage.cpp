@@ -23,9 +23,9 @@
 #include "recordset_be.h"
 #include "grtsqlparser/sql_facade.h"
 #include "base/string_utilities.h"
+#include "base/boost_smart_ptr_helpers.h"
 #include <sqlite/execute.hpp>
 #include <sqlite/query.hpp>
-#include <boost/foreach.hpp>
 #include <algorithm>
 #include <ctype.h>
 
@@ -55,7 +55,7 @@ std::string Recordset_sqlite_storage::decorated_sql_query(Recordset::Column_name
     else
     {
       sql_query= "select ";
-      BOOST_FOREACH (const std::string &column_name, column_names)
+      for (const auto &column_name : column_names)
         sql_query+= strfmt("`%s`, ", column_name.c_str());
       sql_query+= "rowid from " + full_table_name();
     }
@@ -82,7 +82,8 @@ void Recordset_sqlite_storage::do_unserialize(Recordset *recordset, sqlite::conn
   sqlite::connection conn(_db_path);
   sqlite::query q(conn, sql_query);
   bool rs_contains_rows= q.emit();
-  boost::shared_ptr<sqlite::result> rs= q.get_result();
+
+  std::shared_ptr<sqlite::result> rs = BoostHelper::convertPointer(q.get_result());
 
   _valid= (NULL != rs.get());
   if (!_valid)
@@ -158,7 +159,7 @@ void Recordset_sqlite_storage::do_unserialize(Recordset *recordset, sqlite::conn
     if (rs_contains_rows)
     {
       Var_vector row_values(col_count);
-      std::list<boost::shared_ptr<sqlite::command> > insert_commands= prepare_data_swap_record_add_statement(data_swap_db, column_names);
+      std::list<std::shared_ptr<sqlite::command> > insert_commands= prepare_data_swap_record_add_statement(data_swap_db, column_names);
 
       do
       {
@@ -199,13 +200,13 @@ void Recordset_sqlite_storage::run_sql_script(const Sql_script &sql_script, bool
     sqlide::Sqlite_transaction_guarder transaction_guarder(&conn);
 
     Sql_script::Statements_bindings::const_iterator sql_bindings= sql_script.statements_bindings.begin();
-    BOOST_FOREACH (const std::string &sql, sql_script.statements)
+    for (const auto &sql : sql_script.statements)
     {
       sqlite::command sql_command(conn, sql);
       sqlide::BindSqlCommandVar sql_var_binder(&sql_command);
       if (sql_script.statements_bindings.end() != sql_bindings)
       {
-        BOOST_FOREACH (const sqlite::variant_t &bind_var, *sql_bindings)
+        for (const auto &bind_var : *sql_bindings)
           boost::apply_visitor(sql_var_binder, bind_var);
         ++sql_bindings;
       }
@@ -236,7 +237,7 @@ void Recordset_sqlite_storage::do_fetch_blob_value(Recordset *recordset, sqlite:
   sqlite::connection conn(_db_path);
   sqlite::query q(conn, sql_query);
   bool rs_contains_rows= q.emit();
-  boost::shared_ptr<sqlite::result> rs= q.get_result();
+  std::shared_ptr<sqlite::result> rs = BoostHelper::convertPointer(q.get_result());
 
   _valid= (NULL != rs.get());
   if (!_valid)

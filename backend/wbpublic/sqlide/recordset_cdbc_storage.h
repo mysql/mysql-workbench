@@ -38,11 +38,11 @@ public:
     int scale;
   };
   
-  typedef boost::shared_ptr<Recordset_cdbc_storage> Ref;
-  static Ref create() { return Ref(new Recordset_cdbc_storage()); }
+  typedef std::shared_ptr<Recordset_cdbc_storage> Ref;
+  static Ref create(bec::GRTManager *grtm) { return Ref(new Recordset_cdbc_storage(grtm)); }
   virtual ~Recordset_cdbc_storage();
 protected:
-  Recordset_cdbc_storage();
+  Recordset_cdbc_storage(bec::GRTManager *grtm);
 
 protected:
   virtual void do_unserialize(Recordset *recordset, sqlite::connection *data_swap_db);
@@ -60,8 +60,8 @@ public:
   void aux_dbms_conn(const sql::Dbc_connection_handler::Ref &val) { _aux_dbms_conn= val; }
   sql::Dbc_connection_handler::Ref aux_dbms_conn() { return _aux_dbms_conn; }
 
-  void dbc_resultset(boost::shared_ptr<sql::ResultSet>& value) { _dbc_resultset= value; }
-  void dbc_statement(boost::shared_ptr<sql::Statement>& value) { _dbc_statement= value; }
+  void dbc_resultset(std::shared_ptr<sql::ResultSet>& value) { _dbc_resultset= value; }
+  void dbc_statement(std::shared_ptr<sql::Statement>& value) { _dbc_statement= value; }
   bool reloadable() const { return _reloadable; }
   void reloadable(bool val) { _reloadable= val; }
 
@@ -73,8 +73,8 @@ protected:
 private:
   sql::Dbc_connection_handler::Ref _dbms_conn;
   sql::Dbc_connection_handler::Ref _aux_dbms_conn;
-  boost::shared_ptr<sql::ResultSet> _dbc_resultset; // for 1-time unserialization
-  boost::shared_ptr<sql::Statement> _dbc_statement; // for 1-time unserialization
+  std::shared_ptr<sql::ResultSet> _dbc_resultset; // for 1-time unserialization
+  std::shared_ptr<sql::Statement> _dbc_statement; // for 1-time unserialization
   std::vector<FieldInfo> _field_info;
   bool _reloadable; // whether can be reloaded using stored sql query
   bool _gather_field_info;

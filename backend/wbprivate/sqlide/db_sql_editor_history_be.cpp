@@ -148,7 +148,7 @@ void DbSqlEditorHistory::EntriesModel::reset()
   _readonly = true;
   add_column("Date", std::string());
   
-  boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+  std::shared_ptr<sqlite::connection> data_swap_db = this->data_swap_db();
   Recordset_data_storage::create_data_swap_tables(data_swap_db.get(), _column_names, _column_types);
 
   refresh_ui();  
@@ -375,7 +375,7 @@ void DbSqlEditorHistory::DetailsModel::reset()
   add_column("Time", std::string());
   add_column("SQL", std::string());
 
-  boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+  std::shared_ptr<sqlite::connection> data_swap_db = this->data_swap_db();
   Recordset_data_storage::create_data_swap_tables(data_swap_db.get(), _column_names, _column_types);
 
   refresh_ui();

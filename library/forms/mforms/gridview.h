@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2016 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,7 +20,6 @@
 #pragma once
 
 #include "mforms/native.h"
-#include <boost/shared_ptr.hpp>
 
 #ifndef SWIG
 class Recordset;
@@ -59,9 +58,9 @@ namespace mforms {
     int get_clicked_header_column() { return _clicked_header_column; }
 
 #ifndef SWIG
-    static GridView* create(boost::shared_ptr<Recordset> rset);
+    static GridView* create(std::shared_ptr<Recordset> rset);
 
-    static void register_factory(GridView* (*create)(boost::shared_ptr<Recordset> rset));
+    static void register_factory(GridView* (*create)(std::shared_ptr<Recordset> rset));
 #endif
 
     // TODO must be emited from Windows

@@ -240,7 +240,7 @@ std::string LiveSchemaTree::IndexData::get_details(bool full, const mforms::Tree
     details += strfmt(LST_INFO_BOX_DETAIL_ROW.c_str(), "Unique", unique_str.c_str());
     details += strfmt(LST_INFO_BOX_DETAIL_ROW.c_str(), "Columns", columns[0].c_str());
     
-    for(size_t index = 1; index < columns.size();index++)
+    for(std::size_t index = 1; index < columns.size();index++)
       details += strfmt(LST_INFO_BOX_DETAIL_ROW.c_str(), "", columns[index].c_str());
 
     details+="</table>";
@@ -554,12 +554,12 @@ LiveSchemaTree::~LiveSchemaTree()
    clean_filter();
 }
 
-void LiveSchemaTree::set_fetch_delegate(boost::shared_ptr<FetchDelegate> delegate)
+void LiveSchemaTree::set_fetch_delegate(std::shared_ptr<FetchDelegate> delegate)
 {
   _fetch_delegate= delegate;
 }
 
-void LiveSchemaTree::set_delegate(boost::shared_ptr<Delegate> delegate)
+void LiveSchemaTree::set_delegate(std::shared_ptr<Delegate> delegate)
 {
   _delegate= delegate;
 }
@@ -876,7 +876,7 @@ bool LiveSchemaTree::update_node_children(mforms::TreeNodeRef parent, base::Stri
     // Removes deleted children if needed...
     if (!just_append && !childs_to_remove.empty())
     {
-      for(size_t index = 0; index < childs_to_remove.size(); index++)
+      for(std::size_t index = 0; index < childs_to_remove.size(); index++)
         childs_to_remove[index]->remove_from_parent();
       
       removed = true;
@@ -959,7 +959,7 @@ bool LiveSchemaTree::update_node_children(mforms::TreeNodeRef parent, base::Stri
         added_nodes.insert(added_nodes.end(), group_added_nodes.begin(), group_added_nodes.end());
       }
 
-      for(size_t index = 0; index < added_nodes.size(); index++)
+      for(std::size_t index = 0; index < added_nodes.size(); index++)
       {
         setup_node(added_nodes[index], type);
         added = true;
@@ -1214,17 +1214,17 @@ void LiveSchemaTree::schema_contents_arrived(const std::string &schema_name,
           
           //We need to duplicate the data, because it's being changed inside update_node_children
           //and we can't do this because it's shared between threads
-          update_node_children(tables_node, boost::make_shared<StringList>(*tables), Table, true, just_append);
-          update_node_children(views_node, boost::make_shared<StringList>(*views), View, true, just_append);
-          update_node_children(procedures_node, boost::make_shared<StringList>(*procedures), Procedure,true, just_append);
-          update_node_children(functions_node, boost::make_shared<StringList>(*functions), Function, true, just_append);
+          update_node_children(tables_node, std::make_shared<StringList>(*tables), Table, true, just_append);
+          update_node_children(views_node, std::make_shared<StringList>(*views), View, true, just_append);
+          update_node_children(procedures_node, std::make_shared<StringList>(*procedures), Procedure,true, just_append);
+          update_node_children(functions_node, std::make_shared<StringList>(*functions), Function, true, just_append);
           
 
           // If there were nodes that means this is a refresh, in such case loaded tables
           // must be reloaded so the changes are displayed
           if (old_table_count)
           {
-              for (size_t index = 0; index < (size_t)tables_node->count(); index++)
+              for (std::size_t index = 0; index < (std::size_t)tables_node->count(); index++)
               {
                 mforms::TreeNodeRef pnode = tables_node->get_child((int)index);
                   reload_object_data(pnode);
@@ -1235,7 +1235,7 @@ void LiveSchemaTree::schema_contents_arrived(const std::string &schema_name,
           // must be reloaded so the changes are displayed
           if (old_view_count)
           {
-              for (size_t index = 0; index < (size_t)views_node->count(); index++)
+              for (std::size_t index = 0; index < (std::size_t)views_node->count(); index++)
               {
                 mforms::TreeNodeRef pnode = views_node->get_child((int)index);
                   reload_object_data(pnode);
@@ -1311,7 +1311,7 @@ void LiveSchemaTree::load_table_details(mforms::TreeNodeRef& node, int fetch_mas
 
 void LiveSchemaTree::fetch_table_details(ObjectType object_type, const std::string schema_name, const std::string object_name, int fetch_mask)
 {
-    boost::shared_ptr<FetchDelegate> delegate = _fetch_delegate.lock();
+    std::shared_ptr<FetchDelegate> delegate = _fetch_delegate.lock();
 
     if (delegate)
     {
@@ -1332,7 +1332,7 @@ void LiveSchemaTree::load_routine_details(mforms::TreeNodeRef& node)
 
     std::string schema_name = get_schema_name(node);
 
-    boost::shared_ptr<FetchDelegate> delegate = _fetch_delegate.lock();
+    std::shared_ptr<FetchDelegate> delegate = _fetch_delegate.lock();
 
     if (delegate)
       delegate->fetch_routine_details(schema_name, node->get_string(0), pdata->get_type());
@@ -1342,7 +1342,7 @@ void LiveSchemaTree::load_routine_details(mforms::TreeNodeRef& node)
 
 void LiveSchemaTree::load_data_for_filter(const std::string& schema_filter, const std::string& object_filter)
 {
-    if (boost::shared_ptr<FetchDelegate> delegate = _fetch_delegate.lock())
+    if (std::shared_ptr<FetchDelegate> delegate = _fetch_delegate.lock())
     {
       std::string remote_schema_filter = get_filter_wildcard(schema_filter, RemoteLike);
       std::string remote_object_filter = get_filter_wildcard(object_filter, RemoteLike);
@@ -1377,7 +1377,7 @@ void LiveSchemaTree::load_schema_content(mforms::TreeNodeRef& schema_node)
 
     update_node_icon(schema_node);
 
-    if (boost::shared_ptr<FetchDelegate> delegate = _fetch_delegate.lock())
+    if (std::shared_ptr<FetchDelegate> delegate = _fetch_delegate.lock())
     {
       delegate->fetch_schema_contents(name, 
                               boost::bind(&LiveSchemaTree::schema_contents_arrived, this, _1, _2, _3, _4, _5, _6));
@@ -1728,7 +1728,7 @@ bool LiveSchemaTree::activate_popup_item_for_nodes(const std::string &name, cons
   std::string object_name = "";
   std::string object_detail = "";
 
-  if (boost::shared_ptr<Delegate> delegate = _delegate.lock())
+  if (std::shared_ptr<Delegate> delegate = _delegate.lock())
   {
     if (name == "refresh")
     {
@@ -2299,7 +2299,7 @@ void LiveSchemaTree::node_activated(mforms::TreeNodeRef node, int column)
         ChangeRecord record = { Schema, "", node_name, "" };
         changes.push_back(record);
 
-        if (boost::shared_ptr<Delegate> delegate = _delegate.lock())
+        if (std::shared_ptr<Delegate> delegate = _delegate.lock())
         {
           switch (column)
           {
@@ -2329,7 +2329,7 @@ void LiveSchemaTree::node_activated(mforms::TreeNodeRef node, int column)
           ChangeRecord record = { node_data->get_type(), get_schema_name(node), node_name, "" };
           changes.push_back(record);
 
-          if (boost::shared_ptr<Delegate> delegate = _delegate.lock())
+          if (std::shared_ptr<Delegate> delegate = _delegate.lock())
           {
             switch (column)
             {
@@ -2363,7 +2363,7 @@ void LiveSchemaTree::node_activated(mforms::TreeNodeRef node, int column)
           ChangeRecord record = { node_data->get_type(), get_schema_name(node), node_name, "" };
           changes.push_back(record);
 
-          if (boost::shared_ptr<Delegate> delegate = _delegate.lock())
+          if (std::shared_ptr<Delegate> delegate = _delegate.lock())
           {
             switch (column)
             {
@@ -2457,7 +2457,7 @@ std::vector<std::string> LiveSchemaTree::get_node_path(const mforms::TreeNodeRef
 mforms::TreeNodeRef LiveSchemaTree::get_node_from_path(std::vector<std::string> path)
 {
   mforms::TreeNodeRef temp_node = _model_view->root_node();
-  size_t index = 0;
+  std::size_t index = 0;
   bool error = false;
   bool use_binary_search = true;
   

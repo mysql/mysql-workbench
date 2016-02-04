@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,7 +25,7 @@
 
 using namespace mforms;
 
-static mforms::GridView* create_record_grid(boost::shared_ptr<Recordset> rset)
+static mforms::GridView* create_record_grid(std::shared_ptr<Recordset> rset)
 {
   return new RecordGridView(rset);
 }

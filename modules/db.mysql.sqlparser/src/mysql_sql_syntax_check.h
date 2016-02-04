@@ -17,7 +17,10 @@
  * 02110-1301  USA
  */
 
-#pragma once
+
+#ifndef _MYSQL_SQL_SYNTAX_CHECK_H_
+#define _MYSQL_SQL_SYNTAX_CHECK_H_
+
 
 #include "mysql_sql_parser_base.h"
 #include "grtsqlparser/sql_syntax_check.h"
@@ -31,11 +34,11 @@ class MYSQL_SQL_PARSER_PUBLIC_FUNC Mysql_sql_syntax_check
   : virtual protected Mysql_sql_parser_base, virtual public Sql_syntax_check
 {
 public:
-  typedef boost::shared_ptr<Mysql_sql_syntax_check> Ref;
-  static Ref create() { return Ref(new Mysql_sql_syntax_check); }
+  typedef std::shared_ptr<Mysql_sql_syntax_check> Ref;
+  static Ref create(grt::GRT *grt) { return Ref(new Mysql_sql_syntax_check(grt)); }
   virtual ~Mysql_sql_syntax_check() {}
 protected:
-  Mysql_sql_syntax_check();
+  Mysql_sql_syntax_check(grt::GRT *grt);
 
 public:
   Statement_type determine_statement_type(const std::string &sql);
@@ -75,3 +78,6 @@ protected:
     Mysql_sql_syntax_check *_sql_parser;
   };
 };
+
+
+#endif // _MYSQL_SQL_SYNTAX_CHECK_H_
