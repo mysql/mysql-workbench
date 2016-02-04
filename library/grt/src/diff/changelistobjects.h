@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -58,12 +58,12 @@ public:
 //////////////////////////////////////////////////////////////
 class MYSQLGRT_PUBLIC ListItemModifiedChange : public ListItemChange
 {
-  boost::shared_ptr<DiffChange> subchange;
+  std::shared_ptr<DiffChange> subchange;
   ValueRef _old_value;
   ValueRef _new_value;
 
 public:
-  ListItemModifiedChange(const ValueRef old_value, const ValueRef new_value, boost::shared_ptr<DiffChange> change, size_t index)
+  ListItemModifiedChange(const ValueRef old_value, const ValueRef new_value, std::shared_ptr<DiffChange> change, size_t index)
     :ListItemChange(ListItemModified, index), subchange(change), _old_value(old_value), _new_value(new_value)
   {
     subchange->set_parent(this);
@@ -72,7 +72,7 @@ public:
   virtual ValueRef get_old_value() const {return _old_value;};
   virtual ValueRef get_new_value() const {return _new_value;};
 
-  const boost::shared_ptr<DiffChange> get_subchange() const { return subchange; }
+  const std::shared_ptr<DiffChange> get_subchange() const { return subchange; }
 
   void dump_log(int level) const
   {
@@ -83,7 +83,7 @@ public:
   }
 };
 
-boost::shared_ptr<ListItemModifiedChange> create_item_modified_change(
+std::shared_ptr<ListItemModifiedChange> create_item_modified_change(
                                      const ValueRef &source, 
                                      const ValueRef &target,
                                      const Omf* omf,
@@ -141,7 +141,7 @@ public:
 
 class MYSQLGRT_PUBLIC ListItemOrderChange : public ListItemChange
 {
-  boost::shared_ptr<ListItemModifiedChange> _subchange;
+  std::shared_ptr<ListItemModifiedChange> _subchange;
   grt::ChangeSet cs;
   ValueRef _old_value;
   ValueRef _new_value;
@@ -159,7 +159,7 @@ public:
 
   virtual ValueRef get_old_value() const {return _old_value;};
   virtual ValueRef get_new_value() const {return _new_value;};
-  boost::shared_ptr<ListItemModifiedChange> get_subchange() const {return _subchange;};
+  std::shared_ptr<ListItemModifiedChange> get_subchange() const {return _subchange;};
 
     //Used in column's AFTER statemen
   grt::ValueRef get_prev_item()const {return _prev_value;};

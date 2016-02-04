@@ -25,7 +25,6 @@
 #include "base/string_utilities.h"
 #include "base/sqlstring.h"
 #include "base/boost_smart_ptr_helpers.h"
-#include <boost/foreach.hpp>
 #include <algorithm>
 #include <sstream>
 #include "mforms/jsonview.h"
@@ -48,15 +47,15 @@ _qv(qv)
 }
 
 
-std::string PrimaryKeyPredicate::operator()(std::vector<boost::shared_ptr<sqlite::result> > &data_row_results)
+std::string PrimaryKeyPredicate::operator()(std::vector<std::shared_ptr<sqlite::result> > &data_row_results)
 {
   std::string predicate;
   sqlite::variant_t v;
-  BOOST_FOREACH (ColumnId col, *_pkey_columns)
+  for (auto col : *_pkey_columns)
   {
     size_t partition;
     ColumnId partition_column= Recordset::translate_data_swap_db_column(col, &partition);
-    boost::shared_ptr<sqlite::result> &data_row_rs= data_row_results[partition];
+    std::shared_ptr<sqlite::result> &data_row_rs = data_row_results[partition];
     
     v = data_row_rs->get_variant((int)partition_column);
     predicate+= "`" + (*_column_names)[col] + "`=" + boost::apply_visitor(*_qv, (*_column_types)[col], v) + " and";
@@ -101,7 +100,7 @@ public:
 std::string Recordset_sql_storage::statements_as_sql_script(const Sql_script::Statements &statements)
 {
   std::string sql_script;
-  BOOST_FOREACH (const std::string &statement, statements)
+  for (const auto &statement : statements)
     sql_script+= statement + ";\n";
   return sql_script;
 }
@@ -181,7 +180,7 @@ void Recordset_sql_storage::do_unserialize(Recordset *recordset, sqlite::connect
 
         create_data_swap_tables(data_swap_db, column_names, column_types);
         Var_vector row_values(column_names.size());
-        std::list<boost::shared_ptr<sqlite::command> > insert_commands= prepare_data_swap_record_add_statement(data_swap_db, column_names);
+        std::list<std::shared_ptr<sqlite::command> > insert_commands= prepare_data_swap_record_add_statement(data_swap_db, column_names);
         Var_list::iterator var_list_iter= var_list.begin();
         for (size_t n= 0, count= var_list.size() / column_names.size(); n < count; ++n)
         {
@@ -233,7 +232,7 @@ void Recordset_sql_storage::load_insert_statement(
   if (_fields_order.empty())
   {
     *column_names= _affective_columns.empty() ? fields_names : _affective_columns;
-    BOOST_FOREACH (const std::string &fn, *column_names)
+    for (const auto &fn : *column_names)
       _fields_order.insert(std::make_pair(fn, (int)_fields_order.size()));
   }
 
@@ -292,7 +291,7 @@ void Recordset_sql_storage::fetch_blob_value(Recordset *recordset, sqlite::conne
     blob_query % (int)rowid;
     if (blob_query.emit())
     {
-      boost::shared_ptr<sqlite::result> rs= blob_query.get_result();
+      std::shared_ptr<sqlite::result> rs = BoostHelper::convertPointer(blob_query.get_result());
       blob_value = rs->get_variant(0);
     }
   }
@@ -325,7 +324,7 @@ std::string Recordset_sql_storage::full_table_name() const
 void Recordset_sql_storage::init_sql_script_substitute(const Recordset::Ptr &recordset_ptr, bool is_update_script)
 {
   RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset, recordset_ptr, recordset)
-  boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db(recordset_ref);
+  std::shared_ptr<sqlite::connection> data_swap_db = this->data_swap_db(recordset_ref);
   do_init_sql_script_substitute(recordset, data_swap_db.get(), is_update_script);
 }
 
@@ -352,10 +351,10 @@ void Recordset_sql_storage::get_pkey_predicate_for_data_cache_rowid(Recordset *r
   Recordset::Column_names &column_names= get_column_names(recordset);
   Recordset::Column_types &column_types= get_column_types(recordset);
 
-  std::list<boost::shared_ptr<sqlite::query> > data_row_queries(recordset->data_swap_db_partition_count());
+  std::list<std::shared_ptr<sqlite::query> > data_row_queries(recordset->data_swap_db_partition_count());
   Recordset::prepare_partition_queries(data_swap_db, "select * from `data%s` where id=?", data_row_queries);
 
-  std::vector<boost::shared_ptr<sqlite::result> > data_row_results(data_row_queries.size());
+  std::vector<std::shared_ptr<sqlite::result> > data_row_results(data_row_queries.size());
   std::list<sqlite::variant_t> bind_vars;
   bind_vars.push_back((int)rowid);
   if (!Recordset::emit_partition_queries(data_swap_db, data_row_queries, data_row_results, bind_vars))
@@ -412,10 +411,10 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
   {
     PrimaryKeyPredicate pkey_pred(&real_column_types, &column_names, &_pkey_columns, &pk_qv);
 
-    std::list<boost::shared_ptr<sqlite::query> > data_row_queries(partition_count);
+    std::list<std::shared_ptr<sqlite::query> > data_row_queries(partition_count);
     Recordset::prepare_partition_queries(data_swap_db, "select * from `data%s` where id=?", data_row_queries);
 
-    std::list<boost::shared_ptr<sqlite::query> > deleted_row_queries(partition_count);
+    std::list<std::shared_ptr<sqlite::query> > deleted_row_queries(partition_count);
     Recordset::prepare_partition_queries(data_swap_db, "select * from `deleted_rows%s` where id=?", deleted_row_queries);
 
     sqlite::query changed_row_columns_query(*data_swap_db,
@@ -443,7 +442,7 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
     changes_query % (int)min_new_rowid;
     if (changes_query.emit())
     {
-      boost::shared_ptr<sqlite::result> rs= changes_query.get_result();
+      std::shared_ptr<sqlite::result> rs = BoostHelper::convertPointer(changes_query.get_result());
       do
       {
         RowId rowid= rs->get_int(1);
@@ -454,7 +453,7 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
         {
         case -1:
           {
-            std::vector<boost::shared_ptr<sqlite::result> > deleted_row_results(deleted_row_queries.size());
+            std::vector<std::shared_ptr<sqlite::result> > deleted_row_results(deleted_row_queries.size());
             std::list<sqlite::variant_t> bind_vars;
             bind_vars.push_back((int)rowid);
             if (Recordset::emit_partition_queries(data_swap_db, deleted_row_queries, deleted_row_results, bind_vars))
@@ -466,7 +465,7 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
 
         case 1:
           {
-            std::vector<boost::shared_ptr<sqlite::result> > data_row_results(data_row_queries.size());
+            std::vector<std::shared_ptr<sqlite::result> > data_row_results(data_row_queries.size());
             {
               std::list<sqlite::variant_t> bind_vars;
               bind_vars.push_back((int)rowid);
@@ -480,7 +479,7 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
               break;
 
             {
-              boost::shared_ptr<sqlite::result> changed_row_columns_rs= changed_row_columns_query.get_result();
+              std::shared_ptr<sqlite::result> changed_row_columns_rs = BoostHelper::convertPointer(changed_row_columns_query.get_result());
 
               std::string col_names;
               std::string values;
@@ -493,7 +492,7 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
 
                 size_t partition;
                 ColumnId partition_column= Recordset::translate_data_swap_db_column(column, &partition);
-                boost::shared_ptr<sqlite::result> &data_row_rs= data_row_results[partition];
+                std::shared_ptr<sqlite::result> &data_row_rs= data_row_results[partition];
 
                 v = data_row_rs->get_variant((int)partition_column);
                 if (!qv.store_unknown_as_string && boost::apply_visitor(jsonTypeFinder, column_types[column], v))
@@ -517,7 +516,7 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
 
         case 0:
           {
-            std::vector<boost::shared_ptr<sqlite::result> > data_row_results(data_row_queries.size());
+            std::vector<std::shared_ptr<sqlite::result> > data_row_results(data_row_queries.size());
             {
               std::list<sqlite::variant_t> bind_vars;
               bind_vars.push_back((int)rowid);
@@ -529,7 +528,7 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
             changed_row_columns_query % (int)rowid;
             if (changed_row_columns_query.emit())
             {
-              boost::shared_ptr<sqlite::result> changed_row_columns_rs= changed_row_columns_query.get_result();
+              std::shared_ptr<sqlite::result> changed_row_columns_rs = BoostHelper::convertPointer(changed_row_columns_query.get_result());
 
               std::string values;
               sqlite::variant_t v;
@@ -539,7 +538,7 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
 
                 size_t partition;
                 ColumnId partition_column= Recordset::translate_data_swap_db_column(column, &partition);
-                boost::shared_ptr<sqlite::result> &data_row_rs= data_row_results[partition];
+                std::shared_ptr<sqlite::result> &data_row_rs= data_row_results[partition];
 
                 v = data_row_rs->get_variant((int)partition_column);
                 
@@ -576,9 +575,9 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
     if (!col_names.empty())
       col_names.resize(col_names.size()-2);
 
-    std::list<boost::shared_ptr<sqlite::query> > data_queries(partition_count);
+    std::list<std::shared_ptr<sqlite::query> > data_queries(partition_count);
     Recordset::prepare_partition_queries(data_swap_db, "select * from `data%s`", data_queries);
-    std::vector<boost::shared_ptr<sqlite::result> > data_results(data_queries.size());
+    std::vector<std::shared_ptr<sqlite::result> > data_results(data_queries.size());
     if (Recordset::emit_partition_queries(data_swap_db, data_queries, data_results))
     {
       bool next_row_exists= true;
@@ -588,7 +587,7 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
         std::string values;
         for (size_t partition= 0; partition < partition_count; ++partition)
         {
-          boost::shared_ptr<sqlite::result> &data_rs= data_results[partition];
+          std::shared_ptr<sqlite::result> &data_rs = data_results[partition];
           for (ColumnId col_begin= partition * Recordset::DATA_SWAP_DB_TABLE_MAX_COL_COUNT, col= col_begin,
             col_end= std::min<ColumnId>(editable_col_count, (partition + 1) * Recordset::DATA_SWAP_DB_TABLE_MAX_COL_COUNT); col < col_end; ++col)
           {
@@ -606,7 +605,7 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
         std::string sql= strfmt("INSERT INTO %s (%s) VALUES (%s)", _omit_schema_qualifier ? (std::string("`")+table_name()+std::string("`")).c_str() : full_table_name.c_str(), col_names.c_str(), values.c_str());
         sql_script.statements.push_back(sql);
 
-        BOOST_FOREACH (boost::shared_ptr<sqlite::result> &data_rs, data_results)
+        for (auto &data_rs : data_results)
           next_row_exists= data_rs->next_row();
       }
       while (next_row_exists);
@@ -650,9 +649,9 @@ void Recordset_sql_storage::generate_inserts(const Recordset *recordset, sqlite:
   if (!col_names.empty())
     col_names.resize(col_names.size()-2);
 
-  std::list<boost::shared_ptr<sqlite::query> > data_queries(partition_count);
+  std::list<std::shared_ptr<sqlite::query> > data_queries(partition_count);
   Recordset::prepare_partition_queries(data_swap_db, "select * from `data%s`", data_queries);
-  std::vector<boost::shared_ptr<sqlite::result> > data_results(data_queries.size());
+  std::vector<std::shared_ptr<sqlite::result> > data_results(data_queries.size());
   if (Recordset::emit_partition_queries(data_swap_db, data_queries, data_results))
   {
     bool next_row_exists= true;
@@ -662,7 +661,7 @@ void Recordset_sql_storage::generate_inserts(const Recordset *recordset, sqlite:
       std::string values;
       for (size_t partition= 0; partition < partition_count; ++partition)
       {
-        boost::shared_ptr<sqlite::result> &data_rs= data_results[partition];
+        std::shared_ptr<sqlite::result> &data_rs= data_results[partition];
         for (ColumnId col_begin= partition * Recordset::DATA_SWAP_DB_TABLE_MAX_COL_COUNT, col= col_begin,
           col_end= std::min<ColumnId>(editable_col_count, (partition + 1) * Recordset::DATA_SWAP_DB_TABLE_MAX_COL_COUNT); col < col_end; ++col)
         {
@@ -697,7 +696,7 @@ void Recordset_sql_storage::generate_inserts(const Recordset *recordset, sqlite:
       std::string sql= strfmt("INSERT INTO %s (%s) VALUES (%s)", _omit_schema_qualifier ? (std::string("`")+table_name()+std::string("`")).c_str() : full_table_name.c_str(), col_names.c_str(), values.c_str());
       sql_script.statements.push_back(sql);
 
-      BOOST_FOREACH (boost::shared_ptr<sqlite::result> &data_rs, data_results)
+      for (auto &data_rs : data_results)
         next_row_exists= data_rs->next_row();
     }
     while (next_row_exists);

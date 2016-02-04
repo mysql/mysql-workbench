@@ -43,32 +43,33 @@ struct help_test_entry
 
 BEGIN_TEST_DATA_CLASS(wb_sql_editor_help_test)
 public:
-  WBTester *_tester;
-  WBContextSQLIDE *_sqlide;
+  WBTester _tester;
+  WBContextSQLIDE _sqlide;
   sql::ConnectionWrapper _connection;
   SqlEditorForm::Ref _editor_form;
   int _version;
+
 //--------------------------------------------------------------------------------------------------
 
-void set_connection_properties(db_mgmt_ConnectionRef& connection)
+void set_connection_properties(grt::GRT *grt, db_mgmt_ConnectionRef& connection)
 {
-  grt::DictRef conn_params(true);
+  grt::DictRef conn_params(grt);
   conn_params.set("hostName", grt::StringRef(test_params->get_host_name()));
   conn_params.set("port", grt::IntegerRef(test_params->get_port()));
   conn_params.set("userName", grt::StringRef(test_params->get_user_name()));
   conn_params.set("password", grt::StringRef(test_params->get_password()));
   grt::replace_contents(connection->parameterValues(), conn_params);
 
-  db_mgmt_DriverRef driverProperties= db_mgmt_DriverRef::cast_from(grt::GRT::get()->get("/rdbms/drivers/0/"));
+  db_mgmt_DriverRef driverProperties= db_mgmt_DriverRef::cast_from(grt->get("/rdbms/drivers/0/"));
   connection->driver(driverProperties);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-sql::ConnectionWrapper create_connection()
+sql::ConnectionWrapper create_connection(grt::GRT *grt)
 {
-  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
-  set_connection_properties(connectionProperties);
+  db_mgmt_ConnectionRef connectionProperties(grt);
+  set_connection_properties(grt, connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
   return dm->getConnection(connectionProperties);
@@ -115,23 +116,17 @@ void check_topics(size_t start, size_t end, const help_test_entry entries[])
 //--------------------------------------------------------------------------------------------------
 
 TEST_DATA_CONSTRUCTOR(wb_sql_editor_help_test)
-  : _version(0)
+  : _sqlide(_tester.wbui)
 {
+  populate_grt(_tester.grt, _tester);
 
-  bec::GRTManager::get(); //need to bcreated first
-  _tester = new WBTester();
-  _sqlide = new WBContextSQLIDE(_tester->wbui);
+  _connection = create_connection(_tester.grt);
 
-
-  populate_grt(*_tester);
-
-  _connection = create_connection();
-
-  db_mgmt_ConnectionRef my_connection(grt::Initialized);
-  set_connection_properties(my_connection);
-  _editor_form = SqlEditorForm::create(_sqlide, my_connection);
-  _editor_form->connect(boost::shared_ptr<sql::TunnelConnection>());
-  _tester->wbui->set_active_form(_editor_form.get());
+  db_mgmt_ConnectionRef my_connection(_tester.grt);
+  set_connection_properties(_tester.grt, my_connection);
+  _editor_form = SqlEditorForm::create(&_sqlide, my_connection);
+  _editor_form->connect(std::shared_ptr<sql::TunnelConnection>());
+  _tester.wbui->set_active_form(_editor_form.get());
 
   std::auto_ptr<sql::Statement> stmt(_connection->createStatement());
 
@@ -140,15 +135,23 @@ TEST_DATA_CONSTRUCTOR(wb_sql_editor_help_test)
   if (res && res->next())
   {
     std::string version_string = res->getString("VERSION");
-    grt_version = parse_version(version_string);
+    grt_version = parse_version(_tester.grt, version_string);
   }
   delete res;
 
   ensure("Server version is invalid", grt_version.is_valid());
 
-  _tester->get_rdbms()->version(grt_version);
+  _tester.get_rdbms()->version(grt_version);
   _version = (int)(grt_version->majorNumber() * 10000 + grt_version->minorNumber() * 100 + grt_version->releaseNumber());
 }
+
+//--------------------------------------------------------------------------------------------------
+
+TEST_DATA_DESTRUCTOR(wb_sql_editor_help_test)
+{
+  _editor_form->close();
+}
+
 //--------------------------------------------------------------------------------------------------
 
 END_TEST_DATA_CLASS;
@@ -928,17 +931,6 @@ static help_test_entry complex_tests[] =
 TEST_FUNCTION(15)
 {
   check_topics(0, sizeof(complex_tests) / sizeof(complex_tests[0]), complex_tests);
-}
-
-// Due to the tut nature, this must be executed as a last test always,
-// we can't have this inside of the d-tor.
-TEST_FUNCTION(99)
-{
-  _editor_form->close();
-  _editor_form.reset();
-
-  delete _sqlide;
-  delete _tester;
 }
 
 END_TESTS

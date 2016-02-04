@@ -48,11 +48,11 @@ public:
 class WBPUBLICBACKEND_PUBLIC_FUNC Recordset_sql_storage : public Recordset_data_storage
 {
 public:
-  typedef boost::shared_ptr<Recordset_sql_storage> Ref;
-  static Ref create() { return Ref(new Recordset_sql_storage()); }
+  typedef std::shared_ptr<Recordset_sql_storage> Ref;
+  static Ref create(bec::GRTManager *grtm) { return Ref(new Recordset_sql_storage(grtm)); }
   virtual ~Recordset_sql_storage();
 protected:
-  Recordset_sql_storage();
+  Recordset_sql_storage(bec::GRTManager *grtm);
 
 protected:
   virtual void fetch_blob_value(Recordset *recordset, sqlite::connection *data_swap_db, RowId rowid, ColumnId column, sqlite::variant_t &blob_value);
@@ -171,7 +171,7 @@ class PrimaryKeyPredicate
 public:
   PrimaryKeyPredicate(const Recordset::Column_types *column_types, const Recordset::Column_names *column_names,
     const std::vector<ColumnId> *pkey_columns, sqlide::QuoteVar *qv);
-  std::string operator()(std::vector<boost::shared_ptr<sqlite::result> > &data_row_results);
+  std::string operator()(std::vector<std::shared_ptr<sqlite::result> > &data_row_results);
 };
 
 

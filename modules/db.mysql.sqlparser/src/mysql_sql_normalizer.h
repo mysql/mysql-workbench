@@ -18,7 +18,8 @@
  */
 
 
-#pragma once
+#ifndef _MYSQL_SQL_NORMALIZER_H_
+#define _MYSQL_SQL_NORMALIZER_H_
 
 
 #include "mysql_sql_parser_base.h"
@@ -35,11 +36,11 @@ using namespace grt;
 class MYSQL_SQL_PARSER_PUBLIC_FUNC Mysql_sql_normalizer : protected Mysql_sql_parser_base, public Sql_normalizer
 {
 public:
-  typedef boost::shared_ptr<Mysql_sql_normalizer> Ref;
-  static Ref create() { return Ref(new Mysql_sql_normalizer); }
+  typedef std::shared_ptr<Mysql_sql_normalizer> Ref;
+  static Ref create(grt::GRT *grt) { return Ref(new Mysql_sql_normalizer(grt)); }
   virtual ~Mysql_sql_normalizer() {}
 protected:
-  Mysql_sql_normalizer();
+  Mysql_sql_normalizer(grt::GRT *grt);
 
 public:
   std::string normalize(const std::string &sql, const std::string &schema_name);
@@ -91,3 +92,6 @@ protected:
   };
   friend class Null_state_keeper;
 };
+
+
+#endif // _MYSQL_SQL_NORMALIZER_H_

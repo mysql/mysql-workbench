@@ -15,11 +15,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
+ 
  */
 
-#pragma once
+#ifndef _WB_LIVE_SCHEMA_TREE_H_
+#define _WB_LIVE_SCHEMA_TREE_H_
 
-#include "grt.h"
+#include "grtpp.h"
 #include "grt/tree_model.h"
 #include "workbench/wb_backend_public_interface.h"
 #include "base/string_utilities.h"
@@ -328,8 +330,9 @@ namespace wb
     SqlEditorTextInsertSignal sql_editor_text_insert_signal;
 
   protected:
-    boost::weak_ptr<FetchDelegate> _fetch_delegate;
-    boost::weak_ptr<Delegate> _delegate;
+    std::weak_ptr<FetchDelegate> _fetch_delegate;
+    std::weak_ptr<Delegate> _delegate;
+    grt::GRT* _grt;
     std::string _active_schema;
     mforms::TreeView* _model_view;
 
@@ -358,12 +361,12 @@ namespace wb
       GPatternSpec* pattern = NULL);
     bool is_object_type(ObjectTypeValidation validation, ObjectType type);
   public:
-    LiveSchemaTree();
+    LiveSchemaTree(grt::GRT* grtm);
     virtual ~LiveSchemaTree();
 
     void set_model_view(mforms::TreeView* target);
-    void set_delegate(boost::shared_ptr<Delegate> delegate);
-    void set_fetch_delegate(boost::shared_ptr<FetchDelegate> delegate);
+    void set_delegate(std::shared_ptr<Delegate> delegate);
+    void set_fetch_delegate(std::shared_ptr<FetchDelegate> delegate);
 
     void load_table_details(ObjectType object_type, const std::string schema_name, const std::string object_name, int fetch_mask);
 
@@ -444,3 +447,5 @@ namespace wb
     bec::IconId get_node_icon(ObjectType type);
   };
 };
+
+#endif

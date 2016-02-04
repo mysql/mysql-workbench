@@ -20,7 +20,7 @@
 #include "grt_test_utility.h"
 #include "testgrt.h"
 #include "diff/grtdiff.h"
-#include "grt.h"
+#include "grtpp.h"
 #include "diff/diffchange.h"
 #include "diff/changeobjects.h"
 #include "diff/changelistobjects.h"
@@ -32,10 +32,10 @@
 
 using namespace grt;
 
-static grt::DictRef get_traits(bool case_sensitive = false)
+static grt::DictRef get_traits(grt::GRT* grt, bool case_sensitive = false)
 {
-  grt::DictRef traits(true);
-  traits.set("CaseSensitive", grt::IntegerRef(case_sensitive));
+  grt::DictRef traits(grt);
+    traits.set("CaseSensitive", grt::IntegerRef(case_sensitive));
   traits.set("maxTableCommentLength", grt::IntegerRef(60));
   traits.set("maxIndexCommentLength", grt::IntegerRef(0));
   traits.set("maxColumnCommentLength", grt::IntegerRef(255));
@@ -44,11 +44,7 @@ static grt::DictRef get_traits(bool case_sensitive = false)
 
 BEGIN_TEST_DATA_CLASS(comparer_test)
 public:
- WBTester *tester;
- TEST_DATA_CONSTRUCTOR(comparer_test)
- {
-   tester = new WBTester;
- }
+  WBTester tester;
 END_TEST_DATA_CLASS
 
 TEST_MODULE(comparer_test, "comparer test");
@@ -56,26 +52,26 @@ TEST_MODULE(comparer_test, "comparer test");
 TEST_FUNCTION(1)
 {
     grt::DbObjectMatchAlterOmf omf;
-    db_TableRef table1 = db_mysql_TableRef(grt::Initialized);
+    db_TableRef table1 = db_mysql_TableRef(tester.grt);
     table1->name("Table");
-    db_TableRef table2 = db_mysql_TableRef(grt::Initialized);
+    db_TableRef table2 = db_mysql_TableRef(tester.grt);
     table2->name("TABLE");
-    grt::NormalizedComparer caseless_normalizer(get_traits(false));
+    grt::NormalizedComparer caseless_normalizer(tester.grt, get_traits(tester.grt,false));
     caseless_normalizer.init_omf(&omf);
-    boost::shared_ptr<DiffChange> change = diff_make(table1,table2,&omf);
+    std::shared_ptr<DiffChange> change = diff_make(table1,table2,&omf);
     ensure("Case table name comparison:", change.get() == NULL);
 }
 
 TEST_FUNCTION(2)
 {
     grt::DbObjectMatchAlterOmf omf;
-    db_TableRef table1 = db_mysql_TableRef(grt::Initialized);
+    db_TableRef table1 = db_mysql_TableRef(tester.grt);
     table1->name("Table");
-    db_TableRef table2 = db_mysql_TableRef(grt::Initialized);
+    db_TableRef table2 = db_mysql_TableRef(tester.grt);
     table2->name("TABLE");
-    grt::NormalizedComparer normalizer(get_traits(true));
+    grt::NormalizedComparer normalizer(tester.grt, get_traits(tester.grt,true));
     normalizer.init_omf(&omf);
-    boost::shared_ptr<DiffChange> change = diff_make(table1,table2,&omf);
+    std::shared_ptr<DiffChange> change = diff_make(table1,table2,&omf);
     ensure("Caseless table name comparison:", change.get() != NULL);
 }
 
@@ -128,15 +124,15 @@ void enum_case(SynteticMySQLModel& model1, SynteticMySQLModel& model2)
 
 TEST_FUNCTION(3)
 {
-    SynteticMySQLModel model1;
-    SynteticMySQLModel model2;
+    SynteticMySQLModel model1(tester.grt);
+    SynteticMySQLModel model2(tester.grt);
     grt::DbObjectMatchAlterOmf omf;
-    grt::NormalizedComparer case_normalizer(get_traits(true));
+    grt::NormalizedComparer case_normalizer(tester.grt, get_traits(tester.grt,true));
     case_normalizer.init_omf(&omf);
-    boost::shared_ptr<DiffChange> change = diff_make(model1.catalog,model2.catalog,&omf);
+    std::shared_ptr<DiffChange> change = diff_make(model1.catalog,model2.catalog,&omf);
     ensure("Syntetic model comparison:", change.get() == NULL);
     grt::DbObjectMatchAlterOmf caselsess_omf;
-    grt::NormalizedComparer caseless_normalizer(get_traits(false));
+    grt::NormalizedComparer caseless_normalizer(tester.grt, get_traits(tester.grt,false));
     caseless_normalizer.init_omf(&caselsess_omf);
     change = diff_make(model1.catalog,model2.catalog,&caselsess_omf);
     ensure("Syntetic model caseless comparison:", change.get() == NULL);
@@ -153,20 +149,20 @@ TEST_FUNCTION(4)
     test_cases.push_back(test_params(true,true,enum_case,"ENUM case compare"));
     for (std::vector<test_params>::const_iterator It = test_cases.begin(); It != test_cases.end(); ++It)
     {
-        boost::shared_ptr<DiffChange> change;
-        SynteticMySQLModel model1;
-        SynteticMySQLModel model2;
+        std::shared_ptr<DiffChange> change;
+        SynteticMySQLModel model1(tester.grt);
+        SynteticMySQLModel model2(tester.grt);
         It->model_init(model1, model2);
 
         grt::DbObjectMatchAlterOmf omf;
-        grt::NormalizedComparer case_normalizer(get_traits(true));
+        grt::NormalizedComparer case_normalizer(tester.grt, get_traits(tester.grt,true));
         case_normalizer.init_omf(&omf);
 
         change = diff_make(model1.catalog,model2.catalog,&omf);
         ensure(std::string("Case sensitive comparison: ") + It->comment, (change.get() != NULL) == It->case_result);
 
         grt::DbObjectMatchAlterOmf caselsess_omf;
-        grt::NormalizedComparer caseless_normalizer(get_traits(false));
+        grt::NormalizedComparer caseless_normalizer(tester.grt, get_traits(tester.grt,false));
         caseless_normalizer.init_omf(&caselsess_omf);
 
         change = diff_make(model1.catalog,model2.catalog,&caselsess_omf);
@@ -177,20 +173,20 @@ TEST_FUNCTION(4)
 
 TEST_FUNCTION(5)
 {
-    SynteticMySQLModel model1;
-    SynteticMySQLModel model2;
-    grt::DictRef traits = get_traits();
+    SynteticMySQLModel model1(tester.grt);
+    SynteticMySQLModel model2(tester.grt);
+    grt::DictRef traits = get_traits(tester.grt);
     traits.set("maxTableCommentLength", grt::IntegerRef(5));
     model1.table->comment("123456");
     model2.table->comment("12345");
     grt::DbObjectMatchAlterOmf omf;
-    grt::NormalizedComparer normalizer5(traits);
+    grt::NormalizedComparer normalizer5(tester.grt, traits);
     normalizer5.init_omf(&omf);
-    boost::shared_ptr<DiffChange> change = diff_make(model1.catalog,model2.catalog,&omf);
+    std::shared_ptr<DiffChange> change = diff_make(model1.catalog,model2.catalog,&omf);
     ensure("Table Comments comparison:", change.get() == NULL);
 
     traits.set("maxTableCommentLength", grt::IntegerRef(6));
-    grt::NormalizedComparer normalizer6(traits);
+    grt::NormalizedComparer normalizer6(tester.grt, traits);
     normalizer6.init_omf(&omf);
     change = diff_make(model1.catalog,model2.catalog,&omf);
     ensure("Table Comments comparison:", change.get() != NULL);
@@ -200,20 +196,20 @@ TEST_FUNCTION(5)
 
 TEST_FUNCTION(6)
 {
-    SynteticMySQLModel model1;
-    SynteticMySQLModel model2;
-    grt::DictRef traits = get_traits();
+    SynteticMySQLModel model1(tester.grt);
+    SynteticMySQLModel model2(tester.grt);
+    grt::DictRef traits = get_traits(tester.grt);
     traits.set("maxIndexCommentLength", grt::IntegerRef(5));
     model1.indexColumn->comment("123456");
     model2.indexColumn->comment("12345");
     grt::DbObjectMatchAlterOmf omf;
-    grt::NormalizedComparer normalizer5(traits);
+    grt::NormalizedComparer normalizer5(tester.grt, traits);
     normalizer5.init_omf(&omf);
-    boost::shared_ptr<DiffChange> change = diff_make(model1.catalog,model2.catalog,&omf);
+    std::shared_ptr<DiffChange> change = diff_make(model1.catalog,model2.catalog,&omf);
     ensure("Index Comments comparison:", change.get() == NULL);
 
     traits.set("maxIndexCommentLength", grt::IntegerRef(6));
-    grt::NormalizedComparer normalizer6(traits);
+    grt::NormalizedComparer normalizer6(tester.grt, traits);
     normalizer6.init_omf(&omf);
     change = diff_make(model1.catalog,model2.catalog,&omf);
     ensure("Index Comments comparison:", change.get() != NULL);
@@ -223,51 +219,51 @@ TEST_FUNCTION(6)
 
 TEST_FUNCTION(7)
 {
-    SynteticMySQLModel model1;
-    SynteticMySQLModel model2;
-    grt::DictRef traits = get_traits();
+    SynteticMySQLModel model1(tester.grt);
+    SynteticMySQLModel model2(tester.grt);
+    grt::DictRef traits = get_traits(tester.grt);
     model1.indexColumn->comment("abcd");
     model2.indexColumn->comment("12345");
     grt::DbObjectMatchAlterOmf omf;
-    grt::NormalizedComparer normalizer(traits);
+    grt::NormalizedComparer normalizer(tester.grt, traits);
     normalizer.init_omf(&omf);
-    boost::shared_ptr<DiffChange> change = diff_make(model1.catalog,model2.catalog,&omf);
+    std::shared_ptr<DiffChange> change = diff_make(model1.catalog,model2.catalog,&omf);
     ensure("Index Comments omit comparison:", change.get() == NULL);
 }
 
 
 TEST_FUNCTION(8)
 {
-    SynteticMySQLModel model1;
-    SynteticMySQLModel model2;
-    grt::DictRef traits = get_traits();
+    SynteticMySQLModel model1(tester.grt);
+    SynteticMySQLModel model2(tester.grt);
+    grt::DictRef traits = get_traits(tester.grt);
     traits.set("maxColumnCommentLength", grt::IntegerRef(5));
     model1.column->comment("123456");
     model2.column->comment("12345");
     grt::DbObjectMatchAlterOmf omf;
-    grt::NormalizedComparer normalizer5(traits);
+    grt::NormalizedComparer normalizer5(tester.grt, traits);
     normalizer5.init_omf(&omf);
-    boost::shared_ptr<DiffChange> change = diff_make(model1.catalog,model2.catalog,&omf);
+    std::shared_ptr<DiffChange> change = diff_make(model1.catalog,model2.catalog,&omf);
     ensure("Column Comments comparison:", change.get() == NULL);
 
     traits.set("maxColumnCommentLength", grt::IntegerRef(6));
-    grt::NormalizedComparer normalizer6(traits);
+    grt::NormalizedComparer normalizer6(tester.grt, traits);
     normalizer6.init_omf(&omf);
     change = diff_make(model1.catalog,model2.catalog,&omf);
     ensure("Column Comments comparison:", change.get() != NULL);
 
 }
 
-void test_table_collation(std::string src, std::string dst, bool equal = false)
+void test_table_collation(std::string src, std::string dst, grt::GRT * tester, bool equal = false)
 {
   grt::DbObjectMatchAlterOmf omf3;
-  db_TableRef table1 = db_mysql_TableRef(grt::Initialized);
+  db_TableRef table1 = db_mysql_TableRef(tester);
   table1->set_member("defaultCollationName",grt::StringRef(src.c_str()));
-  db_TableRef table2 = db_mysql_TableRef(grt::Initialized);
+  db_TableRef table2 = db_mysql_TableRef(tester);
   table2->set_member("defaultCollationName",grt::StringRef(dst.c_str()));
-  grt::NormalizedComparer caseless_normalizer3(get_traits(false));
+  grt::NormalizedComparer caseless_normalizer3(tester, get_traits(tester,false));
   caseless_normalizer3.init_omf(&omf3);
-  boost::shared_ptr<DiffChange> change3 = diff_make(table1,table2,&omf3);
+  std::shared_ptr<DiffChange> change3 = diff_make(table1,table2,&omf3);
 
   /*
   if(change3)
@@ -289,74 +285,74 @@ void test_table_collation(std::string src, std::string dst, bool equal = false)
 TEST_FUNCTION(9)
 {
   grt::DbObjectMatchAlterOmf omf;
-  db_SchemaRef schema1 = db_SchemaRef(grt::Initialized);
-  db_SchemaRef schema2 = db_SchemaRef(grt::Initialized);
-  grt::NormalizedComparer normalizer(get_traits(true));
+  db_SchemaRef schema1 = db_SchemaRef(tester.grt);
+  db_SchemaRef schema2 = db_SchemaRef(tester.grt);
+  grt::NormalizedComparer normalizer(tester.grt, get_traits(tester.grt, true));
   normalizer.init_omf(&omf);
-  boost::shared_ptr<DiffChange> change = diff_make(schema1, schema2, &omf);
+  std::shared_ptr<DiffChange> change = diff_make(schema1, schema2, &omf);
   ensure("9.1 No changes:", change.get() == NULL);
 
-  test_table_collation("latin1_general_ci", "latin1_spanish_ci");
-  test_table_collation("", "latin1_spanish_ci");
-  test_table_collation("", "latin1_swedish_ci");
-  test_table_collation("latin1_swedish_ci", "latin1_swedish_ci", true);
+  test_table_collation("latin1_general_ci", "latin1_spanish_ci", tester.grt);
+  test_table_collation("", "latin1_spanish_ci", tester.grt);
+  test_table_collation("", "latin1_swedish_ci", tester.grt);
+  test_table_collation("latin1_swedish_ci", "latin1_swedish_ci", tester.grt, true);
 
-  SynteticMySQLModel model1a;
+  SynteticMySQLModel model1a(tester.grt);
   model1a.column->collationName("latin1_general_ci");
-  SynteticMySQLModel model2a;
+  SynteticMySQLModel model2a(tester.grt);
   model2a.column->collationName("latin1_polish_ci");
   grt::DbObjectMatchAlterOmf omf4a;
-  grt::NormalizedComparer caseless_normalizer4a(get_traits(false));
+  grt::NormalizedComparer caseless_normalizer4a(tester.grt, get_traits(tester.grt,false));
   caseless_normalizer4a.init_omf(&omf4a);
 
-  boost::shared_ptr<DiffChange> change4a = diff_make(model1a.column,model2a.column,&omf4a);
+  std::shared_ptr<DiffChange> change4a = diff_make(model1a.column,model2a.column,&omf4a);
   ensure("9.6 Column collation comparison:", change4a.get() != NULL);
 
-  SynteticMySQLModel model1b;
+  SynteticMySQLModel model1b(tester.grt);
   model1b.column->characterSetName("latin1");
-  SynteticMySQLModel model2b;
+  SynteticMySQLModel model2b(tester.grt);
   model2b.column->collationName("latin1_german_ci");
   grt::DbObjectMatchAlterOmf omf4b;
-  grt::NormalizedComparer caseless_normalizer4b(get_traits(false));
+  grt::NormalizedComparer caseless_normalizer4b(tester.grt, get_traits(tester.grt,false));
   caseless_normalizer4b.init_omf(&omf4b);
 
-  boost::shared_ptr<DiffChange> change4b = diff_make(model1b.column,model2b.column,&omf4b);
+  std::shared_ptr<DiffChange> change4b = diff_make(model1b.column,model2b.column,&omf4b);
   ensure("9.7 Column collation comparison:", change4b.get() != NULL);
 
-  SynteticMySQLModel model1c;
+  SynteticMySQLModel model1c(tester.grt);
   model1c.table->set_member("defaultCharacterSetName", grt::StringRef("utf8"));
   model1c.table->set_member("defaultCollationName", grt::StringRef(""));
   model1c.column->characterSetName("latin1");
 
-  SynteticMySQLModel model2c;
+  SynteticMySQLModel model2c(tester.grt);
   model2c.table->set_member("defaultCharacterSetName", grt::StringRef("utf8"));
   model2c.table->set_member("defaultCollationName", grt::StringRef(""));
   model2c.column->characterSetName("latin1");
   model2c.column->collationName("latin1_german_ci");
 
   grt::DbObjectMatchAlterOmf omf4c;
-  grt::NormalizedComparer caseless_normalizer4c(get_traits(false));
+  grt::NormalizedComparer caseless_normalizer4c(tester.grt, get_traits(tester.grt,false));
   caseless_normalizer4c.init_omf(&omf4c);
 
-  boost::shared_ptr<DiffChange> change4c = diff_make(model1c.column,model2c.column,&omf4c);
+  std::shared_ptr<DiffChange> change4c = diff_make(model1c.column,model2c.column,&omf4c);
   ensure("9.8 Column collation comparison:", change4c.get() != NULL);
 
-  SynteticMySQLModel model1d;
+  SynteticMySQLModel model1d(tester.grt);
   model1d.table->set_member("defaultCharacterSetName", grt::StringRef("utf8"));
   model1d.table->set_member("defaultCollationName", grt::StringRef("utf8_czech_ci"));
   model1d.column->characterSetName("latin1");
 
-  SynteticMySQLModel model2d;
+  SynteticMySQLModel model2d(tester.grt);
   model2d.table->set_member("defaultCharacterSetName", grt::StringRef("utf8"));
   model2d.table->set_member("defaultCollationName", grt::StringRef("utf8_czech_ci"));
   model2d.column->characterSetName("latin1");
   model2d.column->collationName("latin1_german_ci");
 
   grt::DbObjectMatchAlterOmf omf4d;
-  grt::NormalizedComparer caseless_normalizer4d(get_traits(false));
+  grt::NormalizedComparer caseless_normalizer4d(tester.grt, get_traits(tester.grt,false));
   caseless_normalizer4d.init_omf(&omf4d);
 
-  boost::shared_ptr<DiffChange> change4d = diff_make(model1d.column,model2d.column,&omf4d);
+  std::shared_ptr<DiffChange> change4d = diff_make(model1d.column,model2d.column,&omf4d);
   ensure("9.9 Column collation comparison:", change4d.get() != NULL);
 
 }
@@ -366,31 +362,24 @@ TEST_FUNCTION(9)
 TEST_FUNCTION(10)
 {
     grt::DbObjectMatchAlterOmf omf;
-    db_RoutineRef routine1 = db_RoutineRef(grt::Initialized);
-    db_RoutineRef routine2 = db_RoutineRef(grt::Initialized);
+    db_RoutineRef routine1 = db_RoutineRef(tester.grt);
+    db_RoutineRef routine2 = db_RoutineRef(tester.grt);
     routine1->name("routine1");
     routine2->name("routine1");
     routine1->definer("root@localhost");
-    grt::DictRef opts = get_traits(false);
+    grt::DictRef opts = get_traits(tester.grt,false);
     opts.set("SkipRoutineDefiner", grt::IntegerRef(1));
-    grt::NormalizedComparer normalizer(opts);
+    grt::NormalizedComparer normalizer(tester.grt, opts);
     normalizer.init_omf(&omf);
-    boost::shared_ptr<DiffChange> change = diff_make(routine1, routine2, &omf);
+    std::shared_ptr<DiffChange> change = diff_make(routine1, routine2, &omf);
     ensure("10.1 Routine deffiner, wasn't skipped", change.get() == NULL);
 
     grt::DbObjectMatchAlterOmf omf2;
     opts.set("SkipRoutineDefiner", grt::IntegerRef(0));
-    grt::NormalizedComparer normalizer2(opts);
+    grt::NormalizedComparer normalizer2(tester.grt, opts);
     normalizer2.init_omf(&omf2);
-    boost::shared_ptr<DiffChange> change2 = diff_make(routine1, routine2, &omf2);
+    std::shared_ptr<DiffChange> change2 = diff_make(routine1, routine2, &omf2);
     ensure("10.2 Routine definer, wasn't different", change2.get() != NULL);
-}
-
-// Due to the tut nature, this must be executed as a last test always,
-// we can't have this inside of the d-tor.
-TEST_FUNCTION(11)
-{
-  delete tester;
 }
 
 END_TESTS

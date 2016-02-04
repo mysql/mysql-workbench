@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,6 +17,7 @@
  * 02110-1301  USA
  */
 
+#include <cairo/cairo.h>
 
 #include "spatial_draw_box.h"
 #include "mforms/box.h"
@@ -26,7 +27,6 @@
 #include "mforms/progressbar.h"
 
 #include "base/log.h"
-#include <cairo.h>
 
 DEFAULT_LOG_DOMAIN("spatial_draw_box");
 
@@ -187,14 +187,14 @@ void SpatialDrawBox::render(bool reproject)
   }
   catch (std::exception &exc)
   {
-    log_error("SpatialDrawBox::render: %s\n", exc.what());
+    logError("SpatialDrawBox::render: %s\n", exc.what());
     return;
   }
 
   _spatial_reprojector->change_projection(visible_area, NULL, spatial::Projection::get_instance().get_projection(_proj));
 
   // TODO lat/long ranges must be adjusted accordingly to account for the aspect ratio of the visible area
-  boost::shared_ptr<mdc::ImageSurface> surface(new mdc::ImageSurface(get_width(), get_height(), CAIRO_FORMAT_ARGB32));
+  std::shared_ptr<mdc::ImageSurface> surface(new mdc::ImageSurface(get_width(), get_height(), CAIRO_FORMAT_ARGB32));
   _cache = surface;
 
   if (_ctx_cache != NULL)
@@ -692,7 +692,7 @@ void SpatialDrawBox::restrict_displayed_area(int x1, int y1, int x2, int y2, boo
 
 void SpatialDrawBox::repaint(cairo_t *crt, int x, int y, int w, int h)
 {
-  boost::shared_ptr<mdc::Surface> cache(_cache);
+  std::shared_ptr<mdc::Surface> cache(_cache);
   mdc::CairoCtx cr(crt);
   if (cache)
   {
@@ -788,7 +788,7 @@ void SpatialDrawBox::world_to_screen(const double &lat, const double &lon, int &
 
 void SpatialDrawBox::save_to_png(const std::string &destination)
 {
-  boost::shared_ptr<mdc::ImageSurface> surface(new mdc::ImageSurface(get_width(), get_height(), CAIRO_FORMAT_ARGB32));
+  std::shared_ptr<mdc::ImageSurface> surface(new mdc::ImageSurface(get_width(), get_height(), CAIRO_FORMAT_ARGB32));
   mdc::CairoCtx ctx(*surface);
   this->repaint(ctx.get_cr(), 0, 0, get_width(), get_height());
   surface->save_to_png(destination);

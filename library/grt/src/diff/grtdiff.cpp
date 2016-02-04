@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -50,12 +50,12 @@ time_t timestamp()
 }
 
 //#define LOG_DIFF_TIME
-boost::shared_ptr<DiffChange> diff_make(const ValueRef &source, const ValueRef &target, const Omf *omf, bool dont_clone_values)
+std::shared_ptr<DiffChange> diff_make(const ValueRef &source, const ValueRef &target, const Omf *omf, bool dont_clone_values)
 {
 #ifdef LOG_DIFF_TIME
   time_t start = timestamp();
 #endif
-  boost::shared_ptr<DiffChange> result = GrtDiff(omf, dont_clone_values).diff(source, target, omf);
+  std::shared_ptr<DiffChange> result = GrtDiff(omf, dont_clone_values).diff(source, target, omf);
 #ifdef LOG_DIFF_TIME
   XXX log_* calls are not meant to be switched at compile time. Either make this always-on log_debug3 or
   just use g_message or something.
@@ -100,12 +100,12 @@ bool are_compatible_lists(const BaseListRef &source, const BaseListRef &target, 
                                                && (is_simple_type(type) || type == ObjectType));
 }
 
-boost::shared_ptr<DiffChange> GrtDiff::diff(const ValueRef &source, const ValueRef &target, const Omf* omf)
+std::shared_ptr<DiffChange> GrtDiff::diff(const ValueRef &source, const ValueRef &target, const Omf* omf)
 {
-  return on_value(boost::shared_ptr<DiffChange>(), source, target);
+  return on_value(std::shared_ptr<DiffChange>(), source, target);
 }
 
-boost::shared_ptr<DiffChange>  GrtDiff::on_value(boost::shared_ptr<DiffChange> parent, const ValueRef &source, const ValueRef &target)
+std::shared_ptr<DiffChange>  GrtDiff::on_value(std::shared_ptr<DiffChange> parent, const ValueRef &source, const ValueRef &target)
 {
   Type type;
   if (!are_compatible(source, target, &type))
@@ -139,10 +139,10 @@ boost::shared_ptr<DiffChange>  GrtDiff::on_value(boost::shared_ptr<DiffChange> p
       break;
   }
   assert(0);
-  return boost::shared_ptr<DiffChange>();
+  return std::shared_ptr<DiffChange>();
 }
 
-boost::shared_ptr<DiffChange> GrtDiff::on_object(boost::shared_ptr<DiffChange> parent, const ObjectRef &source, const ObjectRef &target)
+std::shared_ptr<DiffChange> GrtDiff::on_object(std::shared_ptr<DiffChange> parent, const ObjectRef &source, const ObjectRef &target)
 {
   ChangeSet changes;
   MetaClass *meta= source.get_metaclass();
@@ -152,14 +152,14 @@ boost::shared_ptr<DiffChange> GrtDiff::on_object(boost::shared_ptr<DiffChange> p
     ValueRef v1= source.get_member("isStub");
     ValueRef v2= target.get_member("isStub");
     if ((1 == IntegerRef::cast_from(v1)) || (1 == IntegerRef::cast_from(v2)))
-      return boost::shared_ptr<DiffChange>();
+      return std::shared_ptr<DiffChange>();
   }
   if (meta->has_member("modelOnly"))
   {
     ValueRef v1= source.get_member("modelOnly");
     ValueRef v2= target.get_member("modelOnly");
     if ((1 == IntegerRef::cast_from(v1)) || (1 == IntegerRef::cast_from(v2)))
-      return boost::shared_ptr<DiffChange>();
+      return std::shared_ptr<DiffChange>();
   }
 
   // Compare all members of the objects with each other, looking for any differences
@@ -203,7 +203,7 @@ boost::shared_ptr<DiffChange> GrtDiff::on_object(boost::shared_ptr<DiffChange> p
 
       //        if (name == "sqlDefinition") continue;
       //v2 is our model
-      boost::shared_ptr<DiffChange> change;
+      std::shared_ptr<DiffChange> change;
       const bool dontfollow= !iter->second.owned_object && (name != "flags") && (name != "columns" || meta->is_a("db.Index"));
       if (dontfollow && GrtObjectRef::can_wrap(v1) && GrtObjectRef::can_wrap(v2))
       {
@@ -246,7 +246,7 @@ boost::shared_ptr<DiffChange> GrtDiff::on_object(boost::shared_ptr<DiffChange> p
 
       change = ChangeFactory::create_object_attr_modified_change(parent, source, target, name, dontfollow?
                                                                  ChangeFactory::create_simple_value_change(parent, v1, v2):
-                                                                 on_value(boost::shared_ptr<DiffChange>(), v1, v2));
+                                                                 on_value(std::shared_ptr<DiffChange>(), v1, v2));
 
       changes.append(change);
     }
@@ -258,7 +258,7 @@ boost::shared_ptr<DiffChange> GrtDiff::on_object(boost::shared_ptr<DiffChange> p
 }
 
 
-boost::shared_ptr<DiffChange> GrtDiff::on_list(boost::shared_ptr<DiffChange> parent, const BaseListRef &source, const BaseListRef &target)
+std::shared_ptr<DiffChange> GrtDiff::on_list(std::shared_ptr<DiffChange> parent, const BaseListRef &source, const BaseListRef &target)
 {
   Type type;
 
@@ -269,7 +269,7 @@ boost::shared_ptr<DiffChange> GrtDiff::on_list(boost::shared_ptr<DiffChange> par
 }
 
 
-boost::shared_ptr<DiffChange> GrtDiff::on_dict(boost::shared_ptr<DiffChange> parent, const DictRef &source, const DictRef &target)
+std::shared_ptr<DiffChange> GrtDiff::on_dict(std::shared_ptr<DiffChange> parent, const DictRef &source, const DictRef &target)
 {
   ChangeSet changes;
 
@@ -281,7 +281,7 @@ boost::shared_ptr<DiffChange> GrtDiff::on_dict(boost::shared_ptr<DiffChange> par
     if (!target.has_key(key))
       changes.append(ChangeFactory::create_dict_item_removed_change(parent, source, target, key));
     else
-      changes.append(ChangeFactory::create_dict_item_modified_change(parent, source, target, key, on_value(boost::shared_ptr<DiffChange>(), source_item, target.get(key))));
+      changes.append(ChangeFactory::create_dict_item_modified_change(parent, source, target, key, on_value(std::shared_ptr<DiffChange>(), source_item, target.get(key))));
   }
 
   for (internal::Dict::const_iterator iter= target.begin(); iter != target.end(); ++iter)
@@ -296,7 +296,7 @@ boost::shared_ptr<DiffChange> GrtDiff::on_dict(boost::shared_ptr<DiffChange> par
   return ChangeFactory::create_dict_change(parent, source, target, changes);
 }
 
-boost::shared_ptr<DiffChange> GrtDiff::on_uncompatible(boost::shared_ptr<DiffChange> parent, const ValueRef &source, const ValueRef &target)
+std::shared_ptr<DiffChange> GrtDiff::on_uncompatible(std::shared_ptr<DiffChange> parent, const ValueRef &source, const ValueRef &target)
 {
   return ChangeFactory::create_value_added_change(parent, source, target);
 }

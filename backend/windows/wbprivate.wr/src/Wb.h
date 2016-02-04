@@ -178,8 +178,8 @@ public:
 private:
   // void (string, bec::UIFrom)
   [UnmanagedFunctionPointerAttribute(CallingConvention::Cdecl)]
-  delegate void VoidStrUIFormWrapperDelegate(const std::string& str1, boost::shared_ptr<bec::UIForm> form);
-  typedef void (*WbContext::VOID_STR_UIFORM_CB)(const std::string& str1, boost::shared_ptr<bec::UIForm> form);
+  delegate void VoidStrUIFormWrapperDelegate(const std::string& str1, std::shared_ptr<bec::UIForm> form);
+  typedef void (*WbContext::VOID_STR_UIFORM_CB)(const std::string& str1, std::shared_ptr<bec::UIForm> form);
 
   // TODO: implement differently, simpler!
   // Creating these views needs a lot of specialized knowledge, which requires to include many heavy-weight
@@ -188,7 +188,7 @@ private:
   VoidStrUIFormDelegate^ create_main_form_view_delegate;
   VoidStrUIFormWrapperDelegate^ create_main_form_view_wrapper_delegate;
   void set_create_main_form_view(MySQL::Workbench::WbFrontendCallbacks^ cbacks, VoidStrUIFormDelegate^ dt);
-  void create_main_form_view_wrapper(const std::string& view_name, boost::shared_ptr<bec::UIForm> form_be);
+  void create_main_form_view_wrapper(const std::string& view_name, std::shared_ptr<bec::UIForm> form_be);
 
 public:
   WbContext(bool verbose);

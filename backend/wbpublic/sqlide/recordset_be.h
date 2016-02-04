@@ -17,7 +17,8 @@
  * 02110-1301  USA
  */
 
-#pragma once
+#ifndef _RECORDSET_BE_H_
+#define _RECORDSET_BE_H_
 
 #include "wbpublic_public_interface.h"
 #include "sqlide/sqlide_generics.h"
@@ -51,13 +52,13 @@ struct WBPUBLICBACKEND_PUBLIC_FUNC Recordset_storage_info
 class WBPUBLICBACKEND_PUBLIC_FUNC Recordset : public VarGridModel
 {
 public:
-  typedef boost::shared_ptr<Recordset> Ref;
-  typedef boost::weak_ptr<Recordset> Ptr;
-  static Ref create();
+  typedef std::shared_ptr<Recordset> Ref;
+  typedef std::weak_ptr<Recordset> Ptr;
+  static Ref create(bec::GRTManager *grtm);
   static Ref create(GrtThreadedTask::Ref parent_task);
   virtual ~Recordset();
 protected:
-  Recordset();
+  Recordset(bec::GRTManager *grtm);
   Recordset(GrtThreadedTask::Ref parent_task);
 
 public:
@@ -67,8 +68,8 @@ public:
   boost::signals2::signal<void (Ptr)> on_close;
 
 public:
-  typedef boost::shared_ptr<Recordset_data_storage> Recordset_data_storage_Ref;
-  typedef boost::weak_ptr<Recordset_data_storage> Recordset_data_storage_Ptr;
+  typedef std::shared_ptr<Recordset_data_storage> Recordset_data_storage_Ref;
+  typedef std::weak_ptr<Recordset_data_storage> Recordset_data_storage_Ptr;
   friend class Recordset_data_storage;
 
 public:
@@ -91,7 +92,6 @@ public:
 private:
   bool reset(Recordset_data_storage_Ptr data_storage_ptr, bool rethrow);
   void data_edited();
-  void binary_editor_closed();
 
 public:
   RowId real_row_count() const;
@@ -139,7 +139,7 @@ public:
   void rollback_and_gather_messages(std::string &messages);
   
   void apply_changes_();
-  grt::StringRef do_apply_changes(Ptr self_ptr, Recordset_data_storage_Ptr data_storage_ptr, bool skip_commit);
+  grt::StringRef do_apply_changes(grt::GRT *grt, Ptr self_ptr, Recordset_data_storage_Ptr data_storage_ptr, bool skip_commit);
   bool has_pending_changes();
   void pending_changes(int &upd_count, int &ins_count, int &del_count) const;
   void rollback();
@@ -268,3 +268,4 @@ protected:
   void set_field_raw_data(RowId row, ColumnId column, const char *data, size_t data_length, bool isJson = false);
 };
 
+#endif /* _RECORDSET_BE_H_ */

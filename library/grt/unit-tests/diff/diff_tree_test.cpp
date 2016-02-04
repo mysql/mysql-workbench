@@ -69,7 +69,7 @@ TEST_FUNCTION(10)
   grt::DbObjectMatchAlterOmf omf;
   omf.dontdiff_mask = 3;
   normalizer.init_omf(&omf);
-  boost::shared_ptr<DiffChange> diff_change= diff_make(org_cat, mod_cat, &omf);
+  std::shared_ptr<DiffChange> diff_change= diff_make(org_cat, mod_cat, &omf);
 
   DbMySQLImpl *diffsql_module= grt::GRT::get()->get_native_module<DbMySQLImpl>();
 
@@ -82,7 +82,7 @@ TEST_FUNCTION(10)
   options.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
 
   diffsql_module->generateSQL(org_cat, options, diff_change);
-  boost::shared_ptr<DiffTreeBE> diff_tree(new ::DiffTreeBE(std::vector<std::string>(), mod_cat, org_cat, diff_change));
+  std::shared_ptr<DiffTreeBE> diff_tree(new ::DiffTreeBE(std::vector<std::string>(), mod_cat, org_cat, diff_change));
 
   bool foundSchemaDiff = false;
   bool foundTableDiff = false;

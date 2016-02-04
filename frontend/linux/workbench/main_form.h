@@ -65,7 +65,7 @@ public:
 
 
 public:
-  typedef sigc::slot<FormViewBase*,boost::shared_ptr<bec::UIForm> > FormViewFactory;
+  typedef sigc::slot<FormViewBase*,std::shared_ptr<bec::UIForm> > FormViewFactory;
   void register_form_view_factory(const std::string &name, FormViewFactory factory);
 
   void show_status_text_becb(const std::string& text);
@@ -81,7 +81,7 @@ public:
   void tool_changed_becb(mdc::CanvasView* view);
   void refresh_gui_becb(wb::RefreshType type, const std::string& arg_id, NativeHandle arg_ptr);
   void lock_gui_becb(bool lock);
-  void create_main_form_view_becb(const std::string &name, boost::shared_ptr<bec::UIForm> form);
+  void create_main_form_view_becb(const std::string &name, std::shared_ptr<bec::UIForm> form);
   void destroy_main_form_view_becb(bec::UIForm* form);
   bool quit_app_becb();
 
@@ -297,7 +297,7 @@ public:
 
 
 public:
-  typedef sigc::slot<FormViewBase*,boost::shared_ptr<bec::UIForm> > FormViewFactory;
+  typedef sigc::slot<FormViewBase*,std::shared_ptr<bec::UIForm> > FormViewFactory;
   void register_form_view_factory(const std::string &name, FormViewFactory factory);
 
   void show_status_text_becb(const std::string& text);
@@ -313,7 +313,7 @@ public:
   void tool_changed_becb(mdc::CanvasView* view);
   void refresh_gui_becb(wb::RefreshType type, const std::string& arg_id, NativeHandle arg_ptr);
   void lock_gui_becb(bool lock);
-  void create_main_form_view_becb(const std::string &name, boost::shared_ptr<bec::UIForm> form);
+  void create_main_form_view_becb(const std::string &name, std::shared_ptr<bec::UIForm> form);
   void destroy_main_form_view_becb(bec::UIForm* form);
   bool quit_app_becb();
 

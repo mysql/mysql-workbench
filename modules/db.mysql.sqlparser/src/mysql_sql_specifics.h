@@ -17,7 +17,10 @@
  * 02110-1301  USA
  */
 
-#pragma once
+
+#ifndef _MYSQL_SQL_SPECIFICS_H_
+#define _MYSQL_SQL_SPECIFICS_H_
+
 
 #include "mysql_sql_parser_base.h"
 #include "grtsqlparser/sql_specifics.h"
@@ -30,11 +33,11 @@
 class MYSQL_SQL_PARSER_PUBLIC_FUNC Mysql_sql_specifics : public Sql_specifics
 {
 public:
-  typedef boost::shared_ptr<Mysql_sql_specifics> Ref;
-  static Ref create() { return Ref(new Mysql_sql_specifics); }
+  typedef std::shared_ptr<Mysql_sql_specifics> Ref;
+  static Ref create(grt::GRT *grt) { return Ref(new Mysql_sql_specifics(grt)); }
   virtual ~Mysql_sql_specifics() {}
 protected:
-  Mysql_sql_specifics();
+  Mysql_sql_specifics(grt::GRT *grt);
 
 public:
   std::string limit_select_query(const std::string &sql, int *row_count, int *offset);
@@ -49,3 +52,6 @@ public:
   std::string non_std_sql_delimiter();
   std::string setting_ansi_quotes();
 };
+
+
+#endif // _MYSQL_SQL_SPECIFICS_H_

@@ -22,7 +22,6 @@
 #include <mforms/box.h>
 #include <mforms/app.h>
 #include <vector>
-#include <boost/shared_ptr.hpp>
 
 namespace mforms {
   class ToolBarItem;
@@ -92,7 +91,7 @@ namespace mforms {
     ToolBarType _type;
     
   public:
-    typedef boost::shared_ptr<ToolBar>  Ptr;
+    typedef std::shared_ptr<ToolBar>  Ptr;
     ToolBar(ToolBarType type = MainToolBar);
     virtual ~ToolBar();
     

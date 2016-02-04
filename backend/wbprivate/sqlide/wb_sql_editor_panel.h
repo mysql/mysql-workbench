@@ -56,7 +56,7 @@ class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorPanel : public mforms::AppView
   friend class SqlEditorResult;
 
   SqlEditorForm *_form;
-  boost::shared_ptr<MySQLEditor> _editor;
+  std::shared_ptr<MySQLEditor> _editor;
 
   mforms::Box _editor_box;
 
@@ -122,11 +122,11 @@ class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorPanel : public mforms::AppView
   void limit_rows(mforms::ToolBarItem *);
 
 public:
-  typedef boost::shared_ptr<SqlEditorPanel> Ref;
+  typedef std::shared_ptr<SqlEditorPanel> Ref;
   SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start_collapsed);
   ~SqlEditorPanel();
 
-  boost::shared_ptr<MySQLEditor> editor_be() { return _editor; }
+  std::shared_ptr<MySQLEditor> editor_be() { return _editor; }
   db_query_QueryEditorRef grtobj();
 
   mforms::ToolBar *get_toolbar();

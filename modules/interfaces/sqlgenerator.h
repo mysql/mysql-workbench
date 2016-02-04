@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,8 +44,8 @@ public:
   virtual std::string getTargetDBMSName()= 0;
   
   // For internal use only, atm
-  virtual ssize_t generateSQL(grt::Ref<GrtNamedObject>, const grt::DictRef& options, boost::shared_ptr<grt::DiffChange>)= 0;
-  virtual grt::StringRef generateReport(grt::Ref<GrtNamedObject> org_object, const grt::DictRef& options, boost::shared_ptr<grt::DiffChange>)= 0;
+  virtual ssize_t generateSQL(grt::Ref<GrtNamedObject>, const grt::DictRef& options, std::shared_ptr<grt::DiffChange>)= 0;
+  virtual grt::StringRef generateReport(grt::Ref<GrtNamedObject> org_object, const grt::DictRef& options, std::shared_ptr<grt::DiffChange>)= 0;
 
   virtual grt::DictRef generateSQLForDifferences(grt::Ref<GrtNamedObject>, grt::Ref<GrtNamedObject>, grt::DictRef options)= 0;
   virtual grt::StringRef generateReportForDifferences(grt::Ref<GrtNamedObject> org_object, grt::Ref<GrtNamedObject> oth_object, const grt::DictRef& options)= 0;

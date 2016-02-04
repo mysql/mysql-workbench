@@ -424,7 +424,7 @@ void WbContext::set_create_main_form_view(MySQL::Workbench::WbFrontendCallbacks^
 
 //--------------------------------------------------------------------------------------------------
 
-void WbContext::create_main_form_view_wrapper(const std::string& view_name, boost::shared_ptr<bec::UIForm> form_be)
+void WbContext::create_main_form_view_wrapper(const std::string& view_name, std::shared_ptr<bec::UIForm> form_be)
 {
   String^ name = CppStringToNativeRaw(view_name);
   Logger::LogDebug("WBContext managed", 1, String::Format("Creating UI wrapper {0}\n", name));
@@ -433,7 +433,7 @@ void WbContext::create_main_form_view_wrapper(const std::string& view_name, boos
 
   if (0 == view_name.compare(WB_MAIN_VIEW_DB_QUERY))
   {
-    boost::shared_ptr<::SqlEditorForm> ref(boost::static_pointer_cast<::SqlEditorForm>(form_be));
+    std::shared_ptr<::SqlEditorForm> ref(boost::static_pointer_cast<::SqlEditorForm>(form_be));
     form= gcnew MySQL::GUI::Workbench::SqlEditorFormWrapper(&ref);
   }
 

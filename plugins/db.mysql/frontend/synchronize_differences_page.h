@@ -1,5 +1,5 @@
 /* 
-* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -47,7 +47,7 @@ public:
   void set_dst(const db_CatalogRef cat);
 
   std::string get_icon_path(bec::IconId icon);
-  void load_model(boost::shared_ptr<DiffTreeBE> model, bec::NodeId node, mforms::TreeNodeRef tnode);
+  void load_model(std::shared_ptr<DiffTreeBE> model, bec::NodeId node, mforms::TreeNodeRef tnode);
   virtual bool pre_load();
 
   void update_source();
@@ -59,7 +59,7 @@ public:
 
 protected:
   void refresh_node(mforms::TreeNodeRef node);
-//  bool node_has_changes(boost::shared_ptr<DiffTreeBE> model, bec::NodeId);
+//  bool node_has_changes(std::shared_ptr<DiffTreeBE> model, bec::NodeId);
 
   SynchronizeDifferencesPageBEInterface *_be;
   boost::function<db_CatalogRef ()> get_source_catalog;
@@ -69,7 +69,7 @@ protected:
   std::map<bec::IconId, std::string> _icons;
   
   mforms::TreeView _tree;
-  boost::shared_ptr<DiffTreeBE> _diff_tree;
+  std::shared_ptr<DiffTreeBE> _diff_tree;
   mforms::Label _heading;
   ::mforms::CodeEditor _diff_sql_text;
   ::mforms::Splitter _splitter;

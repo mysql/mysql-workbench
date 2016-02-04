@@ -65,10 +65,10 @@ TEST_FUNCTION(2)
   Recordset::Ref rs = Recordset::create();
   rs->data_storage(data_storage);
 
-  boost::shared_ptr<sql::Statement> dbc_statement(dbc_conn->ref->createStatement());
+  std::shared_ptr<sql::Statement> dbc_statement(dbc_conn->ref->createStatement());
   dbc_statement->execute("select convert('', binary), convert(NULL, binary)");
 
-  boost::shared_ptr<sql::ResultSet> rset(dbc_statement->getResultSet());
+  std::shared_ptr<sql::ResultSet> rset(dbc_statement->getResultSet());
   data_storage->dbc_resultset(rset);
   data_storage->dbms_conn(dbc_conn); 
 

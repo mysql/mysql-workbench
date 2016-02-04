@@ -23,8 +23,8 @@
 #include "base/string_utilities.h"
 #include <sqlite/execute.hpp>
 #include <sqlite/query.hpp>
-#include <boost/foreach.hpp>
 #include "glib/gstdio.h"
+#include "base/boost_smart_ptr_helpers.h"
 
 
 using namespace bec;
@@ -107,7 +107,7 @@ void VarGridModel::reset()
     _data_swap_db_path.resize(_data_swap_db_path.size()-1); // remove trailing path separator
     _data_swap_db_path+= ".db";
 
-    boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+    std::shared_ptr<sqlite::connection> data_swap_db = this->data_swap_db();
 
     sqlite::execute(*data_swap_db, "create table `data` (`id` integer)", true);
     sqlite::execute(*data_swap_db, "create table `data_index` (`id` integer)", true);
@@ -139,7 +139,7 @@ int VarGridModel::floating_point_visible_scale()
 
 //--------------------------------------------------------------------------------------------------
 
-boost::shared_ptr<sqlite::connection> VarGridModel::data_swap_db() const
+std::shared_ptr<sqlite::connection> VarGridModel::data_swap_db() const
 {
   if (GRTManager::get().in_main_thread())
     return (_data_swap_db) ? _data_swap_db : _data_swap_db= create_data_swap_db_connection();
@@ -149,9 +149,9 @@ boost::shared_ptr<sqlite::connection> VarGridModel::data_swap_db() const
 
 //--------------------------------------------------------------------------------------------------
 
-boost::shared_ptr<sqlite::connection> VarGridModel::create_data_swap_db_connection() const
+std::shared_ptr<sqlite::connection> VarGridModel::create_data_swap_db_connection() const
 {
-  boost::shared_ptr<sqlite::connection> data_swap_db;
+  std::shared_ptr<sqlite::connection> data_swap_db;
   if (!_data_swap_db_path.empty())
   {
     data_swap_db.reset(new sqlite::connection(_data_swap_db_path));
@@ -542,15 +542,15 @@ void VarGridModel::cache_data_frame(RowId center_row, bool force_reload)
 
   // load data
   {
-    boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
-    const size_t partition_count= data_swap_db_partition_count();
+    std::shared_ptr<sqlite::connection> data_swap_db = this->data_swap_db();
+    const size_t partition_count = data_swap_db_partition_count();
 
-    std::list<boost::shared_ptr<sqlite::query> > data_queries(partition_count);
+    std::list<std::shared_ptr<sqlite::query> > data_queries(partition_count);
     prepare_partition_queries(data_swap_db.get(), "select d.* from `data%s` d inner join `data_index` di on (di.`id`=d.`id`) order by di.`rowid` limit ? offset ?", data_queries);
     std::list<sqlite::variant_t> bind_vars;
     bind_vars.push_back((int)row_count);
     bind_vars.push_back((int)_data_frame_begin);
-    std::vector<boost::shared_ptr<sqlite::result> > data_results(data_queries.size());
+    std::vector<std::shared_ptr<sqlite::result> > data_results(data_queries.size());
     if (emit_partition_queries(data_swap_db.get(), data_queries, data_results, bind_vars))
     {
       bool next_row_exists= true;
@@ -562,11 +562,11 @@ void VarGridModel::cache_data_frame(RowId center_row, bool force_reload)
       _data.reserve(row_count * _column_count);
       do
       {
-        for (size_t partition= 0; partition < partition_count; ++partition)
+        for (size_t partition = 0; partition < partition_count; ++partition)
         {
-          boost::shared_ptr<sqlite::result> &data_rs= data_results[partition];
-          for (ColumnId col_begin= partition * DATA_SWAP_DB_TABLE_MAX_COL_COUNT, col= col_begin,
-            col_end= std::min<ColumnId>(_column_count, (partition + 1) * DATA_SWAP_DB_TABLE_MAX_COL_COUNT); col < col_end; ++col)
+          std::shared_ptr<sqlite::result> &data_rs = data_results[partition];
+          for (ColumnId col_begin = partition * DATA_SWAP_DB_TABLE_MAX_COL_COUNT, col = col_begin,
+            col_end = std::min<ColumnId>(_column_count, (partition + 1) * DATA_SWAP_DB_TABLE_MAX_COL_COUNT); col < col_end; ++col)
           {
             sqlite::variant_t v;
             if (_optimized_blob_fetching && blob_columns[col])
@@ -582,7 +582,7 @@ void VarGridModel::cache_data_frame(RowId center_row, bool force_reload)
             _data.push_back(v);
           }
         }
-        BOOST_FOREACH (boost::shared_ptr<sqlite::result> &data_rs, data_results)
+        for (auto &data_rs : data_results)
           next_row_exists= data_rs->next_row();
       }
       while (next_row_exists);
@@ -632,10 +632,10 @@ bec::ListModel::ColumnId VarGridModel::translate_data_swap_db_column(ListModel::
 
 //--------------------------------------------------------------------------------------------------
 
-void VarGridModel::prepare_partition_queries(sqlite::connection *data_swap_db, const std::string &query_text_template, std::list<boost::shared_ptr<sqlite::query> > &queries)
+void VarGridModel::prepare_partition_queries(sqlite::connection *data_swap_db, const std::string &query_text_template, std::list<std::shared_ptr<sqlite::query> > &queries)
 {
   size_t partition= 0;
-  BOOST_FOREACH (boost::shared_ptr<sqlite::query> &query, queries)
+  for (auto &query : queries)
   {
     std::string partition_suffix= data_swap_db_partition_suffix(partition);
     query.reset(new sqlite::query(*data_swap_db, strfmt(query_text_template.c_str(), partition_suffix.c_str())));
@@ -645,22 +645,24 @@ void VarGridModel::prepare_partition_queries(sqlite::connection *data_swap_db, c
 
 //--------------------------------------------------------------------------------------------------
 
-bool VarGridModel::emit_partition_queries(sqlite::connection *data_swap_db, std::list<boost::shared_ptr<sqlite::query> > &queries, std::vector<boost::shared_ptr<sqlite::result> > &results, const std::list<sqlite::variant_t> &bind_vars)
+bool VarGridModel::emit_partition_queries(sqlite::connection *data_swap_db, std::list<std::shared_ptr<sqlite::query> > &queries, std::vector<std::shared_ptr<sqlite::result> > &results, const std::list<sqlite::variant_t> &bind_vars)
 {
 //  bool no_results_returned= false;
   size_t partition= 0;
-  BOOST_FOREACH (boost::shared_ptr<sqlite::query> &query, queries)
+  for (auto &query : queries)
   {
     query->clear();
     sqlide::BindSqlCommandVar bind_sql_command_var(query.get());
-    BOOST_FOREACH (const sqlite::variant_t &var, bind_vars)
+    for (const auto &var : bind_vars)
       boost::apply_visitor(bind_sql_command_var, var);
+
     if (!query->emit())
     {
 //      no_results_returned= true;
       return false;
     }
-    results[partition]= query->get_result();
+
+    results[partition] = BoostHelper::convertPointer(query->get_result());
     ++partition;
   }
   return true;
@@ -670,12 +672,13 @@ bool VarGridModel::emit_partition_queries(sqlite::connection *data_swap_db, std:
 
 void VarGridModel::emit_partition_commands(sqlite::connection *data_swap_db, size_t partition_count, const std::string &command_text_template, const std::list<sqlite::variant_t> &bind_vars)
 {
-  for (size_t partition= 0; partition < partition_count; ++partition)  
+  for (std::size_t partition= 0; partition < partition_count; ++partition)
   {
     std::string partition_suffix= data_swap_db_partition_suffix(partition);
     sqlite::command command(*data_swap_db, strfmt(command_text_template.c_str(), partition_suffix.c_str()));
     sqlide::BindSqlCommandVar bind_sql_command_var(&command);
-    BOOST_FOREACH (const sqlite::variant_t &var, bind_vars)
+
+    for (const auto &var : bind_vars)
       boost::apply_visitor(bind_sql_command_var, var);
     command.emit();
   }

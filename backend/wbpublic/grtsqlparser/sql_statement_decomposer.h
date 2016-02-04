@@ -21,7 +21,6 @@
 
 #include "wbpublic_public_interface.h"
 #include "sql_parser_base.h"
-#include <boost/shared_ptr.hpp>
 
 
 struct SelectItem;
@@ -31,7 +30,7 @@ typedef std::list<FromItem> FromItems;
 
 struct WBPUBLICBACKEND_PUBLIC_FUNC SelectStatement
 {
-  typedef boost::shared_ptr<SelectStatement> Ref;
+  typedef std::shared_ptr<SelectStatement> Ref;
   Ref parent;
   SelectItems select_items;
   FromItems from_items;
@@ -69,7 +68,7 @@ struct WBPUBLICBACKEND_PUBLIC_FUNC FromItem
 class WBPUBLICBACKEND_PUBLIC_FUNC Sql_statement_decomposer : virtual public Sql_parser_base
 {
 public:
-  typedef boost::shared_ptr<Sql_statement_decomposer> Ref;
+  typedef std::shared_ptr<Sql_statement_decomposer> Ref;
 protected:
   Sql_statement_decomposer();
 

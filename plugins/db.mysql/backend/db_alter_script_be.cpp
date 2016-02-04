@@ -141,7 +141,7 @@ std::string DbMySQLDiffAlter::generate_alter()
   return *script;
 };
 
-boost::shared_ptr<DiffTreeBE> DbMySQLDiffAlter::init_diff_tree(const std::vector<std::string>& schemata,
+std::shared_ptr<DiffTreeBE> DbMySQLDiffAlter::init_diff_tree(const std::vector<std::string>& schemata,
                                                                const grt::ValueRef &left, const grt::ValueRef &right,
                                                                grt::StringListRef SchemaSkipList, grt::DictRef options)
 {
@@ -258,7 +258,7 @@ boost::shared_ptr<DiffTreeBE> DbMySQLDiffAlter::init_diff_tree(const std::vector
   std::map<DiffNode::ApplicationDirection,DiffNode::ApplicationDirection> apply_directions_map;
   apply_directions_map[DiffNode::ApplyToDb] = DiffNode::DontApply;
   apply_directions_map[DiffNode::DontApply] = DiffNode::ApplyToDb;
-  return _diff_tree = boost::shared_ptr<DiffTreeBE>(new ::DiffTreeBE(schemata, _left_cat_copy, right_cat_copy, _alter_change, apply_directions_map));
+  return _diff_tree = std::shared_ptr<DiffTreeBE>(new ::DiffTreeBE(schemata, _left_cat_copy, right_cat_copy, _alter_change, apply_directions_map));
 
 }
 

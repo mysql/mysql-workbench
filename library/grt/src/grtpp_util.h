@@ -286,6 +286,6 @@ namespace grt
 
 
   MYSQLGRT_PUBLIC
-    boost::shared_ptr<DiffChange> diff_make(const ValueRef &source, const ValueRef &target, const Omf* omf, bool dont_clone_values = false);
+    std::shared_ptr<DiffChange> diff_make(const ValueRef &source, const ValueRef &target, const Omf* omf, bool dont_clone_values = false);
   
 };

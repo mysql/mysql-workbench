@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,6 @@
 
 #include <vector>
 #include <map>
-#include <boost/shared_ptr.hpp>
 
 #include "boost/assign.hpp"
 
@@ -389,7 +388,7 @@ HSVColor::HSVColor(const Color &rgb)
 
 //--------------------------------------------------------------------------------------------------
 
-static boost::shared_ptr<base::Mutex> color_mutex(new base::Mutex());
+static std::shared_ptr<base::Mutex> color_mutex(new base::Mutex());
 
 static ColorScheme active_scheme = ColorSchemeStandard; // Only set when loading the application or by a preferences change.
 static bool high_contrast_active = false;

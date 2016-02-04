@@ -48,7 +48,7 @@ Recordset_data_storage::~Recordset_data_storage()
 }
 
 
-boost::shared_ptr<sqlite::connection> Recordset_data_storage::data_swap_db(const Recordset::Ref &recordset)
+std::shared_ptr<sqlite::connection> Recordset_data_storage::data_swap_db(const Recordset::Ref &recordset)
 {
   return recordset->data_swap_db();
 }
@@ -57,7 +57,7 @@ boost::shared_ptr<sqlite::connection> Recordset_data_storage::data_swap_db(const
 void Recordset_data_storage::apply_changes(Recordset::Ptr recordset_ptr, bool skip_commit)
 {
   RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset, recordset_ptr, recordset)
-  boost::shared_ptr<sqlite::connection> data_swap_db= recordset->data_swap_db();
+  std::shared_ptr<sqlite::connection> data_swap_db = recordset->data_swap_db();
   do_apply_changes(recordset, data_swap_db.get(), skip_commit);
 }
 
@@ -65,7 +65,7 @@ void Recordset_data_storage::apply_changes(Recordset::Ptr recordset_ptr, bool sk
 void Recordset_data_storage::serialize(Recordset::Ptr recordset_ptr)
 {
   RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset, recordset_ptr, recordset)
-  boost::shared_ptr<sqlite::connection> data_swap_db= recordset->data_swap_db();
+  std::shared_ptr<sqlite::connection> data_swap_db = recordset->data_swap_db();
   do_serialize(recordset, data_swap_db.get());
 }
 
@@ -73,7 +73,7 @@ void Recordset_data_storage::serialize(Recordset::Ptr recordset_ptr)
 void Recordset_data_storage::unserialize(Recordset::Ptr recordset_ptr)
 {
   RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset, recordset_ptr, recordset)
-  boost::shared_ptr<sqlite::connection> data_swap_db= recordset->data_swap_db();
+  std::shared_ptr<sqlite::connection> data_swap_db = recordset->data_swap_db();
   do_unserialize(recordset, data_swap_db.get());
   recordset->rebuild_data_index(data_swap_db.get(), false, false);
 }
@@ -82,7 +82,7 @@ void Recordset_data_storage::unserialize(Recordset::Ptr recordset_ptr)
 void Recordset_data_storage::fetch_blob_value(Recordset::Ptr recordset_ptr, RowId rowid, ColumnId column, sqlite::variant_t &blob_value)
 {
   RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset, recordset_ptr, recordset)
-  boost::shared_ptr<sqlite::connection> data_swap_db= recordset->data_swap_db();
+  std::shared_ptr<sqlite::connection> data_swap_db= recordset->data_swap_db();
   fetch_blob_value(recordset, data_swap_db.get(), rowid, column, blob_value);
 }
 
@@ -151,9 +151,9 @@ void Recordset_data_storage::create_data_swap_tables(sqlite::connection *data_sw
 }
 
 
-std::list<boost::shared_ptr<sqlite::command> > Recordset_data_storage::prepare_data_swap_record_add_statement(sqlite::connection *data_swap_db, Recordset::Column_names &column_names)
+std::list<std::shared_ptr<sqlite::command> > Recordset_data_storage::prepare_data_swap_record_add_statement(sqlite::connection *data_swap_db, Recordset::Column_names &column_names)
 {
-  std::list<boost::shared_ptr<sqlite::command> > res;
+  std::list<std::shared_ptr<sqlite::command> > res;
 
   for (size_t partition= 0, partition_count= Recordset::data_swap_db_partition_count(column_names.size()); partition < partition_count; ++partition)
   {
@@ -177,17 +177,17 @@ std::list<boost::shared_ptr<sqlite::command> > Recordset_data_storage::prepare_d
     }
     sql << ")";
 
-    res.push_back(boost::shared_ptr<sqlite::command>(new sqlite::command(*data_swap_db, sql.str())));
+    res.push_back(std::shared_ptr<sqlite::command>(new sqlite::command(*data_swap_db, sql.str())));
   }
 
   return res;
 }
 
 
-void Recordset_data_storage::add_data_swap_record(std::list<boost::shared_ptr<sqlite::command> > &insert_commands, const Var_vector &values)
+void Recordset_data_storage::add_data_swap_record(std::list<std::shared_ptr<sqlite::command> > &insert_commands, const Var_vector &values)
 {
   size_t partition= 0;
-  BOOST_FOREACH (boost::shared_ptr<sqlite::command> &insert_command, insert_commands)
+  BOOST_FOREACH (std::shared_ptr<sqlite::command> &insert_command, insert_commands)
   {
     insert_command->clear();
     sqlide::BindSqlCommandVar bind_sql_command_var(insert_command.get());
@@ -207,7 +207,7 @@ void Recordset_data_storage::update_data_swap_record(sqlite::connection *data_sw
 {
   size_t partition= Recordset::data_swap_db_column_partition(column);
   std::string partition_suffix= Recordset::data_swap_db_partition_suffix(partition);
-  boost::shared_ptr<sqlite::command> update_command(
+  std::shared_ptr<sqlite::command> update_command(
     new sqlite::command(*data_swap_db, strfmt("update `data%s` set `_%u`=? where rowid=%u", partition_suffix.c_str(), (unsigned int) column, (unsigned int) rowid)));
   sqlide::BindSqlCommandVar bind_sql_command_var(update_command.get());
   boost::apply_visitor(bind_sql_command_var, value);

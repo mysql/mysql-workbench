@@ -13,9 +13,9 @@ static void close_plugin(PluginEditorBase *editor, wb::WBContext *wb)
 }
 
 
-static FormViewBase *create_db_sql_editor_view(boost::shared_ptr<bec::UIForm> form, wb::WBContext *wb)
+static FormViewBase *create_db_sql_editor_view(std::shared_ptr<bec::UIForm> form, wb::WBContext *wb)
 {
-  SqlEditorForm::Ref editor_be = SqlEditorForm::Ref(boost::dynamic_pointer_cast<SqlEditorForm>(form));
+  SqlEditorForm::Ref editor_be = SqlEditorForm::Ref(std::dynamic_pointer_cast<SqlEditorForm>(form));
 
   DbSqlEditorView *view= Gtk::manage(DbSqlEditorView::create(editor_be));
 
@@ -29,7 +29,7 @@ static FormViewBase *create_db_sql_editor_view(boost::shared_ptr<bec::UIForm> fo
 
 
 void setup_sqlide(wb::WBContextUI *wbui,
-                  std::string &name, sigc::slot<FormViewBase*, boost::shared_ptr<bec::UIForm> > &create_function)
+                  std::string &name, sigc::slot<FormViewBase*, std::shared_ptr<bec::UIForm> > &create_function)
 {
   name= WB_MAIN_VIEW_DB_QUERY;
   create_function= sigc::bind(sigc::ptr_fun(create_db_sql_editor_view), wbui->get_wb());

@@ -27,9 +27,6 @@
 #include <memory>
 #include <set>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/function.hpp>
 
 #include "grts/structs.db.mgmt.h"
@@ -95,8 +92,8 @@ public:
     ContentTypeEvent,
   };
 
-  typedef boost::shared_ptr<MySQLEditor> Ref;
-  typedef boost::weak_ptr<MySQLEditor> Ptr;
+  typedef std::shared_ptr<MySQLEditor> Ref;
+  typedef std::weak_ptr<MySQLEditor> Ptr;
 
   static Ref create(parser::ParserContext::Ref syntax_check_context,
                     parser::ParserContext::Ref autocopmlete_context,

@@ -91,7 +91,7 @@ TEST_FUNCTION(1)
     ensure("Not Valid Updated Old Names", updated_old_names->lastKnownDBNames().count() > 0);
 
     //Check that table rename is seen by diff module
-    boost::shared_ptr<DiffChange> diff = diff_make(model1.catalog, model2.catalog, &omf);
+    std::shared_ptr<DiffChange> diff = diff_make(model1.catalog, model2.catalog, &omf);
     ensure("Diff module broken", diff.get() != NULL);
     
     model1.table->name(tablename);
@@ -128,8 +128,8 @@ TEST_FUNCTION(2)
     
     cmp.init_omf(&omf);
 
-    boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
-    boost::shared_ptr<DiffChange> drop_change= diff_make(catalog, e, &omf);
+    std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
+    std::shared_ptr<DiffChange> drop_change = diff_make(catalog, e, &omf);
 
     DictRef create_map(true);
     DictRef drop_map(true);
@@ -157,7 +157,7 @@ TEST_FUNCTION(2)
    db_mysql_CatalogRef cat2 = grt::copy_object(cat1);
    
    //Diff identical catalogs, no chages expected
-   boost::shared_ptr<DiffChange> diff = diff_make(cat1, cat2, &omf);
+   std::shared_ptr<DiffChange> diff = diff_make(cat1, cat2, &omf);
    ensure("Diffs in copyies of same catalog", diff == NULL);
 
    // This doesn't make sense anymore, we don't support renaming schemas, schemas with different

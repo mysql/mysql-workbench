@@ -150,7 +150,7 @@ void DiffSQLGeneratorBE::generate_set_partitioning(db_mysql_TableRef table,
       {
         grt::ValueRef part_def_grt_value;
 
-        const boost::shared_ptr<grt::DiffChange> part_def_change= *part_defs_it;
+        const std::shared_ptr<grt::DiffChange> part_def_change= *part_defs_it;
         if(part_def_change->get_change_type() == grt::ListItemAdded)
         {
           const grt::ListItemAddedChange *added_change= 
@@ -588,7 +588,7 @@ void DiffSQLGeneratorBE::generate_alter(grt::ListRef<db_mysql_Column> columns, c
   // process CHANGE COLUMN (handles content change only)
   for(grt::ChangeSet::const_iterator e= columns_cs->end(), it= columns_cs->begin(); it != e; it++)
   {
-    const boost::shared_ptr<grt::DiffChange> column_change= *it;
+    const std::shared_ptr<grt::DiffChange> column_change= *it;
 
     if(column_change->get_change_type() == grt::ListItemModified)
     {
@@ -610,7 +610,7 @@ void DiffSQLGeneratorBE::generate_alter(grt::ListRef<db_mysql_Column> columns, c
   // process DROP COLUMN
   for(grt::ChangeSet::const_iterator e= columns_cs->end(), it= columns_cs->begin(); it != e; it++)
   {
-    const boost::shared_ptr<grt::DiffChange> column_change= *it;
+    const std::shared_ptr<grt::DiffChange> column_change= *it;
     if(column_change->get_change_type() != grt::ListItemRemoved)
       continue;
 
@@ -623,7 +623,7 @@ void DiffSQLGeneratorBE::generate_alter(grt::ListRef<db_mysql_Column> columns, c
   // process CHANGE COLUMN (handles both position and content change)
   for(grt::ChangeSet::const_iterator e= columns_cs->end(), it= columns_cs->begin(); it != e; it++)
   {
-    const boost::shared_ptr<grt::DiffChange> column_change= *it;
+    const std::shared_ptr<grt::DiffChange> column_change= *it;
 
     if(column_change->get_change_type() != grt::ListItemOrderChanged)
       continue;
@@ -645,7 +645,7 @@ void DiffSQLGeneratorBE::generate_alter(grt::ListRef<db_mysql_Column> columns, c
   // process CHANGE COLUMN (handles content change only)
   for(grt::ChangeSet::const_iterator e= columns_cs->end(), it= columns_cs->begin(); it != e; it++)
   {
-    const boost::shared_ptr<grt::DiffChange> column_change= *it;
+    const std::shared_ptr<grt::DiffChange> column_change= *it;
 
     if(column_change->get_change_type() != grt::ListItemModified)
       continue;
@@ -665,7 +665,7 @@ void DiffSQLGeneratorBE::generate_alter(grt::ListRef<db_mysql_Column> columns, c
     // process ADD COLUMN
   for(grt::ChangeSet::const_iterator e= columns_cs->end(), it= columns_cs->begin(); it != e; it++)
   {
-    const boost::shared_ptr<grt::DiffChange> column_change= *it;
+    const std::shared_ptr<grt::DiffChange> column_change= *it;
     if(column_change->get_change_type() != grt::ListItemAdded)
       continue;
 
@@ -687,7 +687,7 @@ void DiffSQLGeneratorBE::generate_alter(grt::ListRef<db_mysql_Index> indices, co
 
   for(grt::ChangeSet::const_iterator e= indices_cs->end(), it= indices_cs->begin(); it != e; it++)
   {
-    const boost::shared_ptr<grt::DiffChange> index_change= *it;
+    const std::shared_ptr<grt::DiffChange> index_change= *it;
     
     switch(index_change->get_change_type())
     {
@@ -739,7 +739,7 @@ void DiffSQLGeneratorBE::generate_alter_drop(
 
   for(grt::ChangeSet::const_iterator e= fks_cs->end(), it= fks_cs->begin(); it != e; it++)
   {
-    const boost::shared_ptr<grt::DiffChange> fk_change= *it;
+    const std::shared_ptr<grt::DiffChange> fk_change= *it;
     
     db_mysql_ForeignKeyRef fk1;
     switch(fk_change->get_change_type())
@@ -794,7 +794,7 @@ void DiffSQLGeneratorBE::generate_alter(
 
   for(grt::ChangeSet::const_iterator e= fks_cs->end(), it= fks_cs->begin(); it != e; it++)
   {
-    const boost::shared_ptr<grt::DiffChange> fk_change= *it;
+    const std::shared_ptr<grt::DiffChange> fk_change= *it;
     
     db_mysql_ForeignKeyRef fk1, fk2;
     switch(fk_change->get_change_type())

@@ -22,7 +22,7 @@
 #include "base/log.h"
 #include "base/file_utilities.h"
 
-#include "grt.h"
+#include "grtpp.h"
 #include "grtpp_util.h"
 #include "grtpp_shell.h"
 #include "grtpp_module_cpp.h"
@@ -40,16 +40,6 @@ DEFAULT_LOG_DOMAIN(DOMAIN_GRT)
 
 using namespace grt;
 using namespace base;
-
-//--------------------------------------------------------------------------------------------------
-
-std::shared_ptr<GRT> GRT::get()
-{
-  static std::shared_ptr<GRT> instance(new GRT);
-  return instance;
-}
-
-//--------------------------------------------------------------------------------------------------
 
 std::string grt::type_to_str(Type type)
 {
@@ -73,7 +63,6 @@ std::string grt::type_to_str(Type type)
   return "";
 }
 
-//--------------------------------------------------------------------------------------------------
 
 Type grt::str_to_type(const std::string &type)
 {
@@ -92,6 +81,7 @@ Type grt::str_to_type(const std::string &type)
     return ObjectType;
   return UnknownType;
 }
+
 
 
 std::string Message::format(bool withtype) const
@@ -188,14 +178,14 @@ GRT::GRT()
   
   GRTNotificationCenter::setup();
 
-  _default_undo_manager = new UndoManager;
+  _default_undo_manager= new UndoManager(this);
 
-  add_module_loader(new CPPModuleLoader());
+  add_module_loader(new CPPModuleLoader(this));
   
   // register metaclass for base class
-  add_metaclass(MetaClass::create_base_class());
+  add_metaclass(MetaClass::create_base_class(this));
   
-  _root= grt::DictRef(true);
+  _root= grt::DictRef(this);
 }
 
 
@@ -318,7 +308,7 @@ void GRT::load_metaclasses(const std::string &file, std::list<std::string> *requ
     {
       if (xmlStrcmp(root->name, (xmlChar*)"gstruct")==0)
       {
-        MetaClass *gstruct= MetaClass::from_xml(file, root);
+        MetaClass *gstruct= MetaClass::from_xml(this, file, root);
         if (gstruct)
         {
           MetaClass *tmp;
@@ -450,7 +440,7 @@ void GRT::end_loading_metaclasses(bool check_class_binding)
     if (iter->second->placeholder())
     {
       undefined= true;
-      log_warning("MetaClass '%s' is undefined but was referred in '%s'\n",
+      logWarning("MetaClass '%s' is undefined but was referred in '%s'\n",
                 iter->second->name().c_str(), iter->second->source().c_str());
     }
     if (!iter->second->validate())
@@ -462,7 +452,7 @@ void GRT::end_loading_metaclasses(bool check_class_binding)
     throw std::runtime_error("Validation error in loaded metaclasses");
 
   // register GRT object classes
-  internal::ClassRegistry::get_instance()->register_all();
+  internal::ClassRegistry::get_instance()->register_all(this);
   
   if (check_class_binding)
   {
@@ -501,7 +491,7 @@ void GRT::add_metaclass(MetaClass *stru)
 
 void GRT::set_root(const ValueRef &root)
 {
-  AutoLock lock;
+  AutoLock lock(this);
   _root= root;
 // only nodes starting from /wb/doc (ie, in a model) should be marked global for undo tracking
 //  if (_root.is_valid())
@@ -512,7 +502,7 @@ void GRT::set_root(const ValueRef &root)
 
 ValueRef GRT::get(const std::string &path) const
 {
-  AutoLock lock;
+  AutoLock lock(this);
  
   return get_value_by_path(_root, path);
 }
@@ -520,7 +510,7 @@ ValueRef GRT::get(const std::string &path) const
 
 void GRT::set(const std::string &path, const ValueRef &value)
 {
-  AutoLock lock;
+  AutoLock lock(this);
   
   if (!set_value_by_path(_root, path, value))
     throw grt::bad_item("Invalid path "+path);
@@ -574,20 +564,20 @@ ObjectRef GRT::find_object_by_id(const std::string &id, const std::string &subpa
 void GRT::serialize(const ValueRef &value, const std::string &path,
                     const std::string &doctype, const std::string &version, bool list_objects_as_links)
 {
-  internal::Serializer ser;
+  internal::Serializer ser(this);
   
   ser.save_to_xml(value, path, doctype, version, list_objects_as_links);
 }
 
-boost::shared_ptr<grt::internal::Unserializer> GRT::get_unserializer()
+std::shared_ptr<grt::internal::Unserializer> GRT::get_unserializer()
 {
-  return boost::shared_ptr<grt::internal::Unserializer> (new internal::Unserializer(_check_serialized_crc));
+  return std::shared_ptr<grt::internal::Unserializer> (new internal::Unserializer(this, _check_serialized_crc));
 };
 
-ValueRef GRT::unserialize(const std::string &path, boost::shared_ptr<grt::internal::Unserializer> unserializer)
+ValueRef GRT::unserialize(const std::string &path, std::shared_ptr<grt::internal::Unserializer> unserializer)
 {
   if(!unserializer)
-    unserializer = boost::shared_ptr<grt::internal::Unserializer>(new internal::Unserializer(_check_serialized_crc));
+    unserializer = std::shared_ptr<grt::internal::Unserializer>(new internal::Unserializer(this, _check_serialized_crc));
 
   if (!g_file_test(path.c_str(), G_FILE_TEST_EXISTS))
     throw os_error(path);
@@ -600,12 +590,13 @@ ValueRef GRT::unserialize(const std::string &path, boost::shared_ptr<grt::intern
   {
     throw std::runtime_error(std::string("Error unserializing GRT data from ").append(path).append(": ").append(exc.what()));
   }
+  return ValueRef();
 }
 
 
 ValueRef GRT::unserialize(const std::string &path, std::string &doctype_ret, std::string &version_ret)
 {
-  internal::Unserializer unser(_check_serialized_crc);
+  internal::Unserializer unser(this, _check_serialized_crc);
   
   if (!g_file_test(path.c_str(), G_FILE_TEST_EXISTS))
     throw os_error(path);
@@ -618,6 +609,7 @@ ValueRef GRT::unserialize(const std::string &path, std::string &doctype_ret, std
     throw grt_runtime_error("Error unserializing GRT data from "+path, 
                             exc.what());
   }
+  return ValueRef();
 }
 
 
@@ -635,7 +627,7 @@ void GRT::get_xml_metainfo(xmlDocPtr doc, std::string &doctype_ret, std::string 
 
 ValueRef GRT::unserialize_xml(xmlDocPtr doc, const std::string &source_path)
 {
-  internal::Unserializer unser(_check_serialized_crc);
+  internal::Unserializer unser(this, _check_serialized_crc);
 
   try
   {
@@ -645,19 +637,20 @@ ValueRef GRT::unserialize_xml(xmlDocPtr doc, const std::string &source_path)
   {
     throw grt_runtime_error("Error unserializing GRT data" , exc.what());
   }
+  return ValueRef();
 }
 
 
 std::string GRT::serialize_xml_data(const ValueRef &value, const std::string &doctype, const std::string &version,
                                     bool list_objects_as_links)
 {
-  return internal::Serializer().serialize_to_xmldata(value, doctype, version, list_objects_as_links);
+  return internal::Serializer(this).serialize_to_xmldata(value, doctype, version, list_objects_as_links);
 }
 
 
 ValueRef GRT::unserialize_xml_data(const std::string &data)
 {
-  return internal::Unserializer(_check_serialized_crc).unserialize_xmldata(data.data(), data.size());
+  return internal::Unserializer(this, _check_serialized_crc).unserialize_xmldata(data.data(), data.size());
 }
 
 //--------------------------------------------------------------------------------
@@ -677,7 +670,7 @@ bool GRT::load_module(const std::string &path, const std::string &basePath, bool
   {
     if ((*loader)->check_file_extension(path))
     {
-      log_debug2("Trying to load module '%s' (%s)\n", shortendPath.c_str(), (*loader)->get_loader_name().c_str());
+      logDebug2("Trying to load module '%s' (%s)\n", shortendPath.c_str(), (*loader)->get_loader_name().c_str());
       
       // Problems, if any, are logged in init_module.
       Module *module = (*loader)->init_module(path);
@@ -692,7 +685,7 @@ bool GRT::load_module(const std::string &path, const std::string &basePath, bool
         }
         catch (std::exception &exc)
         {
-          log_debug("Deleting module %s because of %s\n", module->name().c_str(), exc.what());
+          logDebug("Deleting module %s because of %s\n", module->name().c_str(), exc.what());
           delete module;
           throw;
         }
@@ -980,7 +973,7 @@ void *GRT::get_context_data(const std::string &key)
 bool GRT::init_shell(const std::string &shell_type)
 {
   if (shell_type == LanguagePython)
-    _shell= new PythonShell;
+    _shell= new PythonShell(this);
   else
     throw std::runtime_error("Invalid shell type "+shell_type);
   
@@ -1015,7 +1008,7 @@ void GRT::pop_message_handler()
 {
   base::RecMutexLock lock(_message_mutex);
   if (_message_slot_stack.empty())
-    log_error("pop_message_handler() called on empty handler stack");
+    logError("pop_message_handler() called on empty handler stack");
   else
     _message_slot_stack.pop_back();
 }
@@ -1045,7 +1038,7 @@ bool GRT::handle_message(const Message &msg, void *sender)
         return true;
     }
   }
-  log_error("Unhandled message (%lu): %s\n", (unsigned long)_message_slot_stack.size(), msg.format().c_str());
+  logError("Unhandled message (%lu): %s\n", (unsigned long)_message_slot_stack.size(), msg.format().c_str());
   return false;
 }
 
@@ -1095,7 +1088,7 @@ void GRT::send_error(const std::string &message, const std::string &details, voi
   msg.progress= 0.0;
   handle_message(msg, sender);
   
-  log_error("%s\t%s\n", message.c_str(), details.c_str());
+  logError("%s\t%s\n", message.c_str(), details.c_str());
 }
 
 
@@ -1110,7 +1103,7 @@ void GRT::send_warning(const std::string &message, const std::string &details, v
   msg.progress= 0.0;
   handle_message(msg, sender);
   
-  log_warning("%s\t%s\n", message.c_str(), details.c_str());
+  logWarning("%s\t%s\n", message.c_str(), details.c_str());
 }
 
 
@@ -1125,7 +1118,7 @@ void GRT::send_info(const std::string &message, const std::string &details, void
   msg.progress= 0.0;
   handle_message(msg, sender);
   
-  log_info("%s\t%s\n", message.c_str(), details.c_str());
+  logInfo("%s\t%s\n", message.c_str(), details.c_str());
 }
 
 
@@ -1196,7 +1189,7 @@ void GRT::send_verbose(const std::string &message, void *sender)
   msg.progress= 0.0;
   handle_message(msg, sender);
 
-  log_debug2("%s", message.c_str());
+  logDebug2("%s", message.c_str());
 }
 
 
@@ -1214,5 +1207,5 @@ void GRT::send_output(const std::string &message, void *sender)
   // Log send_output only when verbose is on to avoid duplicate prints to stdout, when logged text also goes to stderr/out
   // TODO: fix the actual cause for sending duplicates and remove _verbose (doesn't fit to our logging).
   if (_verbose)
-    log_debug("%s", message.c_str());
+    logDebug("%s", message.c_str());
 }

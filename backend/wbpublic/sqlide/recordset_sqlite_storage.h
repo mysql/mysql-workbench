@@ -35,11 +35,11 @@ struct connection;
 class WBPUBLICBACKEND_PUBLIC_FUNC Recordset_sqlite_storage : public Recordset_sql_storage
 {
 public:
-  typedef boost::shared_ptr<Recordset_sqlite_storage> Ref;
-  static Ref create() { return Ref(new Recordset_sqlite_storage()); }
+  typedef std::shared_ptr<Recordset_sqlite_storage> Ref;
+  static Ref create(bec::GRTManager *grtm) { return Ref(new Recordset_sqlite_storage(grtm)); }
   virtual ~Recordset_sqlite_storage();
 protected:
-  Recordset_sqlite_storage();
+  Recordset_sqlite_storage(bec::GRTManager *grtm);
 
 protected:
   virtual void do_serialize(const Recordset *recordset, sqlite::connection *data_swap_db);

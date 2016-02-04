@@ -1010,7 +1010,7 @@ void MainForm::switched_view_becb(mdc::CanvasView* view)
 
 //------------------------------------------------------------------------------
 
-void MainForm::create_main_form_view_becb(const std::string &name, boost::shared_ptr<bec::UIForm> form)
+void MainForm::create_main_form_view_becb(const std::string &name, std::shared_ptr<bec::UIForm> form)
 {
   FormViewBase *view;
   

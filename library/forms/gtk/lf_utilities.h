@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -92,7 +92,7 @@ class MainThreadRequestQueue
 
   Glib::Dispatcher _disp;
   Glib::Mutex _mutex;
-  std::list<boost::shared_ptr<Request> > _queue;
+  std::list<std::shared_ptr<Request> > _queue;
   
   void from_main_thread();
 public:

@@ -52,7 +52,7 @@ enum ChangeType
 
 class DiffChange;
 
-typedef std::vector<boost::shared_ptr<DiffChange> > ChangeList;
+typedef std::vector<std::shared_ptr<DiffChange> > ChangeList;
 
 struct MYSQLGRT_PUBLIC ChangeSet
 {
@@ -67,7 +67,7 @@ struct MYSQLGRT_PUBLIC ChangeSet
   inline const_reverse_iterator rbegin() const { return changes.rbegin(); }
   inline const_reverse_iterator rend() const { return changes.rend(); }
 
-  inline void append(boost::shared_ptr<DiffChange> change)
+  inline void append(std::shared_ptr<DiffChange> change)
   { 
     if(change.get()) 
       changes.push_back(change); 
@@ -81,7 +81,7 @@ struct MYSQLGRT_PUBLIC ChangeSet
 // Base class for any specific change in grt instances
 class MYSQLGRT_PUBLIC DiffChange
 {
-  friend class boost::shared_ptr<DiffChange>;
+  friend class std::shared_ptr<DiffChange>;
 protected:
   //Parent change, is plain pointer instead of shared ptr to avoid cylic references
   //of shared pointers
