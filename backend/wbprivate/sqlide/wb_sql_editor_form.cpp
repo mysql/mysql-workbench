@@ -1659,7 +1659,10 @@ RecMutexLock SqlEditorForm::ensure_valid_dbc_connection(sql::Dbc_connection_hand
       }
     }
     else
+    {
+      ping();
       valid= true;
+    }
   }
   if (!valid)
     throw grt::db_not_connected("DBMS connection is not available");
