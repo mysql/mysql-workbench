@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -105,11 +105,11 @@ public:
   delegate MySQL::Base::IRecordsetView ^CreateRecordsetViewForWrapper(RecordsetWrapper^ wrapper);
 
   // used by the main program to initialize mforms::RecordGridView
-  // we can't create a direct delegate that will create a RecordsetView from a boost::shared_ptr<Recordset>, because RecordsetView
-  // is in C# and can't pass around boost::shared_ptr values, so we do it in 2 stage callback
+  // we can't create a direct delegate that will create a RecordsetView from a std::shared_ptr<Recordset>, because RecordsetView
+  // is in C# and can't pass around std::shared_ptr values, so we do it in 2 stage callback
   static void init_mforms(CreateRecordsetViewForWrapper ^deleg);
 private:
-  static MySQL::Base::IRecordsetView ^wrap_and_create_recordset_view(IntPtr /* to a boost::shared_ptr<Recordset> ptr */ rset);
+  static MySQL::Base::IRecordsetView ^wrap_and_create_recordset_view(IntPtr /* to a std::shared_ptr<Recordset> ptr */ rset);
   static CreateRecordsetViewForWrapper^ create_recordset_for_wrapper = nullptr;
 };
 

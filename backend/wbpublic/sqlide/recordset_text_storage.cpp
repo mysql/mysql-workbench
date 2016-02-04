@@ -310,9 +310,9 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
     // data
     {
       const size_t partition_count= recordset->data_swap_db_partition_count();
-      std::list<boost::shared_ptr<sqlite::query> > data_queries(partition_count);
+      std::list<std::shared_ptr<sqlite::query> > data_queries(partition_count);
       Recordset::prepare_partition_queries(data_swap_db, "select * from `data%s`", data_queries);
-      std::vector<boost::shared_ptr<sqlite::result> > data_results(data_queries.size());
+      std::vector<std::shared_ptr<sqlite::result> > data_results(data_queries.size());
       
       if (Recordset::emit_partition_queries(data_swap_db, data_queries, data_results))
       {
@@ -329,7 +329,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
           // process a single row
           for (size_t partition= 0; partition < partition_count; ++partition)
           {
-            boost::shared_ptr<sqlite::result> &data_rs= data_results[partition];
+            std::shared_ptr<sqlite::result> &data_rs = data_results[partition];
             for (ColumnId col_begin= partition * Recordset::DATA_SWAP_DB_TABLE_MAX_COL_COUNT, col= col_begin,
                  col_end= std::min<ColumnId>(visible_col_count, (partition + 1) * Recordset::DATA_SWAP_DB_TABLE_MAX_COL_COUNT); col < col_end; ++col)
             {
@@ -366,7 +366,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
             }
           }
 
-          BOOST_FOREACH (boost::shared_ptr<sqlite::result> &data_rs, data_results)
+          BOOST_FOREACH (std::shared_ptr<sqlite::result> &data_rs, data_results)
             next_row_exists= data_rs->next_row();
 
           if (next_row_exists)
@@ -401,9 +401,9 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
     // data
     {
       const size_t partition_count= recordset->data_swap_db_partition_count();
-      std::list<boost::shared_ptr<sqlite::query> > data_queries(partition_count);
+      std::list<std::shared_ptr<sqlite::query> > data_queries(partition_count);
       Recordset::prepare_partition_queries(data_swap_db, "select * from `data%s`", data_queries);
-      std::vector<boost::shared_ptr<sqlite::result> > data_results(data_queries.size());
+      std::vector<std::shared_ptr<sqlite::result> > data_results(data_queries.size());
       if (Recordset::emit_partition_queries(data_swap_db, data_queries, data_results))
       {
         bool next_row_exists= true;
@@ -413,7 +413,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
           TemplateDictionary* row_dict = dict->AddSectionDictionary("ROW");
           for (size_t partition= 0; partition < partition_count; ++partition)
           {
-            boost::shared_ptr<sqlite::result> &data_rs= data_results[partition];
+            std::shared_ptr<sqlite::result> &data_rs = data_results[partition];
             for (ColumnId col_begin= partition * Recordset::DATA_SWAP_DB_TABLE_MAX_COL_COUNT, col= col_begin,
                  col_end= std::min<ColumnId>(visible_col_count, (partition + 1) * Recordset::DATA_SWAP_DB_TABLE_MAX_COL_COUNT); col < col_end; ++col)
             {
@@ -433,7 +433,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
               field_dict->SetValue("FIELD_VALUE", field_value);                
             }
           }
-          BOOST_FOREACH (boost::shared_ptr<sqlite::result> &data_rs, data_results)
+          BOOST_FOREACH (std::shared_ptr<sqlite::result> &data_rs, data_results)
           next_row_exists= data_rs->next_row();
         }
         while (next_row_exists);

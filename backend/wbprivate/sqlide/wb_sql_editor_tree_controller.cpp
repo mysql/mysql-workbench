@@ -76,7 +76,7 @@ static const char *EXCEPTION_MSG_FORMAT= _("Error: %s");
 catch (sql::SQLException &e)\
 {\
 _owner->add_log_message(DbSqlEditorLog::ErrorMsg, strfmt(SQL_EXCEPTION_MSG_FORMAT, e.getErrorCode(), e.what()), statement, "");\
-log_error("SQLException executing %s: %s\n", std::string(statement).c_str(), strfmt(SQL_EXCEPTION_MSG_FORMAT, e.getErrorCode(), e.what()).c_str());\
+logError("SQLException executing %s: %s\n", std::string(statement).c_str(), strfmt(SQL_EXCEPTION_MSG_FORMAT, e.getErrorCode(), e.what()).c_str());\
 }\
 CATCH_EXCEPTION_AND_DISPATCH(statement)
 
@@ -84,31 +84,31 @@ CATCH_EXCEPTION_AND_DISPATCH(statement)
 catch (std::exception &e)\
 {\
 _owner->add_log_message(DbSqlEditorLog::ErrorMsg, strfmt(EXCEPTION_MSG_FORMAT, e.what()), statement, "");\
-log_error("Exception executing %s: %s\n", std::string(statement).c_str(), strfmt(EXCEPTION_MSG_FORMAT, e.what()).c_str());\
+logError("Exception executing %s: %s\n", std::string(statement).c_str(), strfmt(EXCEPTION_MSG_FORMAT, e.what()).c_str());\
 }
 
 #define CATCH_ANY_EXCEPTION_AND_DISPATCH(statement) \
 catch (sql::SQLException &e)\
 {\
 _owner->add_log_message(DbSqlEditorLog::ErrorMsg, strfmt(SQL_EXCEPTION_MSG_FORMAT, e.getErrorCode(), e.what()), statement, "");\
-log_error("SQLException executing %s: %s\n", std::string(statement).c_str(), strfmt(SQL_EXCEPTION_MSG_FORMAT, e.getErrorCode(), e.what()).c_str());\
+logError("SQLException executing %s: %s\n", std::string(statement).c_str(), strfmt(SQL_EXCEPTION_MSG_FORMAT, e.getErrorCode(), e.what()).c_str());\
 }\
 CATCH_EXCEPTION_AND_DISPATCH(statement)
 
 #define CATCH_ANY_EXCEPTION_AND_DISPATCH_TO_DEFAULT_LOG(statement) \
 catch (sql::SQLException &e)\
 {\
-grt::GRT::get()->send_error(strfmt(SQL_EXCEPTION_MSG_FORMAT, e.getErrorCode(), e.what()), statement);\
+_grtm->get_grt()->send_error(strfmt(SQL_EXCEPTION_MSG_FORMAT, e.getErrorCode(), e.what()), statement);\
 }\
 catch (std::exception &e)\
 {\
-grt::GRT::get()->send_error(strfmt(EXCEPTION_MSG_FORMAT, e.what()), statement);\
+_grtm->get_grt()->send_error(strfmt(EXCEPTION_MSG_FORMAT, e.what()), statement);\
 }
 
 
-boost::shared_ptr<SqlEditorTreeController> SqlEditorTreeController::create(SqlEditorForm *owner)
+std::shared_ptr<SqlEditorTreeController> SqlEditorTreeController::create(SqlEditorForm *owner)
 {
-  boost::shared_ptr<SqlEditorTreeController> instance(new SqlEditorTreeController(owner));
+  std::shared_ptr<SqlEditorTreeController> instance(new SqlEditorTreeController(owner));
 
   instance->_base_schema_tree.set_delegate(instance);
   instance->_base_schema_tree.set_fetch_delegate(instance);
@@ -122,27 +122,29 @@ boost::shared_ptr<SqlEditorTreeController> SqlEditorTreeController::create(SqlEd
 
 
 SqlEditorTreeController::SqlEditorTreeController(SqlEditorForm *owner)
-  : _owner(owner),
-    _schema_side_bar(nullptr), _admin_side_bar(nullptr),
-    _task_tabview(nullptr),
-    _taskbar_box(nullptr),
+  : _owner(owner), _grtm(owner->grt_manager()),
+    _schema_side_bar(NULL), _admin_side_bar(NULL),
+    _task_tabview(NULL),
+    _taskbar_box(NULL),
     _schema_tree(&_base_schema_tree),
-    live_schema_fetch_task(GrtThreadedTask::create()),
-    live_schemata_refresh_task(GrtThreadedTask::create()),
+    _base_schema_tree(_grtm->get_grt()),
+    _filtered_schema_tree(_grtm->get_grt()),
+    live_schema_fetch_task(GrtThreadedTask::create(_grtm)),
+    live_schemata_refresh_task(GrtThreadedTask::create(_grtm)),
     _is_refreshing_schema_tree(false),
     _unified_mode(false),
     _use_show_procedure(false),
-    _side_splitter(nullptr),
-    _info_tabview(nullptr),
-    _object_info(nullptr),
-    _session_info(nullptr)
+    _side_splitter(NULL),
+    _info_tabview(NULL),
+    _object_info(NULL),
+    _session_info(NULL)
 {
   grt::GRTNotificationCenter::get()->add_grt_observer(this, "GRNDBObjectEditorCreated");
   grt::GRTNotificationCenter::get()->add_grt_observer(this, "GRNPreferencesDidClose");
   grt::GRTNotificationCenter::get()->add_grt_observer(this, "GRNSQLEditorReconnected");
 
-  _base_schema_tree.is_schema_contents_enabled(bec::GRTManager::get().get_app_option_int("DbSqlEditor:ShowSchemaTreeSchemaContents", 1) != 0);
-  _filtered_schema_tree.is_schema_contents_enabled(bec::GRTManager::get().get_app_option_int("DbSqlEditor:ShowSchemaTreeSchemaContents", 1) != 0);
+  _base_schema_tree.is_schema_contents_enabled(_grtm->get_app_option_int("DbSqlEditor:ShowSchemaTreeSchemaContents", 1) != 0);
+  _filtered_schema_tree.is_schema_contents_enabled(_grtm->get_app_option_int("DbSqlEditor:ShowSchemaTreeSchemaContents", 1) != 0);
 
   _base_schema_tree.sql_editor_text_insert_signal.connect(boost::bind(&SqlEditorTreeController::insert_text_to_active_editor, this, _1));
   _filtered_schema_tree.sql_editor_text_insert_signal.connect(boost::bind(&SqlEditorTreeController::insert_text_to_active_editor, this, _1));
@@ -178,7 +180,7 @@ SqlEditorTreeController::~SqlEditorTreeController()
 
 void SqlEditorTreeController::finish_init()
 {
-  _unified_mode = bec::GRTManager::get().get_app_option_int("DbSqlEditor:SidebarModeCombined", 0) == 1;
+  _unified_mode = _grtm->get_app_option_int("DbSqlEditor:SidebarModeCombined", 0) == 1;
 
   // Box to host the management and SQL IDE task bars in tab view or stacked mode.
   _taskbar_box = new mforms::Box(false);
@@ -200,7 +202,7 @@ void SqlEditorTreeController::finish_init()
     _task_tabview->add_page(_admin_side_bar, _("Management"));
     _task_tabview->add_page(_schema_side_bar, _("Schemas"));
 
-    int i = bec::GRTManager::get().get_app_option_int("DbSqlEditor:ActiveTaskTab", 0);
+    int i = _grtm->get_app_option_int("DbSqlEditor:ActiveTaskTab", 0);
     if (i < 0)
       i = 0;
     else if (i >= 2)
@@ -219,7 +221,7 @@ void SqlEditorTreeController::finish_init()
   _schema_side_bar->set_filtered_schema_model(&_filtered_schema_tree);
   _schema_side_bar->set_selection_color(mforms::SystemColorHighlight);
 
-  int initial_splitter_pos = bec::GRTManager::get().get_app_option_int("DbSqlEditor:SidebarInitialSplitterPos", 500);
+  int initial_splitter_pos = _grtm->get_app_option_int("DbSqlEditor:SidebarInitialSplitterPos", 500);
   _side_splitter = mforms::manage(new mforms::Splitter(false, true));
 
 #ifdef _WIN32
@@ -272,7 +274,7 @@ void SqlEditorTreeController::finish_init()
   tree_refresh();
 
   // make sure to restore the splitter pos after layout is ready
-  bec::GRTManager::get().run_once_when_idle(this, boost::bind(&mforms::Splitter::set_divider_position, _side_splitter, initial_splitter_pos));
+  _grtm->run_once_when_idle(this, boost::bind(&mforms::Splitter::set_divider_position, _side_splitter, initial_splitter_pos));
 
   // Connect the splitter change event after the setup is done to avoid wrong triggering.
   _splitter_connection = _side_splitter->signal_position_changed()->connect(boost::bind(&SqlEditorTreeController::sidebar_splitter_changed, this));
@@ -280,7 +282,7 @@ void SqlEditorTreeController::finish_init()
   // Setup grt access to sidebar.
   db_query_EditorRef editor(_owner->wbsql()->get_grt_editor_object(_owner));
   if (editor.is_valid())
-    editor->sidebar(mforms_to_grt(_admin_side_bar, "TaskSidebar"));
+    editor->sidebar(mforms_to_grt(_grtm->get_grt(), _admin_side_bar, "TaskSidebar"));
 
   if (!_owner->connected())
       _info_tabview->set_active_tab(1);
@@ -293,12 +295,12 @@ void SqlEditorTreeController::prepare_close()
   _splitter_connection.disconnect();
 
   if (_schema_side_bar)
-    bec::GRTManager::get().set_app_option("DbSqlEditor:SidebarCollapseState", grt::StringRef(_schema_side_bar->get_collapse_states()));
+    _grtm->set_app_option("DbSqlEditor:SidebarCollapseState", grt::StringRef(_schema_side_bar->get_collapse_states()));
 
   int tab = _task_tabview->get_active_tab();
-  bec::GRTManager::get().set_app_option("DbSqlEditor:ActiveTaskTab", grt::IntegerRef(tab));
+  _grtm->set_app_option("DbSqlEditor:ActiveTaskTab", grt::IntegerRef(tab));
   tab = _info_tabview->get_active_tab();
-  bec::GRTManager::get().set_app_option("DbSqlEditor:ActiveInfoTab", grt::IntegerRef(tab));
+  _grtm->set_app_option("DbSqlEditor:ActiveInfoTab", grt::IntegerRef(tab));
 }
 
 
@@ -329,7 +331,7 @@ void SqlEditorTreeController::schema_row_selected()
 
 
     // send out notification about selection change
-    grt::DictRef info(true);
+    grt::DictRef info(_grtm->get_grt());
     info.gset("selection-size", (int)nodes.size());
     grt::GRTNotificationCenter::get()->send_grt("GRNLiveDBObjectSelectionDidChange", _owner->wbsql()->get_grt_editor_object(_owner), info);
   }
@@ -351,14 +353,14 @@ void SqlEditorTreeController::sidebar_splitter_changed()
 {
   int pos = _side_splitter->get_divider_position();
   if (pos > 0)
-    bec::GRTManager::get().set_app_option("DbSqlEditor:SidebarInitialSplitterPos", grt::IntegerRef(pos));
+    _grtm->set_app_option("DbSqlEditor:SidebarInitialSplitterPos", grt::IntegerRef(pos));
 }
 
 //--------------------------------------------------------------------------------------------------
 
 bool SqlEditorTreeController::fetch_data_for_filter(const std::string &schema_filter, const std::string &object_filter, const wb::LiveSchemaTree::NewSchemaContentArrivedSlot &arrived_slot)
 {
-  std::string wb_internal_schema = bec::GRTManager::get().get_app_option_string("workbench:InternalSchema");
+  std::string wb_internal_schema = _grtm->get_app_option_string("workbench:InternalSchema");
 
   sql::Dbc_connection_handler::Ref conn;
 
@@ -398,10 +400,10 @@ bool SqlEditorTreeController::fetch_data_for_filter(const std::string &schema_fi
   // If the remote search is available performs the search
   if (remote_search_enabled)
   {
-    bool sync= !bec::GRTManager::get().in_main_thread();
-    log_debug3("Fetch data for filter %s.%s\n", schema_filter.c_str(), object_filter.c_str());
+    bool sync= !_grtm->in_main_thread();
+    logDebug3("Fetch data for filter %s.%s\n", schema_filter.c_str(), object_filter.c_str());
     live_schema_fetch_task->exec(sync,
-                                 boost::bind(&SqlEditorTreeController::do_fetch_data_for_filter, this,
+                                 boost::bind(&SqlEditorTreeController::do_fetch_data_for_filter, this, _1,
                                              weak_ptr_from(this), schema_filter, object_filter, arrived_slot));
 
   }
@@ -421,7 +423,7 @@ std::list<std::string> SqlEditorTreeController::fetch_schema_list()
 
     RecMutexLock aux_dbc_conn_mutex(_owner->ensure_valid_aux_connection(conn));
 
-    bool show_metadata_schemata= (0 != bec::GRTManager::get().get_app_option_int("DbSqlEditor:ShowMetadataSchemata", 0));
+    bool show_metadata_schemata= (0 != _grtm->get_app_option_int("DbSqlEditor:ShowMetadataSchemata", 0));
 
     std::auto_ptr<sql::ResultSet> rs(conn->ref->getMetaData()->getSchemata());
     while (rs->next())
@@ -458,10 +460,10 @@ bool SqlEditorTreeController::fetch_schema_contents(const std::string &schema_na
   // in windows we use TreeViewAdv feature to expand nodes asynchronously
   // that is this function is already called from a separate thread
   // and it must have items loaded when it returns.
-  bool sync= !bec::GRTManager::get().in_main_thread();
-  log_debug3("Fetch schema contents for %s\n", schema_name.c_str());
+  bool sync= !_grtm->in_main_thread();
+  logDebug3("Fetch schema contents for %s\n", schema_name.c_str());
   live_schema_fetch_task->exec(sync,
-                               boost::bind(&SqlEditorTreeController::do_fetch_live_schema_contents, this,
+                               boost::bind(&SqlEditorTreeController::do_fetch_live_schema_contents, this, _1,
                                            weak_ptr_from(this), schema_name, arrived_slot));
 
   return true;//!
@@ -484,7 +486,7 @@ mforms::View *SqlEditorTreeController::get_sidebar()
   return _side_splitter;
 }
 
-grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(boost::weak_ptr<SqlEditorTreeController> self_ptr, const std::string &schema_name, wb::LiveSchemaTree::NewSchemaContentArrivedSlot arrived_slot)
+grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *grt, std::weak_ptr<SqlEditorTreeController> self_ptr, const std::string &schema_name, wb::LiveSchemaTree::NewSchemaContentArrivedSlot arrived_slot)
 {
   RETVAL_IF_FAIL_TO_RETAIN_WEAK_PTR (SqlEditorTreeController, self_ptr, self, grt::StringRef(""))
   try
@@ -540,7 +542,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(boost::wea
         }
         catch (std::exception &exc)
         {
-          log_exception("Exception querying metadata from mysql.proc, will fallback to SHOW PROCEDURE", exc);
+          logException("Exception querying metadata from mysql.proc, will fallback to SHOW PROCEDURE", exc);
           _use_show_procedure = true;
         }
       }
@@ -570,7 +572,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(boost::wea
     if (arrived_slot)
     {
       boost::function<void ()> schema_contents_arrived = boost::bind(arrived_slot, schema_name, tables, views, procedures, functions, false);
-      bec::GRTManager::get().run_once_when_idle(this, schema_contents_arrived);
+      _grtm->run_once_when_idle(this, schema_contents_arrived);
     }
 
     // Let the owner form know we got fresh schema meta data. Can be used to update caches.
@@ -579,13 +581,13 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(boost::wea
   catch (const sql::SQLException& e)
   {
     _owner->add_log_message(DbSqlEditorLog::ErrorMsg, strfmt(SQL_EXCEPTION_MSG_FORMAT, e.getErrorCode(), e.what()), "Error loading schema content", "");\
-    log_error("SQLException executing %s: %s\n", std::string("Error loading schema content").c_str(), strfmt(SQL_EXCEPTION_MSG_FORMAT, e.getErrorCode(), e.what()).c_str());\
+    logError("SQLException executing %s: %s\n", std::string("Error loading schema content").c_str(), strfmt(SQL_EXCEPTION_MSG_FORMAT, e.getErrorCode(), e.what()).c_str());\
 
     if (arrived_slot)
     {
       StringListPtr empty_list;
       boost::function<void ()> schema_contents_arrived = boost::bind(arrived_slot, schema_name, empty_list, empty_list, empty_list, empty_list, false);
-      bec::GRTManager::get().run_once_when_idle(this, schema_contents_arrived);
+      _grtm->run_once_when_idle(this, schema_contents_arrived);
     }
   }
 
@@ -594,17 +596,17 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(boost::wea
 
 //--------------------------------------------------------------------------------------------------
 
-grt::StringRef SqlEditorTreeController::do_fetch_data_for_filter(boost::weak_ptr<SqlEditorTreeController> self_ptr, const std::string &schema_filter, const std::string &object_filter, wb::LiveSchemaTree::NewSchemaContentArrivedSlot arrived_slot)
+grt::StringRef SqlEditorTreeController::do_fetch_data_for_filter(grt::GRT *grt, std::weak_ptr<SqlEditorTreeController> self_ptr, const std::string &schema_filter, const std::string &object_filter, wb::LiveSchemaTree::NewSchemaContentArrivedSlot arrived_slot)
 {
   RETVAL_IF_FAIL_TO_RETAIN_WEAK_PTR (SqlEditorTreeController, self_ptr, self, grt::StringRef(""))
 
-  log_debug3("Searching data for %s.%s\n", schema_filter.c_str(), object_filter.c_str());
+  logDebug3("Searching data for %s.%s\n", schema_filter.c_str(), object_filter.c_str());
 
-  boost::shared_ptr<sql::ResultSet> dbc_resultset;
+  std::shared_ptr<sql::ResultSet> dbc_resultset;
   std::map<std::string, int> schema_directory;
   std::string last_schema;
 
-  std::string wb_internal_schema = bec::GRTManager::get().get_app_option_string("workbench:InternalSchema");
+  std::string wb_internal_schema = _grtm->get_app_option_string("workbench:InternalSchema");
 
   try
   {
@@ -633,7 +635,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_data_for_filter(boost::weak_ptr
         if (schema != last_schema && last_schema != "")
         {
           if (arrived_slot)
-            bec::GRTManager::get().run_once_when_idle(this, boost::bind(arrived_slot, last_schema, tables, views, procedures, functions, true));
+            _grtm->run_once_when_idle(this, boost::bind(arrived_slot, last_schema, tables, views, procedures, functions, true));
 
           tables->clear();
           views->clear();
@@ -654,7 +656,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_data_for_filter(boost::weak_ptr
       }
 
       if (last_schema != "" && arrived_slot)
-        bec::GRTManager::get().run_once_when_idle(this, boost::bind(arrived_slot, last_schema, tables, views, procedures, functions, true));
+        _grtm->run_once_when_idle(this, boost::bind(arrived_slot, last_schema, tables, views, procedures, functions, true));
     }
     else
     {
@@ -692,7 +694,7 @@ void SqlEditorTreeController::fetch_column_data(const std::string& schema_name, 
   StringListPtr columns(new std::list<std::string>);
   std::map<std::string, LiveSchemaTree::ColumnData> column_data;
 
-  log_debug3("Fetching column data for %s.%s\n", schema_name.c_str(), obj_name.c_str());
+  logDebug3("Fetching column data for %s.%s\n", schema_name.c_str(), obj_name.c_str());
 
   try
   {
@@ -745,7 +747,7 @@ void SqlEditorTreeController::fetch_column_data(const std::string& schema_name, 
         if (node)
           pdata = dynamic_cast<LiveSchemaTree::ViewData*>(node->get_data());
         else
-          log_warning("Error fetching column information for '%s'.'%s'", schema_name.c_str(), obj_name.c_str());
+          logWarning("Error fetching column information for '%s'.'%s'", schema_name.c_str(), obj_name.c_str());
       }
 
       if (pdata)
@@ -784,7 +786,7 @@ void SqlEditorTreeController::fetch_column_data(const std::string& schema_name, 
   }
   catch (const sql::SQLException& exc)
   {
-    log_warning("Error fetching column information for '%s'.'%s': %s", schema_name.c_str(), obj_name.c_str(), exc.what());
+    logWarning("Error fetching column information for '%s'.'%s': %s", schema_name.c_str(), obj_name.c_str(), exc.what());
 
     // Sets flag indicating error loading columns ( Used for broken views )
     if (pdata)
@@ -1233,7 +1235,7 @@ void SqlEditorTreeController::tree_refresh()
   if (_owner->connected())
   {
     live_schemata_refresh_task->exec(false,
-                                   boost::bind((grt::StringRef(SqlEditorTreeController::*)(SqlEditorForm::Ptr))&SqlEditorTreeController::do_refresh_schema_tree_safe, this,
+                                   boost::bind((grt::StringRef(SqlEditorTreeController::*)(grt::GRT *, SqlEditorForm::Ptr))&SqlEditorTreeController::do_refresh_schema_tree_safe, this, _1,
                                                weak_ptr_from(_owner)));
     _schema_tree->set_enabled(true);
   }
@@ -1261,7 +1263,7 @@ bool SqlEditorTreeController::sidebar_action(const std::string& name)
       _task_tabview->set_active_tab(1);
       _task_tabview->show(true);
 
-      bec::GRTManager::get().set_app_option("DbSqlEditor:SidebarModeCombined", grt::IntegerRef(0));
+      _grtm->set_app_option("DbSqlEditor:SidebarModeCombined", grt::IntegerRef(0));
       _admin_side_bar->update_mode_buttons(false);
       _schema_side_bar->update_mode_buttons(false);
     }
@@ -1280,7 +1282,7 @@ bool SqlEditorTreeController::sidebar_action(const std::string& name)
       _taskbar_box->add(_schema_side_bar, true, true);
       _schema_side_bar->focus();
 
-      bec::GRTManager::get().set_app_option("DbSqlEditor:SidebarModeCombined", grt::IntegerRef(1));
+      _grtm->set_app_option("DbSqlEditor:SidebarModeCombined", grt::IntegerRef(1));
       _admin_side_bar->update_mode_buttons(true);
       _schema_side_bar->update_mode_buttons(true);
     }
@@ -1431,7 +1433,7 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
     }
 
     // reset_references on the catalog is called when we try to apply changes (generate the alter script).
-    db_mysql_CatalogRef client_state_catalog= grt::GRT::get()->create_object<db_mysql_Catalog>("db.mysql.Catalog");
+    db_mysql_CatalogRef client_state_catalog= _grtm->get_grt()->create_object<db_mysql_Catalog>("db.mysql.Catalog");
     client_state_catalog->name("default");
     client_state_catalog->oldName("default");
     client_state_catalog->version(rdbms->version());
@@ -1457,7 +1459,7 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
       }
       else
       {
-        schema = grt::GRT::get()->create_object<db_mysql_Schema>("db.mysql.Schema");
+        schema = _grtm->get_grt()->create_object<db_mysql_Schema>("db.mysql.Schema");
         schema->owner(client_state_catalog);
 
         schema->name(used_schema_name);
@@ -1477,7 +1479,7 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
       ddl_script= get_object_ddl_script(type, used_schema_name, obj_name);
       if (ddl_script.empty())
       {
-        log_warning("Unable to get DDL for %s.%s", used_schema_name.c_str(), obj_name.c_str());
+        logWarning("Unable to get DDL for %s.%s", used_schema_name.c_str(), obj_name.c_str());
         return;
       }
       {
@@ -1488,25 +1490,25 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
       }
 
       // if this is a View, then auto-reformat it before sending it to parser/editor
-      if (type == wb::LiveSchemaTree::View && bec::GRTManager::get().get_app_option_int("DbSqlEditor:ReformatViewDDL", 0))
+      if (type == wb::LiveSchemaTree::View && _grtm->get_app_option_int("DbSqlEditor:ReformatViewDDL", 0))
       {
         try
         {
-          grt::Module *module = grt::GRT::get()->get_module("SQLIDEUtils");
-          grt::BaseListRef args(true);
+          grt::Module *module = _grtm->get_grt()->get_module("SQLIDEUtils");
+          grt::BaseListRef args(_grtm->get_grt());
           args.ginsert(grt::StringRef(ddl_script));
           ddl_script = grt::StringRef::cast_from(module->call_function("reformatSQLStatement", args));
         }
         catch (std::exception &exc)
         {
-          log_warning("Error reformatting view code: %s", exc.what());
+          logWarning("Error reformatting view code: %s", exc.what());
         }
       }
 
       if (!parse_ddl_into_catalog(client_state_catalog, strfmt("`%s`.`%s`", schema_name.c_str(), obj_name.c_str()),
         ddl_script, sql_mode, schema_name))
       {
-        log_warning("Error parsing DDL for %s.%s: %s", schema_name.c_str(), obj_name.c_str(), ddl_script.c_str());
+        logWarning("Error parsing DDL for %s.%s: %s", schema_name.c_str(), obj_name.c_str(), ddl_script.c_str());
         return;
       }
     }
@@ -1560,13 +1562,13 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
       lower = tolower(obj_name);
       if (lower != obj_name)
       {
-        log_warning("Object name %s was not found in catalog, trying to search it as %s",
+        logWarning("Object name %s was not found in catalog, trying to search it as %s",
                   obj_name.c_str(), lower.c_str());
         obj_name = lower;
         goto retry_search;
       }
       else
-        log_warning("Object name %s was not found in catalog.", aobj_name.c_str());
+        logWarning("Object name %s was not found in catalog.", aobj_name.c_str());
       return;
     }
 #endif
@@ -1581,7 +1583,7 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
   }
   catch (const std::exception &e)
   {
-    log_error("Failed to create/alter `%s`.`%s`: %s", used_schema_name.c_str(), obj_name.c_str(), e.what());
+    logError("Failed to create/alter `%s`.`%s`: %s", used_schema_name.c_str(), obj_name.c_str(), e.what());
     mforms::Utilities::show_error(strfmt(_("Failed to create/alter `%s`.`%s`"), used_schema_name.c_str(), obj_name.c_str()), e.what(), _("OK"));
   }
 }
@@ -1609,7 +1611,7 @@ void SqlEditorTreeController::open_alter_object_editor(db_DatabaseObjectRef obje
   }
 
   sql::Dbc_connection_handler::Ref conn;
-  grt::NormalizedComparer comparer;
+  grt::NormalizedComparer comparer(_grtm->get_grt());
   {
     RecMutexLock lock(_owner->ensure_valid_aux_connection(conn));
     //db_object->customData().set("CaseSensitive",grt::IntegerRef(conn->ref->getMetaData()->storesMixedCaseIdentifiers()));
@@ -1641,7 +1643,7 @@ void SqlEditorTreeController::open_alter_object_editor(db_DatabaseObjectRef obje
 
   // TODO: make docking/non-docking switchable via preferences.
   //_context_ui->get_wb()->open_object_editor(db_object, bec::StandaloneWindowFlag);
-  bec::GRTManager::get().open_object_editor(object, bec::ForceNewWindowFlag);
+  _grtm->open_object_editor(object, bec::ForceNewWindowFlag);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1653,14 +1655,14 @@ std::string SqlEditorTreeController::run_execute_routine_wizard(wb::LiveSchemaTr
   if (script.second.empty())
     return ""; // get_object_create_script() already showed an error.
   
-  db_mysql_RoutineRef routine(grt::Initialized);
-  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
+  db_mysql_RoutineRef routine(_grtm->get_grt());
+  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(_grtm->get_grt());
 
-  db_mysql_CatalogRef catalog(grt::Initialized);
+  db_mysql_CatalogRef catalog(_grtm->get_grt());
   catalog->version(_owner->rdbms_version());
   grt::replace_contents(catalog->simpleDatatypes(), _owner->rdbms()->simpleDatatypes());
 
-  db_mysql_SchemaRef schema(grt::Initialized);
+  db_mysql_SchemaRef schema(_grtm->get_grt());
   schema->owner(catalog);
   schema->name(schema_name);
   catalog->schemata().insert(schema);
@@ -1684,7 +1686,7 @@ std::string SqlEditorTreeController::run_execute_routine_wizard(wb::LiveSchemaTr
 
   if (error_count > 0)
   {
-    log_warning("Error parsing SQL code for %s.%s:\n%s\n", schema_name.c_str(), obj_name.c_str(), script.second.c_str());
+    logWarning("Error parsing SQL code for %s.%s:\n%s\n", schema_name.c_str(), obj_name.c_str(), script.second.c_str());
 
     std::vector<ParserErrorEntry> errors = _owner->work_parser_context()->get_errors_with_offset(0, false);
     mforms::Utilities::show_error(_("Error parsing sql code for object"), errors[0].message, "OK");
@@ -1700,7 +1702,7 @@ std::string SqlEditorTreeController::run_execute_routine_wizard(wb::LiveSchemaTr
 
 db_SchemaRef SqlEditorTreeController::create_new_schema(db_CatalogRef owner)
 {
-  db_SchemaRef object= grt::GRT::get()->create_object<db_Schema>(owner->schemata()->content_type_spec().object_class);
+  db_SchemaRef object= _grtm->get_grt()->create_object<db_Schema>(owner->schemata()->content_type_spec().object_class);
   object->owner(owner);
   object->name("new_schema");
   owner->schemata().insert(object);
@@ -1712,7 +1714,7 @@ db_SchemaRef SqlEditorTreeController::create_new_schema(db_CatalogRef owner)
 
 db_TableRef SqlEditorTreeController::create_new_table(db_SchemaRef owner)
 {
-  db_TableRef object= grt::GRT::get()->create_object<db_Table>(owner->tables()->content_type_spec().object_class);
+  db_TableRef object= _grtm->get_grt()->create_object<db_Table>(owner->tables()->content_type_spec().object_class);
   object->owner(owner);
   object->name("new_table");
   owner->tables().insert(object);
@@ -1722,7 +1724,7 @@ db_TableRef SqlEditorTreeController::create_new_table(db_SchemaRef owner)
 
 db_ViewRef SqlEditorTreeController::create_new_view(db_SchemaRef owner)
 {
-  db_ViewRef object= grt::GRT::get()->create_object<db_View>(owner->views()->content_type_spec().object_class);
+  db_ViewRef object= _grtm->get_grt()->create_object<db_View>(owner->views()->content_type_spec().object_class);
   object->owner(owner);
   object->name("new_view");
   owner->views().insert(object);
@@ -1732,7 +1734,7 @@ db_ViewRef SqlEditorTreeController::create_new_view(db_SchemaRef owner)
 
 db_RoutineRef SqlEditorTreeController::create_new_routine(db_SchemaRef owner, wb::LiveSchemaTree::ObjectType type)
 {
-  db_RoutineRef object= grt::GRT::get()->create_object<db_Routine>(owner->routines()->content_type_spec().object_class);
+  db_RoutineRef object= _grtm->get_grt()->create_object<db_Routine>(owner->routines()->content_type_spec().object_class);
   object->owner(owner);
 
   if (type == wb::LiveSchemaTree::Procedure)
@@ -1766,7 +1768,7 @@ void SqlEditorTreeController::tree_create_object(wb::LiveSchemaTree::ObjectType 
 std::string SqlEditorTreeController::generate_alter_script(const db_mgmt_RdbmsRef &rdbms, db_DatabaseObjectRef db_object,
   std::string algorithm, std::string lock)
 {
-  DbMySQLImpl *diffsql_module = grt::GRT::get()->find_native_module<DbMySQLImpl>("DbMySQL");
+  DbMySQLImpl *diffsql_module = _grtm->get_grt()->find_native_module<DbMySQLImpl>("DbMySQL");
 
   db_CatalogRef server_cat= db_CatalogRef::cast_from(db_object->customData().get("serverStateCatalog"));
   db_CatalogRef client_cat= db_CatalogRef::cast_from(db_object->customData().get("clientStateCatalog"));
@@ -1774,7 +1776,7 @@ std::string SqlEditorTreeController::generate_alter_script(const db_mgmt_RdbmsRe
   db_CatalogRef client_cat_copy= db_CatalogRef::cast_from(grt::copy_object(client_cat));
   db_CatalogRef server_cat_copy= db_CatalogRef::cast_from(grt::copy_object(server_cat));
 
-  grt::DictRef diff_options(true);
+  grt::DictRef diff_options(_grtm->get_grt());
   //diff_options.set("CaseSensitive",db_object->customData().get("CaseSensitive"));
   grt::DictRef db_settings = grt::DictRef::cast_from(db_object->customData().get("DBSettings"));
   if (_owner->rdbms_version().is_valid() && is_supported_mysql_version_at_least(_owner->rdbms_version(), 5, 6))
@@ -1909,11 +1911,11 @@ std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::O
     {
       ddl_script.clear();
       std::string err = e.what();
-      log_error("Error getting SQL definition for %s.%s: %s\n", schema_name.c_str(), obj_name.c_str(), e.what());
-      if (bec::GRTManager::get().in_main_thread())
+      logError("Error getting SQL definition for %s.%s: %s\n", schema_name.c_str(), obj_name.c_str(), e.what());
+      if (_grtm->in_main_thread())
         mforms::Utilities::show_error("Error getting DDL for object", e.what(), "OK", "", "");
       else
-        bec::GRTManager::get().run_once_when_idle(boost::bind(&mforms::Utilities::show_error, "Error getting DDL for object", err, "OK", "", ""));
+        _grtm->run_once_when_idle(boost::bind(&mforms::Utilities::show_error, "Error getting DDL for object", err, "OK", "", ""));
     }
   }
   return ddl_script;
@@ -2006,7 +2008,7 @@ std::pair<std::string, std::string> SqlEditorTreeController::get_object_create_s
     }
     else
     {
-      log_error("Error getting SQL definition for %s.%s: %s\n", schema_name.c_str(), obj_name.c_str(), e.what());
+      logError("Error getting SQL definition for %s.%s: %s\n", schema_name.c_str(), obj_name.c_str(), e.what());
       mforms::Utilities::show_error("Error getting DDL for object", e.what(), "OK");
     }
   }
@@ -2054,7 +2056,7 @@ std::vector<std::string> SqlEditorTreeController::get_trigger_sql_for_table(cons
   }
   catch (const sql::SQLException &e)
   {
-    log_error("Error getting SQL definition for %s.%s: %s\n", schema_name.c_str(), table_name.c_str(), e.what());
+    logError("Error getting SQL definition for %s.%s: %s\n", schema_name.c_str(), table_name.c_str(), e.what());
     mforms::Utilities::show_error("Error getting DDL for object", e.what(), "OK");
   }
 
@@ -2128,18 +2130,18 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
     ddl_script= get_object_ddl_script(db_object_type, schema_name, obj_name);
     if (!ddl_script.empty())
     {
-      if (db_object_type == wb::LiveSchemaTree::View && bec::GRTManager::get().get_app_option_int("DbSqlEditor:ReformatViewDDL", 0))
+      if (db_object_type == wb::LiveSchemaTree::View && _grtm->get_app_option_int("DbSqlEditor:ReformatViewDDL", 0))
       {
         try
         {
-          grt::Module *module = grt::GRT::get()->get_module("SQLIDEUtils");
-          grt::BaseListRef args(true);
+          grt::Module *module = _grtm->get_grt()->get_module("SQLIDEUtils");
+          grt::BaseListRef args(_grtm->get_grt());
           args.ginsert(grt::StringRef(ddl_script));
           ddl_script = grt::StringRef::cast_from(module->call_function("reformatSQLStatement", args));
         }
         catch (std::exception &exc)
         {
-          log_warning("Error reformatting view code: %s", exc.what());
+          logWarning("Error reformatting view code: %s", exc.what());
         }
       }
 
@@ -2217,14 +2219,14 @@ bool SqlEditorTreeController::parse_ddl_into_catalog(db_mysql_CatalogRef catalog
 {
   std::string currentSqlMode = _owner->work_parser_context()->get_sql_mode();
 
-  grt::DictRef options(true);
+  grt::DictRef options(_grtm->get_grt());
   options.set("reuse_existing_objects", grt::IntegerRef(1));
   options.set("schema", grt::StringRef(schema));
 
   if (!sqlMode.empty())
     _owner->work_parser_context()->use_sql_mode(sqlMode);
 
-  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
+  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(_grtm->get_grt());
   size_t errorCount = services->parseSQLIntoCatalog(_owner->work_parser_context(), catalog, sql, options);
 
   bool haveErrors = false;
@@ -2452,7 +2454,7 @@ bool SqlEditorTreeController::apply_changes_to_object(bec::DBObjectEditorBE* obj
     if (!_owner->on_sql_script_run_error.empty())
       _owner->on_sql_script_run_error(log_id, e.what(), "");
     _owner->set_log_message(log_id, DbSqlEditorLog::ErrorMsg, e.what(), log_descr, "");
-    log_error("Exception applying changes to live object: %s\n", e.what());
+    logError("Exception applying changes to live object: %s\n", e.what());
   }
   return true; // some changes were detected and applied
 }
@@ -2479,10 +2481,11 @@ void SqlEditorTreeController::create_live_table_stubs(bec::DBObjectEditorBE *tab
     std::string database_package= *_owner->rdbms()->databaseObjectPackage();
     std::string schema_typename= database_package + ".Schema";
     std::string table_typename= database_package + ".Table";
+    grt::GRT *grt= _grtm->get_grt();
 
     std::string prev_schema_name;
 
-    boost::shared_ptr<sql::ResultSet> rs;
+    std::shared_ptr<sql::ResultSet> rs;
     {
       std::string schema_name= db_SchemaRef::cast_from(db_object->owner())->name();
       std::list<sql::SQLString> table_types;
@@ -2498,7 +2501,7 @@ void SqlEditorTreeController::create_live_table_stubs(bec::DBObjectEditorBE *tab
         schema= find_named_object_in_list(schemata, schema_name);
         if (!schema.is_valid())
         {
-          schema= grt::GRT::get()->create_object<db_Schema>(schema_typename);
+          schema= grt->create_object<db_Schema>(schema_typename);
           schema->owner(catalog);
           schema->name(schema_name);
           schema->oldName(schema_name);
@@ -2511,7 +2514,7 @@ void SqlEditorTreeController::create_live_table_stubs(bec::DBObjectEditorBE *tab
       table= find_named_object_in_list(tables, table_name);
       if (!table.is_valid())
       {
-        table= grt::GRT::get()->create_object<db_Table>(table_typename);
+        table= grt->create_object<db_Table>(table_typename);
         table->owner(schema);
         table->name(table_name);
         table->oldName(table_name);
@@ -2547,7 +2550,7 @@ bool SqlEditorTreeController::expand_live_table_stub(bec::DBObjectEditorBE *tabl
     SqlFacade::Ref sql_facade= SqlFacade::instance_for_rdbms(_owner->rdbms());
     Sql_parser::Ref sql_parser= sql_facade->sqlParser();
     sql_parser->messages_enabled(false);
-    grt::DictRef options(true);
+    grt::DictRef options(_grtm->get_grt());
     {
       std::string sql_mode;
       sql::Dbc_connection_handler::Ref conn;
@@ -2555,13 +2558,13 @@ bool SqlEditorTreeController::expand_live_table_stub(bec::DBObjectEditorBE *tabl
       if (conn && _owner->get_session_variable(conn->ref.get(), "sql_mode", sql_mode))
         options.gset("sql_mode", sql_mode);
       else
-        log_warning("Unable to get sql_mode for connection");
+        logWarning("Unable to get sql_mode for connection");
     }
     db_SchemaRef old_default_schema = catalog->defaultSchema();
     if (!schema.is_valid())
     {
       // target schema doesn't exist yet, create a stub for it
-      schema = db_mysql_SchemaRef(grt::Initialized);
+      schema = db_mysql_SchemaRef(catalog.get_grt());
       schema->owner(catalog);
       schema->name(schema_name);
       schema->comment("stub");
@@ -2626,7 +2629,7 @@ void SqlEditorTreeController::on_active_schema_change(const std::string &schema)
   _filtered_schema_tree.set_active_schema(schema);
 
   if (_schema_side_bar != NULL)
-    bec::GRTManager::get().run_once_when_idle(this, boost::bind(&mforms::View::set_needs_repaint, _schema_side_bar->get_schema_tree()));
+    _grtm->run_once_when_idle(this, boost::bind(&mforms::View::set_needs_repaint, _schema_side_bar->get_schema_tree()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2639,7 +2642,7 @@ void SqlEditorTreeController::mark_busy(bool busy)
 
 //--------------------------------------------------------------------------------------------------
 
-grt::StringRef SqlEditorTreeController::do_refresh_schema_tree_safe(SqlEditorForm::Ptr self_ptr)
+grt::StringRef SqlEditorTreeController::do_refresh_schema_tree_safe(grt::GRT *grt, SqlEditorForm::Ptr self_ptr)
 {
   RETVAL_IF_FAIL_TO_RETAIN_WEAK_PTR (SqlEditorForm, self_ptr, self, grt::StringRef(""))
 
@@ -2651,8 +2654,8 @@ grt::StringRef SqlEditorTreeController::do_refresh_schema_tree_safe(SqlEditorFor
 
   std::list<std::string> fsl = fetch_schema_list();
   schema_list->assign(fsl.begin(), fsl.end());
-  bec::GRTManager::get().run_once_when_idle(this, boost::bind(&LiveSchemaTree::update_schemata, _schema_tree, schema_list));
-  bec::GRTManager::get().run_once_when_idle(this, boost::bind(&SqlEditorForm::schema_tree_did_populate, _owner));
+  _grtm->run_once_when_idle(this, boost::bind(&LiveSchemaTree::update_schemata, _schema_tree, schema_list));
+  _grtm->run_once_when_idle(this, boost::bind(&SqlEditorForm::schema_tree_did_populate, _owner));
 
   _is_refreshing_schema_tree= false;
 
@@ -2686,7 +2689,7 @@ void SqlEditorTreeController::handle_grt_notification(const std::string &name, g
   }
   else if (name == "GRNPreferencesDidClose" && info.get_int("saved") == 1)
   {
-    if (bec::GRTManager::get().get_app_option_int("DbSqlEditor:SidebarModeCombined", 0) == 1)
+    if (_grtm->get_app_option_int("DbSqlEditor:SidebarModeCombined", 0) == 1)
       sidebar_action("switch_mode_on");
     else
       sidebar_action("switch_mode_off");
@@ -2717,13 +2720,13 @@ void SqlEditorTreeController::context_menu_will_show(mforms::MenuItem *parent_it
 {
   if (!parent_item)
   {
-    grt::DictRef info(true);
+    grt::DictRef info(_owner->grt_manager()->get_grt());
 
     db_query_EditorRef sender(_owner->wbsql()->get_grt_editor_object(_owner));
 
     grt::ListRef<db_query_LiveDBObject> selection(grt::ListRef<db_query_LiveDBObject>::cast_from(_schema_tree->get_selected_objects()));
 
-    info.set("menu", mforms_to_grt(_schema_side_bar->get_context_menu()));
+    info.set("menu", mforms_to_grt(info.get_grt(), _schema_side_bar->get_context_menu()));
     info.gset("menu-plugins-index", _schema_side_bar->get_context_menu()->get_item_index(_schema_side_bar->get_context_menu()->find_item("refresh"))-2);
     info.set("selection", selection);
 

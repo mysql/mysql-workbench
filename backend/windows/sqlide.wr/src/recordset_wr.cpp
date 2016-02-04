@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -131,7 +131,7 @@ bool RecordsetWrapper::delete_nodes(List<NodeIdWrapper^> ^nodes)
 
 MySQL::Base::IRecordsetView ^RecordsetWrapper::wrap_and_create_recordset_view(IntPtr rset)
 {
-  return create_recordset_for_wrapper(Ref2Ptr_<::Recordset, RecordsetWrapper>(*(boost::shared_ptr<Recordset>*)rset.ToPointer()));
+  return create_recordset_for_wrapper(Ref2Ptr_<::Recordset, RecordsetWrapper>(*(std::shared_ptr<Recordset>*)rset.ToPointer()));
 }
 
 void RecordsetWrapper::init_mforms(CreateRecordsetViewForWrapper ^deleg)

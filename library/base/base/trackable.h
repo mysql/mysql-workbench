@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,7 +20,6 @@
 #ifndef _TRACKABLE_H
 #define _TRACKABLE_H
 #include <list>
-#include <boost/shared_ptr.hpp>
 #include <boost/signals2/connection.hpp>
 #include <map>
 #include "common.h"
@@ -72,17 +71,17 @@ public:
 	{
         if(!trackable_checks::is_valid_slot(slot).empty())
             throw std::logic_error(trackable_checks::is_valid_slot(slot));
-		boost::shared_ptr<boost::signals2::scoped_connection> conn(new boost::signals2::scoped_connection(signal->connect(slot)));
+		std::shared_ptr<boost::signals2::scoped_connection> conn(new boost::signals2::scoped_connection(signal->connect(slot)));
 		_connections.push_back(conn);
 	}
 
     void track_connection(const boost::signals2::connection &conn)
     {
-      _connections.push_back(boost::shared_ptr<boost::signals2::scoped_connection>(new boost::signals2::scoped_connection(conn)));
+      _connections.push_back(std::shared_ptr<boost::signals2::scoped_connection>(new boost::signals2::scoped_connection(conn)));
     }
 
 private:
-  std::list<boost::shared_ptr<boost::signals2::scoped_connection> > _connections;
+  std::list<std::shared_ptr<boost::signals2::scoped_connection> > _connections;
   std::map<void*, destroy_func> _destroy_functions;
 };
 

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -140,9 +140,9 @@ void workbench_physical_TableFigure::ImplData::set_table(const db_TableRef &tabl
     }
     else
     {
-      _table_fk_conn_block = boost::shared_ptr<boost::signals2::shared_connection_block>(new boost::signals2::shared_connection_block(_table_fk_conn));
-      _changed_conn_block = boost::shared_ptr<boost::signals2::shared_connection_block>(new boost::signals2::shared_connection_block(_changed_conn));
-      _refresh_conn_block = boost::shared_ptr<boost::signals2::shared_connection_block>(new boost::signals2::shared_connection_block(_refresh_conn));
+      _table_fk_conn_block = std::shared_ptr<boost::signals2::shared_connection_block>(new boost::signals2::shared_connection_block(_table_fk_conn));
+      _changed_conn_block = std::shared_ptr<boost::signals2::shared_connection_block>(new boost::signals2::shared_connection_block(_changed_conn));
+      _refresh_conn_block = std::shared_ptr<boost::signals2::shared_connection_block>(new boost::signals2::shared_connection_block(_refresh_conn));
       try_realize();
     }
   }

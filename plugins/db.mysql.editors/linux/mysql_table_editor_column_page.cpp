@@ -14,8 +14,8 @@
 #include <set>
 #include <memory>
 
-boost::shared_ptr<AutoCompletable> DbMySQLTableEditorColumnPage::_types_completion;
-boost::shared_ptr<AutoCompletable> DbMySQLTableEditorColumnPage::_names_completion;
+std::shared_ptr<AutoCompletable> DbMySQLTableEditorColumnPage::_types_completion;
+std::shared_ptr<AutoCompletable> DbMySQLTableEditorColumnPage::_names_completion;
 
 //------------------------------------------------------------------------------
 DbMySQLTableEditorColumnPage::DbMySQLTableEditorColumnPage(DbMySQLTableEditor *owner
@@ -249,21 +249,21 @@ void DbMySQLTableEditorColumnPage::partial_refresh(const int what)
 }
 
 //------------------------------------------------------------------------------
-boost::shared_ptr<AutoCompletable> DbMySQLTableEditorColumnPage::types_completion()
+std::shared_ptr<AutoCompletable> DbMySQLTableEditorColumnPage::types_completion()
 {
   if (_types_completion == NULL)
   {
-    _types_completion = boost::shared_ptr<AutoCompletable>(new AutoCompletable);
+    _types_completion = std::shared_ptr<AutoCompletable>(new AutoCompletable);
   }
   return _types_completion;
 }
 
 //------------------------------------------------------------------------------
-boost::shared_ptr<AutoCompletable> DbMySQLTableEditorColumnPage::names_completion()
+std::shared_ptr<AutoCompletable> DbMySQLTableEditorColumnPage::names_completion()
 {
   if (_names_completion == NULL)
   {
-    _names_completion = boost::shared_ptr<AutoCompletable>(new AutoCompletable);
+    _names_completion = std::shared_ptr<AutoCompletable>(new AutoCompletable);
   }
   return _names_completion;
 }

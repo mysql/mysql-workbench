@@ -29,7 +29,6 @@ using namespace base;
 #include "base/string_utilities.h"
 #include "base/log.h"
 
-#include <boost/shared_ptr.hpp>
 #include <boost/scoped_array.hpp>
 #include <algorithm>
 #include <cctype>
@@ -787,7 +786,7 @@ sql::ConnectionWrapper DbConnection::get_dbc_connection()
       if (sql_mode_value.is_valid() && grt::StringRef::can_wrap(sql_mode_value))
       {
         std::string sql_mode_string= base::toupper(grt::StringRef::cast_from(sql_mode_value));
-        boost::shared_ptr<sql::Statement> stmt(dbc_conn->createStatement());
+        std::shared_ptr<sql::Statement> stmt(dbc_conn->createStatement());
         stmt->execute(base::strfmt("SET @DEFAULT_SQL_MODE=@@SQL_MODE, SQL_MODE='%s'", sql_mode_string.c_str()));
       }
     }

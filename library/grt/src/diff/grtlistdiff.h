@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,7 +32,7 @@ struct Omf;
 class GrtListDiff
 {
 public:
-  static boost::shared_ptr<MultiChange> diff(const BaseListRef &source, const BaseListRef &target, const Omf *omf);
+  static std::shared_ptr<MultiChange> diff(const BaseListRef &source, const BaseListRef &target, const Omf *omf);
 };
 
 }

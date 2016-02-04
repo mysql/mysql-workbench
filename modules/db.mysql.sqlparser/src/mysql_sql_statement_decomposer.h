@@ -18,7 +18,8 @@
  */
 
 
-#pragma once
+#ifndef _MYSQL_SQL_STATEMENT_DECOMPOSER_H_
+#define _MYSQL_SQL_STATEMENT_DECOMPOSER_H_
 
 
 #include "mysql_sql_parser_base.h"
@@ -33,16 +34,16 @@ class MYSQL_SQL_PARSER_PUBLIC_FUNC Mysql_sql_statement_decomposer
   : protected Mysql_sql_parser_base, public Sql_statement_decomposer
 {
 public:
-  typedef boost::shared_ptr<Mysql_sql_statement_decomposer> Ref;
-  static Ref create(grt::DictRef db_opts = grt::DictRef())
+  typedef std::shared_ptr<Mysql_sql_statement_decomposer> Ref;
+  static Ref create(grt::GRT *grt, grt::DictRef db_opts = grt::DictRef())
   {
-    Ref decomposer(new Mysql_sql_statement_decomposer);
+    Ref decomposer(new Mysql_sql_statement_decomposer(grt));
       decomposer->set_options(db_opts);
       return decomposer;
   }
   virtual ~Mysql_sql_statement_decomposer() {}
 protected:
-  Mysql_sql_statement_decomposer();
+  Mysql_sql_statement_decomposer(grt::GRT *grt);
   void set_options(const grt::DictRef &opts);
   int decompose_query(const std::string &sql, SelectStatement::Ref select_statement);
   int decompose_view(const std::string &ddl, SelectStatement::Ref select_statement);
@@ -75,3 +76,6 @@ protected:
     Mysql_sql_statement_decomposer *_sql_parser;
   };
 };
+
+
+#endif // _MYSQL_SQL_STATEMENT_DECOMPOSER_H_

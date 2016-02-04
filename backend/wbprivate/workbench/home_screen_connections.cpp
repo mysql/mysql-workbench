@@ -943,7 +943,7 @@ public:
   }
 
 
-  virtual void activate(boost::shared_ptr<ConnectionEntry> thisptr, int x, int y)
+  virtual void activate(std::shared_ptr<ConnectionEntry> thisptr, int x, int y)
   {
     // Anything else.
     owner->_owner->trigger_callback(ActionOpenConnectionFromList, connection);
@@ -1088,7 +1088,7 @@ protected:
   }
 
 public:
-  std::vector<boost::shared_ptr<ConnectionEntry> > children;
+  std::vector<std::shared_ptr<ConnectionEntry> > children;
 
   FolderEntry(ConnectionsSection *aowner)
   : ConnectionEntry(aowner)
@@ -1129,9 +1129,9 @@ public:
     menu->set_item_enabled(menu->get_item_index("move_connection_to_end"), pos != Last);
   }
 
-  virtual void activate(boost::shared_ptr<ConnectionEntry> thisptr, int x, int y)
+  virtual void activate(std::shared_ptr<ConnectionEntry> thisptr, int x, int y)
   {
-    owner->change_to_folder(boost::dynamic_pointer_cast<FolderEntry>(thisptr));
+    owner->change_to_folder(std::dynamic_pointer_cast<FolderEntry>(thisptr));
     // force a refresh of the hot_entry even if we don't move the mouse after clicking
     owner->mouse_move(mforms::MouseButtonNone, x, y);
   }
@@ -1165,7 +1165,7 @@ public:
     draw_info_tab = true;
   }
 
-  virtual void activate(boost::shared_ptr<ConnectionEntry> thisptr, int x, int y)
+  virtual void activate(std::shared_ptr<ConnectionEntry> thisptr, int x, int y)
   {
     owner->_owner->trigger_callback(ActionUpdateFabricConnections, connection);
 
@@ -1177,7 +1177,7 @@ public:
       if ((*iter)->connection == connection)
       {
         flag = true;
-        owner->change_to_folder(boost::dynamic_pointer_cast<FolderEntry>(*iter));
+        owner->change_to_folder(std::dynamic_pointer_cast<FolderEntry>(*iter));
         break;
       }
     }
@@ -1288,9 +1288,9 @@ public:
     return NULL;
   }
 
-  virtual void activate(boost::shared_ptr<ConnectionEntry> thisptr, int x, int y)
+  virtual void activate(std::shared_ptr<ConnectionEntry> thisptr, int x, int y)
   {
-    owner->change_to_folder(boost::shared_ptr<FolderEntry>());
+    owner->change_to_folder(std::shared_ptr<FolderEntry>());
     // force a refresh of the hot_entry even if we don't move the mouse after clicking
     owner->mouse_move(mforms::MouseButtonNone, x, y);
   }
@@ -1349,7 +1349,7 @@ public:
   {
   }
 
-  virtual void activate(boost::shared_ptr<ConnectionEntry> thisptr, int x, int y)
+  virtual void activate(std::shared_ptr<ConnectionEntry> thisptr, int x, int y)
   {
   }
 
@@ -1631,7 +1631,7 @@ void ConnectionsSection::on_search_text_action(mforms::TextEntryAction action)
           {
             if (_connections[i]->title == _filtered_connections[0]->title)
             {
-              _active_folder = boost::dynamic_pointer_cast<FolderEntry>(_connections[i]);
+              _active_folder = std::dynamic_pointer_cast<FolderEntry>(_connections[i]);
               break;
             }
           }
@@ -1688,10 +1688,10 @@ ssize_t ConnectionsSection::calculate_index_from_point(int x, int y)
 
 //------------------------------------------------------------------------------------------------
 
-boost::shared_ptr<ConnectionEntry> ConnectionsSection::entry_from_point(int x, int y, bool &in_details_area)
+std::shared_ptr<ConnectionEntry> ConnectionsSection::entry_from_point(int x, int y, bool &in_details_area)
 {
   in_details_area = false;
-  boost::shared_ptr<ConnectionEntry> entry;
+  std::shared_ptr<ConnectionEntry> entry;
 
   ConnectionVector connections(displayed_connections());
   if (_page_start > (ssize_t)connections.size())
@@ -1715,14 +1715,14 @@ boost::shared_ptr<ConnectionEntry> ConnectionsSection::entry_from_point(int x, i
 }
 
 
-boost::shared_ptr<ConnectionEntry> ConnectionsSection::entry_from_index(ssize_t index)
+std::shared_ptr<ConnectionEntry> ConnectionsSection::entry_from_index(ssize_t index)
 {
   ssize_t count = displayed_connections().size();
   if (index < count)
   {
     return displayed_connections()[index];
   }
-  return boost::shared_ptr<ConnectionEntry>();
+  return std::shared_ptr<ConnectionEntry>();
 }
 
 //------------------------------------------------------------------------------------------------
@@ -2098,16 +2098,16 @@ void ConnectionsSection::on_resize()
 void ConnectionsSection::add_connection(const db_mgmt_ConnectionRef &connection, const std::string &title,
                                         const std::string &description, const std::string &user, const std::string &schema)
 {
-  boost::shared_ptr<ConnectionEntry> entry;
+  std::shared_ptr<ConnectionEntry> entry;
 
   if (connection.is_valid() && connection->driver().is_valid() && connection->driver()->name() == "MySQLFabric")
   {
     FabricFolderEntry *fabric_folder;
-    entry = boost::shared_ptr<ConnectionEntry>(fabric_folder = new FabricFolderEntry(this));
+    entry = std::shared_ptr<ConnectionEntry>(fabric_folder = new FabricFolderEntry(this));
 
-    fabric_folder->children.push_back(boost::shared_ptr<ConnectionEntry>(new FolderBackEntry(this)));
+    fabric_folder->children.push_back(std::shared_ptr<ConnectionEntry>(new FolderBackEntry(this)));
     {
-      boost::shared_ptr<ConnectionEntry> fabric(new FabricServerEntry(this, fabric_folder));
+      std::shared_ptr<ConnectionEntry> fabric(new FabricServerEntry(this, fabric_folder));
       fabric->title = "Fabric Server: " + *connection->name();
       fabric->connection = connection;
       fabric->second_color = false;
@@ -2116,9 +2116,9 @@ void ConnectionsSection::add_connection(const db_mgmt_ConnectionRef &connection,
     }
   }
   else if (connection.is_valid() && connection->parameterValues().has_key("fabric_managed"))
-    entry = boost::shared_ptr<ConnectionEntry>(new FabricManagedConnectionEntry(this));
+    entry = std::shared_ptr<ConnectionEntry>(new FabricManagedConnectionEntry(this));
   else
-    entry = boost::shared_ptr<ConnectionEntry>(new ConnectionEntry(this));
+    entry = std::shared_ptr<ConnectionEntry>(new ConnectionEntry(this));
 
   entry->connection = connection;
   entry->title = title;
@@ -2151,7 +2151,7 @@ void ConnectionsSection::add_connection(const db_mgmt_ConnectionRef &connection,
         if (FabricFolderEntry *folder = dynamic_cast<FabricFolderEntry*>(iterator->get()))
         {
           found_parent = true;
-          std::vector<boost::shared_ptr<ConnectionEntry> >::iterator index, end;
+          std::vector<std::shared_ptr<ConnectionEntry> >::iterator index, end;
           index = folder->children.begin(); 
           end = folder->children.end();
 
@@ -2189,19 +2189,19 @@ void ConnectionsSection::add_connection(const db_mgmt_ConnectionRef &connection,
     // If the parent was not found, a folder should be created
     if (!found_parent)
     {
-      boost::shared_ptr<FolderEntry> folder(new FolderEntry(this));
+      std::shared_ptr<FolderEntry> folder(new FolderEntry(this));
 
       folder->title = parent_name;
       folder->compute_strings = true;
       folder->second_color = false;
       folder->search_title = parent_name;
 
-      folder->children.push_back(boost::shared_ptr<ConnectionEntry>(new FolderBackEntry(this)));
+      folder->children.push_back(std::shared_ptr<ConnectionEntry>(new FolderBackEntry(this)));
       folder->children.push_back(entry);
-      _connections.push_back(boost::dynamic_pointer_cast<ConnectionEntry>(folder));
+      _connections.push_back(std::dynamic_pointer_cast<ConnectionEntry>(folder));
       if (!_active_folder_title_before_refresh_start.empty() && _active_folder_title_before_refresh_start == folder->title)
       {
-        _active_folder = boost::dynamic_pointer_cast<FolderEntry>(_connections.back());
+        _active_folder = std::dynamic_pointer_cast<FolderEntry>(_connections.back());
         _active_folder_title_before_refresh_start.clear();
       }
     }
@@ -2237,7 +2237,7 @@ void ConnectionsSection::clear_connections(bool clear_state)
 
 //------------------------------------------------------------------------------------------------
 
-void ConnectionsSection::change_to_folder(boost::shared_ptr<FolderEntry> folder)
+void ConnectionsSection::change_to_folder(std::shared_ptr<FolderEntry> folder)
 {
   if (_active_folder && !folder)
   {
@@ -2435,7 +2435,7 @@ bool ConnectionsSection::mouse_leave()
 bool ConnectionsSection::mouse_move(mforms::MouseButton button, int x, int y)
 {
   bool in_details_area;
-  boost::shared_ptr<ConnectionEntry> entry = entry_from_point(x, y, in_details_area);
+  std::shared_ptr<ConnectionEntry> entry = entry_from_point(x, y, in_details_area);
 
   if (entry && !_mouse_down_position.empty() && (!_mouse_down_position.contains(x, y)))
   {
@@ -2751,7 +2751,7 @@ mforms::Accessible* ConnectionsSection::hit_test(int x, int y)
   else
   {
     bool in_details_area = false;
-    boost::shared_ptr<ConnectionEntry> entry = entry_from_point(x, y, in_details_area);
+    std::shared_ptr<ConnectionEntry> entry = entry_from_point(x, y, in_details_area);
 
     if (entry)
       accessible = entry.get();
@@ -2780,7 +2780,7 @@ bool ConnectionsSection::do_tile_drag(ssize_t index, int x, int y)
     details.hotspot.y = y - bounds.pos.y;
 
     // We know we have no back tile here.
-    boost::shared_ptr<ConnectionEntry> entry = entry_from_index(index);
+    std::shared_ptr<ConnectionEntry> entry = entry_from_index(index);
     if (entry)
     {
       entry->draw_tile(cr, false, 1, true, false); // There's no drag tile actually in high contrast mode.
@@ -2815,7 +2815,7 @@ mforms::DragOperation ConnectionsSection::drag_over(View *sender, base::Point p,
   {
     // Indicate we can accept files if one of the connection tiles is hit.
     bool in_details_area;
-    boost::shared_ptr<ConnectionEntry> entry = entry_from_point((int)p.x, (int)p.y, in_details_area);
+    std::shared_ptr<ConnectionEntry> entry = entry_from_point((int)p.x, (int)p.y, in_details_area);
 
     if (!entry)
       return mforms::DragOperationNone;
@@ -2902,7 +2902,7 @@ mforms::DragOperation ConnectionsSection::drag_over(View *sender, base::Point p,
         // Folder tiles have "before", "on" and "after" positions. Connection tiles only have "before"
         // and "after".
         base::Rect bounds = bounds_for_entry(index);
-        boost::shared_ptr<ConnectionEntry> entry = entry_from_index(index);
+        std::shared_ptr<ConnectionEntry> entry = entry_from_index(index);
         if (entry && dynamic_cast<FolderEntry*>(entry.get()))
         {
           // In a group take the first third as hit area for "before", the second as "on" and the
@@ -2959,7 +2959,7 @@ mforms::DragOperation ConnectionsSection::files_dropped(View *sender, base::Poin
                                     const std::vector<std::string> &file_names)
 {
   bool in_details_area;
-  boost::shared_ptr<ConnectionEntry> entry = entry_from_point((int)p.x, (int)p.y, in_details_area);
+  std::shared_ptr<ConnectionEntry> entry = entry_from_point((int)p.x, (int)p.y, in_details_area);
   if (!entry || dynamic_cast<FabricFolderEntry*>(entry.get()))
     return mforms::DragOperationNone;
 
@@ -2997,7 +2997,7 @@ mforms::DragOperation ConnectionsSection::data_dropped(mforms::View *sender, bas
     db_mgmt_ConnectionRef connection = connection_from_index(_drag_index);
     ConnectionEntry *source_entry = static_cast<ConnectionEntry*>(data);
 
-    boost::shared_ptr<ConnectionEntry> entry;
+    std::shared_ptr<ConnectionEntry> entry;
     if (_filtered)
     {
       if (_drop_index < (int)_filtered_connections.size())

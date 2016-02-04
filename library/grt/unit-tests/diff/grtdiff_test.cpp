@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -197,7 +197,7 @@ void test_files(GRT& grt, std::string source_file, std::string target_file, bool
   test_time_point t1;
   grt::NormalizedComparer normalizer(&grt);
   normalizer.init_omf(omf);
-  boost::shared_ptr<DiffChange> change= diff_make(v, target, omf);
+  std::shared_ptr<DiffChange> change = diff_make(v, target, omf);
   test_time_point t2;
   if (logging)
   {
@@ -227,7 +227,7 @@ void test_files(GRT& grt, std::string source_file, std::string target_file, bool
   normalizer2.init_omf(omf);
   
   // QQQ Likely will fail due to diff_apply removal
-  boost::shared_ptr<DiffChange> zero_change= diff_make(source_to_change, target1, omf);
+  std::shared_ptr<DiffChange> zero_change = diff_make(source_to_change, target1, omf);
   
   ensure("unexpected change", zero_change == NULL);
 

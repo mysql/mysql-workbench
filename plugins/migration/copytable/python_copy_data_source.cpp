@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014,  Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -183,7 +183,7 @@ void PythonCopyDataSource::_init()  // This has to be executed from the same thr
       throw ConnectionError("Connection error", "Could not get a connect object");
     }
     // Here we have a valid connection object
-    log_info("Connection to '%s' opened\n", _connstring.c_str());
+    logInfo("Connection to '%s' opened\n", _connstring.c_str());
     _cursor = PyObject_CallMethod(_connection, (char*)"cursor", NULL);
     if (_cursor == NULL || _cursor == Py_None)
     {
@@ -223,7 +223,7 @@ size_t PythonCopyDataSource::count_rows(const std::string &schema, const std::st
     if (PyErr_Occurred())
     {
       PyErr_Print();
-      log_warning("The query \"USE %s\" failed\n", schema.c_str());
+      logWarning("The query \"USE %s\" failed\n", schema.c_str());
     }
   }
 
@@ -293,14 +293,14 @@ size_t PythonCopyDataSource::count_rows(const std::string &schema, const std::st
   return count;
 }
 
-boost::shared_ptr<std::vector<ColumnInfo> > PythonCopyDataSource::begin_select_table(const std::string &schema, const std::string &table,
+std::shared_ptr<std::vector<ColumnInfo> > PythonCopyDataSource::begin_select_table(const std::string &schema, const std::string &table,
                                                                                     const std::vector<std::string> &pk_columns,
                                                                                     const std::string &select_expression,
                                                                                     const CopySpec &spec, const std::vector<std::string> &last_pkeys)
 {
   _init();
 
-  boost::shared_ptr<std::vector<ColumnInfo> > columns(new std::vector<ColumnInfo>());
+  std::shared_ptr<std::vector<ColumnInfo> > columns(new std::vector<ColumnInfo>());
 
   _columns = columns;
   _schema_name = schema;
@@ -320,7 +320,7 @@ boost::shared_ptr<std::vector<ColumnInfo> > PythonCopyDataSource::begin_select_t
     if (PyErr_Occurred())
     {
       PyErr_Print();
-      log_warning("The query \"USE %s\" failed\n", schema.c_str());
+      logWarning("The query \"USE %s\" failed\n", schema.c_str());
     }
   }
 
@@ -409,7 +409,7 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer)
   {
     if (PyErr_Occurred())
       PyErr_Print();
-    log_error("No cursor object available while attempting to fetch a row. Skipping table %s\n",
+    logError("No cursor object available while attempting to fetch a row. Skipping table %s\n",
               _table_name.c_str());
     PyGILState_Release(state);
     return false;
@@ -446,7 +446,7 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer)
         {
           if (PyErr_Occurred())
             PyErr_Print();
-          log_error("An error occurred while encoding unicode data as UTF-8 in a long field object at column %s.%s. Skipping table!\n.",
+          logError("An error occurred while encoding unicode data as UTF-8 in a long field object at column %s.%s. Skipping table!\n.",
               _table_name.c_str(), (*_columns)[i].source_name.c_str() );
           PyGILState_Release(state);
           return false;
@@ -462,7 +462,7 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer)
         {
           PyErr_Print();
           Py_XDECREF(element);
-          log_error("Unexpected value for BLOB object at column %s.%s. Skipping table!\n.",
+          logError("Unexpected value for BLOB object at column %s.%s. Skipping table!\n.",
               _table_name.c_str(), (*_columns)[i].source_name.c_str() );
           PyGILState_Release(state);
           return false;
@@ -475,7 +475,7 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer)
       {
         if (PyErr_Occurred())
           PyErr_Print();
-        log_error("Could not get a read buffer for the BLOB column %s.%s. Skipping table!\n",
+        logError("Could not get a read buffer for the BLOB column %s.%s. Skipping table!\n",
                   _table_name.c_str(), (*_columns)[i].source_name.c_str() );
         Py_DECREF(element);
         PyGILState_Release(state);
@@ -492,7 +492,7 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer)
         }
         else
         {
-          log_error("Oversized blob found in table %s.%s, size: %lu",
+          logError("Oversized blob found in table %s.%s, size: %lu",
                     _schema_name.c_str(), _table_name.c_str(),
                     (long unsigned int) blob_read_buffer_len);
           rowbuffer.finish_field(true);
@@ -657,7 +657,7 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer)
               PyString_AsStringAndSize(ref, &s, &len);
               if (buffer_len < (size_t)len)
               {
-                log_error("Truncating data in column %s from %lul to %lul. Possible loss of data.\n",
+                logError("Truncating data in column %s from %lul to %lul. Possible loss of data.\n",
                           (*_columns)[i].source_name.c_str(),
                           (long unsigned int) len, (long unsigned int) buffer_len);
                 len = buffer_len;
@@ -668,7 +668,7 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer)
             }
             else
             {
-              log_error("Could not convert unicode string to UTF-8\n");
+              logError("Could not convert unicode string to UTF-8\n");
               PyGILState_Release(state);
               return false;
             }
@@ -681,7 +681,7 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer)
             PyString_AsStringAndSize(element, &s, &len);
             if (buffer_len < (size_t)len)
             {
-              log_error("Truncating data in column %s from %lul to %lul. Possible loss of data.\n",
+              logError("Truncating data in column %s from %lul to %lul. Possible loss of data.\n",
                         (*_columns)[i].source_name.c_str(),
                         (long unsigned int) len, (long unsigned int) buffer_len);
               len = buffer_len;
@@ -691,7 +691,7 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer)
           }
           else  // Neither a PyUnicode nor a PyString object. This should be an error:
           {
-            log_error("The python object for column %s is neither a PyUnicode nor a PyString object. Skipping table...\n", (*_columns)[i].source_name.c_str());
+            logError("The python object for column %s is neither a PyUnicode nor a PyString object. Skipping table...\n", (*_columns)[i].source_name.c_str());
             PyGILState_Release(state);
             return false;
           }

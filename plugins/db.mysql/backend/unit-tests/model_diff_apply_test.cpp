@@ -115,7 +115,7 @@ protected:
 
   std::string run_fwdeng_plugin_generate_script(db_mysql_CatalogRef cat, 
                                                 DbMySQLSQLExportTest *plugin);
-  boost::shared_ptr<DiffChange> compare_catalog_to_server_schema(db_mysql_CatalogRef org_cat, 
+  std::shared_ptr<DiffChange> compare_catalog_to_server_schema(db_mysql_CatalogRef org_cat, 
                                                const std::string& schema_name);
   void apply_sql_to_model(const std::string& sql);
   all_objects_mwb get_model_objects();
@@ -177,7 +177,7 @@ std::string tut::Test_object_base<model_diff_apply>::run_fwdeng_plugin_generate_
   return fwdeng_plugin->export_sql_script();
 }
 
-boost::shared_ptr<DiffChange> tut::Test_object_base<model_diff_apply>::compare_catalog_to_server_schema(db_mysql_CatalogRef org_cat, 
+std::shared_ptr<DiffChange> tut::Test_object_base<model_diff_apply>::compare_catalog_to_server_schema(db_mysql_CatalogRef org_cat, 
                                                                                           const std::string& schema_name)
 {
   sync_plugin.reset(new DbMySQLScriptSyncTest());
@@ -222,7 +222,7 @@ void tut::Test_object_base<model_diff_apply>::apply_sql_to_model(const std::stri
 
   DbMySQLScriptSyncTest p;
   p.set_model_catalog(mod_cat);
-  boost::shared_ptr<DiffTreeBE> tree= p.init_diff_tree(std::vector<std::string>(), mod_cat, org_cat, grt::StringListRef());
+  std::shared_ptr<DiffTreeBE> tree = p.init_diff_tree(std::vector<std::string>(), mod_cat, org_cat, grt::StringListRef());
   
   // apply everything back to model
   tree->set_apply_direction(tree->get_root(), DiffNode::ApplyToModel, true);

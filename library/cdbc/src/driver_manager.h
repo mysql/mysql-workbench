@@ -24,7 +24,6 @@
 
 #include <cppconn/driver.h>
 #include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
 #include <memory>
 #include <set>
 
@@ -41,7 +40,7 @@
 
 namespace sql
 {
-typedef boost::shared_ptr<Connection> ConnectionPtr;
+typedef std::shared_ptr<Connection> ConnectionPtr;
 
   
 class TunnelConnection
@@ -58,10 +57,11 @@ public:
 class ConnectionWrapper
 {
   ConnectionPtr _conn;
-  boost::shared_ptr<TunnelConnection> _tunnel_conn;
+  std::shared_ptr<TunnelConnection> _tunnel_conn;
 public:
   ConnectionWrapper() {}
-  ConnectionWrapper(std::auto_ptr<Connection> conn, boost::shared_ptr<TunnelConnection> tunn_conn):_conn(conn),_tunnel_conn(tunn_conn) {}
+  ConnectionWrapper(std::shared_ptr<Connection> conn, std::shared_ptr<TunnelConnection> tunn_conn):
+    _conn(conn),_tunnel_conn(tunn_conn) {}
   void reset() {_conn.reset();}
   Connection* operator->() {return _conn.get();}
   Connection* get() {return _conn.get();}
@@ -79,7 +79,7 @@ protected:
   Authentication();
   Authentication(const db_mgmt_ConnectionRef &props, const std::string &service = "");
 public:
-  typedef boost::shared_ptr<Authentication> Ref;
+  typedef std::shared_ptr<Authentication> Ref;
   
   static Ref create(const db_mgmt_ConnectionRef &props, const std::string &service = "");
   ~Authentication();
@@ -131,17 +131,17 @@ public:
   // Returns a Connection object for the give connection params
   ConnectionWrapper getConnection(const db_mgmt_ConnectionRef &connectionProperties, ConnectionInitSlot connection_init_slot= ConnectionInitSlot());
 
-  ConnectionWrapper getConnection(const db_mgmt_ConnectionRef &connectionProperties, boost::shared_ptr<TunnelConnection> tunnel, Authentication::Ref password, ConnectionInitSlot connection_init_slot= ConnectionInitSlot());
+  ConnectionWrapper getConnection(const db_mgmt_ConnectionRef &connectionProperties, std::shared_ptr<TunnelConnection> tunnel, Authentication::Ref password, ConnectionInitSlot connection_init_slot= ConnectionInitSlot());
   
   void thread_cleanup();
 
-  boost::shared_ptr<TunnelConnection> getTunnel(const db_mgmt_ConnectionRef &connectionProperties);
+  std::shared_ptr<TunnelConnection> getTunnel(const db_mgmt_ConnectionRef &connectionProperties);
   
   // Returns the list of available drivers
   std::list<Driver *> getDrivers();
   
 public:
-  typedef boost::function<boost::shared_ptr<TunnelConnection> (const db_mgmt_ConnectionRef &)> TunnelFactoryFunction;
+  typedef boost::function<std::shared_ptr<TunnelConnection> (const db_mgmt_ConnectionRef &)> TunnelFactoryFunction;
   typedef boost::function<bool (const db_mgmt_ConnectionRef &, std::string &)> PasswordFindFunction;
   typedef boost::function<std::string (const db_mgmt_ConnectionRef &, bool)> PasswordRequestFunction;
 
@@ -173,7 +173,7 @@ class Dbc_connection_handler
 {
 public:
   Dbc_connection_handler() : id(-1), autocommit_mode(true), is_stop_query_requested(false) {}
-  typedef boost::shared_ptr<Dbc_connection_handler> Ref;
+  typedef std::shared_ptr<Dbc_connection_handler> Ref;
   typedef ConnectionWrapper ConnectionRef;
   ConnectionRef ref;
   std::string name;

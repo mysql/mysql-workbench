@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -230,7 +230,7 @@ public:
 private:
   struct ConnectionInfo
   {
-    typedef boost::shared_ptr<ConnectionInfo> Ref;
+    typedef std::shared_ptr<ConnectionInfo> Ref;
   
     ConnectionInfo(sql::ConnectionWrapper &c) : conn(c), last_error_code(0), last_update_count(0) {}
     
@@ -257,7 +257,7 @@ private:
   base::Mutex _mutex;
   std::map<int, ConnectionInfo::Ref> _connections;
   std::map<int, sql::ResultSet*> _resultsets;
-  std::map<int, boost::shared_ptr<sql::TunnelConnection> > _tunnels;
+  std::map<int, std::shared_ptr<sql::TunnelConnection> > _tunnels;
   std::string _last_error;
   int _last_error_code;
 
@@ -914,7 +914,7 @@ std::string DbMySQLQueryImpl::generateDdlScript(grt::StringRef schema, grt::Dict
 int DbMySQLQueryImpl::openTunnel(const db_mgmt_ConnectionRef &info)
 {
   sql::DriverManager *dm = sql::DriverManager::getDriverManager();
-  boost::shared_ptr<sql::TunnelConnection> tun = dm->getTunnel(info);
+  std::shared_ptr<sql::TunnelConnection> tun = dm->getTunnel(info);
   if (tun)
   {
     _tunnels[++_tunnel_id] = tun;

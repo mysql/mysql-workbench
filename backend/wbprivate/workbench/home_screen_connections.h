@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,6 @@
 
 #include "mforms/drawbox.h"
 #include "mforms/textentry.h"
-#include <boost/shared_ptr.hpp>
 
 namespace mforms
 {
@@ -89,7 +88,7 @@ namespace wb
     base::Color _back_tile_bk_color_hl;
 
     ssize_t _page_start;        // Index into the list where root display starts.
-    boost::shared_ptr<FolderEntry> _active_folder;     // The folder entry that is currently active.
+    std::shared_ptr<FolderEntry> _active_folder;     // The folder entry that is currently active.
     std::string _active_folder_title_before_refresh_start;
     // for the paging hack...
     ssize_t _next_page_start;
@@ -101,7 +100,7 @@ namespace wb
 
     ssize_t _entries_per_page;
 
-    typedef std::vector<boost::shared_ptr<ConnectionEntry> > ConnectionVector;
+    typedef std::vector<std::shared_ptr<ConnectionEntry> > ConnectionVector;
     typedef ConnectionVector::iterator ConnectionIterator;
     ConnectionVector _connections;
     ConnectionVector _filtered_connections;
@@ -112,8 +111,8 @@ namespace wb
     mforms::Menu *_folder_context_menu;
     mforms::Menu *_generic_context_menu;
 
-    boost::shared_ptr<ConnectionEntry> _hot_entry; // The connection entry under the mouse.
-    boost::shared_ptr<ConnectionEntry> _entry_for_menu; // The entry that was hot when the context menu was opened.
+    std::shared_ptr<ConnectionEntry> _hot_entry; // The connection entry under the mouse.
+    std::shared_ptr<ConnectionEntry> _entry_for_menu; // The entry that was hot when the context menu was opened.
     bool _show_details;      // If there's a hot connection this indicates if we just show the hot state or the connection details.
 
     ssize_t _drag_index;     // The index of the entry that is being dragged.
@@ -144,8 +143,8 @@ namespace wb
     void on_search_text_changed();
     void on_search_text_action(mforms::TextEntryAction action);
     ssize_t calculate_index_from_point(int x, int y);
-    boost::shared_ptr<ConnectionEntry> entry_from_point(int x, int y, bool &in_details_area);
-    boost::shared_ptr<ConnectionEntry> entry_from_index(ssize_t index);
+    std::shared_ptr<ConnectionEntry> entry_from_point(int x, int y, bool &in_details_area);
+    std::shared_ptr<ConnectionEntry> entry_from_index(ssize_t index);
     base::Rect bounds_for_entry(ssize_t index);
     db_mgmt_ConnectionRef connection_from_index(ssize_t index);
 
@@ -173,7 +172,7 @@ namespace wb
 
     void cancel_operation();
 
-    void change_to_folder(boost::shared_ptr<FolderEntry> folder);
+    void change_to_folder(std::shared_ptr<FolderEntry> folder);
 
     virtual int get_acc_child_count();
     virtual Accessible* get_acc_child(int index);

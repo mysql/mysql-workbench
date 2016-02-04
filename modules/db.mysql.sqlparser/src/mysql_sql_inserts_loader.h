@@ -17,7 +17,10 @@
  * 02110-1301  USA
  */
 
-#pragma once
+
+#ifndef _MYSQL_SQL_INSERTS_LOADER_H_
+#define _MYSQL_SQL_INSERTS_LOADER_H_
+
 
 #include "mysql_sql_parser_base.h"
 #include "grtsqlparser/sql_inserts_loader.h"
@@ -30,11 +33,11 @@
 class MYSQL_SQL_PARSER_PUBLIC_FUNC Mysql_sql_inserts_loader : protected Mysql_sql_parser_base, public Sql_inserts_loader
 {
 public:
-  typedef boost::shared_ptr<Mysql_sql_inserts_loader> Ref;
-  static Ref create() { return Ref(new Mysql_sql_inserts_loader); }
+  typedef std::shared_ptr<Mysql_sql_inserts_loader> Ref;
+  static Ref create(grt::GRT *grt) { return Ref(new Mysql_sql_inserts_loader(grt)); }
   virtual ~Mysql_sql_inserts_loader() {}
 protected:
-  Mysql_sql_inserts_loader();
+  Mysql_sql_inserts_loader(grt::GRT *grt);
 
 public:
   void load(const std::string &sql, const std::string &schema_name);
@@ -65,3 +68,6 @@ protected:
   };
   friend class Null_state_keeper;
 };
+
+
+#endif // _MYSQL_SQL_INSERTS_LOADER_H_

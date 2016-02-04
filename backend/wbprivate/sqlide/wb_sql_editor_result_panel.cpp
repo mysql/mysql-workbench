@@ -180,7 +180,7 @@ void SqlEditorResult::open_field_editor(int row, int column)
   Recordset::Ref rset(recordset());
   if (rset)
   {
-    Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rset->data_storage()));
+    Recordset_cdbc_storage::Ref storage(std::dynamic_pointer_cast<Recordset_cdbc_storage>(rset->data_storage()));
     if (storage)
     {
       rset->open_field_data_editor(row, column, storage->field_info()[column].type);
@@ -238,7 +238,7 @@ void SqlEditorResult::set_recordset(Recordset::Ref rset)
   }
   dock_result_grid(grid);
 
-  Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rset->data_storage()));
+  Recordset_cdbc_storage::Ref storage(std::dynamic_pointer_cast<Recordset_cdbc_storage>(rset->data_storage()));
   rset->caption(strfmt("%s %i",
                        (storage->table_name().empty() ? _("Result") : storage->table_name().c_str()),
                        ++_owner->_rs_sequence));
@@ -310,7 +310,7 @@ std::vector<SpatialDataView::SpatialDataSource> SqlEditorResult::get_spatial_col
 {
   std::vector<SpatialDataView::SpatialDataSource> spatial_columns;
   int i = 0;
-  Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(_rset.lock()->data_storage()));
+  Recordset_cdbc_storage::Ref storage(std::dynamic_pointer_cast<Recordset_cdbc_storage>(_rset.lock()->data_storage()));
   std::vector<Recordset_cdbc_storage::FieldInfo> &field_info(storage->field_info());
   for (std::vector<Recordset_cdbc_storage::FieldInfo>::const_iterator iter = field_info.begin();
        iter != field_info.end(); ++iter, ++i)
@@ -569,7 +569,7 @@ void SqlEditorResult::reset_column_widths()
 
   RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR(Recordset, _rset, rs)
   {
-    Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rs->data_storage()));
+    Recordset_cdbc_storage::Ref storage(std::dynamic_pointer_cast<Recordset_cdbc_storage>(rs->data_storage()));
     std::vector<Recordset_cdbc_storage::FieldInfo> &field_info(storage->field_info());
 
     for (int c = (int)field_info.size(), i = 0; i < c; i++)
@@ -616,7 +616,7 @@ void SqlEditorResult::restore_grid_column_widths()
 
   RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR(Recordset, _rset, rs)
   {
-    Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rs->data_storage()));
+    Recordset_cdbc_storage::Ref storage(std::dynamic_pointer_cast<Recordset_cdbc_storage>(rs->data_storage()));
     std::vector<Recordset_cdbc_storage::FieldInfo> &field_info(storage->field_info());
     std::vector<float> autofit_widths;
 
@@ -736,7 +736,7 @@ void SqlEditorResult::create_spatial_view_panel_if_needed()
 {
   if (Recordset::Ref rset = _rset.lock())
   {
-    Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rset->data_storage()));
+    Recordset_cdbc_storage::Ref storage(std::dynamic_pointer_cast<Recordset_cdbc_storage>(rset->data_storage()));
     bool has_geometry = false;
     std::vector<Recordset_cdbc_storage::FieldInfo> &field_info(storage->field_info());
     for (std::vector<Recordset_cdbc_storage::FieldInfo>::const_iterator iter = field_info.begin();
@@ -829,7 +829,7 @@ void SqlEditorResult::create_column_info_panel()
 {
   RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR(Recordset, _rset, rs)
   {
-    Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rs->data_storage()));
+    Recordset_cdbc_storage::Ref storage(std::dynamic_pointer_cast<Recordset_cdbc_storage>(rs->data_storage()));
 
     mforms::Box *box = _column_info_box;
     mforms::ToolBar *tbar = mforms::manage(new mforms::ToolBar(mforms::SecondaryToolBar));

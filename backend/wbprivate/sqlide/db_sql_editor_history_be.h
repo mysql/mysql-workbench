@@ -23,18 +23,18 @@
 
 #include "workbench/wb_backend_public_interface.h"
 #include "sqlide/var_grid_model_be.h"
-#include <boost/shared_ptr.hpp>
 #include <time.h>
 #include "mforms/menu.h"
 
 class MYSQLWBBACKEND_PUBLIC_FUNC DbSqlEditorHistory
 {
 public:
-  typedef boost::shared_ptr<DbSqlEditorHistory> Ref;
-  static Ref create() { return Ref(new DbSqlEditorHistory()); }
+  typedef std::shared_ptr<DbSqlEditorHistory> Ref;
+  static Ref create(bec::GRTManager *grtm) { return Ref(new DbSqlEditorHistory(grtm)); }
   virtual ~DbSqlEditorHistory();
 protected:
-  DbSqlEditorHistory();
+  DbSqlEditorHistory(bec::GRTManager *grtm);
+  bec::GRTManager *_grtm;
 
 public:
   void reset();
@@ -57,10 +57,10 @@ public:
   {
   public:
     friend class DbSqlEditorHistory;
-    typedef boost::shared_ptr<DetailsModel> Ref;
-    static Ref create() { return Ref(new DetailsModel()); }
+    typedef std::shared_ptr<DetailsModel> Ref;
+    static Ref create(bec::GRTManager *grtm) { return Ref(new DetailsModel(grtm)); }
   protected:
-    DetailsModel();
+    DetailsModel(bec::GRTManager *grtm);
 
   public:
     void add_entries(const std::list<std::string> &statements);
@@ -96,10 +96,10 @@ public:
   public:
     friend class DbSqlEditorHistory;
     
-    typedef boost::shared_ptr<EntriesModel> Ref;
-    static Ref create(DbSqlEditorHistory *owner) { return Ref(new EntriesModel(owner)); }
+    typedef std::shared_ptr<EntriesModel> Ref;
+    static Ref create(DbSqlEditorHistory *owner, bec::GRTManager *grtm) { return Ref(new EntriesModel(owner, grtm)); }
   protected:
-    EntriesModel(DbSqlEditorHistory *owner);
+    EntriesModel(DbSqlEditorHistory *owner, bec::GRTManager *grtm);
 
     DbSqlEditorHistory *_owner;
 

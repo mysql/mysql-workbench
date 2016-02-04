@@ -22,7 +22,6 @@
 
 #include "workbench/wb_backend_public_interface.h"
 #include "sqlide/var_grid_model_be.h"
-#include <boost/shared_ptr.hpp>
 #include "mforms/menu.h"
 
 class SqlEditorForm;
@@ -39,7 +38,7 @@ public:
     BusyMsg
   };
   
-  typedef boost::shared_ptr<DbSqlEditorLog> Ref;
+  typedef std::shared_ptr<DbSqlEditorLog> Ref;
 
   virtual ~DbSqlEditorLog() {}
 

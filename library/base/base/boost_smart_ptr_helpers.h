@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,52 +21,68 @@
 #ifndef _BOOST_SMART_PTR_HELPERS_H_
 #define _BOOST_SMART_PTR_HELPERS_H_
 
-
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/intrusive_ptr.hpp>
-#include <boost/weak_ptr.hpp>
+#include "base/log.h"
 
+
+
+namespace BoostHelper {
+  template <class shrPtr> class Container {
+
+  public:
+    shrPtr ptr;
+    Container () {};
+    Container (const Container &incoming) : ptr(incoming.ptr) {};
+    Container (const shrPtr &incoming) : ptr(incoming) {};
+    Container (Container &&incoming) : ptr(std::move(incoming.ptr)) {};
+    void operator ()(...) { ptr.reset(); }
+
+  };
+  template<class C> static std::shared_ptr<C> convertPointer(const boost::shared_ptr<C> &ptr)
+  {
+    typedef Container<std::shared_ptr<C>> ContainerType;
+    ContainerType *c = boost::get_deleter<ContainerType, C>(ptr);
+    if (c == NULL)
+      return std::shared_ptr<C>(ptr.get(), Container<boost::shared_ptr<C>>(ptr));
+    else
+      return c->ptr;
+  }
+}
 
 template <class T>
-boost::shared_ptr<T> shared_ptr_from(T *raw_ptr)
+std::shared_ptr<T> shared_ptr_from(T *raw_ptr)
 {
-  boost::shared_ptr<T> res;
+  std::shared_ptr<T> res;
   if (raw_ptr)
   {
     try
     {
       dynamic_cast_shared_ptr(res, raw_ptr->shared_from_this());
     }
-    catch (const boost::bad_weak_ptr&)
+    catch (const std::bad_weak_ptr &exc)
     {
+      DEFAULT_LOG_DOMAIN("smart_ptr_helpers")
+      logError("Unable to dynamic_cast raw_ptr: %s", exc.what());
     }
   }
   return res;
 }
 
 template <class DestType, class SrcType>
-inline void dynamic_cast_shared_ptr(boost::shared_ptr<DestType> &dest, const boost::shared_ptr<SrcType> &src)
+inline void dynamic_cast_shared_ptr(std::shared_ptr<DestType> &dest, const std::shared_ptr<SrcType> &src)
 {
-  dest= boost::dynamic_pointer_cast<DestType, SrcType>(src);
+  dest= std::dynamic_pointer_cast<DestType, SrcType>(src);
 }
 
 template <class T>
-inline boost::weak_ptr<T> weak_ptr_from(T *raw_ptr)
+inline std::weak_ptr<T> weak_ptr_from(T *raw_ptr)
 {
   return shared_ptr_from(raw_ptr);
 }
 
 
 #define RAW_PTR_LOCK(ptr_type, raw_ptr) \
-boost::shared_ptr<ptr_type> raw_ptr ## _ref= shared_ptr_from(raw_ptr); \
-
-#define RETURN_IF_FAIL_TO_RETAIN_RAW_PTR(ptr_type, raw_ptr) \
-RAW_PTR_LOCK (ptr_type, raw_ptr) \
-{ \
-  if (!raw_ptr) \
-    return; \
-}
+std::shared_ptr<ptr_type> raw_ptr ## _ref= shared_ptr_from(raw_ptr); \
 
 #define RETVAL_IF_FAIL_TO_RETAIN_RAW_PTR(ptr_type, raw_ptr, return_value) \
 RAW_PTR_LOCK (ptr_type, raw_ptr) \
@@ -77,7 +93,7 @@ RAW_PTR_LOCK (ptr_type, raw_ptr) \
 
 
 #define RETAIN_WEAK_PTR(ptr_type, weak_ptr, raw_ptr) \
-boost::shared_ptr<ptr_type> raw_ptr ## _ref= (weak_ptr).lock(); \
+std::shared_ptr<ptr_type> raw_ptr ## _ref= (weak_ptr).lock(); \
 ptr_type *raw_ptr= (raw_ptr ## _ref).get();
 
 #define RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR(ptr_type, weak_ptr, raw_ptr) \

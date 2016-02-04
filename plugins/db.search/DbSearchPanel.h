@@ -53,7 +53,7 @@ protected:
     mforms::Label _matches_label;
     mforms::TreeView _results_tree;
     mforms::ContextMenu _context_menu;
-    boost::shared_ptr<DBSearch> _searcher;
+    std::shared_ptr<DBSearch> _searcher;
     bec::GRTManager::Timer* _update_timer;
     std::map<std::string, std::list<std::string> > _key_columns;
 

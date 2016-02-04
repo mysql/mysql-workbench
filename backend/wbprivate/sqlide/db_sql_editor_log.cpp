@@ -186,7 +186,7 @@ void DbSqlEditorLog::reset()
   add_column("Message", std::string());
   add_column("Duration / Fetch", std::string());
 
-  boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+  std::shared_ptr<sqlite::connection> data_swap_db = this->data_swap_db();
   Recordset_data_storage::create_data_swap_tables(data_swap_db.get(), _column_names, _column_types);
 
   refresh_ui();

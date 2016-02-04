@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,7 +34,7 @@
 class WBPUBLICBACKEND_PUBLIC_FUNC Sql_schema_rename : virtual public Sql_parser_base
 {
 public:
-  typedef boost::shared_ptr<Sql_schema_rename> Ref;
+  typedef std::shared_ptr<Sql_schema_rename> Ref;
 protected:
   Sql_schema_rename() {}
 

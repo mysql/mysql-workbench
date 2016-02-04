@@ -206,7 +206,7 @@ class CancellableTaskData
 public:
   boost::function<void* ()> task;
   bool finished;
-  boost::shared_ptr<void*> result_ptr;
+  std::shared_ptr<void*> result_ptr;
 
   int ref_count;
 
@@ -266,7 +266,7 @@ bool Utilities::run_cancelable_task(const std::string &title, const std::string 
                                     const boost::function<bool ()> &cancel_task,
                                     void *&task_result)
 {
-  boost::shared_ptr<void*> result(new void*((void*)-1));
+  std::shared_ptr<void*> result(new void*((void*)-1));
 
   CancellableTaskData *data = NULL;
   GThread *thread = NULL;

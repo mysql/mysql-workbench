@@ -48,8 +48,8 @@ namespace wb
     }
 
     mforms::TreeView* get_model_view() { return _tree->_model_view; }
-    boost::weak_ptr<LiveSchemaTree::Delegate> get_delegate() { return _tree->_delegate; }
-    boost::weak_ptr<LiveSchemaTree::FetchDelegate> get_fetch_delegate() { return _tree->_fetch_delegate; }
+    std::weak_ptr<LiveSchemaTree::Delegate> get_delegate() { return _tree->_delegate; }
+    std::weak_ptr<LiveSchemaTree::FetchDelegate> get_fetch_delegate() { return _tree->_fetch_delegate; }
 
     void enable_events(bool enabled) { return _tree->enable_events(enabled); }
     bool enabled_events() { return _tree->_enabled_events; }
@@ -403,8 +403,8 @@ public:
   mforms::TreeView *pmodel_view_filtered;
   LiveSchemaTreeTester _tester;
   LiveSchemaTreeTester _tester_filtered;
-  boost::shared_ptr<LiveTreeTestDelegate> deleg;
-  boost::shared_ptr<LiveTreeTestDelegate> deleg_filtered;
+  std::shared_ptr<LiveTreeTestDelegate> deleg;
+  std::shared_ptr<LiveTreeTestDelegate> deleg_filtered;
 
   class DummyLST : public LiveSchemaTree::LSTData
   {
@@ -2313,16 +2313,16 @@ public:
   */
   TEST_FUNCTION(16)
   {
-    boost::shared_ptr<LiveSchemaTree::Delegate> null_delegate;
-    boost::shared_ptr<LiveSchemaTree::FetchDelegate> null_fetch_delegate;
+    std::shared_ptr<LiveSchemaTree::Delegate> null_delegate;
+    std::shared_ptr<LiveSchemaTree::FetchDelegate> null_fetch_delegate;
 
 
     {
       _lst.set_delegate(null_delegate);
       _lst.set_fetch_delegate(null_fetch_delegate);
 
-      boost::shared_ptr<LiveSchemaTree::Delegate> found_delegate = _tester.get_delegate().lock();
-      boost::shared_ptr<LiveSchemaTree::FetchDelegate> found_fetch_delegate = _tester.get_fetch_delegate().lock();
+      std::shared_ptr<LiveSchemaTree::Delegate> found_delegate = _tester.get_delegate().lock();
+      std::shared_ptr<LiveSchemaTree::FetchDelegate> found_fetch_delegate = _tester.get_fetch_delegate().lock();
 
       ensure("TF016CHK001: Unexpected valid delegate", found_delegate.get() == NULL);
       ensure("TF016CHK001: Unexpected valid fetch delegate", found_fetch_delegate.get() == NULL);
@@ -2332,8 +2332,8 @@ public:
     _lst.set_delegate(deleg);
     _lst.set_fetch_delegate(deleg);
 
-    boost::shared_ptr<LiveSchemaTree::Delegate> found_delegate = _tester.get_delegate().lock();
-    boost::shared_ptr<LiveSchemaTree::FetchDelegate> found_fetch_delegate = _tester.get_fetch_delegate().lock();
+    std::shared_ptr<LiveSchemaTree::Delegate> found_delegate = _tester.get_delegate().lock();
+    std::shared_ptr<LiveSchemaTree::FetchDelegate> found_fetch_delegate = _tester.get_fetch_delegate().lock();
 
     ensure("TF016CHK002: Unexpected invalid delegate", found_delegate.get() != NULL);
     ensure("TF016CHK002: Unexpected invalid fetch delegate", found_fetch_delegate.get() != NULL);

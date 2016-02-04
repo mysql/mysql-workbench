@@ -28,9 +28,6 @@
 #include <vector>
 #include <list>
 #include <boost/scoped_array.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/optional.hpp>
-#include <boost/cstdint.hpp>
 
 #include "grtdb/charset_utils.h"
 #include "base/string_utilities.h"
@@ -343,7 +340,7 @@ max_err_count(-1)
 }
 
 
-boost::shared_ptr<base::Mutex> _parser_fe_critical_section(new base::Mutex);
+std::shared_ptr<base::Mutex> _parser_fe_critical_section(new base::Mutex);
 
 
 void Mysql_sql_parser_fe::reset()

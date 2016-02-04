@@ -343,9 +343,9 @@ void TunnelManager::set_keepalive(int port, int keepalive)
 }
 
 
-boost::shared_ptr<sql::TunnelConnection> TunnelManager::create_tunnel(db_mgmt_ConnectionRef connectionProperties)
+std::shared_ptr<sql::TunnelConnection> TunnelManager::create_tunnel(db_mgmt_ConnectionRef connectionProperties)
 {
-  boost::shared_ptr<sql::TunnelConnection> tunnel;
+  std::shared_ptr<sql::TunnelConnection> tunnel;
   grt::DictRef parameter_values= connectionProperties->parameterValues();
 
   if (connectionProperties->driver()->name() == "MysqlNativeSSH")
@@ -439,7 +439,7 @@ boost::shared_ptr<sql::TunnelConnection> TunnelManager::create_tunnel(db_mgmt_Co
 
         bec::GRTManager::get().replace_status_text("SSH tunnel opened, connecting...");
 
-        tunnel = boost::shared_ptr<sql::TunnelConnection>(new ::SSHTunnel(this, tunnel_port));
+        tunnel = std::shared_ptr<sql::TunnelConnection>(new ::SSHTunnel(this, tunnel_port));
 
         if (tunnel)
         {

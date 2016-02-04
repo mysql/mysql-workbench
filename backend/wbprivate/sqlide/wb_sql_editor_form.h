@@ -61,16 +61,16 @@ namespace bec
 
 class QuerySidePalette;
 class SqlEditorTreeController;
-class AutoCompleteCache;
+class MySQLObjectNamesCache;
 class ColumnWidthCache;
 class SqlEditorPanel;
 class SqlEditorResult;
 
 typedef std::vector<Recordset::Ref> Recordsets;
-typedef boost::shared_ptr<Recordsets> RecordsetsRef;
+typedef std::shared_ptr<Recordsets> RecordsetsRef;
 
 class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorForm : public bec::UIForm, grt::GRTObserver,
-                                                 public boost::enable_shared_from_this<SqlEditorForm>,
+                                                 public std::enable_shared_from_this<SqlEditorForm>,
                                                  mforms::DropDelegate
 {
 public:
@@ -113,8 +113,8 @@ public:
   };
 
 public:
-  typedef boost::shared_ptr<SqlEditorForm> Ref;
-  typedef boost::weak_ptr<SqlEditorForm> Ptr;
+  typedef std::shared_ptr<SqlEditorForm> Ref;
+  typedef std::weak_ptr<SqlEditorForm> Ptr;
   static SqlEditorForm::Ref create(wb::WBContextSQLIDE *wbsql, const db_mgmt_ConnectionRef &conn);
   static void report_connection_failure(const std::string &error, const db_mgmt_ConnectionRef &target);
   static void report_connection_failure(const grt::server_denied &info, const db_mgmt_ConnectionRef &target);
@@ -151,6 +151,7 @@ public:
   
   void restore_last_workspace();
 public:
+  bec::GRTManager * grt_manager() const { return _grtm; }
   wb::WBContextSQLIDE *wbsql() const { return _wbsql; }
 
   db_query_EditorRef grtobj();
@@ -162,6 +163,7 @@ public:
 private:
   wb::WBContextSQLIDE *_wbsql;
   GrtVersionRef _version;
+  bec::GRTManager *_grtm;
   mforms::MenuBar *_menu;
   mforms::ToolBar *_toolbar;
   std::string _connection_info;
@@ -239,14 +241,14 @@ private:
   std::map<std::string, std::string> _connection_details;
   std::set<std::string> _charsets;
 
-  grt::StringRef do_connect(boost::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref &auth,
+  grt::StringRef do_connect(grt::GRT *grt, std::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref &auth,
     struct ConnectionErrorInfo *autherr_ptr);
   std::string get_client_lib_version();
-  grt::StringRef do_disconnect();
+  grt::StringRef do_disconnect(grt::GRT *grt);
 
   void update_connected_state();
 public:
-  bool connect(boost::shared_ptr<sql::TunnelConnection> tunnel);
+  bool connect(std::shared_ptr<sql::TunnelConnection> tunnel);
   bool connected() const;
   bool connectionIsValid() const {
     return _connection.is_valid();
@@ -291,21 +293,22 @@ private:
   std::vector<SqlEditorForm::PSStage> query_ps_stages(boost::int64_t stmt_event_id);
   std::vector<SqlEditorForm::PSWait> query_ps_waits(boost::int64_t stmt_event_id);
 
-private:
   std::string _sql_mode;
   int _lower_case_table_names;
-  parser::ParserContext::Ref _work_parser_context; // Never use in a background thread.
+  parser::MySQLParserContext::Ref _work_parser_context; // Never use in a background thread.
 private:
-  void create_connection(sql::Dbc_connection_handler::Ref &dbc_conn, db_mgmt_ConnectionRef db_mgmt_conn, boost::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref auth, bool autocommit_mode, bool user_connection);
+  void create_connection(sql::Dbc_connection_handler::Ref &dbc_conn, db_mgmt_ConnectionRef db_mgmt_conn, std::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref auth, bool autocommit_mode, bool user_connection);
   void init_connection(sql::Connection* dbc_conn_ref, const db_mgmt_ConnectionRef& connectionProperties, sql::Dbc_connection_handler::Ref& dbc_conn, bool user_connection);
   void close_connection(sql::Dbc_connection_handler::Ref &dbc_conn);
   base::RecMutexLock ensure_valid_dbc_connection(sql::Dbc_connection_handler::Ref &dbc_conn, base::RecMutex &dbc_conn_mutex, bool throw_on_block = false);
   base::RecMutexLock ensure_valid_usr_connection(bool throw_on_block = false);
   base::RecMutexLock ensure_valid_aux_connection(bool throw_on_block = false);
 
+  std::vector<std::pair<std::string, std::string>> runQueryForCache(const std::string &query);
+
 public:
   base::RecMutexLock ensure_valid_aux_connection(sql::Dbc_connection_handler::Ref &conn);
-  parser::ParserContext::Ref work_parser_context() { return _work_parser_context;  };
+  parser::MySQLParserContext::Ref work_parser_context() { return _work_parser_context;  };
 
 private:
   int         _keep_alive_task_id;
@@ -328,13 +331,12 @@ private:
 
   ServerState _last_server_running_state;
 
-  AutoCompleteCache *_auto_completion_cache;
-  base::RecMutexLock get_autocompletion_connection(sql::Dbc_connection_handler::Ref &conn);
-  void on_cache_action(bool active);
+  MySQLObjectNamesCache *_auto_completion_cache;
+  void onCacheAction(bool active);
 
   ColumnWidthCache *_column_width_cache;
 public:
-  AutoCompleteCache *auto_completion_cache() { return _auto_completion_cache; }
+  MySQLObjectNamesCache *auto_completion_cache() { return _auto_completion_cache; }
 
   ColumnWidthCache *column_width_cache() { return _column_width_cache; }
 
@@ -363,7 +365,7 @@ private:
   };
   void update_live_schema_tree(const std::string &sql);
 
-  grt::StringRef do_exec_sql(Ptr self_ptr, boost::shared_ptr<std::string> sql,
+  grt::StringRef do_exec_sql(grt::GRT *grt, Ptr self_ptr, std::shared_ptr<std::string> sql,
     SqlEditorPanel *editor, ExecFlags flags, RecordsetsRef result_list);
 
   void handle_command_side_effects(const std::string &sql);
@@ -430,21 +432,21 @@ public:
   void request_refresh_schema_tree();
   
 private:
-  boost::shared_ptr<SqlEditorTreeController> _live_tree;
+  std::shared_ptr<SqlEditorTreeController> _live_tree;
     
   mforms::View* _side_palette_host;
   QuerySidePalette* _side_palette;
   std::string _pending_expand_nodes;
 
 public:
-  std::string fetch_data_from_stored_procedure(std::string proc_call, boost::shared_ptr<sql::ResultSet> &rs);
+  std::string fetch_data_from_stored_procedure(std::string proc_call, std::shared_ptr<sql::ResultSet> &rs);
 
   DbSqlEditorLog::Ref log() { return _log; }
   DbSqlEditorHistory::Ref history() { return _history; }
   std::string restore_sql_from_history(int entry_index, std::list<int> &detail_indexes);
   int exec_sql_error_count() { return _exec_sql_error_count; }
   
-  boost::shared_ptr<SqlEditorTreeController> get_live_tree() { return _live_tree; }
+  std::shared_ptr<SqlEditorTreeController> get_live_tree() { return _live_tree; }
   void schema_tree_did_populate();
 
   boost::function<void (const std::string&, bool)> output_text_slot;

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +21,7 @@
 
 #include "wbpublic_public_interface.h"
 
+#include "parser_services_common.h"
 #include "mysql-recognition-types.h"
 #include "grtdb/db_helpers.h"
 
@@ -35,15 +36,7 @@ class MySQLQueryIdentifier;
 
 namespace parser {
 
-typedef struct
-{
-  std::string message;
-  size_t position;
-  size_t line;
-  size_t length;
-} ParserErrorEntry;
-
-class WBPUBLICBACKEND_PUBLIC_FUNC ParserContext {
+class WBPUBLICBACKEND_PUBLIC_FUNC MySQLParserContext {
 
 private:
   MySQLRecognizer *_recognizer;
@@ -56,10 +49,10 @@ private:
 
   void update_filtered_charsets(long version);
 public:
-  typedef boost::shared_ptr<ParserContext> Ref;
+  typedef std::shared_ptr<MySQLParserContext> Ref;
 
-  ParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version, bool case_sensitive);
-  ~ParserContext();
+  MySQLParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version, bool case_sensitive);
+  ~MySQLParserContext();
 
   MySQLRecognizer *recognizer() { return _recognizer; };
   MySQLSyntaxChecker *syntax_checker() { return _syntax_checker; };
@@ -77,7 +70,6 @@ public:
   std::vector<ParserErrorEntry> get_errors_with_offset(size_t offset, bool for_syntax_check);
 
   uint32_t get_keyword_token(const std::string &keyword);
-  char ** get_token_name_list();
 };
 
 /**
@@ -89,38 +81,38 @@ class WBPUBLICBACKEND_PUBLIC_FUNC MySQLParserServices
 public:
   typedef MySQLParserServices *Ref; // We only have a singleton, so define Ref only to keep the pattern.
 
-  static MySQLParserServices::Ref get();
-  static ParserContext::Ref createParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version,
+  static MySQLParserServices::Ref get(grt::GRT *grt);
+  static MySQLParserContext::Ref createParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version,
     bool case_sensitive);
 
   virtual size_t stopProcessing() = 0;
 
-  virtual size_t parseTable(parser::ParserContext::Ref context, db_mysql_TableRef table, const std::string &sql) = 0;
-  virtual size_t parseRoutine(parser::ParserContext::Ref context, db_mysql_RoutineRef routine, const std::string &sql) = 0;
-  virtual size_t parseRoutines(parser::ParserContext::Ref context, db_mysql_RoutineGroupRef group, const std::string &sql) = 0;
-  virtual size_t parseTrigger(ParserContext::Ref context, db_mysql_TriggerRef trigger, const std::string &sql) = 0;
-  virtual size_t parseView(parser::ParserContext::Ref context, db_mysql_ViewRef view, const std::string &sql) = 0;
-  virtual size_t parseSchema(parser::ParserContext::Ref context, db_mysql_SchemaRef schema, const std::string &sql) = 0;
-  virtual size_t parseIndex(parser::ParserContext::Ref context, db_mysql_IndexRef index, const std::string &sql) = 0;
-  virtual size_t parseEvent(parser::ParserContext::Ref context, db_mysql_EventRef event, const std::string &sql) = 0;
-  virtual size_t parseLogfileGroup(parser::ParserContext::Ref context, db_mysql_LogFileGroupRef group, const std::string &sql) = 0;
-  virtual size_t parseServer(parser::ParserContext::Ref context, db_mysql_ServerLinkRef server, const std::string &sql) = 0;
-  virtual size_t parseTablespace(parser::ParserContext::Ref context, db_mysql_TablespaceRef tablespace, const std::string &sql) = 0;
+  virtual size_t parseTable(parser::MySQLParserContext::Ref context, db_mysql_TableRef table, const std::string &sql) = 0;
+  virtual size_t parseRoutine(parser::MySQLParserContext::Ref context, db_mysql_RoutineRef routine, const std::string &sql) = 0;
+  virtual size_t parseRoutines(parser::MySQLParserContext::Ref context, db_mysql_RoutineGroupRef group, const std::string &sql) = 0;
+  virtual size_t parseTrigger(MySQLParserContext::Ref context, db_mysql_TriggerRef trigger, const std::string &sql) = 0;
+  virtual size_t parseView(parser::MySQLParserContext::Ref context, db_mysql_ViewRef view, const std::string &sql) = 0;
+  virtual size_t parseSchema(parser::MySQLParserContext::Ref context, db_mysql_SchemaRef schema, const std::string &sql) = 0;
+  virtual size_t parseIndex(parser::MySQLParserContext::Ref context, db_mysql_IndexRef index, const std::string &sql) = 0;
+  virtual size_t parseEvent(parser::MySQLParserContext::Ref context, db_mysql_EventRef event, const std::string &sql) = 0;
+  virtual size_t parseLogfileGroup(parser::MySQLParserContext::Ref context, db_mysql_LogFileGroupRef group, const std::string &sql) = 0;
+  virtual size_t parseServer(parser::MySQLParserContext::Ref context, db_mysql_ServerLinkRef server, const std::string &sql) = 0;
+  virtual size_t parseTablespace(parser::MySQLParserContext::Ref context, db_mysql_TablespaceRef tablespace, const std::string &sql) = 0;
 
-  virtual size_t parseSQLIntoCatalog(parser::ParserContext::Ref context, db_mysql_CatalogRef catalog,
+  virtual size_t parseSQLIntoCatalog(parser::MySQLParserContext::Ref context, db_mysql_CatalogRef catalog,
     const std::string &sql, grt::DictRef options) = 0;
 
-  virtual size_t checkSqlSyntax(ParserContext::Ref context, const char *sql, size_t length, MySQLQueryType type) = 0;
-  virtual size_t renameSchemaReferences(parser::ParserContext::Ref context, db_mysql_CatalogRef catalog,
+  virtual size_t checkSqlSyntax(MySQLParserContext::Ref context, const char *sql, size_t length, MySQLParseUnit unitType) = 0;
+  virtual size_t renameSchemaReferences(parser::MySQLParserContext::Ref context, db_mysql_CatalogRef catalog,
     const std::string old_name, const std::string new_name) = 0;
 
   virtual size_t determineStatementRanges(const char *sql, size_t length, const std::string &initial_delimiter,
     std::vector<std::pair<size_t, size_t> > &ranges, const std::string &line_break = "\n") = 0;
 
-  virtual grt::DictRef parseStatement(ParserContext::Ref context, const std::string &sql) = 0;
+  virtual grt::DictRef parseStatement(parser::MySQLParserContext::Ref context, grt::GRT *grt, const std::string &sql) = 0;
 
   // Query manipulation services.
-  virtual std::string replaceTokenSequenceWithText(parser::ParserContext::Ref context,
+  virtual std::string replaceTokenSequenceWithText(parser::MySQLParserContext::Ref context,
     const std::string &sql, size_t start_token, size_t count, const std::vector<std::string> replacements) = 0;
 };
 

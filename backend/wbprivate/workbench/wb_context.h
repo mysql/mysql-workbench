@@ -138,7 +138,7 @@ namespace wb {
 
     // Open an editor
     // Args: grtmanager, module containing plugin, editor dll, editor class, edited object
-    boost::function<NativeHandle (grt::Module*, std::string, std::string, grt::BaseListRef, bec::GUIPluginFlags)> open_editor;
+    boost::function<NativeHandle (bec::GRTManager*, grt::Module*, std::string, std::string, grt::BaseListRef, bec::GUIPluginFlags)> open_editor;
     // Show/Hide an editor
     // Args: editor handle (e.g: window handle)
     boost::function<void (NativeHandle)> show_editor;
@@ -156,7 +156,7 @@ namespace wb {
 
     // Open the named type of main view tab with the given form object. ownership is passed to frontend
     // Args: type (eg query), bec::UIForm*
-    boost::function<void (std::string, boost::shared_ptr<bec::UIForm>) > create_main_form_view;
+    boost::function<void (std::string, std::shared_ptr<bec::UIForm>) > create_main_form_view;
     boost::function<void (bec::UIForm*)> destroy_main_form_view;
     
     // The tool for the view has been changed
@@ -249,8 +249,8 @@ namespace wb {
     void update_plugin_arguments_pool(bec::ArgumentPool &args);
 
     // DB Querying
-    boost::shared_ptr<SqlEditorForm> add_new_query_window(const db_mgmt_ConnectionRef &target, bool restore_session = true);
-    boost::shared_ptr<SqlEditorForm> add_new_query_window();
+    std::shared_ptr<SqlEditorForm> add_new_query_window(const db_mgmt_ConnectionRef &target, bool restore_session = true);
+    std::shared_ptr<SqlEditorForm> add_new_query_window();
     
     // Admin
     void add_new_admin_window(const db_mgmt_ConnectionRef &target);
@@ -294,7 +294,9 @@ namespace wb {
 
     void foreach_component(const boost::function<void (WBComponent*)> &slot);
 
-    boost::shared_ptr<WorkbenchImpl> get_workbench() { return _workbench; };
+    bec::GRTManager *get_grt_manager() const { return _manager; }
+    grt::GRT *get_grt() const { return _manager->get_grt(); }
+    std::shared_ptr<WorkbenchImpl> get_workbench() { return _workbench; };
 
     bec::Clipboard *get_clipboard() const { return _clipboard; }
 
@@ -316,16 +318,16 @@ namespace wb {
     R execute_in_main_thread(const std::string &name, 
                              const boost::function<R ()> &function) THROW (grt::grt_runtime_error)
     {
-      return bec::GRTManager::get().get_dispatcher()->call_from_main_thread/*<R>*/(function, true, false); 
+      return _manager->get_dispatcher()->call_from_main_thread/*<R>*/(function, true, false);
     }
     void execute_in_main_thread(const std::string &name, 
                               const boost::function<void ()> &function, bool wait) THROW (grt::grt_runtime_error);
  
     grt::ValueRef execute_in_grt_thread(const std::string &name, 
-                                            const boost::function<grt::ValueRef ()> &function) THROW (grt::grt_runtime_error);
+                                            const boost::function<grt::ValueRef (grt::GRT*)> &function) THROW (grt::grt_runtime_error);
 
     void execute_async_in_grt_thread(const std::string &name, 
-                                     const boost::function<grt::ValueRef ()> &function) THROW (grt::grt_runtime_error);
+                                     const boost::function<grt::ValueRef (grt::GRT*)> &function) THROW (grt::grt_runtime_error);
 
     bool activate_live_object(const GrtObjectRef &object);
 
@@ -356,6 +358,7 @@ namespace wb {
   protected:
     friend class WBContextModel; // to access _components
     
+    bec::GRTManager *_manager;
     bec::PluginManager *_plugin_manager;
 
     workbench_WorkbenchRef _wb_root;
@@ -402,7 +405,7 @@ namespace wb {
     
     std::vector<WBComponent*> _components;
 
-    boost::shared_ptr<WorkbenchImpl> _workbench;
+    std::shared_ptr<WorkbenchImpl> _workbench;
 
     bec::Clipboard *_clipboard;
 
@@ -418,21 +421,21 @@ namespace wb {
     bool _force_sw_rendering;     // Command line switch.
     bool _force_opengl_rendering; // Command line switch.
 
-    grt::ListRef<app_PaperType> get_paper_types(boost::shared_ptr<grt::internal::Unserializer> unserializer);
+    grt::ListRef<app_PaperType> get_paper_types(grt::GRT *grt, std::shared_ptr<grt::internal::Unserializer> unserializer);
 
     bool _other_connections_loaded;
     // setup
-    void init_grt_tree(WBOptions *options, boost::shared_ptr<grt::internal::Unserializer> unserializer);
-    void run_init_scripts_grt(WBOptions *options);
-    void init_plugins_grt(WBOptions *options);
-    void init_plugin_groups_grt(WBOptions *options);
-    void init_object_listeners_grt();
+    void init_grt_tree(grt::GRT *grt, WBOptions *options, std::shared_ptr<grt::internal::Unserializer> unserializer);
+    void run_init_scripts_grt(grt::GRT *grt, WBOptions *options);
+    void init_plugins_grt(grt::GRT *grt, WBOptions *options);
+    void init_plugin_groups_grt(grt::GRT *grt, WBOptions *options);
+    void init_object_listeners_grt(grt::GRT *grt);
     void init_properties_grt(workbench_DocumentRef &doc);
-    void init_rdbms_modules();
+    void init_rdbms_modules(grt::GRT *grt);
 
     void do_close_document(bool destroying);
 
-    grt::ValueRef setup_context_grt(WBOptions *options);
+    grt::ValueRef setup_context_grt(grt::GRT *grt, WBOptions *options);
 
     void set_default_options(grt::DictRef options);
 
@@ -450,14 +453,14 @@ namespace wb {
   protected:
     void add_recent_file(const std::string &file);
 
-    void load_app_state(boost::shared_ptr<grt::internal::Unserializer> unserializer);
+    void load_app_state(std::shared_ptr<grt::internal::Unserializer> unserializer);
     void save_app_state();
-    void load_starters(boost::shared_ptr<grt::internal::Unserializer> unserializer);
+    void load_starters(std::shared_ptr<grt::internal::Unserializer> unserializer);
     void save_starters();
 
-    grt::ValueRef save_grt();
+    grt::ValueRef save_grt(grt::GRT *grt);
     
-    grt::ValueRef execute_plugin_grt(const app_PluginRef &plugin, const grt::BaseListRef &args);
+    grt::ValueRef execute_plugin_grt(grt::GRT *grt, const app_PluginRef &plugin, const grt::BaseListRef &args);
     void plugin_finished(const grt::ValueRef &result, const app_PluginRef &plugin);
 
     bool handle_message(const grt::Message &msg);
@@ -506,7 +509,7 @@ namespace wb {
     boost::function<void (mdc::CanvasView*)> destroy_view;
     boost::function<void (mdc::CanvasView*)> switched_view;
 
-    boost::function<void (std::string, boost::shared_ptr<bec::UIForm> )> create_main_form_view;
+    boost::function<void (std::string, std::shared_ptr<bec::UIForm> )> create_main_form_view;
     boost::function<void (bec::UIForm*)> destroy_main_form_view;
 
     boost::function<void (mdc::CanvasView*)> tool_changed;

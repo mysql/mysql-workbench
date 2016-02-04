@@ -118,7 +118,7 @@ protected:
 
   std::string run_fwdeng_plugin_generate_script(db_mysql_CatalogRef cat, 
                                                 DbMySQLSQLExportTest *plugin);
-  boost::shared_ptr<DiffChange> compare_catalog_to_server_schema(db_mysql_CatalogRef org_cat, 
+  std::shared_ptr<DiffChange> compare_catalog_to_server_schema(db_mysql_CatalogRef org_cat, 
                                                const std::string& schema_name);
   void apply_sql_to_model(const std::string& sql);
   all_objects_mwb get_model_objects();
@@ -190,7 +190,7 @@ std::string tut::Test_object_base<db_mysql_plugin_test>::run_fwdeng_plugin_gener
   return fwdeng_plugin->export_sql_script();
 }
 
-boost::shared_ptr<DiffChange> tut::Test_object_base<db_mysql_plugin_test>::compare_catalog_to_server_schema(db_mysql_CatalogRef org_cat, 
+std::shared_ptr<DiffChange> tut::Test_object_base<db_mysql_plugin_test>::compare_catalog_to_server_schema(db_mysql_CatalogRef org_cat, 
                                                                                           const std::string& schema_name)
 {
   sync_plugin.reset(new DbMySQLScriptSyncTest());
@@ -212,7 +212,7 @@ boost::shared_ptr<DiffChange> tut::Test_object_base<db_mysql_plugin_test>::compa
   grt::NormalizedComparer comparer(grt::DictRef(true));
   comparer.init_omf(&omf);
 
-  boost::shared_ptr<DiffChange> result = diff_make(cat, org_cat, &omf);
+  std::shared_ptr<DiffChange> result = diff_make(cat, org_cat, &omf);
 
   tester->wb->close_document();
   tester->wb->close_document_finish();
@@ -240,7 +240,7 @@ void tut::Test_object_base<db_mysql_plugin_test>::apply_sql_to_model(const std::
 
   DbMySQLScriptSyncTest p;
   p.set_model_catalog(mod_cat);
-  boost::shared_ptr<DiffTreeBE> tree= p.init_diff_tree(std::vector<std::string>(), mod_cat, org_cat);
+  std::shared_ptr<DiffTreeBE> tree = p.init_diff_tree(std::vector<std::string>(), mod_cat, org_cat);
   
   // apply everything back to model
   tree->set_apply_direction(tree->get_root(), DiffNode::ApplyToModel, true);
@@ -280,7 +280,7 @@ TEST_FUNCTION(5)
   execute_script(stmt.get(), sql1);
   execute_script(stmt.get(), script);
 
-  boost::shared_ptr<DiffChange> empty_change= compare_catalog_to_server_schema(org_cat, "db_mysql_plugin_test");
+  std::shared_ptr<DiffChange> empty_change = compare_catalog_to_server_schema(org_cat, "db_mysql_plugin_test");
 
   if (empty_change)
     empty_change->dump_log(0);
@@ -313,7 +313,7 @@ TEST_FUNCTION(10)
   execute_script(stmt.get(), sql1);
   execute_script(stmt.get(), script);
 
-  boost::shared_ptr<DiffChange> empty_change = compare_catalog_to_server_schema(mod_cat, "db_mysql_plugin_test");
+  std::shared_ptr<DiffChange> empty_change = compare_catalog_to_server_schema(mod_cat, "db_mysql_plugin_test");
 
   if(empty_change)
     empty_change->dump_log(0);
@@ -543,7 +543,7 @@ TEST_FUNCTION(35)
     (mod_cat->schemata().get(0)->tables().count() == 1) &&
     (mod_cat->schemata().get(0)->routines().count() == 2));
 
-  boost::shared_ptr<DiffChange> empty_change= compare_catalog_to_server_schema(mod_cat, "db_mysql_plugin_test");
+  std::shared_ptr<DiffChange> empty_change = compare_catalog_to_server_schema(mod_cat, "db_mysql_plugin_test");
 
   if(empty_change)
     empty_change->dump_log(0);
@@ -602,7 +602,7 @@ TEST_FUNCTION(40)
   execute_script(stmt.get(), sql1);
   execute_script(stmt.get(), script);
 
-  boost::shared_ptr<DiffChange> empty_change= compare_catalog_to_server_schema(mod_cat, "db_mysql_plugin_test");
+  std::shared_ptr<DiffChange> empty_change = compare_catalog_to_server_schema(mod_cat, "db_mysql_plugin_test");
 
   if (empty_change)
     empty_change->dump_log(0);
@@ -640,7 +640,7 @@ TEST_FUNCTION(45)
   execute_script(stmt.get(), sql1);
   execute_script(stmt.get(), script);
 
-  boost::shared_ptr<DiffChange> empty_change= compare_catalog_to_server_schema(mod_cat, "db_mysql_plugin_test");
+  std::shared_ptr<DiffChange> empty_change = compare_catalog_to_server_schema(mod_cat, "db_mysql_plugin_test");
 
   if(empty_change)
     empty_change->dump_log(0);
@@ -747,7 +747,7 @@ TEST_FUNCTION(55)
 
   DbMySQLScriptSyncTest p;
   p.set_model_catalog(mod_cat);
-  boost::shared_ptr<DiffTreeBE> tree= p.init_diff_tree(std::vector<std::string>(), org_cat, ValueRef());
+  std::shared_ptr<DiffTreeBE> tree = p.init_diff_tree(std::vector<std::string>(), org_cat, ValueRef());
   
   // change apply direction for table table1
   bec::NodeId mydb_node= tree->get_child(NodeId(), 0);

@@ -129,7 +129,7 @@ void reversed_LIS(const InputContainerType& src, OutputContainerType& res)
   //  std::reverse(res.begin(), res.end());
 }
 
-bool diffPred(const boost::shared_ptr<ListItemChange>& a, const boost::shared_ptr<ListItemChange>& b)
+bool diffPred(const std::shared_ptr<ListItemChange>& a, const std::shared_ptr<ListItemChange>& b)
 {
   if (a->get_change_type() == grt::ListItemRemoved)
     if (b->get_change_type() == grt::ListItemRemoved)
@@ -143,11 +143,11 @@ bool diffPred(const boost::shared_ptr<ListItemChange>& a, const boost::shared_pt
         return a->get_index() < b->get_index();
 }
 
-boost::shared_ptr<MultiChange> GrtListDiff::diff(const BaseListRef &source, const BaseListRef &target, const Omf *omf)
+std::shared_ptr<MultiChange> GrtListDiff::diff(const BaseListRef &source, const BaseListRef &target, const Omf *omf)
 {
   typedef std::vector<size_t> TIndexContainer;
   default_omf def_omf;
-  std::vector<boost::shared_ptr<ListItemChange> > changes;
+  std::vector<std::shared_ptr<ListItemChange> > changes;
   const Omf *comparer = omf?omf:&def_omf;
   ValueRef prev_value;
   //This is indexes of source's elements that exist in both target and source
@@ -164,7 +164,7 @@ boost::shared_ptr<MultiChange> GrtListDiff::diff(const BaseListRef &source, cons
       continue;
     internal::List::raw_const_iterator It = find_if (source.content().raw_begin(), source.content().raw_end(), std::bind2nd(OmfEqPred(comparer), v));
     if (It == source.content().raw_end())
-      changes.push_back(boost::shared_ptr<ListItemChange> (new ListItemAddedChange(v, prev_value, target_idx)));
+      changes.push_back(std::shared_ptr<ListItemChange> (new ListItemAddedChange(v, prev_value, target_idx)));
     else//item exists in both target and source, save indexes
       source_indexes.push_back(source.get_index(*It));
     prev_value = v;
@@ -189,7 +189,7 @@ boost::shared_ptr<MultiChange> GrtListDiff::diff(const BaseListRef &source, cons
       if (grt::ObjectRef::cast_from(v)->get_string_member("name") == "fk_tblClientApp_base_tblClient_base1_idx")
         dump_value(target);
   #endif
-      changes.push_back(boost::shared_ptr<ListItemChange> (new ListItemRemovedChange(v, source_idx)));
+      changes.push_back(std::shared_ptr<ListItemChange> (new ListItemRemovedChange(v, source_idx)));
     }
     else
       ordered_indexes.push_back(source_idx);
@@ -205,7 +205,7 @@ boost::shared_ptr<MultiChange> GrtListDiff::diff(const BaseListRef &source, cons
   {
     internal::List::raw_const_iterator It_target = find_if (target.content().raw_begin(), target.content().raw_end(), std::bind2nd(OmfEqPred(comparer), source.get(*It)));
     prev_value = It_target == target.content().raw_begin()?ValueRef():*(It_target-1);
-    boost::shared_ptr<ListItemOrderChange> orderchange(new ListItemOrderChange(source.get(*It), *It_target, omf, prev_value, target.get_index(*It_target)));
+    std::shared_ptr<ListItemOrderChange> orderchange(new ListItemOrderChange(source.get(*It), *It_target, omf, prev_value, target.get_index(*It_target)));
     //    if (!orderchange->subchanges()->empty())
     changes.push_back(orderchange);
   }
@@ -215,31 +215,31 @@ boost::shared_ptr<MultiChange> GrtListDiff::diff(const BaseListRef &source, cons
     internal::List::raw_const_iterator It_target = find_if (target.content().raw_begin(), target.content().raw_end(), std::bind2nd(OmfEqPred(comparer), source.get(*It)));
     if (It_target != target.content().raw_end())
     {
-      boost::shared_ptr<ListItemChange> change = create_item_modified_change(source.get(*It), *It_target, omf, target.get_index(*It_target));
+      std::shared_ptr<ListItemChange> change = create_item_modified_change(source.get(*It), *It_target, omf, target.get_index(*It_target));
       if (change)
         changes.push_back(change);
     }
   }
   ChangeSet retval;
   std::sort(changes.begin(), changes.end(), diffPred);
-  for(std::vector<boost::shared_ptr<ListItemChange> >::const_iterator It = changes.begin(); It != changes.end(); ++It)
+  for(std::vector<std::shared_ptr<ListItemChange> >::const_iterator It = changes.begin(); It != changes.end(); ++It)
     retval.append(*It);
-  return retval.empty()? boost::shared_ptr<MultiChange>() : boost::shared_ptr<MultiChange>(new MultiChange(ListModified, retval));
+  return retval.empty()? std::shared_ptr<MultiChange>() : std::shared_ptr<MultiChange>(new MultiChange(ListModified, retval));
 
 }
 
 ////////////////////////////////////////////////////////////////////////////
-boost::shared_ptr<ListItemModifiedChange> create_item_modified_change(
+std::shared_ptr<ListItemModifiedChange> create_item_modified_change(
                                                                       const ValueRef &source, 
                                                                       const ValueRef &target, 
                                                                       const Omf* omf, 
                                                                       const size_t index)
 {
-  boost::shared_ptr<DiffChange> subchange= GrtDiff(omf).diff(source, target, omf);
+  std::shared_ptr<DiffChange> subchange= GrtDiff(omf).diff(source, target, omf);
   if (!subchange)
-    return boost::shared_ptr<ListItemModifiedChange>();
+    return std::shared_ptr<ListItemModifiedChange>();
   //    diff_make(source, target, omf, sqlDefinitionCmp);
-  return boost::shared_ptr<ListItemModifiedChange> (new ListItemModifiedChange(source, target, subchange, index));
+  return std::shared_ptr<ListItemModifiedChange> (new ListItemModifiedChange(source, target, subchange, index));
 }
   
 }

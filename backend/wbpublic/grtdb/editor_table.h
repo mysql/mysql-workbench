@@ -22,8 +22,6 @@
 #include "grtdb/editor_dbobject.h"
 #include "grt/tree_model.h"
 
-#include <boost/shared_ptr.hpp>
-
 #include "grtdb/charset_list.h"
 
 #include "grts/structs.db.mgmt.h"
@@ -34,9 +32,9 @@
 
 
 class Recordset;
-typedef boost::shared_ptr<Recordset> RecordsetRef;
+typedef std::shared_ptr<Recordset> RecordsetRef;
 class Recordset_table_inserts_storage;
-typedef boost::shared_ptr<Recordset_table_inserts_storage> RecordsetTableInsertsStorageRef;
+typedef std::shared_ptr<Recordset_table_inserts_storage> RecordsetTableInsertsStorageRef;
 
 namespace mforms {
   class Form;

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,6 @@
 
 
 #include "wbpublic_public_interface.h"
-#include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 #include <vector>
 #include <string>
@@ -37,7 +36,7 @@
 class WBPUBLICBACKEND_PUBLIC_FUNC Sql_inserts_loader
 {
 public:
-  typedef boost::shared_ptr<Sql_inserts_loader> Ref;
+  typedef std::shared_ptr<Sql_inserts_loader> Ref;
   
 public:
   Sql_inserts_loader() {}

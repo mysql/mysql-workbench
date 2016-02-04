@@ -449,7 +449,7 @@ grt::StringRef DbMySQLScriptSync::generate_alter(db_mysql_CatalogRef org_cat, db
   omf.dontdiff_mask = 3;
   grt::NormalizedComparer normalizer;
   normalizer.init_omf(&omf);
-  boost::shared_ptr<DiffChange> alter_change= diff_make(org_cat_copy, mod_cat_copy, &omf);
+  std::shared_ptr<DiffChange> alter_change= diff_make(org_cat_copy, mod_cat_copy, &omf);
 
   // nothing changed
   if (!alter_change)
@@ -533,7 +533,7 @@ void DbMySQLScriptSync::restore_overriden_names()
   }
 }
 
-boost::shared_ptr<DiffTreeBE> DbMySQLScriptSync::init_diff_tree(const std::vector<std::string>& schemata,
+std::shared_ptr<DiffTreeBE> DbMySQLScriptSync::init_diff_tree(const std::vector<std::string>& schemata,
                                                                 const ValueRef &left, const ValueRef &right,
                                                                 StringListRef SchemaSkipList,
                                                                 grt::DictRef options)
@@ -653,7 +653,7 @@ boost::shared_ptr<DiffTreeBE> DbMySQLScriptSync::init_diff_tree(const std::vecto
   }
 
   // 3. build the tree
-  return _diff_tree= boost::shared_ptr<DiffTreeBE>(new ::DiffTreeBE(schemata, _mod_cat_copy, _org_cat, _alter_change));
+  return _diff_tree= std::shared_ptr<DiffTreeBE>(new ::DiffTreeBE(schemata, _mod_cat_copy, _org_cat, _alter_change));
 }
 
 std::string DbMySQLScriptSync::get_sql_for_object(GrtNamedObjectRef obj)
@@ -834,7 +834,7 @@ class ChangesApplier
   // secondary_mapping is used to collect object mappings for fields/containers/paths that are marked dontfollow
   // these objects should be collected by the other non-dontfollow paths, but in case they're not, they'll be here
   std::map<std::string, GrtObjectRef> secondary_mapping;
-  std::set<boost::shared_ptr<DiffChange> > processed_changes;
+  std::set<std::shared_ptr<DiffChange> > processed_changes;
   std::set<std::string> removed_objects;
 
   bool case_sensitive;
@@ -860,7 +860,7 @@ public:
   //Changes being applied from db side to model so everything goes backward
   //Added values being removed, removed being added and old values are restored
 
-  void apply_change_to_model(const boost::shared_ptr<DiffChange> change, GrtNamedObjectRef owner)
+  void apply_change_to_model(const std::shared_ptr<DiffChange> change, GrtNamedObjectRef owner)
   {
       if (processed_changes.find(change) != processed_changes.end())
           return;
