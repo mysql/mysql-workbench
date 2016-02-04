@@ -40,7 +40,7 @@ string(STRIP ${WB_VERSION} WB_VERSION)
 # Look for our custom modules in cmake/Modules:
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/build/cmake/Modules/")
 
-if(ENABLE_COTIRE)
+if(ENABLE_COTIRE AND CMAKE_VERSION VERSION_GREATER "2.8.11")
   include(cotire)
   set_property(DIRECTORY PROPERTY COTIRE_UNITY_LINK_LIBRARIES_INIT "COPY_UNITY")
 endif()
