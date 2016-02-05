@@ -1,9 +1,0 @@
-diff a/modules/db.mysql.sqlparser/src/mysql_sql_parser_fe.cpp b/modules/db.mysql.sqlparser/src/mysql_sql_parser_fe.cpp	(rejected hunks)
-@@ -17,6 +17,7 @@
-  * 02110-1301  USA
-  */
- 
-+#include <stdafx.h>
- #include <glib.h>
- #include "grtdb/charset_utils.h"
- #include "base/string_utilities.h"

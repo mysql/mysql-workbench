@@ -289,6 +289,7 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
   int keep_alive_interval= _grtm->get_app_option_int("DbSqlEditor:KeepAliveInterval", 600);
   if (keep_alive_interval != 0)
   {
+    log_debug3("Create KeepAliveInterval timer\n");
     _keep_alive_task_id = ThreadedTimer::add_task(TimerTimeSpan, keep_alive_interval, false, boost::bind(&SqlEditorForm::send_message_keep_alive_bool_wrapper, this));
   }
 
@@ -1639,12 +1640,22 @@ RecMutexLock SqlEditorForm::ensure_valid_dbc_connection(sql::Dbc_connection_hand
                                                         bool throw_on_block)
 {
   RecMutexLock mutex_lock(dbc_conn_mutex, throw_on_block);
-  bool valid= false;
+  bool valid = false;
 
   sql::Dbc_connection_handler::Ref myref(dbc_conn);
   if (dbc_conn && dbc_conn->ref.get_ptr())
   {
-    if (dbc_conn->ref->isClosed())
+    try
+    {
+      //use connector::isValid to check if server connection is valid
+      //this will also ping the server and reconnect if needed
+      valid = dbc_conn->ref->isValid();
+    } catch (std::exception &exc)
+    {
+      log_error("CppConn::isValid exception: %s", exc.what());
+      valid = false;
+    }
+    if (!valid)
     {
       bool user_connection = _usr_dbc_conn ? dbc_conn->ref.get_ptr() == _usr_dbc_conn->ref.get_ptr() : false;
 
@@ -1659,10 +1670,7 @@ RecMutexLock SqlEditorForm::ensure_valid_dbc_connection(sql::Dbc_connection_hand
       }
     }
     else
-    {
-      ping();
       valid= true;
-    }
   }
   if (!valid)
     throw grt::db_not_connected("DBMS connection is not available");
@@ -2571,6 +2579,7 @@ void SqlEditorForm::send_message_keep_alive()
 {
   try
   {
+    log_debug3("KeepAliveInterval tick\n");
     // ping server and reset connection timeout counter
     // this also checks the connection state and restores it if possible
     ensure_valid_aux_connection();
