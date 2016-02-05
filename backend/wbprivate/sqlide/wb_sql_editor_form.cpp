@@ -287,6 +287,7 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
   _last_log_message_timestamp = timestamp();
 
   int keep_alive_interval= _grtm->get_app_option_int("DbSqlEditor:KeepAliveInterval", 600);
+
   if (keep_alive_interval != 0)
   {
     log_debug3("Create KeepAliveInterval timer\n");
@@ -421,6 +422,22 @@ void SqlEditorForm::finish_startup()
 
   GRTNotificationCenter::get()->send_grt("GRNSQLEditorOpened", grtobj(), grt::DictRef());
 
+  int keep_alive_interval= _grtm->get_app_option_int("DbSqlEditor:KeepAliveInterval", 600);
+
+  //  We have to set these variables so that the server doesn't timeout before we ping everytime
+  // From http://dev.mysql.com/doc/refman/5.7/en/communication-errors.html for reasones to loose the connection
+  // - The client had been sleeping more than wait_timeout or interactive_timeout seconds without issuing any requests to the server
+  //  We're adding 10 seconds for communication delays
+  {
+    std::string value;
+    
+    if (get_session_variable(_usr_dbc_conn->ref.get(), "wait_timeout", value) && base::atoi<int>(value) < keep_alive_interval)
+      exec_main_sql(base::strfmt("SET @@SESSION.wait_timeout=%d", keep_alive_interval + 10), false);
+    
+    if (get_session_variable(_usr_dbc_conn->ref.get(), "interactive_timeout", value) && base::atoi<int>(value) < keep_alive_interval)
+      exec_main_sql(base::strfmt("SET @@SESSION.interactive_timeout=%d", keep_alive_interval + 10), false);
+  }  
+  
   _startup_done = true;
 }
 
@@ -694,7 +711,6 @@ bool SqlEditorForm::get_session_variable(sql::Connection *dbc_conn, const std::s
   }
   return false;
 }
-
 
 void SqlEditorForm::schema_tree_did_populate()
 {
@@ -1581,7 +1597,6 @@ bool SqlEditorForm::ping() const
     base::RecMutexTryLock tmp(_usr_dbc_conn_mutex);
     if (!tmp.locked()) //is conn mutex is locked by someone else, then we assume the conn is in use and thus, there'a a connection.
       return true;
-
     if (_usr_dbc_conn && _usr_dbc_conn->ref.get_ptr())
     {
       std::auto_ptr<sql::Statement> stmt(_usr_dbc_conn->ref->createStatement());
@@ -1590,10 +1605,11 @@ bool SqlEditorForm::ping() const
         std::auto_ptr<sql::ResultSet> result(stmt->executeQuery("select 1"));
         return true;
       }
-      catch (...)
+      catch(const std::exception &ex)
       {
-        // failed
+        log_error("Failed to ping the server: %s\n", ex.what());
       }
+
     }
   }
   return false;
