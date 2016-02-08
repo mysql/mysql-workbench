@@ -214,6 +214,14 @@ std::vector<std::string> MySQLObjectNamesCache::getMatchingCollations(const std:
 
 //--------------------------------------------------------------------------------------------------
 
+std::vector<std::string> MySQLObjectNamesCache::getMatchingEvents(const std::string &schema, const std::string &prefix)
+{
+  addPendingRefresh(RefreshTask::RefreshEvents);
+  return getMatchingObjects("events", schema, "", prefix, RetrieveWithSchemaQualifier);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * Core object retrieval function.
  */
@@ -438,6 +446,10 @@ void MySQLObjectNamesCache::refreshThread()
 
         case RefreshTask::RefreshTableSpaces:
           doRefreshTablespaces();
+          break;
+          
+        case RefreshTask::RefreshEvents:
+          doRefreshEvents(task.schemaName);
           break;
       }
     }
@@ -834,6 +846,30 @@ void MySQLObjectNamesCache::doRefreshTablespaces()
 
 //--------------------------------------------------------------------------------------------------
 
+void MySQLObjectNamesCache::doRefreshEvents(const std::string &schema)
+{
+  std::string sql = base::sqlstring("SELECT EVENT_NAME FROM information_schema.EVENTS WHERE EVENT_SCHEMA = ?", 0) << schema;
+  base::StringListPtr events(new std::list<std::string>());
+  std::vector<std::pair<std::string, std::string>> result = _getValues(sql);
+
+  for (auto &entry : result)
+    if (!entry.first.empty())
+      events->push_back(entry.first);
+
+  if (!_shutdown)
+  {
+    updateObjectNames("events", schema, events);
+
+    //TODO: this should be called in a way that this notification will be delivered on the main thread only.
+    base::NotificationInfo info;
+    info["type"] = "events";
+    info["path"] = schema;
+    base::NotificationCenter::get()->send("GNObjectCache", this, info);
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void MySQLObjectNamesCache::updateSchemas(const std::set<std::string> &schemas)
 {
   logDebug3("Updating schema list");
@@ -894,6 +930,13 @@ void MySQLObjectNamesCache::updateProcedures(const std::string &schema, base::St
 void MySQLObjectNamesCache::updateFunctions(const std::string &schema, base::StringListPtr functions)
 {
   updateObjectNames("functions", schema, functions);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void MySQLObjectNamesCache::updateEvents(const std::string &schema, base::StringListPtr events)
+{
+  updateObjectNames("events", schema, events);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -968,6 +1011,7 @@ void MySQLObjectNamesCache::addPendingRefresh(RefreshTask::RefreshType type, con
       case RefreshTask::RefreshViews:
       case RefreshTask::RefreshProcedures:
       case RefreshTask::RefreshFunctions:
+      case RefreshTask::RefreshEvents:
         found = task.schemaName == schema;
         break;
 
