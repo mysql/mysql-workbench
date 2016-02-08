@@ -287,8 +287,10 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
   _last_log_message_timestamp = timestamp();
 
   int keep_alive_interval= _grtm->get_app_option_int("DbSqlEditor:KeepAliveInterval", 600);
+
   if (keep_alive_interval != 0)
   {
+    logDebug3("Create KeepAliveInterval timer\n");
     _keep_alive_task_id = ThreadedTimer::add_task(TimerTimeSpan, keep_alive_interval, false, boost::bind(&SqlEditorForm::send_message_keep_alive_bool_wrapper, this));
   }
 
@@ -451,6 +453,22 @@ void SqlEditorForm::finish_startup()
 
   GRTNotificationCenter::get()->send_grt("GRNSQLEditorOpened", grtobj(), grt::DictRef());
 
+  int keep_alive_interval= _grtm->get_app_option_int("DbSqlEditor:KeepAliveInterval", 600);
+
+  //  We have to set these variables so that the server doesn't timeout before we ping everytime
+  // From http://dev.mysql.com/doc/refman/5.7/en/communication-errors.html for reasones to loose the connection
+  // - The client had been sleeping more than wait_timeout or interactive_timeout seconds without issuing any requests to the server
+  //  We're adding 10 seconds for communication delays
+  {
+    std::string value;
+    
+    if (get_session_variable(_usr_dbc_conn->ref.get(), "wait_timeout", value) && base::atoi<int>(value) < keep_alive_interval)
+      exec_main_sql(base::strfmt("SET @@SESSION.wait_timeout=%d", keep_alive_interval + 10), false);
+    
+    if (get_session_variable(_usr_dbc_conn->ref.get(), "interactive_timeout", value) && base::atoi<int>(value) < keep_alive_interval)
+      exec_main_sql(base::strfmt("SET @@SESSION.interactive_timeout=%d", keep_alive_interval + 10), false);
+  }  
+  
   _startup_done = true;
 }
 
@@ -724,7 +742,6 @@ bool SqlEditorForm::get_session_variable(sql::Connection *dbc_conn, const std::s
   }
   return false;
 }
-
 
 void SqlEditorForm::schema_tree_did_populate()
 {
@@ -1592,7 +1609,6 @@ bool SqlEditorForm::ping() const
     base::RecMutexTryLock tmp(_usr_dbc_conn_mutex);
     if (!tmp.locked()) //is conn mutex is locked by someone else, then we assume the conn is in use and thus, there'a a connection.
       return true;
-
     if (_usr_dbc_conn && _usr_dbc_conn->ref.get_ptr())
     {
       std::auto_ptr<sql::Statement> stmt(_usr_dbc_conn->ref->createStatement());
@@ -1601,10 +1617,11 @@ bool SqlEditorForm::ping() const
         std::auto_ptr<sql::ResultSet> result(stmt->executeQuery("select 1"));
         return true;
       }
-      catch (...)
+      catch(const std::exception &ex)
       {
-        // failed
+        logError("Failed to ping the server: %s\n", ex.what());
       }
+
     }
   }
   return false;
@@ -1651,12 +1668,22 @@ RecMutexLock SqlEditorForm::ensure_valid_dbc_connection(sql::Dbc_connection_hand
                                                         bool throw_on_block)
 {
   RecMutexLock mutex_lock(dbc_conn_mutex, throw_on_block);
-  bool valid= false;
+  bool valid = false;
 
   sql::Dbc_connection_handler::Ref myref(dbc_conn);
   if (dbc_conn && dbc_conn->ref.get_ptr())
   {
-    if (dbc_conn->ref->isClosed())
+    try
+    {
+      //use connector::isValid to check if server connection is valid
+      //this will also ping the server and reconnect if needed
+      valid = dbc_conn->ref->isValid();
+    } catch (std::exception &exc)
+    {
+      logError("CppConn::isValid exception: %s", exc.what());
+      valid = false;
+    }
+    if (!valid)
     {
       bool user_connection = _usr_dbc_conn ? dbc_conn->ref.get_ptr() == _usr_dbc_conn->ref.get_ptr() : false;
 
@@ -2038,12 +2065,6 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
     std::pair<size_t, size_t> statement_range;
     BOOST_FOREACH (statement_range, statement_ranges)
     {
-      if (total_result_count >= max_resultset_count)
-      {
-        results_left = true;
-        break;
-      }
-
       statement = sql->substr(statement_range.first, statement_range.second);
       std::list<std::string> sub_statements;
       sql_facade->splitSqlScript(statement, sub_statements);
@@ -2215,22 +2236,26 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
           {
             for (size_t processed_substatements_count= 0; processed_substatements_count < multiple_statement_count; ++processed_substatements_count)
             {
-              if (total_result_count >= max_resultset_count)
-              {
-                results_left = true;
-                break;
-              }
-
               do
               {
-                if (total_result_count >= max_resultset_count)
-                {
-                  results_left = true;
-                  break;
-                }
-
                 if (more_results)
                 {
+                  if (total_result_count == max_resultset_count)
+                  {
+                    int result = mforms::Utilities::show_warning(_("Maximum result count reached"),
+                                                  "No further result tabs will be displayed as the maximm number has been reached. \nYou may stop the operation, leaving the connection out of sync. You'll have to got o 'Query->Reconnect to server' menu item to reset the state.\n\n Do you want to cancel the operation?",
+                                                  "Yes", "No");
+                    if (result == mforms::ResultOk)
+                    {
+                      add_log_message(DbSqlEditorLog::ErrorMsg, "Not more results could be displayed. Operation cancelled by user", statement, "");
+                      dbc_statement->cancel();
+                      dbc_statement->close();
+                      return grt::StringRef("");
+                    }
+                    add_log_message(DbSqlEditorLog::WarningMsg, "Not more results will be displayed because the maximum number of result sets was reached.", statement, "");
+                  }
+                    
+                  
                   if (!reuse_log_msg && ((updated_rows_count >= 0) || (resultset_count)))
                     log_message_index= add_log_message(DbSqlEditorLog::BusyMsg, _("Fetching..."), statement, "- / ?");
                   else
@@ -2265,6 +2290,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                         err_msg= strfmt(_("Error Code: %i. %s"), e.getErrorCode(), e.what());
                         break;
                       }
+
                       set_log_message(log_message_index, DbSqlEditorLog::ErrorMsg, err_msg, statement, statement_exec_timer.duration_formatted());
                       
                       if (_continue_on_error)
@@ -2273,7 +2299,13 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                         goto stop_processing_sql_script;
                     }
                   }
-                  if (dbc_resultset)
+
+                  std::string exec_and_fetch_durations=
+                    (((updated_rows_count >= 0) || (resultset_count)) ? std::string("-") : statement_exec_timer.duration_formatted()) + " / " +
+                    statement_fetch_timer.duration_formatted();
+                  if (total_result_count >= max_resultset_count)
+                    set_log_message(log_message_index, DbSqlEditorLog::OKMsg, "Row count could not be verified", statement, exec_and_fetch_durations);
+                  else if (dbc_resultset)
                   {
                     if (!data_storage)
                     {
@@ -2321,35 +2353,25 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                       std::string statement_res_msg = base::to_string(rs->row_count()) + _(" row(s) returned");
                       if (!last_statement_info->empty())
                         statement_res_msg.append("\n").append(last_statement_info);
-                      std::string exec_and_fetch_durations=
-                        (((updated_rows_count >= 0) || (resultset_count)) ? std::string("-") : statement_exec_timer.duration_formatted()) + " / " +
-                        statement_fetch_timer.duration_formatted();
 
                       set_log_message(log_message_index, DbSqlEditorLog::OKMsg, statement_res_msg, statement, exec_and_fetch_durations);
                     }
                     ++resultset_count;
-                    ++total_result_count;
                   }
                   else
                   {
                     reuse_log_msg= true;
                   }
+                  ++total_result_count;
                   data_storage.reset();
                 }
               }
               while ((more_results = dbc_statement->getMoreResults()));
-
-              // If we stopped fetching before we got to the end of the result sets finish
-              // fetching here.
-              while (dbc_statement->getMoreResults())
-                ;
             }
           }
           
           if ((updated_rows_count < 0) && !(resultset_count))
-          {
             set_log_message(log_message_index, DbSqlEditorLog::OKMsg, _("OK"), statement, statement_exec_timer.duration_formatted());
-          }
         }
       }
     } // BOOST_FOREACH (statement, statements)
@@ -2459,7 +2481,7 @@ static wb::LiveSchemaTree::ObjectType str_to_object_type(const std::string &obje
   else if (object_type == "db.Schema")
     return LiveSchemaTree::Schema;
 
-  return LiveSchemaTree::None;
+  return LiveSchemaTree::NoneType;
 }
 
 void SqlEditorForm::handle_command_side_effects(const std::string &sql)
@@ -2475,7 +2497,7 @@ void SqlEditorForm::handle_command_side_effects(const std::string &sql)
   {
 
     wb::LiveSchemaTree::ObjectType obj = str_to_object_type(object_type);
-    if (obj != wb::LiveSchemaTree::None)
+    if (obj != wb::LiveSchemaTree::NoneType)
     {
       std::vector<std::pair<std::string, std::string> >::reverse_iterator rit;
 
@@ -2585,6 +2607,7 @@ void SqlEditorForm::send_message_keep_alive()
 {
   try
   {
+    logDebug3("KeepAliveInterval tick\n");
     // ping server and reset connection timeout counter
     // this also checks the connection state and restores it if possible
     ensure_valid_aux_connection();
