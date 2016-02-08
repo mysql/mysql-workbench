@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -164,7 +164,18 @@ uint32_t MySQLScanner::token_line()
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Returns the index directly following the last character of the token in the input string.
+ * Returns the byte index of the start of token in the input string.
+ */
+size_t MySQLScanner::token_start()
+{
+  pANTLR3_COMMON_TOKEN token = d->_tokens[d->_token_index];
+  return token->charPosition;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Returns the byte index directly following the last character of the token in the input string.
  */
 size_t MySQLScanner::token_end()
 {
