@@ -55,6 +55,7 @@ struct MySQLGrammarNode {
   bool isTerminal;
   bool isRequired;     // false for * and ? operators, otherwise true.
   bool multiple;        // true for + and * operators, otherwise false.
+  bool any;             // Set for . as grammar node (which matches any lexer token).
   uint32_t tokenRef;   // In case of a terminal the id of the token.
   std::string ruleRef; // In case of a non-terminal the name of the rule.
 
@@ -63,6 +64,7 @@ struct MySQLGrammarNode {
     isTerminal = true;
     isRequired = true;
     multiple = false;
+    any = false;
     tokenRef = INVALID_TOKEN;
   }
 };
@@ -152,6 +154,7 @@ static struct
     specialRules.insert("engine_ref");
     specialRules.insert("collation_name");
     specialRules.insert("charset_name");
+    specialRules.insert("event_ref");
     
     specialRules.insert("user_variable");
     specialRules.insert("system_variable");
@@ -230,6 +233,7 @@ static struct
     ignoredTokens.insert("DECIMAL_NUMBER");
     ignoredTokens.insert("BIN_NUMBER");
     ignoredTokens.insert("HEX_NUMBER");
+    ignoredTokens.insert("DOT_IDENTIFIER");
 
     // Load token map first.
     std::string tokenFileName = base::strip_extension(name) + ".tokens";
@@ -511,11 +515,15 @@ private:
           break;
         }
 
+        case CHAR_LITERAL:
+        case STRING_LITERAL:
         case TOKEN_REF:
         {
           node.isTerminal = true;
           pANTLR3_STRING tokenText = child->getText(child);
           std::string name = (char*)tokenText->chars;
+          if (type == CHAR_LITERAL || type == STRING_LITERAL)
+            name = base::unquote(name);
           node.tokenRef = tokenMap[name];
           break;
         }
@@ -540,6 +548,12 @@ private:
           break;
         }
 
+        case DOT_SYM: // Match any token, except EOF.
+          node.isTerminal = true;
+          node.any = true;
+          node.tokenRef = DOT_SYMBOL; // Just a dummy (one of the ignore tokens), so it doesn't appear in the list.
+          break;
+
         case LABEL_ASSIGN_V3TOK:
         {
           // A variable assignment, instead of a token or rule reference.
@@ -547,19 +561,30 @@ private:
           pANTLR3_BASE_TREE token = (pANTLR3_BASE_TREE)child->getChild(child, 1);
           node.isTerminal = true;
 
-          // The grammar is at this point not clear, about what we see here actually.
-          // Could be a rule ref or a token ref. The problem is both not stored as RULE_REF/TOKEN_REF
-          // but as a simple string.
-          std::string tokenText = (char*)token->getText(token)->chars;
-          std::map<std::string, uint32_t>::const_iterator position = tokenMap.find(tokenText);
-          if (position != tokenMap.end())
-            node.tokenRef = position->second;
-          else
+          switch (token->getType(token))
           {
-            // Assume it's a rule if we couldn't find it in the token list.
-            node.isTerminal = false;
-            node.ruleRef = tokenText;
+            case DOT_SYM:
+              node.any = true;
+              node.tokenRef = DOT_SYMBOL;
+              break;
+
+            case CHAR_LITERAL:
+            case STRING_LITERAL:
+            case TOKEN_REF:
+            {
+              std::string tokenText = (char*)token->getText(token)->chars;
+              if (type == CHAR_LITERAL || type == STRING_LITERAL)
+                tokenText = base::unquote(tokenText);
+              node.tokenRef = tokenMap[tokenText];
+              break;
+            }
+
+            default:
+              std::stringstream message;
+              message << "Unhandled type: " << type << " in label assignment: " << name;
+              throw std::runtime_error(message.str());
           }
+
           break;
         }
 
@@ -865,7 +890,7 @@ private:
       {
         node = sequence.nodes[i];
         if (node.isTerminal)
-          matched = node.tokenRef == scanner->token_type();
+          matched = scanner->is(node.tokenRef) || (node.any && !scanner->is(ANTLR3_TOKEN_EOF));
         else
           matched = matchRuleAndCollectTableRefs(node.ruleRef);
 
@@ -898,7 +923,7 @@ private:
           {
             if (node.isTerminal)
             {
-              matched = node.tokenRef == scanner->token_type();
+              matched = scanner->is(node.tokenRef) || (node.any && !scanner->is(ANTLR3_TOKEN_EOF));
               scanner->next(true);
             }
             else
@@ -933,7 +958,6 @@ private:
   */
   bool matchRuleAndCollectTableRefs(const std::string &rule)
   {
-    size_t marker = scanner->position();
     MySQLRuleAlternatives alts = rulesHolder.rules[rule];
 
     if (alts.optimized)
@@ -946,6 +970,7 @@ private:
     }
     else
     {
+      size_t marker = scanner->position();
       for (auto &alternative : alts.sequence)
       {
         // First run predicate checks if this alt can be considered at all.
@@ -1082,7 +1107,7 @@ private:
 
   bool isTokenEndAfterCaret()
   {
-    if (scanner->token_type() == ANTLR3_TOKEN_EOF)
+    if (scanner->is(ANTLR3_TOKEN_EOF))
       return true;
 
     assert(scanner->token_line() > 0);
@@ -1244,7 +1269,7 @@ private:
   bool match(const MySQLGrammarNode &node, uint32_t tokenType)
   {
     if (node.isTerminal)
-      return node.tokenRef == tokenType;
+      return (node.tokenRef == tokenType) || (node.any && !scanner->is(ANTLR3_TOKEN_EOF));
     else
       return matchRule(node.ruleRef);
   }
@@ -1342,14 +1367,15 @@ private:
 
             // XXX: hack, need a better way to find out when we have to include the special rule from the stack.
             //      Using a fixed token look-back might not be valid for all languages.
-            if (lastToken == DOT_SYMBOL)
+            if (lastToken == DOT_SYMBOL || scanner->is(DOT_IDENTIFIER))
             {
               for (auto &entry : walkStack)
               {
                 if (rulesHolder.specialRules.count(entry) > 0)
                 {
                   completionCandidates.insert(entry);
-                  break;
+                  runState = RunStateMatching;
+                  return hasMatchedAllMandatoryTokens(sequence, i);
                 }
               }
             }
@@ -1601,7 +1627,7 @@ static ObjectFlags determineQualifier(std::shared_ptr<MySQLScanner> scanner, std
   }
 
   // Bail out if there is no more id parts or we are already behind the caret position.
-  if (!scanner->is(DOT_SYMBOL) || position <= scanner->position())
+  if (!(scanner->is(DOT_SYMBOL) || scanner->is(DOT_IDENTIFIER)) || position <= scanner->position())
     return ObjectFlags(ShowFirst | ShowSecond);
 
   qualifier = temp;
@@ -1637,9 +1663,9 @@ static ObjectFlags determineSchemaTableQualifier(std::shared_ptr<MySQLScanner> s
   // Go left until we find something not related to an id or at most 2 dots.
   if (position > 0)
   {
-    if (scanner->is_identifier() && scanner->look_around(-1, true) == DOT_SYMBOL)
+    if (scanner->is_identifier() && (scanner->look_around(-1, true) == DOT_SYMBOL || scanner->look_around(-1, true) == DOT_IDENTIFIER))
       scanner->previous(true);
-    if (scanner->is(DOT_SYMBOL) && scanner->MySQLRecognitionBase::isIdentifier(scanner->look_around(-1, true)))
+    if ((scanner->is(DOT_SYMBOL) || scanner->is(DOT_IDENTIFIER)) && scanner->MySQLRecognitionBase::isIdentifier(scanner->look_around(-1, true)))
     {
       scanner->previous(true);
 
@@ -1665,18 +1691,18 @@ static ObjectFlags determineSchemaTableQualifier(std::shared_ptr<MySQLScanner> s
   }
 
   // Bail out if there is no more id parts or we are already behind the caret position.
-  if (!scanner->is(DOT_SYMBOL) || position <= scanner->position())
+  if (!(scanner->is(DOT_SYMBOL) || scanner->is(DOT_IDENTIFIER)) || position <= scanner->position())
     return ObjectFlags(ShowSchemas | ShowTables | ShowColumns);
 
   scanner->next(true); // Skip dot.
   table = temp;
   schema = temp;
-  if (scanner->is_identifier())
+  if (scanner->is_identifier() || scanner->is(DOT_IDENTIFIER))
   {
     temp = base::unquote(scanner->token_text());
     scanner->next(true);
 
-    if (!scanner->is(DOT_SYMBOL) || position <= scanner->position())
+    if (!(scanner->is(DOT_SYMBOL) || scanner->is(DOT_IDENTIFIER)) || position <= scanner->position())
       return ObjectFlags(ShowTables | ShowColumns); // Schema only valid for tables. Columns must use default schema.
 
     table = temp;
@@ -1708,32 +1734,44 @@ static void insertSchemas(MySQLObjectNamesCache *cache, CompletionSet &set, cons
 
 //--------------------------------------------------------------------------------------------------
 
-static void insertTables(MySQLObjectNamesCache *cache, CompletionSet &set, const std::string &schema,
+static void insertTables(MySQLObjectNamesCache *cache, CompletionSet &set, std::set<std::string> &schemas,
   const std::string &typedPart)
 {
-  std::vector<std::string> tables = cache->getMatchingTableNames(schema, typedPart);
-  for (auto &table : tables)
-    set.insert({AC_TABLE_IMAGE, table});
+  for (auto &schema : schemas)
+  {
+    std::vector<std::string> tables = cache->getMatchingTableNames(schema, typedPart);
+    for (auto &table : tables)
+      set.insert({AC_TABLE_IMAGE, table});
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-static void insertViews(MySQLObjectNamesCache *cache, CompletionSet &set, const std::string &schema,
+static void insertViews(MySQLObjectNamesCache *cache, CompletionSet &set, const std::set<std::string> &schemas,
   const std::string &typedPart)
 {
-  std::vector<std::string> views = cache->getMatchingViewNames(schema, typedPart);
-  for (auto &view : views)
-    set.insert({AC_VIEW_IMAGE, view});
+  for (auto &schema : schemas)
+  {
+    std::vector<std::string> views = cache->getMatchingViewNames(schema, typedPart);
+    for (auto &view : views)
+      set.insert({AC_VIEW_IMAGE, view});
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-static void insertColumns(MySQLObjectNamesCache *cache, CompletionSet &set, const std::string &schema,
-  const std::string &table, const std::string &typedPart)
+static void insertColumns(MySQLObjectNamesCache *cache, CompletionSet &set, const std::set<std::string> &schemas,
+  const std::set<std::string> &tables, const std::string &typedPart)
 {
-  std::vector<std::string> columns = cache->getMatchingColumnNames(schema, table, typedPart);
-  for (auto &column : columns)
-    set.insert({AC_COLUMN_IMAGE, column});
+  for (auto &schema : schemas)
+  {
+    for (auto &table : tables)
+    {
+      std::vector<std::string> columns = cache->getMatchingColumnNames(schema, table, typedPart);
+      for (auto &column : columns)
+        set.insert({AC_COLUMN_IMAGE, column});
+    }
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1774,14 +1812,16 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
   CompletionSet tablespaceEntries;
   CompletionSet systemVarEntries;
   CompletionSet keywordEntries;
-
-  // To be done yet.
-  CompletionSet userVarEntries;
   CompletionSet collationEntries;
   CompletionSet charsetEntries;
+  CompletionSet eventEntries;
+
+  // Handled but needs meat yet.
+  CompletionSet userVarEntries;
+  
+  // To be done yet.
   CompletionSet userEntries;
   CompletionSet indexEntries;
-  CompletionSet eventEntries;
   CompletionSet pluginEntries;
   CompletionSet fkEntries;
 
@@ -1827,6 +1867,10 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
               entry = "";
               break;
             }
+          }
+          else if (token == "JSON_SEPARATOR")
+          {
+            keywordEntries.insert({AC_OPERATOR_IMAGE, "->"});
           }
           else
           {
@@ -1934,12 +1978,12 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
           if ((flags & ShowSchemas) != 0)
             insertSchemas(cache, schemaEntries, context.typedPart);
 
-          if (schema.empty())
-            schema = defaultSchema;
+          std::set<std::string> schemas;
+          schemas.insert(schema.empty() ? defaultSchema : schema);
           if ((flags & ShowTables) != 0)
           {
-            insertTables(cache, tableEntries, schema, context.typedPart);
-            insertViews(cache, viewEntries, schema, context.typedPart);
+            insertTables(cache, tableEntries, schemas, context.typedPart);
+            insertViews(cache, viewEntries, schemas, context.typedPart);
           }
         }
         else if (candidate == "table_ref" || candidate == "filter_table_ref" || candidate == "table_ref_no_db")
@@ -1955,89 +1999,107 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
 
           if ((flags & ShowSecond) != 0)
           {
-            if (qualifier.empty())
-              qualifier = defaultSchema;
+            std::set<std::string> schemas;
+            schemas.insert(qualifier.empty() ? defaultSchema : qualifier);
 
-            insertTables(cache, tableEntries, qualifier, context.typedPart);
-            insertViews(cache, viewEntries, qualifier, context.typedPart);
+            insertTables(cache, tableEntries, schemas, context.typedPart);
+            insertViews(cache, viewEntries, schemas, context.typedPart);
           }
         }
-        else if (candidate == "column_ref" || candidate == "column_ref_with_wildcard" || candidate == "table_wild")
+        else if (candidate == "column_ref" || candidate == "column_internal_ref" || candidate == "column_ref_with_wildcard" || candidate == "table_wild")
         {
           logDebug3("Adding column names from cache\n");
 
+          // Try limiting what to show to the smallest set possible.
+          // If we have table references show columns only from them.
+          // Show columns from the default schema only if there are no references.
           std::string schema, table;
           ObjectFlags flags = determineSchemaTableQualifier(scanner, schema, table);
           if ((flags & ShowSchemas) != 0)
             insertSchemas(cache, schemaEntries, context.typedPart);
 
-          std::string usedSchema = schema.empty() ? defaultSchema : schema;
+          // If a schema is given then list only tables + columns from that schema.
+          // If no schema is given but we have table references use the schemas from them.
+          // Otherwise use the default schema.
+          // TODO: case sensitivity.
+          std::set<std::string> schemas;
+
+          if (!schema.empty())
+            schemas.insert(schema);
+          else
+            if (!context.references.empty())
+            {
+              for (size_t i = 0; i < context.references.size(); ++ i)
+              {
+                if (!context.references[i].schema.empty())
+                  schemas.insert(context.references[i].schema);
+              }
+            }
+
+          if (schemas.empty())
+            schemas.insert(defaultSchema);
+
           if ((flags & ShowTables) != 0)
           {
-            insertTables(cache, tableEntries, usedSchema, context.typedPart);
+            insertTables(cache, tableEntries, schemas, context.typedPart);
             if (candidate == "column_ref")
             {
               // Insert also views.
-              insertViews(cache, viewEntries, schema, context.typedPart);
+              insertViews(cache, viewEntries, schemas, context.typedPart);
 
-              // Insert also tables from our references list (which is a collection of table names
-              // with aliases).
-              for (const auto &reference : context.references)
+              // Insert also tables from our references list.
+              for (auto &reference : context.references)
               {
-                if ((reference.schema.empty() && schema.empty()) || reference.schema == usedSchema)
-                  tableEntries.insert({AC_TABLE_IMAGE, reference.alias.empty() ? reference.table : reference.alias});
+                // If no schema was specified then allow also tables without a given schema. Otherwise
+                // the reference's schema must match any of the specified schemas (which include those from the ref list).
+                if ((schema.empty() && reference.schema.empty()) || (schemas.count(reference.schema) > 0))
+                  tableEntries.insert(std::make_pair(AC_TABLE_IMAGE, reference.alias.empty() ? reference.table : reference.alias));
               }
             }
           }
 
           if ((flags & ShowColumns) != 0)
           {
+            if (schema == table) // Schema and table are equal if it's not clear if we see a schema or table qualfier.
+              schemas.insert(defaultSchema);
+            
+            // For the columns we use a similar approach like for the schemas.
+            // If a table is given, list only columns from this (use the set of schemas from above).
+            // If not and we have table references then show columns from them.
+            // Otherwise show no columns.
+            std::set<std::string> tables;
             if (!table.empty())
             {
-              // If we only show columns then we can use the given schema.
-              // Otherwise we don't have an explicit schema and use the default one.
-              if (flags != ShowColumns)
-                schema = defaultSchema;
-              insertColumns(cache, columnEntries, schema, table, context.typedPart);
-            }
+              tables.insert(table);
 
-            if (candidate == "column_ref")
-            {
-              // Insert also columns from matching tables from our references list.
-              // If a table is given use only this one. Otherwise list columns for all tables in the reference list.
-              if (!table.empty())
-              {
-                for (auto &reference : context.references)
+              // Could be an alias.
+              for (size_t i = 0; i < context.references.size(); ++ i)
+                if (base::same_string(table, context.references[i].alias))
                 {
-                  if (reference.alias == table)
-                  {
-                    if (!reference.schema.empty())
-                      schema = reference.schema;
-                    insertColumns(cache, columnEntries, schema, reference.table, context.typedPart);
-                  }
+                  tables.insert(context.references[i].table);
+                  break;
                 }
               }
               else
+              if (!context.references.empty() && candidate == "column_ref")
               {
-                // No table given. If there is also no reference yet then list all columns from the current schema
-                // to have an easier start.
-                if (context.references.empty())
-                  insertColumns(cache, columnEntries, defaultSchema, "", context.typedPart);
-                else
-                {
-                  for (auto &reference : context.references)
-                  {
-                    schema = reference.schema.empty() ? defaultSchema : reference.schema;
-                    insertColumns(cache, columnEntries, schema, reference.table, context.typedPart);
-                  }
-                }
+                for (size_t i = 0; i < context.references.size(); ++ i)
+                  tables.insert(context.references[i].table);
               }
 
-              // Special deal here: triggers. Show columns for the "new" and "old" qualifiers too.
-              if (queryType == QtCreateTrigger && !context.references.empty() && (base::same_string(table, "old") || base::same_string(table, "new")))
-              {
-                insertColumns(cache, columnEntries, schema, context.references[0].table, context.typedPart);
-              }
+            if (!tables.empty())
+            {
+              insertColumns(cache, columnEntries, schemas, tables, context.typedPart);
+            }
+
+            // Special deal here: triggers. Show columns for the "new" and "old" qualifiers too.
+            // Use the first reference in the list, which is the table to which this trigger belongs (there can be more
+            // if the trigger body references other tables).
+            if (queryType == QtCreateTrigger && !context.references.empty() && (base::same_string(table, "old") || base::same_string(table, "new")))
+            {
+              tables.clear();
+              tables.insert(context.references[0].table);
+              insertColumns(cache, columnEntries, schemas, tables, context.typedPart);
             }
           }
         }
@@ -2050,8 +2112,11 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
           std::string qualifier;
           ObjectFlags flags = determineQualifier(scanner, qualifier);
 
+          std::set<std::string> schemas;
+          schemas.insert(defaultSchema);
+          
           if ((flags & ShowFirst) != 0)
-            insertTables(cache, schemaEntries, defaultSchema, context.typedPart);
+            insertTables(cache, schemaEntries, schemas, context.typedPart);
 
           if ((flags & ShowSecond) != 0)
           {
@@ -2073,10 +2138,9 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
 
           if ((flags & ShowSecond) != 0)
           {
-            if (qualifier.empty())
-              qualifier = defaultSchema;
-
-            insertViews(cache, viewEntries, qualifier, context.typedPart);
+            std::set<std::string> schemas;
+            schemas.insert(qualifier.empty() ? defaultSchema : qualifier);
+            insertViews(cache, viewEntries, schemas, context.typedPart);
           }
         }
         else if (candidate == "logfile_group_ref")
@@ -2123,6 +2187,26 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
           std::vector<std::string> collations = cache->getMatchingCollations(context.typedPart);
           for (auto &collation : collations)
             collationEntries.insert(std::make_pair(AC_COLLATION_IMAGE, collation));
+        }
+        else if (candidate == "event_ref")
+        {
+          logDebug3("Adding events\n");
+
+          std::string qualifier;
+          ObjectFlags flags = determineQualifier(scanner, qualifier);
+
+          if ((flags & ShowFirst) != 0)
+            insertSchemas(cache, schemaEntries, context.typedPart);
+
+          if ((flags & ShowSecond) != 0)
+          {
+            if (qualifier.empty())
+              qualifier = defaultSchema;
+
+            std::vector<std::string> events = cache->getMatchingEvents(qualifier, context.typedPart);
+            for (auto &event : events)
+              eventEntries.insert({AC_EVENT_IMAGE, event});
+          }
         }
         else
           keywordEntries.insert({0, candidate});
