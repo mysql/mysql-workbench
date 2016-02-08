@@ -66,6 +66,8 @@ public:
   std::vector<std::string> get_matching_charsets(const std::string &prefix = "");
   std::vector<std::string> get_matching_collations(const std::string &prefix = "");
 
+  std::vector<std::string> get_matching_events(const std::string &schema = "", const std::string &prefix = "");
+
   // Data refresh functions. To be called from outside when data objects are created or destroyed.
   void refresh_schema_list();
   bool refresh_schema_cache_if_needed(const std::string &schema);
@@ -76,6 +78,7 @@ public:
   void refresh_udfs();
   void refresh_tablespaces();    // Logfile groups and tablespaces are unqualified,
   void refresh_logfile_groups(); // even though they belong to a specific table.
+  void refresh_events();
 
   // Update functions that can also be called from outside.
   void update_schemas(const std::vector<std::string> &schemas);
@@ -83,6 +86,7 @@ public:
   void update_views(const std::string &schema, base::StringListPtr tables);
   void update_procedures(const std::string &schema, base::StringListPtr tables);
   void update_functions(const std::string &schema, base::StringListPtr tables);
+  void update_events(const std::string &schema, base::StringListPtr events);
 
   // Status functions.
   bool is_schema_list_fetch_done();
@@ -110,7 +114,8 @@ private:
       RefreshLogfileGroups,
       RefreshTableSpaces,
       RefreshCharsets,
-      RefreshCollations
+      RefreshCollations,
+      RefreshEvents
     } type;
     std::string schema_name;
     std::string table_name;
@@ -145,7 +150,6 @@ private:
   void refresh_procedures_w(const std::string &schema);
   void refresh_columns_w(const std::string &schema, const std::string &table);
   void refresh_triggers_w(const std::string &schema, const std::string &table);
-
   void refresh_udfs_w();
   void refreshCharsets_w();
   void refreshCollations_w();
@@ -153,6 +157,7 @@ private:
   void refresh_engines_w();
   void refresh_logfile_groups_w();
   void refresh_tablespaces_w();
+  void refreshEvents_w(const std::string &schema);
 
   void update_object_names(const std::string &cache, const std::vector<std::string> &objects);
   void update_object_names(const std::string &cache,
