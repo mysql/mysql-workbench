@@ -59,6 +59,7 @@ struct GrammarNode {
   bool is_terminal;
   bool is_required;     // false for * and ? operators, otherwise true.
   bool multiple;        // true for + and * operators, otherwise false.
+  bool any;             // Set for . as grammar node (which matches any lexer token).
   uint32_t token_ref;   // In case of a terminal the id of the token.
   std::string rule_ref; // In case of a non-terminal the name of the rule.
 
@@ -67,6 +68,7 @@ struct GrammarNode {
     is_terminal = true;
     is_required = true;
     multiple = false;
+    any = false;
     token_ref = INVALID_TOKEN;
   }
 };
@@ -156,6 +158,7 @@ static struct
     special_rules.insert("engine_ref");
     special_rules.insert("collation_name");
     special_rules.insert("charset_name");
+    special_rules.insert("event_ref");
 
     special_rules.insert("user_variable");
     special_rules.insert("system_variable");
@@ -234,6 +237,7 @@ static struct
     ignored_tokens.insert("DECIMAL_NUMBER");
     ignored_tokens.insert("BIN_NUMBER");
     ignored_tokens.insert("HEX_NUMBER");
+    ignored_tokens.insert("DOT_IDENTIFIER");
 
     // Load token map first.
     std::string tokenFileName = base::strip_extension(name) + ".tokens";
@@ -517,11 +521,15 @@ private:
           break;
         }
 
+        case CHAR_LITERAL:
+        case STRING_LITERAL:
         case TOKEN_REF:
         {
           node.is_terminal = true;
           pANTLR3_STRING token_text = child->getText(child);
           std::string name = (char*)token_text->chars;
+          if (type == CHAR_LITERAL || type == STRING_LITERAL)
+            name = base::unquote(name);
           node.token_ref = token_map[name];
           break;
         }
@@ -546,6 +554,12 @@ private:
           break;
         }
 
+        case DOT_SYM: // Match any token, except EOF.
+          node.is_terminal = true;
+          node.any = true;
+          node.token_ref = DOT_SYMBOL; // Just a dummy (one of the ignore tokens), so it doesn't appear in the list.
+          break;
+
         case LABEL_ASSIGN_V3TOK:
         {
           // A variable assignment, instead of a token or rule reference.
@@ -553,19 +567,30 @@ private:
           pANTLR3_BASE_TREE token = (pANTLR3_BASE_TREE)child->getChild(child, 1);
           node.is_terminal = true;
 
-          // The grammar is at this point not clear, about what we see here actually.
-          // Could be a rule ref or a token ref. The problem is both not stored as RULE_REF/TOKEN_REF
-          // but as a simple string.
-          std::string token_text = (char*)token->getText(token)->chars;
-          std::map<std::string, uint32_t>::const_iterator position = token_map.find(token_text);
-          if (position != token_map.end())
-            node.token_ref = position->second;
-          else
+          switch (token->getType(token))
           {
-            // Assume it's a rule if we couldn't find it in the token list.
-            node.is_terminal = false;
-            node.rule_ref = token_text;
+            case DOT_SYM:
+              node.any = true;
+              node.token_ref = DOT_SYMBOL;
+              break;
+
+            case CHAR_LITERAL:
+            case STRING_LITERAL:
+            case TOKEN_REF:
+            {
+              std::string tokenText = (char*)token->getText(token)->chars;
+              if (type == CHAR_LITERAL || type == STRING_LITERAL)
+                tokenText = base::unquote(tokenText);
+              node.token_ref = token_map[tokenText];
+              break;
+            }
+
+            default:
+              std::stringstream message;
+              message << "Unhandled type: " << type << " in label assignment: " << name;
+              throw std::runtime_error(message.str());
           }
+
           break;
         }
 
@@ -872,7 +897,7 @@ private:
       {
         node = sequence.nodes[i];
         if (node.is_terminal)
-          matched = node.token_ref == scanner->token_type();
+          matched = scanner->is(node.token_ref) || (node.any && !scanner->is(ANTLR3_TOKEN_EOF));
         else
           matched = matchRuleAndCollectTableRefs(node.rule_ref);
 
@@ -905,7 +930,7 @@ private:
           {
             if (node.is_terminal)
             {
-              matched = node.token_ref == scanner->token_type();
+              matched = scanner->is(node.token_ref) || (node.any && !scanner->is(ANTLR3_TOKEN_EOF));
               scanner->next(true);
             }
             else
@@ -940,7 +965,6 @@ private:
    */
   bool matchRuleAndCollectTableRefs(const std::string &rule)
   {
-    size_t marker = scanner->position();
     RuleAlternatives alts = rules_holder.rules[rule];
 
     if (alts.optimized)
@@ -953,6 +977,7 @@ private:
     }
     else
     {
+      size_t marker = scanner->position();
       for (std::vector<GrammarSequence>::const_iterator i = alts.sequence.begin(); i != alts.sequence.end(); ++i)
       {
         // First run predicate checks if this alt can be considered at all.
@@ -1252,7 +1277,7 @@ private:
   bool match(const GrammarNode &node, uint32_t token_type)
   {
     if (node.is_terminal)
-      return node.token_ref == token_type;
+      return (node.token_ref == token_type) || (node.any && !scanner->is(ANTLR3_TOKEN_EOF));
     else
       return match_rule(node.rule_ref);
   }
@@ -1350,14 +1375,15 @@ private:
 
             // XXX: hack, need a better way to find out when we have to include the special rule from the stack.
             //      Using a fixed token look-back might not be valid for all languages.
-            if (lastToken == DOT_SYMBOL)
+            if (lastToken == DOT_SYMBOL || scanner->is(DOT_IDENTIFIER))
             {
               for (std::deque<std::string>::const_iterator iterator = walk_stack.begin(); iterator != walk_stack.end(); ++iterator)
               {
                 if (rules_holder.special_rules.find(*iterator) != rules_holder.special_rules.end())
                 {
                   completion_candidates.insert(*iterator);
-                  break;
+                  run_state = RunStateMatching;
+                  return hasMatchedAllMandatoryTokens(sequence, i);
                 }
               }
             }
@@ -1520,7 +1546,7 @@ private:
             result_state = run_state;
           }
         }
-        
+
         scanner->seek(marker);
       }
 
@@ -1697,11 +1723,11 @@ std::string MySQLEditor::get_written_part(size_t position)
     run++;
   }
   
-  // If we come here then we are outside any quoted text. Scan back for anything we consider to be a word stopper.
+  // If we come here then we are outside of any quoted text. Scan back for anything we consider to be a word stopper.
   while (head < run--)
   {
     gunichar *converted = g_utf8_to_ucs4_fast(run, 1, NULL);
-    bool isStopper = !g_unichar_isalnum(*converted);
+    bool isStopper = !(g_unichar_isalnum(*converted) || *run == '_');
     g_free(converted);
     if (isStopper)
       return run + 1;
@@ -1771,7 +1797,7 @@ ObjectFlags determine_qualifier(boost::shared_ptr<MySQLScanner> scanner, std::st
   }
 
   // Bail out if there is no more id parts or we are already behind the caret position.
-  if (!scanner->is(DOT_SYMBOL) || position <= scanner->position())
+  if (!(scanner->is(DOT_SYMBOL) || scanner->is(DOT_IDENTIFIER)) || position <= scanner->position())
     return ObjectFlags(ShowFirst | ShowSecond);
 
   qualifier = temp;
@@ -1806,9 +1832,9 @@ ObjectFlags determine_schema_table_qualifier(boost::shared_ptr<MySQLScanner> sca
   // Go left until we find something not related to an id or at most 2 dots.
   if (position > 0)
   {
-    if (scanner->is_identifier() && scanner->look_around(-1, true) == DOT_SYMBOL)
+    if (scanner->is_identifier() && (scanner->look_around(-1, true) == DOT_SYMBOL || scanner->look_around(-1, true) == DOT_IDENTIFIER))
       scanner->previous(true);
-    if (scanner->is(DOT_SYMBOL) && scanner->MySQLRecognitionBase::is_identifier(scanner->look_around(-1, true)))
+    if ((scanner->is(DOT_SYMBOL) || scanner->is(DOT_IDENTIFIER)) && scanner->MySQLRecognitionBase::is_identifier(scanner->look_around(-1, true)))
     {
       scanner->previous(true);
 
@@ -1834,18 +1860,18 @@ ObjectFlags determine_schema_table_qualifier(boost::shared_ptr<MySQLScanner> sca
   }
 
   // Bail out if there is no more id parts or we are already behind the caret position.
-  if (!scanner->is(DOT_SYMBOL) || position <= scanner->position())
+  if (!(scanner->is(DOT_SYMBOL) || scanner->is(DOT_IDENTIFIER)) || position <= scanner->position())
     return ObjectFlags(ShowSchemas | ShowTables | ShowColumns);
 
   scanner->next(true); // Skip dot.
   table = temp;
   schema = temp;
-  if (scanner->is_identifier())
+  if (scanner->is_identifier() || scanner->is(DOT_IDENTIFIER))
   {
     temp = base::unquote(scanner->token_text());
     scanner->next(true);
 
-    if (!scanner->is(DOT_SYMBOL) || position <= scanner->position())
+    if (!(scanner->is(DOT_SYMBOL) || scanner->is(DOT_IDENTIFIER)) || position <= scanner->position())
       return ObjectFlags(ShowTables | ShowColumns); // Schema only valid for tables. Columns must use default schema.
 
     table = temp;
@@ -1868,7 +1894,7 @@ typedef std::set<std::pair<int, std::string>, CompareAcEntries> CompletionSet;
 
 //--------------------------------------------------------------------------------------------------
 
-void insert_schemas(AutoCompleteCache *cache, CompletionSet &set, const std::string &typed_part)
+static void insertSchemas(AutoCompleteCache *cache, CompletionSet &set, const std::string &typed_part)
 {
   std::vector<std::string> schemas = cache->get_matching_schema_names(typed_part);
   for (std::vector<std::string>::const_iterator schema = schemas.begin(); schema != schemas.end(); ++schema)
@@ -1877,32 +1903,44 @@ void insert_schemas(AutoCompleteCache *cache, CompletionSet &set, const std::str
 
 //--------------------------------------------------------------------------------------------------
 
-void insert_tables(AutoCompleteCache *cache, CompletionSet &set, const std::string &schema,
+static void insertTables(AutoCompleteCache *cache, CompletionSet &set, const std::set<std::string> &schemas,
   const std::string &typed_part)
 {
-  std::vector<std::string> tables = cache->get_matching_table_names(schema, typed_part);
-  for (std::vector<std::string>::const_iterator table = tables.begin(); table != tables.end(); ++table)
-    set.insert(std::make_pair(AC_TABLE_IMAGE, *table));
+  for (std::set<std::string>::const_iterator iterator = schemas.begin(); iterator != schemas.end(); ++iterator)
+  {
+    std::vector<std::string> tables = cache->get_matching_table_names(*iterator, typed_part);
+    for (std::vector<std::string>::const_iterator table = tables.begin(); table != tables.end(); ++table)
+      set.insert(std::make_pair(AC_TABLE_IMAGE, *table));
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void insert_views(AutoCompleteCache *cache, CompletionSet &set, const std::string &schema,
+static void insertViews(AutoCompleteCache *cache, CompletionSet &set, const std::set<std::string> &schemas,
   const std::string &typed_part)
 {
-  std::vector<std::string> views = cache->get_matching_view_names(schema, typed_part);
-  for (std::vector<std::string>::const_iterator view = views.begin(); view != views.end(); ++view)
-    set.insert(std::make_pair(AC_VIEW_IMAGE, *view));
+  for (std::set<std::string>::const_iterator iterator = schemas.begin(); iterator != schemas.end(); ++iterator)
+  {
+    std::vector<std::string> views = cache->get_matching_view_names(*iterator, typed_part);
+    for (std::vector<std::string>::const_iterator view = views.begin(); view != views.end(); ++view)
+      set.insert(std::make_pair(AC_VIEW_IMAGE, *view));
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void insertColumns(AutoCompleteCache *cache, CompletionSet &set, const std::string &schema,
-  const std::string &table, const std::string &typedPart)
+static void insertColumns(AutoCompleteCache *cache, CompletionSet &set, const std::set<std::string> &schemas,
+  const std::set<std::string> &tables, const std::string &typedPart)
 {
-  std::vector<std::string> columns = cache->get_matching_column_names(schema, table, typedPart);
-  for (std::vector<std::string>::const_iterator column = columns.begin(); column != columns.end(); ++column)
-    set.insert(std::make_pair(AC_COLUMN_IMAGE, *column));
+  for (std::set<std::string>::const_iterator schemaIterator = schemas.begin(); schemaIterator != schemas.end(); ++schemaIterator)
+  {
+    for (std::set<std::string>::const_iterator tableIterator = tables.begin(); tableIterator != tables.end(); ++tableIterator)
+    {
+      std::vector<std::string> columns = cache->get_matching_column_names(*schemaIterator, *tableIterator, typedPart);
+      for (std::vector<std::string>::const_iterator column = columns.begin(); column != columns.end(); ++column)
+        set.insert(std::make_pair(AC_COLUMN_IMAGE, *column));
+    }
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1991,6 +2029,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
   CompletionSet keyword_entries;
   CompletionSet collation_entries;
   CompletionSet charset_entries;
+  CompletionSet event_entries;
 
   // Handled but needs meat yet.
   CompletionSet user_var_entries;
@@ -1998,7 +2037,6 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
   // To be done yet.
   CompletionSet user_entries;
   CompletionSet index_entries;
-  CompletionSet event_entries;
   CompletionSet plugin_entries;
 
   _auto_completion_entries.clear();
@@ -2047,6 +2085,10 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
               entry = "";
               break;
             }
+          }
+          else if (token == "JSON_SEPARATOR")
+          {
+            keyword_entries.insert(std::make_pair(AC_OPERATOR_IMAGE, "->"));
           }
           else
           {
@@ -2102,7 +2144,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
         else if (*i == "schema_ref")
         {
           log_debug3("Adding schema names from cache\n");
-          insert_schemas(_auto_completion_cache, schema_entries, context.typed_part);
+          insertSchemas(_auto_completion_cache, schema_entries, context.typed_part);
         }
         else if (*i == "procedure_ref")
         {
@@ -2112,7 +2154,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
           ObjectFlags flags = determine_qualifier(scanner, qualifier);
 
           if ((flags & ShowFirst) != 0)
-            insert_schemas(_auto_completion_cache, schema_entries, context.typed_part);
+            insertSchemas(_auto_completion_cache, schema_entries, context.typed_part);
 
           if ((flags & ShowSecond) != 0)
           {
@@ -2132,7 +2174,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
           ObjectFlags flags = determine_qualifier(scanner, qualifier);
 
           if ((flags & ShowFirst) != 0)
-            insert_schemas(_auto_completion_cache, schema_entries, context.typed_part);
+            insertSchemas(_auto_completion_cache, schema_entries, context.typed_part);
 
           if ((flags & ShowSecond) != 0)
           {
@@ -2153,14 +2195,14 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
           std::string schema, table;
           ObjectFlags flags = determine_schema_table_qualifier(scanner, schema, table);
           if ((flags & ShowSchemas) != 0)
-            insert_schemas(_auto_completion_cache, schema_entries, context.typed_part);
+            insertSchemas(_auto_completion_cache, schema_entries, context.typed_part);
 
-          if (schema.empty())
-            schema = _current_schema;
+          std::set<std::string> schemas;
+          schemas.insert(schema.empty() ? _current_schema : schema);
           if ((flags & ShowTables) != 0)
           {
-            insert_tables(_auto_completion_cache, table_entries, schema, context.typed_part);
-            insert_views(_auto_completion_cache, view_entries, schema, context.typed_part);
+            insertTables(_auto_completion_cache, table_entries, schemas, context.typed_part);
+            insertViews(_auto_completion_cache, view_entries, schemas, context.typed_part);
           }
         }
         else if (*i == "table_ref" || *i == "filter_table_ref" || *i == "table_ref_no_db")
@@ -2172,41 +2214,65 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
           ObjectFlags flags = determine_qualifier(scanner, qualifier);
 
           if ((flags & ShowFirst) != 0)
-            insert_schemas(_auto_completion_cache, schema_entries, context.typed_part);
+            insertSchemas(_auto_completion_cache, schema_entries, context.typed_part);
 
           if ((flags & ShowSecond) != 0)
           {
-            if (qualifier.empty())
-              qualifier = _current_schema;
+            std::set<std::string> schemas;
+            schemas.insert(qualifier.empty() ? _current_schema : qualifier);
 
-            insert_tables(_auto_completion_cache, table_entries, qualifier, context.typed_part);
-            insert_views(_auto_completion_cache, view_entries, qualifier, context.typed_part);
+            insertTables(_auto_completion_cache, table_entries, schemas, context.typed_part);
+            insertViews(_auto_completion_cache, view_entries, schemas, context.typed_part);
           }
         }
         else if (*i == "column_ref" || *i == "column_internal_ref" || *i == "column_ref_with_wildcard" || *i == "table_wild")
         {
           log_debug3("Adding column names from cache\n");
 
+          // Try limiting what to show to the smallest set possible.
+          // If we have table references show columns only from them.
+          // Show columns from the default schema only if there are no references.
           std::string schema, table;
           ObjectFlags flags = determine_schema_table_qualifier(scanner, schema, table);
           if ((flags & ShowSchemas) != 0)
-            insert_schemas(_auto_completion_cache, schema_entries, context.typed_part);
+            insertSchemas(_auto_completion_cache, schema_entries, context.typed_part);
 
-          std::string used_schema = schema.empty() ? _current_schema : schema;
+          // If a schema is given then list only tables + columns from that schema.
+          // If no schema is given but we have table references use the schemas from them.
+          // Otherwise use the default schema.
+          // TODO: case sensitivity.
+          std::set<std::string> schemas;
+
+          if (!schema.empty())
+            schemas.insert(schema);
+          else
+            if (!context.references.empty())
+            {
+              for (size_t i = 0; i < context.references.size(); ++ i)
+              {
+                if (!context.references[i].schema.empty())
+                  schemas.insert(context.references[i].schema);
+              }
+            }
+
+          if (schemas.empty())
+            schemas.insert(_current_schema);
+
           if ((flags & ShowTables) != 0)
           {
-            insert_tables(_auto_completion_cache, table_entries, used_schema, context.typed_part);
+            insertTables(_auto_completion_cache, table_entries, schemas, context.typed_part);
             if (*i == "column_ref")
             {
               // Insert also views.
-              insert_views(_auto_completion_cache, view_entries, used_schema, context.typed_part);
+              insertViews(_auto_completion_cache, view_entries, schemas, context.typed_part);
 
-              // Insert also tables from our references list (which is a collection of table names
-              // with aliases).
+              // Insert also tables from our references list.
               for (std::vector<TableReference>::const_iterator iterator = context.references.begin();
                    iterator != context.references.end(); ++iterator)
               {
-                if ((iterator->schema.empty() && schema.empty()) || iterator->schema == used_schema)
+                // If no schema was specified then allow also tables without a given schema. Otherwise
+                // the reference's schema must match any of the specified schemas (which include those from the ref list).
+                if ((schema.empty() && iterator->schema.empty()) || (schemas.count(iterator->schema) > 0))
                   table_entries.insert(std::make_pair(AC_TABLE_IMAGE, iterator->alias.empty() ? iterator->table : iterator->alias));
               }
             }
@@ -2214,54 +2280,46 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
 
           if ((flags & ShowColumns) != 0)
           {
+            if (schema == table) // Schema and table are equal if it's not clear if we see a schema or table qualfier.
+              schemas.insert(_current_schema);
+            
+            // For the columns we use a similar approach like for the schemas.
+            // If a table is given, list only columns from this (use the set of schemas from above).
+            // If not and we have table references then show columns from them.
+            // Otherwise show no columns.
+            std::set<std::string> tables;
             if (!table.empty())
             {
-              // If we only show columns then we can use the given schema.
-              // Otherwise we don't have an explicit schema and use the default one.
-              if (flags != ShowColumns)
-                schema = _current_schema;
-              insertColumns(_auto_completion_cache, column_entries, schema, table, context.typed_part);
+              tables.insert(table);
+
+              // Could be an alias.
+              for (size_t i = 0; i < context.references.size(); ++ i)
+                if (base::same_string(table, context.references[i].alias))
+                {
+                  tables.insert(context.references[i].table);
+                  break;
+                }
+            }
+            else
+              if (!context.references.empty() && *i == "column_ref")
+              {
+                for (size_t i = 0; i < context.references.size(); ++ i)
+                  tables.insert(context.references[i].table);
+              }
+
+            if (!tables.empty())
+            {
+              insertColumns(_auto_completion_cache, column_entries, schemas, tables, context.typed_part);
             }
 
-            if (*i == "column_ref")
+            // Special deal here: triggers. Show columns for the "new" and "old" qualifiers too.
+            // Use the first reference in the list, which is the table to which this trigger belongs (there can be more
+            // if the trigger body references other tables).
+            if (queryType == QtCreateTrigger && !context.references.empty() && (base::same_string(table, "old") || base::same_string(table, "new")))
             {
-              // Insert also columns from matching tables from our references list.
-              // If a table is given use only this one. Otherwise list columns for all tables in the reference list.
-              if (!table.empty())
-              {
-                for (std::vector<TableReference>::const_iterator iterator = context.references.begin();
-                     iterator != context.references.end(); ++iterator)
-                {
-                  if (iterator->alias == table)
-                  {
-                    if (!iterator->schema.empty())
-                      schema = iterator->schema;
-                    insertColumns(_auto_completion_cache, column_entries, schema, iterator->table, context.typed_part);
-                  }
-                }
-              }
-              else
-              {
-                // No table given. If there is also no reference yet then list all columns from the current schema
-                // to have an easier start.
-                if (context.references.empty())
-                  insertColumns(_auto_completion_cache, column_entries, _current_schema, "", context.typed_part);
-                else
-                {
-                  for (std::vector<TableReference>::const_iterator iterator = context.references.begin();
-                       iterator != context.references.end(); ++ iterator)
-                  {
-                    schema = iterator->schema.empty() ? _current_schema : iterator->schema;
-                    insertColumns(_auto_completion_cache, column_entries, schema, iterator->table, context.typed_part);
-                  }
-                }
-              }
-
-              // Special deal here: triggers. Show columns for the "new" and "old" qualifiers too.
-              if (queryType == QtCreateTrigger && !context.references.empty() && (base::same_string(table, "old") || base::same_string(table, "new")))
-              {
-                insertColumns(_auto_completion_cache, column_entries, schema, context.references[0].table, context.typed_part);
-              }
+              tables.clear();
+              tables.insert(context.references[0].table);
+              insertColumns(_auto_completion_cache, column_entries, schemas, tables, context.typed_part);
             }
           }
         }
@@ -2274,8 +2332,11 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
           std::string qualifier;
           ObjectFlags flags = determine_qualifier(scanner, qualifier);
 
+          std::set<std::string> schemas;
+          schemas.insert(_current_schema);
+
           if ((flags & ShowFirst) != 0)
-            insert_tables(_auto_completion_cache, schema_entries, _current_schema, context.typed_part);
+            insertTables(_auto_completion_cache, schema_entries, schemas, context.typed_part);
 
           if ((flags & ShowSecond) != 0)
           {
@@ -2293,7 +2354,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
           ObjectFlags flags = determine_qualifier(scanner, qualifier);
 
           if ((flags & ShowFirst) != 0)
-            insert_schemas(_auto_completion_cache, schema_entries, context.typed_part);
+            insertSchemas(_auto_completion_cache, schema_entries, context.typed_part);
 
           if ((flags & ShowSecond) != 0)
           {
@@ -2349,6 +2410,26 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
           std::vector<std::string> collations = _auto_completion_cache->get_matching_collations(context.typed_part);
           for (std::vector<std::string>::const_iterator collation = collations.begin(); collation != collations.end(); ++collation)
             collation_entries.insert(std::make_pair(AC_COLLATION_IMAGE, *collation));
+        }
+        else if (*i == "event_ref")
+        {
+          log_debug3("Adding events\n");
+
+          std::string qualifier;
+          ObjectFlags flags = determine_qualifier(scanner, qualifier);
+
+          if ((flags & ShowFirst) != 0)
+            insertSchemas(_auto_completion_cache, schema_entries, context.typed_part);
+
+          if ((flags & ShowSecond) != 0)
+          {
+            if (qualifier.empty())
+              qualifier = _current_schema;
+
+            std::vector<std::string> events = _auto_completion_cache->get_matching_events(qualifier, context.typed_part);
+            for (std::vector<std::string>::const_iterator event = events.begin(); event != events.end(); ++event)
+              view_entries.insert(std::make_pair(AC_EVENT_IMAGE, *event));
+          }
         }
         else
           keyword_entries.insert(std::make_pair(0, *i));

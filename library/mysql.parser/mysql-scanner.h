@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,6 +40,7 @@ public:
   MySQLToken token();
   uint32_t token_type();
   uint32_t token_line();
+  size_t token_start();
   size_t token_end();
   size_t token_channel();
   std::string token_text();

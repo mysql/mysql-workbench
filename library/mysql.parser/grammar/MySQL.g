@@ -432,7 +432,7 @@ extern "C" {
 //-------------------------------------------------------------------------------------------------
 
 query:
-	(statement SEMICOLON_SYMBOL?)? EOF
+	((statement | begin_work) SEMICOLON_SYMBOL?)? EOF
 ;
 
 statement:
@@ -474,6 +474,10 @@ statement:
 	
 	// MySQL utilitity statements
 	| utility_statement
+	
+	| {SERVER_VERSION >= 50604}? get_diagnostics
+	| {SERVER_VERSION >= 50500}? signal_statement
+	| {SERVER_VERSION >= 50500}? resignal_statement
 ;
 
 //----------------- DDL statements -----------------------------------------------------------------
@@ -977,7 +981,7 @@ drop_logfile_group_option:
 
 rename_table_statement:
 	RENAME_SYMBOL^ (TABLE_SYMBOL | TABLES_SYMBOL)
-		table_ref TO_SYMBOL table_ref (COMMA_SYMBOL table_ref TO_SYMBOL table_ref)*
+		table_ref TO_SYMBOL table_name (COMMA_SYMBOL table_ref TO_SYMBOL table_name)*
 ;
 	
 //--------------------------------------------------------------------------------------------------
@@ -1411,7 +1415,6 @@ transaction_or_locking_statement:
 
 transaction_statement:
 	START_SYMBOL^ TRANSACTION_SYMBOL transaction_characteristic*
-	| BEGIN_SYMBOL^ WORK_SYMBOL?
 	| COMMIT_SYMBOL^ WORK_SYMBOL? (AND_SYMBOL NO_SYMBOL? CHAIN_SYMBOL)? (NO_SYMBOL? RELEASE_SYMBOL)?
 	| ROLLBACK_SYMBOL^ WORK_SYMBOL?
 		(
@@ -1421,6 +1424,11 @@ transaction_statement:
 	// In order to avoid needing a predicate to solve ambiquity between this and general SET statements with global/session variables the following
 	// alternative is moved to the set_statement rule.
 	//| SET_SYMBOL option_type? TRANSACTION_SYMBOL set_transaction_characteristic (COMMA_SYMBOL set_transaction_characteristic)*
+;
+
+// BEGIN WORK is separated from transactional statements as it must not appear as part of a stored program.
+begin_work:
+	BEGIN_SYMBOL^ WORK_SYMBOL?
 ;
 
 transaction_characteristic:
@@ -2574,34 +2582,63 @@ channel:
 //----------------- Stored program rules -----------------------------------------------------------
 
 // Compound syntax for stored procedures, stored functions, triggers and events.
-compound_statement:
-	label?
-		(
-			{LA(2) != WORK_SYMBOL}? begin_end_block
-			| loop_block
-			| repeat_until_block
-			| while_do_block
-		)
-	| case_statement
-	| if_statement
-	| iterate_statement
-	| leave_statement
+// Both sp_proc_stmt and ev_sql_stmt_inner in the server grammar.
+compound_statement options { k = 3; }:
+	statement
 	| return_statement
-	
+	| if_statement
+	| case_statement
+	| labeled_block
+	| unlabeled_block
+	| labeled_control
+	| unlabeled_control
+	| leave_statement
+	| iterate_statement
+
 	| cursor_open
 	| cursor_fetch
 	| cursor_close
-	
-	| statement
-	| {SERVER_VERSION >= 50604}? get_diagnostics
-	| {SERVER_VERSION >= 50500}? signal_statement
-	| {SERVER_VERSION >= 50500}? resignal_statement
+;
+
+return_statement:
+	RETURN_SYMBOL expression
+;
+
+if_statement:
+	IF_SYMBOL^ if_body END_SYMBOL IF_SYMBOL
+;
+
+if_body:
+	expression then_statement (ELSEIF_SYMBOL if_body | ELSE_SYMBOL compound_statement_list)?
+;
+
+then_statement:
+	THEN_SYMBOL^ compound_statement_list
 ;
 
 compound_statement_list:
 	(compound_statement SEMICOLON_SYMBOL)+
 ;
 
+// CASE rule solely for stored programs. There's another variant (case_expression) used in (primary) expressions.
+// In the server grammar there are 2 variants of this rule actually (one simple and one searched).
+// They differ only in action code, not syntax.
+case_statement:
+	CASE_SYMBOL^ expression (when_expression then_statement)+ else_statement? END_SYMBOL CASE_SYMBOL
+;
+
+else_statement:
+	ELSE_SYMBOL^ compound_statement_list
+;
+
+labeled_block:
+	label begin_end_block label_identifier?
+;
+	
+unlabeled_block:
+	begin_end_block
+;
+	
 label:
 	// Block labels can only be up to 16 characters long.
 	label_identifier COLON_SYMBOL -> ^(LABEL_TOKEN label_identifier COLON_SYMBOL)
@@ -2612,32 +2649,51 @@ label_identifier:
 ;
 
 begin_end_block: 
-	BEGIN_SYMBOL^ declarations compound_statement_list? END_SYMBOL label_identifier?
+	BEGIN_SYMBOL^ sp_declarations? compound_statement_list? END_SYMBOL
+;
+
+labeled_control:
+	label unlabeled_control label_identifier?
+;
+
+unlabeled_control:
+	loop_block
+	| while_do_block
+	| repeat_until_block
 ;
 
 loop_block:
-	LOOP_SYMBOL^ compound_statement_list END_SYMBOL LOOP_SYMBOL label_identifier?
-;
-
-repeat_until_block:
-	REPEAT_SYMBOL^ compound_statement_list UNTIL_SYMBOL expression END_SYMBOL REPEAT_SYMBOL label_identifier?
+	LOOP_SYMBOL^ compound_statement_list END_SYMBOL LOOP_SYMBOL
 ;
 
 while_do_block:
-	WHILE_SYMBOL^ expression DO_SYMBOL compound_statement_list END_SYMBOL WHILE_SYMBOL label_identifier?
+	WHILE_SYMBOL^ expression DO_SYMBOL compound_statement_list END_SYMBOL WHILE_SYMBOL
 ;
 
-declarations: // Order is important here.
-	( options { k = 3; }: DECLARE_SYMBOL identifier (variable_declaration | condition_declaration))*
-		cursor_declaration* handler_declaration*
+repeat_until_block:
+	REPEAT_SYMBOL^ compound_statement_list UNTIL_SYMBOL expression END_SYMBOL REPEAT_SYMBOL
+;
+
+sp_declarations:
+	(sp_declaration SEMICOLON_SYMBOL)+
+;
+
+sp_declaration:
+	DECLARE_SYMBOL
+	(
+		variable_declaration
+		| condition_declaration
+		| handler_declaration
+		| cursor_declaration
+	) 
 ;
 
 variable_declaration:
-	(COMMA_SYMBOL identifier)* data_type (DEFAULT_SYMBOL expression)? SEMICOLON_SYMBOL
+	identifier_list data_type (COLLATE_SYMBOL collation_name_or_default)? (DEFAULT_SYMBOL expression)?
 ;
 
 condition_declaration:
-	CONDITION_SYMBOL FOR_SYMBOL sp_condition SEMICOLON_SYMBOL
+	identifier CONDITION_SYMBOL FOR_SYMBOL sp_condition
 ;
 
 sp_condition:
@@ -2649,42 +2705,21 @@ sqlstate:
 	SQLSTATE_SYMBOL VALUE_SYMBOL? string_literal
 ;
 
-cursor_declaration:
-	DECLARE_SYMBOL identifier CURSOR_SYMBOL FOR_SYMBOL select_statement SEMICOLON_SYMBOL
-;
-
 handler_declaration:
-	DECLARE_SYMBOL (CONTINUE_SYMBOL | EXIT_SYMBOL | UNDO_SYMBOL) HANDLER_SYMBOL
-		FOR_SYMBOL handler_condition (COMMA_SYMBOL handler_condition)* compound_statement SEMICOLON_SYMBOL
+	(CONTINUE_SYMBOL | EXIT_SYMBOL | UNDO_SYMBOL) HANDLER_SYMBOL
+		FOR_SYMBOL handler_condition (COMMA_SYMBOL handler_condition)* compound_statement
 ;
 
 handler_condition:
 	sp_condition
 	| identifier
 	| SQLWARNING_SYMBOL
-	| NOT_SYMBOL FOUND_SYMBOL
+	| not_rule FOUND_SYMBOL
 	| SQLEXCEPTION_SYMBOL
 ;
 
-// CASE rule solely for stored programs. There's another variant (case_expression) used in (primary) expressions.
-case_statement:
-	CASE_SYMBOL^ expression? (when_expression then_statement)+ else_statement? END_SYMBOL CASE_SYMBOL
-;
-
-then_statement:
-	THEN_SYMBOL^ compound_statement_list
-;
-
-else_statement:
-	ELSE_SYMBOL^ compound_statement_list
-;
-
-if_statement:
-	IF_SYMBOL^ if_body END_SYMBOL IF_SYMBOL
-;
-
-if_body:
-	expression then_statement (ELSEIF_SYMBOL if_body | ELSE_SYMBOL compound_statement_list)?
+cursor_declaration:
+	identifier CURSOR_SYMBOL FOR_SYMBOL select_statement
 ;
 
 iterate_statement:
@@ -2693,10 +2728,6 @@ iterate_statement:
 
 leave_statement:
 	LEAVE_SYMBOL label_identifier
-;
-
-return_statement:
-	RETURN_SYMBOL expression
 ;
 
 get_diagnostics:
@@ -2754,16 +2785,16 @@ signal_information_item:
 	signal_information_item_name EQUAL_OPERATOR signal_allowed_expression
 ;
 
+cursor_open:
+	OPEN_SYMBOL identifier
+;
+
 cursor_close:
 	CLOSE_SYMBOL identifier
 ;
 
 cursor_fetch:
 	FETCH_SYMBOL identifier INTO_SYMBOL identifier_list
-;
-
-cursor_open:
-	OPEN_SYMBOL identifier
 ;
 
 //----------------- Supplemental rules -------------------------------------------------------------
@@ -3405,14 +3436,10 @@ qualified_identifier:
 ;
 
 // This rule mimics the behavior of the server parser to allow any identifier, including any keyword,
-// unquoted when preceded by a dot in a qualified identifier.
-// The check here relies on the sorting in the predefined.tokens file.
+// unquoted when directly preceded by a dot in a qualified identifier.
 dot_identifier:
-	DOT_SYMBOL
-	(
-		(pure_identifier) => pure_identifier
-		| {LA(1) !=  MULT_OPERATOR}? t = . { ($t->type >= ACCOUNT_SYMBOL && $t->type <= ZEROFILL_SYMBOL) ? ANTLR3_TRUE : ANTLR3_FALSE }?
-	)
+	DOT_SYMBOL identifier // Dot and kw separated. Not all keywords are allowed then.
+	| DOT_IDENTIFIER      // Dot and kw as one unit. Any identifier, including all keywords are allowed.
 ;
 
 ulong_number:
@@ -4038,6 +4065,10 @@ BACK_TICK:					'`';
 SINGLE_QUOTE:				'\'';
 DOUBLE_QUOTE:				'"';
 ESCAPE_OPERATOR:			'\\';
+
+// Special rule that should also match all keywords if they are preceded by a dot.
+// Hence it's defined before all keywords.
+DOT_IDENTIFIER: DOT_SYMBOL IDENTIFIER;
 
 // $<Keywords 
 
