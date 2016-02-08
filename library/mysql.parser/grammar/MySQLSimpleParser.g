@@ -1418,7 +1418,7 @@ privilege_type:
 
 privilege_level:
 	MULT_OPERATOR (DOT_SYMBOL MULT_OPERATOR)?
-	| identifier (DOT_SYMBOL (MULT_OPERATOR | identifier))?
+	| identifier (DOT_SYMBOL MULT_OPERATOR | dot_identifier)?
 ;
 
 require_list:
