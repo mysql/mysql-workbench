@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -486,7 +486,7 @@ TEST_FUNCTION(60)
     }
 }
 
-//Test forward engineer after renaming schema if it generate proper sql
+// Test forward engineering after renaming a schema, if it generates proper sql.
 TEST_FUNCTION(70)
 {
   grt::ValueRef e;
@@ -505,8 +505,6 @@ TEST_FUNCTION(70)
   parser::ParserContext::Ref context = services->createParserContext(tester.get_rdbms()->characterSets(),
     version, false);
   services->renameSchemaReferences(context, catalog, "sakila", "sakila_test");
-
-  //SqlFacade::instance_for_rdbms_name(tester.grt, "Mysql")->renameSchemaReferences(catalog, "sakila", "sakila_test");
 
   cmp.init_omf(&omf);
 
