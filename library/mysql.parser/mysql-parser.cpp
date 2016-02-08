@@ -134,7 +134,7 @@ std::string createErrorFromPredicate(std::string predicate, long version)
     case 2:
     {
       // Min and max values for server versions.
-      std::string messagePart = "unknown conditions";
+      std::string messagePart = "";
       std::string expression = base::trim(parts[0]);
       if (base::starts_with(expression, "(") && base::ends_with(expression, ")"))
         expression = expression.substr(1, expression.size() - 2);
@@ -149,13 +149,16 @@ std::string createErrorFromPredicate(std::string predicate, long version)
       if ((expressionParts[0] == "SERVER_VERSION") && (expressionParts.size() == 3))
         messagePart += " and " + handleServerVersion(expressionParts, false);
 
+      if (messagePart.empty())
+        return "";
+
       return base::strfmt(message.c_str(), messagePart.c_str());
     }
 
     case 1:
     {
       // A single expression.
-      std::string messagePart = "unknown conditions";
+      std::string messagePart = "";
       std::vector<std::string> expressionParts = base::split(predicate, " ");
       if (expressionParts.size() == 1)
       {
@@ -170,6 +173,9 @@ std::string createErrorFromPredicate(std::string predicate, long version)
         if ((expressionParts[0] == "SERVER_VERSION") && (expressionParts.size() == 3))
           messagePart = handleServerVersion(expressionParts, true);
       }
+
+      if (messagePart.empty())
+        return "";
 
       return base::strfmt(message.c_str(), messagePart.c_str());
     }
