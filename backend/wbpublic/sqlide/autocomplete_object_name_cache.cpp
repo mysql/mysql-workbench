@@ -230,6 +230,13 @@ std::vector<std::string> AutoCompleteCache::get_matching_collations(const std::s
 
 //--------------------------------------------------------------------------------------------------
 
+std::vector<std::string> AutoCompleteCache::get_matching_events(const std::string &schema, const std::string &prefix)
+{
+  return get_matching_objects("events", schema, "", prefix, RetrieveWithSchemaQualifier);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * Core object retrieval function.
  */
@@ -327,11 +334,12 @@ bool AutoCompleteCache::refresh_schema_cache_if_needed(const std::string &schema
   // Add tasks to load various schema objects. They will then update the last_refresh value.
   log_debug3("schema %s is not cached, populating cache...\n", schema.c_str());
 
-  // Refreshing views and tables will implicitly refresh their local objects too.
+  // Refreshing a schema implicitly refreshs its local objects too.
   add_pending_refresh(RefreshTask::RefreshTables, schema);
   add_pending_refresh(RefreshTask::RefreshViews, schema);
   add_pending_refresh(RefreshTask::RefreshProcedures, schema);
   add_pending_refresh(RefreshTask::RefreshFunctions, schema);
+  add_pending_refresh(RefreshTask::RefreshEvents, schema);
 
   return true;
 }
@@ -369,6 +377,13 @@ void AutoCompleteCache::refresh_tablespaces()
 void AutoCompleteCache::refresh_logfile_groups()
 {
   add_pending_refresh(RefreshTask::RefreshLogfileGroups);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void AutoCompleteCache::refresh_events()
+{
+  add_pending_refresh(RefreshTask::RefreshEvents);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -445,6 +460,11 @@ void AutoCompleteCache::refresh_cache_thread()
         case RefreshTask::RefreshTableSpaces:
           refresh_tablespaces_w();
           break;
+
+        case RefreshTask::RefreshEvents:
+          refreshEvents_w(task.schema_name);
+
+        break;
       }
     }
     catch (std::exception &exc)
@@ -904,6 +924,38 @@ void AutoCompleteCache::refresh_tablespaces_w()
 
 //--------------------------------------------------------------------------------------------------
 
+void AutoCompleteCache::refreshEvents_w(const std::string &schema)
+{
+  base::StringListPtr events(new std::list<std::string>());
+  {
+    sql::Dbc_connection_handler::Ref conn;
+    base::RecMutexLock lock(_get_connection(conn));
+    {
+      std::string sql = base::sqlstring("SELECT EVENT_NAME FROM information_schema.EVENTS WHERE EVENT_SCHEMA = ?", 0) << schema;
+      std::auto_ptr<sql::Statement> statement(conn->ref->createStatement());
+      std::auto_ptr<sql::ResultSet> rs(statement->executeQuery(sql));
+      if (rs.get())
+      {
+        while (rs->next() && !_shutdown)
+        {
+          std::string entry = rs->getString(1);
+          if (!entry.empty())
+            events->push_back(entry);
+        }
+
+        log_debug2("Found %li events in schema %s.\n", (long)events->size(), schema.c_str());
+      }
+      else
+        log_debug2("No events found for schema %s.\n", schema.c_str());
+    }
+  }
+
+  if (!_shutdown)
+    update_object_names("events", schema, events);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void AutoCompleteCache::init_db()
 {
   log_info("Initializing autocompletion cache for %s\n", _connection_id.c_str());
@@ -945,7 +997,7 @@ void AutoCompleteCache::init_db()
   }
 
   // Creation of cache tables that consist of a name and a schema column.
-  std::string dual_param_caches[] = {"tables", "views", "functions", "procedures"};
+  std::string dual_param_caches[] = {"tables", "views", "functions", "procedures", "events"};
 
   for (size_t i = 0; i < sizeof(dual_param_caches) / sizeof(dual_param_caches[0]); ++i)
   {
@@ -1145,6 +1197,13 @@ void AutoCompleteCache::update_functions(const std::string &schema, base::String
 
 //--------------------------------------------------------------------------------------------------
 
+void AutoCompleteCache::update_events(const std::string &schema, base::StringListPtr events)
+{
+  update_object_names("events", schema, events);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * Central update routine for cache tables that have a single column "name".
  */
@@ -1282,6 +1341,7 @@ void AutoCompleteCache::add_pending_refresh(RefreshTask::RefreshType type, const
       case RefreshTask::RefreshViews:
       case RefreshTask::RefreshProcedures:
       case RefreshTask::RefreshFunctions:
+      case RefreshTask::RefreshEvents:
         found = i->schema_name == schema;
         break;
 

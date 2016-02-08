@@ -3947,6 +3947,7 @@
 		2720C53716EA18B500E57A8D /* libpcre.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpcre.1.dylib; path = "../mysql-mac-res/lib/libpcre.1.dylib"; sourceTree = "<group>"; };
 		2720C53D16EA1B9200E57A8D /* libpcrecpp.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpcrecpp.0.dylib; path = "../mysql-mac-res/lib/libpcrecpp.0.dylib"; sourceTree = "<group>"; };
 		272135680F9783B3006BE49A /* Scintilla-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Scintilla-Info.plist"; sourceTree = "<group>"; };
+		27270F5A1C64D99900099157 /* MySQLSimpleParser.g */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = MySQLSimpleParser.g; path = library/mysql.parser/grammar/MySQLSimpleParser.g; sourceTree = "<group>"; };
 		272A28EE11905DBE00CA2A13 /* wb_starter_mysql_bug_reporter_52.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_starter_mysql_bug_reporter_52.png; path = images/home/wb_starter_mysql_bug_reporter_52.png; sourceTree = "<group>"; };
 		272A28F011905DBE00CA2A13 /* wb_starter_mysql_doc_lib_52.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_starter_mysql_doc_lib_52.png; path = images/home/wb_starter_mysql_doc_lib_52.png; sourceTree = "<group>"; };
 		272A28F211905DBE00CA2A13 /* wb_starter_mysql_news_52.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_starter_mysql_news_52.png; path = images/home/wb_starter_mysql_news_52.png; sourceTree = "<group>"; };
@@ -7236,6 +7237,7 @@
 				27467FD1154AC7C300021708 /* MySQLParser.c */,
 				27467FD2154AC7C300021708 /* MySQLParser.h */,
 				27B923C0196ED0C700D98D18 /* MySQLSimpleParser.c */,
+				27270F5A1C64D99900099157 /* MySQLSimpleParser.g */,
 				27B923C1196ED0C700D98D18 /* MySQLSimpleParser.h */,
 			);
 			name = mysql.parser;
