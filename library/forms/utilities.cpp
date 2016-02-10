@@ -944,11 +944,9 @@ std::string Utilities::shorten_string(cairo_t* cr, const std::string& text, doub
       else
         h= n;
     }
-    gchar* shorten = g_utf8_substring(text.data(), 0, (glong)(l - 1));
-    if (!shorten)
-      return "";
-    std::string temp = std::string(shorten) + "...";
-    g_free(shorten);
+    const gchar *begin = g_utf8_offset_to_pointer(text.data(), 0);
+    const gchar *end = g_utf8_offset_to_pointer(begin, (glong)(l - 1));
+    std::string temp = std::string(text.data(), end - begin) + "...";
     return temp;
   }
   
