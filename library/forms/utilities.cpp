@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -909,7 +909,7 @@ std::string Utilities::shorten_string(cairo_t* cr, const std::string& text, doub
   if (extents.width <= width)
     return text;
   
-  length= text.size();
+  length = g_utf8_strlen(text.data(), (gssize)text.size());
   if (length == 0 || width <= 0)
     return "";
   else
@@ -944,7 +944,12 @@ std::string Utilities::shorten_string(cairo_t* cr, const std::string& text, doub
       else
         h= n;
     }
-    return text.substr(0, l - 1) + "...";
+    gchar* shorten = g_utf8_substring(text.data(), 0, (glong)(l - 1));
+    if (!shorten)
+      return "";
+    std::string temp = std::string(shorten) + "...";
+    g_free(shorten);
+    return temp;
   }
   
   return "";
