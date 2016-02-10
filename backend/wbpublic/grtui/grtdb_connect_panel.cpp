@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -634,6 +634,15 @@ bool DbConnectPanel::test_connection()
   {
     sql::DriverManager *dbc_drv_man= sql::DriverManager::getDriverManager();
     db_mgmt_ConnectionRef connectionProperties = get_be()->get_connection();
+    if (!connectionProperties.is_valid())
+    {
+      db_mgmt_ConnectionRef connection(get_be()->get_grt());
+      connection->owner(get_be()->get_db_mgmt());
+      connection->driver(selected_driver());
+      set_connection(connection);
+      change_active_stored_conn();
+      connectionProperties = get_be()->get_connection();
+    }
     std::string ssl_cipher;
 
     message.append("Host: " + connectionProperties->parameterValues().get_string("hostName") + "\n");
