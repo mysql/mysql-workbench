@@ -96,7 +96,7 @@ VarGridModel::~VarGridModel()
 
 void VarGridModel::reset()
 {
-  base::RecMutexLock data_mutex UNUSED (_data_mutex);
+  base::RecMutexLock data_mutex WB_UNUSED (_data_mutex);
   _data_swap_db.reset();
   if (_data_swap_db_path.empty())
   {
@@ -247,7 +247,7 @@ bool VarGridModel::get_cell(VarGridModel::Cell &cell, const NodeId &node, Column
 
 bool VarGridModel::is_field_null(const NodeId &node, ColumnId column)
 {
-  base::RecMutexLock data_mutex UNUSED (_data_mutex);
+  base::RecMutexLock data_mutex WB_UNUSED (_data_mutex);
 
   // returns true for out of the range addresses
   Cell cell;
@@ -275,7 +275,7 @@ bool VarGridModel::set_field_null(const bec::NodeId &node, ColumnId column)
 
 IconId VarGridModel::get_field_icon(const NodeId &node, ColumnId column, IconSize size)
 {
-  base::RecMutexLock data_mutex UNUSED (_data_mutex);
+  base::RecMutexLock data_mutex WB_UNUSED (_data_mutex);
 
   Cell cell;
   static const sqlite::variant_t null_value((sqlite::null_t()));
@@ -289,7 +289,7 @@ IconId VarGridModel::get_field_icon(const NodeId &node, ColumnId column, IconSiz
 
 bool VarGridModel::get_field(const NodeId &node, ColumnId column, std::string &value)
 {
-  base::RecMutexLock data_mutex UNUSED (_data_mutex);
+  base::RecMutexLock data_mutex WB_UNUSED (_data_mutex);
   return get_field_(node, column, value);
 }
 
@@ -308,7 +308,7 @@ bool VarGridModel::get_field_(const NodeId &node, ColumnId column, std::string &
 
 bool VarGridModel::get_field_repr(const NodeId &node, ColumnId column, std::string &value)
 {
-  base::RecMutexLock data_mutex UNUSED (_data_mutex);
+  base::RecMutexLock data_mutex WB_UNUSED (_data_mutex);
   return get_field_repr_(node, column, value);
 }
 
@@ -345,13 +345,13 @@ bool VarGridModel::get_field_repr_(const NodeId &node, ColumnId column, std::str
 
 bool VarGridModel::get_field(const NodeId &node, ColumnId column, sqlite::variant_t &value)
 {
-  base::RecMutexLock data_mutex UNUSED (_data_mutex);
+  base::RecMutexLock data_mutex WB_UNUSED (_data_mutex);
   return get_field_(node, column, value);
 }
 
 bool VarGridModel::get_field(const NodeId &node, ColumnId column, bool &value)
 {
-  base::RecMutexLock data_mutex UNUSED (_data_mutex);
+  base::RecMutexLock data_mutex WB_UNUSED (_data_mutex);
   return get_field_(node, column, value);
 }
 
@@ -379,7 +379,7 @@ bool VarGridModel::get_field_(const NodeId &node, ColumnId column, bool &value)
 
 bool VarGridModel::get_field(const NodeId &node, ColumnId column, ssize_t &value)
 {
-  base::RecMutexLock data_mutex UNUSED (_data_mutex);
+  base::RecMutexLock data_mutex WB_UNUSED (_data_mutex);
   return get_field_(node, column, value);
 }
 
@@ -398,7 +398,7 @@ bool VarGridModel::get_field_(const NodeId &node, ColumnId column, ssize_t &valu
 
 bool VarGridModel::get_field(const NodeId &node, ColumnId column, double &value)
 {
-  base::RecMutexLock data_mutex UNUSED (_data_mutex);
+  base::RecMutexLock data_mutex WB_UNUSED (_data_mutex);
   return get_field_(node, column, value);
 }
 
@@ -431,7 +431,7 @@ bool VarGridModel::set_field(const NodeId &node, ColumnId column, const sqlite::
   bool res= false;
 
   {
-    base::RecMutexLock data_mutex UNUSED (_data_mutex);
+    base::RecMutexLock data_mutex WB_UNUSED (_data_mutex);
 
     Cell cell;
     res= get_cell(cell, node, column, true);
