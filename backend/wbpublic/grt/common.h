@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,9 +36,9 @@
 #include "wbpublic_public_interface.h"
 
 #ifdef __GNUC__
-#define UNUSED __attribute__((unused))
+#define WB_UNUSED __attribute__((unused))
 #else
-#define UNUSED
+#define WB_UNUSED
 #endif
 
 
