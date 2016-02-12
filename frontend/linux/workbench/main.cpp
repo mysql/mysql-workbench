@@ -136,6 +136,9 @@ int main(int argc, char **argv)
   Gtk::Main app(argc, argv);
 
 //  Gtk::CssProvider::get_default()->load_from_path(wboptions.basedir+"/workbench.rc");
+  // Workbench doesn't support any other language than English, 
+  // force text/window directon to be Left To Right.
+  gtk_widget_set_default_direction(GTK_TEXT_DIR_LTR);
 
   if (getenv("XSYNC"))
   {
