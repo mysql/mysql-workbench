@@ -1429,14 +1429,6 @@ void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQL
     d->_tokens->reset(d->_tokens);
     d->_lexer->reset(d->_lexer);
     d->_parser->reset(d->_parser);
-
-    // Manually free adaptor and vector pool members. The parser reset() misses them and we cannot
-    // add this code to the parser (as it is generated). Without that these members grow endlessly.
-    d->_parser->vectors->close(d->_parser->vectors);
-    d->_parser->vectors = antlr3VectorFactoryNew(0);
-
-    d->_parser->adaptor->free(d->_parser->adaptor);
-    d->_parser->adaptor = ANTLR3_TREE_ADAPTORNew(d->_tokens->tstream->tokenSource->strFactory);
   }
 
   switch (parse_unit)
