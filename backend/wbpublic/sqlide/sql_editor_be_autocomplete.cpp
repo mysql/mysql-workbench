@@ -479,13 +479,18 @@ private:
             {
               optimized = true;
               child = (pANTLR3_BASE_TREE)child_alt->getChild(child_alt, 0);
-              switch (child->getType(child))
+              ANTLR3_UINT32 childType = child->getType(child);
+              switch (childType)
               {
+                case CHAR_LITERAL:
+                case STRING_LITERAL:
                 case TOKEN_REF:
                 {
                   node.is_terminal = true;
                   pANTLR3_STRING token_text = child->getText(child);
                   std::string name = (char*)token_text->chars;
+                  if (childType == CHAR_LITERAL || childType == STRING_LITERAL)
+                    name = base::unquote(name);
                   node.token_ref = token_map[name];
                   break;
                 }
@@ -1375,7 +1380,7 @@ private:
 
             // XXX: hack, need a better way to find out when we have to include the special rule from the stack.
             //      Using a fixed token look-back might not be valid for all languages.
-            if (lastToken == DOT_SYMBOL || scanner->is(DOT_IDENTIFIER))
+            if (lastToken == DOT_SYMBOL)
             {
               for (std::deque<std::string>::const_iterator iterator = walk_stack.begin(); iterator != walk_stack.end(); ++iterator)
               {
@@ -1797,7 +1802,7 @@ static ObjectFlags determine_qualifier(std::shared_ptr<MySQLScanner> scanner, st
   }
 
   // Bail out if there is no more id parts or we are already behind the caret position.
-  if (!(scanner->is(DOT_SYMBOL) || scanner->is(DOT_IDENTIFIER)) || position <= scanner->position())
+  if (!scanner->is(DOT_SYMBOL) || position <= scanner->position())
     return ObjectFlags(ShowFirst | ShowSecond);
 
   qualifier = temp;
@@ -1832,9 +1837,9 @@ static ObjectFlags determine_schema_table_qualifier(std::shared_ptr<MySQLScanner
   // Go left until we find something not related to an id or at most 2 dots.
   if (position > 0)
   {
-    if (scanner->is_identifier() && (scanner->look_around(-1, true) == DOT_SYMBOL || scanner->look_around(-1, true) == DOT_IDENTIFIER))
+    if (scanner->is_identifier() && scanner->look_around(-1, true) == DOT_SYMBOL)
       scanner->previous(true);
-    if ((scanner->is(DOT_SYMBOL) || scanner->is(DOT_IDENTIFIER)) && scanner->MySQLRecognitionBase::is_identifier(scanner->look_around(-1, true)))
+    if (scanner->is(DOT_SYMBOL) && scanner->MySQLRecognitionBase::is_identifier(scanner->look_around(-1, true)))
     {
       scanner->previous(true);
 
@@ -1860,18 +1865,18 @@ static ObjectFlags determine_schema_table_qualifier(std::shared_ptr<MySQLScanner
   }
 
   // Bail out if there is no more id parts or we are already behind the caret position.
-  if (!(scanner->is(DOT_SYMBOL) || scanner->is(DOT_IDENTIFIER)) || position <= scanner->position())
+  if (!scanner->is(DOT_SYMBOL) || position <= scanner->position())
     return ObjectFlags(ShowSchemas | ShowTables | ShowColumns);
 
   scanner->next(true); // Skip dot.
   table = temp;
   schema = temp;
-  if (scanner->is_identifier() || scanner->is(DOT_IDENTIFIER))
+  if (scanner->is_identifier())
   {
     temp = base::unquote(scanner->token_text());
     scanner->next(true);
 
-    if (!(scanner->is(DOT_SYMBOL) || scanner->is(DOT_IDENTIFIER)) || position <= scanner->position())
+    if (!scanner->is(DOT_SYMBOL) || position <= scanner->position())
       return ObjectFlags(ShowTables | ShowColumns); // Schema only valid for tables. Columns must use default schema.
 
     table = temp;

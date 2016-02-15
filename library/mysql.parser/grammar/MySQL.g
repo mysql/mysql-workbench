@@ -399,12 +399,69 @@ extern "C" {
     return ((unsigned char)str[-1] <= (unsigned char)cmp[-1]) ? smaller : bigger;
   }
   
+  // Custom nextToken function to allow injecting additional tokens.
+  static pANTLR3_COMMON_TOKEN nextToken(pANTLR3_TOKEN_SOURCE tokenSource)
+  {
+  	pMySQLLexer lexer = (pMySQLLexer)((pANTLR3_LEXER)tokenSource->super)->ctx;
+  	if (lexer->pendingTokens->count > 0)
+  	  return (pANTLR3_COMMON_TOKEN)lexer->pendingTokens->remove(lexer->pendingTokens, 0);
+  	
+  	pANTLR3_COMMON_TOKEN result = lexer->originalNextToken(tokenSource); // Call could add new pending tokens.
+  	if (lexer->pendingTokens->count > 0)
+  	{
+  	  	pANTLR3_COMMON_TOKEN pending = (pANTLR3_COMMON_TOKEN)lexer->pendingTokens->remove(lexer->pendingTokens, 0);
+  	  	lexer->pendingTokens->add(lexer->pendingTokens, result, NULL);
+  	  	return pending;
+  	}
+  	
+  	return result;
+  }
+  
+  static void addPendingToken(pMySQLLexer ctx, ANTLR3_INT32 _type)
+  {
+    EMIT();
+    ctx->pendingTokens->add(ctx->pendingTokens, LTOKEN, NULL);
+  }
+  
+  static void resetLexer(pMySQLLexer ctx)
+  {
+    ctx->pendingTokens->clear(ctx->pendingTokens);
+    RECOGNIZER->reset(RECOGNIZER);
+  }
+  
+  static void freeLexer(pMySQLLexer ctx)
+  {
+    ctx->pendingTokens->free(ctx->pendingTokens);
+    LEXER->free(LEXER);
+    ANTLR3_FREE(ctx);
+  }
+}
+
+@lexer::context
+{
+// A pointer to the original nextToken function.
+pANTLR3_COMMON_TOKEN (*originalNextToken)(pANTLR3_TOKEN_SOURCE tokenSource);
+
+// Contains ANTLR3_COMMON_TOKEN instances.
+pANTLR3_VECTOR pendingTokens;
 }
 
 @lexer::apifuncs
 {
-	// Install custom error collector for the front end.
-	RECOGNIZER->displayRecognitionError = onMySQLParseError;
+ // Install custom error collector for the front end.
+ RECOGNIZER->displayRecognitionError = onMySQLParseError;
+
+ // Override the nextToken function in the token source.
+ pANTLR3_TOKEN_SOURCE tokenSource = TOKENSOURCE(ctx);
+ ctx->originalNextToken = tokenSource->nextToken;
+ tokenSource->nextToken = nextToken;
+ 
+ // Our list of pending tokens.
+ ctx->pendingTokens = antlr3VectorNew(0);
+ 
+ // Own reset + free functions for clean up.
+ ctx->free = freeLexer;
+ ctx->reset = resetLexer;
 }
 
 @parser::postinclude {
@@ -415,18 +472,48 @@ extern "C" {
   // Custom error reporting function.
   void onMySQLParseError(struct ANTLR3_BASE_RECOGNIZER_struct *recognizer, pANTLR3_UINT8 *tokenNames); 
 
+  // Have to forward declare these 2. The code generator places them after the @parser::members section
+  // (other that what is done in the lexer, where the order is reversed).
+  static void resetParser(pMySQLParser ctx);
+  static void freeParser(pMySQLParser ctx);
+  
 #ifdef __cplusplus
 };
 #endif
 }
 
 @parser::members {
+
+  static void resetParser(pMySQLParser ctx)
+  {
+    RECOGNIZER->reset(RECOGNIZER);
+    
+    // The generated code does not account for the vector factory and the tree adaptor
+    // which can grow endlessly, if not reset too. They exist however only if an AST is built.
+    ctx->vectors->close(ctx->vectors);
+    ctx->vectors = antlr3VectorFactoryNew(0);
+
+    ADAPTOR->free(ADAPTOR);
+    ADAPTOR = ANTLR3_TREE_ADAPTORNew(INPUT->tokenSource->strFactory);
+  }
+  
+  static void freeParser(pMySQLParser ctx)
+  {
+    ctx->vectors->close(ctx->vectors);
+    ADAPTOR->free(ADAPTOR);
+    ctx->pParser->free(ctx->pParser);
+    ANTLR3_FREE(ctx);
+  }
 }
 
 @parser::apifuncs
 {
-	// Install custom error collector for the front end.
-	RECOGNIZER->displayRecognitionError = onMySQLParseError;
+ // Install custom error collector for the front end.
+ RECOGNIZER->displayRecognitionError = onMySQLParseError;
+ 
+ // Own reset + free functions for clean up.
+ ctx->free = freeParser;
+ ctx->reset = resetParser;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -3439,7 +3526,7 @@ qualified_identifier:
 // unquoted when directly preceded by a dot in a qualified identifier.
 dot_identifier:
 	DOT_SYMBOL identifier // Dot and kw separated. Not all keywords are allowed then.
-	| DOT_IDENTIFIER      // Dot and kw as one unit. Any identifier, including all keywords are allowed.
+	//| DOT_IDENTIFIER    // Cannot appear due to our manual splitting.
 ;
 
 ulong_number:
@@ -4066,9 +4153,29 @@ SINGLE_QUOTE:				'\'';
 DOUBLE_QUOTE:				'"';
 ESCAPE_OPERATOR:			'\\';
 
-// Special rule that should also match all keywords if they are preceded by a dot.
+// Special rule that should also match all keywords if they are directly preceded by a dot.
 // Hence it's defined before all keywords.
-DOT_IDENTIFIER: DOT_SYMBOL IDENTIFIER;
+// However, because we handle here two token types as one we get into trouble later when used as such
+// (e.g. during code completion). To avoid that we manually emit 2 tokens (DOT + IDENTIFIER) instead.
+DOT_IDENTIFIER: DOT_SYMBOL IDENTIFIER
+{
+  // Add the dot to our pending token list first and keep the token starts (in stream + in line)
+  // so we can adjust start and end positions of the 2 manual tokens.
+  addPendingToken(ctx, DOT_SYMBOL);
+  ANTLR3_MARKER marker = LTOKEN->start;
+  ANTLR3_INT32 charPosition = LTOKEN->charPosition;
+  
+  // The dot is only 1 char long, so stop points to the same location as start.
+  LTOKEN->stop = marker;
+  
+  // EMIT() creates a new token with the current type and stores that in the lexer shared state
+  // which is then used as the current token in the stream. But since we stored a pending token
+  // the order is corrected in our overridden nextToken() function (see above).
+  $type = IDENTIFIER;
+  EMIT();
+  LTOKEN->start = marker + 1;
+  LTOKEN->charPosition = charPosition + 1;
+};
 
 // $<Keywords 
 
