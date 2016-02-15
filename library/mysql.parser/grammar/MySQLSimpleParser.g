@@ -78,8 +78,8 @@ extern "C" {
 
 @parser::apifuncs
 {
-	// Install custom error collector for the front end.
-	RECOGNIZER->displayRecognitionError = onMySQLParseError;
+ // Install custom error collector for the front end.
+ RECOGNIZER->displayRecognitionError = onMySQLParseError;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -3086,7 +3086,7 @@ qualified_identifier:
 // unquoted when directly preceded by a dot in a qualified identifier.
 dot_identifier:
 	DOT_SYMBOL identifier // Dot and kw separated. Not all keywords are allowed then.
-	| DOT_IDENTIFIER      // Dot and kw as one unit. Any identifier, including all keywords are allowed.
+	//| DOT_IDENTIFIER    // Cannot appear due to our manual splitting.
 ;
 
 ulong_number:
