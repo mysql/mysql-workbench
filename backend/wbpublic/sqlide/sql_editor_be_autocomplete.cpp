@@ -2449,14 +2449,19 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
     }
   }
 
+  // Insert the groups "inside out", that is, most likely ones first + most inner first (columns before tables etc).
   std::copy(keyword_entries.begin(), keyword_entries.end(), std::back_inserter(_auto_completion_entries));
-  std::copy(schema_entries.begin(), schema_entries.end(), std::back_inserter(_auto_completion_entries));
+  std::copy(column_entries.begin(), column_entries.end(), std::back_inserter(_auto_completion_entries));
   std::copy(table_entries.begin(), table_entries.end(), std::back_inserter(_auto_completion_entries));
   std::copy(view_entries.begin(), view_entries.end(), std::back_inserter(_auto_completion_entries));
+  std::copy(schema_entries.begin(), schema_entries.end(), std::back_inserter(_auto_completion_entries));
+
+  // Everything else is significantly less used.
+  // TODO: make this configurable.
+  // TODO: show an optimized (small) list of candidates on first invocation, a full list on every following.
   std::copy(function_entries.begin(), function_entries.end(), std::back_inserter(_auto_completion_entries));
   std::copy(procedure_entries.begin(), procedure_entries.end(), std::back_inserter(_auto_completion_entries));
   std::copy(trigger_entries.begin(), trigger_entries.end(), std::back_inserter(_auto_completion_entries));
-  std::copy(column_entries.begin(), column_entries.end(), std::back_inserter(_auto_completion_entries));
   std::copy(index_entries.begin(), index_entries.end(), std::back_inserter(_auto_completion_entries));
   std::copy(event_entries.begin(), event_entries.end(), std::back_inserter(_auto_completion_entries));
   std::copy(user_entries.begin(), user_entries.end(), std::back_inserter(_auto_completion_entries));
