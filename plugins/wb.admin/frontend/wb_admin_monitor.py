@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -19,6 +19,8 @@ from mforms import newBarGraphWidget, newLineDiagramWidget
 import mforms
 
 import wba_monitor_be
+
+UPDATE_INTERVAL = 3
 
 class WbAdminMonitor(mforms.Box):
     mon_be      = None
@@ -226,7 +228,7 @@ class WbAdminMonitor(mforms.Box):
 
         self.resume_layout()
 
-        self.mon_be = wba_monitor_be.WBAdminMonitorBE(3, server_profile, ctrl_be, self.widgets, self.cpu_widget, sql)
+        self.mon_be = wba_monitor_be.WBAdminMonitorBE(UPDATE_INTERVAL, server_profile, ctrl_be, self.widgets, self.cpu_widget, sql)
 
     def calc_traffic(self, x):
         tx = int(x[0])
@@ -235,13 +237,13 @@ class WbAdminMonitor(mforms.Box):
             return 0
         ret = tx - self.last_traffic
         self.last_traffic = tx
-        return ret
+        return ret/UPDATE_INTERVAL
 
     def calc_key_efficiency(self, (key_reads, key_read_requests)):
         key_read_requests = float(key_read_requests)
         if key_read_requests == 0.0:
             return 0
-        return 100 - (float(key_reads) / key_read_requests * 100)
+        return 100 - (((float(key_reads) / key_read_requests * 100))/UPDATE_INTERVAL)
 
 #    def calc_hitrate(self, (hits, inserts, not_cached)):
 #        hits = float(hits)
@@ -259,7 +261,7 @@ class WbAdminMonitor(mforms.Box):
             return 0
         ret = c - self.last_qcount
         self.last_qcount = c
-        return ret
+        return ret/UPDATE_INTERVAL
 
 #    def calc_qcache_usage(self, (free_blocks, total_blocks)):
 #        free_blocks, total_blocks = float(free_blocks), float(total_blocks)
@@ -271,7 +273,7 @@ class WbAdminMonitor(mforms.Box):
         free_pages, total_pages = float(free_pages), float(total_pages)
         if -0.00001 <= total_pages <= 0.00001:
             return 0
-        return 100 * (total_pages - free_pages) / total_pages
+        return 100 * (((total_pages - free_pages) / total_pages)/UPDATE_INTERVAL)
 
     def calc_innodb_reads_per_second(self, (count,)):
         if self.last_ircount == 0:
@@ -279,7 +281,7 @@ class WbAdminMonitor(mforms.Box):
             return 0
         ret = count - self.last_ircount
         self.last_ircount = count
-        return ret
+        return ret/UPDATE_INTERVAL
 
     def calc_innodb_writes_per_second(self, (count,)):
         if self.last_iwcount == 0:
@@ -287,7 +289,7 @@ class WbAdminMonitor(mforms.Box):
             return 0
         ret = count - self.last_iwcount
         self.last_iwcount = count
-        return ret
+        return ret/UPDATE_INTERVAL
 
     def refresh_status(self, status):
         if status == "running" or status == "started":
