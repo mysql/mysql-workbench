@@ -266,6 +266,7 @@ All tables are copied by default.""")
             if not source_os:
                 self.bulk_copy_script_radiobutton.set_enabled(False)
                 bulk_copy_filename = ''
+                grt.send_warning('Cannot get operating system of source server.')
             elif source_os == "windows":
                 bulk_copy_filename = os.path.join(mforms.Utilities.get_special_folder(mforms.Desktop), 'bulk_copy_tables.cmd')
             else:
