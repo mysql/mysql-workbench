@@ -75,7 +75,7 @@ IntroductionPage::IntroductionPage(WizardForm *form)
   text->set_text(_("This dialog will help you to set up remote managemment for your connection. At the start "
                 "a connection attempt is made to determine server version and operating system of the target "
                 "machine. This allows you to validate the connection settings and allows the wizard to pick "
-                "a meaningful configuration preset. If this attemmpt fails you can still continue, however.\n\n"
+                "a meaningful configuration preset. If this attempt fails you can still continue, however.\n\n"
                 "Continue to the next page to start the connection. This might take a few moments."));
   text->set_wrap_text(true);
   add(text, false, true);
