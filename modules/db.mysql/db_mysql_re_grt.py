@@ -17,6 +17,7 @@
 
 from wb import DefineModule
 import grt
+from workbench import db_utils
 
 from workbench.db_utils import MySQLConnection, escape_sql_string, escape_sql_identifier
 
@@ -185,7 +186,12 @@ def getFunctionNames(connection, catalog_name, schema_name):
 def getOS(connection):
     conn = get_connection(connection)
     if conn:
-        result = conn.executeQuery("SELECT @@version_compile_os")
+        try:
+            result = conn.executeQuery("SELECT @@version_compile_os")
+        except db_utils.QueryError as e:
+            grt.send_error("Error executing query: %s." % e)
+            return None
+
         if result and result.nextRow():
             compile_os = result.stringByIndex(1).lower()
             if 'linux' in compile_os:
