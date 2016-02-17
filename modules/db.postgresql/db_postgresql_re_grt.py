@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -69,7 +69,7 @@ WHERE n.nspname = '%s' AND c.relkind in ('S', 's')""" % schema.name
 
         seq_details_query = """SELECT min_value, max_value, start_value, 
 increment_by, last_value, is_cycled, cache_value
-FROM %s.%s"""
+FROM "%s"."%s" """
 
         sequence_names = cls.execute_query(connection, seq_names_query).fetchall()
         for (seq_name, ) in sequence_names:
@@ -216,44 +216,46 @@ WHERE n.nspname = '%s' AND c.relname = '%s'"""
         #    """
         # TODO
 
-        query_enums = """SELECT t.typname, e.enumlabel
-          FROM pg_catalog.pg_type t LEFT JOIN pg_catalog.pg_namespace n
-          ON n.oid = t.typnamespace
-          LEFT JOIN pg_catalog.pg_enum e ON e.enumtypid = t.oid
-          WHERE t.typrelid = 0 AND t.typtype = 'e'
-          AND n.nspname NOT IN ('information_schema', 'pg_catalog')
-          AND NOT EXISTS(SELECT 1 FROM pg_catalog.pg_type el WHERE el.oid = t.typelem AND el.typarray = t.oid)
-          ORDER BY e.enumsortorder"""
-
-        query_enums_80 =  """SELECT t.typname, e.enumlabel
-          FROM pg_catalog.pg_type t LEFT JOIN pg_catalog.pg_namespace n
-          ON n.oid = t.typnamespace
-          LEFT JOIN pg_catalog.pg_enum e ON e.enumtypid = t.oid
-          WHERE t.typrelid = 0 AND t.typtype = 'e'
-          AND n.nspname NOT IN ('information_schema', 'pg_catalog')
-          AND NOT EXISTS(SELECT 1 FROM pg_catalog.pg_type el WHERE el.oid = t.typelem AND el.typarray = t.oid)
-          """
-
-        enum_types = cls.execute_query(connection, query_enums if version.majorNumber >= 9 and version.minorNumber >= 1 else query_enums_80)
-
-        ltype = None
-        types = []
-        values = []
-        for type_name, enum_label in enum_types:
-            if type_name != ltype:
-                ltype = type_name
-                values = []
-                types.append((type_name, values))
-            values.append(enum_label)
-
-        enumType = None
-        for type_name, enum_labels in types:
-            datatype = grt.classes.db_UserDatatype()
-            datatype.name = type_name
-            datatype.sqlDefinition = 'enum(%s)' % (', '.join(["'%s'" % l.replace("'", "''") for l in enum_labels]))
-            datatype.actualType = enumType
-            datatype.owner = catalog
-            catalog.userDatatypes.append(datatype)
+        # PotgreSQl 8.2 and lower doesn't have enum types
+        if (version.majorNumber > 8) or (version.majorNumber == 8 and version.minorNumber > 2):
+            query_enums = """SELECT t.typname, e.enumlabel
+              FROM pg_catalog.pg_type t LEFT JOIN pg_catalog.pg_namespace n
+              ON n.oid = t.typnamespace
+              LEFT JOIN pg_catalog.pg_enum e ON e.enumtypid = t.oid
+              WHERE t.typrelid = 0 AND t.typtype = 'e'
+              AND n.nspname NOT IN ('information_schema', 'pg_catalog')
+              AND NOT EXISTS(SELECT 1 FROM pg_catalog.pg_type el WHERE el.oid = t.typelem AND el.typarray = t.oid)
+              ORDER BY e.enumsortorder"""
+    
+            query_enums_80 =  """SELECT t.typname, e.enumlabel
+              FROM pg_catalog.pg_type t LEFT JOIN pg_catalog.pg_namespace n
+              ON n.oid = t.typnamespace
+              LEFT JOIN pg_catalog.pg_enum e ON e.enumtypid = t.oid
+              WHERE t.typrelid = 0 AND t.typtype = 'e'
+              AND n.nspname NOT IN ('information_schema', 'pg_catalog')
+              AND NOT EXISTS(SELECT 1 FROM pg_catalog.pg_type el WHERE el.oid = t.typelem AND el.typarray = t.oid)
+              """
+    
+            enum_types = cls.execute_query(connection, query_enums if version.majorNumber >= 9 and version.minorNumber >= 1 else query_enums_80)
+    
+            ltype = None
+            types = []
+            values = []
+            for type_name, enum_label in enum_types:
+                if type_name != ltype:
+                    ltype = type_name
+                    values = []
+                    types.append((type_name, values))
+                values.append(enum_label)
+    
+            enumType = None
+            for type_name, enum_labels in types:
+                datatype = grt.classes.db_UserDatatype()
+                datatype.name = type_name
+                datatype.sqlDefinition = 'enum(%s)' % (', '.join(["'%s'" % l.replace("'", "''") for l in enum_labels]))
+                datatype.actualType = enumType
+                datatype.owner = catalog
+                catalog.userDatatypes.append(datatype)
 
 
 
