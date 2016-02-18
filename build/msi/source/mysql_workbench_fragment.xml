@@ -155,7 +155,6 @@
                 <File Id="file1116" Name="wbadminhelper.exe"/>
                 <File Id="file1118" Name="mysqlwbmeb.py"/>
                 <File Id="file1119" Name="mysqlwbmeb.vbs"/>
-                <File Id="file1120" Name="wb.fabric.interface.grt.dll"/>
               </Component>
 
               <Component DiskId="1" Guid="47641656-8430-4722-B558-DAE76CA7C0CA" Id="MySQLWorkbench.exe" Location="either">
@@ -827,7 +826,6 @@
                     <File Id="home58" Name="wb_starter_planet_mysql_52@2x.png"/>
                     <File Id="home59" Name="wb_starter_support_52.png"/>
                     <File Id="home60" Name="wb_starter_support_52@2x.png"/>
-                    <File Id="home61" Name="wb_tile_fabric.png"/>
                   </Component>
                 </Directory>
 
@@ -1819,7 +1817,6 @@
                   <File Id="file66710" Name="wb_admin_perfschema_instrumentation.py"/>
                   <File Id="file66711" Name="wb_admin_perfschema_instrumentation_be.py"/>
                   <File Id="file66712" Name="wb_admin_perfschema_reports.py"/>
-                  <File Id="file66713" Name="wbfabric_grt.py"/>
 
                   <File Id="file66714" Name="wb_docs_grt.py"/>
                 </Component>

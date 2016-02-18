@@ -17,7 +17,6 @@ set(IMAGE_FILES
     wb_starter_mysql_wb_twitters_52.png
     wb_starter_planet_mysql_52.png
     wb_starter_support_52.png
-    wb_tile_fabric.png
     wb_tile_folder.png
     wb_tile_folder_mini.png
     wb_tile_manage.png

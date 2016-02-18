@@ -35,9 +35,6 @@ namespace wb
   class ConnectionEntry;
   class FolderBackEntry;
   class FolderEntry;
-  class FabricFolderEntry;
-  class FabricManagedConnectionEntry;
-  class FabricServerEntry;
   class ConnectionInfoPopup;
 
   class ConnectionsSection: public mforms::DrawBox, public mforms::DropDelegate
@@ -45,9 +42,6 @@ namespace wb
     friend class ConnectionEntry;
     friend class FolderBackEntry;
     friend class FolderEntry;
-    friend class FabricFolderEntry;
-    friend class FabricManagedConnectionEntry;
-    friend class FabricServerEntry;
 
   private:
     HomeScreen *_owner;
@@ -62,14 +56,12 @@ namespace wb
     cairo_surface_t* _page_up_icon;
     cairo_surface_t* _plus_icon;
     cairo_surface_t* _sakila_icon;
-    cairo_surface_t* _fabric_icon;
     cairo_surface_t* _schema_icon;
     cairo_surface_t* _user_icon;
     cairo_surface_t* _manage_icon;
 
     base::Color _tile_bk_color1;
     base::Color _tile_bk_color2;
-    base::Color _fabric_tile_bk_color;
     base::Color _managed_primary_tile_bk_color;
     base::Color _managed_secondary_tile_bk_color;
     base::Color _managed_faulty_tile_bk_color;
@@ -80,7 +72,6 @@ namespace wb
     base::Color _tile_bk_color1_hl;
     base::Color _tile_bk_color2_hl;
     base::Color _folder_tile_bk_color_hl;
-    base::Color _fabric_tile_bk_color_hl;
     base::Color _managed_primary_tile_bk_color_hl;
     base::Color _managed_secondary_tile_bk_color_hl;
     base::Color _managed_faulty_tile_bk_color_hl;
@@ -107,7 +98,6 @@ namespace wb
     bool _filtered;
 
     mforms::Menu *_connection_context_menu;
-    mforms::Menu *_fabric_context_menu;
     mforms::Menu *_folder_context_menu;
     mforms::Menu *_generic_context_menu;
 
@@ -138,7 +128,6 @@ namespace wb
     ConnectionVector &displayed_connections();
 
     void update_colors();
-    bool is_managed_connection(int index);
 
     void on_search_text_changed();
     void on_search_text_action(mforms::TextEntryAction action);
@@ -162,7 +151,7 @@ namespace wb
     virtual bool mouse_move(mforms::MouseButton button, int x, int y);
 
     void handle_command(const std::string &command);
-    void handle_folder_command(const std::string &command, bool is_fabric);
+    void handle_folder_command(const std::string &command);
 
     void menu_open();
 

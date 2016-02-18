@@ -101,8 +101,9 @@ static bool is_local_connection(const db_mgmt_ConnectionRef &connection)
 
 //----------------- ServerInstanceEditor -----------------------------------------------------------
 
-ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
+ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_ManagementRef &mgmt)
 : Form(0, FormResizable)
+, _grtm(grtm)
 , _top_vbox(false)
 , _top_hbox(true)
 , _content_box(false)
@@ -133,7 +134,7 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
     {
       if (!_instances[i]->connection().is_valid())
       {
-        log_warning("Server instance %s has no attached connection, deleting it\n", _instances[i]->name().c_str());
+        logWarning("Server instance %s has no attached connection, deleting it\n", _instances[i]->name().c_str());
         _instances.remove(i);
       }
     }
@@ -277,7 +278,7 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
     Box *box = manage(new Box(true));
     box->set_spacing(8);
     
-    _autodetect_button.set_enabled(grt::GRT::get()->get_module("WbAdmin")!=0);
+    _autodetect_button.set_enabled(_grtm->get_grt()->get_module("WbAdmin")!=0);
     _autodetect_button.set_text(_("Detect Server Configuration..."));
     _autodetect_button.set_tooltip(_("Attempt to automatically detect server configuration parameters for the system,\n"
                                      "such as operating system type, path to configuration file, how to start/stop MySQL etc"));
@@ -415,7 +416,7 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
   _close_button.set_text(_("Close"));
 
   _test_button.set_text(_("Test Connection"));
-//  _test_button.set_enabled(grt::GRT::get()->get_module("WbAdmin")!=0);
+//  _test_button.set_enabled(_grtm->get_grt()->get_module("WbAdmin")!=0);
   scoped_connect(_test_button.signal_clicked(),boost::bind(&ServerInstanceEditor::test_settings, this));
   
   _add_inst_button.enable_internal_padding(true);
@@ -438,7 +439,7 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
   ///
   std::set<std::string> sys_types;
   
-  std::string path= bec::GRTManager::get().get_data_file_path("mysql.profiles");
+  std::string path= _grtm->get_data_file_path("mysql.profiles");
   GDir *dir = g_dir_open(path.c_str(), 0, NULL);
   if (dir)
   {
@@ -452,7 +453,7 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
         grt::DictRef dict;
         try
         {
-          dict= grt::DictRef::cast_from(grt::GRT::get()->unserialize(path+"/"+file));
+          dict= grt::DictRef::cast_from(_grtm->get_grt()->unserialize(path+"/"+file));
         }
         catch (std::exception &exc)
         {
@@ -562,8 +563,8 @@ db_mgmt_ServerInstanceRef ServerInstanceEditor::run(db_mgmt_ConnectionRef select
   _top_vbox.resume_layout();
   run_modal(NULL, &_close_button);
 
-  grt::GRT::get()->call_module_function("Workbench", "saveConnections", grt::BaseListRef());
-  grt::GRT::get()->call_module_function("Workbench", "saveInstances", grt::BaseListRef());
+  _grtm->get_grt()->call_module_function("Workbench", "saveConnections", grt::BaseListRef());
+  _grtm->get_grt()->call_module_function("Workbench", "saveInstances", grt::BaseListRef());
 
   return selected_instance();
 }
@@ -581,10 +582,10 @@ void ServerInstanceEditor::run_filechooser_wrapper(mforms::TextEntry* entry) // 
     run_filechooser(entry);
   else
   {
-    grt::Module *module= grt::GRT::get()->get_module("WbAdmin");
+    grt::Module *module= _grtm->get_grt()->get_module("WbAdmin");
     if (module)
     {
-      grt::BaseListRef args(true);
+      grt::BaseListRef args(_grtm->get_grt());
       args.ginsert(instance);
 
       try
@@ -598,7 +599,7 @@ void ServerInstanceEditor::run_filechooser_wrapper(mforms::TextEntry* entry) // 
       }
       catch (const std::exception &exc)
       {
-        grt::GRT::get()->send_error("Error in remote file browser", exc.what());
+        _grtm->get_grt()->send_error("Error in remote file browser", exc.what());
       }
     }
   }
@@ -690,10 +691,10 @@ db_mgmt_ServerInstanceRef ServerInstanceEditor::selected_instance()
 
 void ServerInstanceEditor::autodetect_system()
 {
-  grt::Module *module= grt::GRT::get()->get_module("WbAdmin");
+  grt::Module *module= _grtm->get_grt()->get_module("WbAdmin");
   if (module)
   {
-    grt::BaseListRef args(true);
+    grt::BaseListRef args(_grtm->get_grt());
     args.ginsert(selected_instance());
 
     module->call_function("detectInstanceSettings", args);
@@ -705,10 +706,10 @@ void ServerInstanceEditor::test_settings()
 {
   if (_ssh_remote_admin.get_active())
   {
-      grt::Module *module= grt::GRT::get()->get_module("WbAdmin");
+      grt::Module *module= _grtm->get_grt()->get_module("WbAdmin");
       if (module)
       {
-        grt::BaseListRef args(true);
+        grt::BaseListRef args(_grtm->get_grt());
         grt::ValueRef ret;
         args.ginsert(selected_instance());
 
@@ -721,7 +722,7 @@ void ServerInstanceEditor::test_settings()
         }
       }
       else
-        log_error("module WbAdmin not found\n");
+        logError("module WbAdmin not found\n");
   }
   _connect_panel->test_connection();
 }
@@ -816,24 +817,24 @@ void ServerInstanceEditor::tab_changed()
     db_mgmt_ConnectionRef connection(selected_connection());
     if (connection.is_valid())
     {
-      grt::BaseListRef args(true);
+      grt::BaseListRef args(_grtm->get_grt());
       args.ginsert(connection);
       try
       {
         if (is_local_connection(connection))
-          instance = db_mgmt_ServerInstanceRef::cast_from(grt::GRT::get()->call_module_function("WbAdmin", "autoDetectLocalInstance", args));
+          instance = db_mgmt_ServerInstanceRef::cast_from(_grtm->get_grt()->call_module_function("WbAdmin", "autoDetectLocalInstance", args));
         else
-          instance = db_mgmt_ServerInstanceRef::cast_from(grt::GRT::get()->call_module_function("WbAdmin", "autoDetectRemoteInstance", args));
+          instance = db_mgmt_ServerInstanceRef::cast_from(_grtm->get_grt()->call_module_function("WbAdmin", "autoDetectRemoteInstance", args));
       }
       catch (grt::module_error &exc)
       {
-        log_error("Error calling autoDetectRemoteInstance: %s, %s\n", exc.what(), exc.inner.c_str());
+        logError("Error calling autoDetectRemoteInstance: %s, %s\n", exc.what(), exc.inner.c_str());
         mforms::Utilities::show_error("Auto Detect Server Configuration",
                                       exc.inner, "OK");
       }
       catch (std::exception &exc)
       {
-        log_error("Error calling autoDetectRemoteInstance: %s\n", exc.what());
+        logError("Error calling autoDetectRemoteInstance: %s\n", exc.what());
         mforms::Utilities::show_error("Auto Detect Server Configuration",
                                       exc.what(), "OK");
       }
@@ -847,17 +848,6 @@ void ServerInstanceEditor::tab_changed()
 void ServerInstanceEditor::driver_changed_cb(const db_mgmt_DriverRef &driver)
 {
   db_mgmt_ConnectionRef connection(selected_connection());
-  bool is_managed = connection.is_valid() ? connection->parameterValues().has_key("fabric_managed") : false;
-
-  if (driver->name() == "MySQLFabric" || is_managed)
-  {
-    if (_tabview.get_page_index(&_remote_admin_box) != -1)
-      _tabview.remove_page(&_remote_admin_box);
-
-    if (_tabview.get_page_index(&_sys_box) != -1)
-      _tabview.remove_page(&_sys_box);
-  }
-  else
   {
     if (_tabview.get_page_index(&_remote_admin_box) == -1)
       _tabview.add_page(&_remote_admin_box, _("Remote Management"));
@@ -870,7 +860,7 @@ void ServerInstanceEditor::driver_changed_cb(const db_mgmt_DriverRef &driver)
 
 void ServerInstanceEditor::add_instance()
 {
-  db_mgmt_ConnectionRef connection(grt::Initialized);
+  db_mgmt_ConnectionRef connection(_grtm->get_grt());
   std::string name= "new connection";
   TreeNodeRef node;
   bool dupe;
@@ -945,9 +935,9 @@ void ServerInstanceEditor::delete_instance()
 void ServerInstanceEditor::duplicate_instance()
 {
   db_mgmt_ConnectionRef orig_conn(selected_connection());
-  db_mgmt_ConnectionRef copy_conn(grt::Initialized);
+  db_mgmt_ConnectionRef copy_conn(_grtm->get_grt());
   db_mgmt_ServerInstanceRef orig_inst(selected_instance());
-  db_mgmt_ServerInstanceRef copy_inst(grt::Initialized);
+  db_mgmt_ServerInstanceRef copy_inst(_grtm->get_grt());
   
   if (!orig_conn.is_valid())
     return;
@@ -961,19 +951,6 @@ void ServerInstanceEditor::duplicate_instance()
   copy_conn->driver(orig_conn->driver());
   grt::merge_contents(copy_conn->parameterValues(), orig_conn->parameterValues(), true);
   copy_conn->hostIdentifier(orig_conn->hostIdentifier());
-
-  // Deletes the fabric parameters if a fabric managed connection
-  // is being duplicated
-  if (copy_conn->parameterValues().has_key("fabric_managed"))
-  {
-    std::vector<std::string> params = copy_conn->parameterValues().keys();
-    for (size_t index = 0; index < params.size(); index++)
-    {
-      std::string parameter = params[index];
-      if (base::starts_with(parameter, "fabric_"))
-        copy_conn->parameterValues().remove(parameter);
-    }
-  }
 
   if (orig_inst.is_valid())
   {
@@ -1291,19 +1268,7 @@ void ServerInstanceEditor::show_connection()
   _connect_panel->set_active_stored_conn(connection);
 
   bool valid_connection = connection.is_valid();
-  bool is_managed = valid_connection ? connection->parameterValues().has_key("fabric_managed") : false;
 
-  // On Fabric Connections and Fabric Managed Connections the Remote Management 
-  // and System Profile tabs are hidden
-  if (valid_connection && (connection->driver()->name() == "MySQLFabric" || is_managed))
-  {
-    if (_tabview.get_page_index(&_remote_admin_box) != -1)
-      _tabview.remove_page(&_remote_admin_box);
-
-    if (_tabview.get_page_index(&_sys_box) != -1)
-      _tabview.remove_page(&_sys_box);
-  }
-  else
   {
     if (_tabview.get_page_index(&_remote_admin_box) == -1)
       _tabview.add_page(&_remote_admin_box, _("Remote Management"));
@@ -1313,9 +1278,9 @@ void ServerInstanceEditor::show_connection()
   }
 
   _content_box.set_enabled(valid_connection);
-  _move_up_button.set_enabled(valid_connection && !is_managed);
-  _move_down_button.set_enabled(valid_connection && !is_managed);
-  _del_inst_button.set_enabled(valid_connection && !is_managed);
+  _move_up_button.set_enabled(valid_connection);
+  _move_down_button.set_enabled(valid_connection);
+  _del_inst_button.set_enabled(valid_connection);
   _dup_inst_button.set_enabled(valid_connection);
 
   _contains_group = false;
@@ -1335,7 +1300,7 @@ void ServerInstanceEditor::show_connection()
 
 void ServerInstanceEditor::show_instance_info(db_mgmt_ConnectionRef connection, db_mgmt_ServerInstanceRef instance)
 {
-  grt::DictRef serverInfo(instance.is_valid() ? instance->serverInfo() : grt::DictRef(true));
+  grt::DictRef serverInfo(instance.is_valid() ? instance->serverInfo() : grt::DictRef(_grtm->get_grt()));
   grt::DictRef defaults;
 
   int j;
@@ -1378,7 +1343,7 @@ void ServerInstanceEditor::show_instance_info(db_mgmt_ConnectionRef connection, 
 #endif
       _no_remote_admin.set_active(true);
 
-  grt::DictRef loginInfo(instance.is_valid() ? instance->loginInfo() : grt::DictRef(true));
+  grt::DictRef loginInfo(instance.is_valid() ? instance->loginInfo() : grt::DictRef(_grtm->get_grt()));
 
   std::string storage_key;
   std::string port = _ssh_port.get_string_value();

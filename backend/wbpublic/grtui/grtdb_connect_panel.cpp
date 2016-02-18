@@ -241,13 +241,13 @@ void DbConnectPanel::init(DbConnection *conn, const db_mgmt_ConnectionRef &defau
     _anonymous_connection= default_conn;
   else
   {
-    _anonymous_connection = db_mgmt_ConnectionRef(grt::Initialized);
+    _anonymous_connection = db_mgmt_ConnectionRef(_connection->get_grt());
     _anonymous_connection->owner(_connection->get_db_mgmt());
   }
 
   if (!_allowed_rdbms.is_valid())
   {
-    _allowed_rdbms = grt::ListRef<db_mgmt_Rdbms>(true);
+    _allowed_rdbms = grt::ListRef<db_mgmt_Rdbms>(_connection->get_grt());
     _allowed_rdbms.ginsert(_connection->get_db_mgmt()->rdbms()[0]);
   }
 
@@ -490,7 +490,7 @@ void DbConnectPanel::change_active_rdbms()
       _updating = false;      
     }
     else
-      log_warning("DbConnectPanel: no active rdbms\n");
+      logWarning("DbConnectPanel: no active rdbms\n");
   }
 }
 
@@ -673,7 +673,7 @@ bool DbConnectPanel::test_connection()
     db_mgmt_ConnectionRef connectionProperties = get_be()->get_connection();
     if (!connectionProperties.is_valid())
     {
-      db_mgmt_ConnectionRef connection(grt::Initialized);
+      db_mgmt_ConnectionRef connection(get_be()->get_grt());
       connection->owner(get_be()->get_db_mgmt());
       connection->driver(selected_driver());
       set_connection(connection);
@@ -686,19 +686,6 @@ bool DbConnectPanel::test_connection()
     message.append("Port: " + grt::IntegerRef(connectionProperties->parameterValues().get_int("port")).toString() + "\n");
     message.append("User: " + connectionProperties->parameterValues().get_string("userName") + "\n");
 
-    if ( connectionProperties->driver()->name() == "MySQLFabric")
-    {
-      grt::BaseListRef args(true);
-      args->insert_unchecked(connectionProperties);
-      grt::ValueRef result= grt::GRT::get()->call_module_function("WBFabric", "testConnection", args);
-      std::string error = grt::StringRef::extract_from(result);
-      if (!error.empty())
-      {
-        failed = true;
-        message = error;
-      }
-    }
-    else
     {
       sql::ConnectionWrapper _dbc_conn= dbc_drv_man->getConnection(connectionProperties);
       
@@ -714,7 +701,7 @@ bool DbConnectPanel::test_connection()
         }
         if (!bec::is_supported_mysql_version(version))
         {
-          log_error("Unsupported server version: %s %s\n", _dbc_conn->getMetaData()->getDatabaseProductName().c_str(),
+          logError("Unsupported server version: %s %s\n", _dbc_conn->getMetaData()->getDatabaseProductName().c_str(),
                     version.c_str());
           if (mforms::Utilities::show_warning("Connection Warning",
                                               base::strfmt("Incompatible/nonstandard server version or connection protocol detected (%s).\n\n"
@@ -788,13 +775,11 @@ void DbConnectPanel::set_active_stored_conn(db_mgmt_ConnectionRef connection)
   _warning.set_text("");
   if (!connection.is_valid())
     connection = _anonymous_connection;
-  else if (connection->parameterValues().has_key("fabric_managed"))
-    _warning.set_text(_("This is a fabric managed connection"));
 
   db_mgmt_DriverRef driver = connection->driver();
   if (!driver.is_valid())
   {
-    log_error("Connection %s has no driver set\n", connection->name().c_str());
+    logError("Connection %s has no driver set\n", connection->name().c_str());
     return;
   }
 
@@ -874,12 +859,12 @@ void DbConnectPanel::change_active_stored_conn()
 void DbConnectPanel::launch_ssl_wizard()
 {
   mforms::Form *parent = get_parent_form();
-  grt::BaseListRef args(true);
-  args.ginsert(mforms_to_grt(parent, "Form"));
+  grt::BaseListRef args(get_be()->get_grt());
+  args.ginsert(mforms_to_grt(get_be()->get_grt(), parent, "Form"));
   args.ginsert(get_connection());
   args.ginsert(grt::StringRef(get_connection()->id()));
 
-  grt::GRT::get()->call_module_function("PyWbUtils", "generateCertificates", args);
+  get_be()->get_grt()->call_module_function("PyWbUtils", "generateCertificates", args);
   
   _connection->update();
 }
@@ -898,7 +883,7 @@ void DbConnectPanel::open_ssl_wizard_directory()
 
 db_mgmt_ConnectionRef DbConnectPanel::open_editor()
 {
-  grt::ListRef<db_mgmt_Rdbms> rdbms_list(true);
+  grt::ListRef<db_mgmt_Rdbms> rdbms_list(_connection->get_grt());
   rdbms_list.ginsert(selected_rdbms());
   DbConnectionEditor editor(_connection->get_db_mgmt());
 
@@ -1011,7 +996,7 @@ void DbConnectPanel::set_keychain_password(DbDriverParam *param, bool clear)
   }
   else
   {
-    log_error("Invalid storage key format for option %s\n", param->object().id().c_str());
+    logError("Invalid storage key format for option %s\n", param->object().id().c_str());
     return;
   }
   for (grt::DictRef::const_iterator iter = paramValues.begin(); iter != paramValues.end(); ++iter)
@@ -1291,7 +1276,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
       }
       catch (std::exception &e)
       {
-        log_error("Error calling get_enum_options() for param %s: %s", 
+        logError("Error calling get_enum_options() for param %s: %s", 
                 driver_param->get_control_name().c_str(),
                 e.what());
         mforms::Utilities::show_error("Connection Setup",
@@ -1319,7 +1304,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
       break;
     }
     default:
-      log_warning("Unknown param type for %s\n", driver_param->get_control_name().c_str());
+      logWarning("Unknown param type for %s\n", driver_param->get_control_name().c_str());
       break;
   }
 }
