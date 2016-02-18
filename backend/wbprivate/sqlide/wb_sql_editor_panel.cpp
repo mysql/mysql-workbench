@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -96,7 +96,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   add(&_splitter, true, true);
 
   mforms::CodeEditor* code_editor = editor_be()->get_editor_control();
-
+  code_editor->set_name("code editor");
   _editor_box.add(setup_editor_toolbar(), false, true);
   _editor_box.add_end(code_editor, true, true);
 
