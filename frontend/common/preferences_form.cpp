@@ -1383,19 +1383,6 @@ mforms::View *PreferencesForm::create_others_page()
         _("SSH timeout in seconds.\nUsed only in Online Backup/Restore"));
     }
 
-    // Fabric timeout
-    {
-      // Using arbitrary max value of 1 Hour for connection timeout.
-      mforms::TextEntry *entry = new_numeric_entry_option("Fabric:ConnectionTimeOut", 0, 3600);
-      entry->set_max_length(5);
-      entry->set_size(50, -1);
-      entry->set_tooltip(_(
-        "The interval in seconds without sending any data over the connection, a \"keepalive\" packet will be sent.\nThis option will apply to both SSH tunnel connections and remote management via SSH."));
-
-      timeouts_table->add_option(entry, _("Fabric Connection Timeout:"),
-        _("Maximum time to wait before a connection\nattempt is aborted."));
-    }
-
     // migration connection timeout
     {
       mforms::TextEntry *entry = new_numeric_entry_option("Migration:ConnectionTimeOut", 0, 3600);

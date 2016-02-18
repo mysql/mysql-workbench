@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,8 +44,6 @@ public:
   ~NewConnectionWizard();
   
   db_mgmt_ConnectionRef run();
-
-  void driver_changed_cb(const db_mgmt_DriverRef &driver);
   
 private:
   wb::WBContext *_context;

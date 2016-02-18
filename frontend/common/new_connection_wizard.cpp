@@ -78,7 +78,6 @@ NewConnectionWizard::NewConnectionWizard(wb::WBContext *context, const db_mgmt_M
   _bottom_hbox.set_spacing(12);
   
   _panel.init(_mgmt);
-  _panel.set_driver_changed_cb(boost::bind(&NewConnectionWizard::driver_changed_cb, this, _1));
     
   _conn_name= _panel.get_name_entry();
 
@@ -111,14 +110,6 @@ NewConnectionWizard::NewConnectionWizard(wb::WBContext *context, const db_mgmt_M
 NewConnectionWizard::~NewConnectionWizard()
 {
 }
-
-//--------------------------------------------------------------------------------------------------
-
-void NewConnectionWizard::driver_changed_cb(const db_mgmt_DriverRef &driver)
-{
-  _config_button.show(driver->name() != "MySQLFabric");
-}
-
 
 //--------------------------------------------------------------------------------------------------
 
@@ -176,7 +167,6 @@ db_mgmt_ConnectionRef NewConnectionWizard::run()
 
       // Auto create an unconfigured server instance for this connection.
       // The module creates the instance, adds it to the stored instances and stores them on disk.
-      if (_connection->driver()->name() != "MySQLFabric")
       {
         grt::BaseListRef args(true);
         args.ginsert(_connection);
