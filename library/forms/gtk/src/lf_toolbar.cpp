@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +21,7 @@
 #include "../lf_toolbar.h"
 #include "../lf_view.h"
 #include <gtkmm/box.h>
+#include <atkmm.h>
 #include "image_cache.h"
 #include "base/wb_iterators.h"
 #include "base/log.h"
@@ -486,6 +487,22 @@ std::string mforms::gtk::ToolBarImpl::get_item_text(mforms::ToolBarItem *item)
 }
 
 //------------------------------------------------------------------------------
+
+void mforms::gtk::ToolBarImpl::set_item_name(mforms::ToolBarItem *item, const std::string &name)
+{
+  Gtk::Widget* w = cast<Gtk::Widget*>(item->get_data_ptr());
+  if(w)
+  {
+    w->set_name(name);
+    {
+      Glib::RefPtr<Atk::Object> acc = w->get_accessible();
+      if (acc)
+        acc->set_name(name);
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 void mforms::gtk::ToolBarImpl::set_item_enabled(mforms::ToolBarItem *item, bool is_on)
 {
   Gtk::Widget* w = cast<Gtk::Widget*>(item->get_data_ptr());
@@ -616,6 +633,7 @@ void mforms::gtk::lf_toolbar_init()
   f->_tool_bar_impl.set_item_alt_icon = mforms::gtk::ToolBarImpl::set_item_alt_icon;
   f->_tool_bar_impl.set_item_text = mforms::gtk::ToolBarImpl::set_item_text;
   f->_tool_bar_impl.get_item_text = mforms::gtk::ToolBarImpl::get_item_text;
+  f->_tool_bar_impl.set_item_name = mforms::gtk::ToolBarImpl::set_item_name;
   f->_tool_bar_impl.set_item_enabled = mforms::gtk::ToolBarImpl::set_item_enabled;
   f->_tool_bar_impl.get_item_enabled = mforms::gtk::ToolBarImpl::get_item_enabled;
   f->_tool_bar_impl.set_item_checked = mforms::gtk::ToolBarImpl::set_item_checked;
