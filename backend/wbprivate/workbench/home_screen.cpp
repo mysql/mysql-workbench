@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -826,7 +826,7 @@ public:
     entry.title = base::strip_extension(base::basename(path));
     if (entry.title.empty())
       entry.title = "???";
-    entry.is_model = base::ends_with(path, ".mwb") || base::ends_with(path, ".mwbd");
+    entry.is_model = base::hasSuffix(path, ".mwb") || base::hasSuffix(path, ".mwbd");
     entry.folder = base::dirname(path);
 
     if (time > 0)
@@ -2012,7 +2012,6 @@ void HomeScreen::set_menu(mforms::Menu *menu, HomeScreenMenuType type)
   {
     case HomeMenuConnection:
     case HomeMenuConnectionGroup:
-    case HomeMenuConnectionFabric:
     case HomeMenuConnectionGeneric:
       _connection_section->set_context_menu(menu, type);
       break;

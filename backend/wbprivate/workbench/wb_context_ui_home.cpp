@@ -27,7 +27,7 @@
 
 #include "mforms/menu.h"
 
-#include "grt.h"
+#include "grtpp.h"
 
 #include "grts/structs.app.h"
 #include "grts/structs.h"
@@ -311,7 +311,7 @@ void WBContextUI::show_home_screen()
       bec::ArgumentPool argument_pool;
       _wb->update_plugin_arguments_pool(argument_pool);
       groups.push_back("Menu/Home/Connections");
-      bec::MenuItemList pitems = bec::GRTManager::get().get_plugin_context_menu_items(groups, argument_pool);
+      bec::MenuItemList pitems = _wb->get_grt_manager()->get_plugin_context_menu_items(groups, argument_pool);
       if (!pitems.empty())
       {
         menu = mforms::manage(new mforms::Menu());
@@ -331,9 +331,9 @@ void WBContextUI::show_home_screen()
       std::list<std::string> groups;
       bec::ArgumentPool argument_pool;
       _wb->update_plugin_arguments_pool(argument_pool);
-      argument_pool.add_entries_for_object("selectedConnection", db_mgmt_ConnectionRef(grt::Initialized), "db.mgmt.Connection");
+      argument_pool.add_entries_for_object("selectedConnection", db_mgmt_ConnectionRef(_wb->get_grt()), "db.mgmt.Connection");
       groups.push_back("Menu/Home/Connections");
-      bec::MenuItemList pitems = bec::GRTManager::get().get_plugin_context_menu_items(groups, argument_pool);
+      bec::MenuItemList pitems = _wb->get_grt_manager()->get_plugin_context_menu_items(groups, argument_pool);
       if (!pitems.empty())
       {
         menu->add_separator();
@@ -366,7 +366,7 @@ void WBContextUI::show_home_screen()
 
       argument_pool.add_simple_value("selectedGroupName", grt::StringRef(""));
       groups.push_back("Menu/Home/ConnectionGroup");
-      bec::MenuItemList pitems = bec::GRTManager::get().get_plugin_context_menu_items(groups, argument_pool);
+      bec::MenuItemList pitems = _wb->get_grt_manager()->get_plugin_context_menu_items(groups, argument_pool);
       if (!pitems.empty())
       {
         menu->add_items_from_list(pitems);
@@ -376,21 +376,6 @@ void WBContextUI::show_home_screen()
     menu->add_item(_("Delete Group..."), "delete_connection_group");
 
     _home_screen->set_menu(menu, HomeMenuConnectionGroup);
-
-    menu = mforms::manage(new mforms::Menu());
-    menu->add_item(_("Move To Top"), "move_connection_to_top");
-    menu->add_item(_("Move Up"), "move_connection_up");
-    menu->add_item(_("Move Down"), "move_connection_down");
-    menu->add_item(_("Move To End"), "move_connection_to_end");
-
-    menu->add_separator();
-    menu->add_item(_("Edit Connection..."), "edit_connection");
-    menu->add_item(_("Delete Connection..."), "delete_fabric_connection");
-
-    menu->add_separator();
-    menu->add_item(_("Delete Connections to Managed Servers..."), "delete_fabric_connection_servers");
-
-    _home_screen->set_menu(menu, HomeMenuConnectionFabric);
     
     menu = mforms::manage(new mforms::Menu());
     menu->add_item(_("Open Model"), "open_model_from_list");
@@ -400,7 +385,7 @@ void WBContextUI::show_home_screen()
       _wb->update_plugin_arguments_pool(argument_pool);
       argument_pool.add_simple_value("selectedModelFile", grt::ValueRef());
       groups.push_back("Menu/Home/ModelFiles");
-      bec::MenuItemList pitems = bec::GRTManager::get().get_plugin_context_menu_items(groups, argument_pool);
+      bec::MenuItemList pitems = _wb->get_grt_manager()->get_plugin_context_menu_items(groups, argument_pool);
       if (!pitems.empty())
       {
         menu->add_separator();
@@ -424,7 +409,7 @@ void WBContextUI::show_home_screen()
       _wb->update_plugin_arguments_pool(argument_pool);
       argument_pool.add_simple_value("selectedModelFile", grt::ValueRef());
       groups.push_back("Menu/Home/ModelFiles"); // TODO: do we need a different group for the action menu?
-      bec::MenuItemList pitems = bec::GRTManager::get().get_plugin_context_menu_items(groups, argument_pool);
+      bec::MenuItemList pitems = _wb->get_grt_manager()->get_plugin_context_menu_items(groups, argument_pool);
       if (!pitems.empty())
       {
         menu->add_separator();
@@ -455,7 +440,7 @@ void WBContextUI::show_home_screen()
   if (!error.empty())
   {
     std::string message = base::strfmt(_("Error while setting up home screen. The error message is: %s"), error.c_str());
-    log_error("%s\n", message.c_str());
+    logError("%s\n", message.c_str());
     mforms::Utilities::show_error(_("Home Screen Error"), message, _("Close"));
   }
 
@@ -474,7 +459,7 @@ void WBContextUI::home_action_callback(HomeScreenAction action, const grt::Value
   catch (const std::exception &exc)
   {
     std::string message = base::strfmt("Exception caught while processing action from home screen: %s", exc.what());
-    log_error("%s\n", message.c_str());
+    logError("%s\n", message.c_str());
     mforms::Utilities::show_error("Internal Error", message, _("Close"));
   }
 }
@@ -487,10 +472,11 @@ void WBContextUI::home_action_callback(HomeScreenAction action, const grt::Value
  */
 void WBContextUI::remove_connection(const db_mgmt_ConnectionRef &connection)
 {
-  grt::BaseListRef args(true);
+  grt::GRT *grt = connection->get_grt();
+  grt::BaseListRef args(grt);
   args->insert_unchecked(connection);
 
-  grt::ValueRef result = grt::GRT::get()->call_module_function("Workbench", "deleteConnection", args);
+  grt::ValueRef result = grt->call_module_function("Workbench", "deleteConnection", args);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -501,7 +487,7 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
   {
     handle_home_action(ActionOpenConnectionFromList, object);
   }
-  else if (action == "delete_connection" || action == "delete_fabric_connection" || action == "delete_fabric_connection_servers")
+  else if (action == "delete_connection")
   {
     db_mgmt_ConnectionRef connection(db_mgmt_ConnectionRef::cast_from(object));
     
@@ -509,29 +495,14 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
     std::string title;
     std::string warning;
 
-    if (action == "delete_fabric_connection_servers")
-    {
-      title = _("Delete Managed Server Connections");
-      warning = strfmt(_("Do you really want to delete managed server connections on this fabric node: %s?"), name.c_str());
-    }
-    else
-    {
-      title = _("Delete Connection");
-      warning = strfmt(_("Do you want to delete connection %s?"), name.c_str());
-    }
+
+    title = _("Delete Connection");
+    warning = strfmt(_("Do you want to delete connection %s?"), name.c_str());
 
     int answer = Utilities::show_warning(title, warning,  _("Delete"), _("Cancel"));
     if (answer == mforms::ResultOk)
     {
-      // In case it is not a single connection, implies it is a fabric connection and we need to
-      // delete the connections to the managed servers
-      if (action != "delete_connection")
-        handle_home_context_menu(grt::StringRef(name), "internal_delete_connection_group");
-
-      // Connection is not deleted when we are just deleting the children of a fabric connection
-      if (action != "delete_fabric_connection_servers")
-        remove_connection(connection);
-
+      remove_connection(connection);
       refresh_home_connections();
     }
   }
@@ -601,10 +572,11 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
     
     if (answer == mforms::ResultOk)
     {
-      grt::BaseListRef args(true);
+      grt::GRT *grt = _wb->get_grt();
+      grt::BaseListRef args(grt);
       args->insert_unchecked(object);
 
-      grt::ValueRef result = grt::GRT::get()->call_module_function("Workbench", "deleteConnectionGroup", args);
+      grt::ValueRef result = grt->call_module_function("Workbench", "deleteConnectionGroup", args);
 
       // Internal deletion does not require the UI update
       if (action == "delete_connection_group")
@@ -675,7 +647,7 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
       }
       catch (std::exception &exc)
       {
-        log_error("Error removing model file %s: %s\n", file.c_str(), exc.what());
+        logError("Error removing model file %s: %s\n", file.c_str(), exc.what());
       }
     }
     refresh_home_documents();
@@ -723,27 +695,27 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
 
 //--------------------------------------------------------------------------------------------------
 
-void WBContextUI::start_plugin(const std::string& title, const std::string& command, bool force_external)
+void WBContextUI::start_plugin(const std::string& title, const std::string& command, const bec::ArgumentPool &defaults, bool force_external)
 {
   try
   {
     std::string message_title= base::strfmt(_("Starting %s"), title.c_str());
     GUILock lock(_wb, message_title, _("Please stand by while the plugin is started..."));
-    if (base::starts_with(command, "plugin:"))
+    if (base::hasPrefix(command, "plugin:"))
     {
-      _wb->execute_plugin(command.substr(7, command.length()));
+      _wb->execute_plugin(command.substr(7, command.length()), defaults);
     }
     else
-      if (base::starts_with(command, "browse:"))
+      if (base::hasPrefix(command, "browse:"))
         show_web_page(command.substr(7, command.length()), !force_external);
       else
-        if (base::starts_with(command, "http://"))
+        if (base::hasPrefix(command, "http://"))
           show_web_page(command, false);
   }
   catch (const std::exception &exc)
   {
     std::string message = base::strfmt(_("Could not open link or plugin. The error message is: %s"), exc.what());
-    log_error("%s\n", message.c_str());
+    logError("%s\n", message.c_str());
     mforms::Utilities::show_error(_("Open Plugin Error"), message, _("Close"));
   }
 }
@@ -760,7 +732,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
     case ActionShortcut:
     {
       app_StarterRef starter = app_StarterRef::cast_from(object);
-      start_plugin(starter->title(), starter->command());
+      start_plugin(starter->title(), starter->command(), bec::ArgumentPool());
     }
     
     break;
@@ -783,8 +755,20 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
       {
         db_mgmt_ConnectionRef connection(db_mgmt_ConnectionRef::cast_from(object));
 
-        _wb->show_status_text("Opening SQL Editor...");
-        _wb->add_new_query_window(connection);
+        bool is_ng = connection.is_valid() && connection->driver()->name() == "MySQLX";
+        if (is_ng)
+        {
+          _wb->show_status_text("Opening XShell...");
+          bec::ArgumentPool argument_pool;
+          argument_pool.add_entries_for_object("connection", connection, db_mgmt_Connection::static_class_name());
+          start_plugin("NG IDE", "plugin:com.mysql.wb.ng", argument_pool);
+          _wb->show_status_text("XSHell opened...");
+        }
+        else
+        {
+          _wb->show_status_text("Opening SQL Editor...");
+          _wb->add_new_query_window(connection);
+        }
       }
       _processing_action_open_connection = false;
       break;
@@ -826,7 +810,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
 
     case ActionManageConnections:
     {
-      ServerInstanceEditor editor(_wb->get_root()->rdbmsMgmt());
+      ServerInstanceEditor editor(_wb->get_grt_manager(), _wb->get_root()->rdbmsMgmt());
       _wb->show_status_text("Connection Manager Opened");
       editor.run(db_mgmt_ConnectionRef::cast_from(object));
       _wb->show_status_text("");
@@ -874,47 +858,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
       }
       break;
     }
-    
-    case ActionUpdateFabricConnections:
-    {
-      // Creates the fabric connections only if they have not been already created
-      // since the last connection refresh
-      GUILock lock(_wb, _("Connecting to MySQL Fabric Management Node"), _("The connections to the managed MySQL Servers will be updated in a moment.\n"
-                                                                     "\nPlease stand by..."));
-      _wb->show_status_text(_("Connecting to MySQL Fabric Management Node..."));
-      db_mgmt_ConnectionRef connection(db_mgmt_ConnectionRef::cast_from(object));
-      grt::BaseListRef args(true);
-      args->insert_unchecked(connection);
-      
-      std::string error;
 
-      try
-      {
-        grt::ValueRef result = grt::GRT::get()->call_module_function("WBFabric", "updateConnections", args);
-        error = grt::StringRef::extract_from(result);
-      }
-      catch (std::runtime_error &exc)
-      {
-        error = exc.what();
-      }
-      
-      if (error == "Operation Cancelled")
-        _wb->show_status_text(_("Creation of connections to Managed MySQL Servers was cancelled."));
-      else
-      {
-        if (error.length())
-        {
-          log_warning("Error updating managed connections for %s: %s\n", connection->name().c_str(), error.c_str());
-          mforms::Utilities::show_error(_("MySQL Fabric Connection Error"), error, "OK");
-          _wb->show_status_text(_("Failed updating connections to Managed MySQL Servers..."));
-        }
-        else
-          _wb->show_status_text(_("Updated connections to Managed MySQL Servers..."));
-      }
-
-      break;
-    }
-      
     case ActionSetupRemoteManagement:
     {
       NewServerInstanceWizard wizard(_wb, db_mgmt_ConnectionRef::cast_from(object));
@@ -1028,11 +972,12 @@ void WBContextUI::refresh_home_connections(bool clear_state)
   // local servers (only if this is the first run, after application start).
   if (_initializing_home_screen && (connections->count() == 0))
   {
-    grt::Module* module = grt::GRT::get()->get_module("Workbench");
+    grt::GRT* grt = _wb->get_grt();
+    grt::Module* module = grt->get_module("Workbench");
     if (module == NULL)
       throw std::logic_error("Internal error: can't find Workbench module.");
     
-    grt::StringListRef arguments(grt::Initialized);
+    grt::StringListRef arguments(grt);
     module->call_function("createInstancesFromLocalServers", arguments);
   }
 
@@ -1060,17 +1005,26 @@ void WBContextUI::refresh_home_connections(bool clear_state)
           oldAuthList.push_back(*inst);
       }
 
-      // Any fabric managed connection referencing a 
-      if (dict.has_key("fabric_managed") && invalid_connection_ids.count(dict.get_string("fabric_managed")))
-        invalid_connections.push_back(*inst);
-      else
       {
         std::string host_entry;
         if ((*inst)->driver().is_valid() && (*inst)->driver()->name() == "MysqlNativeSSH")
           host_entry = dict.get_string("sshUserName") + "@" + dict.get_string("sshHost");
         else
         {
-          host_entry = strfmt("%s:%i", dict.get_string("hostName").c_str(), (int)dict.get_int("port", 3306));
+
+          if ((*inst)->driver()->name() == "MySQLX")
+          {
+            std::string editor = "";
+            if (dict.get_int("editorLanguage") == 0)
+              editor = "sql";
+            else if (dict.get_int("editorLanguage") == 1)
+              editor = "js";
+            else if (dict.get_int("editorLanguage") == 2)
+              editor = "py";
+            host_entry = strfmt("%s:///%s:%i",editor.c_str(), dict.get_string("hostName").c_str(), (int)dict.get_int("port", 3306));
+          }
+          else
+            host_entry = strfmt("%s:%i", dict.get_string("hostName").c_str(), (int)dict.get_int("port", 3306));
           if ((*inst)->driver().is_valid() && (*inst)->driver()->name() == "MysqlNativeSocket")
           {
             // TODO: what about the default for sockets (only have a default for the pipe name)?
@@ -1091,11 +1045,11 @@ void WBContextUI::refresh_home_connections(bool clear_state)
 
   _home_screen->oldAuthConnections(oldAuthList);
 
-  // Deletes the fabric managed connections
+  // Deletes invalid connections
   for (std::vector<db_mgmt_ConnectionRef>::const_iterator iterator = invalid_connections.begin();
     iterator != invalid_connections.end(); ++iterator)
   {
-    log_warning("Invalid connection detected %s, deleting it\n", (*iterator)->name().c_str());
+    logWarning("Invalid connection detected %s, deleting it\n", (*iterator)->name().c_str());
     remove_connection(*iterator);
   }
 
@@ -1158,11 +1112,11 @@ void WBContextUI::refresh_home_documents()
         "\\MySQL\\Samples and Examples 5.5");
       examples_paths.push_back(mforms::Utilities::get_special_folder(mforms::WinProgramFiles) +
         "\\MySQL\\Samples and Examples 5.5");
-      examples_paths.push_back(bec::GRTManager::get().get_basedir()+"/extras");
+      examples_paths.push_back(_wb->get_grt_manager()->get_basedir()+"/extras");
 #elif defined(__APPLE__)
-      examples_paths.push_back(bec::GRTManager::get().get_basedir()+"/../SharedSupport");
+      examples_paths.push_back(_wb->get_grt_manager()->get_basedir()+"/../SharedSupport");
 #else
-      examples_paths.push_back(bec::GRTManager::get().get_basedir()+"/extras");
+      examples_paths.push_back(_wb->get_grt_manager()->get_basedir()+"/extras");
 #endif
 
       for (std::list<std::string>::const_iterator path_iterator = examples_paths.begin();

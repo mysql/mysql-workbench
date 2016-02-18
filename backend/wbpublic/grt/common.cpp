@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,19 +55,19 @@ namespace bec {
               if (!child.is_valid())
               {
                 failed = true;
-                log_error("Child item %li of list %s::%s is NULL\n", (long int)i, GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str());
+                logError("Child item %li of list %s::%s is NULL\n", (long int)i, GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str());
               }
               else
               {
                 if (!child->owner().is_valid())
                 {
-                  log_error("owner of %s::%s[%li] %s is NULL (expected %s <%s>)\n", GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str(), (long int)i, child->id().c_str(),
+                  logError("owner of %s::%s[%li] %s is NULL (expected %s <%s>)\n", GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str(), (long int)i, child->id().c_str(),
                             object->id().c_str(), object->class_name().c_str());
                   failed = true;
                 }
                 else if (child->owner() != object)
                 {
-                  log_error("owner of %s::%s[%li] %s is wrong (expected %s <%s>, is %s <%s>)\n", GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str(), (long int)i, child->id().c_str(),
+                  logError("owner of %s::%s[%li] %s is wrong (expected %s <%s>, is %s <%s>)\n", GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str(), (long int)i, child->id().c_str(),
                             object->id().c_str(), object->class_name().c_str(), child->owner()->id().c_str(), child->owner()->class_name().c_str());
                   failed = true;
                 }
@@ -76,7 +76,7 @@ namespace bec {
               }
             }
             else
-              log_info("Unknown object in list %s\n", member->name.c_str());
+              logInfo("Unknown object in list %s\n", member->name.c_str());
           }
         }
         else
@@ -89,20 +89,20 @@ namespace bec {
               GrtObjectRef child(GrtObjectRef::cast_from(list.get(i)));
               if (!child.is_valid())
               {
-                log_error("Child item %li of list %s::%s is NULL\n", (long int)i, GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str());
+                logError("Child item %li of list %s::%s is NULL\n", (long int)i, GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str());
                 failed = true;
               }
               else
               {
                 if (!child->owner().is_valid())
                 {
-                  log_error("owner of %s::%s[%li] %s is NULL (expected %s <%s>)\n", GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str(), (long int)i, child->id().c_str(),
+                  logError("owner of %s::%s[%li] %s is NULL (expected %s <%s>)\n", GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str(), (long int)i, child->id().c_str(),
                             object->id().c_str(), object->class_name().c_str());
                   failed = true;
                 }
                 else if (child->owner() == object)
                 {
-                  log_error("owner of %s::%s[%li] is wrong (not supposed to be %s)\n", GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str(), (long int)i,
+                  logError("owner of %s::%s[%li] is wrong (not supposed to be %s)\n", GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str(), (long int)i,
                             child->owner()->id().c_str());
                   failed = true;
                 }
@@ -117,7 +117,7 @@ namespace bec {
         {
           if (child->owner() != object && member->owned_object)
           {
-            log_error("owner of %s::%s is wrong (expected %s, is %s)\n", GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str(),
+            logError("owner of %s::%s is wrong (expected %s, is %s)\n", GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str(),
                       object->id().c_str(), child->owner()->id().c_str());
             failed = true;
           }
@@ -167,13 +167,11 @@ namespace bec {
     // - Top level elements
     // - First and Last positions of the grouped items
     // - Grouped elements
-    bool fabric;
     std::vector<std::string> names_list;
     std::map<std::string, size_t> name_positions;
     std::map<std::string, int> initial_positions;
     std::map<std::string, int> final_positions;
     std::map<std::string, grt::ListRef<T> >groups;
-    std::map<std::string, bool> fabric_names;
 
     // Collect names of all ungrouped items and groups in an own list for lookup.
     int item_count = 0;
@@ -181,7 +179,6 @@ namespace bec {
     {
       grt::ListRef<T> target_group;
 
-      fabric = false;
       std::string item_name = (*iterator)->name();
       size_t position = item_name.find("/");
 
@@ -191,7 +188,7 @@ namespace bec {
         if (std::find(names_list.begin(), names_list.end(), group_name) == names_list.end())
         {
           item_name = group_name;
-          target_group = grt::ListRef<T>(true);
+          target_group = grt::ListRef<T>(items.get_grt());
           groups[item_name] = target_group;
         }
         else
@@ -201,23 +198,12 @@ namespace bec {
           item_name = "";
         }
       }
-      // On a fabric node the first tile will always be the parent node's name which does
-      // not contain the /
-      // It needs to be added to the child connections match it
-      else if ((*iterator)->driver().is_valid() && (*iterator)->driver()->name() == "MySQLFabric")
-      {
-        item_name += "/";
-        fabric = true;
-        target_group = grt::ListRef<T>(true);
-        groups[item_name] = target_group;
-      }
 
       // Updates data with item's element
       if (item_name.length())
       {
         name_positions[item_name] = names_list.size();
         names_list.push_back(item_name);
-        fabric_names[item_name] = fabric;
         initial_positions[item_name] = item_count;
         final_positions[item_name] = item_count;
 
@@ -267,7 +253,7 @@ namespace bec {
         case MoveUp: to = (int)ui_item_index - 1; break; 
         case MoveDown: to = (int)ui_item_index + 2; break;
         case MoveTop: 
-          to = (grouped && fabric_names[group_name]) ? 1 : 0;
+          to = grouped ? 1 : 0;
           break;
       }
     }
@@ -339,7 +325,7 @@ namespace bec {
 
           // On Items after the original target index will be inserted
           // after each other, this is to avoid reversing the connections
-          // position which could fake the fabric structure
+          // position
           if (!before)
             items.reorder(item_index, target_index++);
         }

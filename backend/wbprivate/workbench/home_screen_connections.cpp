@@ -196,8 +196,6 @@ public:
 
   void repaint(cairo_t *cr, int x, int y, int w, int h)
   {
-    bool is_fabric = _connection.is_valid() && _connection->driver()->name() == "MySQLFabric";
-    bool is_managed = _connection.is_valid() && _connection->parameterValues().has_key("fabric_managed");
     cairo_set_fill_rule(cr, CAIRO_FILL_RULE_WINDING);
 
     base::Rect bounds = get_content_rect();
@@ -286,48 +284,42 @@ public:
     // All the various info.
     cairo_select_font_face(cr, HOME_DETAILS_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, HOME_DETAILS_FONT_SIZE);
-    if (is_fabric)
-      print_fabric_details_text(cr, content_bounds);
-    else
-      print_details_text(cr, content_bounds);
+    print_details_text(cr, content_bounds);
 
     // Buttons at the bottom.
     base::Point position = base::Point(content_bounds.left(), content_bounds.bottom() - POPUP_BUTTON_HEIGHT);
     _button1_rect = draw_button(cr, position, _("Edit Connection..."), high_contrast);
 
-    if (!is_fabric)
+
+    grt::DictRef serverInfo;
+    if (_instance.is_valid())
+    serverInfo = _instance->serverInfo();
+
+    bool pending = !serverInfo.is_valid() || serverInfo.get_int("setupPending") == 1;
+    if (!pending && !is_local_connection(_connection) && serverInfo.get_int("remoteAdmin") == 0 &&
+        serverInfo.get_int("windowsAdmin") == 0)
+    pending = true;
+
+    if (pending)
     {
-      if (!is_managed)
-      {
-        grt::DictRef serverInfo;
-        if (_instance.is_valid())
-        serverInfo = _instance->serverInfo();
-
-        bool pending = !serverInfo.is_valid() || serverInfo.get_int("setupPending") == 1;
-        if (!pending && !is_local_connection(_connection) && serverInfo.get_int("remoteAdmin") == 0 &&
-            serverInfo.get_int("windowsAdmin") == 0)
-        pending = true;
-
-        if (pending)
-        {
-          position.x += _button1_rect.width() + POPUP_BUTTON_SPACING;
-          if (is_local_connection(_connection))
-          _button2_rect = draw_button(cr, position, _("Configure Local Management..."), high_contrast);
-          else
-          _button2_rect = draw_button(cr, position, _("Configure Remote Management..."), high_contrast);
-        }
-        else
-        _button2_rect = base::Rect();
-      }
-
-      /*
-       position.x += _button2_rect.width() + POPUP_BUTTON_SPACING;
-       _button3_rect = draw_button(cr, position, _("Add to Favorites"), high_contrast);
-       */
-      // The last button is right-aligned.
-      position.x = right - POPUP_LR_PADDING;
-      _button4_rect = draw_button(cr, position, _("Connect"), high_contrast, true);
+      position.x += _button1_rect.width() + POPUP_BUTTON_SPACING;
+      if (is_local_connection(_connection))
+      _button2_rect = draw_button(cr, position, _("Configure Local Management..."), high_contrast);
+      else
+      _button2_rect = draw_button(cr, position, _("Configure Remote Management..."), high_contrast);
     }
+    else
+    _button2_rect = base::Rect();
+
+
+    /*
+    position.x += _button2_rect.width() + POPUP_BUTTON_SPACING;
+    _button3_rect = draw_button(cr, position, _("Add to Favorites"), high_contrast);
+    */
+    // The last button is right-aligned.
+    position.x = right - POPUP_LR_PADDING;
+    _button4_rect = draw_button(cr, position, _("Connect"), high_contrast, true);
+
 
     // Finally the close button.
     _close_button_rect = base::Rect(right - image_width(_close_icon) - 10, top + 10, image_width(_close_icon), image_height(_close_icon));
@@ -431,7 +423,7 @@ public:
     }
     catch(std::exception &except)
     {
-      log_warning("Exception caught when trying to find a password for '%s' connection: %s\n", _connection->name().c_str(), except.what());
+      logWarning("Exception caught when trying to find a password for '%s' connection: %s\n", _connection->name().c_str(), except.what());
     }
     
     if (find_result)
@@ -446,7 +438,7 @@ public:
     ssize_t port = parameter_values.get_int("port");
     print_info_line(cr, line_bounds, _("TCP/IP Port"), base::to_string(port));
 
-    // Instance or fabric info next.
+
     line_bounds = bounds;
     line_bounds.pos.x += (bounds.width() + POPUP_LR_PADDING) / 2;
     line_bounds.pos.y += DETAILS_TOP_OFFSET;
@@ -456,24 +448,6 @@ public:
     if (line_bounds.right() > bounds.right())
     line_bounds.pos.x -= bounds.right() - line_bounds.right();
 
-    if (parameter_values.has_key("fabric_managed"))
-    {
-      print_info_line(cr, line_bounds, _("Fabric Managed Instance"), " ");
-      line_bounds.pos.y += 2 * DETAILS_LINE_HEIGHT;
-
-      print_info_line(cr, line_bounds, _("Server ID:"), parameter_values.get_string("fabric_server_uuid"));
-      line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-
-      print_info_line(cr, line_bounds, _("Status:"), parameter_values.get_string("fabric_status"));
-      line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-
-      print_info_line(cr, line_bounds, _("Mode:"), parameter_values.get_string("fabric_mode"));
-      line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-
-      print_info_line(cr, line_bounds, _("Weight:"), parameter_values.get("fabric_weight").toString());
-      line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-    }
-    else
     {
       grt::DictRef serverInfo;
       if (_instance.is_valid())
@@ -558,47 +532,6 @@ public:
           }
         }
       }
-    }
-  }
-
-  //------------------------------------------------------------------------------------------------
-
-  void print_fabric_details_text(cairo_t *cr, base::Rect bounds)
-  {
-    // Connection info first.
-    base::Rect line_bounds = bounds;
-    line_bounds.pos.y += DETAILS_TOP_OFFSET;
-
-    // Use POPUP_LR_PADDIND as space between the two columns.
-    line_bounds.size.width = (bounds.width() - POPUP_LR_PADDING) / 2;
-
-    grt::DictRef parameter_values = _connection->parameterValues();
-
-    std::string user_name = parameter_values.get_string("userName");
-    print_info_line(cr, line_bounds, _("Fabric User"), user_name);
-    line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-
-    std::string password_stored = _("<not stored>");
-    std::string password;
-    if (mforms::Utilities::find_password(_connection->hostIdentifier(), user_name, password))
-    {
-      password = "";
-      password_stored = _("<stored>");
-    }
-    print_info_line(cr, line_bounds, _("Password"), password_stored);
-    line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-    print_info_line(cr, line_bounds, _("Network Address"), parameter_values.get_string("hostName"));
-    line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-    ssize_t port = parameter_values.get_int("port");
-    print_info_line(cr, line_bounds, _("TCP/IP Port"), base::to_string(port));
-    line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-    line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-
-    std::string group_filter =parameter_values.get_string("haGroupFilter");
-    if (group_filter.length())
-    {
-      print_info_line(cr, line_bounds, _("Group Filter"), parameter_values.get_string("haGroupFilter"));
-      line_bounds.pos.y += DETAILS_LINE_HEIGHT;
     }
   }
 
@@ -1015,70 +948,6 @@ public:
 };
 
 
-class wb::FabricManagedConnectionEntry : public ConnectionEntry
-{
-public:
-  FabricManagedConnectionEntry(ConnectionsSection *aowner)
-  : ConnectionEntry(aowner)
-  {
-  }
-
-  virtual bool is_movable()
-  {
-    return false;
-  }
-
-  virtual void menu_open(ItemPosition pos)
-  {
-    mforms::Menu *menu = context_menu();
-
-    menu->set_item_enabled(menu->get_item_index("edit_connection"), false);
-    menu->set_item_enabled(menu->get_item_index("move_connection_to_group"), false);
-    menu->set_item_enabled(menu->get_item_index("delete_connection"), false);
-    menu->set_item_enabled(menu->get_item_index("delete_connection_all"), false);
-
-    menu->set_item_enabled(menu->get_item_index("move_connection_to_top"), pos != First);
-    menu->set_item_enabled(menu->get_item_index("move_connection_up"), pos != First);
-    menu->set_item_enabled(menu->get_item_index("move_connection_down"), pos != Last);
-    menu->set_item_enabled(menu->get_item_index("move_connection_to_end"), pos != Last);
-  }
-
-  virtual base::Color get_current_color(bool hot)
-  {
-    std::string status = base::strip_text(connection->parameterValues().get("fabric_status").toString());
-    if (status == "PRIMARY")
-      return hot ? owner->_managed_primary_tile_bk_color_hl : owner->_managed_primary_tile_bk_color;
-    else if (status == "SECONDARY")
-      return hot ? owner->_managed_secondary_tile_bk_color_hl : owner->_managed_secondary_tile_bk_color;
-    else if (status == "FAULTY")
-      return hot ? owner->_managed_faulty_tile_bk_color_hl : owner->_managed_faulty_tile_bk_color;
-    else if (status == "SPARE")
-      return hot ? owner->_managed_spare_tile_bk_color_hl : owner->_managed_spare_tile_bk_color;
-    return ConnectionEntry::get_current_color(hot);
-  }
-
-  virtual void draw_tile_text(cairo_t *cr, double x, double y, double alpha, bool high_contrast)
-  {
-    ConnectionEntry::draw_tile_text(cr, x, y, alpha, high_contrast);
-
-    std::string status = base::strip_text(connection->parameterValues().get("fabric_status").toString());
-    std::string mode = base::strip_text(connection->parameterValues().get("fabric_mode").toString());
-
-    y = bounds.top() + 56 - image_height(owner->_managed_status_icon);
-    draw_icon_with_text(cr, bounds.left() + bounds.width()*2/3, y, owner->_managed_status_icon, status, alpha, high_contrast);
-
-    y = bounds.top() + 74 - image_height(owner->_managed_status_icon);
-    draw_icon_with_text(cr, bounds.left() + bounds.width()*2/3, y, owner->_managed_status_icon, mode, alpha, high_contrast);
-  }
-
-  virtual std::string section_name()
-  {
-    return "Group " + base::strip_text(connection->parameterValues().get("fabric_group_id").toString());
-  }
-};
-
-
-
 class wb::FolderEntry : public ConnectionEntry
 {
 protected:
@@ -1153,84 +1022,6 @@ public:
 };
 
 
-class wb::FabricFolderEntry : public wb::FolderEntry
-{
-public:
-  int total_instances;
-  std::set<std::string> groups;
-
-  FabricFolderEntry(ConnectionsSection *aowner)
-  : FolderEntry(aowner), total_instances(0)
-  {
-    draw_info_tab = true;
-  }
-
-  virtual void activate(std::shared_ptr<ConnectionEntry> thisptr, int x, int y)
-  {
-    owner->_owner->trigger_callback(ActionUpdateFabricConnections, connection);
-
-    // the connection recreation may recreate the entry objects, so we need a fresh pointer
-    ConnectionsSection::ConnectionVector conns(owner->displayed_connections());
-    bool flag = false;
-    for (ConnectionsSection::ConnectionVector::iterator iter = conns.begin(); iter != conns.end(); ++iter)
-    {
-      if ((*iter)->connection == connection)
-      {
-        flag = true;
-        owner->change_to_folder(std::dynamic_pointer_cast<FolderEntry>(*iter));
-        break;
-      }
-    }
-    if (!flag)
-      log_error("Could not find fabric node '%s' object after refresh\n", connection->name().c_str());
-
-    // force a refresh of the hot_entry even if we don't move the mouse after clicking
-    owner->mouse_move(mforms::MouseButtonNone, x, y);
-  }
-
-  virtual mforms::Menu *context_menu()
-  {
-    return owner->_fabric_context_menu;
-  }
-
-  virtual base::Color get_current_color(bool hot)
-  {
-    return hot ? owner->_fabric_tile_bk_color_hl : owner->_fabric_tile_bk_color;
-  }
-
-  virtual void draw_tile_text(cairo_t *cr, double x, double y, double alpha, bool high_contrast)
-  {
-    ConnectionEntry::draw_tile_text(cr, x, y, alpha, high_contrast);
-    {
-      std::string ha_filter = base::strip_text(connection->parameterValues().get("haGroupFilter").toString());
-
-      std::string tile_groups;
-      if (ha_filter.length())
-      {
-        std::vector<std::string> groups = base::split(ha_filter, ",");
-
-        // Creates the legend to be displayed on the filter icon
-        if (groups.size() > 2)
-          tile_groups = base::strfmt("%s and %li others", groups[0].c_str(), (long)groups.size() - 1);
-        else
-          tile_groups = ha_filter;
-      }
-
-      if (tile_groups.length() > 0)
-      {
-        y = bounds.top() + 56 - image_height(owner->_ha_filter_icon);
-        draw_icon_with_text(cr, bounds.center().x, y, owner->_ha_filter_icon, tile_groups, alpha, high_contrast);
-      }
-    }
-  }
-
-  virtual cairo_surface_t *get_background_icon()
-  {
-    return owner->_fabric_icon;
-  }
-};
-
-
 class wb::FolderBackEntry : public ConnectionEntry
 {
 public:
@@ -1296,74 +1087,6 @@ public:
   }
 };
 
-
-class wb::FabricServerEntry : public ConnectionEntry
-{
-public:
-  wb::FabricFolderEntry *folder;
-
-  FabricServerEntry(ConnectionsSection *aowner, wb::FabricFolderEntry *afolder)
-  : ConnectionEntry(aowner), folder(afolder)
-  {
-  }
-
-  virtual bool is_movable()
-  {
-    return false;
-  }
-
-  virtual base::Color get_current_color(bool hot)
-  {
-    return owner->_fabric_tile_bk_color;
-  }
-
-  virtual void draw_tile(cairo_t *cr, bool hot, double alpha, bool for_dragging,
-                         bool high_contrast)
-  {
-    draw_tile_background(cr, hot, alpha, for_dragging);
-
-    // Title string.
-    double x = bounds.left() + 10;
-    double y = bounds.top() + 27;
-    cairo_set_font_size(cr, HOME_TILES_TITLE_FONT_SIZE);
-    cairo_set_source_rgb(cr, 0xF9 / 255.0, 0xF9 / 255.0, 0xF9 / 255.0);
-
-    cairo_move_to(cr, x, y);
-    cairo_show_text(cr, title.c_str());
-    cairo_stroke(cr);
-
-    draw_tile_text(cr, x, y, alpha, high_contrast);
-  }
-
-  virtual void draw_tile_text(cairo_t *cr, double x, double y, double alpha, bool high_contrast)
-  {
-    cairo_set_font_size(cr, HOME_SMALL_INFO_FONT_SIZE);
-    y = bounds.top() + 56;
-    draw_icon_with_text(cr, x, y, NULL, base::strfmt("Managed Instances: %i", folder->total_instances), alpha, high_contrast);
-
-    y = bounds.top() + 70;
-    draw_icon_with_text(cr, x, y, NULL, base::strfmt("# of HA Groups: %i", (int)folder->groups.size()), alpha, high_contrast);
-  }
-
-  virtual void menu_open(ItemPosition pos)
-  {
-  }
-
-  virtual void activate(std::shared_ptr<ConnectionEntry> thisptr, int x, int y)
-  {
-  }
-
-  virtual mforms::Menu* context_menu()
-  {
-    return NULL;
-  }
-
-  virtual cairo_surface_t *get_background_icon()
-  {
-    return owner->_fabric_icon;
-  }
-};
-
 //------------------------------------------------------------------------------------------------
 
 ConnectionsSection::ConnectionsSection(HomeScreen *owner)
@@ -1373,7 +1096,6 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner)
   _page_start = 0;
   _connection_context_menu = NULL;
   _folder_context_menu = NULL;
-  _fabric_context_menu = NULL;
   _generic_context_menu = NULL;
   _show_details = false;
   _drag_index = -1;
@@ -1396,7 +1118,6 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner)
   _page_up_icon = mforms::Utilities::load_icon("wb_tile_page-up.png");
   _plus_icon = mforms::Utilities::load_icon("wb_tile_plus.png");
   _sakila_icon = mforms::Utilities::load_icon("wb_tile_sakila.png");
-  _fabric_icon = mforms::Utilities::load_icon("wb_tile_fabric.png");
   _schema_icon = mforms::Utilities::load_icon("wb_tile_schema.png");
   _user_icon = mforms::Utilities::load_icon("wb_tile_user.png");
   _manage_icon = mforms::Utilities::load_icon("wb_tile_manage.png");
@@ -1462,8 +1183,6 @@ ConnectionsSection::~ConnectionsSection()
     _connection_context_menu->release();
   if (_folder_context_menu != NULL)
     _folder_context_menu->release();
-  if (_fabric_context_menu != NULL)
-    _fabric_context_menu->release();
   if (_generic_context_menu != NULL)
     _generic_context_menu->release();
 
@@ -1477,7 +1196,6 @@ ConnectionsSection::~ConnectionsSection()
   delete_surface(_page_up_icon);
   delete_surface(_plus_icon);
   delete_surface(_sakila_icon);
-  delete_surface(_fabric_icon);
   delete_surface(_schema_icon);
   delete_surface(_user_icon);
   delete_surface(_manage_icon);
@@ -1509,9 +1227,6 @@ void ConnectionsSection::update_colors()
   _folder_tile_bk_color_hl = base::Color::parse("#63a6c5");
 #endif
 
-  _fabric_tile_bk_color = base::Color::parse("#349667");
-  _fabric_tile_bk_color_hl = base::Color::parse("#46a889");
-
   _managed_primary_tile_bk_color = base::Color::parse("#13ae9e");
   _managed_primary_tile_bk_color_hl = base::Color::parse("#33cebe");
   _managed_secondary_tile_bk_color = base::Color::parse("#13b094");
@@ -1542,22 +1257,6 @@ void ConnectionsSection::focus_search_box()
 
 //------------------------------------------------------------------------------------------------
 
-bool ConnectionsSection::is_managed_connection(int index)
-{
-  bool is_managed = false;
-
-  if (index > -1 && _active_folder)
-  {
-    if (_filtered)
-      is_managed = _active_folder->children[index]->connection->parameterValues().has_key("fabric_managed");
-    else
-      is_managed = _active_folder->children[index]->connection->parameterValues().has_key("fabric_managed");
-  }
-  return is_managed;
-}
-
-//------------------------------------------------------------------------------------------------
-
 void ConnectionsSection::on_search_text_changed()
 {
   std::string filter = _search_text.get_string_value();
@@ -1570,8 +1269,7 @@ void ConnectionsSection::on_search_text_changed()
     for (ConnectionIterator iterator = current_connections.begin(); iterator != current_connections.end(); ++iterator)
     {
       // Always keep the first entry if we are in a folder. It's not filtered.
-      if (_active_folder && (iterator == current_connections.begin()
-                             || dynamic_cast<wb::FabricServerEntry*>(iterator->get())))
+      if (_active_folder && (iterator == current_connections.begin()))
         _filtered_connections.push_back(*iterator);
       else
       if (base::contains_string((*iterator)->search_title, filter, false) ||
@@ -1652,8 +1350,8 @@ void ConnectionsSection::on_search_text_action(mforms::TextEntryAction action)
  * Computes the index for the given position, regardless if that is actually backed by an existing
  * entry or not.
  *
- * This will not work in section separated folders (like in Fabric), but it doesn't matter
- * atm because this is only used for drag/drop, which is not supported inside a Fabric folder.
+ * This will not work in section separated folders, but it doesn't matter
+ * atm because this is only used for drag/drop
  */
 ssize_t ConnectionsSection::calculate_index_from_point(int x, int y)
 {
@@ -1840,12 +1538,7 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
 
   ConnectionVector *connections;
   std::string title = _("MySQL Connections");
-  if (dynamic_cast<FabricFolderEntry*>(_active_folder.get()))
-  {
-    title += " / " + _active_folder->title + " / Managed MySQL Servers";
-    connections = &_active_folder->children;
-  }
-  else if (_active_folder)
+  if (_active_folder)
   {
     title += " / " + _active_folder->title;
     connections = &_active_folder->children;
@@ -1880,8 +1573,7 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER); // Restore default operator.
 
   int row = 0;
-  // number of tiles that act as a filler, which are used by the fabric server title tile and also in
-  // fabric groups separated by group name (or folder sections)
+  // number of tiles that act as a filler
   int filler_tiles = 0;
   std::string current_section;
   base::Rect bounds(0, CONNECTIONS_TOP_PADDING, CONNECTIONS_TILE_WIDTH, CONNECTIONS_TILE_HEIGHT);
@@ -1925,18 +1617,6 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
         if (current_page > visible_page)
           items_after_last_visible++;
 
-        if (dynamic_cast<FabricServerEntry*>((*connections)[index].get()))
-        {
-          base::Rect total_bounds = bounds;
-          int tiles_occupied = tiles_per_row - column;
-          filler_tiles += tiles_occupied;
-          column += (tiles_occupied - 1);
-
-          total_bounds.size.width = CONNECTIONS_TILE_WIDTH * tiles_occupied + CONNECTIONS_SPACING * (tiles_occupied - 1);
-          if (!dont_paint)
-            (*connections)[index]->bounds = total_bounds;
-        }
-        else
         {
           std::string section = (*connections)[index]->section_name();
           if (!section.empty() && current_section != section)
@@ -2100,25 +1780,8 @@ void ConnectionsSection::add_connection(const db_mgmt_ConnectionRef &connection,
 {
   std::shared_ptr<ConnectionEntry> entry;
 
-  if (connection.is_valid() && connection->driver().is_valid() && connection->driver()->name() == "MySQLFabric")
-  {
-    FabricFolderEntry *fabric_folder;
-    entry = std::shared_ptr<ConnectionEntry>(fabric_folder = new FabricFolderEntry(this));
 
-    fabric_folder->children.push_back(std::shared_ptr<ConnectionEntry>(new FolderBackEntry(this)));
-    {
-      std::shared_ptr<ConnectionEntry> fabric(new FabricServerEntry(this, fabric_folder));
-      fabric->title = "Fabric Server: " + *connection->name();
-      fabric->connection = connection;
-      fabric->second_color = false;
-      fabric->search_title = title;
-      fabric_folder->children.push_back(fabric);
-    }
-  }
-  else if (connection.is_valid() && connection->parameterValues().has_key("fabric_managed"))
-    entry = std::shared_ptr<ConnectionEntry>(new FabricManagedConnectionEntry(this));
-  else
-    entry = std::shared_ptr<ConnectionEntry>(new ConnectionEntry(this));
+  entry = std::shared_ptr<ConnectionEntry>(new ConnectionEntry(this));
 
   entry->connection = connection;
   entry->title = title;
@@ -2148,36 +1811,7 @@ void ConnectionsSection::add_connection(const db_mgmt_ConnectionRef &connection,
     {
       if ((*iterator)->title == parent_name)
       {
-        if (FabricFolderEntry *folder = dynamic_cast<FabricFolderEntry*>(iterator->get()))
-        {
-          found_parent = true;
-          std::vector<std::shared_ptr<ConnectionEntry> >::iterator index, end;
-          index = folder->children.begin(); 
-          end = folder->children.end();
-
-          // Skips the back and server tiles
-          index++;
-          index++;
-
-          std::string key = base::strfmt("%s-%s", entry->section_name().c_str(), entry->title.c_str());
-          bool found = false;
-
-          while (index != end && !found)
-          {
-            std::string existing_key = base::strfmt("%s-%s", (*index)->section_name().c_str(), (*index)->title.c_str());
-
-            found = key < existing_key;
-              
-            if (!found)
-              index++;
-          }
-
-          folder->children.insert(index, entry);
-          folder->total_instances++;
-          folder->groups.insert(entry->section_name());
-          break;
-        }
-        else if (FolderEntry *folder = dynamic_cast<FolderEntry*>(iterator->get()))
+        if (FolderEntry *folder = dynamic_cast<FolderEntry*>(iterator->get()))
         {
           found_parent = true;
           folder->children.push_back(entry);
@@ -2488,18 +2122,7 @@ void ConnectionsSection::set_context_menu(mforms::Menu *menu, HomeScreenMenuType
       if (_folder_context_menu != NULL)
       {
         _folder_context_menu->retain();
-        menu->set_handler(boost::bind(&ConnectionsSection::handle_folder_command, this, _1, false));
-      }
-      break;
-
-    case HomeMenuConnectionFabric:
-      if (_fabric_context_menu != NULL)
-        _fabric_context_menu->release();
-      _fabric_context_menu = menu;
-      if (_fabric_context_menu != NULL)
-      {
-        _fabric_context_menu->retain();
-        menu->set_handler(boost::bind(&ConnectionsSection::handle_folder_command, this, _1, true));
+        menu->set_handler(boost::bind(&ConnectionsSection::handle_folder_command, this, _1));
       }
       break;
 
@@ -2544,7 +2167,7 @@ void ConnectionsSection::handle_command(const std::string &command)
         // We only want to delete all connections in the active group. This is the same as
         // removing the group entirely, since the group is formed by connections in it.
         _entry_for_menu = _active_folder;
-        handle_folder_command("delete_connection_group", dynamic_cast<FabricFolderEntry*>(_active_folder.get()) != NULL);
+        handle_folder_command("delete_connection_group");
         return;
       }
       else
@@ -2563,11 +2186,11 @@ void ConnectionsSection::handle_command(const std::string &command)
 
 //------------------------------------------------------------------------------------------------
 
-void ConnectionsSection::handle_folder_command(const std::string &command, bool is_fabric)
+void ConnectionsSection::handle_folder_command(const std::string &command)
 {
   grt::ValueRef item;
 
-  if (is_fabric && !base::starts_with(command, "move") && command != "internal_delete_connection_group")
+  if (!base::hasPrefix(command, "move") && command != "internal_delete_connection_group")
   {
     if (_entry_for_menu)
       item = _entry_for_menu->connection;
@@ -2934,9 +2557,6 @@ mforms::DragOperation ConnectionsSection::drag_over(View *sender, base::Point p,
     }
     else if (!_filtered && _active_folder && index == 0 && position == mforms::DropPositionLeft)
     {
-      if (is_managed_connection((int)_drag_index))
-        return mforms::DragOperationNone;
-      else
         position = mforms::DropPositionOn; // Drop on back tile.
     }
 
@@ -2960,14 +2580,16 @@ mforms::DragOperation ConnectionsSection::files_dropped(View *sender, base::Poin
 {
   bool in_details_area;
   std::shared_ptr<ConnectionEntry> entry = entry_from_point((int)p.x, (int)p.y, in_details_area);
-  if (!entry || dynamic_cast<FabricFolderEntry*>(entry.get()))
+  if (!entry)
     return mforms::DragOperationNone;
 
   db_mgmt_ConnectionRef connection = entry->connection;
   if (connection.is_valid())
   {
+    grt::GRT *grt = connection->get_grt();
+
     // Allow only sql script files to be dropped.
-    grt::StringListRef valid_names(grt::Initialized);
+    grt::StringListRef valid_names(grt);
     for (size_t i = 0; i < file_names.size(); ++i)
       if (base::tolower(base::extension(file_names[i])) == ".sql")
         valid_names.insert(file_names[i]);
@@ -2975,7 +2597,7 @@ mforms::DragOperation ConnectionsSection::files_dropped(View *sender, base::Poin
     if (valid_names.count() == 0)
     return mforms::DragOperationNone;
 
-    grt::DictRef details(true);
+    grt::DictRef details(grt);
     details.set("connection", connection);
     details.set("files", valid_names);
     _owner->trigger_callback(ActionFilesWithConnection, details);
@@ -3020,11 +2642,9 @@ mforms::DragOperation ConnectionsSection::data_dropped(mforms::View *sender, bas
     bool is_back_tile = entry->title == "< back";
 
     // Drop target is a group.
-    grt::DictRef details(true);
-    if (connection.is_valid() && connection->driver()->name()!="MySQLFabric")
-      details.set("object", connection);
-    else
-      details.set("object", grt::StringRef(source_entry->title + "/"));
+    grt::DictRef details(_owner->rdbms().get_grt());
+
+    details.set("object", grt::StringRef(source_entry->title + "/"));
 
     if (_drop_position == mforms::DropPositionOn)
     {

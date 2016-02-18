@@ -1758,9 +1758,6 @@ void WBContext::set_default_options(grt::DictRef options)
   // DB SQL editor (MySQL)
   //set_default(options, "DbSqlEditor:MySQL:TreatBinaryAsText", 0);
 
-  // Fabric
-  set_default(options, "Fabric:ConnectionTimeOut", 60); // in seconds
-
   // Migration
   set_default(options, "Migration:ConnectionTimeOut", 60); // in seconds
 
