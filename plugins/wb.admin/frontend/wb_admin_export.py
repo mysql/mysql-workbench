@@ -76,7 +76,7 @@ def get_path_to_mysqldump():
             if any(os.path.exists(os.path.join(p, path)) for p in os.getenv("PATH").split(os.pathsep)):
                 return path
             if path != "mysqldump":
-                self.print_log_message("mysqldump path specified in configurations is invalid: %s" % path)
+                log_error("mysqldump path specified in configurations is invalid: %s" % path)
                 return None
     except:
         return None
@@ -100,7 +100,7 @@ def get_path_to_mysqldump():
 def get_mysqldump_version():
     path = get_path_to_mysqldump()
     if not path:
-        self.print_log_message("mysqldump command was not found, please install it or configure it in Edit -> Preferences -> MySQL")
+        log_error("mysqldump command was not found, please install it or configure it in Edit -> Preferences -> MySQL")
         return None
       
     output = StringIO.StringIO()
@@ -108,13 +108,13 @@ def get_mysqldump_version():
     output = output.getvalue()
     
     if rc or not output:
-        self.print_log_message("Error retrieving version from %s:\n%s (exit %s)"%(path, output, rc))
+        log_error("Error retrieving version from %s:\n%s (exit %s)"%(path, output, rc))
         return None
       
     s = re.match(".*Distrib ([\d.a-z]+).*", output)
     
     if not s:
-        self.print_log_message("Could not parse version number from %s:\n%s"%(path, output))
+        log_error("Could not parse version number from %s:\n%s"%(path, output))
         return None
     
     version_group = s.groups()[0]
