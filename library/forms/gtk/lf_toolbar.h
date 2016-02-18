@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,6 +41,7 @@ namespace gtk{
     static void set_item_alt_icon(ToolBarItem *item, const std::string&);
     static void set_item_text(ToolBarItem *item, const std::string&);
     static std::string get_item_text(ToolBarItem *item);
+    static void set_item_name(ToolBarItem *item, const std::string&);
     static void set_item_enabled(ToolBarItem *item, bool);
     static bool get_item_enabled(ToolBarItem *item);
     static void set_item_checked(ToolBarItem *item, bool);
