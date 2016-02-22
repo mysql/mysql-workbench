@@ -2189,15 +2189,6 @@ void ConnectionsSection::handle_command(const std::string &command)
 void ConnectionsSection::handle_folder_command(const std::string &command)
 {
   grt::ValueRef item;
-
-  if (!base::hasPrefix(command, "move") && command != "internal_delete_connection_group")
-  {
-    if (_entry_for_menu)
-      item = _entry_for_menu->connection;
-
-    _owner->handle_context_menu(item, command);
-  }
-  else
   {
     // We have to pass on a valid connection (for the group name).
     // All child items have the same group name (except the dummy entry for the back tile).
