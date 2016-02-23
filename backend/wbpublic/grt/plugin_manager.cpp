@@ -58,7 +58,7 @@ static std::string get_args_hash(const grt::BaseListRef &list)
 PluginManagerImpl::PluginManagerImpl(grt::CPPModuleLoader *loader)
   : superclass(loader)
 {
-  _grtm= GRTManager::get_instance_for(loader->get_grt());
+  _grtm= GRTManager::get_instance_for();
   
   InterfaceImplBase::Register<PluginInterfaceImpl>(loader->get_grt());
 }
@@ -184,7 +184,7 @@ grt::StringListRef PluginManagerImpl::get_disabled_plugin_names()
 void PluginManagerImpl::rescan_plugins()
 {
   grt::ListRef<app_Plugin> plugin_list= get_plugin_list();
-  grt::GRT *grt= _grtm->get_grt();
+  = _grtm->get_grt();
   std::set<std::string> disabled_plugins;
 
   // make a set of disabled plugin names
@@ -220,7 +220,7 @@ void PluginManagerImpl::rescan_plugins()
   }
     
   // get list of modules that implement the plugin interface
-  std::vector<Module*> plugin_modules= grt->find_modules_matching("PluginInterface", "");
+  std::vector<Module*> plugin_modules= grt::GRT::get().find_modules_matching("PluginInterface", "");
 
   _plugin_source_module.clear();
   
@@ -235,13 +235,13 @@ void PluginManagerImpl::rescan_plugins()
       plist= grt::ListRef<app_Plugin>::cast_from(result);
       if (!plist.is_valid() || plist.count() == 0)
       {
-        grt->send_warning("Module "+(*pm)->name()+" implements PluginInterface but does not export any plugins", "");
+        grt::GRT::get().send_warning("Module "+(*pm)->name()+" implements PluginInterface but does not export any plugins", "");
         continue;
       }
     }
     catch (std::exception &exc)
     {
-      grt->send_error("Module "+(*pm)->name()+" had an error while executing getPluginInfo: "+exc.what(), 
+      grt::GRT::get().send_error("Module "+(*pm)->name()+" had an error while executing getPluginInfo: "+exc.what(), 
         "Location: "+(*pm)->path());
       continue;
     }
@@ -253,7 +253,7 @@ void PluginManagerImpl::rescan_plugins()
       
       if (_plugin_source_module.find(plugin->name()) != _plugin_source_module.end())
       {
-        grt->send_warning("Duplicate plugin name "+*plugin->name(),
+        grt::GRT::get().send_warning("Duplicate plugin name "+*plugin->name(),
                           base::strfmt("There is more than one plugin with the name %s (in %s and %s).",
                           plugin->name().c_str(), (*pm)->name().c_str(), _plugin_source_module[plugin->name()].c_str()));
         // must reset internal references in the object or we get a leak because of the cycles
@@ -274,8 +274,8 @@ void PluginManagerImpl::rescan_plugins()
 
       if (disabled_plugins.find(*plugin->name()) != disabled_plugins.end())
       {
-        if (grt->verbose())
-          grt->send_info("Plugin "+*plugin->name()+" is disabled, skipping...", "");
+        if (grt::GRT::get().verbose())
+          grt::GRT::get().send_info("Plugin "+*plugin->name()+" is disabled, skipping...", "");
         plugin->reset_references();
         continue;
       }
@@ -852,7 +852,7 @@ grt::ValueRef PluginManagerImpl::execute_plugin_function(const app_PluginRef &pl
   return module->call_function(*plugin->moduleFunctionName(), args);
 }
 
-grt::ValueRef PluginManagerImpl::open_normal_plugin_grt(grt::GRT *grt, const app_PluginRef &plugin,
+grt::ValueRef PluginManagerImpl::open_normal_plugin_grt(const app_PluginRef &plugin,
                                                             const grt::BaseListRef &args)
 {
   grt::Module *module= _grtm->get_grt()->get_module(plugin->moduleName());
@@ -1159,13 +1159,13 @@ void ArgumentPool::add_entries_for_object(const std::string &name,
 {
   if (object.is_valid())
   {
-    grt::GRT *grt= object.get_grt();
+    = object.get_grt();
     std::string prefix= "app.PluginObjectInput:"+name+":";
     std::string class_name= object.class_name();
     bool done= false;
     for (;;)
     {
-      grt::MetaClass *mc= grt->get_metaclass(class_name);
+      grt::MetaClass *mc= grt::GRT::get().get_metaclass(class_name);
       (*this)[prefix+mc->name()]= object;
 
       class_name = mc->parent() ? mc->parent()->name() : "";

@@ -50,7 +50,7 @@ public:
 
 public:
   static SqlFacade::Ref instance_for_rdbms(db_mgmt_RdbmsRef rdbms);
-  static SqlFacade::Ref instance_for_rdbms_name(grt::GRT *grt, const std::string &name);
+  static SqlFacade::Ref instance_for_rdbms_name(const std::string &name);
 
   virtual int splitSqlScript(const std::string &sql, std::list<std::string> &statements)= 0;
   virtual int splitSqlScript(const char *sql, size_t length, const std::string &intial_delimiter,

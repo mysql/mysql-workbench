@@ -85,12 +85,12 @@ TEST_FUNCTION(2)
   DoubleRef dv(1.12345678901234);
 
   // test simple types
-  test_serialization(grt, sv);
-  test_serialization(grt, iv);
-  test_serialization(grt, dv);
-  test_serialization(grt, ValueRef(sv));
-  test_serialization(grt, ValueRef(iv));
-  test_serialization(grt, ValueRef(dv));
+  test_serialization(sv);
+  test_serialization(iv);
+  test_serialization(dv);
+  test_serialization(ValueRef(sv));
+  test_serialization(ValueRef(iv));
+  test_serialization(ValueRef(dv));
 
   // test object type
   //const char* OBJ_BOOK_PATH("test.Book");
@@ -128,7 +128,7 @@ TEST_FUNCTION(2)
   extras.set("extra_double", dv);
   extras.set("extra_obj", author);
 
-  test_serialization(grt, obj);
+  test_serialization(obj);
 }
 
 
@@ -151,7 +151,7 @@ TEST_FUNCTION(3)
   list.insert(book1);
   list.insert(book2);
 
-  test_serialization(grt, list);
+  test_serialization(list);
 }
 
 TEST_FUNCTION(4)

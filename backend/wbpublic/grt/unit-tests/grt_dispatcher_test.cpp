@@ -56,7 +56,7 @@ static void finished_with_wait(grt::ValueRef result, bool *flag)
 }
 
 
-static grt::ValueRef normal_test_function(grt::GRT *grt)
+static grt::ValueRef normal_test_function()
 {
   return grt::IntegerRef(123);
 }

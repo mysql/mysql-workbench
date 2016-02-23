@@ -50,10 +50,10 @@ class  db_mgmt_SyncProfile : public GrtObject
 {
   typedef GrtObject super;
 public:
-  db_mgmt_SyncProfile(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-    _lastKnownDBNames(grt, this, false),
-    _lastKnownViewDefinitions(grt, this, false),
+  db_mgmt_SyncProfile(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+    _lastKnownDBNames(this, false),
+    _lastKnownViewDefinitions(this, false),
      _lastSyncDate(""),
      _targetHostIdentifier(""),
      _targetSchemaName("")
@@ -163,16 +163,16 @@ protected:
   grt::StringRef _targetHostIdentifier;
   grt::StringRef _targetSchemaName;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mgmt_SyncProfile(grt));
+    return grt::ObjectRef(new db_mgmt_SyncProfile());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mgmt_SyncProfile::create);
     {
@@ -209,10 +209,10 @@ class  db_mgmt_ServerInstance : public GrtObject
 {
   typedef GrtObject super;
 public:
-  db_mgmt_ServerInstance(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-    _loginInfo(grt, this, false),
-    _serverInfo(grt, this, false)
+  db_mgmt_ServerInstance(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+    _loginInfo(this, false),
+    _serverInfo(this, false)
 
   {
   }
@@ -277,16 +277,16 @@ protected:
   grt::DictRef _loginInfo;
   grt::DictRef _serverInfo;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mgmt_ServerInstance(grt));
+    return grt::ObjectRef(new db_mgmt_ServerInstance());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mgmt_ServerInstance::create);
     {
@@ -313,12 +313,12 @@ class  db_mgmt_Connection : public GrtObject
 {
   typedef GrtObject super;
 public:
-  db_mgmt_Connection(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  db_mgmt_Connection(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _hostIdentifier(""),
      _isDefault(0),
-    _modules(grt, this, false),
-    _parameterValues(grt, this, false)
+    _modules(this, false),
+    _parameterValues(this, false)
 
   {
   }
@@ -425,16 +425,16 @@ protected:
   grt::DictRef _modules;
   grt::DictRef _parameterValues;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mgmt_Connection(grt));
+    return grt::ObjectRef(new db_mgmt_Connection());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mgmt_Connection::create);
     {
@@ -471,8 +471,8 @@ class  db_mgmt_DriverParameter : public GrtObject
 {
   typedef GrtObject super;
 public:
-  db_mgmt_DriverParameter(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  db_mgmt_DriverParameter(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _caption(""),
      _defaultValue(""),
      _description(""),
@@ -482,7 +482,7 @@ public:
      _lookupValueMethod(""),
      _lookupValueModule(""),
      _paramType(""),
-    _paramTypeDetails(grt, this, false),
+    _paramTypeDetails(this, false),
      _required(0)
 
   {
@@ -720,16 +720,16 @@ protected:
   grt::DictRef _paramTypeDetails;
   grt::IntegerRef _required;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mgmt_DriverParameter(grt));
+    return grt::ObjectRef(new db_mgmt_DriverParameter());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mgmt_DriverParameter::create);
     {
@@ -796,15 +796,15 @@ class  db_mgmt_Driver : public GrtObject
 {
   typedef GrtObject super;
 public:
-  db_mgmt_Driver(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  db_mgmt_Driver(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _caption(""),
      _description(""),
      _driverLibraryName(""),
-    _files(grt, this, false),
+    _files(this, false),
      _filesTarget(""),
      _hostIdentifierTemplate(""),
-    _parameters(grt, this, false)
+    _parameters(this, false)
 
   {
   }
@@ -955,16 +955,16 @@ protected:
   grt::StringRef _hostIdentifierTemplate;
   grt::ListRef<db_mgmt_DriverParameter> _parameters;// owned
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mgmt_Driver(grt));
+    return grt::ObjectRef(new db_mgmt_Driver());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mgmt_Driver::create);
     {
@@ -1011,8 +1011,8 @@ class  db_mgmt_PythonDBAPIDriver : public db_mgmt_Driver
 {
   typedef db_mgmt_Driver super;
 public:
-  db_mgmt_PythonDBAPIDriver(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_mgmt_Driver(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  db_mgmt_PythonDBAPIDriver(grt::MetaClass *meta=0)
+  : db_mgmt_Driver(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _connectionStringTemplate("")
 
   {
@@ -1044,16 +1044,16 @@ protected:
 
   grt::StringRef _connectionStringTemplate;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mgmt_PythonDBAPIDriver(grt));
+    return grt::ObjectRef(new db_mgmt_PythonDBAPIDriver());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mgmt_PythonDBAPIDriver::create);
     {
@@ -1070,9 +1070,9 @@ class  db_mgmt_PrivilegeMapping : public GrtObject
 {
   typedef GrtObject super;
 public:
-  db_mgmt_PrivilegeMapping(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-    _privileges(grt, this, false),
+  db_mgmt_PrivilegeMapping(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+    _privileges(this, false),
      _structName("")
 
   {
@@ -1121,16 +1121,16 @@ protected:
   grt::StringListRef _privileges;
   grt::StringRef _structName;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mgmt_PrivilegeMapping(grt));
+    return grt::ObjectRef(new db_mgmt_PrivilegeMapping());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mgmt_PrivilegeMapping::create);
     {
@@ -1152,16 +1152,16 @@ class  db_mgmt_Rdbms : public GrtObject
 {
   typedef GrtObject super;
 public:
-  db_mgmt_Rdbms(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  db_mgmt_Rdbms(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _caption(""),
-    _characterSets(grt, this, false),
+    _characterSets(this, false),
      _databaseObjectPackage(""),
      _doesSupportCatalogs(0),
-    _drivers(grt, this, false),
+    _drivers(this, false),
      _maximumIdentifierLength(0),
-    _privilegeNames(grt, this, false),
-    _simpleDatatypes(grt, this, false)
+    _privilegeNames(this, false),
+    _simpleDatatypes(this, false)
 
   {
   }
@@ -1375,16 +1375,16 @@ protected:
   grt::ListRef<db_SimpleDatatype> _simpleDatatypes;// owned
   GrtVersionRef _version;// owned
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mgmt_Rdbms(grt));
+    return grt::ObjectRef(new db_mgmt_Rdbms());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mgmt_Rdbms::create);
     {
@@ -1446,13 +1446,13 @@ class  db_mgmt_Management : public GrtObject
 {
   typedef GrtObject super;
 public:
-  db_mgmt_Management(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-    _datatypeGroups(grt, this, false),
-    _otherStoredConns(grt, this, false),
-    _rdbms(grt, this, false),
-    _storedConns(grt, this, false),
-    _storedInstances(grt, this, false)
+  db_mgmt_Management(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+    _datatypeGroups(this, false),
+    _otherStoredConns(this, false),
+    _rdbms(this, false),
+    _storedConns(this, false),
+    _storedInstances(this, false)
 
   {
   }
@@ -1557,16 +1557,16 @@ protected:
   grt::ListRef<db_mgmt_Connection> _storedConns;// owned
   grt::ListRef<db_mgmt_ServerInstance> _storedInstances;// owned
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mgmt_Management(grt));
+    return grt::ObjectRef(new db_mgmt_Management());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mgmt_Management::create);
     {

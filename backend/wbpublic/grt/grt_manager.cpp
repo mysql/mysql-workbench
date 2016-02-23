@@ -58,12 +58,6 @@ static void init_all()
 }
 
 
-GRTManager *create_grt_manager(bool threaded, bool verbose = false)
-{
-  return new GRTManager(threaded, verbose);
-}
-
-
 GRTManager::GRTManager(bool threaded, bool verbose)
 : _has_unsaved_changes(false), _threaded(threaded), _verbose(verbose)
 {
@@ -73,9 +67,7 @@ GRTManager::GRTManager(bool threaded, bool verbose)
 
   init_all();
 
-  _grt= new GRT();
-  
-  _grt->set_verbose(verbose);
+  grt::GRT::get().set_verbose(verbose);
   
   _terminated= false;
   _idle_blocked= false;
@@ -85,12 +77,12 @@ GRTManager::GRTManager(bool threaded, bool verbose)
   // may need to call get_instance_for()
   {
     base::MutexLock _lock(_instance_mutex);
-    _instances[_grt]= this;
+    _instances[&grt::GRT::get()] = this;
   }
   
-  _dispatcher = GRTDispatcher::create_dispatcher(_grt, _threaded, true);
+  _dispatcher = GRTDispatcher::create_dispatcher(_threaded, true);
   _shell = new ShellBE(this, _dispatcher);
-  _plugin_manager = _grt->get_native_module<PluginManagerImpl>();
+  _plugin_manager = grt::GRT::get().get_native_module<PluginManagerImpl>();
   _messages_list = new MessageListStorage(this);
 }
 
@@ -126,10 +118,10 @@ bool GRTManager::is_globals_tree_locked()
   return g_atomic_int_get(&_globals_tree_soft_lock_count) != 0;
 }
 
-GRTManager *GRTManager::get_instance_for(GRT *grt)
+GRTManager *GRTManager::get_instance_for()
 {
   base::MutexLock lock(_instance_mutex);
-  std::map<GRT*,GRTManager*>::iterator iter= _instances.find(grt);
+  std::map<GRT*,GRTManager*>::iterator iter= _instances.find(&GRT::get());
   if (iter != _instances.end())
     return iter->second;
   return NULL;
@@ -338,14 +330,14 @@ void GRTManager::initialize(bool init_python, const std::string &loader_module_p
   init_module_loaders(loader_module_path, init_python);
 
 #ifdef _WIN32
-  add_python_module_dir(_grt, _basedir + "\\python");
-  add_python_module_dir(_grt, _basedir + "\\modules");
+  add_python_module_dir(_basedir + "\\python");
+  add_python_module_dir(_basedir + "\\modules");
 #elif __APPLE__
-  add_python_module_dir(_grt, _basedir + "/plugins");
+  add_python_module_dir(_basedir + "/plugins");
 #else
   std::vector<std::string> path(base::split(_module_pathlist, G_SEARCHPATH_SEPARATOR_S));
   for (std::vector<std::string>::const_iterator i= path.begin(); i != path.end(); ++i)
-    add_python_module_dir(_grt, *i);
+    add_python_module_dir(*i);
   
 #endif
 
@@ -676,7 +668,7 @@ bool GRTManager::load_structs()
         _shell->writef(_("Looking for struct files in '%s'.\n"), paths[i]);
       
       try {
-        c= _grt->scan_metaclasses_in(paths[i]);
+        c= grt::GRT::get().scan_metaclasses_in(paths[i]);
 
         count+= c;
       } catch (std::exception &exc) {
@@ -686,7 +678,7 @@ bool GRTManager::load_structs()
     }
   }
 
-  _grt->end_loading_metaclasses();
+  grt::GRT::get().end_loading_metaclasses();
 
   _shell->writef(_("Registered %i GRT classes.\n"), count);
 
@@ -729,7 +721,7 @@ bool GRTManager::load_libraries()
         path= g_strdup_printf("%s%c%s", paths[i], G_DIR_SEPARATOR, fname);
         if (g_file_test(path, G_FILE_TEST_IS_REGULAR))
         {
-          ModuleLoader *loader= _grt->get_module_loader_for_file(fname);
+          ModuleLoader *loader= grt::GRT::get().get_module_loader_for_file(fname);
           
           if (loader)
           {
@@ -754,7 +746,7 @@ bool GRTManager::load_modules()
 {
   if (_verbose)
     _shell->write_line(_("Loading modules..."));
-  scan_modules_grt(_grt, _module_extensions, false);
+  scan_modules_grt(_module_extensions, false);
   
   return true;
 }
@@ -772,7 +764,7 @@ bool GRTManager::init_loaders(const std::string &loader_module_path, bool init_p
   {
     try
     {
-      if (grt::init_python_support(_grt, loader_module_path))
+      if (grt::init_python_support(loader_module_path))
       {
         if (_verbose) _shell->write_line(_("Python loader initialized."));
       }
@@ -795,28 +787,28 @@ int GRTManager::do_scan_modules(const std::string &path, const std::list<std::st
     return 0;
 
   if (_verbose)
-    _grt->send_output(strfmt(_("Looking for modules in '%s'.\n"), path.c_str()));
+    grt::GRT::get().send_output(strfmt(_("Looking for modules in '%s'.\n"), path.c_str()));
   
   try
   {
-    c= _grt->scan_modules_in(path, _basedir, extensions.empty() ? _module_extensions : extensions, refresh);
+    c= grt::GRT::get().scan_modules_in(path, _basedir, extensions.empty() ? _module_extensions : extensions, refresh);
   }
   catch (std::exception &exc)
   {
-    _grt->send_output(strfmt(_("Error scanning for modules: %s\n"),
+    grt::GRT::get().send_output(strfmt(_("Error scanning for modules: %s\n"),
                              exc.what()));
     
     return 0;
   }
 
   if (_verbose)
-    _grt->send_output(strfmt(_("%i modules found\n"), c));
+    grt::GRT::get().send_output(strfmt(_("%i modules found\n"), c));
 
   return c;
 }
 
 
-void GRTManager::scan_modules_grt(grt::GRT *grt, const std::list<std::string> &extensions, bool refresh)
+void GRTManager::scan_modules_grt(const std::list<std::string> &extensions, bool refresh)
 {
   int c, count= 0;
   gchar **paths= g_strsplit(_module_pathlist.c_str(), G_SEARCHPATH_SEPARATOR_S, 0);
@@ -828,10 +820,10 @@ void GRTManager::scan_modules_grt(grt::GRT *grt, const std::list<std::string> &e
       count+= c;
   }
 
-  _grt->end_loading_modules();
+  grt::GRT::get().end_loading_modules();
   
   _shell->writef(_("Registered %i modules (from %i files).\n"),
-                 _grt->get_modules().size(), count);
+                 grt::GRT::get().get_modules().size(), count);
 
   g_strfreev(paths);
 }
@@ -1004,9 +996,9 @@ bool GRTManager::check_plugin_runnable(const app_PluginRef &plugin, const bec::A
     {
       if (debug_args)
       {
-        _grt->send_output(base::strfmt("Debug: Plugin %s cannot execute because argument %s is not available\n",
+        grt::GRT::get().send_output(base::strfmt("Debug: Plugin %s cannot execute because argument %s is not available\n",
                                        plugin->name().c_str(), searched_key.c_str()));
-        _grt->send_output("Debug: Available arguments:\n");
+        grt::GRT::get().send_output("Debug: Available arguments:\n");
         argpool.dump_keys(boost::bind(&grt::GRT::send_output, _grt, _1, (void*)0));
       }
       return false;
@@ -1021,7 +1013,7 @@ void GRTManager::open_object_editor(const GrtObjectRef &object, bec::GUIPluginFl
 {
   try 
   {
-    grt::BaseListRef args(_grt, AnyType);
+    grt::BaseListRef args(AnyType);
     args.ginsert(object);
     
     app_PluginRef plugin(_plugin_manager->select_plugin_for_input("catalog/Editors", args));

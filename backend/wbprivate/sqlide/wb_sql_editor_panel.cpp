@@ -72,20 +72,20 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _rs_sequence(0), _busy(false), _is_scratch(is_scratch)
 {
   GRTManager *grtm = owner->grt_manager();
-  db_query_QueryEditorRef grtobj(grtm->get_grt());
+  db_query_QueryEditorRef grtobj();
 
-  grtobj->resultDockingPoint(mforms_to_grt(grtm->get_grt(), &_lower_dock));
+  grtobj->resultDockingPoint(mforms_to_grt(&_lower_dock));
 
   _autosave_file_suffix = grtobj.id();
 
   // In opposition to the object editors, each individual sql editor gets an own parser context
   // (and hence an own parser), to allow concurrent and multi threaded work.
-  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grtm->get_grt());
+  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
 
   parser::ParserContext::Ref context = services->createParserContext(owner->rdbms()->characterSets(),
     owner->rdbms_version(), owner->lower_case_table_names() != 0);
 
-  _editor = MySQLEditor::create(grtm->get_grt(), context, owner->work_parser_context(), grtobj);
+  _editor = MySQLEditor::create(context, owner->work_parser_context(), grtobj);
   _editor->sql_check_progress_msg_throttle(grtm->get_app_option_int("DbSqlEditor:ProgressStatusUpdateInterval", 500)/(double)1000);
   _editor->set_auto_completion_cache(owner->auto_completion_cache());
   _editor->set_sql_mode(owner->sql_mode());

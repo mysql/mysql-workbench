@@ -90,25 +90,25 @@ WBComponentPhysical::~WBComponentPhysical()
 
 void WBComponentPhysical::load_app_options(bool update)
 {
-  grt::GRT *grt= get_grt();
+  = get_grt();
 
   if (!update)
   {
     app_ToolbarRef toolbar;
     toolbar= app_ToolbarRef::cast_from(
-      grt->unserialize(base::makePath(_wb->get_datadir(),"data/model_option_toolbar_physical_table.xml")));
+      grt::GRT::get().unserialize(base::makePath(_wb->get_datadir(),"data/model_option_toolbar_physical_table.xml")));
     _toolbars[toolbar->name()]= toolbar;
 
     toolbar= app_ToolbarRef::cast_from(
-      grt->unserialize(base::makePath(_wb->get_datadir(),"data/model_option_toolbar_physical_view.xml")));
+      grt::GRT::get().unserialize(base::makePath(_wb->get_datadir(),"data/model_option_toolbar_physical_view.xml")));
     _toolbars[toolbar->name()]= toolbar;
 
     toolbar= app_ToolbarRef::cast_from(
-      grt->unserialize(base::makePath(_wb->get_datadir(),"data/model_option_toolbar_physical_routinegroup.xml")));
+      grt::GRT::get().unserialize(base::makePath(_wb->get_datadir(),"data/model_option_toolbar_physical_routinegroup.xml")));
     _toolbars[toolbar->name()]= toolbar;
 
     toolbar= app_ToolbarRef::cast_from(
-      grt->unserialize(base::makePath(_wb->get_datadir(),"data/model_option_toolbar_physical_relationship.xml")));
+      grt::GRT::get().unserialize(base::makePath(_wb->get_datadir(),"data/model_option_toolbar_physical_relationship.xml")));
     _toolbars["main/" WB_TOOL_PREL11_NOID]= toolbar;
     _toolbars["main/" WB_TOOL_PREL1n_NOID]= toolbar;
     _toolbars["main/" WB_TOOL_PREL11]= toolbar;
@@ -117,7 +117,7 @@ void WBComponentPhysical::load_app_options(bool update)
     _toolbars["main/" WB_TOOL_PREL_PICK]= toolbar;
 
     _shortcuts= grt::ListRef<app_ShortcutItem>::cast_from(
-      grt->unserialize(base::makePath(_wb->get_datadir(),"data/shortcuts_physical.xml")));
+      grt::GRT::get().unserialize(base::makePath(_wb->get_datadir(),"data/shortcuts_physical.xml")));
   }
 
   // this needs to be loaded after drivers list has been loaded
@@ -128,7 +128,7 @@ void WBComponentPhysical::load_app_options(bool update)
     try
     {
       grt::ListRef<db_mgmt_Connection> 
-        list(grt::ListRef<db_mgmt_Connection>::cast_from(grt->unserialize(conn_list_xml)));
+        list(grt::ListRef<db_mgmt_Connection>::cast_from(grt::GRT::get().unserialize(conn_list_xml)));
 
       if (list.is_valid())
       {
@@ -195,18 +195,18 @@ void WBComponentPhysical::load_app_options(bool update)
     }
     catch (std::exception &exc)
     {
-      grt->send_warning(strfmt("Error loading '%s': %s", conn_list_xml.c_str(), exc.what()));
+      grt::GRT::get().send_warning(strfmt("Error loading '%s': %s", conn_list_xml.c_str(), exc.what()));
     }
   }
 }
 
 
 
-void WBComponentPhysical::setup_context_grt(grt::GRT *grt, WBOptions *options)
+void WBComponentPhysical::setup_context_grt(WBOptions *options)
 {
   std::string engines;
   // fill engine types list
-  grt::Module *module= get_grt()->get_module("DbMySQL");
+  grt::Module *module= grt::GRT::get().get_module("DbMySQL");
   if (module)
   {
     grt::ListRef<db_mysql_StorageEngine> engines_ret(grt::ListRef<db_mysql_StorageEngine>::cast_from(module->call_function("getKnownEngines", grt::BaseListRef(get_grt()))));
@@ -229,7 +229,7 @@ void WBComponentPhysical::init_catalog_grt(const db_mgmt_RdbmsRef &rdbms,
                                  const std::string &db_version,
                                  workbench_physical_ModelRef &model)
 {
-  grt::GRT *grt= get_grt();
+  = get_grt();
   
   std::string db_package= rdbms->databaseObjectPackage();
 
@@ -238,15 +238,15 @@ void WBComponentPhysical::init_catalog_grt(const db_mgmt_RdbmsRef &rdbms,
   std::string catalog_struct= db_package+".Catalog";
   std::string schema_struct= db_package+".Schema";
   
-  if (!grt->get_metaclass(catalog_struct) ||
-      !grt->get_metaclass(schema_struct))
+  if (!grt::GRT::get().get_metaclass(catalog_struct) ||
+      !grt::GRT::get().get_metaclass(schema_struct))
   {
     // Struct definition for '%s' and/or '%s' cannot be found
     throw grt_runtime_error("Support for RDBMS "+db_package+" not found.",
                             "Struct definition for "+catalog_struct+" and/or "+schema_struct+" could not be found");
   }
 
-  db_CatalogRef catalog(grt->create_object<db_Catalog>(catalog_struct));
+  db_CatalogRef catalog(grt::GRT::get().create_object<db_Catalog>(catalog_struct));
       
   catalog->name("default");
   catalog->owner(model);
@@ -254,7 +254,7 @@ void WBComponentPhysical::init_catalog_grt(const db_mgmt_RdbmsRef &rdbms,
   //catalog.oldName(catalog.name());
 
   // set version
-  GrtVersionRef version = parse_version(grt, db_version);
+  GrtVersionRef version = parse_version(db_version);
   version->name("Version");
   version->owner(catalog);
   catalog->version(version);
@@ -322,7 +322,7 @@ void WBComponentPhysical::init_catalog_grt(const db_mgmt_RdbmsRef &rdbms,
   }
 #if 1
   // create an initial schema
-  db_SchemaRef schema(grt->create_object<db_Schema>(schema_struct));
+  db_SchemaRef schema(grt::GRT::get().create_object<db_Schema>(schema_struct));
   
   schema->name(StringRef("mydb"));
   schema->owner(catalog);
@@ -340,7 +340,7 @@ void WBComponentPhysical::init_catalog_grt(const db_mgmt_RdbmsRef &rdbms,
 grt::ListRef<db_UserDatatype> WBComponentPhysical::create_builtin_user_datatypes(const db_CatalogRef &catalog,
                                                                                  const db_mgmt_RdbmsRef &rdbms)
 {
-  grt::Module *module= get_grt()->get_module("DbMySQL");
+  grt::Module *module= grt::GRT::get().get_module("DbMySQL");
   if (module)
   {
     grt::BaseListRef args(get_grt());
@@ -362,7 +362,7 @@ grt::ListRef<db_UserDatatype> WBComponentPhysical::create_builtin_user_datatypes
 
 
 
-void WBComponentPhysical::setup_physical_model(grt::GRT *grt, workbench_DocumentRef &doc, 
+void WBComponentPhysical::setup_physical_model(workbench_DocumentRef &doc, 
                                      const std::string &rdbms_name, const std::string &rdbms_version)
 {
   // init physical model
@@ -374,7 +374,7 @@ void WBComponentPhysical::setup_physical_model(grt::GRT *grt, workbench_Document
 
   doc->physicalModels().insert(pmodel);
 
-  db_mgmt_ManagementRef mgmt= db_mgmt_ManagementRef::cast_from(grt->get("/wb/rdbmsMgmt"));
+  db_mgmt_ManagementRef mgmt= db_mgmt_ManagementRef::cast_from(grt::GRT::get().get("/wb/rdbmsMgmt"));
   
   // find the rdbms module for the db we want
   db_mgmt_RdbmsRef rdbms;
@@ -408,7 +408,7 @@ db_SchemaRef WBComponentPhysical::add_new_db_schema(const workbench_physical_Mod
   name= grt::get_name_suggestion_for_list_object(
     grt::ObjectListRef::cast_from(model->catalog()->schemata()), "new_schema");
 
-  schema= get_grt()->create_object<db_Schema>(class_name);
+  schema= grt::GRT::get().create_object<db_Schema>(class_name);
   schema->owner(model->catalog());
   schema->name(name);
 
@@ -2192,7 +2192,7 @@ std::vector<std::string> WBComponentPhysical::get_command_dropdown_items(const s
     {
       items.push_back("*Default Engine*");
 
-      grt::Module *module= get_grt()->get_module("DbMySQL");
+      grt::Module *module= grt::GRT::get().get_module("DbMySQL");
       if (module)
       {
         grt::ListRef<db_mysql_StorageEngine> engines_ret(grt::ListRef<db_mysql_StorageEngine>::cast_from(module->call_function("getKnownEngines", grt::BaseListRef(get_grt()))));
@@ -2503,7 +2503,7 @@ void WBComponentPhysical::view_object_list_changed(grt::internal::OwnedList *lis
               update_connections_for_new_tables(view, tbls);
             }
             else
-              get_grt()->send_warning("Table figure added to view has no table db object bound to it.");
+             grt::GRT::get().send_warning("Table figure added to view has no table db object bound to it.");
           }
         }
 #endif
@@ -2603,7 +2603,7 @@ void WBComponentPhysical::model_object_list_changed(grt::internal::OwnedList *li
             g_free(data);
           }
           else
-            get_grt()->send_error(strfmt(_("Error undoing file delete: can't read contents of temporary file '%s'"), path.c_str()));
+           grt::GRT::get().send_error(strfmt(_("Error undoing file delete: can't read contents of temporary file '%s'"), path.c_str()));
         }
         else
         {
@@ -2622,7 +2622,7 @@ void WBComponentPhysical::model_object_list_changed(grt::internal::OwnedList *li
           }
           else
           {
-            get_grt()->send_error(strfmt(_("Error adding file: can't read contents of file '%s': %s"), 
+           grt::GRT::get().send_error(strfmt(_("Error adding file: can't read contents of file '%s': %s"), 
                                       object->filename().c_str(), error->message));
             g_error_free(error);
           }
@@ -2658,7 +2658,7 @@ void WBComponentPhysical::model_object_list_changed(grt::internal::OwnedList *li
           
           if (!g_file_set_contents(path.c_str(), data.data(), (gssize) data.length(), NULL))
           {
-            get_grt()->send_error(strfmt(_("Could not save temporary file '%s'"), path.c_str()));
+           grt::GRT::get().send_error(strfmt(_("Could not save temporary file '%s'"), path.c_str()));
           }
           
           _wb->delete_attached_file(object->filename());
@@ -2687,7 +2687,7 @@ void WBComponentPhysical::model_object_list_changed(grt::internal::OwnedList *li
 void WBComponentPhysical::foreign_key_changed(const db_ForeignKeyRef &fk)
 {
   // don't auto-create/remove stuff when undoing/redoing
-  if (get_grt()->get_undo_manager()->is_undoing() || get_grt()->get_undo_manager()->is_redoing())
+  if (get_grt()->get_undo_manager()->is_undoing() ||grt::GRT::get().get_undo_manager()->is_redoing())
     return;
   
   if (!_wb->get_document().is_valid())
@@ -2796,7 +2796,7 @@ bool WBComponentPhysical::update_table_fk_connection(const db_TableRef &table, c
       return false;
     
     grt::ListRef<workbench_physical_Diagram> views(model->diagrams());
-    grt::GRT *grt= get_grt();
+    = get_grt();
 
     if (added)
     {

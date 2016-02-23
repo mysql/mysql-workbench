@@ -43,7 +43,7 @@ TEST_FUNCTION(1)
   grt= grtm->get_grt();
 
   connectionProperties= db_mgmt_ConnectionRef(grt);
-  setup_env(grt, connectionProperties);
+  setup_env(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
   ensure("dm is NULL", dm != NULL);
@@ -66,7 +66,7 @@ TEST_FUNCTION(1)
 TEST_FUNCTION(3)
 {
   //db_mgmt_ConnectionRef connectionProperties(grt);
-  //setup_env(grt, connectionProperties);
+  //setup_env(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
   ensure("dm is NULL", dm != NULL);
@@ -84,7 +84,7 @@ TEST_FUNCTION(3)
 TEST_FUNCTION(4)
 {
   //db_mgmt_ConnectionRef connectionProperties(grt);
-  //setup_env(grt, connectionProperties);
+  //setup_env(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
   ensure("dm is NULL", dm != NULL);
@@ -102,7 +102,7 @@ TEST_FUNCTION(4)
 TEST_FUNCTION(5)
 {
   //db_mgmt_ConnectionRef connectionProperties(grt);
-  //setup_env(grt, connectionProperties);
+  //setup_env(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
   ensure("dm is NULL", dm != NULL);
@@ -147,7 +147,7 @@ TEST_FUNCTION(5)
 TEST_FUNCTION(6)
 {
   //db_mgmt_ConnectionRef connectionProperties(grt);
-  //setup_env(grt, connectionProperties);
+  //setup_env(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
   ensure("dm is NULL", dm != NULL);
@@ -166,7 +166,7 @@ TEST_FUNCTION(6)
 TEST_FUNCTION(7)
 {
   //db_mgmt_ConnectionRef connectionProperties(grt);
-  //setup_env(grt, connectionProperties);
+  //setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -206,7 +206,7 @@ TEST_FUNCTION(7)
 TEST_FUNCTION(8)
 {
   //db_mgmt_ConnectionRef connectionProperties(grt);
-  //setup_env(grt, connectionProperties);
+  //setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -245,7 +245,7 @@ TEST_FUNCTION(8)
 TEST_FUNCTION(9)
 {
   //db_mgmt_ConnectionRef connectionProperties(grt);
-  //setup_env(grt, connectionProperties);
+  //setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();

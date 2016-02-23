@@ -36,7 +36,7 @@ void Db_plugin::grtm(bec::GRTManager *grtm, bool reveng)
 
   if (_grtm)
   {
-    grt::GRT *grt= _grtm->get_grt();
+    = _grtm->get_grt();
 
     _doc= workbench_DocumentRef::cast_from(_grtm->get_grt()->get("/wb/doc"));
 
@@ -524,12 +524,12 @@ void Db_plugin::set_task_proc()
 }
 
 
-grt::StringRef Db_plugin::apply_script_to_db(grt::GRT *grt)
+grt::StringRef Db_plugin::apply_script_to_db()
 {
   sql::ConnectionWrapper conn= db_conn()->get_dbc_connection();
   std::auto_ptr<sql::Statement> stmt(conn->createStatement());
 
-  grt->send_info(_("Executing SQL script in server"));
+  grt::GRT::get().send_info(_("Executing SQL script in server"));
   
   std::list<std::string> statements;
   SqlFacade::Ref sql_splitter= SqlFacade::instance_for_rdbms(selected_rdbms());

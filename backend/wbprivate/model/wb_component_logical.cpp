@@ -33,7 +33,7 @@ WBComponentLogical::WBComponentLogical(WBContext *wb)
 }
 
 
-void WBComponentLogical::setup_logical_model(grt::GRT *grt, workbench_DocumentRef &doc)
+void WBComponentLogical::setup_logical_model(workbench_DocumentRef &doc)
 {
   // init logical model
   workbench_logical_ModelRef lmodel(grt);

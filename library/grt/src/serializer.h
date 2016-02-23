@@ -31,7 +31,7 @@ namespace grt
     class Serializer
     {
     public:
-      Serializer(GRT *grt);
+      Serializer();
 
       void save_to_xml(const ValueRef &value, const std::string &path,
         const std::string &doctype= "", const std::string &docversion= "", bool list_objects_as_links= false);
@@ -43,7 +43,6 @@ namespace grt
         const std::string &version, bool list_objects_as_links);
 
     protected:
-      GRT *_grt;
       std::set<void*> _cache;
       
       xmlNodePtr serialize_value(const ValueRef &value, xmlNodePtr parent, bool owned_objects);

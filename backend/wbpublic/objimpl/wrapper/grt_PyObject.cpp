@@ -49,7 +49,7 @@ static void release_object(grt::AutoPyObject *object)
   delete object;
 }
 
-grt_PyObjectRef pyobject_to_grt(grt::GRT *grt, grt::AutoPyObject object)
+grt_PyObjectRef pyobject_to_grt(grt::AutoPyObject object)
 {
   if (object)
   {
@@ -61,9 +61,9 @@ grt_PyObjectRef pyobject_to_grt(grt::GRT *grt, grt::AutoPyObject object)
 }
 
 
-grt_PyObjectRef pyobject_to_grt(grt::GRT *grt, PyObject *object)
+grt_PyObjectRef pyobject_to_grt(PyObject *object)
 {
-  return pyobject_to_grt(grt, grt::AutoPyObject(object));
+  return pyobject_to_grt(grt::AutoPyObject(object));
 }
 
 

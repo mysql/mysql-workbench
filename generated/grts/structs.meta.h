@@ -35,8 +35,8 @@ class  meta_TaggedObject : public GrtObject
 {
   typedef GrtObject super;
 public:
-  meta_TaggedObject(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  meta_TaggedObject(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _description("")
 
   {
@@ -89,16 +89,16 @@ protected:
   grt::StringRef _description;
   db_DatabaseObjectRef _object;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new meta_TaggedObject(grt));
+    return grt::ObjectRef(new meta_TaggedObject());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&meta_TaggedObject::create);
     {
@@ -119,12 +119,12 @@ class  meta_Tag : public GrtObject
 {
   typedef GrtObject super;
 public:
-  meta_Tag(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  meta_Tag(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _color(""),
      _description(""),
      _label(""),
-    _objects(grt, this, false)
+    _objects(this, false)
 
   {
   }
@@ -235,16 +235,16 @@ protected:
   grt::StringRef _label;
   grt::ListRef<meta_TaggedObject> _objects;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new meta_Tag(grt));
+    return grt::ObjectRef(new meta_Tag());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&meta_Tag::create);
     {

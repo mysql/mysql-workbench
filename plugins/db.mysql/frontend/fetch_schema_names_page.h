@@ -74,7 +74,7 @@ protected:
     return true;
   }
 
-  grt::ValueRef do_connect(grt::GRT *grt)
+  grt::ValueRef do_connect()
   {
     if (!_dbconn)
       throw std::logic_error("must call set_db_connection() 1st");
@@ -95,7 +95,7 @@ protected:
     return g_utf8_collate(a.c_str(), b.c_str()) < 0;
   }
 
-  grt::ValueRef do_fetch(grt::GRT *grt)
+  grt::ValueRef do_fetch()
   {
     std::vector<std::string> schema_names= _load_schemas();
 
@@ -118,15 +118,15 @@ protected:
     return true;
   }
 
-  grt::ValueRef do_check_case(grt::GRT *grt)
+  grt::ValueRef do_check_case()
   {
     if (_check_case_problems)
     {
       int resp = _check_case_problems();
       if (resp == -1)
-        grt->send_info(_("Server configuration check"), _("Unable to check for server case-sensitivity issues."));
+        grt::GRT::get().send_info(_("Server configuration check"), _("Unable to check for server case-sensitivity issues."));
       else if(resp == 1)
-        grt->send_warning(_("Server configuration check"), _("A server configuration problem was detected.\nThe server is in a system that does not properly support the selected lower_case_table_names option value. Some problems may occur.\nPlease consult the MySQL server documentation."));
+        grt::GRT::get().send_warning(_("Server configuration check"), _("A server configuration problem was detected.\nThe server is in a system that does not properly support the selected lower_case_table_names option value. Some problems may occur.\nPlease consult the MySQL server documentation."));
     }
     _finished= true;
 

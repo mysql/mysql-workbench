@@ -281,7 +281,7 @@ public:
   ~NewServerInstanceWizard();
 
   db_mgmt_ServerInstanceRef assemble_server_instance();
-  grt::ValueRef test_setting_grt(grt::GRT *grt, const std::string &name);
+  grt::ValueRef test_setting_grt(const std::string &name);
   
   void load_defaults();
   std::string get_server_info(const std::string& key);

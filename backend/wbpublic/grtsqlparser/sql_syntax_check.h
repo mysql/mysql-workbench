@@ -36,7 +36,7 @@ class WBPUBLICBACKEND_PUBLIC_FUNC Sql_syntax_check : virtual public Sql_parser_b
 public:
   typedef boost::shared_ptr<Sql_syntax_check> Ref;
 protected:
-  Sql_syntax_check(grt::GRT *grt) : Sql_parser_base(grt), _object_type(ot_none) {}
+  Sql_syntax_check() : _object_type(ot_none) {}
 
 public:
   enum Statement_type { sql_unknown, sql_empty, sql_create, sql_alter, sql_drop, sql_insert, sql_delete, sql_update, sql_select, sql_describe, sql_show, sql_use, sql_load, sql_set };

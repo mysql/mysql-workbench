@@ -272,8 +272,8 @@ ValueRef PythonModule::call_python_function(const BaseListRef &args, PyObject *f
 
 
 
-PythonModuleLoader::PythonModuleLoader(GRT *grt, const std::string &module_path)
-: ModuleLoader(grt), _pycontext(grt, module_path)
+PythonModuleLoader::PythonModuleLoader(const std::string &module_path)
+: _pycontext(module_path)
 {
 }
 

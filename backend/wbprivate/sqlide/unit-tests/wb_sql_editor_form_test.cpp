@@ -238,7 +238,7 @@ public:
   GRT grt;
 
 
-  void set_connection_properties(grt::GRT *grt, db_mgmt_ConnectionRef& connection)
+  void set_connection_properties(db_mgmt_ConnectionRef& connection)
 {
   grt::DictRef conn_params(grt);
   conn_params.set("hostName", grt::StringRef(test_params->get_host_name()));
@@ -247,16 +247,16 @@ public:
   conn_params.set("password", grt::StringRef(test_params->get_password()));
   grt::replace_contents(connection->parameterValues(), conn_params);
 
-  db_mgmt_DriverRef driverProperties= db_mgmt_DriverRef::cast_from(grt->get("/rdbms/drivers/0/"));
+  db_mgmt_DriverRef driverProperties= db_mgmt_DriverRef::cast_from(grt::GRT::get().get("/rdbms/drivers/0/"));
   connection->driver(driverProperties);
 }
 
-sql::ConnectionWrapper create_connection_for_import(grt::GRT *grt)
+sql::ConnectionWrapper create_connection_for_import()
 {
   // init database connection
   db_mgmt_ConnectionRef connectionProperties(grt);
 
-  set_connection_properties(grt, connectionProperties);
+  set_connection_properties(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
 

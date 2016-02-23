@@ -212,7 +212,7 @@ namespace wb {
 
       virtual int get_popup_menu_items(WBContext *wb, bec::MenuItemList &items);
 
-      virtual workbench_OverviewPanelRef get_state(grt::GRT *grt)
+      virtual workbench_OverviewPanelRef get_state()
       {
         workbench_OverviewPanelRef panel= workbench_OverviewPanelRef(grt);
 
@@ -295,7 +295,7 @@ namespace wb {
       {
       }
 
-      virtual workbench_OverviewPanelRef get_state(grt::GRT *grt)
+      virtual workbench_OverviewPanelRef get_state()
       {
         workbench_OverviewPanelRef panel= Node::get_state(grt);
 

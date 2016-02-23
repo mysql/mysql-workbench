@@ -44,9 +44,9 @@ protected:
         diffsql_module= NULL;
 
         // load modules
-        wb_mysql_import_module= tester.grt->get_native_module<WbMysqlImportImpl>();
+        wb_mysql_import_module= tester.grt::GRT::get().get_native_module<WbMysqlImportImpl>();
         ensure("WBModuleImport module initialization", NULL != wb_mysql_import_module);
-        diffsql_module = dynamic_cast<SQLGeneratorInterfaceImpl*>(tester.grt->get_module("DbMySQL"));
+        diffsql_module = dynamic_cast<SQLGeneratorInterfaceImpl*>(tester.grt::GRT::get().get_module("DbMySQL"));
         ensure("DiffSQLGen module initialization", NULL != diffsql_module);
 
         // init datatypes
@@ -514,7 +514,7 @@ TEST_FUNCTION(70)
   DictRef create_map(tester.grt);
   DictRef drop_map(tester.grt);
 
-  grt::DictRef options = DictRef::cast_from(tester.grt->unserialize("data/forward_engineer/rename_opts.dict"));
+  grt::DictRef options = DictRef::cast_from(tester.grt::GRT::get().unserialize("data/forward_engineer/rename_opts.dict"));
   options.set("GenerateDocumentProperties", grt::IntegerRef(0));
 
   create_map = diffsql_module->generateSQLForDifferences(GrtNamedObjectRef(), catalog, options);

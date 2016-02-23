@@ -35,9 +35,9 @@ class MYSQL_SQL_PARSER_PUBLIC_FUNC Mysql_sql_semantic_check
 {
 public:
   typedef boost::shared_ptr<Mysql_sql_semantic_check> Ref;
-  static Ref create(grt::GRT *grt) { return Ref(new Mysql_sql_semantic_check(grt)); }
+  static Ref create() { return Ref(new Mysql_sql_semantic_check(grt)); }
 protected:
-  Mysql_sql_semantic_check(grt::GRT *grt);
+  Mysql_sql_semantic_check();
 
 protected:
 #ifndef _WIN32

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -79,10 +79,9 @@ FileCharsetDialog::FileCharsetDialog(const std::string &title, const std::string
 }
 
 
-std::string FileCharsetDialog::run(grt::GRT *grt,
-                                   const std::string &default_encoding)
+std::string FileCharsetDialog::run(const std::string &default_encoding)
 {
-  grt::ListRef<db_CharacterSet> charsets(grt::ListRef<db_CharacterSet>::cast_from(grt->get("/wb/rdbmsMgmt/rdbms/0/characterSets")));
+  grt::ListRef<db_CharacterSet> charsets(grt::ListRef<db_CharacterSet>::cast_from(grt::GRT::get().get("/wb/rdbmsMgmt/rdbms/0/characterSets")));
   std::list<std::string> chlist;
   GRTLIST_FOREACH(db_CharacterSet, charsets, ch)
   {
@@ -106,9 +105,8 @@ void FileCharsetDialog::run_clicked()
 }
 
 
-FileCharsetDialog::Result FileCharsetDialog::ensure_filedata_utf8(grt::GRT *grt,
-                                             const char *data, size_t length,
-                                             const std::string &encoding,                                             
+FileCharsetDialog::Result FileCharsetDialog::ensure_filedata_utf8(const char *data, size_t length,
+                                             const std::string &encoding,
                                              const std::string &filename,
                                              char *&utf8_data,
                                              std::string *original_encoding)
@@ -162,7 +160,7 @@ retry:
                                    "WARNING: If your file contains binary data, it may become corrupted.\n\n"
                                    "Click \"Run SQL Script...\" to execute the file without opening for editing.",
                                    filename.c_str()));
-      charset = dlg.run(grt, default_encoding);
+      charset = dlg.run(default_encoding);
       if (charset.empty())
       {
         if (dlg._run_clicked)

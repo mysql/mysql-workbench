@@ -32,7 +32,7 @@ using namespace grt;
 #define NULL_STATE_KEEPER Null_state_keeper _nsk(this);
 
 
-Mysql_sql_inserts_loader::Mysql_sql_inserts_loader(grt::GRT *grt)
+Mysql_sql_inserts_loader::Mysql_sql_inserts_loader()
 :
 Sql_parser_base(grt),
 Mysql_sql_parser_base(grt)

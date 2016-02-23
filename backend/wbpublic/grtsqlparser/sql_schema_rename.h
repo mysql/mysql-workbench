@@ -36,7 +36,7 @@ class WBPUBLICBACKEND_PUBLIC_FUNC Sql_schema_rename : virtual public Sql_parser_
 public:
   typedef boost::shared_ptr<Sql_schema_rename> Ref;
 protected:
-  Sql_schema_rename(grt::GRT *grt) : Sql_parser_base(grt) {}
+  Sql_schema_rename() {}
 
 public:
   virtual int rename_schema_references(db_CatalogRef catalog, const std::string &old_schema_name, const std::string &new_schema_name)= 0;

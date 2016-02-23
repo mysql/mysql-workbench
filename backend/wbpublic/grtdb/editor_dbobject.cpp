@@ -52,7 +52,7 @@ DBObjectEditorBE::DBObjectEditorBE(GRTManager *grtm, const db_DatabaseObjectRef 
 
   _catalog = db_CatalogRef::cast_from(run);
 
-  _parser_services = MySQLParserServices::get(grtm->get_grt());
+  _parser_services = MySQLParserServices::get();
   bool case_sensitive = true;
   if (object->customData().get_int("CaseSensitive", 1) == 0)
     case_sensitive = false;
@@ -60,7 +60,7 @@ DBObjectEditorBE::DBObjectEditorBE(GRTManager *grtm, const db_DatabaseObjectRef 
   // Assume a default version if the given catalog is incomplete.
   GrtVersionRef version = get_catalog()->version();
   if (!version.is_valid())
-    version = bec::parse_version(grtm->get_grt(), "5.5.1");
+    version = bec::parse_version("5.5.1");
   _parser_context = _parser_services->createParserContext(get_catalog()->characterSets(), version, case_sensitive);
 
   if (object->customData().has_key("sqlMode"))
@@ -77,7 +77,7 @@ DBObjectEditorBE::DBObjectEditorBE(GRTManager *grtm, const db_DatabaseObjectRef 
   // Get notified about version number changes.
   grt::GRTNotificationCenter::get()->add_grt_observer(this, "GRNPreferencesDidClose");
     
-  grt::DictRef info(grtm->get_grt());
+  grt::DictRef info;
   info.gset("form", form_id());
   info.set("object", object);
 
@@ -522,7 +522,7 @@ MySQLEditor::Ref DBObjectEditorBE::get_sql_editor()
 {
   if (!_sql_editor)
   {
-    _sql_editor = MySQLEditor::create(get_grt(), _parser_context, _autocompletion_context);
+    _sql_editor = MySQLEditor::create(_parser_context, _autocompletion_context);
     grt::DictRef obj_options = get_dbobject()->customData();
     if (obj_options.has_key("sqlMode"))
       _sql_editor->set_sql_mode(obj_options.get_string("sqlMode"));

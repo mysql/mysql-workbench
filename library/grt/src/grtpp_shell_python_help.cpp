@@ -184,10 +184,10 @@ NL
 };
 
 
-void grt_shell_show_python_help(grt::GRT *grt, const char *command)
+void grt_shell_show_python_help(const char *command)
 {
   if (!command || !*command)
-    grt->send_output(
+    grt::GRT::get().send_output(
        "Help Topics" NL
        "-----------" NL
        "grt        General information about the Workbench runtime" NL
@@ -219,13 +219,13 @@ void grt_shell_show_python_help(grt::GRT *grt, const char *command)
       if (strcmp(command, help_topics[i].keyword) == 0)
       {
         found= true;
-        grt->send_output(help_topics[i].text);
-        grt->send_output(NL);
+        grt::GRT::get().send_output(help_topics[i].text);
+        grt::GRT::get().send_output(NL);
         break;
       }
     }
     if (!found)
-      grt->send_output("Unknown help topic\n");
+      grt::GRT::get().send_output("Unknown help topic\n");
   }
 }
 

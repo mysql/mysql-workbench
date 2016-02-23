@@ -244,7 +244,7 @@ public:
 
   virtual void set(const std::string &field, const ValueRef &value)
   {
-    grt::AutoUndo undo(_object->get_grt(), !_object->is_global());
+    grt::AutoUndo undo(!_object->is_global());
 
     _fields[field].source.set_member(field, value);
     
@@ -269,8 +269,7 @@ public:
 class GRTListValueInspectorBE : public ValueInspectorBE
 {
 public:
-  GRTListValueInspectorBE(GRT *grt, const BaseListRef &value)
-    : ValueInspectorBE(grt), _value(value)
+  GRTListValueInspectorBE(const BaseListRef &value) : _value(value)
   {
     refresh();
   };
@@ -401,8 +400,7 @@ private:
 class GRTDictRefInspectorBE : public ValueInspectorBE
 {
 public:
-  GRTDictRefInspectorBE(GRT *grt, const DictRef &value)
-    : ValueInspectorBE(grt), _value(value)
+  GRTDictRefInspectorBE(const DictRef &value) :  _value(value)
   {
     _has_new_item= false;
     refresh();
@@ -584,8 +582,8 @@ protected:
 class GRTObjectRefInspectorBE : public ValueInspectorBE
 {
 public:
-  GRTObjectRefInspectorBE(GRT *grt, const ObjectRef &value, bool grouped, bool process_editas_flag)
-    : ValueInspectorBE(grt), _object(value, process_editas_flag), _grouping(grouped)
+  GRTObjectRefInspectorBE(const ObjectRef &value, bool grouped, bool process_editas_flag)
+    : _object(value, process_editas_flag), _grouping(grouped)
   {
     monitor_object_changes(value);
     refresh();
@@ -895,8 +893,7 @@ protected:
 class GRTObjectListValueInspectorBE : public ValueInspectorBE
 {
 public:
-  GRTObjectListValueInspectorBE(GRT *grt, const std::vector<ObjectRef> &objects)
-    : ValueInspectorBE(grt), _list(objects)
+  GRTObjectListValueInspectorBE(const std::vector<ObjectRef> &objects) : _list(objects)
   {
     refresh();
   }
@@ -1134,7 +1131,7 @@ protected:
 
   virtual bool set_value(const NodeId &node, const ValueRef &value)
   {
-    grt::AutoUndo undo(_grt);
+    grt::AutoUndo undo;
 
     for (std::vector<ObjectRef>::iterator iter= _list.begin(); iter !=_list.end(); ++iter)
     {
@@ -1149,8 +1146,7 @@ protected:
 
 //--------------------------------------------------------------------------------------------------
 
-ValueInspectorBE::ValueInspectorBE(GRT *grt)
-  : _grt(grt)
+ValueInspectorBE::ValueInspectorBE()
 {
 }
 
@@ -1238,21 +1234,20 @@ IconId ValueInspectorBE::get_field_icon(const NodeId &node, ColumnId column, Ico
 
 //--------------------------------------------------------------------------------------------------
 
-ValueInspectorBE *ValueInspectorBE::create(GRT *grt,
-                                           const ValueRef &value,
+ValueInspectorBE *ValueInspectorBE::create(const ValueRef &value,
                                            bool grouped,
                                            bool process_editas_flag)
 {  
   switch (value.type())
   {
   case DictType:
-    return new GRTDictRefInspectorBE(grt, DictRef::cast_from(value));
+    return new GRTDictRefInspectorBE(DictRef::cast_from(value));
 
   case ListType:
-    return new GRTListValueInspectorBE(grt, BaseListRef::cast_from(value));
+    return new GRTListValueInspectorBE(BaseListRef::cast_from(value));
 
   case ObjectType:
-    return new GRTObjectRefInspectorBE(grt, ObjectRef::cast_from(value), grouped, process_editas_flag);
+    return new GRTObjectRefInspectorBE(ObjectRef::cast_from(value), grouped, process_editas_flag);
     
   default:
     return 0;
@@ -1261,10 +1256,9 @@ ValueInspectorBE *ValueInspectorBE::create(GRT *grt,
 
 //--------------------------------------------------------------------------------------------------
 
-ValueInspectorBE *ValueInspectorBE::create(GRT *grt,
-                                           const std::vector<ObjectRef> &objects)
+ValueInspectorBE *ValueInspectorBE::create(const std::vector<ObjectRef> &objects)
 {
-  return new GRTObjectListValueInspectorBE(grt, objects);
+  return new GRTObjectListValueInspectorBE(objects);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -37,7 +37,7 @@ class WBPUBLICBACKEND_PUBLIC_FUNC Sql_parser : virtual public Sql_parser_base
 public:
   typedef boost::shared_ptr<Sql_parser> Ref;
 protected:
-  Sql_parser(grt::GRT *grt) : Sql_parser_base(grt) {}
+  Sql_parser() {}
 
 public:
   virtual int parse_sql_script(db_CatalogRef catalog, const std::string &sql, grt::DictRef options)= 0;

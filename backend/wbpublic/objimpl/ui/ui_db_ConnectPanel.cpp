@@ -116,7 +116,7 @@ void ui_db_ConnectPanel::connection(const grt::Ref<db_mgmt_Connection> &value)
 grt::Ref<mforms_ObjectReference> ui_db_ConnectPanel::view() const
 {
   if (_data && _data->panel())
-    return mforms_to_grt(get_grt(), _data->panel(), "Box");
+    return mforms_to_grt(_data->panel(), "Box");
   return grt::Ref<mforms_ObjectReference>();
 }
 

@@ -105,11 +105,11 @@ namespace bec {
                                                      const grt::DictRef &options);
 
     static bool create_index_for_fk_if_needed(db_ForeignKeyRef fk);
-    static db_IndexRef create_index_for_fk(grt::GRT *grt, const db_ForeignKeyRef &fk, const size_t max_len = 64);
+    static db_IndexRef create_index_for_fk(const db_ForeignKeyRef &fk, const size_t max_len = 64);
     static db_IndexRef find_index_usable_by_fk(const db_ForeignKeyRef &fk, const db_IndexRef &other_than = db_IndexRef(), bool allow_any_order=false);
     static void reorder_foreign_key_for_index(const db_ForeignKeyRef &fk, const db_IndexRef &index);
     static std::string generate_foreign_key_name();
-    static db_ForeignKeyRef create_empty_foreign_key(grt::GRT *grt, const db_TableRef &table, const std::string &name);
+    static db_ForeignKeyRef create_empty_foreign_key(const db_TableRef &table, const std::string &name);
     static void update_foreign_key_index(const db_ForeignKeyRef &fk);
 
     static bool rename_foreign_key(const db_TableRef &table, db_ForeignKeyRef &fk, const std::string &new_name);
@@ -126,7 +126,7 @@ namespace bec {
       const grt::DictRef &global_options, const grt::DictRef &options);
 
     static db_TableRef clone_table(const db_TableRef &table);
-    static db_mysql_StorageEngineRef get_engine_by_name(grt::GRT *grt, const std::string &name);
+    static db_mysql_StorageEngineRef get_engine_by_name(const std::string &name);
     static std::string get_sync_comment(const std::string &comment, const size_t max_len = 60);
 
     // add schema name and backticks to table names if needed

@@ -53,8 +53,8 @@ class  workbench_physical_Layer : public model_Layer
 public:
   class ImplData;
   friend class ImplData;
-  workbench_physical_Layer(grt::GRT *grt, grt::MetaClass *meta=0)
-  : model_Layer(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+  workbench_physical_Layer(grt::MetaClass *meta=0)
+  : model_Layer(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
 
   {
   }
@@ -64,16 +64,16 @@ public:
 protected:
 
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new workbench_physical_Layer(grt));
+    return grt::ObjectRef(new workbench_physical_Layer());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_physical_Layer::create);
   }
@@ -87,8 +87,8 @@ class GRT_STRUCTS_WORKBENCH_PHYSICAL_PUBLIC workbench_physical_Connection : publ
 public:
   class ImplData;
   friend class ImplData;
-  workbench_physical_Connection(grt::GRT *grt, grt::MetaClass *meta=0)
-  : model_Connection(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  workbench_physical_Connection(grt::MetaClass *meta=0)
+  : model_Connection(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _caption(""),
      _captionXOffs(0.0),
      _captionYOffs(0.0),
@@ -390,16 +390,16 @@ protected:
 private: // wrapper methods for use by grt
   ImplData *_data;
 
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new workbench_physical_Connection(grt));
+    return grt::ObjectRef(new workbench_physical_Connection());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_physical_Connection::create);
     {
@@ -478,8 +478,8 @@ class GRT_STRUCTS_WORKBENCH_PHYSICAL_PUBLIC workbench_physical_RoutineGroupFigur
 public:
   class ImplData;
   friend class ImplData;
-  workbench_physical_RoutineGroupFigure(grt::GRT *grt, grt::MetaClass *meta=0)
-  : model_Figure(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  workbench_physical_RoutineGroupFigure(grt::MetaClass *meta=0)
+  : model_Figure(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
     _data(0)
 
   {
@@ -517,16 +517,16 @@ protected:
 private: // wrapper methods for use by grt
   ImplData *_data;
 
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new workbench_physical_RoutineGroupFigure(grt));
+    return grt::ObjectRef(new workbench_physical_RoutineGroupFigure());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_physical_RoutineGroupFigure::create);
     {
@@ -545,8 +545,8 @@ class GRT_STRUCTS_WORKBENCH_PHYSICAL_PUBLIC workbench_physical_ViewFigure : publ
 public:
   class ImplData;
   friend class ImplData;
-  workbench_physical_ViewFigure(grt::GRT *grt, grt::MetaClass *meta=0)
-  : model_Figure(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  workbench_physical_ViewFigure(grt::MetaClass *meta=0)
+  : model_Figure(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
     _data(0)
 
   {
@@ -584,16 +584,16 @@ protected:
 private: // wrapper methods for use by grt
   ImplData *_data;
 
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new workbench_physical_ViewFigure(grt));
+    return grt::ObjectRef(new workbench_physical_ViewFigure());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_physical_ViewFigure::create);
     {
@@ -612,8 +612,8 @@ class GRT_STRUCTS_WORKBENCH_PHYSICAL_PUBLIC workbench_physical_TableFigure : pub
 public:
   class ImplData;
   friend class ImplData;
-  workbench_physical_TableFigure(grt::GRT *grt, grt::MetaClass *meta=0)
-  : model_Figure(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  workbench_physical_TableFigure(grt::MetaClass *meta=0)
+  : model_Figure(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _columnsExpanded(1),
      _foreignKeysExpanded(0),
      _indicesExpanded(0),
@@ -761,16 +761,16 @@ protected:
 private: // wrapper methods for use by grt
   ImplData *_data;
 
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new workbench_physical_TableFigure(grt));
+    return grt::ObjectRef(new workbench_physical_TableFigure());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_physical_TableFigure::create);
     {
@@ -814,8 +814,8 @@ class GRT_STRUCTS_WORKBENCH_PHYSICAL_PUBLIC workbench_physical_Diagram : public 
 public:
   class ImplData;
   friend class ImplData;
-  workbench_physical_Diagram(grt::GRT *grt, grt::MetaClass *meta=0)
-  : model_Diagram(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  workbench_physical_Diagram(grt::MetaClass *meta=0)
+  : model_Diagram(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
     _data(0)
 
   {
@@ -907,9 +907,9 @@ protected:
 private: // wrapper methods for use by grt
   ImplData *_data;
 
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new workbench_physical_Diagram(grt));
+    return grt::ObjectRef(new workbench_physical_Diagram());
   }
 
   static grt::ValueRef call_autoPlaceDBObjects(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<workbench_physical_Diagram*>(self)->autoPlaceDBObjects(grt::ListRef<db_DatabaseObject>::cast_from(args[0])); return grt::ValueRef(); }
@@ -934,9 +934,9 @@ private: // wrapper methods for use by grt
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_physical_Diagram::create);
     meta->bind_method("autoPlaceDBObjects", &workbench_physical_Diagram::call_autoPlaceDBObjects);
@@ -960,16 +960,16 @@ class GRT_STRUCTS_WORKBENCH_PHYSICAL_PUBLIC workbench_physical_Model : public mo
 public:
   class ImplData;
   friend class ImplData;
-  workbench_physical_Model(grt::GRT *grt, grt::MetaClass *meta=0)
-  : model_Model(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  workbench_physical_Model(grt::MetaClass *meta=0)
+  : model_Model(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _connectionNotation(""),
-    _connections(grt, this, false),
+    _connections(this, false),
      _figureNotation(""),
-    _notes(grt, this, false),
-    _scripts(grt, this, false),
-    _syncProfiles(grt, this, false),
-    _tagCategories(grt, this, false),
-    _tags(grt, this, false),
+    _notes(this, false),
+    _scripts(this, false),
+    _syncProfiles(this, false),
+    _tagCategories(this, false),
+    _tags(this, false),
     _data(0)
 
   {
@@ -1228,18 +1228,18 @@ protected:
 private: // wrapper methods for use by grt
   ImplData *_data;
 
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new workbench_physical_Model(grt));
+    return grt::ObjectRef(new workbench_physical_Model());
   }
 
   static grt::ValueRef call_addNewDiagram(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<workbench_physical_Model*>(self)->addNewDiagram(grt::IntegerRef::cast_from(args[0])); }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_physical_Model::create);
     {

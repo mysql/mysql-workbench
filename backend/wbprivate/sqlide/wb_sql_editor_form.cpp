@@ -575,7 +575,7 @@ void SqlEditorForm::reset_keep_alive_thread()
   }
 }
 
-grt::StringRef SqlEditorForm::do_disconnect(grt::GRT *grt)
+grt::StringRef SqlEditorForm::do_disconnect()
 {
   if (_usr_dbc_conn->ref.get())
   {
@@ -1328,7 +1328,7 @@ std::string SqlEditorForm::get_client_lib_version()
 
 //--------------------------------------------------------------------------------------------------
 
-grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref &auth, ConnectionErrorInfo *err_ptr)
+grt::StringRef SqlEditorForm::do_connect(boost::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref &auth, ConnectionErrorInfo *err_ptr)
 {
   try
   {
@@ -1391,7 +1391,7 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
                  _connection_details["dbmsProductVersion"].c_str());
       }
       
-      _version = parse_version(grt, _connection_details["dbmsProductVersion"]);
+      _version = parse_version(_connection_details["dbmsProductVersion"]);
       _version->name(grt::StringRef(_connection_details["dbmsProductName"]));
 
       db_query_EditorRef editor(grtobj());
@@ -1468,7 +1468,7 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
       // Create a parser with some sensible defaults if we cannot connect.
       // We specify no charsets here, disabling parsing of repertoires.
       parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grt);
-      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(grt), bec::int_to_version(grt, 50503), true);
+      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(grt), bec::int_to_version(50503), true);
       _work_parser_context->use_sql_mode(_sql_mode);
 
       return grt::StringRef();
@@ -1494,7 +1494,7 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
       // Create a parser with some sensible defaults if we cannot connect.
       // We specify no charsets here, disabling parsing of repertoires.
       parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grt);
-      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(grt), bec::int_to_version(grt, 50503), true);
+      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(grt), bec::int_to_version(50503), true);
       _work_parser_context->use_sql_mode(_sql_mode);
 
       return grt::StringRef();
@@ -1975,7 +1975,7 @@ void SqlEditorForm::update_live_schema_tree(const std::string &sql)
 }
 
 
-grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::shared_ptr<std::string> sql,
+grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, boost::shared_ptr<std::string> sql,
   SqlEditorPanel *editor, ExecFlags flags, RecordsetsRef result_list)
 {
   bool use_non_std_delimiter = (flags & NeedNonStdDelimiter) != 0;

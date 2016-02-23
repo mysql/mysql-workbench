@@ -38,9 +38,7 @@ void DBObjectFilterBE::set_object_type_name(const std::string &type_name)
     return;
   }
 
-  grt::GRT *grt= _grtm->get_grt();
-
-  grt::MetaClass *meta= grt->get_metaclass(type_name);
+  grt::MetaClass *meta= grt::GRT::get().get_metaclass(type_name);
   if (!meta)
     throw grt::bad_class(type_name);
   
@@ -48,16 +46,16 @@ void DBObjectFilterBE::set_object_type_name(const std::string &type_name)
   _full_type_name= meta->get_attribute("caption");
 
   // load stored filter sets
-  grt::DictRef opt= grt::DictRef::cast_from(grt->get("/wb/options/options"));
+  grt::DictRef opt= grt::DictRef::cast_from(grt::GRT::get().get("/wb/options/options"));
   _stored_filter_sets_filepath
     .append(_grtm->get_user_datadir())
     .append("/stored_filter_sets.")
     .append(_full_type_name)
     .append(".xml");
   if (g_file_test(_stored_filter_sets_filepath.c_str(), G_FILE_TEST_EXISTS))
-    _stored_filter_sets= grt::DictRef::cast_from(grt->unserialize(_stored_filter_sets_filepath));
+    _stored_filter_sets= grt::DictRef::cast_from(grt::GRT::get().unserialize(_stored_filter_sets_filepath));
   if (!_stored_filter_sets.is_valid())
-    _stored_filter_sets= grt::DictRef(grt);
+    _stored_filter_sets = grt::DictRef();
 }
 
 
@@ -71,8 +69,7 @@ bec::IconId DBObjectFilterBE::icon_id(bec::IconSize icon_size)
 {
   if (!_grt_type_name.empty())
   {
-    grt::GRT *grt= _grtm->get_grt();
-    grt::MetaClass *meta= grt->get_metaclass(_grt_type_name);
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(_grt_type_name);
     if (!meta) throw grt::bad_class(_grt_type_name);
     return bec::IconManager::get_instance()->get_icon_id(meta, icon_size, "many");
   }
@@ -85,16 +82,14 @@ void DBObjectFilterBE::add_stored_filter_set(const std::string &name)
   if (!_filter_model)
     return;
 
-  grt::GRT *grt= _grtm->get_grt();
-
-  grt::StringListRef masks(grt);
+  grt::StringListRef masks;
   _stored_filter_sets.set(name, masks);
 
   std::vector<std::string> items= _filter_model->items();
   for (std::vector<std::string>::iterator i= items.begin(); i != items.end(); ++i)
     masks.insert(*i);
 
-  grt->serialize(_stored_filter_sets, _stored_filter_sets_filepath);
+  grt::GRT::get().serialize(_stored_filter_sets, _stored_filter_sets_filepath);
 }
 
 

@@ -871,7 +871,7 @@ void WindowsManagementPage::enter(bool advancing)
     }
 
     grt::GRT* grt = _context->get_grt();
-    grt::Module* module = grt->get_module("Workbench");
+    grt::Module* module = grt::GRT::get().get_module("Workbench");
 
     try
     {
@@ -1371,7 +1371,7 @@ bool PathsPage::advance()
  */
 void PathsPage::browse_remote_config_file()
 {
-  grt::GRT *grt = _context->get_grt();
+   = _context->get_grt();
   db_mgmt_ServerInstanceRef instance(wizard()->assemble_server_instance());
 
   grt::BaseListRef args(grt);
@@ -1380,13 +1380,13 @@ void PathsPage::browse_remote_config_file()
 
   try
   {
-    grt::StringRef selection = grt::StringRef::cast_from(grt->call_module_function("WbAdmin", "openRemoteFileSelector", args));
+    grt::StringRef selection = grt::StringRef::cast_from(grt::GRT::get().call_module_function("WbAdmin", "openRemoteFileSelector", args));
     if (selection.is_valid() && !selection.empty())
       _config_path.set_value(selection);
   }
   catch (const std::exception &exc)
   {
-    grt->send_error("Error in remote file browser", exc.what());
+    grt::GRT::get().send_error("Error in remote file browser", exc.what());
   }
 }
 
@@ -1686,7 +1686,7 @@ db_mgmt_ServerInstanceRef NewServerInstanceWizard::assemble_server_instance()
 
 //--------------------------------------------------------------------------------------------------
 
-grt::ValueRef NewServerInstanceWizard::test_setting_grt(grt::GRT *grt, const std::string &name)
+grt::ValueRef NewServerInstanceWizard::test_setting_grt(const std::string &name)
 {
   std::string detail;
   if (!test_setting(name, detail))

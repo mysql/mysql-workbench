@@ -180,7 +180,7 @@ bool bec::ValidationManager::is_validation_plugin(const app_PluginRef& plugin)
 
 void bec::ValidationManager::register_validator(grt::GRT* grt, const std::string& type, grt::Validator* v)
 {
-  grt::MetaClass* mc = grt->get_metaclass(type);
+  grt::MetaClass* mc = grt::GRT::get().get_metaclass(type);
   if (mc)
     mc->add_validator(v);
   else

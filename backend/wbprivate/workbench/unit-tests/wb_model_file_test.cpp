@@ -51,7 +51,7 @@ TEST_MODULE(wb_model_file, "tests for WB model file");
 TEST_FUNCTION(1)
 {
   bec::GRTManager *grtm;
-  grt::GRT *grt= tester.wb->get_grt();
+  = tester.wb->get_grt();
 
 #ifdef _WIN32
   base::create_directory(TMP_DIR, 0666);
@@ -76,11 +76,11 @@ TEST_FUNCTION(1)
     pmodel->catalog(&catalog);
     doc->physicalModels().insert(pmodel);
 
-    mf.store_document(grt, doc);
+    mf.store_document(doc);
     mf.save_to("t1.mwb");
 
     doc->name("t2");
-    mf.store_document(grt, doc);
+    mf.store_document(doc);
     mf.save_to("t2.mwb");
   }
 
@@ -106,7 +106,7 @@ TEST_FUNCTION(2)
 {
   //WBTester tester;
   bec::GRTManager *grtm;
-  grt::GRT *grt= tester.wb->get_grt();
+  = tester.wb->get_grt();
   grtm= bec::GRTManager::get_instance_for(grt);
 
   // load sakile a bunch of times
@@ -180,7 +180,7 @@ TEST_FUNCTION(10)
 
 std::string test_loading_and_saving_a_model( const WBTester& tester, std::string& base_path )
 {
-  grt::GRT *grt= tester.wb->get_grt();
+  = tester.wb->get_grt();
   bec::GRTManager* grtm = bec::GRTManager::get_instance_for(grt);
 
   #ifdef _WIN32

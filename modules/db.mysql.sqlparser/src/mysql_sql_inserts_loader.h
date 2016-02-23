@@ -34,10 +34,10 @@ class MYSQL_SQL_PARSER_PUBLIC_FUNC Mysql_sql_inserts_loader : protected Mysql_sq
 {
 public:
   typedef boost::shared_ptr<Mysql_sql_inserts_loader> Ref;
-  static Ref create(grt::GRT *grt) { return Ref(new Mysql_sql_inserts_loader(grt)); }
+  static Ref create() { return Ref(new Mysql_sql_inserts_loader(grt)); }
   virtual ~Mysql_sql_inserts_loader() {}
 protected:
-  Mysql_sql_inserts_loader(grt::GRT *grt);
+  Mysql_sql_inserts_loader();
 
 public:
   void load(const std::string &sql, const std::string &schema_name);

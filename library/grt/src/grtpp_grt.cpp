@@ -41,6 +41,16 @@ DEFAULT_LOG_DOMAIN(DOMAIN_GRT)
 using namespace grt;
 using namespace base;
 
+//--------------------------------------------------------------------------------------------------
+
+GRT& GRT::get()
+{
+  static GRT instance;
+  return instance;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 std::string grt::type_to_str(Type type)
 {
   switch (type)
@@ -63,6 +73,7 @@ std::string grt::type_to_str(Type type)
   return "";
 }
 
+//--------------------------------------------------------------------------------------------------
 
 Type grt::str_to_type(const std::string &type)
 {
@@ -81,7 +92,6 @@ Type grt::str_to_type(const std::string &type)
     return ObjectType;
   return UnknownType;
 }
-
 
 
 std::string Message::format(bool withtype) const
@@ -180,12 +190,12 @@ GRT::GRT()
 
   _default_undo_manager= new UndoManager(this);
 
-  add_module_loader(new CPPModuleLoader(this));
+  add_module_loader(new CPPModuleLoader());
   
   // register metaclass for base class
   add_metaclass(MetaClass::create_base_class(this));
   
-  _root= grt::DictRef(this);
+  _root= grt::DictRef();
 }
 
 
@@ -452,7 +462,7 @@ void GRT::end_loading_metaclasses(bool check_class_binding)
     throw std::runtime_error("Validation error in loaded metaclasses");
 
   // register GRT object classes
-  internal::ClassRegistry::get_instance()->register_all(this);
+  internal::ClassRegistry::get_instance()->register_all();
   
   if (check_class_binding)
   {
@@ -564,20 +574,20 @@ ObjectRef GRT::find_object_by_id(const std::string &id, const std::string &subpa
 void GRT::serialize(const ValueRef &value, const std::string &path,
                     const std::string &doctype, const std::string &version, bool list_objects_as_links)
 {
-  internal::Serializer ser(this);
+  internal::Serializer ser;
   
   ser.save_to_xml(value, path, doctype, version, list_objects_as_links);
 }
 
 boost::shared_ptr<grt::internal::Unserializer> GRT::get_unserializer()
 {
-  return boost::shared_ptr<grt::internal::Unserializer> (new internal::Unserializer(this, _check_serialized_crc));
+  return boost::shared_ptr<grt::internal::Unserializer> (new internal::Unserializer(_check_serialized_crc));
 };
 
 ValueRef GRT::unserialize(const std::string &path, boost::shared_ptr<grt::internal::Unserializer> unserializer)
 {
   if(!unserializer)
-    unserializer = boost::shared_ptr<grt::internal::Unserializer>(new internal::Unserializer(this, _check_serialized_crc));
+    unserializer = boost::shared_ptr<grt::internal::Unserializer>(new internal::Unserializer(_check_serialized_crc));
 
   if (!g_file_test(path.c_str(), G_FILE_TEST_EXISTS))
     throw os_error(path);
@@ -596,7 +606,7 @@ ValueRef GRT::unserialize(const std::string &path, boost::shared_ptr<grt::intern
 
 ValueRef GRT::unserialize(const std::string &path, std::string &doctype_ret, std::string &version_ret)
 {
-  internal::Unserializer unser(this, _check_serialized_crc);
+  internal::Unserializer unser(_check_serialized_crc);
   
   if (!g_file_test(path.c_str(), G_FILE_TEST_EXISTS))
     throw os_error(path);
@@ -627,7 +637,7 @@ void GRT::get_xml_metainfo(xmlDocPtr doc, std::string &doctype_ret, std::string 
 
 ValueRef GRT::unserialize_xml(xmlDocPtr doc, const std::string &source_path)
 {
-  internal::Unserializer unser(this, _check_serialized_crc);
+  internal::Unserializer unser(_check_serialized_crc);
 
   try
   {
@@ -644,13 +654,13 @@ ValueRef GRT::unserialize_xml(xmlDocPtr doc, const std::string &source_path)
 std::string GRT::serialize_xml_data(const ValueRef &value, const std::string &doctype, const std::string &version,
                                     bool list_objects_as_links)
 {
-  return internal::Serializer(this).serialize_to_xmldata(value, doctype, version, list_objects_as_links);
+  return internal::Serializer().serialize_to_xmldata(value, doctype, version, list_objects_as_links);
 }
 
 
 ValueRef GRT::unserialize_xml_data(const std::string &data)
 {
-  return internal::Unserializer(this, _check_serialized_crc).unserialize_xmldata(data.data(), data.size());
+  return internal::Unserializer(_check_serialized_crc).unserialize_xmldata(data.data(), data.size());
 }
 
 //--------------------------------------------------------------------------------
@@ -973,7 +983,7 @@ void *GRT::get_context_data(const std::string &key)
 bool GRT::init_shell(const std::string &shell_type)
 {
   if (shell_type == LanguagePython)
-    _shell= new PythonShell(this);
+    _shell= new PythonShell;
   else
     throw std::runtime_error("Invalid shell type "+shell_type);
   

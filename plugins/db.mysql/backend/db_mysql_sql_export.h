@@ -127,6 +127,6 @@ private:
 };
 
 
-grt::StringListRef convert_string_vector_to_grt_list(grt::GRT *grt, const std::vector<std::string>& v);
+grt::StringListRef convert_string_vector_to_grt_list(const std::vector<std::string>& v);
 
 #endif // _DB_MYSQL_SQL_EXPORT_H_

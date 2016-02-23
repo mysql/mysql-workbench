@@ -70,7 +70,7 @@ grt::Ref<GrtLogObject> db_migration_Migration::addMigrationLogEntry(ssize_t type
   GrtLogObjectRef log = findMigrationLogEntry(sourceObject, targetObject);
   if (!log.is_valid())
   {
-    log = GrtLogObjectRef(get_grt());
+    log = GrtLogObjectRef();
     log->owner(this);
     log->logObject(sourceObject);
     log->refObject(targetObject);

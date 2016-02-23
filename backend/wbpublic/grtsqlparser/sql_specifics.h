@@ -39,7 +39,7 @@ public:
   typedef boost::shared_ptr<Sql_specifics> Ref;
   virtual ~Sql_specifics() {}
 protected:
-  Sql_specifics(grt::GRT *grt);
+  Sql_specifics();
 
 protected:
   grt::GRT *_grt;

@@ -54,7 +54,7 @@ namespace wb {
     virtual std::string get_name()= 0;
     virtual std::string get_diagram_class_name() { return ""; }
 
-    virtual void setup_context_grt(grt::GRT *grt, WBOptions *options) {}
+    virtual void setup_context_grt(WBOptions *options) {}
     virtual void load_app_options(bool update) {}
     virtual void save_app_options() {}
 

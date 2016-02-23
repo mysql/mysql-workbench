@@ -297,7 +297,7 @@ void RelationshipEditorBE::open_editor_for_table(const db_TableRef &table)
 {
   if (table.is_valid())
   {
-    grt::BaseListRef args(get_grt(), grt::AnyType);
+    grt::BaseListRef args(grt::AnyType);
     args.ginsert(table);
     
     bec::GUIPluginFlags flags= bec::NoFlags;

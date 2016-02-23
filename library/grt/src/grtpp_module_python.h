@@ -47,7 +47,7 @@ namespace grt {
   class MYSQLGRT_PUBLIC PythonModuleLoader : public ModuleLoader
   {
   public:
-    PythonModuleLoader(GRT *grt, const std::string &module_path);
+    PythonModuleLoader(const std::string &module_path);
     virtual ~PythonModuleLoader();
     
     virtual std::string get_loader_name() { return LanguagePython; }

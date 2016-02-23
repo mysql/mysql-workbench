@@ -52,7 +52,7 @@ workbench_physical_Model::~workbench_physical_Model()
 
 model_DiagramRef workbench_physical_Model::addNewDiagram(ssize_t defer_realize)
 {  
-  grt::AutoUndo undo(get_grt(), !is_global());
+  grt::AutoUndo undo(!is_global());
 
   model_DiagramRef view;
   std::string name;

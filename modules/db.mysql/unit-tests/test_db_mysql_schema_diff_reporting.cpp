@@ -47,7 +47,7 @@ using ctemplate::STRIP_WHITESPACE;
 
 // these functions are defined in grtdiff_alter_test.cpp
 void populate_grt(GRT *grt, const char *);
-// db_mysql_Catalog create_empty_catalog_for_import(grt::GRT *grt);
+// db_mysql_Catalog create_empty_catalog_for_import();
 db_mysql_Catalog db_rev_eng_schema(bec::GRTManager *grtm, 
                                    const std::list<std::string>& schema_names);
 

@@ -154,14 +154,14 @@ void PluginManagerWindow::refresh_plugin_list()
 {
   GRT *grt= _grtm->get_grt();
   std::string user_plugin_dir= _grtm->get_user_module_path();
-  ListRef<app_Plugin> plugins(ListRef<app_Plugin>::cast_from(grt->get("/wb/registry/plugins")));
+  ListRef<app_Plugin> plugins(ListRef<app_Plugin>::cast_from(grt::GRT::get().get("/wb/registry/plugins")));
 
   plugin_list.clear();
   for (ListRef<app_Plugin>::const_iterator p= plugins.begin(); p != plugins.end(); ++p)
   {
     _module_plugins[(*p)->moduleName()].push_back((*p)->name());
 
-    grt::Module *module= grt->get_module(*(*p)->moduleName());
+    grt::Module *module= grt::GRT::get().get_module(*(*p)->moduleName());
     if (module)
     {
       std::string path= module->path();

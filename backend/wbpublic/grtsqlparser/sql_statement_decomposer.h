@@ -74,7 +74,7 @@ class WBPUBLICBACKEND_PUBLIC_FUNC Sql_statement_decomposer : virtual public Sql_
 public:
   typedef boost::shared_ptr<Sql_statement_decomposer> Ref;
 protected:
-  Sql_statement_decomposer(grt::GRT *grt);
+  Sql_statement_decomposer();
 
 public:
   virtual int decompose_query(const std::string &sql, SelectStatement::Ref select_statement)= 0;
