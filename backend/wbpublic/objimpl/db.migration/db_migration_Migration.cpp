@@ -78,8 +78,7 @@ grt::Ref<GrtLogObject> db_migration_Migration::addMigrationLogEntry(ssize_t type
     migrationLog().insert(log);
   }
 
-  GrtLogEntryRef entry = GrtLogEntryRef(get_grt());
-  
+  GrtLogEntryRef entry;
   entry->owner(log);
   entry->entryType(type);
   entry->name(grt::StringRef(message));

@@ -39,8 +39,6 @@ using namespace bec;
 ShellBE::ShellBE(GRTManager *grtm, const GRTDispatcher::Ref dispatcher)
   : _grtm(grtm), _dispatcher(dispatcher)
 {
-  _grt= grtm->get_grt();
-
   _shell= 0;
 
   _save_history_size= 0;

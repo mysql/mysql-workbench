@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,10 +17,10 @@
  * 02110-1301  USA
  */
 
-#include <grtpp_module_python.h>
-#include <grtpp_module_cpp.h>
+#include "grtpp_module_python.h"
+#include "grtpp_module_cpp.h"
 
-#include <python_context.h>
+#include "python_context.h"
 
 #include "grt/grt_manager.h"
 #include "base/threading.h"
@@ -197,7 +197,7 @@ GRTManager::~GRTManager()
 {
   {
     base::MutexLock _lock(_instance_mutex);
-    _instances.erase(_grt);
+    _instances.erase(&grt::GRT::get());
   }  
 
   _dispatcher->shutdown();
@@ -207,9 +207,6 @@ GRTManager::~GRTManager()
   _shell = 0;
   delete _messages_list;
   _messages_list = 0;
-
-  delete _grt;
-  _grt = 0;
 
   for (std::list<Timer*>::iterator iter= _timers.begin(); iter != _timers.end(); ++iter)
     delete *iter;
@@ -999,7 +996,7 @@ bool GRTManager::check_plugin_runnable(const app_PluginRef &plugin, const bec::A
         grt::GRT::get().send_output(base::strfmt("Debug: Plugin %s cannot execute because argument %s is not available\n",
                                        plugin->name().c_str(), searched_key.c_str()));
         grt::GRT::get().send_output("Debug: Available arguments:\n");
-        argpool.dump_keys(boost::bind(&grt::GRT::send_output, _grt, _1, (void*)0));
+        argpool.dump_keys(boost::bind(&grt::GRT::send_output, _1, (void*)0));
       }
       return false;
     }

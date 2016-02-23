@@ -28,7 +28,7 @@ public:
   #pragma GCC diagnostic pop
 #endif
 
-  grt::StringRef apply_script_to_db(grt::GRT *);
+  grt::StringRef apply_script_to_db();
 
 private:
   db_mgmt_RdbmsRef selected_rdbms();

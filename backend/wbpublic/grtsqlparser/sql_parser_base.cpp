@@ -92,7 +92,7 @@ void Sql_parser_base::add_log_message(const std::string &text, int entry_type)
   // syntax checks and the like. Simple SQL errors shouldn't go into the log file.
   if (_messages_enabled)
   {
-    bool send_to_frontend = (_grt != NULL) && (!_grtm->in_main_thread());
+    bool send_to_frontend = (!_grtm->in_main_thread());
 
     // TODO: The entry types needs a review. It should be streamlined to the logger levels.
     switch (entry_type)

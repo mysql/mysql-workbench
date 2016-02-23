@@ -60,7 +60,7 @@ PluginManagerImpl::PluginManagerImpl(grt::CPPModuleLoader *loader)
 {
   _grtm= GRTManager::get_instance_for();
   
-  InterfaceImplBase::Register<PluginInterfaceImpl>(loader->get_grt());
+  InterfaceImplBase::Register<PluginInterfaceImpl>();
 }
 
 
@@ -184,7 +184,6 @@ grt::StringListRef PluginManagerImpl::get_disabled_plugin_names()
 void PluginManagerImpl::rescan_plugins()
 {
   grt::ListRef<app_Plugin> plugin_list= get_plugin_list();
-  = _grtm->get_grt();
   std::set<std::string> disabled_plugins;
 
   // make a set of disabled plugin names
@@ -399,7 +398,7 @@ grt::ListRef<app_Plugin> PluginManagerImpl::get_plugin_list(const std::string &g
     return grt::ListRef<app_Plugin>::cast_from(_grtm->get_grt()->get(_registry_path));
   else
   {
-    grt::ListRef<app_Plugin> rlist(_grtm->get_grt()), list;
+    grt::ListRef<app_Plugin> rlist, list;
     std::string left, right;
 
     // groups are expected to be either in group/subgroup format or group (which will be interpreted as group/*)
@@ -789,7 +788,7 @@ std::string PluginManagerImpl::open_gui_plugin(const app_PluginRef &plugin, cons
   else if (*plugin->pluginType() == INTERNAL_PLUGIN_TYPE)
   {
     if (_grtm->in_main_thread())
-      open_normal_plugin_grt(_grtm->get_grt(), plugin, args);
+      open_normal_plugin_grt(plugin, args);
     else
     {
       // Request the plugin to be executed and opened by the frontend in the main thread.
@@ -811,7 +810,7 @@ std::string PluginManagerImpl::open_gui_plugin(const app_PluginRef &plugin, cons
         boost::bind(&PluginManagerImpl::open_normal_plugin_grt, this, _1, plugin, args));
     }
     else
-      open_normal_plugin_grt(_grtm->get_grt(), plugin, args);
+      open_normal_plugin_grt(plugin, args);
   }
   return "";
 }

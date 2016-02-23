@@ -157,7 +157,7 @@ void Recordset_sql_storage::do_unserialize(Recordset *recordset, sqlite::connect
   if (!sql_script().empty()) // load data from sql script
   {
     Var_list var_list;
-    SqlFacade::Ref sql_facade= SqlFacade::instance_for_rdbms_name(_grtm->get_grt(), "Mysql"); //!
+    SqlFacade::Ref sql_facade= SqlFacade::instance_for_rdbms_name("Mysql"); //!
     Sql_inserts_loader::Ref loader= sql_facade->sqlInsertsLoader();
     loader->process_insert_cb(boost::bind(&Recordset_sql_storage::load_insert_statement, this, _1, _2, _3, _4, _5, &column_names, &var_list));
     loader->load(sql_script(), schema_name());

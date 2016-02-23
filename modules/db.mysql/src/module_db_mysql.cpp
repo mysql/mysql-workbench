@@ -1918,7 +1918,7 @@ protected:
     typedef std::map<std::string, std::vector<std::pair<std::string,std::string> > > alias_map_t;
     alias_map_t alias_map;
 
-    SQLComposer(const grt::DictRef options, grt::GRT *pgrt):grt(pgrt)
+    SQLComposer(const grt::DictRef options)
     {
         sql_mode = options.get_string("SQL_MODE", "TRADITIONAL");
         SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name("Mysql");
@@ -2115,7 +2115,7 @@ class SQLExportComposer : public SQLComposer
     grt::DictRef drop_map;
 public:
     SQLExportComposer(const grt::DictRef options, grt::DictRef cmap, 
-        grt::DictRef dmap, grt::GRT *pgrt):SQLComposer(options, pgrt), create_map(cmap), drop_map(dmap)
+        grt::DictRef dmap):SQLComposer(options), create_map(cmap), drop_map(dmap)
     {
         gen_create_index= options.get_int("GenerateCreateIndex") != 0;
         gen_use = options.get_int("GenerateUse") != 0;
@@ -2564,8 +2564,8 @@ class SQLSyncComposer : public SQLComposer
 {
 
 public:
-  SQLSyncComposer(const grt::DictRef options, grt::GRT *pgrt)
-  : SQLComposer(options, pgrt)
+  SQLSyncComposer(const grt::DictRef options)
+  : SQLComposer(options)
   {
 
   }

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -122,7 +122,6 @@ protected:
   size_t _warn_count;
   size_t _err_count;
   float _progress_state;
-  grt::GRT *_grt;
   bec::GRTManager *_grtm;
   bool _messages_enabled;
   db_DatabaseObjectRef _active_obj;

@@ -97,7 +97,7 @@ WBRecordsetResultset::WBRecordsetResultset(db_query_ResultsetRef aself, boost::s
       case bec::GridModel::BlobType: type= "blob"; break;
     }
     
-    db_query_ResultsetColumnRef column(aself->get_grt());
+    db_query_ResultsetColumnRef column;
     
     column->owner(aself);
     column->name(recordset->get_column_caption(i));
@@ -369,7 +369,7 @@ public:
           break;          
       }
 
-      db_query_ResultsetColumnRef column(aself->get_grt());
+      db_query_ResultsetColumnRef column;
 
       column->owner(aself);
       column->name(std::string(meta->getColumnLabel(i)));
@@ -576,7 +576,7 @@ public:
 
 db_query_ResultsetRef grtwrap_recordset(GrtObjectRef owner, Recordset::Ref rset)
 {
-  db_query_ResultsetRef object(owner.get_grt());
+  db_query_ResultsetRef object;
 
   db_query_Resultset::ImplData *data= new WBRecordsetResultset(object, rset);
   
@@ -590,7 +590,7 @@ db_query_ResultsetRef grtwrap_recordset(GrtObjectRef owner, Recordset::Ref rset)
 
 db_query_ResultsetRef grtwrap_recordset(GrtObjectRef owner, boost::shared_ptr<sql::ResultSet> rset)
 {
-  db_query_ResultsetRef object(owner.get_grt());
+  db_query_ResultsetRef object;
 
   db_query_Resultset::ImplData *data = new CPPResultsetResultset(object, rset);
 

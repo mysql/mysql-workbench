@@ -157,7 +157,7 @@ DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
   // setup dockingPoint
   {
     db_query_EditorRef editor(_be->wbsql()->get_grt_editor_object(_be.get()));
-    editor->dockingPoint(mforms_to_grt(_grtm->get_grt(), _dpoint));
+    editor->dockingPoint(mforms_to_grt(_dpoint));
   }
   _dock_delegate.set_notebook(_editor_note);
   _be->set_tab_dock(_dpoint);

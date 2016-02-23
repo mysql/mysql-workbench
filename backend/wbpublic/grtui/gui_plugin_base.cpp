@@ -21,12 +21,12 @@
 #include "grt/plugin_manager.h"
 
 GUIPluginBase::GUIPluginBase(grt::Module *module)
-  : _module(module), _grt(module->get_grt())
+  : _module(module)
 {
 }
 
 GUIPluginBase::GUIPluginBase()
-  : _module(NULL), _grt(grt)
+  : _module(NULL)
 {
 }
 

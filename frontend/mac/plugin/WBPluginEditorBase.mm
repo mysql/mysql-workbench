@@ -271,7 +271,7 @@ static void text_changed(int line, int linesAdded, void *editor_)
   // setup docking point for mUpperTabView
   mDockingPoint = mforms::manage(new mforms::DockingPoint(new TabViewDockingPointDelegate(tabView, "editor"), true));
 
-  mEditorGRTObject->dockingPoint(mforms_to_grt(_grtm->get_grt(), mDockingPoint));
+  mEditorGRTObject->dockingPoint(mforms_to_grt(mDockingPoint));
 }
 
 @end

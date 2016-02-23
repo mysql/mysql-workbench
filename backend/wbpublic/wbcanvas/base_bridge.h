@@ -32,7 +32,7 @@
 class WBPUBLICBACKEND_PUBLIC_FUNC BridgeBase : public base::trackable
 {
 protected:
-  bec::GRTManager *get_grtm() { return bec::GRTManager::get_instance_for(get_object()->get_grt()); }
+  bec::GRTManager *get_grtm() { return bec::GRTManager::get_instance_for(); }
   
   void run_later(const boost::function<void ()> &slot);
 

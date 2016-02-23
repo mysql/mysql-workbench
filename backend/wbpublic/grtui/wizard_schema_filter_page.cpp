@@ -62,7 +62,7 @@ void WizardSchemaFilterPage::leave(bool advancing)
 {
   if (advancing)
   {
-    grt::StringListRef list(_form->grtm()->get_grt());
+    grt::StringListRef list;
     std::vector<std::string> selection= _check_list.get_selection();
   
     for (std::vector<std::string>::const_iterator iter= selection.begin();

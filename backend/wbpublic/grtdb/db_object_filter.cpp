@@ -106,7 +106,7 @@ void DBObjectFilterBE::remove_stored_filter_set(int index)
   if (item != _stored_filter_sets.end())
     _stored_filter_sets.remove(item->first);
 
-  _grtm->get_grt()->serialize(_stored_filter_sets, _stored_filter_sets_filepath);
+  grt::GRT::get().serialize(_stored_filter_sets, _stored_filter_sets_filepath);
 }
 
 

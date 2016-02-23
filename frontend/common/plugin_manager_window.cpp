@@ -152,7 +152,6 @@ void PluginManagerWindow::run()
 
 void PluginManagerWindow::refresh_plugin_list()
 {
-  GRT *grt= _grtm->get_grt();
   std::string user_plugin_dir= _grtm->get_user_module_path();
   ListRef<app_Plugin> plugins(ListRef<app_Plugin>::cast_from(grt::GRT::get().get("/wb/registry/plugins")));
 

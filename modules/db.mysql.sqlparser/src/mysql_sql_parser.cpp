@@ -44,7 +44,7 @@ class TableStorageEngines
 {
 public:
   TableStorageEngines() {}
-  void init(GRT *grt)
+  void init()
   {
     grt::ListRef<db_mysql_StorageEngine> engines;
     grt::Module *module= grt::GRT::get().get_module("DbMySQL");
@@ -106,7 +106,7 @@ Mysql_sql_parser::Null_state_keeper::~Null_state_keeper()
 
   static struct TableStorageEnginesInitializer
   {
-    TableStorageEnginesInitializer(GRT *grt) { __table_storage_engines.init(grt); }
+    TableStorageEnginesInitializer() { __table_storage_engines.init(); }
   } table_storage_engines_initializer(_sql_parser->_grt);
 }
 #define NULL_STATE_KEEPER Null_state_keeper _nsk(this);
@@ -1537,7 +1537,7 @@ Mysql_sql_parser::process_create_table_statement(const SqlAstNode *tree)
       }
 
     public:
-      static db_mysql_PartitionDefinitionRef parse(GRT *grt, const SqlAstNode *part_item, const std::string &_sql_statement)
+      static db_mysql_PartitionDefinitionRef parse(const SqlAstNode *part_item, const std::string &_sql_statement)
       {
         db_mysql_PartitionDefinitionRef part_obj(grt);
 

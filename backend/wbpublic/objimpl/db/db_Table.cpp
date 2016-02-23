@@ -84,7 +84,7 @@ db_Table::~db_Table()
 
 grt::StringRef db_Table::inserts()
 {
-  bec::GRTManager *grtm= bec::GRTManager::get_instance_for(get_grt());
+  bec::GRTManager *grtm= bec::GRTManager::get_instance_for();
   
   Recordset_table_inserts_storage::Ref input_storage= Recordset_table_inserts_storage::create(grtm);
   input_storage->table(db_TableRef(this));
@@ -107,7 +107,7 @@ grt::StringRef db_Table::inserts()
 
 db_query_EditableResultsetRef db_Table::createInsertsEditor()
 {
-  bec::GRTManager *grtm= bec::GRTManager::get_instance_for(get_grt());
+  bec::GRTManager *grtm= bec::GRTManager::get_instance_for();
   
   Recordset_table_inserts_storage::Ref input_storage= Recordset_table_inserts_storage::create(grtm);
   input_storage->table(db_TableRef(this));
@@ -129,7 +129,7 @@ void db_Table::addColumn(const db_ColumnRef &column)
 
 db_ForeignKeyRef db_Table::createForeignKey(const std::string &name)
 {
-  db_ForeignKeyRef fk(get_grt()->create_object<db_ForeignKey>(_foreignKeys->content_type_spec().object_class));
+  db_ForeignKeyRef fk(grt::GRT::get().create_object<db_ForeignKey>(_foreignKeys->content_type_spec().object_class));
 
   fk->owner(this);
   fk->name(name);
@@ -187,7 +187,7 @@ void db_Table::addPrimaryKeyColumn(const db_ColumnRef &column)
 
   strname= pkindex.get_metaclass()->get_member_type("columns").content.object_class;
 
-  db_IndexColumnRef pkicolumn(get_grt()->create_object<db_IndexColumn>(strname));
+  db_IndexColumnRef pkicolumn(grt::GRT::get().create_object<db_IndexColumn>(strname));
   
   pkicolumn->owner(pkindex);
   

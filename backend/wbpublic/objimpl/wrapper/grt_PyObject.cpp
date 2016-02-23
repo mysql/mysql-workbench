@@ -53,7 +53,7 @@ grt_PyObjectRef pyobject_to_grt(grt::AutoPyObject object)
 {
   if (object)
   {
-    grt_PyObjectRef ref(grt);
+    grt_PyObjectRef ref;
     ref->set_data(new grt::AutoPyObject(object), release_object);
     return ref;
   }
@@ -79,7 +79,7 @@ static PyObject *wrap_pyobject(PyObject *self, PyObject *args)
   PyObject *o;
   if (!PyArg_ParseTuple(args, "O", &o))
     return NULL;
-  return ctx->from_grt(pyobject_to_grt(ctx->get_grt(), o));
+  return ctx->from_grt(pyobject_to_grt(o));
 }
 
 

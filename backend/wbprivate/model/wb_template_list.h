@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _TABLE_TEMPLATE_LIST_H_
-#define _TABLE_TEMPLATE_LIST_H_
+#pragma once
 
 #include "snippet_list.h"
 #include "mforms/box.h"
@@ -41,7 +40,6 @@ class TableTemplatePanel;
 
 class TableTemplateList : public BaseSnippetList, public bec::ListModel
 {
-  grt::GRT *_grt;
   TableTemplatePanel *_owner;
 
   void prepare_context_menu();
@@ -61,7 +59,6 @@ public:
 
 class TableTemplatePanel : public mforms::Box
 {
-  grt::GRT *_grt;
   TableTemplateList _templates;
   mforms::ToolBar *_toolbar;
   mforms::ScrollPanel *_scroll_panel;
@@ -73,5 +70,3 @@ public:
 
   void on_action(const std::string& action);  
 };
-
-#endif

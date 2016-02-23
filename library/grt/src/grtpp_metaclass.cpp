@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -277,8 +277,7 @@ bool MetaClass::is_a(MetaClass *struc) const
 }
 
 
-MetaClass::MetaClass(GRT *grt)
-: _grt(grt)
+MetaClass::MetaClass()
 {
   _crc32= 0;
   _parent= 0;
@@ -300,16 +299,16 @@ MetaClass::~MetaClass()
 }
 
 
-MetaClass* MetaClass::create_base_class(GRT *grt)
+MetaClass* MetaClass::create_base_class()
 {
-  MetaClass *mc= new MetaClass(grt);
+  MetaClass *mc = new MetaClass;
   mc->_name= internal::Object::static_class_name();
   mc->_placeholder= false;
   mc->bind_allocator(0);
   return mc;
 }
 
-MetaClass* MetaClass::from_xml(GRT *grt, const std::string &source, xmlNodePtr node)
+MetaClass* MetaClass::from_xml(const std::string &source, xmlNodePtr node)
 {
   std::string name= get_prop(node, "name");
   MetaClass *stru;
@@ -324,7 +323,7 @@ MetaClass* MetaClass::from_xml(GRT *grt, const std::string &source, xmlNodePtr n
       stru->_placeholder= false;
     }
     else
-      stru= new MetaClass(grt);
+      stru= new MetaClass;
   }
   else
     throw std::runtime_error("Invalid struct definition in "+source);
@@ -402,7 +401,7 @@ void MetaClass::load_xml(xmlNodePtr node)
   else
   {
     // if the parent is not loaded yet, create a placeholder object to be filled later
-    MetaClass *tmp= new MetaClass(_grt);
+    MetaClass *tmp= new MetaClass;
     tmp->_name= node_property;
     tmp->_source= _source;
     tmp->_placeholder= true;

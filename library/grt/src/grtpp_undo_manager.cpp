@@ -609,7 +609,7 @@ void UndoGroup::dump(std::ostream &out, int indent) const
 //---------------------------------------------------------------------------------------------------
 
 
-UndoManager::UndoManager(GRT *grt)
+UndoManager::UndoManager()
 {
   _undo_log= 0;
   _is_undoing= false;
