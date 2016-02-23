@@ -375,7 +375,7 @@ void HostAndRemoteTypePage::enter(bool advancing)
         grt::DictRef dict;
         try
         {
-          dict= grt::DictRef::cast_from(wizard()->grtm()->get_grt()->unserialize(path+"/"+file));
+          dict= grt::DictRef::cast_from(grt::GRT::get().unserialize(path+"/"+file));
         }
         catch (std::exception &exc)
         {
@@ -870,7 +870,6 @@ void WindowsManagementPage::enter(bool advancing)
       set_title(_("Set Windows configuration parameters for this machine"));
     }
 
-    grt::GRT* grt = _context->get_grt();
     grt::Module* module = grt::GRT::get().get_module("Workbench");
 
     try
@@ -878,7 +877,7 @@ void WindowsManagementPage::enter(bool advancing)
       grt::ValueRef wmi_session;
 
       {
-        grt::StringListRef arguments(grt);
+        grt::StringListRef arguments;
         arguments.ginsert(grt::StringRef(host));
         arguments.ginsert(grt::StringRef(user));
         arguments.ginsert(grt::StringRef(password));
@@ -889,7 +888,7 @@ void WindowsManagementPage::enter(bool advancing)
 
       grt::ValueRef wmi_result;
       {
-        grt::BaseListRef arguments(grt);
+        grt::BaseListRef arguments;
         arguments.ginsert(wmi_session);
         arguments.ginsert(grt::StringRef("select * from Win32_Service where (Name like \"%mysql%\" or DisplayName like \"%mysql%\")"));
 
@@ -1041,7 +1040,7 @@ void TestHostMachineSettingsPage::enter(bool advance)
 bool TestHostMachineSettingsPage::connect_to_host()
 {
   // This will require the ssh or SSH key password, so it needs to be called from main thread.
-  wizard()->test_setting_grt(wizard()->grtm()->get_grt(), "connect_to_host");
+  wizard()->test_setting_grt("connect_to_host");
 
   return true;
 }
@@ -1052,7 +1051,7 @@ bool TestHostMachineSettingsPage::find_config_file()
 {
   // Native remote Windows management uses a direct URI for the files.
   bool use_local = wizard()->is_local() || values().get_int("windowsAdmin", 0) == 1;
-  execute_grt_task(boost::bind(&NewServerInstanceWizard::test_setting_grt, wizard(), _1,
+  execute_grt_task(boost::bind(&NewServerInstanceWizard::test_setting_grt, wizard(),
                               use_local ? "find_config_file/local" : "find_config_file"), false);
   return true;
 }
@@ -1062,7 +1061,7 @@ bool TestHostMachineSettingsPage::find_config_file()
 bool TestHostMachineSettingsPage::find_error_files()
 {
   bool use_local = wizard()->is_local() || values().get_int("windowsAdmin", 0) == 1;
-  execute_grt_task(boost::bind(&NewServerInstanceWizard::test_setting_grt, wizard(), _1,
+  execute_grt_task(boost::bind(&NewServerInstanceWizard::test_setting_grt, wizard(),
                               use_local ? "find_error_files/local" : "find_error_files"), false);
   return true;
 }
@@ -1374,7 +1373,7 @@ void PathsPage::browse_remote_config_file()
    = _context->get_grt();
   db_mgmt_ServerInstanceRef instance(wizard()->assemble_server_instance());
 
-  grt::BaseListRef args(grt);
+  grt::BaseListRef args;
   args.ginsert(values().get("connection"));
   args.ginsert(instance);
 
@@ -1750,7 +1749,7 @@ void NewServerInstanceWizard::load_defaults()
     grt::DictRef dict;
     try
     {
-      dict= grt::DictRef::cast_from(_grtm->get_grt()->unserialize(template_file));
+      dict= grt::DictRef::cast_from(grt::GRT::get().unserialize(template_file));
     }
     catch (std::exception &exc)
     {

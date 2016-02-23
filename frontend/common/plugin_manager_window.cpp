@@ -200,7 +200,7 @@ void PluginManagerWindow::list_selection_changed()
   {
     plugin_caption.set_text(plugin->caption());
     plugin_description.set_text(plugin->description());
-    grt::Module *module= _grtm->get_grt()->get_module(*plugin->moduleName());
+    grt::Module *module= grt::GRT::get().get_module(*plugin->moduleName());
     plugin_name.set_text("Name: "+*plugin->name());
     // type info
     if (module)
@@ -262,7 +262,7 @@ void PluginManagerWindow::uninstall()
     if (plugin.is_valid())
     {
       std::list<std::string> plugins(_module_plugins[plugin->moduleName()]);
-      grt::Module *module= _grtm->get_grt()->get_module(plugin->moduleName());
+      grt::Module *module= grt::GRT::get().get_module(plugin->moduleName());
       
       if (!module)
         return;

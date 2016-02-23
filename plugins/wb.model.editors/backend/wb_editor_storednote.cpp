@@ -67,7 +67,7 @@ MySQLEditor::Ref StoredNoteEditorBE::get_sql_editor()
   if (!_sql_editor)
   {
     workbench_physical_ModelRef model(workbench_physical_ModelRef::cast_from(_note->owner()));
-    MySQLParserServices::Ref services = MySQLParserServices::get(get_grt());
+    MySQLParserServices::Ref services = MySQLParserServices::get;
     ParserContext::Ref context = services->createParserContext(model->catalog()->characterSets(), model->catalog()->version(), false);
     ParserContext::Ref autocomplete_context = services->createParserContext(model->catalog()->characterSets(), model->catalog()->version(), false);
     _sql_editor = MySQLEditor::create(context, autocomplete_context);
@@ -165,7 +165,7 @@ void StoredNoteEditorBE::set_text(grt::StringRef text)
   if (!module)
     throw std::runtime_error("Workbench module not found");
 
-  grt::BaseListRef args(get_grt());
+  grt::BaseListRef args;
 
   args.ginsert(_note->filename());
   args.ginsert(text);
@@ -182,7 +182,7 @@ grt::StringRef StoredNoteEditorBE::get_text(bool &isutf8)
   if (!module)
     throw std::runtime_error("Workbench module not found");
 
-  grt::BaseListRef args(get_grt());
+  grt::BaseListRef args;
 
   args.ginsert(_note->filename());
 

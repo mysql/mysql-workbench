@@ -196,7 +196,7 @@ void GrtThreadedTask::process_finish(grt::ValueRef res)
   {
     grt::StringRef res_str= grt::StringRef::cast_from(res);
     if (!res_str.empty())
-      _grtm->get_grt()->send_info(grt::StringRef::cast_from(res), "", NULL);
+      grt::GRT::get().send_info(grt::StringRef::cast_from(res), "", NULL);
   }
   if (_finish_cb)
   {
@@ -256,7 +256,7 @@ void GrtThreadedTask::send_progress(float percentage, const std::string &msg, co
   {
     if (!task())
       return;
-    _grtm->get_grt()->send_progress(percentage, msg, detail, task().get());
+    grt::GRT::get().send_progress(percentage, msg, detail, task().get());
   }
 }
 

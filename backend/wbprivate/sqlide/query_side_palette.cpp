@@ -434,7 +434,7 @@ void QuerySidePalette::show_help_text_for_topic(const std::string &topic)
     return;
 
   _last_topic = topic_upper;
-  _help_task->exec(false, boost::bind(&QuerySidePalette::get_help_text_threaded, this, _1));
+  _help_task->exec(false, boost::bind(&QuerySidePalette::get_help_text_threaded, this));
 }
 
 //--------------------------------------------------------------------------------------------------

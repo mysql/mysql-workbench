@@ -50,7 +50,7 @@ public:
     grt::Module *module= grt::GRT::get().get_module("DbMySQL");
     if (!module)
       throw std::logic_error("module DbMySQL not found");
-    grt::BaseListRef args(grt);
+    grt::BaseListRef args;
     engines= grt::ListRef<db_mysql_StorageEngine>::cast_from(module->call_function("getKnownEngines", args));
     if (!engines.is_valid())
       throw std::logic_error("no known storage engines");
@@ -1539,7 +1539,7 @@ Mysql_sql_parser::process_create_table_statement(const SqlAstNode *tree)
     public:
       static db_mysql_PartitionDefinitionRef parse(const SqlAstNode *part_item, const std::string &_sql_statement)
       {
-        db_mysql_PartitionDefinitionRef part_obj(grt);
+        db_mysql_PartitionDefinitionRef part_obj;
 
         const SqlAstNode *part_attr;
 

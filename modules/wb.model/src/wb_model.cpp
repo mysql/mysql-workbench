@@ -44,10 +44,10 @@ GRT_MODULE_ENTRY_POINT(WbModelImpl);
 
 // plugin registration
 
-static void def_export_view_plugin(grt::GRT* grt, const char* aName, const char* aCaption, grt::ListRef<app_Plugin> &list)
+static void def_export_view_plugin(const char* aName, const char* aCaption, grt::ListRef<app_Plugin> &list)
 {
-    app_PluginRef plugin(grt);
-    app_PluginObjectInputRef pdef(grt);
+    app_PluginRef plugin;
+    app_PluginObjectInputRef pdef;
     
     plugin->name((std::string("wb.model.") + aName).c_str());
     
@@ -69,8 +69,8 @@ static void def_export_view_plugin(grt::GRT* grt, const char* aName, const char*
 /*
 #define def_export_view_plugin(aName, aCaption)\
   {\
-    app_PluginRef plugin(get_grt());\
-    app_PluginObjectInputRef pdef(get_grt());\
+    app_PluginRef plugin;\
+    app_PluginObjectInputRef pdef;\
     plugin->name("wb.model."aName);\
     plugin->caption(aCaption);\
     plugin->moduleName("WbModel");\
@@ -87,11 +87,11 @@ static void def_export_view_plugin(grt::GRT* grt, const char* aName, const char*
   }
 */
 
-static void def_export_catalog_plugin(grt::GRT* grt, const char* aName, const char* aCaption, grt::ListRef<app_Plugin> &list)
+static void def_export_catalog_plugin(const char* aName, const char* aCaption, grt::ListRef<app_Plugin> &list)
 {
-    app_PluginRef plugin(grt);
-    app_PluginObjectInputRef pdef1(grt);
-    app_PluginObjectInputRef pdef2(grt);
+    app_PluginRef plugin;
+    app_PluginObjectInputRef pdef1;
+    app_PluginObjectInputRef pdef2;
 
     plugin->name((std::string("wb.model.") + aName).c_str());
     plugin->caption(aCaption);
@@ -115,8 +115,8 @@ static void def_export_catalog_plugin(grt::GRT* grt, const char* aName, const ch
 /*
 #define def_export_catalog_plugin(aName, aCaption)\
   {\
-    app_PluginRef plugin(get_grt());\
-    app_PluginObjectInputRef pdef(get_grt());\
+    app_PluginRef plugin;\
+    app_PluginObjectInputRef pdef;\
     plugin->name("wb.model."aName);\
     plugin->caption(aCaption);\
     plugin->moduleName("WbModel");\
@@ -140,8 +140,8 @@ static void def_figure_selection_plugin(grt::GRT                 *grt,
                                         grt::ListRef<app_Plugin> &list
                                        )
 {
-    app_PluginRef plugin(grt);
-    app_PluginSelectionInputRef pdef(grt);
+    app_PluginRef plugin;
+    app_PluginSelectionInputRef pdef
 
     plugin->name(("wb.model." + aName).c_str());
 
@@ -162,7 +162,7 @@ static void def_figure_selection_plugin(grt::GRT                 *grt,
 
 ListRef<app_Plugin> WbModelImpl::getPluginInfo()
 {
-  ListRef<app_Plugin> list(get_grt());
+  ListRef<app_Plugin> list;
 
   def_export_view_plugin("center", "Center Diagram Contents", list);
   def_export_view_plugin("autolayout", "Autolayout Figures", list);
@@ -880,7 +880,7 @@ int WbModelImpl::createDiagramWithObjects(workbench_physical_ModelRef model, grt
     workbench_physical_DiagramRef view = create_view_for_object_count(model, (int)object_count);
 
     do_autoplace_any_list(view, objects);
-    ListRef<db_Table> tables(get_grt());
+    ListRef<db_Table> tables;
     for (size_t n= 0, count= objects.count(); n < count; ++n)
     {
       if (db_TableRef::can_wrap(objects[n]))
@@ -1084,7 +1084,7 @@ void WbModelImpl::handle_fklist_change(const model_DiagramRef &view, const db_Ta
         {
           = table.get_grt();
             
-          workbench_physical_ConnectionRef conn(grt);
+          workbench_physical_ConnectionRef conn;
           conn->owner(view); 
           conn->startFigure(table1);
           conn->endFigure(table2);

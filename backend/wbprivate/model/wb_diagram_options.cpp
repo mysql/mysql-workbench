@@ -271,7 +271,7 @@ void DiagramOptionsBE::set_name(const std::string &name)
 
 void DiagramOptionsBE::commit()
 {
-  grt::AutoUndo undo(_wbcontext->get_grt());
+  grt::AutoUndo undo;
   
   _target_view->name(_name);
   _target_view->width(_sizer->_width);

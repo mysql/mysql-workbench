@@ -255,7 +255,7 @@ void GRTManager::task_error_cb(const std::exception &error, const std::string &t
 
 
 void GRTManager::execute_grt_task(const std::string &title,
-                                  const boost::function<grt::ValueRef (grt::GRT*)> &function,
+                                  const boost::function<grt::ValueRef ()> &function,
                                   const boost::function<void (grt::ValueRef)> &finished_cb)
 {
   GRTTask::Ref task = GRTTask::create_task(title, _dispatcher, function);

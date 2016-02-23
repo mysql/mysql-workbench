@@ -168,7 +168,7 @@ grt::StringListRef PluginManagerImpl::get_disabled_plugin_names()
   base::pop_path_back(disabled_path);
   base::pop_path_back(disabled_path);
   disabled_path.append("/options/disabledPlugins");
-  return grt::StringListRef::cast_from(_grtm->get_grt()->get(disabled_path));
+  return grt::StringListRef::cast_from(grt::GRT::get().get(disabled_path));
 }
 
 /** 
@@ -375,7 +375,7 @@ void PluginManagerImpl::register_plugins(grt::ListRef<app_Plugin> plugins)
  */
 grt::ListRef<app_PluginGroup> PluginManagerImpl::get_plugin_groups()
 {
-  return grt::ListRef<app_PluginGroup>::cast_from(_grtm->get_grt()->get(_group_registry_path));
+  return grt::ListRef<app_PluginGroup>::cast_from(grt::GRT::get().get(_group_registry_path));
 }
 
 
@@ -395,7 +395,7 @@ grt::ListRef<app_PluginGroup> PluginManagerImpl::get_plugin_groups()
 grt::ListRef<app_Plugin> PluginManagerImpl::get_plugin_list(const std::string &group)
 {
   if (group.empty())
-    return grt::ListRef<app_Plugin>::cast_from(_grtm->get_grt()->get(_registry_path));
+    return grt::ListRef<app_Plugin>::cast_from(grt::GRT::get().get(_registry_path));
   else
   {
     grt::ListRef<app_Plugin> rlist, list;
@@ -414,7 +414,7 @@ grt::ListRef<app_Plugin> PluginManagerImpl::get_plugin_list(const std::string &g
       right= "*";
     }
     
-    list= grt::ListRef<app_Plugin>::cast_from(_grtm->get_grt()->get(_registry_path));
+    list= grt::ListRef<app_Plugin>::cast_from(grt::GRT::get().get(_registry_path));
 
     for (size_t c= list.count(), i= 0; i < c; i++)
     {
@@ -766,7 +766,7 @@ std::string PluginManagerImpl::open_gui_plugin(const app_PluginRef &plugin, cons
 
       dispatcher->call_from_main_thread(cb, false, false);
       
-      grt::Module *module= _grtm->get_grt()->get_module(_plugin_source_module[plugin->name()]);
+      grt::Module *module= grt::GRT::get().get_module(_plugin_source_module[plugin->name()]);
 
       // Build the handle name ourselves.
       return make_open_plugin_id(module, plugin->moduleFunctionName(), args);
@@ -793,7 +793,7 @@ std::string PluginManagerImpl::open_gui_plugin(const app_PluginRef &plugin, cons
     {
       // Request the plugin to be executed and opened by the frontend in the main thread.
       DispatcherCallback<grt::ValueRef>::Ref cb = DispatcherCallback<grt::ValueRef>::create_callback(
-        boost::bind(&PluginManagerImpl::open_normal_plugin_grt, this, _grtm->get_grt(), plugin, args)
+        boost::bind(&PluginManagerImpl::open_normal_plugin_grt, this, plugin, args)
       );
       
       dispatcher->call_from_main_thread(cb, false, false);
@@ -807,7 +807,7 @@ std::string PluginManagerImpl::open_gui_plugin(const app_PluginRef &plugin, cons
     if (_grtm->in_main_thread())
     {
       _grtm->get_dispatcher()->execute_sync_function("Open normal plugin",
-        boost::bind(&PluginManagerImpl::open_normal_plugin_grt, this, _1, plugin, args));
+        boost::bind(&PluginManagerImpl::open_normal_plugin_grt, this, plugin, args));
     }
     else
       open_normal_plugin_grt(plugin, args);
@@ -843,7 +843,7 @@ std::string PluginManagerImpl::open_plugin(const app_PluginRef &plugin, const gr
 
 grt::ValueRef PluginManagerImpl::execute_plugin_function(const app_PluginRef &plugin, const grt::BaseListRef &args)
 {
-  grt::Module *module= _grtm->get_grt()->get_module(plugin->moduleName());
+  grt::Module *module= grt::GRT::get().get_module(plugin->moduleName());
   
   if (!module)
     throw grt::grt_runtime_error("Cannot execute plugin "+*plugin->name(), "Called module "+*plugin->moduleName()+" not found");
@@ -854,7 +854,7 @@ grt::ValueRef PluginManagerImpl::execute_plugin_function(const app_PluginRef &pl
 grt::ValueRef PluginManagerImpl::open_normal_plugin_grt(const app_PluginRef &plugin,
                                                             const grt::BaseListRef &args)
 {
-  grt::Module *module= _grtm->get_grt()->get_module(plugin->moduleName());
+  grt::Module *module= grt::GRT::get().get_module(plugin->moduleName());
 
   if (!module)
     throw grt::grt_runtime_error("Cannot execute plugin "+*plugin->name(), "Called module "+*plugin->moduleName()+" not found");
@@ -865,7 +865,7 @@ grt::ValueRef PluginManagerImpl::open_normal_plugin_grt(const app_PluginRef &plu
 
 void PluginManagerImpl::open_standalone_plugin_main(const app_PluginRef &plugin, const grt::BaseListRef &args)
 {
-  grt::Module *module= _grtm->get_grt()->get_module(plugin->moduleName());
+  grt::Module *module= grt::GRT::get().get_module(plugin->moduleName());
   
   if (!module)
     throw grt::grt_runtime_error("Cannot execute plugin "+*plugin->name(), "Called module "+*plugin->moduleName()+" not found");
@@ -880,7 +880,7 @@ std::string PluginManagerImpl::open_gui_plugin_main(const app_PluginRef &plugin,
                                                     GUIPluginFlags flags)
 {
   NativeHandle handle;
-  grt::Module *module= _grtm->get_grt()->get_module(_plugin_source_module[plugin->name()]);
+  grt::Module *module= grt::GRT::get().get_module(_plugin_source_module[plugin->name()]);
   std::string open_plugin_id= make_open_plugin_id(module, plugin->moduleFunctionName(), args);
 
   if (_open_gui_plugins.find(open_plugin_id) != _open_gui_plugins.end())
@@ -890,7 +890,7 @@ std::string PluginManagerImpl::open_gui_plugin_main(const app_PluginRef &plugin,
   }
   else
   {
-    grt::Module *module= _grtm->get_grt()->get_module(_plugin_source_module[plugin->name()]);
+    grt::Module *module= grt::GRT::get().get_module(_plugin_source_module[plugin->name()]);
 
     // open the editor and get a handle for the GUI object to pass to the frontend
     NativeHandle handle= _open_gui_plugin_slot(_grtm,
@@ -1158,7 +1158,6 @@ void ArgumentPool::add_entries_for_object(const std::string &name,
 {
   if (object.is_valid())
   {
-    = object.get_grt();
     std::string prefix= "app.PluginObjectInput:"+name+":";
     std::string class_name= object.class_name();
     bool done= false;
@@ -1217,8 +1216,7 @@ void ArgumentPool::add_file_input(const app_PluginFileInputRef &pdef,
 grt::BaseListRef ArgumentPool::build_argument_list(const app_PluginRef &plugin)
 {
   // build the argument list
-  grt::BaseListRef fargs(plugin->get_grt());
-  
+  grt::BaseListRef fargs; 
   const size_t c= plugin->inputValues().count();
   for (size_t i= 0; i < c; i++)
   {

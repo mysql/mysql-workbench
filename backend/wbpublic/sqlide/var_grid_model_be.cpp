@@ -75,7 +75,7 @@ _edited_field_col(-1)
 {
 
   {
-    grt::DictRef options= DictRef::cast_from(_grtm->get_grt()->get("/wb/options/options"));
+    grt::DictRef options= DictRef::cast_from(grt::GRT::get().get("/wb/options/options"));
     _optimized_blob_fetching= (options.get_int("Recordset:OptimizeBlobFetching", 0) != 0);
   }
 }
@@ -130,7 +130,7 @@ void VarGridModel::reset()
 
 int VarGridModel::floating_point_visible_scale()
 {
-  grt::DictRef options= grt::DictRef::cast_from(_grtm->get_grt()->get("/wb/options/options"));
+  grt::DictRef options= grt::DictRef::cast_from(grt::GRT::get().get("/wb/options/options"));
   return (int)options.get_int("Recordset:FloatingPointVisibleScale");
 }
 
@@ -693,7 +693,7 @@ bool VarGridModel::is_field_value_truncation_enabled(bool val)
   _is_field_value_truncation_enabled= val;
   if (_is_field_value_truncation_enabled)
   {
-    grt::DictRef options= grt::DictRef::cast_from(_grtm->get_grt()->get("/wb/options/options"));
+    grt::DictRef options= grt::DictRef::cast_from(grt::GRT::get().get("/wb/options/options"));
     ssize_t field_value_truncation_threshold = options.get_int("Recordset:FieldValueTruncationThreshold", 256);
     if (field_value_truncation_threshold < 0)
       _var_to_str_repr.is_truncation_enabled= _is_field_value_truncation_enabled= false;

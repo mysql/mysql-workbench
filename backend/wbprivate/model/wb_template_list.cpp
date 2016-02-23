@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -102,7 +102,7 @@ void TableTemplateList::menu_will_show()
 
 
 TableTemplateList::TableTemplateList(TableTemplatePanel *owner)
-: BaseSnippetList("snippet_mwb.png", this), _grt(grt), _owner(owner)
+: BaseSnippetList("snippet_mwb.png", this), _owner(owner)
 {
   prepare_context_menu();
   refresh_snippets();
@@ -137,7 +137,7 @@ bool TableTemplateList::mouse_double_click(mforms::MouseButton button, int x, in
 //------------------------------------------------------------------------------------------------
 
 TableTemplatePanel::TableTemplatePanel(wb::WBContextModel *cmodel)
-: mforms::Box(false), _grt(grt), _templates(this), _context(cmodel)
+: mforms::Box(false), _templates(this), _context(cmodel)
 {
 #ifdef _WIN32
   set_padding(3, 3, 3, 3);
@@ -184,7 +184,7 @@ void TableTemplatePanel::on_action(const std::string &action)
 {
   if (action == "edit_templates")
   {
-    grt::BaseListRef args(_grt);
+    grt::BaseListRef args;
     args.ginsert(grt::StringRef(_templates.get_selected_template()));
     grt::GRT::get().call_module_function("WbTableUtils", "openTableTemplateEditorFor", args);
     _templates.refresh_snippets();
@@ -193,7 +193,7 @@ void TableTemplatePanel::on_action(const std::string &action)
   {
     if (!_templates.get_selected_template().empty())
     {
-      grt::BaseListRef args(_grt);
+      grt::BaseListRef args;
       args.ginsert(workbench_physical_ModelRef::cast_from(_context->get_active_model(true))->catalog()->schemata()[0]);
       args.ginsert(grt::StringRef(_templates.get_selected_template()));
       db_TableRef table(db_TableRef::cast_from(grt::GRT::get().call_module_function("WbTableUtils", "createTableFromTemplate", args)));

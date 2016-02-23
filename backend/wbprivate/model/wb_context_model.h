@@ -201,5 +201,3 @@ namespace wb
     std::map<std::string, ModelDiagramForm*> _model_forms;
   };
 };
-
-#endif

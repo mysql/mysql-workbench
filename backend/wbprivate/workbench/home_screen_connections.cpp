@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -2966,10 +2966,8 @@ mforms::DragOperation ConnectionsSection::files_dropped(View *sender, base::Poin
   db_mgmt_ConnectionRef connection = entry->connection;
   if (connection.is_valid())
   {
-     = connection->get_grt();
-
     // Allow only sql script files to be dropped.
-    grt::StringListRef valid_names(grt);
+    grt::StringListRef valid_names;
     for (size_t i = 0; i < file_names.size(); ++i)
       if (base::tolower(base::extension(file_names[i])) == ".sql")
         valid_names.insert(file_names[i]);
@@ -2977,7 +2975,7 @@ mforms::DragOperation ConnectionsSection::files_dropped(View *sender, base::Poin
     if (valid_names.count() == 0)
     return mforms::DragOperationNone;
 
-    grt::DictRef details(grt);
+    grt::DictRef details;
     details.set("connection", connection);
     details.set("files", valid_names);
     _owner->trigger_callback(ActionFilesWithConnection, details);
@@ -3022,7 +3020,7 @@ mforms::DragOperation ConnectionsSection::data_dropped(mforms::View *sender, bas
     bool is_back_tile = entry->title == "< back";
 
     // Drop target is a group.
-    grt::DictRef details(_owner->rdbms().get_grt());
+    grt::DictRef details;
     if (connection.is_valid() && connection->driver()->name()!="MySQLFabric")
       details.set("object", connection);
     else

@@ -600,7 +600,7 @@ void Recordset::apply_changes_(Recordset_data_storage::Ptr data_storage_ptr)
   // TODO: not sure we need this function anymore. The SQL IDE form always redirects apply_changes now.
   task->finish_cb(boost::bind(&Recordset::on_apply_changes_finished, this));
   task->exec(true,
-    boost::bind(&Recordset::do_apply_changes, this, _1, weak_ptr_from(this), data_storage_ptr, false));
+    boost::bind(&Recordset::do_apply_changes, this, weak_ptr_from(this), data_storage_ptr, false));
 }
 
 

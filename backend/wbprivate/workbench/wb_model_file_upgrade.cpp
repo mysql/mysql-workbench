@@ -527,7 +527,7 @@ workbench_DocumentRef ModelFile::attempt_document_upgrade(const workbench_Docume
   {
     if (doc->physicalModels()[0]->tagCategories().count() == 0)
     {
-      GrtObjectRef cat(doc->get_grt());
+      GrtObjectRef cat;
       
       cat->owner(doc->physicalModels()[0]);
       cat->name("Business Rule");
@@ -597,7 +597,7 @@ workbench_DocumentRef ModelFile::attempt_document_upgrade(const workbench_Docume
           else
           {
             // create the index here
-            db_IndexRef new_index = bec::TableHelper::create_index_for_fk(doc.get_grt(), fk);
+            db_IndexRef new_index = bec::TableHelper::create_index_for_fk(fk);
             fk->index(new_index);
             table->indices().insert(new_index);
 
@@ -610,7 +610,7 @@ workbench_DocumentRef ModelFile::attempt_document_upgrade(const workbench_Docume
   }
 
 
-  bec::GRTManager *grtm= bec::GRTManager::get_instance_for(doc.get_grt());
+  bec::GRTManager *grtm= bec::GRTManager::get_instance_for();
   if (major <= 1 && (minor < 4 || (minor == 4 && revision < 3)))
   {
       bool ask_confirmation = true;
@@ -704,7 +704,7 @@ workbench_DocumentRef ModelFile::attempt_document_upgrade(const workbench_Docume
   {
       if (!doc->physicalModels()[0]->catalog()->version().is_valid())
       {
-          GrtVersionRef version(doc->get_grt());
+          GrtVersionRef version;
           version->name("Version");
           version->majorNumber(5);
           version->minorNumber(5);

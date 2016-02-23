@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -213,7 +213,7 @@ public:
   
   virtual void delete_object(WBContext *wb)
   {
-    grt::AutoUndo undo(wb->get_grt());
+    grt::AutoUndo undo;
     // removal from the list will trigger deletion of the file automatically
 
     grt::ListRef<GrtObject>::cast_from(object->owner().get_member(member)).remove_value(object);
@@ -255,7 +255,7 @@ public:
       }
     }
 
-    grt::AutoUndo undo(wb->get_grt());
+    grt::AutoUndo undo;
     object->name(name);
     undo.end(strfmt(_("Rename '%s' to '%s'"), 
       object->name().c_str(), name.c_str()));
@@ -854,22 +854,22 @@ std::string PhysicalOverviewBE::get_file_for_node(const bec::NodeId &node)
 
 bool PhysicalOverviewBE::can_undo()
 {
-  return _wb->get_grt()->get_undo_manager()->can_undo();
+  return grt::GRT::get().get_undo_manager()->can_undo();
 }
 
 bool PhysicalOverviewBE::can_redo()
 {
-  return _wb->get_grt()->get_undo_manager()->can_redo();
+  return grt::GRT::get().get_undo_manager()->can_redo();
 }
 
 
 void PhysicalOverviewBE::undo()
 {
-  _wb->get_grt()->get_undo_manager()->undo();
+  grt::GRT::get().get_undo_manager()->undo();
 }
 
 void PhysicalOverviewBE::redo()
 {
-  _wb->get_grt()->get_undo_manager()->redo();
+  grt::GRT::get().get_undo_manager()->redo();
 }
 

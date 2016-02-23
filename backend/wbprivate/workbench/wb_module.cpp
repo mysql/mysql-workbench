@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -101,7 +101,7 @@ std::string WorkbenchImpl::getSystemInfo(bool indent)
   #endif
 
 
-  app_InfoRef info(app_InfoRef::cast_from(_wb->get_grt()->get("/wb/info")));
+  app_InfoRef info(app_InfoRef::cast_from(grt::GRT::get().get("/wb/info")));
 
   const char* tab = indent ? "\t" : "";
   std::string result = strfmt("%s%s %s (%s) for " PLATFORM_NAME " version %i.%i.%i %s build %i (%s)\n",
@@ -280,7 +280,7 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
 
 #define def_plugin(group, aName, type, aCaption, descr)\
 {\
-  app_PluginRef plugin(get_grt());\
+  app_PluginRef plugin;\
   plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
@@ -293,7 +293,7 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
 
 #define def_object_plugin(group, klass, aName, aCaption, descr)\
 {\
-  app_PluginRef plugin(get_grt());\
+  app_PluginRef plugin;\
   plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
@@ -301,7 +301,7 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
   plugin->moduleFunctionName(aName);\
   plugin->pluginType(NORMAL_PLUGIN_TYPE);\
   plugin->groups().insert("Application/Workbench");\
-  app_PluginObjectInputRef input(get_grt());\
+  app_PluginObjectInputRef input;\
   input->owner(plugin);\
   input->objectStructName(klass::static_class_name());\
   plugin->inputValues().insert(input);\
@@ -311,7 +311,7 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
 
 #define def_view_plugin(group, aName, aCaption, descr)\
 {\
-  app_PluginRef plugin(get_grt());\
+  app_PluginRef plugin;\
   plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
@@ -319,7 +319,7 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
   plugin->moduleFunctionName(aName);\
   plugin->pluginType(NORMAL_PLUGIN_TYPE);\
   plugin->groups().insert("Application/Workbench");\
-  app_PluginObjectInputRef input(get_grt());\
+  app_PluginObjectInputRef input;\
   input->owner(plugin);\
   input->name("activeDiagram");\
   input->objectStructName(model_Diagram::static_class_name());\
@@ -329,7 +329,7 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
 
 #define def_model_plugin(group, aName, aCaption, descr)\
 {\
-  app_PluginRef plugin(get_grt());\
+  app_PluginRef plugin;\
   plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
@@ -337,7 +337,7 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
   plugin->moduleFunctionName(aName);\
   plugin->pluginType(NORMAL_PLUGIN_TYPE);\
   plugin->groups().insert("Application/Workbench");\
-  app_PluginObjectInputRef input(get_grt());\
+  app_PluginObjectInputRef input;\
   input->owner(plugin);\
   input->name("activeModel");\
   input->objectStructName(model_Model::static_class_name());\
@@ -347,7 +347,7 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
 
 #define def_form_model_plugin(group, aName, aCaption, descr)\
 {\
-  app_PluginRef plugin(get_grt());\
+  app_PluginRef plugin;\
   plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
@@ -355,7 +355,7 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
   plugin->moduleFunctionName(aName);\
   plugin->pluginType(STANDALONE_GUI_PLUGIN_TYPE);\
   plugin->groups().insert("Application/Workbench");\
-  app_PluginObjectInputRef input(get_grt());\
+  app_PluginObjectInputRef input;\
   input->owner(plugin);\
   input->name("activeModel");\
   input->objectStructName(model_Model::static_class_name());\
@@ -365,7 +365,7 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
 
 #define def_form_plugin(group, aName, aCaption, descr)\
 {\
-  app_PluginRef plugin(get_grt());\
+  app_PluginRef plugin;\
   plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
@@ -379,8 +379,8 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
 
 #define def_arg_plugin(group, aName, type, aCaption, descr)\
 {\
-  app_PluginRef plugin(get_grt());\
-  app_PluginInputDefinitionRef pdef(get_grt());\
+  app_PluginRef plugin;\
+  app_PluginInputDefinitionRef pdef;\
   plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
@@ -396,18 +396,18 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
 
 #define def_model_arg_plugin(group, aName, type, aCaption, descr)\
 {\
-  app_PluginRef plugin(get_grt());\
+  app_PluginRef plugin;\
   plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
   plugin->moduleName("Workbench");\
   plugin->moduleFunctionName(aName);\
   plugin->pluginType(type);\
-  app_PluginInputDefinitionRef pdef(get_grt());\
+  app_PluginInputDefinitionRef pdef;\
   pdef->owner(plugin);\
   pdef->name("string");\
   plugin->inputValues().insert(pdef);\
-  app_PluginObjectInputRef model(get_grt());\
+  app_PluginObjectInputRef model;\
   model->owner(plugin);\
   model->name("activeModel");\
   model->objectStructName(model_Model::static_class_name());\
@@ -418,8 +418,8 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
 
 #define def_file_plugin(group, aName, ptype, aCaption, descr, aDialogCaption, aType, aExtensions)\
 {\
-  app_PluginRef plugin(get_grt());\
-  app_PluginFileInputRef pdef(get_grt());\
+  app_PluginRef plugin;\
+  app_PluginFileInputRef pdef;\
   plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
@@ -438,7 +438,7 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
 
 ListRef<app_Plugin> WorkbenchImpl::getPluginInfo()
 {
-  ListRef<app_Plugin> list(get_grt());
+  ListRef<app_Plugin> list;
 
   def_plugin      ("file", "newDocument", INTERNAL_PLUGIN_TYPE, "New Model", "New Document");
   def_plugin      ("file", "newDocumentFromDB", INTERNAL_PLUGIN_TYPE, "Reverse Engineer Database", "Reverse Engineer");
@@ -540,12 +540,12 @@ int WorkbenchImpl::newDocumentFromDB()
   if (!_wb->get_document().is_valid())
     _wb->new_document();
 
-  grt::Module *module = _wb->get_grt()->get_module("MySQLDbModule");
+  grt::Module *module = grt::GRT::get().get_module("MySQLDbModule");
 
   if (module == NULL)
     throw std::logic_error("Internal error: can't find Workbench DB module.");
 
-  grt::BaseListRef args(get_grt());
+  grt::BaseListRef args;
   args.ginsert(_wb->get_document()->physicalModels()[0]->catalog());
   grt::IntegerRef resultRef = grt::IntegerRef::cast_from(module->call_function("runDbImportWizard", args));
 
@@ -990,7 +990,7 @@ int WorkbenchImpl::setMarker(const std::string &marker)
 
   if (form)
   {
-    model_MarkerRef mk(get_grt());
+    model_MarkerRef mk;
 
     model_ModelRef model(form->get_model_diagram()->owner());
 
@@ -1149,25 +1149,25 @@ int WorkbenchImpl::addUndoObjectChange(const ObjectRef &object, const std::strin
 
 int WorkbenchImpl::addUndoDictSet(const DictRef &dict, const std::string &key)
 {
-  _wb->get_grt()->get_undo_manager()->add_undo(new grt::UndoDictSetAction(dict, key));
+  grt::GRT::get().get_undo_manager()->add_undo(new grt::UndoDictSetAction(dict, key));
   return 0;
 }
 
 int WorkbenchImpl::beginUndoGroup()
 {
-  _wb->get_grt()->get_undo_manager()->begin_undo_group();
+  grt::GRT::get().get_undo_manager()->begin_undo_group();
   return 0;
 }
 
 int WorkbenchImpl::endUndoGroup()
 {
-  _wb->get_grt()->get_undo_manager()->end_undo_group();
+  grt::GRT::get().get_undo_manager()->end_undo_group();
   return 0;
 }
 
 int WorkbenchImpl::setUndoDescription(const std::string &text)
 {
-  _wb->get_grt()->get_undo_manager()->set_action_description(text);
+  grt::GRT::get().get_undo_manager()->set_action_description(text);
   return 0;
 }
 
@@ -1314,7 +1314,7 @@ static int traverse_value(const ObjectRef &owner, const std::string &member, con
       ObjectRef object(ObjectRef::cast_from(value));
       MetaClass *gstruct= object->get_metaclass();
 
-      gstruct->foreach_member(boost::bind(traverse_member, _1, owner, object, grt));
+      gstruct->foreach_member(boost::bind(traverse_member, _1, owner, object));
     }
     break;
 
@@ -1327,7 +1327,7 @@ static int traverse_value(const ObjectRef &owner, const std::string &member, con
 
 int WorkbenchImpl::debugValidateGRT()
 {
-  ValueRef root(get_grt()->root());
+  ValueRef root(grt::GRT::get().root());
   ObjectRef owner;
 
  grt::GRT::get().send_output("Validating GRT Tree...\n");
@@ -1355,7 +1355,6 @@ int WorkbenchImpl::debugGrtStats()
 
 int WorkbenchImpl::debugShowInfo()
 {
-  = get_grt();
   grt::GRT::get().make_output_visible();
   grt::GRT::get().send_output(getSystemInfo(false));
   grt::GRT::get().send_output("\n");
@@ -1650,7 +1649,7 @@ grt::DictListRef WorkbenchImpl::wmiQuery(int session, const std::string& query)
 
   wmi::WmiServices* services = _wmi_sessions[session];
 
-  return services->query(_wb->get_grt(), query);
+  return services->query(query);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1805,7 +1804,7 @@ db_mgmt_ConnectionRef WorkbenchImpl::create_connection(const std::string& host, 
   db_mgmt_RdbmsRef rdbms = find_object_in_list(_wb->get_root()->rdbmsMgmt()->rdbms(), DEFAULT_RDBMS_ID);
   grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
 
-  db_mgmt_ConnectionRef connection = db_mgmt_ConnectionRef(_wb->get_grt());
+  db_mgmt_ConnectionRef connection = db_mgmt_ConnectionRef();
   db_mgmt_DriverRef driver;
   if (can_use_networking)
     driver = rdbms->defaultDriver();
@@ -1870,7 +1869,7 @@ grt::DictListRef WorkbenchImpl::getLocalServerList()
   
   
 #else
-    entries = grt::DictListRef(_wb->get_grt());
+    entries = grt::DictListRef;
   
     char *stdo = NULL;
     char *ster = NULL;
@@ -1890,7 +1889,7 @@ grt::DictListRef WorkbenchImpl::getLocalServerList()
 
       for(index = servers.begin(); index !=end; index++)
       {
-        DictRef server(_wb->get_grt());
+        DictRef server;
         std::string command = *index;
         if (command.length())
         {
@@ -2021,7 +2020,7 @@ int WorkbenchImpl::createInstancesFromLocalServers()
         can_use_socket_or_pipe = true;
       
       // Creates the server instance
-      db_mgmt_ServerInstanceRef instance(_wb->get_grt());
+      db_mgmt_ServerInstanceRef instance;
       
 
       // If the configuration file is part of the command call
@@ -2281,11 +2280,11 @@ int WorkbenchImpl::initializeOtherRDBMS()
 
   // Init MySQL first.
   grt::Module* mysql_module = grt::GRT::get().get_module("DbMySQL");//already loaded on startup
-  grt::BaseListRef args(get_grt());
+  grt::BaseListRef args;
 
   // init other RDBMS
   bool failed = false;
-  const std::vector<grt::Module*> &modules(get_grt()->get_modules());
+  const std::vector<grt::Module*> &modules(grt::GRT::get().get_modules());
   for (std::vector<grt::Module*>::const_iterator m = modules.begin(); m != modules.end(); ++m)
   {
     if ((*m)->has_function("initializeDBMSInfo") && *m != mysql_module)

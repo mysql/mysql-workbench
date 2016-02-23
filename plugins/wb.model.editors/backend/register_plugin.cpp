@@ -55,7 +55,7 @@ public:
 
   virtual grt::ListRef<app_Plugin> getPluginInfo()
   {
-    return get_mysql_plugins_info(get_grt());
+    return get_mysql_plugins_info;
   }
 };
 
@@ -75,13 +75,13 @@ static void set_object_argument(app_PluginRef &plugin, const std::string &struct
 
 static grt::ListRef<app_Plugin> get_mysql_plugins_info()
 {
-  grt::ListRef<app_Plugin> editors(grt);
+  grt::ListRef<app_Plugin> editors;
 
-  app_PluginRef note_editor(grt);
-  app_PluginRef image_editor(grt);
-  app_PluginRef stored_note_editor(grt);
-  app_PluginRef stored_sql_editor(grt);
-  app_PluginRef layer_editor(grt);
+  app_PluginRef note_editor;
+  app_PluginRef image_editor;
+  app_PluginRef stored_note_editor;
+  app_PluginRef stored_sql_editor;
+  app_PluginRef layer_editor;
   
   FRONTEND_LIBNAME(note_editor,
                    ".\\wb.model.editors.wbp.fe.dll",

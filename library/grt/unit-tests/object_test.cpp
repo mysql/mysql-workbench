@@ -65,7 +65,7 @@ TEST_FUNCTION(1)
 
 TEST_FUNCTION(5)
 {
-  test_BookRef book(grt);
+  test_BookRef book;
 
   ensure("has_member", book.has_member("title"));
   ensure("has_member bad", !book.has_member("Title"));
@@ -79,7 +79,7 @@ TEST_FUNCTION(5)
   ensure_equals("get_dbl_member", book.get_double_member("price"), DoubleRef(123.45));
 
   
-  test_AuthorRef author(grt);
+  test_AuthorRef author;
   author.set_member("name", StringRef("Some One"));
   
   ensure_equals("constructor", author.get_string_member("name"), "Some One");
@@ -101,7 +101,7 @@ TEST_FUNCTION(5)
 
 TEST_FUNCTION(6)
 {
-  test_BookRef obj(grt);
+  test_BookRef obj;
   bool flag= false;
   try {
     obj.set_member("invalid", StringRef("XXX"));
@@ -143,7 +143,7 @@ TEST_FUNCTION(6)
 
 TEST_FUNCTION(10)
 {
-  test_BookRef book(grt);
+  test_BookRef book;
   
   book->title("Harry Potter");
   book->title(*book->title() + " XXV");
@@ -152,7 +152,7 @@ TEST_FUNCTION(10)
 
   ensure("title", *book->title() == "Harry Potter XXV");
 
-  test_AuthorRef author(grt);
+  test_AuthorRef author;
   
   book->authors().insert(author);
   ensure("author add", book->authors().count()==1);
@@ -178,7 +178,7 @@ static bool count_member(const grt::MetaClass::Member *member, int *count)
 TEST_FUNCTION(11)
 {
   // Check if inherited values are properly initialized.
-  test_BookRef book(grt);
+  test_BookRef book;
 
   int count= 0;
   book->get_metaclass()->foreach_member(boost::bind(&count_member, _1, &count));
@@ -202,7 +202,7 @@ protected:
     x= grt::IntegerRef(0);
     y= grt::IntegerRef(0);
     myname= grt::StringRef("hello");
-    books.init(get_grt());
+    books.init;
   }
   virtual void destroy()
   {
@@ -256,7 +256,7 @@ TEST_FUNCTION(20)
 {
   bool ret;
   
-  ret= ObjectBridgeBase::register_bridge<TestBridge>(grt);
+  ret= ObjectBridgeBase::register_bridge<TestBridge>;
   ensure_equals("bridge registration", ret, true);
 }
 
@@ -266,8 +266,8 @@ TEST_FUNCTION(21)
   bool bridge_destroyed= false;
   
   {
-    test_Bridged bridged(grt);
-    test_Book book(grt);
+    test_Bridged bridged;
+    test_Book book;
     
     ensure_equals("bridge name", bridged.get_metaclass().get_metaclass()->bridge, "tut::TestBridge");
     

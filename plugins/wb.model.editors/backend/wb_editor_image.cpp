@@ -131,7 +131,7 @@ std::string ImageEditorBE::get_attached_image_path()
   if (!module)
     throw std::runtime_error("Workbench module not found");
 
-  grt::BaseListRef args(get_grt());
+  grt::BaseListRef args;
 
   args.ginsert(_image->filename());
 

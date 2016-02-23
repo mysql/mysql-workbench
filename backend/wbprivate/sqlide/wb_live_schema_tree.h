@@ -332,7 +332,6 @@ namespace wb
   protected:
     boost::weak_ptr<FetchDelegate> _fetch_delegate;
     boost::weak_ptr<Delegate> _delegate;
-    grt::GRT* _grt;
     std::string _active_schema;
     mforms::TreeView* _model_view;
 
@@ -361,7 +360,7 @@ namespace wb
       GPatternSpec* pattern = NULL);
     bool is_object_type(ObjectTypeValidation validation, ObjectType type);
   public:
-    LiveSchemaTree(grt::GRT* grtm);
+    LiveSchemaTree();
     virtual ~LiveSchemaTree();
 
     void set_model_view(mforms::TreeView* target);

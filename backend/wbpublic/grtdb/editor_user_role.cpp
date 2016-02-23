@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -119,7 +119,7 @@ bool RolePrivilegeListBE::set_field(const NodeId &node, ColumnId column, ssize_t
     {
       if (value)
       {
-        //grt::AutoUndo undo(_owner->get_grt());
+        //grt::AutoUndo undo;
         AutoUndoEdit undo(_owner);
 
         _role_privilege->privileges().insert(_privileges.get(node[0]));
@@ -131,7 +131,7 @@ bool RolePrivilegeListBE::set_field(const NodeId &node, ColumnId column, ssize_t
     {
       if (!value)
       {
-        //grt::AutoUndo undo(_owner->get_grt());
+        //grt::AutoUndo undo;
         AutoUndoEdit undo(_owner);
 
         _role_privilege->privileges().remove(index);
@@ -168,7 +168,7 @@ void RolePrivilegeListBE::remove_all()
 {
   if (_role_privilege.is_valid())
   {
-    //grt::AutoUndo undo(_owner->get_grt());
+    //grt::AutoUndo undo;
     AutoUndoEdit undo(_owner);
     _role_privilege->privileges().remove_all();
     undo.end(strfmt(_("Remove Privileges for '%s' from Role '%s'"), 

@@ -331,7 +331,7 @@ void WBContextUI::show_home_screen()
       std::list<std::string> groups;
       bec::ArgumentPool argument_pool;
       _wb->update_plugin_arguments_pool(argument_pool);
-      argument_pool.add_entries_for_object("selectedConnection", db_mgmt_ConnectionRef(_wb->get_grt()), "db.mgmt.Connection");
+      argument_pool.add_entries_for_object("selectedConnection", db_mgmt_ConnectionRef(), "db.mgmt.Connection");
       groups.push_back("Menu/Home/Connections");
       bec::MenuItemList pitems = _wb->get_grt_manager()->get_plugin_context_menu_items(groups, argument_pool);
       if (!pitems.empty())
@@ -487,8 +487,7 @@ void WBContextUI::home_action_callback(HomeScreenAction action, const grt::Value
  */
 void WBContextUI::remove_connection(const db_mgmt_ConnectionRef &connection)
 {
-   = connection->get_grt();
-  grt::BaseListRef args(grt);
+  grt::BaseListRef args;
   args->insert_unchecked(connection);
 
   grt::ValueRef result = grt::GRT::get().call_module_function("Workbench", "deleteConnection", args);
@@ -602,8 +601,7 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
     
     if (answer == mforms::ResultOk)
     {
-       = _wb->get_grt();
-      grt::BaseListRef args(grt);
+      grt::BaseListRef args;
       args->insert_unchecked(object);
 
       grt::ValueRef result = grt::GRT::get().call_module_function("Workbench", "deleteConnectionGroup", args);
@@ -885,8 +883,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
                                                                      "\nPlease stand by..."));
       _wb->show_status_text(_("Connecting to MySQL Fabric Management Node..."));
       db_mgmt_ConnectionRef connection(db_mgmt_ConnectionRef::cast_from(object));
-       = connection->get_grt();
-      grt::BaseListRef args(grt);
+      grt::BaseListRef args;
       args->insert_unchecked(connection);
       
       std::string error;
@@ -1031,12 +1028,11 @@ void WBContextUI::refresh_home_connections(bool clear_state)
   // local servers (only if this is the first run, after application start).
   if (_initializing_home_screen && (connections->count() == 0))
   {
-    grt::GRT* grt = _wb->get_grt();
     grt::Module* module = grt::GRT::get().get_module("Workbench");
     if (module == NULL)
       throw std::logic_error("Internal error: can't find Workbench module.");
     
-    grt::StringListRef arguments(grt);
+    grt::StringListRef arguments;
     module->call_function("createInstancesFromLocalServers", arguments);
   }
 
