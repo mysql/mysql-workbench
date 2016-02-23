@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -50,7 +50,7 @@ public:
 
   virtual grt::ListRef<app_Plugin> getPluginInfo()
   {
-    return get_mysql_plugins_info(get_grt());
+    return get_mysql_plugins_info;
   }
 };
 
@@ -70,16 +70,16 @@ static void set_object_argument(app_PluginRef &plugin, const std::string &struct
 
 static grt::ListRef<app_Plugin> get_mysql_plugins_info()
 {
-  grt::ListRef<app_Plugin> editors(grt);
+  grt::ListRef<app_Plugin> editors;
 
-  app_PluginRef schema_editor(grt);
-  app_PluginRef table_editor(grt);
-  app_PluginRef view_editor(grt);
-  app_PluginRef routine_group_editor(grt);
-  app_PluginRef routine_editor(grt);
-  app_PluginRef user_editor(grt);
-  app_PluginRef role_editor(grt);
-  app_PluginRef relationship_editor(grt);
+  app_PluginRef schema_editor;
+  app_PluginRef table_editor;
+  app_PluginRef view_editor;
+  app_PluginRef routine_group_editor;
+  app_PluginRef routine_editor;
+  app_PluginRef user_editor;
+  app_PluginRef role_editor;
+  app_PluginRef relationship_editor;
   
   FRONTEND_LIBNAME(schema_editor,
                    ".\\db.mysql.editors.wbp.fe.dll",

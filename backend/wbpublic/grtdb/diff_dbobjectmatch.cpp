@@ -237,7 +237,7 @@ bool grt::DbObjectMatchAlterOmf::equal(const ValueRef& l, const ValueRef& r) con
 
 //--------------------------------------------------------------------------------------------------
 
-bool sqlCompare(const ValueRef obj1, const ValueRef obj2, const std::string& name, grt::GRT* grt)
+bool sqlCompare(const ValueRef obj1, const ValueRef obj2, const std::string& name)
 {
   // views are compared by sqlDefinition
   if (!db_ViewRef::can_wrap(obj1))
@@ -401,7 +401,7 @@ bool charset_collation_compare(const ValueRef obj1, const ValueRef obj2, const s
 }
 
 
-bool fk_compare(const ValueRef obj1, const ValueRef obj2, const std::string& name, grt::GRT* grt)
+bool fk_compare(const ValueRef obj1, const ValueRef obj2, const std::string& name)
 {
     // Here we do not compare the ability for engines to support foreign keys but
     // check if at both engines does not. This can be used to optimize further FK handling
@@ -421,7 +421,7 @@ bool fk_compare(const ValueRef obj1, const ValueRef obj2, const std::string& nam
     return false;
 }
 
-bool formatted_type_compare(const ValueRef obj1, const ValueRef obj2, const std::string& name, grt::GRT* grt)
+bool formatted_type_compare(const ValueRef obj1, const ValueRef obj2, const std::string& name)
 {
     std::string sql1= ObjectRef::cast_from(obj1).get_string_member(name);
     std::string sql2= ObjectRef::cast_from(obj2).get_string_member(name);
@@ -437,7 +437,7 @@ bool formatted_type_compare(const ValueRef obj1, const ValueRef obj2, const std:
     return sql1 == sql2;
 }
 
-bool sql_definition_compare(const ValueRef obj1, const ValueRef obj2, const std::string& name, grt::GRT* grt)
+bool sql_definition_compare(const ValueRef obj1, const ValueRef obj2, const std::string& name)
 {
   if (db_ViewRef::can_wrap(obj1))
   {
@@ -469,7 +469,7 @@ bool sql_definition_compare(const ValueRef obj1, const ValueRef obj2, const std:
     db_DatabaseDdlObjectRef dbobj2 = db_DatabaseDdlObjectRef::cast_from(obj2);
     size_t alg1 = dbobj1.has_member("algorithm") ? dbobj1.get_integer_member("algorithm"):0;
     size_t alg2 = dbobj2.has_member("algorithm") ? dbobj2.get_integer_member("algorithm") : 0;
-    return sqlCompare(obj1, obj2, "sqlDefinition", grt)
+    return sqlCompare(obj1, obj2, "sqlDefinition")
       && (alg1 == alg2)
       && (caseless_compare(obj1 , obj2, "definer","ROOT`@`LOCALHOST"));
   }
@@ -560,7 +560,7 @@ bool ref_table_compare(const ValueRef obj1, const ValueRef obj2, const std::stri
     return str1 == str2;
 }
 
-grt::NormalizedComparer::NormalizedComparer(grt::GRT* grt, const grt::DictRef options):_grt(grt)
+grt::NormalizedComparer::NormalizedComparer(const grt::DictRef options)
 {
   if (options.is_valid())
   {
@@ -848,10 +848,10 @@ void grt::NormalizedComparer::load_rules()
   rules["defaultCollationName"].push_back(boost::bind(&charset_collation_compare, _1 ,_2, _3));
   rules["characterSetName"].push_back(boost::bind(&charset_collation_compare, _1 ,_2, _3));
   rules["defaultCharacterSetName"].push_back(boost::bind(&charset_collation_compare, _1 ,_2, _3));
-  rules["foreignKeys"].push_back(boost::bind(&fk_compare, _1 ,_2, _3, _4));
-  rules["formattedRawType"].push_back(boost::bind(&formatted_type_compare, _1 ,_2, _3, _4));
-  rules["formattedType"].push_back(boost::bind(&formatted_type_compare, _1 ,_2, _3, _4));
-  rules["sqlDefinition"].push_back(boost::bind(&sql_definition_compare, _1 ,_2, _3, _4));
+  rules["foreignKeys"].push_back(boost::bind(&fk_compare, _1 ,_2, _3));
+  rules["formattedRawType"].push_back(boost::bind(&formatted_type_compare, _1 ,_2, _3));
+  rules["formattedType"].push_back(boost::bind(&formatted_type_compare, _1 ,_2, _3));
+  rules["sqlDefinition"].push_back(boost::bind(&sql_definition_compare, _1 ,_2, _3));
   rules["precision"].push_back(boost::bind(&default_int_compare, _1 ,_2, _3));
   rules["length"].push_back(boost::bind(&default_int_compare, _1 ,_2, _3));
   rules["definer"].push_back(boost::bind(&caseless_compare, _1 ,_2, _3,"ROOT`@`LOCALHOST"));
@@ -867,7 +867,7 @@ bool grt::NormalizedComparer::normalizedComparison(const ValueRef obj1, const Va
 {
     std::list<comparison_rule>& rul_list = rules[name];
     for(std::list<comparison_rule>::iterator It = rul_list.begin(); It != rul_list.end(); ++It)
-        if ((*It)(obj1,obj2,name,_grt))
+        if ((*It)(obj1,obj2,name))
             return true;
     return false; 
 };

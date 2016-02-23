@@ -214,7 +214,7 @@ namespace wb {
 
       virtual workbench_OverviewPanelRef get_state()
       {
-        workbench_OverviewPanelRef panel= workbench_OverviewPanelRef(grt);
+        workbench_OverviewPanelRef panel= workbench_OverviewPanelRef();
 
         panel->expandedHeight(0);
         panel->expanded(expanded?1:0);
@@ -297,7 +297,7 @@ namespace wb {
 
       virtual workbench_OverviewPanelRef get_state()
       {
-        workbench_OverviewPanelRef panel= Node::get_state(grt);
+        workbench_OverviewPanelRef panel= Node::get_state();
 
         //XXXfor (std::list<int>::const_iterator i= selection.begin(); i != selection.end(); ++i)
         //  panel.selectedItems().insert(*i);

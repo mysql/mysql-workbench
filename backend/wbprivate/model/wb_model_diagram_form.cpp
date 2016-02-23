@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -218,7 +218,7 @@ mforms::ToolBar *ModelDiagramForm::get_tools_toolbar()
     _tools_toolbar = new mforms::ToolBar(mforms::ToolPickerToolBar);
     app_ToolbarRef toolbar[3];
     
-    toolbar[0]= app_ToolbarRef::cast_from(get_wb()->get_grt()->unserialize(base::makePath(get_wb()->get_datadir(),
+    toolbar[0]= app_ToolbarRef::cast_from(grt::GRT::get().unserialize(base::makePath(get_wb()->get_datadir(),
                                                                                      "data/tools_toolbar.xml")));
     toolbar[1]= get_wb()->get_component_named("basic")->get_tools_toolbar();
     toolbar[2]= get_wb()->get_component_named("physical")->get_tools_toolbar();
@@ -746,7 +746,7 @@ void ModelDiagramForm::end_selection_drag()
   bool moved= false;
   int count= 0;
 
-  grt::UndoManager *um= _owner->get_grt()->get_undo_manager();
+  grt::UndoManager *um= grt::GRT::get().get_undo_manager();
 
   um->begin_undo_group();
   
@@ -791,7 +791,7 @@ void ModelDiagramForm::end_selection_drag()
   
   // change the layer of moved stuff
   {
-    grt::AutoUndo undo(_owner->get_grt());
+    grt::AutoUndo undo;
     if (relocate_figures())
     {
       moved= true;
@@ -1150,12 +1150,12 @@ bec::Clipboard *ModelDiagramForm::get_clipboard()
 
 bool ModelDiagramForm::can_undo()
 {
-  return _owner->get_grt()->get_undo_manager()->can_undo();
+  return grt::GRT::get().get_undo_manager()->can_undo();
 }
 
 bool ModelDiagramForm::can_redo()
 {
-  return _owner->get_grt()->get_undo_manager()->can_redo();
+  return grt::GRT::get().get_undo_manager()->can_redo();
 }
 
 bool ModelDiagramForm::can_copy()
@@ -1228,17 +1228,17 @@ std::string ModelDiagramForm::get_edit_target_name()
 
 void ModelDiagramForm::undo()
 {
-  _owner->get_grt()->get_undo_manager()->undo();
+  grt::GRT::get().get_undo_manager()->undo();
 }
 
 void ModelDiagramForm::redo()
 {
-  _owner->get_grt()->get_undo_manager()->redo();
+  grt::GRT::get().get_undo_manager()->redo();
 }
 
 void ModelDiagramForm::cut()
 {
-  grt::UndoManager *um= _owner->get_grt()->get_undo_manager();
+  grt::UndoManager *um= grt::GRT::get().get_undo_manager();
 
   std::string edit_target_name= get_edit_target_name();
 
@@ -1261,7 +1261,7 @@ void ModelDiagramForm::copy()
   grt::ListRef<model_Object> selection(get_copiable_selection());
   bec::Clipboard *clip= get_clipboard();
   int count= 0;
-  grt::CopyContext copy_context(_owner->get_grt());
+  grt::CopyContext copy_context;
   
   clip->clear();
   for (size_t c= selection.count(), i= 0; i < c; i++)
@@ -1310,9 +1310,9 @@ void ModelDiagramForm::paste()
   
   _owner->get_wb()->show_status_text(_("Pasting figures..."));
   
-  grt::CopyContext context(wb->get_grt());
+  grt::CopyContext context;
 
-  grt::AutoUndo undo(wb->get_grt());
+  grt::AutoUndo undo;
 
   _model_diagram->unselectAll();
 
@@ -1373,7 +1373,7 @@ void ModelDiagramForm::select_all()
 
 void ModelDiagramForm::remove_selection()
 {
-  grt::UndoManager *um= _owner->get_grt()->get_undo_manager();
+  grt::UndoManager *um= grt::GRT::get().get_undo_manager();
   grt::ListRef<model_Object> selection= get_selection();
   
   std::vector<model_ObjectRef> objects;
@@ -1400,7 +1400,7 @@ void ModelDiagramForm::remove_selection()
 //XXX unused? but it's virtual, need to check if this is used anywhere...
 void ModelDiagramForm::delete_selection()
 {
-  grt::UndoManager *um= _owner->get_grt()->get_undo_manager();
+  grt::UndoManager *um= grt::GRT::get().get_undo_manager();
   grt::ListRef<model_Object> selection= get_selection();
 
   std::vector<model_ObjectRef> objects;
@@ -1447,7 +1447,7 @@ grt::ListRef<model_Object> ModelDiagramForm::get_selection()
 grt::ListRef<model_Object> ModelDiagramForm::get_copiable_selection()
 {
   grt::ListRef<model_Object> sel(_model_diagram->selection());
-  grt::ListRef<model_Object> copiable(_owner->get_grt());
+  grt::ListRef<model_Object> copiable;
 
   for (size_t c= sel.count(), i= 0; i < c; i++)
   {

@@ -107,11 +107,11 @@ CATCH_EXCEPTION_AND_DISPATCH(statement)
 #define CATCH_ANY_EXCEPTION_AND_DISPATCH_TO_DEFAULT_LOG(statement) \
 catch (sql::SQLException &e)\
 {\
-  _grtm->get_grt()->send_error(strfmt(SQL_EXCEPTION_MSG_FORMAT, e.getErrorCode(), e.what()), statement);\
+  grt::GRT::get().send_error(strfmt(SQL_EXCEPTION_MSG_FORMAT, e.getErrorCode(), e.what()), statement);\
 }\
 catch (std::exception &e)\
 {\
-  _grtm->get_grt()->send_error(strfmt(EXCEPTION_MSG_FORMAT, e.what()), statement);\
+  grt::GRT::get().send_error(strfmt(EXCEPTION_MSG_FORMAT, e.what()), statement);\
 }
 
 
@@ -674,7 +674,7 @@ void SqlEditorForm::close()
   _grtm->replace_status_text("Closing SQL Editor...");
   wbsql()->editor_will_close(this);
 
-  exec_sql_task->exec(true, boost::bind(&SqlEditorForm::do_disconnect, this, _1));
+  exec_sql_task->exec(true, boost::bind(&SqlEditorForm::do_disconnect, this));
   exec_sql_task->disconnect_callbacks();
   reset_keep_alive_thread();
   _grtm->replace_status_text("SQL Editor closed");
@@ -1223,7 +1223,7 @@ bool SqlEditorForm::connect(boost::shared_ptr<sql::TunnelConnection> tunnel)
     // connection must happen in the worker thread
     try
     {
-      exec_sql_task->exec(true, boost::bind(&SqlEditorForm::do_connect, this, _1, tunnel, auth, &error_ptr));
+      exec_sql_task->exec(true, boost::bind(&SqlEditorForm::do_connect, this, tunnel, auth, &error_ptr));
 
       //check if user cancelled
       if (_cancel_connect) //return false, so it looks like the server is down
@@ -1421,7 +1421,7 @@ grt::StringRef SqlEditorForm::do_connect(boost::shared_ptr<sql::TunnelConnection
       if (_usr_dbc_conn && get_session_variable(_usr_dbc_conn->ref.get(), "lower_case_table_names", value))
         _lower_case_table_names = base::atoi<int>(value, 0);
 
-      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grt);
+      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get;
       _work_parser_context = services->createParserContext(rdbms()->characterSets(), _version, _lower_case_table_names != 0);
       _work_parser_context->use_sql_mode(_sql_mode);
     }
@@ -1450,7 +1450,7 @@ grt::StringRef SqlEditorForm::do_connect(boost::shared_ptr<sql::TunnelConnection
       {
         // if there's no connection, then we continue anyway if this is a local connection or
         // a remote connection with remote admin enabled..
-        grt::Module *m = _grtm->get_grt()->get_module("WbAdmin");
+        grt::Module *m = grt::GRT::get().get_module("WbAdmin");
         grt::BaseListRef args(_grtm->get_grt());
         args.ginsert(_connection);
         if (!m || *grt::IntegerRef::cast_from(m->call_function("checkConnectionForRemoteAdmin", args)) == 0)
@@ -1467,7 +1467,7 @@ grt::StringRef SqlEditorForm::do_connect(boost::shared_ptr<sql::TunnelConnection
 
       // Create a parser with some sensible defaults if we cannot connect.
       // We specify no charsets here, disabling parsing of repertoires.
-      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grt);
+      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get;
       _work_parser_context = services->createParserContext(GrtCharacterSetsRef(grt), bec::int_to_version(50503), true);
       _work_parser_context->use_sql_mode(_sql_mode);
 
@@ -1483,7 +1483,7 @@ grt::StringRef SqlEditorForm::do_connect(boost::shared_ptr<sql::TunnelConnection
       {
         // if there's no connection, then we continue anyway if this is a local connection or
         // a remote connection with remote admin enabled..
-        _grtm->get_grt()->get_module("WbAdmin");
+        grt::GRT::get().get_module("WbAdmin");
         grt::BaseListRef args(_grtm->get_grt());
         args.ginsert(_connection);
       }
@@ -1493,7 +1493,7 @@ grt::StringRef SqlEditorForm::do_connect(boost::shared_ptr<sql::TunnelConnection
 
       // Create a parser with some sensible defaults if we cannot connect.
       // We specify no charsets here, disabling parsing of repertoires.
-      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grt);
+      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get;
       _work_parser_context = services->createParserContext(GrtCharacterSetsRef(grt), bec::int_to_version(50503), true);
       _work_parser_context->use_sql_mode(_sql_mode);
 
@@ -1838,7 +1838,7 @@ void SqlEditorForm::explain_current_statement()
     args.ginsert(panel->grtobj());
     args.ginsert(result->grtobj());
     // run the visual explain plugin, so it will fill the result panel
-    _grtm->get_grt()->call_module_function("SQLIDEQueryAnalysis", "visualExplain", args);
+    grt::GRT::get().call_module_function("SQLIDEQueryAnalysis", "visualExplain", args);
   }
 }
 
@@ -2956,7 +2956,7 @@ void SqlEditorForm::active_schema(const std::string &value)
     else
       grt_manager()->replace_status_text(strfmt(_("Active schema changed to %s"), value.c_str()));
     
-    _grtm->get_grt()->call_module_function("Workbench", "saveConnections", grt::BaseListRef());
+    grt::GRT::get().call_module_function("Workbench", "saveConnections", grt::BaseListRef());
   }
   CATCH_ANY_EXCEPTION_AND_DISPATCH(_("Set active schema"))
 }
@@ -2971,7 +2971,7 @@ db_mgmt_RdbmsRef SqlEditorForm::rdbms()
     return db_mgmt_RdbmsRef::cast_from(_connection->driver()->owner());
   }
   else
-    return db_mgmt_RdbmsRef::cast_from(_grtm->get_grt()->get("/wb/rdbmsMgmt/rdbms/0/"));
+    return db_mgmt_RdbmsRef::cast_from(grt::GRT::get().get("/wb/rdbmsMgmt/rdbms/0/"));
 }
 
 

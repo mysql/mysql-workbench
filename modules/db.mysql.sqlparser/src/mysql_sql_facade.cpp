@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -273,13 +273,13 @@ int MysqlSqlFacadeImpl::splitSqlScript(const char *sql, size_t length,
 // A splitter using the grt (probably for python).
 grt::BaseListRef MysqlSqlFacadeImpl::getSqlStatementRanges(const std::string &sql)
 {
-  grt::BaseListRef list(get_grt());
+  grt::BaseListRef list;
   std::list<std::pair<size_t,size_t> > ranges;
   Mysql_sql_script_splitter::create()->process(sql.c_str(), ranges);
   
   for (std::list<std::pair<size_t,size_t> >::const_iterator i = ranges.begin(); i != ranges.end(); ++i)
   {
-    grt::BaseListRef item(get_grt());
+    grt::BaseListRef item;
     item.ginsert(grt::IntegerRef((long)i->first));
     item.ginsert(grt::IntegerRef((long)i->second));
     list.ginsert(item);
@@ -291,7 +291,7 @@ grt::BaseListRef MysqlSqlFacadeImpl::getSqlStatementRanges(const std::string &sq
 
 Sql_parser::Ref MysqlSqlFacadeImpl::sqlParser()
 {
-  return Mysql_sql_parser::create(get_grt());
+  return Mysql_sql_parser::create;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -326,7 +326,7 @@ int MysqlSqlFacadeImpl::parseSqlScriptFileEx(db_CatalogRef catalog, const std::s
 
 Invalid_sql_parser::Ref MysqlSqlFacadeImpl::invalidSqlParser()
 {
-  return Mysql_invalid_sql_parser::create(get_grt());
+  return Mysql_invalid_sql_parser::create;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -368,7 +368,7 @@ int MysqlSqlFacadeImpl::parseView(db_ViewRef view, const std::string &sql)
 
 Sql_syntax_check::Ref MysqlSqlFacadeImpl::sqlSyntaxCheck()
 {
-  return Mysql_sql_syntax_check::create(get_grt());
+  return Mysql_sql_syntax_check::create;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -402,21 +402,21 @@ int MysqlSqlFacadeImpl::checkRoutineSyntax(const std::string &sql)
 
 Sql_semantic_check::Ref MysqlSqlFacadeImpl::sqlSemanticCheck()
 {
-  return Mysql_sql_semantic_check::create(get_grt());
+  return Mysql_sql_semantic_check::create;
 }
 
 //--------------------------------------------------------------------------------------------------
 
 Sql_specifics::Ref MysqlSqlFacadeImpl::sqlSpecifics()
 {
-  return Mysql_sql_specifics::create(get_grt());
+  return Mysql_sql_specifics::create;
 }
 
 //--------------------------------------------------------------------------------------------------
 
 Sql_normalizer::Ref MysqlSqlFacadeImpl::sqlNormalizer()
 {
-  return Mysql_sql_normalizer::create(get_grt());
+  return Mysql_sql_normalizer::create;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -437,14 +437,14 @@ std::string MysqlSqlFacadeImpl::removeInterTokenSpaces(const std::string sql)
 
 Sql_inserts_loader::Ref MysqlSqlFacadeImpl::sqlInsertsLoader()
 {
-  return Mysql_sql_inserts_loader::create(get_grt());
+  return Mysql_sql_inserts_loader::create;
 }
 
 //--------------------------------------------------------------------------------------------------
 
 Sql_schema_rename::Ref MysqlSqlFacadeImpl::sqlSchemaRenamer()
 {
-  return Mysql_sql_schema_rename::create(get_grt());
+  return Mysql_sql_schema_rename::create;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -466,7 +466,7 @@ Sql_statement_decomposer::Ref MysqlSqlFacadeImpl::sqlStatementDecomposer(grt::Di
 
 grt::StringListRef MysqlSqlFacadeImpl::splitSqlStatements(const std::string &sql)
 {
-  grt::StringListRef list(get_grt());
+  grt::StringListRef list;
   std::list<std::string> statements;
 
   splitSqlScript(sql, statements);
@@ -481,9 +481,7 @@ grt::StringListRef MysqlSqlFacadeImpl::splitSqlStatements(const std::string &sql
 
 static grt::BaseListRef process_ast_node(int base_offset, const SqlAstNode& item)
 {
-  grt::BaseListRef tuple(grt);
-
-  sql::symbol item_name= item.name();
+  grt::BaseListRef tuplesymbol item_name= item.name();
   tuple.ginsert(grt::StringRef(item_name ? sql::symbol_names[item_name] : ""));
   
   bool has_value = false;
@@ -497,7 +495,7 @@ static grt::BaseListRef process_ast_node(int base_offset, const SqlAstNode& item
 
   {
     SqlAstNode::SubItemList *subitems= item.subitems();
-    grt::BaseListRef children(grt);
+    grt::BaseListRef children;
     if (subitems)
     {
       for (SqlAstNode::SubItemList::const_iterator i= subitems->begin(), i_end= subitems->end(); i != i_end; ++i)
@@ -544,7 +542,7 @@ static int parse_callback(void* user_data, const MyxStatementParser *splitter, c
 grt::BaseListRef MysqlSqlFacadeImpl::parseAstFromSqlScript(const std::string &sql)
 {
   Mysql_sql_parser_fe parser(bec::GRTManager::get_instance_for(get_grt())->get_app_option_string("SqlMode"));
-  grt::BaseListRef result(get_grt());
+  grt::BaseListRef result;
 
   parser.is_ast_generation_enabled = true;
   parser.ignore_dml = false;

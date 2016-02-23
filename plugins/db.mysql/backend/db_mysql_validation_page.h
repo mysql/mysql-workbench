@@ -60,7 +60,7 @@ public:
   void run_validation();
 
   void validation_finished(grt::ValueRef res);
-  grt::ValueRef validation_task(grt::GRT*, grt::StringRef);
+  grt::ValueRef validation_task(grt::StringRef);
 
   void validation_message(const grt::Message &);
   void validation_finished_cb(Validation_finished_cb cb) { _validation_finished_cb= cb; }

@@ -52,7 +52,7 @@ TEST_FUNCTION(1)
 
 TEST_FUNCTION(10)
 {
-  SynteticMySQLModel model(grt);
+  SynteticMySQLModel model;
   model.catalog->users().remove_all();
   model.catalog->roles().remove_all();
 
@@ -73,7 +73,7 @@ TEST_FUNCTION(10)
 
 TEST_FUNCTION(11)
 {
-  SynteticMySQLModel model(grt);
+  SynteticMySQLModel model;
   model.catalog->users().remove_all();
   model.catalog->roles().remove_all();
 
@@ -105,7 +105,7 @@ TEST_FUNCTION(11)
 
 TEST_FUNCTION(12)
 { // test when no databaseObject assigned: use databaseObjectName instead
-  SynteticMySQLModel model(grt);
+  SynteticMySQLModel model;
   model.catalog->users().remove_all();
   model.catalog->roles().remove_all();
 
@@ -125,7 +125,7 @@ TEST_FUNCTION(12)
 
 TEST_FUNCTION(13)
 { // test parent role
-  SynteticMySQLModel model(grt);
+  SynteticMySQLModel model;
   model.catalog->users().remove_all();
   model.catalog->roles().remove_all();
 

@@ -88,7 +88,7 @@ void DbMySQLValidationPage::validation_message(const grt::Message &msg)
 }
 
 
-ValueRef DbMySQLValidationPage::validation_task(grt::GRT* grt, grt::StringRef)
+ValueRef DbMySQLValidationPage::validation_task(grt::StringRef)
 {
   try
   {
@@ -98,7 +98,7 @@ ValueRef DbMySQLValidationPage::validation_task(grt::GRT* grt, grt::StringRef)
       return grt::StringRef("\nSQL Script Export Error: Not able to locate 'Validation' modules");
 
 
-    GrtObjectRef catalog(GrtObjectRef::cast_from(_manager->get_grt()->get("/wb/doc/physicalModels/0/catalog")));
+    GrtObjectRef catalog(GrtObjectRef::cast_from(grt::GRT::get().get("/wb/doc/physicalModels/0/catalog")));
 
     for (std::vector<WbValidationInterfaceWrapper*>::iterator module= validation_modules.begin();
          module != validation_modules.end(); ++module)

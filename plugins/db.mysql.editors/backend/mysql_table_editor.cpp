@@ -2044,7 +2044,7 @@ void MySQLTableEditorBE::reset_partition_definitions(int parts, int subparts)
 
   while ((int)pdefs.count() < parts)
   {
-    db_mysql_PartitionDefinitionRef part(get_grt());
+    db_mysql_PartitionDefinitionRef part;
 
     part->owner(db_mysql_TableRef::cast_from(get_table()));
     part->name(grt::StringRef::format("part%i", pdefs.count()));
@@ -2062,7 +2062,7 @@ void MySQLTableEditorBE::reset_partition_definitions(int parts, int subparts)
 
     while ((int)spdefs.count() < subparts)
     {
-      db_mysql_PartitionDefinitionRef part(get_grt());
+      db_mysql_PartitionDefinitionRef part;
 
       part->owner(pdefs[i]);
       part->name(grt::StringRef::format("subpart%i", i*subparts + spdefs.count()));
@@ -2089,7 +2089,7 @@ db_TableRef MySQLTableEditorBE::create_stub_table(const std::string &schema, con
     dbtable = grt::find_named_object_in_list(dbschema->tables(), table);
   else
   {
-    dbschema = db_mysql_SchemaRef(get_grt());
+    dbschema = db_mysql_SchemaRef;
     dbschema->owner(get_catalog());
     dbschema->name(schema);
     dbschema->comment("This schema was created for a stub table");
@@ -2098,7 +2098,7 @@ db_TableRef MySQLTableEditorBE::create_stub_table(const std::string &schema, con
 
   if (!dbtable.is_valid())
   {
-    dbtable = db_mysql_TableRef(get_grt());
+    dbtable = db_mysql_TableRef;
     dbtable->owner(dbschema);
     dbtable->name(table);
     dbtable->isStub(1);

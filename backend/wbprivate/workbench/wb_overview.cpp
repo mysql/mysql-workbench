@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -62,7 +62,7 @@ bool OverviewBE::ObjectNode::rename(WBContext *wb, const std::string &name)
   
   if (dbobj.is_valid())
   {
-    grt::AutoUndo undo(wb->get_grt());
+    grt::AutoUndo undo;
     dbobj->name(name);
     undo.end(strfmt(_("Rename %s"), dbobj.get_metaclass()->get_attribute("caption").c_str()));
     bec::ValidationManager::validate_instance(object, CHECK_NAME);
@@ -527,7 +527,7 @@ void OverviewBE::select_node(const NodeId &node)
 grt::ListRef<GrtObject> OverviewBE::get_selection()
 {
   ContainerNode *node= dynamic_cast<ContainerNode*>(get_deepest_focused());
-  grt::ListRef<GrtObject> selection(_wb->get_grt());
+  grt::ListRef<GrtObject> selection;
 
   if (node)
   {
@@ -682,7 +682,7 @@ void OverviewBE::store_node_states(Node *node)
 
   if (node->type != OItem)
   {
-    workbench_OverviewPanelRef panel= node->get_state(_wb->get_grt_manager()->get_grt());
+    workbench_OverviewPanelRef panel= node->get_state();
     if (panel.is_valid())
     {
       panel->owner(document);
@@ -873,7 +873,7 @@ std::string OverviewBE::get_target_name_for_nodes(const std::vector<bec::NodeId>
 
 void OverviewBE::cut()
 {
-  grt::AutoUndo undo(_wb->get_grt());
+  grt::AutoUndo undo;
 
   copy();
   int count= request_delete_selected();
@@ -930,7 +930,7 @@ void OverviewBE::paste()
     focused.pop();
     if (parent->is_pasteable(_wb->get_clipboard()))
     {
-      grt::AutoUndo undo(_wb->get_grt());
+      grt::AutoUndo undo;
 
       parent->paste_object(_wb, _wb->get_clipboard());
 
@@ -944,7 +944,7 @@ void OverviewBE::paste()
 
 void OverviewBE::delete_selection()
 {
-  grt::AutoUndo undo(_wb->get_grt());
+  grt::AutoUndo undo;
   request_delete_selected();
   undo.end(strfmt(_("Delete %s"), get_edit_target_name().c_str()));
 }
@@ -964,7 +964,7 @@ bec::MenuItemList OverviewBE::get_popup_items_for_nodes(const std::vector<bec::N
   
   // Don't go early out here if no node was passed in. We also have to add selection independent
   // menu items like paste.
-  grt::ListRef<GrtObject> selection(_wb->get_grt());
+  grt::ListRef<GrtObject> selection;
   
   bec::MenuItem item;
   std::list<Node*> tree_nodes;
@@ -1060,7 +1060,7 @@ bool OverviewBE::activate_popup_item_for_nodes(const std::string &name, const st
   }
   else if (name == "builtin:delete")
   {
-    grt::AutoUndo undo(_wb->get_grt());
+    grt::AutoUndo undo;
 
     for (std::vector<bec::NodeId>::const_iterator end= nodes.end(), iter= nodes.begin();
          iter != end; ++iter)
@@ -1074,7 +1074,7 @@ bool OverviewBE::activate_popup_item_for_nodes(const std::string &name, const st
   }
   else if (name == "builtin:cut")
   {
-    grt::AutoUndo undo(_wb->get_grt());
+    grt::AutoUndo undo;
         
     _wb->get_clipboard()->clear();
     for (std::vector<bec::NodeId>::const_iterator end= nodes.end(), iter= nodes.begin();

@@ -80,7 +80,7 @@ void DBObjectMasterFilterBE::remove_stored_filter_set(int index)
     return;
   _stored_master_filter_sets.remove(key);
 
-  _grtm->get_grt()->serialize(_stored_master_filter_sets, _stored_master_filter_sets_filepath);
+  grt::GRT::get().serialize(_stored_master_filter_sets, _stored_master_filter_sets_filepath);
   */
   throw std::logic_error("needs update");
 }
@@ -96,7 +96,7 @@ void DBObjectMasterFilterBE::load_stored_filter_set(int index, std::list<int> &i
   = _grtm->get_grt();
 
   std::string key;
-  grt::DictRef filter_set_indexes(grt);
+  grt::DictRef filter_set_indexes;
 
   _stored_master_filter_sets.get_by_index(index, key, filter_set_indexes);
 

@@ -56,7 +56,7 @@ TEST_FUNCTION(1)
   module= grt::GRT::get().get_native_module<WbMysqlImportImpl>();
   ensure("WbMysqlImport module initialization", NULL != module);
 
-  options= DictRef(grt);
+  options= DictRef;
   options.set("gen_fk_names_when_empty", IntegerRef(0));
 }
 

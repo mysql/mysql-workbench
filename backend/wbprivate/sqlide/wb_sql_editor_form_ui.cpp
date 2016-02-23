@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -375,11 +375,11 @@ void SqlEditorForm::toolbar_command(const std::string& command)
     db_query_EditorRef editor(_wbsql->get_grt_editor_object(this));
     if (editor.is_valid())
     {
-      grt::BaseListRef args(_grtm->get_grt());
+      grt::BaseListRef args;
       args.ginsert(editor);
 
       grt::ListRef<db_query_LiveDBObject> selection = grt::ListRef<db_query_LiveDBObject>::cast_from(get_live_tree()->get_schema_tree()->get_selected_objects());
-      grt::BaseListRef selected_items(_grtm->get_grt());
+      grt::BaseListRef selected_items;
       GRTLIST_FOREACH (db_query_LiveDBObject, selection, iterator)
       {
         std::string type = (*iterator)->type();
@@ -390,19 +390,19 @@ void SqlEditorForm::toolbar_command(const std::string& command)
       if (selected_items->count() > 0)
       {
         args.ginsert(selected_items);
-        grt::Module *module = _grtm->get_grt()->get_module("SQLIDEUtils");
+        grt::Module *module = grt::GRT::get().get_module("SQLIDEUtils");
         if (module)
           module->call_function("showInspector", args);
       }
       else if (!active_schema().empty())
       {
-        db_query_LiveDBObjectRef obj(_grtm->get_grt());
+        db_query_LiveDBObjectRef obj;
         obj->schemaName(active_schema());
         obj->type("db.Schema");
         obj->name(active_schema());
         selected_items.ginsert(obj);
         args.ginsert(selected_items);
-        grt::Module *module = _grtm->get_grt()->get_module("SQLIDEUtils");
+        grt::Module *module = grt::GRT::get().get_module("SQLIDEUtils");
         if (module)
           module->call_function("showInspector", args);
       }
@@ -420,18 +420,18 @@ void SqlEditorForm::inspect_object(const std::string &schema, const std::string 
   db_query_EditorRef editor(_wbsql->get_grt_editor_object(this));
   if (editor.is_valid())
   {
-    grt::BaseListRef selected_items(_grtm->get_grt());
-    grt::BaseListRef args(_grtm->get_grt());
+    grt::BaseListRef selected_items;
+    grt::BaseListRef args;
     args.ginsert(editor);
 
-    db_query_LiveDBObjectRef obj(_grtm->get_grt());
+    db_query_LiveDBObjectRef obj;
     obj->type(type);
     obj->schemaName(schema);
     obj->name(object);
     selected_items.ginsert(obj);
 
     args.ginsert(selected_items);
-    _grtm->get_grt()->call_module_function("SQLIDEUtils", "showInspector", args);
+    grt::GRT::get().call_module_function("SQLIDEUtils", "showInspector", args);
   }
 }
 

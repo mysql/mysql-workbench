@@ -41,7 +41,7 @@ Db_frw_eng::Db_frw_eng(bec::GRTManager *grtm)
     Db_frw_eng::grtm(grtm, false);
   }
 
-  _catalog= db_mysql_CatalogRef::cast_from(_grtm->get_grt()->get("/wb/doc/physicalModels/0/catalog"));
+  _catalog= db_mysql_CatalogRef::cast_from(grt::GRT::get().get("/wb/doc/physicalModels/0/catalog"));
 }
 
 

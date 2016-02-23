@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -132,7 +132,7 @@ void NewConnectionWizard::open_remote_mgm_config()
 
 db_mgmt_ConnectionRef NewConnectionWizard::run()
 { 
-  _connection = db_mgmt_ConnectionRef(_mgmt.get_grt());
+  _connection = db_mgmt_ConnectionRef();
   _connection->driver(_mgmt->rdbms()[0]->defaultDriver());
   if (find_named_object_in_list(_connection->driver()->parameters(), "useSSL").is_valid())
   {
@@ -178,12 +178,12 @@ db_mgmt_ConnectionRef NewConnectionWizard::run()
       // The module creates the instance, adds it to the stored instances and stores them on disk.
       if (_connection->driver()->name() != "MySQLFabric")
       {
-        grt::BaseListRef args(_mgmt.get_grt());
+        grt::BaseListRef args;
         args.ginsert(_connection);
         if (is_local_connection(_connection))
-          db_mgmt_ServerInstanceRef::cast_from(_mgmt.get_grt()->call_module_function("WbAdmin", "autoDetectLocalInstance", args));
+          db_mgmt_ServerInstanceRef::cast_from(grt::GRT::get().call_module_function("WbAdmin", "autoDetectLocalInstance", args));
         else
-          db_mgmt_ServerInstanceRef::cast_from(_mgmt.get_grt()->call_module_function("WbAdmin", "autoDetectRemoteInstance", args));
+          db_mgmt_ServerInstanceRef::cast_from(grt::GRT::get().call_module_function("WbAdmin", "autoDetectRemoteInstance", args));
       }
 
       return _connection;

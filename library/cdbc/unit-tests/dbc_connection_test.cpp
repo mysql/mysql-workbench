@@ -42,7 +42,7 @@ TEST_FUNCTION(1)
   grtm= wbt.wb->get_grt_manager();
   grt= grtm->get_grt();
 
-  connectionProperties= db_mgmt_ConnectionRef(grt);
+  connectionProperties= db_mgmt_ConnectionRef;
   setup_env(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -65,7 +65,7 @@ TEST_FUNCTION(1)
 // Test initialization of a statement and it's destruction.
 TEST_FUNCTION(3)
 {
-  //db_mgmt_ConnectionRef connectionProperties(grt);
+  //db_mgmt_ConnectionRef connectionProperties;
   //setup_env(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -83,7 +83,7 @@ TEST_FUNCTION(3)
 // Test construction of a metadata object.
 TEST_FUNCTION(4)
 {
-  //db_mgmt_ConnectionRef connectionProperties(grt);
+  //db_mgmt_ConnectionRef connectionProperties;
   //setup_env(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -101,7 +101,7 @@ TEST_FUNCTION(4)
 // Test autocommit.
 TEST_FUNCTION(5)
 {
-  //db_mgmt_ConnectionRef connectionProperties(grt);
+  //db_mgmt_ConnectionRef connectionProperties;
   //setup_env(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -146,7 +146,7 @@ TEST_FUNCTION(5)
 // Test clearWarnings.
 TEST_FUNCTION(6)
 {
-  //db_mgmt_ConnectionRef connectionProperties(grt);
+  //db_mgmt_ConnectionRef connectionProperties;
   //setup_env(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -165,7 +165,7 @@ TEST_FUNCTION(6)
 // Test 2 connections.
 TEST_FUNCTION(7)
 {
-  //db_mgmt_ConnectionRef connectionProperties(grt);
+  //db_mgmt_ConnectionRef connectionProperties;
   //setup_env(connectionProperties);
 
   try {
@@ -205,7 +205,7 @@ TEST_FUNCTION(7)
 // Test kill ourselves 1.
 TEST_FUNCTION(8)
 {
-  //db_mgmt_ConnectionRef connectionProperties(grt);
+  //db_mgmt_ConnectionRef connectionProperties;
   //setup_env(connectionProperties);
 
   try {
@@ -244,7 +244,7 @@ TEST_FUNCTION(8)
 // Test kill ourselves 2 - kill and query thereafter.
 TEST_FUNCTION(9)
 {
-  //db_mgmt_ConnectionRef connectionProperties(grt);
+  //db_mgmt_ConnectionRef connectionProperties;
   //setup_env(connectionProperties);
 
   try {

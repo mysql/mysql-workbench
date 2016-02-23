@@ -57,7 +57,7 @@ _override_sql_mode(false)
 {
   NULL_STATE_KEEPER // reset all members to null-values
 
-  Sql_specifics::Ref sql_specifics= Mysql_sql_specifics::create(grt);
+  Sql_specifics::Ref sql_specifics= Mysql_sql_specifics::create;
   _non_std_sql_delimiter= sql_specifics->non_std_sql_delimiter();
 }
 

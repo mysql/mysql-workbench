@@ -46,7 +46,7 @@ TEST_FUNCTION(1)
 
   ensure_equals("loaded physycal model count", wbt.wb->get_document()->physicalModels().count(), 1U);
 
-  options= DictRef(grt);
+  options= DictRef;
   options.set("gen_fk_names_when_empty", IntegerRef(0));
 
   rdbms= wbt.wb->get_document()->physicalModels().get(0)->rdbms();
