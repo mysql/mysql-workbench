@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,10 +17,9 @@
  * 02110-1301  USA
  */
 
-#ifndef _GRTPP_UNSERIALIZER_H__
-#define _GRTPP_UNSERIALIZER_H__
+#pragma once
 
-#include "grtpp.h"
+#include "grt.h"
 #include <set>
 
 namespace grt
@@ -64,5 +63,3 @@ namespace grt
     };
   };
 };
-
-#endif

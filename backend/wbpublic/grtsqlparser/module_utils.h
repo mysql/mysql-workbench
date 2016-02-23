@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,14 +17,10 @@
  * 02110-1301  USA
  */
 
-
-#ifndef _MODULE_UTILS_
-#define _MODULE_UTILS_
-
+#pragma once
 
 #include "wbpublic_public_interface.h"
-#include "grtpp.h"
-
+#include "grt.h"
 
 template<typename T1>
 void overwrite_default_option(bool &value, const char *name, const grt::DictRef &options)
@@ -43,6 +39,3 @@ void overwrite_default_option(T &value, const char *name, const grt::DictRef &op
       value= T();
   }
 }
-
-
-#endif // _MODULE_UTILS_

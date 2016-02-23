@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,7 +16,10 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#include "grtpp.h"
+
+#pragma once
+
+#include "grt.h"
 #ifndef _WIN32
 #include <vector>
 #endif
@@ -45,9 +48,6 @@ public:
 
   void set_content_description(const std::string description) { _description= description; }
   std::string get_content_description() { return _description; }
-
-//  virtual void set_string(const std::string &str)= 0;
-//  virtual std::string get_string()= 0;
 };
 
 };

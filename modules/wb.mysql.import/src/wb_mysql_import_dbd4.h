@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2004, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -22,12 +22,11 @@
 
 
 #include "wb_mysql_import_public_interface.h"
-#include "grtpp.h"
+#include "grt.h"
 #include "grts/structs.db.mysql.h"
 #include "grts/structs.model.h"
 #include "grts/structs.workbench.model.h"
 #include "grts/structs.workbench.physical.h"
-
 
 using namespace grt;
 

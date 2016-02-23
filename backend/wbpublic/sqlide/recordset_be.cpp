@@ -21,7 +21,7 @@
 
 #include "recordset_be.h"
 #include "recordset_data_storage.h"
-#include "grtpp.h"
+#include "grt.h"
 #include "cppdbc.h"
 #include "grtui/binary_data_editor.h"
 

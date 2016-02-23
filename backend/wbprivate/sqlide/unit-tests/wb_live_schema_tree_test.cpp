@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,7 +19,7 @@
 
 #include "stub/stub_mforms.h"
 #include "sqlide/wb_live_schema_tree.h"
-#include "grtpp.h"
+#include "grt.h"
 #include "test.h"
 
 using namespace grt;
