@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,7 +19,7 @@
 
 // GRT support
 
-#include <grtpp.h>
+#include "grt.h"
 #include <python_context.h>
 #include <grts/structs.ui.h>
 #include "mforms/dockingpoint.h"

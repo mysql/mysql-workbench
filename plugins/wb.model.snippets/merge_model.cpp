@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,7 +18,7 @@
  */
 
 #include "merge_model.h"
-#include "grtpp.h"
+#include "grt.h"
 #include "grtpp_util.h"
 
 #include "grts/structs.workbench.h"

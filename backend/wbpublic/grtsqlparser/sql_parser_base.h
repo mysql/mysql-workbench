@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,18 +17,13 @@
  * 02110-1301  USA
  */
 
-
-#ifndef _SQL_PARSER_BASE_H_
-#define _SQL_PARSER_BASE_H_
-
+#pragma once
 
 #include "wbpublic_public_interface.h"
 #include "grt/grt_manager.h"
-#include "grtpp.h"
+#include "grt.h"
 #include "grts/structs.db.h"
 #include <boost/shared_ptr.hpp>
-
-
 
 /** Encapsulates generic DBMS agnostic functionality for processing of SQL statements/scripts:
  * <li>definition of enumeration types and callbacks
@@ -151,6 +146,3 @@ protected:
   };
   friend class Null_state_keeper;
 };
-
-
-#endif // _SQL_PARSER_BASE_H_

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,13 +15,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
- 
  */
 
-#ifndef _WB_LIVE_SCHEMA_TREE_H_
-#define _WB_LIVE_SCHEMA_TREE_H_
+#pragma once
 
-#include "grtpp.h"
+#include "grt.h"
 #include "grt/tree_model.h"
 #include "workbench/wb_backend_public_interface.h"
 #include "base/string_utilities.h"
@@ -447,5 +445,3 @@ namespace wb
     bec::IconId get_node_icon(ObjectType type);
   };
 };
-
-#endif

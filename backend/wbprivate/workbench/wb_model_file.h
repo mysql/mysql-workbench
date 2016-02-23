@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,13 +17,12 @@
  * 02110-1301  USA
  */
 
-#ifndef _WB_MODEL_FILE_H_
-#define _WB_MODEL_FILE_H_
+#pragma once
 
 #include "wb_backend_public_interface.h"
 
 #include <string>
-#include "grtpp.h"
+#include "grt.h"
 #include "base/file_utilities.h"
 #include "grts/structs.workbench.h"
 #include "base/trackable.h"
@@ -148,6 +147,3 @@ namespace wb {
     bool semantic_check(workbench_DocumentRef doc);
   };
 };
-
-
-#endif

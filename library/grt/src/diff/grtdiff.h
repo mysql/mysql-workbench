@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,10 +16,10 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _GRT_DIFF_H
-#define _GRT_DIFF_H
 
-#include "grtpp.h"
+#pragma once
+
+#include "grt.h"
 #include "grtpp_util.h"
 
 namespace grt
@@ -27,7 +27,6 @@ namespace grt
 class ValueRef;
 class BaseListRef;
 class DictRef;
-//class ObjectRef;
 class DiffChange;
 
 
@@ -51,5 +50,3 @@ public:
 };
 
 }
-
-#endif
