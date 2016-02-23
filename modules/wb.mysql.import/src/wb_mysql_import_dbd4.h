@@ -57,7 +57,6 @@ private:
   db_mysql_SchemaRef ensure_schema_created(int index, const char *name);
   void remove_unused_schemata();
 
-  grt::GRT *_grt;
   db_mysql_CatalogRef _catalog;
   SimpleDatatypes _datatypes;
   SimpleDatatypesFlags _datatypes_flags;

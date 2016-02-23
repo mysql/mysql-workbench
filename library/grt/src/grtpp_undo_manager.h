@@ -213,7 +213,7 @@ public:
   typedef boost::signals2::signal<void (UndoAction*)> UndoSignal;
   typedef boost::signals2::signal<void (UndoAction*)> RedoSignal;
   
-  UndoManager(GRT *grt);
+  UndoManager();
   virtual ~UndoManager();
   
   void enable_logging_to(std::ostream *stream);

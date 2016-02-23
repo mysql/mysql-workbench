@@ -317,7 +317,7 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
       //! these types are mysql specific
       //! TODO: int ResultSetMetaData::getColumnType must be used instead
       //! TODO: unify value range constraints
-      Known_type_initializer(GRT *grt)
+      Known_type_initializer()
       {
         known_types["BIT"]= sqlite::unknown_t();
 

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,11 +17,11 @@
  * 02110-1301  USA
  */
 
-#include <grts/structs.workbench.physical.h>
-#include <grts/structs.workbench.h>
+#include "grts/structs.workbench.physical.h"
+#include "grts/structs.workbench.h"
 
-#include <grtpp_util.h>
-#include <grtpp_undo_manager.h>
+#include "grtpp_util.h"
+#include "grtpp_undo_manager.h"
 
 #include "wbcanvas/workbench_physical_model_impl.h"
 #include "wbcanvas/model_diagram_impl.h"
@@ -64,7 +64,7 @@ model_DiagramRef workbench_physical_Model::addNewDiagram(ssize_t defer_realize)
 
   size.width*=2; // 2 pages
 
-  view= workbench_physical_DiagramRef(get_grt());
+  view = workbench_physical_DiagramRef();
   view->owner(this);
   view->name(name);
   view->width(size.width);

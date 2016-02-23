@@ -45,7 +45,7 @@ WizardForm::WizardForm(bec::GRTManager *mgr)
   scoped_connect(signal_extra_clicked(),boost::bind(&WizardForm::extra_clicked, this));
   set_cancel_handler(boost::bind(&WizardForm::cancel, this));
   
-  _values= grt::DictRef(mgr->get_grt());
+  _values= grt::DictRef();
 }
 
 

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,7 +48,7 @@ void model_Model::ImplData::list_changed(grt::internal::OwnedList *list, bool ad
   {
     if (added)
     {
-      if (_owner->get_grt()->get_undo_manager()->is_redoing())
+      if (grt::GRT::get().get_undo_manager()->is_redoing())
       {
         model_DiagramRef::cast_from(value)->get_data()->realize();
       }

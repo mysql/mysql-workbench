@@ -181,7 +181,7 @@ SqlEditorForm::Ref SqlEditorForm::create(wb::WBContextSQLIDE *wbsql, const db_mg
 void SqlEditorForm::set_tab_dock(mforms::DockingPoint *dp)
 {
   _tabdock = dp;
-  grtobj()->dockingPoint(mforms_to_grt(_grtm->get_grt(), dp));
+  grtobj()->dockingPoint(mforms_to_grt(dp));
   scoped_connect(_tabdock->signal_view_switched(), boost::bind(&SqlEditorForm::sql_editor_panel_switched, this));
   scoped_connect(_tabdock->signal_view_undocked(), boost::bind(&SqlEditorForm::sql_editor_panel_closed, this, _1));
 }
@@ -1882,7 +1882,7 @@ RecordsetsRef SqlEditorForm::exec_sql_returning_results(const std::string &sql_s
 
   RecordsetsRef rsets(new Recordsets());
   
-  do_exec_sql(_grtm->get_grt(), weak_ptr_from(this), boost::shared_ptr<std::string>(new std::string(sql_script)),
+  do_exec_sql(weak_ptr_from(this), boost::shared_ptr<std::string>(new std::string(sql_script)),
     NULL, (ExecFlags)(dont_add_limit_clause?DontAddLimitClause:0), rsets);
 
   return rsets;
@@ -2666,7 +2666,7 @@ void SqlEditorForm::apply_changes_to_recordset(Recordset::Ptr rs_ptr)
         sql_storage->is_sql_script_substitute_enabled(false);
         
         scoped_connection on_sql_script_run_error_conn(sql_storage->on_sql_script_run_error.connect(on_sql_script_run_error));
-        rs->do_apply_changes(_grtm->get_grt(), rs_ptr, Recordset_data_storage::Ptr(data_storage_ref), skip_commit);
+        rs->do_apply_changes(rs_ptr, Recordset_data_storage::Ptr(data_storage_ref), skip_commit);
       }
       
       // Since many messages could have been added it is possible the
@@ -2859,7 +2859,7 @@ void SqlEditorForm::apply_data_changes_commit(const std::string &sql_script_text
   scoped_connection on_sql_script_run_statistics_conn(sql_storage->on_sql_script_run_statistics.connect(on_sql_script_run_statistics));
 
   sql_storage->sql_script_substitute(sql_script);
-  rs->do_apply_changes(_grtm->get_grt(), rs_ptr, Recordset_data_storage::Ptr(data_storage_ref), skip_commit);
+  rs->do_apply_changes(rs_ptr, Recordset_data_storage::Ptr(data_storage_ref), skip_commit);
 
   if (!max_query_size_to_log || max_query_size_to_log >= (int)sql_script_text.size() )
     _history->add_entry(sql_script.statements);

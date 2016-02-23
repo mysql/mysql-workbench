@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -295,7 +295,6 @@ namespace wb {
     void foreach_component(const boost::function<void (WBComponent*)> &slot);
 
     bec::GRTManager *get_grt_manager() const { return _manager; }
-    grt::GRT *get_grt() const { return _manager->get_grt(); }
     boost::shared_ptr<WorkbenchImpl> get_workbench() { return _workbench; };
 
     bec::Clipboard *get_clipboard() const { return _clipboard; }

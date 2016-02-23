@@ -241,13 +241,13 @@ void DbConnectPanel::init(DbConnection *conn, const db_mgmt_ConnectionRef &defau
     _anonymous_connection= default_conn;
   else
   {
-    _anonymous_connection = db_mgmt_ConnectionRef(_connection->get_grt());
+    _anonymous_connection = db_mgmt_ConnectionRef();
     _anonymous_connection->owner(_connection->get_db_mgmt());
   }
 
   if (!_allowed_rdbms.is_valid())
   {
-    _allowed_rdbms = grt::ListRef<db_mgmt_Rdbms>(_connection->get_grt());
+    _allowed_rdbms = grt::ListRef<db_mgmt_Rdbms>();
     _allowed_rdbms.ginsert(_connection->get_db_mgmt()->rdbms()[0]);
   }
 
@@ -673,7 +673,7 @@ bool DbConnectPanel::test_connection()
     db_mgmt_ConnectionRef connectionProperties = get_be()->get_connection();
     if (!connectionProperties.is_valid())
     {
-      db_mgmt_ConnectionRef connection(get_be()->get_grt());
+      db_mgmt_ConnectionRef connection;
       connection->owner(get_be()->get_db_mgmt());
       connection->driver(selected_driver());
       set_connection(connection);
@@ -688,8 +688,7 @@ bool DbConnectPanel::test_connection()
 
     if ( connectionProperties->driver()->name() == "MySQLFabric")
     {
-       = connectionProperties->get_grt();
-      grt::BaseListRef args(grt);
+      grt::BaseListRef args;
       args->insert_unchecked(connectionProperties);
       grt::ValueRef result= grt::GRT::get().call_module_function("WBFabric", "testConnection", args);
       std::string error = grt::StringRef::extract_from(result);
@@ -875,12 +874,12 @@ void DbConnectPanel::change_active_stored_conn()
 void DbConnectPanel::launch_ssl_wizard()
 {
   mforms::Form *parent = get_parent_form();
-  grt::BaseListRef args(get_be()->get_grt());
-  args.ginsert(mforms_to_grt(get_be()->get_grt(), parent, "Form"));
+  grt::BaseListRef args;
+  args.ginsert(mforms_to_grt(parent, "Form"));
   args.ginsert(get_connection());
   args.ginsert(grt::StringRef(get_connection()->id()));
 
-  get_be()->get_grt()->call_module_function("PyWbUtils", "generateCertificates", args);
+  grt::GRT::get().call_module_function("PyWbUtils", "generateCertificates", args);
   
   _connection->update();
 }
@@ -899,7 +898,7 @@ void DbConnectPanel::open_ssl_wizard_directory()
 
 db_mgmt_ConnectionRef DbConnectPanel::open_editor()
 {
-  grt::ListRef<db_mgmt_Rdbms> rdbms_list(_connection->get_grt());
+  grt::ListRef<db_mgmt_Rdbms> rdbms_list;
   rdbms_list.ginsert(selected_rdbms());
   DbConnectionEditor editor(_connection->get_db_mgmt());
 

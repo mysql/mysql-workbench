@@ -37,7 +37,7 @@ void workbench_physical_Diagram::init()
   if (_rootLayer.is_valid())
     throw std::logic_error("rootLayer value is already initialized");
 
-  rootLayer(workbench_physical_LayerRef(get_grt()));
+  rootLayer(workbench_physical_LayerRef());
   _rootLayer->owner(this);
   _rootLayer->width(width());
   _rootLayer->height(height());

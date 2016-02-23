@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -442,7 +442,7 @@ void QuerySidePalette::show_help_text_for_topic(const std::string &topic)
 /**
  * Runs in the background to find the text for the last stored topic. Never called if there's no topic.
  */
-grt::StringRef QuerySidePalette::get_help_text_threaded(grt::GRT *)
+grt::StringRef QuerySidePalette::get_help_text_threaded()
 {
   SqlEditorForm::Ref form = _owner.lock();
   if (!form)
@@ -558,8 +558,7 @@ bool QuerySidePalette::find_context_help(MySQLEditor *editor)
  * to resolve ambiguities, hence it is a threaded task. Once we got the topic we run another task
  * to get the actual help text from it.
  */
-grt::StringRef QuerySidePalette::get_help_topic_threaded(grt::GRT *, const std::string &query,
-  std::pair<ssize_t, ssize_t> caret)
+grt::StringRef QuerySidePalette::get_help_topic_threaded(const std::string &query, std::pair<ssize_t, ssize_t> caret)
 {
   SqlEditorForm::Ref form = _owner.lock();
   if (!form)

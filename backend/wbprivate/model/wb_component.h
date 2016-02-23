@@ -48,7 +48,6 @@ namespace wb {
     virtual ~WBComponent() {};
     
     inline WBContext *get_wb() { return _wb; }
-    grt::GRT *get_grt();
     bec::GRTManager *get_grt_manager();
 
     virtual std::string get_name()= 0;

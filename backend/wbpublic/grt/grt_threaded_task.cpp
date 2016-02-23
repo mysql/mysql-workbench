@@ -225,7 +225,6 @@ void GrtThreadedTask::send_msg(int msg_type, const std::string &msg, const std::
   {
     if (!task())
       return;
-    = _grtm->get_grt();
     switch (msg_type)
     {
     case grt::WarningMsg:
