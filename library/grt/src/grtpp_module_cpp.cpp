@@ -39,7 +39,7 @@ Interface::Interface(CPPModuleLoader *loader)
 
 //--------------------------------------------------------------------------------------------------
 
-Interface *Interface::create(GRT *grt, const char *name, ...)
+Interface *Interface::create(const char *name, ...)
 {
   Interface *iface= new Interface(dynamic_cast<CPPModuleLoader*>(grt::GRT::get().get_module_loader("cpp")));
   va_list args;

@@ -1240,9 +1240,9 @@ int WorkbenchImpl::installModuleFile(const std::string &filename)
 }
 
 
-static int traverse_value(GRT *grt, const ObjectRef &owner, const std::string &member, const ValueRef &value);
+static int traverse_value(const ObjectRef &owner, const std::string &member, const ValueRef &value);
 
-static bool traverse_member(const MetaClass::Member *member, const ObjectRef &owner, const ObjectRef &object, GRT *grt)
+static bool traverse_member(const MetaClass::Member *member, const ObjectRef &owner, const ObjectRef &object)
 {
   std::string k= member->name;
   ValueRef v= object->get_member(k);
@@ -1278,7 +1278,7 @@ static bool traverse_member(const MetaClass::Member *member, const ObjectRef &ow
 }
 
 
-static int traverse_value(GRT *grt, const ObjectRef &owner, const std::string &member, const ValueRef &value)
+static int traverse_value(const ObjectRef &owner, const std::string &member, const ValueRef &value)
 {
   switch (value.type())
   {

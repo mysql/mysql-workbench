@@ -115,8 +115,6 @@ namespace bec {
   public:
     GRTDispatcher::Ref get_dispatcher() const { return _dispatcher; };
 
-    grt::GRT *get_grt() const { return _grt; };
-
     void initialize(bool init_python, const std::string &loader_module_path= "");
     bool initialize_shell(const std::string &shell_type);
 
@@ -195,7 +193,6 @@ namespace bec {
     void open_object_editor(const GrtObjectRef &object, bec::GUIPluginFlags flags = bec::NoFlags);
     
   protected:
-    grt::GRT *_grt;
     bool _has_unsaved_changes;
     GRTDispatcher::Ref _dispatcher;
     base::Mutex _idle_mutex;

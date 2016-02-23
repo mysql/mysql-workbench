@@ -84,7 +84,7 @@ db_ForeignKey::~db_ForeignKey()
 grt::ListRef<db_ForeignKey> get_foreign_keys_referencing_table(const db_TableRef &value)
 {
   std::map<grt::internal::Value*, std::set<db_ForeignKey*> >::const_iterator iter;
-  grt::ListRef<db_ForeignKey> result(value.get_grt());
+  grt::ListRef<db_ForeignKey> result;
 
   if ((iter= referenced_table_to_fk.find(value.valueptr())) != referenced_table_to_fk.end())
   {

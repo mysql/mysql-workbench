@@ -34,7 +34,6 @@ WBComponent::WBComponent(WBContext *context)
 {
 }
 
-grt::GRT *WBComponent::get_grt() { return _wb->get_grt_manager()->get_grt(); }
 bec::GRTManager *WBComponent::get_grt_manager() { return _wb->get_grt_manager(); }
 
 //--------------------------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,8 +38,6 @@ namespace bec {
     void picked_charset(const NodeId &node);
 
   protected:
-    grt::GRT *_grt;
-    
     std::list<size_t> _recently_used;
     std::string _charset_list_path;
   };

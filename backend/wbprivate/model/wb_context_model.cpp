@@ -208,12 +208,6 @@ mforms::TreeView* WBContextModel::create_history_tree()
 
 //--------------------------------------------------------------------------------------------------
 
-grt::GRT *WBContextModel::get_grt()
-{
-  return _wbui->get_wb()->get_grt();
-}
-
-
 void WBContextModel::option_changed(grt::internal::OwnedDict*dict, bool, const std::string&key)
 {
   if (key == "workbench:AutoSaveModelInterval" && dict == _wbui->get_wb()->get_wb_options().valueptr())

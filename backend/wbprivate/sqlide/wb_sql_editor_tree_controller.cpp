@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -282,7 +282,7 @@ void SqlEditorTreeController::finish_init()
   // Setup grt access to sidebar.
   db_query_EditorRef editor(_owner->wbsql()->get_grt_editor_object(_owner));
   if (editor.is_valid())
-    editor->sidebar(mforms_to_grt(_grtm->get_grt(), _admin_side_bar, "TaskSidebar"));
+    editor->sidebar(mforms_to_grt(_admin_side_bar, "TaskSidebar"));
 
   if (!_owner->connected())
       _info_tabview->set_active_tab(1);
@@ -1235,7 +1235,7 @@ void SqlEditorTreeController::tree_refresh()
   if (_owner->connected())
   {
     live_schemata_refresh_task->exec(false,
-                                   boost::bind((grt::StringRef(SqlEditorTreeController::*)(grt::GRT *, SqlEditorForm::Ptr))&SqlEditorTreeController::do_refresh_schema_tree_safe, this, _1,
+                                   boost::bind((grt::StringRef(SqlEditorTreeController::*)(SqlEditorForm::Ptr))&SqlEditorTreeController::do_refresh_schema_tree_safe, this, _1,
                                                weak_ptr_from(_owner)));
     _schema_tree->set_enabled(true);
   }

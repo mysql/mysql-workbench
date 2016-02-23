@@ -32,7 +32,7 @@ public:
 
 db_query_EditableResultsetRef WBPUBLICBACKEND_PUBLIC_FUNC grtwrap_editablerecordset(GrtObjectRef owner, Recordset::Ref rset)
 {
-  db_query_EditableResultsetRef object(owner.get_grt());
+  db_query_EditableResultsetRef object;
   
   db_query_EditableResultset::ImplData *data= new db_query_EditableResultset::ImplData(object, rset);
   

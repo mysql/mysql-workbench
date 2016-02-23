@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _WB_PLUGIN_BE_H_
-#define _WB_PLUGIN_BE_H_
-
+#pragma once
 
 #include "db_mysql_public_interface.h"
 #include "grt/grt_manager.h"
@@ -46,7 +44,7 @@ public:
   virtual std::string task_desc() = 0;
   void exec_task(bool sync= false);
 protected:
-  typedef boost::function<grt::StringRef (grt::GRT *)> Task_proc_cb;
+  typedef boost::function<grt::StringRef ()> Task_proc_cb;
   virtual void set_task_proc() = 0;
   Task_proc_cb _task_proc_cb;
 
@@ -81,6 +79,3 @@ public:
 protected:
   grt::DictRef _options;
 };
-
-
-#endif /* _WB_PLUGIN_BE_H_ */

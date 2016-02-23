@@ -60,7 +60,7 @@ grtui::DbConnectionEditor::DbConnectionEditor(const db_mgmt_ManagementRef &mgmt)
 , _bottom_hbox(true)
 {  
   set_name("connection_editor");
-  grt::ListRef<db_mgmt_Rdbms> default_allowed_rdbms(mgmt.get_grt());
+  grt::ListRef<db_mgmt_Rdbms> default_allowed_rdbms;
   default_allowed_rdbms.ginsert(find_object_in_list(mgmt->rdbms(), "com.mysql.rdbms.mysql"));
   _panel.init(_mgmt, default_allowed_rdbms);
   
@@ -175,7 +175,7 @@ void grtui::DbConnectionEditor::run()
   reset_stored_conn_list();
     
   if (run_modal(&_ok_button, &_cancel_button))
-    _mgmt.get_grt()->call_module_function("Workbench", "saveConnections", grt::BaseListRef());
+   grt::GRT::get().call_module_function("Workbench", "saveConnections", grt::BaseListRef());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -234,7 +234,7 @@ void grtui::DbConnectionEditor::add_stored_conn(bool copy)
   sprintf(buf, "New connection %i", max_conn_nr + 1);
 
   // use the current values to create a new connection
-  db_mgmt_ConnectionRef new_connection(_panel.get_be()->get_grt());
+  db_mgmt_ConnectionRef new_connection;
   
   new_connection->owner(_panel.get_be()->get_db_mgmt());
   new_connection->name(buf);

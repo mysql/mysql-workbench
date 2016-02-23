@@ -339,16 +339,13 @@ namespace grt {
   public:
     typedef Class RefType;
 
-    Ref(Class *obj)
-      : ValueRef(obj)
+    Ref()
     {
     }
 
-    /** Constructor for creating and initializing a new object. 
-     */
-    explicit Ref() : ValueRef(new Class)
+    Ref(Class *obj)
+      : ValueRef(obj)
     {
-      content().init();
     }
 
     Ref(const Ref<Class> &ref)
@@ -1458,11 +1455,7 @@ namespace grt {
   class MYSQLGRT_PUBLIC ListRef<internal::Double> : public BaseListRef
   {
   public:
-    ListRef()
-    {
-    }
-
-    ListRef(GRT *grt, internal::Object *owner= 0, bool allow_null= true)
+    ListRef(internal::Object *owner= 0, bool allow_null= true)
       : BaseListRef(DoubleType, "", owner, allow_null)
     {
     }
@@ -1836,11 +1829,7 @@ namespace grt {
     class MYSQLGRT_PUBLIC ListRef<internal::Dict> : public BaseListRef
   {
   public:
-    ListRef()
-    {
-    }
-
-    ListRef(GRT *grt, internal::Object *owner= 0, bool allow_null= true)
+    ListRef(internal::Object *owner= 0, bool allow_null= true)
       : BaseListRef(DictType, "", owner, allow_null)
     {
     }
@@ -2069,7 +2058,6 @@ namespace grt {
 
   public:
     const std::string &name() const { return _name; }
-    GRT *get_grt() const { return _grt; }
     MetaClass *parent() const { return _parent; }
     
     unsigned int crc32() const { return _crc32; }
@@ -2223,8 +2211,8 @@ namespace grt {
     // for use by GRT only
     ~MetaClass();
 
-    static MetaClass* create_base_class(GRT *grt);
-    static MetaClass* from_xml(GRT *grt, const std::string &source, xmlNodePtr node);
+    static MetaClass* create_base_class();
+    static MetaClass* from_xml(const std::string &source, xmlNodePtr node);
     bool placeholder() const { return _placeholder; }
     bool validate();
     bool is_bound() const;
@@ -2249,11 +2237,9 @@ namespace grt {
     friend class Serializer;
     friend class Unserializer;
 
-    MetaClass(GRT *grt);
+    MetaClass();
     void load_xml(xmlNodePtr node);
     void load_attribute_list(xmlNodePtr node, const std::string &member= "");
-    
-    GRT *_grt;
     
     std::string _name;
     MetaClass* _parent;
@@ -2790,8 +2776,7 @@ namespace grt {
   protected:
     struct AutoLock
     {
-      const GRT *_grt;
-      AutoLock(const GRT *grt) : _grt(grt) { grt::GRT::get().lock(); }
+      AutoLock() { grt::GRT::get().lock(); }
       ~AutoLock() { grt::GRT::get().unlock(); }
     };
     void lock() const;

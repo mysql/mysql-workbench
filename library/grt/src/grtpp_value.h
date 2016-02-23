@@ -518,7 +518,6 @@ namespace grt {
       virtual void owned_dict_item_set(OwnedDict *dict, const std::string &key);
       virtual void owned_dict_item_removed(OwnedDict *dict, const std::string &key);
 
-      //use _metaclass->get_grt() GRT *_grt;
       MetaClass* _metaclass;
       std::string _id;
       boost::signals2::signal<void (const std::string&, const grt::ValueRef&)> _changed_signal;

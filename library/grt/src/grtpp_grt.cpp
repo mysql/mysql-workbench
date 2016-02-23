@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -188,12 +188,12 @@ GRT::GRT()
   
   GRTNotificationCenter::setup();
 
-  _default_undo_manager= new UndoManager(this);
+  _default_undo_manager = new UndoManager;
 
   add_module_loader(new CPPModuleLoader());
   
   // register metaclass for base class
-  add_metaclass(MetaClass::create_base_class(this));
+  add_metaclass(MetaClass::create_base_class());
   
   _root= grt::DictRef();
 }
@@ -318,7 +318,7 @@ void GRT::load_metaclasses(const std::string &file, std::list<std::string> *requ
     {
       if (xmlStrcmp(root->name, (xmlChar*)"gstruct")==0)
       {
-        MetaClass *gstruct= MetaClass::from_xml(this, file, root);
+        MetaClass *gstruct= MetaClass::from_xml(file, root);
         if (gstruct)
         {
           MetaClass *tmp;
@@ -501,7 +501,7 @@ void GRT::add_metaclass(MetaClass *stru)
 
 void GRT::set_root(const ValueRef &root)
 {
-  AutoLock lock(this);
+  AutoLock lock;
   _root= root;
 // only nodes starting from /wb/doc (ie, in a model) should be marked global for undo tracking
 //  if (_root.is_valid())
@@ -512,7 +512,7 @@ void GRT::set_root(const ValueRef &root)
 
 ValueRef GRT::get(const std::string &path) const
 {
-  AutoLock lock(this);
+  AutoLock lock;
  
   return get_value_by_path(_root, path);
 }
@@ -520,7 +520,7 @@ ValueRef GRT::get(const std::string &path) const
 
 void GRT::set(const std::string &path, const ValueRef &value)
 {
-  AutoLock lock(this);
+  AutoLock lock;
   
   if (!set_value_by_path(_root, path, value))
     throw grt::bad_item("Invalid path "+path);

@@ -159,9 +159,9 @@ namespace grt {
   class InterfaceImplBase : virtual public InterfaceData
   {
   public:
-    template<class InterfaceClass> static void Register(GRT *grt)
+    template<class InterfaceClass> static void Register()
     {
-      InterfaceClass::register_interface(grt);
+      InterfaceClass::register_interface();
     }
     
     virtual ~InterfaceImplBase() {};
@@ -177,7 +177,7 @@ namespace grt {
   class MYSQLGRT_PUBLIC Interface : public Module
   {
   public:
-    static Interface *create(GRT *grt, const char *name, ...);
+    static Interface *create(const char *name, ...);
     
     bool check_conformance(const Module *module) const;
      

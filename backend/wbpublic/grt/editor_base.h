@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -76,7 +76,6 @@ namespace bec {
                                      // so we still can undo. Live editors reload content to reset the undo stack.
     virtual void reset_editor_undo_stack() {} // Called after changes were applied (mostly live objects).
 
-    grt::GRT *get_grt() { return _grtm->get_grt(); }
     GRTManager *get_grt_manager() { return _grtm; }
 
     virtual void on_object_changed();
@@ -135,9 +134,9 @@ namespace bec {
     {
       if (group)
       {
-        editor->scoped_connect(editor->get_grt()->get_undo_manager()->
+        editor->scoped_connect(grt::GRT::get().get_undo_manager()->
           signal_undo(),boost::bind(&AutoUndoEdit::undo_applied, _1, group, editor));
-        editor->scoped_connect(editor->get_grt()->get_undo_manager()->
+        editor->scoped_connect(grt::GRT::get().get_undo_manager()->
           signal_redo(),boost::bind(&AutoUndoEdit::undo_applied,_1, group, editor));
 
       }
@@ -148,9 +147,9 @@ namespace bec {
     {
       if (group)
       {
-        editor->scoped_connect((editor->get_grt()->get_undo_manager()->
+        editor->scoped_connect((grt::GRT::get().get_undo_manager()->
           signal_undo()),boost::bind(&AutoUndoEdit::undo_applied, _1, group, editor));
-        editor->scoped_connect((editor->get_grt()->get_undo_manager()->
+        editor->scoped_connect((grt::GRT::get().get_undo_manager()->
           signal_redo()),boost::bind(&AutoUndoEdit::undo_applied, _1, group, editor));
 
       }

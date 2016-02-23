@@ -112,9 +112,8 @@ public:
 
   // autocomplete_context will go after auto completion refactoring.
   Private(ParserContext::Ref syntaxcheck_context, ParserContext::Ref autocomplete_context)
-    : _grtobj(grt)
   {
-    _grtm = GRTManager::get_instance_for(grt);
+    _grtm = GRTManager::get_instance_for();
 
     _owns_toolbar = false;
     _parse_unit = QtUnknown;
@@ -125,7 +124,7 @@ public:
 
     _parser_context = syntaxcheck_context;
     _autocompletion_context = autocomplete_context;
-    _services = MySQLParserServices::get(grt);
+    _services = MySQLParserServices::get();
 
     _current_delay_timer = NULL;
     _current_work_timer_id = -1;
@@ -338,8 +337,7 @@ static void show_find_panel_for_active_editor(MySQLEditor *sql_editor)
 
 static void beautify_script(MySQLEditor *sql_editor)
 {
-   = sql_editor->grtobj()->get_grt();
-  grt::BaseListRef args(grt);
+  grt::BaseListRef args;
   args.ginsert(sql_editor->grtobj());
 
   grt::GRT::get().call_module_function("SQLIDEUtils", "enbeautificate", args);
@@ -363,8 +361,7 @@ static void open_file(MySQLEditor *sql_editor)
       char *converted;
 
       mforms::CodeEditor* code_editor = sql_editor->get_editor_control();
-      if (FileCharsetDialog::ensure_filedata_utf8(sql_editor->grtm()->get_grt(),
-                                                  contents, length, "", file, converted))
+      if (FileCharsetDialog::ensure_filedata_utf8(contents, length, "", file, converted))
       {
         code_editor->set_text_keeping_state(converted ? converted : contents);
         g_free(contents);
