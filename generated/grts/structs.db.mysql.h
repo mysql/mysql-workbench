@@ -5,7 +5,7 @@
   #pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #endif
 
-#include <grtpp.h>
+#include "grt.h"
 
 #ifdef _WIN32
   #pragma warning(disable: 4355) // 'this' : used in base member initializer list

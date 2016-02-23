@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1010,7 +1010,7 @@ void grt::helper::generate_struct_code(GRT *grt, const std::string &target_file,
       g_free(path);
 
       fprintf(fhdr, "#pragma once\n");
-      fprintf(fhdr, "\n#include <grtpp.h>\n\n");
+      fprintf(fhdr, "\n#include \"grt.h\"\n\n");
 
       fprintf(fhdr, "#ifdef _WIN32\n");
       fprintf(fhdr, "  #pragma warning(disable: 4355) // 'this' : used in base member initializer list\n");

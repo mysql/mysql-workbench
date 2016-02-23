@@ -93,7 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="src\grtpp_grt.cpp">
+    <ClCompile Include="src\grt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\grtpp_helper.cpp">

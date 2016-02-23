@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "grtpp.h"
+#include "grt.h"
 #include "grts/structs.db.h"
 #include "grts/structs.db.mgmt.h"
 #include "grts/structs.db.mysql.h"

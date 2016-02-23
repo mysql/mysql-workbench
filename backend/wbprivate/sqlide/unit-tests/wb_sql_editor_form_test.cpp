@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@
 #include "sqlide/wb_sql_editor_tree_controller.h"
 #include "stub/stub_mforms.h"
 
-#include "grtpp.h"
+#include "grt.h"
 
 #include "cppdbc.h"
 #include "wb_helpers.h"

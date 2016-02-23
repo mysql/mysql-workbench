@@ -18,7 +18,7 @@
  */
 
 #include <stdio.h>
-#include "grtpp.h"
+#include "grt.h"
 
 #include "grtdb/editor_table.h"
 #include "grtdb/db_object_helpers.h"

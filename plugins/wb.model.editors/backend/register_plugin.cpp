@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -17,14 +17,12 @@
 * 02110-1301  USA
 */
 
-#include "grtpp.h"
+#include "grt.h"
 #include "interfaces/plugin.h"
 
 #include "grts/structs.workbench.model.h"
 
-
 #define MODULE_VERSION "1.0.0"
-
 
 #ifdef _WIN32
 # define FRONTEND_LIBNAME(obj, windows_dll, linux_so, osx_dylib)\
