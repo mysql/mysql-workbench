@@ -106,7 +106,7 @@ namespace wb {
 
     virtual void delete_db_object(const db_DatabaseObjectRef &object);
 
-    void setup_physical_model(grt::GRT *grt, workbench_DocumentRef &doc, 
+    void setup_physical_model(workbench_DocumentRef &doc, 
                               const std::string &rdbms_name, const std::string &rdbms_version);
 
 
@@ -183,7 +183,7 @@ namespace wb {
 
     virtual void load_app_options(bool update);
 
-    virtual void setup_context_grt(grt::GRT *grt, WBOptions *options);
+    virtual void setup_context_grt(WBOptions *options);
 
     void init_catalog_grt(const db_mgmt_RdbmsRef &rdbms,
                           const std::string &db_versionRef,

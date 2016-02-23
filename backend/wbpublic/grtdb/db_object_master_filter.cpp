@@ -25,18 +25,16 @@ using namespace bec;
 DBObjectMasterFilterBE::DBObjectMasterFilterBE(GRTManager *grtm)
   : _grtm(grtm)
 {
-  grt::GRT *grt= _grtm->get_grt();
-
   // load stored filter sets
-  grt::DictRef opt= grt::DictRef::cast_from(grt->get("/wb/options/options"));
+  grt::DictRef opt= grt::DictRef::cast_from(grt::GRT::get().get("/wb/options/options"));
   _stored_master_filter_sets_filepath
     .append(_grtm->get_user_datadir())
     .append("/stored_master_filter_sets.xml");
   if (g_file_test(_stored_master_filter_sets_filepath.c_str(), G_FILE_TEST_EXISTS))
     _stored_master_filter_sets= grt::DictRef::cast_from(
-      grt->unserialize(_stored_master_filter_sets_filepath));
+      grt::GRT::get().unserialize(_stored_master_filter_sets_filepath));
   if (!_stored_master_filter_sets.is_valid())
-    _stored_master_filter_sets= grt::DictRef(grt);
+    _stored_master_filter_sets= grt::DictRef();
 }
 
 
@@ -57,9 +55,7 @@ void DBObjectMasterFilterBE::add_stored_filter_set(const std::string &name, std:
   if (_filters.empty())
     return;
 
-  grt::GRT *grt= _grtm->get_grt();
-
-  grt::DictRef stored_filter_sets(grt);
+  grt::DictRef stored_filter_sets;
   _stored_master_filter_sets.set(name, stored_filter_sets);
 
   {
@@ -71,7 +67,7 @@ void DBObjectMasterFilterBE::add_stored_filter_set(const std::string &name, std:
       stored_filter_sets.gset((*f)->get_full_type_name(), *i);
   }
 
-  grt->serialize(_stored_master_filter_sets, _stored_master_filter_sets_filepath);
+  grt::GRT::get().serialize(_stored_master_filter_sets, _stored_master_filter_sets_filepath);
 }
 
 
@@ -97,7 +93,7 @@ void DBObjectMasterFilterBE::load_stored_filter_set(int index, std::list<int> &i
   if (_filters.empty())
     return;
   
-  grt::GRT *grt= _grtm->get_grt();
+  = _grtm->get_grt();
 
   std::string key;
   grt::DictRef filter_set_indexes(grt);

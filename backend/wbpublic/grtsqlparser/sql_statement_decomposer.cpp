@@ -67,8 +67,6 @@ std::ostream& operator << (std::ostream &os, SelectStatement &s)
 }
 
 
-Sql_statement_decomposer::Sql_statement_decomposer(grt::GRT *grt)
-:
-Sql_parser_base(grt)
+Sql_statement_decomposer::Sql_statement_decomposer()
 {
 }

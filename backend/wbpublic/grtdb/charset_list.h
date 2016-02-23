@@ -26,7 +26,7 @@ namespace bec {
   
   class CharsetList : public ListModel {
   public:
-    CharsetList(grt::GRT *grt, const std::string &path);
+    CharsetList(const std::string &path);
 
     enum CharsetListColumns {
       Name

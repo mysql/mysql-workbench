@@ -486,7 +486,7 @@ mforms::View *SqlEditorTreeController::get_sidebar()
   return _side_splitter;
 }
 
-grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *grt, boost::weak_ptr<SqlEditorTreeController> self_ptr, const std::string &schema_name, wb::LiveSchemaTree::NewSchemaContentArrivedSlot arrived_slot)
+grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(boost::weak_ptr<SqlEditorTreeController> self_ptr, const std::string &schema_name, wb::LiveSchemaTree::NewSchemaContentArrivedSlot arrived_slot)
 {
   RETVAL_IF_FAIL_TO_RETAIN_WEAK_PTR (SqlEditorTreeController, self_ptr, self, grt::StringRef(""))
   try
@@ -596,7 +596,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
 
 //--------------------------------------------------------------------------------------------------
 
-grt::StringRef SqlEditorTreeController::do_fetch_data_for_filter(grt::GRT *grt, boost::weak_ptr<SqlEditorTreeController> self_ptr, const std::string &schema_filter, const std::string &object_filter, wb::LiveSchemaTree::NewSchemaContentArrivedSlot arrived_slot)
+grt::StringRef SqlEditorTreeController::do_fetch_data_for_filter(boost::weak_ptr<SqlEditorTreeController> self_ptr, const std::string &schema_filter, const std::string &object_filter, wb::LiveSchemaTree::NewSchemaContentArrivedSlot arrived_slot)
 {
   RETVAL_IF_FAIL_TO_RETAIN_WEAK_PTR (SqlEditorTreeController, self_ptr, self, grt::StringRef(""))
 
@@ -2481,7 +2481,7 @@ void SqlEditorTreeController::create_live_table_stubs(bec::DBObjectEditorBE *tab
     std::string database_package= *_owner->rdbms()->databaseObjectPackage();
     std::string schema_typename= database_package + ".Schema";
     std::string table_typename= database_package + ".Table";
-    grt::GRT *grt= _grtm->get_grt();
+    = _grtm->get_grt();
 
     std::string prev_schema_name;
 
@@ -2501,7 +2501,7 @@ void SqlEditorTreeController::create_live_table_stubs(bec::DBObjectEditorBE *tab
         schema= find_named_object_in_list(schemata, schema_name);
         if (!schema.is_valid())
         {
-          schema= grt->create_object<db_Schema>(schema_typename);
+          schema= grt::GRT::get().create_object<db_Schema>(schema_typename);
           schema->owner(catalog);
           schema->name(schema_name);
           schema->oldName(schema_name);
@@ -2514,7 +2514,7 @@ void SqlEditorTreeController::create_live_table_stubs(bec::DBObjectEditorBE *tab
       table= find_named_object_in_list(tables, table_name);
       if (!table.is_valid())
       {
-        table= grt->create_object<db_Table>(table_typename);
+        table= grt::GRT::get().create_object<db_Table>(table_typename);
         table->owner(schema);
         table->name(table_name);
         table->oldName(table_name);
@@ -2642,7 +2642,7 @@ void SqlEditorTreeController::mark_busy(bool busy)
 
 //--------------------------------------------------------------------------------------------------
 
-grt::StringRef SqlEditorTreeController::do_refresh_schema_tree_safe(grt::GRT *grt, SqlEditorForm::Ptr self_ptr)
+grt::StringRef SqlEditorTreeController::do_refresh_schema_tree_safe(SqlEditorForm::Ptr self_ptr)
 {
   RETVAL_IF_FAIL_TO_RETAIN_WEAK_PTR (SqlEditorForm, self_ptr, self, grt::StringRef(""))
 

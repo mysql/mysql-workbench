@@ -204,7 +204,7 @@ public:
     const std::string &line_break = "\n");
 
   grt::DictRef parseStatementDetails(parser_ContextReferenceRef context_ref, const std::string &sql);
-  virtual grt::DictRef parseStatement(parser::ParserContext::Ref context, grt::GRT *grt, const std::string &sql);
+  virtual grt::DictRef parseStatement(parser::ParserContext::Ref context, , const std::string &sql);
 
   // Query manipulation.
   std::string replaceTokenSequence(parser_ContextReferenceRef context_ref,

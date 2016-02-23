@@ -78,7 +78,7 @@ public:
 
   int calcSum(int num1)
   {
-    SampleModule1Impl *s1= get_grt()->get_native_module<SampleModule1Impl>();
+    SampleModule1Impl *s1= grt::GRT::get().get_native_module<SampleModule1Impl>();
     int num2= s1->getNumber();
     return num1 + num2;
   }
@@ -87,7 +87,7 @@ public:
 #ifdef DEFINE_TEST_MODULES_CODE
 int SampleModule1Impl::calculate()
 {
-  SampleModule2Impl *s2= get_grt()->get_native_module<SampleModule2Impl>();
+  SampleModule2Impl *s2= grt::GRT::get().get_native_module<SampleModule2Impl>();
   return s2->calcSum(1);
 }
 #endif

@@ -943,7 +943,7 @@ static int fix_duplicate_uuid_bug(xmlNodePtr node,
 }
 
 
-static void fix_duplicate_uuid_bug_references(grt::GRT *grt, xmlNodePtr node, 
+static void fix_duplicate_uuid_bug_references(xmlNodePtr node, 
                                               std::map<std::string, std::map<std::string, std::string> > &remapped_ids)
 {
   xmlNodePtr n;
@@ -1006,7 +1006,7 @@ static void fix_duplicate_uuid_bug_references(grt::GRT *grt, xmlNodePtr node,
             for (std::map<std::string, std::string>::const_iterator opt = structs.begin();
                  opt != structs.end(); ++opt)
             {
-              grt::MetaClass *mc = grt->get_metaclass(opt->first);
+              grt::MetaClass *mc = grt::GRT::get().get_metaclass(opt->first);
               while (mc)
               {
                 if (mc->name() == sname)
@@ -1031,12 +1031,12 @@ static void fix_duplicate_uuid_bug_references(grt::GRT *grt, xmlNodePtr node,
             xmlNodeSetContent(n, (xmlChar*)it->second[sname].c_str());
         }
       }
-      fix_duplicate_uuid_bug_references(grt, n, remapped_ids);
+      fix_duplicate_uuid_bug_references(n, remapped_ids);
     }
   }
 }
 
-bool ModelFile::check_and_fix_duplicate_uuid_bug(grt::GRT *grt, xmlDocPtr xmldoc)
+bool ModelFile::check_and_fix_duplicate_uuid_bug(xmlDocPtr xmldoc)
 {
   if (XMLTraverser::node_prop(xmlDocGetRootElement(xmldoc), "version") == "1.4.1"
       || XMLTraverser::node_prop(xmlDocGetRootElement(xmldoc), "version") == "1.4.2")
@@ -1052,7 +1052,7 @@ bool ModelFile::check_and_fix_duplicate_uuid_bug(grt::GRT *grt, xmlDocPtr xmldoc
     std::map<std::string, std::map<std::string, std::string> > remapped_ids;
     if (fix_duplicate_uuid_bug(xmlDocGetRootElement(xmldoc), object_types, remapped_ids))
     {
-      fix_duplicate_uuid_bug_references(grt, xmlDocGetRootElement(xmldoc), remapped_ids);
+      fix_duplicate_uuid_bug_references(xmlDocGetRootElement(xmldoc), remapped_ids);
       return true;
     }
   }

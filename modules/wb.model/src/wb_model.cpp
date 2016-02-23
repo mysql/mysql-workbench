@@ -164,14 +164,14 @@ ListRef<app_Plugin> WbModelImpl::getPluginInfo()
 {
   ListRef<app_Plugin> list(get_grt());
 
-  def_export_view_plugin(get_grt(), "center", "Center Diagram Contents", list);
-  def_export_view_plugin(get_grt(), "autolayout", "Autolayout Figures", list);
+  def_export_view_plugin("center", "Center Diagram Contents", list);
+  def_export_view_plugin("autolayout", "Autolayout Figures", list);
 
-  def_export_catalog_plugin(get_grt(), "createDiagramWithCatalog", "Autoplace Objects of the Catalog on New Model", list);
+  def_export_catalog_plugin("createDiagramWithCatalog", "Autoplace Objects of the Catalog on New Model", list);
 
-  def_figure_selection_plugin(get_grt(), "fitObjectsToContents", "Reset Object Size", "+", list);
-  def_export_view_plugin(get_grt(), "collapseAllObjects", "Collapse Objects", list);
-  def_export_view_plugin(get_grt(), "expandAllObjects", "Expand Objects", list);
+  def_figure_selection_plugin("fitObjectsToContents", "Reset Object Size", "+", list);
+  def_export_view_plugin("collapseAllObjects", "Collapse Objects", list);
+  def_export_view_plugin("expandAllObjects", "Expand Objects", list);
 
   return list;
 }
@@ -223,7 +223,7 @@ void overwrite_default_option(T &value, const std::string &name, const grt::Dict
 std::string WbModelImpl::getTemplateDirFromName(const std::string& template_name)
 {
   // get pointer to the GRT
-  grt::GRT *grt= get_grt();
+  = get_grt();
   std::string template_base_dir= base::makePath(
     bec::GRTManager::get_instance_for(grt)->get_basedir(), 
     "modules/data/wb_model_reporting");
@@ -252,7 +252,7 @@ WbModelImpl::WbModelImpl(grt::CPPModuleLoader *ldr)
 
 void WbModelImpl::begin_undo_group()
 {
-  _undo_man= get_grt()->get_undo_manager();
+  _undo_man= grt::GRT::get().get_undo_manager();
   if (_undo_man)
     _undo_man->begin_undo_group();
 }
@@ -1082,7 +1082,7 @@ void WbModelImpl::handle_fklist_change(const model_DiagramRef &view, const db_Ta
         // connection doesnt exist yet, create it
         if (!found)
         {
-          grt::GRT *grt= table.get_grt();
+          = table.get_grt();
             
           workbench_physical_ConnectionRef conn(grt);
           conn->owner(view); 

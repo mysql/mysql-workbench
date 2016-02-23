@@ -57,10 +57,10 @@ TEST_MODULE(grt_object_value, "GRT: object values");
 TEST_FUNCTION(1)
 {
   // load structs
-  grt->load_metaclasses("data/structs.test.xml");
-  grt->end_loading_metaclasses();
+  grt::GRT::get().load_metaclasses("data/structs.test.xml");
+  grt::GRT::get().end_loading_metaclasses();
 
-  ensure_equals("load structs", grt->get_metaclasses().size(), 6U);
+  ensure_equals("load structs", grt::GRT::get().get_metaclasses().size(), 6U);
 }
 
 TEST_FUNCTION(5)

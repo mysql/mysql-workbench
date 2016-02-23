@@ -77,7 +77,7 @@ ParserContext::Ref parser_context_from_grt(parser_ContextReferenceRef object)
 
 //--------------------------------------------------------------------------------------------------
 
-parser_ContextReferenceRef parser_context_to_grt(grt::GRT *grt, const ParserContext::Ref &context)
+parser_ContextReferenceRef parser_context_to_grt(const ParserContext::Ref &context)
 {
   if (context != NULL)
   {

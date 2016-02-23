@@ -48,14 +48,14 @@ db_RoutineRef db_Schema::addNewRoutine(const std::string &dbpackage)
   db_RoutineRef routine;
   std::string class_name;
 
-  if (is_global() && get_grt()->tracking_changes())
-    um= get_grt()->get_undo_manager();
+  if (is_global() && grt::GRT::get().tracking_changes())
+    um= grt::GRT::get().get_undo_manager();
 
   class_name= dbpackage+".Routine";
 
   std::string name= grt::get_name_suggestion_for_list_object(grt::ObjectListRef::cast_from(_routines), "routine");
 
-  routine= get_grt()->create_object<db_Routine>(class_name);
+  routine= grt::GRT::get().create_object<db_Routine>(class_name);
   routine->owner(this);
   routine->name(name);
   routine->createDate(base::fmttime(0, DATETIME_FMT));
@@ -78,14 +78,14 @@ db_RoutineGroupRef db_Schema::addNewRoutineGroup(const std::string &dbpackage)
   db_RoutineGroupRef rgroup;
   std::string class_name;
 
-  if (is_global() && get_grt()->tracking_changes())
-    um= get_grt()->get_undo_manager();
+  if (is_global() && grt::GRT::get().tracking_changes())
+    um= grt::GRT::get().get_undo_manager();
 
   class_name= dbpackage+".RoutineGroup";
 
   std::string name= grt::get_name_suggestion_for_list_object(grt::ObjectListRef::cast_from(routineGroups()), "routines");
 
-  rgroup= get_grt()->create_object<db_RoutineGroup>(class_name);
+  rgroup= grt::GRT::get().create_object<db_RoutineGroup>(class_name);
   rgroup->owner(this);
   rgroup->name(name);
   rgroup->createDate(base::fmttime(0, DATETIME_FMT));
@@ -107,14 +107,14 @@ db_TableRef db_Schema::addNewTable(const std::string &dbpackage)
   db_TableRef table;
   std::string class_name;
 
-  if (is_global() && get_grt()->tracking_changes())
-    um= get_grt()->get_undo_manager();
+  if (is_global() && grt::GRT::get().tracking_changes())
+    um= grt::GRT::get().get_undo_manager();
 
   class_name= dbpackage+".Table";
 
   std::string name= grt::get_name_suggestion_for_list_object(grt::ObjectListRef::cast_from(_tables), "table");
 
-  table= get_grt()->create_object<db_Table>(class_name);
+  table= grt::GRT::get().create_object<db_Table>(class_name);
   table->owner(this);
   table->name(name);
   table->createDate(base::fmttime(0, DATETIME_FMT));
@@ -135,14 +135,14 @@ db_ViewRef db_Schema::addNewView(const std::string &dbpackage)
   db_ViewRef view;
   std::string class_name;
 
-  if (is_global() && get_grt()->tracking_changes())
-    um= get_grt()->get_undo_manager();
+  if (is_global() && grt::GRT::get().tracking_changes())
+    um= grt::GRT::get().get_undo_manager();
 
   class_name= dbpackage+".View";
 
   std::string name= grt::get_name_suggestion_for_list_object(grt::ObjectListRef::cast_from(_views), "view");
 
-  view= get_grt()->create_object<db_View>(class_name);
+  view= grt::GRT::get().create_object<db_View>(class_name);
   view->owner(this);
   view->name(name);
   view->createDate(base::fmttime(0, DATETIME_FMT));
@@ -169,14 +169,14 @@ grt::ListRef<db_ForeignKey> db_Schema::getForeignKeysReferencingTable(const db_T
 
 void db_Schema::removeTable(const db_TableRef &table)
 {
-  grt::AutoUndo undo(get_grt(), !is_global());
+  grt::AutoUndo undo(!is_global());
 
   // check foreign keys that refer to this table and reset them
   grt::ListRef<db_ForeignKey> foreignKeys(getForeignKeysReferencingTable(table));
   for (grt::ListRef<db_ForeignKey>::const_reverse_iterator fk= foreignKeys.rbegin();
        fk != foreignKeys.rend(); ++fk)
   {
-    grt::AutoUndo undo(get_grt(), !is_global());
+    grt::AutoUndo undo(!is_global());
 
     (*fk)->referencedTable(db_TableRef());
     (*fk)->columns().remove_all();

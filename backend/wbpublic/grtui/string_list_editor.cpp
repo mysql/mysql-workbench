@@ -23,9 +23,9 @@
 
 using namespace grtui;
 
-StringListEditor::StringListEditor(grt::GRT *grt, mforms::Form *owner, const bool reorderable)
-: mforms::Form(owner, mforms::FormResizable), _grt(grt),
-_vbox(false), _tree(mforms::TreeFlatList|(reorderable ? mforms::TreeAllowReorderRows : (mforms::TreeOptions)0)), _button_box(true)
+StringListEditor::StringListEditor(mforms::Form *owner, const bool reorderable)
+  : mforms::Form(owner, mforms::FormResizable),
+  _vbox(false), _tree(mforms::TreeFlatList|(reorderable ? mforms::TreeAllowReorderRows : (mforms::TreeOptions)0)), _button_box(true)
 {
   set_name("list_editor");
   _tree.add_column(mforms::StringColumnType, "Value", 300, true);
@@ -117,7 +117,7 @@ std::vector<std::string> StringListEditor::get_string_list()
 
 grt::StringListRef StringListEditor::get_grt_string_list()
 {
-  grt::StringListRef list(_grt);
+  grt::StringListRef list;
   
   for (int c= _tree.count(), i= 0; i < c; i++)
   {

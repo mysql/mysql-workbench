@@ -459,7 +459,7 @@ int MysqlSqlFacadeImpl::renameSchemaReferences(db_CatalogRef catalog, const std:
 
 Sql_statement_decomposer::Ref MysqlSqlFacadeImpl::sqlStatementDecomposer(grt::DictRef db_opts)
 {
-  return Mysql_sql_statement_decomposer::create(get_grt(), db_opts);
+  return Mysql_sql_statement_decomposer::create(db_opts);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -479,7 +479,7 @@ grt::StringListRef MysqlSqlFacadeImpl::splitSqlStatements(const std::string &sql
 
 //--------------------------------------------------------------------------------------------------
 
-static grt::BaseListRef process_ast_node(grt::GRT *grt, int base_offset, const SqlAstNode& item)
+static grt::BaseListRef process_ast_node(int base_offset, const SqlAstNode& item)
 {
   grt::BaseListRef tuple(grt);
 
@@ -501,7 +501,7 @@ static grt::BaseListRef process_ast_node(grt::GRT *grt, int base_offset, const S
     if (subitems)
     {
       for (SqlAstNode::SubItemList::const_iterator i= subitems->begin(), i_end= subitems->end(); i != i_end; ++i)
-        children.ginsert(process_ast_node(grt, base_offset, **i));
+        children.ginsert(process_ast_node(base_offset, **i));
     }
     tuple.ginsert(children);
   }

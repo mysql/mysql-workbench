@@ -4794,7 +4794,7 @@ size_t MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t
  *           (optional) id_method : the authentication method if available
  *           (optional) id_password: the authentication string if available
  */
-grt::DictRef parseUserDefinition(MySQLRecognizerTreeWalker &walker, grt::GRT *grt)
+grt::DictRef parseUserDefinition(MySQLRecognizerTreeWalker &walker, )
 {
   grt::DictRef result(grt);
 
@@ -4851,9 +4851,9 @@ grt::DictRef parseUserDefinition(MySQLRecognizerTreeWalker &walker, grt::GRT *gr
 
 //--------------------------------------------------------------------------------------------------
 
-grt::DictRef collectGrantDetails(MySQLRecognizer *recognizer, grt::GRT *grt)
+grt::DictRef collectGrantDetails(MySQLRecognizer *recognizer, )
 {
-  grt::DictRef data = grt::DictRef(grt);
+  grt::DictRef data = grt::DictRef();
 
   MySQLRecognizerTreeWalker walker = recognizer->tree_walker();
 
@@ -4908,7 +4908,7 @@ grt::DictRef collectGrantDetails(MySQLRecognizer *recognizer, grt::GRT *grt)
   walker.next(); // Skip TO.
 
   // Now the user definitions.
-  grt::DictRef users = grt::DictRef(grt);
+  grt::DictRef users = grt::DictRef();
   data.set("users", users);
 
   while (true)
@@ -4995,7 +4995,7 @@ grt::DictRef MySQLParserServicesImpl::parseStatementDetails(parser_ContextRefere
 
 //--------------------------------------------------------------------------------------------------
 
-grt::DictRef MySQLParserServicesImpl::parseStatement(parser::ParserContext::Ref context, grt::GRT *grt, const std::string &sql)
+grt::DictRef MySQLParserServicesImpl::parseStatement(parser::ParserContext::Ref context, , const std::string &sql)
 {
   // This part can potentially grow very large because of the sheer amount of possible query types.
   // So it should be moved into an own file if it grows beyond a few 100 lines.

@@ -35,10 +35,10 @@ class Mysql_invalid_sql_parser
 {
 public:
   typedef boost::shared_ptr<Mysql_invalid_sql_parser> Ref;
-  static Ref create(grt::GRT *grt) { return Ref(new Mysql_invalid_sql_parser(grt)); }
+  static Ref create() { return Ref(new Mysql_invalid_sql_parser(grt)); }
   virtual ~Mysql_invalid_sql_parser() { }
 protected:
-  Mysql_invalid_sql_parser(grt::GRT *grt);
+  Mysql_invalid_sql_parser();
 
 public:
   int parse_inserts(db_TableRef table, const std::string &sql);

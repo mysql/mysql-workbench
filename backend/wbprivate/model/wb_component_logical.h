@@ -18,7 +18,7 @@ namespace wb {
     virtual std::string get_name() { return WBComponentLogical::name(); }
     virtual std::string get_diagram_class_name() { return workbench_logical_Diagram::static_class_name(); }
     
-    void setup_logical_model(grt::GRT *grt, workbench_DocumentRef &doc);
+    void setup_logical_model(workbench_DocumentRef &doc);
 
 
     virtual void activate_canvas_object(const model_ObjectRef &object, bool newwindow) {}

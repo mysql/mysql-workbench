@@ -74,8 +74,8 @@ void do_generate_interface_classes(grt::GRT *grt, const char *outfile,
 
   printf("Generating %s\n", outfile);
 
-  for (std::map<std::string,grt::Interface*>::const_iterator intf= grt->get_interfaces().begin();
-       intf != grt->get_interfaces().end(); ++intf)
+  for (std::map<std::string,grt::Interface*>::const_iterator intf= grt::GRT::get().get_interfaces().begin();
+       intf != grt::GRT::get().get_interfaces().end(); ++intf)
   {
     if (interfaces.empty() || std::find(interfaces.begin(), interfaces.end(), intf->second->name())!=interfaces.end())
     {
@@ -148,11 +148,11 @@ void generate_module_classes(const char *outpath)
   MYX_GRT_MODULE** list;
   int list_size= 0;
   
-  list= g_new0(MYX_GRT_MODULE*, grt->interfaces_num);
+  list= g_new0(MYX_GRT_MODULE*, grt::GRT::get().interfaces_num);
 
-  for (unsigned int i= 0; i < grt->interfaces_num; i++)
+  for (unsigned int i= 0; i < grt::GRT::get().interfaces_num; i++)
   {
-    MYX_GRT_MODULE *intf= grt->interfaces[i];
+    MYX_GRT_MODULE *intf= grt::GRT::get().interfaces[i];
 
     if (interfaces.empty() || is_in_list(intf->name, interfaces))
     {

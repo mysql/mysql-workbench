@@ -35,10 +35,10 @@ class Mysql_sql_schema_rename
 {
 public:
   typedef boost::shared_ptr<Mysql_sql_schema_rename> Ref;
-  static Ref create(grt::GRT *grt) { return Ref(new Mysql_sql_schema_rename(grt)); }
+  static Ref create() { return Ref(new Mysql_sql_schema_rename(grt)); }
   virtual ~Mysql_sql_schema_rename() {}
 protected:
-  Mysql_sql_schema_rename(grt::GRT *grt);
+  Mysql_sql_schema_rename();
 
 public:
   int rename_schema_references(db_CatalogRef catalog, const std::string &old_schema_name, const std::string &new_schema_name);

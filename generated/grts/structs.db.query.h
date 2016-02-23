@@ -49,8 +49,8 @@ class  db_query_LiveDBObject : public GrtObject
 {
   typedef GrtObject super;
 public:
-  db_query_LiveDBObject(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  db_query_LiveDBObject(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _schemaName(""),
      _type("")
 
@@ -104,16 +104,16 @@ protected:
   grt::StringRef _schemaName;
   grt::StringRef _type;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_query_LiveDBObject(grt));
+    return grt::ObjectRef(new db_query_LiveDBObject());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_query_LiveDBObject::create);
     {
@@ -135,8 +135,8 @@ class  db_query_ResultsetColumn : public GrtObject
 {
   typedef GrtObject super;
 public:
-  db_query_ResultsetColumn(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  db_query_ResultsetColumn(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _columnType("")
 
   {
@@ -168,16 +168,16 @@ protected:
 
   grt::StringRef _columnType;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_query_ResultsetColumn(grt));
+    return grt::ObjectRef(new db_query_ResultsetColumn());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_query_ResultsetColumn::create);
     {
@@ -196,9 +196,9 @@ class GRT_STRUCTS_DB_QUERY_PUBLIC db_query_Resultset : public GrtObject
 public:
   class ImplData;
   friend class ImplData;
-  db_query_Resultset(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-    _columns(grt, this, false),
+  db_query_Resultset(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+    _columns(this, false),
     _data(0)
 
   {
@@ -367,9 +367,9 @@ protected:
 private: // wrapper methods for use by grt
   ImplData *_data;
 
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_query_Resultset(grt));
+    return grt::ObjectRef(new db_query_Resultset());
   }
 
   static grt::ValueRef call_floatFieldValue(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_query_Resultset*>(self)->floatFieldValue(grt::IntegerRef::cast_from(args[0])); }
@@ -408,9 +408,9 @@ private: // wrapper methods for use by grt
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_query_Resultset::create);
     {
@@ -449,8 +449,8 @@ class GRT_STRUCTS_DB_QUERY_PUBLIC db_query_EditableResultset : public db_query_R
 public:
   class ImplData;
   friend class ImplData;
-  db_query_EditableResultset(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_query_Resultset(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  db_query_EditableResultset(grt::MetaClass *meta=0)
+  : db_query_Resultset(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _schema(""),
      _table(""),
     _data(0)
@@ -598,9 +598,9 @@ protected:
 private: // wrapper methods for use by grt
   ImplData *_data;
 
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_query_EditableResultset(grt));
+    return grt::ObjectRef(new db_query_EditableResultset());
   }
 
   static grt::ValueRef call_addNewRow(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_query_EditableResultset*>(self)->addNewRow(); }
@@ -631,9 +631,9 @@ private: // wrapper methods for use by grt
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_query_EditableResultset::create);
     {
@@ -670,8 +670,8 @@ class  db_query_ResultPanel : public GrtObject
 public:
   class ImplData;
   friend class ImplData;
-  db_query_ResultPanel(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+  db_query_ResultPanel(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
 
   {
   }
@@ -727,16 +727,16 @@ protected:
   mforms_ObjectReferenceRef _dockingPoint;// owned
   db_query_ResultsetRef _resultset;// owned
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_query_ResultPanel(grt));
+    return grt::ObjectRef(new db_query_ResultPanel());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_query_ResultPanel::create);
     {
@@ -760,8 +760,8 @@ class GRT_STRUCTS_DB_QUERY_PUBLIC db_query_QueryBuffer : public GrtObject
 public:
   class ImplData;
   friend class ImplData;
-  db_query_QueryBuffer(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  db_query_QueryBuffer(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
     _data(0)
 
   {
@@ -876,9 +876,9 @@ protected:
 private: // wrapper methods for use by grt
   ImplData *_data;
 
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_query_QueryBuffer(grt));
+    return grt::ObjectRef(new db_query_QueryBuffer());
   }
 
   static grt::ValueRef call_replaceContents(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_query_QueryBuffer*>(self)->replaceContents(grt::StringRef::cast_from(args[0])); }
@@ -889,9 +889,9 @@ private: // wrapper methods for use by grt
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_query_QueryBuffer::create);
     meta->bind_member("currentStatement", new grt::MetaClass::Property<db_query_QueryBuffer,grt::StringRef >(&db_query_QueryBuffer::currentStatement));
@@ -925,9 +925,9 @@ class  db_query_QueryEditor : public db_query_QueryBuffer
 public:
   class ImplData;
   friend class ImplData;
-  db_query_QueryEditor(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_query_QueryBuffer(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-    _resultPanels(grt, this, false)
+  db_query_QueryEditor(grt::MetaClass *meta=0)
+  : db_query_QueryBuffer(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+    _resultPanels(this, false)
 
   {
   }
@@ -1000,16 +1000,16 @@ protected:
   mforms_ObjectReferenceRef _resultDockingPoint;// owned
   grt::ListRef<db_query_ResultPanel> _resultPanels;// owned
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_query_QueryEditor(grt));
+    return grt::ObjectRef(new db_query_QueryEditor());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_query_QueryEditor::create);
     {
@@ -1038,10 +1038,10 @@ class GRT_STRUCTS_DB_QUERY_PUBLIC db_query_Editor : public GrtObject
 public:
   class ImplData;
   friend class ImplData;
-  db_query_Editor(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-    _customData(grt, this, false),
-    _queryEditors(grt, this, false),
+  db_query_Editor(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+    _customData(this, false),
+    _queryEditors(this, false),
     _data(0)
 
   {
@@ -1301,9 +1301,9 @@ protected:
 private: // wrapper methods for use by grt
   ImplData *_data;
 
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_query_Editor(grt));
+    return grt::ObjectRef(new db_query_Editor());
   }
 
   static grt::ValueRef call_addQueryEditor(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_query_Editor*>(self)->addQueryEditor(); }
@@ -1330,9 +1330,9 @@ private: // wrapper methods for use by grt
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_query_Editor::create);
     {

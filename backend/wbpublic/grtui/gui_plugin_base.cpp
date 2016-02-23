@@ -25,7 +25,7 @@ GUIPluginBase::GUIPluginBase(grt::Module *module)
 {
 }
 
-GUIPluginBase::GUIPluginBase(grt::GRT *grt)
+GUIPluginBase::GUIPluginBase()
   : _module(NULL), _grt(grt)
 {
 }

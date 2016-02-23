@@ -44,7 +44,7 @@ void Mysql_sql_statement_decomposer::set_options(const grt::DictRef &opts)
     Sql_parser_base::case_sensitive_identifiers(opts.get_int("case_sensitive_identifiers", grt::IntegerRef(1)) != 0);
 }
 
-Mysql_sql_statement_decomposer::Mysql_sql_statement_decomposer(grt::GRT *grt)
+Mysql_sql_statement_decomposer::Mysql_sql_statement_decomposer()
 :
 Sql_parser_base(grt),
 Mysql_sql_parser_base(grt),

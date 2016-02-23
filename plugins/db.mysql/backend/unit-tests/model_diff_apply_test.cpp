@@ -70,7 +70,7 @@ protected:
   grt::DictRef options;
   
   virtual db_mysql_CatalogRef get_model_catalog() { return model_catalog; }
-  virtual grt::DictRef get_options_as_dict(grt::GRT *grt) { return options; }
+  virtual grt::DictRef get_options_as_dict() { return options; }
 
 public:
   DbMySQLSQLExportTest(bec::GRTManager *grtm, db_mysql_CatalogRef cat) 
@@ -102,7 +102,7 @@ protected:
   grt::DbObjectMatchAlterOmf omf;
 
   db_mysql_CatalogRef create_catalog_from_script(const std::string& sql);
-  db_mysql_CatalogRef create_catalog_from_script(const std::string& sql, grt::GRT *grt);
+  db_mysql_CatalogRef create_catalog_from_script(const std::string& sql, );
 
   std::string run_sync_plugin_generate_script(
     const std::vector<std::string>&,
@@ -145,7 +145,7 @@ db_mysql_CatalogRef tut::Test_object_base<model_diff_apply>::create_catalog_from
 }
 
 db_mysql_CatalogRef tut::Test_object_base<model_diff_apply>::create_catalog_from_script(
-  const std::string& sql, grt::GRT *grt)
+  const std::string& sql, )
 {
   db_mysql_CatalogRef cat= create_empty_catalog_for_import(tester.grt);
   sql_parser->parseSqlScriptString(cat, sql);

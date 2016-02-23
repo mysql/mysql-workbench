@@ -36,7 +36,7 @@ class WBPUBLICBACKEND_PUBLIC_FUNC Invalid_sql_parser : virtual public Sql_parser
 public:
   typedef boost::shared_ptr<Invalid_sql_parser> Ref;
 protected:
-  Invalid_sql_parser(grt::GRT *grt) : Sql_parser_base(grt) {}
+  Invalid_sql_parser() {}
 
 public:
   virtual int parse_inserts(db_TableRef table, const std::string &sql)= 0;

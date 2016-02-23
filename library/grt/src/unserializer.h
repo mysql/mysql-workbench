@@ -30,7 +30,7 @@ namespace grt
     class Unserializer
     {
     public:
-      Unserializer(GRT *grt, bool check_crc);
+      Unserializer(bool check_crc);
 
       ValueRef load_from_xml(const std::string &path, 
                        std::string *doctype= 0, std::string *docversion= 0);
@@ -43,7 +43,6 @@ namespace grt
       ValueRef unserialize_xmldata(const char *data, size_t size);
 
     protected:
-      GRT *_grt;
       std::string _source_name;
       std::map<std::string, ValueRef > _cache;
       std::set<std::string> _invalid_cache;

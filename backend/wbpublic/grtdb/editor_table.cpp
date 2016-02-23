@@ -2943,7 +2943,7 @@ NodeId TableEditorBE::add_column(const std::string &name)
 {
   db_ColumnRef column;
 
-  column= get_grt()->create_object<db_Column>(get_table().get_metaclass()->get_member_type("columns").content.object_class);
+  column= grt::GRT::get().create_object<db_Column>(get_table().get_metaclass()->get_member_type("columns").content.object_class);
 
   column->name(name);
   
@@ -3052,7 +3052,7 @@ NodeId TableEditorBE::add_fk(const std::string &name)
 
   AutoUndoEdit undo(this);
 
-  fk= TableHelper::create_empty_foreign_key(get_grt(), get_table(), name);
+  fk= TableHelper::create_empty_foreign_key(get_table(), name);
 
   fk->updateRule(StringRef::cast_from(_grtm->get_app_option
     ("db.ForeignKey:updateRule")));
@@ -3112,7 +3112,7 @@ NodeId TableEditorBE::add_index(const std::string &name)
 
   if (indices.content_class_name() == "db.Index") throw std::logic_error("internal bug");
 
-  index= get_grt()->create_object<db_Index>(indices.content_class_name());
+  index= grt::GRT::get().create_object<db_Index>(indices.content_class_name());
   index->name(name);
   index->owner(get_table());
 
@@ -3281,7 +3281,7 @@ void TableEditorBE::catalogChanged(const std::string& member, const grt::ValueRe
             messageShown = true;
             if (ret == mforms::ResultCancel)
             {
-              grt::UndoManager *um = get_grt()->get_undo_manager();
+              grt::UndoManager *um = grt::GRT::get().get_undo_manager();
               assert(um != NULL);
               UndoAction* action = um->get_latest_undo_action();
               if (action != NULL && action->description() == "version")
@@ -3306,7 +3306,7 @@ bool TableEditorBE::parse_column_type(const std::string &str, db_ColumnRef &colu
   bool flag= column->setParseType(str, catalog->simpleDatatypes()) == 1;
   if (flag)
   {
-    grt::UndoManager *um = get_grt()->get_undo_manager();
+    grt::UndoManager *um = grt::GRT::get().get_undo_manager();
 
     // call _refresh_ui when this parse column type action is undone
     // XXX: everytime we parse a column type 2 new connections are added without removing the old ones!

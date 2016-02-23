@@ -131,7 +131,7 @@ namespace bec {
   public:
     AutoUndoEdit(BaseEditor *editor)
       // if editing a live object, this should be a no-op
-      : grt::AutoUndo(editor->get_grt(), editor->is_editing_live_object())
+      : grt::AutoUndo(editor->is_editing_live_object())
     {
       if (group)
       {
@@ -144,7 +144,7 @@ namespace bec {
     }
 
     AutoUndoEdit(BaseEditor *editor, const grt::ObjectRef &object, const std::string &member)
-      : grt::AutoUndo(editor->get_grt(), new UndoObjectChangeGroup(object.id(), member), editor->is_editing_live_object())
+      : grt::AutoUndo(new UndoObjectChangeGroup(object.id(), member), editor->is_editing_live_object())
     {
       if (group)
       {

@@ -40,7 +40,7 @@ public:
   }
 
 
-  grt::ValueRef do_fetch(grt::GRT *grt, bool source)
+  grt::ValueRef do_fetch(bool source)
   {
     grt::StringListRef selection(grt::StringListRef::cast_from(values().get(source ? "selectedOriginalSchemata" : "selectedSchemata")));
     std::vector<std::string> names;

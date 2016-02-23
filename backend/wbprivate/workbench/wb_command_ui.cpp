@@ -95,12 +95,12 @@ CommandUI::CommandUI(WBContext *wb)
 
 void CommandUI::load_data()
 {
-  grt::GRT *grt= _wb->get_grt();
+  = _wb->get_grt();
 
   _include_se = _wb->is_commercial();
 
   _shortcuts= grt::ListRef<app_ShortcutItem>::cast_from(
-                   grt->unserialize(base::makePath(_wb->get_datadir(), "data/shortcuts.xml")));
+                   grt::GRT::get().unserialize(base::makePath(_wb->get_datadir(), "data/shortcuts.xml")));
 }
 
 

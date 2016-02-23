@@ -214,7 +214,7 @@ grt::IntegerRef db_Column::setParseType(const std::string &type, const grt::List
   int scale= bec::EMPTY_COLUMN_SCALE;
   int length= bec::EMPTY_COLUMN_LENGTH;
   std::string datatypeExplicitParams;
-  grt::AutoUndo undo(get_grt(), !is_global());
+  grt::AutoUndo undo(!is_global());
 
   // if the available release number is negative, that's meant to signify "any release number",
   if (!bec::parse_type_definition(type, targetVersion, typeList, user_types, default_type_list,

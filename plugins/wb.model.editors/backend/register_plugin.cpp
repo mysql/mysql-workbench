@@ -39,7 +39,7 @@
 
 
 
-static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt);
+static grt::ListRef<app_Plugin> get_mysql_plugins_info();
 
 
 class WbEditorsModuleImpl : public grt::ModuleImplBase, public PluginInterfaceImpl
@@ -73,7 +73,7 @@ static void set_object_argument(app_PluginRef &plugin, const std::string &struct
 
 
 
-static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
+static grt::ListRef<app_Plugin> get_mysql_plugins_info()
 {
   grt::ListRef<app_Plugin> editors(grt);
 

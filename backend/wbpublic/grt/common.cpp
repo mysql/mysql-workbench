@@ -191,7 +191,7 @@ namespace bec {
         if (std::find(names_list.begin(), names_list.end(), group_name) == names_list.end())
         {
           item_name = group_name;
-          target_group = grt::ListRef<T>(items.get_grt());
+          target_group = grt::ListRef<T>();
           groups[item_name] = target_group;
         }
         else
@@ -208,7 +208,7 @@ namespace bec {
       {
         item_name += "/";
         fabric = true;
-        target_group = grt::ListRef<T>(items.get_grt());
+        target_group = grt::ListRef<T>();
         groups[item_name] = target_group;
       }
 

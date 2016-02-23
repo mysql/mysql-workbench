@@ -501,7 +501,7 @@ void SqlEditorResult::show_import_recordset()
   {
     RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR(Recordset, _rset, rs)
     {
-      grt::BaseListRef args(grtm->get_grt());
+      grt::BaseListRef args();
 
       if (result_grtobj().is_valid())
       {

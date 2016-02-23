@@ -50,7 +50,7 @@ Mysql_sql_parser_base::Null_state_keeper::~Null_state_keeper()
 #define NULL_STATE_KEEPER Null_state_keeper _nsk(this);
 
 
-Mysql_sql_parser_base::Mysql_sql_parser_base(grt::GRT *grt)
+Mysql_sql_parser_base::Mysql_sql_parser_base()
 :
 Sql_parser_base(grt),
 _override_sql_mode(false)

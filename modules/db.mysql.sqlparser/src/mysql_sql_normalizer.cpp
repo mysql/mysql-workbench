@@ -31,7 +31,7 @@ using namespace grt;
 #define NULL_STATE_KEEPER Null_state_keeper _nsk(this);
 
 
-Mysql_sql_normalizer::Mysql_sql_normalizer(grt::GRT *grt)
+Mysql_sql_normalizer::Mysql_sql_normalizer()
 :
 Sql_parser_base(grt),
 Mysql_sql_parser_base(grt)

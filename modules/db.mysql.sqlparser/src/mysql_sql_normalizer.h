@@ -37,10 +37,10 @@ class MYSQL_SQL_PARSER_PUBLIC_FUNC Mysql_sql_normalizer : protected Mysql_sql_pa
 {
 public:
   typedef boost::shared_ptr<Mysql_sql_normalizer> Ref;
-  static Ref create(grt::GRT *grt) { return Ref(new Mysql_sql_normalizer(grt)); }
+  static Ref create() { return Ref(new Mysql_sql_normalizer(grt)); }
   virtual ~Mysql_sql_normalizer() {}
 protected:
-  Mysql_sql_normalizer(grt::GRT *grt);
+  Mysql_sql_normalizer();
 
 public:
   std::string normalize(const std::string &sql, const std::string &schema_name);

@@ -28,9 +28,9 @@ void Sql_import::grtm(bec::GRTManager *grtm)
 {
   if (grtm)
   {
-    grt::GRT *grt= grtm->get_grt();
-    _options= grt::DictRef(grt);
-    _doc= workbench_DocumentRef::cast_from(grt->get("/wb/doc"));
+    = grtm->get_grt();
+    _options= grt::DictRef();
+    _doc= workbench_DocumentRef::cast_from(grt::GRT::get().get("/wb/doc"));
 
     // init some options based on global defaults
     // FE will query them to init controls state
@@ -66,13 +66,13 @@ boost::function<grt::ValueRef (grt::GRT*)> Sql_import::get_autoplace_task_slot()
 }
 
 
-grt::StringRef Sql_import::parse_sql_script(grt::GRT *grt, db_CatalogRef catalog, const std::string &sql_script)
+grt::StringRef Sql_import::parse_sql_script(db_CatalogRef catalog, const std::string &sql_script)
 {
   grt::ListRef<GrtObject> created_objects(grt);
   _options.set("created_objects", created_objects);
 
   parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grt);
-  db_mgmt_RdbmsRef rdbms = db_mgmt_RdbmsRef::cast_from(grt->get("/wb/rdbmsMgmt/rdbms/0/"));
+  db_mgmt_RdbmsRef rdbms = db_mgmt_RdbmsRef::cast_from(grt::GRT::get().get("/wb/rdbmsMgmt/rdbms/0/"));
   parser::ParserContext::Ref context = services->createParserContext(rdbms->characterSets(), getVersion(grt), /*_lower_case_table_names != 0*/ 0);
 
   parse_sql_script(services, context, catalog, sql_script, _options);
@@ -97,7 +97,7 @@ grt::ListRef<GrtObject> Sql_import::get_created_objects()
   return grt::ListRef<GrtObject>::cast_from(_options.get("created_objects"));
 }
 
-grt::ValueRef Sql_import::autoplace_grt(grt::GRT *grt)
+grt::ValueRef Sql_import::autoplace_grt()
 {
   db_CatalogRef catalog= target_catalog();
 
@@ -115,7 +115,7 @@ grt::ValueRef Sql_import::autoplace_grt(grt::GRT *grt)
 
   if (dbobjects.count() > 0)
   {
-    grt::Module *module= grt->get_module("WbModel");
+    grt::Module *module= grt::GRT::get().get_module("WbModel");
 
     grt::BaseListRef args(grt);
 
@@ -128,7 +128,7 @@ grt::ValueRef Sql_import::autoplace_grt(grt::GRT *grt)
   return grt::ValueRef();
 }
 
-GrtVersionRef Sql_import::getVersion(grt::GRT *grt)
+GrtVersionRef Sql_import::getVersion()
 {
   GrtVersionRef version;
   return version;

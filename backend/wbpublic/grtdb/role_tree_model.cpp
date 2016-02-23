@@ -171,7 +171,7 @@ bool RoleTreeBE::set_field(const NodeId &node, ColumnId column, const std::strin
     {
       // Switched to AutoUndoEdit allow for Live editors to not track undo, but
       // RoleTree is not used by live editors, so it's ok to keep AutoUndo here.
-      grt::AutoUndo undo(_catalog.get_grt());
+      grt::AutoUndo undo;
   //    AutoUndoEdit undo(this);
 
       n->role->name(value);

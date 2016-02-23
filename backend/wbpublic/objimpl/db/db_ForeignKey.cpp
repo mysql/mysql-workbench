@@ -154,7 +154,7 @@ grt::IntegerRef db_ForeignKey::checkCompleteness()
     return 0;
 
   // If we are currently undoing then don't check completeness either.
-  grt::UndoManager *um= get_grt()->get_undo_manager();
+  grt::UndoManager *um= grt::GRT::get().get_undo_manager();
   if (um != NULL && um->is_undoing())
     return 0;
 

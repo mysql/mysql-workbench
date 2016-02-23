@@ -63,7 +63,7 @@ static int dict_init(PyGRTDictObject *self, PyObject *args, PyObject *kwds)
     else
     {
       if (!type)
-        self->dict= new grt::DictRef(ctx->get_grt());
+        self->dict= new grt::DictRef();
       else
       {
         grt::Type content_type= grt::str_to_type(type);
@@ -75,14 +75,14 @@ static int dict_init(PyGRTDictObject *self, PyObject *args, PyObject *kwds)
         
         if (class_name)
         {
-          if (!ctx->get_grt()->get_metaclass(class_name))
+          if (!GRT::get().get_metaclass(class_name))
           {
             PyErr_SetString(PyExc_NameError, "invalid GRT class name");
             return -1;
           }
         }
         
-        self->dict= new grt::DictRef(ctx->get_grt(), content_type, class_name);
+        self->dict= new grt::DictRef(content_type, class_name);
       }
     }
     return 0;

@@ -8,7 +8,7 @@
 
 inline void register_interfaces(grt::GRT *grt)
 {
-  if (!grt->get_interface("PluginInterface"))
+  if (!grt::GRT::get().get_interface("PluginInterface"))
     PluginInterfaceImpl::register_interface(grt); // this is already registered in PluginManager
   SQLGeneratorInterfaceImpl::register_interface(grt);
   WbValidationInterfaceImpl::register_interface(grt);

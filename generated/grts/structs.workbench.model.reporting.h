@@ -35,8 +35,8 @@ class  workbench_model_reporting_TemplateStyleInfo : public GrtObject
 {
   typedef GrtObject super;
 public:
-  workbench_model_reporting_TemplateStyleInfo(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  workbench_model_reporting_TemplateStyleInfo(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _canUseHTMLMarkup(0),
      _description(""),
      _previewImageFileName(""),
@@ -147,16 +147,16 @@ protected:
   grt::StringRef _previewImageFileName;
   grt::StringRef _styleTagValue;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new workbench_model_reporting_TemplateStyleInfo(grt));
+    return grt::ObjectRef(new workbench_model_reporting_TemplateStyleInfo());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_model_reporting_TemplateStyleInfo::create);
     {
@@ -193,11 +193,11 @@ class  workbench_model_reporting_TemplateInfo : public GrtObject
 {
   typedef GrtObject super;
 public:
-  workbench_model_reporting_TemplateInfo(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  workbench_model_reporting_TemplateInfo(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _description(""),
      _mainFileName(""),
-    _styles(grt, this, false)
+    _styles(this, false)
 
   {
   }
@@ -281,16 +281,16 @@ protected:
   grt::StringRef _mainFileName;
   grt::ListRef<workbench_model_reporting_TemplateStyleInfo> _styles;// owned
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new workbench_model_reporting_TemplateInfo(grt));
+    return grt::ObjectRef(new workbench_model_reporting_TemplateInfo());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_model_reporting_TemplateInfo::create);
     {

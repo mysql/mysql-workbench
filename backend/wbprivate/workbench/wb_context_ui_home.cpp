@@ -487,11 +487,11 @@ void WBContextUI::home_action_callback(HomeScreenAction action, const grt::Value
  */
 void WBContextUI::remove_connection(const db_mgmt_ConnectionRef &connection)
 {
-  grt::GRT *grt = connection->get_grt();
+   = connection->get_grt();
   grt::BaseListRef args(grt);
   args->insert_unchecked(connection);
 
-  grt::ValueRef result = grt->call_module_function("Workbench", "deleteConnection", args);
+  grt::ValueRef result = grt::GRT::get().call_module_function("Workbench", "deleteConnection", args);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -602,11 +602,11 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
     
     if (answer == mforms::ResultOk)
     {
-      grt::GRT *grt = _wb->get_grt();
+       = _wb->get_grt();
       grt::BaseListRef args(grt);
       args->insert_unchecked(object);
 
-      grt::ValueRef result = grt->call_module_function("Workbench", "deleteConnectionGroup", args);
+      grt::ValueRef result = grt::GRT::get().call_module_function("Workbench", "deleteConnectionGroup", args);
 
       // Internal deletion does not require the UI update
       if (action == "delete_connection_group")
@@ -885,7 +885,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
                                                                      "\nPlease stand by..."));
       _wb->show_status_text(_("Connecting to MySQL Fabric Management Node..."));
       db_mgmt_ConnectionRef connection(db_mgmt_ConnectionRef::cast_from(object));
-      grt::GRT *grt = connection->get_grt();
+       = connection->get_grt();
       grt::BaseListRef args(grt);
       args->insert_unchecked(connection);
       
@@ -893,7 +893,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
 
       try
       {
-        grt::ValueRef result = grt->call_module_function("WBFabric", "updateConnections", args);
+        grt::ValueRef result = grt::GRT::get().call_module_function("WBFabric", "updateConnections", args);
         error = grt::StringRef::extract_from(result);
       }
       catch (std::runtime_error &exc)
@@ -1032,7 +1032,7 @@ void WBContextUI::refresh_home_connections(bool clear_state)
   if (_initializing_home_screen && (connections->count() == 0))
   {
     grt::GRT* grt = _wb->get_grt();
-    grt::Module* module = grt->get_module("Workbench");
+    grt::Module* module = grt::GRT::get().get_module("Workbench");
     if (module == NULL)
       throw std::logic_error("Internal error: can't find Workbench module.");
     

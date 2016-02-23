@@ -35,10 +35,10 @@ class MYSQL_SQL_PARSER_PUBLIC_FUNC Mysql_sql_syntax_check
 {
 public:
   typedef boost::shared_ptr<Mysql_sql_syntax_check> Ref;
-  static Ref create(grt::GRT *grt) { return Ref(new Mysql_sql_syntax_check(grt)); }
+  static Ref create() { return Ref(new Mysql_sql_syntax_check(grt)); }
   virtual ~Mysql_sql_syntax_check() {}
 protected:
-  Mysql_sql_syntax_check(grt::GRT *grt);
+  Mysql_sql_syntax_check();
 
 public:
   Statement_type determine_statement_type(const std::string &sql);

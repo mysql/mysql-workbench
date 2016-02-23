@@ -58,7 +58,7 @@ void db_DatabaseObject::name(const grt::StringRef &value)
 {
   grt::StringRef oname(_name);
 
-  grt::AutoUndo undo(get_grt(), !is_global());
+  grt::AutoUndo undo(!is_global());
 
   _name= value;
   if (_owner.is_valid()) // don't update if the object is still being loaded

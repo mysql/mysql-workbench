@@ -848,7 +848,7 @@ model_LayerRef model_Diagram::ImplData::get_layer_under_figure(const model_Figur
 bool model_Diagram::ImplData::update_layer_of_figure(const model_FigureRef &figure)
 {
   bool relocated= false;
-  grt::AutoUndo undo(self()->get_grt());
+  grt::AutoUndo undo;
 
   model_LayerRef layer(get_layer_under_figure(figure));
 

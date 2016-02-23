@@ -57,7 +57,7 @@ private:
   
   void download_finished(grt::ValueRef ret);
   void download_failed(const std::exception &exc);
-  grt::ValueRef perform_download(grt::GRT *grt);
+  grt::ValueRef perform_download();
   void handle_output(const grt::Message &message);
 };
 
@@ -119,9 +119,9 @@ void AddOnDownloadWindow::DownloadItem::download_finished(grt::ValueRef ret)
 }
 
 
-grt::ValueRef AddOnDownloadWindow::DownloadItem::perform_download(grt::GRT *grt)
+grt::ValueRef AddOnDownloadWindow::DownloadItem::perform_download()
 {
-  grt::Module *module = grt->get_module("WbUpdater");
+  grt::Module *module = grt::GRT::get().get_module("WbUpdater");
   if (!module)
     throw std::runtime_error("Can't locate module WbUpdater");
   
@@ -270,7 +270,7 @@ static std::string full_file_path(const std::list<std::string> &paths, const std
 
 bool PluginInstallWindow::InstallItem::start()
 {
-  grt::GRT *grt = _owner->_wbui->get_wb()->get_grt();
+   = _owner->_wbui->get_wb()->get_grt();
   grt::DictRef manifest;
   std::string unpacked_path;
   
@@ -287,7 +287,7 @@ bool PluginInstallWindow::InstallItem::start()
     }
     try
     {
-      manifest = grt::DictRef::cast_from(grt->unserialize(manifest_path));
+      manifest = grt::DictRef::cast_from(grt::GRT::get().unserialize(manifest_path));
     }
     catch (const std::exception)
     {

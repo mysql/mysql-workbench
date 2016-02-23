@@ -25,16 +25,15 @@
 class WBPUBLICBACKEND_PUBLIC_FUNC GUIPluginBase
 {
   grt::Module *_module;
-  grt::GRT *_grt;
 
 protected:
-  bec::GRTManager *grtm() { return bec::GRTManager::get_instance_for(_grt); }
+  bec::GRTManager *grtm() { return bec::GRTManager::get_instance_for(); }
  
   boost::signals2::signal<void ()> _signal_closed;
 
 public:
   GUIPluginBase(grt::Module *module);
-  GUIPluginBase(grt::GRT *_grt);
+  GUIPluginBase();
 
   virtual ~GUIPluginBase();
 
