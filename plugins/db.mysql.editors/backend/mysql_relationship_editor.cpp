@@ -365,7 +365,7 @@ void RelationshipEditorBE::set_is_identifying(bool flag)
 
   if (get_is_identifying() != flag)
   {
-    //grt::AutoUndo undo(get_grt());
+    //grt::AutoUndo undo;
     AutoUndoEdit undo(this);
     
     GRTLIST_FOREACH(db_Column, _relationship->foreignKey()->columns(), column)

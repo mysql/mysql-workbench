@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -58,7 +58,7 @@ public:
   
   virtual grt::ListRef<app_Plugin> getPluginInfo()
   {
-    return get_mysql_plugins_info(get_grt());
+    return get_mysql_plugins_info;
   }
 };
 
@@ -66,11 +66,11 @@ public:
 
 static grt::ListRef<app_Plugin> get_mysql_plugins_info()
 {
-  grt::ListRef<app_Plugin> plugins(grt);
-  app_PluginRef diff_sql_generator(grt);
+  grt::ListRef<app_Plugin> plugins
+  app_PluginRef diff_sql_generator;
 
   {
-    app_PluginRef plugin(grt);
+    app_PluginRef plugin;
 
     plugin->pluginType("standalone");
     plugin->moduleName("MySQLDbDiffReportingModule");
@@ -79,11 +79,11 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
     plugin->caption("Generate Catalog Diff Report");
     plugin->groups().insert("database/Database");
 
-    grt::StringListRef document_types(grt);
+    grt::StringListRef document_types;
     document_types.insert("workbench.Document");
     //plugin->documentStructNames(document_types);
 
-    app_PluginObjectInputRef pdef(grt);
+    app_PluginObjectInputRef pdef;
     pdef->objectStructName("db.Catalog");
     plugin->inputValues().insert(pdef);
 

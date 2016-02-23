@@ -474,8 +474,8 @@ std::string LiveSchemaTree::FunctionData::get_details(bool full, const mforms::T
 }
 //--------------------------------------------------------------------------------------------------
 
-LiveSchemaTree::LiveSchemaTree(grt::GRT* grt)
-: _grt(grt), _model_view(NULL), _case_sensitive_identifiers(false), 
+LiveSchemaTree::LiveSchemaTree()
+: _model_view(NULL), _case_sensitive_identifiers(false), 
 _is_schema_contents_enabled(true), _enabled_events(false), _base(0), _filter_type(Any), _schema_pattern(0), _object_pattern(0)
 {
   fill_node_icons();
@@ -1471,7 +1471,7 @@ mforms::TreeNodeRef LiveSchemaTree::create_node_for_object(const std::string &sc
 
 grt::BaseListRef LiveSchemaTree::get_selected_objects()
 {
-  grt::ListRef<db_query_LiveDBObject> selection(_grt);
+  grt::ListRef<db_query_LiveDBObject> selection;
 
   if (_model_view)
   {
@@ -1481,7 +1481,7 @@ grt::BaseListRef LiveSchemaTree::get_selected_objects()
     std::list<mforms::TreeNodeRef>::const_iterator index, end = selnodes.end();
     for (index = selnodes.begin(); index != end; index++)
     {
-      db_query_LiveDBObjectRef obj(_grt);
+      db_query_LiveDBObjectRef obj;
 
       mforms::TreeNodeRef node = *index;
       LSTData* pdata = dynamic_cast<LSTData*>(node->get_data());
@@ -1537,7 +1537,7 @@ grt::BaseListRef LiveSchemaTree::get_selected_objects()
               table_object->schemaName() != obj->schemaName() ||
               table_object->name() != node->get_parent()->get_parent()->get_string(0))
           {
-            table_object = db_query_LiveDBObjectRef(_grt);
+            table_object = db_query_LiveDBObjectRef();
             table_object->type("db.Table");
             table_object->schemaName(obj->schemaName());
             table_object->name(node->get_parent()->get_parent()->get_string(0));
@@ -1565,7 +1565,7 @@ grt::BaseListRef LiveSchemaTree::get_selected_objects()
               table_object->schemaName() != obj->schemaName() ||
               table_object->name() != node->get_parent()->get_string(0))
           {
-            table_object = db_query_LiveDBObjectRef(_grt);
+            table_object = db_query_LiveDBObjectRef();
             table_object->type("db.View");
             table_object->schemaName(obj->schemaName());
             table_object->name(node->get_parent()->get_string(0));
@@ -1613,7 +1613,7 @@ grt::BaseListRef LiveSchemaTree::get_selected_objects()
               table_object->schemaName() != obj->schemaName() ||
               table_object->name() != node->get_parent()->get_parent()->get_string(0))
           {
-            table_object = db_query_LiveDBObjectRef(_grt);
+            table_object = db_query_LiveDBObjectRef();
             table_object->type("db.Table");
             table_object->schemaName(obj->schemaName());
             table_object->name(node->get_parent()->get_string(0));

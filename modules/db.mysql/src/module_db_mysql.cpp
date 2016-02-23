@@ -1810,7 +1810,7 @@ grt::StringRef DbMySQLImpl::generateReportForDifferences(GrtNamedObjectRef org_o
 {
   grt::DbObjectMatchAlterOmf omf;
   omf.dontdiff_mask = (unsigned int)options.get_int("OMFDontDiffMask", omf.dontdiff_mask);
-  grt::NormalizedComparer normalizer(get_grt());
+  grt::NormalizedComparer normalizer;
   normalizer.init_omf(&omf);
   boost::shared_ptr<DiffChange> alter_change= diff_make(org_object, oth_object, &omf);
   
@@ -1834,10 +1834,10 @@ grt::StringRef DbMySQLImpl::generateReportForDifferences(GrtNamedObjectRef org_o
 
 grt::DictRef DbMySQLImpl::generateSQLForDifferences(GrtNamedObjectRef srcobj, GrtNamedObjectRef dstobj, grt::DictRef options)
 {
-  grt::DictRef sql_map(get_grt());
+  grt::DictRef sql_map;
     
   default_omf omf;
-  grt::NormalizedComparer normalizer(get_grt());
+  grt::NormalizedComparer normalizer;
   normalizer.init_omf(&omf);
   boost::shared_ptr<DiffChange> changes= diff_make(srcobj, dstobj, &omf);
   
@@ -2208,7 +2208,7 @@ protected:
 
         std::string table_inserts_sql;
         {
-            bec::GRTManager *grtm= bec::GRTManager::get_instance_for(grt);
+            bec::GRTManager *grtm= bec::GRTManager::get_instance_for;
             Recordset_table_inserts_storage::Ref input_storage= Recordset_table_inserts_storage::create(grtm);
             input_storage->table(table);
 
@@ -2712,12 +2712,12 @@ std::string DbMySQLImpl::makeAlterScript(GrtNamedObjectRef source, GrtNamedObjec
   if (!diff.get())
       return "";
 
-  grt::DictRef options(get_grt());
-  grt::StringListRef alter_list(get_grt());
+  grt::DictRef options;
+  grt::StringListRef alter_list;
   options.set("OutputContainer", alter_list);
   options.set("UseFilteredLists", grt::IntegerRef(0));
   options.set("KeepOrder", grt::IntegerRef(1));
-  grt::ListRef<GrtNamedObject> alter_object_list(get_grt());
+  grt::ListRef<GrtNamedObject> alter_object_list;
   options.set("OutputObjectContainer", alter_object_list);
 
   generateSQL(source, options, diff);
@@ -2753,8 +2753,8 @@ std::string DbMySQLImpl::makeAlterScriptForObject(GrtNamedObjectRef source, GrtN
   grt::DbObjectMatchAlterOmf omf;
   omf.dontdiff_mask = 5;
 
-  DictRef options(get_grt());
-  DictRef result(get_grt());
+  DictRef options;
+  DictRef result;
 
   options.set("UseFilteredLists", IntegerRef(0));
   grt::NormalizedComparer normalizer(get_grt(),grt::DictRef::cast_from(diff_options.get("DBSettings",getDefaultTraits())));
@@ -2885,14 +2885,14 @@ std::string DbMySQLImpl::makeAlterScriptForObject(GrtNamedObjectRef source, GrtN
 // This function is used from scripts and HTML report generator.
 std::string DbMySQLImpl::makeCreateScriptForObject(GrtNamedObjectRef object)
 {
-  DictRef options(get_grt());
-  DictRef result(get_grt());
+  DictRef options;
+  DictRef result;
 
   ValueRef parent;
 
   //TODO: check how this list is expected to be used
   //there should be a way to generate one table SQL only not sql for whole doc
-//  StringListRef list(get_grt());
+//  StringListRef list;
 //  list.insert(get_old_object_name_for_key(object));
 
   if (object.is_instance(db_Schema::static_class_name()))
@@ -2916,7 +2916,7 @@ std::string DbMySQLImpl::makeCreateScriptForObject(GrtNamedObjectRef object)
 
   options.set("UseFilteredLists", IntegerRef(0));
   default_omf omf;
-  grt::NormalizedComparer normalizer(get_grt());
+  grt::NormalizedComparer normalizer;
   normalizer.init_omf(&omf);
   boost::shared_ptr<DiffChange> diff = diff_make(ValueRef(), parent, &omf, true); // do a diff without cloning the catalog
 
@@ -2984,7 +2984,7 @@ inline bool match_version(int ref_major, int ref_minor, int ref_revision,
 
 grt::DictRef DbMySQLImpl::getTraitsForServerVersion(const int major, const int minor, const int revision)
 {
-  grt::DictRef traits(get_grt());
+  grt::DictRef traits;
 
   traits.set("version", grt::StringRef(base::strfmt("%i.%i.%i", major, minor, revision < 0 ? 0 : revision)));
   
@@ -3046,7 +3046,7 @@ grt::ListRef<db_UserDatatype> DbMySQLImpl::getDefaultUserDatatypes(db_mgmt_Rdbms
     // End type aliases
   };
   
-  grt::ListRef<db_UserDatatype> list(get_grt());
+  grt::ListRef<db_UserDatatype> list;
   
   for (size_t i= 0; i < sizeof(type_init_data)/sizeof(*type_init_data); i++)
   {
@@ -3064,7 +3064,7 @@ grt::ListRef<db_UserDatatype> DbMySQLImpl::getDefaultUserDatatypes(db_mgmt_Rdbms
                 type_init_data[i].oid, type_init_data[i].name, type_init_data[i].sql_def);
       continue;
     }
-    db_UserDatatypeRef udata(get_grt());
+    db_UserDatatypeRef udata;
     
     udata->__set_id(type_init_data[i].oid);
 

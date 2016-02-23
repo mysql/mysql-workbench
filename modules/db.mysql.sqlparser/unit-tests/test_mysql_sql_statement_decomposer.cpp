@@ -68,7 +68,7 @@ TEST_FUNCTION(1)
   sql_statement_decomposer= sql_facade->sqlStatementDecomposer();
   ensure("failed to instantiate SqlStatementDecomposer class", (NULL != sql_statement_decomposer.get()));
 
-  catalog= db_CatalogRef(grt);
+  catalog= db_CatalogRef;
   db_SchemaRef schema= add_schema("test");
   view= add_view(schema, "");
 
@@ -95,7 +95,7 @@ TEST_FUNCTION(1)
 db_SchemaRef Test_object_base<mysql_sql_statement_decomposer>::
 add_schema(const std::string &name)
 {
-  db_SchemaRef schema(grt);
+  db_SchemaRef schema;
   schema->owner(catalog);
   schema->name(name);
   catalog->schemata().insert(schema);
@@ -105,7 +105,7 @@ add_schema(const std::string &name)
 db_TableRef Test_object_base<mysql_sql_statement_decomposer>::
 add_table(db_SchemaRef schema, const std::string &name)
 {
-  db_TableRef table(grt);
+  db_TableRef table;
   table->owner(schema);
   table->name(name);
   schema->tables().insert(table);
@@ -115,7 +115,7 @@ add_table(db_SchemaRef schema, const std::string &name)
 db_ColumnRef Test_object_base<mysql_sql_statement_decomposer>::
 add_table_column(db_TableRef table, const std::string &name)
 {
-  db_ColumnRef col(grt);
+  db_ColumnRef col;
   col->owner(table);
   col->name(name);
   table->columns().insert(col);
@@ -125,7 +125,7 @@ add_table_column(db_TableRef table, const std::string &name)
 db_ViewRef Test_object_base<mysql_sql_statement_decomposer>::
 add_view(db_SchemaRef schema, const std::string &name)
 {
-  db_ViewRef view(grt);
+  db_ViewRef view;
   view->owner(schema);
   view->name(name);
   schema->views().insert(view);

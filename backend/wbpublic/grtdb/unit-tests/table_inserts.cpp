@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -144,14 +144,14 @@ static db_TableRef make_inserts_test_table(const db_mgmt_RdbmsRef &rdbms, const 
 {
   grt::ListRef<db_UserDatatype> usertypes;
 
-  db_SchemaRef schema(grt);
+  db_SchemaRef schema;
   schema->owner(catalog);
 
-  db_mysql_TableRef table(grt);
+  db_mysql_TableRef table;
   table->owner(schema);
   table->name("table");
 
-  db_mysql_ColumnRef col(grt);
+  db_mysql_ColumnRef col;
   col->owner(table);
   col->name("id");
   col->autoIncrement(1);
@@ -159,19 +159,19 @@ static db_TableRef make_inserts_test_table(const db_mgmt_RdbmsRef &rdbms, const 
   table->columns().insert(col);
   table->addPrimaryKeyColumn(col);
 
-  col= db_mysql_ColumnRef(grt);
+  col= db_mysql_ColumnRef;
   col->owner(table);
   col->name("name");
   col->setParseType("VARCHAR(30)", rdbms->simpleDatatypes());
   table->columns().insert(col);
 
-  col= db_mysql_ColumnRef(grt);
+  col= db_mysql_ColumnRef;
   col->owner(table);
   col->name("ts");
   col->setParseType("TIMESTAMP", rdbms->simpleDatatypes());
   table->columns().insert(col);
 
-  col= db_mysql_ColumnRef(grt);
+  col= db_mysql_ColumnRef;
   col->owner(table);
   col->name("pic");
   col->setParseType("BLOB", rdbms->simpleDatatypes());

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -710,7 +710,7 @@ static void set_note_content(GrtStoredNoteRef note, const std::string &text)
 
   note->lastChangeDate(base::fmttime());
 
-  grt::BaseListRef args(grt);
+  grt::BaseListRef args;
 
   args.ginsert(note->filename());
   args.ginsert(grt::StringRef(text));
@@ -724,7 +724,7 @@ static std::string get_note_content(const GrtStoredNoteRef &note)
   if (!module)
     throw std::runtime_error("Workbench module not found");
 
-  grt::BaseListRef args(grt);
+  grt::BaseListRef args;
 
   args.ginsert(note->filename());
 

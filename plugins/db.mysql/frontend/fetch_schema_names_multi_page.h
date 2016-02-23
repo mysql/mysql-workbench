@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -87,7 +87,7 @@ protected:
     // order the schema names alphabetically
     std::sort(schema_names.begin(), schema_names.end(), std::ptr_fun(&FetchSchemaNamesSourceTargetProgressPage::collate));
 
-    grt::StringListRef list(grt);
+    grt::StringListRef list;
     for (std::vector<std::string>::const_iterator iter= schema_names.begin();
          iter != schema_names.end(); ++iter)
       list.insert(*iter);

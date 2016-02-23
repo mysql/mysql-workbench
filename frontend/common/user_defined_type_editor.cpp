@@ -446,7 +446,7 @@ void UserDefinedTypeEditor::ok_clicked()
   }
 
   // check for deleted types
-  grt::AutoUndo undo(udts.get_grt());
+  grt::AutoUndo undo;
   
   grt::remove_list_items_matching(udts, boost::bind(is_missing, _1, _user_types));
 
@@ -459,7 +459,7 @@ void UserDefinedTypeEditor::ok_clicked()
       continue;
     
     if (!_user_types[i].is_valid())
-      type= db_UserDatatypeRef(udts.get_grt());
+      type= db_UserDatatypeRef();
     else
       type= _user_types[i];
     
@@ -540,7 +540,7 @@ void UserDefinedTypeEditor::args_changed()
 
 void UserDefinedTypeEditor::edit_arguments()
 {
-  grtui::StringListEditor editor(_wbui->get_wb()->get_grt(), this, true);
+  grtui::StringListEditor editor(this, true);
   editor.set_title(_("Edit Type Arguments"));
   
   std::vector<std::string> list;

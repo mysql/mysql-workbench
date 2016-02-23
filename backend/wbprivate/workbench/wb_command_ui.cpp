@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -230,7 +230,7 @@ bool CommandUI::validate_command_item(const app_CommandItemRef &item, const wb::
     std::string module, function;
     if (base::partition(cmd.name, ".", module, function))
     {
-      grt::Module *m = _wb->get_grt()->get_module(module);
+      grt::Module *m = grt::GRT::get().get_module(module);
       if (m && m->has_function(function))
         return true;
       log_info("Invalid function %s.%s\n", module.c_str(), function.c_str());
@@ -695,7 +695,7 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
           std::string module, function;
           if (base::partition(cmd.name, ".", module, function))
           {
-            grt::Module *m = _wb->get_grt()->get_module(module);
+            grt::Module *m = grt::GRT::get().get_module(module);
             if (m && m->has_function(function))
               enabled = true;
             else
@@ -723,7 +723,7 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
         }
         else
         {
-          _wb->get_grt_manager()->get_grt()->send_warning("Invalid menu item command: "+*mitem->command()+"\n");
+          grt::GRT::get().send_warning("Invalid menu item command: "+*mitem->command()+"\n");
           continue;
         }
         
@@ -790,7 +790,7 @@ mforms::MenuBar *CommandUI::create_menubar_for_context(const std::string &contex
  
   menubar->signal_will_show()->connect(boost::bind(&CommandUI::menu_will_show, this, _1));
   
-  grt::ListRef<app_MenuItem> main_menu(grt::ListRef<app_MenuItem>::cast_from(_wb->get_grt()->unserialize(base::makePath(_wb->get_datadir(), "data/main_menu.xml"))));
+  grt::ListRef<app_MenuItem> main_menu(grt::ListRef<app_MenuItem>::cast_from(grt::GRT::get().unserialize(base::makePath(_wb->get_datadir(), "data/main_menu.xml"))));
 
   for (size_t c= main_menu.count(), i= 0; i < c; i++)
   {
@@ -837,7 +837,7 @@ mforms::ToolBar *CommandUI::create_toolbar(const std::string &toolbar_file)
 
 mforms::ToolBar *CommandUI::create_toolbar(const std::string &toolbar_file, const boost::function<void (std::string)> &activate_slot)
 {
-  app_ToolbarRef toolbar(app_ToolbarRef::cast_from(_wb->get_grt()->unserialize(_wb->get_grt_manager()->get_data_file_path(toolbar_file))));
+  app_ToolbarRef toolbar(app_ToolbarRef::cast_from(grt::GRT::get().unserialize(_wb->get_grt_manager()->get_data_file_path(toolbar_file))));
   
   grt::ListRef<app_ToolbarItem> plist(toolbar->items());
   mforms::ToolBar *tbar = new mforms::ToolBar();
@@ -999,7 +999,7 @@ mforms::ToolBar *CommandUI::create_toolbar(const std::string &toolbar_file, cons
       tbitem->set_enabled(validate_command_item(titem, cmd));
     else
     {
-      _wb->get_grt_manager()->get_grt()->send_warning("Invalid toolbar item command: "+*titem->command()+"\n");
+      grt::GRT::get().send_warning("Invalid toolbar item command: "+*titem->command()+"\n");
       delete tbitem;
       continue;
     }
@@ -1115,7 +1115,7 @@ bool CommandUI::activate_command(const std::string &command, bec::ArgumentPool a
       std::string module, function;
       if (base::partition(cmdparts.name, ".", module, function))
       {
-        _wb->get_grt()->call_module_function(module, function, grt::BaseListRef(_wb->get_grt()));
+        grt::GRT::get().call_module_function(module, function, grt::BaseListRef());
         return true;
       }
     }
@@ -1177,7 +1177,7 @@ void CommandUI::activate_command(const std::string &command)
     {
       std::string module, function;
       if (base::partition(cmdparts.name, ".", module, function))
-        _wb->get_grt()->call_module_function(module, function, grt::BaseListRef(_wb->get_grt()));
+        grt::GRT::get().call_module_function(module, function, grt::BaseListRef());
     }
   }
   catch (grt::grt_runtime_error &error)

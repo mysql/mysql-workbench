@@ -321,7 +321,7 @@ namespace grt {
    * 
    * To allocate a new object from C++ code:
    * @code
-   *   db_TableRef table(grt);
+   *   db_TableRef table;
    * @endcode
    *
    * To access members and methods:

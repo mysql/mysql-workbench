@@ -65,8 +65,6 @@ void WBComponentBasic::load_app_options(bool update)
 {
   if (!update)
   {
-    = _wb->get_grt_manager()->get_grt();
-
     app_ToolbarRef options_toolbar;
 
     options_toolbar= app_ToolbarRef::cast_from(
@@ -85,7 +83,7 @@ void WBComponentBasic::load_app_options(bool update)
 
 app_ToolbarRef WBComponentBasic::get_tools_toolbar()
 {
-  return app_ToolbarRef::cast_from(_wb->get_grt()->unserialize(base::makePath(_wb->get_datadir(),
+  return app_ToolbarRef::cast_from(grt::GRT::get().unserialize(base::makePath(_wb->get_datadir(),
                                                                          "data/tools_toolbar_basic.xml")));
 }
 
@@ -231,7 +229,7 @@ grt::ValueRef WBComponentBasic::place_layer(ModelDiagramForm *form, const Rect &
 
     model_LayerRef layer;
 
-    grt::AutoUndo undo(get_grt());
+    grt::AutoUndo undo;
   
     layer= view->placeNewLayer(rect.left(), rect.top(), rect.width(), rect.height(), _("New Layer"));
 
@@ -278,7 +276,7 @@ void WBComponentBasic::delete_selection()
 
 bool WBComponentBasic::delete_model_object(const model_ObjectRef &object, bool figure_only)
 {
-  grt::AutoUndo undo(_wb->get_grt());
+  grt::AutoUndo undo;
 
   if (object.is_instance(model_Figure::static_class_name()))
   {
@@ -352,7 +350,7 @@ model_ObjectRef WBComponentBasic::paste_object(ModelDiagramForm *view, const grt
 {
   model_ObjectRef copy;
   model_LayerRef destlayer(view->get_model_diagram()->rootLayer());
-  grt::AutoUndo undo(_wb->get_grt());
+  grt::AutoUndo undo;
   
   if (object.is_instance(model_Figure::static_class_name()))
   {

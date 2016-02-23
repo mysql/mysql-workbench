@@ -262,9 +262,9 @@ public:
 
   virtual grt::ListRef<app_Plugin> getPluginInfo()
   {
-    grt::ListRef<app_Plugin> plugins(get_grt());
+    grt::ListRef<app_Plugin> plugins;
     {
-      app_PluginRef plugin(get_grt());
+      app_PluginRef plugin;
 
       plugin->moduleName("MySQLDBSearchModule");
       plugin->pluginType("standalone");
@@ -273,7 +273,7 @@ public:
       plugin->caption("DataSearch");
       plugin->groups().insert("database/Database");
 
-      app_PluginObjectInputRef pdef(get_grt());
+      app_PluginObjectInputRef pdef;
       pdef->name("activeSQLEditor");
       pdef->objectStructName(db_query_Editor::static_class_name());
       plugin->inputValues().insert(pdef);

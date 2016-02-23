@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -325,7 +325,7 @@ bool WBComponentPhysical::RelationshipToolContext::finish_for_columns()
   
   if (imany && fmany)
   {
-    grt::AutoUndo undo(owner->get_grt());
+    grt::AutoUndo undo;
     
     bool ok= owner->create_nm_relationship(view, itable, ftable, imand, fmand);
     
@@ -347,7 +347,7 @@ bool WBComponentPhysical::RelationshipToolContext::finish_for_columns()
     // create the FK, the relationship will be auto-created as a side-effect
     db_ForeignKeyRef fk;
     
-    grt::AutoUndo undo(owner->get_grt());
+    grt::AutoUndo undo;
     
     fk= bec::TableHelper::create_foreign_key_to_table(itable->table(), columns,
                                                       ftable->table(), refcolumns,
@@ -400,7 +400,7 @@ bool WBComponentPhysical::RelationshipToolContext::finish_for_tables()
   
   if (imany && fmany)
   {
-    grt::AutoUndo undo(owner->get_grt());
+    grt::AutoUndo undo;
     bool ok= owner->create_nm_relationship(view, itable, ftable, imand, fmand);
     
     if (ok)
@@ -420,10 +420,10 @@ bool WBComponentPhysical::RelationshipToolContext::finish_for_tables()
   {
     // create the FK
     db_ForeignKeyRef fk;
-    grt::AutoUndo undo(owner->get_grt());
+    grt::AutoUndo undo;
     
     {
-      grt::AutoUndo fkundo(owner->get_grt());
+      grt::AutoUndo fkundo;
       fk= bec::TableHelper::create_foreign_key_to_table(itable->table(),
                                                         ftable->table(),
                                                         imand, fmand, imany, identifying,

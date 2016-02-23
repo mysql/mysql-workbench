@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -46,7 +46,7 @@ public:
   
   virtual grt::ListRef<app_Plugin> getPluginInfo()
   {
-    return get_mysql_plugins_info(get_grt());
+    return get_mysql_plugins_info;
   }
   
   virtual grt::IntegerRef includeModel(const std::string &path)
@@ -55,7 +55,7 @@ public:
     if (!module)
       throw std::runtime_error("Workbench module not found");
 
-    grt::BaseListRef args(get_grt());
+    grt::BaseListRef args;
 
     args.ginsert(grt::StringRef(path));
 
@@ -102,9 +102,9 @@ public:
 
 static grt::ListRef<app_Plugin> get_mysql_plugins_info()
 {
-  grt::ListRef<app_Plugin> plugins(grt);
+  grt::ListRef<app_Plugin> plugins;
   {
-    app_PluginRef plugin(grt);
+    app_PluginRef plugin;
     
     plugin->pluginType("standalone");
     plugin->moduleName("MySQLModelSnippetsModule");
@@ -113,7 +113,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
     plugin->caption("Include Objects from a Model File");
     plugin->groups().insert("model/Model");
     
-    app_PluginFileInputRef pdef(grt);
+    app_PluginFileInputRef pdef;
     pdef->owner(plugin);
     pdef->dialogTitle(_("Include Model"));
     pdef->dialogType("open");

@@ -32,9 +32,9 @@
 
 using namespace grt;
 
-static grt::DictRef get_traits(grt::GRT* grt, bool case_sensitive = false)
+static grt::DictRef get_traits(bool case_sensitive = false)
 {
-  grt::DictRef traits(grt);
+  grt::DictRef traits;
     traits.set("CaseSensitive", grt::IntegerRef(case_sensitive));
   traits.set("maxTableCommentLength", grt::IntegerRef(60));
   traits.set("maxIndexCommentLength", grt::IntegerRef(0));

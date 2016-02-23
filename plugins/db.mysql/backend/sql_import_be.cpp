@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -54,13 +54,13 @@ db_CatalogRef Sql_import::target_catalog()
 }
 
 
-boost::function<grt::ValueRef (grt::GRT*)> Sql_import::get_task_slot()
+boost::function<grt::ValueRef ()> Sql_import::get_task_slot()
 {
   return boost::bind(&Sql_import::parse_sql_script, this, _1, target_catalog(), sql_script());
 }
 
 
-boost::function<grt::ValueRef (grt::GRT*)> Sql_import::get_autoplace_task_slot()
+boost::function<grt::ValueRef ()> Sql_import::get_autoplace_task_slot()
 {
   return boost::bind(&Sql_import::autoplace_grt, this, _1);
 }
@@ -68,10 +68,10 @@ boost::function<grt::ValueRef (grt::GRT*)> Sql_import::get_autoplace_task_slot()
 
 grt::StringRef Sql_import::parse_sql_script(db_CatalogRef catalog, const std::string &sql_script)
 {
-  grt::ListRef<GrtObject> created_objects(grt);
+  grt::ListRef<GrtObject> created_objects;
   _options.set("created_objects", created_objects);
 
-  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grt);
+  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get;
   db_mgmt_RdbmsRef rdbms = db_mgmt_RdbmsRef::cast_from(grt::GRT::get().get("/wb/rdbmsMgmt/rdbms/0/"));
   parser::ParserContext::Ref context = services->createParserContext(rdbms->characterSets(), getVersion(grt), /*_lower_case_table_names != 0*/ 0);
 
@@ -103,7 +103,7 @@ grt::ValueRef Sql_import::autoplace_grt()
 
   workbench_physical_ModelRef model(workbench_physical_ModelRef::cast_from(catalog->owner()));
 
-  grt::ListRef<db_DatabaseObject> dbobjects(grt);
+  grt::ListRef<db_DatabaseObject> dbobjects;
   grt::ListRef<GrtObject> objects(grt::ListRef<GrtObject>::cast_from(_options.get("created_objects")));
 
   for (grt::ListRef<GrtObject>::const_iterator iter= objects.begin();
@@ -117,7 +117,7 @@ grt::ValueRef Sql_import::autoplace_grt()
   {
     grt::Module *module= grt::GRT::get().get_module("WbModel");
 
-    grt::BaseListRef args(grt);
+    grt::BaseListRef args;
 
     args.ginsert(model);
     args.ginsert(objects);

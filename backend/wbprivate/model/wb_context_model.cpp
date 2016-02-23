@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -153,7 +153,7 @@ void WBContextModel::setup_secondary_sidebar()
 {
   // Setup the secondary model sidebar, which should be shared between all model tabs
   _secondary_sidebar = mforms::manage(new mforms::TabView(mforms::TabViewSelectorSecondary));
-  _template_panel = new TableTemplatePanel(_wbui->get_wb()->get_grt(), this);
+  _template_panel = new TableTemplatePanel(this);
   _secondary_sidebar->add_page(_template_panel, _("Templates"));
 }
 
@@ -201,7 +201,7 @@ mforms::TreeView *WBContextModel::create_user_type_list()
 
 mforms::TreeView* WBContextModel::create_history_tree()
 {
-  HistoryTree *history_tree = new HistoryTree(_wbui->get_wb()->get_grt_manager(), _wbui->get_wb()->get_grt()->get_undo_manager());
+  HistoryTree *history_tree = new HistoryTree(_wbui->get_wb()->get_grt_manager(), grt::GRT::get().get_undo_manager());
   history_tree->refresh();
   return history_tree;
 }
@@ -231,14 +231,14 @@ bool WBContextModel::auto_save_document()
       && _file
       && doc.is_valid() 
       && !wb->get_grt_manager()->get_dispatcher()->get_busy()
-      && wb->get_grt()->get_undo_manager()->get_latest_closed_undo_action() != _auto_save_point)
+      && grt::GRT::get().get_undo_manager()->get_latest_closed_undo_action() != _auto_save_point)
   {
-    _auto_save_point = wb->get_grt()->get_undo_manager()->get_latest_closed_undo_action();
+    _auto_save_point = grt::GRT::get().get_undo_manager()->get_latest_closed_undo_action();
     _last_auto_save_time = now;
     try
     {
       // save the document in the same directory containing the expanded mwb file
-      _file->store_document_autosave(wb->get_grt(), doc);
+      _file->store_document_autosave(doc);
     } 
     catch (std::exception &exc)
     {
@@ -365,8 +365,8 @@ void WBContextModel::model_created(ModelFile *file, workbench_DocumentRef doc)
   if (target_version.empty())
     target_version = "5.6.1";
   
-  _wbui->get_wb()->get_component<WBComponentLogical>()->setup_logical_model(doc.get_grt(), _doc);
-  _wbui->get_wb()->get_component<WBComponentPhysical>()->setup_physical_model(doc.get_grt(), _doc, "Mysql", target_version);
+  _wbui->get_wb()->get_component<WBComponentLogical>()->setup_logical_model(_doc);
+  _wbui->get_wb()->get_component<WBComponentPhysical>()->setup_physical_model(_doc, "Mysql", target_version);
   
   _wbui->get_wb()->foreach_component(boost::bind(&WBComponent::reset_document, _1));
   
@@ -377,14 +377,14 @@ void WBContextModel::model_created(ModelFile *file, workbench_DocumentRef doc)
   _wbui->get_wb()->request_refresh(RefreshNewModel, "", 0);
 
   // setup GRT proxy object
-  _grtmodel_panel = ui_ModelPanelRef(_doc.get_grt());
+  _grtmodel_panel = ui_ModelPanelRef();
   _grtmodel_panel->model(_doc->physicalModels()[0]);
 
   if (_sidebar_dockpoint == NULL)
     _sidebar_dockpoint = mforms::manage(new mforms::DockingPoint(new mforms::TabViewDockingPoint(_secondary_sidebar, MODEL_DOCKING_POINT), true));
-  _grtmodel_panel->commonSidebar(mforms_to_grt(_doc.get_grt(), _sidebar_dockpoint));
+  _grtmodel_panel->commonSidebar(mforms_to_grt(_sidebar_dockpoint));
 
-  grt::DictRef info(_doc.get_grt());
+  grt::DictRef info;
   grt::GRTNotificationCenter::get()->send_grt("GRNModelCreated", _grtmodel_panel, info);
 }
 
@@ -415,21 +415,21 @@ void WBContextModel::model_loaded(ModelFile *file, workbench_DocumentRef doc)
   }
 
   // setup GRT proxy object
-  _grtmodel_panel = ui_ModelPanelRef(get_grt());
+  _grtmodel_panel = ui_ModelPanelRef();
   _grtmodel_panel->model(_doc->physicalModels()[0]);
 
   if (_sidebar_dockpoint == NULL)
     _sidebar_dockpoint = mforms::manage(new mforms::DockingPoint(new mforms::TabViewDockingPoint(_secondary_sidebar, MODEL_DOCKING_POINT), true));
-  _grtmodel_panel->commonSidebar(mforms_to_grt(_doc.get_grt(), _sidebar_dockpoint));
+  _grtmodel_panel->commonSidebar(mforms_to_grt(_sidebar_dockpoint));
 
-  grt::DictRef info(get_grt());
+  grt::DictRef info;
   grt::GRTNotificationCenter::get()->send_grt("GRNModelOpened", _grtmodel_panel, info);
 }
 
 
 void WBContextModel::model_closed()
 {
-  grt::DictRef info(get_grt());
+  grt::DictRef info;
   grt::GRTNotificationCenter::get()->send_grt("GRNModelClosed", _grtmodel_panel, info);
 }
 
@@ -817,7 +817,7 @@ GrtObjectRef WBContextModel::duplicate_object(const db_DatabaseObjectRef &object
     if (grt::find_named_object_in_list(db_SchemaRef::cast_from(dbtable->owner())->tables(), dbtable->name()).is_valid())
       dbtable->name(grt::get_name_suggestion_for_list_object(db_SchemaRef::cast_from(dbtable->owner())->tables(),
                                                              *dbtable->name()+"_copy"));
-    grt::AutoUndo undo(get_grt());
+    grt::AutoUndo undo;
     
     db_SchemaRef::cast_from(dbtable->owner())->tables().insert(dbtable);
     
@@ -835,7 +835,7 @@ GrtObjectRef WBContextModel::duplicate_object(const db_DatabaseObjectRef &object
     if (grt::find_named_object_in_list(db_SchemaRef::cast_from(dbview->owner())->views(), dbview->name()).is_valid())
       dbview->name(grt::get_name_suggestion_for_list_object(db_SchemaRef::cast_from(dbview->owner())->views(),
                                                             *dbview->name()+"_copy"));
-    grt::AutoUndo undo(get_grt());
+    grt::AutoUndo undo;
     
     db_SchemaRef::cast_from(dbview->owner())->views().insert(dbview);
     
@@ -853,7 +853,7 @@ GrtObjectRef WBContextModel::duplicate_object(const db_DatabaseObjectRef &object
     if (grt::find_named_object_in_list(db_SchemaRef::cast_from(dbroutineGroup->owner())->routineGroups(), dbroutineGroup->name()).is_valid())
       dbroutineGroup->name(grt::get_name_suggestion_for_list_object(db_SchemaRef::cast_from(dbroutineGroup->owner())->routineGroups(),
                                                                     *dbroutineGroup->name()+"_copy"));
-    grt::AutoUndo undo(get_grt());
+    grt::AutoUndo undo;
     
     db_SchemaRef::cast_from(dbroutineGroup->owner())->routineGroups().insert(dbroutineGroup);
     
@@ -1010,7 +1010,7 @@ int WBContextModel::get_object_list_popup_items(bec::UIForm *form,
     
     bool has_objects = false;
     bool connections_only = true;
-    grt::ListRef<GrtObject> model_objects(wb->get_grt());
+    grt::ListRef<GrtObject> model_objects;
     for (size_t c= objects.count(), i= 0; i < c; i++)
     {
       if (!objects[i].is_instance(model_Connection::static_class_name()))
@@ -1158,8 +1158,8 @@ int WBContextModel::add_object_plugins_to_popup_menu(const grt::ListRef<GrtObjec
 
 void WBContextModel::history_changed()
 {
-  std::string undo_description(_wbui->get_wb()->get_grt()->get_undo_manager()->undo_description());
-  std::string redo_description(_wbui->get_wb()->get_grt()->get_undo_manager()->redo_description());
+  std::string undo_description(grt::GRT::get().get_undo_manager()->undo_description());
+  std::string redo_description(grt::GRT::get().get_undo_manager()->redo_description());
 
   std::list<bec::UIForm*> forms;
   forms.push_back(_overview);
@@ -1277,7 +1277,7 @@ GrtVersionRef WBContextModel::get_target_version()
       if (target_version.empty())
         target_version = "5.5";
 
-      return bec::parse_version(_wbui->get_wb()->get_grt_manager()->get_grt(), target_version);
+      return bec::parse_version(target_version);
     }
   }
   return GrtVersionRef();
@@ -1497,12 +1497,12 @@ bool WBContextModel::remove_figure(model_ObjectRef object)
 
 model_DiagramRef WBContextModel::get_view_with_id(const std::string &id)
 {
-  return model_DiagramRef::cast_from(get_wbui()->get_wb()->get_grt()->find_object_by_id(id, "/wb/doc"));
+  return model_DiagramRef::cast_from(grt::GRT::get().find_object_by_id(id, "/wb/doc"));
 }
 
 bool WBContextModel::delete_diagram(const model_DiagramRef &view)
 {
-  grt::AutoUndo undo(get_wbui()->get_wb()->get_grt());
+  grt::AutoUndo undo;
   view->owner()->diagrams().remove_value(view);
   undo.end(strfmt(_("Delete Diagram '%s'"), view->name().c_str()));
   

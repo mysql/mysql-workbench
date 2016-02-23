@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -130,7 +130,7 @@ namespace bec {
     ShellBE *get_shell();
 
     void execute_grt_task(const std::string &title,
-                          const boost::function<grt::ValueRef (grt::GRT*)> &function,
+                          const boost::function<grt::ValueRef ()> &function,
                           const boost::function<void (grt::ValueRef)> &finished_cb);
 
 

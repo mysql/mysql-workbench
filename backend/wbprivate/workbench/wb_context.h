@@ -323,10 +323,10 @@ namespace wb {
                               const boost::function<void ()> &function, bool wait) THROW (grt::grt_runtime_error);
  
     grt::ValueRef execute_in_grt_thread(const std::string &name, 
-                                            const boost::function<grt::ValueRef (grt::GRT*)> &function) THROW (grt::grt_runtime_error);
+                                            const boost::function<grt::ValueRef ()> &function) THROW (grt::grt_runtime_error);
 
     void execute_async_in_grt_thread(const std::string &name, 
-                                     const boost::function<grt::ValueRef (grt::GRT*)> &function) THROW (grt::grt_runtime_error);
+                                     const boost::function<grt::ValueRef ()> &function) THROW (grt::grt_runtime_error);
 
     bool activate_live_object(const GrtObjectRef &object);
 

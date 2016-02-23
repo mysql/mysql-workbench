@@ -56,13 +56,13 @@ TEST_FUNCTION(1)
 #ifdef _WIN32
   base::create_directory(TMP_DIR, 0666);
 #endif
-  grtm= bec::GRTManager::get_instance_for(grt);
+  grtm= bec::GRTManager::get_instance_for;
   std::string tmpDir = TMP_DIR;
 
   {
     ModelFile mf(tmpDir);
 
-    workbench_DocumentRef doc(grt);
+    workbench_DocumentRef doc;
 
     // create a test file, change it and then save_as
 
@@ -70,9 +70,9 @@ TEST_FUNCTION(1)
 
     doc->name("t1");
 
-    workbench_physical_ModelRef pmodel(grt);
+    workbench_physical_ModelRef pmodel;
     pmodel->owner(doc);
-    db_Catalog catalog(grt);
+    db_Catalog catalog;
     pmodel->catalog(&catalog);
     doc->physicalModels().insert(pmodel);
 
@@ -93,8 +93,8 @@ TEST_FUNCTION(1)
 
     workbench_DocumentRef d1, d2;
 
-    d1= mf1.retrieve_document(grt);
-    d2= mf2.retrieve_document(grt);
+    d1= mf1.retrieve_document;
+    d2= mf2.retrieve_document;
 
     ensure_equals("document 1 content", *d1->name(), "t1");
     ensure_equals("document 2 content", *d2->name(), "t2");
@@ -107,7 +107,7 @@ TEST_FUNCTION(2)
   //WBTester tester;
   bec::GRTManager *grtm;
   = tester.wb->get_grt();
-  grtm= bec::GRTManager::get_instance_for(grt);
+  grtm= bec::GRTManager::get_instance_for;
 
   // load sakile a bunch of times
   std::string tmpDir = TMP_DIR;
@@ -150,8 +150,7 @@ TEST_FUNCTION(4)
 // didn't close the file properly, resulting in inability to save the model)
 TEST_FUNCTION(10)
 {
-  grt::GRT*        grt  = tester.wb->get_grt();
-  bec::GRTManager* grtm = bec::GRTManager::get_instance_for(grt);
+  bec::GRTManager* grtm = bec::GRTManager::get_instance_for;
 
   base::create_directory(TMP_DIR, 0666);
   std::string temp_dir = TMP_DIR;
@@ -181,7 +180,7 @@ TEST_FUNCTION(10)
 std::string test_loading_and_saving_a_model( const WBTester& tester, std::string& base_path )
 {
   = tester.wb->get_grt();
-  bec::GRTManager* grtm = bec::GRTManager::get_instance_for(grt);
+  bec::GRTManager* grtm = bec::GRTManager::get_instance_for;
 
   #ifdef _WIN32
     base::create_directory(TMP_DIR, 0666);

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -258,7 +258,7 @@ void wb::internal::PrivilegeInfoNode::paste_object(WBContext *wb, bec::Clipboard
     {
       db_UserRef dbuser(db_UserRef::cast_from(grt::copy_object(*iter)));
 
-      grt::AutoUndo undo(wb->get_grt());
+      grt::AutoUndo undo;
       
       if (grt::find_named_object_in_list(catalog->users(), dbuser->name()).is_valid())
         dbuser->name(grt::get_name_suggestion_for_list_object(catalog->users(),
@@ -271,7 +271,7 @@ void wb::internal::PrivilegeInfoNode::paste_object(WBContext *wb, bec::Clipboard
     {
       db_RoleRef dbrole(db_RoleRef::cast_from(grt::copy_object(*iter)));
 
-      grt::AutoUndo undo(wb->get_grt());
+      grt::AutoUndo undo;
 
       if (grt::find_named_object_in_list(catalog->roles(), dbrole->name()).is_valid())
         dbrole->name(grt::get_name_suggestion_for_list_object(catalog->roles(),

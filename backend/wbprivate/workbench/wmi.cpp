@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -465,7 +465,7 @@ void WmiServices::deallocate_locator()
  * @return A list of dictionaries containing an entry for each object returned by the query, with
  *         name/value pairs of object properties.
  */
-grt::DictListRef WmiServices::query(grt::GRT* grt, const std::string& query)
+grt::DictListRef WmiServices::query(const std::string& query)
 {
   log_debug3("Running wmi query: %s\n", query.c_str());
 
@@ -474,7 +474,7 @@ grt::DictListRef WmiServices::query(grt::GRT* grt, const std::string& query)
   // from different threads we play safe here, as it does not harm either.
   base::MutexLock lock(_locator_mutex);
 
-  grt::DictListRef queryResult(grt);
+  grt::DictListRef queryResult;
 
   // Execute the given query.
   CComPtr<IEnumWbemClassObject> enumerator;
@@ -507,7 +507,7 @@ grt::DictListRef WmiServices::query(grt::GRT* grt, const std::string& query)
       SafeArrayGetLBound(names, 1, &lowBound);
       SafeArrayGetUBound(names, 1, &highBound);
 
-      DictRef resultNames(grt);
+      DictRef resultNames;
       for (long i = lowBound; i <= highBound; i++)
       {
         CComBSTR name;

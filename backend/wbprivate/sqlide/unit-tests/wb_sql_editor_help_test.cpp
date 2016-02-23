@@ -53,7 +53,7 @@ public:
 
 void set_connection_properties(db_mgmt_ConnectionRef& connection)
 {
-  grt::DictRef conn_params(grt);
+  grt::DictRef conn_params;
   conn_params.set("hostName", grt::StringRef(test_params->get_host_name()));
   conn_params.set("port", grt::IntegerRef(test_params->get_port()));
   conn_params.set("userName", grt::StringRef(test_params->get_user_name()));
@@ -68,7 +68,7 @@ void set_connection_properties(db_mgmt_ConnectionRef& connection)
 
 sql::ConnectionWrapper create_connection()
 {
-  db_mgmt_ConnectionRef connectionProperties(grt);
+  db_mgmt_ConnectionRef connectionProperties;
   set_connection_properties(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();

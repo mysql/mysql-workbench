@@ -70,11 +70,11 @@ std::string engine_name_by_id(EngineId id)
 }
 
 
-db_mysql_StorageEngineRef engine_by_name(const char* engineName, grt::GRT* grt)
+db_mysql_StorageEngineRef engine_by_name(const char* engineName)
 {
   if (engineName && *engineName)
   {
-    grt::ListRef<db_mysql_StorageEngine> engines= get_known_engines(grt);
+    grt::ListRef<db_mysql_StorageEngine> engines= get_known_engines();
 
     for (size_t i = 0, count= engines.count(); i < count; i++)
     {
@@ -88,11 +88,11 @@ db_mysql_StorageEngineRef engine_by_name(const char* engineName, grt::GRT* grt)
 }
 
 
-db_mysql_StorageEngineRef engine_by_id(EngineId id, grt::GRT* grt)
+db_mysql_StorageEngineRef engine_by_id(EngineId id)
 {
   std::string engineName= engine_name_by_id(id);
 
-  return engine_by_name(engineName.c_str(), grt);
+  return engine_by_name(engineName.c_str());
 }
 
 

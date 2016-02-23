@@ -3500,7 +3500,7 @@ void TableEditorBE::show_import_wizard()
   {
     args.ginsert(grtwrap_editablerecordset(table, _inserts_model));
 
-    grt::Module *module = _grtm->get_grt()->get_module("SQLIDEUtils");
+    grt::Module *module = grt::GRT::get().get_module("SQLIDEUtils");
     if (module)
     {
       try

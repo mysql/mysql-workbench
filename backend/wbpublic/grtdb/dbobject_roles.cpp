@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -149,7 +149,7 @@ void ObjectRoleListBE::remove_role_from_privileges(const db_RoleRef &role)
   {
     if (role_privs[i]->databaseObject() == object)
     {
-      //grt::AutoUndo undo(_owner->get_grt());
+      //grt::AutoUndo undo;
       AutoUndoEdit undo(_owner);
       role_privs.remove(i);
       undo.end(_("Remove Role from Object Privileges"));
