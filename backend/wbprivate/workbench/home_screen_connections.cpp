@@ -2966,7 +2966,7 @@ mforms::DragOperation ConnectionsSection::files_dropped(View *sender, base::Poin
   db_mgmt_ConnectionRef connection = entry->connection;
   if (connection.is_valid())
   {
-    grt::GRT *grt = connection->get_grt();
+     = connection->get_grt();
 
     // Allow only sql script files to be dropped.
     grt::StringListRef valid_names(grt);

@@ -83,11 +83,11 @@ class  db_mysql_StorageEngine : public GrtNamedObject
 {
   typedef GrtNamedObject super;
 public:
-  db_mysql_StorageEngine(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtNamedObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  db_mysql_StorageEngine(grt::MetaClass *meta=0)
+  : GrtNamedObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _caption(""),
      _description(""),
-    _options(grt, this, false),
+    _options(this, false),
      _supportsForeignKeys(0)
 
   {
@@ -180,16 +180,16 @@ protected:
   grt::ListRef<db_mysql_StorageEngineOption> _options;// owned
   grt::IntegerRef _supportsForeignKeys;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mysql_StorageEngine(grt));
+    return grt::ObjectRef(new db_mysql_StorageEngine());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_StorageEngine::create);
     {
@@ -221,8 +221,8 @@ class  db_mysql_StorageEngineOption : public GrtNamedObject
 {
   typedef GrtNamedObject super;
 public:
-  db_mysql_StorageEngineOption(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtNamedObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  db_mysql_StorageEngineOption(grt::MetaClass *meta=0)
+  : GrtNamedObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _caption(""),
      _description(""),
      _type("")
@@ -298,16 +298,16 @@ protected:
   grt::StringRef _description;
   grt::StringRef _type;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mysql_StorageEngineOption(grt));
+    return grt::ObjectRef(new db_mysql_StorageEngineOption());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_StorageEngineOption::create);
     {
@@ -333,8 +333,8 @@ class  db_mysql_RoutineParam : public GrtObject
 {
   typedef GrtObject super;
 public:
-  db_mysql_RoutineParam(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  db_mysql_RoutineParam(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _datatype(""),
      _paramType("")
 
@@ -388,16 +388,16 @@ protected:
   grt::StringRef _datatype;
   grt::StringRef _paramType;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mysql_RoutineParam(grt));
+    return grt::ObjectRef(new db_mysql_RoutineParam());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_RoutineParam::create);
     {
@@ -418,8 +418,8 @@ class  db_mysql_PartitionDefinition : public GrtObject
 {
   typedef GrtObject super;
 public:
-  db_mysql_PartitionDefinition(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  db_mysql_PartitionDefinition(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _comment(""),
      _dataDirectory(""),
      _engine(""),
@@ -427,7 +427,7 @@ public:
      _maxRows(""),
      _minRows(""),
      _nodeGroupId(0),
-    _subpartitionDefinitions(grt, this, false),
+    _subpartitionDefinitions(this, false),
      _tableSpace(""),
      _value("")
 
@@ -647,16 +647,16 @@ protected:
   grt::StringRef _tableSpace;
   grt::StringRef _value;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mysql_PartitionDefinition(grt));
+    return grt::ObjectRef(new db_mysql_PartitionDefinition());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_PartitionDefinition::create);
     {
@@ -717,8 +717,8 @@ class  db_mysql_ForeignKey : public db_ForeignKey
 {
   typedef db_ForeignKey super;
 public:
-  db_mysql_ForeignKey(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_ForeignKey(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+  db_mysql_ForeignKey(grt::MetaClass *meta=0)
+  : db_ForeignKey(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
 
   {
   }
@@ -743,16 +743,16 @@ obj.referencedTable = value
 protected:
 
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mysql_ForeignKey(grt));
+    return grt::ObjectRef(new db_mysql_ForeignKey());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_ForeignKey::create);
     {
@@ -768,8 +768,8 @@ class  db_mysql_IndexColumn : public db_IndexColumn
 {
   typedef db_IndexColumn super;
 public:
-  db_mysql_IndexColumn(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_IndexColumn(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+  db_mysql_IndexColumn(grt::MetaClass *meta=0)
+  : db_IndexColumn(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
 
   {
   }
@@ -779,16 +779,16 @@ public:
 protected:
 
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mysql_IndexColumn(grt));
+    return grt::ObjectRef(new db_mysql_IndexColumn());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_IndexColumn::create);
   }
@@ -799,8 +799,8 @@ class  db_mysql_SimpleDatatype : public db_SimpleDatatype
 {
   typedef db_SimpleDatatype super;
 public:
-  db_mysql_SimpleDatatype(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_SimpleDatatype(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+  db_mysql_SimpleDatatype(grt::MetaClass *meta=0)
+  : db_SimpleDatatype(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
 
   {
   }
@@ -810,16 +810,16 @@ public:
 protected:
 
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mysql_SimpleDatatype(grt));
+    return grt::ObjectRef(new db_mysql_SimpleDatatype());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_SimpleDatatype::create);
   }
@@ -830,8 +830,8 @@ class  db_mysql_Column : public db_Column
 {
   typedef db_Column super;
 public:
-  db_mysql_Column(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Column(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  db_mysql_Column(grt::MetaClass *meta=0)
+  : db_Column(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _autoIncrement(0),
      _expression(""),
      _generated(0),
@@ -929,16 +929,16 @@ protected:
   grt::IntegerRef _generated;
   grt::StringRef _generatedStorage;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mysql_Column(grt));
+    return grt::ObjectRef(new db_mysql_Column());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_Column::create);
     {
@@ -969,8 +969,8 @@ class  db_mysql_Catalog : public db_Catalog
 {
   typedef db_Catalog super;
 public:
-  db_mysql_Catalog(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Catalog(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+  db_mysql_Catalog(grt::MetaClass *meta=0)
+  : db_Catalog(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
 
   {
     _logFileGroups.content().__retype(grt::ObjectType, "db.mysql.LogFileGroup");
@@ -1028,16 +1028,16 @@ public:
 protected:
 
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mysql_Catalog(grt));
+    return grt::ObjectRef(new db_mysql_Catalog());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_Catalog::create);
     {
@@ -1069,8 +1069,8 @@ class  db_mysql_Sequence : public db_Sequence
 {
   typedef db_Sequence super;
 public:
-  db_mysql_Sequence(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Sequence(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+  db_mysql_Sequence(grt::MetaClass *meta=0)
+  : db_Sequence(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
 
   {
   }
@@ -1080,16 +1080,16 @@ public:
 protected:
 
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mysql_Sequence(grt));
+    return grt::ObjectRef(new db_mysql_Sequence());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_Sequence::create);
   }
@@ -1101,8 +1101,8 @@ class  db_mysql_Synonym : public db_Synonym
 {
   typedef db_Synonym super;
 public:
-  db_mysql_Synonym(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Synonym(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+  db_mysql_Synonym(grt::MetaClass *meta=0)
+  : db_Synonym(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
 
   {
   }
@@ -1112,16 +1112,16 @@ public:
 protected:
 
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mysql_Synonym(grt));
+    return grt::ObjectRef(new db_mysql_Synonym());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_Synonym::create);
   }
@@ -1132,8 +1132,8 @@ class  db_mysql_RoutineGroup : public db_RoutineGroup
 {
   typedef db_RoutineGroup super;
 public:
-  db_mysql_RoutineGroup(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_RoutineGroup(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+  db_mysql_RoutineGroup(grt::MetaClass *meta=0)
+  : db_RoutineGroup(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
 
   {
   }
@@ -1143,16 +1143,16 @@ public:
 protected:
 
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mysql_RoutineGroup(grt));
+    return grt::ObjectRef(new db_mysql_RoutineGroup());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_RoutineGroup::create);
   }
@@ -1163,8 +1163,8 @@ class  db_mysql_Index : public db_Index
 {
   typedef db_Index super;
 public:
-  db_mysql_Index(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Index(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  db_mysql_Index(grt::MetaClass *meta=0)
+  : db_Index(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _algorithm(""),
      _indexKind(""),
      _keyBlockSize(0),
@@ -1296,16 +1296,16 @@ protected:
   grt::StringRef _lockOption;
   grt::StringRef _withParser;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mysql_Index(grt));
+    return grt::ObjectRef(new db_mysql_Index());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_Index::create);
     {
@@ -1346,8 +1346,8 @@ class  db_mysql_StructuredDatatype : public db_StructuredDatatype
 {
   typedef db_StructuredDatatype super;
 public:
-  db_mysql_StructuredDatatype(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_StructuredDatatype(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+  db_mysql_StructuredDatatype(grt::MetaClass *meta=0)
+  : db_StructuredDatatype(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
 
   {
   }
@@ -1357,16 +1357,16 @@ public:
 protected:
 
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mysql_StructuredDatatype(grt));
+    return grt::ObjectRef(new db_mysql_StructuredDatatype());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_StructuredDatatype::create);
   }
@@ -1377,8 +1377,8 @@ class  db_mysql_Table : public db_Table
 {
   typedef db_Table super;
 public:
-  db_mysql_Table(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Table(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  db_mysql_Table(grt::MetaClass *meta=0)
+  : db_Table(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _avgRowLength(""),
      _checksum(0),
      _connectionString(""),
@@ -1393,7 +1393,7 @@ public:
      _nextAutoInc(""),
      _packKeys(""),
      _partitionCount(0),
-    _partitionDefinitions(grt, this, false),
+    _partitionDefinitions(this, false),
      _partitionExpression(""),
      _partitionKeyAlgorithm(0),
      _partitionType(""),
@@ -2220,16 +2220,16 @@ protected:
   grt::StringRef _tableIndexDir;
   grt::StringRef _tableSpace;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mysql_Table(grt));
+    return grt::ObjectRef(new db_mysql_Table());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_Table::create);
     {
@@ -2440,8 +2440,8 @@ class  db_mysql_ServerLink : public db_ServerLink
 {
   typedef db_ServerLink super;
 public:
-  db_mysql_ServerLink(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_ServerLink(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+  db_mysql_ServerLink(grt::MetaClass *meta=0)
+  : db_ServerLink(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
 
   {
   }
@@ -2451,16 +2451,16 @@ public:
 protected:
 
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mysql_ServerLink(grt));
+    return grt::ObjectRef(new db_mysql_ServerLink());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_ServerLink::create);
   }
@@ -2471,8 +2471,8 @@ class  db_mysql_Schema : public db_Schema
 {
   typedef db_Schema super;
 public:
-  db_mysql_Schema(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Schema(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+  db_mysql_Schema(grt::MetaClass *meta=0)
+  : db_Schema(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
 
   {
     _routineGroups.content().__retype(grt::ObjectType, "db.mysql.RoutineGroup");
@@ -2566,16 +2566,16 @@ public:
 protected:
 
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mysql_Schema(grt));
+    return grt::ObjectRef(new db_mysql_Schema());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_Schema::create);
     {
@@ -2621,8 +2621,8 @@ class  db_mysql_Tablespace : public db_Tablespace
 {
   typedef db_Tablespace super;
 public:
-  db_mysql_Tablespace(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Tablespace(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  db_mysql_Tablespace(grt::MetaClass *meta=0)
+  : db_Tablespace(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _engine(""),
      _nodeGroupId(0),
      _wait(0)
@@ -2698,16 +2698,16 @@ protected:
   grt::IntegerRef _nodeGroupId;
   grt::IntegerRef _wait;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mysql_Tablespace(grt));
+    return grt::ObjectRef(new db_mysql_Tablespace());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_Tablespace::create);
     {
@@ -2733,8 +2733,8 @@ class  db_mysql_LogFileGroup : public db_LogFileGroup
 {
   typedef db_LogFileGroup super;
 public:
-  db_mysql_LogFileGroup(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_LogFileGroup(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  db_mysql_LogFileGroup(grt::MetaClass *meta=0)
+  : db_LogFileGroup(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _engine(""),
      _nodeGroupId(0),
      _wait(0)
@@ -2810,16 +2810,16 @@ protected:
   grt::IntegerRef _nodeGroupId;
   grt::IntegerRef _wait;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mysql_LogFileGroup(grt));
+    return grt::ObjectRef(new db_mysql_LogFileGroup());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_LogFileGroup::create);
     {
@@ -2845,8 +2845,8 @@ class  db_mysql_Event : public db_Event
 {
   typedef db_Event super;
 public:
-  db_mysql_Event(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Event(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+  db_mysql_Event(grt::MetaClass *meta=0)
+  : db_Event(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
 
   {
   }
@@ -2856,16 +2856,16 @@ public:
 protected:
 
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mysql_Event(grt));
+    return grt::ObjectRef(new db_mysql_Event());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_Event::create);
   }
@@ -2876,8 +2876,8 @@ class  db_mysql_Trigger : public db_Trigger
 {
   typedef db_Trigger super;
 public:
-  db_mysql_Trigger(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Trigger(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+  db_mysql_Trigger(grt::MetaClass *meta=0)
+  : db_Trigger(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
 
   {
   }
@@ -2887,16 +2887,16 @@ public:
 protected:
 
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mysql_Trigger(grt));
+    return grt::ObjectRef(new db_mysql_Trigger());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_Trigger::create);
   }
@@ -2907,9 +2907,9 @@ class  db_mysql_Routine : public db_Routine
 {
   typedef db_Routine super;
 public:
-  db_mysql_Routine(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Routine(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-    _params(grt, this, false),
+  db_mysql_Routine(grt::MetaClass *meta=0)
+  : db_Routine(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+    _params(this, false),
      _returnDatatype(""),
      _security("")
 
@@ -2982,16 +2982,16 @@ protected:
   grt::StringRef _returnDatatype;
   grt::StringRef _security;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mysql_Routine(grt));
+    return grt::ObjectRef(new db_mysql_Routine());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_Routine::create);
     {
@@ -3017,8 +3017,8 @@ class  db_mysql_View : public db_View
 {
   typedef db_View super;
 public:
-  db_mysql_View(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_View(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+  db_mysql_View(grt::MetaClass *meta=0)
+  : db_View(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
 
   {
   }
@@ -3028,16 +3028,16 @@ public:
 protected:
 
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new db_mysql_View(grt));
+    return grt::ObjectRef(new db_mysql_View());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mysql_View::create);
   }

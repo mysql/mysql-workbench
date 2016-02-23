@@ -140,7 +140,7 @@ void DbMySQLSQLExport::set_db_options(grt::DictRef &db_options)
     _db_options = db_options;
 }
 
-grt::StringListRef convert_string_vector_to_grt_list(grt::GRT *grt, const std::vector<std::string>& v)
+grt::StringListRef convert_string_vector_to_grt_list(const std::vector<std::string>& v)
 {
   grt::StringListRef grt_list(grt);
   for(std::vector<std::string>::const_iterator e= v.end(), it= v.begin(); it != e; it++)
@@ -182,7 +182,7 @@ std::vector<std::string> get_names(const bec::GrtStringListModel* list,const std
 };
 
 
-grt::DictRef DbMySQLSQLExport::get_options_as_dict(grt::GRT *grt)
+grt::DictRef DbMySQLSQLExport::get_options_as_dict()
 {
   grt::DictRef options(grt);
 
@@ -213,23 +213,23 @@ grt::DictRef DbMySQLSQLExport::get_options_as_dict(grt::GRT *grt)
 
   std::set<db_mysql_SchemaRef> schemas;
 
-//  options.set("SchemaFilterList", convert_string_vector_to_grt_list(grt, schemata_names));
+//  options.set("SchemaFilterList", convert_string_vector_to_grt_list(schemata_names));
 
   // filtering options
   options.set("TableFilterList", _tables_are_selected ? 
     convert_string_vector_to_grt_list(grt,get_names(_tables_model.get(), _tables_map, schemas, _case_sensitive)) : grt::StringListRef(grt));
 
   options.set("ViewFilterList", _views_are_selected ? 
-    convert_string_vector_to_grt_list(grt, get_names(_views_model.get(), _views_map, schemas, _case_sensitive)) : grt::StringListRef(grt));
+    convert_string_vector_to_grt_list(get_names(_views_model.get(), _views_map, schemas, _case_sensitive)) : grt::StringListRef(grt));
 
   options.set("RoutineFilterList", _routines_are_selected ? 
-    convert_string_vector_to_grt_list(grt, get_names(_routines_model.get(), _routines_map, schemas, _case_sensitive)) : grt::StringListRef(grt));
+    convert_string_vector_to_grt_list(get_names(_routines_model.get(), _routines_map, schemas, _case_sensitive)) : grt::StringListRef(grt));
 
   options.set("TriggerFilterList", _triggers_are_selected ? 
-    convert_string_vector_to_grt_list(grt, get_names(_triggers_model.get(), _triggers_map, schemas, _case_sensitive)) : grt::StringListRef(grt));
+    convert_string_vector_to_grt_list(get_names(_triggers_model.get(), _triggers_map, schemas, _case_sensitive)) : grt::StringListRef(grt));
 
   options.set("UserFilterList", _users_are_selected ? 
-      convert_string_vector_to_grt_list(grt, get_names(_users_model.get(), _users_map, schemas, _case_sensitive)) : grt::StringListRef(grt));
+      convert_string_vector_to_grt_list(get_names(_users_model.get(), _users_map, schemas, _case_sensitive)) : grt::StringListRef(grt));
 
   grt::StringListRef schema_names_list(grt);
   for (std::set<db_mysql_SchemaRef>::const_iterator It = schemas.begin(); It != schemas.end(); ++It)
@@ -275,7 +275,7 @@ ValueRef DbMySQLSQLExport::export_task(grt::GRT* grt, grt::StringRef)
 
   try
   {
-    SQLGeneratorInterfaceImpl *diffsql_module= dynamic_cast<SQLGeneratorInterfaceImpl*>(grt->get_module("DbMySQL"));
+    SQLGeneratorInterfaceImpl *diffsql_module= dynamic_cast<SQLGeneratorInterfaceImpl*>(grt::GRT::get().get_module("DbMySQL"));
   
     if(diffsql_module == NULL)
       return grt::StringRef("\nSQL Script Export Error: Not able to load 'DbMySQL' module");
@@ -307,7 +307,7 @@ ValueRef DbMySQLSQLExport::export_task(grt::GRT* grt, grt::StringRef)
     if (_gen_drops)
       drop_map = diffsql_module->generateSQLForDifferences(_catalog, GrtNamedObjectRef(), options);
     if (!drop_map.is_valid())
-      drop_map = grt::DictRef(grt);
+      drop_map = grt::DictRef();
     
     grt::StringListRef strlist= grt::StringListRef::cast_from(options.get("ViewFilterList"));
 
@@ -477,7 +477,7 @@ void DbMySQLSQLExport::setup_grt_string_list_models_from_catalog(bec::GrtStringL
 //    if(validation_module == NULL)
 //      return grt::StringRef("\nSQL Script Export Error: Not able to load 'WbModuleValidation' module");
 //
-//    grt->send_info("Starting general validation");
+//    grt::GRT::get().send_info("Starting general validation");
 //
 //    int validation_res= validation_module->validateAll(
 //      GrtObjectRef::cast_from(_manager->get_grt()->get("/wb/doc/physicalModels/0/catalog")));
@@ -492,7 +492,7 @@ void DbMySQLSQLExport::setup_grt_string_list_models_from_catalog(bec::GrtStringL
 //    if(validation_module == NULL)
 //      return grt::StringRef("\nSQL Script Export Error: Not able to load 'WbModuleValidationMySQL' module");
 //
-//    grt->send_info("Starting MySQL-specific validation");
+//    grt::GRT::get().send_info("Starting MySQL-specific validation");
 //
 //    validation_res= mysql_validation_module->validateAll(
 //      GrtObjectRef::cast_from(_manager->get_grt()->get("/wb/doc/physicalModels/0/catalog")));

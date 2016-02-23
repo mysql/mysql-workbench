@@ -41,11 +41,11 @@ public:
   boost::function<grt::ValueRef (grt::GRT*)> get_autoplace_task_slot();
   
 private:
-  grt::StringRef parse_sql_script(grt::GRT *grt, db_CatalogRef catalog, const std::string &sql_script);
+  grt::StringRef parse_sql_script(db_CatalogRef catalog, const std::string &sql_script);
   virtual void parse_sql_script(parser::MySQLParserServices::Ref sql_parser, parser::ParserContext::Ref context,
                                 db_CatalogRef &catalog, const std::string &sql_script, grt::DictRef &options);
   virtual db_CatalogRef target_catalog();
-  virtual GrtVersionRef getVersion(grt::GRT *grt);
+  virtual GrtVersionRef getVersion();
 
 public:
   virtual std::string sql_script() { return _sql_script; }
@@ -55,7 +55,7 @@ public:
   grt::ListRef<GrtObject> get_created_objects();
 protected:
   
-  grt::ValueRef autoplace_grt(grt::GRT *grt);
+  grt::ValueRef autoplace_grt();
   
   grt::DictRef _options;
   

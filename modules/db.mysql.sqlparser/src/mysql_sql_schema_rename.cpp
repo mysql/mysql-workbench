@@ -41,7 +41,7 @@ Mysql_sql_schema_rename::Null_state_keeper::~Null_state_keeper()
 #define NULL_STATE_KEEPER Null_state_keeper _nsk(this);
 
 
-Mysql_sql_schema_rename::Mysql_sql_schema_rename(grt::GRT *grt)
+Mysql_sql_schema_rename::Mysql_sql_schema_rename()
 :
 Sql_parser_base(grt),
 Sql_schema_rename(grt),

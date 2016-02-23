@@ -233,7 +233,7 @@ public:
 
   virtual bool rename(WBContext *wb, const std::string &name)
   {
-    //grt::GRT *grt= wb->get_grt_manager()->get_grt();
+    //= wb->get_grt_manager()->get_grt();
     //QQQgrt->lock_tree_write();
 
     workbench_physical_ModelRef model(workbench_physical_ModelRef::cast_from(object->owner()));

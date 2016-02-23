@@ -115,7 +115,7 @@ const bec::GRTDispatcher::Ref & GrtThreadedTask::dispatcher()
 {
   if (!_dispatcher)
   {
-    _dispatcher = bec::GRTDispatcher::create_dispatcher(_grtm->get_grt(), _grtm->is_threaded(), false);
+    _dispatcher = bec::GRTDispatcher::create_dispatcher(_grtm->is_threaded(), false);
     _dispatcher->set_main_thread_flush_and_wait(_grtm->get_dispatcher()->get_main_thread_flush_and_wait());
     _dispatcher->start();
   }
@@ -225,17 +225,17 @@ void GrtThreadedTask::send_msg(int msg_type, const std::string &msg, const std::
   {
     if (!task())
       return;
-    grt::GRT *grt= _grtm->get_grt();
+    = _grtm->get_grt();
     switch (msg_type)
     {
     case grt::WarningMsg:
-      grt->send_warning(msg, detail, task().get());
+      grt::GRT::get().send_warning(msg, detail, task().get());
       break;
     case grt::ErrorMsg:
-      grt->send_error(msg, detail, task().get());
+      grt::GRT::get().send_error(msg, detail, task().get());
       break;
     case grt::InfoMsg:
-      grt->send_info(msg, detail, task().get());
+      grt::GRT::get().send_info(msg, detail, task().get());
       break;
     }
   }

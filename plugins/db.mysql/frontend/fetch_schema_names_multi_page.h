@@ -57,7 +57,7 @@ protected:
     return true;
   }
 
-  grt::ValueRef do_connect(grt::GRT *grt, DbConnection *dbc)
+  grt::ValueRef do_connect(DbConnection *dbc)
   {
     if (!dbc)
       throw std::logic_error("must call set_db_connection() 1st");
@@ -80,7 +80,7 @@ protected:
   }
 
 
-  grt::ValueRef do_fetch(grt::GRT *grt, bool source)
+  grt::ValueRef do_fetch(bool source)
   {
     std::vector<std::string> schema_names= source ? _load_source_schemata() : _load_target_schemata();
 

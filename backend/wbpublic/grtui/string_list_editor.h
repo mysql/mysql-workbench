@@ -47,7 +47,7 @@ protected:
   virtual void del();
   
 public:
-  StringListEditor(grt::GRT *grt, mforms::Form *owner= 0, const bool reorderable= false);
+  StringListEditor(mforms::Form *owner= 0, const bool reorderable= false);
   
   bool run();
 

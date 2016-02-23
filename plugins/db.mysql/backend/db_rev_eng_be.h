@@ -40,7 +40,7 @@ public:
 public:
   Db_rev_eng() : Db_plugin(), Sql_import() {}
   void grtm(bec::GRTManager *grtm);
-  GrtVersionRef getVersion(grt::GRT *grt);
+  GrtVersionRef getVersion();
 };
 
 

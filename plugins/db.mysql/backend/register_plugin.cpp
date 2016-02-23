@@ -26,7 +26,7 @@
 #define MODULE_VERSION "1.0.0"
 
 
-static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt);
+static grt::ListRef<app_Plugin> get_mysql_plugins_info();
 
 
 class MySQLDbModuleImpl : public grt::ModuleImplBase, public PluginInterfaceImpl
@@ -126,7 +126,7 @@ public:
 };
 
 
-static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
+static grt::ListRef<app_Plugin> get_mysql_plugins_info()
 {
   grt::ListRef<app_Plugin> plugins(grt);
   app_PluginRef diff_sql_generator(grt);

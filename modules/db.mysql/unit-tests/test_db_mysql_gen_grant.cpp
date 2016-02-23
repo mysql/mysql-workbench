@@ -45,8 +45,8 @@ TEST_MODULE(test_db_mysql_gen_grant, "test_db_mysql_gen_grant");
 TEST_FUNCTION(1)
 {
   grt= grtm.get_grt();
-  grt->scan_metaclasses_in("../../res/grt/");
-  grt->end_loading_metaclasses();
+  grt::GRT::get().scan_metaclasses_in("../../res/grt/");
+  grt::GRT::get().end_loading_metaclasses();
 }
 
 

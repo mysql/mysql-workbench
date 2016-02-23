@@ -40,7 +40,7 @@
 class WBPUBLICBACKEND_PUBLIC_FUNC Sql_parser_base
 {
 protected:
-  Sql_parser_base(grt::GRT *grt);
+  Sql_parser_base();
   virtual ~Sql_parser_base() {}
 
 public:

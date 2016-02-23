@@ -50,7 +50,7 @@ Mysql_invalid_sql_parser::Null_state_keeper::~Null_state_keeper()
 #define NULL_STATE_KEEPER Null_state_keeper _nsk(this);
 
 
-Mysql_invalid_sql_parser::Mysql_invalid_sql_parser(grt::GRT *grt)
+Mysql_invalid_sql_parser::Mysql_invalid_sql_parser()
 :
 Sql_parser_base(grt),
 Mysql_sql_parser(grt),
@@ -116,10 +116,10 @@ int Mysql_invalid_sql_parser::parse_triggers(db_TableRef table, const std::strin
 /**
  * Helper to determine if an explicit DELIMITER statement in the sql string is needed.
  */
-bool needs_delimiter_for_trigger(grt::GRT *grt, const std::string &sql)
+bool needs_delimiter_for_trigger(const std::string &sql)
 {
   std::vector<std::pair<size_t, size_t> > statement_ranges;
-  SqlFacade::Ref facade = SqlFacade::instance_for_rdbms_name(grt, "Mysql");
+  SqlFacade::Ref facade = SqlFacade::instance_for_rdbms_name("Mysql");
   facade->splitSqlScript(sql.c_str(), sql.size(), ";", statement_ranges);
 
   // If the splitter only returns one statement (USE statements don't count) then we don't

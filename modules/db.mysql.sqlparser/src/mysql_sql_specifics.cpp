@@ -36,7 +36,7 @@ using namespace base;
 class MYSQL_SQL_PARSER_PUBLIC_FUNC Mysql_sql_statement_info : protected Mysql_sql_parser_base
 {
 public:
-  Mysql_sql_statement_info(grt::GRT *grt) : Sql_parser_base(grt), Mysql_sql_parser_base(grt) { NULL_STATE_KEEPER }
+  Mysql_sql_statement_info() : Sql_parser_base(grt), Mysql_sql_parser_base(grt) { NULL_STATE_KEEPER }
   virtual ~Mysql_sql_statement_info() {}
 
 private:
@@ -174,7 +174,7 @@ protected:
 
 
 
-Mysql_sql_specifics::Mysql_sql_specifics(grt::GRT *grt)
+Mysql_sql_specifics::Mysql_sql_specifics()
 :
 Sql_specifics(grt)
 {
@@ -296,7 +296,7 @@ std::string Mysql_sql_specifics::setting_non_std_sql_delimiter()
 
 std::string Mysql_sql_specifics::non_std_sql_delimiter()
 {
-  DictRef options= DictRef::cast_from(_grt->get("/wb/options/options"));
+  DictRef options= DictRef::cast_from(grt::GRT::get().get("/wb/options/options"));
   if (!options.is_valid())
     return "$$";
   return options.get_string("SqlDelimiter", "$$");

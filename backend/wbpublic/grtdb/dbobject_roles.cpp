@@ -124,7 +124,7 @@ void ObjectRoleListBE::add_role_for_privileges(const db_RoleRef &role)
       return;
   }
 
-  db_RolePrivilegeRef role_priv(role.get_grt());
+  db_RolePrivilegeRef role_priv;
 
   role_priv->owner(role);
   role_priv->databaseObject(_owner->get_dbobject());

@@ -244,7 +244,7 @@ bool sqlCompare(const ValueRef obj1, const ValueRef obj2, const std::string& nam
   {
     std::string sql1= ObjectRef::cast_from(obj1).get_string_member(name);
     std::string sql2= ObjectRef::cast_from(obj2).get_string_member(name);
-    SqlFacade* parser = SqlFacade::instance_for_rdbms_name(grt, "Mysql");
+    SqlFacade* parser = SqlFacade::instance_for_rdbms_name("Mysql");
 
     if (!parser)
         return false;
@@ -407,13 +407,13 @@ bool fk_compare(const ValueRef obj1, const ValueRef obj2, const std::string& nam
     // check if at both engines does not. This can be used to optimize further FK handling
     // (no need to check all the FKs then).
     grt::StringRef ename = db_mysql_TableRef::cast_from(obj1)->tableEngine();
-    db_mysql_StorageEngineRef engine = bec::TableHelper::get_engine_by_name(grt, ename);
+    db_mysql_StorageEngineRef engine = bec::TableHelper::get_engine_by_name(ename);
 
     //          if (!engine.is_valid() || !engine->supportsForeignKeys())
     //            return true;
 
     ename = db_mysql_TableRef::cast_from(obj2)->tableEngine();
-    db_mysql_StorageEngineRef engine2 = bec::TableHelper::get_engine_by_name(grt, ename);
+    db_mysql_StorageEngineRef engine2 = bec::TableHelper::get_engine_by_name(ename);
 
     if ((engine.is_valid() && !engine->supportsForeignKeys()) && (engine2.is_valid() && !engine2->supportsForeignKeys()))
         return true;
@@ -425,7 +425,7 @@ bool formatted_type_compare(const ValueRef obj1, const ValueRef obj2, const std:
 {
     std::string sql1= ObjectRef::cast_from(obj1).get_string_member(name);
     std::string sql2= ObjectRef::cast_from(obj2).get_string_member(name);
-    SqlFacade* parser = SqlFacade::instance_for_rdbms_name(grt, "Mysql");
+    SqlFacade* parser = SqlFacade::instance_for_rdbms_name("Mysql");
 
     if (!parser)
         return false;

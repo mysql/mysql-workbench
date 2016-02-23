@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _UNDO_MANAGER_H_
-#define _UNDO_MANAGER_H_
-
+#pragma once
 
 #include "grtpp.h"
 
@@ -220,8 +218,6 @@ public:
   
   void enable_logging_to(std::ostream *stream);
   
-  GRT *get_grt() const { return _owner; }
-
   bool can_undo() const;
   bool can_redo() const;
   std::string undo_description() const;
@@ -274,7 +270,6 @@ public:
   void lock() const;
   void unlock() const;
 protected:
-  GRT *_owner;
   mutable base::RecMutex _mutex;
   std::ostream *_undo_log;
 
@@ -292,28 +287,22 @@ protected:
   boost::signals2::signal<void ()> _changed_signal;
 
   void trim_undo_stack();
-
-
-
 };
 
 
 struct AutoUndo
 {
-  GRT *_grt;
   UndoGroup *group;
 
-  AutoUndo(GRT *grt, bool noop= false)
-    : _grt(grt)
+  AutoUndo(bool noop= false)
   {
     if (!noop)
-      group= _grt->begin_undoable_action();
+      group= GRT::get().begin_undoable_action();
     else
       group= 0;
   }
 
-  AutoUndo(GRT *grt, UndoGroup *use_group, bool noop=false)
-    : _grt(grt), group(0)
+  AutoUndo(UndoGroup *use_group, bool noop = false) : group(0)
   {
     if (noop)
     {
@@ -323,9 +312,9 @@ struct AutoUndo
     else
     {
       // check if the group can be merged into the previous one and if so, just drop it
-      if (!_grt->get_undo_manager()->get_undo_stack().empty())
+      if (!GRT::get().get_undo_manager()->get_undo_stack().empty())
       {
-        UndoGroup *last_group= dynamic_cast<UndoGroup*>(_grt->get_undo_manager()->get_undo_stack().back());
+        UndoGroup *last_group= dynamic_cast<UndoGroup*>(GRT::get().get_undo_manager()->get_undo_stack().back());
         
         if (last_group && use_group->matches_group(last_group))
         {
@@ -335,21 +324,21 @@ struct AutoUndo
       }
       
       if (use_group)
-        group= _grt->begin_undoable_action(use_group);
+        group= GRT::get().begin_undoable_action(use_group);
     }
   }
 
 
   ~AutoUndo()
   {
-    if (_grt && group)
+    if (group)
     {
       const char *tmp;
       // check if the currently open undo group is not empty, in that case we warn about it
       // cancel() should be explicitly called if the cancellation is intentional
       if ((tmp= getenv("DEBUG_UNDO")))
       {
-        UndoGroup *group= dynamic_cast<UndoGroup*>(_grt->get_undo_manager()->get_latest_undo_action());
+        UndoGroup *group= dynamic_cast<UndoGroup*>(GRT::get().get_undo_manager()->get_latest_undo_action());
 
         if (group && group->is_open())
         {
@@ -365,9 +354,9 @@ struct AutoUndo
 
   void set_description_for_last_action(const std::string &s)
   {
-    if (_grt && group)
+    if (group)
     {
-      UndoAction *action= _grt->get_undo_manager()->get_latest_undo_action();
+      UndoAction *action= GRT::get().get_undo_manager()->get_latest_undo_action();
 
       action->set_description(s);
     }
@@ -375,45 +364,23 @@ struct AutoUndo
 
   void cancel()
   {
-    if (_grt)
-    {
-      if (group)
-        _grt->cancel_undoable_action();
-      _grt= 0;
-    }
-    else
-      throw std::logic_error("invalid");
+    if (group)
+      GRT::get().cancel_undoable_action();
   }
 
   void end_or_cancel_if_empty(const std::string &descr)
   {
-    if (_grt)
-    {
-      if (group)
-      {
-        if (!group->empty())
-          _grt->end_undoable_action(descr);
-        else
-          _grt->cancel_undoable_action();
-      }
-      _grt= 0;
-    }
+    if (!group->empty())
+      GRT::get().end_undoable_action(descr);
     else
-      throw std::logic_error("invalid");
+      GRT::get().cancel_undoable_action();
   }
   
   void end(const std::string &descr)
   {
-    if (_grt)
-    {
-      if (group)
-        _grt->end_undoable_action(descr);
-      _grt= 0;
-    }
-    else
-      throw std::logic_error("invalid");
+    if (group)
+      GRT::get().end_undoable_action(descr);
   }
 };
 
 };
-#endif /* _UNDO_MANAGER_H_ */

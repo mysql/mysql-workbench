@@ -1599,7 +1599,7 @@ std::vector<std::string> MySQLTableEditorBE::get_engines_list()
 {
   std::vector<std::string> engines;
 
-  DbMySQLImpl *module= get_grt()->find_native_module<DbMySQLImpl>("DbMySQL");
+  DbMySQLImpl *module= grt::GRT::get().find_native_module<DbMySQLImpl>("DbMySQL");
   if (!module)
     throw std::runtime_error("Module DbMySQL could not be located");
 
@@ -1620,7 +1620,7 @@ bool MySQLTableEditorBE::engine_supports_foreign_keys()
   if (name == "") // No engine set. Assume db default allows FKs.
     return true;
   
-  db_mysql_StorageEngineRef engine = bec::TableHelper::get_engine_by_name(get_grt(), name);
+  db_mysql_StorageEngineRef engine = bec::TableHelper::get_engine_by_name(name);
   if (engine.is_valid())
     return engine->supportsForeignKeys() == 1;
   

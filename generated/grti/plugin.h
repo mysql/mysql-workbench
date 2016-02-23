@@ -14,7 +14,7 @@ public:
   static const char *static_get_name() { return "PluginInterface"; }
   grt::ListRef<app_Plugin> getPluginInfo()
   {
-    grt::BaseListRef args(get_grt(), AnyType);
+    grt::BaseListRef args(AnyType);
 
     grt::ValueRef ret= _module->call_function("getPluginInfo", args);
     return grt::ListRef<app_Plugin>::cast_from(ret);

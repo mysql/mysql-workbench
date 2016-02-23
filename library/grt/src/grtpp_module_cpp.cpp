@@ -41,7 +41,7 @@ Interface::Interface(CPPModuleLoader *loader)
 
 Interface *Interface::create(GRT *grt, const char *name, ...)
 {
-  Interface *iface= new Interface(dynamic_cast<CPPModuleLoader*>(grt->get_module_loader("cpp")));
+  Interface *iface= new Interface(dynamic_cast<CPPModuleLoader*>(grt::GRT::get().get_module_loader("cpp")));
   va_list args;
   ModuleFunctorBase *func;
 
@@ -92,13 +92,13 @@ bool Interface::check_conformance(const Module *module) const
     
     if (!function)
     {
-      get_grt()->send_warning(strfmt("Module '%s' does not have function '%s'", module->name().c_str(), f->name.c_str()));
+      GRT::get().send_warning(strfmt("Module '%s' does not have function '%s'", module->name().c_str(), f->name.c_str()));
       return false;
     }
 
     if (!(function->ret_type == f->ret_type))
     {
-      get_grt()->send_warning(strfmt("Function '%s' of module '%s' has wrong return type (expected %s, got %s)",
+      GRT::get().send_warning(strfmt("Function '%s' of module '%s' has wrong return type (expected %s, got %s)",
                                      f->name.c_str(), module->name().c_str(),
                                      fmt_type_spec(f->ret_type).c_str(), fmt_type_spec(function->ret_type).c_str()));
       return false;
@@ -109,7 +109,7 @@ bool Interface::check_conformance(const Module *module) const
     {
       if (!(iarg->type == marg->type))
       {
-        get_grt()->send_warning(strfmt("Function '%s' of module '%s' doesn't match argument types (expected %s, got %s)", 
+        GRT::get().send_warning(strfmt("Function '%s' of module '%s' doesn't match argument types (expected %s, got %s)", 
                                        f->name.c_str(), module->name().c_str(),
                                        fmt_type_spec(iarg->type).c_str(), fmt_type_spec(marg->type).c_str()));
         return false;
@@ -117,7 +117,7 @@ bool Interface::check_conformance(const Module *module) const
     }
     if (iarg != f->arg_types.end() || marg != function->arg_types.end())
     {
-      get_grt()->send_warning(strfmt("Function '%s' of module '%s' has wrong number of arguments", f->name.c_str(), module->name().c_str()));
+      GRT::get().send_warning(strfmt("Function '%s' of module '%s' has wrong number of arguments", f->name.c_str(), module->name().c_str()));
       return false;
     }
   }
@@ -216,8 +216,7 @@ std::string CPPModule::get_resource_file_path(const std::string &file)
 
 //----------------- CPPModuleLoader ----------------------------------------------------------------
 
-CPPModuleLoader::CPPModuleLoader(GRT *grt)
-  : ModuleLoader(grt)
+CPPModuleLoader::CPPModuleLoader()
 {
 }
 

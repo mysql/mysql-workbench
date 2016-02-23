@@ -155,7 +155,6 @@ public:
   DbConnection(const db_mgmt_ManagementRef &mgmt, const db_mgmt_DriverRef &driver, bool skip_schema);
   
   ~DbConnection();
-  grt::GRT * get_grt() const { return _mgmt.get_grt(); }
   
   void set_control_callbacks(
     const boost::function<void (bool)> &suspend_layout,

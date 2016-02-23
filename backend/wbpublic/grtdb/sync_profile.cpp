@@ -26,7 +26,7 @@
 
 db_mgmt_SyncProfileRef bec::create_sync_profile(workbench_physical_ModelRef model, const std::string &profile_name, const std::string &target_schema)
 {
-  db_mgmt_SyncProfileRef profile(model.get_grt());
+  db_mgmt_SyncProfileRef profile;
   profile->targetHostIdentifier(profile_name);
   profile->targetSchemaName(grt::StringRef(target_schema));
 

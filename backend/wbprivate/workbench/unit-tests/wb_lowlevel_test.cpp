@@ -386,7 +386,7 @@ TEST_FUNCTION(30)
   tester.flush_until(2);
   ensure_equals("check table", tester.get_pview()->figures().count(), 1U);
 
-  tester.grt->get_undo_manager()->undo();
+  tester.grt::GRT::get().get_undo_manager()->undo();
 
   ensure_equals("check table gone", tester.get_pview()->figures().count(), 0U);
 }

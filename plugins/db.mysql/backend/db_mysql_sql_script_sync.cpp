@@ -282,7 +282,7 @@ void update_all_old_names(db_mysql_CatalogRef cat, bool update_only_empty, Catal
 }
 
 DbMySQLScriptSync::DbMySQLScriptSync(bec::GRTManager *grtm)
-  : DbMySQLValidationPage(grtm), _alter_list(grtm->get_grt()), _alter_object_list(grtm->get_grt())
+  : DbMySQLValidationPage(grtm), _alter_list(), _alter_object_list()
 {
   _manager= grtm;
 }
@@ -423,7 +423,7 @@ ValueRef DbMySQLScriptSync::sync_task(grt::GRT* grt, grt::StringRef)
   if (!err.empty())
     return StringRef(err);
 
-  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt->get("/wb/rdbmsMgmt/rdbms/0"));
+  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get().get("/wb/rdbmsMgmt/rdbms/0"));
 
   db_mysql_CatalogRef org_cat_copy= db_mysql_CatalogRef::cast_from(grt::copy_object(org_cat));
   db_mysql_CatalogRef mod_cat_copy= db_mysql_CatalogRef::cast_from(grt::copy_object(mod_cat));
@@ -845,11 +845,11 @@ class ChangesApplier
   grt::MetaClass *schema_mc;
 
 public:
-  ChangesApplier(grt::GRT *grt)
+  ChangesApplier()
   : case_sensitive(true)
   {
-    table_mc = grt->get_metaclass("db.mysql.Table");
-    schema_mc = grt->get_metaclass("db.mysql.Schema");
+    table_mc = grt::GRT::get().get_metaclass("db.mysql.Table");
+    schema_mc = grt::GRT::get().get_metaclass("db.mysql.Schema");
   }
 
   void set_case_sensitive(bool flag)

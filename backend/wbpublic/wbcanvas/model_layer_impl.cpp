@@ -327,7 +327,7 @@ void model_Layer::ImplData::layer_bounds_changed(const Rect &rect)
 //    grt::MetaClass *mc= self()->get_metaclass();
     if (moved && !resized)
     {
-//      grt::AutoUndo undo(self()->get_grt());
+//      grt::AutoUndo undo;
       
       self()->_left = grt::DoubleRef(bounds.left());
       self()->_top = grt::DoubleRef(bounds.top());
@@ -336,7 +336,7 @@ void model_Layer::ImplData::layer_bounds_changed(const Rect &rect)
     }
     else if (resized && !moved)
     {
-//      grt::AutoUndo undo(self()->get_grt());
+//      grt::AutoUndo undo;
 
       self()->_width = grt::DoubleRef(bounds.width());
       self()->_height = grt::DoubleRef(bounds.height());
@@ -345,7 +345,7 @@ void model_Layer::ImplData::layer_bounds_changed(const Rect &rect)
     }
     else if (moved && resized)
     {
-//      grt::AutoUndo undo(self()->get_grt());
+//      grt::AutoUndo undo;
 
       self()->_left = grt::DoubleRef(bounds.left());
       self()->_top = grt::DoubleRef(bounds.top());

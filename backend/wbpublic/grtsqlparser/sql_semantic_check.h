@@ -36,7 +36,7 @@ class WBPUBLICBACKEND_PUBLIC_FUNC Sql_semantic_check : virtual public Sql_syntax
 public:
   typedef boost::shared_ptr<Sql_semantic_check> Ref;
 protected:
-  Sql_semantic_check(grt::GRT *grt);
+  Sql_semantic_check();
 
 public:
   void reset_context_objects();

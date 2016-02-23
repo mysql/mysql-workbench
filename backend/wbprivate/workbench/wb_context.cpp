@@ -1395,27 +1395,27 @@ void WBContext::handle_grt_message(MessageListStorage::MessageEntryRef message)
 
 //--------------------------------------------------------------------------------------------------
 
-void WBContext::init_rdbms_modules(grt::GRT *grt)
+void WBContext::init_rdbms_modules()
 {
   log_debug("Initializing rdbms modules\n");
 
   // Init MySQL first.
-  grt::Module* module = grt->get_module("DbMySQL");
+  grt::Module* module = grt::GRT::get().get_module("DbMySQL");
   if (!module)
     throw std::logic_error("DbMySQL module not found");
   grt::BaseListRef args(grt);
   module->call_function("initializeDBMSInfo", args);
 
   // Will done prior to Migration init, to speed up app startup.
-  //grt->initializeOtherRDBMS();
+  //grt::GRT::get().initializeOtherRDBMS();
 }
 
 
-grt::ValueRef WBContext::setup_context_grt(grt::GRT *grt, WBOptions *options)
+grt::ValueRef WBContext::setup_context_grt(WBOptions *options)
 {
-  boost::shared_ptr<grt::internal::Unserializer> unserializer = grt->get_unserializer();
+  boost::shared_ptr<grt::internal::Unserializer> unserializer = grt::GRT::get().get_unserializer();
   // init the GRT tree nodes, set default options
-  init_grt_tree(grt, options, unserializer);
+  init_grt_tree(options, unserializer);
 
   // Load last application state. This will only load it into the grt tree.
   // Components that have stored their settings will later read those values and reapply them.
@@ -1425,17 +1425,17 @@ grt::ValueRef WBContext::setup_context_grt(grt::GRT *grt, WBOptions *options)
 
   load_starters(unserializer);
 
-  init_plugin_groups_grt(grt, options);
+  init_plugin_groups_grt(options);
 
-  run_init_scripts_grt(grt, options);
+  run_init_scripts_grt(options);
 
-  init_plugins_grt(grt, options);
+  init_plugins_grt(options);
 
   // Initialize RDBMS specific modules. must happen before connections are loaded.
   init_rdbms_modules(grt); 
 
   FOREACH_COMPONENT(_components, iter)
-    (*iter)->setup_context_grt(grt, options);
+    (*iter)->setup_context_grt(options);
 
   // App options must be loaded after everything else is initialized.
   load_app_options(false);
@@ -1447,7 +1447,7 @@ grt::ValueRef WBContext::setup_context_grt(grt::GRT *grt, WBOptions *options)
 }
 
 
-void WBContext::init_grt_tree(grt::GRT *grt, WBOptions *options, boost::shared_ptr<grt::internal::Unserializer> unserializer)
+void WBContext::init_grt_tree(WBOptions *options, boost::shared_ptr<grt::internal::Unserializer> unserializer)
 {
   grt::DictRef root(grt);
   workbench_WorkbenchRef app(grt);
@@ -1480,7 +1480,7 @@ void WBContext::init_grt_tree(grt::GRT *grt, WBOptions *options, boost::shared_p
     app_OptionsRef options(grt);
     options->owner(app);
 
-    append_contents(options->paperTypes(), get_paper_types(grt, unserializer));
+    append_contents(options->paperTypes(), get_paper_types(unserializer));
 
     set_default_options(options->options());
 
@@ -1504,7 +1504,7 @@ void WBContext::init_grt_tree(grt::GRT *grt, WBOptions *options, boost::shared_p
   
   ListRef<db_DatatypeGroup> grouplist;
 
-  grouplist= ListRef<db_DatatypeGroup>::cast_from(grt->unserialize(base::makePath(options->basedir, TYPE_GROUP_FILE), unserializer));
+  grouplist= ListRef<db_DatatypeGroup>::cast_from(grt::GRT::get().unserialize(base::makePath(options->basedir, TYPE_GROUP_FILE), unserializer));
   for (size_t c= grouplist.count(), i= 0; i < c; i++)
   {
     grouplist[i]->owner(mgmt_info);
@@ -1512,14 +1512,14 @@ void WBContext::init_grt_tree(grt::GRT *grt, WBOptions *options, boost::shared_p
   }
   app->rdbmsMgmt(mgmt_info);
 
-  grt->set_root(root);
+  grt::GRT::get().set_root(root);
 
   {
     // Default table templates list
     grt::DictRef options(get_root()->options()->options());
     if (!options.has_key("TableTemplates"))
     {
-      grt::ListRef<db_Table> templates = grt::ListRef<db_Table>::cast_from(grt->unserialize(base::makePath(get_datadir(), "data/table_templates.xml")));
+      grt::ListRef<db_Table> templates = grt::ListRef<db_Table>::cast_from(grt::GRT::get().unserialize(base::makePath(get_datadir(), "data/table_templates.xml")));
       options.set("TableTemplates", templates);
     }
   }
@@ -1527,7 +1527,7 @@ void WBContext::init_grt_tree(grt::GRT *grt, WBOptions *options, boost::shared_p
 
 
 
-void WBContext::run_init_scripts_grt(grt::GRT *grt, WBOptions *options)
+void WBContext::run_init_scripts_grt(WBOptions *options)
 {
   std::string sysinitpath= base::makePath(options->basedir, SYS_INIT_FILE);
   std::string userinitpath= base::makePath(g_get_home_dir(), USER_INIT_FILE);
@@ -1542,7 +1542,7 @@ void WBContext::run_init_scripts_grt(grt::GRT *grt, WBOptions *options)
 }
 
 
-void WBContext::init_plugin_groups_grt(grt::GRT *grt, WBOptions *options)
+void WBContext::init_plugin_groups_grt(WBOptions *options)
 {
   struct group_def {
     const char *category;
@@ -1597,7 +1597,7 @@ void WBContext::init_plugin_groups_grt(grt::GRT *grt, WBOptions *options)
 }
 
 
-void WBContext::init_plugins_grt(grt::GRT *grt, WBOptions *options)
+void WBContext::init_plugins_grt(WBOptions *options)
 {
   std::map<std::string, bool> scanned_dir_list;
   std::list<std::string> exts;
@@ -1641,7 +1641,7 @@ void WBContext::init_plugins_grt(grt::GRT *grt, WBOptions *options)
 
 void WBContext::init_properties_grt(workbench_DocumentRef &doc)
 {
-  grt::GRT *grt= _manager->get_grt();
+  = _manager->get_grt();
 
   app_DocumentInfoRef info(grt);
   info->name("Properties");
@@ -1894,9 +1894,9 @@ void WBContext::set_default_options(grt::DictRef options)
 }
 
 
-grt::ListRef<app_PaperType> WBContext::get_paper_types(grt::GRT *grt, boost::shared_ptr<grt::internal::Unserializer> unserializer)
+grt::ListRef<app_PaperType> WBContext::get_paper_types(boost::shared_ptr<grt::internal::Unserializer> unserializer)
 {
-  return grt::ListRef<app_PaperType>::cast_from(grt->unserialize(base::makePath(get_datadir(),
+  return grt::ListRef<app_PaperType>::cast_from(grt::GRT::get().unserialize(base::makePath(get_datadir(),
     "data/paper_types.xml"), unserializer));
 }
 
@@ -1944,7 +1944,7 @@ void WBContext::setLogLevelFromGuiPreferences(const grt::DictRef& dict)
 
 void WBContext::load_app_options(bool update)
 {
-  grt::GRT *grt= get_grt();
+  = get_grt();
   
   // load ui related stuff (menus, toolbars etc)
   _uicontext->load_app_options(update);
@@ -1957,7 +1957,7 @@ void WBContext::load_app_options(bool update)
     {
       app_OptionsRef curOptions(get_root()->options());
 
-      xmlDocPtr xmlDocument = grt->load_xml(options_xml);
+      xmlDocPtr xmlDocument = grt::GRT::get().load_xml(options_xml);
       if (!xmlDocument)
       {
         throw std::runtime_error(_("The file is not a valid MySQL Workbench options file.\n"
@@ -1967,7 +1967,7 @@ void WBContext::load_app_options(bool update)
       base::ScopeExitTrigger free_on_leave(boost::bind(xmlFreeDoc, xmlDocument));
 
       std::string doctype, version;
-      grt->get_xml_metainfo(xmlDocument, doctype, version);
+      grt::GRT::get().get_xml_metainfo(xmlDocument, doctype, version);
 
       // Older option files without a version number are considered as 1.0.0 and
       // upgraded from there to latest version.
@@ -1985,7 +1985,7 @@ void WBContext::load_app_options(bool update)
       if (version != OPTIONS_DOCUMENT_VERSION)
         attempt_options_upgrade(xmlDocument, version);
 
-      grt::ValueRef options_value= grt->unserialize_xml(xmlDocument, options_xml);
+      grt::ValueRef options_value= grt::GRT::get().unserialize_xml(xmlDocument, options_xml);
       app_OptionsRef options(app_OptionsRef::cast_from(options_value));
 
       if (options.is_valid())
@@ -2043,7 +2043,7 @@ void WBContext::load_app_options(bool update)
     {
       mforms::Utilities::show_error(_("Error while loading options"),
         strfmt("The file '%s' could not be loaded: %s", options_xml.c_str(), exc.what()), _("Close"));
-      grt->send_error(strfmt("Error while loading '%s': %s", options_xml.c_str(), exc.what()));
+      grt::GRT::get().send_error(strfmt("Error while loading '%s': %s", options_xml.c_str(), exc.what()));
     }
   }
   else
@@ -2069,7 +2069,7 @@ void WBContext::load_app_options(bool update)
     try
     {
       grt::ListRef<db_mgmt_ServerInstance> 
-        list(grt::ListRef<db_mgmt_ServerInstance>::cast_from(grt->unserialize(inst_list_xml)));
+        list(grt::ListRef<db_mgmt_ServerInstance>::cast_from(grt::GRT::get().unserialize(inst_list_xml)));
       
       if (list.is_valid())
       {
@@ -2085,7 +2085,7 @@ void WBContext::load_app_options(bool update)
     }
     catch (std::exception &exc)
     {
-      grt->send_warning(strfmt("Error loading '%s': %s", inst_list_xml.c_str(), exc.what()));
+      grt::GRT::get().send_warning(strfmt("Error loading '%s': %s", inst_list_xml.c_str(), exc.what()));
     }
   }  
 }
@@ -2484,7 +2484,7 @@ void WBContext::option_dict_changed(grt::internal::OwnedDict *options, bool, con
     if (undo_size == 0)
       undo_size= 1;
 
-    get_grt()->get_undo_manager()->set_undo_limit(undo_size);
+   grt::GRT::get().get_undo_manager()->set_undo_limit(undo_size);
   }
 }
 
@@ -2766,14 +2766,14 @@ bool WBContext::open_file_by_extension(const std::string &path, bool interactive
 
 void WBContext::reset_document()
 {
-  get_grt()->get_undo_manager()->reset();
+ grt::GRT::get().get_undo_manager()->reset();
 
   get_ui()->reset();
   
   _clipboard->clear();
   _clipboard->set_content_description("");
   // refresh internal environment of loaders
-  get_grt()->refresh_loaders();
+ grt::GRT::get().refresh_loaders();
 }
 
 int WBContext::closeModelFile()
@@ -2803,7 +2803,7 @@ std::string WBContext::getDbFilePath()
 workbench_DocumentRef WBContext::openModelFile(const std::string &file)
 {
   workbench_DocumentRef doc;
-  grt::GRT *grt(_manager->get_grt());
+  (_manager->get_grt());
   closeModelFile();
   _model_import_file = new ModelFile(get_auto_save_dir());
 
@@ -2873,7 +2873,7 @@ bool WBContext::open_document(const std::string &file)
   GUILock lock(this, _("Model file is being loaded"), strfmt(_("The model %s is loading now and will be available "
     "in a moment.\n\n Please stand by..."), file.c_str()));
 
-  grt::GRT *grt(_manager->get_grt());
+  (_manager->get_grt());
 
   _manager->block_idle_tasks();
 
@@ -2970,7 +2970,7 @@ bool WBContext::open_document(const std::string &file)
     _file->copy_file(file, bakpath);
     
     // make backup
-    grt->send_info(strfmt("Model file is from 5.0, making backup to %s", bakpath.c_str()));
+    grt::GRT::get().send_info(strfmt("Model file is from 5.0, making backup to %s", bakpath.c_str()));
   }
   else if (version_parts.size() >= 2 && version_parts[0] == "1" && base::atoi<int>(version_parts[1], 0) <= 3)
   {
@@ -2984,7 +2984,7 @@ bool WBContext::open_document(const std::string &file)
     _file->copy_file(file, bakpath);
     
     // make backup
-    grt->send_info(strfmt("Model file is from 5.1, making backup to %s", bakpath.c_str()));
+    grt::GRT::get().send_info(strfmt("Model file is from 5.1, making backup to %s", bakpath.c_str()));
   }
   
 
@@ -3018,7 +3018,7 @@ bool WBContext::open_document(const std::string &file)
   _model_context->model_loaded(_file, doc);
 
   _filename= file;
-  _save_point= get_grt()->get_undo_manager()->get_latest_undo_action();
+  _save_point= grt::GRT::get().get_undo_manager()->get_latest_undo_action();
 
   wb->docPath(_filename);
 
@@ -3131,8 +3131,8 @@ void WBContext::do_close_document(bool destroying)
 
   // reset undo manager before destroying views to make sure that old refs to
   // figures will be released and bridges will be deleted 1st
-  get_grt()->get_undo_manager()->reset();
-  _save_point= get_grt()->get_undo_manager()->get_latest_undo_action();
+ grt::GRT::get().get_undo_manager()->reset();
+  _save_point= grt::GRT::get().get_undo_manager()->get_latest_undo_action();
 
   FOREACH_COMPONENT(_components, iter)
     (*iter)->close_document();
@@ -3169,15 +3169,15 @@ void WBContext::close_document_finish()
     doc->reset_references();
 
   // reset once again just to be sure
-  get_grt()->get_undo_manager()->reset();
-  _save_point= get_grt()->get_undo_manager()->get_latest_undo_action();
+ grt::GRT::get().get_undo_manager()->reset();
+  _save_point= grt::GRT::get().get_undo_manager()->get_latest_undo_action();
  
 }
 
 //--------------------------------------------------------------------------------
 // Saving
 
-grt::ValueRef WBContext::save_grt(grt::GRT *grt)
+grt::ValueRef WBContext::save_grt()
 {
   // update last change timestamp
   app_DocumentInfoRef info(get_document()->info());
@@ -3190,7 +3190,7 @@ grt::ValueRef WBContext::save_grt(grt::GRT *grt)
     workbench_DocumentRef doc(get_document());
     GrtObjectRef owner(doc->owner());
     doc->owner(GrtObjectRef()); // temporarily clear non-persistent owner
-    _file->store_document(grt, doc);
+    _file->store_document(doc);
     doc->owner(owner);
 
     ListRef<db_Schema> schemata(doc->physicalModels()[0]->catalog()->schemata());
@@ -3235,7 +3235,7 @@ grt::ValueRef WBContext::save_grt(grt::GRT *grt)
   _manager->has_unsaved_changes(false);
   _attachments_changed = false;
 
-  _save_point= grt->get_undo_manager()->get_latest_undo_action();
+  _save_point= grt::GRT::get().get_undo_manager()->get_latest_undo_action();
   request_refresh(RefreshDocument, "");
 
   return grt::IntegerRef(1);
@@ -3376,7 +3376,7 @@ void WBContext::report_bug(const std::string &errorInfo)
 {  
   grt::Module *module;
 
-  module = get_grt()->get_module("Workbench");
+  module = grt::GRT::get().get_module("Workbench");
 
   if (!module)
     throw std::runtime_error("Workbench module not found");
@@ -3421,7 +3421,7 @@ void WBContext::execute_plugin(const std::string &plugin_name, const ArgumentPoo
   // internal plugins are executed directly in the main thread
   if (plugin->pluginType() == INTERNAL_PLUGIN_TYPE || plugin->pluginType() == STANDALONE_GUI_PLUGIN_TYPE)
   {
-    grt::ValueRef result = execute_plugin_grt(get_grt(), plugin, fargs);
+    grt::ValueRef result = execute_plugin_grt(plugin, fargs);
     plugin_finished(result, plugin);
   }
   else
@@ -3433,7 +3433,7 @@ void WBContext::execute_plugin(const std::string &plugin_name, const ArgumentPoo
 }
 
 
-grt::ValueRef WBContext::execute_plugin_grt(grt::GRT *grt, const app_PluginRef &plugin, const grt::BaseListRef &args)
+grt::ValueRef WBContext::execute_plugin_grt(const app_PluginRef &plugin, const grt::BaseListRef &args)
 {
   grt::ValueRef result;
 
@@ -3480,7 +3480,7 @@ grt::ValueRef WBContext::execute_plugin_grt(grt::GRT *grt, const app_PluginRef &
       if (*plugin->pluginType() != "normal")
         skip_undo= true;
       
-      grt::AutoUndo undo(get_grt(), skip_undo);
+      grt::AutoUndo undo(skip_undo);
       std::string s= *plugin->pluginType();
       _plugin_manager->open_plugin(plugin, args);
 
@@ -3492,7 +3492,7 @@ grt::ValueRef WBContext::execute_plugin_grt(grt::GRT *grt, const app_PluginRef &
     }
     catch (const std::exception &exc)
     {
-      grt->send_error(strfmt("Error executing plugin %s: %s", plugin->name().c_str(), exc.what()));
+      grt::GRT::get().send_error(strfmt("Error executing plugin %s: %s", plugin->name().c_str(), exc.what()));
       result = grt::StringRef(strfmt("%s", exc.what()));
     }
     
@@ -3505,7 +3505,7 @@ grt::ValueRef WBContext::execute_plugin_grt(grt::GRT *grt, const app_PluginRef &
     double elapsed= g_timer_elapsed(timer, NULL);
     g_timer_destroy(timer);
 
-    grt->send_verbose(strfmt("%s finished in %.2fs\n", plugin->name().c_str(), elapsed));
+    grt::GRT::get().send_verbose(strfmt("%s finished in %.2fs\n", plugin->name().c_str(), elapsed));
   }
 
   return result;
@@ -3891,7 +3891,7 @@ bool WBContext::install_module_file(const std::string &path)
   {
     int err= errno;
     show_error("Could Not Install Plugin", g_strerror(err));
-    get_grt()->send_output(strfmt("ERROR: could not copy module '%s' to '%s': %s\n",
+   grt::GRT::get().send_output(strfmt("ERROR: could not copy module '%s' to '%s': %s\n",
                                   path.c_str(), target_path.c_str(), g_strerror(err)));
     return false;
   }
@@ -3904,10 +3904,10 @@ bool WBContext::install_module_file(const std::string &path)
                                          path.c_str()),
                                   "OK");
   
-  get_grt()->send_output(strfmt("Copied module %s to '%s'\n", 
+ grt::GRT::get().send_output(strfmt("Copied module %s to '%s'\n", 
                                 path.c_str(), 
                                 target_path.c_str()));
-  get_grt()->send_output("Please restart Workbench for the change to take effect.\n");
+ grt::GRT::get().send_output("Please restart Workbench for the change to take effect.\n");
   
   return true;
 }
@@ -3948,8 +3948,8 @@ bool WBContext::uninstall_module(grt::Module *module)
 
 void WBContext::run_script_file(const std::string &filename)
 {
-  get_grt()->make_output_visible();
-  get_grt()->send_output("Executing script "+filename+"...\n");
+ grt::GRT::get().make_output_visible();
+ grt::GRT::get().send_output("Executing script "+filename+"...\n");
 
   get_grt_manager()->push_status_text(base::strfmt("Executing script %s...", filename.c_str()));
 
@@ -3962,15 +3962,15 @@ void WBContext::run_script_file(const std::string &filename)
   catch (std::exception &exc)
   {
     undo.cancel();
-    get_grt()->send_output(exc.what());
-    get_grt()->send_output("\nScript failed.\n");
+   grt::GRT::get().send_output(exc.what());
+   grt::GRT::get().send_output("\nScript failed.\n");
     get_grt_manager()->replace_status_text("Script execution failed");
     return;
   }
 
   undo.end_or_cancel_if_empty(strfmt("Execute Script %s", base::basename(filename).c_str()));
 
-  get_grt()->send_output("\nScript finished.\n");
+ grt::GRT::get().send_output("\nScript finished.\n");
   get_grt_manager()->pop_status_text();
 }
 

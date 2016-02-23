@@ -226,7 +226,7 @@ public:
     set_title("Pick a connection");
     set_subtitle("Select an existing connection or create a new one");
 
-    db_mgmt_RdbmsRef rdbms(db_mgmt_RdbmsRef::cast_from(grt->unserialize("../../modules/db.mysql/res/mysql_rdbms_info.xml")));
+    db_mgmt_RdbmsRef rdbms(db_mgmt_RdbmsRef::cast_from(grt::GRT::get().unserialize("../../modules/db.mysql/res/mysql_rdbms_info.xml")));
     db_mgmt_ManagementRef mgr(grt);
 
     mgr->rdbms().insert(rdbms);

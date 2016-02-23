@@ -47,7 +47,7 @@ public:
   void init(GRT *grt)
   {
     grt::ListRef<db_mysql_StorageEngine> engines;
-    grt::Module *module= grt->get_module("DbMySQL");
+    grt::Module *module= grt::GRT::get().get_module("DbMySQL");
     if (!module)
       throw std::logic_error("module DbMySQL not found");
     grt::BaseListRef args(grt);
@@ -125,7 +125,7 @@ Mysql_sql_parser::Null_state_keeper::~Null_state_keeper()
   }
 
 
-Mysql_sql_parser::Mysql_sql_parser(grt::GRT *grt)
+Mysql_sql_parser::Mysql_sql_parser()
 :
 Sql_parser_base(grt),
 Mysql_sql_parser_base(grt),

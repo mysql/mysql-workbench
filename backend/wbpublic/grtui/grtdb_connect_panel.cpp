@@ -688,10 +688,10 @@ bool DbConnectPanel::test_connection()
 
     if ( connectionProperties->driver()->name() == "MySQLFabric")
     {
-      grt::GRT *grt = connectionProperties->get_grt();
+       = connectionProperties->get_grt();
       grt::BaseListRef args(grt);
       args->insert_unchecked(connectionProperties);
-      grt::ValueRef result= grt->call_module_function("WBFabric", "testConnection", args);
+      grt::ValueRef result= grt::GRT::get().call_module_function("WBFabric", "testConnection", args);
       std::string error = grt::StringRef::extract_from(result);
       if (!error.empty())
       {

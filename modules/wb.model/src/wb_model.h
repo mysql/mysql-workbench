@@ -93,7 +93,7 @@ private:
   void handle_fklist_change(const model_DiagramRef &view, const db_TableRef &table, const db_ForeignKeyRef &fk, bool added);
 
   workbench_model_reporting_TemplateStyleInfoRef get_template_style_from_name(
-    grt::GRT *grt, std::string template_name, std::string template_style_name);
+    , std::string template_name, std::string template_style_name);
   
   grt::UndoManager *_undo_man;
 };

@@ -50,10 +50,9 @@ class  GrtObject : public grt::internal::Object
 {
   typedef grt::internal::Object super;
 public:
-  GrtObject(grt::GRT *grt, grt::MetaClass *meta=0)
-  : grt::internal::Object(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-     _name("")
-
+  GrtObject(grt::MetaClass *meta=0)
+    : grt::internal::Object(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
+    , _name("")
   {
   }
 
@@ -104,16 +103,16 @@ protected:
   grt::StringRef _name;
   GrtObjectRef _owner;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new GrtObject(grt));
+    return grt::ObjectRef(new GrtObject);
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&GrtObject::create);
     {
@@ -135,8 +134,8 @@ class  GrtVersion : public GrtObject
 {
   typedef GrtObject super;
 public:
-  GrtVersion(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  GrtVersion(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _buildNumber(0),
      _majorNumber(0),
      _minorNumber(0),
@@ -256,16 +255,16 @@ protected:
   grt::IntegerRef _releaseNumber;
   grt::IntegerRef _status;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new GrtVersion(grt));
+    return grt::ObjectRef(new GrtVersion());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&GrtVersion::create);
     {
@@ -302,12 +301,11 @@ class  GrtMessage : public GrtObject
 {
   typedef GrtObject super;
 public:
-  GrtMessage(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-    _details(grt, this, false),
+  GrtMessage(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+    _details(this, false),
      _msg(""),
      _msgType(0)
-
   {
   }
 
@@ -388,16 +386,16 @@ protected:
   grt::StringRef _msg;
   grt::IntegerRef _msgType;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new GrtMessage(grt));
+    return grt::ObjectRef(new GrtMessage());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&GrtMessage::create);
     {
@@ -429,11 +427,10 @@ class  GrtLogEntry : public GrtObject
 {
   typedef GrtObject super;
 public:
-  GrtLogEntry(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-    _customData(grt, this, false),
+  GrtLogEntry(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+    _customData(this, false),
      _entryType(0)
-
   {
   }
 
@@ -493,16 +490,16 @@ protected:
   grt::DictRef _customData;
   grt::IntegerRef _entryType;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new GrtLogEntry(grt));
+    return grt::ObjectRef(new GrtLogEntry());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&GrtLogEntry::create);
     {
@@ -529,10 +526,9 @@ class  GrtLogObject : public GrtObject
 {
   typedef GrtObject super;
 public:
-  GrtLogObject(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-    _entries(grt, this, false)
-
+  GrtLogObject(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+    _entries(this, false)
   {
   }
 
@@ -602,16 +598,16 @@ protected:
   GrtObjectRef _logObject;
   GrtObjectRef _refObject;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new GrtLogObject(grt));
+    return grt::ObjectRef(new GrtLogObject());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&GrtLogObject::create);
     {
@@ -638,8 +634,8 @@ class  GrtNamedObject : public GrtObject
 {
   typedef GrtObject super;
 public:
-  GrtNamedObject(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  GrtNamedObject(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _comment(""),
      _oldName("")
 
@@ -706,16 +702,16 @@ protected:
   grt::StringRef _comment;
   grt::StringRef _oldName;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new GrtNamedObject(grt));
+    return grt::ObjectRef(new GrtNamedObject());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&GrtNamedObject::create);
     {
@@ -742,8 +738,8 @@ class GRT_STRUCTS_PUBLIC GrtStoredNote : public GrtNamedObject
 {
   typedef GrtNamedObject super;
 public:
-  GrtStoredNote(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtNamedObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  GrtStoredNote(grt::MetaClass *meta=0)
+  : GrtNamedObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _createDate(""),
      _filename(""),
      _lastChangeDate("")
@@ -835,9 +831,9 @@ protected:
   grt::StringRef _filename;
   grt::StringRef _lastChangeDate;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new GrtStoredNote(grt));
+    return grt::ObjectRef(new GrtStoredNote());
   }
 
   static grt::ValueRef call_getText(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<GrtStoredNote*>(self)->getText(); }
@@ -846,9 +842,9 @@ private: // wrapper methods for use by grt
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&GrtStoredNote::create);
     {
@@ -877,8 +873,8 @@ class  TransientObject : public grt::internal::Object
 {
   typedef grt::internal::Object super;
 public:
-  TransientObject(grt::GRT *grt, grt::MetaClass *meta=0)
-  : grt::internal::Object(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+  TransientObject(grt::MetaClass *meta=0)
+  : grt::internal::Object(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
 
   {
   }
@@ -888,16 +884,16 @@ public:
 protected:
 
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new TransientObject(grt));
+    return grt::ObjectRef(new TransientObject());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&TransientObject::create);
   }

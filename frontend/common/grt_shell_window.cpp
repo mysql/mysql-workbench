@@ -1629,13 +1629,13 @@ struct CompareNamedObject
 
 void GRTShellWindow::refresh_modules_tree()
 {
-  grt::GRT *grt = _context->get_grt();
+   = _context->get_grt();
   IconManager *im = IconManager::get_instance();
   std::string mod_icon = im->get_icon_path("grt_module.png");;
   std::string fun_icon = im->get_icon_path("grt_function.png");;
   _modules_tree.clear();
   
-  std::vector<grt::Module*> modules(grt->get_modules());
+  std::vector<grt::Module*> modules(grt::GRT::get().get_modules());
   std::sort(modules.begin(), modules.end(), CompareNamedObject<grt::Module>());
   
   for (std::vector<grt::Module*>::const_iterator m = modules.begin(); m != modules.end(); ++m)
@@ -1663,14 +1663,14 @@ void GRTShellWindow::refresh_modules_tree()
 
 std::string GRTShellWindow::get_module_node_description(const mforms::TreeNodeRef &node)
 {
-  grt::GRT *grt = _context->get_grt();
+   = _context->get_grt();
   std::string value;
   if (node->get_parent() == _modules_tree.root_node())
   {
     std::string name = node->get_string(0);
     if (!name.empty() && name[name.size()-1] == '*')
       name = name.substr(0, name.size()-2);
-    grt::Module *module= grt->get_module(name);
+    grt::Module *module= grt::GRT::get().get_module(name);
     if (module)
     {
       std::string descr;
@@ -1694,7 +1694,7 @@ std::string GRTShellWindow::get_module_node_description(const mforms::TreeNodeRe
     std::string name = node->get_parent()->get_string(0);
     if (!name.empty() && name[name.size()-1] == '*')
       name = name.substr(0, name.size()-2);
-    grt::Module *module= grt->get_module(name);
+    grt::Module *module= grt::GRT::get().get_module(name);
     if (module)
     {
       const grt::Module::Function* func= module->get_function(node->get_string(0));

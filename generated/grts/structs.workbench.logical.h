@@ -46,8 +46,8 @@ class  workbench_logical_Connection : public model_Connection
 {
   typedef model_Connection super;
 public:
-  workbench_logical_Connection(grt::GRT *grt, grt::MetaClass *meta=0)
-  : model_Connection(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  workbench_logical_Connection(grt::MetaClass *meta=0)
+  : model_Connection(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _comment(""),
      _endCaption(""),
      _endCaptionXOffs(0.0),
@@ -281,16 +281,16 @@ protected:
   grt::DoubleRef _startCaptionYOffs;
   grt::IntegerRef _startMany;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new workbench_logical_Connection(grt));
+    return grt::ObjectRef(new workbench_logical_Connection());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_logical_Connection::create);
     {
@@ -357,8 +357,8 @@ class  workbench_logical_Relationship : public model_Figure
 {
   typedef model_Figure super;
 public:
-  workbench_logical_Relationship(grt::GRT *grt, grt::MetaClass *meta=0)
-  : model_Figure(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  workbench_logical_Relationship(grt::MetaClass *meta=0)
+  : model_Figure(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _attributesExpanded(1)
 
   {
@@ -411,16 +411,16 @@ protected:
   grt::IntegerRef _attributesExpanded;
   eer_RelationshipRef _relationship;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new workbench_logical_Relationship(grt));
+    return grt::ObjectRef(new workbench_logical_Relationship());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_logical_Relationship::create);
     {
@@ -442,8 +442,8 @@ class  workbench_logical_Entity : public model_Figure
 {
   typedef model_Figure super;
 public:
-  workbench_logical_Entity(grt::GRT *grt, grt::MetaClass *meta=0)
-  : model_Figure(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  workbench_logical_Entity(grt::MetaClass *meta=0)
+  : model_Figure(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _attributesExpanded(1)
 
   {
@@ -496,16 +496,16 @@ protected:
   grt::IntegerRef _attributesExpanded;
   eer_EntityRef _entity;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new workbench_logical_Entity(grt));
+    return grt::ObjectRef(new workbench_logical_Entity());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_logical_Entity::create);
     {
@@ -529,8 +529,8 @@ class GRT_STRUCTS_WORKBENCH_LOGICAL_PUBLIC workbench_logical_Diagram : public mo
 public:
   class ImplData;
   friend class ImplData;
-  workbench_logical_Diagram(grt::GRT *grt, grt::MetaClass *meta=0)
-  : model_Diagram(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  workbench_logical_Diagram(grt::MetaClass *meta=0)
+  : model_Diagram(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
     _data(0)
 
   {
@@ -562,18 +562,18 @@ protected:
 private: // wrapper methods for use by grt
   ImplData *_data;
 
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new workbench_logical_Diagram(grt));
+    return grt::ObjectRef(new workbench_logical_Diagram());
   }
 
   static grt::ValueRef call_placeNewLayer(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<workbench_logical_Diagram*>(self)->placeNewLayer(grt::DoubleRef::cast_from(args[0]), grt::DoubleRef::cast_from(args[1]), grt::DoubleRef::cast_from(args[2]), grt::DoubleRef::cast_from(args[3]), grt::StringRef::cast_from(args[4])); }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_logical_Diagram::create);
     meta->bind_method("placeNewLayer", &workbench_logical_Diagram::call_placeNewLayer);
@@ -588,8 +588,8 @@ class GRT_STRUCTS_WORKBENCH_LOGICAL_PUBLIC workbench_logical_Model : public mode
 public:
   class ImplData;
   friend class ImplData;
-  workbench_logical_Model(grt::GRT *grt, grt::MetaClass *meta=0)
-  : model_Model(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  workbench_logical_Model(grt::MetaClass *meta=0)
+  : model_Model(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
     _data(0)
 
   {
@@ -629,18 +629,18 @@ protected:
 private: // wrapper methods for use by grt
   ImplData *_data;
 
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new workbench_logical_Model(grt));
+    return grt::ObjectRef(new workbench_logical_Model());
   }
 
   static grt::ValueRef call_addNewDiagram(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<workbench_logical_Model*>(self)->addNewDiagram(grt::IntegerRef::cast_from(args[0])); }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_logical_Model::create);
     {

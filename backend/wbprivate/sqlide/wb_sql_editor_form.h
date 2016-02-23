@@ -241,10 +241,10 @@ private:
   std::map<std::string, std::string> _connection_details;
   std::set<std::string> _charsets;
 
-  grt::StringRef do_connect(grt::GRT *grt, boost::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref &auth,
+  grt::StringRef do_connect(boost::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref &auth,
     struct ConnectionErrorInfo *autherr_ptr);
   std::string get_client_lib_version();
-  grt::StringRef do_disconnect(grt::GRT *grt);
+  grt::StringRef do_disconnect();
 
   void update_connected_state();
 public:
@@ -365,7 +365,7 @@ private:
   };
   void update_live_schema_tree(const std::string &sql);
 
-  grt::StringRef do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::shared_ptr<std::string> sql,
+  grt::StringRef do_exec_sql(Ptr self_ptr, boost::shared_ptr<std::string> sql,
     SqlEditorPanel *editor, ExecFlags flags, RecordsetsRef result_list);
 
   void handle_command_side_effects(const std::string &sql);

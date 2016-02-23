@@ -28,7 +28,7 @@
 #define MODULE_VERSION "1.0.0"
 
 
-static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt);
+static grt::ListRef<app_Plugin> get_mysql_plugins_info();
 
 
 class MySQLModelSnippetsModuleImpl : public grt::ModuleImplBase, public PluginInterfaceImpl
@@ -51,7 +51,7 @@ public:
   
   virtual grt::IntegerRef includeModel(const std::string &path)
   {
-    grt::Module *module= get_grt()->get_module("Workbench");
+    grt::Module *module= grt::GRT::get().get_module("Workbench");
     if (!module)
       throw std::runtime_error("Workbench module not found");
 
@@ -100,7 +100,7 @@ public:
 //
 
 
-static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
+static grt::ListRef<app_Plugin> get_mysql_plugins_info()
 {
   grt::ListRef<app_Plugin> plugins(grt);
   {

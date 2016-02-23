@@ -259,7 +259,7 @@ bool MetaClass::has_method(const std::string &method) const
 
 bool MetaClass::is_a(const std::string &name) const
 {
-  MetaClass *mc= _grt->get_metaclass(name);
+  MetaClass *mc= grt::GRT::get().get_metaclass(name);
   if (!mc)
     return false;
 
@@ -316,7 +316,7 @@ MetaClass* MetaClass::from_xml(GRT *grt, const std::string &source, xmlNodePtr n
   
   if (!name.empty())
   {
-    stru= grt->get_metaclass(name);
+    stru= grt::GRT::get().get_metaclass(name);
     if (stru)
     {
       if (!stru->_placeholder)
@@ -396,7 +396,7 @@ void MetaClass::load_xml(xmlNodePtr node)
   if (node_property.empty())
     node_property= internal::Object::static_class_name();
 
-  MetaClass *parent= _grt->get_metaclass(node_property);
+  MetaClass *parent= grt::GRT::get().get_metaclass(node_property);
   if (parent)
     _parent= parent;
   else
@@ -407,7 +407,7 @@ void MetaClass::load_xml(xmlNodePtr node)
     tmp->_source= _source;
     tmp->_placeholder= true;
     _parent= tmp;
-    _grt->add_metaclass(tmp);
+    grt::GRT::get().add_metaclass(tmp);
   }
 
   load_attribute_list(node);
@@ -658,7 +658,7 @@ bool MetaClass::validate()
             MetaClass *member_content_class1;
             MetaClass *member_content_class2;
 
-            if (!(member_content_class1= _grt->get_metaclass(mem->second.type.content.object_class)))
+            if (!(member_content_class1= grt::GRT::get().get_metaclass(mem->second.type.content.object_class)))
             {
               g_warning("Member %s::%s has invalid content object class '%s'",
                         _name.c_str(), mem->second.name.c_str(),
@@ -666,7 +666,7 @@ bool MetaClass::validate()
               ok= false;
             }
 
-            member_content_class2= _grt->get_metaclass(member->type.content.object_class);
+            member_content_class2= grt::GRT::get().get_metaclass(member->type.content.object_class);
             if (member_content_class1 && member_content_class2)
             {
               if (!member_content_class1->is_a(member_content_class2))
@@ -778,7 +778,7 @@ ObjectRef MetaClass::allocate()
   if (!_bound)
     throw std::runtime_error("GRT class "+name()+" was not initialized/registered with the GRT instance");
 
-  ObjectRef object= (*_alloc)(_grt);
+  ObjectRef object= (*_alloc)();
   object->init();
 
   return object;

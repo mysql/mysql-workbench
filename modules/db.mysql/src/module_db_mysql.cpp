@@ -300,7 +300,7 @@ class ActionGenerateSQL : public DiffSQLGeneratorBEActionInterface
   void alter_table_property(std::string& to, const std::string& name, const std::string& value);
 
 public:
-  ActionGenerateSQL(grt::ValueRef target, grt::ListRef<GrtNamedObject> obj_list, grt::GRT *grt, 
+  ActionGenerateSQL(grt::ValueRef target, grt::ListRef<GrtNamedObject> obj_list, , 
                     const grt::DictRef options, bool use_oids_as_key);
   virtual ~ActionGenerateSQL();
 
@@ -433,7 +433,7 @@ public:
   virtual void disable_list_insert(const bool flag){disable_object_list = flag;};
 };
 
-ActionGenerateSQL::ActionGenerateSQL(grt::ValueRef target, grt::ListRef<GrtNamedObject> obj_list, grt::GRT *grt, 
+ActionGenerateSQL::ActionGenerateSQL(grt::ValueRef target, grt::ListRef<GrtNamedObject> obj_list, , 
                                      const grt::DictRef options, bool use_oids_as_key = false)
   : padding(2), _use_oids_as_dict_key(use_oids_as_key),disable_object_list(false)
 {
@@ -452,7 +452,7 @@ ActionGenerateSQL::ActionGenerateSQL(grt::ValueRef target, grt::ListRef<GrtNamed
 
   _use_oids_as_dict_key = options.get_int("UseOIDAsResultDictKey", use_oids_as_key) != 0;
   
-  SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name(grt, "Mysql");
+  SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name("Mysql");
   Sql_specifics::Ref sql_specifics = sql_facade ->sqlSpecifics();
   _non_std_sql_delimiter = sql_specifics->non_std_sql_delimiter();
 
@@ -1907,7 +1907,7 @@ class SQLComposer
 protected:
     std::string sql_mode;
     std::string non_std_sql_delimiter;
-    grt::GRT *grt;
+    ;
     bool show_warnings;
     bool use_short_names;
     bool no_view_placeholder;
@@ -1921,7 +1921,7 @@ protected:
     SQLComposer(const grt::DictRef options, grt::GRT *pgrt):grt(pgrt)
     {
         sql_mode = options.get_string("SQL_MODE", "TRADITIONAL");
-        SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name(grt, "Mysql");
+        SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name("Mysql");
         Sql_specifics::Ref sql_specifics = sql_facade->sqlSpecifics();
         non_std_sql_delimiter = sql_specifics->non_std_sql_delimiter();
         show_warnings= options.get_int("GenerateWarnings") != 0;
@@ -1934,7 +1934,7 @@ protected:
           grt::DictRef opts = grt::DictRef::cast_from(dboptsval);
           if (opts.is_valid())
           {
-            _decomposer_options = grt::DictRef(grt);
+            _decomposer_options = grt::DictRef();
             _decomposer_options.set("case_sensitive_identifiers", grt::IntegerRef(opts.get_int("CaseSensitive") != 0));
           }
         }
@@ -1943,7 +1943,7 @@ protected:
           ssize_t case_sensitive_opt = options.get_int("CaseSensitive", -1);
           if (case_sensitive_opt != -1)
           {
-            _decomposer_options = grt::DictRef(grt);
+            _decomposer_options = grt::DictRef();
             _decomposer_options.set("case_sensitive_identifiers", grt::IntegerRef(case_sensitive_opt ? 1 : 0));
           }
         }
@@ -1954,7 +1954,7 @@ protected:
     void send_output(const std::string& msg) const
     {
         if (grt) 
-            grt->send_output(msg);
+            grt::GRT::get().send_output(msg);
     };
 
     std::string show_warnings_sql() const
@@ -1988,7 +1988,7 @@ protected:
         std::string view_q_name(get_name(view,use_short_names));
 
         SelectStatement::Ref select_statement(new SelectStatement());
-        SqlFacade* parser = SqlFacade::instance_for_rdbms_name(grt, "Mysql");
+        SqlFacade* parser = SqlFacade::instance_for_rdbms_name("Mysql");
         parser->sqlStatementDecomposer(_decomposer_options)->decompose_view(view, select_statement);
 
         sql.append("\n-- -----------------------------------------------------\n")
@@ -2705,7 +2705,7 @@ std::string DbMySQLImpl::makeAlterScript(GrtNamedObjectRef source, GrtNamedObjec
 {
   grt::DbObjectMatchAlterOmf omf;
   omf.dontdiff_mask = 3;
-  grt::NormalizedComparer normalizer(get_grt(), grt::DictRef::cast_from(diff_options.get("DBSettings")));
+  grt::NormalizedComparer normalizer(grt::DictRef::cast_from(diff_options.get("DBSettings")));
   normalizer.init_omf(&omf);
 
   boost::shared_ptr<DiffChange> diff = diff_make(source, target, &omf);

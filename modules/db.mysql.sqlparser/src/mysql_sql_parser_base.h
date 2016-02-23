@@ -57,7 +57,7 @@ private:
   friend int process_sql_statement(void *, const MyxStatementParser *, const char *, const SqlAstNode *, int, const std::string &);
 
 protected:
-  Mysql_sql_parser_base(grt::GRT *grt);
+  Mysql_sql_parser_base();
   virtual ~Mysql_sql_parser_base() {}
 
   virtual void sql_mode(const std::string &value);

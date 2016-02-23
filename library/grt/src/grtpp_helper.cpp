@@ -229,7 +229,7 @@ struct ClassImplGenerator
 
   void output_constructor_init_list(FILE *f)
   {
-    fprintf(f, "  : %s(grt, meta ? meta : grt->get_metaclass(static_class_name()))",
+    fprintf(f, "  : %s(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))",
             pname.c_str());
     for (std::map<std::string,MetaClass::Member>::const_iterator mem= members.begin(); 
          mem != members.end(); ++mem)
@@ -243,7 +243,7 @@ struct ClassImplGenerator
       {
       case ListType:
       case DictType:
-        fprintf(f, ",\n    _%s(grt, this, %s)", mem->first.c_str(), mem->second.null_content_allowed?"true":"false");
+        fprintf(f, ",\n    _%s(this, %s)", mem->first.c_str(), mem->second.null_content_allowed?"true":"false");
         break;
       case StringType:
         fprintf(f, ",\n     _%s(\"%s\")", mem->first.c_str(), defval.c_str());
@@ -350,7 +350,7 @@ struct ClassImplGenerator
     {
       if (iter->second.constructor)
       {
-        fprintf(f, "  %s(grt::GRT *grt%s%s, grt::MetaClass *meta=0);\n",
+        fprintf(f, "  %s(%s%s, grt::MetaClass *meta=0);\n",
                 cname.c_str(), 
                 iter->second.arg_types.empty()?"":", ", format_arg_list(iter->second.arg_types).c_str());
 
@@ -361,7 +361,7 @@ struct ClassImplGenerator
 
     if (!default_ctor_created)
     {
-      fprintf(f, "  %s(grt::GRT *grt, grt::MetaClass *meta=0)\n",
+      fprintf(f, "  %s(grt::MetaClass *meta=0)\n",
               cname.c_str());
 
       output_constructor_init_list(f);
@@ -613,9 +613,9 @@ struct ClassImplGenerator
     // function to create the object
     if (!gstruct->is_abstract())
     {
-      fprintf(f, "  static grt::ObjectRef create(grt::GRT *grt)\n");
+      fprintf(f, "  static grt::ObjectRef create()\n");
       fprintf(f, "  {\n");
-      fprintf(f, "    return grt::ObjectRef(new %s(grt));\n", cname.c_str());
+      fprintf(f, "    return grt::ObjectRef(new %s());\n", cname.c_str());
       fprintf(f, "  }\n");
       fprintf(f, "\n");
     }
@@ -642,9 +642,9 @@ struct ClassImplGenerator
     fprintf(f, "\n");
     // class registration
     fprintf(f, "public:\n");
-    fprintf(f, "  static void grt_register(grt::GRT *grt)\n");
+    fprintf(f, "  static void grt_register()\n");
     fprintf(f, "  {\n");
-    fprintf(f, "    grt::MetaClass *meta= grt->get_metaclass(static_class_name());\n");
+    fprintf(f, "    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());\n");
     fprintf(f, "    if (!meta) throw std::runtime_error(\"error initializing grt object class, metaclass not found\");\n");
 
     if (gstruct->is_abstract())
@@ -762,7 +762,7 @@ struct ClassImplGenerator
     {
       if (iter->second.constructor)
       {
-        fprintf(f, "%s::%s(grt::GRT *grt%s%s, grt::MetaClass *meta)\n",
+        fprintf(f, "%s::%s(%s%s, grt::MetaClass *meta)\n",
                 cname.c_str(), cname.c_str(),
                 iter->second.arg_types.empty()?"":", ", format_arg_list(iter->second.arg_types).c_str());
         output_constructor_init_list(f);
@@ -912,14 +912,14 @@ static bool is_header_included_somehow(const std::string &xml_for_header, const 
 
 //--------------------------------------------------------------------------------------------------
 
-void grt::helper::generate_struct_code(GRT *grt, const std::string &target_file,
+void grt::helper::generate_struct_code(const std::string &target_file,
                                        const std::string &outpath, const std::string &imploutpath,
                                        const std::multimap<std::string,std::string> &requires_orig)
 {
   std::map<std::string, FILE*> files;
   std::map<std::string, std::set<std::string> > foreign_classes; // packagename -> class list
   std::multimap<std::string,std::string> requires;
-  const std::list<MetaClass*>& meta(grt->get_metaclasses());
+  const std::list<MetaClass*>& meta(grt::GRT::get().get_metaclasses());
 
   // requires list is keyed by the full path of the xml, so we add the same entries to a copy of the list with basenames
   for (std::multimap<std::string,std::string>::const_iterator r= requires_orig.begin(); r!=requires_orig.end(); ++r)
@@ -1177,7 +1177,7 @@ static const char *module_base_template_f=
 static const char *module_function_template_void=
   "  void %function_name%(%args%)\n"
   "  {\n"
-  "    grt::BaseListRef args(get_grt());\n"
+  "    grt::BaseListRef args(grt::GRT::get());\n"
   "%make_args%\n"
   "    _module->call_function(\"%function_name%\", args);\n"
   "  }\n";
@@ -1186,7 +1186,7 @@ static const char *module_function_template_void=
 static const char *module_function_template_int=
   "  ssize_t %function_name%(%args%)\n"
   "  {\n"
-  "    grt::BaseListRef args(get_grt(), AnyType);\n"
+  "    grt::BaseListRef args(AnyType);\n"
   "%make_args%\n"
   "    grt::ValueRef ret= _module->call_function(\"%function_name%\", args);\n"
   "    return *grt::IntegerRef::cast_from(ret);\n"
@@ -1195,7 +1195,7 @@ static const char *module_function_template_int=
 static const char *module_function_template_double=
   "  double %function_name%(%args%)\n"
   "  {\n"
-  "    grt::BaseListRef args(get_grt(), AnyType);\n"
+  "    grt::BaseListRef args(AnyType);\n"
   "%make_args%\n"
   "    grt::ValueRef ret= _module->call_function(\"%function_name%\", args);\n"
   "    return (double)DoubleRef::cast_from(ret);\n"
@@ -1204,7 +1204,7 @@ static const char *module_function_template_double=
 static const char *module_function_template_string=
   "  std::string %function_name%(%args%)\n"
   "  {\n"
-  "    grt::BaseListRef args(get_grt(), AnyType);\n"
+  "    grt::BaseListRef args(AnyType);\n"
   "%make_args%\n"
   "    grt::ValueRef ret= _module->call_function(\"%function_name%\", args);\n"
   "    return (std::string)StringRef::cast_from(ret);\n"
@@ -1213,7 +1213,7 @@ static const char *module_function_template_string=
 static const char *module_function_template=
   "  %return_type% %function_name%(%args%)\n"
   "  {\n"
-  "    grt::BaseListRef args(get_grt(), AnyType);\n"
+  "    grt::BaseListRef args(AnyType);\n"
   "%make_args%\n"
   "    grt::ValueRef ret= _module->call_function(\"%function_name%\", args);\n"
   "    return %return_type%::cast_from(ret);\n"
@@ -1313,7 +1313,7 @@ static void export_module_function(FILE *f, const Module::Function &function)
 
 //--------------------------------------------------------------------------------------------------
 
-void grt::helper::generate_module_wrappers(GRT *grt, const std::string &outpath,
+void grt::helper::generate_module_wrappers(const std::string &outpath,
                                            const std::vector<Module*> &modules)
 {
   FILE *f = base_fopen(outpath.c_str(), "wb+");

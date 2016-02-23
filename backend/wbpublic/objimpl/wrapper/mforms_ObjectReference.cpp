@@ -66,7 +66,7 @@ static void release_object(mforms::Object *object)
     object->release();
 }
 
-mforms_ObjectReferenceRef mforms_to_grt(grt::GRT *grt, mforms::Object *object, const std::string &type_name)
+mforms_ObjectReferenceRef mforms_to_grt(mforms::Object *object, const std::string &type_name)
 {
   if (object)
   {
@@ -84,13 +84,13 @@ mforms_ObjectReferenceRef mforms_to_grt(grt::GRT *grt, mforms::Object *object, c
 
 
 
-mforms_ObjectReferenceRef mforms_to_grt(grt::GRT *grt, mforms::ContextMenu *menu)
+mforms_ObjectReferenceRef mforms_to_grt(mforms::ContextMenu *menu)
 {
-  return mforms_to_grt(grt, menu, "ContextMenu");
+  return mforms_to_grt(menu, "ContextMenu");
 }
 
 
-mforms_ObjectReferenceRef mforms_to_grt(grt::GRT *grt, mforms::DockingPoint *dpoint)
+mforms_ObjectReferenceRef mforms_to_grt(mforms::DockingPoint *dpoint)
 {
-  return mforms_to_grt(grt, dpoint, "DockingPoint");
+  return mforms_to_grt(dpoint, "DockingPoint");
 }

@@ -41,8 +41,8 @@ class GRT_STRUCTS_UI_PUBLIC ui_db_ConnectPanel : public TransientObject
 public:
   class ImplData;
   friend class ImplData;
-  ui_db_ConnectPanel(grt::GRT *grt, grt::MetaClass *meta=0)
-  : TransientObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  ui_db_ConnectPanel(grt::MetaClass *meta=0)
+  : TransientObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
     _data(0)
 
   {
@@ -108,9 +108,9 @@ protected:
 private: // wrapper methods for use by grt
   ImplData *_data;
 
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new ui_db_ConnectPanel(grt));
+    return grt::ObjectRef(new ui_db_ConnectPanel());
   }
 
   static grt::ValueRef call_initialize(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<ui_db_ConnectPanel*>(self)->initialize(db_mgmt_ManagementRef::cast_from(args[0])); return grt::ValueRef(); }
@@ -121,9 +121,9 @@ private: // wrapper methods for use by grt
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&ui_db_ConnectPanel::create);
     {
@@ -145,9 +145,9 @@ class GRT_STRUCTS_UI_PUBLIC ui_ObjectEditor : public TransientObject
 public:
   class ImplData;
   friend class ImplData;
-  ui_ObjectEditor(grt::GRT *grt, grt::MetaClass *meta=0)
-  : TransientObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-    _customData(grt, this, false),
+  ui_ObjectEditor(grt::MetaClass *meta=0)
+  : TransientObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+    _customData(this, false),
     _data(0)
 
   {
@@ -228,16 +228,16 @@ protected:
 private: // wrapper methods for use by grt
   ImplData *_data;
 
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new ui_ObjectEditor(grt));
+    return grt::ObjectRef(new ui_ObjectEditor());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&ui_ObjectEditor::create);
     {
@@ -263,9 +263,9 @@ class  ui_ModelPanel : public TransientObject
 {
   typedef TransientObject super;
 public:
-  ui_ModelPanel(grt::GRT *grt, grt::MetaClass *meta=0)
-  : TransientObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-    _customData(grt, this, false)
+  ui_ModelPanel(grt::MetaClass *meta=0)
+  : TransientObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+    _customData(this, false)
 
   {
   }
@@ -334,16 +334,16 @@ protected:
   grt::DictRef _customData;
   model_ModelRef _model;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new ui_ModelPanel(grt));
+    return grt::ObjectRef(new ui_ModelPanel());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&ui_ModelPanel::create);
     {

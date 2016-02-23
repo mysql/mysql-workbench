@@ -450,16 +450,16 @@ std::string ModelFile::get_path_for(const std::string &file)
 //--------------------------------------------------------------------------------------------------
 
 // reading
-workbench_DocumentRef ModelFile::retrieve_document(grt::GRT *grt)
+workbench_DocumentRef ModelFile::retrieve_document()
 {
   RecMutexLock lock(_mutex);
 
-  xmlDocPtr xmldoc= grt->load_xml(get_path_for(MAIN_DOCUMENT_NAME));
+  xmlDocPtr xmldoc= grt::GRT::get().load_xml(get_path_for(MAIN_DOCUMENT_NAME));
 
 retry:
   try
   {
-    workbench_DocumentRef doc(unserialize_document(grt, xmldoc, get_path_for(MAIN_DOCUMENT_NAME)));
+    workbench_DocumentRef doc(unserialize_document(xmldoc, get_path_for(MAIN_DOCUMENT_NAME)));
     xmlFreeDoc(xmldoc);
     xmldoc= NULL;
 
@@ -472,7 +472,7 @@ retry:
   catch (grt::grt_runtime_error &exc)
   {
     if (strstr(exc.detail.c_str(), "Type mismatch: expected object of type"))
-      if (check_and_fix_duplicate_uuid_bug(grt, xmldoc))
+      if (check_and_fix_duplicate_uuid_bug(xmldoc))
         goto retry;
     throw;
   }
@@ -780,11 +780,11 @@ void ModelFile::pack_zip(const std::string &zipfile, const std::string &destdir,
 
 
 
-workbench_DocumentRef ModelFile::unserialize_document(grt::GRT *grt, xmlDocPtr xmldoc, const std::string &path)
+workbench_DocumentRef ModelFile::unserialize_document(xmlDocPtr xmldoc, const std::string &path)
 {
   std::string doctype, version;
 
-  grt->get_xml_metainfo(xmldoc, doctype, version);
+  grt::GRT::get().get_xml_metainfo(xmldoc, doctype, version);
 
   _loaded_version= version;
 
@@ -803,7 +803,7 @@ workbench_DocumentRef ModelFile::unserialize_document(grt::GRT *grt, xmlDocPtr x
 
   check_and_fix_inconsistencies(xmldoc, version);
 
-  grt::ValueRef value(grt->unserialize_xml(xmldoc, path));
+  grt::ValueRef value(grt::GRT::get().unserialize_xml(xmldoc, path));
 
   if (!value.is_valid())
     throw std::runtime_error("Error unserializing document data.");
@@ -1066,17 +1066,17 @@ std::string ModelFile::get_file_contents(const std::string &path)
 
 
 // writing
-void ModelFile::store_document(grt::GRT *grt, const workbench_DocumentRef &doc)
+void ModelFile::store_document(const workbench_DocumentRef &doc)
 {
-  grt->serialize(doc, get_path_for(MAIN_DOCUMENT_NAME), DOCUMENT_FORMAT, DOCUMENT_VERSION);
+  grt::GRT::get().serialize(doc, get_path_for(MAIN_DOCUMENT_NAME), DOCUMENT_FORMAT, DOCUMENT_VERSION);
   
   _dirty= true;
 }
 
 
-void ModelFile::store_document_autosave(grt::GRT *grt, const workbench_DocumentRef &doc)
+void ModelFile::store_document_autosave(const workbench_DocumentRef &doc)
 {
-  grt->serialize(doc, get_path_for("document-autosave.mwb.xml"), DOCUMENT_FORMAT, DOCUMENT_VERSION);
+  grt::GRT::get().serialize(doc, get_path_for("document-autosave.mwb.xml"), DOCUMENT_FORMAT, DOCUMENT_VERSION);
 }
 
 void ModelFile::delete_file(const std::string &path)

@@ -54,7 +54,7 @@ class TableTemplateList : public BaseSnippetList, public bec::ListModel
   virtual void refresh();
 public:
   std::string get_selected_template();
-  TableTemplateList(grt::GRT *grt, TableTemplatePanel *owner);
+  TableTemplateList(TableTemplatePanel *owner);
   ~TableTemplateList();
 };
 
@@ -69,7 +69,7 @@ class TableTemplatePanel : public mforms::Box
 
   void toolbar_item_activated(mforms::ToolBarItem *item);
 public:
-  TableTemplatePanel(grt::GRT *grt, wb::WBContextModel *cmodel);
+  TableTemplatePanel(wb::WBContextModel *cmodel);
 
   void on_action(const std::string& action);  
 };

@@ -538,19 +538,19 @@ void workbench_physical_TableFigure::ImplData::toggle_title(bool expanded, wbfig
 {
   if (sender == _figure->get_title())
   {
-    grt::AutoUndo undo(self()->get_grt());
+    grt::AutoUndo undo;
     self()->expanded(expanded);
     undo.end(expanded ? _("Expand Table") : _("Collapse Table"));
   }
   else if (sender == _figure->get_index_title())
   {
-    grt::AutoUndo undo(self()->get_grt());
+    grt::AutoUndo undo;
     self()->indicesExpanded(expanded);
     undo.end(expanded ? _("Expand Table Indices") : _("Collapse Table Indices"));
   }
   else if (sender == _figure->get_trigger_title())
   {
-    grt::AutoUndo undo(self()->get_grt());
+    grt::AutoUndo undo;
     self()->triggersExpanded(expanded);
     undo.end(expanded ? _("Expand Table Triggers") : _("Collapse Table Triggers"));
   }

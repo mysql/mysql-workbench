@@ -155,7 +155,7 @@ void db_Table::addPrimaryKeyColumn(const db_ColumnRef &column)
   if (isPrimaryKeyColumn(column))
     return;
 
-  grt::AutoUndo undo(get_grt(), !is_global());
+  grt::AutoUndo undo(!is_global());
 
   if (_columns.get_index(column) == grt::BaseListRef::npos)
     addColumn(column);
@@ -172,7 +172,7 @@ void db_Table::addPrimaryKeyColumn(const db_ColumnRef &column)
     //strname= table.get_member_struct_name("primaryKey");
     //strname= table.get_member_content_struct_name("indices");
     strname= meta->get_member_type("indices").content.object_class;
-    pkindex= get_grt()->create_object<db_Index>(strname);
+    pkindex= grt::GRT::get().create_object<db_Index>(strname);
     pkindex->name("PRIMARY");
     pkindex->oldName("PRIMARY");
     pkindex->owner(this);
@@ -266,7 +266,7 @@ grt::IntegerRef db_Table::isPrimaryKeyColumn(const db_ColumnRef &column)
 
 void db_Table::removeColumn(const db_ColumnRef &column)
 {
-  grt::AutoUndo undo(get_grt(), !is_global());
+  grt::AutoUndo undo(!is_global());
 
   // make sure it's no longer a PK
   removePrimaryKeyColumn(column);
@@ -346,7 +346,7 @@ void db_Table::removeForeignKey(const db_ForeignKeyRef &fk, ssize_t removeColumn
   // if delete_columns is 1, it will also delete the columns that form the FK, except
   // columns used by other FKs
 
-  grt::AutoUndo undo(get_grt(), !is_global());
+  grt::AutoUndo undo(!is_global());
 
   foreignKeys().remove_value(fk);
   if (fk->index().is_valid() && !fk->index()->isPrimary())
@@ -403,7 +403,7 @@ void db_Table::removePrimaryKeyColumn(const db_ColumnRef &column)
   if (!isPrimaryKeyColumn(column))
     return;
 
-  grt::AutoUndo undo(get_grt(), !is_global());
+  grt::AutoUndo undo(!is_global());
   
   pkindex= primaryKey();
   

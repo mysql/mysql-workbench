@@ -34,10 +34,10 @@ class MYSQL_SQL_PARSER_PUBLIC_FUNC Mysql_sql_specifics : public Sql_specifics
 {
 public:
   typedef boost::shared_ptr<Mysql_sql_specifics> Ref;
-  static Ref create(grt::GRT *grt) { return Ref(new Mysql_sql_specifics(grt)); }
+  static Ref create() { return Ref(new Mysql_sql_specifics(grt)); }
   virtual ~Mysql_sql_specifics() {}
 protected:
-  Mysql_sql_specifics(grt::GRT *grt);
+  Mysql_sql_specifics();
 
 public:
   std::string limit_select_query(const std::string &sql, int *row_count, int *offset);

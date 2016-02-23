@@ -117,7 +117,7 @@ namespace grt {
   class MYSQLGRT_PUBLIC PythonContext : private PythonContextHelper, public GRTObserver
   {
   public:
-    PythonContext(GRT *grt, const std::string &module_path);
+    PythonContext(const std::string &module_path);
     virtual ~PythonContext();
 
     static PythonContext *get();
@@ -152,8 +152,6 @@ namespace grt {
         
     int refresh();
         
-    GRT *get_grt() const { return _grt; }
-    
     bool set_cwd(const std::string &path);
     std::string get_cwd() const { return _cwd; }
 
@@ -181,7 +179,6 @@ namespace grt {
     void printResult(std::map<std::string, std::string> &output);
     
   protected:
-    GRT *_grt;    
     std::string _cwd;
     AutoPyObject _grt_module;
     AutoPyObject _grt_classes_module;

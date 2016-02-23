@@ -74,7 +74,7 @@ protected:
   grt::DictRef options;
   
   virtual db_mysql_CatalogRef get_model_catalog() { return model_catalog; }
-  virtual grt::DictRef get_options_as_dict(grt::GRT *grt) { return options; }
+  virtual grt::DictRef get_options_as_dict() { return options; }
 
 public:
   DbMySQLSQLExportTest(bec::GRTManager *grtm, db_mysql_CatalogRef cat) 
@@ -708,14 +708,14 @@ TEST_FUNCTION(55)
 
   tester.wb->open_document("data/workbench/diff_table_replace_test.mwb");
 
-  db_mgmt_ManagementRef mgmt(db_mgmt_ManagementRef::cast_from(tester.grt->get("/wb/rdbmsMgmt")));
+  db_mgmt_ManagementRef mgmt(db_mgmt_ManagementRef::cast_from(tester.grt::GRT::get().get("/wb/rdbmsMgmt")));
 
-  ListRef<db_DatatypeGroup> grouplist= ListRef<db_DatatypeGroup>::cast_from(tester.grt->unserialize(tester.wboptions.basedir + "/data/db_datatype_groups.xml"));
+  ListRef<db_DatatypeGroup> grouplist= ListRef<db_DatatypeGroup>::cast_from(tester.grt::GRT::get().unserialize(tester.wboptions.basedir + "/data/db_datatype_groups.xml"));
   grt::replace_contents(mgmt->datatypeGroups(), grouplist);
 
-  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(tester.grt->unserialize(tester.wboptions.basedir + "/modules/data/mysql_rdbms_info.xml"));
+  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(tester.grt::GRT::get().unserialize(tester.wboptions.basedir + "/modules/data/mysql_rdbms_info.xml"));
   ensure("db_mgmt_Rdbms initialization", rdbms.is_valid());
-  tester.grt->set("/rdbms", rdbms);
+  tester.grt::GRT::get().set("/rdbms", rdbms);
 
   mgmt->rdbms().insert(rdbms);
   rdbms->owner(mgmt);
@@ -723,11 +723,11 @@ TEST_FUNCTION(55)
   db_TableRef t1= tester.get_catalog()->schemata().get(0)->tables().get(0);
 
   ensure("before update table is referenced from figure 0", 
-    tester.grt->get("/wb/doc/physicalModels/0/diagrams/0/figures/0/table")
+    tester.grt::GRT::get().get("/wb/doc/physicalModels/0/diagrams/0/figures/0/table")
     == t1);
 
   ensure("before update table is referenced from figure 1", 
-    tester.grt->get("/wb/doc/physicalModels/0/diagrams/1/figures/0/table")
+    tester.grt::GRT::get().get("/wb/doc/physicalModels/0/diagrams/1/figures/0/table")
     == t1);
 
   db_mysql_CatalogRef org_cat= create_catalog_from_script(sql1);
@@ -763,11 +763,11 @@ TEST_FUNCTION(55)
   db_TableRef t2= tester.get_catalog()->schemata().get(0)->tables().get(0);
 
   ensure("before update table is referenced from figure 0", 
-    tester.grt->get("/wb/doc/physicalModels/0/diagrams/0/figures/0/table")
+    tester.grt::GRT::get().get("/wb/doc/physicalModels/0/diagrams/0/figures/0/table")
     == t2);
 
   ensure("before update table is referenced from figure 1", 
-    tester.grt->get("/wb/doc/physicalModels/0/diagrams/1/figures/0/table")
+    tester.grt::GRT::get().get("/wb/doc/physicalModels/0/diagrams/1/figures/0/table")
     == t2);
 
   tester.wb->close_document();
