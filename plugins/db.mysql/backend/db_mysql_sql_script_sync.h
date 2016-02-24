@@ -1,5 +1,5 @@
-#ifndef _DB_MYSQL_SQL_SCRIPT_SYNC_H_
-#define _DB_MYSQL_SQL_SCRIPT_SYNC_H_
+
+#pragma once
 
 #include "db_mysql_public_interface.h"
 #include "grt/grt_manager.h"
@@ -81,7 +81,7 @@ public:
   std::string get_sql_for_object(GrtNamedObjectRef obj);
 
   void set_options(grt::DictRef options) { _options = options; }
-  grt::DictRef get_options() const { return _options.is_valid() ? _options : grt::DictRef; }
+  grt::DictRef get_options() const { return _options.is_valid() ? _options : grt::DictRef(); }
 
   void set_db_options(grt::DictRef db_options) {_db_options = db_options;};
   grt::DictRef get_db_options() const { return _db_options.is_valid() ? _db_options : grt::DictRef;}
@@ -99,6 +99,3 @@ public:
 
   void restore_overriden_names();
 };
-
-
-#endif // _DB_MYSQL_SQL_SCRIPT_SYNC_H_

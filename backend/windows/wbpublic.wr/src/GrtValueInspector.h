@@ -40,7 +40,9 @@ namespace MySQL {
       };
 
       static GrtValueInspector^ Create(GRT^ grt, GrtValue^ value, bool grouped, bool process_editas_flag)
-      { return gcnew GrtValueInspector(::bec::ValueInspectorBE::create(grt::GRT::get().get_unmanaged_object(), value->get_unmanaged_object(), grouped, process_editas_flag), true); }
+      { 
+        return gcnew GrtValueInspector(::bec::ValueInspectorBE::create(value->get_unmanaged_object(), grouped, process_editas_flag), true); 
+      }
 
       GrtValueInspector(::bec::ValueInspectorBE *inn, bool free)
         : TreeModelWrapper(inn), free_inner(free)

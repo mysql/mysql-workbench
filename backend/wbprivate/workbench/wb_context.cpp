@@ -3692,7 +3692,7 @@ void WBContext::add_new_admin_window(const db_mgmt_ConnectionRef &target)
   boost::shared_ptr<SqlEditorForm> conn(add_new_query_window(target));
   if (conn)
   {
-    grt::BaseListRef args(target.get_grt());
+    grt::BaseListRef args;
     db_query_EditorRef editor(_sqlide_context->get_grt_editor_object(conn.get()));
     args.ginsert(editor);
     args.ginsert(grt::StringRef("admin_server_status"));
@@ -3710,7 +3710,7 @@ void WBContext::add_new_plugin_window(const std::string &plugin_id, const std::s
   
   try
   {
-    grt::BaseListRef args(_manager->get_grt(), AnyType);
+    grt::BaseListRef args(AnyType);
     
     app_PluginRef plugin(_plugin_manager->get_plugin(plugin_id));
     
