@@ -212,7 +212,7 @@ void overwrite_default_option(T &value, const std::string &name, const grt::Dict
   {
     value= T::cast_from(options.get(name));
     if (init_with_empty_value && !value.is_valid())
-      value= T(options.get_grt());
+      value= T();
   }
 }
 
