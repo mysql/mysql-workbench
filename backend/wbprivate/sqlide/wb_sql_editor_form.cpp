@@ -660,7 +660,7 @@ void SqlEditorForm::close()
   // are kept that prevent the correct deletion of the editor.
   if (_tabdock)
   {
-    for (size_t c = _tabdock->view_count(), i = 0; i < c; i++)
+    for (std::size_t c = _tabdock->view_count(), i = 0; i < c; i++)
     {
       SqlEditorPanel *p = sql_editor_panel((int)i);
       if (p)
@@ -1918,7 +1918,7 @@ bool SqlEditorForm::exec_editor_sql(SqlEditorPanel *editor, bool sync, bool curr
     std::string sql = editor->editor_be()->selected_text();
     if (sql.empty())
     {
-      std::pair<const char*, size_t> text = editor->text_data();
+      std::pair<const char*, std::size_t> text = editor->text_data();
       shared_sql.reset(new std::string(text.first, text.second));
     }
     else
@@ -2021,7 +2021,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, boost::shared_ptr<std::s
 
     bool ran_set_sql_mode = false;
     bool logging_queries;
-    std::vector<std::pair<size_t, size_t> > statement_ranges;
+    std::vector<std::pair<std::size_t, std::size_t> > statement_ranges;
     sql_facade->splitSqlScript(sql->c_str(), sql->size(),
       use_non_std_delimiter ? sql_specifics->non_std_sql_delimiter() : ";", statement_ranges);
 
@@ -2050,13 +2050,13 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, boost::shared_ptr<std::s
     ssize_t total_result_count = (editor != NULL) ? editor->resultset_count() : 0; // Consider pinned result sets.
 
     bool results_left = false;
-    std::pair<size_t, size_t> statement_range;
+    std::pair<std::size_t, std::size_t> statement_range;
     BOOST_FOREACH (statement_range, statement_ranges)
     {
       statement = sql->substr(statement_range.first, statement_range.second);
       std::list<std::string> sub_statements;
       sql_facade->splitSqlScript(statement, sub_statements);
-      size_t multiple_statement_count = sub_statements.size();
+      std::size_t multiple_statement_count = sub_statements.size();
       bool is_multiple_statement = (1 < multiple_statement_count);
 
       {
@@ -2222,7 +2222,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, boost::shared_ptr<std::s
           bool reuse_log_msg= false;
           if ((updated_rows_count < 0) || is_multiple_statement)
           {
-            for (size_t processed_substatements_count= 0; processed_substatements_count < multiple_statement_count; ++processed_substatements_count)
+            for (std::size_t processed_substatements_count= 0; processed_substatements_count < multiple_statement_count; ++processed_substatements_count)
             {
               do
               {
@@ -3074,7 +3074,7 @@ std::set<std::string> SqlEditorForm::valid_charsets()
   if (_charsets.empty())
   {
     grt::ListRef<db_CharacterSet> list = rdbms()->characterSets();
-    for (size_t i = 0; i < list->count(); i++)
+    for (std::size_t i = 0; i < list->count(); i++)
       _charsets.insert(base::tolower(*list[i]->name()));
 
     // 3 character sets were added in version 5.5.3. Remove them from the list if the current version
@@ -3097,7 +3097,7 @@ bool SqlEditorForm::save_snippet()
   if (!panel)
     return false;
   std::string text;
-  size_t start, end;
+  std::size_t start, end;
   if (panel->editor_be()->selected_range(start, end))
     text = panel->editor_be()->selected_text();
   else

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -496,7 +496,6 @@ void SqlEditorResult::show_export_recordset()
 
 void SqlEditorResult::show_import_recordset()
 {
-  bec::GRTManager *grtm = _owner->owner()->grt_manager();
   try
   {
     RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR(Recordset, _rset, rs)
