@@ -119,7 +119,7 @@ void BaseEditorWrapper::set_refresh_partial_ui_handler(DelegateSlot1<void,void,i
 
 MySQL::Grt::GRT ^BaseEditorWrapper::get_grt()
 {
-  return gcnew MySQL::Grt::GRT(get_unmanaged_object()->get_grt());
+  return gcnew MySQL::Grt::GRT;
 }
 
 //--------------------------------------------------------------------------------------------------

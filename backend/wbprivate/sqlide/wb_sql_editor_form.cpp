@@ -1078,7 +1078,7 @@ void SqlEditorForm::create_connection(sql::Dbc_connection_handler::Ref &dbc_conn
 
   sql::DriverManager *dbc_drv_man= sql::DriverManager::getDriverManager();
 
-  db_mgmt_ConnectionRef temp_connection = db_mgmt_ConnectionRef::cast_from(grt::CopyContext(db_mgmt_conn.get_grt()).copy(db_mgmt_conn));
+  db_mgmt_ConnectionRef temp_connection = db_mgmt_ConnectionRef::cast_from(grt::CopyContext().copy(db_mgmt_conn));
 
   int read_timeout = _grtm->get_app_option_int("DbSqlEditor:ReadTimeOut");
   if (read_timeout > 0)
@@ -1297,7 +1297,7 @@ bool SqlEditorForm::connect(boost::shared_ptr<sql::TunnelConnection> tunnel)
 
 void SqlEditorForm::update_connected_state()
 {
-  grt::DictRef args(_grtm->get_grt());
+  grt::DictRef args;
   args.gset("connected", connected());
   GRTNotificationCenter::get()->send_grt("GRNSQLEditorReconnected", grtobj(), args);
 
@@ -1421,7 +1421,7 @@ grt::StringRef SqlEditorForm::do_connect(boost::shared_ptr<sql::TunnelConnection
       if (_usr_dbc_conn && get_session_variable(_usr_dbc_conn->ref.get(), "lower_case_table_names", value))
         _lower_case_table_names = base::atoi<int>(value, 0);
 
-      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get;
+      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
       _work_parser_context = services->createParserContext(rdbms()->characterSets(), _version, _lower_case_table_names != 0);
       _work_parser_context->use_sql_mode(_sql_mode);
     }
@@ -1451,7 +1451,7 @@ grt::StringRef SqlEditorForm::do_connect(boost::shared_ptr<sql::TunnelConnection
         // if there's no connection, then we continue anyway if this is a local connection or
         // a remote connection with remote admin enabled..
         grt::Module *m = grt::GRT::get().get_module("WbAdmin");
-        grt::BaseListRef args(_grtm->get_grt());
+        grt::BaseListRef args;
         args.ginsert(_connection);
         if (!m || *grt::IntegerRef::cast_from(m->call_function("checkConnectionForRemoteAdmin", args)) == 0)
         {
@@ -1467,8 +1467,8 @@ grt::StringRef SqlEditorForm::do_connect(boost::shared_ptr<sql::TunnelConnection
 
       // Create a parser with some sensible defaults if we cannot connect.
       // We specify no charsets here, disabling parsing of repertoires.
-      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get;
-      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(grt), bec::int_to_version(50503), true);
+      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
+      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(), bec::int_to_version(50503), true);
       _work_parser_context->use_sql_mode(_sql_mode);
 
       return grt::StringRef();
@@ -1484,7 +1484,7 @@ grt::StringRef SqlEditorForm::do_connect(boost::shared_ptr<sql::TunnelConnection
         // if there's no connection, then we continue anyway if this is a local connection or
         // a remote connection with remote admin enabled..
         grt::GRT::get().get_module("WbAdmin");
-        grt::BaseListRef args(_grtm->get_grt());
+        grt::BaseListRef args;
         args.ginsert(_connection);
       }
 
@@ -1493,8 +1493,8 @@ grt::StringRef SqlEditorForm::do_connect(boost::shared_ptr<sql::TunnelConnection
 
       // Create a parser with some sensible defaults if we cannot connect.
       // We specify no charsets here, disabling parsing of repertoires.
-      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get;
-      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(grt), bec::int_to_version(50503), true);
+      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
+      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(), bec::int_to_version(50503), true);
       _work_parser_context->use_sql_mode(_sql_mode);
 
       return grt::StringRef();
@@ -1834,7 +1834,7 @@ void SqlEditorForm::explain_current_statement()
     SqlEditorResult *result = panel->add_panel_for_recordset(Recordset::Ref());
     result->set_title("Explain");
 
-    grt::BaseListRef args(_grtm->get_grt());
+    grt::BaseListRef args;
     args.ginsert(panel->grtobj());
     args.ginsert(result->grtobj());
     // run the visual explain plugin, so it will fill the result panel
@@ -1859,7 +1859,7 @@ void SqlEditorForm::exec_sql_retaining_editor_contents(const std::string &sql_sc
   }
 
   exec_sql_task->exec(sync,
-    boost::bind(&SqlEditorForm::do_exec_sql, this, _1,
+    boost::bind(&SqlEditorForm::do_exec_sql, this,
                weak_ptr_from(this), boost::shared_ptr<std::string>(new std::string(sql_script)),
                editor, (ExecFlags)(dont_add_limit_clause?DontAddLimitClause:0),
                RecordsetsRef()));
@@ -1949,7 +1949,7 @@ bool SqlEditorForm::exec_editor_sql(SqlEditorPanel *editor, bool sync, bool curr
 
     exec_sql_task->exec(
       sync,
-      boost::bind(&SqlEditorForm::do_exec_sql, this, _1, weak_ptr_from(this), shared_sql,
+      boost::bind(&SqlEditorForm::do_exec_sql, this, weak_ptr_from(this), shared_sql,
       (SqlEditorPanel*)NULL, flags, rsets)
       );
 
@@ -1961,7 +1961,7 @@ bool SqlEditorForm::exec_editor_sql(SqlEditorPanel *editor, bool sync, bool curr
   else
     exec_sql_task->exec(
       sync,
-      boost::bind(&SqlEditorForm::do_exec_sql, this, _1, weak_ptr_from(this), shared_sql,
+      boost::bind(&SqlEditorForm::do_exec_sql, this, weak_ptr_from(this), shared_sql,
       editor, flags, RecordsetsRef())
       );
 
@@ -3286,7 +3286,7 @@ void SqlEditorForm::note_connection_open_outcome(int error)
 
   if (_last_server_running_state != newState && newState != UnknownState)
   {
-    grt::DictRef info(_grtm->get_grt());
+    grt::DictRef info;
     _last_server_running_state = newState;
 
     if (newState == RunningState)

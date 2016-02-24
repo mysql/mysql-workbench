@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -67,7 +67,7 @@ MySQLEditor::Ref StoredNoteEditorBE::get_sql_editor()
   if (!_sql_editor)
   {
     workbench_physical_ModelRef model(workbench_physical_ModelRef::cast_from(_note->owner()));
-    MySQLParserServices::Ref services = MySQLParserServices::get;
+    MySQLParserServices::Ref services = MySQLParserServices::get();
     ParserContext::Ref context = services->createParserContext(model->catalog()->characterSets(), model->catalog()->version(), false);
     ParserContext::Ref autocomplete_context = services->createParserContext(model->catalog()->characterSets(), model->catalog()->version(), false);
     _sql_editor = MySQLEditor::create(context, autocomplete_context);

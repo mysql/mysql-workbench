@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,10 +17,7 @@
  * 02110-1301  USA
  */
 
-
-#ifndef _MYSQL_SQL_SPECIFICS_H_
-#define _MYSQL_SQL_SPECIFICS_H_
-
+#pragma once
 
 #include "mysql_sql_parser_base.h"
 #include "grtsqlparser/sql_specifics.h"
@@ -34,7 +31,7 @@ class MYSQL_SQL_PARSER_PUBLIC_FUNC Mysql_sql_specifics : public Sql_specifics
 {
 public:
   typedef boost::shared_ptr<Mysql_sql_specifics> Ref;
-  static Ref create() { return Ref(new Mysql_sql_specifics(grt)); }
+  static Ref create() { return Ref(new Mysql_sql_specifics); }
   virtual ~Mysql_sql_specifics() {}
 protected:
   Mysql_sql_specifics();
@@ -52,6 +49,3 @@ public:
   std::string non_std_sql_delimiter();
   std::string setting_ansi_quotes();
 };
-
-
-#endif // _MYSQL_SQL_SPECIFICS_H_
