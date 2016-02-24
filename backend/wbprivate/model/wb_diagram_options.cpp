@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -151,7 +151,7 @@ public:
 
 
 DiagramOptionsBE::DiagramOptionsBE(mdc::CanvasView *view, model_DiagramRef target_view, WBContext *wb)
-: _view(view), _target_view(target_view), _wbcontext(wb)
+: _view(view), _target_view(target_view)
 {
   view->get_background_layer()->set_visible(false);
   view->get_background_layer()->set_grid_visible(false);
