@@ -216,7 +216,6 @@ void AddOnDownloadWindow::download_finished(const std::string &path, DownloadIte
 
 class PluginInstallWindow::InstallItem : public mforms::Box
 {
-  PluginInstallWindow *_owner;
   mforms::Box _box, _rbox;
   mforms::ImageBox _icon;
   mforms::Label _version;
@@ -234,7 +233,7 @@ public:
 
 
 PluginInstallWindow::InstallItem::InstallItem(PluginInstallWindow *owner, const std::string &path)
-: mforms::Box(true), _owner(owner), _box(true), _rbox(false),
+: mforms::Box(true), _box(true), _rbox(false),
 _path(path)
 {
   set_padding(8);
