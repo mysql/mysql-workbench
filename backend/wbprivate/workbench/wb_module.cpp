@@ -1869,7 +1869,7 @@ grt::DictListRef WorkbenchImpl::getLocalServerList()
   
   
 #else
-    entries = grt::DictListRef;
+    entries = grt::DictListRef();
   
     char *stdo = NULL;
     char *ster = NULL;

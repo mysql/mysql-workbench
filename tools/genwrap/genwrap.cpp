@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -59,17 +59,17 @@ void* get_mainwindow_impl()
 
 //--------------------------------------------------------------------------------------------------
 
-void register_all_interfaces(grt::GRT *grt)
+void register_all_interfaces()
 {
-  register_interfaces(grt);
+  register_interfaces();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void do_generate_interface_classes(grt::GRT *grt, const char *outfile,
+void do_generate_interface_classes(const char *outfile,
                                    const std::vector<std::string> &interfaces)
 {
-  register_all_interfaces(grt);
+  register_all_interfaces();
   std::vector<grt::Module*> wanted;
 
   printf("Generating %s\n", outfile);
@@ -88,7 +88,7 @@ void do_generate_interface_classes(grt::GRT *grt, const char *outfile,
     if (!interfaces.empty() && interfaces.size() != wanted.size())
       fprintf(stderr, "WARNING: Some of the specified interfaces were not found\n");
 
-    grt::helper::generate_module_wrappers(grt, outfile, wanted);
+    grt::helper::generate_module_wrappers(outfile, wanted);
   }
   else
     fprintf(stderr, "No interfaces to be wrapped.\n");
@@ -130,9 +130,7 @@ void generate_interface_classes(const char *header, const char *outfile)
   }
 
   fclose(f);
-  grt::GRT grt;
-  
-  do_generate_interface_classes(&grt, outfile, interfaces);
+  do_generate_interface_classes(outfile, interfaces);
 }
 
 //--------------------------------------------------------------------------------------------------
