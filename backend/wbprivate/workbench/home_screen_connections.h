@@ -51,7 +51,6 @@ namespace wb
     cairo_surface_t* _mouse_over2_icon;
     cairo_surface_t* _network_icon;
     cairo_surface_t* _ha_filter_icon;
-    cairo_surface_t* _managed_status_icon;
     cairo_surface_t* _page_down_icon;
     cairo_surface_t* _page_up_icon;
     cairo_surface_t* _plus_icon;
@@ -141,6 +140,8 @@ namespace wb
 
     void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah);
 
+    int calculateHeight();
+
     void on_resize();
 
     virtual bool mouse_down(mforms::MouseButton button, int x, int y);
@@ -179,6 +180,14 @@ namespace wb
                                        mforms::DragOperation allowedOperations, void *data, const std::string &format);
 
   public:
+    static const int CONNECTIONS_LEFT_PADDING = 40;
+    static const int CONNECTIONS_RIGHT_PADDING = 40; // The tile spacing right to the last tile in the row does not belong to this padding.
+    static const int CONNECTIONS_TOP_PADDING = 75; // The vertical offset of the first visible shortcut entry->
+    static const int CONNECTIONS_SPACING = 9; // Vertical/horizontal space between entries.
+
+    static const int CONNECTIONS_TILE_WIDTH = 241;
+    static const int CONNECTIONS_TILE_HEIGHT = 91;
+
     ConnectionsSection(HomeScreen *owner);
     ~ConnectionsSection();
     void clear_connections(bool clear_state = true);
