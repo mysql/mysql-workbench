@@ -116,6 +116,20 @@ private:
   cairo_surface_t* _close_icon;
 
 public:
+
+  const int POPUP_HEIGHT = 240;
+  const int POPUP_TIP_HEIGHT = 14;
+  const int POPUP_LR_PADDING = 53; // Left and right padding.
+  const int POPUP_TB_PADDING = 24; // Top and bottom padding.
+  const int POPUP_BUTTON_MIN_WIDTH = 88;
+  const int POPUP_BUTTON_HEIGHT = 24;
+  const int POPUP_BUTTON_SPACING = 19; // Horizontal space between adjacent buttons.
+  const int POPUP_BUTTON_PADDING = 11;// Horizontal space between button border and text.
+
+  const int DETAILS_TOP_OFFSET = 44;
+  const int DETAILS_LINE_HEIGHT = 18;
+  const int DETAILS_LINE_WIDTH = 340;
+
   ConnectionInfoPopup(HomeScreen *owner, const db_mgmt_ConnectionRef connection,
                       const db_mgmt_ServerInstanceRef instance, base::Rect host_bounds, base::Rect free_area, int info_width)
   : Popup(mforms::PopupPlain)
@@ -142,15 +156,6 @@ public:
   }
 
   //------------------------------------------------------------------------------------------------
-
-#define POPUP_HEIGHT 240
-#define POPUP_TIP_HEIGHT 14
-#define POPUP_LR_PADDING 53 // Left and right padding.
-#define POPUP_TB_PADDING 24 // Top and bottom padding.
-#define POPUP_BUTTON_MIN_WIDTH 88
-#define POPUP_BUTTON_HEIGHT 24
-#define POPUP_BUTTON_SPACING 19 // Horizontal space between adjacent buttons.
-#define POPUP_BUTTON_PADDING 11 // Horizontal space between button border and text.
 
   /**
    * Draws a button with the given text at the given position. The button width depends on the
@@ -359,10 +364,6 @@ public:
   }
 
   //------------------------------------------------------------------------------------------------
-
-#define DETAILS_TOP_OFFSET   44
-#define DETAILS_LINE_HEIGHT  18
-#define DETAILS_LINE_WIDTH  340
 
   /**
    * Prints all info details for the current connection. Font face, size and color must be set up
@@ -580,16 +581,6 @@ public:
 
 
 //----------------- ConnectionsSection -------------------------------------------------------------
-
-#define CONNECTIONS_LEFT_PADDING  40
-#define CONNECTIONS_RIGHT_PADDING 40 // The tile spacing right to the last tile in the row does not belong to this padding.
-#define CONNECTIONS_TOP_PADDING   75 // The vertical offset of the first visible shortcut entry->
-#define CONNECTIONS_SPACING        9 // Vertical/horizontal space between entries.
-
-#define CONNECTIONS_TILE_WIDTH   241
-#define CONNECTIONS_TILE_HEIGHT   91
-
-
 class wb::ConnectionEntry: mforms::Accessible
 {
   friend class ConnectionsSection;
@@ -685,7 +676,7 @@ public:
   };
 
   ConnectionEntry(ConnectionsSection *aowner)
-  : owner(aowner)
+  : owner(aowner), compute_strings(false), second_color(false)
   {
     draw_info_tab = true;
   }
@@ -916,17 +907,17 @@ public:
     base::Rect host_bounds = base::Rect(pos.first, pos.second, parent->get_parent()->get_width(), parent->get_parent()->get_height());
 
     int width = owner->get_width();
-    width -= CONNECTIONS_LEFT_PADDING + CONNECTIONS_RIGHT_PADDING;
-    int tiles_per_row = width / (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
+    width -= ConnectionsSection::CONNECTIONS_LEFT_PADDING + ConnectionsSection::CONNECTIONS_RIGHT_PADDING;
+    int tiles_per_row = width / (ConnectionsSection::CONNECTIONS_TILE_WIDTH + ConnectionsSection::CONNECTIONS_SPACING);
 
     ConnectionsSection::ConnectionVector connections(owner->displayed_connections());
 
     size_t top_entry = std::find(connections.begin(), connections.end(), owner->_hot_entry) - connections.begin() - owner->_page_start;
     size_t row = top_entry / tiles_per_row;
     size_t column = top_entry % tiles_per_row;
-    pos.first = (int)(CONNECTIONS_LEFT_PADDING + column * (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING));
-    pos.second = (int)(CONNECTIONS_TOP_PADDING + row * (CONNECTIONS_TILE_HEIGHT + CONNECTIONS_SPACING));
-    base::Rect item_bounds = base::Rect(pos.first, pos.second, CONNECTIONS_TILE_WIDTH, CONNECTIONS_TILE_HEIGHT);
+    pos.first = (int)(ConnectionsSection::CONNECTIONS_LEFT_PADDING + column * (ConnectionsSection::CONNECTIONS_TILE_WIDTH + ConnectionsSection::CONNECTIONS_SPACING));
+    pos.second = (int)(ConnectionsSection::CONNECTIONS_TOP_PADDING + row * (ConnectionsSection::CONNECTIONS_TILE_HEIGHT + ConnectionsSection::CONNECTIONS_SPACING));
+    base::Rect item_bounds = base::Rect(pos.first, pos.second, ConnectionsSection::CONNECTIONS_TILE_WIDTH, ConnectionsSection::CONNECTIONS_TILE_HEIGHT);
 
     db_mgmt_ServerInstanceRef instance;
     grt::ListRef<db_mgmt_ServerInstance> instances = owner->_owner->rdbms()->storedInstances();
@@ -1113,7 +1104,6 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner)
   _network_icon = mforms::Utilities::load_icon("wb_tile_network.png");
   // TODO: We need a tile icon for the group filter and the status.
   _ha_filter_icon = mforms::Utilities::load_icon("wb_tile_network.png");
-  _managed_status_icon = mforms::Utilities::load_icon("wb_tile_network.png");
   _page_down_icon = mforms::Utilities::load_icon("wb_tile_page-down.png");
   _page_up_icon = mforms::Utilities::load_icon("wb_tile_page-up.png");
   _plus_icon = mforms::Utilities::load_icon("wb_tile_plus.png");
@@ -1191,7 +1181,6 @@ ConnectionsSection::~ConnectionsSection()
   delete_surface(_mouse_over2_icon);
   delete_surface(_network_icon);
   delete_surface(_ha_filter_icon);
-  delete_surface(_managed_status_icon);
   delete_surface(_page_down_icon);
   delete_surface(_page_up_icon);
   delete_surface(_plus_icon);
@@ -1768,6 +1757,26 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
 
 //--------------------------------------------------------------------------------------------------
 
+int ConnectionsSection::calculateHeight()
+{
+  ConnectionVector *connections;
+  if (_active_folder)
+    connections = &_active_folder->children;
+  else
+    connections = &_connections;
+
+  if (_filtered)
+    connections = &_filtered_connections;
+  int tiles_per_row = (get_width() - CONNECTIONS_LEFT_PADDING - CONNECTIONS_RIGHT_PADDING) / (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
+
+  if (connections->empty() || tiles_per_row <=1 )
+    return 0;
+
+  return (connections->size() / tiles_per_row) * (CONNECTIONS_TILE_HEIGHT + CONNECTIONS_SPACING) + CONNECTIONS_TOP_PADDING;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void ConnectionsSection::on_resize()
 {
   _page_start = _prev_page_start.size() * _entries_per_page;
@@ -1842,6 +1851,11 @@ void ConnectionsSection::add_connection(const db_mgmt_ConnectionRef &connection,
   }
   else
     _connections.push_back(entry);
+
+  int height = calculateHeight();
+  if (height > get_height())
+    set_size(-1, height);
+
   set_layout_dirty(true);
   set_needs_repaint();
 }
