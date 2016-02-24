@@ -49,12 +49,12 @@ protected:
       ensure("DiffSQLGen module initialization", NULL != diffsql_module);
 
       // init datatypes
-      populate_grttester);
+      populate_grt(tester);
 
       // init database connection
       connection= tester.create_connection_for_import();
 
-      sql_parser= SqlFacade::instance_for_rdbms_name"Mysql");
+      sql_parser= SqlFacade::instance_for_rdbms_name("Mysql");
       ensure("failed to get sqlparser module", (NULL != sql_parser));
   }
 

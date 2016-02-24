@@ -50,7 +50,7 @@ protected:
         ensure("DiffSQLGen module initialization", NULL != diffsql_module);
 
         // init datatypes
-        populate_grttester);
+        populate_grt(tester);
 
         // init database connection
         connection = tester.create_connection_for_import();
@@ -500,8 +500,8 @@ TEST_FUNCTION(70)
 
   catalog->schemata()[0]->name("sakila_test");
 
-  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get;
-  GrtVersionRef version = bec::parse_version"5.6.0");
+  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
+  GrtVersionRef version = bec::parse_version("5.6.0");
   parser::ParserContext::Ref context = services->createParserContext(tester.get_rdbms()->characterSets(),
     version, false);
   services->renameSchemaReferences(context, catalog, "sakila", "sakila_test");

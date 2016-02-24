@@ -35,7 +35,7 @@ public:
 
 TEST_DATA_CONSTRUCTOR(mysql_table_editor)
 {
-  populate_grttester);
+  populate_grt(tester);
 
   tester.flush_until(0.5);
   tester.create_new_document();

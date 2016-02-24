@@ -107,7 +107,7 @@ Mysql_sql_parser::Null_state_keeper::~Null_state_keeper()
   static struct TableStorageEnginesInitializer
   {
     TableStorageEnginesInitializer() { __table_storage_engines.init(); }
-  } table_storage_engines_initializer();
+  } table_storage_engines_initializer;
 }
 #define NULL_STATE_KEEPER Null_state_keeper _nsk(this);
 
@@ -2662,7 +2662,7 @@ grt::Ref<T> Mysql_sql_parser::create_or_find_named_obj(const grt::ListRef<T>& ob
     }
     else
     {
-      obj= grt::Ref<T>;
+      obj= grt::Ref<T>();
       obj->owner(container2.is_valid() ? container2 : (container1.is_valid() ? container1 : GrtNamedObjectRef(_catalog)));
       try { obj.set_member("createDate", StringRef(time)); } catch (std::exception&) {}
     }
@@ -2706,7 +2706,7 @@ grt::Ref<T> Mysql_sql_parser::create_or_find_named_routine(const grt::ListRef<T>
     }
     else
     {
-      obj= grt::Ref<T>;
+      obj= grt::Ref<T>();
       obj->owner(container2.is_valid() ? container2 : (container1.is_valid() ? container1 : GrtNamedObjectRef(_catalog)));
       try { obj.set_member("createDate", StringRef(time)); } catch (std::exception&) {}
     }

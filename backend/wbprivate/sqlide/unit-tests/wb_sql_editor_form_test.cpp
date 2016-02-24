@@ -270,7 +270,7 @@ TEST_DATA_CONSTRUCTOR(wb_sql_editor_form_test):wb_context_sqlide(tester.wbui)
   connection= create_connection_for_import;
 
   db_mgmt_ConnectionRef my_connection;
-  set_connection_propertiesmy_connection);
+  set_connection_properties(my_connection);
   form = SqlEditorForm::create(&wb_context_sqlide, my_connection);
   form->connect(boost::shared_ptr<sql::TunnelConnection>());
 
