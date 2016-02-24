@@ -68,18 +68,20 @@ class VariablesGrouper(mforms.Box):
         box.set_spacing(8)
         box.set_padding(12)
 
-        button = newButton()
-        button.set_text("Save")
-        button.add_clicked_callback(self.save)
-        box.add_end(button, False, True)
+        self.button_save = newButton()
+        self.button_save.set_text("Save")
+        self.button_save.add_clicked_callback(self.save)
+        box.add_end(self.button_save, False, True)
 
-        button = newButton()
-        button.set_text("Add Group")
-        button.add_clicked_callback(self.add_group)
-        box.add_end(button, False, True)
+        self.button_add_group = newButton()
+        self.button_add_group.set_text("Add Group")
+        self.button_add_group.add_clicked_callback(self.add_group)
+        self.button_add_group.set_enabled(False)
+        box.add_end(self.button_add_group, False, True)
 
         self.group_entry = newTextEntry()
         self.group_entry.set_size(300, -1)
+        self.group_entry.set_enabled(False)
         box.add_end(self.group_entry, False, True)
 
         self.add(box, False, True)
@@ -112,6 +114,8 @@ class VariablesGrouper(mforms.Box):
                 node.set_string(1, ", ".join(self.value_group_pair.get(opt['name'], [])))
 
     def value_selected(self):
+        self.group_entry.set_enabled(False)
+        self.button_add_group.set_enabled(False)
         node = self.values_tree.get_selected_node()
         if node:
             self.groups_tree.clear()
@@ -121,6 +125,8 @@ class VariablesGrouper(mforms.Box):
                 node = self.groups_tree.add_node()
                 node.set_string(1, group)
                 node.set_bool(0, group in groups)
+            self.group_entry.set_enabled(True)
+            self.button_add_group.set_enabled(True)
 
     def split_groups(self, group_string):
         return [x.encode("utf-8").strip() for x in group_string.strip().split(",") if x]
@@ -141,6 +147,7 @@ class VariablesGrouper(mforms.Box):
             self.value_group_pair[sel.get_string(0)] = self.split_groups(sel.get_string(1))
 
     def add_group(self):
+        print "Adding new group: %s" % self.group_entry.get_string_value()
         v = self.group_entry.get_string_value()
         self.groups.add(v)
         self.value_selected()
@@ -168,8 +175,10 @@ file_chooser = mforms.newFileChooser(form, mforms.OpenDirectory)
 
 file_chooser.set_title('Choose the base directory')
 file_chooser.set_path(script_dir)
-if file_chooser.run_modal() != mforms.ResultOk:
-    exit
+file_chooser_result = file_chooser.run_modal()
+print "File chooser result: %s" % file_chooser_result
+if not file_chooser_result:
+    sys.exit()
 
 temp_path = file_chooser.get_path()
 sys.path.append(temp_path)
@@ -189,4 +198,4 @@ tabs.add_page(status_variables, "Status Variables")
 
 form.set_content(tabs)
 
-form.show()
+form.run_modal(None, None)
