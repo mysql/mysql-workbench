@@ -144,17 +144,15 @@ public:
 
 public ref class GRT
 {
-  ::grt::GRT *inner;
-
 public:
-  GRT(::grt::GRT *inn) : inner(inn)
-    {}
+  GRT()
+  {
+  }
 
-  GRT() : inner(new ::grt::GRT)
-    {}
-
-  ::grt::GRT *get_unmanaged_object() 
-    { return inner; }
+  ::grt::GRT* get_unmanaged_object() 
+  { 
+    return &grt::GRT::get(); 
+  }
 
   static System::String^ version()
   {
@@ -162,7 +160,9 @@ public:
   }
 	
 	void make_output_visible()
-		{ inner->make_output_visible(); }
+	{ 
+    grt::GRT::get().make_output_visible(); 
+  }
 };
 
 #ifdef notused
@@ -627,5 +627,3 @@ public:
 
 } // namespace Grt
 } // namespace MySQL
-
-#endif // __GRT_H__

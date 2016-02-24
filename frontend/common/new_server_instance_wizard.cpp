@@ -1070,7 +1070,7 @@ bool TestHostMachineSettingsPage::find_error_files()
 
 bool TestHostMachineSettingsPage::check_admin_commands()
 {
-  execute_grt_task(boost::bind(&NewServerInstanceWizard::test_setting_grt, wizard(), _1, 
+  execute_grt_task(boost::bind(&NewServerInstanceWizard::test_setting_grt, wizard(), 
                               wizard()->is_local() ? "check_admin_commands/local" : "check_admin_commands"), false);
   return true;
 }
@@ -1370,7 +1370,6 @@ bool PathsPage::advance()
  */
 void PathsPage::browse_remote_config_file()
 {
-   = _context->get_grt();
   db_mgmt_ServerInstanceRef instance(wizard()->assemble_server_instance());
 
   grt::BaseListRef args;
@@ -1534,7 +1533,7 @@ void CommandsPage::leave(bool advancing)
 //----------------- NewServerInstanceWizard ---------------------------------------------------------
 
 NewServerInstanceWizard::NewServerInstanceWizard(wb::WBContext* context, db_mgmt_ConnectionRef connection)
-  : WizardForm(context->get_grt_manager()), _instance(context->get_grt())
+  : WizardForm(context->get_grt_manager())
 {
   set_name("new_instance_wizard");
   _context = context;
@@ -1697,10 +1696,10 @@ grt::ValueRef NewServerInstanceWizard::test_setting_grt(const std::string &name)
 
 bool NewServerInstanceWizard::test_setting(const std::string &name, std::string &detail)
 {
-  grt::Module *module= grtm()->get_grt()->get_module("WbAdmin");
+  grt::Module *module= grt::GRT::get().get_module("WbAdmin");
   if (module)
   {
-    grt::BaseListRef args(grtm()->get_grt());
+    grt::BaseListRef args;
     grt::ValueRef ret;
     args.ginsert(grt::StringRef(name));
     args.ginsert(values().get("connection"));

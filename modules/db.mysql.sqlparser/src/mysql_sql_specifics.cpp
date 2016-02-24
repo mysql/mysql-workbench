@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,7 +36,7 @@ using namespace base;
 class MYSQL_SQL_PARSER_PUBLIC_FUNC Mysql_sql_statement_info : protected Mysql_sql_parser_base
 {
 public:
-  Mysql_sql_statement_info() : Sql_parser_base(grt), Mysql_sql_parser_base(grt) { NULL_STATE_KEEPER }
+  Mysql_sql_statement_info() { NULL_STATE_KEEPER }
   virtual ~Mysql_sql_statement_info() {}
 
 private:
@@ -175,15 +175,13 @@ protected:
 
 
 Mysql_sql_specifics::Mysql_sql_specifics()
-:
-Sql_specifics(grt)
 {
 }
 
 
 std::string Mysql_sql_specifics::limit_select_query(const std::string &sql, int *row_count, int *row_row_offset)
 {
-  Mysql_sql_statement_info statement_info(_grt);
+  Mysql_sql_statement_info statement_info;
   bool contains_limit_clause = false;
   size_t limit_ins_pos = sql.length();
 

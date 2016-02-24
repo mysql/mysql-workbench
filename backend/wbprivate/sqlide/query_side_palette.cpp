@@ -545,7 +545,7 @@ bool QuerySidePalette::find_context_help(MySQLEditor *editor)
   // Caret position as <column, row>.
   std::pair<size_t, size_t> caret = editor->cursor_pos_row_column(true);
 
-  _help_task->exec(false, boost::bind(&QuerySidePalette::get_help_topic_threaded, this, _1, 
+  _help_task->exec(false, boost::bind(&QuerySidePalette::get_help_topic_threaded, this,
     editor->current_statement(), caret));
 
   return false; // Don't re-run this task, it's a single-shot.
