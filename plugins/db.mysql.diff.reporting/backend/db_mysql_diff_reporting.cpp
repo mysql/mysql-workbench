@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -76,13 +76,13 @@ std::string DbMySQLDiffReporting::generate_report(const db_mysql_CatalogRef& lef
   build_catalog_map(right_cat_copy, right_catalog_map);
   update_all_old_names(right_cat_copy, true, right_catalog_map);
 
-  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(manager_->get_grt()->get("/wb/rdbmsMgmt/rdbms/0"));
+  db_mgmt_RdbmsRef rdbms = db_mgmt_RdbmsRef::cast_from(grt::GRT::get().get("/wb/rdbmsMgmt/rdbms/0"));
 
   bec::apply_user_datatypes(right_cat_copy, rdbms);
   bec::apply_user_datatypes(left_cat_copy, rdbms);
 
 
-  SQLGeneratorInterfaceImpl *diffsql_module= dynamic_cast<SQLGeneratorInterfaceImpl*>(manager_->get_grt()->get_module("DbMySQL"));
+  SQLGeneratorInterfaceImpl *diffsql_module= dynamic_cast<SQLGeneratorInterfaceImpl*>(grt::GRT::get().get_module("DbMySQL"));
 
   if (diffsql_module == NULL)
     throw DbMySQLDiffReportingException("error loading module DbMySQL");
@@ -91,7 +91,7 @@ std::string DbMySQLDiffReporting::generate_report(const db_mysql_CatalogRef& lef
   tpath.append("modules").append(G_DIR_SEPARATOR_S).append("data").append(G_DIR_SEPARATOR_S).append("db_mysql_catalog_reporting")
     .append(G_DIR_SEPARATOR_S).append("Basic_Text.tpl").append(G_DIR_SEPARATOR_S).append("basic_text_report.txt.tpl");
 
-  grt::DictRef options(manager_->get_grt());
+  grt::DictRef options;
   options.set("OMFDontDiffMask", grt::IntegerRef(3));
   options.set("UseFilteredLists", grt::IntegerRef(0));
   options.set("KeepOrder", grt::IntegerRef(1));

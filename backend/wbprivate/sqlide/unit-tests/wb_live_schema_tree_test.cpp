@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -414,15 +414,13 @@ public:
   };
 
   TEST_DATA_CONSTRUCTOR(wb_live_schema_tree_test) :
-    _lst(&grt),
-    _lst_filtered(&grt),
     deleg(new LiveTreeTestDelegate()),
     deleg_filtered(new LiveTreeTestDelegate())
   {
 
-    grt.set("/wb", grt::DictRef(&grt));
-    grt.set("/wb/options", grt::DictRef(&grt));
-    grt.set("/wb/options/options", grt::DictRef(&grt));
+    grt.set("/wb", grt::DictRef());
+    grt.set("/wb/options", grt::DictRef());
+    grt.set("/wb/options/options", grt::DictRef());
     grt.set("/wb/options/options/SqlEditor:AutoFetchColumnInfo", grt::IntegerRef(1));
 
     mforms::stub::init(NULL);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -49,21 +49,21 @@ protected:
   TEST_DATA_CONSTRUCTOR(grtdiff_alter_test)
   {
       omf.dontdiff_mask = 3;
-      diffsql_module= tester.grt::GRT::get().get_native_module<DbMySQLImpl>();
+      diffsql_module= grt::GRT::get().get_native_module<DbMySQLImpl>();
       ensure("DiffSQLGen module initialization", NULL != diffsql_module);
 
       // init datatypes
-      populate_grt(tester.grt, tester);
+      populate_grttester);
 
       std::string target_version = tester.wb->get_grt_manager()->get_app_option_string("DefaultTargetMySQLVersion");
       if (target_version.empty())
         target_version = "5.5";
-      tester.get_rdbms()->version(parse_version(tester.grt, target_version));
+      tester.get_rdbms()->version(parse_versiontarget_version));
 
       // init database connection
       connection= tester.create_connection_for_import();
 
-      sql_parser= SqlFacade::instance_for_rdbms_name(tester.grt, "Mysql");
+      sql_parser= SqlFacade::instance_for_rdbms_name"Mysql");
       ensure("failed to get sqlparser module", (NULL != sql_parser));
   }
 
@@ -85,7 +85,7 @@ TEST_FUNCTION(3)
 
   std::list<std::string> schemata;
   schemata.push_back("grtdiff_alter_test");
-  tester.grt::GRT::get().get_undo_manager()->disable();
+  grt::GRT::get().get_undo_manager()->disable();
   db_mysql_CatalogRef cat= tester.db_rev_eng_schema(schemata);
   tester.wb->flush_idle_tasks();
   tester.wb->close_document();
@@ -1207,19 +1207,19 @@ TEST_FUNCTION(10)
     execute_script(stmt.get(), "CREATE DATABASE IF NOT EXISTS grtdiff_alter_test /*!40100 DEFAULT CHARACTER SET latin1 */",tester.wb->get_grt_manager());
   }
 
-  MySQLParserServices::Ref services = MySQLParserServices::get(tester.grt);
+  MySQLParserServices::Ref services = MySQLParserServices::get;
   ParserContext::Ref context = services->createParserContext(tester.get_rdbms()->characterSets(),
     tester.get_rdbms()->version(), false);
 
-  grt::DictRef options(tester.grt);
+  grt::DictRef options;
   for (int i = 0; data[i].description != NULL; i++)
   {
     std::cout << ".";
     if ((i + 1) % 30 == 0)
       std::cout << std::endl;
 
-    db_mysql_CatalogRef org_cat = create_empty_catalog_for_import(tester.grt);
-    db_mysql_CatalogRef mod_cat = create_empty_catalog_for_import(tester.grt);
+    db_mysql_CatalogRef org_cat = create_empty_catalog_for_import;
+    db_mysql_CatalogRef mod_cat = create_empty_catalog_for_import;
 
     {
       std::string org_script;
@@ -1254,7 +1254,7 @@ TEST_FUNCTION(10)
     else if(strcmp(data[i].description, "Rename view") == 0)
       mod_cat->schemata().get(0)->views().get(0)->oldName("v1");
 
-    grt::NormalizedComparer normalizer(tester.grt);
+    grt::NormalizedComparer normalizer;
     normalizer.init_omf(&omf);
     grt::ValueRef default_engine = tester.wb->get_grt_manager()->get_app_option("db.mysql.Table:tableEngine");
     std::string default_engine_name;
@@ -1272,9 +1272,9 @@ TEST_FUNCTION(10)
 #endif
 
     // 1. generate alter
-    grt::StringListRef alter_map(tester.grt);
-    grt::ListRef<GrtNamedObject> alter_object_list(tester.grt);
-    grt::DictRef options(tester.grt);
+    grt::StringListRef alter_map;
+    grt::ListRef<GrtNamedObject> alter_object_list;
+    grt::DictRef options;
     options.set("UseFilteredLists", grt::IntegerRef(0));
     options.set("OutputContainer", alter_map);
     options.set("OutputObjectContainer", alter_object_list);
@@ -1372,11 +1372,11 @@ TEST_FUNCTION(20)
     execute_script(stmt.get(), "CREATE DATABASE IF NOT EXISTS grtdiff_alter_test /*!40100 DEFAULT CHARACTER SET latin1 */",tester.wb->get_grt_manager());
   }
 
-  MySQLParserServices::Ref services = MySQLParserServices::get(tester.grt);
+  MySQLParserServices::Ref services = MySQLParserServices::get;
   ParserContext::Ref context = services->createParserContext(tester.get_rdbms()->characterSets(),
     tester.get_rdbms()->version(), false);
 
-  grt::DictRef options(tester.grt);
+  grt::DictRef options;
   for (int i = 0; data[i].description != NULL; i++)
   {
     std::cout << ".";
@@ -1385,8 +1385,8 @@ TEST_FUNCTION(20)
 
     for (int j = 0; j <= 1; ++j)
     {
-      db_mysql_CatalogRef org_cat = create_empty_catalog_for_import(tester.grt);
-      db_mysql_CatalogRef mod_cat = create_empty_catalog_for_import(tester.grt);
+      db_mysql_CatalogRef org_cat = create_empty_catalog_for_import;
+      db_mysql_CatalogRef mod_cat = create_empty_catalog_for_import;
 
       {
         std::string org_script;
@@ -1420,7 +1420,7 @@ TEST_FUNCTION(20)
       else if (strcmp(data[i].description, "Rename view") == 0)
         mod_cat->schemata().get(0)->views().get(0)->oldName("v1");
 
-      grt::NormalizedComparer normalizer(tester.grt);
+      grt::NormalizedComparer normalizer;
       normalizer.init_omf(&omf);
       grt::ValueRef default_engine = tester.wb->get_grt_manager()->get_app_option("db.mysql.Table:tableEngine");
       std::string default_engine_name;
@@ -1441,8 +1441,8 @@ TEST_FUNCTION(20)
       const char TemplateFile[] = "data/reporting/Basic_Text.tpl/basic_text_report.txt.tpl";
 
       // 1. generate alter
-      grt::StringListRef alter_map(tester.grt);
-      grt::DictRef options(tester.grt);
+      grt::StringListRef alter_map;
+      grt::DictRef options;
       options.set("UseFilteredLists", grt::IntegerRef(0));
       options.set("OutputContainer", alter_map);
       options.set("TemplateFile", grt::StringRef(TemplateFile));
@@ -1550,19 +1550,19 @@ TEST_FUNCTION(30)
     execute_script(stmt.get(), "CREATE DATABASE IF NOT EXISTS grtdiff_alter_test /*!40100 DEFAULT CHARACTER SET latin1 */",tester.wb->get_grt_manager());
   }
 
-  MySQLParserServices::Ref services = MySQLParserServices::get(tester.grt);
+  MySQLParserServices::Ref services = MySQLParserServices::get;
   ParserContext::Ref context = services->createParserContext(tester.get_rdbms()->characterSets(),
     tester.get_rdbms()->version(), false);
 
-  grt::DictRef options(tester.grt);
+  grt::DictRef options;
   for (int i = 0; neg_data[i].description != NULL; i++)
   {
     std::cout << ".";
     if ((i + 1) % 30 == 0)
       std::cout << std::endl;
 
-    db_mysql_CatalogRef org_cat= create_empty_catalog_for_import(tester.grt);
-    db_mysql_CatalogRef mod_cat= create_empty_catalog_for_import(tester.grt);
+    db_mysql_CatalogRef org_cat= create_empty_catalog_for_import;
+    db_mysql_CatalogRef mod_cat= create_empty_catalog_for_import;
 
     {
       std::string org_script;
@@ -1596,7 +1596,7 @@ TEST_FUNCTION(30)
     else if(strcmp(neg_data[i].description, "Rename view") == 0)
       mod_cat->schemata().get(0)->views().get(0)->oldName("v1");
 
-    grt::NormalizedComparer normalizer(tester.grt);
+    grt::NormalizedComparer normalizer;
     normalizer.init_omf(&omf);
     grt::ValueRef default_engine = tester.wb->get_grt_manager()->get_app_option("db.mysql.Table:tableEngine");
     std::string default_engine_name;
@@ -1611,9 +1611,9 @@ TEST_FUNCTION(30)
 
     if (empty_change)
     {
-      grt::StringListRef alter_map(tester.grt);
-      grt::ListRef<GrtNamedObject> alter_object_list(tester.grt);
-      grt::DictRef options(tester.grt);
+      grt::StringListRef alter_map;
+      grt::ListRef<GrtNamedObject> alter_object_list;
+      grt::DictRef options;
       options.set("UseFilteredLists", grt::IntegerRef(0));
       options.set("OutputContainer", alter_map);
       options.set("OutputObjectContainer", alter_object_list);

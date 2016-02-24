@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,13 +29,12 @@ using namespace bec;
 
 BEGIN_TEST_DATA_CLASS(be_shell)
 public:
-  GRT grt;
   GRTManager manager;
   GRTDispatcher::Ref dispatcher;
 
 TEST_DATA_CONSTRUCTOR(be_shell)
 {
-  dispatcher = GRTDispatcher::create_dispatcher(&grt, false, true);
+  dispatcher = GRTDispatcher::create_dispatcher(false, true);
 }
 
 END_TEST_DATA_CLASS;

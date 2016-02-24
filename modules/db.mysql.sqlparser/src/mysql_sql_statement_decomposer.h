@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,8 +18,7 @@
  */
 
 
-#ifndef _MYSQL_SQL_STATEMENT_DECOMPOSER_H_
-#define _MYSQL_SQL_STATEMENT_DECOMPOSER_H_
+#pragma once
 
 
 #include "mysql_sql_parser_base.h"
@@ -37,7 +36,7 @@ public:
   typedef boost::shared_ptr<Mysql_sql_statement_decomposer> Ref;
   static Ref create(grt::DictRef db_opts = grt::DictRef())
   {
-    Ref decomposer(new Mysql_sql_statement_decomposer(grt));
+    Ref decomposer(new Mysql_sql_statement_decomposer);
       decomposer->set_options(db_opts);
       return decomposer;
   }
@@ -76,6 +75,3 @@ protected:
     Mysql_sql_statement_decomposer *_sql_parser;
   };
 };
-
-
-#endif // _MYSQL_SQL_STATEMENT_DECOMPOSER_H_

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -91,7 +91,7 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(int test_no,
 
     if (g_file_test(test_catalog_state_filename.c_str(), G_FILE_TEST_EXISTS)) // Some newer tests are only done for the new parser.
     {
-      db_mysql_CatalogRef res_catalog(_tester.grt);
+      db_mysql_CatalogRef res_catalog;
       res_catalog->version(_tester.get_rdbms()->version());
       res_catalog->defaultCharacterSetName("utf8");
       res_catalog->defaultCollationName("utf8_general_ci");
@@ -104,10 +104,10 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(int test_no,
         _sqlFacade->renameSchemaReferences(res_catalog, old_schema_name, new_schema_name);
 
       // Serialize the catalog to file (not necessary for this test, but for manual checks).
-      _tester.grt::GRT::get().serialize(res_catalog, res_catalog_state_filename);
+      grt::GRT::get().serialize(res_catalog, res_catalog_state_filename);
 
       // Unserialize the result so we can compare that with the generated catalog.
-      db_CatalogRef test_catalog = db_mysql_CatalogRef::cast_from(ValueRef(_tester.grt::GRT::get().unserialize(test_catalog_state_filename)));
+      db_CatalogRef test_catalog = db_mysql_CatalogRef::cast_from(ValueRef(grt::GRT::get().unserialize(test_catalog_state_filename)));
 
       // Before comparing set the simple data types list to that of the rdbms. Its not part of the
       // parsing process we test here. The test data additionally doesn't contain full lists,
@@ -125,7 +125,7 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(int test_no,
     std::string test_catalog_state_filename = TEST_DATA_DIR + number_string + "a.xml";
     std::string res_catalog_state_filename = TEST_DATA_DIR + number_string + "a_res.xml";
 
-    db_mysql_CatalogRef res_catalog(_tester.grt);
+    db_mysql_CatalogRef res_catalog;
     res_catalog->version(_tester.get_rdbms()->version());
     res_catalog->defaultCharacterSetName("utf8");
     res_catalog->defaultCollationName("utf8_general_ci");
@@ -140,10 +140,10 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(int test_no,
       _services->renameSchemaReferences(_context, res_catalog, old_schema_name, new_schema_name);
 
     // Serialize the catalog to file (not necessary for this test, but for manual checks).
-    _tester.grt::GRT::get().serialize(res_catalog, res_catalog_state_filename);
+    grt::GRT::get().serialize(res_catalog, res_catalog_state_filename);
 
     // Unserialize the result so we can compare that with the generated catalog.
-    db_CatalogRef test_catalog = db_mysql_CatalogRef::cast_from(ValueRef(_tester.grt::GRT::get().unserialize(test_catalog_state_filename)));
+    db_CatalogRef test_catalog = db_mysql_CatalogRef::cast_from(ValueRef(grt::GRT::get().unserialize(test_catalog_state_filename)));
     grt::replace_contents(test_catalog->simpleDatatypes(), _tester.get_rdbms()->simpleDatatypes());
 
     grt_ensure_equals(test_message.c_str(), res_catalog, test_catalog);

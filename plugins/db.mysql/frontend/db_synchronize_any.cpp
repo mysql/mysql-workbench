@@ -1,5 +1,5 @@
 /* 
-* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -199,7 +199,7 @@ public:
   bool do_export()
   {
     _dbplugin->sql_script(values().get_string("script"));
-    execute_grt_task(boost::bind(&Db_plugin::apply_script_to_db, _dbplugin, _1), false);
+    execute_grt_task(boost::bind(&Db_plugin::apply_script_to_db, _dbplugin), false);
 
     return true;
   }

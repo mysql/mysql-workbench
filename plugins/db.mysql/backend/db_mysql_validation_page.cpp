@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,7 +52,7 @@ void DbMySQLValidationPage::run_validation()
 {
   bec::GRTTask::Ref task = bec::GRTTask::create_task("Catalog validation", 
     _manager->get_dispatcher(), 
-    boost::bind(&DbMySQLSQLExport::validation_task, this, _1, grt::StringRef()));
+    boost::bind(&DbMySQLSQLExport::validation_task, this, grt::StringRef()));
 
   scoped_connect(task->signal_message(),boost::bind(&DbMySQLSQLExport::validation_message, this, _1));
   scoped_connect(task->signal_finished(),boost::bind(&DbMySQLSQLExport::validation_finished, this, _1));

@@ -36,8 +36,6 @@ void Db_plugin::grtm(bec::GRTManager *grtm, bool reveng)
 
   if (_grtm)
   {
-    = _grtm->get_grt();
-
     _doc= workbench_DocumentRef::cast_from(grt::GRT::get().get("/wb/doc"));
 
     db_mgmt_ManagementRef mgmt= workbench_WorkbenchRef::cast_from(_doc->owner())->rdbmsMgmt();
@@ -50,7 +48,7 @@ void Db_plugin::grtm(bec::GRTManager *grtm, bool reveng)
     _triggers.icon_id(trigger_icon_id(bec::Icon16));
     _users.icon_id(user_icon_id(bec::Icon16));
 
-    _catalog= db_CatalogRef;
+    _catalog= db_CatalogRef();
   }
 }
 
@@ -510,7 +508,7 @@ db_CatalogRef Db_plugin::db_catalog()
   catalog->oldName(catalog->name());
 
   SqlFacade::Ref sql_parser= SqlFacade::instance_for_rdbms(pm->rdbms());
-  grt::DictRef parse_options(_grtm->get_grt());
+  grt::DictRef parse_options;
   parse_options.set("case_sensitive_identifiers", _db_options.get("CaseSensitive", grt::IntegerRef(1)));
   sql_parser->parseSqlScriptStringEx(catalog, sql_input_script, parse_options);
 
@@ -520,7 +518,7 @@ db_CatalogRef Db_plugin::db_catalog()
 
 void Db_plugin::set_task_proc()
 {
-  _task_proc_cb= boost::bind(&Db_plugin::apply_script_to_db, this, _1);
+  _task_proc_cb= boost::bind(&Db_plugin::apply_script_to_db, this);
 }
 
 

@@ -1,5 +1,5 @@
 ﻿/* 
- * Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,7 +35,7 @@ protected:
 
   TEST_DATA_CONSTRUCTOR(mysql_parser_module_tests)
   {
-    populate_grt(_tester.grt, _tester);
+    populate_grt(_tester);
 
     _services = MySQLParserServices::get(_tester.grt);
     GrtVersionRef version(_tester.grt);
@@ -80,7 +80,7 @@ TEST_FUNCTION(5)
 TEST_FUNCTION(95)
 {
   // ----- Grant statements.
-  grt::DictRef result = _services->parseStatement(_context, _tester.grt, "grant all privileges on table a to current_user");
+  grt::DictRef result = _services->parseStatement(_context, "grant all privileges on table a to current_user");
   grt::StringListRef privileges = grt::StringListRef::cast_from(result["privileges"]);
   ensure("95.1", privileges.is_valid());
   ensure("95.2", privileges.get_index("all privileges") == 0);
@@ -93,7 +93,7 @@ TEST_FUNCTION(95)
   ensure("95.6", user.has_key("user"));
   ensure_equals("95.7", *grt::StringRef::cast_from(user["user"]), "current_user");
 
-  result = _services->parseStatement(_context, _tester.grt, "grant all privileges on table *.* to CURRENT_USER() identified by password 'blah'");
+  result = _services->parseStatement(_context, "grant all privileges on table *.* to CURRENT_USER() identified by password 'blah'");
   privileges = grt::StringListRef::cast_from(result["privileges"]);
   ensure("95.8", privileges.is_valid());
   ensure_equals("95.9", *grt::StringRef::cast_from(privileges[0]), "all privileges");
@@ -106,7 +106,7 @@ TEST_FUNCTION(95)
   ensure_equals("95.13", *grt::StringRef::cast_from(user["id_method"]), "PASSWORD");
   ensure_equals("95.14", *grt::StringRef::cast_from(user["id_string"]), "blah");
 
-  result = _services->parseStatement(_context, _tester.grt, "grant all privileges on x.* to mike identified with 'blah' by 'blubb'");
+  result = _services->parseStatement(_context, "grant all privileges on x.* to mike identified with 'blah' by 'blubb'");
   privileges = grt::StringListRef::cast_from(result["privileges"]);
   ensure("95.15", privileges.is_valid());
   ensure_equals("95.16", *grt::StringRef::cast_from(privileges[0]), "all privileges");
@@ -120,7 +120,7 @@ TEST_FUNCTION(95)
   ensure_equals("95.21", *grt::StringRef::cast_from(user["id_method"]), "blah");
   ensure_equals("95.22", *grt::StringRef::cast_from(user["id_string"]), "blubb");
 
-  result = _services->parseStatement(_context, _tester.grt, "grant all privileges on function x.y to mike\t@\nhome");
+  result = _services->parseStatement(_context, "grant all privileges on function x.y to mike\t@\nhome");
   privileges = grt::StringListRef::cast_from(result["privileges"]);
   ensure("95.23", privileges.is_valid());
   ensure_equals("95.24", *grt::StringRef::cast_from(privileges[0]), "all privileges");
@@ -135,7 +135,7 @@ TEST_FUNCTION(95)
   ensure("95.30", !user["id_string"].is_valid());
   ensure_equals("95.31", *grt::StringRef::cast_from(user["host"]), "home");
 
-  result = _services->parseStatement(_context, _tester.grt, "grant select on pizza to me require X509 with grant option");
+  result = _services->parseStatement(_context, "grant select on pizza to me require X509 with grant option");
   privileges = grt::StringListRef::cast_from(result["privileges"]);
   ensure("95.32", privileges.is_valid());
   ensure_equals("95.33", *grt::StringRef::cast_from(privileges[0]), "select");
@@ -159,7 +159,7 @@ TEST_FUNCTION(95)
     L"mike@home require cipher 'abc' and cipher 'xyz' issuer 'a' subject 'b' and issuer '⌚️' with "
     L"grant option max_queries_per_hour 1 max_updates_per_hour 2 max_connections_per_hour 3 "
     L"max_user_connections 4 max_queries_per_hour 111 max_queries_per_hour 111 max_queries_per_hour 222");
-  result = _services->parseStatement(_context, _tester.grt, sql);
+  result = _services->parseStatement(_context, sql);
   privileges = grt::StringListRef::cast_from(result["privileges"]);
   ensure("95.39", privileges.is_valid());
   ensure_equals("95.40", *grt::StringRef::cast_from(privileges[0]), "insert (a)");

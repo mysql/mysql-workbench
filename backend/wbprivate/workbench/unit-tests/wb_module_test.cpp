@@ -1,5 +1,5 @@
 /*
- * Copyright(c) 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright(c) 2015, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,7 +47,7 @@ TEST_FUNCTION(5) // test WorkbenchImpl::isOsSupported()
 
   // proxy function for a module call
   grt::Module* module = grt::GRT::get().get_module("Workbench");
-  auto isOsSupportedProxy = [grt,module](const char* os) -> bool
+  auto isOsSupportedProxy = [module](const char* os) -> bool
   {
     grt::StringListRef arguments;
     arguments.ginsert(grt::StringRef(std::string(os)));

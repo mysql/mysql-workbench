@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -102,7 +102,7 @@ protected:
   grt::DbObjectMatchAlterOmf omf;
 
   db_mysql_CatalogRef create_catalog_from_script(const std::string& sql);
-  db_mysql_CatalogRef create_catalog_from_script(const std::string& sql, );
+  db_mysql_CatalogRef create_catalog_from_script(const std::string& sql);
 
   std::string run_sync_plugin_generate_script(
     const std::vector<std::string>&,
@@ -123,14 +123,14 @@ protected:
   TEST_DATA_CONSTRUCTOR(model_diff_apply)
   {
   // init datatypes
-  populate_grt(tester.grt, tester);
+  populate_grttester);
 
   omf.dontdiff_mask = 3;
 
   // init database connection
   connection= tester.create_connection_for_import();
 
-  sql_parser= SqlFacade::instance_for_rdbms_name(tester.grt, "Mysql");
+  sql_parser= SqlFacade::instance_for_rdbms_name"Mysql");
   ensure("failed to get sqlparser module", (NULL != sql_parser));
   }
 
@@ -145,9 +145,9 @@ db_mysql_CatalogRef tut::Test_object_base<model_diff_apply>::create_catalog_from
 }
 
 db_mysql_CatalogRef tut::Test_object_base<model_diff_apply>::create_catalog_from_script(
-  const std::string& sql, )
+  const std::string& sql)
 {
-  db_mysql_CatalogRef cat= create_empty_catalog_for_import(tester.grt);
+  db_mysql_CatalogRef cat= create_empty_catalog_for_import();
   sql_parser->parseSqlScriptString(cat, sql);
   return cat;
 }
@@ -178,7 +178,7 @@ std::string tut::Test_object_base<model_diff_apply>::run_fwdeng_plugin_generate_
                                                                                            DbMySQLSQLExportTest *plugin)
 {
   fwdeng_plugin.reset(plugin);
-  ValueRef retval= fwdeng_plugin->export_task(cat.get_grt(), grt::StringRef());
+  ValueRef retval= fwdeng_plugin->export_task(grt::StringRef());
   return fwdeng_plugin->export_sql_script();
 }
 
@@ -220,7 +220,7 @@ void tut::Test_object_base<model_diff_apply>::apply_sql_to_model(const std::stri
   DbMySQLSQLExportTest *plugin= new DbMySQLSQLExportTest(
     tester.wb->get_grt_manager(), mod_cat);
   
-  grt::DictRef options(tester.grt);
+  grt::DictRef options;
   options.set("UseFilteredLists", grt::IntegerRef(0));
   plugin->set_options_as_dict(options);
 

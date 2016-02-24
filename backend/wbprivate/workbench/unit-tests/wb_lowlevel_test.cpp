@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -92,7 +92,7 @@ TEST_FUNCTION(10)
   // check if creating a fk between 2 tables will create the connection
 
   WBTester tester;
-  populate_grt(tester.grt, tester);
+  populate_grt(tester);
 
   tester.wb->new_document();
   tester.add_view();
@@ -103,38 +103,38 @@ TEST_FUNCTION(10)
   ensure_equals("figure created", tester.get_pview()->figures().count(), 2U);
   ensure_equals("connections", tester.get_pview()->connections().count(), 0U);
 
-  db_mysql_ColumnRef column(tester.grt);
+  db_mysql_ColumnRef column;
   column->owner(table1);
   column->name("id1");
   column->setParseType("int", tester.get_rdbms()->simpleDatatypes());
   //bec::ColumnHelper::parse_column_type(tester.get_rdbms(), tester.get_catalog()->userDatatypes(), "int", column);
   table1->columns().insert(column);
 
-  column= db_mysql_ColumnRef(tester.grt);
+  column= db_mysql_ColumnRef();
   column->owner(table1);
   column->name("col1");
   column->setParseType("varchar(100)", tester.get_rdbms()->simpleDatatypes());
 //  bec::ColumnHelper::parse_column_type(tester.get_rdbms(), tester.get_catalog()->userDatatypes(), "varchar(100)", column);
   table1->columns().insert(column);
   table1->addPrimaryKeyColumn(column);
-  //bec::TableHelper::make_primary_key(tester.grt, table1, column, true);
+  //bec::TableHelper::make_primary_key(table1, column, true);
 
 
-  column= db_mysql_ColumnRef(tester.grt);
+  column= db_mysql_ColumnRef();
   column->owner(table2);
   column->name("id2");
   column->setParseType("int", tester.get_rdbms()->simpleDatatypes());
   //bec::ColumnHelper::parse_column_type(tester.get_rdbms(), tester.get_catalog()->userDatatypes(), "int", column);
   table2->columns().insert(column);
 
-  column= db_mysql_ColumnRef(tester.grt);
+  column= db_mysql_ColumnRef();
   column->owner(table2);
   column->name("col2");
   column->setParseType("varchar(100)", tester.get_rdbms()->simpleDatatypes());
   //bec::ColumnHelper::parse_column_type(tester.get_rdbms(), tester.get_catalog()->userDatatypes(), "varchar(100)", column);
   table2->columns().insert(column);
   table2->addPrimaryKeyColumn(column);
-  //bec::TableHelper::make_primary_key(tester.grt, table2, column, true);
+  //bec::TableHelper::make_primary_key(table2, column, true);
 
   bec::TableHelper::create_foreign_key_to_table(table1, table2, true, true, true, true,
     tester.get_rdbms(), grt::DictRef(tester.grt), grt::DictRef(tester.grt));
@@ -154,7 +154,7 @@ TEST_FUNCTION(15)
 {
   // bug: check if creating a recursive fk will create the connection
   WBTester tester;
-  populate_grt(tester.grt, tester);
+  populate_grt(tester);
 
   tester.wb->new_document();
   tester.add_view();
@@ -164,18 +164,18 @@ TEST_FUNCTION(15)
   ensure_equals("figure created", tester.get_pview()->figures().count(), 1U);
   ensure_equals("connections", tester.get_pview()->connections().count(), 0U);
 
-  db_mysql_ColumnRef column(tester.grt);
+  db_mysql_ColumnRef column;
   column->owner(table);
   column->name("id");
   table->columns().insert(column);
 
-  column= db_mysql_ColumnRef(tester.grt);
+  column= db_mysql_ColumnRef();
   column->owner(table);
   column->name("col2");
   table->columns().insert(column);
 
   table->addPrimaryKeyColumn(column);
-  //bec::TableHelper::make_primary_key(tester.grt, table, column, true);
+  //bec::TableHelper::make_primary_key(table, column, true);
 
   bec::TableHelper::create_foreign_key_to_table(table, table, true, true, true, true,
     tester.get_rdbms(), grt::DictRef(tester.grt), grt::DictRef(tester.grt));
@@ -196,7 +196,7 @@ TEST_FUNCTION(20)
   // test check_plugin_input_available from WBContext
   WBTester tester;
   WBContext *wb= tester.wb;
-  app_PluginObjectInputRef pdef(tester.grt);
+  app_PluginObjectInputRef pdef;
 
   wb->new_document();
 
@@ -300,7 +300,7 @@ TEST_FUNCTION(25)
   // bug: check if deleting an object with privileges will delete the privs too
   
   WBTester tester;
-  populate_grt(tester.grt, tester);
+  populate_grt(tester);
 
   tester.create_new_document();
 
@@ -323,7 +323,7 @@ TEST_FUNCTION(25)
   
   db_TableRef table2(schema->tables().get(1));
   
-  db_RolePrivilegeRef priv(tester.grt);
+  db_RolePrivilegeRef priv;
 
   priv->databaseObject(table);
   priv->databaseObjectType(table.class_name());
@@ -333,7 +333,7 @@ TEST_FUNCTION(25)
 
   role->privileges().insert(priv);
 
-  db_RolePrivilegeRef priv2(tester.grt);
+  db_RolePrivilegeRef priv2;
 
   priv2->databaseObject(table2);
   priv2->databaseObjectType(table.class_name());
@@ -359,7 +359,7 @@ TEST_FUNCTION(25)
 TEST_FUNCTION(30)
 {
   WBTester tester;
-  populate_grt(tester.grt, tester);
+  populate_grt(tester);
 
   tester.create_new_document();
 
@@ -386,7 +386,7 @@ TEST_FUNCTION(30)
   tester.flush_until(2);
   ensure_equals("check table", tester.get_pview()->figures().count(), 1U);
 
-  tester.grt::GRT::get().get_undo_manager()->undo();
+  grt::GRT::get().get_undo_manager()->undo();
 
   ensure_equals("check table gone", tester.get_pview()->figures().count(), 0U);
 }

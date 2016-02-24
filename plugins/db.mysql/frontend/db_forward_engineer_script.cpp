@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -415,7 +415,7 @@ public:
       save_text_to(path);
       
       _form->grtm()->push_status_text(base::strfmt(_("Wrote CREATE Script to '%s'"), path.c_str()));
-      _form->grtm()->get_grt()->send_info(base::strfmt(_("Wrote CREATE Script to '%s'"), path.c_str()));
+      grt::GRT::get().send_info(base::strfmt(_("Wrote CREATE Script to '%s'"), path.c_str()));
     }
     return true;
   }

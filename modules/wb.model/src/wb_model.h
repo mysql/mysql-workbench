@@ -1,24 +1,23 @@
 /*
-* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
-*
-* This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License as
-* published by the Free Software Foundation; version 2 of the
-* License.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-* 02110-1301  USA
-*/
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
 
-#ifndef _WB_MODEL_H_
-#define _WB_MODEL_H_
+#pragma once
 
 #include "wb_model_public_interface.h"
 
@@ -92,11 +91,7 @@ private:
   int autoplace_relations(const model_DiagramRef &view, const grt::ListRef<db_Table> &tables);
   void handle_fklist_change(const model_DiagramRef &view, const db_TableRef &table, const db_ForeignKeyRef &fk, bool added);
 
-  workbench_model_reporting_TemplateStyleInfoRef get_template_style_from_name(
-    , std::string template_name, std::string template_style_name);
+  workbench_model_reporting_TemplateStyleInfoRef get_template_style_from_name(std::string template_name, std::string template_style_name);
   
   grt::UndoManager *_undo_man;
 };
-
-
-#endif // _WB_MODEL_H_

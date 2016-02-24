@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,9 +19,9 @@
 
 // GRT support
 
-#include <grtpp.h>
-#include <python_context.h>
-#include <grts/structs.ui.h>
+#include "grtpp.h"
+#include "python_context.h"
+#include "grts/structs.ui.h"
 #include "mforms/dockingpoint.h"
 
 #include "objimpl/wrapper/mforms_ObjectReference_impl.h"
@@ -64,7 +64,7 @@ PyObject *togrt(mforms::Object *object, const std::string &mforms_type_name) //t
     if (!SWIG_TypeQuery(std::string("mforms::"+mforms_type_name+" *").c_str()))
       throw std::invalid_argument(mforms_type_name+" is not a valid mforms class name");
     
-    return ctx->from_grt(mforms_to_grt(ctx->get_grt(), object, mforms_type_name));
+    return ctx->from_grt(mforms_to_grt(object, mforms_type_name));
   }
   else
     Py_RETURN_NONE;

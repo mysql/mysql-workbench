@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,7 +28,6 @@ using namespace wb;
 
 BEGIN_TEST_DATA_CLASS(autocompletion_cache_test)
 public:
-  GRT _grt;
   base::RecMutex _connection_mutex;
   sql::Dbc_connection_handler::Ref _conn;
   AutoCompleteCache *_cache;

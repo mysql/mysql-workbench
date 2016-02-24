@@ -1,5 +1,5 @@
 /* 
-* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
 * 02110-1301  USA
 */
 
-#ifndef _FETCH_SCHEMA_NAMES_PAGE_H_
-#define _FETCH_SCHEMA_NAMES_PAGE_H_
+#pragma once
 
 #include "grtui/wizard_progress_page.h"
 
@@ -69,7 +68,7 @@ protected:
   {
     db_mgmt_ConnectionRef conn = _dbconn->get_connection();
 
-    execute_grt_task(boost::bind(&FetchSchemaNamesProgressPage::do_connect, this, _1), false);
+    execute_grt_task(boost::bind(&FetchSchemaNamesProgressPage::do_connect, this), false);
 
     return true;
   }
@@ -85,7 +84,7 @@ protected:
 
   bool perform_fetch()
   {
-    execute_grt_task(boost::bind(&FetchSchemaNamesProgressPage::do_fetch, this, _1),
+    execute_grt_task(boost::bind(&FetchSchemaNamesProgressPage::do_fetch, this),
                      false);
     return true;
   }
@@ -114,7 +113,7 @@ protected:
 
   bool perform_check_case()
   {
-    execute_grt_task(boost::bind(&FetchSchemaNamesProgressPage::do_check_case, this, _1), false);
+    execute_grt_task(boost::bind(&FetchSchemaNamesProgressPage::do_check_case, this), false);
     return true;
   }
 
@@ -156,4 +155,3 @@ private:
   bool _finished;
 };
 
-#endif // _FETCH_SCHEMA_NAMES_PAGE_H_

@@ -65,7 +65,7 @@ void SqlEditorWrapper::set_result_docking_delegate(ManagedDockDelegate ^theDeleg
   // managed delegate.
   _result_docking_point = mforms::manage(new mforms::DockingPoint(theDelegate->get_unmanaged_delegate(), false));
   db_query_QueryEditorRef qeditor(db_query_QueryEditorRef::cast_from((*_ref)->grtobj()));
-  qeditor->resultDockingPoint(mforms_to_grt(qeditor->get_grt(), _result_docking_point,
+  qeditor->resultDockingPoint(mforms_to_grt(_result_docking_point,
     "DockingPoint"));
 }
 
