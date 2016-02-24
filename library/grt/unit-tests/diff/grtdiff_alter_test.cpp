@@ -53,17 +53,17 @@ protected:
       ensure("DiffSQLGen module initialization", NULL != diffsql_module);
 
       // init datatypes
-      populate_grttester);
+      populate_grt(tester);
 
       std::string target_version = tester.wb->get_grt_manager()->get_app_option_string("DefaultTargetMySQLVersion");
       if (target_version.empty())
         target_version = "5.5";
-      tester.get_rdbms()->version(parse_versiontarget_version));
+      tester.get_rdbms()->version(parse_version(target_version));
 
       // init database connection
       connection= tester.create_connection_for_import();
 
-      sql_parser= SqlFacade::instance_for_rdbms_name"Mysql");
+      sql_parser= SqlFacade::instance_for_rdbms_name("Mysql");
       ensure("failed to get sqlparser module", (NULL != sql_parser));
   }
 

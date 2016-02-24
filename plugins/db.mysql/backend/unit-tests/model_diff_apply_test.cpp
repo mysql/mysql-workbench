@@ -123,14 +123,14 @@ protected:
   TEST_DATA_CONSTRUCTOR(model_diff_apply)
   {
   // init datatypes
-  populate_grttester);
+  populate_grt(tester);
 
   omf.dontdiff_mask = 3;
 
   // init database connection
   connection= tester.create_connection_for_import();
 
-  sql_parser= SqlFacade::instance_for_rdbms_name"Mysql");
+  sql_parser= SqlFacade::instance_for_rdbms_name("Mysql");
   ensure("failed to get sqlparser module", (NULL != sql_parser));
   }
 
@@ -138,11 +138,6 @@ END_TEST_DATA_CLASS
 
 TEST_MODULE(model_diff_apply, "db.mysql plugin test");
 
-db_mysql_CatalogRef tut::Test_object_base<model_diff_apply>::create_catalog_from_script(
-  const std::string& sql)
-{
-  return create_catalog_from_script(sql, tester.grt);
-}
 
 db_mysql_CatalogRef tut::Test_object_base<model_diff_apply>::create_catalog_from_script(
   const std::string& sql)
