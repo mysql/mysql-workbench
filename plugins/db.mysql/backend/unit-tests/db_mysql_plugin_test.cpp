@@ -126,7 +126,7 @@ protected:
 TEST_DATA_CONSTRUCTOR(db_mysql_plugin_test)
 {
   // init datatypes
-  populate_grttester);
+  populate_grt(tester);
 
   omf.dontdiff_mask = 3;
 
@@ -138,7 +138,7 @@ TEST_DATA_CONSTRUCTOR(db_mysql_plugin_test)
   std::string target_version = tester.wb->get_grt_manager()->get_app_option_string("DefaultTargetMySQLVersion");
   if (target_version.empty())
     target_version = "5.5";
-  tester.get_rdbms()->version(parse_versiontarget_version));
+  tester.get_rdbms()->version(parse_version(target_version));
 }
 
 END_TEST_DATA_CLASS

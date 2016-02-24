@@ -34,7 +34,7 @@ public:
 
 TEST_DATA_CONSTRUCTOR(wb_copy_paste)
 {
-  populate_grttester);
+  populate_grt(tester);
 }
 
 END_TEST_DATA_CLASS;
