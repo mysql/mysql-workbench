@@ -979,7 +979,6 @@ bec::MenuItemList GRTManager::get_plugin_context_menu_items(const std::list<std:
 }
 
 //--------------------------------------------------------------------------------------------------
-
 bool GRTManager::check_plugin_runnable(const app_PluginRef &plugin, const bec::ArgumentPool &argpool,
                                        bool debug_output)
 {
@@ -996,7 +995,10 @@ bool GRTManager::check_plugin_runnable(const app_PluginRef &plugin, const bec::A
         grt::GRT::get().send_output(base::strfmt("Debug: Plugin %s cannot execute because argument %s is not available\n",
                                        plugin->name().c_str(), searched_key.c_str()));
         grt::GRT::get().send_output("Debug: Available arguments:\n");
-        argpool.dump_keys(boost::bind(&grt::GRT::send_output, _1, (void*)0));
+
+        argpool.dump_keys(boost::bind<void>([](const std::string &str) {
+          grt::GRT::get().send_output(str);
+        }, _1));
       }
       return false;
     }
