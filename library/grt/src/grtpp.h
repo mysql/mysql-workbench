@@ -1240,15 +1240,12 @@ namespace grt {
     typedef TypedListConstReverseIterator<O> const_reverse_iterator;
     typedef Ref<O> value_type;
 
-    
-    ListRef() {}
-
-    ListRef(bool allow_null)
+    ListRef(bool allow_null = true)
       : BaseListRef(ObjectType, O::static_class_name(), 0, allow_null)
     {
     }
 
-    ListRef(internal::Object *owner, bool allow_null)
+    ListRef(internal::Object *owner, bool allow_null = true)
       : BaseListRef(ObjectType, O::static_class_name(), owner, allow_null)
     {
     }
@@ -1651,7 +1648,7 @@ namespace grt {
     typedef internal::Dict::const_iterator const_iterator;
 
   public:
-    DictRef(bool allow_null = false)
+    DictRef(bool allow_null = true)
       : ValueRef(new internal::Dict(allow_null))
     {
     }
