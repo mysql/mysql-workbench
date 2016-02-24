@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,9 +40,8 @@ TEST_MODULE(module_dbc_connection_test, "DBC: connection tests");
 TEST_FUNCTION(1)
 {
   grtm= wbt.wb->get_grt_manager();
-  grt= grtm->get_grt();
 
-  connectionProperties= db_mgmt_ConnectionRef;
+  connectionProperties= db_mgmt_ConnectionRef();
   setup_env(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();

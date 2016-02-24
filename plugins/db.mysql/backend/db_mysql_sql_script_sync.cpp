@@ -320,7 +320,7 @@ void DbMySQLScriptSync::start_sync()
 {
   bec::GRTTask::Ref task = bec::GRTTask::create_task("SQL sync", 
     _manager->get_dispatcher(), 
-    boost::bind(&DbMySQLScriptSync::sync_task, this, _1, grt::StringRef()));
+    boost::bind(&DbMySQLScriptSync::sync_task, this, grt::StringRef()));
 
   scoped_connect(task->signal_finished(),boost::bind(&DbMySQLScriptSync::sync_finished, this, _1));
   _manager->get_dispatcher()->add_task(task);
@@ -572,7 +572,7 @@ boost::shared_ptr<DiffTreeBE> DbMySQLScriptSync::init_diff_tree(const std::vecto
   }
 
   {
-    SqlFacade* parser = SqlFacade::instance_for_rdbms_name(_mod_cat_copy.get_grt(), "Mysql");
+    SqlFacade* parser = SqlFacade::instance_for_rdbms_name("Mysql");
     // if the target schema does not have the same name as the original, make sure that the
     // target objects have references to the old schema name fixed in all code objects (triggers, views, SPs, functions)
     for (size_t i= 0; i < _mod_cat_copy->schemata().count(); i++)
@@ -628,7 +628,7 @@ boost::shared_ptr<DiffTreeBE> DbMySQLScriptSync::init_diff_tree(const std::vecto
   else
     db_opts.set("SkipRoutineDefiner", grt::IntegerRef(0));
 
-  grt::NormalizedComparer comparer(_manager->get_grt(), db_opts);
+  grt::NormalizedComparer comparer(db_opts);
   comparer.init_omf(&omf);
   _alter_change= diff_make(_org_cat, _mod_cat_copy, &omf);
 
@@ -728,11 +728,11 @@ std::string DbMySQLScriptSync::generate_diff_tree_script()
   merge_contents(options, get_options(), true);
 
   options.set("DBSettings", get_db_options());
-  options.set("SchemaFilterList", convert_string_vector_to_grt_list(_manager->get_grt(), schemata));
-  options.set("TableFilterList", convert_string_vector_to_grt_list(_manager->get_grt(), tables));
-  options.set("ViewFilterList", convert_string_vector_to_grt_list(_manager->get_grt(), views));
-  options.set("RoutineFilterList", convert_string_vector_to_grt_list(_manager->get_grt(), routines));
-  options.set("TriggerFilterList", convert_string_vector_to_grt_list(_manager->get_grt(), triggers));
+  options.set("SchemaFilterList", convert_string_vector_to_grt_list(schemata));
+  options.set("TableFilterList", convert_string_vector_to_grt_list(tables));
+  options.set("ViewFilterList", convert_string_vector_to_grt_list(views));
+  options.set("RoutineFilterList", convert_string_vector_to_grt_list(routines));
+  options.set("TriggerFilterList", convert_string_vector_to_grt_list(triggers));
 
   options.set("KeepOrder", grt::IntegerRef(1));
   options.set("SQL_MODE", _manager->get_app_option("SqlGenerator.Mysql:SQL_MODE"));
@@ -813,11 +813,11 @@ std::string DbMySQLScriptSync::generate_diff_tree_report()
   }
 
   grt::DictRef options;
-  options.set("SchemaFilterList", convert_string_vector_to_grt_list(_manager->get_grt(), schemata));
-  options.set("TableFilterList", convert_string_vector_to_grt_list(_manager->get_grt(), tables));
-  options.set("ViewFilterList", convert_string_vector_to_grt_list(_manager->get_grt(), views));
-  options.set("RoutineFilterList", convert_string_vector_to_grt_list(_manager->get_grt(), routines));
-  options.set("TriggerFilterList", convert_string_vector_to_grt_list(_manager->get_grt(), triggers));
+  options.set("SchemaFilterList", convert_string_vector_to_grt_list(schemata));
+  options.set("TableFilterList", convert_string_vector_to_grt_list(tables));
+  options.set("ViewFilterList", convert_string_vector_to_grt_list(views));
+  options.set("RoutineFilterList", convert_string_vector_to_grt_list(routines));
+  options.set("TriggerFilterList", convert_string_vector_to_grt_list(triggers));
   options.set("TemplateFile", 
     grt::StringRef(_manager->get_data_file_path("modules/data/db_mysql_catalog_reporting/Basic_Text.tpl/basic_text_report.txt.tpl").c_str()));
 
@@ -1201,7 +1201,7 @@ public:
           {
             log_error("FK %s from table %s is invalid and has no referencedTable set\n",
                       fk->name().c_str(), table->name().c_str());
-            cat->get_grt()->send_error(base::strfmt("ForeignKey %s from table %s is invalid and has no referencedTable set",
+            grt::GRT::get().send_error(base::strfmt("ForeignKey %s from table %s is invalid and has no referencedTable set",
                                                     fk->name().c_str(), table->name().c_str()));
             continue;
           }

@@ -57,7 +57,7 @@ parser_ContextReferenceRef MySQLParserServicesImpl::createParserContext(GrtChara
 {
   ParserContext::Ref context = MySQLParserServices::createParserContext(charsets, version, case_sensitive != 0);
   context->use_sql_mode(sql_mode);
-  return parser_context_to_grt(version.get_grt(), context);
+  return parser_context_to_grt(context);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -492,7 +492,7 @@ static db_mysql_SchemaRef ensureSchemaExists(db_CatalogRef catalog, const std::s
   db_SchemaRef result = find_named_object_in_list(catalog->schemata(), name, caseSensitive);
   if (!result.is_valid())
   {
-    result = db_mysql_SchemaRef(catalog->get_grt());
+    result = db_mysql_SchemaRef();
     result->createDate(base::fmttime(0, DATETIME_FMT));
     result->lastChangeDate(result->createDate());
     result->owner(catalog);
@@ -862,7 +862,7 @@ static void getPartitionDefinition(MySQLRecognizerTreeWalker &walker, db_mysql_P
     walker.next();
     while (true)
     {
-      db_mysql_PartitionDefinitionRef subdefinition(definition->get_grt());
+      db_mysql_PartitionDefinitionRef subdefinition;
       getPartitionDefinition(walker, subdefinition);
       definition->subpartitionDefinitions().insert(subdefinition);
       if (!walker.is(COMMA_SYMBOL))
@@ -956,7 +956,7 @@ static void fillTablePartitioning(MySQLRecognizerTreeWalker &walker, db_mysql_Ta
     walker.next();
     while (true)
     {
-      db_mysql_PartitionDefinitionRef definition(table->get_grt());
+      db_mysql_PartitionDefinitionRef definition;
       definition->owner(table);
       getPartitionDefinition(walker, definition);
       table->partitionDefinitions().insert(definition);
@@ -988,7 +988,7 @@ static void fillIndexColumns(MySQLRecognizerTreeWalker &walker, db_TableRef &tab
   walker.next(); // Opening parenthesis.
   while (true)
   {
-    db_mysql_IndexColumnRef column(index->get_grt());
+    db_mysql_IndexColumnRef column;
     column->owner(index);
     index->columns().insert(column);
 
@@ -1416,12 +1416,12 @@ static void fillDataTypeAndAttributes(MySQLRecognizerTreeWalker &walker, db_Cata
         }
 
         // Add new unique index for that column.
-        db_mysql_IndexRef index(table.get_grt());
+        db_mysql_IndexRef index;
         index->owner(table);
         index->unique(1);
         index->indexType("UNIQUE");
 
-        db_mysql_IndexColumnRef index_column(table.get_grt());
+        db_mysql_IndexColumnRef index_column;
         index_column->owner(index);
         index_column->referencedColumn(column);
 
@@ -1437,7 +1437,7 @@ static void fillDataTypeAndAttributes(MySQLRecognizerTreeWalker &walker, db_Cata
       case KEY_SYMBOL:
       {
         walker.next();
-        db_mysql_IndexRef index(table.get_grt());
+        db_mysql_IndexRef index;
         index->owner(table);
 
         index->isPrimary(1);
@@ -1446,7 +1446,7 @@ static void fillDataTypeAndAttributes(MySQLRecognizerTreeWalker &walker, db_Cata
         index->name("PRIMARY");
         index->oldName("PRIMARY");
 
-        db_mysql_IndexColumnRef indexColumn(table.get_grt());
+        db_mysql_IndexColumnRef indexColumn;
         indexColumn->owner(index);
         indexColumn->referencedColumn(column);
 
@@ -1611,7 +1611,7 @@ static void fillRefIndexDetails(MySQLRecognizerTreeWalker &walker, std::string &
 
   while (true)
   {
-    db_mysql_IndexColumnRef indexColumn(table.get_grt());
+    db_mysql_IndexColumnRef indexColumn;
     indexColumn->owner(index);
     indexColumn->name(getIdentifier(walker).second);
     references.index->columns().insert(indexColumn);
@@ -1677,7 +1677,7 @@ static void fillRefIndexDetails(MySQLRecognizerTreeWalker &walker, std::string &
 static void processTableKeyItem(MySQLRecognizerTreeWalker &walker, db_CatalogRef catalog,
   const std::string &schemaName, db_mysql_TableRef table, bool autoGenerateFkNames, DbObjectsRefsCache &refCache)
 {
-  db_mysql_IndexRef index(table->get_grt());
+  db_mysql_IndexRef index;
   index->owner(table);
 
   std::string constraintName;
@@ -1715,7 +1715,7 @@ static void processTableKeyItem(MySQLRecognizerTreeWalker &walker, db_CatalogRef
       constraintName = identifier.column;
     }
 
-    db_mysql_ForeignKeyRef fk(table->get_grt());
+    db_mysql_ForeignKeyRef fk;
     fk->owner(table);
     fk->name(constraintName);
     fk->oldName(constraintName);
@@ -1800,7 +1800,7 @@ static void fillTableCreateItem(MySQLRecognizerTreeWalker &walker, db_CatalogRef
   case COLUMN_NAME_TOKEN: // A column definition.
   {
     walker.next();
-    db_mysql_ColumnRef column(table->get_grt());
+    db_mysql_ColumnRef column;
     column->owner(table);
 
     // Column/key identifiers can be qualified, but they must always point to the table at hand
@@ -1817,7 +1817,7 @@ static void fillTableCreateItem(MySQLRecognizerTreeWalker &walker, db_CatalogRef
       // This is a so called "inline references specification", which is not supported by
       // MySQL. We parse it nonetheless as it may require to create stub tables and
       // the old parser created foreign key entries for these.
-      db_mysql_ForeignKeyRef fk(table->get_grt());
+      db_mysql_ForeignKeyRef fk;
       fk->owner(table);
       fk->columns().insert(column);
       fk->many(true);
@@ -1988,7 +1988,7 @@ void resolveReferences(db_mysql_CatalogRef catalog, DbObjectsRefsCache refCache,
       if (!referencedTable.is_valid())
       {
         // If we don't find a table with the given name we create a stub object to be used instead.
-        referencedTable = db_mysql_TableRef(catalog->get_grt());
+        referencedTable = db_mysql_TableRef();
         referencedTable->owner(schema);
         referencedTable->isStub(1);
         referencedTable->name(references.targetIdentifier.second);
@@ -2047,7 +2047,7 @@ void resolveReferences(db_mysql_CatalogRef catalog, DbObjectsRefsCache refCache,
         {
           if (referencedTable->isStub())
           {
-            column = db_mysql_ColumnRef(catalog->get_grt());
+            column = db_mysql_ColumnRef();
             column->owner(referencedTable);
             column->name(*columnNameIt);
             column->oldName(*columnNameIt);
@@ -2137,7 +2137,7 @@ void resolveReferences(db_mysql_CatalogRef catalog, DbObjectsRefsCache refCache,
       else
       {
         // No valid index found, so create a new one.
-        db_mysql_IndexRef index(catalog.get_grt());
+        db_mysql_IndexRef index;
         index->owner(references.table);
         index->name(references.foreignKey->name());
         index->oldName(index->name());
@@ -2146,7 +2146,7 @@ void resolveReferences(db_mysql_CatalogRef catalog, DbObjectsRefsCache refCache,
 
         for (ListRef<db_Column>::const_iterator columnIt = fkColumns.begin(); columnIt != fkColumns.end(); ++columnIt)
         {
-          db_mysql_IndexColumnRef indexColumn(catalog.get_grt());
+          db_mysql_IndexColumnRef indexColumn;
           indexColumn->owner(index);
           indexColumn->referencedColumn(*columnIt);
           index->columns().insert(indexColumn);
@@ -2472,7 +2472,7 @@ std::string fillRoutineDetails(MySQLRecognizerTreeWalker &walker, db_mysql_Routi
 
     while (!walker.is(CLOSE_PAR_SYMBOL))
     {
-      db_mysql_RoutineParamRef param(routine->get_grt());
+      db_mysql_RoutineParamRef param;
       param->owner(routine);
 
       switch (walker.token_type())
@@ -2764,7 +2764,7 @@ size_t MySQLParserServicesImpl::parseRoutines(ParserContext::Ref context,
     if (values.first == "unknown" || values.second == "unknown")
     {
       // Create a new routine instance.
-      db_mysql_RoutineRef routine = db_mysql_RoutineRef(group->get_grt());
+      db_mysql_RoutineRef routine = db_mysql_RoutineRef();
       routine->createDate(base::fmttime(0, DATETIME_FMT));
       routine->lastChangeDate(routine->createDate());
       routine->owner(schema);
@@ -2804,7 +2804,7 @@ size_t MySQLParserServicesImpl::parseRoutines(ParserContext::Ref context,
       if (!routine.is_valid())
       {
         // Create a new routine instance.
-        routine = db_mysql_RoutineRef(group->get_grt());
+        routine = db_mysql_RoutineRef();
         routine->createDate(base::fmttime(0, DATETIME_FMT));
         routine->owner(schema);
         schema_routines.insert(routine);
@@ -3650,7 +3650,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
   grt::ListRef<GrtObject> createdObjects = grt::ListRef<GrtObject>::cast_from(options.get("created_objects"));
   if (!createdObjects.is_valid())
   {
-    createdObjects = grt::ListRef<GrtObject>(catalog->get_grt());
+    createdObjects = grt::ListRef<GrtObject>();
     options.set("created_objects", createdObjects);
   }
 
@@ -3685,7 +3685,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
     {
     case QtCreateTable:
     {
-      db_mysql_TableRef table(catalog->get_grt());
+      db_mysql_TableRef table;
       table->createDate(base::fmttime(0, DATETIME_FMT));
       table->lastChangeDate(table->createDate());
 
@@ -3723,7 +3723,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
 
     case QtCreateIndex:
     {
-      db_mysql_IndexRef index(catalog->get_grt());
+      db_mysql_IndexRef index;
       index->createDate(base::fmttime(0, DATETIME_FMT));
       index->lastChangeDate(index->createDate());
 
@@ -3748,7 +3748,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
 
     case QtCreateDatabase:
     {
-      db_mysql_SchemaRef schema(catalog->get_grt());
+      db_mysql_SchemaRef schema;
       schema->createDate(base::fmttime(0, DATETIME_FMT));
       schema->lastChangeDate(schema->createDate());
 
@@ -3789,7 +3789,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
 
     case QtCreateEvent:
     {
-      db_mysql_EventRef event(catalog->get_grt());
+      db_mysql_EventRef event;
       event->sqlDefinition(base::trim(recognizer->text()));
       event->createDate(base::fmttime(0, DATETIME_FMT));
       event->lastChangeDate(event->createDate());
@@ -3821,7 +3821,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
 
     case QtCreateView:
     {
-      db_mysql_ViewRef view(catalog->get_grt());
+      db_mysql_ViewRef view;
       view->sqlDefinition(base::trim(recognizer->text()));
       view->createDate(base::fmttime(0, DATETIME_FMT));
       view->lastChangeDate(view->createDate());
@@ -3860,7 +3860,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
     case QtCreateFunction:
     case QtCreateUdf:
     {
-      db_mysql_RoutineRef routine(catalog->get_grt());
+      db_mysql_RoutineRef routine;
       routine->sqlDefinition(base::trim(recognizer->text()));
       routine->createDate(base::fmttime(0, DATETIME_FMT));
       routine->lastChangeDate(routine->createDate());
@@ -3882,7 +3882,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
 
     case QtCreateTrigger:
     {
-      db_mysql_TriggerRef trigger(catalog->get_grt());
+      db_mysql_TriggerRef trigger;
       trigger->sqlDefinition(base::trim(recognizer->text()));
       trigger->createDate(base::fmttime(0, DATETIME_FMT));
       trigger->lastChangeDate(trigger->createDate());
@@ -3899,7 +3899,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
       if (!table.is_valid())
       {
         // If we don't find a table with the given name we create a stub object to be used instead.
-        table = db_mysql_TableRef(catalog->get_grt());
+        table = db_mysql_TableRef();
         table->owner(schema);
         table->isStub(1);
         table->name(tableName.second);
@@ -3921,7 +3921,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
 
     case QtCreateLogFileGroup:
     {
-      db_mysql_LogFileGroupRef group(catalog->get_grt());
+      db_mysql_LogFileGroupRef group;
       group->createDate(base::fmttime(0, DATETIME_FMT));
       group->lastChangeDate(group->createDate());
 
@@ -3939,7 +3939,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
 
     case QtCreateServer:
     {
-      db_mysql_ServerLinkRef server(catalog->get_grt());
+      db_mysql_ServerLinkRef server;
       server->createDate(base::fmttime(0, DATETIME_FMT));
       server->lastChangeDate(server->createDate());
 
@@ -3957,7 +3957,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(parser::ParserContext::Ref c
 
     case QtCreateTableSpace:
     {
-      db_mysql_TablespaceRef tablespace(catalog->get_grt());
+      db_mysql_TablespaceRef tablespace;
       tablespace->createDate(base::fmttime(0, DATETIME_FMT));
       tablespace->lastChangeDate(tablespace->createDate());
 
@@ -4794,7 +4794,7 @@ size_t MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t
  *           (optional) id_method : the authentication method if available
  *           (optional) id_password: the authentication string if available
  */
-grt::DictRef parseUserDefinition(MySQLRecognizerTreeWalker &walker, )
+grt::DictRef parseUserDefinition(MySQLRecognizerTreeWalker &walker)
 {
   grt::DictRef result;
 
@@ -4851,7 +4851,7 @@ grt::DictRef parseUserDefinition(MySQLRecognizerTreeWalker &walker, )
 
 //--------------------------------------------------------------------------------------------------
 
-grt::DictRef collectGrantDetails(MySQLRecognizer *recognizer, )
+grt::DictRef collectGrantDetails(MySQLRecognizer *recognizer)
 {
   grt::DictRef data = grt::DictRef();
 
@@ -4860,7 +4860,7 @@ grt::DictRef collectGrantDetails(MySQLRecognizer *recognizer, )
   walker.next(); // Skip GRANT.
 
   // Collect all privileges.
-  grt::StringListRef list = grt::StringListRef;
+  grt::StringListRef list = grt::StringListRef();
   while (true)
   {
     std::string privileges = walker.token_text();
@@ -4913,7 +4913,7 @@ grt::DictRef collectGrantDetails(MySQLRecognizer *recognizer, )
 
   while (true)
   {
-    grt::DictRef user = parseUserDefinition(walker, grt);
+    grt::DictRef user = parseUserDefinition(walker);
     users.set(user.get_string("user"), user);
     if (!walker.is(COMMA_SYMBOL))
       break;
@@ -4990,12 +4990,12 @@ grt::DictRef collectGrantDetails(MySQLRecognizer *recognizer, )
 grt::DictRef MySQLParserServicesImpl::parseStatementDetails(parser_ContextReferenceRef context_ref, const std::string &sql)
 {
   ParserContext::Ref context = parser_context_from_grt(context_ref);
-  return parseStatement(context, context_ref->get_grt(), sql);
+  return parseStatement(context, sql);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-grt::DictRef MySQLParserServicesImpl::parseStatement(parser::ParserContext::Ref context, , const std::string &sql)
+grt::DictRef MySQLParserServicesImpl::parseStatement(parser::ParserContext::Ref context, const std::string &sql)
 {
   // This part can potentially grow very large because of the sheer amount of possible query types.
   // So it should be moved into an own file if it grows beyond a few 100 lines.
@@ -5015,7 +5015,7 @@ grt::DictRef MySQLParserServicesImpl::parseStatement(parser::ParserContext::Ref 
   switch (queryType) {
     case QtGrant:
     case QtGrantProxy:
-      return collectGrantDetails(recognizer, grt);
+      return collectGrantDetails(recognizer);
 
     default:
     {

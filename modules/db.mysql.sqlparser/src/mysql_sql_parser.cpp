@@ -107,7 +107,7 @@ Mysql_sql_parser::Null_state_keeper::~Null_state_keeper()
   static struct TableStorageEnginesInitializer
   {
     TableStorageEnginesInitializer() { __table_storage_engines.init(); }
-  } table_storage_engines_initializer(_sql_parser->_grt);
+  } table_storage_engines_initializer();
 }
 #define NULL_STATE_KEEPER Null_state_keeper _nsk(this);
 
@@ -126,10 +126,6 @@ Mysql_sql_parser::Null_state_keeper::~Null_state_keeper()
 
 
 Mysql_sql_parser::Mysql_sql_parser()
-:
-Sql_parser_base(grt),
-Mysql_sql_parser_base(grt),
-Sql_parser(grt)
 {
   NULL_STATE_KEEPER
 }
@@ -391,7 +387,7 @@ Mysql_sql_parser::process_alter_statement(const SqlAstNode *tree)
 
 void Mysql_sql_parser::build_datatype_cache()
 {
-  _datatype_cache= DictRef(_grt);
+  _datatype_cache= DictRef();
   ListRef<db_SimpleDatatype> datatypes= _catalog->simpleDatatypes();
   db_SimpleDatatypeRef datatype;
   for (size_t n= 0; n < datatypes.count(); n++)
@@ -568,7 +564,7 @@ void Mysql_sql_parser::set_fk_references()
         }
         else
         {
-          db_mysql_IndexRef index(owner_table.get_grt());
+          db_mysql_IndexRef index;
           index->owner(owner_table);
           set_obj_name(index, fk->name());
           //index->indexType("FOREIGN");
@@ -579,7 +575,7 @@ void Mysql_sql_parser::set_fk_references()
           for (size_t n= 0; n < ref_col_count; ++n)
           {
             db_ColumnRef column= fk_columns.get(n);
-            db_mysql_IndexColumnRef index_column(index.get_grt());
+            db_mysql_IndexColumnRef index_column;
             index_column->owner(index);
             index_column->referencedColumn(column);
             index->columns().insert(index_column);
@@ -622,7 +618,7 @@ db_mysql_SchemaRef Mysql_sql_parser::ensure_schema_created(const std::string &sc
   db_mysql_SchemaRef schema= find_named_object_in_list(_catalog->schemata(), schema_name, _case_sensitive_identifiers);
   if (!schema.is_valid()) // create if not found
   {
-    schema= db_mysql_SchemaRef(_grt);
+    schema= db_mysql_SchemaRef();
     schema->owner(_catalog);
 
     std::string time= base::fmttime(0, DATETIME_FMT);
@@ -650,7 +646,7 @@ db_mysql_SchemaRef Mysql_sql_parser::ensure_schema_created(const std::string &sc
 
 void Mysql_sql_parser::create_stub_table(db_mysql_SchemaRef &schema, db_mysql_TableRef &obj, const std::string &obj_name)
 {
-  obj= db_mysql_TableRef(_grt);
+  obj= db_mysql_TableRef();
   obj->owner(schema);
   obj->isStub(1);
   set_obj_name(obj, obj_name);
@@ -660,7 +656,7 @@ void Mysql_sql_parser::create_stub_table(db_mysql_SchemaRef &schema, db_mysql_Ta
 
 void Mysql_sql_parser::create_stub_column(db_mysql_TableRef &table, db_mysql_ColumnRef &obj, const std::string &obj_name, db_mysql_ColumnRef tpl_obj)
 {
-  obj= db_mysql_ColumnRef(_grt);
+  obj= db_mysql_ColumnRef();
   obj->owner(table);
   set_obj_name(obj, obj_name);
   
@@ -879,7 +875,7 @@ void Mysql_sql_parser::process_field_attributes_item(const SqlAstNode *item, db_
         }
         else if ((aux_item= subitem->subitem(sql::_UNIQUE_SYM)) || (aux_item= subitem->subitem(sql::_KEY_SYM)))
         {
-          db_mysql_IndexRef index(table.get_grt());
+          db_mysql_IndexRef index;
           index->owner(table);
 
           // index type
@@ -899,7 +895,7 @@ void Mysql_sql_parser::process_field_attributes_item(const SqlAstNode *item, db_
 
           // index columns
           {
-            db_mysql_IndexColumnRef index_column(table.get_grt());
+            db_mysql_IndexColumnRef index_column;
             index_column->owner(index);
 
             // column
@@ -1052,7 +1048,7 @@ std::string Mysql_sql_parser::process_obj_full_name_item(const SqlAstNode *item,
 
 void Mysql_sql_parser::process_index_item(const SqlAstNode *tree, db_mysql_TableRef &table)
 {
-  db_mysql_IndexRef obj(_grt);
+  db_mysql_IndexRef obj;
   obj->owner(table);
 
   // name
@@ -1108,13 +1104,13 @@ void Mysql_sql_parser::process_index_item(const SqlAstNode *tree, db_mysql_Table
     const SqlAstNode *items= tree->subitem(sql::_key_list);
     if (items)
     {
-      db_mysql_IndexColumnRef index_column(_grt);
+      db_mysql_IndexColumnRef index_column;
       for (SqlAstNode::SubItemList::const_iterator it= items->subitems()->begin(); it != items->subitems()->end(); ++it)
       {
         const SqlAstNode *item= *it;
         if (item->name_equals(sql::_key_part))
         {
-          index_column= db_mysql_IndexColumnRef(_grt);
+          index_column= db_mysql_IndexColumnRef();
           index_column->owner(obj);
 
           // column
@@ -1163,7 +1159,7 @@ void Mysql_sql_parser::process_index_item(const SqlAstNode *tree, db_mysql_Table
 
 void Mysql_sql_parser::process_fk_item(const SqlAstNode *tree, db_mysql_TableRef &table)
 {
-  db_mysql_ForeignKeyRef obj(_grt);
+  db_mysql_ForeignKeyRef obj;
   obj->owner(table);
   Fk_ref fk_ref(obj);
 
@@ -1527,7 +1523,7 @@ Mysql_sql_parser::process_create_table_statement(const SqlAstNode *tree)
           if (!subpart_item->name_equals(sql::_sub_part_definition))
             continue;
 
-          db_mysql_PartitionDefinitionRef subpart_obj(part_obj.get_grt());
+          db_mysql_PartitionDefinitionRef subpart_obj;
 
           SET_STR_SI(subpart_obj->name, subpart_item, sql::_sub_name);
           parse_options(subpart_obj, subpart_item->subitem(sql::_opt_part_options, sql::_opt_part_option_list));
@@ -1647,7 +1643,7 @@ Mysql_sql_parser::process_create_table_statement(const SqlAstNode *tree)
             const SqlAstNode *part= *jt;
             if (part->name_equals(sql::_part_definition))
             {
-              db_mysql_PartitionDefinitionRef part_obj= Partition_definition::parse(obj.get_grt(), part, _sql_statement);
+              db_mysql_PartitionDefinitionRef part_obj= Partition_definition::parse(part, _sql_statement);
               obj->partitionDefinitions().insert(part_obj);
             }
           }
@@ -1693,7 +1689,7 @@ Mysql_sql_parser::process_create_table_statement(const SqlAstNode *tree)
                 reusing_column= true;
               else
               {
-                column= db_mysql_ColumnRef(_grt);
+                column= db_mysql_ColumnRef();
                 column->owner(obj);
               }
 
@@ -1712,7 +1708,7 @@ Mysql_sql_parser::process_create_table_statement(const SqlAstNode *tree)
 
             if ((aux_item= item->subitem(sql::_column_def, sql::_references)))
             {
-              db_mysql_ForeignKeyRef fk(_grt);
+              db_mysql_ForeignKeyRef fk;
               fk->owner(obj);
               Fk_ref fk_ref(fk);
 
@@ -1924,7 +1920,7 @@ Mysql_sql_parser::process_create_routine_statement(const SqlAstNode *tree)
           const SqlAstNode *item= *it;
           if (item->name_equals(sql::_sp_pdparam) || item->name_equals(sql::_sp_fdparam))
           {
-            db_mysql_RoutineParamRef param(_grt);
+            db_mysql_RoutineParamRef param;
             param->owner(obj);
 
             SET_STR_SI(param->name, item, sql::_ident)
@@ -2040,13 +2036,13 @@ Mysql_sql_parser::process_create_index_statement(const SqlAstNode *tree)
     const SqlAstNode *items= tree->subitem(sql::_key_list);
     if (items)
     {
-      db_mysql_IndexColumnRef index_column(_grt);
+      db_mysql_IndexColumnRef index_column;
       for (SqlAstNode::SubItemList::const_iterator it= items->subitems()->begin(); it != items->subitems()->end(); ++it)
       {
         const SqlAstNode *item= *it;
         if (item->name_equals(sql::_key_part))
         {
-          index_column= db_mysql_IndexColumnRef(_grt);
+          index_column= db_mysql_IndexColumnRef();
           index_column->owner(obj);
 
           // referred column
@@ -2666,7 +2662,7 @@ grt::Ref<T> Mysql_sql_parser::create_or_find_named_obj(const grt::ListRef<T>& ob
     }
     else
     {
-      obj= grt::Ref<T>(_grt);
+      obj= grt::Ref<T>;
       obj->owner(container2.is_valid() ? container2 : (container1.is_valid() ? container1 : GrtNamedObjectRef(_catalog)));
       try { obj.set_member("createDate", StringRef(time)); } catch (std::exception&) {}
     }
@@ -2710,7 +2706,7 @@ grt::Ref<T> Mysql_sql_parser::create_or_find_named_routine(const grt::ListRef<T>
     }
     else
     {
-      obj= grt::Ref<T>(_grt);
+      obj= grt::Ref<T>;
       obj->owner(container2.is_valid() ? container2 : (container1.is_valid() ? container1 : GrtNamedObjectRef(_catalog)));
       try { obj.set_member("createDate", StringRef(time)); } catch (std::exception&) {}
     }

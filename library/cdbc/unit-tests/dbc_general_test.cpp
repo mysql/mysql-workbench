@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,7 +25,6 @@ using namespace std;
 
 BEGIN_TEST_DATA_CLASS(module_dbc_general_test)
 public:
-  GRT grt;
   
   TEST_DATA_CONSTRUCTOR(module_dbc_general_test)
   {
@@ -35,7 +34,7 @@ public:
 
     ensure_equals("load structs", grt.get_metaclasses().size(), (size_t)INT_METACLASS_COUNT);
   
-    db_mgmt_ConnectionRef connectionProperties(&grt);
+    db_mgmt_ConnectionRef connectionProperties;
 
     setup_env(&grt, connectionProperties);
 
@@ -49,7 +48,7 @@ public:
   }
   TEST_DATA_DESTRUCTOR(module_dbc_general_test)
   {
-    db_mgmt_ConnectionRef connectionProperties(&grt);
+    db_mgmt_ConnectionRef connectionProperties;
 
     setup_env(&grt, connectionProperties);
 
@@ -67,7 +66,7 @@ TEST_MODULE(module_dbc_general_test, "DBC: general tests");
 
 TEST_FUNCTION(2)
 {
-  db_mgmt_ConnectionRef connectionProperties(&grt);
+  db_mgmt_ConnectionRef connectionProperties;
 
   setup_env(&grt, connectionProperties);
 
@@ -97,7 +96,7 @@ TEST_FUNCTION(2)
 
 TEST_FUNCTION(3)
 {
-  db_mgmt_ConnectionRef connectionProperties(&grt);
+  db_mgmt_ConnectionRef connectionProperties;
 
   setup_env(&grt, connectionProperties);
 

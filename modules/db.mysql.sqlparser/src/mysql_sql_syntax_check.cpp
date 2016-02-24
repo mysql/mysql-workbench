@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,7 +43,6 @@ Mysql_sql_syntax_check::Null_state_keeper::~Null_state_keeper()
 
 
 Mysql_sql_syntax_check::Mysql_sql_syntax_check()
-  : Sql_parser_base(grt), Mysql_sql_parser_base(grt), Sql_syntax_check(grt)
 {
   NULL_STATE_KEEPER
 }

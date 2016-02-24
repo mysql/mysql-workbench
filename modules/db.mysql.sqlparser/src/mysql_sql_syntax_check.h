@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,10 +17,7 @@
  * 02110-1301  USA
  */
 
-
-#ifndef _MYSQL_SQL_SYNTAX_CHECK_H_
-#define _MYSQL_SQL_SYNTAX_CHECK_H_
-
+#pragma once
 
 #include "mysql_sql_parser_base.h"
 #include "grtsqlparser/sql_syntax_check.h"
@@ -35,7 +32,7 @@ class MYSQL_SQL_PARSER_PUBLIC_FUNC Mysql_sql_syntax_check
 {
 public:
   typedef boost::shared_ptr<Mysql_sql_syntax_check> Ref;
-  static Ref create() { return Ref(new Mysql_sql_syntax_check(grt)); }
+  static Ref create() { return Ref(new Mysql_sql_syntax_check); }
   virtual ~Mysql_sql_syntax_check() {}
 protected:
   Mysql_sql_syntax_check();
@@ -78,6 +75,3 @@ protected:
     Mysql_sql_syntax_check *_sql_parser;
   };
 };
-
-
-#endif // _MYSQL_SQL_SYNTAX_CHECK_H_

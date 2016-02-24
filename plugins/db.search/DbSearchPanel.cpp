@@ -1,5 +1,5 @@
 /* 
-* Copyright (c) 2012, 2015 Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -30,7 +30,7 @@
 
 DEFAULT_LOG_DOMAIN("db.search");
 
-grt::ValueRef call_search(grt::GRT*, boost::function<void ()> search, boost::function<void ()> fail_cb)
+grt::ValueRef call_search(boost::function<void ()> search, boost::function<void ()> fail_cb)
 {
     try {
       search();
@@ -835,7 +835,7 @@ void DBSearchPanel::search(sql::ConnectionWrapper connection, const std::string&
     //fsearch = (boost::bind(&DBSearch::count, _searcher.get()));//COUNT test
     _searcher->prepare();
     _grtm->execute_grt_task("Search",
-        boost::bind(call_search, _1, fsearch, failed_callback),
+        boost::bind(call_search, fsearch, failed_callback),
         finished_callback);
     while (_searcher->is_starting());
     _update_timer = _grtm->run_every(boost::bind(&DBSearchPanel::update, this), 1);

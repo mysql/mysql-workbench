@@ -50,7 +50,7 @@ public:
 
   virtual grt::ListRef<app_Plugin> getPluginInfo()
   {
-    return get_mysql_plugins_info;
+    return get_mysql_plugins_info();
   }
 };
 
@@ -58,7 +58,7 @@ public:
 
 static void set_object_argument(app_PluginRef &plugin, const std::string &struct_name)
 {
-  app_PluginObjectInputRef pdef(plugin.get_grt());
+  app_PluginObjectInputRef pdef;
 
   pdef->objectStructName(struct_name);
   pdef->owner(plugin);

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,10 +43,10 @@ public:
 
 TEST_DATA_CONSTRUCTOR(wb_undo_diagram)
 {
-  populate_grt(tester.grt, tester);
+  populate_grt(tester);
 
   wbui = tester.wb->get_ui();
-  um = tester.wb->get_grt()->get_undo_manager();
+  um = grt::GRT::get().get_undo_manager();
   overview = wbui->get_physical_overview();
   diagram = model_DiagramRef();
 

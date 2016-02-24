@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -265,12 +265,12 @@ sql::ConnectionWrapper create_connection_for_import()
 
 TEST_DATA_CONSTRUCTOR(wb_sql_editor_form_test):wb_context_sqlide(tester.wbui)
 {
-  populate_grt(tester.grt, tester);
+  populate_grt(tester);
 
-  connection= create_connection_for_import(tester.grt);
+  connection= create_connection_for_import;
 
-  db_mgmt_ConnectionRef my_connection(tester.grt);
-  set_connection_properties(tester.grt, my_connection);
+  db_mgmt_ConnectionRef my_connection;
+  set_connection_propertiesmy_connection);
   form = SqlEditorForm::create(&wb_context_sqlide, my_connection);
   form->connect(boost::shared_ptr<sql::TunnelConnection>());
 

@@ -40,14 +40,14 @@ protected:
 TEST_DATA_CONSTRUCTOR(wb_context_test)
 {
   // Init datatypes and RDBMS.
-  populate_grt(tester.grt, tester);
+  populate_grt(tester);
 
   // Modeling uses a default server version, which is not related to any server it might have
   // reverse engineered content from, nor where it was sync'ed to. So we have to mimic this here.
   std::string target_version = tester.wb->get_grt_manager()->get_app_option_string("DefaultTargetMySQLVersion");
   if (target_version.empty())
     target_version = "5.5";
-  tester.get_rdbms()->version(parse_version(tester.grt, target_version));
+  tester.get_rdbms()->version(parse_version(target_version));
 
 }
 
@@ -289,7 +289,7 @@ TEST_FUNCTION(25)
   // test with a recursive relationship
   {
    WBTester tester(false);
-   populate_grt(tester.grt, tester);
+   populate_grt(tester);
 
     ensure("Failed opening document", tester.wb->open_document("data/workbench/2tables_1fk.mwb"));
     ensure("load doc", tester.wb->get_document().is_valid());
@@ -356,7 +356,7 @@ TEST_FUNCTION(30)
   ensure_equals("connection count after expected auto-delete", tester.get_pview()->connections().count(), 0U);
 
   // undo
-  tester.grt::GRT::get().get_undo_manager()->undo();
+  grt::GRT::get().get_undo_manager()->undo();
 
   ensure_equals("undo delete table", tester.get_pview()->figures().count(), 2U);
   ensure_equals("undo delete table (connection)", tester.get_pview()->connections().count(), 1U);
@@ -392,7 +392,7 @@ TEST_FUNCTION(35)
   ensure_equals("table object", tester.get_schema()->tables().count(), 0U);
   ensure_equals("table figure", tester.get_pview()->figures().count(), 0U);
 
-  tester.grt::GRT::get().get_undo_manager()->undo();
+  grt::GRT::get().get_undo_manager()->undo();
 
   ensure_equals("table object", tester.get_schema()->tables().count(), 1U);
   ensure_equals("table figure", tester.get_pview()->figures().count(), 1U);
@@ -403,7 +403,7 @@ TEST_FUNCTION(35)
   ensure_equals("table object", tester.get_schema()->tables().count(), 1U);
   ensure_equals("table figure", tester.get_pview()->figures().count(), 0U);
 
-  tester.grt::GRT::get().get_undo_manager()->undo();
+  grt::GRT::get().get_undo_manager()->undo();
 
   ensure_equals("table object", tester.get_schema()->tables().count(), 1U);
   ensure_equals("table figure", tester.get_pview()->figures().count(), 1U);
@@ -419,29 +419,29 @@ TEST_FUNCTION(40)
   tester.wb->new_document();
   tester.add_view();
 
-  grt::UndoManager *um= tester.grt::GRT::get().get_undo_manager();
+  grt::UndoManager *um= grt::GRT::get().get_undo_manager();
 
   db_mysql_TableRef table1= tester.add_table_figure("table1", 10, 10);
-  db_mysql_ColumnRef column1(tester.grt);
+  db_mysql_ColumnRef column1;
   column1->owner(table1);
   column1->name("pk");
   db_mysql_TableRef table2= tester.add_table_figure("table2", 100, 10);
 
-  db_mysql_ColumnRef column2(tester.grt);
+  db_mysql_ColumnRef column2;
   column2->owner(table2);
   column2->name("pk");
 
   ensure_equals("table object", tester.get_schema()->tables().count(), 2U);
   ensure_equals("table figure", tester.get_pview()->figures().count(), 2U);
 
-  tester.grt::GRT::get().start_tracking_changes();
+  grt::GRT::get().start_tracking_changes();
   table1->addPrimaryKeyColumn(column1);
   table2->addPrimaryKeyColumn(column2);
-  tester.grt::GRT::get().stop_tracking_changes();
+  grt::GRT::get().stop_tracking_changes();
 
   // create 1:n rel and test undo
 
-  grt::AutoUndo undo(tester.grt);
+  grt::AutoUndo undo;
   bec::TableHelper::create_foreign_key_to_table(table2, table1, true, true, true, true,
                                                 tester.get_rdbms(),
                                                 grt::DictRef(tester.grt),
@@ -504,7 +504,7 @@ TEST_FUNCTION(45)
   ph->add_new_db_routine(srcschema);
   ph->add_new_db_routine_group(srcschema);
 
-  grt::CopyContext context(tester.grt);
+  grt::CopyContext context;
   ph->clone_db_object_to_schema(tarschema, srcschema->tables()[0], context);
   ph->clone_db_object_to_schema(tarschema, srcschema->views()[0], context);
   ph->clone_db_object_to_schema(tarschema, srcschema->routines()[0], context);
@@ -592,23 +592,23 @@ TEST_FUNCTION(60)
   tester.add_view();
 
   db_mysql_TableRef table1= tester.add_table_figure("table1", 10, 10);
-  db_mysql_ColumnRef column1(tester.grt);
+  db_mysql_ColumnRef column1;
   column1->owner(table1);
   column1->name("pk");
   db_mysql_TableRef table2= tester.add_table_figure("table2", 100, 10);
 
-  db_mysql_ColumnRef column2(tester.grt);
+  db_mysql_ColumnRef column2;
   column2->owner(table2);
   column2->name("fkcol");
 
   ensure_equals("table object", tester.get_schema()->tables().count(), 2U);
   ensure_equals("table figure", tester.get_pview()->figures().count(), 2U);
 
-  tester.grt::GRT::get().start_tracking_changes();
+  grt::GRT::get().start_tracking_changes();
   table1->addPrimaryKeyColumn(column1);
-  tester.grt::GRT::get().stop_tracking_changes();
+  grt::GRT::get().stop_tracking_changes();
   
-  db_mysql_ForeignKeyRef fk(tester.grt);
+  db_mysql_ForeignKeyRef fk;
   fk->owner(table2);
   fk->name("fk");
   
@@ -747,8 +747,6 @@ TEST_FUNCTION(90)
   ensure_equals("note created", tester.get_pmodel()->notes().count(), 1U);
   ensure("note created with file", tester.get_pmodel()->notes().get(0)->filename() != "");
 
-  = tester.wb->get_grt();
-
   // edit the note like an editor would
   set_note_content(tester.get_pmodel()->notes().get(0), "hello world");
   std::string filename= tester.get_pmodel()->notes().get(0)->filename();
@@ -793,29 +791,29 @@ TEST_FUNCTION(95)
 
   std::string fname= tester.get_pmodel()->notes().get(0)->filename();
 
-  set_note_content(tester.grt, tester.get_pmodel()->notes().get(0), "some text");
+  set_note_content(tester.get_pmodel()->notes().get(0), "some text");
   
-  ensure_equals("note content set", get_note_content(tester.grt, tester.get_pmodel()->notes().get(0)), "some text");
+  ensure_equals("note content set", get_note_content(tester.get_pmodel()->notes().get(0)), "some text");
 
   // delete note and undo
-  tester.grt::GRT::get().get_undo_manager()->add_undo(new grt::UndoListRemoveAction(tester.get_pmodel()->notes(), 0));
+  grt::GRT::get().get_undo_manager()->add_undo(new grt::UndoListRemoveAction(tester.get_pmodel()->notes(), 0));
   tester.get_pmodel()->notes().remove(0);
-  tester.grt::GRT::get().get_undo_manager()->undo();
+  grt::GRT::get().get_undo_manager()->undo();
 
   ensure_equals("note undeleted", tester.get_pmodel()->notes().count(), 1U);
   ensure_equals("note file", *tester.get_pmodel()->notes().get(0)->filename(), fname);
-  ensure_equals("note content", get_note_content(tester.grt, tester.get_pmodel()->notes().get(0)), "some text");
+  ensure_equals("note content", get_note_content(tester.get_pmodel()->notes().get(0)), "some text");
 
 
   for (int i= 0; i < 10; i++)
   {
-    tester.grt::GRT::get().get_undo_manager()->redo();
+    grt::GRT::get().get_undo_manager()->redo();
     ensure_equals("note re-deleted", tester.get_pmodel()->notes().count(), 0U);
-    tester.grt::GRT::get().get_undo_manager()->undo();
+    grt::GRT::get().get_undo_manager()->undo();
     ensure_equals("note un-deleted", tester.get_pmodel()->notes().count(), 1U);
   }
   ensure_equals("note file", *tester.get_pmodel()->notes().get(0)->filename(), fname);
-  ensure_equals("note content", get_note_content(tester.grt, tester.get_pmodel()->notes().get(0)), "some text");
+  ensure_equals("note content", get_note_content(tester.get_pmodel()->notes().get(0)), "some text");
 
   // undo (should undo create note)
 

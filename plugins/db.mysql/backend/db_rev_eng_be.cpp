@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -49,7 +49,7 @@ std::string Db_rev_eng::sql_script()
 
 void Db_rev_eng::parse_sql_script(parser::MySQLParserServices::Ref sql_parser, parser::ParserContext::Ref context, db_CatalogRef &catalog, const std::string &sql_script, grt::DictRef &options)
 {
-  grt::AutoUndo undo(_grtm->get_grt());
+  grt::AutoUndo undo;
   sql_parser->parseSQLIntoCatalog(context, db_mysql_CatalogRef::cast_from(catalog), sql_script, options);
   undo.end(_("Reverse Engineer Database"));
 }

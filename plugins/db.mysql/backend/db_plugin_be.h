@@ -121,7 +121,7 @@ public:
   int check_case_sensitivity_problems();
 
   void load_schemata(std::vector<std::string> &schemata);
-  grt::DictRef load_db_options(){return _db_options.is_valid()?_db_options:grt::DictRef(_grtm->get_grt());};
+  grt::DictRef load_db_options(){return _db_options.is_valid()?_db_options:grt::DictRef();};
 //  void default_schemata_selection(std::vector<std::string> &selection);
   void schemata_selection(const std::vector<std::string> &selection, bool sel_none_means_sel_all);
   void load_db_objects(Db_object_type db_object_type);

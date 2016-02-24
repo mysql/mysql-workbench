@@ -1,5 +1,5 @@
-#ifndef _DB_MYSQL_DIFF_REPORTING_H_
-#define _DB_MYSQL_DIFF_REPORTING_H_
+
+#pragma once
 
 #include "db_mysql_diff_reporting_public_interface.h"
 #include "grt/grt_manager.h"
@@ -23,7 +23,7 @@ public:
   inline db_mysql_CatalogRef get_model_catalog()
   {
     return db_mysql_CatalogRef::cast_from(
-      manager_->get_grt()->get("/wb/doc/physicalModels/0/catalog"));
+      grt::GRT::get().get("/wb/doc/physicalModels/0/catalog"));
   }
 
 public:
@@ -35,6 +35,3 @@ public:
   std::string generate_report(const db_mysql_CatalogRef& left_cat,
                               const db_mysql_CatalogRef& right_cat);
 };
-
-#endif // _DB_MYSQL_DIFF_REPORTING_H_
-

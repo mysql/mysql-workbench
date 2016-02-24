@@ -58,7 +58,7 @@ public:
   
   virtual grt::ListRef<app_Plugin> getPluginInfo()
   {
-    return get_mysql_plugins_info;
+    return get_mysql_plugins_info();
   }
 };
 
@@ -66,7 +66,7 @@ public:
 
 static grt::ListRef<app_Plugin> get_mysql_plugins_info()
 {
-  grt::ListRef<app_Plugin> plugins
+  grt::ListRef<app_Plugin> plugins;
   app_PluginRef diff_sql_generator;
 
   {

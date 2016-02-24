@@ -130,7 +130,7 @@ void DbMySQLSQLExport::set_option(const std::string& name, const std::string& va
 
 void DbMySQLSQLExport::set_db_options_for_version(const GrtVersionRef &version)
 {
-  SQLGeneratorInterfaceImpl *diffsql_module= dynamic_cast<SQLGeneratorInterfaceImpl*>(version.get_grt()->get_module("DbMySQL"));
+  SQLGeneratorInterfaceImpl *diffsql_module= dynamic_cast<SQLGeneratorInterfaceImpl*>(grt::GRT::get().get_module("DbMySQL"));
   if (diffsql_module != NULL)
     _db_options = diffsql_module->getTraitsForServerVersion((int)version->majorNumber(), (int)version->minorNumber(), (int)version->releaseNumber());
 }
@@ -217,19 +217,19 @@ grt::DictRef DbMySQLSQLExport::get_options_as_dict()
 
   // filtering options
   options.set("TableFilterList", _tables_are_selected ? 
-    convert_string_vector_to_grt_list(grt,get_names(_tables_model.get(), _tables_map, schemas, _case_sensitive)) : grt::StringListRef(grt));
+    convert_string_vector_to_grt_list(get_names(_tables_model.get(), _tables_map, schemas, _case_sensitive)) : grt::StringListRef());
 
   options.set("ViewFilterList", _views_are_selected ? 
-    convert_string_vector_to_grt_list(get_names(_views_model.get(), _views_map, schemas, _case_sensitive)) : grt::StringListRef(grt));
+    convert_string_vector_to_grt_list(get_names(_views_model.get(), _views_map, schemas, _case_sensitive)) : grt::StringListRef());
 
   options.set("RoutineFilterList", _routines_are_selected ? 
-    convert_string_vector_to_grt_list(get_names(_routines_model.get(), _routines_map, schemas, _case_sensitive)) : grt::StringListRef(grt));
+    convert_string_vector_to_grt_list(get_names(_routines_model.get(), _routines_map, schemas, _case_sensitive)) : grt::StringListRef());
 
   options.set("TriggerFilterList", _triggers_are_selected ? 
-    convert_string_vector_to_grt_list(get_names(_triggers_model.get(), _triggers_map, schemas, _case_sensitive)) : grt::StringListRef(grt));
+    convert_string_vector_to_grt_list(get_names(_triggers_model.get(), _triggers_map, schemas, _case_sensitive)) : grt::StringListRef());
 
   options.set("UserFilterList", _users_are_selected ? 
-      convert_string_vector_to_grt_list(get_names(_users_model.get(), _users_map, schemas, _case_sensitive)) : grt::StringListRef(grt));
+      convert_string_vector_to_grt_list(get_names(_users_model.get(), _users_map, schemas, _case_sensitive)) : grt::StringListRef());
 
   grt::StringListRef schema_names_list;
   for (std::set<db_mysql_SchemaRef>::const_iterator It = schemas.begin(); It != schemas.end(); ++It)
@@ -248,7 +248,7 @@ void DbMySQLSQLExport::start_export(bool wait_finish)
 {
   bec::GRTTask::Ref task = bec::GRTTask::create_task("SQL export", 
     _manager->get_dispatcher(), 
-    boost::bind(&DbMySQLSQLExport::export_task, this, _1, grt::StringRef()));
+    boost::bind(&DbMySQLSQLExport::export_task, this, grt::StringRef()));
 
   scoped_connect(task->signal_finished(),boost::bind(&DbMySQLSQLExport::export_finished, this, _1));
   
@@ -283,7 +283,7 @@ ValueRef DbMySQLSQLExport::export_task(grt::StringRef)
     DictRef create_map;
     DictRef drop_map;
 
-    grt::DictRef options= get_options_as_dict;
+    grt::DictRef options= get_options_as_dict();
 
     options.set("SQL_MODE", _manager->get_app_option("SqlGenerator.Mysql:SQL_MODE"));
     options.gset("UseFilteredLists", 1);

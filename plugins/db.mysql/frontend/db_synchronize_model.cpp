@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -182,7 +182,7 @@ public:
 
       values().set("targetSchemata", values().get("schemata"));
 
-      grt::StringListRef schema_list(wizard()->grtm()->get_grt());
+      grt::StringListRef schema_list;
       grt::ListRef<db_Schema> schemas = _db_be->model_catalog()->schemata();
       for (size_t i = 0; i < schemas.count(); i++)
         schema_list.insert(schemas[i]->name());
@@ -360,9 +360,9 @@ public:
 
   bool perform_sync_db()
   {
-    _form->grtm()->get_grt()->send_info("Applying synchronization scripts to server...");
+    grt::GRT::get().send_info("Applying synchronization scripts to server...");
     
-    execute_grt_task(boost::bind(&Db_plugin::apply_script_to_db, ((WbPluginDbSynchronize*)_form)->get_db_be(), _1), false);
+    execute_grt_task(boost::bind(&Db_plugin::apply_script_to_db, ((WbPluginDbSynchronize*)_form)->get_db_be()), false);
     
     return true;
   }
@@ -381,7 +381,7 @@ public:
 
   bool perform_sync_model()
   {
-    _form->grtm()->get_grt()->send_info("Updating model...");
+    grt::GRT::get().send_info("Updating model...");
     if (!_got_error_messages)
     {
       ((WbPluginDbSynchronize*)_form)->get_be()->save_sync_profile();

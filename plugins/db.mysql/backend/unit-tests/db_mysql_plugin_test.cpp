@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -126,7 +126,7 @@ protected:
 TEST_DATA_CONSTRUCTOR(db_mysql_plugin_test)
 {
   // init datatypes
-  populate_grt(tester.grt, tester);
+  populate_grttester);
 
   omf.dontdiff_mask = 3;
 
@@ -138,7 +138,7 @@ TEST_DATA_CONSTRUCTOR(db_mysql_plugin_test)
   std::string target_version = tester.wb->get_grt_manager()->get_app_option_string("DefaultTargetMySQLVersion");
   if (target_version.empty())
     target_version = "5.5";
-  tester.get_rdbms()->version(parse_version(tester.grt, target_version));
+  tester.get_rdbms()->version(parse_versiontarget_version));
 }
 
 END_TEST_DATA_CLASS
@@ -148,12 +148,12 @@ TEST_MODULE(db_mysql_plugin_test, "db.mysql plugin test");
 db_mysql_CatalogRef tut::Test_object_base<db_mysql_plugin_test>::create_catalog_from_script(
   const std::string& sql)
 {
-  db_mysql_CatalogRef cat = create_empty_catalog_for_import(tester.grt);
-  MySQLParserServices::Ref services = MySQLParserServices::get(tester.grt);
+  db_mysql_CatalogRef cat = create_empty_catalog_for_import;
+  MySQLParserServices::Ref services = MySQLParserServices::get;
   ParserContext::Ref context = services->createParserContext(tester.get_rdbms()->characterSets(),
     tester.get_rdbms()->version(), false);
 
-  grt::DictRef options(tester.grt);
+  grt::DictRef options;
   if (services->parseSQLIntoCatalog(context, cat, sql, options) != 0)
     fail("SQL failed to parse: " + sql);
   return cat;
@@ -185,7 +185,7 @@ std::string tut::Test_object_base<db_mysql_plugin_test>::run_fwdeng_plugin_gener
                                                                                            DbMySQLSQLExportTest *plugin)
 {
   fwdeng_plugin.reset(plugin);
-  ValueRef retval= fwdeng_plugin->export_task(cat.get_grt(), grt::StringRef());
+  ValueRef retval= fwdeng_plugin->export_task(grt::StringRef());
   return fwdeng_plugin->export_sql_script();
 }
 
@@ -232,7 +232,7 @@ void tut::Test_object_base<db_mysql_plugin_test>::apply_sql_to_model(const std::
   DbMySQLSQLExportTest *plugin= new DbMySQLSQLExportTest(
     tester.wb->get_grt_manager(), mod_cat);
   
-  grt::DictRef options(tester.grt);
+  grt::DictRef options;
   options.set("UseFilteredLists", grt::IntegerRef(0));
   plugin->set_options_as_dict(options);
 
@@ -384,7 +384,7 @@ TEST_FUNCTION(20)
   
   // insert an invalid column
   db_mysql_TableRef table= mod_cat->schemata().get(0)->tables().get(0);
-  db_mysql_ColumnRef column(table.get_grt());
+  db_mysql_ColumnRef column;
   column->owner(table);
   column->name("col1");
   table->columns().insert(column);
@@ -427,7 +427,7 @@ TEST_FUNCTION(25)
   
   // insert an self-referencing FK
   db_mysql_TableRef table= mod_cat->schemata().get(0)->tables().get(1);
-  db_mysql_ForeignKeyRef fk(table.get_grt());
+  db_mysql_ForeignKeyRef fk;
   fk->owner(table);
   fk->name("fk1");
   fk->referencedTable(table);
@@ -441,7 +441,7 @@ TEST_FUNCTION(25)
   schemata.push_back("db_mysql_plugin_test");
 
   std::string script= run_sync_plugin_generate_script(schemata, 
-    db_mysql_CatalogRef(mod_cat.get_grt()), mod_cat);
+    db_mysql_CatalogRef(), mod_cat);
 
   std::auto_ptr<sql::Statement> stmt(connection->createStatement());
   execute_script(stmt.get(), sql2, tester.wb->get_grt_manager());
@@ -667,8 +667,8 @@ TEST_FUNCTION(50)
   DbMySQLSQLExportTest *plugin= new DbMySQLSQLExportTest(tester.wb->get_grt_manager(), mod_cat);
   plugin->set_option("ViewsAreSelected", true);
   
-  grt::DictRef options(tester.grt);
-  grt::StringListRef views(tester.grt);
+  grt::DictRef options;
+  grt::StringListRef views;
   views.insert(get_old_object_name_for_key(mod_cat->schemata().get(0)->views().get(0), false), false);
   views.insert(get_old_object_name_for_key(mod_cat->schemata().get(0)->views().get(1), false), false);
   options.set("ViewFilterList", views);
@@ -684,7 +684,7 @@ TEST_FUNCTION(50)
 
   // now the same test for sync
   script.assign(run_sync_plugin_generate_script(schemata, 
-    db_mysql_CatalogRef(mod_cat.get_grt()), mod_cat));
+    db_mysql_CatalogRef(), mod_cat));
 
   std::auto_ptr<sql::Statement> stmt2(connection->createStatement());
   execute_script(stmt2.get(), "DROP DATABASE IF EXISTS `db_mysql_plugin_test`", tester.wb->get_grt_manager());
@@ -708,14 +708,14 @@ TEST_FUNCTION(55)
 
   tester.wb->open_document("data/workbench/diff_table_replace_test.mwb");
 
-  db_mgmt_ManagementRef mgmt(db_mgmt_ManagementRef::cast_from(tester.grt::GRT::get().get("/wb/rdbmsMgmt")));
+  db_mgmt_ManagementRef mgmt(db_mgmt_ManagementRef::cast_from(grt::GRT::get().get("/wb/rdbmsMgmt")));
 
-  ListRef<db_DatatypeGroup> grouplist= ListRef<db_DatatypeGroup>::cast_from(tester.grt::GRT::get().unserialize(tester.wboptions.basedir + "/data/db_datatype_groups.xml"));
+  ListRef<db_DatatypeGroup> grouplist= ListRef<db_DatatypeGroup>::cast_from(grt::GRT::get().unserialize(tester.wboptions.basedir + "/data/db_datatype_groups.xml"));
   grt::replace_contents(mgmt->datatypeGroups(), grouplist);
 
-  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(tester.grt::GRT::get().unserialize(tester.wboptions.basedir + "/modules/data/mysql_rdbms_info.xml"));
+  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get().unserialize(tester.wboptions.basedir + "/modules/data/mysql_rdbms_info.xml"));
   ensure("db_mgmt_Rdbms initialization", rdbms.is_valid());
-  tester.grt::GRT::get().set("/rdbms", rdbms);
+  grt::GRT::get().set("/rdbms", rdbms);
 
   mgmt->rdbms().insert(rdbms);
   rdbms->owner(mgmt);
@@ -723,11 +723,11 @@ TEST_FUNCTION(55)
   db_TableRef t1= tester.get_catalog()->schemata().get(0)->tables().get(0);
 
   ensure("before update table is referenced from figure 0", 
-    tester.grt::GRT::get().get("/wb/doc/physicalModels/0/diagrams/0/figures/0/table")
+    grt::GRT::get().get("/wb/doc/physicalModels/0/diagrams/0/figures/0/table")
     == t1);
 
   ensure("before update table is referenced from figure 1", 
-    tester.grt::GRT::get().get("/wb/doc/physicalModels/0/diagrams/1/figures/0/table")
+    grt::GRT::get().get("/wb/doc/physicalModels/0/diagrams/1/figures/0/table")
     == t1);
 
   db_mysql_CatalogRef org_cat= create_catalog_from_script(sql1);
@@ -740,7 +740,7 @@ TEST_FUNCTION(55)
   DbMySQLSQLExportTest *plugin= new DbMySQLSQLExportTest(
     tester.wb->get_grt_manager(), mod_cat);
   
-  grt::DictRef options(tester.grt);
+  grt::DictRef options;
   options.set("UseFilteredLists", grt::IntegerRef(0));
   plugin->set_options_as_dict(options);
 
@@ -763,11 +763,11 @@ TEST_FUNCTION(55)
   db_TableRef t2= tester.get_catalog()->schemata().get(0)->tables().get(0);
 
   ensure("before update table is referenced from figure 0", 
-    tester.grt::GRT::get().get("/wb/doc/physicalModels/0/diagrams/0/figures/0/table")
+    grt::GRT::get().get("/wb/doc/physicalModels/0/diagrams/0/figures/0/table")
     == t2);
 
   ensure("before update table is referenced from figure 1", 
-    tester.grt::GRT::get().get("/wb/doc/physicalModels/0/diagrams/1/figures/0/table")
+    grt::GRT::get().get("/wb/doc/physicalModels/0/diagrams/1/figures/0/table")
     == t2);
 
   tester.wb->close_document();

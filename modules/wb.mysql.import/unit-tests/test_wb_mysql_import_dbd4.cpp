@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,12 +51,10 @@ TEST_MODULE(wb_mysql_import_dbd4, "WB module: import from DBD4");
 
 TEST_FUNCTION(1)
 {
-  grt= grtm.get_grt();
-
   module= grt::GRT::get().get_native_module<WbMysqlImportImpl>();
   ensure("WbMysqlImport module initialization", NULL != module);
 
-  options= DictRef;
+  options = DictRef();
   options.set("gen_fk_names_when_empty", IntegerRef(0));
 }
 
