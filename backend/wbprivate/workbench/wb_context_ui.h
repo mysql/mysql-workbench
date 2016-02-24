@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,7 @@
 
 #include "grts/structs.app.h"
 #include "grts/structs.db.mgmt.h"
+#include "grt/plugin_manager.h"
 #include "home_screen.h" // Needed for enums. Remove and forward declare the enums when C++11 is available.
 
 namespace bec 
@@ -69,7 +70,7 @@ namespace wb {
   class MYSQLWBBACKEND_PUBLIC_FUNC WBContextUI : public base::trackable
   {
   public:
-    WBContextUI(bool verbose);
+    static WBContextUI *get(); // Singleton.
     virtual ~WBContextUI();
 
     bool init(WBFrontendCallbacks *callbacks, WBOptions *options);
@@ -150,14 +151,15 @@ namespace wb {
     
     void refresh_home_connections(bool clear_state = true);
     void refresh_home_documents();
-    void refresh_home_starters();
 
     bool start_plugin_install(const std::string &path);
     void start_plugin_net_install(const std::string &url);
     
   private:
     friend class WBContext;
-    // for use by WBContext
+    WBContextUI(); // Enforce singleton model.
+    WBContextUI(const WBContextUI&);
+    WBContextUI& operator = (const WBContextUI &);
 
     void load_app_options(bool update);
 
@@ -187,7 +189,9 @@ namespace wb {
     void remove_connection(const db_mgmt_ConnectionRef &connection);
     void handle_home_context_menu(const grt::ValueRef &object, const std::string &action);
 
-    void start_plugin(const std::string& title, const std::string& command, bool force_external= false);
+    void start_plugin(const std::string& title, const std::string& command, const bec::ArgumentPool &defaults, bool force_external = false);
+
+
     
     static void home_action_callback(HomeScreenAction action, const grt::ValueRef &object, WBContextUI *self);
     

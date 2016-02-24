@@ -26,6 +26,7 @@
 #include "base/notifications.h"
 #include "mforms/appview.h"
 #include "mforms/drawbox.h"
+#include "mforms/tabview.h"
 
 #include "grts/structs.app.h"
 #include "grts/structs.db.mgmt.h"
@@ -59,7 +60,7 @@
 #define TILE_DRAG_FORMAT "com.mysql.workbench-drag-tile-format"
 
 
-class ShortcutSection;
+class SidebarSection;
 class DocumentsSection;
 
 namespace mforms
@@ -78,8 +79,8 @@ namespace wb
   {
     ActionNone,
 
-    ActionShortcut,
-    ActionRemoveShortcut,
+//    ActionShortcut,
+//    ActionRemoveShortcut,
 
     ActionOpenConnectionFromList,
     ActionNewConnection,
@@ -96,7 +97,7 @@ namespace wb
     ActionNewEERModel,
     ActionOpenEERModelFromList,
     ActionNewModelFromDB,
-    ActionNewModelFromScript,
+    ActionNewModelFromScript
   };
 
   enum HomeScreenMenuType
@@ -146,7 +147,7 @@ namespace wb
   class MYSQLWBBACKEND_PUBLIC_FUNC HomeScreen : public mforms::AppView, public base::Observer
   {
   private:
-    ShortcutSection *_shortcut_section;
+    SidebarSection *_sidebarSection;
     ConnectionsSection *_connection_section;
     DocumentsSection *_document_section;
 
@@ -154,6 +155,8 @@ namespace wb
     db_mgmt_ManagementRef _rdbms;
     home_screen_action_callback _callback;
     void* _user_data;
+    mforms::TabView _tabView;
+    struct { int mysqlConnections; int xConnections; int models; } _tabId;
 
     void update_colors();
 
@@ -165,14 +168,12 @@ namespace wb
     db_mgmt_ManagementRef rdbms() { return _rdbms; };
     
     boost::function<void (grt::ValueRef, std::string)> handle_context_menu;
+    std::function<void()> openMigrationCallback;
     
     void set_callback(home_screen_action_callback callback, void* user_data);
     void trigger_callback(HomeScreenAction action, const grt::ValueRef &object);
 
     void cancel_script_loading();
-
-    void clear_shortcuts();
-    void add_shortcut(const grt::ValueRef &object, const std::string &icon_name);
 
     void clear_connections(bool clear_state = true);
     void add_connection(db_mgmt_ConnectionRef connection, const std::string &title,

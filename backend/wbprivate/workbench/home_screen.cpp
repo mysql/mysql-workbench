@@ -1351,9 +1351,10 @@ public:
 
 //----------------- ShortcutSection ----------------------------------------------------------------
 
-struct ShortcutEntry : mforms::Accessible
+struct SidebarEntry : mforms::Accessible
 {
-  app_StarterRef shortcut;
+  std::function<void()> callback;
+  bool canSelect;
 
   cairo_surface_t *icon;
   std::string title;       // Shorted title, depending on available space.
@@ -1367,18 +1368,17 @@ struct ShortcutEntry : mforms::Accessible
   virtual std::string get_acc_default_action() { return "Open Item"; }
 };
 
-class ShortcutSection: public mforms::DrawBox
+class SidebarSection: public mforms::DrawBox
 {
 private:
   HomeScreen *_owner;
-  cairo_surface_t* _default_shortcut_icon;
+  cairo_surface_t* _defaultEntryIcon;
 
-  std::vector<ShortcutEntry> _shortcuts;
-  typedef std::vector<ShortcutEntry>::iterator ShortcutIterator;
+  std::vector<SidebarEntry*> _entries;
 
-  app_StarterRef _hot_shortcut;
-  app_StarterRef _active_shortcut; // For the context menu.
-  mforms::Menu _shortcut_context_menu;
+  SidebarEntry *_hotEntry;
+  SidebarEntry *_activeEntry; // For the context menu.
+  mforms::Menu _entryContextMenu;
 
   boost::function <bool (int, int)> _accessible_click_handler;
 
@@ -1386,58 +1386,49 @@ private:
   HomeAccessibleButton _page_down_button;
 
   ssize_t _page_start;
-  ssize_t _shortcuts_per_page;
+  ssize_t _entriesPerPage;
   cairo_surface_t *_page_down_icon;
   cairo_surface_t *_page_up_icon;
 
 public:
-  ShortcutSection(HomeScreen *owner)
+
+  const int SIDEBAR_LEFT_PADDING = 18;
+  const int SIDEBAR_TOP_PADDING = 18; // The vertical offset of the first shortcut entry.
+  const int SIDEBAR_RIGHT_PADDING = 25;
+  const int SIDEBAR_ROW_HEIGHT = 50;
+  const int SIDEBAR_SPACING = 18;// Vertical space between entries.
+
+  SidebarSection(HomeScreen *owner)
   {
     _owner = owner;
-    _hot_shortcut = app_StarterRef();
-    _active_shortcut = app_StarterRef();
-    _default_shortcut_icon = mforms::Utilities::load_icon("wb_starter_generic_52.png", true);
+    _hotEntry = nullptr;
+    _activeEntry = nullptr;
+    _defaultEntryIcon = mforms::Utilities::load_icon("wb_starter_generic_52.png", true);
     _page_down_icon = mforms::Utilities::load_icon("wb_tile_page-down.png");
     _page_up_icon = mforms::Utilities::load_icon("wb_tile_page-up.png");
 
     _page_start = 0;
 
-    _accessible_click_handler = boost::bind(&ShortcutSection::mouse_click, this,
+    _accessible_click_handler = boost::bind(&SidebarSection::mouse_click, this,
       mforms::MouseButtonLeft, _1, _2);
 
     _page_up_button.name = "Page Up";
-    _page_up_button.default_action = "Move Shortcut Pages Up";
+    _page_up_button.default_action = "Move Sidebar Pages Up";
     _page_up_button.default_handler = _accessible_click_handler;
     
     _page_down_button.name = "Page Down";
-    _page_down_button.default_action = "Move Shortcut Pages Down";
+    _page_down_button.default_action = "Move Sidebar Pages Down";
     _page_down_button.default_handler = _accessible_click_handler;
-
-    /* Disabled for now until we can add new shortcuts.
-    _shortcut_context_menu.add_item(_("Remove Shortcut"), "remove_shortcut");
-    _shortcut_context_menu.set_handler(boost::bind(&ShortcutSection::handle_command, this, _1));
-    _*/
   }
 
-  ~ShortcutSection()
+  ~SidebarSection()
   {
-    delete_surface(_default_shortcut_icon);
+    delete_surface(_defaultEntryIcon);
     delete_surface(_page_down_icon);
     delete_surface(_page_up_icon);
 
-    clear_shortcuts();
-  }
-
-  //--------------------------------------------------------------------------------------------------
-
-  /**
-   * Called from the context menu.
-   */
-  void handle_command(const std::string &command)
-  {
-    if (command == "remove_shortcut")
-      _owner->trigger_callback(ActionRemoveShortcut, _active_shortcut);
-    _active_shortcut = app_StarterRef();
+    for(auto it : _entries)
+      delete it;
   }
 
   //--------------------------------------------------------------------------------------------------
@@ -1503,13 +1494,17 @@ public:
 
   }
 
-  //------------------------------------------------------------------------------------------------
+  void drawTriangle(cairo_t *cr, int x1, int y1, int x2, int y2, float alpha)
+  {
+    cairo_set_source_rgba(cr, 255.0, 255.0, 255.0, alpha);
 
-#define SHORTCUTS_LEFT_PADDING  55
-#define SHORTCUTS_TOP_PADDING   75 // The vertical offset of the first shortcut entry.
-#define SHORTCUTS_RIGHT_PADDING 25
-#define SHORTCUTS_ROW_HEIGHT    50
-#define SHORTCUTS_SPACING       18 // Vertical space between entries.
+    cairo_move_to(cr, x2, y1 + abs(y2 - y1)/4);
+    cairo_line_to(cr, x1 + abs(x2 - x1)/2, y1 + abs(y2 - y1)/2);
+    cairo_line_to(cr, x2, y2 - abs(y2 - y1)/4);
+    cairo_fill(cr);
+  }
+
+  //------------------------------------------------------------------------------------------------
 
   void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah)
   {
@@ -1525,28 +1520,24 @@ public:
       cairo_set_source_rgb(cr, 0, 0, 0);
     else
       cairo_set_source_rgb(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0);
-    cairo_move_to(cr, SHORTCUTS_LEFT_PADDING, 45);
-    cairo_show_text(cr, _("Shortcuts"));
-    cairo_stroke(cr);
 
     // Shortcuts block.
-    int yoffset = SHORTCUTS_TOP_PADDING;
-    if (_shortcuts.size() > 0 && yoffset < height)
+    int yoffset = SIDEBAR_TOP_PADDING;
+    if (_entries.size() > 0 && yoffset < height)
     {
       cairo_select_font_face(cr, HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
       cairo_set_font_size(cr, HOME_SUBTITLE_FONT_SIZE);
 
-      for (ShortcutIterator iterator = _shortcuts.begin() + _page_start; iterator != _shortcuts.end();
-        iterator++)
+      for (auto iterator : _entries)
       {
-        float alpha = (yoffset + SHORTCUTS_ROW_HEIGHT) > height ? 0.25f : 1;
+        float alpha = (yoffset + SIDEBAR_ROW_HEIGHT) > height ? 0.25f : 1;
 
-        iterator->acc_bounds.pos.x = SHORTCUTS_LEFT_PADDING;
+        iterator->acc_bounds.pos.x = SIDEBAR_LEFT_PADDING;
         iterator->acc_bounds.pos.y = yoffset;
-        iterator->acc_bounds.size.width = get_width() - (SHORTCUTS_LEFT_PADDING + SHORTCUTS_RIGHT_PADDING);
-        iterator->acc_bounds.size.height = SHORTCUTS_ROW_HEIGHT;
+        iterator->acc_bounds.size.width = get_width() - (SIDEBAR_LEFT_PADDING + SIDEBAR_RIGHT_PADDING);
+        iterator->acc_bounds.size.height = SIDEBAR_ROW_HEIGHT;
 
-        mforms::Utilities::paint_icon(cr, iterator->icon, SHORTCUTS_LEFT_PADDING, yoffset, alpha);
+        mforms::Utilities::paint_icon(cr, iterator->icon, SIDEBAR_LEFT_PADDING, yoffset, alpha);
 
         if (!iterator->title.empty())
         {
@@ -1554,24 +1545,25 @@ public:
             cairo_set_source_rgba(cr, 0, 0, 0, alpha);
           else
             cairo_set_source_rgba(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0, alpha);
-          text_with_decoration(cr, iterator->title_bounds.left(), iterator->title_bounds.top() + yoffset,
-            iterator->title.c_str(), iterator->shortcut == _hot_shortcut, iterator->title_bounds.width());
         }
 
-        yoffset += SHORTCUTS_ROW_HEIGHT + SHORTCUTS_SPACING;
+        if (iterator == _activeEntry) //we need to draw an indicator
+          drawTriangle(cr, get_width() - SIDEBAR_RIGHT_PADDING, yoffset, get_width(), yoffset + SIDEBAR_ROW_HEIGHT, alpha);
+
+        yoffset += SIDEBAR_ROW_HEIGHT + SIDEBAR_SPACING;
         if (yoffset >= height)
           break;
       }
 
       // See if we need to draw the paging indicator.
-      height -= SHORTCUTS_TOP_PADDING;
-      _shortcuts_per_page = height / (SHORTCUTS_ROW_HEIGHT + SHORTCUTS_SPACING);
-      if (_shortcuts_per_page < 1)
-        _shortcuts_per_page = 1;
-      int pages = (int)ceil(_shortcuts.size() / (float)_shortcuts_per_page);
+      height -= SIDEBAR_TOP_PADDING;
+      _entriesPerPage = height / (SIDEBAR_ROW_HEIGHT + SIDEBAR_SPACING);
+      if (_entriesPerPage < 1)
+        _entriesPerPage = 1;
+      int pages = (int)ceil(_entries.size() / (float)_entriesPerPage);
       if (pages > 1)
       {
-        int current_page = (int)ceil(_page_start / (float)_shortcuts_per_page);
+        int current_page = (int)ceil(_page_start / (float)_entriesPerPage);
         draw_paging_part(cr, current_page, pages, high_contrast);
       }
       else
@@ -1585,60 +1577,70 @@ public:
 
   //--------------------------------------------------------------------------------------------------
 
-  int shortcut_from_point(int x, int y)
+  int shortcutFromPoint(int x, int y)
   {
-    if (x < SHORTCUTS_LEFT_PADDING || y < SHORTCUTS_TOP_PADDING || x > get_width() - SHORTCUTS_RIGHT_PADDING)
+    if (x < SIDEBAR_LEFT_PADDING || y < SIDEBAR_TOP_PADDING || x > get_width() - SIDEBAR_RIGHT_PADDING)
       return -1;
 
-    y -= SHORTCUTS_TOP_PADDING;
-    int point_in_row = y % (SHORTCUTS_ROW_HEIGHT + SHORTCUTS_SPACING);
-    if (point_in_row >= SHORTCUTS_ROW_HEIGHT)
+    y -= SIDEBAR_TOP_PADDING;
+    int point_in_row = y % (SIDEBAR_ROW_HEIGHT + SIDEBAR_SPACING);
+    if (point_in_row >= SIDEBAR_ROW_HEIGHT)
       return -1; // In the spacing between entries.
 
-    size_t row = y / (SHORTCUTS_ROW_HEIGHT + SHORTCUTS_SPACING);
-    size_t height = get_height() - SHORTCUTS_TOP_PADDING;
-    size_t row_bottom = row * (SHORTCUTS_ROW_HEIGHT + SHORTCUTS_SPACING) + SHORTCUTS_ROW_HEIGHT;
+    size_t row = y / (SIDEBAR_ROW_HEIGHT + SIDEBAR_SPACING);
+    size_t height = get_height() - SIDEBAR_TOP_PADDING;
+    size_t row_bottom = row * (SIDEBAR_ROW_HEIGHT + SIDEBAR_SPACING) + SIDEBAR_ROW_HEIGHT;
     if (row_bottom > height)
       return -1; // The last shortcut is dimmed if it goes over the bottom border.
                                // Take it out from the hit test too.
 
     row += _page_start;
-    if (row < _shortcuts.size())
+    if (row < _entries.size())
       return (int)row;
 
     return -1;
   }
 
-  //--------------------------------------------------------------------------------------------------
-
+//  //--------------------------------------------------------------------------------------------------
+//
   /**
-   * Adds a new shortcut entry to the internal list. The function performs some sanity checks.
+   * Adds a new sidebar entry to the internal list. The function performs some sanity checks.
    */
-  void add_shortcut(const std::string& icon_name, const grt::ValueRef& object)
+  void addEntry(const std::string& icon_name, std::function<void()> callback, bool canSelect)
   {
-    app_StarterRef shortcut = app_StarterRef::cast_from(object);
 
-    ShortcutEntry entry;
-    
-    entry.shortcut = shortcut;
+    SidebarEntry *entry = new SidebarEntry;
+
+    entry->callback = callback;
+    entry->canSelect = canSelect;
+
 
     // See if we can load the icon. If not use the placeholder.
-    entry.icon = mforms::Utilities::load_icon(icon_name, true);
-    if (entry.icon == NULL)
-      entry.icon = _default_shortcut_icon;
+    entry->icon = mforms::Utilities::load_icon(icon_name, true);
+    if (entry->icon == NULL)
+      entry->icon = _defaultEntryIcon;
 
-    _shortcuts.push_back(entry);
+    _entries.push_back(entry);
+    if (_activeEntry == nullptr && entry->canSelect)
+      _activeEntry = _entries.back();
+
     set_layout_dirty(true);
   }
 
   //--------------------------------------------------------------------------------------------------
 
-  void clear_shortcuts()
+  void clearEntries()
   {
-    for (ShortcutIterator iterator= _shortcuts.begin(); iterator != _shortcuts.end(); iterator++)
-      if (iterator->icon != _default_shortcut_icon)
+    for (auto iterator : _entries)
+    {
+      if (iterator->icon != _defaultEntryIcon)
         delete_surface(iterator->icon);
-    _shortcuts.clear();
+      delete iterator;
+    }
+
+    _hotEntry = nullptr;
+    _activeEntry = nullptr;
+    _entries.clear();
     set_layout_dirty(true);
   }
 
@@ -1650,12 +1652,12 @@ public:
     {
       set_layout_dirty(false);
 
-      double icon_xoffset = SHORTCUTS_LEFT_PADDING;
+      double icon_xoffset = SIDEBAR_LEFT_PADDING;
       double text_xoffset = icon_xoffset + 60;
 
-      double yoffset = SHORTCUTS_TOP_PADDING;
+      double yoffset = SIDEBAR_TOP_PADDING;
 
-      double text_width = get_width() - text_xoffset - SHORTCUTS_RIGHT_PADDING;
+      double text_width = get_width() - text_xoffset - SIDEBAR_RIGHT_PADDING;
 
       cairo_select_font_face(cr, HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
       cairo_set_font_size(cr, HOME_SUBTITLE_FONT_SIZE);
@@ -1665,11 +1667,12 @@ public:
       double text_height = ceil(font_extents.height);
 
       // Compute bounding box for each shortcut entry.
-      for (ShortcutIterator iterator = _shortcuts.begin(); iterator != _shortcuts.end(); iterator++)
+      for (auto iterator : _entries)
       {
         int icon_height = image_height(iterator->icon);
 
-        std::string title = iterator->shortcut->title();
+
+        std::string title = iterator->title;
         if (!title.empty())
         {
           iterator->title_bounds.pos.x = text_xoffset;
@@ -1684,7 +1687,7 @@ public:
           iterator->title_bounds.size.width = extents.width;
         }
 
-        yoffset += SHORTCUTS_ROW_HEIGHT + SHORTCUTS_SPACING;
+        yoffset += SIDEBAR_ROW_HEIGHT + SIDEBAR_SPACING;
       }
     }
   }
@@ -1707,7 +1710,7 @@ public:
           if (_page_up_button.bounds.contains(x, y))
           {
             // Page up clicked. Doesn't happen if we are on the first page already.
-            _page_start -= _shortcuts_per_page;
+            _page_start -= _entriesPerPage;
             if (_page_start < 0)
               _page_start = 0;
             set_needs_repaint();
@@ -1716,24 +1719,19 @@ public:
 
           if (_page_down_button.bounds.contains(x, y))
           {
-            _page_start += _shortcuts_per_page;
+            _page_start += _entriesPerPage;
             set_needs_repaint();
             return true;
           }
 
-          if (_hot_shortcut.is_valid())
-            _owner->trigger_callback(ActionShortcut, _hot_shortcut);
-        }
-        break;
-
-      case mforms::MouseButtonRight:
-        {
-          if (_hot_shortcut.is_valid())
+          if (_hotEntry != nullptr && _hotEntry->canSelect)
           {
-            _active_shortcut = _hot_shortcut;
-            _shortcut_context_menu.popup_at(this, x, y);
-            return true;
+            _activeEntry = _hotEntry;
+            set_needs_repaint();
           }
+
+          if (_hotEntry != nullptr && _hotEntry->callback)
+            _hotEntry->callback();
         }
         break;
 
@@ -1747,9 +1745,9 @@ public:
 
   bool mouse_leave()
   {
-    if (_hot_shortcut.is_valid())
+    if (_hotEntry != nullptr)
     {
-      _hot_shortcut = app_StarterRef();
+      _hotEntry = nullptr;
       set_needs_repaint();
       return true;
     }
@@ -1760,13 +1758,13 @@ public:
 
   virtual bool mouse_move(mforms::MouseButton button, int x, int y)
   {
-    app_StarterRef shortcut;
-    int row = shortcut_from_point(x, y);
+    SidebarEntry *shortcut = nullptr;
+    int row = shortcutFromPoint(x, y);
     if (row > -1)
-      shortcut = _shortcuts[row].shortcut;
-    if (shortcut != _hot_shortcut)
+      shortcut = _entries[row];
+    if (shortcut != _hotEntry)
     {
-      _hot_shortcut = shortcut;
+      _hotEntry = shortcut;
       set_needs_repaint();
       return true;
     }
@@ -1786,7 +1784,7 @@ public:
   { 
     int ret_val = 0;
 
-    ret_val += (int)_shortcuts.size();
+    ret_val += (int)_entries.size();
 
     // Adds 2 for the paging buttons if shown
     if (_page_up_button.bounds.width())
@@ -1801,11 +1799,11 @@ public:
   { 
     mforms::Accessible* accessible = NULL;
 
-    if (index < (int)_shortcuts.size())
-      accessible = &_shortcuts[index];
+    if (index < (int)_entries.size())
+      accessible = _entries[index];
     else
     {
-      index -= (int)_shortcuts.size();
+      index -= (int)_entries.size();
       accessible = index ? &_page_down_button : &_page_up_button;
     }
 
@@ -1829,9 +1827,9 @@ public:
       accessible = &_page_down_button;
     else
     {
-      int row = shortcut_from_point(x, y);
+      int row = shortcutFromPoint(x, y);
       if (row != -1)
-        accessible = &_shortcuts[row];
+        accessible = _entries[row];
     }
 
     return accessible;
@@ -1844,30 +1842,44 @@ public:
 #include "workbench/wb_command_ui.h"
 
 HomeScreen::HomeScreen(CommandUI *cmdui, db_mgmt_ManagementRef rdbms)
-  : AppView(true, "home", true)
+  : AppView(true, "home", true), _tabView(mforms::TabViewTabless)
 {
   _rdbms = rdbms;
 
-  _callback = NULL;
-  _user_data = NULL;
+  _callback = nullptr;
+  _user_data = nullptr;
+  openMigrationCallback = nullptr;
 
-  mforms::Box *top_part = mforms::manage(new mforms::Box(false));
+
+  _sidebarSection = new SidebarSection(this);
+  _sidebarSection->set_name("Home Shortcuts Section");
+  _sidebarSection->set_size(85, -1);
+  add(_sidebarSection, false, true);
+
   _connection_section = new wb::ConnectionsSection(this);
   _connection_section->set_name("Home Connections Section");
-
-  top_part->add(_connection_section, true, true);
+  _tabId.mysqlConnections = _tabView.add_page(_connection_section, _connection_section->get_name());
 
   _document_section = new DocumentsSection(this);
   _document_section->set_name("Home Models Section");
-  _document_section->set_size(-1, 236);
-  top_part->add(_document_section, false, true);
+  _tabId.models = _tabView.add_page(_document_section, _document_section->get_name());
 
-  add(top_part, true, true);
+  _sidebarSection->addEntry("wb_starter_mysql_bug_reporter_52.png", [this]() {
+    _tabView.set_active_tab(_tabId.mysqlConnections);
+  }, true);
 
-  _shortcut_section = new ShortcutSection(this);
-  _shortcut_section->set_name("Home Shortcuts Section");
-  _shortcut_section->set_size(300, -1);
-  add(_shortcut_section, false, true);
+  _sidebarSection->addEntry("wb_starter_mysql_wb_blog_52.png", [this]() {
+    _tabView.set_active_tab(_tabId.models);
+  }, true);
+
+  _sidebarSection->addEntry("wb_starter_mysql_migration_52.png", [this]() {
+      if (openMigrationCallback)
+        openMigrationCallback();
+  }, false);
+
+
+
+  add(&_tabView, true, true);
   
   set_menubar(mforms::manage(cmdui->create_menubar_for_context(WB_CONTEXT_HOME_GLOBAL)));
   //_toolbar = mforms::manage(cmdui->create_toolbar(""));
@@ -1885,7 +1897,7 @@ HomeScreen::~HomeScreen()
   base::NotificationCenter::get()->remove_observer(this);
   clear_subviews(); // Remove our sections or the View d-tor will try to release them.
 
-  delete _shortcut_section;
+  delete _sidebarSection;
   delete _connection_section;
   delete _document_section;
 }
@@ -1903,7 +1915,7 @@ void HomeScreen::update_colors()
 
   _connection_section->set_back_color(high_contrast ? "#f0f0f0" : "#1d1d1d");
   _document_section->set_back_color(high_contrast ? "#f8f8f8" : "#242424");
-  _shortcut_section->set_back_color(high_contrast ? "#ffffff" : "#303030");
+  _sidebarSection->set_back_color(high_contrast ? "#ffffff" : "#303030");
 #endif
 }
 
@@ -1952,20 +1964,6 @@ void HomeScreen::cancel_script_loading()
 {
   _pending_script = "";
   _document_section->hide_connection_select_message();
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void HomeScreen::clear_shortcuts()
-{
-  _shortcut_section->clear_shortcuts();
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void HomeScreen::add_shortcut(const grt::ValueRef& object, const std::string& icon_name)
-{
-  _shortcut_section->add_shortcut(icon_name, object);
 }
 
 //--------------------------------------------------------------------------------------------------

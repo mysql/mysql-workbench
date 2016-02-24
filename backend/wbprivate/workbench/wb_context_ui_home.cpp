@@ -302,6 +302,10 @@ void WBContextUI::show_home_screen()
     _home_screen = mforms::manage(new HomeScreen(_command_ui, _wb->get_root()->rdbmsMgmt()));
     _home_screen->set_callback((home_screen_action_callback)&WBContextUI::home_action_callback, this);
     _home_screen->handle_context_menu = boost::bind(&WBContextUI::handle_home_context_menu, this, _1, _2);
+    _home_screen->openMigrationCallback = std::bind<void>([this]() {
+      logInfo("Opening Migration Wizard...\n");
+      _wb->add_new_plugin_window("wb.migration.open", "Migration Wizard");
+    });
 
     // Setup context menus.
     mforms::Menu *menu;
@@ -428,7 +432,6 @@ void WBContextUI::show_home_screen()
   {
     refresh_home_documents();
     refresh_home_connections();
-    refresh_home_starters();
   }
   catch (const std::exception *exc)
   { error = exc->what(); }
@@ -729,22 +732,21 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
     case ActionNone:
       break;
 
-    case ActionShortcut:
-    {
-      app_StarterRef starter = app_StarterRef::cast_from(object);
-      start_plugin(starter->title(), starter->command(), bec::ArgumentPool());
-    }
-    
-    break;
+//    case ActionShortcut:
+//    {
+//      app_StarterRef starter = app_StarterRef::cast_from(object);
+//      start_plugin(starter->title(), starter->command(), bec::ArgumentPool());
+//    }
+//
+//    break;
       
-    case ActionRemoveShortcut:
-    {
-      app_StarterRef starter = app_StarterRef::cast_from(object);
-      _wb->get_root()->starters()->displayList()->remove(starter);
-      _wb->save_starters();
-      refresh_home_starters();
-    }
-      break;
+//    case ActionRemoveShortcut:
+//    {
+//      app_StarterRef starter = app_StarterRef::cast_from(object);
+//      _wb->get_root()->starters()->displayList()->remove(starter);
+//      _wb->save_starters();
+//    }
+//      break;
       
     case ActionOpenConnectionFromList:
     {
@@ -1150,24 +1152,6 @@ void WBContextUI::refresh_home_documents()
       _home_screen->add_document(*f, stbuf.st_mtime, wb::ModelFile::read_comment(*f), stbuf.st_size);
   }
 
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void WBContextUI::refresh_home_starters()
-{
-  if (!_home_screen)
-    return;
-
-  _home_screen->clear_shortcuts();
-  
-  grt::ListRef<app_Starter> starters= _wb->get_root()->starters()->displayList();
-  for (grt::ListRef<app_Starter>::const_iterator iterator= starters.begin(); iterator != starters.end(); 
-       iterator++)
-  {
-    _home_screen->add_shortcut(*iterator, (*iterator)->smallIcon());
-  }
-  _home_screen->set_needs_repaint();
 }
 
 //--------------------------------------------------------------------------------------------------
