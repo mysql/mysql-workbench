@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -317,8 +317,7 @@ void WbModelImpl::initializeReporting()
 ssize_t WbModelImpl::getAvailableReportingTemplates(grt::StringListRef templates)
 {
   // get pointer to the GRT
-  = get_grt();
-  string basedir= bec::GRTManager::get_instance_for(grt)->get_basedir();
+  string basedir= bec::GRTManager::get_instance_for()->get_basedir();
   string template_base_dir= base::makePath(basedir, "modules/data/wb_model_reporting");
   GDir *dir;
   const char *entry;
@@ -371,7 +370,7 @@ workbench_model_reporting_TemplateInfoRef WbModelImpl::getReportingTemplateInfo(
 
   string template_info_path= base::makePath(template_dir, "info.xml");
   if (g_file_test(template_info_path.c_str(), (GFileTest)(G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR)))
-    return workbench_model_reporting_TemplateInfoRef::cast_from(get_grt()->unserialize(template_info_path));
+    return workbench_model_reporting_TemplateInfoRef::cast_from(grt::GRT::get().unserialize(template_info_path));
   else
     return workbench_model_reporting_TemplateInfoRef();
 }
@@ -881,8 +880,7 @@ static int count_template_files(const string template_dir)
 ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt::DictRef& options)
 {
   // get pointer to the GRT
-  = model.get_grt();
-  string basedir= bec::GRTManager::get_instance_for(grt)->get_basedir();
+  string basedir= bec::GRTManager::get_instance_for()->get_basedir();
   string template_base_dir= base::makePath(basedir, "modules/data/wb_model_reporting");
 
   db_mysql_CatalogRef catalog= db_mysql_CatalogRef::cast_from(model->catalog());

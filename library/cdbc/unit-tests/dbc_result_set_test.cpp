@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,7 +52,6 @@ static bool populate_tx_test_table(std::auto_ptr<sql::Statement> &stmt)
 
 BEGIN_TEST_DATA_CLASS(module_dbc_result_set_test)
 public:
-  GRT grt;
   sql::Connection* _connection;
   TEST_DATA_CONSTRUCTOR(module_dbc_result_set_test)
   {
@@ -61,7 +60,7 @@ public:
     grt.end_loading_metaclasses();
 
     ensure_equals("load structs", grt.get_metaclasses().size(), (size_t)INT_METACLASS_COUNT);
-    db_mgmt_ConnectionRef connectionProperties(&grt);
+    db_mgmt_ConnectionRef connectionProperties;
 
     setup_env(&grt, connectionProperties);
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -81,7 +80,7 @@ public:
   
   TEST_DATA_DESTRUCTOR(module_dbc_result_set_test)
   {
-    db_mgmt_ConnectionRef connectionProperties(&grt);
+    db_mgmt_ConnectionRef connectionProperties;
     setup_env(&grt, connectionProperties);
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
 
@@ -98,7 +97,7 @@ TEST_MODULE(module_dbc_result_set_test, "DBC: PS tests");
 // Test preparation.
 TEST_FUNCTION(2)
 {
-  db_mgmt_ConnectionRef connectionProperties(&grt);
+  db_mgmt_ConnectionRef connectionProperties;
 
   setup_env(&grt, connectionProperties);
 
@@ -137,7 +136,7 @@ TEST_FUNCTION(2)
 // Test executing executeQuery on the same statement.
 TEST_FUNCTION(3)
 {
-  db_mgmt_ConnectionRef connectionProperties(&grt);
+  db_mgmt_ConnectionRef connectionProperties;
 
   setup_env(&grt, connectionProperties);
 
@@ -171,7 +170,7 @@ TEST_FUNCTION(3)
 // Test executing two different queries from the same statement.
 TEST_FUNCTION(4)
 {
-  db_mgmt_ConnectionRef connectionProperties(&grt);
+  db_mgmt_ConnectionRef connectionProperties;
 
   setup_env(&grt, connectionProperties);
 
@@ -206,7 +205,7 @@ TEST_FUNCTION(4)
 // TODO: Fails because getAutoCommit is buggy.
 TEST_FUNCTION(5)
 {
-  db_mgmt_ConnectionRef connectionProperties(&grt);
+  db_mgmt_ConnectionRef connectionProperties;
 
   setup_env(&grt, connectionProperties);
 
@@ -279,7 +278,7 @@ TEST_FUNCTION(5)
 // Test commit and rollback (autocommit on).
 TEST_FUNCTION(6)
 {
-  db_mgmt_ConnectionRef connectionProperties(&grt);
+  db_mgmt_ConnectionRef connectionProperties;
 
   setup_env(&grt, connectionProperties);
 
@@ -354,7 +353,7 @@ TEST_FUNCTION(6)
 // Test multistatement off - send two queries in one call.
 TEST_FUNCTION(7)
 {
-  db_mgmt_ConnectionRef connectionProperties(&grt);
+  db_mgmt_ConnectionRef connectionProperties;
 
   setup_env(&grt, connectionProperties);
 
@@ -383,7 +382,7 @@ TEST_FUNCTION(7)
 // Test out of bound extraction of data.
 TEST_FUNCTION(8)
 {
-  db_mgmt_ConnectionRef connectionProperties(&grt);
+  db_mgmt_ConnectionRef connectionProperties;
 
   setup_env(&grt, connectionProperties);
 

@@ -52,7 +52,7 @@ protected:
     DbConnection *dbc = source ? _source_dbconn : _target_dbconn;
     db_mgmt_ConnectionRef conn = dbc->get_connection();
 
-    execute_grt_task(boost::bind(&FetchSchemaNamesSourceTargetProgressPage::do_connect, this, _1, dbc), false);
+    execute_grt_task(boost::bind(&FetchSchemaNamesSourceTargetProgressPage::do_connect, this, dbc), false);
 
     return true;
   }
@@ -69,7 +69,7 @@ protected:
 
   bool perform_fetch(bool source)
   {
-    execute_grt_task(boost::bind(&FetchSchemaNamesSourceTargetProgressPage::do_fetch, this, _1, source),
+    execute_grt_task(boost::bind(&FetchSchemaNamesSourceTargetProgressPage::do_fetch, this, source),
                      false);
     return true;
   }
@@ -107,7 +107,7 @@ protected:
     std::string path = values().get_string(source ? "left_source_file" : "right_source_file");
     db_CatalogRef catalog = parse_catalog_from_file(path);
 
-    grt::StringListRef schemata(catalog.get_grt());
+    grt::StringListRef schemata;
     for (size_t i = 0; i < catalog->schemata().count(); i++)
       schemata.insert(catalog->schemata()[i]->name());
 
@@ -131,7 +131,7 @@ protected:
   {
     workbench_physical_ModelRef pm= workbench_physical_ModelRef::cast_from(_model_catalog->owner());
 
-    db_mysql_CatalogRef cat(_model_catalog.get_grt());
+    db_mysql_CatalogRef cat;
     cat->version(pm->rdbms()->version());
     grt::replace_contents(cat->simpleDatatypes(), pm->rdbms()->simpleDatatypes());
 
@@ -160,7 +160,7 @@ protected:
   {
     {
       db_CatalogRef catalog(_model_catalog);
-      grt::StringListRef names(wizard()->grtm()->get_grt());
+      grt::StringListRef names;
       for (size_t i = 0; i < catalog->schemata().count(); i++)
         names.insert(catalog->schemata()[i]->name());
       values().set(source ? "schemata" : "targetSchemata", names);

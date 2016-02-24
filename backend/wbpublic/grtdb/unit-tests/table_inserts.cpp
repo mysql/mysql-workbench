@@ -159,19 +159,19 @@ static db_TableRef make_inserts_test_table(const db_mgmt_RdbmsRef &rdbms, const 
   table->columns().insert(col);
   table->addPrimaryKeyColumn(col);
 
-  col= db_mysql_ColumnRef;
+  col= db_mysql_ColumnRef();
   col->owner(table);
   col->name("name");
   col->setParseType("VARCHAR(30)", rdbms->simpleDatatypes());
   table->columns().insert(col);
 
-  col= db_mysql_ColumnRef;
+  col= db_mysql_ColumnRef();
   col->owner(table);
   col->name("ts");
   col->setParseType("TIMESTAMP", rdbms->simpleDatatypes());
   table->columns().insert(col);
 
-  col= db_mysql_ColumnRef;
+  col= db_mysql_ColumnRef();
   col->owner(table);
   col->name("pic");
   col->setParseType("BLOB", rdbms->simpleDatatypes());

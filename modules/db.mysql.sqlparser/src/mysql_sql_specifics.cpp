@@ -251,7 +251,7 @@ sqlide::QuoteVar::Escape_sql_string Mysql_sql_specifics::escape_sql_string()
 {
   bool ansi_sql_strings= false;
 
-  grt::ValueRef sql_mode_value= bec::GRTManager::get_instance_for(_grt)->get_app_option("SqlMode");
+  grt::ValueRef sql_mode_value= bec::GRTManager::get_instance_for()->get_app_option("SqlMode");
   if (sql_mode_value.is_valid() && grt::StringRef::can_wrap(sql_mode_value))
   {
     std::string sql_mode_string= toupper(grt::StringRef::cast_from(sql_mode_value));

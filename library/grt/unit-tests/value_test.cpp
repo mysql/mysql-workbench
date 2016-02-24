@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -291,8 +291,8 @@ TEST_FUNCTION(11)
   ensure("s == operator with valueref", !(tmp1 == tmp2));
   ensure("s != operator with valueref", (tmp1 != tmp2));
   
-  BaseListRef l1(&grt);
-  BaseListRef l2(&grt);
+  BaseListRef l1;
+  BaseListRef l2;
   
   BaseListRef l3;
   
@@ -310,8 +310,8 @@ TEST_FUNCTION(11)
   ensure("l == operator with valueref", !(tmp1 == tmp2));
   ensure("l != operator with valueref", (tmp1 != tmp2));
   
-  DictRef d1(&grt);
-  DictRef d2(&grt);
+  DictRef d1;
+  DictRef d2;
   DictRef d3;
 
   ensure("d == operator", !(d1 == d3));
@@ -328,8 +328,8 @@ TEST_FUNCTION(11)
   ensure("d == operator with valueref", !(tmp1 == tmp2));
   ensure("d != operator with valueref", (tmp1 != tmp2));
 
-  test_BookRef o1(&grt);
-  test_BookRef o2(&grt);
+  test_BookRef o1;
+  test_BookRef o2;
   test_BookRef o3;
 
   ensure("o == operator", !(o1 == o3));
@@ -369,9 +369,9 @@ TEST_FUNCTION(12)
   IntegerRef i1(10), i2(11);
   DoubleRef d1(10.1), d2(10.2);
   StringRef s1("aaa"), s2("bbb");
-  BaseListRef l1(&grt), l2(&grt);
-  DictRef t1(&grt), t2(&grt);
-  test_BookRef o1(&grt), o2(&grt);
+  BaseListRef l1, l2;
+  DictRef t1, t2;
+  test_BookRef o1, o2;
   
   ensure("i <", i1 < i2);
   ensure("i <", !(i2 < i1));
@@ -431,7 +431,7 @@ TEST_FUNCTION(20)
 {
   // set/get value by path
 
-  DictRef root(DictRef::cast_from(create_grt_tree1(&grt)));
+  DictRef root(DictRef::cast_from(create_grt_tree1));
   ValueRef value;
 
   value= get_value_by_path(root, "/");
@@ -662,7 +662,7 @@ TEST_FUNCTION(26)
 {
   // ValueList<IntegerRef>
   {
-    IntegerListRef lv(&grt);
+    IntegerListRef lv;
     IntegerRef v[10]= {100,101,102,3,4,5,6,7,8,9};
     test_list_value(lv, v);
   }
@@ -673,7 +673,7 @@ TEST_FUNCTION(27)
 {
   // ValueList<DoubleRef>
   {
-    DoubleListRef lv(&grt);
+    DoubleListRef lv;
     DoubleRef v[10]= {0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5};
     test_list_value(lv, v);
   }
@@ -684,7 +684,7 @@ TEST_FUNCTION(28)
 {
   // ValueList<StringRef>
   {
-    StringListRef lv(&grt);
+    StringListRef lv;
     StringRef v[10]= {"_0", "_1", "_2", "_3", "_4", "_5", "_6", "_7", "_8", "_9"};
     test_list_value(lv, v);
   }
@@ -695,7 +695,7 @@ TEST_FUNCTION(29)
 {
   // ListRef <ObjectRef>
 
-  ListRef<grt::internal::Object> lv(&grt);
+  ListRef<grt::internal::Object> lv;
   ObjectRef v[10]= {
      grt.create_object<grt::internal::Object>("test.Book"),
      grt.create_object<grt::internal::Object>("test.Book"),
@@ -725,29 +725,29 @@ TEST_FUNCTION(30)
   ensure_equals("untyped list content", ut.content_type(), AnyType);
   ensure_equals("untyped list struct", ut.content_class_name(), "");
 
-  IntegerListRef il(&grt);
+  IntegerListRef il;
   ensure_equals("int list content", il.content_type(), IntegerType);
   ensure_equals("int list struct", il.content_class_name(), "");
 
-  DoubleListRef dl(&grt);
+  DoubleListRef dl;
   ensure_equals("double list content", dl.content_type(), DoubleType);
   ensure_equals("double list struct", dl.content_class_name(), "");
 
-  StringListRef sl(&grt);
+  StringListRef sl;
   ensure_equals("str list content", sl.content_type(), StringType);
   ensure_equals("str list struct", sl.content_class_name(), "");
 
   /* not supported
-  DictListRef cl(&grt);
+  DictListRef cl;
   ensure_equals("dict list content", cl.content_type(), DictType);
   ensure_equals("dict list struct", cl.content_class_name(), "");
    */
 
-  ObjectListRef ol(&grt);
+  ObjectListRef ol;
   ensure_equals("obj list content", ol.content_type(), grt::ObjectType);
   ensure_equals("obj list struct", ol.content_class_name(), "Object");
 
-  ListRef<test_Author> al(&grt);
+  ListRef<test_Author> al;
   ensure_equals("author list content", al.content_type(), grt::ObjectType);
   ensure_equals("author list struct", al.content_class_name(), "test.Author");
 }
@@ -757,19 +757,19 @@ TEST_FUNCTION(31)
 {
   // check can_wrap for lists
   
-  ensure("wrap List<Object>/List<Object>",ObjectListRef::can_wrap(ObjectListRef(&grt)));
-  ensure("wrap List<test_Book>/List<Object>",!ListRef<test_Book>::can_wrap(ObjectListRef(&grt)));
-  ensure("wrap List<Object>/List<test_Book>",ObjectListRef::can_wrap(ListRef<test_Book>(&grt)));
-  ensure("wrap List<test_Publication>/List<test_Book>",ListRef<test_Publication>::can_wrap(ListRef<test_Book>(&grt)));
-  ensure("wrap List<test_Book>/List<test_Publication>",!ListRef<test_Book>::can_wrap(ListRef<test_Publication>(&grt)));
-  ensure("wrap BaseList/List<test_Book>",BaseListRef::can_wrap(ListRef<test_Book>(&grt)));
-  ensure("wrap List<test_Book>/BaseList",!ListRef<test_Book>::can_wrap(BaseListRef(&grt)));
+  ensure("wrap List<Object>/List<Object>",ObjectListRef::can_wrap(ObjectListRef()));
+  ensure("wrap List<test_Book>/List<Object>",!ListRef<test_Book>::can_wrap(ObjectListRef()));
+  ensure("wrap List<Object>/List<test_Book>",ObjectListRef::can_wrap(ListRef<test_Book>()));
+  ensure("wrap List<test_Publication>/List<test_Book>",ListRef<test_Publication>::can_wrap(ListRef<test_Book>()));
+  ensure("wrap List<test_Book>/List<test_Publication>",!ListRef<test_Book>::can_wrap(ListRef<test_Publication>()));
+  ensure("wrap BaseList/List<test_Book>",BaseListRef::can_wrap(ListRef<test_Book>()));
+  ensure("wrap List<test_Book>/BaseList",!ListRef<test_Book>::can_wrap(BaseListRef()));
 
-  ensure("wrap List<test_Publication>/IntegerList",!ListRef<test_Publication>::can_wrap(IntegerListRef(&grt)));
-  ensure("wrap IntegerList/ObjectList",!IntegerListRef::can_wrap(ListRef<test_Publication>(&grt)));
+  ensure("wrap List<test_Publication>/IntegerList",!ListRef<test_Publication>::can_wrap(IntegerListRef()));
+  ensure("wrap IntegerList/ObjectList",!IntegerListRef::can_wrap(ListRef<test_Publication>()));
 
-  ensure("wrap StringList/IntegerList", !StringListRef::can_wrap(IntegerListRef(&grt)));
-  ensure("wrap IntegerList/StringListRef", !IntegerListRef::can_wrap(StringListRef(&grt)));
+  ensure("wrap StringList/IntegerList", !StringListRef::can_wrap(IntegerListRef()));
+  ensure("wrap IntegerList/StringListRef", !IntegerListRef::can_wrap(StringListRef()));
 }
 
 /*
@@ -786,7 +786,7 @@ TEST_FUNCTION(35)
 {
   // dictionary
 
-  DictRef dv(&grt);
+  DictRef dv;
   IntegerRef iv[10]= {0,1,2,3,4,5,6,7,8,9};
   StringRef sv[10]= {"_0","_1","_2","_3","_4","_5","_6","_7","_8","_9"};
   StringRef k[10]= {"_0","_1","_2","_3","_4","_5","_6","_7","_8","_9"};
@@ -846,7 +846,7 @@ TEST_FUNCTION(35)
 TEST_FUNCTION(36)
 { // test list reordering
 
-  IntegerListRef lv(&grt);
+  IntegerListRef lv;
   IntegerRef iv[4]= {0,1,2,3};
 
   while (lv.count())

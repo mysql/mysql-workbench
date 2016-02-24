@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -50,14 +50,11 @@ Mysql_sql_parser_base::Null_state_keeper::~Null_state_keeper()
 #define NULL_STATE_KEEPER Null_state_keeper _nsk(this);
 
 
-Mysql_sql_parser_base::Mysql_sql_parser_base()
-:
-Sql_parser_base(grt),
-_override_sql_mode(false)
+Mysql_sql_parser_base::Mysql_sql_parser_base() : _override_sql_mode(false)
 {
   NULL_STATE_KEEPER // reset all members to null-values
 
-  Sql_specifics::Ref sql_specifics= Mysql_sql_specifics::create;
+  Sql_specifics::Ref sql_specifics= Mysql_sql_specifics::create();
   _non_std_sql_delimiter= sql_specifics->non_std_sql_delimiter();
 }
 

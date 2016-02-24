@@ -44,7 +44,7 @@ public:
 
   db_mgmt_RdbmsRef loadRdbmsInfo(db_mgmt_ManagementRef owner, const std::string &path)
   {
-    db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(get_grt()->unserialize(path));
+    db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get().unserialize(path));
 
     rdbms->owner(owner);
 

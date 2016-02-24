@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -749,7 +749,7 @@ TEST_FUNCTION(12)
 
   ensure("table ok", table.is_valid());
 
-  db_ColumnRef column();
+  db_ColumnRef column;
   column->owner(table);
   column->name("col1");
   table->columns().insert(column);
@@ -817,7 +817,7 @@ TEST_FUNCTION(13)
 {
   // check if adding columns/indices/foreign keys by setting name of placeholder item works
 
-  db_mysql_TableRef table();
+  db_mysql_TableRef table;
 
   table->owner(wbt.get_schema());
   table->name("table");
@@ -847,7 +847,7 @@ TEST_FUNCTION(20)
 {
   // bug: create fk, select column and then deselect will crash
  
-  db_mysql_TableRef table();
+  db_mysql_TableRef table;
   ensure("table ok", table.is_valid());
 
   table->name("table");
@@ -861,7 +861,7 @@ TEST_FUNCTION(20)
   
   grt::ListRef<db_UserDatatype> userTypes(editor.get_catalog()->userDatatypes());
 
-  db_mysql_ColumnRef column();
+  db_mysql_ColumnRef column;
   column->owner(table);
   column->name("id");
   column->setParseType("int", wbt.get_rdbms()->simpleDatatypes());

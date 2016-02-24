@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -26,7 +26,6 @@ void Wb_plugin::grtm(bec::GRTManager *grtm)
   _grtm= grtm;
   if (_grtm)
   {
-    = _grtm->get_grt();
     _options= grt::DictRef();
   }
 }

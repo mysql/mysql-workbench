@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -68,7 +68,7 @@ TEST_FUNCTION(1)
   sql_statement_decomposer= sql_facade->sqlStatementDecomposer();
   ensure("failed to instantiate SqlStatementDecomposer class", (NULL != sql_statement_decomposer.get()));
 
-  catalog= db_CatalogRef;
+  catalog= db_CatalogRef();
   db_SchemaRef schema= add_schema("test");
   view= add_view(schema, "");
 

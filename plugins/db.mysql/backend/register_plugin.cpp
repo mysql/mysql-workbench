@@ -121,7 +121,7 @@ public:
   
   virtual grt::ListRef<app_Plugin> getPluginInfo()
   {
-    return get_mysql_plugins_info;
+    return get_mysql_plugins_info();
   }
 };
 

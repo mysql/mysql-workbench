@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _CATALOG_VALIDATION_PAGE_H_
-#define _CATALOG_VALIDATION_PAGE_H_
+#pragma once
 
 #include "grtui/wizard_progress_page.h"
 #include "grt/grt_manager.h"
@@ -42,8 +41,6 @@ public:
     set_title(_("Catalog Validation"));
     set_short_title(_("Catalog Validation"));
     
-    = form->grtm()->get_grt();
-
     // get list of available validation modules
     std::vector<WbValidationInterfaceWrapper*> validation_modules;
     validation_modules= grt::GRT::get().get_implementing_modules<WbValidationInterfaceWrapper>();
@@ -143,5 +140,3 @@ protected:
 };
 
 };
-
-#endif /* _CATALOG_VALIDATION_PAGE_H_ */

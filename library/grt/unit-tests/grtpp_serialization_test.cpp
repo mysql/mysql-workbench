@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -99,12 +99,12 @@ TEST_FUNCTION(2)
   const size_t AUTHORS_COUNT(3);
 
   //ObjectRef obj(grt.create_object_from_va<ObjectRef>(OBJ_BOOK_PATH, NULL));
-  test_BookRef obj(&grt);
+  test_BookRef obj;
     
   obj->set_member("title", sv);
   obj->set_member("pages", iv);
 
-  test_PublisherRef publisher(&grt);
+  test_PublisherRef publisher;
   publisher->set_member("name", sv);
   publisher->set_member("phone", StringRef(((std::string)sv) + " 555-55-55"));
   obj->set_member("publisher", publisher);
@@ -113,7 +113,7 @@ TEST_FUNCTION(2)
   std::stringstream ss;
   for (size_t n= 0; n<AUTHORS_COUNT; n++)
   {
-    test_AuthorRef author(&grt);
+    test_AuthorRef author;
     ss << n;
     author->set_member("name", StringRef(std::string("Author") + ss.str().c_str()));
     obj->authors().insert(author);
@@ -121,7 +121,7 @@ TEST_FUNCTION(2)
 
   obj->set_member("price", DoubleRef(dv+1.1));
 
-  test_AuthorRef author(&grt);
+  test_AuthorRef author;
   DictRef extras(DictRef::cast_from(obj->get_member("extras")));
   extras.set("extra_string", sv);
   extras.set("extra_int", iv);
@@ -134,11 +134,11 @@ TEST_FUNCTION(2)
 
 TEST_FUNCTION(3)
 {
-  ObjectListRef list(&grt);
+  ObjectListRef list;
 
-  test_BookRef book1(&grt);
-  test_BookRef book2(&grt);
-  test_AuthorRef author(&grt);
+  test_BookRef book1;
+  test_BookRef book2;
+  test_AuthorRef author;
 
   author->name("the author");
   
@@ -169,11 +169,11 @@ TEST_FUNCTION(5)
 {
   // test serialization of lists with NULL values
 
-  grt::ListRef<db_Table> list(&grt);
+  grt::ListRef<db_Table> list;
 
-  list.insert(db_TableRef(&grt));
   list.insert(db_TableRef());
-  list.insert(db_TableRef(&grt));
+  list.insert(db_TableRef());
+  list.insert(db_TableRef());
 
   grt.serialize(list, "null_list.xml");
 
@@ -193,16 +193,16 @@ TEST_FUNCTION(5)
   static const std::string filename("serialization_test.xml");
 
   {
-    db_CatalogRef catalog(&grt);
-    ListRef<db_SimpleDatatype> datatypes(&grt);
+    db_CatalogRef catalog;
+    ListRef<db_SimpleDatatype> datatypes;
     catalog.simpleDatatypes(datatypes);
-    db_SimpleDatatypeRef datatype(&grt);
+    db_SimpleDatatypeRef datatype;
     datatypes.insert(datatype);
     grt.serialize(catalog, filename); // the only set attr simpleDatatypes shouldn't be serialized
   }
 
   // now compare with empty catalog
-  db_CatalogRef catalog(&grt);
+  db_CatalogRef catalog;
   ValueRef res_catalog(grt.unserialize(filename));
   grt_ensure_equals(
     "Check attr:dontfollow=\"1\"",

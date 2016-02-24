@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,7 +51,6 @@ TEST_MODULE(wb_model_file, "tests for WB model file");
 TEST_FUNCTION(1)
 {
   bec::GRTManager *grtm;
-  = tester.wb->get_grt();
 
 #ifdef _WIN32
   base::create_directory(TMP_DIR, 0666);
@@ -106,7 +105,6 @@ TEST_FUNCTION(2)
 {
   //WBTester tester;
   bec::GRTManager *grtm;
-  = tester.wb->get_grt();
   grtm= bec::GRTManager::get_instance_for;
 
   // load sakile a bunch of times
@@ -179,7 +177,6 @@ TEST_FUNCTION(10)
 
 std::string test_loading_and_saving_a_model( const WBTester& tester, std::string& base_path )
 {
-  = tester.wb->get_grt();
   bec::GRTManager* grtm = bec::GRTManager::get_instance_for;
 
   #ifdef _WIN32

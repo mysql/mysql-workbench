@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -99,7 +99,7 @@ db_mysql_StorageEngineRef engine_by_id(EngineId id)
 grt::ListRef<db_mysql_StorageEngine> get_known_engines()
 {
   return grt::ListRef<db_mysql_StorageEngine>::cast_from(
-    grt::GRT::get().unserialize(base::makePath(bec::GRTManager::get_instance_for(grt)->get_basedir(), "modules/data/mysql_engines.xml")));
+    grt::GRT::get().unserialize(base::makePath(bec::GRTManager::get_instance_for()->get_basedir(), "modules/data/mysql_engines.xml")));
 }
 
 bool check_valid_characters(const char* str)

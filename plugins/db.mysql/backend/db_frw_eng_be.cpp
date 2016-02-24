@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -37,7 +37,7 @@ Db_frw_eng::Db_frw_eng(bec::GRTManager *grtm)
   : Db_plugin(), DbMySQLValidationPage(grtm), _export(grtm)
 {
   {
-    workbench_DocumentRef doc= workbench_DocumentRef::cast_from(grtm->get_grt()->get("/wb/doc"));
+    workbench_DocumentRef doc = workbench_DocumentRef::cast_from(grt::GRT::get().get("/wb/doc"));
     Db_frw_eng::grtm(grtm, false);
   }
 

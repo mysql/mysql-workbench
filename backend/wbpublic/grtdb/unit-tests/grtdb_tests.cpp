@@ -1,5 +1,5 @@
 ﻿/* 
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,7 +38,7 @@ public:
 TEST_DATA_CONSTRUCTOR(grtdb_tests)
 {
   grtm = tester.wb->get_grt_manager();
-  populate_grt(tester.grt, tester);
+  populate_grt(tester);
 }
 END_TEST_DATA_CLASS
 
@@ -53,10 +53,10 @@ TEST_FUNCTION(5)
 {
   // test primary key
 
-  db_mysql_TableRef table();
+  db_mysql_TableRef table;
   table->name("tbl");
 
-  db_mysql_ColumnRef column();
+  db_mysql_ColumnRef column;
 
   column->name("col");
   column->owner(table);
@@ -81,7 +81,7 @@ TEST_FUNCTION(5)
 
 TEST_FUNCTION(10)
 {
-  db_mysql_TableRef table();
+  db_mysql_TableRef table;
   
   ensure_equals("index content type", table->indices().content_class_name(), "db.mysql.Index");
 }
@@ -94,7 +94,7 @@ TEST_FUNCTION(10)
 TEST_FUNCTION(15)
 {
   // Test some generally wrong cases. ml: testing invalid cases is just nonsense. Should be removed.
-  db_ColumnRef column();
+  db_ColumnRef column;
 
   ensure_parse_fail("");
   ensure_parse_fail("()");
@@ -151,16 +151,16 @@ TEST_FUNCTION(20)
 {
   // Go through all our defined datatypes and construct a column definition.
   // Then see if they all parse successfully.
-  db_SchemaRef schema();
+  db_SchemaRef schema;
 
   db_CatalogRef catalog = tester.get_catalog();
   schema->owner(catalog);
 
-  db_mysql_TableRef table();
+  db_mysql_TableRef table;
   table->owner(schema);
   table->name("table");
 
-  db_mysql_ColumnRef column();
+  db_mysql_ColumnRef column;
   column->owner(table);
   column->name("testee");
   table->columns().insert(column);
@@ -631,7 +631,7 @@ TEST_FUNCTION(22)
   grt::ListRef<db_SimpleDatatype> type_list = tester.get_catalog()->simpleDatatypes();
 
   // The latest version at the point of writing this, to include all possible variations.
-  GrtVersionRef version();
+  GrtVersionRef version;
   version->majorNumber(5);
   version->minorNumber(7);
   version->releaseNumber(4);
@@ -658,9 +658,9 @@ TEST_FUNCTION(25)
   // bug: make sure that mysql tables with a composite key have the auto_increment column
   // 1st in the index
 
-  db_mysql_TableRef table();
-  db_mysql_ColumnRef col1();
-  db_mysql_ColumnRef col2();
+  db_mysql_TableRef table;
+  db_mysql_ColumnRef col1;
+  db_mysql_ColumnRef col2;
 
   table->name("table");
 

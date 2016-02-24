@@ -17,11 +17,11 @@
  * 02110-1301  USA
  */
 
-#include <grtpp.h>
+#include "grtpp.h"
 #include "wb_model.h"
 #include "grts/structs.workbench.physical.h"
 #include "grt/grt_manager.h"
-#include <grtpp_undo_manager.h>
+#include "grtpp_undo_manager.h"
 #include "base/string_utilities.h"
 #include "base/wb_iterators.h"
 #include "base/file_utilities.h"
@@ -133,15 +133,14 @@ static void def_export_catalog_plugin(const char* aName, const char* aCaption, g
   }
 */
 
-static void def_figure_selection_plugin(grt::GRT                 *grt, 
-                                        const std::string        &aName, 
+static void def_figure_selection_plugin(const std::string        &aName, 
                                         const std::string        &aCaption, 
                                         const std::string        &aCard, 
                                         grt::ListRef<app_Plugin> &list
                                        )
 {
     app_PluginRef plugin;
-    app_PluginSelectionInputRef pdef
+    app_PluginSelectionInputRef pdef;
 
     plugin->name(("wb.model." + aName).c_str());
 
@@ -223,9 +222,8 @@ void overwrite_default_option(T &value, const std::string &name, const grt::Dict
 std::string WbModelImpl::getTemplateDirFromName(const std::string& template_name)
 {
   // get pointer to the GRT
-  = get_grt();
   std::string template_base_dir= base::makePath(
-    bec::GRTManager::get_instance_for(grt)->get_basedir(), 
+    bec::GRTManager::get_instance_for()->get_basedir(), 
     "modules/data/wb_model_reporting");
 
   // reformat the template name, replace spaces with _
@@ -827,7 +825,7 @@ workbench_physical_DiagramRef WbModelImpl::add_model_view(const db_CatalogRef &c
 
   workbench_physical_ModelRef model= workbench_physical_ModelRef::cast_from(catalog->owner());
 
-  app_PageSettingsRef page(app_PageSettingsRef::cast_from(get_grt()->get("/wb/doc/pageSettings")));
+  app_PageSettingsRef page(app_PageSettingsRef::cast_from(grt::GRT::get().get("/wb/doc/pageSettings")));
   double width, height;
 
   calculate_view_size(page, width, height);
@@ -894,7 +892,7 @@ int WbModelImpl::createDiagramWithObjects(workbench_physical_ModelRef model, grt
 
     end_undo_group(_("Create Diagram with Objects"));
 
-    bec::GRTManager::get_instance_for(model.get_grt())->run_once_when_idle(boost::bind(&WbModelImpl::autolayout, this, view));
+    bec::GRTManager::get_instance_for()->run_once_when_idle(boost::bind(&WbModelImpl::autolayout, this, view));
   }
 
   return 0;
@@ -915,7 +913,7 @@ int WbModelImpl::createDiagramWithCatalog(workbench_physical_ModelRef model, db_
   if (object_count > 250)
     throw logic_error("Cannot create diagram: too many objects to place.\nTry dividing your model into several sub-diagrams with less than 200 objects each.");
 
-  DictRef wb_options= DictRef::cast_from(get_grt()->get("/wb/options/options"));
+  DictRef wb_options= DictRef::cast_from(grt::GRT::get().get("/wb/options/options"));
   
   begin_undo_group();
   workbench_physical_DiagramRef diagram = create_view_for_object_count(model, (int)object_count);
@@ -964,7 +962,7 @@ int WbModelImpl::do_autoplace_any_list(const model_DiagramRef &view, ListRef<Grt
   
   workbench_physical_DiagramRef diagram(workbench_physical_DiagramRef::cast_from(view));
 
-  DictRef wb_options= DictRef::cast_from(get_grt()->get("/wb/options/options"));
+  DictRef wb_options= DictRef::cast_from(grt::GRT::get().get("/wb/options/options"));
   
   GrtObjectRef object;
   model_FigureRef figure;
@@ -1082,8 +1080,6 @@ void WbModelImpl::handle_fklist_change(const model_DiagramRef &view, const db_Ta
         // connection doesnt exist yet, create it
         if (!found)
         {
-          = table.get_grt();
-            
           workbench_physical_ConnectionRef conn;
           conn->owner(view); 
           conn->startFigure(table1);
