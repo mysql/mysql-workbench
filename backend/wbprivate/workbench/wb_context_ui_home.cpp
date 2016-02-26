@@ -487,7 +487,7 @@ void WBContextUI::home_action_callback(HomeScreenAction action, const grt::Value
  */
 void WBContextUI::remove_connection(const db_mgmt_ConnectionRef &connection)
 {
-  grt::BaseListRef args;
+  grt::BaseListRef args(true);
   args->insert_unchecked(connection);
 
   grt::ValueRef result = grt::GRT::get().call_module_function("Workbench", "deleteConnection", args);
@@ -601,7 +601,7 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
     
     if (answer == mforms::ResultOk)
     {
-      grt::BaseListRef args;
+      grt::BaseListRef args(true);
       args->insert_unchecked(object);
 
       grt::ValueRef result = grt::GRT::get().call_module_function("Workbench", "deleteConnectionGroup", args);
@@ -883,7 +883,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
                                                                      "\nPlease stand by..."));
       _wb->show_status_text(_("Connecting to MySQL Fabric Management Node..."));
       db_mgmt_ConnectionRef connection(db_mgmt_ConnectionRef::cast_from(object));
-      grt::BaseListRef args;
+      grt::BaseListRef args(true);
       args->insert_unchecked(connection);
       
       std::string error;
@@ -1032,7 +1032,7 @@ void WBContextUI::refresh_home_connections(bool clear_state)
     if (module == NULL)
       throw std::logic_error("Internal error: can't find Workbench module.");
     
-    grt::StringListRef arguments;
+    grt::StringListRef arguments(grt::Initialized);
     module->call_function("createInstancesFromLocalServers", arguments);
   }
 

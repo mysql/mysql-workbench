@@ -696,13 +696,13 @@ public:
     _dataTransferLog(this, false),
     _defaultColumnValueMappings(this, false),
     _genericDatatypeMappings(this, false),
-    _ignoreList(this, false),
+    _ignoreList(grt::Initialized, this, false),
     _migrationLog(this, false),
     _objectCreationParams(this, false),
     _objectMigrationParams(this, false),
-    _selectedSchemataNames(this, false),
+    _selectedSchemataNames(grt::Initialized, this, false),
     _sourceObjects(this, false),
-    _sourceSchemataNames(this, false),
+    _sourceSchemataNames(grt::Initialized, this, false),
     _data(0)
 
   {

@@ -218,7 +218,7 @@ std::vector<std::pair<std::string, std::string> > DbDriverParam::get_enum_option
     grt::Module *module = grt::GRT::get().get_module(*_inner->lookupValueModule());
     if (module)
     {
-      grt::BaseListRef args;
+      grt::BaseListRef args(true);
       grt::ValueRef result = module->call_function(*_inner->lookupValueMethod(), args);
       if (result.is_valid() && grt::StringListRef::can_wrap(result))
       {
@@ -564,7 +564,7 @@ grt::DictRef DbDriverParams::get_params() const
 {
   if (_driver.is_valid())
   {
-    grt::DictRef params;
+    grt::DictRef params(true);
     for (Collection::const_iterator i= _collection.begin(); i != _collection.end(); ++i)
     {
       DbDriverParam *param_handle= *i;

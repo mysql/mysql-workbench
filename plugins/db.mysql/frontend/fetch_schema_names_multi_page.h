@@ -87,7 +87,7 @@ protected:
     // order the schema names alphabetically
     std::sort(schema_names.begin(), schema_names.end(), std::ptr_fun(&FetchSchemaNamesSourceTargetProgressPage::collate));
 
-    grt::StringListRef list;
+    grt::StringListRef list(grt::Initialized);
     for (std::vector<std::string>::const_iterator iter= schema_names.begin();
          iter != schema_names.end(); ++iter)
       list.insert(*iter);
@@ -107,7 +107,7 @@ protected:
     std::string path = values().get_string(source ? "left_source_file" : "right_source_file");
     db_CatalogRef catalog = parse_catalog_from_file(path);
 
-    grt::StringListRef schemata;
+    grt::StringListRef schemata(grt::Initialized);
     for (size_t i = 0; i < catalog->schemata().count(); i++)
       schemata.insert(catalog->schemata()[i]->name());
 
@@ -160,7 +160,7 @@ protected:
   {
     {
       db_CatalogRef catalog(_model_catalog);
-      grt::StringListRef names;
+      grt::StringListRef names(grt::Initialized);
       for (size_t i = 0; i < catalog->schemata().count(); i++)
         names.insert(catalog->schemata()[i]->name());
       values().set(source ? "schemata" : "targetSchemata", names);

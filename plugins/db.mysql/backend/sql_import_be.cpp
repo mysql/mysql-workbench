@@ -28,7 +28,7 @@ void Sql_import::grtm(bec::GRTManager *grtm)
 {
   if (grtm)
   {
-    _options= grt::DictRef();
+    _options= grt::DictRef(true);
     _doc= workbench_DocumentRef::cast_from(grt::GRT::get().get("/wb/doc"));
 
     // init some options based on global defaults
@@ -116,7 +116,7 @@ grt::ValueRef Sql_import::autoplace_grt()
   {
     grt::Module *module= grt::GRT::get().get_module("WbModel");
 
-    grt::BaseListRef args;
+    grt::BaseListRef args(true);
 
     args.ginsert(model);
     args.ginsert(objects);

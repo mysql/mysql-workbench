@@ -58,7 +58,7 @@ public:
      _itemDisplayMode(0),
      _itemInfoFunction(""),
      _nodeId(""),
-    _selectedItems(this, false),
+    _selectedItems(grt::Initialized, this, false),
      _tabActivationFunction(""),
      _tabCountFunction(""),
      _tabInfoFunction("")

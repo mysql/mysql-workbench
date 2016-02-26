@@ -417,10 +417,10 @@ public:
     deleg_filtered(new LiveTreeTestDelegate())
   {
 
-    grt.set("/wb", grt::DictRef());
-    grt.set("/wb/options", grt::DictRef());
-    grt.set("/wb/options/options", grt::DictRef());
-    grt.set("/wb/options/options/SqlEditor:AutoFetchColumnInfo", grt::IntegerRef(1));
+    grt::GRT::get().set("/wb", grt::DictRef(true));
+    grt::GRT::get().set("/wb/options", grt::DictRef(true));
+    grt::GRT::get().set("/wb/options/options", grt::DictRef(true));
+    grt::GRT::get().set("/wb/options/options/SqlEditor:AutoFetchColumnInfo", grt::IntegerRef(1));
 
     mforms::stub::init(NULL);
     pmodel_view = new mforms::TreeView(mforms::TreeNoColumns | mforms::TreeNoBorder | mforms::TreeSidebar | mforms::TreeNoHeader);

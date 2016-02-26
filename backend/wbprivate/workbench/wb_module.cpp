@@ -545,7 +545,7 @@ int WorkbenchImpl::newDocumentFromDB()
   if (module == NULL)
     throw std::logic_error("Internal error: can't find Workbench DB module.");
 
-  grt::BaseListRef args;
+  grt::BaseListRef args(true);
   args.ginsert(_wb->get_document()->physicalModels()[0]->catalog());
   grt::IntegerRef resultRef = grt::IntegerRef::cast_from(module->call_function("runDbImportWizard", args));
 
@@ -1867,9 +1867,8 @@ grt::DictListRef WorkbenchImpl::getLocalServerList()
     log_error("Unable to locate installed MySQL Servers.\n");
   }
   
-  
 #else
-    entries = grt::DictListRef();
+    entries = grt::DictListRef(grt::Initialized);
   
     char *stdo = NULL;
     char *ster = NULL;
@@ -1889,7 +1888,7 @@ grt::DictListRef WorkbenchImpl::getLocalServerList()
 
       for(index = servers.begin(); index !=end; index++)
       {
-        DictRef server;
+        DictRef server(true);
         std::string command = *index;
         if (command.length())
         {
@@ -2280,7 +2279,7 @@ int WorkbenchImpl::initializeOtherRDBMS()
 
   // Init MySQL first.
   grt::Module* mysql_module = grt::GRT::get().get_module("DbMySQL");//already loaded on startup
-  grt::BaseListRef args;
+  grt::BaseListRef args(true);
 
   // init other RDBMS
   bool failed = false;

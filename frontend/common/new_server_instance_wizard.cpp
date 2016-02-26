@@ -877,7 +877,7 @@ void WindowsManagementPage::enter(bool advancing)
       grt::ValueRef wmi_session;
 
       {
-        grt::StringListRef arguments;
+        grt::StringListRef arguments(grt::Initialized);
         arguments.ginsert(grt::StringRef(host));
         arguments.ginsert(grt::StringRef(user));
         arguments.ginsert(grt::StringRef(password));
@@ -888,7 +888,7 @@ void WindowsManagementPage::enter(bool advancing)
 
       grt::ValueRef wmi_result;
       {
-        grt::BaseListRef arguments;
+        grt::BaseListRef arguments(true);
         arguments.ginsert(wmi_session);
         arguments.ginsert(grt::StringRef("select * from Win32_Service where (Name like \"%mysql%\" or DisplayName like \"%mysql%\")"));
 
@@ -1372,7 +1372,7 @@ void PathsPage::browse_remote_config_file()
 {
   db_mgmt_ServerInstanceRef instance(wizard()->assemble_server_instance());
 
-  grt::BaseListRef args;
+  grt::BaseListRef args(true);
   args.ginsert(values().get("connection"));
   args.ginsert(instance);
 
@@ -1699,7 +1699,7 @@ bool NewServerInstanceWizard::test_setting(const std::string &name, std::string 
   grt::Module *module= grt::GRT::get().get_module("WbAdmin");
   if (module)
   {
-    grt::BaseListRef args;
+    grt::BaseListRef args(true);
     grt::ValueRef ret;
     args.ginsert(grt::StringRef(name));
     args.ginsert(values().get("connection"));

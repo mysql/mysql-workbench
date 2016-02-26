@@ -130,9 +130,9 @@ TEST_FUNCTION(2)
     boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
     boost::shared_ptr<DiffChange> drop_change= diff_make(catalog, e, &omf);
 
-    DictRef create_map;
-    DictRef drop_map;
-    grt::DictRef options;
+    DictRef create_map(true);
+    DictRef drop_map(true);
+    grt::DictRef options(true);
     options.set("UseFilteredLists", grt::IntegerRef(0));
     options.set("OutputContainer", create_map);
     options.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
@@ -168,9 +168,9 @@ TEST_FUNCTION(2)
    /*
    {
        // 1. generate alter
-    grt::StringListRef alter_map;
+    grt::StringListRef alter_map(grt::Initialized);
     grt::ListRef<GrtNamedObject> alter_object_list;
-    grt::DictRef options;
+    grt::DictRef options(true);
     options.set("UseFilteredLists", grt::IntegerRef(0));
     options.set("OutputContainer", alter_map);
     options.set("OutputObjectContainer", alter_object_list);
@@ -207,9 +207,9 @@ TEST_FUNCTION(2)
    diff = diff_make(cat1_and_cat2, cat1, &omf);
    {
        // 1. generate alter
-       grt::StringListRef alter_map;
+       grt::StringListRef alter_map(grt::Initialized);
        grt::ListRef<GrtNamedObject> alter_object_list;
-       grt::DictRef options;
+       grt::DictRef options(true);
        options.set("UseFilteredLists", grt::IntegerRef(0));
        options.set("OutputContainer", alter_map);
        options.set("OutputObjectContainer", alter_object_list);

@@ -1092,6 +1092,8 @@ namespace grt {
     enum {
       npos= internal::List::npos
     };
+
+    BaseListRef() {}
     
     BaseListRef(const BaseListRef &list)
       : ValueRef(list)
@@ -1103,7 +1105,7 @@ namespace grt {
     {
     }
 
-    BaseListRef(bool allow_null = true)
+    BaseListRef(bool allow_null)
       : ValueRef(new internal::List(allow_null))
     {
     }
@@ -1245,7 +1247,9 @@ namespace grt {
     typedef TypedListConstReverseIterator<O> const_reverse_iterator;
     typedef Ref<O> value_type;
 
-    ListRef(bool allow_null = true)
+    ListRef() {}
+
+    ListRef(bool allow_null)
       : BaseListRef(ObjectType, O::static_class_name(), 0, allow_null)
     {
     }
@@ -1376,7 +1380,11 @@ namespace grt {
     class MYSQLGRT_PUBLIC ListRef<internal::Integer> : public BaseListRef
   {
   public:
-    ListRef(internal::Object *owner= 0, bool allow_null= true)
+    ListRef()
+    {
+    }
+
+    ListRef(CreateMode mode, internal::Object *owner= 0, bool allow_null= true)
       : BaseListRef(IntegerType, "", owner, allow_null)
     {
     }
@@ -1457,7 +1465,12 @@ namespace grt {
   class MYSQLGRT_PUBLIC ListRef<internal::Double> : public BaseListRef
   {
   public:
-    ListRef(internal::Object *owner= 0, bool allow_null= true)
+
+    ListRef()
+    {
+    }
+
+    ListRef(CreateMode mode, internal::Object *owner= 0, bool allow_null= true)
       : BaseListRef(DoubleType, "", owner, allow_null)
     {
     }
@@ -1541,7 +1554,11 @@ namespace grt {
     typedef TypedListConstIterator<internal::String> const_iterator;
     typedef TypedListConstReverseIterator<internal::String> const_reverse_iterator;
 
-    ListRef(internal::Object *owner = nullptr, bool allow_null= true)
+    ListRef()
+    {
+    }
+
+    ListRef(CreateMode mode, internal::Object *owner = nullptr, bool allow_null = true)
       : BaseListRef(StringType, "", owner, allow_null)
     {
     }
@@ -1649,11 +1666,13 @@ namespace grt {
   {
   public:
     typedef internal::Dict RefType;
-
     typedef internal::Dict::const_iterator const_iterator;
 
-  public:
-    DictRef(bool allow_null = true)
+    DictRef()
+    {
+    }
+
+    DictRef(bool allow_null)
       : ValueRef(new internal::Dict(allow_null))
     {
     }
@@ -1668,7 +1687,7 @@ namespace grt {
     {
     }
 
-    DictRef(internal::Object *owner, bool allow_null= true)
+    DictRef(internal::Object *owner, bool allow_null = true)
       : ValueRef(new internal::OwnedDict(AnyType, "", owner, allow_null))
     {
     }
@@ -1831,7 +1850,11 @@ namespace grt {
     class MYSQLGRT_PUBLIC ListRef<internal::Dict> : public BaseListRef
   {
   public:
-    ListRef(internal::Object *owner= 0, bool allow_null= true)
+    ListRef()
+    {
+    }
+
+    ListRef(CreateMode mode, internal::Object *owner= 0, bool allow_null= true)
       : BaseListRef(DictType, "", owner, allow_null)
     {
     }

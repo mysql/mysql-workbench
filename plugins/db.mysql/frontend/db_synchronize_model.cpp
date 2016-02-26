@@ -182,7 +182,7 @@ public:
 
       values().set("targetSchemata", values().get("schemata"));
 
-      grt::StringListRef schema_list;
+      grt::StringListRef schema_list(grt::Initialized);
       grt::ListRef<db_Schema> schemas = _db_be->model_catalog()->schemata();
       for (size_t i = 0; i < schemas.count(); i++)
         schema_list.insert(schemas[i]->name());

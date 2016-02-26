@@ -53,15 +53,15 @@ TEST_MODULE(highlevel_mysql_parser_test, "High level MySQL parser tests");
 TEST_FUNCTION(10)
 {
   // init datatypes
-  populate_grt(_tester.grt, _tester);
+  populate_grt(_tester);
 
-  _options = DictRef(_tester.grt);
+  _options = DictRef(true);
   _options.set("gen_fk_names_when_empty", IntegerRef(0));
 
   _sqlFacade = SqlFacade::instance_for_rdbms(_tester.get_rdbms());
   ensure("failed to get sqlparser module", _sqlFacade != NULL);
 
-  _services = MySQLParserServices::get(_tester.grt);
+  _services = MySQLParserServices::get();
   _context = MySQLParserServices::createParserContext(_tester.get_rdbms()->characterSets(),
     _tester.get_rdbms()->version(), false);
 }

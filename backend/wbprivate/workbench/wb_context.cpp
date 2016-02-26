@@ -775,7 +775,7 @@ bool WBContext::software_rendering_enforced()
       "82945G" // Intel(R) 82945G Express chip set Family
     };
 
-    grt::StringListRef arguments;
+    grt::StringListRef arguments(grt::Initialized);
     std::string videoAdapter = grt::StringRef::cast_from(_workbench->call_function("getVideoAdapter", arguments));
     for (unsigned int i = 0; i < sizeof(excluded_adapters) / sizeof(excluded_adapters[0]); i++)
       if (videoAdapter.find(excluded_adapters[i]) != std::string::npos)
@@ -1142,7 +1142,7 @@ void WBContext::init_finish_(WBOptions *options)
   if (options->full_init)
   {
     const std::vector<grt::Module*> &modules(grt::GRT::get().get_modules());
-    grt::BaseListRef args;
+    grt::BaseListRef args(true);
 
     for (std::vector<grt::Module*>::const_iterator it = modules.begin();
          it != modules.end(); ++it)
@@ -1256,7 +1256,7 @@ void WBContext::init_finish_(WBOptions *options)
           }
           else // else we will try to parse the param as connection string
           {
-            grt::BaseListRef args;
+            grt::BaseListRef args(true);
             args.ginsert(grt::StringRef(options->open_connection));
 
             grt::ValueRef val = grt::GRT::get().call_module_function("PyWbUtils","connectionFromString", args);
@@ -1403,7 +1403,7 @@ void WBContext::init_rdbms_modules()
   grt::Module* module = grt::GRT::get().get_module("DbMySQL");
   if (!module)
     throw std::logic_error("DbMySQL module not found");
-  grt::BaseListRef args;
+  grt::BaseListRef args(true);
   module->call_function("initializeDBMSInfo", args);
 
   // Will done prior to Migration init, to speed up app startup.
@@ -1449,7 +1449,7 @@ grt::ValueRef WBContext::setup_context_grt(WBOptions *options)
 
 void WBContext::init_grt_tree(WBOptions *options, boost::shared_ptr<grt::internal::Unserializer> unserializer)
 {
-  grt::DictRef root;
+  grt::DictRef root(true);
   workbench_WorkbenchRef app(grt::Initialized);
 
   _wb_root= app;
@@ -3372,7 +3372,7 @@ void WBContext::report_bug(const std::string &errorInfo)
     throw std::runtime_error("Workbench module not found");
 
   // Setst he parameters for the python plugin
-  grt::BaseListRef args;
+  grt::BaseListRef args(true);
   args.ginsert(grt::StringRef(errorInfo));
 
   module->call_function("reportBug",args);
@@ -3404,9 +3404,7 @@ void WBContext::execute_plugin(const std::string &plugin_name, const ArgumentPoo
   }
   
   // build the argument list
-  grt::BaseListRef fargs;
-  
-  fargs= argpool.build_argument_list(plugin);
+  grt::BaseListRef fargs = argpool.build_argument_list(plugin);
 
   // internal plugins are executed directly in the main thread
   if (plugin->pluginType() == INTERNAL_PLUGIN_TYPE || plugin->pluginType() == STANDALONE_GUI_PLUGIN_TYPE)
@@ -3690,7 +3688,7 @@ void WBContext::add_new_admin_window(const db_mgmt_ConnectionRef &target)
   boost::shared_ptr<SqlEditorForm> conn(add_new_query_window(target));
   if (conn)
   {
-    grt::BaseListRef args;
+    grt::BaseListRef args(true);
     db_query_EditorRef editor(_sqlide_context->get_grt_editor_object(conn.get()));
     args.ginsert(editor);
     args.ginsert(grt::StringRef("admin_server_status"));

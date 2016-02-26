@@ -461,9 +461,9 @@ class  db_CharacterSet : public GrtObject
 {
   typedef GrtObject super;
 public:
-  db_CharacterSet(grt::MetaClass *meta=0)
+  db_CharacterSet(grt::MetaClass *meta = nullptr)
   : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
-    _collations(this, false),
+  _collations(grt::Initialized, this, false),
      _defaultCollation(""),
      _description("")
 
@@ -1252,13 +1252,13 @@ public:
      _characterMaximumLength(0),
      _characterOctetLength(0),
      _dateTimePrecision(0),
-    _flags(this, false),
+     _flags(grt::Initialized, this, false),
      _needsQuotes(0),
      _numericPrecision(0),
      _numericPrecisionRadix(0),
      _numericScale(0),
      _parameterFormatType(0),
-    _synonyms(this, false),
+     _synonyms(grt::Initialized, this, false),
      _validity("")
 
   {
@@ -1686,7 +1686,7 @@ public:
      _datatypeExplicitParams(""),
      _defaultValue(""),
      _defaultValueIsNull(0),
-    _flags(this, false),
+     _flags(grt::Initialized, this, false),
      _isNotNull(0),
      _length(-1),
      _precision(-1),
@@ -2128,7 +2128,7 @@ public:
   : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _databaseObjectName(""),
      _databaseObjectType(""),
-    _privileges(this, false)
+     _privileges(grt::Initialized, this, false)
 
   {
   }
@@ -3259,8 +3259,8 @@ class GRT_STRUCTS_DB_PUBLIC db_RoutineGroup : public db_DatabaseObject
 public:
   db_RoutineGroup(grt::MetaClass *meta=0)
   : db_DatabaseObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
-    _routineExpandedHeights(this, false),
-    _routineExpandedStates(this, false),
+    _routineExpandedHeights(grt::Initialized, this, false),
+    _routineExpandedStates(grt::Initialized, this, false),
     _routines(this, false)
   {
   }
@@ -5851,7 +5851,7 @@ public:
   db_View(grt::MetaClass *meta=0)
   : db_DatabaseDdlObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _algorithm(0),
-    _columns(this, false),
+     _columns(grt::Initialized, this, false),
      _isReadOnly(0),
      _oldModelSqlDefinition(""),
      _oldServerSqlDefinition(""),

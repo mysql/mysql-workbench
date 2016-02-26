@@ -801,7 +801,7 @@ public:
      _caption(""),
      _description(""),
      _driverLibraryName(""),
-    _files(this, false),
+    _files(grt::Initialized, this, false),
      _filesTarget(""),
      _hostIdentifierTemplate(""),
     _parameters(this, false)
@@ -1072,7 +1072,7 @@ class  db_mgmt_PrivilegeMapping : public GrtObject
 public:
   db_mgmt_PrivilegeMapping(grt::MetaClass *meta=0)
   : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
-    _privileges(this, false),
+    _privileges(grt::Initialized, this, false),
      _structName("")
 
   {

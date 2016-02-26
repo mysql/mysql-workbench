@@ -34,7 +34,7 @@ using namespace grt;
 
 static grt::DictRef get_traits(bool case_sensitive = false)
 {
-  grt::DictRef traits;
+  grt::DictRef traits(grt);
     traits.set("CaseSensitive", grt::IntegerRef(case_sensitive));
   traits.set("maxTableCommentLength", grt::IntegerRef(60));
   traits.set("maxIndexCommentLength", grt::IntegerRef(0));
@@ -69,9 +69,9 @@ TEST_FUNCTION(10)
 
   DbMySQLImpl *diffsql_module= grt::GRT::get().get_native_module<DbMySQLImpl>();
 
-  grt::StringListRef alter_map;
-  grt::ListRef<GrtNamedObject> alter_object_list;
-  grt::DictRef options;
+  grt::StringListRef alter_map(grt::Initialized);
+  grt::ListRef<GrtNamedObject> alter_object_list(true);
+  grt::DictRef options(true);
   options.set("UseFilteredLists", grt::IntegerRef(0));
   options.set("OutputContainer", alter_map);
   options.set("OutputObjectContainer", alter_object_list);
@@ -120,7 +120,7 @@ TEST_FUNCTION(20)
 
   DbMySQLImpl *diffsql_module= grt::GRT::get().get_native_module<DbMySQLImpl>();
 
-  grt::DictRef options;
+  grt::DictRef options(true);
   options.set("CaseSensitive", grt::IntegerRef(true));
   options.set("GenerateDocumentProperties", grt::IntegerRef(0));
 
@@ -152,7 +152,7 @@ TEST_FUNCTION(21)
   db_mysql_CatalogRef target_cat = db_mysql_CatalogRef::cast_from(target_val);
   DbMySQLImpl *diffsql_module= grt::GRT::get().get_native_module<DbMySQLImpl>();
 
-  grt::DictRef options;
+  grt::DictRef options(true);
   options.set("CaseSensitive", grt::IntegerRef(true));
   options.set("GenerateDocumentProperties", grt::IntegerRef(0));
 
@@ -184,7 +184,7 @@ TEST_FUNCTION(22)
   db_mysql_CatalogRef target_cat = db_mysql_CatalogRef::cast_from(target_val);
   DbMySQLImpl *diffsql_module= grt::GRT::get().get_native_module<DbMySQLImpl>();
 
-  grt::DictRef options;
+  grt::DictRef options(true);
   options.set("CaseSensitive", grt::IntegerRef(true));
   options.set("GenerateDocumentProperties", grt::IntegerRef(0));
 

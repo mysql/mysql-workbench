@@ -303,7 +303,7 @@ class  GrtMessage : public GrtObject
 public:
   GrtMessage(grt::MetaClass *meta=0)
   : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
-    _details(this, false),
+    _details(grt::Initialized, this, false),
      _msg(""),
      _msgType(0)
   {

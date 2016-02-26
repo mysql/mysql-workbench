@@ -77,7 +77,7 @@ DBObjectEditorBE::DBObjectEditorBE(GRTManager *grtm, const db_DatabaseObjectRef 
   // Get notified about version number changes.
   grt::GRTNotificationCenter::get()->add_grt_observer(this, "GRNPreferencesDidClose");
     
-  grt::DictRef info;
+  grt::DictRef info(true);
   info.gset("form", form_id());
   info.set("object", object);
 

@@ -398,7 +398,7 @@ void SqlEditorResult::switch_tab()
         _execution_plan_placeholder = NULL;
 
         // if the explain tab is just a placeholder, execute visual explain, which will replace the tab when docking
-        grt::BaseListRef args(grt::Initialized);
+        grt::BaseListRef args(true);
         args.ginsert(_owner->grtobj());
         args.ginsert(_grtobj);
         try
@@ -500,7 +500,7 @@ void SqlEditorResult::show_import_recordset()
   {
     RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR(Recordset, _rset, rs)
     {
-      grt::BaseListRef args(grt::Initialized);
+      grt::BaseListRef args(true);
 
       if (result_grtobj().is_valid())
       {

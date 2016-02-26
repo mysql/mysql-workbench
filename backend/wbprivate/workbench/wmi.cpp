@@ -474,7 +474,7 @@ grt::DictListRef WmiServices::query(const std::string& query)
   // from different threads we play safe here, as it does not harm either.
   base::MutexLock lock(_locator_mutex);
 
-  grt::DictListRef queryResult;
+  grt::DictListRef queryResult(grt::Initialized);
 
   // Execute the given query.
   CComPtr<IEnumWbemClassObject> enumerator;
@@ -507,7 +507,7 @@ grt::DictListRef WmiServices::query(const std::string& query)
       SafeArrayGetLBound(names, 1, &lowBound);
       SafeArrayGetUBound(names, 1, &highBound);
 
-      DictRef resultNames;
+      DictRef resultNames(true);
       for (long i = lowBound; i <= highBound; i++)
       {
         CComBSTR name;

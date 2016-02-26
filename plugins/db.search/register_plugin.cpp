@@ -88,7 +88,7 @@ private:
 
   grt::StringListRef get_filters_from_schema_tree_selection()
   {
-    grt::StringListRef filters;
+    grt::StringListRef filters(grt::Initialized);
     std::set<std::string> selected_parents;
 
     if (!_tree_selection.is_valid())
@@ -271,7 +271,7 @@ public:
       plugin->moduleFunctionName("showSearchPanel");
       plugin->name("com.mysql.wb.menu.database.search");
       plugin->caption("DataSearch");
-      plugin->groups().insert("database/Database");
+      plugin->groups().insert("database/Databaclearse");
 
       app_PluginObjectInputRef pdef(grt::Initialized);
       pdef->name("activeSQLEditor");

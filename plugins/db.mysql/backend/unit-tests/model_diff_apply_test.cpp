@@ -102,7 +102,6 @@ protected:
   grt::DbObjectMatchAlterOmf omf;
 
   db_mysql_CatalogRef create_catalog_from_script(const std::string& sql);
-  db_mysql_CatalogRef create_catalog_from_script(const std::string& sql);
 
   std::string run_sync_plugin_generate_script(
     const std::vector<std::string>&,
@@ -196,7 +195,7 @@ boost::shared_ptr<DiffChange> tut::Test_object_base<model_diff_apply>::compare_c
   bec::CatalogHelper::apply_defaults(cat, default_engine_name);
   bec::CatalogHelper::apply_defaults(org_cat, default_engine_name);
 
-  grt::NormalizedComparer comparer(tester.grt,grt::DictRef(tester.grt));
+  grt::NormalizedComparer comparer(grt::DictRef(true));
   comparer.init_omf(&omf);
 
   return diff_make(cat, org_cat, &omf);
@@ -205,7 +204,7 @@ boost::shared_ptr<DiffChange> tut::Test_object_base<model_diff_apply>::compare_c
 void tut::Test_object_base<model_diff_apply>::apply_sql_to_model(const std::string& sql)
 {
 
-  db_mysql_CatalogRef org_cat= create_catalog_from_script(sql, tester.grt);
+  db_mysql_CatalogRef org_cat= create_catalog_from_script(sql);
 
   std::vector<std::string> schemata;
   schemata.push_back("mydb");
@@ -215,7 +214,7 @@ void tut::Test_object_base<model_diff_apply>::apply_sql_to_model(const std::stri
   DbMySQLSQLExportTest *plugin= new DbMySQLSQLExportTest(
     tester.wb->get_grt_manager(), mod_cat);
   
-  grt::DictRef options;
+  grt::DictRef options(true);
   options.set("UseFilteredLists", grt::IntegerRef(0));
   plugin->set_options_as_dict(options);
 
