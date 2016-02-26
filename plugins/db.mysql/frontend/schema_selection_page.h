@@ -38,7 +38,7 @@ public:
   {
     if (advancing)
     {
-      grt::StringListRef list;
+      grt::StringListRef list(grt::Initialized);
       std::vector<std::string> selection= _check_list.get_selection();
 
       for (std::vector<std::string>::const_iterator iter= _schemas.begin();

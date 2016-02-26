@@ -125,7 +125,7 @@ grt::ValueRef AddOnDownloadWindow::DownloadItem::perform_download()
   if (!module)
     throw std::runtime_error("Can't locate module WbUpdater");
   
-  grt::BaseListRef args;
+  grt::BaseListRef args(true);
   args.ginsert(grt::StringRef(_url));
   args.ginsert(grt::StringRef(_dest_path));
   

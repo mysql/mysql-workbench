@@ -161,7 +161,7 @@ static void def_figure_selection_plugin(const std::string        &aName,
 
 ListRef<app_Plugin> WbModelImpl::getPluginInfo()
 {
-  ListRef<app_Plugin> list;
+  ListRef<app_Plugin> list(true);
 
   def_export_view_plugin("center", "Center Diagram Contents", list);
   def_export_view_plugin("autolayout", "Autolayout Figures", list);

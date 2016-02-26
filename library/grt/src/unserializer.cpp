@@ -316,7 +316,7 @@ ValueRef internal::Unserializer::traverse_xml_recreating_tree(xmlNodePtr node)
           throw std::runtime_error("Error parsing XML. Invalid type "+prop);
       }
       else
-        value= dict= DictRef();
+        value= dict= DictRef(true);
       
       if (!ptr.empty())
         _cache[ptr]= value;

@@ -106,7 +106,7 @@ TEST_FUNCTION(20)
     {
       try {
         bec::TableHelper::create_foreign_key_to_table(table, prev_table, true, true, true, true,
-          rdbms, grt::DictRef(), grt::DictRef());
+          rdbms, grt::DictRef(true), grt::DictRef(true));
       }
       catch (...)
       {}

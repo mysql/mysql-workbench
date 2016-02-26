@@ -34,7 +34,7 @@ DBObjectMasterFilterBE::DBObjectMasterFilterBE(GRTManager *grtm)
     _stored_master_filter_sets= grt::DictRef::cast_from(
       grt::GRT::get().unserialize(_stored_master_filter_sets_filepath));
   if (!_stored_master_filter_sets.is_valid())
-    _stored_master_filter_sets= grt::DictRef();
+    _stored_master_filter_sets= grt::DictRef(true);
 }
 
 
@@ -55,7 +55,7 @@ void DBObjectMasterFilterBE::add_stored_filter_set(const std::string &name, std:
   if (_filters.empty())
     return;
 
-  grt::DictRef stored_filter_sets;
+  grt::DictRef stored_filter_sets(true);
   _stored_master_filter_sets.set(name, stored_filter_sets);
 
   {
@@ -96,7 +96,7 @@ void DBObjectMasterFilterBE::load_stored_filter_set(int index, std::list<int> &i
   = _grtm->get_grt();
 
   std::string key;
-  grt::DictRef filter_set_indexes;
+  grt::DictRef filter_set_indexes(true);
 
   _stored_master_filter_sets.get_by_index(index, key, filter_set_indexes);
 

@@ -63,7 +63,7 @@ static int list_init(PyGRTListObject *self, PyObject *args, PyObject *kwds)
     else
     {
       if (!type)
-        self->list= new grt::BaseListRef();
+        self->list= new grt::BaseListRef(true);
       else
       {
         grt::Type content_type= grt::str_to_type(type);

@@ -108,7 +108,7 @@ TEST_FUNCTION(99)
   diagram->unselectAll();
 
   WBTester other(false);
-  populate_grt(other.grt, other); // Needed for comparison.
+  populate_grt(other); // Needed for comparison.
 
   other.wb->open_document("data/workbench/undo_test_model1_duplicate.mwb");
   /*
@@ -753,8 +753,8 @@ TEST_FUNCTION(42) // Create Relationship (indirectly with FK)
                                                     true, true,
                                                     true, false,
                                                     tester.get_rdbms(),
-                                                    DictRef(tester.grt),
-                                                    DictRef(tester.grt));
+                                                    DictRef(true),
+                                                    DictRef(true));
   check_only_one_undo_added();
 
   ensure_equals("rel count", diagram->connections().count(), 2U);

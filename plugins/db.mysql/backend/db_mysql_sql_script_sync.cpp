@@ -456,12 +456,12 @@ grt::StringRef DbMySQLScriptSync::generate_alter(db_mysql_CatalogRef org_cat, db
   if (!alter_change)
     return grt::StringRef("");
 
-  grt::DictRef options;
-  grt::StringListRef alter_list;
+  grt::DictRef options(true);
+  grt::StringListRef alter_list(grt::Initialized);
   options.set("OutputContainer", alter_list);
   options.set("UseFilteredLists", grt::IntegerRef(0));
   options.set("KeepOrder", grt::IntegerRef(1));
-  grt::ListRef<GrtNamedObject> alter_object_list;
+  grt::ListRef<GrtNamedObject> alter_object_list(true);
   options.set("OutputObjectContainer", alter_object_list);
   options.set("SQL_MODE", _manager->get_app_option("SqlGenerator.Mysql:SQL_MODE"));
 
@@ -737,8 +737,8 @@ std::string DbMySQLScriptSync::generate_diff_tree_script()
   options.set("KeepOrder", grt::IntegerRef(1));
   options.set("SQL_MODE", _manager->get_app_option("SqlGenerator.Mysql:SQL_MODE"));
 
-  grt::StringListRef alter_list;
-  grt::ListRef<GrtNamedObject> alter_object_list;
+  grt::StringListRef alter_list(grt::Initialized);
+  grt::ListRef<GrtNamedObject> alter_object_list(true);
   options.set("OutputContainer", alter_list);
   options.set("OutputObjectContainer", alter_object_list);
 

@@ -921,7 +921,7 @@ db_mysql_StorageEngineRef TableHelper::get_engine_by_name(const std::string &nam
   if (!module)
     throw std::logic_error("module DbMySQL not found");
   
-  grt::BaseListRef args(grt::Initialized);
+  grt::BaseListRef args(true);
   engines= grt::ListRef<db_mysql_StorageEngine>::cast_from(module->call_function("getKnownEngines", args));
 
   if (engines.is_valid())

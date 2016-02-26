@@ -375,11 +375,11 @@ void SqlEditorForm::toolbar_command(const std::string& command)
     db_query_EditorRef editor(_wbsql->get_grt_editor_object(this));
     if (editor.is_valid())
     {
-      grt::BaseListRef args;
+      grt::BaseListRef args(true);
       args.ginsert(editor);
 
       grt::ListRef<db_query_LiveDBObject> selection = grt::ListRef<db_query_LiveDBObject>::cast_from(get_live_tree()->get_schema_tree()->get_selected_objects());
-      grt::BaseListRef selected_items;
+      grt::BaseListRef selected_items(true);
       GRTLIST_FOREACH (db_query_LiveDBObject, selection, iterator)
       {
         std::string type = (*iterator)->type();
@@ -420,8 +420,8 @@ void SqlEditorForm::inspect_object(const std::string &schema, const std::string 
   db_query_EditorRef editor(_wbsql->get_grt_editor_object(this));
   if (editor.is_valid())
   {
-    grt::BaseListRef selected_items;
-    grt::BaseListRef args;
+    grt::BaseListRef selected_items(true);
+    grt::BaseListRef args(true);
     args.ginsert(editor);
 
     db_query_LiveDBObjectRef obj;

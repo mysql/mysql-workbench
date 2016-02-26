@@ -305,7 +305,7 @@ TEST_FUNCTION(25)
     ensure("no fk", table->foreignKeys().count()==0);
 
     bec::TableHelper::create_foreign_key_to_table(table, table, true, true, true, true,
-      tester.get_rdbms(), grt::DictRef(tester.grt), grt::DictRef(tester.grt));
+      tester.get_rdbms(), grt::DictRef(true), grt::DictRef(true));
 
     std::list<db_DatabaseObjectRef> objects;
     objects.push_back(table);
@@ -444,8 +444,8 @@ TEST_FUNCTION(40)
   grt::AutoUndo undo;
   bec::TableHelper::create_foreign_key_to_table(table2, table1, true, true, true, true,
                                                 tester.get_rdbms(),
-                                                grt::DictRef(tester.grt),
-                                                grt::DictRef(tester.grt));
+                                                grt::DictRef(true),
+                                                grt::DictRef(true));
   undo.end("create fk");
 
   ensure_equals("table fks", table2->foreignKeys().count(), 1U);
@@ -710,7 +710,7 @@ static void set_note_content(GrtStoredNoteRef note, const std::string &text)
 
   note->lastChangeDate(base::fmttime());
 
-  grt::BaseListRef args(grt::Initialized);
+  grt::BaseListRef args(true);
 
   args.ginsert(note->filename());
   args.ginsert(grt::StringRef(text));
@@ -724,7 +724,7 @@ static std::string get_note_content(const GrtStoredNoteRef &note)
   if (!module)
     throw std::runtime_error("Workbench module not found");
 
-  grt::BaseListRef args(grt::Initialized);
+  grt::BaseListRef args(true);
 
   args.ginsert(note->filename());
 

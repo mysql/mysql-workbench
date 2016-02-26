@@ -384,7 +384,7 @@ void WBContextModel::model_created(ModelFile *file, workbench_DocumentRef doc)
     _sidebar_dockpoint = mforms::manage(new mforms::DockingPoint(new mforms::TabViewDockingPoint(_secondary_sidebar, MODEL_DOCKING_POINT), true));
   _grtmodel_panel->commonSidebar(mforms_to_grt(_sidebar_dockpoint));
 
-  grt::DictRef info(grt::Initialized);
+  grt::DictRef info(true);
   grt::GRTNotificationCenter::get()->send_grt("GRNModelCreated", _grtmodel_panel, info);
 }
 
@@ -422,14 +422,14 @@ void WBContextModel::model_loaded(ModelFile *file, workbench_DocumentRef doc)
     _sidebar_dockpoint = mforms::manage(new mforms::DockingPoint(new mforms::TabViewDockingPoint(_secondary_sidebar, MODEL_DOCKING_POINT), true));
   _grtmodel_panel->commonSidebar(mforms_to_grt(_sidebar_dockpoint));
 
-  grt::DictRef info(grt::Initialized);
+  grt::DictRef info(true);
   grt::GRTNotificationCenter::get()->send_grt("GRNModelOpened", _grtmodel_panel, info);
 }
 
 
 void WBContextModel::model_closed()
 {
-  grt::DictRef info;
+  grt::DictRef info(true);
   grt::GRTNotificationCenter::get()->send_grt("GRNModelClosed", _grtmodel_panel, info);
 }
 
@@ -1010,7 +1010,7 @@ int WBContextModel::get_object_list_popup_items(bec::UIForm *form,
     
     bool has_objects = false;
     bool connections_only = true;
-    grt::ListRef<GrtObject> model_objects(grt::Initialized);
+    grt::ListRef<GrtObject> model_objects(true);
     for (size_t c= objects.count(), i= 0; i < c; i++)
     {
       if (!objects[i].is_instance(model_Connection::static_class_name()))

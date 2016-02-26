@@ -55,7 +55,7 @@ public:
     if (!module)
       throw std::runtime_error("Workbench module not found");
 
-    grt::BaseListRef args;
+    grt::BaseListRef args(true);
 
     args.ginsert(grt::StringRef(path));
 

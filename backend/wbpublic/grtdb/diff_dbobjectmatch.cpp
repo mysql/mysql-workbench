@@ -903,7 +903,7 @@ void grt::NormalizedComparer::load_db_options(sql::DatabaseMetaData *dbc_meta)
 
 grt::DictRef grt::NormalizedComparer::get_options_dict()const
 {
-    grt::DictRef result;
+    grt::DictRef result(true);
     result.set("CaseSensitive", grt::IntegerRef(_case_sensitive));
     result.set("SkipRoutineDefiner", grt::IntegerRef(_skip_routine_definer));
     result.set("maxTableCommentLength", grt::IntegerRef(_maxTableCommentLength));

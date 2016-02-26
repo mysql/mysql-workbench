@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +30,6 @@ using namespace bec;
 
 BEGIN_TEST_DATA_CLASS(be_inspector_value)
 public:
-  GRT grt;
 
 END_TEST_DATA_CLASS;
 
@@ -49,12 +48,12 @@ TEST_FUNCTION(1)
   // test inspection of list
 
   // create a test list
-  BaseListRef list(create_list_with_varied_data(&grt));
+  BaseListRef list(create_list_with_varied_data());
 
   ensure_equals("initial list size", (int)list.count(), 10);
   ensure_equals("list type", list.type(), ListType);
 
-  ValueInspectorBE *vinsp= ValueInspectorBE::create(&grt, list, false, false);
+  ValueInspectorBE *vinsp= ValueInspectorBE::create(list, false, false);
 
   // test listing
   size_t c = vinsp->count();
@@ -178,13 +177,13 @@ TEST_FUNCTION(2)
   // test inspection of string typed list
 
   // create a test list
-  BaseListRef list(create_string_list(&grt, 10));
+  BaseListRef list(create_string_list(10));
 
   ensure_equals("initial list size", list.count(), 10U);
   ensure_equals("list type", list.type(), ListType);
   ensure_equals("list content type", list.content_type(), StringType);
 
-  ValueInspectorBE *vinsp= ValueInspectorBE::create(&grt, list, false, false);
+  ValueInspectorBE *vinsp= ValueInspectorBE::create(list, false, false);
 
   // test listing
   size_t c = vinsp->count();
@@ -244,13 +243,13 @@ TEST_FUNCTION(3)
   // test inspection of int typed list
 
   // create a test list
-  BaseListRef list(create_int_list(&grt, 10));
+  BaseListRef list(create_int_list(10));
 
   ensure_equals("initial list size", list.count(), 10U);
   ensure_equals("list type", list.type(), ListType);
   ensure_equals("list content type", list.content_type(), IntegerType);
 
-  ValueInspectorBE *vinsp= ValueInspectorBE::create(&grt, list, false, false);
+  ValueInspectorBE *vinsp= ValueInspectorBE::create(list, false, false);
 
   // test listing
   size_t c = vinsp->count();
@@ -318,12 +317,12 @@ TEST_FUNCTION(10)
   // test inspection of dict
 
   // create a test dict
-  DictRef dict(create_dict_with_varied_data(&grt));
+  DictRef dict(create_dict_with_varied_data());
 
   ensure_equals("initial dict size", dict.count(), 6U);
   ensure_equals("dict type", dict.type(), DictType);
 
-  ValueInspectorBE *vinsp= ValueInspectorBE::create(&grt, dict, false, false);
+  ValueInspectorBE *vinsp= ValueInspectorBE::create( dict, false, false);
 
   // test listing
   size_t c = vinsp->count();
@@ -415,13 +414,13 @@ TEST_FUNCTION(11)
   // test inspection of typed dict
 
   // create a test dict
-  DictRef dict(create_dict_with_int_data(&grt));
+  DictRef dict(create_dict_with_int_data());
 
   ensure_equals("initial dict size", dict.count(), 9U);
   ensure_equals("dict type", dict.type(), DictType);
   ensure_equals("dict content type", dict.content_type(), IntegerType);
 
-  ValueInspectorBE *vinsp= ValueInspectorBE::create(&grt, dict, false, false);
+  ValueInspectorBE *vinsp= ValueInspectorBE::create(dict, false, false);
 
   dump_tree_model("output/grt_inspector_value_test11.txt", vinsp, columns, true);
   ensure_files_equal("object check", "output/grt_inspector_value_test11.txt", "data/be/grt_inspector_value_test11.txt");
@@ -546,15 +545,15 @@ TEST_FUNCTION(20)
   // test inspection of object (ungrouped)
 
   // Load test meta classes.
-  grt.load_metaclasses("data/structs.test.xml");
+  grt::GRT::get().load_metaclasses("data/structs.test.xml");
 
   // Consolidate the loaded classes.
-  grt.end_loading_metaclasses();
+  grt::GRT::get().end_loading_metaclasses();
 
-  test_BookRef book(&grt);
+  test_BookRef book(grt::Initialized);
   ensure("object valid", book.is_valid());
 
-  ValueInspectorBE *vinsp= ValueInspectorBE::create(&grt, book, false, false);
+  ValueInspectorBE *vinsp= ValueInspectorBE::create(book, false, false);
   bool flag;
 
   // test listing
@@ -629,10 +628,10 @@ TEST_FUNCTION(21)
 
   // test inspection of object (grouped)
   
-  test_BookRef book(&grt);
+  test_BookRef book(grt::Initialized);
   ensure("object valid", book.is_valid());
 
-  ValueInspectorBE *vinsp= ValueInspectorBE::create(&grt, book, true, true);
+  ValueInspectorBE *vinsp= ValueInspectorBE::create(book, true, true);
 
   // test listing
   size_t c = vinsp->count();

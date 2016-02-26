@@ -79,7 +79,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
     plugin->caption("Generate Catalog Diff Report");
     plugin->groups().insert("database/Database");
 
-    grt::StringListRef document_types;
+    grt::StringListRef document_types(grt::Initialized);
     document_types.insert("workbench.Document");
     //plugin->documentStructNames(document_types);
 

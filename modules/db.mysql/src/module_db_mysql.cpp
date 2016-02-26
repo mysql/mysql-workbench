@@ -1747,7 +1747,7 @@ void ActionGenerateSQL::remember_alter(const GrtNamedObjectRef &obj, const std::
 
 } // namespace
 
-DbMySQLImpl::DbMySQLImpl(grt::CPPModuleLoader *ldr) : grt::ModuleImplBase(ldr)
+DbMySQLImpl::DbMySQLImpl(grt::CPPModuleLoader *ldr) : grt::ModuleImplBase(ldr), _default_traits(true)
 {
     _default_traits.set("version", grt::StringRef("5.5.3"));
     _default_traits.set("CaseSensitive", grt::IntegerRef(1));
@@ -1832,7 +1832,7 @@ grt::StringRef DbMySQLImpl::generateReportForDifferences(GrtNamedObjectRef org_o
 
 grt::DictRef DbMySQLImpl::generateSQLForDifferences(GrtNamedObjectRef srcobj, GrtNamedObjectRef dstobj, grt::DictRef options)
 {
-  grt::DictRef sql_map;
+  grt::DictRef sql_map(true);
     
   default_omf omf;
   grt::NormalizedComparer normalizer;
@@ -1932,7 +1932,7 @@ protected:
           grt::DictRef opts = grt::DictRef::cast_from(dboptsval);
           if (opts.is_valid())
           {
-            _decomposer_options = grt::DictRef();
+            _decomposer_options = grt::DictRef(true);
             _decomposer_options.set("case_sensitive_identifiers", grt::IntegerRef(opts.get_int("CaseSensitive") != 0));
           }
         }
@@ -1941,7 +1941,7 @@ protected:
           ssize_t case_sensitive_opt = options.get_int("CaseSensitive", -1);
           if (case_sensitive_opt != -1)
           {
-            _decomposer_options = grt::DictRef();
+            _decomposer_options = grt::DictRef(true);
             _decomposer_options.set("case_sensitive_identifiers", grt::IntegerRef(case_sensitive_opt ? 1 : 0));
           }
         }
@@ -2709,8 +2709,8 @@ std::string DbMySQLImpl::makeAlterScript(GrtNamedObjectRef source, GrtNamedObjec
   if (!diff.get())
       return "";
 
-  grt::DictRef options;
-  grt::StringListRef alter_list;
+  grt::DictRef options(true);
+  grt::StringListRef alter_list(grt::Initialized);
   options.set("OutputContainer", alter_list);
   options.set("UseFilteredLists", grt::IntegerRef(0));
   options.set("KeepOrder", grt::IntegerRef(1));
@@ -2750,8 +2750,8 @@ std::string DbMySQLImpl::makeAlterScriptForObject(GrtNamedObjectRef source, GrtN
   grt::DbObjectMatchAlterOmf omf;
   omf.dontdiff_mask = 5;
 
-  DictRef options;
-  DictRef result;
+  DictRef options(true);
+  DictRef result(true);
 
   options.set("UseFilteredLists", IntegerRef(0));
   grt::NormalizedComparer normalizer(grt::DictRef::cast_from(diff_options.get("DBSettings",getDefaultTraits())));
@@ -2882,14 +2882,14 @@ std::string DbMySQLImpl::makeAlterScriptForObject(GrtNamedObjectRef source, GrtN
 // This function is used from scripts and HTML report generator.
 std::string DbMySQLImpl::makeCreateScriptForObject(GrtNamedObjectRef object)
 {
-  DictRef options;
-  DictRef result;
+  DictRef options(true);
+  DictRef result(true);
 
   ValueRef parent;
 
   //TODO: check how this list is expected to be used
   //there should be a way to generate one table SQL only not sql for whole doc
-//  StringListRef list;
+//  StringListRef list(grt::Initialized);
 //  list.insert(get_old_object_name_for_key(object));
 
   if (object.is_instance(db_Schema::static_class_name()))

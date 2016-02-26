@@ -57,7 +57,7 @@ protected:
 public:
     void init_omf(Omf* omf);
     void load_db_options(sql::DatabaseMetaData *dbc_meta);
-    NormalizedComparer(const grt::DictRef options = grt::DictRef(grt::Initialized));
+    NormalizedComparer(const grt::DictRef options = grt::DictRef());
     void add_comparison_rule(const std::string& name, comparison_rule rule){rules[name].push_back(rule);};
     bool normalizedComparison(const ValueRef obj1, const ValueRef obj2, const std::string name);
     grt::DictRef get_options_dict()const;

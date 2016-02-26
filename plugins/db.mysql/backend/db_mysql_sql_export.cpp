@@ -142,7 +142,7 @@ void DbMySQLSQLExport::set_db_options(grt::DictRef &db_options)
 
 grt::StringListRef convert_string_vector_to_grt_list(const std::vector<std::string>& v)
 {
-  grt::StringListRef grt_list;
+  grt::StringListRef grt_list(grt::Initialized);
   for(std::vector<std::string>::const_iterator e= v.end(), it= v.begin(); it != e; it++)
   {
     grt_list.insert(grt::StringRef(*it));
@@ -231,7 +231,7 @@ grt::DictRef DbMySQLSQLExport::get_options_as_dict()
   options.set("UserFilterList", _users_are_selected ? 
       convert_string_vector_to_grt_list(get_names(_users_model.get(), _users_map, schemas, _case_sensitive)) : grt::StringListRef());
 
-  grt::StringListRef schema_names_list;
+  grt::StringListRef schema_names_list(grt::Initialized);
   for (std::set<db_mysql_SchemaRef>::const_iterator It = schemas.begin(); It != schemas.end(); ++It)
     schema_names_list.insert(get_old_object_name_for_key(*It, _case_sensitive));
   
@@ -307,7 +307,7 @@ ValueRef DbMySQLSQLExport::export_task(grt::StringRef)
     if (_gen_drops)
       drop_map = diffsql_module->generateSQLForDifferences(_catalog, GrtNamedObjectRef(), options);
     if (!drop_map.is_valid())
-      drop_map = grt::DictRef();
+      drop_map = grt::DictRef(true);
     
     grt::StringListRef strlist= grt::StringListRef::cast_from(options.get("ViewFilterList"));
 

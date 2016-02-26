@@ -26,7 +26,7 @@ void Wb_plugin::grtm(bec::GRTManager *grtm)
   _grtm= grtm;
   if (_grtm)
   {
-    _options= grt::DictRef();
+    _options= grt::DictRef(true);
   }
 }
 

@@ -137,7 +137,7 @@ TEST_FUNCTION(10)
   //bec::TableHelper::make_primary_key(table2, column, true);
 
   bec::TableHelper::create_foreign_key_to_table(table1, table2, true, true, true, true,
-    tester.get_rdbms(), grt::DictRef(grt::Initialized), grt::DictRef(grt::Initialized));
+    tester.get_rdbms(), grt::DictRef(true), grt::DictRef(true));
 
   ensure("fk created in right table", table1->foreignKeys().count()>0);
   ensure("fk created in right table", table2->foreignKeys().count()==0);
@@ -178,7 +178,7 @@ TEST_FUNCTION(15)
   //bec::TableHelper::make_primary_key(table, column, true);
 
   bec::TableHelper::create_foreign_key_to_table(table, table, true, true, true, true,
-    tester.get_rdbms(), grt::DictRef(grt::Initialized), grt::DictRef(grt::Initialized));
+    tester.get_rdbms(), grt::DictRef(true), grt::DictRef(true));
 
   ensure("fk created", table->foreignKeys().count()>0);
 

@@ -329,7 +329,7 @@ void SqlEditorTreeController::schema_row_selected()
 
 
     // send out notification about selection change
-    grt::DictRef info(grt::Initialized);
+    grt::DictRef info(true);
     info.gset("selection-size", (int)nodes.size());
     grt::GRTNotificationCenter::get()->send_grt("GRNLiveDBObjectSelectionDidChange", _owner->wbsql()->get_grt_editor_object(_owner), info);
   }
@@ -1493,7 +1493,7 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
         try
         {
           grt::Module *module = grt::GRT::get().get_module("SQLIDEUtils");
-          grt::BaseListRef args(grt::Initialized);
+          grt::BaseListRef args(true);
           args.ginsert(grt::StringRef(ddl_script));
           ddl_script = grt::StringRef::cast_from(module->call_function("reformatSQLStatement", args));
         }
@@ -1774,7 +1774,7 @@ std::string SqlEditorTreeController::generate_alter_script(const db_mgmt_RdbmsRe
   db_CatalogRef client_cat_copy= db_CatalogRef::cast_from(grt::copy_object(client_cat));
   db_CatalogRef server_cat_copy= db_CatalogRef::cast_from(grt::copy_object(server_cat));
 
-  grt::DictRef diff_options;
+  grt::DictRef diff_options(true);
   //diff_options.set("CaseSensitive",db_object->customData().get("CaseSensitive"));
   grt::DictRef db_settings = grt::DictRef::cast_from(db_object->customData().get("DBSettings"));
   if (_owner->rdbms_version().is_valid() && is_supported_mysql_version_at_least(_owner->rdbms_version(), 5, 6))
@@ -2133,7 +2133,7 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
         try
         {
           grt::Module *module = grt::GRT::get().get_module("SQLIDEUtils");
-          grt::BaseListRef args(grt::Initialized);
+          grt::BaseListRef args(true);
           args.ginsert(grt::StringRef(ddl_script));
           ddl_script = grt::StringRef::cast_from(module->call_function("reformatSQLStatement", args));
         }
@@ -2217,7 +2217,7 @@ bool SqlEditorTreeController::parse_ddl_into_catalog(db_mysql_CatalogRef catalog
 {
   std::string currentSqlMode = _owner->work_parser_context()->get_sql_mode();
 
-  grt::DictRef options(grt::Initialized);
+  grt::DictRef options(true);
   options.set("reuse_existing_objects", grt::IntegerRef(1));
   options.set("schema", grt::StringRef(schema));
 
@@ -2547,7 +2547,7 @@ bool SqlEditorTreeController::expand_live_table_stub(bec::DBObjectEditorBE *tabl
     SqlFacade::Ref sql_facade= SqlFacade::instance_for_rdbms(_owner->rdbms());
     Sql_parser::Ref sql_parser= sql_facade->sqlParser();
     sql_parser->messages_enabled(false);
-    grt::DictRef options(grt::Initialized);
+    grt::DictRef options(true);
     {
       std::string sql_mode;
       sql::Dbc_connection_handler::Ref conn;
@@ -2717,7 +2717,7 @@ void SqlEditorTreeController::context_menu_will_show(mforms::MenuItem *parent_it
 {
   if (!parent_item)
   {
-    grt::DictRef info(grt::Initialized);
+    grt::DictRef info(true);
 
     db_query_EditorRef sender(_owner->wbsql()->get_grt_editor_object(_owner));
 

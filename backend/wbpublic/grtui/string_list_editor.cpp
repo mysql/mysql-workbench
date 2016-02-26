@@ -117,7 +117,7 @@ std::vector<std::string> StringListEditor::get_string_list()
 
 grt::StringListRef StringListEditor::get_grt_string_list()
 {
-  grt::StringListRef list;
+  grt::StringListRef list(grt::Initialized);
   
   for (int c= _tree.count(), i= 0; i < c; i++)
   {

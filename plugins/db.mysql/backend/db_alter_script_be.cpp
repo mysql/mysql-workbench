@@ -48,7 +48,7 @@ using namespace grt;
 DEFAULT_LOG_DOMAIN("alter_script_be");
 
 DbMySQLDiffAlter::DbMySQLDiffAlter(bec::GRTManager *m) 
-  : manager_(m)
+  : manager_(m), _alter_list(grt::Initialized), _alter_object_list(grt::Initialized)
 {}
 
 DbMySQLDiffAlter::~DbMySQLDiffAlter()
@@ -111,7 +111,7 @@ std::string DbMySQLDiffAlter::generate_alter()
     }
   }
 
-  grt::DictRef options;
+  grt::DictRef options(true);
   options.set("SchemaFilterList", convert_string_vector_to_grt_list(schemata));
   options.set("TableFilterList", convert_string_vector_to_grt_list(tables));
   options.set("ViewFilterList", convert_string_vector_to_grt_list(views));
@@ -122,8 +122,8 @@ std::string DbMySQLDiffAlter::generate_alter()
   // enable this once the ALTER script generation code is able to properly generate USE statements
   //options.set("UseShortNames", grt::IntegerRef(1));
 
-  grt::StringListRef alter_list;
-  grt::ListRef<GrtNamedObject> alter_object_list;
+  grt::StringListRef alter_list(grt::Initialized);
+  grt::ListRef<GrtNamedObject> alter_object_list(true);
   options.set("OutputContainer", alter_list);
   options.set("OutputObjectContainer", alter_object_list);
 
@@ -243,7 +243,7 @@ boost::shared_ptr<DiffTreeBE> DbMySQLDiffAlter::init_diff_tree(const std::vector
   if (diffsql_module == NULL)
     throw DbMySQLDiffAlterException("error loading module DbMySQL");
 
-  grt::DictRef genoptions;
+  grt::DictRef genoptions(true);
   genoptions.set("DBSettings", get_db_options());
   genoptions.set("OutputContainer", _alter_list);
   genoptions.set("OutputObjectContainer", _alter_object_list);

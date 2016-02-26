@@ -195,7 +195,7 @@ GRT::GRT()
   // register metaclass for base class
   add_metaclass(MetaClass::create_base_class());
   
-  _root= grt::DictRef();
+  _root= grt::DictRef(true);
 }
 
 
@@ -600,7 +600,6 @@ ValueRef GRT::unserialize(const std::string &path, boost::shared_ptr<grt::intern
   {
     throw std::runtime_error(std::string("Error unserializing GRT data from ").append(path).append(": ").append(exc.what()));
   }
-  return ValueRef();
 }
 
 
@@ -619,7 +618,6 @@ ValueRef GRT::unserialize(const std::string &path, std::string &doctype_ret, std
     throw grt_runtime_error("Error unserializing GRT data from "+path, 
                             exc.what());
   }
-  return ValueRef();
 }
 
 
@@ -647,7 +645,6 @@ ValueRef GRT::unserialize_xml(xmlDocPtr doc, const std::string &source_path)
   {
     throw grt_runtime_error("Error unserializing GRT data" , exc.what());
   }
-  return ValueRef();
 }
 
 

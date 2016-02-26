@@ -17,7 +17,7 @@
  * 02110-1301  USA
  */
 
-#include <grtpp_util.h>
+#include "grtpp_util.h"
 
 #include "testgrt.h"
 #include "structs.test.h"
@@ -26,7 +26,7 @@
 
 BEGIN_TEST_DATA_CLASS(grt_value)
 public:
-  GRT grt;
+
 END_TEST_DATA_CLASS
 
 
@@ -35,10 +35,10 @@ TEST_MODULE(grt_value, "GRT: values");
 
 TEST_FUNCTION(1)
 {
-  grt.load_metaclasses("data/structs.test.xml");
-  grt.end_loading_metaclasses();
+  grt::GRT::get().load_metaclasses("data/structs.test.xml");
+  grt::GRT::get().end_loading_metaclasses();
 
-  ensure_equals("load structs", grt.get_metaclasses().size(), 6U);
+  ensure_equals("load structs", grt::GRT::get().get_metaclasses().size(), 6U);
 }
 
 TEST_FUNCTION(2)
@@ -291,8 +291,8 @@ TEST_FUNCTION(11)
   ensure("s == operator with valueref", !(tmp1 == tmp2));
   ensure("s != operator with valueref", (tmp1 != tmp2));
   
-  BaseListRef l1;
-  BaseListRef l2;
+  BaseListRef l1(true);
+  BaseListRef l2(true);
   
   BaseListRef l3;
   
@@ -310,8 +310,8 @@ TEST_FUNCTION(11)
   ensure("l == operator with valueref", !(tmp1 == tmp2));
   ensure("l != operator with valueref", (tmp1 != tmp2));
   
-  DictRef d1;
-  DictRef d2;
+  DictRef d1(true);
+  DictRef d2(true);
   DictRef d3;
 
   ensure("d == operator", !(d1 == d3));
@@ -369,9 +369,9 @@ TEST_FUNCTION(12)
   IntegerRef i1(10), i2(11);
   DoubleRef d1(10.1), d2(10.2);
   StringRef s1("aaa"), s2("bbb");
-  BaseListRef l1, l2;
-  DictRef t1, t2;
-  test_BookRef o1, o2;
+  BaseListRef l1(true), l2(true);
+  DictRef t1(true), t2(true);
+  test_BookRef o1(grt::Initialized), o2(grt::Initialized);
   
   ensure("i <", i1 < i2);
   ensure("i <", !(i2 < i1));
@@ -431,7 +431,7 @@ TEST_FUNCTION(20)
 {
   // set/get value by path
 
-  DictRef root(DictRef::cast_from(create_grt_tree1));
+  DictRef root(DictRef::cast_from(create_grt_tree1()));
   ValueRef value;
 
   value= get_value_by_path(root, "/");
@@ -561,7 +561,7 @@ TEST_FUNCTION(25)
   // BaseListRef
 
   {
-    BaseListRef lv(&grt, AnyType);
+    BaseListRef lv(AnyType);
     lv.retain();
     IntegerRef iv[10]= {100,101,102,3,4,5,6,7,8,9};
     ensure_equals("list initial items count", lv.count(), 0U);
@@ -662,7 +662,7 @@ TEST_FUNCTION(26)
 {
   // ValueList<IntegerRef>
   {
-    IntegerListRef lv;
+    IntegerListRef lv(grt::Initialized);
     IntegerRef v[10]= {100,101,102,3,4,5,6,7,8,9};
     test_list_value(lv, v);
   }
@@ -673,7 +673,7 @@ TEST_FUNCTION(27)
 {
   // ValueList<DoubleRef>
   {
-    DoubleListRef lv;
+    DoubleListRef lv(grt::Initialized);
     DoubleRef v[10]= {0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5};
     test_list_value(lv, v);
   }
@@ -684,7 +684,7 @@ TEST_FUNCTION(28)
 {
   // ValueList<StringRef>
   {
-    StringListRef lv;
+    StringListRef lv(grt::Initialized);
     StringRef v[10]= {"_0", "_1", "_2", "_3", "_4", "_5", "_6", "_7", "_8", "_9"};
     test_list_value(lv, v);
   }
@@ -697,16 +697,16 @@ TEST_FUNCTION(29)
 
   ListRef<grt::internal::Object> lv;
   ObjectRef v[10]= {
-     grt.create_object<grt::internal::Object>("test.Book"),
-     grt.create_object<grt::internal::Object>("test.Book"),
-     grt.create_object<grt::internal::Object>("test.Book"),
-     grt.create_object<grt::internal::Object>("test.Book"),
-     grt.create_object<grt::internal::Object>("test.Book"),
-     grt.create_object<grt::internal::Object>("test.Book"),
-     grt.create_object<grt::internal::Object>("test.Book"),
-     grt.create_object<grt::internal::Object>("test.Book"),
-     grt.create_object<grt::internal::Object>("test.Book"),
-     grt.create_object<grt::internal::Object>("test.Book")
+     grt::GRT::get().create_object<grt::internal::Object>("test.Book"),
+     grt::GRT::get().create_object<grt::internal::Object>("test.Book"),
+     grt::GRT::get().create_object<grt::internal::Object>("test.Book"),
+     grt::GRT::get().create_object<grt::internal::Object>("test.Book"),
+     grt::GRT::get().create_object<grt::internal::Object>("test.Book"),
+     grt::GRT::get().create_object<grt::internal::Object>("test.Book"),
+     grt::GRT::get().create_object<grt::internal::Object>("test.Book"),
+     grt::GRT::get().create_object<grt::internal::Object>("test.Book"),
+     grt::GRT::get().create_object<grt::internal::Object>("test.Book"),
+     grt::GRT::get().create_object<grt::internal::Object>("test.Book")
   };
   //for (int i= 0; i<10; i++)
   //  v[i].release();
@@ -720,30 +720,30 @@ TEST_FUNCTION(30)
 {
   // typed list checks
 
-  BaseListRef ut(&grt, AnyType);
+  BaseListRef ut(AnyType);
 
   ensure_equals("untyped list content", ut.content_type(), AnyType);
   ensure_equals("untyped list struct", ut.content_class_name(), "");
 
-  IntegerListRef il;
+  IntegerListRef il(grt::Initialized);
   ensure_equals("int list content", il.content_type(), IntegerType);
   ensure_equals("int list struct", il.content_class_name(), "");
 
-  DoubleListRef dl;
+  DoubleListRef dl(grt::Initialized);
   ensure_equals("double list content", dl.content_type(), DoubleType);
   ensure_equals("double list struct", dl.content_class_name(), "");
 
-  StringListRef sl;
+  StringListRef sl(grt::Initialized);
   ensure_equals("str list content", sl.content_type(), StringType);
   ensure_equals("str list struct", sl.content_class_name(), "");
 
   /* not supported
-  DictListRef cl;
+  DictListRef cl(grt::Initialized);
   ensure_equals("dict list content", cl.content_type(), DictType);
   ensure_equals("dict list struct", cl.content_class_name(), "");
    */
 
-  ObjectListRef ol;
+  ObjectListRef ol(true);
   ensure_equals("obj list content", ol.content_type(), grt::ObjectType);
   ensure_equals("obj list struct", ol.content_class_name(), "Object");
 
@@ -757,19 +757,19 @@ TEST_FUNCTION(31)
 {
   // check can_wrap for lists
   
-  ensure("wrap List<Object>/List<Object>",ObjectListRef::can_wrap(ObjectListRef()));
-  ensure("wrap List<test_Book>/List<Object>",!ListRef<test_Book>::can_wrap(ObjectListRef()));
-  ensure("wrap List<Object>/List<test_Book>",ObjectListRef::can_wrap(ListRef<test_Book>()));
-  ensure("wrap List<test_Publication>/List<test_Book>",ListRef<test_Publication>::can_wrap(ListRef<test_Book>()));
-  ensure("wrap List<test_Book>/List<test_Publication>",!ListRef<test_Book>::can_wrap(ListRef<test_Publication>()));
-  ensure("wrap BaseList/List<test_Book>",BaseListRef::can_wrap(ListRef<test_Book>()));
-  ensure("wrap List<test_Book>/BaseList",!ListRef<test_Book>::can_wrap(BaseListRef()));
+  ensure("wrap List<Object>/List<Object>",ObjectListRef::can_wrap(ObjectListRef(true)));
+  ensure("wrap List<test_Book>/List<Object>",!ListRef<test_Book>::can_wrap(ObjectListRef(true)));
+  ensure("wrap List<Object>/List<test_Book>",ObjectListRef::can_wrap(ListRef<test_Book>(true)));
+  ensure("wrap List<test_Publication>/List<test_Book>",ListRef<test_Publication>::can_wrap(ListRef<test_Book>(true)));
+  ensure("wrap List<test_Book>/List<test_Publication>",!ListRef<test_Book>::can_wrap(ListRef<test_Publication>(true)));
+  ensure("wrap BaseList/List<test_Book>",BaseListRef::can_wrap(ListRef<test_Book>(true)));
+  ensure("wrap List<test_Book>/BaseList",!ListRef<test_Book>::can_wrap(BaseListRef(true)));
 
-  ensure("wrap List<test_Publication>/IntegerList",!ListRef<test_Publication>::can_wrap(IntegerListRef()));
-  ensure("wrap IntegerList/ObjectList",!IntegerListRef::can_wrap(ListRef<test_Publication>()));
+  ensure("wrap List<test_Publication>/IntegerList", !ListRef<test_Publication>::can_wrap(IntegerListRef(grt::Initialized)));
+  ensure("wrap IntegerList/ObjectList",!IntegerListRef::can_wrap(ListRef<test_Publication>(true)));
 
-  ensure("wrap StringList/IntegerList", !StringListRef::can_wrap(IntegerListRef()));
-  ensure("wrap IntegerList/StringListRef", !IntegerListRef::can_wrap(StringListRef()));
+  ensure("wrap StringList/IntegerList", !StringListRef::can_wrap(IntegerListRef(grt::Initialized)));
+  ensure("wrap IntegerList/StringListRef", !IntegerListRef::can_wrap(StringListRef(grt::Initialized)));
 }
 
 /*
@@ -786,11 +786,11 @@ TEST_FUNCTION(35)
 {
   // dictionary
 
-  DictRef dv;
+  DictRef dv(true);
   IntegerRef iv[10]= {0,1,2,3,4,5,6,7,8,9};
   StringRef sv[10]= {"_0","_1","_2","_3","_4","_5","_6","_7","_8","_9"};
   StringRef k[10]= {"_0","_1","_2","_3","_4","_5","_6","_7","_8","_9"};
-  ObjectRef obj(grt.create_object<grt::internal::Object>("test.Book"));
+  ObjectRef obj(grt::GRT::get().create_object<grt::internal::Object>("test.Book"));
 
   ensure_equals("initial size == 0", dv.count(), 0U);
 
@@ -846,7 +846,7 @@ TEST_FUNCTION(35)
 TEST_FUNCTION(36)
 { // test list reordering
 
-  IntegerListRef lv;
+  IntegerListRef lv(grt::Initialized);
   IntegerRef iv[4]= {0,1,2,3};
 
   while (lv.count())

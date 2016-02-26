@@ -150,8 +150,8 @@ template<typename TTestData>
 void test_diff(TTestData src, TTestData dest, GRT& test_grt)
 {
 
-  IntegerListRef source(&test_grt);
-  IntegerListRef target(&test_grt);
+  IntegerListRef source(grt::Initialized);
+  IntegerListRef target(grt::Initialized);
   list_from_container(src->begin(), src->end(), source);
   list_from_container(dest->begin(), dest->end(), target);
 
@@ -251,8 +251,8 @@ TEST_FUNCTION(2)
   const double s[]= {.0, 1., .2, .3};
   const double t[]= {5., .1, .6, .3, .2};
 
-  DoubleListRef source(&test_grt);
-  DoubleListRef target(&test_grt);
+  DoubleListRef source(grt::Initialized);
+  DoubleListRef target(grt::Initialized);
 
   list_from_container(s, s + UPPER_BOUND(s), source);
   list_from_container(t, t + UPPER_BOUND(t), target);
