@@ -1804,7 +1804,7 @@ db_mgmt_ConnectionRef WorkbenchImpl::create_connection(const std::string& host, 
   db_mgmt_RdbmsRef rdbms = find_object_in_list(_wb->get_root()->rdbmsMgmt()->rdbms(), DEFAULT_RDBMS_ID);
   grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
 
-  db_mgmt_ConnectionRef connection = db_mgmt_ConnectionRef();
+  db_mgmt_ConnectionRef connection = db_mgmt_ConnectionRef(grt::Initialized);
   db_mgmt_DriverRef driver;
   if (can_use_networking)
     driver = rdbms->defaultDriver();
@@ -2020,7 +2020,7 @@ int WorkbenchImpl::createInstancesFromLocalServers()
         can_use_socket_or_pipe = true;
       
       // Creates the server instance
-      db_mgmt_ServerInstanceRef instance;
+      db_mgmt_ServerInstanceRef instance(grt::Initialized);
       
 
       // If the configuration file is part of the command call

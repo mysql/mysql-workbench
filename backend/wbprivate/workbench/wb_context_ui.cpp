@@ -778,7 +778,7 @@ bool WBContextUI::add_paper_size(const std::string &name, double width, double h
   if (grt::find_named_object_in_list(_wb->get_root()->options()->paperTypes(), name).is_valid())
     return false;
 
-  app_PaperTypeRef type;
+  app_PaperTypeRef type(grt::Initialized);
   type->owner(_wb->get_root()->options());
   type->name(name);
   type->width(width);
@@ -801,7 +801,7 @@ app_PageSettingsRef WBContextUI::get_page_settings()
   else
   {
     // XXX add proper initialization for non-trivial types in structs.app.h too.
-    app_PageSettingsRef settings= app_PageSettingsRef();
+    app_PageSettingsRef settings= app_PageSettingsRef(grt::Initialized);
     settings->scale(1);
     settings->paperType(app_PaperTypeRef());
 
