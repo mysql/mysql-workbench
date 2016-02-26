@@ -70,7 +70,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
   app_PluginRef diff_sql_generator;
 
   {
-    app_PluginRef plugin;
+    app_PluginRef plugin(grt::Initialized);
 
     plugin->pluginType("standalone");
     plugin->moduleName("MySQLDbDiffReportingModule");
@@ -83,7 +83,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
     document_types.insert("workbench.Document");
     //plugin->documentStructNames(document_types);
 
-    app_PluginObjectInputRef pdef;
+    app_PluginObjectInputRef pdef(grt::Initialized);
     pdef->objectStructName("db.Catalog");
     plugin->inputValues().insert(pdef);
 

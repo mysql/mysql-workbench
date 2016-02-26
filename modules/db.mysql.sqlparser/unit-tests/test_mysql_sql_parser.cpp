@@ -91,7 +91,7 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(int test_no,
 
     if (g_file_test(test_catalog_state_filename.c_str(), G_FILE_TEST_EXISTS)) // Some newer tests are only done for the new parser.
     {
-      db_mysql_CatalogRef res_catalog;
+      db_mysql_CatalogRef res_catalog(grt::Initialized);
       res_catalog->version(_tester.get_rdbms()->version());
       res_catalog->defaultCharacterSetName("utf8");
       res_catalog->defaultCollationName("utf8_general_ci");
@@ -125,7 +125,7 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(int test_no,
     std::string test_catalog_state_filename = TEST_DATA_DIR + number_string + "a.xml";
     std::string res_catalog_state_filename = TEST_DATA_DIR + number_string + "a_res.xml";
 
-    db_mysql_CatalogRef res_catalog;
+    db_mysql_CatalogRef res_catalog(grt::Initialized);
     res_catalog->version(_tester.get_rdbms()->version());
     res_catalog->defaultCharacterSetName("utf8");
     res_catalog->defaultCollationName("utf8_general_ci");

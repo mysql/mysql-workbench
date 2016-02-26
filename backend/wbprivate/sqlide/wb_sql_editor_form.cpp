@@ -1297,7 +1297,7 @@ bool SqlEditorForm::connect(boost::shared_ptr<sql::TunnelConnection> tunnel)
 
 void SqlEditorForm::update_connected_state()
 {
-  grt::DictRef args;
+  grt::DictRef args(grt::Initialized);
   args.gset("connected", connected());
   GRTNotificationCenter::get()->send_grt("GRNSQLEditorReconnected", grtobj(), args);
 
@@ -1451,7 +1451,7 @@ grt::StringRef SqlEditorForm::do_connect(boost::shared_ptr<sql::TunnelConnection
         // if there's no connection, then we continue anyway if this is a local connection or
         // a remote connection with remote admin enabled..
         grt::Module *m = grt::GRT::get().get_module("WbAdmin");
-        grt::BaseListRef args;
+        grt::BaseListRef args(grt::Initialized);
         args.ginsert(_connection);
         if (!m || *grt::IntegerRef::cast_from(m->call_function("checkConnectionForRemoteAdmin", args)) == 0)
         {
@@ -1484,7 +1484,7 @@ grt::StringRef SqlEditorForm::do_connect(boost::shared_ptr<sql::TunnelConnection
         // if there's no connection, then we continue anyway if this is a local connection or
         // a remote connection with remote admin enabled..
         grt::GRT::get().get_module("WbAdmin");
-        grt::BaseListRef args;
+        grt::BaseListRef args(grt::Initialized);
         args.ginsert(_connection);
       }
 
@@ -1834,7 +1834,7 @@ void SqlEditorForm::explain_current_statement()
     SqlEditorResult *result = panel->add_panel_for_recordset(Recordset::Ref());
     result->set_title("Explain");
 
-    grt::BaseListRef args;
+    grt::BaseListRef args(grt::Initialized);
     args.ginsert(panel->grtobj());
     args.ginsert(result->grtobj());
     // run the visual explain plugin, so it will fill the result panel
@@ -3286,7 +3286,7 @@ void SqlEditorForm::note_connection_open_outcome(int error)
 
   if (_last_server_running_state != newState && newState != UnknownState)
   {
-    grt::DictRef info;
+    grt::DictRef info(grt::Initialized);
     _last_server_running_state = newState;
 
     if (newState == RunningState)

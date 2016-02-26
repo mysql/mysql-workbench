@@ -241,7 +241,7 @@ void DbConnectPanel::init(DbConnection *conn, const db_mgmt_ConnectionRef &defau
     _anonymous_connection= default_conn;
   else
   {
-    _anonymous_connection = db_mgmt_ConnectionRef();
+    _anonymous_connection = db_mgmt_ConnectionRef(grt::Initialized);
     _anonymous_connection->owner(_connection->get_db_mgmt());
   }
 
@@ -673,7 +673,7 @@ bool DbConnectPanel::test_connection()
     db_mgmt_ConnectionRef connectionProperties = get_be()->get_connection();
     if (!connectionProperties.is_valid())
     {
-      db_mgmt_ConnectionRef connection;
+      db_mgmt_ConnectionRef connection(grt::Initialized);
       connection->owner(get_be()->get_db_mgmt());
       connection->driver(selected_driver());
       set_connection(connection);

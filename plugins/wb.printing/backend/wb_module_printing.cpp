@@ -48,8 +48,8 @@
 
 #define def_export_plugin(aName, aCaption, aDialogCaption, aExtensions)\
   {\
-    app_PluginRef plugin;\
-    app_PluginObjectInputRef pdef;\
+    app_PluginRef plugin(grt::Initialized);\
+    app_PluginObjectInputRef pdef(grt::Initialized);\
     plugin->name("wb.print." aName);\
     plugin->caption(aCaption);\
     plugin->moduleName("WbPrinting");\
@@ -60,7 +60,7 @@
     pdef->objectStructName(model_Diagram::static_class_name());\
     pdef->owner(plugin);\
     plugin->inputValues().insert(pdef);\
-    app_PluginFileInputRef pdef2;\
+    app_PluginFileInputRef pdef2(grt::Initialized);;\
     pdef2->owner(plugin);\
     pdef2->dialogTitle(aDialogCaption);\
     pdef2->dialogType("save");\
@@ -86,7 +86,7 @@ grt::ListRef<app_Plugin> WbPrintingImpl::getPluginInfo()
   def_export_plugin("printToPSFile", "Print Diagram to a PS File", "Print to PS", "PostScript Files (*.ps)|*.ps");
 
   {
-    app_PluginRef plugin;
+    app_PluginRef plugin(grt::Initialized);
 
     FRONTEND_LIBNAME(plugin,
                      ".\\wb.printing.wbp.fe.dll",
@@ -97,7 +97,7 @@ grt::ListRef<app_Plugin> WbPrintingImpl::getPluginInfo()
     plugin->rating(100);
     plugin->name("wb.print.print");
     plugin->caption(_("Print Diagram"));
-    app_PluginObjectInputRef pdef;
+    app_PluginObjectInputRef pdef(grt::Initialized);
     pdef->name("activeDiagram");
     pdef->objectStructName(model_Diagram::static_class_name());
     pdef->owner(plugin);
@@ -109,7 +109,7 @@ grt::ListRef<app_Plugin> WbPrintingImpl::getPluginInfo()
   }
 
   {
-    app_PluginRef plugin;
+    app_PluginRef plugin(grt::Initialized);
 
     FRONTEND_LIBNAME(plugin,
                      ".\\wb.printing.wbp.fe.dll",
@@ -120,7 +120,7 @@ grt::ListRef<app_Plugin> WbPrintingImpl::getPluginInfo()
     plugin->rating(100);
     plugin->name("wb.print.printPreview");
     plugin->caption(_("Print Preview"));
-    app_PluginObjectInputRef pdef;
+    app_PluginObjectInputRef pdef(grt::Initialized);
     pdef->name("activeDiagram");
     pdef->objectStructName(model_Diagram::static_class_name());
     pdef->owner(plugin);
@@ -132,7 +132,7 @@ grt::ListRef<app_Plugin> WbPrintingImpl::getPluginInfo()
   }
 
   {
-    app_PluginRef plugin;
+    app_PluginRef plugin(grt::Initialized);
 
     FRONTEND_LIBNAME(plugin,
                      "",

@@ -56,13 +56,13 @@ public:
   TEST_DATA_CONSTRUCTOR(module_dbc_result_set_test)
   {
     // load structs
-    grt.scan_metaclasses_in("../../res/grt/");
-    grt.end_loading_metaclasses();
+    grt::GRT::get().scan_metaclasses_in("../../res/grt/");
+    grt::GRT::get().end_loading_metaclasses();
 
-    ensure_equals("load structs", grt.get_metaclasses().size(), (size_t)INT_METACLASS_COUNT);
-    db_mgmt_ConnectionRef connectionProperties;
+    ensure_equals("load structs", grt::GRT::get().get_metaclasses().size(), (size_t)INT_METACLASS_COUNT);
+    db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-    setup_env(&grt, connectionProperties);
+    setup_env(connectionProperties);
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
     ensure("dm is NULL", dm != NULL);
 
@@ -80,8 +80,8 @@ public:
   
   TEST_DATA_DESTRUCTOR(module_dbc_result_set_test)
   {
-    db_mgmt_ConnectionRef connectionProperties;
-    setup_env(&grt, connectionProperties);
+    db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
+    setup_env(connectionProperties);
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
 
     sql::ConnectionWrapper wrapper1= dm->getConnection(connectionProperties);
@@ -97,9 +97,9 @@ TEST_MODULE(module_dbc_result_set_test, "DBC: PS tests");
 // Test preparation.
 TEST_FUNCTION(2)
 {
-  db_mgmt_ConnectionRef connectionProperties;
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(&grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -136,9 +136,9 @@ TEST_FUNCTION(2)
 // Test executing executeQuery on the same statement.
 TEST_FUNCTION(3)
 {
-  db_mgmt_ConnectionRef connectionProperties;
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(&grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -170,9 +170,9 @@ TEST_FUNCTION(3)
 // Test executing two different queries from the same statement.
 TEST_FUNCTION(4)
 {
-  db_mgmt_ConnectionRef connectionProperties;
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(&grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -205,9 +205,9 @@ TEST_FUNCTION(4)
 // TODO: Fails because getAutoCommit is buggy.
 TEST_FUNCTION(5)
 {
-  db_mgmt_ConnectionRef connectionProperties;
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(&grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -278,9 +278,9 @@ TEST_FUNCTION(5)
 // Test commit and rollback (autocommit on).
 TEST_FUNCTION(6)
 {
-  db_mgmt_ConnectionRef connectionProperties;
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(&grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -353,9 +353,9 @@ TEST_FUNCTION(6)
 // Test multistatement off - send two queries in one call.
 TEST_FUNCTION(7)
 {
-  db_mgmt_ConnectionRef connectionProperties;
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(&grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -382,9 +382,9 @@ TEST_FUNCTION(7)
 // Test out of bound extraction of data.
 TEST_FUNCTION(8)
 {
-  db_mgmt_ConnectionRef connectionProperties;
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(&grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();

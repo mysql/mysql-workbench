@@ -235,12 +235,10 @@ public:
   SqlEditorForm::Ref form;
   EditorFormTester form_tester;
   mforms::TreeView *pmodel_view;
-  GRT grt;
-
 
   void set_connection_properties(db_mgmt_ConnectionRef& connection)
 {
-  grt::DictRef conn_params;
+  grt::DictRef conn_params(grt::Initialized);
   conn_params.set("hostName", grt::StringRef(test_params->get_host_name()));
   conn_params.set("port", grt::IntegerRef(test_params->get_port()));
   conn_params.set("userName", grt::StringRef(test_params->get_user_name()));
@@ -254,7 +252,7 @@ public:
 sql::ConnectionWrapper create_connection_for_import()
 {
   // init database connection
-  db_mgmt_ConnectionRef connectionProperties;
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
   set_connection_properties(connectionProperties);
 

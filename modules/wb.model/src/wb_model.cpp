@@ -46,8 +46,8 @@ GRT_MODULE_ENTRY_POINT(WbModelImpl);
 
 static void def_export_view_plugin(const char* aName, const char* aCaption, grt::ListRef<app_Plugin> &list)
 {
-    app_PluginRef plugin;
-    app_PluginObjectInputRef pdef;
+    app_PluginRef plugin(grt::Initialized);
+    app_PluginObjectInputRef pdef(grt::Initialized);
     
     plugin->name((std::string("wb.model.") + aName).c_str());
     
@@ -89,9 +89,9 @@ static void def_export_view_plugin(const char* aName, const char* aCaption, grt:
 
 static void def_export_catalog_plugin(const char* aName, const char* aCaption, grt::ListRef<app_Plugin> &list)
 {
-    app_PluginRef plugin;
-    app_PluginObjectInputRef pdef1;
-    app_PluginObjectInputRef pdef2;
+    app_PluginRef plugin(grt::Initialized);
+    app_PluginObjectInputRef pdef1(grt::Initialized);
+    app_PluginObjectInputRef pdef2(grt::Initialized);
 
     plugin->name((std::string("wb.model.") + aName).c_str());
     plugin->caption(aCaption);
@@ -139,8 +139,8 @@ static void def_figure_selection_plugin(const std::string        &aName,
                                         grt::ListRef<app_Plugin> &list
                                        )
 {
-    app_PluginRef plugin;
-    app_PluginSelectionInputRef pdef;
+    app_PluginRef plugin(grt::Initialized);
+    app_PluginSelectionInputRef pdef(grt::Initialized);
 
     plugin->name(("wb.model." + aName).c_str());
 
@@ -821,7 +821,7 @@ static bool calculate_view_size(const app_PageSettingsRef &page, double &width, 
 workbench_physical_DiagramRef WbModelImpl::add_model_view(const db_CatalogRef &catalog, int xpages, int ypages)
 {//XXX TODO move this to Workbench module so we can reuse the same code as from wb_component
   // also add code to place db objects or figures in canvas 
-  workbench_physical_DiagramRef view;
+  workbench_physical_DiagramRef view(grt::Initialized);
 
   workbench_physical_ModelRef model= workbench_physical_ModelRef::cast_from(catalog->owner());
 
@@ -964,8 +964,8 @@ int WbModelImpl::do_autoplace_any_list(const model_DiagramRef &view, ListRef<Grt
 
   DictRef wb_options= DictRef::cast_from(grt::GRT::get().get("/wb/options/options"));
   
-  GrtObjectRef object;
-  model_FigureRef figure;
+  GrtObjectRef object(grt::Initialized);
+  model_FigureRef figure(grt::Initialized);
   model_LayerRef layer= view->rootLayer();
 
   for (size_t n= 0; n < count; ++n)
@@ -1030,7 +1030,7 @@ void WbModelImpl::handle_fklist_change(const model_DiagramRef &view, const db_Ta
       // that correspond to the FK for creating the relationship in all these views
 
       grt::ListRef<model_Figure> figures(view->figures());
-      workbench_physical_TableFigureRef table1, table2;
+      workbench_physical_TableFigureRef table1(grt::Initialized), table2(grt::Initialized);
 
       for (size_t d= figures.count(), f= 0; f < d; f++)
       {
@@ -1080,7 +1080,7 @@ void WbModelImpl::handle_fklist_change(const model_DiagramRef &view, const db_Ta
         // connection doesnt exist yet, create it
         if (!found)
         {
-          workbench_physical_ConnectionRef conn;
+          workbench_physical_ConnectionRef conn(grt::Initialized);
           conn->owner(view); 
           conn->startFigure(table1);
           conn->endFigure(table2);

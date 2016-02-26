@@ -1450,7 +1450,7 @@ grt::ValueRef WBContext::setup_context_grt(WBOptions *options)
 void WBContext::init_grt_tree(WBOptions *options, boost::shared_ptr<grt::internal::Unserializer> unserializer)
 {
   grt::DictRef root;
-  workbench_WorkbenchRef app;
+  workbench_WorkbenchRef app(grt::Initialized);
 
   _wb_root= app;
 
@@ -1458,8 +1458,8 @@ void WBContext::init_grt_tree(WBOptions *options, boost::shared_ptr<grt::interna
 
   // setup application subtree
   {
-    app_InfoRef info;
-    GrtVersionRef version;
+    app_InfoRef info(grt::Initialized);
+    GrtVersionRef version(grt::Initialized);
     info->owner(app);
 
     version->majorNumber(APP_MAJOR_NUMBER);
@@ -1477,7 +1477,7 @@ void WBContext::init_grt_tree(WBOptions *options, boost::shared_ptr<grt::interna
   }
 
   {
-    app_OptionsRef options;
+    app_OptionsRef options(grt::Initialized);
     options->owner(app);
 
     append_contents(options->paperTypes(), get_paper_types(unserializer));
@@ -1488,7 +1488,7 @@ void WBContext::init_grt_tree(WBOptions *options, boost::shared_ptr<grt::interna
   }
 
   {
-    app_RegistryRef registry;
+    app_RegistryRef registry(grt::Initialized);
     registry->owner(app);
     registry->appDataDirectory(_manager->get_basedir());
     registry->appExecutablePath(argv0 ? argv0 : "");
@@ -1498,7 +1498,7 @@ void WBContext::init_grt_tree(WBOptions *options, boost::shared_ptr<grt::interna
 
   // ------------------
 
-  db_mgmt_ManagementRef mgmt_info;
+  db_mgmt_ManagementRef mgmt_info(grt::Initialized);
 
   // load datatype groups from XML
   
@@ -1584,9 +1584,7 @@ void WBContext::init_plugin_groups_grt(WBOptions *options)
 
   for (unsigned int i= 0; i < sizeof(std_groups)/sizeof(group_def); i++)
   {
-    app_PluginGroupRef group;
-
-    group= app_PluginGroupRef();
+    app_PluginGroupRef group(grt::Initialized);
     group->category(std_groups[i].category);
     group->name(std_groups[i].name);
 
@@ -1641,7 +1639,7 @@ void WBContext::init_plugins_grt(WBOptions *options)
 
 void WBContext::init_properties_grt(workbench_DocumentRef &doc)
 {
-  app_DocumentInfoRef info;
+  app_DocumentInfoRef info(grt::Initialized);
   info->name("Properties");
   info->owner(doc);
 
@@ -2203,7 +2201,7 @@ void WBContext::save_connections()
 void WBContext::load_starters(boost::shared_ptr<grt::internal::Unserializer> unserializer)
 {
   // Initialize starters object.
-  app_StartersRef starters = app_StartersRef();
+  app_StartersRef starters(grt::Initialized);
   starters->owner(get_root());
   get_root()->starters(starters);
 
@@ -2616,7 +2614,7 @@ void WBContext::new_document()
     _model_context= new WBContextModel(_uicontext);
 
     // create an empty document and add a physical model to it
-    workbench_DocumentRef doc;
+    workbench_DocumentRef doc(grt::Initialized);
     workbench_WorkbenchRef wb(get_root());
     wb->doc(doc);
 
@@ -2627,14 +2625,14 @@ void WBContext::new_document()
 
     {
       // setup default page settings
-      app_PageSettingsRef page;
+      app_PageSettingsRef page(grt::Initialized);
 
       page->owner(doc);
       page->paperType(grt::find_named_object_in_list(wb->options()->paperTypes(), "iso-a4"));
       if (!page->paperType().is_valid())
       {
         // if there is no paperType available, create A4
-        app_PaperTypeRef paperType;
+        app_PaperTypeRef paperType(grt::Initialized);
 
         paperType->owner(page);
         paperType->name("iso-a4");

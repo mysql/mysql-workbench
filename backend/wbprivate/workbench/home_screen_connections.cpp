@@ -2975,7 +2975,7 @@ mforms::DragOperation ConnectionsSection::files_dropped(View *sender, base::Poin
     if (valid_names.count() == 0)
     return mforms::DragOperationNone;
 
-    grt::DictRef details;
+    grt::DictRef details(grt::Initialized);
     details.set("connection", connection);
     details.set("files", valid_names);
     _owner->trigger_callback(ActionFilesWithConnection, details);
@@ -3020,7 +3020,7 @@ mforms::DragOperation ConnectionsSection::data_dropped(mforms::View *sender, bas
     bool is_back_tile = entry->title == "< back";
 
     // Drop target is a group.
-    grt::DictRef details;
+    grt::DictRef details(grt::Initialized);
     if (connection.is_valid() && connection->driver()->name()!="MySQLFabric")
       details.set("object", connection);
     else

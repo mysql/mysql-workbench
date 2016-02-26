@@ -63,7 +63,7 @@ TEST_FUNCTION(1)
 
 TEST_FUNCTION(5)
 {
-  test_BookRef book;
+  test_BookRef book(grt::Initialized);
 
   ensure("has_member", book.has_member("title"));
   ensure("has_member bad", !book.has_member("Title"));
@@ -99,7 +99,7 @@ TEST_FUNCTION(5)
 
 TEST_FUNCTION(6)
 {
-  test_BookRef obj;
+  test_BookRef obj(grt::Initialized);
   bool flag= false;
   try {
     obj.set_member("invalid", StringRef("XXX"));
@@ -141,7 +141,7 @@ TEST_FUNCTION(6)
 
 TEST_FUNCTION(10)
 {
-  test_BookRef book;
+  test_BookRef book(grt::Initialized);
   
   book->title("Harry Potter");
   book->title(*book->title() + " XXV");
@@ -150,7 +150,7 @@ TEST_FUNCTION(10)
 
   ensure("title", *book->title() == "Harry Potter XXV");
 
-  test_AuthorRef author;
+  test_AuthorRef author(grt::Initialized);
   
   book->authors().insert(author);
   ensure("author add", book->authors().count()==1);
@@ -176,7 +176,7 @@ static bool count_member(const grt::MetaClass::Member *member, int *count)
 TEST_FUNCTION(11)
 {
   // Check if inherited values are properly initialized.
-  test_BookRef book;
+  test_BookRef book(grt::Initialized);
 
   int count= 0;
   book->get_metaclass()->foreach_member(boost::bind(&count_member, _1, &count));

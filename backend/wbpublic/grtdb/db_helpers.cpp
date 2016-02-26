@@ -123,7 +123,7 @@ GrtVersionRef bec::parse_version(const std::string &target_version)
   
   sscanf(target_version.c_str(), "%i.%i.%i.%i", &major, &minor, &release, &build);
   
-  GrtVersionRef version;
+  GrtVersionRef version(grt::Initialized);
   version->name("Version");
   version->majorNumber(major);
   version->minorNumber(minor);
@@ -164,7 +164,7 @@ GrtVersionRef bec::int_to_version(int version)
 
   int major = version / 10000, minor = (version / 100) % 100, release = version % 100, build = -1;
 
-  GrtVersionRef version_;
+  GrtVersionRef version_(grt::Initialized);
   version_->name("Version");
   version_->majorNumber(major);
   version_->minorNumber(minor);

@@ -329,7 +329,7 @@ void SqlEditorTreeController::schema_row_selected()
 
 
     // send out notification about selection change
-    grt::DictRef info;
+    grt::DictRef info(grt::Initialized);
     info.gset("selection-size", (int)nodes.size());
     grt::GRTNotificationCenter::get()->send_grt("GRNLiveDBObjectSelectionDidChange", _owner->wbsql()->get_grt_editor_object(_owner), info);
   }
@@ -1493,7 +1493,7 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
         try
         {
           grt::Module *module = grt::GRT::get().get_module("SQLIDEUtils");
-          grt::BaseListRef args;
+          grt::BaseListRef args(grt::Initialized);
           args.ginsert(grt::StringRef(ddl_script));
           ddl_script = grt::StringRef::cast_from(module->call_function("reformatSQLStatement", args));
         }
@@ -1653,14 +1653,14 @@ std::string SqlEditorTreeController::run_execute_routine_wizard(wb::LiveSchemaTr
   if (script.second.empty())
     return ""; // get_object_create_script() already showed an error.
   
-  db_mysql_RoutineRef routine;
+  db_mysql_RoutineRef routine(grt::Initialized);
   parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
 
-  db_mysql_CatalogRef catalog;
+  db_mysql_CatalogRef catalog(grt::Initialized);
   catalog->version(_owner->rdbms_version());
   grt::replace_contents(catalog->simpleDatatypes(), _owner->rdbms()->simpleDatatypes());
 
-  db_mysql_SchemaRef schema;
+  db_mysql_SchemaRef schema(grt::Initialized);
   schema->owner(catalog);
   schema->name(schema_name);
   catalog->schemata().insert(schema);
@@ -2133,7 +2133,7 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
         try
         {
           grt::Module *module = grt::GRT::get().get_module("SQLIDEUtils");
-          grt::BaseListRef args;
+          grt::BaseListRef args(grt::Initialized);
           args.ginsert(grt::StringRef(ddl_script));
           ddl_script = grt::StringRef::cast_from(module->call_function("reformatSQLStatement", args));
         }
@@ -2217,7 +2217,7 @@ bool SqlEditorTreeController::parse_ddl_into_catalog(db_mysql_CatalogRef catalog
 {
   std::string currentSqlMode = _owner->work_parser_context()->get_sql_mode();
 
-  grt::DictRef options;
+  grt::DictRef options(grt::Initialized);
   options.set("reuse_existing_objects", grt::IntegerRef(1));
   options.set("schema", grt::StringRef(schema));
 
@@ -2547,7 +2547,7 @@ bool SqlEditorTreeController::expand_live_table_stub(bec::DBObjectEditorBE *tabl
     SqlFacade::Ref sql_facade= SqlFacade::instance_for_rdbms(_owner->rdbms());
     Sql_parser::Ref sql_parser= sql_facade->sqlParser();
     sql_parser->messages_enabled(false);
-    grt::DictRef options;
+    grt::DictRef options(grt::Initialized);
     {
       std::string sql_mode;
       sql::Dbc_connection_handler::Ref conn;
@@ -2561,7 +2561,7 @@ bool SqlEditorTreeController::expand_live_table_stub(bec::DBObjectEditorBE *tabl
     if (!schema.is_valid())
     {
       // target schema doesn't exist yet, create a stub for it
-      schema = db_mysql_SchemaRef();
+      schema = db_mysql_SchemaRef(grt::Initialized);
       schema->owner(catalog);
       schema->name(schema_name);
       schema->comment("stub");
@@ -2717,7 +2717,7 @@ void SqlEditorTreeController::context_menu_will_show(mforms::MenuItem *parent_it
 {
   if (!parent_item)
   {
-    grt::DictRef info;
+    grt::DictRef info(grt::Initialized);
 
     db_query_EditorRef sender(_owner->wbsql()->get_grt_editor_object(_owner));
 

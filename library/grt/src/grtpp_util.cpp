@@ -521,7 +521,7 @@ void CopyContext::copy_list(BaseListRef &list, const BaseListRef &source, bool d
         list.ginsert(value);
       else
       {
-        BaseListRef clist(true);
+        BaseListRef clist;
         copy_list(clist, BaseListRef::cast_from(value), dontfollow);
         list.ginsert(clist);
       }
@@ -532,7 +532,7 @@ void CopyContext::copy_list(BaseListRef &list, const BaseListRef &source, bool d
         list.ginsert(value);
       else
       {
-        DictRef cdict(true);
+        DictRef cdict;
         copy_dict(cdict, DictRef::cast_from(value), dontfollow);
         list.ginsert(cdict);
       }
@@ -563,7 +563,7 @@ void CopyContext::copy_dict(DictRef &dict, const DictRef &source, bool dontfollo
         dict.set(key, value);
       else
       {
-        BaseListRef clist(true);
+        BaseListRef clist;
         copy_list(clist, BaseListRef::cast_from(value), dontfollow);
         dict.set(key, clist);
       }
@@ -574,7 +574,7 @@ void CopyContext::copy_dict(DictRef &dict, const DictRef &source, bool dontfollo
         dict.set(key, value);
       else
       {
-        DictRef cdict(true);
+        DictRef cdict;
         copy_dict(cdict, DictRef::cast_from(value), dontfollow);
         dict.set(key, cdict);
       }

@@ -53,11 +53,11 @@ grt_PyObjectRef pyobject_to_grt(grt::AutoPyObject object)
 {
   if (object)
   {
-    grt_PyObjectRef ref;
+    grt_PyObjectRef ref(grt::Initialized);
     ref->set_data(new grt::AutoPyObject(object), release_object);
     return ref;
   }
-  return grt_PyObjectRef();
+  return grt_PyObjectRef(grt::Initialized);
 }
 
 

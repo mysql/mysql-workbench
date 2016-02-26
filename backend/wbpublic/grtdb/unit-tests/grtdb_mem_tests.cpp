@@ -66,20 +66,20 @@ TEST_FUNCTION(20)
   // test primary key
   enum {N=100};
   char buf[64];
-  db_mysql_SchemaRef scm;
+  db_mysql_SchemaRef scm(grt::Initialized);
   WBTester tester;
-  db_mysql_TableRef prev_table;
+  db_mysql_TableRef prev_table(grt::Initialized);
 
   for ( int i = 0; i < N; i++ )
   {
-    db_mysql_TableRef table;
+    db_mysql_TableRef table(grt::Initialized);
     sprintf(buf, "Table_%i", i);
     table->name("tbl");
 
     enum {NCOLS = 8};
     for ( int j = 0; j < 8; j++ )
     { 
-      db_mysql_ColumnRef column;
+      db_mysql_ColumnRef column(grt::Initialized);
 
       sprintf(buf, "col_%i_%i", i, j);
       column->name(buf);
@@ -91,7 +91,7 @@ TEST_FUNCTION(20)
     }
 
     sprintf(buf, "col_%i_%i", i, NCOLS+1);
-    db_mysql_ColumnRef column;
+    db_mysql_ColumnRef column(grt::Initialized);
     column->name(buf);
     column->owner(table);
     table->columns().ginsert(column);

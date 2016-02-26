@@ -207,7 +207,7 @@ void WBComponentPhysical::setup_context_grt(WBOptions *options)
   grt::Module *module= grt::GRT::get().get_module("DbMySQL");
   if (module)
   {
-    grt::ListRef<db_mysql_StorageEngine> engines_ret(grt::ListRef<db_mysql_StorageEngine>::cast_from(module->call_function("getKnownEngines", grt::BaseListRef())));
+    grt::ListRef<db_mysql_StorageEngine> engines_ret(grt::ListRef<db_mysql_StorageEngine>::cast_from(module->call_function("getKnownEngines", grt::BaseListRef(grt::Initialized))));
 
     for (size_t c= engines_ret.count(), i= 0; i < c; i++)
     {
@@ -291,13 +291,13 @@ void WBComponentPhysical::init_catalog_grt(const db_mgmt_RdbmsRef &rdbms,
     
     for (int i = 0; default_roles[i].name; i++)
     {
-      db_RoleRef role;
+      db_RoleRef role(grt::Initialized);
       
       role->name(default_roles[i].name);
       role->owner(catalog);
       catalog->roles().insert(role);
 
-      db_RolePrivilegeRef priv;
+      db_RolePrivilegeRef priv(grt::Initialized);
       priv->owner(role);
       priv->databaseObjectType(default_roles[i].object_type);
       priv->databaseObjectName(default_roles[i].object_name);
@@ -309,7 +309,7 @@ void WBComponentPhysical::init_catalog_grt(const db_mgmt_RdbmsRef &rdbms,
   
   // add standard tag categories
   {
-    GrtObjectRef category;
+    GrtObjectRef category(grt::Initialized);
    
     category->name("Business Rule");
     category->owner(model);
@@ -339,7 +339,7 @@ grt::ListRef<db_UserDatatype> WBComponentPhysical::create_builtin_user_datatypes
   grt::Module *module= grt::GRT::get().get_module("DbMySQL");
   if (module)
   {
-    grt::BaseListRef args;
+    grt::BaseListRef args(grt::Initialized);
     args.ginsert(rdbms);
     grt::ListRef<db_UserDatatype> user_types(grt::ListRef<db_UserDatatype>::cast_from(module->call_function("getDefaultUserDatatypes", args)));
     
@@ -362,7 +362,7 @@ void WBComponentPhysical::setup_physical_model(workbench_DocumentRef &doc,
                                      const std::string &rdbms_name, const std::string &rdbms_version)
 {
   // init physical model
-  workbench_physical_ModelRef pmodel;
+  workbench_physical_ModelRef pmodel(grt::Initialized);
   pmodel->owner(doc);
   
   pmodel->connectionNotation(_wb->get_wb_options().get_string("DefaultConnectionNotation"));
@@ -392,7 +392,6 @@ void WBComponentPhysical::setup_physical_model(workbench_DocumentRef &doc,
 
 db_SchemaRef WBComponentPhysical::add_new_db_schema(const workbench_physical_ModelRef &model)
 {
-  
   db_SchemaRef schema;
   std::string name;
   std::string class_name;
@@ -427,7 +426,7 @@ grt::DictRef WBComponentPhysical::delete_db_schema(const db_SchemaRef &schema,
   if (check_empty && 
       (schema->tables().count() > 0 || schema->views().count() > 0 || schema->routines().count() > 0))
   {
-    grt::DictRef dict;
+    grt::DictRef dict(grt::Initialized);
     
     dict.gset("name", schema->name());
     dict.gset("tables", (long)schema->tables().count());
@@ -2191,7 +2190,7 @@ std::vector<std::string> WBComponentPhysical::get_command_dropdown_items(const s
       grt::Module *module= grt::GRT::get().get_module("DbMySQL");
       if (module)
       {
-        grt::ListRef<db_mysql_StorageEngine> engines_ret(grt::ListRef<db_mysql_StorageEngine>::cast_from(module->call_function("getKnownEngines", grt::BaseListRef())));
+        grt::ListRef<db_mysql_StorageEngine> engines_ret(grt::ListRef<db_mysql_StorageEngine>::cast_from(module->call_function("getKnownEngines", grt::BaseListRef(grt::Initialized))));
 
         for (size_t c= engines_ret.count(), i= 0; i < c; i++)
           items.push_back(engines_ret[i]->name());
@@ -2830,7 +2829,7 @@ bool WBComponentPhysical::update_table_fk_connection(const db_TableRef &table, c
           // connection doesnt exist yet, create it
           if (!found.is_valid())
           {
-            workbench_physical_ConnectionRef conn;
+            workbench_physical_ConnectionRef conn(grt::Initialized);
             
             conn->owner(view);
             conn->startFigure(table1);
@@ -3083,7 +3082,7 @@ db_UserRef WBComponentPhysical::add_new_user(const workbench_physical_ModelRef &
 
   std::string name= grt::get_name_suggestion_for_list_object(grt::ObjectListRef::cast_from(catalog->users()), "user");
 
-  user = db_UserRef();
+  user = db_UserRef(grt::Initialized);
   user->owner(catalog);
   user->name(name);
 
@@ -3119,7 +3118,7 @@ db_RoleRef WBComponentPhysical::add_new_role(const workbench_physical_ModelRef &
 
   std::string name= grt::get_name_suggestion_for_list_object(grt::ObjectListRef::cast_from(catalog->roles()), "role");
 
-  role = db_RoleRef();
+  role = db_RoleRef(grt::Initialized);
   role->owner(catalog);
   role->name(name);
 

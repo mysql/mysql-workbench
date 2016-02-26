@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -459,7 +459,7 @@ void UserDefinedTypeEditor::ok_clicked()
       continue;
     
     if (!_user_types[i].is_valid())
-      type= db_UserDatatypeRef();
+      type= db_UserDatatypeRef(grt::Initialized);
     else
       type= _user_types[i];
     

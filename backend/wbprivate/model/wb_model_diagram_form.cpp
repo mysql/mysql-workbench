@@ -1447,7 +1447,7 @@ grt::ListRef<model_Object> ModelDiagramForm::get_selection()
 grt::ListRef<model_Object> ModelDiagramForm::get_copiable_selection()
 {
   grt::ListRef<model_Object> sel(_model_diagram->selection());
-  grt::ListRef<model_Object> copiable;
+  grt::ListRef<model_Object> copiable(grt::Initialized);
 
   for (size_t c= sel.count(), i= 0; i < c; i++)
   {

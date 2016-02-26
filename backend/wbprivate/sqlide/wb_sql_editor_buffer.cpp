@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -748,7 +748,7 @@ void SqlEditorForm::open_file(const std::string &path, bool in_new_tab, bool ask
     {
       if (in_new_tab)
         remove_sql_editor(panel);
-      grt::BaseListRef args;
+      grt::BaseListRef args(grt::Initialized);
       args.ginsert(grtobj());
       args.ginsert(grt::StringRef(file_path));
       grt::GRT::get().call_module_function("SQLIDEUtils", "runSQLScriptFile", args);

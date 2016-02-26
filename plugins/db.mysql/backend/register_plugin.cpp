@@ -129,10 +129,10 @@ public:
 static grt::ListRef<app_Plugin> get_mysql_plugins_info()
 {
   grt::ListRef<app_Plugin> plugins;
-  app_PluginRef diff_sql_generator;
+  app_PluginRef diff_sql_generator(grt::Initialized);
 
   {
-    app_PluginRef plugin;
+    app_PluginRef plugin(grt::Initialized);
 
     plugin->pluginType("standalone");
     plugin->moduleName("MySQLDbModule");
@@ -145,7 +145,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
     document_types.insert("workbench.Document");
     //plugin->documentStructNames(document_types);
 
-    app_PluginObjectInputRef pdef;
+    app_PluginObjectInputRef pdef(grt::Initialized);
     pdef->name("activeCatalog");
     pdef->objectStructName("db.Catalog");
     plugin->inputValues().insert(pdef);
@@ -154,7 +154,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
   }
     
   {
-    app_PluginRef plugin;
+    app_PluginRef plugin(grt::Initialized);
     
     plugin->pluginType("standalone");
     plugin->moduleName("MySQLDbModule");
@@ -167,7 +167,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
     document_types.insert("workbench.Document");
     //plugin->documentStructNames(document_types);
     
-    app_PluginObjectInputRef pdef;
+    app_PluginObjectInputRef pdef(grt::Initialized);
     pdef->name("activeCatalog");
     pdef->objectStructName("db.Catalog");
     plugin->inputValues().insert(pdef);
@@ -176,7 +176,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
   }
 
   {
-    app_PluginRef plugin;
+    app_PluginRef plugin(grt::Initialized);
     
     plugin->pluginType("standalone");
     plugin->moduleName("MySQLDbModule");
@@ -189,7 +189,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
     document_types.insert("workbench.Document");
     //plugin->documentStructNames(document_types);
     
-    app_PluginObjectInputRef pdef;
+    app_PluginObjectInputRef pdef(grt::Initialized);
     pdef->name("activeCatalog");
     pdef->objectStructName("db.Catalog");
     plugin->inputValues().insert(pdef);
@@ -199,7 +199,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
   
   
   {
-    app_PluginRef plugin;
+    app_PluginRef plugin(grt::Initialized);
     
     plugin->pluginType("standalone");
     plugin->moduleName("MySQLDbModule");
@@ -212,7 +212,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
     document_types.insert("workbench.Document");
     //plugin->documentStructNames(document_types);
     
-    app_PluginObjectInputRef pdef;
+    app_PluginObjectInputRef pdef(grt::Initialized);
     pdef->name("activeCatalog");
     pdef->objectStructName("db.Catalog");
     plugin->inputValues().insert(pdef);
@@ -221,7 +221,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
   }
   
   {
-    app_PluginRef plugin;
+    app_PluginRef plugin(grt::Initialized);
     
     plugin->pluginType("standalone");
     plugin->moduleName("MySQLDbModule");
@@ -234,7 +234,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
     document_types.insert("workbench.Document");
     //plugin->documentStructNames(document_types);
     
-    app_PluginObjectInputRef pdef;    
+    app_PluginObjectInputRef pdef(grt::Initialized);
     pdef->name("activeCatalog");
     pdef->objectStructName("db.Catalog");
     plugin->inputValues().insert(pdef);
@@ -243,7 +243,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
   }
 
   {
-    app_PluginRef plugin;
+    app_PluginRef plugin(grt::Initialized);
 
     plugin->pluginType("standalone");
     plugin->moduleName("MySQLDbModule");
@@ -256,7 +256,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
     document_types.insert("workbench.Document");
     //plugin->documentStructNames(document_types);
 
-    app_PluginObjectInputRef pdef;
+    app_PluginObjectInputRef pdef(grt::Initialized);
     pdef->name("activeCatalog");
     pdef->objectStructName("db.Catalog");
     plugin->inputValues().insert(pdef);
