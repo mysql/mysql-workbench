@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,14 +17,10 @@
  * 02110-1301  USA
  */
 
-
-#ifndef _SQL_SEMANTIC_CHECK_H_
-#define _SQL_SEMANTIC_CHECK_H_
-
+#pragma once
 
 #include "wbpublic_public_interface.h"
 #include "sql_syntax_check.h"
-
 
 /**
  * Defines interface to check semantic of provided SQL statement/script.
@@ -55,6 +51,3 @@ protected:
   db_RoutineRef _context_routine;
   db_RoutineGroupRef _context_routine_group;
 };
-
-
-#endif // _SQL_SEMANTIC_CHECK_H_

@@ -104,7 +104,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
 {
   grt::ListRef<app_Plugin> plugins;
   {
-    app_PluginRef plugin;
+    app_PluginRef plugin(grt::Initialized);
     
     plugin->pluginType("standalone");
     plugin->moduleName("MySQLModelSnippetsModule");
@@ -113,7 +113,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
     plugin->caption("Include Objects from a Model File");
     plugin->groups().insert("model/Model");
     
-    app_PluginFileInputRef pdef;
+    app_PluginFileInputRef pdef(grt::Initialized);
     pdef->owner(plugin);
     pdef->dialogTitle(_("Include Model"));
     pdef->dialogType("open");

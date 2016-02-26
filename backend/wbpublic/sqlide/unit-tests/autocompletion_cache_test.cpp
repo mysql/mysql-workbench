@@ -71,7 +71,7 @@ TEST_MODULE(autocompletion_cache_test, "autocompletion object name cache");
 
 TEST_FUNCTION(2)
 {
-  db_mgmt_ConnectionRef connectionProperties;
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
   setup_env(connectionProperties);
 

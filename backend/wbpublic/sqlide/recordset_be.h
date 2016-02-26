@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _RECORDSET_BE_H_
-#define _RECORDSET_BE_H_
+#pragma once
 
 #include "wbpublic_public_interface.h"
 #include "sqlide/sqlide_generics.h"
@@ -268,4 +267,3 @@ protected:
   void set_field_raw_data(RowId row, ColumnId column, const char *data, size_t data_length, bool isJson = false);
 };
 
-#endif /* _RECORDSET_BE_H_ */

@@ -457,7 +457,7 @@ bool RoleEditorBE::add_dropped_objectdata(const std::string &data)
 
 bool RoleEditorBE::add_object(const std::string &type, const std::string &name)
 {
-  db_RolePrivilegeRef priv;
+  db_RolePrivilegeRef priv(grt::Initialized);
   priv->databaseObjectType(type);
   priv->databaseObjectName(name);
   priv->owner(get_role());
@@ -500,7 +500,7 @@ bool RoleEditorBE::add_object(db_DatabaseObjectRef object)
 
   if (ok)
   {
-    db_RolePrivilegeRef priv;
+    db_RolePrivilegeRef priv(grt::Initialized);
     priv->databaseObject(object);
     priv->owner(get_role());
 

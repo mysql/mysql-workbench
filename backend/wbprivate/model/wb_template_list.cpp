@@ -184,7 +184,7 @@ void TableTemplatePanel::on_action(const std::string &action)
 {
   if (action == "edit_templates")
   {
-    grt::BaseListRef args;
+    grt::BaseListRef args(grt::Initialized);
     args.ginsert(grt::StringRef(_templates.get_selected_template()));
     grt::GRT::get().call_module_function("WbTableUtils", "openTableTemplateEditorFor", args);
     _templates.refresh_snippets();

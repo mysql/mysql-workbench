@@ -53,10 +53,10 @@ TEST_FUNCTION(5)
 {
   // test primary key
 
-  db_mysql_TableRef table;
+  db_mysql_TableRef table(grt::Initialized);
   table->name("tbl");
 
-  db_mysql_ColumnRef column;
+  db_mysql_ColumnRef column(grt::Initialized);
 
   column->name("col");
   column->owner(table);
@@ -81,7 +81,7 @@ TEST_FUNCTION(5)
 
 TEST_FUNCTION(10)
 {
-  db_mysql_TableRef table;
+  db_mysql_TableRef table(grt::Initialized);
   
   ensure_equals("index content type", table->indices().content_class_name(), "db.mysql.Index");
 }
@@ -94,7 +94,7 @@ TEST_FUNCTION(10)
 TEST_FUNCTION(15)
 {
   // Test some generally wrong cases. ml: testing invalid cases is just nonsense. Should be removed.
-  db_ColumnRef column;
+  db_ColumnRef column(grt::Initialized);
 
   ensure_parse_fail("");
   ensure_parse_fail("()");
@@ -151,16 +151,16 @@ TEST_FUNCTION(20)
 {
   // Go through all our defined datatypes and construct a column definition.
   // Then see if they all parse successfully.
-  db_SchemaRef schema;
+  db_SchemaRef schema(grt::Initialized);
 
   db_CatalogRef catalog = tester.get_catalog();
   schema->owner(catalog);
 
-  db_mysql_TableRef table;
+  db_mysql_TableRef table(grt::Initialized);
   table->owner(schema);
   table->name("table");
 
-  db_mysql_ColumnRef column;
+  db_mysql_ColumnRef column(grt::Initialized);
   column->owner(table);
   column->name("testee");
   table->columns().insert(column);

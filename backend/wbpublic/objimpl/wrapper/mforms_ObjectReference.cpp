@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -73,7 +73,7 @@ mforms_ObjectReferenceRef mforms_to_grt(mforms::Object *object, const std::strin
     // view is not necessarily managed, in some cases the view must be deleted by the caller
     //assert(object->is_managed());
 
-    mforms_ObjectReferenceRef ref;
+    mforms_ObjectReferenceRef ref(grt::Initialized);
     object->retain();
     ref->set_data(object, object->is_managed() ? release_object : NULL);
     ref->type(grt::StringRef(type_name.empty() ? grt::get_type_name(typeid(*object)) : type_name));

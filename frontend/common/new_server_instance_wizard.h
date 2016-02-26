@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _NEW_SERVER_INSTANCE_WIZARD_H_
-#define _NEW_SERVER_INSTANCE_WIZARD_H_
+#pragma once
 
 #include "grt/common.h"
 #include "grtui/grt_wizard_form.h"
@@ -312,5 +311,3 @@ private:
   CommandsPage* _commands_page;
 
 };
-
-#endif // _NEW_SERVER_INSTANCE_WIZARD_H_

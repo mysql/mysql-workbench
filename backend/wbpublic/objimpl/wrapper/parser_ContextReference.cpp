@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2014 Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -81,7 +81,7 @@ parser_ContextReferenceRef parser_context_to_grt(const ParserContext::Ref &conte
 {
   if (context != NULL)
   {
-    parser_ContextReferenceRef ref;
+    parser_ContextReferenceRef ref(grt::Initialized);
     parser_ContextReference::ImplData *data = new parser_ContextReference::ImplData(context);
     ref->set_data(data);
     return ref;

@@ -48,7 +48,7 @@ void Db_plugin::grtm(bec::GRTManager *grtm, bool reveng)
     _triggers.icon_id(trigger_icon_id(bec::Icon16));
     _users.icon_id(user_icon_id(bec::Icon16));
 
-    _catalog= db_CatalogRef();
+    _catalog= db_CatalogRef(grt::Initialized);
   }
 }
 

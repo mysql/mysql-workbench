@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1471,7 +1471,7 @@ mforms::TreeNodeRef LiveSchemaTree::create_node_for_object(const std::string &sc
 
 grt::BaseListRef LiveSchemaTree::get_selected_objects()
 {
-  grt::ListRef<db_query_LiveDBObject> selection;
+  grt::ListRef<db_query_LiveDBObject> selection(grt::Initialized);
 
   if (_model_view)
   {
@@ -1481,7 +1481,7 @@ grt::BaseListRef LiveSchemaTree::get_selected_objects()
     std::list<mforms::TreeNodeRef>::const_iterator index, end = selnodes.end();
     for (index = selnodes.begin(); index != end; index++)
     {
-      db_query_LiveDBObjectRef obj;
+      db_query_LiveDBObjectRef obj(grt::Initialized);
 
       mforms::TreeNodeRef node = *index;
       LSTData* pdata = dynamic_cast<LSTData*>(node->get_data());
@@ -1537,7 +1537,7 @@ grt::BaseListRef LiveSchemaTree::get_selected_objects()
               table_object->schemaName() != obj->schemaName() ||
               table_object->name() != node->get_parent()->get_parent()->get_string(0))
           {
-            table_object = db_query_LiveDBObjectRef();
+            table_object = db_query_LiveDBObjectRef(grt::Initialized);
             table_object->type("db.Table");
             table_object->schemaName(obj->schemaName());
             table_object->name(node->get_parent()->get_parent()->get_string(0));
@@ -1565,7 +1565,7 @@ grt::BaseListRef LiveSchemaTree::get_selected_objects()
               table_object->schemaName() != obj->schemaName() ||
               table_object->name() != node->get_parent()->get_string(0))
           {
-            table_object = db_query_LiveDBObjectRef();
+            table_object = db_query_LiveDBObjectRef(grt::Initialized);
             table_object->type("db.View");
             table_object->schemaName(obj->schemaName());
             table_object->name(node->get_parent()->get_string(0));
@@ -1613,7 +1613,7 @@ grt::BaseListRef LiveSchemaTree::get_selected_objects()
               table_object->schemaName() != obj->schemaName() ||
               table_object->name() != node->get_parent()->get_parent()->get_string(0))
           {
-            table_object = db_query_LiveDBObjectRef();
+            table_object = db_query_LiveDBObjectRef(grt::Initialized);
             table_object->type("db.Table");
             table_object->schemaName(obj->schemaName());
             table_object->name(node->get_parent()->get_string(0));

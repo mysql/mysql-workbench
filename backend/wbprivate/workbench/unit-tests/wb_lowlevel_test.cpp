@@ -103,14 +103,14 @@ TEST_FUNCTION(10)
   ensure_equals("figure created", tester.get_pview()->figures().count(), 2U);
   ensure_equals("connections", tester.get_pview()->connections().count(), 0U);
 
-  db_mysql_ColumnRef column;
+  db_mysql_ColumnRef column(grt::Initialized);
   column->owner(table1);
   column->name("id1");
   column->setParseType("int", tester.get_rdbms()->simpleDatatypes());
   //bec::ColumnHelper::parse_column_type(tester.get_rdbms(), tester.get_catalog()->userDatatypes(), "int", column);
   table1->columns().insert(column);
 
-  column= db_mysql_ColumnRef();
+  column = db_mysql_ColumnRef(grt::Initialized);
   column->owner(table1);
   column->name("col1");
   column->setParseType("varchar(100)", tester.get_rdbms()->simpleDatatypes());
@@ -120,14 +120,14 @@ TEST_FUNCTION(10)
   //bec::TableHelper::make_primary_key(table1, column, true);
 
 
-  column= db_mysql_ColumnRef();
+  column = db_mysql_ColumnRef(grt::Initialized);
   column->owner(table2);
   column->name("id2");
   column->setParseType("int", tester.get_rdbms()->simpleDatatypes());
   //bec::ColumnHelper::parse_column_type(tester.get_rdbms(), tester.get_catalog()->userDatatypes(), "int", column);
   table2->columns().insert(column);
 
-  column= db_mysql_ColumnRef();
+  column = db_mysql_ColumnRef(grt::Initialized);
   column->owner(table2);
   column->name("col2");
   column->setParseType("varchar(100)", tester.get_rdbms()->simpleDatatypes());
@@ -137,7 +137,7 @@ TEST_FUNCTION(10)
   //bec::TableHelper::make_primary_key(table2, column, true);
 
   bec::TableHelper::create_foreign_key_to_table(table1, table2, true, true, true, true,
-    tester.get_rdbms(), grt::DictRef(tester.grt), grt::DictRef(tester.grt));
+    tester.get_rdbms(), grt::DictRef(grt::Initialized), grt::DictRef(grt::Initialized));
 
   ensure("fk created in right table", table1->foreignKeys().count()>0);
   ensure("fk created in right table", table2->foreignKeys().count()==0);
@@ -164,12 +164,12 @@ TEST_FUNCTION(15)
   ensure_equals("figure created", tester.get_pview()->figures().count(), 1U);
   ensure_equals("connections", tester.get_pview()->connections().count(), 0U);
 
-  db_mysql_ColumnRef column;
+  db_mysql_ColumnRef column(grt::Initialized);
   column->owner(table);
   column->name("id");
   table->columns().insert(column);
 
-  column= db_mysql_ColumnRef();
+  column = db_mysql_ColumnRef(grt::Initialized);
   column->owner(table);
   column->name("col2");
   table->columns().insert(column);
@@ -178,7 +178,7 @@ TEST_FUNCTION(15)
   //bec::TableHelper::make_primary_key(table, column, true);
 
   bec::TableHelper::create_foreign_key_to_table(table, table, true, true, true, true,
-    tester.get_rdbms(), grt::DictRef(tester.grt), grt::DictRef(tester.grt));
+    tester.get_rdbms(), grt::DictRef(grt::Initialized), grt::DictRef(grt::Initialized));
 
   ensure("fk created", table->foreignKeys().count()>0);
 
@@ -196,7 +196,7 @@ TEST_FUNCTION(20)
   // test check_plugin_input_available from WBContext
   WBTester tester;
   WBContext *wb= tester.wb;
-  app_PluginObjectInputRef pdef;
+  app_PluginObjectInputRef pdef(grt::Initialized);
 
   wb->new_document();
 
@@ -323,7 +323,7 @@ TEST_FUNCTION(25)
   
   db_TableRef table2(schema->tables().get(1));
   
-  db_RolePrivilegeRef priv;
+  db_RolePrivilegeRef priv(grt::Initialized);
 
   priv->databaseObject(table);
   priv->databaseObjectType(table.class_name());
@@ -333,7 +333,7 @@ TEST_FUNCTION(25)
 
   role->privileges().insert(priv);
 
-  db_RolePrivilegeRef priv2;
+  db_RolePrivilegeRef priv2(grt::Initialized);
 
   priv2->databaseObject(table2);
   priv2->databaseObjectType(table.class_name());
@@ -395,7 +395,7 @@ TEST_FUNCTION(30)
 TEST_FUNCTION(35)
 {
   WBTester wb;
-  populate_grt(wb.grt, wb);
+  populate_grt(wb);
 
   if (wb.wb->is_commercial())
   {

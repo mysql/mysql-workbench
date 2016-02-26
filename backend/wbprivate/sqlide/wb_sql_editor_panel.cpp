@@ -72,7 +72,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _rs_sequence(0), _busy(false), _is_scratch(is_scratch)
 {
   GRTManager *grtm = owner->grt_manager();
-  db_query_QueryEditorRef grtobj;
+  db_query_QueryEditorRef grtobj(grt::Initialized);
 
   grtobj->resultDockingPoint(mforms_to_grt(&_lower_dock));
 
@@ -1180,7 +1180,7 @@ void SqlEditorPanel::on_recordset_context_menu_show(Recordset::Ptr rs_ptr)
   Recordset::Ref rs(rs_ptr.lock());
   if (rs)
   {
-    grt::DictRef info;
+    grt::DictRef info(grt::Initialized);
 
     std::vector<int> selection(rs->selected_rows());
     grt::IntegerListRef rows;

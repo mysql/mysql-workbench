@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _DB_OBJECT_MATCH_H_
-#define _DB_OBJECT_MATCH_H_
+#pragma once
 
 #include "grtpp_util.h"
 #include "wbpublic_public_interface.h"
@@ -58,7 +57,7 @@ protected:
 public:
     void init_omf(Omf* omf);
     void load_db_options(sql::DatabaseMetaData *dbc_meta);
-    NormalizedComparer(const grt::DictRef options = grt::DictRef());
+    NormalizedComparer(const grt::DictRef options = grt::DictRef(grt::Initialized));
     void add_comparison_rule(const std::string& name, comparison_rule rule){rules[name].push_back(rule);};
     bool normalizedComparison(const ValueRef obj1, const ValueRef obj2, const std::string name);
     grt::DictRef get_options_dict()const;
@@ -68,5 +67,3 @@ public:
   
   
 } // namespace grt
-
-#endif // _DB_OBJECT_MATCH_H_

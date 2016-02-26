@@ -1033,7 +1033,7 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
 
   {
     // Create entry for grt tree and update volatile data in the connection.
-    db_query_EditorRef object;
+    db_query_EditorRef object(grt::Initialized);
     object->owner(_wbui->get_wb()->get_root());
     object->name(conn.is_valid() ? conn->name() : "unconnected");
     

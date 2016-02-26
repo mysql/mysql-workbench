@@ -422,12 +422,12 @@ TEST_FUNCTION(40)
   grt::UndoManager *um= grt::GRT::get().get_undo_manager();
 
   db_mysql_TableRef table1= tester.add_table_figure("table1", 10, 10);
-  db_mysql_ColumnRef column1;
+  db_mysql_ColumnRef column1(grt::Initialized);
   column1->owner(table1);
   column1->name("pk");
   db_mysql_TableRef table2= tester.add_table_figure("table2", 100, 10);
 
-  db_mysql_ColumnRef column2;
+  db_mysql_ColumnRef column2(grt::Initialized);
   column2->owner(table2);
   column2->name("pk");
 
@@ -592,12 +592,12 @@ TEST_FUNCTION(60)
   tester.add_view();
 
   db_mysql_TableRef table1= tester.add_table_figure("table1", 10, 10);
-  db_mysql_ColumnRef column1;
+  db_mysql_ColumnRef column1(grt::Initialized);
   column1->owner(table1);
   column1->name("pk");
   db_mysql_TableRef table2= tester.add_table_figure("table2", 100, 10);
 
-  db_mysql_ColumnRef column2;
+  db_mysql_ColumnRef column2(grt::Initialized);
   column2->owner(table2);
   column2->name("fkcol");
 
@@ -608,7 +608,7 @@ TEST_FUNCTION(60)
   table1->addPrimaryKeyColumn(column1);
   grt::GRT::get().stop_tracking_changes();
   
-  db_mysql_ForeignKeyRef fk;
+  db_mysql_ForeignKeyRef fk(grt::Initialized);
   fk->owner(table2);
   fk->name("fk");
   
@@ -710,7 +710,7 @@ static void set_note_content(GrtStoredNoteRef note, const std::string &text)
 
   note->lastChangeDate(base::fmttime());
 
-  grt::BaseListRef args;
+  grt::BaseListRef args(grt::Initialized);
 
   args.ginsert(note->filename());
   args.ginsert(grt::StringRef(text));
@@ -724,7 +724,7 @@ static std::string get_note_content(const GrtStoredNoteRef &note)
   if (!module)
     throw std::runtime_error("Workbench module not found");
 
-  grt::BaseListRef args;
+  grt::BaseListRef args(grt::Initialized);
 
   args.ginsert(note->filename());
 
