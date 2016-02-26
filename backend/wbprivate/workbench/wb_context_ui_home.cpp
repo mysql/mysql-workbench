@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -331,7 +331,7 @@ void WBContextUI::show_home_screen()
       std::list<std::string> groups;
       bec::ArgumentPool argument_pool;
       _wb->update_plugin_arguments_pool(argument_pool);
-      argument_pool.add_entries_for_object("selectedConnection", db_mgmt_ConnectionRef(), "db.mgmt.Connection");
+      argument_pool.add_entries_for_object("selectedConnection", db_mgmt_ConnectionRef(grt::Initialized), "db.mgmt.Connection");
       groups.push_back("Menu/Home/Connections");
       bec::MenuItemList pitems = _wb->get_grt_manager()->get_plugin_context_menu_items(groups, argument_pool);
       if (!pitems.empty())
