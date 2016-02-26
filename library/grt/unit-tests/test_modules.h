@@ -125,7 +125,3 @@ public:
 
   int calcSum() { return 0; }
 };
-
-
-#endif // __TEST_MODULES_H__
-

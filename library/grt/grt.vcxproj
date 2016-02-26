@@ -292,7 +292,7 @@
     <ClInclude Include="src\diff\diffchange.h" />
     <ClInclude Include="src\diff\grtdiff.h" />
     <ClInclude Include="src\diff\grtlistdiff.h" />
-    <ClInclude Include="src\grtpp.h" />
+    <ClInclude Include="src\grt.h" />
     <ClInclude Include="src\grtpp_helper.h" />
     <ClInclude Include="src\grtpp_module_cpp.h" />
     <ClInclude Include="src\grtpp_module_python.h" />
