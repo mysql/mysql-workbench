@@ -246,7 +246,7 @@
     <ClCompile Include="src\BaseEditorWrapper.cpp" />
     <ClCompile Include="src\DBObjectFilterBE.cpp" />
     <ClCompile Include="src\DBObjectMasterFilterBE.cpp" />
-    <ClCompile Include="src\Grt.cpp" />
+    <ClCompile Include="src\GrtWrapper.cpp" />
     <ClCompile Include="src\GrtStringListModel.cpp" />
     <ClCompile Include="src\GrtThreadedTaskWrapper.cpp" />
     <ClCompile Include="src\ModelWrappers.cpp" />
@@ -279,7 +279,7 @@
     <ClInclude Include="src\DBObjectMasterFilterBE.h" />
     <ClInclude Include="src\DelegateWrapper.h" />
     <ClInclude Include="src\Exceptions.h" />
-    <ClInclude Include="src\Grt.h" />
+    <ClInclude Include="src\GrtWrapper.h" />
     <ClInclude Include="src\GrtManager.h" />
     <ClInclude Include="src\GrtShell.h" />
     <ClInclude Include="src\GrtStringListModel.h" />

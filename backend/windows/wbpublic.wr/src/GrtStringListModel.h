@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,7 +21,7 @@
 #define __GRT_STRING_LIST_MODEL_H__
 
 #include "grt/grt_string_list_model.h"
-#include "Grt.h"
+#include "GrtWrapper.h"
 #include "IconManager.h"
 #include "ModelWrappers.h"
 #include "GrtTemplates.h"

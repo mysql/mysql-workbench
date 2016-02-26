@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -19,7 +19,11 @@
 
 #pragma once
 
-#ifdef _WIN32
+#ifdef _WIN64
+  typedef __int64 ssize_t;
+#else
+  typedef int ssize_t;
+#endif
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -90,5 +94,3 @@
 #include "grts/structs.workbench.h"
 
 #include "grts/structs.wrapper.h"
-
-#endif // _WIN32
