@@ -146,7 +146,7 @@ TEST_FUNCTION(10)
   module= grt::GRT::get().get_native_module<WbModelImpl>();
   ensure("WbModel module initialization", NULL != module);
 
-  grt::DictRef options;
+  grt::DictRef options(true);
   options.gset("basedir", wbt.wboptions.basedir);//wbt.wb->get_wb_options().get_string("basedir"));
   options.gset("title", "Test Report");
   options.gset("filename", "TestReport");
@@ -170,7 +170,7 @@ TEST_FUNCTION(11)
   module= grt::GRT::get().get_native_module<WbModelImpl>();
   ensure("WbModel module initialization", NULL != module);
 
-  grt::StringListRef templates;
+  grt::StringListRef templates(grt::Initialized);
   ssize_t res= module->getAvailableReportingTemplates(templates);
   ensure("getAvailableSchemaReportTemplates call failed.", res == 1);
 

@@ -1177,7 +1177,7 @@ static const char *module_base_template_f=
 static const char *module_function_template_void=
   "  void %function_name%(%args%)\n"
   "  {\n"
-  "    grt::BaseListRef args(grt::GRT::get());\n"
+  "    grt::BaseListRef args(true);\n"
   "%make_args%\n"
   "    _module->call_function(\"%function_name%\", args);\n"
   "  }\n";

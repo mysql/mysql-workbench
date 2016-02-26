@@ -1216,7 +1216,7 @@ void ArgumentPool::add_file_input(const app_PluginFileInputRef &pdef,
 grt::BaseListRef ArgumentPool::build_argument_list(const app_PluginRef &plugin)
 {
   // build the argument list
-  grt::BaseListRef fargs(grt::Initialized); 
+  grt::BaseListRef fargs(true); 
   const size_t c= plugin->inputValues().count();
   for (size_t i= 0; i < c; i++)
   {

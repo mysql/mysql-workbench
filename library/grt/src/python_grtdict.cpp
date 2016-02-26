@@ -63,7 +63,7 @@ static int dict_init(PyGRTDictObject *self, PyObject *args, PyObject *kwds)
     else
     {
       if (!type)
-        self->dict= new grt::DictRef();
+        self->dict= new grt::DictRef(true);
       else
       {
         grt::Type content_type= grt::str_to_type(type);

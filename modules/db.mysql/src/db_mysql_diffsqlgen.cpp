@@ -66,7 +66,7 @@ void DiffSQLGeneratorBE::remember_alter(const GrtNamedObjectRef &obj, const std:
     grt::ValueRef value= target_map.get(key);
     if(grt::StringRef::can_wrap(value))
     {
-      grt::StringListRef list_value;
+      grt::StringListRef list_value(grt::Initialized);
       list_value.insert(grt::StringRef::cast_from(value));
       list_value.insert(grt::StringRef(sql));
       target_map.set(key, list_value);

@@ -874,7 +874,7 @@ void DbConnectPanel::change_active_stored_conn()
 void DbConnectPanel::launch_ssl_wizard()
 {
   mforms::Form *parent = get_parent_form();
-  grt::BaseListRef args;
+  grt::BaseListRef args(true);
   args.ginsert(mforms_to_grt(parent, "Form"));
   args.ginsert(get_connection());
   args.ginsert(grt::StringRef(get_connection()->id()));

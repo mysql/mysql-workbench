@@ -153,7 +153,7 @@ db_mysql_CatalogRef tut::Test_object_base<db_mysql_plugin_test>::create_catalog_
   ParserContext::Ref context = services->createParserContext(tester.get_rdbms()->characterSets(),
     tester.get_rdbms()->version(), false);
 
-  grt::DictRef options;
+  grt::DictRef options(true);
   if (services->parseSQLIntoCatalog(context, cat, sql, options) != 0)
     fail("SQL failed to parse: " + sql);
   return cat;
@@ -208,7 +208,7 @@ boost::shared_ptr<DiffChange> tut::Test_object_base<db_mysql_plugin_test>::compa
   bec::CatalogHelper::apply_defaults(cat, default_engine_name);
   bec::CatalogHelper::apply_defaults(org_cat, default_engine_name);
 
-  grt::NormalizedComparer comparer(tester.grt,grt::DictRef(tester.grt));
+  grt::NormalizedComparer comparer(tester.grt,grt::DictRef(true));
   comparer.init_omf(&omf);
 
   boost::shared_ptr<DiffChange> result = diff_make(cat, org_cat, &omf);
@@ -232,7 +232,7 @@ void tut::Test_object_base<db_mysql_plugin_test>::apply_sql_to_model(const std::
   DbMySQLSQLExportTest *plugin= new DbMySQLSQLExportTest(
     tester.wb->get_grt_manager(), mod_cat);
   
-  grt::DictRef options;
+  grt::DictRef options(true);
   options.set("UseFilteredLists", grt::IntegerRef(0));
   plugin->set_options_as_dict(options);
 
@@ -667,8 +667,8 @@ TEST_FUNCTION(50)
   DbMySQLSQLExportTest *plugin= new DbMySQLSQLExportTest(tester.wb->get_grt_manager(), mod_cat);
   plugin->set_option("ViewsAreSelected", true);
   
-  grt::DictRef options;
-  grt::StringListRef views;
+  grt::DictRef options(true);
+  grt::StringListRef views(grt::Initialized);
   views.insert(get_old_object_name_for_key(mod_cat->schemata().get(0)->views().get(0), false), false);
   views.insert(get_old_object_name_for_key(mod_cat->schemata().get(0)->views().get(1), false), false);
   options.set("ViewFilterList", views);
@@ -740,7 +740,7 @@ TEST_FUNCTION(55)
   DbMySQLSQLExportTest *plugin= new DbMySQLSQLExportTest(
     tester.wb->get_grt_manager(), mod_cat);
   
-  grt::DictRef options;
+  grt::DictRef options(true);
   options.set("UseFilteredLists", grt::IntegerRef(0));
   plugin->set_options_as_dict(options);
 

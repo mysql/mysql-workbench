@@ -184,7 +184,7 @@ void TableTemplatePanel::on_action(const std::string &action)
 {
   if (action == "edit_templates")
   {
-    grt::BaseListRef args(grt::Initialized);
+    grt::BaseListRef args(true);
     args.ginsert(grt::StringRef(_templates.get_selected_template()));
     grt::GRT::get().call_module_function("WbTableUtils", "openTableTemplateEditorFor", args);
     _templates.refresh_snippets();
@@ -193,7 +193,7 @@ void TableTemplatePanel::on_action(const std::string &action)
   {
     if (!_templates.get_selected_template().empty())
     {
-      grt::BaseListRef args;
+      grt::BaseListRef args(true);
       args.ginsert(workbench_physical_ModelRef::cast_from(_context->get_active_model(true))->catalog()->schemata()[0]);
       args.ginsert(grt::StringRef(_templates.get_selected_template()));
       db_TableRef table(db_TableRef::cast_from(grt::GRT::get().call_module_function("WbTableUtils", "createTableFromTemplate", args)));

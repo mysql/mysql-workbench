@@ -91,7 +91,7 @@ std::string DbMySQLDiffReporting::generate_report(const db_mysql_CatalogRef& lef
   tpath.append("modules").append(G_DIR_SEPARATOR_S).append("data").append(G_DIR_SEPARATOR_S).append("db_mysql_catalog_reporting")
     .append(G_DIR_SEPARATOR_S).append("Basic_Text.tpl").append(G_DIR_SEPARATOR_S).append("basic_text_report.txt.tpl");
 
-  grt::DictRef options;
+  grt::DictRef options(true);
   options.set("OMFDontDiffMask", grt::IntegerRef(3));
   options.set("UseFilteredLists", grt::IntegerRef(0));
   options.set("KeepOrder", grt::IntegerRef(1));

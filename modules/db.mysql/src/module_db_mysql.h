@@ -297,7 +297,7 @@ public:
   
   grt::ListRef<db_UserDatatype> getDefaultUserDatatypes(db_mgmt_RdbmsRef rdbms);
 
-  grt::DictRef getDefaultColumnValueMappings() { return grt::DictRef(); }
+  grt::DictRef getDefaultColumnValueMappings() { return grt::DictRef(true); }
   
   grt::DictRef getDefaultTraits() const {return _default_traits;};
   

@@ -585,7 +585,7 @@ void ServerInstanceEditor::run_filechooser_wrapper(mforms::TextEntry* entry) // 
     grt::Module *module= grt::GRT::get().get_module("WbAdmin");
     if (module)
     {
-      grt::BaseListRef args;
+      grt::BaseListRef args(true);
       args.ginsert(instance);
 
       try
@@ -694,7 +694,7 @@ void ServerInstanceEditor::autodetect_system()
   grt::Module *module= grt::GRT::get().get_module("WbAdmin");
   if (module)
   {
-    grt::BaseListRef args;
+    grt::BaseListRef args(true);
     args.ginsert(selected_instance());
 
     module->call_function("detectInstanceSettings", args);
@@ -709,7 +709,7 @@ void ServerInstanceEditor::test_settings()
       grt::Module *module= grt::GRT::get().get_module("WbAdmin");
       if (module)
       {
-        grt::BaseListRef args;
+        grt::BaseListRef args(true);
         grt::ValueRef ret;
         args.ginsert(selected_instance());
 
@@ -817,7 +817,7 @@ void ServerInstanceEditor::tab_changed()
     db_mgmt_ConnectionRef connection(selected_connection());
     if (connection.is_valid())
     {
-      grt::BaseListRef args;
+      grt::BaseListRef args(true);
       args.ginsert(connection);
       try
       {
@@ -1336,7 +1336,7 @@ void ServerInstanceEditor::show_connection()
 
 void ServerInstanceEditor::show_instance_info(db_mgmt_ConnectionRef connection, db_mgmt_ServerInstanceRef instance)
 {
-  grt::DictRef serverInfo(instance.is_valid() ? instance->serverInfo() : grt::DictRef());
+  grt::DictRef serverInfo(instance.is_valid() ? instance->serverInfo() : grt::DictRef(true));
   grt::DictRef defaults;
 
   int j;
@@ -1379,7 +1379,7 @@ void ServerInstanceEditor::show_instance_info(db_mgmt_ConnectionRef connection, 
 #endif
       _no_remote_admin.set_active(true);
 
-  grt::DictRef loginInfo(instance.is_valid() ? instance->loginInfo() : grt::DictRef());
+  grt::DictRef loginInfo(instance.is_valid() ? instance->loginInfo() : grt::DictRef(true));
 
   std::string storage_key;
   std::string port = _ssh_port.get_string_value();

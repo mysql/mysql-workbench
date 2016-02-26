@@ -4574,14 +4574,14 @@ bool is_line_break(const unsigned char *head, const unsigned char *line_break)
 
 grt::BaseListRef MySQLParserServicesImpl::getSqlStatementRanges(const std::string &sql)
 {
-  grt::BaseListRef list;
+  grt::BaseListRef list(true);
   std::vector<std::pair<size_t, size_t> > ranges;
 
   determineStatementRanges(sql.c_str(), sql.size(), ";", ranges);
 
   for (std::vector<std::pair<size_t, size_t> >::const_iterator i = ranges.begin(); i != ranges.end(); ++i)
   {
-    grt::BaseListRef item;
+    grt::BaseListRef item(true);
     item.ginsert(grt::IntegerRef(i->first));
     item.ginsert(grt::IntegerRef(i->second));
     list.ginsert(item);
@@ -4796,7 +4796,7 @@ size_t MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t
  */
 grt::DictRef parseUserDefinition(MySQLRecognizerTreeWalker &walker)
 {
-  grt::DictRef result;
+  grt::DictRef result(true);
 
   result.gset("user", walker.token_text());
 
@@ -4853,14 +4853,14 @@ grt::DictRef parseUserDefinition(MySQLRecognizerTreeWalker &walker)
 
 grt::DictRef collectGrantDetails(MySQLRecognizer *recognizer)
 {
-  grt::DictRef data = grt::DictRef();
+  grt::DictRef data = grt::DictRef(true);
 
   MySQLRecognizerTreeWalker walker = recognizer->tree_walker();
 
   walker.next(); // Skip GRANT.
 
   // Collect all privileges.
-  grt::StringListRef list = grt::StringListRef();
+  grt::StringListRef list = grt::StringListRef(grt::Initialized);
   while (true)
   {
     std::string privileges = walker.token_text();
@@ -4908,7 +4908,7 @@ grt::DictRef collectGrantDetails(MySQLRecognizer *recognizer)
   walker.next(); // Skip TO.
 
   // Now the user definitions.
-  grt::DictRef users = grt::DictRef();
+  grt::DictRef users = grt::DictRef(true);
   data.set("users", users);
 
   while (true)
@@ -4922,7 +4922,7 @@ grt::DictRef collectGrantDetails(MySQLRecognizer *recognizer)
 
   if (walker.is(REQUIRE_SYMBOL))
   {
-    grt::DictRef requirements;
+    grt::DictRef requirements(true);
     walker.next();
     switch (walker.token_type())
     {
@@ -4949,7 +4949,7 @@ grt::DictRef collectGrantDetails(MySQLRecognizer *recognizer)
 
   if (walker.is(WITH_SYMBOL))
   {
-    grt::DictRef options;
+    grt::DictRef options(true);
     walker.next();
     bool done = false;
     while (!done)
@@ -5004,7 +5004,7 @@ grt::DictRef MySQLParserServicesImpl::parseStatement(parser::ParserContext::Ref 
   if (recognizer->has_errors())
   {
     // Return the error message in case of syntax errors.
-    grt::DictRef result;
+    grt::DictRef result(true);
     result.gset("error", recognizer->error_info()[0].message);
     return result;
   }
@@ -5019,7 +5019,7 @@ grt::DictRef MySQLParserServicesImpl::parseStatement(parser::ParserContext::Ref 
 
     default:
     {
-      grt::DictRef result;
+      grt::DictRef result(true);
       result.gset("error", "Unsupported query type (" + base::to_string(queryType) + ")");
       return result;
     }

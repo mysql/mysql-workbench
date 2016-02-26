@@ -146,9 +146,9 @@ void SchemaMatchingPage::leave(bool advancing)
 {
   if (advancing)
   {
-    grt::StringListRef unlist;
-    grt::StringListRef list;
-    grt::StringListRef orig_list;
+    grt::StringListRef unlist(grt::Initialized);
+    grt::StringListRef list(grt::Initialized);
+    grt::StringListRef orig_list(grt::Initialized);
 
     int c = _tree.count();
     for (int i = 0; i < c; i++)

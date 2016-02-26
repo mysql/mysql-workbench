@@ -55,7 +55,7 @@ void DBObjectFilterBE::set_object_type_name(const std::string &type_name)
   if (g_file_test(_stored_filter_sets_filepath.c_str(), G_FILE_TEST_EXISTS))
     _stored_filter_sets= grt::DictRef::cast_from(grt::GRT::get().unserialize(_stored_filter_sets_filepath));
   if (!_stored_filter_sets.is_valid())
-    _stored_filter_sets = grt::DictRef();
+    _stored_filter_sets = grt::DictRef(true);
 }
 
 
@@ -82,7 +82,7 @@ void DBObjectFilterBE::add_stored_filter_set(const std::string &name)
   if (!_filter_model)
     return;
 
-  grt::StringListRef masks;
+  grt::StringListRef masks(grt::Initialized);
   _stored_filter_sets.set(name, masks);
 
   std::vector<std::string> items= _filter_model->items();

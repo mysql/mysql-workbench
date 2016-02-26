@@ -1180,10 +1180,10 @@ void SqlEditorPanel::on_recordset_context_menu_show(Recordset::Ptr rs_ptr)
   Recordset::Ref rs(rs_ptr.lock());
   if (rs)
   {
-    grt::DictRef info(grt::Initialized);
+    grt::DictRef info(true);
 
     std::vector<int> selection(rs->selected_rows());
-    grt::IntegerListRef rows;
+    grt::IntegerListRef rows(grt::Initialized);
     for (std::vector<int>::const_iterator i = selection.begin(); i != selection.end(); ++i)
       rows.insert(*i);
 

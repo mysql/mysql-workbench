@@ -91,12 +91,12 @@ public:
     if (advancing)
     {
       {
-        grt::StringListRef slist;
+        grt::StringListRef slist(grt::Initialized);
         slist.insert(grt::StringRef(_left.get_selected_node()->get_string(0)));
         values().set("selectedOriginalSchemata", slist);
       }
       {
-        grt::StringListRef slist;
+        grt::StringListRef slist(grt::Initialized);
         slist.insert(grt::StringRef(_right.get_selected_node()->get_string(0)));
         values().set("selectedSchemata", slist);
       }

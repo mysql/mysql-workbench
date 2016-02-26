@@ -389,7 +389,7 @@ PreferencesForm::PreferencesForm(wb::WBContextUI *wbui, const workbench_physical
   _hbox.add(&_top_box, true, true);
   set_content(&_hbox);
 
-  grt::DictRef info;
+  grt::DictRef info(true);
   if (!_model.is_valid())
     info.set("options", _wbui->get_wb()->get_wb_options());
   else
@@ -439,7 +439,7 @@ void PreferencesForm::switch_page()
 
 void PreferencesForm::show()
 {
-  grt::DictRef info;
+  grt::DictRef info(true);
   if (!_model.is_valid())
     info.set("options", _wbui->get_wb()->get_wb_options());
   else

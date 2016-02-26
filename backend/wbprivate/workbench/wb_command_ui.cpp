@@ -1113,7 +1113,7 @@ bool CommandUI::activate_command(const std::string &command, bec::ArgumentPool a
       std::string module, function;
       if (base::partition(cmdparts.name, ".", module, function))
       {
-        grt::GRT::get().call_module_function(module, function, grt::BaseListRef());
+        grt::GRT::get().call_module_function(module, function, grt::BaseListRef(true));
         return true;
       }
     }
@@ -1175,7 +1175,7 @@ void CommandUI::activate_command(const std::string &command)
     {
       std::string module, function;
       if (base::partition(cmdparts.name, ".", module, function))
-        grt::GRT::get().call_module_function(module, function, grt::BaseListRef());
+        grt::GRT::get().call_module_function(module, function, grt::BaseListRef(true));
     }
   }
   catch (grt::grt_runtime_error &error)

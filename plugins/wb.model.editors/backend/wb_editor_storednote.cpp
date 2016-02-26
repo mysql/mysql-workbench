@@ -165,7 +165,7 @@ void StoredNoteEditorBE::set_text(grt::StringRef text)
   if (!module)
     throw std::runtime_error("Workbench module not found");
 
-  grt::BaseListRef args;
+  grt::BaseListRef args(true);
 
   args.ginsert(_note->filename());
   args.ginsert(text);
@@ -182,7 +182,7 @@ grt::StringRef StoredNoteEditorBE::get_text(bool &isutf8)
   if (!module)
     throw std::runtime_error("Workbench module not found");
 
-  grt::BaseListRef args;
+  grt::BaseListRef args(true);
 
   args.ginsert(_note->filename());
 

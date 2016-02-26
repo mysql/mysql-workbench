@@ -339,7 +339,7 @@ grt::ListRef<db_UserDatatype> WBComponentPhysical::create_builtin_user_datatypes
   grt::Module *module= grt::GRT::get().get_module("DbMySQL");
   if (module)
   {
-    grt::BaseListRef args(grt::Initialized);
+    grt::BaseListRef args(true);
     args.ginsert(rdbms);
     grt::ListRef<db_UserDatatype> user_types(grt::ListRef<db_UserDatatype>::cast_from(module->call_function("getDefaultUserDatatypes", args)));
     
@@ -426,7 +426,7 @@ grt::DictRef WBComponentPhysical::delete_db_schema(const db_SchemaRef &schema,
   if (check_empty && 
       (schema->tables().count() > 0 || schema->views().count() > 0 || schema->routines().count() > 0))
   {
-    grt::DictRef dict(grt::Initialized);
+    grt::DictRef dict(true);
     
     dict.gset("name", schema->name());
     dict.gset("tables", (long)schema->tables().count());
@@ -637,7 +637,7 @@ db_DatabaseObjectRef WBComponentPhysical::add_new_db_routine(const db_SchemaRef 
 
 db_ScriptRef WBComponentPhysical::add_new_stored_script(const workbench_physical_ModelRef &model, const std::string &path)
 {
-  db_ScriptRef script;
+  db_ScriptRef script(grt::Initialized);
   std::string name= "script";
   if (!path.empty())
     name= base::basename(path);
@@ -663,7 +663,7 @@ db_ScriptRef WBComponentPhysical::add_new_stored_script(const workbench_physical
 GrtStoredNoteRef WBComponentPhysical::add_new_stored_note(const workbench_physical_ModelRef &model,
                                                                const std::string &path)
 {
-  GrtStoredNoteRef note;
+  GrtStoredNoteRef note(grt::Initialized);
   std::string name= _("New Note");
   if (!path.empty())
     name= base::basename(path);
@@ -2190,7 +2190,7 @@ std::vector<std::string> WBComponentPhysical::get_command_dropdown_items(const s
       grt::Module *module= grt::GRT::get().get_module("DbMySQL");
       if (module)
       {
-        grt::ListRef<db_mysql_StorageEngine> engines_ret(grt::ListRef<db_mysql_StorageEngine>::cast_from(module->call_function("getKnownEngines", grt::BaseListRef(grt::Initialized))));
+        grt::ListRef<db_mysql_StorageEngine> engines_ret(grt::ListRef<db_mysql_StorageEngine>::cast_from(module->call_function("getKnownEngines", grt::BaseListRef(true))));
 
         for (size_t c= engines_ret.count(), i= 0; i < c; i++)
           items.push_back(engines_ret[i]->name());

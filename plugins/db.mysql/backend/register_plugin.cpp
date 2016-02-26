@@ -141,7 +141,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
     plugin->caption("Export MySQL SQL Script");
     plugin->groups().insert("database/Database");
 
-    grt::StringListRef document_types;
+    grt::StringListRef document_types(grt::Initialized);
     document_types.insert("workbench.Document");
     //plugin->documentStructNames(document_types);
 
@@ -163,7 +163,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
     plugin->caption("Import from SQL Script");
     plugin->groups().insert("database/Database");
     
-    grt::StringListRef document_types;
+    grt::StringListRef document_types(grt::Initialized);
     document_types.insert("workbench.Document");
     //plugin->documentStructNames(document_types);
     
@@ -185,7 +185,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
     plugin->caption("Synchronize with Database");
     plugin->groups().insert("database/Database");
     
-    grt::StringListRef document_types;
+    grt::StringListRef document_types(grt::Initialized);
     document_types.insert("workbench.Document");
     //plugin->documentStructNames(document_types);
     
@@ -208,7 +208,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
     plugin->caption("Reverse Engineer from Database");
     plugin->groups().insert("database/Database");
     
-    grt::StringListRef document_types;
+    grt::StringListRef document_types(grt::Initialized);
     document_types.insert("workbench.Document");
     //plugin->documentStructNames(document_types);
     
@@ -230,7 +230,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
     plugin->caption("Forward Engineer to Database");
     plugin->groups().insert("database/Database");
     
-    grt::StringListRef document_types;
+    grt::StringListRef document_types(grt::Initialized);
     document_types.insert("workbench.Document");
     //plugin->documentStructNames(document_types);
     
@@ -252,7 +252,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
     plugin->caption("Create Alter script");
     plugin->groups().insert("database/Database");
 
-    grt::StringListRef document_types;
+    grt::StringListRef document_types(grt::Initialized);
     document_types.insert("workbench.Document");
     //plugin->documentStructNames(document_types);
 

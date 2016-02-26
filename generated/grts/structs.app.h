@@ -281,7 +281,7 @@ public:
   app_PluginSelectionInput(grt::MetaClass *meta=0)
   : app_PluginInputDefinition(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
      _argumentCardinality(""),
-    _objectStructNames(this, false)
+     _objectStructNames(grt::Initialized, this, false)
 
   {
   }
@@ -365,8 +365,8 @@ public:
     _attributes(this, false),
      _caption(""),
      _description(""),
-    _documentStructNames(this, false),
-    _groups(this, false),
+     _documentStructNames(grt::Initialized, this, false),
+    _groups(grt::Initialized, this, false),
     _inputValues(this, false),
      _moduleFunctionName(""),
      _moduleName(""),
@@ -2509,10 +2509,10 @@ public:
   app_Options(grt::MetaClass *meta=0)
   : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
     _commonOptions(this, false),
-    _disabledPlugins(this, false),
+    _disabledPlugins(grt::Initialized, this, false),
     _options(this, false),
     _paperTypes(this, false),
-    _recentFiles(this, false)
+    _recentFiles(grt::Initialized, this, false)
 
   {
   }

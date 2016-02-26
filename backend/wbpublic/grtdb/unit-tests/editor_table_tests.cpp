@@ -152,7 +152,7 @@ TEST_FUNCTION(1)
   schema->owner(wbt.wb->get_document()->physicalModels()[0]->catalog());
   wbt.wb->get_document()->physicalModels()[0]->catalog()->schemata().insert(schema);
 
-  table= db_mysql_TableRef();
+  table = db_mysql_TableRef(grt::Initialized);
   ensure("table ok", table.is_valid());
   table->owner(schema);
 

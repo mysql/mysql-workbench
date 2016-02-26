@@ -273,7 +273,7 @@ int MysqlSqlFacadeImpl::splitSqlScript(const char *sql, size_t length,
 // A splitter using the grt (probably for python).
 grt::BaseListRef MysqlSqlFacadeImpl::getSqlStatementRanges(const std::string &sql)
 {
-  grt::BaseListRef list;
+  grt::BaseListRef list(true);
   std::list<std::pair<size_t,size_t> > ranges;
   Mysql_sql_script_splitter::create()->process(sql.c_str(), ranges);
   
@@ -466,7 +466,7 @@ Sql_statement_decomposer::Ref MysqlSqlFacadeImpl::sqlStatementDecomposer(grt::Di
 
 grt::StringListRef MysqlSqlFacadeImpl::splitSqlStatements(const std::string &sql)
 {
-  grt::StringListRef list;
+  grt::StringListRef list(grt::Initialized);
   std::list<std::string> statements;
 
   splitSqlScript(sql, statements);
@@ -481,7 +481,7 @@ grt::StringListRef MysqlSqlFacadeImpl::splitSqlStatements(const std::string &sql
 
 static grt::BaseListRef process_ast_node(int base_offset, const SqlAstNode& item)
 {
-  grt::BaseListRef tuple;
+  grt::BaseListRef tuple(true);
   sql::symbol item_name = item.name();
   tuple.ginsert(grt::StringRef(item_name ? sql::symbol_names[item_name] : ""));
   
@@ -496,7 +496,7 @@ static grt::BaseListRef process_ast_node(int base_offset, const SqlAstNode& item
 
   {
     SqlAstNode::SubItemList *subitems= item.subitems();
-    grt::BaseListRef children;
+    grt::BaseListRef children(true);
     if (subitems)
     {
       for (SqlAstNode::SubItemList::const_iterator i= subitems->begin(), i_end= subitems->end(); i != i_end; ++i)
@@ -543,7 +543,7 @@ static int parse_callback(void* user_data, const MyxStatementParser *splitter, c
 grt::BaseListRef MysqlSqlFacadeImpl::parseAstFromSqlScript(const std::string &sql)
 {
   Mysql_sql_parser_fe parser(bec::GRTManager::get_instance_for()->get_app_option_string("SqlMode"));
-  grt::BaseListRef result;
+  grt::BaseListRef result(true);
 
   parser.is_ast_generation_enabled = true;
   parser.ignore_dml = false;

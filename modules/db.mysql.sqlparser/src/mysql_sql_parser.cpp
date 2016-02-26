@@ -50,7 +50,7 @@ public:
     grt::Module *module= grt::GRT::get().get_module("DbMySQL");
     if (!module)
       throw std::logic_error("module DbMySQL not found");
-    grt::BaseListRef args;
+    grt::BaseListRef args(true);
     engines= grt::ListRef<db_mysql_StorageEngine>::cast_from(module->call_function("getKnownEngines", args));
     if (!engines.is_valid())
       throw std::logic_error("no known storage engines");
@@ -387,7 +387,7 @@ Mysql_sql_parser::process_alter_statement(const SqlAstNode *tree)
 
 void Mysql_sql_parser::build_datatype_cache()
 {
-  _datatype_cache= DictRef();
+  _datatype_cache= DictRef(true);
   ListRef<db_SimpleDatatype> datatypes= _catalog->simpleDatatypes();
   db_SimpleDatatypeRef datatype;
   for (size_t n= 0; n < datatypes.count(); n++)

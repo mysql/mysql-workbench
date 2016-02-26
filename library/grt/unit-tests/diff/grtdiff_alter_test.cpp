@@ -1211,7 +1211,7 @@ TEST_FUNCTION(10)
   ParserContext::Ref context = services->createParserContext(tester.get_rdbms()->characterSets(),
     tester.get_rdbms()->version(), false);
 
-  grt::DictRef options;
+  grt::DictRef options(true);
   for (int i = 0; data[i].description != NULL; i++)
   {
     std::cout << ".";
@@ -1272,9 +1272,9 @@ TEST_FUNCTION(10)
 #endif
 
     // 1. generate alter
-    grt::StringListRef alter_map;
+    grt::StringListRef alter_map(grt::Initialized);
     grt::ListRef<GrtNamedObject> alter_object_list;
-    grt::DictRef options;
+    grt::DictRef options(true);
     options.set("UseFilteredLists", grt::IntegerRef(0));
     options.set("OutputContainer", alter_map);
     options.set("OutputObjectContainer", alter_object_list);
@@ -1376,7 +1376,7 @@ TEST_FUNCTION(20)
   ParserContext::Ref context = services->createParserContext(tester.get_rdbms()->characterSets(),
     tester.get_rdbms()->version(), false);
 
-  grt::DictRef options;
+  grt::DictRef options(true);
   for (int i = 0; data[i].description != NULL; i++)
   {
     std::cout << ".";
@@ -1441,8 +1441,8 @@ TEST_FUNCTION(20)
       const char TemplateFile[] = "data/reporting/Basic_Text.tpl/basic_text_report.txt.tpl";
 
       // 1. generate alter
-      grt::StringListRef alter_map;
-      grt::DictRef options;
+      grt::StringListRef alter_map(grt::Initialized);
+      grt::DictRef options(true);
       options.set("UseFilteredLists", grt::IntegerRef(0));
       options.set("OutputContainer", alter_map);
       options.set("TemplateFile", grt::StringRef(TemplateFile));
@@ -1554,7 +1554,7 @@ TEST_FUNCTION(30)
   ParserContext::Ref context = services->createParserContext(tester.get_rdbms()->characterSets(),
     tester.get_rdbms()->version(), false);
 
-  grt::DictRef options;
+  grt::DictRef options(true);
   for (int i = 0; neg_data[i].description != NULL; i++)
   {
     std::cout << ".";
@@ -1611,9 +1611,9 @@ TEST_FUNCTION(30)
 
     if (empty_change)
     {
-      grt::StringListRef alter_map;
+      grt::StringListRef alter_map(grt::Initialized);
       grt::ListRef<GrtNamedObject> alter_object_list;
-      grt::DictRef options;
+      grt::DictRef options(true);
       options.set("UseFilteredLists", grt::IntegerRef(0));
       options.set("OutputContainer", alter_map);
       options.set("OutputObjectContainer", alter_object_list);

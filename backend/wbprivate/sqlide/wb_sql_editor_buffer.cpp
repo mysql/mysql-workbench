@@ -748,7 +748,7 @@ void SqlEditorForm::open_file(const std::string &path, bool in_new_tab, bool ask
     {
       if (in_new_tab)
         remove_sql_editor(panel);
-      grt::BaseListRef args(grt::Initialized);
+      grt::BaseListRef args(true);
       args.ginsert(grtobj());
       args.ginsert(grt::StringRef(file_path));
       grt::GRT::get().call_module_function("SQLIDEUtils", "runSQLScriptFile", args);

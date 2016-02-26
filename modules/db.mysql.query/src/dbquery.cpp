@@ -468,7 +468,7 @@ grt::IntegerListRef DbMySQLQueryImpl::executeQueryMultiResult(int conn, const st
     con = cinfo->prepare();
   }
 
-  grt::IntegerListRef result;
+  grt::IntegerListRef result(grt::Initialized);
   
   try
   {
@@ -770,7 +770,7 @@ int DbMySQLQueryImpl::loadSchemata(int conn, grt::StringListRef schemata)
 
 grt::DictRef DbMySQLQueryImpl::getServerVariables(int conn)
 {
-  grt::DictRef dict;
+  grt::DictRef dict(true);
   
   CLEAR_ERROR();
   
@@ -815,7 +815,7 @@ grt::DictRef DbMySQLQueryImpl::getServerVariables(int conn)
 
 grt::StringListRef DbMySQLQueryImpl::loadSchemaList(int conn)
 {
-  grt::StringListRef list;
+  grt::StringListRef list(grt::Initialized);
   if (loadSchemata(conn, list) == 0)
     return list;
   return grt::StringListRef();
@@ -883,7 +883,7 @@ int DbMySQLQueryImpl::loadSchemaObjects(int conn, grt::StringRef schema, grt::St
 
 grt::DictRef DbMySQLQueryImpl::loadSchemaObjectList(int conn, grt::StringRef schema, grt::StringRef object_type)
 {
-  grt::DictRef objects;
+  grt::DictRef objects(true);
   if (loadSchemaObjects(conn, schema, object_type, objects) == 0)
     return objects;
   return grt::DictRef();

@@ -3333,7 +3333,7 @@ void TableEditorBE::inserts_column_resized(int column)
     widths = grt::IntegerListRef::cast_from(get_table()->customData().get("InsertsColumnWidths"));
   else
   {
-    widths = grt::IntegerListRef();
+    widths = grt::IntegerListRef(grt::Initialized);
     get_table()->customData().set("InsertsColumnWidths", widths);
   }
 
@@ -3493,7 +3493,7 @@ void TableEditorBE::show_export_wizard(mforms::Form *owner)
 
 void TableEditorBE::show_import_wizard()
 {
-  grt::BaseListRef args;
+  grt::BaseListRef args(true);
   
   db_TableRef table(get_table());
   if (table.is_valid() && table->columns().count() > 0)
