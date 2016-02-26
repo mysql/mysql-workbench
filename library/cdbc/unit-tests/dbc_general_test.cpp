@@ -29,14 +29,14 @@ public:
   TEST_DATA_CONSTRUCTOR(module_dbc_general_test)
   {
       // load structs
-    grt.scan_metaclasses_in("../../res/grt/");
-    grt.end_loading_metaclasses();
+    grt::GRT::get().scan_metaclasses_in("../../res/grt/");
+    grt::GRT::get().end_loading_metaclasses();
 
-    ensure_equals("load structs", grt.get_metaclasses().size(), (size_t)INT_METACLASS_COUNT);
+    ensure_equals("load structs", grt::GRT::get().get_metaclasses().size(), (size_t)INT_METACLASS_COUNT);
   
     db_mgmt_ConnectionRef connectionProperties;
 
-    setup_env(&grt, connectionProperties);
+    setup_env(connectionProperties);
 
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
     sql::ConnectionWrapper wrapper= dm->getConnection(connectionProperties);
@@ -50,7 +50,7 @@ public:
   {
     db_mgmt_ConnectionRef connectionProperties;
 
-    setup_env(&grt, connectionProperties);
+    setup_env(connectionProperties);
 
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
     sql::ConnectionWrapper wrapper= dm->getConnection(connectionProperties);
@@ -66,9 +66,9 @@ TEST_MODULE(module_dbc_general_test, "DBC: general tests");
 
 TEST_FUNCTION(2)
 {
-  db_mgmt_ConnectionRef connectionProperties;
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(&grt, connectionProperties);
+  setup_env(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
   sql::ConnectionWrapper wrapper= dm->getConnection(connectionProperties);
@@ -96,9 +96,9 @@ TEST_FUNCTION(2)
 
 TEST_FUNCTION(3)
 {
-  db_mgmt_ConnectionRef connectionProperties;
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(&grt, connectionProperties);
+  setup_env(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
   sql::ConnectionWrapper wrapper= dm->getConnection(connectionProperties);

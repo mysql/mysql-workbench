@@ -63,7 +63,7 @@ public:
 
 static void set_object_argument(app_PluginRef &plugin, const std::string &struct_name)
 {
-  app_PluginObjectInputRef pdef;
+  app_PluginObjectInputRef pdef(grt::Initialized);
 
   pdef->objectStructName(struct_name);
   pdef->owner(plugin);
@@ -77,11 +77,11 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info()
 {
   grt::ListRef<app_Plugin> editors;
 
-  app_PluginRef note_editor;
-  app_PluginRef image_editor;
-  app_PluginRef stored_note_editor;
-  app_PluginRef stored_sql_editor;
-  app_PluginRef layer_editor;
+  app_PluginRef note_editor(grt::Initialized);
+  app_PluginRef image_editor(grt::Initialized);
+  app_PluginRef stored_note_editor(grt::Initialized);
+  app_PluginRef stored_sql_editor(grt::Initialized);
+  app_PluginRef layer_editor(grt::Initialized);
   
   FRONTEND_LIBNAME(note_editor,
                    ".\\wb.model.editors.wbp.fe.dll",

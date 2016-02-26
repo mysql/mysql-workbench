@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -527,7 +527,7 @@ workbench_DocumentRef ModelFile::attempt_document_upgrade(const workbench_Docume
   {
     if (doc->physicalModels()[0]->tagCategories().count() == 0)
     {
-      GrtObjectRef cat;
+      GrtObjectRef cat(grt::Initialized);
       
       cat->owner(doc->physicalModels()[0]);
       cat->name("Business Rule");
@@ -704,7 +704,7 @@ workbench_DocumentRef ModelFile::attempt_document_upgrade(const workbench_Docume
   {
       if (!doc->physicalModels()[0]->catalog()->version().is_valid())
       {
-          GrtVersionRef version;
+        GrtVersionRef version(grt::Initialized);
           version->name("Version");
           version->majorNumber(5);
           version->minorNumber(5);

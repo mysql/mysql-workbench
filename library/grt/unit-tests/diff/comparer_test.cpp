@@ -52,9 +52,9 @@ TEST_MODULE(comparer_test, "comparer test");
 TEST_FUNCTION(1)
 {
     grt::DbObjectMatchAlterOmf omf;
-    db_TableRef table1 = db_mysql_TableRef();
+    db_TableRef table1 = db_mysql_TableRef(grt::Initialized);
     table1->name("Table");
-    db_TableRef table2 = db_mysql_TableRef();
+    db_TableRef table2 = db_mysql_TableRef(grt::Initialized);
     table2->name("TABLE");
     grt::NormalizedComparer caseless_normalizer(get_traits(false));
     caseless_normalizer.init_omf(&omf);
@@ -65,9 +65,9 @@ TEST_FUNCTION(1)
 TEST_FUNCTION(2)
 {
     grt::DbObjectMatchAlterOmf omf;
-    db_TableRef table1 = db_mysql_TableRef();
+    db_TableRef table1 = db_mysql_TableRef(grt::Initialized);
     table1->name("Table");
-    db_TableRef table2 = db_mysql_TableRef();
+    db_TableRef table2 = db_mysql_TableRef(grt::Initialized);
     table2->name("TABLE");
     grt::NormalizedComparer normalizer(get_traits(true));
     normalizer.init_omf(&omf);
@@ -257,9 +257,9 @@ TEST_FUNCTION(8)
 void test_table_collation(std::string src, std::string dst, bool equal = false)
 {
   grt::DbObjectMatchAlterOmf omf3;
-  db_TableRef table1 = db_mysql_TableRef();
+  db_TableRef table1 = db_mysql_TableRef(grt::Initialized);
   table1->set_member("defaultCollationName",grt::StringRef(src.c_str()));
-  db_TableRef table2 = db_mysql_TableRef();
+  db_TableRef table2 = db_mysql_TableRef(grt::Initialized);
   table2->set_member("defaultCollationName",grt::StringRef(dst.c_str()));
   grt::NormalizedComparer caseless_normalizer3(get_traits(false));
   caseless_normalizer3.init_omf(&omf3);
@@ -285,8 +285,8 @@ void test_table_collation(std::string src, std::string dst, bool equal = false)
 TEST_FUNCTION(9)
 {
   grt::DbObjectMatchAlterOmf omf;
-  db_SchemaRef schema1 = db_SchemaRef();
-  db_SchemaRef schema2 = db_SchemaRef();
+  db_SchemaRef schema1 = db_SchemaRef(grt::Initialized);
+  db_SchemaRef schema2 = db_SchemaRef(grt::Initialized);
   grt::NormalizedComparer normalizer(get_traits(true));
   normalizer.init_omf(&omf);
   boost::shared_ptr<DiffChange> change = diff_make(schema1, schema2, &omf);
@@ -362,8 +362,8 @@ TEST_FUNCTION(9)
 TEST_FUNCTION(10)
 {
     grt::DbObjectMatchAlterOmf omf;
-    db_RoutineRef routine1 = db_RoutineRef();
-    db_RoutineRef routine2 = db_RoutineRef();
+    db_RoutineRef routine1 = db_RoutineRef(grt::Initialized);
+    db_RoutineRef routine2 = db_RoutineRef(grt::Initialized);
     routine1->name("routine1");
     routine2->name("routine1");
     routine1->definer("root@localhost");

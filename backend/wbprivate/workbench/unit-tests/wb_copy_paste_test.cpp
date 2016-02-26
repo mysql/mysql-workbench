@@ -132,14 +132,14 @@ TEST_FUNCTION(2)
   // proper refs to the copied objects
   tester.create_new_document();
 
-  db_mysql_TableRef table;
+  db_mysql_TableRef table(grt::Initialized);
 
   table= db_mysql_TableRef();
   table->name("person");
   
   for (int i= 0; i < 5; i++)
   {
-    db_mysql_ColumnRef column;
+    db_mysql_ColumnRef column(grt::Initialized);
 
     column->owner(table);
     column->name(strfmt("col%i", i));

@@ -157,7 +157,7 @@ protected:
 private: // wrapper methods for use by grt
   static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new test_Bridged(grt));
+    return grt::ObjectRef(new test_Bridged);
   }
 
 
@@ -208,7 +208,7 @@ protected:
 private: // wrapper methods for use by grt
   static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new test_Base(grt));
+    return grt::ObjectRef(new test_Base);
   }
 
 
@@ -303,7 +303,7 @@ protected:
 private: // wrapper methods for use by grt
   static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new test_Publisher(grt));
+    return grt::ObjectRef(new test_Publisher);
   }
 
 
@@ -371,7 +371,7 @@ protected:
 private: // wrapper methods for use by grt
   static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new test_Author(grt));
+    return grt::ObjectRef(new test_Author);
   }
 
 
@@ -429,7 +429,7 @@ protected:
 private: // wrapper methods for use by grt
   static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new test_Publication(grt));
+    return grt::ObjectRef(new test_Publication);
   }
 
 
@@ -568,7 +568,7 @@ protected:
 private: // wrapper methods for use by grt
   static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new test_Book(grt));
+    return grt::ObjectRef(new test_Book);
   }
 
 

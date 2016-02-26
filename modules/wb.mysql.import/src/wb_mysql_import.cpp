@@ -32,7 +32,7 @@ grt::ListRef<app_Plugin> WbMysqlImportImpl::getPluginInfo()
 {
   grt::ListRef<app_Plugin> list;
 
-  app_PluginRef plugin;
+  app_PluginRef plugin(grt::Initialized);
 
   plugin->name("db.mysql.import.dbd4");
   plugin->caption("Import DBDesigner4 Model");
@@ -42,12 +42,12 @@ grt::ListRef<app_Plugin> WbMysqlImportImpl::getPluginInfo()
   plugin->pluginType("standalone");
   plugin->showProgress(1);
 
-  app_PluginObjectInputRef obj_arg;
+  app_PluginObjectInputRef obj_arg(grt::Initialized);
   obj_arg->name("activeModel");
   obj_arg->objectStructName(workbench_physical_Model::static_class_name());
   plugin->inputValues().insert(obj_arg);
 
-  app_PluginFileInputRef file_arg;
+  app_PluginFileInputRef file_arg(grt::Initialized);
   file_arg->name("filename");
   file_arg->dialogTitle(("Import DBDesigner4 Model"));
   file_arg->dialogType("open");
@@ -66,7 +66,7 @@ grt::ListRef<app_Plugin> WbMysqlImportImpl::getPluginInfo()
   plugin->pluginType("normal");
   plugin->showProgress(1);
 
-  obj_arg= app_PluginObjectInputRef;
+  obj_arg= app_PluginObjectInputRef(grt::Initialized);
   obj_arg->name("catalog");
   obj_arg->objectStructName(db_Catalog::static_class_name());
   plugin->inputValues().insert(obj_arg);

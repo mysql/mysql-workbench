@@ -333,23 +333,28 @@ namespace grt {
    *
    * @ingroup GRT
    */ 
+  
+
+  typedef enum { Initialized } CreateMode;
   template<class Class>
     class Ref : public ValueRef
   {
   public:
     typedef Class RefType;
-
     Ref()
     {
     }
 
-    Ref(Class *obj)
-      : ValueRef(obj)
+    explicit Ref(CreateMode mode) : ValueRef(new Class)
+    {
+      content().init();
+    }
+
+    Ref(Class *obj) : ValueRef(obj)
     {
     }
 
-    Ref(const Ref<Class> &ref)
-      : ValueRef(ref)
+    Ref(const Ref<Class> &ref) : ValueRef(ref)
     {
 #if defined(ENABLE_DEBUG) || defined(_DEBUG)
 #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 2) // this causes errors in mac, with gcc 4.2

@@ -132,7 +132,7 @@ void NewConnectionWizard::open_remote_mgm_config()
 
 db_mgmt_ConnectionRef NewConnectionWizard::run()
 { 
-  _connection = db_mgmt_ConnectionRef();
+  _connection = db_mgmt_ConnectionRef(grt::Initialized);
   _connection->driver(_mgmt->rdbms()[0]->defaultDriver());
   if (find_named_object_in_list(_connection->driver()->parameters(), "useSSL").is_valid())
   {

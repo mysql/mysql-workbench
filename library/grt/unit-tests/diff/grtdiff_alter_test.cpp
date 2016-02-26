@@ -1207,7 +1207,7 @@ TEST_FUNCTION(10)
     execute_script(stmt.get(), "CREATE DATABASE IF NOT EXISTS grtdiff_alter_test /*!40100 DEFAULT CHARACTER SET latin1 */",tester.wb->get_grt_manager());
   }
 
-  MySQLParserServices::Ref services = MySQLParserServices::get;
+  MySQLParserServices::Ref services = MySQLParserServices::get();
   ParserContext::Ref context = services->createParserContext(tester.get_rdbms()->characterSets(),
     tester.get_rdbms()->version(), false);
 
@@ -1218,8 +1218,8 @@ TEST_FUNCTION(10)
     if ((i + 1) % 30 == 0)
       std::cout << std::endl;
 
-    db_mysql_CatalogRef org_cat = create_empty_catalog_for_import;
-    db_mysql_CatalogRef mod_cat = create_empty_catalog_for_import;
+    db_mysql_CatalogRef org_cat = create_empty_catalog_for_import();
+    db_mysql_CatalogRef mod_cat = create_empty_catalog_for_import();
 
     {
       std::string org_script;
@@ -1372,7 +1372,7 @@ TEST_FUNCTION(20)
     execute_script(stmt.get(), "CREATE DATABASE IF NOT EXISTS grtdiff_alter_test /*!40100 DEFAULT CHARACTER SET latin1 */",tester.wb->get_grt_manager());
   }
 
-  MySQLParserServices::Ref services = MySQLParserServices::get;
+  MySQLParserServices::Ref services = MySQLParserServices::get();
   ParserContext::Ref context = services->createParserContext(tester.get_rdbms()->characterSets(),
     tester.get_rdbms()->version(), false);
 
@@ -1385,8 +1385,8 @@ TEST_FUNCTION(20)
 
     for (int j = 0; j <= 1; ++j)
     {
-      db_mysql_CatalogRef org_cat = create_empty_catalog_for_import;
-      db_mysql_CatalogRef mod_cat = create_empty_catalog_for_import;
+      db_mysql_CatalogRef org_cat = create_empty_catalog_for_import();
+      db_mysql_CatalogRef mod_cat = create_empty_catalog_for_import();
 
       {
         std::string org_script;
@@ -1550,7 +1550,7 @@ TEST_FUNCTION(30)
     execute_script(stmt.get(), "CREATE DATABASE IF NOT EXISTS grtdiff_alter_test /*!40100 DEFAULT CHARACTER SET latin1 */",tester.wb->get_grt_manager());
   }
 
-  MySQLParserServices::Ref services = MySQLParserServices::get;
+  MySQLParserServices::Ref services = MySQLParserServices::get();
   ParserContext::Ref context = services->createParserContext(tester.get_rdbms()->characterSets(),
     tester.get_rdbms()->version(), false);
 
@@ -1561,8 +1561,8 @@ TEST_FUNCTION(30)
     if ((i + 1) % 30 == 0)
       std::cout << std::endl;
 
-    db_mysql_CatalogRef org_cat= create_empty_catalog_for_import;
-    db_mysql_CatalogRef mod_cat= create_empty_catalog_for_import;
+    db_mysql_CatalogRef org_cat= create_empty_catalog_for_import();
+    db_mysql_CatalogRef mod_cat= create_empty_catalog_for_import();
 
     {
       std::string org_script;

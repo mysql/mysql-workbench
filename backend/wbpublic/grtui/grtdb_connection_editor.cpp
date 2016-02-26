@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -234,7 +234,7 @@ void grtui::DbConnectionEditor::add_stored_conn(bool copy)
   sprintf(buf, "New connection %i", max_conn_nr + 1);
 
   // use the current values to create a new connection
-  db_mgmt_ConnectionRef new_connection;
+  db_mgmt_ConnectionRef new_connection(grt::Initialized);
   
   new_connection->owner(_panel.get_be()->get_db_mgmt());
   new_connection->name(buf);

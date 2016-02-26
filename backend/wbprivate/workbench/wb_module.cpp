@@ -280,7 +280,7 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
 
 #define def_plugin(group, aName, type, aCaption, descr)\
 {\
-  app_PluginRef plugin;\
+  app_PluginRef plugin(grt::Initialized);\
   plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
@@ -293,7 +293,7 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
 
 #define def_object_plugin(group, klass, aName, aCaption, descr)\
 {\
-  app_PluginRef plugin;\
+  app_PluginRef plugin(grt::Initialized);\
   plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
@@ -301,7 +301,7 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
   plugin->moduleFunctionName(aName);\
   plugin->pluginType(NORMAL_PLUGIN_TYPE);\
   plugin->groups().insert("Application/Workbench");\
-  app_PluginObjectInputRef input;\
+  app_PluginObjectInputRef input(grt::Initialized);\
   input->owner(plugin);\
   input->objectStructName(klass::static_class_name());\
   plugin->inputValues().insert(input);\
@@ -311,7 +311,7 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
 
 #define def_view_plugin(group, aName, aCaption, descr)\
 {\
-  app_PluginRef plugin;\
+  app_PluginRef plugin(grt::Initialized);\
   plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
@@ -319,7 +319,7 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
   plugin->moduleFunctionName(aName);\
   plugin->pluginType(NORMAL_PLUGIN_TYPE);\
   plugin->groups().insert("Application/Workbench");\
-  app_PluginObjectInputRef input;\
+  app_PluginObjectInputRef input(grt::Initialized);\
   input->owner(plugin);\
   input->name("activeDiagram");\
   input->objectStructName(model_Diagram::static_class_name());\
@@ -329,7 +329,7 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
 
 #define def_model_plugin(group, aName, aCaption, descr)\
 {\
-  app_PluginRef plugin;\
+  app_PluginRef plugin(grt::Initialized);\
   plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
@@ -337,7 +337,7 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
   plugin->moduleFunctionName(aName);\
   plugin->pluginType(NORMAL_PLUGIN_TYPE);\
   plugin->groups().insert("Application/Workbench");\
-  app_PluginObjectInputRef input;\
+  app_PluginObjectInputRef input(grt::Initialized);\
   input->owner(plugin);\
   input->name("activeModel");\
   input->objectStructName(model_Model::static_class_name());\
@@ -347,7 +347,7 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
 
 #define def_form_model_plugin(group, aName, aCaption, descr)\
 {\
-  app_PluginRef plugin;\
+  app_PluginRef plugin(grt::Initialized);\
   plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
@@ -355,7 +355,7 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
   plugin->moduleFunctionName(aName);\
   plugin->pluginType(STANDALONE_GUI_PLUGIN_TYPE);\
   plugin->groups().insert("Application/Workbench");\
-  app_PluginObjectInputRef input;\
+  app_PluginObjectInputRef input(grt::Initialized);\
   input->owner(plugin);\
   input->name("activeModel");\
   input->objectStructName(model_Model::static_class_name());\
@@ -365,7 +365,7 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
 
 #define def_form_plugin(group, aName, aCaption, descr)\
 {\
-  app_PluginRef plugin;\
+  app_PluginRef plugin(grt::Initialized);\
   plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
@@ -379,8 +379,8 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
 
 #define def_arg_plugin(group, aName, type, aCaption, descr)\
 {\
-  app_PluginRef plugin;\
-  app_PluginInputDefinitionRef pdef;\
+  app_PluginRef plugin(grt::Initialized);\
+  app_PluginInputDefinitionRef pdef(grt::Initialized);\
   plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
@@ -396,18 +396,18 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
 
 #define def_model_arg_plugin(group, aName, type, aCaption, descr)\
 {\
-  app_PluginRef plugin;\
+  app_PluginRef plugin(grt::Initialized);\
   plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
   plugin->moduleName("Workbench");\
   plugin->moduleFunctionName(aName);\
   plugin->pluginType(type);\
-  app_PluginInputDefinitionRef pdef;\
+  app_PluginInputDefinitionRef pdef(grt::Initialized);\
   pdef->owner(plugin);\
   pdef->name("string");\
   plugin->inputValues().insert(pdef);\
-  app_PluginObjectInputRef model;\
+  app_PluginObjectInputRef model(grt::Initialized);\
   model->owner(plugin);\
   model->name("activeModel");\
   model->objectStructName(model_Model::static_class_name());\
@@ -418,8 +418,8 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
 
 #define def_file_plugin(group, aName, ptype, aCaption, descr, aDialogCaption, aType, aExtensions)\
 {\
-  app_PluginRef plugin;\
-  app_PluginFileInputRef pdef;\
+  app_PluginRef plugin(grt::Initialized);\
+  app_PluginFileInputRef pdef(grt::Initialized);\
   plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
@@ -990,7 +990,7 @@ int WorkbenchImpl::setMarker(const std::string &marker)
 
   if (form)
   {
-    model_MarkerRef mk;
+    model_MarkerRef mk(grt::Initialized);
 
     model_ModelRef model(form->get_model_diagram()->owner());
 

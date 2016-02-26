@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,7 +45,7 @@ WizardForm::WizardForm(bec::GRTManager *mgr)
   scoped_connect(signal_extra_clicked(),boost::bind(&WizardForm::extra_clicked, this));
   set_cancel_handler(boost::bind(&WizardForm::cancel, this));
   
-  _values= grt::DictRef();
+  _values= grt::DictRef(grt::Initialized);
 }
 
 

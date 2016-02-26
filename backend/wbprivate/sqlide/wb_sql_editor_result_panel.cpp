@@ -130,7 +130,7 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
 
   {
     db_query_QueryEditorRef editor(owner->grtobj());
-    _grtobj = db_query_ResultPanelRef();
+    _grtobj = db_query_ResultPanelRef(grt::Initialized);
     _grtobj->dockingPoint(mforms_to_grt(&_tabdock));
   }
 
@@ -398,7 +398,7 @@ void SqlEditorResult::switch_tab()
         _execution_plan_placeholder = NULL;
 
         // if the explain tab is just a placeholder, execute visual explain, which will replace the tab when docking
-        grt::BaseListRef args;
+        grt::BaseListRef args(grt::Initialized);
         args.ginsert(_owner->grtobj());
         args.ginsert(_grtobj);
         try
@@ -500,7 +500,7 @@ void SqlEditorResult::show_import_recordset()
   {
     RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR(Recordset, _rset, rs)
     {
-      grt::BaseListRef args;
+      grt::BaseListRef args(grt::Initialized);
 
       if (result_grtobj().is_valid())
       {

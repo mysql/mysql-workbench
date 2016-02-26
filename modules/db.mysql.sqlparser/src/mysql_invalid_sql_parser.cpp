@@ -41,8 +41,8 @@ Mysql_invalid_sql_parser::Null_state_keeper::~Null_state_keeper()
   _sql_parser->_stub_name= std::string();
   _sql_parser->_active_obj_list= grt::ListRef<db_DatabaseDdlObject>();
   _sql_parser->_active_obj_list2= grt::ListRef<db_DatabaseDdlObject>();
-  _sql_parser->_active_obj= db_DatabaseDdlObjectRef();
-  _sql_parser->_active_grand_obj= db_DatabaseObjectRef();
+  _sql_parser->_active_obj= db_DatabaseDdlObjectRef(grt::Initialized);
+  _sql_parser->_active_grand_obj = db_DatabaseObjectRef(grt::Initialized);
   boost::function<bool ()> f = boost::lambda::constant(false);
   _sql_parser->_create_stub_object = boost::bind(f);
   _sql_parser->_remove_stub_object = boost::bind(f);
@@ -249,7 +249,7 @@ int Mysql_invalid_sql_parser::parse_invalid_sql_script(const std::string &sql)
       _active_schema= db_mysql_SchemaRef::cast_from(_active_grand_obj->owner()->owner());
   else
       _active_schema= db_mysql_SchemaRef::cast_from(_active_grand_obj->owner());
-  _catalog= db_mysql_CatalogRef();
+  _catalog = db_mysql_CatalogRef(grt::Initialized);
   _catalog->schemata().insert(_active_schema);
 
   // take simple datatypes & other major attributes from given catalog
@@ -361,7 +361,7 @@ void Mysql_invalid_sql_parser::create_stub_routine(db_DatabaseDdlObjectRef &obj)
 
 void Mysql_invalid_sql_parser::create_stub_group_routine(db_DatabaseDdlObjectRef &obj)
 {
-  db_mysql_RoutineRef routine;
+  db_mysql_RoutineRef routine(grt::Initialized);
   routine->owner(_active_schema);
   setup_stub_obj(routine, true);
   routine->routineType("<stub>");
@@ -395,7 +395,7 @@ void Mysql_invalid_sql_parser::create_stub_trigger(db_DatabaseDdlObjectRef &obj)
   }
   else
   {
-    db_mysql_TriggerRef trigger;
+    db_mysql_TriggerRef trigger(grt::Initialized);
     trigger->owner(_active_grand_obj);
     setup_stub_obj(trigger, true);
 
