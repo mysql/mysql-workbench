@@ -370,6 +370,8 @@ struct AutoUndo
 
   void end_or_cancel_if_empty(const std::string &descr)
   {
+    if (!group)
+      return;
     if (!group->empty())
       GRT::get().end_undoable_action(descr);
     else
