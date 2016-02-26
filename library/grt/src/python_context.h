@@ -17,8 +17,8 @@
  * 02110-1301  USA
  */
 
-#ifndef _GRT_PYTHON_CONTEXT_H_
-#define _GRT_PYTHON_CONTEXT_H_
+#pragma once
+
 #include "base/python_utils.h"
 
 #include "grt.h"
@@ -232,5 +232,3 @@ namespace grt {
     python_error(const std::string &what) : std::runtime_error(what) {}
   };
 };
-
-#endif
