@@ -60,7 +60,7 @@ grtui::DbConnectionEditor::DbConnectionEditor(const db_mgmt_ManagementRef &mgmt)
 , _bottom_hbox(true)
 {  
   set_name("connection_editor");
-  grt::ListRef<db_mgmt_Rdbms> default_allowed_rdbms;
+  grt::ListRef<db_mgmt_Rdbms> default_allowed_rdbms(true);
   default_allowed_rdbms.ginsert(find_object_in_list(mgmt->rdbms(), "com.mysql.rdbms.mysql"));
   _panel.init(_mgmt, default_allowed_rdbms);
   

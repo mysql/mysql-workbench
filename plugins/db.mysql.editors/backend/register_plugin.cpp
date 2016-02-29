@@ -70,7 +70,7 @@ static void set_object_argument(app_PluginRef &plugin, const std::string &struct
 
 static grt::ListRef<app_Plugin> get_mysql_plugins_info()
 {
-  grt::ListRef<app_Plugin> editors;
+  grt::ListRef<app_Plugin> editors(grt::Initialized);
 
   app_PluginRef schema_editor(grt::Initialized);
   app_PluginRef table_editor(grt::Initialized);

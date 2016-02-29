@@ -64,7 +64,7 @@ model_DiagramRef workbench_physical_Model::addNewDiagram(ssize_t defer_realize)
 
   size.width*=2; // 2 pages
 
-  view = workbench_physical_DiagramRef();
+  view = workbench_physical_DiagramRef(grt::Initialized);
   view->owner(this);
   view->name(name);
   view->width(size.width);

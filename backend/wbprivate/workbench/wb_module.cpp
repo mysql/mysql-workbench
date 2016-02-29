@@ -438,7 +438,7 @@ int WorkbenchImpl::isOsSupported(const std::string& os)
 
 ListRef<app_Plugin> WorkbenchImpl::getPluginInfo()
 {
-  ListRef<app_Plugin> list;
+  ListRef<app_Plugin> list(true);
 
   def_plugin      ("file", "newDocument", INTERNAL_PLUGIN_TYPE, "New Model", "New Document");
   def_plugin      ("file", "newDocumentFromDB", INTERNAL_PLUGIN_TYPE, "Reverse Engineer Database", "Reverse Engineer");

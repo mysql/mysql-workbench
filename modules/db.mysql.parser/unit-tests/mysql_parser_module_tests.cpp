@@ -37,8 +37,8 @@ protected:
   {
     populate_grt(_tester);
 
-    _services = MySQLParserServices::get(_tester.grt);
-    GrtVersionRef version(_tester.grt);
+    _services = MySQLParserServices::get();
+    GrtVersionRef version(grt::Initialized);
     version->majorNumber(5);
     version->minorNumber(7);
     version->releaseNumber(10);

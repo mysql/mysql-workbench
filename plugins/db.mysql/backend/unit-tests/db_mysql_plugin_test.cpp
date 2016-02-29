@@ -208,7 +208,7 @@ boost::shared_ptr<DiffChange> tut::Test_object_base<db_mysql_plugin_test>::compa
   bec::CatalogHelper::apply_defaults(cat, default_engine_name);
   bec::CatalogHelper::apply_defaults(org_cat, default_engine_name);
 
-  grt::NormalizedComparer comparer(tester.grt,grt::DictRef(true));
+  grt::NormalizedComparer comparer(grt::DictRef(true));
   comparer.init_omf(&omf);
 
   boost::shared_ptr<DiffChange> result = diff_make(cat, org_cat, &omf);
@@ -384,7 +384,7 @@ TEST_FUNCTION(20)
   
   // insert an invalid column
   db_mysql_TableRef table= mod_cat->schemata().get(0)->tables().get(0);
-  db_mysql_ColumnRef column;
+  db_mysql_ColumnRef column(grt::Initialized);
   column->owner(table);
   column->name("col1");
   table->columns().insert(column);
@@ -427,7 +427,7 @@ TEST_FUNCTION(25)
   
   // insert an self-referencing FK
   db_mysql_TableRef table= mod_cat->schemata().get(0)->tables().get(1);
-  db_mysql_ForeignKeyRef fk;
+  db_mysql_ForeignKeyRef fk(grt::Initialized);
   fk->owner(table);
   fk->name("fk1");
   fk->referencedTable(table);
@@ -441,7 +441,7 @@ TEST_FUNCTION(25)
   schemata.push_back("db_mysql_plugin_test");
 
   std::string script= run_sync_plugin_generate_script(schemata, 
-    db_mysql_CatalogRef(), mod_cat);
+    db_mysql_CatalogRef(grt::Initialized), mod_cat);
 
   std::auto_ptr<sql::Statement> stmt(connection->createStatement());
   execute_script(stmt.get(), sql2, tester.wb->get_grt_manager());
@@ -684,7 +684,7 @@ TEST_FUNCTION(50)
 
   // now the same test for sync
   script.assign(run_sync_plugin_generate_script(schemata, 
-    db_mysql_CatalogRef(), mod_cat));
+    db_mysql_CatalogRef(grt::Initialized), mod_cat));
 
   std::auto_ptr<sql::Statement> stmt2(connection->createStatement());
   execute_script(stmt2.get(), "DROP DATABASE IF EXISTS `db_mysql_plugin_test`", tester.wb->get_grt_manager());

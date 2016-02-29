@@ -63,7 +63,7 @@ TEST_FUNCTION(1)
 
     workbench_physical_ModelRef pmodel(grt::Initialized);
     pmodel->owner(doc);
-    db_Catalog catalog(grt::Initialized);
+    db_Catalog catalog;
     pmodel->catalog(&catalog);
     doc->physicalModels().insert(pmodel);
 
@@ -97,7 +97,7 @@ TEST_FUNCTION(2)
 {
   //WBTester tester;
   bec::GRTManager *grtm;
-  grtm = bec::GRTManager::get_instance_f or();
+  grtm = bec::GRTManager::get_instance_for();
 
   // load sakile a bunch of times
   std::string tmpDir = TMP_DIR;

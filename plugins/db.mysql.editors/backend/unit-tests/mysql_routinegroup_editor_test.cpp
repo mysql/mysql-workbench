@@ -31,7 +31,6 @@ public:
 
 TEST_DATA_CONSTRUCTOR(mysql_routinegroup_editor_test)
 {
-  grt = wbt.grt;
 }
 
 END_TEST_DATA_CLASS

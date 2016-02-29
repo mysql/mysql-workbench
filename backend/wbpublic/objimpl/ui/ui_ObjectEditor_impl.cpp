@@ -30,7 +30,7 @@ void ui_ObjectEditor::ImplData::notify_will_open()
 
 bool ui_ObjectEditor::ImplData::notify_will_close()
 {
-  grt::DictRef info;
+  grt::DictRef info(true);
   info.gset("cancel", 0);
   grt::GRTNotificationCenter::get()->send_grt(GRNObjectEditorWillClose, self(), info);
   if (info.get_int("cancel") != 0)

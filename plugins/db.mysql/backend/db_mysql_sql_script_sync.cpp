@@ -384,7 +384,7 @@ db_mysql_CatalogRef DbMySQLScriptSync::get_cat_from_file_or_tree(std::string fil
 
   workbench_physical_ModelRef pm= workbench_physical_ModelRef::cast_from(ref_cat->owner());
 
-  db_mysql_CatalogRef cat;
+  db_mysql_CatalogRef cat(grt::Initialized);
   cat->version(pm->rdbms()->version());
   grt::replace_contents(cat->simpleDatatypes(), pm->rdbms()->simpleDatatypes());
   cat->name("default");
@@ -637,7 +637,7 @@ boost::shared_ptr<DiffTreeBE> DbMySQLScriptSync::init_diff_tree(const std::vecto
   _alter_list.remove_all();
   _alter_object_list.remove_all();
   
-  grt::DictRef genoptions;
+  grt::DictRef genoptions(true);
   genoptions.set("DBSettings", get_db_options());
   genoptions.set("OutputContainer", _alter_list);
   genoptions.set("OutputObjectContainer", _alter_object_list);
@@ -723,7 +723,7 @@ std::string DbMySQLScriptSync::generate_diff_tree_script()
     }
   }
 
-  grt::DictRef options;
+  grt::DictRef options(true);
 
   merge_contents(options, get_options(), true);
 
@@ -812,7 +812,7 @@ std::string DbMySQLScriptSync::generate_diff_tree_report()
     }
   }
 
-  grt::DictRef options;
+  grt::DictRef options(true);
   options.set("SchemaFilterList", convert_string_vector_to_grt_list(schemata));
   options.set("TableFilterList", convert_string_vector_to_grt_list(tables));
   options.set("ViewFilterList", convert_string_vector_to_grt_list(views));

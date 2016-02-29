@@ -33,9 +33,9 @@ protected:
 
   TEST_DATA_CONSTRUCTOR(mysql_invalid_sql_parser_test)
   {
-    populate_grt(_tester.grt, _tester);
+    populate_grt(_tester);
 
-    _facade = SqlFacade::instance_for_rdbms_name(_tester.grt, "Mysql");
+    _facade = SqlFacade::instance_for_rdbms_name("Mysql");
     Sql_specifics::Ref sql_specifics = _facade ->sqlSpecifics();
     _specifics_delimiter = sql_specifics->non_std_sql_delimiter();
     if (_specifics_delimiter == ";;")
@@ -59,18 +59,18 @@ TEST_FUNCTION(5)
 
   Invalid_sql_parser::Ref parser = _facade->invalidSqlParser();
 
-  db_mysql_CatalogRef catalog(_tester.grt);
-  db_mysql_SchemaRef schema(_tester.grt);
+  db_mysql_CatalogRef catalog(grt::Initialized);
+  db_mysql_SchemaRef schema(grt::Initialized);
   schema->name("sakila");
   catalog->schemata().insert(schema);
   schema->owner(catalog);
 
-  db_mysql_TableRef table(_tester.grt);
+  db_mysql_TableRef table(grt::Initialized);
   table->name("film");
   schema->tables().insert(table);
   table->owner(schema);
 
-  db_mysql_TriggerRef trigger(_tester.grt);
+  db_mysql_TriggerRef trigger(grt::Initialized);
   table->triggers().insert(trigger);
   trigger->owner(table);
 

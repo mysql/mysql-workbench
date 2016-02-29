@@ -2290,7 +2290,7 @@ void WBContext::load_starters(boost::shared_ptr<grt::internal::Unserializer> uns
   // Finally fill the the starter display list. If there is no saved list use the
   // predefined starters for this.
   starters_file= base::makePath(_user_datadir, STARTERS_SETTINGS_FILE_NAME);
-  grt::ListRef<app_Starter> starter_links= grt::ListRef<app_Starter>();
+  grt::ListRef<app_Starter> starter_links= grt::ListRef<app_Starter>(true);
   if (g_file_test(starters_file.c_str(), G_FILE_TEST_EXISTS))
   {
     xmlDocPtr xmlDocument= NULL;

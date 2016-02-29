@@ -1471,7 +1471,7 @@ mforms::TreeNodeRef LiveSchemaTree::create_node_for_object(const std::string &sc
 
 grt::BaseListRef LiveSchemaTree::get_selected_objects()
 {
-  grt::ListRef<db_query_LiveDBObject> selection(grt::Initialized);
+  grt::ListRef<db_query_LiveDBObject> selection(true);
 
   if (_model_view)
   {

@@ -80,7 +80,7 @@ WbPrintingImpl::WbPrintingImpl(grt::CPPModuleLoader *ldr)
 
 grt::ListRef<app_Plugin> WbPrintingImpl::getPluginInfo()
 {
-  grt::ListRef<app_Plugin> list;
+  grt::ListRef<app_Plugin> list(true);
 
   def_export_plugin("printToPDFFile", "Print Diagram to a PDF File", "Print to PDF", "PDF Files (*.pdf)|*.pdf");
   def_export_plugin("printToPSFile", "Print Diagram to a PS File", "Print to PS", "PostScript Files (*.ps)|*.ps");

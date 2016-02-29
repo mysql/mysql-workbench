@@ -398,7 +398,7 @@ grt::ListRef<app_Plugin> PluginManagerImpl::get_plugin_list(const std::string &g
     return grt::ListRef<app_Plugin>::cast_from(grt::GRT::get().get(_registry_path));
   else
   {
-    grt::ListRef<app_Plugin> rlist, list;
+    grt::ListRef<app_Plugin> rlist(true), list;
     std::string left, right;
 
     // groups are expected to be either in group/subgroup format or group (which will be interpreted as group/*)

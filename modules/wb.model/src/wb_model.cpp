@@ -212,7 +212,7 @@ void overwrite_default_option(T &value, const std::string &name, const grt::Dict
   {
     value= T::cast_from(options.get(name));
     if (init_with_empty_value && !value.is_valid())
-      value= T();
+      value= T(grt::Initialized);
   }
 }
 
@@ -878,7 +878,7 @@ int WbModelImpl::createDiagramWithObjects(workbench_physical_ModelRef model, grt
     workbench_physical_DiagramRef view = create_view_for_object_count(model, (int)object_count);
 
     do_autoplace_any_list(view, objects);
-    ListRef<db_Table> tables;
+    ListRef<db_Table> tables(true);
     for (size_t n= 0, count= objects.count(); n < count; ++n)
     {
       if (db_TableRef::can_wrap(objects[n]))
@@ -964,8 +964,8 @@ int WbModelImpl::do_autoplace_any_list(const model_DiagramRef &view, ListRef<Grt
 
   DictRef wb_options= DictRef::cast_from(grt::GRT::get().get("/wb/options/options"));
   
-  GrtObjectRef object(grt::Initialized);
-  model_FigureRef figure(grt::Initialized);
+  GrtObjectRef object;
+  model_FigureRef figure;
   model_LayerRef layer= view->rootLayer();
 
   for (size_t n= 0; n < count; ++n)
@@ -1030,7 +1030,7 @@ void WbModelImpl::handle_fklist_change(const model_DiagramRef &view, const db_Ta
       // that correspond to the FK for creating the relationship in all these views
 
       grt::ListRef<model_Figure> figures(view->figures());
-      workbench_physical_TableFigureRef table1(grt::Initialized), table2(grt::Initialized);
+      workbench_physical_TableFigureRef table1, table2;
 
       for (size_t d= figures.count(), f= 0; f < d; f++)
       {

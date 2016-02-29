@@ -91,7 +91,7 @@ Mysql_sql_parser::Null_state_keeper::~Null_state_keeper()
   _sql_parser->_gen_fk_names_when_empty= true;
   _sql_parser->_strip_sql= true;
   _sql_parser->_last_parse_result= pr_irrelevant;
-  _sql_parser->_sql_script_codeset= StringRef("");
+  _sql_parser->_sql_script_codeset= StringRef(""); 
   _sql_parser->_triggers_owner_table= db_mysql_TableRef();
 
   _sql_parser->_shape_schema = boost::bind(f);
@@ -2042,7 +2042,7 @@ Mysql_sql_parser::process_create_index_statement(const SqlAstNode *tree)
         const SqlAstNode *item= *it;
         if (item->name_equals(sql::_key_part))
         {
-          index_column= db_mysql_IndexColumnRef();
+          index_column = db_mysql_IndexColumnRef(grt::Initialized);
           index_column->owner(obj);
 
           // referred column
@@ -2662,7 +2662,7 @@ grt::Ref<T> Mysql_sql_parser::create_or_find_named_obj(const grt::ListRef<T>& ob
     }
     else
     {
-      obj= grt::Ref<T>();
+      obj = grt::Ref<T>(grt::Initialized);
       obj->owner(container2.is_valid() ? container2 : (container1.is_valid() ? container1 : GrtNamedObjectRef(_catalog)));
       try { obj.set_member("createDate", StringRef(time)); } catch (std::exception&) {}
     }
@@ -2679,7 +2679,7 @@ grt::Ref<T> Mysql_sql_parser::create_or_find_named_routine(const grt::ListRef<T>
 {
   std::string time= base::fmttime(0, DATETIME_FMT);
   
-  grt::Ref<T> obj(grt::Initialized);
+  grt::Ref<T> obj;
   if (grt::Ref<T>::can_wrap(get_active_object()))
   {
     obj= grt::Ref<T>::cast_from(get_active_object());

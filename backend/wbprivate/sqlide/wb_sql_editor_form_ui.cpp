@@ -396,7 +396,7 @@ void SqlEditorForm::toolbar_command(const std::string& command)
       }
       else if (!active_schema().empty())
       {
-        db_query_LiveDBObjectRef obj;
+        db_query_LiveDBObjectRef obj(grt::Initialized);
         obj->schemaName(active_schema());
         obj->type("db.Schema");
         obj->name(active_schema());
@@ -424,7 +424,7 @@ void SqlEditorForm::inspect_object(const std::string &schema, const std::string 
     grt::BaseListRef args(true);
     args.ginsert(editor);
 
-    db_query_LiveDBObjectRef obj;
+    db_query_LiveDBObjectRef obj(grt::Initialized);
     obj->type(type);
     obj->schemaName(schema);
     obj->name(object);

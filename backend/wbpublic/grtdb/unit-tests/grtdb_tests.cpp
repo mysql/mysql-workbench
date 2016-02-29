@@ -658,9 +658,9 @@ TEST_FUNCTION(25)
   // bug: make sure that mysql tables with a composite key have the auto_increment column
   // 1st in the index
 
-  db_mysql_TableRef table;
-  db_mysql_ColumnRef col1;
-  db_mysql_ColumnRef col2;
+  db_mysql_TableRef table(grt::Initialized);
+  db_mysql_ColumnRef col1(grt::Initialized);
+  db_mysql_ColumnRef col2(grt::Initialized);
 
   table->name("table");
 

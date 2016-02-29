@@ -76,7 +76,7 @@ TEST_FUNCTION(10)
     grt::DbObjectMatchAlterOmf omf;
 
     SynteticMySQLModel model;
-    db_mysql_ViewRef view;
+    db_mysql_ViewRef view(grt::Initialized);
     model.schema->views().insert(view);
     view->owner(model.schema);
     view->name("v2");

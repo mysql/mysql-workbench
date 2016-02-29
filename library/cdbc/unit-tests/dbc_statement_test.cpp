@@ -44,12 +44,12 @@ public:
   
   TEST_DATA_CONSTRUCTOR(module_dbc_statement_test)
   {
-    sql_splitter = SqlFacade::instance_for_rdbms_name(_tester.grt, "Mysql");
+    sql_splitter = SqlFacade::instance_for_rdbms_name("Mysql");
     ensure("failed to get sqlparser module", (NULL != sql_splitter));
     
-    db_mgmt_ConnectionRef connectionProperties(_tester.grt);
+    db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-    setup_env(_tester.grt, connectionProperties);
+    setup_env(connectionProperties);
     
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
     ensure("dm is NULL", dm != NULL);
@@ -64,9 +64,9 @@ public:
   
   TEST_DATA_DESTRUCTOR(module_dbc_statement_test)
   {
-    db_mgmt_ConnectionRef connectionProperties(_tester.grt);
+    db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-    setup_env(_tester.grt, connectionProperties);
+    setup_env(connectionProperties);
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
     ensure("dm is NULL", dm != NULL);
 
@@ -84,9 +84,9 @@ TEST_MODULE(module_dbc_statement_test, "DBC: statement tests");
 // Test construction of a statement object.
 TEST_FUNCTION(2)
 {
-  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(_tester.grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -109,9 +109,9 @@ TEST_FUNCTION(2)
 // Test simple update statement against statement object.
 TEST_FUNCTION(3)
 {
-  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(_tester.grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -142,9 +142,9 @@ TEST_FUNCTION(3)
 // Test simple query against statement object.
 TEST_FUNCTION(4)
 {
-  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(_tester.grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
@@ -182,9 +182,9 @@ TEST_FUNCTION(4)
 // Test executeQuery() - returning a result set.
 TEST_FUNCTION(5)
 {
-  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(_tester.grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
@@ -228,9 +228,9 @@ TEST_FUNCTION(5)
 // Test executeQuery() - returning empty result set.
 TEST_FUNCTION(6)
 {
-  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(_tester.grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
@@ -276,9 +276,9 @@ TEST_FUNCTION(6)
 // Test executeQuery() - use it for inserting, should generate an exception.
 TEST_FUNCTION(7)
 {
-  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(_tester.grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
@@ -323,9 +323,9 @@ TEST_FUNCTION(7)
 // Test executeUpdate() - check the returned value.
 TEST_FUNCTION(8)
 {
-  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(_tester.grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -370,9 +370,9 @@ TEST_FUNCTION(8)
 // Test executeUpdate() - execute a SELECT, should get an exception
 TEST_FUNCTION(9)
 {
-  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(_tester.grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
@@ -411,9 +411,9 @@ TEST_FUNCTION(9)
 // Test getFetchSize() - should return int value.
 TEST_FUNCTION(10)
 {
-  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(_tester.grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
@@ -443,9 +443,9 @@ TEST_FUNCTION(10)
 // Test getResultSet() - execute() a query and get the result set.
 TEST_FUNCTION(11)
 {
-  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(_tester.grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
@@ -483,9 +483,9 @@ TEST_FUNCTION(11)
 // TODO: Doesn't test much as stmt::getResultSet() is not implemented.
 TEST_FUNCTION(12)
 {
-  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(_tester.grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
@@ -535,9 +535,9 @@ TEST_FUNCTION(12)
 // TODO: Doesn't pass because setFetchSize() is unimplemented.
 TEST_FUNCTION(13)
 {
-  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(_tester.grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
@@ -567,9 +567,9 @@ TEST_FUNCTION(13)
 // TODO: Doesn't pass because setFetchSize() is unimplemented.
 TEST_FUNCTION(14)
 {
-  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(_tester.grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
@@ -600,9 +600,9 @@ TEST_FUNCTION(14)
 // TODO: Doesn't pass because setQueryTimeout() is unimplemented.
 TEST_FUNCTION(15)
 {
-  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(_tester.grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
@@ -632,9 +632,9 @@ TEST_FUNCTION(15)
 // Test addBatch()/executeBatch() (includes a test against the 'out of sync' error).
 TEST_FUNCTION(16)
 {
-  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(_tester.grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();

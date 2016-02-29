@@ -30,7 +30,7 @@ GRT_MODULE_ENTRY_POINT(WbMysqlImportImpl);
 
 grt::ListRef<app_Plugin> WbMysqlImportImpl::getPluginInfo()
 {
-  grt::ListRef<app_Plugin> list;
+  grt::ListRef<app_Plugin> list(true);
 
   app_PluginRef plugin(grt::Initialized);
 
@@ -57,7 +57,7 @@ grt::ListRef<app_Plugin> WbMysqlImportImpl::getPluginInfo()
   list.insert(plugin);
 
   /*delme this seems to be duplicated in plugins/db
-  plugin= app_PluginRef;
+  plugin= app_PluginRef(grt::Initialized);
   plugin->name("db.mysql.import.sql");
   plugin->caption("Import MySQL Create Script");
   plugin->description("Import a MySQL Script File");

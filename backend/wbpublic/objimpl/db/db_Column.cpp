@@ -194,7 +194,7 @@ grt::IntegerRef db_Column::setParseType(const std::string &type, const grt::List
 {
   grt::ListRef<db_UserDatatype> user_types;
   grt::ListRef<db_SimpleDatatype> default_type_list;
-  GrtVersionRef targetVersion;
+  GrtVersionRef targetVersion(grt::Initialized);
   if (owner().is_valid() && owner()->owner().is_valid() && owner()->owner()->owner().is_valid())
   {
     db_CatalogRef catalog= db_CatalogRef::cast_from(owner()->owner()->owner());

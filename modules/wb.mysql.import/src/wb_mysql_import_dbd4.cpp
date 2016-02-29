@@ -506,7 +506,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
             std::string layer_name= dbd_string_to_utf8(region_el->Attribute("RegionName"));
             log_info("...%s\n", layer_name.c_str());
 
-            model_LayerRef layer= workbench_physical_LayerRef();
+            model_LayerRef layer= workbench_physical_LayerRef(grt::Initialized);
             layer->owner(view);
             layer->name(layer_name);
 
@@ -551,7 +551,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
             table_el->QueryIntAttribute("TablePrefix", &id);
             db_mysql_SchemaRef schema= _schemata[id];
 
-            db_mysql_TableRef table;
+            db_mysql_TableRef table(grt::Initialized);
             table->owner(schema);
 
             table->name(table_name);
@@ -571,7 +571,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
               const TiXmlElement *column_el= columns_el->FirstChildElement("COLUMN");
               while(column_el)
               {
-                db_mysql_ColumnRef column;
+                db_mysql_ColumnRef column(grt::Initialized);
                 column->owner(table);
 
                 column->name(dbd_string_to_utf8(column_el->Attribute("ColName")));
@@ -639,7 +639,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
               const TiXmlElement *index_el= indices_el->FirstChildElement("INDEX");
               while(index_el)
               {
-                db_mysql_IndexRef index;
+                db_mysql_IndexRef index(grt::Initialized);
                 index->owner(table);
 
                 index->name(dbd_string_to_utf8(index_el->Attribute("IndexName")));
@@ -668,7 +668,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
                   const TiXmlElement *index_column_el= index_columns_el->FirstChildElement("INDEXCOLUMN");
                   while(index_column_el)
                   {
-                    db_mysql_IndexColumnRef index_column;
+                    db_mysql_IndexColumnRef index_column(grt::Initialized);
                     index_column->owner(index);
 
                     index_column_el->QueryIntAttribute("idColumn", &id);
@@ -719,7 +719,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
               rect.top-= layer->top();
             }
 
-            workbench_physical_TableFigureRef table_figure= workbench_physical_TableFigureRef();
+            workbench_physical_TableFigureRef table_figure = workbench_physical_TableFigureRef(grt::Initialized);
             table_figure->owner(view);
             table_figure->layer(layer);
             table_figure->left(rect.left);
@@ -758,7 +758,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
             relation_el->QueryIntAttribute("SrcTable", &id);
             db_mysql_TableRef destTable= _tables[id];
 
-            db_mysql_ForeignKeyRef fkey;
+            db_mysql_ForeignKeyRef fkey(grt::Initialized);
             fkey->owner(srcTable);
 
             /*
@@ -768,7 +768,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
             //srctable->foreignKeys().insert(fkey);
 
             // connection figure
-            workbench_physical_ConnectionRef conn_figure;
+            workbench_physical_ConnectionRef conn_figure(grt::Initialized);
             conn_figure->owner(view);
 
             relation_el->QueryIntAttribute("DestTable", &id);
@@ -830,7 +830,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
                 db_mysql_ColumnRef column= find_named_object_in_list(destTable->columns(), field_pair[0].c_str(), false);
                 if (!column.is_valid())
                 {
-                  column= db_mysql_ColumnRef();
+                  column = db_mysql_ColumnRef(grt::Initialized);
                   column->owner(destTable);
                   column->name(field_pair[0]);
                   destTable->columns().insert(column);
@@ -841,7 +841,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
                 db_mysql_ColumnRef column= find_named_object_in_list(srcTable->columns(), field_pair[1].c_str(), false);
                 if (!column.is_valid())
                 {
-                  column= db_mysql_ColumnRef();
+                  column = db_mysql_ColumnRef(grt::Initialized);
                   column->owner(srcTable);
                   column->name(field_pair[1]);
                   srcTable->columns().insert(column);
@@ -933,7 +933,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
             std::string note_name= dbd_string_to_utf8(note_el->Attribute("NoteName"));
             log_info("...%s\n", note_name.c_str());
 
-            workbench_model_NoteFigureRef note_figure;
+            workbench_model_NoteFigureRef note_figure(grt::Initialized);
             note_figure->owner(view);
             note_figure->layer(view->rootLayer());
             note_figure->name(note_name);
@@ -991,7 +991,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
                 stream_conv(iss, ofs, &unhex<2,char>);
               }
 
-              workbench_model_ImageFigureRef image_figure;
+              workbench_model_ImageFigureRef image_figure(grt::Initialized);
               image_figure->owner(view);
               image_figure->layer(view->rootLayer());
               image_figure->name(image_name);
@@ -1037,7 +1037,7 @@ db_mysql_SchemaRef Wb_mysql_import_DBD4::ensure_schema_created(int index, const 
 
   if (!schema.is_valid())
   {
-    schema= db_mysql_SchemaRef();
+    schema = db_mysql_SchemaRef(grt::Initialized);
     schema->owner(_catalog);
     schema->name(name);
     schemata.insert(schema);

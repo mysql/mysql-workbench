@@ -279,7 +279,7 @@ grt::BaseListRef MysqlSqlFacadeImpl::getSqlStatementRanges(const std::string &sq
   
   for (std::list<std::pair<size_t,size_t> >::const_iterator i = ranges.begin(); i != ranges.end(); ++i)
   {
-    grt::BaseListRef item;
+    grt::BaseListRef item(true);
     item.ginsert(grt::IntegerRef((long)i->first));
     item.ginsert(grt::IntegerRef((long)i->second));
     list.ginsert(item);
