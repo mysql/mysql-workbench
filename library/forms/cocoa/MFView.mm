@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -125,10 +125,10 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
 
 - (bool)handleMouseUp: (NSEvent*)event owner: (mforms::View *)mOwner
 {
-  NSPoint p = [self convertPoint: [event locationInWindow] fromView: nil];
+  NSPoint p = [self convertPoint: event.locationInWindow fromView: nil];
 
   mforms::MouseButton mouseButton;
-  switch ([event buttonNumber]) // NSLeftMouseDown etc are NOT buttonNumber constants
+  switch (event.buttonNumber) // NSLeftMouseDown etc are NOT buttonNumber constants
   {
     case 1:
       mouseButton = mforms::MouseButtonRight;
@@ -144,7 +144,7 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
   }
 
   bool handled = false;
-  switch ([event clickCount])
+  switch (event.clickCount)
   {
     case 1:
       handled = mOwner->mouse_click(mouseButton, p.x, p.y);
@@ -163,9 +163,9 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
 
 - (bool)handleMouseDown: (NSEvent*)event owner: (mforms::View *)mOwner
 {
-  NSPoint p = [self convertPoint: [event locationInWindow] fromView: nil];
+  NSPoint p = [self convertPoint: event.locationInWindow fromView: nil];
   mforms::MouseButton mouseButton;
-  switch ([event buttonNumber]) // NSLeftMouseDown etc are NOT buttonNumber constants
+  switch (event.buttonNumber) // NSLeftMouseDown etc are NOT buttonNumber constants
   {
     case 1:
       mouseButton = mforms::MouseButtonRight;
@@ -190,7 +190,7 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
   // We have to map mouseDragged to mouseMoved as other platforms don't do this separation.
   // However the mouse button recorded in the event for mouseMoved is that of the last pressed
   // (and released) button. A currently pressed button produces mouseDragged instead.
-  NSPoint p = [self convertPoint: [event locationInWindow] fromView: nil];
+  NSPoint p = [self convertPoint: event.locationInWindow fromView: nil];
 
   mforms::MouseButton mouseButton;
   if (event.type == NSLeftMouseDragged)
@@ -232,7 +232,7 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
 
   NSTrackingAreaOptions options = NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved |
     NSTrackingActiveInActiveApp | NSTrackingInVisibleRect;
-  currentArea = [[NSTrackingArea alloc] initWithRect: [self bounds] options: options owner: self userInfo: nil];
+  currentArea = [[NSTrackingArea alloc] initWithRect: self.bounds options: options owner: self userInfo: nil];
   [self addTrackingArea: currentArea];
 
   return currentArea;
@@ -242,7 +242,7 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
 
 - (void)setFixedFrameSize: (NSSize)size
 {
-  NSRect frame = [self frame];
+  NSRect frame = self.frame;
   NSUInteger flags = self.viewFlags & ~ViewFlagsMask;
 
   if (size.width > 0)
@@ -258,7 +258,7 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
   }
   
   self.viewFlags = flags;
-  [self setFrame: frame];
+  self.frame = frame;
 }
 
 
@@ -279,23 +279,23 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
 
 - (NSSize)fixedFrameSize
 {
-  return [self frame].size;
+  return self.frame.size;
 }
 
 - (NSSize)preferredSize
 {
-  NSSize size= [self minimumSize];
+  NSSize size= self.minimumSize;
 
   // The preferred size is actually about what would be needed to fit everything nicely
   //   not what is the current size of the control. The latter approach messes up the layouting
   //   where the fixed size is considered anyway.
-  NSSize fsize = [self fixedFrameSize];
+  NSSize fsize = self.fixedFrameSize;
 
   // If a fixed size is set honour that but don't go below the
   // minimal required size.
-  if ([self widthIsFixed])
+  if (self.widthIsFixed)
     size.width= MAX(size.width, fsize.width);
-  if ([self heightIsFixed])
+  if (self.heightIsFixed)
     ; //size.height= MAX(size.height, fsize.height); see comment above
 
   return size;
@@ -304,12 +304,12 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
 
 - (NSSize)preferredSizeForWidth: (float)width
 {
-  NSSize size= [self minimumSizeForWidth: [self widthIsFixed] ? NSWidth([self frame]) : width];
+  NSSize size= [self minimumSizeForWidth: self.widthIsFixed ? NSWidth(self.frame) : width];
   
-  if ([self heightIsFixed])
-    size.height= [self fixedFrameSize].height;
-  if ([self widthIsFixed])
-    size.width= [self fixedFrameSize].width;
+  if (self.heightIsFixed)
+    size.height= self.fixedFrameSize.height;
+  if (self.widthIsFixed)
+    size.width= self.fixedFrameSize.width;
   
   return size;  
 }
@@ -317,20 +317,20 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
 
 - (NSSize)minimumSizeForWidth:(float)width
 {
-  return [self minimumSize];
+  return self.minimumSize;
 }
 
 
 - (void)subviewMinimumSizeChanged
 {
-  if ([[self window] respondsToSelector:@selector(subviewMinimumSizeChanged)])
+  if ([self.window respondsToSelector:@selector(subviewMinimumSizeChanged)])
   {
     // assume this is the toplevel view so just forward to the window
-    [(id)[self window] subviewMinimumSizeChanged];
+    [(id)self.window subviewMinimumSizeChanged];
   }
   else
   {
-    for (id subview in [self subviews])
+    for (id subview in self.subviews)
       [subview resizeSubviewsWithOldSize: NSMakeSize(0, 0)];
   }
 }
@@ -376,9 +376,9 @@ struct PasteboardDataWrapper {
   if (delegate == NULL)
   {
     if ([self isKindOfClass: [SCIContentView class]])
-      delegate = [(SCIContentView *)self owner].dropDelegate;
+      delegate = ((SCIContentView *)self).owner.dropDelegate;
     if (delegate == NULL && [self respondsToSelector: @selector(mformsObject)])
-      delegate = dynamic_cast<mforms::DropDelegate*>([self mformsObject]);
+      delegate = dynamic_cast<mforms::DropDelegate*>(self.mformsObject);
   }
   return delegate;
 }
@@ -415,7 +415,7 @@ struct PasteboardDataWrapper {
       if ([entry isEqualToString: NSFilenamesPboardType])
         formats.push_back(mforms::DragFormatFileName);
       else
-        formats.push_back([entry UTF8String]);
+        formats.push_back(entry.UTF8String);
   }
 
   NSDragOperation result = NSDragOperationNone;
@@ -459,7 +459,7 @@ struct PasteboardDataWrapper {
     {
       NSString *text = [pasteboard stringForType: NSStringPboardType];
       if (delegate->text_dropped(view, base::Point(location.x, location.y), operations,
-                                 [text UTF8String]) != mforms::DragOperationNone)
+                                 text.UTF8String) != mforms::DragOperationNone)
         return YES;
     }
     else
@@ -468,7 +468,7 @@ struct PasteboardDataWrapper {
         NSArray *fileNames = [pasteboard propertyListForType: NSFilenamesPboardType];
         std::vector<std::string> names;
         for (NSString *name in fileNames)
-          names.push_back([name UTF8String]);
+          names.push_back(name.UTF8String);
         if (names.size() > 0 && delegate->files_dropped(view, base::Point(location.x, location.y),
                                                         operations, names) != mforms::DragOperationNone)
           return YES;
@@ -480,7 +480,7 @@ struct PasteboardDataWrapper {
         if (data != NULL)
         {
           if (delegate->data_dropped(view, base::Point(location.x, location.y), operations, data,
-                                     [entry UTF8String]) != mforms::DragOperationNone)
+                                     entry.UTF8String) != mforms::DragOperationNone)
             return YES;
         }
       }
@@ -762,7 +762,7 @@ static int view_get_x(::mforms::View *self)
   if (view)
   {
     NSView* widget = view;
-    return NSMinX([widget frame]);
+    return NSMinX(widget.frame);
   }
   return 0;
 }
@@ -773,7 +773,7 @@ static int view_get_y(::mforms::View *self)
   if (view)
   {
     NSView* widget = view;
-    return NSMinY([widget frame]);
+    return NSMinY(widget.frame);
   }
   return 0;
 }
@@ -966,7 +966,7 @@ static void view_set_name(mforms::View *self, const std::string&)
 
 static void view_relayout(mforms::View *self)
 {
-  if ([[NSThread currentThread] isMainThread])
+  if ([NSThread currentThread].isMainThread)
     [self->get_data() subviewMinimumSizeChanged];
   else
   {
@@ -999,7 +999,7 @@ static std::string view_get_front_color(::mforms::View *self)
 {
   if ([self->get_data() respondsToSelector: @selector(textColor)])
   {
-    return [[[self->get_data() textColor] hexString] UTF8String];
+    return [self->get_data() textColor].hexString.UTF8String;
   }
   return "";
 }
@@ -1022,7 +1022,7 @@ static std::string view_get_back_color(::mforms::View *self)
     if ([self->get_data() respondsToSelector: @selector(drawsBackground)]
        && ![self->get_data() drawsBackground])
       return "";
-    return [[[self->get_data() backgroundColor] hexString] UTF8String];
+    return [self->get_data() backgroundColor].hexString.UTF8String;
   }
   return "";
 }
@@ -1052,7 +1052,7 @@ static void view_focus(::mforms::View *self)
 static bool view_has_focus(::mforms::View *self)
 {
   id view = self->get_data();
-  id firstResponder = [[view window] firstResponder];
+  id firstResponder = [view window].firstResponder;
   if (firstResponder == view)
     return true;
   if ([firstResponder respondsToSelector: @selector(delegate)] && [firstResponder delegate] == view)

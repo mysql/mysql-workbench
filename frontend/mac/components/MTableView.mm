@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,8 +41,8 @@
 - (std::vector<bec::NodeId>)selectedNodeIds
 {
   std::vector<bec::NodeId> nodes;
-  NSIndexSet *iset= [self selectedRowIndexes];
-  NSUInteger index = [iset firstIndex];
+  NSIndexSet *iset= self.selectedRowIndexes;
+  NSUInteger index = iset.firstIndex;
   while (index != NSNotFound)
   {
     nodes.push_back(bec::NodeId(index));
@@ -75,7 +75,7 @@
     
   if (model)
   {      
-    bec::MenuItemList items= model->get_popup_items_for_nodes([self selectedNodeIds]);
+    bec::MenuItemList items= model->get_popup_items_for_nodes(self.selectedNodeIds);
     
     if (!items.empty())
     {
@@ -91,10 +91,10 @@
           NSMenuItem *item= [menu addItemWithTitle: [NSString stringWithCPPString: iter->caption]
                                 action: @selector(activateMenuItem:)
                          keyEquivalent: @""];
-          [item setTarget: self];
+          item.target = self;
           if (!iter->enabled)
             [item setEnabled: NO];
-          [item setRepresentedObject: [NSString stringWithCPPString: iter->name]];
+          item.representedObject = [NSString stringWithCPPString: iter->name];
         }
       }
       return menu;
@@ -112,7 +112,7 @@
   if (model)
   {
     if (model->activate_popup_item_for_nodes([[sender representedObject] UTF8String], 
-                                             [self selectedNodeIds]))
+                                             self.selectedNodeIds))
       [self reloadData];
     else
       [[NSNotificationCenter defaultCenter] postNotificationName: NSMenuActionNotification object: sender];
@@ -121,7 +121,7 @@
 
 - (void)rightMouseDown:(NSEvent *)theEvent
 {
-  NSInteger row = [self rowAtPoint: [self convertPoint: [theEvent locationInWindow] fromView: nil]];
+  NSInteger row = [self rowAtPoint: [self convertPoint: theEvent.locationInWindow fromView: nil]];
   if (row >= 0)
   {
     if (![self isRowSelected: row])
@@ -136,7 +136,7 @@
 {
   bec::ListModel *model= [self getListModel];
     
-  std::vector<bec::NodeId> nodes= [self selectedNodeIds];
+  std::vector<bec::NodeId> nodes= self.selectedNodeIds;
   
   if (model && nodes.size() == 1)
     return model->can_delete_node(nodes.front());
@@ -149,7 +149,7 @@
 {
   bec::ListModel *model= [self getListModel];
   
-  std::vector<bec::NodeId> nodes= [self selectedNodeIds];
+  std::vector<bec::NodeId> nodes= self.selectedNodeIds;
   
   if (model && nodes.size() == 1)
   {

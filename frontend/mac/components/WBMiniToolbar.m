@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -62,7 +62,7 @@ static const float DEFAULT_HEIGHT = 24;
 - (void)drawRect:(NSRect)rect 
 {
   if (mGradient)
-    [mGradient drawInRect: [self bounds] angle: 90];
+    [mGradient drawInRect: self.bounds angle: 90];
   else
   {
     [[NSColor colorWithDeviceWhite: 0xe4/256.0 alpha: 1.0] set];
@@ -73,7 +73,7 @@ static const float DEFAULT_HEIGHT = 24;
 
 - (void)removeAllItems
 {
-  for (id view in [[self subviews] reverseObjectEnumerator])
+  for (id view in [self.subviews reverseObjectEnumerator])
     [view removeFromSuperview];
 }
 
@@ -91,7 +91,7 @@ static const float DEFAULT_HEIGHT = 24;
   [mDelegate miniToolbar: self
             popupChanged: info[@"name"]
                   option: info[@"option"]
-                   value: [[sender selectedItem] representedObject]];
+                   value: [sender selectedItem].representedObject];
 }
 
 
@@ -108,28 +108,28 @@ static const float DEFAULT_HEIGHT = 24;
 
 - (void)tile
 {
-  float height= NSHeight([self frame]);
+  float height= NSHeight(self.frame);
   float x= 5;
   float fixedWidth = 0;
   int expanderCount = 0;
 
-  for (id item in [self subviews])
+  for (id item in self.subviews)
   {
     if ([item class] == [NSView class] && NSHeight([item frame]) == 0)
       expanderCount++;
     else
       fixedWidth += NSWidth([item frame]);
   }
-  fixedWidth += 6 * ([[self subviews] count]-1);
+  fixedWidth += 6 * (self.subviews.count-1);
 
-  for (id item in [self subviews])
+  for (id item in self.subviews)
   {
     NSRect frame= [item frame];
     frame.origin.x= x;
     frame.origin.y= (height - NSHeight(frame)) / 2;
     if ([item class] == [NSView class] && NSHeight([item frame]) == 0)
     {
-      frame.size.width = (NSWidth([self frame]) - 10 - fixedWidth) / expanderCount;
+      frame.size.width = (NSWidth(self.frame) - 10 - fixedWidth) / expanderCount;
     }   
     [item setFrame: frame];
     x+= NSWidth(frame);
@@ -146,13 +146,13 @@ static const float DEFAULT_HEIGHT = 24;
   NSButton *button = [[NSButton alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)];
   
   [button setButtonType: NSMomentaryLightButton];
-  [button setTitle: title];
-  [button setTag: tag];
-  [button setTarget: target];
-  [button setAction: action];
+  button.title = title;
+  button.tag = tag;
+  button.target = target;
+  button.action = action;
   [button setBordered: YES];
 
-  [button setBezelStyle: NSRoundedBezelStyle];
+  button.bezelStyle = NSRoundedBezelStyle;
   
   [self addSubview: button];
   
@@ -171,11 +171,11 @@ static const float DEFAULT_HEIGHT = 24;
   
   [button setButtonType: NSMomentaryLightButton];
   [button setBordered: NO];
-  [button setImagePosition: NSImageOnly];
-  [button setImage: icon];
-  [button setTag: tag];
-  [button setTarget: target];
-  [button setAction: action];
+  button.imagePosition = NSImageOnly;
+  button.image = icon;
+  button.tag = tag;
+  button.target = target;
+  button.action = action;
   [button setBordered: NO];
   
   [self addSubview: button];
@@ -189,14 +189,14 @@ static const float DEFAULT_HEIGHT = 24;
                                                     target:(id)target
                                                     action:(SEL)action
 {
-  NSSegmentedControl *seg = [[NSSegmentedControl alloc] initWithFrame: NSMakeRect(0, 0, 30 * ([iconsAndTags count]/2), 24)];
-  [seg setSegmentCount: [iconsAndTags count] / 2];
-  [seg setSegmentStyle: NSSegmentStyleTexturedSquare];
-  [[seg cell] setTrackingMode: NSSegmentSwitchTrackingSelectAny];
-  for (NSUInteger i = 0; i < [iconsAndTags count]/2; i++)
+  NSSegmentedControl *seg = [[NSSegmentedControl alloc] initWithFrame: NSMakeRect(0, 0, 30 * (iconsAndTags.count/2), 24)];
+  seg.segmentCount = iconsAndTags.count / 2;
+  seg.segmentStyle = NSSegmentStyleTexturedSquare;
+  [seg.cell setTrackingMode: NSSegmentSwitchTrackingSelectAny];
+  for (NSUInteger i = 0; i < iconsAndTags.count/2; i++)
   {
     [seg setImage: iconsAndTags[i*2] forSegment: i];
-    [[seg cell] setTag: [iconsAndTags[i*2+1] intValue] forSegment: i];
+    [seg.cell setTag: [iconsAndTags[i*2+1] intValue] forSegment: i];
   }
 
   [self addSubview: seg];
@@ -209,11 +209,11 @@ static const float DEFAULT_HEIGHT = 24;
 {
   NSTextField *label = [[NSTextField alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)];
   
-  [label setStringValue: title];
+  label.stringValue = title;
   [label setEditable: NO];
   [label setDrawsBackground: NO];
   [label setBordered: NO];
-  [label setFont: [NSFont systemFontOfSize: [NSFont labelFontSize]]];
+  label.font = [NSFont systemFontOfSize: [NSFont labelFontSize]];
   
   [self addSubview: label];
   [label sizeToFit];
@@ -232,8 +232,8 @@ static const float DEFAULT_HEIGHT = 24;
 - (void)addSeparator
 {
   NSBox *box= [[NSBox alloc] initWithFrame: NSMakeRect(0, 2, 1, 18)];
-  [box setTitlePosition: NSNoTitle];
-  [box setBoxType: NSBoxSeparator];
+  box.titlePosition = NSNoTitle;
+  box.boxType = NSBoxSeparator;
   [self addSubview: box];
 
   [self tile];
@@ -247,15 +247,15 @@ static const float DEFAULT_HEIGHT = 24;
   NSPopUpButton *popup= [[NSPopUpButton alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)];
   for (NSString *title in items)
   {
-    if ([title length] == 0)
-      [[popup menu] addItem: [NSMenuItem separatorItem]];
+    if (title.length == 0)
+      [popup.menu addItem: [NSMenuItem separatorItem]];
     else
       [popup addItemWithTitle: title];
   }
-  [popup setTarget: target];
-  [popup setAction: action];
-  [[popup cell] setControlSize: NSSmallControlSize];
-  [popup setFont: [NSFont systemFontOfSize: [NSFont smallSystemFontSize]]];
+  popup.target = target;
+  popup.action = action;
+  popup.cell.controlSize = NSSmallControlSize;
+  popup.font = [NSFont systemFontOfSize: [NSFont smallSystemFontSize]];
   [popup sizeToFit];
   [popup setBordered: NO];
   [self addSubview: popup];
@@ -281,7 +281,7 @@ static const float DEFAULT_HEIGHT = 24;
                             action: @selector(popupChanged:) 
                       defaultValue: defaultValue];
   
-  [popup setTag: [mOptionInfoList count]];  
+  popup.tag = mOptionInfoList.count;  
     
   [mOptionInfoList addObject: @{@"name": name, 
                                @"option": option}];
@@ -297,7 +297,7 @@ static const float DEFAULT_HEIGHT = 24;
   NSPopUpButton *popup= [[NSPopUpButton alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)];
   NSMenu *menu= [[NSMenu alloc] initWithTitle: @""];
   NSMenuItem *selected= nil;
-  [[popup cell] setControlSize: NSSmallControlSize];
+  popup.cell.controlSize = NSSmallControlSize;
   for (NSColor *color in colors)
   {
     NSMenuItem *item= [[NSMenuItem alloc] init];
@@ -308,31 +308,31 @@ static const float DEFAULT_HEIGHT = 24;
     [color set];
     NSRectFill(NSMakeRect(2, 2, 20, 12));
     [image unlockFocus];
-    [item setImage: image];
-    [item setTitle: @""];
-    [item setRepresentedObject: [color hexString]];
+    item.image = image;
+    item.title = @"";
+    item.representedObject = color.hexString;
     [menu addItem: item];
     
-    if ([defaultValue isEqual: [item representedObject]])
+    if ([defaultValue isEqual: item.representedObject])
       selected= item;
   }
-  [popup setMenu: menu];
+  popup.menu = menu;
   
   if (selected)
     [popup selectItem: selected];
   
   [popup setBordered: NO];
-  [popup setTarget: self];
-  [popup setAction: @selector(colorPopupChanged:)];
+  popup.target = self;
+  popup.action = @selector(colorPopupChanged:);
   [popup sizeToFit];
   { // fix the extra unneeded padding we get for some reason
-    NSRect frame= [popup frame];
+    NSRect frame= popup.frame;
     frame.size.width-= 24;
-    [popup setFrame: frame];
+    popup.frame = frame;
   }
   [self addSubview: popup];
   
-  [popup setTag: [mOptionInfoList count]];
+  popup.tag = mOptionInfoList.count;
   [mOptionInfoList addObject: @{@"name": name, @"option": option}];
 
   [self tile];

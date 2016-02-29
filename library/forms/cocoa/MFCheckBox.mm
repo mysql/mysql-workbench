@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,16 +32,16 @@
   {
     [self setButtonType: square ? NSPushOnPushOffButton : NSSwitchButton];
     if (square)
-      [self setBezelStyle: NSShadowlessSquareBezelStyle];
+      self.bezelStyle = NSShadowlessSquareBezelStyle;
     else
-      [self setBezelStyle: NSRegularSquareBezelStyle];
+      self.bezelStyle = NSRegularSquareBezelStyle;
 
     mTopLeftOffset= NSMakePoint(0, 0);
     mBottomRightOffset= NSMakePoint(0, 0);
     mAddPadding= NO;
     
-    [self setTarget:self];
-    [self setAction:@selector(performCallback:)];
+    self.target = self;
+    self.action = @selector(performCallback:);
   }
   return self;
 }
@@ -66,7 +66,7 @@ static void checkbox_set_active(::mforms::CheckBox *self, bool flag)
     
     if ( checkbox )
     {
-      [checkbox setState: flag ? NSOnState : NSOffState];
+      checkbox.state = flag ? NSOnState : NSOffState;
     }
   }
 }
@@ -79,7 +79,7 @@ static bool checkbox_get_active(::mforms::CheckBox *self)
     
     if ( checkbox )
     {
-      return [checkbox state] == NSOnState;
+      return checkbox.state == NSOnState;
     }
   }
   return false;

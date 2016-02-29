@@ -64,7 +64,7 @@ static int util_show_message_with_checkbox(const std::string &title, const std::
   [alert setInformativeText: [wrap_nsstring(text) stringByReplacingOccurrencesOfString:@"%" withString:@"%%"]];
   [alert setShowsSuppressionButton: YES];
   if (!cb_message.empty())
-    [[alert suppressionButton] setTitle: wrap_nsstring(cb_message)];
+    alert.suppressionButton.title = wrap_nsstring(cb_message);
   
   if (!ok.empty())
     [[alert addButtonWithTitle: wrap_nsstring(ok)] setTag: NSAlertDefaultReturn];
@@ -99,7 +99,7 @@ static void util_set_clipboard_text(const std::string &text)
 static std::string util_get_clipboard_text()
 {
   NSPasteboard *pasteBoard= [NSPasteboard generalPasteboard];
-  return [[pasteBoard stringForType: NSStringPboardType] UTF8String] ?:"";
+  return [pasteBoard stringForType: NSStringPboardType].UTF8String ?:"";
 }
 
 static void util_open_url(const std::string &url)
@@ -118,13 +118,13 @@ static std::string get_special_folder(mforms::FolderType type)
   switch (type)
   {
     case mforms::Documents:
-      return [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] UTF8String];
+      return NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).lastObject.UTF8String;
     case mforms::Desktop:
-      return [[NSSearchPathForDirectoriesInDomains(NSDesktopDirectory, NSUserDomainMask, YES) lastObject] UTF8String];
+      return NSSearchPathForDirectoriesInDomains(NSDesktopDirectory, NSUserDomainMask, YES).lastObject.UTF8String;
     case mforms::ApplicationData:
-      return [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] UTF8String];
+      return NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES).lastObject.UTF8String;
     case mforms::ApplicationSettings:
-      return [[[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent: @"MySQL/Workbench"] UTF8String];
+      return [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES).lastObject stringByAppendingPathComponent: @"MySQL/Workbench"].UTF8String;
     case mforms::WinProgramFiles:
     case mforms::WinProgramFilesX86:
       break;
@@ -233,7 +233,7 @@ static std::string os_error_to_string(OSErr error)
 {
   CFStringRef ref = SecCopyErrorMessageString(error, nil);
 
-  std::string result = [(__bridge NSString*)ref UTF8String]; // Toll-free-bridged.
+  std::string result = ((__bridge NSString*)ref).UTF8String; // Toll-free-bridged.
   CFRelease(ref);
   return result;
 }
@@ -347,7 +347,7 @@ static bool util_hide_wait_message()
 static bool util_move_to_trash(const std::string &path)
 {
   NSFileManager *manager = NSFileManager.defaultManager;
-  NSString *nativePath = [NSString stringWithUTF8String: path.c_str()];
+  NSString *nativePath = @(path.c_str());
   NSURL *url = [NSURL fileURLWithPath: nativePath];
 
   NSError *error = nil;
@@ -411,7 +411,7 @@ static void *util_perform_from_main_thread(const boost::function<void* ()> &slot
 static void util_set_thread_name(const std::string &name)
 {
   @autoreleasepool {
-    [[NSThread currentThread] setName: @(name.c_str())];
+    [NSThread currentThread].name = @(name.c_str());
   }
 }
 

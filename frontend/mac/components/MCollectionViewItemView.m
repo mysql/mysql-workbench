@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,7 +48,7 @@
 {
   // When losing the focus the item is no longer the active one and must be painted accordingly.
   // Update the entire collection view as we could lose focus to another collection view.
-  [[self superview] setNeedsDisplay: YES];
+  [self.superview setNeedsDisplay: YES];
   return [super resignFirstResponder];
 }
 
@@ -74,7 +74,7 @@
 
 - (NSView*)hitTest: (NSPoint) aPoint
 {
-  if (NSPointInRect(aPoint, [self convertRect: [self bounds] toView: [self superview]])) 
+  if (NSPointInRect(aPoint, [self convertRect: self.bounds toView: self.superview])) 
     return self;
   return nil;
 }
@@ -96,13 +96,13 @@
  */
 - (NSCollectionView*)activeCollectionView
 {
-  NSResponder* currentFirstResponder = [[self window] firstResponder];
+  NSResponder* currentFirstResponder = self.window.firstResponder;
   if ([currentFirstResponder isKindOfClass: [NSCollectionView class]])
     return (NSCollectionView*) currentFirstResponder;
   
   if ([currentFirstResponder isKindOfClass: [NSView class]])
   {
-    NSView* parent = [(NSView*) currentFirstResponder superview];
+    NSView* parent = ((NSView*) currentFirstResponder).superview;
     if ([parent isKindOfClass: [NSCollectionView class]])
       return (NSCollectionView*) parent;
   }
@@ -113,26 +113,26 @@
 
 - (void)mouseDown: (NSEvent*) theEvent
 {
-  mMouseDownLocation= [self convertPoint: [theEvent locationInWindow] fromView: nil];
+  mMouseDownLocation= [self convertPoint: theEvent.locationInWindow fromView: nil];
   
   [self cancelPendingInlineEdit];
   
   // Needs to be commented to allow dragging the items.
   // [super mouseDown: theEvent];
-  [[self window] makeFirstResponder: self];
+  [self.window makeFirstResponder: self];
   
   // Handle selection depending on modifier keys.
-  NSUInteger modifiers = [theEvent modifierFlags];
+  NSUInteger modifiers = theEvent.modifierFlags;
   BOOL control = (modifiers & NSControlKeyMask) != 0;
   BOOL shift = (modifiers & NSShiftKeyMask) != 0;
   BOOL command = (modifiers & NSCommandKeyMask) != 0;
   
   if (!owner.collectionView.allowsMultipleSelection || (!control && !shift && !command))
   {
-    if ([[self delegate] respondsToSelector: @selector(clearSelection)]) 
-      [[self delegate] clearSelection];
+    if ([self.delegate respondsToSelector: @selector(clearSelection)]) 
+      [self.delegate clearSelection];
     [self setSelected: YES];
-    [[self superview] setNeedsDisplay: YES];
+    [self.superview setNeedsDisplay: YES];
   }
   else
   {
@@ -141,13 +141,13 @@
     if (shift)
       [self setSelected: YES];
     else
-      [self setSelected: ![self selected]];
+      self.selected = !self.selected;
   }
   
   // Activate it on double-click.
-  if ([theEvent clickCount] == 2) 
-    if ([[self delegate] respondsToSelector: @selector(activateCollectionItem:)]) 
-      [[self delegate] activateCollectionItem: self];
+  if (theEvent.clickCount == 2) 
+    if ([self.delegate respondsToSelector: @selector(activateCollectionItem:)]) 
+      [self.delegate activateCollectionItem: self];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -164,7 +164,7 @@
 
 - (void)mouseDragged: (NSEvent*) event
 {
-  NSPoint location = [self convertPoint: [event locationInWindow] fromView: nil];
+  NSPoint location = [self convertPoint: event.locationInWindow fromView: nil];
   
   if (fabs(mMouseDownLocation.x - location.x) >= 5 ||
       fabs(mMouseDownLocation.y - location.y) >= 5)
@@ -179,7 +179,7 @@
     }
 
     NSImage *image = nil;
-    for (id view in [self subviews])
+    for (id view in self.subviews)
     {
       if ([view isKindOfClass: [NSImageView class]])
       {
@@ -240,12 +240,12 @@
     mBecameFirstResponder = NO;
   else
   {
-    NSUInteger modifiers = [theEvent modifierFlags];
+    NSUInteger modifiers = theEvent.modifierFlags;
     BOOL control = (modifiers & NSControlKeyMask) != 0;
     BOOL shift = (modifiers & NSShiftKeyMask) != 0;
     BOOL command = (modifiers & NSCommandKeyMask) != 0;
     
-    if (!control && !shift && !command && [theEvent clickCount] == 1)
+    if (!control && !shift && !command && theEvent.clickCount == 1)
       [self performSelector: @selector(beginInlineEditing) withObject: nil afterDelay: 0.5
                     inModes: @[NSModalPanelRunLoopMode, NSDefaultRunLoopMode]];
   }
@@ -257,11 +257,11 @@
 {
   [self cancelPendingInlineEdit];
   
-  switch ([theEvent keyCode])
+  switch (theEvent.keyCode)
   {
     case 36: // normal <enter> key
-      if ([[self delegate] respondsToSelector: @selector(activateCollectionItem:)]) 
-        [[self delegate] activateCollectionItem: self];
+      if ([self.delegate respondsToSelector: @selector(activateCollectionItem:)]) 
+        [self.delegate activateCollectionItem: self];
       break;
     case 76: // keypad <enter> key
       [self beginInlineEditing];
@@ -275,20 +275,20 @@
 
 - (void) setSelected: (BOOL) flag
 {
-  BOOL wasSelected = [self selected];
+  BOOL wasSelected = self.selected;
   
   if (wasSelected != flag)
   {
     if (flag)
     {
-      if ([[self delegate] respondsToSelector: @selector(selectCollectionItem:)]) 
-        [[self delegate] selectCollectionItem: self];
-      [[self window] makeFirstResponder: self];
+      if ([self.delegate respondsToSelector: @selector(selectCollectionItem:)]) 
+        [self.delegate selectCollectionItem: self];
+      [self.window makeFirstResponder: self];
     }
     else
     {
-      if ([[self delegate] respondsToSelector: @selector(unselectCollectionItem:)]) 
-        [[self delegate] unselectCollectionItem: self];
+      if ([self.delegate respondsToSelector: @selector(unselectCollectionItem:)]) 
+        [self.delegate unselectCollectionItem: self];
     }
   };
   
@@ -301,8 +301,8 @@
 
 - (BOOL) selected
 {
-  if ([[self delegate] respondsToSelector: @selector(isCollectionItemSelected:)]) 
-    return [[self delegate] isCollectionItemSelected: self];
+  if ([self.delegate respondsToSelector: @selector(isCollectionItemSelected:)]) 
+    return [self.delegate isCollectionItemSelected: self];
   return NO;
 }
 
@@ -372,12 +372,12 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect, float ovalWi
 - (void) drawRect: (NSRect) rect 
 {
   NSTextField* label = [self viewWithTag: 1];
-  if ([self selected])
+  if (self.selected)
   {
-    CGContextRef context= [[NSGraphicsContext currentContext] graphicsPort];
+    CGContextRef context= [NSGraphicsContext currentContext].graphicsPort;
     
-    BOOL applicationActive = [NSApp keyWindow] != nil;
-    BOOL showSelected = [self activeCollectionView] == [self superview];
+    BOOL applicationActive = NSApp.keyWindow != nil;
+    BOOL showSelected = self.activeCollectionView == self.superview;
     
     if (showSelected)
     {
@@ -388,20 +388,20 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect, float ovalWi
     }
     
     if (applicationActive && showSelected)
-      [label setTextColor:[NSColor alternateSelectedControlTextColor]];
+      label.textColor = [NSColor alternateSelectedControlTextColor];
     else
-      [label setTextColor:[NSColor textColor]];
+      label.textColor = [NSColor textColor];
     
     // Draw focus mark only if our collection view is active. This simulates a single
     // collection view over all views on the overview page.
     if (showSelected)
     {
-      addRoundedRectToPath(context, NSRectToCGRect(NSInsetRect([self bounds], 1.0, 1.0)), 5.0, 5.0);
+      addRoundedRectToPath(context, NSRectToCGRect(NSInsetRect(self.bounds, 1.0, 1.0)), 5.0, 5.0);
       CGContextFillPath(context);
     }
   }
   else
-    [label setTextColor:[NSColor textColor]];
+    label.textColor = [NSColor textColor];
   
   [super drawRect:rect];
 }
@@ -416,8 +416,8 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect, float ovalWi
   if (!mIsEditing)
   {
     BOOL allowed = NO;
-    if ([[self delegate] respondsToSelector: @selector(canRename:)]) 
-      allowed= [[self delegate] canRename: self];
+    if ([self.delegate respondsToSelector: @selector(canRename:)]) 
+      allowed= [self.delegate canRename: self];
     if (!allowed)
       return;
     
@@ -425,22 +425,22 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect, float ovalWi
     
     // Get the window's field editor and set that up for inline editing.
     NSTextField* label = [self viewWithTag: 1];
-    NSText* fieldEditor = [[self window] fieldEditor: YES forObject: label];
-    [fieldEditor setDelegate: self];
+    NSText* fieldEditor = [self.window fieldEditor: YES forObject: label];
+    fieldEditor.delegate = self;
     [self addSubview: fieldEditor];
     
     // The inline editor cannot be made bordered so we use the label instead.
     // Make the frame of the label a pixel larger in each direction for that.
-    NSRect frame = [label frame];
-    [fieldEditor setFrame: frame];
+    NSRect frame = label.frame;
+    fieldEditor.frame = frame;
     frame = NSInsetRect(frame, -1, -2);
-    [label setFrame: frame];
-    [label setBordered: NSLineBorder];
+    label.frame = frame;
+    label.bordered = NSLineBorder;
     
-    [fieldEditor setString: [label stringValue]];
+    fieldEditor.string = label.stringValue;
     [fieldEditor selectAll: nil];
-    [fieldEditor setFocusRingType: NSFocusRingTypeNone];
-    [[self window] makeFirstResponder: fieldEditor];
+    fieldEditor.focusRingType = NSFocusRingTypeNone;
+    [self.window makeFirstResponder: fieldEditor];
   }
 }
 
@@ -456,20 +456,20 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect, float ovalWi
     mIsEditing = NO;
     
     NSTextField* label = [self viewWithTag: 1];
-    NSText* fieldEditor = [[self window] fieldEditor: NO forObject: label];
-    [label setStringValue: [fieldEditor string]];
+    NSText* fieldEditor = [self.window fieldEditor: NO forObject: label];
+    label.stringValue = fieldEditor.string;
     
     // Revert the visual cues we changed when we started editing.
-    [label setBordered: NSNoBorder];
-    NSRect frame = NSInsetRect([label frame], 1, 2);
-    [label setFrame: frame];
+    label.bordered = NSNoBorder;
+    NSRect frame = NSInsetRect(label.frame, 1, 2);
+    label.frame = frame;
     
-    [[self window] endEditingFor: label];
+    [self.window endEditingFor: label];
     [fieldEditor removeFromSuperview];
-    [[self window] makeFirstResponder: self];
+    [self.window makeFirstResponder: self];
     
-    if (accepted && [[self delegate] respondsToSelector: @selector(itemRenameDidEnd:withName:)]) 
-      [[self delegate] performSelector: @selector(itemRenameDidEnd:withName:) withObject: self withObject: [label stringValue]];
+    if (accepted && [self.delegate respondsToSelector: @selector(itemRenameDidEnd:withName:)]) 
+      [self.delegate performSelector: @selector(itemRenameDidEnd:withName:) withObject: self withObject: label.stringValue];
   }
 }
 

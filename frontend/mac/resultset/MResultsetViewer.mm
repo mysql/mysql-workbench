@@ -49,16 +49,24 @@ static NSImage *descendingSortIndicator= nil;
 @synthesize view;
 @synthesize gridView;
 
-- (instancetype)initWithRecordset:(Recordset::Ref)rset
++ (void)initialize
 {
-  if (!ascendingSortIndicator)
-  {
-    ascendingSortIndicator = [NSImage imageNamed:@"NSAscendingSortIndicator"];
-    descendingSortIndicator = [NSImage imageNamed:@"NSDescendingSortIndicator"];
-  }
+  ascendingSortIndicator = [NSImage imageNamed:@"NSAscendingSortIndicator"];
+  descendingSortIndicator = [NSImage imageNamed:@"NSDescendingSortIndicator"];
+}
+
+- (instancetype)init
+{
+  return [self initWithRecordset: std::shared_ptr<Recordset>()];
+}
+
+- (instancetype)initWithRecordset: (Recordset::Ref)rset
+{
+  if (!rset)
+    return nil;
 
   self = [super init];
-  if (self)
+  if (self != nil)
   {
     NSBundle *bundle = [NSBundle bundleForClass: self.class];
     NSMutableArray *temp;
@@ -81,7 +89,7 @@ static NSImage *descendingSortIndicator= nil;
       gridView.actionDelegate = self;
       gridView.allowsMultipleSelection = YES;
 
-      [gridView.enclosingScrollView setBorderType: NSNoBorder];
+      (gridView.enclosingScrollView).borderType = NSNoBorder;
 
       mforms::ToolBar *tbar = (*mData)->get_toolbar();
       if (tbar->find_item("record_edit"))
@@ -164,25 +172,25 @@ static const char *viewFlagsKey = "viewFlagsKey";
     //bec::GridModel::ColumnType type= (*mData)->get_column_type(index);
     NSTableColumn *column= [[NSTableColumn alloc] initWithIdentifier: [NSString stringWithFormat: @"%i", index]];
 
-    [[column headerCell] setTitle: @(label.c_str())];
+    [column.headerCell setTitle: @(label.c_str())];
 
     [column setEditable: YES];
     
-    [column setDataCell: [[MQResultSetCell alloc] init]];
-    [[column dataCell] setEditable: YES];
-    [[column dataCell] setLineBreakMode: NSLineBreakByTruncatingTail];
+    column.dataCell = [[MQResultSetCell alloc] init];
+    [column.dataCell setEditable: YES];
+    [column.dataCell setLineBreakMode: NSLineBreakByTruncatingTail];
     if (mFont)
     {
-      [[column dataCell] setFont: mFont];
+      [column.dataCell setFont: mFont];
       rowHeight = MAX(rowHeight, [[column dataCell] cellSize].height + 1);
     }
     if (mWarnedManyColumns == 1)
-      [column setResizingMask: 0];
+      column.resizingMask = 0;
     
     [gridView addTableColumn: column];
   }
   if (rowHeight > 0)
-    [gridView setRowHeight: rowHeight];
+    gridView.rowHeight = rowHeight;
 }
 
 - (void)setFont:(NSFont*)font
@@ -200,7 +208,7 @@ static const char *viewFlagsKey = "viewFlagsKey";
     }
   }
   if (rowHeight > 0)
-    [gridView setRowHeight: rowHeight];
+    gridView.rowHeight = rowHeight;
 }
 
 - (void)refreshGrid
@@ -229,7 +237,7 @@ static int onRefreshWhenIdle(void *viewer_)
   
   [gridView editColumn: gridView.clickedColumn
                    row: gridView.clickedRow
-             withEvent: [NSApp currentEvent]
+             withEvent: NSApp.currentEvent
                 select: YES];
 }
 
@@ -291,7 +299,7 @@ static void selected_record_changed(void *theViewer)
 {
   // TODO: leftover toolbar item handlers, these should be added back to the toolbar maybe.
   {
-    std::string action = [[[sender cell] representedObject] UTF8String];
+    std::string action = [[sender cell].representedObject UTF8String];
 
     int selectedColumnIndex = gridView.selectedColumnIndex;
     int selectedRowIndex = gridView.selectedRowIndex;
@@ -384,9 +392,9 @@ static int onRefresh(void *viewer)
 
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
 {
-  if (mData && [aTableColumn identifier] != nil)
+  if (mData && aTableColumn.identifier != nil)
   {
-    int columnIndex = [[aTableColumn identifier] intValue];
+    int columnIndex = aTableColumn.identifier.intValue;
     if ((*mData)->get_column_type(columnIndex) != bec::GridModel::BlobType)
     {
       std::string text;
@@ -402,24 +410,24 @@ static int onRefresh(void *viewer)
 
 - (void)tableView:(NSTableView *)aTableView setObjectValue:(id)anObject forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
 {
-  if (mData && [aTableColumn identifier] != nil)
+  if (mData && aTableColumn.identifier != nil)
   {
     if (anObject == nil)
     {
-      if (!(*mData)->is_field_null(rowIndex, [[aTableColumn identifier] intValue]))
-        (*mData)->set_field_null(rowIndex, [[aTableColumn identifier] intValue]);
+      if (!(*mData)->is_field_null(rowIndex, aTableColumn.identifier.intValue))
+        (*mData)->set_field_null(rowIndex, aTableColumn.identifier.intValue);
     }
     else
     {
       std::string new_text= [anObject UTF8String];
       std::string old_text;
-      (*mData)->get_field(rowIndex, [[aTableColumn identifier] intValue], old_text);
+      (*mData)->get_field(rowIndex, aTableColumn.identifier.intValue, old_text);
       
       if (old_text != new_text)
       {
         size_t oldRowCount= (*mData)->count();
         
-        (*mData)->set_field(rowIndex, [[aTableColumn identifier] intValue], 
+        (*mData)->set_field(rowIndex, aTableColumn.identifier.intValue, 
                             new_text);
         
         if ((*mData)->count() > oldRowCount)
@@ -442,9 +450,9 @@ static int onRefresh(void *viewer)
     forTableColumn: (NSTableColumn*) aTableColumn
                row: (NSInteger) rowIndex;
 {
-  if ([aTableColumn identifier] != nil)
+  if (aTableColumn.identifier != nil)
   {
-    int columnIndex = [[aTableColumn identifier] intValue];    
+    int columnIndex = aTableColumn.identifier.intValue;    
     
     if (columnIndex >= 0)
     {
@@ -459,7 +467,7 @@ static int onRefresh(void *viewer)
   }
   else
   {
-    [aCell setSelected: [(MGridView*)aTableView selectedRowIndex] == rowIndex];
+    [aCell setSelected: ((MGridView*)aTableView).selectedRowIndex == rowIndex];
   }
 }
 
@@ -474,9 +482,9 @@ static int onRefresh(void *viewer)
 
 - (BOOL)tableView:(NSTableView *)aTableView shouldEditTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
 {
-  if (mData && [aTableColumn identifier] != nil)
+  if (mData && aTableColumn.identifier != nil)
     return !(*mData)->is_readonly() && 
-        (*mData)->get_column_type([[aTableColumn identifier] intValue]) != bec::GridModel::BlobType;
+        (*mData)->get_column_type(aTableColumn.identifier.intValue) != bec::GridModel::BlobType;
   return NO;
 }
 
@@ -488,9 +496,9 @@ static int onRefresh(void *viewer)
 - (void) tableView: (NSTableView *) tableView
   didClickTableColumn: (NSTableColumn *) tableColumn
 {
-  if ([tableColumn identifier])
+  if (tableColumn.identifier)
   {
-    int column_index= [[tableColumn identifier] intValue];  
+    int column_index= tableColumn.identifier.intValue;  
     ::bec::GridModel::SortColumns sort_columns= (*mData)->sort_columns();
     int sort_order= 1; // ascending (1) on first click, descending (-1) on second, then toggling
     for (::bec::GridModel::SortColumns::const_iterator i= sort_columns.begin(), end= sort_columns.end(); i != end; ++i)

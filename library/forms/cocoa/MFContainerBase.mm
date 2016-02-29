@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -78,7 +78,7 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
 
 - (void)setEnabled:(BOOL)flag
 {
-  for (id subview in [self subviews])
+  for (id subview in self.subviews)
   {
     if ([subview respondsToSelector: @selector(setEnabled:)])
       [subview setEnabled: flag];
@@ -89,8 +89,8 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
 
 - (void)subviewMinimumSizeChanged
 {
-  NSSize minSize= [self preferredSize];
-  NSSize size= [self frame].size;
+  NSSize minSize= self.preferredSize;
+  NSSize size= self.frame.size;
   
   // size of some subview has changed, we check if our current size is enough
   // to fit it and if not, request forward the size change notification to superview
@@ -100,9 +100,9 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
 
   if (minSize.width != size.width || minSize.height != size.height)
   {
-    if ([self superview])
+    if (self.superview)
     {
-      [[self superview] subviewMinimumSizeChanged];
+      [self.superview subviewMinimumSizeChanged];
       return;
     }
     else
@@ -128,7 +128,7 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
                  withObject: nil
                  afterDelay: 0
                     inModes: @[NSModalPanelRunLoopMode, NSDefaultRunLoopMode]];
-      [[self window] recalculateKeyViewLoop];
+      [self.window recalculateKeyViewLoop];
       return YES;
     }
   }
@@ -164,13 +164,13 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
   }
   else if (mDefaultBackColor != nil)
   {
-    id parent = [self superview];
+    id parent = self.superview;
     // check if we're inside a NSBox or NSTabView, which draw their own background
     while (parent)
     {
       // TODO: move MFTabViewImpl to mforms dylib and use normal class access instead objc_getClass.
       if ([parent isKindOfClass: [NSBox class]] || ([parent isKindOfClass: objc_getClass("MFTabViewImpl")] && 
-                                                    [[parent tabView] tabViewType] != NSNoTabsNoBorder))
+                                                    [parent tabView].tabViewType != NSNoTabsNoBorder))
         break;
       parent = [parent superview];
     }
@@ -184,8 +184,8 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
   if (mBackImage)
   {
     float x, y;
-    NSSize isize = [mBackImage size];
-    NSSize fsize = [self frame].size;
+    NSSize isize = mBackImage.size;
+    NSSize fsize = self.frame.size;
 
     if (fsize.height < isize.height)
       isize.height = fsize.height;
@@ -219,7 +219,7 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
       case mforms::BottomLeft:
       case mforms::BottomCenter:
       case mforms::BottomRight:
-        if (![self isFlipped])
+        if (!self.flipped)
           y = 0;
         else
           y = fsize.height - isize.height;
@@ -232,7 +232,7 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
       case mforms::TopLeft:
       case mforms::TopCenter:
       case mforms::TopRight:
-        if ([self isFlipped])
+        if (self.flipped)
           y = 0;
         else
           y = fsize.height - isize.height;
@@ -255,7 +255,7 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
 
 - (void)setBackgroundImage: (NSString*) path withAlignment: (mforms::Alignment) align
 {
-  std::string full_path= mforms::App::get()->get_resource_path([path UTF8String]);
+  std::string full_path= mforms::App::get()->get_resource_path(path.UTF8String);
   if (!full_path.empty())
   {
     mBackImage = [[NSImage alloc] initWithContentsOfFile:wrap_nsstring(full_path)];

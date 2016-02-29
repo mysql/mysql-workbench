@@ -32,7 +32,8 @@ namespace bec
 @interface WBPluginWindowBase : NSObject
 
 - (instancetype)initWithModule: (grt::Module *)module
-                     arguments: (const grt::BaseListRef &)args;
+                    grtManager: (bec::GRTManager *)grtm
+                     arguments: (const grt::BaseListRef &)args NS_DESIGNATED_INITIALIZER;
 
 - (void)showModal;
 

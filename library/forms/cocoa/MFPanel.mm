@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,7 +45,7 @@
 
 - (instancetype)initWithPanel:(MFPanelImpl*)aPanel
 {
-  NSRect frame= [aPanel frame];
+  NSRect frame= aPanel.frame;
   frame.origin= NSMakePoint(0, 0);
   self= [super initWithFrame:frame];
   if (self)
@@ -94,8 +94,8 @@ STANDARD_MOUSE_HANDLING(panel) // Add handling for mouse events.
 
 - (void)subviewMinimumSizeChanged
 {
-  NSSize minSize= [[[self subviews] lastObject] minimumSize];
-  NSSize size= [self frame].size;
+  NSSize minSize= self.subviews.lastObject.minimumSize;
+  NSSize size= self.frame.size;
   
   // size of some subview has changed, we check if our current size is enough
   // to fit it and if not, request forward the size change notification to superview
@@ -103,14 +103,14 @@ STANDARD_MOUSE_HANDLING(panel) // Add handling for mouse events.
   if (minSize.width != size.width || minSize.height != size.height)
     [panel subviewMinimumSizeChanged];
   else
-    [[[self subviews] lastObject] setFrameSize: size];    
+    [self.subviews.lastObject setFrameSize: size];    
 }
 
 
 - (void)resizeSubviewsWithOldSize:(NSSize)oldBoundsSize
 {
-  id content= [[self subviews] lastObject];
-  NSSize size= [self frame].size;
+  id content= self.subviews.lastObject;
+  NSSize size= self.frame.size;
   size.width -= 2*mBasePadding + (mLeftPadding + mRightPadding);
   size.height -= 2*mBasePadding + (mTopPadding + mBottomPadding);
   // size.height= [content minimumSize].height;
@@ -120,7 +120,7 @@ STANDARD_MOUSE_HANDLING(panel) // Add handling for mouse events.
 
 - (NSSize)minimumSize
 {
-  NSSize size= [[[self subviews] lastObject] minimumSize];
+  NSSize size= self.subviews.lastObject.minimumSize;
   size.width+= 2 * mBasePadding + mLeftPadding + mRightPadding;
   size.height+= 2 * mBasePadding + mTopPadding + mBottomPadding;
   return size;
@@ -132,8 +132,8 @@ STANDARD_MOUSE_HANDLING(panel) // Add handling for mouse events.
   if (mBackImage)
   {
     float x = 0, y = 0;
-    NSSize isize = [mBackImage size];
-    NSSize fsize = [self frame].size;
+    NSSize isize = mBackImage.size;
+    NSSize fsize = self.frame.size;
     
     switch (mBackImageAlignment)
     {
@@ -216,53 +216,53 @@ STANDARD_MOUSE_HANDLING(panel) // Add handling for mouse events.
     {
       case mforms::TransparentPanel: // just a container with no background
         [self setTransparent: YES];
-        [self setTitlePosition: NSNoTitle];
+        self.titlePosition = NSNoTitle;
         break;
       case mforms::FilledHeaderPanel:
       case mforms::FilledPanel:      // just a container with color filled background
         [self setTransparent: NO];
-        [self setBorderType: NSNoBorder];
-        [self setTitlePosition: NSNoTitle];
-        [self setBoxType: NSBoxCustom];
+        self.borderType = NSNoBorder;
+        self.titlePosition = NSNoTitle;
+        self.boxType = NSBoxCustom;
         break;
       case mforms::BorderedPanel:    // container with native border
-        [self setBorderType: NSBezelBorder];
-        [self setTitlePosition: NSNoTitle];
+        self.borderType = NSBezelBorder;
+        self.titlePosition = NSNoTitle;
         basePadding = 4;
         break;
       case mforms::LineBorderPanel:  // container with a solid line border
-        [self setBorderType: NSLineBorder];
-        [self setTitlePosition: NSNoTitle];
-        [self setBoxType: NSBoxCustom];
+        self.borderType = NSLineBorder;
+        self.titlePosition = NSNoTitle;
+        self.boxType = NSBoxCustom;
         basePadding = 2;
         break;
       case mforms::TitledBoxPanel:   // native grouping box with a title with border
-        [self setBorderType: NSBezelBorder];
+        self.borderType = NSBezelBorder;
         basePadding = 4;
         break;
       case mforms::TitledGroupPanel: // native grouping container with a title (may have no border) 
-        [self setBorderType: NSNoBorder];
+        self.borderType = NSNoBorder;
         basePadding = 4;
         break;
        case mforms::StyledHeaderPanel: 
-        [self setBorderType: NSNoBorder];
-        [self setTitlePosition: NSNoTitle];
-        [self setBoxType: NSBoxCustom];
+        self.borderType = NSNoBorder;
+        self.titlePosition = NSNoTitle;
+        self.boxType = NSBoxCustom;
         [self setTransparent: NO];
         break;
     }
     
-    [self setContentViewMargins: NSMakeSize(0, 0)];
+    self.contentViewMargins = NSMakeSize(0, 0);
     [self setFrameFromContentFrame: content];
-    frame= [self frame];
+    frame= self.frame;
     // calculate the offsets the NSBox adds to the contentView
     mTopLeftOffset.x= NSMinX(content) - NSMinX(frame);
     mTopLeftOffset.y= NSMinY(content) - NSMinY(frame);
     mBottomRightOffset.x= NSMaxX(frame) - NSMaxX(content);
     mBottomRightOffset.y= MAX(NSMaxY(frame) - NSMaxY(content), [mCheckButton cellSize].height);
 
-    [super setContentView: [[MFPanelContent alloc] initWithPanel: self]];
-    [[super contentView] setBasePadding: basePadding];
+    super.contentView = [[MFPanelContent alloc] initWithPanel: self];
+    [super.contentView setBasePadding: basePadding];
   }
   return self;
 }
@@ -272,11 +272,11 @@ STANDARD_MOUSE_HANDLING(panel) // Add handling for mouse events.
 - (NSRect)titleRect
 {
   NSRect rect;
-  rect= [super titleRect];
+  rect= super.titleRect;
   if (mCheckButton)
   {
     rect.origin.y-= 3;
-    rect.size= [mCheckButton cellSize];
+    rect.size= mCheckButton.cellSize;
     rect.size.width+= 4;
   }
   return rect;
@@ -286,7 +286,7 @@ STANDARD_MOUSE_HANDLING(panel) // Add handling for mouse events.
 {
   if (mCheckButton)
   {
-    [mCheckButton trackMouse:event inRect:[self titleRect]
+    [mCheckButton trackMouse:event inRect:self.titleRect
                       ofView:self
                 untilMouseUp:NO];
     [self setNeedsDisplay:YES];
@@ -305,12 +305,12 @@ STANDARD_MOUSE_HANDLING(panel) // Add handling for mouse events.
 
 - (void)resizeSubviewsWithOldSize:(NSSize)oldBoundsSize
 {
-  NSRect bounds = [self bounds];
+  NSRect bounds = self.bounds;
   bounds.size.width -= mTopLeftOffset.x + mBottomRightOffset.x;
   bounds.size.height -= mTopLeftOffset.y + mBottomRightOffset.y;
 //  bounds.origin.x = mTopLeftOffset.x;
 //  bounds.origin.y = mTopLeftOffset.y;
-  [[self contentView] setFrame: bounds];
+  self.contentView.frame = bounds;
   [self setNeedsDisplay: YES];
 }
 
@@ -322,7 +322,7 @@ STANDARD_MOUSE_HANDLING(panel) // Add handling for mouse events.
 
 - (NSSize)minimumSize
 {
-  NSSize size= [[self contentView] minimumSize];
+  NSSize size= self.contentView.minimumSize;
 
   size.width += mTopLeftOffset.x + mBottomRightOffset.x;
   size.height += mTopLeftOffset.y + mBottomRightOffset.y;
@@ -333,17 +333,17 @@ STANDARD_MOUSE_HANDLING(panel) // Add handling for mouse events.
 
 - (void)subviewMinimumSizeChanged
 {
-  NSSize minSize= [self minimumSize];
-  NSSize size= [self frame].size;
+  NSSize minSize= self.minimumSize;
+  NSSize size= self.frame.size;
   
   // size of some subview has changed, we check if our current size is enough
   // to fit it and if not, request forward the size change notification to superview
   
   if (minSize.width != size.width || minSize.height != size.height)
   {
-    if ([self superview])
+    if (self.superview)
     {
-      [[self superview] subviewMinimumSizeChanged];
+      [self.superview subviewMinimumSizeChanged];
       return;
     }
     else
@@ -354,16 +354,16 @@ STANDARD_MOUSE_HANDLING(panel) // Add handling for mouse events.
 
 - (void)setPaddingLeft:(float)lpad right:(float)rpad top:(float)tpad bottom:(float)bpad
 {
-  [[self contentView] setPaddingLeft:lpad right:rpad top:tpad bottom:bpad];
+  [self.contentView setPaddingLeft:lpad right:rpad top:tpad bottom:bpad];
 }
 
 
 - (void)setContentView:(NSView*)content
 {
   if (content)
-    [[self contentView] addSubview: content];
+    [self.contentView addSubview: content];
   else
-    [[[[self contentView] subviews] lastObject] removeFromSuperview];
+    [self.contentView.subviews.lastObject removeFromSuperview];
   [self subviewMinimumSizeChanged];
 }
 
@@ -371,14 +371,14 @@ STANDARD_MOUSE_HANDLING(panel) // Add handling for mouse events.
 - (void)setTitle:(NSString*)title
 {
   if (mCheckButton)
-    [mCheckButton setTitle: title];
+    mCheckButton.title = title;
   else
-    [super setTitle: title];
+    super.title = title;
 }
 
 - (void)setEnabled:(BOOL)flag
 {
-  for (id view in [[self contentView] subviews])
+  for (id view in self.contentView.subviews)
   {
     if ([view respondsToSelector:@selector(setEnabled:)])
       [view setEnabled: flag];
@@ -387,14 +387,14 @@ STANDARD_MOUSE_HANDLING(panel) // Add handling for mouse events.
 
 - (void)setBackgroundImage: (NSString*) path withAlignment: (mforms::Alignment) align
 {
-  std::string full_path= mforms::App::get()->get_resource_path([path UTF8String]);
+  std::string full_path= mforms::App::get()->get_resource_path(path.UTF8String);
   if (!full_path.empty())
   {
-    [[self contentView] setBackgroundImage: wrap_nsstring(full_path) withAlignment: align];
+    [self.contentView setBackgroundImage: wrap_nsstring(full_path) withAlignment: align];
   }
   else
   {
-    [[self contentView] setBackgroundImage: nil withAlignment: align];
+    [self.contentView setBackgroundImage: nil withAlignment: align];
   }
 }
 
@@ -413,7 +413,7 @@ static void panel_set_title(::mforms::Panel *self, const std::string &text)
     
     if ( panel )
     {
-      [panel setTitle:wrap_nsstring(text)];
+      panel.title = wrap_nsstring(text);
     }
   }
 }
@@ -429,7 +429,7 @@ static void panel_set_back_color(mforms::Panel *self, const std::string &color)
     if ( panel && panel->mType != mforms::StyledHeaderPanel)
     {
       [panel setTransparent: NO];
-      [panel setFillColor: [NSColor colorFromHexString: wrap_nsstring(color)]];
+      panel.fillColor = [NSColor colorFromHexString: wrap_nsstring(color)];
     }
   }
 }
@@ -444,7 +444,7 @@ static void panel_set_active(mforms::Panel *self, bool active)
     
     if ( panel )
     {
-      [panel->mCheckButton setState: active ? NSOnState : NSOffState];
+      panel->mCheckButton.state = active ? NSOnState : NSOffState;
     }
   }
 }
@@ -458,7 +458,7 @@ static bool panel_get_active(mforms::Panel *self)
     
     if ( panel )
     {
-      return [panel->mCheckButton state] == NSOnState;
+      return panel->mCheckButton.state == NSOnState;
     }
   }
   return false;
@@ -472,7 +472,7 @@ static void panel_add(mforms::Panel *self,mforms::View *view)
     
     if ( panel )
     {
-      [panel setContentView: view->get_data()];
+      panel.contentView = view->get_data();
     }
   }
 }

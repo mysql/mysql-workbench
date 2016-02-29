@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -85,7 +85,7 @@
     NSRectFill(bounds);
   }
   
-  CGContextRef cgref = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
+  CGContextRef cgref = (CGContextRef)NSGraphicsContext.currentContext.graphicsPort;
 
   cairo_surface_t *surface= cairo_quartz_surface_create_for_cg_context(cgref, NSWidth(bounds), NSHeight(bounds));
   
@@ -136,9 +136,9 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
   
   // If a fixed size is set honour that but don't go below the
   // minimal required size.
-  if ([self widthIsFixed])
+  if (self.widthIsFixed)
     size.width = MAX(size.width, NSWidth([self frame]));
-  if ([self heightIsFixed])
+  if (self.heightIsFixed)
     size.height = MAX(size.height, NSHeight([self frame]));
   return size;
 }
@@ -147,7 +147,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 - (NSSize)minimumSize
 {
-  return [self preferredSize];
+  return self.preferredSize;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,7 +205,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
         case mforms::BottomLeft:
         case mforms::BottomCenter:
         case mforms::BottomRight:
-          if (![self isFlipped])
+          if (!self.flipped)
             y = mPaddingBottom;
           else
             y = frameSize.height - mPaddingBottom - viewSize.height;
@@ -220,7 +220,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
         case mforms::TopLeft:
         case mforms::TopCenter:
         case mforms::TopRight:
-          if ([self isFlipped])
+          if (self.flipped)
             y = mPaddingTop;
           else
             y = frameSize.height - mPaddingTop - viewSize.height;

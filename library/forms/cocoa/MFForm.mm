@@ -46,7 +46,7 @@
     
     mOwner= form;
     mOwner->set_data(self);
-    [self setDelegate:self];
+    self.delegate = self;
   }
   return self;
 }
@@ -66,7 +66,7 @@
 
 - (BOOL)isHidden
 {
-  return ![self isVisible];
+  return !self.visible;
 }
 
 
@@ -83,8 +83,8 @@
 
 - (void)subviewMinimumSizeChanged
 {
-  NSSize size= [[self contentView] minimumSize];
-  NSSize frameSize= [[self contentView] frame].size;
+  NSSize size= self.contentView.minimumSize;
+  NSSize frameSize= self.contentView.frame.size;
   BOOL flag= NO;
 
   if (frameSize.width < size.width)
@@ -102,9 +102,9 @@
   if (flag)
     [self setContentSize:frameSize];
  // else
-    [[self contentView] resizeSubviewsWithOldSize:frameSize];
+    [self.contentView resizeSubviewsWithOldSize:frameSize];
   
-  [self setContentMinSize:size];
+  self.contentMinSize = size;
 }
 
 
@@ -128,7 +128,7 @@
   // automatically set parent to key window status
   if (mParentWindow)
   {
-    if ([mParentWindow isVisible])
+    if (mParentWindow.visible)
       [mParentWindow makeKeyWindow];
   }    
 }
@@ -154,8 +154,8 @@
 
   if (mParentWindow)
   {
-    NSRect rect = [mParentWindow frame];
-    NSSize size = [self frame].size;
+    NSRect rect = mParentWindow.frame;
+    NSSize size = self.frame.size;
     NSPoint pos;
     
     pos.x = rect.origin.x + (NSWidth(rect) - size.width) / 2;
@@ -183,7 +183,7 @@
 
 - (void)setFixedFrameSize:(NSSize)size
 {
-  NSSize curSize = [self frame].size;
+  NSSize curSize = self.frame.size;
   if (size.width < 0)
     size.width = curSize.width;
   if (size.height < 0)
@@ -205,8 +205,8 @@
 {
   if (mOwner->get_menubar())
   {
-    mOriginalMenu = [NSApp mainMenu];
-    [NSApp setMainMenu: mOwner->get_menubar()->get_data()];
+    mOriginalMenu = NSApp.mainMenu;
+    NSApp.mainMenu = mOwner->get_menubar()->get_data();
   }
   if (mOwner)
     mOwner->activated();
@@ -217,7 +217,7 @@
 {
   if (mOriginalMenu)
   {
-    [NSApp setMainMenu: mOriginalMenu];
+    NSApp.mainMenu = mOriginalMenu;
     mOriginalMenu = nil;
   }
   if (mOwner)
@@ -281,7 +281,7 @@ static bool form_run_modal(::mforms::Form *self, ::mforms::Button *accept, ::mfo
   {    
     if (accept)
     {
-      [form setDefaultButtonCell:[accept->get_data() cell]];
+      form.defaultButtonCell = [accept->get_data() cell];
       accept->signal_clicked()->connect(boost::bind(&::mforms::Form::end_modal, self, true));
     }
     if (cancel)
@@ -293,8 +293,8 @@ static bool form_run_modal(::mforms::Form *self, ::mforms::Button *accept, ::mfo
     else
     {
       NSInvocation* invocation = [NSInvocation invocationWithMethodSignature: [form methodSignatureForSelector: @selector(runModal)]];
-      [invocation setTarget: form];
-      [invocation setSelector: @selector(runModal)];
+      invocation.target = form;
+      invocation.selector = @selector(runModal);
       [invocation performSelectorOnMainThread: @selector(invoke) withObject: nil waitUntilDone: YES];
       [invocation getReturnValue: &dialog_result];
     }

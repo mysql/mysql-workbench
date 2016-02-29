@@ -84,7 +84,7 @@
 
 - (void)dealloc
 {
-  bec::GRTManager::get().get_plugin_manager()->forget_gui_plugin_handle((__bridge void *)self);
+  mPluginEditor.grtManager->get_plugin_manager()->forget_gui_plugin_handle((__bridge void *)self);
 }
 
 - (BOOL)windowShouldClose:(id)sender

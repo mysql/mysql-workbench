@@ -44,7 +44,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 - (mforms::ModifierKey) modifiersFromEvent: (NSEvent*) event
 {
-  NSUInteger modifiers = [event modifierFlags];
+  NSUInteger modifiers = event.modifierFlags;
   ModifierKey mforms_modifiers = ModifierNoModifier;
   
   if ((modifiers & NSControlKeyMask) != 0)
@@ -75,9 +75,9 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 {
   mforms::ModifierKey modifiers = [self modifiersFromEvent: event];
   
-  NSString* input = [event characters];
+  NSString* input = event.characters;
   
-  if (mOwner->key_event(mforms::KeyChar, modifiers, [input UTF8String]))
+  if (mOwner->key_event(mforms::KeyChar, modifiers, input.UTF8String))
     [super keyDown: event];
 }
 
@@ -90,7 +90,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 - (instancetype)initWithObject:(::mforms::TextBox*)aTextBox
            scrollers:(mforms::ScrollBars)scrolls
 {
-  NSSize size = [self minimumSize];
+  NSSize size = self.minimumSize;
   NSRect frame = NSMakeRect(0, 0, size.width, size.height);
   self = [super initWithFrame:frame];
   if (self)
@@ -98,37 +98,37 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
     mOwner= aTextBox;
     mOwner->set_data(self);
 
-    [self setBorderType: NSBezelBorder];
-    [self setHasVerticalScroller: scrolls & mforms::VerticalScrollBar];
-    [self setHasHorizontalScroller: scrolls & mforms::HorizontalScrollBar];
+    self.borderType = NSBezelBorder;
+    self.hasVerticalScroller = scrolls & mforms::VerticalScrollBar;
+    self.hasHorizontalScroller = scrolls & mforms::HorizontalScrollBar;
     [self setAutohidesScrollers: YES];
     if (scrolls & mforms::SmallScrollBars)
     {
-      [[self verticalScroller] setControlSize: NSSmallControlSize];
-      [[self horizontalScroller] setControlSize: NSSmallControlSize];
+      self.verticalScroller.controlSize = NSSmallControlSize;
+      self.horizontalScroller.controlSize = NSSmallControlSize;
     }
 
-    frame.size = [self minimumSize];
+    frame.size = self.minimumSize;
     mContentView = [[InternalTextView alloc] initWithFrame: frame backend: mOwner];
-    [self setDocumentView:mContentView];
+    self.documentView = mContentView;
 
-    [[mContentView textContainer] setContainerSize: NSMakeSize(1000000000, 1000000000)];
+    mContentView.textContainer.containerSize = NSMakeSize(1000000000, 1000000000);
     [mContentView setHorizontallyResizable: YES];
     [mContentView setVerticallyResizable: YES];
 
     if (scrolls & mforms::VerticalScrollBar)
     {
-      [[mContentView textContainer] setHeightTracksTextView: NO];
+      [mContentView.textContainer setHeightTracksTextView: NO];
     }
     else
-      [[mContentView textContainer] setHeightTracksTextView: YES];
+      [mContentView.textContainer setHeightTracksTextView: YES];
 
     if (scrolls & mforms::HorizontalScrollBar)
-      [[mContentView textContainer] setWidthTracksTextView: NO];
+      [mContentView.textContainer setWidthTracksTextView: NO];
     else
-      [[mContentView textContainer] setWidthTracksTextView: YES];
+      [mContentView.textContainer setWidthTracksTextView: YES];
     
-    [mContentView setDelegate: self];
+    mContentView.delegate = self;
     [mContentView setEditable: YES];
   }
   return self;
@@ -163,7 +163,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
   rect.origin.y+= mPadding;
   rect.size.width-= mPadding*2;
   rect.size.height-= mPadding*2;
-  [super setFrame: rect];
+  super.frame = rect;
 }
 
 - (void)setPadding:(float)pad
@@ -174,30 +174,30 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 - (void)setBordered:(BOOL)flag
 {
-  [self setBorderType: flag ? NSBezelBorder : NSNoBorder];
+  self.borderType = flag ? NSBezelBorder : NSNoBorder;
 }
 
 - (void)setEnabled:(BOOL)flag
 {
-  [mContentView setEditable: flag ? YES : NO];
-  [mContentView setSelectable: flag ? YES : NO];
+  mContentView.editable = flag ? YES : NO;
+  mContentView.selectable = flag ? YES : NO;
 }
 
 - (void) setReadOnly: (BOOL) flag
 {
-  [mContentView setEditable: flag ? NO : YES];
+  mContentView.editable = flag ? NO : YES;
   [mContentView setSelectable: YES];  
 }
 
 - (void) setTextColor: (NSColor *) aColor
 {
-  [mContentView setTextColor: aColor];
+  mContentView.textColor = aColor;
 }
 
 - (void) setBackgroundColor: (NSColor *) aColor
 {
-  [mContentView setDrawsBackground: (aColor == nil) ? NO : YES];
-  [mContentView setBackgroundColor: aColor];
+  mContentView.drawsBackground = (aColor == nil) ? NO : YES;
+  mContentView.backgroundColor = aColor;
 }
 
 static bool textbox_create(::mforms::TextBox *self, mforms::ScrollBars scrolls)
@@ -216,7 +216,7 @@ static void textbox_set_text(::mforms::TextBox *self, const std::string &text)
     MFTextBoxImpl* textbox = self->get_data();
     
     NSRange range;
-    range = NSMakeRange (0, [[textbox->mContentView string] length]);
+    range = NSMakeRange (0, textbox->mContentView.string.length);
     [textbox->mContentView replaceCharactersInRange: range withString: wrap_nsstring(text)];
   }
 }
@@ -281,13 +281,13 @@ static void textbox_append_text(mforms::TextBox *self, const std::string &text, 
     MFTextBoxImpl* textbox = self->get_data();
     
     NSRange range;
-    range = NSMakeRange ([[textbox->mContentView string] length], 0);
+    range = NSMakeRange (textbox->mContentView.string.length, 0);
     [textbox->mContentView replaceCharactersInRange: range withString: wrap_nsstring(text)];
     
     if (scroll_to_end)
     {
       NSRange range;
-      range = NSMakeRange ([[textbox->mContentView string] length], 0);
+      range = NSMakeRange (textbox->mContentView.string.length, 0);
       [textbox->mContentView scrollRangeToVisible: range];
     }
   }
@@ -298,9 +298,9 @@ static std::string textbox_get_text(::mforms::TextBox *self)
   if ( self )
   {
     MFTextBoxImpl* textbox = self->get_data();
-    NSString *str = [textbox->mContentView string];
+    NSString *str = textbox->mContentView.string;
     
-    return std::string([str UTF8String]); // can't use [str length] for string size, because that's the number of chars, not bytes for UTF8
+    return std::string(str.UTF8String); // can't use [str length] for string size, because that's the number of chars, not bytes for UTF8
   }
   return "";
 }
@@ -354,7 +354,7 @@ static void textbox_set_monospaced(mforms::TextBox *self, bool flag)
     NSFont *font= [NSFont fontWithName: @"AndaleMono"
                                   size:[NSFont smallSystemFontSize]];
     if (font)
-      [textbox->mContentView setFont: font];
+      textbox->mContentView.font = font;
     else
       NSLog(@"Couldn't find font AndaleMono");
   }
@@ -366,7 +366,7 @@ static void textbox_clear(mforms::TextBox *self)
   {
     MFTextBoxImpl* textbox = self->get_data();
     
-    [textbox->mContentView setString: @""];
+    textbox->mContentView.string = @"";
   }  
 }
 
