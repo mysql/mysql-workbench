@@ -600,7 +600,7 @@ std::string WBContextUI::get_description_for_selection(bec::UIForm *form, grt::L
 
   std::string res;
 
-  activeObjList= grt::ListRef<model_Object>();
+  activeObjList= grt::ListRef<model_Object>(true);
 
   std::string comment_mem_name("comment");
   std::string descr_mem_name("description");

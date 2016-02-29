@@ -102,7 +102,7 @@ grt::ValueRef Sql_import::autoplace_grt()
 
   workbench_physical_ModelRef model(workbench_physical_ModelRef::cast_from(catalog->owner()));
 
-  grt::ListRef<db_DatabaseObject> dbobjects;
+  grt::ListRef<db_DatabaseObject> dbobjects(true);
   grt::ListRef<GrtObject> objects(grt::ListRef<GrtObject>::cast_from(_options.get("created_objects")));
 
   for (grt::ListRef<GrtObject>::const_iterator iter= objects.begin();

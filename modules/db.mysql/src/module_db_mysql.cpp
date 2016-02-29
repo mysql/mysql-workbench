@@ -1725,7 +1725,7 @@ void ActionGenerateSQL::remember_alter(const GrtNamedObjectRef &obj, const std::
     grt::ValueRef value= target_map.get(key);
     if(grt::StringRef::can_wrap(value))
     {
-      grt::StringListRef list_value;
+      grt::StringListRef list_value(grt::Initialized);
       list_value.insert(grt::StringRef::cast_from(value));
       list_value.insert(grt::StringRef(sql));
       target_map.set(key, list_value);
@@ -2714,7 +2714,7 @@ std::string DbMySQLImpl::makeAlterScript(GrtNamedObjectRef source, GrtNamedObjec
   options.set("OutputContainer", alter_list);
   options.set("UseFilteredLists", grt::IntegerRef(0));
   options.set("KeepOrder", grt::IntegerRef(1));
-  grt::ListRef<GrtNamedObject> alter_object_list;
+  grt::ListRef<GrtNamedObject> alter_object_list(true);
   options.set("OutputObjectContainer", alter_object_list);
 
   generateSQL(source, options, diff);
@@ -2981,7 +2981,7 @@ inline bool match_version(int ref_major, int ref_minor, int ref_revision,
 
 grt::DictRef DbMySQLImpl::getTraitsForServerVersion(const int major, const int minor, const int revision)
 {
-  grt::DictRef traits;
+  grt::DictRef traits(true);
 
   traits.set("version", grt::StringRef(base::strfmt("%i.%i.%i", major, minor, revision < 0 ? 0 : revision)));
   
@@ -3043,7 +3043,7 @@ grt::ListRef<db_UserDatatype> DbMySQLImpl::getDefaultUserDatatypes(db_mgmt_Rdbms
     // End type aliases
   };
   
-  grt::ListRef<db_UserDatatype> list;
+  grt::ListRef<db_UserDatatype> list(true);
   
   for (size_t i= 0; i < sizeof(type_init_data)/sizeof(*type_init_data); i++)
   {
@@ -3061,7 +3061,7 @@ grt::ListRef<db_UserDatatype> DbMySQLImpl::getDefaultUserDatatypes(db_mgmt_Rdbms
                 type_init_data[i].oid, type_init_data[i].name, type_init_data[i].sql_def);
       continue;
     }
-    db_UserDatatypeRef udata;
+    db_UserDatatypeRef udata(grt::Initialized);
     
     udata->__set_id(type_init_data[i].oid);
 

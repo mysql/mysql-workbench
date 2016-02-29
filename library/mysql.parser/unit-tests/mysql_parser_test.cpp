@@ -47,7 +47,7 @@ protected:
 TEST_DATA_CONSTRUCTOR(mysql_parser_tests)
 {
   // init datatypes
-  populate_grt(_tester.grt, _tester);
+  populate_grt(_tester);
 
   // The charset list contains also the 3 charsets that were introduced in 5.5.3.
   grt::ListRef<db_CharacterSet> list= _tester.get_rdbms()->characterSets();
@@ -100,7 +100,7 @@ TEST_FUNCTION(5)
   g_file_get_contents(filename, &sql, &size, &error);
   ensure("Error loading sql file", error == NULL);
 
-  SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name(_tester.grt, "Mysql");
+  SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name("Mysql");
 
 #if VERBOSE_OUTPUT
   test_time_point t1;
@@ -170,7 +170,7 @@ TEST_FUNCTION(10)
   test_time_point t1;
 #endif
 
-  SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name(_tester.grt, "Mysql");
+  SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name("Mysql");
   size_t count = 0;
   for (size_t i = 0; i < sizeof(test_files) / sizeof(test_files[0]); ++i)
   {

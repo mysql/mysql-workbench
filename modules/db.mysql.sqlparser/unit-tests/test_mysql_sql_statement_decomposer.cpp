@@ -56,7 +56,6 @@ TEST_MODULE(mysql_sql_statement_decomposer, "SQL Parser (MySQL): Statement Decom
 TEST_FUNCTION(1)
 {
   wbt.create_new_document();
-  grt= wbt.grt;
 
   ensure_equals("loaded physycal model count", wbt.wb->get_document()->physicalModels().count(), 1U);
 
@@ -68,7 +67,7 @@ TEST_FUNCTION(1)
   sql_statement_decomposer= sql_facade->sqlStatementDecomposer();
   ensure("failed to instantiate SqlStatementDecomposer class", (NULL != sql_statement_decomposer.get()));
 
-  catalog= db_CatalogRef();
+  catalog = db_CatalogRef(true);
   db_SchemaRef schema= add_schema("test");
   view= add_view(schema, "");
 
@@ -95,7 +94,7 @@ TEST_FUNCTION(1)
 db_SchemaRef Test_object_base<mysql_sql_statement_decomposer>::
 add_schema(const std::string &name)
 {
-  db_SchemaRef schema;
+  db_SchemaRef schema(grt::Initialized);
   schema->owner(catalog);
   schema->name(name);
   catalog->schemata().insert(schema);
@@ -105,7 +104,7 @@ add_schema(const std::string &name)
 db_TableRef Test_object_base<mysql_sql_statement_decomposer>::
 add_table(db_SchemaRef schema, const std::string &name)
 {
-  db_TableRef table;
+  db_TableRef table(grt::Initialized);
   table->owner(schema);
   table->name(name);
   schema->tables().insert(table);
@@ -115,7 +114,7 @@ add_table(db_SchemaRef schema, const std::string &name)
 db_ColumnRef Test_object_base<mysql_sql_statement_decomposer>::
 add_table_column(db_TableRef table, const std::string &name)
 {
-  db_ColumnRef col;
+  db_ColumnRef col(grt::Initialized);
   col->owner(table);
   col->name(name);
   table->columns().insert(col);
@@ -125,7 +124,7 @@ add_table_column(db_TableRef table, const std::string &name)
 db_ViewRef Test_object_base<mysql_sql_statement_decomposer>::
 add_view(db_SchemaRef schema, const std::string &name)
 {
-  db_ViewRef view;
+  db_ViewRef view(grt::Initialized);
   view->owner(schema);
   view->name(name);
   schema->views().insert(view);

@@ -162,7 +162,7 @@ public:
   
   virtual grt::ListRef<db_query_Resultset> executeScript(const std::string &sql)
   {
-    grt::ListRef<db_query_Resultset> result;
+    grt::ListRef<db_query_Resultset> result(true);
     boost::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)
     { 

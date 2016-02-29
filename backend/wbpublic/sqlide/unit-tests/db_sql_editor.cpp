@@ -42,7 +42,7 @@ TEST_FUNCTION(1)
 {
   /*
   	db_mgmt_ConnectionRef conn(grtm.get_grt());
-	setup_env(grtm.get_grt(), conn);  
+	setup_env(conn);  
 	db_sql_editor.reset(new SqlEditorForm(&grtm, conn));
 
 	try

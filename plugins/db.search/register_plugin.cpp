@@ -262,7 +262,7 @@ public:
 
   virtual grt::ListRef<app_Plugin> getPluginInfo()
   {
-    grt::ListRef<app_Plugin> plugins;
+    grt::ListRef<app_Plugin> plugins(true);
     {
       app_PluginRef plugin(grt::Initialized);
 

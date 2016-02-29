@@ -77,7 +77,7 @@ TEST_FUNCTION(5)
   ensure_equals("get_dbl_member", book.get_double_member("price"), DoubleRef(123.45));
 
   
-  test_AuthorRef author;
+  test_AuthorRef author(grt::Initialized);
   author.set_member("name", StringRef("Some One"));
   
   ensure_equals("constructor", author.get_string_member("name"), "Some One");
@@ -200,7 +200,7 @@ protected:
     x= grt::IntegerRef(0);
     y= grt::IntegerRef(0);
     myname= grt::StringRef("hello");
-    books.init;
+    books.init();
   }
   virtual void destroy()
   {

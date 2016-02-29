@@ -184,7 +184,7 @@ std::vector<std::string> get_names(const bec::GrtStringListModel* list,const std
 
 grt::DictRef DbMySQLSQLExport::get_options_as_dict()
 {
-  grt::DictRef options;
+  grt::DictRef options(true);
 
   // general options
   options.set("GenerateDrops", grt::IntegerRef(_gen_drops ? 1 : 0));

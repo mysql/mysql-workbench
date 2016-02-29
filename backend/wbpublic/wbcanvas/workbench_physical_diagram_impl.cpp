@@ -326,7 +326,7 @@ void workbench_physical_Diagram::ImplData::auto_place_db_objects(const grt::List
 {
   grt::Module *module= grt::GRT::get().get_module("WbModel");
 
-  grt::BaseListRef args;
+  grt::BaseListRef args(true);
 
   args.ginsert(workbench_physical_ModelRef::cast_from(self()->owner())->catalog());
   args.ginsert(objects);

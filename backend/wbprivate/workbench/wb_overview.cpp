@@ -527,7 +527,7 @@ void OverviewBE::select_node(const NodeId &node)
 grt::ListRef<GrtObject> OverviewBE::get_selection()
 {
   ContainerNode *node= dynamic_cast<ContainerNode*>(get_deepest_focused());
-  grt::ListRef<GrtObject> selection;
+  grt::ListRef<GrtObject> selection(true);
 
   if (node)
   {
@@ -964,7 +964,7 @@ bec::MenuItemList OverviewBE::get_popup_items_for_nodes(const std::vector<bec::N
   
   // Don't go early out here if no node was passed in. We also have to add selection independent
   // menu items like paste.
-  grt::ListRef<GrtObject> selection;
+  grt::ListRef<GrtObject> selection(true);
   
   bec::MenuItem item;
   std::list<Node*> tree_nodes;

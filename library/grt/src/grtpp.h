@@ -335,7 +335,7 @@ namespace grt {
    */ 
   
 
-  typedef enum { Initialized } CreateMode;
+  typedef enum { Initialized = true } CreateMode;
   template<class Class>
     class Ref : public ValueRef
   {

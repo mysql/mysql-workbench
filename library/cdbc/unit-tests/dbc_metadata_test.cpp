@@ -21,7 +21,7 @@
 
 BEGIN_TEST_DATA_CLASS(module_dbc_metadata_test)
 public:
-  GRT grt;
+
 END_TEST_DATA_CLASS
 
 TEST_MODULE(module_dbc_metadata_test, "DBC: metadata tests");
@@ -29,18 +29,18 @@ TEST_MODULE(module_dbc_metadata_test, "DBC: metadata tests");
 TEST_FUNCTION(1)
 {
   // load structs
-  grt.scan_metaclasses_in("../../res/grt/");
-  grt.end_loading_metaclasses();
+  grt::GRT::get().scan_metaclasses_in("../../res/grt/");
+  grt::GRT::get().end_loading_metaclasses();
 
-  ensure_equals("load structs", grt.get_metaclasses().size(), (size_t)INT_METACLASS_COUNT);
+  ensure_equals("load structs", grt::GRT::get().get_metaclasses().size(), (size_t)INT_METACLASS_COUNT);
 }
 
 // Test DatabaseMetaData::getCatalogs().
 TEST_FUNCTION(2)
 {
-  db_mgmt_ConnectionRef connectionProperties(&grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(&grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -69,9 +69,9 @@ TEST_FUNCTION(2)
 // Test DatabaseMetaData::getDatabaseProductName.
 TEST_FUNCTION(4)
 {
-  db_mgmt_ConnectionRef connectionProperties(&grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(&grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -93,9 +93,9 @@ TEST_FUNCTION(4)
 // Test DatabaseMetaData::getDatabaseProductVersion.
 TEST_FUNCTION(5)
 {
-  db_mgmt_ConnectionRef connectionProperties(&grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(&grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -118,9 +118,9 @@ TEST_FUNCTION(5)
 // Test DatabaseMetaData::getDriverMajorVersion.
 TEST_FUNCTION(7)
 {
-  db_mgmt_ConnectionRef connectionProperties(&grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(&grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -143,9 +143,9 @@ TEST_FUNCTION(7)
 // Test DatabaseMetaData::getDriverMinorVersion.
 TEST_FUNCTION(8)
 {
-  db_mgmt_ConnectionRef connectionProperties(&grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(&grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -168,9 +168,9 @@ TEST_FUNCTION(8)
 // Test DatabaseMetaData::getDriverName.
 TEST_FUNCTION(9)
 {
-  db_mgmt_ConnectionRef connectionProperties(&grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(&grt, connectionProperties);
+  setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();

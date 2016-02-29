@@ -123,19 +123,19 @@ boost::shared_ptr<SqlEditorTreeController> SqlEditorTreeController::create(SqlEd
 
 SqlEditorTreeController::SqlEditorTreeController(SqlEditorForm *owner)
   : _owner(owner), _grtm(owner->grt_manager()),
-    _schema_side_bar(NULL), _admin_side_bar(NULL),
-    _task_tabview(NULL),
-    _taskbar_box(NULL),
+    _schema_side_bar(nullptr), _admin_side_bar(nullptr),
+    _task_tabview(nullptr),
+    _taskbar_box(nullptr),
     _schema_tree(&_base_schema_tree),
     live_schema_fetch_task(GrtThreadedTask::create(_grtm)),
     live_schemata_refresh_task(GrtThreadedTask::create(_grtm)),
     _is_refreshing_schema_tree(false),
     _unified_mode(false),
     _use_show_procedure(false),
-    _side_splitter(NULL),
-    _info_tabview(NULL),
-    _object_info(NULL),
-    _session_info(NULL)
+    _side_splitter(nullptr),
+    _info_tabview(nullptr),
+    _object_info(nullptr),
+    _session_info(nullptr)
 {
   grt::GRTNotificationCenter::get()->add_grt_observer(this, "GRNDBObjectEditorCreated");
   grt::GRTNotificationCenter::get()->add_grt_observer(this, "GRNPreferencesDidClose");

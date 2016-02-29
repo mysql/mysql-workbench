@@ -262,7 +262,7 @@ int Mysql_invalid_sql_parser::parse_invalid_sql_script(const std::string &sql)
     replace_contents(_catalog->simpleDatatypes(), given_catalog->simpleDatatypes());
   }
 
-  _created_objects= grt::ListRef<GrtObject>();
+  _created_objects= grt::ListRef<GrtObject>(true);
   _reuse_existing_objects= true;
   _stick_to_active_schema= true;
   _set_old_names= false;

@@ -34,7 +34,7 @@ GRT_MODULE_ENTRY_POINT(MysqlSqlFacadeImpl);
 /*
 grt::ListRef<app_Plugin> MysqlSqlFacadeImpl::getPluginInfo()
 {
-  grt::ListRef<app_Plugin> list;
+  grt::ListRef<app_Plugin> list(true);
   return list;
 }
 */
