@@ -41,8 +41,8 @@ Mysql_invalid_sql_parser::Null_state_keeper::~Null_state_keeper()
   _sql_parser->_stub_name= std::string();
   _sql_parser->_active_obj_list= grt::ListRef<db_DatabaseDdlObject>();
   _sql_parser->_active_obj_list2= grt::ListRef<db_DatabaseDdlObject>();
-  _sql_parser->_active_obj= db_DatabaseDdlObjectRef(grt::Initialized);
-  _sql_parser->_active_grand_obj = db_DatabaseObjectRef(grt::Initialized);
+  _sql_parser->_active_obj= db_DatabaseDdlObjectRef();
+  _sql_parser->_active_grand_obj = db_DatabaseObjectRef();
   boost::function<bool ()> f = boost::lambda::constant(false);
   _sql_parser->_create_stub_object = boost::bind(f);
   _sql_parser->_remove_stub_object = boost::bind(f);

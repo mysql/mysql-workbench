@@ -631,7 +631,7 @@ TEST_FUNCTION(22)
   grt::ListRef<db_SimpleDatatype> type_list = tester.get_catalog()->simpleDatatypes();
 
   // The latest version at the point of writing this, to include all possible variations.
-  GrtVersionRef version;
+  GrtVersionRef version(grt::Initialized);
   version->majorNumber(5);
   version->minorNumber(7);
   version->releaseNumber(4);

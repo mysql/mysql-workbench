@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _WB_OVERVIEW_H_
-#define _WB_OVERVIEW_H_
+#pragma once
 
 #include "grt/tree_model.h"
 #include "grt/grt_manager.h"
@@ -214,7 +213,7 @@ namespace wb {
 
       virtual workbench_OverviewPanelRef get_state()
       {
-        workbench_OverviewPanelRef panel= workbench_OverviewPanelRef();
+        workbench_OverviewPanelRef panel= workbench_OverviewPanelRef(grt::Initialized);
 
         panel->expandedHeight(0);
         panel->expanded(expanded?1:0);
@@ -373,5 +372,3 @@ namespace wb {
 
 };
 
-
-#endif /* _WB_OVERVIEW_H_ */

@@ -1977,7 +1977,7 @@ void resolveReferences(db_mysql_CatalogRef catalog, DbObjectsRefsCache refCache,
   {
     DbObjectReferences references = (*refIt);
     // Referenced table. Only used for foreign keys.
-    db_mysql_TableRef referencedTable(grt::Initialized);
+    db_mysql_TableRef referencedTable;
     if (references.type != DbObjectReferences::Index)
     {
       db_mysql_SchemaRef schema = find_named_object_in_list(schemata, references.targetIdentifier.first, caseSensitive);
@@ -1988,7 +1988,7 @@ void resolveReferences(db_mysql_CatalogRef catalog, DbObjectsRefsCache refCache,
       if (!referencedTable.is_valid())
       {
         // If we don't find a table with the given name we create a stub object to be used instead.
-        referencedTable = db_mysql_TableRef();
+        referencedTable = db_mysql_TableRef(grt::Initialized);
         referencedTable->owner(schema);
         referencedTable->isStub(1);
         referencedTable->name(references.targetIdentifier.second);
