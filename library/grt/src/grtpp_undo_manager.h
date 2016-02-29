@@ -296,6 +296,7 @@ struct AutoUndo
 
   AutoUndo(bool noop= false)
   {
+    _valid = true;
     if (!noop)
       group= GRT::get().begin_undoable_action();
     else
@@ -329,9 +330,9 @@ struct AutoUndo
   }
 
 
-  ~AutoUndo()
+  ~AutoUndo() 
   {
-    if (group)
+    if (_valid && group)
     {
       const char *tmp;
       // check if the currently open undo group is not empty, in that case we warn about it
@@ -354,7 +355,7 @@ struct AutoUndo
 
   void set_description_for_last_action(const std::string &s)
   {
-    if (group)
+    if (_valid && group)
     {
       UndoAction *action= GRT::get().get_undo_manager()->get_latest_undo_action();
 
@@ -364,25 +365,48 @@ struct AutoUndo
 
   void cancel()
   {
-    if (group)
-      GRT::get().cancel_undoable_action();
+    if (_valid)
+    {
+      if (group)
+        GRT::get().cancel_undoable_action();
+      _valid = false;
+    }
+    else
+      throw std::logic_error("invalid");
   }
 
   void end_or_cancel_if_empty(const std::string &descr)
   {
-    if (!group)
-      return;
-    if (!group->empty())
-      GRT::get().end_undoable_action(descr);
+    if (_valid)
+    {
+      if (!group)
+        return;
+      if (!group->empty())
+        GRT::get().end_undoable_action(descr);
+      else
+        GRT::get().cancel_undoable_action();
+      _valid = false;
+    }
     else
-      GRT::get().cancel_undoable_action();
+       throw std::logic_error("invalid");
+
   }
   
   void end(const std::string &descr)
   {
-    if (group)
-      GRT::get().end_undoable_action(descr);
+    if (_valid)
+    {
+      if (group)
+        GRT::get().end_undoable_action(descr);
+      _valid = false;
+    }
+    else
+      throw std::logic_error("invalid");
+
   }
+  private:
+    bool _valid;
+
 };
 
 };

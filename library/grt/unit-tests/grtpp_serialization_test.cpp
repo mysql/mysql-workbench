@@ -134,7 +134,7 @@ TEST_FUNCTION(2)
 
 TEST_FUNCTION(3)
 {
-  ObjectListRef list;
+  ObjectListRef list(grt::Initialized);
 
   test_BookRef book1(grt::Initialized);
   test_BookRef book2(grt::Initialized);
@@ -169,11 +169,11 @@ TEST_FUNCTION(5)
 {
   // test serialization of lists with NULL values
 
-  grt::ListRef<db_Table> list;
+  grt::ListRef<db_Table> list(true);
 
+  list.insert(db_TableRef(grt::Initialized));
   list.insert(db_TableRef());
-  list.insert(db_TableRef());
-  list.insert(db_TableRef());
+  list.insert(db_TableRef(grt::Initialized));
 
   grt::GRT::get().serialize(list, "null_list.xml");
 
