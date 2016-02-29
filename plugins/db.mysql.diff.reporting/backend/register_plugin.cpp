@@ -66,8 +66,8 @@ public:
 
 static grt::ListRef<app_Plugin> get_mysql_plugins_info()
 {
-  grt::ListRef<app_Plugin> plugins;
-  app_PluginRef diff_sql_generator;
+  grt::ListRef<app_Plugin> plugins(true);
+  app_PluginRef diff_sql_generator(grt::Initialized);
 
   {
     app_PluginRef plugin(grt::Initialized);

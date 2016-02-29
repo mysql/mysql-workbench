@@ -1273,7 +1273,7 @@ TEST_FUNCTION(10)
 
     // 1. generate alter
     grt::StringListRef alter_map(grt::Initialized);
-    grt::ListRef<GrtNamedObject> alter_object_list;
+    grt::ListRef<GrtNamedObject> alter_object_list(true);
     grt::DictRef options(true);
     options.set("UseFilteredLists", grt::IntegerRef(0));
     options.set("OutputContainer", alter_map);
@@ -1612,7 +1612,7 @@ TEST_FUNCTION(30)
     if (empty_change)
     {
       grt::StringListRef alter_map(grt::Initialized);
-      grt::ListRef<GrtNamedObject> alter_object_list;
+      grt::ListRef<GrtNamedObject> alter_object_list(true);
       grt::DictRef options(true);
       options.set("UseFilteredLists", grt::IntegerRef(0));
       options.set("OutputContainer", alter_map);

@@ -126,7 +126,7 @@ public:
 TEST_DATA_CONSTRUCTOR(editor_table_tests)
   : editor(0)
 {
-  populate_grt(wbt.grt, wbt);
+  populate_grt(wbt);
 
   grtm = wbt.wb->get_grt_manager();
 }

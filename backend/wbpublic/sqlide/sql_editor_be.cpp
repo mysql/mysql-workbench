@@ -337,7 +337,7 @@ static void show_find_panel_for_active_editor(MySQLEditor *sql_editor)
 
 static void beautify_script(MySQLEditor *sql_editor)
 {
-  grt::BaseListRef args;
+  grt::BaseListRef args(true);
   args.ginsert(sql_editor->grtobj());
 
   grt::GRT::get().call_module_function("SQLIDEUtils", "enbeautificate", args);

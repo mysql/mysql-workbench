@@ -712,7 +712,7 @@ public:
 
     ensure_equals("TF001CHK003: Unexpected initial details", target.details, "");
     ensure_equals("TF001CHK003: Unexpected initial delete rule", target.delete_rule, 0);
-    ensure_equals("TF001CHK003: cqUnexpected initial update rule", target.update_rule, 0);
+    ensure_equals("TF001CHK003: Unexpected initial update rule", target.update_rule, 0);
     ensure_equals("TF001CHK003: Unexpected initial referenced table", target.referenced_table, "");
     ensure_equals("TF001CHK003: Unexpected initial source cols", target.referenced_table, "");
     ensure_equals("TF001CHK003: Unexpected initial target cols", target.referenced_table, "");

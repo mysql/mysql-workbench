@@ -28,7 +28,7 @@ using namespace grt;
 
 BEGIN_TEST_DATA_CLASS(grtpp_util_test)
 public:
-  GRT grt;
+
 END_TEST_DATA_CLASS
 
 TEST_MODULE(grtpp_util_test, "GRT: util functions");
@@ -36,15 +36,15 @@ TEST_MODULE(grtpp_util_test, "GRT: util functions");
 TEST_FUNCTION(1)
 {
   // Load test data.
-  grt.load_metaclasses("data/structs.test.xml");
-  grt.end_loading_metaclasses();
-  ensure_equals("load structs", grt.get_metaclasses().size(), 6U);
+  grt::GRT::get().load_metaclasses("data/structs.test.xml");
+  grt::GRT::get().end_loading_metaclasses();
+  ensure_equals("load structs", grt::GRT::get().get_metaclasses().size(), 6U);
 }
 
 
 TEST_FUNCTION(2)
 { // set_value_by_path
-  test_BookRef book(&grt);
+  test_BookRef book(grt::Initialized);
   bool flag;
 
   flag= set_value_by_path(book, "/title", StringRef("TITLE"));
@@ -78,8 +78,8 @@ TEST_FUNCTION(2)
 // regression test for Bug #17324160    MySQL workbench loses connections list
 TEST_FUNCTION(10)
 {
-  test_PublisherRef publisher(&grt);
-  test_BookRef book(&grt);
+  test_PublisherRef publisher(grt::Initialized);
+  test_BookRef book(grt::Initialized);
 
   book->title("testbook");
   publisher->name("testpub");

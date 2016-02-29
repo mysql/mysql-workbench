@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _USER_DEFINED_TYPE_EDITOR_H_
-#define _USER_DEFINED_TYPE_EDITOR_H_
+#pragma once
 
 
 #include "workbench/wb_backend_public_interface.h"
@@ -93,5 +92,3 @@ public:
   UserDefinedTypeEditor(wb::WBContextUI *wbui, const workbench_physical_ModelRef &model);
 };
 
-
-#endif /* _USER_DEFINED_TYPE_EDITOR_H_ */

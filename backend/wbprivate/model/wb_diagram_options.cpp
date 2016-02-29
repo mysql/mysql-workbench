@@ -151,7 +151,7 @@ public:
 
 
 DiagramOptionsBE::DiagramOptionsBE(mdc::CanvasView *view, model_DiagramRef target_view, WBContext *wb)
-: _view(view), _target_view(target_view)
+: _view(view), _target_view(target_view) 
 {
   view->get_background_layer()->set_visible(false);
   view->get_background_layer()->set_grid_visible(false);
@@ -159,7 +159,7 @@ DiagramOptionsBE::DiagramOptionsBE(mdc::CanvasView *view, model_DiagramRef targe
   view->set_page_size(view->get_viewable_size());
 
   _sizer= 0;
-  if (target_view.is_valid())
+  if (target_view.is_valid())                
   {
     Size size(model_Diagram::ImplData::get_size_for_page(wb->get_document()->pageSettings()));
 

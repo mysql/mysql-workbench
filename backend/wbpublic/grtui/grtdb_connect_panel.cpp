@@ -247,7 +247,7 @@ void DbConnectPanel::init(DbConnection *conn, const db_mgmt_ConnectionRef &defau
 
   if (!_allowed_rdbms.is_valid())
   {
-    _allowed_rdbms = grt::ListRef<db_mgmt_Rdbms>();
+    _allowed_rdbms = grt::ListRef<db_mgmt_Rdbms>(true);
     _allowed_rdbms.ginsert(_connection->get_db_mgmt()->rdbms()[0]);
   }
 
@@ -688,7 +688,7 @@ bool DbConnectPanel::test_connection()
 
     if ( connectionProperties->driver()->name() == "MySQLFabric")
     {
-      grt::BaseListRef args;
+      grt::BaseListRef args(true);
       args->insert_unchecked(connectionProperties);
       grt::ValueRef result= grt::GRT::get().call_module_function("WBFabric", "testConnection", args);
       std::string error = grt::StringRef::extract_from(result);
@@ -898,7 +898,7 @@ void DbConnectPanel::open_ssl_wizard_directory()
 
 db_mgmt_ConnectionRef DbConnectPanel::open_editor()
 {
-  grt::ListRef<db_mgmt_Rdbms> rdbms_list;
+  grt::ListRef<db_mgmt_Rdbms> rdbms_list(true);
   rdbms_list.ginsert(selected_rdbms());
   DbConnectionEditor editor(_connection->get_db_mgmt());
 

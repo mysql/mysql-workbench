@@ -133,8 +133,6 @@ TEST_FUNCTION(2)
   tester.create_new_document();
 
   db_mysql_TableRef table(grt::Initialized);
-
-  table= db_mysql_TableRef();
   table->name("person");
   
   for (int i= 0; i < 5; i++)

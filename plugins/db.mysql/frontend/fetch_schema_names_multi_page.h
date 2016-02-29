@@ -131,7 +131,7 @@ protected:
   {
     workbench_physical_ModelRef pm= workbench_physical_ModelRef::cast_from(_model_catalog->owner());
 
-    db_mysql_CatalogRef cat;
+    db_mysql_CatalogRef cat(grt::Initialized);
     cat->version(pm->rdbms()->version());
     grt::replace_contents(cat->simpleDatatypes(), pm->rdbms()->simpleDatatypes());
 

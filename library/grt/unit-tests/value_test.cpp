@@ -328,8 +328,8 @@ TEST_FUNCTION(11)
   ensure("d == operator with valueref", !(tmp1 == tmp2));
   ensure("d != operator with valueref", (tmp1 != tmp2));
 
-  test_BookRef o1;
-  test_BookRef o2;
+  test_BookRef o1(grt::Initialized);
+  test_BookRef o2(grt::Initialized);
   test_BookRef o3;
 
   ensure("o == operator", !(o1 == o3));
@@ -695,7 +695,7 @@ TEST_FUNCTION(29)
 {
   // ListRef <ObjectRef>
 
-  ListRef<grt::internal::Object> lv;
+  ListRef<grt::internal::Object> lv(true);
   ObjectRef v[10]= {
      grt::GRT::get().create_object<grt::internal::Object>("test.Book"),
      grt::GRT::get().create_object<grt::internal::Object>("test.Book"),
@@ -747,7 +747,7 @@ TEST_FUNCTION(30)
   ensure_equals("obj list content", ol.content_type(), grt::ObjectType);
   ensure_equals("obj list struct", ol.content_class_name(), "Object");
 
-  ListRef<test_Author> al;
+  ListRef<test_Author> al(true);
   ensure_equals("author list content", al.content_type(), grt::ObjectType);
   ensure_equals("author list struct", al.content_class_name(), "test.Author");
 }

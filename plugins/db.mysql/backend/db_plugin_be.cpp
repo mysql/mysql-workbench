@@ -508,7 +508,7 @@ db_CatalogRef Db_plugin::db_catalog()
   catalog->oldName(catalog->name());
 
   SqlFacade::Ref sql_parser= SqlFacade::instance_for_rdbms(pm->rdbms());
-  grt::DictRef parse_options;
+  grt::DictRef parse_options(true);
   parse_options.set("case_sensitive_identifiers", _db_options.get("CaseSensitive", grt::IntegerRef(1)));
   sql_parser->parseSqlScriptStringEx(catalog, sql_input_script, parse_options);
 

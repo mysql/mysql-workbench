@@ -946,9 +946,9 @@ void ServerInstanceEditor::delete_instance()
 void ServerInstanceEditor::duplicate_instance()
 {
   db_mgmt_ConnectionRef orig_conn(selected_connection());
-  db_mgmt_ConnectionRef copy_conn;
+  db_mgmt_ConnectionRef copy_conn(grt::Initialized);
   db_mgmt_ServerInstanceRef orig_inst(selected_instance());
-  db_mgmt_ServerInstanceRef copy_inst;
+  db_mgmt_ServerInstanceRef copy_inst(grt::Initialized);
   
   if (!orig_conn.is_valid())
     return;

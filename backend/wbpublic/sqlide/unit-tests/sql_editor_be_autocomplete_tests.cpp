@@ -64,7 +64,7 @@ public:
 TEST_DATA_CONSTRUCTOR(sql_editor_be_autocomplete_tests)
   : _conn(new sql::Dbc_connection_handler()), _cache(NULL)
 {
-  populate_grt(_tester.grt, _tester);
+  populate_grt(_tester);
 
   // Auto completion needs a cache for object name look up, so we have to set up one
   // with all bells and whistles.
@@ -93,8 +93,8 @@ TEST_MODULE(sql_editor_be_autocomplete_tests, "SQL code completion tests");
  */
 TEST_FUNCTION(5)
 {
-  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
-  setup_env(_tester.grt, connectionProperties);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
+  setup_env(connectionProperties);
 
   sql::DriverManager *dm = sql::DriverManager::getDriverManager();
   _conn->ref = dm->getConnection(connectionProperties);
@@ -105,7 +105,7 @@ TEST_FUNCTION(5)
   if (res && res->next())
   {
     std::string version_string = res->getString("VERSION");
-    _version = parse_version(_tester.grt, version_string);
+    _version = parse_version(version_string);
   }
   delete res;
 
@@ -131,14 +131,14 @@ TEST_FUNCTION(5)
   else
     fail("Could not copy code editor configuration");
 
-  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(_tester.grt);
+  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
   parser::ParserContext::Ref context = services->createParserContext(_tester.get_rdbms()->characterSets(),
     _version, false);
 
   _autocomplete_context = services->createParserContext(_tester.get_rdbms()->characterSets(),
     _version, false);
 
-  _sql_editor = MySQLEditor::create(_tester.grt, context, _autocomplete_context);
+  _sql_editor = MySQLEditor::create(context, _autocomplete_context);
   _sql_editor->set_current_schema("sakila");
   _sql_editor->set_auto_completion_cache(_cache);
 

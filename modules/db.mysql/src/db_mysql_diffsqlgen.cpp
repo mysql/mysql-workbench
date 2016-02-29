@@ -95,7 +95,7 @@ void DiffSQLGeneratorBE::generate_set_partitioning(db_mysql_TableRef table,
     subpart_type_set= false, subpart_expr_set= false,
     part_count_set= false, part_defs_set= false;
   std::string part_type, part_expr, subpart_type, subpart_expr;
-  grt::ListRef<db_mysql_PartitionDefinition> part_defs;
+  grt::ListRef<db_mysql_PartitionDefinition> part_defs(true);
   ssize_t part_count = 0;
 
   // gather all relevant attributes from change object
@@ -1655,7 +1655,7 @@ DiffSQLGeneratorBE::DiffSQLGeneratorBE(grt::DictRef options, grt::DictRef dbtrai
         return;
     _case_sensitive = (dbtraits.get_int("CaseSensitive", _case_sensitive) != 0);
 
-    grt::StringListRef empty_list;
+    grt::StringListRef empty_list(grt::Initialized);
     _use_oid_as_dict_key = options.get_int("UseOIDAsResultDictKey", _use_oid_as_dict_key) != 0;
     _skip_foreign_keys = options.get_int("SkipForeignKeys", _skip_foreign_keys) != 0;
     _skip_fk_indexes = options.get_int("SkipFKIndexes", _skip_fk_indexes) != 0;
