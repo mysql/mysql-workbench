@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,15 +39,15 @@
 - (void)resizeSubviewsWithOldSize:( NSSize)oldBoundsSize
 {  
   NSSize size;
-  NSSize psize= [[self documentView] preferredSize];
+  NSSize psize= [self.documentView preferredSize];
 
-  size.width= NSWidth([self frame]);
-  size.height= [[self documentView] minimumSize].height;
+  size.width= NSWidth(self.frame);
+  size.height= [self.documentView minimumSize].height;
 
   size.width = MAX(size.width, psize.width);
   size.height = MAX(size.height, psize.height);
 
-  [[self documentView] setFrameSize: size];
+  [self.documentView setFrameSize: size];
 }
 
 @end
@@ -65,11 +65,11 @@
     [self setHasVerticalScroller: YES];
     [self setHasHorizontalScroller: YES];
     
-    [self setContentView: [[MFClipView alloc] initWithFrame: NSMakeRect(0, 0, 10, 20)]];
+    self.contentView = [[MFClipView alloc] initWithFrame: NSMakeRect(0, 0, 10, 20)];
 
-    [self setDrawsBackground: drawBG];
+    self.drawsBackground = drawBG;
     if (bordered)
-      [self setBorderType: NSLineBorder];
+      self.borderType = NSLineBorder;
     [self setAutohidesScrollers: YES];
     
     mOwner= aScrollPanel;
@@ -98,44 +98,44 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
 {
   if (!mOwner->is_destroying())
   {
-    NSSize minSize= [self minimumSize];
-    NSSize size= [self frame].size;
+    NSSize minSize= self.minimumSize;
+    NSSize size= self.frame.size;
     
     // size of some subview has changed, we check if our current size is enough
     // to fit it and if not, request forward the size change notification to superview
     
     if (minSize.width > size.width || minSize.height > size.height)
     {
-      if ([self superview])
+      if (self.superview)
       {
-        [[self superview] subviewMinimumSizeChanged];
+        [self.superview subviewMinimumSizeChanged];
         return;
       }
       else
         [self setFrameSize: minSize];
     }
     [self resizeSubviewsWithOldSize:size];
-    [[self contentView] subviewMinimumSizeChanged];
+    [self.contentView subviewMinimumSizeChanged];
   }
 }
 
 - (void) setBackgroundColor: (NSColor*) color
 {
-  [super setBackgroundColor: color];
+  super.backgroundColor = color;
 }
 
 //--------------------------------------------------------------------------------------------------
 
 - (void) scrollIntoView: (NSView*) view
 {
-  [view scrollRectToVisible: [view bounds]];
+  [view scrollRectToVisible: view.bounds];
 }
 
 //--------------------------------------------------------------------------------------------------
 
 - (void)setEnabled:(BOOL)flag
 {
-  [[self documentView] setEnabled: flag];
+  [self.documentView setEnabled: flag];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -151,7 +151,7 @@ static void scrollpanel_add(mforms::ScrollPanel *self, mforms::View *child)
 {
   MFScrollPanelImpl *panel= self->get_data();
   if (panel)
-    [[panel contentView] setDocumentView: child->get_data()];
+    panel.contentView.documentView = child->get_data();
 }
 
 
@@ -167,8 +167,8 @@ static void scrollpanel_set_visible_scrollers(mforms::ScrollPanel *self, bool ve
 {
   MFScrollPanelImpl *panel= self->get_data();
 
-  [panel setHasVerticalScroller:vertical];
-  [panel setHasHorizontalScroller:horizontal];
+  panel.hasVerticalScroller = vertical;
+  panel.hasHorizontalScroller = horizontal;
 }
 
 
@@ -176,7 +176,7 @@ static void scrollpanel_set_autohide_scrollers(mforms::ScrollPanel *self, bool f
 {
   MFScrollPanelImpl *panel= self->get_data();
   
-  [panel setAutohidesScrollers: flag];
+  panel.autohidesScrollers = flag;
 }
 
 static void scrollpanel_scroll_to_view(mforms::ScrollPanel *self, mforms::View *child)
@@ -192,7 +192,7 @@ static base::Rect scrollpanel_get_content_rect(mforms::ScrollPanel *self)
   base::Rect result;
   if (panel)
   {
-    NSRect r = [panel documentVisibleRect];
+    NSRect r = panel.documentVisibleRect;
     result.pos.x = NSMinX(r);
     result.pos.y = NSMinY(r);
     result.size.width = NSWidth(r);
@@ -206,7 +206,7 @@ static void scrollpanel_scroll_to(mforms::ScrollPanel *self, int x, int y)
 {
   MFScrollPanelImpl *panel= self->get_data();
   if (panel)
-    [[panel documentView] scrollPoint: NSMakePoint(x, y)];
+    [panel.documentView scrollPoint: NSMakePoint(x, y)];
 }
 
 

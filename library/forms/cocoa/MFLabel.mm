@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,8 +34,8 @@
     [self setBezeled:NO];
     [self setEditable:NO];
     
-    [[self cell] setSelectable: YES];
-    [[self cell] setWraps: NO];
+    [self.cell setSelectable: YES];
+    [self.cell setWraps: NO];
     
     mOwner= aLabel;
     mOwner->set_data(self);
@@ -49,7 +49,7 @@
 
 - (NSString*)description
 {
-  return [NSString stringWithFormat:@"<%@ '%@'>", [self className], [self stringValue]];
+  return [NSString stringWithFormat:@"<%@ '%@'>", self.className, self.stringValue];
 }
 
 - (mforms::Object*)mformsObject
@@ -61,7 +61,7 @@
 - (void)setFrame:(NSRect)frame
 {
   // do vertical alignment of the textfield here
-  NSSize size= [[self cell] cellSizeForBounds: frame];
+  NSSize size= [self.cell cellSizeForBounds: frame];
   
   switch (mAlignment)
   {
@@ -83,39 +83,39 @@
       frame.origin.y+= (NSHeight(frame) - size.height) / 2;
       break;
   }
-  [super setFrame:frame];
+  super.frame = frame;
 }
 
 
 - (void)setEnabled:(BOOL)flag
 {
   if (!flag)
-    [self setTextColor: [NSColor darkGrayColor]];
+    self.textColor = [NSColor darkGrayColor];
   else
   {
     if (mStyle == mforms::SmallHelpTextStyle)
-      [self setTextColor: [NSColor colorWithCalibratedRed:0.2 green:0.2 blue:0.2 alpha:1.0]];
+      self.textColor = [NSColor colorWithCalibratedRed:0.2 green:0.2 blue:0.2 alpha:1.0];
     else
-      [self setTextColor: [NSColor textColor]];
+      self.textColor = [NSColor textColor];
   }
-  [super setEnabled: flag];
+  super.enabled = flag;
 }
 
 
 - (NSSize)minimumSizeForWidth:(float)width
 {
-  if ([[self cell] wraps])
+  if (self.cell.wraps)
   {
     NSRect frame;
     
-    if (width == 0.0 || ([self widthIsFixed] && width > NSWidth([self frame])))
-      width= NSWidth([self frame]);
+    if (width == 0.0 || (self.widthIsFixed && width > NSWidth(self.frame)))
+      width= NSWidth(self.frame);
     
     frame.origin= NSMakePoint(0, 0);
     frame.size.width= width;
     frame.size.height= 200;
     
-    NSSize size= [[self cell] cellSizeForBounds: frame];
+    NSSize size= [self.cell cellSizeForBounds: frame];
     
     size.width+= 1;
     
@@ -123,7 +123,7 @@
   }
   else
   {
-    NSSize size= [[self cell] cellSize];
+    NSSize size= self.cell.cellSize;
     size.width+= 1; // magic extra to compensate rounding errors during automatic layout
     return size;    
   }
@@ -132,59 +132,59 @@
 
 - (NSSize)minimumSize
 {  
-  return [self minimumSizeForWidth: NSWidth([self frame])];
+  return [self minimumSizeForWidth: NSWidth(self.frame)];
 }
 
 
 
 - (void)setStringValue:(NSString*)text
 {
-  [super setStringValue: text];
-  [[self superview] subviewMinimumSizeChanged];
+  super.stringValue = text;
+  [self.superview subviewMinimumSizeChanged];
 }
 
     
 - (void)setLabelStyle:(mforms::LabelStyle)style
 {
-  [self setTextColor: [NSColor textColor]];
+  self.textColor = [NSColor textColor];
   switch (style) 
   {
     case mforms::NormalStyle:
-      [self setFont:[NSFont systemFontOfSize:[NSFont systemFontSize]]];
+      self.font = [NSFont systemFontOfSize:[NSFont systemFontSize]];
       break;
     case mforms::BoldStyle:
-      [self setFont:[NSFont boldSystemFontOfSize:[NSFont systemFontSize]-1]];
+      self.font = [NSFont boldSystemFontOfSize:[NSFont systemFontSize]-1];
       break;
     case mforms::SmallBoldStyle:
-      [self setFont:[NSFont boldSystemFontOfSize:[NSFont smallSystemFontSize]]];
+      self.font = [NSFont boldSystemFontOfSize:[NSFont smallSystemFontSize]];
       break;      
     case mforms::BigStyle:
-      [self setFont:[NSFont systemFontOfSize:15]];
+      self.font = [NSFont systemFontOfSize:15];
       break;
     case mforms::BigBoldStyle:
-      [self setFont:[NSFont boldSystemFontOfSize:15]];
+      self.font = [NSFont boldSystemFontOfSize:15];
       break;
     case mforms::SmallStyle:
-      [self setFont:[NSFont systemFontOfSize:10]];
+      self.font = [NSFont systemFontOfSize:10];
       break;
     case mforms::VerySmallStyle:
-      [self setFont:[NSFont systemFontOfSize:8]];
+      self.font = [NSFont systemFontOfSize:8];
       break;
     case mforms::InfoCaptionStyle:
-      [self setFont:[NSFont systemFontOfSize:[NSFont smallSystemFontSize]]];
+      self.font = [NSFont systemFontOfSize:[NSFont smallSystemFontSize]];
       break;
     case mforms::BoldInfoCaptionStyle:
-      [self setFont:[NSFont boldSystemFontOfSize:[NSFont smallSystemFontSize]]];
+      self.font = [NSFont boldSystemFontOfSize:[NSFont smallSystemFontSize]];
       break;        
     case mforms::WizardHeadingStyle:
-      [self setFont:[NSFont boldSystemFontOfSize:13]];
+      self.font = [NSFont boldSystemFontOfSize:13];
       break;
     case mforms::SmallHelpTextStyle:
-      [self setFont: [NSFont systemFontOfSize: [NSFont labelFontSize]]];
-      [self setTextColor: [NSColor colorWithCalibratedRed:0.2 green:0.2 blue:0.2 alpha:1.0]];
+      self.font = [NSFont systemFontOfSize: [NSFont labelFontSize]];
+      self.textColor = [NSColor colorWithCalibratedRed:0.2 green:0.2 blue:0.2 alpha:1.0];
       break;
     case mforms::VeryBigStyle:
-      [self setFont:[NSFont systemFontOfSize:18]];
+      self.font = [NSFont systemFontOfSize:18];
       break;
   }
   mStyle= style;
@@ -205,7 +205,7 @@ static void label_set_text(::mforms::Label *self, const std::string &text)
   {
     MFLabelImpl* label = self->get_data();
     
-    [label setStringValue:wrap_nsstring(text)];
+    label.stringValue = wrap_nsstring(text);
   }
 }
 
@@ -216,7 +216,7 @@ static void label_set_wrap_text(::mforms::Label *self, bool flag)
   {
     MFLabelImpl* label = self->get_data();
     
-    [[label cell] setWraps: flag];
+    label.cell.wraps = flag;
   }
 }
 
@@ -234,18 +234,18 @@ static void label_set_text_align(::mforms::Label *self, ::mforms::Alignment alig
       case mforms::BottomLeft:
       case mforms::MiddleLeft:
       case mforms::TopLeft:
-        [label setAlignment:NSLeftTextAlignment];
+        label.alignment = NSLeftTextAlignment;
         break;
       case mforms::BottomCenter:
       case mforms::TopCenter:
       case mforms::MiddleCenter:
-        [label setAlignment:NSCenterTextAlignment];
+        label.alignment = NSCenterTextAlignment;
         break;
       case mforms::BottomRight:
       case mforms::MiddleRight:
       case mforms::TopRight:
       case mforms::WizardLabelAlignment:
-        [label setAlignment:NSRightTextAlignment];
+        label.alignment = NSRightTextAlignment;
         break;
     }
     label->mAlignment= alignment;
@@ -270,7 +270,7 @@ static void label_set_color(mforms::Label *self, const std::string &color)
   {
     MFLabelImpl* label = self->get_data();
     
-    [label setTextColor: [NSColor colorFromHexString: @(color.c_str())]];
+    label.textColor = [NSColor colorFromHexString: @(color.c_str())];
   }
 }
 

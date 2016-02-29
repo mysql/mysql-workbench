@@ -85,11 +85,11 @@
   [dc addObserver: self
          selector: @selector(handleDidBecomeMain:)
              name: NSWindowDidBecomeMainNotification
-           object: [self window]];
+           object: self.window];
   [dc addObserver: self
          selector: @selector(handleDidResignMain:)
              name: NSWindowDidResignMainNotification
-           object: [self window]];
+           object: self.window];
 }
 
 - (void)dealloc

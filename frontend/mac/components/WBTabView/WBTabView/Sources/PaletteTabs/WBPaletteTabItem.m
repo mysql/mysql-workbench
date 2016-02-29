@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,9 +27,9 @@
 	[super updateAppearance];
 	
 	if ( (mState == NSOnState) && mEnabled )
-		[mTitleLayer setOpacity: 1.0];
+		mTitleLayer.opacity = 1.0;
 	else
-		[mTitleLayer setOpacity: 0.7];
+		mTitleLayer.opacity = 0.7;
 }	
 
 - (CGFloat) preferredWidth;
@@ -77,10 +77,10 @@
 		CGColorRelease(colorNotActiveNotSelected);
 		
 		// Border.
-		[self setCornerRadius: 4];
-		[self setBorderWidth: 1];
+		self.cornerRadius = 4;
+		self.borderWidth = 1;
 		CGColorRef c = WB_CGColorCreateCalibratedRGB(0.3, 0.3, 0.3, 0.7);
-		[self setBorderColor: c];
+		self.borderColor = c;
 		CGColorRelease(c);
 	}
 	

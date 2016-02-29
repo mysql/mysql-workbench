@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -49,21 +49,21 @@
   // Create a line between non-selected tabs and the tabviewcontants.
   CALayer* lineLayer = [CALayer layer];
   
-  [lineLayer setBorderWidth: 1];
+  lineLayer.borderWidth = 1;
   CGColorRef c = WB_CGColorCreateCalibratedRGB(0.68, 0.68, 0.68, 1);
-  [lineLayer setBorderColor: c];
+  lineLayer.borderColor = c;
   CGColorRelease(c);
   
   CGRect r = CGRectZero;
   r.origin.x = 0;
-  r.origin.y = [[self layer] frame].size.height - [self tabAreaHeight];
-  r.size.width = [[self layer] frame].size.width;
+  r.origin.y = self.layer.frame.size.height - self.tabAreaHeight;
+  r.size.width = self.layer.frame.size.width;
   r.size.height = 1;
-  [lineLayer setFrame: r];
-  [lineLayer setAutoresizingMask: (kCALayerWidthSizable | kCALayerMinYMargin)];
+  lineLayer.frame = r;
+  lineLayer.autoresizingMask = (kCALayerWidthSizable | kCALayerMinYMargin);
   
-  [lineLayer setZPosition: -2];
-  [[self layer] addSublayer: lineLayer];
+  lineLayer.zPosition = -2;
+  [self.layer addSublayer: lineLayer];
   
   return lineLayer;
 }

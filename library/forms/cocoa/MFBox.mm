@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -70,17 +70,17 @@
 
 - (void)resizeSubviewsWithOldSizeH:(NSSize)oldBoundsSize
 {
-  NSSize minSize= [self minimumSize];
-  NSSize size= [self frame].size;
+  NSSize minSize= self.minimumSize;
+  NSSize size= self.frame.size;
   NSRect subframe;
   float leftover;
   int expandingSubviews= 0;
   int visibleSubviews= 0;
   BOOL packingEnd= NO;
 
-  for (NSView *subview in [self subviews])
+  for (NSView *subview in self.subviews)
   {
-    if (![subview isHidden])
+    if (!subview.hidden)
     {
       visibleSubviews++;
       if (subview.viewFlags & ExpandFlag)
@@ -102,16 +102,16 @@
 
   // compensate for the unneeded spacing added for the 1st item
   subframe.origin.x-= mSpacing;
-  for (NSView  *subview in [self subviews])
+  for (NSView  *subview in self.subviews)
   {
-    if ([subview isHidden]) continue;
+    if (subview.hidden) continue;
     
     NSSize minSubsize;
     BOOL expand = subview.viewFlags & ExpandFlag;
     BOOL fill = subview.viewFlags & FillFlag;
     float extraSpace= 0;
     
-    minSubsize= [subview preferredSize];
+    minSubsize= subview.preferredSize;
    
     if (!packingEnd && (subview.viewFlags & PackEndFlag))
     {
@@ -150,19 +150,19 @@
     subframe.origin.x= round(subframe.origin.x);
     subframe.size.width= round(subframe.size.width);
 
-    if (NSEqualRects([subview frame], subframe))
+    if (NSEqualRects(subview.frame, subframe))
       [subview resizeSubviewsWithOldSize: subframe.size];
     else      
     {
       NSRect f= subframe;
       
       if ([subview respondsToSelector:@selector(heightIsFixed)] &&
-          [subview heightIsFixed])
+          subview.heightIsFixed)
       {
         f.size.height= minSubsize.height;
         f.origin.y= f.origin.y + floor((NSHeight(subframe) - NSHeight(f))/2);
       }
-      [subview setFrame: f];
+      subview.frame = f;
     }
     
     subframe.origin.x+= NSWidth(subframe);
@@ -175,17 +175,17 @@
 
 - (void)resizeSubviewsWithOldSizeV:(NSSize)oldBoundsSize
 {
-  NSSize minSize= [self preferredSize];
-  NSSize size= [self frame].size;
+  NSSize minSize= self.preferredSize;
+  NSSize size= self.frame.size;
   NSRect subframe;
   float leftover;
   int expandingSubviews= 0;
   int visibleSubviews= 0;
   BOOL packingEnd= NO;
   
-  for (NSView *subview in [self subviews])
+  for (NSView *subview in self.subviews)
   {
-    if (![subview isHidden])
+    if (!subview.hidden)
     {
       visibleSubviews++;
       if (subview.viewFlags & ExpandFlag)
@@ -210,9 +210,9 @@
   
   // compensate for the unneeded spacing added for the 1st item
   subframe.origin.y-= mSpacing;
-  for (NSView *subview in [self subviews])
+  for (NSView *subview in self.subviews)
   {
-    if ([subview isHidden]) continue;
+    if (subview.hidden) continue;
     
     NSSize minSubsize;
     BOOL expand = subview.viewFlags & ExpandFlag;
@@ -222,7 +222,7 @@
     if ([subview isKindOfClass: [MFLabelImpl class]])
       minSubsize= [subview preferredSizeForWidth: size.width];
     else
-      minSubsize= [subview preferredSize];
+      minSubsize= subview.preferredSize;
     
     if (!packingEnd && (subview.viewFlags & PackEndFlag))
     {
@@ -261,10 +261,10 @@
 
     subframe.origin.y= round(subframe.origin.y);
     subframe.size.height= round(subframe.size.height);
-    if (NSEqualRects([subview frame], subframe))
+    if (NSEqualRects(subview.frame, subframe))
       [subview resizeSubviewsWithOldSize: subframe.size];
     else
-      [subview setFrame:subframe];
+      subview.frame = subframe;
     
     subframe.origin.y+= NSHeight(subframe);
     if ((mHomogeneous || expand) && !fill)
@@ -300,13 +300,13 @@
   
   NSSize size;
   float maxSize= 0;
-  float frameWidth= NSWidth([self frame]);
+  float frameWidth= NSWidth(self.frame);
   int visibleSubviews= 0;
   
   size.width= 0;
   size.height= 0;
   
-  for (NSView *subview in [self subviews])
+  for (NSView *subview in self.subviews)
   {
     NSSize minSize;
     if (!subview.isHidden && ((subview.viewFlags & RemovingFlag) == 0))
@@ -316,7 +316,7 @@
       if ([subview isKindOfClass: [MFLabelImpl class]])
         minSize= [subview preferredSizeForWidth: frameWidth];
       else        
-        minSize= [subview preferredSize];
+        minSize= subview.preferredSize;
       
       if (mHorizontal)
       {
@@ -368,7 +368,7 @@
 
 - (void)setFrame: (NSRect)frame
 {
-  [super setFrame: frame];
+  super.frame = frame;
   if (mOwner != NULL && !mOwner->is_destroying())
       (*mOwner->signal_resized())();
 }

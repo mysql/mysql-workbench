@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -135,9 +135,9 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
     {
       NSSize cellSize;
 
-      if ([cell->mView isHidden]) continue;
+      if (cell->mView.hidden) continue;
 
-      cellSize= [cell->mView preferredSize];
+      cellSize= cell->mView.preferredSize;
 
       int widthPerCell= cellSize.width / (cell->mRightAttachment - cell->mLeftAttachment);
       int heightPerCell= cellSize.height / (cell->mBottomAttachment - cell->mTopAttachment);
@@ -242,10 +242,10 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
     {
       NSSize entryMinSize;
       
-      if ([entry->mView isHidden])
+      if (entry->mView.hidden)
           continue;
       
-      entryMinSize= [entry->mView preferredSize];
+      entryMinSize= entry->mView.preferredSize;
       
       int widthPerCell= entryMinSize.width / (entry->mRightAttachment - entry->mLeftAttachment);
       int heightPerCell= entryMinSize.height / (entry->mBottomAttachment - entry->mTopAttachment);
@@ -300,7 +300,7 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
       }
     }
     
-    NSSize tableSize= [self frame].size;
+    NSSize tableSize= self.frame.size;
     tableSize.width -= (mLeftPadding + mRightPadding);
     tableSize.height -= (mTopPadding + mBottomPadding);
     
@@ -392,7 +392,7 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
     // Apply target bounds to cell content.
     for (MFTableCell *entry in mTableCells)
     {
-      if ([entry->mView isHidden])
+      if (entry->mView.hidden)
         continue;
       
       NSRect entryBounds;
@@ -403,20 +403,20 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
       entryBounds.size.height= rowStarts[entry->mBottomAttachment] - rowStarts[entry->mTopAttachment]- mRowSpacing;
       availSize = entryBounds.size;
 
-      if ([entry->mView widthIsFixed])
-        entryBounds.size.width= NSWidth([entry->mView frame]);
-      if ([entry->mView heightIsFixed])
-        entryBounds.size.height= NSHeight([entry->mView frame]);
+      if (entry->mView.widthIsFixed)
+        entryBounds.size.width= NSWidth(entry->mView.frame);
+      if (entry->mView.heightIsFixed)
+        entryBounds.size.height= NSHeight(entry->mView.frame);
       
-      if (!entry->mVerticalFill && [entry->mView heightIsFixed])
+      if (!entry->mVerticalFill && entry->mView.heightIsFixed)
         entryBounds.origin.y += (availSize.height - NSHeight(entryBounds))/2;
-      if (!entry->mHorizontalFill && [entry->mView widthIsFixed])
+      if (!entry->mHorizontalFill && entry->mView.widthIsFixed)
         entryBounds.origin.x += (availSize.width - NSWidth(entryBounds))/2;
       
-      if (NSEqualRects([entry->mView frame], entryBounds))
+      if (NSEqualRects(entry->mView.frame, entryBounds))
         [entry->mView resizeSubviewsWithOldSize: entryBounds.size];
       else
-        [entry->mView setFrame:entryBounds];
+        entry->mView.frame = entryBounds;
     }
   }
 }

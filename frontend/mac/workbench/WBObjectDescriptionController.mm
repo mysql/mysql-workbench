@@ -83,7 +83,7 @@
         [text setEditable: YES];
         [forceEditButton setHidden:YES];
       }
-      [text setString: @(description.c_str())];
+      text.string = @(description.c_str());
     }
     else
     {
@@ -91,7 +91,7 @@
       [popup addItemWithTitle: @"No Selection"];
       [popup selectItemAtIndex: 0];
       
-      [text setString:@""];
+      text.string = @"";
       [text setEditable:NO];
       [forceEditButton setHidden:YES];
     }
@@ -120,13 +120,13 @@
   _timer= nil;
 
   if (_objectList)
-    _wbui->set_description_for_selection(*_objectList, [[text string] UTF8String]);
+    _wbui->set_description_for_selection(*_objectList, text.string.UTF8String);
 }
 
 
 - (void)textDidEndEditing:(NSNotification *)aNotification
 {
-  if ([text isEditable])
+  if (text.editable)
     [self commit];
 }
 

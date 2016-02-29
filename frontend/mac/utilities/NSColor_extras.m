@@ -26,7 +26,7 @@
 {
   int r, g, b;
   
-  if (sscanf([hexcolor UTF8String], "#%02x%02x%02x", &r, &g, &b) != 3)
+  if (sscanf(hexcolor.UTF8String, "#%02x%02x%02x", &r, &g, &b) != 3)
     return nil;
   
   return [NSColor colorWithDeviceRed:r / 255.0 green:g / 255.0 blue:b / 255.0 alpha: 1.0];

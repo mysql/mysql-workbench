@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,8 +32,8 @@
 
 - (ResponderLayer*) mouseDownAtPoint: (CGPoint) mouse;
 {
-  if ([[self delegate] respondsToSelector: @selector(tabViewMenuAction:)]) {
-    [[self delegate] performSelector: @selector(tabViewMenuAction:)
+  if ([self.delegate respondsToSelector: @selector(tabViewMenuAction:)]) {
+    [self.delegate performSelector: @selector(tabViewMenuAction:)
                           withObject: self];
   }
   
@@ -61,24 +61,24 @@
   mLocation.x= self.frame.size.width - mouse.x;
   mLocation.y= self.frame.size.height - mouse.y;
   
-  if ([[self delegate] respondsToSelector: @selector(tabViewDragged:atPoint:)])
-    [[self delegate] tabViewDragged: self atPoint: mLocation];
+  if ([self.delegate respondsToSelector: @selector(tabViewDragged:atPoint:)])
+    [self.delegate tabViewDragged: self atPoint: mLocation];
 
   return self;
 }
 
 - (void) mouseDraggedToPoint: (CGPoint) mouse
 {  
-  if ([[self delegate] respondsToSelector: @selector(tabViewDragged:atPoint:)])
-    [[self delegate] tabViewDragged: self atPoint: mLocation];
+  if ([self.delegate respondsToSelector: @selector(tabViewDragged:atPoint:)])
+    [self.delegate tabViewDragged: self atPoint: mLocation];
   
   mDragged= YES;
 }
 
 - (void)mouseUp
 {
-  if (!mDragged && [[self delegate] respondsToSelector: @selector(tabViewDraggerAction:)]) {
-    [[self delegate] performSelector: @selector(tabViewDraggerAction:)
+  if (!mDragged && [self.delegate respondsToSelector: @selector(tabViewDraggerAction:)]) {
+    [self.delegate performSelector: @selector(tabViewDraggerAction:)
                           withObject: self];
   }
 }
@@ -96,8 +96,8 @@
 
 - (ResponderLayer*) mouseDownAtPoint: (CGPoint) mouse;
 {
-  if ([[self delegate] respondsToSelector: @selector(tabViewArrowAction:)]) {
-    [[self delegate] performSelector: @selector(tabViewArrowAction:)
+  if ([self.delegate respondsToSelector: @selector(tabViewArrowAction:)]) {
+    [self.delegate performSelector: @selector(tabViewArrowAction:)
                           withObject: self];
   }
   
@@ -106,14 +106,14 @@
 
 - (void) setEnabled: (BOOL) yn;
 {
-  CALayer* iconLayer = [self sublayers][0];
-  [iconLayer setOpacity: (yn ? 1 : 0.4)];
-  [self setShadowOpacity: (yn ? 0.5 : 0)];
+  CALayer* iconLayer = self.sublayers[0];
+  iconLayer.opacity = (yn ? 1 : 0.4);
+  self.shadowOpacity = (yn ? 0.5 : 0);
 }
 
 - (void)setFrame:(CGRect)r
 {
-  [super setFrame:r];
+  super.frame = r;
 }
 @end
 
@@ -152,9 +152,9 @@
 
 - (void)updateAppearance;
 {
-  [mIcon setOpacity: (mEnabled ? 1.0 : 0.7)];
-  [mCloseButton setOpacity: (mEnabled ? 1.0 : 0.7)];
-  [mTitleLayer setOpacity: (mEnabled ? 1.0 : 0.7)];
+  mIcon.opacity = (mEnabled ? 1.0 : 0.7);
+  mCloseButton.opacity = (mEnabled ? 1.0 : 0.7);
+  mTitleLayer.opacity = (mEnabled ? 1.0 : 0.7);
   
   CGColorRef c = NULL;
   if (mEnabled) {
@@ -173,19 +173,19 @@
       c = mColorNotActiveNotSelected;
     }
   }
-  [self setBackgroundColor: c];
+  self.backgroundColor = c;
   
   if (mState == NSOnState) {
-    [self setZPosition: -1];
-    [self setShadowOpacity: 0.5];
-    [self setShadowOffset: CGSizeMake(0, -0.5)];
-    [self setShadowRadius: 3.0];
+    self.zPosition = -1;
+    self.shadowOpacity = 0.5;
+    self.shadowOffset = CGSizeMake(0, -0.5);
+    self.shadowRadius = 3.0;
   }
   else {
-    [self setZPosition: -3];
-    [self setShadowOpacity: 0.5];
-    [self setShadowOffset: CGSizeMake(0, -0.5)];
-    [self setShadowRadius: 1];
+    self.zPosition = -3;
+    self.shadowOpacity = 0.5;
+    self.shadowOffset = CGSizeMake(0, -0.5);
+    self.shadowRadius = 1;
   }
 }
 
@@ -212,17 +212,17 @@
 - (void) setLabel: (NSString*) label;
 {
   mLabel = label;
-  [mTitleLayer setString: label];
+  mTitleLayer.string = label;
 
   if (mTabSize == WBTabSizeLarge)
   {
-    CGRect titleFrame = [mTitleLayer frame];
-    titleFrame.size.width = [self preferredWidth] - 30;
-    [mTitleLayer setFrame: titleFrame];
+    CGRect titleFrame = mTitleLayer.frame;
+    titleFrame.size.width = self.preferredWidth - 30;
+    mTitleLayer.frame = titleFrame;
     
-    CGRect frame = [self frame];
-    frame.size.width = [self preferredWidth];
-    [self setFrame: frame];
+    CGRect frame = self.frame;
+    frame.size.width = self.preferredWidth;
+    self.frame = frame;
   }
 }
 
@@ -247,7 +247,7 @@
 {
   NSAssert( [delegate conformsToProtocol: @protocol(WBTabItemDelegateProtocol)], @"Delegate must conform to TabItemDelegateProtocol.");
   
-  [super setDelegate: delegate];
+  super.delegate = delegate;
 }
 
 
@@ -261,9 +261,9 @@
     [mIcon removeFromSuperlayer];
     mIcon = nil;
   
-    CGRect titleFrame = [mTitleLayer frame];
+    CGRect titleFrame = mTitleLayer.frame;
     titleFrame.origin.x = 8;
-    [mTitleLayer setFrame: titleFrame];
+    mTitleLayer.frame = titleFrame;
     [self setLabel: mLabel];
   }
   else
@@ -273,24 +273,24 @@
       mIcon = [CALayer layer];
       CGRect rect= mIcon.frame;
       mIcon.contents = mDocumentIconImage;
-      rect.size= NSSizeToCGSize([image size]);
-      [mIcon setFrame: rect];
+      rect.size= NSSizeToCGSize(image.size);
+      mIcon.frame = rect;
       [self addSublayer: mIcon];
 
-      CGRect titleFrame = [mTitleLayer frame];
+      CGRect titleFrame = mTitleLayer.frame;
       titleFrame.origin.x = CGRectGetMaxX(rect) + 6;
-      [mTitleLayer setFrame: titleFrame];      
+      mTitleLayer.frame = titleFrame;      
     }
     else
     {
       CGRect rect= mIcon.frame;
       mIcon.contents = mDocumentIconImage;
-      rect.size= NSSizeToCGSize([image size]);
-      [mIcon setFrame: rect];
+      rect.size= NSSizeToCGSize(image.size);
+      mIcon.frame = rect;
       
-      CGRect titleFrame = [mTitleLayer frame];
+      CGRect titleFrame = mTitleLayer.frame;
       titleFrame.origin.x = CGRectGetMaxX(rect) + 6;
-      [mTitleLayer setFrame: titleFrame];      
+      mTitleLayer.frame = titleFrame;      
     }
   }
 }
@@ -345,7 +345,7 @@
 {
   mMouseDownPoint = mouse;
   
-  if (CGRectContainsPoint([mCloseButton frame], mouse)) {
+  if (CGRectContainsPoint(mCloseButton.frame, mouse)) {
     mClickInCloseBox = YES;
     mMouseInCloseBox = YES;
     [self setCloseButtonState: NSOnState];
@@ -353,7 +353,7 @@
   else {
     mClickInCloseBox = NO;
     mMouseInCloseBox = NO;
-    [[self delegate] selectTab: self];
+    [self.delegate selectTab: self];
   }
   
   return self;
@@ -365,7 +365,7 @@
 {
   if (mClickInCloseBox) {
     // Track mouse around close box.
-    BOOL inside = (CGRectContainsPoint([mCloseButton frame], mouse));
+    BOOL inside = (CGRectContainsPoint(mCloseButton.frame, mouse));
     if (mMouseInCloseBox != inside) {
       [self setCloseButtonState: (inside ? NSOnState : NSOffState)];
     }
@@ -378,7 +378,7 @@
 - (void) mouseUp;
 {
   if (mMouseInCloseBox) {
-    [[self delegate] closeTab: self];
+    [self.delegate closeTab: self];
     [self setCloseButtonState: NSOffState];
   }
 }
@@ -413,10 +413,10 @@
     
     CGRect frame = CGRectZero;
     if (tabSize == WBTabSizeLarge)
-      frame.size = CGSizeMake([self preferredWidth], 44);
+      frame.size = CGSizeMake(self.preferredWidth, 44);
     else
       frame.size = CGSizeMake(TAB_ITEM_SMALL_WIDTH, 32);
-    [self setFrame: frame];
+    self.frame = frame;
     
     CGFloat horizon = frame.size.height / 2;
     NSBundle* bundle = [NSBundle bundleForClass: self.class];
@@ -427,15 +427,15 @@
       
       mCloseButton = [CALayer layer];
       CGRect r = CGRectZero;
-      r.size = NSSizeToCGSize([mCloseButtonImage size]);
+      r.size = NSSizeToCGSize(mCloseButtonImage.size);
       r.origin.x = frame.size.width - r.size.width - 6;
       if (mTabDirection == WBTabDirectionUp)
         r.origin.y = floor(horizon + (horizon / 2) - (r.size.height / 2));
       else 
         r.origin.y = floor((horizon / 2) - (r.size.height / 2));
-      [mCloseButton setFrame: r];
+      mCloseButton.frame = r;
       mCloseButton.contents = mCloseButtonImage;
-      [mCloseButton setAutoresizingMask: kCALayerMinXMargin];
+      mCloseButton.autoresizingMask = kCALayerMinXMargin;
       [self addSublayer: mCloseButton];
     }
     
@@ -445,13 +445,13 @@
       
       mIcon = [CALayer layer];
       CGRect r = CGRectZero;
-      r.size = NSSizeToCGSize([mDocumentIconImage size]);
+      r.size = NSSizeToCGSize(mDocumentIconImage.size);
       r.origin.x = 9;
       if (mTabDirection == WBTabDirectionUp)
         r.origin.y = floor(horizon + (horizon / 2) - (r.size.height / 2));
      else 
        r.origin.y = floor((horizon / 2) - (r.size.height / 2));
-      [mIcon setFrame: r];
+      mIcon.frame = r;
       mIcon.contents = mDocumentIconImage;
       [self addSublayer: mIcon];
     }
@@ -460,7 +460,7 @@
       // Title layer.
       CGRect titleFrame = CGRectZero;
       if (mHasIcon) {
-        CGRect r = [mIcon frame];
+        CGRect r = mIcon.frame;
         titleFrame.origin.x = CGRectGetMaxX(r) + 6;
       }
       else {
@@ -470,7 +470,7 @@
       titleFrame.size.height = 15;
       
       if (mHasIcon) {
-        titleFrame.origin.y = [mIcon frame].origin.y - 1;
+        titleFrame.origin.y = mIcon.frame.origin.y - 1;
       }
       else {
         if (mTabDirection == WBTabDirectionUp) {
@@ -482,30 +482,30 @@
       }
       
       if (tabSize == WBTabSizeLarge)
-        titleFrame.size.width = [self preferredWidth] - 50;
+        titleFrame.size.width = self.preferredWidth - 50;
       else
         titleFrame.size.width = 100;
       
       mTitleLayer = [CATextLayer layer];
-      [mTitleLayer setFrame: titleFrame];
-      [mTitleLayer setAutoresizingMask: (kCALayerMaxXMargin | kCALayerMaxYMargin)];
+      mTitleLayer.frame = titleFrame;
+      mTitleLayer.autoresizingMask = (kCALayerMaxXMargin | kCALayerMaxYMargin);
       
       CGColorRef c = WB_CGColorCreateCalibratedRGB(0.1, 0.1, 0.1, 1.0);
-      [mTitleLayer setForegroundColor: c];
+      mTitleLayer.foregroundColor = c;
       CGColorRelease(c);
       NSFont* font = [NSFont boldSystemFontOfSize: 0];
-      [mTitleLayer setFont: (__bridge CFTypeRef _Nullable)(font)];
+      mTitleLayer.font = (__bridge CFTypeRef _Nullable)(font);
       if (mTabSize == WBTabSizeLarge) {
-        [mTitleLayer setFontSize: 11.5];
+        mTitleLayer.fontSize = 11.5;
         CGColorRef shadowColor = WB_CGColorCreateCalibratedRGB(1.0, 1.0, 1.0, 1.0);
-        [mTitleLayer setShadowColor: shadowColor];
+        mTitleLayer.shadowColor = shadowColor;
         CGColorRelease(shadowColor);
-        [mTitleLayer setShadowOpacity: 1];
-        [mTitleLayer setShadowOffset: CGSizeMake(0, -0.5)];
-        [mTitleLayer setShadowRadius: 0.0];
+        mTitleLayer.shadowOpacity = 1;
+        mTitleLayer.shadowOffset = CGSizeMake(0, -0.5);
+        mTitleLayer.shadowRadius = 0.0;
       }
       else {
-        [mTitleLayer setFontSize: 9];
+        mTitleLayer.fontSize = 9;
       }
       
       [self addSublayer: mTitleLayer];
@@ -513,8 +513,8 @@
     
     [self setLabel: label];
     
-    frame.size.width = [self preferredWidth];
-    [self setFrame: frame];
+    frame.size.width = self.preferredWidth;
+    self.frame = frame;
     
     [self setState: NSOffState];
     [self setEnabled: YES];

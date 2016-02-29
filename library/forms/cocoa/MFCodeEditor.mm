@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -76,7 +76,7 @@ using namespace mforms;
 - (BOOL)becomeFirstResponder
 {
   mOwner->focus_changed();
-  return [[self window] makeFirstResponder: [self content]];
+  return [self.window makeFirstResponder: [self content]];
 }
 
 // for MVerticalLayoutView

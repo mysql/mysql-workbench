@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2004, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,7 +29,7 @@
 {
   MTextImageCell *copy = (MTextImageCell*)[super copyWithZone:zone];
   copy->_image = _image;
-  [copy setFont: [self font]];
+  copy.font = self.font;
   return copy;
 }
 
@@ -50,14 +50,14 @@
 - (void)editWithFrame:(NSRect)aRect inView:(NSView *)controlView editor:(NSText *)textObj delegate:(id)anObject event:(NSEvent *)theEvent 
 {
   NSRect textFrame, imageFrame;
-  NSDivideRect(aRect, &imageFrame, &textFrame, IMAGE_OFFSET + IMAGE_TEXT_OFFSET + [_image size].width, NSMinXEdge);
+  NSDivideRect(aRect, &imageFrame, &textFrame, IMAGE_OFFSET + IMAGE_TEXT_OFFSET + _image.size.width, NSMinXEdge);
   [super editWithFrame: textFrame inView: controlView editor:textObj delegate:anObject event: theEvent];
 }
 
 - (void)selectWithFrame:(NSRect)aRect inView:(NSView *)controlView editor:(NSText *)textObj delegate:(id)anObject start:(NSInteger)selStart length:(NSInteger)selLength 
 {
   NSRect textFrame, imageFrame;
-  NSDivideRect(aRect, &imageFrame, &textFrame, IMAGE_OFFSET + IMAGE_TEXT_OFFSET + [_image size].width, NSMinXEdge);
+  NSDivideRect(aRect, &imageFrame, &textFrame, IMAGE_OFFSET + IMAGE_TEXT_OFFSET + _image.size.width, NSMinXEdge);
   [super selectWithFrame: textFrame inView: controlView editor:textObj delegate:anObject start:selStart length:selLength];
 }
 
@@ -68,11 +68,11 @@
     NSSize imageSize;
     NSRect imageFrame;
     
-    imageSize = [_image size];
+    imageSize = _image.size;
     NSDivideRect(cellFrame, &imageFrame, &cellFrame, IMAGE_OFFSET + IMAGE_TEXT_OFFSET + imageSize.width, NSMinXEdge);
-    if ([self drawsBackground]) 
+    if (self.drawsBackground) 
     {
-      [[self backgroundColor] set];
+      [self.backgroundColor set];
       NSRectFill(imageFrame);
     }
     imageFrame.origin.x += IMAGE_OFFSET;
@@ -90,8 +90,8 @@
 
 - (NSSize)cellSize 
 {
-  NSSize cellSize= [super cellSize];
-  cellSize.width += (_image ? [_image size].width : 0) + IMAGE_OFFSET + IMAGE_TEXT_OFFSET;
+  NSSize cellSize= super.cellSize;
+  cellSize.width += (_image ? _image.size.width : 0) + IMAGE_OFFSET + IMAGE_TEXT_OFFSET;
   return cellSize;
 }
 

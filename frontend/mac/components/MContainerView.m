@@ -43,8 +43,8 @@
 // resize subview keeping a minimum size
 - (void)resizeSubviewsWithOldSize:(NSSize)oldBoundsSize
 {
-  id item= [[self subviews] lastObject];
-  NSSize size= [self frame].size;
+  id item= self.subviews.lastObject;
+  NSSize size= self.frame.size;
   NSRect rect;
 
   if (size.width < mMinSize.width + 2*mPadding.width)

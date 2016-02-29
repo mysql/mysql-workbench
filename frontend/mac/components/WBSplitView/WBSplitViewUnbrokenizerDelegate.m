@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -61,7 +61,7 @@ constrainMaxCoordinate: (CGFloat) proposedMax
   CGFloat constrained = proposedMax;
   
   if (offset == 0) {
-    constrained = [sender frame].size.height - mBottomCollapsedMinHeight;
+    constrained = sender.frame.size.height - mBottomCollapsedMinHeight;
   }
   
   return constrained;
@@ -76,13 +76,13 @@ constrainMaxCoordinate: (CGFloat) proposedMax
 
 - (NSView*)topViewOfSplitView: (NSSplitView*)view 
 {
-  return [view subviews][0];
+  return view.subviews[0];
 }
 
 
 - (NSView*)bottomViewOfSplitView: (NSSplitView*)view 
 {
-  return [view subviews][1];
+  return view.subviews[1];
 }
 
 
@@ -97,11 +97,11 @@ constrainMaxCoordinate: (CGFloat) proposedMax
   
   NSView *topView= [self topViewOfSplitView: view];
 
-  NSRect r = [topView frame];
+  NSRect r = topView.frame;
   r.origin.y = 9;
   r.size.height -= 36;
-  [topView setFrame: r];
-  [topView setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+  topView.frame = r;
+  topView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
 }
 
 
@@ -117,11 +117,11 @@ constrainMaxCoordinate: (CGFloat) proposedMax
   
   NSView *bottomView= [self bottomViewOfSplitView: view];
 
-  NSRect r = [bottomView frame];
+  NSRect r = bottomView.frame;
   r.origin.y = 0;
-  r.size.height = [bottomView bounds].size.height - 25;
-  [bottomView setFrame: r];
-  [bottomView setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+  r.size.height = bottomView.bounds.size.height - 25;
+  bottomView.frame = r;
+  bottomView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
   [bottomView setHidden: NO];
 }
 
@@ -129,7 +129,7 @@ constrainMaxCoordinate: (CGFloat) proposedMax
 
 - (void)collapseBottomOfSplitView: (NSSplitView*)split
 {
-  [split setPosition: NSHeight([split frame]) - mBottomCollapsedMinHeight 
+  [split setPosition: NSHeight(split.frame) - mBottomCollapsedMinHeight 
     ofDividerAtIndex: 0];  
 }
   
@@ -145,8 +145,8 @@ constrainSplitPosition: (CGFloat) proposedPosition
           ofSubviewAt: (NSInteger) offset;
 {
   CGFloat allowedPos = proposedPosition;
-  CGFloat maxDividerCoordinate = [sender frame].size.height - mBottomExpandedMinHeight;
-  CGFloat resultsAreaPivot = [sender frame].size.height - mBottomCollapseLimit;
+  CGFloat maxDividerCoordinate = sender.frame.size.height - mBottomExpandedMinHeight;
+  CGFloat resultsAreaPivot = sender.frame.size.height - mBottomCollapseLimit;
 
   if (proposedPosition < mTopExpandedMinHeight) {
     if (proposedPosition > mTopCollapseLimit) {
@@ -160,7 +160,7 @@ constrainSplitPosition: (CGFloat) proposedPosition
       // User dragged divider up above the pivot point, so we close the query area.
       allowedPos = 0;
       if (!mTopCollapsed) {
-        [[self topViewOfSplitView: sender] setAutoresizingMask: NSViewWidthSizable | NSViewMinYMargin];
+        [self topViewOfSplitView: sender].autoresizingMask = NSViewWidthSizable | NSViewMinYMargin;
         mTopCollapsed = YES;
       }
     }
@@ -178,10 +178,10 @@ constrainSplitPosition: (CGFloat) proposedPosition
     }
     else {
       // User dragged divider below the pivot point, so we close the results area.
-      allowedPos = [sender frame].size.height;
+      allowedPos = sender.frame.size.height;
       if (!mBottomCollapsed) {
         NSView *view= [self bottomViewOfSplitView: sender];
-        [view setAutoresizingMask: NSViewWidthSizable | NSViewMinYMargin];
+        view.autoresizingMask = NSViewWidthSizable | NSViewMinYMargin;
         mBottomCollapsed = YES;          
       }
     }
@@ -197,7 +197,7 @@ constrainSplitPosition: (CGFloat) proposedPosition
    ofDividerAtIndex:(NSInteger)dividerIndex
 {
   // if the divider is too thin, increase effective rect by 2px to make it less impossible to drag
-  if ([splitView isVertical])
+  if (splitView.vertical)
   {
     if (proposedEffectiveRect.size.width < 2)
     {
