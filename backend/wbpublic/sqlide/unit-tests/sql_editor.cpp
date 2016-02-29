@@ -44,7 +44,7 @@ TEST_FUNCTION(1)
 	ensure("db_mgmt_RdbmsRef initialization", rdbms.is_valid());
 
 	//!ListRef<db_mgmt_Rdbms> rdbms_list= ListRef<db_mgmt_Rdbms>::cast_from(grtm.get_grt()->get("/wb/rdbmsMgmt/rdbms"));
-	ListRef<db_mgmt_Rdbms> rdbms_list;
+	ListRef<db_mgmt_Rdbms> rdbms_list(true);
 	rdbms_list.insert(rdbms);
 
 

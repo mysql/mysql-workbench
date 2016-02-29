@@ -37,7 +37,7 @@ workbench_physical_Diagram::ImplData::ImplData(workbench_physical_Diagram *owner
 
 workbench_physical_LayerRef workbench_physical_Diagram::ImplData::place_new_layer(double x, double y, double width, double height, const std::string &name)
 {
-  workbench_physical_LayerRef layer;
+  workbench_physical_LayerRef layer(grt::Initialized);
   bool skip_undo= !self()->is_global();
   grt::AutoUndo undo(skip_undo);
 
@@ -81,7 +81,7 @@ workbench_physical_LayerRef workbench_physical_Diagram::ImplData::place_new_laye
 
 workbench_physical_TableFigureRef workbench_physical_Diagram::ImplData::place_table(const db_TableRef &table, double x, double y)
 {
-  workbench_physical_TableFigureRef figure;
+  workbench_physical_TableFigureRef figure(grt::Initialized);
   bool skip_undo= !self()->is_global();
   grt::AutoUndo undo(skip_undo);
 
@@ -105,7 +105,7 @@ workbench_physical_TableFigureRef workbench_physical_Diagram::ImplData::place_ta
 
 workbench_physical_RoutineGroupFigureRef workbench_physical_Diagram::ImplData::place_routine_group(const db_RoutineGroupRef &rgroup, double x, double y)
 {
-  workbench_physical_RoutineGroupFigureRef figure;
+  workbench_physical_RoutineGroupFigureRef figure(grt::Initialized);
   bool skip_undo= !self()->is_global();
   grt::AutoUndo undo(skip_undo);
 
@@ -127,7 +127,7 @@ workbench_physical_RoutineGroupFigureRef workbench_physical_Diagram::ImplData::p
 
 workbench_physical_ViewFigureRef workbench_physical_Diagram::ImplData::place_view(const db_ViewRef &view, double x, double y)
 {
-  workbench_physical_ViewFigureRef figure;
+  workbench_physical_ViewFigureRef figure(grt::Initialized);
   bool skip_undo= !self()->is_global();
   grt::AutoUndo undo(skip_undo);
 
@@ -183,7 +183,7 @@ workbench_physical_ConnectionRef workbench_physical_Diagram::ImplData::create_co
       && get_figure_for_dbobject(db_DatabaseObjectRef::cast_from(fk->owner())).is_valid()
       && get_figure_for_dbobject(fk->referencedTable()).is_valid())
   {
-    workbench_physical_ConnectionRef conn;
+    workbench_physical_ConnectionRef conn(grt::Initialized);
 
     conn->owner(self());
     conn->name("");
