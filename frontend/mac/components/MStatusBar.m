@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,23 +53,23 @@
 
 - (void)windowBecameKey:(NSNotification*)notif
 {
-  if ([notif object] == [self window])
+  if (notif.object == self.window)
     [self setNeedsDisplay:YES];
 }
 
 
 - (void)windowResignedKey:(NSNotification*)notif
 {
-  if ([notif object] == [self window])
+  if (notif.object == self.window)
     [self setNeedsDisplay:YES];
 }
 
 
 - (void)drawRect:(NSRect)rect 
 {
-  if ([[self window] isKeyWindow])
+  if (self.window.keyWindow)
   {
-    NSRect b= [self bounds];    
+    NSRect b= self.bounds;    
             
     [mGradient drawInRect:b angle: 270];
 
@@ -82,7 +82,7 @@
   else
   {
     [[NSColor controlColor] set];
-    NSRectFill([self bounds]);
+    NSRectFill(self.bounds);
   }
 }
 

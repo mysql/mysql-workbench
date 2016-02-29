@@ -37,8 +37,6 @@
 #include "model/wb_context_model.h"
 #include "grtui/gui_plugin_base.h"
 
-#import "WBExceptions.h"
-
 #import "WBSQLQueryUI.h"
 
 #import "WBMenuManager.h"
@@ -108,22 +106,22 @@ static std::string showFileDialog(const std::string &type, const std::string &ti
   {
     NSOpenPanel *panel= [NSOpenPanel openPanel];
 
-    [panel setTitle: @(title.c_str())];
-    [panel setAllowedFileTypes: fileTypes];
+    panel.title = @(title.c_str());
+    panel.allowedFileTypes = fileTypes;
     
     if ([panel runModal] == NSFileHandlingPanelOKButton)
-      return [panel.URL.path UTF8String];
+      return (panel.URL.path).UTF8String;
   }
   else if (type == "save")
   {
     NSSavePanel *panel= [NSSavePanel savePanel];
     
-    [panel setTitle:@(title.c_str())];
+    panel.title = @(title.c_str());
     
-    [panel setAllowedFileTypes:fileTypes];
+    panel.allowedFileTypes = fileTypes;
 
     if ([panel runModal] == NSFileHandlingPanelOKButton)
-      return [panel.URL.path UTF8String];
+      return (panel.URL.path).UTF8String;
   }
   
   return "";
@@ -136,7 +134,7 @@ static std::string showFileDialog(const std::string &type, const std::string &ti
 
 static void windowShowStatusText(const std::string &text, MainWindowController *controller)
 {
-  NSString *string= [[NSString alloc] initWithUTF8String:text.c_str()];
+  NSString *string= @(text.c_str());
 
   // setStatusText must release the param
   if ([NSThread isMainThread])
@@ -148,7 +146,8 @@ static void windowShowStatusText(const std::string &text, MainWindowController *
 }
 
 
-static NativeHandle windowOpenPlugin(grt::Module *ownerModule, const std::string &shlib, const std::string &class_name,
+static NativeHandle windowOpenPlugin(bec::GRTManager *grtm,
+                                     grt::Module *ownerModule, const std::string &shlib, const std::string &class_name,
                                      const grt::BaseListRef &args, bec::GUIPluginFlags flags, MainWindowController *controller)
 {
   std::string path= ownerModule->path();
@@ -162,17 +161,21 @@ static NativeHandle windowOpenPlugin(grt::Module *ownerModule, const std::string
     // For bundled plugins, we load it, find the requested class and instantiate it.
     
     // determine the path for the plugin bundle by stripping Contents/Framework/dylibname 
-    bundlePath= [[[[NSString stringWithCPPString:path] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent];
+    bundlePath= [NSString stringWithCPPString:path].stringByDeletingLastPathComponent.stringByDeletingLastPathComponent.stringByDeletingLastPathComponent;
     
-    NSLog(@"opening plugin bundle %@ ([%s initWithModule:arguments:...])", bundlePath, class_name.c_str());
+    NSLog(@"opening plugin bundle %@ ([%s initWithModule:grtManager:arguments:...])", bundlePath, class_name.c_str());
     
     pluginBundle= [NSBundle bundleWithPath: bundlePath];
     if (!pluginBundle)
     {
       NSLog(@"plugin bundle %@ for plugin %s could not be loaded", bundlePath, path.c_str());
-      NSRunAlertPanel(NSLocalizedString(@"Error Opening Plugin", @"plugin open error"),
-                      NSLocalizedString(@"The plugin %s could not be loaded.", @"plugin open error"),
-                      nil, nil, nil, shlib.c_str());
+      NSAlert *alert = [NSAlert new];
+      alert.messageText = @"Error Opening Plugin";
+      alert.informativeText = [NSString stringWithFormat: @"The plugin %s could not be loaded.", shlib.c_str()];
+      alert.alertStyle = NSCriticalAlertStyle;
+      [alert addButtonWithTitle: @"Close"];
+      [alert runModal];
+
       return 0;
     }
 
@@ -180,10 +183,14 @@ static NativeHandle windowOpenPlugin(grt::Module *ownerModule, const std::string
     if (!pclass)
     {
       NSLog(@"plugin class %s was not found in bundle %@", class_name.c_str(), bundlePath);
-      
-      NSRunAlertPanel(NSLocalizedString(@"Error Opening Plugin", @"plugin open error"),
-                      @"The plugin %s does not contain the published object %s",
-                      nil, nil, nil, shlib.c_str(), class_name.c_str());
+
+      NSAlert *alert = [NSAlert new];
+      alert.messageText = @"Error Opening Plugin";
+      alert.informativeText = [NSString stringWithFormat: @"The plugin %s does not contain the published object %s", shlib.c_str(), class_name.c_str()];
+      alert.alertStyle = NSCriticalAlertStyle;
+      [alert addButtonWithTitle: @"Close"];
+      [alert runModal];
+
       return 0;
     }
     
@@ -206,7 +213,7 @@ static NativeHandle windowOpenPlugin(grt::Module *ownerModule, const std::string
         else
         {
           // drop the old plugin->handle mapping
-          bec::GRTManager::get().get_plugin_manager()->forget_gui_plugin_handle((__bridge NativeHandle)existingPanel);
+          grtm->get_plugin_manager()->forget_gui_plugin_handle((__bridge NativeHandle)existingPanel);
           
           if ([existingPanel respondsToSelector: @selector(pluginEditor)])
           {
@@ -227,7 +234,7 @@ static NativeHandle windowOpenPlugin(grt::Module *ownerModule, const std::string
     }
     
     // Instantiate and initialize the plugin.
-    id plugin = [[pclass alloc] initWithModule: ownerModule arguments: args];
+    id plugin = [[pclass alloc] initWithModule: ownerModule grtManager: grtm arguments: args];
       
     if ([plugin isKindOfClass: [WBPluginEditorBase class]])
     {      
@@ -313,7 +320,7 @@ static void windowSwitchedView(mdc::CanvasView *cview, MainWindowController *con
   [controller switchToDiagramWithIdentifier: cview->get_tag().c_str()];
 }
 
-static void windowCreateMainFormView(const std::string &type, boost::shared_ptr<bec::UIForm> form,
+static void windowCreateMainFormView(const std::string &type, std::shared_ptr<bec::UIForm> form,
                                      WBMainController *main, MainWindowController *controller)
 {
   if (main->_formPanelFactories.find(type) == main->_formPanelFactories.end())
@@ -334,9 +341,9 @@ static void windowDestroyMainFormView(bec::UIForm *form, MainWindowController *c
 
 static void windowToolChanged(mdc::CanvasView *canvas, MainWindowController *controller)
 {
-  if ([[controller selectedMainPanel] isKindOfClass: [WBModelDiagramPanel class]])
+  if ([controller.selectedMainPanel isKindOfClass: [WBModelDiagramPanel class]])
   {
-    [(WBModelDiagramPanel*)[controller selectedMainPanel] canvasToolChanged:canvas];
+    [(WBModelDiagramPanel*)controller.selectedMainPanel canvasToolChanged:canvas];
   }
 }
 
@@ -353,7 +360,7 @@ static void windowLockGui(bool lock, MainWindowController *controller)
 
 static bool quitApplication(MainWindowController *controller)
 {
-  if (![controller closeAllPanels])
+  if (!controller.closeAllPanels)
     return false;
 
   [NSApp terminate: nil];
@@ -364,7 +371,7 @@ static bool quitApplication(MainWindowController *controller)
 
 - (void)applicationWillTerminate: (NSNotification *)aNotification
 {
-  log_info("Shutting down Workbench\n");
+  logInfo("Shutting down Workbench\n");
 
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
   [[NSNotificationCenter defaultCenter] removeObserver: self];
@@ -373,40 +380,40 @@ static bool quitApplication(MainWindowController *controller)
   _wbui->get_wb()->finalize();
   delete _wbui;
 
-  log_info("Workbench shutdown done\n");
+  logInfo("Workbench shutdown done\n");
 }
 
 static void call_copy(wb::WBContextUI *wbui)
 {
-  if (![[[NSApp keyWindow] firstResponder] tryToPerform:@selector(copy:) with:nil])
+  if (![NSApp.keyWindow.firstResponder tryToPerform:@selector(copy:) with:nil])
     if (wbui->get_active_form() && wbui->get_active_form()->can_copy())
       wbui->get_active_form()->copy();    
 }
 
 static void call_cut(wb::WBContextUI *wbui)
 {
-  if (![[[NSApp keyWindow] firstResponder] tryToPerform:@selector(cut:) with:nil])
+  if (![NSApp.keyWindow.firstResponder tryToPerform:@selector(cut:) with:nil])
     if (wbui->get_active_form() && wbui->get_active_form()->can_cut())
       wbui->get_active_form()->cut();
 }
 
 static void call_paste(wb::WBContextUI *wbui)
 {
-  if (![[[NSApp keyWindow] firstResponder] tryToPerform: @selector(paste:) with:nil])
+  if (![NSApp.keyWindow.firstResponder tryToPerform: @selector(paste:) with:nil])
     if (wbui->get_active_form() && wbui->get_active_form()->can_paste())
       wbui->get_active_form()->paste();
 }
 
 static void call_select_all(wb::WBContextUI *wbui)
 {
-  if (![[[NSApp keyWindow] firstResponder] tryToPerform: @selector(selectAll:) with:nil])
+  if (![NSApp.keyWindow.firstResponder tryToPerform: @selector(selectAll:) with:nil])
     if (wbui->get_active_form())
       wbui->get_active_form()->select_all();
 }
 
 static void call_delete(wb::WBContextUI *wbui)
 {
-  id responder= [[NSApp keyWindow] firstResponder];
+  id responder= NSApp.keyWindow.firstResponder;
 
   if (![responder tryToPerform: @selector(delete:) with: nil])
     if (![responder tryToPerform: @selector(deleteBackward:) with:nil])
@@ -418,13 +425,13 @@ static void call_delete(wb::WBContextUI *wbui)
 
 static bool validate_copy(wb::WBContextUI *wbui)
 {
-  if ([[[NSApp keyWindow] firstResponder] respondsToSelector: @selector(selectedRange)])
+  if ([NSApp.keyWindow.firstResponder respondsToSelector: @selector(selectedRange)])
   {
-    NSRange textRange = [(id)[[NSApp keyWindow] firstResponder] selectedRange];
+    NSRange textRange = [(id)NSApp.keyWindow.firstResponder selectedRange];
     return textRange.length > 0;
   }
   if (/*[[[NSApp keyWindow] firstResponder] isKindOfClass: [NSTableView class]]
-      &&*/ [[[NSApp keyWindow] firstResponder] respondsToSelector: @selector(copy:)])
+      &&*/ [NSApp.keyWindow.firstResponder respondsToSelector: @selector(copy:)])
     return true; //[[(NSTableView*)[[NSApp keyWindow] firstResponder] selectedRowIndexes] count] > 0;
   
   return (wbui->get_active_form() && wbui->get_active_form()->can_copy());
@@ -434,18 +441,18 @@ static bool validate_copy(wb::WBContextUI *wbui)
 
 static bool validate_cut(wb::WBContextUI *wbui)
 {
-  if ([[[NSApp keyWindow] firstResponder] respondsToSelector: @selector(selectedRange)])
+  if ([NSApp.keyWindow.firstResponder respondsToSelector: @selector(selectedRange)])
   {
-    NSRange textRange = [(id)[[NSApp keyWindow] firstResponder] selectedRange];
+    NSRange textRange = [(id)NSApp.keyWindow.firstResponder selectedRange];
     if (textRange.length > 0)
     {
-      if ([[[NSApp keyWindow] firstResponder] respondsToSelector: @selector(isEditable)])
-        return [(id)[[NSApp keyWindow] firstResponder] isEditable];
+      if ([NSApp.keyWindow.firstResponder respondsToSelector: @selector(isEditable)])
+        return [(id)NSApp.keyWindow.firstResponder isEditable];
       return true;
     }
     return false;
   }
-  else if ([[[NSApp keyWindow] firstResponder] respondsToSelector: @selector(cut:)])
+  else if ([NSApp.keyWindow.firstResponder respondsToSelector: @selector(cut:)])
     return true;
   
   return (wbui->get_active_form() && wbui->get_active_form()->can_cut());
@@ -455,11 +462,11 @@ static bool validate_cut(wb::WBContextUI *wbui)
 
 static bool validate_paste(wb::WBContextUI *wbui)
 {
-  if ([[[NSApp keyWindow] firstResponder] respondsToSelector: @selector(isEditable)])
+  if ([NSApp.keyWindow.firstResponder respondsToSelector: @selector(isEditable)])
   {
     // Two conditions must be met if target can be considered as pastable.
     // 1) The target is editable.
-    BOOL isEditable = [(id)[[NSApp keyWindow] firstResponder] isEditable];
+    BOOL isEditable = [(id)NSApp.keyWindow.firstResponder isEditable];
     
     // 2) The pasteboard contains text.
     NSArray* supportedTypes = @[NSStringPboardType];
@@ -467,7 +474,7 @@ static bool validate_paste(wb::WBContextUI *wbui)
 
     return isEditable && (bestType != nil);
   }
-  else if ([[[NSApp keyWindow] firstResponder] respondsToSelector: @selector(paste:)])
+  else if ([NSApp.keyWindow.firstResponder respondsToSelector: @selector(paste:)])
     return true;
   
   return (wbui->get_active_form() && wbui->get_active_form()->can_paste());
@@ -477,8 +484,8 @@ static bool validate_paste(wb::WBContextUI *wbui)
 
 static bool validate_select_all(wb::WBContextUI *wbui)
 {
-  if ([[[NSApp keyWindow] firstResponder] respondsToSelector: @selector(isSelectable)])
-    return [(id)[[NSApp keyWindow] firstResponder] isSelectable];
+  if ([NSApp.keyWindow.firstResponder respondsToSelector: @selector(isSelectable)])
+    return [(id)NSApp.keyWindow.firstResponder isSelectable];
 
   return (wbui->get_active_form());
 }
@@ -487,13 +494,13 @@ static bool validate_select_all(wb::WBContextUI *wbui)
 
 static bool validate_delete(wb::WBContextUI *wbui)
 {
-  NSResponder* responder = [[NSApp keyWindow] firstResponder];
+  NSResponder* responder = NSApp.keyWindow.firstResponder;
   if ([responder respondsToSelector: @selector(canDeleteItem:)])
     return [responder performSelector: @selector(canDeleteItem:) withObject: nil];
   
   if ([responder respondsToSelector: @selector(selectedRange)])
   {
-    NSRange textRange = [(id)[[NSApp keyWindow] firstResponder] selectedRange];
+    NSRange textRange = [(id)NSApp.keyWindow.firstResponder selectedRange];
     return textRange.length > 0;
   }
 
@@ -560,7 +567,7 @@ static bool validate_closetab_old(MainWindowController *controller)
 static bool validate_close_tab(MainWindowController *controller)
 {  
   WBBasePanel *activePanel = controller.activePanel;
-  bec::UIForm *form = [activePanel formBE];
+  bec::UIForm *form = activePanel.formBE;
   if (form && form->get_form_context_name() == "home")
     return false;
   return activePanel != nil && controller.window.isKeyWindow;
@@ -569,7 +576,7 @@ static bool validate_close_tab(MainWindowController *controller)
 static bool validate_close_editor(MainWindowController *controller)
 {  
   WBBasePanel *activePanel = controller.activePanel;
-  bec::UIForm *form = [activePanel formBE];
+  bec::UIForm *form = activePanel.formBE;
   if (form && form->get_form_context_name() == "home")
     return false;
   
@@ -594,7 +601,7 @@ static bool validate_toggle_fullscreen(MainWindowController *controller)
 
 static bool validate_find_replace()
 {
-  id firstResponder = [[NSApp keyWindow] firstResponder];
+  id firstResponder = NSApp.keyWindow.firstResponder;
   if ([firstResponder isKindOfClass: [ScintillaView class]] || [firstResponder isKindOfClass: [NSTextView class]] ||
       [firstResponder isKindOfClass: [SCIContentView class]])
     return true;
@@ -607,7 +614,7 @@ static void call_find_replace(bool do_replace)
 {
   if (validate_find_replace())
   {
-    id firstResponder = [[NSApp keyWindow] firstResponder];
+    id firstResponder = NSApp.keyWindow.firstResponder;
     if ([firstResponder isKindOfClass: [SCIContentView class]])
     {
       while (firstResponder && ![firstResponder isKindOfClass: [ScintillaView class]])
@@ -624,7 +631,7 @@ static void call_find_replace(bool do_replace)
 
 static void call_find(MainWindowController *controller)
 {
-  id firstResponder = [[NSApp keyWindow] firstResponder];
+  id firstResponder = NSApp.keyWindow.firstResponder;
   if ([firstResponder isKindOfClass: [SCIContentView class]])
   {
     while (firstResponder && ![firstResponder isKindOfClass: [ScintillaView class]])
@@ -649,7 +656,7 @@ static bool validate_find(MainWindowController *controller)
 static void call_undo(MainWindowController *controller)
 {
   wb::WBContextUI *wbui = controller.context;
-  id firstResponder = [[NSApp keyWindow] firstResponder];
+  id firstResponder = NSApp.keyWindow.firstResponder;
 
   if ([firstResponder respondsToSelector: @selector(undo:)])
     [firstResponder tryToPerform: @selector(undo:) with:nil];
@@ -663,12 +670,12 @@ static void call_undo(MainWindowController *controller)
 static bool validate_undo(MainWindowController *controller)
 {
   wb::WBContextUI *wbui = controller.context;
-  id firstResponder = [[NSApp keyWindow] firstResponder];
+  id firstResponder = NSApp.keyWindow.firstResponder;
 
   if ([firstResponder respondsToSelector: @selector(canUndo)])
     return [firstResponder canUndo];
   else if ([firstResponder isKindOfClass: [NSTextView class]])
-    return [[firstResponder undoManager] canUndo];
+    return [firstResponder undoManager].canUndo;
   else if ([firstResponder isKindOfClass: [SCIContentView class]])
     return true;
   else
@@ -680,7 +687,7 @@ static bool validate_undo(MainWindowController *controller)
 static void call_redo(MainWindowController *controller)
 {
   wb::WBContextUI *wbui = controller.context;
-  id firstResponder = [[NSApp keyWindow] firstResponder];
+  id firstResponder = NSApp.keyWindow.firstResponder;
   
   if ([firstResponder respondsToSelector: @selector(redo:)])
     [firstResponder tryToPerform: @selector(redo:) with:nil];
@@ -694,12 +701,12 @@ static void call_redo(MainWindowController *controller)
 static bool validate_redo(MainWindowController *controller)
 {
   wb::WBContextUI *wbui = controller.context;
-  id firstResponder = [[NSApp keyWindow] firstResponder];
+  id firstResponder = NSApp.keyWindow.firstResponder;
   
   if ([firstResponder respondsToSelector: @selector(canRedo)])
     return [firstResponder canRedo];
   else if ([firstResponder isKindOfClass: [NSTextView class]])
-    return [[firstResponder undoManager] canRedo];
+    return [firstResponder undoManager].canRedo;
   else if ([firstResponder isKindOfClass: [SCIContentView class]])
     return true;
   else
@@ -710,11 +717,11 @@ static bool validate_redo(MainWindowController *controller)
 
 - (void)textSelectionChanged: (NSNotification*)notification
 { 
-  id firstResponder= [[NSApp keyWindow] firstResponder];
+  id firstResponder= NSApp.keyWindow.firstResponder;
 
-  if ([notification object] == firstResponder ||
+  if (notification.object == firstResponder ||
       ([firstResponder respondsToSelector:@selector(superview)] &&
-       [notification object] == [firstResponder superview]))
+       notification.object == [firstResponder superview]))
   { 
     // refresh edit menu
     wb::WBContextUI *wbui = mainController.context;
@@ -793,7 +800,7 @@ static void flush_main_thread()
 
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename
 {
-  std::string path = [filename fileSystemRepresentation];
+  std::string path = filename.fileSystemRepresentation;
   if (_initFinished)
   {
     if (_wb->open_file_by_extension(path, true))
@@ -847,7 +854,7 @@ static NSString *applicationSupportFolder()
 {
   NSArray *res= NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
 
-  if ([res count] > 0)
+  if (res.count > 0)
     return res[0];
   return @"/tmp/";
 }
@@ -859,12 +866,14 @@ static NSString *applicationSupportFolder()
 
   try
   {
+    bec::GRTManager *grtm;
+    
     // Setup backend stuff
-    _wbui = new wb::WBContextUI(false);
+    _wbui = wb::WBContextUI::get();
     _wb = _wbui->get_wb();
     
-   
-    bec::GRTManager::get().get_dispatcher()->set_main_thread_flush_and_wait(flush_main_thread);
+    grtm = _wb->get_grt_manager();
+    grtm->get_dispatcher()->set_main_thread_flush_and_wait(flush_main_thread);
     
     mainController.wBContext = _wbui;
     mainController.owner = self;
@@ -875,7 +884,7 @@ static NSString *applicationSupportFolder()
     // Assign those callback methods
     wbcallbacks.show_file_dialog= boost::bind(showFileDialog, _1, _2, _3);
     wbcallbacks.show_status_text= boost::bind(windowShowStatusText, _1, mainController);
-    wbcallbacks.open_editor= boost::bind(windowOpenPlugin, _1, _2, _3, _4, _5, mainController);
+    wbcallbacks.open_editor= boost::bind(windowOpenPlugin, _1, _2, _3, _4, _5, _6, mainController);
     wbcallbacks.show_editor= boost::bind(windowShowPlugin, _1, mainController);
     wbcallbacks.hide_editor= boost::bind(windowHidePlugin, _1, mainController);
     wbcallbacks.perform_command= boost::bind(windowPerformCommand, _1, mainController, self);
@@ -923,12 +932,12 @@ static NSString *applicationSupportFolder()
 {
   _options= new wb::WBOptions();
   
-  _options->basedir = [[[NSBundle mainBundle] resourcePath] fileSystemRepresentation];
+  _options->basedir = [NSBundle mainBundle].resourcePath.fileSystemRepresentation;
   _options->struct_search_path = _options->basedir + "/grt";
-  _options->plugin_search_path = std::string([[[NSBundle mainBundle] builtInPlugInsPath] fileSystemRepresentation]);
-  _options->module_search_path = std::string([[[NSBundle mainBundle] builtInPlugInsPath] fileSystemRepresentation]) + ":" + std::string([[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]) + "/plugins";
-  _options->library_search_path = std::string([[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]) + "/libraries";
-  _options->cdbc_driver_search_path = std::string([[[NSBundle mainBundle] privateFrameworksPath] fileSystemRepresentation]);
+  _options->plugin_search_path = std::string([NSBundle mainBundle].builtInPlugInsPath.fileSystemRepresentation);
+  _options->module_search_path = std::string([NSBundle mainBundle].builtInPlugInsPath.fileSystemRepresentation) + ":" + std::string([NSBundle mainBundle].resourcePath.fileSystemRepresentation) + "/plugins";
+  _options->library_search_path = std::string([NSBundle mainBundle].resourcePath.fileSystemRepresentation) + "/libraries";
+  _options->cdbc_driver_search_path = std::string([NSBundle mainBundle].privateFrameworksPath.fileSystemRepresentation);
 
 
   int argc= *_NSGetArgc();
@@ -937,32 +946,32 @@ static NSString *applicationSupportFolder()
   int rc = 0;
   if (!_options->parse_args(argv, argc, &rc))
   {
-    log_info("Exiting with rc %i after parsing arguments\n", rc);
+    logInfo("Exiting with rc %i after parsing arguments\n", rc);
     exit(rc);
   }
   
   if (!_options->user_data_dir.empty())
   {
-    _options->user_data_dir = [[[NSString stringWithCPPString: _options->user_data_dir] stringByExpandingTildeInPath] UTF8String];
+    _options->user_data_dir = [NSString stringWithCPPString: _options->user_data_dir].stringByExpandingTildeInPath.UTF8String;
     if (!base::is_directory(_options->user_data_dir))
     {
       try
       {
-        if (!base::copyDirectoryRecursive([[applicationSupportFolder() stringByAppendingString: @"/MySQL/Workbench"] fileSystemRepresentation], _options->user_data_dir))
+        if (!base::copyDirectoryRecursive([applicationSupportFolder() stringByAppendingString: @"/MySQL/Workbench"].fileSystemRepresentation, _options->user_data_dir))
         {
-          log_error("Unable to prepare new config directory: %s\n", _options->user_data_dir.c_str());
+          logError("Unable to prepare new config directory: %s\n", _options->user_data_dir.c_str());
           exit(1);
         }
       }
       catch (std::exception &exc)
       {
-        log_error("There was a problem preparing new config directory. The error was: %s\n", exc.what());
+        logError("There was a problem preparing new config directory. The error was: %s\n", exc.what());
         exit(1);
       }
     }
   }
   else
-    _options->user_data_dir= [[applicationSupportFolder() stringByAppendingString: @"/MySQL/Workbench"] fileSystemRepresentation];
+    _options->user_data_dir= [applicationSupportFolder() stringByAppendingString: @"/MySQL/Workbench"].fileSystemRepresentation;
 
   // no dock icon when the app will quit when finished running script 
   if (_options->quit_when_done)
@@ -978,9 +987,8 @@ extern "C" {
 
 static void init_mforms()
 {
-  log_debug("Initializing mforms\n");
+  logDebug("Initializing mforms\n");
 
-  extern void cf_tabview_init();
   extern void cf_record_grid_init();
   static BOOL inited = NO;
   
@@ -989,7 +997,6 @@ static void init_mforms()
     inited= YES;
   
     mforms_cocoa_init();
-    cf_tabview_init();
     cf_record_grid_init();
   }
 }
@@ -1022,18 +1029,14 @@ static void init_mforms()
   if (mainController == nil)
   {
     // Prepare the logger to be ready as first part.
-    base::Logger([[applicationSupportFolder() stringByAppendingString: @"/MySQL/Workbench"] fileSystemRepresentation]);
-    log_info("Starting up Workbench\n");
+    base::Logger([applicationSupportFolder() stringByAppendingString: @"/MySQL/Workbench"].fileSystemRepresentation);
+    logInfo("Starting up Workbench\n");
 
     [self setupOptionsAndParseCommandline];
 
     init_mforms();
     
     NSApplication.sharedApplication.delegate = self;
-    
-    // Setup delegate to log symbolic stack traces on exceptions.
-    [[NSExceptionHandler defaultExceptionHandler] setExceptionHandlingMask: NSLogUncaughtExceptionMask | NSLogUncaughtSystemExceptionMask | NSLogUncaughtRuntimeErrorMask | NSLogTopLevelExceptionMask | NSLogOtherExceptionMask];
-    [[NSExceptionHandler defaultExceptionHandler] setDelegate: [WBExceptionHandlerDelegate new]];
     
     mainController = [MainWindowController new];
 
@@ -1063,12 +1066,12 @@ static void init_mforms()
     
     //XXX hack to work-around problem with opening object editors
     {
-      NSString *pluginsPath= [[NSBundle mainBundle] builtInPlugInsPath];
+      NSString *pluginsPath= [NSBundle mainBundle].builtInPlugInsPath;
       NSDirectoryEnumerator *dirEnum = [[NSFileManager defaultManager] enumeratorAtPath:pluginsPath];
       NSString *file;
       
       while ((file = [dirEnum nextObject])) {
-        if ([[file pathExtension] isEqualToString: @"mwbplugin"]) {
+        if ([file.pathExtension isEqualToString: @"mwbplugin"]) {
           NSString *path= [pluginsPath stringByAppendingPathComponent:file];
           
           NSBundle *bundle= [NSBundle bundleWithPath:path];
@@ -1091,8 +1094,12 @@ static void init_mforms()
     }
     catch (const std::exception &exc)
     {
-      NSRunAlertPanel(@"Unhandled Exception", @"An unhandled exception has occurred: %s",
-                      @"OK", nil, nil, exc.what());
+      NSAlert *alert = [NSAlert new];
+      alert.messageText = @"Unhandled Exception";
+      alert.informativeText = [NSString stringWithFormat: @"An unhandled exception has occurred: %s", exc.what()];
+      alert.alertStyle = NSCriticalAlertStyle;
+      [alert addButtonWithTitle: @"Close"];
+      [alert runModal];
     }
     _showingUnhandledException = NO;
   }
@@ -1159,23 +1166,23 @@ static void init_mforms()
 {
   if ([sender tag] == 10)
   {
-    [NSApp stopModalWithCode: NSOKButton];
+    [NSApp stopModalWithCode: NSModalResponseOK];
     [pageSetup orderOut: nil];
   }
   else if ([sender tag] == 11)
   {
-    [NSApp stopModalWithCode: NSCancelButton];  
+    [NSApp stopModalWithCode: NSModalResponseCancel];  
     [pageSetup orderOut: nil];
   }
   else if (sender == landscapeButton)
   {
-    [landscapeButton setState: NSOnState];
-    [portraitButton setState: NSOffState];
+    landscapeButton.state = NSOnState;
+    portraitButton.state = NSOffState;
   }
   else if (sender == portraitButton)
   {
-    [landscapeButton setState: NSOffState];
-    [portraitButton setState: NSOnState];
+    landscapeButton.state = NSOffState;
+    portraitButton.state = NSOnState;
   }  
 }
 
@@ -1184,7 +1191,7 @@ static void init_mforms()
 {
   if (sender == paperSize)
   {
-    [paperSizeLabel setStringValue: [[paperSize selectedItem] representedObject]];
+    paperSizeLabel.stringValue = paperSize.selectedItem.representedObject;
     [paperSizeLabel sizeToFit];
   }
 }
@@ -1192,7 +1199,7 @@ static void init_mforms()
 
 - (void)showPageSetup: (id)sender
 {
-  log_debug("Showing page setup dialog\n");
+  logDebug("Showing page setup dialog\n");
 
   app_PageSettingsRef settings(_wbui->get_page_settings());
   
@@ -1209,13 +1216,13 @@ static void init_mforms()
     
     if ([[NSFileManager defaultManager] fileExistsAtPath: @"/System/Library/PrivateFrameworks/PrintingPrivate.framework/Versions/A/Plugins/PrintingCocoaPDEs.bundle/Contents/Resources/Landscape.tiff"])
     {
-      [landscapeButton setImage: [[NSImage alloc] initWithContentsOfFile: @"/System/Library/PrivateFrameworks/PrintingPrivate.framework/Versions/A/Plugins/PrintingCocoaPDEs.bundle/Contents/Resources/Landscape.tiff"]];
-      [portraitButton setImage: [[NSImage alloc] initWithContentsOfFile: @"/System/Library/PrivateFrameworks/PrintingPrivate.framework/Versions/A/Plugins/PrintingCocoaPDEs.bundle/Contents/Resources/Portrait.tiff"]];
+      landscapeButton.image = [[NSImage alloc] initWithContentsOfFile: @"/System/Library/PrivateFrameworks/PrintingPrivate.framework/Versions/A/Plugins/PrintingCocoaPDEs.bundle/Contents/Resources/Landscape.tiff"];
+      portraitButton.image = [[NSImage alloc] initWithContentsOfFile: @"/System/Library/PrivateFrameworks/PrintingPrivate.framework/Versions/A/Plugins/PrintingCocoaPDEs.bundle/Contents/Resources/Portrait.tiff"];
     }
     else
     {
-      [landscapeButton setImage: [[NSImage alloc] initWithContentsOfFile: @"/System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/Print.framework/Versions/A/Plugins/PrintingCocoaPDEs.bundle/Contents/Resources/Landscape.tiff"]];
-      [portraitButton setImage: [[NSImage alloc] initWithContentsOfFile: @"/System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/Print.framework/Versions/A/Plugins/PrintingCocoaPDEs.bundle/Contents/Resources/Portrait.tiff"]];
+      landscapeButton.image = [[NSImage alloc] initWithContentsOfFile: @"/System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/Print.framework/Versions/A/Plugins/PrintingCocoaPDEs.bundle/Contents/Resources/Landscape.tiff"];
+      portraitButton.image = [[NSImage alloc] initWithContentsOfFile: @"/System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/Print.framework/Versions/A/Plugins/PrintingCocoaPDEs.bundle/Contents/Resources/Portrait.tiff"];
     }
   }
   
@@ -1226,8 +1233,7 @@ static void init_mforms()
        ++iter)
   {
     [paperSize addItemWithTitle: [NSString stringWithCPPString: iter->name]];
-    [[paperSize itemAtIndex: [paperSize numberOfItems]-1] 
-     setRepresentedObject: [NSString stringWithCPPString: iter->description]];
+    [paperSize itemAtIndex: paperSize.numberOfItems-1].representedObject = [NSString stringWithCPPString: iter->description];
   }
   if (settings->paperType().is_valid())
   {
@@ -1236,26 +1242,26 @@ static void init_mforms()
   }
   if (settings->orientation() == "landscape")
   {
-    [landscapeButton setState: NSOnState];
-    [portraitButton setState: NSOffState];
+    landscapeButton.state = NSOnState;
+    portraitButton.state = NSOffState;
   }
   else
   {
-    [landscapeButton setState: NSOffState];
-    [portraitButton setState: NSOnState];
+    landscapeButton.state = NSOffState;
+    portraitButton.state = NSOnState;
   }
   
-  if ([NSApp runModalForWindow: pageSetup] == NSOKButton)
+  if ([NSApp runModalForWindow: pageSetup] == NSModalResponseOK)
   {
-    log_debug("Page settings accepted. Updating model...\n");
-    std::string type= [[paperSize titleOfSelectedItem] UTF8String];
+    logDebug("Page settings accepted. Updating model...\n");
+    std::string type= paperSize.titleOfSelectedItem.UTF8String;
     app_PaperTypeRef paperType(grt::find_named_object_in_list(_wb->get_root()->options()->paperTypes(), 
                                                               type));
     std::string orientation;
     
     if (paperType != settings->paperType())
       settings->paperType(paperType);
-    if ([landscapeButton state] == NSOnState)
+    if (landscapeButton.state == NSOnState)
       orientation= "landscape";
     else
       orientation= "portrait";
@@ -1265,7 +1271,7 @@ static void init_mforms()
     _wb->get_model_context()->update_page_settings();
   }
 
-  log_debug("Page setup dialog done\n");
+  logDebug("Page setup dialog done\n");
 }
 
 @end

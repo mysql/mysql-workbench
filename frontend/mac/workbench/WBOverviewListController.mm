@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,13 +55,13 @@
 
 - (void)relayoutCollectionView:(NSCollectionView*)collection
 {
-  int count= [mItems count];
-  NSRect itemRect= [[[collection itemPrototype] view] frame];
+  int count= mItems.count;
+  NSRect itemRect= collection.itemPrototype.view.frame;
   int itemsPerRow;
   int rowCount= 0;
   NSSize newSize;
   
-  itemsPerRow= (int)floor(NSWidth([collection frame]) / NSWidth(itemRect));
+  itemsPerRow= (int)floor(NSWidth(collection.frame) / NSWidth(itemRect));
   if (itemsPerRow > 0)
   {
     rowCount= ceil((count + (itemsPerRow/2)) / itemsPerRow);
@@ -71,10 +71,10 @@
   if (rowCount == 0)
     rowCount= 1;
   
-  newSize.width= NSWidth([collection frame]);
+  newSize.width= NSWidth(collection.frame);
   newSize.height= NSHeight(itemRect) * rowCount;
   
-  if (!NSEqualSizes([collection frame].size, newSize))
+  if (!NSEqualSizes(collection.frame.size, newSize))
     [collection setFrameSize:newSize];
   
   [collection setNeedsDisplay:YES];
@@ -83,7 +83,7 @@
 
 - (void)collectionFrameChanged:(NSNotification*)notif
 {
-  NSCollectionView *collection= [notif object];
+  NSCollectionView *collection= notif.object;
   
   [self relayoutCollectionView:collection];
 }
@@ -114,7 +114,7 @@
                       nil]];
   }
   
-  [self setItems:items];
+  self.items = items;
   
   [self relayoutCollectionView:collectionView];
 }
@@ -124,9 +124,9 @@
 - (void)setShowLargeIcons:(BOOL)flag
 {
   if (flag)
-    [collectionView setItemPrototype:largeIcon];
+    collectionView.itemPrototype = largeIcon;
   else
-    [collectionView setItemPrototype:smallIcon];
+    collectionView.itemPrototype = smallIcon;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -160,7 +160,7 @@
   NSDictionary *item= mItems[index];
   bec::NodeId node;
   NSString *path= item[@"path"];
-  node= bec::NodeId([path CPPString]);
+  node= bec::NodeId(path.CPPString);
   mOverview->select_node(node);
   
   mOverview->end_selection_marking();
@@ -183,14 +183,14 @@
     if (mSelectedIndexes)
     {
       mOverview->begin_selection_marking();
-      if ([mSelectedIndexes count] > 0)
+      if (mSelectedIndexes.count > 0)
       {
-        for (NSUInteger i= [mSelectedIndexes firstIndex]; i <= [mSelectedIndexes lastIndex]; i= [mSelectedIndexes indexGreaterThanIndex:i])
+        for (NSUInteger i= mSelectedIndexes.firstIndex; i <= mSelectedIndexes.lastIndex; i= [mSelectedIndexes indexGreaterThanIndex:i])
         {
           NSDictionary *item= mItems[i];
           bec::NodeId node;
           NSString *path= item[@"path"];
-          node= bec::NodeId([path CPPString]);
+          node= bec::NodeId(path.CPPString);
           mOverview->select_node(node);
         }
       }
@@ -220,7 +220,7 @@
   bec::NodeId node;
   NSString *path= item[@"path"];
   
-  node= bec::NodeId([path CPPString]);
+  node= bec::NodeId(path.CPPString);
   
   mOverview->activate_node(node);
 }
@@ -276,9 +276,9 @@
   bec::NodeId node;
   NSString *path= item[@"path"];
   
-  node= bec::NodeId([path CPPString]);
+  node= bec::NodeId(path.CPPString);
   
-  mOverview->set_field(node, wb::OverviewBE::Label, [newName CPPString]);
+  mOverview->set_field(node, wb::OverviewBE::Label, newName.CPPString);
 }
 
 /**
@@ -291,7 +291,7 @@
   bec::NodeId node;
   NSString *path= item[@"path"];
   
-  node= bec::NodeId([path CPPString]);
+  node= bec::NodeId(path.CPPString);
   
   return mOverview->is_editable(node);
 }
@@ -316,7 +316,7 @@
     bec::NodeId node;
     NSString *path= item[@"path"];
     
-    node= bec::NodeId([path CPPString]);
+    node= bec::NodeId(path.CPPString);
     
     std::string type= mOverview->get_node_drag_type(node);
     if (!type.empty())

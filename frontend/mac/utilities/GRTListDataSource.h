@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,8 +30,8 @@ class MySQLTableEditorBE;
 }
 
 + (GRTNodeId*)nodeIdWithNodeId:(const bec::NodeId&)nodeId;
-- (instancetype)init;
-- (instancetype)initWithNodeId:(const bec::NodeId&)nodeId;
+- (instancetype)init NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithNodeId: (const bec::NodeId&)nodeId NS_DESIGNATED_INITIALIZER;
 @property (readonly) const bec::NodeId & nodeId;
 
 @end
@@ -42,7 +42,7 @@ class MySQLTableEditorBE;
 }
 
 
-- (instancetype)initWithListModel:(bec::ListModel*)model;
+- (instancetype)initWithListModel: (bec::ListModel*)model NS_DESIGNATED_INITIALIZER;
 
 
 @property  bec::ListModel *listModel;

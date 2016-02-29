@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,7 +34,7 @@
     mOwner = aButton;
     mOwner->set_data(self);
     
-    [self setTitle: @""];
+    self.title = @"";
     switch (type)
     {
       case ::mforms::AdminActionButton:
@@ -43,24 +43,24 @@
         mTopLeftOffset= NSMakePoint(6, 2);
         mBottomRightOffset= NSMakePoint(5, 5);
 
-        [self setBezelStyle: NSRoundedBezelStyle];
+        self.bezelStyle = NSRoundedBezelStyle;
         break;
       case ::mforms::ToolButton:
         mTopLeftOffset= NSZeroPoint;
         mBottomRightOffset= NSZeroPoint;
 
-        [self setImagePosition: NSImageOnly];
+        self.imagePosition = NSImageOnly;
         [self setBordered: NO];
         break;
       case ::mforms::SmallButton:
         // buttons have some extra padding to the sides that we want to skip
 //        [[self cell] setControlSize: NSSmallControlSize];
-        [[self cell] setFont: [NSFont systemFontOfSize: [NSFont smallSystemFontSize]]];
-        [self setBezelStyle: NSRoundRectBezelStyle];
+        self.cell.font = [NSFont systemFontOfSize: [NSFont smallSystemFontSize]];
+        self.bezelStyle = NSRoundRectBezelStyle;
         break;
     }
-    [self setTarget: self];
-    [self setAction: @selector(performCallback:)];
+    self.target = self;
+    self.action = @selector(performCallback:);
   }
   return self;
 }
@@ -77,7 +77,7 @@
 
 - (NSString*)description
 {
-  return [NSString stringWithFormat:@"<%@ '%@'>", [self className], [self title]];
+  return [NSString stringWithFormat:@"<%@ '%@'>", self.className, self.title];
 }
 
 - (mforms::Object*)mformsObject
@@ -88,16 +88,16 @@
 
 - (void)setFrame:(NSRect)frame
 {
-  if (![self widthIsFixed])
+  if (!self.widthIsFixed)
     frame.origin.x-= mTopLeftOffset.x;
   frame.origin.y-= mTopLeftOffset.y;
   
   // add back the extra padding for the button
-  if (![self widthIsFixed])
+  if (!self.widthIsFixed)
     frame.size.width+= mTopLeftOffset.x + mBottomRightOffset.x;
   frame.size.height+= mTopLeftOffset.y + mBottomRightOffset.y;
   
-  [super setFrame:frame];
+  super.frame = frame;
 }
 
 
@@ -108,8 +108,8 @@
 
 - (NSSize)minimumSize
 {
-  NSSize size= [[self cell] cellSize];
-  if ([self imagePosition] == NSImageOnly)
+  NSSize size= self.cell.cellSize;
+  if (self.imagePosition == NSImageOnly)
   {
     size.width += 6;
     size.height += 6;
@@ -128,9 +128,9 @@
 
 - (void)setTitle:(NSString*)title
 {
-  [super setTitle: title];
+  super.title = title;
 
-  [[self superview] subviewMinimumSizeChanged];
+  [self.superview subviewMinimumSizeChanged];
 }
 
 
@@ -149,7 +149,7 @@ static void button_set_icon(::mforms::Button *self, const std::string &icon)
     {
       std::string full_path= mforms::App::get()->get_resource_path(icon);
       NSImage *image= [[NSImage alloc] initWithContentsOfFile: wrap_nsstring(full_path)];
-      [button setImage: image];
+      button.image = image;
       [button sizeToFit];
     }
   }  
@@ -163,7 +163,7 @@ static void button_set_text(::mforms::Button *self, const std::string &text)
     
     if ( button )
     {
-      [button setTitle:[wrap_nsstring(text) stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"_"]]];
+      button.title = [wrap_nsstring(text) stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"_"]];
     }
   }
 }

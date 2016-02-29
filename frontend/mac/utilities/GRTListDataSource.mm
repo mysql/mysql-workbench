@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -86,9 +86,18 @@ static std::map<std::string, GRTNodeId*> node_cache;
 
 @implementation GRTListDataSource
 
-- (instancetype)initWithListModel:(bec::ListModel*)model
+- (instancetype)init
 {
-  if ((self = [super init]) != nil)
+  return [self initWithListModel: nil];
+}
+
+- (instancetype)initWithListModel: (bec::ListModel*)model
+{
+  if (model == nil)
+    return nil;
+
+  self = [super init];
+  if (self != nil)
   {
     _list= model;
   }
@@ -113,7 +122,7 @@ static std::map<std::string, GRTNodeId*> node_cache;
   if (_list)
   {
     std::string value;
-    _list->get_field(rowIndex, [[aTableColumn identifier] integerValue], value);
+    _list->get_field(rowIndex, aTableColumn.identifier.integerValue, value);
   
     return @(value.c_str());
   }
@@ -126,13 +135,13 @@ static std::map<std::string, GRTNodeId*> node_cache;
   if (_list->is_editable(rowIndex))
   {
     size_t count= _list->count();
-    _list->set_field(rowIndex, [[aTableColumn identifier] integerValue], [anObject UTF8String]);
+    _list->set_field(rowIndex, aTableColumn.identifier.integerValue, [anObject UTF8String]);
     if (_list->count() > count)
       [aTableView reloadData];
   }
   else if ([anObject isKindOfClass: [NSNumber class]])
   {
-    _list->set_field(rowIndex, [[aTableColumn identifier] integerValue], (ssize_t)[anObject integerValue]);
+    _list->set_field(rowIndex, aTableColumn.identifier.integerValue, (ssize_t)[anObject integerValue]);
   }
 }
 
@@ -155,7 +164,7 @@ static std::map<std::string, GRTNodeId*> node_cache;
 {
   if ([aCell isKindOfClass:[MTextImageCell class]])
   {
-    bec::IconId icon_id= _list->get_field_icon(rowIndex, [[aTableColumn identifier] integerValue], bec::Icon16);
+    bec::IconId icon_id= _list->get_field_icon(rowIndex, aTableColumn.identifier.integerValue, bec::Icon16);
 
     if (icon_id != 0)
     {

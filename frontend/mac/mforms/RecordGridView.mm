@@ -56,11 +56,11 @@ void cf_record_grid_init()
 
 - (void)columnDidResize:(NSNotification*)notif
 {
-  std::map<NSTableView*, RecordGridView*>::iterator iter = gridView.find([notif object]);
+  std::map<NSTableView*, RecordGridView*>::iterator iter = gridView.find(notif.object);
   if (iter != gridView.end())
   {
-    id theColumn = [notif userInfo][@"NSTableColumn"];
-    NSInteger i = [[iter->first tableColumns] indexOfObject: theColumn];
+    id theColumn = notif.userInfo[@"NSTableColumn"];
+    NSInteger i = [iter->first.tableColumns indexOfObject: theColumn];
     if (i != NSNotFound)
       (*iter->second->signal_column_resized())(i-1);
   }
@@ -69,19 +69,19 @@ void cf_record_grid_init()
 
 - (void)observeViewer:(RecordGridView*)viewer
 {
-  gridView[[viewer->control() gridView]] = viewer;
+  gridView[viewer->control().gridView] = viewer;
 
   [[NSNotificationCenter defaultCenter] addObserver: self
                                            selector: @selector(columnDidResize:)
                                                name: NSTableViewColumnDidResizeNotification
-                                             object: [viewer->control() gridView]];
+                                             object: viewer->control().gridView];
 }
 
 - (void)forgetViewer:(RecordGridView*)viewer
 {
   [[NSNotificationCenter defaultCenter] removeObserver: self
                                                   name: NSTableViewColumnDidResizeNotification
-                                                object: [viewer->control() gridView]];
+                                                object: viewer->control().gridView];
 }
 
 @end
@@ -107,19 +107,19 @@ RecordGridView::~RecordGridView()
 
 int RecordGridView::get_column_count()
 {
-  return [[viewer gridView] numberOfColumns];
+  return viewer.gridView.numberOfColumns;
 }
 
 
 int RecordGridView::get_column_width(int column)
 {
-  return (int)[[[viewer gridView] tableColumnWithIdentifier: [NSString stringWithFormat:@"%i", column]] width];
+  return (int)[viewer.gridView tableColumnWithIdentifier: [NSString stringWithFormat:@"%i", column]].width;
 }
 
 
 void RecordGridView::set_column_width(int column, int width)
 {
-  [[[viewer gridView] tableColumnWithIdentifier: [NSString stringWithFormat:@"%i", column]] setWidth: width];
+  [viewer.gridView tableColumnWithIdentifier: [NSString stringWithFormat:@"%i", column]].width = width;
 }
 
 
@@ -131,12 +131,12 @@ void RecordGridView::set_column_header_indicator(int column, ColumnHeaderIndicat
 
 bool RecordGridView::current_cell(size_t &row, int &column)
 {
-  MGridView *grid = [viewer gridView];
+  MGridView *grid = viewer.gridView;
 
-  if ([grid selectedRowIndex] >= 0 && [grid selectedColumnIndex] >= 0)
+  if (grid.selectedRowIndex >= 0 && grid.selectedColumnIndex >= 0)
   {
-    row = [grid selectedRowIndex];
-    column = [grid selectedColumnIndex];
+    row = grid.selectedRowIndex;
+    column = grid.selectedColumnIndex;
     return true;
   }
   return false;
@@ -145,14 +145,14 @@ bool RecordGridView::current_cell(size_t &row, int &column)
 
 void RecordGridView::set_current_cell(size_t row, int column)
 {
-  [[viewer gridView] selectCellAtRow: row column: column];
+  [viewer.gridView selectCellAtRow: row column: column];
 }
 
 
 static void set_clicked_column(RecordGridView *grid, void *table)
 {
   NSTableView *gridView = (__bridge NSTableView*)table;
-  NSPoint point = [gridView convertPoint: [[gridView window] mouseLocationOutsideOfEventStream] fromView: nil];
+  NSPoint point = [gridView convertPoint: gridView.window.mouseLocationOutsideOfEventStream fromView: nil];
   int column = [gridView columnAtPoint: NSMakePoint(point.x, 20)];
   grid->clicked_header_column(column - 1);
 }
@@ -161,7 +161,7 @@ static void set_clicked_column(RecordGridView *grid, void *table)
 void RecordGridView::set_header_menu(ContextMenu *menu)
 {
   menu->signal_will_show()->connect(boost::bind(set_clicked_column, this, (__bridge void *)viewer.gridView));
-  [[[viewer gridView] headerView] setMenu: menu->get_data()];
+  viewer.gridView.headerView.menu = menu->get_data();
 }
 
 

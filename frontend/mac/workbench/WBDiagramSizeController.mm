@@ -64,11 +64,11 @@
       [canvas setupQuartz];
       [canvas unlockFocus];
 
-      _be = wbui->create_diagram_options_be([canvas canvas]);
+      _be = wbui->create_diagram_options_be(canvas.canvas);
       _be->update_size();
       _be->signal_changed()->connect(boost::bind(update_size_entries, (__bridge void *)self));
 
-      [nameField setStringValue: [NSString stringWithCPPString: _be->get_name()]];
+      nameField.stringValue = [NSString stringWithCPPString: _be->get_name()];
 
       update_size_entries((__bridge void *)self);
     }
@@ -89,14 +89,14 @@
 static void update_size_entries(void *theController)
 {
   WBDiagramSizeController *controller = (__bridge WBDiagramSizeController *)theController;
-  [controller->widthField setIntegerValue: controller->_be->get_xpages()];
-  [controller->heightField setIntegerValue: controller->_be->get_ypages()];
+  controller->widthField.integerValue = controller->_be->get_xpages();
+  controller->heightField.integerValue = controller->_be->get_ypages();
 }
 
 
 - (IBAction)okClicked:(id)sender
 {
-  _be->set_name([[nameField stringValue] UTF8String]);
+  _be->set_name(nameField.stringValue.UTF8String);
   
   _be->commit();
   [panel performClose:nil];
@@ -111,10 +111,10 @@ static void update_size_entries(void *theController)
 
 - (void)controlTextDidEndEditing:(NSNotification *)aNotification
 {
-  if ([aNotification object] == widthField)
-    _be->set_xpages([widthField integerValue]);
-  else if ([aNotification object] == heightField)
-    _be->set_ypages([heightField integerValue]);
+  if (aNotification.object == widthField)
+    _be->set_xpages(widthField.integerValue);
+  else if (aNotification.object == heightField)
+    _be->set_ypages(heightField.integerValue);
 }  
 
 

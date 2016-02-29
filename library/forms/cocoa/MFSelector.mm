@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,8 +40,8 @@
   {    
     mOwner= aSelector;
     mOwner->set_data(self);
-    [self setTarget: self];
-    [self setAction: @selector(selectionChanged:)];
+    self.target = self;
+    self.action = @selector(selectionChanged:);
     [self sizeToFit];
   }
   return self;
@@ -53,7 +53,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 - (NSSize) minimumSize
 {
-  return [[self cell] cellSize];
+  return self.cell.cellSize;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,8 +97,8 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
   {    
     mOwner= aSelector;
     mOwner->set_data(self);
-    [self setTarget: self];
-    [self setAction: @selector(selectionChanged:)];
+    self.target = self;
+    self.action = @selector(selectionChanged:);
     [self setDelegate: self];
     [self sizeToFit];
   }
@@ -111,7 +111,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 - (NSSize) minimumSize
 {
-  return [[self cell] cellSize];
+  return self.cell.cellSize;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -220,7 +220,7 @@ static std::string selector_get_item(::mforms::Selector *self, int index)
       {
         id value = [(PopupStyleSelector*)selector itemAtIndex: index];
         if (value != nil)
-          return [[value title] UTF8String];
+          return [value title].UTF8String;
         break;
       }
       default:

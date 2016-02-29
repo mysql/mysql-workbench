@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -73,34 +73,30 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
                                          controlSize: NSRegularControlSize
                                        scrollerStyle: NSScrollerStyleOverlay];
     mTable = [[DraggingTableView alloc] initWithFrame: rect owner: aListBox];
-    mHeader= [mTable headerView];
+    mHeader= mTable.headerView;
     [mTable setHeaderView: nil];
     [mTable setAllowsMultipleSelection: YES];
-    [self setBorderType: NSBezelBorder];
-    [self setDocumentView: mTable];
+    self.borderType = NSBezelBorder;
+    self.documentView = mTable;
     
     mContents= [NSMutableArray array];
     [mTable setDataSource: self];
     [mTable setDelegate: self];
-    [mTable setColumnAutoresizingStyle: NSTableViewLastColumnOnlyAutoresizingStyle];
+    mTable.columnAutoresizingStyle = NSTableViewLastColumnOnlyAutoresizingStyle;
     {
       NSTableColumn *column= [[NSTableColumn alloc] initWithIdentifier: @"0"];
     
       [mTable addTableColumn: column];
-      [column setResizingMask: NSTableColumnAutoresizingMask|NSTableColumnUserResizingMask];
-      //[column setResizable: YES];
-      [[column dataCell] setEditable:NO];
+      column.resizingMask = NSTableColumnAutoresizingMask|NSTableColumnUserResizingMask;
+      [column.dataCell setEditable:NO];
     }
   }
   return self;
 }
 
-
-
-
 - (void)setEnabled:(BOOL)flag
 {
-  [mTable setEnabled: flag];
+  mTable.enabled = flag;
 }
 
 
@@ -112,7 +108,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
 {
-  return [mContents count];
+  return mContents.count;
 }
 
 
@@ -143,7 +139,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 - (void)resizeSubviewsWithOldSize:(NSSize)oldSize
 {
   [super resizeSubviewsWithOldSize: oldSize];
-  [[mTable tableColumnWithIdentifier: @"0"] setWidth: NSWidth([mTable frame])];
+  [mTable tableColumnWithIdentifier: @"0"].width = NSWidth(mTable.frame);
 }
 
 
@@ -196,7 +192,7 @@ static size_t listbox_add_item(::mforms::ListBox *self, const std::string &item)
     {
       [listbox->mContents addObject:wrap_nsstring(item)];
       [listbox->mTable reloadData];
-      return [listbox->mContents count]-1;
+      return listbox->mContents.count-1;
     }
   }
   return -1;
@@ -243,8 +239,8 @@ static std::string listbox_get_text(::mforms::ListBox *self)
     
     if ( listbox )
     {
-      if ([listbox->mTable selectedRow] >= 0)
-        return [listbox->mContents[[listbox->mTable selectedRow]] UTF8String];
+      if (listbox->mTable.selectedRow >= 0)
+        return [listbox->mContents[listbox->mTable.selectedRow] UTF8String];
     }
   }
   return "";
@@ -276,7 +272,7 @@ static ssize_t listbox_get_index(::mforms::ListBox *self)
     
     if ( listbox )
     {
-      return [listbox->mTable selectedRow];
+      return listbox->mTable.selectedRow;
     }
   }
   return -1;
@@ -290,7 +286,7 @@ static size_t listbox_get_count(::mforms::ListBox *self)
     
     if (listbox)
     {
-      return [listbox->mContents count];
+      return listbox->mContents.count;
     }
   }
   return 0;
@@ -304,7 +300,7 @@ static std::string listbox_get_string_value_from_index(::mforms::ListBox *self, 
     
     if (listbox)
     {
-      if (index < [listbox->mContents count])
+      if (index < listbox->mContents.count)
         return [listbox->mContents[index] UTF8String];
     }
   }
@@ -321,8 +317,8 @@ static std::vector<size_t> listbox_get_selected_indices(::mforms::ListBox *self)
     
     if (listbox)
     {
-      NSIndexSet* indices = [listbox->mTable selectedRowIndexes];
-      NSUInteger index= [indices firstIndex];
+      NSIndexSet* indices = listbox->mTable.selectedRowIndexes;
+      NSUInteger index= indices.firstIndex;
       while (index != NSNotFound)
       {
         result.push_back(index);
@@ -342,10 +338,10 @@ static void listbox_set_heading(::mforms::ListBox *self, const std::string &text
     
     if (listbox->mHeader)
     {
-      [listbox->mTable setHeaderView:listbox->mHeader];
+      listbox->mTable.headerView = listbox->mHeader;
       listbox->mHeader= nil;
     }
-    [[[[listbox->mTable tableColumns] lastObject] headerCell] setStringValue: wrap_nsstring(text)];
+    listbox->mTable.tableColumns.lastObject.headerCell.stringValue = wrap_nsstring(text);
   }
 }
 

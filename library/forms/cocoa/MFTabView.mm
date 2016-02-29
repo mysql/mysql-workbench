@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,27 +34,27 @@
 {
   NSRect frame= NSMakeRect(0, 0, 0, 0);
   
-  frame.size= [self frame].size;
+  frame.size= self.frame.size;
   
-  if (NSEqualRects(frame, [[[self subviews] lastObject] frame]))
-    [[[self subviews] lastObject] resizeSubviewsWithOldSize: oldBoundsSize];
+  if (NSEqualRects(frame, self.subviews.lastObject.frame))
+    [self.subviews.lastObject resizeSubviewsWithOldSize: oldBoundsSize];
   else
-    [[[self subviews] lastObject] setFrame: frame];
+    self.subviews.lastObject.frame = frame;
 }
 
 
 - (void)setEnabled:(BOOL)flag
 {
-  [[[self subviews] lastObject] setEnabled: flag];
+  [self.subviews.lastObject setEnabled: flag];
 }
 
 - (NSSize)minimumSize
 {
   // A tabview item usually has only one subview attached (the content view), so use this
   // to determine the minimum size.
-  if ([[self subviews] count] == 0)
+  if (self.subviews.count == 0)
     return NSMakeSize(0, 0);
-  return [[self subviews][0] minimumSize];
+  return (self.subviews[0]).minimumSize;
 }
 
 @end
@@ -104,11 +104,11 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
         break;
 
       case mforms::TabViewTabless:
-        [mTabView setTabViewType: NSNoTabsNoBorder];
+        mTabView.tabViewType = NSNoTabsNoBorder;
         break;
 
       case mforms::TabViewMainClosable:
-        [mTabView setTabViewType: NSNoTabsNoBorder];
+        mTabView.tabViewType = NSNoTabsNoBorder;
         mTabSwitcher = [[MTabSwitcher alloc] initWithFrame: NSMakeRect(0, 0, 100, 26)];
         mTabSwitcher.tabStyle = MMainTabSwitcher;
         [mTabSwitcher setTabView: mTabView];
@@ -116,26 +116,26 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
       case mforms::TabViewDocument:
       case mforms::TabViewDocumentClosable:
-        [mTabView setTabViewType: NSNoTabsNoBorder];
+        mTabView.tabViewType = NSNoTabsNoBorder;
         mTabSwitcher = [[MTabSwitcher alloc] initWithFrame: NSMakeRect(0, 0, 100, 26)];
         mTabSwitcher.tabStyle = MEditorTabSwitcher;
         [mTabSwitcher setTabView: mTabView];
         break;
 
       case mforms::TabViewPalette:
-        [mTabView setControlSize: NSSmallControlSize];
-        [mTabView setFont: [NSFont systemFontOfSize: [NSFont smallSystemFontSize]]];
+        mTabView.controlSize = NSSmallControlSize;
+        mTabView.font = [NSFont systemFontOfSize: [NSFont smallSystemFontSize]];
         break;
         
       case mforms::TabViewSelectorSecondary:
-        [mTabView setTabViewType: NSNoTabsNoBorder];
+        mTabView.tabViewType = NSNoTabsNoBorder;
         mTabSwitcher = [[MTabSwitcher alloc] initWithFrame: NSMakeRect(0, 0, 100, 26)];
         mTabSwitcher.tabStyle = MPaletteTabSwitcherSmallText;
         [mTabSwitcher setTabView: mTabView];
         break;
 
       case mforms::TabViewEditorBottom:
-        [mTabView setTabViewType: NSNoTabsNoBorder];
+        mTabView.tabViewType = NSNoTabsNoBorder;
         mTabSwitcher = [[MTabSwitcher alloc] initWithFrame: NSMakeRect(0, 0, 100, 26)];
         mTabSwitcher.tabStyle = MEditorBottomTabSwitcher;
         tabSwitcherBelow = YES;
@@ -143,7 +143,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
         break;
 
       case mforms::TabViewEditorBottomPinnable:
-        [mTabView setTabViewType: NSNoTabsNoBorder];
+        mTabView.tabViewType = NSNoTabsNoBorder;
         mTabSwitcher = [[MTabSwitcher alloc] initWithFrame: NSMakeRect(0, 0, 100, 26)];
         mTabSwitcher.tabStyle = MEditorBottomTabSwitcherPinnable;
         tabSwitcherBelow = YES;
@@ -165,18 +165,18 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
       [self addSubview: mTabSwitcher];
       [self addSubview: mTabView];
     }
-    mExtraSize = [mTabView minimumSize];
+    mExtraSize = mTabView.minimumSize;
     {
-      NSRect contentRect = [mTabView contentRect];
+      NSRect contentRect = mTabView.contentRect;
       mExtraSize.width -= NSWidth(contentRect);
       mExtraSize.height -= NSHeight(contentRect);
     }
     mOwner= aTabView;
     mOwner->set_data(self);
     if (mTabSwitcher)
-      [mTabSwitcher setDelegate: self];
+      mTabSwitcher.delegate = self;
     else
-      [mTabView setDelegate:self];
+      mTabView.delegate = self;
   }
   return self;
 }
@@ -200,9 +200,9 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
   
   NSSize minSize= NSZeroSize;
   
-  for (NSTabViewItem *item in [mTabView tabViewItems])
+  for (NSTabViewItem *item in mTabView.tabViewItems)
   {
-    NSSize size= [[item view] minimumSize];
+    NSSize size= item.view.minimumSize;
     
     minSize.width= MAX(minSize.width, size.width);
     minSize.height= MAX(minSize.height, size.height);
@@ -220,8 +220,8 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
   [super resizeSubviewsWithOldSize: oldBoundsSize];
   if (mTabSwitcher)
   {
-    NSRect srect = [mTabSwitcher frame];
-    NSRect rect = [self bounds];
+    NSRect srect = mTabSwitcher.frame;
+    NSRect rect = self.bounds;
 
     srect.size.width = NSWidth(rect);
     if (mOwner->get_type() == mforms::TabViewEditorBottom || mOwner->get_type() == mforms::TabViewEditorBottomPinnable)
@@ -231,26 +231,26 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
     }
     else
       srect.origin.y = NSHeight(rect) - NSHeight(srect);
-    [mTabSwitcher setFrame: srect];
+    mTabSwitcher.frame = srect;
 
     rect.size.height -= NSHeight(srect);
-    [mTabView setFrame: rect];
+    mTabView.frame = rect;
   }
   else
-    [mTabView setFrame: [self bounds]];
-  for (NSTabViewItem *item in [mTabView tabViewItems])
-    [[item view] resizeSubviewsWithOldSize: oldBoundsSize];
+    mTabView.frame = self.bounds;
+  for (NSTabViewItem *item in mTabView.tabViewItems)
+    [item.view resizeSubviewsWithOldSize: oldBoundsSize];
 
   if (mforms::View *view = mOwner->get_aux_view())
   {
-    view->set_size(view->get_preferred_width(), NSHeight([mTabSwitcher frame]));
+    view->set_size(view->get_preferred_width(), NSHeight(mTabSwitcher.frame));
     view->set_position(mOwner->get_width() - view->get_width() - 11, 0);
   }
 }
 
 - (void)setEnabled:(BOOL)flag
 {
-  for (NSTabViewItem *item in [mTabView tabViewItems])
+  for (NSTabViewItem *item in mTabView.tabViewItems)
   {
     MFTabViewItemView *itemView = (MFTabViewItemView *)item.view;
     [itemView setEnabled: flag];
@@ -342,7 +342,7 @@ static void tabview_set_tab_title(::mforms::TabView *self, int tab, const std::s
     
     if ( tabView )
     {
-      [[tabView->mTabView tabViewItemAtIndex:tab] setLabel: wrap_nsstring(title)];
+      [tabView->mTabView tabViewItemAtIndex:tab].label = wrap_nsstring(title);
       [tabView->mTabSwitcher setNeedsDisplay: YES];
     }
   }
@@ -357,7 +357,7 @@ static int tabview_get_active_tab(::mforms::TabView *self)
     
     if ( tabView )
     {
-      return [tabView->mTabView indexOfTabViewItem: [tabView->mTabView selectedTabViewItem]];
+      return [tabView->mTabView indexOfTabViewItem: tabView->mTabView.selectedTabViewItem];
     }
   }
   return 0;
@@ -378,17 +378,17 @@ static int tabview_add_page(::mforms::TabView *self, mforms::View *tab, const st
       view->mOwner = tab;
       view->mTabView= tabView->mTabView;
       
-      [item setLabel: wrap_nsstring(label)];
-      [item setView: view];
+      item.label = wrap_nsstring(label);
+      item.view = view;
       
       [view addSubview: tab->get_data()];
       
       [tabView->mTabView addTabViewItem: item];
 
       if (tabView->mTabSwitcher && self->get_tab_menu())
-        [tabView->mTabSwitcher setMenu: self->get_tab_menu()->get_data()];
+        tabView->mTabSwitcher.menu = self->get_tab_menu()->get_data();
       
-      return [tabView->mTabView numberOfTabViewItems]-1;
+      return tabView->mTabView.numberOfTabViewItems-1;
     }
   }
   return -1;
@@ -410,7 +410,7 @@ static void tabview_remove_page(::mforms::TabView *self, mforms::View *tab)
         if (item)
         {
           MFTabViewItemView *view = (MFTabViewItemView *)item.view;
-          [[[view subviews] lastObject] removeFromSuperview];
+          [view.subviews.lastObject removeFromSuperview];
           
           [tabView->mTabView removeTabViewItem: item];
         }      
@@ -431,7 +431,7 @@ static void tabview_set_aux_view(::mforms::TabView *self, mforms::View *view)
   if (tabView)
   {
     [tabView->mTabSwitcher addSubview: nsviewForView(view)];
-    view->set_size(view->get_preferred_width(), NSHeight([tabView->mTabSwitcher frame]));
+    view->set_size(view->get_preferred_width(), NSHeight(tabView->mTabSwitcher.frame));
     view->set_position(self->get_width() - view->get_width(), 0);
   }
 }

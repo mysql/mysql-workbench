@@ -42,7 +42,7 @@
 
 - (void)dealloc
 {
-  bec::GRTManager::get().get_plugin_manager()->forget_gui_plugin_handle((__bridge void *)self);
+  mPluginEditor.grtManager->get_plugin_manager()->forget_gui_plugin_handle((__bridge void *)self);
   
 }
 
@@ -53,22 +53,22 @@
 
 - (NSView*)topView
 {
-  return [mPluginEditor view];
+  return mPluginEditor.view;
 }
 
 - (NSString*)title
 {
-  return [mPluginEditor title];
+  return mPluginEditor.title;
 }
 
 - (NSString*)identifier
 {
-  return [mPluginEditor identifier];
+  return mPluginEditor.identifier;
 }
 
 - (NSImage*)tabIcon
 {
-  return [mPluginEditor titleIcon];
+  return mPluginEditor.titleIcon;
 }
 
 - (bec::UIForm*)formBE
@@ -78,7 +78,7 @@
 
 - (NSSize)minimumSize
 {
-  return [mPluginEditor minimumSize];
+  return mPluginEditor.minimumSize;
 }
 
 - (void)didShow

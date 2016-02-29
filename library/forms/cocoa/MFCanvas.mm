@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014,2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,7 +31,7 @@
   self= [super initWithFrame:NSMakeRect(10,10,10,20)];
   if (self)
   {
-    mCanvas = [[MCanvasViewer alloc] initWithFrame: [self bounds]];
+    mCanvas = [[MCanvasViewer alloc] initWithFrame: self.bounds];
 
     [mCanvas setupQuartz];
     [self setContentCanvas: mCanvas];
@@ -54,7 +54,7 @@ static bool cf_create(mforms::Canvas *self)
 static mdc::CanvasView *cf_canvas(mforms::Canvas *self)
 {
   MFCanvasImpl *impl = self->get_data();
-  return [impl->mCanvas canvas];
+  return impl->mCanvas.canvas;
 }
 
 

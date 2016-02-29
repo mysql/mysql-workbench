@@ -21,9 +21,17 @@
 
 @implementation WBPluginWindowBase
 
+- (instancetype)init
+{
+  return [self initWithModule: nil grtManager: nil arguments: grt::BaseListRef()];
+}
+
 - (instancetype)initWithModule: (grt::Module*)module
                      arguments: (const grt::BaseListRef &)args
 {
+  if (module == nil || grtm == nil)
+    return nil;
+  
   self = [super init];
   if (self != nil)
   {

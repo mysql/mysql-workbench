@@ -70,12 +70,12 @@ static NSColor* colorFromHexString(const char* hexcolor)
     [image lockFocus];
     [[NSColor lightGrayColor] set];
     NSFrameRect(NSMakeRect(1, 1, 22, 14));
-    [colorFromHexString([color UTF8String]) set];
+    [colorFromHexString(color.UTF8String) set];
     NSRectFill(NSMakeRect(2, 2, 20, 12));
     [image unlockFocus];
-    [self setImage: image];
-    [self setTitle: @""];
-    [self setRepresentedObject: color];
+    self.image = image;
+    self.title = @"";
+    self.representedObject = color;
   }
   return self;
 }
@@ -136,11 +136,11 @@ static NSColor* colorFromHexString(const char* hexcolor)
   mHorizontal= flag;
   if (flag)
   {
-    NSRect frame = [self frame];
+    NSRect frame = self.frame;
     float tmp = frame.size.height;
     frame.size.height = frame.size.width;
     frame.size.width = tmp;
-    [self setFrame: frame];
+    self.frame = frame;
   }
 }
 
@@ -153,9 +153,9 @@ static NSColor* colorFromHexString(const char* hexcolor)
 {
   if (mOwner->get_type() == SeparatorItem)
   {
-    MFToolBarImpl *toolbar = (MFToolBarImpl*)[self superview];
+    MFToolBarImpl *toolbar = (MFToolBarImpl*)self.superview;
     
-    if ([toolbar type] == SecondaryToolBar)
+    if (toolbar.type == SecondaryToolBar)
     {
       [[NSColor colorWithDeviceWhite: 140/255.0 alpha: 1.0] set];
       [NSBezierPath strokeLineFromPoint: NSMakePoint(NSMinX(rect), 2) toPoint: NSMakePoint(NSMinX(rect), NSHeight(rect)-1)];
@@ -166,18 +166,18 @@ static NSColor* colorFromHexString(const char* hexcolor)
       
       CGFloat pattern[] = {1.0, 2.0};
       vdotted = [NSBezierPath bezierPath];
-      [vdotted setLineWidth: 1.0];
+      vdotted.lineWidth = 1.0;
       [vdotted setLineDash: pattern count: 2 phase: 0.0];
       
       if (mHorizontal)
       {
         [vdotted moveToPoint: NSMakePoint(0, 0)];
-        [vdotted lineToPoint: NSMakePoint(NSWidth([self frame]), 0)];
+        [vdotted lineToPoint: NSMakePoint(NSWidth(self.frame), 0)];
       }
       else
       {
         [vdotted moveToPoint: NSMakePoint(0, 0)];
-        [vdotted lineToPoint: NSMakePoint(0, NSHeight([self frame]))];
+        [vdotted lineToPoint: NSMakePoint(0, NSHeight(self.frame))];
       }
       
       [[NSColor darkGrayColor] set];
@@ -216,25 +216,24 @@ static NSColor* colorFromHexString(const char* hexcolor)
     {
       case ToggleItem:
         [self setButtonType: NSToggleButton];
-        [[self cell] setHighlightsBy: NSChangeBackgroundCellMask];
+        [self.cell setHighlightsBy: NSChangeBackgroundCellMask];
         break;
       case TextActionItem:
-        [self setImagePosition: NSNoImage];
+        self.imagePosition = NSNoImage;
         break;
       case SegmentedToggleItem:
         [self setButtonType: NSToggleButton];
-        [self setImagePosition: NSImageOnly];
-        [[self cell] setHighlightsBy: NSChangeBackgroundCellMask];
+        self.imagePosition = NSImageOnly;
+        [self.cell setHighlightsBy: NSChangeBackgroundCellMask];
         break;
       default:
-        [self setImage: [NSImage imageNamed: @"NSInfo"]];
-        [[self cell] setHighlightsBy: NSChangeBackgroundCellMask];
-        //[[self cell] setImageScaling: NSImageScaleProportionallyDown];
+        self.image = [NSImage imageNamed: @"NSInfo"];
+        [self.cell setHighlightsBy: NSChangeBackgroundCellMask];
         break;
     }
     [self setBordered: NO];
-    [self setTarget: self];
-    [self setAction: @selector(perform:)];
+    self.target = self;
+    self.action = @selector(perform:);
   }
   return self;
 }
@@ -263,21 +262,21 @@ static NSColor* colorFromHexString(const char* hexcolor)
 {
   mOwner->callback();
   if (mToolPicker)
-    [self setBordered: [self state] == NSOnState];  
+    self.bordered = self.state == NSOnState;  
 }
 
 
 - (void)setState:(NSInteger)value
 {
-  [super setState: value];
+  super.state = value;
   if (mToolPicker)
-    [self setBordered: value == NSOnState];
+    self.bordered = value == NSOnState;
 }
 
 - (void)setImage:(NSImage *)image
 {
-  [super setImage: image];
-  [self setFrameSize: [image size]];
+  super.image = image;
+  [self setFrameSize: image.size];
 }
 
 - (void)viewDidMoveToSuperview
@@ -285,40 +284,40 @@ static NSColor* colorFromHexString(const char* hexcolor)
   if (mOwner == NULL)
     return;
 
-  MFToolBarImpl *toolbar = (MFToolBarImpl*)[self superview];
+  MFToolBarImpl *toolbar = (MFToolBarImpl*)self.superview;
   if (toolbar == nil)
     return;
 
-  if (![self alternateImage] && mOwner->get_type() == ToggleItem)
+  if (!self.alternateImage && mOwner->get_type() == ToggleItem)
   {
     mToolPicker = YES;
     [self setButtonType: NSOnOffButton];
     [self setBordered: NO];
-    [self setBezelStyle: NSTexturedSquareBezelStyle];
-    [[self cell]  setBackgroundColor: [toolbar backgroundColor]];
+    self.bezelStyle = NSTexturedSquareBezelStyle;
+    [self.cell setBackgroundColor: toolbar.backgroundColor];
 
-    if ([toolbar type] == mforms::SecondaryToolBar)
+    if (toolbar.type == mforms::SecondaryToolBar)
     {
-      NSSize tsize = [toolbar frame].size;
+      NSSize tsize = toolbar.frame.size;
       [self setFrameSize: NSMakeSize(tsize.height, tsize.height)];
     }
   }
   else
   {
     if (mOwner->get_type() == ActionItem)
-      [[self cell] setHighlightsBy: NSContentsCellMask];
+      [self.cell setHighlightsBy: NSContentsCellMask];
   }
 }
 
 - (void)setStringValue: (NSString*)value
 {
-  [self setTitle: value];
+  self.title = value;
   [self sizeToFit];
 }
 
 - (NSString*)stringValue
 {
-  return [self title];
+  return self.title;
 }
 
 @end
@@ -352,11 +351,11 @@ static NSColor* colorFromHexString(const char* hexcolor)
     [self setDrawsBackground: NO];
     if (item->get_type() == mforms::TitleItem)
     {
-      [self setFont: [NSFont boldSystemFontOfSize: [NSFont smallSystemFontSize]]];
-      [self setTextColor: [NSColor colorWithDeviceWhite: 0x33/255.0 alpha:1.0]];
+      self.font = [NSFont boldSystemFontOfSize: [NSFont smallSystemFontSize]];
+      self.textColor = [NSColor colorWithDeviceWhite: 0x33/255.0 alpha:1.0];
     }
     else
-      [self setFont: [NSFont systemFontOfSize: [NSFont smallSystemFontSize]]];
+      self.font = [NSFont systemFontOfSize: [NSFont smallSystemFontSize]];
   }
   return self;
 }
@@ -397,7 +396,7 @@ static NSColor* colorFromHexString(const char* hexcolor)
 
 - (void) setStringValue:(NSString *)aString
 {
-  [super setStringValue: aString];
+  super.stringValue = aString;
   [self sizeToFit];
   [mToolbar resizeSubviewsWithOldSize: NSZeroSize];
 }
@@ -427,8 +426,8 @@ static NSColor* colorFromHexString(const char* hexcolor)
   {
     mOwner = item;
     mOwner->set_data(self);
-    [self setImageFrameStyle: NSImageFrameNone];
-    [self setImageScaling: NSImageScaleNone];
+    self.imageFrameStyle = NSImageFrameNone;
+    self.imageScaling = NSImageScaleNone;
   }
   return self;
 }
@@ -450,8 +449,8 @@ static NSColor* colorFromHexString(const char* hexcolor)
 
 - (void)setImage:(NSImage*)image
 {
-  [super setImage: image];
-  [self setFrameSize: [image size]];
+  super.image = image;
+  [self setFrameSize: image.size];
 }
 @end
 
@@ -478,10 +477,10 @@ static NSColor* colorFromHexString(const char* hexcolor)
   {
     mOwner = item;
     mOwner->set_data(self);
-    [[self cell] setSendsSearchStringImmediately: NO];
+    [self.cell setSendsSearchStringImmediately: NO];
  //   [[self cell] setSendsActionOnEndEditing: YES];
-    [self setTarget: self];
-    [self setAction: @selector(perform:)];
+    self.target = self;
+    self.action = @selector(perform:);
   }
   return self;
 }
@@ -525,10 +524,10 @@ static NSColor* colorFromHexString(const char* hexcolor)
   {
     mOwner = item;
     mOwner->set_data(self);
-    [self setTarget: self];
-    [self setAction: @selector(perform:)];
-    [[self cell] setControlSize: NSSmallControlSize];
-    [self setFont: [NSFont systemFontOfSize: [NSFont smallSystemFontSize]]];
+    self.target = self;
+    self.action = @selector(perform:);
+    self.cell.controlSize = NSSmallControlSize;
+    self.font = [NSFont systemFontOfSize: [NSFont smallSystemFontSize]];
   }
   return self;
 }
@@ -540,7 +539,7 @@ static NSColor* colorFromHexString(const char* hexcolor)
 
 - (void) viewDidMoveToSuperview
 {
-  switch ([(MFToolBarImpl*)[self superview] type])
+  switch (((MFToolBarImpl*)self.superview).type)
   {
     case OptionsToolBar:
       [self setBordered: NO];
@@ -559,9 +558,9 @@ static NSColor* colorFromHexString(const char* hexcolor)
 - (NSString*)stringValue
 {
   if (mOwner->get_type() == ColorSelectorItem)
-    return [[self selectedItem] representedObject];
+    return self.selectedItem.representedObject;
   else
-    return [[self selectedItem] title];
+    return self.selectedItem.title;
 }
 
 
@@ -627,7 +626,7 @@ static NSColor* colorFromHexString(const char* hexcolor)
   switch (mOwner->get_type())
   {
     case MainToolBar:
-      if ([[self subviews] count] == 0)
+      if (self.subviews.count == 0)
         return NSMakeSize(100, EMPTY_TOOLBAR_HEIGHT);
       else
         return NSMakeSize(100, layout_info[MainToolBar].height);
@@ -666,7 +665,7 @@ static NSColor* colorFromHexString(const char* hexcolor)
   {
     if (mOwner->get_type() == SecondaryToolBar)
     {
-      [[item cell] setControlSize: NSSmallControlSize];
+      [item cell].controlSize = NSSmallControlSize;
       [item setFont: [NSFont systemFontOfSize: [NSFont smallSystemFontSize]]];
       [item setFrame: NSMakeRect(0, 0, 120, 19)];
     }
@@ -675,23 +674,23 @@ static NSColor* colorFromHexString(const char* hexcolor)
   if ([item respondsToSelector: @selector(setToolbar:)])
     [item setToolbar: (id)self];
   
-  if ([[self subviews] count] == 0)
+  if (self.subviews.count == 0)
     wasEmpty = YES;
 
   NSView *view = item;
-  if (index >= (int)[[self subviews] count])
+  if (index >= (int)self.subviews.count)
     [self addSubview: view];
   else
-    [self addSubview: view positioned: NSWindowBelow relativeTo: [self subviews][index]];
+    [self addSubview: view positioned: NSWindowBelow relativeTo: self.subviews[index]];
   if (wasEmpty)
   {
     // main toolbar starts with a reduced height if it's empty. so when something is added, it has to
     // be resized to the proper height
     if (mOwner->get_type() == MainToolBar)
     {
-      NSRect rect = [self frame];
+      NSRect rect = self.frame;
       rect.size.height = layout_info[MainToolBar].height;
-      [self setFrame: rect];
+      self.frame = rect;
       [super subviewMinimumSizeChanged];
     }
   }
@@ -719,7 +718,7 @@ static NSColor* colorFromHexString(const char* hexcolor)
 
 - (void)resizeSubviewsWithOldSize:(NSSize)oldBoundsSize
 {
-  NSRect rect = [self bounds];
+  NSRect rect = self.bounds;
   
   if (mOwner->get_type() == ToolPickerToolBar)
   {
@@ -734,7 +733,7 @@ static NSColor* colorFromHexString(const char* hexcolor)
     int expander_count = 0;
     float total_height = ypadding*2;
     
-    for (id item in [self subviews])
+    for (id item in self.subviews)
     {
       total_height += NSHeight([item frame]);
       if ([item isKindOfClass: [MFToolBarSeparatorImpl class]] && [item itemType] == ExpanderItem)
@@ -744,7 +743,7 @@ static NSColor* colorFromHexString(const char* hexcolor)
     }
     total_height += spacing * item_count;
     
-    for (id item in [self subviews])
+    for (id item in self.subviews)
     {
       NSRect r = [item frame];
       r.origin = NSMakePoint(x, y);
@@ -778,7 +777,7 @@ static NSColor* colorFromHexString(const char* hexcolor)
     int expander_count = 0;
     float total_width = xpadding*2;
     
-    for (id item in [self subviews])
+    for (id item in self.subviews)
     {
       if ([item isKindOfClass: [MFToolBarSeparatorImpl class]] && [item itemType] == ExpanderItem)
         expander_count++;
@@ -795,7 +794,7 @@ static NSColor* colorFromHexString(const char* hexcolor)
     }
     total_width += spacing * spaced_item_count;
     
-    for (id item in [self subviews])
+    for (id item in self.subviews)
     {
       NSRect r = [item frame];
       r.origin = NSMakePoint(x, y);
@@ -846,14 +845,14 @@ static NSColor* colorFromHexString(const char* hexcolor)
 - (void)drawRect:(NSRect)rect
 {
   NSGradient *grad;
-  rect = [self bounds];
+  rect = self.bounds;
 
   switch (mOwner->get_type())
   {
     case ToolPickerToolBar:
     case PaletteToolBar:
     case SecondaryToolBar:
-      [[self backgroundColor] set];
+      [self.backgroundColor set];
       NSRectFill(rect);
       [[NSColor colorWithDeviceWhite: 202/255.0 alpha: 1.0] set];
       [NSBezierPath setDefaultLineWidth: 0.0];
@@ -868,7 +867,7 @@ static NSColor* colorFromHexString(const char* hexcolor)
       }
       else
       {
-        if ([[self window] isMainWindow])
+        if (self.window.mainWindow)
           grad = [[NSGradient alloc] initWithStartingColor: [NSColor colorWithDeviceWhite: 206/255.0 alpha:1.0] 
                                                endingColor: [NSColor colorWithDeviceWhite: 188/255.0 alpha:1.0]];
         else
@@ -879,7 +878,7 @@ static NSColor* colorFromHexString(const char* hexcolor)
       
       [[NSColor colorWithDeviceWhite: 202/255.0 alpha: 1.0] set];
       [NSBezierPath setDefaultLineWidth: 0.0];
-      if (mOwner->get_type() != OptionsToolBar && [[self window] isMainWindow])
+      if (mOwner->get_type() != OptionsToolBar && self.window.mainWindow)
       {
         [NSBezierPath strokeLineFromPoint: NSMakePoint(0, NSHeight(rect)-1.5) toPoint: NSMakePoint(NSWidth(rect), NSHeight(rect)-1.5)];
         [[NSColor colorWithDeviceWhite: 117/255.0 alpha: 1.0] set];
@@ -971,7 +970,7 @@ static void set_item_icon(ToolBarItem *item, const std::string &image)
 {
   id tbitem = item->get_data();
   NSImage *i = [[NSImage alloc] initWithContentsOfFile: wrap_nsstring(image)];
-  if (!i || ![i isValid])
+  if (!i || !i.valid)
     NSLog(@"invalid icon for toolbar %s", image.c_str());
   else
     [tbitem setImage: i];
@@ -981,7 +980,7 @@ static void set_item_alt_icon(ToolBarItem *item, const std::string &image)
 {
   id tbitem = item->get_data();
   NSImage *i = [[NSImage alloc] initWithContentsOfFile: wrap_nsstring(image)];
-  if (!i || ![i isValid])
+  if (!i || !i.valid)
     NSLog(@"invalid icon for toolbar %s", image.c_str());
   else
     [tbitem setAlternateImage: i];
@@ -996,7 +995,7 @@ static void set_item_text(ToolBarItem *item, const std::string &text)
 static std::string get_item_text(ToolBarItem *item)
 {
   id tbitem = item->get_data();
-  return [[tbitem stringValue] UTF8String] ?: "";
+  return [tbitem stringValue].UTF8String ?: "";
 }
 
 static void set_item_enabled(ToolBarItem *item, bool flag)
@@ -1039,7 +1038,7 @@ static void set_selector_items(ToolBarItem *item, const std::vector<std::string>
     if (item->get_type() == ColorSelectorItem)
     {   
       NSMenu *menu= [[NSMenu alloc] initWithTitle: @""];
-      [[tbitem cell] setControlSize: NSSmallControlSize];
+      [tbitem cell].controlSize = NSSmallControlSize;
       for (std::vector<std::string>::const_iterator color= items.begin(); color != items.end(); ++color)
       {
         [menu addItem: [[MFColorMenuItem alloc] initWithColorName: wrap_nsstring(*color)]];

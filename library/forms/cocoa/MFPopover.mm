@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -76,7 +76,7 @@
                               defer: deferCreation];
   if (self)
   {
-    PopoverFrameView* frameView = [super contentView];
+    PopoverFrameView* frameView = super.contentView;
     frameView->readOnly = style == mforms::PopoverStyleTooltip;
     mStyle = style;
     switch (mStyle)
@@ -94,7 +94,7 @@
         break;
     }
     [self setOpaque: NO];
-    [self setBackgroundColor: [NSColor clearColor]];
+    self.backgroundColor = [NSColor clearColor];
   }
   return self;
 }
@@ -122,12 +122,12 @@
   mBaseSize = newSize;
 
   NSSize sizeDelta = newSize;
-  NSSize childBoundsSize = [mChildContentView bounds].size;
+  NSSize childBoundsSize = mChildContentView.bounds.size;
   sizeDelta.width -= childBoundsSize.width;
   sizeDelta.height -= childBoundsSize.height;
 
-  PopoverFrameView* frameView = [super contentView];
-  NSSize newFrameSize = [frameView bounds].size;
+  PopoverFrameView* frameView = super.contentView;
+  NSSize newFrameSize = frameView.bounds.size;
   newFrameSize.width += sizeDelta.width;
   newFrameSize.height += sizeDelta.height;
 
@@ -144,23 +144,23 @@
   if ([mChildContentView isEqualTo: aView])
     return;
 
-  NSRect bounds = [self frame];
+  NSRect bounds = self.frame;
   bounds.origin = NSZeroPoint;
 
-  PopoverFrameView* frameView = [super contentView];
+  PopoverFrameView* frameView = super.contentView;
   if (!frameView)
   {
     frameView = [[PopoverFrameView alloc] initWithFrame: bounds];
     frameView->readOnly = mStyle == mforms::PopoverStyleTooltip;
-    [super setContentView: frameView];
+    super.contentView = frameView;
   }
 
   if (mChildContentView != nil)
     [mChildContentView removeFromSuperview];
 
   mChildContentView = aView; // No retain required here, the frame view controls the lifetime.
-  [mChildContentView setFrame: [self contentRectForFrameRect: bounds]];
-  [mChildContentView setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+  mChildContentView.frame = [self contentRectForFrameRect: bounds];
+  mChildContentView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
   [frameView addSubview: mChildContentView];
 }
 
@@ -229,14 +229,14 @@
   }
 
   NSScreen* currentScreen = [NSScreen mainScreen];
-  NSRect screenBounds = [currentScreen visibleFrame];
+  NSRect screenBounds = currentScreen.visibleFrame;
 
   // Check the control's bounds and determine the amount of pixels we have to move it make
   // it fully appear on screen. This will usually not move the hot spot, unless the movement
   // of the control is so much that it would leave the arrow outside its bounds.
   int deltaX = 0;
   int deltaY = 0;
-  NSRect frame = [self frame];
+  NSRect frame = self.frame;
   if (newLocation.x < screenBounds.origin.x)
     deltaX = screenBounds.origin.x - newLocation.x;
   if (newLocation.x + frame.size.width > NSMaxX(screenBounds))
@@ -277,15 +277,15 @@
 
 - (void)computeOutline
 {
-  PopoverFrameView* frameView = [super contentView];
+  PopoverFrameView* frameView = super.contentView;
   
-  NSRect bounds = [frameView bounds];
+  NSRect bounds = frameView.bounds;
   NSPoint localHotSpot = [self convertRectFromScreen: NSMakeRect(mHotSpot.x, mHotSpot.y, 0, 0)].origin;
   localHotSpot.x += 0.5;
 
   // The path is constructed counterclockwise.
   NSBezierPath* outline = [NSBezierPath bezierPath];
-  [outline setLineWidth: 1];
+  outline.lineWidth = 1;
   
   CGFloat leftOffset = 0;
   CGFloat topOffset = 0;
@@ -376,14 +376,14 @@
  */
 - (void)adjustWindowSizeAndContentFrame
 {
-  NSPoint origin = [self frame].origin;
+  NSPoint origin = self.frame.origin;
   NSRect newWindowFrame = NSMakeRect(origin.x,
                                      origin.y,
                                      mBaseSize.width + mPadding.horizontal(),
                                      mBaseSize.height + mPadding.vertical());
 
-  [self setFrame: newWindowFrame display: NO animate: [self isVisible]];
-  [mChildContentView setFrame: NSMakeRect(mPadding.left, mPadding.bottom, mBaseSize.width, mBaseSize.height)];
+  [self setFrame: newWindowFrame display: NO animate: self.visible];
+  mChildContentView.frame = NSMakeRect(mPadding.left, mPadding.bottom, mBaseSize.width, mBaseSize.height);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -395,20 +395,20 @@
 
   mHotSpot = location;
   [self computeCoordinatesAndPadding: position];
-  if (![self isVisible] || mRelativePosition != position)
+  if (!self.visible || mRelativePosition != position)
   {
     mRelativePosition = position;
     [self adjustWindowSizeAndContentFrame];
     [self computeOutline];
   }
 
-  if (![self isVisible])
+  if (!self.visible)
   {
     [NSAnimationContext beginGrouping];
-    [self setAlphaValue: 0];
+    self.alphaValue = 0;
     [self orderFront: nil];
-    [[NSAnimationContext currentContext] setDuration: 0.25];
-    [[self animator] setAlphaValue: 1];
+    [NSAnimationContext currentContext].duration = 0.25;
+    [self animator].alphaValue = 1;
     [NSAnimationContext endGrouping];
   }
 }
@@ -418,7 +418,7 @@
 
 - (void)mouseExited:(NSEvent *)theEvent
 {
-  if ([theEvent userData])
+  if (theEvent.userData)
   {
     (*mOwner->signal_close())();
   }
@@ -433,8 +433,8 @@
   [mTrackedView removeTrackingArea: mOwnerTracking];
   mOwnerTracking = nil;
   mTrackedView = nil;
-  [[NSAnimationContext currentContext] setDuration: 0.25];
-  [[self animator] setAlphaValue: 0];
+  [NSAnimationContext currentContext].duration = 0.25;
+  [self animator].alphaValue = 0;
   [self performSelector: @selector(orderOut:) withObject: nil afterDelay: 0.5
                 inModes: @[NSModalPanelRunLoopMode, NSDefaultRunLoopMode]];
 }

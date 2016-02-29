@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,8 +28,8 @@
   self = [super initWithFrame:NSMakeRect(10,10,10,10)];
   if (self != nil)
   {
-    [self setMinValue: 0];
-    [self setMaxValue: 1.0];
+    self.minValue = 0;
+    self.maxValue = 1.0;
     [self setIndeterminate: NO];
 
     mOwner= pbar;
@@ -64,14 +64,14 @@ static void progressbar_set_value(mforms::ProgressBar *self, float pct)
     static NSTimeInterval lastRedraw= 0.0;
     NSTimeInterval now;
     MFProgressBarImpl *impl= self->get_data();
-    float lastValue= [impl doubleValue];
-    [impl setDoubleValue: pct];
+    float lastValue= impl.doubleValue;
+    impl.doubleValue = pct;
 
     // force a redraw with a time and pct based throttling
     now= [NSDate timeIntervalSinceReferenceDate];
     if (now - lastRedraw > 0.1 || pct - lastValue > 0.01f || pct == 0.0f || pct == 1.0f)
     {
-      [[impl window] displayIfNeeded];
+      [impl.window displayIfNeeded];
       lastRedraw= now;
     }
   }
@@ -96,7 +96,7 @@ static void progressbar_set_indeterminate(mforms::ProgressBar *self, bool flag)
   if (self)
   {
     MFProgressBarImpl *impl= self->get_data();
-    [impl setIndeterminate: flag];
+    impl.indeterminate = flag;
   }
 }
 

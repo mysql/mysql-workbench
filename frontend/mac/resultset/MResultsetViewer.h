@@ -23,7 +23,7 @@ class Recordset;
 
 @interface MResultsetViewer : NSObject <GridViewDelegate>
 
-- (instancetype)initWithRecordset: (std::shared_ptr<Recordset>)rset;
+- (instancetype)initWithRecordset: (std::shared_ptr<Recordset>)rset NS_DESIGNATED_INITIALIZER;
 
 @property (readonly, weak) IBOutlet NSScrollView *view;
 @property (readonly, weak) IBOutlet MGridView *gridView;
