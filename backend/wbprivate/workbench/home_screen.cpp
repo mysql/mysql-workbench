@@ -27,9 +27,11 @@
 #include "mforms/drawbox.h"
 #include "mforms/textentry.h"
 #include "mforms/imagebox.h"
+#include "mforms/scrollpanel.h"
 
 #include "home_screen.h"
 #include "home_screen_connections.h"
+#include "home_screen_x_connections.h"
 
 #include "workbench/wb_context_names.h"
 
@@ -71,17 +73,15 @@ static int image_height(cairo_surface_t* image)
   return 0;
 }
 
-//--------------------------------------------------------------------------------------------------
-
 /**
  * Helper to draw text with a hot decoration.
  */
-void text_with_decoration(cairo_t* cr, double x, double y, const char* text, bool hot, double width)
+static void text_with_decoration(cairo_t* cr, double x, double y, const char* text, bool hot, double width)
 {
   cairo_move_to(cr, x, y);
   cairo_show_text(cr, text);
   cairo_stroke(cr);
-  
+
   // TODO: replace this with font decoration once pango is incorporated.
   if (hot)
   {
@@ -135,8 +135,6 @@ private:
 
   cairo_surface_t* _model_icon;
   cairo_surface_t* _sql_icon;
-  cairo_surface_t* _page_down_icon;
-  cairo_surface_t* _page_up_icon;
   cairo_surface_t* _plus_icon;
   cairo_surface_t* _schema_icon;
   cairo_surface_t* _time_icon;
@@ -147,8 +145,6 @@ private:
   cairo_surface_t* _action_icon;
   float _backing_scale_when_icons_loaded;
 
-  ssize_t _page_start;
-  ssize_t _entries_per_page;
   ssize_t _entries_per_row;
 
   bool _show_selection_message; // Additional info to let the user a connection (when opening a script).
@@ -170,8 +166,6 @@ private:
   HomeAccessibleButton _add_button;
   HomeAccessibleButton _open_button;
   HomeAccessibleButton _action_button;
-  HomeAccessibleButton _page_up_button;
-  HomeAccessibleButton _page_down_button;
 
   base::Rect _close_button_rect;
   base::Rect _use_default_button_rect;
@@ -181,18 +175,31 @@ private:
   base::Rect _sql_heading_rect;
   base::Rect _mixed_heading_rect;
 public:
+  const int DOCUMENTS_LEFT_PADDING = 40;
+  const int DOCUMENTS_RIGHT_PADDING = 40;
+  const int DOCUMENTS_TOP_PADDING = 64;
+  const int DOCUMENTS_VERTICAL_SPACING = 26;
+
+  const int DOCUMENTS_ENTRY_WIDTH = 250; // No spacing horizontally.
+  const int DOCUMENTS_ENTRY_HEIGHT = 60;
+  const int DOCUMENTS_HEADING_SPACING = 10; // Spacing between a heading part and a separator.
+  const int DOCUMENTS_TOP_BASELINE = 40; // Vertical space from top border to title base line.
+
+
+  const int MESSAGE_WIDTH = 200;
+  const int MESSAGE_HEIGHT = 75;
+
+  const int POPUP_TIP_HEIGHT = 14;
 
   DocumentsSection(HomeScreen *owner)
   {
     _owner = owner;
-    _page_start = 0;
     _model_context_menu = NULL;
     _model_action_menu = NULL;
     _hot_entry = -1;
     _active_entry = -1;
     _display_mode = ModelsOnly;
     _hot_heading = Nothing;
-    _entries_per_page = 0;
     _entries_per_row = 0;
     _show_selection_message = false;
     _backing_scale_when_icons_loaded = 0.0;
@@ -210,14 +217,6 @@ public:
     _action_button.name = "Create Model Options";
     _action_button.default_action = "Open Create Model Options Menu";
     _action_button.default_handler = _accessible_click_handler;
-
-    _page_up_button.name = "Page Up";
-    _page_up_button.default_action = "Move Model Pages Up";
-    _page_up_button.default_handler = _accessible_click_handler;
-    
-    _page_down_button.name = "Page Down";
-    _page_down_button.default_action = "Move Model Pages Down";
-    _page_down_button.default_handler = _accessible_click_handler;
   }
 
   //------------------------------------------------------------------------------------------------
@@ -227,8 +226,6 @@ public:
     if (_model_context_menu != NULL)
       _model_context_menu->release();
 
-    delete_surface(_page_down_icon);
-    delete_surface(_page_up_icon);
     delete_surface(_plus_icon);
     delete_surface(_model_icon);
     delete_surface(_sql_icon);
@@ -242,16 +239,6 @@ public:
   }
 
   //------------------------------------------------------------------------------------------------
-
-#define DOCUMENTS_LEFT_PADDING     40
-#define DOCUMENTS_RIGHT_PADDING    40
-#define DOCUMENTS_TOP_PADDING      64
-#define DOCUMENTS_VERTICAL_SPACING 26
-
-#define DOCUMENTS_ENTRY_WIDTH     250 // No spacing horizontally.
-#define DOCUMENTS_ENTRY_HEIGHT     60
-#define DOCUMENTS_HEADING_SPACING  10 // Spacing between a heading part and a separator.
-#define DOCUMENTS_TOP_BASELINE     40 // Vertical space from top border to title base line.
 
   size_t entry_from_point(int x, int y)
   {
@@ -280,7 +267,7 @@ public:
       return -1; // The last visible row is dimmed if not fully visible. So take it out from hit tests too.
 
     size_t count = _filtered_documents.size();
-    size_t index = _page_start + row * _entries_per_row + column;
+    size_t index = row * _entries_per_row + column;
     if (index < count)
       return index;
 
@@ -309,70 +296,6 @@ public:
     cairo_move_to(cr, x , (int)(y + image_height(icon) / 2.0 + extents.height / 2.0));
     cairo_show_text(cr, text.c_str());
     cairo_stroke(cr);
-  }
-
-  //------------------------------------------------------------------------------------------------
-
-  void draw_paging_part(cairo_t *cr, int current_page, int pages, bool high_contrast)
-  {
-    cairo_set_font_size(cr, HOME_SUBTITLE_FONT_SIZE);
-
-    std::string page_string = base::strfmt("%d/%d", ++current_page, pages);
-    cairo_text_extents_t extents;
-    cairo_text_extents(cr, page_string.c_str(), &extents);
-
-    _page_down_button.bounds = base::Rect(0, 0, image_width(_page_down_icon), image_height(_page_down_icon));
-    double y = get_height() - _page_down_button.bounds.width() - 6;
-    double x = get_width() - extents.width - 8;
-    double icon_x = x + ceil((extents.width - _page_down_button.bounds.width()) / 2.0) + 1;
-    _page_down_button.bounds.pos = base::Point(icon_x, y);
-
-    cairo_set_source_surface(cr, _page_down_icon, icon_x, y);
-    if (high_contrast)
-      cairo_set_operator(cr, CAIRO_OPERATOR_XOR);
-
-    if (current_page == pages)
-    {
-      // If we are on the last page then dim the page down button and remove the button
-      // rectangle used for hit tests (so the user can't click it).
-      cairo_paint_with_alpha(cr, 0.5);
-      _page_down_button.bounds = base::Rect();
-    }
-    else
-      cairo_paint(cr);
-
-    if (high_contrast)
-      cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-
-    y -= 6;
-
-    double component = 0x5E / 255.0;
-    if (high_contrast)
-      component = 0;
-
-    cairo_set_source_rgb(cr, component, component, component);
-    cairo_move_to(cr, x, y);
-    cairo_show_text(cr, page_string.c_str());
-    cairo_stroke(cr);
-
-    _page_up_button.bounds = base::Rect(icon_x, 0, image_width(_page_up_icon), image_height(_page_up_icon));
-    y -= extents.height + 6 + _page_up_button.bounds.height();
-    _page_up_button.bounds.pos.y = y;
-
-    cairo_set_source_surface(cr, _page_up_icon, icon_x, y);
-    if (high_contrast)
-      cairo_set_operator(cr, CAIRO_OPERATOR_XOR);
-
-    if (current_page == 1)
-    {
-      cairo_paint_with_alpha(cr, 0.5);
-      _page_up_button.bounds = base::Rect();
-    }
-    else
-      cairo_paint_with_alpha(cr, 1);
-
-    if (high_contrast)
-      cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
   }
 
   //------------------------------------------------------------------------------------------------
@@ -469,17 +392,12 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-#define MESSAGE_WIDTH 200
-#define MESSAGE_HEIGHT 75
-
-#define POPUP_TIP_HEIGHT 14
-
   void draw_selection_message(cairo_t *cr, bool high_contrast)
   {
     // Attach the message to the current active entry as this is what is used when
     // a connection is opened.
-    ssize_t column = (_active_entry - _page_start) % _entries_per_row;
-    ssize_t row = (_active_entry - _page_start) / _entries_per_row;
+    ssize_t column = _active_entry % _entries_per_row;
+    ssize_t row = _active_entry / _entries_per_row;
     int hotspot_x = (int)(DOCUMENTS_LEFT_PADDING + (column + 0.5) * DOCUMENTS_ENTRY_WIDTH);
     int hotspot_y = (int)(DOCUMENTS_TOP_PADDING + (row + 1) * DOCUMENTS_ENTRY_HEIGHT);
     base::Rect message_rect = base::Rect(hotspot_x - MESSAGE_WIDTH / 2, hotspot_y + POPUP_TIP_HEIGHT,
@@ -658,8 +576,6 @@ public:
 
       if (_backing_scale_when_icons_loaded == 0)
       {
-        _page_down_icon = mforms::Utilities::load_icon("wb_tile_page-down.png");
-        _page_up_icon = mforms::Utilities::load_icon("wb_tile_page-up.png");
         _plus_icon = mforms::Utilities::load_icon("wb_tile_plus.png");
         _sql_icon = mforms::Utilities::load_icon("wb_doc_sql.png");
         _size_icon = mforms::Utilities::load_icon("wb_tile_number.png");
@@ -763,7 +679,7 @@ public:
       bounds.pos.x = DOCUMENTS_LEFT_PADDING;
       for (int column = 0; column < entries_per_row; column++)
       {
-        size_t index = _page_start + row * entries_per_row + column;
+        size_t index = row * entries_per_row + column;
         if (index >= _filtered_documents.size())
         {
           done = true;
@@ -786,27 +702,6 @@ public:
       bounds.pos.y += DOCUMENTS_ENTRY_HEIGHT + DOCUMENTS_VERTICAL_SPACING;
       if (bounds.top() >= height)
         done = true;
-    }
-
-    // See if we need to draw the paging indicator.
-    height -= DOCUMENTS_TOP_PADDING;
-    int rows_per_page = height / (DOCUMENTS_ENTRY_HEIGHT + DOCUMENTS_VERTICAL_SPACING);
-    if (rows_per_page < 1)
-      rows_per_page = 1;
-    int rows = (int)ceil(_filtered_documents.size() / (float)entries_per_row);
-    _entries_per_page = entries_per_row * rows_per_page;
-    int pages = (int)ceil(rows / (float)rows_per_page);
-    if (pages > 1)
-    {
-      int current_row = (int)ceil(_page_start / (float)entries_per_row);
-      int current_page = (int)ceil(current_row / (float)rows_per_page);
-      draw_paging_part(cr, current_page, pages, high_contrast);
-    }
-    else
-    {
-      _page_up_button.bounds = base::Rect();
-      _page_down_button.bounds = base::Rect();
-      _page_start = 0; // Size increased to cover the full content.
     }
 
     if (_show_selection_message)
@@ -881,7 +776,6 @@ public:
           if (_display_mode != ModelsOnly)
           {
             _display_mode = ModelsOnly;
-            _page_start = 0;
             update_filtered_documents();
             set_needs_repaint();
           }
@@ -895,7 +789,6 @@ public:
           if (_display_mode != ModelsOnly)
           {
             _display_mode = ModelsOnly;
-            _page_start = 0;
             update_filtered_documents();
             set_needs_repaint();
           }
@@ -913,29 +806,11 @@ public:
           }
         }
 
-        if (_page_up_button.bounds.contains(x, y))
-        {
-          // Page up clicked. Doesn't happen if we are on the first page already.
-          _page_start -= _entries_per_page;
-          if (_page_start < 0)
-            _page_start = 0;
-          set_needs_repaint();
-          return true;
-        }
-
-        if (_page_down_button.bounds.contains(x, y))
-        {
-          _page_start += _entries_per_page;
-          set_needs_repaint();
-          return true;
-        }
-
         if (_model_heading_rect.contains_flipped(x, y))
         {
           if (_display_mode != ModelsOnly)
           {
             _display_mode = ModelsOnly;
-            _page_start = 0;
             update_filtered_documents();
             set_needs_repaint();
           }
@@ -947,7 +822,6 @@ public:
           if (_display_mode != ScriptsOnly)
           {
             _display_mode = ScriptsOnly;
-            _page_start = 0;
             update_filtered_documents();
             set_needs_repaint();
           }
@@ -959,7 +833,6 @@ public:
           if (_display_mode != Mixed)
           {
             _display_mode = Mixed;
-            _page_start = 0;
             update_filtered_documents();
             set_needs_repaint();
           }
@@ -1020,7 +893,6 @@ public:
             if (_display_mode != ModelsOnly)
             {
               _display_mode = ModelsOnly;
-              _page_start = 0;
               update_filtered_documents();
               set_needs_repaint();
             }
@@ -1034,7 +906,6 @@ public:
             if (_display_mode != ModelsOnly)
             {
               _display_mode = ModelsOnly;
-              _page_start = 0;
               update_filtered_documents();
               set_needs_repaint();
             }
@@ -1049,27 +920,6 @@ public:
               _model_action_menu->popup_at(this, x, y);
           }
 
-          if (_page_up_button.bounds.contains(x, y))
-          {
-            _owner->cancel_script_loading();
-
-            // Page up clicked. Doesn't happen if we are on the first page already.
-            _page_start -= _entries_per_page;
-            if (_page_start < 0)
-              _page_start = 0;
-            set_needs_repaint();
-            return true;
-          }
-
-          if (_page_down_button.bounds.contains(x, y))
-          {
-            _owner->cancel_script_loading();
-
-            _page_start += _entries_per_page;
-            set_needs_repaint();
-            return true;
-          }
-
           if (_model_heading_rect.contains_flipped(x, y))
           {
             _owner->cancel_script_loading();
@@ -1077,7 +927,6 @@ public:
             if (_display_mode != ModelsOnly)
             {
               _display_mode = ModelsOnly;
-              _page_start = 0;
               update_filtered_documents();
               set_needs_repaint();
             }
@@ -1089,7 +938,6 @@ public:
             if (_display_mode != ScriptsOnly)
             {
               _display_mode = ScriptsOnly;
-              _page_start = 0;
               update_filtered_documents();
               set_needs_repaint();
             }
@@ -1103,7 +951,6 @@ public:
             if (_display_mode != Mixed)
             {
               _display_mode = Mixed;
-              _page_start = 0;
               update_filtered_documents();
               set_needs_repaint();
             }
@@ -1277,10 +1124,6 @@ public:
     int ret_val = 3;
     ret_val += (int)_filtered_documents.size();
 
-    // Adds a child for each paging icon if shown
-    if (_page_up_button.bounds.width())
-      ret_val += 2;
-
     return ret_val;
   }
 
@@ -1303,11 +1146,6 @@ public:
 
           if (index < (int) _filtered_documents.size())
             accessible = &_filtered_documents[index];
-          else
-          {
-            index -= (int)_filtered_documents.size();
-            accessible = index ? &_page_down_button : &_page_up_button;
-          }
         }
     }
 
@@ -1333,10 +1171,6 @@ public:
       accessible = &_open_button;
     else if (_action_button.bounds.contains(x, y))
       accessible = &_action_button;
-    else if (_page_up_button.bounds.contains(x, y))
-      accessible = &_page_up_button;
-    else if (_page_down_button.bounds.contains(x, y))
-      accessible = &_page_down_button;
     else
     {
       ssize_t entry = entry_from_point(x, y);
@@ -1498,9 +1332,9 @@ public:
   {
     cairo_set_source_rgba(cr, 255.0, 255.0, 255.0, alpha);
 
-    cairo_move_to(cr, x2, y1 + abs(y2 - y1)/4);
-    cairo_line_to(cr, x1 + abs(x2 - x1)/2, y1 + abs(y2 - y1)/2);
-    cairo_line_to(cr, x2, y2 - abs(y2 - y1)/4);
+    cairo_move_to(cr, x2, y1 + abs(y2 - y1)/3);
+    cairo_line_to(cr, x1 + abs(x2 - x1)*0.6, y1 + abs(y2 - y1)/2);
+    cairo_line_to(cr, x2, y2 - abs(y2 - y1)/3);
     cairo_fill(cr);
   }
 
@@ -1842,7 +1676,7 @@ public:
 #include "workbench/wb_command_ui.h"
 
 HomeScreen::HomeScreen(CommandUI *cmdui, db_mgmt_ManagementRef rdbms)
-  : AppView(true, "home", true), _tabView(mforms::TabViewTabless)
+  : AppView(true, "home", true)
 {
   _rdbms = rdbms;
 
@@ -1856,30 +1690,52 @@ HomeScreen::HomeScreen(CommandUI *cmdui, db_mgmt_ManagementRef rdbms)
   _sidebarSection->set_size(85, -1);
   add(_sidebarSection, false, true);
 
+  mforms::ScrollPanel *scroll = mforms::manage(new mforms::ScrollPanel(mforms::ScrollPanelNoFlags));
+  _xConnectionsSection = new wb::XConnectionsSection(this);
+  _xConnectionsSection->set_name("Home X Connections Section");
+  _xConnectionsSection->set_size(1, -1); // We need initial size for OSX.
+  scroll->add(_xConnectionsSection);
+  add(scroll, true, true);
+
+  scroll = mforms::manage(new mforms::ScrollPanel(mforms::ScrollPanelNoFlags));
   _connection_section = new wb::ConnectionsSection(this);
   _connection_section->set_name("Home Connections Section");
-  _tabId.mysqlConnections = _tabView.add_page(_connection_section, _connection_section->get_name());
+  _connection_section->set_size(1, -1);  // We need initial size for OSX.
+  scroll->add(_connection_section);
+  add(scroll, true, true);
+  scroll->show(false);
 
+  scroll = mforms::manage(new mforms::ScrollPanel(mforms::ScrollPanelNoFlags));
   _document_section = new DocumentsSection(this);
   _document_section->set_name("Home Models Section");
-  _tabId.models = _tabView.add_page(_document_section, _document_section->get_name());
+  _document_section->set_size(1, -1); // We need initial size for OSX.
+  scroll->add(_document_section);
+  add(scroll, true, true);
+  scroll->show(false);
+
+  _sidebarSection->addEntry("wb_starter_grt_shell_52.png", [this](){
+    _xConnectionsSection->get_parent()->show(true);
+    _connection_section->get_parent()->show(false);
+    _document_section->get_parent()->show(false);
+  }, true);
 
   _sidebarSection->addEntry("wb_starter_mysql_bug_reporter_52.png", [this]() {
-    _tabView.set_active_tab(_tabId.mysqlConnections);
+    _xConnectionsSection->get_parent()->show(false);
+    _connection_section->get_parent()->show(true);
+    _document_section->get_parent()->show(false);
   }, true);
 
   _sidebarSection->addEntry("wb_starter_mysql_wb_blog_52.png", [this]() {
-    _tabView.set_active_tab(_tabId.models);
+    _xConnectionsSection->get_parent()->show(false);
+        _connection_section->get_parent()->show(false);
+        _document_section->get_parent()->show(true);
+
   }, true);
 
   _sidebarSection->addEntry("wb_starter_mysql_migration_52.png", [this]() {
       if (openMigrationCallback)
         openMigrationCallback();
   }, false);
-
-
-
-  add(&_tabView, true, true);
   
   set_menubar(mforms::manage(cmdui->create_menubar_for_context(WB_CONTEXT_HOME_GLOBAL)));
   //_toolbar = mforms::manage(cmdui->create_toolbar(""));
@@ -1900,23 +1756,15 @@ HomeScreen::~HomeScreen()
   delete _sidebarSection;
   delete _connection_section;
   delete _document_section;
+  delete _xConnectionsSection;
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void HomeScreen::update_colors()
 {
-#ifdef __APPLE__
-  _connection_section->set_back_color("#323232");
-  _document_section->set_back_color("#343434");
-  _shortcut_section->set_back_color("#373737");
-#else
-  bool high_contrast = base::Color::is_high_contrast_scheme();
-
-  _connection_section->set_back_color(high_contrast ? "#f0f0f0" : "#1d1d1d");
-  _document_section->set_back_color(high_contrast ? "#f8f8f8" : "#242424");
-  _sidebarSection->set_back_color(high_contrast ? "#ffffff" : "#303030");
-#endif
+  set_back_color("#ffffff");
+  _sidebarSection->set_back_color("#464646");
 }
 
 //--------------------------------------------------------------------------------------------------
