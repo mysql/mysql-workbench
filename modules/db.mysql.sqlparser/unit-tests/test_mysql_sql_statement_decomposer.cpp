@@ -67,7 +67,7 @@ TEST_FUNCTION(1)
   sql_statement_decomposer= sql_facade->sqlStatementDecomposer();
   ensure("failed to instantiate SqlStatementDecomposer class", (NULL != sql_statement_decomposer.get()));
 
-  catalog = db_CatalogRef(true);
+  catalog = db_CatalogRef(grt::Initialized);
   db_SchemaRef schema= add_schema("test");
   view= add_view(schema, "");
 
