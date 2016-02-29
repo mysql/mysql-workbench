@@ -1096,7 +1096,9 @@ int SimpleSidebar::add_section(const std::string &name, const string& title, mfo
     return result;
 
   SidebarSection* box = new SidebarSection(this, name, title, flags);
+#ifndef __APPLE__
   box->set_back_color(get_back_color());
+#endif
   _sections.push_back(box);
   add(box, false, true);
 
@@ -1430,12 +1432,16 @@ void AdvancedSidebar::setup_schema_tree()
   _new_schema_tree.set_name("Schema Tree");
   _new_schema_tree.add_column(mforms::IconStringColumnType, _("Schema"), 100, false, true);
   _new_schema_tree.set_selection_mode(mforms::TreeSelectMultiple);
+#ifndef __APPLE__
   _new_schema_tree.set_back_color(background_color);
+#endif
   scoped_connect(_new_schema_tree.signal_changed(), boost::bind(&AdvancedSidebar::on_tree_node_selected, this));
 
   _filtered_schema_tree.add_column(mforms::IconStringColumnType, _("Schema"), 100, false, true);
   _filtered_schema_tree.set_selection_mode(mforms::TreeSelectMultiple);
+#ifndef __APPLE__
   _filtered_schema_tree.set_back_color(background_color);
+#endif
   scoped_connect(_filtered_schema_tree.signal_changed(), boost::bind(&AdvancedSidebar::on_tree_node_selected, this));
 
   _new_schema_tree.set_context_menu(&_tree_context_menu);
@@ -1446,7 +1452,9 @@ void AdvancedSidebar::setup_schema_tree()
 
   scoped_connect(_tree_context_menu.signal_will_show(),boost::bind(&AdvancedSidebar::on_show_menu, this, _1));
 
+#ifndef __APPLE__
   _schema_search_box.set_back_color(background_color);
+#endif
   _schema_search_box.set_name("schema-search-box");
   _schema_search_box.set_spacing(5);
 #ifdef _WIN32
@@ -1475,7 +1483,9 @@ void AdvancedSidebar::setup_schema_tree()
   scoped_connect(_remote_search.signal_clicked(), boost::bind(&AdvancedSidebar::on_remote_search_clicked, this));
 
   // Add the tree itself and its section caption to the container.
+#ifndef __APPLE__
   _schema_box.set_back_color(background_color);
+#endif
   _schema_box.add(&_schema_search_box, false, true);
   _schema_box.add(&_new_schema_tree, true, true);
   _schema_box.show(false);
@@ -1509,11 +1519,13 @@ void AdvancedSidebar::handle_notification(const std::string &name, void *sender,
         break;
     }
 
+#ifndef __APPLE__
     _new_schema_tree.set_back_color(background_color);
     _filtered_schema_tree.set_back_color(background_color);
     _schema_box.set_back_color(background_color);
 
     _schema_search_box.set_back_color(toolbar_background_color);
+#endif
   }
 }
 
