@@ -156,7 +156,6 @@ namespace wb
     home_screen_action_callback _callback;
     void* _user_data;
     mforms::TabView _tabView;
-    struct { int mysqlConnections; int xConnections; int models; } _tabId;
 
     void update_colors();
 
