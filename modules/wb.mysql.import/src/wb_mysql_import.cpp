@@ -71,7 +71,7 @@ grt::ListRef<app_Plugin> WbMysqlImportImpl::getPluginInfo()
   obj_arg->objectStructName(db_Catalog::static_class_name());
   plugin->inputValues().insert(obj_arg);
 
-  file_arg= app_PluginFileInputRef;
+  file_arg= app_PluginFileInputRef(grt::Initialized);
   file_arg->name("filename");
   file_arg->dialogTitle(("Import MySQL SQL Script"));
   file_arg->dialogType("open");

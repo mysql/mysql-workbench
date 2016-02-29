@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _WB_OVERVIEW_PHYSICAL_H_
-#define _WB_OVERVIEW_PHYSICAL_H_
+#pragma once
 
 #include "workbench/wb_overview.h"
 
@@ -186,4 +185,3 @@ namespace wb {
   };
 };
 
-#endif /* _WB_OVERVIEW_PHYSICAL_H_ */
