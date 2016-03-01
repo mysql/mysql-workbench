@@ -113,7 +113,7 @@ std::string Shell::get_abspath(const std::string &curpath, const std::string &di
 
 void Shell::print(const std::string &str)
 {
-  GRT::get().send_output(str);
+  grt::GRT::get()->send_output(str);
 }
 
 

@@ -243,7 +243,7 @@ namespace grt {
   the_class() { std::string name= grt::get_type_name(typeid(*this)); _implemented_interfaces.push_back(name.substr(0, name.length()-4)); /* truncate Impl part*/ }\
   static void register_interface() {\
     std::string name= grt::get_type_name(typeid(the_class));\
-    grt::GRT::get().register_new_interface(grt::Interface::create(name.c_str(), __VA_ARGS__, NULL));\
+    grt::GRT::get()->register_new_interface(grt::Interface::create(name.c_str(), __VA_ARGS__, NULL));\
   }
 
 

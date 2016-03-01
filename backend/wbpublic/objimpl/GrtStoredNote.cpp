@@ -38,7 +38,7 @@ grt::StringRef GrtStoredNote::getText()
 {
   grt::BaseListRef args(true);
   args.ginsert(filename());
-  return grt::StringRef::cast_from(grt::GRT::get().call_module_function("Workbench", "getAttachedFileContents", args));
+  return grt::StringRef::cast_from(grt::GRT::get()->call_module_function("Workbench", "getAttachedFileContents", args));
 }
 
 
@@ -47,7 +47,7 @@ void GrtStoredNote::setText(const std::string &text)
   grt::BaseListRef args(true);
   args.ginsert(filename());
   args.ginsert(grt::StringRef(text));
-  grt::StringRef::cast_from(grt::GRT::get().call_module_function("Workbench", "setAttachedFileContents", args));
+  grt::StringRef::cast_from(grt::GRT::get()->call_module_function("Workbench", "setAttachedFileContents", args));
 }
 
 

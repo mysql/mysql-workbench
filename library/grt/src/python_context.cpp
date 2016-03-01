@@ -400,7 +400,7 @@ static PyObject *grt_print(PyObject *self, PyObject *args)
 #else
   g_print("%s", text.c_str()); // g_print is not routed to g_log
 #endif
-  GRT::get().send_output(text);
+  grt::GRT::get()->send_output(text);
   
   Py_INCREF(Py_None);
   return Py_None;
@@ -482,7 +482,7 @@ static PyObject *grt_send_output(PyObject *self, PyObject *args)
     if (!ctx->pystring_to_string(o, text, true))
       return NULL;
 
-  GRT::get().send_output(text);
+  grt::GRT::get()->send_output(text);
   
   Py_INCREF(Py_None);
   return Py_None;
@@ -516,7 +516,7 @@ static PyObject *grt_send_warning(PyObject *self, PyObject *args)
       return NULL;
   }
   
-  GRT::get().send_warning(text, detail);
+  grt::GRT::get()->send_warning(text, detail);
   
   Py_INCREF(Py_None);
   return Py_None;
@@ -549,7 +549,7 @@ static PyObject *grt_send_info(PyObject *self, PyObject *args)
       return NULL;
   }
 
-  GRT::get().send_info(text, detail);
+  grt::GRT::get()->send_info(text, detail);
 //  log_debug2("grt.python", "%s: (%s)", text.c_str(), detail.c_str());
 
   Py_INCREF(Py_None);
@@ -583,7 +583,7 @@ static PyObject *grt_send_error(PyObject *self, PyObject *args)
       return NULL;
   }
   
-  GRT::get().send_error(text, detail);
+  grt::GRT::get()->send_error(text, detail);
   
   Py_INCREF(Py_None);
   return Py_None;
@@ -606,7 +606,7 @@ static PyObject *grt_send_progress(PyObject *self, PyObject *args)
     return NULL;
   if (detailo && !ctx->pystring_to_string(detailo, detail, true))
     return NULL;
-  GRT::get().send_progress(pct, text, detail, NULL);
+  grt::GRT::get()->send_progress(pct, text, detail, NULL);
   Py_INCREF(Py_None);
   return Py_None;
 }
@@ -621,7 +621,7 @@ static PyObject *grt_begin_progress_step(PyObject *self, PyObject *args)
   if (!PyArg_ParseTuple(args, "ff", &pct1, &pct2))
     return NULL;
   
-  GRT::get().begin_progress_step(pct1, pct2);
+  grt::GRT::get()->begin_progress_step(pct1, pct2);
 
   Py_RETURN_NONE;
 }
@@ -635,7 +635,7 @@ static PyObject *grt_end_progress_step(PyObject *self, PyObject *args)
   if (!PyArg_ParseTuple(args, ""))
     return NULL;
   
-  GRT::get().end_progress_step();
+  grt::GRT::get()->end_progress_step();
   
   Py_RETURN_NONE;
 }
@@ -649,7 +649,7 @@ static PyObject *grt_reset_progress_steps(PyObject *self, PyObject *args)
   if (!PyArg_ParseTuple(args, ""))
     return NULL;
   
-  GRT::get().reset_progress_steps();
+  grt::GRT::get()->reset_progress_steps();
   
   Py_RETURN_NONE;
 }
@@ -685,7 +685,7 @@ static PyObject *grt_get_by_path(PyObject *self, PyObject *args)
     }
   }
   else
-    value= GRT::get().root();
+    value= grt::GRT::get()->root();
   
   if (!path)
     path= "";
@@ -880,9 +880,9 @@ static PyObject *grt_push_message_handler(PyObject *self, PyObject *args)
   if (!PyCallable_Check(o))
     return NULL;
   
-  GRT::get().push_message_handler(boost::bind(&call_handle_message, _1, _2, AutoPyObject(o)));
+  grt::GRT::get()->push_message_handler(boost::bind(&call_handle_message, _1, _2, AutoPyObject(o)));
 
-  return Py_BuildValue("i", GRT::get().message_handler_count());
+  return Py_BuildValue("i", grt::GRT::get()->message_handler_count());
 }
 
 
@@ -892,9 +892,9 @@ static PyObject *grt_pop_message_handler(PyObject *self, PyObject *args)
   if (!(ctx= PythonContext::get_and_check()))
     return NULL;
   
-  GRT::get().pop_message_handler();
+  grt::GRT::get()->pop_message_handler();
   
-  return Py_BuildValue("i", GRT::get().message_handler_count());
+  return Py_BuildValue("i", grt::GRT::get()->message_handler_count());
 }
 
 //
@@ -937,7 +937,7 @@ static PyObject *grt_push_status_query_handler(PyObject *self, PyObject *args)
   if (!PyCallable_Check(o))
     return NULL;
   
-  GRT::get().push_status_query_handler(boost::bind(&call_status_query, AutoPyObject(o)));
+  grt::GRT::get()->push_status_query_handler(boost::bind(&call_status_query, AutoPyObject(o)));
   
   Py_RETURN_NONE;
 }
@@ -949,7 +949,7 @@ static PyObject *grt_pop_status_query_handler(PyObject *self, PyObject *args)
   if (!(ctx= PythonContext::get_and_check()))
     return NULL;
   
-  GRT::get().pop_status_query_handler();
+  grt::GRT::get()->pop_status_query_handler();
   
   Py_RETURN_NONE;
 }
@@ -963,7 +963,7 @@ static PyObject *grt_query_status(PyObject *self, PyObject *args)
   if (args && !PyArg_ParseTuple(args, ""))
     return NULL;
   
-  if (GRT::get().query_status())
+  if (grt::GRT::get()->query_status())
     Py_RETURN_TRUE;
   else
     Py_RETURN_FALSE;
@@ -998,7 +998,7 @@ static PyObject *grt_serialize(PyObject *self, PyObject *args)
   
   try
   {
-    GRT::get().serialize(value, path);
+    grt::GRT::get()->serialize(value, path);
   }
   catch (const std::exception &exc)
   {
@@ -1028,7 +1028,7 @@ static PyObject *grt_unserialize(PyObject *self, PyObject *args)
   
   try
   {
-    grt::ValueRef value = GRT::get().unserialize(path);
+    grt::ValueRef value = grt::GRT::get()->unserialize(path);
     return ctx->from_grt(value);
   }
   catch (const std::exception &exc)
@@ -1921,14 +1921,14 @@ int PythonContext::refresh()
 {
   WillEnterPython lock;
   
-  PyModule_AddObject(get_grt_module(), "root", from_grt(GRT::get().root()));
+  PyModule_AddObject(get_grt_module(), "root", from_grt(grt::GRT::get()->root()));
   
   PyObject *classes_dict= PyModule_GetDict(_grt_classes_module);
 
   Py_INCREF(classes_dict);
 
   // Generate Python class hierarchy to wrap GRT classes
-  const std::list<grt::MetaClass*> &classes(GRT::get().get_metaclasses());
+  const std::list<grt::MetaClass*> &classes(grt::GRT::get()->get_metaclasses());
   for (std::list<grt::MetaClass*>::const_iterator iter= classes.begin(); iter != classes.end(); ++iter)
   {
     create_class_wrapper(*iter, classes_dict);
@@ -1939,7 +1939,7 @@ int PythonContext::refresh()
   Py_DECREF(classes_dict);
   
   // Generate module wrappers
-  const std::vector<grt::Module*> &modules(GRT::get().get_modules());
+  const std::vector<grt::Module*> &modules(grt::GRT::get()->get_modules());
   for (std::vector<grt::Module*>::const_iterator iter= modules.begin(); iter != modules.end(); ++iter)
   {
     PyObject *arg = Py_BuildValue("(s)", (*iter)->name().c_str());

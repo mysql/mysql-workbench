@@ -360,7 +360,7 @@ public:
 
   bool perform_sync_db()
   {
-    grt::GRT::get().send_info("Applying synchronization scripts to server...");
+    grt::GRT::get()->send_info("Applying synchronization scripts to server...");
     
     execute_grt_task(boost::bind(&Db_plugin::apply_script_to_db, ((WbPluginDbSynchronize*)_form)->get_db_be()), false);
     
@@ -381,7 +381,7 @@ public:
 
   bool perform_sync_model()
   {
-    grt::GRT::get().send_info("Updating model...");
+    grt::GRT::get()->send_info("Updating model...");
     if (!_got_error_messages)
     {
       ((WbPluginDbSynchronize*)_form)->get_be()->save_sync_profile();

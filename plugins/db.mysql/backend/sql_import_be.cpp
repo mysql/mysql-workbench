@@ -29,12 +29,12 @@ void Sql_import::grtm(bec::GRTManager *grtm)
   if (grtm)
   {
     _options= grt::DictRef(true);
-    _doc= workbench_DocumentRef::cast_from(grt::GRT::get().get("/wb/doc"));
+    _doc= workbench_DocumentRef::cast_from(grt::GRT::get()->get("/wb/doc"));
 
     // init some options based on global defaults
     // FE will query them to init controls state
     {
-      grt::DictRef options= grt::DictRef::cast_from(grt::GRT::get().get("/wb/options/options"));
+      grt::DictRef options= grt::DictRef::cast_from(grt::GRT::get()->get("/wb/options/options"));
       const char *option_names[]= { "SqlIdentifiersCS" };
       for (size_t n= 0, count= sizeof(option_names)/sizeof(option_names[0]); n < count; ++n)
         _options.set(option_names[n], options.get(option_names[n]));
@@ -71,7 +71,7 @@ grt::StringRef Sql_import::parse_sql_script(db_CatalogRef catalog, const std::st
   _options.set("created_objects", created_objects);
 
   parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
-  db_mgmt_RdbmsRef rdbms = db_mgmt_RdbmsRef::cast_from(grt::GRT::get().get("/wb/rdbmsMgmt/rdbms/0/"));
+  db_mgmt_RdbmsRef rdbms = db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->get("/wb/rdbmsMgmt/rdbms/0/"));
   parser::ParserContext::Ref context = services->createParserContext(rdbms->characterSets(), getVersion(), /*_lower_case_table_names != 0*/ 0);
 
   parse_sql_script(services, context, catalog, sql_script, _options);
@@ -114,7 +114,7 @@ grt::ValueRef Sql_import::autoplace_grt()
 
   if (dbobjects.count() > 0)
   {
-    grt::Module *module= grt::GRT::get().get_module("WbModel");
+    grt::Module *module= grt::GRT::get()->get_module("WbModel");
 
     grt::BaseListRef args(true);
 

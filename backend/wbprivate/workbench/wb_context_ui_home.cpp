@@ -490,7 +490,7 @@ void WBContextUI::remove_connection(const db_mgmt_ConnectionRef &connection)
   grt::BaseListRef args(true);
   args->insert_unchecked(connection);
 
-  grt::ValueRef result = grt::GRT::get().call_module_function("Workbench", "deleteConnection", args);
+  grt::ValueRef result = grt::GRT::get()->call_module_function("Workbench", "deleteConnection", args);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -604,7 +604,7 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
       grt::BaseListRef args(true);
       args->insert_unchecked(object);
 
-      grt::ValueRef result = grt::GRT::get().call_module_function("Workbench", "deleteConnectionGroup", args);
+      grt::ValueRef result = grt::GRT::get()->call_module_function("Workbench", "deleteConnectionGroup", args);
 
       // Internal deletion does not require the UI update
       if (action == "delete_connection_group")
@@ -890,7 +890,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
 
       try
       {
-        grt::ValueRef result = grt::GRT::get().call_module_function("WBFabric", "updateConnections", args);
+        grt::ValueRef result = grt::GRT::get()->call_module_function("WBFabric", "updateConnections", args);
         error = grt::StringRef::extract_from(result);
       }
       catch (std::runtime_error &exc)
@@ -1028,7 +1028,7 @@ void WBContextUI::refresh_home_connections(bool clear_state)
   // local servers (only if this is the first run, after application start).
   if (_initializing_home_screen && (connections->count() == 0))
   {
-    grt::Module* module = grt::GRT::get().get_module("Workbench");
+    grt::Module* module = grt::GRT::get()->get_module("Workbench");
     if (module == NULL)
       throw std::logic_error("Internal error: can't find Workbench module.");
     

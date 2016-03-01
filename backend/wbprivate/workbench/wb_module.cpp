@@ -101,7 +101,7 @@ std::string WorkbenchImpl::getSystemInfo(bool indent)
   #endif
 
 
-  app_InfoRef info(app_InfoRef::cast_from(grt::GRT::get().get("/wb/info")));
+  app_InfoRef info(app_InfoRef::cast_from(grt::GRT::get()->get("/wb/info")));
 
   const char* tab = indent ? "\t" : "";
   std::string result = strfmt("%s%s %s (%s) for " PLATFORM_NAME " version %i.%i.%i %s build %i (%s)\n",
@@ -540,7 +540,7 @@ int WorkbenchImpl::newDocumentFromDB()
   if (!_wb->get_document().is_valid())
     _wb->new_document();
 
-  grt::Module *module = grt::GRT::get().get_module("MySQLDbModule");
+  grt::Module *module = grt::GRT::get()->get_module("MySQLDbModule");
 
   if (module == NULL)
     throw std::logic_error("Internal error: can't find Workbench DB module.");
@@ -1109,21 +1109,21 @@ int WorkbenchImpl::zoomDefault()
 
 int WorkbenchImpl::startTrackingUndo()
 {
- grt::GRT::get().begin_undoable_action();
+ grt::GRT::get()->begin_undoable_action();
   return 0;
 }
 
 
 int WorkbenchImpl::finishTrackingUndo(const std::string &description)
 {
- grt::GRT::get().end_undoable_action(description);
+ grt::GRT::get()->end_undoable_action(description);
   return 0;
 }
 
 
 int WorkbenchImpl::cancelTrackingUndo()
 {
- grt::GRT::get().cancel_undoable_action();
+ grt::GRT::get()->cancel_undoable_action();
   return 0;
 }
 
@@ -1131,43 +1131,43 @@ int WorkbenchImpl::cancelTrackingUndo()
 
 int WorkbenchImpl::addUndoListAdd(const BaseListRef &list)
 {
- grt::GRT::get().get_undo_manager()->add_undo(new grt::UndoListInsertAction(list));
+ grt::GRT::get()->get_undo_manager()->add_undo(new grt::UndoListInsertAction(list));
   return 0;
 }
 
 int WorkbenchImpl::addUndoListRemove(const BaseListRef &list, int index)
 {
- grt::GRT::get().get_undo_manager()->add_undo(new grt::UndoListRemoveAction(list, index));
+ grt::GRT::get()->get_undo_manager()->add_undo(new grt::UndoListRemoveAction(list, index));
   return 0;
 }
 
 int WorkbenchImpl::addUndoObjectChange(const ObjectRef &object, const std::string &member)
 {
- grt::GRT::get().get_undo_manager()->add_undo(new grt::UndoObjectChangeAction(object, member));
+ grt::GRT::get()->get_undo_manager()->add_undo(new grt::UndoObjectChangeAction(object, member));
   return 0;
 }
 
 int WorkbenchImpl::addUndoDictSet(const DictRef &dict, const std::string &key)
 {
-  grt::GRT::get().get_undo_manager()->add_undo(new grt::UndoDictSetAction(dict, key));
+  grt::GRT::get()->get_undo_manager()->add_undo(new grt::UndoDictSetAction(dict, key));
   return 0;
 }
 
 int WorkbenchImpl::beginUndoGroup()
 {
-  grt::GRT::get().get_undo_manager()->begin_undo_group();
+  grt::GRT::get()->get_undo_manager()->begin_undo_group();
   return 0;
 }
 
 int WorkbenchImpl::endUndoGroup()
 {
-  grt::GRT::get().get_undo_manager()->end_undo_group();
+  grt::GRT::get()->get_undo_manager()->end_undo_group();
   return 0;
 }
 
 int WorkbenchImpl::setUndoDescription(const std::string &text)
 {
-  grt::GRT::get().get_undo_manager()->set_action_description(text);
+  grt::GRT::get()->get_undo_manager()->set_action_description(text);
   return 0;
 }
 
@@ -1250,7 +1250,7 @@ static bool traverse_member(const MetaClass::Member *member, const ObjectRef &ow
   if (!v.is_valid())
   {
     if((member->type.base.type == ListType) || (member->type.base.type == DictType))
-      grt::GRT::get().send_output(strfmt("%s[%s] (type: %s, name: '%s', id: %s), has NULL list or dict member: '%s'\n",
+      grt::GRT::get()->send_output(strfmt("%s[%s] (type: %s, name: '%s', id: %s), has NULL list or dict member: '%s'\n",
                                 owner.class_name().c_str(), k.c_str(),
                                 object.class_name().c_str(), object.get_string_member("name").c_str(), object.id().c_str(),
                                 k.c_str()));
@@ -1261,11 +1261,11 @@ static bool traverse_member(const MetaClass::Member *member, const ObjectRef &ow
     if (ObjectRef::cast_from(v) != owner)
     {
       if (!v.is_valid())
-        grt::GRT::get().send_output(strfmt("%s[%s] (type: %s, name: '%s', id: %s), has no owner set\n",
+        grt::GRT::get()->send_output(strfmt("%s[%s] (type: %s, name: '%s', id: %s), has no owner set\n",
                                   owner.class_name().c_str(), member->name.c_str(),
                                   object.class_name().c_str(), object->get_string_member("name").c_str(), object.id().c_str()));
       else
-        grt::GRT::get().send_output(strfmt("%s[%s] (type: %s, name: '%s', id: %s), has bad owner (or missing attr:dontfollow)\n",
+        grt::GRT::get()->send_output(strfmt("%s[%s] (type: %s, name: '%s', id: %s), has bad owner (or missing attr:dontfollow)\n",
                                   owner.class_name().c_str(), member->name.c_str(),
                                   object.class_name().c_str(), object->get_string_member("name").c_str(), object.id().c_str()));
     }
@@ -1327,20 +1327,20 @@ static int traverse_value(const ObjectRef &owner, const std::string &member, con
 
 int WorkbenchImpl::debugValidateGRT()
 {
-  ValueRef root(grt::GRT::get().root());
+  ValueRef root(grt::GRT::get()->root());
   ObjectRef owner;
 
- grt::GRT::get().send_output("Validating GRT Tree...\n");
+ grt::GRT::get()->send_output("Validating GRT Tree...\n");
 
-//QQQ grt::GRT::get().lock_tree_read();
+//QQQ grt::GRT::get()->lock_tree_read();
 
   // make sure that all nodes have their owner set to their parent object
   // make sure that all refs that are not owned are marked dontfollow
   traverse_value(owner, "root", root);
 
-//QQQ grt::GRT::get().unlock_tree_read();
+//QQQ grt::GRT::get()->unlock_tree_read();
 
- grt::GRT::get().send_output("GRT Tree Validation Finished.\n");
+ grt::GRT::get()->send_output("GRT Tree Validation Finished.\n");
 
   return 0;
 }
@@ -1355,9 +1355,9 @@ int WorkbenchImpl::debugGrtStats()
 
 int WorkbenchImpl::debugShowInfo()
 {
-  grt::GRT::get().make_output_visible();
-  grt::GRT::get().send_output(getSystemInfo(false));
-  grt::GRT::get().send_output("\n");
+  grt::GRT::get()->make_output_visible();
+  grt::GRT::get()->send_output(getSystemInfo(false));
+  grt::GRT::get()->send_output("\n");
 
   return 0;
 }
@@ -2275,20 +2275,20 @@ int WorkbenchImpl::initializeOtherRDBMS()
   if (_is_other_dbms_initialized)
     return 0;
   _is_other_dbms_initialized = true;
- grt::GRT::get().send_output("Initializing rdbms modules\n");
+ grt::GRT::get()->send_output("Initializing rdbms modules\n");
 
   // Init MySQL first.
-  grt::Module* mysql_module = grt::GRT::get().get_module("DbMySQL");//already loaded on startup
+  grt::Module* mysql_module = grt::GRT::get()->get_module("DbMySQL");//already loaded on startup
   grt::BaseListRef args(true);
 
   // init other RDBMS
   bool failed = false;
-  const std::vector<grt::Module*> &modules(grt::GRT::get().get_modules());
+  const std::vector<grt::Module*> &modules(grt::GRT::get()->get_modules());
   for (std::vector<grt::Module*>::const_iterator m = modules.begin(); m != modules.end(); ++m)
   {
     if ((*m)->has_function("initializeDBMSInfo") && *m != mysql_module)
     {
-     grt::GRT::get().send_output(strfmt("Initializing %s rdbms info\n", (*m)->name().c_str()));
+     grt::GRT::get()->send_output(strfmt("Initializing %s rdbms info\n", (*m)->name().c_str()));
       try
       {
         (*m)->call_function("initializeDBMSInfo", args);

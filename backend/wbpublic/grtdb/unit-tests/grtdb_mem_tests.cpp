@@ -46,16 +46,16 @@ TEST_MODULE(bedb_mem_tests, "DB stuff memory tests");
 TEST_FUNCTION(10)
 {
   // Structs are auto registered.
-  int i= grt::GRT::get().scan_metaclasses_in("../../res/grt/");
+  int i= grt::GRT::get()->scan_metaclasses_in("../../res/grt/");
   ensure("load structs", i>0);
   
-  grt::GRT::get().end_loading_metaclasses();
+  grt::GRT::get()->end_loading_metaclasses();
 
   // load datatype groups so that it can be found during load of types
-  grt::GRT::get().set_root(grt::GRT::get().unserialize("../../res/grtdata/db_datatype_groups.xml"));
+  grt::GRT::get()->set_root(grt::GRT::get()->unserialize("../../res/grtdata/db_datatype_groups.xml"));
 
 
-  rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get().unserialize("data/res/mysql_rdbms_info.xml"));
+  rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->unserialize("data/res/mysql_rdbms_info.xml"));
 
   ensure("rdbms", rdbms.is_valid());
 }

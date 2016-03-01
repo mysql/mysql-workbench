@@ -1684,7 +1684,7 @@ bec::MenuItemList LiveSchemaTree::get_popup_items_for_nodes(const std::list<mfor
       {
         std::string caption = _("Select Rows");
         {
-          DictRef options= DictRef::cast_from(grt::GRT::get().get("/wb/options/options"));
+          DictRef options= DictRef::cast_from(grt::GRT::get()->get("/wb/options/options"));
           bool limit_rows= (0 != options.get_int("SqlEditor:LimitRows"));
           ssize_t limit_rows_count= options.get_int("SqlEditor:LimitRowsCount");
           if (limit_rows && (limit_rows_count <= 0))

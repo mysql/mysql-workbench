@@ -75,7 +75,7 @@ static int list_init(PyGRTListObject *self, PyObject *args, PyObject *kwds)
         
         if (class_name)
         {
-          if (!GRT::get().get_metaclass(class_name))
+          if (!grt::GRT::get()->get_metaclass(class_name))
           {
             PyErr_SetString(PyExc_NameError, "invalid GRT class name");
             return -1;

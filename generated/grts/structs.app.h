@@ -77,7 +77,7 @@ class  app_PluginInputDefinition : public GrtObject
   typedef GrtObject super;
 public:
   app_PluginInputDefinition(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name()))
 
   {
   }
@@ -96,7 +96,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&app_PluginInputDefinition::create);
   }
@@ -108,7 +108,7 @@ class  app_PluginObjectInput : public app_PluginInputDefinition
   typedef app_PluginInputDefinition super;
 public:
   app_PluginObjectInput(grt::MetaClass *meta=0)
-  : app_PluginInputDefinition(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : app_PluginInputDefinition(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _objectStructName("")
 
   {
@@ -149,7 +149,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&app_PluginObjectInput::create);
     {
@@ -166,7 +166,7 @@ class  app_PluginFileInput : public app_PluginInputDefinition
   typedef app_PluginInputDefinition super;
 public:
   app_PluginFileInput(grt::MetaClass *meta=0)
-  : app_PluginInputDefinition(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : app_PluginInputDefinition(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _dialogTitle(""),
      _dialogType(""),
      _fileExtensions("")
@@ -251,7 +251,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&app_PluginFileInput::create);
     {
@@ -279,7 +279,7 @@ class  app_PluginSelectionInput : public app_PluginInputDefinition
   typedef app_PluginInputDefinition super;
 public:
   app_PluginSelectionInput(grt::MetaClass *meta=0)
-  : app_PluginInputDefinition(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : app_PluginInputDefinition(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _argumentCardinality(""),
      _objectStructNames(grt::Initialized, this, false)
 
@@ -338,7 +338,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&app_PluginSelectionInput::create);
     {
@@ -361,7 +361,7 @@ class  app_Plugin : public GrtObject
   typedef GrtObject super;
 public:
   app_Plugin(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _attributes(this, false),
      _caption(""),
      _description(""),
@@ -608,7 +608,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&app_Plugin::create);
     {
@@ -675,7 +675,7 @@ class  app_DocumentPlugin : public app_Plugin
   typedef app_Plugin super;
 public:
   app_DocumentPlugin(grt::MetaClass *meta=0)
-  : app_Plugin(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
+  : app_Plugin(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name()))
 
   {
     _documentStructNames.content().__retype(grt::ObjectType, "");
@@ -704,7 +704,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&app_DocumentPlugin::create);
     {
@@ -722,7 +722,7 @@ class  app_PluginGroup : public GrtObject
   typedef GrtObject super;
 public:
   app_PluginGroup(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _category(""),
     _plugins(this, false)
 
@@ -783,7 +783,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&app_PluginGroup::create);
     {
@@ -805,7 +805,7 @@ class  app_Toolbar : public GrtObject
   typedef GrtObject super;
 public:
   app_Toolbar(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _items(this, false)
 
   {
@@ -844,7 +844,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&app_Toolbar::create);
     {
@@ -861,7 +861,7 @@ class  app_CommandItem : public GrtObject
   typedef GrtObject super;
 public:
   app_CommandItem(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _command(""),
      _context(""),
      _platform("")
@@ -946,7 +946,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&app_CommandItem::create);
     {
@@ -973,7 +973,7 @@ class  app_ToolbarItem : public app_CommandItem
   typedef app_CommandItem super;
 public:
   app_ToolbarItem(grt::MetaClass *meta=0)
-  : app_CommandItem(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : app_CommandItem(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _altIcon(""),
      _icon(""),
      _initialState(0),
@@ -1102,7 +1102,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&app_ToolbarItem::create);
     {
@@ -1139,7 +1139,7 @@ class  app_ShortcutItem : public app_CommandItem
   typedef app_CommandItem super;
 public:
   app_ShortcutItem(grt::MetaClass *meta=0)
-  : app_CommandItem(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : app_CommandItem(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _shortcut("")
 
   {
@@ -1180,7 +1180,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&app_ShortcutItem::create);
     {
@@ -1197,7 +1197,7 @@ class  app_MenuItem : public app_CommandItem
   typedef app_CommandItem super;
 public:
   app_MenuItem(grt::MetaClass *meta=0)
-  : app_CommandItem(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : app_CommandItem(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _caption(""),
      _itemType(""),
      _shortcut(""),
@@ -1302,7 +1302,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&app_MenuItem::create);
     {
@@ -1334,7 +1334,7 @@ class  app_CustomDataField : public GrtObject
   typedef GrtObject super;
 public:
   app_CustomDataField(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _defaultValue(""),
      _description(""),
      _objectStruct(""),
@@ -1441,7 +1441,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&app_CustomDataField::create);
     {
@@ -1473,7 +1473,7 @@ class  app_PageSettings : public GrtObject
   typedef GrtObject super;
 public:
   app_PageSettings(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _marginBottom(0.0),
      _marginLeft(0.0),
      _marginRight(0.0),
@@ -1645,7 +1645,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&app_PageSettings::create);
     {
@@ -1692,7 +1692,7 @@ class  app_PaperType : public GrtObject
   typedef GrtObject super;
 public:
   app_PaperType(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _caption(""),
      _height(0.0),
      _marginBottom(0.0),
@@ -1887,7 +1887,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&app_PaperType::create);
     {
@@ -1940,7 +1940,7 @@ class  app_Registry : public GrtObject
   typedef GrtObject super;
 public:
   app_Registry(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _appDataDirectory(""),
      _appExecutablePath(""),
     _customDataFields(this, false),
@@ -2063,7 +2063,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&app_Registry::create);
     {
@@ -2100,7 +2100,7 @@ class  app_Starter : public GrtObject
   typedef GrtObject super;
 public:
   app_Starter(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _authorHome(""),
      _command(""),
      _description(""),
@@ -2339,7 +2339,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&app_Starter::create);
     {
@@ -2402,7 +2402,7 @@ class  app_Starters : public GrtObject
   typedef GrtObject super;
 public:
   app_Starters(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _custom(this, false),
     _displayList(this, false),
     _predefined(this, false)
@@ -2479,7 +2479,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&app_Starters::create);
     {
@@ -2507,7 +2507,7 @@ class  app_Options : public GrtObject
   typedef GrtObject super;
 public:
   app_Options(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _commonOptions(this, false),
     _disabledPlugins(grt::Initialized, this, false),
     _options(this, false),
@@ -2618,7 +2618,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&app_Options::create);
     {
@@ -2656,7 +2656,7 @@ class  app_DocumentInfo : public GrtObject
   typedef GrtObject super;
 public:
   app_DocumentInfo(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _author(""),
      _caption(""),
      _dateChanged(""),
@@ -2829,7 +2829,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&app_DocumentInfo::create);
     {
@@ -2877,7 +2877,7 @@ class  app_Info : public GrtObject
   typedef GrtObject super;
 public:
   app_Info(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _caption(""),
      _copyright(""),
      _description(""),
@@ -3029,7 +3029,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&app_Info::create);
     {
@@ -3072,7 +3072,7 @@ class  app_Document : public GrtObject
   typedef GrtObject super;
 public:
   app_Document(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _customData(this, false)
 
   {
@@ -3155,7 +3155,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&app_Document::create);
     {
@@ -3183,7 +3183,7 @@ class  app_Application : public GrtObject
   typedef GrtObject super;
 public:
   app_Application(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _customData(this, false),
     _state(this, false)
 
@@ -3345,7 +3345,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&app_Application::create);
     {

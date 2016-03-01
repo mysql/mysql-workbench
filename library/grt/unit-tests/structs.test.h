@@ -61,7 +61,7 @@ class  test_Bridged : public grt::internal::Object
   typedef grt::internal::Object super;
 public:
   test_Bridged(grt::MetaClass *meta=0)
-  : grt::internal::Object(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : grt::internal::Object(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _books(this, false),
      _name(""),
      _x(0),
@@ -164,7 +164,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&test_Bridged::create);
     {
@@ -196,7 +196,7 @@ class  test_Base : public grt::internal::Object
   typedef grt::internal::Object super;
 public:
   test_Base(grt::MetaClass *meta=0)
-  : grt::internal::Object(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
+  : grt::internal::Object(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name()))
 
   {
   }
@@ -215,7 +215,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&test_Base::create);
   }
@@ -227,7 +227,7 @@ class  test_Publisher : public test_Base
   typedef test_Base super;
 public:
   test_Publisher(grt::MetaClass *meta=0)
-  : test_Base(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : test_Base(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _books(this, false),
      _name(""),
      _phone("")
@@ -310,7 +310,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&test_Publisher::create);
     {
@@ -337,7 +337,7 @@ class  test_Author : public test_Base
   typedef test_Base super;
 public:
   test_Author(grt::MetaClass *meta=0)
-  : test_Base(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : test_Base(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _name("")
 
   {
@@ -378,7 +378,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&test_Author::create);
     {
@@ -395,7 +395,7 @@ class  test_Publication : public test_Base
   typedef test_Base super;
 public:
   test_Publication(grt::MetaClass *meta=0)
-  : test_Base(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : test_Base(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _title("")
 
   {
@@ -436,7 +436,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&test_Publication::create);
     {
@@ -453,7 +453,7 @@ class  test_Book : public test_Publication
   typedef test_Publication super;
 public:
   test_Book(grt::MetaClass *meta=0)
-  : test_Publication(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : test_Publication(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _authors(this, false),
     _extras(this, false),
      _pages(0),
@@ -575,7 +575,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&test_Book::create);
     {

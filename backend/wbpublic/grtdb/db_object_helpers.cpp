@@ -290,7 +290,7 @@ db_TableRef TableHelper::create_associative_table(const db_SchemaRef &schema,
   name= base::replaceVariable(name, "%stable%", table1->name().c_str());
   name= base::replaceVariable(name, "%dtable%", table2->name().c_str());
 
-  atable= grt::GRT::get().create_object<db_Table>(table1.get_metaclass()->name());
+  atable= grt::GRT::get()->create_object<db_Table>(table1.get_metaclass()->name());
   atable->owner(schema);
   atable->name(get_name_suggestion_for_list_object(schema->tables(), name, false));
   atable->oldName(atable->name());
@@ -348,7 +348,7 @@ db_IndexRef TableHelper::create_index_for_fk(const db_ForeignKeyRef &fk, const s
   index_name = grt::get_name_suggestion_for_list_object(fk->owner()->indices(),index_name,false);
 
   // add the corresponding index
-  db_IndexRef index= grt::GRT::get().create_object<db_Index>(db_TableRef::cast_from(fk->owner()).get_metaclass()->get_member_type("indices").content.object_class.c_str());
+  db_IndexRef index= grt::GRT::get()->create_object<db_Index>(db_TableRef::cast_from(fk->owner()).get_metaclass()->get_member_type("indices").content.object_class.c_str());
   
   index->owner(fk->owner());
   index->name(index_name);
@@ -359,7 +359,7 @@ db_IndexRef TableHelper::create_index_for_fk(const db_ForeignKeyRef &fk, const s
   {
     db_ColumnRef col(fk->columns().get(i));
 
-    db_IndexColumnRef index_col(grt::GRT::get().create_object<db_IndexColumn>(index.get_metaclass()->get_member_type("columns").content.object_class));
+    db_IndexColumnRef index_col(grt::GRT::get()->create_object<db_IndexColumn>(index.get_metaclass()->get_member_type("columns").content.object_class));
     index_col->owner(index);
 //    "name", col->name().valueptr(),
     index_col->descend(grt::IntegerRef(0));
@@ -550,7 +550,7 @@ db_ForeignKeyRef TableHelper::create_empty_foreign_key(const db_TableRef &table,
   db_ForeignKeyRef fk;
 
   // create a new FK
-  fk= grt::GRT::get().create_object<db_ForeignKey>(table.get_metaclass()->get_member_type("foreignKeys").content.object_class);
+  fk= grt::GRT::get()->create_object<db_ForeignKey>(table.get_metaclass()->get_member_type("foreignKeys").content.object_class);
   fk->owner(table);
   fk->name(name.empty()?generate_foreign_key_name():name);
 
@@ -606,7 +606,7 @@ void TableHelper::update_foreign_key_index(const db_ForeignKeyRef &fk)
     for (size_t n= 0, count= fk_columns.count(); n < count; ++n)
     {
       db_ColumnRef column(fk_columns.get(n));
-      db_IndexColumnRef index_column(grt::GRT::get().create_object<db_IndexColumn>(index.get_metaclass()->get_member_type("columns").content.object_class));
+      db_IndexColumnRef index_column(grt::GRT::get()->create_object<db_IndexColumn>(index.get_metaclass()->get_member_type("columns").content.object_class));
       index_column->owner(index);
       //"name", column->name().valueptr(),
       index_column->referencedColumn(column);
@@ -707,7 +707,7 @@ db_ForeignKeyRef TableHelper::create_foreign_key_to_table(const db_TableRef &tab
   column_name_format= format_ident_with_stable_dtable(column_name_format, table, ref_table);
 
   // create a new FK
-  new_fk= grt::GRT::get().create_object<db_ForeignKey>(table.get_metaclass()->get_member_type("foreignKeys").content.object_class);
+  new_fk= grt::GRT::get()->create_object<db_ForeignKey>(table.get_metaclass()->get_member_type("foreignKeys").content.object_class);
   new_fk->oldName(new_fk->name());
 
   new_fk->deleteRule(options.get_string("db.ForeignKey:deleteRule", global_options.get_string("db.ForeignKey:deleteRule", "NO ACTION")));
@@ -726,7 +726,7 @@ db_ForeignKeyRef TableHelper::create_foreign_key_to_table(const db_TableRef &tab
     db_ColumnRef new_fk_column;
 
     // create the column that will be the FK in the other table
-    new_fk_column= grt::GRT::get().create_object<db_Column>(column.class_name());
+    new_fk_column= grt::GRT::get()->create_object<db_Column>(column.class_name());
     new_fk_column->owner(table);
     new_fk_column->name(get_name_suggestion_for_list_object(table->columns(), format_ident_with_column(column_name_format, column), false));
     new_fk_column->oldName(new_fk_column->name());
@@ -808,7 +808,7 @@ db_ForeignKeyRef TableHelper::create_foreign_key_to_table(const db_TableRef &tab
   name_format= format_ident_with_column(name_format, refcolumns[0]);
 
   // create a new FK
-  new_fk= grt::GRT::get().create_object<db_ForeignKey>(table.get_metaclass()->get_member_type("foreignKeys").content.object_class);
+  new_fk= grt::GRT::get()->create_object<db_ForeignKey>(table.get_metaclass()->get_member_type("foreignKeys").content.object_class);
 
   new_fk->deleteRule(options.get_string("db.ForeignKey:deleteRule", global_options.get_string("db.ForeignKey:deleteRule", "NO ACTION")));
   new_fk->updateRule(options.get_string("db.ForeignKey:updateRule", global_options.get_string("db.ForeignKey:updateRule", "NO ACTION")));
@@ -916,7 +916,7 @@ bool TableHelper::is_identifying_foreign_key(const db_TableRef &table, const db_
 db_mysql_StorageEngineRef TableHelper::get_engine_by_name(const std::string &name)
 {
   grt::ListRef<db_mysql_StorageEngine> engines;
-  Module *module= grt::GRT::get().get_module("DbMySQL");
+  Module *module= grt::GRT::get()->get_module("DbMySQL");
   
   if (!module)
     throw std::logic_error("module DbMySQL not found");

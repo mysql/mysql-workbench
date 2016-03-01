@@ -404,7 +404,7 @@ void SqlEditorResult::switch_tab()
         try
         {
           // run the visual explain plugin, so it will fill the result panel
-          grt::GRT::get().call_module_function("SQLIDEQueryAnalysis", "visualExplain", args);
+          grt::GRT::get()->call_module_function("SQLIDEQueryAnalysis", "visualExplain", args);
         }
         catch (std::exception &exc)
         {
@@ -505,7 +505,7 @@ void SqlEditorResult::show_import_recordset()
       if (result_grtobj().is_valid())
       {
         args.ginsert(result_grtobj());
-        grt::Module *module = grt::GRT::get().get_module("SQLIDEUtils");
+        grt::Module *module = grt::GRT::get()->get_module("SQLIDEUtils");
         if (module)
           module->call_function("importRecordsetDataFromFile", args);
       }

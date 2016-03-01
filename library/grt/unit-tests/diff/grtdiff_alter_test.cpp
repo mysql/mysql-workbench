@@ -49,7 +49,7 @@ protected:
   TEST_DATA_CONSTRUCTOR(grtdiff_alter_test)
   {
       omf.dontdiff_mask = 3;
-      diffsql_module= grt::GRT::get().get_native_module<DbMySQLImpl>();
+      diffsql_module= grt::GRT::get()->get_native_module<DbMySQLImpl>();
       ensure("DiffSQLGen module initialization", NULL != diffsql_module);
 
       // init datatypes
@@ -85,7 +85,7 @@ TEST_FUNCTION(3)
 
   std::list<std::string> schemata;
   schemata.push_back("grtdiff_alter_test");
-  grt::GRT::get().get_undo_manager()->disable();
+  grt::GRT::get()->get_undo_manager()->disable();
   db_mysql_CatalogRef cat= tester.db_rev_eng_schema(schemata);
   tester.wb->flush_idle_tasks();
   tester.wb->close_document();

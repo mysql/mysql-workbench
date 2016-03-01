@@ -40,7 +40,7 @@ public:
   class ImplData;
   friend class ImplData;
   parser_ContextReference(grt::MetaClass *meta=0)
-  : TransientObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : TransientObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _data(0)
 
   {
@@ -81,7 +81,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&parser_ContextReference::create);
     meta->bind_member("valid", new grt::MetaClass::Property<parser_ContextReference,grt::IntegerRef >(&parser_ContextReference::valid));
@@ -96,7 +96,7 @@ class GRT_STRUCTS_WRAPPER_PUBLIC mforms_ObjectReference : public TransientObject
 public:
   typedef mforms::Object ImplData;
   mforms_ObjectReference(grt::MetaClass *meta=0)
-  : TransientObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : TransientObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _type(""),
     _data(0), _release_data(NULL)
 
@@ -171,7 +171,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&mforms_ObjectReference::create);
     {
@@ -192,7 +192,7 @@ class GRT_STRUCTS_WRAPPER_PUBLIC grt_PyObject : public TransientObject
 public:
   typedef grt::AutoPyObject ImplData;
   grt_PyObject(grt::MetaClass *meta=0)
-  : TransientObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : TransientObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _data(0), _release_data(NULL)
 
   {
@@ -235,7 +235,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&grt_PyObject::create);
     meta->bind_method("isEqualTo", &grt_PyObject::call_isEqualTo);

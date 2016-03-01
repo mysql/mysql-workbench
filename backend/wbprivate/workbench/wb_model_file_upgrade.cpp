@@ -1006,7 +1006,7 @@ static void fix_duplicate_uuid_bug_references(xmlNodePtr node,
             for (std::map<std::string, std::string>::const_iterator opt = structs.begin();
                  opt != structs.end(); ++opt)
             {
-              grt::MetaClass *mc = grt::GRT::get().get_metaclass(opt->first);
+              grt::MetaClass *mc = grt::GRT::get()->get_metaclass(opt->first);
               while (mc)
               {
                 if (mc->name() == sname)

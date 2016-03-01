@@ -238,7 +238,7 @@ static int module_init(PyGRTModuleObject *self, PyObject *args, PyObject *kwds)
     if (!PyArg_ParseTuple(args, "z", &name))
       return -1;
 
-    self->module = GRT::get().get_module(name);
+    self->module = grt::GRT::get()->get_module(name);
     
     if (!self->module)
     {

@@ -47,7 +47,7 @@ public:
   void init()
   {
     grt::ListRef<db_mysql_StorageEngine> engines;
-    grt::Module *module= grt::GRT::get().get_module("DbMySQL");
+    grt::Module *module= grt::GRT::get()->get_module("DbMySQL");
     if (!module)
       throw std::logic_error("module DbMySQL not found");
     grt::BaseListRef args(true);

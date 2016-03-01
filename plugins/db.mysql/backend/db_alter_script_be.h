@@ -32,7 +32,7 @@ public:
   virtual db_mysql_CatalogRef get_model_catalog()
   {
     return db_mysql_CatalogRef::cast_from(
-      grt::GRT::get().get("/wb/doc/physicalModels/0/catalog"));
+      grt::GRT::get()->get("/wb/doc/physicalModels/0/catalog"));
   }
   virtual void get_compared_catalogs(db_CatalogRef &left, db_CatalogRef &right)
   {

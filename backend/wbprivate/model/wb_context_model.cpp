@@ -201,7 +201,7 @@ mforms::TreeView *WBContextModel::create_user_type_list()
 
 mforms::TreeView* WBContextModel::create_history_tree()
 {
-  HistoryTree *history_tree = new HistoryTree(_wbui->get_wb()->get_grt_manager(), grt::GRT::get().get_undo_manager());
+  HistoryTree *history_tree = new HistoryTree(_wbui->get_wb()->get_grt_manager(), grt::GRT::get()->get_undo_manager());
   history_tree->refresh();
   return history_tree;
 }
@@ -231,9 +231,9 @@ bool WBContextModel::auto_save_document()
       && _file
       && doc.is_valid() 
       && !wb->get_grt_manager()->get_dispatcher()->get_busy()
-      && grt::GRT::get().get_undo_manager()->get_latest_closed_undo_action() != _auto_save_point)
+      && grt::GRT::get()->get_undo_manager()->get_latest_closed_undo_action() != _auto_save_point)
   {
-    _auto_save_point = grt::GRT::get().get_undo_manager()->get_latest_closed_undo_action();
+    _auto_save_point = grt::GRT::get()->get_undo_manager()->get_latest_closed_undo_action();
     _last_auto_save_time = now;
     try
     {
@@ -1158,8 +1158,8 @@ int WBContextModel::add_object_plugins_to_popup_menu(const grt::ListRef<GrtObjec
 
 void WBContextModel::history_changed()
 {
-  std::string undo_description(grt::GRT::get().get_undo_manager()->undo_description());
-  std::string redo_description(grt::GRT::get().get_undo_manager()->redo_description());
+  std::string undo_description(grt::GRT::get()->get_undo_manager()->undo_description());
+  std::string redo_description(grt::GRT::get()->get_undo_manager()->redo_description());
 
   std::list<bec::UIForm*> forms;
   forms.push_back(_overview);
@@ -1497,7 +1497,7 @@ bool WBContextModel::remove_figure(model_ObjectRef object)
 
 model_DiagramRef WBContextModel::get_view_with_id(const std::string &id)
 {
-  return model_DiagramRef::cast_from(grt::GRT::get().find_object_by_id(id, "/wb/doc"));
+  return model_DiagramRef::cast_from(grt::GRT::get()->find_object_by_id(id, "/wb/doc"));
 }
 
 bool WBContextModel::delete_diagram(const model_DiagramRef &view)

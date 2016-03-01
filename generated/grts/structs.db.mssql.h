@@ -67,7 +67,7 @@ class  db_mssql_Sequence : public db_Sequence
   typedef db_Sequence super;
 public:
   db_mssql_Sequence(grt::MetaClass *meta=0)
-  : db_Sequence(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
+  : db_Sequence(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name()))
 
   {
   }
@@ -86,7 +86,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mssql_Sequence::create);
   }
@@ -99,7 +99,7 @@ class  db_mssql_Synonym : public db_Synonym
   typedef db_Synonym super;
 public:
   db_mssql_Synonym(grt::MetaClass *meta=0)
-  : db_Synonym(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
+  : db_Synonym(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name()))
 
   {
   }
@@ -118,7 +118,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mssql_Synonym::create);
   }
@@ -131,7 +131,7 @@ class  db_mssql_Routine : public db_Routine
   typedef db_Routine super;
 public:
   db_mssql_Routine(grt::MetaClass *meta=0)
-  : db_Routine(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
+  : db_Routine(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name()))
 
   {
   }
@@ -150,7 +150,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mssql_Routine::create);
   }
@@ -163,7 +163,7 @@ class  db_mssql_RoutineGroup : public db_RoutineGroup
   typedef db_RoutineGroup super;
 public:
   db_mssql_RoutineGroup(grt::MetaClass *meta=0)
-  : db_RoutineGroup(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
+  : db_RoutineGroup(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name()))
 
   {
   }
@@ -182,7 +182,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mssql_RoutineGroup::create);
   }
@@ -195,7 +195,7 @@ class  db_mssql_View : public db_View
   typedef db_View super;
 public:
   db_mssql_View(grt::MetaClass *meta=0)
-  : db_View(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
+  : db_View(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name()))
 
   {
   }
@@ -214,7 +214,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mssql_View::create);
   }
@@ -226,7 +226,7 @@ class  db_mssql_Trigger : public db_Trigger
   typedef db_Trigger super;
 public:
   db_mssql_Trigger(grt::MetaClass *meta=0)
-  : db_Trigger(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
+  : db_Trigger(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name()))
 
   {
   }
@@ -245,7 +245,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mssql_Trigger::create);
   }
@@ -257,7 +257,7 @@ class  db_mssql_ForeignKey : public db_ForeignKey
   typedef db_ForeignKey super;
 public:
   db_mssql_ForeignKey(grt::MetaClass *meta=0)
-  : db_ForeignKey(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
+  : db_ForeignKey(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name()))
 
   {
   }
@@ -276,7 +276,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mssql_ForeignKey::create);
   }
@@ -288,7 +288,7 @@ class  db_mssql_IndexColumn : public db_IndexColumn
   typedef db_IndexColumn super;
 public:
   db_mssql_IndexColumn(grt::MetaClass *meta=0)
-  : db_IndexColumn(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
+  : db_IndexColumn(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name()))
 
   {
   }
@@ -307,7 +307,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mssql_IndexColumn::create);
   }
@@ -319,7 +319,7 @@ class  db_mssql_Index : public db_Index
   typedef db_Index super;
 public:
   db_mssql_Index(grt::MetaClass *meta=0)
-  : db_Index(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : db_Index(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _clustered(0),
      _filterDefinition(""),
      _hasFilter(0),
@@ -426,7 +426,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mssql_Index::create);
     {
@@ -459,7 +459,7 @@ class  db_mssql_StructuredDatatype : public db_StructuredDatatype
   typedef db_StructuredDatatype super;
 public:
   db_mssql_StructuredDatatype(grt::MetaClass *meta=0)
-  : db_StructuredDatatype(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
+  : db_StructuredDatatype(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name()))
 
   {
   }
@@ -478,7 +478,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mssql_StructuredDatatype::create);
   }
@@ -490,7 +490,7 @@ class  db_mssql_UserDatatype : public db_UserDatatype
   typedef db_UserDatatype super;
 public:
   db_mssql_UserDatatype(grt::MetaClass *meta=0)
-  : db_UserDatatype(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : db_UserDatatype(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _characterMaximumLength(0),
      _isNullable(0),
      _numericPrecision(0),
@@ -597,7 +597,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mssql_UserDatatype::create);
     {
@@ -629,7 +629,7 @@ class  db_mssql_SimpleDatatype : public db_SimpleDatatype
   typedef db_SimpleDatatype super;
 public:
   db_mssql_SimpleDatatype(grt::MetaClass *meta=0)
-  : db_SimpleDatatype(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
+  : db_SimpleDatatype(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name()))
 
   {
   }
@@ -648,7 +648,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mssql_SimpleDatatype::create);
   }
@@ -660,7 +660,7 @@ class  db_mssql_Column : public db_Column
   typedef db_Column super;
 public:
   db_mssql_Column(grt::MetaClass *meta=0)
-  : db_Column(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : db_Column(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _computed(0),
      _identity(0)
 
@@ -723,7 +723,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mssql_Column::create);
     {
@@ -746,7 +746,7 @@ class  db_mssql_Table : public db_Table
   typedef db_Table super;
 public:
   db_mssql_Table(grt::MetaClass *meta=0)
-  : db_Table(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : db_Table(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _createdDatetime("")
 
   {
@@ -787,7 +787,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mssql_Table::create);
     {
@@ -804,7 +804,7 @@ class  db_mssql_Schema : public db_Schema
   typedef db_Schema super;
 public:
   db_mssql_Schema(grt::MetaClass *meta=0)
-  : db_Schema(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
+  : db_Schema(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name()))
 
   {
     _routineGroups.content().__retype(grt::ObjectType, "db.mssql.RoutineGroup");
@@ -907,7 +907,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mssql_Schema::create);
     {
@@ -954,7 +954,7 @@ class  db_mssql_Catalog : public db_Catalog
   typedef db_Catalog super;
 public:
   db_mssql_Catalog(grt::MetaClass *meta=0)
-  : db_Catalog(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
+  : db_Catalog(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name()))
 
   {
     _schemata.content().__retype(grt::ObjectType, "db.mssql.Schema");
@@ -985,7 +985,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mssql_Catalog::create);
     {

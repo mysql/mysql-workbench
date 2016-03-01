@@ -107,11 +107,11 @@ CATCH_EXCEPTION_AND_DISPATCH(statement)
 #define CATCH_ANY_EXCEPTION_AND_DISPATCH_TO_DEFAULT_LOG(statement) \
 catch (sql::SQLException &e)\
 {\
-  grt::GRT::get().send_error(strfmt(SQL_EXCEPTION_MSG_FORMAT, e.getErrorCode(), e.what()), statement);\
+  grt::GRT::get()->send_error(strfmt(SQL_EXCEPTION_MSG_FORMAT, e.getErrorCode(), e.what()), statement);\
 }\
 catch (std::exception &e)\
 {\
-  grt::GRT::get().send_error(strfmt(EXCEPTION_MSG_FORMAT, e.what()), statement);\
+  grt::GRT::get()->send_error(strfmt(EXCEPTION_MSG_FORMAT, e.what()), statement);\
 }
 
 
@@ -1450,7 +1450,7 @@ grt::StringRef SqlEditorForm::do_connect(boost::shared_ptr<sql::TunnelConnection
       {
         // if there's no connection, then we continue anyway if this is a local connection or
         // a remote connection with remote admin enabled..
-        grt::Module *m = grt::GRT::get().get_module("WbAdmin");
+        grt::Module *m = grt::GRT::get()->get_module("WbAdmin");
         grt::BaseListRef args(true);
         args.ginsert(_connection);
         if (!m || *grt::IntegerRef::cast_from(m->call_function("checkConnectionForRemoteAdmin", args)) == 0)
@@ -1483,7 +1483,7 @@ grt::StringRef SqlEditorForm::do_connect(boost::shared_ptr<sql::TunnelConnection
       {
         // if there's no connection, then we continue anyway if this is a local connection or
         // a remote connection with remote admin enabled..
-        grt::GRT::get().get_module("WbAdmin");
+        grt::GRT::get()->get_module("WbAdmin");
         grt::BaseListRef args(true);
         args.ginsert(_connection);
       }
@@ -1838,7 +1838,7 @@ void SqlEditorForm::explain_current_statement()
     args.ginsert(panel->grtobj());
     args.ginsert(result->grtobj());
     // run the visual explain plugin, so it will fill the result panel
-    grt::GRT::get().call_module_function("SQLIDEQueryAnalysis", "visualExplain", args);
+    grt::GRT::get()->call_module_function("SQLIDEQueryAnalysis", "visualExplain", args);
   }
 }
 
@@ -2956,7 +2956,7 @@ void SqlEditorForm::active_schema(const std::string &value)
     else
       grt_manager()->replace_status_text(strfmt(_("Active schema changed to %s"), value.c_str()));
     
-    grt::GRT::get().call_module_function("Workbench", "saveConnections", grt::BaseListRef());
+    grt::GRT::get()->call_module_function("Workbench", "saveConnections", grt::BaseListRef());
   }
   CATCH_ANY_EXCEPTION_AND_DISPATCH(_("Set active schema"))
 }
@@ -2971,7 +2971,7 @@ db_mgmt_RdbmsRef SqlEditorForm::rdbms()
     return db_mgmt_RdbmsRef::cast_from(_connection->driver()->owner());
   }
   else
-    return db_mgmt_RdbmsRef::cast_from(grt::GRT::get().get("/wb/rdbmsMgmt/rdbms/0/"));
+    return db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->get("/wb/rdbmsMgmt/rdbms/0/"));
 }
 
 

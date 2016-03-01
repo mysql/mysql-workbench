@@ -35,10 +35,10 @@ TEST_MODULE(grt_value, "GRT: values");
 
 TEST_FUNCTION(1)
 {
-  grt::GRT::get().load_metaclasses("data/structs.test.xml");
-  grt::GRT::get().end_loading_metaclasses();
+  grt::GRT::get()->load_metaclasses("data/structs.test.xml");
+  grt::GRT::get()->end_loading_metaclasses();
 
-  ensure_equals("load structs", grt::GRT::get().get_metaclasses().size(), 6U);
+  ensure_equals("load structs", grt::GRT::get()->get_metaclasses().size(), 6U);
 }
 
 TEST_FUNCTION(2)
@@ -697,16 +697,16 @@ TEST_FUNCTION(29)
 
   ListRef<grt::internal::Object> lv(true);
   ObjectRef v[10]= {
-     grt::GRT::get().create_object<grt::internal::Object>("test.Book"),
-     grt::GRT::get().create_object<grt::internal::Object>("test.Book"),
-     grt::GRT::get().create_object<grt::internal::Object>("test.Book"),
-     grt::GRT::get().create_object<grt::internal::Object>("test.Book"),
-     grt::GRT::get().create_object<grt::internal::Object>("test.Book"),
-     grt::GRT::get().create_object<grt::internal::Object>("test.Book"),
-     grt::GRT::get().create_object<grt::internal::Object>("test.Book"),
-     grt::GRT::get().create_object<grt::internal::Object>("test.Book"),
-     grt::GRT::get().create_object<grt::internal::Object>("test.Book"),
-     grt::GRT::get().create_object<grt::internal::Object>("test.Book")
+     grt::GRT::get()->create_object<grt::internal::Object>("test.Book"),
+     grt::GRT::get()->create_object<grt::internal::Object>("test.Book"),
+     grt::GRT::get()->create_object<grt::internal::Object>("test.Book"),
+     grt::GRT::get()->create_object<grt::internal::Object>("test.Book"),
+     grt::GRT::get()->create_object<grt::internal::Object>("test.Book"),
+     grt::GRT::get()->create_object<grt::internal::Object>("test.Book"),
+     grt::GRT::get()->create_object<grt::internal::Object>("test.Book"),
+     grt::GRT::get()->create_object<grt::internal::Object>("test.Book"),
+     grt::GRT::get()->create_object<grt::internal::Object>("test.Book"),
+     grt::GRT::get()->create_object<grt::internal::Object>("test.Book")
   };
   //for (int i= 0; i<10; i++)
   //  v[i].release();
@@ -790,7 +790,7 @@ TEST_FUNCTION(35)
   IntegerRef iv[10]= {0,1,2,3,4,5,6,7,8,9};
   StringRef sv[10]= {"_0","_1","_2","_3","_4","_5","_6","_7","_8","_9"};
   StringRef k[10]= {"_0","_1","_2","_3","_4","_5","_6","_7","_8","_9"};
-  ObjectRef obj(grt::GRT::get().create_object<grt::internal::Object>("test.Book"));
+  ObjectRef obj(grt::GRT::get()->create_object<grt::internal::Object>("test.Book"));
 
   ensure_equals("initial size == 0", dv.count(), 0U);
 

@@ -262,7 +262,9 @@ namespace bec {
   private:
     bool _terminated; // true if application termination was requested by the BE or a plugin.
     static std::map<grt::GRT*,GRTManager*> _instances;
-    
+
+    std::shared_ptr<grt::GRT> _grtInstance;
+
     grt::ValueRef setup_grt();
 
     void shell_write(const std::string &text);

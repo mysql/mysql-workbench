@@ -42,7 +42,7 @@ public:
   class ImplData;
   friend class ImplData;
   ui_db_ConnectPanel(grt::MetaClass *meta=0)
-  : TransientObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : TransientObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _data(0)
 
   {
@@ -123,7 +123,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&ui_db_ConnectPanel::create);
     {
@@ -146,7 +146,7 @@ public:
   class ImplData;
   friend class ImplData;
   ui_ObjectEditor(grt::MetaClass *meta=0)
-  : TransientObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : TransientObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _customData(this, false),
     _data(0)
 
@@ -237,7 +237,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&ui_ObjectEditor::create);
     {
@@ -264,7 +264,7 @@ class  ui_ModelPanel : public TransientObject
   typedef TransientObject super;
 public:
   ui_ModelPanel(grt::MetaClass *meta=0)
-  : TransientObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : TransientObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _customData(this, false)
 
   {
@@ -343,7 +343,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&ui_ModelPanel::create);
     {

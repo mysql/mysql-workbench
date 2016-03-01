@@ -2538,7 +2538,7 @@ namespace grt {
     GRT& operator=(GRT&) = delete;
 
   public:
-    static GRT& get();
+    static std::shared_ptr<GRT> get();
     ~GRT();
     /** 
      *
@@ -2801,8 +2801,8 @@ namespace grt {
   protected:
     struct AutoLock
     {
-      AutoLock() { grt::GRT::get().lock(); }
-      ~AutoLock() { grt::GRT::get().unlock(); }
+      AutoLock() { grt::GRT::get()->lock(); }
+      ~AutoLock() { grt::GRT::get()->unlock(); }
     };
     void lock() const;
     void unlock() const;
@@ -2871,11 +2871,11 @@ namespace grt {
 
     // we allow stuff like List<db_Table> = List<db_mysql_Table>
     // 
-    MetaClass *content_class = GRT::get().get_metaclass(O::static_class_name());
+    MetaClass *content_class = grt::GRT::get()->get_metaclass(O::static_class_name());
     if (!content_class && !O::static_class_name().empty())
       throw std::runtime_error(std::string("metaclass without runtime info ").append(O::static_class_name()));
 
-    MetaClass *candidate_class = GRT::get().get_metaclass(candidate_list->content_class_name());
+    MetaClass *candidate_class = grt::GRT::get()->get_metaclass(candidate_list->content_class_name());
     if (!candidate_class && !candidate_list->content_class_name().empty())
       throw std::runtime_error(std::string("metaclass without runtime info ").append(candidate_list->content_class_name()));
 

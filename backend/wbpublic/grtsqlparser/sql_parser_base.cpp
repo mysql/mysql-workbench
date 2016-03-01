@@ -58,7 +58,7 @@ _grtm(GRTManager::get_instance_for())
     NULL_STATE_KEEPER // reset all members to null-values
   }
 
-  grt::DictRef options= grt::DictRef::cast_from(grt::GRT::get().get("/wb/options/options"));
+  grt::DictRef options= grt::DictRef::cast_from(grt::GRT::get()->get("/wb/options/options"));
   _case_sensitive_identifiers= options.is_valid() ? (options.get_int("SqlIdentifiersCS", 1) != 0) : true;
 }
 
@@ -102,7 +102,7 @@ void Sql_parser_base::add_log_message(const std::string &text, int entry_type)
         log_debug2("%s", (text + "\n").c_str());
 
         if (send_to_frontend)
-          grt::GRT::get().send_info(text);
+          grt::GRT::get()->send_info(text);
         break;
       }
     case 1:
@@ -111,7 +111,7 @@ void Sql_parser_base::add_log_message(const std::string &text, int entry_type)
         log_debug("%s", (text + "\n").c_str());
 
         if (send_to_frontend)
-          grt::GRT::get().send_warning(text);
+          grt::GRT::get()->send_warning(text);
         break;
       }
     case 2:
@@ -119,7 +119,7 @@ void Sql_parser_base::add_log_message(const std::string &text, int entry_type)
         log_debug("%s", (text + "\n").c_str());
 
         if (send_to_frontend)
-          grt::GRT::get().send_error(text);
+          grt::GRT::get()->send_error(text);
         break;
       }
     default:
@@ -160,7 +160,7 @@ void Sql_parser_base::step_progress(const std::string &text)
   //!cycling progress state for now. statement count estimation is needed.
   _progress_state= (float)(div((int)(_progress_state*10) + 1, 10).rem) / 10;
 
-  grt::GRT::get().send_progress(_progress_state, _("Processing object"), text);
+  grt::GRT::get()->send_progress(_progress_state, _("Processing object"), text);
 }
 
 
@@ -168,7 +168,7 @@ void Sql_parser_base::set_progress_state(float state, const std::string &text)
 {
   if (!_messages_enabled)
     return;
-  grt::GRT::get().send_progress(state, text);
+  grt::GRT::get()->send_progress(state, text);
 }
 
 

@@ -47,7 +47,7 @@ class  workbench_logical_Connection : public model_Connection
   typedef model_Connection super;
 public:
   workbench_logical_Connection(grt::MetaClass *meta=0)
-  : model_Connection(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : model_Connection(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _comment(""),
      _endCaption(""),
      _endCaptionXOffs(0.0),
@@ -290,7 +290,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_logical_Connection::create);
     {
@@ -358,7 +358,7 @@ class  workbench_logical_Relationship : public model_Figure
   typedef model_Figure super;
 public:
   workbench_logical_Relationship(grt::MetaClass *meta=0)
-  : model_Figure(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : model_Figure(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _attributesExpanded(1)
 
   {
@@ -420,7 +420,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_logical_Relationship::create);
     {
@@ -443,7 +443,7 @@ class  workbench_logical_Entity : public model_Figure
   typedef model_Figure super;
 public:
   workbench_logical_Entity(grt::MetaClass *meta=0)
-  : model_Figure(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : model_Figure(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _attributesExpanded(1)
 
   {
@@ -505,7 +505,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_logical_Entity::create);
     {
@@ -530,7 +530,7 @@ public:
   class ImplData;
   friend class ImplData;
   workbench_logical_Diagram(grt::MetaClass *meta=0)
-  : model_Diagram(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : model_Diagram(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _data(0)
 
   {
@@ -573,7 +573,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_logical_Diagram::create);
     meta->bind_method("placeNewLayer", &workbench_logical_Diagram::call_placeNewLayer);
@@ -589,7 +589,7 @@ public:
   class ImplData;
   friend class ImplData;
   workbench_logical_Model(grt::MetaClass *meta=0)
-  : model_Model(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : model_Model(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _data(0)
 
   {
@@ -640,7 +640,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_logical_Model::create);
     {

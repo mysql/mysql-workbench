@@ -57,7 +57,7 @@ DbMySQLDiffAlter::~DbMySQLDiffAlter()
 std::string DbMySQLDiffAlter::generate_alter()
 {
   SQLGeneratorInterfaceImpl *diffsql_module= 
-    dynamic_cast<SQLGeneratorInterfaceImpl*>(grt::GRT::get().get_module("DbMySQL"));
+    dynamic_cast<SQLGeneratorInterfaceImpl*>(grt::GRT::get()->get_module("DbMySQL"));
 
   if (diffsql_module == NULL)
     throw std::runtime_error("Could not find module DbMySQL");
@@ -145,7 +145,7 @@ boost::shared_ptr<DiffTreeBE> DbMySQLDiffAlter::init_diff_tree(const std::vector
                                                                const grt::ValueRef &left, const grt::ValueRef &right,
                                                                grt::StringListRef SchemaSkipList, grt::DictRef options)
 {
-  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get().get("/wb/rdbmsMgmt/rdbms/0"));
+  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->get("/wb/rdbmsMgmt/rdbms/0"));
   std::string default_engine_name;
   grt::ValueRef default_engine = manager_->get_app_option("db.mysql.Table:tableEngine");
   if(grt::StringRef::can_wrap(default_engine))
@@ -239,7 +239,7 @@ boost::shared_ptr<DiffTreeBE> DbMySQLDiffAlter::init_diff_tree(const std::vector
   comparer.init_omf(&omf);
   _alter_change= diff_make(right_cat_copy, _left_cat_copy, &omf);
 
-  SQLGeneratorInterfaceImpl *diffsql_module= dynamic_cast<SQLGeneratorInterfaceImpl*>(grt::GRT::get().get_module("DbMySQL"));
+  SQLGeneratorInterfaceImpl *diffsql_module= dynamic_cast<SQLGeneratorInterfaceImpl*>(grt::GRT::get()->get_module("DbMySQL"));
   if (diffsql_module == NULL)
     throw DbMySQLDiffAlterException("error loading module DbMySQL");
 

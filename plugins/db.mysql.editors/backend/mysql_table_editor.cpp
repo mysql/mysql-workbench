@@ -1599,7 +1599,7 @@ std::vector<std::string> MySQLTableEditorBE::get_engines_list()
 {
   std::vector<std::string> engines;
 
-  DbMySQLImpl *module= grt::GRT::get().find_native_module<DbMySQLImpl>("DbMySQL");
+  DbMySQLImpl *module= grt::GRT::get()->find_native_module<DbMySQLImpl>("DbMySQL");
   if (!module)
     throw std::runtime_error("Module DbMySQL could not be located");
 

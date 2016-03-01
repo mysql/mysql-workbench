@@ -384,7 +384,7 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
     // assign these here since they can change
     known_types["VARBINARY"]= sqlite::blob_ref_t();
     known_types["BINARY"]= sqlite::blob_ref_t();
-    DictRef options= DictRef::cast_from(grt::GRT::get().get("/wb/options/options"));
+    DictRef options= DictRef::cast_from(grt::GRT::get()->get("/wb/options/options"));
     if (options.is_valid())
     {
       bool treat_binary_as_text= (options.get_int("DbSqlEditor:MySQL:TreatBinaryAsText", 0) != 0);

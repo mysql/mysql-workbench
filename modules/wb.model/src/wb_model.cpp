@@ -250,7 +250,7 @@ WbModelImpl::WbModelImpl(grt::CPPModuleLoader *ldr)
 
 void WbModelImpl::begin_undo_group()
 {
-  _undo_man= grt::GRT::get().get_undo_manager();
+  _undo_man= grt::GRT::get()->get_undo_manager();
   if (_undo_man)
     _undo_man->begin_undo_group();
 }
@@ -825,7 +825,7 @@ workbench_physical_DiagramRef WbModelImpl::add_model_view(const db_CatalogRef &c
 
   workbench_physical_ModelRef model= workbench_physical_ModelRef::cast_from(catalog->owner());
 
-  app_PageSettingsRef page(app_PageSettingsRef::cast_from(grt::GRT::get().get("/wb/doc/pageSettings")));
+  app_PageSettingsRef page(app_PageSettingsRef::cast_from(grt::GRT::get()->get("/wb/doc/pageSettings")));
   double width, height;
 
   calculate_view_size(page, width, height);
@@ -913,7 +913,7 @@ int WbModelImpl::createDiagramWithCatalog(workbench_physical_ModelRef model, db_
   if (object_count > 250)
     throw logic_error("Cannot create diagram: too many objects to place.\nTry dividing your model into several sub-diagrams with less than 200 objects each.");
 
-  DictRef wb_options= DictRef::cast_from(grt::GRT::get().get("/wb/options/options"));
+  DictRef wb_options= DictRef::cast_from(grt::GRT::get()->get("/wb/options/options"));
   
   begin_undo_group();
   workbench_physical_DiagramRef diagram = create_view_for_object_count(model, (int)object_count);
@@ -962,7 +962,7 @@ int WbModelImpl::do_autoplace_any_list(const model_DiagramRef &view, ListRef<Grt
   
   workbench_physical_DiagramRef diagram(workbench_physical_DiagramRef::cast_from(view));
 
-  DictRef wb_options= DictRef::cast_from(grt::GRT::get().get("/wb/options/options"));
+  DictRef wb_options= DictRef::cast_from(grt::GRT::get()->get("/wb/options/options"));
   
   GrtObjectRef object;
   model_FigureRef figure;

@@ -218,7 +218,7 @@ mforms::ToolBar *ModelDiagramForm::get_tools_toolbar()
     _tools_toolbar = new mforms::ToolBar(mforms::ToolPickerToolBar);
     app_ToolbarRef toolbar[3];
     
-    toolbar[0]= app_ToolbarRef::cast_from(grt::GRT::get().unserialize(base::makePath(get_wb()->get_datadir(),
+    toolbar[0]= app_ToolbarRef::cast_from(grt::GRT::get()->unserialize(base::makePath(get_wb()->get_datadir(),
                                                                                      "data/tools_toolbar.xml")));
     toolbar[1]= get_wb()->get_component_named("basic")->get_tools_toolbar();
     toolbar[2]= get_wb()->get_component_named("physical")->get_tools_toolbar();
@@ -746,7 +746,7 @@ void ModelDiagramForm::end_selection_drag()
   bool moved= false;
   int count= 0;
 
-  grt::UndoManager *um= grt::GRT::get().get_undo_manager();
+  grt::UndoManager *um= grt::GRT::get()->get_undo_manager();
 
   um->begin_undo_group();
   
@@ -1150,12 +1150,12 @@ bec::Clipboard *ModelDiagramForm::get_clipboard()
 
 bool ModelDiagramForm::can_undo()
 {
-  return grt::GRT::get().get_undo_manager()->can_undo();
+  return grt::GRT::get()->get_undo_manager()->can_undo();
 }
 
 bool ModelDiagramForm::can_redo()
 {
-  return grt::GRT::get().get_undo_manager()->can_redo();
+  return grt::GRT::get()->get_undo_manager()->can_redo();
 }
 
 bool ModelDiagramForm::can_copy()
@@ -1228,17 +1228,17 @@ std::string ModelDiagramForm::get_edit_target_name()
 
 void ModelDiagramForm::undo()
 {
-  grt::GRT::get().get_undo_manager()->undo();
+  grt::GRT::get()->get_undo_manager()->undo();
 }
 
 void ModelDiagramForm::redo()
 {
-  grt::GRT::get().get_undo_manager()->redo();
+  grt::GRT::get()->get_undo_manager()->redo();
 }
 
 void ModelDiagramForm::cut()
 {
-  grt::UndoManager *um= grt::GRT::get().get_undo_manager();
+  grt::UndoManager *um= grt::GRT::get()->get_undo_manager();
 
   std::string edit_target_name= get_edit_target_name();
 
@@ -1373,7 +1373,7 @@ void ModelDiagramForm::select_all()
 
 void ModelDiagramForm::remove_selection()
 {
-  grt::UndoManager *um= grt::GRT::get().get_undo_manager();
+  grt::UndoManager *um= grt::GRT::get()->get_undo_manager();
   grt::ListRef<model_Object> selection= get_selection();
   
   std::vector<model_ObjectRef> objects;
@@ -1400,7 +1400,7 @@ void ModelDiagramForm::remove_selection()
 //XXX unused? but it's virtual, need to check if this is used anywhere...
 void ModelDiagramForm::delete_selection()
 {
-  grt::UndoManager *um= grt::GRT::get().get_undo_manager();
+  grt::UndoManager *um= grt::GRT::get()->get_undo_manager();
   grt::ListRef<model_Object> selection= get_selection();
 
   std::vector<model_ObjectRef> objects;

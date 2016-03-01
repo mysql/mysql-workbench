@@ -86,8 +86,8 @@ WBContextUI::WBContextUI(bool verbose)
   _home_screen = NULL;
 
   // to notify that the save status of the doc has changed
-  //grt::GRT::get().get_undo_manager()->signal_changed().connect(boost::bind(&WBContextUI::history_changed, this));
-  scoped_connect(grt::GRT::get().get_undo_manager()->signal_changed(),boost::bind(&WBContextUI::history_changed, this));
+  //grt::GRT::get()->get_undo_manager()->signal_changed().connect(boost::bind(&WBContextUI::history_changed, this));
+  scoped_connect(grt::GRT::get()->get_undo_manager()->signal_changed(),boost::bind(&WBContextUI::history_changed, this));
   
   // stuff to do when the active form is switched in the UI (through set_active_form)
   _form_change_signal.connect(boost::bind(&WBContextUI::form_changed, this));

@@ -50,7 +50,7 @@ class  db_query_LiveDBObject : public GrtObject
   typedef GrtObject super;
 public:
   db_query_LiveDBObject(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _schemaName(""),
      _type("")
 
@@ -113,7 +113,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_query_LiveDBObject::create);
     {
@@ -136,7 +136,7 @@ class  db_query_ResultsetColumn : public GrtObject
   typedef GrtObject super;
 public:
   db_query_ResultsetColumn(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _columnType("")
 
   {
@@ -177,7 +177,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_query_ResultsetColumn::create);
     {
@@ -197,7 +197,7 @@ public:
   class ImplData;
   friend class ImplData;
   db_query_Resultset(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _columns(this, false),
     _data(0)
 
@@ -410,7 +410,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_query_Resultset::create);
     {
@@ -450,7 +450,7 @@ public:
   class ImplData;
   friend class ImplData;
   db_query_EditableResultset(grt::MetaClass *meta=0)
-  : db_query_Resultset(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : db_query_Resultset(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _schema(""),
      _table(""),
     _data(0)
@@ -633,7 +633,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_query_EditableResultset::create);
     {
@@ -671,7 +671,7 @@ public:
   class ImplData;
   friend class ImplData;
   db_query_ResultPanel(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name()))
 
   {
   }
@@ -736,7 +736,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_query_ResultPanel::create);
     {
@@ -761,7 +761,7 @@ public:
   class ImplData;
   friend class ImplData;
   db_query_QueryBuffer(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _data(0)
 
   {
@@ -891,7 +891,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_query_QueryBuffer::create);
     meta->bind_member("currentStatement", new grt::MetaClass::Property<db_query_QueryBuffer,grt::StringRef >(&db_query_QueryBuffer::currentStatement));
@@ -926,7 +926,7 @@ public:
   class ImplData;
   friend class ImplData;
   db_query_QueryEditor(grt::MetaClass *meta=0)
-  : db_query_QueryBuffer(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : db_query_QueryBuffer(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _resultPanels(this, false)
 
   {
@@ -1009,7 +1009,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_query_QueryEditor::create);
     {
@@ -1039,7 +1039,7 @@ public:
   class ImplData;
   friend class ImplData;
   db_query_Editor(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _customData(this, false),
     _queryEditors(this, false),
     _data(0)
@@ -1332,7 +1332,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_query_Editor::create);
     {

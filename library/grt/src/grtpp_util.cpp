@@ -1084,14 +1084,14 @@ bool grt::init_python_support(const std::string &module_path)
     loader->get_python_context()->add_module_path(module_path + "/python/site-packages", true);
 #endif
   }
-  GRT::get().add_module_loader(loader);
+  grt::GRT::get()->add_module_loader(loader);
   return true;
 }
 
 
 void grt::add_python_module_dir(const std::string &python_module_path)
 {
-  PythonModuleLoader *loader= dynamic_cast<PythonModuleLoader *>(GRT::get().get_module_loader("python"));
+  PythonModuleLoader *loader= dynamic_cast<PythonModuleLoader *>(grt::GRT::get()->get_module_loader("python"));
   if (loader && !python_module_path.empty())
     loader->get_python_context()->add_module_path(python_module_path, true);
 }

@@ -50,7 +50,7 @@ void wbprint::getPageLayout(model_DiagramRef view, int &xpages, int &ypages)
 
 app_PageSettingsRef wbprint::getPageSettings(model_DiagramRef diagram)
 {
-  return workbench_DocumentRef::cast_from(grt::GRT::get().get("/wb/doc"))->pageSettings();
+  return workbench_DocumentRef::cast_from(grt::GRT::get()->get("/wb/doc"))->pageSettings();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ int wbprint::printPageHDC(model_DiagramRef view, int pagenum, HDC hdc, int width
 {
   mdc::CanvasViewExtras extras(view->get_data()->get_canvas_view());
 
-  app_PageSettingsRef page(workbench_DocumentRef::cast_from(grt::GRT::get().get("/wb/doc"))->pageSettings());
+  app_PageSettingsRef page(workbench_DocumentRef::cast_from(grt::GRT::get()->get("/wb/doc"))->pageSettings());
 
   // TODO: we have both paper and page margins, which is kinda confusing.
   extras.set_page_margins(page->marginTop(), page->marginLeft(), page->marginBottom(), page->marginRight());

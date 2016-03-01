@@ -51,7 +51,7 @@ public:
   
   virtual grt::IntegerRef includeModel(const std::string &path)
   {
-    grt::Module *module= grt::GRT::get().get_module("Workbench");
+    grt::Module *module= grt::GRT::get()->get_module("Workbench");
     if (!module)
       throw std::runtime_error("Workbench module not found");
 
@@ -65,13 +65,13 @@ public:
 
     //Merge catalog
     db_CatalogRef source_catalog = doc->physicalModels()[0]->catalog();
-    db_CatalogRef target_catalog= db_CatalogRef::cast_from(grt::GRT::get().get("/wb/doc/physicalModels/0/catalog"));
+    db_CatalogRef target_catalog= db_CatalogRef::cast_from(grt::GRT::get()->get("/wb/doc/physicalModels/0/catalog"));
     merge_catalog(this, target_catalog,source_catalog);
 
     //Merge diagrams
     grt::ListRef<workbench_physical_Diagram> source_diagrams = doc->physicalModels()[0]->diagrams();
-    grt::ListRef<workbench_physical_Diagram> target_diagrams = grt::ListRef<workbench_physical_Diagram>::cast_from(grt::GRT::get().get("/wb/doc/physicalModels/0/diagrams"));
-    workbench_physical_ModelRef dst_owner = workbench_physical_ModelRef::cast_from(grt::GRT::get().get("/wb/doc/physicalModels/0"));
+    grt::ListRef<workbench_physical_Diagram> target_diagrams = grt::ListRef<workbench_physical_Diagram>::cast_from(grt::GRT::get()->get("/wb/doc/physicalModels/0/diagrams"));
+    workbench_physical_ModelRef dst_owner = workbench_physical_ModelRef::cast_from(grt::GRT::get()->get("/wb/doc/physicalModels/0"));
     merge_diagrams(target_diagrams,source_diagrams,dst_owner);
 //    dst_owner->signal_changed().emit("", grt::ValueRef());
     args.clear();

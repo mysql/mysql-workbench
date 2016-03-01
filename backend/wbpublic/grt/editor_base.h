@@ -134,9 +134,9 @@ namespace bec {
     {
       if (group)
       {
-        editor->scoped_connect(grt::GRT::get().get_undo_manager()->
+        editor->scoped_connect(grt::GRT::get()->get_undo_manager()->
           signal_undo(),boost::bind(&AutoUndoEdit::undo_applied, _1, group, editor));
-        editor->scoped_connect(grt::GRT::get().get_undo_manager()->
+        editor->scoped_connect(grt::GRT::get()->get_undo_manager()->
           signal_redo(),boost::bind(&AutoUndoEdit::undo_applied,_1, group, editor));
 
       }
@@ -147,9 +147,9 @@ namespace bec {
     {
       if (group)
       {
-        editor->scoped_connect((grt::GRT::get().get_undo_manager()->
+        editor->scoped_connect((grt::GRT::get()->get_undo_manager()->
           signal_undo()),boost::bind(&AutoUndoEdit::undo_applied, _1, group, editor));
-        editor->scoped_connect((grt::GRT::get().get_undo_manager()->
+        editor->scoped_connect((grt::GRT::get()->get_undo_manager()->
           signal_redo()),boost::bind(&AutoUndoEdit::undo_applied, _1, group, editor));
 
       }

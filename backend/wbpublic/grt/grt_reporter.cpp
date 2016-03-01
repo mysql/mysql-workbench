@@ -65,11 +65,11 @@ void Reporter::report_warning(const char *format, ...) const
 
   if ( tmp )
   {
-    grt::GRT::get().send_warning( tmp ); 
+    grt::GRT::get()->send_warning( tmp ); 
     g_free(tmp);
   }
   else if ( format )
-    grt::GRT::get().send_warning( format ); 
+    grt::GRT::get()->send_warning( format ); 
 }
 
 void Reporter::report_error(const char *format, ...) const
@@ -85,11 +85,11 @@ void Reporter::report_error(const char *format, ...) const
   
   if ( tmp )
   {
-    grt::GRT::get().send_error( tmp ); 
+    grt::GRT::get()->send_error( tmp ); 
     g_free(tmp);
   }
   else if ( format )
-    grt::GRT::get().send_error( format ); 
+    grt::GRT::get()->send_error( format ); 
 }
 
 
@@ -105,11 +105,11 @@ void Reporter::report_info(const char *format, ...) const
 
   if ( tmp )
   {
-    grt::GRT::get().send_info( tmp ); 
+    grt::GRT::get()->send_info( tmp ); 
     g_free(tmp);
   }
   else if ( format )
-    grt::GRT::get().send_info( format ); 
+    grt::GRT::get()->send_info( format ); 
 }
 
 

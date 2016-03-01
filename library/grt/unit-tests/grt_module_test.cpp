@@ -30,8 +30,8 @@ TEST_MODULE(grt_module_test, "GRT: module functionality");
 
 TEST_FUNCTION(5)
 {
-  grt::GRT::get().load_metaclasses("data/structs.test.xml");
-  grt::GRT::get().end_loading_metaclasses();
+  grt::GRT::get()->load_metaclasses("data/structs.test.xml");
+  grt::GRT::get()->end_loading_metaclasses();
 }
 
 // ml: No tests defined currently, as the few previously defined tests are no longer valid and

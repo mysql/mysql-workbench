@@ -73,7 +73,7 @@ DbMySQLSQLExport::DbMySQLSQLExport(bec::GRTManager *grtm, db_mysql_CatalogRef ca
 
 db_mysql_CatalogRef DbMySQLSQLExport::get_model_catalog()
 {
-  return db_mysql_CatalogRef::cast_from(grt::GRT::get().get("/wb/doc/physicalModels/0/catalog")); 
+  return db_mysql_CatalogRef::cast_from(grt::GRT::get()->get("/wb/doc/physicalModels/0/catalog")); 
 }
 
 void DbMySQLSQLExport::set_option(const std::string& name, bool value)
@@ -130,7 +130,7 @@ void DbMySQLSQLExport::set_option(const std::string& name, const std::string& va
 
 void DbMySQLSQLExport::set_db_options_for_version(const GrtVersionRef &version)
 {
-  SQLGeneratorInterfaceImpl *diffsql_module= dynamic_cast<SQLGeneratorInterfaceImpl*>(grt::GRT::get().get_module("DbMySQL"));
+  SQLGeneratorInterfaceImpl *diffsql_module= dynamic_cast<SQLGeneratorInterfaceImpl*>(grt::GRT::get()->get_module("DbMySQL"));
   if (diffsql_module != NULL)
     _db_options = diffsql_module->getTraitsForServerVersion((int)version->majorNumber(), (int)version->minorNumber(), (int)version->releaseNumber());
 }
@@ -264,7 +264,7 @@ void DbMySQLSQLExport::export_finished(grt::ValueRef res)
 {
   CatalogMap cmap;
   update_all_old_names(get_model_catalog(), false, cmap);
-  grt::GRT::get().send_output(*grt::StringRef::cast_from(res) + '\n');
+  grt::GRT::get()->send_output(*grt::StringRef::cast_from(res) + '\n');
   if (_task_finish_cb)
     _task_finish_cb();
 }
@@ -275,7 +275,7 @@ ValueRef DbMySQLSQLExport::export_task(grt::StringRef)
 
   try
   {
-    SQLGeneratorInterfaceImpl *diffsql_module= dynamic_cast<SQLGeneratorInterfaceImpl*>(grt::GRT::get().get_module("DbMySQL"));
+    SQLGeneratorInterfaceImpl *diffsql_module= dynamic_cast<SQLGeneratorInterfaceImpl*>(grt::GRT::get()->get_module("DbMySQL"));
   
     if(diffsql_module == NULL)
       return grt::StringRef("\nSQL Script Export Error: Not able to load 'DbMySQL' module");
@@ -472,30 +472,30 @@ void DbMySQLSQLExport::setup_grt_string_list_models_from_catalog(bec::GrtStringL
 //  {
 //    WbValidationInterfaceModule *validation_module= 
 //      static_cast<WbValidationInterfaceModule *>(
-//      grt::GRT::get().get_module("WbModuleValidation"));
+//      grt::GRT::get()->get_module("WbModuleValidation"));
 //  
 //    if(validation_module == NULL)
 //      return grt::StringRef("\nSQL Script Export Error: Not able to load 'WbModuleValidation' module");
 //
-//    grt::GRT::get().send_info("Starting general validation");
+//    grt::GRT::get()->send_info("Starting general validation");
 //
 //    int validation_res= validation_module->validateAll(
-//      GrtObjectRef::cast_from(grt::GRT::get().get("/wb/doc/physicalModels/0/catalog")));
+//      GrtObjectRef::cast_from(grt::GRT::get()->get("/wb/doc/physicalModels/0/catalog")));
 //
 //    _manager->get_dispatcher()->call_from_main_thread<int>(
 //      boost::bind(_validation_step_finished_cb, validation_res), true);
 //
 //    WbValidationMySQLInterfaceModule *mysql_validation_module=
 //      static_cast<WbValidationMySQLInterfaceModule *>(
-//      grt::GRT::get().get_module("WbModuleValidationMySQL"));
+//      grt::GRT::get()->get_module("WbModuleValidationMySQL"));
 //    
 //    if(validation_module == NULL)
 //      return grt::StringRef("\nSQL Script Export Error: Not able to load 'WbModuleValidationMySQL' module");
 //
-//    grt::GRT::get().send_info("Starting MySQL-specific validation");
+//    grt::GRT::get()->send_info("Starting MySQL-specific validation");
 //
 //    validation_res= mysql_validation_module->validateAll(
-//      GrtObjectRef::cast_from(grt::GRT::get().get("/wb/doc/physicalModels/0/catalog")));
+//      GrtObjectRef::cast_from(grt::GRT::get()->get("/wb/doc/physicalModels/0/catalog")));
 //
 //    _manager->get_dispatcher()->call_from_main_thread<int>(
 //      boost::bind(_validation_step_finished_cb, validation_res), true);

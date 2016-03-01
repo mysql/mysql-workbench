@@ -36,9 +36,9 @@ TEST_MODULE(grtpp_util_test, "GRT: util functions");
 TEST_FUNCTION(1)
 {
   // Load test data.
-  grt::GRT::get().load_metaclasses("data/structs.test.xml");
-  grt::GRT::get().end_loading_metaclasses();
-  ensure_equals("load structs", grt::GRT::get().get_metaclasses().size(), 6U);
+  grt::GRT::get()->load_metaclasses("data/structs.test.xml");
+  grt::GRT::get()->end_loading_metaclasses();
+  ensure_equals("load structs", grt::GRT::get()->get_metaclasses().size(), 6U);
 }
 
 

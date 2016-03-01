@@ -215,7 +215,7 @@ std::vector<std::pair<std::string, std::string> > DbDriverParam::get_enum_option
   }
   else
   {
-    grt::Module *module = grt::GRT::get().get_module(*_inner->lookupValueModule());
+    grt::Module *module = grt::GRT::get()->get_module(*_inner->lookupValueModule());
     if (module)
     {
       grt::BaseListRef args(true);
@@ -251,7 +251,7 @@ grt::StringRef DbDriverParam::getValue()
   grt::StringRef value = "";
   if (!(*_inner->lookupValueModule()).empty() && (*_inner->lookupValueModule()) == "Options")
   {
-    grt::DictRef wb_options = grt::DictRef::cast_from(grt::GRT::get().get("/wb/options/options"));
+    grt::DictRef wb_options = grt::DictRef::cast_from(grt::GRT::get()->get("/wb/options/options"));
     switch (this->_type)
     {
       case ParamType::ptInt:
