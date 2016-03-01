@@ -39,7 +39,7 @@ public:
   class ImplData;
   friend class ImplData;
   workbench_model_ImageFigure(grt::MetaClass *meta=0)
-  : model_Figure(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : model_Figure(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _filename(""),
      _keepAspectRatio(0),
     _data(0)
@@ -117,7 +117,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_model_ImageFigure::create);
     {
@@ -143,7 +143,7 @@ public:
   class ImplData;
   friend class ImplData;
   workbench_model_NoteFigure(grt::MetaClass *meta=0)
-  : model_Figure(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : model_Figure(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _font(""),
      _text(""),
      _textColor(""),
@@ -225,7 +225,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_model_NoteFigure::create);
     {

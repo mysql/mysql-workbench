@@ -38,7 +38,7 @@ DbMySQLSync::DbMySQLSync(bec::GRTManager *grtm)
   : Db_plugin(), DbMySQLValidationPage(grtm)
 {
   DbMySQLSync::grtm(grtm, false);
-  _catalog= db_mysql_CatalogRef::cast_from(grt::GRT::get().get("/wb/doc/physicalModels/0/catalog"));
+  _catalog= db_mysql_CatalogRef::cast_from(grt::GRT::get()->get("/wb/doc/physicalModels/0/catalog"));
 }
 
 

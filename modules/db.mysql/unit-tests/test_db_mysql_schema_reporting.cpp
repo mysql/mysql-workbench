@@ -143,7 +143,7 @@ TEST_FUNCTION(10)
   workbench_physical_ModelRef physicalModel= wbt.wb->get_document()->physicalModels().get(0);
 
 
-  module= grt::GRT::get().get_native_module<WbModelImpl>();
+  module= grt::GRT::get()->get_native_module<WbModelImpl>();
   ensure("WbModel module initialization", NULL != module);
 
   grt::DictRef options(true);
@@ -167,7 +167,7 @@ TEST_FUNCTION(11)
 
   wbt.wb->open_document(TEST_02_FI);
 
-  module= grt::GRT::get().get_native_module<WbModelImpl>();
+  module= grt::GRT::get()->get_native_module<WbModelImpl>();
   ensure("WbModel module initialization", NULL != module);
 
   grt::StringListRef templates(grt::Initialized);

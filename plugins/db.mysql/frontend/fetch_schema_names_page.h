@@ -123,9 +123,9 @@ protected:
     {
       int resp = _check_case_problems();
       if (resp == -1)
-        grt::GRT::get().send_info(_("Server configuration check"), _("Unable to check for server case-sensitivity issues."));
+        grt::GRT::get()->send_info(_("Server configuration check"), _("Unable to check for server case-sensitivity issues."));
       else if(resp == 1)
-        grt::GRT::get().send_warning(_("Server configuration check"), _("A server configuration problem was detected.\nThe server is in a system that does not properly support the selected lower_case_table_names option value. Some problems may occur.\nPlease consult the MySQL server documentation."));
+        grt::GRT::get()->send_warning(_("Server configuration check"), _("A server configuration problem was detected.\nThe server is in a system that does not properly support the selected lower_case_table_names option value. Some problems may occur.\nPlease consult the MySQL server documentation."));
     }
     _finished= true;
 

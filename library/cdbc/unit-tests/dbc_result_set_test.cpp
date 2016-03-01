@@ -56,10 +56,10 @@ public:
   TEST_DATA_CONSTRUCTOR(module_dbc_result_set_test)
   {
     // load structs
-    grt::GRT::get().scan_metaclasses_in("../../res/grt/");
-    grt::GRT::get().end_loading_metaclasses();
+    grt::GRT::get()->scan_metaclasses_in("../../res/grt/");
+    grt::GRT::get()->end_loading_metaclasses();
 
-    ensure_equals("load structs", grt::GRT::get().get_metaclasses().size(), (size_t)INT_METACLASS_COUNT);
+    ensure_equals("load structs", grt::GRT::get()->get_metaclasses().size(), (size_t)INT_METACLASS_COUNT);
     db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
     setup_env(connectionProperties);

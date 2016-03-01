@@ -47,7 +47,7 @@ class  eer_Datatype : public GrtObject
   typedef GrtObject super;
 public:
   eer_Datatype(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _caption(""),
      _description("")
 
@@ -110,7 +110,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&eer_Datatype::create);
     {
@@ -132,7 +132,7 @@ class  eer_DatatypeGroup : public GrtObject
   typedef GrtObject super;
 public:
   eer_DatatypeGroup(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _caption(""),
      _description("")
 
@@ -195,7 +195,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&eer_DatatypeGroup::create);
     {
@@ -217,7 +217,7 @@ class  eer_Catalog : public GrtNamedObject
   typedef GrtNamedObject super;
 public:
   eer_Catalog(grt::MetaClass *meta=0)
-  : GrtNamedObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtNamedObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _customData(this, false),
     _datatypes(this, false),
     _schemata(this, false),
@@ -314,7 +314,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&eer_Catalog::create);
     {
@@ -346,7 +346,7 @@ class  eer_Object : public GrtNamedObject
   typedef GrtNamedObject super;
 public:
   eer_Object(grt::MetaClass *meta=0)
-  : GrtNamedObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtNamedObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _commentedOut(0),
     _customData(this, false)
 
@@ -405,7 +405,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&eer_Object::create);
     {
@@ -427,7 +427,7 @@ class  eer_Relationship : public eer_Object
   typedef eer_Object super;
 public:
   eer_Relationship(grt::MetaClass *meta=0)
-  : eer_Object(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : eer_Object(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _attribute(this, false),
      _endMandatory(0),
      _startMandatory(0)
@@ -510,7 +510,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&eer_Relationship::create);
     {
@@ -537,7 +537,7 @@ class  eer_Attribute : public eer_Object
   typedef eer_Object super;
 public:
   eer_Attribute(grt::MetaClass *meta=0)
-  : eer_Object(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : eer_Object(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _isIdentifying(0)
 
   {
@@ -601,7 +601,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&eer_Attribute::create);
     {
@@ -623,7 +623,7 @@ class  eer_Entity : public eer_Object
   typedef eer_Object super;
 public:
   eer_Entity(grt::MetaClass *meta=0)
-  : eer_Object(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : eer_Object(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _attribute(this, false)
 
   {
@@ -662,7 +662,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&eer_Entity::create);
     {
@@ -679,7 +679,7 @@ class  eer_Schema : public eer_Object
   typedef eer_Object super;
 public:
   eer_Schema(grt::MetaClass *meta=0)
-  : eer_Object(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : eer_Object(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _entities(this, false),
     _relationships(this, false)
 
@@ -738,7 +738,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&eer_Schema::create);
     {

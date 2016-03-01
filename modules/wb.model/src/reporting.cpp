@@ -370,7 +370,7 @@ workbench_model_reporting_TemplateInfoRef WbModelImpl::getReportingTemplateInfo(
 
   string template_info_path= base::makePath(template_dir, "info.xml");
   if (g_file_test(template_info_path.c_str(), (GFileTest)(G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR)))
-    return workbench_model_reporting_TemplateInfoRef::cast_from(grt::GRT::get().unserialize(template_info_path));
+    return workbench_model_reporting_TemplateInfoRef::cast_from(grt::GRT::get()->unserialize(template_info_path));
   else
     return workbench_model_reporting_TemplateInfoRef();
 }
@@ -389,7 +389,7 @@ workbench_model_reporting_TemplateStyleInfoRef WbModelImpl::get_template_style_f
   if (g_file_test(template_info_path.c_str(), (GFileTest)(G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR)))
   {
     workbench_model_reporting_TemplateInfoRef info= 
-      workbench_model_reporting_TemplateInfoRef::cast_from(grt::GRT::get().unserialize(template_info_path));
+      workbench_model_reporting_TemplateInfoRef::cast_from(grt::GRT::get()->unserialize(template_info_path));
 
     for( size_t i= 0; i < info->styles().count(); i++)
     {
@@ -929,16 +929,16 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
       r = g_mkdir_with_parents(output_path.c_str(), 0700);
       if (r < 0)
       {
-        grt::GRT::get().send_error(strfmt("Could not create report directory %s: %s", output_path.c_str(),
+        grt::GRT::get()->send_error(strfmt("Could not create report directory %s: %s", output_path.c_str(),
           g_strerror(errno)));
-        grt::GRT::get().make_output_visible();
+        grt::GRT::get()->make_output_visible();
         return 0;
       }
     }
   }
 
   // Start report generation
-  grt::GRT::get().send_info("Generating schema report...");
+  grt::GRT::get()->send_info("Generating schema report...");
 
   // --------------------------------------------------------------------------------------------
 
@@ -1025,7 +1025,7 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
   if (show_ddl)
   {
     /*
-    vector<SQLGeneratorInterfaceImpl*> genmodules= grt::GRT::get().get_implementing_modules<SQLGeneratorInterfaceWrapper>();
+    vector<SQLGeneratorInterfaceImpl*> genmodules= grt::GRT::get()->get_implementing_modules<SQLGeneratorInterfaceWrapper>();
     for (vector<SQLGeneratorInterfaceWrapper*>::const_iterator iter= genmodules.begin();
          iter != genmodules.end(); ++iter)
     {
@@ -1035,7 +1035,7 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
         break;
       }
     }*/
-    sqlgenModule = dynamic_cast<SQLGeneratorInterfaceImpl*>(grt::GRT::get().get_module("DbMySQL"));
+    sqlgenModule = dynamic_cast<SQLGeneratorInterfaceImpl*>(grt::GRT::get()->get_module("DbMySQL"));
     if (!sqlgenModule)
       throw logic_error("could not find SQL generation module for mysql");
   }
@@ -1255,18 +1255,18 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
           Template *tpl_index= Template::GetTemplate(path, ctemplate::DO_NOT_STRIP);
           if (tpl_index == 0)
           {
-            grt::GRT::get().send_error("Error while loading template files.");
-            grt::GRT::get().send_error(path);
+            grt::GRT::get()->send_error("Error while loading template files.");
+            grt::GRT::get()->send_error(path);
             ctemplate::TemplateNamelist::SyntaxListType bad_list= ctemplate::TemplateNamelist::GetBadSyntaxList(true, 
               ctemplate::DO_NOT_STRIP);
             if (bad_list.size() > 0)
             {
-              grt::GRT::get().send_error("Syntax errors found in file:");
+              grt::GRT::get()->send_error("Syntax errors found in file:");
               for (ctemplate::TemplateNamelist::SyntaxListType::iterator iterator= bad_list.begin(); 
                 iterator != bad_list.end(); iterator++)
-                  grt::GRT::get().send_error(*iterator);
+                  grt::GRT::get()->send_error(*iterator);
             }
-            grt::GRT::get().make_output_visible();
+            grt::GRT::get()->make_output_visible();
             g_free(path);
             return 0;
           }
@@ -1324,7 +1324,7 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
   if (use_highlighting)
     cleanup_syntax_highlighter();
   
-  grt::GRT::get().send_info(strfmt("Schema report written to %s %s", single_file_report ? "file" : "folder", output_path.c_str()));
+  grt::GRT::get()->send_info(strfmt("Schema report written to %s %s", single_file_report ? "file" : "folder", output_path.c_str()));
 
   return 1;
 }

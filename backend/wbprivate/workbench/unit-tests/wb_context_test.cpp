@@ -356,7 +356,7 @@ TEST_FUNCTION(30)
   ensure_equals("connection count after expected auto-delete", tester.get_pview()->connections().count(), 0U);
 
   // undo
-  grt::GRT::get().get_undo_manager()->undo();
+  grt::GRT::get()->get_undo_manager()->undo();
 
   ensure_equals("undo delete table", tester.get_pview()->figures().count(), 2U);
   ensure_equals("undo delete table (connection)", tester.get_pview()->connections().count(), 1U);
@@ -392,7 +392,7 @@ TEST_FUNCTION(35)
   ensure_equals("table object", tester.get_schema()->tables().count(), 0U);
   ensure_equals("table figure", tester.get_pview()->figures().count(), 0U);
 
-  grt::GRT::get().get_undo_manager()->undo();
+  grt::GRT::get()->get_undo_manager()->undo();
 
   ensure_equals("table object", tester.get_schema()->tables().count(), 1U);
   ensure_equals("table figure", tester.get_pview()->figures().count(), 1U);
@@ -403,7 +403,7 @@ TEST_FUNCTION(35)
   ensure_equals("table object", tester.get_schema()->tables().count(), 1U);
   ensure_equals("table figure", tester.get_pview()->figures().count(), 0U);
 
-  grt::GRT::get().get_undo_manager()->undo();
+  grt::GRT::get()->get_undo_manager()->undo();
 
   ensure_equals("table object", tester.get_schema()->tables().count(), 1U);
   ensure_equals("table figure", tester.get_pview()->figures().count(), 1U);
@@ -419,7 +419,7 @@ TEST_FUNCTION(40)
   tester.wb->new_document();
   tester.add_view();
 
-  grt::UndoManager *um= grt::GRT::get().get_undo_manager();
+  grt::UndoManager *um= grt::GRT::get()->get_undo_manager();
 
   db_mysql_TableRef table1= tester.add_table_figure("table1", 10, 10);
   db_mysql_ColumnRef column1(grt::Initialized);
@@ -434,10 +434,10 @@ TEST_FUNCTION(40)
   ensure_equals("table object", tester.get_schema()->tables().count(), 2U);
   ensure_equals("table figure", tester.get_pview()->figures().count(), 2U);
 
-  grt::GRT::get().start_tracking_changes();
+  grt::GRT::get()->start_tracking_changes();
   table1->addPrimaryKeyColumn(column1);
   table2->addPrimaryKeyColumn(column2);
-  grt::GRT::get().stop_tracking_changes();
+  grt::GRT::get()->stop_tracking_changes();
 
   // create 1:n rel and test undo
 
@@ -604,9 +604,9 @@ TEST_FUNCTION(60)
   ensure_equals("table object", tester.get_schema()->tables().count(), 2U);
   ensure_equals("table figure", tester.get_pview()->figures().count(), 2U);
 
-  grt::GRT::get().start_tracking_changes();
+  grt::GRT::get()->start_tracking_changes();
   table1->addPrimaryKeyColumn(column1);
-  grt::GRT::get().stop_tracking_changes();
+  grt::GRT::get()->stop_tracking_changes();
   
   db_mysql_ForeignKeyRef fk(grt::Initialized);
   fk->owner(table2);
@@ -704,7 +704,7 @@ TEST_FUNCTION(85)
 
 static void set_note_content(GrtStoredNoteRef note, const std::string &text)
 {
-  grt::Module *module= grt::GRT::get().get_module("Workbench");
+  grt::Module *module= grt::GRT::get()->get_module("Workbench");
   if (!module)
     throw std::runtime_error("Workbench module not found");
 
@@ -720,7 +720,7 @@ static void set_note_content(GrtStoredNoteRef note, const std::string &text)
 
 static std::string get_note_content(const GrtStoredNoteRef &note)
 {
-  grt::Module *module= grt::GRT::get().get_module("Workbench");
+  grt::Module *module= grt::GRT::get()->get_module("Workbench");
   if (!module)
     throw std::runtime_error("Workbench module not found");
 
@@ -796,9 +796,9 @@ TEST_FUNCTION(95)
   ensure_equals("note content set", get_note_content(tester.get_pmodel()->notes().get(0)), "some text");
 
   // delete note and undo
-  grt::GRT::get().get_undo_manager()->add_undo(new grt::UndoListRemoveAction(tester.get_pmodel()->notes(), 0));
+  grt::GRT::get()->get_undo_manager()->add_undo(new grt::UndoListRemoveAction(tester.get_pmodel()->notes(), 0));
   tester.get_pmodel()->notes().remove(0);
-  grt::GRT::get().get_undo_manager()->undo();
+  grt::GRT::get()->get_undo_manager()->undo();
 
   ensure_equals("note undeleted", tester.get_pmodel()->notes().count(), 1U);
   ensure_equals("note file", *tester.get_pmodel()->notes().get(0)->filename(), fname);
@@ -807,9 +807,9 @@ TEST_FUNCTION(95)
 
   for (int i= 0; i < 10; i++)
   {
-    grt::GRT::get().get_undo_manager()->redo();
+    grt::GRT::get()->get_undo_manager()->redo();
     ensure_equals("note re-deleted", tester.get_pmodel()->notes().count(), 0U);
-    grt::GRT::get().get_undo_manager()->undo();
+    grt::GRT::get()->get_undo_manager()->undo();
     ensure_equals("note un-deleted", tester.get_pmodel()->notes().count(), 1U);
   }
   ensure_equals("note file", *tester.get_pmodel()->notes().get(0)->filename(), fname);

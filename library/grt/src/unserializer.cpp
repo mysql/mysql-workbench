@@ -226,7 +226,7 @@ ValueRef internal::Unserializer::traverse_xml_recreating_tree(xmlNodePtr node)
       // check if the object was loaded in the 1st step
       
       // if the linked object is not in the current tree, look for it in the global tree
-      ObjectRef object(GRT::get().find_object_by_id(link_id, "/"));
+      ObjectRef object(grt::GRT::get()->find_object_by_id(link_id, "/"));
 
       if (object.is_valid())
         _cache[object->id()]= object;
@@ -441,7 +441,7 @@ ObjectRef internal::Unserializer::unserialize_object_step1(xmlNodePtr node)
   if (prop.empty())
     throw std::runtime_error("error unserializing object (missing struct-name)");
   
-  gstruct= GRT::get().get_metaclass(prop);
+  gstruct= grt::GRT::get()->get_metaclass(prop);
   if (!gstruct)
   {
     log_warning("%s:%i: error unserializing object: struct '%s' unknown",

@@ -51,7 +51,7 @@ TEST_MODULE(wb_mysql_import_dbd4, "WB module: import from DBD4");
 
 TEST_FUNCTION(1)
 {
-  module= grt::GRT::get().get_native_module<WbMysqlImportImpl>();
+  module= grt::GRT::get()->get_native_module<WbMysqlImportImpl>();
   ensure("WbMysqlImport module initialization", NULL != module);
 
   options = DictRef(true);
@@ -88,11 +88,11 @@ workbench_physical_ModelRef Test_object_base<wb_mysql_import_dbd4>::test_import_
   db_ColumnRef column(res_model->catalog()->schemata().get(0)->tables().get(0)->columns().get(0));
 
   /* serialization */
-  grt::GRT::get().serialize(res_model, model_state_filename);
+  grt::GRT::get()->serialize(res_model, model_state_filename);
 
   /* unserialization */
-  res_model= workbench_physical_ModelRef::cast_from(grt::GRT::get().unserialize(model_state_filename));
-  workbench_physical_ModelRef test_model= workbench_physical_ModelRef::cast_from(grt::GRT::get().unserialize(test_model_state_filename));
+  res_model= workbench_physical_ModelRef::cast_from(grt::GRT::get()->unserialize(model_state_filename));
+  workbench_physical_ModelRef test_model= workbench_physical_ModelRef::cast_from(grt::GRT::get()->unserialize(test_model_state_filename));
 
   /* comparison */
   grt_ensure_equals(test_message.c_str(), res_model, test_model);

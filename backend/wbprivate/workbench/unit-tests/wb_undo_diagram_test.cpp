@@ -46,7 +46,7 @@ TEST_DATA_CONSTRUCTOR(wb_undo_diagram)
   populate_grt(tester);
 
   wbui = tester.wb->get_ui();
-  um = grt::GRT::get().get_undo_manager();
+  um = grt::GRT::get()->get_undo_manager();
   overview = wbui->get_physical_overview();
   diagram = model_DiagramRef();
 

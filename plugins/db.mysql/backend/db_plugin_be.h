@@ -98,12 +98,12 @@ protected:
   grt::DictRef _db_options;
 
 public:
-  bec::IconId schema_icon_id(bec::IconSize icon_size) { return bec::IconManager::get_instance()->get_icon_id(grt::GRT::get().get_metaclass("db.Schema"), icon_size); }
-  bec::IconId table_icon_id(bec::IconSize icon_size) { return bec::IconManager::get_instance()->get_icon_id(grt::GRT::get().get_metaclass("db.Table"), icon_size); }
-  bec::IconId view_icon_id(bec::IconSize icon_size) { return bec::IconManager::get_instance()->get_icon_id(grt::GRT::get().get_metaclass("db.View"), icon_size); }
-  bec::IconId routine_icon_id(bec::IconSize icon_size) { return bec::IconManager::get_instance()->get_icon_id(grt::GRT::get().get_metaclass("db.Routine"), icon_size); }
-  bec::IconId trigger_icon_id(bec::IconSize icon_size) { return bec::IconManager::get_instance()->get_icon_id(grt::GRT::get().get_metaclass("db.Trigger"), icon_size); }
-  bec::IconId user_icon_id(bec::IconSize icon_size) { return bec::IconManager::get_instance()->get_icon_id(grt::GRT::get().get_metaclass("db.User"), icon_size); }
+  bec::IconId schema_icon_id(bec::IconSize icon_size) { return bec::IconManager::get_instance()->get_icon_id(grt::GRT::get()->get_metaclass("db.Schema"), icon_size); }
+  bec::IconId table_icon_id(bec::IconSize icon_size) { return bec::IconManager::get_instance()->get_icon_id(grt::GRT::get()->get_metaclass("db.Table"), icon_size); }
+  bec::IconId view_icon_id(bec::IconSize icon_size) { return bec::IconManager::get_instance()->get_icon_id(grt::GRT::get()->get_metaclass("db.View"), icon_size); }
+  bec::IconId routine_icon_id(bec::IconSize icon_size) { return bec::IconManager::get_instance()->get_icon_id(grt::GRT::get()->get_metaclass("db.Routine"), icon_size); }
+  bec::IconId trigger_icon_id(bec::IconSize icon_size) { return bec::IconManager::get_instance()->get_icon_id(grt::GRT::get()->get_metaclass("db.Trigger"), icon_size); }
+  bec::IconId user_icon_id(bec::IconSize icon_size) { return bec::IconManager::get_instance()->get_icon_id(grt::GRT::get()->get_metaclass("db.User"), icon_size); }
 
   DbConnection * db_conn() { return _db_conn; }
 

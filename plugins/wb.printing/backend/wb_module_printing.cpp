@@ -158,7 +158,7 @@ int WbPrintingImpl::printToPDFFile(model_DiagramRef view, const std::string &pat
 {
   mdc::CanvasViewExtras extras(view->get_data()->get_canvas_view());
 
-  app_PageSettingsRef page(workbench_DocumentRef::cast_from(grt::GRT::get().get("/wb/doc"))->pageSettings());
+  app_PageSettingsRef page(workbench_DocumentRef::cast_from(grt::GRT::get()->get("/wb/doc"))->pageSettings());
 
   extras.set_page_margins(page->marginTop(), page->marginLeft(), page->marginBottom(), page->marginRight());
   extras.set_paper_size(page->paperType()->width(), page->paperType()->height());
@@ -175,7 +175,7 @@ int WbPrintingImpl::printDiagramsToFile(grt::ListRef<model_Diagram> views, const
 {
   int pages = 0;
   base::FileHandle fh(path.c_str(), "wb");
-  app_PageSettingsRef page(workbench_DocumentRef::cast_from(grt::GRT::get().get("/wb/doc"))->pageSettings());
+  app_PageSettingsRef page(workbench_DocumentRef::cast_from(grt::GRT::get()->get("/wb/doc"))->pageSettings());
   int total_pages = 0;
 
   GRTLIST_FOREACH(model_Diagram, views, view)
@@ -231,7 +231,7 @@ int WbPrintingImpl::printToPSFile(model_DiagramRef view, const std::string &path
 {
   mdc::CanvasViewExtras extras(view->get_data()->get_canvas_view());
 
-  app_PageSettingsRef page(workbench_DocumentRef::cast_from(grt::GRT::get().get("/wb/doc"))->pageSettings());
+  app_PageSettingsRef page(workbench_DocumentRef::cast_from(grt::GRT::get()->get("/wb/doc"))->pageSettings());
 
   extras.set_page_margins(page->marginTop(), page->marginLeft(), page->marginBottom(), page->marginRight());
   extras.set_paper_size(page->paperType()->width(), page->paperType()->height());

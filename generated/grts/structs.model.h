@@ -52,7 +52,7 @@ class  model_Marker : public GrtObject
   typedef GrtObject super;
 public:
   model_Marker(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _x(0.0),
      _y(0.0),
      _zoom(0.0)
@@ -158,7 +158,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&model_Marker::create);
     {
@@ -191,7 +191,7 @@ class  model_Group : public GrtObject
   typedef GrtObject super;
 public:
   model_Group(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _description(""),
     _figures(this, false),
     _subGroups(this, false)
@@ -283,7 +283,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&model_Group::create);
     {
@@ -318,7 +318,7 @@ public:
   class ImplData;
   friend class ImplData;
   model_Object(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _visible(1),
     _data(0)
 
@@ -386,7 +386,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&model_Object::create);
     {
@@ -411,7 +411,7 @@ public:
   class ImplData;
   friend class ImplData;
   model_Layer(grt::MetaClass *meta=0)
-  : model_Object(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : model_Object(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _color(""),
      _description(""),
     _figures(this, false),
@@ -644,7 +644,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&model_Layer::create);
     {
@@ -706,7 +706,7 @@ public:
   class ImplData;
   friend class ImplData;
   model_Connection(grt::MetaClass *meta=0)
-  : model_Object(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : model_Object(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _drawSplit(0),
     _data(0)
 
@@ -801,7 +801,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&model_Connection::create);
     {
@@ -831,7 +831,7 @@ public:
   class ImplData;
   friend class ImplData;
   model_Figure(grt::MetaClass *meta=0)
-  : model_Object(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : model_Object(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _color(""),
      _expanded(1),
      _height(0.0),
@@ -1070,7 +1070,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&model_Figure::create);
     {
@@ -1135,7 +1135,7 @@ public:
   class ImplData;
   friend class ImplData;
   model_Diagram(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _closed(0),
     _connections(this, false),
      _description(""),
@@ -1576,7 +1576,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(0);
     {
@@ -1681,7 +1681,7 @@ public:
   class ImplData;
   friend class ImplData;
   model_Model(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _customData(this, false),
     _diagrams(this, false),
     _markers(this, false),
@@ -1812,7 +1812,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(0);
     {

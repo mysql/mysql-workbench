@@ -48,7 +48,7 @@ void model_Model::ImplData::list_changed(grt::internal::OwnedList *list, bool ad
   {
     if (added)
     {
-      if (grt::GRT::get().get_undo_manager()->is_redoing())
+      if (grt::GRT::get()->get_undo_manager()->is_redoing())
       {
         model_DiagramRef::cast_from(value)->get_data()->realize();
       }

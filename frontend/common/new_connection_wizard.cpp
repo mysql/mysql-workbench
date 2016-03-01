@@ -181,9 +181,9 @@ db_mgmt_ConnectionRef NewConnectionWizard::run()
         grt::BaseListRef args(true);
         args.ginsert(_connection);
         if (is_local_connection(_connection))
-          db_mgmt_ServerInstanceRef::cast_from(grt::GRT::get().call_module_function("WbAdmin", "autoDetectLocalInstance", args));
+          db_mgmt_ServerInstanceRef::cast_from(grt::GRT::get()->call_module_function("WbAdmin", "autoDetectLocalInstance", args));
         else
-          db_mgmt_ServerInstanceRef::cast_from(grt::GRT::get().call_module_function("WbAdmin", "autoDetectRemoteInstance", args));
+          db_mgmt_ServerInstanceRef::cast_from(grt::GRT::get()->call_module_function("WbAdmin", "autoDetectRemoteInstance", args));
       }
 
       return _connection;

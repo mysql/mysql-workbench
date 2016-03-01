@@ -43,8 +43,8 @@ TEST_DATA_CONSTRUCTOR(autocompletion_cache_test)
   printf("\nTests running in: %s\n\n", base::wstring_to_string(path).c_str());
 #endif
 
-  grt::GRT::get().scan_metaclasses_in("../../res/grt/");
-  grt::GRT::get().end_loading_metaclasses();
+  grt::GRT::get()->scan_metaclasses_in("../../res/grt/");
+  grt::GRT::get()->end_loading_metaclasses();
 
   // Because tests are executed in alphabetic order this is the first one.
   // Hence we set up the sakila db in server here.

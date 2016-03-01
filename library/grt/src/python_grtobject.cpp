@@ -244,13 +244,13 @@ static int object_init(PyGRTObjectObject *self, PyObject *args, PyObject *kwds)
     }
     else
     {
-      if (!class_name || !GRT::get().get_metaclass(class_name))
+      if (!class_name || !grt::GRT::get()->get_metaclass(class_name))
       {
         PyErr_SetString(PyExc_NameError, "invalid GRT class name");
         return -1;
       }
 
-      self->object= new grt::ObjectRef(GRT::get().create_object<internal::Object>(class_name));
+      self->object= new grt::ObjectRef(grt::GRT::get()->create_object<internal::Object>(class_name));
       self->hash= -1;
     }
     return 0;

@@ -98,11 +98,11 @@ CATCH_EXCEPTION_AND_DISPATCH(statement)
 #define CATCH_ANY_EXCEPTION_AND_DISPATCH_TO_DEFAULT_LOG(statement) \
 catch (sql::SQLException &e)\
 {\
-grt::GRT::get().send_error(strfmt(SQL_EXCEPTION_MSG_FORMAT, e.getErrorCode(), e.what()), statement);\
+grt::GRT::get()->send_error(strfmt(SQL_EXCEPTION_MSG_FORMAT, e.getErrorCode(), e.what()), statement);\
 }\
 catch (std::exception &e)\
 {\
-grt::GRT::get().send_error(strfmt(EXCEPTION_MSG_FORMAT, e.what()), statement);\
+grt::GRT::get()->send_error(strfmt(EXCEPTION_MSG_FORMAT, e.what()), statement);\
 }
 
 
@@ -1431,7 +1431,7 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
     }
 
     // reset_references on the catalog is called when we try to apply changes (generate the alter script).
-    db_mysql_CatalogRef client_state_catalog= grt::GRT::get().create_object<db_mysql_Catalog>("db.mysql.Catalog");
+    db_mysql_CatalogRef client_state_catalog= grt::GRT::get()->create_object<db_mysql_Catalog>("db.mysql.Catalog");
     client_state_catalog->name("default");
     client_state_catalog->oldName("default");
     client_state_catalog->version(rdbms->version());
@@ -1457,7 +1457,7 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
       }
       else
       {
-        schema = grt::GRT::get().create_object<db_mysql_Schema>("db.mysql.Schema");
+        schema = grt::GRT::get()->create_object<db_mysql_Schema>("db.mysql.Schema");
         schema->owner(client_state_catalog);
 
         schema->name(used_schema_name);
@@ -1492,7 +1492,7 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
       {
         try
         {
-          grt::Module *module = grt::GRT::get().get_module("SQLIDEUtils");
+          grt::Module *module = grt::GRT::get()->get_module("SQLIDEUtils");
           grt::BaseListRef args(true);
           args.ginsert(grt::StringRef(ddl_script));
           ddl_script = grt::StringRef::cast_from(module->call_function("reformatSQLStatement", args));
@@ -1700,7 +1700,7 @@ std::string SqlEditorTreeController::run_execute_routine_wizard(wb::LiveSchemaTr
 
 db_SchemaRef SqlEditorTreeController::create_new_schema(db_CatalogRef owner)
 {
-  db_SchemaRef object= grt::GRT::get().create_object<db_Schema>(owner->schemata()->content_type_spec().object_class);
+  db_SchemaRef object= grt::GRT::get()->create_object<db_Schema>(owner->schemata()->content_type_spec().object_class);
   object->owner(owner);
   object->name("new_schema");
   owner->schemata().insert(object);
@@ -1712,7 +1712,7 @@ db_SchemaRef SqlEditorTreeController::create_new_schema(db_CatalogRef owner)
 
 db_TableRef SqlEditorTreeController::create_new_table(db_SchemaRef owner)
 {
-  db_TableRef object= grt::GRT::get().create_object<db_Table>(owner->tables()->content_type_spec().object_class);
+  db_TableRef object= grt::GRT::get()->create_object<db_Table>(owner->tables()->content_type_spec().object_class);
   object->owner(owner);
   object->name("new_table");
   owner->tables().insert(object);
@@ -1722,7 +1722,7 @@ db_TableRef SqlEditorTreeController::create_new_table(db_SchemaRef owner)
 
 db_ViewRef SqlEditorTreeController::create_new_view(db_SchemaRef owner)
 {
-  db_ViewRef object= grt::GRT::get().create_object<db_View>(owner->views()->content_type_spec().object_class);
+  db_ViewRef object= grt::GRT::get()->create_object<db_View>(owner->views()->content_type_spec().object_class);
   object->owner(owner);
   object->name("new_view");
   owner->views().insert(object);
@@ -1732,7 +1732,7 @@ db_ViewRef SqlEditorTreeController::create_new_view(db_SchemaRef owner)
 
 db_RoutineRef SqlEditorTreeController::create_new_routine(db_SchemaRef owner, wb::LiveSchemaTree::ObjectType type)
 {
-  db_RoutineRef object= grt::GRT::get().create_object<db_Routine>(owner->routines()->content_type_spec().object_class);
+  db_RoutineRef object= grt::GRT::get()->create_object<db_Routine>(owner->routines()->content_type_spec().object_class);
   object->owner(owner);
 
   if (type == wb::LiveSchemaTree::Procedure)
@@ -1766,7 +1766,7 @@ void SqlEditorTreeController::tree_create_object(wb::LiveSchemaTree::ObjectType 
 std::string SqlEditorTreeController::generate_alter_script(const db_mgmt_RdbmsRef &rdbms, db_DatabaseObjectRef db_object,
   std::string algorithm, std::string lock)
 {
-  DbMySQLImpl *diffsql_module = grt::GRT::get().find_native_module<DbMySQLImpl>("DbMySQL");
+  DbMySQLImpl *diffsql_module = grt::GRT::get()->find_native_module<DbMySQLImpl>("DbMySQL");
 
   db_CatalogRef server_cat= db_CatalogRef::cast_from(db_object->customData().get("serverStateCatalog"));
   db_CatalogRef client_cat= db_CatalogRef::cast_from(db_object->customData().get("clientStateCatalog"));
@@ -2132,7 +2132,7 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
       {
         try
         {
-          grt::Module *module = grt::GRT::get().get_module("SQLIDEUtils");
+          grt::Module *module = grt::GRT::get()->get_module("SQLIDEUtils");
           grt::BaseListRef args(true);
           args.ginsert(grt::StringRef(ddl_script));
           ddl_script = grt::StringRef::cast_from(module->call_function("reformatSQLStatement", args));
@@ -2498,7 +2498,7 @@ void SqlEditorTreeController::create_live_table_stubs(bec::DBObjectEditorBE *tab
         schema= find_named_object_in_list(schemata, schema_name);
         if (!schema.is_valid())
         {
-          schema= grt::GRT::get().create_object<db_Schema>(schema_typename);
+          schema= grt::GRT::get()->create_object<db_Schema>(schema_typename);
           schema->owner(catalog);
           schema->name(schema_name);
           schema->oldName(schema_name);
@@ -2511,7 +2511,7 @@ void SqlEditorTreeController::create_live_table_stubs(bec::DBObjectEditorBE *tab
       table= find_named_object_in_list(tables, table_name);
       if (!table.is_valid())
       {
-        table= grt::GRT::get().create_object<db_Table>(table_typename);
+        table= grt::GRT::get()->create_object<db_Table>(table_typename);
         table->owner(schema);
         table->name(table_name);
         table->oldName(table_name);

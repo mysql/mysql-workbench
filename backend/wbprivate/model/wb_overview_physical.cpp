@@ -854,22 +854,22 @@ std::string PhysicalOverviewBE::get_file_for_node(const bec::NodeId &node)
 
 bool PhysicalOverviewBE::can_undo()
 {
-  return grt::GRT::get().get_undo_manager()->can_undo();
+  return grt::GRT::get()->get_undo_manager()->can_undo();
 }
 
 bool PhysicalOverviewBE::can_redo()
 {
-  return grt::GRT::get().get_undo_manager()->can_redo();
+  return grt::GRT::get()->get_undo_manager()->can_redo();
 }
 
 
 void PhysicalOverviewBE::undo()
 {
-  grt::GRT::get().get_undo_manager()->undo();
+  grt::GRT::get()->get_undo_manager()->undo();
 }
 
 void PhysicalOverviewBE::redo()
 {
-  grt::GRT::get().get_undo_manager()->redo();
+  grt::GRT::get()->get_undo_manager()->redo();
 }
 

@@ -121,7 +121,7 @@ void AddOnDownloadWindow::DownloadItem::download_finished(grt::ValueRef ret)
 
 grt::ValueRef AddOnDownloadWindow::DownloadItem::perform_download()
 {
-  grt::Module *module = grt::GRT::get().get_module("WbUpdater");
+  grt::Module *module = grt::GRT::get()->get_module("WbUpdater");
   if (!module)
     throw std::runtime_error("Can't locate module WbUpdater");
   
@@ -285,7 +285,7 @@ bool PluginInstallWindow::InstallItem::start()
     }
     try
     {
-      manifest = grt::DictRef::cast_from(grt::GRT::get().unserialize(manifest_path));
+      manifest = grt::DictRef::cast_from(grt::GRT::get()->unserialize(manifest_path));
     }
     catch (const std::exception)
     {

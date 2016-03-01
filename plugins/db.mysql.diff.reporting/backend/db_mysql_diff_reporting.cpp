@@ -76,13 +76,13 @@ std::string DbMySQLDiffReporting::generate_report(const db_mysql_CatalogRef& lef
   build_catalog_map(right_cat_copy, right_catalog_map);
   update_all_old_names(right_cat_copy, true, right_catalog_map);
 
-  db_mgmt_RdbmsRef rdbms = db_mgmt_RdbmsRef::cast_from(grt::GRT::get().get("/wb/rdbmsMgmt/rdbms/0"));
+  db_mgmt_RdbmsRef rdbms = db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->get("/wb/rdbmsMgmt/rdbms/0"));
 
   bec::apply_user_datatypes(right_cat_copy, rdbms);
   bec::apply_user_datatypes(left_cat_copy, rdbms);
 
 
-  SQLGeneratorInterfaceImpl *diffsql_module= dynamic_cast<SQLGeneratorInterfaceImpl*>(grt::GRT::get().get_module("DbMySQL"));
+  SQLGeneratorInterfaceImpl *diffsql_module= dynamic_cast<SQLGeneratorInterfaceImpl*>(grt::GRT::get()->get_module("DbMySQL"));
 
   if (diffsql_module == NULL)
     throw DbMySQLDiffReportingException("error loading module DbMySQL");

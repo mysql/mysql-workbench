@@ -151,7 +151,7 @@ public:
 
   ::grt::GRT* get_unmanaged_object() 
   { 
-    return &grt::GRT::get(); 
+    return grt::GRT::get().get();
   }
 
   static System::String^ version()
@@ -161,7 +161,7 @@ public:
 	
 	void make_output_visible()
 	{ 
-    grt::GRT::get().make_output_visible(); 
+    grt::GRT::get()->make_output_visible(); 
   }
 };
 
@@ -348,7 +348,7 @@ public:
     { return static_cast<::grt::BaseListValue *>(inner); }
 
   inline void init(GRT^ grt, GrtValueType type) 
-    { get_unmanaged_object()->init(grt::GRT::get().get_unmanaged_object(), static_cast<MYX_GRT_VALUE_TYPE>(type)); }
+    { get_unmanaged_object()->init(grt::GRT::get()->get_unmanaged_object(), static_cast<MYX_GRT_VALUE_TYPE>(type)); }
 
   //inline GRT *grt() 
   //  { return BaseListValue::grt(); }
@@ -435,7 +435,7 @@ public:
     { return static_cast<::grt::IntListValue *>(inner); }
 
   void init(GRT^ grt)
-    { get_unmanaged_object()->init(grt::GRT::get().get_unmanaged_object()); }
+    { get_unmanaged_object()->init(grt::GRT::get()->get_unmanaged_object()); }
 
   static inline bool can_wrap(GenericValue% value)
     { return ::grt::IntListValue::can_wrap(*value.get_unmanaged_object()); }
@@ -504,7 +504,7 @@ public:
     { return static_cast<::grt::StringListValue *>(inner); }
   
   void init(GRT^ grt)
-    { get_unmanaged_object()->init(grt::GRT::get().get_unmanaged_object()); }
+    { get_unmanaged_object()->init(grt::GRT::get()->get_unmanaged_object()); }
 
   static inline bool can_wrap(GenericValue^ value) 
     { return ::grt::StringListValue::can_wrap(*value->get_unmanaged_object()); }
@@ -571,10 +571,10 @@ public:
 
   
   inline void init(GRT^ grt, GrtValueType type)
-    { get_unmanaged_object()->init(grt::GRT::get().get_unmanaged_object(), static_cast<MYX_GRT_VALUE_TYPE>(type), ""); }
+    { get_unmanaged_object()->init(grt::GRT::get()->get_unmanaged_object(), static_cast<MYX_GRT_VALUE_TYPE>(type), ""); }
 
   inline void init(GRT^ grt, GrtValueType type, const std::string &cstruct)
-    { get_unmanaged_object()->init(grt::GRT::get().get_unmanaged_object(), static_cast<MYX_GRT_VALUE_TYPE>(type), cstruct); }
+    { get_unmanaged_object()->init(grt::GRT::get()->get_unmanaged_object(), static_cast<MYX_GRT_VALUE_TYPE>(type), cstruct); }
 
   //inline ::()
   //  { return inner->grt(); }

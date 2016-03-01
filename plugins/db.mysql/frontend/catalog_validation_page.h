@@ -32,7 +32,7 @@ class CatalogValidationPage : public WizardProgressPage
 public:
   static bool has_modules()
   {
-    return !grt::GRT::get().get_implementing_modules<WbValidationInterfaceWrapper>().empty();
+    return !grt::GRT::get()->get_implementing_modules<WbValidationInterfaceWrapper>().empty();
   }
 
   CatalogValidationPage(WizardForm *form, bool optional= true)
@@ -43,9 +43,9 @@ public:
     
     // get list of available validation modules
     std::vector<WbValidationInterfaceWrapper*> validation_modules;
-    validation_modules= grt::GRT::get().get_implementing_modules<WbValidationInterfaceWrapper>();
+    validation_modules= grt::GRT::get()->get_implementing_modules<WbValidationInterfaceWrapper>();
 
-    _target_catalog= db_CatalogRef::cast_from(grt::GRT::get().get("/wb/doc/physicalModels/0/catalog"));
+    _target_catalog= db_CatalogRef::cast_from(grt::GRT::get()->get("/wb/doc/physicalModels/0/catalog"));
 
     // add a task for each validation module
     for (std::vector<WbValidationInterfaceWrapper*>::iterator module= validation_modules.begin();

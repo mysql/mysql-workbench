@@ -64,7 +64,7 @@ grt::ValueRef WBComponent::place_object(ModelDiagramForm *form, const Point &pos
 
   form->get_view()->snap_to_grid(offset);
 
-  model_FigureRef figure(grt::GRT::get().create_object<model_Figure>(object_struct));
+  model_FigureRef figure(grt::GRT::get()->create_object<model_Figure>(object_struct));
 
   if (!figure.is_valid())
     throw std::runtime_error("Could not create object of type "+object_struct);

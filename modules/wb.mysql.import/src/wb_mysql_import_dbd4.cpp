@@ -334,7 +334,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
   {
     int id= 0;
 
-    DictRef wb_options= DictRef::cast_from(grt::GRT::get().get("/wb/options/options"));
+    DictRef wb_options= DictRef::cast_from(grt::GRT::get()->get("/wb/options/options"));
     std::string table_figure_color= wb_options.get_string(std::string(workbench_physical_TableFigure::static_class_name()).append(":Color"));
     std::string note_figure_color=  wb_options.get_string(std::string(workbench_model_NoteFigure::static_class_name()).append(":Color"));
     std::string image_color_color= wb_options.get_string(std::string(workbench_model_ImageFigure::static_class_name()).append(":Color"));
@@ -378,7 +378,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
         grt::ObjectListRef::cast_from(model->diagrams()),
         name_prefix, false);
 
-      ///view= grt::GRT::get().create_object<workbench_physical_View>(view_class_name);
+      ///view= grt::GRT::get()->create_object<workbench_physical_View>(view_class_name);
       ///view->owner(model);
       view->name(grt::StringRef(name));
       view->width(grt::DoubleRef(viewWidth));
@@ -594,7 +594,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
                 // append datatype params to type name
                 typestr.append(dbd_string_to_utf8(column_el->Attribute("DatatypeParams")));
                 if (!column->setParseType(typestr, rdbms->simpleDatatypes()))
-                  grt::GRT::get().send_warning(strfmt("Error parsing type for column '%s' (%s)", column->name().c_str(), typestr.c_str()));
+                  grt::GRT::get()->send_warning(strfmt("Error parsing type for column '%s' (%s)", column->name().c_str(), typestr.c_str()));
 
                 // flags
                 std::list<int> flags2;
@@ -697,7 +697,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
               }
               catch (const std::exception &exc)
               {
-                grt::GRT::get().send_error("Import DBD4 Model", base::strfmt("Error processing inserts importing DBD4 model %s: %s", exc.what(), inserts_script.c_str()));
+                grt::GRT::get()->send_error("Import DBD4 Model", base::strfmt("Error processing inserts importing DBD4 model %s: %s", exc.what(), inserts_script.c_str()));
                 throw;
               }
             }

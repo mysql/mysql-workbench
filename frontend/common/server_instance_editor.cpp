@@ -278,7 +278,7 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
     Box *box = manage(new Box(true));
     box->set_spacing(8);
     
-    _autodetect_button.set_enabled(grt::GRT::get().get_module("WbAdmin")!=0);
+    _autodetect_button.set_enabled(grt::GRT::get()->get_module("WbAdmin")!=0);
     _autodetect_button.set_text(_("Detect Server Configuration..."));
     _autodetect_button.set_tooltip(_("Attempt to automatically detect server configuration parameters for the system,\n"
                                      "such as operating system type, path to configuration file, how to start/stop MySQL etc"));
@@ -416,7 +416,7 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
   _close_button.set_text(_("Close"));
 
   _test_button.set_text(_("Test Connection"));
-//  _test_button.set_enabled(grt::GRT::get().get_module("WbAdmin")!=0);
+//  _test_button.set_enabled(grt::GRT::get()->get_module("WbAdmin")!=0);
   scoped_connect(_test_button.signal_clicked(),boost::bind(&ServerInstanceEditor::test_settings, this));
   
   _add_inst_button.enable_internal_padding(true);
@@ -453,7 +453,7 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
         grt::DictRef dict;
         try
         {
-          dict= grt::DictRef::cast_from(grt::GRT::get().unserialize(path+"/"+file));
+          dict= grt::DictRef::cast_from(grt::GRT::get()->unserialize(path+"/"+file));
         }
         catch (std::exception &exc)
         {
@@ -563,8 +563,8 @@ db_mgmt_ServerInstanceRef ServerInstanceEditor::run(db_mgmt_ConnectionRef select
   _top_vbox.resume_layout();
   run_modal(NULL, &_close_button);
 
-  grt::GRT::get().call_module_function("Workbench", "saveConnections", grt::BaseListRef());
-  grt::GRT::get().call_module_function("Workbench", "saveInstances", grt::BaseListRef());
+  grt::GRT::get()->call_module_function("Workbench", "saveConnections", grt::BaseListRef());
+  grt::GRT::get()->call_module_function("Workbench", "saveInstances", grt::BaseListRef());
 
   return selected_instance();
 }
@@ -582,7 +582,7 @@ void ServerInstanceEditor::run_filechooser_wrapper(mforms::TextEntry* entry) // 
     run_filechooser(entry);
   else
   {
-    grt::Module *module= grt::GRT::get().get_module("WbAdmin");
+    grt::Module *module= grt::GRT::get()->get_module("WbAdmin");
     if (module)
     {
       grt::BaseListRef args(true);
@@ -599,7 +599,7 @@ void ServerInstanceEditor::run_filechooser_wrapper(mforms::TextEntry* entry) // 
       }
       catch (const std::exception &exc)
       {
-        grt::GRT::get().send_error("Error in remote file browser", exc.what());
+        grt::GRT::get()->send_error("Error in remote file browser", exc.what());
       }
     }
   }
@@ -691,7 +691,7 @@ db_mgmt_ServerInstanceRef ServerInstanceEditor::selected_instance()
 
 void ServerInstanceEditor::autodetect_system()
 {
-  grt::Module *module= grt::GRT::get().get_module("WbAdmin");
+  grt::Module *module= grt::GRT::get()->get_module("WbAdmin");
   if (module)
   {
     grt::BaseListRef args(true);
@@ -706,7 +706,7 @@ void ServerInstanceEditor::test_settings()
 {
   if (_ssh_remote_admin.get_active())
   {
-      grt::Module *module= grt::GRT::get().get_module("WbAdmin");
+      grt::Module *module= grt::GRT::get()->get_module("WbAdmin");
       if (module)
       {
         grt::BaseListRef args(true);
@@ -822,9 +822,9 @@ void ServerInstanceEditor::tab_changed()
       try
       {
         if (is_local_connection(connection))
-          instance = db_mgmt_ServerInstanceRef::cast_from(grt::GRT::get().call_module_function("WbAdmin", "autoDetectLocalInstance", args));
+          instance = db_mgmt_ServerInstanceRef::cast_from(grt::GRT::get()->call_module_function("WbAdmin", "autoDetectLocalInstance", args));
         else
-          instance = db_mgmt_ServerInstanceRef::cast_from(grt::GRT::get().call_module_function("WbAdmin", "autoDetectRemoteInstance", args));
+          instance = db_mgmt_ServerInstanceRef::cast_from(grt::GRT::get()->call_module_function("WbAdmin", "autoDetectRemoteInstance", args));
       }
       catch (grt::module_error &exc)
       {

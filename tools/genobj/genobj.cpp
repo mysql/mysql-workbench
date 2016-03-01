@@ -51,8 +51,8 @@ int main(int argc, char **argv)
   g_print("Reading structs from '%s', outputing classes to '%s'\n",
             structs_dir.c_str(), output_dir.c_str());
   
-  grt::GRT::get().scan_metaclasses_in(structs_dir, &requires);
-  grt::GRT::get().end_loading_metaclasses(false);
+  grt::GRT::get()->scan_metaclasses_in(structs_dir, &requires);
+  grt::GRT::get()->end_loading_metaclasses(false);
 
   grt::helper::generate_struct_code(structs_file, output_dir, impl_output_dir, requires);
 

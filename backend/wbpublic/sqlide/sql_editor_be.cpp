@@ -340,7 +340,7 @@ static void beautify_script(MySQLEditor *sql_editor)
   grt::BaseListRef args(true);
   args.ginsert(sql_editor->grtobj());
 
-  grt::GRT::get().call_module_function("SQLIDEUtils", "enbeautificate", args);
+  grt::GRT::get()->call_module_function("SQLIDEUtils", "enbeautificate", args);
 }
 
 //--------------------------------------------------------------------------------------------------

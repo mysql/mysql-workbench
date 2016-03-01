@@ -60,7 +60,7 @@ void set_connection_properties(db_mgmt_ConnectionRef& connection)
   conn_params.set("password", grt::StringRef(test_params->get_password()));
   grt::replace_contents(connection->parameterValues(), conn_params);
 
-  db_mgmt_DriverRef driverProperties= db_mgmt_DriverRef::cast_from(grt::GRT::get().get("/rdbms/drivers/0/"));
+  db_mgmt_DriverRef driverProperties= db_mgmt_DriverRef::cast_from(grt::GRT::get()->get("/rdbms/drivers/0/"));
   connection->driver(driverProperties);
 }
 
@@ -68,7 +68,7 @@ void set_connection_properties(db_mgmt_ConnectionRef& connection)
 
 sql::ConnectionWrapper create_connection()
 {
-  db_mgmt_ConnectionRef connectionProperties;
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
   set_connection_properties(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();

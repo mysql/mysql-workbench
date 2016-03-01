@@ -101,7 +101,7 @@ class  db_DatabaseSyncObject : public GrtObject
   typedef GrtObject super;
 public:
   db_DatabaseSyncObject(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _alterDirection(0),
      _changed(0),
     _children(this, false),
@@ -246,7 +246,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_DatabaseSyncObject::create);
     {
@@ -289,7 +289,7 @@ class  db_DatabaseSync : public GrtObject
   typedef GrtObject super;
 public:
   db_DatabaseSync(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name()))
 
   {
   }
@@ -354,7 +354,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_DatabaseSync::create);
     {
@@ -377,7 +377,7 @@ class  db_Script : public GrtStoredNote
   typedef GrtStoredNote super;
 public:
   db_Script(grt::MetaClass *meta=0)
-  : GrtStoredNote(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtStoredNote(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _forwardEngineerScriptPosition(""),
      _synchronizeScriptPosition("")
 
@@ -440,7 +440,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_Script::create);
     {
@@ -462,7 +462,7 @@ class  db_CharacterSet : public GrtObject
   typedef GrtObject super;
 public:
   db_CharacterSet(grt::MetaClass *meta = nullptr)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
   _collations(grt::Initialized, this, false),
      _defaultCollation(""),
      _description("")
@@ -543,7 +543,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_CharacterSet::create);
     {
@@ -570,7 +570,7 @@ class GRT_STRUCTS_DB_PUBLIC db_ForeignKey : public GrtNamedObject
   typedef GrtNamedObject super;
 public:
   db_ForeignKey(grt::MetaClass *meta=0)
-  : GrtNamedObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtNamedObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _columns(this, false),
     _customData(this, false),
      _deferability(0),
@@ -863,7 +863,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_ForeignKey::create);
     {
@@ -941,7 +941,7 @@ class  db_IndexColumn : public GrtObject
   typedef GrtObject super;
 public:
   db_IndexColumn(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _columnLength(0),
      _comment(""),
      _descend(0)
@@ -1047,7 +1047,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_IndexColumn::create);
     {
@@ -1079,7 +1079,7 @@ class  db_CheckConstraint : public GrtNamedObject
   typedef GrtNamedObject super;
 public:
   db_CheckConstraint(grt::MetaClass *meta=0)
-  : GrtNamedObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtNamedObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _searchCondition("")
 
   {
@@ -1120,7 +1120,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_CheckConstraint::create);
     {
@@ -1137,7 +1137,7 @@ class  db_UserDatatype : public GrtObject
   typedef GrtObject super;
 public:
   db_UserDatatype(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _flags(""),
      _sqlDefinition("")
 
@@ -1221,7 +1221,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_UserDatatype::create);
     {
@@ -1248,7 +1248,7 @@ class  db_SimpleDatatype : public GrtObject
   typedef GrtObject super;
 public:
   db_SimpleDatatype(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _characterMaximumLength(0),
      _characterOctetLength(0),
      _dateTimePrecision(0),
@@ -1522,7 +1522,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_SimpleDatatype::create);
     {
@@ -1594,7 +1594,7 @@ class  db_DatatypeGroup : public GrtObject
   typedef GrtObject super;
 public:
   db_DatatypeGroup(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _caption(""),
      _description("")
 
@@ -1657,7 +1657,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_DatatypeGroup::create);
     {
@@ -1679,7 +1679,7 @@ class GRT_STRUCTS_DB_PUBLIC db_Column : public GrtNamedObject
   typedef GrtNamedObject super;
 public:
   db_Column(grt::MetaClass *meta=0)
-  : GrtNamedObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtNamedObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _characterSetName(""),
     _checks(this, false),
      _collationName(""),
@@ -2036,7 +2036,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_Column::create);
     {
@@ -2125,7 +2125,7 @@ class  db_RolePrivilege : public GrtObject
   typedef GrtObject super;
 public:
   db_RolePrivilege(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _databaseObjectName(""),
      _databaseObjectType(""),
      _privileges(grt::Initialized, this, false)
@@ -2227,7 +2227,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_RolePrivilege::create);
     {
@@ -2259,7 +2259,7 @@ class  db_Catalog : public GrtNamedObject
   typedef GrtNamedObject super;
 public:
   db_Catalog(grt::MetaClass *meta=0)
-  : GrtNamedObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtNamedObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _characterSets(this, false),
     _customData(this, false),
      _defaultCharacterSetName(""),
@@ -2560,7 +2560,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_Catalog::create);
     {
@@ -2642,7 +2642,7 @@ class GRT_STRUCTS_DB_PUBLIC db_DatabaseObject : public GrtNamedObject
   typedef GrtNamedObject super;
 public:
   db_DatabaseObject(grt::MetaClass *meta=0)
-  : GrtNamedObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtNamedObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _commentedOut(0),
      _createDate(""),
     _customData(this, false),
@@ -2819,7 +2819,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_DatabaseObject::create);
     {
@@ -2872,7 +2872,7 @@ class  db_Sequence : public db_DatabaseObject
   typedef db_DatabaseObject super;
 public:
   db_Sequence(grt::MetaClass *meta=0)
-  : db_DatabaseObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : db_DatabaseObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _cacheSize(""),
      _cycleFlag(0),
      _incrementBy(""),
@@ -3067,7 +3067,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_Sequence::create);
     {
@@ -3119,7 +3119,7 @@ class  db_Synonym : public db_DatabaseObject
   typedef db_DatabaseObject super;
 public:
   db_Synonym(grt::MetaClass *meta=0)
-  : db_DatabaseObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : db_DatabaseObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _isPublic(0),
      _referencedObjectName(""),
      _referencedSchemaName("")
@@ -3225,7 +3225,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_Synonym::create);
     {
@@ -3258,7 +3258,7 @@ class GRT_STRUCTS_DB_PUBLIC db_RoutineGroup : public db_DatabaseObject
   typedef db_DatabaseObject super;
 public:
   db_RoutineGroup(grt::MetaClass *meta=0)
-  : db_DatabaseObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : db_DatabaseObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _routineExpandedHeights(grt::Initialized, this, false),
     _routineExpandedStates(grt::Initialized, this, false),
     _routines(this, false)
@@ -3340,7 +3340,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_RoutineGroup::create);
     {
@@ -3367,7 +3367,7 @@ class GRT_STRUCTS_DB_PUBLIC db_Index : public db_DatabaseObject
   typedef db_DatabaseObject super;
 public:
   db_Index(grt::MetaClass *meta=0)
-  : db_DatabaseObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : db_DatabaseObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _columns(this, false),
      _deferability(0),
      _indexType(""),
@@ -3527,7 +3527,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_Index::create);
     {
@@ -3574,7 +3574,7 @@ class  db_StructuredDatatype : public db_DatabaseObject
   typedef db_DatabaseObject super;
 public:
   db_StructuredDatatype(grt::MetaClass *meta=0)
-  : db_DatabaseObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : db_DatabaseObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _distinctTypes(this, false)
 
   {
@@ -3634,7 +3634,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_StructuredDatatype::create);
     {
@@ -3657,7 +3657,7 @@ class GRT_STRUCTS_DB_PUBLIC db_Table : public db_DatabaseObject
   typedef db_DatabaseObject super;
 public:
   db_Table(grt::MetaClass *meta=0)
-  : db_DatabaseObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : db_DatabaseObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _columns(this, false),
     _foreignKeys(this, false),
     _indices(this, false),
@@ -3978,7 +3978,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_Table::create);
     {
@@ -4048,7 +4048,7 @@ class  db_ServerLink : public db_DatabaseObject
   typedef db_DatabaseObject super;
 public:
   db_ServerLink(grt::MetaClass *meta=0)
-  : db_DatabaseObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : db_DatabaseObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _host(""),
      _ownerUser(""),
      _password(""),
@@ -4243,7 +4243,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_ServerLink::create);
     {
@@ -4295,7 +4295,7 @@ class GRT_STRUCTS_DB_PUBLIC db_Schema : public db_DatabaseObject
   typedef db_DatabaseObject super;
 public:
   db_Schema(grt::MetaClass *meta=0)
-  : db_DatabaseObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : db_DatabaseObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _defaultCharacterSetName(""),
      _defaultCollationName(""),
     _events(this, false),
@@ -4574,7 +4574,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_Schema::create);
     {
@@ -4642,7 +4642,7 @@ class  db_Tablespace : public db_DatabaseObject
   typedef db_DatabaseObject super;
 public:
   db_Tablespace(grt::MetaClass *meta=0)
-  : db_DatabaseObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : db_DatabaseObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _autoExtendSize(0),
      _dataFile(""),
      _extentSize(0),
@@ -4792,7 +4792,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_Tablespace::create);
     {
@@ -4834,7 +4834,7 @@ class  db_LogFileGroup : public db_DatabaseObject
   typedef db_DatabaseObject super;
 public:
   db_LogFileGroup(grt::MetaClass *meta=0)
-  : db_DatabaseObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : db_DatabaseObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _initialSize(0),
      _undoBufferSize(0),
      _undoFile("")
@@ -4919,7 +4919,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_LogFileGroup::create);
     {
@@ -4946,7 +4946,7 @@ class  db_User : public db_DatabaseObject
   typedef db_DatabaseObject super;
 public:
   db_User(grt::MetaClass *meta=0)
-  : db_DatabaseObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : db_DatabaseObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _password(""),
     _roles(this, false)
 
@@ -5005,7 +5005,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_User::create);
     {
@@ -5027,7 +5027,7 @@ class  db_Role : public db_DatabaseObject
   typedef db_DatabaseObject super;
 public:
   db_Role(grt::MetaClass *meta=0)
-  : db_DatabaseObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : db_DatabaseObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _childRoles(this, false),
     _privileges(this, false)
 
@@ -5105,7 +5105,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_Role::create);
     {
@@ -5132,7 +5132,7 @@ class  db_DatabaseDdlObject : public db_DatabaseObject
   typedef db_DatabaseObject super;
 public:
   db_DatabaseDdlObject(grt::MetaClass *meta=0)
-  : db_DatabaseObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : db_DatabaseObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _definer(""),
      _sqlBody(""),
      _sqlDefinition("")
@@ -5217,7 +5217,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_DatabaseDdlObject::create);
     {
@@ -5244,7 +5244,7 @@ class  db_Event : public db_DatabaseDdlObject
   typedef db_DatabaseDdlObject super;
 public:
   db_Event(grt::MetaClass *meta=0)
-  : db_DatabaseDdlObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : db_DatabaseDdlObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _at(""),
      _enabled(0),
      _interval(""),
@@ -5491,7 +5491,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_Event::create);
     {
@@ -5563,7 +5563,7 @@ class GRT_STRUCTS_DB_PUBLIC db_Trigger : public db_DatabaseDdlObject
   typedef db_DatabaseDdlObject super;
 public:
   db_Trigger(grt::MetaClass *meta=0)
-  : db_DatabaseDdlObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : db_DatabaseDdlObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _enabled(0),
      _event(""),
      _ordering(""),
@@ -5702,7 +5702,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_Trigger::create);
     {
@@ -5745,7 +5745,7 @@ class  db_Routine : public db_DatabaseDdlObject
   typedef db_DatabaseDdlObject super;
 public:
   db_Routine(grt::MetaClass *meta=0)
-  : db_DatabaseDdlObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : db_DatabaseDdlObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _routineType(""),
      _sequenceNumber(0)
 
@@ -5821,7 +5821,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_Routine::create);
     {
@@ -5849,7 +5849,7 @@ class  db_View : public db_DatabaseDdlObject
   typedef db_DatabaseDdlObject super;
 public:
   db_View(grt::MetaClass *meta=0)
-  : db_DatabaseDdlObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : db_DatabaseDdlObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _algorithm(0),
      _columns(grt::Initialized, this, false),
      _isReadOnly(0),
@@ -6009,7 +6009,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_View::create);
     {

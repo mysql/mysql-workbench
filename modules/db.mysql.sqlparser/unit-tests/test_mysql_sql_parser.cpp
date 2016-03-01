@@ -104,10 +104,10 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(int test_no,
         _sqlFacade->renameSchemaReferences(res_catalog, old_schema_name, new_schema_name);
 
       // Serialize the catalog to file (not necessary for this test, but for manual checks).
-      grt::GRT::get().serialize(res_catalog, res_catalog_state_filename);
+      grt::GRT::get()->serialize(res_catalog, res_catalog_state_filename);
 
       // Unserialize the result so we can compare that with the generated catalog.
-      db_CatalogRef test_catalog = db_mysql_CatalogRef::cast_from(ValueRef(grt::GRT::get().unserialize(test_catalog_state_filename)));
+      db_CatalogRef test_catalog = db_mysql_CatalogRef::cast_from(ValueRef(grt::GRT::get()->unserialize(test_catalog_state_filename)));
 
       // Before comparing set the simple data types list to that of the rdbms. Its not part of the
       // parsing process we test here. The test data additionally doesn't contain full lists,
@@ -140,10 +140,10 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(int test_no,
       _services->renameSchemaReferences(_context, res_catalog, old_schema_name, new_schema_name);
 
     // Serialize the catalog to file (not necessary for this test, but for manual checks).
-    grt::GRT::get().serialize(res_catalog, res_catalog_state_filename);
+    grt::GRT::get()->serialize(res_catalog, res_catalog_state_filename);
 
     // Unserialize the result so we can compare that with the generated catalog.
-    db_CatalogRef test_catalog = db_mysql_CatalogRef::cast_from(ValueRef(grt::GRT::get().unserialize(test_catalog_state_filename)));
+    db_CatalogRef test_catalog = db_mysql_CatalogRef::cast_from(ValueRef(grt::GRT::get()->unserialize(test_catalog_state_filename)));
     grt::replace_contents(test_catalog->simpleDatatypes(), _tester.get_rdbms()->simpleDatatypes());
 
     grt_ensure_equals(test_message.c_str(), res_catalog, test_catalog);

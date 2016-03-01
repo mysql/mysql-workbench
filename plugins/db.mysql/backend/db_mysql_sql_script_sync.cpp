@@ -296,7 +296,7 @@ DbMySQLScriptSync::~DbMySQLScriptSync()
 
 db_mysql_CatalogRef DbMySQLScriptSync::get_model_catalog()
 {
-  return db_mysql_CatalogRef::cast_from(grt::GRT::get().get("/wb/doc/physicalModels/0/catalog"));
+  return db_mysql_CatalogRef::cast_from(grt::GRT::get()->get("/wb/doc/physicalModels/0/catalog"));
 }
 
 
@@ -328,7 +328,7 @@ void DbMySQLScriptSync::start_sync()
 
 void DbMySQLScriptSync::sync_finished(grt::ValueRef res)
 {
-  grt::GRT::get().send_output(*grt::StringRef::cast_from(res) + '\n');
+  grt::GRT::get()->send_output(*grt::StringRef::cast_from(res) + '\n');
 }
 
 #if 0
@@ -368,7 +368,7 @@ db_mysql_CatalogRef DbMySQLScriptSync::get_cat_from_file_or_tree(std::string fil
     return ref_cat;
   }
 
-  DbMySQLImpl *diffsql_module= grt::GRT::get().find_native_module<DbMySQLImpl>("DbMySQL");
+  DbMySQLImpl *diffsql_module= grt::GRT::get()->find_native_module<DbMySQLImpl>("DbMySQL");
 
   if (diffsql_module == NULL)
   {
@@ -423,7 +423,7 @@ ValueRef DbMySQLScriptSync::sync_task(grt::StringRef)
   if (!err.empty())
     return StringRef(err);
 
-  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get().get("/wb/rdbmsMgmt/rdbms/0"));
+  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->get("/wb/rdbmsMgmt/rdbms/0"));
 
   db_mysql_CatalogRef org_cat_copy= db_mysql_CatalogRef::cast_from(grt::copy_object(org_cat));
   db_mysql_CatalogRef mod_cat_copy= db_mysql_CatalogRef::cast_from(grt::copy_object(mod_cat));
@@ -444,7 +444,7 @@ ValueRef DbMySQLScriptSync::sync_task(grt::StringRef)
 
 grt::StringRef DbMySQLScriptSync::generate_alter(db_mysql_CatalogRef org_cat, db_mysql_CatalogRef org_cat_copy, db_mysql_CatalogRef mod_cat_copy)
 {
-  DbMySQLImpl *diffsql_module= grt::GRT::get().find_native_module<DbMySQLImpl>("DbMySQL");
+  DbMySQLImpl *diffsql_module= grt::GRT::get()->find_native_module<DbMySQLImpl>("DbMySQL");
 
   grt::DbObjectMatchAlterOmf omf;
   omf.dontdiff_mask = 3;
@@ -539,7 +539,7 @@ boost::shared_ptr<DiffTreeBE> DbMySQLScriptSync::init_diff_tree(const std::vecto
                                                                 StringListRef SchemaSkipList,
                                                                 grt::DictRef options)
 {
-  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get().get("/wb/rdbmsMgmt/rdbms/0"));
+  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->get("/wb/rdbmsMgmt/rdbms/0"));
   std::string default_engine_name;
   grt::ValueRef default_engine = _manager->get_app_option("db.mysql.Table:tableEngine");
   if(grt::StringRef::can_wrap(default_engine))
@@ -632,7 +632,7 @@ boost::shared_ptr<DiffTreeBE> DbMySQLScriptSync::init_diff_tree(const std::vecto
   comparer.init_omf(&omf);
   _alter_change= diff_make(_org_cat, _mod_cat_copy, &omf);
 
-  DbMySQLImpl *diffsql_module= grt::GRT::get().find_native_module<DbMySQLImpl>("DbMySQL");
+  DbMySQLImpl *diffsql_module= grt::GRT::get()->find_native_module<DbMySQLImpl>("DbMySQL");
   
   _alter_list.remove_all();
   _alter_object_list.remove_all();
@@ -675,7 +675,7 @@ inline void save_id(const GrtObjectRef& obj, std::set<std::string>& map)
 
 std::string DbMySQLScriptSync::generate_diff_tree_script()
 {
-  DbMySQLImpl *diffsql_module= grt::GRT::get().find_native_module<DbMySQLImpl>("DbMySQL");
+  DbMySQLImpl *diffsql_module= grt::GRT::get()->find_native_module<DbMySQLImpl>("DbMySQL");
   if (diffsql_module == NULL)
     return NULL;
 
@@ -758,7 +758,7 @@ std::string DbMySQLScriptSync::generate_diff_tree_script()
 
 std::string DbMySQLScriptSync::generate_diff_tree_report()
 {
-  DbMySQLImpl *diffsql_module= grt::GRT::get().find_native_module<DbMySQLImpl>("DbMySQL");
+  DbMySQLImpl *diffsql_module= grt::GRT::get()->find_native_module<DbMySQLImpl>("DbMySQL");
 
   if (diffsql_module == NULL)
     return NULL;
@@ -848,8 +848,8 @@ public:
   ChangesApplier()
   : case_sensitive(true)
   {
-    table_mc = grt::GRT::get().get_metaclass("db.mysql.Table");
-    schema_mc = grt::GRT::get().get_metaclass("db.mysql.Schema");
+    table_mc = grt::GRT::get()->get_metaclass("db.mysql.Table");
+    schema_mc = grt::GRT::get()->get_metaclass("db.mysql.Schema");
   }
 
   void set_case_sensitive(bool flag)
@@ -1201,7 +1201,7 @@ public:
           {
             log_error("FK %s from table %s is invalid and has no referencedTable set\n",
                       fk->name().c_str(), table->name().c_str());
-            grt::GRT::get().send_error(base::strfmt("ForeignKey %s from table %s is invalid and has no referencedTable set",
+            grt::GRT::get()->send_error(base::strfmt("ForeignKey %s from table %s is invalid and has no referencedTable set",
                                                     fk->name().c_str(), table->name().c_str()));
             continue;
           }

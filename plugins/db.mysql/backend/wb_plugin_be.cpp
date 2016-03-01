@@ -79,8 +79,8 @@ void Wb_plugin::process_task_fail(const std::exception &error)
 
 void Wb_plugin::process_task_finish(grt::ValueRef res)
 {
-  grt::GRT::get().send_info(grt::StringRef::cast_from(res));
-  //grt::GRT::get().make_output_visible();
+  grt::GRT::get()->send_info(grt::StringRef::cast_from(res));
+  //grt::GRT::get()->make_output_visible();
   _grtm->perform_idle_tasks();
   if (_task_fail_cb)
     _task_finish_cb();

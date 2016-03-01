@@ -126,7 +126,7 @@ std::string ImageEditorBE::get_filename() const
 
 std::string ImageEditorBE::get_attached_image_path()
 {
-  grt::Module *module= grt::GRT::get().get_module("Workbench");
+  grt::Module *module= grt::GRT::get()->get_module("Workbench");
 
   if (!module)
     throw std::runtime_error("Workbench module not found");

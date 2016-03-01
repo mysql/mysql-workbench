@@ -43,7 +43,7 @@ void CharsetList::picked_charset(const NodeId &node)
 
 size_t CharsetList::count_children(const NodeId &parent)
 {
-  grt::ListRef<db_CharacterSet> charsets= grt::ListRef<db_CharacterSet>::cast_from(grt::GRT::get().get(_charset_list_path));
+  grt::ListRef<db_CharacterSet> charsets= grt::ListRef<db_CharacterSet>::cast_from(grt::GRT::get()->get(_charset_list_path));
 
   if (parent.depth() == 0)
     return (charsets.count() + _recently_used.size() + 1);
@@ -54,7 +54,7 @@ size_t CharsetList::count_children(const NodeId &parent)
 
 bool CharsetList::get_field(const NodeId &node, ColumnId column, std::string &value)
 {
-  grt::ListRef<db_CharacterSet> charsets= grt::ListRef<db_CharacterSet>::cast_from(grt::GRT::get().get(_charset_list_path));
+  grt::ListRef<db_CharacterSet> charsets= grt::ListRef<db_CharacterSet>::cast_from(grt::GRT::get()->get(_charset_list_path));
 
   switch ((CharsetListColumns)column)
   {
@@ -98,7 +98,7 @@ bool CharsetList::get_field(const NodeId &node, ColumnId column, std::string &va
 
 std::string CharsetList::get_field_description(const NodeId &node, ColumnId column)
 {
-  grt::ListRef<db_CharacterSet> charsets= grt::ListRef<db_CharacterSet>::cast_from(grt::GRT::get().get(_charset_list_path));
+  grt::ListRef<db_CharacterSet> charsets= grt::ListRef<db_CharacterSet>::cast_from(grt::GRT::get()->get(_charset_list_path));
 
   switch ((CharsetListColumns)column)
   {
