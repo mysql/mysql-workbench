@@ -282,7 +282,7 @@ void update_all_old_names(db_mysql_CatalogRef cat, bool update_only_empty, Catal
 }
 
 DbMySQLScriptSync::DbMySQLScriptSync(bec::GRTManager *grtm)
-  : DbMySQLValidationPage(grtm), _alter_list(), _alter_object_list()
+  : DbMySQLValidationPage(grtm), _alter_list(grt::Initialized), _alter_object_list(true)
 {
   _manager= grtm;
 }
