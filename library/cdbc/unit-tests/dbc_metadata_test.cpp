@@ -29,10 +29,10 @@ TEST_MODULE(module_dbc_metadata_test, "DBC: metadata tests");
 TEST_FUNCTION(1)
 {
   // load structs
-  grt::GRT::get().scan_metaclasses_in("../../res/grt/");
-  grt::GRT::get().end_loading_metaclasses();
+  grt::GRT::get()->scan_metaclasses_in("../../res/grt/");
+  grt::GRT::get()->end_loading_metaclasses();
 
-  ensure_equals("load structs", grt::GRT::get().get_metaclasses().size(), (size_t)INT_METACLASS_COUNT);
+  ensure_equals("load structs", grt::GRT::get()->get_metaclasses().size(), (size_t)INT_METACLASS_COUNT);
 }
 
 // Test DatabaseMetaData::getCatalogs().

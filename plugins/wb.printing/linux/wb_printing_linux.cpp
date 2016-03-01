@@ -106,7 +106,7 @@ void WBPageSetup::propagate_print_settings_to_grt_tree()
 
   const std::string paper_name = base::replaceString(gtk_paper_size_get_name(gtk_paper_size.gobj()), "_", "-");
 
-  grt::ListRef<app_PaperType> paper_types(grt::ListRef<app_PaperType>::cast_from(grt::GRT::get().get("/wb/options/paperTypes")));
+  grt::ListRef<app_PaperType> paper_types(grt::ListRef<app_PaperType>::cast_from(grt::GRT::get()->get("/wb/options/paperTypes")));
   
   app_PaperTypeRef ptype(app_PaperTypeRef::cast_from(grt::find_named_object_in_list(paper_types, paper_name)));
 
@@ -170,7 +170,7 @@ WBPrintOperation::~WBPrintOperation()
 //------------------------------------------------------------------------------
 void WBPrintOperation::on_begin_print(const Glib::RefPtr<Gtk::PrintContext>& ctx)
 {
-  app_PageSettingsRef pageSettings(workbench_DocumentRef::cast_from(grt::GRT::get().get("/wb/doc"))->pageSettings());
+  app_PageSettingsRef pageSettings(workbench_DocumentRef::cast_from(grt::GRT::get()->get("/wb/doc"))->pageSettings());
   app_PaperTypeRef paperType(pageSettings->paperType());
 
   update_gtk_page_setup_from_grt(_page_setup, pageSettings, true);
@@ -326,7 +326,7 @@ extern "C"
 {
   GUIPluginBase *createPrintSetupDialog(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
   { 
-    workbench_DocumentRef doc(workbench_DocumentRef::cast_from(grt::GRT::get().get("/wb/doc")));
+    workbench_DocumentRef doc(workbench_DocumentRef::cast_from(grt::GRT::get()->get("/wb/doc")));
     if (doc.is_valid())
     {
       linux_printing::WBPageSetup ps(doc->pageSettings());

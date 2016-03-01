@@ -42,7 +42,7 @@ public:
 TEST_DATA_CONSTRUCTOR(wb_undo_editors)
 {
   wbui     = tester.wb->get_ui();
-  um       = grt::GRT::get().get_undo_manager();
+  um       = grt::GRT::get()->get_undo_manager();
   overview = wbui->get_physical_overview();
   
   wbui->set_active_form(overview);
@@ -76,7 +76,7 @@ TEST_FUNCTION(1)
   
   schema = tester.get_catalog()->schemata()[0];
 
-  _rdbms = db_mgmt_RdbmsRef::cast_from(grt::GRT::get().unserialize("data/res/mysql_rdbms_info.xml"));
+  _rdbms = db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->unserialize("data/res/mysql_rdbms_info.xml"));
   
   // make sure the loaded model contains expected number of things
   ensure_equals("tables", schema->tables().count(), 2U);

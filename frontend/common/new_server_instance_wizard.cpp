@@ -375,7 +375,7 @@ void HostAndRemoteTypePage::enter(bool advancing)
         grt::DictRef dict;
         try
         {
-          dict= grt::DictRef::cast_from(grt::GRT::get().unserialize(path+"/"+file));
+          dict= grt::DictRef::cast_from(grt::GRT::get()->unserialize(path+"/"+file));
         }
         catch (std::exception &exc)
         {
@@ -870,7 +870,7 @@ void WindowsManagementPage::enter(bool advancing)
       set_title(_("Set Windows configuration parameters for this machine"));
     }
 
-    grt::Module* module = grt::GRT::get().get_module("Workbench");
+    grt::Module* module = grt::GRT::get()->get_module("Workbench");
 
     try
     {
@@ -1378,13 +1378,13 @@ void PathsPage::browse_remote_config_file()
 
   try
   {
-    grt::StringRef selection = grt::StringRef::cast_from(grt::GRT::get().call_module_function("WbAdmin", "openRemoteFileSelector", args));
+    grt::StringRef selection = grt::StringRef::cast_from(grt::GRT::get()->call_module_function("WbAdmin", "openRemoteFileSelector", args));
     if (selection.is_valid() && !selection.empty())
       _config_path.set_value(selection);
   }
   catch (const std::exception &exc)
   {
-    grt::GRT::get().send_error("Error in remote file browser", exc.what());
+    grt::GRT::get()->send_error("Error in remote file browser", exc.what());
   }
 }
 
@@ -1696,7 +1696,7 @@ grt::ValueRef NewServerInstanceWizard::test_setting_grt(const std::string &name)
 
 bool NewServerInstanceWizard::test_setting(const std::string &name, std::string &detail)
 {
-  grt::Module *module= grt::GRT::get().get_module("WbAdmin");
+  grt::Module *module= grt::GRT::get()->get_module("WbAdmin");
   if (module)
   {
     grt::BaseListRef args(true);
@@ -1748,7 +1748,7 @@ void NewServerInstanceWizard::load_defaults()
     grt::DictRef dict;
     try
     {
-      dict= grt::DictRef::cast_from(grt::GRT::get().unserialize(template_file));
+      dict= grt::DictRef::cast_from(grt::GRT::get()->unserialize(template_file));
     }
     catch (std::exception &exc)
     {

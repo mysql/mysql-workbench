@@ -68,22 +68,22 @@ void WBComponentBasic::load_app_options(bool update)
     app_ToolbarRef options_toolbar;
 
     options_toolbar= app_ToolbarRef::cast_from(
-      grt::GRT::get().unserialize(base::makePath(_wb->get_datadir(), "data/model_option_toolbar_layer.xml")));
+      grt::GRT::get()->unserialize(base::makePath(_wb->get_datadir(), "data/model_option_toolbar_layer.xml")));
     _toolbars[options_toolbar->name()]= options_toolbar;
 
     options_toolbar= app_ToolbarRef::cast_from(
-      grt::GRT::get().unserialize(base::makePath(_wb->get_datadir(), "data/model_option_toolbar_note.xml")));
+      grt::GRT::get()->unserialize(base::makePath(_wb->get_datadir(), "data/model_option_toolbar_note.xml")));
     _toolbars[options_toolbar->name()]= options_toolbar;
 
     _shortcuts= grt::ListRef<app_ShortcutItem>::cast_from(
-      grt::GRT::get().unserialize(base::makePath(_wb->get_datadir(),"data/shortcuts_basic.xml")));
+      grt::GRT::get()->unserialize(base::makePath(_wb->get_datadir(),"data/shortcuts_basic.xml")));
   }
 }
 
 
 app_ToolbarRef WBComponentBasic::get_tools_toolbar()
 {
-  return app_ToolbarRef::cast_from(grt::GRT::get().unserialize(base::makePath(_wb->get_datadir(),
+  return app_ToolbarRef::cast_from(grt::GRT::get()->unserialize(base::makePath(_wb->get_datadir(),
                                                                          "data/tools_toolbar_basic.xml")));
 }
 

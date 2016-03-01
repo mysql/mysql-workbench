@@ -545,10 +545,10 @@ TEST_FUNCTION(20)
   // test inspection of object (ungrouped)
 
   // Load test meta classes.
-  grt::GRT::get().load_metaclasses("data/structs.test.xml");
+  grt::GRT::get()->load_metaclasses("data/structs.test.xml");
 
   // Consolidate the loaded classes.
-  grt::GRT::get().end_loading_metaclasses();
+  grt::GRT::get()->end_loading_metaclasses();
 
   test_BookRef book(grt::Initialized);
   ensure("object valid", book.is_valid());

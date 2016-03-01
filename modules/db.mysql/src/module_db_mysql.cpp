@@ -1951,7 +1951,7 @@ protected:
 
     void send_output(const std::string& msg) const
     {
-      grt::GRT::get().send_output(msg);
+      grt::GRT::get()->send_output(msg);
     };
 
     std::string show_warnings_sql() const
@@ -2933,9 +2933,9 @@ std::string DbMySQLImpl::makeCreateScriptForObject(GrtNamedObjectRef object)
 db_mgmt_RdbmsRef DbMySQLImpl::initializeDBMSInfo()
 {
   bec::GRTManager *grtm(bec::GRTManager::get_instance_for());
-  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get().unserialize(base::makePath(grtm->get_basedir(), "modules/data/mysql_rdbms_info.xml")));
+  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->unserialize(base::makePath(grtm->get_basedir(), "modules/data/mysql_rdbms_info.xml")));
 
-  workbench_WorkbenchRef::cast_from(grt::GRT::get().get("/wb"))->rdbmsMgmt()->rdbms().insert(rdbms);
+  workbench_WorkbenchRef::cast_from(grt::GRT::get()->get("/wb"))->rdbmsMgmt()->rdbms().insert(rdbms);
   return rdbms;
 }
 

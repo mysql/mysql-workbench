@@ -229,7 +229,7 @@ struct ClassImplGenerator
 
   void output_constructor_init_list(FILE *f)
   {
-    fprintf(f, "  : %s(meta ? meta : grt::GRT::get().get_metaclass(static_class_name()))",
+    fprintf(f, "  : %s(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name()))",
             pname.c_str());
     for (std::map<std::string,MetaClass::Member>::const_iterator mem= members.begin(); 
          mem != members.end(); ++mem)
@@ -644,7 +644,7 @@ struct ClassImplGenerator
     fprintf(f, "public:\n");
     fprintf(f, "  static void grt_register()\n");
     fprintf(f, "  {\n");
-    fprintf(f, "    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());\n");
+    fprintf(f, "    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());\n");
     fprintf(f, "    if (!meta) throw std::runtime_error(\"error initializing grt object class, metaclass not found\");\n");
 
     if (gstruct->is_abstract())
@@ -919,7 +919,7 @@ void grt::helper::generate_struct_code(const std::string &target_file,
   std::map<std::string, FILE*> files;
   std::map<std::string, std::set<std::string> > foreign_classes; // packagename -> class list
   std::multimap<std::string,std::string> requires;
-  const std::list<MetaClass*>& meta(grt::GRT::get().get_metaclasses());
+  const std::list<MetaClass*>& meta(grt::GRT::get()->get_metaclasses());
 
   // requires list is keyed by the full path of the xml, so we add the same entries to a copy of the list with basenames
   for (std::multimap<std::string,std::string>::const_iterator r= requires_orig.begin(); r!=requires_orig.end(); ++r)

@@ -218,13 +218,13 @@ void Recordset_sql_storage::load_insert_statement(
 {
   if ((schema_table.first != _schema_name) || (schema_table.second != _table_name))
   {
-    grt::GRT::get().send_error("Irrelevant insert statement (skipped): " + sql);
+    grt::GRT::get()->send_error("Irrelevant insert statement (skipped): " + sql);
     return;
   }
 
   if (fields_names.size() != fields_values.size())
   {
-    grt::GRT::get().send_error("Invalid insert statement: " + sql);
+    grt::GRT::get()->send_error("Invalid insert statement: " + sql);
     return;
   }
 

@@ -44,7 +44,7 @@ TEST_DATA_CONSTRUCTOR(wb_undo_others)
 {
   tester.create_new_document();
   wbui= tester.wb->get_ui();
-  um= grt::GRT::get().get_undo_manager();
+  um= grt::GRT::get()->get_undo_manager();
   overview = 0;
   last_undo_stack_height= 0;
   last_redo_stack_height= 0;

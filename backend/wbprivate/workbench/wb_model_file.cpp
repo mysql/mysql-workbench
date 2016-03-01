@@ -454,7 +454,7 @@ workbench_DocumentRef ModelFile::retrieve_document()
 {
   RecMutexLock lock(_mutex);
 
-  xmlDocPtr xmldoc= grt::GRT::get().load_xml(get_path_for(MAIN_DOCUMENT_NAME));
+  xmlDocPtr xmldoc= grt::GRT::get()->load_xml(get_path_for(MAIN_DOCUMENT_NAME));
 
 retry:
   try
@@ -784,7 +784,7 @@ workbench_DocumentRef ModelFile::unserialize_document(xmlDocPtr xmldoc, const st
 {
   std::string doctype, version;
 
-  grt::GRT::get().get_xml_metainfo(xmldoc, doctype, version);
+  grt::GRT::get()->get_xml_metainfo(xmldoc, doctype, version);
 
   _loaded_version= version;
 
@@ -803,7 +803,7 @@ workbench_DocumentRef ModelFile::unserialize_document(xmlDocPtr xmldoc, const st
 
   check_and_fix_inconsistencies(xmldoc, version);
 
-  grt::ValueRef value(grt::GRT::get().unserialize_xml(xmldoc, path));
+  grt::ValueRef value(grt::GRT::get()->unserialize_xml(xmldoc, path));
 
   if (!value.is_valid())
     throw std::runtime_error("Error unserializing document data.");
@@ -1068,7 +1068,7 @@ std::string ModelFile::get_file_contents(const std::string &path)
 // writing
 void ModelFile::store_document(const workbench_DocumentRef &doc)
 {
-  grt::GRT::get().serialize(doc, get_path_for(MAIN_DOCUMENT_NAME), DOCUMENT_FORMAT, DOCUMENT_VERSION);
+  grt::GRT::get()->serialize(doc, get_path_for(MAIN_DOCUMENT_NAME), DOCUMENT_FORMAT, DOCUMENT_VERSION);
   
   _dirty= true;
 }
@@ -1076,7 +1076,7 @@ void ModelFile::store_document(const workbench_DocumentRef &doc)
 
 void ModelFile::store_document_autosave(const workbench_DocumentRef &doc)
 {
-  grt::GRT::get().serialize(doc, get_path_for("document-autosave.mwb.xml"), DOCUMENT_FORMAT, DOCUMENT_VERSION);
+  grt::GRT::get()->serialize(doc, get_path_for("document-autosave.mwb.xml"), DOCUMENT_FORMAT, DOCUMENT_VERSION);
 }
 
 void ModelFile::delete_file(const std::string &path)

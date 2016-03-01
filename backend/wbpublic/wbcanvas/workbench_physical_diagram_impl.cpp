@@ -324,7 +324,7 @@ void workbench_physical_Diagram::ImplData::member_list_changed(grt::internal::Ow
 
 void workbench_physical_Diagram::ImplData::auto_place_db_objects(const grt::ListRef<db_DatabaseObject> &objects)
 {
-  grt::Module *module= grt::GRT::get().get_module("WbModel");
+  grt::Module *module= grt::GRT::get()->get_module("WbModel");
 
   grt::BaseListRef args(true);
 

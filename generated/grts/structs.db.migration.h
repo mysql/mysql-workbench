@@ -40,7 +40,7 @@ class  db_migration_MigrationParameter : public GrtObject
   typedef GrtObject super;
 public:
   db_migration_MigrationParameter(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _caption(""),
      _defaultValue(""),
      _description(""),
@@ -147,7 +147,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_migration_MigrationParameter::create);
     {
@@ -180,7 +180,7 @@ class  db_migration_DatatypeMapping : public GrtObject
   typedef GrtObject super;
 public:
   db_migration_DatatypeMapping(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _isUnsigned(0),
      _length(-2),
      _lengthConditionFrom(0),
@@ -463,7 +463,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_migration_DatatypeMapping::create);
     {
@@ -535,7 +535,7 @@ class  db_migration_DBPreferences : public GrtObject
   typedef GrtObject super;
 public:
   db_migration_DBPreferences(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _characterSetMapping(this, false),
     _datatypeMapping(this, false),
     _defaultValueMapping(this, false),
@@ -649,7 +649,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_migration_DBPreferences::create);
     {
@@ -689,7 +689,7 @@ public:
   class ImplData;
   friend class ImplData;
   db_migration_Migration(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _applicationData(this, false),
     _creationLog(this, false),
     _dataBulkTransferParams(this, false),
@@ -1161,7 +1161,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_migration_Migration::create);
     {

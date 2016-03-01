@@ -59,18 +59,18 @@ TEST_MODULE(grtpp_serialization_test, "GRT: serialization");
 
 TEST_FUNCTION(1)
 {
-  grt::GRT::get().load_metaclasses("data/structs.test.xml");
+  grt::GRT::get()->load_metaclasses("data/structs.test.xml");
 
-  ensure_equals("load structs", grt::GRT::get().get_metaclasses().size(), 6U);
-  grt::GRT::get().scan_metaclasses_in("../../res/grt/");
-  grt::GRT::get().end_loading_metaclasses();
+  ensure_equals("load structs", grt::GRT::get()->get_metaclasses().size(), 6U);
+  grt::GRT::get()->scan_metaclasses_in("../../res/grt/");
+  grt::GRT::get()->end_loading_metaclasses();
 }
 
 void test_serialization(const ValueRef& val)
 {
   static const std::string filename("serialization_test.xml");
-  grt::GRT::get().serialize(val, filename);
-  ValueRef res_val(grt::GRT::get().unserialize(filename));
+  grt::GRT::get()->serialize(val, filename);
+  ValueRef res_val(grt::GRT::get()->unserialize(filename));
   grt_ensure_equals(
     "serialization test",
     res_val,
@@ -98,7 +98,7 @@ TEST_FUNCTION(2)
   //const char* OBJ_AUTHOR_PATH("test.Author");
   const size_t AUTHORS_COUNT(3);
 
-  //ObjectRef obj(grt::GRT::get().create_object_from_va<ObjectRef>(OBJ_BOOK_PATH, NULL));
+  //ObjectRef obj(grt::GRT::get()->create_object_from_va<ObjectRef>(OBJ_BOOK_PATH, NULL));
   test_BookRef obj(grt::Initialized);
     
   obj->set_member("title", sv);
@@ -156,7 +156,7 @@ TEST_FUNCTION(3)
 
 TEST_FUNCTION(4)
 {
-  db_mysql_CatalogRef catalog(db_mysql_CatalogRef::cast_from(grt::GRT::get().unserialize("data/serialization/catalog.xml")));
+  db_mysql_CatalogRef catalog(db_mysql_CatalogRef::cast_from(grt::GRT::get()->unserialize("data/serialization/catalog.xml")));
 
   ObjectRef owner = catalog->schemata().get(0)->tables().get(0)->indices().get(0)->owner();
   tut::ensure("Check owner set", NULL != owner.valueptr());
@@ -175,9 +175,9 @@ TEST_FUNCTION(5)
   list.insert(db_TableRef());
   list.insert(db_TableRef(grt::Initialized));
 
-  grt::GRT::get().serialize(list, "null_list.xml");
+  grt::GRT::get()->serialize(list, "null_list.xml");
 
-  list= grt::ListRef<db_Table>::cast_from(grt::GRT::get().unserialize("null_list.xml"));
+  list= grt::ListRef<db_Table>::cast_from(grt::GRT::get()->unserialize("null_list.xml"));
 
   ensure("list[0]", list[0].is_valid());
   ensure("list[1]", list[1].is_valid()==false);
@@ -198,12 +198,12 @@ TEST_FUNCTION(5)
     catalog.simpleDatatypes(datatypes);
     db_SimpleDatatypeRef datatype(grt::Initialized);
     datatypes.insert(datatype);
-    grt::GRT::get().serialize(catalog, filename); // the only set attr simpleDatatypes shouldn't be serialized
+    grt::GRT::get()->serialize(catalog, filename); // the only set attr simpleDatatypes shouldn't be serialized
   }
 
   // now compare with empty catalog
   db_CatalogRef catalog(grt::Initialized);
-  ValueRef res_catalog(grt::GRT::get().unserialize(filename));
+  ValueRef res_catalog(grt::GRT::get()->unserialize(filename));
   grt_ensure_equals(
     "Check attr:dontfollow=\"1\"",
     res_catalog,

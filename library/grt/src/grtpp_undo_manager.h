@@ -298,7 +298,7 @@ struct AutoUndo
   {
     _valid = true;
     if (!noop)
-      group= GRT::get().begin_undoable_action();
+      group= grt::GRT::get()->begin_undoable_action();
     else
       group= 0;
   }
@@ -313,9 +313,9 @@ struct AutoUndo
     else
     {
       // check if the group can be merged into the previous one and if so, just drop it
-      if (!GRT::get().get_undo_manager()->get_undo_stack().empty())
+      if (!grt::GRT::get()->get_undo_manager()->get_undo_stack().empty())
       {
-        UndoGroup *last_group= dynamic_cast<UndoGroup*>(GRT::get().get_undo_manager()->get_undo_stack().back());
+        UndoGroup *last_group= dynamic_cast<UndoGroup*>(grt::GRT::get()->get_undo_manager()->get_undo_stack().back());
         
         if (last_group && use_group->matches_group(last_group))
         {
@@ -325,7 +325,7 @@ struct AutoUndo
       }
       
       if (use_group)
-        group= GRT::get().begin_undoable_action(use_group);
+        group= grt::GRT::get()->begin_undoable_action(use_group);
     }
   }
 
@@ -339,7 +339,7 @@ struct AutoUndo
       // cancel() should be explicitly called if the cancellation is intentional
       if ((tmp= getenv("DEBUG_UNDO")))
       {
-        UndoGroup *group= dynamic_cast<UndoGroup*>(GRT::get().get_undo_manager()->get_latest_undo_action());
+        UndoGroup *group= dynamic_cast<UndoGroup*>(grt::GRT::get()->get_undo_manager()->get_latest_undo_action());
 
         if (group && group->is_open())
         {
@@ -357,7 +357,7 @@ struct AutoUndo
   {
     if (_valid && group)
     {
-      UndoAction *action= GRT::get().get_undo_manager()->get_latest_undo_action();
+      UndoAction *action= grt::GRT::get()->get_undo_manager()->get_latest_undo_action();
 
       action->set_description(s);
     }
@@ -368,7 +368,7 @@ struct AutoUndo
     if (_valid)
     {
       if (group)
-        GRT::get().cancel_undoable_action();
+        grt::GRT::get()->cancel_undoable_action();
       _valid = false;
     }
     else
@@ -382,9 +382,9 @@ struct AutoUndo
       if (!group)
         return;
       if (!group->empty())
-        GRT::get().end_undoable_action(descr);
+        grt::GRT::get()->end_undoable_action(descr);
       else
-        GRT::get().cancel_undoable_action();
+        grt::GRT::get()->cancel_undoable_action();
       _valid = false;
     }
     else
@@ -397,7 +397,7 @@ struct AutoUndo
     if (_valid)
     {
       if (group)
-        GRT::get().end_undoable_action(descr);
+        grt::GRT::get()->end_undoable_action(descr);
       _valid = false;
     }
     else

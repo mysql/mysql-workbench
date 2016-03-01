@@ -154,7 +154,7 @@ int Mysql_sql_syntax_check::check_sql_statement(const char* sql, Check_sql_state
   sql_parser_fe.ignore_dml= false;
   sql_parser_fe.max_insert_statement_size= MAX_INSERT_SQL_LENGTH;
   {
-    DictRef options= DictRef::cast_from(grt::GRT::get().get("/wb/options/options"));
+    DictRef options= DictRef::cast_from(grt::GRT::get()->get("/wb/options/options"));
     sql_parser_fe.max_err_count= (int)options.get_int("SqlEditor::SyntaxCheck::MaxErrCount", 100);    
   }
 

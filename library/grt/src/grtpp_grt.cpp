@@ -43,9 +43,9 @@ using namespace base;
 
 //--------------------------------------------------------------------------------------------------
 
-GRT& GRT::get()
+std::shared_ptr<GRT> GRT::get()
 {
-  static GRT instance;
+  static std::shared_ptr<GRT> instance(new GRT);
   return instance;
 }
 

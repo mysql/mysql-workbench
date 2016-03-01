@@ -690,7 +690,7 @@ bool DbConnectPanel::test_connection()
     {
       grt::BaseListRef args(true);
       args->insert_unchecked(connectionProperties);
-      grt::ValueRef result= grt::GRT::get().call_module_function("WBFabric", "testConnection", args);
+      grt::ValueRef result= grt::GRT::get()->call_module_function("WBFabric", "testConnection", args);
       std::string error = grt::StringRef::extract_from(result);
       if (!error.empty())
       {
@@ -879,7 +879,7 @@ void DbConnectPanel::launch_ssl_wizard()
   args.ginsert(get_connection());
   args.ginsert(grt::StringRef(get_connection()->id()));
 
-  grt::GRT::get().call_module_function("PyWbUtils", "generateCertificates", args);
+  grt::GRT::get()->call_module_function("PyWbUtils", "generateCertificates", args);
   
   _connection->update();
 }

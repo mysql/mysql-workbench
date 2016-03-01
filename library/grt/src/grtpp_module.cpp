@@ -277,7 +277,7 @@ const Module::Function *Module::get_function(const std::string &name) const
 
   if (!_extends.empty())
   {
-    Module *module= GRT::get().get_module(_extends);
+    Module *module= grt::GRT::get()->get_module(_extends);
     if (!module)
       throw std::runtime_error(base::strfmt("Parent module '%s' of module '%s' was not found", _extends.c_str(), _name.c_str()));
     
@@ -295,7 +295,7 @@ void Module::validate() const
   for (Interfaces::const_iterator iter= _interfaces.begin();
        iter != _interfaces.end(); ++iter)
   {
-    const Interface *iface= GRT::get().get_interface(*iter);
+    const Interface *iface= grt::GRT::get()->get_interface(*iter);
     if (iface)
     {
       if (!iface->check_conformance(this))
@@ -315,7 +315,7 @@ void Module::set_global_data(const std::string &key, const std::string &value)
   
   grt::DictRef dict;
   
-  dict= grt::DictRef::cast_from(get_value_by_path(GRT::get().root(), GRT::get().global_module_data_path()));
+  dict= grt::DictRef::cast_from(get_value_by_path(grt::GRT::get()->root(), grt::GRT::get()->global_module_data_path()));
   dict.set(k, grt::StringRef(value));
 }
 
@@ -326,7 +326,7 @@ void Module::set_global_data(const std::string &key, int value)
   k.append(":").append(key);
   
   grt::DictRef dict;  
-  dict= grt::DictRef::cast_from(get_value_by_path(GRT::get().root(), GRT::get().global_module_data_path()));
+  dict= grt::DictRef::cast_from(get_value_by_path(grt::GRT::get()->root(), grt::GRT::get()->global_module_data_path()));
   dict.set(k, grt::IntegerRef(value));
 }
 
@@ -337,7 +337,7 @@ int Module::global_int_data(const std::string &key, int default_value)
   k.append(":").append(key);
   
   grt::DictRef dict;  
-  dict= grt::DictRef::cast_from(get_value_by_path(GRT::get().root(), GRT::get().global_module_data_path()));
+  dict= grt::DictRef::cast_from(get_value_by_path(grt::GRT::get()->root(), grt::GRT::get()->global_module_data_path()));
   return (int)*grt::IntegerRef::cast_from(dict.get(k, grt::IntegerRef(default_value)));
 }
 
@@ -348,7 +348,7 @@ std::string Module::global_string_data(const std::string &key, const std::string
   k.append(":").append(key);
   
   grt::DictRef dict;  
-  dict= grt::DictRef::cast_from(get_value_by_path(GRT::get().root(), GRT::get().global_module_data_path()));
+  dict= grt::DictRef::cast_from(get_value_by_path(grt::GRT::get()->root(), grt::GRT::get()->global_module_data_path()));
   return *grt::StringRef::cast_from(dict.get(k, grt::StringRef(default_value)));
 }
 
@@ -360,7 +360,7 @@ void Module::set_document_data(const std::string &key, const std::string &value)
   
   grt::DictRef dict;
   
-  dict= grt::DictRef::cast_from(get_value_by_path(GRT::get().root(), GRT::get().document_module_data_path()));
+  dict= grt::DictRef::cast_from(get_value_by_path(grt::GRT::get()->root(), grt::GRT::get()->document_module_data_path()));
   dict.set(k, grt::StringRef(value));
 }
 
@@ -371,7 +371,7 @@ void Module::set_document_data(const std::string &key, int value)
   k.append(":").append(key);
   
   grt::DictRef dict;  
-  dict= grt::DictRef::cast_from(get_value_by_path(GRT::get().root(), GRT::get().document_module_data_path()));
+  dict= grt::DictRef::cast_from(get_value_by_path(grt::GRT::get()->root(), grt::GRT::get()->document_module_data_path()));
   dict.set(k, grt::IntegerRef(value));
 }
 
@@ -382,7 +382,7 @@ int Module::document_int_data(const std::string &key, int default_value)
   k.append(":").append(key);
   
   grt::DictRef dict;  
-  dict= grt::DictRef::cast_from(get_value_by_path(GRT::get().root(), GRT::get().document_module_data_path()));
+  dict= grt::DictRef::cast_from(get_value_by_path(grt::GRT::get()->root(), grt::GRT::get()->document_module_data_path()));
   return (int)*grt::IntegerRef::cast_from(dict.get(k, grt::IntegerRef(default_value)));
 }
 
@@ -393,7 +393,7 @@ std::string Module::document_string_data(const std::string &key, const std::stri
   k.append(":").append(key);
   
   grt::DictRef dict;  
-  dict= grt::DictRef::cast_from(get_value_by_path(GRT::get().root(), GRT::get().document_module_data_path()));
+  dict= grt::DictRef::cast_from(get_value_by_path(grt::GRT::get()->root(), grt::GRT::get()->document_module_data_path()));
   return *grt::StringRef::cast_from(dict.get(k, grt::StringRef(default_value)));
 }
 

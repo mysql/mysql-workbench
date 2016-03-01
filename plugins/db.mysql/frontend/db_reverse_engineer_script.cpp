@@ -192,7 +192,7 @@ ImportProgressPage::ImportProgressPage(WizardForm *form, const boost::function<v
 
 void ImportProgressPage::import_objects_finished(grt::ValueRef value)
 {
-  grt::GRT::get().send_info(grt::StringRef::cast_from(value));
+  grt::GRT::get()->send_info(grt::StringRef::cast_from(value));
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -46,7 +46,7 @@ TEST_FUNCTION(5) // test WorkbenchImpl::isOsSupported()
 
 
   // proxy function for a module call
-  grt::Module* module = grt::GRT::get().get_module("Workbench");
+  grt::Module* module = grt::GRT::get()->get_module("Workbench");
   auto isOsSupportedProxy = [module](const char* os) -> bool
   {
     grt::StringListRef arguments(grt::Initialized);

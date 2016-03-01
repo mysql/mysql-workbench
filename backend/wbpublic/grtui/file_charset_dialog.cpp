@@ -81,7 +81,7 @@ FileCharsetDialog::FileCharsetDialog(const std::string &title, const std::string
 
 std::string FileCharsetDialog::run(const std::string &default_encoding)
 {
-  grt::ListRef<db_CharacterSet> charsets(grt::ListRef<db_CharacterSet>::cast_from(grt::GRT::get().get("/wb/rdbmsMgmt/rdbms/0/characterSets")));
+  grt::ListRef<db_CharacterSet> charsets(grt::ListRef<db_CharacterSet>::cast_from(grt::GRT::get()->get("/wb/rdbmsMgmt/rdbms/0/characterSets")));
   std::list<std::string> chlist;
   GRTLIST_FOREACH(db_CharacterSet, charsets, ch)
   {

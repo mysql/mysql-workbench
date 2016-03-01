@@ -390,7 +390,7 @@ void SqlEditorForm::toolbar_command(const std::string& command)
       if (selected_items->count() > 0)
       {
         args.ginsert(selected_items);
-        grt::Module *module = grt::GRT::get().get_module("SQLIDEUtils");
+        grt::Module *module = grt::GRT::get()->get_module("SQLIDEUtils");
         if (module)
           module->call_function("showInspector", args);
       }
@@ -402,7 +402,7 @@ void SqlEditorForm::toolbar_command(const std::string& command)
         obj->name(active_schema());
         selected_items.ginsert(obj);
         args.ginsert(selected_items);
-        grt::Module *module = grt::GRT::get().get_module("SQLIDEUtils");
+        grt::Module *module = grt::GRT::get()->get_module("SQLIDEUtils");
         if (module)
           module->call_function("showInspector", args);
       }
@@ -431,7 +431,7 @@ void SqlEditorForm::inspect_object(const std::string &schema, const std::string 
     selected_items.ginsert(obj);
 
     args.ginsert(selected_items);
-    grt::GRT::get().call_module_function("SQLIDEUtils", "showInspector", args);
+    grt::GRT::get()->call_module_function("SQLIDEUtils", "showInspector", args);
   }
 }
 

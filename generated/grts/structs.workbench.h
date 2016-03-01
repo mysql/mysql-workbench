@@ -47,7 +47,7 @@ class  workbench_OverviewPanel : public GrtObject
   typedef GrtObject super;
 public:
   workbench_OverviewPanel(grt::MetaClass *meta=0)
-  : GrtObject(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _caption(""),
      _expanded(0),
      _expandedHeight(0),
@@ -369,7 +369,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_OverviewPanel::create);
     {
@@ -451,7 +451,7 @@ class  workbench_Document : public app_Document
   typedef app_Document super;
 public:
   workbench_Document(grt::MetaClass *meta=0)
-  : app_Document(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : app_Document(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _overviewPanels(this, false),
     _physicalModels(this, false)
 
@@ -554,7 +554,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_Document::create);
     {
@@ -587,7 +587,7 @@ class  workbench_Workbench : public app_Application
   typedef app_Application super;
 public:
   workbench_Workbench(grt::MetaClass *meta=0)
-  : app_Application(meta ? meta : grt::GRT::get().get_metaclass(static_class_name())),
+  : app_Application(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _docPath(""),
     _sqlEditors(this, false)
 
@@ -710,7 +710,7 @@ private: // wrapper methods for use by grt
 public:
   static void grt_register()
   {
-    grt::MetaClass *meta= grt::GRT::get().get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_Workbench::create);
     {

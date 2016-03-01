@@ -56,7 +56,7 @@ SqlFacade::Ref SqlFacade::instance_for_rdbms_name(const std::string &name)
 {
   const char *def_module_name= "SqlFacade";
   std::string module_name= name + def_module_name;
-  SqlFacade::Ref module= dynamic_cast<SqlFacade::Ref>(grt::GRT::get().get_module(module_name));
+  SqlFacade::Ref module= dynamic_cast<SqlFacade::Ref>(grt::GRT::get()->get_module(module_name));
   if (!module)
 		throw std::runtime_error(base::strfmt("Can't get '%s' module.", module_name.c_str()));
   return module;

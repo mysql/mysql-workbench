@@ -154,10 +154,10 @@ void UndoObjectChangeAction::undo(UndoManager *owner)
   //owner->add_undo(new UndoObjectChangeAction(_object, _member));
   //owner->set_action_description(description());
 
-  GRT::get().start_tracking_changes();
+  grt::GRT::get()->start_tracking_changes();
   _object.set_member(_member, _value);
   owner->set_action_description(description());
-  GRT::get().stop_tracking_changes();
+  grt::GRT::get()->stop_tracking_changes();
 }
 
 
@@ -192,10 +192,10 @@ void UndoListInsertAction::undo(UndoManager *owner)
     // Remove last entry in the list, if there is one.
     if (_list.count() > 0)
     {
-      GRT::get().start_tracking_changes();
+      grt::GRT::get()->start_tracking_changes();
       _list.remove(_list.count() - 1);
       owner->set_action_description(description());
-      GRT::get().stop_tracking_changes();
+      grt::GRT::get()->stop_tracking_changes();
     }
     else
     {
@@ -206,10 +206,10 @@ void UndoListInsertAction::undo(UndoManager *owner)
   }
   else
   {
-    GRT::get().start_tracking_changes();
+    grt::GRT::get()->start_tracking_changes();
     _list.remove(_index);
     owner->set_action_description(description());
-    GRT::get().stop_tracking_changes();
+    grt::GRT::get()->stop_tracking_changes();
   }
 }
 
@@ -243,10 +243,10 @@ void UndoListReorderAction::undo(UndoManager *owner)
   owner->set_action_description(description());
   _list.reorder(_nindex, _oindex);
    */
-  GRT::get().start_tracking_changes();
+  grt::GRT::get()->start_tracking_changes();
   _list.reorder(_nindex, _oindex);
   owner->set_action_description(description());
-  GRT::get().stop_tracking_changes();
+  grt::GRT::get()->stop_tracking_changes();
 }
 
 
@@ -282,10 +282,10 @@ void UndoListSetAction::undo(UndoManager *owner)
   owner->set_action_description(description());
   _list.gset(_index, _value);
    */
-  GRT::get().start_tracking_changes();
+  grt::GRT::get()->start_tracking_changes();
   _list.gset(_index, _value);
   owner->set_action_description(description());
-  GRT::get().stop_tracking_changes();
+  grt::GRT::get()->stop_tracking_changes();
 }
 
 
@@ -332,10 +332,10 @@ UndoListRemoveAction::UndoListRemoveAction(const BaseListRef &list, size_t index
 
 void UndoListRemoveAction::undo(UndoManager *owner)
 {
-  GRT::get().start_tracking_changes();
+  grt::GRT::get()->start_tracking_changes();
   _list.ginsert(_value, _index);
   owner->set_action_description(description());
-  GRT::get().stop_tracking_changes();
+  grt::GRT::get()->stop_tracking_changes();
 }
 
 
@@ -373,17 +373,17 @@ void UndoDictSetAction::undo(UndoManager *owner)
 {
   if (_had_value)
   {
-    GRT::get().start_tracking_changes();
+    grt::GRT::get()->start_tracking_changes();
     _dict.set(_key, _value);
     owner->set_action_description(description());
-    GRT::get().stop_tracking_changes();
+    grt::GRT::get()->stop_tracking_changes();
   }
   else
   {
-    GRT::get().start_tracking_changes();
+    grt::GRT::get()->start_tracking_changes();
     _dict.remove(_key);
     owner->set_action_description(description());
-    GRT::get().stop_tracking_changes();
+    grt::GRT::get()->stop_tracking_changes();
   }
 }
 
@@ -422,10 +422,10 @@ void UndoDictRemoveAction::undo(UndoManager *owner)
 {
   if (_had_value)
   {
-    GRT::get().start_tracking_changes();
+    grt::GRT::get()->start_tracking_changes();
     _dict.set(_key, _value);
     owner->set_action_description(description());
-    GRT::get().stop_tracking_changes();
+    grt::GRT::get()->stop_tracking_changes();
   }
   else
   {

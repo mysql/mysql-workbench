@@ -48,23 +48,23 @@ TEST_MODULE(grt_module_native, "GRT: C++ modules");
 
 TEST_FUNCTION(1)
 {
-  grt::GRT::get().load_metaclasses("data/structs.test.xml");
-  grt::GRT::get().end_loading_metaclasses();
+  grt::GRT::get()->load_metaclasses("data/structs.test.xml");
+  grt::GRT::get()->end_loading_metaclasses();
   
   // this is exactly what should be done
   // by module dll during initialization
   InterfaceImplBase::Register<SampleInterface1Impl>();
   InterfaceImplBase::Register<SampleInterface2Impl>();
 
-  grt::GRT::get().get_native_module<SampleModule1Impl>();
-  grt::GRT::get().get_native_module<SampleModule2Impl>();
-  grt::GRT::get().get_native_module<SampleModule3Impl>();
+  grt::GRT::get()->get_native_module<SampleModule1Impl>();
+  grt::GRT::get()->get_native_module<SampleModule2Impl>();
+  grt::GRT::get()->get_native_module<SampleModule3Impl>();
 
-  grt::GRT::get().get_native_module<TestModuleImpl>();
+  grt::GRT::get()->get_native_module<TestModuleImpl>();
 
   try 
   {
-    grt::GRT::get().get_native_module<BadModuleImpl>();
+    grt::GRT::get()->get_native_module<BadModuleImpl>();
     ensure("register uncompliant module", false);
   } 
   catch (...) { }
@@ -74,11 +74,11 @@ TEST_FUNCTION(1)
 
 TEST_FUNCTION(4)
 {
-  ensure_equals("number of interfaces", grt::GRT::get().get_interfaces().size(), 2U);
-  ensure_equals("number of modules", grt::GRT::get().get_modules().size(), 4U);
+  ensure_equals("number of interfaces", grt::GRT::get()->get_interfaces().size(), 2U);
+  ensure_equals("number of modules", grt::GRT::get()->get_modules().size(), 4U);
 
   // interfaces[0]
-  const Interface *iface= grt::GRT::get().get_interface("SampleInterface1");
+  const Interface *iface= grt::GRT::get()->get_interface("SampleInterface1");
 
   ensure_equals("interfaces[0] name", iface->name(), "SampleInterface1");
   ensure("interfaces[0] functions_num", iface->get_functions().size() == 2);
@@ -105,7 +105,7 @@ TEST_FUNCTION(4)
   ensure("interfaces[0] functions[1] return_object_class", f->ret_type.base.object_class=="");
 
   // interfaces[1]
-  iface= grt::GRT::get().get_interface("SampleInterface2");
+  iface= grt::GRT::get()->get_interface("SampleInterface2");
 
   ensure("interfaces[1] name", iface->name() == "SampleInterface2");
   ensure("interfaces[1] functions_num", iface->get_functions().size() == 1);
@@ -128,14 +128,14 @@ TEST_FUNCTION(5)
 {
   const grt::Module::Function *f;
   
-  ensure("No Modules loaded",!grt::GRT::get().get_modules().empty());
+  ensure("No Modules loaded",!grt::GRT::get()->get_modules().empty());
   // modules[0]
-  grt::Module *m= grt::GRT::get().get_modules()[0];
+  grt::Module *m= grt::GRT::get()->get_modules()[0];
 
   ensure("modules[0] name", m->name() == "SampleModule1");
   ensure("modules[0] functions_num", m->get_functions().size() == 2);
   ensure("modules[0] extends", m->extends().empty());
-  ensure("modules[0] implements", grt::GRT::get().get_interface(m->get_interfaces()[0])!=0);
+  ensure("modules[0] implements", grt::GRT::get()->get_interface(m->get_interfaces()[0])!=0);
 
   // int getNumber();
   f= &m->get_functions()[0];
@@ -155,12 +155,12 @@ TEST_FUNCTION(5)
   ensure("modules[0] functions[0] return_object_class", f->ret_type.base.object_class=="");
 
   // modules[1]
-  m= grt::GRT::get().get_modules()[1];
+  m= grt::GRT::get()->get_modules()[1];
   
   ensure("modules[1] name", m->name() =="SampleModule2");
   ensure("modules[1] functions_num", m->get_functions().size() == 1);
   ensure("modules[1] extends", m->extends().empty());
-  ensure("modules[1] implements", grt::GRT::get().get_interface(m->get_interfaces()[0])!=0);
+  ensure("modules[1] implements", grt::GRT::get()->get_interface(m->get_interfaces()[0])!=0);
 
   // virtual int calcSum(int num1)= 0;
   f= &m->get_functions()[0];  
@@ -173,7 +173,7 @@ TEST_FUNCTION(5)
   ensure("modules[1] functions[0] return object_class", f->ret_type.base.object_class=="");
 
   // modules[2]
-  m= grt::GRT::get().get_modules()[2];
+  m= grt::GRT::get()->get_modules()[2];
 
   ensure("modules[2] name", m->name() == "SampleModule3");
   ensure("modules[2] functions_num", m->get_functions().size() == 6);
@@ -234,7 +234,7 @@ TEST_FUNCTION(5)
 
 TEST_FUNCTION(6)
 {  // test module calling
-  grt::Module *module= grt::GRT::get().get_module("SampleModule1");
+  grt::Module *module= grt::GRT::get()->get_module("SampleModule1");
   
   ensure("get SampleModule1", module!=NULL);
   
@@ -249,7 +249,7 @@ TEST_FUNCTION(6)
 
 TEST_FUNCTION(7)
 {  // functions returning NULL value were causing exception
-  grt::Module *module= grt::GRT::get().get_module("TestModule");
+  grt::Module *module= grt::GRT::get()->get_module("TestModule");
   
   ensure("get TestModule", module!=NULL);
   

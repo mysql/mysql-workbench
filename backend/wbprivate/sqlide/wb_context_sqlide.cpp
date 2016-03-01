@@ -1009,7 +1009,7 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
       {
         grt::BaseListRef args(grt::AnyType);
         args.ginsert(conn);
-        ssize_t result = *grt::IntegerRef::cast_from(grt::GRT::get().call_module_function("WbAdmin", "handleExpiredPassword", args));
+        ssize_t result = *grt::IntegerRef::cast_from(grt::GRT::get()->call_module_function("WbAdmin", "handleExpiredPassword", args));
         if (result != 0)
           return create_connected_editor(conn);
         throw grt::user_cancelled("password reset cancelled by user");

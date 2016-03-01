@@ -92,13 +92,13 @@ ValueRef DbMySQLValidationPage::validation_task(grt::StringRef)
 {
   try
   {
-    std::vector<WbValidationInterfaceWrapper*> validation_modules= grt::GRT::get().get_implementing_modules<WbValidationInterfaceWrapper>();
+    std::vector<WbValidationInterfaceWrapper*> validation_modules= grt::GRT::get()->get_implementing_modules<WbValidationInterfaceWrapper>();
   
     if (validation_modules.empty())
       return grt::StringRef("\nSQL Script Export Error: Not able to locate 'Validation' modules");
 
 
-    GrtObjectRef catalog(GrtObjectRef::cast_from(grt::GRT::get().get("/wb/doc/physicalModels/0/catalog")));
+    GrtObjectRef catalog(GrtObjectRef::cast_from(grt::GRT::get()->get("/wb/doc/physicalModels/0/catalog")));
 
     for (std::vector<WbValidationInterfaceWrapper*>::iterator module= validation_modules.begin();
          module != validation_modules.end(); ++module)
@@ -107,7 +107,7 @@ ValueRef DbMySQLValidationPage::validation_task(grt::StringRef)
       
       if (!caption.empty())
       {
-        grt::GRT::get().send_info("Starting "+caption);
+        grt::GRT::get()->send_info("Starting "+caption);
 
         int validation_res= (int)(*module)->validate("All", catalog);
 

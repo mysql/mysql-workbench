@@ -29,7 +29,7 @@ PythonShell::PythonShell() : _loader(0)
 
 void PythonShell::init()
 {
-  _loader= dynamic_cast<PythonModuleLoader*>(GRT::get().get_module_loader(LanguagePython));
+  _loader= dynamic_cast<PythonModuleLoader*>(grt::GRT::get()->get_module_loader(LanguagePython));
   if (!_loader)
     throw std::runtime_error("Python module loader not initialized");
   
