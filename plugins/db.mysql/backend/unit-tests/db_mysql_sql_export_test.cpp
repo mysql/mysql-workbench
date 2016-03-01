@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -57,7 +57,7 @@ void check_fwd_engineer(WBTester &wbt, std::string &modelfile, std::string &expe
 
   DbMySQLSQLExport exp(wbt.wb->get_grt_manager(), db_mysql_CatalogRef::cast_from(wbt.get_catalog()));
 
-  ValueRef valRef = wbt.wb->get_grt()->get("/wb/doc/physicalModels/0/catalog/schemata/0");
+  ValueRef valRef = grt::GRT::get()->get("/wb/doc/physicalModels/0/catalog/schemata/0");
 
   db_mysql_SchemaRef schemaRef = db_mysql_SchemaRef::cast_from(valRef);
   ensure("Model not loaded :(", schemaRef.is_valid());

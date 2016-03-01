@@ -161,7 +161,7 @@
     
     wbprint::getPageLayout(diagram, xpages, ypages);
     
-    app_PageSettingsRef pageSettings(app_PageSettingsRef::cast_from(grt::GRT::get().get("/wb/doc/pageSettings")));
+    app_PageSettingsRef pageSettings(app_PageSettingsRef::cast_from(grt::GRT::get()->get("/wb/doc/pageSettings")));
     app_PaperTypeRef paperType(pageSettings->paperType());
         
     printInfo= [[NSPrintInfo alloc] initWithDictionary:
