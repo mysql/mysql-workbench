@@ -46,20 +46,8 @@ public:
     stmt->execute("DROP SCHEMA IF EXISTS test");
     stmt->execute("CREATE SCHEMA test");
   }
-  TEST_DATA_DESTRUCTOR(module_dbc_general_test)
-  {
-    db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
-
-    setup_env(connectionProperties);
-
-    sql::DriverManager *dm= sql::DriverManager::getDriverManager();
-    sql::ConnectionWrapper wrapper= dm->getConnection(connectionProperties);
-    sql::Connection* connection= wrapper.get();
-
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-    stmt->execute("DROP SCHEMA IF EXISTS test");
-  }
   
+
 END_TEST_DATA_CLASS
 
 TEST_MODULE(module_dbc_general_test, "DBC: general tests");
@@ -154,6 +142,22 @@ TEST_FUNCTION(3)
   }
   if (getenv("VERBOSE"))
     std::cout << i << " row(s)" << std::endl;
+}
+
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(4)
+{
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
+
+  setup_env(connectionProperties);
+
+  sql::DriverManager *dm= sql::DriverManager::getDriverManager();
+  sql::ConnectionWrapper wrapper= dm->getConnection(connectionProperties);
+  sql::Connection* connection= wrapper.get();
+
+  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  stmt->execute("DROP SCHEMA IF EXISTS test");
 }
 
 END_TESTS

@@ -29,12 +29,13 @@ using namespace bec;
 
 BEGIN_TEST_DATA_CLASS(be_shell)
 public:
-  GRTManager manager;
+  GRTManager *manager;
   GRTDispatcher::Ref dispatcher;
 
 TEST_DATA_CONSTRUCTOR(be_shell)
 {
   dispatcher = GRTDispatcher::create_dispatcher(false, true);
+  manager = GRTManager::get_instance_for();
 }
 
 END_TEST_DATA_CLASS;
@@ -46,7 +47,7 @@ TEST_FUNCTION(1)
   bool flag;
   std::string line;
   
-  ShellBE *shell = new ShellBE(&manager, dispatcher);
+  ShellBE *shell = new ShellBE(manager, dispatcher);
   shell->set_saves_history(10);
   shell->save_history_line("line1");
   flag = shell->previous_history_line("newline", line);
@@ -104,7 +105,7 @@ TEST_FUNCTION(1)
 TEST_FUNCTION(2)
 {
   bool flag;
-  ShellBE *shell= new ShellBE(&manager, dispatcher);
+  ShellBE *shell= new ShellBE(manager, dispatcher);
 
   shell->set_saves_history(10);
   shell->set_save_directory(".");
@@ -120,7 +121,7 @@ TEST_FUNCTION(2)
   
   delete shell;
 
-  shell = new ShellBE(&manager, dispatcher);
+  shell = new ShellBE(manager, dispatcher);
   shell->set_saves_history(10);
   shell->set_save_directory(".");
   shell->restore_state();
@@ -145,6 +146,14 @@ TEST_FUNCTION(2)
   ensure_equals("snippet", line, "hello world\nsnippet line this");
 
   delete shell;
+}
+
+
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(3)
+{
+  dispatcher.reset();
 }
 
 END_TESTS
