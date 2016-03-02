@@ -64,7 +64,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "only editor_table_tests"
+            argument = "only db_mysql_sql_export"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
