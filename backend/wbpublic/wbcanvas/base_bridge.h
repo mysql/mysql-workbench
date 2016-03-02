@@ -20,7 +20,7 @@
 #pragma once
 
 #include "mdc.h"
-#include "grtpp.h"
+#include "grt.h"
 
 #include "grts/structs.model.h"
 

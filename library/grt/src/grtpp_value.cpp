@@ -20,7 +20,7 @@
 #include "base/string_utilities.h"
 #include "base/threading.h"
 
-#include "grtpp.h"
+#include "grt.h"
 #include "grtpp_util.h"
 #include "grtpp_undo_manager.h"
 

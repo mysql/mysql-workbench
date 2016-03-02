@@ -20,7 +20,7 @@
 #include "grt_test_utility.h"
 #include "testgrt.h"
 #include "diff/grtdiff.h"
-#include "grtpp.h"
+#include "grt.h"
 #include "diff/diffchange.h"
 #include "diff/changeobjects.h"
 #include "diff/changelistobjects.h"

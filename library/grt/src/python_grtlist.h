@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,13 +17,12 @@
  * 02110-1301  USA
  */
 
-#ifndef __PYTHON_GRTLIST_H__
-#define __PYTHON_GRTLIST_H__
+#pragma once
 
 #include <Python.h>
 #include <object.h>
 
-#include "grtpp.h"
+#include "grt.h"
 
 /** Wraps a GRT list object as a Python sequence object
  */
@@ -33,5 +32,3 @@ struct PyGRTListObject
   
   grt::BaseListRef *list;
 };
-
-#endif

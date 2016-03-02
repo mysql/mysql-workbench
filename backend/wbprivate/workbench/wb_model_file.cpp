@@ -28,7 +28,7 @@
 #include <stdexcept>
 #include <errno.h>
 
-#include "grtpp.h"
+#include "grt.h"
 
 #include "base/log.h"
 #include "base/string_utilities.h"

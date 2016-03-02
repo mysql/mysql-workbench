@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,13 +16,12 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _MYX_GRT_WALKER_H_
-#define _MYX_GRT_WALKER_H_
+
+#pragma once
 
 // XXX TODO get rid of this or rewrite to remove the macro-fest
 
-#include "grtpp.h"
-//#include <stack>
+#include "grt.h"
 #include <deque>
 #include <gmodule.h>
 #include "grtpp_util.h"
@@ -51,14 +50,6 @@ struct CatalogIterator
     void append(T* self, C##type##Cb cb)   {type##Slots.push_back(boost::bind(cb, self, _1));}\
     void append_##type##GrtCb(T* self, CGrtCb cb)   {type##GrtSlots.push_back(boost::bind(cb, self, _1));}
 
-  /*
-    typedef int (T::*Cdb_TableCb)(db_Table);
-    typedef boost::function<int (db_Table)> Cdb_TableSlot;
-    std::vector<Cdb_TableSlot> db_TableSlots;
-    std::vector<CGrtSlot> db_TableGrtSlots;
-    void append(Cdb_TableCbRef cb)   {db_TableSlots.push_back(Cdb_TableSlot(cb));}
-    void append_db_TableGrtCb(CGrtCb cb)   {db_TableGrtSlots.push_back(CGrtSlot(cb));}
-  */
     WB_ITERATOR_SUPPORT_OBJECT_TYPE(db_Schema);
     WB_ITERATOR_SUPPORT_OBJECT_TYPE(db_Table);
     WB_ITERATOR_SUPPORT_OBJECT_TYPE(db_Trigger);
@@ -76,16 +67,9 @@ struct CatalogIterator
     WB_ITERATOR_SUPPORT_OBJECT_TYPE(model_Diagram);
     
     CallStack	call_stack;
-//std::stack<GrtObjectRef> call_stack; // myehorov: fix to enable compilation of wb_find_dialog
 
 private:
-//template<class TT>
-//struct stack_item
-//{
-//  std::stack<TT> &_stack;
-//  stack_item(TT &value, std::stack<TT> &_stack) :_stack(_stack) {_stack.push(value);}
-//  ~stack_item() {_stack.pop();}
-//};
+
 struct stack_item
 {
   CallStack &_stack;
@@ -327,4 +311,4 @@ int iterate(T &Self, const GrtObjectRef &object, bool breakOnError= false, bool 
 
 
 }
-#endif /* _MYX_GRT_WALKER_H_ */
+

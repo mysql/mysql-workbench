@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "grtpp.h"
+#include "grt.h"
 
 #include "base/trackable.h"
 #include "base/threading.h"

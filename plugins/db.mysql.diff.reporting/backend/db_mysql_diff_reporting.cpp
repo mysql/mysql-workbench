@@ -26,7 +26,7 @@
 #include "grts/structs.db.mysql.h"
 #include "grts/structs.workbench.h"
 
-#include "grtpp.h"
+#include "grt.h"
 
 using namespace grt;
 

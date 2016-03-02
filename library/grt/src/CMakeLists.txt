@@ -12,7 +12,7 @@ include_directories(.
 #set(CMAKE_CXX_FLAGS  ${CMAKE_CXX_FLAGS} "-Wall -Wsign-compare ${CAIRO_CFLAGS}")
 
 add_library(grt
-    grtpp_grt.cpp
+    grt.cpp
     grtpp_helper.cpp
     grtpp_metaclass.cpp
     grtpp_util.cpp

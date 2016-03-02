@@ -25,7 +25,7 @@
 #include "base/log.h"
 #include "base/notifications.h"
 
-#include "grtpp.h"
+#include "grt.h"
 
 #include "grts/structs.h"
 #include "grts/structs.app.h"

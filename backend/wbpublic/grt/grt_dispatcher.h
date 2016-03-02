@@ -24,7 +24,7 @@
 
 #include "base/threading.h"
 
-#include "grtpp.h"
+#include "grt.h"
 #include "grtpp_util.h"
 #include "grtpp_shell.h"
 

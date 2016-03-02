@@ -19,7 +19,7 @@
 
 #include "wb_helpers.h"
 
-#include "grtpp.h"
+#include "grt.h"
 #include "grtsqlparser/mysql_parser_services.h"
 
 using namespace parser;
