@@ -2068,7 +2068,7 @@
             <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.date">
                 <value type="int" key="characterMaximumLength">0</value>
                 <value type="int" key="characterOctetLength">0</value>
-                <value type="int" key="dateTimePrecision">3</value>
+                <value type="int" key="dateTimePrecision">0</value>
                 <value type="list" content-type="string" key="flags"/>
                 <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
                 <value type="string" key="name">DATE</value>

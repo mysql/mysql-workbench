@@ -1319,7 +1319,7 @@ static void fillDataTypeAndAttributes(MySQLRecognizerTreeWalker &walker, db_Cata
           {
             newDefault += "(";
             walker.next();
-            if (walker.is(IDENTIFIER)) // Optional precision.
+            if (walker.is(INT_NUMBER)) // Optional precision.
             {
               newDefault += walker.token_text();
               walker.next();
