@@ -41,6 +41,8 @@ END_TEST_DATA_CLASS;
 
 TEST_MODULE(wb_model_file, "tests for WB model file");
 
+// TODO we need a test to compare between load / save / duplicate / save / load
+
 TEST_FUNCTION(1)
 {
   bec::GRTManager *grtm;
