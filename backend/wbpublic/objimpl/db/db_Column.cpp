@@ -127,7 +127,7 @@ grt::StringRef db_Column::formattedType() const
           caption.append(strfmt("(%i)", (int)this->length()));
         }
       }
-      else if (*simpleType->dateTimePrecision() != 0)
+      else if (*simpleType->dateTimePrecision() > 0)
       {
         // timestamp, time, datetime, year
         caption.append(strfmt("(%i)", (int)this->length()));
