@@ -64,7 +64,11 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "only wb_context_test"
+            argument = "only editor_table_tests"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--port=3307"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
