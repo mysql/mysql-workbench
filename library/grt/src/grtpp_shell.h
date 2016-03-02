@@ -41,7 +41,7 @@ namespace grt {
   class MYSQLGRT_PUBLIC Shell
   {
   public:
-    Shell(GRT *grt);
+    Shell();
     virtual ~Shell();
 
     bool set_disable_quit(bool flag);
@@ -69,7 +69,6 @@ namespace grt {
     virtual void print(const std::string &str);
 
   protected:
-    GRT *_grt;
     
     bool _disable_quit;
   };

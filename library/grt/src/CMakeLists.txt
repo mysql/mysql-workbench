@@ -1,7 +1,12 @@
 if (GRT_DEFINITIONS)
 	add_definitions(${GRT_DEFINITIONS})
 endif()
-include_directories(. .. ${PROJECT_SOURCE_DIR}/generated ${GRT_INCLUDE_DIRS} ${MYSQLCPPCONN_INCLUDE_DIRS})
+include_directories(. 
+    .. 
+    ${PROJECT_SOURCE_DIR}/generated 
+    ${GRT_INCLUDE_DIRS} 
+    ${MYSQLCPPCONN_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS})
 
 #TODO: Set compiler flags 
 #set(CMAKE_CXX_FLAGS  ${CMAKE_CXX_FLAGS} "-Wall -Wsign-compare ${CAIRO_CFLAGS}")

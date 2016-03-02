@@ -46,9 +46,9 @@ using namespace grt;
 using namespace grt::internal;
 using namespace base;
 
-static void register_base_class(GRT *grt)
+static void register_base_class()
 {
-  MetaClass *mc= grt->get_metaclass(Object::static_class_name());
+  MetaClass *mc= grt::GRT::get()->get_metaclass(Object::static_class_name());
 
   mc->bind_allocator(0);
 
@@ -63,19 +63,19 @@ ClassRegistry::ClassRegistry()
 }
 
 
-void ClassRegistry::register_all(GRT *grt)
+void ClassRegistry::register_all()
 {
  for (std::map<std::string,ClassRegistrationFunction>::const_iterator iter= classes.begin();
       iter != classes.end(); ++iter)
  {
    // Register classes only for loaded meta classes.
-   if (!grt->get_metaclass(iter->first))
+   if (!grt::GRT::get()->get_metaclass(iter->first))
    {
-     if (grt->verbose())
-       grt->send_warning("MetaClass " + iter->first + " is registered but was not loaded from a XML");
+     if (grt::GRT::get()->verbose())
+       grt::GRT::get()->send_warning("MetaClass " + iter->first + " is registered but was not loaded from a XML");
      continue;
    }
-   (*iter->second)(grt);
+   (*iter->second)();
  }
 }
 
@@ -244,15 +244,14 @@ std::string List::toString() const
   return s;
 }
 
-List::List(GRT *grt, bool allow_null)
-: _grt(grt), _allow_null(allow_null)
+List::List(bool allow_null) : _allow_null(allow_null)
 {
   _is_global= 0;
 }
 
 
-List::List(GRT *grt, Type content_type, const std::string &content_class, bool allow_null)
-  : _grt(grt), _allow_null(allow_null)
+List::List(Type content_type, const std::string &content_class, bool allow_null)
+  : _allow_null(allow_null)
 {
   _content_type.type= content_type;
   _content_type.object_class= content_class;
@@ -277,8 +276,8 @@ void List::set_unchecked(size_t index, const ValueRef &value)
 
 //  if (_content[index].valueptr() != value.valueptr())
   {
-    if (_is_global > 0 && _grt->tracking_changes())
-      _grt->get_undo_manager()->add_undo(new UndoListSetAction(this, index));
+    if (_is_global > 0 && grt::GRT::get()->tracking_changes())
+      grt::GRT::get()->get_undo_manager()->add_undo(new UndoListSetAction(this, index));
 
     if (_is_global > 0 && _content[index].is_valid())
     {
@@ -302,8 +301,8 @@ void List::insert_unchecked(const ValueRef &value, size_t index)
 
   if (index == npos)
   {
-    if (_is_global > 0 && _grt->tracking_changes())
-      _grt->get_undo_manager()->add_undo(new UndoListInsertAction(this, index));
+    if (_is_global > 0 && grt::GRT::get()->tracking_changes())
+      grt::GRT::get()->get_undo_manager()->add_undo(new UndoListInsertAction(this, index));
 
     _content.push_back(value);
   }
@@ -311,8 +310,8 @@ void List::insert_unchecked(const ValueRef &value, size_t index)
     throw grt::bad_item(index, _content.size());
   else
   {
-    if (_is_global > 0 && _grt->tracking_changes())
-      _grt->get_undo_manager()->add_undo(new UndoListInsertAction(this, index));
+    if (_is_global > 0 && grt::GRT::get()->tracking_changes())
+      grt::GRT::get()->get_undo_manager()->add_undo(new UndoListInsertAction(this, index));
 
     _content.insert(_content.begin()+index, value);
   }
@@ -329,8 +328,8 @@ void List::remove(const ValueRef &value)
       if (_is_global > 0 && _content[i].is_valid())
         _content[i].unmark_global();
 
-      if (_is_global > 0 && _grt->tracking_changes())
-        _grt->get_undo_manager()->add_undo(new UndoListRemoveAction(this, i));
+      if (_is_global > 0 && grt::GRT::get()->tracking_changes())
+        grt::GRT::get()->get_undo_manager()->add_undo(new UndoListRemoveAction(this, i));
 
       _content.erase(_content.begin()+i);
     }
@@ -345,8 +344,8 @@ void List::remove(size_t index)
   if (_is_global > 0 && _content[index].is_valid())
     _content[index].unmark_global();
 
-  if (_is_global > 0 && _grt->tracking_changes())
-    _grt->get_undo_manager()->add_undo(new UndoListRemoveAction(this, index));
+  if (_is_global > 0 && grt::GRT::get()->tracking_changes())
+    grt::GRT::get()->get_undo_manager()->add_undo(new UndoListRemoveAction(this, index));
 
   _content.erase(_content.begin()+index);
 }
@@ -356,8 +355,8 @@ void List::reorder(size_t oi, size_t ni)
   if (oi == ni)
     return;
 
-  if (_is_global > 0 && _grt->tracking_changes())
-    _grt->get_undo_manager()->add_undo(new UndoListReorderAction(this, oi, ni));
+  if (_is_global > 0 && grt::GRT::get()->tracking_changes())
+    grt::GRT::get()->get_undo_manager()->add_undo(new UndoListReorderAction(this, oi, ni));
 
   ValueRef tmp(_content[oi]);
   _content.erase(_content.begin() + oi);
@@ -511,8 +510,8 @@ void List::__retype(Type type, const std::string &content_class)
 
 //--------------------------------------------------------------------------------------------------
 
-OwnedList::OwnedList(GRT *grt, Type type, const std::string &content_class, Object *owner, bool allow_null)
-  : List(grt, type, content_class, allow_null), _owner(owner)
+OwnedList::OwnedList(Type type, const std::string &content_class, Object *owner, bool allow_null)
+  : List(type, content_class, allow_null), _owner(owner)
 {
   if (!owner) throw std::invalid_argument("owner cannot be NULL");
 }
@@ -597,16 +596,15 @@ std::string Dict::toString() const
   return s;
 }
 
-Dict::Dict(GRT *grt, bool allow_null)
-: _grt(grt), _allow_null(allow_null)
+Dict::Dict(bool allow_null) : _allow_null(allow_null)
 {
   _content_type.type= AnyType;
   _is_global= 0;
 }
 
 
-Dict::Dict(GRT *grt, Type content_type, const std::string &content_class, bool allow_null)
-  : _grt(grt), _allow_null(allow_null)
+Dict::Dict(Type content_type, const std::string &content_class, bool allow_null)
+  : _allow_null(allow_null)
 {
   _content_type.type= content_type;
   _content_type.object_class= content_class;
@@ -664,8 +662,8 @@ void Dict::set(const std::string &key, const ValueRef &value)
 
   if (_is_global > 0)
   {
-    if (_grt->tracking_changes())
-      _grt->get_undo_manager()->add_undo(new UndoDictSetAction(this, key));
+    if (grt::GRT::get()->tracking_changes())
+      grt::GRT::get()->get_undo_manager()->add_undo(new UndoDictSetAction(this, key));
 
     if (iter != _content.end() && iter->second.is_valid())
       iter->second.unmark_global();
@@ -685,8 +683,8 @@ void Dict::remove(const std::string &key)
   {
     if (_is_global > 0)
     {
-      if (_grt->tracking_changes())
-        _grt->get_undo_manager()->add_undo(new UndoDictRemoveAction(this, key));
+      if (grt::GRT::get()->tracking_changes())
+        grt::GRT::get()->get_undo_manager()->add_undo(new UndoDictRemoveAction(this, key));
 
       if (iter->second.is_valid())
         iter->second.unmark_global();
@@ -781,8 +779,8 @@ bool Dict::less_than(const Value *o) const
 
 //--------------------------------------------------------------------------------------------------
 
-OwnedDict::OwnedDict(GRT *grt, Type type, const std::string &content_class, Object *owner, bool allow_null)
-  : Dict(grt, type, content_class, allow_null), _owner(owner)
+OwnedDict::OwnedDict(Type type, const std::string &content_class, Object *owner, bool allow_null)
+  : Dict(type, content_class, allow_null), _owner(owner)
 {
 }
 
@@ -958,20 +956,6 @@ Object::Object(MetaClass *metaclass)
 #endif
 }
 
-
-Object::Object(GRT *grt, MetaClass *metaclass)
-: _metaclass(metaclass)//, _valid_flag(true)
-{
-  if (!_metaclass)
-    throw std::runtime_error("GRT object allocated without a metaclass (make sure metaclass data was loaded)");
-
-  _id= get_guid();
-  _is_global= 0;
-#ifdef GRT_LEAK_DETECTOR_ENABLED
-  ObjectLeakDetector::get_detector()->register_obj(this);
-#endif
-}
-
 #ifdef GRT_LEAK_DETECTOR_ENABLED
 Object::~Object()
 {
@@ -1110,7 +1094,7 @@ bool Object::is_instance(MetaClass *metaclass) const
 
 bool Object::is_instance(const std::string &name) const
 {
-  return _metaclass->is_a(get_grt()->get_metaclass(name));
+  return _metaclass->is_a(grt::GRT::get()->get_metaclass(name));
 }
 
 void Object::set_member(const std::string &member, const ValueRef &value)
@@ -1196,12 +1180,6 @@ void Object::init()
 {
 }
 
-
-GRT *Object::get_grt() const
-{
-  return _metaclass->get_grt();
-}
-
 static bool mark_global_(const MetaClass::Member *member, const Object *obj)
 {
   if (is_container_type(member->type.base.type))
@@ -1265,8 +1243,8 @@ void Object::owned_member_changed(const std::string &name, const grt::ValueRef &
       if (ovalue.is_valid()) ovalue.unmark_global();
       if (nvalue.is_valid()) nvalue.mark_global();
     }
-    if (get_grt()->tracking_changes())
-      get_grt()->get_undo_manager()->add_undo(new UndoObjectChangeAction(this, name, ovalue));
+    if (grt::GRT::get()->tracking_changes())
+      grt::GRT::get()->get_undo_manager()->add_undo(new UndoObjectChangeAction(this, name, ovalue));
   }
   _changed_signal(name, ovalue);
 }
@@ -1274,8 +1252,8 @@ void Object::owned_member_changed(const std::string &name, const grt::ValueRef &
 
 void Object::member_changed(const std::string &name, const grt::ValueRef &ovalue, const grt::ValueRef &nvalue)
 {
-  if (_is_global && get_grt()->tracking_changes())
-    get_grt()->get_undo_manager()->add_undo(new UndoObjectChangeAction(this, name, ovalue));
+  if (_is_global && grt::GRT::get()->tracking_changes())
+    grt::GRT::get()->get_undo_manager()->add_undo(new UndoObjectChangeAction(this, name, ovalue));
   _changed_signal(name, ovalue);
 }
 

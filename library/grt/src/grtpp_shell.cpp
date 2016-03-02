@@ -24,10 +24,8 @@
 using namespace grt;
 
 
-Shell::Shell(GRT *grt)
-  : _grt(grt)
+Shell::Shell()
 {
-  
 }
 
 
@@ -115,7 +113,7 @@ std::string Shell::get_abspath(const std::string &curpath, const std::string &di
 
 void Shell::print(const std::string &str)
 {
-  _grt->send_output(str);
+  grt::GRT::get()->send_output(str);
 }
 
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -194,7 +194,7 @@ class RenderBox(mforms.PyDrawBox):
             
                 self.tooltip.set_content(box)
                 self.tooltip.add_close_callback(self.close_tooltip)
-                self.tooltip.show_and_track(self, xx, yy, mforms.Right)
+                self.tooltip.show_and_track(self, xx, yy, mforms.StartRight)
 
 
 

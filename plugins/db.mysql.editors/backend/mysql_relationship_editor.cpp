@@ -297,7 +297,7 @@ void RelationshipEditorBE::open_editor_for_table(const db_TableRef &table)
 {
   if (table.is_valid())
   {
-    grt::BaseListRef args(get_grt(), grt::AnyType);
+    grt::BaseListRef args(grt::AnyType);
     args.ginsert(table);
     
     bec::GUIPluginFlags flags= bec::NoFlags;
@@ -365,7 +365,7 @@ void RelationshipEditorBE::set_is_identifying(bool flag)
 
   if (get_is_identifying() != flag)
   {
-    //grt::AutoUndo undo(get_grt());
+    //grt::AutoUndo undo;
     AutoUndoEdit undo(this);
     
     GRTLIST_FOREACH(db_Column, _relationship->foreignKey()->columns(), column)

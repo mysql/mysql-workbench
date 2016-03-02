@@ -1,21 +1,21 @@
 /* 
-* Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
-*
-* This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License as
-* published by the Free Software Foundation; version 2 of the
-* License.
-* 
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-* 
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-* 02110-1301  USA
-*/
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
 
 #include "mforms/menubar.h"
 #include "grt.h"
@@ -88,7 +88,7 @@ private:
 
   grt::StringListRef get_filters_from_schema_tree_selection()
   {
-    grt::StringListRef filters(_editor.get_grt());
+    grt::StringListRef filters(grt::Initialized);
     std::set<std::string> selected_parents;
 
     if (!_tree_selection.is_valid())
@@ -184,7 +184,7 @@ private:
     }
     mforms::App::get()->set_status_text("Searching...");
 
-    bec::GRTManager *grtm(bec::GRTManager::get_instance_for(_editor.get_grt()));
+    bec::GRTManager *grtm(bec::GRTManager::get_instance_for());
     grtm->set_app_option("db.search:SearchType", grt::IntegerRef(search_type));
     grtm->set_app_option("db.search:SearchLimit", grt::IntegerRef(limit_total));
     grtm->set_app_option("db.search:SearchLimitPerTable", grt::IntegerRef(limit_table));
@@ -201,7 +201,7 @@ private:
 
 public:
   DBSearchView(db_query_EditorRef editor)
-  : mforms::AppView(false, "dbsearch", false), _editor(editor), _search_panel(bec::GRTManager::get_instance_for(editor.get_grt())),
+  : mforms::AppView(false, "dbsearch", false), _editor(editor), _search_panel(bec::GRTManager::get_instance_for()),
   _check_selection_timeout(0), _search_timeout(0), _last_selection_change(0)
   {
     set_padding(12);
@@ -224,7 +224,7 @@ public:
 
     grt::GRTNotificationCenter::get()->add_grt_observer(this, "GRNLiveDBObjectSelectionDidChange", editor);
 
-    bec::GRTManager *grtm(bec::GRTManager::get_instance_for(_editor.get_grt()));
+    bec::GRTManager *grtm(bec::GRTManager::get_instance_for());
     _filter_panel.set_search_type(grtm->get_app_option_int("db.search:SearchType", 0));
     _filter_panel.set_limit_total(base::strfmt("%li", grtm->get_app_option_int("db.search:SearchLimit", 10000)));
     _filter_panel.set_limit_table(base::strfmt("%li", grtm->get_app_option_int("db.search:SearchLimitPerTable", 100)));
@@ -262,18 +262,18 @@ public:
 
   virtual grt::ListRef<app_Plugin> getPluginInfo()
   {
-    grt::ListRef<app_Plugin> plugins(get_grt());
+    grt::ListRef<app_Plugin> plugins(true);
     {
-      app_PluginRef plugin(get_grt());
+      app_PluginRef plugin(grt::Initialized);
 
       plugin->moduleName("MySQLDBSearchModule");
       plugin->pluginType("standalone");
       plugin->moduleFunctionName("showSearchPanel");
       plugin->name("com.mysql.wb.menu.database.search");
       plugin->caption("DataSearch");
-      plugin->groups().insert("database/Database");
+      plugin->groups().insert("database/Databaclearse");
 
-      app_PluginObjectInputRef pdef(get_grt());
+      app_PluginObjectInputRef pdef(grt::Initialized);
       pdef->name("activeSQLEditor");
       pdef->objectStructName(db_query_Editor::static_class_name());
       plugin->inputValues().insert(pdef);

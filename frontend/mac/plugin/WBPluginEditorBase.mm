@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -266,12 +266,12 @@ static void text_changed(int line, int linesAdded, void *editor_)
 
 - (void)enablePluginDocking:(NSTabView*)tabView
 {
-  mEditorGRTObject = ui_ObjectEditorRef(_grtm->get_grt());
+  mEditorGRTObject = ui_ObjectEditorRef(grt::Initialized);
 
   // setup docking point for mUpperTabView
   mDockingPoint = mforms::manage(new mforms::DockingPoint(new TabViewDockingPointDelegate(tabView, "editor"), true));
 
-  mEditorGRTObject->dockingPoint(mforms_to_grt(_grtm->get_grt(), mDockingPoint));
+  mEditorGRTObject->dockingPoint(mforms_to_grt(mDockingPoint));
 }
 
 @end

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,11 +44,7 @@ void Mysql_sql_statement_decomposer::set_options(const grt::DictRef &opts)
     Sql_parser_base::case_sensitive_identifiers(opts.get_int("case_sensitive_identifiers", grt::IntegerRef(1)) != 0);
 }
 
-Mysql_sql_statement_decomposer::Mysql_sql_statement_decomposer(grt::GRT *grt)
-:
-Sql_parser_base(grt),
-Mysql_sql_parser_base(grt),
-Sql_statement_decomposer(grt)
+Mysql_sql_statement_decomposer::Mysql_sql_statement_decomposer()
 {
   NULL_STATE_KEEPER
 }

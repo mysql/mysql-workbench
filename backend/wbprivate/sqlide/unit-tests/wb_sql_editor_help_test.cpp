@@ -51,25 +51,25 @@ public:
 
 //--------------------------------------------------------------------------------------------------
 
-void set_connection_properties(grt::GRT *grt, db_mgmt_ConnectionRef& connection)
+void set_connection_properties(db_mgmt_ConnectionRef& connection)
 {
-  grt::DictRef conn_params(grt);
+  grt::DictRef conn_params(true);
   conn_params.set("hostName", grt::StringRef(test_params->get_host_name()));
   conn_params.set("port", grt::IntegerRef(test_params->get_port()));
   conn_params.set("userName", grt::StringRef(test_params->get_user_name()));
   conn_params.set("password", grt::StringRef(test_params->get_password()));
   grt::replace_contents(connection->parameterValues(), conn_params);
 
-  db_mgmt_DriverRef driverProperties= db_mgmt_DriverRef::cast_from(grt->get("/rdbms/drivers/0/"));
+  db_mgmt_DriverRef driverProperties= db_mgmt_DriverRef::cast_from(grt::GRT::get()->get("/rdbms/drivers/0/"));
   connection->driver(driverProperties);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-sql::ConnectionWrapper create_connection(grt::GRT *grt)
+sql::ConnectionWrapper create_connection()
 {
-  db_mgmt_ConnectionRef connectionProperties(grt);
-  set_connection_properties(grt, connectionProperties);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
+  set_connection_properties(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
   return dm->getConnection(connectionProperties);
@@ -118,12 +118,12 @@ void check_topics(size_t start, size_t end, const help_test_entry entries[])
 TEST_DATA_CONSTRUCTOR(wb_sql_editor_help_test)
   : _sqlide(_tester.wbui)
 {
-  populate_grt(_tester.grt, _tester);
+  populate_grt(_tester);
 
-  _connection = create_connection(_tester.grt);
+  _connection = create_connection();
 
-  db_mgmt_ConnectionRef my_connection(_tester.grt);
-  set_connection_properties(_tester.grt, my_connection);
+  db_mgmt_ConnectionRef my_connection(grt::Initialized);
+  set_connection_properties(my_connection);
   _editor_form = SqlEditorForm::create(&_sqlide, my_connection);
   _editor_form->connect(boost::shared_ptr<sql::TunnelConnection>());
   _tester.wbui->set_active_form(_editor_form.get());
@@ -135,7 +135,7 @@ TEST_DATA_CONSTRUCTOR(wb_sql_editor_help_test)
   if (res && res->next())
   {
     std::string version_string = res->getString("VERSION");
-    grt_version = parse_version(_tester.grt, version_string);
+    grt_version = parse_version(version_string);
   }
   delete res;
 

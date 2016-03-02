@@ -34,7 +34,6 @@ BEGIN_TEST_DATA_CLASS(tree_model)
 public:
   db_mgmt_RdbmsRef rdbms;
   GRTManager grtm;
-  GRT grt;
   bec::NodeIds map;
 
 TEST_DATA_CONSTRUCTOR(tree_model)

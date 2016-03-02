@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -143,10 +143,10 @@ TEST_FUNCTION(10)
   workbench_physical_ModelRef physicalModel= wbt.wb->get_document()->physicalModels().get(0);
 
 
-  module= wbt.grt->get_native_module<WbModelImpl>();
+  module= grt::GRT::get()->get_native_module<WbModelImpl>();
   ensure("WbModel module initialization", NULL != module);
 
-  grt::DictRef options(wbt.grt);
+  grt::DictRef options(true);
   options.gset("basedir", wbt.wboptions.basedir);//wbt.wb->get_wb_options().get_string("basedir"));
   options.gset("title", "Test Report");
   options.gset("filename", "TestReport");
@@ -167,10 +167,10 @@ TEST_FUNCTION(11)
 
   wbt.wb->open_document(TEST_02_FI);
 
-  module= wbt.grt->get_native_module<WbModelImpl>();
+  module= grt::GRT::get()->get_native_module<WbModelImpl>();
   ensure("WbModel module initialization", NULL != module);
 
-  grt::StringListRef templates(wbt.grt);
+  grt::StringListRef templates(grt::Initialized);
   ssize_t res= module->getAvailableReportingTemplates(templates);
   ensure("getAvailableSchemaReportTemplates call failed.", res == 1);
 

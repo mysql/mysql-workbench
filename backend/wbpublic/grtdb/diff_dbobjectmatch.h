@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _DB_OBJECT_MATCH_H_
-#define _DB_OBJECT_MATCH_H_
+#pragma once
 
 #include "grtpp_util.h"
 #include "wbpublic_public_interface.h"
@@ -42,13 +41,12 @@ struct WBPUBLICBACKEND_PUBLIC_FUNC DbObjectMatchAlterOmf : public Omf
   virtual bool equal(const ValueRef& , const ValueRef&) const;
 };
 
-typedef boost::function<bool (const ValueRef obj1, const ValueRef obj2, const std::string name, grt::GRT* grt)> comparison_rule;
+typedef boost::function<bool (const ValueRef obj1, const ValueRef obj2, const std::string name)> comparison_rule;
 class WBPUBLICBACKEND_PUBLIC_FUNC NormalizedComparer
 {
 protected:
     bool comment_compare(const ValueRef obj1, const ValueRef obj2, const std::string& name)const;
     std::map<std::string,std::list<comparison_rule> > rules;
-    grt::GRT* _grt;
     int _maxTableCommentLength;
     int _maxIndexCommentLength;
     int _maxColumnCommentLength;
@@ -59,7 +57,7 @@ protected:
 public:
     void init_omf(Omf* omf);
     void load_db_options(sql::DatabaseMetaData *dbc_meta);
-    NormalizedComparer(grt::GRT* grt, const grt::DictRef options = grt::DictRef());
+    NormalizedComparer(const grt::DictRef options = grt::DictRef());
     void add_comparison_rule(const std::string& name, comparison_rule rule){rules[name].push_back(rule);};
     bool normalizedComparison(const ValueRef obj1, const ValueRef obj2, const std::string name);
     grt::DictRef get_options_dict()const;
@@ -69,5 +67,3 @@ public:
   
   
 } // namespace grt
-
-#endif // _DB_OBJECT_MATCH_H_

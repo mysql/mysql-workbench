@@ -283,8 +283,8 @@ namespace grt {
       typedef std::vector<ValueRef>::iterator raw_iterator;
 
     public:
-      List(GRT *grt, bool allow_null);
-      List(GRT *grt, Type type, const std::string &content_class, bool allow_null);
+      List(bool allow_null);
+      List(Type type, const std::string &content_class, bool allow_null);
       
       static Type static_type() { return ListType; }
       virtual Type get_type() const { return ListType; }
@@ -333,8 +333,6 @@ namespace grt {
 
       raw_iterator raw_begin() { return _content.begin(); }
       raw_iterator raw_end() { return _content.end(); }
-      
-      inline GRT *get_grt() const { return _grt; }
 
 
     public:
@@ -351,8 +349,6 @@ namespace grt {
       
       virtual ~List();
 
-      GRT *_grt;
-
       storage_type _content;
       SimpleTypeSpec _content_type;
       bool _allow_null;
@@ -365,7 +361,7 @@ namespace grt {
     class MYSQLGRT_PUBLIC OwnedList : public List
     {
     public:
-      OwnedList(GRT *grt, Type type, const std::string &content_class, Object *owner, bool allow_null);
+      OwnedList(Type type, const std::string &content_class, Object *owner, bool allow_null);
 
       virtual void set_unchecked(size_t index, const ValueRef &value);
       virtual void insert_unchecked(const ValueRef &value, size_t index= npos);
@@ -391,8 +387,8 @@ namespace grt {
       typedef storage_type::const_iterator iterator;
 
     public:
-      Dict(GRT *grt, bool allow_null);
-      Dict(GRT *grt, Type type, const std::string &content_class, bool allow_null);
+      Dict(bool allow_null);
+      Dict(Type type, const std::string &content_class, bool allow_null);
 
       static Type static_type() { return DictType; }
       virtual Type get_type() const { return DictType; }
@@ -419,8 +415,6 @@ namespace grt {
       virtual bool equals(const Value*) const;
       virtual bool less_than(const Value *) const;
 
-      GRT *get_grt() const { return _grt; }
-
       virtual void mark_global() const;
       virtual void unmark_global() const;
       
@@ -428,7 +422,6 @@ namespace grt {
     protected:
       friend class ::grt::GRT;
 
-      GRT *_grt;
       storage_type _content;
       SimpleTypeSpec _content_type;
       bool _allow_null;
@@ -441,7 +434,7 @@ namespace grt {
     class MYSQLGRT_PUBLIC OwnedDict : public Dict
     {
     public:
-      OwnedDict(GRT *grt, Type type, const std::string &content_class, Object *owner, bool allow_null);
+      OwnedDict(Type type, const std::string &content_class, Object *owner, bool allow_null);
 
       virtual void set(const std::string &key, const ValueRef &value);
       virtual void remove(const std::string &key);
@@ -491,8 +484,6 @@ namespace grt {
 
       virtual ValueRef call(const std::string &method, const BaseListRef &args);
 
-      GRT *get_grt() const;
-
       bool is_global() const { return _is_global != 0; }
 
       boost::signals2::signal<void (const std::string&, const ValueRef&)>* signal_changed() { return &_changed_signal; }
@@ -514,7 +505,6 @@ namespace grt {
       friend class internal::Unserializer;
 
       explicit Object(MetaClass *gclass);
-      Object(GRT *grt, MetaClass *gclass); /* deprecated */
 #ifdef GRT_LEAK_DETECTOR_ENABLED
       virtual ~Object();
 #endif
@@ -528,7 +518,6 @@ namespace grt {
       virtual void owned_dict_item_set(OwnedDict *dict, const std::string &key);
       virtual void owned_dict_item_removed(OwnedDict *dict, const std::string &key);
 
-      //use _metaclass->get_grt() GRT *_grt;
       MetaClass* _metaclass;
       std::string _id;
       boost::signals2::signal<void (const std::string&, const grt::ValueRef&)> _changed_signal;
@@ -559,7 +548,7 @@ namespace grt {
       * 
       * @ingroup GRTInternal
       */
-     typedef void (*ClassRegistrationFunction)(GRT *grt);
+     typedef void (*ClassRegistrationFunction)();
 
      struct MYSQLGRT_PUBLIC ClassRegistry
      {
@@ -572,7 +561,7 @@ namespace grt {
        
        /** Register all known classes in the given GRT context.
         */
-       void register_all(GRT *grt);
+       void register_all();
        
        static ClassRegistry* get_instance();
 

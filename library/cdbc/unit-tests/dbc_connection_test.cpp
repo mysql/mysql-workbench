@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,10 +40,9 @@ TEST_MODULE(module_dbc_connection_test, "DBC: connection tests");
 TEST_FUNCTION(1)
 {
   grtm= wbt.wb->get_grt_manager();
-  grt= grtm->get_grt();
 
-  connectionProperties= db_mgmt_ConnectionRef(grt);
-  setup_env(grt, connectionProperties);
+  connectionProperties= db_mgmt_ConnectionRef(grt::Initialized);
+  setup_env(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
   ensure("dm is NULL", dm != NULL);
@@ -65,8 +64,8 @@ TEST_FUNCTION(1)
 // Test initialization of a statement and it's destruction.
 TEST_FUNCTION(3)
 {
-  //db_mgmt_ConnectionRef connectionProperties(grt);
-  //setup_env(grt, connectionProperties);
+  //db_mgmt_ConnectionRef connectionProperties;
+  //setup_env(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
   ensure("dm is NULL", dm != NULL);
@@ -83,8 +82,8 @@ TEST_FUNCTION(3)
 // Test construction of a metadata object.
 TEST_FUNCTION(4)
 {
-  //db_mgmt_ConnectionRef connectionProperties(grt);
-  //setup_env(grt, connectionProperties);
+  //db_mgmt_ConnectionRef connectionProperties;
+  //setup_env(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
   ensure("dm is NULL", dm != NULL);
@@ -101,8 +100,8 @@ TEST_FUNCTION(4)
 // Test autocommit.
 TEST_FUNCTION(5)
 {
-  //db_mgmt_ConnectionRef connectionProperties(grt);
-  //setup_env(grt, connectionProperties);
+  //db_mgmt_ConnectionRef connectionProperties;
+  //setup_env(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
   ensure("dm is NULL", dm != NULL);
@@ -146,8 +145,8 @@ TEST_FUNCTION(5)
 // Test clearWarnings.
 TEST_FUNCTION(6)
 {
-  //db_mgmt_ConnectionRef connectionProperties(grt);
-  //setup_env(grt, connectionProperties);
+  //db_mgmt_ConnectionRef connectionProperties;
+  //setup_env(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
   ensure("dm is NULL", dm != NULL);
@@ -165,8 +164,8 @@ TEST_FUNCTION(6)
 // Test 2 connections.
 TEST_FUNCTION(7)
 {
-  //db_mgmt_ConnectionRef connectionProperties(grt);
-  //setup_env(grt, connectionProperties);
+  //db_mgmt_ConnectionRef connectionProperties;
+  //setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -205,8 +204,8 @@ TEST_FUNCTION(7)
 // Test kill ourselves 1.
 TEST_FUNCTION(8)
 {
-  //db_mgmt_ConnectionRef connectionProperties(grt);
-  //setup_env(grt, connectionProperties);
+  //db_mgmt_ConnectionRef connectionProperties;
+  //setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -244,8 +243,8 @@ TEST_FUNCTION(8)
 // Test kill ourselves 2 - kill and query thereafter.
 TEST_FUNCTION(9)
 {
-  //db_mgmt_ConnectionRef connectionProperties(grt);
-  //setup_env(grt, connectionProperties);
+  //db_mgmt_ConnectionRef connectionProperties;
+  //setup_env(connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();

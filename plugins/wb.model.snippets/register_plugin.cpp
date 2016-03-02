@@ -28,7 +28,7 @@
 #define MODULE_VERSION "1.0.0"
 
 
-static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt);
+static grt::ListRef<app_Plugin> get_mysql_plugins_info();
 
 
 class MySQLModelSnippetsModuleImpl : public grt::ModuleImplBase, public PluginInterfaceImpl
@@ -46,16 +46,16 @@ public:
   
   virtual grt::ListRef<app_Plugin> getPluginInfo()
   {
-    return get_mysql_plugins_info(get_grt());
+    return get_mysql_plugins_info();
   }
   
   virtual grt::IntegerRef includeModel(const std::string &path)
   {
-    grt::Module *module= get_grt()->get_module("Workbench");
+    grt::Module *module= grt::GRT::get()->get_module("Workbench");
     if (!module)
       throw std::runtime_error("Workbench module not found");
 
-    grt::BaseListRef args(get_grt());
+    grt::BaseListRef args(true);
 
     args.ginsert(grt::StringRef(path));
 
@@ -65,13 +65,13 @@ public:
 
     //Merge catalog
     db_CatalogRef source_catalog = doc->physicalModels()[0]->catalog();
-    db_CatalogRef target_catalog= db_CatalogRef::cast_from(get_grt()->get("/wb/doc/physicalModels/0/catalog"));
+    db_CatalogRef target_catalog= db_CatalogRef::cast_from(grt::GRT::get()->get("/wb/doc/physicalModels/0/catalog"));
     merge_catalog(this, target_catalog,source_catalog);
 
     //Merge diagrams
     grt::ListRef<workbench_physical_Diagram> source_diagrams = doc->physicalModels()[0]->diagrams();
-    grt::ListRef<workbench_physical_Diagram> target_diagrams = grt::ListRef<workbench_physical_Diagram>::cast_from(get_grt()->get("/wb/doc/physicalModels/0/diagrams"));
-    workbench_physical_ModelRef dst_owner = workbench_physical_ModelRef::cast_from(get_grt()->get("/wb/doc/physicalModels/0"));
+    grt::ListRef<workbench_physical_Diagram> target_diagrams = grt::ListRef<workbench_physical_Diagram>::cast_from(grt::GRT::get()->get("/wb/doc/physicalModels/0/diagrams"));
+    workbench_physical_ModelRef dst_owner = workbench_physical_ModelRef::cast_from(grt::GRT::get()->get("/wb/doc/physicalModels/0"));
     merge_diagrams(target_diagrams,source_diagrams,dst_owner);
 //    dst_owner->signal_changed().emit("", grt::ValueRef());
     args.clear();
@@ -100,11 +100,11 @@ public:
 //
 
 
-static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
+static grt::ListRef<app_Plugin> get_mysql_plugins_info()
 {
-  grt::ListRef<app_Plugin> plugins(grt);
+  grt::ListRef<app_Plugin> plugins(true);
   {
-    app_PluginRef plugin(grt);
+    app_PluginRef plugin(grt::Initialized);
     
     plugin->pluginType("standalone");
     plugin->moduleName("MySQLModelSnippetsModule");
@@ -113,7 +113,7 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
     plugin->caption("Include Objects from a Model File");
     plugin->groups().insert("model/Model");
     
-    app_PluginFileInputRef pdef(grt);
+    app_PluginFileInputRef pdef(grt::Initialized);
     pdef->owner(plugin);
     pdef->dialogTitle(_("Include Model"));
     pdef->dialogType("open");

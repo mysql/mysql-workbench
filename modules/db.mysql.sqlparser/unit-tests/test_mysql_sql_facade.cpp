@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,11 +42,10 @@ TEST_FUNCTION(1)
 {
   sql_facade = NULL;
   wbt.create_new_document();
-  GRT *grt= wbt.grt;
 
   ensure_equals("loaded physycal model count", wbt.wb->get_document()->physicalModels().count(), 1U);
 
-  options= DictRef(grt);
+  options= DictRef(true);
   options.set("gen_fk_names_when_empty", IntegerRef(0));
 
   rdbms= wbt.wb->get_document()->physicalModels().get(0)->rdbms();

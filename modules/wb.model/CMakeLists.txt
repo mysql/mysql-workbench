@@ -76,6 +76,7 @@ include_directories(.
     ${CTemplate_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
+    ${Boost_INCLUDE_DIRS}
 )
 
 add_library(wb.model.grt

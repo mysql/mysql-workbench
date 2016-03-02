@@ -5,6 +5,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/generated
     ${GRT_INCLUDE_DIRS}
     ${PCRE_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
 )
 
 add_executable(genwrap

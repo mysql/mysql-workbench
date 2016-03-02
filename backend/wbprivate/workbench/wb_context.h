@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -295,7 +295,6 @@ namespace wb {
     void foreach_component(const boost::function<void (WBComponent*)> &slot);
 
     bec::GRTManager *get_grt_manager() const { return _manager; }
-    grt::GRT *get_grt() const { return _manager->get_grt(); }
     boost::shared_ptr<WorkbenchImpl> get_workbench() { return _workbench; };
 
     bec::Clipboard *get_clipboard() const { return _clipboard; }
@@ -324,10 +323,10 @@ namespace wb {
                               const boost::function<void ()> &function, bool wait) THROW (grt::grt_runtime_error);
  
     grt::ValueRef execute_in_grt_thread(const std::string &name, 
-                                            const boost::function<grt::ValueRef (grt::GRT*)> &function) THROW (grt::grt_runtime_error);
+                                            const boost::function<grt::ValueRef ()> &function) THROW (grt::grt_runtime_error);
 
     void execute_async_in_grt_thread(const std::string &name, 
-                                     const boost::function<grt::ValueRef (grt::GRT*)> &function) THROW (grt::grt_runtime_error);
+                                     const boost::function<grt::ValueRef ()> &function) THROW (grt::grt_runtime_error);
 
     bool activate_live_object(const GrtObjectRef &object);
 
@@ -419,21 +418,21 @@ namespace wb {
     bool _force_sw_rendering;     // Command line switch.
     bool _force_opengl_rendering; // Command line switch.
 
-    grt::ListRef<app_PaperType> get_paper_types(grt::GRT *grt, boost::shared_ptr<grt::internal::Unserializer> unserializer);
+    grt::ListRef<app_PaperType> get_paper_types(boost::shared_ptr<grt::internal::Unserializer> unserializer);
 
     bool _other_connections_loaded;
     // setup
-    void init_grt_tree(grt::GRT *grt, WBOptions *options, boost::shared_ptr<grt::internal::Unserializer> unserializer);
-    void run_init_scripts_grt(grt::GRT *grt, WBOptions *options);
-    void init_plugins_grt(grt::GRT *grt, WBOptions *options);
-    void init_plugin_groups_grt(grt::GRT *grt, WBOptions *options);
-    void init_object_listeners_grt(grt::GRT *grt);
+    void init_grt_tree(WBOptions *options, boost::shared_ptr<grt::internal::Unserializer> unserializer);
+    void run_init_scripts_grt(WBOptions *options);
+    void init_plugins_grt(WBOptions *options);
+    void init_plugin_groups_grt(WBOptions *options);
+    void init_object_listeners_grt();
     void init_properties_grt(workbench_DocumentRef &doc);
-    void init_rdbms_modules(grt::GRT *grt);
+    void init_rdbms_modules();
 
     void do_close_document(bool destroying);
 
-    grt::ValueRef setup_context_grt(grt::GRT *grt, WBOptions *options);
+    grt::ValueRef setup_context_grt(WBOptions *options);
 
     void set_default_options(grt::DictRef options);
 
@@ -456,9 +455,9 @@ namespace wb {
     void load_starters(boost::shared_ptr<grt::internal::Unserializer> unserializer);
     void save_starters();
 
-    grt::ValueRef save_grt(grt::GRT *grt);
+    grt::ValueRef save_grt();
     
-    grt::ValueRef execute_plugin_grt(grt::GRT *grt, const app_PluginRef &plugin, const grt::BaseListRef &args);
+    grt::ValueRef execute_plugin_grt(const app_PluginRef &plugin, const grt::BaseListRef &args);
     void plugin_finished(const grt::ValueRef &result, const app_PluginRef &plugin);
 
     bool handle_message(const grt::Message &msg);

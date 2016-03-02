@@ -186,7 +186,7 @@ void Recordset_sqlite_storage::do_serialize(const Recordset *recordset, sqlite::
 {
   Recordset_sql_storage::do_serialize(recordset, data_swap_db);
 
-  SqlFacade::Ref sql_facade= SqlFacade::instance_for_rdbms_name(_grtm->get_grt(), "Mysql"); //!
+  SqlFacade::Ref sql_facade= SqlFacade::instance_for_rdbms_name("Mysql"); //!
   Sql_script sql_script;
   sql_facade->splitSqlScript(this->sql_script(), sql_script.statements);
   run_sql_script(sql_script, false);

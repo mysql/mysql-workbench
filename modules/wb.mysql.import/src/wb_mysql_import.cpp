@@ -30,9 +30,9 @@ GRT_MODULE_ENTRY_POINT(WbMysqlImportImpl);
 
 grt::ListRef<app_Plugin> WbMysqlImportImpl::getPluginInfo()
 {
-  grt::ListRef<app_Plugin> list(get_grt());
+  grt::ListRef<app_Plugin> list(true);
 
-  app_PluginRef plugin(get_grt());
+  app_PluginRef plugin(grt::Initialized);
 
   plugin->name("db.mysql.import.dbd4");
   plugin->caption("Import DBDesigner4 Model");
@@ -42,12 +42,12 @@ grt::ListRef<app_Plugin> WbMysqlImportImpl::getPluginInfo()
   plugin->pluginType("standalone");
   plugin->showProgress(1);
 
-  app_PluginObjectInputRef obj_arg(get_grt());
+  app_PluginObjectInputRef obj_arg(grt::Initialized);
   obj_arg->name("activeModel");
   obj_arg->objectStructName(workbench_physical_Model::static_class_name());
   plugin->inputValues().insert(obj_arg);
 
-  app_PluginFileInputRef file_arg(get_grt());
+  app_PluginFileInputRef file_arg(grt::Initialized);
   file_arg->name("filename");
   file_arg->dialogTitle(("Import DBDesigner4 Model"));
   file_arg->dialogType("open");
@@ -57,7 +57,7 @@ grt::ListRef<app_Plugin> WbMysqlImportImpl::getPluginInfo()
   list.insert(plugin);
 
   /*delme this seems to be duplicated in plugins/db
-  plugin= app_PluginRef(get_grt());
+  plugin= app_PluginRef(grt::Initialized);
   plugin->name("db.mysql.import.sql");
   plugin->caption("Import MySQL Create Script");
   plugin->description("Import a MySQL Script File");
@@ -66,12 +66,12 @@ grt::ListRef<app_Plugin> WbMysqlImportImpl::getPluginInfo()
   plugin->pluginType("normal");
   plugin->showProgress(1);
 
-  obj_arg= app_PluginObjectInputRef(get_grt());
+  obj_arg= app_PluginObjectInputRef(grt::Initialized);
   obj_arg->name("catalog");
   obj_arg->objectStructName(db_Catalog::static_class_name());
   plugin->inputValues().insert(obj_arg);
 
-  file_arg= app_PluginFileInputRef(get_grt());
+  file_arg= app_PluginFileInputRef(grt::Initialized);
   file_arg->name("filename");
   file_arg->dialogTitle(("Import MySQL SQL Script"));
   file_arg->dialogType("open");

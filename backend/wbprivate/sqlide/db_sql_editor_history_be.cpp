@@ -164,7 +164,7 @@ void DbSqlEditorHistory::EntriesModel::load()
     GDir *dir= g_dir_open(sql_history_dir.c_str(), 0, &error);
     if (!dir)
     {
-      _grtm->get_grt()->send_error(_("Can't open SQL history directory"), (error ? error->message : sql_history_dir.c_str()));
+      grt::GRT::get()->send_error(_("Can't open SQL history directory"), (error ? error->message : sql_history_dir.c_str()));
       return;
     }
     // files are not read in alpha-order, so we need to sort them before inserting
@@ -497,7 +497,7 @@ void DbSqlEditorHistory::DetailsModel::save()
 
   if (!ofs.is_open() || !ofs)
   {
-    _grtm->get_grt()->send_error("Can't write to SQL history file", storage_file_path);
+    grt::GRT::get()->send_error("Can't write to SQL history file", storage_file_path);
     return;
   }
 

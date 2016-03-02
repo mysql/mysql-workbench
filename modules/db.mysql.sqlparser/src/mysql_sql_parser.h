@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,10 +17,7 @@
  * 02110-1301  USA
  */
 
-
-#ifndef _MYSQL_SQL_PARSER_H_
-#define _MYSQL_SQL_PARSER_H_
-
+#pragma once 
 
 #include "mysql_sql_parser_base.h"
 #include "grtsqlparser/sql_parser.h"
@@ -39,10 +36,10 @@ class MYSQL_SQL_PARSER_PUBLIC_FUNC Mysql_sql_parser
 {
 public:
   typedef boost::shared_ptr<Mysql_sql_parser> Ref;
-  static Ref create(grt::GRT *grt) { return Ref(new Mysql_sql_parser(grt)); }
+  static Ref create() { return Ref(new Mysql_sql_parser); }
   virtual ~Mysql_sql_parser() {}
 protected:
-  Mysql_sql_parser(grt::GRT *grt);
+  Mysql_sql_parser();
 
 public:
   virtual int parse_sql_script(db_CatalogRef catalog, const std::string &sql, grt::DictRef options);
@@ -189,6 +186,3 @@ protected:
   };
   friend class Null_state_keeper;
 };
-
-
-#endif // _MYSQL_SQL_PARSER_H_

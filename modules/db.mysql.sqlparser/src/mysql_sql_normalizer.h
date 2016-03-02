@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,8 +18,7 @@
  */
 
 
-#ifndef _MYSQL_SQL_NORMALIZER_H_
-#define _MYSQL_SQL_NORMALIZER_H_
+#pragma once
 
 
 #include "mysql_sql_parser_base.h"
@@ -37,10 +36,10 @@ class MYSQL_SQL_PARSER_PUBLIC_FUNC Mysql_sql_normalizer : protected Mysql_sql_pa
 {
 public:
   typedef boost::shared_ptr<Mysql_sql_normalizer> Ref;
-  static Ref create(grt::GRT *grt) { return Ref(new Mysql_sql_normalizer(grt)); }
+  static Ref create() { return Ref(new Mysql_sql_normalizer); }
   virtual ~Mysql_sql_normalizer() {}
 protected:
-  Mysql_sql_normalizer(grt::GRT *grt);
+  Mysql_sql_normalizer();
 
 public:
   std::string normalize(const std::string &sql, const std::string &schema_name);
@@ -92,6 +91,3 @@ protected:
   };
   friend class Null_state_keeper;
 };
-
-
-#endif // _MYSQL_SQL_NORMALIZER_H_

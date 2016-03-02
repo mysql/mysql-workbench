@@ -17,6 +17,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/sql-parser/include
     ${PROJECT_SOURCE_DIR}/library/sql-parser/source
     ${PROJECT_SOURCE_DIR}/library/sql-parser/source/linux
+    ${Boost_INCLUDE_DIRS}
 )
 
 add_library(wb.mysql.import.grt

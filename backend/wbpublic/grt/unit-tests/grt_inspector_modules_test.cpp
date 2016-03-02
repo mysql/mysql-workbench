@@ -33,7 +33,7 @@ using namespace bec;
 
 BEGIN_TEST_DATA_CLASS(be_inspector_modules)
 public:
-  GRT grt;
+
 END_TEST_DATA_CLASS;
 
 TEST_MODULE(be_inspector_modules, "grt modules inspector backends");

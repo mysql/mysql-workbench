@@ -21,7 +21,6 @@ namespace wb
     mdc::CanvasView *_view;
     model_DiagramRef _target_view;
     class SizerFigure *_sizer;
-    WBContext *_wbcontext;
     std::string _name;
 
     boost::signals2::signal<void ()> _changed_signal;

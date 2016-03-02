@@ -52,7 +52,7 @@ void DbMySQLValidationPage::run_validation()
 {
   bec::GRTTask::Ref task = bec::GRTTask::create_task("Catalog validation", 
     _manager->get_dispatcher(), 
-    boost::bind(&DbMySQLSQLExport::validation_task, this, _1, grt::StringRef()));
+    boost::bind(&DbMySQLSQLExport::validation_task, this, grt::StringRef()));
 
   scoped_connect(task->signal_message(),boost::bind(&DbMySQLSQLExport::validation_message, this, _1));
   scoped_connect(task->signal_finished(),boost::bind(&DbMySQLSQLExport::validation_finished, this, _1));
@@ -88,17 +88,17 @@ void DbMySQLValidationPage::validation_message(const grt::Message &msg)
 }
 
 
-ValueRef DbMySQLValidationPage::validation_task(grt::GRT* grt, grt::StringRef)
+ValueRef DbMySQLValidationPage::validation_task(grt::StringRef)
 {
   try
   {
-    std::vector<WbValidationInterfaceWrapper*> validation_modules= grt->get_implementing_modules<WbValidationInterfaceWrapper>();
+    std::vector<WbValidationInterfaceWrapper*> validation_modules= grt::GRT::get()->get_implementing_modules<WbValidationInterfaceWrapper>();
   
     if (validation_modules.empty())
       return grt::StringRef("\nSQL Script Export Error: Not able to locate 'Validation' modules");
 
 
-    GrtObjectRef catalog(GrtObjectRef::cast_from(_manager->get_grt()->get("/wb/doc/physicalModels/0/catalog")));
+    GrtObjectRef catalog(GrtObjectRef::cast_from(grt::GRT::get()->get("/wb/doc/physicalModels/0/catalog")));
 
     for (std::vector<WbValidationInterfaceWrapper*>::iterator module= validation_modules.begin();
          module != validation_modules.end(); ++module)
@@ -107,7 +107,7 @@ ValueRef DbMySQLValidationPage::validation_task(grt::GRT* grt, grt::StringRef)
       
       if (!caption.empty())
       {
-        grt->send_info("Starting "+caption);
+        grt::GRT::get()->send_info("Starting "+caption);
 
         int validation_res= (int)(*module)->validate("All", catalog);
 

@@ -17,6 +17,7 @@ include_directories(.
     ${CAIRO_INCLUDE_DIRS}
     ${SIGC++_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
 )
 
 add_library(wb.printing.wbp MODULE

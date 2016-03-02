@@ -496,7 +496,7 @@ bool TableColumnsListBE::make_unique_index(const db_ColumnRef &col, bool flag)
   
   if (flag)
   {
-    db_IndexRef index= _owner->get_grt()->create_object<db_Index>(table->indices().content_class_name());
+    db_IndexRef index= grt::GRT::get()->create_object<db_Index>(table->indices().content_class_name());
     
     index->name(*col->name()+"_UNIQUE");
     index->owner(table);
@@ -505,7 +505,7 @@ bool TableColumnsListBE::make_unique_index(const db_ColumnRef &col, bool flag)
     index->unique(1);
     
     db_IndexColumnRef icolumn=
-        _owner->get_grt()->create_object<db_IndexColumn>(index->columns().content_class_name());
+        grt::GRT::get()->create_object<db_IndexColumn>(index->columns().content_class_name());
     icolumn->owner(index);
     icolumn->referencedColumn(col);
 
@@ -1761,7 +1761,7 @@ NodeId IndexListBE::add_column(const db_ColumnRef &column, const db_IndexRef &aI
   {
     std::string column_struct= index.get_metaclass()->get_member_type("columns").content.object_class;
     db_IndexColumnRef icolumn=
-      _owner->get_grt()->create_object<db_IndexColumn>(column_struct);
+      grt::GRT::get()->create_object<db_IndexColumn>(column_struct);
     icolumn->owner(index);
     icolumn->referencedColumn(column);
 
@@ -1986,8 +1986,8 @@ void FKConstraintColumnsListBE::refresh()
         if (i-1 < fk->referencedColumns().count())
           fk->referencedColumns().remove(i-1);
         
-        _owner->get_owner()->get_grt()->make_output_visible();
-        _owner->get_owner()->get_grt()->send_warning("Removed corrupt column definition for Foreign Key "+*fk->name());
+        grt::GRT::get()->make_output_visible();
+        grt::GRT::get()->send_warning("Removed corrupt column definition for Foreign Key "+*fk->name());
       }
     }
   }
@@ -2943,7 +2943,7 @@ NodeId TableEditorBE::add_column(const std::string &name)
 {
   db_ColumnRef column;
 
-  column= get_grt()->create_object<db_Column>(get_table().get_metaclass()->get_member_type("columns").content.object_class);
+  column= grt::GRT::get()->create_object<db_Column>(get_table().get_metaclass()->get_member_type("columns").content.object_class);
 
   column->name(name);
   
@@ -3052,7 +3052,7 @@ NodeId TableEditorBE::add_fk(const std::string &name)
 
   AutoUndoEdit undo(this);
 
-  fk= TableHelper::create_empty_foreign_key(get_grt(), get_table(), name);
+  fk= TableHelper::create_empty_foreign_key(get_table(), name);
 
   fk->updateRule(StringRef::cast_from(_grtm->get_app_option
     ("db.ForeignKey:updateRule")));
@@ -3112,7 +3112,7 @@ NodeId TableEditorBE::add_index(const std::string &name)
 
   if (indices.content_class_name() == "db.Index") throw std::logic_error("internal bug");
 
-  index= get_grt()->create_object<db_Index>(indices.content_class_name());
+  index= grt::GRT::get()->create_object<db_Index>(indices.content_class_name());
   index->name(name);
   index->owner(get_table());
 
@@ -3281,7 +3281,7 @@ void TableEditorBE::catalogChanged(const std::string& member, const grt::ValueRe
             messageShown = true;
             if (ret == mforms::ResultCancel)
             {
-              grt::UndoManager *um = get_grt()->get_undo_manager();
+              grt::UndoManager *um = grt::GRT::get()->get_undo_manager();
               assert(um != NULL);
               UndoAction* action = um->get_latest_undo_action();
               if (action != NULL && action->description() == "version")
@@ -3306,7 +3306,7 @@ bool TableEditorBE::parse_column_type(const std::string &str, db_ColumnRef &colu
   bool flag= column->setParseType(str, catalog->simpleDatatypes()) == 1;
   if (flag)
   {
-    grt::UndoManager *um = get_grt()->get_undo_manager();
+    grt::UndoManager *um = grt::GRT::get()->get_undo_manager();
 
     // call _refresh_ui when this parse column type action is undone
     // XXX: everytime we parse a column type 2 new connections are added without removing the old ones!
@@ -3333,7 +3333,7 @@ void TableEditorBE::inserts_column_resized(int column)
     widths = grt::IntegerListRef::cast_from(get_table()->customData().get("InsertsColumnWidths"));
   else
   {
-    widths = grt::IntegerListRef(_grtm->get_grt());
+    widths = grt::IntegerListRef(grt::Initialized);
     get_table()->customData().set("InsertsColumnWidths", widths);
   }
 
@@ -3493,14 +3493,14 @@ void TableEditorBE::show_export_wizard(mforms::Form *owner)
 
 void TableEditorBE::show_import_wizard()
 {
-  grt::BaseListRef args(_grtm->get_grt());
+  grt::BaseListRef args(true);
   
   db_TableRef table(get_table());
   if (table.is_valid() && table->columns().count() > 0)
   {
     args.ginsert(grtwrap_editablerecordset(table, _inserts_model));
 
-    grt::Module *module = _grtm->get_grt()->get_module("SQLIDEUtils");
+    grt::Module *module = grt::GRT::get()->get_module("SQLIDEUtils");
     if (module)
     {
       try

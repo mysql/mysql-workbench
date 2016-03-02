@@ -86,8 +86,8 @@ WBContextUI::WBContextUI(bool verbose)
   _home_screen = NULL;
 
   // to notify that the save status of the doc has changed
-  //_wb->get_grt()->get_undo_manager()->signal_changed().connect(boost::bind(&WBContextUI::history_changed, this));
-  scoped_connect(_wb->get_grt()->get_undo_manager()->signal_changed(),boost::bind(&WBContextUI::history_changed, this));
+  //grt::GRT::get()->get_undo_manager()->signal_changed().connect(boost::bind(&WBContextUI::history_changed, this));
+  scoped_connect(grt::GRT::get()->get_undo_manager()->signal_changed(),boost::bind(&WBContextUI::history_changed, this));
   
   // stuff to do when the active form is switched in the UI (through set_active_form)
   _form_change_signal.connect(boost::bind(&WBContextUI::form_changed, this));
@@ -483,7 +483,7 @@ bec::ValueInspectorBE *WBContextUI::create_inspector_for_selection(bec::UIForm *
     {
       items.push_back(strfmt("%s: %s", selection[0]->name().c_str(), selection[0].get_metaclass()->get_attribute("caption").c_str()));
 
-      return ValueInspectorBE::create(_wb->get_grt_manager()->get_grt(), selection[0], false, true);
+      return ValueInspectorBE::create(selection[0], false, true);
     }
     else
     {
@@ -496,7 +496,7 @@ bec::ValueInspectorBE *WBContextUI::create_inspector_for_selection(bec::UIForm *
         list.push_back(selection.get(i));
       }
 
-      return ValueInspectorBE::create(_wb->get_grt_manager()->get_grt(), list);
+      return ValueInspectorBE::create(list);
     }
   }
 
@@ -520,7 +520,7 @@ bec::ValueInspectorBE *WBContextUI::create_inspector_for_selection(std::vector<s
       {
         items.push_back(strfmt("%s: %s", obj.get_string_member(name_mem_name).c_str(), obj.get_metaclass()->get_attribute("caption").c_str()));
 
-        return ValueInspectorBE::create(_wb->get_grt_manager()->get_grt(), selection[0], false, true);
+        return ValueInspectorBE::create(selection[0], false, true);
       }
     }
     else
@@ -536,7 +536,7 @@ bec::ValueInspectorBE *WBContextUI::create_inspector_for_selection(std::vector<s
         list.push_back(selection.get(i));
       }
 
-      return ValueInspectorBE::create(_wb->get_grt_manager()->get_grt(), list);
+      return ValueInspectorBE::create(list);
     }
   }
 
@@ -600,7 +600,7 @@ std::string WBContextUI::get_description_for_selection(bec::UIForm *form, grt::L
 
   std::string res;
 
-  activeObjList= grt::ListRef<model_Object>(selection.get_grt());
+  activeObjList= grt::ListRef<model_Object>(true);
 
   std::string comment_mem_name("comment");
   std::string descr_mem_name("description");
@@ -657,7 +657,7 @@ void WBContextUI::set_description_for_selection(const grt::ListRef<GrtObject> &o
     std::string comment_mem_name("comment");
     std::string descr_mem_name("description");
     
-    grt::AutoUndo undo(_wb->get_grt());
+    grt::AutoUndo undo;
 
     for (size_t c= objList.count(), i= 0; i < c; i++)
     {
@@ -728,7 +728,7 @@ void WBContextUI::set_doc_properties(const std::string &caption, const std::stri
 {
   app_DocumentInfoRef info= _wb->get_document()->info();
 
-  grt::AutoUndo undo(_wb->get_grt());
+  grt::AutoUndo undo;
   info->caption(caption);
   info->version(version);
   info->author(author);
@@ -778,7 +778,7 @@ bool WBContextUI::add_paper_size(const std::string &name, double width, double h
   if (grt::find_named_object_in_list(_wb->get_root()->options()->paperTypes(), name).is_valid())
     return false;
 
-  app_PaperTypeRef type(_wb->get_grt_manager()->get_grt());
+  app_PaperTypeRef type(grt::Initialized);
   type->owner(_wb->get_root()->options());
   type->name(name);
   type->width(width);
@@ -801,7 +801,7 @@ app_PageSettingsRef WBContextUI::get_page_settings()
   else
   {
     // XXX add proper initialization for non-trivial types in structs.app.h too.
-    app_PageSettingsRef settings= app_PageSettingsRef(_wb->get_grt());
+    app_PageSettingsRef settings= app_PageSettingsRef(grt::Initialized);
     settings->scale(1);
     settings->paperType(app_PaperTypeRef());
 

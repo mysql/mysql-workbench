@@ -128,7 +128,7 @@ TEST_DATA_CONSTRUCTOR(table_inserts)
   : editor(0)
 {
   grtm = wbt.wb->get_grt_manager();
-  populate_grt(wbt.grt, wbt);
+  populate_grt(wbt);
 }
 
 TEST_DATA_DESTRUCTOR(table_inserts)
@@ -140,18 +140,18 @@ END_TEST_DATA_CLASS
 
 TEST_MODULE(table_inserts, "Table Editor Inserts backend");
 
-static db_TableRef make_inserts_test_table(grt::GRT *grt, const db_mgmt_RdbmsRef &rdbms, const db_CatalogRef &catalog)
+static db_TableRef make_inserts_test_table(const db_mgmt_RdbmsRef &rdbms, const db_CatalogRef &catalog)
 {
   grt::ListRef<db_UserDatatype> usertypes;
 
-  db_SchemaRef schema(grt);
+  db_SchemaRef schema(grt::Initialized);
   schema->owner(catalog);
 
-  db_mysql_TableRef table(grt);
+  db_mysql_TableRef table(grt::Initialized);
   table->owner(schema);
   table->name("table");
 
-  db_mysql_ColumnRef col(grt);
+  db_mysql_ColumnRef col(grt::Initialized);
   col->owner(table);
   col->name("id");
   col->autoIncrement(1);
@@ -159,19 +159,19 @@ static db_TableRef make_inserts_test_table(grt::GRT *grt, const db_mgmt_RdbmsRef
   table->columns().insert(col);
   table->addPrimaryKeyColumn(col);
 
-  col= db_mysql_ColumnRef(grt);
+  col = db_mysql_ColumnRef(grt::Initialized);
   col->owner(table);
   col->name("name");
   col->setParseType("VARCHAR(30)", rdbms->simpleDatatypes());
   table->columns().insert(col);
 
-  col= db_mysql_ColumnRef(grt);
+  col = db_mysql_ColumnRef(grt::Initialized);
   col->owner(table);
   col->name("ts");
   col->setParseType("TIMESTAMP", rdbms->simpleDatatypes());
   table->columns().insert(col);
 
-  col= db_mysql_ColumnRef(grt);
+  col = db_mysql_ColumnRef(grt::Initialized);
   col->owner(table);
   col->name("pic");
   col->setParseType("BLOB", rdbms->simpleDatatypes());
@@ -189,10 +189,10 @@ TEST_FUNCTION(1)
 static std::string generate_sql_just_like_fwd_eng(GRTManager *grtm, db_TableRef table)
 {
   // this code copied verbatim from module_db_mysql.cpp
-  Recordset_table_inserts_storage::Ref input_storage= Recordset_table_inserts_storage::create(grtm);
+  Recordset_table_inserts_storage::Ref input_storage = Recordset_table_inserts_storage::create(grtm);
   input_storage->table(table);
 
-  Recordset::Ref rs= Recordset::create(grtm);
+  Recordset::Ref rs = Recordset::create(grtm);
   rs->data_storage(input_storage);
   rs->reset();
 
@@ -210,7 +210,7 @@ static std::string generate_sql_just_like_fwd_eng(GRTManager *grtm, db_TableRef 
 TEST_FUNCTION(5)
 {
   // test proper storage of values with trivial values
-  db_TableRef table(make_inserts_test_table(grtm->get_grt(), wbt.get_rdbms(), wbt.get_catalog()));
+  db_TableRef table(make_inserts_test_table(wbt.get_rdbms(), wbt.get_catalog()));
 
   {
     TestTableEditor editor(grtm, table, wbt.get_rdbms());
@@ -313,7 +313,7 @@ static void test_rs_storage(RecordsetRef rs, int row, int column, const std::str
 TEST_FUNCTION(6)
 {
   // check storage of NULL value
-  db_TableRef table(make_inserts_test_table(grtm->get_grt(), wbt.get_rdbms(), wbt.get_catalog()));
+  db_TableRef table(make_inserts_test_table(wbt.get_rdbms(), wbt.get_catalog()));
 
   TestTableEditor editor(grtm, table, wbt.get_rdbms());
 
@@ -368,7 +368,7 @@ TEST_FUNCTION(6)
 TEST_FUNCTION(11)
 {
   // test storage of \\func with int column
-  db_TableRef table(make_inserts_test_table(grtm->get_grt(), wbt.get_rdbms(), wbt.get_catalog()));
+  db_TableRef table(make_inserts_test_table(wbt.get_rdbms(), wbt.get_catalog()));
 
   TestTableEditor editor(grtm, table, wbt.get_rdbms());
 
@@ -393,7 +393,7 @@ TEST_FUNCTION(12)
 {
   // test storage of \\func with string column
 
-  db_TableRef table(make_inserts_test_table(grtm->get_grt(), wbt.get_rdbms(), wbt.get_catalog()));
+  db_TableRef table(make_inserts_test_table(wbt.get_rdbms(), wbt.get_catalog()));
 
   TestTableEditor editor(grtm, table, wbt.get_rdbms());
 
@@ -416,7 +416,7 @@ TEST_FUNCTION(13)
 {
   // test storage of \\func with timestamp column
   
-  db_TableRef table(make_inserts_test_table(grtm->get_grt(), wbt.get_rdbms(), wbt.get_catalog()));
+  db_TableRef table(make_inserts_test_table(wbt.get_rdbms(), wbt.get_catalog()));
 
   TestTableEditor editor(grtm, table, wbt.get_rdbms());
 
@@ -438,7 +438,7 @@ TEST_FUNCTION(13)
 TEST_FUNCTION(15)
 {
   // all at once
-  db_TableRef table(make_inserts_test_table(grtm->get_grt(), wbt.get_rdbms(), wbt.get_catalog()));
+  db_TableRef table(make_inserts_test_table(wbt.get_rdbms(), wbt.get_catalog()));
 
   TestTableEditor editor(grtm, table, wbt.get_rdbms());
 

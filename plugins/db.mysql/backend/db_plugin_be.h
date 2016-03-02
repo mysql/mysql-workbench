@@ -28,7 +28,7 @@ public:
   #pragma GCC diagnostic pop
 #endif
 
-  grt::StringRef apply_script_to_db(grt::GRT *);
+  grt::StringRef apply_script_to_db();
 
 private:
   db_mgmt_RdbmsRef selected_rdbms();
@@ -98,12 +98,12 @@ protected:
   grt::DictRef _db_options;
 
 public:
-  bec::IconId schema_icon_id(bec::IconSize icon_size) { return bec::IconManager::get_instance()->get_icon_id(_grtm->get_grt()->get_metaclass("db.Schema"), icon_size); }
-  bec::IconId table_icon_id(bec::IconSize icon_size) { return bec::IconManager::get_instance()->get_icon_id(_grtm->get_grt()->get_metaclass("db.Table"), icon_size); }
-  bec::IconId view_icon_id(bec::IconSize icon_size) { return bec::IconManager::get_instance()->get_icon_id(_grtm->get_grt()->get_metaclass("db.View"), icon_size); }
-  bec::IconId routine_icon_id(bec::IconSize icon_size) { return bec::IconManager::get_instance()->get_icon_id(_grtm->get_grt()->get_metaclass("db.Routine"), icon_size); }
-  bec::IconId trigger_icon_id(bec::IconSize icon_size) { return bec::IconManager::get_instance()->get_icon_id(_grtm->get_grt()->get_metaclass("db.Trigger"), icon_size); }
-  bec::IconId user_icon_id(bec::IconSize icon_size) { return bec::IconManager::get_instance()->get_icon_id(_grtm->get_grt()->get_metaclass("db.User"), icon_size); }
+  bec::IconId schema_icon_id(bec::IconSize icon_size) { return bec::IconManager::get_instance()->get_icon_id(grt::GRT::get()->get_metaclass("db.Schema"), icon_size); }
+  bec::IconId table_icon_id(bec::IconSize icon_size) { return bec::IconManager::get_instance()->get_icon_id(grt::GRT::get()->get_metaclass("db.Table"), icon_size); }
+  bec::IconId view_icon_id(bec::IconSize icon_size) { return bec::IconManager::get_instance()->get_icon_id(grt::GRT::get()->get_metaclass("db.View"), icon_size); }
+  bec::IconId routine_icon_id(bec::IconSize icon_size) { return bec::IconManager::get_instance()->get_icon_id(grt::GRT::get()->get_metaclass("db.Routine"), icon_size); }
+  bec::IconId trigger_icon_id(bec::IconSize icon_size) { return bec::IconManager::get_instance()->get_icon_id(grt::GRT::get()->get_metaclass("db.Trigger"), icon_size); }
+  bec::IconId user_icon_id(bec::IconSize icon_size) { return bec::IconManager::get_instance()->get_icon_id(grt::GRT::get()->get_metaclass("db.User"), icon_size); }
 
   DbConnection * db_conn() { return _db_conn; }
 
@@ -121,7 +121,7 @@ public:
   int check_case_sensitivity_problems();
 
   void load_schemata(std::vector<std::string> &schemata);
-  grt::DictRef load_db_options(){return _db_options.is_valid()?_db_options:grt::DictRef(_grtm->get_grt());};
+  grt::DictRef load_db_options(){return _db_options.is_valid()?_db_options:grt::DictRef(grt::Initialized);};
 //  void default_schemata_selection(std::vector<std::string> &selection);
   void schemata_selection(const std::vector<std::string> &selection, bool sel_none_means_sel_all);
   void load_db_objects(Db_object_type db_object_type);

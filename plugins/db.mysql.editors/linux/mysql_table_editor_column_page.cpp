@@ -392,7 +392,7 @@ void DbMySQLTableEditorColumnPage::cell_editing_done(GtkCellEditable* ce, gpoint
 //------------------------------------------------------------------------------
 grt::StringListRef DbMySQLTableEditorColumnPage::get_types_for_table(const db_TableRef table)
 {
-  grt::StringListRef list(table->get_grt());
+  grt::StringListRef list(grt::Initialized);
   std::vector<std::string> types(_be->get_columns()->get_datatype_names());
   
   for (std::vector<std::string>::const_iterator iter= types.begin(); iter != types.end(); ++iter)

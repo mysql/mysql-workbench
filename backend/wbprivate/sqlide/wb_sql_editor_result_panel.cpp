@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -130,8 +130,8 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
 
   {
     db_query_QueryEditorRef editor(owner->grtobj());
-    _grtobj = db_query_ResultPanelRef(editor.get_grt());
-    _grtobj->dockingPoint(mforms_to_grt(editor.get_grt(), &_tabdock));
+    _grtobj = db_query_ResultPanelRef(grt::Initialized);
+    _grtobj->dockingPoint(mforms_to_grt(&_tabdock));
   }
 
   set_on_close(boost::bind(&SqlEditorResult::can_close, this));
@@ -398,13 +398,13 @@ void SqlEditorResult::switch_tab()
         _execution_plan_placeholder = NULL;
 
         // if the explain tab is just a placeholder, execute visual explain, which will replace the tab when docking
-        grt::BaseListRef args(_grtobj.get_grt());
+        grt::BaseListRef args(true);
         args.ginsert(_owner->grtobj());
         args.ginsert(_grtobj);
         try
         {
           // run the visual explain plugin, so it will fill the result panel
-          _grtobj.get_grt()->call_module_function("SQLIDEQueryAnalysis", "visualExplain", args);
+          grt::GRT::get()->call_module_function("SQLIDEQueryAnalysis", "visualExplain", args);
         }
         catch (std::exception &exc)
         {
@@ -496,17 +496,16 @@ void SqlEditorResult::show_export_recordset()
 
 void SqlEditorResult::show_import_recordset()
 {
-  bec::GRTManager *grtm = _owner->owner()->grt_manager();
   try
   {
     RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR(Recordset, _rset, rs)
     {
-      grt::BaseListRef args(grtm->get_grt());
+      grt::BaseListRef args(true);
 
       if (result_grtobj().is_valid())
       {
         args.ginsert(result_grtobj());
-        grt::Module *module = grtm->get_grt()->get_module("SQLIDEUtils");
+        grt::Module *module = grt::GRT::get()->get_module("SQLIDEUtils");
         if (module)
           module->call_function("importRecordsetDataFromFile", args);
       }

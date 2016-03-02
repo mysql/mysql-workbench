@@ -321,7 +321,7 @@ namespace grt {
    * 
    * To allocate a new object from C++ code:
    * @code
-   *   db_TableRef table(grt);
+   *   db_TableRef table;
    * @endcode
    *
    * To access members and methods:
@@ -333,31 +333,28 @@ namespace grt {
    *
    * @ingroup GRT
    */ 
+  
+
+  typedef enum { Initialized = true } CreateMode;
   template<class Class>
     class Ref : public ValueRef
   {
   public:
     typedef Class RefType;
-    
     Ref()
     {
     }
 
-    Ref(Class *obj)
-      : ValueRef(obj)
-    {
-    }
-
-    /** Constructor for creating and initializing a new object. 
-     */
-    explicit Ref(GRT *grt)
-      : ValueRef(new Class(grt))
+    explicit Ref(CreateMode mode) : ValueRef(new Class)
     {
       content().init();
     }
 
-    Ref(const Ref<Class> &ref)
-      : ValueRef(ref)
+    Ref(Class *obj) : ValueRef(obj)
+    {
+    }
+
+    Ref(const Ref<Class> &ref) : ValueRef(ref)
     {
 #if defined(ENABLE_DEBUG) || defined(_DEBUG)
 #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 2) // this causes errors in mac, with gcc 4.2
@@ -432,9 +429,7 @@ namespace grt {
 
     bool has_method(const std::string &method) const { return content().has_method(method); }
 //    Class *operator*() const { return static_cast<Class*>(_value); }
-    
-    GRT *get_grt() const { return content().get_grt(); }
-    
+
   public:
     Class &content() const { return *static_cast<Class*>(_value); }
   };
@@ -1097,9 +1092,9 @@ namespace grt {
     enum {
       npos= internal::List::npos
     };
-    
-    BaseListRef() {}
 
+    BaseListRef() {}
+    
     BaseListRef(const BaseListRef &list)
       : ValueRef(list)
     {
@@ -1110,13 +1105,13 @@ namespace grt {
     {
     }
 
-    BaseListRef(GRT *grt, bool allow_null= true)
-      : ValueRef(new internal::List(grt, allow_null))
+    BaseListRef(bool allow_null)
+      : ValueRef(new internal::List(allow_null))
     {
     }
 
-    BaseListRef(GRT *grt, Type type, const std::string &class_name= "", internal::Object *owner= 0, bool allow_null= true)
-       : ValueRef(owner ? new internal::OwnedList(grt, type, class_name, owner, allow_null) : new internal::List(grt, type, class_name, allow_null))
+    BaseListRef(Type type, const std::string &class_name= "", internal::Object *owner= 0, bool allow_null= true)
+       : ValueRef(owner ? new internal::OwnedList(type, class_name, owner, allow_null) : new internal::List(type, class_name, allow_null))
     {
     }
 
@@ -1218,8 +1213,6 @@ namespace grt {
       content().insert_unchecked(value, index);
     }
 
-    GRT *get_grt() const { return content().get_grt(); }
-
   public:
     inline internal::List &content() const { return *static_cast<internal::List*>(_value); }
 
@@ -1254,16 +1247,15 @@ namespace grt {
     typedef TypedListConstReverseIterator<O> const_reverse_iterator;
     typedef Ref<O> value_type;
 
-    
     ListRef() {}
 
-    ListRef(GRT *grt, bool allow_null= true)
-      : BaseListRef(grt, ObjectType, O::static_class_name(), 0, allow_null)
+    ListRef(bool allow_null)
+      : BaseListRef(ObjectType, O::static_class_name(), 0, allow_null)
     {
     }
 
-    ListRef(GRT *grt, internal::Object *owner, bool allow_null= true)
-      : BaseListRef(grt, ObjectType, O::static_class_name(), owner, allow_null)
+    ListRef(internal::Object *owner, bool allow_null = true)
+      : BaseListRef(ObjectType, O::static_class_name(), owner, allow_null)
     {
     }
      
@@ -1392,8 +1384,8 @@ namespace grt {
     {
     }
 
-    ListRef(GRT *grt, internal::Object *owner= 0, bool allow_null= true)
-      : BaseListRef(grt, IntegerType, "", owner, allow_null)
+    ListRef(CreateMode mode, internal::Object *owner= 0, bool allow_null= true)
+      : BaseListRef(IntegerType, "", owner, allow_null)
     {
     }
 
@@ -1473,12 +1465,13 @@ namespace grt {
   class MYSQLGRT_PUBLIC ListRef<internal::Double> : public BaseListRef
   {
   public:
+
     ListRef()
     {
     }
 
-    ListRef(GRT *grt, internal::Object *owner= 0, bool allow_null= true)
-      : BaseListRef(grt, DoubleType, "", owner, allow_null)
+    ListRef(CreateMode mode, internal::Object *owner= 0, bool allow_null= true)
+      : BaseListRef(DoubleType, "", owner, allow_null)
     {
     }
     
@@ -1560,13 +1553,13 @@ namespace grt {
   public:
     typedef TypedListConstIterator<internal::String> const_iterator;
     typedef TypedListConstReverseIterator<internal::String> const_reverse_iterator;
-    
+
     ListRef()
     {
     }
 
-    ListRef(GRT *grt, internal::Object *owner= 0, bool allow_null= true)
-      : BaseListRef(grt, StringType, "", owner, allow_null)
+    ListRef(CreateMode mode, internal::Object *owner = nullptr, bool allow_null = true)
+      : BaseListRef(StringType, "", owner, allow_null)
     {
     }
 
@@ -1673,19 +1666,19 @@ namespace grt {
   {
   public:
     typedef internal::Dict RefType;
-
     typedef internal::Dict::const_iterator const_iterator;
 
-  public:
-    DictRef() {}
-
-    DictRef(GRT *grt, bool allow_null= true)
-      : ValueRef(new internal::Dict(grt, allow_null))
+    DictRef()
     {
     }
 
-    DictRef(GRT *grt, Type type, const std::string &cclass="", bool allow_null= true)
-      : ValueRef(new internal::Dict(grt, type, cclass, allow_null))
+    DictRef(bool allow_null)
+      : ValueRef(new internal::Dict(allow_null))
+    {
+    }
+
+    DictRef(Type type, const std::string& cclass = "", bool allow_null = true)
+      : ValueRef(new internal::Dict(type, cclass, allow_null))
     {
     }
 
@@ -1694,13 +1687,13 @@ namespace grt {
     {
     }
 
-    DictRef(GRT *grt, internal::Object *owner, bool allow_null= true)
-      : ValueRef(new internal::OwnedDict(grt, AnyType, "", owner, allow_null))
+    DictRef(internal::Object *owner, bool allow_null = true)
+      : ValueRef(new internal::OwnedDict(AnyType, "", owner, allow_null))
     {
     }
 
-    DictRef(GRT *grt, Type type, const std::string &cclass, internal::Object *owner, bool allow_null= true)
-      : ValueRef(new internal::OwnedDict(grt, type, cclass, owner, allow_null))
+    DictRef(Type type, const std::string &cclass, internal::Object *owner, bool allow_null= true)
+      : ValueRef(new internal::OwnedDict(type, cclass, owner, allow_null))
     {
     }
 
@@ -1832,11 +1825,6 @@ namespace grt {
       content().set(k, DoubleRef(value));
     }
 
-    inline GRT *get_grt() const
-    {
-      return content().get_grt();
-    }
-    
     inline internal::Dict &content() const { return *static_cast<internal::Dict*>(_value); }
 
   protected:
@@ -1866,8 +1854,8 @@ namespace grt {
     {
     }
 
-    ListRef(GRT *grt, internal::Object *owner= 0, bool allow_null= true)
-      : BaseListRef(grt, DictType, "", owner, allow_null)
+    ListRef(CreateMode mode, internal::Object *owner= 0, bool allow_null= true)
+      : BaseListRef(DictType, "", owner, allow_null)
     {
     }
 
@@ -2056,7 +2044,7 @@ namespace grt {
       }
     };
 
-    typedef ObjectRef (*Allocator)(GRT *grt);
+    typedef ObjectRef (*Allocator)();
 
     typedef ClassMember Member;
     typedef ClassMethod Method;
@@ -2095,7 +2083,6 @@ namespace grt {
 
   public:
     const std::string &name() const { return _name; }
-    GRT *get_grt() const { return _grt; }
     MetaClass *parent() const { return _parent; }
     
     unsigned int crc32() const { return _crc32; }
@@ -2249,8 +2236,8 @@ namespace grt {
     // for use by GRT only
     ~MetaClass();
 
-    static MetaClass* create_base_class(GRT *grt);
-    static MetaClass* from_xml(GRT *grt, const std::string &source, xmlNodePtr node);
+    static MetaClass* create_base_class();
+    static MetaClass* from_xml(const std::string &source, xmlNodePtr node);
     bool placeholder() const { return _placeholder; }
     bool validate();
     bool is_bound() const;
@@ -2275,11 +2262,9 @@ namespace grt {
     friend class Serializer;
     friend class Unserializer;
 
-    MetaClass(GRT *grt);
+    MetaClass();
     void load_xml(xmlNodePtr node);
     void load_attribute_list(xmlNodePtr node, const std::string &member= "");
-    
-    GRT *_grt;
     
     std::string _name;
     MetaClass* _parent;
@@ -2324,7 +2309,7 @@ namespace grt {
   class MYSQLGRT_PUBLIC ModuleLoader
   {
   public:
-    ModuleLoader(GRT *grt) : _grt(grt) {}
+    ModuleLoader() {}
     virtual ~ModuleLoader() {}
 
     virtual std::string get_loader_name()= 0;
@@ -2337,11 +2322,6 @@ namespace grt {
     virtual bool run_script_file(const std::string &path)= 0;
     virtual bool run_script(const std::string &script)= 0;
     virtual bool check_file_extension(const std::string &path)= 0;
-    
-    GRT *get_grt() const { return _grt; }
-    
-  protected:
-    GRT *_grt; //TODO: make it private, get_grt is as fast as direct access
   };
 
 
@@ -2393,7 +2373,6 @@ namespace grt {
     const Interfaces &get_interfaces() const { return _interfaces; }
 
     ModuleLoader *get_loader() const { return _loader; }
-    GRT *get_grt() const { return _loader->get_grt(); }
 
     void validate() const;
 
@@ -2462,8 +2441,7 @@ namespace grt {
     virtual ~ModuleWrapper() {}
 
     Module *get_module() const { return _module; }
-    GRT *get_grt() const { return _module->get_grt(); }
-    
+
   protected:
     Module *_module;
   };
@@ -2554,8 +2532,13 @@ namespace grt {
    */ 
   class MYSQLGRT_PUBLIC GRT//
   {
-  public:
+  private:
     GRT();
+    GRT(const GRT&) = delete;
+    GRT& operator=(GRT&) = delete;
+
+  public:
+    static std::shared_ptr<GRT> get();
     ~GRT();
     /** 
      *
@@ -2818,9 +2801,8 @@ namespace grt {
   protected:
     struct AutoLock
     {
-      const GRT *_grt;
-      AutoLock(const GRT *grt) : _grt(grt) { _grt->lock(); }
-      ~AutoLock() { _grt->unlock(); }
+      AutoLock() { grt::GRT::get()->lock(); }
+      ~AutoLock() { grt::GRT::get()->unlock(); }
     };
     void lock() const;
     void unlock() const;
@@ -2889,11 +2871,11 @@ namespace grt {
 
     // we allow stuff like List<db_Table> = List<db_mysql_Table>
     // 
-    MetaClass *content_class= candidate_list->get_grt()->get_metaclass(O::static_class_name());
+    MetaClass *content_class = grt::GRT::get()->get_metaclass(O::static_class_name());
     if (!content_class && !O::static_class_name().empty())
       throw std::runtime_error(std::string("metaclass without runtime info ").append(O::static_class_name()));
 
-    MetaClass *candidate_class= candidate_list->get_grt()->get_metaclass(candidate_list->content_class_name());
+    MetaClass *candidate_class = grt::GRT::get()->get_metaclass(candidate_list->content_class_name());
     if (!candidate_class && !candidate_list->content_class_name().empty())
       throw std::runtime_error(std::string("metaclass without runtime info ").append(candidate_list->content_class_name()));
 

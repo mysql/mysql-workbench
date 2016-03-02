@@ -98,7 +98,7 @@ public:
   typedef boost::shared_ptr<MySQLEditor> Ref;
   typedef boost::weak_ptr<MySQLEditor> Ptr;
 
-  static Ref create(grt::GRT *grt, parser::ParserContext::Ref syntax_check_context,
+  static Ref create(parser::ParserContext::Ref syntax_check_context,
                     parser::ParserContext::Ref autocopmlete_context,
                     db_query_QueryBufferRef grtobj = db_query_QueryBufferRef());
 
@@ -172,7 +172,7 @@ public:
   void register_file_drop_for(mforms::DropDelegate *target);
 
 protected:
-  MySQLEditor(grt::GRT *grt, parser::ParserContext::Ref syntax_check_context,
+  MySQLEditor(parser::ParserContext::Ref syntax_check_context,
               parser::ParserContext::Ref autocopmlete_context);
 
 private:

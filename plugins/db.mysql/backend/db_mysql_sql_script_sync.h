@@ -1,5 +1,5 @@
-#ifndef _DB_MYSQL_SQL_SCRIPT_SYNC_H_
-#define _DB_MYSQL_SQL_SCRIPT_SYNC_H_
+
+#pragma once
 
 #include "db_mysql_public_interface.h"
 #include "grt/grt_manager.h"
@@ -59,7 +59,7 @@ class WBPLUGINDBMYSQLBE_PUBLIC_FUNC DbMySQLScriptSync : public DbMySQLValidation
   boost::shared_ptr<DiffChange> _alter_change;
 
   void sync_finished(grt::ValueRef res);
-  grt::ValueRef sync_task(grt::GRT*, grt::StringRef);
+  grt::ValueRef sync_task(grt::StringRef);
   db_mysql_CatalogRef get_cat_from_file_or_tree(std::string filename, 
                                              std::string& error_msg);
 
@@ -81,10 +81,10 @@ public:
   std::string get_sql_for_object(GrtNamedObjectRef obj);
 
   void set_options(grt::DictRef options) { _options = options; }
-  grt::DictRef get_options() const { return _options.is_valid() ? _options : grt::DictRef(_manager->get_grt()); }
+  grt::DictRef get_options() const { return _options.is_valid() ? _options : grt::DictRef(true); }
 
   void set_db_options(grt::DictRef db_options) {_db_options = db_options;};
-  grt::DictRef get_db_options() const { return _db_options.is_valid() ? _db_options : grt::DictRef(_manager->get_grt());}
+  grt::DictRef get_db_options() const { return _db_options.is_valid() ? _db_options : grt::DictRef(true);}
 
   grt::StringRef generate_alter(db_mysql_CatalogRef org_cat, db_mysql_CatalogRef org_cat_copy, db_mysql_CatalogRef mod_cat_copy);
 
@@ -99,6 +99,3 @@ public:
 
   void restore_overriden_names();
 };
-
-
-#endif // _DB_MYSQL_SQL_SCRIPT_SYNC_H_

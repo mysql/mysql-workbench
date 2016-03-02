@@ -80,8 +80,7 @@ xmlDocPtr internal::Serializer::create_xmldoc_for_value(
 }
 
 
-internal::Serializer::Serializer(GRT *grt)
-  : _grt(grt)
+internal::Serializer::Serializer()
 {
 }
 

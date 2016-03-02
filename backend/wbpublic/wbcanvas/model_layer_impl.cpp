@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -327,7 +327,7 @@ void model_Layer::ImplData::layer_bounds_changed(const Rect &rect)
 //    grt::MetaClass *mc= self()->get_metaclass();
     if (moved && !resized)
     {
-//      grt::AutoUndo undo(self()->get_grt());
+//      grt::AutoUndo undo;
       
       self()->_left = grt::DoubleRef(bounds.left());
       self()->_top = grt::DoubleRef(bounds.top());
@@ -336,7 +336,7 @@ void model_Layer::ImplData::layer_bounds_changed(const Rect &rect)
     }
     else if (resized && !moved)
     {
-//      grt::AutoUndo undo(self()->get_grt());
+//      grt::AutoUndo undo;
 
       self()->_width = grt::DoubleRef(bounds.width());
       self()->_height = grt::DoubleRef(bounds.height());
@@ -345,7 +345,7 @@ void model_Layer::ImplData::layer_bounds_changed(const Rect &rect)
     }
     else if (moved && resized)
     {
-//      grt::AutoUndo undo(self()->get_grt());
+//      grt::AutoUndo undo;
 
       self()->_left = grt::DoubleRef(bounds.left());
       self()->_top = grt::DoubleRef(bounds.top());
@@ -367,7 +367,7 @@ void model_Layer::ImplData::interactive_layer_resized(const Rect &rect)
   if (model && rect != bounds)
     skip_undo= false;
   
-  grt::AutoUndo undo(self()->get_grt(), skip_undo);
+  grt::AutoUndo undo(skip_undo);
   
   self()->left(grt::DoubleRef(bounds.left()));
   self()->top(grt::DoubleRef(bounds.top()));

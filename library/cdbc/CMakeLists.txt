@@ -5,6 +5,7 @@ include_directories(${PROJECT_SOURCE_DIR}/backend
     ${PROJECT_SOURCE_DIR}/ext
     ${GRT_INCLUDE_DIRS}
     ${MYSQLCPPCONN_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
 )
 
 #TODO: Set other compiler flags

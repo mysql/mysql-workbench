@@ -29,7 +29,7 @@
 
 
 
-static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt);
+static grt::ListRef<app_Plugin> get_mysql_plugins_info();
 
 
 class MySQLDbDiffReportingModuleImpl : public grt::ModuleImplBase, public PluginInterfaceImpl
@@ -58,19 +58,19 @@ public:
   
   virtual grt::ListRef<app_Plugin> getPluginInfo()
   {
-    return get_mysql_plugins_info(get_grt());
+    return get_mysql_plugins_info();
   }
 };
 
 
 
-static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
+static grt::ListRef<app_Plugin> get_mysql_plugins_info()
 {
-  grt::ListRef<app_Plugin> plugins(grt);
-  app_PluginRef diff_sql_generator(grt);
+  grt::ListRef<app_Plugin> plugins(true);
+  app_PluginRef diff_sql_generator(grt::Initialized);
 
   {
-    app_PluginRef plugin(grt);
+    app_PluginRef plugin(grt::Initialized);
 
     plugin->pluginType("standalone");
     plugin->moduleName("MySQLDbDiffReportingModule");
@@ -79,11 +79,11 @@ static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
     plugin->caption("Generate Catalog Diff Report");
     plugin->groups().insert("database/Database");
 
-    grt::StringListRef document_types(grt);
+    grt::StringListRef document_types(grt::Initialized);
     document_types.insert("workbench.Document");
     //plugin->documentStructNames(document_types);
 
-    app_PluginObjectInputRef pdef(grt);
+    app_PluginObjectInputRef pdef(grt::Initialized);
     pdef->objectStructName("db.Catalog");
     plugin->inputValues().insert(pdef);
 

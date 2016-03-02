@@ -36,7 +36,7 @@ static PyObject *call_object_method(const grt::ObjectRef &object, const grt::Cla
     return NULL;
   
   Py_ssize_t a= 0;
-  grt::BaseListRef grtargs(object.get_grt());
+  grt::BaseListRef grtargs(true);
 
   if ((int)method->arg_types.size() != PyTuple_Size(args))
   {
@@ -244,13 +244,13 @@ static int object_init(PyGRTObjectObject *self, PyObject *args, PyObject *kwds)
     }
     else
     {
-      if (!class_name || !ctx->get_grt()->get_metaclass(class_name))
+      if (!class_name || !grt::GRT::get()->get_metaclass(class_name))
       {
         PyErr_SetString(PyExc_NameError, "invalid GRT class name");
         return -1;
       }
 
-      self->object= new grt::ObjectRef(ctx->get_grt()->create_object<internal::Object>(class_name));
+      self->object= new grt::ObjectRef(grt::GRT::get()->create_object<internal::Object>(class_name));
       self->hash= -1;
     }
     return 0;

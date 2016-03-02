@@ -7,6 +7,7 @@ include_directories(.
     ${GTK3_INCLUDE_DIRS}
     ${SIGC++_INCLUDE_DIRS}
     ${PCRE_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
 )
 
 add_executable(genobj

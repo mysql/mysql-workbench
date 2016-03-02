@@ -16,6 +16,7 @@ include_directories(.
     ${GTK3_INCLUDE_DIRS}
     ${CAIRO_INCLUDE_DIRS}
     ${MYSQLCPPCONN_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
 )
 
 add_library(db.search.wbp MODULE

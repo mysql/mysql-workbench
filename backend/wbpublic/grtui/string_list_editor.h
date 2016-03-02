@@ -32,8 +32,6 @@ namespace grtui {
 class WBPUBLICBACKEND_PUBLIC_FUNC StringListEditor : public mforms::Form 
 {
 protected:
-  grt::GRT *_grt;
-  
   mforms::Box _vbox;
   mforms::TreeView _tree;
   mforms::Box _button_box;
@@ -47,7 +45,7 @@ protected:
   virtual void del();
   
 public:
-  StringListEditor(grt::GRT *grt, mforms::Form *owner= 0, const bool reorderable= false);
+  StringListEditor(mforms::Form *owner= 0, const bool reorderable= false);
   
   bool run();
 

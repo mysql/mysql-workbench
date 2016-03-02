@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 #include <python_context.h>
 
 GRT_STRUCTS_UI_PUBLIC grt::AutoPyObject pyobject_from_grt(grt_PyObjectRef object);
-GRT_STRUCTS_UI_PUBLIC grt_PyObjectRef pyobject_to_grt(grt::GRT *grt, grt::AutoPyObject object);
-GRT_STRUCTS_UI_PUBLIC grt_PyObjectRef pyobject_to_grt(grt::GRT *grt, PyObject *object);
+GRT_STRUCTS_UI_PUBLIC grt_PyObjectRef pyobject_to_grt(grt::AutoPyObject object);
+GRT_STRUCTS_UI_PUBLIC grt_PyObjectRef pyobject_to_grt(PyObject *object);
 
 void pyobject_initialize();

@@ -42,7 +42,7 @@ static void dummy()
 
 TEST_FUNCTION(1)
 {
-  populate_grt(wbt.grt, wbt);
+  populate_grt(wbt);
 
   sql::DriverManager *dbc_drv_man = sql::DriverManager::getDriverManager();
   sql::Authentication::Ref auth;

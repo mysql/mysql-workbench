@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,12 +52,12 @@ protected:
     DbConnection *dbc = source ? _source_dbconn : _target_dbconn;
     db_mgmt_ConnectionRef conn = dbc->get_connection();
 
-    execute_grt_task(boost::bind(&FetchSchemaNamesSourceTargetProgressPage::do_connect, this, _1, dbc), false);
+    execute_grt_task(boost::bind(&FetchSchemaNamesSourceTargetProgressPage::do_connect, this, dbc), false);
 
     return true;
   }
 
-  grt::ValueRef do_connect(grt::GRT *grt, DbConnection *dbc)
+  grt::ValueRef do_connect(DbConnection *dbc)
   {
     if (!dbc)
       throw std::logic_error("must call set_db_connection() 1st");
@@ -69,7 +69,7 @@ protected:
 
   bool perform_fetch(bool source)
   {
-    execute_grt_task(boost::bind(&FetchSchemaNamesSourceTargetProgressPage::do_fetch, this, _1, source),
+    execute_grt_task(boost::bind(&FetchSchemaNamesSourceTargetProgressPage::do_fetch, this, source),
                      false);
     return true;
   }
@@ -80,14 +80,14 @@ protected:
   }
 
 
-  grt::ValueRef do_fetch(grt::GRT *grt, bool source)
+  grt::ValueRef do_fetch(bool source)
   {
     std::vector<std::string> schema_names= source ? _load_source_schemata() : _load_target_schemata();
 
     // order the schema names alphabetically
     std::sort(schema_names.begin(), schema_names.end(), std::ptr_fun(&FetchSchemaNamesSourceTargetProgressPage::collate));
 
-    grt::StringListRef list(grt);
+    grt::StringListRef list(grt::Initialized);
     for (std::vector<std::string>::const_iterator iter= schema_names.begin();
          iter != schema_names.end(); ++iter)
       list.insert(*iter);
@@ -107,7 +107,7 @@ protected:
     std::string path = values().get_string(source ? "left_source_file" : "right_source_file");
     db_CatalogRef catalog = parse_catalog_from_file(path);
 
-    grt::StringListRef schemata(catalog.get_grt());
+    grt::StringListRef schemata(grt::Initialized);
     for (size_t i = 0; i < catalog->schemata().count(); i++)
       schemata.insert(catalog->schemata()[i]->name());
 
@@ -131,7 +131,7 @@ protected:
   {
     workbench_physical_ModelRef pm= workbench_physical_ModelRef::cast_from(_model_catalog->owner());
 
-    db_mysql_CatalogRef cat(_model_catalog.get_grt());
+    db_mysql_CatalogRef cat(grt::Initialized);
     cat->version(pm->rdbms()->version());
     grt::replace_contents(cat->simpleDatatypes(), pm->rdbms()->simpleDatatypes());
 
@@ -160,7 +160,7 @@ protected:
   {
     {
       db_CatalogRef catalog(_model_catalog);
-      grt::StringListRef names(wizard()->grtm()->get_grt());
+      grt::StringListRef names(grt::Initialized);
       for (size_t i = 0; i < catalog->schemata().count(); i++)
         names.insert(catalog->schemata()[i]->name());
       values().set(source ? "schemata" : "targetSchemata", names);

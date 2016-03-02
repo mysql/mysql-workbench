@@ -28,6 +28,7 @@ include_directories(.
     ${CAIRO_INCLUDE_DIRS}
     ${MYSQLCPPCONN_INCLUDE_DIRS}
     ${ANTLR3C_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
 )
 
 add_library(db.mysql.wbp MODULE

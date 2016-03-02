@@ -28,16 +28,13 @@ namespace bec {
 class WBPUBLICBACKEND_PUBLIC_FUNC Reporter
 {
 protected:
-  grt::GRT *Reporter_grt;
   // need to be mutable to work in const methods
   mutable int _error_count;   
   mutable int _warning_count;
   mutable bool _tracking;
 
 public:
-  Reporter(grt::GRT *grt);
-
-  grt::GRT *grt() { return Reporter_grt; }
+  Reporter();
 
   inline bool is_tracking() const;
   inline void start_tracking() const;

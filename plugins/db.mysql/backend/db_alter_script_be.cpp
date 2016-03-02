@@ -48,7 +48,7 @@ using namespace grt;
 DEFAULT_LOG_DOMAIN("alter_script_be");
 
 DbMySQLDiffAlter::DbMySQLDiffAlter(bec::GRTManager *m) 
-  : manager_(m),_alter_list(manager_->get_grt()), _alter_object_list(manager_->get_grt())
+  : manager_(m), _alter_list(grt::Initialized), _alter_object_list(grt::Initialized)
 {}
 
 DbMySQLDiffAlter::~DbMySQLDiffAlter()
@@ -57,7 +57,7 @@ DbMySQLDiffAlter::~DbMySQLDiffAlter()
 std::string DbMySQLDiffAlter::generate_alter()
 {
   SQLGeneratorInterfaceImpl *diffsql_module= 
-    dynamic_cast<SQLGeneratorInterfaceImpl*>(manager_->get_grt()->get_module("DbMySQL"));
+    dynamic_cast<SQLGeneratorInterfaceImpl*>(grt::GRT::get()->get_module("DbMySQL"));
 
   if (diffsql_module == NULL)
     throw std::runtime_error("Could not find module DbMySQL");
@@ -111,19 +111,19 @@ std::string DbMySQLDiffAlter::generate_alter()
     }
   }
 
-  grt::DictRef options(manager_->get_grt());
-  options.set("SchemaFilterList", convert_string_vector_to_grt_list(manager_->get_grt(), schemata));
-  options.set("TableFilterList", convert_string_vector_to_grt_list(manager_->get_grt(), tables));
-  options.set("ViewFilterList", convert_string_vector_to_grt_list(manager_->get_grt(), views));
-  options.set("RoutineFilterList", convert_string_vector_to_grt_list(manager_->get_grt(), routines));
-  options.set("TriggerFilterList", convert_string_vector_to_grt_list(manager_->get_grt(), triggers));
+  grt::DictRef options(true);
+  options.set("SchemaFilterList", convert_string_vector_to_grt_list(schemata));
+  options.set("TableFilterList", convert_string_vector_to_grt_list(tables));
+  options.set("ViewFilterList", convert_string_vector_to_grt_list(views));
+  options.set("RoutineFilterList", convert_string_vector_to_grt_list(routines));
+  options.set("TriggerFilterList", convert_string_vector_to_grt_list(triggers));
   options.set("KeepOrder", grt::IntegerRef(1));
   options.set("DBSettings", get_db_options());
   // enable this once the ALTER script generation code is able to properly generate USE statements
   //options.set("UseShortNames", grt::IntegerRef(1));
 
-  grt::StringListRef alter_list(manager_->get_grt());
-  grt::ListRef<GrtNamedObject> alter_object_list(manager_->get_grt());
+  grt::StringListRef alter_list(grt::Initialized);
+  grt::ListRef<GrtNamedObject> alter_object_list(true);
   options.set("OutputContainer", alter_list);
   options.set("OutputObjectContainer", alter_object_list);
 
@@ -145,7 +145,7 @@ boost::shared_ptr<DiffTreeBE> DbMySQLDiffAlter::init_diff_tree(const std::vector
                                                                const grt::ValueRef &left, const grt::ValueRef &right,
                                                                grt::StringListRef SchemaSkipList, grt::DictRef options)
 {
-  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(manager_->get_grt()->get("/wb/rdbmsMgmt/rdbms/0"));
+  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->get("/wb/rdbmsMgmt/rdbms/0"));
   std::string default_engine_name;
   grt::ValueRef default_engine = manager_->get_app_option("db.mysql.Table:tableEngine");
   if(grt::StringRef::can_wrap(default_engine))
@@ -173,7 +173,7 @@ boost::shared_ptr<DiffTreeBE> DbMySQLDiffAlter::init_diff_tree(const std::vector
   update_all_old_names(right_cat_copy, true, right_catalog_map);
 
   {
-    SqlFacade* parser = SqlFacade::instance_for_rdbms_name(_left_cat_copy.get_grt(), "Mysql");
+    SqlFacade* parser = SqlFacade::instance_for_rdbms_name("Mysql");
     // if the target schema does not have the same name as the original, make sure that the
     // target objects have references to the old schema name fixed in all code objects (triggers, views, SPs, functions)
     for (unsigned int i= 0; i < _left_cat_copy->schemata().count(); i++)
@@ -235,15 +235,15 @@ boost::shared_ptr<DiffTreeBE> DbMySQLDiffAlter::init_diff_tree(const std::vector
 
   grt::DbObjectMatchAlterOmf omf;
   omf.dontdiff_mask = 3;
-  grt::NormalizedComparer comparer(manager_->get_grt(),get_db_options());
+  grt::NormalizedComparer comparer(get_db_options());
   comparer.init_omf(&omf);
   _alter_change= diff_make(right_cat_copy, _left_cat_copy, &omf);
 
-  SQLGeneratorInterfaceImpl *diffsql_module= dynamic_cast<SQLGeneratorInterfaceImpl*>(manager_->get_grt()->get_module("DbMySQL"));
+  SQLGeneratorInterfaceImpl *diffsql_module= dynamic_cast<SQLGeneratorInterfaceImpl*>(grt::GRT::get()->get_module("DbMySQL"));
   if (diffsql_module == NULL)
     throw DbMySQLDiffAlterException("error loading module DbMySQL");
 
-  grt::DictRef genoptions(manager_->get_grt());
+  grt::DictRef genoptions(true);
   genoptions.set("DBSettings", get_db_options());
   genoptions.set("OutputContainer", _alter_list);
   genoptions.set("OutputObjectContainer", _alter_object_list);

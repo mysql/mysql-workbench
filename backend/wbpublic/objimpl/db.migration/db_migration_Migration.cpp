@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -70,7 +70,7 @@ grt::Ref<GrtLogObject> db_migration_Migration::addMigrationLogEntry(ssize_t type
   GrtLogObjectRef log = findMigrationLogEntry(sourceObject, targetObject);
   if (!log.is_valid())
   {
-    log = GrtLogObjectRef(get_grt());
+    log = GrtLogObjectRef(grt::Initialized);
     log->owner(this);
     log->logObject(sourceObject);
     log->refObject(targetObject);
@@ -78,8 +78,7 @@ grt::Ref<GrtLogObject> db_migration_Migration::addMigrationLogEntry(ssize_t type
     migrationLog().insert(log);
   }
 
-  GrtLogEntryRef entry = GrtLogEntryRef(get_grt());
-  
+  GrtLogEntryRef entry(grt::Initialized);
   entry->owner(log);
   entry->entryType(type);
   entry->name(grt::StringRef(message));

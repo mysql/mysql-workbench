@@ -20,10 +20,7 @@
 #include "sql_semantic_check.h"
 
 
-Sql_semantic_check::Sql_semantic_check(grt::GRT *grt)
-:
-Sql_parser_base(grt),
-Sql_syntax_check(grt)
+Sql_semantic_check::Sql_semantic_check()
 {
 }
 

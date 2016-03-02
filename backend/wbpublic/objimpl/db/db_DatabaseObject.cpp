@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -58,7 +58,7 @@ void db_DatabaseObject::name(const grt::StringRef &value)
 {
   grt::StringRef oname(_name);
 
-  grt::AutoUndo undo(get_grt(), !is_global());
+  grt::AutoUndo undo(!is_global());
 
   _name= value;
   if (_owner.is_valid()) // don't update if the object is still being loaded

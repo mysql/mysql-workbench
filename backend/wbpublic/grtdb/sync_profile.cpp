@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,7 +26,7 @@
 
 db_mgmt_SyncProfileRef bec::create_sync_profile(workbench_physical_ModelRef model, const std::string &profile_name, const std::string &target_schema)
 {
-  db_mgmt_SyncProfileRef profile(model.get_grt());
+  db_mgmt_SyncProfileRef profile(grt::Initialized);
   profile->targetHostIdentifier(profile_name);
   profile->targetSchemaName(grt::StringRef(target_schema));
 

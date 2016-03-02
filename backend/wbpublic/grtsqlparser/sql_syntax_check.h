@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,14 +17,10 @@
  * 02110-1301  USA
  */
 
-
-#ifndef _SQL_SYNTAX_CHECK_H_
-#define _SQL_SYNTAX_CHECK_H_
-
+#pragma once
 
 #include "wbpublic_public_interface.h"
 #include "sql_parser_base.h"
-
 
 /**
  * Defines interface to check syntax of provided SQL statement/script.
@@ -36,7 +32,7 @@ class WBPUBLICBACKEND_PUBLIC_FUNC Sql_syntax_check : virtual public Sql_parser_b
 public:
   typedef boost::shared_ptr<Sql_syntax_check> Ref;
 protected:
-  Sql_syntax_check(grt::GRT *grt) : Sql_parser_base(grt), _object_type(ot_none) {}
+  Sql_syntax_check() : _object_type(ot_none) {}
 
 public:
   enum Statement_type { sql_unknown, sql_empty, sql_create, sql_alter, sql_drop, sql_insert, sql_delete, sql_update, sql_select, sql_describe, sql_show, sql_use, sql_load, sql_set };
@@ -54,6 +50,3 @@ public:
   virtual int check_view(const char* sql)= 0;
   virtual int check_routine(const char* sql)= 0;
 };
-
-
-#endif // _SQL_SYNTAX_CHECK_H_

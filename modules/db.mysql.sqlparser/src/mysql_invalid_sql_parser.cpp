@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,7 +42,7 @@ Mysql_invalid_sql_parser::Null_state_keeper::~Null_state_keeper()
   _sql_parser->_active_obj_list= grt::ListRef<db_DatabaseDdlObject>();
   _sql_parser->_active_obj_list2= grt::ListRef<db_DatabaseDdlObject>();
   _sql_parser->_active_obj= db_DatabaseDdlObjectRef();
-  _sql_parser->_active_grand_obj= db_DatabaseObjectRef();
+  _sql_parser->_active_grand_obj = db_DatabaseObjectRef();
   boost::function<bool ()> f = boost::lambda::constant(false);
   _sql_parser->_create_stub_object = boost::bind(f);
   _sql_parser->_remove_stub_object = boost::bind(f);
@@ -50,12 +50,7 @@ Mysql_invalid_sql_parser::Null_state_keeper::~Null_state_keeper()
 #define NULL_STATE_KEEPER Null_state_keeper _nsk(this);
 
 
-Mysql_invalid_sql_parser::Mysql_invalid_sql_parser(grt::GRT *grt)
-:
-Sql_parser_base(grt),
-Mysql_sql_parser(grt),
-Invalid_sql_parser(grt),
-_leading_use_found(false)
+Mysql_invalid_sql_parser::Mysql_invalid_sql_parser() : _leading_use_found(false)
 {
   NULL_STATE_KEEPER
 }
@@ -116,10 +111,10 @@ int Mysql_invalid_sql_parser::parse_triggers(db_TableRef table, const std::strin
 /**
  * Helper to determine if an explicit DELIMITER statement in the sql string is needed.
  */
-bool needs_delimiter_for_trigger(grt::GRT *grt, const std::string &sql)
+bool needs_delimiter_for_trigger(const std::string &sql)
 {
   std::vector<std::pair<size_t, size_t> > statement_ranges;
-  SqlFacade::Ref facade = SqlFacade::instance_for_rdbms_name(grt, "Mysql");
+  SqlFacade::Ref facade = SqlFacade::instance_for_rdbms_name("Mysql");
   facade->splitSqlScript(sql.c_str(), sql.size(), ";", statement_ranges);
 
   // If the splitter only returns one statement (USE statements don't count) then we don't
@@ -166,10 +161,10 @@ int Mysql_invalid_sql_parser::parse_trigger(db_TriggerRef trigger, const std::st
     // statements before the actual CREATE. Simply adding another DELIMITER statement won't work as 
     // it might break following USE statements. So we scan the input sql to see if we 
     // can find a DELIMITER statement. And only if there's none we add one and continue parsing.
-    if (!needs_delimiter_for_trigger(trigger->get_grt(), sql))
+    if (!needs_delimiter_for_trigger(sql))
       return parse_invalid_sql_script(sql);
 
-    SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name(trigger->get_grt(), "Mysql");
+    SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name("Mysql");
     Sql_specifics::Ref sql_specifics = sql_facade ->sqlSpecifics();
     std::string non_std_sql_delimiter = sql_specifics->non_std_sql_delimiter();
 
@@ -254,7 +249,7 @@ int Mysql_invalid_sql_parser::parse_invalid_sql_script(const std::string &sql)
       _active_schema= db_mysql_SchemaRef::cast_from(_active_grand_obj->owner()->owner());
   else
       _active_schema= db_mysql_SchemaRef::cast_from(_active_grand_obj->owner());
-  _catalog= db_mysql_CatalogRef(_grt);
+  _catalog = db_mysql_CatalogRef(grt::Initialized);
   _catalog->schemata().insert(_active_schema);
 
   // take simple datatypes & other major attributes from given catalog
@@ -267,7 +262,7 @@ int Mysql_invalid_sql_parser::parse_invalid_sql_script(const std::string &sql)
     replace_contents(_catalog->simpleDatatypes(), given_catalog->simpleDatatypes());
   }
 
-  _created_objects= grt::ListRef<GrtObject>(_grt);
+  _created_objects= grt::ListRef<GrtObject>(true);
   _reuse_existing_objects= true;
   _stick_to_active_schema= true;
   _set_old_names= false;
@@ -366,7 +361,7 @@ void Mysql_invalid_sql_parser::create_stub_routine(db_DatabaseDdlObjectRef &obj)
 
 void Mysql_invalid_sql_parser::create_stub_group_routine(db_DatabaseDdlObjectRef &obj)
 {
-  db_mysql_RoutineRef routine(_grt);
+  db_mysql_RoutineRef routine(grt::Initialized);
   routine->owner(_active_schema);
   setup_stub_obj(routine, true);
   routine->routineType("<stub>");
@@ -400,7 +395,7 @@ void Mysql_invalid_sql_parser::create_stub_trigger(db_DatabaseDdlObjectRef &obj)
   }
   else
   {
-    db_mysql_TriggerRef trigger(_grt);
+    db_mysql_TriggerRef trigger(grt::Initialized);
     trigger->owner(_active_grand_obj);
     setup_stub_obj(trigger, true);
 

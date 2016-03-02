@@ -46,8 +46,8 @@ class  workbench_OverviewPanel : public GrtObject
 {
   typedef GrtObject super;
 public:
-  workbench_OverviewPanel(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  workbench_OverviewPanel(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _caption(""),
      _expanded(0),
      _expandedHeight(0),
@@ -58,11 +58,10 @@ public:
      _itemDisplayMode(0),
      _itemInfoFunction(""),
      _nodeId(""),
-    _selectedItems(grt, this, false),
+    _selectedItems(grt::Initialized, this, false),
      _tabActivationFunction(""),
      _tabCountFunction(""),
      _tabInfoFunction("")
-
   {
   }
 
@@ -361,16 +360,16 @@ protected:
   grt::StringRef _tabCountFunction;
   grt::StringRef _tabInfoFunction;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new workbench_OverviewPanel(grt));
+    return grt::ObjectRef(new workbench_OverviewPanel());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_OverviewPanel::create);
     {
@@ -451,10 +450,10 @@ class  workbench_Document : public app_Document
 {
   typedef app_Document super;
 public:
-  workbench_Document(grt::GRT *grt, grt::MetaClass *meta=0)
-  : app_Document(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-    _overviewPanels(grt, this, false),
-    _physicalModels(grt, this, false)
+  workbench_Document(grt::MetaClass *meta=0)
+  : app_Document(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
+    _overviewPanels(this, false),
+    _physicalModels(this, false)
 
   {
   }
@@ -546,16 +545,16 @@ protected:
   grt::ListRef<workbench_OverviewPanel> _overviewPanels;// owned
   grt::ListRef<workbench_physical_Model> _physicalModels;// owned
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new workbench_Document(grt));
+    return grt::ObjectRef(new workbench_Document());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_Document::create);
     {
@@ -587,10 +586,10 @@ class  workbench_Workbench : public app_Application
 {
   typedef app_Application super;
 public:
-  workbench_Workbench(grt::GRT *grt, grt::MetaClass *meta=0)
-  : app_Application(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  workbench_Workbench(grt::MetaClass *meta=0)
+  : app_Application(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _docPath(""),
-    _sqlEditors(grt, this, false)
+    _sqlEditors(this, false)
 
   {
   }
@@ -702,16 +701,16 @@ protected:
   db_mgmt_ManagementRef _rdbmsMgmt;// owned
   grt::ListRef<db_query_Editor> _sqlEditors;// owned
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new workbench_Workbench(grt));
+    return grt::ObjectRef(new workbench_Workbench());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_Workbench::create);
     {

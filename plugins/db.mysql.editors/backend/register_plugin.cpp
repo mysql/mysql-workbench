@@ -35,7 +35,7 @@
   obj->moduleName(linux_so)
 #endif
 
-static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt);
+static grt::ListRef<app_Plugin> get_mysql_plugins_info();
 
 class MySQLEditorsModuleImpl : public grt::ModuleImplBase, public PluginInterfaceImpl
 {
@@ -50,7 +50,7 @@ public:
 
   virtual grt::ListRef<app_Plugin> getPluginInfo()
   {
-    return get_mysql_plugins_info(get_grt());
+    return get_mysql_plugins_info();
   }
 };
 
@@ -58,7 +58,7 @@ public:
 
 static void set_object_argument(app_PluginRef &plugin, const std::string &struct_name)
 {
-  app_PluginObjectInputRef pdef(plugin.get_grt());
+  app_PluginObjectInputRef pdef(grt::Initialized);
 
   pdef->objectStructName(struct_name);
   pdef->owner(plugin);
@@ -68,18 +68,18 @@ static void set_object_argument(app_PluginRef &plugin, const std::string &struct
 
 
 
-static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
+static grt::ListRef<app_Plugin> get_mysql_plugins_info()
 {
-  grt::ListRef<app_Plugin> editors(grt);
+  grt::ListRef<app_Plugin> editors(grt::Initialized);
 
-  app_PluginRef schema_editor(grt);
-  app_PluginRef table_editor(grt);
-  app_PluginRef view_editor(grt);
-  app_PluginRef routine_group_editor(grt);
-  app_PluginRef routine_editor(grt);
-  app_PluginRef user_editor(grt);
-  app_PluginRef role_editor(grt);
-  app_PluginRef relationship_editor(grt);
+  app_PluginRef schema_editor(grt::Initialized);
+  app_PluginRef table_editor(grt::Initialized);
+  app_PluginRef view_editor(grt::Initialized);
+  app_PluginRef routine_group_editor(grt::Initialized);
+  app_PluginRef routine_editor(grt::Initialized);
+  app_PluginRef user_editor(grt::Initialized);
+  app_PluginRef role_editor(grt::Initialized);
+  app_PluginRef relationship_editor(grt::Initialized);
   
   FRONTEND_LIBNAME(schema_editor,
                    ".\\db.mysql.editors.wbp.fe.dll",

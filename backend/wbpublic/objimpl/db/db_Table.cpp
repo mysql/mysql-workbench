@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -84,7 +84,7 @@ db_Table::~db_Table()
 
 grt::StringRef db_Table::inserts()
 {
-  bec::GRTManager *grtm= bec::GRTManager::get_instance_for(get_grt());
+  bec::GRTManager *grtm= bec::GRTManager::get_instance_for();
   
   Recordset_table_inserts_storage::Ref input_storage= Recordset_table_inserts_storage::create(grtm);
   input_storage->table(db_TableRef(this));
@@ -107,7 +107,7 @@ grt::StringRef db_Table::inserts()
 
 db_query_EditableResultsetRef db_Table::createInsertsEditor()
 {
-  bec::GRTManager *grtm= bec::GRTManager::get_instance_for(get_grt());
+  bec::GRTManager *grtm= bec::GRTManager::get_instance_for();
   
   Recordset_table_inserts_storage::Ref input_storage= Recordset_table_inserts_storage::create(grtm);
   input_storage->table(db_TableRef(this));
@@ -129,7 +129,7 @@ void db_Table::addColumn(const db_ColumnRef &column)
 
 db_ForeignKeyRef db_Table::createForeignKey(const std::string &name)
 {
-  db_ForeignKeyRef fk(get_grt()->create_object<db_ForeignKey>(_foreignKeys->content_type_spec().object_class));
+  db_ForeignKeyRef fk(grt::GRT::get()->create_object<db_ForeignKey>(_foreignKeys->content_type_spec().object_class));
 
   fk->owner(this);
   fk->name(name);
@@ -155,7 +155,7 @@ void db_Table::addPrimaryKeyColumn(const db_ColumnRef &column)
   if (isPrimaryKeyColumn(column))
     return;
 
-  grt::AutoUndo undo(get_grt(), !is_global());
+  grt::AutoUndo undo(!is_global());
 
   if (_columns.get_index(column) == grt::BaseListRef::npos)
     addColumn(column);
@@ -172,7 +172,7 @@ void db_Table::addPrimaryKeyColumn(const db_ColumnRef &column)
     //strname= table.get_member_struct_name("primaryKey");
     //strname= table.get_member_content_struct_name("indices");
     strname= meta->get_member_type("indices").content.object_class;
-    pkindex= get_grt()->create_object<db_Index>(strname);
+    pkindex= grt::GRT::get()->create_object<db_Index>(strname);
     pkindex->name("PRIMARY");
     pkindex->oldName("PRIMARY");
     pkindex->owner(this);
@@ -187,7 +187,7 @@ void db_Table::addPrimaryKeyColumn(const db_ColumnRef &column)
 
   strname= pkindex.get_metaclass()->get_member_type("columns").content.object_class;
 
-  db_IndexColumnRef pkicolumn(get_grt()->create_object<db_IndexColumn>(strname));
+  db_IndexColumnRef pkicolumn(grt::GRT::get()->create_object<db_IndexColumn>(strname));
   
   pkicolumn->owner(pkindex);
   
@@ -266,7 +266,7 @@ grt::IntegerRef db_Table::isPrimaryKeyColumn(const db_ColumnRef &column)
 
 void db_Table::removeColumn(const db_ColumnRef &column)
 {
-  grt::AutoUndo undo(get_grt(), !is_global());
+  grt::AutoUndo undo(!is_global());
 
   // make sure it's no longer a PK
   removePrimaryKeyColumn(column);
@@ -346,7 +346,7 @@ void db_Table::removeForeignKey(const db_ForeignKeyRef &fk, ssize_t removeColumn
   // if delete_columns is 1, it will also delete the columns that form the FK, except
   // columns used by other FKs
 
-  grt::AutoUndo undo(get_grt(), !is_global());
+  grt::AutoUndo undo(!is_global());
 
   foreignKeys().remove_value(fk);
   if (fk->index().is_valid() && !fk->index()->isPrimary())
@@ -403,7 +403,7 @@ void db_Table::removePrimaryKeyColumn(const db_ColumnRef &column)
   if (!isPrimaryKeyColumn(column))
     return;
 
-  grt::AutoUndo undo(get_grt(), !is_global());
+  grt::AutoUndo undo(!is_global());
   
   pkindex= primaryKey();
   

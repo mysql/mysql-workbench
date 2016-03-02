@@ -73,11 +73,11 @@ engine_id_by_name(const char* name);
 
 
 std::string MYSQLMODULEDBMYSQL_PUBLIC_FUNC 
-engine_name_by_id(EngineId id, grt::GRT* grt);
+engine_name_by_id(EngineId id);
 
 
 db_mysql_StorageEngineRef MYSQLMODULEDBMYSQL_PUBLIC_FUNC 
-engine_by_name(const char* name, grt::GRT* grt);
+engine_by_name(const char* name);
 
 
 db_mysql_StorageEngineRef MYSQLMODULEDBMYSQL_PUBLIC_FUNC 
@@ -85,7 +85,7 @@ engine_by_id(EngineId id);
 
 
 grt::ListRef<db_mysql_StorageEngine> MYSQLMODULEDBMYSQL_PUBLIC_FUNC
-get_known_engines(grt::GRT*);
+get_known_engines();
 
 
 bool MYSQLMODULEDBMYSQL_PUBLIC_FUNC

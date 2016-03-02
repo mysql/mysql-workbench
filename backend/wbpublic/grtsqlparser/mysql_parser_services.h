@@ -89,7 +89,7 @@ class WBPUBLICBACKEND_PUBLIC_FUNC MySQLParserServices
 public:
   typedef MySQLParserServices *Ref; // We only have a singleton, so define Ref only to keep the pattern.
 
-  static MySQLParserServices::Ref get(grt::GRT *grt);
+  static MySQLParserServices::Ref get();
   static ParserContext::Ref createParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version,
     bool case_sensitive);
 
@@ -117,7 +117,7 @@ public:
   virtual size_t determineStatementRanges(const char *sql, size_t length, const std::string &initial_delimiter,
     std::vector<std::pair<size_t, size_t> > &ranges, const std::string &line_break = "\n") = 0;
 
-  virtual grt::DictRef parseStatement(ParserContext::Ref context, grt::GRT *grt, const std::string &sql) = 0;
+  virtual grt::DictRef parseStatement(ParserContext::Ref context, const std::string &sql) = 0;
 
   // Query manipulation services.
   virtual std::string replaceTokenSequenceWithText(parser::ParserContext::Ref context,
