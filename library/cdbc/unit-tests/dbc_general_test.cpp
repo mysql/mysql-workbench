@@ -34,7 +34,7 @@ public:
 
     ensure_equals("load structs", grt::GRT::get()->get_metaclasses().size(), (size_t)INT_METACLASS_COUNT);
   
-    db_mgmt_ConnectionRef connectionProperties;
+    db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
     setup_env(connectionProperties);
 
@@ -48,7 +48,7 @@ public:
   }
   TEST_DATA_DESTRUCTOR(module_dbc_general_test)
   {
-    db_mgmt_ConnectionRef connectionProperties;
+    db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
     setup_env(connectionProperties);
 
