@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,7 +42,7 @@ static void notify_visible_member_change(const std::string &member, const grt::V
 
 void db_Column::init()
 {
-  //No need in disconnet management since signal it part of object
+  // No need to disconnect management since the signal is part of the object.
   _changed_signal.connect(boost::bind(notify_visible_member_change, _1, _2, this));
 }
 
@@ -126,6 +126,11 @@ grt::StringRef db_Column::formattedType() const
         {
           caption.append(strfmt("(%i)", (int)this->length()));
         }
+      }
+      else if (*simpleType->dateTimePrecision() != 0)
+      {
+        // timestamp, time, datetime, year
+        caption.append(strfmt("(%i)", (int)this->length()));
       }
       else if (this->datatypeExplicitParams().is_valid() && *this->datatypeExplicitParams() != "")
         caption.append(*this->datatypeExplicitParams());
