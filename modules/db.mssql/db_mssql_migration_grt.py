@@ -208,13 +208,14 @@ class MSSQLMigration(GenericMigration):
             target_column.flags.extend(source_column.userType.flags)
 
         if source_type:
+            target_version = Version.fromgrt(targetCatalog.version)
             # Decide which mysql datatype corresponds to the column datatype:
             source_datatype = source_type.name.upper()
             grt.log_debug3("Migration", "Migrating source column '%s' - type: %s, length: %s\n" % (source_column.name, source_datatype,source_column.length))
             # string data types:
             target_datatype = ''
             #NCHAR and NVARCHAR in Microsoft SQL Server is always encoded as UCS-2 (UTF-16)
-            if source_datatype in ['NCHAR', 'NVARCHAR']:
+            if source_datatype in ['NCHAR', 'NVARCHAR'] and target_version.is_supported_mysql_version_at_least(5,5,0):
                 target_column.characterSetName = 'utf8mb4'
             if source_datatype in ['VARCHAR', 'NVARCHAR']:
                 if source_column.length == -1:  # VARCHAR(MAX) or NVARCHAR(MAX)
@@ -283,7 +284,6 @@ class MSSQLMigration(GenericMigration):
             elif source_datatype in ['DATETIME', 'SMALLDATETIME', 'DATETIME2', 'DATETIMEOFFSET']:
                 target_datatype = 'DATETIME'
                 target_column.precision = -1
-                target_version = Version.fromgrt(targetCatalog.version)
                 if target_version.is_supported_mysql_version_at_least(5,6,4) and source_datatype != 'SMALLDATETIME':
                     target_column.precision = source_column.precision if source_column.precision < 7 else 6
             # timestamp datatypes
