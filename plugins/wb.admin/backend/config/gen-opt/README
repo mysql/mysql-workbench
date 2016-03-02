@@ -36,11 +36,11 @@ Option Category Editor GUI:
 To recategorize options (variable_groups and status_groups.py contain the list of categories that
 each option belong to), you can use the GUI in option_category_editor.py 
 You may have to customize it for your use, but the general usage is:
-- copy source raw_*.py and *_groups.py files to /tmp
-- open the scripting shell in WB and load option_category_editor.py
-- execute it
-- work on file
-- save
-- copy back *_groups.py file to this directory
-- (run ./generate.sh to generate a new opts.py and wb_admin_variable_list.py file using the new categorization)
+- Open the scripting shell in WB and load option_category_editor.py
+- Execute it
+- Set the directory to <workench>/plugins/wb.admin/backend/config/gen-opt
+- Work on the editor and save the settings
+- Run ./generate.sh to regenerate destination files
+- Copy opts.py and wb_admin_variable_list.py to <workench>/plugins/wb.admin/backend
+
 

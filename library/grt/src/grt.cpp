@@ -22,7 +22,7 @@
 #include "base/log.h"
 #include "base/file_utilities.h"
 
-#include "grtpp.h"
+#include "grt.h"
 #include "grtpp_util.h"
 #include "grtpp_shell.h"
 #include "grtpp_module_cpp.h"

@@ -17,7 +17,7 @@
  * 02110-1301  USA
  */
 
-#include "grtpp.h"
+#include "grt.h"
 #include "grtpp_util.h"
 #include <glib.h>
 #include <algorithm>

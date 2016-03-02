@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,15 +17,14 @@
  * 02110-1301  USA
  */
 
-#ifndef _DB_MYSQL_SQL_EXPORT_DIFF_TREE_H_
-#define _DB_MYSQL_SQL_EXPORT_DIFF_TREE_H_
+#pragma once
 
 #include <stack>
 
 #include "grt/tree_model.h"
 #include "grts/structs.db.h"
 #include "grts/structs.db.mysql.h"
-#include "grtpp.h"
+#include "grt.h"
 
 #include "grtdb/catalog_templates.h"
 
@@ -59,17 +58,6 @@ std::string get_catalog_map_key(Ref<T> t)
 
 template<>
 std::string get_catalog_map_key<db_mysql_Catalog>(db_mysql_CatalogRef cat);
-
-//std::string get_catalog_map_key(db_mysql_CatalogRef cat);
-//std::string get_catalog_map_key(db_mysql_SchemaRef schema);
-//std::string get_catalog_map_key(db_mysql_TableRef table);
-//std::string get_catalog_map_key(db_ColumnRef column);
-//std::string get_catalog_map_key(db_mysql_IndexRef index);
-//std::string get_catalog_map_key(db_mysql_IndexColumnRef index_col);
-//std::string get_catalog_map_key(db_mysql_ForeignKeyRef fk);
-//std::string get_catalog_map_key(db_mysql_ViewRef view);
-//std::string get_catalog_map_key(db_mysql_RoutineRef routine);
-//std::string get_catalog_map_key(db_mysql_TriggerRef trigger);
 
 class DiffNodePart
 {
@@ -216,7 +204,6 @@ private:
 
   std::vector<std::string> _schemata;
 
-  //static void build_catalog_map(db_mysql_CatalogRef catalog, CatalogMap& map);
   bool update_tree_with_changes(const boost::shared_ptr<DiffChange> diffchange);
   void apply_change(GrtObjectRef obj, boost::shared_ptr<DiffChange> change);
 
@@ -245,5 +232,3 @@ private:
   void get_object_list_for_script(std::vector<grt::ValueRef>& vec) const;
   void get_object_list_to_apply_to_model(std::vector<grt::ValueRef>& vec, std::vector<grt::ValueRef>& removal_vec) const;
 };
-
-#endif  // _DB_MYSQL_SQL_EXPORT_DIFF_TREE_H_

@@ -23,7 +23,7 @@
 #include "grts/structs.h"
 #include "grts/structs.db.mysql.h"
 #include "base/log.h"
-#include "grtpp.h"
+#include "grt.h"
 #include "db_helpers.h"
 
 #include "diff/diffchange.h"

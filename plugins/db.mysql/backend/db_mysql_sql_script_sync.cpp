@@ -28,7 +28,7 @@
 #include "grts/structs.workbench.h"
 #include "grts/structs.workbench.physical.h"
 
-#include "grtpp.h"
+#include "grt.h"
 #include "db_mysql_sql_export.h"
 #include "base/string_utilities.h"
 

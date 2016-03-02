@@ -17,7 +17,7 @@
  * 02110-1301  USA
  */
 
-#include "grtpp.h"
+#include "grt.h"
 #include "wb_model.h"
 #include "grts/structs.workbench.physical.h"
 #include "grt/grt_manager.h"

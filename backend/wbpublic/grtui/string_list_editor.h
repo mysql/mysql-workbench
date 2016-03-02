@@ -20,7 +20,7 @@
 #pragma once
 
 #include "wbpublic_public_interface.h"
-#include "grtpp.h"
+#include "grt.h"
 
 #include "mforms/form.h"
 #include "mforms/box.h"

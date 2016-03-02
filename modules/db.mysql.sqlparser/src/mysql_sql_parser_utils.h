@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,13 +17,10 @@
  * 02110-1301  USA
  */
 
-
-#ifndef _MYSQL_SQL_PARSER_UTILS_H_
-#define _MYSQL_SQL_PARSER_UTILS_H_
-
+#pragma once
 
 #include "mysql_sql_parser_fe.h"
-#include "grtpp.h"
+#include "grt.h"
 #include "grts/structs.db.mysql.h"
 #include "grtdb/charset_utils.h"
 
@@ -236,6 +233,3 @@ std::string shape_index_kind(const std::string& index_kind);
     SET_SI_PROLOG(item, __VA_ARGS__) \
     attr(item_->restore_sql_text(_sql_statement)); \
   }
-
-
-#endif // _MYSQL_SQL_PARSER_UTILS_H_

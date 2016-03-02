@@ -28,7 +28,7 @@
 #include "mforms/panel.h"
 #include "mforms/radiobutton.h"
 
-#include "grtpp.h"
+#include "grt.h"
 
 #include "grts/structs.h"
 #include "grts/structs.app.h"

@@ -23,7 +23,7 @@
 #include "grts/structs.db.mgmt.h"
 #include "grts/structs.db.mysql.h"
 
-#include "grtpp.h"
+#include "grt.h"
 #include "grt/grt_reporter.h"
 
 using namespace grt;

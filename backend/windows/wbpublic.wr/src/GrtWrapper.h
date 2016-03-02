@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "grtpp.h"
+#include "grt.h"
 #include "grt/grt_value_inspector.h"
 #include "grt/grt_manager.h"
 #include "grt/grt_shell.h"

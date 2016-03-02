@@ -19,7 +19,7 @@
 
 #include "stub/stub_mforms.h"
 #include "sqlide/wb_live_schema_tree.h"
-#include "grtpp.h"
+#include "grt.h"
 #include "test.h"
 
 using namespace grt;

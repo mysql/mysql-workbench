@@ -17,7 +17,7 @@
  * 02110-1301  USA
  */
 
-#include "grtpp.h"
+#include "grt.h"
 
 #include "wb_printing.h"
 #include "mdc_canvas_view_printing.h"

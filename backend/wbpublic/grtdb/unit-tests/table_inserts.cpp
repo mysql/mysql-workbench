@@ -17,7 +17,7 @@
  * 02110-1301  USA
  */
 
-#include "grtpp.h"
+#include "grt.h"
 
 #include "sqlide/recordset_table_inserts_storage.h"
 #include "grtdb/editor_table.h"
