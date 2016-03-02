@@ -26,6 +26,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/backend/wbpublic
     ${PROJECT_SOURCE_DIR}/generated
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
+    ${Boost_INCLUDE_DIRS}
 )
 
 add_library(wbpublic

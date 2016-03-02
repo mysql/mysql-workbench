@@ -3,6 +3,7 @@ include_directories(.
     ${GTK3_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/backend
     ${PROJECT_SOURCE_DIR}/library/base
+    ${Boost_INCLUDE_DIRS}
 )
 
 #if (UNIX)

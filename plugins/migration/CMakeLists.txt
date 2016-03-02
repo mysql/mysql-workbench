@@ -3,6 +3,7 @@ include_directories(
     ${PYTHON_INCLUDE_DIRS} 
     ${MySQL_INCLUDE_DIRS} 
     ${PROJECT_SOURCE_DIR}/backend/wbprivate
+    ${Boost_INCLUDE_DIRS}
 )
 
 add_definitions(${ODBC_DEFINITIONS})

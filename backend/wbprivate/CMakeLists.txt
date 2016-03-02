@@ -27,6 +27,7 @@ include_directories(.
     ${VSQLITE_INCLUDE_DIRS}
     ${TINYXML_INCLUDE_DIRS}
     ${GDAL_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
 )
 
 add_library(wbprivate

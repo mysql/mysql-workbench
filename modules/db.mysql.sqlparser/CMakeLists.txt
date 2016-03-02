@@ -21,6 +21,7 @@ include_directories(.
     ${PCRE_INCLUDE_DIR}
     ${PROJECT_SOURCE_DIR}
     ${MySQL_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
 )
 
 if (MYSQL_DEFINITIONS)
