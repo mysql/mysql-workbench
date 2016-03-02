@@ -137,6 +137,7 @@ find_package(MySQLCppConn REQUIRED)
 find_package(VSqlite REQUIRED)
 find_package(TinyXML REQUIRED)
 find_package(GDAL REQUIRED)
+find_package(Boost REQUIRED)
 
 if (MYSQLCPPCONN_VERSION_1_1_4)
   add_definitions(-DMYSQLCPPCONN_VERSION_1_1_4)

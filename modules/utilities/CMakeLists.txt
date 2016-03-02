@@ -7,6 +7,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/grt/src 
     ${PROJECT_SOURCE_DIR}/library/base
     ${PROJECT_SOURCE_DIR}/library/mysql.canvas/src
+    ${Boost_INCLUDE_DIRS}
 )
 
 add_library(utilities.grt

@@ -15,6 +15,7 @@ include_directories(.
     ${GRT_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
     ${MYSQLCPPCONN_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
 )
 
 add_library(sqlide
