@@ -292,121 +292,21 @@ protected:
 
 struct AutoUndo
 {
+public:
   UndoGroup *group;
-
-  AutoUndo(bool noop= false)
-  {
-    _valid = true;
-    if (!noop)
-      group= grt::GRT::get()->begin_undoable_action();
-    else
-      group= 0;
-  }
-
-  AutoUndo(UndoGroup *use_group, bool noop = false) : group(0)
-  {
-    if (noop)
-    {
-      delete use_group;
-      use_group= 0;
-    }
-    else
-    {
-      // check if the group can be merged into the previous one and if so, just drop it
-      if (!grt::GRT::get()->get_undo_manager()->get_undo_stack().empty())
-      {
-        UndoGroup *last_group= dynamic_cast<UndoGroup*>(grt::GRT::get()->get_undo_manager()->get_undo_stack().back());
-        
-        if (last_group && use_group->matches_group(last_group))
-        {
-          delete use_group;
-          use_group= 0;
-        }
-      }
-      
-      if (use_group)
-        group= grt::GRT::get()->begin_undoable_action(use_group);
-    }
-  }
-
-
-  ~AutoUndo() 
-  {
-    if (_valid && group)
-    {
-      const char *tmp;
-      // check if the currently open undo group is not empty, in that case we warn about it
-      // cancel() should be explicitly called if the cancellation is intentional
-      if ((tmp= getenv("DEBUG_UNDO")))
-      {
-        UndoGroup *group= dynamic_cast<UndoGroup*>(grt::GRT::get()->get_undo_manager()->get_latest_undo_action());
-
-        if (group && group->is_open())
-        {
-          g_warning("automatically cancelling unclosed undo group");
-          if (strcmp(tmp, "throw") == 0)
-            throw std::logic_error("unclosed undo group");
-        }
-      }
-
-      cancel();
-    }
-  }
-
-  void set_description_for_last_action(const std::string &s)
-  {
-    if (_valid && group)
-    {
-      UndoAction *action= grt::GRT::get()->get_undo_manager()->get_latest_undo_action();
-
-      action->set_description(s);
-    }
-  }
-
-  void cancel()
-  {
-    if (_valid)
-    {
-      if (group)
-        grt::GRT::get()->cancel_undoable_action();
-      _valid = false;
-    }
-    else
-      throw std::logic_error("invalid");
-  }
-
-  void end_or_cancel_if_empty(const std::string &descr)
-  {
-    if (_valid)
-    {
-      if (!group)
-        return;
-      if (!group->empty())
-        grt::GRT::get()->end_undoable_action(descr);
-      else
-        grt::GRT::get()->cancel_undoable_action();
-      _valid = false;
-    }
-    else
-       throw std::logic_error("invalid");
-
-  }
   
-  void end(const std::string &descr)
-  {
-    if (_valid)
-    {
-      if (group)
-        grt::GRT::get()->end_undoable_action(descr);
-      _valid = false;
-    }
-    else
-      throw std::logic_error("invalid");
+  AutoUndo(bool noop= false);
+  AutoUndo(UndoGroup *use_group, bool noop = false);
 
-  }
-  private:
-    bool _valid;
+  ~AutoUndo();
 
+  void set_description_for_last_action(const std::string &s);
+  void cancel();
+  void end_or_cancel_if_empty(const std::string &descr);
+  void end(const std::string &descr);
+
+private:
+  bool _valid;
 };
 
 };

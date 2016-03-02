@@ -17,14 +17,14 @@
  * 02110-1301  USA
  */
 
+#include "base/log.h"
+
 #include "grtpp_undo_manager.h"
 #include "base/string_utilities.h"
 
 #include <iostream>
 #include <time.h>
 #include <boost/bind.hpp>
-
-#include "base/log.h"
 
 #ifdef _WIN32
 #undef max
@@ -1121,4 +1121,131 @@ void UndoManager::dump_redo_stack()
   for (std::deque<UndoAction*>::iterator iter= _redo_stack.begin(); iter != _redo_stack.end(); ++iter)
     (*iter)->dump(std::cout);
 }
+
+//----------------- AutoUndo -------------------------------------------------------------------------------------------
+
+AutoUndo::AutoUndo(bool noop)
+{
+  _valid = true;
+  if (!noop)
+    group = grt::GRT::get()->begin_undoable_action();
+  else
+    group = nullptr;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+AutoUndo::AutoUndo(UndoGroup *use_group, bool noop)
+  : group(nullptr)
+{
+  _valid = true;
+  if (noop)
+  {
+    delete use_group;
+    use_group = nullptr;
+  }
+  else
+  {
+    // check if the group can be merged into the previous one and if so, just drop it
+    if (!grt::GRT::get()->get_undo_manager()->get_undo_stack().empty())
+    {
+      UndoGroup *last_group = dynamic_cast<UndoGroup*>(grt::GRT::get()->get_undo_manager()->get_undo_stack().back());
+
+      if (last_group && use_group->matches_group(last_group))
+      {
+        delete use_group;
+        use_group = nullptr;
+      }
+    }
+
+    if (use_group != nullptr)
+      group = grt::GRT::get()->begin_undoable_action(use_group);
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+AutoUndo::~AutoUndo()
+{
+  if (_valid && group != nullptr)
+  {
+    const char *tmp;
+    // check if the currently open undo group is not empty, in that case we warn about it
+    // cancel() should be explicitly called if the cancellation is intentional
+    if ((tmp= getenv("DEBUG_UNDO")))
+    {
+      UndoGroup *group= dynamic_cast<UndoGroup*>(grt::GRT::get()->get_undo_manager()->get_latest_undo_action());
+
+      if (group && group->is_open())
+      {
+        log_warning("automatically cancelling unclosed undo group");
+        if (strcmp(tmp, "throw") == 0)
+          throw std::logic_error("unclosed undo group");
+      }
+    }
+
+    cancel();
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void AutoUndo::set_description_for_last_action(const std::string &s)
+{
+  if (_valid && group != nullptr)
+  {
+    UndoAction *action= grt::GRT::get()->get_undo_manager()->get_latest_undo_action();
+
+    action->set_description(s);
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void AutoUndo::cancel()
+{
+  if (_valid)
+  {
+    if (group != nullptr)
+      grt::GRT::get()->cancel_undoable_action();
+    _valid = false;
+  }
+  else
+    throw std::logic_error("Trying to cancel an already finished undo action");
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void AutoUndo::end_or_cancel_if_empty(const std::string &descr)
+{
+  if (_valid)
+  {
+    if (group == nullptr)
+      return;
+
+    if (!group->empty())
+      grt::GRT::get()->end_undoable_action(descr);
+    else
+      grt::GRT::get()->cancel_undoable_action();
+    _valid = false;
+  }
+  else
+    throw std::logic_error("Trying to end an already finished undo action");
+
+}
+
+void AutoUndo::end(const std::string &descr)
+{
+  if (_valid)
+  {
+    if (group != nullptr)
+      grt::GRT::get()->end_undoable_action(descr);
+    _valid = false;
+  }
+  else
+    throw std::logic_error("Trying to end an already finished undo action");
+
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
