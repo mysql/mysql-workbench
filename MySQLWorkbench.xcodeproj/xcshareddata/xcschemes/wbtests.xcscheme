@@ -64,7 +64,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "only module_db_mysql_schema_reporting"
+            argument = "only wb_context_test"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument

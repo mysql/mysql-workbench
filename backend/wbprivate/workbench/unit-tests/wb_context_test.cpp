@@ -57,6 +57,10 @@ TEST_MODULE(wb_context_test, "high-level tests for Workbench");
 
 TEST_FUNCTION(5)
 {
+  if (base::file_exists("temp"))
+    base::remove_recursive("temp");
+  base::create_directory("temp", 0700);
+
   // Test creating a new document.
   // General note: many other tests depend on this to work, so there should really be a test
   // order where more complicated tests are based on simpler ones.
@@ -103,58 +107,51 @@ TEST_FUNCTION(10)
 
 /**
  * Test saving + loading of a document and check the canvas state.
- * This test uses by intention local testers to ensure a clean state when loading the test file.
  */
 TEST_FUNCTION(15)
 { 
-  WBTester *local_tester1 = new WBTester(false, Size(2970, 2100));
+  tester.wb->new_document();
+  tester.add_view();
+
+  ensure_equals("view count after adding", tester.wb->get_document()->physicalModels()[0]->diagrams().count(), 1U);
   
-  local_tester1->wb->new_document();
-  local_tester1->add_view();
-  
-  ensure_equals("view count after adding", local_tester1->wb->get_document()->physicalModels()[0]->diagrams().count(), 1U);
-  
-  local_tester1->add_table_figure("sometable", 100, 100);
-  local_tester1->flush_until(2); // TODO: this is not deterministic and hence should be replaced in tests.
+  tester.add_table_figure("sometable", 100, 100);
+  tester.flush_until(2); // TODO: this is not deterministic and hence should be replaced in tests.
 
   ensure_equals("original phys model count",
-                local_tester1->wb->get_document()->physicalModels().count(),1U);
+                tester.wb->get_document()->physicalModels().count(),1U);
   ensure_equals("original view count",
-                local_tester1->wb->get_document()->physicalModels()[0]->diagrams().count(),1U);
+                tester.wb->get_document()->physicalModels()[0]->diagrams().count(),1U);
   ensure_equals("original element count",
-                local_tester1->wb->get_document()->physicalModels()[0]->diagrams()[0]->figures().count(),1U);
+                tester.wb->get_document()->physicalModels()[0]->diagrams()[0]->figures().count(),1U);
   ensure_equals("original element count in rootLayer",
-                local_tester1->wb->get_document()->physicalModels()[0]->diagrams()[0]->rootLayer()->figures().count(),1U);
-  local_tester1->sync_view();
-  ensure("Saving document failed", local_tester1->wb->save_as("data/test1_doc.mwb"));
+                tester.wb->get_document()->physicalModels()[0]->diagrams()[0]->rootLayer()->figures().count(),1U);
+  tester.sync_view();
+  ensure("Saving document failed", tester.wb->save_as("temp/test1_doc.mwb"));
 
-  // Second instance.
-  WBTester *local_tester2 = new WBTester(false);
-  ensure("Failed opening document test1_doc", local_tester2->wb->open_document("data/test1_doc.mwb"));
+  ensure("Could not close document", tester.close_document());
+  tester.wb->close_document_finish();
+
+  ensure("Failed opening document test1_doc", tester.wb->open_document("temp/test1_doc.mwb"));
 
   ensure_equals("loaded phys model count",
-                local_tester2->wb->get_document()->physicalModels().count(),1U);
+                tester.wb->get_document()->physicalModels().count(),1U);
   ensure_equals("loaded view count",
-                local_tester2->wb->get_document()->physicalModels()[0]->diagrams().count(),1U);
+                tester.wb->get_document()->physicalModels()[0]->diagrams().count(),1U);
   ensure_equals("loaded element count",
-                local_tester2->wb->get_document()->physicalModels()[0]->diagrams()[0]->figures().count(),1U);
+                tester.wb->get_document()->physicalModels()[0]->diagrams()[0]->figures().count(),1U);
   ensure_equals("loaded element count in rootLayer",
-                local_tester2->wb->get_document()->physicalModels()[0]->diagrams()[0]->rootLayer()->figures().count(),1U);
+                tester.wb->get_document()->physicalModels()[0]->diagrams()[0]->rootLayer()->figures().count(),1U);
 
-  local_tester2->open_all_diagrams();
-  local_tester2->sync_view();
+  tester.open_all_diagrams();
+  tester.sync_view();
 
-  grt_ensure_equals("save/load test", local_tester1->wb->get_document(), local_tester2->wb->get_document(), true);
+  grt_ensure_equals("save/load test", tester.wb->get_document(), tester.wb->get_document(), true);
 
-  ensure("view created", local_tester2->last_view != 0);
+  ensure("view created", tester.last_view != 0);
 
-  ensure("Could not close document", local_tester1->close_document());
-  local_tester1->wb->close_document_finish();
-  delete local_tester1;
-
-  ensure("Could not close document", local_tester2->close_document());
-  local_tester2->wb->close_document_finish();
-  delete local_tester2;
+  ensure("Could not close document", tester.close_document());
+  tester.wb->close_document_finish();
 }
 
 TEST_FUNCTION(20)
@@ -169,11 +166,11 @@ TEST_FUNCTION(20)
 
   ensure_equals("check selection", view->selection().count(), 1U);
 
-  tester.wb->save_as("test4.mwb");
+  tester.wb->save_as("temp/test4.mwb");
   ensure("Could not close document", tester.close_document());
   tester.wb->close_document_finish();
 
-  ensure("Failed opening document", tester.wb->open_document("test4.mwb"));
+  ensure("Failed opening document", tester.wb->open_document("temp/test4.mwb"));
 
   view = tester.get_pmodel()->diagrams()[0];
 
@@ -190,9 +187,6 @@ TEST_FUNCTION(25)
 
   // test dragging the table with fk 1st
   {
-    WBTester tester(false); // TODO: Is it really needed to create local tester instances?
-                            // Creating a tester is quite resource costly.
-
     ensure("Failed opening document", tester.wb->open_document("data/workbench/2tables_1fk.mwb"));
     ensure("Document is not valid", tester.wb->get_document().is_valid());
     ensure_equals("Table count does not fit", tester.get_schema()->tables().count(), 2U);
@@ -229,8 +223,6 @@ TEST_FUNCTION(25)
 
   // test dragging the table with fk last
   {
-    WBTester tester(false);
-
     ensure("Failed opening document", tester.wb->open_document("data/workbench/2tables_1fk.mwb"));
     ensure("load doc", tester.wb->get_document().is_valid());
     ensure_equals("contains tables", tester.get_schema()->tables().count(), 2U);
@@ -262,8 +254,6 @@ TEST_FUNCTION(25)
 
   // test dragging both tables
   {
-    WBTester tester(false);
-
     ensure("Failed opening document", tester.wb->open_document("data/workbench/2tables_1fk.mwb"));
     ensure("load doc", tester.wb->get_document().is_valid());
     ensure_equals("contains tables", tester.get_schema()->tables().count(), 2U);
@@ -288,9 +278,6 @@ TEST_FUNCTION(25)
 
   // test with a recursive relationship
   {
-   WBTester tester(false);
-   populate_grt(tester);
-
     ensure("Failed opening document", tester.wb->open_document("data/workbench/2tables_1fk.mwb"));
     ensure("load doc", tester.wb->get_document().is_valid());
     ensure_equals("contains tables", tester.get_schema()->tables().count(), 2U);
@@ -367,15 +354,6 @@ TEST_FUNCTION(30)
 
 TEST_FUNCTION(35)
 {
-  // check if figure/dbobject deletion works
-  WBFrontendCallbacks callbacks;
-
-  //TODO: Investigate what was the purpose of this and if it continues needed
-  //callbacks.confirm_action= boost::bind(&delegated_confirm_action, &result);
-
-//  WBTester tester(Size(800, 800), callbacks);
-//  WBTester& tester = wb;
-
   tester.wb->new_document();
   tester.add_view();
 
@@ -751,12 +729,12 @@ TEST_FUNCTION(90)
   set_note_content(tester.get_pmodel()->notes().get(0), "hello world");
   std::string filename= tester.get_pmodel()->notes().get(0)->filename();
 
-  tester.wb->save_as("notetest.mwb");
+  tester.wb->save_as("temp/notetest.mwb");
   ensure("Could not close document", tester.close_document());
   tester.wb->close_document_finish();
 
   // check if stored on disk
-  ensure("Failed opening document", tester.wb->open_document("notetest.mwb"));
+  ensure("Failed opening document", tester.wb->open_document("temp/notetest.mwb"));
 
   ensure_equals("note still in model", tester.get_pmodel()->notes().count(), 1U);
   ensure_equals("note filename", *tester.get_pmodel()->notes().get(0)->filename(), filename);
