@@ -5,6 +5,7 @@ include_directories(.
     ${GTK3_INCLUDE_DIRS}
     ${ANTLR3C_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/library/base
+    ${Boost_INCLUDE_DIRS}
 )
 
 add_subdirectory(grammar)

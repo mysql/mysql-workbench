@@ -21,6 +21,7 @@ include_directories(.
     ${GRT_INCLUDE_DIRS}
     ${MYSQLCPPCONN_INCLUDE_DIRS}
     ${VSQLITE_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
 )
 
 add_library(wb.model.snippets.wbp MODULE

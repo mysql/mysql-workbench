@@ -24,6 +24,7 @@ include_directories(.
     ${GRT_INCLUDE_DIRS}
     ${SIGC++_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
+    ${Boost_INCLUDE_DIRS}
 )
 
 add_library(linux_utilities

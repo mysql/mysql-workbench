@@ -7,6 +7,7 @@ include_directories(${LIBXML2_INCLUDE_DIR}
     ${PROJECT_SOURCE_DIR}/library/mysql.parser   
     ${PROJECT_SOURCE_DIR}/backend/wbpublic
     ${PROJECT_SOURCE_DIR}/generated
+    ${Boost_INCLUDE_DIRS}
 )
 
 add_library(db.mysql.parser.grt
