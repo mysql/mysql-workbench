@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -26,8 +26,7 @@ void Wb_plugin::grtm(bec::GRTManager *grtm)
   _grtm= grtm;
   if (_grtm)
   {
-    grt::GRT *grt= _grtm->get_grt();
-    _options= grt::DictRef(grt);
+    _options= grt::DictRef(true);
   }
 }
 
@@ -80,8 +79,8 @@ void Wb_plugin::process_task_fail(const std::exception &error)
 
 void Wb_plugin::process_task_finish(grt::ValueRef res)
 {
-  _grtm->get_grt()->send_info(grt::StringRef::cast_from(res));
-  //_grtm->get_grt()->make_output_visible();
+  grt::GRT::get()->send_info(grt::StringRef::cast_from(res));
+  //grt::GRT::get()->make_output_visible();
   _grtm->perform_idle_tasks();
   if (_task_fail_cb)
     _task_finish_cb();

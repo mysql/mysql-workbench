@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,15 +24,14 @@
 
 BEGIN_TEST_DATA_CLASS(grt_module_test)
 public:
-  GRT grt;
 END_TEST_DATA_CLASS
 
 TEST_MODULE(grt_module_test, "GRT: module functionality");
 
 TEST_FUNCTION(5)
 {
-  grt.load_metaclasses("data/structs.test.xml");
-  grt.end_loading_metaclasses();
+  grt::GRT::get()->load_metaclasses("data/structs.test.xml");
+  grt::GRT::get()->end_loading_metaclasses();
 }
 
 // ml: No tests defined currently, as the few previously defined tests are no longer valid and

@@ -39,8 +39,6 @@ using namespace bec;
 ShellBE::ShellBE(GRTManager *grtm, const GRTDispatcher::Ref dispatcher)
   : _grtm(grtm), _dispatcher(dispatcher)
 {
-  _grt= grtm->get_grt();
-
   _shell= 0;
 
   _save_history_size= 0;
@@ -86,7 +84,7 @@ void ShellBE::set_saves_history(int size)
 
 void ShellBE::run_script_file(const std::string &path)
 {
-  grt::ModuleLoader *loader= _grt->get_module_loader_for_file(path);
+  grt::ModuleLoader *loader= grt::GRT::get()->get_module_loader_for_file(path);
   if (!loader)
     throw std::runtime_error("Unsupported script file "+path);
 
@@ -98,7 +96,7 @@ void ShellBE::run_script_file(const std::string &path)
 
 bool ShellBE::run_script(const std::string &script, const std::string &language)
 {
-  grt::ModuleLoader *loader= _grt->get_module_loader(language);
+  grt::ModuleLoader *loader= grt::GRT::get()->get_module_loader(language);
   if (loader)
     return loader->run_script(script);
   throw std::runtime_error("Language "+language+" is not supported or enabled");
@@ -165,11 +163,11 @@ void ShellBE::shell_finished_cb(ShellCommand result, const std::string &prompt, 
 
 bool ShellBE::setup(const std::string &lang)
 {
-  if (!_grt->init_shell(lang))
+  if (!grt::GRT::get()->init_shell(lang))
     return false;
 
-  _shell= _grt->get_shell();
-  _grt->get_shell()->set_disable_quit(true);
+  _shell= grt::GRT::get()->get_shell();
+  grt::GRT::get()->get_shell()->set_disable_quit(true);
 
   _shell->print_welcome();
 

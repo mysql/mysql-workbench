@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,35 +34,28 @@
 
 using namespace wb;
 
-
-
 BEGIN_TEST_DATA_CLASS(wb_model_file)
 public:
   WBTester tester;
 END_TEST_DATA_CLASS;
 
-
-
-
-
 TEST_MODULE(wb_model_file, "tests for WB model file");
 
+// TODO we need a test to compare between load / save / duplicate / save / load
 
 TEST_FUNCTION(1)
 {
   bec::GRTManager *grtm;
-  grt::GRT *grt= tester.wb->get_grt();
-
 #ifdef _WIN32
   base::create_directory(TMP_DIR, 0666);
 #endif
-  grtm= bec::GRTManager::get_instance_for(grt);
+  grtm = bec::GRTManager::get_instance_for();
   std::string tmpDir = TMP_DIR;
 
   {
     ModelFile mf(tmpDir);
 
-    workbench_DocumentRef doc(grt);
+    workbench_DocumentRef doc(grt::Initialized);
 
     // create a test file, change it and then save_as
 
@@ -70,17 +63,17 @@ TEST_FUNCTION(1)
 
     doc->name("t1");
 
-    workbench_physical_ModelRef pmodel(grt);
+    workbench_physical_ModelRef pmodel(grt::Initialized);
     pmodel->owner(doc);
-    db_Catalog catalog(grt);
+    db_Catalog catalog;
     pmodel->catalog(&catalog);
     doc->physicalModels().insert(pmodel);
 
-    mf.store_document(grt, doc);
+    mf.store_document(doc);
     mf.save_to("t1.mwb");
 
     doc->name("t2");
-    mf.store_document(grt, doc);
+    mf.store_document(doc);
     mf.save_to("t2.mwb");
   }
 
@@ -93,8 +86,8 @@ TEST_FUNCTION(1)
 
     workbench_DocumentRef d1, d2;
 
-    d1= mf1.retrieve_document(grt);
-    d2= mf2.retrieve_document(grt);
+    d1= mf1.retrieve_document();
+    d2= mf2.retrieve_document();
 
     ensure_equals("document 1 content", *d1->name(), "t1");
     ensure_equals("document 2 content", *d2->name(), "t2");
@@ -106,8 +99,7 @@ TEST_FUNCTION(2)
 {
   //WBTester tester;
   bec::GRTManager *grtm;
-  grt::GRT *grt= tester.wb->get_grt();
-  grtm= bec::GRTManager::get_instance_for(grt);
+  grtm = bec::GRTManager::get_instance_for();
 
   // load sakile a bunch of times
   std::string tmpDir = TMP_DIR;
@@ -150,8 +142,7 @@ TEST_FUNCTION(4)
 // didn't close the file properly, resulting in inability to save the model)
 TEST_FUNCTION(10)
 {
-  grt::GRT*        grt  = tester.wb->get_grt();
-  bec::GRTManager* grtm = bec::GRTManager::get_instance_for(grt);
+  bec::GRTManager* grtm = bec::GRTManager::get_instance_for();
 
   base::create_directory(TMP_DIR, 0666);
   std::string temp_dir = TMP_DIR;
@@ -180,8 +171,7 @@ TEST_FUNCTION(10)
 
 std::string test_loading_and_saving_a_model( const WBTester& tester, std::string& base_path )
 {
-  grt::GRT *grt= tester.wb->get_grt();
-  bec::GRTManager* grtm = bec::GRTManager::get_instance_for(grt);
+  bec::GRTManager* grtm = bec::GRTManager::get_instance_for();
 
   #ifdef _WIN32
     base::create_directory(TMP_DIR, 0666);

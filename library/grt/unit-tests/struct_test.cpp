@@ -23,7 +23,7 @@
 
 BEGIN_TEST_DATA_CLASS(grt_struct)
 public:
-  GRT grt;
+
 END_TEST_DATA_CLASS
 
 TEST_MODULE(grt_struct, "GRT: structs/metaclasses");
@@ -33,27 +33,27 @@ TEST_FUNCTION(1)
   try
   {
     // try to alloc something before loading metaclasses
-    test_Book book(&grt);
+    test_Book book;
     ensure("allocate obj before loading metaclasses", false);
   } catch (...) {
   }
   
   // Load test data.
-  grt.load_metaclasses("data/structs.test.xml");
-  grt.end_loading_metaclasses();
-  ensure_equals("load structs", grt.get_metaclasses().size(), 6U);
+  grt::GRT::get()->load_metaclasses("data/structs.test.xml");
+  grt::GRT::get()->end_loading_metaclasses();
+  ensure_equals("load structs", grt::GRT::get()->get_metaclasses().size(), 6U);
 }
 
 TEST_FUNCTION(2)
 { 
   // Test valid struct creation and comparison to another struct.
-  MetaClass *book(grt.get_metaclass("test.Book"));
+  MetaClass *book(grt::GRT::get()->get_metaclass("test.Book"));
   
   ensure("get test.Book", book != 0);
   ensure_equals("name", book->name(), "test.Book");
 
-  ensure("is_a test.Publishing", book->is_a(grt.get_metaclass("test.Publication")));
-  ensure("is_a test.Base", book->is_a(grt.get_metaclass("test.Base")));
+  ensure("is_a test.Publishing", book->is_a(grt::GRT::get()->get_metaclass("test.Publication")));
+  ensure("is_a test.Base", book->is_a(grt::GRT::get()->get_metaclass("test.Base")));
   ensure("is_a test.Base", book->is_a("test.Base"));
   ensure("is_a invalid", !book->is_a("XXXX"));
 
@@ -73,7 +73,7 @@ TEST_FUNCTION(5)
 {
   // check get_member
   
-  MetaClass *book= grt.get_metaclass("test.Book");
+  MetaClass *book= grt::GRT::get()->get_metaclass("test.Book");
   const MetaClass::Member *mem;
   
   mem= book->get_member_info("pages");
@@ -82,7 +82,7 @@ TEST_FUNCTION(5)
   mem= book->get_member_info("title");
   ensure("member_info title (inherited)", mem != 0);
 
-  test_BookRef book_obj(&grt);
+  test_BookRef book_obj(grt::Initialized);
   
   book_obj->pages(1234);
   
@@ -123,7 +123,7 @@ TEST_FUNCTION(9)
 TEST_FUNCTION(20)
 { 
   // Test struct members and their attributes.
-  MetaClass *book(grt.get_metaclass("test.Book"));
+  MetaClass *book(grt::GRT::get()->get_metaclass("test.Book"));
   const MetaClass::Member *m;
   grt::TypeSpec t;
   std::string a;
@@ -167,7 +167,7 @@ TEST_FUNCTION(21)
   /*QQQ
   const MetaClass::Member *m;
   size_t count;
-  MetaClass *book(grt.get_metaclass("test.Book"));
+  MetaClass *book(grt::GRT::get()->get_metaclass("test.Book"));
 
   ensure_equals("test.Book member count", count, 6);
   MYX_GRT_STRUCT_MEMBER** member= members;

@@ -159,9 +159,9 @@ namespace grt {
   class InterfaceImplBase : virtual public InterfaceData
   {
   public:
-    template<class InterfaceClass> static void Register(GRT *grt)
+    template<class InterfaceClass> static void Register()
     {
-      InterfaceClass::register_interface(grt);
+      InterfaceClass::register_interface();
     }
     
     virtual ~InterfaceImplBase() {};
@@ -177,7 +177,7 @@ namespace grt {
   class MYSQLGRT_PUBLIC Interface : public Module
   {
   public:
-    static Interface *create(GRT *grt, const char *name, ...);
+    static Interface *create(const char *name, ...);
     
     bool check_conformance(const Module *module) const;
      
@@ -218,7 +218,7 @@ namespace grt {
   class MYSQLGRT_PUBLIC CPPModuleLoader : public ModuleLoader
   {
   public:
-    CPPModuleLoader(GRT *grt);
+    CPPModuleLoader();
     virtual ~CPPModuleLoader();
     
     virtual bool load_library(const std::string &path) { return false; }
@@ -241,9 +241,9 @@ namespace grt {
 // this must be in interface classes to enable their registration 
 #define DECLARE_REGISTER_INTERFACE(the_class, ...)\
   the_class() { std::string name= grt::get_type_name(typeid(*this)); _implemented_interfaces.push_back(name.substr(0, name.length()-4)); /* truncate Impl part*/ }\
-  static void register_interface(grt::GRT *grt) {\
+  static void register_interface() {\
     std::string name= grt::get_type_name(typeid(the_class));\
-    grt->register_new_interface(grt::Interface::create(grt, name.c_str(), __VA_ARGS__, NULL));\
+    grt::GRT::get()->register_new_interface(grt::Interface::create(name.c_str(), __VA_ARGS__, NULL));\
   }
 
 

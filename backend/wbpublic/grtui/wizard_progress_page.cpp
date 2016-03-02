@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -457,7 +457,7 @@ void WizardProgressPage::extra_clicked()
 
 //--------------------------------------------------------------------------------------------------
 
-void WizardProgressPage::execute_grt_task(const boost::function<grt::ValueRef (grt::GRT*)> &slot, bool sync)
+void WizardProgressPage::execute_grt_task(const boost::function<grt::ValueRef ()> &slot, bool sync)
 {
 
   bec::GRTTask::Ref task= bec::GRTTask::create_task("wizard task", _form->grtm()->get_dispatcher(), slot);

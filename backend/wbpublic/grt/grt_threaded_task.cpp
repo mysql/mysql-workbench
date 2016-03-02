@@ -115,7 +115,7 @@ const bec::GRTDispatcher::Ref & GrtThreadedTask::dispatcher()
 {
   if (!_dispatcher)
   {
-    _dispatcher = bec::GRTDispatcher::create_dispatcher(_grtm->get_grt(), _grtm->is_threaded(), false);
+    _dispatcher = bec::GRTDispatcher::create_dispatcher(_grtm->is_threaded(), false);
     _dispatcher->set_main_thread_flush_and_wait(_grtm->get_dispatcher()->get_main_thread_flush_and_wait());
     _dispatcher->start();
   }
@@ -196,7 +196,7 @@ void GrtThreadedTask::process_finish(grt::ValueRef res)
   {
     grt::StringRef res_str= grt::StringRef::cast_from(res);
     if (!res_str.empty())
-      _grtm->get_grt()->send_info(grt::StringRef::cast_from(res), "", NULL);
+      grt::GRT::get()->send_info(grt::StringRef::cast_from(res), "", NULL);
   }
   if (_finish_cb)
   {
@@ -225,17 +225,16 @@ void GrtThreadedTask::send_msg(int msg_type, const std::string &msg, const std::
   {
     if (!task())
       return;
-    grt::GRT *grt= _grtm->get_grt();
     switch (msg_type)
     {
     case grt::WarningMsg:
-      grt->send_warning(msg, detail, task().get());
+      grt::GRT::get()->send_warning(msg, detail, task().get());
       break;
     case grt::ErrorMsg:
-      grt->send_error(msg, detail, task().get());
+      grt::GRT::get()->send_error(msg, detail, task().get());
       break;
     case grt::InfoMsg:
-      grt->send_info(msg, detail, task().get());
+      grt::GRT::get()->send_info(msg, detail, task().get());
       break;
     }
   }
@@ -257,7 +256,7 @@ void GrtThreadedTask::send_progress(float percentage, const std::string &msg, co
   {
     if (!task())
       return;
-    _grtm->get_grt()->send_progress(percentage, msg, detail, task().get());
+    grt::GRT::get()->send_progress(percentage, msg, detail, task().get());
   }
 }
 

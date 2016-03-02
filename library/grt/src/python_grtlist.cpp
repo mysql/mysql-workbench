@@ -63,7 +63,7 @@ static int list_init(PyGRTListObject *self, PyObject *args, PyObject *kwds)
     else
     {
       if (!type)
-        self->list= new grt::BaseListRef(ctx->get_grt());
+        self->list= new grt::BaseListRef(true);
       else
       {
         grt::Type content_type= grt::str_to_type(type);
@@ -75,7 +75,7 @@ static int list_init(PyGRTListObject *self, PyObject *args, PyObject *kwds)
         
         if (class_name)
         {
-          if (!ctx->get_grt()->get_metaclass(class_name))
+          if (!grt::GRT::get()->get_metaclass(class_name))
           {
             PyErr_SetString(PyExc_NameError, "invalid GRT class name");
             return -1;
@@ -83,7 +83,7 @@ static int list_init(PyGRTListObject *self, PyObject *args, PyObject *kwds)
         }
         else
           class_name = "";
-        self->list= new grt::BaseListRef(ctx->get_grt(), content_type, class_name);
+        self->list= new grt::BaseListRef(content_type, class_name);
       }
     }
     return 0;

@@ -38,8 +38,8 @@ class GRT_STRUCTS_WORKBENCH_MODEL_PUBLIC workbench_model_ImageFigure : public mo
 public:
   class ImplData;
   friend class ImplData;
-  workbench_model_ImageFigure(grt::GRT *grt, grt::MetaClass *meta=0)
-  : model_Figure(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  workbench_model_ImageFigure(grt::MetaClass *meta=0)
+  : model_Figure(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _filename(""),
      _keepAspectRatio(0),
     _data(0)
@@ -106,18 +106,18 @@ protected:
 private: // wrapper methods for use by grt
   ImplData *_data;
 
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new workbench_model_ImageFigure(grt));
+    return grt::ObjectRef(new workbench_model_ImageFigure());
   }
 
   static grt::ValueRef call_setImageFile(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<workbench_model_ImageFigure*>(self)->setImageFile(grt::StringRef::cast_from(args[0])); }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_model_ImageFigure::create);
     {
@@ -142,8 +142,8 @@ class GRT_STRUCTS_WORKBENCH_MODEL_PUBLIC workbench_model_NoteFigure : public mod
 public:
   class ImplData;
   friend class ImplData;
-  workbench_model_NoteFigure(grt::GRT *grt, grt::MetaClass *meta=0)
-  : model_Figure(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  workbench_model_NoteFigure(grt::MetaClass *meta=0)
+  : model_Figure(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _font(""),
      _text(""),
      _textColor(""),
@@ -216,16 +216,16 @@ protected:
 private: // wrapper methods for use by grt
   ImplData *_data;
 
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new workbench_model_NoteFigure(grt));
+    return grt::ObjectRef(new workbench_model_NoteFigure());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_model_NoteFigure::create);
     {

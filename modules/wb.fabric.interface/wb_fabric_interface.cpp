@@ -49,7 +49,7 @@ int WbFabricInterfaceImpl::openConnection(const db_mgmt_ConnectionRef &conn, con
   mysql_options(&mysql, MYSQL_OPT_PROTOCOL, &proto);
 
   // Sets the connection timeout
-  grt::DictRef wb_options = grt::DictRef::cast_from(get_grt()->get("/wb/options/options"));
+  grt::DictRef wb_options = grt::DictRef::cast_from(grt::GRT::get()->get("/wb/options/options"));
   unsigned int connect_timeout = (unsigned int)wb_options.get_int("Fabric:ConnectionTimeOut", 60);
   mysql_options(&mysql, MYSQL_OPT_CONNECT_TIMEOUT, &connect_timeout);
   

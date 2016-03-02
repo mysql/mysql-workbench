@@ -1,4 +1,6 @@
-
+include_directories(.
+    ${Boost_INCLUDE_DIRS}
+)
 add_library(wbbase 
   util_functions.cpp 
   sqlstring.cpp 

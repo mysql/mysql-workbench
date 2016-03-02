@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -151,7 +151,7 @@ public:
 
 
 DiagramOptionsBE::DiagramOptionsBE(mdc::CanvasView *view, model_DiagramRef target_view, WBContext *wb)
-: _view(view), _target_view(target_view), _wbcontext(wb)
+: _view(view), _target_view(target_view) 
 {
   view->get_background_layer()->set_visible(false);
   view->get_background_layer()->set_grid_visible(false);
@@ -159,7 +159,7 @@ DiagramOptionsBE::DiagramOptionsBE(mdc::CanvasView *view, model_DiagramRef targe
   view->set_page_size(view->get_viewable_size());
 
   _sizer= 0;
-  if (target_view.is_valid())
+  if (target_view.is_valid())                
   {
     Size size(model_Diagram::ImplData::get_size_for_page(wb->get_document()->pageSettings()));
 
@@ -271,7 +271,7 @@ void DiagramOptionsBE::set_name(const std::string &name)
 
 void DiagramOptionsBE::commit()
 {
-  grt::AutoUndo undo(_wbcontext->get_grt());
+  grt::AutoUndo undo;
   
   _target_view->name(_name);
   _target_view->width(_sizer->_width);

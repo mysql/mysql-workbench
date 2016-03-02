@@ -92,7 +92,7 @@ namespace MySQL {
       GRT^ get_grt() 
       { 
         if(managed_grt == nullptr)
-          managed_grt= gcnew GRT(inner->get_grt()); 
+          managed_grt= gcnew GRT; 
         return managed_grt;
       }
 

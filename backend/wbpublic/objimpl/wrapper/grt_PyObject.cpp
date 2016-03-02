@@ -49,21 +49,21 @@ static void release_object(grt::AutoPyObject *object)
   delete object;
 }
 
-grt_PyObjectRef pyobject_to_grt(grt::GRT *grt, grt::AutoPyObject object)
+grt_PyObjectRef pyobject_to_grt(grt::AutoPyObject object)
 {
   if (object)
   {
-    grt_PyObjectRef ref(grt);
+    grt_PyObjectRef ref(grt::Initialized);
     ref->set_data(new grt::AutoPyObject(object), release_object);
     return ref;
   }
-  return grt_PyObjectRef();
+  return grt_PyObjectRef(grt::Initialized);
 }
 
 
-grt_PyObjectRef pyobject_to_grt(grt::GRT *grt, PyObject *object)
+grt_PyObjectRef pyobject_to_grt(PyObject *object)
 {
-  return pyobject_to_grt(grt, grt::AutoPyObject(object));
+  return pyobject_to_grt(grt::AutoPyObject(object));
 }
 
 
@@ -79,7 +79,7 @@ static PyObject *wrap_pyobject(PyObject *self, PyObject *args)
   PyObject *o;
   if (!PyArg_ParseTuple(args, "O", &o))
     return NULL;
-  return ctx->from_grt(pyobject_to_grt(ctx->get_grt(), o));
+  return ctx->from_grt(pyobject_to_grt(o));
 }
 
 

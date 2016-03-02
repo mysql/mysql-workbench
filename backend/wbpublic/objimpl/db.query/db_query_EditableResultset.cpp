@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -32,7 +32,7 @@ public:
 
 db_query_EditableResultsetRef WBPUBLICBACKEND_PUBLIC_FUNC grtwrap_editablerecordset(GrtObjectRef owner, Recordset::Ref rset)
 {
-  db_query_EditableResultsetRef object(owner.get_grt());
+  db_query_EditableResultsetRef object(grt::Initialized);
   
   db_query_EditableResultset::ImplData *data= new db_query_EditableResultset::ImplData(object, rset);
   

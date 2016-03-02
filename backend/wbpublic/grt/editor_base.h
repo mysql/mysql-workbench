@@ -76,7 +76,6 @@ namespace bec {
                                      // so we still can undo. Live editors reload content to reset the undo stack.
     virtual void reset_editor_undo_stack() {} // Called after changes were applied (mostly live objects).
 
-    grt::GRT *get_grt() { return _grtm->get_grt(); }
     GRTManager *get_grt_manager() { return _grtm; }
 
     virtual void on_object_changed();
@@ -131,26 +130,26 @@ namespace bec {
   public:
     AutoUndoEdit(BaseEditor *editor)
       // if editing a live object, this should be a no-op
-      : grt::AutoUndo(editor->get_grt(), editor->is_editing_live_object())
+      : grt::AutoUndo(editor->is_editing_live_object())
     {
       if (group)
       {
-        editor->scoped_connect(editor->get_grt()->get_undo_manager()->
+        editor->scoped_connect(grt::GRT::get()->get_undo_manager()->
           signal_undo(),boost::bind(&AutoUndoEdit::undo_applied, _1, group, editor));
-        editor->scoped_connect(editor->get_grt()->get_undo_manager()->
+        editor->scoped_connect(grt::GRT::get()->get_undo_manager()->
           signal_redo(),boost::bind(&AutoUndoEdit::undo_applied,_1, group, editor));
 
       }
     }
 
     AutoUndoEdit(BaseEditor *editor, const grt::ObjectRef &object, const std::string &member)
-      : grt::AutoUndo(editor->get_grt(), new UndoObjectChangeGroup(object.id(), member), editor->is_editing_live_object())
+      : grt::AutoUndo(new UndoObjectChangeGroup(object.id(), member), editor->is_editing_live_object())
     {
       if (group)
       {
-        editor->scoped_connect((editor->get_grt()->get_undo_manager()->
+        editor->scoped_connect((grt::GRT::get()->get_undo_manager()->
           signal_undo()),boost::bind(&AutoUndoEdit::undo_applied, _1, group, editor));
-        editor->scoped_connect((editor->get_grt()->get_undo_manager()->
+        editor->scoped_connect((grt::GRT::get()->get_undo_manager()->
           signal_redo()),boost::bind(&AutoUndoEdit::undo_applied, _1, group, editor));
 
       }

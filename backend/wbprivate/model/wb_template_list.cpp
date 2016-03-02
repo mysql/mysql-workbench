@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,12 +35,12 @@ using namespace base;
 
 size_t TableTemplateList::count()
 {
-  return (int)grt::BaseListRef::cast_from(_grt->get("/wb/options/options/TableTemplates")).count();
+  return (int)grt::BaseListRef::cast_from(grt::GRT::get()->get("/wb/options/options/TableTemplates")).count();
 }
 
 bool TableTemplateList::get_field(const bec::NodeId &node, ColumnId column, std::string &value)
 {
-  grt::BaseListRef templates(grt::BaseListRef::cast_from(_grt->get("/wb/options/options/TableTemplates")));
+  grt::BaseListRef templates(grt::BaseListRef::cast_from(grt::GRT::get()->get("/wb/options/options/TableTemplates")));
   if (node[0] < templates.count())
   {
     db_TableRef table = db_TableRef::cast_from(templates[node[0]]);
@@ -101,8 +101,8 @@ void TableTemplateList::menu_will_show()
 //------------------------------------------------------------------------------------------------
 
 
-TableTemplateList::TableTemplateList(grt::GRT *grt, TableTemplatePanel *owner)
-: BaseSnippetList("snippet_mwb.png", this), _grt(grt), _owner(owner)
+TableTemplateList::TableTemplateList(TableTemplatePanel *owner)
+: BaseSnippetList("snippet_mwb.png", this), _owner(owner)
 {
   prepare_context_menu();
   refresh_snippets();
@@ -136,8 +136,8 @@ bool TableTemplateList::mouse_double_click(mforms::MouseButton button, int x, in
 
 //------------------------------------------------------------------------------------------------
 
-TableTemplatePanel::TableTemplatePanel(grt::GRT *grt, wb::WBContextModel *cmodel)
-: mforms::Box(false), _grt(grt), _templates(grt, this), _context(cmodel)
+TableTemplatePanel::TableTemplatePanel(wb::WBContextModel *cmodel)
+: mforms::Box(false), _templates(this), _context(cmodel)
 {
 #ifdef _WIN32
   set_padding(3, 3, 3, 3);
@@ -184,19 +184,19 @@ void TableTemplatePanel::on_action(const std::string &action)
 {
   if (action == "edit_templates")
   {
-    grt::BaseListRef args(_grt);
+    grt::BaseListRef args(true);
     args.ginsert(grt::StringRef(_templates.get_selected_template()));
-    _grt->call_module_function("WbTableUtils", "openTableTemplateEditorFor", args);
+    grt::GRT::get()->call_module_function("WbTableUtils", "openTableTemplateEditorFor", args);
     _templates.refresh_snippets();
   }
   else if (action == "use_template")
   {
     if (!_templates.get_selected_template().empty())
     {
-      grt::BaseListRef args(_grt);
+      grt::BaseListRef args(true);
       args.ginsert(workbench_physical_ModelRef::cast_from(_context->get_active_model(true))->catalog()->schemata()[0]);
       args.ginsert(grt::StringRef(_templates.get_selected_template()));
-      db_TableRef table(db_TableRef::cast_from(_grt->call_module_function("WbTableUtils", "createTableFromTemplate", args)));
+      db_TableRef table(db_TableRef::cast_from(grt::GRT::get()->call_module_function("WbTableUtils", "createTableFromTemplate", args)));
       if (table.is_valid())
       {
         model_DiagramRef d = _context->get_active_model_diagram(true);

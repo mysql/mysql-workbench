@@ -226,7 +226,7 @@ public:
     set_title("Pick a connection");
     set_subtitle("Select an existing connection or create a new one");
 
-    db_mgmt_RdbmsRef rdbms(db_mgmt_RdbmsRef::cast_from(grt->unserialize("../../modules/db.mysql/res/mysql_rdbms_info.xml")));
+    db_mgmt_RdbmsRef rdbms(db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->unserialize("../../modules/db.mysql/res/mysql_rdbms_info.xml")));
     db_mgmt_ManagementRef mgr(grt);
 
     mgr->rdbms().insert(rdbms);
@@ -363,7 +363,7 @@ void wiztest()
   ImportInputPage* import1= new ImportInputPage(wizard);
   wizard->add_page(import1);
 
-  grt::DictRef values(grtm.get_grt());
+  grt::DictRef values(true);
   
   wizard->run_modal(values);
 #endif
@@ -385,12 +385,12 @@ void wiztest()
 
 #if 0
   Page1 page1(&wizard);
-  Page2 page2(&wizard, grtm.get_grt());
+  Page2 page2(&wizard);
 
   wizard.add_page(&page2);
   wizard.add_page(&page1);
 #endif
-  grt::DictRef values(grtm.get_grt());
+  grt::DictRef values(true);
   
   wizard.run_modal(values);
   

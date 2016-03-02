@@ -39,10 +39,7 @@ public:
   typedef boost::shared_ptr<Sql_specifics> Ref;
   virtual ~Sql_specifics() {}
 protected:
-  Sql_specifics(grt::GRT *grt);
-
-protected:
-  grt::GRT *_grt;
+  Sql_specifics();
 
 public:
   virtual std::string limit_select_query(const std::string &sql, int *row_count, int *offset);

@@ -1,5 +1,5 @@
 /* 
-* Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
 * 02110-1301  USA
 */
 
-#ifndef _SCHEMA_SELECTION_PAGE_H_
-#define _SCHEMA_SELECTION_PAGE_H_
+#pragma once
 
 #include "grtui/wizard_schema_filter_page.h"
 
@@ -39,7 +38,7 @@ public:
   {
     if (advancing)
     {
-      grt::StringListRef list(_form->grtm()->get_grt());
+      grt::StringListRef list(grt::Initialized);
       std::vector<std::string> selection= _check_list.get_selection();
 
       for (std::vector<std::string>::const_iterator iter= _schemas.begin();
@@ -79,5 +78,3 @@ private:
   mforms::Label _missing_label;
 };
 
-
-#endif /* _SCHEMA_SELECTION_PAGE_H_ */

@@ -32,9 +32,9 @@
 
 using namespace grt;
 
-static grt::DictRef get_traits(grt::GRT* grt, bool case_sensitive = false)
+static grt::DictRef get_traits(bool case_sensitive = false)
 {
-  grt::DictRef traits(grt);
+  grt::DictRef traits(true);
     traits.set("CaseSensitive", grt::IntegerRef(case_sensitive));
   traits.set("maxTableCommentLength", grt::IntegerRef(60));
   traits.set("maxIndexCommentLength", grt::IntegerRef(0));
@@ -55,23 +55,23 @@ TEST_MODULE(sync_diff, "sync diff");
  */
 TEST_FUNCTION(10)
 {
-  ValueRef source_val(tester.grt->unserialize("data/diff/sync-catalogs-collations/source_catalog.xml"));
-  ValueRef target_val(tester.grt->unserialize("data/diff/sync-catalogs-collations/target_catalog.xml"));
+  ValueRef source_val(grt::GRT::get()->unserialize("data/diff/sync-catalogs-collations/source_catalog.xml"));
+  ValueRef target_val(grt::GRT::get()->unserialize("data/diff/sync-catalogs-collations/target_catalog.xml"));
 
   db_mysql_CatalogRef mod_cat = db_mysql_CatalogRef::cast_from(source_val);
   db_mysql_CatalogRef org_cat = db_mysql_CatalogRef::cast_from(target_val);
 
-  grt::NormalizedComparer normalizer(tester.grt, get_traits(tester.grt, true));
+  grt::NormalizedComparer normalizer(get_traits(true));
   grt::DbObjectMatchAlterOmf omf;
   omf.dontdiff_mask = 3;
   normalizer.init_omf(&omf);
   boost::shared_ptr<DiffChange> diff_change= diff_make(org_cat, mod_cat, &omf);
 
-  DbMySQLImpl *diffsql_module= tester.grt->get_native_module<DbMySQLImpl>();
+  DbMySQLImpl *diffsql_module= grt::GRT::get()->get_native_module<DbMySQLImpl>();
 
-  grt::StringListRef alter_map(tester.grt);
-  grt::ListRef<GrtNamedObject> alter_object_list(tester.grt);
-  grt::DictRef options(tester.grt);
+  grt::StringListRef alter_map(grt::Initialized);
+  grt::ListRef<GrtNamedObject> alter_object_list(true);
+  grt::DictRef options(true);
   options.set("UseFilteredLists", grt::IntegerRef(0));
   options.set("OutputContainer", alter_map);
   options.set("OutputObjectContainer", alter_object_list);
@@ -112,15 +112,15 @@ TEST_FUNCTION(10)
 // Regression test for bug #17454626
 TEST_FUNCTION(20)
 {
-  ValueRef source_val(tester.grt->unserialize("data/diff/sync-catalogs-rowformat/source_catalog.xml"));
-  ValueRef target_val(tester.grt->unserialize("data/diff/sync-catalogs-rowformat/target_catalog.xml"));
+  ValueRef source_val(grt::GRT::get()->unserialize("data/diff/sync-catalogs-rowformat/source_catalog.xml"));
+  ValueRef target_val(grt::GRT::get()->unserialize("data/diff/sync-catalogs-rowformat/target_catalog.xml"));
 
   db_mysql_CatalogRef source_cat = db_mysql_CatalogRef::cast_from(source_val);
   db_mysql_CatalogRef target_cat = db_mysql_CatalogRef::cast_from(target_val);
 
-  DbMySQLImpl *diffsql_module= tester.grt->get_native_module<DbMySQLImpl>();
+  DbMySQLImpl *diffsql_module= grt::GRT::get()->get_native_module<DbMySQLImpl>();
 
-  grt::DictRef options(tester.grt);
+  grt::DictRef options(true);
   options.set("CaseSensitive", grt::IntegerRef(true));
   options.set("GenerateDocumentProperties", grt::IntegerRef(0));
 
@@ -145,14 +145,14 @@ TEST_FUNCTION(20)
 // Test for bug column rename no #19500938
 TEST_FUNCTION(21)
 {
-  ValueRef source_val(tester.grt->unserialize("data/diff/column_rename/1_src.xml"));
-  ValueRef target_val(tester.grt->unserialize("data/diff/column_rename/1_dst.xml"));
+  ValueRef source_val(grt::GRT::get()->unserialize("data/diff/column_rename/1_src.xml"));
+  ValueRef target_val(grt::GRT::get()->unserialize("data/diff/column_rename/1_dst.xml"));
 
   db_mysql_CatalogRef source_cat = db_mysql_CatalogRef::cast_from(source_val);
   db_mysql_CatalogRef target_cat = db_mysql_CatalogRef::cast_from(target_val);
-  DbMySQLImpl *diffsql_module= tester.grt->get_native_module<DbMySQLImpl>();
+  DbMySQLImpl *diffsql_module= grt::GRT::get()->get_native_module<DbMySQLImpl>();
 
-  grt::DictRef options(tester.grt);
+  grt::DictRef options(true);
   options.set("CaseSensitive", grt::IntegerRef(true));
   options.set("GenerateDocumentProperties", grt::IntegerRef(0));
 
@@ -177,14 +177,14 @@ TEST_FUNCTION(21)
 // Test for bug column rename and reorder no #20128561
 TEST_FUNCTION(22)
 {
-  ValueRef source_val(tester.grt->unserialize("data/diff/column_rename/2_src.xml"));
-  ValueRef target_val(tester.grt->unserialize("data/diff/column_rename/2_dst.xml"));
+  ValueRef source_val(grt::GRT::get()->unserialize("data/diff/column_rename/2_src.xml"));
+  ValueRef target_val(grt::GRT::get()->unserialize("data/diff/column_rename/2_dst.xml"));
 
   db_mysql_CatalogRef source_cat = db_mysql_CatalogRef::cast_from(source_val);
   db_mysql_CatalogRef target_cat = db_mysql_CatalogRef::cast_from(target_val);
-  DbMySQLImpl *diffsql_module= tester.grt->get_native_module<DbMySQLImpl>();
+  DbMySQLImpl *diffsql_module= grt::GRT::get()->get_native_module<DbMySQLImpl>();
 
-  grt::DictRef options(tester.grt);
+  grt::DictRef options(true);
   options.set("CaseSensitive", grt::IntegerRef(true));
   options.set("GenerateDocumentProperties", grt::IntegerRef(0));
 

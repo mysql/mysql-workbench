@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -433,7 +433,7 @@ public:
   {
     if (_dbconn)
     {
-      bec::GRTManager *grtm = bec::GRTManager::get_instance_for(_dbconn->get_grt());
+      bec::GRTManager *grtm = bec::GRTManager::get_instance_for();
       grt::ListRef<db_mgmt_Connection> list(_dbconn->get_db_mgmt()->storedConns());
       grt::ListRef<db_mgmt_Connection>::const_iterator iter = list.begin();
 
@@ -454,7 +454,7 @@ public:
   {
     if (_dbconn && _dbconn->get_connection().is_valid())
     {
-      bec::GRTManager *grtm = bec::GRTManager::get_instance_for(_dbconn->get_grt());
+      bec::GRTManager *grtm = bec::GRTManager::get_instance_for();
 
       if (grtm)
         grtm->set_app_option("LastUsedConnectionName", grt::StringRef(_dbconn->get_connection()->name()));
@@ -532,7 +532,7 @@ public:
   
   bool do_export()
   {
-    execute_grt_task(boost::bind(&Db_plugin::apply_script_to_db, ((WbPluginDbExport*)_form)->be(), _1), false);
+    execute_grt_task(boost::bind(&Db_plugin::apply_script_to_db, ((WbPluginDbExport*)_form)->be()), false);
 
     return true;
   }
@@ -581,7 +581,7 @@ WbPluginDbExport::WbPluginDbExport(grt::Module *module)
 {
 
   set_name("db_export_wizard");
-  if (CatalogValidationPage::has_modules(module->get_grt()))
+  if (CatalogValidationPage::has_modules())
     _validation_page = new CatalogValidationPage(this);
   else
     _validation_page = 0;

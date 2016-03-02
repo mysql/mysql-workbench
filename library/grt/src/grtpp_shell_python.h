@@ -28,7 +28,7 @@ namespace grt
   class MYSQLGRT_PUBLIC PythonShell : public Shell
   {
   public:
-    PythonShell(GRT *grt);
+    PythonShell();
     
     virtual std::string shell_type() { return "python"; }
     

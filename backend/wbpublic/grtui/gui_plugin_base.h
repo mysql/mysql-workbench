@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _GUI_PLUGIN_BASE_H_
-#define _GUI_PLUGIN_BASE_H_
+#pragma once
 
 #include "grt/grt_manager.h"
 
@@ -25,16 +24,15 @@
 class WBPUBLICBACKEND_PUBLIC_FUNC GUIPluginBase
 {
   grt::Module *_module;
-  grt::GRT *_grt;
 
 protected:
-  bec::GRTManager *grtm() { return bec::GRTManager::get_instance_for(_grt); }
+  bec::GRTManager *grtm() { return bec::GRTManager::get_instance_for(); }
  
   boost::signals2::signal<void ()> _signal_closed;
 
 public:
   GUIPluginBase(grt::Module *module);
-  GUIPluginBase(grt::GRT *_grt);
+  GUIPluginBase();
 
   virtual ~GUIPluginBase();
 
@@ -43,5 +41,3 @@ public:
 
 
 typedef GUIPluginBase* (*GUIPluginCreateFunction)(grt::Module *module, bec::GRTManager *grtm, grt::BaseListRef &args);
-
-#endif /* _WB_PLUGIN_BASE_H_ */

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -466,7 +466,7 @@ void model_Diagram::ImplData::member_list_changed(grt::internal::OwnedList *alis
   else if (list == self()->_selection)
   {
     // consistency check, selection changes shouldn't be tracked in undo history
-    if (list.get_grt()->get_undo_manager()->is_enabled() && list.get_grt()->tracking_changes())
+    if (grt::GRT::get()->get_undo_manager()->is_enabled() && grt::GRT::get()->tracking_changes())
       g_warning("Undo tracking was enabled during selection change");
   }
 }
@@ -506,7 +506,7 @@ void model_Diagram::ImplData::remove_connection(const model_ConnectionRef &conn)
 
 void model_Diagram::ImplData::delete_layer(const model_LayerRef &layer)
 {  
-  grt::AutoUndo undo(self()->get_grt(), !self()->is_global());
+  grt::AutoUndo undo(!self()->is_global());
   
   model_LayerRef root(self()->rootLayer());
 
@@ -539,9 +539,9 @@ void model_Diagram::ImplData::select_object(const model_ObjectRef &object)
     if (elem && elem->get_canvas_item())
       _canvas_view->get_selection()->add(elem->get_canvas_item());
 
-    _self->get_grt()->get_undo_manager()->disable();
+    grt::GRT::get()->get_undo_manager()->disable();
     _self->_selection.insert(object);
-    _self->get_grt()->get_undo_manager()->enable();
+    grt::GRT::get()->get_undo_manager()->enable();
   }
   else if (object.is_instance<model_Connection>())
   {
@@ -551,9 +551,9 @@ void model_Diagram::ImplData::select_object(const model_ObjectRef &object)
     if (conn && conn->get_canvas_item())
       _canvas_view->get_selection()->add(conn->get_canvas_item());
 
-    _self->get_grt()->get_undo_manager()->disable();
+    grt::GRT::get()->get_undo_manager()->disable();
     _self->_selection.insert(object);
-    _self->get_grt()->get_undo_manager()->enable();
+    grt::GRT::get()->get_undo_manager()->enable();
   }
   else if (object.is_instance<model_Layer>())
   {
@@ -563,9 +563,9 @@ void model_Diagram::ImplData::select_object(const model_ObjectRef &object)
     if (layer && layer->get_area_group())
       _canvas_view->get_selection()->add(layer->get_area_group());
 
-    _self->get_grt()->get_undo_manager()->disable();
+    grt::GRT::get()->get_undo_manager()->disable();
     _self->_selection.insert(object);
-    _self->get_grt()->get_undo_manager()->enable();
+    grt::GRT::get()->get_undo_manager()->enable();
   }
   else
     throw std::runtime_error("trying to select invalid object");
@@ -584,9 +584,9 @@ void model_Diagram::ImplData::unselect_object(const model_ObjectRef &object)
     if (elem && elem->get_canvas_item())
       _canvas_view->get_selection()->remove(elem->get_canvas_item());
     
-    _self->get_grt()->get_undo_manager()->disable();
+    grt::GRT::get()->get_undo_manager()->disable();
     _self->_selection.remove_value(object);
-    _self->get_grt()->get_undo_manager()->enable();
+    grt::GRT::get()->get_undo_manager()->enable();
   }
   else if (object.is_instance<model_Connection>())
   {
@@ -596,9 +596,9 @@ void model_Diagram::ImplData::unselect_object(const model_ObjectRef &object)
     if (conn && conn->get_canvas_item())
       _canvas_view->get_selection()->remove(conn->get_canvas_item());
 
-    _self->get_grt()->get_undo_manager()->disable();
+    grt::GRT::get()->get_undo_manager()->disable();
     _self->_selection.remove_value(object);
-    _self->get_grt()->get_undo_manager()->enable();
+    grt::GRT::get()->get_undo_manager()->enable();
   }
   else if (object.is_instance<model_Layer>())
   {
@@ -608,9 +608,9 @@ void model_Diagram::ImplData::unselect_object(const model_ObjectRef &object)
     if (layer && layer->get_area_group())
       _canvas_view->get_selection()->remove(layer->get_area_group());
 
-    _self->get_grt()->get_undo_manager()->disable();
+    grt::GRT::get()->get_undo_manager()->disable();
     _self->_selection.remove_value(object);
-    _self->get_grt()->get_undo_manager()->enable();
+    grt::GRT::get()->get_undo_manager()->enable();
   }
   else
     throw std::runtime_error("trying to deselect invalid object");
@@ -625,10 +625,10 @@ void model_Diagram::ImplData::unselect_all()
 
   _canvas_view->get_selection()->clear();
 
-  _self->get_grt()->get_undo_manager()->disable();
+  grt::GRT::get()->get_undo_manager()->disable();
   while (_self->_selection.count() > 0)
     _self->_selection.remove(0);
-  _self->get_grt()->get_undo_manager()->enable();
+  grt::GRT::get()->get_undo_manager()->enable();
 
   end_selection_update();  
 }
@@ -670,10 +670,10 @@ void model_Diagram::ImplData::canvas_selection_changed(bool added, mdc::CanvasIt
 
         if (object.is_valid())
         {
-          _self->get_grt()->get_undo_manager()->disable();
+          grt::GRT::get()->get_undo_manager()->disable();
           if (!find_object_in_list(_self->_selection, item->get_tag()).is_valid())
             _self->_selection.insert(object);
-          _self->get_grt()->get_undo_manager()->enable();
+          grt::GRT::get()->get_undo_manager()->enable();
         }
       }
       else abort();
@@ -684,17 +684,17 @@ void model_Diagram::ImplData::canvas_selection_changed(bool added, mdc::CanvasIt
       {
         model_ObjectRef object(find_object_in_list(_self->_selection, item->get_tag()));
 
-        _self->get_grt()->get_undo_manager()->disable();
+        grt::GRT::get()->get_undo_manager()->disable();
         if (object.is_valid())
           _self->_selection.remove_value(object);
-        _self->get_grt()->get_undo_manager()->enable();
+        grt::GRT::get()->get_undo_manager()->enable();
       }
       else
       {
-        _self->get_grt()->get_undo_manager()->disable();
+        grt::GRT::get()->get_undo_manager()->disable();
         while (_self->_selection.count() > 0)
           _self->_selection.remove(0);
-        _self->get_grt()->get_undo_manager()->enable();
+        grt::GRT::get()->get_undo_manager()->enable();
       }
     }
   }
@@ -848,7 +848,7 @@ model_LayerRef model_Diagram::ImplData::get_layer_under_figure(const model_Figur
 bool model_Diagram::ImplData::update_layer_of_figure(const model_FigureRef &figure)
 {
   bool relocated= false;
-  grt::AutoUndo undo(self()->get_grt());
+  grt::AutoUndo undo;
 
   model_LayerRef layer(get_layer_under_figure(figure));
 

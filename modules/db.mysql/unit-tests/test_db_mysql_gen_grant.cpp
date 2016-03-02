@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,15 +44,14 @@ TEST_MODULE(test_db_mysql_gen_grant, "test_db_mysql_gen_grant");
 
 TEST_FUNCTION(1)
 {
-  grt= grtm.get_grt();
-  grt->scan_metaclasses_in("../../res/grt/");
-  grt->end_loading_metaclasses();
+  grt::GRT::get()->scan_metaclasses_in("../../res/grt/");
+  grt::GRT::get()->end_loading_metaclasses();
 }
 
 
 TEST_FUNCTION(10)
 {
-  SynteticMySQLModel model(grt);
+  SynteticMySQLModel model;
   model.catalog->users().remove_all();
   model.catalog->roles().remove_all();
 
@@ -73,7 +72,7 @@ TEST_FUNCTION(10)
 
 TEST_FUNCTION(11)
 {
-  SynteticMySQLModel model(grt);
+  SynteticMySQLModel model;
   model.catalog->users().remove_all();
   model.catalog->roles().remove_all();
 
@@ -105,7 +104,7 @@ TEST_FUNCTION(11)
 
 TEST_FUNCTION(12)
 { // test when no databaseObject assigned: use databaseObjectName instead
-  SynteticMySQLModel model(grt);
+  SynteticMySQLModel model;
   model.catalog->users().remove_all();
   model.catalog->roles().remove_all();
 
@@ -125,7 +124,7 @@ TEST_FUNCTION(12)
 
 TEST_FUNCTION(13)
 { // test parent role
-  SynteticMySQLModel model(grt);
+  SynteticMySQLModel model;
   model.catalog->users().remove_all();
   model.catalog->roles().remove_all();
 

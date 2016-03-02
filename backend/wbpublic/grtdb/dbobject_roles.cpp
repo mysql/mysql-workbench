@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -124,7 +124,7 @@ void ObjectRoleListBE::add_role_for_privileges(const db_RoleRef &role)
       return;
   }
 
-  db_RolePrivilegeRef role_priv(role.get_grt());
+  db_RolePrivilegeRef role_priv(grt::Initialized);
 
   role_priv->owner(role);
   role_priv->databaseObject(_owner->get_dbobject());
@@ -149,7 +149,7 @@ void ObjectRoleListBE::remove_role_from_privileges(const db_RoleRef &role)
   {
     if (role_privs[i]->databaseObject() == object)
     {
-      //grt::AutoUndo undo(_owner->get_grt());
+      //grt::AutoUndo undo;
       AutoUndoEdit undo(_owner);
       role_privs.remove(i);
       undo.end(_("Remove Role from Object Privileges"));

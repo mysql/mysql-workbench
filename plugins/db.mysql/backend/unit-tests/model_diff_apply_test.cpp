@@ -70,7 +70,7 @@ protected:
   grt::DictRef options;
   
   virtual db_mysql_CatalogRef get_model_catalog() { return model_catalog; }
-  virtual grt::DictRef get_options_as_dict(grt::GRT *grt) { return options; }
+  virtual grt::DictRef get_options_as_dict() { return options; }
 
 public:
   DbMySQLSQLExportTest(bec::GRTManager *grtm, db_mysql_CatalogRef cat) 
@@ -102,7 +102,6 @@ protected:
   grt::DbObjectMatchAlterOmf omf;
 
   db_mysql_CatalogRef create_catalog_from_script(const std::string& sql);
-  db_mysql_CatalogRef create_catalog_from_script(const std::string& sql, grt::GRT *grt);
 
   std::string run_sync_plugin_generate_script(
     const std::vector<std::string>&,
@@ -123,14 +122,14 @@ protected:
   TEST_DATA_CONSTRUCTOR(model_diff_apply)
   {
   // init datatypes
-  populate_grt(tester.grt, tester);
+  populate_grt(tester);
 
   omf.dontdiff_mask = 3;
 
   // init database connection
   connection= tester.create_connection_for_import();
 
-  sql_parser= SqlFacade::instance_for_rdbms_name(tester.grt, "Mysql");
+  sql_parser= SqlFacade::instance_for_rdbms_name("Mysql");
   ensure("failed to get sqlparser module", (NULL != sql_parser));
   }
 
@@ -138,16 +137,11 @@ END_TEST_DATA_CLASS
 
 TEST_MODULE(model_diff_apply, "db.mysql plugin test");
 
+
 db_mysql_CatalogRef tut::Test_object_base<model_diff_apply>::create_catalog_from_script(
   const std::string& sql)
 {
-  return create_catalog_from_script(sql, tester.grt);
-}
-
-db_mysql_CatalogRef tut::Test_object_base<model_diff_apply>::create_catalog_from_script(
-  const std::string& sql, grt::GRT *grt)
-{
-  db_mysql_CatalogRef cat= create_empty_catalog_for_import(tester.grt);
+  db_mysql_CatalogRef cat= create_empty_catalog_for_import();
   sql_parser->parseSqlScriptString(cat, sql);
   return cat;
 }
@@ -178,7 +172,7 @@ std::string tut::Test_object_base<model_diff_apply>::run_fwdeng_plugin_generate_
                                                                                            DbMySQLSQLExportTest *plugin)
 {
   fwdeng_plugin.reset(plugin);
-  ValueRef retval= fwdeng_plugin->export_task(cat.get_grt(), grt::StringRef());
+  ValueRef retval= fwdeng_plugin->export_task(grt::StringRef());
   return fwdeng_plugin->export_sql_script();
 }
 
@@ -201,7 +195,7 @@ boost::shared_ptr<DiffChange> tut::Test_object_base<model_diff_apply>::compare_c
   bec::CatalogHelper::apply_defaults(cat, default_engine_name);
   bec::CatalogHelper::apply_defaults(org_cat, default_engine_name);
 
-  grt::NormalizedComparer comparer(tester.grt,grt::DictRef(tester.grt));
+  grt::NormalizedComparer comparer(grt::DictRef(true));
   comparer.init_omf(&omf);
 
   return diff_make(cat, org_cat, &omf);
@@ -210,7 +204,7 @@ boost::shared_ptr<DiffChange> tut::Test_object_base<model_diff_apply>::compare_c
 void tut::Test_object_base<model_diff_apply>::apply_sql_to_model(const std::string& sql)
 {
 
-  db_mysql_CatalogRef org_cat= create_catalog_from_script(sql, tester.grt);
+  db_mysql_CatalogRef org_cat= create_catalog_from_script(sql);
 
   std::vector<std::string> schemata;
   schemata.push_back("mydb");
@@ -220,7 +214,7 @@ void tut::Test_object_base<model_diff_apply>::apply_sql_to_model(const std::stri
   DbMySQLSQLExportTest *plugin= new DbMySQLSQLExportTest(
     tester.wb->get_grt_manager(), mod_cat);
   
-  grt::DictRef options(tester.grt);
+  grt::DictRef options(true);
   options.set("UseFilteredLists", grt::IntegerRef(0));
   plugin->set_options_as_dict(options);
 

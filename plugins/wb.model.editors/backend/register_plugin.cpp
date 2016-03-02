@@ -37,7 +37,7 @@
 
 
 
-static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt);
+static grt::ListRef<app_Plugin> get_mysql_plugins_info();
 
 
 class WbEditorsModuleImpl : public grt::ModuleImplBase, public PluginInterfaceImpl
@@ -53,7 +53,7 @@ public:
 
   virtual grt::ListRef<app_Plugin> getPluginInfo()
   {
-    return get_mysql_plugins_info(get_grt());
+    return get_mysql_plugins_info();
   }
 };
 
@@ -61,7 +61,7 @@ public:
 
 static void set_object_argument(app_PluginRef &plugin, const std::string &struct_name)
 {
-  app_PluginObjectInputRef pdef(plugin.get_grt());
+  app_PluginObjectInputRef pdef(grt::Initialized);
 
   pdef->objectStructName(struct_name);
   pdef->owner(plugin);
@@ -71,15 +71,15 @@ static void set_object_argument(app_PluginRef &plugin, const std::string &struct
 
 
 
-static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
+static grt::ListRef<app_Plugin> get_mysql_plugins_info()
 {
-  grt::ListRef<app_Plugin> editors(grt);
+  grt::ListRef<app_Plugin> editors(true);
 
-  app_PluginRef note_editor(grt);
-  app_PluginRef image_editor(grt);
-  app_PluginRef stored_note_editor(grt);
-  app_PluginRef stored_sql_editor(grt);
-  app_PluginRef layer_editor(grt);
+  app_PluginRef note_editor(grt::Initialized);
+  app_PluginRef image_editor(grt::Initialized);
+  app_PluginRef stored_note_editor(grt::Initialized);
+  app_PluginRef stored_sql_editor(grt::Initialized);
+  app_PluginRef layer_editor(grt::Initialized);
   
   FRONTEND_LIBNAME(note_editor,
                    ".\\wb.model.editors.wbp.fe.dll",

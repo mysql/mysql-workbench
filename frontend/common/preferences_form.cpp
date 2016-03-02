@@ -389,7 +389,7 @@ PreferencesForm::PreferencesForm(wb::WBContextUI *wbui, const workbench_physical
   _hbox.add(&_top_box, true, true);
   set_content(&_hbox);
 
-  grt::DictRef info(wbui->get_wb()->get_grt());
+  grt::DictRef info(true);
   if (!_model.is_valid())
     info.set("options", _wbui->get_wb()->get_wb_options());
   else
@@ -439,7 +439,7 @@ void PreferencesForm::switch_page()
 
 void PreferencesForm::show()
 {
-  grt::DictRef info(_wbui->get_wb()->get_grt());
+  grt::DictRef info(true);
   if (!_model.is_valid())
     info.set("options", _wbui->get_wb()->get_wb_options());
   else
@@ -483,7 +483,7 @@ void PreferencesForm::show_values()
 
 void PreferencesForm::update_values()
 {
-  grt::AutoUndo undo(_wbui->get_wb()->get_grt(), !_model.is_valid());
+  grt::AutoUndo undo(!_model.is_valid());
 
   if (_model.is_valid())
   {
@@ -1582,7 +1582,7 @@ static void show_target_version(const workbench_physical_ModelRef &model, mforms
 
 static void update_target_version(workbench_physical_ModelRef model, mforms::TextEntry *entry)
 {
-  GrtVersionRef version = bec::parse_version(model.get_grt(), entry->get_string_value());
+  GrtVersionRef version = bec::parse_version(entry->get_string_value());
   model->catalog()->version(version);
   version->owner(model);
 }

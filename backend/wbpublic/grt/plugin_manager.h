@@ -172,7 +172,7 @@ namespace bec {
 
     bool check_input_for_plugin(const app_PluginRef &plugin, const grt::BaseListRef &args);
 
-    grt::ValueRef open_normal_plugin_grt(grt::GRT *grt, const app_PluginRef &plugin, const grt::BaseListRef &args);
+    grt::ValueRef open_normal_plugin_grt(const app_PluginRef &plugin, const grt::BaseListRef &args);
 
     std::string open_gui_plugin_main(const app_PluginRef &plugin, const grt::BaseListRef &args, GUIPluginFlags flags);
     int show_gui_plugin_main(const std::string &handle);

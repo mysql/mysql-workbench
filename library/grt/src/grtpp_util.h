@@ -181,11 +181,10 @@ namespace grt
 
   struct MYSQLGRT_PUBLIC CopyContext
   {
-    GRT *grt;
     std::map<std::string, ValueRef> object_copies;
     std::list<ObjectRef> copies;
     
-    CopyContext(GRT *agrt) : grt(agrt) {}
+    CopyContext() {}
         
     ObjectRef copy(const ObjectRef &object, std::set<std::string> skip_members= std::set<std::string>());
     ObjectRef shallow_copy(const ObjectRef &object);
@@ -203,7 +202,7 @@ namespace grt
   template<typename OType>
   OType copy_object(const OType& object, std::set<std::string> skip_members = std::set<std::string>())
   {
-      CopyContext copier(object.get_grt());
+      CopyContext copier;
       OType copy;
 
       copy= OType::cast_from(copier.copy(object, skip_members));
@@ -215,7 +214,7 @@ namespace grt
   template<typename OType>
   OType shallow_copy_object(const OType& object)
   {
-      CopyContext copier(object.get_grt());
+      CopyContext copier;
       OType copy;
 
       copy= OType::cast_from(copier.shallow_copy(object));
@@ -229,8 +228,8 @@ namespace grt
   MYSQLGRT_PUBLIC void dump_value(const grt::ValueRef &value);
  
   // temporary code
-  MYSQLGRT_PUBLIC bool init_python_support(grt::GRT *grt, const std::string &python_module_path);
-  MYSQLGRT_PUBLIC void add_python_module_dir(grt::GRT *grt, const std::string &python_module_path);
+  MYSQLGRT_PUBLIC bool init_python_support(const std::string &python_module_path);
+  MYSQLGRT_PUBLIC void add_python_module_dir(const std::string &python_module_path);
   
   // diffing
   

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -178,9 +178,9 @@ bool bec::ValidationManager::is_validation_plugin(const app_PluginRef& plugin)
 
 //--------------------------------------------------------------------------------------------------
 
-void bec::ValidationManager::register_validator(grt::GRT* grt, const std::string& type, grt::Validator* v)
+void bec::ValidationManager::register_validator(const std::string& type, grt::Validator* v)
 {
-  grt::MetaClass* mc = grt->get_metaclass(type);
+  grt::MetaClass* mc = grt::GRT::get()->get_metaclass(type);
   if (mc)
     mc->add_validator(v);
   else
@@ -197,7 +197,7 @@ void bec::ValidationManager::scan(GRTManager* grtm)
   {
     if (bec::ValidationManager::is_validation_plugin(plugins[i]))
     {
-      grt::Module* module = plugins[i]->get_grt()->get_module(plugins[i]->moduleName());
+      grt::Module* module = grt::GRT::get()->get_module(plugins[i]->moduleName());
       grt::CPPModule* cpp_module = dynamic_cast<grt::CPPModule*>(module);
       if (cpp_module)
       { 
@@ -222,7 +222,7 @@ bool bec::ValidationManager::validate_instance(const grt::ObjectRef& obj, const 
   // Clear messages with corresponding tag from the object.
   (*signal_notify())(tag, obj, tag, grt::NoErrorMsg);
 
-  static const grt::MetaClass *mc_to_break_checks = obj->get_grt()->get_metaclass("db.DatabaseObject");
+  static const grt::MetaClass *mc_to_break_checks = grt::GRT::get()->get_metaclass("db.DatabaseObject");
   grt::MetaClass* mc = obj->get_metaclass();
   
   while (mc && mc != mc_to_break_checks)

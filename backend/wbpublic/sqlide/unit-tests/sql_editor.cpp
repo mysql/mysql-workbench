@@ -40,23 +40,23 @@ TEST_MODULE(sql_editor, "SQL editor");
 
 TEST_FUNCTION(1)
 {
-	rdbms= db_mgmt_RdbmsRef::cast_from(tester.grt->unserialize("data/res/mysql_rdbms_info.xml"));
+	rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->unserialize("data/res/mysql_rdbms_info.xml"));
 	ensure("db_mgmt_RdbmsRef initialization", rdbms.is_valid());
 
 	//!ListRef<db_mgmt_Rdbms> rdbms_list= ListRef<db_mgmt_Rdbms>::cast_from(grtm.get_grt()->get("/wb/rdbmsMgmt/rdbms"));
-	ListRef<db_mgmt_Rdbms> rdbms_list(tester.grt);
+	ListRef<db_mgmt_Rdbms> rdbms_list(true);
 	rdbms_list.insert(rdbms);
 
 
-  GrtVersionRef version = bec::parse_version(tester.grt, "5.6.10");
+  GrtVersionRef version = bec::parse_version("5.6.10");
   version->name("MySQL Community Server (GPL)");
-  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(tester.grt);
+  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
   parser::ParserContext::Ref parser = services->createParserContext(rdbms->characterSets(), version, 1);
 	ensure("failed to retrieve RDBMS list", rdbms_list.is_valid());
 	for (int n= 0, count= rdbms_list.count(); n < count; ++n)
 	{
 		db_mgmt_RdbmsRef rdbms= rdbms_list[n];
-		MySQLEditor::Ref sql_editor = MySQLEditor::create(tester.grt, parser, parser);
+		MySQLEditor::Ref sql_editor = MySQLEditor::create(parser, parser);
 		ensure(("failed to get sql editor for " + rdbms->name().toString() + " RDBMS").c_str(), (NULL != sql_editor.get()));
 	}
 }

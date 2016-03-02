@@ -59,12 +59,12 @@ namespace wb {
     bool has_unsaved_changes() { return _dirty; }
 
 
-    workbench_DocumentRef retrieve_document(grt::GRT *grt);
+    workbench_DocumentRef retrieve_document();
     
     std::list<std::string> get_load_warnings() const { return _load_warnings; }
 
-    void store_document(grt::GRT *grt, const workbench_DocumentRef &doc);
-    void store_document_autosave(grt::GRT *grt, const workbench_DocumentRef &doc);
+    void store_document(const workbench_DocumentRef &doc);
+    void store_document_autosave(const workbench_DocumentRef &doc);
     
 
     std::list<std::string> get_file_list(const std::string &prefixdir= "");
@@ -119,7 +119,7 @@ namespace wb {
 
     boost::signals2::signal<void ()> _changed_signal;
 
-    workbench_DocumentRef unserialize_document(grt::GRT *grt, xmlDocPtr xmldoc, const std::string &path);
+    workbench_DocumentRef unserialize_document(xmlDocPtr xmldoc, const std::string &path);
 
     
   private:    
@@ -129,7 +129,7 @@ namespace wb {
     void cleanup_upgrade_data();
     
     void check_and_fix_data_file_bug();
-    bool check_and_fix_duplicate_uuid_bug(grt::GRT *grt, xmlDocPtr xmldoc);
+    bool check_and_fix_duplicate_uuid_bug(xmlDocPtr xmldoc);
     
     void check_and_fix_inconsistencies(xmlDocPtr xmldoc, const std::string &version);
     

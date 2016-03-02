@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -64,7 +64,7 @@ public:
 TEST_DATA_CONSTRUCTOR(sql_editor_be_autocomplete_tests)
   : _conn(new sql::Dbc_connection_handler()), _cache(NULL)
 {
-  populate_grt(_tester.grt, _tester);
+  populate_grt(_tester);
 
   // Auto completion needs a cache for object name look up, so we have to set up one
   // with all bells and whistles.
@@ -93,8 +93,8 @@ TEST_MODULE(sql_editor_be_autocomplete_tests, "SQL code completion tests");
  */
 TEST_FUNCTION(5)
 {
-  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
-  setup_env(_tester.grt, connectionProperties);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
+  setup_env(connectionProperties);
 
   sql::DriverManager *dm = sql::DriverManager::getDriverManager();
   _conn->ref = dm->getConnection(connectionProperties);
@@ -105,7 +105,7 @@ TEST_FUNCTION(5)
   if (res && res->next())
   {
     std::string version_string = res->getString("VERSION");
-    _version = parse_version(_tester.grt, version_string);
+    _version = parse_version(version_string);
   }
   delete res;
 
@@ -114,8 +114,7 @@ TEST_FUNCTION(5)
   _tester.get_rdbms()->version(_version);
   version = (int)(_version->majorNumber() * 10000 + _version->minorNumber() * 100 + _version->releaseNumber());
 
-  base::remove("testconn.cache");
-  _cache = new AutoCompleteCache("testconn", boost::bind(&Test_object_base<sql_editor_be_autocomplete_tests>::get_connection, this, _1),
+  _cache = new AutoCompleteCache("temp/testconn", boost::bind(&Test_object_base<sql_editor_be_autocomplete_tests>::get_connection, this, _1),
     ".", NULL);
 
   // Copy a current version of the code editor configuration file to the test data folder.
@@ -131,14 +130,14 @@ TEST_FUNCTION(5)
   else
     fail("Could not copy code editor configuration");
 
-  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(_tester.grt);
+  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
   parser::ParserContext::Ref context = services->createParserContext(_tester.get_rdbms()->characterSets(),
     _version, false);
 
   _autocomplete_context = services->createParserContext(_tester.get_rdbms()->characterSets(),
     _version, false);
 
-  _sql_editor = MySQLEditor::create(_tester.grt, context, _autocomplete_context);
+  _sql_editor = MySQLEditor::create(context, _autocomplete_context);
   _sql_editor->set_current_schema("sakila");
   _sql_editor->set_auto_completion_cache(_cache);
 

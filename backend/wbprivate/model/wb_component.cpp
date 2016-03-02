@@ -34,7 +34,6 @@ WBComponent::WBComponent(WBContext *context)
 {
 }
 
-grt::GRT *WBComponent::get_grt() { return _wb->get_grt_manager()->get_grt(); }
 bec::GRTManager *WBComponent::get_grt_manager() { return _wb->get_grt_manager(); }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,7 +64,7 @@ grt::ValueRef WBComponent::place_object(ModelDiagramForm *form, const Point &pos
 
   form->get_view()->snap_to_grid(offset);
 
-  model_FigureRef figure(get_grt()->create_object<model_Figure>(object_struct));
+  model_FigureRef figure(grt::GRT::get()->create_object<model_Figure>(object_struct));
 
   if (!figure.is_valid())
     throw std::runtime_error("Could not create object of type "+object_struct);
@@ -94,7 +93,7 @@ grt::ValueRef WBComponent::place_object(ModelDiagramForm *form, const Point &pos
       figure->color(_wb->get_wb_options().get_string(object_struct+":Color", ""));
   }
 
-  grt::AutoUndo undo(_wb->get_grt());
+  grt::AutoUndo undo;
 
   view->addFigure(figure);
   

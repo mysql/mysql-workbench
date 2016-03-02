@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -116,7 +116,7 @@ void ui_db_ConnectPanel::connection(const grt::Ref<db_mgmt_Connection> &value)
 grt::Ref<mforms_ObjectReference> ui_db_ConnectPanel::view() const
 {
   if (_data && _data->panel())
-    return mforms_to_grt(get_grt(), _data->panel(), "Box");
+    return mforms_to_grt(_data->panel(), "Box");
   return grt::Ref<mforms_ObjectReference>();
 }
 

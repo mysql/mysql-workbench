@@ -50,6 +50,7 @@ include_directories(.
     ${GRT_INCLUDE_DIRS}
     ${GNOME_KEYRING_INCLUDE_DIRS}
     ${VSQLITE_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
 )
 
 #link_directories(${PROJECT_BINARY_DIR}/mysqlcppconnector/lib ${PROJECT_BINARY_DIR}/antlr-wb)

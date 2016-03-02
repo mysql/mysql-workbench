@@ -84,7 +84,7 @@ TEST_FUNCTION(2)
 
   std::string rootpath= "data/diff";
   grt::default_omf omf;
-  test_suites(grt, rootpath.c_str(), run_single_test, single_suite, single_test, &omf);
+  test_suites(rootpath.c_str(), run_single_test, single_suite, single_test, &omf);
 }
 
 TEST_FUNCTION(3)
@@ -95,7 +95,7 @@ TEST_FUNCTION(3)
 
   std::string rootpath= "data/diff-omf";
   grt::default_omf omf;
-  test_suites(grt, rootpath.c_str(), run_single_test, single_suite, single_test, &omf);
+  test_suites(rootpath.c_str(), run_single_test, single_suite, single_test, &omf);
 }
 
 END_TESTS
@@ -163,7 +163,7 @@ void test_suites(
         p.target_file= rootpath + std::string("/") + suite_name + "/" + (run_single_test? single_test: test_name);
         p.logging= run_single_test;
 
-        test_files(grt, p.source_file, p.target_file, p.logging, omf);
+        test_files(p.source_file, p.target_file, p.logging, omf);
 
         if (run_single_test)
           break;

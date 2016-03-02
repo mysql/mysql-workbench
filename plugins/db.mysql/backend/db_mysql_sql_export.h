@@ -81,7 +81,7 @@ class WBPLUGINDBMYSQLBE_PUBLIC_FUNC DbMySQLSQLExport : public DbMySQLValidationP
 
 protected:
   virtual db_mysql_CatalogRef get_model_catalog();
-  virtual grt::DictRef get_options_as_dict(grt::GRT*);
+  virtual grt::DictRef get_options_as_dict();
   //bec::MessageListBE messages_list;
 public:
 
@@ -101,7 +101,7 @@ public:
   //void run_validation();
 
   void export_finished(grt::ValueRef res);
-  grt::ValueRef export_task(grt::GRT*, grt::StringRef);
+  grt::ValueRef export_task(grt::StringRef);
 
   typedef boost::function<int ()> Task_finish_cb;
   void task_finish_cb(Task_finish_cb cb) { _task_finish_cb= cb; }
@@ -127,6 +127,6 @@ private:
 };
 
 
-grt::StringListRef convert_string_vector_to_grt_list(grt::GRT *grt, const std::vector<std::string>& v);
+grt::StringListRef convert_string_vector_to_grt_list(const std::vector<std::string>& v);
 
 #endif // _DB_MYSQL_SQL_EXPORT_H_

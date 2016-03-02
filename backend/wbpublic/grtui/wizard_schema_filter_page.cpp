@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -62,7 +62,7 @@ void WizardSchemaFilterPage::leave(bool advancing)
 {
   if (advancing)
   {
-    grt::StringListRef list(_form->grtm()->get_grt());
+    grt::StringListRef list(grt::Initialized);
     std::vector<std::string> selection= _check_list.get_selection();
   
     for (std::vector<std::string>::const_iterator iter= selection.begin();

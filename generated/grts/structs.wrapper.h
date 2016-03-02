@@ -39,8 +39,8 @@ class GRT_STRUCTS_WRAPPER_PUBLIC parser_ContextReference : public TransientObjec
 public:
   class ImplData;
   friend class ImplData;
-  parser_ContextReference(grt::GRT *grt, grt::MetaClass *meta=0)
-  : TransientObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  parser_ContextReference(grt::MetaClass *meta=0)
+  : TransientObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _data(0)
 
   {
@@ -72,16 +72,16 @@ protected:
 private: // wrapper methods for use by grt
   ImplData *_data;
 
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new parser_ContextReference(grt));
+    return grt::ObjectRef(new parser_ContextReference());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&parser_ContextReference::create);
     meta->bind_member("valid", new grt::MetaClass::Property<parser_ContextReference,grt::IntegerRef >(&parser_ContextReference::valid));
@@ -95,8 +95,8 @@ class GRT_STRUCTS_WRAPPER_PUBLIC mforms_ObjectReference : public TransientObject
   typedef TransientObject super;
 public:
   typedef mforms::Object ImplData;
-  mforms_ObjectReference(grt::GRT *grt, grt::MetaClass *meta=0)
-  : TransientObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  mforms_ObjectReference(grt::MetaClass *meta=0)
+  : TransientObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _type(""),
     _data(0), _release_data(NULL)
 
@@ -160,18 +160,18 @@ private: // wrapper methods for use by grt
   ImplData *_data;
   void (*_release_data)(ImplData *);
 
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new mforms_ObjectReference(grt));
+    return grt::ObjectRef(new mforms_ObjectReference());
   }
 
   static grt::ValueRef call_isEqualTo(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<mforms_ObjectReference*>(self)->isEqualTo(mforms_ObjectReferenceRef::cast_from(args[0])); }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&mforms_ObjectReference::create);
     {
@@ -191,8 +191,8 @@ class GRT_STRUCTS_WRAPPER_PUBLIC grt_PyObject : public TransientObject
   typedef TransientObject super;
 public:
   typedef grt::AutoPyObject ImplData;
-  grt_PyObject(grt::GRT *grt, grt::MetaClass *meta=0)
-  : TransientObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  grt_PyObject(grt::MetaClass *meta=0)
+  : TransientObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
     _data(0), _release_data(NULL)
 
   {
@@ -224,18 +224,18 @@ private: // wrapper methods for use by grt
   ImplData *_data;
   void (*_release_data)(ImplData *);
 
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new grt_PyObject(grt));
+    return grt::ObjectRef(new grt_PyObject());
   }
 
   static grt::ValueRef call_isEqualTo(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<grt_PyObject*>(self)->isEqualTo(grt_PyObjectRef::cast_from(args[0])); }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&grt_PyObject::create);
     meta->bind_method("isEqualTo", &grt_PyObject::call_isEqualTo);

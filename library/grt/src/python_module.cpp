@@ -52,7 +52,7 @@ static PyObject* function_call(PyGRTFunctionObject *self, PyObject *args, PyObje
   }
   
   Py_ssize_t a= 0;
-  grt::BaseListRef grtargs(self->module->get_grt());
+  grt::BaseListRef grtargs(true);
   
   for (grt::ArgSpecList::const_iterator arg= self->function->arg_types.begin(); 
        arg != self->function->arg_types.end(); ++arg)
@@ -238,7 +238,7 @@ static int module_init(PyGRTModuleObject *self, PyObject *args, PyObject *kwds)
     if (!PyArg_ParseTuple(args, "z", &name))
       return -1;
 
-    self->module= ctx->get_grt()->get_module(name);
+    self->module = grt::GRT::get()->get_module(name);
     
     if (!self->module)
     {

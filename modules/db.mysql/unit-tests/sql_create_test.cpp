@@ -44,13 +44,13 @@ protected:
         diffsql_module= NULL;
 
         // load modules
-        wb_mysql_import_module= tester.grt->get_native_module<WbMysqlImportImpl>();
+        wb_mysql_import_module= grt::GRT::get()->get_native_module<WbMysqlImportImpl>();
         ensure("WBModuleImport module initialization", NULL != wb_mysql_import_module);
-        diffsql_module = dynamic_cast<SQLGeneratorInterfaceImpl*>(tester.grt->get_module("DbMySQL"));
+        diffsql_module = dynamic_cast<SQLGeneratorInterfaceImpl*>(grt::GRT::get()->get_module("DbMySQL"));
         ensure("DiffSQLGen module initialization", NULL != diffsql_module);
 
         // init datatypes
-        populate_grt(tester.grt, tester);
+        populate_grt(tester);
 
         // init database connection
         connection = tester.create_connection_for_import();
@@ -72,11 +72,11 @@ TEST_FUNCTION(10)
 {
     grt::ValueRef e;
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-    NormalizedComparer cmp(tester.grt);
+    NormalizedComparer cmp;
     grt::DbObjectMatchAlterOmf omf;
 
-    SynteticMySQLModel model(tester.grt);
-    db_mysql_ViewRef view(tester.grt);
+    SynteticMySQLModel model;
+    db_mysql_ViewRef view(grt::Initialized);
     model.schema->views().insert(view);
     view->owner(model.schema);
     view->name("v2");
@@ -92,9 +92,9 @@ TEST_FUNCTION(10)
     boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
     boost::shared_ptr<DiffChange> drop_change= diff_make(catalog, e, &omf);
 
-    DictRef create_map(tester.grt);
-    DictRef drop_map(tester.grt);
-    grt::DictRef options(tester.grt);
+    DictRef create_map(true);
+    DictRef drop_map(true);
+    grt::DictRef options(true);
     options.set("UseFilteredLists", grt::IntegerRef(0));
     options.set("OutputContainer", create_map);
     options.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
@@ -116,10 +116,10 @@ TEST_FUNCTION(20)
 {
     grt::ValueRef e;
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-    NormalizedComparer cmp(tester.grt);
+    NormalizedComparer cmp;
     grt::DbObjectMatchAlterOmf omf;
 
-    SynteticMySQLModel model(tester.grt);
+    SynteticMySQLModel model;
 
     db_mysql_CatalogRef catalog = model.catalog;
     
@@ -128,9 +128,9 @@ TEST_FUNCTION(20)
     boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
     boost::shared_ptr<DiffChange> drop_change= diff_make(catalog, e, &omf);
 
-    DictRef create_map(tester.grt);
-    DictRef drop_map(tester.grt);
-    grt::DictRef options(tester.grt);
+    DictRef create_map(true);
+    DictRef drop_map(true);
+    grt::DictRef options(true);
     options.set("UseFilteredLists", grt::IntegerRef(0));
     options.set("OutputContainer", create_map);
     options.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
@@ -153,7 +153,7 @@ TEST_FUNCTION(30)
 {
     grt::ValueRef e;
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-    NormalizedComparer cmp(tester.grt);
+    NormalizedComparer cmp;
     grt::DbObjectMatchAlterOmf omf;
 
     tester.wb->open_document("data/workbench/11926862.mwb");
@@ -164,9 +164,9 @@ TEST_FUNCTION(30)
     boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
     boost::shared_ptr<DiffChange> drop_change= diff_make(catalog, e, &omf);
 
-    DictRef create_map(tester.grt);
-    DictRef drop_map(tester.grt);
-    grt::DictRef options(tester.grt);
+    DictRef create_map(true);
+    DictRef drop_map(true);
+    grt::DictRef options(true);
     options.set("UseFilteredLists", grt::IntegerRef(0));
     options.set("OutputContainer", create_map);
     options.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
@@ -191,10 +191,10 @@ TEST_FUNCTION(40)
 {
     grt::ValueRef e;
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-    NormalizedComparer cmp(tester.grt);
+    NormalizedComparer cmp;
     grt::DbObjectMatchAlterOmf omf;
 
-    SynteticMySQLModel model(tester.grt);
+    SynteticMySQLModel model;
     
     model.schema->defaultCharacterSetName("utf8");
     model.schema->defaultCollationName("latin_1_swedish_ci");
@@ -210,9 +210,9 @@ TEST_FUNCTION(40)
     boost::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
     boost::shared_ptr<DiffChange> drop_change = diff_make(catalog, e, &omf);
 
-    DictRef create_map(tester.grt);
-    DictRef drop_map(tester.grt);
-    grt::DictRef options(tester.grt);
+    DictRef create_map(true);
+    DictRef drop_map(true);
+    grt::DictRef options(true);
     options.set("UseFilteredLists", grt::IntegerRef(0));
     options.set("OutputContainer", create_map);
     options.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
@@ -252,10 +252,10 @@ TEST_FUNCTION(50)
   std::string comment_255 = comment_60+comment_60+comment_60+comment_60+"012345678912345";
 
   grt::ValueRef e;
-  NormalizedComparer cmp(tester.grt);
+  NormalizedComparer cmp;
   grt::DbObjectMatchAlterOmf omf;
 
-  SynteticMySQLModel model(tester.grt);
+  SynteticMySQLModel model;
    
   db_mysql_CatalogRef catalog = model.catalog;
 
@@ -269,9 +269,9 @@ TEST_FUNCTION(50)
     table->columns()[1]->comment(comment_255);
     boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
 
-    DictRef create_map(tester.grt);
-    DictRef drop_map(tester.grt);
-    grt::DictRef options(tester.grt);
+    DictRef create_map(true);
+    DictRef drop_map(true);
+    grt::DictRef options(true);
     options.set("UseFilteredLists", grt::IntegerRef(0));
     options.set("OutputContainer", create_map);
     options.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
@@ -290,9 +290,9 @@ TEST_FUNCTION(50)
     table->columns()[1]->comment(comment_255+"###");
     boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
 
-    DictRef create_map(tester.grt);
-    DictRef drop_map(tester.grt);
-    grt::DictRef options(tester.grt);
+    DictRef create_map(true);
+    DictRef drop_map(true);
+    grt::DictRef options(true);
     options.set("UseFilteredLists", grt::IntegerRef(0));
     options.set("OutputContainer", create_map);
     options.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
@@ -318,9 +318,9 @@ TEST_FUNCTION(50)
     table->columns()[1]->comment(comment_1024);
     boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
 
-    DictRef create_map(tester.grt);
-    DictRef drop_map(tester.grt);
-    grt::DictRef options(tester.grt);
+    DictRef create_map(true);
+    DictRef drop_map(true);
+    grt::DictRef options(true);
     options.set("UseFilteredLists", grt::IntegerRef(0));
     options.set("OutputContainer", create_map);
     options.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
@@ -339,9 +339,9 @@ TEST_FUNCTION(50)
     table->columns()[1]->comment(comment_1024+"###");
     boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
 
-    DictRef create_map(tester.grt);
-    DictRef drop_map(tester.grt);
-    grt::DictRef options(tester.grt);
+    DictRef create_map(true);
+    DictRef drop_map(true);
+    grt::DictRef options(true);
     options.set("UseFilteredLists", grt::IntegerRef(0));
     options.set("OutputContainer", create_map);
     options.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
@@ -364,7 +364,7 @@ TEST_FUNCTION(60)
   {
     grt::ValueRef e;
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-    NormalizedComparer cmp(tester.grt);
+    NormalizedComparer cmp;
     grt::DbObjectMatchAlterOmf omf;
 
     std::string modelfile = "data/forward_engineer/view_mixed_case.mwb";
@@ -376,10 +376,10 @@ TEST_FUNCTION(60)
     boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
     boost::shared_ptr<DiffChange> drop_change= diff_make(catalog, e, &omf);
 
-    DictRef create_map(tester.grt);
-    DictRef drop_map(tester.grt);
-    DictRef db_opts(tester.grt);
-    grt::DictRef options(tester.grt);
+    DictRef create_map(true);
+    DictRef drop_map(true);
+    DictRef db_opts(true);
+    grt::DictRef options(true);
     options.set("UseFilteredLists", grt::IntegerRef(0));
     options.set("OutputContainer", create_map);
     options.set("CaseSensitive", grt::IntegerRef(1));
@@ -426,7 +426,7 @@ TEST_FUNCTION(60)
   {
       grt::ValueRef e;
       std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-      NormalizedComparer cmp(tester.grt);
+      NormalizedComparer cmp;
       grt::DbObjectMatchAlterOmf omf;
 
       std::string modelfile = "data/forward_engineer/view_mixed_case.mwb";
@@ -438,10 +438,10 @@ TEST_FUNCTION(60)
       boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
       boost::shared_ptr<DiffChange> drop_change= diff_make(catalog, e, &omf);
 
-      DictRef create_map(tester.grt);
-      DictRef drop_map(tester.grt);
-      DictRef db_opts(tester.grt);
-      grt::DictRef options(tester.grt);
+      DictRef create_map(true);
+      DictRef drop_map(true);
+      DictRef db_opts(true);
+      grt::DictRef options(true);
       options.set("UseFilteredLists", grt::IntegerRef(0));
       options.set("OutputContainer", create_map);
       options.set("CaseSensitive", grt::IntegerRef(1));
@@ -491,7 +491,7 @@ TEST_FUNCTION(70)
 {
   grt::ValueRef e;
   std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-  NormalizedComparer cmp(tester.grt);
+  NormalizedComparer cmp;
   grt::DbObjectMatchAlterOmf omf;
 
   std::string modelfile = "data/forward_engineer/sakila_full.mwb";
@@ -500,8 +500,8 @@ TEST_FUNCTION(70)
 
   catalog->schemata()[0]->name("sakila_test");
 
-  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(tester.grt);
-  GrtVersionRef version = bec::parse_version(tester.grt, "5.6.0");
+  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
+  GrtVersionRef version = bec::parse_version("5.6.0");
   parser::ParserContext::Ref context = services->createParserContext(tester.get_rdbms()->characterSets(),
     version, false);
   services->renameSchemaReferences(context, catalog, "sakila", "sakila_test");
@@ -511,10 +511,10 @@ TEST_FUNCTION(70)
   boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
   boost::shared_ptr<DiffChange> drop_change= diff_make(catalog, e, &omf);
 
-  DictRef create_map(tester.grt);
-  DictRef drop_map(tester.grt);
+  DictRef create_map(true);
+  DictRef drop_map(true);
 
-  grt::DictRef options = DictRef::cast_from(tester.grt->unserialize("data/forward_engineer/rename_opts.dict"));
+  grt::DictRef options = DictRef::cast_from(grt::GRT::get()->unserialize("data/forward_engineer/rename_opts.dict"));
   options.set("GenerateDocumentProperties", grt::IntegerRef(0));
 
   create_map = diffsql_module->generateSQLForDifferences(GrtNamedObjectRef(), catalog, options);

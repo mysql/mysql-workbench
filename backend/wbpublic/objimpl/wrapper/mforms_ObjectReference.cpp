@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +17,9 @@
  * 02110-1301  USA
  */
 
-#include <grts/structs.ui.h>
+#include "grts/structs.ui.h"
 
-#include <grtpp_util.h>
+#include "grtpp_util.h"
 #include "mforms_ObjectReference_impl.h"
 
 #include <typeinfo>
@@ -66,14 +66,14 @@ static void release_object(mforms::Object *object)
     object->release();
 }
 
-mforms_ObjectReferenceRef mforms_to_grt(grt::GRT *grt, mforms::Object *object, const std::string &type_name)
+mforms_ObjectReferenceRef mforms_to_grt(mforms::Object *object, const std::string &type_name)
 {
   if (object)
   {
     // view is not necessarily managed, in some cases the view must be deleted by the caller
     //assert(object->is_managed());
 
-    mforms_ObjectReferenceRef ref(grt);
+    mforms_ObjectReferenceRef ref(grt::Initialized);
     object->retain();
     ref->set_data(object, object->is_managed() ? release_object : NULL);
     ref->type(grt::StringRef(type_name.empty() ? grt::get_type_name(typeid(*object)) : type_name));
@@ -84,13 +84,13 @@ mforms_ObjectReferenceRef mforms_to_grt(grt::GRT *grt, mforms::Object *object, c
 
 
 
-mforms_ObjectReferenceRef mforms_to_grt(grt::GRT *grt, mforms::ContextMenu *menu)
+mforms_ObjectReferenceRef mforms_to_grt(mforms::ContextMenu *menu)
 {
-  return mforms_to_grt(grt, menu, "ContextMenu");
+  return mforms_to_grt(menu, "ContextMenu");
 }
 
 
-mforms_ObjectReferenceRef mforms_to_grt(grt::GRT *grt, mforms::DockingPoint *dpoint)
+mforms_ObjectReferenceRef mforms_to_grt(mforms::DockingPoint *dpoint)
 {
-  return mforms_to_grt(grt, dpoint, "DockingPoint");
+  return mforms_to_grt(dpoint, "DockingPoint");
 }

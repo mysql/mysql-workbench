@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,10 +43,10 @@ public:
 
 TEST_DATA_CONSTRUCTOR(wb_undo_diagram)
 {
-  populate_grt(tester.grt, tester);
+  populate_grt(tester);
 
   wbui = tester.wb->get_ui();
-  um = tester.wb->get_grt()->get_undo_manager();
+  um = grt::GRT::get()->get_undo_manager();
   overview = wbui->get_physical_overview();
   diagram = model_DiagramRef();
 
@@ -101,46 +101,6 @@ TEST_FUNCTION(1)
   wbui->set_active_form(diagram_form);
   ensure_equals("undo stack is empty", um->get_undo_stack().size(), 0U);
 }
-
-// final check
-TEST_FUNCTION(99)
-{
-  diagram->unselectAll();
-
-  WBTester other(false);
-  populate_grt(other.grt, other); // Needed for comparison.
-
-  other.wb->open_document("data/workbench/undo_test_model1_duplicate.mwb");
-  /*
-  other.open_all_diagrams();
-  other.sync_view();
-
-  // Temporarily switch some properties, which would otherwise be reported as different,
-  // but don't matter here.
-  workbench_WorkbenchRef other_root = other.wb->get_root();
-  grt::StringRef other_path = other_root->docPath();
-
-  workbench_WorkbenchRef root = tester.wb->get_root();
-  other_root->docPath(root->docPath());
-
-  app_DocumentInfoRef info = root->doc()->info();
-  app_DocumentInfoRef other_info = other_root->doc()->info();
-  info->dateChanged(other_info->dateChanged());
-
-  // Check if the document matches the one originally loaded.
-  grt_ensure_equals("Unexpected changes:",
-                    tester.wb->get_root(),
-                    other.wb->get_root());
-
-  other_root->docPath(other_path);
-  */
-  ensure("Could not close document", other.close_document());
-  other.wb->close_document_finish();
-
-  ensure("Could not close document", tester.close_document());
-  tester.wb->close_document_finish();
-}
-
 
 // Diagram
 //----------------------------------------------------------------------------------------
@@ -753,8 +713,8 @@ TEST_FUNCTION(42) // Create Relationship (indirectly with FK)
                                                     true, true,
                                                     true, false,
                                                     tester.get_rdbms(),
-                                                    DictRef(tester.grt),
-                                                    DictRef(tester.grt));
+                                                    DictRef(true),
+                                                    DictRef(true));
   check_only_one_undo_added();
 
   ensure_equals("rel count", diagram->connections().count(), 2U);
@@ -1040,6 +1000,9 @@ TEST_FUNCTION(62) // Delete Relationship and both Tables
   ensure_equals("rel count", diagram->connections().count(), 0U);
   
   check_undo();
+
+  ensure("Could not close document", tester.close_document());
+  tester.wb->close_document_finish();
 }
 
 END_TESTS

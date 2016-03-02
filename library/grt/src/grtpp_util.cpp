@@ -521,7 +521,7 @@ void CopyContext::copy_list(BaseListRef &list, const BaseListRef &source, bool d
         list.ginsert(value);
       else
       {
-        BaseListRef clist(list.get_grt());
+        BaseListRef clist(true);
         copy_list(clist, BaseListRef::cast_from(value), dontfollow);
         list.ginsert(clist);
       }
@@ -532,7 +532,7 @@ void CopyContext::copy_list(BaseListRef &list, const BaseListRef &source, bool d
         list.ginsert(value);
       else
       {
-        DictRef cdict(list.get_grt());
+        DictRef cdict(true);
         copy_dict(cdict, DictRef::cast_from(value), dontfollow);
         list.ginsert(cdict);
       }
@@ -563,7 +563,7 @@ void CopyContext::copy_dict(DictRef &dict, const DictRef &source, bool dontfollo
         dict.set(key, value);
       else
       {
-        BaseListRef clist(dict.get_grt());
+        BaseListRef clist(true);
         copy_list(clist, BaseListRef::cast_from(value), dontfollow);
         dict.set(key, clist);
       }
@@ -574,7 +574,7 @@ void CopyContext::copy_dict(DictRef &dict, const DictRef &source, bool dontfollo
         dict.set(key, value);
       else
       {
-        DictRef cdict(dict.get_grt());
+        DictRef cdict(true);
         copy_dict(cdict, DictRef::cast_from(value), dontfollow);
         dict.set(key, cdict);
       }
@@ -989,7 +989,7 @@ static ValueRef copy_value(ValueRef value, bool deep, internal::Object *owner)
   case ListType:
     {
       BaseListRef orig(BaseListRef::cast_from(value));
-      BaseListRef list(orig.content().get_grt(), orig.content_type(), orig.content_class_name());
+      BaseListRef list(orig.content_type(), orig.content_class_name());
 
       //Copy items
       if (deep)
@@ -1006,7 +1006,7 @@ static ValueRef copy_value(ValueRef value, bool deep, internal::Object *owner)
   case DictType:
     {
       DictRef orig(DictRef::cast_from(value));
-      DictRef dict(orig.content().get_grt(), orig.content_type(), orig.content_class_name());
+      DictRef dict(orig.content_type(), orig.content_class_name());
 
       //Copy items
       if (deep)
@@ -1074,9 +1074,9 @@ void grt::remove_list_items_matching(ObjectListRef list, const boost::function<b
 
 // temporary code, should be replaced with dynamic loading once langauge support is pluginized
 
-bool grt::init_python_support(grt::GRT *grt, const std::string &module_path)
+bool grt::init_python_support(const std::string &module_path)
 {
-  PythonModuleLoader *loader= new PythonModuleLoader(grt, module_path);
+  PythonModuleLoader *loader= new PythonModuleLoader(module_path);
   if (!module_path.empty())
   {
     loader->get_python_context()->add_module_path(module_path, true);
@@ -1084,14 +1084,14 @@ bool grt::init_python_support(grt::GRT *grt, const std::string &module_path)
     loader->get_python_context()->add_module_path(module_path + "/python/site-packages", true);
 #endif
   }
-  grt->add_module_loader(loader);
+  grt::GRT::get()->add_module_loader(loader);
   return true;
 }
 
 
-void grt::add_python_module_dir(grt::GRT *grt, const std::string &python_module_path)
+void grt::add_python_module_dir(const std::string &python_module_path)
 {
-  PythonModuleLoader *loader= dynamic_cast<PythonModuleLoader *>(grt->get_module_loader("python"));
+  PythonModuleLoader *loader= dynamic_cast<PythonModuleLoader *>(grt::GRT::get()->get_module_loader("python"));
   if (loader && !python_module_path.empty())
     loader->get_python_context()->add_module_path(python_module_path, true);
 }

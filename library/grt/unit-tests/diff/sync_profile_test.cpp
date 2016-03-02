@@ -45,16 +45,16 @@ protected:
   TEST_DATA_CONSTRUCTOR(sync_profile_test)
   {
       omf.dontdiff_mask = 3;
-      diffsql_module= tester.grt->get_native_module<DbMySQLImpl>();
+      diffsql_module= grt::GRT::get()->get_native_module<DbMySQLImpl>();
       ensure("DiffSQLGen module initialization", NULL != diffsql_module);
 
       // init datatypes
-      populate_grt(tester.grt, tester);
+      populate_grt(tester);
 
       // init database connection
       connection= tester.create_connection_for_import();
 
-      sql_parser= SqlFacade::instance_for_rdbms_name(tester.grt, "Mysql");
+      sql_parser= SqlFacade::instance_for_rdbms_name("Mysql");
       ensure("failed to get sqlparser module", (NULL != sql_parser));
   }
 
@@ -67,7 +67,7 @@ TEST_MODULE(sync_profile_test, "Syncronize profiles tests");
 TEST_FUNCTION(1)
 {
     grt::ValueRef e;
-    NormalizedComparer cmp(tester.grt);
+    NormalizedComparer cmp;
 
     tester.wb->new_document();
     SynteticMySQLModel model1(&tester);
@@ -112,7 +112,7 @@ TEST_FUNCTION(2)
 {
     grt::ValueRef e;
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-    NormalizedComparer cmp(tester.grt);
+    NormalizedComparer cmp;
     //Kind of hack, atm we doesn't propertly cut server representation of procedures and vews, so just skip it
     cmp.add_comparison_rule("sqlDefinition",boost::bind(boost::function<bool ()> (boost::lambda::constant(true))));
 
@@ -130,9 +130,9 @@ TEST_FUNCTION(2)
     boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
     boost::shared_ptr<DiffChange> drop_change= diff_make(catalog, e, &omf);
 
-    DictRef create_map(tester.grt);
-    DictRef drop_map(tester.grt);
-    grt::DictRef options(tester.grt);
+    DictRef create_map(true);
+    DictRef drop_map(true);
+    grt::DictRef options(true);
     options.set("UseFilteredLists", grt::IntegerRef(0));
     options.set("OutputContainer", create_map);
     options.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
@@ -148,7 +148,7 @@ TEST_FUNCTION(2)
 
    std::list<std::string> schemata;
    schemata.push_back(model.schema->name());
-   tester.grt->get_undo_manager()->disable();
+   grt::GRT::get()->get_undo_manager()->disable();
    db_mysql_CatalogRef cat1 = tester.db_rev_eng_schema(schemata);
    if((cat1->schemata().get(0).is_valid()) && (cat1->schemata().get(0)->name() == "mydb"))
       cat1->schemata().remove(0);
@@ -168,9 +168,9 @@ TEST_FUNCTION(2)
    /*
    {
        // 1. generate alter
-    grt::StringListRef alter_map(tester.grt);
-    grt::ListRef<GrtNamedObject> alter_object_list(tester.grt);
-    grt::DictRef options(tester.grt);
+    grt::StringListRef alter_map(grt::Initialized);
+    grt::ListRef<GrtNamedObject> alter_object_list;
+    grt::DictRef options(true);
     options.set("UseFilteredLists", grt::IntegerRef(0));
     options.set("OutputContainer", alter_map);
     options.set("OutputObjectContainer", alter_object_list);
@@ -207,9 +207,9 @@ TEST_FUNCTION(2)
    diff = diff_make(cat1_and_cat2, cat1, &omf);
    {
        // 1. generate alter
-       grt::StringListRef alter_map(tester.grt);
-       grt::ListRef<GrtNamedObject> alter_object_list(tester.grt);
-       grt::DictRef options(tester.grt);
+       grt::StringListRef alter_map(grt::Initialized);
+       grt::ListRef<GrtNamedObject> alter_object_list;
+       grt::DictRef options(true);
        options.set("UseFilteredLists", grt::IntegerRef(0));
        options.set("OutputContainer", alter_map);
        options.set("OutputObjectContainer", alter_object_list);

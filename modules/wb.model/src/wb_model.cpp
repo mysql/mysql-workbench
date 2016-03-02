@@ -21,7 +21,7 @@
 #include "wb_model.h"
 #include "grts/structs.workbench.physical.h"
 #include "grt/grt_manager.h"
-#include <grtpp_undo_manager.h>
+#include "grtpp_undo_manager.h"
 #include "base/string_utilities.h"
 #include "base/wb_iterators.h"
 #include "base/file_utilities.h"
@@ -44,10 +44,10 @@ GRT_MODULE_ENTRY_POINT(WbModelImpl);
 
 // plugin registration
 
-static void def_export_view_plugin(grt::GRT* grt, const char* aName, const char* aCaption, grt::ListRef<app_Plugin> &list)
+static void def_export_view_plugin(const char* aName, const char* aCaption, grt::ListRef<app_Plugin> &list)
 {
-    app_PluginRef plugin(grt);
-    app_PluginObjectInputRef pdef(grt);
+    app_PluginRef plugin(grt::Initialized);
+    app_PluginObjectInputRef pdef(grt::Initialized);
     
     plugin->name((std::string("wb.model.") + aName).c_str());
     
@@ -69,8 +69,8 @@ static void def_export_view_plugin(grt::GRT* grt, const char* aName, const char*
 /*
 #define def_export_view_plugin(aName, aCaption)\
   {\
-    app_PluginRef plugin(get_grt());\
-    app_PluginObjectInputRef pdef(get_grt());\
+    app_PluginRef plugin;\
+    app_PluginObjectInputRef pdef;\
     plugin->name("wb.model."aName);\
     plugin->caption(aCaption);\
     plugin->moduleName("WbModel");\
@@ -87,11 +87,11 @@ static void def_export_view_plugin(grt::GRT* grt, const char* aName, const char*
   }
 */
 
-static void def_export_catalog_plugin(grt::GRT* grt, const char* aName, const char* aCaption, grt::ListRef<app_Plugin> &list)
+static void def_export_catalog_plugin(const char* aName, const char* aCaption, grt::ListRef<app_Plugin> &list)
 {
-    app_PluginRef plugin(grt);
-    app_PluginObjectInputRef pdef1(grt);
-    app_PluginObjectInputRef pdef2(grt);
+    app_PluginRef plugin(grt::Initialized);
+    app_PluginObjectInputRef pdef1(grt::Initialized);
+    app_PluginObjectInputRef pdef2(grt::Initialized);
 
     plugin->name((std::string("wb.model.") + aName).c_str());
     plugin->caption(aCaption);
@@ -115,8 +115,8 @@ static void def_export_catalog_plugin(grt::GRT* grt, const char* aName, const ch
 /*
 #define def_export_catalog_plugin(aName, aCaption)\
   {\
-    app_PluginRef plugin(get_grt());\
-    app_PluginObjectInputRef pdef(get_grt());\
+    app_PluginRef plugin;\
+    app_PluginObjectInputRef pdef;\
     plugin->name("wb.model."aName);\
     plugin->caption(aCaption);\
     plugin->moduleName("WbModel");\
@@ -133,15 +133,14 @@ static void def_export_catalog_plugin(grt::GRT* grt, const char* aName, const ch
   }
 */
 
-static void def_figure_selection_plugin(grt::GRT                 *grt, 
-                                        const std::string        &aName, 
+static void def_figure_selection_plugin(const std::string        &aName, 
                                         const std::string        &aCaption, 
                                         const std::string        &aCard, 
                                         grt::ListRef<app_Plugin> &list
                                        )
 {
-    app_PluginRef plugin(grt);
-    app_PluginSelectionInputRef pdef(grt);
+    app_PluginRef plugin(grt::Initialized);
+    app_PluginSelectionInputRef pdef(grt::Initialized);
 
     plugin->name(("wb.model." + aName).c_str());
 
@@ -162,16 +161,16 @@ static void def_figure_selection_plugin(grt::GRT                 *grt,
 
 ListRef<app_Plugin> WbModelImpl::getPluginInfo()
 {
-  ListRef<app_Plugin> list(get_grt());
+  ListRef<app_Plugin> list(true);
 
-  def_export_view_plugin(get_grt(), "center", "Center Diagram Contents", list);
-  def_export_view_plugin(get_grt(), "autolayout", "Autolayout Figures", list);
+  def_export_view_plugin("center", "Center Diagram Contents", list);
+  def_export_view_plugin("autolayout", "Autolayout Figures", list);
 
-  def_export_catalog_plugin(get_grt(), "createDiagramWithCatalog", "Autoplace Objects of the Catalog on New Model", list);
+  def_export_catalog_plugin("createDiagramWithCatalog", "Autoplace Objects of the Catalog on New Model", list);
 
-  def_figure_selection_plugin(get_grt(), "fitObjectsToContents", "Reset Object Size", "+", list);
-  def_export_view_plugin(get_grt(), "collapseAllObjects", "Collapse Objects", list);
-  def_export_view_plugin(get_grt(), "expandAllObjects", "Expand Objects", list);
+  def_figure_selection_plugin("fitObjectsToContents", "Reset Object Size", "+", list);
+  def_export_view_plugin("collapseAllObjects", "Collapse Objects", list);
+  def_export_view_plugin("expandAllObjects", "Expand Objects", list);
 
   return list;
 }
@@ -213,7 +212,7 @@ void overwrite_default_option(T &value, const std::string &name, const grt::Dict
   {
     value= T::cast_from(options.get(name));
     if (init_with_empty_value && !value.is_valid())
-      value= T(options.get_grt());
+      value= T(grt::Initialized);
   }
 }
 
@@ -223,9 +222,8 @@ void overwrite_default_option(T &value, const std::string &name, const grt::Dict
 std::string WbModelImpl::getTemplateDirFromName(const std::string& template_name)
 {
   // get pointer to the GRT
-  grt::GRT *grt= get_grt();
   std::string template_base_dir= base::makePath(
-    bec::GRTManager::get_instance_for(grt)->get_basedir(), 
+    bec::GRTManager::get_instance_for()->get_basedir(), 
     "modules/data/wb_model_reporting");
 
   // reformat the template name, replace spaces with _
@@ -252,7 +250,7 @@ WbModelImpl::WbModelImpl(grt::CPPModuleLoader *ldr)
 
 void WbModelImpl::begin_undo_group()
 {
-  _undo_man= get_grt()->get_undo_manager();
+  _undo_man= grt::GRT::get()->get_undo_manager();
   if (_undo_man)
     _undo_man->begin_undo_group();
 }
@@ -823,11 +821,11 @@ static bool calculate_view_size(const app_PageSettingsRef &page, double &width, 
 workbench_physical_DiagramRef WbModelImpl::add_model_view(const db_CatalogRef &catalog, int xpages, int ypages)
 {//XXX TODO move this to Workbench module so we can reuse the same code as from wb_component
   // also add code to place db objects or figures in canvas 
-  workbench_physical_DiagramRef view;
+  workbench_physical_DiagramRef view(grt::Initialized);
 
   workbench_physical_ModelRef model= workbench_physical_ModelRef::cast_from(catalog->owner());
 
-  app_PageSettingsRef page(app_PageSettingsRef::cast_from(get_grt()->get("/wb/doc/pageSettings")));
+  app_PageSettingsRef page(app_PageSettingsRef::cast_from(grt::GRT::get()->get("/wb/doc/pageSettings")));
   double width, height;
 
   calculate_view_size(page, width, height);
@@ -880,7 +878,7 @@ int WbModelImpl::createDiagramWithObjects(workbench_physical_ModelRef model, grt
     workbench_physical_DiagramRef view = create_view_for_object_count(model, (int)object_count);
 
     do_autoplace_any_list(view, objects);
-    ListRef<db_Table> tables(get_grt());
+    ListRef<db_Table> tables(true);
     for (size_t n= 0, count= objects.count(); n < count; ++n)
     {
       if (db_TableRef::can_wrap(objects[n]))
@@ -894,7 +892,7 @@ int WbModelImpl::createDiagramWithObjects(workbench_physical_ModelRef model, grt
 
     end_undo_group(_("Create Diagram with Objects"));
 
-    bec::GRTManager::get_instance_for(model.get_grt())->run_once_when_idle(boost::bind(&WbModelImpl::autolayout, this, view));
+    bec::GRTManager::get_instance_for()->run_once_when_idle(boost::bind(&WbModelImpl::autolayout, this, view));
   }
 
   return 0;
@@ -915,7 +913,7 @@ int WbModelImpl::createDiagramWithCatalog(workbench_physical_ModelRef model, db_
   if (object_count > 250)
     throw logic_error("Cannot create diagram: too many objects to place.\nTry dividing your model into several sub-diagrams with less than 200 objects each.");
 
-  DictRef wb_options= DictRef::cast_from(get_grt()->get("/wb/options/options"));
+  DictRef wb_options= DictRef::cast_from(grt::GRT::get()->get("/wb/options/options"));
   
   begin_undo_group();
   workbench_physical_DiagramRef diagram = create_view_for_object_count(model, (int)object_count);
@@ -964,7 +962,7 @@ int WbModelImpl::do_autoplace_any_list(const model_DiagramRef &view, ListRef<Grt
   
   workbench_physical_DiagramRef diagram(workbench_physical_DiagramRef::cast_from(view));
 
-  DictRef wb_options= DictRef::cast_from(get_grt()->get("/wb/options/options"));
+  DictRef wb_options= DictRef::cast_from(grt::GRT::get()->get("/wb/options/options"));
   
   GrtObjectRef object;
   model_FigureRef figure;
@@ -1082,9 +1080,7 @@ void WbModelImpl::handle_fklist_change(const model_DiagramRef &view, const db_Ta
         // connection doesnt exist yet, create it
         if (!found)
         {
-          grt::GRT *grt= table.get_grt();
-            
-          workbench_physical_ConnectionRef conn(grt);
+          workbench_physical_ConnectionRef conn(grt::Initialized);
           conn->owner(view); 
           conn->startFigure(table1);
           conn->endFigure(table2);

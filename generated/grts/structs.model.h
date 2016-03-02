@@ -51,8 +51,8 @@ class  model_Marker : public GrtObject
 {
   typedef GrtObject super;
 public:
-  model_Marker(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  model_Marker(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _x(0.0),
      _y(0.0),
      _zoom(0.0)
@@ -149,16 +149,16 @@ protected:
   grt::DoubleRef _y;
   grt::DoubleRef _zoom;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new model_Marker(grt));
+    return grt::ObjectRef(new model_Marker());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&model_Marker::create);
     {
@@ -190,11 +190,11 @@ class  model_Group : public GrtObject
 {
   typedef GrtObject super;
 public:
-  model_Group(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  model_Group(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _description(""),
-    _figures(grt, this, false),
-    _subGroups(grt, this, false)
+    _figures(this, false),
+    _subGroups(this, false)
 
   {
   }
@@ -274,16 +274,16 @@ protected:
   grt::ListRef<model_Figure> _figures;
   grt::ListRef<model_Group> _subGroups;
 private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new model_Group(grt));
+    return grt::ObjectRef(new model_Group());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&model_Group::create);
     {
@@ -317,8 +317,8 @@ class GRT_STRUCTS_MODEL_PUBLIC model_Object : public GrtObject
 public:
   class ImplData;
   friend class ImplData;
-  model_Object(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  model_Object(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _visible(1),
     _data(0)
 
@@ -377,16 +377,16 @@ protected:
 private: // wrapper methods for use by grt
   ImplData *_data;
 
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new model_Object(grt));
+    return grt::ObjectRef(new model_Object());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&model_Object::create);
     {
@@ -410,15 +410,15 @@ class GRT_STRUCTS_MODEL_PUBLIC model_Layer : public model_Object
 public:
   class ImplData;
   friend class ImplData;
-  model_Layer(grt::GRT *grt, grt::MetaClass *meta=0)
-  : model_Object(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  model_Layer(grt::MetaClass *meta=0)
+  : model_Object(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _color(""),
      _description(""),
-    _figures(grt, this, false),
-    _groups(grt, this, false),
+    _figures(this, false),
+    _groups(this, false),
      _height(0.0),
      _left(0.0),
-    _subLayers(grt, this, false),
+    _subLayers(this, false),
      _top(0.0),
      _width(0.0),
     _data(0)
@@ -631,9 +631,9 @@ protected:
 private: // wrapper methods for use by grt
   ImplData *_data;
 
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new model_Layer(grt));
+    return grt::ObjectRef(new model_Layer());
   }
 
   static grt::ValueRef call_lowerFigure(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<model_Layer*>(self)->lowerFigure(model_FigureRef::cast_from(args[0])); return grt::ValueRef(); }
@@ -642,9 +642,9 @@ private: // wrapper methods for use by grt
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&model_Layer::create);
     {
@@ -705,8 +705,8 @@ class GRT_STRUCTS_MODEL_PUBLIC model_Connection : public model_Object
 public:
   class ImplData;
   friend class ImplData;
-  model_Connection(grt::GRT *grt, grt::MetaClass *meta=0)
-  : model_Object(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  model_Connection(grt::MetaClass *meta=0)
+  : model_Object(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _drawSplit(0),
     _data(0)
 
@@ -792,16 +792,16 @@ protected:
 private: // wrapper methods for use by grt
   ImplData *_data;
 
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new model_Connection(grt));
+    return grt::ObjectRef(new model_Connection());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&model_Connection::create);
     {
@@ -830,8 +830,8 @@ class GRT_STRUCTS_MODEL_PUBLIC model_Figure : public model_Object
 public:
   class ImplData;
   friend class ImplData;
-  model_Figure(grt::GRT *grt, grt::MetaClass *meta=0)
-  : model_Object(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  model_Figure(grt::MetaClass *meta=0)
+  : model_Object(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _color(""),
      _expanded(1),
      _height(0.0),
@@ -1061,16 +1061,16 @@ protected:
 private: // wrapper methods for use by grt
   ImplData *_data;
 
-  static grt::ObjectRef create(grt::GRT *grt)
+  static grt::ObjectRef create()
   {
-    return grt::ObjectRef(new model_Figure(grt));
+    return grt::ObjectRef(new model_Figure());
   }
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&model_Figure::create);
     {
@@ -1134,16 +1134,16 @@ class GRT_STRUCTS_MODEL_PUBLIC model_Diagram : public GrtObject
 public:
   class ImplData;
   friend class ImplData;
-  model_Diagram(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+  model_Diagram(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
      _closed(0),
-    _connections(grt, this, false),
+    _connections(this, false),
      _description(""),
-    _figures(grt, this, false),
+    _figures(this, false),
      _height(0.0),
-    _layers(grt, this, false),
-    _options(grt, this, false),
-    _selection(grt, this, false),
+    _layers(this, false),
+    _options(this, false),
+    _selection(this, false),
      _updateBlocked(0),
      _width(0.0),
      _x(0.0),
@@ -1574,9 +1574,9 @@ private: // wrapper methods for use by grt
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(0);
     {
@@ -1680,12 +1680,12 @@ class GRT_STRUCTS_MODEL_PUBLIC model_Model : public GrtObject
 public:
   class ImplData;
   friend class ImplData;
-  model_Model(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-    _customData(grt, this, false),
-    _diagrams(grt, this, false),
-    _markers(grt, this, false),
-    _options(grt, this, false),
+  model_Model(grt::MetaClass *meta=0)
+  : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
+    _customData(this, false),
+    _diagrams(this, false),
+    _markers(this, false),
+    _options(this, false),
     _data(0)
 
   {
@@ -1810,9 +1810,9 @@ private: // wrapper methods for use by grt
 
 
 public:
-  static void grt_register(grt::GRT *grt)
+  static void grt_register()
   {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(0);
     {

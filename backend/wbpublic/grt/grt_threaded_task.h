@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -77,7 +77,7 @@ private:
   bool _send_task_res_msg;
 
 public:
-  typedef boost::function<grt::StringRef (grt::GRT *)> Proc_cb;
+  typedef boost::function<grt::StringRef ()> Proc_cb;
   typedef boost::function<int (int, const std::string&, const std::string&)> Msg_cb;
   typedef boost::function<int (float, const std::string&)> Progress_cb;
   typedef boost::function<void ()> Finish_cb;

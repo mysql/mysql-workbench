@@ -20,9 +20,7 @@
 #include "sql_specifics.h"
 
 
-Sql_specifics::Sql_specifics(grt::GRT *grt)
-:
-_grt(grt)
+Sql_specifics::Sql_specifics()
 {
 }
 

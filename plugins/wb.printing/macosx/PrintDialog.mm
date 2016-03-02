@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -161,7 +161,7 @@
     
     wbprint::getPageLayout(diagram, xpages, ypages);
     
-    app_PageSettingsRef pageSettings(app_PageSettingsRef::cast_from(args.get_grt()->get("/wb/doc/pageSettings")));
+    app_PageSettingsRef pageSettings(app_PageSettingsRef::cast_from(grt::GRT::get()->get("/wb/doc/pageSettings")));
     app_PaperTypeRef paperType(pageSettings->paperType());
         
     printInfo= [[NSPrintInfo alloc] initWithDictionary:

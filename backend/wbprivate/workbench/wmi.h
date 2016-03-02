@@ -73,7 +73,7 @@ namespace wmi
     WmiServices(const std::string& server, const std::string& user, const std::string& password);
     ~WmiServices();
 
-    grt::DictListRef query(grt::GRT* grt, const std::string& query);
+    grt::DictListRef query(const std::string& query);
     std::string serviceControl(const std::string& service, const std::string& action);
     std::string systemStat(const std::string& what);
 

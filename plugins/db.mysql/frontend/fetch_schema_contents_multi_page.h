@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,13 +34,13 @@ public:
 
   bool perform_fetch(bool source)
   {
-    execute_grt_task(boost::bind(&FetchSchemaContentsSourceTargetProgressPage::do_fetch, this, _1, source),
+    execute_grt_task(boost::bind(&FetchSchemaContentsSourceTargetProgressPage::do_fetch, this, source),
                      false);
     return true;
   }
 
 
-  grt::ValueRef do_fetch(grt::GRT *grt, bool source)
+  grt::ValueRef do_fetch(bool source)
   {
     grt::StringListRef selection(grt::StringListRef::cast_from(values().get(source ? "selectedOriginalSchemata" : "selectedSchemata")));
     std::vector<std::string> names;
