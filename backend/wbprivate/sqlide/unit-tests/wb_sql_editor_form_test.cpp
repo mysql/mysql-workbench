@@ -23,7 +23,7 @@
 #include "sqlide/wb_sql_editor_tree_controller.h"
 #include "stub/stub_mforms.h"
 
-#include "grtpp.h"
+#include "grt.h"
 
 #include "cppdbc.h"
 #include "wb_helpers.h"

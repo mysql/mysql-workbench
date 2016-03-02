@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _BE_COMMON_H_
-#define _BE_COMMON_H_
+
+#pragma once
 
 #include <cstring>
 #include <vector>
@@ -31,7 +31,7 @@
 #endif
 
 #include <string.h>
-#include "grtpp.h"
+#include "grt.h"
 
 #include "wbpublic_public_interface.h"
 
@@ -122,5 +122,3 @@ namespace bec {
   WBPUBLICBACKEND_PUBLIC_FUNC void move_list_ref_item(grt::ListRef<T> items, const grt::ValueRef &object, ssize_t to);
 
 };
-
-#endif /* _BE_COMMON_H_ */

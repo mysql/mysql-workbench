@@ -21,12 +21,11 @@
 
 
 #include "wb_mysql_import_public_interface.h"
-#include "grtpp.h"
+#include "grt.h"
 #include "grts/structs.db.mysql.h"
 #include "grts/structs.model.h"
 #include "grts/structs.workbench.model.h"
 #include "grts/structs.workbench.physical.h"
-
 
 using namespace grt;
 

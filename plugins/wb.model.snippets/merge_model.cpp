@@ -18,7 +18,7 @@
  */
 
 #include "merge_model.h"
-#include "grtpp.h"
+#include "grt.h"
 #include "grtpp_util.h"
 
 #include "grts/structs.workbench.h"

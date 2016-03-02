@@ -1768,7 +1768,7 @@
 		2B825DB00E0B604D00BE52DF /* grtlistdiff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DA10E0B604D00BE52DF /* grtlistdiff.h */; };
 		2B825DCF0E0B605A00BE52DF /* unserializer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DB50E0B605A00BE52DF /* unserializer.h */; };
 		2B825DD00E0B605A00BE52DF /* unserializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825DB60E0B605A00BE52DF /* unserializer.cpp */; };
-		2B825DD10E0B605A00BE52DF /* grtpp.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DB70E0B605A00BE52DF /* grtpp.h */; };
+		2B825DD10E0B605A00BE52DF /* grt.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DB70E0B605A00BE52DF /* grt.h */; };
 		2B825DD20E0B605A00BE52DF /* grtpp_undo_manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825DB80E0B605A00BE52DF /* grtpp_undo_manager.cpp */; };
 		2B825DD30E0B605A00BE52DF /* grtpp_module.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825DB90E0B605A00BE52DF /* grtpp_module.cpp */; };
 		2B825DD40E0B605A00BE52DF /* grtpp_helper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825DBA0E0B605A00BE52DF /* grtpp_helper.cpp */; };
@@ -1783,7 +1783,7 @@
 		2B825DDE0E0B605A00BE52DF /* grtpp_value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825DC40E0B605A00BE52DF /* grtpp_value.cpp */; };
 		2B825DDF0E0B605A00BE52DF /* grtpp_util.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DC50E0B605A00BE52DF /* grtpp_util.h */; };
 		2B825DE10E0B605A00BE52DF /* grtpp_value.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DC70E0B605A00BE52DF /* grtpp_value.h */; };
-		2B825DE20E0B605A00BE52DF /* grtpp_grt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825DC80E0B605A00BE52DF /* grtpp_grt.cpp */; };
+		2B825DE20E0B605A00BE52DF /* grt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825DC80E0B605A00BE52DF /* grt.cpp */; };
 		2B825DE50E0B605A00BE52DF /* grtpp_shell.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DCB0E0B605A00BE52DF /* grtpp_shell.h */; };
 		2B825DE70E0B605A00BE52DF /* grtpp_shell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825DCD0E0B605A00BE52DF /* grtpp_shell.cpp */; };
 		2B825E710E0B664E00BE52DF /* mdc_canvas_view_image.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825E270E0B664E00BE52DF /* mdc_canvas_view_image.h */; };
@@ -5786,7 +5786,7 @@
 		2B825DA10E0B604D00BE52DF /* grtlistdiff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = grtlistdiff.h; sourceTree = "<group>"; };
 		2B825DB50E0B605A00BE52DF /* unserializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = unserializer.h; path = library/grt/src/unserializer.h; sourceTree = "<group>"; };
 		2B825DB60E0B605A00BE52DF /* unserializer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = unserializer.cpp; path = library/grt/src/unserializer.cpp; sourceTree = "<group>"; };
-		2B825DB70E0B605A00BE52DF /* grtpp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grtpp.h; path = library/grt/src/grtpp.h; sourceTree = "<group>"; };
+		2B825DB70E0B605A00BE52DF /* grt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grt.h; path = library/grt/src/grt.h; sourceTree = "<group>"; };
 		2B825DB80E0B605A00BE52DF /* grtpp_undo_manager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_undo_manager.cpp; path = library/grt/src/grtpp_undo_manager.cpp; sourceTree = "<group>"; };
 		2B825DB90E0B605A00BE52DF /* grtpp_module.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_module.cpp; path = library/grt/src/grtpp_module.cpp; sourceTree = "<group>"; };
 		2B825DBA0E0B605A00BE52DF /* grtpp_helper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_helper.cpp; path = library/grt/src/grtpp_helper.cpp; sourceTree = "<group>"; };
@@ -5801,7 +5801,7 @@
 		2B825DC40E0B605A00BE52DF /* grtpp_value.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_value.cpp; path = library/grt/src/grtpp_value.cpp; sourceTree = "<group>"; };
 		2B825DC50E0B605A00BE52DF /* grtpp_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grtpp_util.h; path = library/grt/src/grtpp_util.h; sourceTree = "<group>"; };
 		2B825DC70E0B605A00BE52DF /* grtpp_value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grtpp_value.h; path = library/grt/src/grtpp_value.h; sourceTree = "<group>"; };
-		2B825DC80E0B605A00BE52DF /* grtpp_grt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_grt.cpp; path = library/grt/src/grtpp_grt.cpp; sourceTree = "<group>"; };
+		2B825DC80E0B605A00BE52DF /* grt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grt.cpp; path = library/grt/src/grt.cpp; sourceTree = "<group>"; };
 		2B825DCB0E0B605A00BE52DF /* grtpp_shell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grtpp_shell.h; path = library/grt/src/grtpp_shell.h; sourceTree = "<group>"; };
 		2B825DCD0E0B605A00BE52DF /* grtpp_shell.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_shell.cpp; path = library/grt/src/grtpp_shell.cpp; sourceTree = "<group>"; };
 		2B825E220E0B662200BE52DF /* mysql.canvas.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = mysql.canvas.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -9864,7 +9864,7 @@
 				2B825D950E0B604D00BE52DF /* diff */,
 				2BB58B1E0F45F0C300089423 /* python */,
 				27C15E6A1A30A2E000EB73F7 /* grt_prefix.h */,
-				2B825DC80E0B605A00BE52DF /* grtpp_grt.cpp */,
+				2B825DC80E0B605A00BE52DF /* grt.cpp */,
 				2B825DBA0E0B605A00BE52DF /* grtpp_helper.cpp */,
 				2B825DBD0E0B605A00BE52DF /* grtpp_helper.h */,
 				2B825DBB0E0B605A00BE52DF /* grtpp_metaclass.cpp */,
@@ -9881,7 +9881,7 @@
 				2B825DC50E0B605A00BE52DF /* grtpp_util.h */,
 				2B825DC40E0B605A00BE52DF /* grtpp_value.cpp */,
 				2B825DC70E0B605A00BE52DF /* grtpp_value.h */,
-				2B825DB70E0B605A00BE52DF /* grtpp.h */,
+				2B825DB70E0B605A00BE52DF /* grt.h */,
 				2B825DBF0E0B605A00BE52DF /* serializer.cpp */,
 				2B825DBE0E0B605A00BE52DF /* serializer.h */,
 				2B825DB60E0B605A00BE52DF /* unserializer.cpp */,
@@ -11833,7 +11833,7 @@
 				2B825DAE0E0B604D00BE52DF /* grtdiff.h in Headers */,
 				2B825DB00E0B604D00BE52DF /* grtlistdiff.h in Headers */,
 				2B825DCF0E0B605A00BE52DF /* unserializer.h in Headers */,
-				2B825DD10E0B605A00BE52DF /* grtpp.h in Headers */,
+				2B825DD10E0B605A00BE52DF /* grt.h in Headers */,
 				2B825DD70E0B605A00BE52DF /* grtpp_helper.h in Headers */,
 				2B825DD80E0B605A00BE52DF /* serializer.h in Headers */,
 				2B825DDB0E0B605A00BE52DF /* grtpp_module_cpp.h in Headers */,
@@ -14767,7 +14767,7 @@
 				2B825DD90E0B605A00BE52DF /* serializer.cpp in Sources */,
 				2B825DDC0E0B605A00BE52DF /* grtpp_util.cpp in Sources */,
 				2B825DDE0E0B605A00BE52DF /* grtpp_value.cpp in Sources */,
-				2B825DE20E0B605A00BE52DF /* grtpp_grt.cpp in Sources */,
+				2B825DE20E0B605A00BE52DF /* grt.cpp in Sources */,
 				2B825DE70E0B605A00BE52DF /* grtpp_shell.cpp in Sources */,
 				2BB58B1B0F45ED0A00089423 /* python_context.cpp in Sources */,
 				2BB58B3B0F45F11C00089423 /* grtpp_module_python.cpp in Sources */,

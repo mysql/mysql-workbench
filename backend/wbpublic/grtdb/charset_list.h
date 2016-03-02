@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "grtpp.h"
+#include "grt.h"
 #include "grt/tree_model.h"
 
 namespace bec {

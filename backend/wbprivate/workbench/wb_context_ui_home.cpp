@@ -27,7 +27,7 @@
 
 #include "mforms/menu.h"
 
-#include "grtpp.h"
+#include "grt.h"
 
 #include "grts/structs.app.h"
 #include "grts/structs.h"

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _REPORTING_H_
-#define _REPORTING_H_
+#pragma once
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -26,7 +25,7 @@
 
 #include <ctemplate/template.h>
 
-#include "grtpp.h"
+#include "grt.h"
 #include "grtpp_util.h"
 #include "grtdb/db_object_helpers.h"
 #include "grts/structs.db.mysql.h"
@@ -81,5 +80,3 @@ public:
 	virtual const char * SCI_METHOD BufferPointer();
 	virtual int SCI_METHOD GetLineIndentation(int line);
 };
-
-#endif // _REPORTING_H_

@@ -20,7 +20,7 @@
 #include "testgrt.h"
 #include "grt_test_utility.h"
 #include "grt/grt_manager.h"
-#include "grtpp.h"
+#include "grt.h"
 
 #include "grts/structs.h"
 #include "grts/structs.workbench.h"

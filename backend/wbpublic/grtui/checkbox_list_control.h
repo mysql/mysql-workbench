@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,14 +16,14 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _CHECKBOX_LIST_CONTROL_H_
-#define _CHECKBOX_LIST_CONTROL_H_
+
+#pragma once
 
 #include "mforms/scrollpanel.h"
 #include "mforms/checkbox.h"
 #include "mforms/box.h"
 
-#include "grtpp.h"
+#include "grt.h"
 
 #include "wbpublic_public_interface.h"
 
@@ -49,6 +49,3 @@ public:
   
   boost::signals2::signal<void ()>* signal_changed() { return &_signal_changed; }
 };
-
-
-#endif /* _CHECKBOX_LIST_CONTROL_H_ */

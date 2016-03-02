@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "grtpp.h"
+#include "grt.h"
 #include "grtpp_shell.h"
 
 #include "grt_dispatcher.h"

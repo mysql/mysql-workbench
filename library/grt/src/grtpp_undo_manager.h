@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "grtpp.h"
+#include "grt.h"
 
 #include <deque>
 #include <boost/signals2.hpp>

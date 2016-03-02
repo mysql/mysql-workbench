@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,12 +17,11 @@
  * 02110-1301  USA
  */
 
-#ifndef _GRTPP_MODULE_PYTHON_H_
-#define _GRTPP_MODULE_PYTHON_H_
+#pragma once
 
 #include "python_context.h"
 #include <string>
-#include "grtpp.h"
+#include "grt.h"
 
 namespace grt {
   
@@ -73,5 +72,3 @@ namespace grt {
   
   
 };
-
-#endif

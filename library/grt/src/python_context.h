@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,11 +17,11 @@
  * 02110-1301  USA
  */
 
-#ifndef _GRT_PYTHON_CONTEXT_H_
-#define _GRT_PYTHON_CONTEXT_H_
+#pragma once
+
 #include "base/python_utils.h"
 
-#include "grtpp.h"
+#include "grt.h"
 #include "grtpp_notifications.h"
 
 namespace grt {
@@ -229,5 +229,3 @@ namespace grt {
     python_error(const std::string &what) : std::runtime_error(what) {}
   };
 };
-
-#endif

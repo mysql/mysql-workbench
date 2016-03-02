@@ -17,7 +17,7 @@
 * 02110-1301  USA
 */
 
-#include "grtpp.h"
+#include "grt.h"
 #include "interfaces/plugin.h"
 
 #include "grtui/grt_wizard_plugin.h"

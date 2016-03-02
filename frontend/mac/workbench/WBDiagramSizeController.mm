@@ -22,7 +22,7 @@
 #import "NSString_extras.h"
 
 #include "base/ui_form.h"
-#include "grtpp.h"
+#include "grt.h"
 
 #include "workbench/wb_context_ui.h"
 #include "model/wb_diagram_options.h"

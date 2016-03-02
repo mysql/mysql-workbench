@@ -19,7 +19,7 @@
 
 // GRT support
 
-#include "grtpp.h"
+#include "grt.h"
 #include "python_context.h"
 #include "grts/structs.ui.h"
 #include "mforms/dockingpoint.h"

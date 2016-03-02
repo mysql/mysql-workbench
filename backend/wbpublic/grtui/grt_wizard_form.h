@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,13 +17,12 @@
  * 02110-1301  USA
  */
 
-#ifndef _WIZARDFORM_H_
-#define _WIZARDFORM_H_
+#pragma once
 
 #include <vector>
 #include <set>
 
-#include <grtpp.h>
+#include "grt.h"
 #include "grt/common.h"
 
 #include "wbpublic_public_interface.h"
@@ -223,6 +222,3 @@ namespace grtui {
   };
 
 };
-
-
-#endif

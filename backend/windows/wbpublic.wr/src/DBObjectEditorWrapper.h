@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,7 +20,7 @@
 #pragma once
 
 #include "grtdb/editor_dbobject.h"
-#include "Grt.h"
+#include "GrtWrapper.h"
 #include "GrtTemplates.h"
 #include "BaseEditorWrapper.h"
 #include "DelegateWrapper.h"

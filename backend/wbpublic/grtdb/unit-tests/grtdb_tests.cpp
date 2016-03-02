@@ -17,7 +17,7 @@
  * 02110-1301  USA
  */
 
-#include "grtpp.h"
+#include "grt.h"
 
 #include "grtdb/editor_table.h"
 #include "grtdb/db_object_helpers.h"

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,12 +17,11 @@
  * 02110-1301  USA
  */
 
-#ifndef _WB_COMPONENT_H_
-#define _WB_COMPONENT_H_
+#pragma once
 
 #include "workbench/wb_backend_public_interface.h"
 #include "base/trackable.h"
-#include "grtpp.h"
+#include "grt.h"
 #include "grtpp_util.h"
 #include "grts/structs.model.h"
 #include "base/geometry.h"
@@ -108,5 +107,3 @@ namespace wb {
   };
 
 };
-
-#endif

@@ -25,7 +25,7 @@
  */
 #include <algorithm>
 
-#include "grtpp.h"
+#include "grt.h"
 #include "grt/icon_manager.h"
 #include "grt/common.h"
 #include "base/ui_form.h" // for menu stuff

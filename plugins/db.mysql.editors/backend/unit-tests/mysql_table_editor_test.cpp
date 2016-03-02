@@ -17,16 +17,14 @@
  * 02110-1301  USA
  */
 
-#include "grtpp.h"
+#include "grt.h"
 #include "../../plugins/db.mysql.editors/backend/mysql_table_editor.h"
 #include "synthetic_mysql_model.h"
 #include "wb_helpers.h"
 
-
 using namespace grt;
 using namespace bec;
 using namespace tut;
-
 
 BEGIN_TEST_DATA_CLASS(mysql_table_editor)
 public:

@@ -20,7 +20,7 @@
 #include "testgrt.h"
 #include "grt_test_utility.h"
 #include "grt/grt_manager.h"
-#include "grtpp.h"
+#include "grt.h"
 #include "synthetic_mysql_model.h"
 #include "grtdb/diff_dbobjectmatch.h"
 #include "interfaces/sqlgenerator.h"
