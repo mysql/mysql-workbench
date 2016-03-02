@@ -40,13 +40,11 @@ public:
     EditMethod // only for objects, defined with attr:editas in the struct xml
   };
 
-  static ValueInspectorBE *create(grt::GRT *grt, 
-                                  const grt::ValueRef &value,
+  static ValueInspectorBE *create(const grt::ValueRef &value,
                                   bool grouped,
                                   bool process_editas_flag);
 
-  static ValueInspectorBE *create(grt::GRT *grt,
-                                  const std::vector<grt::ObjectRef> &objects);
+  static ValueInspectorBE *create(const std::vector<grt::ObjectRef> &objects);
 
 
   virtual bool add_item(NodeId &new_node)= 0;
@@ -67,9 +65,8 @@ public: // Responder methods
   
 
 protected:
-  grt::GRT *_grt;
 
-  ValueInspectorBE(grt::GRT *grt);
+  ValueInspectorBE();
 
   virtual grt::Type get_canonical_type(const NodeId &node)= 0;
   

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -66,7 +66,7 @@ void DiffSQLGeneratorBE::remember_alter(const GrtNamedObjectRef &obj, const std:
     grt::ValueRef value= target_map.get(key);
     if(grt::StringRef::can_wrap(value))
     {
-      grt::StringListRef list_value(target_map.get_grt());
+      grt::StringListRef list_value(grt::Initialized);
       list_value.insert(grt::StringRef::cast_from(value));
       list_value.insert(grt::StringRef(sql));
       target_map.set(key, list_value);
@@ -95,7 +95,7 @@ void DiffSQLGeneratorBE::generate_set_partitioning(db_mysql_TableRef table,
     subpart_type_set= false, subpart_expr_set= false,
     part_count_set= false, part_defs_set= false;
   std::string part_type, part_expr, subpart_type, subpart_expr;
-  grt::ListRef<db_mysql_PartitionDefinition> part_defs(table->get_grt());
+  grt::ListRef<db_mysql_PartitionDefinition> part_defs(true);
   ssize_t part_count = 0;
 
   // gather all relevant attributes from change object
@@ -1655,7 +1655,7 @@ DiffSQLGeneratorBE::DiffSQLGeneratorBE(grt::DictRef options, grt::DictRef dbtrai
         return;
     _case_sensitive = (dbtraits.get_int("CaseSensitive", _case_sensitive) != 0);
 
-    grt::StringListRef empty_list(options.get_grt());
+    grt::StringListRef empty_list(grt::Initialized);
     _use_oid_as_dict_key = options.get_int("UseOIDAsResultDictKey", _use_oid_as_dict_key) != 0;
     _skip_foreign_keys = options.get_int("SkipForeignKeys", _skip_foreign_keys) != 0;
     _skip_fk_indexes = options.get_int("SkipFKIndexes", _skip_fk_indexes) != 0;

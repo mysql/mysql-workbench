@@ -162,7 +162,7 @@ public:
   
   virtual grt::ListRef<db_query_Resultset> executeScript(const std::string &sql)
   {
-    grt::ListRef<db_query_Resultset> result(_self->get_grt());
+    grt::ListRef<db_query_Resultset> result(true);
     boost::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)
     { 
@@ -1007,9 +1007,9 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
 
       if (tmp == ":PASSWORD_EXPIRED")
       {
-        grt::BaseListRef args(conn->get_grt(), grt::AnyType);
+        grt::BaseListRef args(grt::AnyType);
         args.ginsert(conn);
-        ssize_t result = *grt::IntegerRef::cast_from(conn->get_grt()->call_module_function("WbAdmin", "handleExpiredPassword", args));
+        ssize_t result = *grt::IntegerRef::cast_from(grt::GRT::get()->call_module_function("WbAdmin", "handleExpiredPassword", args));
         if (result != 0)
           return create_connected_editor(conn);
         throw grt::user_cancelled("password reset cancelled by user");
@@ -1033,7 +1033,7 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
 
   {
     // Create entry for grt tree and update volatile data in the connection.
-    db_query_EditorRef object(_wbui->get_wb()->get_grt());
+    db_query_EditorRef object(grt::Initialized);
     object->owner(_wbui->get_wb()->get_root());
     object->name(conn.is_valid() ? conn->name() : "unconnected");
     

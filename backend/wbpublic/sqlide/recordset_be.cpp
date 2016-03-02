@@ -576,7 +576,7 @@ void Recordset::pending_changes(int &upd_count, int &ins_count, int &del_count) 
 }
 
 
-grt::StringRef Recordset::do_apply_changes(grt::GRT *grt, Ptr self_ptr, Recordset_data_storage::Ptr data_storage_ptr, bool skip_commit)
+grt::StringRef Recordset::do_apply_changes(Ptr self_ptr, Recordset_data_storage::Ptr data_storage_ptr, bool skip_commit)
 {
   RETVAL_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset, self_ptr, self, grt::StringRef(""))
   RETVAL_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset_data_storage, data_storage_ptr, data_storage, grt::StringRef(""))
@@ -600,7 +600,7 @@ void Recordset::apply_changes_(Recordset_data_storage::Ptr data_storage_ptr)
   // TODO: not sure we need this function anymore. The SQL IDE form always redirects apply_changes now.
   task->finish_cb(boost::bind(&Recordset::on_apply_changes_finished, this));
   task->exec(true,
-    boost::bind(&Recordset::do_apply_changes, this, _1, weak_ptr_from(this), data_storage_ptr, false));
+    boost::bind(&Recordset::do_apply_changes, this, weak_ptr_from(this), data_storage_ptr, false));
 }
 
 

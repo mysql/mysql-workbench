@@ -67,7 +67,7 @@ namespace bec {
     GRTManager(bool threaded = true, bool verbose = false);
     virtual ~GRTManager();
 
-    static GRTManager *get_instance_for(grt::GRT *grt);
+    static GRTManager *get_instance_for();
 
     void set_basedir(const std::string &path);
     std::string get_basedir() { return _basedir; }
@@ -86,7 +86,7 @@ namespace bec {
 
     void rescan_modules();
     int do_scan_modules(const std::string &path, const std::list<std::string> &exts, bool refresh);
-    void scan_modules_grt(grt::GRT *grt, const std::list<std::string> &extensions, bool refresh);
+    void scan_modules_grt(const std::list<std::string> &extensions, bool refresh);
 
     void set_clipboard(Clipboard *clipb);
 
@@ -115,8 +115,6 @@ namespace bec {
   public:
     GRTDispatcher::Ref get_dispatcher() const { return _dispatcher; };
 
-    grt::GRT *get_grt() const { return _grt; };
-
     void initialize(bool init_python, const std::string &loader_module_path= "");
     bool initialize_shell(const std::string &shell_type);
 
@@ -132,7 +130,7 @@ namespace bec {
     ShellBE *get_shell();
 
     void execute_grt_task(const std::string &title,
-                          const boost::function<grt::ValueRef (grt::GRT*)> &function,
+                          const boost::function<grt::ValueRef ()> &function,
                           const boost::function<void (grt::ValueRef)> &finished_cb);
 
 
@@ -195,7 +193,6 @@ namespace bec {
     void open_object_editor(const GrtObjectRef &object, bec::GUIPluginFlags flags = bec::NoFlags);
     
   protected:
-    grt::GRT *_grt;
     bool _has_unsaved_changes;
     GRTDispatcher::Ref _dispatcher;
     base::Mutex _idle_mutex;
@@ -265,8 +262,10 @@ namespace bec {
   private:
     bool _terminated; // true if application termination was requested by the BE or a plugin.
     static std::map<grt::GRT*,GRTManager*> _instances;
-    
-    grt::ValueRef setup_grt(grt::GRT *grt);
+
+    std::shared_ptr<grt::GRT> _grtInstance;
+
+    grt::ValueRef setup_grt();
 
     void shell_write(const std::string &text);
 

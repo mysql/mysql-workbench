@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,9 +36,7 @@ void Db_plugin::grtm(bec::GRTManager *grtm, bool reveng)
 
   if (_grtm)
   {
-    grt::GRT *grt= _grtm->get_grt();
-
-    _doc= workbench_DocumentRef::cast_from(_grtm->get_grt()->get("/wb/doc"));
+    _doc= workbench_DocumentRef::cast_from(grt::GRT::get()->get("/wb/doc"));
 
     db_mgmt_ManagementRef mgmt= workbench_WorkbenchRef::cast_from(_doc->owner())->rdbmsMgmt();
     // don't need schema box for reverse engineer, but need it for fwd/sync (in case OmitQualifiers is on)
@@ -50,7 +48,7 @@ void Db_plugin::grtm(bec::GRTManager *grtm, bool reveng)
     _triggers.icon_id(trigger_icon_id(bec::Icon16));
     _users.icon_id(user_icon_id(bec::Icon16));
 
-    _catalog= db_CatalogRef(grt);
+    _catalog= db_CatalogRef(grt::Initialized);
   }
 }
 
@@ -116,11 +114,11 @@ const char * Db_plugin::db_objects_type_to_string(Db_object_type db_object_type)
 
 std::string Db_plugin::db_objects_struct_name_by_type(Db_object_type db_object_type)
 {
-  grt::ObjectRef obj= _grtm->get_grt()->create_object<grt::internal::Object>(model_catalog().get_metaclass()->get_member_type("schemata").content.object_class);
+  grt::ObjectRef obj= grt::GRT::get()->create_object<grt::internal::Object>(model_catalog().get_metaclass()->get_member_type("schemata").content.object_class);
   std::string attr_name= db_objects_type_to_string(db_object_type);
   attr_name.append("s"); // suffix denoting multiple objects
   if (attr_name.compare("triggers") == 0)
-    obj= _grtm->get_grt()->create_object<grt::internal::Object>(obj.get_metaclass()->get_member_type("tables").content.object_class);
+    obj= grt::GRT::get()->create_object<grt::internal::Object>(obj.get_metaclass()->get_member_type("tables").content.object_class);
   else if (attr_name.compare("users") == 0)
     obj= model_catalog();
   return obj.get_metaclass()->get_member_type(attr_name).content.object_class;
@@ -174,14 +172,14 @@ void Db_plugin::load_schemata(std::vector<std::string> &schemata)
   sql::ConnectionWrapper dbc_conn= _db_conn->get_dbc_connection();
   sql::DatabaseMetaData *dbc_meta(dbc_conn->getMetaData());
 
-  _grtm->get_grt()->send_info(_("Fetching schema list."));
-  _grtm->get_grt()->send_progress(0.0, _("Fetching schema list..."));
+  grt::GRT::get()->send_info(_("Fetching schema list."));
+  grt::GRT::get()->send_progress(0.0, _("Fetching schema list..."));
 
   const unsigned int major = dbc_meta->getDatabaseMajorVersion();
   const unsigned int minor = dbc_meta->getDatabaseMinorVersion();
   const unsigned int revision = dbc_meta->getDatabasePatchVersion();
 
-  DbMySQLImpl *diffsql_module= _grtm->get_grt()->find_native_module<DbMySQLImpl>("DbMySQL");
+  DbMySQLImpl *diffsql_module= grt::GRT::get()->find_native_module<DbMySQLImpl>("DbMySQL");
   _db_options = diffsql_module->getTraitsForServerVersion(major, minor, revision);
   _db_options.set("CaseSensitive", grt::IntegerRef(dbc_meta->storesMixedCaseIdentifiers()));
 
@@ -197,11 +195,11 @@ void Db_plugin::load_schemata(std::vector<std::string> &schemata)
       _schemata.push_back(name);
       _schemata_ddl[name]= rset->getString("ddl");
     }
-    _grtm->get_grt()->send_progress(current++/total, name, "");
+    grt::GRT::get()->send_progress(current++/total, name, "");
   }
 
-  _grtm->get_grt()->send_progress(1.0, _("Fetch finished."));
-  _grtm->get_grt()->send_info("OK");
+  grt::GRT::get()->send_progress(1.0, _("Fetch finished."));
+  grt::GRT::get()->send_info("OK");
 
   schemata= _schemata;
 }
@@ -242,9 +240,9 @@ void Db_plugin::load_db_objects(Db_object_type db_object_type)
   Db_objects_setup *setup= db_objects_setup_by_type(db_object_type);
   setup->reset();
 
-  _grtm->get_grt()->send_info(std::string("Fetching ").append(db_objects_type_to_string(db_object_type)).append(" list."));
+  grt::GRT::get()->send_info(std::string("Fetching ").append(db_objects_type_to_string(db_object_type)).append(" list."));
   
-  _grtm->get_grt()->send_progress(0.0, std::string("Fetching ").append(db_objects_type_to_string(db_object_type)).append(" list."));
+  grt::GRT::get()->send_progress(0.0, std::string("Fetching ").append(db_objects_type_to_string(db_object_type)).append(" list."));
   
   sql::ConnectionWrapper dbc_conn= _db_conn->get_dbc_connection();
   sql::DatabaseMetaData *dbc_meta(dbc_conn->getMetaData());
@@ -262,7 +260,7 @@ void Db_plugin::load_db_objects(Db_object_type db_object_type)
     float total_objects;
     int count= 0;
     
-    _grtm->get_grt()->send_progress((current_schema / total_schemas), 
+    grt::GRT::get()->send_progress((current_schema / total_schemas), 
                                     std::string("Fetch ").append(db_objects_type_to_string(db_object_type)).append(" objects from ").append(schema_name));
 
     if (!schema_name.empty())
@@ -280,7 +278,7 @@ void Db_plugin::load_db_objects(Db_object_type db_object_type)
         // prefixed by schema name
         db_obj_names.push_back(std::string(schema_name).append(".").append(db_obj.name));
         
-        _grtm->get_grt()->send_progress((current_schema / total_schemas) + (count / total_objects)/total_schemas,
+        grt::GRT::get()->send_progress((current_schema / total_schemas) + (count / total_objects)/total_schemas,
                                         db_obj_names.back());
         
         count++;
@@ -288,7 +286,7 @@ void Db_plugin::load_db_objects(Db_object_type db_object_type)
     }
 
     current_schema++;
-    _grtm->get_grt()->send_info(base::strfmt("    %i items from %s", count, schema_name.c_str()));
+    grt::GRT::get()->send_info(base::strfmt("    %i items from %s", count, schema_name.c_str()));
   }
   
   // copy from temp list (used for performance optimization)
@@ -300,8 +298,8 @@ void Db_plugin::load_db_objects(Db_object_type db_object_type)
   setup->selection.reset(db_obj_names);
   db_obj_names.clear();
 
-  _grtm->get_grt()->send_progress(1.0, "Finished.");
-  _grtm->get_grt()->send_info("OK");
+  grt::GRT::get()->send_progress(1.0, "Finished.");
+  grt::GRT::get()->send_info("OK");
 }
 
 
@@ -326,9 +324,9 @@ void Db_plugin::read_back_view_ddl()
   Db_objects_setup *setup= db_objects_setup_by_type(dbotView);
   setup->reset();
 
-  _grtm->get_grt()->send_info(std::string("Fetching back view definitions in final form."));
+  grt::GRT::get()->send_info(std::string("Fetching back view definitions in final form."));
 
-  _grtm->get_grt()->send_progress(0.0, std::string("Fetching back view definitions in final form."));
+  grt::GRT::get()->send_progress(0.0, std::string("Fetching back view definitions in final form."));
 
   sql::ConnectionWrapper dbc_conn= _db_conn->get_dbc_connection();
   sql::DatabaseMetaData *dbc_meta(dbc_conn->getMetaData());
@@ -343,8 +341,8 @@ void Db_plugin::read_back_view_ddl()
   }
   if (total_views == 0)
   {
-    _grtm->get_grt()->send_progress(1.0, "Finished.");
-    _grtm->get_grt()->send_info("Nothing to fetch");
+    grt::GRT::get()->send_progress(1.0, "Finished.");
+    grt::GRT::get()->send_info("Nothing to fetch");
     return;
   }
 
@@ -356,7 +354,7 @@ void Db_plugin::read_back_view_ddl()
     {
       db_ViewRef view(schema->views()[v]);
 
-      _grtm->get_grt()->send_progress((current_view / total_views),
+      grt::GRT::get()->send_progress((current_view / total_views),
                                       std::string("Fetch back database view code for ").append(schema->name()).append(".").append(view->name()));
       std::auto_ptr<sql::ResultSet> rset(dbc_meta->getSchemaObjects("", *schema->name(), "view", true, *view->name()));
 
@@ -364,7 +362,7 @@ void Db_plugin::read_back_view_ddl()
       if (rset->next())
         view->oldServerSqlDefinition(grt::StringRef(rset->getString("ddl")));
       else
-        _grtm->get_grt()->send_info(base::strfmt("Could not get definition for %s.%s from server", schema->name().c_str(), view->name().c_str()));
+        grt::GRT::get()->send_info(base::strfmt("Could not get definition for %s.%s from server", schema->name().c_str(), view->name().c_str()));
 
       // take a snapshot of the model version of the SQL
       view->oldModelSqlDefinition(view->sqlDefinition());
@@ -372,8 +370,8 @@ void Db_plugin::read_back_view_ddl()
       current_view++;
     }
   }
-  _grtm->get_grt()->send_progress(1.0, "Finished.");
-  _grtm->get_grt()->send_info(base::strfmt("%i views were read back.", current_view));
+  grt::GRT::get()->send_progress(1.0, "Finished.");
+  grt::GRT::get()->send_info(base::strfmt("%i views were read back.", current_view));
 }
 
 
@@ -503,14 +501,14 @@ db_CatalogRef Db_plugin::db_catalog()
   std::string sql_input_script;
   dump_ddl(sql_input_script);
 
-  db_CatalogRef catalog= _grtm->get_grt()->create_object<db_Catalog>(mod_cat.get_metaclass()->name());
+  db_CatalogRef catalog= grt::GRT::get()->create_object<db_Catalog>(mod_cat.get_metaclass()->name());
   catalog->version(pm->rdbms()->version());
   grt::replace_contents(catalog->simpleDatatypes(), pm->rdbms()->simpleDatatypes());
   catalog->name("default");
   catalog->oldName(catalog->name());
 
   SqlFacade::Ref sql_parser= SqlFacade::instance_for_rdbms(pm->rdbms());
-  grt::DictRef parse_options(_grtm->get_grt());
+  grt::DictRef parse_options(true);
   parse_options.set("case_sensitive_identifiers", _db_options.get("CaseSensitive", grt::IntegerRef(1)));
   sql_parser->parseSqlScriptStringEx(catalog, sql_input_script, parse_options);
 
@@ -520,16 +518,16 @@ db_CatalogRef Db_plugin::db_catalog()
 
 void Db_plugin::set_task_proc()
 {
-  _task_proc_cb= boost::bind(&Db_plugin::apply_script_to_db, this, _1);
+  _task_proc_cb= boost::bind(&Db_plugin::apply_script_to_db, this);
 }
 
 
-grt::StringRef Db_plugin::apply_script_to_db(grt::GRT *grt)
+grt::StringRef Db_plugin::apply_script_to_db()
 {
   sql::ConnectionWrapper conn= db_conn()->get_dbc_connection();
   std::auto_ptr<sql::Statement> stmt(conn->createStatement());
 
-  grt->send_info(_("Executing SQL script in server"));
+  grt::GRT::get()->send_info(_("Executing SQL script in server"));
   
   std::list<std::string> statements;
   SqlFacade::Ref sql_splitter= SqlFacade::instance_for_rdbms(selected_rdbms());
@@ -556,14 +554,14 @@ int Db_plugin::process_sql_script_error(long long err_no, const std::string &err
   stmt = "        " + stmt;
 
   oss << _("Error ") << err_no << ": " << err_msg << std::endl << _("SQL Code:") << std::endl << stmt << std::endl;
-  _grtm->get_grt()->send_error(oss.str());
+  grt::GRT::get()->send_error(oss.str());
   return 0;
 }
 
 
 int Db_plugin::process_sql_script_progress(float progress_state)
 {
-  _grtm->get_grt()->send_progress(progress_state, "");
+  grt::GRT::get()->send_progress(progress_state, "");
   return 0;
 }
 
@@ -573,8 +571,8 @@ int Db_plugin::process_sql_script_statistics(long success_count, long err_count)
   std::ostringstream oss;
   oss << _("SQL script execution finished: statements: ") << success_count << _(" succeeded, ")
     << err_count << _(" failed") << std::endl;
-  _grtm->get_grt()->send_progress(1.f, "");
-  _grtm->get_grt()->send_info(oss.str());
+  grt::GRT::get()->send_progress(1.f, "");
+  grt::GRT::get()->send_info(oss.str());
   return 0;
 }
 

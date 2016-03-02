@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,8 +22,8 @@
 //!
 //!    @{
 //!
-#ifndef _MODULE_DB_MYSQL_H_
-#define _MODULE_DB_MYSQL_H_
+
+#pragma once
 
 /**
  * @file module_db_mysql.h
@@ -297,7 +297,7 @@ public:
   
   grt::ListRef<db_UserDatatype> getDefaultUserDatatypes(db_mgmt_RdbmsRef rdbms);
 
-  grt::DictRef getDefaultColumnValueMappings() { return grt::DictRef(get_grt()); }
+  grt::DictRef getDefaultColumnValueMappings() { return grt::DictRef(true); }
   
   grt::DictRef getDefaultTraits() const {return _default_traits;};
   
@@ -306,7 +306,6 @@ private:
   grt::DictRef _default_traits;
 };
 
-#endif // _MODULE_DB_MYSQL_H_
 //!
 //!     @}
 //!

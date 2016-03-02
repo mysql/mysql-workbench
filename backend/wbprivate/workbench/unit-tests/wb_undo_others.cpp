@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,7 +44,7 @@ TEST_DATA_CONSTRUCTOR(wb_undo_others)
 {
   tester.create_new_document();
   wbui= tester.wb->get_ui();
-  um= tester.wb->get_grt()->get_undo_manager();
+  um= grt::GRT::get()->get_undo_manager();
   overview = 0;
   last_undo_stack_height= 0;
   last_redo_stack_height= 0;

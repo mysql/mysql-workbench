@@ -10,6 +10,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}/modules/db.mysql/src
     ${PROJECT_SOURCE_DIR}/library/cdbc/src
+    ${Boost_INCLUDE_DIRS}
 )
 
 add_library(db.mysql.query.grt

@@ -20,8 +20,8 @@
 // GRT support
 
 #include "grt.h"
-#include <python_context.h>
-#include <grts/structs.ui.h>
+#include "python_context.h"
+#include "grts/structs.ui.h"
 #include "mforms/dockingpoint.h"
 
 #include "objimpl/wrapper/mforms_ObjectReference_impl.h"
@@ -64,7 +64,7 @@ PyObject *togrt(mforms::Object *object, const std::string &mforms_type_name) //t
     if (!SWIG_TypeQuery(std::string("mforms::"+mforms_type_name+" *").c_str()))
       throw std::invalid_argument(mforms_type_name+" is not a valid mforms class name");
     
-    return ctx->from_grt(mforms_to_grt(ctx->get_grt(), object, mforms_type_name));
+    return ctx->from_grt(mforms_to_grt(object, mforms_type_name));
   }
   else
     Py_RETURN_NONE;

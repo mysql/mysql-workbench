@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -204,9 +204,9 @@ ParserContext::Ref MySQLParserServices::createParserContext(GrtCharacterSetsRef 
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLParserServices::Ref MySQLParserServices::get(grt::GRT *grt)
+MySQLParserServices::Ref MySQLParserServices::get()
 {
-  MySQLParserServices::Ref module = dynamic_cast<MySQLParserServices::Ref>(grt->get_module("MySQLParserServices"));
+  MySQLParserServices::Ref module = dynamic_cast<MySQLParserServices::Ref>(grt::GRT::get()->get_module("MySQLParserServices"));
   if (!module)
 		throw std::runtime_error("Can't get MySQLParserServices module.");
   return module;

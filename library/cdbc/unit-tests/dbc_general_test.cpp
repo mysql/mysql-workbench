@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,19 +25,18 @@ using namespace std;
 
 BEGIN_TEST_DATA_CLASS(module_dbc_general_test)
 public:
-  GRT grt;
   
   TEST_DATA_CONSTRUCTOR(module_dbc_general_test)
   {
       // load structs
-    grt.scan_metaclasses_in("../../res/grt/");
-    grt.end_loading_metaclasses();
+    grt::GRT::get()->scan_metaclasses_in("../../res/grt/");
+    grt::GRT::get()->end_loading_metaclasses();
 
-    ensure_equals("load structs", grt.get_metaclasses().size(), (size_t)INT_METACLASS_COUNT);
+    ensure_equals("load structs", grt::GRT::get()->get_metaclasses().size(), (size_t)INT_METACLASS_COUNT);
   
-    db_mgmt_ConnectionRef connectionProperties(&grt);
+    db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-    setup_env(&grt, connectionProperties);
+    setup_env(connectionProperties);
 
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
     sql::ConnectionWrapper wrapper= dm->getConnection(connectionProperties);
@@ -47,29 +46,17 @@ public:
     stmt->execute("DROP SCHEMA IF EXISTS test");
     stmt->execute("CREATE SCHEMA test");
   }
-  TEST_DATA_DESTRUCTOR(module_dbc_general_test)
-  {
-    db_mgmt_ConnectionRef connectionProperties(&grt);
-
-    setup_env(&grt, connectionProperties);
-
-    sql::DriverManager *dm= sql::DriverManager::getDriverManager();
-    sql::ConnectionWrapper wrapper= dm->getConnection(connectionProperties);
-    sql::Connection* connection= wrapper.get();
-
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-    stmt->execute("DROP SCHEMA IF EXISTS test");
-  }
   
+
 END_TEST_DATA_CLASS
 
 TEST_MODULE(module_dbc_general_test, "DBC: general tests");
 
 TEST_FUNCTION(2)
 {
-  db_mgmt_ConnectionRef connectionProperties(&grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(&grt, connectionProperties);
+  setup_env(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
   sql::ConnectionWrapper wrapper= dm->getConnection(connectionProperties);
@@ -97,9 +84,9 @@ TEST_FUNCTION(2)
 
 TEST_FUNCTION(3)
 {
-  db_mgmt_ConnectionRef connectionProperties(&grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(&grt, connectionProperties);
+  setup_env(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
   sql::ConnectionWrapper wrapper= dm->getConnection(connectionProperties);
@@ -155,6 +142,22 @@ TEST_FUNCTION(3)
   }
   if (getenv("VERBOSE"))
     std::cout << i << " row(s)" << std::endl;
+}
+
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(4)
+{
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
+
+  setup_env(connectionProperties);
+
+  sql::DriverManager *dm= sql::DriverManager::getDriverManager();
+  sql::ConnectionWrapper wrapper= dm->getConnection(connectionProperties);
+  sql::Connection* connection= wrapper.get();
+
+  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  stmt->execute("DROP SCHEMA IF EXISTS test");
 }
 
 END_TESTS

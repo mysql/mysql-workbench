@@ -35,7 +35,7 @@
 class WBPUBLICBACKEND_PUBLIC_FUNC Sql_parser_base
 {
 protected:
-  Sql_parser_base(grt::GRT *grt);
+  Sql_parser_base();
   virtual ~Sql_parser_base() {}
 
 public:
@@ -117,7 +117,6 @@ protected:
   size_t _warn_count;
   size_t _err_count;
   float _progress_state;
-  grt::GRT *_grt;
   bec::GRTManager *_grtm;
   bool _messages_enabled;
   db_DatabaseObjectRef _active_obj;

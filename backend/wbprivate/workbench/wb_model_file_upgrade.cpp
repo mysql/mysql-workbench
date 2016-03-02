@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -527,7 +527,7 @@ workbench_DocumentRef ModelFile::attempt_document_upgrade(const workbench_Docume
   {
     if (doc->physicalModels()[0]->tagCategories().count() == 0)
     {
-      GrtObjectRef cat(doc->get_grt());
+      GrtObjectRef cat(grt::Initialized);
       
       cat->owner(doc->physicalModels()[0]);
       cat->name("Business Rule");
@@ -597,7 +597,7 @@ workbench_DocumentRef ModelFile::attempt_document_upgrade(const workbench_Docume
           else
           {
             // create the index here
-            db_IndexRef new_index = bec::TableHelper::create_index_for_fk(doc.get_grt(), fk);
+            db_IndexRef new_index = bec::TableHelper::create_index_for_fk(fk);
             fk->index(new_index);
             table->indices().insert(new_index);
 
@@ -610,7 +610,7 @@ workbench_DocumentRef ModelFile::attempt_document_upgrade(const workbench_Docume
   }
 
 
-  bec::GRTManager *grtm= bec::GRTManager::get_instance_for(doc.get_grt());
+  bec::GRTManager *grtm= bec::GRTManager::get_instance_for();
   if (major <= 1 && (minor < 4 || (minor == 4 && revision < 3)))
   {
       bool ask_confirmation = true;
@@ -704,7 +704,7 @@ workbench_DocumentRef ModelFile::attempt_document_upgrade(const workbench_Docume
   {
       if (!doc->physicalModels()[0]->catalog()->version().is_valid())
       {
-          GrtVersionRef version(doc->get_grt());
+        GrtVersionRef version(grt::Initialized);
           version->name("Version");
           version->majorNumber(5);
           version->minorNumber(5);
@@ -943,7 +943,7 @@ static int fix_duplicate_uuid_bug(xmlNodePtr node,
 }
 
 
-static void fix_duplicate_uuid_bug_references(grt::GRT *grt, xmlNodePtr node, 
+static void fix_duplicate_uuid_bug_references(xmlNodePtr node, 
                                               std::map<std::string, std::map<std::string, std::string> > &remapped_ids)
 {
   xmlNodePtr n;
@@ -1006,7 +1006,7 @@ static void fix_duplicate_uuid_bug_references(grt::GRT *grt, xmlNodePtr node,
             for (std::map<std::string, std::string>::const_iterator opt = structs.begin();
                  opt != structs.end(); ++opt)
             {
-              grt::MetaClass *mc = grt->get_metaclass(opt->first);
+              grt::MetaClass *mc = grt::GRT::get()->get_metaclass(opt->first);
               while (mc)
               {
                 if (mc->name() == sname)
@@ -1031,12 +1031,12 @@ static void fix_duplicate_uuid_bug_references(grt::GRT *grt, xmlNodePtr node,
             xmlNodeSetContent(n, (xmlChar*)it->second[sname].c_str());
         }
       }
-      fix_duplicate_uuid_bug_references(grt, n, remapped_ids);
+      fix_duplicate_uuid_bug_references(n, remapped_ids);
     }
   }
 }
 
-bool ModelFile::check_and_fix_duplicate_uuid_bug(grt::GRT *grt, xmlDocPtr xmldoc)
+bool ModelFile::check_and_fix_duplicate_uuid_bug(xmlDocPtr xmldoc)
 {
   if (XMLTraverser::node_prop(xmlDocGetRootElement(xmldoc), "version") == "1.4.1"
       || XMLTraverser::node_prop(xmlDocGetRootElement(xmldoc), "version") == "1.4.2")
@@ -1052,7 +1052,7 @@ bool ModelFile::check_and_fix_duplicate_uuid_bug(grt::GRT *grt, xmlDocPtr xmldoc
     std::map<std::string, std::map<std::string, std::string> > remapped_ids;
     if (fix_duplicate_uuid_bug(xmlDocGetRootElement(xmldoc), object_types, remapped_ids))
     {
-      fix_duplicate_uuid_bug_references(grt, xmlDocGetRootElement(xmldoc), remapped_ids);
+      fix_duplicate_uuid_bug_references(xmlDocGetRootElement(xmldoc), remapped_ids);
       return true;
     }
   }

@@ -9,6 +9,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/grt/src 
     ${PROJECT_SOURCE_DIR}/library/base
     ${PROJECT_SOURCE_DIR}/modules
+    ${Boost_INCLUDE_DIRS}
 )
 
 add_library(wb.mysqlfabric.interface.grt

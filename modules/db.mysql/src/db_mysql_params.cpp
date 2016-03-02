@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -70,11 +70,11 @@ std::string engine_name_by_id(EngineId id)
 }
 
 
-db_mysql_StorageEngineRef engine_by_name(const char* engineName, grt::GRT* grt)
+db_mysql_StorageEngineRef engine_by_name(const char* engineName)
 {
   if (engineName && *engineName)
   {
-    grt::ListRef<db_mysql_StorageEngine> engines= get_known_engines(grt);
+    grt::ListRef<db_mysql_StorageEngine> engines= get_known_engines();
 
     for (size_t i = 0, count= engines.count(); i < count; i++)
     {
@@ -88,18 +88,18 @@ db_mysql_StorageEngineRef engine_by_name(const char* engineName, grt::GRT* grt)
 }
 
 
-db_mysql_StorageEngineRef engine_by_id(EngineId id, grt::GRT* grt)
+db_mysql_StorageEngineRef engine_by_id(EngineId id)
 {
   std::string engineName= engine_name_by_id(id);
 
-  return engine_by_name(engineName.c_str(), grt);
+  return engine_by_name(engineName.c_str());
 }
 
 
-grt::ListRef<db_mysql_StorageEngine> get_known_engines(grt::GRT *grt)
+grt::ListRef<db_mysql_StorageEngine> get_known_engines()
 {
   return grt::ListRef<db_mysql_StorageEngine>::cast_from(
-    grt->unserialize(base::makePath(bec::GRTManager::get_instance_for(grt)->get_basedir(), "modules/data/mysql_engines.xml")));
+    grt::GRT::get()->unserialize(base::makePath(bec::GRTManager::get_instance_for()->get_basedir(), "modules/data/mysql_engines.xml")));
 }
 
 bool check_valid_characters(const char* str)

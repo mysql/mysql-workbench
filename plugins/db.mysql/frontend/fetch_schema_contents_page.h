@@ -1,5 +1,4 @@
-#ifndef _FETCH_SCHEMA_CONTENTS_PAGE_H_
-#define _FETCH_SCHEMA_CONTENTS_PAGE_H_
+#pragma once
 
 #include "grtui/wizard_progress_page.h"
 
@@ -28,7 +27,7 @@ public:
   
   bool perform_fetch()
   {
-    execute_grt_task(boost::bind(&FetchSchemaContentsProgressPage::do_fetch, this, _1),
+    execute_grt_task(boost::bind(&FetchSchemaContentsProgressPage::do_fetch, this),
                      false);
     return true;
   }
@@ -42,7 +41,7 @@ public:
   }
 
 
-  grt::ValueRef do_fetch(grt::GRT *grt)
+  grt::ValueRef do_fetch()
   {
     grt::StringListRef selection(grt::StringListRef::cast_from(values().get("selectedSchemata")));
     std::vector<std::string> names;
@@ -91,5 +90,3 @@ private:
   Db_plugin *_dbplugin;
   bool _finished;
 };
-
-#endif /* _FETCH_SCHEMA_CONTENTS_PAGE_H_ */

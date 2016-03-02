@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -56,7 +56,7 @@ static void finished_with_wait(grt::ValueRef result, bool *flag)
 }
 
 
-static grt::ValueRef normal_test_function(grt::GRT *grt)
+static grt::ValueRef normal_test_function()
 {
   return grt::IntegerRef(123);
 }
@@ -68,7 +68,7 @@ TEST_FUNCTION(1)
   grt::ValueRef result;
   bool finish_called= false;
   
-  bec::GRTTask::Ref task = GRTTask::create_task("test", grtm.get_dispatcher(), std::ptr_fun(normal_test_function));
+  bec::GRTTask::Ref task = GRTTask::create_task("test", grtm.get_dispatcher(), boost::bind(normal_test_function));
   task->signal_finished()->connect(boost::bind(&finished, _1, &finish_called));
   
   result = grtm.get_dispatcher()->add_task_and_wait(task);
@@ -79,7 +79,7 @@ TEST_FUNCTION(1)
   ensure("finish callback called", finish_called);
   
   finish_called = false;
-  task = GRTTask::create_task("test", grtm.get_dispatcher(), std::ptr_fun(normal_test_function));
+  task = GRTTask::create_task("test", grtm.get_dispatcher(), boost::bind(normal_test_function));
   task->signal_finished()->connect(boost::bind(&finished_with_wait, _1, &finish_called));
   
   result = grtm.get_dispatcher()->add_task_and_wait(task);

@@ -1,5 +1,5 @@
-#ifndef _DB_ALTER_SCRIPT_BE_H_
-#define _DB_ALTER_SCRIPT_BE_H_
+
+#pragma once
 
 #include "grt/grt_manager.h"
 #include "grts/structs.db.mysql.h"
@@ -28,11 +28,11 @@ class DbMySQLDiffAlter : public SynchronizeDifferencesPageBEInterface
 public:
 
   void set_db_options(grt::DictRef db_options){_db_options = db_options;};
-  grt::DictRef get_db_options()const{return _db_options.is_valid()?_db_options:grt::DictRef(manager_->get_grt());};
+  grt::DictRef get_db_options()const{return _db_options.is_valid()?_db_options:grt::DictRef();};
   virtual db_mysql_CatalogRef get_model_catalog()
   {
     return db_mysql_CatalogRef::cast_from(
-      manager_->get_grt()->get("/wb/doc/physicalModels/0/catalog"));
+      grt::GRT::get()->get("/wb/doc/physicalModels/0/catalog"));
   }
   virtual void get_compared_catalogs(db_CatalogRef &left, db_CatalogRef &right)
   {
@@ -66,4 +66,3 @@ public:
 
   void restore_overriden_names();
 };
-#endif //#ifndef _DB_ALTER_SCRIPT_BE_H_

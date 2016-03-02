@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,7 +36,7 @@ using namespace base;
 class MYSQL_SQL_PARSER_PUBLIC_FUNC Mysql_sql_statement_info : protected Mysql_sql_parser_base
 {
 public:
-  Mysql_sql_statement_info(grt::GRT *grt) : Sql_parser_base(grt), Mysql_sql_parser_base(grt) { NULL_STATE_KEEPER }
+  Mysql_sql_statement_info() { NULL_STATE_KEEPER }
   virtual ~Mysql_sql_statement_info() {}
 
 private:
@@ -174,16 +174,14 @@ protected:
 
 
 
-Mysql_sql_specifics::Mysql_sql_specifics(grt::GRT *grt)
-:
-Sql_specifics(grt)
+Mysql_sql_specifics::Mysql_sql_specifics()
 {
 }
 
 
 std::string Mysql_sql_specifics::limit_select_query(const std::string &sql, int *row_count, int *row_row_offset)
 {
-  Mysql_sql_statement_info statement_info(_grt);
+  Mysql_sql_statement_info statement_info;
   bool contains_limit_clause = false;
   size_t limit_ins_pos = sql.length();
 
@@ -253,7 +251,7 @@ sqlide::QuoteVar::Escape_sql_string Mysql_sql_specifics::escape_sql_string()
 {
   bool ansi_sql_strings= false;
 
-  grt::ValueRef sql_mode_value= bec::GRTManager::get_instance_for(_grt)->get_app_option("SqlMode");
+  grt::ValueRef sql_mode_value= bec::GRTManager::get_instance_for()->get_app_option("SqlMode");
   if (sql_mode_value.is_valid() && grt::StringRef::can_wrap(sql_mode_value))
   {
     std::string sql_mode_string= toupper(grt::StringRef::cast_from(sql_mode_value));
@@ -296,7 +294,7 @@ std::string Mysql_sql_specifics::setting_non_std_sql_delimiter()
 
 std::string Mysql_sql_specifics::non_std_sql_delimiter()
 {
-  DictRef options= DictRef::cast_from(_grt->get("/wb/options/options"));
+  DictRef options= DictRef::cast_from(grt::GRT::get()->get("/wb/options/options"));
   if (!options.is_valid())
     return "$$";
   return options.get_string("SqlDelimiter", "$$");

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -100,13 +100,13 @@ bool CatalogHelper::is_type_valid_for_version(const db_SimpleDatatypeRef &type, 
       case '<':
         if (validity[1] == '=')
         {
-          valid_version = parse_version(type.get_grt(), validity.substr(2));
+          valid_version = parse_version(validity.substr(2));
           if (version_equal(target_version, valid_version) || version_greater(valid_version, target_version))
             match = true;
         }
         else
         {
-          valid_version = parse_version(type.get_grt(), validity.substr(1));
+          valid_version = parse_version(validity.substr(1));
           if (version_greater(valid_version, target_version))
             match = true;
         }
@@ -114,19 +114,19 @@ bool CatalogHelper::is_type_valid_for_version(const db_SimpleDatatypeRef &type, 
       case '>':
         if (validity[1] == '=')
         {
-          valid_version = parse_version(type.get_grt(), validity.substr(2));
+          valid_version = parse_version(validity.substr(2));
           if (version_equal(target_version, valid_version) || version_greater(target_version, valid_version))
             match = true;
         }
         else
         {
-          valid_version = parse_version(type.get_grt(), validity.substr(1));
+          valid_version = parse_version(validity.substr(1));
           if (version_greater(target_version, valid_version))
             match = true;
         }
         break;
       case '=':
-        valid_version = parse_version(type.get_grt(), validity.substr(1));
+        valid_version = parse_version(validity.substr(1));
         if (version_equal(target_version, valid_version))
           match = true;
         break;
@@ -283,14 +283,14 @@ db_TableRef TableHelper::create_associative_table(const db_SchemaRef &schema,
   db_TableRef atable;
   std::string name;
 
-  AutoUndo undo(schema->get_grt());
+  AutoUndo undo;
 
   name= options.get_string("AuxTableTemplate", global_options.get_string("AuxTableTemplate", "%stable%_%dtable%"));
 
   name= base::replaceVariable(name, "%stable%", table1->name().c_str());
   name= base::replaceVariable(name, "%dtable%", table2->name().c_str());
 
-  atable= schema.get_grt()->create_object<db_Table>(table1.get_metaclass()->name());
+  atable= grt::GRT::get()->create_object<db_Table>(table1.get_metaclass()->name());
   atable->owner(schema);
   atable->name(get_name_suggestion_for_list_object(schema->tables(), name, false));
   atable->oldName(atable->name());
@@ -309,7 +309,7 @@ db_TableRef TableHelper::create_associative_table(const db_SchemaRef &schema,
   // when the 1st FK is created, the PK and FK will have the same columns, so the index will be reused
   // when the 2nd FK is created, the PK will have both columns so it can't be used by the 1st FK, so we have
   // to create a new one for it
-  db_IndexRef index = create_index_for_fk(schema->get_grt(), first_fk, rdbms->maximumIdentifierLength());
+  db_IndexRef index = create_index_for_fk(first_fk, rdbms->maximumIdentifierLength());
   first_fk->index(index);
   atable->indices().insert(index);
 
@@ -339,7 +339,7 @@ static std::string format_ident_with_column(const std::string &fmt, const db_Col
 }
 
 
-db_IndexRef TableHelper::create_index_for_fk(grt::GRT *grt, const db_ForeignKeyRef &fk, const size_t max_len)
+db_IndexRef TableHelper::create_index_for_fk(const db_ForeignKeyRef &fk, const size_t max_len)
 {
   std::string index_name(fk->name().c_str());
   if (index_name.length() > (max_len-5))
@@ -348,7 +348,7 @@ db_IndexRef TableHelper::create_index_for_fk(grt::GRT *grt, const db_ForeignKeyR
   index_name = grt::get_name_suggestion_for_list_object(fk->owner()->indices(),index_name,false);
 
   // add the corresponding index
-  db_IndexRef index= grt->create_object<db_Index>(db_TableRef::cast_from(fk->owner()).get_metaclass()->get_member_type("indices").content.object_class.c_str());
+  db_IndexRef index= grt::GRT::get()->create_object<db_Index>(db_TableRef::cast_from(fk->owner()).get_metaclass()->get_member_type("indices").content.object_class.c_str());
   
   index->owner(fk->owner());
   index->name(index_name);
@@ -359,7 +359,7 @@ db_IndexRef TableHelper::create_index_for_fk(grt::GRT *grt, const db_ForeignKeyR
   {
     db_ColumnRef col(fk->columns().get(i));
 
-    db_IndexColumnRef index_col(grt->create_object<db_IndexColumn>(index.get_metaclass()->get_member_type("columns").content.object_class));
+    db_IndexColumnRef index_col(grt::GRT::get()->create_object<db_IndexColumn>(index.get_metaclass()->get_member_type("columns").content.object_class));
     index_col->owner(index);
 //    "name", col->name().valueptr(),
     index_col->descend(grt::IntegerRef(0));
@@ -500,7 +500,7 @@ db_IndexRef TableHelper::find_index_usable_by_fk(const db_ForeignKeyRef &fk, con
 
 void TableHelper::update_foreign_keys_from_column_notnull(const db_TableRef &table, const db_ColumnRef &column)
 {
-  AutoUndo undo(table->get_grt());
+  AutoUndo undo;
 
   // go through all foreign keys and update the ones that have this column
   grt::ListRef<db_ForeignKey> fklist(table->foreignKeys());
@@ -545,22 +545,22 @@ std::string TableHelper::generate_foreign_key_name()
 }
 
 
-db_ForeignKeyRef TableHelper::create_empty_foreign_key(grt::GRT *grt, const db_TableRef &table, const std::string &name)
+db_ForeignKeyRef TableHelper::create_empty_foreign_key(const db_TableRef &table, const std::string &name)
 {
   db_ForeignKeyRef fk;
 
   // create a new FK
-  fk= grt->create_object<db_ForeignKey>(table.get_metaclass()->get_member_type("foreignKeys").content.object_class);
+  fk= grt::GRT::get()->create_object<db_ForeignKey>(table.get_metaclass()->get_member_type("foreignKeys").content.object_class);
   fk->owner(table);
   fk->name(name.empty()?generate_foreign_key_name():name);
 
-  grt::AutoUndo undo(grt);
+  grt::AutoUndo undo;
 
   table->foreignKeys().insert(fk);
 
   /* don't always create an index for the FK, it should only be created if there are no other indexes that match it
    the check for indexes should be done every time the FK columns are edited
-  db_IndexRef index(create_index_for_fk(grt, fk));
+  db_IndexRef index(create_index_for_fk(fk));
   fk->index(index);
   table->indices().insert(index);
   */
@@ -606,7 +606,7 @@ void TableHelper::update_foreign_key_index(const db_ForeignKeyRef &fk)
     for (size_t n= 0, count= fk_columns.count(); n < count; ++n)
     {
       db_ColumnRef column(fk_columns.get(n));
-      db_IndexColumnRef index_column(fk->get_grt()->create_object<db_IndexColumn>(index.get_metaclass()->get_member_type("columns").content.object_class));
+      db_IndexColumnRef index_column(grt::GRT::get()->create_object<db_IndexColumn>(index.get_metaclass()->get_member_type("columns").content.object_class));
       index_column->owner(index);
       //"name", column->name().valueptr(),
       index_column->referencedColumn(column);
@@ -633,7 +633,7 @@ bool TableHelper::create_index_for_fk_if_needed(db_ForeignKeyRef fk)
     reorder_foreign_key_for_index(fk, index);
   else if (fk->columns().count() > 0)
   {
-    index = create_index_for_fk(fk.get_grt(), fk);
+    index = create_index_for_fk(fk);
     fk->index(index);
     fk->owner()->indices().insert(index);
     return true;
@@ -686,7 +686,6 @@ db_ForeignKeyRef TableHelper::create_foreign_key_to_table(const db_TableRef &tab
 {
   db_ForeignKeyRef new_fk;
   db_IndexRef pk= ref_table->primaryKey();
-  grt::GRT *grt= table.get_grt();
   std::string name_format;
   std::string column_name_format;
   std::string scolumn_name;
@@ -697,7 +696,7 @@ db_ForeignKeyRef TableHelper::create_foreign_key_to_table(const db_TableRef &tab
   if (!pk.is_valid() || pk->columns().count() == 0)
     return new_fk;
 
-  grt::AutoUndo undo(grt, !table->is_global());
+  grt::AutoUndo undo(!table->is_global());
 
   name_format= options.get_string("FKNameTemplate", global_options.get_string("FKNameTemplate","FK%table%"));
   column_name_format= options.get_string("FKColumnNameTemplate", global_options.get_string("FKColumnNameTemplate", "FK%table%%column%"));
@@ -708,7 +707,7 @@ db_ForeignKeyRef TableHelper::create_foreign_key_to_table(const db_TableRef &tab
   column_name_format= format_ident_with_stable_dtable(column_name_format, table, ref_table);
 
   // create a new FK
-  new_fk= grt->create_object<db_ForeignKey>(table.get_metaclass()->get_member_type("foreignKeys").content.object_class);
+  new_fk= grt::GRT::get()->create_object<db_ForeignKey>(table.get_metaclass()->get_member_type("foreignKeys").content.object_class);
   new_fk->oldName(new_fk->name());
 
   new_fk->deleteRule(options.get_string("db.ForeignKey:deleteRule", global_options.get_string("db.ForeignKey:deleteRule", "NO ACTION")));
@@ -727,7 +726,7 @@ db_ForeignKeyRef TableHelper::create_foreign_key_to_table(const db_TableRef &tab
     db_ColumnRef new_fk_column;
 
     // create the column that will be the FK in the other table
-    new_fk_column= grt->create_object<db_Column>(column.class_name());
+    new_fk_column= grt::GRT::get()->create_object<db_Column>(column.class_name());
     new_fk_column->owner(table);
     new_fk_column->name(get_name_suggestion_for_list_object(table->columns(), format_ident_with_column(column_name_format, column), false));
     new_fk_column->oldName(new_fk_column->name());
@@ -765,7 +764,7 @@ db_ForeignKeyRef TableHelper::create_foreign_key_to_table(const db_TableRef &tab
   // check if an index already exists for the FK columns and if not, create one
   if (!find_index_usable_by_fk(new_fk).is_valid())
   {
-    index = create_index_for_fk(grt, new_fk, rdbms->maximumIdentifierLength());
+    index = create_index_for_fk(new_fk, rdbms->maximumIdentifierLength());
     new_fk->index(index);
     // index is inserted later down
   }
@@ -795,14 +794,13 @@ db_ForeignKeyRef TableHelper::create_foreign_key_to_table(const db_TableRef &tab
                                                      const grt::DictRef &options)
 {
   db_ForeignKeyRef new_fk;
-  grt::GRT *grt= table.get_grt();
   std::string name_format;
   std::string scolumn_name;
   std::string dcolumn_name;
   size_t max_identifier_length= rdbms->maximumIdentifierLength();
   bool ref_mandatory;
 
-  grt::AutoUndo undo(grt, table->is_global());
+  grt::AutoUndo undo(table->is_global());
   
   name_format= options.get_string("FKNameTemplate", global_options.get_string("FKNameTemplate","FK%table%"));
 
@@ -810,7 +808,7 @@ db_ForeignKeyRef TableHelper::create_foreign_key_to_table(const db_TableRef &tab
   name_format= format_ident_with_column(name_format, refcolumns[0]);
 
   // create a new FK
-  new_fk= grt->create_object<db_ForeignKey>(table.get_metaclass()->get_member_type("foreignKeys").content.object_class);
+  new_fk= grt::GRT::get()->create_object<db_ForeignKey>(table.get_metaclass()->get_member_type("foreignKeys").content.object_class);
 
   new_fk->deleteRule(options.get_string("db.ForeignKey:deleteRule", global_options.get_string("db.ForeignKey:deleteRule", "NO ACTION")));
   new_fk->updateRule(options.get_string("db.ForeignKey:updateRule", global_options.get_string("db.ForeignKey:updateRule", "NO ACTION")));
@@ -855,7 +853,7 @@ db_ForeignKeyRef TableHelper::create_foreign_key_to_table(const db_TableRef &tab
   // check if an index already exists for the FK columns and if not, create one
   if (!find_index_usable_by_fk(new_fk).is_valid())
   {
-    db_IndexRef index(create_index_for_fk(grt, new_fk,rdbms->maximumIdentifierLength()));
+    db_IndexRef index(create_index_for_fk(new_fk,rdbms->maximumIdentifierLength()));
     new_fk->index(index);
     
     // add the FK to the source table
@@ -881,7 +879,7 @@ bool TableHelper::rename_foreign_key(const db_TableRef &table, db_ForeignKeyRef 
 
   old_name= fk->name();
 
-  grt::AutoUndo undo(table->get_grt());
+  grt::AutoUndo undo;
 
   fk->name(new_name);
 
@@ -915,15 +913,15 @@ bool TableHelper::is_identifying_foreign_key(const db_TableRef &table, const db_
 }
 
 
-db_mysql_StorageEngineRef TableHelper::get_engine_by_name(grt::GRT *grt, const std::string &name)
+db_mysql_StorageEngineRef TableHelper::get_engine_by_name(const std::string &name)
 {
   grt::ListRef<db_mysql_StorageEngine> engines;
-  Module *module= grt->get_module("DbMySQL");
+  Module *module= grt::GRT::get()->get_module("DbMySQL");
   
   if (!module)
     throw std::logic_error("module DbMySQL not found");
   
-  grt::BaseListRef args(grt);
+  grt::BaseListRef args(true);
   engines= grt::ListRef<db_mysql_StorageEngine>::cast_from(module->call_function("getKnownEngines", args));
 
   if (engines.is_valid())

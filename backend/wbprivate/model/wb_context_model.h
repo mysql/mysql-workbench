@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _WBCONTEXT_MODEL_H_
-#define _WBCONTEXT_MODEL_H_
-
+#pragma once
 
 #include "workbench/wb_backend_public_interface.h"
 #include "base/notifications.h"
@@ -79,7 +77,6 @@ namespace wb
   public:
     WBContextUI *get_wbui() { return _wbui; }
     PhysicalOverviewBE *get_overview() { return _overview; }
-    grt::GRT *get_grt();
 
     mforms::TreeView *create_user_type_list();
     void show_user_type_editor(workbench_physical_ModelRef model);
@@ -204,5 +201,3 @@ namespace wb
     std::map<std::string, ModelDiagramForm*> _model_forms;
   };
 };
-
-#endif

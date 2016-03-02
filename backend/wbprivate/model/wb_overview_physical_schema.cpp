@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -378,9 +378,9 @@ void PhysicalSchemaNode::paste_object(WBContext *wb, bec::Clipboard *clip)
   std::list<grt::ObjectRef> objects(clip->get_data());
   db_SchemaRef schema(db_SchemaRef::cast_from(object));
   WBComponentPhysical *pc= wb->get_component<WBComponentPhysical>();
-  grt::CopyContext context(wb->get_grt_manager()->get_grt());
+  grt::CopyContext context;
 
-  grt::AutoUndo undo(wb->get_grt());
+  grt::AutoUndo undo;
   for (std::list<grt::ObjectRef>::const_iterator iter= objects.begin(); 
     iter != objects.end(); ++iter)
   {

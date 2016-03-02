@@ -30,7 +30,7 @@ using namespace grt;
 
 BEGIN_TEST_DATA_CLASS(grtlistdiff_test)
 public:
-  GRT test_grt;
+
 END_TEST_DATA_CLASS
 
 TEST_MODULE(grtlistdiff_test, "grtlistdiff_test");
@@ -147,16 +147,16 @@ std::vector<std::vector<int> > test_src;
 std::vector<std::vector<int> > test_dst;
 
 template<typename TTestData>
-void test_diff(TTestData src, TTestData dest, GRT& test_grt)
+void test_diff(TTestData src, TTestData dest)
 {
 
-  IntegerListRef source(&test_grt);
-  IntegerListRef target(&test_grt);
+  IntegerListRef source(grt::Initialized);
+  IntegerListRef target(grt::Initialized);
   list_from_container(src->begin(), src->end(), source);
   list_from_container(dest->begin(), dest->end(), target);
 
   default_omf omf;
-  grt::NormalizedComparer normalizer(&test_grt);
+  grt::NormalizedComparer normalizer;
   normalizer.init_omf(&omf);
   boost::shared_ptr<DiffChange> change= diff_make(source, target, &omf);
   apply_change_to_object(source,change.get());
@@ -240,8 +240,8 @@ TEST_FUNCTION(1)
   for(std::vector<std::vector<int> >::const_iterator It1 = test_src.begin();
     It1 != test_src.end() && It2 != test_dst.end(); ++It1,++It2)
   {
-    test_diff(It1,It2,test_grt);
-    test_diff(It2,It1,test_grt);
+    test_diff(It1,It2);
+    test_diff(It2,It1);
 //    std::cout<<cntr++<<std::endl;
   }
 }
@@ -251,14 +251,14 @@ TEST_FUNCTION(2)
   const double s[]= {.0, 1., .2, .3};
   const double t[]= {5., .1, .6, .3, .2};
 
-  DoubleListRef source(&test_grt);
-  DoubleListRef target(&test_grt);
+  DoubleListRef source(grt::Initialized);
+  DoubleListRef target(grt::Initialized);
 
   list_from_container(s, s + UPPER_BOUND(s), source);
   list_from_container(t, t + UPPER_BOUND(t), target);
 
   default_omf omf;
-  grt::NormalizedComparer normalizer(&test_grt);
+  grt::NormalizedComparer normalizer;
   normalizer.init_omf(&omf);
   boost::shared_ptr<DiffChange> change= diff_make(source, target, &omf);
   apply_change_to_object(source,change.get());

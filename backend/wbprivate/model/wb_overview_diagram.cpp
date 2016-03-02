@@ -65,7 +65,7 @@ public:
 
   virtual bool rename(WBContext *wb, const std::string &name)
   {
-    grt::AutoUndo undo(wb->get_grt());
+    grt::AutoUndo undo;
     
     object->name(name);
     

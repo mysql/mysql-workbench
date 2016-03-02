@@ -486,7 +486,7 @@ void GRTShellWindow::shell_action(mforms::TextEntryAction action)
       _shell_entry.set_value("");
       //  _completion->add_completion_text(command);
       command += '\n';
-      grtm()->get_shell()->write(grtm()->get_grt()->get_shell()->get_prompt()+" "+command);
+      grtm()->get_shell()->write(grt::GRT::get()->get_shell()->get_prompt()+" "+command);
       grtm()->get_shell()->process_line_async(command);
       break;
     }
@@ -587,7 +587,7 @@ void GRTShellWindow::execute_file()
   GRTCodeEditor *editor = get_active_editor();
   if (!editor) return;
 
-  grtm()->get_grt()->push_message_handler(boost::bind(&GRTShellWindow::capture_output, this, _1, _2, true));
+  grt::GRT::get()->push_message_handler(boost::bind(&GRTShellWindow::capture_output, this, _1, _2, true));
 
   if (_debugger && g_str_has_suffix(editor->get_path().c_str(), ".py"))
   {
@@ -618,7 +618,7 @@ void GRTShellWindow::execute_file()
       add_output("There were errors during execution. Please review log messages.\n");
     }
 
-  grtm()->get_grt()->pop_message_handler();
+  grt::GRT::get()->pop_message_handler();
 }
 
 
@@ -633,7 +633,7 @@ void GRTShellWindow::debug_step()
     else 
     {
       // start the program stopping at the 1st line
-      grtm()->get_grt()->push_message_handler(boost::bind(&GRTShellWindow::capture_output, this, _1, _2, true));
+      grt::GRT::get()->push_message_handler(boost::bind(&GRTShellWindow::capture_output, this, _1, _2, true));
     
       _run_button->show(false);
       _continue_button->show(true);
@@ -651,7 +651,7 @@ void GRTShellWindow::debug_step()
       _stop_button->set_enabled(false);
       _pause_button->set_enabled(false);
 
-      grtm()->get_grt()->pop_message_handler();
+      grt::GRT::get()->pop_message_handler();
     }
   }
 }
@@ -785,7 +785,7 @@ void GRTShellWindow::global_selected()
       
       if (value.is_valid())
       {
-        _inspector= ValueInspectorBE::create(grtm()->get_grt(), value, false, false);
+        _inspector= ValueInspectorBE::create(value, false, false);
         refresh_global_list();
       }
       
@@ -1051,20 +1051,20 @@ void GRTShellWindow::run_snippet()
 
     handle_output("Running snippet...\n");
     // redirect snippet output to the shell
-    grtm()->get_grt()->push_message_handler(boost::bind(&GRTShellWindow::capture_output, this, _1, _2, false));
+    grt::GRT::get()->push_message_handler(boost::bind(&GRTShellWindow::capture_output, this, _1, _2, false));
     
     try
     {
       std::string language = "python";
 
       bool ret = execute_script(script, language);
-      grtm()->get_grt()->pop_message_handler();
+      grt::GRT::get()->pop_message_handler();
       if (!ret)
         handle_output("Snippet execution finished with an error\n");
     }
     catch (const std::exception &exc)
     {
-      grtm()->get_grt()->pop_message_handler();
+      grt::GRT::get()->pop_message_handler();
       
       handle_output("Exception caught while executing snippet:\n");
       handle_output(std::string(exc.what()).append("\n"));
@@ -1629,13 +1629,12 @@ struct CompareNamedObject
 
 void GRTShellWindow::refresh_modules_tree()
 {
-  grt::GRT *grt = _context->get_grt();
   IconManager *im = IconManager::get_instance();
   std::string mod_icon = im->get_icon_path("grt_module.png");;
   std::string fun_icon = im->get_icon_path("grt_function.png");;
   _modules_tree.clear();
   
-  std::vector<grt::Module*> modules(grt->get_modules());
+  std::vector<grt::Module*> modules(grt::GRT::get()->get_modules());
   std::sort(modules.begin(), modules.end(), CompareNamedObject<grt::Module>());
   
   for (std::vector<grt::Module*>::const_iterator m = modules.begin(); m != modules.end(); ++m)
@@ -1663,14 +1662,13 @@ void GRTShellWindow::refresh_modules_tree()
 
 std::string GRTShellWindow::get_module_node_description(const mforms::TreeNodeRef &node)
 {
-  grt::GRT *grt = _context->get_grt();
   std::string value;
   if (node->get_parent() == _modules_tree.root_node())
   {
     std::string name = node->get_string(0);
     if (!name.empty() && name[name.size()-1] == '*')
       name = name.substr(0, name.size()-2);
-    grt::Module *module= grt->get_module(name);
+    grt::Module *module= grt::GRT::get()->get_module(name);
     if (module)
     {
       std::string descr;
@@ -1694,7 +1692,7 @@ std::string GRTShellWindow::get_module_node_description(const mforms::TreeNodeRe
     std::string name = node->get_parent()->get_string(0);
     if (!name.empty() && name[name.size()-1] == '*')
       name = name.substr(0, name.size()-2);
-    grt::Module *module= grt->get_module(name);
+    grt::Module *module= grt::GRT::get()->get_module(name);
     if (module)
     {
       const grt::Module::Function* func= module->get_function(node->get_string(0));
@@ -1837,7 +1835,7 @@ static void scan_class_members(mforms::TreeNodeRef node, grt::MetaClass *gstruct
 
 void GRTShellWindow::refresh_classes_tree_by_name()
 {
-  std::list<grt::MetaClass*> metaclasses(_context->get_grt()->get_metaclasses());
+  std::list<grt::MetaClass*> metaclasses(grt::GRT::get()->get_metaclasses());
 
   std::string struct_icon = IconManager::get_instance()->get_icon_path("grt_struct.png");
   
@@ -1888,10 +1886,10 @@ static void scan_subclasses(const std::list<grt::MetaClass*> &metaclasses, mform
 
 void GRTShellWindow::refresh_classes_tree_by_hierarchy()
 {
-  std::list<grt::MetaClass*> metaclasses(_context->get_grt()->get_metaclasses());
+  std::list<grt::MetaClass*> metaclasses(grt::GRT::get()->get_metaclasses());
   metaclasses.sort(CompareNamedObject<grt::MetaClass>());
     
-  scan_subclasses(metaclasses, _classes_tree.root_node(), _context->get_grt()->get_metaclass(grt::internal::Object::static_class_name()));
+  scan_subclasses(metaclasses, _classes_tree.root_node(), grt::GRT::get()->get_metaclass(grt::internal::Object::static_class_name()));
 }
 
 
@@ -1899,7 +1897,7 @@ void GRTShellWindow::refresh_classes_tree_by_package()
 {
   IconManager *im = IconManager::get_instance();
   std::map<std::string, mforms::TreeNodeRef> package_nodes;
-  std::list<grt::MetaClass*> metaclasses(_context->get_grt()->get_metaclasses());
+  std::list<grt::MetaClass*> metaclasses(grt::GRT::get()->get_metaclasses());
   metaclasses.sort(CompareNamedObject<grt::MetaClass>());
   
   std::string struct_icon = im->get_icon_path("grt_struct.png");
@@ -1991,7 +1989,7 @@ static void globals_get_node_info(const grt::ValueRef &value,
         type+= "]";
       }
       if (!struct_name.empty())
-        icon= im->get_icon_path(im->get_icon_id(l.get_grt()->get_metaclass(struct_name),
+        icon= im->get_icon_path(im->get_icon_id(grt::GRT::get()->get_metaclass(struct_name),
                                                 Icon16, "many_$"));
       if (icon.empty())
         icon= im->get_icon_path("grt_list.png");
@@ -2016,7 +2014,7 @@ static void globals_get_node_info(const grt::ValueRef &value,
         if (d.content_type() == grt::ObjectType)
         {
           type+= "object:"+d.content_class_name();
-          icon= im->get_icon_path(im->get_icon_id(d.get_grt()->get_metaclass(d.content_class_name()), Icon16));
+          icon= im->get_icon_path(im->get_icon_id(grt::GRT::get()->get_metaclass(d.content_class_name()), Icon16));
         }
         else
           type+= grt::type_to_str(d.content_type());
@@ -2210,7 +2208,7 @@ void GRTShellWindow::refresh_globals_tree()
   
   try
   {
-    grt::ValueRef value = _context->get_grt()->get(path);
+    grt::ValueRef value = grt::GRT::get()->get(path);
     if (value.is_valid())
     {
       _global_tree.clear();
@@ -2250,7 +2248,7 @@ void GRTShellWindow::globals_expand_toggle(const mforms::TreeNodeRef &node, bool
 
 grt::ValueRef GRTShellWindow::get_global_at_node(const mforms::TreeNodeRef &node)
 {
-  return _context->get_grt()->get(get_global_path_at_node(node));
+  return grt::GRT::get()->get(get_global_path_at_node(node));
 }
 
 

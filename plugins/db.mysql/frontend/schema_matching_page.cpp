@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -146,9 +146,9 @@ void SchemaMatchingPage::leave(bool advancing)
 {
   if (advancing)
   {
-    grt::StringListRef unlist(_form->grtm()->get_grt());
-    grt::StringListRef list(_form->grtm()->get_grt());
-    grt::StringListRef orig_list(_form->grtm()->get_grt());
+    grt::StringListRef unlist(grt::Initialized);
+    grt::StringListRef list(grt::Initialized);
+    grt::StringListRef orig_list(grt::Initialized);
 
     int c = _tree.count();
     for (int i = 0; i < c; i++)

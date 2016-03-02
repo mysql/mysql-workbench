@@ -30,8 +30,6 @@
 #include "grt.h"
 #include "grtpp_helper.h"
 
-using namespace grt;
-
 //--------------------------------------------------------------------------------------------------
 
 int main(int argc, char **argv)
@@ -43,7 +41,6 @@ int main(int argc, char **argv)
     return -1;
   }
 
-  GRT grt;
   std::string structs_file = argv[1];
   std::string structs_dir = argv[2];
   std::string output_dir = argv[3];
@@ -54,10 +51,10 @@ int main(int argc, char **argv)
   g_print("Reading structs from '%s', outputing classes to '%s'\n",
             structs_dir.c_str(), output_dir.c_str());
   
-  grt.scan_metaclasses_in(structs_dir, &requires);
-  grt.end_loading_metaclasses(false);
+  grt::GRT::get()->scan_metaclasses_in(structs_dir, &requires);
+  grt::GRT::get()->end_loading_metaclasses(false);
 
-  helper::generate_struct_code(&grt, structs_file, output_dir, impl_output_dir, requires);
+  grt::helper::generate_struct_code(structs_file, output_dir, impl_output_dir, requires);
 
   return 0;
 }

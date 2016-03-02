@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _WIZARDPROGRESSPAGE_H_
-#define _WIZARDPROGRESSPAGE_H_
+
+#pragma once
 
 #include "grt_wizard_form.h"
 
@@ -128,7 +128,7 @@ namespace grtui {
                       const std::string &status_text);
 
   public:
-    void execute_grt_task(const boost::function<grt::ValueRef (grt::GRT*)> &slot, bool sync);
+    void execute_grt_task(const boost::function<grt::ValueRef ()> &slot, bool sync);
 
     void process_grt_task_message(const grt::Message &msg);
     void process_grt_task_fail(const std::exception &error, bec::GRTTask* task);
@@ -149,6 +149,3 @@ namespace grtui {
   };
 
 };
-  
-  
-#endif /* _WIZARDPROGRESSPAGE_H_ */

@@ -27,6 +27,7 @@ include_directories(.
 if (UNIX)
     ${PROJECT_SOURCE_DIR}/frontend/linux/linux_utilities
 endif()
+    ${Boost_INCLUDE_DIRS}
 )
 
 add_library(mforms

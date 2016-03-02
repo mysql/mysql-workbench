@@ -72,20 +72,20 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _rs_sequence(0), _busy(false), _is_scratch(is_scratch)
 {
   GRTManager *grtm = owner->grt_manager();
-  db_query_QueryEditorRef grtobj(grtm->get_grt());
+  db_query_QueryEditorRef grtobj(grt::Initialized);
 
-  grtobj->resultDockingPoint(mforms_to_grt(grtm->get_grt(), &_lower_dock));
+  grtobj->resultDockingPoint(mforms_to_grt(&_lower_dock));
 
   _autosave_file_suffix = grtobj.id();
 
   // In opposition to the object editors, each individual sql editor gets an own parser context
   // (and hence an own parser), to allow concurrent and multi threaded work.
-  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grtm->get_grt());
+  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
 
   parser::ParserContext::Ref context = services->createParserContext(owner->rdbms()->characterSets(),
     owner->rdbms_version(), owner->lower_case_table_names() != 0);
 
-  _editor = MySQLEditor::create(grtm->get_grt(), context, owner->work_parser_context(), grtobj);
+  _editor = MySQLEditor::create(context, owner->work_parser_context(), grtobj);
   _editor->sql_check_progress_msg_throttle(grtm->get_app_option_int("DbSqlEditor:ProgressStatusUpdateInterval", 500)/(double)1000);
   _editor->set_auto_completion_cache(owner->auto_completion_cache());
   _editor->set_sql_mode(owner->sql_mode());
@@ -530,8 +530,7 @@ SqlEditorPanel::LoadResult SqlEditorPanel::load_from(const std::string &file, co
 
   char *utf8_data;
   std::string original_encoding;
-  FileCharsetDialog::Result result = FileCharsetDialog::ensure_filedata_utf8(_form->grt_manager()->get_grt(),
-                                                                             data, length, encoding, file,
+  FileCharsetDialog::Result result = FileCharsetDialog::ensure_filedata_utf8(data, length, encoding, file,
                                                                              utf8_data, &original_encoding);
   if (result == FileCharsetDialog::Cancelled)
   {
@@ -1181,16 +1180,16 @@ void SqlEditorPanel::on_recordset_context_menu_show(Recordset::Ptr rs_ptr)
   Recordset::Ref rs(rs_ptr.lock());
   if (rs)
   {
-    grt::DictRef info(rs->grtm()->get_grt());
+    grt::DictRef info(true);
 
     std::vector<int> selection(rs->selected_rows());
-    grt::IntegerListRef rows(info.get_grt());
+    grt::IntegerListRef rows(grt::Initialized);
     for (std::vector<int>::const_iterator i = selection.begin(); i != selection.end(); ++i)
       rows.insert(*i);
 
     info.set("selected-rows", rows);
     info.gset("selected-column", rs->selected_column());
-    info.set("menu", mforms_to_grt(info.get_grt(), rs->get_context_menu()));
+    info.set("menu", mforms_to_grt(rs->get_context_menu()));
 
     db_query_QueryBufferRef qbuffer(grtobj());
     if (qbuffer.is_valid() && db_query_QueryEditorRef::can_wrap(qbuffer))

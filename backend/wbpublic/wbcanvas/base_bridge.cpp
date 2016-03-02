@@ -28,12 +28,12 @@
 
 bool BridgeBase::is_main_thread()
 {
-  return bec::GRTManager::get_instance_for(get_object()->get_grt())->in_main_thread();
+  return bec::GRTManager::get_instance_for()->in_main_thread();
 }
 
 
 void BridgeBase::run_later(const boost::function<void ()> &slot)
 {
-    bec::GRTManager::get_instance_for(get_object()->get_grt())->run_once_when_idle(this, slot);
+    bec::GRTManager::get_instance_for()->run_once_when_idle(this, slot);
 }
 

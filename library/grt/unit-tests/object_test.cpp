@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,10 +23,8 @@
 
 BEGIN_TEST_DATA_CLASS(grt_object_value)
 public:
-  GRT *grt;
 TEST_DATA_CONSTRUCTOR(grt_object_value) 
 {
-  grt= new GRT();
 };
 
 END_TEST_DATA_CLASS
@@ -57,15 +55,15 @@ TEST_MODULE(grt_object_value, "GRT: object values");
 TEST_FUNCTION(1)
 {
   // load structs
-  grt->load_metaclasses("data/structs.test.xml");
-  grt->end_loading_metaclasses();
+  grt::GRT::get()->load_metaclasses("data/structs.test.xml");
+  grt::GRT::get()->end_loading_metaclasses();
 
-  ensure_equals("load structs", grt->get_metaclasses().size(), 6U);
+  ensure_equals("load structs", grt::GRT::get()->get_metaclasses().size(), 6U);
 }
 
 TEST_FUNCTION(5)
 {
-  test_BookRef book(grt);
+  test_BookRef book(grt::Initialized);
 
   ensure("has_member", book.has_member("title"));
   ensure("has_member bad", !book.has_member("Title"));
@@ -79,7 +77,7 @@ TEST_FUNCTION(5)
   ensure_equals("get_dbl_member", book.get_double_member("price"), DoubleRef(123.45));
 
   
-  test_AuthorRef author(grt);
+  test_AuthorRef author(grt::Initialized);
   author.set_member("name", StringRef("Some One"));
   
   ensure_equals("constructor", author.get_string_member("name"), "Some One");
@@ -101,7 +99,7 @@ TEST_FUNCTION(5)
 
 TEST_FUNCTION(6)
 {
-  test_BookRef obj(grt);
+  test_BookRef obj(grt::Initialized);
   bool flag= false;
   try {
     obj.set_member("invalid", StringRef("XXX"));
@@ -143,7 +141,7 @@ TEST_FUNCTION(6)
 
 TEST_FUNCTION(10)
 {
-  test_BookRef book(grt);
+  test_BookRef book(grt::Initialized);
   
   book->title("Harry Potter");
   book->title(*book->title() + " XXV");
@@ -152,7 +150,7 @@ TEST_FUNCTION(10)
 
   ensure("title", *book->title() == "Harry Potter XXV");
 
-  test_AuthorRef author(grt);
+  test_AuthorRef author(grt::Initialized);
   
   book->authors().insert(author);
   ensure("author add", book->authors().count()==1);
@@ -178,7 +176,7 @@ static bool count_member(const grt::MetaClass::Member *member, int *count)
 TEST_FUNCTION(11)
 {
   // Check if inherited values are properly initialized.
-  test_BookRef book(grt);
+  test_BookRef book(grt::Initialized);
 
   int count= 0;
   book->get_metaclass()->foreach_member(boost::bind(&count_member, _1, &count));
@@ -202,7 +200,7 @@ protected:
     x= grt::IntegerRef(0);
     y= grt::IntegerRef(0);
     myname= grt::StringRef("hello");
-    books.init(get_grt());
+    books.init();
   }
   virtual void destroy()
   {
@@ -256,7 +254,7 @@ TEST_FUNCTION(20)
 {
   bool ret;
   
-  ret= ObjectBridgeBase::register_bridge<TestBridge>(grt);
+  ret= ObjectBridgeBase::register_bridge<TestBridge>;
   ensure_equals("bridge registration", ret, true);
 }
 
@@ -266,8 +264,8 @@ TEST_FUNCTION(21)
   bool bridge_destroyed= false;
   
   {
-    test_Bridged bridged(grt);
-    test_Book book(grt);
+    test_Bridged bridged;
+    test_Book book;
     
     ensure_equals("bridge name", bridged.get_metaclass().get_metaclass()->bridge, "tut::TestBridge");
     

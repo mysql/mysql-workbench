@@ -235,28 +235,26 @@ public:
   SqlEditorForm::Ref form;
   EditorFormTester form_tester;
   mforms::TreeView *pmodel_view;
-  GRT grt;
 
-
-  void set_connection_properties(grt::GRT *grt, db_mgmt_ConnectionRef& connection)
+  void set_connection_properties(db_mgmt_ConnectionRef& connection)
 {
-  grt::DictRef conn_params(grt);
+  grt::DictRef conn_params(true);
   conn_params.set("hostName", grt::StringRef(test_params->get_host_name()));
   conn_params.set("port", grt::IntegerRef(test_params->get_port()));
   conn_params.set("userName", grt::StringRef(test_params->get_user_name()));
   conn_params.set("password", grt::StringRef(test_params->get_password()));
   grt::replace_contents(connection->parameterValues(), conn_params);
 
-  db_mgmt_DriverRef driverProperties= db_mgmt_DriverRef::cast_from(grt->get("/rdbms/drivers/0/"));
+  db_mgmt_DriverRef driverProperties= db_mgmt_DriverRef::cast_from(grt::GRT::get()->get("/rdbms/drivers/0/"));
   connection->driver(driverProperties);
 }
 
-sql::ConnectionWrapper create_connection_for_import(grt::GRT *grt)
+sql::ConnectionWrapper create_connection_for_import()
 {
   // init database connection
-  db_mgmt_ConnectionRef connectionProperties(grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  set_connection_properties(grt, connectionProperties);
+  set_connection_properties(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
 
@@ -265,12 +263,12 @@ sql::ConnectionWrapper create_connection_for_import(grt::GRT *grt)
 
 TEST_DATA_CONSTRUCTOR(wb_sql_editor_form_test):wb_context_sqlide(tester.wbui)
 {
-  populate_grt(tester.grt, tester);
+  populate_grt(tester);
 
-  connection= create_connection_for_import(tester.grt);
+  connection = create_connection_for_import();
 
-  db_mgmt_ConnectionRef my_connection(tester.grt);
-  set_connection_properties(tester.grt, my_connection);
+  db_mgmt_ConnectionRef my_connection(grt::Initialized);
+  set_connection_properties(my_connection);
   form = SqlEditorForm::create(&wb_context_sqlide, my_connection);
   form->connect(boost::shared_ptr<sql::TunnelConnection>());
 

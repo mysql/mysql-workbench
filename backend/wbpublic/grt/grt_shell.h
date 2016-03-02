@@ -82,7 +82,6 @@ public:
   
 protected:
   GRTManager *_grtm;
-  grt::GRT *_grt;
   grt::Shell *_shell;
   GRTDispatcher::Ref _dispatcher;
   std::vector<std::string> _grt_tree_bookmarks;

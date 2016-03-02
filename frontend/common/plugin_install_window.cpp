@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -57,7 +57,7 @@ private:
   
   void download_finished(grt::ValueRef ret);
   void download_failed(const std::exception &exc);
-  grt::ValueRef perform_download(grt::GRT *grt);
+  grt::ValueRef perform_download();
   void handle_output(const grt::Message &message);
 };
 
@@ -119,13 +119,13 @@ void AddOnDownloadWindow::DownloadItem::download_finished(grt::ValueRef ret)
 }
 
 
-grt::ValueRef AddOnDownloadWindow::DownloadItem::perform_download(grt::GRT *grt)
+grt::ValueRef AddOnDownloadWindow::DownloadItem::perform_download()
 {
-  grt::Module *module = grt->get_module("WbUpdater");
+  grt::Module *module = grt::GRT::get()->get_module("WbUpdater");
   if (!module)
     throw std::runtime_error("Can't locate module WbUpdater");
   
-  grt::BaseListRef args(grt);
+  grt::BaseListRef args(true);
   args.ginsert(grt::StringRef(_url));
   args.ginsert(grt::StringRef(_dest_path));
   
@@ -137,7 +137,7 @@ grt::ValueRef AddOnDownloadWindow::DownloadItem::perform_download(grt::GRT *grt)
 void AddOnDownloadWindow::DownloadItem::start()
 {
   bec::GRTTask::Ref task = bec::GRTTask::create_task("downloading plugin", _grtm->get_dispatcher(),
-    boost::bind(&AddOnDownloadWindow::DownloadItem::perform_download, this, _1));
+    boost::bind(&AddOnDownloadWindow::DownloadItem::perform_download, this));
   
   scoped_connect(task->signal_finished(),boost::bind(&AddOnDownloadWindow::DownloadItem::download_finished, this, _1));
   scoped_connect(task->signal_failed(),boost::bind(&AddOnDownloadWindow::DownloadItem::download_failed, this, _1));
@@ -216,7 +216,6 @@ void AddOnDownloadWindow::download_finished(const std::string &path, DownloadIte
 
 class PluginInstallWindow::InstallItem : public mforms::Box
 {
-  PluginInstallWindow *_owner;
   mforms::Box _box, _rbox;
   mforms::ImageBox _icon;
   mforms::Label _version;
@@ -234,7 +233,7 @@ public:
 
 
 PluginInstallWindow::InstallItem::InstallItem(PluginInstallWindow *owner, const std::string &path)
-: mforms::Box(true), _owner(owner), _box(true), _rbox(false),
+: mforms::Box(true), _box(true), _rbox(false),
 _path(path)
 {
   set_padding(8);
@@ -270,7 +269,6 @@ static std::string full_file_path(const std::list<std::string> &paths, const std
 
 bool PluginInstallWindow::InstallItem::start()
 {
-  grt::GRT *grt = _owner->_wbui->get_wb()->get_grt();
   grt::DictRef manifest;
   std::string unpacked_path;
   
@@ -287,7 +285,7 @@ bool PluginInstallWindow::InstallItem::start()
     }
     try
     {
-      manifest = grt::DictRef::cast_from(grt->unserialize(manifest_path));
+      manifest = grt::DictRef::cast_from(grt::GRT::get()->unserialize(manifest_path));
     }
     catch (const std::exception)
     {

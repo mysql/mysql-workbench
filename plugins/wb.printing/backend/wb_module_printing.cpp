@@ -45,8 +45,8 @@
 
 #define def_export_plugin(aName, aCaption, aDialogCaption, aExtensions)\
   {\
-    app_PluginRef plugin(get_grt());\
-    app_PluginObjectInputRef pdef(get_grt());\
+    app_PluginRef plugin(grt::Initialized);\
+    app_PluginObjectInputRef pdef(grt::Initialized);\
     plugin->name("wb.print." aName);\
     plugin->caption(aCaption);\
     plugin->moduleName("WbPrinting");\
@@ -57,7 +57,7 @@
     pdef->objectStructName(model_Diagram::static_class_name());\
     pdef->owner(plugin);\
     plugin->inputValues().insert(pdef);\
-    app_PluginFileInputRef pdef2(get_grt());\
+    app_PluginFileInputRef pdef2(grt::Initialized);;\
     pdef2->owner(plugin);\
     pdef2->dialogTitle(aDialogCaption);\
     pdef2->dialogType("save");\
@@ -77,13 +77,13 @@ WbPrintingImpl::WbPrintingImpl(grt::CPPModuleLoader *ldr)
 
 grt::ListRef<app_Plugin> WbPrintingImpl::getPluginInfo()
 {
-  grt::ListRef<app_Plugin> list(get_grt());
+  grt::ListRef<app_Plugin> list(true);
 
   def_export_plugin("printToPDFFile", "Print Diagram to a PDF File", "Print to PDF", "PDF Files (*.pdf)|*.pdf");
   def_export_plugin("printToPSFile", "Print Diagram to a PS File", "Print to PS", "PostScript Files (*.ps)|*.ps");
 
   {
-    app_PluginRef plugin(get_grt());
+    app_PluginRef plugin(grt::Initialized);
 
     FRONTEND_LIBNAME(plugin,
                      ".\\wb.printing.wbp.fe.dll",
@@ -94,7 +94,7 @@ grt::ListRef<app_Plugin> WbPrintingImpl::getPluginInfo()
     plugin->rating(100);
     plugin->name("wb.print.print");
     plugin->caption(_("Print Diagram"));
-    app_PluginObjectInputRef pdef(get_grt());
+    app_PluginObjectInputRef pdef(grt::Initialized);
     pdef->name("activeDiagram");
     pdef->objectStructName(model_Diagram::static_class_name());
     pdef->owner(plugin);
@@ -106,7 +106,7 @@ grt::ListRef<app_Plugin> WbPrintingImpl::getPluginInfo()
   }
 
   {
-    app_PluginRef plugin(get_grt());
+    app_PluginRef plugin(grt::Initialized);
 
     FRONTEND_LIBNAME(plugin,
                      ".\\wb.printing.wbp.fe.dll",
@@ -117,7 +117,7 @@ grt::ListRef<app_Plugin> WbPrintingImpl::getPluginInfo()
     plugin->rating(100);
     plugin->name("wb.print.printPreview");
     plugin->caption(_("Print Preview"));
-    app_PluginObjectInputRef pdef(get_grt());
+    app_PluginObjectInputRef pdef(grt::Initialized);
     pdef->name("activeDiagram");
     pdef->objectStructName(model_Diagram::static_class_name());
     pdef->owner(plugin);
@@ -129,7 +129,7 @@ grt::ListRef<app_Plugin> WbPrintingImpl::getPluginInfo()
   }
 
   {
-    app_PluginRef plugin(get_grt());
+    app_PluginRef plugin(grt::Initialized);
 
     FRONTEND_LIBNAME(plugin,
                      "",
@@ -155,7 +155,7 @@ int WbPrintingImpl::printToPDFFile(model_DiagramRef view, const std::string &pat
 {
   mdc::CanvasViewExtras extras(view->get_data()->get_canvas_view());
 
-  app_PageSettingsRef page(workbench_DocumentRef::cast_from(get_grt()->get("/wb/doc"))->pageSettings());
+  app_PageSettingsRef page(workbench_DocumentRef::cast_from(grt::GRT::get()->get("/wb/doc"))->pageSettings());
 
   extras.set_page_margins(page->marginTop(), page->marginLeft(), page->marginBottom(), page->marginRight());
   extras.set_paper_size(page->paperType()->width(), page->paperType()->height());
@@ -172,7 +172,7 @@ int WbPrintingImpl::printDiagramsToFile(grt::ListRef<model_Diagram> views, const
 {
   int pages = 0;
   base::FileHandle fh(path.c_str(), "wb");
-  app_PageSettingsRef page(workbench_DocumentRef::cast_from(get_grt()->get("/wb/doc"))->pageSettings());
+  app_PageSettingsRef page(workbench_DocumentRef::cast_from(grt::GRT::get()->get("/wb/doc"))->pageSettings());
   int total_pages = 0;
 
   GRTLIST_FOREACH(model_Diagram, views, view)
@@ -228,7 +228,7 @@ int WbPrintingImpl::printToPSFile(model_DiagramRef view, const std::string &path
 {
   mdc::CanvasViewExtras extras(view->get_data()->get_canvas_view());
 
-  app_PageSettingsRef page(workbench_DocumentRef::cast_from(get_grt()->get("/wb/doc"))->pageSettings());
+  app_PageSettingsRef page(workbench_DocumentRef::cast_from(grt::GRT::get()->get("/wb/doc"))->pageSettings());
 
   extras.set_page_margins(page->marginTop(), page->marginLeft(), page->marginBottom(), page->marginRight());
   extras.set_paper_size(page->paperType()->width(), page->paperType()->height());

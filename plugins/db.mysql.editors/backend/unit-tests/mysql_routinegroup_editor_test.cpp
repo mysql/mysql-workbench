@@ -31,7 +31,6 @@ public:
 
 TEST_DATA_CONSTRUCTOR(mysql_routinegroup_editor_test)
 {
-  grt = wbt.grt;
 }
 
 END_TEST_DATA_CLASS
@@ -43,7 +42,7 @@ TEST_FUNCTION(10)
 {
 const char* routine_sql = "";
 
-  SynteticMySQLModel model(grt);
+  SynteticMySQLModel model;
   size_t count = model.routineGroup->routines().count();
   ensure("Invalid number of routines", count == 1);
 
@@ -102,7 +101,7 @@ const char* routine_sql =
   "END //" NL
   "DELIMITER ;";
 
-  SynteticMySQLModel model(grt);
+  SynteticMySQLModel model;
   model.schema->name("test_schema");
   model.routineGroup->name("rg");
   MySQLRoutineGroupEditorBE rg(wbt.wb->get_grt_manager(), model.routineGroup);
@@ -190,7 +189,7 @@ const char* routine_sql =
   "END //" NL
   "DELIMITER ;";
 
-  SynteticMySQLModel model(grt);
+  SynteticMySQLModel model;
   model.schema->name("test_schema");
   model.routineGroup->name("rg");
   MySQLRoutineGroupEditorBE rg(wbt.wb->get_grt_manager(), model.routineGroup);

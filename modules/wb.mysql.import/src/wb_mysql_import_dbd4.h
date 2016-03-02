@@ -17,8 +17,7 @@
 * 02110-1301  USA
 */
 
-#ifndef _WB_MYSQL_IMPORT_DBD4_H_
-#define _WB_MYSQL_IMPORT_DBD4_H_
+#pragma once
 
 
 #include "wb_mysql_import_public_interface.h"
@@ -56,7 +55,6 @@ private:
   db_mysql_SchemaRef ensure_schema_created(int index, const char *name);
   void remove_unused_schemata();
 
-  grt::GRT *_grt;
   db_mysql_CatalogRef _catalog;
   SimpleDatatypes _datatypes;
   SimpleDatatypesFlags _datatypes_flags;
@@ -84,7 +82,6 @@ private:
     ~Neutral_state_keeper()
     {
       _import_dbd4->_catalog= db_mysql_CatalogRef();
-      _import_dbd4->_grt= NULL;
       _import_dbd4->_table_figures.clear();
       _import_dbd4->_columns.clear();
       _import_dbd4->_tables.clear();
@@ -115,6 +112,3 @@ private:
     int _flag;
   };
 };
-
-
-#endif // _WB_MYSQL_IMPORT_DBD4_H_

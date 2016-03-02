@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,9 +23,9 @@
 
 using namespace grtui;
 
-StringListEditor::StringListEditor(grt::GRT *grt, mforms::Form *owner, const bool reorderable)
-: mforms::Form(owner, mforms::FormResizable), _grt(grt),
-_vbox(false), _tree(mforms::TreeFlatList|(reorderable ? mforms::TreeAllowReorderRows : (mforms::TreeOptions)0)), _button_box(true)
+StringListEditor::StringListEditor(mforms::Form *owner, const bool reorderable)
+  : mforms::Form(owner, mforms::FormResizable),
+  _vbox(false), _tree(mforms::TreeFlatList|(reorderable ? mforms::TreeAllowReorderRows : (mforms::TreeOptions)0)), _button_box(true)
 {
   set_name("list_editor");
   _tree.add_column(mforms::StringColumnType, "Value", 300, true);
@@ -117,7 +117,7 @@ std::vector<std::string> StringListEditor::get_string_list()
 
 grt::StringListRef StringListEditor::get_grt_string_list()
 {
-  grt::StringListRef list(_grt);
+  grt::StringListRef list(grt::Initialized);
   
   for (int c= _tree.count(), i= 0; i < c; i++)
   {

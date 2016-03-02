@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -215,10 +215,10 @@ std::vector<std::pair<std::string, std::string> > DbDriverParam::get_enum_option
   }
   else
   {
-    grt::Module *module = _inner.get_grt()->get_module(*_inner->lookupValueModule());
+    grt::Module *module = grt::GRT::get()->get_module(*_inner->lookupValueModule());
     if (module)
     {
-      grt::BaseListRef args(_inner.get_grt());
+      grt::BaseListRef args(true);
       grt::ValueRef result = module->call_function(*_inner->lookupValueMethod(), args);
       if (result.is_valid() && grt::StringListRef::can_wrap(result))
       {
@@ -251,7 +251,7 @@ grt::StringRef DbDriverParam::getValue()
   grt::StringRef value = "";
   if (!(*_inner->lookupValueModule()).empty() && (*_inner->lookupValueModule()) == "Options")
   {
-    grt::DictRef wb_options = grt::DictRef::cast_from(_inner.get_grt()->get("/wb/options/options"));
+    grt::DictRef wb_options = grt::DictRef::cast_from(grt::GRT::get()->get("/wb/options/options"));
     switch (this->_type)
     {
       case ParamType::ptInt:
@@ -564,7 +564,7 @@ grt::DictRef DbDriverParams::get_params() const
 {
   if (_driver.is_valid())
   {
-    grt::DictRef params(_driver.get_grt());
+    grt::DictRef params(true);
     for (Collection::const_iterator i= _collection.begin(); i != _collection.end(); ++i)
     {
       DbDriverParam *param_handle= *i;

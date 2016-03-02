@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,10 +17,7 @@
  * 02110-1301  USA
  */
 
-
-#ifndef _SQL_STATEMENT_DECOMPOSER_H_
-#define _SQL_STATEMENT_DECOMPOSER_H_
-
+#pragma once
 
 #include "wbpublic_public_interface.h"
 #include "sql_parser_base.h"
@@ -74,13 +71,10 @@ class WBPUBLICBACKEND_PUBLIC_FUNC Sql_statement_decomposer : virtual public Sql_
 public:
   typedef boost::shared_ptr<Sql_statement_decomposer> Ref;
 protected:
-  Sql_statement_decomposer(grt::GRT *grt);
+  Sql_statement_decomposer();
 
 public:
   virtual int decompose_query(const std::string &sql, SelectStatement::Ref select_statement)= 0;
   virtual int decompose_view(const std::string &ddl, SelectStatement::Ref select_statement)= 0;
   virtual int decompose_view(db_ViewRef view, SelectStatement::Ref select_statement)= 0;
 };
-
-
-#endif // _SQL_STATEMENT_DECOMPOSER_H_

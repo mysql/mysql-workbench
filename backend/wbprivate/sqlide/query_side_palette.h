@@ -69,12 +69,12 @@ private:
   void handle_notification(const std::string &name, void *sender, base::NotificationInfo &info);
 
   void show_help_text_for_topic(const std::string &topic);
-  grt::StringRef get_help_text_threaded(grt::GRT *);
+  grt::StringRef get_help_text_threaded();
   void update_help_ui();
   void show_help_hint_or_update();
 
   bool find_context_help(MySQLEditor *editor);
-  grt::StringRef get_help_topic_threaded(grt::GRT *, const std::string &query, std::pair<ssize_t, ssize_t> caret);
+  grt::StringRef get_help_topic_threaded(const std::string &query, std::pair<ssize_t, ssize_t> caret);
   void process_help_topic(const std::string &topic);
   void update_help_history(const std::string &topic);
 

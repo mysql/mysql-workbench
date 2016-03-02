@@ -23,14 +23,13 @@
 using namespace grt;
 using namespace base;
 
-PythonShell::PythonShell(GRT *grt)
-: Shell(grt), _loader(0)
+PythonShell::PythonShell() : _loader(0)
 {
 }
 
 void PythonShell::init()
 {
-  _loader= dynamic_cast<PythonModuleLoader*>(_grt->get_module_loader(LanguagePython));
+  _loader= dynamic_cast<PythonModuleLoader*>(grt::GRT::get()->get_module_loader(LanguagePython));
   if (!_loader)
     throw std::runtime_error("Python module loader not initialized");
   
@@ -188,10 +187,10 @@ int PythonShell::set_global_var(const std::string &var_name, const ValueRef &val
 }
 
 
-extern void grt_shell_show_python_help(GRT *grt, const char *command);
+extern void grt_shell_show_python_help(const char *command);
 
 void PythonShell::show_help(const std::string &keyword)
 {
   
-  grt_shell_show_python_help(_grt, keyword.c_str());
+  grt_shell_show_python_help(keyword.c_str());
 }

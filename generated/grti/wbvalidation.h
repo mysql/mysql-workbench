@@ -14,7 +14,7 @@ public:
   static const char *static_get_name() { return "WbValidationInterface"; }
   ssize_t validate(const std::string & param0, const ObjectRef& param1)
   {
-    grt::BaseListRef args(get_grt(), AnyType);
+    grt::BaseListRef args(AnyType);
     args.ginsert(grt::StringRef(param0));
     args.ginsert(param1);
     grt::ValueRef ret= _module->call_function("validate", args);
@@ -22,7 +22,7 @@ public:
   }
   std::string getValidationDescription(const ObjectRef& param0)
   {
-    grt::BaseListRef args(get_grt(), AnyType);
+    grt::BaseListRef args(AnyType);
     args.ginsert(param0);
     grt::ValueRef ret= _module->call_function("getValidationDescription", args);
     return (std::string)StringRef::cast_from(ret);

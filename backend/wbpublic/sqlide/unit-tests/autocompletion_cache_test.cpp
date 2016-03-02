@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,7 +28,6 @@ using namespace wb;
 
 BEGIN_TEST_DATA_CLASS(autocompletion_cache_test)
 public:
-  GRT _grt;
   base::RecMutex _connection_mutex;
   sql::Dbc_connection_handler::Ref _conn;
   AutoCompleteCache *_cache;
@@ -44,8 +43,8 @@ TEST_DATA_CONSTRUCTOR(autocompletion_cache_test)
   printf("\nTests running in: %s\n\n", base::wstring_to_string(path).c_str());
 #endif
 
-  _grt.scan_metaclasses_in("../../res/grt/");
-  _grt.end_loading_metaclasses();
+  grt::GRT::get()->scan_metaclasses_in("../../res/grt/");
+  grt::GRT::get()->end_loading_metaclasses();
 
   // Because tests are executed in alphabetic order this is the first one.
   // Hence we set up the sakila db in server here.
@@ -72,9 +71,9 @@ TEST_MODULE(autocompletion_cache_test, "autocompletion object name cache");
 
 TEST_FUNCTION(2)
 {
-  db_mgmt_ConnectionRef connectionProperties(&_grt);
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
 
-  setup_env(&_grt, connectionProperties);
+  setup_env(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
 

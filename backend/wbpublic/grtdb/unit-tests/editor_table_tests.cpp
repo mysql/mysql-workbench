@@ -126,7 +126,7 @@ public:
 TEST_DATA_CONSTRUCTOR(editor_table_tests)
   : editor(0)
 {
-  populate_grt(wbt.grt, wbt);
+  populate_grt(wbt);
 
   grtm = wbt.wb->get_grt_manager();
 }
@@ -147,12 +147,12 @@ TEST_FUNCTION(1)
   ensure("document ok", wbt.wb->get_document().is_valid());
   ensure("catalog", wbt.wb->get_document()->physicalModels()[0]->catalog().is_valid());
 
-  db_mysql_SchemaRef schema= db_mysql_SchemaRef(grtm->get_grt());
+  db_mysql_SchemaRef schema= db_mysql_SchemaRef(grt::Initialized);
   ensure("schema ok", schema.is_valid());
   schema->owner(wbt.wb->get_document()->physicalModels()[0]->catalog());
   wbt.wb->get_document()->physicalModels()[0]->catalog()->schemata().insert(schema);
 
-  table= db_mysql_TableRef(grtm->get_grt());
+  table = db_mysql_TableRef(grt::Initialized);
   ensure("table ok", table.is_valid());
   table->owner(schema);
 
@@ -744,22 +744,22 @@ TEST_FUNCTION(12)
   ensure("table editor !NULL", editor != NULL);
 
   // bug: unsetting an index column is wrong (and may crash)
-  db_TableRef table = db_mysql_TableRef(grtm->get_grt());
+  db_TableRef table = db_mysql_TableRef(grt::Initialized);
   table->owner(wbt.get_schema());
 
   ensure("table ok", table.is_valid());
 
-  db_ColumnRef column(grtm->get_grt());
+  db_ColumnRef column(grt::Initialized);
   column->owner(table);
   column->name("col1");
   table->columns().insert(column);
 
-  column= db_ColumnRef(grtm->get_grt());
+  column = db_ColumnRef(grt::Initialized);
   column->owner(table);
   column->name("col2");
   table->columns().insert(column);
 
-  column= db_ColumnRef(grtm->get_grt());
+  column = db_ColumnRef(grt::Initialized);
   column->owner(table);
   column->name("col3");
   table->columns().insert(column);
@@ -817,7 +817,7 @@ TEST_FUNCTION(13)
 {
   // check if adding columns/indices/foreign keys by setting name of placeholder item works
 
-  db_mysql_TableRef table(grtm->get_grt());
+  db_mysql_TableRef table(grt::Initialized);
 
   table->owner(wbt.get_schema());
   table->name("table");
@@ -847,7 +847,7 @@ TEST_FUNCTION(20)
 {
   // bug: create fk, select column and then deselect will crash
  
-  db_mysql_TableRef table(grtm->get_grt());
+  db_mysql_TableRef table(grt::Initialized);
   ensure("table ok", table.is_valid());
 
   table->name("table");
@@ -861,14 +861,14 @@ TEST_FUNCTION(20)
   
   grt::ListRef<db_UserDatatype> userTypes(editor.get_catalog()->userDatatypes());
 
-  db_mysql_ColumnRef column(grtm->get_grt());
+  db_mysql_ColumnRef column(grt::Initialized);
   column->owner(table);
   column->name("id");
   column->setParseType("int", wbt.get_rdbms()->simpleDatatypes());
   //bec::ColumnHelper::parse_column_type(editor.get_rdbms(), userTypes, "int", column);
   table->columns().insert(column);
 
-  column= db_mysql_ColumnRef(grtm->get_grt());
+  column = db_mysql_ColumnRef(grt::Initialized);
   column->owner(table);
   column->name("fk");
   column->setParseType("int", wbt.get_rdbms()->simpleDatatypes());

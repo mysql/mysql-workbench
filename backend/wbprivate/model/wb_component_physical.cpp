@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -90,25 +90,23 @@ WBComponentPhysical::~WBComponentPhysical()
 
 void WBComponentPhysical::load_app_options(bool update)
 {
-  grt::GRT *grt= get_grt();
-
   if (!update)
   {
     app_ToolbarRef toolbar;
     toolbar= app_ToolbarRef::cast_from(
-      grt->unserialize(base::makePath(_wb->get_datadir(),"data/model_option_toolbar_physical_table.xml")));
+      grt::GRT::get()->unserialize(base::makePath(_wb->get_datadir(),"data/model_option_toolbar_physical_table.xml")));
     _toolbars[toolbar->name()]= toolbar;
 
     toolbar= app_ToolbarRef::cast_from(
-      grt->unserialize(base::makePath(_wb->get_datadir(),"data/model_option_toolbar_physical_view.xml")));
+      grt::GRT::get()->unserialize(base::makePath(_wb->get_datadir(),"data/model_option_toolbar_physical_view.xml")));
     _toolbars[toolbar->name()]= toolbar;
 
     toolbar= app_ToolbarRef::cast_from(
-      grt->unserialize(base::makePath(_wb->get_datadir(),"data/model_option_toolbar_physical_routinegroup.xml")));
+      grt::GRT::get()->unserialize(base::makePath(_wb->get_datadir(),"data/model_option_toolbar_physical_routinegroup.xml")));
     _toolbars[toolbar->name()]= toolbar;
 
     toolbar= app_ToolbarRef::cast_from(
-      grt->unserialize(base::makePath(_wb->get_datadir(),"data/model_option_toolbar_physical_relationship.xml")));
+      grt::GRT::get()->unserialize(base::makePath(_wb->get_datadir(),"data/model_option_toolbar_physical_relationship.xml")));
     _toolbars["main/" WB_TOOL_PREL11_NOID]= toolbar;
     _toolbars["main/" WB_TOOL_PREL1n_NOID]= toolbar;
     _toolbars["main/" WB_TOOL_PREL11]= toolbar;
@@ -117,7 +115,7 @@ void WBComponentPhysical::load_app_options(bool update)
     _toolbars["main/" WB_TOOL_PREL_PICK]= toolbar;
 
     _shortcuts= grt::ListRef<app_ShortcutItem>::cast_from(
-      grt->unserialize(base::makePath(_wb->get_datadir(),"data/shortcuts_physical.xml")));
+      grt::GRT::get()->unserialize(base::makePath(_wb->get_datadir(),"data/shortcuts_physical.xml")));
   }
 
   // this needs to be loaded after drivers list has been loaded
@@ -128,7 +126,7 @@ void WBComponentPhysical::load_app_options(bool update)
     try
     {
       grt::ListRef<db_mgmt_Connection> 
-        list(grt::ListRef<db_mgmt_Connection>::cast_from(grt->unserialize(conn_list_xml)));
+        list(grt::ListRef<db_mgmt_Connection>::cast_from(grt::GRT::get()->unserialize(conn_list_xml)));
 
       if (list.is_valid())
       {
@@ -195,21 +193,21 @@ void WBComponentPhysical::load_app_options(bool update)
     }
     catch (std::exception &exc)
     {
-      grt->send_warning(strfmt("Error loading '%s': %s", conn_list_xml.c_str(), exc.what()));
+      grt::GRT::get()->send_warning(strfmt("Error loading '%s': %s", conn_list_xml.c_str(), exc.what()));
     }
   }
 }
 
 
 
-void WBComponentPhysical::setup_context_grt(grt::GRT *grt, WBOptions *options)
+void WBComponentPhysical::setup_context_grt(WBOptions *options)
 {
   std::string engines;
   // fill engine types list
-  grt::Module *module= get_grt()->get_module("DbMySQL");
+  grt::Module *module= grt::GRT::get()->get_module("DbMySQL");
   if (module)
   {
-    grt::ListRef<db_mysql_StorageEngine> engines_ret(grt::ListRef<db_mysql_StorageEngine>::cast_from(module->call_function("getKnownEngines", grt::BaseListRef(get_grt()))));
+    grt::ListRef<db_mysql_StorageEngine> engines_ret(grt::ListRef<db_mysql_StorageEngine>::cast_from(module->call_function("getKnownEngines", grt::BaseListRef(grt::Initialized))));
 
     for (size_t c= engines_ret.count(), i= 0; i < c; i++)
     {
@@ -229,8 +227,6 @@ void WBComponentPhysical::init_catalog_grt(const db_mgmt_RdbmsRef &rdbms,
                                  const std::string &db_version,
                                  workbench_physical_ModelRef &model)
 {
-  grt::GRT *grt= get_grt();
-  
   std::string db_package= rdbms->databaseObjectPackage();
 
   // assemble struct name for catalog and schema for the requested db type
@@ -238,15 +234,15 @@ void WBComponentPhysical::init_catalog_grt(const db_mgmt_RdbmsRef &rdbms,
   std::string catalog_struct= db_package+".Catalog";
   std::string schema_struct= db_package+".Schema";
   
-  if (!grt->get_metaclass(catalog_struct) ||
-      !grt->get_metaclass(schema_struct))
+  if (!grt::GRT::get()->get_metaclass(catalog_struct) ||
+      !grt::GRT::get()->get_metaclass(schema_struct))
   {
     // Struct definition for '%s' and/or '%s' cannot be found
     throw grt_runtime_error("Support for RDBMS "+db_package+" not found.",
                             "Struct definition for "+catalog_struct+" and/or "+schema_struct+" could not be found");
   }
 
-  db_CatalogRef catalog(grt->create_object<db_Catalog>(catalog_struct));
+  db_CatalogRef catalog(grt::GRT::get()->create_object<db_Catalog>(catalog_struct));
       
   catalog->name("default");
   catalog->owner(model);
@@ -254,7 +250,7 @@ void WBComponentPhysical::init_catalog_grt(const db_mgmt_RdbmsRef &rdbms,
   //catalog.oldName(catalog.name());
 
   // set version
-  GrtVersionRef version = parse_version(grt, db_version);
+  GrtVersionRef version = parse_version(db_version);
   version->name("Version");
   version->owner(catalog);
   catalog->version(version);
@@ -295,13 +291,13 @@ void WBComponentPhysical::init_catalog_grt(const db_mgmt_RdbmsRef &rdbms,
     
     for (int i = 0; default_roles[i].name; i++)
     {
-      db_RoleRef role(grt);
+      db_RoleRef role(grt::Initialized);
       
       role->name(default_roles[i].name);
       role->owner(catalog);
       catalog->roles().insert(role);
 
-      db_RolePrivilegeRef priv(grt);
+      db_RolePrivilegeRef priv(grt::Initialized);
       priv->owner(role);
       priv->databaseObjectType(default_roles[i].object_type);
       priv->databaseObjectName(default_roles[i].object_name);
@@ -313,7 +309,7 @@ void WBComponentPhysical::init_catalog_grt(const db_mgmt_RdbmsRef &rdbms,
   
   // add standard tag categories
   {
-    GrtObjectRef category(grt);
+    GrtObjectRef category(grt::Initialized);
    
     category->name("Business Rule");
     category->owner(model);
@@ -322,7 +318,7 @@ void WBComponentPhysical::init_catalog_grt(const db_mgmt_RdbmsRef &rdbms,
   }
 #if 1
   // create an initial schema
-  db_SchemaRef schema(grt->create_object<db_Schema>(schema_struct));
+  db_SchemaRef schema(grt::GRT::get()->create_object<db_Schema>(schema_struct));
   
   schema->name(StringRef("mydb"));
   schema->owner(catalog);
@@ -340,10 +336,10 @@ void WBComponentPhysical::init_catalog_grt(const db_mgmt_RdbmsRef &rdbms,
 grt::ListRef<db_UserDatatype> WBComponentPhysical::create_builtin_user_datatypes(const db_CatalogRef &catalog,
                                                                                  const db_mgmt_RdbmsRef &rdbms)
 {
-  grt::Module *module= get_grt()->get_module("DbMySQL");
+  grt::Module *module= grt::GRT::get()->get_module("DbMySQL");
   if (module)
   {
-    grt::BaseListRef args(get_grt());
+    grt::BaseListRef args(true);
     args.ginsert(rdbms);
     grt::ListRef<db_UserDatatype> user_types(grt::ListRef<db_UserDatatype>::cast_from(module->call_function("getDefaultUserDatatypes", args)));
     
@@ -362,11 +358,11 @@ grt::ListRef<db_UserDatatype> WBComponentPhysical::create_builtin_user_datatypes
 
 
 
-void WBComponentPhysical::setup_physical_model(grt::GRT *grt, workbench_DocumentRef &doc, 
+void WBComponentPhysical::setup_physical_model(workbench_DocumentRef &doc, 
                                      const std::string &rdbms_name, const std::string &rdbms_version)
 {
   // init physical model
-  workbench_physical_ModelRef pmodel(grt);
+  workbench_physical_ModelRef pmodel(grt::Initialized);
   pmodel->owner(doc);
   
   pmodel->connectionNotation(_wb->get_wb_options().get_string("DefaultConnectionNotation"));
@@ -374,7 +370,7 @@ void WBComponentPhysical::setup_physical_model(grt::GRT *grt, workbench_Document
 
   doc->physicalModels().insert(pmodel);
 
-  db_mgmt_ManagementRef mgmt= db_mgmt_ManagementRef::cast_from(grt->get("/wb/rdbmsMgmt"));
+  db_mgmt_ManagementRef mgmt= db_mgmt_ManagementRef::cast_from(grt::GRT::get()->get("/wb/rdbmsMgmt"));
   
   // find the rdbms module for the db we want
   db_mgmt_RdbmsRef rdbms;
@@ -396,19 +392,18 @@ void WBComponentPhysical::setup_physical_model(grt::GRT *grt, workbench_Document
 
 db_SchemaRef WBComponentPhysical::add_new_db_schema(const workbench_physical_ModelRef &model)
 {
-  
   db_SchemaRef schema;
   std::string name;
   std::string class_name;
   
-  grt::AutoUndo undo(get_grt());
+  grt::AutoUndo undo;
 
   class_name= *model->rdbms()->databaseObjectPackage()+".Schema";
 
   name= grt::get_name_suggestion_for_list_object(
     grt::ObjectListRef::cast_from(model->catalog()->schemata()), "new_schema");
 
-  schema= get_grt()->create_object<db_Schema>(class_name);
+  schema= grt::GRT::get()->create_object<db_Schema>(class_name);
   schema->owner(model->catalog());
   schema->name(name);
 
@@ -431,7 +426,7 @@ grt::DictRef WBComponentPhysical::delete_db_schema(const db_SchemaRef &schema,
   if (check_empty && 
       (schema->tables().count() > 0 || schema->views().count() > 0 || schema->routines().count() > 0))
   {
-    grt::DictRef dict(get_grt());
+    grt::DictRef dict(true);
     
     dict.gset("name", schema->name());
     dict.gset("tables", (long)schema->tables().count());
@@ -449,7 +444,7 @@ grt::DictRef WBComponentPhysical::delete_db_schema(const db_SchemaRef &schema,
     if (model->catalog()->schemata().get_index(schema) == grt::BaseListRef::npos)
       return grt::DictRef();
 
-    grt::AutoUndo undo(get_grt());
+    grt::AutoUndo undo;
 
     for (size_t vc= model->diagrams().count(), vi= 0; vi < vc; vi++)
     {
@@ -542,7 +537,7 @@ void WBComponentPhysical::delete_db_schema(const db_SchemaRef &schema)
 
 db_DatabaseObjectRef WBComponentPhysical::add_new_db_table(const db_SchemaRef &schema, const std::string &template_name)
 {
-  grt::AutoUndo undo(get_grt());
+  grt::AutoUndo undo;
   db_TableRef table;
 
   if (!template_name.empty())
@@ -553,7 +548,7 @@ db_DatabaseObjectRef WBComponentPhysical::add_new_db_table(const db_SchemaRef &s
       db_TableRef templ(db_TableRef::cast_from(templates.get(i)));
       if (templ->name() == template_name)
       {
-        grt::CopyContext context(get_grt());
+        grt::CopyContext context;
         table = db_TableRef::cast_from(clone_db_object_to_schema(schema, templ, context));
         context.finish();
         break;
@@ -582,7 +577,7 @@ db_DatabaseObjectRef WBComponentPhysical::add_new_db_table(const db_SchemaRef &s
 
 db_DatabaseObjectRef WBComponentPhysical::add_new_db_view(const db_SchemaRef &schema)
 {
-  grt::AutoUndo undo(get_grt());
+  grt::AutoUndo undo;
 
   db_ViewRef view=
   schema->addNewView(*get_parent_for_object<workbench_physical_Model>(schema)->rdbms()->databaseObjectPackage());
@@ -602,7 +597,7 @@ db_DatabaseObjectRef WBComponentPhysical::add_new_db_view(const db_SchemaRef &sc
 
 db_DatabaseObjectRef WBComponentPhysical::add_new_db_routine_group(const db_SchemaRef &schema)
 {
-  grt::AutoUndo undo(get_grt());
+  grt::AutoUndo undo;
 
   db_RoutineGroupRef rgroup=
   schema->addNewRoutineGroup(*get_parent_for_object<workbench_physical_Model>(schema)->rdbms()->databaseObjectPackage());
@@ -622,7 +617,7 @@ db_DatabaseObjectRef WBComponentPhysical::add_new_db_routine_group(const db_Sche
 
 db_DatabaseObjectRef WBComponentPhysical::add_new_db_routine(const db_SchemaRef &schema)
 {
-  grt::AutoUndo undo(get_grt());
+  grt::AutoUndo undo;
 
   db_RoutineRef routine=
   schema->addNewRoutine(*get_parent_for_object<workbench_physical_Model>(schema)->rdbms()->databaseObjectPackage());
@@ -642,7 +637,7 @@ db_DatabaseObjectRef WBComponentPhysical::add_new_db_routine(const db_SchemaRef 
 
 db_ScriptRef WBComponentPhysical::add_new_stored_script(const workbench_physical_ModelRef &model, const std::string &path)
 {
-  db_ScriptRef script(get_grt());
+  db_ScriptRef script(grt::Initialized);
   std::string name= "script";
   if (!path.empty())
     name= base::basename(path);
@@ -653,7 +648,7 @@ db_ScriptRef WBComponentPhysical::add_new_stored_script(const workbench_physical
   script->lastChangeDate(base::fmttime(0, DATETIME_FMT));
   script->filename(_wb->create_attached_file("script", path));
 
-  grt::AutoUndo undo(get_grt());
+  grt::AutoUndo undo;
   // insertion will trigger the creation of the file
   model->scripts().insert(script);
   if (path.empty())
@@ -668,7 +663,7 @@ db_ScriptRef WBComponentPhysical::add_new_stored_script(const workbench_physical
 GrtStoredNoteRef WBComponentPhysical::add_new_stored_note(const workbench_physical_ModelRef &model,
                                                                const std::string &path)
 {
-  GrtStoredNoteRef note(get_grt());
+  GrtStoredNoteRef note(grt::Initialized);
   std::string name= _("New Note");
   if (!path.empty())
     name= base::basename(path);
@@ -679,7 +674,7 @@ GrtStoredNoteRef WBComponentPhysical::add_new_stored_note(const workbench_physic
   note->lastChangeDate(base::fmttime(0, DATETIME_FMT));
   note->filename(_wb->create_attached_file("note", path));
 
-  grt::AutoUndo undo(get_grt());
+  grt::AutoUndo undo;
   // insertion will trigger the creation of the file
   model->notes().insert(note);
   if (path.empty())
@@ -694,7 +689,7 @@ GrtStoredNoteRef WBComponentPhysical::add_new_stored_note(const workbench_physic
 db_DatabaseObjectRef WBComponentPhysical::clone_db_object_to_schema(const db_SchemaRef &schema, const db_DatabaseObjectRef &object,
                                                     grt::CopyContext &context)
 {
-  grt::AutoUndo undo(get_grt());
+  grt::AutoUndo undo;
 
   if (object.is_instance(db_Table::static_class_name()))
   {
@@ -793,7 +788,7 @@ model_FigureRef WBComponentPhysical::place_db_object(ModelDiagramForm *view,
     else
       throw std::invalid_argument("trying to place invalid object on view");
 
-    grt::AutoUndo undo(get_grt());
+    grt::AutoUndo undo;
 
     if ((*figure->color()).empty())
     {
@@ -901,7 +896,7 @@ bool WBComponentPhysical::perform_drop(ModelDiagramForm *view, int x, int y, con
 std::list<model_FigureRef> WBComponentPhysical::interactive_place_db_objects(ModelDiagramForm *vform, int x, int y,
       const std::list<db_DatabaseObjectRef> &objects)
 {
-    grt::CopyContext copy_context(_wb->get_grt());
+    grt::CopyContext copy_context;
     std::list<model_FigureRef> result = interactive_place_db_objects(vform, x, y, objects, copy_context);
     copy_context.finish();
     return result;
@@ -920,7 +915,7 @@ std::list<model_FigureRef> WBComponentPhysical::interactive_place_db_objects(Mod
     return created_figures;
   }
 
-  grt::AutoUndo undo(get_grt());
+  grt::AutoUndo undo;
 
   Point op, p= vform->get_view()->window_to_canvas(x, y);
   op= p;
@@ -995,7 +990,7 @@ void WBComponentPhysical::place_new_db_object(ModelDiagramForm *vform, const Poi
   std::string schema_name;
   std::string template_name;
 
-  grt::AutoUndo undo(get_grt());
+  grt::AutoUndo undo;
 
   model_DiagramRef view(vform->get_model_diagram());
   workbench_physical_ModelRef model(get_parent_for_object<workbench_physical_Model>(view));
@@ -1085,7 +1080,7 @@ bool WBComponentPhysical::create_nm_relationship(ModelDiagramForm *view,
                                                    workbench_physical_TableFigureRef table2,
                                                    bool imandatory, bool fmandatory)
 {
-  grt::AutoUndo undo(get_grt());
+  grt::AutoUndo undo;
   // create the associative table for a n:m relationship
   db_TableRef atable=
     bec::TableHelper::create_associative_table(db_SchemaRef::cast_from(table1->table()->owner()),
@@ -1154,7 +1149,7 @@ void WBComponentPhysical::delete_db_object(const db_DatabaseObjectRef &object)
 
   if (object.is_instance(db_Table::static_class_name()))
   {
-    grt::AutoUndo undo(get_grt());
+    grt::AutoUndo undo;
 
     schema->tables().remove_value(db_TableRef::cast_from(object));
 
@@ -1238,7 +1233,7 @@ void WBComponentPhysical::delete_db_object(const db_DatabaseObjectRef &object)
   }
   else if (object.is_instance(db_View::static_class_name()))
   {
-    grt::AutoUndo undo(get_grt());
+    grt::AutoUndo undo;
 
     schema->views().remove_value(db_ViewRef::cast_from(object));
 
@@ -1298,7 +1293,7 @@ void WBComponentPhysical::delete_db_object(const db_DatabaseObjectRef &object)
       }
     }
     
-    grt::AutoUndo undo(get_grt());
+    grt::AutoUndo undo;
     
     if (!ungrouped_routines.empty())
     {
@@ -1359,7 +1354,7 @@ void WBComponentPhysical::delete_db_object(const db_DatabaseObjectRef &object)
   }
   else if (object.is_instance(db_Routine::static_class_name()))
   {
-    grt::AutoUndo undo(get_grt());
+    grt::AutoUndo undo;
     db_RoutineRef routine(db_RoutineRef::cast_from(object));
     
     schema->routines().remove_value(routine);
@@ -1406,7 +1401,7 @@ bool WBComponentPhysical::delete_model_object(const model_ObjectRef &object, boo
       if (result == mforms::ResultCancel)
         return false;
 
-      grt::AutoUndo undo(get_grt());
+      grt::AutoUndo undo;
   /*
       model_DiagramRef view(conn->owner());
       // remove connection
@@ -1421,7 +1416,7 @@ bool WBComponentPhysical::delete_model_object(const model_ObjectRef &object, boo
   {
     model_FigureRef figure(model_FigureRef::cast_from(object));
 
-    grt::AutoUndo undo(get_grt());
+    grt::AutoUndo undo;
     // if the figure is a DB object, the DB object is also deleted
     if (figure.is_instance(workbench_physical_TableFigure::static_class_name()))
     {
@@ -1508,7 +1503,7 @@ model_ObjectRef WBComponentPhysical::clone_object(const model_ObjectRef &object,
   {
     workbench_physical_TableFigureRef table(workbench_physical_TableFigureRef::cast_from(object));
 
-    grt::AutoUndo undo(get_grt());
+    grt::AutoUndo undo;
 
     // copy table
     db_TableRef dbtable(db_TableRef::cast_from(_wb->get_model_context()->duplicate_object(table->table(), copy_context)));
@@ -1543,7 +1538,7 @@ model_ObjectRef WBComponentPhysical::clone_object(const model_ObjectRef &object,
   {
     workbench_physical_ViewFigureRef view(workbench_physical_ViewFigureRef::cast_from(object));
     
-    grt::AutoUndo undo(get_grt());
+    grt::AutoUndo undo;
     
     // copy view
     db_ViewRef dbview(db_ViewRef::cast_from(_wb->get_model_context()->duplicate_object(view->view(), copy_context)));
@@ -1577,7 +1572,7 @@ model_ObjectRef WBComponentPhysical::clone_object(const model_ObjectRef &object,
   {
     workbench_physical_RoutineGroupFigureRef routineGroup(workbench_physical_RoutineGroupFigureRef::cast_from(object));
     
-    grt::AutoUndo undo(get_grt());
+    grt::AutoUndo undo;
 
     // copy routineGroup
     db_RoutineGroupRef dbroutineGroup(db_RoutineGroupRef::cast_from(_wb->get_model_context()->duplicate_object(routineGroup->routineGroup(), copy_context)));
@@ -2098,7 +2093,7 @@ void WBComponentPhysical::unblock_model_notifications()
 
 app_ToolbarRef WBComponentPhysical::get_tools_toolbar()
 {
-  return app_ToolbarRef::cast_from(_wb->get_grt()->unserialize(base::makePath(_wb->get_datadir(),"data/tools_toolbar_physical.xml")));  
+  return app_ToolbarRef::cast_from(grt::GRT::get()->unserialize(base::makePath(_wb->get_datadir(),"data/tools_toolbar_physical.xml")));  
 }
 
 
@@ -2192,10 +2187,10 @@ std::vector<std::string> WBComponentPhysical::get_command_dropdown_items(const s
     {
       items.push_back("*Default Engine*");
 
-      grt::Module *module= get_grt()->get_module("DbMySQL");
+      grt::Module *module= grt::GRT::get()->get_module("DbMySQL");
       if (module)
       {
-        grt::ListRef<db_mysql_StorageEngine> engines_ret(grt::ListRef<db_mysql_StorageEngine>::cast_from(module->call_function("getKnownEngines", grt::BaseListRef(get_grt()))));
+        grt::ListRef<db_mysql_StorageEngine> engines_ret(grt::ListRef<db_mysql_StorageEngine>::cast_from(module->call_function("getKnownEngines", grt::BaseListRef(true))));
 
         for (size_t c= engines_ret.count(), i= 0; i < c; i++)
           items.push_back(engines_ret[i]->name());
@@ -2503,7 +2498,7 @@ void WBComponentPhysical::view_object_list_changed(grt::internal::OwnedList *lis
               update_connections_for_new_tables(view, tbls);
             }
             else
-              get_grt()->send_warning("Table figure added to view has no table db object bound to it.");
+             grt::GRT::get()->send_warning("Table figure added to view has no table db object bound to it.");
           }
         }
 #endif
@@ -2603,7 +2598,7 @@ void WBComponentPhysical::model_object_list_changed(grt::internal::OwnedList *li
             g_free(data);
           }
           else
-            get_grt()->send_error(strfmt(_("Error undoing file delete: can't read contents of temporary file '%s'"), path.c_str()));
+           grt::GRT::get()->send_error(strfmt(_("Error undoing file delete: can't read contents of temporary file '%s'"), path.c_str()));
         }
         else
         {
@@ -2622,7 +2617,7 @@ void WBComponentPhysical::model_object_list_changed(grt::internal::OwnedList *li
           }
           else
           {
-            get_grt()->send_error(strfmt(_("Error adding file: can't read contents of file '%s': %s"), 
+           grt::GRT::get()->send_error(strfmt(_("Error adding file: can't read contents of file '%s': %s"), 
                                       object->filename().c_str(), error->message));
             g_error_free(error);
           }
@@ -2658,7 +2653,7 @@ void WBComponentPhysical::model_object_list_changed(grt::internal::OwnedList *li
           
           if (!g_file_set_contents(path.c_str(), data.data(), (gssize) data.length(), NULL))
           {
-            get_grt()->send_error(strfmt(_("Could not save temporary file '%s'"), path.c_str()));
+           grt::GRT::get()->send_error(strfmt(_("Could not save temporary file '%s'"), path.c_str()));
           }
           
           _wb->delete_attached_file(object->filename());
@@ -2687,7 +2682,7 @@ void WBComponentPhysical::model_object_list_changed(grt::internal::OwnedList *li
 void WBComponentPhysical::foreign_key_changed(const db_ForeignKeyRef &fk)
 {
   // don't auto-create/remove stuff when undoing/redoing
-  if (get_grt()->get_undo_manager()->is_undoing() || get_grt()->get_undo_manager()->is_redoing())
+  if (grt::GRT::get()->get_undo_manager()->is_undoing() ||grt::GRT::get()->get_undo_manager()->is_redoing())
     return;
   
   if (!_wb->get_document().is_valid())
@@ -2796,8 +2791,6 @@ bool WBComponentPhysical::update_table_fk_connection(const db_TableRef &table, c
       return false;
     
     grt::ListRef<workbench_physical_Diagram> views(model->diagrams());
-    grt::GRT *grt= get_grt();
-
     if (added)
     {
       // we have to go through all views in the model and find all table figures
@@ -2836,7 +2829,7 @@ bool WBComponentPhysical::update_table_fk_connection(const db_TableRef &table, c
           // connection doesnt exist yet, create it
           if (!found.is_valid())
           {
-            workbench_physical_ConnectionRef conn(grt);
+            workbench_physical_ConnectionRef conn(grt::Initialized);
             
             conn->owner(view);
             conn->startFigure(table1);
@@ -2847,7 +2840,7 @@ bool WBComponentPhysical::update_table_fk_connection(const db_TableRef &table, c
             conn->name(grt::get_name_suggestion_for_list_object(view->connections(),
                       "connection"));
 
-            grt::AutoUndo undo(get_grt());
+            grt::AutoUndo undo;
             view->connections().insert(conn);
             undo.end(_("Create Relationship"));
 
@@ -2867,7 +2860,7 @@ bool WBComponentPhysical::update_table_fk_connection(const db_TableRef &table, c
               else
               {
                 // update the connection with the new end figure
-                grt::AutoUndo undo(get_grt());
+                grt::AutoUndo undo;
                 found->endFigure(view->getFigureForDBObject(fk->referencedTable()));
                 undo.end(_("Update Relationship"));
               }
@@ -2896,7 +2889,7 @@ bool WBComponentPhysical::update_table_fk_connection(const db_TableRef &table, c
 
             if (pconn->foreignKey() == fk)
             {
-              grt::AutoUndo undo(get_grt());
+              grt::AutoUndo undo;
               (*view)->connections().remove_value(*conn);
               undo.end(_("Remove Relationship"));
 
@@ -3089,11 +3082,11 @@ db_UserRef WBComponentPhysical::add_new_user(const workbench_physical_ModelRef &
 
   std::string name= grt::get_name_suggestion_for_list_object(grt::ObjectListRef::cast_from(catalog->users()), "user");
 
-  user= db_UserRef(get_grt());
+  user = db_UserRef(grt::Initialized);
   user->owner(catalog);
   user->name(name);
 
-  grt::AutoUndo undo(get_grt());
+  grt::AutoUndo undo;
   catalog->users().insert(user);
 
   undo.end(strfmt(_("Create User '%s'"), user->name().c_str()));
@@ -3108,7 +3101,7 @@ void WBComponentPhysical::remove_user(const db_UserRef &user)
 {
   db_CatalogRef catalog(db_CatalogRef::cast_from(user->owner()));
 
-  grt::AutoUndo undo(get_grt());
+  grt::AutoUndo undo;
   catalog->users().remove_value(user);
   undo.end(strfmt(_("Remove User '%s'"), user->name().c_str()));
 
@@ -3125,11 +3118,11 @@ db_RoleRef WBComponentPhysical::add_new_role(const workbench_physical_ModelRef &
 
   std::string name= grt::get_name_suggestion_for_list_object(grt::ObjectListRef::cast_from(catalog->roles()), "role");
 
-  role= db_RoleRef(get_grt());
+  role = db_RoleRef(grt::Initialized);
   role->owner(catalog);
   role->name(name);
 
-  grt::AutoUndo undo(get_grt());
+  grt::AutoUndo undo;
   catalog->roles().insert(role);
   undo.end(strfmt(_("Create Role '%s'"), role->name().c_str()));
 
@@ -3143,7 +3136,7 @@ void WBComponentPhysical::remove_role(const db_RoleRef &role)
 {
   db_CatalogRef catalog(db_CatalogRef::cast_from(role->owner()));
 
-  grt::AutoUndo undo(get_grt());
+  grt::AutoUndo undo;
   catalog->roles().remove_value(role);
   undo.end(strfmt(_("Remove Role '%s'"), role->name().c_str()));
 
@@ -3160,7 +3153,7 @@ void WBComponentPhysical::remove_references_to_object(const db_DatabaseObjectRef
   
   grt::ListRef<db_Role> roles(catalog->roles());
   {
-    grt::AutoUndo undo(get_grt());
+    grt::AutoUndo undo;
     
     for (size_t c= roles.count(), i= 0; i < c; i++)
     {
@@ -3186,7 +3179,7 @@ void WBComponentPhysical::remove_references_to_object(const db_DatabaseObjectRef
   // remove any tags that reference this object
   if (model.is_valid())
   {
-    grt::AutoUndo undo(get_grt());
+    grt::AutoUndo undo;
     
     for (grt::ListRef<meta_Tag>::const_iterator end= model->tags().end(), tag= model->tags().begin();
          tag != end; ++tag)

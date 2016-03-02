@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -17,10 +17,10 @@
 * 02110-1301  USA
 */
 
-#include <grts/structs.db.h>
+#include "grts/structs.db.h"
 
-#include <grtpp_util.h>
-#include <grtpp_undo_manager.h>
+#include "grtpp_util.h"
+#include "grtpp_undo_manager.h"
 
 //================================================================================
 // db_ForeignKey
@@ -84,7 +84,7 @@ db_ForeignKey::~db_ForeignKey()
 grt::ListRef<db_ForeignKey> get_foreign_keys_referencing_table(const db_TableRef &value)
 {
   std::map<grt::internal::Value*, std::set<db_ForeignKey*> >::const_iterator iter;
-  grt::ListRef<db_ForeignKey> result(value.get_grt());
+  grt::ListRef<db_ForeignKey> result(true);
 
   if ((iter= referenced_table_to_fk.find(value.valueptr())) != referenced_table_to_fk.end())
   {
@@ -154,7 +154,7 @@ grt::IntegerRef db_ForeignKey::checkCompleteness()
     return 0;
 
   // If we are currently undoing then don't check completeness either.
-  grt::UndoManager *um= get_grt()->get_undo_manager();
+  grt::UndoManager *um= grt::GRT::get()->get_undo_manager();
   if (um != NULL && um->is_undoing())
     return 0;
 

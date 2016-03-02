@@ -300,7 +300,7 @@ class ActionGenerateSQL : public DiffSQLGeneratorBEActionInterface
   void alter_table_property(std::string& to, const std::string& name, const std::string& value);
 
 public:
-  ActionGenerateSQL(grt::ValueRef target, grt::ListRef<GrtNamedObject> obj_list, grt::GRT *grt, 
+  ActionGenerateSQL(grt::ValueRef target, grt::ListRef<GrtNamedObject> obj_list,
                     const grt::DictRef options, bool use_oids_as_key);
   virtual ~ActionGenerateSQL();
 
@@ -433,7 +433,7 @@ public:
   virtual void disable_list_insert(const bool flag){disable_object_list = flag;};
 };
 
-ActionGenerateSQL::ActionGenerateSQL(grt::ValueRef target, grt::ListRef<GrtNamedObject> obj_list, grt::GRT *grt, 
+ActionGenerateSQL::ActionGenerateSQL(grt::ValueRef target, grt::ListRef<GrtNamedObject> obj_list,
                                      const grt::DictRef options, bool use_oids_as_key = false)
   : padding(2), _use_oids_as_dict_key(use_oids_as_key),disable_object_list(false)
 {
@@ -452,7 +452,7 @@ ActionGenerateSQL::ActionGenerateSQL(grt::ValueRef target, grt::ListRef<GrtNamed
 
   _use_oids_as_dict_key = options.get_int("UseOIDAsResultDictKey", use_oids_as_key) != 0;
   
-  SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name(grt, "Mysql");
+  SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name("Mysql");
   Sql_specifics::Ref sql_specifics = sql_facade ->sqlSpecifics();
   _non_std_sql_delimiter = sql_specifics->non_std_sql_delimiter();
 
@@ -711,7 +711,7 @@ void ActionGenerateSQL::create_table_fks_begin(db_mysql_TableRef)
 void ActionGenerateSQL::create_table_fk(db_mysql_ForeignKeyRef fk)
 {
   grt::StringRef ename = db_mysql_TableRef::cast_from(fk->owner())->tableEngine();
-  db_mysql_StorageEngineRef engine = bec::TableHelper::get_engine_by_name(fk.get_grt(), ename);
+  db_mysql_StorageEngineRef engine = bec::TableHelper::get_engine_by_name(ename);
   if (engine.is_valid() && !engine->supportsForeignKeys())
       return;
 
@@ -1370,7 +1370,7 @@ void ActionGenerateSQL::alter_table_fks_begin(db_mysql_TableRef)
 void ActionGenerateSQL::alter_table_add_fk(db_mysql_ForeignKeyRef fk)
 {
   grt::StringRef ename = db_mysql_TableRef::cast_from(fk->owner())->tableEngine();
-  db_mysql_StorageEngineRef engine = bec::TableHelper::get_engine_by_name(fk.get_grt(), ename);
+  db_mysql_StorageEngineRef engine = bec::TableHelper::get_engine_by_name(ename);
   if (engine.is_valid() && !engine->supportsForeignKeys())
       return;
   if(first_fk_create)
@@ -1390,7 +1390,7 @@ void ActionGenerateSQL::alter_table_add_fk(db_mysql_ForeignKeyRef fk)
 void ActionGenerateSQL::alter_table_drop_fk(db_mysql_ForeignKeyRef fk)
 {
   grt::StringRef ename = db_mysql_TableRef::cast_from(fk->owner())->tableEngine();
-  db_mysql_StorageEngineRef engine = bec::TableHelper::get_engine_by_name(fk.get_grt(), ename);
+  db_mysql_StorageEngineRef engine = bec::TableHelper::get_engine_by_name(ename);
   if (engine.is_valid() && !engine->supportsForeignKeys())
       return;
 
@@ -1586,7 +1586,7 @@ void ActionGenerateSQL::create_view(db_mysql_ViewRef view)
 
   if (_use_short_names)
   {
-    SqlFacade* parser = SqlFacade::instance_for_rdbms_name(view.get_grt(), "Mysql");
+    SqlFacade* parser = SqlFacade::instance_for_rdbms_name("Mysql");
     Sql_schema_rename::Ref renamer = parser->sqlSchemaRenamer();
     renamer->rename_schema_references(view_def, view->owner()->name(), "");
   }
@@ -1624,7 +1624,7 @@ void ActionGenerateSQL::create_routine(db_mysql_RoutineRef routine, bool for_alt
 
   if (_use_short_names)
   {
-      SqlFacade* parser = SqlFacade::instance_for_rdbms_name(routine.get_grt(), "Mysql");
+      SqlFacade* parser = SqlFacade::instance_for_rdbms_name("Mysql");
       Sql_schema_rename::Ref renamer = parser->sqlSchemaRenamer();
       renamer->rename_schema_references(routine_sql, routine->owner()->name(), "");
   }
@@ -1725,7 +1725,7 @@ void ActionGenerateSQL::remember_alter(const GrtNamedObjectRef &obj, const std::
     grt::ValueRef value= target_map.get(key);
     if(grt::StringRef::can_wrap(value))
     {
-      grt::StringListRef list_value(target_map.get_grt());
+      grt::StringListRef list_value(grt::Initialized);
       list_value.insert(grt::StringRef::cast_from(value));
       list_value.insert(grt::StringRef(sql));
       target_map.set(key, list_value);
@@ -1747,7 +1747,7 @@ void ActionGenerateSQL::remember_alter(const GrtNamedObjectRef &obj, const std::
 
 } // namespace
 
-DbMySQLImpl::DbMySQLImpl(grt::CPPModuleLoader *ldr) : grt::ModuleImplBase(ldr), _default_traits(get_grt())
+DbMySQLImpl::DbMySQLImpl(grt::CPPModuleLoader *ldr) : grt::ModuleImplBase(ldr), _default_traits(true)
 {
     _default_traits.set("version", grt::StringRef("5.5.3"));
     _default_traits.set("CaseSensitive", grt::IntegerRef(1));
@@ -1768,16 +1768,14 @@ ssize_t DbMySQLImpl::generateSQL(GrtNamedObjectRef org_object,
     obj_list= grt::ListRef<GrtNamedObject>::cast_from(options.get("OutputObjectContainer"));
   if(result.type() == DictType)
   {
-    ActionGenerateSQL generator = ActionGenerateSQL(result, obj_list, get_grt(), 
-                                                    dbsettings,
+    ActionGenerateSQL generator = ActionGenerateSQL(result, obj_list, dbsettings,
                                                     options.get_int("UseOIDAsResultDictKey", 0) != 0);
     DiffSQLGeneratorBE(options, dbsettings, &generator)
       .process_diff_change(org_object, changes.get(), grt::DictRef::cast_from(result));
   }
   else if(result.type() == ListType)
   {
-    ActionGenerateSQL generator = ActionGenerateSQL(result, obj_list, get_grt(), 
-                                                    dbsettings,
+    ActionGenerateSQL generator = ActionGenerateSQL(result, obj_list, dbsettings,
                                                     options.get_int("UseOIDAsResultDictKey", 0) != 0);
     DiffSQLGeneratorBE(options, dbsettings, &generator)
       .process_diff_change(org_object, changes.get(), grt::StringListRef::cast_from(result), obj_list);
@@ -1810,7 +1808,7 @@ grt::StringRef DbMySQLImpl::generateReportForDifferences(GrtNamedObjectRef org_o
 {
   grt::DbObjectMatchAlterOmf omf;
   omf.dontdiff_mask = (unsigned int)options.get_int("OMFDontDiffMask", omf.dontdiff_mask);
-  grt::NormalizedComparer normalizer(get_grt());
+  grt::NormalizedComparer normalizer;
   normalizer.init_omf(&omf);
   boost::shared_ptr<DiffChange> alter_change= diff_make(org_object, oth_object, &omf);
   
@@ -1834,10 +1832,10 @@ grt::StringRef DbMySQLImpl::generateReportForDifferences(GrtNamedObjectRef org_o
 
 grt::DictRef DbMySQLImpl::generateSQLForDifferences(GrtNamedObjectRef srcobj, GrtNamedObjectRef dstobj, grt::DictRef options)
 {
-  grt::DictRef sql_map(get_grt());
+  grt::DictRef sql_map(true);
     
   default_omf omf;
-  grt::NormalizedComparer normalizer(get_grt());
+  grt::NormalizedComparer normalizer;
   normalizer.init_omf(&omf);
   boost::shared_ptr<DiffChange> changes= diff_make(srcobj, dstobj, &omf);
   
@@ -1907,7 +1905,7 @@ class SQLComposer
 protected:
     std::string sql_mode;
     std::string non_std_sql_delimiter;
-    grt::GRT *grt;
+    ;
     bool show_warnings;
     bool use_short_names;
     bool no_view_placeholder;
@@ -1918,10 +1916,10 @@ protected:
     typedef std::map<std::string, std::vector<std::pair<std::string,std::string> > > alias_map_t;
     alias_map_t alias_map;
 
-    SQLComposer(const grt::DictRef options, grt::GRT *pgrt):grt(pgrt)
+    SQLComposer(const grt::DictRef options)
     {
         sql_mode = options.get_string("SQL_MODE", "TRADITIONAL");
-        SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name(grt, "Mysql");
+        SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name("Mysql");
         Sql_specifics::Ref sql_specifics = sql_facade->sqlSpecifics();
         non_std_sql_delimiter = sql_specifics->non_std_sql_delimiter();
         show_warnings= options.get_int("GenerateWarnings") != 0;
@@ -1934,7 +1932,7 @@ protected:
           grt::DictRef opts = grt::DictRef::cast_from(dboptsval);
           if (opts.is_valid())
           {
-            _decomposer_options = grt::DictRef(grt);
+            _decomposer_options = grt::DictRef(true);
             _decomposer_options.set("case_sensitive_identifiers", grt::IntegerRef(opts.get_int("CaseSensitive") != 0));
           }
         }
@@ -1943,7 +1941,7 @@ protected:
           ssize_t case_sensitive_opt = options.get_int("CaseSensitive", -1);
           if (case_sensitive_opt != -1)
           {
-            _decomposer_options = grt::DictRef(grt);
+            _decomposer_options = grt::DictRef(true);
             _decomposer_options.set("case_sensitive_identifiers", grt::IntegerRef(case_sensitive_opt ? 1 : 0));
           }
         }
@@ -1953,23 +1951,22 @@ protected:
 
     void send_output(const std::string& msg) const
     {
-        if (grt) 
-            grt->send_output(msg);
+      grt::GRT::get()->send_output(msg);
     };
 
     std::string show_warnings_sql() const
     {
-        return show_warnings?"SHOW WARNINGS;\n":"";
+      return show_warnings?"SHOW WARNINGS;\n":"";
     }
 
     std::string set_server_vars() const
     {
-        std::string result;
-        result.append("SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;\n");
-        result.append("SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;\n");
-        result.append(base::sqlstring("SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE=?;\n\n", 0) << sql_mode);
-        return result;
-    }
+      std::string result;
+      result.append("SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;\n");
+      result.append("SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;\n");
+      result.append(base::sqlstring("SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE=?;\n\n", 0) << sql_mode);
+      return result;
+  }
 
     std::string restore_server_vars() const
     {
@@ -1988,7 +1985,7 @@ protected:
         std::string view_q_name(get_name(view,use_short_names));
 
         SelectStatement::Ref select_statement(new SelectStatement());
-        SqlFacade* parser = SqlFacade::instance_for_rdbms_name(grt, "Mysql");
+        SqlFacade* parser = SqlFacade::instance_for_rdbms_name("Mysql");
         parser->sqlStatementDecomposer(_decomposer_options)->decompose_view(view, select_statement);
 
         sql.append("\n-- -----------------------------------------------------\n")
@@ -2115,7 +2112,7 @@ class SQLExportComposer : public SQLComposer
     grt::DictRef drop_map;
 public:
     SQLExportComposer(const grt::DictRef options, grt::DictRef cmap, 
-        grt::DictRef dmap, grt::GRT *pgrt):SQLComposer(options, pgrt), create_map(cmap), drop_map(dmap)
+        grt::DictRef dmap):SQLComposer(options), create_map(cmap), drop_map(dmap)
     {
         gen_create_index= options.get_int("GenerateCreateIndex") != 0;
         gen_use = options.get_int("GenerateUse") != 0;
@@ -2208,7 +2205,7 @@ protected:
 
         std::string table_inserts_sql;
         {
-            bec::GRTManager *grtm= bec::GRTManager::get_instance_for(grt);
+            bec::GRTManager *grtm= bec::GRTManager::get_instance_for();
             Recordset_table_inserts_storage::Ref input_storage= Recordset_table_inserts_storage::create(grtm);
             input_storage->table(table);
 
@@ -2554,7 +2551,7 @@ ssize_t DbMySQLImpl::makeSQLExportScript(GrtNamedObjectRef dbobject, grt::DictRe
         return 1;
 
     db_mysql_CatalogRef catalog= db_mysql_CatalogRef::cast_from(dbobject);
-    SQLExportComposer composer(options, createSQL, dropSQL, get_grt());
+    SQLExportComposer composer(options, createSQL, dropSQL);
     options.set("OutputScript", grt::StringRef(composer.get_export_sql(catalog)));
     return 0;
 }
@@ -2564,8 +2561,8 @@ class SQLSyncComposer : public SQLComposer
 {
 
 public:
-  SQLSyncComposer(const grt::DictRef options, grt::GRT *pgrt)
-  : SQLComposer(options, pgrt)
+  SQLSyncComposer(const grt::DictRef options)
+  : SQLComposer(options)
   {
 
   }
@@ -2696,7 +2693,7 @@ public:
 ssize_t DbMySQLImpl::makeSQLSyncScript(db_CatalogRef cat, grt::DictRef options, const grt::StringListRef& sql_list,
                                    const grt::ListRef<GrtNamedObject>& obj_list)
 {
-  SQLSyncComposer composer(options, get_grt());
+  SQLSyncComposer composer(options);
   options.set("OutputScript", grt::StringRef(composer.get_sync_sql(cat, sql_list, obj_list)));
   return 0;
 }
@@ -2705,19 +2702,19 @@ std::string DbMySQLImpl::makeAlterScript(GrtNamedObjectRef source, GrtNamedObjec
 {
   grt::DbObjectMatchAlterOmf omf;
   omf.dontdiff_mask = 3;
-  grt::NormalizedComparer normalizer(get_grt(), grt::DictRef::cast_from(diff_options.get("DBSettings")));
+  grt::NormalizedComparer normalizer(grt::DictRef::cast_from(diff_options.get("DBSettings")));
   normalizer.init_omf(&omf);
 
   boost::shared_ptr<DiffChange> diff = diff_make(source, target, &omf);
   if (!diff.get())
       return "";
 
-  grt::DictRef options(get_grt());
-  grt::StringListRef alter_list(get_grt());
+  grt::DictRef options(true);
+  grt::StringListRef alter_list(grt::Initialized);
   options.set("OutputContainer", alter_list);
   options.set("UseFilteredLists", grt::IntegerRef(0));
   options.set("KeepOrder", grt::IntegerRef(1));
-  grt::ListRef<GrtNamedObject> alter_object_list(get_grt());
+  grt::ListRef<GrtNamedObject> alter_object_list(true);
   options.set("OutputObjectContainer", alter_object_list);
 
   generateSQL(source, options, diff);
@@ -2753,11 +2750,11 @@ std::string DbMySQLImpl::makeAlterScriptForObject(GrtNamedObjectRef source, GrtN
   grt::DbObjectMatchAlterOmf omf;
   omf.dontdiff_mask = 5;
 
-  DictRef options(get_grt());
-  DictRef result(get_grt());
+  DictRef options(true);
+  DictRef result(true);
 
   options.set("UseFilteredLists", IntegerRef(0));
-  grt::NormalizedComparer normalizer(get_grt(),grt::DictRef::cast_from(diff_options.get("DBSettings",getDefaultTraits())));
+  grt::NormalizedComparer normalizer(grt::DictRef::cast_from(diff_options.get("DBSettings",getDefaultTraits())));
   normalizer.init_omf(&omf);
   bool case_sensitive = omf.case_sensitive;
   boost::shared_ptr<DiffChange> diff = diff_make(source, target, &omf);
@@ -2766,7 +2763,7 @@ std::string DbMySQLImpl::makeAlterScriptForObject(GrtNamedObjectRef source, GrtN
   std::string non_std_sql_delimiter("$$");
   if (ObjectRef::can_wrap(target))
   {
-    SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name(ObjectRef::cast_from(target)->get_grt(), "Mysql");
+    SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name("Mysql");
     Sql_specifics::Ref sql_specifics = sql_facade ->sqlSpecifics();
     non_std_sql_delimiter = sql_specifics->non_std_sql_delimiter();
   }
@@ -2774,7 +2771,7 @@ std::string DbMySQLImpl::makeAlterScriptForObject(GrtNamedObjectRef source, GrtN
 
   if (diff.get())
   {
-    ActionGenerateSQL generator = ActionGenerateSQL(result, grt::ListRef<GrtNamedObject>(),get_grt(),grt::DictRef::cast_from(diff_options.get("DBSettings",getDefaultTraits())));
+    ActionGenerateSQL generator = ActionGenerateSQL(result, grt::ListRef<GrtNamedObject>(), grt::DictRef::cast_from(diff_options.get("DBSettings",getDefaultTraits())));
     generator.set_put_if_exists(false);
     DiffSQLGeneratorBE(options, grt::DictRef::cast_from(diff_options.get("DBSettings", getDefaultTraits())), &generator).process_diff_change(source, diff.get(), result);
     std::string objname = get_old_object_name_for_key(obj, omf.case_sensitive);
@@ -2885,14 +2882,14 @@ std::string DbMySQLImpl::makeAlterScriptForObject(GrtNamedObjectRef source, GrtN
 // This function is used from scripts and HTML report generator.
 std::string DbMySQLImpl::makeCreateScriptForObject(GrtNamedObjectRef object)
 {
-  DictRef options(get_grt());
-  DictRef result(get_grt());
+  DictRef options(true);
+  DictRef result(true);
 
   ValueRef parent;
 
   //TODO: check how this list is expected to be used
   //there should be a way to generate one table SQL only not sql for whole doc
-//  StringListRef list(get_grt());
+//  StringListRef list(grt::Initialized);
 //  list.insert(get_old_object_name_for_key(object));
 
   if (object.is_instance(db_Schema::static_class_name()))
@@ -2916,7 +2913,7 @@ std::string DbMySQLImpl::makeCreateScriptForObject(GrtNamedObjectRef object)
 
   options.set("UseFilteredLists", IntegerRef(0));
   default_omf omf;
-  grt::NormalizedComparer normalizer(get_grt());
+  grt::NormalizedComparer normalizer;
   normalizer.init_omf(&omf);
   boost::shared_ptr<DiffChange> diff = diff_make(ValueRef(), parent, &omf, true); // do a diff without cloning the catalog
 
@@ -2924,7 +2921,7 @@ std::string DbMySQLImpl::makeCreateScriptForObject(GrtNamedObjectRef object)
 
   if (diff.get())
   {
-    ActionGenerateSQL generator = ActionGenerateSQL(result, grt::ListRef<GrtNamedObject>(),get_grt(),getDefaultTraits());
+    ActionGenerateSQL generator = ActionGenerateSQL(result, grt::ListRef<GrtNamedObject>(),getDefaultTraits());
     DiffSQLGeneratorBE(options, grt::DictRef::cast_from(options.get("DBSettings", getDefaultTraits())), &generator).process_diff_change(ValueRef(), diff.get(), result);
     sql= result.get_string(get_full_object_name_for_key(object, omf.case_sensitive), "");
   }
@@ -2935,10 +2932,10 @@ std::string DbMySQLImpl::makeCreateScriptForObject(GrtNamedObjectRef object)
 
 db_mgmt_RdbmsRef DbMySQLImpl::initializeDBMSInfo()
 {
-  bec::GRTManager *grtm(bec::GRTManager::get_instance_for(get_grt()));
-  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(get_grt()->unserialize(base::makePath(grtm->get_basedir(), "modules/data/mysql_rdbms_info.xml")));
+  bec::GRTManager *grtm(bec::GRTManager::get_instance_for());
+  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->unserialize(base::makePath(grtm->get_basedir(), "modules/data/mysql_rdbms_info.xml")));
 
-  workbench_WorkbenchRef::cast_from(get_grt()->get("/wb"))->rdbmsMgmt()->rdbms().insert(rdbms);
+  workbench_WorkbenchRef::cast_from(grt::GRT::get()->get("/wb"))->rdbmsMgmt()->rdbms().insert(rdbms);
   return rdbms;
 }
 
@@ -2963,7 +2960,7 @@ grt::StringRef DbMySQLImpl::fullyQualifiedObjectName(GrtNamedObjectRef object)
 grt::ListRef<db_mysql_StorageEngine> DbMySQLImpl::getKnownEngines()
 {
   if (!_known_engines.is_valid())
-    _known_engines = dbmysql::get_known_engines(this->get_grt());
+    _known_engines = dbmysql::get_known_engines();
   return _known_engines;
 }
 
@@ -2984,7 +2981,7 @@ inline bool match_version(int ref_major, int ref_minor, int ref_revision,
 
 grt::DictRef DbMySQLImpl::getTraitsForServerVersion(const int major, const int minor, const int revision)
 {
-  grt::DictRef traits(get_grt());
+  grt::DictRef traits(true);
 
   traits.set("version", grt::StringRef(base::strfmt("%i.%i.%i", major, minor, revision < 0 ? 0 : revision)));
   
@@ -3046,7 +3043,7 @@ grt::ListRef<db_UserDatatype> DbMySQLImpl::getDefaultUserDatatypes(db_mgmt_Rdbms
     // End type aliases
   };
   
-  grt::ListRef<db_UserDatatype> list(get_grt());
+  grt::ListRef<db_UserDatatype> list(true);
   
   for (size_t i= 0; i < sizeof(type_init_data)/sizeof(*type_init_data); i++)
   {
@@ -3064,7 +3061,7 @@ grt::ListRef<db_UserDatatype> DbMySQLImpl::getDefaultUserDatatypes(db_mgmt_Rdbms
                 type_init_data[i].oid, type_init_data[i].name, type_init_data[i].sql_def);
       continue;
     }
-    db_UserDatatypeRef udata(get_grt());
+    db_UserDatatypeRef udata(grt::Initialized);
     
     udata->__set_id(type_init_data[i].oid);
 

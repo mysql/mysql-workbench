@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -37,7 +37,7 @@ void workbench_physical_Diagram::init()
   if (_rootLayer.is_valid())
     throw std::logic_error("rootLayer value is already initialized");
 
-  rootLayer(workbench_physical_LayerRef(get_grt()));
+  rootLayer(workbench_physical_LayerRef(grt::Initialized));
   _rootLayer->owner(this);
   _rootLayer->width(width());
   _rootLayer->height(height());

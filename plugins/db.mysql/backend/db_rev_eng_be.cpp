@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -49,13 +49,13 @@ std::string Db_rev_eng::sql_script()
 
 void Db_rev_eng::parse_sql_script(parser::MySQLParserServices::Ref sql_parser, parser::ParserContext::Ref context, db_CatalogRef &catalog, const std::string &sql_script, grt::DictRef &options)
 {
-  grt::AutoUndo undo(_grtm->get_grt());
+  grt::AutoUndo undo;
   sql_parser->parseSQLIntoCatalog(context, db_mysql_CatalogRef::cast_from(catalog), sql_script, options);
   undo.end(_("Reverse Engineer Database"));
 }
 
 
-GrtVersionRef Db_rev_eng::getVersion(grt::GRT *grt)
+GrtVersionRef Db_rev_eng::getVersion()
 {
   std::string value;
   sql::ConnectionWrapper dbc_conn = Db_plugin::_db_conn->get_dbc_connection();
@@ -63,6 +63,6 @@ GrtVersionRef Db_rev_eng::getVersion(grt::GRT *grt)
   std::auto_ptr<sql::ResultSet> result(stmt->executeQuery("SELECT version()"));
   if (result->next())
     value = result->getString(1);
-  GrtVersionRef _version = bec::parse_version(grt, value);
+  GrtVersionRef _version = bec::parse_version(value);
   return _version;
 }

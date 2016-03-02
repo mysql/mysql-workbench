@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,8 +42,7 @@ Mysql_sql_syntax_check::Null_state_keeper::~Null_state_keeper()
 #define NULL_STATE_KEEPER Null_state_keeper _nsk(this);
 
 
-Mysql_sql_syntax_check::Mysql_sql_syntax_check(grt::GRT *grt)
-  : Sql_parser_base(grt), Mysql_sql_parser_base(grt), Sql_syntax_check(grt)
+Mysql_sql_syntax_check::Mysql_sql_syntax_check()
 {
   NULL_STATE_KEEPER
 }
@@ -155,7 +154,7 @@ int Mysql_sql_syntax_check::check_sql_statement(const char* sql, Check_sql_state
   sql_parser_fe.ignore_dml= false;
   sql_parser_fe.max_insert_statement_size= MAX_INSERT_SQL_LENGTH;
   {
-    DictRef options= DictRef::cast_from(_grt->get("/wb/options/options"));
+    DictRef options= DictRef::cast_from(grt::GRT::get()->get("/wb/options/options"));
     sql_parser_fe.max_err_count= (int)options.get_int("SqlEditor::SyntaxCheck::MaxErrCount", 100);    
   }
 

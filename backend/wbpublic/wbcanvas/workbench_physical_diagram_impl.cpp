@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 #include "workbench_physical_diagram_impl.h"
 #include "workbench_physical_tablefigure_impl.h"
 
-#include <grtpp_undo_manager.h>
+#include "grtpp_undo_manager.h"
 
 #include "base/string_utilities.h"
 
@@ -37,9 +37,9 @@ workbench_physical_Diagram::ImplData::ImplData(workbench_physical_Diagram *owner
 
 workbench_physical_LayerRef workbench_physical_Diagram::ImplData::place_new_layer(double x, double y, double width, double height, const std::string &name)
 {
-  workbench_physical_LayerRef layer(self()->get_grt());
+  workbench_physical_LayerRef layer(grt::Initialized);
   bool skip_undo= !self()->is_global();
-  grt::AutoUndo undo(self()->get_grt(), skip_undo);
+  grt::AutoUndo undo(skip_undo);
 
   layer->owner(self());
   layer->left(x);
@@ -81,9 +81,9 @@ workbench_physical_LayerRef workbench_physical_Diagram::ImplData::place_new_laye
 
 workbench_physical_TableFigureRef workbench_physical_Diagram::ImplData::place_table(const db_TableRef &table, double x, double y)
 {
-  workbench_physical_TableFigureRef figure(self()->get_grt());
+  workbench_physical_TableFigureRef figure(grt::Initialized);
   bool skip_undo= !self()->is_global();
-  grt::AutoUndo undo(self()->get_grt(), skip_undo);
+  grt::AutoUndo undo(skip_undo);
 
   figure->owner(self());
   figure->table(table);
@@ -105,9 +105,9 @@ workbench_physical_TableFigureRef workbench_physical_Diagram::ImplData::place_ta
 
 workbench_physical_RoutineGroupFigureRef workbench_physical_Diagram::ImplData::place_routine_group(const db_RoutineGroupRef &rgroup, double x, double y)
 {
-  workbench_physical_RoutineGroupFigureRef figure(self()->get_grt());
+  workbench_physical_RoutineGroupFigureRef figure(grt::Initialized);
   bool skip_undo= !self()->is_global();
-  grt::AutoUndo undo(self()->get_grt(), skip_undo);
+  grt::AutoUndo undo(skip_undo);
 
   figure->owner(self());
   figure->routineGroup(rgroup);
@@ -127,9 +127,9 @@ workbench_physical_RoutineGroupFigureRef workbench_physical_Diagram::ImplData::p
 
 workbench_physical_ViewFigureRef workbench_physical_Diagram::ImplData::place_view(const db_ViewRef &view, double x, double y)
 {
-  workbench_physical_ViewFigureRef figure(self()->get_grt());
+  workbench_physical_ViewFigureRef figure(grt::Initialized);
   bool skip_undo= !self()->is_global();
-  grt::AutoUndo undo(self()->get_grt(), skip_undo);
+  grt::AutoUndo undo(skip_undo);
 
   figure->owner(self());
   figure->view(view);
@@ -183,7 +183,7 @@ workbench_physical_ConnectionRef workbench_physical_Diagram::ImplData::create_co
       && get_figure_for_dbobject(db_DatabaseObjectRef::cast_from(fk->owner())).is_valid()
       && get_figure_for_dbobject(fk->referencedTable()).is_valid())
   {
-    workbench_physical_ConnectionRef conn(self()->get_grt());
+    workbench_physical_ConnectionRef conn(grt::Initialized);
 
     conn->owner(self());
     conn->name("");
@@ -324,10 +324,9 @@ void workbench_physical_Diagram::ImplData::member_list_changed(grt::internal::Ow
 
 void workbench_physical_Diagram::ImplData::auto_place_db_objects(const grt::ListRef<db_DatabaseObject> &objects)
 {
-  grt::GRT *grt= self()->get_grt();
-  grt::Module *module= grt->get_module("WbModel");
+  grt::Module *module= grt::GRT::get()->get_module("WbModel");
 
-  grt::BaseListRef args(grt);
+  grt::BaseListRef args(true);
 
   args.ginsert(workbench_physical_ModelRef::cast_from(self()->owner())->catalog());
   args.ginsert(objects);

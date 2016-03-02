@@ -24,6 +24,7 @@ include_directories(.
     ${SIGC++_INCLUDE_DIRS}
     ${PCRE_INCLUDE_DIRS}
     ${MYSQLCPPCONN_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
 )
 
 add_library(db.mysql.diff.reporting.wbp MODULE

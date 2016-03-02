@@ -21,6 +21,6 @@
 #ifndef __grtpp_shell_python_help_h__
 #define __grtpp_shell_python_help_h__
 
-void grt_shell_show_python_help(grt::GRT *grt, const char *command);
+void grt_shell_show_python_help(const char *command);
 
 #endif /* __grtpp_shell_python_help_h__ */

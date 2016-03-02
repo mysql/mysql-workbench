@@ -73,7 +73,7 @@ DbMySQLSQLExport::DbMySQLSQLExport(bec::GRTManager *grtm, db_mysql_CatalogRef ca
 
 db_mysql_CatalogRef DbMySQLSQLExport::get_model_catalog()
 {
-  return db_mysql_CatalogRef::cast_from(_manager->get_grt()->get("/wb/doc/physicalModels/0/catalog")); 
+  return db_mysql_CatalogRef::cast_from(grt::GRT::get()->get("/wb/doc/physicalModels/0/catalog")); 
 }
 
 void DbMySQLSQLExport::set_option(const std::string& name, bool value)
@@ -130,7 +130,7 @@ void DbMySQLSQLExport::set_option(const std::string& name, const std::string& va
 
 void DbMySQLSQLExport::set_db_options_for_version(const GrtVersionRef &version)
 {
-  SQLGeneratorInterfaceImpl *diffsql_module= dynamic_cast<SQLGeneratorInterfaceImpl*>(version.get_grt()->get_module("DbMySQL"));
+  SQLGeneratorInterfaceImpl *diffsql_module= dynamic_cast<SQLGeneratorInterfaceImpl*>(grt::GRT::get()->get_module("DbMySQL"));
   if (diffsql_module != NULL)
     _db_options = diffsql_module->getTraitsForServerVersion((int)version->majorNumber(), (int)version->minorNumber(), (int)version->releaseNumber());
 }
@@ -140,9 +140,9 @@ void DbMySQLSQLExport::set_db_options(grt::DictRef &db_options)
     _db_options = db_options;
 }
 
-grt::StringListRef convert_string_vector_to_grt_list(grt::GRT *grt, const std::vector<std::string>& v)
+grt::StringListRef convert_string_vector_to_grt_list(const std::vector<std::string>& v)
 {
-  grt::StringListRef grt_list(grt);
+  grt::StringListRef grt_list(grt::Initialized);
   for(std::vector<std::string>::const_iterator e= v.end(), it= v.begin(); it != e; it++)
   {
     grt_list.insert(grt::StringRef(*it));
@@ -182,9 +182,9 @@ std::vector<std::string> get_names(const bec::GrtStringListModel* list,const std
 };
 
 
-grt::DictRef DbMySQLSQLExport::get_options_as_dict(grt::GRT *grt)
+grt::DictRef DbMySQLSQLExport::get_options_as_dict()
 {
-  grt::DictRef options(grt);
+  grt::DictRef options(true);
 
   // general options
   options.set("GenerateDrops", grt::IntegerRef(_gen_drops ? 1 : 0));
@@ -213,25 +213,25 @@ grt::DictRef DbMySQLSQLExport::get_options_as_dict(grt::GRT *grt)
 
   std::set<db_mysql_SchemaRef> schemas;
 
-//  options.set("SchemaFilterList", convert_string_vector_to_grt_list(grt, schemata_names));
+//  options.set("SchemaFilterList", convert_string_vector_to_grt_list(schemata_names));
 
   // filtering options
   options.set("TableFilterList", _tables_are_selected ? 
-    convert_string_vector_to_grt_list(grt,get_names(_tables_model.get(), _tables_map, schemas, _case_sensitive)) : grt::StringListRef(grt));
+    convert_string_vector_to_grt_list(get_names(_tables_model.get(), _tables_map, schemas, _case_sensitive)) : grt::StringListRef());
 
   options.set("ViewFilterList", _views_are_selected ? 
-    convert_string_vector_to_grt_list(grt, get_names(_views_model.get(), _views_map, schemas, _case_sensitive)) : grt::StringListRef(grt));
+    convert_string_vector_to_grt_list(get_names(_views_model.get(), _views_map, schemas, _case_sensitive)) : grt::StringListRef());
 
   options.set("RoutineFilterList", _routines_are_selected ? 
-    convert_string_vector_to_grt_list(grt, get_names(_routines_model.get(), _routines_map, schemas, _case_sensitive)) : grt::StringListRef(grt));
+    convert_string_vector_to_grt_list(get_names(_routines_model.get(), _routines_map, schemas, _case_sensitive)) : grt::StringListRef());
 
   options.set("TriggerFilterList", _triggers_are_selected ? 
-    convert_string_vector_to_grt_list(grt, get_names(_triggers_model.get(), _triggers_map, schemas, _case_sensitive)) : grt::StringListRef(grt));
+    convert_string_vector_to_grt_list(get_names(_triggers_model.get(), _triggers_map, schemas, _case_sensitive)) : grt::StringListRef());
 
   options.set("UserFilterList", _users_are_selected ? 
-      convert_string_vector_to_grt_list(grt, get_names(_users_model.get(), _users_map, schemas, _case_sensitive)) : grt::StringListRef(grt));
+      convert_string_vector_to_grt_list(get_names(_users_model.get(), _users_map, schemas, _case_sensitive)) : grt::StringListRef());
 
-  grt::StringListRef schema_names_list(grt);
+  grt::StringListRef schema_names_list(grt::Initialized);
   for (std::set<db_mysql_SchemaRef>::const_iterator It = schemas.begin(); It != schemas.end(); ++It)
     schema_names_list.insert(get_old_object_name_for_key(*It, _case_sensitive));
   
@@ -248,7 +248,7 @@ void DbMySQLSQLExport::start_export(bool wait_finish)
 {
   bec::GRTTask::Ref task = bec::GRTTask::create_task("SQL export", 
     _manager->get_dispatcher(), 
-    boost::bind(&DbMySQLSQLExport::export_task, this, _1, grt::StringRef()));
+    boost::bind(&DbMySQLSQLExport::export_task, this, grt::StringRef()));
 
   scoped_connect(task->signal_finished(),boost::bind(&DbMySQLSQLExport::export_finished, this, _1));
   
@@ -264,18 +264,18 @@ void DbMySQLSQLExport::export_finished(grt::ValueRef res)
 {
   CatalogMap cmap;
   update_all_old_names(get_model_catalog(), false, cmap);
-  _manager->get_grt()->send_output(*grt::StringRef::cast_from(res) + '\n');
+  grt::GRT::get()->send_output(*grt::StringRef::cast_from(res) + '\n');
   if (_task_finish_cb)
     _task_finish_cb();
 }
 
-ValueRef DbMySQLSQLExport::export_task(grt::GRT* grt, grt::StringRef)
+ValueRef DbMySQLSQLExport::export_task(grt::StringRef)
 {
-  bec::Reporter rep(grt);
+  bec::Reporter rep;
 
   try
   {
-    SQLGeneratorInterfaceImpl *diffsql_module= dynamic_cast<SQLGeneratorInterfaceImpl*>(grt->get_module("DbMySQL"));
+    SQLGeneratorInterfaceImpl *diffsql_module= dynamic_cast<SQLGeneratorInterfaceImpl*>(grt::GRT::get()->get_module("DbMySQL"));
   
     if(diffsql_module == NULL)
       return grt::StringRef("\nSQL Script Export Error: Not able to load 'DbMySQL' module");
@@ -283,7 +283,7 @@ ValueRef DbMySQLSQLExport::export_task(grt::GRT* grt, grt::StringRef)
     DictRef create_map;
     DictRef drop_map;
 
-    grt::DictRef options= get_options_as_dict(grt);
+    grt::DictRef options= get_options_as_dict();
 
     options.set("SQL_MODE", _manager->get_app_option("SqlGenerator.Mysql:SQL_MODE"));
     options.gset("UseFilteredLists", 1);
@@ -307,7 +307,7 @@ ValueRef DbMySQLSQLExport::export_task(grt::GRT* grt, grt::StringRef)
     if (_gen_drops)
       drop_map = diffsql_module->generateSQLForDifferences(_catalog, GrtNamedObjectRef(), options);
     if (!drop_map.is_valid())
-      drop_map = grt::DictRef(grt);
+      drop_map = grt::DictRef(true);
     
     grt::StringListRef strlist= grt::StringListRef::cast_from(options.get("ViewFilterList"));
 
@@ -472,30 +472,30 @@ void DbMySQLSQLExport::setup_grt_string_list_models_from_catalog(bec::GrtStringL
 //  {
 //    WbValidationInterfaceModule *validation_module= 
 //      static_cast<WbValidationInterfaceModule *>(
-//      _manager->get_grt()->get_module("WbModuleValidation"));
+//      grt::GRT::get()->get_module("WbModuleValidation"));
 //  
 //    if(validation_module == NULL)
 //      return grt::StringRef("\nSQL Script Export Error: Not able to load 'WbModuleValidation' module");
 //
-//    grt->send_info("Starting general validation");
+//    grt::GRT::get()->send_info("Starting general validation");
 //
 //    int validation_res= validation_module->validateAll(
-//      GrtObjectRef::cast_from(_manager->get_grt()->get("/wb/doc/physicalModels/0/catalog")));
+//      GrtObjectRef::cast_from(grt::GRT::get()->get("/wb/doc/physicalModels/0/catalog")));
 //
 //    _manager->get_dispatcher()->call_from_main_thread<int>(
 //      boost::bind(_validation_step_finished_cb, validation_res), true);
 //
 //    WbValidationMySQLInterfaceModule *mysql_validation_module=
 //      static_cast<WbValidationMySQLInterfaceModule *>(
-//      _manager->get_grt()->get_module("WbModuleValidationMySQL"));
+//      grt::GRT::get()->get_module("WbModuleValidationMySQL"));
 //    
 //    if(validation_module == NULL)
 //      return grt::StringRef("\nSQL Script Export Error: Not able to load 'WbModuleValidationMySQL' module");
 //
-//    grt->send_info("Starting MySQL-specific validation");
+//    grt::GRT::get()->send_info("Starting MySQL-specific validation");
 //
 //    validation_res= mysql_validation_module->validateAll(
-//      GrtObjectRef::cast_from(_manager->get_grt()->get("/wb/doc/physicalModels/0/catalog")));
+//      GrtObjectRef::cast_from(grt::GRT::get()->get("/wb/doc/physicalModels/0/catalog")));
 //
 //    _manager->get_dispatcher()->call_from_main_thread<int>(
 //      boost::bind(_validation_step_finished_cb, validation_res), true);

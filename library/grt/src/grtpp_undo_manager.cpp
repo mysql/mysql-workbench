@@ -17,14 +17,14 @@
  * 02110-1301  USA
  */
 
+#include "base/log.h"
+
 #include "grtpp_undo_manager.h"
 #include "base/string_utilities.h"
 
 #include <iostream>
 #include <time.h>
 #include <boost/bind.hpp>
-
-#include "base/log.h"
 
 #ifdef _WIN32
 #undef max
@@ -154,10 +154,10 @@ void UndoObjectChangeAction::undo(UndoManager *owner)
   //owner->add_undo(new UndoObjectChangeAction(_object, _member));
   //owner->set_action_description(description());
 
-  owner->get_grt()->start_tracking_changes();
+  grt::GRT::get()->start_tracking_changes();
   _object.set_member(_member, _value);
   owner->set_action_description(description());
-  owner->get_grt()->stop_tracking_changes();
+  grt::GRT::get()->stop_tracking_changes();
 }
 
 
@@ -192,10 +192,10 @@ void UndoListInsertAction::undo(UndoManager *owner)
     // Remove last entry in the list, if there is one.
     if (_list.count() > 0)
     {
-      owner->get_grt()->start_tracking_changes();
+      grt::GRT::get()->start_tracking_changes();
       _list.remove(_list.count() - 1);
       owner->set_action_description(description());
-      owner->get_grt()->stop_tracking_changes();
+      grt::GRT::get()->stop_tracking_changes();
     }
     else
     {
@@ -206,10 +206,10 @@ void UndoListInsertAction::undo(UndoManager *owner)
   }
   else
   {
-    owner->get_grt()->start_tracking_changes();
+    grt::GRT::get()->start_tracking_changes();
     _list.remove(_index);
     owner->set_action_description(description());
-    owner->get_grt()->stop_tracking_changes();
+    grt::GRT::get()->stop_tracking_changes();
   }
 }
 
@@ -243,10 +243,10 @@ void UndoListReorderAction::undo(UndoManager *owner)
   owner->set_action_description(description());
   _list.reorder(_nindex, _oindex);
    */
-  owner->get_grt()->start_tracking_changes();
+  grt::GRT::get()->start_tracking_changes();
   _list.reorder(_nindex, _oindex);
   owner->set_action_description(description());
-  owner->get_grt()->stop_tracking_changes();
+  grt::GRT::get()->stop_tracking_changes();
 }
 
 
@@ -282,10 +282,10 @@ void UndoListSetAction::undo(UndoManager *owner)
   owner->set_action_description(description());
   _list.gset(_index, _value);
    */
-  owner->get_grt()->start_tracking_changes();
+  grt::GRT::get()->start_tracking_changes();
   _list.gset(_index, _value);
   owner->set_action_description(description());
-  owner->get_grt()->stop_tracking_changes();
+  grt::GRT::get()->stop_tracking_changes();
 }
 
 
@@ -332,10 +332,10 @@ UndoListRemoveAction::UndoListRemoveAction(const BaseListRef &list, size_t index
 
 void UndoListRemoveAction::undo(UndoManager *owner)
 {
-  owner->get_grt()->start_tracking_changes();
+  grt::GRT::get()->start_tracking_changes();
   _list.ginsert(_value, _index);
   owner->set_action_description(description());
-  owner->get_grt()->stop_tracking_changes();
+  grt::GRT::get()->stop_tracking_changes();
 }
 
 
@@ -373,17 +373,17 @@ void UndoDictSetAction::undo(UndoManager *owner)
 {
   if (_had_value)
   {
-    owner->get_grt()->start_tracking_changes();
+    grt::GRT::get()->start_tracking_changes();
     _dict.set(_key, _value);
     owner->set_action_description(description());
-    owner->get_grt()->stop_tracking_changes();
+    grt::GRT::get()->stop_tracking_changes();
   }
   else
   {
-    owner->get_grt()->start_tracking_changes();
+    grt::GRT::get()->start_tracking_changes();
     _dict.remove(_key);
     owner->set_action_description(description());
-    owner->get_grt()->stop_tracking_changes();
+    grt::GRT::get()->stop_tracking_changes();
   }
 }
 
@@ -422,10 +422,10 @@ void UndoDictRemoveAction::undo(UndoManager *owner)
 {
   if (_had_value)
   {
-    owner->get_grt()->start_tracking_changes();
+    grt::GRT::get()->start_tracking_changes();
     _dict.set(_key, _value);
     owner->set_action_description(description());
-    owner->get_grt()->stop_tracking_changes();
+    grt::GRT::get()->stop_tracking_changes();
   }
   else
   {
@@ -609,10 +609,9 @@ void UndoGroup::dump(std::ostream &out, int indent) const
 //---------------------------------------------------------------------------------------------------
 
 
-UndoManager::UndoManager(GRT *grt)
+UndoManager::UndoManager()
 {
   _undo_log= 0;
-  _owner= grt;
   _is_undoing= false;
   _is_redoing= false;
   _undo_limit= 0;
@@ -1122,4 +1121,131 @@ void UndoManager::dump_redo_stack()
   for (std::deque<UndoAction*>::iterator iter= _redo_stack.begin(); iter != _redo_stack.end(); ++iter)
     (*iter)->dump(std::cout);
 }
+
+//----------------- AutoUndo -------------------------------------------------------------------------------------------
+
+AutoUndo::AutoUndo(bool noop)
+{
+  _valid = true;
+  if (!noop)
+    group = grt::GRT::get()->begin_undoable_action();
+  else
+    group = nullptr;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+AutoUndo::AutoUndo(UndoGroup *use_group, bool noop)
+  : group(nullptr)
+{
+  _valid = true;
+  if (noop)
+  {
+    delete use_group;
+    use_group = nullptr;
+  }
+  else
+  {
+    // check if the group can be merged into the previous one and if so, just drop it
+    if (!grt::GRT::get()->get_undo_manager()->get_undo_stack().empty())
+    {
+      UndoGroup *last_group = dynamic_cast<UndoGroup*>(grt::GRT::get()->get_undo_manager()->get_undo_stack().back());
+
+      if (last_group && use_group->matches_group(last_group))
+      {
+        delete use_group;
+        use_group = nullptr;
+      }
+    }
+
+    if (use_group != nullptr)
+      group = grt::GRT::get()->begin_undoable_action(use_group);
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+AutoUndo::~AutoUndo()
+{
+  if (_valid && group != nullptr)
+  {
+    const char *tmp;
+    // check if the currently open undo group is not empty, in that case we warn about it
+    // cancel() should be explicitly called if the cancellation is intentional
+    if ((tmp= getenv("DEBUG_UNDO")))
+    {
+      UndoGroup *group= dynamic_cast<UndoGroup*>(grt::GRT::get()->get_undo_manager()->get_latest_undo_action());
+
+      if (group && group->is_open())
+      {
+        log_warning("automatically cancelling unclosed undo group");
+        if (strcmp(tmp, "throw") == 0)
+          throw std::logic_error("unclosed undo group");
+      }
+    }
+
+    cancel();
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void AutoUndo::set_description_for_last_action(const std::string &s)
+{
+  if (_valid && group != nullptr)
+  {
+    UndoAction *action= grt::GRT::get()->get_undo_manager()->get_latest_undo_action();
+
+    action->set_description(s);
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void AutoUndo::cancel()
+{
+  if (_valid)
+  {
+    if (group != nullptr)
+      grt::GRT::get()->cancel_undoable_action();
+    _valid = false;
+  }
+  else
+    throw std::logic_error("Trying to cancel an already finished undo action");
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void AutoUndo::end_or_cancel_if_empty(const std::string &descr)
+{
+  if (_valid)
+  {
+    if (group == nullptr)
+      return;
+
+    if (!group->empty())
+      grt::GRT::get()->end_undoable_action(descr);
+    else
+      grt::GRT::get()->cancel_undoable_action();
+    _valid = false;
+  }
+  else
+    throw std::logic_error("Trying to end an already finished undo action");
+
+}
+
+void AutoUndo::end(const std::string &descr)
+{
+  if (_valid)
+  {
+    if (group != nullptr)
+      grt::GRT::get()->end_undoable_action(descr);
+    _valid = false;
+  }
+  else
+    throw std::logic_error("Trying to end an already finished undo action");
+
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 

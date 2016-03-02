@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,7 +34,7 @@ public:
 
 TEST_DATA_CONSTRUCTOR(wb_copy_paste)
 {
-  populate_grt(tester.grt, tester);
+  populate_grt(tester);
 }
 
 END_TEST_DATA_CLASS;
@@ -98,7 +98,7 @@ TEST_FUNCTION(1)
   WBComponent *compo= tester.wb->get_component_handling(source);
   ensure("table is copiable", compo!=0);
 
-  grt::CopyContext context(tester.grt);
+  grt::CopyContext context;
   
   compo->copy_object_to_clipboard(source, context);
 
@@ -132,14 +132,12 @@ TEST_FUNCTION(2)
   // proper refs to the copied objects
   tester.create_new_document();
 
-  db_mysql_TableRef table;
-
-  table= db_mysql_TableRef(tester.grt);
+  db_mysql_TableRef table(grt::Initialized);
   table->name("person");
   
   for (int i= 0; i < 5; i++)
   {
-    db_mysql_ColumnRef column(tester.grt);
+    db_mysql_ColumnRef column(grt::Initialized);
 
     column->owner(table);
     column->name(strfmt("col%i", i));
