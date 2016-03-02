@@ -77,18 +77,7 @@ public:
     
     stmt->execute("DROP SCHEMA IF EXISTS test; CREATE SCHEMA test");
   }
-  
-  TEST_DATA_DESTRUCTOR(module_dbc_result_set_test)
-  {
-    db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
-    setup_env(connectionProperties);
-    sql::DriverManager *dm= sql::DriverManager::getDriverManager();
 
-    sql::ConnectionWrapper wrapper1= dm->getConnection(connectionProperties);
-    sql::Connection *connection= wrapper1.get();
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-    stmt->execute("DROP SCHEMA IF EXISTS test;");
-  }
 
 END_TEST_DATA_CLASS
 
@@ -474,6 +463,20 @@ TEST_FUNCTION(8)
     printf("ERR: Caught sql::SQLException\n");
     throw;
   }
+}
+
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(9)
+{
+  db_mgmt_ConnectionRef connectionProperties(grt::Initialized);
+  setup_env(connectionProperties);
+  sql::DriverManager *dm= sql::DriverManager::getDriverManager();
+
+  sql::ConnectionWrapper wrapper1= dm->getConnection(connectionProperties);
+  sql::Connection *connection= wrapper1.get();
+  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  stmt->execute("DROP SCHEMA IF EXISTS test;");
 }
 
 END_TESTS
