@@ -112,6 +112,7 @@ public:
 
   // autocomplete_context will go after auto completion refactoring.
   Private(ParserContext::Ref syntaxcheck_context, ParserContext::Ref autocomplete_context)
+    : _grtobj(grt::Initialized)
   {
     _grtm = GRTManager::get_instance_for();
 

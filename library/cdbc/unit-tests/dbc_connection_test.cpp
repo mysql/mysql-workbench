@@ -41,7 +41,7 @@ TEST_FUNCTION(1)
 {
   grtm= wbt.wb->get_grt_manager();
 
-  connectionProperties= db_mgmt_ConnectionRef();
+  connectionProperties= db_mgmt_ConnectionRef(grt::Initialized);
   setup_env(connectionProperties);
 
   sql::DriverManager *dm= sql::DriverManager::getDriverManager();
