@@ -26,8 +26,12 @@
 
 #include <sstream>
 #include <vector>
-#include <list>
+#include <list> 
+#include <memory>
 #include <boost/scoped_array.hpp>
+#include <boost/optional.hpp>
+#include <boost/cstdint.hpp>
+
 
 #include "grtdb/charset_utils.h"
 #include "base/string_utilities.h"
