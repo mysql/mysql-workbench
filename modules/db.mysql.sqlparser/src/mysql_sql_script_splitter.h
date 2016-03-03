@@ -21,10 +21,9 @@
 #ifndef _MYSQL_SQL_SCRIPT_SPLITTER_H_
 #define _MYSQL_SQL_SCRIPT_SPLITTER_H_
 
-
+#include <memory>
 #include <list>
 #include <string>
-
 
 namespace mysql_parser
 {
