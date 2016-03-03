@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1406,6 +1406,27 @@ mforms::View *PreferencesForm::create_others_page()
         "and necessary as multiple instances share the same files (settings etc.). Change at your own risk."));
   }
 #endif
+
+  mforms::Panel *frame= mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
+
+  mforms::Table *ssh_table= mforms::manage(new mforms::Table());
+
+  ssh_table->set_padding(8);
+  ssh_table->set_row_spacing(12);
+  ssh_table->set_column_spacing(8);
+
+  ssh_table->set_row_count(1);
+  ssh_table->set_column_count(3);
+  frame->add(ssh_table);
+  {
+    mforms::FsObjectSelector *pathsel;
+    ssh_table->add(new_label(_("Path to SSH config file:"), true), 0, 1, 0, 1, mforms::HFillFlag);
+    pathsel= new_path_option("pathtosshconfig", true);
+    pathsel->get_entry()->set_tooltip(_("Specifiy the full path to the SSH config file."));
+    ssh_table->add(pathsel, 1, 2, 0, 1, mforms::HFillFlag|mforms::HExpandFlag);
+  }
+
+  content->add(frame, false);
 
   return content;
 }
