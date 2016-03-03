@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -32,6 +32,8 @@ import mforms
 import paramiko
 from workbench.log import log_warning, log_error, log_debug, log_debug2, log_debug3, log_info
 from wb_common import SSHFingerprintNewError, format_bad_host_exception
+
+import grt
 
 SSH_PORT = 22
 REMOTE_PORT = 3306
@@ -238,6 +240,9 @@ class Tunnel(threading.Thread):
 
     def _get_ssh_config_path(self):
         paths = []
+        user_path = grt.root.wb.options.options['pathtosshconfig'] if grt.root.wb.options.options['pathtosshconfig'] is not None else None
+        if user_path:
+            paths.append(user_path)
         if platform.system().lower() == "windows":
             paths.append("%s\ssh\config" % mforms.App.get().get_user_data_folder())
             paths.append("%s\ssh\ssh_config" % mforms.App.get().get_user_data_folder())
