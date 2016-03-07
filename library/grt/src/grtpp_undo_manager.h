@@ -290,7 +290,7 @@ protected:
 };
 
 
-struct AutoUndo
+struct MYSQLGRT_PUBLIC AutoUndo
 {
 public:
   UndoGroup *group;

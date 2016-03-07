@@ -54,7 +54,7 @@ namespace MySQL.GUI.Workbench.Plugins
 
       try
       {
-        Backend = new MySQL.Grt.ImageEditorWrapper(GrtManager, value);
+        Backend = new MySQL.Grt.ImageEditorWrapper(value);
         RefreshFormData();
       }
       finally

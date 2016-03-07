@@ -23,9 +23,8 @@ using namespace MySQL::Grt::Db;
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLRoutineEditorWrapper::MySQLRoutineEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist)
-  : RoutineEditorWrapper(new ::MySQLRoutineEditorBE(grtm->get_unmanaged_object(),
-    db_mysql_RoutineRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
+MySQLRoutineEditorWrapper::MySQLRoutineEditorWrapper(MySQL::Grt::GrtValue^ arglist)
+  : RoutineEditorWrapper(new ::MySQLRoutineEditorBE(db_mysql_RoutineRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
     )
   )
 {

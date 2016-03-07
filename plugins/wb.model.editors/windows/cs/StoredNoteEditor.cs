@@ -56,7 +56,7 @@ namespace MySQL.GUI.Workbench.Plugins
 
       try
       {
-        Backend = new MySQL.Grt.StoredNoteEditorWrapper(GrtManager, value);
+        Backend = new MySQL.Grt.StoredNoteEditorWrapper(value);
         SetupEditorOnHost(content, storedNoteEditorBE.is_sql_script());
         storedNoteEditorBE.load_text();
         EditorTextChanged();

@@ -36,7 +36,7 @@ protected:
   ~UserEditorBE();
 
 public:
-  UserEditorBE::UserEditorBE(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist);
+  UserEditorBE::UserEditorBE(MySQL::Grt::GrtValue^ arglist);
   ::bec::UserEditorBE *get_unmanaged_object();
   void set_name(String ^name);
   String^ get_name();

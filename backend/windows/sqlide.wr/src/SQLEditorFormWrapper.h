@@ -51,7 +51,7 @@ public:
 
   MySQL::Grt::ActionList ^action_list;
 
-  GrtManager ^ grt_manager() { return gcnew GrtManager((*_ref)->grt_manager()); }
+  GrtManager ^ grt_manager() { return gcnew GrtManager(&bec::GRTManager::get()); }
 
   void new_sql_script_file() { (*_ref)->new_sql_script_file(); }
   

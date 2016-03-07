@@ -94,7 +94,7 @@ namespace MySQL.GUI.Workbench.Plugins
 
       try
       {
-        Backend = new MySQLRelationshipEditorWrapper(GrtManager, value);
+        Backend = new MySQLRelationshipEditorWrapper(value);
 
         RefreshFormData();
       }
