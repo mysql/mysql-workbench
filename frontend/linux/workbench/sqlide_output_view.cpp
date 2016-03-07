@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -74,6 +74,13 @@ struct SigcBlocker
   sigc::connection& _c;
 };
 
+static void copy_accessibility_name(Gtk::Widget &w)
+{
+  Glib::RefPtr<Atk::Object> acc = w.get_accessible();
+  if (acc)
+    acc->set_name(w.get_name());
+}
+
 //==============================================================================
 //
 //==============================================================================
@@ -94,6 +101,9 @@ QueryOutputView::QueryOutputView(const SqlEditorForm::Ref& be, DbSqlEditorView *
   _action_output.view_model()->before_render = sigc::ptr_fun(drop_eol);
   _action_output.set_has_tooltip(true);
   _action_output.signal_query_tooltip().connect(sigc::mem_fun(this, &QueryOutputView::on_query_tooltip));
+  _action_output.set_name("Action Output");
+  copy_accessibility_name(_action_output);
+
 
   _action_swnd.add(_action_output);
   _action_swnd.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
@@ -150,8 +160,16 @@ QueryOutputView::QueryOutputView(const SqlEditorForm::Ref& be, DbSqlEditorView *
   for (size_t i = 0; i < (sizeof(sections) / sizeof(const char* const)); ++i)
     _mode.append(sections[i]);
 
+  _text_output.set_name("Text Output");
+  copy_accessibility_name(_text_output);
+
   _text_swnd.add(_text_output);
   _text_swnd.show_all();
+
+  _entries_grid.set_name("History Entries");
+  copy_accessibility_name(_entries_grid);
+  _details_grid.set_name("History Details");
+  copy_accessibility_name(_details_grid);
 
   _entries_swnd.add(_entries_grid);
   _details_swnd.add(_details_grid);

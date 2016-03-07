@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1427,6 +1427,7 @@ void AdvancedSidebar::setup_schema_tree()
       break;
   }
 
+  _new_schema_tree.set_name("Schema Tree");
   _new_schema_tree.add_column(mforms::IconStringColumnType, _("Schema"), 100, false, true);
   _new_schema_tree.set_selection_mode(mforms::TreeSelectMultiple);
   _new_schema_tree.set_back_color(background_color);
@@ -1468,6 +1469,7 @@ void AdvancedSidebar::setup_schema_tree()
       "? - a substitue for single character\n"
       "Search is possible only through already loaded schemas."
       );
+  _schema_search_text.set_name("Schema Filter Entry");
   _schema_search_box.add(&_schema_search_text, true, true);
   scoped_connect(_schema_search_text.signal_changed(), boost::bind(&AdvancedSidebar::on_search_text_changed, this));
   scoped_connect(_remote_search.signal_clicked(), boost::bind(&AdvancedSidebar::on_remote_search_clicked, this));
