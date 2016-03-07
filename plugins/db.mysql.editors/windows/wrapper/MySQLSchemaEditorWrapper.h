@@ -28,7 +28,7 @@ namespace Db {
 public ref class MySQLSchemaEditorWrapper : public SchemaEditorWrapper
 {
 public:
-  MySQLSchemaEditorWrapper(GrtManager^ grtm, GrtValue^ arglist);
+  MySQLSchemaEditorWrapper(GrtValue^ arglist);
   ~MySQLSchemaEditorWrapper();
 
   MySQLSchemaEditorBE *get_unmanaged_object();

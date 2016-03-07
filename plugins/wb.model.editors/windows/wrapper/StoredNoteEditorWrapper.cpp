@@ -30,10 +30,9 @@ StoredNoteEditorWrapper::StoredNoteEditorWrapper(StoredNoteEditorBE *inn)
 
 //--------------------------------------------------------------------------------------------------
 
-StoredNoteEditorWrapper::StoredNoteEditorWrapper(MySQL::Grt::GrtManager ^grtm, MySQL::Grt::GrtValue ^arglist)
+StoredNoteEditorWrapper::StoredNoteEditorWrapper(MySQL::Grt::GrtValue ^arglist)
   : BaseEditorWrapper(
-      new StoredNoteEditorBE(grtm->get_unmanaged_object(),
-        GrtStoredNoteRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
+      new StoredNoteEditorBE(GrtStoredNoteRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
       )
     )
 {

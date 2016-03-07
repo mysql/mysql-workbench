@@ -165,10 +165,10 @@ namespace MySQL {
       delegate void VoidCanvasViewWrapperDelegate(::mdc::CanvasView *canvas_view);
       typedef void (*WbFrontendCallbacks::VOID_CANVASVIEW_CB)(::mdc::CanvasView *canvas_view);
 
-      // _int64 (GrtManager *, Module*, std::string, std::string, GrtList, GUIPluginFlags)
+      // _int64 (Module*, std::string, std::string, GrtList, GUIPluginFlags)
       [UnmanagedFunctionPointerAttribute(CallingConvention::Cdecl)]
-      delegate uintptr_t IntGRTManagerModuleStrStrGrtListFlagsWrapperDelegate(::bec::GRTManager* grt_manager, grt::Module *, const std::string& str2, const std::string& str3, const grt::BaseListRef &grt_list, bec::GUIPluginFlags flags);
-      typedef uintptr_t (*WbFrontendCallbacks::INT_GRTMANAGER_MODULE_STR_STR_GRTLIST_FLAGS_CB)(::bec::GRTManager* grt_manager, grt::Module *module, const std::string& str2, const std::string& str3, const grt::BaseListRef &grt_list, bec::GUIPluginFlags flags);
+      delegate uintptr_t IntGRTManagerModuleStrStrGrtListFlagsWrapperDelegate(grt::Module *, const std::string& str2, const std::string& str3, const grt::BaseListRef &grt_list, bec::GUIPluginFlags flags);
+      typedef uintptr_t (*WbFrontendCallbacks::INT_GRTMANAGER_MODULE_STR_STR_GRTLIST_FLAGS_CB)(grt::Module *module, const std::string& str2, const std::string& str3, const grt::BaseListRef &grt_list, bec::GUIPluginFlags flags);
 
       // void (uintptr_t)
       [UnmanagedFunctionPointerAttribute(CallingConvention::Cdecl)]
@@ -221,7 +221,7 @@ namespace MySQL {
       // Editors
       IntPtrGRTManagerModuleStrStrGrtListFlagsDelegate^ open_editor_delegate;
       IntGRTManagerModuleStrStrGrtListFlagsWrapperDelegate^ open_editor_wrapper_delegate;
-      uintptr_t open_editor_wrapper(::bec::GRTManager* grt_manager, grt::Module *module,
+      uintptr_t open_editor_wrapper(grt::Module *module,
         const std::string& str2, const std::string& str3, const grt::BaseListRef &grt_list,
         bec::GUIPluginFlags flags);
 

@@ -33,7 +33,7 @@ protected:
   NoteEditorWrapper(NoteEditorBE *inn);
 
 public:
-  NoteEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist);
+  NoteEditorWrapper(MySQL::Grt::GrtValue^ arglist);
   ~NoteEditorWrapper();
 
   NoteEditorBE *get_unmanaged_object();

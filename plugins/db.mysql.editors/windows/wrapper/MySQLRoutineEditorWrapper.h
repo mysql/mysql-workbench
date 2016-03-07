@@ -28,7 +28,7 @@ namespace Db {
 public ref class MySQLRoutineEditorWrapper : public RoutineEditorWrapper
 {
 public:
-  MySQLRoutineEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist);
+  MySQLRoutineEditorWrapper(MySQL::Grt::GrtValue^ arglist);
   ~MySQLRoutineEditorWrapper();
 
   MySQLRoutineEditorBE *get_unmanaged_object();

@@ -46,11 +46,9 @@ UserEditorBE::~UserEditorBE()
 
 //--------------------------------------------------------------------------------------------------
 
-UserEditorBE::UserEditorBE(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist)
+UserEditorBE::UserEditorBE(MySQL::Grt::GrtValue^ arglist)
   : BaseEditorWrapper(
-    new bec::UserEditorBE(
-      grtm->get_unmanaged_object(),
-      db_UserRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
+    new bec::UserEditorBE(db_UserRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
     )
   )
 {

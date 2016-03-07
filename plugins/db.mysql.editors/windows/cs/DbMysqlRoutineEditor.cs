@@ -57,7 +57,7 @@ namespace MySQL.GUI.Workbench.Plugins
 
       try
       {
-        Backend = new MySQLRoutineEditorWrapper(GrtManager, value);
+        Backend = new MySQLRoutineEditorWrapper(value);
         dbObjectEditorPages = new DbObjectEditorPages(GrtManager, routineEditorBE);
         SetupEditorOnHost(panel2, true);
         routineEditorBE.load_routine_sql();

@@ -52,7 +52,7 @@ namespace MySQL.GUI.Workbench.Plugins
 
       try
       {
-        Backend = new MySQL.Grt.NoteEditorWrapper(GrtManager, value);
+        Backend = new MySQL.Grt.NoteEditorWrapper(value);
 
         RefreshFormData();
       }

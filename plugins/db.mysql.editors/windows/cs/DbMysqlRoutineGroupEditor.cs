@@ -55,7 +55,7 @@ namespace MySQL.GUI.Workbench.Plugins
 
       try
       {
-        Backend = new MySQLRoutineGroupEditorWrapper(GrtManager, value);
+        Backend = new MySQLRoutineGroupEditorWrapper(value);
         Control editor = SetupEditorOnHost(tabPage2, true);
         /*
          * TODO: The editor is an mforms control, so drag/drop is managed there, but this is still pending.

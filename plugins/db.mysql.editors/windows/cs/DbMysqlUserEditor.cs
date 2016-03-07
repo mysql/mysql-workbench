@@ -58,7 +58,7 @@ namespace MySQL.GUI.Workbench.Plugins
 
       try
       {
-        Backend = new UserEditorBE(GrtManager, value);
+        Backend = new UserEditorBE(value);
 
         nameTextBox.Text = userEditorBE.get_name();
         passwordTextBox.Text = userEditorBE.get_password();

@@ -40,7 +40,7 @@ protected:
   StoredNoteEditorWrapper(StoredNoteEditorBE *inn);
 
 public:
-  StoredNoteEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist);
+  StoredNoteEditorWrapper(MySQL::Grt::GrtValue^ arglist);
   ~StoredNoteEditorWrapper();
 
   StoredNoteEditorBE *get_unmanaged_object();
