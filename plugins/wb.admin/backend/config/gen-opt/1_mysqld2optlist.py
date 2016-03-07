@@ -377,7 +377,7 @@ for option in doc.documentElement.getElementsByTagName('mysqloption'):
                 opt['values'].append(ovalue)
             elif node.tagName == 'versions':
                 opt['versions'] = parse_versions(node, opt)
-            elif node.tagName == 'shortdescription':
+            elif node.tagName == 'description':
                 firstChild = node.firstChild
                 desc = firstChild.data.encode('ascii').replace("\n", "") if firstChild else ""
                 d1 = desc
