@@ -106,7 +106,6 @@ static void *backend_destroyed(void *ptr)
       nibObjects = temp;
 
       _formBE->set_frontend_data((__bridge void *)self);
-      grtm = be->get_wb()->get_grt_manager();
 
       _formBE->add_destroy_notify_callback((__bridge void *)self, backend_destroyed);
 
