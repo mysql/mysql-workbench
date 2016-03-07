@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -584,7 +584,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
     
     if (newCollapseState != hidden)
     {
-      mBackEnd->grt_manager()->set_app_option("DbSqlEditor:OutputAreaHidden", grt::IntegerRef(newCollapseState));
+      bec::GRTManager::get().set_app_option("DbSqlEditor:OutputAreaHidden", grt::IntegerRef(newCollapseState));
       mBackEnd->get_toolbar()->set_item_checked("wb.toggleOutputArea", !newCollapseState);
     }
     if (!newCollapseState)
@@ -592,7 +592,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
       int height = (int)NSHeight([[mOutputTabView superview] frame]);
       if (height <= 0)
         height = MIN_OUTPUT_AREA_HEIGHT;
-      mBackEnd->grt_manager()->set_app_option("DbSqlEditor:OutputAreaHeight",
+      bec::GRTManager::get().set_app_option("DbSqlEditor:OutputAreaHeight",
                                             grt::IntegerRef(height));
     }
   }
@@ -882,17 +882,15 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
       // restore state of toolbar
       {
         mforms::ToolBar *toolbar = be->get_toolbar();
-        toolbar->set_item_checked("wb.toggleOutputArea", !(outputAreaHidden = be->grt_manager()->get_app_option_int("DbSqlEditor:OutputAreaHidden", 0)));
+        toolbar->set_item_checked("wb.toggleOutputArea", !(outputAreaHidden = bec::GRTManager::get().get_app_option_int("DbSqlEditor:OutputAreaHidden", 0)));
       }
-      lastOutputAreaHeight = MAX(be->grt_manager()->get_app_option_int("DbSqlEditor:OutputAreaHeight", 135), MIN_OUTPUT_AREA_HEIGHT);
+      lastOutputAreaHeight = MAX(bec::GRTManager::get().get_app_option_int("DbSqlEditor:OutputAreaHeight", 135), MIN_OUTPUT_AREA_HEIGHT);
 
       // Setup docking point for mUpperTabView.
       {
         mDockingPoint = mforms::manage(new mforms::DockingPoint(new TabViewDockingPointDelegate(mUpperTabView, MAIN_DOCKING_POINT), true));
         be->set_tab_dock(mDockingPoint);
       }
-
-      grtm = be->grt_manager();
       mBackEnd= be;
       mBackEnd->log()->refresh_ui_signal.connect(boost::bind(reloadTable, (__bridge void *)mMessagesTable, (__bridge void *)self));
       mBackEnd->history()->entries_model()->refresh_ui_signal.connect(boost::bind(reloadTable, (__bridge void *)mHistoryTable, (__bridge void *)self));
@@ -1048,7 +1046,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
   if (command == "wb.toggleOutputArea")
   {
     BOOL hidden = !mBackEnd->get_toolbar()->get_item_checked(command);
-    mBackEnd->grt_manager()->set_app_option("DbSqlEditor:OutputAreaHidden", grt::IntegerRef(hidden));
+    bec::GRTManager::get().set_app_option("DbSqlEditor:OutputAreaHidden", grt::IntegerRef(hidden));
     [self hideOutputArea: hidden];
   }
   else if (command == "wb.next_query_tab")

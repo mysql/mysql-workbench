@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,7 +40,6 @@ namespace mforms
 //! in dockableView.
 @interface WBPluginEditorBase : NSViewController {
   NSSize mMinumumSize;
-  bec::GRTManager *_grtm; // Must be assigned by subclasses.
 
   mforms::DockingPoint *mDockingPoint;
   ui_ObjectEditorRef mEditorGRTObject;
@@ -52,7 +51,6 @@ namespace mforms
 @property (readonly) BOOL enableLiveChangeButtons;
 @property  NSSize minimumSize;
 @property (readonly) bec::BaseEditor *editorBE;
-@property (readonly) bec::GRTManager *grtManager;
 @property (readonly, strong) id identifier;
 @property (readonly, copy) NSImage *titleIcon;
 

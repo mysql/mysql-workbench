@@ -298,7 +298,7 @@ void setup_mforms_app(MainWindowController *mwin);
   [_backendTimer invalidate];
   _backendTimer= 0;
 
-  double interval= _wbui->get_wb()->get_grt_manager()->delay_for_next_timeout();
+  double interval= bec::GRTManager::get().delay_for_next_timeout();
   
   if (interval >= 0.0)
     _backendTimer= [NSTimer scheduledTimerWithTimeInterval:interval
@@ -311,7 +311,7 @@ void setup_mforms_app(MainWindowController *mwin);
 
 - (void)fireBackendTimer:(NSTimer*)timer
 {
-  _wbui->get_wb()->get_grt_manager()->flush_timers();
+  bec::GRTManager::get().flush_timers();
 
   [self updateBackendTimer];
 }
