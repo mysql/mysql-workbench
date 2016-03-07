@@ -610,7 +610,6 @@ workbench_DocumentRef ModelFile::attempt_document_upgrade(const workbench_Docume
   }
 
 
-  bec::GRTManager *grtm= bec::GRTManager::get_instance_for();
   if (major <= 1 && (minor < 4 || (minor == 4 && revision < 3)))
   {
       bool ask_confirmation = true;
@@ -647,7 +646,7 @@ workbench_DocumentRef ModelFile::attempt_document_upgrade(const workbench_Docume
           }
       }
       if (!ask_confirmation)
-        grtm->has_unsaved_changes(true);
+        bec::GRTManager::get().has_unsaved_changes(true);
   }
 
   if (major <= 1 && (minor < 4 || (minor == 4 && revision < 4)))
@@ -716,12 +715,12 @@ workbench_DocumentRef ModelFile::attempt_document_upgrade(const workbench_Docume
   // Version * -> X.X.X //!
   if (!has_file(get_rel_db_file_path()))
   {
-    add_db_file(grtm, _content_dir);
+    add_db_file(_content_dir);
 
     // finish moving table inserts sql scripts from xml to sqlite db
     // retrieve needed info from cache prepared earlier
     {
-      TableInsertsLoader table_inserts_loader(grtm);
+      TableInsertsLoader table_inserts_loader;
       ListRef<db_Schema> schemata(doc->physicalModels()[0]->catalog()->schemata());
       for (size_t sc= schemata.count(), si= 0; si < sc; si++)
       {

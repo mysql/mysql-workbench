@@ -79,7 +79,7 @@ void SqlEditorForm::save_workspace(const std::string &workspace_name, bool is_au
   // if we're autosaving, just use the same path from previous saves
   if (!is_autosave || _autosave_path.empty())
   {
-    std::string path_prefix = base::makePath(_grtm->get_user_datadir(),
+    std::string path_prefix = base::makePath(bec::GRTManager::get().get_user_datadir(),
                                         "sql_workspaces");
     if (!g_file_test(path_prefix.c_str(), G_FILE_TEST_EXISTS))
     {
@@ -166,7 +166,7 @@ void SqlEditorForm::save_workspace(const std::string &workspace_name, bool is_au
 
 std::string SqlEditorForm::find_workspace_state(const std::string &workspace_name, std::auto_ptr<base::LockFile> &lock_file)
 {
-  std::string path_prefix = base::makePath(_grtm->get_user_datadir(), "sql_workspaces");
+  std::string path_prefix = base::makePath(bec::GRTManager::get().get_user_datadir(), "sql_workspaces");
 
   // find workspaces on disk
   std::string workspace_path;
@@ -255,7 +255,7 @@ struct GuardBoolFlag
 // Restore a previously saved workspace for this connection. The loaded data is deleted immediately after loading (unless its an autosave)
 bool SqlEditorForm::load_workspace(const std::string &workspace_name)
 {
-  std::string path_prefix = base::makePath(_grtm->get_user_datadir(), "sql_workspaces");
+  std::string path_prefix = base::makePath(bec::GRTManager::get().get_user_datadir(), "sql_workspaces");
 
   GuardBoolFlag flag(&_loading_workspace);
 
@@ -416,7 +416,7 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
     _autosave_lock = lock_file.release();
     _autosave_path = workspace_path;
     
-    _grtm->replace_status_text(_("Restored last session state"));
+    bec::GRTManager::get().replace_status_text(_("Restored last session state"));
   }
   else
   {
@@ -542,7 +542,7 @@ void SqlEditorForm::sql_editor_panel_switched()
 {
   SqlEditorPanel *panel = active_sql_editor_panel();
   if (panel)
-    _grtm->run_once_when_idle((bec::UIForm*)panel, boost::bind(&mforms::View::focus, panel->editor_be()->get_editor_control()));
+    bec::GRTManager::get().run_once_when_idle((bec::UIForm*)panel, boost::bind(&mforms::View::focus, panel->editor_be()->get_editor_control()));
 
   validate_menubar();
 }
@@ -684,7 +684,7 @@ int SqlEditorForm::sql_editor_count()
 SqlEditorPanel *SqlEditorForm::new_sql_script_file()
 {
   SqlEditorPanel *panel = add_sql_editor(false);
-  _grtm->replace_status_text(_("Added new script editor"));
+  bec::GRTManager::get().replace_status_text(_("Added new script editor"));
   update_menu_and_toolbar();
   return panel;
 }
@@ -692,7 +692,7 @@ SqlEditorPanel *SqlEditorForm::new_sql_script_file()
 SqlEditorPanel *SqlEditorForm::new_sql_scratch_area(bool start_collapsed)
 {
   SqlEditorPanel *panel = add_sql_editor(true, start_collapsed);
-  _grtm->replace_status_text(_("Added new scratch query editor"));
+  bec::GRTManager::get().replace_status_text(_("Added new scratch query editor"));
   update_menu_and_toolbar();
   return panel;
 }
@@ -703,7 +703,7 @@ void SqlEditorForm::open_file(const std::string &path, bool in_new_tab, bool ask
 {
   std::string file_path = path;
 
-  _grtm->replace_status_text(base::strfmt(_("Opening %s..."), path.c_str()));
+  bec::GRTManager::get().replace_status_text(base::strfmt(_("Opening %s..."), path.c_str()));
 
   if (askForFile)
   {
@@ -717,7 +717,7 @@ void SqlEditorForm::open_file(const std::string &path, bool in_new_tab, bool ask
     }
     if (file_path.empty())
     {
-      _grtm->replace_status_text(_("Cancelled open file"));
+      bec::GRTManager::get().replace_status_text(_("Cancelled open file"));
       return;
     }
   }

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -163,7 +163,7 @@ ImportProgressPage::ImportProgressPage(WizardForm *form, const boost::function<v
   _auto_place= false;
   _done= false;
   
-  _import_be.grtm(form->grtm());
+  _import_be.grtm();
 
   //showAdvancedImportLogPage = false;
   //caseSensitiveIdentifiersCB.Checked = sqlImport.get_bool_option("SqlIdentifiersCS");

@@ -1485,8 +1485,8 @@ private:
 
 //----------------- MySQLTableEditorBE -------------------------------------------------------------
 
-MySQLTableEditorBE::MySQLTableEditorBE(::bec::GRTManager *grtm, db_mysql_TableRef table)
-  : TableEditorBE(grtm, table), _columns(this), _partitions(this),
+MySQLTableEditorBE::MySQLTableEditorBE(db_mysql_TableRef table)
+  : TableEditorBE(table), _columns(this), _partitions(this),
     _indexes(this), _trigger_panel(0)
 {
   _updating_triggers = false;

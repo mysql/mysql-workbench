@@ -47,9 +47,12 @@ using ctemplate::STRIP_WHITESPACE;
 
 BEGIN_TEST_DATA_CLASS(module_db_mysql_schema_reporting)
 public:
-  GRTManagerTest grtm;
   WbModelImpl* module;
-  WBTester wbt;
+  WBTester *wbt;
+  TEST_DATA_CONSTRUCTOR(module_db_mysql_schema_reporting)
+  {
+    wbt = new WBTester();
+  }
 END_TEST_DATA_CLASS
 
 TEST_MODULE(module_db_mysql_schema_reporting, "DB MySQL: schema reporting");
@@ -91,12 +94,12 @@ TEST_FUNCTION(2)
 {
 //  WBTester wbt;
 
-  wbt.wb->open_document(TEST_02_FI);
+  wbt->wb->open_document(TEST_02_FI);
 
   ensure_equals("loaded phys model count",
-                wbt.wb->get_document()->physicalModels().count(), 1U);
+                wbt->wb->get_document()->physicalModels().count(), 1U);
 
-  db_mysql_CatalogRef catalog= db_mysql_CatalogRef::cast_from(wbt.wb->get_document()->physicalModels().get(0)->catalog());
+  db_mysql_CatalogRef catalog= db_mysql_CatalogRef::cast_from(wbt->wb->get_document()->physicalModels().get(0)->catalog());
 
 
   Template* tpl= Template::GetTemplate(TEST_01_FN, STRIP_WHITESPACE);
@@ -135,19 +138,19 @@ TEST_FUNCTION(10)
 
 //  WBTester wbt;
 
-  wbt.wb->open_document(TEST_02_FI);
+  wbt->wb->open_document(TEST_02_FI);
 
   ensure_equals("loaded phys model count",
-                wbt.wb->get_document()->physicalModels().count(), 1U);
+                wbt->wb->get_document()->physicalModels().count(), 1U);
 
-  workbench_physical_ModelRef physicalModel= wbt.wb->get_document()->physicalModels().get(0);
+  workbench_physical_ModelRef physicalModel= wbt->wb->get_document()->physicalModels().get(0);
 
 
   module= grt::GRT::get()->get_native_module<WbModelImpl>();
   ensure("WbModel module initialization", NULL != module);
 
   grt::DictRef options(true);
-  options.gset("basedir", wbt.wboptions.basedir);//wbt.wb->get_wb_options().get_string("basedir"));
+  options.gset("basedir", wbt->wboptions.basedir);//wbt->wb->get_wb_options().get_string("basedir"));
   options.gset("title", "Test Report");
   options.gset("filename", "TestReport");
   options.gset("fk_show_parent_and_child_table", 1);
@@ -165,7 +168,7 @@ TEST_FUNCTION(11)
 
 //  WBTester wbt;
 
-  wbt.wb->open_document(TEST_02_FI);
+  wbt->wb->open_document(TEST_02_FI);
 
   module= grt::GRT::get()->get_native_module<WbModelImpl>();
   ensure("WbModel module initialization", NULL != module);
@@ -175,6 +178,13 @@ TEST_FUNCTION(11)
   ensure("getAvailableSchemaReportTemplates call failed.", res == 1);
 
   ensure("no templates returned.", templates.count() > 0);
+}
+
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  delete wbt;
 }
 
 END_TESTS

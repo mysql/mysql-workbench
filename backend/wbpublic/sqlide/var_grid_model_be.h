@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,14 +44,9 @@ public:
   typedef boost::shared_ptr<VarGridModel> Ref;
   virtual ~VarGridModel();
 protected:
-  VarGridModel(bec::GRTManager *grtm);
+  VarGridModel();
 
   friend class Recordset_data_storage;
-
-public:
-  bec::GRTManager * grtm() const { return _grtm; }
-protected:
-  bec::GRTManager *_grtm;
 
 public:
   virtual void reset();

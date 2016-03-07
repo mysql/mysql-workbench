@@ -24,13 +24,12 @@ protected:
   sigc::signal<void,std::string> _title_changed;
   Gtk::Notebook *_editor_note;
 
-  bec::GRTManager *_grtm;
   mforms::ToolBar *_toolbar;
   Gtk::Paned *_sidebar1_pane;
   Gtk::Paned *_sidebar2_pane;
   std::string _panel_savename;
  
-  FormViewBase(const std::string &savename) : _editor_note(0), _grtm(0), _toolbar(0), _sidebar1_pane(0), _sidebar2_pane(0), _panel_savename(savename) {}
+  FormViewBase(const std::string &savename) : _editor_note(0), _toolbar(0), _sidebar1_pane(0), _sidebar2_pane(0), _panel_savename(savename) {}
   virtual ~FormViewBase() {};
 
 public:

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -118,7 +118,7 @@ class MYSQLWBMYSQLSUPPORTBACKEND_PUBLIC_FUNC MySQLTableEditorBE : public ::bec::
 {
   friend class MySQLTriggerPanel;
 public:
-  MySQLTableEditorBE(::bec::GRTManager *grtm, db_mysql_TableRef table);
+  MySQLTableEditorBE(db_mysql_TableRef table);
   virtual ~MySQLTableEditorBE();
 
   virtual void refresh_live_object();

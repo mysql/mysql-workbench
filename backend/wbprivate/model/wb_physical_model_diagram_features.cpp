@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -483,11 +483,11 @@ mdc::CanvasView *PhysicalModelDiagramFeatures::get_canvas_view()
 
 bec::GRTManager::Timer *PhysicalModelDiagramFeatures::run_every(const boost::function<bool ()> &slot, double seconds)
 {
-  return _diagram->get_owner()->get_grt_manager()->run_every(slot, seconds);
+  return bec::GRTManager::get().run_every(slot, seconds);
 }
 
 
 void PhysicalModelDiagramFeatures::cancel_timer(bec::GRTManager::Timer *timer)
 {
-  _diagram->get_owner()->get_grt_manager()->cancel_timer(timer);
+  bec::GRTManager::get().cancel_timer(timer);
 }

@@ -53,11 +53,11 @@ class WBPUBLICBACKEND_PUBLIC_FUNC Recordset : public VarGridModel
 public:
   typedef boost::shared_ptr<Recordset> Ref;
   typedef boost::weak_ptr<Recordset> Ptr;
-  static Ref create(bec::GRTManager *grtm);
+  static Ref create();
   static Ref create(GrtThreadedTask::Ref parent_task);
   virtual ~Recordset();
 protected:
-  Recordset(bec::GRTManager *grtm);
+  Recordset();
   Recordset(GrtThreadedTask::Ref parent_task);
 
 public:

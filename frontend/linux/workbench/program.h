@@ -55,14 +55,13 @@ class Program
     std::deque<sigc::connection> _idleConnections;
     wb::WBContextUI     *_wb_context_ui; //!< 
     wb::WBContext       *_wb_context;
-    bec::GRTManager     *_grt_manager;
     MainForm            *_main_form;
 
     //sigc::signal<void>::iterator idle_signal_conn;
     sigc::connection     _sig_finalize_initialization;
     sigc::connection     _idle_signal_conn;
-    Program(const Program&) {} // Forbid copy
-    Program& operator=(const Program&) {return *this;} // Forbid copy
+    Program(const Program&) = delete;
+    Program& operator=(const Program&) = delete;
     static Program* _instance;
 };
 

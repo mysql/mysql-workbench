@@ -266,11 +266,10 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
     _owner(owner)
 {
   _help_timer = NULL;
-  _grtm = owner->grt_manager();
   _no_help = true;
-  _automatic_help = _grtm->get_app_option_int("DbSqlEditor:DisableAutomaticContextHelp", 1) == 0;
+  _automatic_help = bec::GRTManager::get().get_app_option_int("DbSqlEditor:DisableAutomaticContextHelp", 1) == 0;
   _switching_help = false;
-  _help_task = GrtThreadedTask::create(_grtm);
+  _help_task = GrtThreadedTask::create();
   _help_task->desc("Context Help Task");
 
   _pending_snippets_refresh = true;
@@ -330,7 +329,7 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
 
   scoped_connect(_snippet_list->signal_selection_changed(), boost::bind(&QuerySidePalette::snippet_selection_changed, this));
 
-  std::string old_category = _grtm->get_app_option_string("DbSqlEditor:SelectedSnippetCategory");
+  std::string old_category = bec::GRTManager::get().get_app_option_string("DbSqlEditor:SelectedSnippetCategory");
   if (!old_category.empty())
   {
     mforms::ToolBarItem *item = _snippet_toolbar->find_item("select_category");
@@ -360,7 +359,7 @@ QuerySidePalette::~QuerySidePalette()
 void QuerySidePalette::cancel_timer()
 {
   if (_help_timer != NULL)
-    _grtm->cancel_timer(_help_timer);
+    bec::GRTManager::get().cancel_timer(_help_timer);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -398,7 +397,7 @@ void QuerySidePalette::handle_notification(const std::string &name, void *sender
       {
         check_format_structures(editor);
         cancel_timer();
-        _help_timer = _grtm->run_every(boost::bind(&QuerySidePalette::find_context_help, this, editor), 0.7);
+        _help_timer = bec::GRTManager::get().run_every(boost::bind(&QuerySidePalette::find_context_help, this, editor), 0.7);
       }
     }
   }
@@ -681,7 +680,7 @@ void QuerySidePalette::snippet_toolbar_item_activated(ToolBarItem* item)
   if (action == "select_category")
   {
     _snippet_list->show_category(item->get_text());
-    _grtm->set_app_option("DbSqlEditor:SelectedSnippetCategory", grt::StringRef(item->get_text()));
+    bec::GRTManager::get().set_app_option("DbSqlEditor:SelectedSnippetCategory", grt::StringRef(item->get_text()));
   }
   else
   {
@@ -825,7 +824,7 @@ void QuerySidePalette::help_toolbar_item_activated(ToolBarItem* item)
   {
     _automatic_help = item->get_checked();
     _manual_help_item->set_enabled(!_automatic_help);
-    _grtm->set_app_option("DbSqlEditor:DisableAutomaticContextHelp", grt::IntegerRef(_automatic_help ? 0 : 1));
+    bec::GRTManager::get().set_app_option("DbSqlEditor:DisableAutomaticContextHelp", grt::IntegerRef(_automatic_help ? 0 : 1));
 
     show_help_hint_or_update();
 

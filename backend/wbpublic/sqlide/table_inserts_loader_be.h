@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,6 @@
 
 
 #include "wbpublic_public_interface.h"
-#include "grt/grt_manager.h"
 #include "grts/structs.db.h"
 
 
@@ -33,13 +32,10 @@ class SqlFacade;
 class WBPUBLICBACKEND_PUBLIC_FUNC TableInsertsLoader
 {
 public:
-  TableInsertsLoader(bec::GRTManager *grtm);
+  TableInsertsLoader();
   virtual ~TableInsertsLoader() {}
 
   void process_table(db_TableRef table, const std::string &inserts_script);
-
-private:
-  bec::GRTManager *_grtm;
 };
 
 

@@ -33,10 +33,11 @@ using namespace bec;
 
 BEGIN_TEST_DATA_CLASS(wb_overview)
 public:
-  WBTester tester;
+  WBTester *tester;
 
 TEST_DATA_CONSTRUCTOR(wb_overview)
 {
+  tester = new WBTester;
 }
 
 END_TEST_DATA_CLASS
@@ -46,7 +47,7 @@ TEST_MODULE(wb_overview, "wb overview");
 
 TEST_FUNCTION(1) 
 {
-  bool flag= tester.wb->open_document("data/workbench/test_model1.mwb");
+  bool flag= tester->wb->open_document("data/workbench/test_model1.mwb");
   ensure("open_document", flag);
 }
 
@@ -60,10 +61,16 @@ TEST_FUNCTION(2)
   columns.push_back(wb::OverviewBE::Expanded);
   columns.push_back(wb::OverviewBE::Height);
   columns.push_back(wb::OverviewBE::DisplayMode);
-  dump_tree_model("output/overview_test2.txt", tester.wb->get_ui()->get_physical_overview(), columns);
+  dump_tree_model("output/overview_test2.txt", tester->wb->get_ui()->get_physical_overview(), columns);
 
   ensure_files_equal("initial overview state ", "output/overview_test2.txt", "data/be/overview_test2.txt");
 }
 
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  delete tester;
+}
 
 END_TESTS

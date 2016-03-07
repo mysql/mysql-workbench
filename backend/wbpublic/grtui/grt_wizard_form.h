@@ -32,10 +32,6 @@
 #include "mforms/box.h"
 #include "mforms/filechooser.h"
 
-namespace bec {
-  class GRTManager;
-};
-
 namespace mforms {
   class TextEntry;
 };
@@ -47,7 +43,7 @@ namespace grtui {
   class WBPUBLICBACKEND_PUBLIC_FUNC WizardForm : public mforms::Wizard
   {
   public:
-    WizardForm(bec::GRTManager *mgr);
+    WizardForm();
     virtual ~WizardForm();
 #ifndef _WIN32
 #pragma GCC diagnostic push
@@ -73,8 +69,6 @@ namespace grtui {
     int get_active_page_number();
     
     WizardPage *get_page_with_id(const std::string &id);
-
-    bec::GRTManager *grtm() { return _grtm; }
     
     grt::DictRef values() { return _values; }
 
@@ -96,7 +90,6 @@ namespace grtui {
 
     bool _cancelled;
   protected:
-    bec::GRTManager *_grtm;
 
     virtual WizardPage *get_next_page(WizardPage *current);
     void refresh_step_list();

@@ -184,11 +184,11 @@ private:
     }
     mforms::App::get()->set_status_text("Searching...");
 
-    bec::GRTManager *grtm(bec::GRTManager::get_instance_for());
-    grtm->set_app_option("db.search:SearchType", grt::IntegerRef(search_type));
-    grtm->set_app_option("db.search:SearchLimit", grt::IntegerRef(limit_total));
-    grtm->set_app_option("db.search:SearchLimitPerTable", grt::IntegerRef(limit_table));
-    grtm->set_app_option("db.search:SearchInvert", grt::IntegerRef(invert));
+
+    bec::GRTManager::get().set_app_option("db.search:SearchType", grt::IntegerRef(search_type));
+    bec::GRTManager::get().set_app_option("db.search:SearchLimit", grt::IntegerRef(limit_total));
+    bec::GRTManager::get().set_app_option("db.search:SearchLimitPerTable", grt::IntegerRef(limit_table));
+    bec::GRTManager::get().set_app_option("db.search:SearchInvert", grt::IntegerRef(invert));
 
     _filter_panel.set_searching(true);
     _search_panel.show(true);
@@ -201,7 +201,7 @@ private:
 
 public:
   DBSearchView(db_query_EditorRef editor)
-  : mforms::AppView(false, "dbsearch", false), _editor(editor), _search_panel(bec::GRTManager::get_instance_for()),
+  : mforms::AppView(false, "dbsearch", false), _editor(editor), _search_panel(),
   _check_selection_timeout(0), _search_timeout(0), _last_selection_change(0)
   {
     set_padding(12);
@@ -224,11 +224,10 @@ public:
 
     grt::GRTNotificationCenter::get()->add_grt_observer(this, "GRNLiveDBObjectSelectionDidChange", editor);
 
-    bec::GRTManager *grtm(bec::GRTManager::get_instance_for());
-    _filter_panel.set_search_type(grtm->get_app_option_int("db.search:SearchType", 0));
-    _filter_panel.set_limit_total(base::strfmt("%li", grtm->get_app_option_int("db.search:SearchLimit", 10000)));
-    _filter_panel.set_limit_table(base::strfmt("%li", grtm->get_app_option_int("db.search:SearchLimitPerTable", 100)));
-    _filter_panel.set_exclude(grtm->get_app_option_int("db.search:SearchInvert", 0) != 0);
+    _filter_panel.set_search_type(bec::GRTManager::get().get_app_option_int("db.search:SearchType", 0));
+    _filter_panel.set_limit_total(base::strfmt("%li", bec::GRTManager::get().get_app_option_int("db.search:SearchLimit", 10000)));
+    _filter_panel.set_limit_table(base::strfmt("%li", bec::GRTManager::get().get_app_option_int("db.search:SearchLimitPerTable", 100)));
+    _filter_panel.set_exclude(bec::GRTManager::get().get_app_option_int("db.search:SearchInvert", 0) != 0);
 
     _tree_selection = _editor->schemaTreeSelection();
     _filter_panel.search_button()->set_enabled(_tree_selection.count() > 0);

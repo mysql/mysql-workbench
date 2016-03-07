@@ -117,8 +117,6 @@ public:
   void show_special_chars(bool flag);
   void enable_word_wrap(bool flag);
 
-  bec::GRTManager *grtm();
-
   int int_option(std::string name);
   std::string string_option(std::string name);
 
@@ -133,12 +131,12 @@ public:
   std::string current_statement();
   bool get_current_statement_range(size_t &start, size_t &end, bool strict = false);
 
-  size_t cursor_pos();
-  std::pair<size_t, size_t> cursor_pos_row_column(bool local);
-  void set_cursor_pos(size_t position);
+  std::size_t cursor_pos();
+  std::pair<std::size_t, std::size_t> cursor_pos_row_column(bool local);
+  void set_cursor_pos(std::size_t position);
 
-  bool selected_range(size_t &start, size_t &end);
-  void set_selected_range(size_t start, size_t end);
+  bool selected_range(std::size_t &start, std::size_t &end);
+  void set_selected_range(std::size_t start, std::size_t end);
 
   bool is_refresh_enabled() const;
   void set_refresh_enabled(bool val);

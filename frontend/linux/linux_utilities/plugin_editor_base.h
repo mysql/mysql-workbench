@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ class SqlEditorFE;
 class PluginEditorBase : public Gtk::Frame, public GUIPluginBase
 {
 public:
-  PluginEditorBase(grt::Module *module, bec::GRTManager *grtm, const grt::BaseListRef &args, const char* glade_xml = 0);
+  PluginEditorBase(grt::Module *module, const grt::BaseListRef &args, const char* glade_xml = 0);
   virtual ~PluginEditorBase();
 
 
@@ -61,7 +61,7 @@ public:
 
   void focus_widget_when_idle(Gtk::Widget *w);
 
-  virtual bool switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args) {return false; }
+  virtual bool switch_edited_object(const grt::BaseListRef &args) {return false; }
 
   void load_glade(const char* glade_xml_filename);
 
@@ -125,7 +125,6 @@ protected:
   Gtk::Notebook                     *_editor_notebook;
   virtual void decorate_object_editor();
 private:
-  bec::GRTManager                   *_grtm;
   Glib::RefPtr<Gtk::Builder>         _xml;
 
   Glib::RefPtr<Gtk::Builder>         _live_object_editor_decorator_xml;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -38,12 +38,12 @@ class StoredNoteEditor : public PluginEditorBase
  
   virtual bool can_close();
 public:
-  StoredNoteEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
-    : PluginEditorBase(m, grtm, args), _be(0)
+  StoredNoteEditor(grt::Module *m, const grt::BaseListRef &args)
+    : PluginEditorBase(m, args), _be(0)
   {
     set_border_width(8);
     
-    _xml= Gtk::Builder::create_from_file(grtm->get_data_file_path("modules/data/editor_storednote.glade"));
+    _xml= Gtk::Builder::create_from_file(bec::GRTManager::get().get_data_file_path("modules/data/editor_storednote.glade"));
 
     Gtk::Box* box(0);
     _xml->get_widget("vbox1", box);
@@ -51,7 +51,7 @@ public:
 
     show_all();
     
-    switch_edited_object(grtm, args);
+    switch_edited_object(args);
     
     Gtk::Button* btn(0);
     _xml->get_widget("apply", btn);
@@ -66,13 +66,13 @@ public:
     delete _be;
   }
   
-  virtual bool switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args)
+  virtual bool switch_edited_object(const grt::BaseListRef &args)
   {    
     Gtk::Box *vbox;
     _xml->get_widget("editor_placeholder", vbox);
  
     delete _be;
-    _be = new StoredNoteEditorBE(grtm, GrtStoredNoteRef::cast_from(args[0]));
+    _be = new StoredNoteEditorBE(GrtStoredNoteRef::cast_from(args[0]));
 
     embed_code_editor(_be->get_sql_editor()->get_container(), vbox, false);
     _be->load_text();
@@ -110,8 +110,8 @@ bool StoredNoteEditor::can_close()
 
 extern "C" 
 {
-  GUIPluginBase *createStoredNoteEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
+  GUIPluginBase *createStoredNoteEditor(grt::Module *m, const grt::BaseListRef &args)
   {
-    return Gtk::manage(new StoredNoteEditor(m, grtm, args));
+    return Gtk::manage(new StoredNoteEditor(m, args));
   }
 };

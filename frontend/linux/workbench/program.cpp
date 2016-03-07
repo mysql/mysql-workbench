@@ -57,7 +57,6 @@ Program::Program(wb::WBOptions &wboptions)
   _wb_context_ui = new wb::WBContextUI(wboptions.verbose);
   _wb_context = _wb_context_ui->get_wb();
 
-  _grt_manager = _wb_context->get_grt_manager();
 
 #ifdef ENBLE_DEBUG
   if ( !getenv("MWB_DATA_DIR") )
@@ -94,7 +93,7 @@ Program::Program(wb::WBOptions &wboptions)
     exit(1);
   }
 
-  _grt_manager->set_datadir(getenv("MWB_DATA_DIR"));
+  bec::GRTManager::get().set_datadir(getenv("MWB_DATA_DIR"));
 
   // Main form holds UI code, Glade wrapper, etc ...
   _main_form = new MainForm(_wb_context_ui);
@@ -152,7 +151,7 @@ Program::Program(wb::WBOptions &wboptions)
 
   _wb_context_ui->init(&wbcallbacks, &wboptions);
 
-  _wb_context_ui->get_wb()->get_grt_manager()->get_dispatcher()->set_main_thread_flush_and_wait(flush_main_thread);
+  bec::GRTManager::get().get_dispatcher()->set_main_thread_flush_and_wait(flush_main_thread);
 
   {
     std::string form_name;
@@ -177,7 +176,6 @@ Program::~Program()
 { 
   delete _wb_context_ui;
   _wb_context = NULL;
-  _grt_manager = NULL;
 }
 
 
@@ -209,9 +207,9 @@ void Program::shutdown()
   _sig_finalize_initialization.disconnect();
   _idle_signal_conn.disconnect();
   
-  _wb_context->get_grt_manager()->terminate();
+  bec::GRTManager::get().terminate();
 
-  _grt_manager->get_dispatcher()->shutdown();
+  bec::GRTManager::get().get_dispatcher()->shutdown();
 
   for (std::deque<sigc::connection>::iterator it = _idleConnections.begin(); it != _idleConnections.end(); it++)
     (*it).disconnect();

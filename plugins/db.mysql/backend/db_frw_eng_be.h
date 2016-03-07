@@ -12,7 +12,7 @@
 class WBPLUGINDBMYSQLBE_PUBLIC_FUNC Db_frw_eng : public Db_plugin, public DbMySQLValidationPage
 {
 public:
-  Db_frw_eng(bec::GRTManager *grtm);
+  Db_frw_eng();
 
   void set_option(const std::string& name, bool value) { _export.set_option(name, value); }
   void set_option(const std::string& name, const std::string& value) { _export.set_option(name, value); }

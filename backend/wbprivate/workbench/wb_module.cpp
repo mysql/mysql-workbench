@@ -107,8 +107,8 @@ std::string WorkbenchImpl::getSystemInfo(bool indent)
   std::string result = strfmt("%s%s %s (%s) for " PLATFORM_NAME " version %i.%i.%i %s build %i (%s)\n",
     tab, info->name().c_str(), APP_EDITION_NAME, APP_LICENSE_TYPE, APP_MAJOR_NUMBER, APP_MINOR_NUMBER, APP_RELEASE_NUMBER,
                               APP_RELEASE_TYPE, APP_BUILD_NUMBER, ARCHITECTURE);
-  result += strfmt("%sConfiguration Directory: %s\n", tab, _wb->get_grt_manager()->get_user_datadir().c_str());
-  result += strfmt("%sData Directory: %s\n", tab, _wb->get_grt_manager()->get_basedir().c_str());
+  result += strfmt("%sConfiguration Directory: %s\n", tab, bec::GRTManager::get().get_user_datadir().c_str());
+  result += strfmt("%sData Directory: %s\n", tab, bec::GRTManager::get().get_basedir().c_str());
 
   int cver= cairo_version();
   result += strfmt("%sCairo Version: %i.%i.%i\n", tab, (cver / 10000) % 100, (cver / 100) % 100, cver % 100);
@@ -210,8 +210,8 @@ std::map<std::string, std::string> WorkbenchImpl::getSystemInfoMap()
   result["edition"] = APP_EDITION_NAME;
   result["license"] = APP_LICENSE_TYPE;
   result["version"] = strfmt("%u.%u.%u", APP_MAJOR_NUMBER, APP_MINOR_NUMBER, APP_RELEASE_NUMBER);
-  result["configuration directory"] = _wb->get_grt_manager()->get_user_datadir();
-  result["data directory"] = _wb->get_grt_manager()->get_basedir();
+  result["configuration directory"] = bec::GRTManager::get().get_user_datadir();
+  result["data directory"] = bec::GRTManager::get().get_basedir();
   result["cairo version"] = strfmt("%u.%u.%u", (cver / 10000) % 100, (cver / 100) % 100, cver % 100);
   result["os"] = get_local_os_name();
   result["cpu"] = get_local_hardware_info();
@@ -511,7 +511,7 @@ ListRef<app_Plugin> WorkbenchImpl::getPluginInfo()
 
 int WorkbenchImpl::copyToClipboard(const std::string &astr)
 {
-  _wb->get_grt_manager()->get_dispatcher()
+  bec::GRTManager::get().get_dispatcher()
     ->call_from_main_thread<void>(boost::bind(mforms::Utilities::set_clipboard_text, astr), true, false);
 
   return 1;
@@ -624,7 +624,7 @@ static void quit(WBContext *wb)
 
 int WorkbenchImpl::exit()
 {
-  _wb->get_grt_manager()->get_dispatcher()->
+  bec::GRTManager::get().get_dispatcher()->
   call_from_main_thread<void>(boost::bind(quit, _wb), false, false);
 
   return 0;
@@ -781,14 +781,14 @@ int WorkbenchImpl::editSelectedFigureInNewWindow(const model_DiagramRef &view)
 
 int WorkbenchImpl::editObject(const GrtObjectRef &object)
 {
-  _wb->get_grt_manager()->open_object_editor(object, bec::NoFlags);
+  bec::GRTManager::get().open_object_editor(object, bec::NoFlags);
   return 0;
 }
 
 
 int WorkbenchImpl::editObjectInNewWindow(const GrtObjectRef &object)
 {
-  _wb->get_grt_manager()->open_object_editor(object, bec::ForceNewWindowFlag);
+  bec::GRTManager::get().open_object_editor(object, bec::ForceNewWindowFlag);
   return 0;
 }
 
@@ -908,7 +908,7 @@ int WorkbenchImpl::toggleGridAlign(const model_DiagramRef &view)
   {
     form->get_view()->set_grid_snapping(!form->get_view()->get_grid_snapping());
 
-    _wb->get_grt_manager()->set_app_option("AlignToGrid", grt::IntegerRef(form->get_view()->get_grid_snapping()?1:0));
+    bec::GRTManager::get().set_app_option("AlignToGrid", grt::IntegerRef(form->get_view()->get_grid_snapping()?1:0));
   }
   return 0;
 }
@@ -975,7 +975,7 @@ int WorkbenchImpl::goToMarker(const std::string &marker)
       diagram->x(mk->x());
       diagram->y(mk->y());
 
-      _wb->get_grt_manager()->get_dispatcher()->call_from_main_thread<void>(
+      bec::GRTManager::get().get_dispatcher()->call_from_main_thread<void>(
         boost::bind(&WBContextModel::switch_diagram, _wb->get_model_context(), diagram), false, false);
     }
   }
@@ -1374,21 +1374,21 @@ int WorkbenchImpl::refreshHomeConnections()
 
 int WorkbenchImpl::confirm(const std::string &title, const std::string &caption)
 {
-  return _wb->get_grt_manager()->get_dispatcher()->call_from_main_thread<int>(
+  return bec::GRTManager::get().get_dispatcher()->call_from_main_thread<int>(
     boost::bind(mforms::Utilities::show_message, title, caption, _("OK"), _("Cancel"), ""), true, false);
 }
 
 
 std::string WorkbenchImpl::requestFileOpen(const std::string &caption, const std::string &extensions)
 {
-  return _wb->get_grt_manager()->get_dispatcher()->
+  return bec::GRTManager::get().get_dispatcher()->
     call_from_main_thread<std::string>(boost::bind(_wb->show_file_dialog, "open", caption, extensions), true, false);
 }
 
 
 std::string WorkbenchImpl::requestFileSave(const std::string &caption, const std::string &extensions)
 {
-  return _wb->get_grt_manager()->get_dispatcher()->
+  return bec::GRTManager::get().get_dispatcher()->
     call_from_main_thread<std::string>(boost::bind(_wb->show_file_dialog, "save", caption, extensions), true, false);
 }
 
@@ -1498,7 +1498,7 @@ int WorkbenchImpl::showConnectionManager()
 
 int WorkbenchImpl::showInstanceManager()
 {
-  ServerInstanceEditor editor(_wb->get_grt_manager(), _wb->get_root()->rdbmsMgmt());
+  ServerInstanceEditor editor(_wb->get_root()->rdbmsMgmt());
   _wb->show_status_text("Server Profile Manager Opened.");
   db_mgmt_ServerInstanceRef instance(editor.run());
   _wb->show_status_text("");
@@ -1509,7 +1509,7 @@ int WorkbenchImpl::showInstanceManager()
 
 int WorkbenchImpl::showInstanceManagerFor(const db_mgmt_ConnectionRef &conn)
 {
-  ServerInstanceEditor editor(_wb->get_grt_manager(), _wb->get_root()->rdbmsMgmt());
+  ServerInstanceEditor editor(_wb->get_root()->rdbmsMgmt());
   _wb->show_status_text("Server Profile Manager Opened.");
   db_mgmt_ServerInstanceRef instance(editor.run(conn, true));
   _wb->show_status_text("");

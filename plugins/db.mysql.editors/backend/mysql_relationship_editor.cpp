@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,8 +24,8 @@
 using namespace bec;
 using namespace base;
 
-RelationshipEditorBE::RelationshipEditorBE(GRTManager *grtm, const workbench_physical_ConnectionRef &relationship)
-: BaseEditor(grtm, relationship), _relationship(relationship)
+RelationshipEditorBE::RelationshipEditorBE(const workbench_physical_ConnectionRef &relationship)
+: BaseEditor(relationship), _relationship(relationship)
 {
 }
 
@@ -301,7 +301,7 @@ void RelationshipEditorBE::open_editor_for_table(const db_TableRef &table)
     args.ginsert(table);
     
     bec::GUIPluginFlags flags= bec::NoFlags;
-    bec::PluginManager *pm= get_grt_manager()->get_plugin_manager();
+    bec::PluginManager *pm= bec::GRTManager::get().get_plugin_manager();
     
     app_PluginRef plugin(pm->select_plugin_for_input("catalog/Editors", args));
     if (!plugin.is_valid())

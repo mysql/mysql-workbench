@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -347,7 +347,7 @@ void SpatialDataView::change_tool(mforms::ToolBarItem *item)
 
 int SpatialDataView::get_option(const char* opt_name, int default_value)
 {
-  return _owner->owner()->owner()->grt_manager()->get_app_option_int(opt_name, default_value) != 0;
+  return bec::GRTManager::get().get_app_option_int(opt_name, default_value) != 0;
 }
 
 void SpatialDataView::area_selected()

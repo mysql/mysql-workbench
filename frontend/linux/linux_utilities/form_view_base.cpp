@@ -96,7 +96,7 @@ void FormViewBase::remove_plugin_tab(PluginEditorBase *plugin)
     
     //  Make the plugin manager forget about this plugin
     GUIPluginBase *base = dynamic_cast<GUIPluginBase *>(plugin);
-    _grtm->get_plugin_manager()->close_and_forget_gui_plugin(reinterpret_cast<NativeHandle>(base));
+    bec::GRTManager::get().get_plugin_manager()->close_and_forget_gui_plugin(reinterpret_cast<NativeHandle>(base));
 
     if (_editor_note->get_n_pages() == 0)
       _editor_note->hide();
@@ -165,9 +165,9 @@ void FormViewBase::restore_sidebar_layout()
 {
   if (_sidebar1_pane)
   {
-    int w = _grtm->get_app_option_int(_panel_savename+":SidebarWidth", 200);
+    int w = bec::GRTManager::get().get_app_option_int(_panel_savename+":SidebarWidth", 200);
     _sidebar1_pane->set_position(w);
-    if (_grtm->get_app_option_int(_panel_savename+":SidebarHidden", 0))
+    if (bec::GRTManager::get().get_app_option_int(_panel_savename+":SidebarHidden", 0))
     {
       _toolbar->set_item_checked("wb.toggleSidebar", false);
       _sidebar1_pane->get_child1()->hide();
@@ -180,9 +180,9 @@ void FormViewBase::restore_sidebar_layout()
 
   if (_sidebar2_pane)
   {
-    int w = _grtm->get_app_option_int(_panel_savename+":SecondarySidebarWidth", 200);
+    int w = bec::GRTManager::get().get_app_option_int(_panel_savename+":SecondarySidebarWidth", 200);
     _sidebar2_pane->set_position(_sidebar2_pane->get_width()-w);
-    if (_grtm->get_app_option_int(_panel_savename+":SecondarySidebarHidden", 0))
+    if (bec::GRTManager::get().get_app_option_int(_panel_savename+":SecondarySidebarHidden", 0))
     {
       _toolbar->set_item_checked("wb.toggleSecondarySidebar", false);
       _sidebar2_pane->get_child2()->hide();
@@ -224,9 +224,9 @@ void FormViewBase::toggle_secondary_sidebar(bool show)
 void FormViewBase::sidebar_resized(bool primary)
 {
   if (primary)
-    _grtm->set_app_option(_panel_savename+":SidebarWidth", grt::IntegerRef(_sidebar1_pane->get_position()));
+    bec::GRTManager::get().set_app_option(_panel_savename+":SidebarWidth", grt::IntegerRef(_sidebar1_pane->get_position()));
   else
-    _grtm->set_app_option(_panel_savename+":SecondarySidebarWidth", grt::IntegerRef(_sidebar2_pane->get_width() - _sidebar2_pane->get_position()));
+    bec::GRTManager::get().set_app_option(_panel_savename+":SecondarySidebarWidth", grt::IntegerRef(_sidebar2_pane->get_width() - _sidebar2_pane->get_position()));
 }
 
 
@@ -235,14 +235,14 @@ bool FormViewBase::perform_command(const std::string &cmd)
   if (cmd == "wb.toggleSidebar")
   {
     bool hidden = !_toolbar->get_item_checked(cmd);
-    _grtm->set_app_option(_panel_savename+":SidebarHidden", grt::IntegerRef(hidden));
+    bec::GRTManager::get().set_app_option(_panel_savename+":SidebarHidden", grt::IntegerRef(hidden));
     toggle_sidebar(!hidden);
     return true;
   }
   else if (cmd == "wb.toggleSecondarySidebar")
   {
     bool hidden = !_toolbar->get_item_checked(cmd);
-    _grtm->set_app_option(_panel_savename+":SecondarySidebarHidden", grt::IntegerRef(hidden));
+    bec::GRTManager::get().set_app_option(_panel_savename+":SecondarySidebarHidden", grt::IntegerRef(hidden));
     toggle_secondary_sidebar(!hidden);
     return true;
   }
