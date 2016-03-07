@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,7 +31,6 @@ namespace bec
 namespace wb {
   class HistoryTree : public mforms::TreeView
   {
-    bec::GRTManager *_grtm;
     grt::UndoManager *_undom;
     std::string _icon;
     bool _refresh_pending;
@@ -42,7 +41,7 @@ namespace wb {
 
     void activate_node(mforms::TreeNodeRef node, int column);
   public:
-    HistoryTree(bec::GRTManager *grtm, grt::UndoManager *undom);
+    HistoryTree(grt::UndoManager *undom);
 
     void refresh();
   };

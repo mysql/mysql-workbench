@@ -32,7 +32,7 @@ using namespace grt;
 
 BEGIN_TEST_DATA_CLASS(wb_undo_others)
 public:
-  WBTester tester;
+  WBTester *tester;
   WBContextUI *wbui;
   UndoManager *um;
   OverviewBE *overview;
@@ -42,8 +42,9 @@ public:
 
 TEST_DATA_CONSTRUCTOR(wb_undo_others)
 {
-  tester.create_new_document();
-  wbui= tester.wb->get_ui();
+  tester = new WBTester;
+  tester->create_new_document();
+  wbui= tester->wb->get_ui();
   um= grt::GRT::get()->get_undo_manager();
   overview = 0;
   last_undo_stack_height= 0;
@@ -69,7 +70,7 @@ void check_overview_object(const std::string &what, const NodeId &base_node,
 
   std::string name;
   {
-    grt::BaseListRef list= grt::BaseListRef::cast_from(get_value_by_path(tester.get_pmodel(), list_path));
+    grt::BaseListRef list= grt::BaseListRef::cast_from(get_value_by_path(tester->get_pmodel(), list_path));
     ensure_equals(list_path+" "+what+" initial count", list.count(), initial_count);
   }
   // Add diagram
@@ -83,7 +84,7 @@ void check_overview_object(const std::string &what, const NodeId &base_node,
   overview->refresh_node(base_node, true);
   ensure_equals(what+" node count", overview->count_children(base_node), initial_count+2);
   {
-    grt::BaseListRef list= grt::BaseListRef::cast_from(get_value_by_path(tester.get_pmodel(), list_path));
+    grt::BaseListRef list= grt::BaseListRef::cast_from(get_value_by_path(tester->get_pmodel(), list_path));
     ensure_equals(list_path+" "+what+" count", list.count(), initial_count+1U);
   }
   // check undo add
@@ -91,7 +92,7 @@ void check_overview_object(const std::string &what, const NodeId &base_node,
   overview->refresh_node(base_node, true);
   ensure_equals(what+" node count", overview->count_children(base_node), initial_count+1);
   {
-    grt::BaseListRef list= grt::BaseListRef::cast_from(get_value_by_path(tester.get_pmodel(), list_path));
+    grt::BaseListRef list= grt::BaseListRef::cast_from(get_value_by_path(tester->get_pmodel(), list_path));
     ensure_equals(list_path+" "+what+" count after undo", list.count(), initial_count);
   }
   
@@ -100,7 +101,7 @@ void check_overview_object(const std::string &what, const NodeId &base_node,
   overview->refresh_node(base_node, true);
   ensure_equals("diagram node count", overview->count_children(base_node), initial_count+2);
   {
-    grt::BaseListRef list= grt::BaseListRef::cast_from(get_value_by_path(tester.get_pmodel(), list_path));
+    grt::BaseListRef list= grt::BaseListRef::cast_from(get_value_by_path(tester->get_pmodel(), list_path));
     ensure_equals(list_path+" "+what+" count after redo", list.count(), initial_count+1U);
   }
   
@@ -133,7 +134,7 @@ void check_overview_object(const std::string &what, const NodeId &base_node,
   overview->refresh_node(base_node, true);
   ensure_equals(what+" node count", overview->count_children(base_node), initial_count+1);
   {
-    grt::BaseListRef list= grt::BaseListRef::cast_from(get_value_by_path(tester.get_pmodel(), list_path));
+    grt::BaseListRef list= grt::BaseListRef::cast_from(get_value_by_path(tester->get_pmodel(), list_path));
     ensure_equals(list_path+" "+what+" count after delete", list.count(), initial_count);
   }
 
@@ -142,7 +143,7 @@ void check_overview_object(const std::string &what, const NodeId &base_node,
   overview->refresh_node(base_node, true);
   ensure_equals(what+" node count", overview->count_children(base_node), initial_count+2);
   {
-    grt::BaseListRef list= grt::BaseListRef::cast_from(get_value_by_path(tester.get_pmodel(), list_path));
+    grt::BaseListRef list= grt::BaseListRef::cast_from(get_value_by_path(tester->get_pmodel(), list_path));
     ensure_equals(list_path+" "+what+" count after undo", list.count(), initial_count+1U);
   }
 
@@ -151,7 +152,7 @@ void check_overview_object(const std::string &what, const NodeId &base_node,
   overview->refresh_node(base_node, true);
   ensure_equals(what+" node count", overview->count_children(base_node), initial_count+1);
   {
-    grt::BaseListRef list= grt::BaseListRef::cast_from(get_value_by_path(tester.get_pmodel(), list_path));
+    grt::BaseListRef list= grt::BaseListRef::cast_from(get_value_by_path(tester->get_pmodel(), list_path));
     ensure_equals(list_path+" "+what+" count after redo", list.count(), initial_count);
   }
 
@@ -180,23 +181,23 @@ TEST_MODULE(wb_undo_others, "undo tests for Workbench");
 // setup
 TEST_FUNCTION(1)
 {
-  bool flag= tester.wb->open_document("data/workbench/undo_test_model1.mwb");
+  bool flag= tester->wb->open_document("data/workbench/undo_test_model1.mwb");
   ensure("open_document", flag);
   
   overview= wbui->get_physical_overview();
   wbui->set_active_form(overview);
 
-  ensure_equals("schemas", tester.get_catalog()->schemata().count(), 1U);
+  ensure_equals("schemas", tester->get_catalog()->schemata().count(), 1U);
   
-  db_SchemaRef schema(tester.get_catalog()->schemata()[0]);
+  db_SchemaRef schema(tester->get_catalog()->schemata()[0]);
   
   // make sure the loaded model contains expected number of things
   ensure_equals("tables", schema->tables().count(), 4U);
   ensure_equals("views", schema->views().count(), 1U);
   ensure_equals("groups", schema->routineGroups().count(), 1U);
 
-  ensure_equals("diagrams", tester.get_pmodel()->diagrams().count(), 1U);
-  model_DiagramRef view(tester.get_pmodel()->diagrams()[0]);
+  ensure_equals("diagrams", tester->get_pmodel()->diagrams().count(), 1U);
+  model_DiagramRef view(tester->get_pmodel()->diagrams()[0]);
   
   ensure_equals("figures", view->figures().count(), 5U);
   
@@ -334,10 +335,10 @@ TEST_FUNCTION(28) //  Note
 TEST_FUNCTION(29)
 {
   
-  tester.wb->close_document();
+  tester->wb->close_document();
 
   // reinitialize
-  bool flag= tester.wb->open_document("data/workbench/undo_test_model1.mwb");
+  bool flag= tester->wb->open_document("data/workbench/undo_test_model1.mwb");
   ensure("open_document", flag);
   
   overview= wbui->get_physical_overview();
@@ -350,12 +351,12 @@ TEST_FUNCTION(29)
 
 TEST_FUNCTION(30)  // Property
 {
-  ModelDiagramForm *view= tester.wb->get_model_context()->get_diagram_form_for_diagram_id(tester.get_pview().id());
+  ModelDiagramForm *view= tester->wb->get_model_context()->get_diagram_form_for_diagram_id(tester->get_pview().id());
   ensure("viewform", view != 0);
   
-  model_FigureRef table(find_named_object_in_list(tester.get_pview()->figures(), "table2"));
+  model_FigureRef table(find_named_object_in_list(tester->get_pview()->figures(), "table2"));
 
-  tester.get_pview()->selectObject(table);
+  tester->get_pview()->selectObject(table);
   
   ensure_equals("selection", view->get_selection().count(), 1U);
   
@@ -409,17 +410,17 @@ TEST_FUNCTION(32)  // Description
   check_only_one_undo_added();
 
   ensure_equals("description", 
-                *tester.get_catalog()->schemata()[0]->tables()[0]->comment(), "test description");
+                *tester->get_catalog()->schemata()[0]->tables()[0]->comment(), "test description");
   
   check_undo();
   
   ensure_equals("description", 
-                *tester.get_catalog()->schemata()[0]->tables()[0]->comment(), "");
+                *tester->get_catalog()->schemata()[0]->tables()[0]->comment(), "");
   
   check_redo();
   
   ensure_equals("description", 
-                *tester.get_catalog()->schemata()[0]->tables()[0]->comment(), "test description");
+                *tester->get_catalog()->schemata()[0]->tables()[0]->comment(), "test description");
   
   // undo change description
   check_undo();
@@ -452,13 +453,13 @@ TEST_FUNCTION(46) // Page Settings
 TEST_FUNCTION(50) // Plugin Execution
 { 
   return; // something wrong with blocked UI events at this point... maybe should split the test
-  model_DiagramRef mview(tester.get_pview());
+  model_DiagramRef mview(tester->get_pview());
 
-//  wbui->set_active_form(tester.tester->get_model_context()->get_diagram_form_for_diagram_id(tester.get_pmodel()->diagrams()[0].id()));
+//  wbui->set_active_form(tester->tester->get_model_context()->get_diagram_form_for_diagram_id(tester->get_pmodel()->diagrams()[0].id()));
 
   ensure_equals("grid", mview->options().get_int("ShowGrid", -42), -42);
   
-  wbui->get_command_ui()->activate_command("plugin:tester.edit.toggleGrid");
+  wbui->get_command_ui()->activate_command("plugin:tester->edit.toggleGrid");
   check_only_one_undo_added();
   
   ensure_equals("grid", mview->options().get_int("ShowGrid", -42), 0);
@@ -470,6 +471,13 @@ TEST_FUNCTION(50) // Plugin Execution
   ensure_equals("grid", mview->options().get_int("ShowGrid", -42), 0);
   
   check_undo();
+}
+
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  delete tester;
 }
 
 END_TESTS

@@ -66,7 +66,6 @@ DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
 
   _be = editor_be;
   _be->set_frontend_data(dynamic_cast<FormViewBase*>(this));
-  _grtm = _be->grt_manager();
   _toolbar = _be->get_toolbar();
 
   _be->set_busy_tab = boost::bind(&DbSqlEditorView::set_busy_tab, this, _1);
@@ -144,13 +143,13 @@ DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
     mforms::ToolBar *toolbar = _be->get_toolbar();
     bool flag;
 
-    toolbar->set_item_checked("wb.toggleOutputArea", flag = !_grtm->get_app_option_int("DbSqlEditor:OutputAreaHidden", 0));
+    toolbar->set_item_checked("wb.toggleOutputArea", flag = !bec::GRTManager::get().get_app_option_int("DbSqlEditor:OutputAreaHidden", 0));
     if (flag) _main_pane.get_child2()->show(); else _main_pane.get_child2()->hide();
   }
 
-  utils::gtk::load_settings(_grtm, &_main_pane, sigc::bind(sigc::ptr_fun(gtk_paned_set_pos_ratio), &_main_pane, _right_aligned ? 0.2 : 0.8), false);
+  utils::gtk::load_settings(&_main_pane, sigc::bind(sigc::ptr_fun(gtk_paned_set_pos_ratio), &_main_pane, _right_aligned ? 0.2 : 0.8), false);
 
-  _main_pane.property_position().signal_changed().connect(sigc::bind(sigc::ptr_fun(utils::gtk::save_settings), _grtm, &_main_pane, false));
+  _main_pane.property_position().signal_changed().connect(sigc::bind(sigc::ptr_fun(utils::gtk::save_settings), &_main_pane, false));
 
   _sig_restore_sidebar = Glib::signal_idle().connect(sigc::bind_return(sigc::mem_fun(this, &FormViewBase::restore_sidebar_layout), false));
 
@@ -174,7 +173,7 @@ bool DbSqlEditorView::perform_command(const std::string &cmd)
       w->show();
     else
       w->hide();
-    _grtm->set_app_option("DbSqlEditor:OutputAreaHidden", grt::IntegerRef(hidden));
+    bec::GRTManager::get().set_app_option("DbSqlEditor:OutputAreaHidden", grt::IntegerRef(hidden));
   } 
   else if (cmd == "wb.next_query_tab")
   {
@@ -412,9 +411,9 @@ void DbSqlEditorView::set_maximized_editor_mode(bool flag, bool hide_schemas)
     {
       be()->get_toolbar()->set_item_checked("wb.toggleSidebar", true);
       be()->get_toolbar()->set_item_checked("wb.toggleOutputArea", 
-                !_grtm->get_app_option_int("DbSqlEditor:OutputAreaHidden"));
+                !bec::GRTManager::get().get_app_option_int("DbSqlEditor:OutputAreaHidden"));
       be()->get_toolbar()->set_item_checked("wb.toggleSecondarySidebar", 
-                !_grtm->get_app_option_int("DbSqlEditor:SecondarySidebarHidden"));
+                !bec::GRTManager::get().get_app_option_int("DbSqlEditor:SecondarySidebarHidden"));
       _sidebar1_pane->get_child1()->show();
       perform_command("wb.toggleOutputArea");
       perform_command("wb.toggleSecondarySidebar");

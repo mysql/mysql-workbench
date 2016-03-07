@@ -153,13 +153,13 @@ class WbPluginDiffReport : public WizardPlugin
 {
 public:
   WbPluginDiffReport(grt::Module *module)
-    : WizardPlugin(module), _be(grtm())
+    : WizardPlugin(module)
   {
     set_name("diff_report_wizard");
     add_page(mforms::manage(_source_page= new MultiSourceSelectPage(this, false)));
 
-    _left_db.grtm(grtm(), true);
-    _right_db.grtm(grtm(), true);
+    _left_db.grtm(true);
+    _right_db.grtm(true);
 
     ConnectionPage *connect;
     // Pick source connection (optional)

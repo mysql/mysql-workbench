@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,6 +51,7 @@ public:
   virtual void disconnect()= 0;
   virtual int get_port()= 0;
   virtual bool get_message(std::string &type, std::string &message) = 0;
+  virtual ~TunnelConnection() {};
 };
 
 

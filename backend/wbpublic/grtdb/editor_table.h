@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -117,7 +117,7 @@ namespace bec {
     void reset_placeholder();
 
     virtual void reorder(const NodeId &node, size_t nindex);
-    void reorder_many(const std::vector<size_t> &rows, size_t nindex);
+    void reorder_many(const std::vector<std::size_t> &rows, std::size_t nindex);
 
     std::vector<std::string> get_datatype_flags(const ::bec::NodeId &node, bool all = false);
     bool set_column_flag(const ::bec::NodeId &node, const std::string& flag_name, int is_set);
@@ -340,7 +340,7 @@ namespace bec {
       RefreshColumnCollation
     };
 
-    TableEditorBE(GRTManager *grtm, const db_TableRef &table);
+    TableEditorBE(const db_TableRef &table);
 
     virtual std::string get_title();
     virtual bool can_close();

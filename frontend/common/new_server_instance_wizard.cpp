@@ -359,7 +359,7 @@ void HostAndRemoteTypePage::enter(bool advancing)
   
   // Refresh platform list on each enter. This way a change on disk can be reflected without
   // restarting the wizard.
-  std::string path= wizard()->grtm()->get_data_file_path("mysql.profiles");
+  std::string path = bec::GRTManager::get().get_data_file_path("mysql.profiles");
   GDir *dir = g_dir_open(path.c_str(), 0, NULL);
   if (dir)
   {
@@ -1533,7 +1533,7 @@ void CommandsPage::leave(bool advancing)
 //----------------- NewServerInstanceWizard ---------------------------------------------------------
 
 NewServerInstanceWizard::NewServerInstanceWizard(wb::WBContext* context, db_mgmt_ConnectionRef connection)
-  : WizardForm(context->get_grt_manager()), _instance(grt::Initialized)
+  : WizardForm(), _instance(grt::Initialized)
 {
   set_name("new_instance_wizard");
   _context = context;

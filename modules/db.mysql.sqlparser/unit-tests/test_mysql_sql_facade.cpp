@@ -28,10 +28,14 @@
 
 BEGIN_TEST_DATA_CLASS(mysql_sql_facade)
 public:
-  WBTester wbt;
+  WBTester *wbt;
   SqlFacade::Ref sql_facade;
   db_mgmt_RdbmsRef rdbms;
   DictRef options;
+  TEST_DATA_CONSTRUCTOR(mysql_sql_facade) : sql_facade(nullptr)
+  {
+    wbt = new WBTester;
+  }
 END_TEST_DATA_CLASS
 
 
@@ -41,14 +45,14 @@ TEST_MODULE(mysql_sql_facade, "SQL Parser FE (MySQL)");
 TEST_FUNCTION(1)
 {
   sql_facade = NULL;
-  wbt.create_new_document();
+  wbt->create_new_document();
 
-  ensure_equals("loaded physycal model count", wbt.wb->get_document()->physicalModels().count(), 1U);
+  ensure_equals("loaded physycal model count", wbt->wb->get_document()->physicalModels().count(), 1U);
 
   options= DictRef(true);
   options.set("gen_fk_names_when_empty", IntegerRef(0));
 
-  rdbms= wbt.wb->get_document()->physicalModels().get(0)->rdbms();
+  rdbms= wbt->wb->get_document()->physicalModels().get(0)->rdbms();
 
   sql_facade= SqlFacade::instance_for_rdbms(rdbms);
   ensure("failed to get sqlparser module", (NULL != sql_facade));
@@ -223,4 +227,10 @@ TEST_FUNCTION(11)
   ensure_equals("Unexpected Column Count", columns.size(), 0U);
 }
 
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  delete wbt;
+}
 END_TESTS

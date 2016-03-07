@@ -210,7 +210,7 @@ void ModelFile::copy_file_to(const std::string &file, const std::string &dest)
   copy_file(get_path_for(file), dest);
 }
 
-void ModelFile::open(const std::string &path, GRTManager *grtm)
+void ModelFile::open(const std::string &path)
 {
   bool file_is_zip;
   bool file_is_autosave = false;
@@ -431,12 +431,12 @@ std::string ModelFile::read_comment(const std::string &path)
 
 //--------------------------------------------------------------------------------------------------
 
-void ModelFile::create(GRTManager *grtm)
+void ModelFile::create()
 {
   RecMutexLock lock(_mutex);
 
   _content_dir= create_document_dir(_temp_dir, "newmodel.mwb");
-  add_db_file(grtm, _content_dir);
+  add_db_file(_content_dir);
 
   _dirty= false;
 }
@@ -921,12 +921,10 @@ void ModelFile::cleanup()
 }
 
 
-void ModelFile::add_db_file(bec::GRTManager *grtm, const std::string &content_dir)
+void ModelFile::add_db_file(const std::string &content_dir)
 {
-  if (!grtm)
-    return;
 
-  std::string db_tpl_file_path= grtm->get_data_file_path("data/" DB_FILE);
+  std::string db_tpl_file_path= bec::GRTManager::get().get_data_file_path("data/" DB_FILE);
   std::string db_file_dir_path= content_dir + "/" + DB_DIR;
   add_attachment_file(db_file_dir_path, db_tpl_file_path);
 }

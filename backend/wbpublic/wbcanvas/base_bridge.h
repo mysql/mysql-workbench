@@ -32,8 +32,6 @@
 class WBPUBLICBACKEND_PUBLIC_FUNC BridgeBase : public base::trackable
 {
 protected:
-  bec::GRTManager *get_grtm() { return bec::GRTManager::get_instance_for(); }
-  
   void run_later(const boost::function<void ()> &slot);
 
   virtual GrtObject *get_object()= 0;
@@ -42,4 +40,5 @@ protected:
 
 public:
   virtual void unrealize()= 0;
+  virtual ~BridgeBase() {};
 };

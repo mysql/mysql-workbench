@@ -414,7 +414,7 @@ public:
     {
       save_text_to(path);
       
-      _form->grtm()->push_status_text(base::strfmt(_("Wrote CREATE Script to '%s'"), path.c_str()));
+      bec::GRTManager::get().push_status_text(base::strfmt(_("Wrote CREATE Script to '%s'"), path.c_str()));
       grt::GRT::get()->send_info(base::strfmt(_("Wrote CREATE Script to '%s'"), path.c_str()));
     }
     return true;
@@ -438,7 +438,7 @@ class WbPluginSQLExport : public WizardPlugin
   
 public:
   WbPluginSQLExport(grt::Module *module)
-    : WizardPlugin(module), _export_be(grtm())
+    : WizardPlugin(module)
   {
 
     set_name("sql_export_wizard");

@@ -402,7 +402,7 @@ public:
 
 
 WbPluginDbSynchronize::WbPluginDbSynchronize(grt::Module *module)
-  : WizardPlugin(module), _be(grtm()), _db_be(grtm())
+  : WizardPlugin(module)
 {  
   // add validation here
   set_name("db_synchronize_wizard");

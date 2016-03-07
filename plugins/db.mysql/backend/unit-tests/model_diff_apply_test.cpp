@@ -61,7 +61,7 @@ protected:
 
 public:
   void set_model_catalog(const db_mysql_CatalogRef &catalog) { model_catalog= catalog; }
-  DbMySQLScriptSyncTest(bec::GRTManager *grtm) : DbMySQLScriptSync(grtm) {}
+  DbMySQLScriptSyncTest() : DbMySQLScriptSync() {}
 };
 
 class DbMySQLSQLExportTest : public DbMySQLSQLExport {
@@ -73,8 +73,8 @@ protected:
   virtual grt::DictRef get_options_as_dict() { return options; }
 
 public:
-  DbMySQLSQLExportTest(bec::GRTManager *grtm, db_mysql_CatalogRef cat) 
-    : DbMySQLSQLExport(grtm, cat) 
+  DbMySQLSQLExportTest(db_mysql_CatalogRef cat)
+    : DbMySQLSQLExport(cat)
   { set_model_catalog(cat); }
   
   void set_model_catalog(db_mysql_CatalogRef catalog) { model_catalog= catalog; }
@@ -94,7 +94,7 @@ struct all_objects_mwb
 
 BEGIN_TEST_DATA_CLASS(model_diff_apply)
 protected:
-  WBTester tester;
+  WBTester *tester;
   std::auto_ptr<DbMySQLScriptSync> sync_plugin;
   std::auto_ptr<DbMySQLSQLExport> fwdeng_plugin;
   SqlFacade::Ref sql_parser;
@@ -121,13 +121,14 @@ protected:
   all_objects_mwb get_model_objects();
   TEST_DATA_CONSTRUCTOR(model_diff_apply)
   {
+    tester = new WBTester();
   // init datatypes
-  populate_grt(tester);
+  populate_grt(*tester);
 
   omf.dontdiff_mask = 3;
 
   // init database connection
-  connection= tester.create_connection_for_import();
+  connection= tester->create_connection_for_import();
 
   sql_parser= SqlFacade::instance_for_rdbms_name("Mysql");
   ensure("failed to get sqlparser module", (NULL != sql_parser));
@@ -151,7 +152,7 @@ std::string tut::Test_object_base<model_diff_apply>::run_sync_plugin_generate_sc
   db_mysql_CatalogRef org_cat, 
   db_mysql_CatalogRef mod_cat)
 {
-  sync_plugin.reset(new DbMySQLScriptSyncTest(tester.wb->get_grt_manager()));
+  sync_plugin.reset(new DbMySQLScriptSyncTest());
   static_cast<DbMySQLScriptSyncTest *>(sync_plugin.get())->set_model_catalog(mod_cat);
   sync_plugin->init_diff_tree(std::vector<std::string>(), mod_cat, org_cat, grt::StringListRef());
   return sync_plugin->generate_diff_tree_script();
@@ -162,7 +163,7 @@ void tut::Test_object_base<model_diff_apply>::run_sync_plugin_apply_to_model(
   db_mysql_CatalogRef org_cat, 
   db_mysql_CatalogRef mod_cat)
 {
-  sync_plugin.reset(new DbMySQLScriptSyncTest(tester.wb->get_grt_manager()));
+  sync_plugin.reset(new DbMySQLScriptSyncTest());
   static_cast<DbMySQLScriptSyncTest *>(sync_plugin.get())->set_model_catalog(mod_cat);
   sync_plugin->init_diff_tree(std::vector<std::string>(), mod_cat, org_cat, grt::StringListRef());
   sync_plugin->apply_changes_to_model();
@@ -179,15 +180,15 @@ std::string tut::Test_object_base<model_diff_apply>::run_fwdeng_plugin_generate_
 boost::shared_ptr<DiffChange> tut::Test_object_base<model_diff_apply>::compare_catalog_to_server_schema(db_mysql_CatalogRef org_cat, 
                                                                                           const std::string& schema_name)
 {
-  sync_plugin.reset(new DbMySQLScriptSyncTest(tester.wb->get_grt_manager()));
+  sync_plugin.reset(new DbMySQLScriptSyncTest());
   std::list<std::string> schemata;
   schemata.push_back("model_diff_apply");
-  db_mysql_CatalogRef cat= tester.db_rev_eng_schema(schemata);
+  db_mysql_CatalogRef cat= tester->db_rev_eng_schema(schemata);
   if((cat->schemata().get(0).is_valid()) && (cat->schemata().get(0)->name() == "mydb"))
       cat->schemata().remove(0);
   org_cat->oldName("");
 
-  grt::ValueRef default_engine = tester.wb->get_grt_manager()->get_app_option("db.mysql.Table:tableEngine");
+  grt::ValueRef default_engine = bec::GRTManager::get().get_app_option("db.mysql.Table:tableEngine");
   std::string default_engine_name;
   if(grt::StringRef::can_wrap(default_engine))
     default_engine_name = grt::StringRef::cast_from(default_engine);
@@ -209,10 +210,9 @@ void tut::Test_object_base<model_diff_apply>::apply_sql_to_model(const std::stri
   std::vector<std::string> schemata;
   schemata.push_back("mydb");
 
-  db_mysql_CatalogRef mod_cat= db_mysql_CatalogRef::cast_from(tester.get_catalog());
+  db_mysql_CatalogRef mod_cat= db_mysql_CatalogRef::cast_from(tester->get_catalog());
 
-  DbMySQLSQLExportTest *plugin= new DbMySQLSQLExportTest(
-    tester.wb->get_grt_manager(), mod_cat);
+  DbMySQLSQLExportTest *plugin= new DbMySQLSQLExportTest(mod_cat);
   
   grt::DictRef options(true);
   options.set("UseFilteredLists", grt::IntegerRef(0));
@@ -220,7 +220,7 @@ void tut::Test_object_base<model_diff_apply>::apply_sql_to_model(const std::stri
 
   std::string value;
 
-  DbMySQLScriptSyncTest p(tester.wb->get_grt_manager());
+  DbMySQLScriptSyncTest p;
   p.set_model_catalog(mod_cat);
   boost::shared_ptr<DiffTreeBE> tree= p.init_diff_tree(std::vector<std::string>(), mod_cat, org_cat, grt::StringListRef());
   
@@ -314,6 +314,7 @@ class validate_property
     bool enabled;
 public:
     validate_property(const bool enabled_flag = true):enabled(enabled_flag){};
+    virtual ~validate_property() {};
     void enable(){enabled = true;};
     void disable(){enabled = false;};
     virtual void validate(const all_objects_mwb& objects) = 0;
@@ -416,9 +417,9 @@ struct all_objects_mwb_validator
 all_objects_mwb tut::Test_object_base<model_diff_apply>::get_model_objects()
 {
     all_objects_mwb objects;
-    if(tester.get_catalog()->schemata().count() == 0)
+    if(tester->get_catalog()->schemata().count() == 0)
         return objects;
-    objects.schema = tester.get_catalog()->schemata().get(0);
+    objects.schema = tester->get_catalog()->schemata().get(0);
 
     objects.t1 = find_named_object_in_list(objects.schema->tables(),"table1");
     objects.t2 = find_named_object_in_list(objects.schema->tables(),"table2");
@@ -438,7 +439,7 @@ all_objects_mwb tut::Test_object_base<model_diff_apply>::get_model_objects()
 TEST_FUNCTION(2)
 {
     all_objects_sql sql;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     apply_sql_to_model(sql.get_sql());
 
     all_objects_mwb objects = get_model_objects();
@@ -448,7 +449,7 @@ TEST_FUNCTION(2)
 
 TEST_FUNCTION(3)
 {
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     apply_sql_to_model("");
 
     all_objects_mwb objects = get_model_objects();
@@ -468,7 +469,7 @@ TEST_FUNCTION(20)
 
     all_objects_sql sql;
     sql.table1_sql = create_table1_altered;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     apply_sql_to_model(sql.get_sql());
 
     all_objects_mwb objects = get_model_objects();
@@ -481,7 +482,7 @@ TEST_FUNCTION(20)
 TEST_FUNCTION(21)
 {
     all_objects_sql sql;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     all_objects_mwb initial_objects = get_model_objects();
     //rename t1
     initial_objects.t1->name("table1_renamed");
@@ -497,7 +498,7 @@ TEST_FUNCTION(22)
 {
     all_objects_sql sql;
     all_objects_mwb_validator validator;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     all_objects_mwb initial_objects = get_model_objects();
     validator.validate(initial_objects);
     //rename t2
@@ -513,7 +514,7 @@ TEST_FUNCTION(23)
 {
     all_objects_sql sql;
     all_objects_mwb_validator validator;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     all_objects_mwb initial_objects = get_model_objects();
     validator.validate(initial_objects);
     //rename t1 and t2
@@ -536,7 +537,7 @@ TEST_FUNCTION(30)
 
     all_objects_sql sql;
     sql.table1_sql = create_table1_altered;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     apply_sql_to_model(sql.get_sql());
 
     all_objects_mwb objects = get_model_objects();
@@ -554,7 +555,7 @@ TEST_FUNCTION(31)
 
     all_objects_sql sql;
     sql.table1_sql = create_table1_altered;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     apply_sql_to_model(sql.get_sql());
 
     all_objects_mwb objects = get_model_objects();
@@ -572,7 +573,7 @@ TEST_FUNCTION(32)
 "  PRIMARY KEY (`idtable1`) );\n";
 
     all_objects_sql sql;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     apply_sql_to_model(sql.get_sql().append(create_table3));
 
     all_objects_mwb objects = get_model_objects();
@@ -593,7 +594,7 @@ TEST_FUNCTION(33)
 
     all_objects_sql sql;
     sql.table1_sql = create_table1_added_col;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     all_objects_mwb initial_objects = get_model_objects();
     apply_sql_to_model(sql.get_sql());
 
@@ -616,7 +617,7 @@ TEST_FUNCTION(34)
 
     all_objects_sql sql;
     sql.table1_sql = create_table1_altered;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     apply_sql_to_model(sql.get_sql());
 
     all_objects_mwb objects = get_model_objects();
@@ -641,7 +642,7 @@ TEST_FUNCTION(35)
 
     all_objects_sql sql;
     sql.table1_sql = create_table1_added_col;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     apply_sql_to_model(sql.get_sql());
 
     all_objects_mwb objects = get_model_objects();
@@ -691,7 +692,7 @@ TEST_FUNCTION(36)
 
     all_objects_sql sql;
     sql.table1_sql = create_table1_added_col;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     apply_sql_to_model(sql.get_sql());
 
     all_objects_mwb objects = get_model_objects();
@@ -713,7 +714,7 @@ TEST_FUNCTION(40)
 
     all_objects_sql sql;
     sql.table1_sql = create_table1_new_PK;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     all_objects_mwb initial_objects = get_model_objects();
     apply_sql_to_model(sql.get_sql());
 
@@ -729,7 +730,7 @@ TEST_FUNCTION(41)
 {
     all_objects_sql sql;
     all_objects_mwb_validator validator;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     all_objects_mwb initial_objects = get_model_objects();
     validator.validate(initial_objects);
     initial_objects.t2->foreignKeys().get(0)->name("fk1_newname");
@@ -742,7 +743,7 @@ TEST_FUNCTION(41)
 TEST_FUNCTION(42)
 {
     all_objects_sql sql;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     all_objects_mwb initial_objects = get_model_objects();
     initial_objects.t1->oldName("newname");
     apply_sql_to_model(sql.get_sql());
@@ -768,7 +769,7 @@ TEST_FUNCTION(43)
 
     all_objects_sql sql;
     sql.table1_sql = no_t1;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     all_objects_mwb initial_objects = get_model_objects();
     apply_sql_to_model(sql.get_sql());
 
@@ -791,7 +792,7 @@ TEST_FUNCTION(45)
 
     all_objects_sql sql;
     sql.table1_sql = create_table1_altered;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     apply_sql_to_model(sql.get_sql());
 
     all_objects_mwb objects = get_model_objects();
@@ -821,7 +822,7 @@ TEST_FUNCTION(46)
 
   all_objects_sql sql;
   sql.table2_sql = create_table2;
-  tester.wb->open_document("data/workbench/all_objects.mwb");
+  tester->wb->open_document("data/workbench/all_objects.mwb");
   all_objects_mwb initial_objects = get_model_objects();
   apply_sql_to_model(sql.get_sql());
 
@@ -842,7 +843,7 @@ TEST_FUNCTION(51)
 
     all_objects_sql sql;
     sql.view_sql = create_renamed_view;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     apply_sql_to_model(sql.get_sql());
 
     all_objects_mwb objects = get_model_objects();
@@ -860,7 +861,7 @@ TEST_FUNCTION(52)
 
     all_objects_sql sql;
     sql.view_sql = create_altered_view;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     apply_sql_to_model(sql.get_sql());
 
     all_objects_mwb objects = get_model_objects();
@@ -880,7 +881,7 @@ TEST_FUNCTION(53)
 
     all_objects_sql sql;
     sql.view_sql = dont_create;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     apply_sql_to_model(sql.get_sql());
 
     all_objects_mwb objects = get_model_objects();
@@ -898,7 +899,7 @@ TEST_FUNCTION(54)
 
     all_objects_sql sql;
     sql.view_sql = create_2views;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     apply_sql_to_model(sql.get_sql());
 
     all_objects_mwb objects = get_model_objects();
@@ -918,7 +919,7 @@ TEST_FUNCTION(60)
 
     all_objects_sql sql;
     sql.procedure_sql = create_renamed_procedure;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     apply_sql_to_model(sql.get_sql());
 
     all_objects_mwb objects = get_model_objects();
@@ -939,7 +940,7 @@ TEST_FUNCTION(61)
 
     all_objects_sql sql;
     sql.procedure_sql = create_altered_procedure;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     apply_sql_to_model(sql.get_sql());
 
     all_objects_mwb objects = get_model_objects();
@@ -965,7 +966,7 @@ TEST_FUNCTION(70)
 
     all_objects_sql sql;
     sql.trigger_sql = create_table1_trigger_renamed;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     apply_sql_to_model(sql.get_sql());
 
     all_objects_mwb objects = get_model_objects();
@@ -988,7 +989,7 @@ TEST_FUNCTION(71)
 
     all_objects_sql sql;
     sql.trigger_sql = create_table1_trigger_altered;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     apply_sql_to_model(sql.get_sql());
 
     all_objects_mwb objects = get_model_objects();
@@ -1006,7 +1007,7 @@ TEST_FUNCTION(71)
 TEST_FUNCTION(72)
 {
     all_objects_sql sql;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     all_objects_mwb initial_objects = get_model_objects();
     //rename t1
     initial_objects.trigger->name("tr1_renamed");
@@ -1021,7 +1022,7 @@ TEST_FUNCTION(72)
 TEST_FUNCTION(73)
 {
     all_objects_sql sql;
-    tester.wb->open_document("data/workbench/all_objects.mwb");
+    tester->wb->open_document("data/workbench/all_objects.mwb");
     all_objects_mwb initial_objects = get_model_objects();
     //rename t1
     initial_objects.trigger->oldName("tr1_renamed");
@@ -1031,6 +1032,13 @@ TEST_FUNCTION(73)
     all_objects_mwb objects = get_model_objects();
     all_objects_mwb_validator validator;
     validator.validate(objects);
+}
+
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  delete tester;
 }
 
 END_TESTS

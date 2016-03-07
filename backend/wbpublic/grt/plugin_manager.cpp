@@ -58,7 +58,6 @@ static std::string get_args_hash(const grt::BaseListRef &list)
 PluginManagerImpl::PluginManagerImpl(grt::CPPModuleLoader *loader)
   : superclass(loader)
 {
-  _grtm= GRTManager::get_instance_for();
   
   InterfaceImplBase::Register<PluginInterfaceImpl>();
 }
@@ -752,10 +751,10 @@ std::string PluginManagerImpl::open_gui_plugin(const app_PluginRef &plugin, cons
   if (!plugin.is_valid())
     throw std::invalid_argument("Attempt to open an invalid plugin");
   
-  GRTDispatcher::Ref dispatcher = _grtm->get_dispatcher();
+  GRTDispatcher::Ref dispatcher = bec::GRTManager::get().get_dispatcher();
   if (*plugin->pluginType() == GUI_PLUGIN_TYPE)
   {
-    if (_grtm->in_main_thread())
+    if (bec::GRTManager::get().in_main_thread())
       return open_gui_plugin_main(plugin, args, flags);
     else
     {
@@ -774,7 +773,7 @@ std::string PluginManagerImpl::open_gui_plugin(const app_PluginRef &plugin, cons
   }
   else if (*plugin->pluginType() == STANDALONE_GUI_PLUGIN_TYPE)
   {
-    if (_grtm->in_main_thread())
+    if (bec::GRTManager::get().in_main_thread())
       open_standalone_plugin_main(plugin, args);
     else
     {
@@ -787,7 +786,7 @@ std::string PluginManagerImpl::open_gui_plugin(const app_PluginRef &plugin, cons
   }
   else if (*plugin->pluginType() == INTERNAL_PLUGIN_TYPE)
   {
-    if (_grtm->in_main_thread())
+    if (bec::GRTManager::get().in_main_thread())
       open_normal_plugin_grt(plugin, args);
     else
     {
@@ -804,9 +803,9 @@ std::string PluginManagerImpl::open_gui_plugin(const app_PluginRef &plugin, cons
     // Opening a normal plugin is usually done in the context of the grt thread and we want to
     // continue that way. But if we are currently in the main thread switch here to the grt thread
     // for opening the plugin.
-    if (_grtm->in_main_thread())
+    if (bec::GRTManager::get().in_main_thread())
     {
-      _grtm->get_dispatcher()->execute_sync_function("Open normal plugin",
+      bec::GRTManager::get().get_dispatcher()->execute_sync_function("Open normal plugin",
         boost::bind(&PluginManagerImpl::open_normal_plugin_grt, this, plugin, args));
     }
     else
@@ -893,8 +892,7 @@ std::string PluginManagerImpl::open_gui_plugin_main(const app_PluginRef &plugin,
     grt::Module *module= grt::GRT::get()->get_module(_plugin_source_module[plugin->name()]);
 
     // open the editor and get a handle for the GUI object to pass to the frontend
-    NativeHandle handle= _open_gui_plugin_slot(_grtm,
-                                               module,
+    NativeHandle handle= _open_gui_plugin_slot(module,
                                                *plugin->moduleName(),
                                                *plugin->moduleFunctionName(),
                                                args,
@@ -922,11 +920,11 @@ std::string PluginManagerImpl::open_gui_plugin_main(const app_PluginRef &plugin,
  */
 int PluginManagerImpl::show_plugin(const std::string &handle)
 {
-  if (_grtm->in_main_thread())
+  if (bec::GRTManager::get().in_main_thread())
     return show_gui_plugin_main(handle);
   else
   {
-    GRTDispatcher::Ref dispatcher = _grtm->get_dispatcher();
+    GRTDispatcher::Ref dispatcher = bec::GRTManager::get().get_dispatcher();
 
     // Request the plugin to be executed and opened by the frontend in the main thread.
     DispatcherCallback<int>::Ref cb = DispatcherCallback<int>::create_callback(
@@ -965,11 +963,11 @@ int PluginManagerImpl::show_gui_plugin_main(const std::string &handle)
  */
 int PluginManagerImpl::close_plugin(const std::string &handle)
 {
-  if (_grtm->in_main_thread())
+  if (bec::GRTManager::get().in_main_thread())
     return close_gui_plugin_main(handle);
   else
   {
-    GRTDispatcher::Ref dispatcher = _grtm->get_dispatcher();
+    GRTDispatcher::Ref dispatcher = bec::GRTManager::get().get_dispatcher();
 
     // Request the plugin to be executed and opened by the frontend in the main thread.
     DispatcherCallback<int>::Ref cb = DispatcherCallback<int>::create_callback(

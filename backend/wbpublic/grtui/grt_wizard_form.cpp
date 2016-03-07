@@ -33,8 +33,8 @@ using namespace grtui;
 using namespace mforms;
 
 
-WizardForm::WizardForm(bec::GRTManager *mgr)
-  : Wizard(Form::main_form()), _cancelled(false), _grtm(mgr)
+WizardForm::WizardForm()
+  : Wizard(Form::main_form()), _cancelled(false)
 {
 
   set_name("wizard");

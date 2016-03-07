@@ -32,13 +32,12 @@ using namespace std;
 
 BEGIN_TEST_DATA_CLASS(grtdb_tests)
 public:
-  WBTester tester;
-  GRTManager *grtm;
+  WBTester *tester;
 
 TEST_DATA_CONSTRUCTOR(grtdb_tests)
 {
-  grtm = tester.wb->get_grt_manager();
-  populate_grt(tester);
+  tester = new WBTester();
+  populate_grt(*tester);
 }
 END_TEST_DATA_CLASS
 
@@ -46,7 +45,7 @@ TEST_MODULE(grtdb_tests, "DB stuff tests");
 
 TEST_FUNCTION(2)
 {
-  tester.create_new_document();
+  tester->create_new_document();
 }
 
 TEST_FUNCTION(5)
@@ -88,8 +87,8 @@ TEST_FUNCTION(10)
 
 
 // Helper macros for column base types parser tests.
-#define ensure_parse_ok(str) ensure(str, column->setParseType(str, tester.get_rdbms()->simpleDatatypes()) != 0);
-#define ensure_parse_fail(str) ensure(str, column->setParseType(str, tester.get_rdbms()->simpleDatatypes()) == 0);
+#define ensure_parse_ok(str) ensure(str, column->setParseType(str, tester->get_rdbms()->simpleDatatypes()) != 0);
+#define ensure_parse_fail(str) ensure(str, column->setParseType(str, tester->get_rdbms()->simpleDatatypes()) == 0);
 
 TEST_FUNCTION(15)
 {
@@ -153,7 +152,7 @@ TEST_FUNCTION(20)
   // Then see if they all parse successfully.
   db_SchemaRef schema(grt::Initialized);
 
-  db_CatalogRef catalog = tester.get_catalog();
+  db_CatalogRef catalog = tester->get_catalog();
   schema->owner(catalog);
 
   db_mysql_TableRef table(grt::Initialized);
@@ -166,8 +165,8 @@ TEST_FUNCTION(20)
   table->columns().insert(column);
 
   std::string expected_enum_parameters = "('blah', 'foo', 'bar', 0b11100011011, 0x1234ABCDE)";
-  ListRef<db_SimpleDatatype> types = tester.get_rdbms()->simpleDatatypes();
-  for (size_t i= 0; i < tester.get_rdbms()->simpleDatatypes().count(); i++)
+  ListRef<db_SimpleDatatype> types = tester->get_rdbms()->simpleDatatypes();
+  for (std::size_t i= 0; i < tester->get_rdbms()->simpleDatatypes().count(); i++)
   {
     // Try all parameter combinations.
     string no_params= types[i]->name();
@@ -184,7 +183,7 @@ TEST_FUNCTION(20)
     if (validity.empty())
       validity = "<5.7.9"; // Default is latest GA server at this time.
 
-    size_t offset = 1;
+    std::size_t offset = 1;
     if (validity[1] == '=')
       ++offset;
 
@@ -291,7 +290,7 @@ TEST_FUNCTION(20)
         break;
       case 10: // ('a','b','c' ...)
         ensure_parse_fail(no_params);
-        column->setParseType(param_list, tester.get_rdbms()->simpleDatatypes());
+        column->setParseType(param_list, tester->get_rdbms()->simpleDatatypes());
 
         // The following tests just check if the parameter list is properly stored.
         // No type checking takes place for now.
@@ -628,7 +627,7 @@ TEST_FUNCTION(22)
   std::vector<std::string> definitions = get_variations_for_rule("data_type");
 
   grt::ListRef<db_UserDatatype> user_types;
-  grt::ListRef<db_SimpleDatatype> type_list = tester.get_catalog()->simpleDatatypes();
+  grt::ListRef<db_SimpleDatatype> type_list = tester->get_catalog()->simpleDatatypes();
 
   // The latest version at the point of writing this, to include all possible variations.
   GrtVersionRef version(grt::Initialized);
@@ -756,6 +755,13 @@ TEST_FUNCTION(30)
   ensure("5.10.5 vs 5.7.4", !bec::is_supported_mysql_version_at_least(5, 7, 4, 5, 10, 5));
   ensure("5.5.5 vs 5.5.4", !bec::is_supported_mysql_version_at_least(5, 5, 4, 5, 5, 5));
   ensure("5.5.5 vs 6.6.6", !bec::is_supported_mysql_version_at_least(5, 5, 5, 6, 6, 6));
+}
+
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  delete tester;
 }
 
 END_TESTS

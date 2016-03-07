@@ -437,10 +437,10 @@ _lower_tab(mforms::TabViewDocument),
   // Minimum size for the entire window.
   set_size(800, 600);
 
-  grtm()->run_once_when_idle(boost::bind(&GRTShellWindow::set_splitter_positions, this));
+  bec::GRTManager::get().run_once_when_idle(boost::bind(&GRTShellWindow::set_splitter_positions, this));
 
-  grtm()->get_shell()->set_ready_handler(boost::bind(&GRTShellWindow::handle_prompt, this, _1));
-  grtm()->get_shell()->set_output_handler(boost::bind(&GRTShellWindow::handle_output, this, _1));
+  bec::GRTManager::get().get_shell()->set_ready_handler(boost::bind(&GRTShellWindow::handle_prompt, this, _1));
+  bec::GRTManager::get().get_shell()->set_output_handler(boost::bind(&GRTShellWindow::handle_output, this, _1));
 
   on_tab_changed();
   snippet_selected();
@@ -469,13 +469,6 @@ void GRTShellWindow::set_splitter_positions()
 
 //--------------------------------------------------------------------------------------------------
 
-GRTManager *GRTShellWindow::grtm()
-{ 
-  return _context->get_grt_manager(); 
-}
-
-//--------------------------------------------------------------------------------------------------
-
 void GRTShellWindow::shell_action(mforms::TextEntryAction action)
 { 
   switch (action)
@@ -486,14 +479,14 @@ void GRTShellWindow::shell_action(mforms::TextEntryAction action)
       _shell_entry.set_value("");
       //  _completion->add_completion_text(command);
       command += '\n';
-      grtm()->get_shell()->write(grt::GRT::get()->get_shell()->get_prompt()+" "+command);
-      grtm()->get_shell()->process_line_async(command);
+      bec::GRTManager::get().get_shell()->write(grt::GRT::get()->get_shell()->get_prompt()+" "+command);
+      bec::GRTManager::get().get_shell()->process_line_async(command);
       break;
     }
     case mforms::EntryKeyUp:
     {
       std::string line;
-      if (grtm()->get_shell()->previous_history_line(_shell_entry.get_string_value(), line))
+      if (bec::GRTManager::get().get_shell()->previous_history_line(_shell_entry.get_string_value(), line))
         _shell_entry.set_value(line);
       break;
     }
@@ -502,7 +495,7 @@ void GRTShellWindow::shell_action(mforms::TextEntryAction action)
     case mforms::EntryKeyDown:
     {
       std::string line;
-      if (grtm()->get_shell()->next_history_line(line))
+      if (bec::GRTManager::get().get_shell()->next_history_line(line))
         _shell_entry.set_value(line);
       break;
     }      
@@ -529,7 +522,7 @@ void GRTShellWindow::refresh_all()
 
   int idx= 0;
   std::string root = _global_tree.root_node()->get_tag();
-  std::vector<std::string> l = grtm()->get_shell()->get_grt_tree_bookmarks();
+  std::vector<std::string> l = bec::GRTManager::get().get_shell()->get_grt_tree_bookmarks();
   _global_combo.clear();
   for (std::vector<std::string>::const_iterator i = l.begin(); i != l.end(); ++i, ++idx)
   {
@@ -562,7 +555,7 @@ bool GRTShellWindow::capture_output(const grt::Message &msg, void *sender, bool 
 {
   if (msg.type == grt::OutputMsg)
   {
-    if (grtm()->in_main_thread())
+    if (bec::GRTManager::get().in_main_thread())
     {
       if (send_to_output)
         add_output(msg.text);
@@ -572,9 +565,9 @@ bool GRTShellWindow::capture_output(const grt::Message &msg, void *sender, bool 
     else
     {
       if (send_to_output)
-        grtm()->run_once_when_idle(boost::bind(&GRTShellWindow::add_output, this, msg.text));
+        bec::GRTManager::get().run_once_when_idle(boost::bind(&GRTShellWindow::add_output, this, msg.text));
       else
-        grtm()->run_once_when_idle(boost::bind(&GRTShellWindow::handle_output, this, msg.text));
+        bec::GRTManager::get().run_once_when_idle(boost::bind(&GRTShellWindow::handle_output, this, msg.text));
     }
     return true;
   }
@@ -889,7 +882,7 @@ void GRTShellWindow::handle_global_menu(const std::string &action)
 
 void GRTShellWindow::save_snippets()
 {
-  std::string path = base::makePath(grtm()->get_user_datadir(), "shell_snippets"+_script_extension);
+  std::string path = base::makePath(bec::GRTManager::get().get_user_datadir(), "shell_snippets"+_script_extension);
   FILE *f = base_fopen(path.c_str(), "w+");
   if (!f)
   {
@@ -957,9 +950,9 @@ void GRTShellWindow::refresh_snippets()
 {
   _snippet_list->clear();
 
-  load_snippets_from(grtm()->get_data_file_path("shell_snippets"+_script_extension+".txt"));
+  load_snippets_from(bec::GRTManager::get().get_data_file_path("shell_snippets"+_script_extension+".txt"));
   _global_snippet_count = _snippet_list->root_node()->count();
-  load_snippets_from(base::makePath(grtm()->get_user_datadir(), "shell_snippets"+_script_extension));
+  load_snippets_from(base::makePath(bec::GRTManager::get().get_user_datadir(), "shell_snippets"+_script_extension));
 
   snippet_selected();
 }
@@ -978,7 +971,7 @@ void GRTShellWindow::open_script_file()
 
 bool GRTShellWindow::execute_script(const std::string &script, const std::string &language)
 {
-  bool result = grtm()->get_shell()->run_script(script, language);
+  bool result = bec::GRTManager::get().get_shell()->run_script(script, language);
   save_state();
 
   return result;
@@ -1262,7 +1255,7 @@ GRTCodeEditor *GRTShellWindow::show_file_at_line(const std::string &path, int li
 
 void GRTShellWindow::add_new_script()
 {
-  NewPluginDialog wizard(this, grtm()->get_data_file_path("script_templates"));
+  NewPluginDialog wizard(this, bec::GRTManager::get().get_data_file_path("script_templates"));
   std::string path;
   std::string code;
   bool is_script;
@@ -1272,7 +1265,7 @@ void GRTShellWindow::add_new_script()
   {
     GRTCodeEditor *editor= add_editor(is_script, language);
     if (!path.empty() && base::basename(path) == path)
-      path= base::makePath(grtm()->get_user_script_path(), path);
+      path= base::makePath(bec::GRTManager::get().get_user_script_path(), path);
     editor->set_path(path);
     editor->set_text(code);
   }
@@ -1350,19 +1343,19 @@ void GRTShellWindow::refresh_files()
   node= _files_tree->root_node()->add_child();
   node->set_string(0, "User Scripts");
   node->set_icon_path(0, "folder");
-  add_files_from_dir(node, grtm()->get_user_script_path(), true);
+  add_files_from_dir(node, bec::GRTManager::get().get_user_script_path(), true);
   node->expand();
 
   node= _files_tree->root_node()->add_child();
   node->set_string(0, "User Modules");
   node->set_icon_path(0, "folder");
-  add_files_from_dir(node, grtm()->get_user_module_path(), false);
+  add_files_from_dir(node, bec::GRTManager::get().get_user_module_path(), false);
   node->expand();
 
   node= _files_tree->root_node()->add_child();
   node->set_string(0, "User Libraries");
   node->set_icon_path(0, "folder");
-  add_files_from_dir(node, grtm()->get_user_library_path(), true);
+  add_files_from_dir(node, bec::GRTManager::get().get_user_library_path(), true);
   node->expand();
 }
 
@@ -1459,10 +1452,10 @@ void GRTShellWindow::load_state()
   _classes_splitter.set_divider_position(_context->read_state("classes-splitter", "scripting-shell", 400));
   _snippet_splitter.set_divider_position(_context->read_state("snippets-splitter", "scripting-shell", 400));
 
-  _shell_text.set_font(grtm()->get_app_option_string("workbench.scripting.ScriptingShell:Font"));
-  _snippet_text.set_font(grtm()->get_app_option_string("workbench.scripting.ScriptingEditor:Font"));
+  _shell_text.set_font(bec::GRTManager::get().get_app_option_string("workbench.scripting.ScriptingShell:Font"));
+  _snippet_text.set_font(bec::GRTManager::get().get_app_option_string("workbench.scripting.ScriptingEditor:Font"));
   for (std::vector<GRTCodeEditor*>::iterator editor = _editors.begin(); editor != _editors.end(); editor++)
-    (*editor)->set_font(grtm()->get_app_option_string("workbench.scripting.ScriptingEditor:Font"));
+    (*editor)->set_font(bec::GRTManager::get().get_app_option_string("workbench.scripting.ScriptingEditor:Font"));
   
   _lower_tab_height = _context->read_state("editor-splitter", "scripting-shell", 400);
   on_tab_changed();

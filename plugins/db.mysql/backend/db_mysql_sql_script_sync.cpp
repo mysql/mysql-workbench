@@ -188,7 +188,7 @@ protected:
 
 public:
   ObjectAction(_Parent ow, bool update_empty) : owner(ow), update_only_empty(update_empty) {}
-
+  virtual ~ObjectAction() {}
   virtual void operator() (_Object object)
   {
 //    object->owner(owner);
@@ -281,10 +281,9 @@ void update_all_old_names(db_mysql_CatalogRef cat, bool update_only_empty, Catal
   ct::for_each<ct::Schemata>(cat, sa);
 }
 
-DbMySQLScriptSync::DbMySQLScriptSync(bec::GRTManager *grtm)
-  : DbMySQLValidationPage(grtm), _alter_list(grt::Initialized), _alter_object_list(true)
+DbMySQLScriptSync::DbMySQLScriptSync()
+  : DbMySQLValidationPage(), _alter_list(grt::Initialized), _alter_object_list(true)
 {
-  _manager= grtm;
 }
 
 DbMySQLScriptSync::~DbMySQLScriptSync()
@@ -319,11 +318,11 @@ void DbMySQLScriptSync::set_option(const std::string& name, const std::string& v
 void DbMySQLScriptSync::start_sync()
 {
   bec::GRTTask::Ref task = bec::GRTTask::create_task("SQL sync", 
-    _manager->get_dispatcher(), 
+    bec::GRTManager::get().get_dispatcher(),
     boost::bind(&DbMySQLScriptSync::sync_task, this, grt::StringRef()));
 
   scoped_connect(task->signal_finished(),boost::bind(&DbMySQLScriptSync::sync_finished, this, _1));
-  _manager->get_dispatcher()->add_task(task);
+  bec::GRTManager::get().get_dispatcher()->add_task(task);
 }
 
 void DbMySQLScriptSync::sync_finished(grt::ValueRef res)
@@ -463,7 +462,7 @@ grt::StringRef DbMySQLScriptSync::generate_alter(db_mysql_CatalogRef org_cat, db
   options.set("KeepOrder", grt::IntegerRef(1));
   grt::ListRef<GrtNamedObject> alter_object_list(true);
   options.set("OutputObjectContainer", alter_object_list);
-  options.set("SQL_MODE", _manager->get_app_option("SqlGenerator.Mysql:SQL_MODE"));
+  options.set("SQL_MODE", bec::GRTManager::get().get_app_option("SqlGenerator.Mysql:SQL_MODE"));
 
   diffsql_module->generateSQL(org_cat, options, alter_change);
 
@@ -541,7 +540,7 @@ boost::shared_ptr<DiffTreeBE> DbMySQLScriptSync::init_diff_tree(const std::vecto
 {
   db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->get("/wb/rdbmsMgmt/rdbms/0"));
   std::string default_engine_name;
-  grt::ValueRef default_engine = _manager->get_app_option("db.mysql.Table:tableEngine");
+  grt::ValueRef default_engine = bec::GRTManager::get().get_app_option("db.mysql.Table:tableEngine");
   if(grt::StringRef::can_wrap(default_engine))
     default_engine_name = grt::StringRef::cast_from(default_engine);
   std::string err;
@@ -735,7 +734,7 @@ std::string DbMySQLScriptSync::generate_diff_tree_script()
   options.set("TriggerFilterList", convert_string_vector_to_grt_list(triggers));
 
   options.set("KeepOrder", grt::IntegerRef(1));
-  options.set("SQL_MODE", _manager->get_app_option("SqlGenerator.Mysql:SQL_MODE"));
+  options.set("SQL_MODE", bec::GRTManager::get().get_app_option("SqlGenerator.Mysql:SQL_MODE"));
 
   grt::StringListRef alter_list(grt::Initialized);
   grt::ListRef<GrtNamedObject> alter_object_list(true);
@@ -819,7 +818,7 @@ std::string DbMySQLScriptSync::generate_diff_tree_report()
   options.set("RoutineFilterList", convert_string_vector_to_grt_list(routines));
   options.set("TriggerFilterList", convert_string_vector_to_grt_list(triggers));
   options.set("TemplateFile", 
-    grt::StringRef(_manager->get_data_file_path("modules/data/db_mysql_catalog_reporting/Basic_Text.tpl/basic_text_report.txt.tpl").c_str()));
+    grt::StringRef(bec::GRTManager::get().get_data_file_path("modules/data/db_mysql_catalog_reporting/Basic_Text.tpl/basic_text_report.txt.tpl").c_str()));
 
   grt::StringRef output_string(diffsql_module->generateReport(_org_cat, options, _alter_change));
 

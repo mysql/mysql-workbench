@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ class DbMySQLRoleEditor : public PluginEditorBase
   }
   
  public:
-  DbMySQLRoleEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args);
+  DbMySQLRoleEditor(grt::Module *m, const grt::BaseListRef &args);
   ~DbMySQLRoleEditor()
   {
     delete _be;
@@ -69,15 +69,15 @@ class DbMySQLRoleEditor : public PluginEditorBase
   void on_object_drop(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y,
                        const Gtk::SelectionData& selection_data, guint info, guint time);
 
-  virtual bool switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args);
+  virtual bool switch_edited_object(const grt::BaseListRef &args);
 };
 
 
 
 
-DbMySQLRoleEditor::DbMySQLRoleEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
-    : PluginEditorBase(m, grtm, args, "modules/data/editor_role.glade")
-    , _be(new bec::RoleEditorBE(grtm, db_RoleRef::cast_from(args[0]), get_rdbms_for_db_object(args[0])))
+DbMySQLRoleEditor::DbMySQLRoleEditor(grt::Module *m, const grt::BaseListRef &args)
+    : PluginEditorBase(m, args, "modules/data/editor_role.glade")
+    , _be(new bec::RoleEditorBE(db_RoleRef::cast_from(args[0]), get_rdbms_for_db_object(args[0])))
     , _refreshing(false)
 {
   xml()->get_widget("mysql_role_editor_notebook", _editor_notebook);
@@ -141,11 +141,11 @@ DbMySQLRoleEditor::DbMySQLRoleEditor(grt::Module *m, bec::GRTManager *grtm, cons
 }
 
 //------------------------------------------------------------------------------
-bool DbMySQLRoleEditor::switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args)
+bool DbMySQLRoleEditor::switch_edited_object(const grt::BaseListRef &args)
 {
   bec::RoleEditorBE *old_be = _be;
 
-  _be = new bec::RoleEditorBE(grtm, db_RoleRef::cast_from(args[0]), get_rdbms_for_db_object(args[0]));
+  _be = new bec::RoleEditorBE(db_RoleRef::cast_from(args[0]), get_rdbms_for_db_object(args[0]));
 
   _be->set_refresh_ui_slot(sigc::mem_fun(this, &DbMySQLRoleEditor::refresh_form_data));
 
@@ -306,8 +306,8 @@ void DbMySQLRoleEditor::objects_tv_cursor_changed()
 //------------------------------------------------------------------------------
 extern "C"
 {
-  GUIPluginBase *createDbMysqlRoleEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
+  GUIPluginBase *createDbMysqlRoleEditor(grt::Module *m, const grt::BaseListRef &args)
   {
-    return Gtk::manage(new DbMySQLRoleEditor(m, grtm, args));
+    return Gtk::manage(new DbMySQLRoleEditor(m, args));
   }
 };

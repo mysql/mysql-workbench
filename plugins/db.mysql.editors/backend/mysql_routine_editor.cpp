@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,8 +26,8 @@ using namespace bec;
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLRoutineEditorBE::MySQLRoutineEditorBE(bec::GRTManager *grtm, const db_mysql_RoutineRef &routine)
-  : RoutineEditorBE(grtm, routine)
+MySQLRoutineEditorBE::MySQLRoutineEditorBE(const db_mysql_RoutineRef &routine)
+  : RoutineEditorBE(routine)
 {
   // In modeling we apply the text on focus change. For live editing however we don't.
   // The user has to explicitly commit his changes.

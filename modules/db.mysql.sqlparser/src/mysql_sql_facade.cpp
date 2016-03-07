@@ -81,8 +81,8 @@ bool is_line_break(const unsigned char *head, const unsigned char *line_break)
  * A statement splitter to take a list of sql statements and split them into individual statements,
  * return their position and length in the original string (instead the copied strings).
  */
-int MysqlSqlFacadeImpl::splitSqlScript(const char *sql, size_t length,
-  const std::string &initial_delimiter, std::vector<std::pair<size_t, size_t> > &ranges,
+int MysqlSqlFacadeImpl::splitSqlScript(const char *sql, std::size_t length,
+  const std::string &initial_delimiter, std::vector<std::pair<std::size_t, std::size_t> > &ranges,
   const std::string &line_break)
 {
   _stop = false;
@@ -274,7 +274,7 @@ int MysqlSqlFacadeImpl::splitSqlScript(const char *sql, size_t length,
 grt::BaseListRef MysqlSqlFacadeImpl::getSqlStatementRanges(const std::string &sql)
 {
   grt::BaseListRef list(true);
-  std::list<std::pair<size_t,size_t> > ranges;
+  std::list<std::pair<std::size_t, std::size_t> > ranges;
   Mysql_sql_script_splitter::create()->process(sql.c_str(), ranges);
   
   for (std::list<std::pair<size_t,size_t> >::const_iterator i = ranges.begin(); i != ranges.end(); ++i)
@@ -542,7 +542,7 @@ static int parse_callback(void* user_data, const MyxStatementParser *splitter, c
 
 grt::BaseListRef MysqlSqlFacadeImpl::parseAstFromSqlScript(const std::string &sql)
 {
-  Mysql_sql_parser_fe parser(bec::GRTManager::get_instance_for()->get_app_option_string("SqlMode"));
+  Mysql_sql_parser_fe parser(bec::GRTManager::get().get_app_option_string("SqlMode"));
   grt::BaseListRef result(true);
 
   parser.is_ast_generation_enabled = true;

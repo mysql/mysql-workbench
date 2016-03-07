@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,8 +42,8 @@ bool UndoObjectChangeGroup::matches_group(UndoGroup *group) const
 
 //----------------- BaseEditor ---------------------------------------------------------------------
 
-BaseEditor::BaseEditor(GRTManager *grtm, const grt::Ref<GrtObject> &object)
-: _grtm(grtm), _ignore_object_changes_for_ui_refresh(0), _object(object)
+BaseEditor::BaseEditor(const grt::Ref<GrtObject> &object)
+: _ignore_object_changes_for_ui_refresh(0), _object(object)
 {
   _ignored_object_fields_for_ui_refresh.insert("oldName");
 
@@ -162,10 +162,10 @@ void BaseEditor::on_object_changed()
     // calling ui_refresh from here will cause refresh to be called from the GRT thread
     // which must not happen. delaying it to be executing when idle will make it 
     // get called on main thread
-    if (_grtm->in_main_thread())
+    if (bec::GRTManager::get().in_main_thread())
       do_ui_refresh();
     else
-      _ui_refresh_conn = _grtm->run_once_when_idle(boost::bind(&RefreshUI::do_ui_refresh, this));
+      _ui_refresh_conn = bec::GRTManager::get().run_once_when_idle(boost::bind(&RefreshUI::do_ui_refresh, this));
   }
   else
     _ignored_object_changes_for_ui_refresh++;
@@ -175,14 +175,14 @@ void BaseEditor::on_object_changed()
 
 void BaseEditor::undo_applied()
 {
-  _ui_refresh_conn = _grtm->run_once_when_idle(boost::bind(&RefreshUI::do_ui_refresh, this));
+  _ui_refresh_conn = bec::GRTManager::get().run_once_when_idle(boost::bind(&RefreshUI::do_ui_refresh, this));
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void BaseEditor::run_from_grt(const boost::function<void()> &slot)
 {
-  _grtm->get_dispatcher()->execute_sync_function("editor action",
+  bec::GRTManager::get().get_dispatcher()->execute_sync_function("editor action",
     boost::bind(boost::bind(&base::run_and_return_value<grt::ValueRef>, slot)));
 }
 

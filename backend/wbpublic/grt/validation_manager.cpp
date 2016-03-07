@@ -189,9 +189,9 @@ void bec::ValidationManager::register_validator(const std::string& type, grt::Va
 
 //--------------------------------------------------------------------------------------------------
 
-void bec::ValidationManager::scan(GRTManager* grtm)
+void bec::ValidationManager::scan()
 {
-  const std::vector<app_PluginRef> plugins = grtm->get_plugin_manager()->get_plugins_for_group("");
+  const std::vector<app_PluginRef> plugins = bec::GRTManager::get().get_plugin_manager()->get_plugins_for_group("");
   
   for (size_t i = 0; i < plugins.size(); ++i)
   {

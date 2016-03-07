@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -111,8 +111,8 @@ public:
     NULL);
 
   int splitSqlScript(const std::string &sql, std::list<std::string> &statements);
-  int splitSqlScript(const char *sql, size_t length, const std::string &initial_delimiter,
-    std::vector<std::pair<size_t, size_t> > &ranges, const std::string &line_break = "\n");
+  int splitSqlScript(const char *sql, std::size_t length, const std::string &initial_delimiter,
+    std::vector<std::pair<std::size_t, std::size_t> > &ranges, const std::string &line_break = "\n");
   
   Sql_parser::Ref sqlParser();
   int parseSqlScriptString(db_CatalogRef catalog, const std::string sql);

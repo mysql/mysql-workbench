@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,17 +45,11 @@ private:
   Validation_step_finished_cb _validation_step_finished_cb;
 
 protected:
-  bec::GRTManager *_manager;
   bec::MessageListBE *messages_list;
 
 public:
-  DbMySQLValidationPage(bec::GRTManager *grtm);
+  DbMySQLValidationPage();
   ~DbMySQLValidationPage();
-
-  bec::GRTManager *get_grt_manager() const 
-  { 
-    return _manager; 
-  }
 
   void run_validation();
 

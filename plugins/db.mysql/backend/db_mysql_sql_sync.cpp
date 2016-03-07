@@ -30,10 +30,10 @@ using namespace grt;
 
 #include "diff/diffchange.h"
 
-DbMySQLSync::DbMySQLSync(bec::GRTManager *grtm)
-  : Db_plugin(), DbMySQLValidationPage(grtm)
+DbMySQLSync::DbMySQLSync()
+  : Db_plugin(), DbMySQLValidationPage()
 {
-  DbMySQLSync::grtm(grtm, false);
+  DbMySQLSync::grtm(false);
   _catalog= db_mysql_CatalogRef::cast_from(grt::GRT::get()->get("/wb/doc/physicalModels/0/catalog"));
 }
 

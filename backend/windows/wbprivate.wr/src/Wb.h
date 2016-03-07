@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -202,13 +202,11 @@ public:
 
   bool opengl_rendering_enforced() { return inner->get_wb()->opengl_rendering_enforced(); }
   bool software_rendering_enforced() { return inner->get_wb()->software_rendering_enforced(); }
-  bool is_busy() { return inner->get_wb()->get_grt_manager()->get_dispatcher()->get_busy(); }
+  bool is_busy() { return bec::GRTManager::get().get_dispatcher()->get_busy(); }
   bool request_quit() { return inner->request_quit(); }
   void perform_quit() { inner->perform_quit(); }
   bool is_quitting() { return inner->is_quitting(); }
   void finalize() { inner->finalize(); }
-
-  GrtManager^ get_grt_manager();
 
   Windows::Forms::MenuStrip^ menu_for_form(MySQL::Base::UIForm^ form);
   Windows::Forms::MenuStrip^ menu_for_appview(MySQL::Forms::AppViewDockContent ^content);

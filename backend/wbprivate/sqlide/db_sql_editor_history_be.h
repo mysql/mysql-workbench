@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,11 +31,10 @@ class MYSQLWBBACKEND_PUBLIC_FUNC DbSqlEditorHistory
 {
 public:
   typedef boost::shared_ptr<DbSqlEditorHistory> Ref;
-  static Ref create(bec::GRTManager *grtm) { return Ref(new DbSqlEditorHistory(grtm)); }
+  static Ref create() { return Ref(new DbSqlEditorHistory()); }
   virtual ~DbSqlEditorHistory();
 protected:
-  DbSqlEditorHistory(bec::GRTManager *grtm);
-  bec::GRTManager *_grtm;
+  DbSqlEditorHistory();
 
 public:
   void reset();
@@ -59,9 +58,9 @@ public:
   public:
     friend class DbSqlEditorHistory;
     typedef boost::shared_ptr<DetailsModel> Ref;
-    static Ref create(bec::GRTManager *grtm) { return Ref(new DetailsModel(grtm)); }
+    static Ref create() { return Ref(new DetailsModel()); }
   protected:
-    DetailsModel(bec::GRTManager *grtm);
+    DetailsModel();
 
   public:
     void add_entries(const std::list<std::string> &statements);
@@ -98,9 +97,9 @@ public:
     friend class DbSqlEditorHistory;
     
     typedef boost::shared_ptr<EntriesModel> Ref;
-    static Ref create(DbSqlEditorHistory *owner, bec::GRTManager *grtm) { return Ref(new EntriesModel(owner, grtm)); }
+    static Ref create(DbSqlEditorHistory *owner) { return Ref(new EntriesModel(owner)); }
   protected:
-    EntriesModel(DbSqlEditorHistory *owner, bec::GRTManager *grtm);
+    EntriesModel(DbSqlEditorHistory *owner);
 
     DbSqlEditorHistory *_owner;
 

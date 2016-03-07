@@ -17,8 +17,6 @@ public:
 
 class DBMYSQLDIFFREPORTINGWBPBE_PUBLIC_FUNC DbMySQLDiffReporting
 {
-  bec::GRTManager *manager_;
-
 public:
   inline db_mysql_CatalogRef get_model_catalog()
   {
@@ -27,10 +25,8 @@ public:
   }
 
 public:
-  DbMySQLDiffReporting(bec::GRTManager *m);
+  DbMySQLDiffReporting();
   virtual ~DbMySQLDiffReporting();
-
-  bec::GRTManager *get_grt_manager() { return manager_; }
 
   std::string generate_report(const db_mysql_CatalogRef& left_cat,
                               const db_mysql_CatalogRef& right_cat);

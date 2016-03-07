@@ -66,7 +66,6 @@ public:
   }
   TEST_DATA_DESTRUCTOR(wb_lowlevel_test)
   {
-    delete tester;
   }
 
 END_TEST_DATA_CLASS;
@@ -152,6 +151,8 @@ TEST_FUNCTION(10)
   tester->flush_until(3, boost::bind(&grt::ListRef<model_Connection>::count, tmp), 1);
 
   ensure_equals("connection created", tester->get_pview()->connections().count(), 1U);
+  tester->wb->close_document();
+  tester->wb->close_document_finish();
 }
 
 
@@ -190,6 +191,9 @@ TEST_FUNCTION(15)
   tester->flush_until(3, boost::bind(&grt::ListRef<model_Connection>::count, tmp), 1);
 
   ensure_equals("connection created", tester->get_pview()->connections().count(), 1U);
+
+  tester->wb->close_document();
+  tester->wb->close_document_finish();
 }
 
 
@@ -356,13 +360,14 @@ TEST_FUNCTION(25)
   ensure_equals("privs left", role->privileges().count(), 1U);
 
   ensure("priv owner", role->privileges().get(0)->databaseObject() == table2);
+
+  tester->wb->close_document();
+  tester->wb->close_document_finish();
 }
 
 TEST_FUNCTION(30)
 {
   populate_grt(*tester);
-
-  tester->create_new_document();
 
   // bug: undo drop table will not reset TableFigure::table_figure_for_dbtable()
 
@@ -390,38 +395,13 @@ TEST_FUNCTION(30)
   grt::GRT::get()->get_undo_manager()->undo();
 
   ensure_equals("check table gone", tester->get_pview()->figures().count(), 0U);
+  tester->wb->close_document();
+  tester->wb->close_document_finish();
 }
 
-//XXX this test is too simple
-TEST_FUNCTION(35)
+TEST_FUNCTION(31)
 {
-
-  populate_grt(*tester);
-
-  if (tester->wb->is_commercial())
-  {
-    /* XXX: needs to be adjusted for changed advanced find.
-    wb.wb->open_document("data/workbench/sakila.mwb");
-
-    wb.wb->flush_idle_tasks();
-
-    AdvFindPanel *find = new AdvFindPanel(wb.grt);
-
-    find->set_text("film");
-    find->set_search_area(FindDialogBE::saAllViews);
-
-    ensure_equals("search views", find->find_next(), FoundMatch);
-
-
-    find->set_text("film");
-    find->set_search_area(FindDialogBE::saEntireModel);
-
-    ensure_equals("search whole model", find->find_next(), FoundMatch);
-
-    delete find;
-    */
-  }
+  delete tester;
 }
-
 
 END_TESTS
