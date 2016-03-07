@@ -60,7 +60,7 @@ public ref class RoleEditorBE : public BaseEditorWrapper
 {
 
 public:
-  RoleEditorBE(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist);
+  RoleEditorBE(MySQL::Grt::GrtValue^ arglist);
   ~RoleEditorBE();
 
   ::bec::RoleEditorBE *get_unmanaged_object();

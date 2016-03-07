@@ -316,7 +316,7 @@ namespace wb {
     R execute_in_main_thread(const std::string &name, 
                              const boost::function<R ()> &function) THROW (grt::grt_runtime_error)
     {
-      return bec::GRTManager::get().get_dispatcher()->call_from_main_thread/*<R>*/(function, true, false);
+      return bec::GRTManager::get().get_dispatcher()->call_from_main_thread/*<R>*/(function, true, false); 
     }
     void execute_in_main_thread(const std::string &name, 
                               const boost::function<void ()> &function, bool wait) THROW (grt::grt_runtime_error);

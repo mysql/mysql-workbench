@@ -30,10 +30,9 @@ ImageEditorWrapper::ImageEditorWrapper(ImageEditorBE *inn)
 
 //--------------------------------------------------------------------------------------------------
 
-ImageEditorWrapper::ImageEditorWrapper(MySQL::Grt::GrtManager ^grtm, MySQL::Grt::GrtValue ^arglist)
+ImageEditorWrapper::ImageEditorWrapper(MySQL::Grt::GrtValue ^arglist)
   : BaseEditorWrapper(
-    new ::ImageEditorBE(grtm->get_unmanaged_object(),
-      workbench_model_ImageFigureRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
+    new ::ImageEditorBE(workbench_model_ImageFigureRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
       )
     )
 {

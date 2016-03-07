@@ -38,7 +38,7 @@ protected:
   {}  
 
 public:
-  DBObjectFilterBE(MySQL::Grt::GrtManager^ grtm);
+  DBObjectFilterBE();
 
   ~DBObjectFilterBE()
   { delete inner; }

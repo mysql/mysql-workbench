@@ -23,10 +23,9 @@ using namespace MySQL::Grt::Db;
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLViewEditorWrapper::MySQLViewEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist)
+MySQLViewEditorWrapper::MySQLViewEditorWrapper(MySQL::Grt::GrtValue^ arglist)
   : ViewEditorWrapper(
-    new ::MySQLViewEditorBE(grtm->get_unmanaged_object(),
-    db_mysql_ViewRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
+    new ::MySQLViewEditorBE(db_mysql_ViewRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
     )
   )
 {

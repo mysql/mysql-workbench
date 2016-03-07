@@ -208,6 +208,8 @@ public:
   bool is_quitting() { return inner->is_quitting(); }
   void finalize() { inner->finalize(); }
 
+  GrtManager^ get_grt_manager();
+
   Windows::Forms::MenuStrip^ menu_for_form(MySQL::Base::UIForm^ form);
   Windows::Forms::MenuStrip^ menu_for_appview(MySQL::Forms::AppViewDockContent ^content);
   void validate_menu_for_form(MySQL::Base::UIForm^ form);

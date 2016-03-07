@@ -33,7 +33,7 @@ protected:
   ImageEditorWrapper(::ImageEditorBE *inn);
 
 public:
-  ImageEditorWrapper::ImageEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist);
+  ImageEditorWrapper::ImageEditorWrapper(MySQL::Grt::GrtValue^ arglist);
   ~ImageEditorWrapper();
 
   ImageEditorBE *get_unmanaged_object();

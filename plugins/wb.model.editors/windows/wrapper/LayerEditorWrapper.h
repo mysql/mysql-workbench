@@ -33,7 +33,7 @@ protected:
   LayerEditorWrapper(::LayerEditorBE *inn);
 
 public:
-  LayerEditorWrapper::LayerEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist);
+  LayerEditorWrapper::LayerEditorWrapper(MySQL::Grt::GrtValue^ arglist);
   ~LayerEditorWrapper();
 
   LayerEditorBE *get_unmanaged_object();

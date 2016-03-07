@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef __GRT_MANAGER_H__
-#define __GRT_MANAGER_H__
+#pragma once
 
 #include "ModelWrappers.h"
 #include "GrtShell.h"
@@ -37,7 +36,6 @@ namespace MySQL {
       delegate bool BoolStringStringFloatWrapperDelegate(const std::string& str1, const std::string& str2, float f);
       typedef bool (*GrtManager::BOOL_STRING_STRING_FLOAT_HANDLER_CB)(const std::string& str1, const std::string& str2, float f);
 
-      ::bec::GRTManager *inner;
       GrtShell^ managed_shell;
       GRT^ managed_grt;
       BoolStringStringFloatDelegate^ progress_callback_delegate;
@@ -50,40 +48,44 @@ namespace MySQL {
       
     public:
       GrtManager(bool threaded, bool verbose)
-        : inner(new ::bec::GRTManager(threaded, verbose)), managed_shell(nullptr), managed_grt(nullptr)
+        : managed_shell(nullptr), managed_grt(nullptr)
       {}
 
       GrtManager(::bec::GRTManager *grt_manager)
-        : inner(grt_manager), managed_shell(nullptr), managed_grt(nullptr)
+        : managed_grt(nullptr)
       {}
 
       explicit GrtManager()
-        : inner(nullptr), managed_shell(nullptr), managed_grt(nullptr)
+        : managed_grt(nullptr)
       {}
 
       virtual ~GrtManager()
       { /*delete inner;*/ }
 
-      ::bec::GRTManager *get_unmanaged_object()
-      { return static_cast<::bec::GRTManager *>(inner); }
+      /*::bec::GRTManager *get_unmanaged_object()
+      {
+        &::bec::GRTManager::get();
+      }*/
 
       String^ get_app_option_string(String^ option_name)
-      { return CppStringToNative(inner->get_app_option_string(NativeToCppString(option_name))); }
+      {
+        return CppStringToNative(::bec::GRTManager::get().get_app_option_string(NativeToCppString(option_name)));
+      }
 
       Font^ get_font_option(String^ option_name)
       {
-        String^ font_string= CppStringToNative(inner->get_app_option_string(NativeToCppString(option_name)));
+        String^ font_string = CppStringToNative(::bec::GRTManager::get().get_app_option_string(NativeToCppString(option_name)));
         return MySQL::Utilities::ControlUtilities::GetFont(font_string);
       }
 
       void set_module_extensions(List<String^>^ extensions)
       {
-        inner->set_module_extensions(NativeToCppStringList2(extensions));
+        ::bec::GRTManager::get().set_module_extensions(NativeToCppStringList2(extensions));
       }
 
       void set_search_paths(String^ module_sp, String^ struct_sp, String^ libs_sp)
       {
-        inner->set_search_paths(
+        ::bec::GRTManager::get().set_search_paths(
           NativeToCppString(module_sp),
           NativeToCppString(struct_sp),
           NativeToCppString(libs_sp));
@@ -97,34 +99,38 @@ namespace MySQL {
       }
 
       void initialize()
-      { inner->initialize(true); }
+      {
+        ::bec::GRTManager::get().initialize(true);
+      }
 
       void perform_idle_tasks()
-      { inner->perform_idle_tasks(); }
+      {
+        ::bec::GRTManager::get().perform_idle_tasks();
+      }
 
       void rescan_modules()
-      { inner->rescan_modules(); }
+      {
+        ::bec::GRTManager::get().rescan_modules();
+      }
 
       // shell
       GrtShell^ get_shell()
       { 
         if(managed_shell == nullptr)
-          managed_shell= gcnew GrtShell(inner->get_shell());
+          managed_shell = gcnew GrtShell(::bec::GRTManager::get().get_shell());
         return managed_shell; 
       }
 
-      void terminate() { inner->terminate(); };
-      bool terminated() { return inner->terminated(); };
-      void resetTermination() { inner->reset_termination(); };
+      void terminate() { bec::GRTManager::get().terminate(); };
+      bool terminated() { return ::bec::GRTManager::get().terminated(); };
+      void resetTermination() { ::bec::GRTManager::get().reset_termination(); };
 
-      bool try_soft_lock_globals_tree() { return inner->try_soft_lock_globals_tree(); };
-      void soft_lock_globals_tree() { inner->soft_lock_globals_tree(); };
-      void soft_unlock_globals_tree() { inner->soft_unlock_globals_tree(); };
-      bool is_globals_tree_locked() { return inner->is_globals_tree_locked(); };
+      bool try_soft_lock_globals_tree() { return ::bec::GRTManager::get().try_soft_lock_globals_tree(); };
+      void soft_lock_globals_tree() { ::bec::GRTManager::get().soft_lock_globals_tree(); };
+      void soft_unlock_globals_tree() { ::bec::GRTManager::get().soft_unlock_globals_tree(); };
+      bool is_globals_tree_locked() { return ::bec::GRTManager::get().is_globals_tree_locked(); };
 
     };
 
   } // namespace Grt
 } // namespace MySQL
-
-#endif // __GRT_MANAGER_H__

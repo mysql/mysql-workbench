@@ -67,7 +67,7 @@ namespace MySQL.GUI.Workbench.Plugins
 
       try
       {
-        Backend = new RoleEditorBE(GrtManager, value);
+        Backend = new RoleEditorBE(value);
 
         // (Re) Initialize backend.
         roleTreeBE = RoleEditorBackend.get_role_tree();

@@ -157,6 +157,17 @@ bool WbContext::init(WbFrontendCallbacks ^callbacks, WbOptions ^options,
 
 //--------------------------------------------------------------------------------------------------
 
+GrtManager^ WbContext::get_grt_manager()
+{
+  if (manager == nullptr)
+    manager = gcnew GrtManager(&bec::GRTManager::get());
+
+  return manager;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+
 void WbContext::add_frontend_commands(List<String^>^ commands)
 {
   inner->get_command_ui()->add_frontend_commands(NativeToCppStringList2(commands));

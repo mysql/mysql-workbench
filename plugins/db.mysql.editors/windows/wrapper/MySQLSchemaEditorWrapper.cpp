@@ -28,10 +28,9 @@ using namespace MySQL::Grt::Db;
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLSchemaEditorWrapper::MySQLSchemaEditorWrapper(GrtManager^ grtm, GrtValue^ arglist)
+MySQLSchemaEditorWrapper::MySQLSchemaEditorWrapper(GrtValue^ arglist)
   : SchemaEditorWrapper(
-      new MySQLSchemaEditorBE(grtm->get_unmanaged_object(),
-        db_mysql_SchemaRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
+      new MySQLSchemaEditorBE(db_mysql_SchemaRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
       )
     )
 {
