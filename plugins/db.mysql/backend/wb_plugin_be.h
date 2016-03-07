@@ -32,13 +32,10 @@ class Wb_plugin;
 class WBPLUGINDBMYSQLBE_PUBLIC_FUNC Wb_plugin : public base::trackable
 {
 public:
-  Wb_plugin() : _grtm(NULL) {}
+  Wb_plugin() {
+    _options= grt::DictRef(true);
+  }
   virtual ~Wb_plugin() {}
-
-public:
-  virtual void grtm(bec::GRTManager *grtm);
-protected:
-  bec::GRTManager *_grtm;
 
 public:
   virtual std::string task_desc() = 0;

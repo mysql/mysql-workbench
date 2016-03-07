@@ -31,7 +31,7 @@ using namespace base;
 
 BEGIN_TEST_DATA_CLASS(wb_undo_diagram)
 public:
-  WBTester tester;
+  WBTester *tester;
   WBContextUI *wbui;
   UndoManager *um;
   OverviewBE *overview;
@@ -43,36 +43,37 @@ public:
 
 TEST_DATA_CONSTRUCTOR(wb_undo_diagram)
 {
-  populate_grt(tester);
+  tester = new WBTester;
+  populate_grt(*tester);
 
-  wbui = tester.wb->get_ui();
+  wbui = tester->wb->get_ui();
   um = grt::GRT::get()->get_undo_manager();
   overview = wbui->get_physical_overview();
   diagram = model_DiagramRef();
 
   last_undo_stack_height = 0;
   last_redo_stack_height = 0;
-  bool flag = tester.wb->open_document("data/workbench/undo_test_model1.mwb");
+  bool flag = tester->wb->open_document("data/workbench/undo_test_model1.mwb");
   ensure("open_document", flag);
-  ensure_equals("schemas", tester.get_catalog()->schemata().count(), 1U);
+  ensure_equals("schemas", tester->get_catalog()->schemata().count(), 1U);
   
-  db_SchemaRef schema(tester.get_catalog()->schemata()[0]);
+  db_SchemaRef schema(tester->get_catalog()->schemata()[0]);
   
   // make sure the loaded model contains expected number of things
   ensure_equals("tables", schema->tables().count(), 4U);
   ensure_equals("views", schema->views().count(), 1U);
   ensure_equals("groups", schema->routineGroups().count(), 1U);
 
-  ensure_equals("diagrams", tester.get_pmodel()->diagrams().count(), 1U);
-  diagram = tester.get_pmodel()->diagrams()[0];
+  ensure_equals("diagrams", tester->get_pmodel()->diagrams().count(), 1U);
+  diagram = tester->get_pmodel()->diagrams()[0];
   
   ensure_equals("figures", diagram->figures().count(), 5U);
   ensure_equals("layers", diagram->layers().count(), 1U);
   
-  tester.open_all_diagrams();
-  tester.sync_view();
+  tester->open_all_diagrams();
+  tester->sync_view();
   
-  diagram_form = tester.wb->get_model_context()->get_diagram_form_for_diagram_id(tester.get_pview().id());
+  diagram_form = tester->wb->get_model_context()->get_diagram_form_for_diagram_id(tester->get_pview().id());
   ensure("Diagram form is invalid", diagram_form != 0);
   
   mforms::ToolBar *toolbar = diagram_form->get_tools_toolbar();
@@ -107,7 +108,7 @@ TEST_FUNCTION(1)
 
 TEST_FUNCTION(10)  //  Place Table
 {
-  db_SchemaRef schema= tester.get_catalog()->schemata()[0];
+  db_SchemaRef schema= tester->get_catalog()->schemata()[0];
   size_t old_figure_count= diagram->figures().count();
   size_t old_root_figure_count= diagram->rootLayer()->figures().count();
   size_t old_object_count= schema->tables().count();
@@ -136,7 +137,7 @@ TEST_FUNCTION(10)  //  Place Table
 
 TEST_FUNCTION(11)  //  Place View
 {
-  db_SchemaRef schema= tester.get_catalog()->schemata()[0];
+  db_SchemaRef schema= tester->get_catalog()->schemata()[0];
   size_t old_figure_count= diagram->figures().count();
   size_t old_root_figure_count= diagram->rootLayer()->figures().count();
   size_t old_object_count= schema->views().count();
@@ -165,7 +166,7 @@ TEST_FUNCTION(11)  //  Place View
 
 TEST_FUNCTION(12)  //  Place Routine Group
 {
-  db_SchemaRef schema= tester.get_catalog()->schemata()[0];
+  db_SchemaRef schema= tester->get_catalog()->schemata()[0];
   size_t old_figure_count= diagram->figures().count();
   size_t old_root_figure_count= diagram->rootLayer()->figures().count();
   size_t old_object_count= schema->routineGroups().count();
@@ -198,7 +199,7 @@ TEST_FUNCTION(13)  //  Place Image
   size_t old_root_figure_count= diagram->rootLayer()->figures().count();
 
   // place image will ask for a filename of the image
-  tester.add_file_for_file_dialog("data/images/sakila.png");
+  tester->add_file_for_file_dialog("data/images/sakila.png");
 
   place_figure_with_tool(WB_TOOL_IMAGE);
   check_only_one_undo_added();
@@ -614,7 +615,7 @@ TEST_FUNCTION(34) // Delete layer with stuff inside
 
 TEST_FUNCTION(36) // Place with Drag/Drop
 {
-  db_TableRef table(find_named_object_in_list(tester.get_pmodel()->catalog()->schemata()[0]->tables(), "table3"));
+  db_TableRef table(find_named_object_in_list(tester->get_pmodel()->catalog()->schemata()[0]->tables(), "table3"));
 
   ensure("table found", table.is_valid());
 
@@ -640,7 +641,7 @@ TEST_FUNCTION(36) // Place with Drag/Drop
 
 TEST_FUNCTION(38) // Place with Drag/Drop on a layer
 {
-  db_TableRef table(find_named_object_in_list(tester.get_pmodel()->catalog()->schemata()[0]->tables(), "table3"));
+  db_TableRef table(find_named_object_in_list(tester->get_pmodel()->catalog()->schemata()[0]->tables(), "table3"));
 
   ensure("table found", table.is_valid());
 
@@ -701,8 +702,8 @@ TEST_FUNCTION(40) // Create Relationship (in diagram)
 
 TEST_FUNCTION(42) // Create Relationship (indirectly with FK)
 {
-  db_TableRef table1(find_named_object_in_list(tester.get_pmodel()->catalog()->schemata()[0]->tables(), "table1"));
-  db_TableRef table2(find_named_object_in_list(tester.get_pmodel()->catalog()->schemata()[0]->tables(), "table2"));
+  db_TableRef table1(find_named_object_in_list(tester->get_pmodel()->catalog()->schemata()[0]->tables(), "table1"));
+  db_TableRef table2(find_named_object_in_list(tester->get_pmodel()->catalog()->schemata()[0]->tables(), "table2"));
 
   ensure("table valid", table1.is_valid() && table2.is_valid());
   ensure_equals("rel count", diagram->connections().count(), 1U);
@@ -712,7 +713,7 @@ TEST_FUNCTION(42) // Create Relationship (indirectly with FK)
   fk= bec::TableHelper::create_foreign_key_to_table(table1, table2,
                                                     true, true,
                                                     true, false,
-                                                    tester.get_rdbms(),
+                                                    tester->get_rdbms(),
                                                     DictRef(true),
                                                     DictRef(true));
   check_only_one_undo_added();
@@ -730,7 +731,7 @@ TEST_FUNCTION(42) // Create Relationship (indirectly with FK)
 
 TEST_FUNCTION(44) // Create Relationship (dropping table with FK)
 {
-  db_TableRef table(find_named_object_in_list(tester.get_pmodel()->catalog()->schemata()[0]->tables(), "table_with_fk"));
+  db_TableRef table(find_named_object_in_list(tester->get_pmodel()->catalog()->schemata()[0]->tables(), "table_with_fk"));
 
   ensure("table found", table.is_valid());
   ensure_equals("rel count", diagram->connections().count(), 1U);
@@ -768,7 +769,7 @@ TEST_FUNCTION(46) // Create Relationship (dropping table referenced by FK)
 
   // Now drag/drop the table to the diagram.
   std::list<GrtObjectRef> list;
-  list.push_back(find_named_object_in_list(tester.get_pmodel()->catalog()->schemata()[0]->tables(), "table_with_fk"));
+  list.push_back(find_named_object_in_list(tester->get_pmodel()->catalog()->schemata()[0]->tables(), "table_with_fk"));
   diagram_form->perform_drop(10, 10, WB_DBOBJECT_DRAG_TYPE, list);
   check_only_one_undo_added();
 
@@ -814,7 +815,7 @@ TEST_FUNCTION(48) // Delete Relationship (in diagram)
 
 TEST_FUNCTION(50) // Delete Relationship (indirectly with FK)
 {
-  db_TableRef table2(find_named_object_in_list(tester.get_pmodel()->catalog()->schemata()[0]->tables(), "table2"));
+  db_TableRef table2(find_named_object_in_list(tester->get_pmodel()->catalog()->schemata()[0]->tables(), "table2"));
 
   ensure("table valid", table2.is_valid());
   ensure_equals("rel count", diagram->connections().count(), 1U);
@@ -1001,8 +1002,15 @@ TEST_FUNCTION(62) // Delete Relationship and both Tables
   
   check_undo();
 
-  ensure("Could not close document", tester.close_document());
-  tester.wb->close_document_finish();
+  ensure("Could not close document", tester->close_document());
+  tester->wb->close_document_finish();
+}
+
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  delete tester;
 }
 
 END_TESTS

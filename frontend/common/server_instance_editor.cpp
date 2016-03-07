@@ -101,9 +101,8 @@ static bool is_local_connection(const db_mgmt_ConnectionRef &connection)
 
 //----------------- ServerInstanceEditor -----------------------------------------------------------
 
-ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_ManagementRef &mgmt)
+ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
 : Form(0, FormResizable)
-, _grtm(grtm)
 , _top_vbox(false)
 , _top_hbox(true)
 , _content_box(false)
@@ -439,7 +438,7 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
   ///
   std::set<std::string> sys_types;
   
-  std::string path= _grtm->get_data_file_path("mysql.profiles");
+  std::string path= bec::GRTManager::get().get_data_file_path("mysql.profiles");
   GDir *dir = g_dir_open(path.c_str(), 0, NULL);
   if (dir)
   {

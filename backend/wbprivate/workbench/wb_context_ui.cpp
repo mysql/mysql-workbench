@@ -194,7 +194,7 @@ bool WBContextUI::request_quit()
   if (_quitting)
     return true;
   
-  if (!_wb->get_grt_manager()->in_main_thread())
+  if (!bec::GRTManager::get().in_main_thread())
     g_warning("request_quit() called in worker thread");
 
   {
@@ -255,7 +255,7 @@ void WBContextUI::history_changed()
   if (_wb->has_unsaved_changes() != _last_unsaved_changes_state)
     _wb->request_refresh(RefreshDocument, "", (NativeHandle)0);
 
-  _wb->get_grt_manager()->run_once_when_idle(boost::bind(&CommandUI::revalidate_edit_menu_items, get_command_ui()));
+  bec::GRTManager::get().run_once_when_idle(boost::bind(&CommandUI::revalidate_edit_menu_items, get_command_ui()));
 
   _last_unsaved_changes_state= _wb->has_unsaved_changes();
 }

@@ -1,5 +1,5 @@
 /* 
-* Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -55,7 +55,6 @@ protected:
     mforms::ContextMenu _context_menu;
     boost::shared_ptr<DBSearch> _searcher;
     bec::GRTManager::Timer* _update_timer;
-    bec::GRTManager* _grtm;
     std::map<std::string, std::list<std::string> > _key_columns;
 
 
@@ -64,7 +63,7 @@ protected:
 
     void load_model(mforms::TreeNodeRef tnode);
 public:
-    DBSearchPanel(bec::GRTManager* grtm);
+    DBSearchPanel();
     ~DBSearchPanel();
     void search(sql::ConnectionWrapper connection, const std::string& search_keyword, const grt::StringListRef& filter_list,
         const SearchMode search_mode, const int limit_total, const int limt_per_table, const bool invert,const int search_data_type,

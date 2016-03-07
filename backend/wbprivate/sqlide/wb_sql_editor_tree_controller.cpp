@@ -122,13 +122,13 @@ boost::shared_ptr<SqlEditorTreeController> SqlEditorTreeController::create(SqlEd
 
 
 SqlEditorTreeController::SqlEditorTreeController(SqlEditorForm *owner)
-  : _owner(owner), _grtm(owner->grt_manager()),
+  : _owner(owner),
     _schema_side_bar(nullptr), _admin_side_bar(nullptr),
     _task_tabview(nullptr),
     _taskbar_box(nullptr),
     _schema_tree(&_base_schema_tree),
-    live_schema_fetch_task(GrtThreadedTask::create(_grtm)),
-    live_schemata_refresh_task(GrtThreadedTask::create(_grtm)),
+    live_schema_fetch_task(GrtThreadedTask::create()),
+    live_schemata_refresh_task(GrtThreadedTask::create()),
     _is_refreshing_schema_tree(false),
     _unified_mode(false),
     _use_show_procedure(false),
@@ -141,8 +141,8 @@ SqlEditorTreeController::SqlEditorTreeController(SqlEditorForm *owner)
   grt::GRTNotificationCenter::get()->add_grt_observer(this, "GRNPreferencesDidClose");
   grt::GRTNotificationCenter::get()->add_grt_observer(this, "GRNSQLEditorReconnected");
 
-  _base_schema_tree.is_schema_contents_enabled(_grtm->get_app_option_int("DbSqlEditor:ShowSchemaTreeSchemaContents", 1) != 0);
-  _filtered_schema_tree.is_schema_contents_enabled(_grtm->get_app_option_int("DbSqlEditor:ShowSchemaTreeSchemaContents", 1) != 0);
+  _base_schema_tree.is_schema_contents_enabled(bec::GRTManager::get().get_app_option_int("DbSqlEditor:ShowSchemaTreeSchemaContents", 1) != 0);
+  _filtered_schema_tree.is_schema_contents_enabled(bec::GRTManager::get().get_app_option_int("DbSqlEditor:ShowSchemaTreeSchemaContents", 1) != 0);
 
   _base_schema_tree.sql_editor_text_insert_signal.connect(boost::bind(&SqlEditorTreeController::insert_text_to_active_editor, this, _1));
   _filtered_schema_tree.sql_editor_text_insert_signal.connect(boost::bind(&SqlEditorTreeController::insert_text_to_active_editor, this, _1));
@@ -178,7 +178,7 @@ SqlEditorTreeController::~SqlEditorTreeController()
 
 void SqlEditorTreeController::finish_init()
 {
-  _unified_mode = _grtm->get_app_option_int("DbSqlEditor:SidebarModeCombined", 0) == 1;
+  _unified_mode = bec::GRTManager::get().get_app_option_int("DbSqlEditor:SidebarModeCombined", 0) == 1;
 
   // Box to host the management and SQL IDE task bars in tab view or stacked mode.
   _taskbar_box = new mforms::Box(false);
@@ -200,7 +200,7 @@ void SqlEditorTreeController::finish_init()
     _task_tabview->add_page(_admin_side_bar, _("Management"));
     _task_tabview->add_page(_schema_side_bar, _("Schemas"));
 
-    int i = _grtm->get_app_option_int("DbSqlEditor:ActiveTaskTab", 0);
+    int i = bec::GRTManager::get().get_app_option_int("DbSqlEditor:ActiveTaskTab", 0);
     if (i < 0)
       i = 0;
     else if (i >= 2)
@@ -219,7 +219,7 @@ void SqlEditorTreeController::finish_init()
   _schema_side_bar->set_filtered_schema_model(&_filtered_schema_tree);
   _schema_side_bar->set_selection_color(mforms::SystemColorHighlight);
 
-  int initial_splitter_pos = _grtm->get_app_option_int("DbSqlEditor:SidebarInitialSplitterPos", 500);
+  int initial_splitter_pos = bec::GRTManager::get().get_app_option_int("DbSqlEditor:SidebarInitialSplitterPos", 500);
   _side_splitter = mforms::manage(new mforms::Splitter(false, true));
 
 #ifdef _WIN32
@@ -272,7 +272,7 @@ void SqlEditorTreeController::finish_init()
   tree_refresh();
 
   // make sure to restore the splitter pos after layout is ready
-  _grtm->run_once_when_idle(this, boost::bind(&mforms::Splitter::set_divider_position, _side_splitter, initial_splitter_pos));
+  bec::GRTManager::get().run_once_when_idle(this, boost::bind(&mforms::Splitter::set_divider_position, _side_splitter, initial_splitter_pos));
 
   // Connect the splitter change event after the setup is done to avoid wrong triggering.
   _splitter_connection = _side_splitter->signal_position_changed()->connect(boost::bind(&SqlEditorTreeController::sidebar_splitter_changed, this));
@@ -293,12 +293,12 @@ void SqlEditorTreeController::prepare_close()
   _splitter_connection.disconnect();
 
   if (_schema_side_bar)
-    _grtm->set_app_option("DbSqlEditor:SidebarCollapseState", grt::StringRef(_schema_side_bar->get_collapse_states()));
+    bec::GRTManager::get().set_app_option("DbSqlEditor:SidebarCollapseState", grt::StringRef(_schema_side_bar->get_collapse_states()));
 
   int tab = _task_tabview->get_active_tab();
-  _grtm->set_app_option("DbSqlEditor:ActiveTaskTab", grt::IntegerRef(tab));
+  bec::GRTManager::get().set_app_option("DbSqlEditor:ActiveTaskTab", grt::IntegerRef(tab));
   tab = _info_tabview->get_active_tab();
-  _grtm->set_app_option("DbSqlEditor:ActiveInfoTab", grt::IntegerRef(tab));
+  bec::GRTManager::get().set_app_option("DbSqlEditor:ActiveInfoTab", grt::IntegerRef(tab));
 }
 
 
@@ -351,14 +351,14 @@ void SqlEditorTreeController::sidebar_splitter_changed()
 {
   int pos = _side_splitter->get_divider_position();
   if (pos > 0)
-    _grtm->set_app_option("DbSqlEditor:SidebarInitialSplitterPos", grt::IntegerRef(pos));
+    bec::GRTManager::get().set_app_option("DbSqlEditor:SidebarInitialSplitterPos", grt::IntegerRef(pos));
 }
 
 //--------------------------------------------------------------------------------------------------
 
 bool SqlEditorTreeController::fetch_data_for_filter(const std::string &schema_filter, const std::string &object_filter, const wb::LiveSchemaTree::NewSchemaContentArrivedSlot &arrived_slot)
 {
-  std::string wb_internal_schema = _grtm->get_app_option_string("workbench:InternalSchema");
+  std::string wb_internal_schema = bec::GRTManager::get().get_app_option_string("workbench:InternalSchema");
 
   sql::Dbc_connection_handler::Ref conn;
 
@@ -398,7 +398,7 @@ bool SqlEditorTreeController::fetch_data_for_filter(const std::string &schema_fi
   // If the remote search is available performs the search
   if (remote_search_enabled)
   {
-    bool sync= !_grtm->in_main_thread();
+    bool sync= !bec::GRTManager::get().in_main_thread();
     log_debug3("Fetch data for filter %s.%s\n", schema_filter.c_str(), object_filter.c_str());
     live_schema_fetch_task->exec(sync,
                                  boost::bind(&SqlEditorTreeController::do_fetch_data_for_filter, this,
@@ -421,7 +421,7 @@ std::list<std::string> SqlEditorTreeController::fetch_schema_list()
 
     RecMutexLock aux_dbc_conn_mutex(_owner->ensure_valid_aux_connection(conn));
 
-    bool show_metadata_schemata= (0 != _grtm->get_app_option_int("DbSqlEditor:ShowMetadataSchemata", 0));
+    bool show_metadata_schemata= (0 != bec::GRTManager::get().get_app_option_int("DbSqlEditor:ShowMetadataSchemata", 0));
 
     std::auto_ptr<sql::ResultSet> rs(conn->ref->getMetaData()->getSchemata());
     while (rs->next())
@@ -458,7 +458,7 @@ bool SqlEditorTreeController::fetch_schema_contents(const std::string &schema_na
   // in windows we use TreeViewAdv feature to expand nodes asynchronously
   // that is this function is already called from a separate thread
   // and it must have items loaded when it returns.
-  bool sync= !_grtm->in_main_thread();
+  bool sync= !bec::GRTManager::get().in_main_thread();
   log_debug3("Fetch schema contents for %s\n", schema_name.c_str());
   live_schema_fetch_task->exec(sync,
                                boost::bind(&SqlEditorTreeController::do_fetch_live_schema_contents, this,
@@ -570,7 +570,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(boost::wea
     if (arrived_slot)
     {
       boost::function<void ()> schema_contents_arrived = boost::bind(arrived_slot, schema_name, tables, views, procedures, functions, false);
-      _grtm->run_once_when_idle(this, schema_contents_arrived);
+      bec::GRTManager::get().run_once_when_idle(this, schema_contents_arrived);
     }
 
     // Let the owner form know we got fresh schema meta data. Can be used to update caches.
@@ -585,7 +585,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(boost::wea
     {
       StringListPtr empty_list;
       boost::function<void ()> schema_contents_arrived = boost::bind(arrived_slot, schema_name, empty_list, empty_list, empty_list, empty_list, false);
-      _grtm->run_once_when_idle(this, schema_contents_arrived);
+      bec::GRTManager::get().run_once_when_idle(this, schema_contents_arrived);
     }
   }
 
@@ -604,7 +604,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_data_for_filter(boost::weak_ptr
   std::map<std::string, int> schema_directory;
   std::string last_schema;
 
-  std::string wb_internal_schema = _grtm->get_app_option_string("workbench:InternalSchema");
+  std::string wb_internal_schema = bec::GRTManager::get().get_app_option_string("workbench:InternalSchema");
 
   try
   {
@@ -633,7 +633,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_data_for_filter(boost::weak_ptr
         if (schema != last_schema && last_schema != "")
         {
           if (arrived_slot)
-            _grtm->run_once_when_idle(this, boost::bind(arrived_slot, last_schema, tables, views, procedures, functions, true));
+            bec::GRTManager::get().run_once_when_idle(this, boost::bind(arrived_slot, last_schema, tables, views, procedures, functions, true));
 
           tables->clear();
           views->clear();
@@ -654,7 +654,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_data_for_filter(boost::weak_ptr
       }
 
       if (last_schema != "" && arrived_slot)
-        _grtm->run_once_when_idle(this, boost::bind(arrived_slot, last_schema, tables, views, procedures, functions, true));
+        bec::GRTManager::get().run_once_when_idle(this, boost::bind(arrived_slot, last_schema, tables, views, procedures, functions, true));
     }
     else
     {
@@ -1261,7 +1261,7 @@ bool SqlEditorTreeController::sidebar_action(const std::string& name)
       _task_tabview->set_active_tab(1);
       _task_tabview->show(true);
 
-      _grtm->set_app_option("DbSqlEditor:SidebarModeCombined", grt::IntegerRef(0));
+      bec::GRTManager::get().set_app_option("DbSqlEditor:SidebarModeCombined", grt::IntegerRef(0));
       _admin_side_bar->update_mode_buttons(false);
       _schema_side_bar->update_mode_buttons(false);
     }
@@ -1280,7 +1280,7 @@ bool SqlEditorTreeController::sidebar_action(const std::string& name)
       _taskbar_box->add(_schema_side_bar, true, true);
       _schema_side_bar->focus();
 
-      _grtm->set_app_option("DbSqlEditor:SidebarModeCombined", grt::IntegerRef(1));
+      bec::GRTManager::get().set_app_option("DbSqlEditor:SidebarModeCombined", grt::IntegerRef(1));
       _admin_side_bar->update_mode_buttons(true);
       _schema_side_bar->update_mode_buttons(true);
     }
@@ -1488,7 +1488,7 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
       }
 
       // if this is a View, then auto-reformat it before sending it to parser/editor
-      if (type == wb::LiveSchemaTree::View && _grtm->get_app_option_int("DbSqlEditor:ReformatViewDDL", 0))
+      if (type == wb::LiveSchemaTree::View && bec::GRTManager::get().get_app_option_int("DbSqlEditor:ReformatViewDDL", 0))
       {
         try
         {
@@ -1641,7 +1641,7 @@ void SqlEditorTreeController::open_alter_object_editor(db_DatabaseObjectRef obje
 
   // TODO: make docking/non-docking switchable via preferences.
   //_context_ui->get_wb()->open_object_editor(db_object, bec::StandaloneWindowFlag);
-  _grtm->open_object_editor(object, bec::ForceNewWindowFlag);
+  bec::GRTManager::get().open_object_editor(object, bec::ForceNewWindowFlag);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1910,10 +1910,10 @@ std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::O
       ddl_script.clear();
       std::string err = e.what();
       log_error("Error getting SQL definition for %s.%s: %s\n", schema_name.c_str(), obj_name.c_str(), e.what());
-      if (_grtm->in_main_thread())
+      if (bec::GRTManager::get().in_main_thread())
         mforms::Utilities::show_error("Error getting DDL for object", e.what(), "OK", "", "");
       else
-        _grtm->run_once_when_idle(boost::bind(&mforms::Utilities::show_error, "Error getting DDL for object", err, "OK", "", ""));
+        bec::GRTManager::get().run_once_when_idle(boost::bind(&mforms::Utilities::show_error, "Error getting DDL for object", err, "OK", "", ""));
     }
   }
   return ddl_script;
@@ -2128,7 +2128,7 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
     ddl_script= get_object_ddl_script(db_object_type, schema_name, obj_name);
     if (!ddl_script.empty())
     {
-      if (db_object_type == wb::LiveSchemaTree::View && _grtm->get_app_option_int("DbSqlEditor:ReformatViewDDL", 0))
+      if (db_object_type == wb::LiveSchemaTree::View && bec::GRTManager::get().get_app_option_int("DbSqlEditor:ReformatViewDDL", 0))
       {
         try
         {
@@ -2626,7 +2626,7 @@ void SqlEditorTreeController::on_active_schema_change(const std::string &schema)
   _filtered_schema_tree.set_active_schema(schema);
 
   if (_schema_side_bar != NULL)
-    _grtm->run_once_when_idle(this, boost::bind(&mforms::View::set_needs_repaint, _schema_side_bar->get_schema_tree()));
+    bec::GRTManager::get().run_once_when_idle(this, boost::bind(&mforms::View::set_needs_repaint, _schema_side_bar->get_schema_tree()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2651,8 +2651,8 @@ grt::StringRef SqlEditorTreeController::do_refresh_schema_tree_safe(SqlEditorFor
 
   std::list<std::string> fsl = fetch_schema_list();
   schema_list->assign(fsl.begin(), fsl.end());
-  _grtm->run_once_when_idle(this, boost::bind(&LiveSchemaTree::update_schemata, _schema_tree, schema_list));
-  _grtm->run_once_when_idle(this, boost::bind(&SqlEditorForm::schema_tree_did_populate, _owner));
+  bec::GRTManager::get().run_once_when_idle(this, boost::bind(&LiveSchemaTree::update_schemata, _schema_tree, schema_list));
+  bec::GRTManager::get().run_once_when_idle(this, boost::bind(&SqlEditorForm::schema_tree_did_populate, _owner));
 
   _is_refreshing_schema_tree= false;
 
@@ -2686,7 +2686,7 @@ void SqlEditorTreeController::handle_grt_notification(const std::string &name, g
   }
   else if (name == "GRNPreferencesDidClose" && info.get_int("saved") == 1)
   {
-    if (_grtm->get_app_option_int("DbSqlEditor:SidebarModeCombined", 0) == 1)
+    if (bec::GRTManager::get().get_app_option_int("DbSqlEditor:SidebarModeCombined", 0) == 1)
       sidebar_action("switch_mode_on");
     else
       sidebar_action("switch_mode_off");

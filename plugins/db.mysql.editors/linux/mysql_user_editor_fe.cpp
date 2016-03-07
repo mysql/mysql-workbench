@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -73,16 +73,16 @@ class DbMySQLUserEditor : public PluginEditorBase
   }
     
  public:
-  DbMySQLUserEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args);
+  DbMySQLUserEditor(grt::Module *m, const grt::BaseListRef &args);
   
   virtual void do_refresh_form_data();
 
-  virtual bool switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args);
+  virtual bool switch_edited_object(const grt::BaseListRef &args);
 };
 
-DbMySQLUserEditor::DbMySQLUserEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
-    : PluginEditorBase(m, grtm, args, "modules/data/editor_user.glade")
-    , _be(new bec::UserEditorBE(grtm, db_UserRef::cast_from(args[0])))
+DbMySQLUserEditor::DbMySQLUserEditor(grt::Module *m, const grt::BaseListRef &args)
+    : PluginEditorBase(m, args, "modules/data/editor_user.glade")
+    , _be(new bec::UserEditorBE(db_UserRef::cast_from(args[0])))
 {
   xml()->get_widget("mysql_user_editor_notebook", _editor_notebook);
 
@@ -137,11 +137,11 @@ DbMySQLUserEditor::DbMySQLUserEditor(grt::Module *m, bec::GRTManager *grtm, cons
 }
 
 //------------------------------------------------------------------------------
-bool DbMySQLUserEditor::switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args)
+bool DbMySQLUserEditor::switch_edited_object(const grt::BaseListRef &args)
 {
   bec::UserEditorBE *old_be = _be;
 
-  _be = new bec::UserEditorBE(grtm, db_UserRef::cast_from(args[0]));
+  _be = new bec::UserEditorBE(db_UserRef::cast_from(args[0]));
   _be->set_refresh_ui_slot(sigc::mem_fun(this, &DbMySQLUserEditor::refresh_form_data));
 
   _assigned_roles_model = model_from_string_list(_be->get_roles(), &_assigned_roles_columns);
@@ -243,8 +243,8 @@ void DbMySQLUserEditor::remove_role()
 //------------------------------------------------------------------------------
 extern "C" 
 {
-  GUIPluginBase *createDbMysqlUserEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
+  GUIPluginBase *createDbMysqlUserEditor(grt::Module *m, const grt::BaseListRef &args)
   {
-    return Gtk::manage(new DbMySQLUserEditor(m, grtm, args));
+    return Gtk::manage(new DbMySQLUserEditor(m, args));
   }
 };

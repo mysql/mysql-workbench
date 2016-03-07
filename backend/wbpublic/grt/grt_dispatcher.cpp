@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -376,7 +376,7 @@ static GThread *_main_thread = NULL;
 
 GRTDispatcher::GRTDispatcher(bool threaded, bool is_main_dispatcher)
   : _busy(0), _threading_disabled(!threaded), _w_runing(0), _is_main_dispatcher(is_main_dispatcher),
-  _shut_down(false)
+  _shut_down(false), _started(false)
 {
   _shutdown_callback = false;
 
@@ -438,12 +438,13 @@ void GRTDispatcher::start()
     }
   }
 
-  bec::GRTManager *grtm = bec::GRTManager::get_instance_for();
-  if (grtm) // in tests, grtm may not exist
-    grtm->add_dispatcher(shared_from_this());
+
+  bec::GRTManager::get().add_dispatcher(shared_from_this());
 
   if (_is_main_dispatcher)
     grt::GRT::get()->push_message_handler(boost::bind(&GRTDispatcher::message_callback, this, _1, _2));
+
+  _started = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -452,7 +453,9 @@ void GRTDispatcher::shutdown()
 {
   if (_shut_down)
       return;
+
   _shut_down = true;
+
   if (_is_main_dispatcher)
     grt::GRT::get()->pop_message_handler();
 
@@ -466,9 +469,10 @@ void GRTDispatcher::shutdown()
     log_debug2("GRTDispatcher:Main thread worker finished\n");
   }
 
-  bec::GRTManager *grtm = bec::GRTManager::get_instance_for();
-  if (grtm)
-    grtm->remove_dispatcher(shared_from_this());
+  if (_started)
+    bec::GRTManager::get().remove_dispatcher(shared_from_this());
+
+  _started = false;
 }
 
 //--------------------------------------------------------------------------------------------------

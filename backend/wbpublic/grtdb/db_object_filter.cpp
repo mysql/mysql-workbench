@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,11 +19,12 @@
 
 #include "db_object_filter.h"
 #include "grt/grt_string_list_model.h"
+#include "grt/grt_manager.h"
 
 using namespace bec;
 
-DBObjectFilterBE::DBObjectFilterBE(GRTManager *grtm)
-  : _grtm(grtm), _filter_model(NULL)
+DBObjectFilterBE::DBObjectFilterBE()
+  : _filter_model(NULL)
 {
 }
 
@@ -48,7 +49,7 @@ void DBObjectFilterBE::set_object_type_name(const std::string &type_name)
   // load stored filter sets
   grt::DictRef opt= grt::DictRef::cast_from(grt::GRT::get()->get("/wb/options/options"));
   _stored_filter_sets_filepath
-    .append(_grtm->get_user_datadir())
+    .append(bec::GRTManager::get().get_user_datadir())
     .append("/stored_filter_sets.")
     .append(_full_type_name)
     .append(".xml");

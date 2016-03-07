@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -71,16 +71,16 @@ class DbMySQLRelationshipEditor : public PluginEditorBase//, public WidgetsAutoC
   }
   
  public:
-  DbMySQLRelationshipEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args);
+  DbMySQLRelationshipEditor(grt::Module *m, const grt::BaseListRef &args);
   
   virtual void do_refresh_form_data();
   
-  virtual bool switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args);
+  virtual bool switch_edited_object(const grt::BaseListRef &args);
 };
 
-DbMySQLRelationshipEditor::DbMySQLRelationshipEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
-    : PluginEditorBase(m, grtm, args, "modules/data/editor_relationship.glade")
-    , _be(new RelationshipEditorBE(grtm, workbench_physical_ConnectionRef::cast_from(args[0])))
+DbMySQLRelationshipEditor::DbMySQLRelationshipEditor(grt::Module *m, const grt::BaseListRef &args)
+    : PluginEditorBase(m, args, "modules/data/editor_relationship.glade")
+    , _be(new RelationshipEditorBE(workbench_physical_ConnectionRef::cast_from(args[0])))
     , _refreshing(false)
 {
   Gtk::Notebook *editor_window(0);
@@ -142,11 +142,11 @@ DbMySQLRelationshipEditor::DbMySQLRelationshipEditor(grt::Module *m, bec::GRTMan
 }
 
 //------------------------------------------------------------------------------
-bool DbMySQLRelationshipEditor::switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args)
+bool DbMySQLRelationshipEditor::switch_edited_object(const grt::BaseListRef &args)
 {
   RelationshipEditorBE *old_be = _be;
   
-  _be = new RelationshipEditorBE(grtm, workbench_physical_ConnectionRef::cast_from(args[0]));
+  _be = new RelationshipEditorBE(workbench_physical_ConnectionRef::cast_from(args[0]));
 
   _be->set_refresh_ui_slot(sigc::mem_fun(this, &DbMySQLRelationshipEditor::refresh_form_data));
 
@@ -277,8 +277,8 @@ void DbMySQLRelationshipEditor::do_refresh_form_data()
 //------------------------------------------------------------------------------
 extern "C" 
 {
-  GUIPluginBase *createDbMysqlRelationshipEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
+  GUIPluginBase *createDbMysqlRelationshipEditor(grt::Module *m, const grt::BaseListRef &args)
   {
-    return Gtk::manage(new DbMySQLRelationshipEditor(m, grtm, args));
+    return Gtk::manage(new DbMySQLRelationshipEditor(m, args));
   }
 };

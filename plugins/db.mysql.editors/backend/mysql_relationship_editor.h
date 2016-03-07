@@ -23,7 +23,7 @@ public: // editor interface
     Hidden = 3
   };
   
-  RelationshipEditorBE(bec::GRTManager *grtm, const workbench_physical_ConnectionRef &relationship);
+  RelationshipEditorBE(const workbench_physical_ConnectionRef &relationship);
   virtual bool should_close_on_delete_of(const std::string &oid);
 
   bool model_only() { return *get_relationship()->foreignKey()->modelOnly() == 1; }

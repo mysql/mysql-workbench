@@ -59,15 +59,15 @@ using ctemplate::TemplateDictionary;
 //----------------- LexerDocument ------------------------------------------------------------------
 
 LexerDocument::LexerDocument(const std::string& text)
-: _text(text)
+: _text(text), _styling_mask('\0')
 {
   _style_position = 0;
   _style_buffer = new char[_text.size()];
 
   // Split the text into lines and store start and length of each.
   std::vector<std::string> lines = base::split(text, "\n");
-  size_t start = 0;
-  for (size_t i = 0; i < lines.size(); ++i)
+  std::size_t start = 0;
+  for (std::size_t i = 0; i < lines.size(); ++i)
   {
     _lines.push_back(std::make_pair(start, lines[i].size() + 1));
     start += lines[i].size() + 1;
@@ -123,10 +123,10 @@ char LexerDocument::StyleAt(int position) const
 
 int LexerDocument::LineFromPosition(int position) const
 {
-  size_t i = 0;
+  std::size_t i = 0;
   while (i < _lines.size())
   {
-    if ((size_t)position < _lines[i].first + _lines[i].second)
+    if ((std::size_t)position < _lines[i].first + _lines[i].second)
       break;
     ++i;
   }
@@ -163,11 +163,11 @@ int LexerDocument::SetLevel(int line, int level)
     // Check if we need to make more room in our cache.
     if (line >= (int) _level_cache.size())
     {
-      size_t last_size = _level_cache.size();
+      std::size_t last_size = _level_cache.size();
       _level_cache.resize(line + 1);
       
       // Initialize newly added entries.
-      for (size_t i= last_size - 1; i < _level_cache.size() - 1; i++)
+      for (std::size_t i= last_size - 1; i < _level_cache.size() - 1; i++)
         _level_cache[i]= SC_FOLDLEVELBASE;
     }
     _level_cache[line]= level;
@@ -317,7 +317,7 @@ void WbModelImpl::initializeReporting()
 ssize_t WbModelImpl::getAvailableReportingTemplates(grt::StringListRef templates)
 {
   // get pointer to the GRT
-  string basedir= bec::GRTManager::get_instance_for()->get_basedir();
+  string basedir= bec::GRTManager::get().get_basedir();
   string template_base_dir= base::makePath(basedir, "modules/data/wb_model_reporting");
   GDir *dir;
   const char *entry;
@@ -391,7 +391,7 @@ workbench_model_reporting_TemplateStyleInfoRef WbModelImpl::get_template_style_f
     workbench_model_reporting_TemplateInfoRef info= 
       workbench_model_reporting_TemplateInfoRef::cast_from(grt::GRT::get()->unserialize(template_info_path));
 
-    for( size_t i= 0; i < info->styles().count(); i++)
+    for( std::size_t i= 0; i < info->styles().count(); i++)
     {
       workbench_model_reporting_TemplateStyleInfoRef styleInfo=
         info->styles().get(i);
@@ -563,7 +563,7 @@ void fillIndexDict(const db_mysql_IndexRef& idx, const db_mysql_TableRef& table,
   idx_dict->SetValue(REPORT_INDEX_KIND, *idx->indexKind());
   idx_dict->SetValue(REPORT_INDEX_COMMENT, *idx->comment());
 
-  for (size_t l= 0; l < idx->columns().count(); l++)
+  for (std::size_t l= 0; l < idx->columns().count(); l++)
   {
     db_mysql_IndexColumnRef idx_col= idx->columns().get(l);
 
@@ -654,7 +654,7 @@ void fillRoutineDict(const db_mysql_RoutineRef& routine, TemplateDictionary *rou
   assignValueOrNA(routine_dict, REPORT_ROUTINE_SECURITY, value= routine->security());
 
   routine_dict->SetIntValue(REPORT_ROUTINE_PARAMETER_COUNT, (long)routine->params().count());
-  for (size_t j = 0; j < routine->params().count(); j++)
+  for (std::size_t j = 0; j < routine->params().count(); j++)
   {
     db_mysql_RoutineParamRef parameter= routine->params().get(j);
     
@@ -880,7 +880,7 @@ static int count_template_files(const string template_dir)
 ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt::DictRef& options)
 {
   // get pointer to the GRT
-  string basedir= bec::GRTManager::get_instance_for()->get_basedir();
+  string basedir= bec::GRTManager::get().get_basedir();
   string template_base_dir= base::makePath(basedir, "modules/data/wb_model_reporting");
 
   db_mysql_CatalogRef catalog= db_mysql_CatalogRef::cast_from(model->catalog());
@@ -946,17 +946,17 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
   if (fks_show && fks_show_referred_fks)
   {
     // build schema_dict by loop over all schemata, add it to the main_dict
-    for (size_t i= 0; i < catalog->schemata().count(); i++)
+    for (std::size_t i= 0; i < catalog->schemata().count(); i++)
     {
       db_mysql_SchemaRef schema= catalog->schemata().get(i);
 
       // loop over all tables
-      for (size_t j= 0; j < schema->tables().count(); j++)
+      for (std::size_t j= 0; j < schema->tables().count(); j++)
       {
         db_mysql_TableRef table= schema->tables().get(j);
 
         // loop over all foreign keys
-        for (size_t k= 0; k < table->foreignKeys().count(); k++)
+        for (std::size_t k= 0; k < table->foreignKeys().count(); k++)
         {
           db_mysql_ForeignKeyRef fk= table->foreignKeys().get(k);
           db_mysql_TableRef ref_tbl= fk->referencedTable();

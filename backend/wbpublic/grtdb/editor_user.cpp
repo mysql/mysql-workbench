@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,8 +25,8 @@ using namespace bec;
 using namespace grt;
 using namespace base;
 
-UserEditorBE::UserEditorBE(GRTManager *grtm, const db_UserRef &user)
-  : DBObjectEditorBE(grtm, user), _user(user), _role_tree(db_CatalogRef::cast_from(user->owner()))
+UserEditorBE::UserEditorBE(const db_UserRef &user)
+  : DBObjectEditorBE(user), _user(user), _role_tree(db_CatalogRef::cast_from(user->owner()))
 {
 }
 

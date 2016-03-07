@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,11 +26,11 @@ using namespace tut;
 
 BEGIN_TEST_DATA_CLASS(mysql_routinegroup_editor_test)
 public:
-  WBTester wbt;
-  GRT* grt;
+  WBTester *wbt;
 
 TEST_DATA_CONSTRUCTOR(mysql_routinegroup_editor_test)
 {
+  wbt = new WBTester();
 }
 
 END_TEST_DATA_CLASS
@@ -48,7 +48,7 @@ const char* routine_sql = "";
 
   model.schema->name("test_schema");
   model.routineGroup->name("rg");
-  MySQLRoutineGroupEditorBE rg(wbt.wb->get_grt_manager(), model.routineGroup);
+  MySQLRoutineGroupEditorBE rg(model.routineGroup);
 
   // Parse SQL without any routine definition. That should not affect the routine's existence.
   rg.set_sql(routine_sql);
@@ -104,7 +104,7 @@ const char* routine_sql =
   SynteticMySQLModel model;
   model.schema->name("test_schema");
   model.routineGroup->name("rg");
-  MySQLRoutineGroupEditorBE rg(wbt.wb->get_grt_manager(), model.routineGroup);
+  MySQLRoutineGroupEditorBE rg(model.routineGroup);
 
   // Note: use_sql is a special function only for tests like this. The normal access function
   //       set_sql() is interacting with the associated code editor. We don't have a working editor
@@ -192,7 +192,7 @@ const char* routine_sql =
   SynteticMySQLModel model;
   model.schema->name("test_schema");
   model.routineGroup->name("rg");
-  MySQLRoutineGroupEditorBE rg(wbt.wb->get_grt_manager(), model.routineGroup);
+  MySQLRoutineGroupEditorBE rg(model.routineGroup);
 
   rg.use_sql(routine_sql);
 
@@ -231,6 +231,13 @@ const char* routine_sql =
   // Now compares each routine to discard any difference
   for (size_t index = 0; index < processed_routines.size(); index++)
     ensure_equals("Routine unintentionally changed", processed_routines[index], double_processed_routines[index]);
+}
+
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  delete wbt;
 }
 
 END_TESTS

@@ -58,16 +58,25 @@ namespace bec {
       double delay_for_next_trigger(const GTimeVal &now);
     };
 
+
+  protected: // Set those c-tors to protected as we need to have different GRTManager in TUT.
+    GRTManager(bool threaded);
+    GRTManager(const GRTManager&) = delete;
+    GRTManager& operator=(GRTManager&) = delete;
+
   public:
     /** Constructor.
      * 
      * @param threaded enable threading
      * @param verbose enable verbose output
      */ 
-    GRTManager(bool threaded = true, bool verbose = false);
+//    GRTManager(bool threaded = true, bool verbose = false);
+    static GRTManager& get();
     virtual ~GRTManager();
 
-    static GRTManager *get_instance_for();
+    void setVerbose(bool verbose);
+
+//    static GRTManager *get_instance_for();
 
     void set_basedir(const std::string &path);
     std::string get_basedir() { return _basedir; }
@@ -261,7 +270,7 @@ namespace bec {
 
   private:
     bool _terminated; // true if application termination was requested by the BE or a plugin.
-    static std::map<grt::GRT*,GRTManager*> _instances;
+//    static std::map<grt::GRT*,GRTManager*> _instances;
 
     std::shared_ptr<grt::GRT> _grtInstance;
 

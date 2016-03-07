@@ -134,7 +134,7 @@ void WBComponentPhysical::load_app_options(bool update)
         bool changed = false;
         while (mgmt->storedConns().count() > 0)
           mgmt->storedConns().remove(0);
-        for (size_t c= list.count(), i= 0; i < c; i++)
+        for (std::size_t c= list.count(), i= 0; i < c; i++)
         {
           db_mgmt_ConnectionRef conn(list.get(i));
           
@@ -209,7 +209,7 @@ void WBComponentPhysical::setup_context_grt(WBOptions *options)
   {
     grt::ListRef<db_mysql_StorageEngine> engines_ret(grt::ListRef<db_mysql_StorageEngine>::cast_from(module->call_function("getKnownEngines", grt::BaseListRef(grt::Initialized))));
 
-    for (size_t c= engines_ret.count(), i= 0; i < c; i++)
+    for (std::size_t c= engines_ret.count(), i= 0; i < c; i++)
     {
       engines.append(",").append(engines_ret[i]->name());
     }
@@ -446,27 +446,27 @@ grt::DictRef WBComponentPhysical::delete_db_schema(const db_SchemaRef &schema,
 
     grt::AutoUndo undo;
 
-    for (size_t vc= model->diagrams().count(), vi= 0; vi < vc; vi++)
+    for (std::size_t vc= model->diagrams().count(), vi= 0; vi < vc; vi++)
     {
       view= model->diagrams().get(vi);
       std::list<model_FigureRef> figures;
 
       // remove canvas objects for schema contents
-      for (size_t c= schema->tables().count(), i= 0; i < c; i++)
+      for (std::size_t c= schema->tables().count(), i= 0; i < c; i++)
       {
         db_TableRef table= schema->tables().get(i);
         model_FigureRef figure= view->getFigureForDBObject(table);
         if (figure.is_valid())
           figures.push_back(figure);
       }
-      for (size_t c= schema->views().count(), i= 0; i < c; i++)
+      for (std::size_t c= schema->views().count(), i= 0; i < c; i++)
       {
         db_ViewRef v= schema->views().get(i);
         model_FigureRef figure= view->getFigureForDBObject(v);
         if (figure.is_valid())
           figures.push_back(figure);
       }
-      for (size_t c= schema->routineGroups().count(), i= 0; i < c; i++)
+      for (std::size_t c= schema->routineGroups().count(), i= 0; i < c; i++)
       {
         db_RoutineGroupRef rgroup= schema->routineGroups().get(i); 
         model_FigureRef figure= view->getFigureForDBObject(rgroup);
@@ -543,7 +543,7 @@ db_DatabaseObjectRef WBComponentPhysical::add_new_db_table(const db_SchemaRef &s
   if (!template_name.empty())
   {
     grt::BaseListRef templates = grt::BaseListRef::cast_from(_wb->get_root()->options()->options().get("TableTemplates"));
-    for (size_t c = templates.count(), i = 0; i < c; i++)
+    for (std::size_t c = templates.count(), i = 0; i < c; i++)
     {
       db_TableRef templ(db_TableRef::cast_from(templates.get(i)));
       if (templ->name() == template_name)
@@ -559,7 +559,7 @@ db_DatabaseObjectRef WBComponentPhysical::add_new_db_table(const db_SchemaRef &s
     table= schema->addNewTable(*get_parent_for_object<workbench_physical_Model>(schema)->rdbms()->databaseObjectPackage());
 
   if (table.has_member("tableEngine"))
-    table.set_member("tableEngine", _wb->get_grt_manager()->get_app_option("db.mysql.Table:tableEngine"));
+    table.set_member("tableEngine", bec::GRTManager::get().get_app_option("db.mysql.Table:tableEngine"));
 
   undo.end(_("Create Table"));
 
@@ -1159,7 +1159,7 @@ void WBComponentPhysical::delete_db_object(const db_DatabaseObjectRef &object)
            view != model->diagrams().end(); ++view)
       {
         grt::ListRef<model_Figure> figures((*view)->figures());
-        for (size_t f= figures.count(); f > 0; --f)
+        for (std::size_t f= figures.count(); f > 0; --f)
         {
           model_FigureRef figure= figures[f-1];
           if (figure.is_instance(workbench_physical_TableFigure::static_class_name())
@@ -1321,7 +1321,7 @@ void WBComponentPhysical::delete_db_object(const db_DatabaseObjectRef &object)
         // delete all routines
         for (base::const_range<std::set<db_RoutineRef> > r(ungrouped_routines); r; ++r)
         {
-          size_t i = schema->routines().get_index(*r);
+          std::size_t i = schema->routines().get_index(*r);
           if (i != grt::BaseListRef::npos)
             schema->routines().remove(i);
         }
@@ -1361,7 +1361,7 @@ void WBComponentPhysical::delete_db_object(const db_DatabaseObjectRef &object)
     // remove from routine groups
     GRTLIST_FOREACH(db_RoutineGroup, schema->routineGroups(), rg)
     {
-      size_t i;
+      std::size_t i;
       while ((i = (*rg)->routines().get_index(routine)) != grt::BaseListRef::npos)
       {
         (*rg)->routines().remove(i);
@@ -1758,12 +1758,12 @@ std::string WBComponentPhysical::get_object_tooltip(const model_ObjectRef &objec
           {
             text.append("References: ");
             
-            for (size_t c= table->foreignKeys().count(), i= 0; i < c; i++)
+            for (std::size_t c= table->foreignKeys().count(), i= 0; i < c; i++)
             {
               db_ForeignKeyRef fk(table->foreignKeys()[i]);
               //ssize_t idx; // get_index returns size_t, so comparing it by >= 0 is always true!!!
               
-              const size_t idx= fk->columns().get_index(column);
+              const std::size_t idx= fk->columns().get_index(column);
               if (idx != BaseListRef::npos)
               {
                 if (fk->referencedTable().is_valid() && fk->referencedColumns().get(idx).is_valid())
@@ -1786,7 +1786,7 @@ std::string WBComponentPhysical::get_object_tooltip(const model_ObjectRef &objec
             std::string flags;
             if (*column->isNotNull())
               flags.append("NOT NULL"); //XXX add a method to db_Column to return a formatted string of all flags
-            for (size_t c= column->flags().count(), i= 0; i < c; i++)
+            for (std::size_t c= column->flags().count(), i= 0; i < c; i++)
             {
               if (i > 0 || *column->isNotNull())
                 flags.append(", ");
@@ -1830,7 +1830,7 @@ std::string WBComponentPhysical::get_object_tooltip(const model_ObjectRef &objec
           
           text.append(*index->name()).append("  (").append(index->indexType().c_str()).append(")\n");
           
-          for (size_t c= index->columns().count(), i= 0; i < c; i++)
+          for (std::size_t c= index->columns().count(), i= 0; i < c; i++)
           {
             db_IndexColumnRef column(index->columns()[i]);
             
@@ -1872,7 +1872,7 @@ std::string WBComponentPhysical::get_object_tooltip(const model_ObjectRef &objec
           }
 
           text.append("Columns:\n");
-          for (size_t c= table->columns().count(), i= 0; i < c; i++)
+          for (std::size_t c= table->columns().count(), i= 0; i < c; i++)
           {
             db_ColumnRef column(table->columns()[i]);
             std::string comment = column->comment();
@@ -1904,13 +1904,13 @@ std::string WBComponentPhysical::get_object_tooltip(const model_ObjectRef &objec
           if (table->foreignKeys().count() > 0)
           {
             text.append("References:\n");
-            for (size_t c= table->foreignKeys().count(), i= 0; i < c; i++)
+            for (std::size_t c= table->foreignKeys().count(), i= 0; i < c; i++)
             {
               db_ForeignKeyRef fk(table->foreignKeys()[i]);
               if (fk->referencedTable().is_valid())
               {
                 text.append("  (");
-                for (size_t d= fk->columns().count(), j= 0; j < d; j++)
+                for (std::size_t d= fk->columns().count(), j= 0; j < d; j++)
                 {
                   if (j > 0)
                     text.append(",");
@@ -1924,7 +1924,7 @@ std::string WBComponentPhysical::get_object_tooltip(const model_ObjectRef &objec
                 }
                 text.append(fk->referencedTable()->name());
                 text.append("(");
-                for (size_t d= fk->referencedColumns().count(), j= 0; j < d; j++)
+                for (std::size_t d= fk->referencedColumns().count(), j= 0; j < d; j++)
                 {
                   if (j > 0)
                     text.append(",");
@@ -1956,7 +1956,7 @@ std::string WBComponentPhysical::get_object_tooltip(const model_ObjectRef &objec
               }
               text.append(fk->owner()->name());
               text.append(" (");
-              for (size_t d= fk->columns().count(), j= 0; j < d; j++)
+              for (std::size_t d= fk->columns().count(), j= 0; j < d; j++)
               {
                 if (j > 0)
                   text.append(",");
@@ -1968,7 +1968,7 @@ std::string WBComponentPhysical::get_object_tooltip(const model_ObjectRef &objec
               text.append(") TO ");
               
               text.append("(");
-              for (size_t d= fk->referencedColumns().count(), j= 0; j < d; j++)
+              for (std::size_t d= fk->referencedColumns().count(), j= 0; j < d; j++)
               {
                 if (j > 0)
                   text.append(",");
@@ -2009,7 +2009,7 @@ std::string WBComponentPhysical::get_object_tooltip(const model_ObjectRef &objec
       if (fk->owner().is_valid())
       {
         text.append(fk->owner()->name()).append("\n");
-        for (size_t c = fk->columns().count(), i= 0; i < c; i++)
+        for (std::size_t c = fk->columns().count(), i= 0; i < c; i++)
         {
           if (fk->columns()[i].is_valid())
             text.append("    ").append(fk->columns()[i]->name()).append("\n");
@@ -2023,7 +2023,7 @@ std::string WBComponentPhysical::get_object_tooltip(const model_ObjectRef &objec
       if (fk->referencedTable().is_valid())
       {
         text.append(fk->referencedTable()->name()).append("\n");
-        for (size_t c = fk->referencedColumns().count(), i= 0; i < c; i++)
+        for (std::size_t c = fk->referencedColumns().count(), i= 0; i < c; i++)
         {
           if (fk->referencedColumns()[i].is_valid())
             text.append("    ").append(fk->referencedColumns()[i]->name()).append("\n");
@@ -2061,10 +2061,10 @@ void WBComponentPhysical::activate_canvas_object(const model_ObjectRef &figure, 
   GrtObjectRef object(get_object_for_figure(figure));
 
   if (object.is_valid())
-    _wb->get_grt_manager()->open_object_editor(object, newwindow ? bec::ForceNewWindowFlag : bec::NoFlags);
+    bec::GRTManager::get().open_object_editor(object, newwindow ? bec::ForceNewWindowFlag : bec::NoFlags);
 
   else if (workbench_physical_ConnectionRef::can_wrap(figure))
-    _wb->get_grt_manager()->open_object_editor(figure, newwindow ? bec::ForceNewWindowFlag : bec::NoFlags);
+    bec::GRTManager::get().open_object_editor(figure, newwindow ? bec::ForceNewWindowFlag : bec::NoFlags);
 }
 
 
@@ -2127,7 +2127,7 @@ std::vector<std::string> WBComponentPhysical::get_command_dropdown_items(const s
 
       if (!colorList.empty())
       {
-        for (size_t c= colorList.size(), i= 0; i < c; i++)
+        for (std::size_t c= colorList.size(), i= 0; i < c; i++)
         {
           if (!colorList[i].empty() && colorList[i][0]=='#')
             items.push_back(colorList[i]);
@@ -2161,7 +2161,7 @@ std::vector<std::string> WBComponentPhysical::get_command_dropdown_items(const s
 
       items.push_back("*None*");
 
-      for (size_t i = 0; i < templates.count(); i++)
+      for (std::size_t i = 0; i < templates.count(); i++)
         items.push_back(db_TableRef::cast_from(templates[i])->name());
 
       form->set_tool_argument(option, "None");
@@ -2172,7 +2172,7 @@ std::vector<std::string> WBComponentPhysical::get_command_dropdown_items(const s
 
       if (model.is_valid())
       {
-        for (size_t c= model->catalog()->schemata().count(), i= 0; i < c; i++)
+        for (std::size_t c= model->catalog()->schemata().count(), i= 0; i < c; i++)
           items.push_back(*model->catalog()->schemata().get(i)->name());
         std::sort(items.begin(), items.end());
       }
@@ -2192,7 +2192,7 @@ std::vector<std::string> WBComponentPhysical::get_command_dropdown_items(const s
       {
         grt::ListRef<db_mysql_StorageEngine> engines_ret(grt::ListRef<db_mysql_StorageEngine>::cast_from(module->call_function("getKnownEngines", grt::BaseListRef(true))));
 
-        for (size_t c= engines_ret.count(), i= 0; i < c; i++)
+        for (std::size_t c= engines_ret.count(), i= 0; i < c; i++)
           items.push_back(engines_ret[i]->name());
       }
       
@@ -2215,11 +2215,11 @@ std::vector<std::string> WBComponentPhysical::get_command_dropdown_items(const s
         items.push_back("*Default Collation*");
         if (model.is_valid())
         {
-          for (size_t c= model->catalog()->characterSets().count(), i= 0; i < c; i++)
+          for (std::size_t c= model->catalog()->characterSets().count(), i= 0; i < c; i++)
           {
             db_CharacterSetRef charset(model->catalog()->characterSets().get(i));
 
-            for (size_t d= charset->collations().count(), j= 0; j < d; j++)
+            for (std::size_t d= charset->collations().count(), j= 0; j < d; j++)
               items.push_back(*charset->collations().get(j));
           }
           std::sort(items.begin(), items.end());
@@ -2311,7 +2311,7 @@ void WBComponentPhysical::reset_document()
   workbench_DocumentRef doc(_wb->get_document());
 
   // add listener to all schemas, views etc
-  for (size_t c= doc->physicalModels().count(), i= 0; i < c; i++)
+  for (std::size_t c= doc->physicalModels().count(), i= 0; i < c; i++)
   {
     workbench_physical_ModelRef model(doc->physicalModels()[i]);
     if (model.is_valid())
@@ -2322,7 +2322,7 @@ void WBComponentPhysical::reset_document()
         _catalog_object_list_listener= 
         catalog->signal_list_changed()->connect(boost::bind(&WBComponentPhysical::catalog_object_list_changed, this, _1, _2, _3, catalog));
 
-      for (size_t sc= catalog->schemata().count(), si= 0; si < sc; si++)
+      for (std::size_t sc= catalog->schemata().count(), si= 0; si < sc; si++)
       {
         db_SchemaRef schema(catalog->schemata().get(si));
 
@@ -2330,13 +2330,13 @@ void WBComponentPhysical::reset_document()
 
         // currently there are only listeners for tables
         grt::ListRef<db_Table> tables(schema->tables());
-        for (size_t tc= tables.count(), ti= 0; ti < tc; ti++)
+        for (std::size_t tc= tables.count(), ti= 0; ti < tc; ti++)
         {
           add_schema_object_listeners(tables[ti]);
         }
       }
 
-      for (size_t vi= 0, vc= model->diagrams().count(); vi < vc; vi++)
+      for (std::size_t vi= 0, vc= model->diagrams().count(); vi < vc; vi++)
       {
         model_DiagramRef view(model->diagrams().get(i));
         _figure_list_listeners[view.id()]=
@@ -2589,7 +2589,7 @@ void WBComponentPhysical::model_object_list_changed(grt::internal::OwnedList *li
         {
           gchar *data;
           gsize length;
-          std::string path= base::makePath(_wb->get_grt_manager()->get_tmp_dir(), object->filename());
+          std::string path= base::makePath(bec::GRTManager::get().get_tmp_dir(), object->filename());
           
           if (g_file_get_contents(path.c_str(), &data, &length, NULL))
           {
@@ -2644,7 +2644,7 @@ void WBComponentPhysical::model_object_list_changed(grt::internal::OwnedList *li
 #if 0
         if (object->filename() != "")
         {
-          std::string path= base::makePath(_wb->get_grt_manager()->get_tmp_dir(), object->filename());
+          std::string path= base::makePath(bec::GRTManager::get().get_tmp_dir(), object->filename());
           std::string tmp= base::dirname(path.c_str());
           g_mkdir_with_parents(tmp.c_str(), 0700);
           
@@ -2796,7 +2796,7 @@ bool WBComponentPhysical::update_table_fk_connection(const db_TableRef &table, c
       // we have to go through all views in the model and find all table figures
       // that correspond to the FK for creating the relationship in all these views
 
-      for (size_t c= views.count(), i= 0; i < c; i++)
+      for (std::size_t c= views.count(), i= 0; i < c; i++)
       {
         workbench_physical_DiagramRef view(views[i]);
 
@@ -2811,7 +2811,7 @@ bool WBComponentPhysical::update_table_fk_connection(const db_TableRef &table, c
           grt::ListRef<model_Connection> connections(view->connections());
           workbench_physical_ConnectionRef found;
 
-          for (size_t c= connections.count(), i= 0; i < c; i++)
+          for (std::size_t c= connections.count(), i= 0; i < c; i++)
           {
             model_ConnectionRef conn(connections[i]);
             if (conn.is_instance(workbench_physical_Connection::static_class_name()))
@@ -3155,7 +3155,7 @@ void WBComponentPhysical::remove_references_to_object(const db_DatabaseObjectRef
   {
     grt::AutoUndo undo;
     
-    for (size_t c= roles.count(), i= 0; i < c; i++)
+    for (std::size_t c= roles.count(), i= 0; i < c; i++)
     {
       db_RoleRef role(roles[i]);
       

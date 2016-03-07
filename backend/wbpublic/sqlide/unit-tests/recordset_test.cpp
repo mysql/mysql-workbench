@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,8 +29,12 @@
 
 BEGIN_TEST_DATA_CLASS(recordset)
 public:
-	WBTester wbt;
-    sql::Dbc_connection_handler::Ref dbc_conn; 
+	WBTester *wbt;
+    sql::Dbc_connection_handler::Ref dbc_conn;
+    TEST_DATA_CONSTRUCTOR(recordset)
+    {
+      wbt = new WBTester;
+    }
 END_TEST_DATA_CLASS
 
 
@@ -42,23 +46,23 @@ static void dummy()
 
 TEST_FUNCTION(1)
 {
-  populate_grt(wbt);
+  populate_grt(*wbt);
 
   sql::DriverManager *dbc_drv_man = sql::DriverManager::getDriverManager();
   sql::Authentication::Ref auth;
 
   dbc_conn = sql::Dbc_connection_handler::Ref(new sql::Dbc_connection_handler());
-  dbc_conn->ref = dbc_drv_man->getConnection(wbt.get_connection_properties(), boost::bind(dummy));
+  dbc_conn->ref = dbc_drv_man->getConnection(wbt->get_connection_properties(), boost::bind(dummy));
   ensure("connection", dbc_conn->ref.get() != 0);
 }
 
 
 TEST_FUNCTION(2)
 {
-  Recordset_cdbc_storage::Ref data_storage(Recordset_cdbc_storage::create(wbt.wb->get_grt_manager()));
+  Recordset_cdbc_storage::Ref data_storage(Recordset_cdbc_storage::create());
   data_storage->dbms_conn(dbc_conn);
 
-  Recordset::Ref rs = Recordset::create(wbt.wb->get_grt_manager());
+  Recordset::Ref rs = Recordset::create();
   rs->data_storage(data_storage);
 
   boost::shared_ptr<sql::Statement> dbc_statement(dbc_conn->ref->createStatement());
@@ -75,5 +79,11 @@ TEST_FUNCTION(2)
 
 }
 
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  delete wbt;
+}
 
 END_TESTS

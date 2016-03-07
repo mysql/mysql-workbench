@@ -28,9 +28,9 @@ public:
     _be = 0;
   }
   
-  SchemaEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
-    : PluginEditorBase(m, grtm, args, "modules/data/editor_schema.glade")
-    , _be(new MySQLSchemaEditorBE(grtm, db_mysql_SchemaRef::cast_from(args[0])))
+  SchemaEditor(grt::Module *m, const grt::BaseListRef &args)
+    : PluginEditorBase(m, args, "modules/data/editor_schema.glade")
+    , _be(new MySQLSchemaEditorBE(db_mysql_SchemaRef::cast_from(args[0])))
   {
     xml()->get_widget("mysql_schema_editor_notebook", _editor_notebook);
 
@@ -137,14 +137,14 @@ public:
     }
   }
   
-  virtual bool switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args);
+  virtual bool switch_edited_object(const grt::BaseListRef &args);
 };
 
 //------------------------------------------------------------------------------
-bool SchemaEditor::switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args)
+bool SchemaEditor::switch_edited_object(const grt::BaseListRef &args)
 {
   MySQLSchemaEditorBE *old_be = _be;
-  _be = new MySQLSchemaEditorBE(grtm, db_mysql_SchemaRef::cast_from(args[0]));
+  _be = new MySQLSchemaEditorBE(db_mysql_SchemaRef::cast_from(args[0]));
   
   if (_be)
   {
@@ -162,8 +162,8 @@ bool SchemaEditor::switch_edited_object(bec::GRTManager *grtm, const grt::BaseLi
 
 extern "C" 
 {
-  GUIPluginBase *createDbMysqlSchemaEditor(grt::Module *m,  bec::GRTManager *grtm, const grt::BaseListRef &args)
+  GUIPluginBase *createDbMysqlSchemaEditor(grt::Module *m, const grt::BaseListRef &args)
   {
-    return Gtk::manage(new SchemaEditor(m, grtm, args));
+    return Gtk::manage(new SchemaEditor(m, args));
   }
 };

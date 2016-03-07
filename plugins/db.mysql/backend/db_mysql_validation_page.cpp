@@ -35,10 +35,9 @@ using namespace grt;
 #include "db_mysql_sql_export.h"
 
 
-DbMySQLValidationPage::DbMySQLValidationPage(bec::GRTManager *grtm)
-  : _manager(grtm)
+DbMySQLValidationPage::DbMySQLValidationPage()
 {
-  messages_list = grtm->get_messages_list()->create_list();
+  messages_list = bec::GRTManager::get().get_messages_list()->create_list();
 }
 
 DbMySQLValidationPage::~DbMySQLValidationPage()
@@ -51,12 +50,12 @@ DbMySQLValidationPage::~DbMySQLValidationPage()
 void DbMySQLValidationPage::run_validation()
 {
   bec::GRTTask::Ref task = bec::GRTTask::create_task("Catalog validation", 
-    _manager->get_dispatcher(), 
+      bec::GRTManager::get().get_dispatcher(),
     boost::bind(&DbMySQLSQLExport::validation_task, this, grt::StringRef()));
 
   scoped_connect(task->signal_message(),boost::bind(&DbMySQLSQLExport::validation_message, this, _1));
   scoped_connect(task->signal_finished(),boost::bind(&DbMySQLSQLExport::validation_finished, this, _1));
-  _manager->get_dispatcher()->add_task(task);
+  bec::GRTManager::get().get_dispatcher()->add_task(task);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,7 +75,7 @@ void DbMySQLValidationPage::validation_message(const grt::Message &msg)
   case grt::WarningMsg:
   case grt::InfoMsg:
   case grt::OutputMsg:
-    _manager->get_messages_list()->handle_message(msg);
+    bec::GRTManager::get().get_messages_list()->handle_message(msg);
     break;
     
   case grt::ProgressMsg:
@@ -111,7 +110,7 @@ ValueRef DbMySQLValidationPage::validation_task(grt::StringRef)
 
         int validation_res= (int)(*module)->validate("All", catalog);
 
-        _manager->get_dispatcher()->call_from_main_thread<int>(
+        bec::GRTManager::get().get_dispatcher()->call_from_main_thread<int>(
 			boost::bind(_validation_step_finished_cb, validation_res), true, false);
       }
     }

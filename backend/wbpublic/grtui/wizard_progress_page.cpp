@@ -268,7 +268,7 @@ void WizardProgressPage::perform_tasks()
 {
   bool failed= false;
 
-  if (!_form->grtm()->in_main_thread())
+  if (!bec::GRTManager::get().in_main_thread())
     throw std::logic_error("Method must be called from main thread");
   
   while (_current_task < (int)_tasks.size())
@@ -276,7 +276,7 @@ void WizardProgressPage::perform_tasks()
     TaskRow *task= _tasks[_current_task];
 
     _form->flush_events();
-    _form->grtm()->perform_idle_tasks();
+    bec::GRTManager::get().perform_idle_tasks();
 
     // check if we're being called because an async task finished
     if (task->async_running)
@@ -369,9 +369,9 @@ void WizardProgressPage::perform_tasks()
 
 void WizardProgressPage::set_status_text(const std::string &text, bool is_error)
 {
-  if (!_form->grtm()->in_main_thread())
+  if (!bec::GRTManager::get().in_main_thread())
   {
-    _form->grtm()->run_once_when_idle(this, boost::bind(&WizardProgressPage::set_status_text, this, text, is_error));
+    bec::GRTManager::get().run_once_when_idle(this, boost::bind(&WizardProgressPage::set_status_text, this, text, is_error));
     return;
   }
 
@@ -385,9 +385,9 @@ void WizardProgressPage::set_status_text(const std::string &text, bool is_error)
 
 void WizardProgressPage::update_progress(float pct, const std::string &caption)
 {
-  if (!_form->grtm()->in_main_thread())
+  if (!bec::GRTManager::get().in_main_thread())
   {
-    _form->grtm()->run_once_when_idle(this, boost::bind(&WizardProgressPage::update_progress, this, pct, caption));
+    bec::GRTManager::get().run_once_when_idle(this, boost::bind(&WizardProgressPage::update_progress, this, pct, caption));
     return;
   }
 
@@ -460,7 +460,7 @@ void WizardProgressPage::extra_clicked()
 void WizardProgressPage::execute_grt_task(const boost::function<grt::ValueRef ()> &slot, bool sync)
 {
 
-  bec::GRTTask::Ref task= bec::GRTTask::create_task("wizard task", _form->grtm()->get_dispatcher(), slot);
+  bec::GRTTask::Ref task= bec::GRTTask::create_task("wizard task", bec::GRTManager::get().get_dispatcher(), slot);
 
   //We hold an extra ptr for the task so it's not released too early
   _task_list.insert(std::make_pair(task.get(), task));
@@ -471,9 +471,9 @@ void WizardProgressPage::execute_grt_task(const boost::function<grt::ValueRef ()
   scoped_connect(task->signal_finished(),boost::bind(&WizardProgressPage::process_grt_task_finish, this, _1, task.get()));
 
   if (sync)
-    _form->grtm()->get_dispatcher()->add_task_and_wait(task);
+    bec::GRTManager::get().get_dispatcher()->add_task_and_wait(task);
   else
-    _form->grtm()->get_dispatcher()->add_task(task);
+    bec::GRTManager::get().get_dispatcher()->add_task(task);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -550,7 +550,7 @@ void WizardProgressPage::process_grt_task_fail(const std::exception &error, bec:
 
 void WizardProgressPage::process_grt_task_finish(const grt::ValueRef &result, bec::GRTTask* task)
 {
-  _form->grtm()->perform_idle_tasks();
+  bec::GRTManager::get().perform_idle_tasks();
 
   if (_got_error_messages || _got_warning_messages)
   {

@@ -493,15 +493,15 @@ private:
 
 //--------------------------------------------------------------------------------
 
-BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size_t length, bool read_only)
-: mforms::Form(0), _grtm(grtm), _box(false), _hbox(true), _read_only(read_only)
+BinaryDataEditor::BinaryDataEditor(const char *data, size_t length, bool read_only)
+: mforms::Form(0), _box(false), _hbox(true), _read_only(read_only)
 {
 
   set_name("blob_editor");
   _data = 0;
   _length = 0;
 
-  grt::IntegerRef tab = grt::IntegerRef::cast_from(_grtm->get_app_option("BlobViewer:DefaultTab"));
+  grt::IntegerRef tab = grt::IntegerRef::cast_from(bec::GRTManager::get().get_app_option("BlobViewer:DefaultTab"));
 
   setup();
   assign_data(data, length);
@@ -516,7 +516,7 @@ BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size
     activeTab = (int)*tab;
   if (tab.is_valid() && *tab >= _tab_view.page_count())
   {
-    grt::DictRef dict(grt::DictRef::cast_from(_grtm->get_app_option("")));
+    grt::DictRef dict(grt::DictRef::cast_from(bec::GRTManager::get().get_app_option("")));
     if (dict.is_valid())
       dict.gset("BlobViewer:DefaultTab", 0);
     activeTab = 0;
@@ -526,15 +526,15 @@ BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size
   tab_changed();
 }
 
-BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size_t length, const std::string &text_encoding, const std::string &datatype, bool read_only)
-: mforms::Form(mforms::Form::main_form()), _grtm(grtm), _type(datatype), _box(false), _hbox(true), _read_only(read_only)
+BinaryDataEditor::BinaryDataEditor(const char *data, size_t length, const std::string &text_encoding, const std::string &datatype, bool read_only)
+: mforms::Form(mforms::Form::main_form()), _type(datatype), _box(false), _hbox(true), _read_only(read_only)
 {
   set_name("blob_editor");
   _data = 0;
   _length = 0;
   _updating = false;
 
-  grt::IntegerRef tab = grt::IntegerRef::cast_from(_grtm->get_app_option("BlobViewer:DefaultTab"));
+  grt::IntegerRef tab = grt::IntegerRef::cast_from(bec::GRTManager::get().get_app_option("BlobViewer:DefaultTab"));
 
   setup();
   add_viewer(new HexDataViewer(this, read_only), "Binary");
@@ -556,7 +556,7 @@ BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size
     activeTab = (int)*tab;
   if (tab.is_valid() && *tab >= _tab_view.page_count())
   {
-    grt::DictRef dict(grt::DictRef::cast_from(_grtm->get_app_option("")));
+    grt::DictRef dict(grt::DictRef::cast_from(bec::GRTManager::get().get_app_option("")));
     if (dict.is_valid())
       dict.gset("BlobViewer:DefaultTab", 0);
     activeTab = 0;
@@ -640,12 +640,12 @@ void BinaryDataEditor::tab_changed()
   if (i < 0)
     i = 0;
 
-  grt::DictRef dict(grt::DictRef::cast_from(_grtm->get_app_option("")));
+  grt::DictRef dict(grt::DictRef::cast_from(bec::GRTManager::get().get_app_option("")));
   if (dict.is_valid())
     dict.gset("BlobViewer:DefaultTab", i);
   if (i >= _tab_view.page_count())
   {
-    grt::DictRef dict(grt::DictRef::cast_from(_grtm->get_app_option("")));
+    grt::DictRef dict(grt::DictRef::cast_from(bec::GRTManager::get().get_app_option("")));
     if (dict.is_valid())
       dict.gset("BlobViewer:DefaultTab", 0);
     i = 0;

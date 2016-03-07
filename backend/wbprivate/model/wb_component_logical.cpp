@@ -23,7 +23,6 @@
 
 
 using namespace wb;
-using namespace bec;
 using namespace grt;
 
 

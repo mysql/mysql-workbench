@@ -30,8 +30,7 @@
 
 BEGIN_TEST_DATA_CLASS(mysql_sql_statement_decomposer)
 public:
-  WBTester wbt;
-  GRT *grt;
+  WBTester *wbt;
   SqlFacade::Ref sql_facade;
   Sql_statement_decomposer::Ref sql_statement_decomposer;
   db_mgmt_RdbmsRef rdbms;
@@ -47,6 +46,10 @@ public:
   void test_sql(const std::string &sql, const std::string &master_result);
   void test_view(const std::string &sql, const std::string &master_result);
   void test_view2(const std::string &sql, const std::string &master_result);
+  TEST_DATA_CONSTRUCTOR(mysql_sql_statement_decomposer) : sql_facade(nullptr)
+  {
+    wbt = new WBTester;
+  }
 END_TEST_DATA_CLASS
 
 
@@ -55,11 +58,11 @@ TEST_MODULE(mysql_sql_statement_decomposer, "SQL Parser (MySQL): Statement Decom
 
 TEST_FUNCTION(1)
 {
-  wbt.create_new_document();
+  wbt->create_new_document();
 
-  ensure_equals("loaded physycal model count", wbt.wb->get_document()->physicalModels().count(), 1U);
+  ensure_equals("loaded physycal model count", wbt->wb->get_document()->physicalModels().count(), 1U);
 
-  rdbms= wbt.wb->get_document()->physicalModels().get(0)->rdbms();
+  rdbms= wbt->wb->get_document()->physicalModels().get(0)->rdbms();
 
   sql_facade= SqlFacade::instance_for_rdbms(rdbms);
   ensure("failed to get sqlparser module", (NULL != sql_facade));
@@ -315,5 +318,11 @@ FROM\n\
   TABLE1 TABLE1\n\
 }"); }
 
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  delete wbt;
+}
 
 END_TESTS

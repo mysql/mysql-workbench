@@ -129,7 +129,6 @@ String^ WbOptions::OpenAtStartupType::get()
 WbContext::WbContext(bool verbose)
 {
   inner = new ::wb::WBContextUI(verbose);
-  manager = nullptr;
   physical_overview = nullptr;
 
   Logger::LogDebug("WBContext managed", 1, "Creating WbContext\n");
@@ -141,7 +140,6 @@ WbContext::~WbContext()
 {
   delete physical_overview;
   delete inner;
-  delete manager;
 
   Logger::LogDebug("WBContext managed", 1, "Destroying WbContext\n");
 }
@@ -155,16 +153,6 @@ bool WbContext::init(WbFrontendCallbacks ^callbacks, WbOptions ^options,
   return inner->init(
     callbacks->get_callbacks(), 
     options->get_unmanaged_object());
-}
-
-//--------------------------------------------------------------------------------------------------
-
-GrtManager^ WbContext::get_grt_manager()
-{
-  if (manager == nullptr)
-    manager= gcnew GrtManager(inner->get_wb()->get_grt_manager());
-
-  return manager; 
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -638,14 +626,14 @@ void WbContext::flush_idle_tasks()
 
 double WbContext::delay_for_next_timer()
 {
-  return inner->get_wb()->get_grt_manager()->delay_for_next_timeout();
+  return bec::GRTManager::get().delay_for_next_timeout();
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void WbContext::flush_timers()
 {
-  return inner->get_wb()->get_grt_manager()->flush_timers();
+  return bec::GRTManager::get().flush_timers();
 }
 
 //--------------------------------------------------------------------------------------------------

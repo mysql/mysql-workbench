@@ -26,9 +26,6 @@
 #include "grts/structs.model.h"
 #include "base/geometry.h"
 
-namespace bec {
-  class GRTManager;
-};
 
 namespace mdc {
   class CanvasItem;
@@ -47,7 +44,6 @@ namespace wb {
     virtual ~WBComponent() {};
     
     inline WBContext *get_wb() { return _wb; }
-    bec::GRTManager *get_grt_manager();
 
     virtual std::string get_name()= 0;
     virtual std::string get_diagram_class_name() { return ""; }

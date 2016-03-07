@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,8 +28,8 @@ using namespace bec;
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLViewEditorBE::MySQLViewEditorBE(bec::GRTManager *grtm, const db_mysql_ViewRef &view)
-  : bec::ViewEditorBE(grtm, view)
+MySQLViewEditorBE::MySQLViewEditorBE(const db_mysql_ViewRef &view)
+  : bec::ViewEditorBE(view)
 {
   // In modeling we apply the text on focus change. For live editing however we don't.
   // The user has to explicitly commit his changes.

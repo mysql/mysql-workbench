@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,8 +28,8 @@ using namespace base;
 
 //--------------------------------------------------------------------------------------------------
 
-RoutineGroupEditorBE::RoutineGroupEditorBE(GRTManager *grtm, const db_RoutineGroupRef &group)
-  : DBObjectEditorBE(grtm, group)
+RoutineGroupEditorBE::RoutineGroupEditorBE(const db_RoutineGroupRef &group)
+  : DBObjectEditorBE(group)
 {
   // No specific query type setting for the group editor. We have to parse the full spectrum (especially for delimiter changes).
 }
@@ -180,7 +180,7 @@ std::string RoutineGroupEditorBE::get_title()
 void RoutineGroupEditorBE::open_editor_for_routine_at_index(size_t index)
 {
   if (index < get_routine_group()->routines().count())
-    get_grt_manager()->open_object_editor(get_routine_group()->routines()[index]);
+    bec::GRTManager::get().open_object_editor(get_routine_group()->routines()[index]);
 }
 
 //--------------------------------------------------------------------------------------------------

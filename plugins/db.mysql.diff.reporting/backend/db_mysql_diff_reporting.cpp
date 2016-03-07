@@ -40,8 +40,7 @@ using namespace grt;
 #include "grtdb/charset_utils.h"
 #include "grtdb/db_object_helpers.h"
 
-DbMySQLDiffReporting::DbMySQLDiffReporting(bec::GRTManager *m) 
-  : manager_(m)
+DbMySQLDiffReporting::DbMySQLDiffReporting()
 {}
 
 DbMySQLDiffReporting::~DbMySQLDiffReporting()
@@ -55,7 +54,7 @@ std::string DbMySQLDiffReporting::generate_report(const db_mysql_CatalogRef& lef
   db_mysql_CatalogRef left_cat_copy, right_cat_copy;
 
   std::string default_engine_name;
-  grt::ValueRef default_engine = manager_->get_app_option("db.mysql.Table:tableEngine");
+  grt::ValueRef default_engine = bec::GRTManager::get().get_app_option("db.mysql.Table:tableEngine");
   if(grt::StringRef::can_wrap(default_engine))
     default_engine_name = grt::StringRef::cast_from(default_engine);
 
@@ -97,7 +96,7 @@ std::string DbMySQLDiffReporting::generate_report(const db_mysql_CatalogRef& lef
   options.set("KeepOrder", grt::IntegerRef(1));
   options.set("SeparateForeignKeys", grt::IntegerRef(0));
   options.set("TemplateFile", 
-    grt::StringRef(manager_->get_data_file_path(tpath).c_str()));
+    grt::StringRef(bec::GRTManager::get().get_data_file_path(tpath).c_str()));
 
   grt::StringRef output_string(
     diffsql_module->generateReportForDifferences(left_cat_copy, right_cat_copy, options));

@@ -435,7 +435,7 @@ void PhysicalSchemaNode::delete_object(WBContext *wb)
 
 bool PhysicalSchemaNode::activate(WBContext *wb)
 {
-  wb->get_grt_manager()->open_object_editor(object);
+  bec::GRTManager::get().open_object_editor(object);
   return true;
 }
 
@@ -463,28 +463,28 @@ void PhysicalSchemaNode::refresh()
 
 bool PhysicalSchemaNode::add_new_db_table(WBContext *wb)
 {
-  wb->get_grt_manager()->open_object_editor(wb->get_component<WBComponentPhysical>()->add_new_db_table(db_SchemaRef::cast_from(object)));
+  bec::GRTManager::get().open_object_editor(wb->get_component<WBComponentPhysical>()->add_new_db_table(db_SchemaRef::cast_from(object)));
   return true;
 }
 
 
 bool PhysicalSchemaNode::add_new_db_view(WBContext *wb)
 {
-  wb->get_grt_manager()->open_object_editor(wb->get_component<WBComponentPhysical>()->add_new_db_view(db_SchemaRef::cast_from(object)));
+  bec::GRTManager::get().open_object_editor(wb->get_component<WBComponentPhysical>()->add_new_db_view(db_SchemaRef::cast_from(object)));
   return true;
 }
 
 
 bool PhysicalSchemaNode::add_new_db_routine_group(WBContext *wb)
 {
-  wb->get_grt_manager()->open_object_editor(wb->get_component<WBComponentPhysical>()->add_new_db_routine_group(db_SchemaRef::cast_from(object)));
+  bec::GRTManager::get().open_object_editor(wb->get_component<WBComponentPhysical>()->add_new_db_routine_group(db_SchemaRef::cast_from(object)));
   return true;
 }
 
 
 bool PhysicalSchemaNode::add_new_db_routine(WBContext *wb)
 {
-  wb->get_grt_manager()->open_object_editor(wb->get_component<WBComponentPhysical>()->add_new_db_routine(db_SchemaRef::cast_from(object)));
+  bec::GRTManager::get().open_object_editor(wb->get_component<WBComponentPhysical>()->add_new_db_routine(db_SchemaRef::cast_from(object)));
   return true;
 }
 

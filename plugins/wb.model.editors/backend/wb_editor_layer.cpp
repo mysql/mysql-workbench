@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,8 +20,8 @@
 #include "wb_editor_layer.h"
 #include "base/string_utilities.h"
 
-LayerEditorBE::LayerEditorBE(bec::GRTManager *grtm, const workbench_physical_LayerRef &layer)
-: BaseEditor(grtm, layer), _layer(layer)
+LayerEditorBE::LayerEditorBE(const workbench_physical_LayerRef &layer)
+: BaseEditor(layer), _layer(layer)
 {
 }
 

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,7 +27,7 @@ using namespace grtui;
 
 
 WizardObjectFilterPage::WizardObjectFilterPage(WizardForm *form, const char *name)
-  : WizardPage(form, name), _scroll_panel(), _box(false), _filter_be(form->grtm())
+  : WizardPage(form, name), _scroll_panel(), _box(false)
 {
   set_padding(8);
   set_spacing(8);
@@ -51,7 +51,7 @@ DBObjectFilterFrame *WizardObjectFilterPage::add_filter(const std::string &class
 {
   DBObjectFilterFrame *filter;
     
-  filter= new DBObjectFilterFrame(_form->grtm());
+  filter= new DBObjectFilterFrame();
   filter->set_object_class(class_name, caption_fmt);
   filter->set_models(model, excl_model, enabled_flag);
   _box.add(mforms::manage(filter), false, true);

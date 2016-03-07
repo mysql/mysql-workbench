@@ -38,6 +38,7 @@
 #include "sqlide/table_inserts_loader_be.h"
 #include "grts/structs.workbench.h"
 #include "base/string_utilities.h"
+#include "base/file_utilities.h"
 
 DEFAULT_LOG_DOMAIN("dbd4import");
 
@@ -303,7 +304,7 @@ static bool calculate_view_size(const app_PageSettingsRef &page, double &width, 
 }
 
 
-Wb_mysql_import_DBD4::Wb_mysql_import_DBD4()
+Wb_mysql_import_DBD4::Wb_mysql_import_DBD4() : _gen_fk_names_when_empty(false)
 {
   NEUTRAL_STATE_KEEPER
 }
@@ -322,8 +323,6 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
   _catalog= db_mysql_CatalogRef::cast_from(model->catalog());
 
   log_info("Started import DBD4 model.\n");
-
-  bec::GRTManager *grtm= bec::GRTManager::get_instance_for();
 
   _created_schemata= ListRef<db_mysql_Schema>();
   ensure_schema_created(0,
@@ -539,7 +538,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
         {
           log_info("Tables:\n");
 
-          TableInsertsLoader table_inserts_loader(grtm);
+          TableInsertsLoader table_inserts_loader;
 
           const TiXmlElement *table_el= tables_el->FirstChildElement("TABLE");
           while (table_el)
@@ -959,11 +958,11 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
         {
           log_info("Images:\n");
 
-          const std::string tmp_dir= grtm->get_unique_tmp_subdir();
+          const std::string tmp_dir= bec::GRTManager::get().get_unique_tmp_subdir();
           // crete temp dir
           {
-            g_mkdir(grtm->get_tmp_dir().c_str(), 0700);
-            g_mkdir(tmp_dir.c_str(), 0700);
+            base::create_directory(bec::GRTManager::get().get_tmp_dir(), 0700, false);
+            base::create_directory(tmp_dir, 0700, false);
           }
 
           const TiXmlElement *image_el= images_el->FirstChildElement("IMAGE");

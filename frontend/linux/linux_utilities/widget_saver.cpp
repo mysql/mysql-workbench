@@ -8,7 +8,7 @@
 DEFAULT_LOG_DOMAIN("gtk.utils")
 
 //------------------------------------------------------------------------------
-void utils::gtk::save_settings(bec::GRTManager* m, Gtk::Paned* paned, const bool right_side)
+void utils::gtk::save_settings(Gtk::Paned* paned, const bool right_side)
 {
   const std::string name = paned->get_name();
   if (!name.empty() && paned->get_data("allow_save"))
@@ -16,7 +16,7 @@ void utils::gtk::save_settings(bec::GRTManager* m, Gtk::Paned* paned, const bool
     long pos = paned->get_position();
     if (right_side)
       pos = paned->get_width() - pos;
-    m->set_app_option(name + ".position", grt::IntegerRef(pos));
+    bec::GRTManager::get().set_app_option(name + ".position", grt::IntegerRef(pos));
   }
 }
 
@@ -52,13 +52,13 @@ static bool set_paned_position(Gtk::Paned *paned, const long pos, const bool rig
 
 
 //------------------------------------------------------------------------------
-sigc::connection utils::gtk::load_settings(bec::GRTManager* m, Gtk::Paned* paned, const sigc::slot<void> defaults_slot, const bool right_side, const int min_size)
+sigc::connection utils::gtk::load_settings(Gtk::Paned* paned, const sigc::slot<void> defaults_slot, const bool right_side, const int min_size)
 {
   const std::string name = paned->get_name();
   long pos = -1;
   try
   {
-    pos = m->get_app_option_int(name + ".position");
+    pos = bec::GRTManager::get().get_app_option_int(name + ".position");
   }
   catch (const grt::type_error& e)
   {

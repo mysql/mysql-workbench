@@ -113,11 +113,10 @@ protected:
   // data members
   std::string _sql_statement;
   std::string _sql_script_preamble;
-  size_t _processed_obj_count;
-  size_t _warn_count;
-  size_t _err_count;
+  std::size_t _processed_obj_count;
+  std::size_t _warn_count;
+  std::size_t _err_count;
   float _progress_state;
-  bec::GRTManager *_grtm;
   bool _messages_enabled;
   db_DatabaseObjectRef _active_obj;
 

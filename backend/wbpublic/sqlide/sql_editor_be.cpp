@@ -63,9 +63,6 @@ public:
   // it will be used in Db_sql_editor queryBuffer list and in standalone
   // editors for plugin support
   db_query_QueryBufferRef _grtobj;
-
-  bec::GRTManager *_grtm;
-
   mforms::Box* _container;
   mforms::Menu* _editor_context_menu;
   mforms::Menu* _editor_text_submenu;
@@ -112,9 +109,8 @@ public:
 
   // autocomplete_context will go after auto completion refactoring.
   Private(ParserContext::Ref syntaxcheck_context, ParserContext::Ref autocomplete_context)
-    : _grtobj(grt::Initialized)
+    : _grtobj(grt::Initialized), _last_sql_check_progress_msg_timestamp(0.0), _stop_processing(false)
   {
-    _grtm = GRTManager::get_instance_for();
 
     _owns_toolbar = false;
     _parse_unit = QtUnknown;
@@ -237,8 +233,9 @@ MySQLEditor::MySQLEditor(ParserContext::Ref syntax_check_context, ParserContext:
 {
   d = new Private(syntax_check_context, autocopmlete_context);
   
+
   _code_editor = new mforms::CodeEditor(this);
-  _code_editor->set_font(d->_grtm->get_app_option_string("workbench.general.Editor:Font"));
+  _code_editor->set_font(bec::GRTManager::get().get_app_option_string("workbench.general.Editor:Font"));
   _code_editor->set_features(mforms::FeatureUsePopup, false);
   _code_editor->set_features(mforms::FeatureConvertEolOnPaste | mforms::FeatureAutoIndent, true);
   _code_editor->set_name("Code Editor");
@@ -247,9 +244,9 @@ MySQLEditor::MySQLEditor(ParserContext::Ref syntax_check_context, ParserContext:
   _editor_config = NULL;
   create_editor_config_for_version(version);
 
-  _code_editor->send_editor(SCI_SETTABWIDTH, d->_grtm->get_app_option_int("Editor:TabWidth", 4), 0);
-  _code_editor->send_editor(SCI_SETINDENT, d->_grtm->get_app_option_int("Editor:IndentWidth", 4), 0);
-  _code_editor->send_editor(SCI_SETUSETABS, !d->_grtm->get_app_option_int("Editor:TabIndentSpaces", 0), 0);
+  _code_editor->send_editor(SCI_SETTABWIDTH, bec::GRTManager::get().get_app_option_int("Editor:TabWidth", 4), 0);
+  _code_editor->send_editor(SCI_SETINDENT, bec::GRTManager::get().get_app_option_int("Editor:IndentWidth", 4), 0);
+  _code_editor->send_editor(SCI_SETUSETABS, !bec::GRTManager::get().get_app_option_int("Editor:TabIndentSpaces", 0), 0);
 
   scoped_connect(_code_editor->signal_changed(), boost::bind(&MySQLEditor::text_changed, this, _1, _2, _3, _4));
   scoped_connect(_code_editor->signal_char_added(), boost::bind(&MySQLEditor::char_added, this, _1));
@@ -531,13 +528,6 @@ mforms::CodeEditorConfig* MySQLEditor::get_editor_settings()
 
 //--------------------------------------------------------------------------------------------------
 
-bec::GRTManager *MySQLEditor::grtm()
-{
-  return d->_grtm;
-}
-
-//--------------------------------------------------------------------------------------------------
-
 bool MySQLEditor::is_refresh_enabled() const
 {
   return d->_is_refresh_enabled;
@@ -616,7 +606,7 @@ void MySQLEditor::sql(const char *sql)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-size_t MySQLEditor::cursor_pos()
+std::size_t MySQLEditor::cursor_pos()
 {
   return _code_editor->get_caret_pos();
 }
@@ -628,7 +618,7 @@ size_t MySQLEditor::cursor_pos()
  * the actual character index as displayed in the editor, not the byte index in a std::string.
  * If @local is true then the line position is relative to the statement, otherwise that in the entire editor.
  */
-std::pair<size_t, size_t> MySQLEditor::cursor_pos_row_column(bool local)
+std::pair<std::size_t, std::size_t> MySQLEditor::cursor_pos_row_column(bool local)
 {
   size_t position = _code_editor->get_caret_pos();
   ssize_t line = _code_editor->line_from_position(position);
@@ -651,14 +641,14 @@ std::pair<size_t, size_t> MySQLEditor::cursor_pos_row_column(bool local)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void MySQLEditor::set_cursor_pos(size_t position)
+void MySQLEditor::set_cursor_pos(std::size_t position)
 {
   _code_editor->set_caret_pos(position);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool MySQLEditor::selected_range(size_t &start, size_t &end)
+bool MySQLEditor::selected_range(std::size_t &start, std::size_t &end)
 {
   size_t length;
   _code_editor->get_selection(start, length);
@@ -668,7 +658,7 @@ bool MySQLEditor::selected_range(size_t &start, size_t &end)
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLEditor::set_selected_range(size_t start, size_t end)
+void MySQLEditor::set_selected_range(std::size_t start, std::size_t end)
 {
   _code_editor->set_selection(start, end - start);
 }
@@ -749,7 +739,7 @@ void MySQLEditor::text_changed(int position, int length, int lines_changed, bool
   d->_splitting_required = true;
   d->_text_info = _code_editor->get_text_ptr();
   if (d->_is_sql_check_enabled)
-    d->_current_delay_timer = d->_grtm->run_every(boost::bind(&MySQLEditor::start_sql_processing, this), 0.001);
+    d->_current_delay_timer = bec::GRTManager::get().run_every(boost::bind(&MySQLEditor::start_sql_processing, this), 0.001);
   else
     d->_text_change_signal(); // If there is no timer set up then trigger change signals directly.
 }
@@ -836,7 +826,7 @@ bool MySQLEditor::do_statement_split_and_check(int id)
   d->split_statements_if_required();
   
   // Start tasks that depend on the statement ranges (markers + auto completion).
-  d->_grtm->run_once_when_idle(this, boost::bind(&MySQLEditor::splitting_done, this));
+  bec::GRTManager::get().run_once_when_idle(this, boost::bind(&MySQLEditor::splitting_done, this));
 
   if (d->_stop_processing)
     return false;
@@ -859,7 +849,7 @@ bool MySQLEditor::do_statement_split_and_check(int id)
     }
   }
 
-  d->_grtm->run_once_when_idle(this, boost::bind(&MySQLEditor::update_error_markers, this));
+  bec::GRTManager::get().run_once_when_idle(this, boost::bind(&MySQLEditor::update_error_markers, this));
 
   return false;
 }
@@ -1022,7 +1012,7 @@ void MySQLEditor::setup_editor_menu()
     argpool.add_entries_for_object("activeQueryBuffer", grtobj());
     argpool.add_entries_for_object("", grtobj());
     
-    bec::MenuItemList plugin_items= grtm()->get_plugin_context_menu_items(groups, argpool);
+    bec::MenuItemList plugin_items= bec::GRTManager::get().get_plugin_context_menu_items(groups, argpool);
     
     if (!plugin_items.empty())
     {
@@ -1038,7 +1028,7 @@ void MySQLEditor::setup_editor_menu()
 
   groups.clear();
   groups.push_back("Filter");
-  plugin_items = grtm()->get_plugin_context_menu_items(groups, argpool);  
+  plugin_items = bec::GRTManager::get().get_plugin_context_menu_items(groups, argpool);
   if (!plugin_items.empty())
   {
     d->_editor_context_menu->add_separator();
@@ -1093,7 +1083,7 @@ void MySQLEditor::activate_context_menu_item(const std::string &name)
     std::vector<std::string> parts= base::split(name, ":", 1);
     if (parts.size() == 2 && parts[0] == "plugin")
     {
-      app_PluginRef plugin(grtm()->get_plugin_manager()->get_plugin(parts[1]));
+      app_PluginRef plugin(bec::GRTManager::get().get_plugin_manager()->get_plugin(parts[1]));
 
       if (!plugin.is_valid())
         throw std::runtime_error("Invalid plugin "+name);
@@ -1118,7 +1108,7 @@ void MySQLEditor::activate_context_menu_item(const std::string &name)
 
       grt::BaseListRef fargs(argpool.build_argument_list(plugin));
 
-      grt::ValueRef result= grtm()->get_plugin_manager()->execute_plugin_function(plugin, fargs);
+      grt::ValueRef result= bec::GRTManager::get().get_plugin_manager()->execute_plugin_function(plugin, fargs);
 
       if (is_filter)
       {
@@ -1185,7 +1175,7 @@ void MySQLEditor::set_sql_check_enabled(bool flag)
     {
       ThreadedTimer::get()->remove_task(d->_current_work_timer_id); // Does nothing if the id is -1.
       if (d->_current_delay_timer == NULL)
-        d->_current_delay_timer = d->_grtm->run_every(boost::bind(&MySQLEditor::start_sql_processing, this), 0.01);
+        d->_current_delay_timer = bec::GRTManager::get().run_every(boost::bind(&MySQLEditor::start_sql_processing, this), 0.01);
     }
     else
       stop_processing();
@@ -1196,14 +1186,14 @@ void MySQLEditor::set_sql_check_enabled(bool flag)
 
 bool MySQLEditor::code_completion_enabled()
 {
-  return d->_grtm->get_app_option_int("DbSqlEditor:CodeCompletionEnabled") == 1;
+  return bec::GRTManager::get().get_app_option_int("DbSqlEditor:CodeCompletionEnabled") == 1;
 }
 
 //--------------------------------------------------------------------------------------------------
 
 bool MySQLEditor::auto_start_code_completion()
 {
-  return (d->_grtm->get_app_option_int("DbSqlEditor:AutoStartCodeCompletion") == 1) &&
+  return (bec::GRTManager::get().get_app_option_int("DbSqlEditor:AutoStartCodeCompletion") == 1) &&
     (d->_autocompletion_context != NULL);
 }
 
@@ -1211,7 +1201,7 @@ bool MySQLEditor::auto_start_code_completion()
 
 bool MySQLEditor::make_keywords_uppercase()
 {
-  return d->_grtm->get_app_option_int("DbSqlEditor:CodeCompletionUpperCaseKeywords") == 1;
+  return bec::GRTManager::get().get_app_option_int("DbSqlEditor:CodeCompletionUpperCaseKeywords") == 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1289,7 +1279,7 @@ void MySQLEditor::stop_processing()
 
   if (d->_current_delay_timer != NULL)
   {
-    d->_grtm->cancel_timer(d->_current_delay_timer);
+    bec::GRTManager::get().cancel_timer(d->_current_delay_timer);
     d->_current_delay_timer = NULL;
   }
 

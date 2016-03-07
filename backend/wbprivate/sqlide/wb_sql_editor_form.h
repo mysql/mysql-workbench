@@ -151,7 +151,6 @@ public:
   
   void restore_last_workspace();
 public:
-  bec::GRTManager * grt_manager() const { return _grtm; }
   wb::WBContextSQLIDE *wbsql() const { return _wbsql; }
 
   db_query_EditorRef grtobj();
@@ -163,7 +162,6 @@ public:
 private:
   wb::WBContextSQLIDE *_wbsql;
   GrtVersionRef _version;
-  bec::GRTManager *_grtm;
   mforms::MenuBar *_menu;
   mforms::ToolBar *_toolbar;
   std::string _connection_info;

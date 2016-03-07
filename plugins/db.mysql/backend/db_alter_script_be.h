@@ -17,7 +17,6 @@ public:
 
 class DbMySQLDiffAlter : public SynchronizeDifferencesPageBEInterface
 {
-  bec::GRTManager *manager_;
   grt::StringListRef _alter_list;
   grt::ListRef<GrtNamedObject> _alter_object_list;
   db_mysql_CatalogRef _left_catalog, _right_catalog;
@@ -40,10 +39,8 @@ public:
     right = _right_catalog;
   }
 
-  DbMySQLDiffAlter(bec::GRTManager *m);
+  DbMySQLDiffAlter();
   virtual ~DbMySQLDiffAlter();
-
-  bec::GRTManager *get_grt_manager() { return manager_; }
 
   std::string generate_alter();
 

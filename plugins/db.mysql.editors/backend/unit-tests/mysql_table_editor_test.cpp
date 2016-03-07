@@ -28,16 +28,15 @@ using namespace tut;
 
 BEGIN_TEST_DATA_CLASS(mysql_table_editor)
 public:
-  WBTester tester;
-  GRTManager *grtm;
+  WBTester *tester;
 
 TEST_DATA_CONSTRUCTOR(mysql_table_editor)
 {
-  populate_grt(tester);
+  tester = new WBTester();
+  populate_grt(*tester);
 
-  tester.flush_until(0.5);
-  tester.create_new_document();
-  grtm = tester.wb->get_grt_manager();
+  tester->flush_until(0.5);
+  tester->create_new_document();
 }
 
 END_TEST_DATA_CLASS
@@ -46,8 +45,8 @@ TEST_MODULE(mysql_table_editor, "mysql_table_editor");
 
 TEST_FUNCTION(10)
 {
-  tester.renew_document();
-  ensure("db_mgmt_RdbmsRef initialization", tester.get_rdbms().is_valid());
+  tester->renew_document();
+  ensure("db_mgmt_RdbmsRef initialization", tester->get_rdbms().is_valid());
 }
 
 
@@ -58,12 +57,12 @@ TEST_FUNCTION(20)
   //       The test shouldn't be about parsing trigger sql, as this is a low level parser test.
   //       Instead test if trigger addition works (removal is a simple grt call).
 
-  tester.renew_document();
-  SynteticMySQLModel model(&tester);
+  tester->renew_document();
+  SynteticMySQLModel model(tester);
 
   model.schema->name("test_schema");
   model.table->name("film");
-  MySQLTableEditorBE t(grtm, model.table);
+  MySQLTableEditorBE t(model.table);
   model.table->triggers().remove_all();
 
   t.add_trigger("after", "delete");
@@ -84,8 +83,8 @@ TEST_FUNCTION(30)
 {
   // check if adding columns/indices/foreign keys by setting name of placeholder item works
 
-  tester.renew_document();
-  SynteticMySQLModel model(&tester);
+  tester->renew_document();
+  SynteticMySQLModel model(tester);
 
   db_mysql_TableRef table= model.table;
   table->name("table");
@@ -93,7 +92,7 @@ TEST_FUNCTION(30)
   table->indices().remove_all();
   table->foreignKeys().remove_all();
 
-  MySQLTableEditorBE editor(grtm, table);
+  MySQLTableEditorBE editor(table);
 
   ensure_equals("add column", table->columns().count(), 0U);
   ((bec::TableColumnsListBE*)editor.get_columns())->set_field(0, 0, "newcol");
@@ -110,6 +109,13 @@ TEST_FUNCTION(30)
   ensure_equals("add fk", table->foreignKeys().count(), 0U);
   editor.get_fks()->set_field(0, 0, "newfk");
   ensure_equals("add fk", table->foreignKeys().count(), 1U);
+}
+
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  delete tester;
 }
 
 END_TESTS

@@ -71,7 +71,6 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _tab_action_box(true), _tab_action_apply(mforms::SmallButton), _tab_action_revert(mforms::SmallButton), _tab_action_info("Read Only"),
   _rs_sequence(0), _busy(false), _is_scratch(is_scratch)
 {
-  GRTManager *grtm = owner->grt_manager();
   db_query_QueryEditorRef grtobj(grt::Initialized);
 
   grtobj->resultDockingPoint(mforms_to_grt(&_lower_dock));
@@ -86,7 +85,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
     owner->rdbms_version(), owner->lower_case_table_names() != 0);
 
   _editor = MySQLEditor::create(context, owner->work_parser_context(), grtobj);
-  _editor->sql_check_progress_msg_throttle(grtm->get_app_option_int("DbSqlEditor:ProgressStatusUpdateInterval", 500)/(double)1000);
+  _editor->sql_check_progress_msg_throttle(bec::GRTManager::get().get_app_option_int("DbSqlEditor:ProgressStatusUpdateInterval", 500)/(double)1000);
   _editor->set_auto_completion_cache(owner->auto_completion_cache());
   _editor->set_sql_mode(owner->sql_mode());
   _editor->set_current_schema(owner->active_schema());
@@ -100,7 +99,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _editor_box.add(setup_editor_toolbar(), false, true);
   _editor_box.add_end(code_editor, true, true);
 
-  code_editor->set_font(grt::StringRef::cast_from(grtm->get_app_option("workbench.general.Editor:Font")));
+  code_editor->set_font(grt::StringRef::cast_from(bec::GRTManager::get().get_app_option("workbench.general.Editor:Font")));
   code_editor->set_status_text("");
   code_editor->set_show_find_panel_callback(boost::bind(&SqlEditorPanel::show_find_panel, this, _1, _2));
 
@@ -196,7 +195,7 @@ bool SqlEditorPanel::can_close()
   bool check_editors = true;
   // if Save of workspace on close is enabled, we don't need to check whether there are unsaved scratch
   // SQL editors but other stuff should be checked.
-  grt::ValueRef option(_form->grt_manager()->get_app_option("workbench:SaveSQLWorkspaceOnClose"));
+  grt::ValueRef option(bec::GRTManager::get().get_app_option("workbench:SaveSQLWorkspaceOnClose"));
   if (option.is_valid() && *grt::IntegerRef::cast_from(option))
     check_editors = false;
 
@@ -334,7 +333,7 @@ void SqlEditorPanel::splitter_resized()
 {
   if (_lower_tabview.page_count() > 0)
   {
-    _form->grt_manager()->set_app_option("DbSqlEditor:ResultSplitterPosition",
+    bec::GRTManager::get().set_app_option("DbSqlEditor:ResultSplitterPosition",
                                          grt::IntegerRef(_splitter.get_divider_position()));
   }
 }
@@ -621,13 +620,13 @@ bool SqlEditorPanel::save()
 
   // File extension check is already done in FileChooser.
 
-  _form->grt_manager()->replace_status_text(strfmt(_("Saving SQL script to '%s'..."), _filename.c_str()));
+  bec::GRTManager::get().replace_status_text(strfmt(_("Saving SQL script to '%s'..."), _filename.c_str()));
 
   std::pair<const char*, size_t> text = text_data();
   if (!g_file_set_contents(_filename.c_str(), text.first, text.second, &error))
   {
     log_error("Could not save script %s: %s\n", _filename.c_str(), error->message);
-    _form->grt_manager()->replace_status_text(strfmt(_("Error saving SQL script to '%s'."), _filename.c_str()));
+    bec::GRTManager::get().replace_status_text(strfmt(_("Error saving SQL script to '%s'."), _filename.c_str()));
 
     mforms::Utilities::show_error(strfmt(_("Error writing file %s"), _filename.c_str()),
                                   error->message, _("OK"));
@@ -640,7 +639,7 @@ bool SqlEditorPanel::save()
   _is_scratch = false; // saving a file makes it not a scratch buffer anymore
   file_mtime(_filename, _file_timestamp);
 
-  _form->grt_manager()->replace_status_text(strfmt(_("SQL script saved to '%s'"), _filename.c_str()));
+  bec::GRTManager::get().replace_status_text(strfmt(_("SQL script saved to '%s'"), _filename.c_str()));
 
   // update autosave state
   _form->auto_save();
@@ -664,7 +663,7 @@ void SqlEditorPanel::revert_to_saved()
       NotificationCenter::get()->send("GNDocumentOpened", this, info);
     }
     _form->auto_save();
-    _form->grt_manager()->replace_status_text(strfmt(_("Reverted to saved '%s'"), _filename.c_str()));
+    bec::GRTManager::get().replace_status_text(strfmt(_("Reverted to saved '%s'"), _filename.c_str()));
   }
 }
 
@@ -972,7 +971,7 @@ void SqlEditorPanel::check_external_file_changes()
 
 //--------------------------------------------------------------------------------------------------
 
-std::pair<const char*, size_t> SqlEditorPanel::text_data() const
+std::pair<const char*, std::size_t> SqlEditorPanel::text_data() const
 {
   return _editor->text_ptr();
 }
@@ -1166,7 +1165,7 @@ void SqlEditorPanel::lower_tab_switched()
   // if a lower tab view selection has changed, we make sure it's visible
   if (!_busy && _lower_tabview.page_count() > 0) // if we're running a query, then let dock_result handle this
   {
-    int position = _form->grt_manager()->get_app_option_int("DbSqlEditor:ResultSplitterPosition", 200);
+    int position = bec::GRTManager::get().get_app_option_int("DbSqlEditor:ResultSplitterPosition", 200);
     if (position > _splitter.get_height() - 100)
       position = _splitter.get_height() - 100;
     _splitter.set_divider_position(position);
@@ -1244,14 +1243,14 @@ SqlEditorResult *SqlEditorPanel::result_panel(int i)
 
 void SqlEditorPanel::add_panel_for_recordset_from_main(Recordset::Ref rset)
 {
-  if (_form->grt_manager()->in_main_thread())
+  if (bec::GRTManager::get().in_main_thread())
   {
     SqlEditorForm::RecordsetData *rdata = dynamic_cast<SqlEditorForm::RecordsetData*>(rset->client_data());
     
     rdata->result_panel = add_panel_for_recordset(rset);
   }
   else
-    _form->grt_manager()->run_once_when_idle(dynamic_cast<bec::UIForm*>(this), 
+    bec::GRTManager::get().run_once_when_idle(dynamic_cast<bec::UIForm*>(this),
       boost::bind(&SqlEditorPanel::add_panel_for_recordset_from_main, this, rset));
 }
 
@@ -1282,7 +1281,7 @@ void SqlEditorPanel::dock_result_panel(SqlEditorResult *result)
   _splitter.set_expanded(false, true);
   if (_was_empty)
   {
-    int position = _form->grt_manager()->get_app_option_int("DbSqlEditor:ResultSplitterPosition", 200);
+    int position = bec::GRTManager::get().get_app_option_int("DbSqlEditor:ResultSplitterPosition", 200);
     if (position > _splitter.get_height() - 100)
       position = _splitter.get_height() - 100;
     _splitter.set_divider_position(position);

@@ -44,7 +44,11 @@ static grt::DictRef get_traits(bool case_sensitive = false)
 
 BEGIN_TEST_DATA_CLASS(comparer_test)
 public:
-  WBTester tester;
+ WBTester *tester;
+ TEST_DATA_CONSTRUCTOR(comparer_test)
+ {
+   tester = new WBTester;
+ }
 END_TEST_DATA_CLASS
 
 TEST_MODULE(comparer_test, "comparer test");
@@ -380,6 +384,13 @@ TEST_FUNCTION(10)
     normalizer2.init_omf(&omf2);
     boost::shared_ptr<DiffChange> change2 = diff_make(routine1, routine2, &omf2);
     ensure("10.2 Routine definer, wasn't different", change2.get() != NULL);
+}
+
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(11)
+{
+  delete tester;
 }
 
 END_TESTS

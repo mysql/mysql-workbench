@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -27,10 +27,9 @@ using base::strfmt;
 #define TEXT_UPDATE_TIMER 500
 
 //------------------------------------------------------------------------------
-PluginEditorBase::PluginEditorBase(grt::Module *module, bec::GRTManager *grtm, const grt::BaseListRef &args, const char* glade_file)
+PluginEditorBase::PluginEditorBase(grt::Module *module, const grt::BaseListRef &args, const char* glade_file)
   : GUIPluginBase(module)
   , _editor_notebook(0)
-  , _grtm(grtm)
   , _xml(0)
   , _live_object_editor_decorator_xml(0)
   , _live_object_editor_decorator_control(0)
@@ -42,7 +41,7 @@ PluginEditorBase::PluginEditorBase(grt::Module *module, bec::GRTManager *grtm, c
   set_shadow_type(Gtk::SHADOW_NONE);
 
   if (glade_file)
-    _xml= Gtk::Builder::create_from_file(grtm->get_data_file_path(glade_file));
+    _xml= Gtk::Builder::create_from_file(bec::GRTManager::get().get_data_file_path(glade_file));
 }
 
 //------------------------------------------------------------------------------
@@ -65,7 +64,7 @@ void PluginEditorBase::load_glade(const char* glade_xml_filename)
 
   if (glade_xml_filename)
   {
-    _xml = Gtk::Builder::create_from_file(_grtm->get_data_file_path(glade_xml_filename));
+    _xml = Gtk::Builder::create_from_file(bec::GRTManager::get().get_data_file_path(glade_xml_filename));
     if (!_xml)
       throw std::logic_error("Can't load glade xml");
   }
@@ -101,7 +100,7 @@ void PluginEditorBase::decorate_object_editor()
   {
     if (!_live_object_editor_decorator_control)
     {
-      _live_object_editor_decorator_xml= Gtk::Builder::create_from_file(_grtm->get_data_file_path("modules/data/live_editor_decoration.glade"));
+      _live_object_editor_decorator_xml= Gtk::Builder::create_from_file(bec::GRTManager::get().get_data_file_path("modules/data/live_editor_decoration.glade"));
       _live_object_editor_decorator_xml->get_widget("box1", _live_object_editor_decorator_control);
       _live_object_editor_decorator_xml->get_widget("live_editor_placeholder", _live_editor_placeholder);
 

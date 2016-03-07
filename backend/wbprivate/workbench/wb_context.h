@@ -138,7 +138,7 @@ namespace wb {
 
     // Open an editor
     // Args: grtmanager, module containing plugin, editor dll, editor class, edited object
-    boost::function<NativeHandle (bec::GRTManager*, grt::Module*, std::string, std::string, grt::BaseListRef, bec::GUIPluginFlags)> open_editor;
+    boost::function<NativeHandle (grt::Module*, std::string, std::string, grt::BaseListRef, bec::GUIPluginFlags)> open_editor;
     // Show/Hide an editor
     // Args: editor handle (e.g: window handle)
     boost::function<void (NativeHandle)> show_editor;
@@ -294,7 +294,6 @@ namespace wb {
 
     void foreach_component(const boost::function<void (WBComponent*)> &slot);
 
-    bec::GRTManager *get_grt_manager() const { return _manager; }
     boost::shared_ptr<WorkbenchImpl> get_workbench() { return _workbench; };
 
     bec::Clipboard *get_clipboard() const { return _clipboard; }
@@ -317,7 +316,7 @@ namespace wb {
     R execute_in_main_thread(const std::string &name, 
                              const boost::function<R ()> &function) THROW (grt::grt_runtime_error)
     {
-      return _manager->get_dispatcher()->call_from_main_thread/*<R>*/(function, true, false);
+      return bec::GRTManager::get().get_dispatcher()->call_from_main_thread/*<R>*/(function, true, false);
     }
     void execute_in_main_thread(const std::string &name, 
                               const boost::function<void ()> &function, bool wait) THROW (grt::grt_runtime_error);
@@ -355,7 +354,6 @@ namespace wb {
   protected:
     friend class WBContextModel; // to access _components
     
-    bec::GRTManager *_manager;
     bec::PluginManager *_plugin_manager;
 
     workbench_WorkbenchRef _wb_root;

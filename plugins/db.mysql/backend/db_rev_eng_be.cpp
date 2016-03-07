@@ -20,10 +20,11 @@
 #include "db_rev_eng_be.h"
 #include "base/string_utilities.h"
 
-void Db_rev_eng::grtm(bec::GRTManager *grtm)
+void Db_rev_eng::grtm()
 {
-  Db_plugin::grtm(grtm, true);
-  Sql_import::grtm(grtm);
+
+  Db_plugin::grtm(true);
+  Sql_import::grtm();
 }
 
 
