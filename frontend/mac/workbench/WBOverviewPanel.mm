@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -201,13 +201,14 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     
     std::string label;
     _overview->get_field(*_lastFoundNode, wb::OverviewBE::Label, label);
-    _overview->get_wb()->get_grt_manager()->replace_status_text(base::strfmt(_("Found '%s'"), label.c_str()));
+    
+    bec::GRTManager::get().replace_status_text(base::strfmt(_("Found '%s'"), label.c_str()));
   }
   else
   {
     delete _lastFoundNode;
     _lastFoundNode= 0;
-    _overview->get_wb()->get_grt_manager()->replace_status_text(_("No matches found."));
+    bec::GRTManager::get().replace_status_text(_("No matches found."));
   }
 }
 

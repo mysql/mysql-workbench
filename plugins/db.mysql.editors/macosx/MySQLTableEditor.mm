@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -174,12 +174,10 @@ static NSString *columnDragUTI = @"com.mysql.workbench.column";
 @implementation DbMysqlTableEditor
 
 - (instancetype)initWithModule: (grt::Module *) module
-                    grtManager: (bec::GRTManager *) grtm
                      arguments: (const grt::BaseListRef &) args
 {
   self = [super initWithNibName: @"MySQLTableEditor" bundle: [NSBundle bundleForClass: self.class]];
   if (self != nil) {
-    _grtm = grtm;
 
     [self loadView];
     [self enablePluginDocking: mEditorsTabView];
@@ -200,7 +198,7 @@ static NSString *columnDragUTI = @"com.mysql.workbench.column";
   delete mBackEnd;
 
   db_mysql_TableRef table = db_mysql_TableRef::cast_from(args[0]);
-  mBackEnd = new MySQLTableEditorBE(_grtm, table);
+  mBackEnd = new MySQLTableEditorBE(table);
 
   if (!isReinit)
   {

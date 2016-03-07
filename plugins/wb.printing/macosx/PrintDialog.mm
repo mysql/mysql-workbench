@@ -138,7 +138,6 @@
 
 @interface PrintDialog()
 {
-  bec::GRTManager * _grtm;
 }
 
 @end
@@ -146,13 +145,11 @@
 @implementation PrintDialog
 
 - (instancetype)initWithModule: (grt::Module*)module
-                    grtManager: (bec::GRTManager *)grtm
                      arguments: (const grt::BaseListRef &)args
 {
-  self = [super initWithModule: module grtManager: grtm arguments: args];
+  self = [super initWithModule: module arguments: args];
   if (self != nil)
   {
-    _grtm = grtm;
     model_DiagramRef diagram(model_DiagramRef::cast_from(args[0]));
     
     NSRect rect = NSMakeRect(0, 0, diagram->width(), diagram->height());
@@ -182,7 +179,7 @@
 
 - (void) dealloc
 {
-  _grtm->get_plugin_manager()->forget_gui_plugin_handle((__bridge void *)self);
+  bec::GRTManager::get().get_plugin_manager()->forget_gui_plugin_handle((__bridge void *)self);
 
 }
 
