@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -180,7 +180,7 @@ void DbSqlEditorLog::reset()
   _readonly= true;
 
   add_column("", int()); // msg type (icon)
-  add_column("", int()); // sequence no.
+  add_column("#", int()); // sequence no.
   add_column("Time", std::string());
   add_column("Action", std::string());
   add_column("Message", std::string());
