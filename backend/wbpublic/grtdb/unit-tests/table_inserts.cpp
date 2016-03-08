@@ -52,8 +52,8 @@ public:
 # pragma warning(push)
 # pragma warning(disable:4355)
 #endif
-  TestTableEditor(GRTManager *grtm, db_TableRef table, db_mgmt_RdbmsRef rdbms)
-    : TableEditorBE(grtm, table), _table(table), _columns(this), _indexes(this)
+  TestTableEditor(db_TableRef table, db_mgmt_RdbmsRef rdbms)
+    : TableEditorBE(table), _table(table), _columns(this), _indexes(this)
     {
     }
 #ifdef _WIN32
@@ -118,8 +118,7 @@ public:
 
 BEGIN_TEST_DATA_CLASS(table_inserts)
 public:
-  WBTester wbt;
-  GRTManager *grtm;
+  WBTester *wbt;
   db_TableRef table;
   Auto_release autorel;
 
@@ -127,8 +126,8 @@ public:
 TEST_DATA_CONSTRUCTOR(table_inserts)
   : editor(0)
 {
-  grtm = wbt.wb->get_grt_manager();
-  populate_grt(wbt);
+  wbt = new WBTester;
+  populate_grt(*wbt);
 }
 
 TEST_DATA_DESTRUCTOR(table_inserts)
@@ -182,21 +181,21 @@ static db_TableRef make_inserts_test_table(const db_mgmt_RdbmsRef &rdbms, const 
 
 TEST_FUNCTION(1)
 {
-  wbt.create_new_document();
+  wbt->create_new_document();
 }
 
 
-static std::string generate_sql_just_like_fwd_eng(GRTManager *grtm, db_TableRef table)
+static std::string generate_sql_just_like_fwd_eng(db_TableRef table)
 {
   // this code copied verbatim from module_db_mysql.cpp
-  Recordset_table_inserts_storage::Ref input_storage = Recordset_table_inserts_storage::create(grtm);
+  Recordset_table_inserts_storage::Ref input_storage = Recordset_table_inserts_storage::create();
   input_storage->table(table);
 
-  Recordset::Ref rs = Recordset::create(grtm);
+  Recordset::Ref rs = Recordset::create();
   rs->data_storage(input_storage);
   rs->reset();
 
-  Recordset_sql_storage::Ref output_storage= Recordset_sql_storage::create(grtm);
+  Recordset_sql_storage::Ref output_storage= Recordset_sql_storage::create();
   output_storage->table_name(table->name());
   output_storage->rdbms(db_mgmt_RdbmsRef::cast_from(table->owner()/*schema*/->owner()/*catalog*/->owner()/*phys.model*/->get_member("rdbms")));
   output_storage->schema_name(table->owner()->name());
@@ -210,10 +209,10 @@ static std::string generate_sql_just_like_fwd_eng(GRTManager *grtm, db_TableRef 
 TEST_FUNCTION(5)
 {
   // test proper storage of values with trivial values
-  db_TableRef table(make_inserts_test_table(wbt.get_rdbms(), wbt.get_catalog()));
+  db_TableRef table(make_inserts_test_table(wbt->get_rdbms(), wbt->get_catalog()));
 
   {
-    TestTableEditor editor(grtm, table, wbt.get_rdbms());
+    TestTableEditor editor(table, wbt->get_rdbms());
 
     RecordsetRef rs= editor.get_inserts_model();
 
@@ -232,7 +231,7 @@ TEST_FUNCTION(5)
     ensure("apply changes", ok);
   }
   {
-    TestTableEditor editor(grtm, table, wbt.get_rdbms());
+    TestTableEditor editor(table, wbt->get_rdbms());
 
     RecordsetRef rs= editor.get_inserts_model();
 
@@ -261,7 +260,7 @@ TEST_FUNCTION(5)
     ensure_equals("generated sql", output, 
       "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (1, 'test', '2012-01-01', NULL);\n");
 
-    output = generate_sql_just_like_fwd_eng(grtm, table);
+    output = generate_sql_just_like_fwd_eng(table);
     ensure_equals("fwd eng sql", output,
       "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (1, 'test', '2012-01-01', NULL);\n");
   }
@@ -313,9 +312,9 @@ static void test_rs_storage(RecordsetRef rs, int row, int column, const std::str
 TEST_FUNCTION(6)
 {
   // check storage of NULL value
-  db_TableRef table(make_inserts_test_table(wbt.get_rdbms(), wbt.get_catalog()));
+  db_TableRef table(make_inserts_test_table(wbt->get_rdbms(), wbt->get_catalog()));
 
-  TestTableEditor editor(grtm, table, wbt.get_rdbms());
+  TestTableEditor editor(table, wbt->get_rdbms());
 
   RecordsetRef rs= editor.get_inserts_model();
 
@@ -368,9 +367,9 @@ TEST_FUNCTION(6)
 TEST_FUNCTION(11)
 {
   // test storage of \\func with int column
-  db_TableRef table(make_inserts_test_table(wbt.get_rdbms(), wbt.get_catalog()));
+  db_TableRef table(make_inserts_test_table(wbt->get_rdbms(), wbt->get_catalog()));
 
-  TestTableEditor editor(grtm, table, wbt.get_rdbms());
+  TestTableEditor editor(table, wbt->get_rdbms());
 
   RecordsetRef rs= editor.get_inserts_model();
 
@@ -381,7 +380,7 @@ TEST_FUNCTION(11)
   ensure_equals("generated sql", output, 
     "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, NULL, NULL, NULL);\n");
 
-  output = generate_sql_just_like_fwd_eng(grtm, table);
+  output = generate_sql_just_like_fwd_eng(table);
   ensure_equals("generated sql", output, 
     "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, NULL, NULL, NULL);\n");
 }
@@ -393,9 +392,9 @@ TEST_FUNCTION(12)
 {
   // test storage of \\func with string column
 
-  db_TableRef table(make_inserts_test_table(wbt.get_rdbms(), wbt.get_catalog()));
+  db_TableRef table(make_inserts_test_table(wbt->get_rdbms(), wbt->get_catalog()));
 
-  TestTableEditor editor(grtm, table, wbt.get_rdbms());
+  TestTableEditor editor(table, wbt->get_rdbms());
 
   RecordsetRef rs= editor.get_inserts_model();
 
@@ -406,7 +405,7 @@ TEST_FUNCTION(12)
   ensure_equals("generated sql", output, 
     "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, DEFAULT, NULL, NULL);\n");
 
-  output = generate_sql_just_like_fwd_eng(grtm, table);
+  output = generate_sql_just_like_fwd_eng(table);
   ensure_equals("generated sql", output, 
     "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, DEFAULT, NULL, NULL);\n");
 }
@@ -416,9 +415,9 @@ TEST_FUNCTION(13)
 {
   // test storage of \\func with timestamp column
   
-  db_TableRef table(make_inserts_test_table(wbt.get_rdbms(), wbt.get_catalog()));
+  db_TableRef table(make_inserts_test_table(wbt->get_rdbms(), wbt->get_catalog()));
 
-  TestTableEditor editor(grtm, table, wbt.get_rdbms());
+  TestTableEditor editor(table, wbt->get_rdbms());
 
   RecordsetRef rs= editor.get_inserts_model();
 
@@ -429,7 +428,7 @@ TEST_FUNCTION(13)
   ensure_equals("generated sql", output, 
     "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, NULL, DEFAULT, NULL);\n");
 
-  output = generate_sql_just_like_fwd_eng(grtm, table);
+  output = generate_sql_just_like_fwd_eng(table);
   ensure_equals("generated sql", output, 
     "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, NULL, DEFAULT, NULL);\n");
 }
@@ -438,9 +437,9 @@ TEST_FUNCTION(13)
 TEST_FUNCTION(15)
 {
   // all at once
-  db_TableRef table(make_inserts_test_table(wbt.get_rdbms(), wbt.get_catalog()));
+  db_TableRef table(make_inserts_test_table(wbt->get_rdbms(), wbt->get_catalog()));
 
-  TestTableEditor editor(grtm, table, wbt.get_rdbms());
+  TestTableEditor editor(table, wbt->get_rdbms());
 
   RecordsetRef rs= editor.get_inserts_model();
 
@@ -456,11 +455,16 @@ TEST_FUNCTION(15)
   ensure_equals("generated sql", output, 
     "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, DEFAULT, NOW(), NULL);\n");
 
-  output = generate_sql_just_like_fwd_eng(grtm, table);
+  output = generate_sql_just_like_fwd_eng(table);
   ensure_equals("generated sql", output, 
     "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, DEFAULT, NOW(), NULL);\n");
 }
 
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  delete wbt;
+}
+
 END_TESTS
-
-

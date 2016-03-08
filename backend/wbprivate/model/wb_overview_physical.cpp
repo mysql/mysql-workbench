@@ -89,7 +89,7 @@ OverviewBE::Node * PhysicalSchemataNode::create_child_node(db_SchemaRef schema)
 
 bool PhysicalSchemataNode::add_object(WBContext *wb)
 {
-  wb->get_grt_manager()->open_object_editor(wb->get_component<WBComponentPhysical>()->add_new_db_schema(model));
+  bec::GRTManager::get().open_object_editor(wb->get_component<WBComponentPhysical>()->add_new_db_schema(model));
   return true;
 }
 
@@ -233,7 +233,7 @@ public:
 
   virtual bool rename(WBContext *wb, const std::string &name)
   {
-    //= wb->get_grt_manager()->get_grt();
+    //= bec::GRTManager::get();
     //QQQgrt->lock_tree_write();
 
     workbench_physical_ModelRef model(workbench_physical_ModelRef::cast_from(object->owner()));
@@ -322,7 +322,7 @@ bool SQLScriptsNode::add_new(WBContext *wb)
 {
   WBComponentPhysical *compo= wb->get_component<WBComponentPhysical>();
   
-  wb->get_grt_manager()->open_object_editor(compo->add_new_stored_script(_model, ""));
+  bec::GRTManager::get().open_object_editor(compo->add_new_stored_script(_model, ""));
   return true;
 }
 
@@ -398,7 +398,7 @@ bool NotesNode::add_new(WBContext *wb)
 {
   WBComponentPhysical *compo= wb->get_component<WBComponentPhysical>();
   
-  wb->get_grt_manager()->open_object_editor(compo->add_new_stored_note(_model, ""));
+  bec::GRTManager::get().open_object_editor(compo->add_new_stored_note(_model, ""));
   return true;
 }
 

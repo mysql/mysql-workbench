@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,7 +42,7 @@
 
 - (void)dealloc
 {
-  [mPluginEditor grtManager]->get_plugin_manager()->forget_gui_plugin_handle((__bridge void *)self);
+  bec::GRTManager::get().get_plugin_manager()->forget_gui_plugin_handle((__bridge void *)self);
   
 }
 

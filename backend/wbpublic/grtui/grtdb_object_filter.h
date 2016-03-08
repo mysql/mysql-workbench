@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,7 +40,7 @@ namespace grtui
   class WBPUBLICBACKEND_PUBLIC_FUNC DBObjectFilterFrame : public mforms::Panel
   {
   public:
-    DBObjectFilterFrame(bec::GRTManager *grtm);
+    DBObjectFilterFrame();
 
     void set_object_class(const std::string &oclass, const std::string &caption_format);
     void set_models(bec::GrtStringListModel *model, bec::GrtStringListModel *excl_model, bool *enabled_flag);

@@ -25,10 +25,9 @@ using namespace MySQL::Grt::Db;
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLRelationshipEditorWrapper::MySQLRelationshipEditorWrapper(MySQL::Grt::GrtManager ^grtm, MySQL::Grt::GrtValue ^arglist)
+MySQLRelationshipEditorWrapper::MySQLRelationshipEditorWrapper(MySQL::Grt::GrtValue ^arglist)
   : BaseEditorWrapper(
-    new RelationshipEditorBE(grtm->get_unmanaged_object(),
-    workbench_physical_ConnectionRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
+    new RelationshipEditorBE(workbench_physical_ConnectionRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
     )
   )
 {

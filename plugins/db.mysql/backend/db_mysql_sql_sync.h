@@ -15,7 +15,7 @@ private:
   std::string _script_to_apply;
 
 public:
-  DbMySQLSync(bec::GRTManager *grtm);
+  DbMySQLSync();
   void set_option(const std::string& name, const std::string& value);
   void start_apply_script_to_db();
 };

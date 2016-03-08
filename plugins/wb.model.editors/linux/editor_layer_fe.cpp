@@ -18,11 +18,11 @@ class LayerEditor : public PluginEditorBase
   }
   
 public:
-  LayerEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
-    : PluginEditorBase(m, grtm, args, "modules/data/editor_layer.glade")
+  LayerEditor(grt::Module *m, const grt::BaseListRef &args)
+    : PluginEditorBase(m, args, "modules/data/editor_layer.glade")
     , _be(0)
   {
-    switch_edited_object(grtm, args);
+    switch_edited_object(args);
     set_border_width(8);
     
 
@@ -59,10 +59,10 @@ public:
     }
   }
 
-  virtual bool switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args)
+  virtual bool switch_edited_object(const grt::BaseListRef &args)
   {
     LayerEditorBE *old_be = _be;
-    _be = new LayerEditorBE(grtm, workbench_physical_LayerRef::cast_from(args[0]));
+    _be = new LayerEditorBE(workbench_physical_LayerRef::cast_from(args[0]));
     delete old_be;
 
     _be->set_refresh_ui_slot(sigc::mem_fun(this, &LayerEditor::refresh_form_data));
@@ -101,8 +101,8 @@ public:
 
 extern "C" 
 {
-  GUIPluginBase *createPhysicalLayerEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
+  GUIPluginBase *createPhysicalLayerEditor(grt::Module *m, const grt::BaseListRef &args)
   {
-    return Gtk::manage(new LayerEditor(m, grtm, args));
+    return Gtk::manage(new LayerEditor(m, args));
   }
 };

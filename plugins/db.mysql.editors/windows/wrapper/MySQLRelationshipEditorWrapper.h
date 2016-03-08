@@ -39,7 +39,7 @@ public enum class RelationshipVisibilityType
 public ref class MySQLRelationshipEditorWrapper : public BaseEditorWrapper
 {
 public:
-  MySQLRelationshipEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist);
+  MySQLRelationshipEditorWrapper(MySQL::Grt::GrtValue^ arglist);
   ~MySQLRelationshipEditorWrapper();
 
   RelationshipEditorBE *get_unmanaged_object();

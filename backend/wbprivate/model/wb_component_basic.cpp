@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -163,7 +163,7 @@ std::vector<std::string> WBComponentBasic::get_command_dropdown_items(const std:
 
     if (!colorList.empty())
     {
-      for (size_t c= colorList.size(), i= 0; i < c; i++)
+      for (std::size_t c= colorList.size(), i= 0; i < c; i++)
       {
         if (!colorList[i].empty() && colorList[i][0]=='#')
           items.push_back(colorList[i]);
@@ -400,7 +400,7 @@ model_ObjectRef WBComponentBasic::paste_object(ModelDiagramForm *view, const grt
     undo.end("Duplicate Object");
     
     // copy contained stuff that's to be duplicated
-    for (size_t c= original->figures()->count(), i= 0; i < c; i++)
+    for (std::size_t c= original->figures()->count(), i= 0; i < c; i++)
     {
       model_FigureRef figure(original->figures()[i]);
       
@@ -439,11 +439,11 @@ model_ObjectRef WBComponentBasic::paste_object(ModelDiagramForm *view, const grt
 void WBComponentBasic::activate_canvas_object(const model_ObjectRef &figure, bool newwindow)
 {
   if (figure.is_instance(workbench_model_NoteFigure::static_class_name()))
-    _wb->get_grt_manager()->open_object_editor(figure, newwindow ? bec::ForceNewWindowFlag : bec::NoFlags);
+    bec::GRTManager::get().open_object_editor(figure, newwindow ? bec::ForceNewWindowFlag : bec::NoFlags);
   else if (figure.is_instance(workbench_model_ImageFigure::static_class_name()))
-    _wb->get_grt_manager()->open_object_editor(figure, newwindow ? bec::ForceNewWindowFlag : bec::NoFlags);
+    bec::GRTManager::get().open_object_editor(figure, newwindow ? bec::ForceNewWindowFlag : bec::NoFlags);
   else if (figure.is_instance(model_Layer::static_class_name()))
-    _wb->get_grt_manager()->open_object_editor(figure, newwindow ? bec::ForceNewWindowFlag : bec::NoFlags);
+    bec::GRTManager::get().open_object_editor(figure, newwindow ? bec::ForceNewWindowFlag : bec::NoFlags);
 }
 
 

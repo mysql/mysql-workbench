@@ -89,7 +89,7 @@ namespace bec {
     typedef grt::CPPModule superclass;
 
   public:
-    typedef boost::function<NativeHandle (GRTManager*, grt::Module*, std::string, std::string, grt::BaseListRef, GUIPluginFlags)> OpenGUIPluginSlot;
+    typedef boost::function<NativeHandle (grt::Module*, std::string, std::string, grt::BaseListRef, GUIPluginFlags)> OpenGUIPluginSlot;
     typedef boost::function<void (NativeHandle)> ShowGUIPluginSlot;
     typedef boost::function<void (NativeHandle)> CloseGUIPluginSlot;
     
@@ -153,7 +153,6 @@ namespace bec {
     grt::ListRef<app_Plugin> get_plugin_list(const std::string &group="");
 
   protected:
-    GRTManager *_grtm;
     std::string _registry_path;
     std::string _group_registry_path;
     

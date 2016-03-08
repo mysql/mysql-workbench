@@ -55,7 +55,7 @@ void check_fwd_engineer(WBTester &wbt, std::string &modelfile, std::string &expe
   if (!g_file_test(modelfile.c_str(),G_FILE_TEST_EXISTS))
   ensure("Model file not found!", false);
 
-  DbMySQLSQLExport exp(wbt.wb->get_grt_manager(), db_mysql_CatalogRef::cast_from(wbt.get_catalog()));
+  DbMySQLSQLExport exp(db_mysql_CatalogRef::cast_from(wbt.get_catalog()));
 
   ValueRef valRef = grt::GRT::get()->get("/wb/doc/physicalModels/0/catalog/schemata/0");
 

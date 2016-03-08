@@ -36,7 +36,7 @@
 
 BEGIN_TEST_DATA_CLASS(sync_profile_test)
 protected:
-  WBTester tester;
+  WBTester *tester;
   SqlFacade::Ref sql_parser;
   DbMySQLImpl* diffsql_module;
   grt::DbObjectMatchAlterOmf omf;
@@ -44,15 +44,16 @@ protected:
 
   TEST_DATA_CONSTRUCTOR(sync_profile_test)
   {
+      tester = new WBTester;
       omf.dontdiff_mask = 3;
       diffsql_module= grt::GRT::get()->get_native_module<DbMySQLImpl>();
       ensure("DiffSQLGen module initialization", NULL != diffsql_module);
 
       // init datatypes
-      populate_grt(tester);
+      populate_grt(*tester);
 
       // init database connection
-      connection= tester.create_connection_for_import();
+      connection= tester->create_connection_for_import();
 
       sql_parser= SqlFacade::instance_for_rdbms_name("Mysql");
       ensure("failed to get sqlparser module", (NULL != sql_parser));
@@ -69,12 +70,12 @@ TEST_FUNCTION(1)
     grt::ValueRef e;
     NormalizedComparer cmp;
 
-    tester.wb->new_document();
-    SynteticMySQLModel model1(&tester);
+    tester->wb->new_document();
+    SynteticMySQLModel model1(tester);
     grt::StringRef tablename = model1.table->name();
     //unaltered model to test diffs
 
-    const SynteticMySQLModel model2(&tester);
+    const SynteticMySQLModel model2(tester);
 
     //Save unaltered names
     db_mgmt_SyncProfileRef initial_old_names = create_sync_profile(model1.model, "test_profile", "");
@@ -103,8 +104,8 @@ TEST_FUNCTION(1)
 
     diff = diff_make(model1.catalog, model2.catalog, &omf);
     ensure("OldName only Diff", diff.get() != NULL);
-    tester.wb->close_document();
-    tester.wb->close_document_finish();
+    tester->wb->close_document();
+    tester->wb->close_document_finish();
 
 }
 
@@ -117,9 +118,9 @@ TEST_FUNCTION(2)
     cmp.add_comparison_rule("sqlDefinition",boost::bind(boost::function<bool ()> (boost::lambda::constant(true))));
 
 
-    tester.wb->new_document();
+    tester->wb->new_document();
 
-    SynteticMySQLModel model(&tester);
+    SynteticMySQLModel model(tester);
     model.trigger->modelOnly(1);
     model.view->modelOnly(1);
 
@@ -144,12 +145,12 @@ TEST_FUNCTION(2)
 
     diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
     std::string export_sql_script= options.get_string("OutputScript");
-    execute_script(stmt.get(), export_sql_script,tester.wb->get_grt_manager());
+    execute_script(stmt.get(), export_sql_script);
 
    std::list<std::string> schemata;
    schemata.push_back(model.schema->name());
    grt::GRT::get()->get_undo_manager()->disable();
-   db_mysql_CatalogRef cat1 = tester.db_rev_eng_schema(schemata);
+   db_mysql_CatalogRef cat1 = tester->db_rev_eng_schema(schemata);
    if((cat1->schemata().get(0).is_valid()) && (cat1->schemata().get(0)->name() == "mydb"))
       cat1->schemata().remove(0);
    
@@ -181,14 +182,14 @@ TEST_FUNCTION(2)
     std::string export_sql_script= options.get_string("OutputScript");
     std::string drop_old_schema("DROP SCHEMA IF EXISTS `");
     drop_old_schema.append(cat1->schemata().get(0)->name()).append("` ;\n");
-    execute_script(stmt.get(), drop_old_schema, tester.wb->get_grt_manager());
-    execute_script(stmt.get(), export_sql_script,tester.wb->get_grt_manager());
+    execute_script(stmt.get(), drop_old_schema, tester->wb->get_grt_manager());
+    execute_script(stmt.get(), export_sql_script,tester->wb->get_grt_manager());
    }
 
    schemata.clear();
    schemata.push_back(cat1->schemata().get(0)->name());
    schemata.push_back(cat2->schemata().get(0)->name());
-   db_mysql_CatalogRef testcat = tester.db_rev_eng_schema(schemata);
+   db_mysql_CatalogRef testcat = tester->db_rev_eng_schema(schemata);
    if((testcat->schemata().get(0).is_valid()) && (testcat->schemata().get(0)->name() == "mydb"))
       testcat->schemata().remove(0);
    ensure("Initial stchema wasn't dropped on rename", testcat->schemata().count() == 1);
@@ -197,10 +198,10 @@ TEST_FUNCTION(2)
    //Now sync renamed schema with 'new_name' schema already on server
    //This should lead to drop of old schema and altering new one
    //Recreate initial schema
-   execute_script(stmt.get(), export_sql_script,tester.wb->get_grt_manager());
+   execute_script(stmt.get(), export_sql_script,tester->wb->get_grt_manager());
    std::cout<<export_sql_script<<"\n\n\n";
    //rev eng both schemas
-   db_mysql_CatalogRef cat1_and_cat2 = tester.db_rev_eng_schema(schemata);
+   db_mysql_CatalogRef cat1_and_cat2 = tester->db_rev_eng_schema(schemata);
    //rename a table to check that alter did worked
    cat1->schemata().get(0)->signal_refreshDisplay()->disconnect_all_slots();
    cat1->schemata().get(0)->tables().get(0)->name("new_table_name");
@@ -219,10 +220,10 @@ TEST_FUNCTION(2)
        diffsql_module->makeSQLSyncScript(options, alter_map, alter_object_list);
        std::string export_sql_script= options.get_string("OutputScript");
        std::cout << export_sql_script.c_str() << "\r\n";
-       execute_script(stmt.get(), export_sql_script,tester.wb->get_grt_manager());
+       execute_script(stmt.get(), export_sql_script,tester->wb->get_grt_manager());
    }
 
-   db_mysql_CatalogRef altered_cat2 = tester.db_rev_eng_schema(schemata);
+   db_mysql_CatalogRef altered_cat2 = tester->db_rev_eng_schema(schemata);
 
    if((altered_cat2->schemata().get(0).is_valid()) && (altered_cat2->schemata().get(0)->name() == "mydb"))
       altered_cat2->schemata().remove(0);
@@ -231,9 +232,16 @@ TEST_FUNCTION(2)
    ensure("Alter schema failed", altered_cat2->schemata().get(0)->tables().count() == 1);
    ensure("Alter schema failed", altered_cat2->schemata().get(0)->tables().get(0)->name() == cat1->schemata().get(0)->tables().get(0)->name());
 
-   tester.wb->close_document();
-   tester.wb->close_document_finish();
+   tester->wb->close_document();
+   tester->wb->close_document_finish();
    */
+}
+
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  delete tester;
 }
 
 END_TESTS

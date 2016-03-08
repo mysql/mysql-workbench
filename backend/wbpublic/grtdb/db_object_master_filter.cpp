@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,18 +17,18 @@
  * 02110-1301  USA
  */
 
+#include "grt/grt_manager.h"
 #include "db_object_master_filter.h"
 #include "db_object_filter.h"
 
 using namespace bec;
 
-DBObjectMasterFilterBE::DBObjectMasterFilterBE(GRTManager *grtm)
-  : _grtm(grtm)
+DBObjectMasterFilterBE::DBObjectMasterFilterBE()
 {
   // load stored filter sets
   grt::DictRef opt= grt::DictRef::cast_from(grt::GRT::get()->get("/wb/options/options"));
   _stored_master_filter_sets_filepath
-    .append(_grtm->get_user_datadir())
+    .append(bec::GRTManager::get().get_user_datadir())
     .append("/stored_master_filter_sets.xml");
   if (g_file_test(_stored_master_filter_sets_filepath.c_str(), G_FILE_TEST_EXISTS))
     _stored_master_filter_sets= grt::DictRef::cast_from(

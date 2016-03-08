@@ -18,15 +18,15 @@ class ImageEditorFE : public PluginEditorBase
   }
   
 public:
-  ImageEditorFE(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
-    : PluginEditorBase(m, grtm, args)
-    , _be(grtm, workbench_model_ImageFigureRef::cast_from(args[0]))
+  ImageEditorFE(grt::Module *m, const grt::BaseListRef &args)
+    : PluginEditorBase(m, args)
+    , _be(workbench_model_ImageFigureRef::cast_from(args[0]))
     , _xml(0)
     , _image(0)
   {
     set_border_width(8);
     
-    _xml= Gtk::Builder::create_from_file(grtm->get_data_file_path("modules/data/editor_image.glade"));
+    _xml= Gtk::Builder::create_from_file(bec::GRTManager::get().get_data_file_path("modules/data/editor_image.glade"));
 
     Gtk::Widget *widget;
     _xml->get_widget("editor_image_hbox", widget);
@@ -130,8 +130,8 @@ public:
 
 extern "C" 
 {
-  GUIPluginBase *createImageEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
+  GUIPluginBase *createImageEditor(grt::Module *m, const grt::BaseListRef &args)
   {
-    return Gtk::manage(new ImageEditorFE(m, grtm, args));
+    return Gtk::manage(new ImageEditorFE(m, args));
   }
 };

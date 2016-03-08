@@ -44,11 +44,11 @@ using namespace base;
 
 //--------------------------------------------------------------------------------------------------
 
-DbSqlEditorLog::DbSqlEditorLog(SqlEditorForm *owner, GRTManager *grtm, int max_entry_count)
-  : VarGridModel(grtm), _owner(owner), _max_entry_count(max_entry_count)
+DbSqlEditorLog::DbSqlEditorLog(SqlEditorForm *owner, int max_entry_count)
+  : VarGridModel(), _owner(owner), _max_entry_count(max_entry_count)
 {
   reset();
-  std::string log_dir = base::joinPath(grtm->get_user_datadir().c_str(), "log", "");
+  std::string log_dir = base::joinPath(bec::GRTManager::get().get_user_datadir().c_str(), "log", "");
   create_directory(log_dir, 0700);
   _log_file_name = base::joinPath(log_dir.c_str(), sanitize_file_name("sql_actions_" + owner->get_session_name() + ".log").c_str(), "");
 

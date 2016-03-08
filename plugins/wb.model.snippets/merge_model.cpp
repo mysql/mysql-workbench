@@ -71,24 +71,23 @@ template<class TOwner>
 void copy_additional_data(db_TableRef obj,std::string old_name,TOwner new_owner)
 {
 
-  bec::GRTManager *grtm = bec::GRTManager::get_instance_for();
   grt::BaseListRef args(true);
   grt::Module *module= grt::GRT::get()->get_module("Workbench");
   grt::StringRef db_file_path(grt::StringRef::cast_from(module->call_function("getDbFilePath", args)));
 
-  Recordset_table_inserts_storage::Ref input_storage= Recordset_table_inserts_storage::create_with_path(grtm,db_file_path);
+  Recordset_table_inserts_storage::Ref input_storage= Recordset_table_inserts_storage::create_with_path(db_file_path);
   input_storage->table(obj);
 
-  Recordset::Ref rs= Recordset::create(grtm);
+  Recordset::Ref rs= Recordset::create();
   rs->data_storage(input_storage);
   rs->reset();
 
   //update IDs, INSERTs will go the table with ne IDs
   update_ids(obj);
-  Recordset_table_inserts_storage::Ref output_storage= Recordset_table_inserts_storage::create(grtm);
+  Recordset_table_inserts_storage::Ref output_storage= Recordset_table_inserts_storage::create();
   output_storage->table(obj);
   //Trigger creation of table to store INSERTs data
-  output_storage->unserialize(Recordset::create(grtm));
+  output_storage->unserialize(Recordset::create());
 
 
   output_storage->serialize(rs);

@@ -42,8 +42,8 @@ using namespace grt;
 
 DEFAULT_LOG_DOMAIN("DbMySQLSQLExport");
 
-DbMySQLSQLExport::DbMySQLSQLExport(bec::GRTManager *grtm, db_mysql_CatalogRef catalog)
-  : DbMySQLValidationPage(grtm)
+DbMySQLSQLExport::DbMySQLSQLExport(db_mysql_CatalogRef catalog)
+  : DbMySQLValidationPage()
 {
   _tables_are_selected= true;
   _triggers_are_selected= true;
@@ -247,15 +247,15 @@ grt::DictRef DbMySQLSQLExport::get_options_as_dict()
 void DbMySQLSQLExport::start_export(bool wait_finish)
 {
   bec::GRTTask::Ref task = bec::GRTTask::create_task("SQL export", 
-    _manager->get_dispatcher(), 
+      bec::GRTManager::get().get_dispatcher(),
     boost::bind(&DbMySQLSQLExport::export_task, this, grt::StringRef()));
 
   scoped_connect(task->signal_finished(),boost::bind(&DbMySQLSQLExport::export_finished, this, _1));
   
   if (wait_finish)
-    _manager->get_dispatcher()->add_task_and_wait(task);
+    bec::GRTManager::get().get_dispatcher()->add_task_and_wait(task);
   else
-    _manager->get_dispatcher()->add_task(task);
+    bec::GRTManager::get().get_dispatcher()->add_task(task);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -285,7 +285,7 @@ ValueRef DbMySQLSQLExport::export_task(grt::StringRef)
 
     grt::DictRef options= get_options_as_dict();
 
-    options.set("SQL_MODE", _manager->get_app_option("SqlGenerator.Mysql:SQL_MODE"));
+    options.set("SQL_MODE", bec::GRTManager::get().get_app_option("SqlGenerator.Mysql:SQL_MODE"));
     options.gset("UseFilteredLists", 1);
 
     if(_db_options.is_valid())

@@ -29,23 +29,17 @@ public:
   typedef boost::shared_ptr<GrtThreadedTask> Ref;
 public:
   static Ref create() { return Ref(new GrtThreadedTask()); }
-  static Ref create(bec::GRTManager *grtm) { return Ref(new GrtThreadedTask(grtm)); }
   static Ref create(const GrtThreadedTask::Ref parent_task) { return Ref(new GrtThreadedTask(parent_task)); }
 public:
   virtual ~GrtThreadedTask();
   void disconnect_callbacks();
 protected:
   GrtThreadedTask();
-  GrtThreadedTask(bec::GRTManager *grtm);
   GrtThreadedTask(const GrtThreadedTask::Ref parent_task);
 
 public:
-  bec::GRTManager * grtm() const { return _grtm; }
-  void grtm(bec::GRTManager *grtm);
-
   bool is_busy() { return _dispatcher && _dispatcher->get_busy(); }
-private:
-  bec::GRTManager *_grtm;
+
 
 private:
   const bec::GRTDispatcher::Ref & dispatcher();

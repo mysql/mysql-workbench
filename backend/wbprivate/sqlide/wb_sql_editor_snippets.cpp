@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -230,7 +230,7 @@ void DbSqlEditorSnippets::load_from_db(SqlEditorForm *editor)
   if (editor)
   {
     if (_snippet_db.empty())
-      _snippet_db = _sqlide->get_grt_manager()->get_app_option_string("workbench:InternalSchema");
+      _snippet_db = bec::GRTManager::get().get_app_option_string("workbench:InternalSchema");
 
     sql::Dbc_connection_handler::Ref conn;
 
@@ -426,7 +426,7 @@ DbSqlEditorSnippets::DbSqlEditorSnippets(wb::WBContextSQLIDE *sqlide, const std:
     g_mkdir_with_parents(_path.c_str(), 0700);
   
   // copy the standard files
-  std::string datadir = _sqlide->get_grt_manager()->get_data_file_path("snippets");
+  std::string datadir = bec::GRTManager::get().get_data_file_path("snippets");
   {
     GDir *dir = g_dir_open(datadir.c_str(), 0, NULL);
     if (dir)
@@ -445,7 +445,7 @@ DbSqlEditorSnippets::DbSqlEditorSnippets(wb::WBContextSQLIDE *sqlide, const std:
 
 void DbSqlEditorSnippets::copy_original_file(const std::string& name, bool overwrite)
 {
-  std::string datadir = _sqlide->get_grt_manager()->get_data_file_path("snippets");
+  std::string datadir = bec::GRTManager::get().get_data_file_path("snippets");
   std::string dest = base::makePath(_path, name);
   bool target_exists = g_file_test(dest.c_str(), G_FILE_TEST_EXISTS) == TRUE;
   if (!target_exists || overwrite)

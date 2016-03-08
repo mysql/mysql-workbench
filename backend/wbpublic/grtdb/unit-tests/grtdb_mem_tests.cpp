@@ -31,10 +31,8 @@ using namespace std;
 BEGIN_TEST_DATA_CLASS(bedb_mem_tests)
 public:
   db_mgmt_RdbmsRef rdbms;
-  GRTManager grtm;
 
 TEST_DATA_CONSTRUCTOR(bedb_mem_tests)
-  : grtm(false)
 {
 }
 END_TEST_DATA_CLASS

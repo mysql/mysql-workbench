@@ -76,7 +76,7 @@ Mysql_sql_syntax_check::Statement_type Mysql_sql_syntax_check::determine_stateme
   };
   static StaticInitializer static_initializer;
 
-  Mysql_sql_parser_fe sql_parser_fe(_grtm->get_app_option_string("SqlMode"));
+  Mysql_sql_parser_fe sql_parser_fe(bec::GRTManager::get().get_app_option_string("SqlMode"));
   std::string token= sql_parser_fe.get_first_sql_token(sql, "UNKNOWN");
   KnownStatementTypes::iterator statement_type= known_statement_types.find(token);
   return (known_statement_types.end() == statement_type) ? sql_unknown : statement_type->second;
@@ -149,7 +149,7 @@ int Mysql_sql_syntax_check::check_sql_statement(const char* sql, Check_sql_state
   _check_sql_statement= check_sql_statement;
   _process_sql_statement= boost::bind(&Mysql_sql_syntax_check::process_sql_statement, this, _1, object_type);
 
-  Mysql_sql_parser_fe sql_parser_fe(_grtm->get_app_option_string("SqlMode"));
+  Mysql_sql_parser_fe sql_parser_fe(bec::GRTManager::get().get_app_option_string("SqlMode"));
   sql_parser_fe.is_ast_generation_enabled= _is_ast_generation_enabled;
   sql_parser_fe.ignore_dml= false;
   sql_parser_fe.max_insert_statement_size= MAX_INSERT_SQL_LENGTH;

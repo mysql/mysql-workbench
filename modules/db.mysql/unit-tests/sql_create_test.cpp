@@ -33,13 +33,14 @@
 
 BEGIN_TEST_DATA_CLASS(sql_create)
 protected:
-    WBTester tester;
+    WBTester *tester;
     WbMysqlImportImpl *wb_mysql_import_module;
     SQLGeneratorInterfaceImpl *diffsql_module;
     sql::ConnectionWrapper connection;
     
     TEST_DATA_CONSTRUCTOR(sql_create)
     {
+      tester = new WBTester;
         wb_mysql_import_module= NULL;
         diffsql_module= NULL;
 
@@ -50,17 +51,17 @@ protected:
         ensure("DiffSQLGen module initialization", NULL != diffsql_module);
 
         // init datatypes
-        populate_grt(tester);
+        populate_grt(*tester);
 
         // init database connection
-        connection = tester.create_connection_for_import();
+        connection = tester->create_connection_for_import();
     }
     
     TEST_DATA_DESTRUCTOR(sql_create)
     {
       std::auto_ptr<sql::Statement> stmt(connection->createStatement());
       std::string script = "DROP SCHEMA IF EXISTS `A` ; DROP SCHEMA IF EXISTS `B` ;";
-      execute_script(stmt.get(), script,tester.wb->get_grt_manager());
+      execute_script(stmt.get(), script);
     }
 
 END_TEST_DATA_CLASS
@@ -108,7 +109,7 @@ TEST_FUNCTION(10)
     diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
     std::string export_sql_script= options.get_string("OutputScript");
     ensure("DROP TABLE missing in generated sql", export_sql_script.find("DROP TABLE IF EXISTS `test_schema`.`t1`") != std::string::npos);
-    execute_script(stmt.get(), export_sql_script,tester.wb->get_grt_manager());
+    execute_script(stmt.get(), export_sql_script);
 }
 
 // Forward engineer synthetic model without qualifying schema, but inserting USE statements instead.
@@ -145,7 +146,7 @@ TEST_FUNCTION(20)
 
     diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
     std::string export_sql_script= options.get_string("OutputScript");
-    execute_script(stmt.get(), export_sql_script,tester.wb->get_grt_manager());
+    execute_script(stmt.get(), export_sql_script);
 }
 
 //Test case for Bug #11926862 NO WAY TO SORT SCHEMAS ON EXPORT
@@ -156,8 +157,8 @@ TEST_FUNCTION(30)
     NormalizedComparer cmp;
     grt::DbObjectMatchAlterOmf omf;
 
-    tester.wb->open_document("data/workbench/11926862.mwb");
-    db_mysql_CatalogRef catalog = db_mysql_CatalogRef::cast_from(tester.wb->get_document()->physicalModels().get(0)->catalog());
+    tester->wb->open_document("data/workbench/11926862.mwb");
+    db_mysql_CatalogRef catalog = db_mysql_CatalogRef::cast_from(tester->wb->get_document()->physicalModels().get(0)->catalog());
     
     cmp.init_omf(&omf);
 
@@ -181,7 +182,7 @@ TEST_FUNCTION(30)
 
     diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
     std::string export_sql_script= options.get_string("OutputScript");
-    execute_script(stmt.get(), export_sql_script,tester.wb->get_grt_manager());
+    execute_script(stmt.get(), export_sql_script);
 }
 
 // Test case for Bug #14278043 DB SYNCRONIZE MODEL GENERATES INCORRECT COLLATION
@@ -225,7 +226,7 @@ TEST_FUNCTION(40)
 
     diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
     std::string export_sql_script= options.get_string("OutputScript");
-    execute_script(stmt.get(), export_sql_script,tester.wb->get_grt_manager());
+    execute_script(stmt.get(), export_sql_script);
 }
 
 static std::string strrange(const std::string &s, const std::string &start, const std::string &end)
@@ -368,8 +369,8 @@ TEST_FUNCTION(60)
     grt::DbObjectMatchAlterOmf omf;
 
     std::string modelfile = "data/forward_engineer/view_mixed_case.mwb";
-    tester.wb->open_document(modelfile);
-    db_mysql_CatalogRef catalog = db_mysql_CatalogRef::cast_from(tester.wb->get_document()->physicalModels().get(0)->catalog());
+    tester->wb->open_document(modelfile);
+    db_mysql_CatalogRef catalog = db_mysql_CatalogRef::cast_from(tester->wb->get_document()->physicalModels().get(0)->catalog());
 
     cmp.init_omf(&omf);
 
@@ -419,8 +420,8 @@ TEST_FUNCTION(60)
     if (ref.good() || ss.good())
       fail("Generated and reference line count differ.");
 
-    tester.wb->close_document();
-    tester.wb->close_document_finish();
+    tester->wb->close_document();
+    tester->wb->close_document_finish();
   }
 
   {
@@ -430,8 +431,8 @@ TEST_FUNCTION(60)
       grt::DbObjectMatchAlterOmf omf;
 
       std::string modelfile = "data/forward_engineer/view_mixed_case.mwb";
-      tester.wb->open_document(modelfile);
-      db_mysql_CatalogRef catalog = db_mysql_CatalogRef::cast_from(tester.wb->get_document()->physicalModels().get(0)->catalog());
+      tester->wb->open_document(modelfile);
+      db_mysql_CatalogRef catalog = db_mysql_CatalogRef::cast_from(tester->wb->get_document()->physicalModels().get(0)->catalog());
 
       cmp.init_omf(&omf);
 
@@ -495,14 +496,14 @@ TEST_FUNCTION(70)
   grt::DbObjectMatchAlterOmf omf;
 
   std::string modelfile = "data/forward_engineer/sakila_full.mwb";
-  tester.wb->open_document(modelfile);
-  db_mysql_CatalogRef catalog = db_mysql_CatalogRef::cast_from(tester.get_catalog());
+  tester->wb->open_document(modelfile);
+  db_mysql_CatalogRef catalog = db_mysql_CatalogRef::cast_from(tester->get_catalog());
 
   catalog->schemata()[0]->name("sakila_test");
 
   parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get();
   GrtVersionRef version = bec::parse_version("5.6.0");
-  parser::ParserContext::Ref context = services->createParserContext(tester.get_rdbms()->characterSets(),
+  parser::ParserContext::Ref context = services->createParserContext(tester->get_rdbms()->characterSets(),
     version, false);
   services->renameSchemaReferences(context, catalog, "sakila", "sakila_test");
 
@@ -545,8 +546,15 @@ TEST_FUNCTION(70)
    tut::ensure_equals(error_msg, line, refline);
   }
 
-  tester.wb->close_document();
-  tester.wb->close_document_finish();
+  tester->wb->close_document();
+  tester->wb->close_document_finish();
+}
+
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  delete tester;
 }
 
 END_TESTS

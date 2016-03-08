@@ -220,7 +220,7 @@ bool CommandUI::validate_command_item(const app_CommandItemRef &item, const wb::
       _wb->update_plugin_arguments_pool(argpool);
       argpool["app.PluginInputDefinition:string"]= grt::StringRef(cmd.args);
       
-      return _wb->get_grt_manager()->check_plugin_runnable(plugin, argpool);
+      return bec::GRTManager::get().check_plugin_runnable(plugin, argpool);
     }
   }
   else if (cmd.type == "call")
@@ -246,7 +246,7 @@ bool CommandUI::validate_plugin_command(app_PluginRef plugin)
   bool result = false;
   if (plugin.is_valid())
   {
-    if (_wb->get_grt_manager()->check_plugin_runnable(plugin, _argpool))
+    if (bec::GRTManager::get().check_plugin_runnable(plugin, _argpool))
       result = true;
   }
 
@@ -556,7 +556,7 @@ void CommandUI::add_scripts_menu(mforms::MenuItem *parent)
 {
   try
   {
-    std::list<std::string> pyfiles = base::scan_for_files_matching(base::makePath(_wb->get_grt_manager()->get_user_script_path(), "*.py"));
+    std::list<std::string> pyfiles = base::scan_for_files_matching(base::makePath(bec::GRTManager::get().get_user_script_path(), "*.py"));
     std::vector<std::string> files;
 
     std::copy(pyfiles.begin(), pyfiles.end(), std::back_inserter(files));
@@ -835,7 +835,7 @@ mforms::ToolBar *CommandUI::create_toolbar(const std::string &toolbar_file)
 
 mforms::ToolBar *CommandUI::create_toolbar(const std::string &toolbar_file, const boost::function<void (std::string)> &activate_slot)
 {
-  app_ToolbarRef toolbar(app_ToolbarRef::cast_from(grt::GRT::get()->unserialize(_wb->get_grt_manager()->get_data_file_path(toolbar_file))));
+  app_ToolbarRef toolbar(app_ToolbarRef::cast_from(grt::GRT::get()->unserialize(bec::GRTManager::get().get_data_file_path(toolbar_file))));
   
   grt::ListRef<app_ToolbarItem> plist(toolbar->items());
   mforms::ToolBar *tbar = new mforms::ToolBar();
@@ -1214,7 +1214,7 @@ void CommandUI::revalidate_edit_menu_items()
   if (mforms::Utilities::in_main_thread())
     _validate_edit_menu_items();
   else
-      _wb->get_grt_manager()->run_once_when_idle(boost::bind(&CommandUI::revalidate_edit_menu_items, this));
+    bec::GRTManager::get().run_once_when_idle(boost::bind(&CommandUI::revalidate_edit_menu_items, this));
   //mforms::Utilities::perform_from_main_thread((boost::bind(&CommandUI::revalidate_edit_menu_items, this), (void*)0));
 
   // NOTE : using perform_from_main_thread causes a _grtm reference on the BaseEditor to to get lost in the process, 

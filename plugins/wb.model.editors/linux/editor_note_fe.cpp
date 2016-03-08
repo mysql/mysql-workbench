@@ -24,12 +24,12 @@ class NoteEditor : public PluginEditorBase
   }
 
 public:
-  NoteEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
-    : PluginEditorBase(m, grtm, args), _be(grtm, workbench_model_NoteFigureRef::cast_from(args[0]))
+  NoteEditor(grt::Module *m, const grt::BaseListRef &args)
+    : PluginEditorBase(m, args), _be(workbench_model_NoteFigureRef::cast_from(args[0]))
   {
     set_border_width(8);
     
-    _xml= Gtk::Builder::create_from_file(grtm->get_data_file_path("modules/data/editor_note.glade"));
+    _xml= Gtk::Builder::create_from_file(bec::GRTManager::get().get_data_file_path("modules/data/editor_note.glade"));
 
     Gtk::Widget *widget;
     _xml->get_widget("base_table", widget);
@@ -77,8 +77,8 @@ public:
 
 extern "C" 
 {
-  GUIPluginBase *createNoteEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
+  GUIPluginBase *createNoteEditor(grt::Module *m, const grt::BaseListRef &args)
   {
-    return Gtk::manage(new NoteEditor(m, grtm, args));
+    return Gtk::manage(new NoteEditor(m, args));
   }
 };

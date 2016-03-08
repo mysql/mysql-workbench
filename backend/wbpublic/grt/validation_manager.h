@@ -91,7 +91,7 @@ class WBPUBLICBACKEND_PUBLIC_FUNC ValidationManager
     // const int parameter in MessageSignal is a grt::MessageType
     typedef boost::signals2::signal<void (const grt::Validator::Tag&, const grt::ObjectRef&, const std::string&, const int)> MessageSignal;
     
-    static void scan(GRTManager* grtm);
+    static void scan();
     static void register_validator(const std::string& type, grt::Validator* v);
     static bool validate_instance(const grt::ObjectRef& obj, const grt::Validator::Tag& tag);
 

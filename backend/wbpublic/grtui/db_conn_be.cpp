@@ -782,7 +782,7 @@ sql::ConnectionWrapper DbConnection::get_dbc_connection()
     if (_active_driver.is_valid() && _active_driver->owner().is_valid() && (_active_driver->owner().id() == DEFAULT_RDBMS_ID))
     {
       // set SQL_MODE variable to be consistent with SQL stored in the model
-      bec::GRTManager *grtm= bec::GRTManager::get_instance_for(_active_driver->get_grt());
+      bec::GRTManager *grtm= bec::GRTManager::get();
       grt::ValueRef sql_mode_value= grtm->get_app_option("SqlMode");
       if (sql_mode_value.is_valid() && grt::StringRef::can_wrap(sql_mode_value))
       {

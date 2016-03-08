@@ -33,7 +33,7 @@ class GRTManager;
 class WBPUBLICBACKEND_PUBLIC_FUNC ShellBE
 {
 public:
-  ShellBE(GRTManager *grtm, const GRTDispatcher::Ref dispatcher);
+  ShellBE(const GRTDispatcher::Ref dispatcher);
   ~ShellBE();
 
   bool setup(const std::string &lang);
@@ -81,7 +81,6 @@ public:
   void handle_msg(const grt::Message &msgs);
   
 protected:
-  GRTManager *_grtm;
   grt::Shell *_shell;
   GRTDispatcher::Ref _dispatcher;
   std::vector<std::string> _grt_tree_bookmarks;

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,14 +26,15 @@
 
 BEGIN_TEST_DATA_CLASS(mysql_invalid_sql_parser_test)
 protected:
-  WBTester _tester;
+  WBTester *_tester;
   SqlFacade::Ref _facade;
   std::string _specifics_delimiter;
   std::string _user_delimiter;
 
   TEST_DATA_CONSTRUCTOR(mysql_invalid_sql_parser_test)
   {
-    populate_grt(_tester);
+    _tester = new WBTester();
+    populate_grt(*_tester);
 
     _facade = SqlFacade::instance_for_rdbms_name("Mysql");
     Sql_specifics::Ref sql_specifics = _facade ->sqlSpecifics();
@@ -113,6 +114,13 @@ TEST_FUNCTION(5)
   parser->parse_trigger(trigger, trigger_sql);
   result = (*trigger->sqlDefinition()).substr(1);
   ensure_equals("5.7 Trigger SQL differs", result, trigger_sql);
+}
+
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  delete _tester;
 }
 
 END_TESTS;

@@ -84,16 +84,16 @@ db_Table::~db_Table()
 
 grt::StringRef db_Table::inserts()
 {
-  bec::GRTManager *grtm= bec::GRTManager::get_instance_for();
   
-  Recordset_table_inserts_storage::Ref input_storage= Recordset_table_inserts_storage::create(grtm);
+
+  Recordset_table_inserts_storage::Ref input_storage= Recordset_table_inserts_storage::create();
   input_storage->table(db_TableRef(this));
   
-  Recordset::Ref rs= Recordset::create(grtm);
+  Recordset::Ref rs= Recordset::create();
   rs->data_storage(input_storage);
   rs->reset();
 
-  Recordset_sql_storage::Ref output_storage= Recordset_sql_storage::create(grtm);
+  Recordset_sql_storage::Ref output_storage= Recordset_sql_storage::create();
   output_storage->table_name(name());
   output_storage->rdbms(db_mgmt_RdbmsRef::cast_from(
     db_TableRef(this)->owner()/*schema*/->owner()/*catalog*/->owner()/*phys.model*/->get_member("rdbms")));
@@ -107,12 +107,10 @@ grt::StringRef db_Table::inserts()
 
 db_query_EditableResultsetRef db_Table::createInsertsEditor()
 {
-  bec::GRTManager *grtm= bec::GRTManager::get_instance_for();
-  
-  Recordset_table_inserts_storage::Ref input_storage= Recordset_table_inserts_storage::create(grtm);
+  Recordset_table_inserts_storage::Ref input_storage= Recordset_table_inserts_storage::create();
   input_storage->table(db_TableRef(this));
   
-  Recordset::Ref rs= Recordset::create(grtm);
+  Recordset::Ref rs= Recordset::create();
   rs->data_storage(input_storage);
   rs->reset();
 

@@ -24,9 +24,8 @@
 #include "grtsqlparser/sql_facade.h"
 #include "base/string_utilities.h"
 
-void Sql_import::grtm(bec::GRTManager *grtm)
+void Sql_import::grtm()
 {
-  if (grtm)
   {
     _options= grt::DictRef(true);
     _doc= workbench_DocumentRef::cast_from(grt::GRT::get()->get("/wb/doc"));
@@ -39,10 +38,6 @@ void Sql_import::grtm(bec::GRTManager *grtm)
       for (size_t n= 0, count= sizeof(option_names)/sizeof(option_names[0]); n < count; ++n)
         _options.set(option_names[n], options.get(option_names[n]));
     }
-  }
-  else
-  {
-    _doc= workbench_DocumentRef();
   }
 }
 

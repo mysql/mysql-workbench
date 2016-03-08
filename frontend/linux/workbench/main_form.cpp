@@ -83,8 +83,7 @@ MainForm::MainForm(wb::WBContextUI* ctx)
 {
   setup_mforms_app();
   
-  bec::GRTManager *grtm= _wbui_context->get_wb()->get_grt_manager();
-  _ui= Gtk::Builder::create_from_file(grtm->get_data_file_path("wb.glade"));
+  _ui= Gtk::Builder::create_from_file(bec::GRTManager::get().get_data_file_path("wb.glade"));
   if(get_upper_note())
   {
     Glib::RefPtr<Atk::Object> acc = get_upper_note()->get_accessible();
@@ -320,7 +319,7 @@ void MainForm::show_status_text_becb(const std::string& text)
 
   _ui->get_widget("statusbar1", status);
 
-  if (_wbui_context->get_wb()->get_grt_manager()->in_main_thread())
+  if (bec::GRTManager::get().in_main_thread())
     change_status(status, text);
   else
     // execute when idle in case we're being called from the worker thread
@@ -367,7 +366,7 @@ bool MainForm::show_progress_becb(const std::string& title, const std::string& s
 
 
 //------------------------------------------------------------------------------
-NativeHandle MainForm::open_plugin_becb(bec::GRTManager* mgr, grt::Module *grtmodule,
+NativeHandle MainForm::open_plugin_becb(grt::Module *grtmodule,
                                         const std::string& shlib, const std::string& editor_class,
                                         grt::BaseListRef args, bec::GUIPluginFlags flags)
 {
@@ -379,7 +378,7 @@ NativeHandle MainForm::open_plugin_becb(bec::GRTManager* mgr, grt::Module *grtmo
   if (!(flags & bec::ForceNewWindowFlag) && !(flags & bec::StandaloneWindowFlag))
   {
     std::vector<NativeHandle> handles =
-      mgr->get_plugin_manager()->get_similar_open_plugins(grtmodule, editor_class, args);
+        bec::GRTManager::get().get_plugin_manager()->get_similar_open_plugins(grtmodule, editor_class, args);
 
     if (!handles.empty())
     {
@@ -397,9 +396,9 @@ NativeHandle MainForm::open_plugin_becb(bec::GRTManager* mgr, grt::Module *grtmo
         bring_plugin_pane(editor);
       }
 
-      if (editor && !editor->is_editing_live_object() && editor->can_close() && editor->switch_edited_object(mgr, args))
+      if (editor && !editor->is_editing_live_object() && editor->can_close() && editor->switch_edited_object(args))
       {
-        mgr->get_plugin_manager()->forget_gui_plugin_handle(handles[0]);
+        bec::GRTManager::get().get_plugin_manager()->forget_gui_plugin_handle(handles[0]);
         return handles[0];
       }
     }
@@ -423,7 +422,7 @@ NativeHandle MainForm::open_plugin_becb(bec::GRTManager* mgr, grt::Module *grtmo
   }
 
   // call the initializer with arguments
-  GUIPluginBase *object= (*create_function)(grtmodule, mgr, args);
+  GUIPluginBase *object= (*create_function)(grtmodule, args);
   if (!object)
   {
     g_warning("UI creation function from %s returned 0", full_path.c_str());
@@ -965,7 +964,7 @@ void MainForm::destroy_view_becb(mdc::CanvasView* view)
 {
   Gtk::Notebook *note= get_upper_note();
 
-  if (!_wbui_context->get_wb()->get_grt_manager()->in_main_thread())
+  if (!bec::GRTManager::get().in_main_thread())
     G_BREAKPOINT();
   
   for (int c= note->get_n_pages(), i= 1; i < c; i++)
@@ -1692,7 +1691,7 @@ void MainForm::prepare_close_document()
 
 bool MainForm::fire_timer()
 {
-  _wbui_context->get_wb()->get_grt_manager()->flush_timers();
+  bec::GRTManager::get().flush_timers();
 
   update_timer();
   return false;
@@ -1701,7 +1700,7 @@ bool MainForm::fire_timer()
 
 void MainForm::update_timer()
 {
-  int delay_ms= (int)(1000 * _wbui_context->get_wb()->get_grt_manager()->delay_for_next_timeout());
+  int delay_ms= (int)(1000 * bec::GRTManager::get().delay_for_next_timeout());
 
   if (delay_ms >= 0)
     Glib::signal_timeout().connect(sigc::mem_fun(this, &MainForm::fire_timer), delay_ms);
@@ -1742,26 +1741,23 @@ void MainForm::show_page_setup()
 
 static std::string get_resource_path(mforms::App* app, const std::string& file)
 {
-  MainForm *self= reinterpret_cast<MainForm*>(app->get_data_ptr());
-  if (file.empty()) return self->get_wbui_context()->get_wb()->get_grt_manager()->get_data_file_path("");
+  if (file.empty()) return bec::GRTManager::get().get_data_file_path("");
   if (file[0] == '/') return file;
 
   if (g_str_has_suffix(file.c_str(), ".png") || g_str_has_suffix(file.c_str(), ".xpm"))
     return bec::IconManager::get_instance()->get_icon_path(file);
   else if (g_str_has_suffix(file.c_str(), ".vbs"))
   {
-    return self->get_wbui_context()->get_wb()->get_grt_manager()->get_data_file_path(file);
+    return bec::GRTManager::get().get_data_file_path(file);
   }
 
-  return self->get_wbui_context()->get_wb()->get_grt_manager()->get_data_file_path(file);
+  return bec::GRTManager::get().get_data_file_path(file);
 }
 
 
 static std::string get_executable_path(mforms::App* app, const std::string& file)
 {
-  MainForm *self= reinterpret_cast<MainForm*>(app->get_data_ptr());
-
-  std::string path = self->get_wbui_context()->get_wb()->get_grt_manager()->get_data_file_path(file);
+  std::string path = bec::GRTManager::get().get_data_file_path(file);
   if (!path.empty() && base::file_exists(path))
     return path;
 

@@ -28,9 +28,9 @@ namespace Grt {
 namespace Db {
 
 
-DBObjectMasterFilterBE::DBObjectMasterFilterBE(MySQL::Grt::GrtManager^ grtm)
+DBObjectMasterFilterBE::DBObjectMasterFilterBE()
 {
-  inner = new bec::DBObjectMasterFilterBE(grtm->get_unmanaged_object());
+  inner = new bec::DBObjectMasterFilterBE();
 }
 
 

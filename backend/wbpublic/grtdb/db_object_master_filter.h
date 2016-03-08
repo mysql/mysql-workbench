@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,9 +19,6 @@
 #ifndef _DB_OBJECT_MASTER_FILTER_BE_H_
 #define _DB_OBJECT_MASTER_FILTER_BE_H_
 
-
-#include "grt/grt_manager.h"
-
 #include "grts/structs.db.h"
 #include "grts/structs.db.mgmt.h"
 
@@ -35,7 +32,7 @@ namespace bec {
   class WBPUBLICBACKEND_PUBLIC_FUNC DBObjectMasterFilterBE
   {
   public:
-    DBObjectMasterFilterBE(GRTManager *grtm);
+    DBObjectMasterFilterBE();
 
     void add_filter(DBObjectFilterBE *filter);
     void remove_all_filters();
@@ -46,7 +43,6 @@ namespace bec {
     void load_stored_filter_set_list(std::list<std::string> &names);
 
   protected:
-    GRTManager *_grtm;
     std::vector<DBObjectFilterBE *> _filters;
     grt::DictRef _stored_master_filter_sets;
     std::string _stored_master_filter_sets_filepath;

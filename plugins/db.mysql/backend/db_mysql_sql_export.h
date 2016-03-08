@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,7 +28,6 @@
 
 class WBPLUGINDBMYSQLBE_PUBLIC_FUNC DbMySQLSQLExport : public DbMySQLValidationPage
 {
-  //bec::GRTManager *_manager;
   db_mysql_CatalogRef _catalog;
 
   // options
@@ -85,9 +84,9 @@ protected:
   //bec::MessageListBE messages_list;
 public:
 
-  DbMySQLSQLExport(bec::GRTManager *grtm, db_mysql_CatalogRef catalog = db_mysql_CatalogRef());
+  DbMySQLSQLExport(db_mysql_CatalogRef catalog = db_mysql_CatalogRef());
+  virtual ~DbMySQLSQLExport() {};
 
-  //bec::GRTManager *get_grt_manager() const { return _manager; }
   db_mysql_CatalogRef get_catalog() const { return _catalog; }
 
   std::string get_output_filename() const { return _output_filename; }

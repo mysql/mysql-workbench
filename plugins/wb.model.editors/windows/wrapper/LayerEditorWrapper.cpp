@@ -29,10 +29,9 @@ LayerEditorWrapper::LayerEditorWrapper(LayerEditorBE *inn)
 
 //--------------------------------------------------------------------------------------------------
 
-LayerEditorWrapper::LayerEditorWrapper(MySQL::Grt::GrtManager ^grtm, MySQL::Grt::GrtValue ^arglist)
+LayerEditorWrapper::LayerEditorWrapper(MySQL::Grt::GrtValue ^arglist)
   : BaseEditorWrapper(
-    new ::LayerEditorBE(grtm->get_unmanaged_object(),
-      workbench_physical_LayerRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
+    new ::LayerEditorBE(workbench_physical_LayerRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
       )
     )
 {

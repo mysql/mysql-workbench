@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -250,10 +250,10 @@ public:
      * NOTE: Scintilla uses bytes everywhere when a position or length is set or read. So be very
      *       careful when doing char maths (we use utf-8 with a variable code length per character).
      */
-    void set_selection(size_t start, size_t length);
+    void set_selection(std::size_t start, std::size_t length);
 
     /** Gets the current selection range. */
-    void get_selection(size_t &start, size_t &length);
+    void get_selection(std::size_t &start, std::size_t &length);
 
     /** Removes the current selection without moving the caret. */
     void clear_selection();

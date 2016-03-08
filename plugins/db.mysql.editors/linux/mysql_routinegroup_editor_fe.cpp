@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ class DbMySQLRoutineGroupEditor : public PluginEditorBase
   virtual bool can_close() { return _be->can_close(); }
 
  public:
-  DbMySQLRoutineGroupEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args);
+  DbMySQLRoutineGroupEditor(grt::Module *m, const grt::BaseListRef &args);
   
   virtual ~DbMySQLRoutineGroupEditor();
   virtual void do_refresh_form_data();
@@ -58,13 +58,13 @@ class DbMySQLRoutineGroupEditor : public PluginEditorBase
                        const Gtk::SelectionData& selection_data, guint info, guint time);
 
 
-  bool switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args);
+  bool switch_edited_object(const grt::BaseListRef &args);
 };
 
 //------------------------------------------------------------------------------
-DbMySQLRoutineGroupEditor::DbMySQLRoutineGroupEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
-    : PluginEditorBase(m, grtm, args, "modules/data/editor_rg.glade")
-    , _be(new MySQLRoutineGroupEditorBE(grtm, db_mysql_RoutineGroupRef::cast_from(args[0])))
+DbMySQLRoutineGroupEditor::DbMySQLRoutineGroupEditor(grt::Module *m, const grt::BaseListRef &args)
+    : PluginEditorBase(m, args, "modules/data/editor_rg.glade")
+    , _be(new MySQLRoutineGroupEditorBE(db_mysql_RoutineGroupRef::cast_from(args[0])))
     , _routines_model(model_from_string_list(std::vector<std::string>(), &_routines_columns))
 {
   xml()->get_widget("mysql_rg_editor_notebook", _editor_notebook);
@@ -122,13 +122,13 @@ void DbMySQLRoutineGroupEditor::activate_row(const Gtk::TreePath &path, Gtk::Tre
 }
 
 //------------------------------------------------------------------------------
-bool DbMySQLRoutineGroupEditor::switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args)
+bool DbMySQLRoutineGroupEditor::switch_edited_object(const grt::BaseListRef &args)
 {
   Gtk::Box* code_win;
   xml()->get_widget("rg_code_holder", code_win);
   delete _be;
  
-  _be = new MySQLRoutineGroupEditorBE(grtm, db_mysql_RoutineGroupRef::cast_from(args[0]));
+  _be = new MySQLRoutineGroupEditorBE(db_mysql_RoutineGroupRef::cast_from(args[0]));
   embed_code_editor(_be->get_sql_editor()->get_container(), code_win);
   _be->load_routines_sql();
   _be->set_refresh_ui_slot(sigc::mem_fun(this, &DbMySQLRoutineGroupEditor::refresh_form_data));
@@ -246,8 +246,8 @@ void DbMySQLRoutineGroupEditor::on_routine_drop(const Glib::RefPtr<Gdk::DragCont
 //------------------------------------------------------------------------------
 extern "C" 
 {
-  GUIPluginBase *createDbMysqlRoutineGroupEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
+  GUIPluginBase *createDbMysqlRoutineGroupEditor(grt::Module *m, const grt::BaseListRef &args)
   {
-    return Gtk::manage(new DbMySQLRoutineGroupEditor(m, grtm, args));
+    return Gtk::manage(new DbMySQLRoutineGroupEditor(m, args));
   }
 };

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -249,19 +249,19 @@ int SqlScriptApplyPage::on_exec_stat(long success_count, long err_count)
 
 grt::ValueRef SqlScriptApplyPage::do_execute_sql_script(const std::string &sql_script)
 {
-  _form->grtm()->run_once_when_idle(this, boost::bind(&SqlScriptApplyPage::add_log_text, this, "Executing:\n"+sql_script+"\n"));
+  bec::GRTManager::get().run_once_when_idle(this, boost::bind(&SqlScriptApplyPage::add_log_text, this, "Executing:\n"+sql_script+"\n"));
 
   apply_sql_script(sql_script);
 
   if (_err_count)
   {
     values().gset("has_errors", 1);
-    _form->grtm()->run_once_when_idle(this, boost::bind(&SqlScriptApplyPage::add_log_text, this, _log));
+    bec::GRTManager::get().run_once_when_idle(this, boost::bind(&SqlScriptApplyPage::add_log_text, this, _log));
     throw std::runtime_error(_("There was an error while applying the SQL script to the database."));
   }
   else
   {
-    _form->grtm()->run_once_when_idle(this, boost::bind(&SqlScriptApplyPage::add_log_text,
+    bec::GRTManager::get().run_once_when_idle(this, boost::bind(&SqlScriptApplyPage::add_log_text,
                                                         this, _("SQL script was successfully applied to the database.")));
   }
 
@@ -327,9 +327,9 @@ void SqlScriptApplyPage::enter(bool advancing)
 //-----------------------
 
 
-SqlScriptRunWizard::SqlScriptRunWizard(bec::GRTManager *grtm, GrtVersionRef version,
+SqlScriptRunWizard::SqlScriptRunWizard(GrtVersionRef version,
   std::string algorithm, std::string lock)
-  : grtui::WizardForm(grtm)
+  : grtui::WizardForm()
 {
   set_name("script_run_wizard");
   set_title(_("Apply SQL Script to Database"));

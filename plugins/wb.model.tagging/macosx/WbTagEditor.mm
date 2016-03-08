@@ -12,9 +12,9 @@
 
 @implementation WbTagEditor
 
-- (id)initWithModule:(grt::Module*)module GRTManager:(bec::GRTManager*)grtm arguments:(const grt::BaseListRef&)args
+- (id)initWithModule:(grt::Module*)module arguments:(const grt::BaseListRef&)args
 {
-  self= [super initWithModule:module GRTManager:grtm arguments:args];
+  self= [super initWithModule:module arguments:args];
   if (self)
   {
     if (![[NSBundle bundleForClass:[self class]] loadNibFile:@"WbTagEditor"

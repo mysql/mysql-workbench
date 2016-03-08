@@ -23,7 +23,7 @@ public:
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #endif
-  void grtm(bec::GRTManager *grtm, bool reveng);
+  void grtm(bool reveng);
 #ifndef _WIN32
   #pragma GCC diagnostic pop
 #endif

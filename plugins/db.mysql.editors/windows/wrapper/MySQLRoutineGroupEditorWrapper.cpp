@@ -23,11 +23,10 @@ using namespace MySQL::Grt::Db;
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLRoutineGroupEditorWrapper::MySQLRoutineGroupEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist)
+MySQLRoutineGroupEditorWrapper::MySQLRoutineGroupEditorWrapper(MySQL::Grt::GrtValue^ arglist)
   : RoutineGroupEditorWrapper
     (
-      new ::MySQLRoutineGroupEditorBE(grtm->get_unmanaged_object(), 
-        db_mysql_RoutineGroupRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
+      new ::MySQLRoutineGroupEditorBE(db_mysql_RoutineGroupRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
       )
     )
 {

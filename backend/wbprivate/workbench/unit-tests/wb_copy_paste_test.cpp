@@ -30,11 +30,12 @@ using namespace wb;
 
 BEGIN_TEST_DATA_CLASS(wb_copy_paste)
 public:
-  WBTester tester;
+  WBTester *tester;
 
 TEST_DATA_CONSTRUCTOR(wb_copy_paste)
 {
-  populate_grt(tester);
+  tester = new WBTester;
+  populate_grt(*tester);
 }
 
 END_TEST_DATA_CLASS;
@@ -86,24 +87,24 @@ static void ensure_list_contents_copy(const grt::BaseListRef &copy, const grt::B
 
 TEST_FUNCTION(1)
 {
-  tester.wb->open_document("data/workbench/all_objects.mwb");
+  tester->wb->open_document("data/workbench/all_objects.mwb");
 
-  ensure_equals("figure count", tester.get_pview()->figures().count(), 6U);
+  ensure_equals("figure count", tester->get_pview()->figures().count(), 6U);
 
   workbench_physical_TableFigureRef source, copy;
-  source= workbench_physical_TableFigureRef::cast_from(grt::find_named_object_in_list(tester.get_pview()->figures(), "table1"));
+  source= workbench_physical_TableFigureRef::cast_from(grt::find_named_object_in_list(tester->get_pview()->figures(), "table1"));
 
   ensure("table1", source.is_valid());
 
-  WBComponent *compo= tester.wb->get_component_handling(source);
+  WBComponent *compo= tester->wb->get_component_handling(source);
   ensure("table is copiable", compo!=0);
 
   grt::CopyContext context;
   
   compo->copy_object_to_clipboard(source, context);
 
-  ensure("clipboard has data", tester.wb->get_grt_manager()->get_clipboard()->get_data().empty()==false);
-  copy = workbench_physical_TableFigureRef::cast_from(tester.wb->get_grt_manager()->get_clipboard()->get_data().front());
+  ensure("clipboard has data", bec::GRTManager::get().get_clipboard()->get_data().empty()==false);
+  copy = workbench_physical_TableFigureRef::cast_from(bec::GRTManager::get().get_clipboard()->get_data().front());
 
   ensure("copy is valid", copy.is_valid());
   ensure("copy worked", copy.id() != source.id());
@@ -121,8 +122,8 @@ TEST_FUNCTION(1)
 
   //ensure_list_contents_copy(copy->table()->indices(), source->table()->indices());
 
-  tester.wb->close_document();
-  tester.wb->close_document_finish();
+  tester->wb->close_document();
+  tester->wb->close_document_finish();
 }
 
 
@@ -130,7 +131,7 @@ TEST_FUNCTION(2)
 {
   // create a table with PK and make sure that a copy will contain 
   // proper refs to the copied objects
-  tester.create_new_document();
+  tester->create_new_document();
 
   db_mysql_TableRef table(grt::Initialized);
   table->name("person");
@@ -142,9 +143,9 @@ TEST_FUNCTION(2)
     column->owner(table);
     column->name(strfmt("col%i", i));
     if (i > 2)
-      column->setParseType("VARCHAR(32)", tester.get_rdbms()->simpleDatatypes());
+      column->setParseType("VARCHAR(32)", tester->get_rdbms()->simpleDatatypes());
     else
-      column->setParseType("INT", tester.get_rdbms()->simpleDatatypes());
+      column->setParseType("INT", tester->get_rdbms()->simpleDatatypes());
     table->columns().insert(column);
 
     if (i == 0)
@@ -170,13 +171,15 @@ TEST_FUNCTION(2)
 
   ensure_equals("pk correct", copy->columns().get(0).valueptr(), copy->primaryKey()->columns().get(0)->referencedColumn().valueptr());
 
-  tester.wb->close_document();
-  tester.wb->close_document_finish();
+  tester->wb->close_document();
+  tester->wb->close_document_finish();
 }
 
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  delete tester;
+}
 
 END_TESTS
-
-  
-  
-  

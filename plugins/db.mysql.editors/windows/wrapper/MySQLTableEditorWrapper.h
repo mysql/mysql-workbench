@@ -127,7 +127,7 @@ public:
     RefreshColumnCollation  = bec::TableEditorBE::RefreshColumnCollation,
   };
 
-  MySQLTableEditorWrapper(GrtManager^ grtm, GrtValue^ arglist);
+  MySQLTableEditorWrapper(GrtValue^ arglist);
   virtual ~MySQLTableEditorWrapper();
 
   ::MySQLTableEditorBE *get_unmanaged_object()

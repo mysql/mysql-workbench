@@ -28,10 +28,12 @@ using namespace tut;
 
 BEGIN_TEST_DATA_CLASS(module_dbc_connection_test)
 public:
-  WBTester wbt;
-  GRTManager *grtm;
-  GRT *grt;
+  WBTester *wbt;
   db_mgmt_ConnectionRef connectionProperties;
+  TEST_DATA_CONSTRUCTOR(module_dbc_connection_test)
+  {
+    wbt = new WBTester();
+  }
 END_TEST_DATA_CLASS
 
 TEST_MODULE(module_dbc_connection_test, "DBC: connection tests");
@@ -39,7 +41,6 @@ TEST_MODULE(module_dbc_connection_test, "DBC: connection tests");
 // Test initialization of a connection and it's destruction.
 TEST_FUNCTION(1)
 {
-  grtm= wbt.wb->get_grt_manager();
 
   connectionProperties= db_mgmt_ConnectionRef(grt::Initialized);
   setup_env(connectionProperties);
@@ -290,5 +291,10 @@ TEST_FUNCTION(9)
   }
 }
 
-
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  delete wbt;
+}
 END_TESTS

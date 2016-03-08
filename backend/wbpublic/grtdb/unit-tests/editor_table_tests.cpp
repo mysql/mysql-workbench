@@ -51,8 +51,8 @@ public:
 # pragma warning(push)
 # pragma warning(disable:4355)
 #endif
-  TestTableEditor(GRTManager *grtm, db_TableRef table, db_mgmt_RdbmsRef rdbms)
-    : TableEditorBE(grtm, table), _table(table), _columns(this), _indexes(this)
+  TestTableEditor(db_TableRef table, db_mgmt_RdbmsRef rdbms)
+    : TableEditorBE(table), _table(table), _columns(this), _indexes(this)
     {
     }
 #ifdef _WIN32
@@ -117,18 +117,17 @@ public:
 
 BEGIN_TEST_DATA_CLASS(editor_table_tests)
 public:
-  WBTester wbt;
-  GRTManager *grtm;
+  WBTester *wbt;
   db_TableRef table;
   Auto_release autorel;
 
   TestTableEditor *editor;
 TEST_DATA_CONSTRUCTOR(editor_table_tests)
-  : editor(0)
+  : wbt(new WBTester()), editor(0)
 {
-  populate_grt(wbt);
 
-  grtm = wbt.wb->get_grt_manager();
+  populate_grt(*wbt);
+
 }
 
 TEST_DATA_DESTRUCTOR(editor_table_tests)
@@ -142,15 +141,15 @@ TEST_MODULE(editor_table_tests, "Table Editor backend");
 
 TEST_FUNCTION(1)
 {
-  wbt.create_new_document();
+  wbt->create_new_document();
 
-  ensure("document ok", wbt.wb->get_document().is_valid());
-  ensure("catalog", wbt.wb->get_document()->physicalModels()[0]->catalog().is_valid());
+  ensure("document ok", wbt->wb->get_document().is_valid());
+  ensure("catalog", wbt->wb->get_document()->physicalModels()[0]->catalog().is_valid());
 
   db_mysql_SchemaRef schema= db_mysql_SchemaRef(grt::Initialized);
   ensure("schema ok", schema.is_valid());
-  schema->owner(wbt.wb->get_document()->physicalModels()[0]->catalog());
-  wbt.wb->get_document()->physicalModels()[0]->catalog()->schemata().insert(schema);
+  schema->owner(wbt->wb->get_document()->physicalModels()[0]->catalog());
+  wbt->wb->get_document()->physicalModels()[0]->catalog()->schemata().insert(schema);
 
   table = db_mysql_TableRef(grt::Initialized);
   ensure("table ok", table.is_valid());
@@ -158,7 +157,7 @@ TEST_FUNCTION(1)
 
 
 
-  editor= new TestTableEditor(grtm, table, wbt.get_rdbms());
+  editor= new TestTableEditor(table, wbt->get_rdbms());
   
   // Don't use the auto releaser here. It conflicts with the static test class leading to 
   // a crash when the tests are finished.
@@ -745,7 +744,7 @@ TEST_FUNCTION(12)
 
   // bug: unsetting an index column is wrong (and may crash)
   db_TableRef table = db_mysql_TableRef(grt::Initialized);
-  table->owner(wbt.get_schema());
+  table->owner(wbt->get_schema());
 
   ensure("table ok", table.is_valid());
 
@@ -764,7 +763,7 @@ TEST_FUNCTION(12)
   column->name("col3");
   table->columns().insert(column);
 
-  TestTableEditor ed(grtm, table,  wbt.get_rdbms());
+  TestTableEditor ed(table,  wbt->get_rdbms());
 
   ensure_equals("column count", ed.get_columns()->count(), 4U);
 
@@ -819,10 +818,10 @@ TEST_FUNCTION(13)
 
   db_mysql_TableRef table(grt::Initialized);
 
-  table->owner(wbt.get_schema());
+  table->owner(wbt->get_schema());
   table->name("table");
 
-  TestTableEditor editor(grtm, table,  wbt.get_rdbms());
+  TestTableEditor editor(table,  wbt->get_rdbms());
 
   editor.get_columns()->set_field(0, 0, "newcol");
  
@@ -851,11 +850,11 @@ TEST_FUNCTION(20)
   ensure("table ok", table.is_valid());
 
   table->name("table");
-  table->owner(wbt.get_schema());
+  table->owner(wbt->get_schema());
 
-  wbt.get_schema()->tables().insert(table);
+  wbt->get_schema()->tables().insert(table);
  
-  TestTableEditor editor(grtm, table,  wbt.get_rdbms());
+  TestTableEditor editor(table,  wbt->get_rdbms());
   
   ensure("editor catalog is not ok", editor.get_catalog().is_valid());
   
@@ -864,14 +863,14 @@ TEST_FUNCTION(20)
   db_mysql_ColumnRef column(grt::Initialized);
   column->owner(table);
   column->name("id");
-  column->setParseType("int", wbt.get_rdbms()->simpleDatatypes());
+  column->setParseType("int", wbt->get_rdbms()->simpleDatatypes());
   //bec::ColumnHelper::parse_column_type(editor.get_rdbms(), userTypes, "int", column);
   table->columns().insert(column);
 
   column = db_mysql_ColumnRef(grt::Initialized);
   column->owner(table);
   column->name("fk");
-  column->setParseType("int", wbt.get_rdbms()->simpleDatatypes());
+  column->setParseType("int", wbt->get_rdbms()->simpleDatatypes());
   //bec::ColumnHelper::parse_column_type(editor.get_rdbms(), userTypes, "int", column);
   table->columns().insert(column);
 
@@ -903,6 +902,12 @@ TEST_FUNCTION(20)
   */
 }
 
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  delete wbt;
+}
 
 
 END_TESTS

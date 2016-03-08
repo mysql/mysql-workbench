@@ -28,7 +28,7 @@ namespace Db {
 public ref class MySQLViewEditorWrapper : public ViewEditorWrapper
 {
 public:
-  MySQLViewEditorWrapper(MySQL::Grt::GrtManager ^grtm, MySQL::Grt::GrtValue ^arglist);
+  MySQLViewEditorWrapper(MySQL::Grt::GrtValue ^arglist);
   ~MySQLViewEditorWrapper();
 
   MySQLViewEditorBE *get_unmanaged_object();

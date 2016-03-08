@@ -433,11 +433,10 @@ public:
   {
     if (_dbconn)
     {
-      bec::GRTManager *grtm = bec::GRTManager::get_instance_for();
       grt::ListRef<db_mgmt_Connection> list(_dbconn->get_db_mgmt()->storedConns());
       grt::ListRef<db_mgmt_Connection>::const_iterator iter = list.begin();
 
-      const std::string saved_conn_name = grtm ? grtm->get_app_option_string("LastUsedConnectionName") : "";
+      const std::string saved_conn_name = bec::GRTManager::get().get_app_option_string("LastUsedConnectionName");
 
       for (;iter != list.end(); ++iter)
       {
@@ -454,10 +453,7 @@ public:
   {
     if (_dbconn && _dbconn->get_connection().is_valid())
     {
-      bec::GRTManager *grtm = bec::GRTManager::get_instance_for();
-
-      if (grtm)
-        grtm->set_app_option("LastUsedConnectionName", grt::StringRef(_dbconn->get_connection()->name()));
+      bec::GRTManager::get().set_app_option("LastUsedConnectionName", grt::StringRef(_dbconn->get_connection()->name()));
     }
   }
 };
@@ -577,7 +573,7 @@ public:
 
 
 WbPluginDbExport::WbPluginDbExport(grt::Module *module)
-    : WizardPlugin(module), _db_frw_eng(grtm())
+    : WizardPlugin(module)
 {
 
   set_name("db_export_wizard");

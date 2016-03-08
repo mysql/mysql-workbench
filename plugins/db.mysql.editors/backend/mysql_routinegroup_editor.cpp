@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,8 +25,8 @@
 
 using namespace bec;
 
-MySQLRoutineGroupEditorBE::MySQLRoutineGroupEditorBE(bec::GRTManager *grtm, const db_mysql_RoutineGroupRef &group)
-  : bec::RoutineGroupEditorBE(grtm, group)
+MySQLRoutineGroupEditorBE::MySQLRoutineGroupEditorBE(const db_mysql_RoutineGroupRef &group)
+  : bec::RoutineGroupEditorBE(group)
 {
   _routine_group = group;
   if (!is_editing_live_object())

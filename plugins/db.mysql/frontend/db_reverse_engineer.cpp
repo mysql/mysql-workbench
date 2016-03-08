@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -255,7 +255,7 @@ WbPluginDbImport::WbPluginDbImport(grt::Module *module)
 {
 
   set_name("db_import_wizard");
-  _db_rev_eng.grtm(grtm());
+  _db_rev_eng.grtm();
   
   _connection_page= new ConnectionPage(this);
   _connection_page->set_db_connection(db_plugin()->db_conn());
