@@ -1080,7 +1080,7 @@ truncate_table_statement:
 //--------------- DML statements -------------------------------------------------------------------
 
 call_statement:
-	CALL_SYMBOL^ procedure_ref (OPEN_PAR_SYMBOL expression_list? CLOSE_PAR_SYMBOL)?
+	CALL_SYMBOL^ procedure_ref optional_expression_list_with_parentheses?
 ;
 
 delete_statement:
@@ -1414,7 +1414,12 @@ select_table_factor_union:
 
 query_specification:
 	SELECT_SYMBOL select_part2_derived table_expression
-	| OPEN_PAR_SYMBOL query_specification CLOSE_PAR_SYMBOL order_by_or_limit?
+	| OPEN_PAR_SYMBOL select_paren_derived CLOSE_PAR_SYMBOL order_by_or_limit?
+;
+
+select_paren_derived:
+	SELECT_SYMBOL select_part2_derived table_expression
+	| OPEN_PAR_SYMBOL select_paren_derived CLOSE_PAR_SYMBOL
 ;
 
 join_table: // Like the same named rule in sql_yacc.yy but with removed left recursion.
@@ -2281,16 +2286,16 @@ interval_time_span:
 ;
 
 primary:
-    (
+    ( options { k = 4; }:
 		literal
+		| function_call
 		| runtime_function_call // Complete functions defined in the grammar.
-		| udf_call
-		| (stored_function_call) => stored_function_call
 		| column_ref ( {SERVER_VERSION >= 50708}? (JSON_SEPARATOR_SYMBOL text_string)? | /* empty*/ )
 		| PARAM_MARKER
 		| variable
 		| EXISTS_SYMBOL subquery
 		| expression_with_nested_parentheses
+		| ROW_SYMBOL OPEN_PAR_SYMBOL expression (COMMA_SYMBOL expression)+ CLOSE_PAR_SYMBOL
 		| OPEN_CURLY_SYMBOL identifier expression CLOSE_CURLY_SYMBOL
 		| match_expression
 		| case_expression
@@ -2305,7 +2310,6 @@ primary:
 expression_with_nested_parentheses:
 	{LA(1) == OPEN_PAR_SYMBOL && LA(2) == SELECT_SYMBOL}? subquery
 	| expression_list_with_parentheses
-	| ROW_SYMBOL OPEN_PAR_SYMBOL expression (COMMA_SYMBOL expression)+ CLOSE_PAR_SYMBOL
 ;
 
 comparison_operator:
@@ -2486,20 +2490,16 @@ count_function:
 	CLOSE_PAR_SYMBOL
 ;
 
-udf_call:
-	udf_call_expression -> ^(UDF_CALL_TOKEN udf_call_expression)
+function_call:
+	function_call_expression  -> ^(FUNCTION_CALL_TOKEN function_call_expression)
 ;
 
-udf_call_expression:
-	(IDENTIFIER | BACK_TICK_QUOTED_ID) OPEN_PAR_SYMBOL aliased_expression_list? CLOSE_PAR_SYMBOL
-;
-
-stored_function_call:
-	stored_function_call_expression -> ^(FUNCTION_CALL_TOKEN stored_function_call_expression)
-;
-
-stored_function_call_expression:
-	qualified_identifier OPEN_PAR_SYMBOL expression_list? CLOSE_PAR_SYMBOL
+function_call_expression:
+	pure_identifier
+	(
+		OPEN_PAR_SYMBOL aliased_expression_list? CLOSE_PAR_SYMBOL // For both UDF + other functions.
+		| dot_identifier OPEN_PAR_SYMBOL expression_list? CLOSE_PAR_SYMBOL // Other functions only.
+	)
 ;
 
 aliased_expression_list:
@@ -4298,6 +4298,8 @@ CROSS_SYMBOL:							'CROSS';							// SQL-2003-R
 CUBE_SYMBOL:							'CUBE';								// SQL-2003-R
 CURDATE_SYMBOL:							'CURDATE'							{ $type = determine_function(ctx, $type); }; // MYSQL-FUNC
 CURRENT_SYMBOL:							'CURRENT'							{ $type = TYPE_FROM_VERSION(50604, $type); };
+CURRENT_DATE_SYMBOL:					'CURRENT_DATE'						{ $type = determine_function(ctx, CURDATE_SYMBOL); }; // Synonym, MYSQL-FUNC
+CURRENT_TIME_SYMBOL:					'CURRENT_TIME'						{ $type = determine_function(ctx, CURTIME_SYMBOL); }; // Synonym, MYSQL-FUNC
 CURRENT_TIMESTAMP_SYMBOL:				'CURRENT_TIMESTAMP'					{ $type = NOW_SYMBOL; }; // Synonym
 CURRENT_USER_SYMBOL:					'CURRENT_USER'						{ $type = TYPE_FROM_VERSION(40100, $type); }; // SQL-2003-R
 CURSOR_SYMBOL:							'CURSOR'							{ $type = TYPE_FROM_VERSION(50000, $type); };	// SQL-2003-R
@@ -4714,6 +4716,7 @@ SLAVE_SYMBOL:							'SLAVE';
 SLOW_SYMBOL:							'SLOW'								{ $type = TYPE_FROM_VERSION(50500, $type); };
 SMALLINT_SYMBOL:						'SMALLINT';							// SQL-2003-R
 SNAPSHOT_SYMBOL:						'SNAPSHOT';
+SOME_SYMBOL:							'SOME'								{ $type = ANY_SYMBOL; }; // Synonym
 SOCKET_SYMBOL:							'SOCKET';
 SONAME_SYMBOL:							'SONAME';
 SOUNDS_SYMBOL:							'SOUNDS';
