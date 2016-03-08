@@ -122,7 +122,7 @@ TEST_FUNCTION(5) // test WorkbenchImpl::isOsSupported()
 
 // Due to the tut nature, this must be executed as a last test always,
 // we can't have this inside of the d-tor.
-TEST_FUNCTION(999)
+TEST_FUNCTION(99)
 {
   delete tester;
 }
