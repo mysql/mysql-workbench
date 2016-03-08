@@ -442,7 +442,7 @@ class WbAdminConfigFileBE(object):
         self.opt_rindex = {}
         (added, skipped, deprecated, no_value) = (0, 0, 0, 0)
 
-        for (tabname, tabcont) in opts.opts_list:
+        for (tabname, tabcont, width) in opts.opts_list:
             new_tab_cont = {}
             groups = []
 
@@ -486,6 +486,7 @@ class WbAdminConfigFileBE(object):
 
             new_tab_cont['groups'] = tuple(groups)
             new_tab_cont['position'] = pos
+            new_tab_cont['width'] = width
             pos += 1
             tabs[tabname] = new_tab_cont
 
