@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,8 +25,6 @@
 #include "grts/structs.db.mgmt.h"
 #include "grtui/grtdb_connect_panel.h"
 
-#include "grt/grt_manager.h"
-
 #include "mforms/form.h"
 #include "mforms/box.h"
 #include "mforms/textentry.h"
@@ -41,8 +39,7 @@
 
 class MYSQLWBBACKEND_PUBLIC_FUNC ServerInstanceEditor : public mforms::Form 
 { 
-  bec::GRTManager *_grtm;
-  
+
   db_mgmt_ManagementRef _mgmt;
   grt::ListRef<db_mgmt_Connection> _connections;
   grt::ListRef<db_mgmt_ServerInstance> _instances;
@@ -153,7 +150,7 @@ class MYSQLWBBACKEND_PUBLIC_FUNC ServerInstanceEditor : public mforms::Form
 
   void reset_setup_pending();
 public:
-  ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_ManagementRef &mgmt);
+  ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt);
   virtual ~ServerInstanceEditor();
   
   db_mgmt_ServerInstanceRef run(db_mgmt_ConnectionRef select_connection = db_mgmt_ConnectionRef(), bool select_admin = false);

@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -56,7 +56,6 @@ db_mysql_Catalog db_rev_eng_schema(bec::GRTManager *grtm,
 //=============================================================================
 BEGIN_TEST_DATA_CLASS(module_db_mysql_schema_diff_reporting)
 public:
-  GRTManagerTest grtm;
 END_TEST_DATA_CLASS
 
 TEST_MODULE(module_db_mysql_schema_diff_reporting, "DB MySQL: schema reporting");

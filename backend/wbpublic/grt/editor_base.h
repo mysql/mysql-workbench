@@ -55,7 +55,7 @@ namespace bec {
       RefreshTextChanged, // Refresh the title of the active editor, button states etc.
     };
 
-    BaseEditor(GRTManager *grtm, const grt::Ref<GrtObject> &object);
+    BaseEditor(const grt::Ref<GrtObject> &object);
     virtual ~BaseEditor();
     
     virtual std::string get_form_context_name() const;
@@ -76,8 +76,6 @@ namespace bec {
                                      // so we still can undo. Live editors reload content to reset the undo stack.
     virtual void reset_editor_undo_stack() {} // Called after changes were applied (mostly live objects).
 
-    GRTManager *get_grt_manager() { return _grtm; }
-
     virtual void on_object_changed();
     
     void freeze_refresh_on_object_change();
@@ -88,7 +86,6 @@ namespace bec {
     virtual bool can_close();
 
   protected:
-    GRTManager *_grtm;
     boost::signals2::scoped_connection _ui_refresh_conn;
 
     std::set<std::string> _ignored_object_fields_for_ui_refresh;

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -136,7 +136,7 @@ TunnelManager::TunnelManager(wb::WBContext *wb)
 
 void TunnelManager::start()
 {
-  std::string progpath = base::makePath(_wb->get_grt_manager()->get_basedir(), "sshtunnel.py");
+  std::string progpath = base::makePath(bec::GRTManager::get().get_basedir(), "sshtunnel.py");
 
   WillEnterPython lock;
   grt::PythonContext *py = grt::PythonContext::get();
@@ -366,12 +366,12 @@ boost::shared_ptr<sql::TunnelConnection> TunnelManager::create_tunnel(db_mgmt_Co
     target += ":" + base::to_string(target_port);
 
     // before anything, check if a tunnel already exists for this server/user/target tuple
-    _wb->get_grt_manager()->replace_status_text("Looking for existing SSH tunnel to "+server+"...");
+    bec::GRTManager::get().replace_status_text("Looking for existing SSH tunnel to "+server+"...");
     int tunnel_port;
     tunnel_port = lookup_tunnel(server.c_str(), username.c_str(), target.c_str());
     if (tunnel_port > 0)
     {
-      _wb->get_grt_manager()->replace_status_text("Existing SSH tunnel found, connecting...");
+      bec::GRTManager::get().replace_status_text("Existing SSH tunnel found, connecting...");
       log_info("Existing SSH tunnel found, connecting\n");
       tunnel = boost::shared_ptr<sql::TunnelConnection>(new ::SSHTunnel(this, tunnel_port));
     }
@@ -380,7 +380,7 @@ boost::shared_ptr<sql::TunnelConnection> TunnelManager::create_tunnel(db_mgmt_Co
       bool reset_password = false;
     retry:
 
-      _wb->get_grt_manager()->replace_status_text("Existing SSH tunnel not found, opening new one...");
+    bec::GRTManager::get().replace_status_text("Existing SSH tunnel not found, opening new one...");
       log_info("Existing SSH tunnel not found, opening new one\n");
       std::string service;
       if (keyfile.empty() && password.empty())
@@ -430,28 +430,28 @@ boost::shared_ptr<sql::TunnelConnection> TunnelManager::create_tunnel(db_mgmt_Co
           throw std::runtime_error("SSH key passphrase input cancelled by user");
       }
 
-      _wb->get_grt_manager()->replace_status_text("Opening SSH tunnel to "+server+"...");
+      bec::GRTManager::get().replace_status_text("Opening SSH tunnel to "+server+"...");
       log_info("Opening SSH tunnel to %s\n", server.c_str());
 
       try
       {
         tunnel_port = open_tunnel(server.c_str(), username.c_str(), password.c_str(), keyfile.c_str(), target.c_str());
 
-        _wb->get_grt_manager()->replace_status_text("SSH tunnel opened, connecting...");
+        bec::GRTManager::get().replace_status_text("SSH tunnel opened, connecting...");
 
         tunnel = boost::shared_ptr<sql::TunnelConnection>(new ::SSHTunnel(this, tunnel_port));
 
         if (tunnel)
         {
           tunnel->connect(connectionProperties);
-          set_keepalive(tunnel_port, _wb->get_grt_manager()->get_app_option_int("sshkeepalive", 0));
+          set_keepalive(tunnel_port, bec::GRTManager::get().get_app_option_int("sshkeepalive", 0));
           log_info("SSH tunnel connect executed OK\n");
         }
       }
       catch (tunnel_auth_error &exc)
       {
         log_error("Authentication error opening SSH tunnel: %s\n", exc.what());
-        _wb->get_grt_manager()->replace_status_text("Authentication error opening SSH tunnel");
+        bec::GRTManager::get().replace_status_text("Authentication error opening SSH tunnel");
         if (mforms::Utilities::show_error("Could not connect the SSH Tunnel", exc.what(), _("Retry"), _("Cancel")) == mforms::ResultOk)
         {
           reset_password= true;
@@ -489,12 +489,12 @@ boost::shared_ptr<sql::TunnelConnection> TunnelManager::create_tunnel(db_mgmt_Co
       catch (std::exception &exc)
       {
         log_error("Exception while opening SSH tunnel: %s\n", exc.what());
-        _wb->get_grt_manager()->replace_status_text("Could not open SSH tunnel");
+        bec::GRTManager::get().replace_status_text("Could not open SSH tunnel");
         throw std::runtime_error(std::string("Cannot open SSH Tunnel: ").append(exc.what()));
       }
     }
     
-    _wb->get_grt_manager()->replace_status_text("Using SSH tunnel to "+server);
+    bec::GRTManager::get().replace_status_text("Using SSH tunnel to "+server);
   }
 
   return tunnel;

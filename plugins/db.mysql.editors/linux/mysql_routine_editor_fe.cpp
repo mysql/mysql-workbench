@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,19 +34,19 @@ class DbMySQLRoutineEditor : public PluginEditorBase
   virtual bool can_close() { return _be->can_close(); }
 
  public:
-  DbMySQLRoutineEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args);
+  DbMySQLRoutineEditor(grt::Module *m, const grt::BaseListRef &args);
   
   virtual ~DbMySQLRoutineEditor();
   virtual void do_refresh_form_data();
 
-  virtual bool switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args);
+  virtual bool switch_edited_object(const grt::BaseListRef &args);
 
   bool comment_lost_focus(GdkEventFocus *ev, Gtk::TextView *view);
 };
 
-DbMySQLRoutineEditor::DbMySQLRoutineEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
-    : PluginEditorBase(m, grtm, args, "modules/data/editor_routine.glade")
-    , _be(new MySQLRoutineEditorBE(grtm, db_mysql_RoutineRef::cast_from(args[0])))
+DbMySQLRoutineEditor::DbMySQLRoutineEditor(grt::Module *m, const grt::BaseListRef &args)
+    : PluginEditorBase(m, args, "modules/data/editor_routine.glade")
+    , _be(new MySQLRoutineEditorBE(db_mysql_RoutineRef::cast_from(args[0])))
 {
 
   xml()->get_widget("mysql_routine_editor_notebook", _editor_notebook);
@@ -107,14 +107,14 @@ bool DbMySQLRoutineEditor::comment_lost_focus(GdkEventFocus *ev, Gtk::TextView *
 }
 
 //------------------------------------------------------------------------------
-bool DbMySQLRoutineEditor::switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args)
+bool DbMySQLRoutineEditor::switch_edited_object(const grt::BaseListRef &args)
 {
   Gtk::Box *ddl_win;
   xml()->get_widget("routine_ddl", ddl_win);
  
   delete _be;
 
-  _be = new MySQLRoutineEditorBE(grtm, db_mysql_RoutineRef::cast_from(args[0]));
+  _be = new MySQLRoutineEditorBE(db_mysql_RoutineRef::cast_from(args[0]));
 
   embed_code_editor(_be->get_sql_editor()->get_container(), ddl_win);
   _be->load_routine_sql();
@@ -164,9 +164,9 @@ void DbMySQLRoutineEditor::do_refresh_form_data()
 //------------------------------------------------------------------------------
 extern "C" 
 {
-  GUIPluginBase *createDbMysqlRoutineEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
+  GUIPluginBase *createDbMysqlRoutineEditor(grt::Module *m, const grt::BaseListRef &args)
   {
-    return Gtk::manage(new DbMySQLRoutineEditor(m, grtm, args));
+    return Gtk::manage(new DbMySQLRoutineEditor(m, args));
   }
 };
 

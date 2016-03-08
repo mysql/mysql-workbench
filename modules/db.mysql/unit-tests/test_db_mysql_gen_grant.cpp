@@ -29,12 +29,7 @@ using namespace tut;
 
 BEGIN_TEST_DATA_CLASS(test_db_mysql_gen_grant)
 public:
-  GRTManagerTest grtm;
-  GRT* grt;
-
 TEST_DATA_CONSTRUCTOR(test_db_mysql_gen_grant)
-  :grtm(false)
-  , grt(NULL)
 {
 }
 

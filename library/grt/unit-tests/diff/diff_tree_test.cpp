@@ -44,7 +44,11 @@ static grt::DictRef get_traits(bool case_sensitive = false)
 
 BEGIN_TEST_DATA_CLASS(sync_diff)
 public:
-  WBTester tester;
+  WBTester *tester;
+  TEST_DATA_CONSTRUCTOR(sync_diff)
+  {
+    tester = new WBTester;
+  }
 END_TEST_DATA_CLASS
 
 TEST_MODULE(sync_diff, "sync diff");
@@ -204,6 +208,13 @@ TEST_FUNCTION(22)
     getline(ss, line);
     tut::ensure_equals("SQL compare failed", line, refline);
   }
+}
+
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  delete tester;
 }
 
 END_TESTS

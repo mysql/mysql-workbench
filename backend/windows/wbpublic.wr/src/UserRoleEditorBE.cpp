@@ -68,10 +68,9 @@ void RoleObjectListWrapper::set_selected_node(NodeIdWrapper ^node)
 
 //--------------------------------------------------------------------------------------------------
 
-RoleEditorBE::RoleEditorBE(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist)
+RoleEditorBE::RoleEditorBE(MySQL::Grt::GrtValue^ arglist)
   : BaseEditorWrapper(
-    new bec::RoleEditorBE(grtm->get_unmanaged_object(), 
-      db_RoleRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0)),
+    new bec::RoleEditorBE(db_RoleRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0)),
       get_rdbms_for_db_object(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
       )
     )

@@ -1916,7 +1916,7 @@ protected:
     typedef std::map<std::string, std::vector<std::pair<std::string,std::string> > > alias_map_t;
     alias_map_t alias_map;
 
-    SQLComposer(const grt::DictRef options)
+    SQLComposer(const grt::DictRef options) : _case_sensitive(false)
     {
         sql_mode = options.get_string("SQL_MODE", "TRADITIONAL");
         SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name("Mysql");
@@ -2205,15 +2205,14 @@ protected:
 
         std::string table_inserts_sql;
         {
-            bec::GRTManager *grtm= bec::GRTManager::get_instance_for();
-            Recordset_table_inserts_storage::Ref input_storage= Recordset_table_inserts_storage::create(grtm);
+            Recordset_table_inserts_storage::Ref input_storage= Recordset_table_inserts_storage::create();
             input_storage->table(table);
 
-            Recordset::Ref rs= Recordset::create(grtm);
+            Recordset::Ref rs= Recordset::create();
             rs->data_storage(input_storage);
             rs->reset();
 
-            Recordset_sql_storage::Ref output_storage= Recordset_sql_storage::create(grtm);
+            Recordset_sql_storage::Ref output_storage= Recordset_sql_storage::create();
             output_storage->table_name(table->name());
             output_storage->rdbms(db_mgmt_RdbmsRef::cast_from(table->owner()/*schema*/->owner()/*catalog*/->owner()/*phys.model*/->get_member("rdbms")));
             output_storage->schema_name(table->owner()->name());
@@ -2932,8 +2931,7 @@ std::string DbMySQLImpl::makeCreateScriptForObject(GrtNamedObjectRef object)
 
 db_mgmt_RdbmsRef DbMySQLImpl::initializeDBMSInfo()
 {
-  bec::GRTManager *grtm(bec::GRTManager::get_instance_for());
-  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->unserialize(base::makePath(grtm->get_basedir(), "modules/data/mysql_rdbms_info.xml")));
+  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->unserialize(base::makePath(bec::GRTManager::get().get_basedir(), "modules/data/mysql_rdbms_info.xml")));
 
   workbench_WorkbenchRef::cast_from(grt::GRT::get()->get("/wb"))->rdbmsMgmt()->rdbms().insert(rdbms);
   return rdbms;

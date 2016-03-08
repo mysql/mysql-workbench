@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,12 +37,9 @@ public:
   typedef boost::weak_ptr<Recordset_data_storage> Ptr;
   virtual ~Recordset_data_storage();
 protected:
-  Recordset_data_storage(bec::GRTManager *grtm);
+  Recordset_data_storage();
 
   friend class Recordset;
-
-protected:
-  bec::GRTManager *_grtm;
 
 public:
   typedef std::list<sqlite::variant_t> Var_list;

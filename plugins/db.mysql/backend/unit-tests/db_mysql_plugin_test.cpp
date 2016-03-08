@@ -65,7 +65,7 @@ protected:
 
 public:
   void set_model_catalog(const db_mysql_CatalogRef &catalog) { model_catalog= catalog; }
-  DbMySQLScriptSyncTest(bec::GRTManager *grtm) : DbMySQLScriptSync(grtm) {}
+  DbMySQLScriptSyncTest() : DbMySQLScriptSync() {}
 };
 
 class DbMySQLSQLExportTest : public DbMySQLSQLExport {
@@ -77,8 +77,8 @@ protected:
   virtual grt::DictRef get_options_as_dict() { return options; }
 
 public:
-  DbMySQLSQLExportTest(bec::GRTManager *grtm, db_mysql_CatalogRef cat) 
-    : DbMySQLSQLExport(grtm, cat) 
+  DbMySQLSQLExportTest(db_mysql_CatalogRef cat)
+    : DbMySQLSQLExport(cat)
   { set_model_catalog(cat); }
   
   void set_model_catalog(db_mysql_CatalogRef catalog) { model_catalog= catalog; }
@@ -98,9 +98,9 @@ struct all_objects_mwb
 
 BEGIN_TEST_DATA_CLASS(db_mysql_plugin_test)
 protected:
-  WBTester tester;
-  std::auto_ptr<DbMySQLScriptSync> sync_plugin;
-  std::auto_ptr<DbMySQLSQLExport> fwdeng_plugin;
+  WBTester *tester;
+  std::shared_ptr<DbMySQLScriptSync> sync_plugin;
+  std::shared_ptr<DbMySQLSQLExport> fwdeng_plugin;
   sql::ConnectionWrapper connection;
   grt::DbObjectMatchAlterOmf omf;
 
@@ -125,20 +125,21 @@ protected:
 
 TEST_DATA_CONSTRUCTOR(db_mysql_plugin_test)
 {
+  tester = new WBTester();
   // init datatypes
-  populate_grt(tester);
+  populate_grt(*tester);
 
   omf.dontdiff_mask = 3;
 
   // init database connection
-  connection = tester.create_connection_for_import();
+  connection = tester->create_connection_for_import();
   
   // Modeling uses a default server version, which is not related to any server it might have
   // reverse engineered content from, nor where it was sync'ed to. So we have to mimic this here.
-  std::string target_version = tester.wb->get_grt_manager()->get_app_option_string("DefaultTargetMySQLVersion");
+  std::string target_version = bec::GRTManager::get().get_app_option_string("DefaultTargetMySQLVersion");
   if (target_version.empty())
     target_version = "5.5";
-  tester.get_rdbms()->version(parse_version(target_version));
+  tester->get_rdbms()->version(parse_version(target_version));
 }
 
 END_TEST_DATA_CLASS
@@ -150,8 +151,8 @@ db_mysql_CatalogRef tut::Test_object_base<db_mysql_plugin_test>::create_catalog_
 {
   db_mysql_CatalogRef cat = create_empty_catalog_for_import();
   MySQLParserServices::Ref services = MySQLParserServices::get();
-  ParserContext::Ref context = services->createParserContext(tester.get_rdbms()->characterSets(),
-    tester.get_rdbms()->version(), false);
+  ParserContext::Ref context = services->createParserContext(tester->get_rdbms()->characterSets(),
+    tester->get_rdbms()->version(), false);
 
   grt::DictRef options(true);
   if (services->parseSQLIntoCatalog(context, cat, sql, options) != 0)
@@ -164,7 +165,7 @@ std::string tut::Test_object_base<db_mysql_plugin_test>::run_sync_plugin_generat
   db_mysql_CatalogRef org_cat, 
   db_mysql_CatalogRef mod_cat)
 {
-  sync_plugin.reset(new DbMySQLScriptSyncTest(tester.wb->get_grt_manager()));
+  sync_plugin.reset(new DbMySQLScriptSyncTest());
   static_cast<DbMySQLScriptSyncTest *>(sync_plugin.get())->set_model_catalog(mod_cat);
   sync_plugin->init_diff_tree(std::vector<std::string>(), mod_cat, org_cat);
   return sync_plugin->generate_diff_tree_script();
@@ -175,7 +176,7 @@ void tut::Test_object_base<db_mysql_plugin_test>::run_sync_plugin_apply_to_model
   db_mysql_CatalogRef org_cat, 
   db_mysql_CatalogRef mod_cat)
 {
-  sync_plugin.reset(new DbMySQLScriptSyncTest(tester.wb->get_grt_manager()));
+  sync_plugin.reset(new DbMySQLScriptSyncTest());
   static_cast<DbMySQLScriptSyncTest *>(sync_plugin.get())->set_model_catalog(mod_cat);
   sync_plugin->init_diff_tree(std::vector<std::string>(), org_cat, ValueRef());
   sync_plugin->apply_changes_to_model();
@@ -192,15 +193,15 @@ std::string tut::Test_object_base<db_mysql_plugin_test>::run_fwdeng_plugin_gener
 boost::shared_ptr<DiffChange> tut::Test_object_base<db_mysql_plugin_test>::compare_catalog_to_server_schema(db_mysql_CatalogRef org_cat, 
                                                                                           const std::string& schema_name)
 {
-  sync_plugin.reset(new DbMySQLScriptSyncTest(tester.wb->get_grt_manager()));
+  sync_plugin.reset(new DbMySQLScriptSyncTest());
   std::list<std::string> schemata;
   schemata.push_back("db_mysql_plugin_test");
-  db_mysql_CatalogRef cat= tester.db_rev_eng_schema(schemata);
+  db_mysql_CatalogRef cat= tester->db_rev_eng_schema(schemata);
   if((cat->schemata().get(0).is_valid()) && (cat->schemata().get(0)->name() == "mydb"))
       cat->schemata().remove(0);
   org_cat->oldName("");
 
-  grt::ValueRef default_engine = tester.wb->get_grt_manager()->get_app_option("db.mysql.Table:tableEngine");
+  grt::ValueRef default_engine = bec::GRTManager::get().get_app_option("db.mysql.Table:tableEngine");
   std::string default_engine_name;
   if(grt::StringRef::can_wrap(default_engine))
     default_engine_name = grt::StringRef::cast_from(default_engine);
@@ -213,8 +214,8 @@ boost::shared_ptr<DiffChange> tut::Test_object_base<db_mysql_plugin_test>::compa
 
   boost::shared_ptr<DiffChange> result = diff_make(cat, org_cat, &omf);
 
-  tester.wb->close_document();
-  tester.wb->close_document_finish();
+  tester->wb->close_document();
+  tester->wb->close_document_finish();
 
   return result;
 }
@@ -227,10 +228,9 @@ void tut::Test_object_base<db_mysql_plugin_test>::apply_sql_to_model(const std::
   std::vector<std::string> schemata;
   schemata.push_back("mydb");
 
-  db_mysql_CatalogRef mod_cat= db_mysql_CatalogRef::cast_from(tester.get_catalog());
+  db_mysql_CatalogRef mod_cat= db_mysql_CatalogRef::cast_from(tester->get_catalog());
 
-  DbMySQLSQLExportTest *plugin= new DbMySQLSQLExportTest(
-    tester.wb->get_grt_manager(), mod_cat);
+  DbMySQLSQLExportTest *plugin= new DbMySQLSQLExportTest(mod_cat);
   
   grt::DictRef options(true);
   options.set("UseFilteredLists", grt::IntegerRef(0));
@@ -238,7 +238,7 @@ void tut::Test_object_base<db_mysql_plugin_test>::apply_sql_to_model(const std::
 
   std::string value;
 
-  DbMySQLScriptSyncTest p(tester.wb->get_grt_manager());
+  DbMySQLScriptSyncTest p;
   p.set_model_catalog(mod_cat);
   boost::shared_ptr<DiffTreeBE> tree= p.init_diff_tree(std::vector<std::string>(), mod_cat, org_cat);
   
@@ -277,8 +277,8 @@ TEST_FUNCTION(5)
   std::string script= run_sync_plugin_generate_script(schemata, org_cat, mod_cat);
 
   std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-  execute_script(stmt.get(), sql1, tester.wb->get_grt_manager());
-  execute_script(stmt.get(), script, tester.wb->get_grt_manager());
+  execute_script(stmt.get(), sql1);
+  execute_script(stmt.get(), script);
 
   boost::shared_ptr<DiffChange> empty_change= compare_catalog_to_server_schema(org_cat, "db_mysql_plugin_test");
 
@@ -310,8 +310,8 @@ TEST_FUNCTION(10)
   std::string script= run_sync_plugin_generate_script(schemata, org_cat, mod_cat);
 
   std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-  execute_script(stmt.get(), sql1, tester.wb->get_grt_manager());
-  execute_script(stmt.get(), script, tester.wb->get_grt_manager());
+  execute_script(stmt.get(), sql1);
+  execute_script(stmt.get(), script);
 
   boost::shared_ptr<DiffChange> empty_change = compare_catalog_to_server_schema(mod_cat, "db_mysql_plugin_test");
 
@@ -357,8 +357,8 @@ TEST_FUNCTION(15)
   std::string script= run_sync_plugin_generate_script(schemata, org_cat, mod_cat);
 
   std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-  execute_script(stmt.get(), sql1, tester.wb->get_grt_manager());
-  execute_script(stmt.get(), script, tester.wb->get_grt_manager());
+  execute_script(stmt.get(), sql1);
+  execute_script(stmt.get(), script);
 
   // TODO: this check doesnt work because of a rev-eng problem http://bugs.mysql.com/bug.php?id=32491
 
@@ -395,11 +395,11 @@ TEST_FUNCTION(20)
   std::string script= run_sync_plugin_generate_script(schemata, org_cat, mod_cat);
 
   std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-  execute_script(stmt.get(), sql1, tester.wb->get_grt_manager());
+  execute_script(stmt.get(), sql1);
 
   try
   {
-    execute_script(stmt.get(), script, tester.wb->get_grt_manager());
+    execute_script(stmt.get(), script);
   }
   catch(sql::SQLException &)
   {
@@ -444,11 +444,11 @@ TEST_FUNCTION(25)
     db_mysql_CatalogRef(grt::Initialized), mod_cat);
 
   std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-  execute_script(stmt.get(), sql2, tester.wb->get_grt_manager());
+  execute_script(stmt.get(), sql2);
   //Self referencing keys are no longer supported, but as test case itself checks for
   //crash it is better to this test case since there shouldn't be any crashes even
   //in case of invalid sql being produced
-//  execute_script(stmt.get(), script, tester.wb->get_grt_manager());
+//  execute_script(stmt.get(), script, tester->wb->get_grt_manager());
 }
 
 TEST_FUNCTION(30)
@@ -471,14 +471,14 @@ TEST_FUNCTION(30)
     "INSERT INTO t1(col_char) VALUES ('a'), ('b'), ('c');";
 
   std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-  execute_script(stmt.get(), sql1, tester.wb->get_grt_manager());
+  execute_script(stmt.get(), sql1);
 
   std::list<std::string> schemata_list;
   schemata_list.push_back("db_mysql_plugin_test");
-  db_mysql_CatalogRef mod_cat = grt::copy_object(tester.db_rev_eng_schema(schemata_list));
+  db_mysql_CatalogRef mod_cat = grt::copy_object(tester->db_rev_eng_schema(schemata_list));
   db_mysql_CatalogRef org_cat = grt::copy_object(mod_cat);
-  tester.wb->close_document();
-  tester.wb->close_document_finish();
+  tester->wb->close_document();
+  tester->wb->close_document_finish();
 
   ensure("bug_32367 - invalid test input wrong table count",  (mod_cat->schemata().get(0)->tables().count() == 3));
   ensure("bug_32367 - invalid test input wrong trigger count",  (mod_cat->schemata().get(0)->tables().get(0)->triggers().count() == 1));
@@ -493,16 +493,16 @@ TEST_FUNCTION(30)
   schemata.push_back("db_mysql_plugin_test");
 
   std::string script= run_sync_plugin_generate_script(schemata, org_cat, mod_cat);
-  execute_script(stmt.get(), script, tester.wb->get_grt_manager());
+  execute_script(stmt.get(), script);
 
-  db_mysql_CatalogRef new_cat= tester.db_rev_eng_schema(schemata_list);
+  db_mysql_CatalogRef new_cat= tester->db_rev_eng_schema(schemata_list);
 
   ensure_equals("Table count mismatch", new_cat->schemata().get(0)->tables().count(), 2U);
   ensure_equals("Trigger count mismatch", new_cat->schemata().get(0)->tables().get(0)->triggers().count(), 0U);
   ensure_equals("Routines count mismatch", new_cat->schemata().get(0)->routines().count(), 0U);
 
-  tester.wb->close_document();
-  tester.wb->close_document_finish();
+  tester->wb->close_document();
+  tester->wb->close_document_finish();
 }
 
 TEST_FUNCTION(35)
@@ -529,15 +529,15 @@ TEST_FUNCTION(35)
   // part1 - check that unmodified procedure is not updated
 
   std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-  execute_script(stmt.get(), sql1, tester.wb->get_grt_manager());
+  execute_script(stmt.get(), sql1);
 
   std::list<std::string> schemata_list;
   schemata_list.push_back("db_mysql_plugin_test");
-  db_mysql_CatalogRef mod_cat= grt::copy_object(tester.db_rev_eng_schema(schemata_list));
+  db_mysql_CatalogRef mod_cat= grt::copy_object(tester->db_rev_eng_schema(schemata_list));
   db_mysql_CatalogRef org_cat= grt::copy_object(mod_cat);
 
-  tester.wb->close_document();
-  tester.wb->close_document_finish();
+  tester->wb->close_document();
+  tester->wb->close_document_finish();
 
   ensure("bug_32371 - invalid test input", 
     (mod_cat->schemata().get(0)->tables().count() == 1) &&
@@ -572,7 +572,7 @@ TEST_FUNCTION(35)
   schemata.push_back("db_mysql_plugin_test");
 
   std::string script= run_sync_plugin_generate_script(schemata, org_cat, mod_cat);
-  execute_script(stmt.get(), script, tester.wb->get_grt_manager());
+  execute_script(stmt.get(), script);
 }
 
 TEST_FUNCTION(40)
@@ -599,8 +599,8 @@ TEST_FUNCTION(40)
   std::string script= run_sync_plugin_generate_script(schemata, org_cat, mod_cat);
 
   std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-  execute_script(stmt.get(), sql1, tester.wb->get_grt_manager());
-  execute_script(stmt.get(), script, tester.wb->get_grt_manager());
+  execute_script(stmt.get(), sql1);
+  execute_script(stmt.get(), script);
 
   boost::shared_ptr<DiffChange> empty_change= compare_catalog_to_server_schema(mod_cat, "db_mysql_plugin_test");
 
@@ -637,8 +637,8 @@ TEST_FUNCTION(45)
   std::string script= run_sync_plugin_generate_script(schemata, org_cat, mod_cat);
 
   std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-  execute_script(stmt.get(), sql1, tester.wb->get_grt_manager());
-  execute_script(stmt.get(), script, tester.wb->get_grt_manager());
+  execute_script(stmt.get(), sql1);
+  execute_script(stmt.get(), script);
 
   boost::shared_ptr<DiffChange> empty_change= compare_catalog_to_server_schema(mod_cat, "db_mysql_plugin_test");
 
@@ -664,7 +664,7 @@ TEST_FUNCTION(50)
 
   // first test export
 
-  DbMySQLSQLExportTest *plugin= new DbMySQLSQLExportTest(tester.wb->get_grt_manager(), mod_cat);
+  DbMySQLSQLExportTest *plugin= new DbMySQLSQLExportTest(mod_cat);
   plugin->set_option("ViewsAreSelected", true);
   
   grt::DictRef options(true);
@@ -677,7 +677,7 @@ TEST_FUNCTION(50)
   std::string script= run_fwdeng_plugin_generate_script(mod_cat, plugin);
 
   std::auto_ptr<sql::Statement> stmt(connection->createStatement());
-  execute_script(stmt.get(), script, tester.wb->get_grt_manager());
+  execute_script(stmt.get(), script);
 
   std::vector<std::string> schemata;
   schemata.push_back("db_mysql_plugin_test");
@@ -687,8 +687,8 @@ TEST_FUNCTION(50)
     db_mysql_CatalogRef(grt::Initialized), mod_cat));
 
   std::auto_ptr<sql::Statement> stmt2(connection->createStatement());
-  execute_script(stmt2.get(), "DROP DATABASE IF EXISTS `db_mysql_plugin_test`", tester.wb->get_grt_manager());
-  execute_script(stmt2.get(), script, tester.wb->get_grt_manager());
+  execute_script(stmt2.get(), "DROP DATABASE IF EXISTS `db_mysql_plugin_test`");
+  execute_script(stmt2.get(), script);
 }
 
 // bug #37634
@@ -706,21 +706,21 @@ TEST_FUNCTION(55)
     "ENGINE = InnoDB;"
     ;
 
-  tester.wb->open_document("data/workbench/diff_table_replace_test.mwb");
+  tester->wb->open_document("data/workbench/diff_table_replace_test.mwb");
 
   db_mgmt_ManagementRef mgmt(db_mgmt_ManagementRef::cast_from(grt::GRT::get()->get("/wb/rdbmsMgmt")));
 
-  ListRef<db_DatatypeGroup> grouplist= ListRef<db_DatatypeGroup>::cast_from(grt::GRT::get()->unserialize(tester.wboptions.basedir + "/data/db_datatype_groups.xml"));
+  ListRef<db_DatatypeGroup> grouplist= ListRef<db_DatatypeGroup>::cast_from(grt::GRT::get()->unserialize(tester->wboptions.basedir + "/data/db_datatype_groups.xml"));
   grt::replace_contents(mgmt->datatypeGroups(), grouplist);
 
-  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->unserialize(tester.wboptions.basedir + "/modules/data/mysql_rdbms_info.xml"));
+  db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->unserialize(tester->wboptions.basedir + "/modules/data/mysql_rdbms_info.xml"));
   ensure("db_mgmt_Rdbms initialization", rdbms.is_valid());
   grt::GRT::get()->set("/rdbms", rdbms);
 
   mgmt->rdbms().insert(rdbms);
   rdbms->owner(mgmt);
 
-  db_TableRef t1= tester.get_catalog()->schemata().get(0)->tables().get(0);
+  db_TableRef t1= tester->get_catalog()->schemata().get(0)->tables().get(0);
 
   ensure("before update table is referenced from figure 0", 
     grt::GRT::get()->get("/wb/doc/physicalModels/0/diagrams/0/figures/0/table")
@@ -735,10 +735,9 @@ TEST_FUNCTION(55)
   std::vector<std::string> schemata;
   schemata.push_back("mydb");
 
-  db_mysql_CatalogRef mod_cat= db_mysql_CatalogRef::cast_from(tester.get_catalog());
+  db_mysql_CatalogRef mod_cat= db_mysql_CatalogRef::cast_from(tester->get_catalog());
 
-  DbMySQLSQLExportTest *plugin= new DbMySQLSQLExportTest(
-    tester.wb->get_grt_manager(), mod_cat);
+  DbMySQLSQLExportTest *plugin= new DbMySQLSQLExportTest(mod_cat);
   
   grt::DictRef options(true);
   options.set("UseFilteredLists", grt::IntegerRef(0));
@@ -746,7 +745,7 @@ TEST_FUNCTION(55)
 
   std::string value;
 
-  DbMySQLScriptSyncTest p(tester.wb->get_grt_manager());
+  DbMySQLScriptSyncTest p;
   p.set_model_catalog(mod_cat);
   boost::shared_ptr<DiffTreeBE> tree= p.init_diff_tree(std::vector<std::string>(), org_cat, ValueRef());
   
@@ -760,7 +759,7 @@ TEST_FUNCTION(55)
 
   p.apply_changes_to_model();
 
-  db_TableRef t2= tester.get_catalog()->schemata().get(0)->tables().get(0);
+  db_TableRef t2= tester->get_catalog()->schemata().get(0)->tables().get(0);
 
   ensure("before update table is referenced from figure 0", 
     grt::GRT::get()->get("/wb/doc/physicalModels/0/diagrams/0/figures/0/table")
@@ -770,8 +769,8 @@ TEST_FUNCTION(55)
     grt::GRT::get()->get("/wb/doc/physicalModels/0/diagrams/1/figures/0/table")
     == t2);
 
-  tester.wb->close_document();
-  tester.wb->close_document_finish();
+  tester->wb->close_document();
+  tester->wb->close_document_finish();
 }
 
 TEST_FUNCTION(60)
@@ -784,27 +783,36 @@ TEST_FUNCTION(60)
     "  PRIMARY KEY (`idtable1`) )\n"
     "ENGINE = InnoDB;"
     ;
-  tester.wb->open_document("data/workbench/diff_table_replace_test.mwb");
+  tester->wb->open_document("data/workbench/diff_table_replace_test.mwb");
   apply_sql_to_model(sql1);
 
-  db_TableRef t2= tester.get_catalog()->schemata().get(0)->tables().get(0);
+  db_TableRef t2= tester->get_catalog()->schemata().get(0)->tables().get(0);
   db_ColumnRef col = t2->columns().get(0);
   db_SimpleDatatypeRef dtype = col->simpleType();
   ensure_equals("Column type not changed", dtype->name().c_str(), "TINYINT");
 
-  tester.wb->close_document();
-  tester.wb->close_document_finish();
+  tester->wb->close_document();
+  tester->wb->close_document_finish();
 }
 
 TEST_FUNCTION(65)
 {
   static const char *sql1= "CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;";
-  tester.wb->open_document("data/workbench/diff_table_replace_test.mwb");
+  tester->wb->open_document("data/workbench/diff_table_replace_test.mwb");
   apply_sql_to_model(sql1);
-  ensure ("drop table in model",tester.get_catalog()->schemata().get(0)->tables().count() == 0);
+  ensure ("drop table in model",tester->get_catalog()->schemata().get(0)->tables().count() == 0);
 
-  tester.wb->close_document();
-  tester.wb->close_document_finish();
+  tester->wb->close_document();
+  tester->wb->close_document_finish();
+}
+
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  sync_plugin.reset();
+  fwdeng_plugin.reset();
+  delete tester;
 }
 
 END_TESTS

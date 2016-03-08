@@ -73,7 +73,7 @@ int Mysql_sql_statement_decomposer::process_sql_statement(const std::string &sql
   _do_process_sql_statement= do_process_sql_statement_cb;
   _process_sql_statement= boost::bind(&Mysql_sql_statement_decomposer::do_process_sql_statement, this, _1);
 
-  Mysql_sql_parser_fe sql_parser_fe(_grtm->get_app_option_string("SqlMode"));
+  Mysql_sql_parser_fe sql_parser_fe(bec::GRTManager::get().get_app_option_string("SqlMode"));
   sql_parser_fe.ignore_dml= false;
 
   return process_sql_statement(sql, select_statement, sql_parser_fe);

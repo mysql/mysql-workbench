@@ -38,7 +38,7 @@ using namespace boost::assign;
 
 BEGIN_TEST_DATA_CLASS(mysql_parser_tests)
 protected:
-  WBTester _tester;
+  WBTester *_tester;
   std::set<std::string> _charsets;
   //std::auto_ptr<MySQLRecognizer> _recognizer;
 
@@ -46,17 +46,18 @@ protected:
 
 TEST_DATA_CONSTRUCTOR(mysql_parser_tests)
 {
+  bec::GRTManager::get(); // make GRTManagaer live longer than wbtester
+  _tester = new WBTester();
   // init datatypes
-  populate_grt(_tester);
+  populate_grt(*_tester);
 
   // The charset list contains also the 3 charsets that were introduced in 5.5.3.
-  grt::ListRef<db_CharacterSet> list= _tester.get_rdbms()->characterSets();
+  grt::ListRef<db_CharacterSet> list= _tester->get_rdbms()->characterSets();
   for (size_t i = 0; i < list->count(); i++)
     _charsets.insert(base::tolower(*list[i]->name()));
 
   //_recognizer.reset(new MySQLRecognizer(50620, "", _charsets));
 }
-
 END_TEST_DATA_CLASS
 
 TEST_MODULE(mysql_parser_tests, "MySQL parser test suite (ANTLR)");
@@ -891,6 +892,13 @@ TEST_FUNCTION(40)
 }
 
 // TODO: create tests for restricted content parsing (e.g. routines only, views only etc.).
+
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  delete _tester;
+}
 
 END_TESTS;
 

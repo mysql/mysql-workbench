@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -107,9 +107,9 @@ std::string Recordset_sql_storage::statements_as_sql_script(const Sql_script::St
 }
 
 
-Recordset_sql_storage::Recordset_sql_storage(GRTManager *grtm)
+Recordset_sql_storage::Recordset_sql_storage()
 :
-Recordset_data_storage(grtm),
+Recordset_data_storage(),
 _is_sql_script_substitute_enabled(false),
 _omit_schema_qualifier(false),
 _binding_blobs(true)

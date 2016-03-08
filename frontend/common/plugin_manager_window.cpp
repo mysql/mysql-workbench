@@ -27,7 +27,7 @@ using namespace mforms;
 using namespace grt;
 
 PluginManagerWindow::PluginManagerWindow(wb::WBContext *wb)
-: Form(0), _wb(wb), _grtm(wb->get_grt_manager()), plugin_list(TreeDefault|TreeFlatList), 
+: Form(0), _wb(wb), plugin_list(TreeDefault|TreeFlatList),
 plugin_info_panel(LineBorderPanel), plugin_info_box(false), plugin_details_box(false)
 {
   set_name("plugin_manager");
@@ -152,7 +152,7 @@ void PluginManagerWindow::run()
 
 void PluginManagerWindow::refresh_plugin_list()
 {
-  std::string user_plugin_dir= _grtm->get_user_module_path();
+  std::string user_plugin_dir= bec::GRTManager::get().get_user_module_path();
   ListRef<app_Plugin> plugins(ListRef<app_Plugin>::cast_from(grt::GRT::get()->get("/wb/registry/plugins")));
 
   plugin_list.clear();
@@ -193,7 +193,7 @@ void PluginManagerWindow::list_selection_changed()
   {
     std::string plugin_name;
     plugin_name= node->get_tag();
-    plugin= _grtm->get_plugin_manager()->get_plugin(plugin_name);
+    plugin= bec::GRTManager::get().get_plugin_manager()->get_plugin(plugin_name);
   }
   
   if (plugin.is_valid())
@@ -235,7 +235,7 @@ void PluginManagerWindow::list_selection_changed()
     }
 
     plugin_type.set_text("");
-    plugin_enabled.set_active(_grtm->get_plugin_manager()->plugin_enabled(plugin->name()));
+    plugin_enabled.set_active(bec::GRTManager::get().get_plugin_manager()->plugin_enabled(plugin->name()));
     
     plugin_info_box.show(true);
   }
@@ -258,7 +258,7 @@ void PluginManagerWindow::uninstall()
   {
     std::string plugin_name;
     plugin_name= node->get_tag();
-    plugin= _grtm->get_plugin_manager()->get_plugin(plugin_name);
+    plugin= bec::GRTManager::get().get_plugin_manager()->get_plugin(plugin_name);
     if (plugin.is_valid())
     {
       std::list<std::string> plugins(_module_plugins[plugin->moduleName()]);
@@ -317,11 +317,11 @@ void PluginManagerWindow::toggle_enable()
   {
     std::string plugin_name;
     plugin_name= node->get_tag();
-    app_PluginRef plugin(_grtm->get_plugin_manager()->get_plugin(plugin_name));
-    if (plugin.is_valid() && _grtm->get_plugin_manager()->plugin_enabled(plugin_name) != plugin_enabled.get_active())
+    app_PluginRef plugin(bec::GRTManager::get().get_plugin_manager()->get_plugin(plugin_name));
+    if (plugin.is_valid() && bec::GRTManager::get().get_plugin_manager()->plugin_enabled(plugin_name) != plugin_enabled.get_active())
     {
-      _grtm->get_plugin_manager()->set_plugin_enabled(plugin, plugin_enabled.get_active());
-      _grtm->get_plugin_manager()->rescan_plugins();
+      bec::GRTManager::get().get_plugin_manager()->set_plugin_enabled(plugin, plugin_enabled.get_active());
+      bec::GRTManager::get().get_plugin_manager()->rescan_plugins();
     }
   }
 }

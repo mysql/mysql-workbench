@@ -35,10 +35,9 @@ MySQLTableColumnsListWrapper::MySQLTableColumnsListWrapper(::MySQLTableColumnsLi
 
 //----------------- MySQLTableEditorWrapper --------------------------------------------------------
 
-MySQLTableEditorWrapper::MySQLTableEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist)
+MySQLTableEditorWrapper::MySQLTableEditorWrapper(MySQL::Grt::GrtValue^ arglist)
 : TableEditorWrapper(
-      new ::MySQLTableEditorBE(grtm->get_unmanaged_object(), 
-      db_mysql_TableRef::cast_from(::grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
+      new ::MySQLTableEditorBE(db_mysql_TableRef::cast_from(::grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
       )
     )
 {

@@ -75,7 +75,7 @@ WBContextModel::WBContextModel(WBContextUI *wbui)
 {  
   _overview= new PhysicalOverviewBE(_wbui->get_wb());
 
-  scoped_connect(_wbui->get_wb()->get_grt_manager()->get_clipboard()->signal_changed(),boost::bind(&WBContextModel::selection_changed, this));
+  scoped_connect(bec::GRTManager::get().get_clipboard()->signal_changed(),boost::bind(&WBContextModel::selection_changed, this));
   scoped_connect(_overview->signal_selection_changed(),boost::bind(&WBContextModel::selection_changed, this)); // make edit menu captions to update
 
   CommandUI *cmdui = wbui->get_command_ui();
@@ -105,7 +105,7 @@ WBContextModel::WBContextModel(WBContextUI *wbui)
   // Setup auto-save for model, only full seconds.
   int interval = (int)_wbui->get_wb()->get_root()->options()->options().get_int("workbench:AutoSaveModelInterval", 60);
   if (interval > 0)
-    _auto_save_timer = _wbui->get_wb()->get_grt_manager()->run_every(boost::bind(&WBContextModel::auto_save_document, this), interval);
+    _auto_save_timer = bec::GRTManager::get().run_every(boost::bind(&WBContextModel::auto_save_document, this), interval);
   _auto_save_interval = interval;
 
   // DON'T set up any UI here. This is running on a background thread!
@@ -136,7 +136,7 @@ WBContextModel::~WBContextModel()
     _doc->physicalModels().get(0)->get_data()->set_delegate(NULL);
 
   if (_auto_save_timer)
-    _wbui->get_wb()->get_grt_manager()->cancel_timer(_auto_save_timer);
+    bec::GRTManager::get().cancel_timer(_auto_save_timer);
   CommandUI *cmdui = _wbui->get_command_ui();
   cmdui->remove_builtin_command("addModelDiagram");
   cmdui->remove_builtin_command("addModelSchema");
@@ -201,7 +201,7 @@ mforms::TreeView *WBContextModel::create_user_type_list()
 
 mforms::TreeView* WBContextModel::create_history_tree()
 {
-  HistoryTree *history_tree = new HistoryTree(_wbui->get_wb()->get_grt_manager(), grt::GRT::get()->get_undo_manager());
+  HistoryTree *history_tree = new HistoryTree(grt::GRT::get()->get_undo_manager());
   history_tree->refresh();
   return history_tree;
 }
@@ -230,7 +230,7 @@ bool WBContextModel::auto_save_document()
   if (now - _last_auto_save_time > interval
       && _file
       && doc.is_valid() 
-      && !wb->get_grt_manager()->get_dispatcher()->get_busy()
+      && !bec::GRTManager::get().get_dispatcher()->get_busy()
       && grt::GRT::get()->get_undo_manager()->get_latest_closed_undo_action() != _auto_save_point)
   {
     _auto_save_point = grt::GRT::get()->get_undo_manager()->get_latest_closed_undo_action();
@@ -249,9 +249,9 @@ bool WBContextModel::auto_save_document()
   if (interval != _auto_save_interval)
   {
     if (_auto_save_timer)
-        wb->get_grt_manager()->cancel_timer(_auto_save_timer);
+      bec::GRTManager::get().cancel_timer(_auto_save_timer);
     // schedule new interval
-    _auto_save_timer = wb->get_grt_manager()->run_every(boost::bind(&WBContextModel::auto_save_document, this), (double)interval);
+    _auto_save_timer = bec::GRTManager::get().run_every(boost::bind(&WBContextModel::auto_save_document, this), (double)interval);
     return false;
   }
   
@@ -361,7 +361,7 @@ void WBContextModel::model_created(ModelFile *file, workbench_DocumentRef doc)
   _file= file;
   _doc= doc;
 
-  std::string target_version = _wbui->get_wb()->get_grt_manager()->get_app_option_string("DefaultTargetMySQLVersion");
+  std::string target_version = bec::GRTManager::get().get_app_option_string("DefaultTargetMySQLVersion");
   if (target_version.empty())
     target_version = "5.6.1";
   
@@ -536,7 +536,7 @@ void WBContextModel::free_canvas_view(mdc::CanvasView *view)
     notify_diagram_destroyed(diagram);
 
     // Notify front end so it can close its editor for this view.
-    if (_wbui->get_wb()->get_grt_manager()->in_main_thread())
+    if (bec::GRTManager::get().in_main_thread())
       _wbui->get_wb()->destroy_view(view);
     else
       _wbui->get_wb()->execute_in_main_thread<void>("destroy view", 
@@ -1122,7 +1122,7 @@ int WBContextModel::add_object_plugins_to_popup_menu(const grt::ListRef<GrtObjec
     item.type= MenuAction;
     item.caption= *(*iter)->caption() + ((*iter)->pluginType()=="gui"?"...":"");
     item.checked= false;
-    item.enabled= _wbui->get_wb()->get_grt_manager()->check_plugin_runnable(*iter, argpool);
+    item.enabled= bec::GRTManager::get().check_plugin_runnable(*iter, argpool);
     item.shortcut= "";
     item.name= "plugin:"+*(*iter)->name();
     if (item.caption.empty())
@@ -1198,9 +1198,9 @@ void WBContextModel::history_changed()
 
 void WBContextModel::selection_changed()
 {
-  if (!_wbui->get_wb()->get_grt_manager()->in_main_thread())
+  if (!bec::GRTManager::get().in_main_thread())
   {
-    _wbui->get_wb()->get_grt_manager()->run_once_when_idle(boost::bind(&WBContextModel::selection_changed, this));
+    bec::GRTManager::get().run_once_when_idle(boost::bind(&WBContextModel::selection_changed, this));
     return;
   }
     
@@ -1273,7 +1273,7 @@ GrtVersionRef WBContextModel::get_target_version()
       return catalog->version();
     else
     {
-      std::string target_version = _wbui->get_wb()->get_grt_manager()->get_app_option_string("DefaultTargetMySQLVersion");
+      std::string target_version = bec::GRTManager::get().get_app_option_string("DefaultTargetMySQLVersion");
       if (target_version.empty())
         target_version = "5.5";
 

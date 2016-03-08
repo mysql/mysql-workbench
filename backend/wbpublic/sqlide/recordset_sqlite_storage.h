@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,10 +36,10 @@ class WBPUBLICBACKEND_PUBLIC_FUNC Recordset_sqlite_storage : public Recordset_sq
 {
 public:
   typedef boost::shared_ptr<Recordset_sqlite_storage> Ref;
-  static Ref create(bec::GRTManager *grtm) { return Ref(new Recordset_sqlite_storage(grtm)); }
+  static Ref create() { return Ref(new Recordset_sqlite_storage()); }
   virtual ~Recordset_sqlite_storage();
 protected:
-  Recordset_sqlite_storage(bec::GRTManager *grtm);
+  Recordset_sqlite_storage();
 
 protected:
   virtual void do_serialize(const Recordset *recordset, sqlite::connection *data_swap_db);

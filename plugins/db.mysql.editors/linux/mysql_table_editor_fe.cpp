@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -29,10 +29,10 @@
 #include "mforms/../gtk/lf_view.h"
 
 //------------------------------------------------------------------------------
-DbMySQLTableEditor::DbMySQLTableEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
+DbMySQLTableEditor::DbMySQLTableEditor(grt::Module *m, const grt::BaseListRef &args)
 //    : PluginEditorBase(m, grtm, args, "modules/data/editor_mysql_table.glade")
-    : PluginEditorBase(m, grtm, args, 0)
-    , _be(new MySQLTableEditorBE(grtm, db_mysql_TableRef::cast_from(args[0])))
+    : PluginEditorBase(m, args, 0)
+    , _be(new MySQLTableEditorBE(db_mysql_TableRef::cast_from(args[0])))
     , _part_page(0)
     , _inserts_panel(0)
     , _main_page_widget(0)
@@ -195,10 +195,10 @@ void DbMySQLTableEditor::toggle_header_part()
 }
 
 //------------------------------------------------------------------------------
-bool DbMySQLTableEditor::switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args)
+bool DbMySQLTableEditor::switch_edited_object(const grt::BaseListRef &args)
 {
   MySQLTableEditorBE* old_be = _be;
-  _be = new MySQLTableEditorBE(grtm, db_mysql_TableRef::cast_from(args[0]));
+  _be = new MySQLTableEditorBE(db_mysql_TableRef::cast_from(args[0]));
 
   _columns_page->switch_be(_be);
   _indexes_page->switch_be(_be);
@@ -446,8 +446,8 @@ bool DbMySQLTableEditor::event_from_table_name_entry(GdkEvent* event)
 //------------------------------------------------------------------------------
 extern "C"
 {
-  GUIPluginBase *createDbMysqlTableEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
+  GUIPluginBase *createDbMysqlTableEditor(grt::Module *m, const grt::BaseListRef &args)
   {
-    return Gtk::manage(new DbMySQLTableEditor(m, grtm, args));
+    return Gtk::manage(new DbMySQLTableEditor(m, args));
   }
 };

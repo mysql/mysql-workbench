@@ -46,12 +46,12 @@ struct A
 {
   std::string _res;
   
-  std::string convert(const char *s, GRTManagerTest& grtm, int *err_count= 0)
+  std::string convert(const char *s, int *err_count= 0)
   {
     _res= "";
     int _err_count= 0;
 
-    _err_count= Mysql_sql_parser_fe(grtm.get_app_option_string("SqlMode")).parse_sql_script(s, &process_sql_statement_cb, this);
+    _err_count= Mysql_sql_parser_fe(GRTManagerTest::get()->get_app_option_string("SqlMode")).parse_sql_script(s, &process_sql_statement_cb, this);
 
     if (err_count)
       *err_count= _err_count;
@@ -75,8 +75,6 @@ private:
 
 
 BEGIN_TEST_DATA_CLASS(grtdiff_db_diff_test)
-protected:
-  GRTManagerTest grtm;
 END_TEST_DATA_CLASS
 
 TEST_MODULE(grtdiff_db_diff_test, "grtdiff_db_diff_test");
@@ -98,16 +96,16 @@ TEST_FUNCTION(1)
   const char* sql_after_same= sql;
 
 
-  std::string before = A().convert(sql,grtm);
+  std::string before = A().convert(sql);
 
   //std::cout << before << std::endl;
   //std::cout << A().convert(sql_after_formatting_change) << std::endl;
   //std::cout << A().convert(sql_after_expression_change) << std::endl;
   //std::cout << A().convert(sql_after_same) << std::endl;
 
-  assure(before == A().convert(sql_after_formatting_change,grtm));
-  assure(before != A().convert(sql_after_expression_change,grtm));
-  assure(before == A().convert(sql_after_same,grtm));
+  assure(before == A().convert(sql_after_formatting_change));
+  assure(before != A().convert(sql_after_expression_change));
+  assure(before == A().convert(sql_after_same));
 }
 
 END_TESTS

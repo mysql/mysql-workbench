@@ -337,8 +337,8 @@ IconId RoleObjectListBE::get_field_icon(const NodeId &node, ColumnId column, Ico
 
 //-------------------------------------------------------------------------------------------
 
-RoleEditorBE::RoleEditorBE(GRTManager *grtm, const db_RoleRef &role, const db_mgmt_RdbmsRef &rdbms)
-: BaseEditor(grtm, role), _role(role), _rdbms(rdbms), _tree(db_CatalogRef::cast_from(role->owner())),
+RoleEditorBE::RoleEditorBE(const db_RoleRef &role, const db_mgmt_RdbmsRef &rdbms)
+: BaseEditor(role), _role(role), _rdbms(rdbms), _tree(db_CatalogRef::cast_from(role->owner())),
   _privilege_list(this), _object_list(this)
 {
 }

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,7 +21,7 @@
 #define _WBCONTEXT_SQLIDE_H_
 
 #include "workbench/wb_backend_public_interface.h"
-#include "grt/grt_manager.h"
+#include "grt/plugin_manager.h"
 #include "grts/structs.db.mgmt.h"
 #include "grts/structs.app.h"
 //#include "dialogs/search_replace.h"
@@ -63,7 +63,6 @@ namespace wb
 
     WBContextUI *get_wbui() { return _wbui; }
     CommandUI *get_cmdui();
-    bec::GRTManager *get_grt_manager();
     
     SqlEditorForm* get_active_sql_editor();
 

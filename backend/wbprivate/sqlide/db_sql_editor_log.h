@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,8 +43,8 @@ public:
 
   virtual ~DbSqlEditorLog() {}
 
-  static Ref create(SqlEditorForm *owner, bec::GRTManager *grtm, int max_entry_count)
-    { return Ref(new DbSqlEditorLog(owner, grtm, max_entry_count)); }
+  static Ref create(SqlEditorForm *owner, int max_entry_count)
+    { return Ref(new DbSqlEditorLog(owner, max_entry_count)); }
 
   virtual void reset();
   virtual void refresh();
@@ -64,7 +64,7 @@ public:
 
 protected:
   // max_entry_count < 0 means unlimited number of messages.
-  DbSqlEditorLog(SqlEditorForm *owner, bec::GRTManager *grtm, int max_entry_count);
+  DbSqlEditorLog(SqlEditorForm *owner, int max_entry_count);
 
   void add_message_with_id(RowId id, const std::string &time, int msg_type, const std::string &context,
     const std::string &msg, const std::string &duration);

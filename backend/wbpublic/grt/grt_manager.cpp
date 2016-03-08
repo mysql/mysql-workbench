@@ -42,9 +42,9 @@ DEFAULT_LOG_DOMAIN("GRTManager");
 
 static GThread *main_thread= 0;
 
-std::map<grt::GRT*,GRTManager*> GRTManager::_instances;
+//std::map<grt::GRT*,GRTManager*> GRTManager::_instances;
 
-static base::Mutex _instance_mutex;
+//static base::Mutex _instance_mutex;
 
 static void init_all()
 {
@@ -57,34 +57,46 @@ static void init_all()
   }
 }
 
-
-GRTManager::GRTManager(bool threaded, bool verbose)
-: _has_unsaved_changes(false), _threaded(threaded), _verbose(verbose)
+GRTManager::GRTManager(bool threaded)
+: _has_unsaved_changes(false), _threaded(threaded), _verbose(false)
 {
+  grt::GRT::get(); // This is empty call just to be sure that GRT will be constructed before GRTManager and will not be destroyed before it as of c++11.
+                   // it will define the destruction sequence correctly.
   _globals_tree_soft_lock_count= 0;
 
   _current_idle_signal = 0;
 
   init_all();
 
-  grt::GRT::get()->set_verbose(verbose);
-  
+  grt::GRT::get()->set_verbose(_verbose);
+
   _terminated= false;
   _idle_blocked= false;
   _clipboard= 0;
 
   // add self to the mgr instances table asap, because the other objects
   // may need to call get_instance_for()
-  {
-    base::MutexLock _lock(_instance_mutex);
-    _instances[grt::GRT::get().get()] = this;
+//  {
+//    base::MutexLock _lock(_instance_mutex);
+//    _instances[grt::GRT::get().get()] = this;
     _grtInstance = grt::GRT::get();
-  }
-  
+//  }
+
   _dispatcher = GRTDispatcher::create_dispatcher(_threaded, true);
-  _shell = new ShellBE(this, _dispatcher);
+  _shell = new ShellBE(_dispatcher);
   _plugin_manager = grt::GRT::get()->get_native_module<PluginManagerImpl>();
   _messages_list = new MessageListStorage(this);
+}
+
+GRTManager& GRTManager::get()
+{
+  static GRTManager instance(new GRTManager(true));
+  return instance;
+}
+
+void GRTManager::setVerbose(bool verbose) {
+  _verbose = verbose;
+  grt::GRT::get()->set_verbose(_verbose);
 }
 
 bool GRTManager::try_soft_lock_globals_tree()
@@ -118,16 +130,6 @@ bool GRTManager::is_globals_tree_locked()
 {
   return g_atomic_int_get(&_globals_tree_soft_lock_count) != 0;
 }
-
-GRTManager *GRTManager::get_instance_for()
-{
-  base::MutexLock lock(_instance_mutex);
-  std::map<GRT*,GRTManager*>::iterator iter= _instances.find(GRT::get().get());
-  if (iter != _instances.end())
-    return iter->second;
-  return NULL;
-}
-
 
 void GRTManager::set_basedir(const std::string &path)
 {
@@ -196,11 +198,6 @@ bool GRTManager::in_main_thread()
 
 GRTManager::~GRTManager()
 {
-  {
-    base::MutexLock _lock(_instance_mutex);
-    _instances.erase(grt::GRT::get().get());
-  }  
-
   _dispatcher->shutdown();
   _dispatcher.reset();
 
@@ -272,8 +269,11 @@ void GRTManager::execute_grt_task(const std::string &title,
 
 void GRTManager::add_dispatcher(const GRTDispatcher::Ref dispatcher)
 {
-  MutexLock disp_map_mutex(_disp_map_mutex);
-  _disp_map[dispatcher];
+  if (_dispatcher != dispatcher)
+  {
+    MutexLock disp_map_mutex(_disp_map_mutex);
+    _disp_map[dispatcher];
+  }
 }
 
 
@@ -395,7 +395,7 @@ void GRTManager::perform_idle_tasks()
     
     {
       MutexLock disp_map_mutex(_disp_map_mutex);
-      copy= _disp_map;
+      copy = _disp_map;
     }
     
     for (DispatcherMap::iterator i= copy.begin(), i_end= copy.end(); i != i_end; ++i)

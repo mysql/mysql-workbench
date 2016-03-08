@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -77,13 +77,13 @@ class DbMySQLTableEditor : public PluginEditorBase
   virtual void decorate_object_editor();
 
  public:
-  DbMySQLTableEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args);
+  DbMySQLTableEditor(grt::Module *m, const grt::BaseListRef &args);
 
   virtual ~DbMySQLTableEditor();
   virtual void do_refresh_form_data(); // That's called from PluginEditorBase::refresh_form_data
                                        // which is passed to the backend refresh slot
   virtual bool can_close();
-  virtual bool switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args); 
+  virtual bool switch_edited_object(const grt::BaseListRef &args);
 };
 
 #endif

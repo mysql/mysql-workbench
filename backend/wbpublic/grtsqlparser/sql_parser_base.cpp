@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,7 +33,6 @@ DEFAULT_LOG_DOMAIN(DOMAIN_SQL_PARSER)
 Sql_parser_base::Null_state_keeper::~Null_state_keeper()
 {
   //_sql_parser->_grt= NULL;
-  //_sql_parser->_grtm= NULL;
   //_sql_parser->_parse_error_cb.disconnect();
   _sql_parser->_active_obj= db_DatabaseObjectRef();
   _sql_parser->_messages_enabled= true;
@@ -52,7 +51,12 @@ Sql_parser_base::Sql_parser_base()
 :
 EOL(base::EolHelpers::eol(base::EolHelpers::eol_lf)),
 _is_ast_generation_enabled(true),
-_grtm(GRTManager::get_instance_for())
+_stopped(false),
+_processed_obj_count(0),
+_warn_count(0),
+_err_count(0),
+_progress_state(0.0),
+_messages_enabled(false)
 {
   {
     NULL_STATE_KEEPER // reset all members to null-values
@@ -92,7 +96,7 @@ void Sql_parser_base::add_log_message(const std::string &text, int entry_type)
   // syntax checks and the like. Simple SQL errors shouldn't go into the log file.
   if (_messages_enabled)
   {
-    bool send_to_frontend = (!_grtm->in_main_thread());
+    bool send_to_frontend = (!bec::GRTManager::get().in_main_thread());
 
     // TODO: The entry types needs a review. It should be streamlined to the logger levels.
     switch (entry_type)

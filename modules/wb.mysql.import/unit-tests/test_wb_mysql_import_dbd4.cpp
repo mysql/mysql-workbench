@@ -37,7 +37,6 @@ using namespace std;
 
 BEGIN_TEST_DATA_CLASS(wb_mysql_import_dbd4)
 public:
-  GRTManagerTest grtm;
   WbMysqlImportImpl *module;
   db_mgmt_RdbmsRef rdbms;
   DictRef options;

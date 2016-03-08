@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -46,13 +46,13 @@ using namespace base;
 const char *SQL_HISTORY_DIR_NAME= "sql_history";
 
 
-DbSqlEditorHistory::DbSqlEditorHistory(GRTManager *grtm)
+DbSqlEditorHistory::DbSqlEditorHistory()
 :
-_grtm(grtm), _current_entry_index(-1)
+_current_entry_index(-1)
 {
-  _entries_model= EntriesModel::create(this, _grtm);
-  _details_model= DetailsModel::create(_grtm);
-  _write_only_details_model= DetailsModel::create(_grtm);
+  _entries_model= EntriesModel::create(this);
+  _details_model= DetailsModel::create();
+  _write_only_details_model= DetailsModel::create();
   load();
 }
 
@@ -119,7 +119,7 @@ std::string DbSqlEditorHistory::restore_sql_from_history(int entry_index, std::l
       details_model = _details_model;
     else
     {
-      details_model = DetailsModel::create(_grtm);
+      details_model = DetailsModel::create();
       details_model->load(_entries_model->entry_path(entry_index));
     }
     std::string statement;
@@ -134,8 +134,8 @@ std::string DbSqlEditorHistory::restore_sql_from_history(int entry_index, std::l
 
 //------------------------------
 
-DbSqlEditorHistory::EntriesModel::EntriesModel(DbSqlEditorHistory *owner, bec::GRTManager *grtm)
-: VarGridModel(grtm), _ui_usage(false), _owner(owner)
+DbSqlEditorHistory::EntriesModel::EntriesModel(DbSqlEditorHistory *owner)
+: VarGridModel(), _ui_usage(false), _owner(owner)
 {
   reset();
 }
@@ -157,7 +157,7 @@ void DbSqlEditorHistory::EntriesModel::reset()
 
 void DbSqlEditorHistory::EntriesModel::load()
 {
-  std::string sql_history_dir= base::makePath(_grtm->get_user_datadir(), SQL_HISTORY_DIR_NAME);
+  std::string sql_history_dir= base::makePath(bec::GRTManager::get().get_user_datadir(), SQL_HISTORY_DIR_NAME);
   g_mkdir_with_parents(sql_history_dir.c_str(), 0700);
   {
     GError *error= NULL;
@@ -329,7 +329,7 @@ std::string DbSqlEditorHistory::EntriesModel::entry_path(size_t index)
 {
   std::string name;
   get_field(index, 0, name);
-  std::string storage_file_path= base::makePath(_grtm->get_user_datadir(), SQL_HISTORY_DIR_NAME);
+  std::string storage_file_path= base::makePath(bec::GRTManager::get().get_user_datadir(), SQL_HISTORY_DIR_NAME);
   storage_file_path= base::makePath(storage_file_path, name);
   return storage_file_path;
 }
@@ -350,8 +350,8 @@ std::tm DbSqlEditorHistory::EntriesModel::entry_date(size_t index)
 
 
 //--------------------------------------------------------------------------------------------------
-DbSqlEditorHistory::DetailsModel::DetailsModel(bec::GRTManager *grtm) 
-                   : VarGridModel(grtm)
+DbSqlEditorHistory::DetailsModel::DetailsModel()
+                   : VarGridModel()
 {
   reset();
 
@@ -472,7 +472,7 @@ void DbSqlEditorHistory::DetailsModel::load(const std::string &storage_file_path
 
 std::string DbSqlEditorHistory::DetailsModel::storage_file_path() const
 {
-  std::string storage_file_path= base::makePath(_grtm->get_user_datadir(), SQL_HISTORY_DIR_NAME);
+  std::string storage_file_path= base::makePath(bec::GRTManager::get().get_user_datadir(), SQL_HISTORY_DIR_NAME);
   storage_file_path= base::makePath(storage_file_path, format_time(_datestamp, "%Y-%m-%d"));
   return storage_file_path;
 }
@@ -482,7 +482,7 @@ void DbSqlEditorHistory::DetailsModel::save()
   std::string storage_file_path= this->storage_file_path();
   std::ofstream ofs;
   {
-    std::string storage_file_dir= base::makePath(_grtm->get_user_datadir(), SQL_HISTORY_DIR_NAME);
+    std::string storage_file_dir= base::makePath(bec::GRTManager::get().get_user_datadir(), SQL_HISTORY_DIR_NAME);
     if (g_mkdir_with_parents(storage_file_dir.c_str(), 0700) != -1)
     {
       bool is_file_new= (g_file_test(storage_file_path.c_str(), G_FILE_TEST_EXISTS) == 0);

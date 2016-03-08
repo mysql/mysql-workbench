@@ -31,7 +31,7 @@ using namespace grt;
 #define NULL_STATE_KEEPER Null_state_keeper _nsk(this);
 
 
-Mysql_sql_normalizer::Mysql_sql_normalizer()
+Mysql_sql_normalizer::Mysql_sql_normalizer()  : _cut_sym_count(0)
 {
   NULL_STATE_KEEPER
 }
@@ -46,7 +46,7 @@ std::string Mysql_sql_normalizer::normalize(const std::string &sql, const std::s
   _norm_stmt= strip_sql_statement(sql, true);
   std::string sql_= "DELIMITER " + _delimiter + EOL + _norm_stmt + _delimiter;
 
-  Mysql_sql_parser_fe sql_parser_fe(_grtm->get_app_option_string("SqlMode"));
+  Mysql_sql_parser_fe sql_parser_fe(bec::GRTManager::get().get_app_option_string("SqlMode"));
   sql_parser_fe.ignore_dml= false;
   Mysql_sql_parser_base::parse_sql_script(sql_parser_fe, sql_.c_str());
 

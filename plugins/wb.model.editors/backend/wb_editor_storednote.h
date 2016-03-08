@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,7 +34,7 @@ class WBEDITOR_BACKEND_PUBLIC_FUNC StoredNoteEditorBE : public bec::BaseEditor
   GrtStoredNoteRef _note;
 
 public:
-  StoredNoteEditorBE(bec::GRTManager *grtm, const GrtStoredNoteRef &note);
+  StoredNoteEditorBE(const GrtStoredNoteRef &note);
 
   bool is_script();
   

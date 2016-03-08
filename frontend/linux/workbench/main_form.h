@@ -70,7 +70,7 @@ public:
 
   void show_status_text_becb(const std::string& text);
   bool show_progress_becb(const std::string& title, const std::string& status, float pct);
-  NativeHandle open_plugin_becb(bec::GRTManager* mgr, grt::Module *module, const std::string& shlib, const std::string& editor_class, grt::BaseListRef args, bec::GUIPluginFlags flags);
+  NativeHandle open_plugin_becb(grt::Module *module, const std::string& shlib, const std::string& editor_class, grt::BaseListRef args, bec::GUIPluginFlags flags);
   void show_plugin_becb(NativeHandle handle);
   void hide_plugin_becb(NativeHandle handle);
   void perform_command_becb(const std::string& command);

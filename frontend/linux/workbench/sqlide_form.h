@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -65,8 +65,6 @@ class DbSqlEditorView : public Gtk::Box, public FormViewBase
     void output_text(const std::string &text, bool bring_to_front);
 
     virtual bool close_focused_tab();
-
-    bec::GRTManager* grt_manager() {return _grtm;}
 
   protected:
     virtual void plugin_tab_added(PluginEditorBase *plugin);

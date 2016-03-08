@@ -125,7 +125,18 @@ Mysql_sql_parser::Null_state_keeper::~Null_state_keeper()
   }
 
 
-Mysql_sql_parser::Mysql_sql_parser()
+Mysql_sql_parser::Mysql_sql_parser() :
+    _processing_create_statements(false),
+    _processing_alter_statements(false),
+    _processing_drop_statements(false),
+    _set_old_names(false),
+    _reuse_existing_objects(false),
+    _reusing_existing_obj(false),
+    _stick_to_active_schema(false),
+    _gen_fk_names_when_empty(false),
+    _strip_sql(false),
+    _last_parse_result(Sql_parser_base::pr_irrelevant)
+
 {
   NULL_STATE_KEEPER
 }
@@ -196,7 +207,7 @@ int Mysql_sql_parser::parse_sql_script(db_CatalogRef &catalog, const std::string
   _process_sql_statement= boost::bind(&Mysql_sql_parser::process_sql_statement, this, _1);
 
   int res;
-  Mysql_sql_parser_fe sql_parser_fe(_grtm->get_app_option_string("SqlMode"));
+  Mysql_sql_parser_fe sql_parser_fe(bec::GRTManager::get().get_app_option_string("SqlMode"));
   sql_parser_fe.processing_create_statements= _processing_create_statements;
   sql_parser_fe.processing_alter_statements= _processing_alter_statements;
   sql_parser_fe.processing_drop_statements= _processing_drop_statements;

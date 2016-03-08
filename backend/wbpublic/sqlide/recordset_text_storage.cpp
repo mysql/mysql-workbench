@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -86,15 +86,15 @@ static void process_templates(const std::list<std::string> &files)
   }
 }
 
-static void scan_templates(GRTManager *grtm)
+static void scan_templates()
 {
   if (_templates.empty())
   {
-    std::string template_dir = base::makePath(grtm->get_basedir(), "modules/data/sqlide");
+    std::string template_dir = base::makePath(bec::GRTManager::get().get_basedir(), "modules/data/sqlide");
     std::list<std::string> files = base::scan_for_files_matching(template_dir+"/*.tpli");
     process_templates(files);
     
-    template_dir = base::makePath(grtm->get_user_datadir(), "recordset_export_templates");
+    template_dir = base::makePath(bec::GRTManager::get().get_user_datadir(), "recordset_export_templates");
     files = base::scan_for_files_matching(template_dir+"/*.tpli");
     process_templates(files);        
   }
@@ -138,9 +138,9 @@ class CSVTokenQuote : public ctemplate::TemplateModifier {
 CSVTokenQuote csv_quote;
 
 
-Recordset_text_storage::Recordset_text_storage(GRTManager *grtm)
+Recordset_text_storage::Recordset_text_storage()
 :
-Recordset_data_storage(grtm)
+Recordset_data_storage()
 {
   static bool registered_csvquote = false;
   if (!registered_csvquote)
@@ -476,9 +476,9 @@ std::string Recordset_text_storage::parameter_value(const std::string &name) con
 }
 
 
-std::vector<Recordset_storage_info> Recordset_text_storage::storage_types(GRTManager *grtm)
+std::vector<Recordset_storage_info> Recordset_text_storage::storage_types()
 {
-  scan_templates(grtm);
+  scan_templates();
   
   std::vector<Recordset_storage_info> types;
   for (std::map<std::string, TemplateInfo>::const_iterator iter = _templates.begin();

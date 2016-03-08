@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -72,15 +72,15 @@ private:
   {
     if (advancing)
     {
-      _left.set_source(source_for_name(wizard()->grtm()->get_app_option_string("db.mysql.synchronizeAny:left_source"), "model"));
-      _right.set_source(source_for_name(wizard()->grtm()->get_app_option_string("db.mysql.synchronizeAny:right_source"), "server"));
+      _left.set_source(source_for_name(bec::GRTManager::get().get_app_option_string("db.mysql.synchronizeAny:left_source"), "model"));
+      _right.set_source(source_for_name(bec::GRTManager::get().get_app_option_string("db.mysql.synchronizeAny:right_source"), "server"));
       if (_has_result)
-        _result.set_source(source_for_name(wizard()->grtm()->get_app_option_string("db.mysql.synchronizeAny:result"), "server"));
+        _result.set_source(source_for_name(bec::GRTManager::get().get_app_option_string("db.mysql.synchronizeAny:result"), "server"));
 
-      _left.file_selector.set_filename(wizard()->grtm()->get_app_option_string("db.mysql.synchronizeAny:left_source_file"));
-      _right.file_selector.set_filename(wizard()->grtm()->get_app_option_string("db.mysql.synchronizeAny:right_source_file"));
+      _left.file_selector.set_filename(bec::GRTManager::get().get_app_option_string("db.mysql.synchronizeAny:left_source_file"));
+      _right.file_selector.set_filename(bec::GRTManager::get().get_app_option_string("db.mysql.synchronizeAny:right_source_file"));
       if (_has_result)
-        _result.file_selector.set_filename(wizard()->grtm()->get_app_option_string("db.mysql.synchronizeAny:result_file"));
+        _result.file_selector.set_filename(bec::GRTManager::get().get_app_option_string("db.mysql.synchronizeAny:result_file"));
     }
   }
 
@@ -91,14 +91,14 @@ private:
     };
 
     // Remember defaults
-    wizard()->grtm()->set_app_option("db.mysql.synchronizeAny:left_source", grt::StringRef(sources[get_left_source()]));
-    wizard()->grtm()->set_app_option("db.mysql.synchronizeAny:right_source", grt::StringRef(sources[get_right_source()]));
+    bec::GRTManager::get().set_app_option("db.mysql.synchronizeAny:left_source", grt::StringRef(sources[get_left_source()]));
+    bec::GRTManager::get().set_app_option("db.mysql.synchronizeAny:right_source", grt::StringRef(sources[get_right_source()]));
     if (_has_result)
-      wizard()->grtm()->set_app_option("db.mysql.synchronizeAny:result", grt::StringRef(sources[get_result()]));
-    wizard()->grtm()->set_app_option("db.mysql.synchronizeAny:left_source_file", grt::StringRef(_left.file_selector.get_filename()));
-    wizard()->grtm()->set_app_option("db.mysql.synchronizeAny:right_source_file", grt::StringRef(_right.file_selector.get_filename()));
+      bec::GRTManager::get().set_app_option("db.mysql.synchronizeAny:result", grt::StringRef(sources[get_result()]));
+    bec::GRTManager::get().set_app_option("db.mysql.synchronizeAny:left_source_file", grt::StringRef(_left.file_selector.get_filename()));
+    bec::GRTManager::get().set_app_option("db.mysql.synchronizeAny:right_source_file", grt::StringRef(_right.file_selector.get_filename()));
     if (_has_result)
-      wizard()->grtm()->set_app_option("db.mysql.synchronizeAny:result_file", grt::StringRef(_result.file_selector.get_filename()));
+      bec::GRTManager::get().set_app_option("db.mysql.synchronizeAny:result_file", grt::StringRef(_result.file_selector.get_filename()));
 
     values().gset("left_source", sources[get_left_source()]);
     values().gset("right_source", sources[get_right_source()]);

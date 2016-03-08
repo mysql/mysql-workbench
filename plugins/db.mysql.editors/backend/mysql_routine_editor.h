@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,7 +26,7 @@
 class MYSQLWBMYSQLSUPPORTBACKEND_PUBLIC_FUNC MySQLRoutineEditorBE : public bec::RoutineEditorBE
 {
 public:
-  MySQLRoutineEditorBE(bec::GRTManager *grtm, const db_mysql_RoutineRef &routine); 
+  MySQLRoutineEditorBE(const db_mysql_RoutineRef &routine);
 
   void load_routine_sql();
   virtual void commit_changes();
