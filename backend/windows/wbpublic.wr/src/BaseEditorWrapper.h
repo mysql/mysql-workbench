@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -58,7 +58,6 @@ namespace Grt {
     void set_refresh_partial_ui_handler(DelegateSlot1<void,void,int,int>::ManagedDelegate^ slot);
 
     GRT ^get_grt();
-    GrtManager ^get_grt_manager();
 
     void show_exception(String ^title, String ^detail);
     void show_validation_error(String ^title, String ^reason);

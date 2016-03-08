@@ -108,7 +108,7 @@ namespace MySQL.GUI.Workbench.Plugins
         if (insertsTabPage.Controls.Count > 0)
           insertsTabPage.Controls.Clear();
 
-        Backend = new MySQLTableEditorWrapper(GrtManager, value);
+        Backend = new MySQLTableEditorWrapper(value);
 
         Control panel = tableEditorBE.get_trigger_panel();
         triggersTabPage.Controls.Add(panel);

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,8 +26,8 @@ using namespace bec;
 using namespace grt;
 
 
-HistoryTree::HistoryTree(bec::GRTManager *grtm, UndoManager *undom)
-: mforms::TreeView(mforms::TreeFlatList|mforms::TreeSidebar|mforms::TreeNoHeader), _grtm(grtm), _undom(undom), _refresh_pending(false)
+HistoryTree::HistoryTree(UndoManager *undom)
+: mforms::TreeView(mforms::TreeFlatList|mforms::TreeSidebar|mforms::TreeNoHeader), _undom(undom), _refresh_pending(false)
 {
   add_column(mforms::IconStringColumnType, "Action", 200);
   end_columns();
@@ -116,7 +116,7 @@ void HistoryTree::handle_change()
   if (!_refresh_pending)
   {
     _refresh_pending = true;
-    _grtm->run_once_when_idle(this, boost::bind(&HistoryTree::refresh, this));
+    bec::GRTManager::get().run_once_when_idle(this, boost::bind(&HistoryTree::refresh, this));
   }
 }
 

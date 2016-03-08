@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -57,7 +57,7 @@ void ModelPanel::on_activate()
 
 ModelPanel *ModelPanel::create(wb::WBContextUI *wb, wb::OverviewBE *overview)
 {
-  Glib::RefPtr<Gtk::Builder> xml= Gtk::Builder::create_from_file(wb->get_wb()->get_grt_manager()->get_data_file_path("model_view.glade"));
+  Glib::RefPtr<Gtk::Builder> xml= Gtk::Builder::create_from_file(bec::GRTManager::get().get_data_file_path("model_view.glade"));
 
   ModelPanel *panel = 0;
   xml->get_widget_derived("top_vbox", panel);
@@ -82,7 +82,6 @@ ModelPanel::ModelPanel(GtkBox *cobject, const Glib::RefPtr<Gtk::Builder> &xml)
 void ModelPanel::post_construct(wb::WBContextUI *wb, wb::OverviewBE *overview)
 {
   _wb= wb;
-  _grtm= wb->get_wb()->get_grt_manager();
   _toolbar = overview->get_toolbar();
   {
     mforms::MenuBar *menubar = overview->get_menubar();

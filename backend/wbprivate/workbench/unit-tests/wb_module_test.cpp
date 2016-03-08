@@ -25,10 +25,11 @@
 BEGIN_TEST_DATA_CLASS(wb_module_test)
 
   protected:
-    WBTester tester;
+    WBTester *tester;
 
   TEST_DATA_CONSTRUCTOR(wb_module_test)
   {
+    tester = new WBTester;
   }
 
 END_TEST_DATA_CLASS;
@@ -117,6 +118,13 @@ TEST_FUNCTION(5) // test WorkbenchImpl::isOsSupported()
   // other red-hat-based
   ensure_false("Fedora, old", isOsSupportedProxy("Fedora release 20 x86_64"));
   ensure_true("Fedora, supported", isOsSupportedProxy("Fedora release 22 x86_64"));
+}
+
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  delete tester;
 }
 
 END_TESTS

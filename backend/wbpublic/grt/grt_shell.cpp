@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,8 +36,7 @@ using namespace bec;
 #define BOOKMARKS_FILENAME "shell_bookmarks.txt"
 
 
-ShellBE::ShellBE(GRTManager *grtm, const GRTDispatcher::Ref dispatcher)
-  : _grtm(grtm), _dispatcher(dispatcher)
+ShellBE::ShellBE(const GRTDispatcher::Ref dispatcher) : _dispatcher(dispatcher)
 {
   _shell= 0;
 
@@ -120,7 +119,7 @@ void ShellBE::shell_finished_cb(ShellCommand result, const std::string &prompt, 
 {
   if (result == ShellCommandExit)
   {
-    _grtm->terminate();
+    bec::GRTManager::get().terminate();
     _current_statement.clear();
   }
   else if (result == ShellCommandUnknown)
@@ -323,7 +322,7 @@ void ShellBE::writef(const char *fmt, ...)
 
   // Cache the text if there is no output slot set yet (usually at app start).
   // Flush this queue when we have an output slot and are running in the main thread currently.
-  if (_grtm->is_threaded())
+  if (bec::GRTManager::get().is_threaded())
   {
     {
       base::MutexLock lock(_text_queue_mutex);
@@ -331,7 +330,7 @@ void ShellBE::writef(const char *fmt, ...)
     }
 
     // if we're in the main thread, flush the message queue
-    if (_grtm->in_main_thread() && _output_slot)
+    if (bec::GRTManager::get().in_main_thread() && _output_slot)
       flush_shell_output();
   }
   else 

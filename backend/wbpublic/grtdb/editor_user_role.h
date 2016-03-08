@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -102,7 +102,7 @@ namespace bec {
     RoleObjectListBE _object_list;         //!< Serves as a source of role's objects for the UI.
 
   public:
-    RoleEditorBE(GRTManager *grtm, const db_RoleRef &role, const db_mgmt_RdbmsRef &rdbms);
+    RoleEditorBE(const db_RoleRef &role, const db_mgmt_RdbmsRef &rdbms);
 
     db_RoleRef get_role() { return _role; }
 

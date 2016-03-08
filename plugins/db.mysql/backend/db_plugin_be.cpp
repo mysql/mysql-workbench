@@ -30,26 +30,21 @@
 
 #include <glib.h>
 
-void Db_plugin::grtm(bec::GRTManager *grtm, bool reveng)
+void Db_plugin::grtm(bool reveng)
 {
-  Wb_plugin::grtm(grtm);
+  _doc= workbench_DocumentRef::cast_from(grt::GRT::get()->get("/wb/doc"));
 
-  if (_grtm)
-  {
-    _doc= workbench_DocumentRef::cast_from(grt::GRT::get()->get("/wb/doc"));
+  db_mgmt_ManagementRef mgmt= workbench_WorkbenchRef::cast_from(_doc->owner())->rdbmsMgmt();
+  // don't need schema box for reverse engineer, but need it for fwd/sync (in case OmitQualifiers is on)
+  _db_conn = new DbConnection(mgmt, db_mgmt_DriverRef(), reveng ? true : false);
 
-    db_mgmt_ManagementRef mgmt= workbench_WorkbenchRef::cast_from(_doc->owner())->rdbmsMgmt();
-    // don't need schema box for reverse engineer, but need it for fwd/sync (in case OmitQualifiers is on)
-    _db_conn = new DbConnection(mgmt, db_mgmt_DriverRef(), reveng ? true : false); 
+  _tables.icon_id(table_icon_id(bec::Icon16));
+  _views.icon_id(view_icon_id(bec::Icon16));
+  _routines.icon_id(routine_icon_id(bec::Icon16));
+  _triggers.icon_id(trigger_icon_id(bec::Icon16));
+  _users.icon_id(user_icon_id(bec::Icon16));
 
-    _tables.icon_id(table_icon_id(bec::Icon16));
-    _views.icon_id(view_icon_id(bec::Icon16));
-    _routines.icon_id(routine_icon_id(bec::Icon16));
-    _triggers.icon_id(trigger_icon_id(bec::Icon16));
-    _users.icon_id(user_icon_id(bec::Icon16));
-
-    _catalog= db_CatalogRef(grt::Initialized);
-  }
+  _catalog= db_CatalogRef(grt::Initialized);
 }
 
 

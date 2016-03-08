@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,8 +40,8 @@ static void refill_list(mforms::ListBox &list, bec::GrtStringListModel *model)
 
 //--------------------------------------------------------------------------------------------------
 
-DBObjectFilterFrame::DBObjectFilterFrame(bec::GRTManager *grtm)
-: mforms::Panel(mforms::BorderedPanel), _filter_be(grtm), _enabled_flag(NULL), _box(false),
+DBObjectFilterFrame::DBObjectFilterFrame()
+: mforms::Panel(mforms::BorderedPanel), _enabled_flag(NULL), _box(false),
     _object_list(true), _mask_list(true)
 {
   set_padding(8);

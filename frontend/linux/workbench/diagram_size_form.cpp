@@ -9,7 +9,7 @@
 
 
 DiagramSizeForm::DiagramSizeForm(GtkDialog *gobj, Glib::RefPtr<Gtk::Builder> builder)
-  : Gtk::Dialog(gobj), _xml(builder)
+  : Gtk::Dialog(gobj), _xml(builder), _canvas(nullptr)
 {
   _be= 0;
 }
@@ -95,7 +95,7 @@ void DiagramSizeForm::init(wb::WBContextUI *wbui)
 
 DiagramSizeForm *DiagramSizeForm::create(wb::WBContextUI *wbui)
 {
-  Glib::RefPtr<Gtk::Builder> ui= Gtk::Builder::create_from_file(wbui->get_wb()->get_grt_manager()->get_data_file_path("diagram_size_form.glade"));
+  Glib::RefPtr<Gtk::Builder> ui= Gtk::Builder::create_from_file(bec::GRTManager::get().get_data_file_path("diagram_size_form.glade"));
   
   DiagramSizeForm *panel= 0;
 

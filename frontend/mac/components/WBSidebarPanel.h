@@ -44,7 +44,6 @@ namespace mforms
   CGFloat mLastSecondarySidebarWidth;
 
   mforms::ToolBar* mToolbar;
-  bec::GRTManager* grtm;
 
   BOOL mSidebarHidden;
   BOOL mSecondarySidebarHidden;

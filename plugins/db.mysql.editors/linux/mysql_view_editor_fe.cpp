@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -32,12 +32,12 @@ class DbMySQLViewEditor : public PluginEditorBase
   virtual bec::BaseEditor *get_be();
   
  public:
-  DbMySQLViewEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args);
+  DbMySQLViewEditor(grt::Module *m, const grt::BaseListRef &args);
   
   virtual ~DbMySQLViewEditor();
   virtual void do_refresh_form_data();
 
-  virtual bool switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args);
+  virtual bool switch_edited_object(const grt::BaseListRef &args);
   
   bool comment_lost_focus(GdkEventFocus *ev, Gtk::TextView *view);
 
@@ -45,9 +45,9 @@ class DbMySQLViewEditor : public PluginEditorBase
   virtual bool can_close() { return _be->can_close(); }
 };
 
-DbMySQLViewEditor::DbMySQLViewEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
-    : PluginEditorBase(m ,grtm, args, "modules/data/editor_view.glade")
-    , _be(new MySQLViewEditorBE(grtm, db_mysql_ViewRef::cast_from(args[0])))
+DbMySQLViewEditor::DbMySQLViewEditor(grt::Module *m, const grt::BaseListRef &args)
+    : PluginEditorBase(m, args, "modules/data/editor_view.glade")
+    , _be(new MySQLViewEditorBE(db_mysql_ViewRef::cast_from(args[0])))
 {
   xml()->get_widget("mysql_view_editor_notebook", _editor_notebook);
 
@@ -102,13 +102,13 @@ DbMySQLViewEditor::~DbMySQLViewEditor()
 }
 
 //------------------------------------------------------------------------------
-bool DbMySQLViewEditor::switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args)
+bool DbMySQLViewEditor::switch_edited_object(const grt::BaseListRef &args)
 {
   MySQLViewEditorBE *old_be = _be;
   Gtk::Box *ddl_win;
   xml()->get_widget("editor_placeholder", ddl_win);
  
-  _be = new MySQLViewEditorBE(grtm, db_mysql_ViewRef::cast_from(args[0]));
+  _be = new MySQLViewEditorBE(db_mysql_ViewRef::cast_from(args[0]));
   embed_code_editor(_be->get_sql_editor()->get_container(), ddl_win);
   _be->load_view_sql();
 
@@ -170,8 +170,8 @@ void DbMySQLViewEditor::do_refresh_form_data()
 //------------------------------------------------------------------------------
 extern "C" 
 {
-  GUIPluginBase *createDbMysqlViewEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
+  GUIPluginBase *createDbMysqlViewEditor(grt::Module *m, const grt::BaseListRef &args)
   {
-    return Gtk::manage(new DbMySQLViewEditor(m, grtm, args));
+    return Gtk::manage(new DbMySQLViewEditor(m, args));
   }
 };

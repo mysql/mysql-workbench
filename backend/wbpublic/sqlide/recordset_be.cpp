@@ -69,9 +69,9 @@ Recordset::ClientData::~ClientData()
 }
 
 
-Recordset::Ref Recordset::create(bec::GRTManager *grtm)
+Recordset::Ref Recordset::create()
 {
-  Ref instance(new Recordset(grtm));
+  Ref instance(new Recordset());
   return instance;
 }
 
@@ -84,8 +84,8 @@ Recordset::Ref Recordset::create(GrtThreadedTask::Ref parent_task)
 
 static gint next_id = 0;
 
-Recordset::Recordset(GRTManager *grtm)
-  : VarGridModel(grtm), _inserts_editor(false), task(GrtThreadedTask::create(grtm))
+Recordset::Recordset()
+  : VarGridModel(), _inserts_editor(false), task(GrtThreadedTask::create())
 {
   _toolbar = NULL;
   _client_data = NULL;
@@ -102,7 +102,7 @@ Recordset::Recordset(GRTManager *grtm)
 
 
 Recordset::Recordset(GrtThreadedTask::Ref parent_task)
-  : VarGridModel(parent_task->grtm()), _inserts_editor(false), task(GrtThreadedTask::create(parent_task))
+  : VarGridModel(), _inserts_editor(false), task(GrtThreadedTask::create(parent_task))
 {
   _toolbar = NULL;
   _client_data = NULL;
@@ -277,7 +277,7 @@ void Recordset::rollback()
 
 void Recordset::data_edited()
 {
-  if (_grtm->in_main_thread())
+  if (bec::GRTManager::get().in_main_thread())
     data_edited_signal();
   else
     log_error("data_edited called from thread\n");
@@ -744,13 +744,13 @@ Recordset_data_storage::Ref Recordset::data_storage_for_export(const std::string
   _data_storage_for_export.reset();
 
   {
-    std::vector<Recordset_storage_info> storage_types(Recordset_text_storage::storage_types(_grtm));
+    std::vector<Recordset_storage_info> storage_types(Recordset_text_storage::storage_types());
     for (std::vector<Recordset_storage_info>::const_iterator i = storage_types.begin(); 
          i != storage_types.end(); ++i)
     {
       if (i->name == format)
       {
-        Recordset_text_storage::Ref ds(Recordset_text_storage::create(_grtm));
+        Recordset_text_storage::Ref ds(Recordset_text_storage::create());
         ds->data_format(format);
         _data_storage_for_export = ds;
         break;
@@ -768,7 +768,7 @@ std::vector<Recordset_storage_info> Recordset::data_storages_for_export()
 {
   std::vector<Recordset_storage_info> storage_types;
   
-  storage_types = Recordset_text_storage::storage_types(_grtm);
+  storage_types = Recordset_text_storage::storage_types();
   
   return storage_types;
 }
@@ -1636,38 +1636,36 @@ void Recordset::register_default_actions()
 class DataEditorSelector : public boost::static_visitor<BinaryDataEditor*>
 {
 public:
-  DataEditorSelector(bec::GRTManager *grtm, bool read_only) : _grtm(grtm), _read_only(read_only) {}
-  DataEditorSelector(bec::GRTManager *grtm, bool read_only, const std::string &encoding, const std::string &type) : _grtm(grtm), _encoding(encoding), _type(type), _read_only(read_only) {}
+  DataEditorSelector(bool read_only) : _read_only(read_only) {}
+  DataEditorSelector(bool read_only, const std::string &encoding, const std::string &type) : _encoding(encoding), _type(type), _read_only(read_only) {}
   const std::string & encoding() const { return _encoding; }
   void encoding(const std::string &value) { _encoding= value; }
 private:
-  bec::GRTManager *_grtm;
   std::string _encoding;
   std::string _type;
   bool _read_only;
 public:
-  result_type operator()(const sqlite::null_t &v) { return new BinaryDataEditor(_grtm, NULL, 0, _encoding, _type, _read_only); }
-  result_type operator()(const std::string &v) { return new BinaryDataEditor(_grtm, v.c_str(), v.length(), _encoding, _type, _read_only); }
-  result_type operator()(const sqlite::blob_ref_t &v) { return new BinaryDataEditor(_grtm, ((!v || v->empty()) ? NULL : (const char*)&(*v)[0]), v->size(), _encoding, _type, _read_only); }
+  result_type operator()(const sqlite::null_t &v) { return new BinaryDataEditor(NULL, 0, _encoding, _type, _read_only); }
+  result_type operator()(const std::string &v) { return new BinaryDataEditor(v.c_str(), v.length(), _encoding, _type, _read_only); }
+  result_type operator()(const sqlite::blob_ref_t &v) { return new BinaryDataEditor(((!v || v->empty()) ? NULL : (const char*)&(*v)[0]), v->size(), _encoding, _type, _read_only); }
   template<typename V> result_type operator()(const V &v) { return NULL; }
 };
 
 class DataEditorSelector2 : public boost::static_visitor<BinaryDataEditor*>
 {
 public:
-  DataEditorSelector2(bec::GRTManager *grtm, bool read_only, const std::string &type) : _grtm(grtm), _type(type), _read_only(read_only) {}
+  DataEditorSelector2(bool read_only, const std::string &type) : _type(type), _read_only(read_only) {}
 private:
-  bec::GRTManager *_grtm;
   std::string _type;
   bool _read_only;
 public:
-  template<typename V> result_type operator()(const std::string &t, const V &v) { return DataEditorSelector(_grtm, _read_only, "UTF-8", _type)(v); }
-  template<typename V> result_type operator()(const sqlite::blob_ref_t &t, const V &v) { return DataEditorSelector(_grtm, _read_only, "LATIN1", _type)(v); }
+  template<typename V> result_type operator()(const std::string &t, const V &v) { return DataEditorSelector(_read_only, "UTF-8", _type)(v); }
+  template<typename V> result_type operator()(const sqlite::blob_ref_t &t, const V &v) { return DataEditorSelector(_read_only, "LATIN1", _type)(v); }
   template<typename T, typename V> result_type operator()(const T &r, const V &v) {
     //return NULL;
     // For unknown types treat them for now as string values. Since we have a binary editor pane there that should work
     // all the time well enough.
-    return DataEditorSelector(_grtm, _read_only, "UTF-8", _type)(v);
+    return DataEditorSelector(_read_only, "UTF-8", _type)(v);
   }
 };
 
@@ -1701,7 +1699,7 @@ void Recordset::open_field_data_editor(RowId row, ColumnId column, const std::st
       value= &(*cell);
     }
 
-    DataEditorSelector2 data_editor_selector2(_grtm, is_readonly(), logical_type);
+    DataEditorSelector2 data_editor_selector2(is_readonly(), logical_type);
     BinaryDataEditor *data_editor=
       boost::apply_visitor(data_editor_selector2, _real_column_types[column], *value);
     if (!data_editor)

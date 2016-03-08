@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,7 +29,7 @@ class WBEDITOR_BACKEND_PUBLIC_FUNC NoteEditorBE : public bec::BaseEditor
   workbench_model_NoteFigureRef _note;
 
 public:
-  NoteEditorBE(bec::GRTManager *grtm, const workbench_model_NoteFigureRef &note);
+  NoteEditorBE(const workbench_model_NoteFigureRef &note);
 
   virtual bool should_close_on_delete_of(const std::string &oid);
   

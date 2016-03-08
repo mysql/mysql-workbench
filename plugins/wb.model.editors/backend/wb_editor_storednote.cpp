@@ -49,8 +49,8 @@ static struct {
 };
 
 
-StoredNoteEditorBE::StoredNoteEditorBE(bec::GRTManager *grtm, const GrtStoredNoteRef &note)
-: bec::BaseEditor(grtm, note), _note(note)
+StoredNoteEditorBE::StoredNoteEditorBE(const GrtStoredNoteRef &note)
+: bec::BaseEditor(note), _note(note)
 {
   _ignored_object_fields_for_ui_refresh.insert("lastChangeDate");
 }

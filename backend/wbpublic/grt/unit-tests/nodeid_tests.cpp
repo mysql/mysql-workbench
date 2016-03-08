@@ -33,11 +33,9 @@ using namespace std;
 BEGIN_TEST_DATA_CLASS(tree_model)
 public:
   db_mgmt_RdbmsRef rdbms;
-  GRTManager grtm;
   bec::NodeIds map;
 
 TEST_DATA_CONSTRUCTOR(tree_model)
-  : grtm(false)
   //, map(0)
 {
 }
@@ -146,7 +144,7 @@ TEST_FUNCTION(6)
 TEST_FUNCTION(7)
 {
   bec::NodeId n1("23.56.78.1.43");
-  const size_t test[] = {23,56,78,1,43};
+  const std::size_t test[] = {23,56,78,1,43};
 
   for ( unsigned int i = 0U; i < sizeof(test)/sizeof(*test); i++ )
   {

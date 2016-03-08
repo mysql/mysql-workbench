@@ -2,7 +2,6 @@
 #pragma once
 
 #include "db_mysql_public_interface.h"
-#include "grt/grt_manager.h"
 #include "grts/structs.db.mysql.h"
 #include "grt/grt_string_list_model.h"
 #include "diff_tree.h"
@@ -15,7 +14,8 @@ protected:
     boost::shared_ptr<DiffTreeBE> _diff_tree;
     StringRef _sync_profile_name;
 public:
-  SynchronizeDifferencesPageBEInterface(){};
+  SynchronizeDifferencesPageBEInterface() {};
+  virtual ~SynchronizeDifferencesPageBEInterface() {};
   StringRef get_sync_profile_name(){return _sync_profile_name;};
   void set_sync_profile_name(StringRef sync_profile_name){_sync_profile_name = sync_profile_name;};
   ValueRef get_model_object(const bec::NodeId &node) const {return _diff_tree->get_node_with_id(node)->get_model_part().get_object();};
@@ -42,7 +42,6 @@ struct WBPLUGINDBMYSQLBE_PUBLIC_FUNC DbMySQLScriptSyncException : public std::lo
 
 class WBPLUGINDBMYSQLBE_PUBLIC_FUNC DbMySQLScriptSync : public DbMySQLValidationPage, public SynchronizeDifferencesPageBEInterface
 {
-  bec::GRTManager *_manager;
   //db_mysql_CatalogRef _catalog;
   db_mysql_CatalogRef _org_cat;
   db_mysql_CatalogRef _mod_cat_copy;
@@ -68,7 +67,7 @@ protected:
   virtual void get_compared_catalogs(db_CatalogRef &left, db_CatalogRef &right);
 
 public:
-  DbMySQLScriptSync(bec::GRTManager *grtm);
+  DbMySQLScriptSync();
   virtual ~DbMySQLScriptSync();
 
   void start_sync();  

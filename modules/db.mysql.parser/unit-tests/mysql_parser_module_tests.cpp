@@ -29,20 +29,21 @@ using namespace parser;
 
 BEGIN_TEST_DATA_CLASS(mysql_parser_module_tests)
 protected:
-  WBTester _tester;
+  WBTester *_tester;
   MySQLParserServices::Ref _services;
   ParserContext::Ref _context;
 
   TEST_DATA_CONSTRUCTOR(mysql_parser_module_tests)
   {
-    populate_grt(_tester);
+    _tester = new WBTester();
+    populate_grt(*_tester);
 
     _services = MySQLParserServices::get();
     GrtVersionRef version(grt::Initialized);
     version->majorNumber(5);
     version->minorNumber(7);
     version->releaseNumber(10);
-    _context = MySQLParserServices::createParserContext(_tester.get_rdbms()->characterSets(), version, true);
+    _context = MySQLParserServices::createParserContext(_tester->get_rdbms()->characterSets(), version, true);
   }
 
 END_TEST_DATA_CLASS
@@ -202,5 +203,12 @@ TEST_FUNCTION(95)
 // show_statement
 // other_administrative_statement
 // utility_statement
+
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  delete _tester;
+}
 
 END_TESTS

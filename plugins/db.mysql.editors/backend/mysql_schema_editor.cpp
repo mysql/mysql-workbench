@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,8 +29,8 @@ DEFAULT_LOG_DOMAIN("SchemaEditor");
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLSchemaEditorBE::MySQLSchemaEditorBE(bec::GRTManager *grtm, const db_mysql_SchemaRef &schema)
-  : bec::SchemaEditorBE(grtm, schema)
+MySQLSchemaEditorBE::MySQLSchemaEditorBE(const db_mysql_SchemaRef &schema)
+  : bec::SchemaEditorBE(schema)
 {
   _initial_name = schema->name();
   _schema = schema;

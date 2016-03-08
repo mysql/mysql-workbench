@@ -113,7 +113,7 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
   add(&_tabview, true, true);
 
   _switcher.attach_to_tabview(&_tabview);
-  _switcher.set_collapsed(_owner->owner()->grt_manager()->get_app_option_int("Recordset:SwitcherCollapsed", 0) != 0);
+  _switcher.set_collapsed(bec::GRTManager::get().get_app_option_int("Recordset:SwitcherCollapsed", 0) != 0);
 
   add(&_switcher, false, true);
   _switcher.signal_changed()->connect(boost::bind(&SqlEditorResult::switch_tab, this));
@@ -230,7 +230,7 @@ void SqlEditorResult::set_recordset(Recordset::Ref rset)
 
   mforms::GridView* grid = mforms::manage(mforms::GridView::create(rset));
   {
-    std::string font = _owner->owner()->grt_manager()->get_app_option_string("workbench.general.Resultset:Font");
+    std::string font = bec::GRTManager::get().get_app_option_string("workbench.general.Resultset:Font");
     if (!font.empty())
       grid->set_font(font);
 
@@ -452,21 +452,20 @@ void SqlEditorResult::switcher_collapsed()
   }
   relayout();
   
-  bec::GRTManager *grtm = _owner->owner()->grt_manager();
-  grtm->set_app_option("Recordset:SwitcherCollapsed", grt::IntegerRef(state?1:0));
+
+  bec::GRTManager::get().set_app_option("Recordset:SwitcherCollapsed", grt::IntegerRef(state?1:0));
 }
 
 
 void SqlEditorResult::show_export_recordset()
 {
-  bec::GRTManager *grtm = _owner->owner()->grt_manager();
   try
   {
     RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset, _rset, rs)
     {
-      grt::ValueRef option(grtm->get_app_option("Recordset:LastExportPath"));
+      grt::ValueRef option(bec::GRTManager::get().get_app_option("Recordset:LastExportPath"));
       std::string path = option.is_valid() ? grt::StringRef::cast_from(option) : "";
-      option = grtm->get_app_option("Recordset:LastExportExtension");
+      option = bec::GRTManager::get().get_app_option("Recordset:LastExportExtension");
       std::string extension = option.is_valid() ? grt::StringRef::cast_from(option) : "";
       InsertsExportForm exporter(0/*mforms::Form::main_form()*/, rs_ref, extension);
       exporter.set_title(_("Export Resultset"));
@@ -474,16 +473,16 @@ void SqlEditorResult::show_export_recordset()
         exporter.set_path(path);
       path = exporter.run();
       if (path.empty())
-        grtm->replace_status_text(_("Export resultset canceled"));
+        bec::GRTManager::get().replace_status_text(_("Export resultset canceled"));
       else
       {
-        grtm->replace_status_text(strfmt(_("Exported resultset to %s"), path.c_str()));
-        grtm->set_app_option("Recordset:LastExportPath", grt::StringRef(path));
+        bec::GRTManager::get().replace_status_text(strfmt(_("Exported resultset to %s"), path.c_str()));
+        bec::GRTManager::get().set_app_option("Recordset:LastExportPath", grt::StringRef(path));
         extension = base::extension(path);
         if (!extension.empty() && extension[0] == '.')
           extension = extension.substr(1);
         if (!extension.empty())
-          grtm->set_app_option("Recordset:LastExportExtension", grt::StringRef(extension));
+          bec::GRTManager::get().set_app_option("Recordset:LastExportExtension", grt::StringRef(extension));
       }
     }
   }
@@ -560,7 +559,7 @@ void SqlEditorResult::onRecordsetColumnsResized(const std::vector<int> cols)
   if (!widths.empty())
   {
     boost::function<void()> f = boost::bind(&ColumnWidthCache::save_columns_width, _owner->owner()->column_width_cache(), widths);
-    _owner->owner()->grt_manager()->get_dispatcher()->execute_async_function("store column widths", boost::bind(&run_and_return, f));
+    bec::GRTManager::get().get_dispatcher()->execute_async_function("store column widths", boost::bind(&run_and_return, f));
   }
 }
 
@@ -590,7 +589,7 @@ void SqlEditorResult::reset_column_widths()
 std::vector<float> SqlEditorResult::get_autofit_column_widths(Recordset *rs)
 {
   std::vector<float> widths(rs->get_column_count());
-  std::string font = _owner->owner()->grt_manager()->get_app_option_string("workbench.general.Resultset:Font");
+  std::string font = bec::GRTManager::get().get_app_option_string("workbench.general.Resultset:Font");
 
   for (size_t c = rs->get_column_count(), j = 0; j < c; j++)
   {

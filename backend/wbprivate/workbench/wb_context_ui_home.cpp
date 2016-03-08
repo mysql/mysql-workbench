@@ -311,7 +311,7 @@ void WBContextUI::show_home_screen()
       bec::ArgumentPool argument_pool;
       _wb->update_plugin_arguments_pool(argument_pool);
       groups.push_back("Menu/Home/Connections");
-      bec::MenuItemList pitems = _wb->get_grt_manager()->get_plugin_context_menu_items(groups, argument_pool);
+      bec::MenuItemList pitems = bec::GRTManager::get().get_plugin_context_menu_items(groups, argument_pool);
       if (!pitems.empty())
       {
         menu = mforms::manage(new mforms::Menu());
@@ -333,7 +333,7 @@ void WBContextUI::show_home_screen()
       _wb->update_plugin_arguments_pool(argument_pool);
       argument_pool.add_entries_for_object("selectedConnection", db_mgmt_ConnectionRef(grt::Initialized), "db.mgmt.Connection");
       groups.push_back("Menu/Home/Connections");
-      bec::MenuItemList pitems = _wb->get_grt_manager()->get_plugin_context_menu_items(groups, argument_pool);
+      bec::MenuItemList pitems = bec::GRTManager::get().get_plugin_context_menu_items(groups, argument_pool);
       if (!pitems.empty())
       {
         menu->add_separator();
@@ -366,7 +366,7 @@ void WBContextUI::show_home_screen()
 
       argument_pool.add_simple_value("selectedGroupName", grt::StringRef(""));
       groups.push_back("Menu/Home/ConnectionGroup");
-      bec::MenuItemList pitems = _wb->get_grt_manager()->get_plugin_context_menu_items(groups, argument_pool);
+      bec::MenuItemList pitems = bec::GRTManager::get().get_plugin_context_menu_items(groups, argument_pool);
       if (!pitems.empty())
       {
         menu->add_items_from_list(pitems);
@@ -400,7 +400,7 @@ void WBContextUI::show_home_screen()
       _wb->update_plugin_arguments_pool(argument_pool);
       argument_pool.add_simple_value("selectedModelFile", grt::ValueRef());
       groups.push_back("Menu/Home/ModelFiles");
-      bec::MenuItemList pitems = _wb->get_grt_manager()->get_plugin_context_menu_items(groups, argument_pool);
+      bec::MenuItemList pitems = bec::GRTManager::get().get_plugin_context_menu_items(groups, argument_pool);
       if (!pitems.empty())
       {
         menu->add_separator();
@@ -424,7 +424,7 @@ void WBContextUI::show_home_screen()
       _wb->update_plugin_arguments_pool(argument_pool);
       argument_pool.add_simple_value("selectedModelFile", grt::ValueRef());
       groups.push_back("Menu/Home/ModelFiles"); // TODO: do we need a different group for the action menu?
-      bec::MenuItemList pitems = _wb->get_grt_manager()->get_plugin_context_menu_items(groups, argument_pool);
+      bec::MenuItemList pitems = bec::GRTManager::get().get_plugin_context_menu_items(groups, argument_pool);
       if (!pitems.empty())
       {
         menu->add_separator();
@@ -826,7 +826,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
 
     case ActionManageConnections:
     {
-      ServerInstanceEditor editor(_wb->get_grt_manager(), _wb->get_root()->rdbmsMgmt());
+      ServerInstanceEditor editor(_wb->get_root()->rdbmsMgmt());
       _wb->show_status_text("Connection Manager Opened");
       editor.run(db_mgmt_ConnectionRef::cast_from(object));
       _wb->show_status_text("");
@@ -1158,11 +1158,11 @@ void WBContextUI::refresh_home_documents()
         "\\MySQL\\Samples and Examples 5.5");
       examples_paths.push_back(mforms::Utilities::get_special_folder(mforms::WinProgramFiles) +
         "\\MySQL\\Samples and Examples 5.5");
-      examples_paths.push_back(_wb->get_grt_manager()->get_basedir()+"/extras");
+      examples_paths.push_back(bec::GRTManager::get().get_basedir()+"/extras");
 #elif defined(__APPLE__)
-      examples_paths.push_back(_wb->get_grt_manager()->get_basedir()+"/../SharedSupport");
+      examples_paths.push_back(bec::GRTManager::get().get_basedir()+"/../SharedSupport");
 #else
-      examples_paths.push_back(_wb->get_grt_manager()->get_basedir()+"/extras");
+      examples_paths.push_back(bec::GRTManager::get().get_basedir()+"/extras");
 #endif
 
       for (std::list<std::string>::const_iterator path_iterator = examples_paths.begin();

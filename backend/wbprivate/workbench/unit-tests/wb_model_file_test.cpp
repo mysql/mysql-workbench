@@ -36,7 +36,11 @@ using namespace wb;
 
 BEGIN_TEST_DATA_CLASS(wb_model_file)
 public:
-  WBTester tester;
+  WBTester *tester;
+  TEST_DATA_CONSTRUCTOR(wb_model_file)
+  {
+    tester = new WBTester;
+  }
 END_TEST_DATA_CLASS;
 
 TEST_MODULE(wb_model_file, "tests for WB model file");
@@ -45,11 +49,10 @@ TEST_MODULE(wb_model_file, "tests for WB model file");
 
 TEST_FUNCTION(1)
 {
-  bec::GRTManager *grtm;
 #ifdef _WIN32
   base::create_directory(TMP_DIR, 0666);
 #endif
-  grtm = bec::GRTManager::get_instance_for();
+
   std::string tmpDir = TMP_DIR;
 
   {
@@ -59,7 +62,7 @@ TEST_FUNCTION(1)
 
     // create a test file, change it and then save_as
 
-    mf.create(grtm);
+    mf.create();
 
     doc->name("t1");
 
@@ -81,8 +84,8 @@ TEST_FUNCTION(1)
     ModelFile mf1(tmpDir);
     ModelFile mf2(tmpDir);
 
-    mf1.open("t1.mwb", grtm);
-    mf2.open("t2.mwb", grtm);
+    mf1.open("t1.mwb");
+    mf2.open("t2.mwb");
 
     workbench_DocumentRef d1, d2;
 
@@ -98,19 +101,16 @@ TEST_FUNCTION(1)
 TEST_FUNCTION(2)
 {
   //WBTester tester;
-  bec::GRTManager *grtm;
-  grtm = bec::GRTManager::get_instance_for();
-
   // load sakile a bunch of times
   std::string tmpDir = TMP_DIR;
 
   ModelFile m(tmpDir);
 
-  m.open("data/workbench/sakila.mwb", grtm);
+  m.open("data/workbench/sakila.mwb");
 
   try
   {
-    m.open("data/workbench/sakila.mwb", grtm);
+    m.open("data/workbench/sakila.mwb");
     fail("open model file locking didnt work");
   }
   catch (...)
@@ -122,9 +122,9 @@ TEST_FUNCTION(2)
 TEST_FUNCTION(3)
 {
  // WBTester wb;
-  tester.wb->new_document();
-  tester.wb->open_document("data/workbench/sakila_full.mwb");
-  tester.wb->close_document();
+  tester->wb->new_document();
+  tester->wb->open_document("data/workbench/sakila_full.mwb");
+  tester->wb->close_document();
 }
 
 
@@ -142,8 +142,6 @@ TEST_FUNCTION(4)
 // didn't close the file properly, resulting in inability to save the model)
 TEST_FUNCTION(10)
 {
-  bec::GRTManager* grtm = bec::GRTManager::get_instance_for();
-
   base::create_directory(TMP_DIR, 0666);
   std::string temp_dir = TMP_DIR;
 
@@ -151,7 +149,7 @@ TEST_FUNCTION(10)
   ModelFile mf(temp_dir);
   try
   {
-    mf.open("data/workbench/test_model1.mwb", grtm);
+    mf.open("data/workbench/test_model1.mwb");
   }
   catch (...)
   {
@@ -169,10 +167,8 @@ TEST_FUNCTION(10)
   }
 }
 
-std::string test_loading_and_saving_a_model( const WBTester& tester, std::string& base_path )
+std::string test_loading_and_saving_a_model(std::string& base_path)
 {
-  bec::GRTManager* grtm = bec::GRTManager::get_instance_for();
-
   #ifdef _WIN32
     base::create_directory(TMP_DIR, 0666);
   #endif
@@ -188,7 +184,7 @@ std::string test_loading_and_saving_a_model( const WBTester& tester, std::string
   // open the file
   try
   {
-    mf.open(src_path, grtm);
+    mf.open(src_path);
   }
   catch (...)
   {
@@ -209,7 +205,7 @@ std::string test_loading_and_saving_a_model( const WBTester& tester, std::string
   // verify the copy was created
   try
   {
-    mf.open(dst_path, grtm);
+    mf.open(dst_path);
     mf.cleanup();
   }
   catch (...)
@@ -242,7 +238,7 @@ TEST_FUNCTION(15)
 {
   std::string base_path = "data/workbench/test_model1";
 
-  std::string result = test_loading_and_saving_a_model( tester, base_path );
+  std::string result = test_loading_and_saving_a_model(base_path);
   if ( !result.empty() )
     fail(result);
 }
@@ -252,7 +248,7 @@ TEST_FUNCTION(16)
 {
   std::string base_path = "data/workbench/file_with_unicode_\xC4\x85\xC4\x87\xC4\x99";
 
-  std::string result = test_loading_and_saving_a_model(tester, base_path);
+  std::string result = test_loading_and_saving_a_model(base_path);
   if (!result.empty())
     fail(result);
 }
@@ -262,7 +258,7 @@ TEST_FUNCTION(17)
 {
   std::string base_path = "data/workbench/path_with_unicode_\xC4\x85\xC4\x87\xC4\x99/test_model1";
 
-  std::string result = test_loading_and_saving_a_model(tester, base_path);
+  std::string result = test_loading_and_saving_a_model(base_path);
   if (!result.empty())
     fail(result);
 }
@@ -272,9 +268,16 @@ TEST_FUNCTION(18)
 {
   std::string base_path = "data/workbench/path_with_unicode_\xC4\x85\xC4\x87\xC4\x99/file_with_unicode_\xC4\x85\xC4\x87\xC4\x99";
 
-  std::string result = test_loading_and_saving_a_model(tester, base_path);
+  std::string result = test_loading_and_saving_a_model(base_path);
   if (!result.empty())
     fail(result);
+}
+
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  delete tester;
 }
 
 END_TESTS

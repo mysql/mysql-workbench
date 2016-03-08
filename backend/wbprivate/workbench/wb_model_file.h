@@ -47,8 +47,8 @@ namespace wb {
     ModelFile(const std::string &tmpdir);
     ~ModelFile();
 
-    void create(bec::GRTManager *grtm);
-    void open(const std::string &path, bec::GRTManager *grtm);
+    void create();
+    void open(const std::string &path);
 
     static std::string read_comment(const std::string &path);
 
@@ -73,7 +73,7 @@ namespace wb {
     std::string get_rel_db_file_path();
     std::string get_db_file_dir_path();
     std::string get_db_file_path();
-    void add_db_file(bec::GRTManager *grtm, const std::string &content_dir);
+    void add_db_file(const std::string &content_dir);
 
     std::string add_image_file(const std::string &path);
     std::string add_script_file(const std::string &path);

@@ -288,6 +288,7 @@ namespace bec {
     volatile bool _shutdown_callback;
     bool _is_main_dispatcher;
     bool _shut_down;
+    bool _started;
     
     GAsyncQueue *_callback_queue;
     GThread *_thread;

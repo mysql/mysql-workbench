@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,11 +39,12 @@ static bool populate_test_table(std::auto_ptr<sql::Statement> &stmt)
 
 BEGIN_TEST_DATA_CLASS(module_dbc_statement_test)
 public:
-  WBTester _tester;
+  WBTester *_tester;
   SqlFacade::Ref sql_splitter;
   
   TEST_DATA_CONSTRUCTOR(module_dbc_statement_test)
   {
+    _tester = new WBTester();
     sql_splitter = SqlFacade::instance_for_rdbms_name("Mysql");
     ensure("failed to get sqlparser module", (NULL != sql_splitter));
     
@@ -672,6 +673,13 @@ TEST_FUNCTION(16)
     printf("ERR: Caught sql::SQLException\n");
     throw;
   } 
+}
+
+// Due to the tut nature, this must be executed as a last test always,
+// we can't have this inside of the d-tor.
+TEST_FUNCTION(999)
+{
+  delete _tester;
 }
 
 END_TESTS

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +30,7 @@ private:
   db_mysql_SchemaRef _schema;
 
 public:
-  MySQLSchemaEditorBE(bec::GRTManager *grtm, const db_mysql_SchemaRef &schema);
+  MySQLSchemaEditorBE(const db_mysql_SchemaRef &schema);
 
   virtual db_SchemaRef get_schema() { return _schema; }
 

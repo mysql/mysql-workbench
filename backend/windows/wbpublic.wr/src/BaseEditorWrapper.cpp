@@ -124,13 +124,6 @@ MySQL::Grt::GRT ^BaseEditorWrapper::get_grt()
 
 //--------------------------------------------------------------------------------------------------
 
-GrtManager ^BaseEditorWrapper::get_grt_manager()
-{
-  return gcnew GrtManager(get_unmanaged_object()->get_grt_manager());
-}
-
-//--------------------------------------------------------------------------------------------------
-
 void BaseEditorWrapper::show_exception(String ^title, String ^detail)
 {
   MessageBox::Show(String::Format("An error has occurred while performing the requested action:\n{0}", detail),

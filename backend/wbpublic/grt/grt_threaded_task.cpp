@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,29 +24,15 @@
 
 GrtThreadedTask::GrtThreadedTask()
 :
-_grtm(NULL),
 _send_task_res_msg(true),
 _onetime_finish_cb(false),
 _onetime_fail_cb(false)
 {
 }
-
-//--------------------------------------------------------------------------------------------------
-
-GrtThreadedTask::GrtThreadedTask(bec::GRTManager *grtm)
-:
-_grtm(grtm),
-_send_task_res_msg(true),
-_onetime_finish_cb(false),
-_onetime_fail_cb(false)
-{
-}
-
 //--------------------------------------------------------------------------------------------------
 
 GrtThreadedTask::GrtThreadedTask(const GrtThreadedTask::Ref parent_task)
 :
-_grtm(parent_task->grtm()),
 _send_task_res_msg(true),
 _onetime_finish_cb(false),
 _onetime_fail_cb(false)
@@ -76,15 +62,6 @@ void GrtThreadedTask::disconnect_callbacks()
 
 //--------------------------------------------------------------------------------------------------
 
-void GrtThreadedTask::grtm(bec::GRTManager *grtm)
-{
-  if (_grtm == grtm)
-    return;
-  _grtm= grtm;
-}
-
-//--------------------------------------------------------------------------------------------------
-
 void GrtThreadedTask::parent_task(const GrtThreadedTask::Ref val)
 {
   if (_dispatcher)
@@ -97,7 +74,6 @@ void GrtThreadedTask::parent_task(const GrtThreadedTask::Ref val)
   disconnect_callbacks();
   if (_parent_task)
   {
-    grtm(_parent_task->grtm());
     _dispatcher= _parent_task->dispatcher();
     _msg_cb = _parent_task->_msg_cb;
     _progress_cb = _parent_task->_progress_cb;
@@ -115,8 +91,9 @@ const bec::GRTDispatcher::Ref & GrtThreadedTask::dispatcher()
 {
   if (!_dispatcher)
   {
-    _dispatcher = bec::GRTDispatcher::create_dispatcher(_grtm->is_threaded(), false);
-    _dispatcher->set_main_thread_flush_and_wait(_grtm->get_dispatcher()->get_main_thread_flush_and_wait());
+
+    _dispatcher = bec::GRTDispatcher::create_dispatcher(bec::GRTManager::get().is_threaded(), false);
+    _dispatcher->set_main_thread_flush_and_wait(bec::GRTManager::get().get_dispatcher()->get_main_thread_flush_and_wait());
     _dispatcher->start();
   }
   return _dispatcher;
@@ -133,8 +110,6 @@ const bec::GRTTask::Ref GrtThreadedTask::task()
 
 void GrtThreadedTask::exec(bool sync, Proc_cb proc_cb)
 {
-  if (!_grtm)
-    return;
   if (proc_cb.empty())
     proc_cb= _proc_cb;
   if (proc_cb.empty())
@@ -213,10 +188,8 @@ void GrtThreadedTask::process_finish(grt::ValueRef res)
 
 void GrtThreadedTask::send_msg(int msg_type, const std::string &msg, const std::string &detail)
 {
-  if (!_grtm)
-    return;
 
-  if (_grtm->in_main_thread())
+  if (bec::GRTManager::get().in_main_thread())
   {
      if(_msg_cb)
         _msg_cb(msg_type, msg, detail);
@@ -244,10 +217,10 @@ void GrtThreadedTask::send_msg(int msg_type, const std::string &msg, const std::
 
 void GrtThreadedTask::send_progress(float percentage, const std::string &msg, const std::string &detail)
 {
-  if (!_grtm || _grtm->terminated())
+  if (bec::GRTManager::get().terminated())
     return;
 
-  if (_grtm->in_main_thread())
+  if (bec::GRTManager::get().in_main_thread())
   {
     if (_progress_cb)
       _progress_cb(percentage, msg);

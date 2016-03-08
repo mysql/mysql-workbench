@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,7 +41,7 @@ OutputView::OutputView(WBContext* context)
   _message_list.add_column(mforms::StringColumnType, "Detail", 200, false);
   _message_list.end_columns();
   
-  _storage = _wb->get_grt_manager()->get_messages_list();
+  _storage = bec::GRTManager::get().get_messages_list();
   _storage->set_output_handler(boost::bind(&mforms::TextBox::append_text, &_output_text, _1, true));
   
   _messages = _storage->create_list();

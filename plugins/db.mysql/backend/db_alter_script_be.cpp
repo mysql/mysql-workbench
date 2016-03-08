@@ -47,8 +47,8 @@ using namespace grt;
 
 DEFAULT_LOG_DOMAIN("alter_script_be");
 
-DbMySQLDiffAlter::DbMySQLDiffAlter(bec::GRTManager *m) 
-  : manager_(m), _alter_list(grt::Initialized), _alter_object_list(grt::Initialized)
+DbMySQLDiffAlter::DbMySQLDiffAlter()
+  : _alter_list(grt::Initialized), _alter_object_list(grt::Initialized)
 {}
 
 DbMySQLDiffAlter::~DbMySQLDiffAlter()
@@ -147,7 +147,7 @@ boost::shared_ptr<DiffTreeBE> DbMySQLDiffAlter::init_diff_tree(const std::vector
 {
   db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->get("/wb/rdbmsMgmt/rdbms/0"));
   std::string default_engine_name;
-  grt::ValueRef default_engine = manager_->get_app_option("db.mysql.Table:tableEngine");
+  grt::ValueRef default_engine = bec::GRTManager::get().get_app_option("db.mysql.Table:tableEngine");
   if(grt::StringRef::can_wrap(default_engine))
     default_engine_name = grt::StringRef::cast_from(default_engine);
   std::string err;

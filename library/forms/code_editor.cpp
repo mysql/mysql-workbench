@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -506,7 +506,7 @@ std::pair<const char*, size_t> CodeEditor::get_text_ptr()
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditor::set_selection(size_t start, size_t length)
+void CodeEditor::set_selection(std::size_t start, std::size_t length)
 {
   _code_editor_impl->send_editor(this, SCI_SETSELECTIONSTART, start, 0);
   _code_editor_impl->send_editor(this, SCI_SETSELECTIONEND, start + length, 0);
@@ -522,7 +522,7 @@ void CodeEditor::clear_selection()
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditor::get_selection(size_t &start, size_t &length)
+void CodeEditor::get_selection(std::size_t &start, std::size_t &length)
 {
   start = _code_editor_impl->send_editor(this, SCI_GETSELECTIONSTART, 0, 0);
   length = _code_editor_impl->send_editor(this, SCI_GETSELECTIONEND, 0, 0) - start;

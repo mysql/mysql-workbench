@@ -43,7 +43,6 @@ public:
 
 private:
   AddOnDownloadWindow *_owner;
-  bec::GRTManager *_grtm;
   mforms::ImageBox _icon;
   mforms::Box _rbox;
   mforms::Box _progress_box;
@@ -66,7 +65,6 @@ private:
 AddOnDownloadWindow::DownloadItem::DownloadItem(AddOnDownloadWindow *owner, const std::string &url)
 : mforms::Box(true), _owner(owner), _rbox(false), _progress_box(true), _url(url)
 {
-  _grtm = _owner->_wbui->get_wb()->get_grt_manager();
   
   set_spacing(20);
   _rbox.set_spacing(4);
@@ -87,7 +85,7 @@ AddOnDownloadWindow::DownloadItem::DownloadItem(AddOnDownloadWindow *owner, cons
   else
     name++;
   
-  _dest_path = base::makePath(_grtm->get_tmp_dir(), name);
+  _dest_path = base::makePath(bec::GRTManager::get().get_tmp_dir(), name);
   _caption.set_text(base::strfmt("Downloading %s", name));  
   _info.set_text("Preparing...");
   _progress.set_value(0.0);
@@ -136,14 +134,14 @@ grt::ValueRef AddOnDownloadWindow::DownloadItem::perform_download()
 
 void AddOnDownloadWindow::DownloadItem::start()
 {
-  bec::GRTTask::Ref task = bec::GRTTask::create_task("downloading plugin", _grtm->get_dispatcher(),
+  bec::GRTTask::Ref task = bec::GRTTask::create_task("downloading plugin", bec::GRTManager::get().get_dispatcher(),
     boost::bind(&AddOnDownloadWindow::DownloadItem::perform_download, this));
   
   scoped_connect(task->signal_finished(),boost::bind(&AddOnDownloadWindow::DownloadItem::download_finished, this, _1));
   scoped_connect(task->signal_failed(),boost::bind(&AddOnDownloadWindow::DownloadItem::download_failed, this, _1));
   scoped_connect(task->signal_message(),boost::bind(&AddOnDownloadWindow::DownloadItem::handle_output, this, _1));
 
-  _grtm->get_dispatcher()->add_task(task);
+  bec::GRTManager::get().get_dispatcher()->add_task(task);
 }
 
 //--------------------------------------------------------------------------------------------------
