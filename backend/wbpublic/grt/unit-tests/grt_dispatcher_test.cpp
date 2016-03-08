@@ -24,15 +24,13 @@
 using namespace grt;
 using namespace bec;
 
-
-
 BEGIN_TEST_DATA_CLASS(grt_dispatcher_test)
 public:
 
 TEST_DATA_CONSTRUCTOR(grt_dispatcher_test)
 {
   // No need to initialize Python for this test. No need for a module path either.
-  bec::GRTManager::get().initialize(false, "");
+  GRTManagerTest::get()->initialize(false, "");
 }
 
 END_TEST_DATA_CLASS;
@@ -62,6 +60,7 @@ static grt::ValueRef normal_test_function()
 
 TEST_FUNCTION(1)
 {
+ 
   // test callbacks
   grt::ValueRef result;
   bool finish_called= false;
@@ -69,7 +68,7 @@ TEST_FUNCTION(1)
   bec::GRTTask::Ref task = GRTTask::create_task("test", bec::GRTManager::get().get_dispatcher(), boost::bind(normal_test_function));
   task->signal_finished()->connect(boost::bind(&finished, _1, &finish_called));
   
-  result = bec::GRTManager::get().get_dispatcher()->add_task_and_wait(task);
+  result = GRTManagerTest::get()->get_dispatcher()->add_task_and_wait(task);
   
   ensure("result", result.is_valid() && result.type() == grt::IntegerType);
   ensure_equals("result value", *grt::IntegerRef::cast_from(result), 123);
@@ -77,10 +76,10 @@ TEST_FUNCTION(1)
   ensure("finish callback called", finish_called);
   
   finish_called = false;
-  task = GRTTask::create_task("test", bec::GRTManager::get().get_dispatcher(), boost::bind(normal_test_function));
+  task = GRTTask::create_task("test", GRTManagerTest::get()->get_dispatcher(), boost::bind(normal_test_function));
   task->signal_finished()->connect(boost::bind(&finished_with_wait, _1, &finish_called));
   
-  result = bec::GRTManager::get().get_dispatcher()->add_task_and_wait(task);
+  result = GRTManagerTest::get()->get_dispatcher()->add_task_and_wait(task);
   
   ensure("finish callback called with wait", finish_called);
 }
@@ -89,9 +88,6 @@ TEST_FUNCTION(1)
 TEST_FUNCTION(5)
 {
   // test msg queue
-
-  
-
 }
 
 /*
