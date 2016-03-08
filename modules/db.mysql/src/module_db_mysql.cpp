@@ -542,7 +542,7 @@ std::string ActionGenerateSQL::generate_create(db_mysql_ColumnRef column)
 
   if (column->generated())
   {
-    sql += "GENERATED ALWAYS AS (" + *column->expression() + ") " + *column->generatedStorage();
+    sql += "GENERATED ALWAYS AS (" + *column->expression() + ") " + *column->generatedStorage() + " ";
   }
   else
   {
