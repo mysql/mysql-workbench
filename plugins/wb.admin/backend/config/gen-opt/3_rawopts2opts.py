@@ -2,6 +2,7 @@ import raw_opts
 import raw_vars
 import options_layout
 import pprint
+from variable_column_widths import variable_column_widths
 
 print('-----------------------------------\nRunning %s\n-----------------------------------\n' % __file__)
 
@@ -67,7 +68,8 @@ for section, section_items in options_layout.layout:
         out.write("])")
         if g < len(section_items)-1:
             out.write(",\n")
-    out.write("]),\n")
+    out.write("], %s" % str(variable_column_widths[section]))
+    out.write("),\n")
 out.write("]\n")
 
 unhandled_options = set(option_dict.keys()) - handled_options
@@ -89,7 +91,6 @@ variable_groups = normalize_dict_keys(dict(variable_groups))
 system_var_list = []
 for var in raw_vars.system_vars_list:
     current_var = (var['name'], var['description'], var['dynamic'], variable_groups.get(var['name'].replace("-","_"), []))
-    #system_var_list.append(tuple(current_var + [variable_groups.get(var['name'].replace("-","_"), [])]))
     system_var_list.append(current_var)
 
 
