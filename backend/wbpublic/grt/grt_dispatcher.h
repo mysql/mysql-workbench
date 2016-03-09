@@ -206,17 +206,17 @@ namespace bec {
       const boost::function<grt::ValueRef ()> &function);
 
     //XXX replace with direct slots?
-    StartedSignal *signal_started() { return &_started; }
-    FinishedSignal *signal_finished() { return &_finished; }
-    FailedSignal *signal_failed() { return &_failed; }
+    StartedSignal *signal_started() { return &_sigStarted; }
+    FinishedSignal *signal_finished() { return &_sigFinished; }
+    FailedSignal *signal_failed() { return &_sigFailed; }
     ProcessMessageSignal *signal_message() { return &_message; }
     
   protected:
     boost::function<grt::ValueRef ()> _function;
     
-    StartedSignal _started;
-    FinishedSignal _finished;
-    FailedSignal _failed;
+    StartedSignal _sigStarted;
+    FinishedSignal _sigFinished;
+    FailedSignal _sigFailed;
     ProcessMessageSignal _message;
     
     virtual grt::ValueRef execute();
