@@ -297,7 +297,6 @@ class MSSQLMigration(GenericMigration):
             elif source_datatype == 'TIME':
                 target_datatype = 'TIME'
                 target_column.precision = -1
-                target_version = Version.fromgrt(targetCatalog.version)
                 if target_version.is_supported_mysql_version_at_least(5,6,4):
                     target_column.precision = source_column.precision if source_column.precision < 7 else 6
             elif source_datatype == 'BIT':
