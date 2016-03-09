@@ -194,7 +194,17 @@ class Option(object):
 
     def val(self, i):
         return self.values[i][1]
-
+    
+    # Return the last value from the file, if more then one exists
+    def value(self):
+        result_value = None
+        result_line = 0
+        for value in self.values:
+            if value[0] > result_line:
+                result_line = value[0]
+                result_value = value[1]
+        return result_value
+      
     def line(self, i):
         return self.values[i][0]
 
@@ -968,7 +978,7 @@ class WbAdminConfigFileBE(object):
                             ovalue = "0"
                         options.append((name, ovalue))
                     else:
-                        options.append((name, str(opt)))
+                        options.append((name, opt.value()))
 
         return options
 
