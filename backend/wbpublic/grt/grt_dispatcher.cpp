@@ -274,14 +274,14 @@ grt::ValueRef GRTTask::execute()
 
 void GRTTask::started_m()
 {
-  _started();
+  _sigStarted();
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void GRTTask::finished_m(const grt::ValueRef &result)
 {
-  _finished(result);
+  _sigFinished(result);
 
   GRTTaskBase::finished_m(result);
 }
@@ -290,7 +290,7 @@ void GRTTask::finished_m(const grt::ValueRef &result)
 
 void GRTTask::failed_m(const std::exception &error)
 {
-  _failed(*_exception);
+  _sigFailed(*_exception);
  
   GRTTaskBase::failed_m(*_exception);
 }
@@ -316,7 +316,7 @@ void GRTTask::process_message_m(const grt::Message &msgs)
 
 GRTShellTask::GRTShellTask(const std::string &name, const GRTDispatcher::Ref dispatcher,
   const std::string &command)
-  : GRTTaskBase(name, dispatcher)
+  : GRTTaskBase(name, dispatcher), _result(grt::ShellCommandUnknown)
 {
   _command = command;
 }
