@@ -280,8 +280,7 @@ public:
    * Draws and icon followed by the given text. The given position is that of the upper left corner
    * of the image.
    */
-  void draw_icon_with_text(cairo_t *cr, int x, int y, cairo_surface_t *icon,
-    const std::string &text, bool high_contrast)
+  void draw_icon_with_text(cairo_t *cr, int x, int y, cairo_surface_t *icon, const std::string &text)
   {
     mforms::Utilities::paint_icon(cr, icon, x, y);
     x += image_width(icon) + 3;
@@ -289,10 +288,7 @@ public:
     cairo_text_extents_t extents;
     cairo_text_extents(cr, text.c_str(), &extents);
 
-    if (high_contrast)
-      cairo_set_source_rgb(cr, 0, 0, 0);
-    else
-      cairo_set_source_rgba(cr, 0xF9 / 255.0, 0xF9 / 255.0, 0xF9 / 255.0, 0.5);
+    cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_move_to(cr, x , (int)(y + image_height(icon) / 2.0 + extents.height / 2.0));
     cairo_show_text(cr, text.c_str());
     cairo_stroke(cr);
@@ -300,7 +296,7 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  void draw_entry(cairo_t *cr, const DocumentEntry &entry, bool hot, bool high_contrast)
+  void draw_entry(cairo_t *cr, const DocumentEntry &entry, bool hot)
   {
     const int icon_top = 26;
     const int detail_spacing = 15;
@@ -309,10 +305,7 @@ public:
     int icon_width, icon_height;
     mforms::Utilities::get_icon_size(_model_icon, icon_width, icon_height);
 
-    if (high_contrast)
-      cairo_set_source_rgb(cr, 0, 0, 0);
-    else
-      cairo_set_source_rgb(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0);
+    cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_select_font_face(cr, HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, HOME_SUBTITLE_FONT_SIZE);
     int x = (int)entry.bounds.left();
@@ -325,14 +318,11 @@ public:
       width = ceil(extents.width);
 
       cairo_save(cr);
-      if (high_contrast)
-        cairo_set_source_rgb(cr, 1, 1, 1);
-      else
-        cairo_set_source_rgb(cr, 0, 0, 0);
-      text_with_decoration(cr, x-1, y, entry.title.c_str(), true, width);
-      text_with_decoration(cr, x+1, y, entry.title.c_str(), true, width);
-      text_with_decoration(cr, x, y-1, entry.title.c_str(), true, width);
-      text_with_decoration(cr, x, y+1, entry.title.c_str(), true, width);
+      cairo_set_source_rgb(cr, 1, 1, 1);
+      text_with_decoration(cr, x - 1, y, entry.title.c_str(), true, width);
+      text_with_decoration(cr, x + 1, y, entry.title.c_str(), true, width);
+      text_with_decoration(cr, x, y - 1, entry.title.c_str(), true, width);
+      text_with_decoration(cr, x, y + 1, entry.title.c_str(), true, width);
       cairo_restore(cr);
 
       text_with_decoration(cr, x, y, entry.title.c_str(), true, width);
@@ -344,16 +334,14 @@ public:
 
     cairo_set_font_size(cr, HOME_SMALL_INFO_FONT_SIZE);
 
-    draw_icon_with_text(cr, x, (int)entry.bounds.top() + icon_top, _folder_icon,
-                        entry.folder_shorted, high_contrast);
+    draw_icon_with_text(cr, x, (int)entry.bounds.top() + icon_top, _folder_icon, entry.folder_shorted);
     if (entry.is_model)
       draw_icon_with_text(cr, x, (int)entry.bounds.top() + icon_top + detail_spacing, _schema_icon,
-      entry.schemas.empty() ? "--" : entry.schemas_shorted, high_contrast);
+      entry.schemas.empty() ? "--" : entry.schemas_shorted);
     else
       draw_icon_with_text(cr, x, (int)entry.bounds.top() + icon_top + detail_spacing, _size_icon,
-        entry.size.empty() ? "--" : entry.size, high_contrast);
-    draw_icon_with_text(cr, x, (int)entry.bounds.top() + icon_top + (detail_spacing * 2), _time_icon, entry.last_accessed,
-      high_contrast);
+        entry.size.empty() ? "--" : entry.size);
+    draw_icon_with_text(cr, x, (int)entry.bounds.top() + icon_top + (detail_spacing * 2), _time_icon, entry.last_accessed);
   }
 
   //------------------------------------------------------------------------------------------------
@@ -392,7 +380,7 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  void draw_selection_message(cairo_t *cr, bool high_contrast)
+  void draw_selection_message(cairo_t *cr)
   {
     // Attach the message to the current active entry as this is what is used when
     // a connection is opened.
@@ -444,10 +432,7 @@ public:
 
     int y = (int)(message_rect.top() + extents.height + 4);
 
-    if (high_contrast)
-      cairo_set_source_rgb(cr, 0, 0, 0);
-    else
-      cairo_set_source_rgb(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0);
+    cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_move_to(cr, message_rect.left() + 10, y);
     cairo_show_text(cr, _("Please select a connection"));
 
@@ -619,17 +604,12 @@ public:
     cairo_set_font_size(cr, HOME_TITLE_FONT_SIZE);
     int entries_per_row = width / DOCUMENTS_ENTRY_WIDTH;
 
-    bool high_contrast = base::Color::is_high_contrast_scheme();
     // Heading for switching display mode. Draw heading hot only when we support more sections.
-    if (high_contrast)
-      cairo_set_source_rgb(cr, 0, 0, 0);
-    else
-      cairo_set_source_rgba(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0, _display_mode == ModelsOnly ? 1 : 0.2);
+    cairo_set_source_rgb(cr, 0, 0, 0);
     text_with_decoration(cr, _model_heading_rect.left(), _model_heading_rect.top(), _("Models"),
       false /*_hot_heading == ModelsOnly*/, _model_heading_rect.width());
 
-    if (high_contrast)
-      cairo_set_operator(cr, CAIRO_OPERATOR_XOR);
+    cairo_set_operator(cr, CAIRO_OPERATOR_XOR);
 
     cairo_set_source_surface(cr, _plus_icon, _add_button.bounds.left(), _add_button.bounds.top());
     cairo_paint(cr);
@@ -640,35 +620,7 @@ public:
     cairo_set_source_surface(cr, _action_icon, _action_button.bounds.left(), _action_button.bounds.top());
     cairo_paint(cr);
 
-    /* Disabled for now.
-    if (high_contrast)
-      cairo_set_source_rgb(cr, 0, 0, 0);
-    else
-      cairo_set_source_rgba(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0, _display_mode == ScriptsOnly ? 1 : 0.2);
-    text_with_decoration(cr, _sql_heading_rect.left(), _sql_heading_rect.top(), _("SQL Scripts"),
-      _hot_heading == ScriptsOnly, _sql_heading_rect.width());
-
-    if (high_contrast)
-      cairo_set_source_rgb(cr, 0, 0, 0);
-    else
-      cairo_set_source_rgba(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0, _display_mode == Mixed ? 1 : 0.2);
-    text_with_decoration(cr, _mixed_heading_rect.left(), _mixed_heading_rect.top(), _("Recent Documents"),
-      _hot_heading == Mixed, _mixed_heading_rect.width());
-
-    // Finally the separator lines. Text rects are flipped!
-    if (high_contrast)
-      cairo_set_source_rgb(cr, 0, 0, 0);
-    else
-      cairo_set_source_rgba(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0, 0.2);
-    cairo_move_to(cr, _sql_heading_rect.left() - DOCUMENTS_HEADING_SPACING + 0.5, _sql_heading_rect.top() - _sql_heading_rect.height() + 3);
-    cairo_line_to(cr, _sql_heading_rect.left() - DOCUMENTS_HEADING_SPACING + 0.5, _sql_heading_rect.top() + 3);
-    cairo_move_to(cr, _mixed_heading_rect.left() - DOCUMENTS_HEADING_SPACING + 0.5, _mixed_heading_rect.top() - _sql_heading_rect.height() + 3);
-    cairo_line_to(cr, _mixed_heading_rect.left() - DOCUMENTS_HEADING_SPACING + 0.5, _mixed_heading_rect.top() + 3);
-    cairo_stroke(cr);
-*/
-    
-    if (high_contrast)
-      cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 
     int row = 0;
     base::Rect bounds(0, DOCUMENTS_TOP_PADDING, DOCUMENTS_ENTRY_WIDTH, DOCUMENTS_ENTRY_HEIGHT);
@@ -691,12 +643,12 @@ public:
           if ((size_t)_hot_entry == index)
             draw_hot_entry = true;
           else
-            draw_entry(cr, _filtered_documents[index], (size_t)_hot_entry == index, high_contrast);
+            draw_entry(cr, _filtered_documents[index], (size_t)_hot_entry == index);
         }
         bounds.pos.x += DOCUMENTS_ENTRY_WIDTH;
       }
       if (draw_hot_entry)
-        draw_entry(cr, _filtered_documents[_hot_entry], true, high_contrast);
+        draw_entry(cr, _filtered_documents[_hot_entry], true);
 
       row++;
       bounds.pos.y += DOCUMENTS_ENTRY_HEIGHT + DOCUMENTS_VERTICAL_SPACING;
@@ -705,7 +657,7 @@ public:
     }
 
     if (_show_selection_message)
-      draw_selection_message(cr, high_contrast);
+      draw_selection_message(cr);
   }
 
   //------------------------------------------------------------------------------------------------
@@ -1267,7 +1219,7 @@ public:
 
   //--------------------------------------------------------------------------------------------------
 
-  void draw_paging_part(cairo_t *cr, int current_page, int pages, bool high_contrast)
+  void draw_paging_part(cairo_t *cr, int current_page, int pages)
   {
     cairo_set_font_size(cr, HOME_SUBTITLE_FONT_SIZE);
 
@@ -1282,8 +1234,7 @@ public:
     _page_down_button.bounds.pos = base::Point(icon_x, y);
 
     cairo_set_source_surface(cr, _page_down_icon, icon_x, y);
-    if (high_contrast)
-      cairo_set_operator(cr, CAIRO_OPERATOR_XOR);
+    cairo_set_operator(cr, CAIRO_OPERATOR_XOR);
 
     if (current_page == pages)
     {
@@ -1294,15 +1245,11 @@ public:
     }
     else
       cairo_paint(cr);
-    if (high_contrast)
-      cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 
     y -= 6;
 
-    if (high_contrast)
-      cairo_set_source_rgb(cr, 0, 0, 0);
-    else
-      cairo_set_source_rgb(cr, 0x5E / 255.0, 0x5E / 255.0, 0x5E / 255.0);
+    cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_move_to(cr, x, y);
     cairo_show_text(cr, page_string.c_str());
     cairo_stroke(cr);
@@ -1312,8 +1259,7 @@ public:
     _page_up_button.bounds.pos.y = y;
 
     cairo_set_source_surface(cr, _page_up_icon, icon_x, y);
-    if (high_contrast)
-      cairo_set_operator(cr, CAIRO_OPERATOR_XOR);
+    cairo_set_operator(cr, CAIRO_OPERATOR_XOR);
 
     if (current_page == 1)
     {
@@ -1323,18 +1269,16 @@ public:
     else
       cairo_paint_with_alpha(cr, 1);
 
-    if (high_contrast)
-      cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-
+    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
   }
 
   void drawTriangle(cairo_t *cr, int x1, int y1, int x2, int y2, float alpha)
   {
     cairo_set_source_rgba(cr, 255.0, 255.0, 255.0, alpha);
 
-    cairo_move_to(cr, x2, y1 + abs(y2 - y1)/3);
-    cairo_line_to(cr, x1 + abs(x2 - x1)*0.6, y1 + abs(y2 - y1)/2);
-    cairo_line_to(cr, x2, y2 - abs(y2 - y1)/3);
+    cairo_move_to(cr, x2, y1 + abs(y2 - y1) / 3);
+    cairo_line_to(cr, x1 + abs(x2 - x1) * 0.6, y1 + abs(y2 - y1) / 2);
+    cairo_line_to(cr, x2, y2 - abs(y2 - y1) / 3);
     cairo_fill(cr);
   }
 
@@ -1349,11 +1293,7 @@ public:
     cairo_select_font_face(cr, HOME_TITLE_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, HOME_TITLE_FONT_SIZE);
 
-    bool high_contrast = base::Color::is_high_contrast_scheme();
-    if (high_contrast)
-      cairo_set_source_rgb(cr, 0, 0, 0);
-    else
-      cairo_set_source_rgb(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0);
+    cairo_set_source_rgb(cr, 0, 0, 0);
 
     // Shortcuts block.
     int yoffset = SIDEBAR_TOP_PADDING;
@@ -1374,12 +1314,7 @@ public:
         mforms::Utilities::paint_icon(cr, iterator->icon, SIDEBAR_LEFT_PADDING, yoffset, alpha);
 
         if (!iterator->title.empty())
-        {
-          if (high_contrast)
-            cairo_set_source_rgba(cr, 0, 0, 0, alpha);
-          else
-            cairo_set_source_rgba(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0, alpha);
-        }
+          cairo_set_source_rgba(cr, 0, 0, 0, alpha);
 
         if (iterator == _activeEntry) //we need to draw an indicator
           drawTriangle(cr, get_width() - SIDEBAR_RIGHT_PADDING, yoffset, get_width(), yoffset + SIDEBAR_ROW_HEIGHT, alpha);
@@ -1398,7 +1333,7 @@ public:
       if (pages > 1)
       {
         int current_page = (int)ceil(_page_start / (float)_entriesPerPage);
-        draw_paging_part(cr, current_page, pages, high_contrast);
+        draw_paging_part(cr, current_page, pages);
       }
       else
       {
