@@ -42,10 +42,6 @@ DEFAULT_LOG_DOMAIN("GRTManager");
 
 static GThread *main_thread= 0;
 
-//std::map<grt::GRT*,GRTManager*> GRTManager::_instances;
-
-//static base::Mutex _instance_mutex;
-
 static void init_all()
 {
   if (!main_thread)
@@ -73,14 +69,6 @@ GRTManager::GRTManager(bool threaded)
   _terminated= false;
   _idle_blocked= false;
   _clipboard= 0;
-
-  // add self to the mgr instances table asap, because the other objects
-  // may need to call get_instance_for()
-//  {
-//    base::MutexLock _lock(_instance_mutex);
-//    _instances[grt::GRT::get().get()] = this;
-    _grtInstance = grt::GRT::get();
-//  }
 
   _dispatcher = GRTDispatcher::create_dispatcher(_threaded, true);
   _shell = new ShellBE(_dispatcher);
