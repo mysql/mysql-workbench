@@ -676,6 +676,11 @@ inline TreeNodeImpl *from_ref(mforms::TreeNodeRef node)
   return mData[key];
 }
 
+- (id)objectForKeyedSubscript: (id)key
+{
+  return mData[key];
+}
+
 - (NSMutableArray*)createChildrenWithCapacity:(int)count
 {
   NSMutableArray *children = count > 0 ? [NSMutableArray arrayWithCapacity:count] : [NSMutableArray array];
@@ -1023,7 +1028,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
     mAttributedFonts = [[NSMutableDictionary alloc] init];
     mAttributedFonts[@""] = [NSFont systemFontOfSize: [NSFont systemFontSize]];
     NSRect rect;
-    rect.origin= NSMakePoint(0, 0);
+    rect.origin = NSMakePoint(0, 0);
     rect.size= [NSScrollView contentSizeForFrameSize: self.frame.size
                              horizontalScrollerClass: [NSScroller class]
                                verticalScrollerClass: [NSScroller class]
@@ -1467,6 +1472,10 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
       [cell setTextColor: NSColor.controlTextColor];
     }
   }
+
+  // This is a work around to properly apply font + coloring to the cell's text.
+  // We should instead work with attributed strings.
+  [cell setStringValue: [cell stringValue]];
 }
 
 - (void)outlineView:(NSOutlineView *)outlineView setObjectValue:(id)object forTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
@@ -1676,7 +1685,7 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
   mSmallFont = flag;
   mAttributedFonts[@""] = [NSFont systemFontOfSize: [NSFont smallSystemFontSize]];
   if (flag)
-    mOutline.rowHeight = [NSFont smallSystemFontSize]+3;
+    mOutline.rowHeight = [NSFont smallSystemFontSize] + 3;
 }
 
 - (BOOL)frozen
@@ -1757,10 +1766,12 @@ static bool treeview_create(mforms::TreeView *self, mforms::TreeOptions options)
   }
   if (options & mforms::TreeSidebar)
   {
+    /*
     // maintain the row height
     float rowHeight = tree->mOutline.rowHeight;
     [tree setUseSmallFont: YES];
     tree->mOutline.rowHeight = rowHeight;
+     */
     tree->mOutline.focusRingType = NSFocusRingTypeNone;
     [tree setAutohidesScrollers: YES];
   }
