@@ -162,8 +162,7 @@ public:
    * text. Font face and size are set already.
    * Result is the actual button bounds rectangle we can use for hit tests later.
    */
-  base::Rect draw_button(cairo_t *cr, base::Point position, std::string text, bool high_contrast,
-                         bool right_aligned = false)
+  base::Rect draw_button(cairo_t *cr, base::Point position, std::string text, bool right_aligned = false)
   {
     cairo_text_extents_t extents;
     cairo_text_extents(cr, text.c_str(), &extents);
@@ -178,18 +177,12 @@ public:
 
     button_rect.use_inter_pixel = true;
     cairo_rectangle(cr, button_rect.left(), button_rect.top(), button_rect.width(), button_rect.height());
-    if (high_contrast)
     cairo_set_source_rgb(cr, 0, 0, 0);
-    else
-    cairo_set_source_rgb(cr, 0xF6 / 255.0, 0xF6 / 255.0, 0xF6 / 255.0);
     cairo_stroke(cr);
 
     double x = (int)(button_rect.left() + (button_rect.width() - extents.width) / 2.0);
     double y = (int)(button_rect.bottom() - (button_rect.height() - extents.height) / 2.0);
-    if (high_contrast)
     cairo_set_source_rgb(cr, 0, 0, 0);
-    else
-    cairo_set_source_rgb(cr, 0xF3 / 255.0, 0xF3 / 255.0, 0xF3 / 255.0);
     cairo_move_to(cr, x, y);
     cairo_show_text(cr, text.c_str());
     cairo_stroke(cr);
@@ -214,11 +207,7 @@ public:
     cairo_rel_line_to(cr, 0, -_free_area.height());
     cairo_close_path(cr);
 
-    bool high_contrast = base::Color::is_high_contrast_scheme();
-    if (high_contrast)
-      cairo_set_source_rgba(cr, 1, 1, 1, 0.5);
-    else
-      cairo_set_source_rgba(cr, 0, 0, 0, 0.5);
+    cairo_set_source_rgba(cr, 1, 1, 1, 0.5);
     cairo_fill(cr);
 
     // Determine which side of the free area we can show the popup. We use the lower part as long
@@ -242,10 +231,7 @@ public:
       cairo_line_to(cr, right, top + POPUP_HEIGHT);
       cairo_line_to(cr, bounds.left(), top + POPUP_HEIGHT);
 
-      if (high_contrast)
       cairo_set_source_rgb(cr, 1, 1, 1);
-      else
-      cairo_set_source_rgba(cr, 0x1d / 255.0, 0x1d / 255.0, 0x1d / 255.0, 1);
       cairo_fill(cr);
 
       content_bounds.pos.y = tip.y + POPUP_TIP_HEIGHT;
@@ -263,10 +249,7 @@ public:
       cairo_line_to(cr, tip.x - POPUP_TIP_HEIGHT, tip.y - POPUP_TIP_HEIGHT);
       cairo_line_to(cr, bounds.left(), tip.y - POPUP_TIP_HEIGHT);
 
-      if (high_contrast)
       cairo_set_source_rgb(cr, 1, 1, 1);
-      else
-      cairo_set_source_rgb(cr, 0x1d / 255.0, 0x1d / 255.0, 0x1d / 255.0);
       cairo_fill(cr);
 
       content_bounds.pos.y = tip.y - POPUP_TIP_HEIGHT - POPUP_HEIGHT;
@@ -278,10 +261,7 @@ public:
     // The title.
     cairo_select_font_face(cr, HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, HOME_TITLE_FONT_SIZE);
-    if (high_contrast)
-      cairo_set_source_rgb(cr, 0, 0, 0);
-    else
-      cairo_set_source_rgb(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0);
+    cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_move_to(cr, content_bounds.left(), content_bounds.top() + 16);
     cairo_show_text(cr, _connection->name().c_str());
     cairo_stroke(cr);
@@ -293,7 +273,7 @@ public:
 
     // Buttons at the bottom.
     base::Point position = base::Point(content_bounds.left(), content_bounds.bottom() - POPUP_BUTTON_HEIGHT);
-    _button1_rect = draw_button(cr, position, _("Edit Connection..."), high_contrast);
+    _button1_rect = draw_button(cr, position, _("Edit Connection..."));
 
 
     grt::DictRef serverInfo;
@@ -309,34 +289,26 @@ public:
     {
       position.x += _button1_rect.width() + POPUP_BUTTON_SPACING;
       if (is_local_connection(_connection))
-      _button2_rect = draw_button(cr, position, _("Configure Local Management..."), high_contrast);
+      _button2_rect = draw_button(cr, position, _("Configure Local Management..."));
       else
-      _button2_rect = draw_button(cr, position, _("Configure Remote Management..."), high_contrast);
+      _button2_rect = draw_button(cr, position, _("Configure Remote Management..."));
     }
     else
     _button2_rect = base::Rect();
 
 
-    /*
-    position.x += _button2_rect.width() + POPUP_BUTTON_SPACING;
-    _button3_rect = draw_button(cr, position, _("Add to Favorites"), high_contrast);
-    */
     // The last button is right-aligned.
     position.x = right - POPUP_LR_PADDING;
-    _button4_rect = draw_button(cr, position, _("Connect"), high_contrast, true);
+    _button4_rect = draw_button(cr, position, _("Connect"), true);
 
 
     // Finally the close button.
     _close_button_rect = base::Rect(right - image_width(_close_icon) - 10, top + 10, image_width(_close_icon), image_height(_close_icon));
     cairo_set_source_surface(cr, _close_icon, _close_button_rect.left(), _close_button_rect.top());
-    if (high_contrast)
-    {
-      cairo_set_operator(cr, CAIRO_OPERATOR_XOR);
-      cairo_paint(cr);
-      cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-    }
-    else
-      cairo_paint(cr);
+
+    cairo_set_operator(cr, CAIRO_OPERATOR_XOR);
+    cairo_paint(cr);
+    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
   }
 
   //------------------------------------------------------------------------------------------------
@@ -637,20 +609,18 @@ protected:
    * of the image.
    */
   void draw_icon_with_text(cairo_t *cr, double x, double y, cairo_surface_t *icon,
-                                            const std::string &text, double alpha, bool high_contrast)
+                                            const std::string &text, double alpha)
   {
     if (icon)
     {
       mforms::Utilities::paint_icon(cr, icon, x, y);
       x += image_width(icon) + 3;
     }
-    double component = 0xF9 / 255.0;
-    if (high_contrast)
-      component = 1;
+
 #ifdef __APPLE__
-    cairo_set_source_rgba(cr, component, component, component, 0.6 * alpha);
+    cairo_set_source_rgba(cr, 1, 1, 1, 0.6 * alpha);
 #else
-    cairo_set_source_rgba(cr, component, component, component, alpha);
+    cairo_set_source_rgba(cr, 1, 1, 1, alpha);
 #endif
 
     std::vector<std::string> texts = base::split(text, "\n");
@@ -768,8 +738,7 @@ public:
     cairo_paint_with_alpha(cr, image_alpha * alpha);
   }
 
-  virtual void draw_tile(cairo_t *cr, bool hot, double alpha, bool for_dragging,
-                         bool high_contrast)
+  virtual void draw_tile(cairo_t *cr, bool hot, double alpha, bool for_dragging)
   {
     base::Rect bounds = this->bounds;
     if (for_dragging)
@@ -777,10 +746,7 @@ public:
 
     draw_tile_background(cr, hot, alpha, for_dragging);
 
-    double component = 0xF9 / 255.0;
-    if (high_contrast)
-      component = 1;
-    cairo_set_source_rgba(cr, component, component, component, alpha);
+    cairo_set_source_rgba(cr, 1, 1, 1, alpha);
 
     if (hot && owner->_show_details && draw_info_tab)
     {
@@ -841,12 +807,12 @@ public:
 
     cairo_set_font_size(cr, HOME_SMALL_INFO_FONT_SIZE);
 
-    draw_tile_text(cr, x, y, alpha, high_contrast);
+    draw_tile_text(cr, x, y, alpha);
 
     compute_strings = false;
   }
 
-  virtual void draw_tile_text(cairo_t *cr, double x, double y, double alpha, bool high_contrast)
+  virtual void draw_tile_text(cairo_t *cr, double x, double y, double alpha)
   {
     if (compute_strings)
     {
@@ -860,10 +826,10 @@ public:
     }
 
     y = bounds.top() + 56 - image_height(owner->_user_icon);
-    draw_icon_with_text(cr, x, y, owner->_user_icon, user, alpha, high_contrast);
+    draw_icon_with_text(cr, x, y, owner->_user_icon, user, alpha);
 
     y = bounds.top() + 74 - image_height(owner->_network_icon);
-    draw_icon_with_text(cr, x, y, owner->_network_icon, description, alpha, high_contrast);
+    draw_icon_with_text(cr, x, y, owner->_network_icon, description, alpha);
   }
 
 
@@ -956,15 +922,12 @@ public:
     draw_info_tab = false;
   }
 
-  virtual void draw_tile_text(cairo_t *cr, double x, double y, double alpha, bool high_contrast)
+  virtual void draw_tile_text(cairo_t *cr, double x, double y, double alpha)
   {
-    double component = 0xF9 / 255.0;
-    if (high_contrast)
-      component = 1;
 #ifdef __APPLE__
-    cairo_set_source_rgba(cr, component, component, component, 0.8*alpha);
+    cairo_set_source_rgba(cr, 1, 1, 1, 0.8 * alpha);
 #else
-    cairo_set_source_rgba(cr, component, component, component, alpha);
+    cairo_set_source_rgba(cr, 1, 1, 1, alpha);
 #endif
 
     std::string info = base::to_string(children.size() - 1) + " " + _("Connections");
@@ -1040,8 +1003,7 @@ public:
   /**
    * Separate tile drawing for the special back tile (to return from a folder).
    */
-  virtual void draw_tile(cairo_t *cr, bool hot, double alpha, bool for_dragging,
-                         bool high_contrast)
+  virtual void draw_tile(cairo_t *cr, bool hot, double alpha, bool for_dragging)
   {
     draw_tile_background(cr, hot, alpha, for_dragging);
 
@@ -1215,12 +1177,11 @@ void ConnectionsSection::update_colors()
   _back_tile_bk_color = base::Color::parse("#d9532c");
   _back_tile_bk_color_hl = base::Color::parse("#d97457");
 
-  bool high_contrast = base::Color::is_high_contrast_scheme();
 #ifndef __APPLE__
-  _search_text.set_front_color(high_contrast ? "#000000" : "#FFFFFF");
+  _search_text.set_front_color("#000000");
 #endif
-  _search_text.set_placeholder_color(high_contrast ? "#303030" : "#A0A0A0");
-  _search_text.set_back_color(high_contrast ? "#ffffff" : "#474747");
+  _search_text.set_placeholder_color("#303030");
+  _search_text.set_back_color("#ffffff");
 }
 
 //------------------------------------------------------------------------------------------------
@@ -1437,11 +1398,7 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
   cairo_select_font_face(cr, HOME_TITLE_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
   cairo_set_font_size(cr, HOME_TITLE_FONT_SIZE);
 
-  bool high_contrast = base::Color::is_high_contrast_scheme();
-  if (high_contrast)
-    cairo_set_source_rgb(cr, 0, 0, 0);
-  else
-    cairo_set_source_rgb(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0);
+  cairo_set_source_rgb(cr, 0, 0, 0);
   cairo_move_to(cr, CONNECTIONS_LEFT_PADDING, 45);
 
   ConnectionVector *connections;
@@ -1468,8 +1425,7 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
                                   image_width(_plus_icon), image_height(_plus_icon));
 
   cairo_set_source_surface(cr, _plus_icon, _add_button.bounds.left(), _add_button.bounds.top());
-  if (high_contrast)
-    cairo_set_operator(cr, CAIRO_OPERATOR_XOR);
+  cairo_set_operator(cr, CAIRO_OPERATOR_XOR);
   cairo_paint(cr);
 
   _manage_button.bounds = base::Rect(_add_button.bounds.right() + 10, 45 - image_height(_manage_icon),
@@ -1477,8 +1433,7 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
   cairo_set_source_surface(cr, _manage_icon, _manage_button.bounds.left(), _manage_button.bounds.top());
   cairo_paint(cr);
 
-  if (high_contrast)
-    cairo_set_operator(cr, CAIRO_OPERATOR_OVER); // Restore default operator.
+  cairo_set_operator(cr, CAIRO_OPERATOR_OVER); // Restore default operator.
 
   int row = 0;
   // number of tiles that act as a filler
@@ -1505,13 +1460,9 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
 
             {
               // draw the section title
-              bool high_contrast = base::Color::is_high_contrast_scheme();
               cairo_select_font_face(cr, HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
               cairo_set_font_size(cr, HOME_TILES_TITLE_FONT_SIZE);
-              if (high_contrast)
-                cairo_set_source_rgb(cr, 0, 0, 0);
-              else
-                cairo_set_source_rgb(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0);
+              cairo_set_source_rgb(cr, 0, 0, 0);
               cairo_text_extents(cr, current_section.c_str(), &extents);
               cairo_move_to(cr, CONNECTIONS_LEFT_PADDING,
                 bounds.pos.y - (extents.height + extents.y_bearing) - 4);
@@ -1539,18 +1490,14 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
           int draw_position = (row % 2) + column;
           if (!_active_folder)
             (*connections)[index]->second_color = (draw_position % 2) != 0;
-          (*connections)[index]->draw_tile(cr, draw_hot, 1.0, false, high_contrast);
+          (*connections)[index]->draw_tile(cr, draw_hot, 1.0, false);
 
           // Draw drop indicator.
 
           // This shouldn't be a problem as I don't think there will be more than that many connections.
           if ((ssize_t)index == _drop_index)
           {
-            if (high_contrast)
-              cairo_set_source_rgb(cr, 0, 0, 0);
-            else
-              cairo_set_source_rgb(cr, 1, 1, 1);
-
+            cairo_set_source_rgb(cr, 0, 0, 0);
             if (_drop_position == mforms::DropPositionOn)
             {
               double x = bounds.left() - 4;
@@ -2219,7 +2166,7 @@ bool ConnectionsSection::do_tile_drag(ssize_t index, int x, int y)
     std::shared_ptr<ConnectionEntry> entry = entry_from_index(index);
     if (entry)
     {
-      entry->draw_tile(cr, false, 1, true, false); // There's no drag tile actually in high contrast mode.
+      entry->draw_tile(cr, false, 1, true);
 
       _drag_index = index;
       mforms::DragOperation operation = do_drag_drop(details, entry.get(), TILE_DRAG_FORMAT);
