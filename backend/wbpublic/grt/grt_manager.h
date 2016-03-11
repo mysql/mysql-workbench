@@ -38,10 +38,7 @@ namespace bec {
 
   class Clipboard;
 
-  /** Manages a GRT context and other associated objects useful for a GRT shell and other apps.
-   *
-   * @ingroup begrt
-   */ 
+  // Manages a GRT context and other associated objects useful for a GRT shell and other apps.
   class WBPUBLICBACKEND_PUBLIC_FUNC GRTManager : public base::trackable
   {
   public:
@@ -65,18 +62,10 @@ namespace bec {
     GRTManager& operator=(GRTManager&) = delete;
 
   public:
-    /** Constructor.
-     * 
-     * @param threaded enable threading
-     * @param verbose enable verbose output
-     */ 
-//    GRTManager(bool threaded = true, bool verbose = false);
     static GRTManager& get();
     virtual ~GRTManager();
 
     void setVerbose(bool verbose);
-
-//    static GRTManager *get_instance_for();
 
     void set_basedir(const std::string &path);
     std::string get_basedir() { return _basedir; }
@@ -270,14 +259,9 @@ namespace bec {
 
   private:
     bool _terminated; // true if application termination was requested by the BE or a plugin.
-//    static std::map<grt::GRT*,GRTManager*> _instances;
-
-    std::shared_ptr<grt::GRT> _grtInstance;
 
     grt::ValueRef setup_grt();
-
     void shell_write(const std::string &text);
-
     void task_error_cb(const std::exception &error, const std::string &title);
   };
 
