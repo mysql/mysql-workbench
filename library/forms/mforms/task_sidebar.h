@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -92,8 +92,8 @@ namespace mforms {
 
     virtual void clear_sections() = 0;
     virtual void clear_section(const std::string& section_name) = 0;
-    virtual void set_selection_color (const std::string& color) = 0;
-    virtual void set_selection_color (const mforms::SystemColor color) = 0;
+    virtual void set_selection_color(const std::string& color) = 0;
+    virtual void set_selection_color(const base::SystemColor color) = 0;
 
     virtual int select_entry(const std::string& entry_name) = 0;
     virtual std::string selected_entry() = 0;

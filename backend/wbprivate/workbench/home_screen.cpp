@@ -179,6 +179,7 @@ public:
   const int DOCUMENTS_RIGHT_PADDING = 40;
   const int DOCUMENTS_TOP_PADDING = 64;
   const int DOCUMENTS_VERTICAL_SPACING = 26;
+  const int DOCUMENTS_SPACING = 20;
 
   const int DOCUMENTS_ENTRY_WIDTH = 250; // No spacing horizontally.
   const int DOCUMENTS_ENTRY_HEIGHT = 60;
@@ -541,6 +542,19 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
+  void updateHeight()
+  {
+    int tilesPerRow = (get_width() - DOCUMENTS_LEFT_PADDING - DOCUMENTS_RIGHT_PADDING) / (DOCUMENTS_ENTRY_WIDTH + DOCUMENTS_SPACING);
+
+    if (!_documents.empty() && tilesPerRow > 1)
+    {
+      int height = (_documents.size() / tilesPerRow) * (DOCUMENTS_ENTRY_HEIGHT + DOCUMENTS_VERTICAL_SPACING) + DOCUMENTS_TOP_PADDING;
+      if (height != get_height())
+        set_size(-1, height);
+    }
+  }
+
+  //------------------------------------------------------------------------------------------------
 
   void load_icons()
   {
@@ -1168,14 +1182,6 @@ private:
 
   boost::function <bool (int, int)> _accessible_click_handler;
 
-  HomeAccessibleButton _page_up_button;
-  HomeAccessibleButton _page_down_button;
-
-  ssize_t _page_start;
-  ssize_t _entriesPerPage;
-  cairo_surface_t *_page_down_icon;
-  cairo_surface_t *_page_up_icon;
-
 public:
 
   const int SIDEBAR_LEFT_PADDING = 18;
@@ -1190,87 +1196,20 @@ public:
     _hotEntry = nullptr;
     _activeEntry = nullptr;
     _defaultEntryIcon = mforms::Utilities::load_icon("wb_starter_generic_52.png", true);
-    _page_down_icon = mforms::Utilities::load_icon("wb_tile_page-down.png");
-    _page_up_icon = mforms::Utilities::load_icon("wb_tile_page-up.png");
-
-    _page_start = 0;
 
     _accessible_click_handler = boost::bind(&SidebarSection::mouse_click, this,
       mforms::MouseButtonLeft, _1, _2);
-
-    _page_up_button.name = "Page Up";
-    _page_up_button.default_action = "Move Sidebar Pages Up";
-    _page_up_button.default_handler = _accessible_click_handler;
-    
-    _page_down_button.name = "Page Down";
-    _page_down_button.default_action = "Move Sidebar Pages Down";
-    _page_down_button.default_handler = _accessible_click_handler;
   }
 
   ~SidebarSection()
   {
     delete_surface(_defaultEntryIcon);
-    delete_surface(_page_down_icon);
-    delete_surface(_page_up_icon);
 
     for(auto it : _entries)
       delete it;
   }
 
   //--------------------------------------------------------------------------------------------------
-
-  void draw_paging_part(cairo_t *cr, int current_page, int pages)
-  {
-    cairo_set_font_size(cr, HOME_SUBTITLE_FONT_SIZE);
-
-    std::string page_string = base::strfmt("%d/%d", ++current_page, pages);
-    cairo_text_extents_t extents;
-    cairo_text_extents(cr, page_string.c_str(), &extents);
-
-    _page_down_button.bounds = base::Rect(0, 0, image_width(_page_down_icon), image_height(_page_down_icon));
-    double y = get_height() - _page_down_button.bounds.width() - 6;
-    double x = get_width() - extents.width - 8;
-    double icon_x = x + ceil((extents.width - _page_down_button.bounds.width()) / 2.0) + 1;
-    _page_down_button.bounds.pos = base::Point(icon_x, y);
-
-    cairo_set_source_surface(cr, _page_down_icon, icon_x, y);
-    cairo_set_operator(cr, CAIRO_OPERATOR_XOR);
-
-    if (current_page == pages)
-    {
-      // If we are on the last page then dim the page down button and remove the button
-      // rectangle used for hit tests (so the user can't click it).
-      cairo_paint_with_alpha(cr, 0.5);
-      _page_down_button.bounds = base::Rect();
-    }
-    else
-      cairo_paint(cr);
-    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-
-    y -= 6;
-
-    cairo_set_source_rgb(cr, 0, 0, 0);
-    cairo_move_to(cr, x, y);
-    cairo_show_text(cr, page_string.c_str());
-    cairo_stroke(cr);
-
-    _page_up_button.bounds = base::Rect(icon_x, 0, image_width(_page_up_icon), image_height(_page_up_icon));
-    y -= extents.height + 6 + _page_up_button.bounds.height();
-    _page_up_button.bounds.pos.y = y;
-
-    cairo_set_source_surface(cr, _page_up_icon, icon_x, y);
-    cairo_set_operator(cr, CAIRO_OPERATOR_XOR);
-
-    if (current_page == 1)
-    {
-      cairo_paint_with_alpha(cr, 0.5);
-      _page_up_button.bounds = base::Rect();
-    }
-    else
-      cairo_paint_with_alpha(cr, 1);
-
-    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-  }
 
   void drawTriangle(cairo_t *cr, int x1, int y1, int x2, int y2, float alpha)
   {
@@ -1323,24 +1262,6 @@ public:
         if (yoffset >= height)
           break;
       }
-
-      // See if we need to draw the paging indicator.
-      height -= SIDEBAR_TOP_PADDING;
-      _entriesPerPage = height / (SIDEBAR_ROW_HEIGHT + SIDEBAR_SPACING);
-      if (_entriesPerPage < 1)
-        _entriesPerPage = 1;
-      int pages = (int)ceil(_entries.size() / (float)_entriesPerPage);
-      if (pages > 1)
-      {
-        int current_page = (int)ceil(_page_start / (float)_entriesPerPage);
-        draw_paging_part(cr, current_page, pages);
-      }
-      else
-      {
-        _page_up_button.bounds = base::Rect();
-        _page_down_button.bounds = base::Rect();
-        _page_start = 0; // Size increased to cover the full content.
-      }
     }
   }
 
@@ -1361,9 +1282,8 @@ public:
     size_t row_bottom = row * (SIDEBAR_ROW_HEIGHT + SIDEBAR_SPACING) + SIDEBAR_ROW_HEIGHT;
     if (row_bottom > height)
       return -1; // The last shortcut is dimmed if it goes over the bottom border.
-                               // Take it out from the hit test too.
+                 // Take it out from the hit test too.
 
-    row += _page_start;
     if (row < _entries.size())
       return (int)row;
 
@@ -1476,23 +1396,6 @@ public:
     {
       case mforms::MouseButtonLeft:
         {
-          if (_page_up_button.bounds.contains(x, y))
-          {
-            // Page up clicked. Doesn't happen if we are on the first page already.
-            _page_start -= _entriesPerPage;
-            if (_page_start < 0)
-              _page_start = 0;
-            set_needs_repaint();
-            return true;
-          }
-
-          if (_page_down_button.bounds.contains(x, y))
-          {
-            _page_start += _entriesPerPage;
-            set_needs_repaint();
-            return true;
-          }
-
           if (_hotEntry != nullptr && _hotEntry->canSelect)
           {
             _activeEntry = _hotEntry;
@@ -1551,15 +1454,7 @@ public:
   
   virtual int get_acc_child_count()
   { 
-    int ret_val = 0;
-
-    ret_val += (int)_entries.size();
-
-    // Adds 2 for the paging buttons if shown
-    if (_page_up_button.bounds.width())
-      ret_val += 2;
-
-    return ret_val;
+    return (int)_entries.size();
   }
 
   //------------------------------------------------------------------------------------------------
@@ -1570,11 +1465,6 @@ public:
 
     if (index < (int)_entries.size())
       accessible = _entries[index];
-    else
-    {
-      index -= (int)_entries.size();
-      accessible = index ? &_page_down_button : &_page_up_button;
-    }
 
     return accessible;
   }
@@ -1590,16 +1480,9 @@ public:
   { 
     mforms::Accessible* accessible = NULL;
 
-    if (_page_up_button.bounds.contains(x, y))
-      accessible = &_page_up_button;
-    else if (_page_down_button.bounds.contains(x, y))
-      accessible = &_page_down_button;
-    else
-    {
-      int row = shortcutFromPoint(x, y);
-      if (row != -1)
-        accessible = _entries[row];
-    }
+    int row = shortcutFromPoint(x, y);
+    if (row != -1)
+      accessible = _entries[row];
 
     return accessible;
   }
@@ -1618,7 +1501,6 @@ HomeScreen::HomeScreen(db_mgmt_ManagementRef rdbms)
   _callback = nullptr;
   _user_data = nullptr;
   openMigrationCallback = nullptr;
-
 
   _sidebarSection = new SidebarSection(this);
   _sidebarSection->set_name("Home Shortcuts Section");
@@ -1650,6 +1532,7 @@ HomeScreen::HomeScreen(db_mgmt_ManagementRef rdbms)
 
   _sidebarSection->addEntry("wb_starter_grt_shell_52.png", [this](){
     _xConnectionsSection->get_parent()->show(true);
+    _xConnectionsSection->updateHeight();
     _connection_section->get_parent()->show(false);
     _document_section->get_parent()->show(false);
   }, true);
@@ -1657,19 +1540,20 @@ HomeScreen::HomeScreen(db_mgmt_ManagementRef rdbms)
   _sidebarSection->addEntry("wb_starter_mysql_bug_reporter_52.png", [this]() {
     _xConnectionsSection->get_parent()->show(false);
     _connection_section->get_parent()->show(true);
+    _connection_section->updateHeight();
     _document_section->get_parent()->show(false);
   }, true);
 
   _sidebarSection->addEntry("wb_starter_mysql_wb_blog_52.png", [this]() {
     _xConnectionsSection->get_parent()->show(false);
-        _connection_section->get_parent()->show(false);
-        _document_section->get_parent()->show(true);
-
+    _connection_section->get_parent()->show(false);
+    _document_section->get_parent()->show(true);
+    _document_section->updateHeight();
   }, true);
 
   _sidebarSection->addEntry("wb_starter_mysql_migration_52.png", [this]() {
-      if (openMigrationCallback)
-        openMigrationCallback();
+    if (openMigrationCallback)
+      openMigrationCallback();
   }, false);
   
 //  set_menubar(mforms::manage(cmdui->create_menubar_for_context(WB_CONTEXT_HOME_GLOBAL)));
@@ -1822,6 +1706,7 @@ void HomeScreen::on_resize()
   // Resize changes the layout so if there is pending script loading the popup is likely misplaced.
   if (!_pending_script.empty())
     cancel_script_loading();
+
 }
 
 //--------------------------------------------------------------------------------------------------

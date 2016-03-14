@@ -357,9 +357,8 @@ void CodeEditor::setup()
   setup_marker(CE_CURRENT_LINE_MARKER, "editor_current_pos");
 
   // Other settings.
-  Color color = App::get()->get_system_color(mforms::SystemColorHighlight);
-  int rawColor = (int)(255 * color.red) + ((int)(255 * color.green) << 8) +
-    ((int)(255 * color.blue) << 16);
+  Color color = Color::getSystemColor(base::HighlightColor);
+  int rawColor = (int)(255 * color.red) + ((int)(255 * color.green) << 8) + ((int)(255 * color.blue) << 16);
   _code_editor_impl->send_editor(this, SCI_SETSELBACK, 1, rawColor);
   _code_editor_impl->send_editor(this, SCI_SETSELFORE, 1, 0xFFFFFF);
 

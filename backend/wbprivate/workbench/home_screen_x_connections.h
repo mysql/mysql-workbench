@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _HOME_SCREEN_X_CONNECTIONS_H_
-#define _HOME_SCREEN_X_CONNECTIONS_H_
+#pragma once
 
 #include "home_screen.h"
 
@@ -62,23 +61,14 @@ namespace wb
     cairo_surface_t* _user_icon;
     cairo_surface_t* _manage_icon;
 
-    base::Color _tile_bk_color1;
-    base::Color _tile_bk_color2;
-    base::Color _managed_primary_tile_bk_color;
-    base::Color _managed_secondary_tile_bk_color;
-    base::Color _managed_faulty_tile_bk_color;
-    base::Color _managed_spare_tile_bk_color;
-    base::Color _folder_tile_bk_color;
-    base::Color _back_tile_bk_color;
-
-    base::Color _tile_bk_color1_hl;
-    base::Color _tile_bk_color2_hl;
-    base::Color _folder_tile_bk_color_hl;
-    base::Color _managed_primary_tile_bk_color_hl;
-    base::Color _managed_secondary_tile_bk_color_hl;
-    base::Color _managed_faulty_tile_bk_color_hl;
-    base::Color _managed_spare_tile_bk_color_hl;
-    base::Color _back_tile_bk_color_hl;
+    base::Color _titleColor;
+    base::Color _folderTitleColor;
+    base::Color _backgroundColor;
+    base::Color _backgroundColorHot;
+    base::Color _folderBackgroundColor;
+    base::Color _folderBackgroundColorHot;
+    base::Color _backTileBackgroundColor;
+    base::Color _backTileBackgroundColorHot;
 
     std::shared_ptr<XFolderEntry> _active_folder;     // The folder entry that is currently active.
     std::string _active_folder_title_before_refresh_start;
@@ -117,8 +107,6 @@ namespace wb
     XConnectionVector &displayed_connections();
 
     void update_colors();
-
-    void updateHeight();
 
     ssize_t calculate_index_from_point(int x, int y);
     std::shared_ptr<XConnectionEntry> entry_from_point(int x, int y, bool &in_details_area);
@@ -187,6 +175,6 @@ namespace wb
     void loadProjects(const dataTypes::ProjectHolder &holder, XConnectionVector &children);
 
     void set_context_menu(mforms::Menu *menu, HomeScreenMenuType type);
+    void updateHeight();
   };
 }
-#endif

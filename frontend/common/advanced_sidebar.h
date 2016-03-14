@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _ADVANCED_SIDEBAR_H_
-#define _ADVANCED_SIDEBAR_H_
+#pragma once
 
 #include "mforms/task_sidebar.h"
 #include "mforms/drawbox.h"
@@ -215,7 +214,7 @@ namespace wb {
     virtual void clear_sections();
     virtual void clear_section(const std::string& section_name);
     virtual void set_selection_color(const std::string& color);
-    virtual void set_selection_color(const mforms::SystemColor color);
+    virtual void set_selection_color(const base::SystemColor color);
     const base::Color& selection_color() const
     {
       return _selection_color;
@@ -296,5 +295,3 @@ namespace wb {
   };
 
 } // namespace wb
-
-#endif // _ADVANCED_SIDEBAR_H_
