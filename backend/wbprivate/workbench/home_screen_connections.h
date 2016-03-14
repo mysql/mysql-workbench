@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _HOME_SCREEN_CONNECTIONS_H_
-#define _HOME_SCREEN_CONNECTIONS_H_
+#pragma once
 
 #include "home_screen.h"
 
@@ -51,44 +50,23 @@ namespace wb
     cairo_surface_t* _mouse_over2_icon;
     cairo_surface_t* _network_icon;
     cairo_surface_t* _ha_filter_icon;
-    cairo_surface_t* _page_down_icon;
-    cairo_surface_t* _page_up_icon;
     cairo_surface_t* _plus_icon;
     cairo_surface_t* _sakila_icon;
     cairo_surface_t* _schema_icon;
     cairo_surface_t* _user_icon;
     cairo_surface_t* _manage_icon;
 
-    base::Color _tile_bk_color1;
-    base::Color _tile_bk_color2;
-    base::Color _managed_primary_tile_bk_color;
-    base::Color _managed_secondary_tile_bk_color;
-    base::Color _managed_faulty_tile_bk_color;
-    base::Color _managed_spare_tile_bk_color;
-    base::Color _folder_tile_bk_color;
-    base::Color _back_tile_bk_color;
+    base::Color _titleColor;
+    base::Color _folderTitleColor;
+    base::Color _backgroundColor;
+    base::Color _backgroundColorHot;
+    base::Color _folderBackgroundColor;
+    base::Color _folderBackgroundColorHot;
+    base::Color _backTileBackgroundColor;
+    base::Color _backTileBackgroundColorHot;
 
-    base::Color _tile_bk_color1_hl;
-    base::Color _tile_bk_color2_hl;
-    base::Color _folder_tile_bk_color_hl;
-    base::Color _managed_primary_tile_bk_color_hl;
-    base::Color _managed_secondary_tile_bk_color_hl;
-    base::Color _managed_faulty_tile_bk_color_hl;
-    base::Color _managed_spare_tile_bk_color_hl;
-    base::Color _back_tile_bk_color_hl;
-
-    ssize_t _page_start;        // Index into the list where root display starts.
     std::shared_ptr<FolderEntry> _active_folder;     // The folder entry that is currently active.
     std::string _active_folder_title_before_refresh_start;
-    // for the paging hack...
-    ssize_t _next_page_start;
-    std::list<ssize_t> _prev_page_start; // a stack of previous page start indexes
-  
-    ssize_t _page_start_backup; // Copy of the current page start when we go into a folder (for restauration).
-    ssize_t _next_page_start_backup;
-    std::list<ssize_t> _prev_page_start_backup; // a stack of previous page start indexes
-
-    ssize_t _entries_per_page;
 
     typedef std::vector<std::shared_ptr<ConnectionEntry> > ConnectionVector;
     typedef ConnectionVector::iterator ConnectionIterator;
@@ -110,8 +88,6 @@ namespace wb
 
     HomeAccessibleButton _add_button;
     HomeAccessibleButton _manage_button;
-    HomeAccessibleButton _page_up_button;
-    HomeAccessibleButton _page_down_button;
 
     base::Rect _info_button_rect;
 
@@ -136,11 +112,7 @@ namespace wb
     base::Rect bounds_for_entry(ssize_t index);
     db_mgmt_ConnectionRef connection_from_index(ssize_t index);
 
-    void draw_paging_part(cairo_t *cr, int current_page, int pages, bool high_contrast);
-
     void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah);
-
-    int calculateHeight();
 
     virtual bool mouse_down(mforms::MouseButton button, int x, int y);
     virtual bool mouse_up(mforms::MouseButton button, int x, int y);
@@ -190,6 +162,7 @@ namespace wb
     ~ConnectionsSection();
     void clear_connections(bool clear_state = true);
     void focus_search_box();
+    void updateHeight();
 
     void add_connection(const db_mgmt_ConnectionRef &connection, const std::string &title,
                         const std::string &description, const std::string &user, const std::string &schema);
@@ -197,4 +170,3 @@ namespace wb
     void set_context_menu(mforms::Menu *menu, HomeScreenMenuType type);
   };
 }
-#endif

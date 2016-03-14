@@ -79,9 +79,6 @@ namespace wb
   {
     ActionNone,
 
-//    ActionShortcut,
-//    ActionRemoveShortcut,
-
     ActionOpenConnectionFromList,
     ActionNewConnection,
     ActionManageConnections,

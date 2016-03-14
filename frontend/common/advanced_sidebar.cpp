@@ -59,13 +59,6 @@ using namespace mforms;
 #endif
 #endif
 
-#if !defined(__APPLE__) && !defined(_WIN32)
-#define BACK_COLOR ""
-#else
-#define BACK_COLOR "#d9e2ef"
-#endif
-
-
 #define SECTION_ENTRY_HEIGHT 20  // Height of a single section entry.
 #define SECTION_ENTRY_SPACING 0  // Vertical distance between two section entries.
 #define SECTION_ENTRY_INDENT 13  // Horizontal distance from the left section border to the entry icon.
@@ -1032,7 +1025,6 @@ bool SimpleSidebar::__init = init_factory_method();
 
 bool SimpleSidebar::init_factory_method()
 {
- // log_debug3("Initializing SimpleSidebar factory method\n");
   register_factory("Simple", &create_instance);
   return true;
 }
@@ -1050,7 +1042,8 @@ SimpleSidebar::SimpleSidebar()
     set_back_color(base::Color::get_application_color_as_string(AppColorPanelContentArea, false));
     break;
   default:
-    set_back_color(BACK_COLOR);
+      Color systemColor = Color::getSystemColor(base::SystemColor::WindowBackgroundColor);
+      set_back_color(systemColor.to_html());
     break;
   }
 }
@@ -1069,7 +1062,6 @@ SimpleSidebar::~SimpleSidebar()
   for (size_t i = 0; i < _sections.size(); i++)
     delete _sections[i];
 }
-
 
 //--------------------------------------------------------------------------------------------------
 
@@ -1096,9 +1088,7 @@ int SimpleSidebar::add_section(const std::string &name, const string& title, mfo
     return result;
 
   SidebarSection* box = new SidebarSection(this, name, title, flags);
-#ifndef __APPLE__
   box->set_back_color(get_back_color());
-#endif
   _sections.push_back(box);
   add(box, false, true);
 
@@ -1278,11 +1268,9 @@ void SimpleSidebar::set_selection_color(const std::string& color)
 
 //--------------------------------------------------------------------------------------------------
 
-void SimpleSidebar::set_selection_color(const mforms::SystemColor color)
+void SimpleSidebar::set_selection_color(const base::SystemColor color)
 {
-  mforms::App* app = mforms::App::get();
-  if (app)
-    set_selection_color(app->get_system_color(color).to_html());
+  set_selection_color(Color::getSystemColor(color).to_html());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1409,24 +1397,24 @@ mforms::TaskSidebar* AdvancedSidebar::create_instance()
  */
 void AdvancedSidebar::setup_schema_tree()
 {
-  std::string background_color; // Empty, to indicate default color.
-  std::string toolbar_background_color = BACK_COLOR;
+  std::string background_color;
   switch (Color::get_active_scheme())
   {
   case base::ColorSchemeHighContrast: // Don't touch the tree back color. We use the one provided by the OS.
-    toolbar_background_color = base::Color::get_application_color_as_string(AppColorPanelToolbar, false);
     break;
 
   case base::ColorSchemeStandardWin7:
   case base::ColorSchemeStandardWin8:
   case base::ColorSchemeStandardWin8Alternate:
     background_color = base::Color::get_application_color_as_string(AppColorPanelContentArea, false);
-    toolbar_background_color = base::Color::get_application_color_as_string(AppColorPanelToolbar, false);
     break;
 
     default:
-      background_color = BACK_COLOR;
+    {
+      Color systemColor = Color::getSystemColor(base::SystemColor::WindowBackgroundColor);
+      background_color = systemColor.to_html();
       break;
+    }
   }
 
   _new_schema_tree.set_name("Schema Tree");
@@ -1452,9 +1440,7 @@ void AdvancedSidebar::setup_schema_tree()
 
   scoped_connect(_tree_context_menu.signal_will_show(),boost::bind(&AdvancedSidebar::on_show_menu, this, _1));
 
-#ifndef __APPLE__
   _schema_search_box.set_back_color(background_color);
-#endif
   _schema_search_box.set_name("schema-search-box");
   _schema_search_box.set_spacing(5);
 #ifdef _WIN32
@@ -1483,9 +1469,7 @@ void AdvancedSidebar::setup_schema_tree()
   scoped_connect(_remote_search.signal_clicked(), boost::bind(&AdvancedSidebar::on_remote_search_clicked, this));
 
   // Add the tree itself and its section caption to the container.
-#ifndef __APPLE__
   _schema_box.set_back_color(background_color);
-#endif
   _schema_box.add(&_schema_search_box, false, true);
   _schema_box.add(&_new_schema_tree, true, true);
   _schema_box.show(false);
@@ -1500,7 +1484,7 @@ void AdvancedSidebar::handle_notification(const std::string &name, void *sender,
   if (name == "GNColorsChanged")
   {
     std::string background_color; // Empty to indicate default color.
-    std::string toolbar_background_color = BACK_COLOR;
+    std::string toolbar_background_color;
     switch (Color::get_active_scheme())
     {
     case base::ColorSchemeHighContrast:
@@ -1515,17 +1499,17 @@ void AdvancedSidebar::handle_notification(const std::string &name, void *sender,
       break;
 
       default:
-        background_color = BACK_COLOR;
+        Color systemColor = Color::getSystemColor(base::SystemColor::WindowBackgroundColor);
+        background_color = systemColor.to_html();
         break;
     }
 
-#ifndef __APPLE__
     _new_schema_tree.set_back_color(background_color);
+#ifndef __APPLE__
     _filtered_schema_tree.set_back_color(background_color);
     _schema_box.set_back_color(background_color);
-
-    _schema_search_box.set_back_color(toolbar_background_color);
 #endif
+    _schema_search_box.set_back_color(toolbar_background_color);
   }
 }
 

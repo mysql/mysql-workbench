@@ -306,9 +306,7 @@ public:
     _close_button_rect = base::Rect(right - image_width(_close_icon) - 10, top + 10, image_width(_close_icon), image_height(_close_icon));
     cairo_set_source_surface(cr, _close_icon, _close_button_rect.left(), _close_button_rect.top());
 
-    cairo_set_operator(cr, CAIRO_OPERATOR_XOR);
     cairo_paint(cr);
-    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
   }
 
   //------------------------------------------------------------------------------------------------
@@ -553,11 +551,14 @@ public:
 
 
 //----------------- ConnectionsSection -------------------------------------------------------------
+
 class wb::ConnectionEntry: mforms::Accessible
 {
   friend class ConnectionsSection;
+  
 public:
   db_mgmt_ConnectionRef connection;
+
 protected:
   ConnectionsSection *owner;
 
@@ -566,7 +567,6 @@ protected:
   std::string user;
   std::string schema;
   bool compute_strings; // True after creation to indicate the need to compute the final display strings.
-  bool second_color;    // Cache flag for checkboard position, to ease creating a drag image.
   bool draw_info_tab;
 
   // For filtering we need the full strings.
@@ -617,11 +617,7 @@ protected:
       x += image_width(icon) + 3;
     }
 
-#ifdef __APPLE__
-    cairo_set_source_rgba(cr, 1, 1, 1, 0.6 * alpha);
-#else
-    cairo_set_source_rgba(cr, 1, 1, 1, alpha);
-#endif
+    cairo_set_source_rgba(cr, 51 / 255.0, 51 / 255.0, 51 / 255.0, alpha);
 
     std::vector<std::string> texts = base::split(text, "\n");
 
@@ -646,7 +642,7 @@ public:
   };
 
   ConnectionEntry(ConnectionsSection *aowner)
-  : owner(aowner), compute_strings(false), second_color(false)
+  : owner(aowner), compute_strings(false)
   {
     draw_info_tab = true;
   }
@@ -661,15 +657,14 @@ public:
     return true;
   }
 
-  virtual base::Color get_current_color(bool hot)
+  virtual base::Color getTitleColor()
   {
-#ifndef __APPLE__
-    if (second_color)
-      return hot ? owner->_tile_bk_color2_hl : owner->_tile_bk_color2;
-    else
-#endif
-      // No checker board for Mac.
-      return hot ? owner->_tile_bk_color1_hl : owner->_tile_bk_color1;
+    return owner->_titleColor;
+  }
+
+  virtual base::Color getBackgroundColor(bool hot)
+  {
+    return hot ? owner->_backgroundColorHot : owner->_backgroundColor;
   }
 
   virtual cairo_surface_t *get_background_icon()
@@ -679,54 +674,25 @@ public:
 
   void draw_tile_background(cairo_t *cr, bool hot, double alpha, bool for_dragging)
   {
-    base::Color current_color = get_current_color(hot);
+    base::Color backColor = getBackgroundColor(hot);
 
     base::Rect bounds = this->bounds;
     if (for_dragging)
       bounds.pos = base::Point(0, 0);
 
-#ifdef __APPLE__
-    cairo_new_sub_path(cr);
-
-    double radius = 8;
-    double degrees = M_PI / 180.0;
-
-    bounds.use_inter_pixel = false;
-    cairo_arc(cr, bounds.left() + bounds.width() - radius, bounds.top() + radius, radius, -90 * degrees, 0 * degrees);
-    cairo_arc(cr, bounds.left() + bounds.width() - radius, bounds.top() + this->bounds.height() - radius, radius, 0 * degrees, 90 * degrees);
-    cairo_arc(cr, bounds.left() + radius, bounds.top() + bounds.height() - radius, radius, 90 * degrees, 180 * degrees);
-    cairo_arc(cr, bounds.left() + radius, bounds.top() + radius, radius, 180 * degrees, 270 * degrees);
-    cairo_close_path(cr);
-    cairo_set_source_rgba(cr, current_color.red, current_color.green, current_color.blue, alpha);
-    cairo_fill(cr);
-
-    // Border.
-    bounds.use_inter_pixel = true;
-    cairo_arc(cr, -2 + bounds.right() - radius, 1 + bounds.top() + radius, radius, -90 * degrees, 0 * degrees);
-    cairo_arc(cr, -2 + bounds.right() - radius, -2 + bounds.bottom() - radius, radius, 0 * degrees, 90 * degrees);
-    cairo_arc(cr, 1 + bounds.left() + radius, -2 + bounds.bottom() - radius, radius, 90 * degrees, 180 * degrees);
-    cairo_arc(cr, 1 + bounds.left() + radius, 1 + bounds.top() + radius, radius, 180 * degrees, 270 * degrees);
-    cairo_close_path(cr);
-    cairo_set_source_rgba(cr, 1, 1, 1, 0.19 * alpha);
-    cairo_set_line_width(cr, 3);
-    cairo_stroke(cr);
-
-    float image_alpha = 0.3;
-#else
     bounds.use_inter_pixel = false;
     cairo_rectangle(cr, bounds.left(), bounds.top(), bounds.width(), bounds.height());
-    cairo_set_source_rgba(cr, current_color.red, current_color.green, current_color.blue, alpha);
+    cairo_set_source_rgba(cr, backColor.red, backColor.green, backColor.blue, alpha);
     cairo_fill(cr);
 
     // Border.
     bounds.use_inter_pixel = true;
     cairo_rectangle(cr, bounds.left(), bounds.top(), bounds.width() - 1, bounds.height() - 1);
-    cairo_set_source_rgba(cr, 1, 1, 1, 0.125 * alpha);
+    cairo_set_source_rgba(cr, backColor.red - 0.05, backColor.green - 0.05, backColor.blue - 0.05, alpha);
     cairo_set_line_width(cr, 1);
     cairo_stroke(cr);
 
-    float image_alpha = 1;
-#endif
+    float image_alpha = 0.25;
 
     // Background icon.
     bounds.use_inter_pixel = false;
@@ -740,13 +706,14 @@ public:
 
   virtual void draw_tile(cairo_t *cr, bool hot, double alpha, bool for_dragging)
   {
+    base::Color titleColor = getTitleColor();
     base::Rect bounds = this->bounds;
     if (for_dragging)
       bounds.pos = base::Point(0, 0);
 
     draw_tile_background(cr, hot, alpha, for_dragging);
 
-    cairo_set_source_rgba(cr, 1, 1, 1, alpha);
+    cairo_set_source_rgba(cr, titleColor.red, titleColor.green, titleColor.blue, alpha);
 
     if (hot && owner->_show_details && draw_info_tab)
     {
@@ -781,15 +748,15 @@ public:
       // On first render compute the actual string to show. We only need to do this once
       // as neither the available space changes nor is the entry manipulated.
 
-      // we try to shrink titles at the middle, if there's a : in it we assume it's a port number
-      // and thus, we shrink everything before the :
+      // We try to shrink titles at the middle, if there's a colon in it we assume it's a port number
+      // and thus, we shrink everything before the colon.
       if (title.find(':') != std::string::npos)
       {
         double available_width = bounds.width() - 21;
         std::string left, right;
         cairo_text_extents_t extents;
         base::partition(title, ":", left, right);
-        right = ":"+right;
+        right = ":" + right;
         cairo_text_extents(cr, right.c_str(), &extents);
         available_width -= extents.width;
         title = mforms::Utilities::shorten_string(cr, left, available_width)+right;
@@ -908,7 +875,7 @@ public:
 class wb::FolderEntry : public ConnectionEntry
 {
 protected:
-  virtual std::string get_acc_name()
+  virtual std::string get_acc_name() override
   {
     return base::strfmt("%s %s", title.c_str(), _("Connection Group"));
   }
@@ -922,13 +889,10 @@ public:
     draw_info_tab = false;
   }
 
-  virtual void draw_tile_text(cairo_t *cr, double x, double y, double alpha)
+  virtual void draw_tile_text(cairo_t *cr, double x, double y, double alpha) override
   {
-#ifdef __APPLE__
-    cairo_set_source_rgba(cr, 1, 1, 1, 0.8 * alpha);
-#else
-    cairo_set_source_rgba(cr, 1, 1, 1, alpha);
-#endif
+    base::Color titleColor = getTitleColor();
+    cairo_set_source_rgba(cr, titleColor.red, titleColor.green, titleColor.blue, titleColor.alpha);
 
     std::string info = base::to_string(children.size() - 1) + " " + _("Connections");
     y = bounds.top() + 55;
@@ -937,12 +901,12 @@ public:
     cairo_stroke(cr);
   }
 
-  virtual mforms::Menu *context_menu()
+  virtual mforms::Menu *context_menu() override
   {
     return owner->_folder_context_menu;
   }
 
-  virtual void menu_open(ItemPosition pos)
+  virtual void menu_open(ItemPosition pos) override
   {
     mforms::Menu *menu = context_menu();
 
@@ -952,24 +916,29 @@ public:
     menu->set_item_enabled(menu->get_item_index("move_connection_to_end"), pos != Last);
   }
 
-  virtual void activate(std::shared_ptr<ConnectionEntry> thisptr, int x, int y)
+  virtual void activate(std::shared_ptr<ConnectionEntry> thisptr, int x, int y) override
   {
     owner->change_to_folder(std::dynamic_pointer_cast<FolderEntry>(thisptr));
     // force a refresh of the hot_entry even if we don't move the mouse after clicking
     owner->mouse_move(mforms::MouseButtonNone, x, y);
   }
 
-  virtual base::Color get_current_color(bool hot)
+  virtual base::Color getTitleColor() override
   {
-    return hot ? owner->_folder_tile_bk_color_hl : owner->_folder_tile_bk_color;
+    return owner->_folderTitleColor;
   }
 
-  virtual cairo_surface_t *get_background_icon()
+  virtual base::Color getBackgroundColor(bool hot) override
+  {
+    return hot ? owner->_folderBackgroundColorHot : owner->_folderBackgroundColor;
+  }
+
+  virtual cairo_surface_t *get_background_icon() override
   {
     return owner->_folder_icon;
   }
 
-  virtual wb::ConnectionInfoPopup *show_info_popup()
+  virtual wb::ConnectionInfoPopup *show_info_popup() override
   {
     return NULL;
   }
@@ -985,17 +954,22 @@ public:
     title = "< back";
   }
 
-  virtual bool is_movable()
+  virtual bool is_movable() override
   {
     return false;
   }
 
-  virtual base::Color get_current_color(bool hot)
+  virtual base::Color getTitleColor() override
   {
-    return hot ? owner->_back_tile_bk_color_hl : owner->_back_tile_bk_color;
+    return owner->_folderTitleColor;
   }
 
-  virtual cairo_surface_t *get_background_icon()
+  virtual base::Color getBackgroundColor(bool hot) override
+  {
+    return hot ? owner->_backTileBackgroundColorHot : owner->_backTileBackgroundColor;
+  }
+  
+  virtual cairo_surface_t *get_background_icon() override
   {
     return owner->_folder_icon;
   }
@@ -1003,7 +977,7 @@ public:
   /**
    * Separate tile drawing for the special back tile (to return from a folder).
    */
-  virtual void draw_tile(cairo_t *cr, bool hot, double alpha, bool for_dragging)
+  virtual void draw_tile(cairo_t *cr, bool hot, double alpha, bool for_dragging) override
   {
     draw_tile_background(cr, hot, alpha, for_dragging);
 
@@ -1011,28 +985,29 @@ public:
     double x = bounds.left() + 10;
     double y = bounds.top() + 27;
     cairo_set_font_size(cr, HOME_TILES_TITLE_FONT_SIZE);
-    cairo_set_source_rgb(cr, 0xF9 / 255.0, 0xF9 / 255.0, 0xF9 / 255.0);
+    base::Color titleColor = getTitleColor();
+    cairo_set_source_rgba(cr, titleColor.red, titleColor.green, titleColor.blue, titleColor.alpha);
 
     cairo_move_to(cr, x, y);
     cairo_show_text(cr, _("< back"));
     cairo_stroke(cr);
   }
 
-  virtual mforms::Menu *context_menu()
+  virtual mforms::Menu *context_menu() override
   {
     return NULL;
   }
 
-  virtual void menu_open(ItemPosition pos)
+  virtual void menu_open(ItemPosition pos) override
   {
   }
 
-  virtual wb::ConnectionInfoPopup *show_info_popup()
+  virtual wb::ConnectionInfoPopup *show_info_popup() override
   {
     return NULL;
   }
 
-  virtual void activate(std::shared_ptr<ConnectionEntry> thisptr, int x, int y)
+  virtual void activate(std::shared_ptr<ConnectionEntry> thisptr, int x, int y) override
   {
     owner->change_to_folder(std::shared_ptr<FolderEntry>());
     // force a refresh of the hot_entry even if we don't move the mouse after clicking
@@ -1145,37 +1120,14 @@ ConnectionsSection::~ConnectionsSection()
 
 void ConnectionsSection::update_colors()
 {
-#ifdef __APPLE__
-  _tile_bk_color1 = base::Color::parse("#1e1e1e");
-  _tile_bk_color1_hl = base::Color::parse("#3f3f3f");
-#else
-  _tile_bk_color1 = base::Color::parse("#666666");
-  _tile_bk_color1_hl = base::Color::parse("#838383");
-#endif
-
-  _tile_bk_color2 = base::Color::parse("#868686");
-  _tile_bk_color2_hl = base::Color::parse("#9b9b9b");
-
-#ifdef __APPLE__
-  _folder_tile_bk_color = base::Color::parse("#3477a6");
-  _folder_tile_bk_color_hl = base::Color::parse("#4699b8");
-#else
-  _folder_tile_bk_color = base::Color::parse("#178ec5");
-  _folder_tile_bk_color_hl = base::Color::parse("#63a6c5");
-#endif
-
-  _managed_primary_tile_bk_color = base::Color::parse("#13ae9e");
-  _managed_primary_tile_bk_color_hl = base::Color::parse("#33cebe");
-  _managed_secondary_tile_bk_color = base::Color::parse("#13b094");
-  _managed_secondary_tile_bk_color_hl = base::Color::parse("#33d0b4");
-
-  _managed_faulty_tile_bk_color = base::Color::parse("#e73414");
-  _managed_faulty_tile_bk_color_hl = base::Color::parse("#ee5a40");
-  _managed_spare_tile_bk_color = base::Color::parse("#8a8a8a");
-  _managed_spare_tile_bk_color_hl = base::Color::parse("#9a9a9a");
-
-  _back_tile_bk_color = base::Color::parse("#d9532c");
-  _back_tile_bk_color_hl = base::Color::parse("#d97457");
+  _titleColor = base::Color::parse("#505050");
+  _folderTitleColor = base::Color::parse("#F0F0F0");
+  _backgroundColor = base::Color::parse("#F4F4F4");
+  _backgroundColorHot = base::Color::parse("#D5D5D5");
+  _folderBackgroundColor = base::Color::parse("#3477a6");
+  _folderBackgroundColorHot = base::Color::parse("#4699b8");
+  _backTileBackgroundColor = base::Color::parse("#d9532c");
+  _backTileBackgroundColorHot = base::Color::parse("#d97457");
 
 #ifndef __APPLE__
   _search_text.set_front_color("#000000");
@@ -1389,8 +1341,6 @@ db_mgmt_ConnectionRef ConnectionsSection::connection_from_index(ssize_t index)
 
 void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, int areah)
 {
-  updateHeight();
-
   int width = get_width() - CONNECTIONS_LEFT_PADDING - CONNECTIONS_RIGHT_PADDING;
 
   int tiles_per_row = width / (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
@@ -1398,7 +1348,7 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
   cairo_select_font_face(cr, HOME_TITLE_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
   cairo_set_font_size(cr, HOME_TITLE_FONT_SIZE);
 
-  cairo_set_source_rgb(cr, 0, 0, 0);
+  cairo_set_source_rgb(cr, 49 / 255.0, 49 / 255.0, 49 / 255.0);
   cairo_move_to(cr, CONNECTIONS_LEFT_PADDING, 45);
 
   ConnectionVector *connections;
@@ -1425,15 +1375,12 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
                                   image_width(_plus_icon), image_height(_plus_icon));
 
   cairo_set_source_surface(cr, _plus_icon, _add_button.bounds.left(), _add_button.bounds.top());
-  cairo_set_operator(cr, CAIRO_OPERATOR_XOR);
   cairo_paint(cr);
 
   _manage_button.bounds = base::Rect(_add_button.bounds.right() + 10, 45 - image_height(_manage_icon),
                                      image_width(_manage_icon), image_height(_manage_icon));
   cairo_set_source_surface(cr, _manage_icon, _manage_button.bounds.left(), _manage_button.bounds.top());
   cairo_paint(cr);
-
-  cairo_set_operator(cr, CAIRO_OPERATOR_OVER); // Restore default operator.
 
   int row = 0;
   // number of tiles that act as a filler
@@ -1450,76 +1397,64 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
     bounds.pos.x = CONNECTIONS_LEFT_PADDING;
     for (int column = 0; column < tiles_per_row; column++)
     {
+      std::string section = (*connections)[index]->section_name();
+      if (!section.empty() && current_section != section)
+      {
+        current_section = section;
+        bounds.pos.y += HOME_TILES_TITLE_FONT_SIZE + CONNECTIONS_SPACING;
 
+        // draw the section title
+        cairo_select_font_face(cr, HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+        cairo_set_font_size(cr, HOME_TILES_TITLE_FONT_SIZE);
+        cairo_set_source_rgb(cr, 59 / 255.0, 59 / 255.0, 59 / 255.0);
+        cairo_text_extents(cr, current_section.c_str(), &extents);
+        cairo_move_to(cr, CONNECTIONS_LEFT_PADDING, bounds.pos.y - (extents.height + extents.y_bearing) - 4);
+        cairo_show_text(cr, current_section.c_str());
+      }
+
+      // if the name of the next section is different, then we add some filler space after this tile
+      if (!current_section.empty() && (size_t)index < (*connections).size() - 1 &&
+          (*connections)[index + 1]->section_name() != current_section)
+      {
+        int tiles_occupied = tiles_per_row - column;
+        filler_tiles += tiles_occupied;
+        column += (tiles_occupied - 1);
+      }
+
+      // Updates the bounds on the tile
+      (*connections)[index]->bounds = bounds;
+
+      bool draw_hot = (*connections)[index] == _hot_entry;
+      (*connections)[index]->draw_tile(cr, draw_hot, 1.0, false);
+
+      // Draw drop indicator.
+
+      // This shouldn't be a problem as I don't think there will be more than that many connections.
+      if ((ssize_t)index == _drop_index)
+      {
+        cairo_set_source_rgb(cr, 0, 0, 0);
+        if (_drop_position == mforms::DropPositionOn)
         {
-          std::string section = (*connections)[index]->section_name();
-          if (!section.empty() && current_section != section)
-          {
-            current_section = section;
-            bounds.pos.y += HOME_TILES_TITLE_FONT_SIZE + CONNECTIONS_SPACING;
-
-            {
-              // draw the section title
-              cairo_select_font_face(cr, HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-              cairo_set_font_size(cr, HOME_TILES_TITLE_FONT_SIZE);
-              cairo_set_source_rgb(cr, 0, 0, 0);
-              cairo_text_extents(cr, current_section.c_str(), &extents);
-              cairo_move_to(cr, CONNECTIONS_LEFT_PADDING,
-                bounds.pos.y - (extents.height + extents.y_bearing) - 4);
-              cairo_show_text(cr, current_section.c_str());
-            }
-          }
-
-          // if the name of the next section is different, then we add some filler space after this tile
-          if (!current_section.empty() && (size_t)index < (*connections).size() - 1 &&
-            (*connections)[index + 1]->section_name() != current_section)
-          {
-            int tiles_occupied = tiles_per_row - column;
-            filler_tiles += tiles_occupied;
-            column += (tiles_occupied - 1);
-          }
-
-          // Updates the bounds on the tile
-          (*connections)[index]->bounds = bounds;
-
+          double x = bounds.left() - 4;
+          double y = bounds.ycenter();
+          cairo_move_to(cr, x, y - 15);
+          cairo_line_to(cr, x + 15, y);
+          cairo_line_to(cr, x, y + 15);
+          cairo_fill(cr);
         }
-
+        else
         {
-          bool draw_hot = (*connections)[index] == _hot_entry;
-
-          int draw_position = (row % 2) + column;
-          if (!_active_folder)
-            (*connections)[index]->second_color = (draw_position % 2) != 0;
-          (*connections)[index]->draw_tile(cr, draw_hot, 1.0, false);
-
-          // Draw drop indicator.
-
-          // This shouldn't be a problem as I don't think there will be more than that many connections.
-          if ((ssize_t)index == _drop_index)
-          {
-            cairo_set_source_rgb(cr, 0, 0, 0);
-            if (_drop_position == mforms::DropPositionOn)
-            {
-              double x = bounds.left() - 4;
-              double y = bounds.ycenter();
-              cairo_move_to(cr, x, y - 15);
-              cairo_line_to(cr, x + 15, y);
-              cairo_line_to(cr, x, y + 15);
-              cairo_fill(cr);
-            }
-            else
-            {
-              double x = bounds.left() - 4.5;
-              if (_drop_position == mforms::DropPositionRight)
-                x = bounds.right() + 4.5;
-              cairo_move_to(cr, x, bounds.top());
-              cairo_line_to(cr, x, bounds.bottom());
-              cairo_set_line_width(cr, 3);
-              cairo_stroke(cr);
-              cairo_set_line_width(cr, 1);
-            }
-          }
+          double x = bounds.left() - 4.5;
+          if (_drop_position == mforms::DropPositionRight)
+            x = bounds.right() + 4.5;
+          cairo_move_to(cr, x, bounds.top());
+          cairo_line_to(cr, x, bounds.bottom());
+          cairo_set_line_width(cr, 3);
+          cairo_stroke(cr);
+          cairo_set_line_width(cr, 1);
         }
+      }
+
       index++;
       bounds.pos.x += CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING;
       if (index >= connections->size())
@@ -1532,10 +1467,6 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
     row++;
     bounds.pos.y += CONNECTIONS_TILE_HEIGHT + CONNECTIONS_SPACING;
   }
-
-
-
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1576,7 +1507,6 @@ void ConnectionsSection::add_connection(const db_mgmt_ConnectionRef &connection,
   entry->user = user;
   entry->schema = schema;
   entry->compute_strings = true;
-  entry->second_color = false;
 
   entry->search_title = title;
   entry->search_description = description;
@@ -1614,7 +1544,6 @@ void ConnectionsSection::add_connection(const db_mgmt_ConnectionRef &connection,
 
       folder->title = parent_name;
       folder->compute_strings = true;
-      folder->second_color = false;
       folder->search_title = parent_name;
 
       folder->children.push_back(std::shared_ptr<ConnectionEntry>(new FolderBackEntry(this)));
@@ -1629,9 +1558,6 @@ void ConnectionsSection::add_connection(const db_mgmt_ConnectionRef &connection,
   }
   else
     _connections.push_back(entry);
-
-
-  updateHeight();
 
   set_layout_dirty(true);
   set_needs_repaint();
@@ -1704,36 +1630,6 @@ bool ConnectionsSection::mouse_up(mforms::MouseButton button, int x, int y)
 
 bool ConnectionsSection::mouse_double_click(mforms::MouseButton button, int x, int y)
 {
-//  switch (button)
-//  {
-//    case mforms::MouseButtonLeft:
-//    {
-//      // In order to allow quick clicking for page flipping we also handle double clicks for this.
-//      if (_page_up_button.bounds.contains(x, y))
-//      {
-//        if (!_prev_page_start.empty())
-//        {
-//          _page_start = _prev_page_start.back();
-//          _prev_page_start.pop_back();
-//          set_needs_repaint();
-//        }
-//        return true;
-//      }
-//
-//      if (_page_down_button.bounds.contains(x, y))
-//      {
-//        _prev_page_start.push_back(_page_start);
-//        _page_start = _prev_page_start.size() * _entries_per_page;
-//        set_needs_repaint();
-//        return true;
-//      }
-//
-//      break;
-//    }
-//
-//    default: // Silence LLVM.
-//      break;
-//  }
   return false;
 }
 
@@ -1761,26 +1657,6 @@ bool ConnectionsSection::mouse_click(mforms::MouseButton button, int x, int y)
         _owner->trigger_callback(ActionManageConnections, grt::ValueRef());
         return true;
       }
-
-//      if (_page_up_button.bounds.contains(x, y))
-//      {
-//        if (!_prev_page_start.empty())
-//        {
-//          // Page up clicked. Doesn't happen if we are on the first page already.
-//          _page_start = _prev_page_start.back();
-//          _prev_page_start.pop_back();
-//          set_needs_repaint();
-//        }
-//        return true;
-//      }
-//
-//      if (_page_down_button.bounds.contains(x, y))
-//      {
-//        _prev_page_start.push_back(_page_start);
-//        _page_start = _prev_page_start.size() * _entries_per_page;
-//        set_needs_repaint();
-//        return true;
-//      }
 
       if (_hot_entry)
       {
