@@ -29,7 +29,7 @@
 #include "grts/structs.app.h"
 #include "grts/structs.db.mgmt.h"
 #include "grt/plugin_manager.h"
-#include "home_screen.h" // Needed for enums. Remove and forward declare the enums when C++11 is available.
+//#include "home_screen.h" // Needed for enums. Remove and forward declare the enums when C++11 is available.
 
 namespace bec 
 {
