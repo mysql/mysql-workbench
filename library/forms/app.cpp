@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -100,13 +100,6 @@ int App::enter_event_loop(float timeout)
 void App::exit_event_loop(int retcode)
 {
   _app_impl->exit_event_loop(this, retcode);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-Color App::get_system_color(SystemColor type)
-{
-  return _app_impl->get_system_color(type);
 }
 
 //--------------------------------------------------------------------------------------------------

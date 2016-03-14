@@ -1,0 +1,102 @@
+/*
+ * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+
+#include "drawing.h"
+
+using namespace base;
+
+std::string OSConstants::defaultFontName() const
+{
+  NSFont *font = [NSFont systemFontOfSize: 13];
+  NSString *name = font.fontName;
+  return name.UTF8String;
+}
+
+float OSConstants::systemFontSize() const
+{
+  return NSFont.systemFontSize;
+}
+
+float OSConstants::smallSystemFontSize() const
+{
+  return NSFont.smallSystemFontSize;
+}
+
+float OSConstants::labelFontSize() const
+{
+  return NSFont.labelFontSize;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+Color Color::getSystemColor(SystemColor colorType)
+{
+  NSColor *color;
+  switch (colorType)
+  {
+    case ControlShadowColor: color = NSColor.controlShadowColor; break;
+    case ControlDarkShadowColor: color = NSColor.controlDarkShadowColor; break;
+    case ControlColor: color = NSColor.controlColor; break;
+    case ControlHighlightColor: color = NSColor.controlHighlightColor; break;
+    case ControlLightHighlightColor: color = NSColor.controlLightHighlightColor; break;
+    case ControlTextColor: color = NSColor.controlTextColor; break;
+    case ControlBackgroundColor: color = NSColor.controlBackgroundColor; break;
+    case SelectedControlColor: color = NSColor.selectedControlColor; break;
+    case SecondarySelectedControlColor: color = NSColor.secondarySelectedControlColor; break;
+    case SelectedControlTextColor: color = NSColor.selectedControlTextColor; break;
+    case DisabledControlTextColor: color = NSColor.disabledControlTextColor; break;
+    case TextColor: color = NSColor.textColor; break;
+    case TextBackgroundColor: color = NSColor.textBackgroundColor; break;
+    case SelectedTextColor: color = NSColor.selectedTextColor; break;
+    case SelectedTextBackgroundColor: color = NSColor.selectedTextBackgroundColor; break;
+    case GridColor: color = NSColor.gridColor; break;
+
+    case WindowBackgroundColor: color = NSColor.windowBackgroundColor; break;
+    case WindowFrameColor: color = NSColor.windowFrameColor; break;
+    case WindowFrameTextColor: color = NSColor.windowFrameTextColor; break;
+
+    case SelectedMenuItemColor: color = NSColor.selectedMenuItemColor; break;
+    case SelectedMenuItemTextColor: color = NSColor.selectedMenuItemTextColor; break;
+
+    case HighlightColor: color = NSColor.highlightColor; break;
+
+    case HeaderColor: color = NSColor.headerColor; break;
+    case HeaderTextColor: color = NSColor.headerTextColor; break;
+
+    case AlternateSelectedControlColor: color = NSColor.alternateSelectedControlColor; break;
+    case AlternateSelectedControlTextColor: color = NSColor.alternateSelectedControlTextColor; break;
+      break;
+
+    default:
+      color = nil;
+  }
+
+  if (color == nil)
+    return Color();
+
+  // We need to convert the named color to the RGB color space first. For unknown reasons colorUsingColorSpace does not
+  // work here. So we use a CGColor instead.
+  CGColorRef ref = color.CGColor;
+  const CGFloat *components = CGColorGetComponents(ref);
+
+  return Color(components[0], components[1], components[2], components[3]);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+

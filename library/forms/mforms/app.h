@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,16 +27,6 @@
 
 namespace mforms {
 
-  // Known system colors.
-  enum SystemColor
-  {
-    SystemColorHighlight,    // The system-defined color of the background of selected items.
-                             // This includes selected menu items as well as selected text.
-    SystemColorEditor,       // Background color for editor controls.
-    SystemColorDisabled,     // Background color for disabled controls.
-    SystemColorContainer,    // Usually a gray. The default background for container controls. TODO: Linux.
-  };
-
   class App;
   class AppView;
   class View;
@@ -54,8 +44,6 @@ namespace mforms {
     int (*enter_event_loop)(App *app, float max_wait_time);
     void (*exit_event_loop)(App *app, int result);
     
-    base::Color (*get_system_color)(SystemColor type);
-
     float (*backing_scale_factor)(App *app);
   };
 #endif
@@ -108,9 +96,6 @@ namespace mforms {
     /** Exits from enter_event_loop() */
     void exit_event_loop(int retcode);
     
-    // Retrieve system information like predefined colors, screen size, monitor count etc.
-    base::Color get_system_color(SystemColor type);
-
     float backing_scale_factor();
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef SWIG

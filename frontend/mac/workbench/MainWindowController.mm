@@ -1331,34 +1331,6 @@ static void exit_event_loop(mforms::App *app, int retcode)
     controller->_eventLoopRetCode = retcode;
 }
 
-static base::Color get_system_color(mforms::SystemColor color)
-{
-  switch (color)
-  {
-    case mforms::SystemColorHighlight:
-    {
-      NSColor *c = [[NSColor alternateSelectedControlColor] colorUsingColorSpaceName: NSCalibratedRGBColorSpace];
-      return base::Color(c.redComponent, c.greenComponent, c.blueComponent);
-    }
-    case mforms::SystemColorEditor:
-    {
-      NSColor *c = [[NSColor controlBackgroundColor] colorUsingColorSpaceName: NSCalibratedRGBColorSpace];
-      return base::Color(c.redComponent, c.greenComponent, c.blueComponent);
-    }
-    case mforms::SystemColorDisabled:
-    {
-      NSColor *c = [[NSColor controlHighlightColor] colorUsingColorSpaceName: NSCalibratedRGBColorSpace];
-      return base::Color(c.redComponent, c.greenComponent, c.blueComponent);
-    }
-    case mforms::SystemColorContainer:
-    {
-      NSColor *c = [[NSColor colorWithDeviceWhite: 240/255.0 alpha: 1.0] colorUsingColorSpaceName: NSCalibratedRGBColorSpace];
-      return base::Color(c.redComponent, c.greenComponent, c.blueComponent);
-    }
-  }
-  return base::Color::Color(1, 0, 0);
-}
-
 static float backing_scale_factor(mforms::App *app)
 {
   MainWindowController *controller = app->get_data();
@@ -1382,7 +1354,6 @@ void setup_mforms_app(MainWindowController *controller)
   cf->_app_impl.get_application_bounds = get_main_window_bounds;
   cf->_app_impl.enter_event_loop = enter_event_loop;
   cf->_app_impl.exit_event_loop = exit_event_loop;
-  cf->_app_impl.get_system_color = get_system_color;
   cf->_app_impl.backing_scale_factor = backing_scale_factor;
 }
 

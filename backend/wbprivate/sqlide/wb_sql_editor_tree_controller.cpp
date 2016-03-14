@@ -219,7 +219,7 @@ void SqlEditorTreeController::finish_init()
   _schema_side_bar->get_context_menu()->signal_will_show()->connect(boost::bind(&SqlEditorTreeController::context_menu_will_show, this, _1));
   _schema_side_bar->set_schema_model(&_base_schema_tree);
   _schema_side_bar->set_filtered_schema_model(&_filtered_schema_tree);
-  _schema_side_bar->set_selection_color(mforms::SystemColorHighlight);
+  _schema_side_bar->set_selection_color(base::HighlightColor);
 
   int initial_splitter_pos = _grtm->get_app_option_int("DbSqlEditor:SidebarInitialSplitterPos", 500);
   _side_splitter = mforms::manage(new mforms::Splitter(false, true));
