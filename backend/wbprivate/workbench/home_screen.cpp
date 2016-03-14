@@ -1610,7 +1610,7 @@ public:
 
 #include "workbench/wb_command_ui.h"
 
-HomeScreen::HomeScreen(CommandUI *cmdui, db_mgmt_ManagementRef rdbms)
+HomeScreen::HomeScreen(db_mgmt_ManagementRef rdbms)
   : AppView(true, "home", true)
 {
   _rdbms = rdbms;
@@ -1672,7 +1672,7 @@ HomeScreen::HomeScreen(CommandUI *cmdui, db_mgmt_ManagementRef rdbms)
         openMigrationCallback();
   }, false);
   
-  set_menubar(mforms::manage(cmdui->create_menubar_for_context(WB_CONTEXT_HOME_GLOBAL)));
+//  set_menubar(mforms::manage(cmdui->create_menubar_for_context(WB_CONTEXT_HOME_GLOBAL)));
   //_toolbar = mforms::manage(cmdui->create_toolbar(""));
 
   update_colors();
