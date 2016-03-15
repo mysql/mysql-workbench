@@ -33,6 +33,7 @@ public:
 
 TEST_DATA_CONSTRUCTOR(be_shell)
 {
+  bec::GRTManager::get();
   dispatcher = GRTDispatcher::create_dispatcher(false, true);
 }
 
@@ -144,6 +145,11 @@ TEST_FUNCTION(2)
   ensure_equals("snippet", line, "hello world\nsnippet line this");
 
   delete shell;
+}
+
+TEST_FUNCTION(99)
+{
+  dispatcher.reset();
 }
 
 END_TESTS
