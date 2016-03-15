@@ -2572,11 +2572,12 @@ void SqlEditorForm::continue_on_error(bool val)
     return;
 
   _continue_on_error= val;
-  _grtm->set_app_option("DbSqlEditor:ContinueOnError", grt::IntegerRef((int)_continue_on_error));
+  _grtm->set_app_option("DbSqlEditor:ContinueOnError", grt::IntegerRef((int)continue_on_error()));
   
   if (_menu)
-    _menu->set_item_checked("query.stopOnError", !continue_on_error());
-  set_editor_tool_items_checked("query.stopOnError", !continue_on_error());
+    _menu->set_item_checked("query.continueOnError", continue_on_error());
+  set_editor_tool_items_checked("query.continueOnError", continue_on_error());
+  active_sql_editor_panel()->editor_be()->set_continue_on_error(continue_on_error());
 }
 
 

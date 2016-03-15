@@ -945,13 +945,17 @@ void* MySQLEditor::update_error_markers()
 
   d->_error_marker_lines.swap(lines);
 
+  
+  mforms::LineMarkup unmark = _continue_on_error ? mforms::LineMarkupError : mforms::LineMarkupErrorContinue;
+  mforms::LineMarkup mark = _continue_on_error ? mforms::LineMarkupErrorContinue : mforms::LineMarkupError;
+  
   for (std::set<size_t>::const_iterator iterator = removal_candidates.begin();
     iterator != removal_candidates.end(); ++iterator)
-    _code_editor->remove_markup(mforms::LineMarkupError, *iterator);
+    _code_editor->remove_markup(unmark, *iterator);
 
   for (std::set<size_t>::const_iterator iterator = insert_candidates.begin();
     iterator != insert_candidates.end(); ++iterator)
-    _code_editor->show_markup(mforms::LineMarkupError, *iterator);
+    _code_editor->show_markup(mark, *iterator);
 
   return NULL;
 }
@@ -1314,6 +1318,30 @@ void MySQLEditor::register_file_drop_for(mforms::DropDelegate *target)
   std::vector<std::string> formats;
   formats.push_back(mforms::DragFormatFileName);
   _code_editor->register_drop_formats(target, formats);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void MySQLEditor::set_continue_on_error(bool value)
+{
+  _continue_on_error = value;
+  
+  std::vector<size_t> lines;
+
+  mforms::LineMarkup unmark = _continue_on_error ? mforms::LineMarkupError : mforms::LineMarkupErrorContinue;
+  mforms::LineMarkup mark = _continue_on_error ? mforms::LineMarkupErrorContinue : mforms::LineMarkupError;
+  
+  for (size_t i = 0; i < d->_recognition_errors.size(); ++i)
+  {
+    _code_editor->show_indicator(mforms::RangeIndicatorError, d->_recognition_errors[i].position, d->_recognition_errors[i].length);
+    lines.push_back(_code_editor->line_from_position(d->_recognition_errors[i].position));
+  }
+
+  for (std::vector<size_t>::iterator iter = lines.begin(); iter != lines.end(); ++iter)
+  {
+    _code_editor->remove_markup(unmark, *iter);
+    _code_editor->show_markup(mark, *iter);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
