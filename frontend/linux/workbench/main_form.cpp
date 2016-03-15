@@ -51,6 +51,7 @@
 
 #include "base/string_utilities.h"
 #include "base/geometry.h"
+#include "base/drawing.h"
 #include "mforms/../gtk/lf_menubar.h"
 #include "mforms/../gtk/lf_toolbar.h"
 #include "mforms/../gtk/lf_form.h"
@@ -1809,74 +1810,6 @@ void MainForm::set_status_text(mforms::App* app, const std::string &text)
   self->show_status_text_becb(text);
 }
 
-//------------------------------------------------------------------------------
-static base::Color gdk_color_to_mforms(const Gdk::Color& c)
-{
-  return base::Color(c.get_red_p(), c.get_green_p(), c.get_blue_p(), 1);
-}
-
-static base::Color rgba_colot_to_mforms(const Gdk::RGBA& c)
-{
-  return base::Color(c.get_red(), c.get_green(), c.get_blue(), c.get_alpha());
-}
-
-
-//------------------------------------------------------------------------------
-static base::Color get_system_color(mforms::SystemColor type)
-{
-  typedef std::map<mforms::SystemColor, base::Color> Colors;
-  static Colors     colors;
-
-  base::Color ret;
-
-  switch (type)
-  {
-    case mforms::SystemColorHighlight:
-    {
-      Colors::const_iterator it = colors.find(type);
-      if (it != colors.end())
-        ret = it->second;
-      else
-      {
-        base::Color new_color(gdk_color_to_mforms(_sys_selection_color));
-        colors[type] = new_color;
-        ret = new_color;
-      }
-      break;
-    }
-    case mforms::SystemColorEditor:
-    {
-      Colors::const_iterator it = colors.find(type);
-      if (it != colors.end())
-        ret = it->second;
-      else
-      {
-        ret = base::Color(rgba_colot_to_mforms(get_mainwindow()->get_style_context()->get_color(Gtk::STATE_FLAG_NORMAL)));
-        colors[type] = ret;
-      }
-      break;
-
-    }
-    case mforms::SystemColorDisabled:
-    {
-      Colors::const_iterator it = colors.find(type);
-      if (it != colors.end())
-        ret = it->second;
-      else
-      {
-        ret = base::Color(rgba_colot_to_mforms(get_mainwindow()->get_style_context()->get_color(Gtk::STATE_FLAG_INSENSITIVE)));
-        colors[type] = ret;
-      }
-      break;
-    }
-    case mforms::SystemColorContainer:
-      break;
-  }
-
-  return ret;
-}
-
-
 struct EventLoopFrame
 {
   int exit_code;
@@ -1967,7 +1900,6 @@ void MainForm::setup_mforms_app()
   cf->_app_impl.get_application_bounds= &get_main_window_bounds;
   cf->_app_impl.enter_event_loop= &begin_event_loop;
   cf->_app_impl.exit_event_loop= &end_event_loop;
-  cf->_app_impl.get_system_color= &get_system_color;
 }
 
 
