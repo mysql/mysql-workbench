@@ -172,13 +172,9 @@ TEST_FUNCTION(10)
   // check getter
   auto value1 = objRoot.get("colorsArray");
   
-  //no exception shouldbe thrown, only number shloulb be null
-  auto number = value1.getDouble();
-  ensure_true("Retured value should be equal 0", number == 0);
-
   auto jsArray = (const JsonArray&)value1;
   ensure_true("It should be JsonArray and it should contains tree elements", jsArray.size() == 3);
-  for (auto entry : jsonArray)
+  for (auto &entry : jsonArray)
   {
     ensure_true("Array should contains JsonObjects", entry.getType() == VObject);
     auto value2 = (const JsonObject&)entry;
@@ -189,7 +185,7 @@ TEST_FUNCTION(10)
 TEST_FUNCTION(15)
 {
   std::string missingComma = "[1, 2 3]";
-  // test reader with inclomplete JSON
+  // test reader with incomplete JSON
   bool exceptionThrown = false;
   JsonParser::JsonValue value;
   try

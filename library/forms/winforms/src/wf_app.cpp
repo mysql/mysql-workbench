@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,7 +42,7 @@ using namespace MySQL::Forms;
 
 ManagedApplication::ManagedApplication(AppCommandDelegate ^app_command, ManagedDockDelegate ^docking_delegate)
 {
-  base::Logger::log(base::Logger::LogDebug, DOMAIN_MFORMS_WRAPPER, "Creating application wrapper\n");
+  logDebug("Creating application wrapper\n");
 
   dockingDelegate = docking_delegate;
   mforms::App::instantiate(dockingDelegate->get_unmanaged_delegate(), false);
@@ -56,7 +56,7 @@ ManagedApplication::ManagedApplication(AppCommandDelegate ^app_command, ManagedD
 
 ManagedApplication::~ManagedApplication()
 {
-  base::Logger::log(base::Logger::LogDebug, DOMAIN_MFORMS_WRAPPER, "Destroyed backend application wrapper\n");
+  logDebug("Destroyed backend application wrapper\n");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -162,37 +162,6 @@ void AppWrapper::exit_event_loop(mforms::App *app, int ret_code)
 
 //--------------------------------------------------------------------------------------------------
 
-base::Color AppWrapper::get_system_color(mforms::SystemColor type)
-{
-  System::Drawing::Color color;
-  switch (type)
-  {
-  case mforms::SystemColorHighlight:
-      color = System::Drawing::Color::FromKnownColor(KnownColor::Highlight);
-      break;
-  case mforms::SystemColorEditor:
-      color = System::Drawing::Color::FromKnownColor(KnownColor::Window);
-      break;
-  case mforms::SystemColorDisabled:
-      color = System::Drawing::Color::FromKnownColor(KnownColor::ControlLight);
-      break;
-  case mforms::SystemColorContainer:
-    color = System::Drawing::Color::FromKnownColor(KnownColor::Control);
-    break;
-  default:
-#ifdef _DEBUG
-    throw new std::runtime_error("mforms::App: Invalid system color enumeration given.");
-#else
-    log_error("App: Invalid system color enumeration given.\n");
-    return base::Color::Black();
-#endif
-  }
-
-  return Conversions::NativeToColor(color);
-}
-
-//--------------------------------------------------------------------------------------------------
-
 void AppWrapper::init()
 {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
@@ -202,7 +171,6 @@ void AppWrapper::init()
   f->_app_impl.get_application_bounds = &get_application_bounds;
   f->_app_impl.enter_event_loop = &enter_event_loop;
   f->_app_impl.exit_event_loop = &exit_event_loop;
-  f->_app_impl.get_system_color = &get_system_color;
 }
 
 //--------------------------------------------------------------------------------------------------
