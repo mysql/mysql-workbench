@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -165,7 +165,7 @@ mforms::MenuBar *SqlEditorForm::get_menubar()
     _menu->set_item_enabled("query.discard_edits", false);
     _menu->set_item_enabled("query.export", false);
     
-    _menu->set_item_checked("query.stopOnError", !continue_on_error());
+    _menu->set_item_checked("query.continueOnError", continue_on_error());
   }
   return _menu;
 }
@@ -193,7 +193,7 @@ void SqlEditorForm::update_menu_and_toolbar()
     _menu->set_item_enabled("query.explain_current_statement", !running && connected);
     _menu->set_item_enabled("query.commit", !running && !auto_commit() && connected);
     _menu->set_item_enabled("query.rollback", !running && !auto_commit() && connected);
-    _menu->set_item_enabled("query.stopOnError", connected);
+    _menu->set_item_enabled("query.continueOnError", connected);
     mforms::MenuItem *item = _menu->find_item("query.autocommit");
     if (item)
     {
@@ -230,9 +230,9 @@ void SqlEditorForm::update_menu_and_toolbar()
   set_editor_tool_items_enbled("query.commit", !running && !auto_commit() && connected);
   set_editor_tool_items_enbled("query.rollback", !running && !auto_commit() && connected);
   set_editor_tool_items_enbled("query.autocommit", !running && connected);
-  set_editor_tool_items_enbled("query.stopOnError", connected);
+  set_editor_tool_items_enbled("query.continueOnError", connected);
   set_editor_tool_items_checked("query.autocommit", auto_commit());
-  set_editor_tool_items_checked("query.stopOnError", !_continue_on_error);
+  set_editor_tool_items_checked("query.continueOnError", _continue_on_error);
   set_editor_tool_items_checked("query.toggleLimit",  _grtm->get_app_option_int("SqlEditor:LimitRows") != 0);
 }
 

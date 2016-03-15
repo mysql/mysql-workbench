@@ -170,6 +170,8 @@ public:
   void focus();
 
   void register_file_drop_for(mforms::DropDelegate *target);
+  
+  void set_continue_on_error(bool value);
 
 protected:
   MySQLEditor(grt::GRT *grt, parser::ParserContext::Ref syntax_check_context,
@@ -222,4 +224,5 @@ private:
   std::string _current_schema;
 
   std::string _sql_mode;
+  bool _continue_on_error;
 };
