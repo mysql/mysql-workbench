@@ -431,6 +431,7 @@ SqlEditorPanel* SqlEditorForm::add_sql_editor(bool scratch, bool start_collapsed
 {
   SqlEditorPanel* editor(mforms::manage(new SqlEditorPanel(this, scratch, start_collapsed)));
   editor->editor_be()->register_file_drop_for(this);
+  editor->editor_be()->set_continue_on_error(continue_on_error());
 
   editor->grtobj()->owner(grtobj());
   grtobj()->queryEditors().insert(editor->grtobj());

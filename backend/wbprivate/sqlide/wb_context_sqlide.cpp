@@ -832,7 +832,7 @@ void WBContextSQLIDE::init()
 
   cmdui->add_builtin_command("query.reconnect", boost::bind(call_reconnect, this));
 
-  cmdui->add_builtin_command("query.stopOnError", boost::bind(call_continue_on_error, this));
+  cmdui->add_builtin_command("query.continueOnError", boost::bind(call_continue_on_error, this));
 
   cmdui->add_builtin_command("query.jump_to_placeholder", boost::bind(&WBContextSQLIDE::call_in_editor_panel, this, &SqlEditorPanel::jump_to_placeholder));
   cmdui->add_builtin_command("list-members", boost::bind(&WBContextSQLIDE::call_in_editor_panel, this, &SqlEditorPanel::list_members),
